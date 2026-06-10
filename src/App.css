@@ -1,0 +1,5 @@
+/* Global app styles. Darsliklar o'z stilini ichida olib yuradi (<style>{STYLES}</style>),
+   shuning uchun bu yerda faqat umumiy fon qoladi. */
+#root {
+  min-height: 100vh;
+}

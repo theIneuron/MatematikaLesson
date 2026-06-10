@@ -1,0 +1,83 @@
+.home {
+  min-height: 100vh;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.home__header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.home__title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.home__subtitle {
+  font-size: 1.05rem;
+  color: #888;
+  margin: 0.5rem 0 0;
+}
+
+.home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border: 1px solid #e6e3dd;
+  border-radius: 16px;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.lesson-card:hover {
+  transform: translateY(-3px);
+  border-color: #ff4f28;
+  box-shadow: 0 10px 30px rgba(58, 53, 48, 0.1);
+}
+
+.lesson-card__num {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  color: #a7a6a2;
+}
+
+.lesson-card__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.lesson-card__desc {
+  font-size: 0.95rem;
+  color: #5a5a60;
+  margin: 0;
+  flex: 1;
+}
+
+.lesson-card__cta {
+  margin-top: 0.5rem;
+  font-weight: 600;
+  color: #ff4f28;
+  font-size: 0.95rem;
+}
+
+.home__footer {
+  text-align: center;
+  margin-top: 2.5rem;
+  color: #a7a6a2;
+  font-size: 0.9rem;
+}
