@@ -679,7 +679,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <div className="fade-up">{question}</div>
         <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {options.map((opt, i) => {
@@ -695,7 +695,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
                   {String.fromCharCode(65 + i)}
                 </span>
@@ -759,7 +759,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <div className="fade-up"><h2 className="title h-sub">{t(c.question)}</h2></div>
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -787,11 +787,11 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- ПОД УРОК: frac_5_01 ---
+// --- ПОД УРОК: frac_5_02 — Дробь на числовой прямой ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-01-v1',
-  lessonTitle: { ru: 'Что такое дробь (часть целого)', uz: "Kasr nima (butunning qismi)" }
+  lessonId: 'frac-5-02-v1',
+  lessonTitle: { ru: 'Дробь на числовой прямой', uz: "Kasr son o'qida" }
 };
 const TOTAL_SCREENS = 13;
 
@@ -802,7 +802,7 @@ const SCREEN_META = [
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },
-  { id: 's4',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
   { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },
   { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
   { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
@@ -814,254 +814,289 @@ const SCREEN_META = [
 ];
 
 const CONTENT = {
-  // ---- s0 HOOK: полоса загрузки 3 из 5, провокация Далера «две цифры» ----
+  // ---- s0 HOOK: Малика хочет отметить 3/4 на линии, Жасур: «это просто кусок, не место» ----
   s0: {
-    eyebrow: { ru: 'Дробь · вступление', uz: "Kasr · kirish" },
-    title: { ru: 'Нодира загружает игру. Заполнено 3 из 5 квадратиков.', uz: "Nodira o'yinni yuklamoqda. Beshdan uch katakcha to'ldi." },
-    body: { ru: 'Далер пожимает плечами: «да тут просто две цифры рядом — 3 и 5, при чём тут одно число?»', uz: "Daler yelka qisadi: «bu yerda shunchaki ikkita raqam — 3 va 5, bitta sonning nima aloqasi bor?»" },
-    question: { ru: 'А ты как думаешь: 3 из 5 — это одно число или две отдельные цифры?', uz: "Sizningcha-chi: beshdan uch — bu bitta sonmi yoki ikkita alohida raqammi?" },
-    opt0: { ru: 'Одно число — это часть всей полосы', uz: "Bitta son — butun chiziqning bir qismi" },
-    opt1: { ru: 'Две отдельные цифры, 3 и 5', uz: "Ikkita alohida raqam, 3 va 5" },
+    eyebrow: { ru: 'Дробь на прямой · вступление', uz: "Kasr o'qda · kirish" },
+    title: { ru: 'Малика чертит линейку от 0 до 1 и хочет отметить на ней три четвёртых.', uz: "Malika 0 dan 1 gacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi." },
+    body: { ru: 'Жасур качает головой: «три четвёртых — это же просто кусок, его нельзя поставить точкой на линии. Это не настоящее число с местом».', uz: "Jasur bosh chayqaydi: «to'rtdan uch — bu shunchaki bir bo'lak-ku, uni chiziqqa nuqta qilib qo'yib bo'lmaydi. Bu o'z joyi bor haqiqiy son emas»." },
+    question: { ru: 'А ты как думаешь: можно ли поставить три четвёртых одной точкой на линии между 0 и 1?', uz: "Sizningcha-chi: to'rtdan uchni 0 va 1 orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi?" },
+    opt0: { ru: 'Да — у дроби есть своё место на линии', uz: "Ha — kasrning chiziqda o'z joyi bor" },
+    opt1: { ru: 'Нет — дробь это только кусок, а не место', uz: "Yo'q — kasr faqat bo'lak, joy emas" },
     opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Нодира загружает игру. Полоса заполнена на три из пяти. Далер говорит, что это просто две цифры. А ты как думаешь — три из пяти это одно число или две отдельные цифры? Выбери ответ.', uz: "Nodira o'yinni yuklamoqda. Chiziq beshdan uchga to'ldi. Daler buni shunchaki ikkita raqam deydi. Sizningcha, beshdan uch — bu bitta sonmi yoki ikkita alohida raqammi? Javobni tanlang." }
+    audio: { ru: 'Малика чертит линейку от нуля до единицы и хочет отметить на ней три четвёртых. Жасур говорит, что три четвёртых это просто кусок, его нельзя поставить точкой. А ты как думаешь — можно ли поставить три четвёртых одной точкой на линии между нулём и единицей? Выбери ответ.', uz: "Malika noldan birgacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi. Jasur aytadiki, to'rtdan uch shunchaki bo'lak, uni nuqta qilib qo'yib bo'lmaydi. Sizningcha, to'rtdan uchni nol va bir orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi? Javobni tanlang." }
   },
 
-  // ---- s1 EXPLORATION (step-by-step): сборка дроби по шагам ----
+  // ---- s1 EXPLORATION (step-by-step): ставим 3/4 на отрезок 0..1 ----
   s1: {
-    eyebrow: { ru: 'Что такое дробь', uz: "Kasr nima" },
-    title: { ru: 'Соберём дробь по шагам', uz: "Kasrni bosqichma-bosqich yig'amiz" },
-    conclusion: { ru: 'Три пятых — три доли из пяти.', uz: "Beshdan uch — beshta ulushdan uchtasi." },
+    eyebrow: { ru: 'Дробь на прямой', uz: "Kasr o'qda" },
+    title: { ru: 'Поставим 3/4 на линию по шагам', uz: "3/4 ni chiziqqa bosqichma-bosqich qo'yamiz" },
+    conclusion: { ru: 'Три четвёртых — это точка: 3 шага из 4 от нуля.', uz: "To'rtdan uch — bu nuqta: noldan 4 qadamdan 3 tasi." },
     btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно. А как это записать?', uz: "Tushunarli. Buni qanday yozamiz?" },
+    btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?" },
     audio: {
       ru: [
-        'Давай разберём эту полосу по шагам. Нажимай кнопку Дальше.',
-        'Сначала у нас одна целая полоса. Это наше целое.',
-        'Теперь делим целое на пять равных частей. Каждая такая часть называется доля.',
-        'Закрашиваем три доли из пяти. Получается три пятых — три закрашенные доли из пяти равных. Это и есть дробь.'
+        'Поставим три четвёртых на линию по шагам. Нажимай кнопку Дальше.',
+        'Вот отрезок от нуля до единицы. Это наше целое — как и полоса в прошлом уроке, только вытянутая в линию.',
+        'Знаменатель четыре. Значит, делим отрезок от нуля до единицы на четыре равные части. Появились метки: одна четвёртая, две четвёртых, три четвёртых.',
+        'Числитель три. Отсчитываем три шага от нуля и ставим точку. Эта точка и есть три четвёртых — у дроби нашлось своё место на линии.'
       ],
       uz: [
-        "Keling, bu chiziqni bosqichma-bosqich ko'rib chiqamiz. Davom etish tugmasini bosing.",
-        "Avval bizda bitta butun chiziq bor. Bu — bizning butunimiz.",
-        "Endi butunni beshta teng bo'lakka bo'lamiz. Har bir bo'lak ulush deyiladi.",
-        "Beshta ulushdan uchtasini bo'yaymiz. Beshdan uch hosil bo'ladi — beshta teng ulushdan uchtasi bo'yalgan. Mana shu — kasr."
+        "To'rtdan uchni chiziqqa bosqichma-bosqich qo'yamiz. Davom etish tugmasini bosing.",
+        "Mana noldan birgacha kesma. Bu — bizning butunimiz, o'tgan darsdagi chiziqdek, faqat uzunasiga cho'zilgan.",
+        "Maxraj to'rt. Demak, noldan birgacha kesmani to'rtta teng bo'lakka bo'lamiz. Belgilar paydo bo'ldi: to'rtdan bir, to'rtdan ikki, to'rtdan uch.",
+        "Surat uch. Noldan uch qadam sanab, nuqta qo'yamiz. Mana shu nuqta — to'rtdan uch. Kasr chiziqda o'z joyini topdi."
       ]
     }
   },
 
-  // ---- s2 EXPLORATION (slider + tap): собери 3/4 сам ----
+  // ---- s2 EXPLORATION (slider + tap): поставь 2/5 сам ----
   s2: {
-    eyebrow: { ru: 'Собери сам', uz: "O'zing yig'" },
-    title: { ru: 'Собери дробь сам', uz: "Kasrni o'zingiz yig'ing" },
-    intro: { ru: 'Двигай ползунок — меняй число равных долей. Нажимай на доли, чтобы их закрасить.', uz: "Slayderni suring — teng ulushlar sonini o'zgartiring. Ulushlarni bo'yash uchun ularni bosing." },
-    target_text: { ru: 'Цель: собери три четвёртых — 4 равные доли, 3 закрашены.', uz: "Maqsad: to'rtdan uchni yig'ing — 4 ta teng ulush, 3 tasi bo'yalgan." },
-    eyebrow_slider: { ru: 'Равных долей:', uz: "Teng ulushlar:" },
+    eyebrow: { ru: 'Поставь сам', uz: "O'zingiz qo'ying" },
+    title: { ru: 'Поставь дробь на линию сам', uz: "Kasrni chiziqqa o'zingiz qo'ying" },
+    intro: { ru: 'Двигай ползунок — меняй, на сколько равных частей делим отрезок от 0 до 1. Нажми на нужную метку, чтобы поставить точку.', uz: "Slayderni suring — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lishni o'zgartiring. Nuqta qo'yish uchun kerakli belgini bosing." },
+    target_text: { ru: 'Цель: поставь две пятых — раздели на 5 частей и отметь вторую метку от нуля.', uz: "Maqsad: beshdan ikkini qo'ying — 5 ta bo'lakka bo'ling va noldan ikkinchi belgini belgilang." },
+    eyebrow_slider: { ru: 'Равных частей:', uz: "Teng bo'laklar:" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    btn_disabled_label: { ru: 'Сначала собери', uz: "Avval yig'ing" },
+    btn_disabled_label: { ru: 'Сначала поставь', uz: "Avval qo'ying" },
     fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
-    fb_success: { ru: 'Это три четвёртых: целое разделили на 4 равные доли и взяли 3.', uz: "Bu — to'rtdan uch: butun to'rtta teng ulushga bo'lindi va uchtasi olindi." },
+    fb_success: { ru: 'Это две пятых: отрезок поделён на 5 равных частей, точка на второй метке от нуля.', uz: "Bu — beshdan ikki: kesma 5 ta teng bo'lakka bo'lingan, nuqta noldan ikkinchi belgida." },
     fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
-    fb_wrong: { ru: 'Нужно 4 равные доли и 3 закрашенные. Поставь ползунок на 4 и закрась три доли.', uz: "To'rtta teng ulush va uchta bo'yalgan kerak. Slayderni to'rtga qo'ying va uchta ulushni bo'yang." },
-    audio: { ru: 'Собери дробь сам. Двигай ползунок, чтобы выбрать число равных долей, и нажимай на доли, чтобы закрасить. Твоя цель — три четвёртых: четыре равные доли, три закрашены.', uz: "Kasrni o'zingiz yig'ing. Teng ulushlar sonini tanlash uchun slayderni suring va bo'yash uchun ulushlarni bosing. Maqsadingiz — to'rtdan uch: to'rtta teng ulush, uchtasi bo'yalgan." }
+    fb_wrong: { ru: 'Нужно 5 равных частей и точка на второй метке. Поставь ползунок на 5 и нажми вторую метку от нуля.', uz: "5 ta teng bo'lak va ikkinchi belgida nuqta kerak. Slayderni 5 ga qo'ying va noldan ikkinchi belgini bosing." },
+    audio: { ru: 'Поставь дробь на линию сам. Двигай ползунок, чтобы выбрать число равных частей, и нажми на метку, чтобы поставить точку. Твоя цель — две пятых: пять равных частей, точка на второй метке от нуля.', uz: "Kasrni chiziqqa o'zingiz qo'ying. Teng bo'laklar sonini tanlash uchun slayderni suring va nuqta qo'yish uchun belgini bosing. Maqsadingiz — beshdan ikki: beshta teng bo'lak, nuqta noldan ikkinchi belgida." }
   },
 
-  // ---- s3 RULE: числитель / знаменатель, одно число ----
+  // ---- s3 RULE: как поставить дробь на прямую ----
   s3: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Как устроена дробь', uz: "Kasr qanday tuzilgan" },
-    title: { ru: 'Дробь — это одно число, а не две цифры.', uz: "Kasr — bu bitta son, ikkita raqam emas." },
-    card_top: { ru: 'Числитель (сверху) — сколько долей взяли.', uz: "Surat (yuqorida) — nechta ulush olingani." },
-    card_bottom: { ru: 'Знаменатель (снизу) — на сколько равных долей разделили целое.', uz: "Maxraj (pastda) — butun nechta teng ulushga bo'lingani." },
-    card_line: { ru: 'Чёрточка между ними — это дробная черта.', uz: "Ular orasidagi chiziq — kasr chizig'i." },
-    outro: { ru: 'В дроби три пятых: числитель 3, знаменатель 5. Вместе они задают одно число — часть целого.', uz: "Beshdan uch kasrida: surat 3, maxraj 5. Birgalikda ular bitta sonni — butunning qismini bildiradi." },
-    audio: { ru: 'Дробь — это одно число, а не две отдельные цифры. Число сверху называется числитель: оно показывает, сколько равных долей мы взяли. Число снизу называется знаменатель: оно показывает, на сколько равных долей разделили целое. В дроби три пятых числитель три, знаменатель пять.', uz: "Kasr — bu bitta son, ikkita alohida raqam emas. Yuqoridagi son surat deyiladi: u nechta teng ulush olganimizni ko'rsatadi. Pastdagi son maxraj deyiladi: u butunni nechta teng ulushga bo'lganimizni ko'rsatadi. Beshdan uch kasrida surat uch, maxraj besh." }
+    label: { ru: 'Как поставить дробь на прямую', uz: "Kasrni o'qqa qanday qo'yish" },
+    title: { ru: 'Дробь — это число, у него есть место на линии.', uz: "Kasr — bu son, uning chiziqda joyi bor." },
+    card_bottom: { ru: 'Знаменатель — на сколько равных частей делим отрезок от 0 до 1.', uz: "Maxraj — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lamiz." },
+    card_top: { ru: 'Числитель — сколько шагов отсчитываем от нуля.', uz: "Surat — noldan nechta qadam sanaymiz." },
+    card_line: { ru: 'Метка, на которой остановились, — это и есть место дроби.', uz: "To'xtagan belgimiz — kasrning o'sha joyi." },
+    outro: { ru: 'Знаменатель 4 делит отрезок на 4 части, числитель 3 отсчитывает 3 шага — и точка три четвёртых готова.', uz: "Maxraj 4 kesmani 4 bo'lakka bo'ladi, surat 3 esa 3 qadam sanaydi — va to'rtdan uch nuqtasi tayyor." },
+    audio: { ru: 'Чтобы поставить дробь на прямую, смотри на знаменатель и числитель. Знаменатель показывает, на сколько равных частей разделить отрезок от нуля до единицы. Числитель показывает, сколько шагов отсчитать от нуля. Метка, на которой остановились, и есть место дроби. Для трёх четвёртых делим на четыре части и отсчитываем три шага.', uz: "Kasrni o'qqa qo'yish uchun maxraj va suratga qarang. Maxraj noldan birgacha kesmani nechta teng bo'lakka bo'lishni ko'rsatadi. Surat noldan nechta qadam sanashni ko'rsatadi. To'xtagan belgimiz — kasrning joyi. To'rtdan uch uchun to'rt bo'lakka bo'lib, uch qadam sanaymiz." }
   },
 
-  // ---- s4 TEST (input): запиши числитель (3) ----
+  // ---- s4 TEST (MC, дроби): линия 0..1, 5 частей, точка на 3-й → 3/5 (correct idx 1) ----
   s4: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    question: { ru: 'Полоса разделена на 5 равных долей, закрашены 3. Запиши числитель этой дроби.', uz: "Chiziq 5 ta teng ulushga bo'lingan, 3 tasi bo'yalgan. Bu kasrning suratini yozing." },
-    placeholder: { ru: '?', uz: "?" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Числитель — это сколько долей закрашено. Посчитай закрашенные доли.', uz: "Surat — bu nechta ulush bo'yalgani. Bo'yalgan ulushlarni sanang." },
-    fb_correct: { ru: 'Верно: закрашены 3 доли из 5, числитель равен 3. Дробь — три пятых.', uz: "To'g'ri: 5 ulushdan 3 tasi bo'yalgan, surat 3 ga teng. Kasr — beshdan uch." },
+    label: { ru: 'Назови дробь точки', uz: "Nuqtaning kasrini ayting" },
+    question: { ru: 'Отрезок от 0 до 1 разделён на 5 равных частей. Точка стоит на третьей метке от нуля. Какая это дробь?', uz: "0 dan 1 gacha kesma 5 ta teng bo'lakka bo'lingan. Nuqta noldan uchinchi belgida turibdi. Bu qaysi kasr?" },
+    correct_text: { ru: 'Верно: 5 частей — знаменатель 5, точка на 3-м шаге — числитель 3. Это три пятых.', uz: "To'g'ri: 5 bo'lak — maxraj 5, nuqta 3-qadamda — surat 3. Bu beshdan uch." },
+    hint_0: { ru: 'Числитель и знаменатель перепутаны: сверху число шагов (3), снизу число частей (5).', uz: "Surat va maxraj almashgan: yuqorida qadamlar soni (uch), pastda bo'laklar soni (besh)." },
+    hint_2: { ru: 'Снизу — на сколько частей разделён отрезок. Их 5, а не 4.', uz: "Pastda — kesma nechta bo'lakka bo'lingani. Ular beshta, to'rt emas." },
+    hint_3: { ru: 'Сверху — сколько шагов от нуля до точки. Их 3, а не 2.', uz: "Yuqorida — noldan nuqtagacha nechta qadam. Ular uchta, ikki emas." },
+    wrong_default: { ru: 'Знаменатель — число частей (5), числитель — число шагов до точки (3).', uz: "Maxraj — bo'laklar soni (besh), surat — nuqtagacha qadamlar soni (uch)." },
     audio: {
-      intro: { ru: 'Посмотри на полосу: она разделена на пять равных долей, и три из них закрашены. Запиши числитель этой дроби и нажми кнопку Проверить.', uz: "Chiziqqa qarang: u beshta teng ulushga bo'lingan va uchtasi bo'yalgan. Bu kasrning suratini yozing va Tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Закрашены три доли, значит числитель — три. Дробь читается три пятых.', uz: "To'g'ri. Uchta ulush bo'yalgan, demak surat — uch. Kasr beshdan uch deb o'qiladi." },
-      on_wrong: { ru: 'Пока нет. Числитель — это число закрашенных долей. Посчитай их ещё раз.', uz: "Hali emas. Surat — bo'yalgan ulushlar soni. Ularni yana sanang." }
+      intro: { ru: 'Отрезок от нуля до единицы разделён на пять равных частей, точка стоит на третьей метке. Выбери дробь, которая показывает её место.', uz: "Noldan birgacha kesma beshta teng bo'lakka bo'lingan, nuqta uchinchi belgida turibdi. Uning joyini ko'rsatadigan kasrni tanlang." },
+      on_correct: { ru: 'Верно. Пять частей и три шага — это три пятых.', uz: "To'g'ri. Besh bo'lak va uch qadam — bu beshdan uch." },
+      on_wrong: { ru: 'Пока нет. Снизу — на сколько частей разделили, сверху — сколько шагов до точки.', uz: "Hali emas. Pastda — nechta bo'lakka bo'lingani, yuqorida — nuqtagacha nechta qadam." }
     }
   },
 
-  // ---- s5 RULE: доли должны быть равными ----
+  // ---- s5 RULE: линия не кончается на 1 — отрезок 0..2, точка 3/2 ----
   s5: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Важно', uz: "Muhim" },
-    title: { ru: 'Доли должны быть равными.', uz: "Ulushlar teng bo'lishi kerak." },
-    card_ok: { ru: 'Равные доли — это дробь. Целое разделено на одинаковые части.', uz: "Teng ulushlar — bu kasr. Butun bir xil qismlarga bo'lingan." },
-    card_bad: { ru: 'Неравные части — это не дробь. Доли разного размера так назвать нельзя.', uz: "Teng bo'lmagan qismlar — kasr emas. Har xil o'lchamdagi qismlarni bunday atab bo'lmaydi." },
-    outro: { ru: 'Дробью называем только равные доли целого. Если части разные — это ещё не дробь.', uz: "Kasr deb faqat butunning teng ulushlarini ataymiz. Qismlar har xil bo'lsa — bu hali kasr emas." },
-    audio: { ru: 'Запомни важное правило: доли должны быть равными. Если целое разделили на одинаковые части — это дробь. А если части разного размера, дробью это назвать нельзя.', uz: "Muhim qoidani eslab qoling: ulushlar teng bo'lishi kerak. Agar butun bir xil qismlarga bo'lingan bo'lsa — bu kasr. Agar qismlar har xil o'lchamda bo'lsa, buni kasr deb atab bo'lmaydi." }
+    label: { ru: 'За единицей', uz: "Birdan keyin" },
+    title: { ru: 'Линия не кончается на 1.', uz: "Chiziq 1 da tugamaydi." },
+    card_ok: { ru: 'После 1 линия продолжается: те же равные части идут дальше — к 2 и больше.', uz: "1 dan keyin chiziq davom etadi: o'sha teng bo'laklar yana ketadi — 2 ga va undan nariga." },
+    card_bad: { ru: 'Три вторых — это три половинки: один целый и ещё половина. Точка стоит за единицей.', uz: "Ikkidan uch — bu uchta yarim: bitta butun va yana yarim. Nuqta birdan keyin turadi." },
+    outro: { ru: 'Знаменатель 2 делит каждую единицу пополам. Отсчитываем 3 половинки от нуля — попадаем между 1 и 2.', uz: "Maxraj 2 har bir birlikni teng ikkiga bo'ladi. Noldan 3 ta yarimni sanaymiz — 1 va 2 orasiga tushamiz." },
+    audio: { ru: 'Линия не кончается на единице. После единицы те же равные части продолжаются дальше, к двойке. Три вторых — это три половинки: целое и ещё половина. Знаменатель два делит каждую единицу пополам, а числитель три отсчитывает три половинки. Точка три вторых стоит между единицей и двойкой.', uz: "Chiziq birda tugamaydi. Birdan keyin o'sha teng bo'laklar ikki tomon davom etadi. Ikkidan uch — bu uchta yarim: butun va yana yarim. Maxraj ikki har bir birlikni yarimga bo'ladi, surat uch esa uchta yarimni sanaydi. Ikkidan uch nuqtasi bir va ikki orasida turadi." }
   },
 
-  // ---- s6 TEST (choice, pictures): где 1/3 (correct idx 2) ----
+  // ---- s6 TEST (MC, дроби): линия 0..2 в половинках, точка на 3/2 (correct idx 0) ----
   s6: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Где закрашена одна третья?', uz: "Qayerda uchdan bir bo'yalgan?" },
-    question: { ru: 'На какой полосе закрашена ровно одна третья?', uz: "Qaysi chiziqda aniq uchdan bir bo'yalgan?" },
-    opt0: { ru: 'Доли разного размера', uz: "Qismlar har xil o'lchamda" },
-    opt1: { ru: '4 равные доли, 1 закрашена', uz: "4 ta teng ulush, 1 tasi bo'yalgan" },
-    opt2: { ru: '3 равные доли, 1 закрашена', uz: "3 ta teng ulush, 1 tasi bo'yalgan" },
-    opt3: { ru: '3 равные доли, 2 закрашены', uz: "3 ta teng ulush, 2 tasi bo'yalgan" },
-    correct_text: { ru: 'Верно: целое разделено на 3 равные доли, закрашена 1. Это одна третья.', uz: "To'g'ri: butun 3 ta teng ulushga bo'lingan, 1 tasi bo'yalgan. Bu — uchdan bir." },
-    hint_0: { ru: 'Здесь доли разного размера — это не дробь. Нужны равные доли.', uz: "Bu yerda qismlar har xil o'lchamda — bu kasr emas. Teng ulushlar kerak." },
-    hint_1: { ru: 'Тут целое разделено на 4 доли, а нам нужна одна третья — деление на 3.', uz: "Bu yerda butun to'rt ulushga bo'lingan, bizga esa uchdan bir kerak — uchga bo'lish." },
-    hint_3: { ru: 'Здесь закрашены 2 доли из 3 — это две третьих, а не одна.', uz: "Bu yerda uch ulushdan ikkitasi bo'yalgan — bu uchdan ikki, uchdan bir emas." },
-    wrong_default: { ru: 'Одна третья — это 3 равные доли, 1 из них закрашена.', uz: "Uchdan bir — bu uchta teng ulush, bittasi bo'yalgan." },
+    label: { ru: 'Точка за единицей', uz: "Birdan keyingi nuqta" },
+    question: { ru: 'Линия от 0 до 2 разделена на половинки. Точка стоит между 1 и 2, на третьей метке от нуля. Какая это дробь?', uz: "0 dan 2 gacha chiziq yarimlarga bo'lingan. Nuqta 1 va 2 orasida, noldan uchinchi belgida turibdi. Bu qaysi kasr?" },
+    correct_text: { ru: 'Верно: половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых, между 1 и 2.', uz: "To'g'ri: yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch, 1 va 2 orasida." },
+    hint_1: { ru: 'Числитель и знаменатель перепутаны: шагов 3, а делим на 2.', uz: "Surat va maxraj almashgan: qadamlar 3 ta, bo'lamiz esa 2 ga." },
+    hint_2: { ru: 'Одна вторая стоит между 0 и 1, а наша точка — за единицей. Шагов больше.', uz: "Ikkidan bir 0 va 1 orasida turadi, bizning nuqta esa birdan keyin. Qadamlar ko'proq." },
+    hint_3: { ru: 'Здесь делим на половинки, знаменатель 2, а не 4.', uz: "Bu yerda yarimlarga bo'lamiz, maxraj 2, 4 emas." },
+    wrong_default: { ru: 'Половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых.', uz: "Yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch." },
     audio: {
-      intro: { ru: 'Найди полосу, где закрашена ровно одна третья. Подумай: сколько должно быть равных долей и сколько закрашено.', uz: "Aniq uchdan bir bo'yalgan chiziqni toping. O'ylab ko'ring: nechta teng ulush bo'lishi va nechtasi bo'yalishi kerak." },
-      on_correct: { ru: 'Верно. Три равные доли, одна закрашена — это одна третья.', uz: "To'g'ri. Uchta teng ulush, bittasi bo'yalgan — bu uchdan bir." },
-      on_wrong: { ru: 'Пока не то. Одна третья — это деление на три равные доли и одна закрашенная.', uz: "Hali emas. Uchdan bir — uchta teng ulushga bo'lish va bittasi bo'yalgan." }
+      intro: { ru: 'Линия от нуля до двух разделена на половинки. Точка стоит на третьей метке, между единицей и двойкой. Выбери нужную дробь.', uz: "Noldan ikkigacha chiziq yarimlarga bo'lingan. Nuqta uchinchi belgida, bir va ikki orasida turibdi. Kerakli kasrni tanlang." },
+      on_correct: { ru: 'Верно. Три половинки от нуля — это три вторых.', uz: "To'g'ri. Noldan uchta yarim — bu ikkidan uch." },
+      on_wrong: { ru: 'Пока нет. Делим на половинки — знаменатель 2, считаем три шага — числитель 3.', uz: "Hali emas. Yarimlarga bo'lamiz — maxraj 2, uch qadam sanaymiz — surat 3." }
     }
   },
 
-  // ---- s7 TEST (choice, frac): назови дробь полосы 3/4 (correct idx 1) ----
+  // ---- s7 TEST (MC, текст): 1/2 и 2/4 — одна точка (correct idx 0) ----
   s7: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Назови дробь', uz: "Kasrni ayting" },
-    question: { ru: 'Полоса разделена на 4 равные доли, закрашены 3. Какая это дробь?', uz: "Chiziq 4 ta teng ulushga bo'lingan, 3 tasi bo'yalgan. Bu qaysi kasr?" },
-    correct_text: { ru: 'Верно: 3 закрашенные доли из 4 — это три четвёртых. Сверху 3, снизу 4.', uz: "To'g'ri: 4 ulushdan 3 tasi bo'yalgan — bu to'rtdan uch. Yuqorida 3, pastda 4." },
-    hint_0: { ru: 'Сверху число закрашенных долей (3), снизу — общее число долей (4). У тебя они перепутаны.', uz: "Yuqorida bo'yalgan ulushlar soni (uch), pastda umumiy ulushlar soni (to'rt) turishi kerak. Sizda ular almashib qolgan." },
-    hint_2: { ru: 'Снизу пишем, на сколько равных долей разделили целое — это 4, а не 1.', uz: "Pastda butun nechta teng ulushga bo'linganini yozamiz — bu to'rt, bir emas." },
-    hint_3: { ru: 'Сверху — число закрашенных долей. Их 3, а не 1.', uz: "Yuqorida — bo'yalgan ulushlar soni. Ular uchta, bir emas." },
-    wrong_default: { ru: 'Числитель — сколько закрашено (3), знаменатель — на сколько разделили (4).', uz: "Surat — nechta bo'yalgan (uch), maxraj — nechtaga bo'lingan (to'rt)." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
+    label: { ru: 'Одна точка или разные?', uz: "Bir nuqtami yoki har xilmi?" },
+    question: { ru: 'На верхней линии отмечена 1/2, на нижней — 2/4. Что про эти точки верно?', uz: "Yuqori chiziqda 1/2, pastkisida — 2/4 belgilangan. Bu nuqtalar haqida nima to'g'ri?" },
+    opt0: { ru: 'Это одна и та же точка — 1/2 и 2/4 стоят на одном месте', uz: "Bu bitta nuqta — 1/2 va 2/4 bir joyda turadi" },
+    opt1: { ru: 'Это разные точки — у них разные числа', uz: "Bu har xil nuqta — ularning sonlari har xil" },
+    opt2: { ru: '1/2 стоит левее, потому что знаменатель меньше', uz: "1/2 chaproqda, chunki maxraji kichik" },
+    opt3: { ru: '2/4 стоит правее, потому что цифры больше', uz: "2/4 o'ngroqda, chunki raqamlari katta" },
+    correct_text: { ru: 'Верно: 1/2 и 2/4 — это одно и то же место на линии. Две дроби, а точка одна — они равны.', uz: "To'g'ri: 1/2 va 2/4 — chiziqda bir xil joy. Ikkita kasr, nuqta esa bitta — ular teng." },
+    hint_1: { ru: 'Посмотри на линии: обе точки ровно посередине между 0 и 1. Место одно.', uz: "Chiziqlarga qarang: ikkala nuqta ham 0 va 1 ning aniq o'rtasida. Joyi bitta." },
+    hint_2: { ru: 'Знаменатель меняет число меток, но место точки то же — ровно посередине.', uz: "Maxraj belgilar sonini o'zgartiradi, lekin nuqtaning joyi o'sha — aniq o'rtada." },
+    hint_3: { ru: 'Больше цифр не значит правее. Обе точки в середине отрезка.', uz: "Raqamlar ko'p bo'lsa, o'ngroq degani emas. Ikkala nuqta ham kesmaning o'rtasida." },
+    wrong_default: { ru: '1/2 и 2/4 стоят на одном месте — это одна точка, дроби равны.', uz: "1/2 va 2/4 bir joyda turadi — bu bitta nuqta, kasrlar teng." },
     audio: {
-      intro: { ru: 'Полоса разделена на четыре равные доли, и три закрашены. Выбери дробь, которая это описывает.', uz: "Chiziq to'rtta teng ulushga bo'lingan va uchtasi bo'yalgan. Buni ifodalovchi kasrni tanlang." },
-      on_correct: { ru: 'Верно. Три закрашенные доли из четырёх — три четвёртых.', uz: "To'g'ri. To'rtta ulushdan uchtasi bo'yalgan — to'rtdan uch." },
-      on_wrong: { ru: 'Пока нет. Сверху — число закрашенных долей, снизу — на сколько долей разделили.', uz: "Hali emas. Yuqorida — bo'yalgan ulushlar soni, pastda — nechta ulushga bo'lingani." }
+      intro: { ru: 'На верхней линии отмечена одна вторая, на нижней — две четвёртых. Посмотри, где стоят точки, и выбери, что про них верно.', uz: "Yuqori chiziqda ikkidan bir, pastkisida — to'rtdan ikki belgilangan. Nuqtalar qayerda turganiga qarang va ular haqida nima to'g'ri ekanini tanlang." },
+      on_correct: { ru: 'Верно. Обе точки в одном месте — одна вторая и две четвёртых равны.', uz: "To'g'ri. Ikkala nuqta bir joyda — ikkidan bir va to'rtdan ikki teng." },
+      on_wrong: { ru: 'Посмотри ещё раз: обе точки ровно посередине между нулём и единицей. Это одно место.', uz: "Yana qarang: ikkala nuqta ham nol va bir orasining aniq o'rtasida. Bu bitta joy." }
     }
   },
 
-  // ---- s8 CASE setup: Карим наливает сок (стакан 4 части, налито 3) ----
+  // ---- s8 CASE setup: Сардор, измерительная линейка (метр), отметка 3/4 м ----
   s8: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
-    title: { ru: 'Карим наливает сок.', uz: "Karim sharbat quymoqda." },
-    body_p1: { ru: 'Стакан разделён на 4 равные части. Карим налил сок до третьей отметки — заполнены 3 части.', uz: "Stakan 4 ta teng qismga bo'lingan. Karim sharbatni uchinchi belgigacha quydi — 3 qism to'ldi." },
-    card_glass_label: { ru: 'Всего частей', uz: "Jami qismlar" },
-    card_glass_value: { ru: '4 равные части', uz: "4 ta teng qism" },
-    card_filled_label: { ru: 'Заполнено', uz: "To'ldi" },
-    card_filled_value: { ru: '3 части', uz: "3 qism" },
-    outro: { ru: 'Какой дробью записать, сколько сока в стакане? Помоги Кариму на следующем шаге.', uz: "Stakandagi sharbatni qaysi kasr bilan yozish kerak? Keyingi bosqichda Karimga yordam bering." },
-    btn_help: { ru: 'Помочь Кариму', uz: "Karimga yordam berish" },
-    audio: { ru: 'Карим наливает сок. Стакан разделён на четыре равные части, и сок налит до третьей — заполнены три части. Подумай, какой дробью записать, сколько сока в стакане.', uz: "Karim sharbat quymoqda. Stakan to'rtta teng qismga bo'lingan va sharbat uchinchisigacha quyilgan — uch qism to'ldi. Stakandagi sharbatni qaysi kasr bilan yozishni o'ylab ko'ring." }
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
+    title: { ru: 'Сардор размечает метровую планку.', uz: "Sardor bir metrli reykani belgilaydi." },
+    body_p1: { ru: 'Планка длиной 1 метр. Сардор разделил её на 4 равные части и хочет поставить отметку на трёх четвёртых метра.', uz: "Reyka uzunligi 1 metr. Sardor uni 4 ta teng bo'lakka bo'lib, metrning to'rtdan uchiga belgi qo'ymoqchi." },
+    card_line_label: { ru: 'Длина планки', uz: "Reyka uzunligi" },
+    card_line_value: { ru: 'от 0 до 1 метра', uz: "0 dan 1 metrgacha" },
+    card_parts_label: { ru: 'Делений', uz: "Bo'limlar" },
+    card_parts_value: { ru: '4 равные части', uz: "4 ta teng bo'lak" },
+    outro: { ru: 'Где на планке стоит отметка три четвёртых метра? Помоги Сардору на следующем шаге.', uz: "Metrning to'rtdan uch belgisi reykada qayerda turadi? Keyingi bosqichda Sardorga yordam bering." },
+    btn_help: { ru: 'Помочь Сардору', uz: "Sardorga yordam berish" },
+    audio: { ru: 'Сардор размечает метровую планку. Её длина один метр, и он разделил планку на четыре равные части. Сардор хочет поставить отметку на трёх четвёртых метра. Подумай, где на планке стоит эта точка.', uz: "Sardor bir metrli reykani belgilaydi. Uning uzunligi bir metr va u reykani to'rtta teng bo'lakka bo'ldi. Sardor metrning to'rtdan uchiga belgi qo'ymoqchi. Bu nuqta reykada qayerda turishini o'ylab ko'ring." }
   },
 
-  // ---- s9 CASE step (choice, frac): запиши 3/4 (correct idx 2) ----
+  // ---- s9 CASE step (MC, дроби): отметка на 3/4 (correct idx 2) ----
   s9: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
-    label: { ru: 'Запиши дробь', uz: "Kasrni yozing" },
-    question: { ru: 'Стакан из 4 равных частей, заполнены 3. Какой дробью записать, сколько налито?', uz: "Stakan 4 ta teng qismdan iborat, 3 tasi to'lgan. Nechta quyilganini qaysi kasr bilan yozamiz?" },
-    correct_text: { ru: 'Верно: 3 части из 4 — это три четвёртых. В стакане три четвёртых сока.', uz: "To'g'ri: 4 qismdan 3 tasi — bu to'rtdan uch. Stakanda to'rtdan uch sharbat bor." },
-    hint_0: { ru: 'Сверху — сколько заполнено (3), снизу — всего частей (4). Тут они перепутаны.', uz: "Yuqorida — nechta to'lgani (uch), pastda — jami qismlar (to'rt). Bu yerda ular almashgan." },
-    hint_1: { ru: 'Снизу должно быть, на сколько равных частей разделён стакан — это 4.', uz: "Pastda stakan nechta teng qismga bo'linganini yozish kerak — bu to'rt." },
-    hint_3: { ru: 'Сверху — число заполненных частей. Их 3, а не 1.', uz: "Yuqorida — to'lgan qismlar soni. Ular uchta, bir emas." },
-    wrong_default: { ru: 'Числитель — сколько заполнено (3), знаменатель — на сколько частей разделён стакан (4).', uz: "Surat — nechta to'lgani (uch), maxraj — stakan nechta qismga bo'lingani (to'rt)." },
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
+    label: { ru: 'Где отметка?', uz: "Belgi qayerda?" },
+    question: { ru: 'Планка от 0 до 1 метра разделена на 4 части. Отметка стоит на третьей метке от нуля. Какая это дробь метра?', uz: "0 dan 1 metrgacha reyka 4 bo'lakka bo'lingan. Belgi noldan uchinchi metkada turibdi. Bu metrning qaysi kasri?" },
+    correct_text: { ru: 'Верно: 4 части — знаменатель 4, три шага — числитель 3. Отметка на трёх четвёртых метра.', uz: "To'g'ri: 4 bo'lak — maxraj 4, uch qadam — surat 3. Belgi metrning to'rtdan uchida." },
+    hint_0: { ru: 'Числитель и знаменатель перепутаны: шагов 3, частей 4.', uz: "Surat va maxraj almashgan: qadamlar 3 ta, bo'laklar 4 ta." },
+    hint_1: { ru: 'Снизу — на сколько частей разделили планку. Их 4.', uz: "Pastda — reyka nechta bo'lakka bo'lingani. Ular to'rtta." },
+    hint_3: { ru: 'Сверху — сколько шагов от нуля. Их 3, а не 1.', uz: "Yuqorida — noldan nechta qadam. Ular uchta, bir emas." },
+    wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов до отметки (3).', uz: "Maxraj — bo'laklar soni (to'rt), surat — belgigacha qadamlar soni (uch)." },
     audio: {
-      intro: { ru: 'Стакан разделён на четыре равные части, заполнены три. Выбери дробь, которая показывает, сколько сока налито.', uz: "Stakan to'rtta teng qismga bo'lingan, uchtasi to'lgan. Qancha sharbat quyilganini ko'rsatadigan kasrni tanlang." },
-      on_correct: { ru: 'Верно. Три части из четырёх — три четвёртых стакана.', uz: "To'g'ri. To'rttadan uch qism — stakanning to'rtdan uchi." },
-      on_wrong: { ru: 'Пока нет. Сверху — сколько частей заполнено, снизу — на сколько частей разделён стакан.', uz: "Hali emas. Yuqorida — nechta qism to'lgani, pastda — stakan nechta qismga bo'lingani." }
+      intro: { ru: 'Планка от нуля до одного метра разделена на четыре части, отметка стоит на третьей метке. Выбери дробь метра, которая показывает её место.', uz: "Noldan bir metrgacha reyka to'rtta bo'lakka bo'lingan, belgi uchinchi metkada turibdi. Uning joyini ko'rsatadigan metr kasrini tanlang." },
+      on_correct: { ru: 'Верно. Четыре части и три шага — три четвёртых метра.', uz: "To'g'ri. To'rt bo'lak va uch qadam — metrning to'rtdan uchi." },
+      on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов от нуля.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — noldan qadamlar soni." }
     }
   },
 
-  // ---- s10 CASE conclusion (choice, text): что значит 3/4 (correct idx 0) ----
+  // ---- s10 CASE conclusion (MC, текст): что значит 3/4 метра на планке (correct idx 0) ----
   s10: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
     label: { ru: 'Что это значит', uz: "Bu nimani bildiradi" },
-    question: { ru: 'Мы записали три четвёртых. Что это означает про сок в стакане?', uz: "Biz to'rtdan uchni yozdik. Bu stakandagi sharbat haqida nimani bildiradi?" },
-    opt0: { ru: 'Стакан разделён на 4 равные части, и 3 из них с соком.', uz: "Stakan 4 ta teng qismga bo'lingan va 3 tasida sharbat bor." },
-    opt1: { ru: 'В стакане ровно 3 литра сока.', uz: "Stakanda aniq 3 litr sharbat bor." },
-    opt2: { ru: 'Стакан разделён на 3 части, и 4 заполнены.', uz: "Stakan 3 qismga bo'lingan va 4 tasi to'lgan." },
-    opt3: { ru: 'Сока и пустого места поровну.', uz: "Sharbat va bo'sh joy teng." },
-    correct_text: { ru: 'Верно: три четвёртых значит, что целое — это 4 равные части, и заняты 3 из них.', uz: "To'g'ri: to'rtdan uch — butun 4 ta teng qism, va ulardan 3 tasi band degani." },
-    hint_1: { ru: 'Дробь не говорит про литры. Она показывает, сколько равных частей из целого занято.', uz: "Kasr litrlar haqida gapirmaydi. U butundan nechta teng qism band ekanini ko'rsatadi." },
-    hint_2: { ru: 'Знаменатель 4 — это число частей, а числитель 3 — сколько занято. Не наоборот.', uz: "Maxraj to'rt — qismlar soni, surat uch — nechta band ekani. Aksincha emas." },
-    hint_3: { ru: 'Поровну было бы две четвёртых. А у нас три из четырёх — больше половины.', uz: "Teng bo'lsa, to'rtdan ikki bo'lardi. Bizda esa to'rttadan uch — yarmidan ko'p." },
-    wrong_default: { ru: 'Три четвёртых: целое — 4 равные части, заняты 3 из них.', uz: "To'rtdan uch: butun — to'rtta teng qism, ulardan uchtasi band." },
+    question: { ru: 'Отметка стоит на трёх четвёртых метра. Что это означает про место на планке?', uz: "Belgi metrning to'rtdan uchida turibdi. Bu reykadagi joy haqida nimani bildiradi?" },
+    opt0: { ru: 'Метр разделён на 4 равные части, и точка на конце третьей части от нуля.', uz: "Metr 4 ta teng bo'lakka bo'lingan va nuqta noldan uchinchi bo'lak oxirida." },
+    opt1: { ru: 'На планке ровно 3 метра.', uz: "Reykada aniq 3 metr bor." },
+    opt2: { ru: 'Метр разделён на 3 части, и отмечены 4.', uz: "Metr 3 bo'lakka bo'lingan va 4 tasi belgilangan." },
+    opt3: { ru: 'Точка стоит ровно на середине планки.', uz: "Nuqta reykaning aniq o'rtasida turadi." },
+    correct_text: { ru: 'Верно: три четвёртых метра — это место, где пройдены 3 части из 4. Это ближе к 1, чем к 0.', uz: "To'g'ri: metrning to'rtdan uchi — 4 bo'lakdan 3 tasi o'tilgan joy. Bu 0 dan ko'ra 1 ga yaqinroq." },
+    hint_1: { ru: 'Дробь не говорит про целые метры. Она показывает место внутри одного метра.', uz: "Kasr butun metrlar haqida gapirmaydi. U bir metr ichidagi joyni ko'rsatadi." },
+    hint_2: { ru: 'Знаменатель 4 — число частей, числитель 3 — сколько пройдено. Не наоборот.', uz: "Maxraj to'rt — bo'laklar soni, surat uch — nechtasi o'tilgani. Aksincha emas." },
+    hint_3: { ru: 'На середине стояла бы две четвёртых. А три четвёртых — дальше, ближе к 1.', uz: "O'rtada to'rtdan ikki bo'lardi. To'rtdan uch esa naridaroq, 1 ga yaqinroq." },
+    wrong_default: { ru: 'Три четвёртых метра — это место, где из 4 равных частей пройдены 3.', uz: "Metrning to'rtdan uchi — 4 teng bo'lakdan 3 tasi o'tilgan joy." },
     audio: {
-      intro: { ru: 'Мы записали три четвёртых. Выбери, что это означает про сок в стакане.', uz: "Biz to'rtdan uchni yozdik. Bu stakandagi sharbat haqida nimani bildirishini tanlang." },
-      on_correct: { ru: 'Верно. Целое — это четыре равные части, и три из них заняты соком.', uz: "To'g'ri. Butun — to'rtta teng qism, va ulardan uchtasi sharbat bilan band." },
-      on_wrong: { ru: 'Пока нет. Дробь показывает части целого, а не литры. Знаменатель — число частей, числитель — сколько занято.', uz: "Hali emas. Kasr butunning qismlarini ko'rsatadi, litrlarni emas. Maxraj — qismlar soni, surat — nechta band ekani." }
+      intro: { ru: 'Отметка стоит на трёх четвёртых метра. Выбери, что это означает про место на планке.', uz: "Belgi metrning to'rtdan uchida turibdi. Bu reykadagi joy haqida nimani bildirishini tanlang." },
+      on_correct: { ru: 'Верно. Метр поделён на четыре части, и точка там, где пройдены три из них.', uz: "To'g'ri. Metr to'rtta bo'lakka bo'lingan va nuqta uchtasi o'tilgan joyda." },
+      on_wrong: { ru: 'Пока нет. Дробь показывает место внутри метра, а не число метров.', uz: "Hali emas. Kasr metr ichidagi joyni ko'rsatadi, metrlar sonini emas." }
     }
   },
 
-  // ---- s11 TEST (choice, frac): назови дробь полосы 2/5 (correct idx 1) ----
+  // ---- s11 TEST (MC, дроби): линия 0..1, 4 части, точка на 2-й → 2/4 (= 1/2) (correct idx 0) ----
   s11: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
     label: { ru: 'Последняя — назови дробь', uz: "Oxirgisi — kasrni ayting" },
-    question: { ru: 'Полоса разделена на 5 равных долей, закрашены 2. Какая это дробь?', uz: "Chiziq 5 ta teng ulushga bo'lingan, 2 tasi bo'yalgan. Bu qaysi kasr?" },
-    correct_text: { ru: 'Верно: 2 закрашенные доли из 5 — это две пятых. Сверху 2, снизу 5.', uz: "To'g'ri: 5 ulushdan 2 tasi bo'yalgan — bu beshdan ikki. Yuqorida 2, pastda 5." },
-    hint_0: { ru: 'Числитель и знаменатель перепутаны: сверху число закрашенных (2), снизу всех долей (5).', uz: "Surat va maxraj almashgan: yuqorida bo'yalganlar soni (ikki), pastda barcha ulushlar (besh)." },
-    hint_2: { ru: 'Снизу — на сколько равных долей разделили целое. Их 5, а не 3.', uz: "Pastda — butun nechta teng ulushga bo'lingani. Ular beshta, uch emas." },
-    hint_3: { ru: 'Сверху — число закрашенных долей. Их 2, а не 3.', uz: "Yuqorida — bo'yalgan ulushlar soni. Ular ikkita, uch emas." },
-    wrong_default: { ru: 'Две пятых: числитель 2 (закрашено), знаменатель 5 (всего долей).', uz: "Beshdan ikki: surat ikki (bo'yalgan), maxraj besh (jami ulushlar)." },
+    question: { ru: 'Отрезок от 0 до 1 разделён на 4 части. Точка стоит на второй метке от нуля. Какая это дробь?', uz: "0 dan 1 gacha kesma 4 bo'lakka bo'lingan. Nuqta noldan ikkinchi belgida turibdi. Bu qaysi kasr?" },
+    correct_text: { ru: 'Верно: 4 части — знаменатель 4, два шага — числитель 2. Это две четвёртых, и это ровно середина — то же место, что и одна вторая.', uz: "To'g'ri: 4 bo'lak — maxraj 4, ikki qadam — surat 2. Bu to'rtdan ikki, va bu aniq o'rta — ikkidan bir bilan bir xil joy." },
+    hint_1: { ru: 'Числитель и знаменатель перепутаны: шагов 2, частей 4.', uz: "Surat va maxraj almashgan: qadamlar 2 ta, bo'laklar 4 ta." },
+    hint_2: { ru: 'Снизу — на сколько частей разделили отрезок. Их 4.', uz: "Pastda — kesma nechta bo'lakka bo'lingani. Ular to'rtta." },
+    hint_3: { ru: 'Сверху — сколько шагов от нуля до точки. Их 2, а не 3.', uz: "Yuqorida — noldan nuqtagacha nechta qadam. Ular ikkita, uch emas." },
+    wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов (2). Это две четвёртых.', uz: "Maxraj — bo'laklar soni (to'rt), surat — qadamlar soni (ikki). Bu to'rtdan ikki." },
     audio: {
-      intro: { ru: 'Последнее задание. Полоса разделена на пять равных долей, закрашены две. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Chiziq beshta teng ulushga bo'lingan, ikkitasi bo'yalgan. Kerakli kasrni tanlang." },
-      on_correct: { ru: 'Верно. Две закрашенные доли из пяти — две пятых.', uz: "To'g'ri. Beshta ulushdan ikkitasi bo'yalgan — beshdan ikki." },
-      on_wrong: { ru: 'Пока нет. Сверху — число закрашенных долей, снизу — на сколько долей разделили целое.', uz: "Hali emas. Yuqorida — bo'yalgan ulushlar soni, pastda — butun nechta ulushga bo'lingani." }
+      intro: { ru: 'Последнее задание. Отрезок от нуля до единицы разделён на четыре части, точка на второй метке. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Noldan birgacha kesma to'rtta bo'lakka bo'lingan, nuqta ikkinchi belgida. Kerakli kasrni tanlang." },
+      on_correct: { ru: 'Верно. Две четвёртых — это ровно середина, то же место, что и одна вторая.', uz: "To'g'ri. To'rtdan ikki — aniq o'rta, ikkidan bir bilan bir xil joy." },
+      on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов до точки.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — nuqtagacha qadamlar soni." }
     }
   },
 
-  // ---- s12 SUMMARY: без счёта, закрывает крючок ----
+  // ---- s12 SUMMARY: закрывает крючок ----
   s12: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
     label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    title: { ru: 'Теперь дробь для тебя — одно число, а не две цифры.', uz: "Endi kasr siz uchun — bitta son, ikkita raqam emas." },
+    title: { ru: 'Теперь дробь для тебя — число со своим местом на линии.', uz: "Endi kasr siz uchun — chiziqda o'z joyi bor son." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Дробь — это часть целого: целое делят на равные доли и берут несколько.', uz: "Kasr — butunning qismi: butun teng ulushlarga bo'linadi va bir nechtasi olinadi." },
-    main_2: { ru: 'Числитель (сверху) — сколько долей взяли. Знаменатель (снизу) — на сколько равных долей разделили.', uz: "Surat (yuqorida) — nechta ulush olingani. Maxraj (pastda) — nechta teng ulushga bo'lingani." },
-    main_3: { ru: 'Доли обязательно равные. Неравные части дробью не назвать.', uz: "Ulushlar albatta teng. Teng bo'lmagan qismlarni kasr deb bo'lmaydi." },
-    main_4: { ru: 'Три пятых, три четвёртых, две пятых — каждая дробь это одно число, часть целого.', uz: "Beshdan uch, to'rtdan uch, beshdan ikki — har bir kasr bitta son, butunning qismi." },
-    back_to_hook: { ru: 'Полоса Нодиры заполнена на три пятых — это и было одно число. Далер ошибался.', uz: "Nodiraning chizig'i beshdan uchga to'lgan — bu bitta son edi. Daler xato qilgan ekan." },
+    main_1: { ru: 'Дробь — это число, и у неё есть точка на числовой прямой.', uz: "Kasr — bu son, va uning son o'qida nuqtasi bor." },
+    main_2: { ru: 'Знаменатель — на сколько равных частей делим отрезок 0…1. Числитель — сколько шагов от нуля.', uz: "Maxraj — 0…1 kesmani nechta teng bo'lakka bo'lamiz. Surat — noldan nechta qadam." },
+    main_3: { ru: 'Линия не кончается на 1: за единицей те же части идут к 2 и дальше.', uz: "Chiziq 1 da tugamaydi: birdan keyin o'sha bo'laklar 2 ga va nariga ketadi." },
+    main_4: { ru: '1/2 и 2/4 — одна и та же точка. Равные дроби стоят на одном месте.', uz: "1/2 va 2/4 — bitta nuqta. Teng kasrlar bir joyda turadi." },
+    back_to_hook: { ru: 'Три четвёртых нашлись на линии точкой между 0 и 1. У дроби есть место. Жасур ошибался.', uz: "To'rtdan uch chiziqda 0 va 1 orasidagi nuqta bo'lib topildi. Kasrning joyi bor. Jasur xato qilgan ekan." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'доли из 4 класса (половина, четверть).', uz: "4-sinf ulushlari (yarim, chorak)." },
+    conn_refs: { ru: 'урок «Что такое дробь».', uz: "«Kasr nima» darsi." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'дробь на числовой прямой — у дроби есть своё место.', uz: "kasr son o'qida — kasrning o'z joyi bor." },
-    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это одно число, часть целого. Числитель показывает, сколько равных долей взяли, а знаменатель — на сколько долей разделили целое. И доли всегда равные. Полоса Нодиры была заполнена на три пятых — это одно число, а не две цифры. Далер ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu bitta son, butunning qismi. Surat nechta teng ulush olinganini, maxraj esa butun nechta ulushga bo'linganini ko'rsatadi. Ulushlar esa doimo teng. Nodiraning chizig'i beshdan uchga to'lgan edi — bu bitta son, ikkita raqam emas. Daler xato qilgan ekan." }
+    conn_next: { ru: 'дробь как деление: a/b это a разделить на b.', uz: "kasr — bo'lish natijasi: a/b bu a ni b ga bo'lish." },
+    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это число, и у неё есть своё место на числовой прямой. Знаменатель делит отрезок от нуля до единицы на равные части, а числитель отсчитывает шаги от нуля. Линия не кончается на единице — за ней те же части идут к двойке. А равные дроби, например одна вторая и две четвёртых, стоят на одном месте. Три четвёртых нашли точку между нулём и единицей. Жасур ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu son, va uning son o'qida o'z joyi bor. Maxraj noldan birgacha kesmani teng bo'laklarga bo'ladi, surat esa noldan qadamlarni sanaydi. Chiziq birda tugamaydi — undan keyin o'sha bo'laklar ikki tomon ketadi. Teng kasrlar esa, masalan ikkidan bir va to'rtdan ikki, bir joyda turadi. To'rtdan uch nol va bir orasidan nuqta topdi. Jasur xato qilgan ekan." }
   }
 };
 
 // ============================================================
-// УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «часть целого»)
+// УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «дробь на числовой прямой»)
 // ============================================================
-// Полоса-модель: делит целое на равные (parts) или неравные (segWidths) доли,
-// закрашивает shaded первых или произвольные (shadedSet). interactive — клик по доле.
-const BarModel = ({ parts = 1, shaded = 0, segWidths, shadedSet, interactive = false, onToggle, height = 56 }) => {
-  const widths = segWidths || Array.from({ length: parts }, () => 1);
+// Числовая прямая: отрезок 0..max единиц, на каждую единицу — den равных долей.
+// Всего интервалов = den*max, тиков = den*max+1 (включая 0). Тик i стоит на значении i/den.
+// mark — индекс тика с точкой-маркером. fillTo — индекс заливки 0..fillTo (растёт плавно).
+// interactive — тики кликабельны (onPick(i)); selected — текущий выбранный тик.
+// АНИМАЦИИ: метки появляются с лёгким «раскрытием» при смене den (key=den-i),
+// заливка плавно растёт (nl-fill), точка-маркер скользит между метками (nl-marker)
+// и «впрыгивает» при первом появлении (nl-marker-pop) — ученик видит отсчёт шагов.
+const NumberLine = ({ den = 4, max = 1, mark = null, showMark = true, interactive = false, selected = null, onPick, fillTo = null, height = 76 }) => {
+  const total = den * max;
+  const ticks = total + 1;
+  const pctOf = (i) => total === 0 ? 0 : (i / total) * 100;
+  const lineTop = 30; // позиция оси по вертикали (px)
+  // Единый источник позиции точки: явный mark (если показываем) либо выбранный тик в интерактиве.
+  const markerIdx = (showMark && mark != null) ? mark : (interactive && selected != null ? selected : null);
   return (
-    <div style={{ display: 'flex', width: '100%', maxWidth: 520, height, borderRadius: 12, overflow: 'hidden', boxShadow: '0 6px 16px -6px rgba(58, 53, 48, 0.18)', background: T.paper, border: `2px solid ${T.ink2}` }}>
-      {widths.map((w, i) => {
-        const isShaded = shadedSet ? shadedSet.has(i) : i < shaded;
-        return (
-          <div key={i} onClick={interactive ? () => onToggle(i) : undefined}
-            style={{ flex: w, height: '100%', background: isShaded ? T.accent : T.paper, borderRight: i < widths.length - 1 ? `1.5px solid ${T.ink3}` : 'none', cursor: interactive ? 'pointer' : 'default', transition: 'background 0.2s' }}/>
-        );
-      })}
+    <div style={{ width: '100%', maxWidth: 560, padding: '0 16px', margin: '0 auto' }}>
+      <div style={{ position: 'relative', height }}>
+        {/* ось */}
+        <div style={{ position: 'absolute', left: 0, right: 0, top: lineTop, height: 3, background: T.ink2, borderRadius: 2 }}/>
+        {/* заливка 0..fillTo — плавно растёт */}
+        {fillTo != null && fillTo > 0 && (
+          <div className="nl-fill" style={{ position: 'absolute', left: 0, width: `${pctOf(fillTo)}%`, top: lineTop, height: 3, background: T.accent, borderRadius: 2, boxShadow: '0 0 8px rgba(255, 79, 40, 0.5)' }}/>
+        )}
+        {/* метки (при смене den перерисовываются с анимацией раскрытия) */}
+        {Array.from({ length: ticks }).map((_, i) => {
+          const isInt = i % den === 0;
+          const showRing = interactive && i >= 1 && i !== markerIdx;
+          return (
+            <div key={`${den}-${i}`} onClick={interactive ? () => onPick(i) : undefined}
+              style={{ position: 'absolute', left: `${pctOf(i)}%`, top: 0, height: '100%', width: interactive ? 34 : 14, marginLeft: interactive ? -17 : -7, cursor: interactive ? 'pointer' : 'default' }}>
+              {/* вертикальная метка */}
+              <div className="nl-tick" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: lineTop - (isInt ? 11 : 7), width: isInt ? 3 : 2, height: isInt ? 22 : 14, background: isInt ? T.ink : T.ink3, borderRadius: 2, animationDelay: `${i * 0.04}s` }}/>
+              {/* подпись целых */}
+              {isInt && (<span className="mono small" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: lineTop + 18, color: T.ink2 }}>{i / den}</span>)}
+              {/* интерактивная цель (пустой кружок-приглашение нажать) */}
+              {showRing && (
+                <div className="nl-ring" style={{ position: 'absolute', left: '50%', top: lineTop, transform: 'translate(-50%, -50%)', width: 16, height: 16, borderRadius: '50%', background: T.paper, boxShadow: `inset 0 0 0 2px ${T.ink3}`, transition: 'all 0.15s' }}/>
+              )}
+            </div>
+          );
+        })}
+        {/* точка-маркер: скользит к нужной метке и впрыгивает при появлении */}
+        {markerIdx != null && (
+          <div className="nl-marker nl-marker-pop" style={{ position: 'absolute', left: `${pctOf(markerIdx)}%`, top: lineTop, width: 20, height: 20, marginLeft: -10, marginTop: -10, borderRadius: '50%', background: T.accent, boxShadow: `0 0 0 5px ${T.accentSoft}, 0 4px 12px -2px rgba(255, 79, 40, 0.5)`, zIndex: 3 }}/>
+        )}
+      </div>
     </div>
   );
 };
 
-// Стакан-модель: вертикальный столбик из parts равных частей, заполнен снизу (filled).
-const GlassModel = ({ parts = 4, filled = 0 }) => (
-  <div style={{ display: 'flex', flexDirection: 'column-reverse', width: 'clamp(54px, 14vw, 74px)', height: 'clamp(120px, 28vw, 158px)', borderRadius: '8px 8px 14px 14px', overflow: 'hidden', boxShadow: '0 6px 16px -6px rgba(58, 53, 48, 0.2)', background: T.paper, border: `2px solid ${T.ink2}` }}>
-    {Array.from({ length: parts }).map((_, i) => (
-      <div key={i} style={{ flex: 1, background: i < filled ? T.blue : T.paper, borderTop: i > 0 ? `1.5px solid ${T.ink3}` : 'none', transition: 'background 0.2s' }}/>
-    ))}
-  </div>
-);
-
 // ============================================================
 // SCREEN-КОМПОНЕНТЫ
 // ============================================================
+
+// Детерминированно переставляет варианты MC, чтобы верный ответ не всегда был «A».
+// order — массив старых индексов в новом порядке. Подсказки (hint_i) привязаны к ПОЗИЦИИ,
+// поэтому переносим их вместе с вариантами; correctIdx пересчитывается на новую позицию.
+const shuffleMC = (c, options, correctIdx, order) => {
+  const content = { ...c };
+  order.forEach((oldI, newI) => { content[`hint_${newI}`] = c[`hint_${oldI}`]; });
+  return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
+};
 
 // s0 — HOOK: любой выбор продвигает дальше (нет верного); при возврате полный сброс.
 const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
@@ -1078,18 +1113,21 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <h1 className="title h-title fade-up">{t(c.title)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-          <BarModel parts={5} shaded={3} height={'clamp(48px, 10vw, 60px)'}/>
-          <p className="small mono" style={{ color: T.ink3, margin: 0 }}>3 / 5</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+          <NumberLine den={4} max={1} showMark={false} height={70}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Frac n="3" d="4" size="mid"/>
+            <span className="mop" style={{ color: T.ink3 }}>= ?</span>
+          </div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.body)}</p>
         <h2 className="title h-sub fade-up delay-2">{t(c.question)}</h2>
         <div className="fade-up delay-3" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {opts.map((o, i) => (
             <button key={i} className="option" onClick={() => pick(i)}
-              style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
               <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span>
               <span style={{ flex: 1 }}>{t(o)}</span>
             </button>
@@ -1100,7 +1138,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   );
 };
 
-// s1 — EXPLORATION step-by-step: ученик жмёт «Дальше», полоса раскрывается, голос ведёт.
+// s1 — EXPLORATION step-by-step: ставим 3/4 на отрезок 0..1, голос ведёт.
 const Screen1 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s1;
   const arr = c.audio[lang];
@@ -1113,16 +1151,31 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
     if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 120); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
   };
-  const parts = step >= 2 ? 5 : 1;
-  const shaded = step >= 3 ? 3 : 0;
+  // Анимация отсчёта: на шаге 3 точка прыгает от 0 к 3/4, метка за меткой — видно «3 шага от нуля».
+  // hop остаётся 0 до шага 3, поэтому setState вызываем только из интервала (без синхронного setState в эффекте).
+  const [hop, setHop] = useState(0);
+  useEffect(() => {
+    if (step < 3) return;
+    let k = 0;
+    const id = setInterval(() => { k += 1; setHop(k); if (k >= 3) clearInterval(id); }, 430);
+    return () => clearInterval(id);
+  }, [step]);
+  const den = step >= 2 ? 4 : 1;
+  const mark = step >= 3 ? hop : null;
+  const fillTo = step >= 3 ? hop : null;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center' }}>
-          <BarModel parts={parts} shaded={shaded} height={'clamp(52px, 11vw, 64px)'}/>
-          {step >= 3 && (<p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>)}
+          <NumberLine den={den} max={1} mark={mark} fillTo={fillTo} showMark={step >= 3} height={58}/>
+          {step >= 3 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Frac n="3" d="4" size="mid"/>
+              <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>
+            </div>
+          )}
         </div>
         <div ref={endRef}/>
       </div>
@@ -1130,19 +1183,18 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s2 — EXPLORATION slider + tap: собери 3/4. Слайдер задаёт число долей, тап закрашивает.
+// s2 — EXPLORATION slider + tap: поставь 2/5. Слайдер задаёт число частей, тап — точку.
 const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
-  const [parts, setParts] = useState(2);
-  const [shadedSet, setShadedSet] = useState(() => new Set());
+  const [den, setDen] = useState(3);
+  const [selected, setSelected] = useState(null);
   const [checked, setChecked] = useState(false);
   const [solved, setSolved] = useState(false);
-  const toggle = (i) => { if (solved) return; setChecked(false); setShadedSet(prev => { const n = new Set(prev); if (n.has(i)) n.delete(i); else n.add(i); return n; }); };
-  const onSlider = (v) => { if (solved) return; setChecked(false); setParts(v); setShadedSet(new Set()); };
-  const shadedCount = [...shadedSet].filter(i => i < parts).length;
+  const pickTick = (i) => { if (solved) return; if (i === 0) return; setChecked(false); setSelected(i); };
+  const onSlider = (v) => { if (solved) return; setChecked(false); setDen(v); setSelected(null); };
   const check = () => {
-    const ok = parts === 4 && shadedCount === 3;
+    const ok = den === 5 && selected === 2;
     setChecked(true);
     if (ok) setSolved(true);
     if (!audio.muted) { setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.fb_success[lang] : c.fb_wrong[lang]); }, 250); }
@@ -1150,15 +1202,15 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={solved ? <NextLabel/> : t(c.btn_disabled_label)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(15px, 2.4vw, 22px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.intro)}</p>
         <p className="small fade-up delay-1" style={{ color: T.accent, fontWeight: 600 }}>{t(c.target_text)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <BarModel parts={parts} shadedSet={shadedSet} interactive={!solved} onToggle={toggle} height={'clamp(52px, 11vw, 64px)'}/>
+          <NumberLine den={den} max={1} interactive={!solved} selected={selected} onPick={pickTick} mark={solved ? selected : null} showMark={solved} height={58}/>
           <div>
-            <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.eyebrow_slider)} {parts}</p>
-            <Slider value={parts} min={2} max={6} step={1} onChange={onSlider} disabled={solved}/>
+            <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.eyebrow_slider)} {den}</p>
+            <Slider value={den} min={2} max={6} step={1} onChange={onSlider} disabled={solved}/>
           </div>
           {!solved && (<div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(11px, 1.8vw, 13px) clamp(20px, 2.6vw, 28px)', fontSize: 'clamp(13px, 1.6vw, 14px)' }}>{t(c.btn_check)}</button></div>)}
         </div>
@@ -1171,25 +1223,28 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s3 — RULE: числитель / знаменатель.
+// s3 — RULE: знаменатель делит, числитель отсчитывает.
 const Screen3 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s3;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
         </div>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(20px, 6vw, 44px)', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Frac n="3" d="5" size="display"/>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 220, flex: 1 }}>
-            <p className="body" style={{ margin: 0 }}>{t(c.card_top)}</p>
-            <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
-            <p className="body" style={{ margin: 0 }}>{t(c.card_bottom)}</p>
-            <p className="small" style={{ margin: 0, color: T.ink3 }}>{t(c.card_line)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <NumberLine den={4} max={1} mark={3} fillTo={3} height={58}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 5vw, 36px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Frac n="3" d="4" size="display"/>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 220, flex: 1 }}>
+              <p className="body" style={{ margin: 0 }}>{t(c.card_top)}</p>
+              <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
+              <p className="body" style={{ margin: 0 }}>{t(c.card_bottom)}</p>
+              <p className="small" style={{ margin: 0, color: T.ink3 }}>{t(c.card_line)}</p>
+            </div>
           </div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.outro)}</p>
@@ -1198,92 +1253,35 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s4 — TEST input + полоса: запиши числитель (3). Веди-до-верного + подсказка (логика NumInputScreen).
-const Screen4 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s4; const sfx = useSfx();
-  const correct = 3;
-  const audio = useAudio([{ id: 's4_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
-  const [value, setValue] = useState(wasSolved ? String(correct) : (storedAnswer?.studentAnswer ?? ''));
-  const [solved, setSolved] = useState(wasSolved);
-  const [hintShown, setHintShown] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const submit = () => {
-    if (solved) return;
-    const v = parseInt(value, 10); if (isNaN(v)) return;
-    const ok = v === correct;
-    if (firstTryRef.current === null) { firstTryRef.current = ok; firstAnsRef.current = String(v); }
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    if (ok) {
-      setSolved(true); setHintShown(false); sfx.playCorrect();
-      onAnswer({ stage: 'practice', screenIdx: 4, question: c.question[lang], options: null, correctIndex: null, correctAnswer: String(correct), studentAnswerIndex: null, studentAnswer: firstAnsRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { setHintShown(true); sfx.playWrong(); }
-    if (!audio.muted) {
-      setTimeout(() => {
-        const e = getAudioEngine();
-        if (e && !audio.muted) { const wv = (c.audio_hint && c.audio_hint[lang]) || (c.hint && c.hint[lang]) || c.audio.on_wrong[lang]; e.pushOneOff(ok ? c.audio.on_correct[lang] : wv); }
-      }, 300);
-    }
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{t(c.question)}</h2></div>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'center' }}>
-          <BarModel parts={5} shaded={3} height={'clamp(48px, 10vw, 60px)'}/>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
-              <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
-                onChange={e => { if (!solved) { setValue(e.target.value); setHintShown(false); } }}
-                onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'clamp(56px, 13vw, 72px)', fontSize: 'clamp(20px, 4vw, 26px)' }}/>
-              <span style={{ height: 2, background: T.ink, width: '100%', minWidth: 44, margin: '5px 0', borderRadius: 1 }}/>
-              <span style={{ fontFamily: "'Fraunces', serif", fontSize: 'clamp(22px, 4vw, 28px)' }}>5</span>
-            </span>
-            {!solved && <button className="btn-white-accent" onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>}
-          </div>
-        </div>
-        {hintShown && !solved && (
-          <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
-            <p className="body" style={{ margin: 0 }}>{t(c.hint)}</p>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{t(c.fb_correct)}</p>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
+// s4 — TEST choice (дроби): линия 0..1, 5 частей, точка на 3-й → 3/5 (correct idx 1).
+const Screen4 = (props) => {
+  const t = useT(); const c = CONTENT.s4;
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="5" d="3" size="mid"/>, <Frac n="3" d="5" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="2" d="5" size="mid"/>], 1, [0, 2, 1, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={5} max={1} mark={3} fillTo={3} height={58}/></div></>);
+  return <QuestionScreen {...props} idx={4} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[4]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s5 — RULE: равные доли (полоса равная vs неравная).
+// s5 — RULE: линия не кончается на 1, отрезок 0..2, точка 3/2.
 const Screen5 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s5;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
         </div>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <BarModel parts={4} shaded={1} height={40}/>
-            <p className="small" style={{ margin: 0, color: T.success, fontWeight: 600 }}>{t(c.card_ok)}</p>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <BarModel segWidths={[1, 2, 0.7, 1.3]} shaded={1} height={40}/>
-            <p className="small" style={{ margin: 0, color: T.ink3, fontWeight: 600 }}>{t(c.card_bad)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <NumberLine den={2} max={2} mark={3} fillTo={3} height={58}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 5vw, 36px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Frac n="3" d="2" size="display"/>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 220, flex: 1 }}>
+              <p className="body" style={{ margin: 0, color: T.success, fontWeight: 600 }}>{t(c.card_ok)}</p>
+              <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
+              <p className="body" style={{ margin: 0 }}>{t(c.card_bad)}</p>
+            </div>
           </div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.outro)}</p>
@@ -1292,44 +1290,52 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s6 — TEST choice (картинки): где 1/3 (correct idx 2).
+// s6 — TEST choice (дроби): линия 0..2 в половинках, точка 3/2 (correct idx 0).
 const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
-  const optWrap = (bar, cap) => (<div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>{bar}<span className="small" style={{ color: T.ink2 }}>{cap}</span></div>);
-  const options = [
-    optWrap(<BarModel segWidths={[1, 2, 0.8]} shaded={1} height={38}/>, t(c.opt0)),
-    optWrap(<BarModel parts={4} shaded={1} height={38}/>, t(c.opt1)),
-    optWrap(<BarModel parts={3} shaded={1} height={38}/>, t(c.opt2)),
-    optWrap(<BarModel parts={3} shaded={2} height={38}/>, t(c.opt3)),
-  ];
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
-  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={c} question={question} options={options} correctIdx={2}/>;
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="3" d="2" size="mid"/>, <Frac n="2" d="3" size="mid"/>, <Frac n="1" d="2" size="mid"/>, <Frac n="3" d="4" size="mid"/>], 0, [1, 2, 3, 0]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={2} max={2} mark={3} fillTo={3} height={58}/></div></>);
+  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s7 — TEST choice (дроби): назови дробь полосы 3/4 (correct idx 1).
+// s7 — TEST choice (текст): 1/2 и 2/4 — одна точка (correct idx 0).
 const Screen7 = (props) => {
   const t = useT(); const c = CONTENT.s7;
-  const options = [<Frac n="4" d="3" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="3" d="1" size="mid"/>, <Frac n="1" d="4" size="mid"/>];
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}><BarModel parts={4} shaded={3} height={50}/></div></>);
-  return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={c} question={question} options={options} correctIdx={1}/>;
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 0, 3, 1]);
+  const question = (
+    <>
+      <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
+      <h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2>
+      <div className="frame" style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <Frac n="1" d="2" size="sm"/>
+          <div style={{ flex: 1 }}><NumberLine den={2} max={1} mark={1} fillTo={1} height={64}/></div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <Frac n="2" d="4" size="sm"/>
+          <div style={{ flex: 1 }}><NumberLine den={4} max={1} mark={2} fillTo={2} height={64}/></div>
+        </div>
+      </div>
+    </>
+  );
+  return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s8 — CASE setup: Карим, стакан.
+// s8 — CASE setup: Сардор, метровая планка.
 const Screen8 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s8;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.body_p1)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(20px, 5vw, 48px)', alignItems: 'center', flexWrap: 'wrap' }}>
-          <GlassModel parts={4} filled={3}/>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div><p className="eyebrow" style={{ color: T.ink2, marginBottom: 4 }}>{t(c.card_glass_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_glass_value)}</p></div>
-            <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
-            <div><p className="eyebrow" style={{ color: T.blue, marginBottom: 4 }}>{t(c.card_filled_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_filled_value)}</p></div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <NumberLine den={4} max={1} showMark={false} height={70}/>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(20px, 6vw, 56px)', flexWrap: 'wrap' }}>
+            <div><p className="eyebrow" style={{ color: T.ink2, marginBottom: 4 }}>{t(c.card_line_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_line_value)}</p></div>
+            <div><p className="eyebrow" style={{ color: T.accent, marginBottom: 4 }}>{t(c.card_parts_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_parts_value)}</p></div>
           </div>
         </div>
         <p className="body fade-up delay-2">{t(c.outro)}</p>
@@ -1338,28 +1344,28 @@ const Screen8 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s9 — CASE step (дроби): запиши 3/4 (correct idx 2).
+// s9 — CASE step (дроби): отметка на 3/4 (correct idx 2).
 const Screen9 = (props) => {
   const t = useT(); const c = CONTENT.s9;
-  const options = [<Frac n="4" d="3" size="mid"/>, <Frac n="3" d="1" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="1" d="4" size="mid"/>];
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}><GlassModel parts={4} filled={3}/></div></>);
-  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={c} question={question} options={options} correctIdx={2}/>;
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="4" d="3" size="mid"/>, <Frac n="3" d="1" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="1" d="4" size="mid"/>], 2, [1, 0, 2, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={4} max={1} mark={3} fillTo={3} height={58}/></div></>);
+  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s10 — CASE conclusion (текст): что значит 3/4 (correct idx 0).
+// s10 — CASE conclusion (текст): что значит 3/4 метра (correct idx 0).
 const Screen10 = (props) => {
   const t = useT(); const c = CONTENT.s10;
-  const options = [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)];
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 3, 0]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
-  return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={c} question={question} options={options} correctIdx={0}/>;
+  return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s11 — TEST choice (дроби): назови дробь полосы 2/5 (correct idx 1).
+// s11 — TEST choice (дроби): линия 0..1, 4 части, точка на 2-й → 2/4 (= 1/2) (correct idx 0).
 const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
-  const options = [<Frac n="5" d="2" size="mid"/>, <Frac n="2" d="5" size="mid"/>, <Frac n="2" d="3" size="mid"/>, <Frac n="3" d="5" size="mid"/>];
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 16, display: 'flex', justifyContent: 'center' }}><BarModel parts={5} shaded={2} height={50}/></div></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={c} question={question} options={options} correctIdx={1}/>;
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="2" d="4" size="mid"/>, <Frac n="4" d="2" size="mid"/>, <Frac n="1" d="4" size="mid"/>, <Frac n="2" d="3" size="mid"/>], 0, [0, 2, 1, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={4} max={1} mark={2} fillTo={2} height={58}/></div></>);
+  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
 // s12 — SUMMARY: без счёта, закрывает крючок; onFinished один раз.
@@ -1381,7 +1387,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.success }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
@@ -1393,7 +1399,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
           </div>
         </div>
         <div className="frame-success fade-up delay-2" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-          <div style={{ flexShrink: 0, width: 'clamp(120px, 30vw, 180px)' }}><BarModel parts={5} shaded={3} height={38}/></div>
+          <div style={{ flexShrink: 0, width: 'clamp(150px, 36vw, 220px)' }}><NumberLine den={4} max={1} mark={3} fillTo={3} height={64}/></div>
           <p className="body" style={{ margin: 0, flex: 1, minWidth: 180 }}>{t(c.back_to_hook)}</p>
         </div>
         <ConnectionsBlock c={c}/>
@@ -1405,7 +1411,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
 // ============================================================
 // КОРНЕВОЙ КОМПОНЕНТ (шаблон из infrastructure_v1)
 // ============================================================
-export default function FractionsLesson({
+export default function FractionLineLesson({
   studentName, lang: langProp, ttsApiBase,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -1648,13 +1654,13 @@ html, body { margin: 0; padding: 0; }
 }
 
 /* === ТИПОГРАФИКА v15 (× 0.85 upper bounds) === */
-.h-title { font-size: clamp(22px, 4vw, 38px); }
-.h-sub { font-size: clamp(17px, 2.5vw, 20px); }
-.body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.5; }
+.h-title { font-size: clamp(22px, 3.4vw, 30px); }
+.h-sub { font-size: clamp(16px, 2.2vw, 18px); }
+.body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.42; }
 .eyebrow { font-size: clamp(11px, 1.3vw, 11px); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
 .small { font-size: clamp(13px, 1.5vw, 13px); }
 .frac-display { font-size: clamp(45px, 9vw, 75px); }
-.frac-mid { font-size: clamp(26px, 5vw, 38px); }
+.frac-mid { font-size: clamp(20px, 3.2vw, 24px); }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
@@ -1662,13 +1668,13 @@ html, body { margin: 0; padding: 0; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
-  padding-top: clamp(12px, 2vw, 18px);
+  padding-top: clamp(8px, 1.4vw, 12px);
   padding-bottom: clamp(8px, 1.5vw, 12px);
 }
 .stage-content {
   flex: 1;
-  padding-top: clamp(10px, 1.7vw, 16px);
-  padding-bottom: clamp(17px, 3.4vw, 34px);
+  padding-top: clamp(8px, 1.3vw, 12px);
+  padding-bottom: clamp(12px, 2.2vw, 20px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1679,8 +1685,8 @@ html, body { margin: 0; padding: 0; }
   flex-shrink: 0;
   background: #F6F4EF;
   border-top: 1px solid rgba(167, 166, 162, 0.25);
-  padding-top: clamp(12px, 2vw, 15px);
-  padding-bottom: clamp(12px, 2vw, 15px);
+  padding-top: clamp(9px, 1.5vw, 11px);
+  padding-bottom: clamp(9px, 1.5vw, 11px);
   display: flex;
   gap: 12px;
 }
@@ -1813,7 +1819,7 @@ html, body { margin: 0; padding: 0; }
 .frame {
   background: #FFFFFF;
   border-radius: 16px;
-  padding: clamp(17px, 3.4vw, 30px);
+  padding: clamp(13px, 2.2vw, 17px);
   border: none;
   box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14);
 }
@@ -1821,14 +1827,14 @@ html, body { margin: 0; padding: 0; }
   background: #FFE8E1;
   border-left: 4px solid #FF4F28;
   border-radius: 12px;
-  padding: clamp(14px, 2.5vw, 20px);
+  padding: clamp(11px, 1.8vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
   border-left: 4px solid #1F7A4D;
   border-radius: 12px;
-  padding: clamp(14px, 2.5vw, 20px);
+  padding: clamp(11px, 1.8vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22);
 }
 
@@ -1836,6 +1842,15 @@ html, body { margin: 0; padding: 0; }
 .cell-pop { display: inline-block; animation: cellPop 0.34s cubic-bezier(0.34, 1.2, 0.64, 1); }
 @keyframes cellPop { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
-.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 20px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
-`;
+.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(11px, 1.8vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
 
+/* MATH: числовая прямая — интерактивные анимации (frac_5_02). */
+.nl-fill { transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
+.nl-tick { animation: nlTickIn 0.34s ease-out backwards; transform-origin: center bottom; }
+@keyframes nlTickIn { from { opacity: 0; transform: translateX(-50%) scaleY(0.15); } to { opacity: 1; transform: translateX(-50%) scaleY(1); } }
+.nl-marker { transition: left 0.4s cubic-bezier(0.34, 1.1, 0.64, 1); }
+.nl-marker-pop { animation: nlMarkerPop 0.44s cubic-bezier(0.34, 1.35, 0.64, 1); }
+@keyframes nlMarkerPop { 0% { opacity: 0; transform: translateY(-16px) scale(0.3); } 60% { opacity: 1; transform: translateY(0) scale(1.18); } 100% { opacity: 1; transform: scale(1); } }
+.nl-ring { animation: nlRingIn 0.3s ease-out backwards; }
+@keyframes nlRingIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+`;

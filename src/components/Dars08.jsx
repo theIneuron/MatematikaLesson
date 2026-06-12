@@ -679,7 +679,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <div className="fade-up">{question}</div>
         <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {options.map((opt, i) => {
@@ -695,7 +695,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
                   {String.fromCharCode(65 + i)}
                 </span>
@@ -759,7 +759,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <div className="fade-up"><h2 className="title h-sub">{t(c.question)}</h2></div>
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -787,11 +787,11 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- ПОД УРОК: frac_5_07 — Эквивалентные дроби — правило ---
+// --- ПОД УРОК: frac_5_03 — Дробь как деление ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-07-v1',
-  lessonTitle: { ru: 'Эквивалентные дроби — правило', uz: "Ekvivalent kasrlar — qoida" }
+  lessonId: 'frac-5-03-v1',
+  lessonTitle: { ru: 'Дробь как деление', uz: "Kasr — bo'lish natijasi" }
 };
 const TOTAL_SCREENS = 13;
 
@@ -814,264 +814,285 @@ const SCREEN_META = [
 ];
 
 const CONTENT = {
-  // ---- s0 HOOK: Камрон (1/2) и Бобур (3/6) копят на велосипед ----
+  // ---- s0 HOOK: Севара делит 3 лепёшки на 4 друзей, Улугбек: «3 меньше 4 — не делится» ----
   s0: {
-    eyebrow: { ru: 'Эквивалентные дроби · вступление', uz: "Ekvivalent kasrlar · kirish" },
-    title: { ru: 'Камрон и Бобур копят на одинаковый велосипед.', uz: "Kamron va Bobur bir xil velosipedga pul yig'ishyapti." },
-    body: { ru: 'Трекер накоплений у Камрона поделён на 2 части, у Бобура — на 6. Оба заполнили его до одной высоты. Камрон: «я накопил 1/2». Бобур: «а я 3/6 — целых три части, значит больше!».', uz: "Kamronning jamg'arma trekeri 2 bo'lakka, Bobur**niki 6 bo'lakka bo'lingan. Ikkalasi ham uni bir xil balandlikkacha to'ldirgan. Kamron: «men 1/2 yig'dim». Bobur: «men esa 3/6 — uchta bo'lak, demak ko'proq!»." },
-    question: { ru: 'А ты как думаешь: кто накопил больше — Камрон (1/2) или Бобур (3/6)?', uz: "Sizningcha-chi: kim ko'proq yig'di — Kamron (1/2) mi yoki Bobur (3/6) mi?" },
-    opt0: { ru: 'Поровну — 1/2 и 3/6 это одно и то же', uz: "Teng — 1/2 va 3/6 bir xil narsa" },
-    opt1: { ru: 'Бобур — у него 3 части, а у Камрона 1', uz: "Bobur — unda 3 bo'lak, Kamronda 1" },
+    eyebrow: { ru: 'Дробь как деление · вступление', uz: "Kasr — bo'lish · kirish" },
+    title: { ru: 'Севара хочет разделить 3 лепёшки поровну между 4 друзьями.', uz: "Sevara 3 ta nonni 4 ta do'sti o'rtasida teng bo'lmoqchi." },
+    body: { ru: 'Улугбек машет рукой: «три на четыре не делится — три меньше четырёх. Кому-то не хватит, поровну не выйдет».', uz: "Ulug'bek qo'l siltaydi: «uchni to'rtga bo'lib bo'lmaydi — uch to'rtdan kichik. Kimgadir yetmaydi, teng chiqmaydi»." },
+    question: { ru: 'А ты как думаешь: можно ли разделить 3 лепёшки на 4 друзей поровну?', uz: "Sizningcha-chi: 3 ta nonni 4 ta do'stga teng bo'lib bo'ladimi?" },
+    opt0: { ru: 'Да — каждому достанется равная часть', uz: "Ha — har biriga teng ulush tegadi" },
+    opt1: { ru: 'Нет — меньшее на большее не делится', uz: "Yo'q — kichikni kattaga bo'lib bo'lmaydi" },
     opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Камрон и Бобур копят на одинаковый велосипед. Трекер у Камрона поделён на две части, у Бобура на шесть. Оба заполнили до одной высоты. Камрон говорит, что накопил одну вторую, а Бобур три шестых, и хвалится, что у него целых три части. А ты как думаешь — кто накопил больше, Камрон с одной второй или Бобур с тремя шестыми? Выбери ответ.', uz: "Kamron va Bobur bir xil velosipedga pul yig'ishyapti. Kamronning trekeri ikki bo'lakka, Bobur**niki olti bo'lakka bo'lingan. Ikkalasi ham bir xil balandlikkacha to'ldirgan. Kamron ikkidan birni yig'dim, Bobur esa oltidan uchni deydi va uchta bo'lagi borligi bilan maqtanadi. Sizningcha, kim ko'proq yig'di — ikkidan birli Kamronmi yoki oltidan uchli Bobur**mi? Javobni tanlang." }
+    audio: { ru: 'Севара хочет разделить три лепёшки поровну между четырьмя друзьями. Улугбек говорит, что три на четыре не делится, ведь три меньше четырёх. А ты как думаешь — можно ли разделить три лепёшки на четырёх друзей поровну? Выбери ответ.', uz: "Sevara 3 ta nonni 4 ta do'sti o'rtasida teng bo'lmoqchi. Ulug'bek aytadiki, uchni to'rtga bo'lib bo'lmaydi, chunki uch to'rtdan kichik. Sizningcha, 3 ta nonni 4 ta do'stga teng bo'lib bo'ladimi? Javobni tanlang." }
   },
 
-  // ---- s1 EXPLORATION (step-by-step): 1/2 = 2/4 = 3/6 (дробим одну полосу) ----
+  // ---- s1 EXPLORATION (step-by-step): делим 3 лепёшки на 4 ----
   s1: {
-    eyebrow: { ru: 'Одна и та же длина', uz: "Bir xil uzunlik" },
-    title: { ru: 'Посмотрим: 1/2, 2/4 и 3/6 — одна длина', uz: "Ko'ramiz: 1/2, 2/4 va 3/6 — bir xil uzunlik" },
-    conclusion: { ru: 'Закрашенная часть везде одинаковая! 1/2 = 2/4 = 3/6 — это одна и та же дробь, записанная по-разному.', uz: "Bo'yalgan qism hamma joyda bir xil! 1/2 = 2/4 = 3/6 — bu bitta kasr, faqat har xil yozilgan." },
+    eyebrow: { ru: 'Делим поровну', uz: "Teng bo'lamiz" },
+    title: { ru: 'Разделим 3 лепёшки на 4 друзей по шагам', uz: "3 ta nonni 4 do'stga bosqichma-bosqich bo'lamiz" },
+    conclusion: { ru: 'Каждому досталось 3/4 лепёшки. Значит, 3 ÷ 4 = 3/4.', uz: "Har biriga 3/4 non tegdi. Demak, 3 ÷ 4 = 3/4." },
     btn_step: { ru: 'Дальше', uz: "Davom etish" },
     btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?" },
     audio: {
       ru: [
-        'Посмотрим, как одна и та же длина превращается в разные дроби. Нажимай кнопку Дальше.',
-        'Вот полоса, поделённая на 2 части, закрашена одна — это одна вторая.',
-        'Теперь разделим каждую долю пополам — стало 4 части. Закрашенная длина не изменилась, но теперь это две четвёртых. Значит, одна вторая равна двум четвёртым.',
-        'Разделим ещё мельче — на 6 частей. Закрашено стало три из шести, но длина та же. Одна вторая, две четвёртых и три шестых — это одна и та же дробь.'
+        'Разделим три лепёшки на четыре друга по шагам. Нажимай кнопку Дальше.',
+        'Вот три целые лепёшки и четыре друга. Хотим, чтобы каждому досталось поровну.',
+        'Друзей четыре — поэтому каждую лепёшку режем на четыре равные части. Каждая часть — это одна четвёртая лепёшки.',
+        'Теперь даём каждому по одному кусочку от каждой лепёшки. Три лепёшки — значит три кусочка, это три четвёртых. Видишь: три на четыре всё-таки делится, просто ответ — дробь.'
       ],
       uz: [
-        "Bir xil uzunlik qanday qilib har xil kasrga aylanishini ko'ramiz. Davom etish tugmasini bos.",
-        "Mana 2 bo'lakka bo'lingan polosa, bittasi bo'yalgan — bu ikkidan bir.",
-        "Endi har bir ulushni teng ikkiga bo'lamiz — 4 bo'lak bo'ldi. Bo'yalgan uzunlik o'zgarmadi, lekin endi bu to'rtdan ikki. Demak, ikkidan bir to'rtdan ikkiga teng.",
-        "Yana maydaroq — 6 bo'lakka bo'lamiz. Bo'yalgani oltidan uchta bo'ldi, lekin uzunlik o'sha. Ikkidan bir, to'rtdan ikki va oltidan uch — bu bitta kasr."
+        "3 ta nonni 4 do'stga bosqichma-bosqich bo'lamiz. Davom etish tugmasini bosing.",
+        "Mana 3 ta butun non va 4 ta do'st. Har biriga teng tegishini xohlaymiz.",
+        "Do'stlar to'rtta — shuning uchun har bir nonni 4 ta teng bo'lakka kesamiz. Har bir bo'lak — nonning to'rtdan biri.",
+        "Endi har biriga har bir nondan bitta bo'lakdan beramiz. Non uchta — demak uchta bo'lak, bu to'rtdan uch. Ko'rdingizmi: uchni to'rtga bo'lsa ham bo'larkan, faqat javob — kasr."
       ]
     }
   },
 
-  // ---- s2 EXPLORATION (slider): подбери числитель, чтобы ?/6 = 1/2 ----
+  // ---- s2 EXPLORATION (slider + check): подели 2 лепёшки на 3 сам ----
   s2: {
-    eyebrow: { ru: 'Собери равную дробь', uz: "Teng kasrni yig'" },
-    title: { ru: 'Сделай дробь со знаменателем 6, равную 1/2', uz: "Maxraji 6 bo'lgan, 1/2 ga teng kasr yasa" },
-    intro: { ru: 'Сверху эталон — одна вторая. Нижняя полоса поделена на шесть. Двигай ползунок и закрашивай доли, пока длина не совпадёт с верхней.', uz: "Yuqorida etalon — ikkidan bir. Pastki polosa oltiga bo'lingan. Slayderni surib, uzunlik yuqorigisiga to'g'ri kelguncha ulushlarni bo'ya." },
-    target_text: { ru: 'Цель: закрась столько шестых, чтобы получилось ровно 1/2.', uz: "Maqsad: aniq 1/2 chiqishi uchun shuncha oltidanni bo'ya." },
-    eyebrow_slider: { ru: 'Закрашено шестых:', uz: "Bo'yalgan oltidanlar:" },
+    eyebrow: { ru: 'Подели сам', uz: "O'zingiz bo'ling" },
+    title: { ru: 'Подели 2 лепёшки на 3 друзей сам', uz: "2 ta nonni 3 do'stga o'zingiz bo'ling" },
+    intro: { ru: 'Двигай ползунок — выбирай, на сколько равных частей резать каждую лепёшку. Подумай, как сделать дольки честными для 3 друзей.', uz: "Slayderni suring — har bir nonni nechta teng bo'lakka kesishni tanlang. 3 do'st uchun ulushlar adolatli bo'lishini o'ylab ko'ring." },
+    target_text: { ru: 'Цель: 2 лепёшки на 3 друзей. На сколько частей резать каждую лепёшку?', uz: "Maqsad: 2 ta non 3 do'stga. Har bir nonni nechta bo'lakka kesamiz?" },
+    eyebrow_slider: { ru: 'Частей в лепёшке:', uz: "Nondagi bo'laklar:" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    btn_disabled_label: { ru: 'Сначала собери', uz: "Avval yig'ing" },
+    btn_disabled_label: { ru: 'Сначала подели', uz: "Avval bo'ling" },
     fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
-    fb_success: { ru: 'Три шестых равно одной второй: длина совпала. Числитель и знаменатель умножили на три: один умножить на три три, два умножить на три шесть.', uz: "Oltidan uch ikkidan birga teng: uzunlik mos keldi. Surat va maxrajni uchga ko'paytirdik: birni uchga ko'paytirsak uch, ikkini uchga ko'paytirsak olti." },
+    fb_success: { ru: 'Друзей 3 — режем каждую лепёшку на 3 части. Каждому по 2 кусочка — это две третьих. Значит, два разделить на три это две третьих.', uz: "Do'stlar 3 ta — har bir nonni 3 bo'lakka kesamiz. Har biriga 2 bo'lakdan — bu uchdan ikki. Demak, ikkini uchga bo'lsak uchdan ikki." },
     fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
-    fb_wrong: { ru: 'Нужно ровно одна вторая. Половина от шести долей — это три. Поставь ползунок на три.', uz: "Aniq ikkidan bir kerak. Olti ulushning yarmi — uch. Slayderni uchga qo'y." },
-    audio: { ru: 'Сделай дробь со знаменателем шесть, равную одной второй. Сверху стоит эталон, одна вторая. Двигай ползунок и закрашивай шестые доли, пока длина не совпадёт. Половина от шести это три, поэтому три шестых равно одной второй.', uz: "Maxraji olti bo'lgan, ikkidan birga teng kasr yasa. Yuqorida etalon — ikkidan bir. Slayderni surib, uzunlik mos kelguncha oltidan ulushlarni bo'ya. Oltining yarmi uch, shuning uchun oltidan uch ikkidan birga teng." }
+    fb_wrong: { ru: 'Друзей 3, поэтому каждую лепёшку режем ровно на 3 части. Поставь ползунок на 3.', uz: "Do'stlar 3 ta, shuning uchun har bir nonni aniq 3 bo'lakka kesamiz. Slayderni 3 ga qo'ying." },
+    audio: { ru: 'Подели две лепёшки на трёх друзей сам. Двигай ползунок и выбери, на сколько равных частей резать каждую лепёшку. Друзей трое, поэтому каждую лепёшку режем на три части, и каждому достаётся две третьих.', uz: "2 ta nonni 3 do'stga o'zingiz bo'ling. Slayderni surib, har bir nonni nechta teng bo'lakka kesishni tanlang. Do'stlar uchta, shuning uchun har bir nonni 3 bo'lakka kesamiz va har biriga uchdan ikki tegadi." }
   },
 
-  // ---- s3 RULE: умножай числитель и знаменатель на одно число ----
+  // ---- s3 RULE: a ÷ b = a/b ----
   s3: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Эквивалентные дроби', uz: "Ekvivalent kasrlar" },
-    title: { ru: 'Умножь числитель и знаменатель на одно и то же число — получишь равную дробь.', uz: "Surat va maxrajni bir xil songa ko'paytir — teng kasr chiqadi." },
-    card_top: { ru: 'Что делаешь со знаменателем — делай и с числителем.', uz: "Maxrajga nima qilsang — suratga ham shuni qil." },
-    card_bottom: { ru: 'Долей становится больше, но они мельче — длина не меняется.', uz: "Ulushlar ko'payadi, lekin maydalashadi — uzunlik o'zgarmaydi." },
-    card_line: { ru: '1/2 = 2/4 = 3/6 (×2, ×3). Это эквивалентные дроби.', uz: "1/2 = 2/4 = 3/6 (×2, ×3). Bu — ekvivalent kasrlar." },
-    outro: { ru: 'Эквивалентные дроби — это одно и то же число, записанное разными долями.', uz: "Ekvivalent kasrlar — bu bitta son, faqat har xil ulushlarda yozilgan." },
-    audio: { ru: 'Запомни правило. Чтобы получить равную дробь, умножь числитель и знаменатель на одно и то же число. Что делаешь со знаменателем, делай и с числителем. Долей становится больше, но они мельче, а закрашенная длина не меняется. Одна вторая равна двум четвёртым и трём шестым. Это эквивалентные дроби — одно и то же число, записанное по-разному.', uz: "Qoidani eslab qol. Teng kasr olish uchun surat va maxrajni bir xil songa ko'paytir. Maxrajga nima qilsang, suratga ham shuni qil. Ulushlar ko'payadi, lekin maydalashadi, bo'yalgan uzunlik esa o'zgarmaydi. Ikkidan bir to'rtdan ikkiga va oltidan uchga teng. Bu ekvivalent kasrlar — bitta son, har xil yozilgan." }
+    label: { ru: 'Дробь — это деление', uz: "Kasr — bu bo'lish" },
+    title: { ru: 'Запись a/b означает «a разделить на b».', uz: "a/b yozuvi «a ni b ga bo'lish» degani." },
+    card_top: { ru: 'Числитель (сверху) — что делим: сколько лепёшек.', uz: "Surat (yuqorida) — nimani bo'lamiz: nechta non." },
+    card_bottom: { ru: 'Знаменатель (снизу) — на сколько делим: сколько друзей.', uz: "Maxraj (pastda) — nechtaga bo'lamiz: nechta do'st." },
+    card_line: { ru: 'Каждому достаётся ровно a/b.', uz: "Har biriga aniq a/b tegadi." },
+    outro: { ru: '3 лепёшки на 4 друзей: 3 ÷ 4 = 3/4. Каждому — три четвёртых лепёшки.', uz: "3 ta non 4 do'stga: 3 ÷ 4 = 3/4. Har biriga — nonning to'rtdan uchi." },
+    audio: { ru: 'Запомни главное: дробь — это деление. Запись a дробь b означает a разделить на b. Сверху, в числителе, — что делим, сколько лепёшек. Снизу, в знаменателе, — на сколько делим, сколько друзей. Каждому достаётся ровно a дробь b. Три лепёшки на четыре друга — это три разделить на четыре, то есть три четвёртых.', uz: "Asosiysini eslab qoling: kasr — bu bo'lish. a kasr b yozuvi a ni b ga bo'lish degani. Yuqorida, suratda, — nimani bo'lamiz, nechta non. Pastda, maxrajda, — nechtaga bo'lamiz, nechta do'st. Har biriga aniq a kasr b tegadi. 3 ta non 4 do'stga — bu uchni to'rtga bo'lish, ya'ni to'rtdan uch." }
   },
 
-  // ---- s4 TEST (MC, дроби): какая равна 1/2 → 2/4 (correct opt0) ----
+  // ---- s4 TEST (MC, дроби): 4 лепёшки на 5 → 4/5 (correct idx 1) ----
   s4: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Найди равную дробь', uz: "Teng kasrni top" },
-    question: { ru: 'Какая дробь равна 1/2?', uz: "Qaysi kasr 1/2 ga teng?" },
-    correct_text: { ru: 'Верно: 2/4 = 1/2 (умножили на 2: 1×2=2, 2×2=4). Длина одинаковая.', uz: "To'g'ri: 2/4 = 1/2 (2 ga ko'paytirdik: 1×2=2, 2×2=4). Uzunlik bir xil." },
-    hint_1: { ru: '2/3 не равно 1/2: 1/2 это 3/6, а 2/3 это 4/6. Разные.', uz: "2/3 1/2 ga teng emas: 1/2 bu 3/6, 2/3 bu 4/6. Har xil." },
-    hint_2: { ru: '3/5 не равно 1/2: половина пятых — это 2,5/5, а не 3/5.', uz: "3/5 1/2 ga teng emas: beshdan yarmi — 2,5/5, 3/5 emas." },
-    hint_3: { ru: '1/3 меньше 1/2: треть мельче половины.', uz: "1/3 1/2 dan kichik: uchdan bir yarimdan mayda." },
-    wrong_default: { ru: 'Чтобы получить равную 1/2, умножь верх и низ на одно число: 1/2 = 2/4.', uz: "1/2 ga teng kasr uchun yuqori va pastni bir songa ko'paytir: 1/2 = 2/4." },
+    label: { ru: 'Запиши деление дробью', uz: "Bo'lishni kasr bilan yozing" },
+    question: { ru: '4 лепёшки разделили поровну между 5 друзьями. Сколько достанется каждому?', uz: "4 ta non 5 ta do'stga teng bo'lindi. Har biriga qancha tegadi?" },
+    correct_text: { ru: 'Верно: делим 4 на 5, значит 4 ÷ 5 = 4/5. Каждому — четыре пятых лепёшки.', uz: "To'g'ri: 4 ni 5 ga bo'lamiz, demak 4 ÷ 5 = 4/5. Har biriga — nonning beshdan to'rti." },
+    hint_0: { ru: 'Числитель и знаменатель перепутаны: делим 4 (лепёшки) на 5 (друзей), сверху 4, снизу 5.', uz: "Surat va maxraj almashgan: 4 (non) ni 5 (do'st) ga bo'lamiz, yuqorida 4, pastda 5." },
+    hint_2: { ru: 'Это значило бы «целая лепёшка каждому». Но лепёшек 4, а друзей 5 — каждому меньше целого.', uz: "Bu «har biriga butun non» degani bo'lardi. Lekin non 4 ta, do'st 5 ta — har biriga butundan kam." },
+    hint_3: { ru: 'Снизу — число друзей. Их 5, а не 4.', uz: "Pastda — do'stlar soni. Ular 5 ta, 4 emas." },
+    wrong_default: { ru: 'Числитель — что делим (4 лепёшки), знаменатель — на сколько (5 друзей). Это 4/5.', uz: "Surat — nimani bo'lamiz (4 non), maxraj — nechtaga (5 do'st). Bu 4/5." },
     audio: {
-      intro: { ru: 'Какая дробь равна одной второй? Выбери ответ.', uz: "Qaysi kasr ikkidan birga teng? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Две четвёртых это одна вторая, умножили на два.', uz: "To'g'ri. To'rtdan ikki — bu ikkidan bir, ikkiga ko'paytirdik." },
-      on_wrong: { ru: 'Пока нет. Умножь числитель и знаменатель одной второй на одно число.', uz: "Hali emas. Ikkidan birning surat va maxrajini bir songa ko'paytir." }
+      intro: { ru: 'Четыре лепёшки разделили поровну между пятью друзьями. Выбери дробь, которая показывает долю каждого.', uz: "4 ta non 5 ta do'stga teng bo'lindi. Har birining ulushini ko'rsatadigan kasrni tanlang." },
+      on_correct: { ru: 'Верно. Четыре на пять — это четыре пятых.', uz: "To'g'ri. To'rtni beshga — bu beshdan to'rt." },
+      on_wrong: { ru: 'Пока нет. Сверху — сколько лепёшек, снизу — сколько друзей.', uz: "Hali emas. Yuqorida — nechta non, pastda — nechta do'st." }
     }
   },
 
-  // ---- s5 RULE-2 (misconception): меняй И числитель, не только знаменатель ----
+  // ---- s5 RULE: порядок важен, 3/4 ≠ 4/3 ----
   s5: {
-    eyebrow: { ru: 'Правило · ошибка', uz: "Qoida · xato" },
-    label: { ru: 'Меняй оба числа, не только нижнее', uz: "Ikkala sonni o'zgartir, faqat pastdagini emas" },
-    title: { ru: '1/2 — это НЕ 1/6. Поменял знаменатель — поменяй и числитель.', uz: "1/2 — bu 1/6 EMAS. Maxrajni o'zgartirsang — suratni ham o'zgartir." },
-    card_ok: { ru: 'Если просто сделать 6 долей, но оставить 1 закрашенную — выйдет 1/6, а это намного меньше 1/2.', uz: "Agar shunchaki 6 ulush qilib, 1 tasini bo'yasang — 1/6 chiqadi, bu esa 1/2 dan ancha kichik." },
-    card_bad: { ru: 'Правильно: числитель тоже умножаем на 3 → 3/6. Вот это равно 1/2.', uz: "To'g'risi: suratni ham 3 ga ko'paytiramiz → 3/6. Mana shu 1/2 ga teng." },
-    outro: { ru: 'Эквивалентность — это умножить ОБА числа на одно. Менять только знаменатель нельзя.', uz: "Ekvivalentlik — bu IKKALA sonni bir songa ko'paytirish. Faqat maxrajni o'zgartirib bo'lmaydi." },
-    audio: { ru: 'Внимание, частая ошибка. Одна вторая это не одна шестая. Если просто сделать шесть долей, но оставить закрашенной одну, выйдет одна шестая, а она намного меньше половины. Правильно умножить и числитель тоже на три, тогда получится три шестых, и вот это равно одной второй. Меняй оба числа, не только нижнее.', uz: "Diqqat, ko'p uchraydigan xato. Ikkidan bir — bu oltidan bir emas. Agar shunchaki olti ulush qilib, bittasini bo'yasang, oltidan bir chiqadi, u esa yarimdan ancha kichik. To'g'risi, suratni ham uchga ko'paytirish, shunda oltidan uch chiqadi, mana shu ikkidan birga teng. Ikkala sonni o'zgartir, faqat pastdagini emas." }
+    eyebrow: { ru: 'Правило', uz: "Qoida" },
+    label: { ru: 'Порядок важен', uz: "Tartib muhim" },
+    title: { ru: '3/4 и 4/3 — это разные дроби.', uz: "3/4 va 4/3 — har xil kasrlar." },
+    card_ok: { ru: '3/4 — это 3 лепёшки на 4 друзей: каждому меньше целой лепёшки.', uz: "3/4 — bu 3 ta non 4 do'stga: har biriga butun nondan kam." },
+    card_bad: { ru: '4/3 — это уже 4 лепёшки на 3 друзей: каждому больше целой. Поменяли местами — получилась другая дробь.', uz: "4/3 — bu endi 4 ta non 3 do'stga: har biriga butundan ko'p. O'rni almashdi — boshqa kasr chiqdi." },
+    outro: { ru: 'Сверху — что делим, снизу — на сколько. Эти два числа нельзя менять местами.', uz: "Yuqorida — nimani bo'lamiz, pastda — nechtaga. Bu ikki sonni o'rni bilan almashtirib bo'lmaydi." },
+    audio: { ru: 'Порядок в дроби важен. Три четвёртых — это три лепёшки на четыре друга, каждому меньше целой. А четыре третьих — это четыре лепёшки на три друга, каждому больше целой. Сверху всегда то, что делим, а снизу — на сколько делим. Поменяешь их местами — получится совсем другая дробь.', uz: "Kasrdagi tartib muhim. To'rtdan uch — bu 3 ta non 4 do'stga, har biriga butundan kam. To'rtdan... ya'ni uchdan to'rt esa — bu 4 ta non 3 do'stga, har biriga butundan ko'p. Yuqorida doim nimani bo'lsak o'sha, pastda esa nechtaga bo'lganimiz turadi. Ularning o'rnini almashtirsangiz, butunlay boshqa kasr chiqadi." }
   },
 
-  // ---- s6 TEST (MC, дроби): 3/4 = ?/8 → 6/8 (correct opt0) ----
+  // ---- s6 TEST (MC, дроби): что значит «3 лепёшки на 4» → 3/4 (correct idx 1) ----
   s6: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Допиши равную дробь', uz: "Teng kasrni to'ldir" },
-    question: { ru: 'Какая дробь со знаменателем 8 равна 3/4?', uz: "Maxraji 8 bo'lgan qaysi kasr 3/4 ga teng?" },
-    correct_text: { ru: 'Верно: 3/4 = 6/8 (умножили на 2: 3×2=6, 4×2=8).', uz: "To'g'ri: 3/4 = 6/8 (2 ga ko'paytirdik: 3×2=6, 4×2=8)." },
-    hint_1: { ru: '3/8 — это меньше: числитель тоже надо умножить на 2, выйдет 6.', uz: "3/8 — bu kichik: suratni ham 2 ga ko'paytirish kerak, 6 chiqadi." },
-    hint_2: { ru: '7/8 больше 3/4. А 3/4 это ровно 6/8.', uz: "7/8 3/4 dan katta. 3/4 esa aniq 6/8." },
-    hint_3: { ru: '4/8 — это 1/2, а не 3/4. Нужно 6/8.', uz: "4/8 — bu 1/2, 3/4 emas. 6/8 kerak." },
-    wrong_default: { ru: '4 умножили на 2, чтобы вышло 8 — значит и 3 умножь на 2. 3/4 = 6/8.', uz: "8 chiqishi uchun 4 ni 2 ga ko'paytirdik — demak 3 ni ham 2 ga ko'paytir. 3/4 = 6/8." },
+    label: { ru: 'Выбери нужную дробь', uz: "Kerakli kasrni tanlang" },
+    question: { ru: 'Какая дробь означает «3 лепёшки разделить на 4 друзей»?', uz: "Qaysi kasr «3 ta nonni 4 do'stga bo'lish»ni bildiradi?" },
+    correct_text: { ru: 'Верно: что делим — сверху (3 лепёшки), на сколько — снизу (4 друга). Это 3/4.', uz: "To'g'ri: nimani bo'lamiz — yuqorida (3 non), nechtaga — pastda (4 do'st). Bu 3/4." },
+    hint_0: { ru: 'Здесь числа поменяны местами: это «4 лепёшки на 3», а нам нужно «3 на 4».', uz: "Bu yerda sonlar o'rni almashgan: bu «4 non 3 ga», bizga esa «3 ni 4 ga» kerak." },
+    hint_2: { ru: 'Это «3 лепёшки на 3 друзей» — каждому по целой. А друзей 4.', uz: "Bu «3 non 3 do'stga» — har biriga butundan. Do'st esa 4 ta." },
+    hint_3: { ru: 'Это «1 лепёшка на 4». А лепёшек у нас 3.', uz: "Bu «1 non 4 ga». Bizda esa non 3 ta." },
+    wrong_default: { ru: 'Сверху — что делим (3 лепёшки), снизу — на сколько (4 друга). Это 3/4.', uz: "Yuqorida — nimani bo'lamiz (3 non), pastda — nechtaga (4 do'st). Bu 3/4." },
     audio: {
-      intro: { ru: 'Какая дробь со знаменателем восемь равна трём четвёртым? Выбери ответ.', uz: "Maxraji sakkiz bo'lgan qaysi kasr to'rtdan uchga teng? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Три четвёртых это шесть восьмых, умножили на два.', uz: "To'g'ri. To'rtdan uch — bu sakkizdan olti, ikkiga ko'paytirdik." },
-      on_wrong: { ru: 'Пока нет. 4 умножили на 2, значит и 3 умножь на 2.', uz: "Hali emas. 4 ni 2 ga ko'paytirdik, demak 3 ni ham 2 ga ko'paytir." }
+      intro: { ru: 'Какая дробь означает: три лепёшки разделить на четыре друга? Выбери ответ.', uz: "Qaysi kasr «3 ta nonni 4 do'stga bo'lish»ni bildiradi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Три сверху, четыре снизу — это три четвёртых.', uz: "To'g'ri. Uch yuqorida, to'rt pastda — bu to'rtdan uch." },
+      on_wrong: { ru: 'Пока нет. Сверху — что делим, снизу — на сколько делим.', uz: "Hali emas. Yuqorida — nimani bo'lamiz, pastda — nechtaga bo'lamiz." }
     }
   },
 
-  // ---- s7 TEST (MC, текст misconception): 1/2 = 1/6? Нет (correct opt0) ----
+  // ---- s7 TEST (MC, текст): «3 меньше 4 — не делится»? Нет, можно (correct idx 0) ----
   s7: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Только знаменатель?', uz: "Faqat maxrajmi?" },
-    question: { ru: 'Чтобы из 1/2 сделать шестые доли, кто-то написал 1/6. Верно?', uz: "1/2 dan oltidan ulush qilish uchun kimdir 1/6 deb yozdi. To'g'rimi?" },
-    opt0: { ru: 'Неверно — надо умножить и числитель: 1/2 = 3/6', uz: "Noto'g'ri — suratni ham ko'paytirish kerak: 1/2 = 3/6" },
-    opt1: { ru: 'Верно — знаменатель стал 6, значит 1/6', uz: "To'g'ri — maxraj 6 bo'ldi, demak 1/6" },
-    opt2: { ru: 'Верно, но только если числитель оставить', uz: "To'g'ri, lekin faqat suratni qoldirsa" },
-    opt3: { ru: 'Так дробь вообще не записать', uz: "Bunday kasrni umuman yozib bo'lmaydi" },
-    correct_text: { ru: 'Верно: умножили знаменатель на 3 — умножь и числитель на 3. 1/2 = 3/6, а не 1/6.', uz: "To'g'ri: maxrajni 3 ga ko'paytirdik — suratni ham 3 ga ko'paytir. 1/2 = 3/6, 1/6 emas." },
-    hint_1: { ru: 'Это ошибка: 1/6 намного меньше 1/2. Числитель тоже надо умножить на 3.', uz: "Bu xato: 1/6 1/2 dan ancha kichik. Suratni ham 3 ga ko'paytirish kerak." },
-    hint_2: { ru: 'Числитель оставлять нельзя — иначе дробь уменьшится. Нужно 3/6.', uz: "Suratni qoldirib bo'lmaydi — aks holda kasr kichrayadi. 3/6 kerak." },
-    hint_3: { ru: 'Записать можно: 1/2 = 3/6. Просто умножь оба числа на 3.', uz: "Yozsa bo'ladi: 1/2 = 3/6. Faqat ikkala sonni 3 ga ko'paytir." },
-    wrong_default: { ru: 'Нет. Меняешь знаменатель — меняй и числитель. 1/2 = 3/6.', uz: "Yo'q. Maxrajni o'zgartirsang — suratni ham o'zgartir. 1/2 = 3/6." },
+    label: { ru: 'Делится ли меньшее на большее?', uz: "Kichikni kattaga bo'lsa bo'ladimi?" },
+    question: { ru: 'Кто-то говорит: «3 на 4 не делится, ведь 3 меньше 4». Это так?', uz: "Kimdir aytadi: «3 ni 4 ga bo'lib bo'lmaydi, axir 3 kichik 4 dan». Shundaymi?" },
+    opt0: { ru: 'Неверно — делится, каждому достаётся 3/4 (меньше целой лепёшки)', uz: "Noto'g'ri — bo'linadi, har biriga 3/4 tegadi (butun nondan kam)" },
+    opt1: { ru: 'Верно — меньшее на большее не делится', uz: "To'g'ri — kichikni kattaga bo'lib bo'lmaydi" },
+    opt2: { ru: 'Делится, но каждому достаётся целая лепёшка', uz: "Bo'linadi, lekin har biriga butun non tegadi" },
+    opt3: { ru: 'Делится только с остатком, дробь тут ни при чём', uz: "Faqat qoldiq bilan bo'linadi, kasrning unga aloqasi yo'q" },
+    correct_text: { ru: 'Верно: 3 на 4 делится, просто ответ — дробь. Каждому достаётся 3/4 лепёшки, это меньше целой.', uz: "To'g'ri: 3 ni 4 ga bo'lsa bo'ladi, faqat javob — kasr. Har biriga 3/4 non tegadi, bu butundan kam." },
+    hint_1: { ru: 'Лепёшку же можно разрезать. Делим на 4 части — каждому по 3 кусочка, это 3/4.', uz: "Nonni kessa bo'ladi-ku. 4 bo'lakka bo'lamiz — har biriga 3 bo'lakdan, bu 3/4." },
+    hint_2: { ru: 'Лепёшек 3, а друзей 4 — целой на каждого не хватит. Каждому 3/4, меньше целой.', uz: "Non 3 ta, do'st 4 ta — har biriga butun yetmaydi. Har biriga 3/4, butundan kam." },
+    hint_3: { ru: 'Как раз при том, что нацело не делится, и появляется дробь: 3 ÷ 4 = 3/4.', uz: "Aynan butun bo'linmaganda kasr paydo bo'ladi: 3 ÷ 4 = 3/4." },
+    wrong_default: { ru: '3 на 4 делится, ответ — дробь 3/4. Каждому меньше целой лепёшки.', uz: "3 ni 4 ga bo'lsa bo'ladi, javob — 3/4 kasri. Har biriga butun nondan kam." },
     audio: {
-      intro: { ru: 'Чтобы из одной второй сделать шестые доли, кто-то написал одну шестую. Верно ли это? Выбери ответ.', uz: "Ikkidan birdan oltidan ulush qilish uchun kimdir oltidan bir deb yozdi. Bu to'g'rimi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Надо умножить и числитель на три, выйдет три шестых.', uz: "To'g'ri. Suratni ham uchga ko'paytirish kerak, oltidan uch chiqadi." },
-      on_wrong: { ru: 'Это ошибка: меняешь знаменатель — меняй и числитель.', uz: "Bu xato: maxrajni o'zgartirsang — suratni ham o'zgartir." }
+      intro: { ru: 'Кто-то говорит, что три на четыре не делится, ведь три меньше четырёх. Так ли это? Выбери ответ.', uz: "Kimdir aytadi: 3 ni 4 ga bo'lib bo'lmaydi, axir 3 kichik. Shundaymi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Делится — каждому достаётся три четвёртых, меньше целой.', uz: "To'g'ri. Bo'linadi — har biriga to'rtdan uch tegadi, butundan kam." },
+      on_wrong: { ru: 'Посмотри ещё раз: лепёшку можно разрезать, поэтому ответ — дробь.', uz: "Yana qarang: nonni kessa bo'ladi, shuning uchun javob — kasr." }
     }
   },
 
-  // ---- s8 CASE setup: Лайло, рецепт (2/3 стакана, мерка в шестых) ----
+  // ---- s8 CASE setup: Камола разливает 3 литра сока в 4 стакана ----
   s8: {
-    eyebrow: { ru: 'Задача · рецепт', uz: "Masala · retsept" },
-    title: { ru: 'Лайло готовит по рецепту.', uz: "Laylo retsept bo'yicha tayyorlaydi." },
-    body_p1: { ru: 'В рецепте нужно 2/3 стакана муки. Но у Лайло мерный стакан с делениями на шестые доли. Сколько шестых ей отмерить, чтобы вышло ровно 2/3?', uz: "Retseptda 2/3 stakan un kerak. Lekin Layloda oltidan ulushlarga bo'lingan o'lchov stakani bor. Aniq 2/3 chiqishi uchun u nechta oltidanni o'lchashi kerak?" },
-    card_line_label: { ru: 'Нужно по рецепту', uz: "Retsept bo'yicha kerak" },
-    card_line_value: { ru: '2/3 стакана', uz: "2/3 stakan" },
-    card_parts_label: { ru: 'Мерка делит на', uz: "O'lchov bo'ladi" },
-    card_parts_value: { ru: 'шестые доли', uz: "oltidan ulushlar" },
-    outro: { ru: 'Нужно записать 2/3 в шестых долях. Помоги Лайло на следующем шаге.', uz: "2/3 ni oltidan ulushlarda yozish kerak. Keyingi bosqichda Layloga yordam ber." },
-    btn_help: { ru: 'Помочь Лайло', uz: "Layloga yordam berish" },
-    audio: { ru: 'Лайло готовит по рецепту. Нужно две третьих стакана муки, но у неё мерный стакан с делениями на шестые доли. Сколько шестых ей отмерить, чтобы вышло ровно две третьих? Нужно записать две третьих в шестых долях. Подумай, как.', uz: "Laylo retsept bo'yicha tayyorlaydi. Ikkidan... ya'ni uchdan ikki stakan un kerak, lekin uning o'lchov stakani oltidan ulushlarga bo'lingan. Aniq uchdan ikki chiqishi uchun u nechta oltidanni o'lchashi kerak? Uchdan ikkini oltidanlarda yozish kerak. Qanday qilishni o'ylab ko'r." }
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
+    title: { ru: 'Камола разливает сок по стаканам.', uz: "Kamola sharbatni stakanlarga quyadi." },
+    body_p1: { ru: 'У Камолы 3 литра сока. Она хочет разлить его поровну в 4 одинаковых стакана. Сколько сока попадёт в каждый стакан?', uz: "Kamolada 3 litr sharbat bor. U uni 4 ta bir xil stakanga teng quymoqchi. Har bir stakanga qancha sharbat tushadi?" },
+    card_line_label: { ru: 'Сока', uz: "Sharbat" },
+    card_line_value: { ru: '3 литра', uz: "3 litr" },
+    card_parts_label: { ru: 'Стаканов', uz: "Stakanlar" },
+    card_parts_value: { ru: '4 одинаковых', uz: "4 ta bir xil" },
+    outro: { ru: 'Это деление: 3 литра разделить на 4 стакана. Помоги Камоле на следующем шаге.', uz: "Bu — bo'lish: 3 litrni 4 stakanga bo'lish. Keyingi bosqichda Kamolaga yordam bering." },
+    btn_help: { ru: 'Помочь Камоле', uz: "Kamolaga yordam berish" },
+    audio: { ru: 'У Камолы три литра сока, и она разливает его поровну в четыре одинаковых стакана. Сколько сока попадёт в каждый стакан? Это деление: три литра разделить на четыре. Подумай, какая получится дробь.', uz: "Kamolada 3 litr sharbat bor va u uni 4 ta bir xil stakanga teng quyadi. Har bir stakanga qancha sharbat tushadi? Bu — bo'lish: 3 litrni 4 ga bo'lish. Qanday kasr chiqishini o'ylab ko'ring." }
   },
 
-  // ---- s9 CASE step (MC, дроби): 2/3 = ?/6 → 4/6 (correct opt0) ----
+  // ---- s9 CASE step (MC, дроби): 3 литра на 4 стакана → 3/4 (correct idx 1) ----
   s9: {
-    eyebrow: { ru: 'Задача · рецепт', uz: "Masala · retsept" },
-    label: { ru: 'Сколько шестых?', uz: "Nechta oltidan?" },
-    question: { ru: 'Сколько шестых долей равно 2/3 стакана?', uz: "Necha oltidan ulush 2/3 stakanga teng?" },
-    correct_text: { ru: 'Верно: 2/3 = 4/6 (умножили на 2: 2×2=4, 3×2=6). Лайло отмерит 4 шестых.', uz: "To'g'ri: 2/3 = 4/6 (2 ga ko'paytirdik: 2×2=4, 3×2=6). Laylo 4 ta oltidanni o'lchaydi." },
-    hint_1: { ru: '2/6 — это 1/3, в два раза меньше. Числитель тоже умножь на 2.', uz: "2/6 — bu 1/3, ikki barobar kichik. Suratni ham 2 ga ko'paytir." },
-    hint_2: { ru: '3/6 — это 1/2, а не 2/3. Нужно 4/6.', uz: "3/6 — bu 1/2, 2/3 emas. 4/6 kerak." },
-    hint_3: { ru: '5/6 больше 2/3. А 2/3 это ровно 4/6.', uz: "5/6 2/3 dan katta. 2/3 esa aniq 4/6." },
-    wrong_default: { ru: '3 умножили на 2, чтобы вышло 6 — значит и 2 умножь на 2. 2/3 = 4/6.', uz: "6 chiqishi uchun 3 ni 2 ga ko'paytirdik — demak 2 ni ham 2 ga ko'paytir. 2/3 = 4/6." },
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
+    label: { ru: 'Сколько в стакане?', uz: "Stakanda qancha?" },
+    question: { ru: '3 литра сока разлили поровну в 4 стакана. Сколько литра в каждом стакане?', uz: "3 litr sharbat 4 stakanga teng quyildi. Har bir stakanda necha litr?" },
+    correct_text: { ru: 'Верно: 3 литра на 4 стакана — это 3 ÷ 4 = 3/4. В каждом стакане три четвёртых литра.', uz: "To'g'ri: 3 litr 4 stakanga — bu 3 ÷ 4 = 3/4. Har bir stakanda litrning to'rtdan uchi." },
+    hint_0: { ru: 'Числа перепутаны: делим 3 (литра) на 4 (стакана), сверху 3, снизу 4.', uz: "Sonlar almashgan: 3 (litr) ni 4 (stakan) ga bo'lamiz, yuqorida 3, pastda 4." },
+    hint_2: { ru: 'Это «3 целых литра в стакане». Но литров всего 3, а стаканов 4.', uz: "Bu «stakanda 3 butun litr» degani. Lekin litr jami 3 ta, stakan 4 ta." },
+    hint_3: { ru: 'Это «1 литр на 4». А литров у нас 3.', uz: "Bu «1 litr 4 ga». Bizda esa litr 3 ta." },
+    wrong_default: { ru: 'Числитель — сколько литров (3), знаменатель — сколько стаканов (4). Это 3/4.', uz: "Surat — necha litr (3), maxraj — nechta stakan (4). Bu 3/4." },
     audio: {
-      intro: { ru: 'Сколько шестых долей равно двум третьим стакана? Выбери ответ.', uz: "Necha oltidan ulush uchdan ikki stakanga teng? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Две третьих это четыре шестых, умножили на два.', uz: "To'g'ri. Uchdan ikki — bu oltidan to'rt, ikkiga ko'paytirdik." },
-      on_wrong: { ru: 'Пока нет. 3 умножили на 2, значит и 2 умножь на 2.', uz: "Hali emas. 3 ni 2 ga ko'paytirdik, demak 2 ni ham 2 ga ko'paytir." }
+      intro: { ru: 'Три литра сока разлили поровну в четыре стакана. Сколько литра в каждом стакане? Выбери дробь.', uz: "3 litr sharbat 4 stakanga teng quyildi. Har bir stakanda necha litr? Kasrni tanlang." },
+      on_correct: { ru: 'Верно. Три литра на четыре стакана — три четвёртых литра в каждом.', uz: "To'g'ri. 3 litr 4 stakanga — har birida litrning to'rtdan uchi." },
+      on_wrong: { ru: 'Пока нет. Сверху — сколько литров, снизу — сколько стаканов.', uz: "Hali emas. Yuqorida — necha litr, pastda — nechta stakan." }
     }
   },
 
-  // ---- s10 CASE conclusion (MC, текст): почему 2/3 = 4/6 (correct opt0) ----
+  // ---- s10 CASE conclusion (MC, текст): что значит 3/4 литра (correct idx 0) ----
   s10: {
-    eyebrow: { ru: 'Задача · рецепт', uz: "Masala · retsept" },
-    label: { ru: 'Почему так', uz: "Nega shunday" },
-    question: { ru: 'Почему 2/3 равно 4/6?', uz: "Nega 2/3 4/6 ga teng?" },
-    opt0: { ru: 'Числитель и знаменатель умножили на одно число (на 2) — длина не изменилась.', uz: "Surat va maxrajni bir songa (2 ga) ko'paytirdik — uzunlik o'zgarmadi." },
-    opt1: { ru: 'Потому что 4 и 6 больше, чем 2 и 3.', uz: "Chunki 4 va 6 2 va 3 dan katta." },
-    opt2: { ru: 'Потому что мы прибавили 2 к каждому числу.', uz: "Chunki har bir songa 2 qo'shdik." },
-    opt3: { ru: 'На самом деле они не равны.', uz: "Aslida ular teng emas." },
-    correct_text: { ru: 'Верно: умножили оба числа на 2. 2×2=4, 3×2=6 — дробь та же, только доли мельче.', uz: "To'g'ri: ikkala sonni 2 ga ko'paytirdik. 2×2=4, 3×2=6 — kasr o'sha, faqat ulushlar mayda." },
-    hint_1: { ru: 'Дело не в том, что числа больше, а в том, что их умножили на ОДНО число.', uz: "Gap sonlar katta bo'lganida emas, balki ularni BIR songa ko'paytirilganida." },
-    hint_2: { ru: 'Не прибавили, а умножили: 2×2 и 3×2. Прибавление дробь меняет.', uz: "Qo'shmadik, ko'paytirdik: 2×2 va 3×2. Qo'shish kasrni o'zgartiradi." },
-    hint_3: { ru: 'Они равны: и 2/3, и 4/6 закрашивают одинаковую длину.', uz: "Ular teng: 2/3 ham, 4/6 ham bir xil uzunlikni bo'yaydi." },
-    wrong_default: { ru: 'Умножили числитель и знаменатель на одно число (2) — получилась равная дробь.', uz: "Surat va maxrajni bir songa (2 ga) ko'paytirdik — teng kasr chiqdi." },
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
+    label: { ru: 'Что это значит', uz: "Bu nimani bildiradi" },
+    question: { ru: 'В каждом стакане три четвёртых литра. Что это означает?', uz: "Har bir stakanda litrning to'rtdan uchi. Bu nimani bildiradi?" },
+    opt0: { ru: '3 литра разделили на 4 стакана — в каждом меньше литра, по 3/4 литра.', uz: "3 litr 4 stakanga bo'lindi — har birida 1 litrdan kam, 3/4 litrdan." },
+    opt1: { ru: 'В каждом стакане ровно 3 литра.', uz: "Har bir stakanda aniq 3 litr bor." },
+    opt2: { ru: 'Стаканов 3, а сока 4 литра.', uz: "Stakanlar 3 ta, sharbat 4 litr." },
+    opt3: { ru: 'Каждый стакан полон — по целому литру.', uz: "Har bir stakan to'la — 1 litrdan." },
+    correct_text: { ru: 'Верно: 3 литра на 4 стакана — в каждом 3/4 литра, это меньше целого литра.', uz: "To'g'ri: 3 litr 4 stakanga — har birida 3/4 litr, bu 1 butun litrdan kam." },
+    hint_1: { ru: 'Литров всего 3, а стаканов 4 — целого литра на каждый не хватит.', uz: "Litr jami 3 ta, stakan 4 ta — har biriga butun litr yetmaydi." },
+    hint_2: { ru: 'Сверху — что делим (3 литра), снизу — на сколько (4 стакана). Не наоборот.', uz: "Yuqorida — nimani bo'lamiz (3 litr), pastda — nechtaga (4 stakan). Aksincha emas." },
+    hint_3: { ru: 'Полным был бы целый литр. А 3/4 литра — это меньше, стакан неполный.', uz: "To'la bo'lsa 1 butun litr bo'lardi. 3/4 litr esa — kamroq, stakan to'la emas." },
+    wrong_default: { ru: '3 литра разделили на 4 стакана: в каждом 3/4 литра, меньше целого.', uz: "3 litr 4 stakanga bo'lindi: har birida 3/4 litr, butundan kam." },
     audio: {
-      intro: { ru: 'Почему две третьих равно четырём шестым? Выбери верное объяснение.', uz: "Nega uchdan ikki oltidan to'rtga teng? To'g'ri izohni tanlang." },
-      on_correct: { ru: 'Верно. Умножили оба числа на два, длина не изменилась.', uz: "To'g'ri. Ikkala sonni ikkiga ko'paytirdik, uzunlik o'zgarmadi." },
-      on_wrong: { ru: 'Пока нет. Главное — умножили оба числа на одно и то же.', uz: "Hali emas. Asosiysi — ikkala sonni bir xil songa ko'paytirdik." }
+      intro: { ru: 'В каждом стакане три четвёртых литра. Выбери, что это означает.', uz: "Har bir stakanda litrning to'rtdan uchi. Bu nimani bildirishini tanlang." },
+      on_correct: { ru: 'Верно. Три литра на четыре стакана — в каждом меньше литра.', uz: "To'g'ri. 3 litr 4 stakanga — har birida litrdan kam." },
+      on_wrong: { ru: 'Пока нет. Дробь показывает долю литра в стакане, а не число литров.', uz: "Hali emas. Kasr stakandagi litr ulushini ko'rsatadi, litrlar sonini emas." }
     }
   },
 
-  // ---- s11 TEST (MC, дроби): какая равна 3/4 → 6/8 (correct opt0) ----
+  // ---- s11 TEST (MC, дроби): 1 лепёшка на 4 → 1/4 (correct idx 1) ----
   s11: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Последняя — найди равную', uz: "Oxirgisi — tengini top" },
-    question: { ru: 'Какая дробь равна 3/4?', uz: "Qaysi kasr 3/4 ga teng?" },
-    correct_text: { ru: 'Верно: 6/8 = 3/4 (умножили на 2: 3×2=6, 4×2=8).', uz: "To'g'ri: 6/8 = 3/4 (2 ga ko'paytirdik: 3×2=6, 4×2=8)." },
-    hint_1: { ru: '5/8 не равно 3/4: 3/4 это ровно 6/8.', uz: "5/8 3/4 ga teng emas: 3/4 aniq 6/8." },
-    hint_2: { ru: '3/8 — это в два раза меньше 3/4. Числитель тоже умножь на 2.', uz: "3/8 — bu 3/4 dan ikki barobar kichik. Suratni ham 2 ga ko'paytir." },
-    hint_3: { ru: '4/6 — это 2/3, а не 3/4. Это разные дроби.', uz: "4/6 — bu 2/3, 3/4 emas. Bu har xil kasrlar." },
-    wrong_default: { ru: 'Умножь числитель и знаменатель 3/4 на 2: получится 6/8.', uz: "3/4 ning surat va maxrajini 2 ga ko'paytir: 6/8 chiqadi." },
+    label: { ru: 'Последняя — запиши дробью', uz: "Oxirgisi — kasr bilan yozing" },
+    question: { ru: '1 лепёшку разделили поровну на 4 друзей. Сколько достанется каждому?', uz: "1 ta non 4 do'stga teng bo'lindi. Har biriga qancha tegadi?" },
+    correct_text: { ru: 'Верно: 1 на 4 — это 1 ÷ 4 = 1/4. Каждому по одной четвёртой лепёшки.', uz: "To'g'ri: 1 ni 4 ga — bu 1 ÷ 4 = 1/4. Har biriga nonning to'rtdan biri." },
+    hint_0: { ru: 'Числа перепутаны: делим 1 (лепёшку) на 4 (друзей), сверху 1, снизу 4.', uz: "Sonlar almashgan: 1 (non) ni 4 (do'st) ga bo'lamiz, yuqorida 1, pastda 4." },
+    hint_2: { ru: 'Это «1 на 3». А друзей 4.', uz: "Bu «1 ni 3 ga». Do'st esa 4 ta." },
+    hint_3: { ru: 'Это половина. А делим на 4, значит получается четверть.', uz: "Bu yarim. Biz esa 4 ga bo'lamiz, demak chorak chiqadi." },
+    wrong_default: { ru: 'Числитель — что делим (1 лепёшка), знаменатель — на сколько (4 друга). Это 1/4.', uz: "Surat — nimani bo'lamiz (1 non), maxraj — nechtaga (4 do'st). Bu 1/4." },
     audio: {
-      intro: { ru: 'Последнее задание. Какая дробь равна трём четвёртым? Выбери ответ.', uz: "Oxirgi topshiriq. Qaysi kasr to'rtdan uchga teng? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Шесть восьмых это три четвёртых, умножили на два.', uz: "To'g'ri. Sakkizdan olti — bu to'rtdan uch, ikkiga ko'paytirdik." },
-      on_wrong: { ru: 'Пока нет. Умножь оба числа трёх четвёртых на одно и то же.', uz: "Hali emas. To'rtdan uchning ikkala sonini bir xil songa ko'paytir." }
+      intro: { ru: 'Последнее задание. Одну лепёшку разделили поровну на четырёх друзей. Сколько достанется каждому? Выбери дробь.', uz: "Oxirgi topshiriq. 1 ta non 4 do'stga teng bo'lindi. Har biriga qancha tegadi? Kasrni tanlang." },
+      on_correct: { ru: 'Верно. Одна лепёшка на четыре — это одна четвёртая.', uz: "To'g'ri. 1 ta non 4 ga — bu to'rtdan bir." },
+      on_wrong: { ru: 'Пока нет. Сверху — сколько лепёшек, снизу — сколько друзей.', uz: "Hali emas. Yuqorida — nechta non, pastda — nechta do'st." }
     }
   },
 
-  // ---- s12 SUMMARY: закрывает крючок + блок связей ----
+  // ---- s12 SUMMARY: закрывает крючок ----
   s12: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
     label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    title: { ru: 'Теперь ты узнаёшь равные дроби.', uz: "Endi siz teng kasrlarni taniysiz." },
+    title: { ru: 'Теперь дробь для тебя — это деление.', uz: "Endi kasr siz uchun — bu bo'lish." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Эквивалентные дроби — одно и то же число, записанное разными долями.', uz: "Ekvivalent kasrlar — bitta son, har xil ulushlarda yozilgan." },
-    main_2: { ru: 'Чтобы получить равную дробь, умножь числитель и знаменатель на одно число.', uz: "Teng kasr olish uchun surat va maxrajni bir songa ko'paytir." },
-    main_3: { ru: 'Меняешь знаменатель — обязательно меняй и числитель (1/2 = 3/6, а не 1/6).', uz: "Maxrajni o'zgartirsang — albatta suratni ham o'zgartir (1/2 = 3/6, 1/6 emas)." },
-    main_4: { ru: 'Закрашенная длина не меняется — меняется только число долей.', uz: "Bo'yalgan uzunlik o'zgarmaydi — faqat ulushlar soni o'zgaradi." },
-    back_to_hook: { ru: 'Камрон накопил 1/2, Бобур 3/6. Но 1/2 = 3/6 — это одна и та же высота. Они накопили поровну!', uz: "Kamron 1/2, Bobur 3/6 yig'di. Lekin 1/2 = 3/6 — bu bir xil balandlik. Ular teng yig'gan ekan!" },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Сравнение дробей с разными знаменателями» и другие уроки сравнения.', uz: "«Har xil maxrajli kasrlarni taqqoslash» va boshqa taqqoslash darslari." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'сокращение дробей — как упростить дробь, разделив на общее число.', uz: "kasrlarni qisqartirish — kasrni umumiy songa bo'lib soddalashtirish." },
+    main_1: { ru: 'Дробь — это деление: a/b означает «a разделить на b».', uz: "Kasr — bu bo'lish: a/b «a ni b ga bo'lish» degani." },
+    main_2: { ru: 'Числитель (сверху) — что делим, знаменатель (снизу) — на сколько делим.', uz: "Surat (yuqorida) — nimani bo'lamiz, maxraj (pastda) — nechtaga bo'lamiz." },
+    main_3: { ru: 'Меньшее можно делить на большее — получится дробь меньше целого. Каждому достаётся a/b.', uz: "Kichikni kattaga bo'lsa bo'ladi — butundan kichik kasr chiqadi. Har biriga a/b tegadi." },
+    main_4: { ru: 'Порядок важен: 3/4 и 4/3 — разные дроби.', uz: "Tartib muhim: 3/4 va 4/3 — har xil kasrlar." },
+    back_to_hook: { ru: '3 лепёшки на 4 друзей разделились поровну — каждому по 3/4. Улугбек ошибался: делить можно, ответ просто стал дробью.', uz: "3 ta non 4 do'stga teng bo'lindi — har biriga 3/4 dan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan, javob shunchaki kasr bo'ldi." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    audio: { ru: 'Отлично! Теперь ты узнаёшь равные, эквивалентные дроби. Это одно и то же число, записанное разными долями. Чтобы получить равную дробь, умножь числитель и знаменатель на одно и то же число. Если меняешь знаменатель, обязательно меняй и числитель. Закрашенная длина при этом не меняется. Камрон накопил одну вторую, Бобур три шестых, но это одна и та же высота, они накопили поровну. Дальше научимся сокращать дроби.', uz: "Zo'r! Endi siz teng, ekvivalent kasrlarni taniysiz. Bu bitta son, har xil ulushlarda yozilgan. Teng kasr olish uchun surat va maxrajni bir xil songa ko'paytir. Maxrajni o'zgartirsang, albatta suratni ham o'zgartir. Bo'yalgan uzunlik bunda o'zgarmaydi. Kamron ikkidan birni, Bobur oltidan uchni yig'di, lekin bu bir xil balandlik, ular teng yig'gan. Keyin kasrlarni qisqartirishni o'rganamiz." }
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
+    conn_refs: { ru: '«Что такое дробь», «Дробь на прямой», «Деление столбиком».', uz: "«Kasr nima», «Kasr son o'qida», «Burchak usulida bo'lish»." },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
+    conn_next: { ru: 'сравнение дробей с одинаковым знаменателем.', uz: "bir xil maxrajli kasrlarni taqqoslash." },
+    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это деление. Запись a дробь b означает a разделить на b. Сверху — что делим, снизу — на сколько. Меньшее можно делить на большее, и тогда получается дробь меньше целого. А порядок важен: три четвёртых и четыре третьих — разные дроби. Три лепёшки на четыре друга разделились поровну, каждому по три четвёртых. Улугбек ошибался: делить можно.', uz: "Zo'r! Endi bilasiz: kasr — bu bo'lish. a kasr b yozuvi a ni b ga bo'lish degani. Yuqorida — nimani bo'lamiz, pastda — nechtaga. Kichikni kattaga bo'lsa bo'ladi va shunda butundan kichik kasr chiqadi. Tartib esa muhim: to'rtdan uch va uchdan to'rt — har xil kasrlar. 3 ta non 4 do'stga teng bo'lindi, har biriga to'rtdan uchdan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan." }
   }
 };
 
 // ============================================================
-// УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «эквивалентные дроби»)
+// УРОК-СПЕЦИФИЧНЫЙ ВИЗУАЛИЗАТОР (под тему «дробь как деление»)
 // ============================================================
-// FracBar: полоса. Закраска = num/den (точная длина). grid — число делений сетки.
-// sweep — линии сетки въезжают (деление доли). marker/winner — финишная черта + флажок.
-const FracBar = ({ num, den, grid = null, color = T.accent, height = 36, marker = false, winner = false, animateIn = false, sweep = false }) => {
-  const pct = (num / den) * 100;
-  const g = grid || den;
-  const ease = 'cubic-bezier(0.34, 1.1, 0.64, 1)';
+// SharingBoard: A лепёшек делим на B друзей. Каждая лепёшка — круг, разрезанный
+// на B равных секторов. Доля одного друга = по одному сектору от каждой лепёшки =
+// A секторов по 1/B = A/B. Справа — «тарелка»: одна лепёшка на B частей, A из них
+// закрашены — это собранная доля A/B.
+// reveal: 0 — целые лепёшки; 1 — разрезаны на B; 2 — у каждой подсвечен 1 сектор (доля);
+//         3 — то же + тарелка с собранной долей A/B.
+// Одна лепёшка-круг: parts равных секторов; highlight ведущих секторов закрашены (доля).
+const SharingLoaf = ({ size, parts, cut, highlight }) => {
+  const cx = size / 2, cy = size / 2, rr = size / 2 - 2;
+  const sectorPath = (k) => {
+    const a0 = -Math.PI / 2 + (k * 2 * Math.PI) / parts;
+    const a1 = -Math.PI / 2 + ((k + 1) * 2 * Math.PI) / parts;
+    const x0 = cx + rr * Math.cos(a0), y0 = cy + rr * Math.sin(a0);
+    const x1 = cx + rr * Math.cos(a1), y1 = cy + rr * Math.sin(a1);
+    const large = (a1 - a0) > Math.PI ? 1 : 0;
+    return `M ${cx} ${cy} L ${x0} ${y0} A ${rr} ${rr} 0 ${large} 1 ${x1} ${y1} Z`;
+  };
   return (
-    <div className="cp-bar" style={{ position: 'relative', width: '100%', height, borderRadius: 8, background: T.paper, boxShadow: `inset 0 0 0 2px ${T.ink3}` }}>
-      <div style={{ position: 'absolute', inset: 0, borderRadius: 8, overflow: 'hidden' }}>
-        <div className={`cp-fill${animateIn ? ' cp-grow' : ''}`} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct}%`, background: color, transition: `width 0.5s ${ease}` }}/>
-        {Array.from({ length: g - 1 }).map((_, i) => (
-          <div key={`${g}-${i}`} className={sweep ? 'cp-line' : undefined} style={{ position: 'absolute', left: `${((i + 1) / g) * 100}%`, top: 0, bottom: 0, width: 2, background: T.bg, animationDelay: sweep ? `${i * 0.045}s` : undefined }}/>
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="sb-loaf" style={{ flexShrink: 0 }}>
+      <circle cx={cx} cy={cy} r={rr} fill="#F2D7A8" stroke="#C68A45" strokeWidth="2" />
+      {cut && Array.from({ length: parts }).map((_, k) => (
+        <path key={`${parts}-${k}`} d={sectorPath(k)} className="sb-slice"
+          fill={T.accent} fillOpacity={k < highlight ? 0.82 : 0}
+          stroke="#C68A45" strokeWidth="1.4" style={{ transitionDelay: `${k * 0.04}s` }} />
+      ))}
+    </svg>
+  );
+};
+
+const SharingBoard = ({ loaves = 3, people = 4, reveal = 3, showShare = true, size = 60 }) => {
+  const shareHi = reveal >= 2 ? 1 : 0;            // по 1 сектору в каждой лепёшке
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', width: '100%' }}>
+      <div style={{ display: 'flex', gap: 'clamp(6px, 1.8vw, 14px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {Array.from({ length: loaves }).map((_, i) => (
+          <SharingLoaf key={`${people}-${i}`} size={size} parts={people} cut={reveal >= 1} highlight={shareHi} />
         ))}
       </div>
-      {marker && num > 0 && (
-        <div className={`cp-marker${animateIn ? ' cp-slide' : ''}`} style={{ position: 'absolute', left: `${pct}%`, top: -5, bottom: -5, width: 3, marginLeft: -1.5, background: color, borderRadius: 2, boxShadow: `0 0 7px ${color}`, transition: `left 0.5s ${ease}` }}>
-          {winner && (
-            <svg className="cp-flag" width="18" height="16" viewBox="0 0 18 16" style={{ position: 'absolute', top: -15, left: 1, overflow: 'visible' }}>
-              <path d="M1 1 L14 4 L1 8 Z" fill={color}/>
-            </svg>
-          )}
+      {showShare && reveal >= 3 && (
+        <div className="sb-plate" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
+          <span className="mono small" style={{ color: T.ink3 }}>=</span>
+          <SharingLoaf size={size} parts={people} cut={true} highlight={loaves} />
+          <span className="mono small" style={{ color: T.ink3 }}>=</span>
+          <Frac n={String(loaves)} d={String(people)} size="mid" />
         </div>
       )}
     </div>
   );
 };
 
-// EquivStack: стопка эквивалентных дробей — все закрашены на ОДНУ длину, но с разным числом долей.
-// rows: [{num, den}]. Наглядно: длина одинаковая → дроби равны. dimWhen — индекс «неправильной» строки (тусклая).
-const EquivStack = ({ rows, animateIn = true, sweep = false, dimIdx = null }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 14, width: '100%', maxWidth: 520, margin: '0 auto' }}>
-    {rows.map((r, i) => (
-      <div key={i} className="cp-row" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', opacity: dimIdx === i ? 0.5 : 1 }}>
-        <div style={{ width: 'clamp(44px, 10vw, 58px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n={String(r.num)} d={String(r.den)} size="sm"/></div>
-        <div style={{ flex: 1 }}><FracBar num={r.num} den={r.den} color={dimIdx === i ? T.ink3 : T.accent} animateIn={animateIn} sweep={sweep}/></div>
-      </div>
-    ))}
+// Небольшая запись деления: a ÷ b = a/b
+const DivExpr = ({ a, b, size = 'mid' }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
+    <span className="display" style={{ fontSize: size === 'display' ? 'clamp(30px, 6vw, 48px)' : 'clamp(22px, 4vw, 32px)' }}>{a}</span>
+    <Op size={size === 'display' ? 'big' : 'mid'}>÷</Op>
+    <span className="display" style={{ fontSize: size === 'display' ? 'clamp(30px, 6vw, 48px)' : 'clamp(22px, 4vw, 32px)' }}>{b}</span>
+    <Op size={size === 'display' ? 'big' : 'mid'}>=</Op>
+    <Frac n={String(a)} d={String(b)} size={size === 'display' ? 'display' : 'mid'} />
   </div>
 );
 
@@ -1080,21 +1101,12 @@ const EquivStack = ({ rows, animateIn = true, sweep = false, dimIdx = null }) =>
 // ============================================================
 
 // Детерминированно переставляет варианты MC, чтобы верный ответ не всегда был «A».
+// order — массив старых индексов в новом порядке. Подсказки (hint_i) привязаны к ПОЗИЦИИ,
+// поэтому переносим их вместе с вариантами; correctIdx пересчитывается на новую позицию.
 const shuffleMC = (c, options, correctIdx, order) => {
   const content = { ...c };
   order.forEach((oldI, newI) => { content[`hint_${newI}`] = c[`hint_${oldI}`]; });
   return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
-};
-
-// Блок связей урока (опора + следующий урок) — печатается на summary.
-const ConnectionsBlock = ({ c }) => {
-  const t = useT();
-  return (
-    <div className="frame-tip fade-up delay-3" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <p className="small" style={{ margin: 0 }}><span style={{ fontWeight: 700, color: T.ink }}>🔗 {t(c.conn_label_refs)}:</span> {t(c.conn_refs)}</p>
-      <p className="small" style={{ margin: 0 }}><span style={{ fontWeight: 700, color: T.accent }}>➡️ {t(c.conn_label_next)}:</span> {t(c.conn_next)}</p>
-    </div>
-  );
 };
 
 // s0 — HOOK: любой выбор продвигает дальше (нет верного); при возврате полный сброс.
@@ -1112,17 +1124,23 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <h1 className="title h-title fade-up">{t(c.title)}</h1>
-        <div className="frame fade-up delay-1">
-          <EquivStack rows={[{ num: 1, den: 2 }, { num: 3, den: 6 }]} animateIn={true}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
+          <SharingBoard loaves={3} people={4} reveal={0} showShare={false} size={62}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span className="display" style={{ fontSize: 'clamp(22px, 4vw, 32px)' }}>3</span>
+            <Op>÷</Op>
+            <span className="display" style={{ fontSize: 'clamp(22px, 4vw, 32px)' }}>4</span>
+            <span className="mop" style={{ color: T.ink3 }}>= ?</span>
+          </div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.body)}</p>
         <h2 className="title h-sub fade-up delay-2">{t(c.question)}</h2>
         <div className="fade-up delay-3" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {opts.map((o, i) => (
             <button key={i} className="option" onClick={() => pick(i)}
-              style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
               <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span>
               <span style={{ flex: 1 }}>{t(o)}</span>
             </button>
@@ -1133,7 +1151,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   );
 };
 
-// s1 — EXPLORATION step-by-step: 1/2 = 2/4 = 3/6 (стопка растёт, длина та же).
+// s1 — EXPLORATION step-by-step: делим 3 на 4, голос ведёт. reveal зависит от шага.
 const Screen1 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s1;
   const arr = c.audio[lang];
@@ -1146,18 +1164,17 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
     if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 120); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
   };
-  const allRows = [{ num: 1, den: 2 }, { num: 2, den: 4 }, { num: 3, den: 6 }];
-  const rows = allRows.slice(0, Math.max(0, step));
+  const reveal = step >= 3 ? 3 : step >= 2 ? 1 : 0;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center', minHeight: 120, justifyContent: 'center' }}>
-          {rows.length > 0
-            ? <EquivStack rows={rows} animateIn={true} sweep={true}/>
-            : <p className="body" style={{ color: T.ink3, margin: 0 }}>…</p>}
-          {step >= 3 && <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center' }}>
+          <SharingBoard loaves={3} people={4} reveal={reveal} showShare={step >= 3} size={64}/>
+          {step >= 3 && (
+            <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>
+          )}
         </div>
         <div ref={endRef}/>
       </div>
@@ -1165,16 +1182,16 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s2 — EXPLORATION slider: собери 3/6 = 1/2 (эталон сверху).
+// s2 — EXPLORATION slider + check: подели 2 на 3. Слайдер задаёт число частей (= друзей).
 const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
-  const [num, setNum] = useState(1);
+  const [people, setPeople] = useState(2);
   const [checked, setChecked] = useState(false);
   const [solved, setSolved] = useState(false);
-  const onSlider = (v) => { if (solved) return; setChecked(false); setNum(v); };
+  const onSlider = (v) => { if (solved) return; setChecked(false); setPeople(v); };
   const check = () => {
-    const ok = num === 3;
+    const ok = people === 3;
     setChecked(true);
     if (ok) setSolved(true);
     if (!audio.muted) { setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.fb_success[lang] : c.fb_wrong[lang]); }, 250); }
@@ -1182,24 +1199,15 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={solved ? <NextLabel/> : t(c.btn_disabled_label)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(15px, 2.4vw, 22px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.intro)}</p>
         <p className="small fade-up delay-1" style={{ color: T.accent, fontWeight: 600 }}>{t(c.target_text)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* эталон 1/2 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
-            <div style={{ width: 'clamp(44px, 10vw, 58px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n="1" d="2" size="sm"/></div>
-            <div style={{ flex: 1 }}><FracBar num={1} den={2} color={T.blue} marker={solved} winner={false}/></div>
-          </div>
-          {/* регулируемая ?/6 */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
-            <div style={{ width: 'clamp(44px, 10vw, 58px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n={String(num)} d="6" size="sm"/></div>
-            <div style={{ flex: 1 }}><FracBar num={num} den={6} color={T.accent} marker={solved}/></div>
-          </div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <SharingBoard loaves={2} people={people} reveal={solved ? 3 : 1} showShare={solved} size={62}/>
           <div>
-            <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.eyebrow_slider)} {num}</p>
-            <Slider value={num} min={0} max={6} step={1} onChange={onSlider} disabled={solved}/>
+            <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.eyebrow_slider)} {people}</p>
+            <Slider value={people} min={2} max={6} step={1} onChange={onSlider} disabled={solved}/>
           </div>
           {!solved && (<div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(11px, 1.8vw, 13px) clamp(20px, 2.6vw, 28px)', fontSize: 'clamp(13px, 1.6vw, 14px)' }}>{t(c.btn_check)}</button></div>)}
         </div>
@@ -1212,20 +1220,21 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s3 — RULE: умножай оба числа.
+// s3 — RULE: a ÷ b = a/b.
 const Screen3 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s3;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-          <EquivStack rows={[{ num: 1, den: 2 }, { num: 2, den: 4 }, { num: 3, den: 6 }]} animateIn={true} sweep={true}/>
+          <SharingBoard loaves={3} people={4} reveal={3} size={60}/>
+          <div style={{ display: 'flex', justifyContent: 'center' }}><DivExpr a={3} b={4} size="display"/></div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 460, margin: '0 auto' }}>
             <p className="body" style={{ margin: 0 }}>{t(c.card_top)}</p>
             <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
@@ -1239,34 +1248,42 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s4 — TEST choice (дроби): какая равна 1/2 → 2/4 (correct opt0).
+// s4 — TEST choice (дроби): 4 на 5 → 4/5 (correct idx 1).
 const Screen4 = (props) => {
   const t = useT(); const c = CONTENT.s4;
-  const base = [<Frac n="2" d="4" size="mid"/>, <Frac n="2" d="3" size="mid"/>, <Frac n="3" d="5" size="mid"/>, <Frac n="1" d="3" size="mid"/>];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={1} den={2} color={T.blue} animateIn={true}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="5" d="4" size="mid"/>, <Frac n="4" d="5" size="mid"/>, <Frac n="4" d="4" size="mid"/>, <Frac n="1" d="5" size="mid"/>], 1, [0, 2, 3, 1]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><SharingBoard loaves={4} people={5} reveal={1} showShare={false} size={54}/></div></>);
   return <QuestionScreen {...props} idx={4} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[4]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s5 — RULE-2: меняй оба числа (1/2 ≠ 1/6).
+// s5 — RULE: порядок важен, 3/4 ≠ 4/3.
 const Screen5 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s5;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
         </div>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-          {/* 1/6 (неправильно, тусклая) vs 3/6 (правильно) */}
-          <EquivStack rows={[{ num: 1, den: 2 }, { num: 1, den: 6 }, { num: 3, den: 6 }]} animateIn={true} dimIdx={1}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(18px, 6vw, 50px)', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+              <Frac n="3" d="4" size="display"/>
+              <span className="small mono" style={{ color: T.success }}>3 → 4</span>
+            </div>
+            <span className="mop" style={{ color: T.ink3, fontSize: 'clamp(18px, 3vw, 26px)' }}>≠</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+              <Frac n="4" d="3" size="display"/>
+              <span className="small mono" style={{ color: T.ink3 }}>4 → 3</span>
+            </div>
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 460, margin: '0 auto' }}>
-            <p className="body" style={{ margin: 0 }}>{t(c.card_ok)}</p>
+            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 600 }}>{t(c.card_ok)}</p>
             <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
-            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 600 }}>{t(c.card_bad)}</p>
+            <p className="body" style={{ margin: 0 }}>{t(c.card_bad)}</p>
           </div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.outro)}</p>
@@ -1275,38 +1292,37 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s6 — TEST choice (дроби): 3/4 = ?/8 → 6/8 (correct opt0).
+// s6 — TEST choice (дроби): «3 лепёшки на 4» → 3/4 (correct idx 1).
 const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
-  const base = [<Frac n="6" d="8" size="mid"/>, <Frac n="3" d="8" size="mid"/>, <Frac n="7" d="8" size="mid"/>, <Frac n="4" d="8" size="mid"/>];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={3} den={4} color={T.blue} animateIn={true}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="4" d="3" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="3" d="3" size="mid"/>, <Frac n="1" d="4" size="mid"/>], 1, [0, 2, 1, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><SharingBoard loaves={3} people={4} reveal={1} showShare={false} size={44}/></div></>);
   return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s7 — TEST choice (текст): 1/2 = 1/6? Нет (correct opt0).
+// s7 — TEST choice (текст): «меньшее на большее не делится»? Нет, можно (correct idx 0).
 const Screen7 = (props) => {
   const t = useT(); const c = CONTENT.s7;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [0, 2, 1, 3]);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 0, 1, 3]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
   return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s8 — CASE setup: Лайло, рецепт.
+// s8 — CASE setup: Камола разливает 3 литра сока в 4 стакана.
 const Screen8 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s8;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.body_p1)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <EquivStack rows={[{ num: 2, den: 3 }]} animateIn={true}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <SharingBoard loaves={3} people={4} reveal={0} showShare={false} size={44}/>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(20px, 6vw, 56px)', flexWrap: 'wrap' }}>
-            <div><p className="eyebrow" style={{ color: T.accent, marginBottom: 4 }}>{t(c.card_line_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_line_value)}</p></div>
-            <div><p className="eyebrow" style={{ color: T.blue, marginBottom: 4 }}>{t(c.card_parts_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_parts_value)}</p></div>
+            <div><p className="eyebrow" style={{ color: T.ink2, marginBottom: 4 }}>{t(c.card_line_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_line_value)}</p></div>
+            <div><p className="eyebrow" style={{ color: T.accent, marginBottom: 4 }}>{t(c.card_parts_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_parts_value)}</p></div>
           </div>
         </div>
         <p className="body fade-up delay-2">{t(c.outro)}</p>
@@ -1315,33 +1331,40 @@ const Screen8 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s9 — CASE step (дроби): 2/3 = ?/6 → 4/6 (correct opt0).
+// s9 — CASE step (дроби): 3 литра на 4 стакана → 3/4 (correct idx 1).
 const Screen9 = (props) => {
   const t = useT(); const c = CONTENT.s9;
-  const base = [<Frac n="4" d="6" size="mid"/>, <Frac n="2" d="6" size="mid"/>, <Frac n="3" d="6" size="mid"/>, <Frac n="5" d="6" size="mid"/>];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={2} den={3} color={T.blue} animateIn={true}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="4" d="3" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="3" d="1" size="mid"/>, <Frac n="1" d="4" size="mid"/>], 1, [1, 0, 2, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><SharingBoard loaves={3} people={4} reveal={3} size={44}/></div></>);
   return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s10 — CASE conclusion (текст): почему 2/3 = 4/6 (correct opt0).
+// s10 — CASE conclusion (текст): что значит 3/4 литра (correct idx 0).
 const Screen10 = (props) => {
   const t = useT(); const c = CONTENT.s10;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 0, 1, 3]);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 3, 0]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
   return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s11 — TEST choice (дроби): какая равна 3/4 → 6/8 (correct opt0).
+// s11 — TEST choice (дроби): 1 лепёшка на 4 → 1/4 (correct idx 1).
 const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
-  const base = [<Frac n="6" d="8" size="mid"/>, <Frac n="5" d="8" size="mid"/>, <Frac n="3" d="8" size="mid"/>, <Frac n="4" d="6" size="mid"/>];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 3, 0, 2]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={3} den={4} color={T.blue} animateIn={true}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="4" d="1" size="mid"/>, <Frac n="1" d="4" size="mid"/>, <Frac n="1" d="3" size="mid"/>, <Frac n="1" d="2" size="mid"/>], 1, [2, 1, 3, 0]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><SharingBoard loaves={1} people={4} reveal={3} size={44}/></div></>);
   return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s12 — SUMMARY: без счёта, закрывает крючок + блок связей; finishLesson один раз.
+// s12 — SUMMARY: без счёта, закрывает крючок; finishLesson один раз.
+const ConnectionsBlock = ({ c }) => {
+  const t = useT();
+  return (
+    <div className="frame-tip fade-up delay-3" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <p className="small" style={{ margin: 0 }}><span style={{ fontWeight: 700, color: T.ink }}>🔗 {t(c.conn_label_refs)}:</span> {t(c.conn_refs)}</p>
+      <p className="small" style={{ margin: 0 }}><span style={{ fontWeight: 700, color: T.accent }}>➡️ {t(c.conn_label_next)}:</span> {t(c.conn_next)}</p>
+    </div>
+  );
+};
 const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s12;
   const audio = useAudio(makeAudioSegments(c, lang));
@@ -1351,7 +1374,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.success }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
@@ -1362,9 +1385,9 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
             {mains.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{t(m)}</p></div>))}
           </div>
         </div>
-        <div className="frame-success fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <EquivStack rows={[{ num: 1, den: 2 }, { num: 3, den: 6 }]} animateIn={true}/>
-          <p className="body" style={{ margin: 0 }}>{t(c.back_to_hook)}</p>
+        <div className="frame-success fade-up delay-2" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ flexShrink: 0 }}><SharingBoard loaves={3} people={4} reveal={3} size={50}/></div>
+          <p className="body" style={{ margin: 0, flex: 1, minWidth: 180 }}>{t(c.back_to_hook)}</p>
         </div>
         <ConnectionsBlock c={c}/>
       </div>
@@ -1375,7 +1398,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
 // ============================================================
 // КОРНЕВОЙ КОМПОНЕНТ (шаблон из infrastructure_v1)
 // ============================================================
-export default function FractionEquivalentLesson({
+export default function FractionDivisionLesson({
   studentName, lang: langProp, ttsApiBase,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -1618,13 +1641,13 @@ html, body { margin: 0; padding: 0; }
 }
 
 /* === ТИПОГРАФИКА v15 (× 0.85 upper bounds) === */
-.h-title { font-size: clamp(22px, 4vw, 38px); }
-.h-sub { font-size: clamp(17px, 2.5vw, 20px); }
-.body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.5; }
+.h-title { font-size: clamp(22px, 3.4vw, 30px); }
+.h-sub { font-size: clamp(16px, 2.2vw, 18px); }
+.body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.42; }
 .eyebrow { font-size: clamp(11px, 1.3vw, 11px); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
 .small { font-size: clamp(13px, 1.5vw, 13px); }
 .frac-display { font-size: clamp(45px, 9vw, 75px); }
-.frac-mid { font-size: clamp(26px, 5vw, 38px); }
+.frac-mid { font-size: clamp(20px, 3.2vw, 24px); }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
@@ -1632,13 +1655,13 @@ html, body { margin: 0; padding: 0; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
-  padding-top: clamp(12px, 2vw, 18px);
+  padding-top: clamp(8px, 1.4vw, 12px);
   padding-bottom: clamp(8px, 1.5vw, 12px);
 }
 .stage-content {
   flex: 1;
-  padding-top: clamp(10px, 1.7vw, 16px);
-  padding-bottom: clamp(17px, 3.4vw, 34px);
+  padding-top: clamp(8px, 1.3vw, 12px);
+  padding-bottom: clamp(12px, 2.2vw, 20px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1649,8 +1672,8 @@ html, body { margin: 0; padding: 0; }
   flex-shrink: 0;
   background: #F6F4EF;
   border-top: 1px solid rgba(167, 166, 162, 0.25);
-  padding-top: clamp(12px, 2vw, 15px);
-  padding-bottom: clamp(12px, 2vw, 15px);
+  padding-top: clamp(9px, 1.5vw, 11px);
+  padding-bottom: clamp(9px, 1.5vw, 11px);
   display: flex;
   gap: 12px;
 }
@@ -1783,7 +1806,7 @@ html, body { margin: 0; padding: 0; }
 .frame {
   background: #FFFFFF;
   border-radius: 16px;
-  padding: clamp(17px, 3.4vw, 30px);
+  padding: clamp(13px, 2.2vw, 17px);
   border: none;
   box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14);
 }
@@ -1791,14 +1814,14 @@ html, body { margin: 0; padding: 0; }
   background: #FFE8E1;
   border-left: 4px solid #FF4F28;
   border-radius: 12px;
-  padding: clamp(14px, 2.5vw, 20px);
+  padding: clamp(11px, 1.8vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
   border-left: 4px solid #1F7A4D;
   border-radius: 12px;
-  padding: clamp(14px, 2.5vw, 20px);
+  padding: clamp(11px, 1.8vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22);
 }
 
@@ -1806,26 +1829,12 @@ html, body { margin: 0; padding: 0; }
 .cell-pop { display: inline-block; animation: cellPop 0.34s cubic-bezier(0.34, 1.2, 0.64, 1); }
 @keyframes cellPop { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
-.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 20px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
+.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(11px, 1.8vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
 
-/* MATH: сравнение разных знаменателей — приведение к общим долям (frac_5_07). */
-.cp-row { animation: cpRowIn 0.42s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes cpRowIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-.cp-grow { animation: cpGrow 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes cpGrow { from { width: 0; } }
-/* линии сетки въезжают слева направо (деление на общие доли) */
-.cp-line { animation: cpLineIn 0.32s ease-out backwards; transform-origin: center top; }
-@keyframes cpLineIn { from { opacity: 0; transform: scaleY(0.1); } to { opacity: 1; transform: scaleY(1); } }
-.cp-marker { animation: cpMarkerIn 0.3s ease-out backwards; }
-@keyframes cpMarkerIn { from { opacity: 0; } }
-.cp-slide { animation: cpSlide 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes cpSlide { from { left: 0; } }
-.cp-flag { transform-origin: bottom left; animation: cpFlagPop 0.4s cubic-bezier(0.34, 1.5, 0.64, 1) 0.45s backwards, cpFlagWave 1.8s ease-in-out 0.9s infinite; }
-@keyframes cpFlagPop { from { opacity: 0; transform: scale(0); } }
-@keyframes cpFlagWave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
-/* ориентир 1/2 въезжает к центру; точки-дроби мягко появляются */
-.cp-half-in { animation: cpHalfIn 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes cpHalfIn { from { left: 0; opacity: 0; } }
-.cp-dot-wrap { animation: cpDotIn 0.35s ease-out backwards; }
-@keyframes cpDotIn { from { opacity: 0; } }
+/* MATH: делёж лепёшки на доли — анимации (frac_5_03). */
+.sb-loaf { animation: sbLoafIn 0.42s cubic-bezier(0.34, 1.2, 0.64, 1) backwards; }
+@keyframes sbLoafIn { from { opacity: 0; transform: scale(0.55) rotate(-12deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+.sb-slice { transition: fill-opacity 0.45s ease; }
+.sb-plate { animation: sbPlateIn 0.5s ease-out backwards; }
+@keyframes sbPlateIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 `;

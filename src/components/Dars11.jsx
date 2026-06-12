@@ -679,7 +679,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <div className="fade-up">{question}</div>
         <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {options.map((opt, i) => {
@@ -695,7 +695,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
                   {String.fromCharCode(65 + i)}
                 </span>
@@ -759,7 +759,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <div className="fade-up"><h2 className="title h-sub">{t(c.question)}</h2></div>
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -787,11 +787,11 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- ПОД УРОК: frac_5_04 — Сравнение дробей с одинаковым знаменателем ---
+// --- ПОД УРОК: frac_5_11 — Сравнение дробей с разными знаменателями (интуитивно) ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-04-v1',
-  lessonTitle: { ru: 'Сравнение дробей с одинаковым знаменателем', uz: "Bir xil maxrajli kasrlarni taqqoslash" }
+  lessonId: 'frac-5-11-v1',
+  lessonTitle: { ru: 'Сравнение дробей с разными знаменателями (интуитивно)', uz: "Har xil maxrajli kasrlarni taqqoslash (intuitiv)" }
 };
 const TOTAL_SCREENS = 13;
 
@@ -814,217 +814,217 @@ const SCREEN_META = [
 ];
 
 const CONTENT = {
-  // ---- s0 HOOK: Нигора и Дилшод съели от одного торта, Дилшод: «поровну — знаменатель один» ----
+  // ---- s0 HOOK: Джавохир (2/3) и Умид (3/4) пробежали часть одной дистанции ----
   s0: {
-    eyebrow: { ru: 'Сравнение дробей · вступление', uz: "Kasrlarni taqqoslash · kirish" },
-    title: { ru: 'Нигора и Дилшод съели по куску одного торта, разрезанного на 8 равных частей.', uz: "Nigora va Dilshod 8 ta teng bo'lakka kesilgan bitta tortdan yedi." },
-    body: { ru: 'Нигора съела 3/8 торта, Дилшод — 5/8. Дилшод говорит: «мы съели поровну — ведь знаменатель у обоих восемь, дроби одинаковые».', uz: "Nigora tortning 3/8 ini yedi, Dilshod — 5/8 ini. Dilshod aytadi: «biz teng yedik — axir ikkalamizning ham maxrajimiz sakkiz, kasrlar bir xil»." },
-    question: { ru: 'А ты как думаешь: 3/8 и 5/8 — это поровну, или кто-то съел больше?', uz: "Sizningcha-chi: 3/8 va 5/8 — bu tengmi, yoki kimdir ko'proq yedimi?" },
-    opt0: { ru: 'Дилшод съел больше — дольки равны, а у него их 5', uz: "Dilshod ko'proq yedi — bo'laklar teng, unda 5 ta" },
-    opt1: { ru: 'Поровну — знаменатель одинаковый (8)', uz: "Teng — maxraji bir xil (8)" },
+    eyebrow: { ru: 'Разные знаменатели · вступление', uz: "Har xil maxraj · kirish" },
+    title: { ru: 'Джавохир и Умид бегут по одной и той же дистанции.', uz: "Javohir va Umid bir xil masofada yugurishyapti." },
+    body: { ru: 'Джавохир пробежал 2/3 дистанции, Умид — 3/4. Джавохир говорит: «у меня доли крупнее — третьи, значит я дальше». А у дробей разные знаменатели, так просто числители не сравнить.', uz: "Javohir masofaning 2/3 qismini, Umid — 3/4 qismini bosib o'tdi. Javohir aytadi: «mening ulushlarim yirik — uchdan, demak men oldindaman». Kasrlarning maxraji esa har xil, suratlarni shunchaki solishtirib bo'lmaydi." },
+    question: { ru: 'А ты как думаешь: кто пробежал больше — Джавохир (2/3) или Умид (3/4)?', uz: "Sizningcha-chi: kim ko'proq yugurdi — Javohir (2/3) mi yoki Umid (3/4) mi?" },
+    opt0: { ru: 'Умид — 3/4 больше 2/3', uz: "Umid — 3/4 katta 2/3 dan" },
+    opt1: { ru: 'Джавохир — 2/3 больше, ведь третьи доли крупнее', uz: "Javohir — 2/3 katta, axir uchdan ulushlar yirik" },
     opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Нигора и Дилшод съели по куску одного торта, разрезанного на восемь равных частей. Нигора съела три восьмых, Дилшод — пять восьмых. Дилшод говорит, что они съели поровну, ведь знаменатель у обоих восемь. А ты как думаешь — три восьмых и пять восьмых это поровну, или кто-то съел больше? Выбери ответ.', uz: "Nigora va Dilshod 8 ta teng bo'lakka kesilgan bitta tortdan yedi. Nigora tortning uchdan... ya'ni sakkizdan uchini yedi, Dilshod — sakkizdan beshini. Dilshod aytadiki, ular teng yedi, axir maxraji sakkiz. Sizningcha, 3/8 va 5/8 teng-mi yoki kimdir ko'proq yedi? Javobni tanlang." }
+    audio: { ru: 'Джавохир и Умид бегут по одной и той же дистанции. Джавохир пробежал две третьих, Умид три четвёртых. У дробей разные знаменатели, поэтому просто сравнить числители нельзя. А ты как думаешь — кто пробежал больше, Джавохир с двумя третьими или Умид с тремя четвёртыми? Выбери ответ.', uz: "Javohir va Umid bir xil masofada yugurishyapti. Javohir uchdan ikkini, Umid to'rtdan uchini bosib o'tdi. Kasrlarning maxraji har xil, shuning uchun suratlarni shunchaki solishtirib bo'lmaydi. Sizningcha, kim ko'proq yugurdi — uchdan ikkili Javohirmi yoki to'rtdan uchli Umidmi? Javobni tanlang." }
   },
 
-  // ---- s1 EXPLORATION (step-by-step): сравниваем 3/8 и 5/8 на полосах ----
+  // ---- s1 EXPLORATION (step-by-step): 1/2 и 2/3 → общие доли (шестые) ----
   s1: {
-    eyebrow: { ru: 'Сравниваем дольки', uz: "Bo'laklarni solishtiramiz" },
-    title: { ru: 'Сравним 3/8 и 5/8 по шагам', uz: "3/8 va 5/8 ni bosqichma-bosqich solishtiramiz" },
-    conclusion: { ru: 'Дольки одинаковые, но 5 больше 3. Значит, 5/8 > 3/8.', uz: "Bo'laklar bir xil, lekin 5 katta 3 dan. Demak, 5/8 > 3/8." },
+    eyebrow: { ru: 'Общие доли', uz: "Umumiy ulushlar" },
+    title: { ru: 'Приведём 1/2 и 2/3 к одинаковым долям', uz: "1/2 va 2/3 ni bir xil ulushga keltiramiz" },
+    conclusion: { ru: 'В шестых долях: 1/2 — это 3/6, а 2/3 — это 4/6. Теперь видно: 4/6 больше, значит 2/3 > 1/2.', uz: "Oltidan ulushlarda: 1/2 — bu 3/6, 2/3 — bu 4/6. Endi ko'rinadi: 4/6 katta, demak 2/3 > 1/2." },
     btn_step: { ru: 'Дальше', uz: "Davom etish" },
     btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?" },
     audio: {
       ru: [
-        'Сравним три восьмых и пять восьмых по шагам. Нажимай кнопку Дальше.',
-        'Вот две одинаковые полосы — это два одинаковых торта. Каждую делим на восемь равных частей. Дольки получились одинаковой ширины.',
-        'На верхней полосе закрасим три дольки — это три восьмых, доля Нигоры. На нижней закрасим пять долек — это пять восьмых, доля Дилшода.',
-        'Смотри: дольки одинаковые, но закрашенная полоса у Дилшода длиннее. Пять долек больше трёх. Значит, пять восьмых больше трёх восьмых.'
+        'Приведём одну вторую и две третьих к одинаковым долям. Нажимай кнопку Дальше.',
+        'Вот две полосы одинаковой ширины. На верхней закрашена одна вторая, на нижней две третьих. Доли разного размера — половинки и трети, сразу не сравнить.',
+        'Разрежем обе полосы на одинаковые мелкие доли — на шестые. Тонкие линии делят каждую полосу на 6 равных частей. Закрашенные куски не изменились по длине, но теперь измеряются в шестых.',
+        'Считаем: одна вторая стала тремя шестыми, а две третьих — четырьмя шестыми. Доли теперь одинаковые, и четыре больше трёх. Значит, две третьих больше одной второй.'
       ],
       uz: [
-        "3/8 va 5/8 ni bosqichma-bosqich solishtiramiz. Davom etish tugmasini bosing.",
-        "Mana ikkita bir xil chiziq — bu ikkita bir xil tort. Har birini 8 ta teng bo'lakka bo'lamiz. Bo'laklar bir xil kenglikda chiqdi.",
-        "Yuqori chiziqda 3 ta bo'lakni bo'yaymiz — bu 3/8, Nigoraning ulushi. Pastkisida 5 ta bo'lakni bo'yaymiz — bu 5/8, Dilshodning ulushi.",
-        "Qarang: bo'laklar bir xil, lekin Dilshodning bo'yalgan chizig'i uzunroq. 5 ta bo'lak 3 tadan ko'p. Demak, 5/8 katta 3/8 dan."
+        "Ikkidan bir va uchdan ikkini bir xil ulushga keltiramiz. Davom etish tugmasini bosing.",
+        "Mana bir xil kenglikdagi ikki chiziq. Yuqorisida ikkidan bir, pastkisida uchdan ikki bo'yalgan. Ulushlar har xil o'lchamda — yarimlar va uchdanlar, darrov solishtirib bo'lmaydi.",
+        "Ikkala chiziqni ham bir xil mayda ulushga — oltidanlarga bo'lamiz. Ingichka chiziqlar har bir polosani 6 ta teng bo'lakka bo'ladi. Bo'yalgan qismlar uzunligi o'zgarmadi, lekin endi oltidanlarda o'lchanadi.",
+        "Sanaymiz: ikkidan bir oltidan uchta bo'ldi, uchdan ikki esa oltidan to'rtta. Ulushlar endi bir xil, to'rt esa uchdan katta. Demak, uchdan ikki katta ikkidan birdan."
       ]
     }
   },
 
-  // ---- s2 EXPLORATION (slider + check): собери 5/6 и сравни с 2/6 ----
+  // ---- s2 EXPLORATION (slider, re-grid): найди общие доли для 2/3 и 3/4 ----
   s2: {
-    eyebrow: { ru: 'Сравни сам', uz: "O'zing solishtir" },
-    title: { ru: 'Собери дробь и сравни сам', uz: "Kasrni yig'ib, o'zing solishtir" },
-    intro: { ru: 'Обе полосы поделены на шесть равных частей. Верхняя показывает две шестых. Двигай ползунок, чтобы закрасить дольки на нижней полосе.', uz: "Ikkala chiziq ham olti teng bo'lakka bo'lingan. Yuqorisi oltidan ikkini ko'rsatadi. Pastki chiziqdagi bo'laklarni bo'yash uchun slayderni suring." },
-    target_text: { ru: 'Цель: собери на нижней полосе 5/6 и сравни с 2/6.', uz: "Maqsad: pastki chiziqda 5/6 ni yig'ing va 2/6 bilan solishtiring." },
-    eyebrow_slider: { ru: 'Закрашено долек:', uz: "Bo'yalgan bo'laklar:" },
+    eyebrow: { ru: 'Найди общие доли', uz: "Umumiy ulushni toping" },
+    title: { ru: 'Подбери одинаковые доли для 2/3 и 3/4', uz: "2/3 va 3/4 uchun bir xil ulushni tanlang" },
+    intro: { ru: 'Двигай ползунок — он режет обе полосы на одно и то же число долей. Найди число, при котором линии совпадут с краем закраски на обеих полосах.', uz: "Slayderni suring — u ikkala polosani ham bir xil sondagi ulushga bo'ladi. Chiziqlar ikkala polosada ham bo'yoq chetiga to'g'ri keladigan sonni toping." },
+    target_text: { ru: 'Цель: найди общие доли для 2/3 и 3/4 (подсказка: и 3, и 4 должны укладываться ровно).', uz: "Maqsad: 2/3 va 3/4 uchun umumiy ulushni toping (maslahat: 3 ham, 4 ham aniq joylashishi kerak)." },
+    eyebrow_slider: { ru: 'Долей в полосе:', uz: "Polosadagi ulushlar:" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    btn_disabled_label: { ru: 'Сначала собери', uz: "Avval yig'ing" },
+    btn_disabled_label: { ru: 'Сначала найди', uz: "Avval toping" },
     fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
-    fb_success: { ru: 'Пять шестых это пять долек, две шестых это две дольки. Дольки одинаковые, поэтому пять шестых больше двух шестых.', uz: "Oltidan besh bu besh bo'lak, oltidan ikki bu ikki bo'lak. Bo'laklar bir xil, shuning uchun oltidan besh oltidan ikkidan katta." },
+    fb_success: { ru: 'Двенадцать долей подходят обеим: две третьих это восемь двенадцатых, а три четвёртых это девять двенадцатых. Девять больше восьми, значит три четвёртых больше двух третьих.', uz: "O'n ikki ulush ikkalasiga ham to'g'ri keladi: uchdan ikki bu o'n ikkidan sakkiz, to'rtdan uch bu o'n ikkidan to'qqiz. To'qqiz katta sakkizdan, demak to'rtdan uch uchdan ikkidan katta." },
     fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
-    fb_wrong: { ru: 'Нужно пять шестых — закрась ровно пять долек. Поставь ползунок на пять.', uz: "Oltidan besh kerak — aniq besh bo'lakni bo'yang. Slayderni beshga qo'ying." },
-    audio: { ru: 'Собери дробь сам и сравни. Обе полосы поделены на шесть равных частей, верхняя показывает две шестых. Двигай ползунок и собери на нижней полосе пять шестых. Дольки одинаковые, поэтому пять шестых больше двух шестых.', uz: "Kasrni o'zing yig'ib solishtir. Ikkala chiziq ham 6 ta teng bo'lakka bo'lingan, yuqorisi 2/6 ni ko'rsatadi. Slayderni surib, pastki chiziqda 5/6 ni yig'ing. Bo'laklar bir xil, shuning uchun 5/6 katta 2/6 dan." }
+    fb_wrong: { ru: 'Нужно число, в которое укладываются и 3, и 4. Самое маленькое такое — 12. Поставь ползунок на 12.', uz: "3 ham, 4 ham joylashadigan son kerak. Eng kichigi — 12. Slayderni 12 ga qo'ying." },
+    audio: { ru: 'Подбери одинаковые доли для двух третьих и трёх четвёртых. Двигай ползунок: он режет обе полосы на одно и то же число долей. Найди число, в которое ровно укладываются и 3, и 4. Это двенадцать. Тогда две третьих станут восемью двенадцатыми, а три четвёртых — девятью двенадцатыми.', uz: "Uchdan ikki va to'rtdan uch uchun bir xil ulushni tanlang. Slayderni suring: u ikkala polosani bir xil sondagi ulushga bo'ladi. 3 ham, 4 ham aniq joylashadigan sonni toping. Bu o'n ikki. Shunda uchdan ikki o'n ikkidan sakkizta, to'rtdan uch esa o'n ikkidan to'qqizta bo'ladi." }
   },
 
-  // ---- s3 RULE: одинаковый знаменатель → сравниваем числители ----
+  // ---- s3 RULE: привести к общим долям, потом считать ----
   s3: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Знаменатель один — смотрим на числитель', uz: "Maxraj bir xil — suratga qaraymiz" },
-    title: { ru: 'Если знаменатели одинаковые, больше та дробь, у которой числитель больше.', uz: "Maxrajlar bir xil bo'lsa, surati katta bo'lgan kasr katta." },
-    card_top: { ru: 'Одинаковый знаменатель — дольки одного размера.', uz: "Maxraj bir xil — bo'laklar bir o'lchamda." },
-    card_bottom: { ru: 'Чем больше числитель, тем больше закрашенных долек — тем больше дробь.', uz: "Surat qancha katta bo'lsa, bo'yalgan bo'laklar shuncha ko'p — kasr shuncha katta." },
-    card_line: { ru: 'Смотрим только на числители.', uz: "Faqat suratlarga qaraymiz." },
-    outro: { ru: '5/6 и 2/6: знаменатель один, а 5 больше 2 — значит, 5/6 > 2/6.', uz: "5/6 va 2/6: maxraj bir xil, 5 esa 2 dan katta — demak, 5/6 > 2/6." },
-    audio: { ru: 'Запомни правило. Если у дробей одинаковый знаменатель, дольки одного размера. Тогда больше та дробь, у которой числитель больше — у неё больше закрашенных долек. Смотрим только на числители. Пять шестых и две шестых: знаменатель один, а пять больше двух, значит пять шестых больше.', uz: "Qoidani eslab qoling. Agar kasrlarning maxraji bir xil bo'lsa, bo'laklar bir o'lchamda. Unda surati katta bo'lgan kasr katta — unda bo'yalgan bo'laklar ko'proq. Faqat suratlarga qaraymiz. 5/6 va 2/6: maxraj bir xil, 5 esa 2 dan katta, demak 5/6 katta." }
+    label: { ru: 'Приведи к одинаковым долям', uz: "Bir xil ulushga keltiring" },
+    title: { ru: 'Чтобы сравнить дроби с разными знаменателями, приведи обе к одинаковым долям.', uz: "Har xil maxrajli kasrlarni solishtirish uchun ikkalasini bir xil ulushga keltiring." },
+    card_top: { ru: 'Разрежь обе полосы на одинаковые мелкие доли (общие).', uz: "Ikkala polosani bir xil mayda ulushga (umumiy) bo'ling." },
+    card_bottom: { ru: 'Теперь доли равны — сравнивай, сколько их закрашено.', uz: "Endi ulushlar teng — nechtasi bo'yalganini solishtiring." },
+    card_line: { ru: '2/3 = 8/12, 3/4 = 9/12. 9 > 8 — значит 3/4 больше.', uz: "2/3 = 8/12, 3/4 = 9/12. 9 > 8 — demak 3/4 katta." },
+    outro: { ru: 'Общие доли — это любое число, в которое укладываются оба знаменателя. Удобнее брать самое маленькое (для 3 и 4 — это 12, а не 12×... больше).', uz: "Umumiy ulush — bu har ikki maxraj joylashadigan istalgan son. Eng kichigini olgan qulay (3 va 4 uchun bu 12, ko'paytma emas)." },
+    audio: { ru: 'Запомни правило. Чтобы сравнить дроби с разными знаменателями, приведи обе к одинаковым долям. Разрежь полосы на одинаковые мелкие доли, общие для обоих знаменателей. Тогда доли станут равными, и можно просто сравнить, сколько их закрашено. Две третьих это восемь двенадцатых, три четвёртых это девять двенадцатых, девять больше восьми. Общие доли удобнее брать самые маленькие.', uz: "Qoidani eslab qoling. Har xil maxrajli kasrlarni solishtirish uchun ikkalasini bir xil ulushga keltiring. Polosalarni har ikki maxrajga umumiy bo'lgan bir xil mayda ulushga bo'ling. Shunda ulushlar teng bo'ladi va nechtasi bo'yalganini solishtirsa bo'ladi. Uchdan ikki o'n ikkidan sakkizta, to'rtdan uch o'n ikkidan to'qqizta, to'qqiz katta sakkizdan. Umumiy ulushni eng kichigini olgan qulay." }
   },
 
-  // ---- s4 TEST (MC, текст-отношение): 5/8 ? 2/8 → 5/8 > 2/8 (correct idx 0) ----
+  // ---- s4 TEST (MC, отношение): 1/2 ? 3/5 → 5/10 vs 6/10 → 3/5 больше (correct opt0) ----
   s4: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
     label: { ru: 'Сравни дроби', uz: "Kasrlarni solishtiring" },
-    question: { ru: 'Сравни 5/8 и 2/8. Что верно?', uz: "5/8 va 2/8 ni solishtiring. Nima to'g'ri?" },
-    opt0: { ru: '5/8 > 2/8', uz: "5/8 > 2/8" },
-    opt1: { ru: '5/8 < 2/8', uz: "5/8 < 2/8" },
-    opt2: { ru: '5/8 = 2/8', uz: "5/8 = 2/8" },
+    question: { ru: 'Сравни 1/2 и 3/5. Что верно?', uz: "1/2 va 3/5 ni solishtiring. Nima to'g'ri?" },
+    opt0: { ru: '1/2 < 3/5', uz: "1/2 < 3/5" },
+    opt1: { ru: '1/2 > 3/5', uz: "1/2 > 3/5" },
+    opt2: { ru: '1/2 = 3/5', uz: "1/2 = 3/5" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: знаменатель один (8), а 5 больше 2. Значит, 5/8 > 2/8.', uz: "To'g'ri: maxraj bir xil (8), 5 esa 2 dan katta. Demak, 5/8 > 2/8." },
-    hint_1: { ru: 'Наоборот: 5 долек больше 2 долек. Значит, 5/8 больше, а не меньше.', uz: "Aksincha: 5 ta bo'lak 2 ta bo'lakdan ko'p. Demak, 5/8 katta, kichik emas." },
-    hint_2: { ru: 'Одинаковый знаменатель не значит «равны». Числители-то разные: 5 и 2.', uz: "Bir xil maxraj «teng» degani emas. Suratlar-ku har xil: 5 va 2." },
-    hint_3: { ru: 'Сравнить можно: знаменатель один, просто смотрим на числители.', uz: "Solishtirsa bo'ladi: maxraj bir xil, faqat suratlarga qaraymiz." },
-    wrong_default: { ru: 'Знаменатель один, а 5 больше 2. Значит, 5/8 > 2/8.', uz: "Maxraj bir xil, 5 esa 2 dan katta. Demak, 5/8 > 2/8." },
+    correct_text: { ru: 'Верно: в десятых 1/2 = 5/10, а 3/5 = 6/10. 6 больше 5, значит 3/5 больше. 1/2 < 3/5.', uz: "To'g'ri: o'ndan ulushlarda 1/2 = 5/10, 3/5 = 6/10. 6 katta 5 dan, demak 3/5 katta. 1/2 < 3/5." },
+    hint_1: { ru: 'Наоборот: 1/2 это 5/10, а 3/5 это 6/10. Шесть больше пяти — больше 3/5.', uz: "Aksincha: 1/2 bu 5/10, 3/5 bu 6/10. Olti katta beshdan — 3/5 katta." },
+    hint_2: { ru: 'Они не равны: 5/10 и 6/10 — разные. Приведи к десятым и сравни.', uz: "Ular teng emas: 5/10 va 6/10 — har xil. O'ndanlarga keltirib solishtiring." },
+    hint_3: { ru: 'Сравнить можно: приведи обе к десятым долям. 1/2 = 5/10, 3/5 = 6/10.', uz: "Solishtirsa bo'ladi: ikkalasini o'ndan ulushga keltiring. 1/2 = 5/10, 3/5 = 6/10." },
+    wrong_default: { ru: 'В десятых: 1/2 = 5/10, 3/5 = 6/10. Значит 3/5 больше, 1/2 < 3/5.', uz: "O'ndanlarda: 1/2 = 5/10, 3/5 = 6/10. Demak 3/5 katta, 1/2 < 3/5." },
     audio: {
-      intro: { ru: 'Сравни пять восьмых и две восьмых. Выбери, что верно.', uz: "Sakkizdan besh va sakkizdan ikkini solishtiring. Nima to'g'ri ekanini tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель один, пять больше двух — пять восьмых больше.', uz: "To'g'ri. Maxraj bir xil, besh katta ikkidan, sakkizdan besh katta." },
-      on_wrong: { ru: 'Пока нет. Знаменатель одинаковый, сравни числители: 5 и 2.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: 5 va 2." }
+      intro: { ru: 'Сравни одну вторую и три пятых. Подсказка: приведи их к десятым долям. Выбери, что верно.', uz: "Ikkidan bir va beshdan uchni solishtiring. Maslahat: o'ndan ulushga keltiring. Nima to'g'ri ekanini tanlang." },
+      on_correct: { ru: 'Верно. Пять десятых меньше шести десятых — значит три пятых больше.', uz: "To'g'ri. O'ndan besh o'ndan oltidan kichik — demak beshdan uch katta." },
+      on_wrong: { ru: 'Пока нет. Приведи обе к десятым: одна вторая это пять десятых, три пятых это шесть десятых.', uz: "Hali emas. Ikkalasini o'ndanlarga keltiring: ikkidan bir bu o'ndan besh, beshdan uch bu o'ndan olti." }
     }
   },
 
-  // ---- s5 RULE: одинаковый знаменатель ≠ равные дроби ----
+  // ---- s5 RULE (benchmark 1/2): 3/8 < 1/2 < 4/7 ----
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Один знаменатель — не значит «равны»', uz: "Bir xil maxraj — «teng» degani emas" },
-    title: { ru: 'Одинаковый знаменатель — это одинаковые дольки, а не равные дроби.', uz: "Bir xil maxraj — bu bir xil bo'laklar, teng kasrlar emas." },
-    card_ok: { ru: 'Дольки одного размера — потому что целое поделили на равные части одинаково.', uz: "Bo'laklar bir o'lchamda — chunki butun bir xil teng bo'laklarga bo'lingan." },
-    card_bad: { ru: 'Но закрашенных долек разное число: где их больше, та дробь и больше. Это не «равно»!', uz: "Lekin bo'yalgan bo'laklar soni har xil: qayerda ko'p bo'lsa, o'sha kasr katta. Bu «teng» emas!" },
-    outro: { ru: 'Одинаковый знаменатель не делает дроби равными. Всегда сравнивай числители.', uz: "Bir xil maxraj kasrlarni teng qilmaydi. Doim suratlarni solishtiring." },
-    audio: { ru: 'Будь внимателен: одинаковый знаменатель — это одинаковые дольки, но не равные дроби. Дольки одного размера, потому что целое поделили одинаково. А вот закрашенных долек может быть разное число. Где их больше — та дробь и больше. Поэтому одинаковый знаменатель не делает дроби равными. Всегда сравнивай числители.', uz: "Ehtiyot bo'ling: bir xil maxraj — bu bir xil bo'laklar, lekin teng kasrlar emas. Bo'laklar bir o'lchamda, chunki butun bir xil bo'lingan. Bo'yalgan bo'laklar soni esa har xil bo'lishi mumkin. Qayerda ko'p bo'lsa — o'sha kasr katta. Shuning uchun bir xil maxraj kasrlarni teng qilmaydi. Doim suratlarni solishtiring." }
+    eyebrow: { ru: 'Правило · ориентир', uz: "Qoida · mo'ljal" },
+    label: { ru: 'Быстрый приём: ориентир 1/2', uz: "Tez usul: 1/2 mo'ljal" },
+    title: { ru: 'Иногда хватает сравнить каждую дробь с 1/2.', uz: "Ba'zan har bir kasrni 1/2 bilan solishtirish kifoya." },
+    card_ok: { ru: '3/8 меньше половины (половина — это 4/8). А 4/7 больше половины (половина — 3,5/7).', uz: "3/8 yarimdan kichik (yarim — bu 4/8). 4/7 esa yarimdan katta (yarim — 3,5/7)." },
+    card_bad: { ru: 'Одна дробь меньше 1/2, другая больше 1/2 — значит сразу ясно: 4/7 больше 3/8.', uz: "Bir kasr 1/2 dan kichik, ikkinchisi 1/2 dan katta — demak darrov aniq: 4/7 katta 3/8 dan." },
+    outro: { ru: 'Ориентир 1/2 работает, когда одна дробь меньше половины, а другая больше. Если обе по одну сторону — приводи к общим долям.', uz: "1/2 mo'ljal bir kasr yarimdan kichik, ikkinchisi katta bo'lganda ishlaydi. Ikkalasi bir tomonda bo'lsa — umumiy ulushga keltiring." },
+    audio: { ru: 'Есть быстрый приём: сравни каждую дробь с одной второй, с половиной. Три восьмых меньше половины, ведь половина это четыре восьмых. А четыре седьмых больше половины. Одна меньше половины, другая больше — значит сразу ясно, что четыре седьмых больше трёх восьмых. Этот приём работает, когда дроби по разные стороны от половины.', uz: "Tez usul bor: har bir kasrni ikkidan bir, ya'ni yarim bilan solishtiring. Sakkizdan uch yarimdan kichik, axir yarim — bu sakkizdan to'rt. Yettidan to'rt esa yarimdan katta. Biri yarimdan kichik, ikkinchisi katta — demak darrov aniq, yettidan to'rt katta sakkizdan uchdan. Bu usul kasrlar yarimning har xil tomonida bo'lganda ishlaydi." }
   },
 
-  // ---- s6 TEST (MC, текст-отношение): 3/7 ? 6/7 → 3/7 < 6/7 (correct idx 0) ----
+  // ---- s6 TEST (MC, benchmark): 2/5 ? 4/7 → 2/5 < 1/2 < 4/7 (correct opt0) ----
   s6: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Сравни дроби', uz: "Kasrlarni solishtiring" },
-    question: { ru: 'Сравни 3/7 и 6/7. Что верно?', uz: "3/7 va 6/7 ni solishtiring. Nima to'g'ri?" },
-    opt0: { ru: '3/7 < 6/7', uz: "3/7 < 6/7" },
-    opt1: { ru: '3/7 > 6/7', uz: "3/7 > 6/7" },
-    opt2: { ru: '3/7 = 6/7', uz: "3/7 = 6/7" },
+    label: { ru: 'Сравни через 1/2', uz: "1/2 orqali solishtiring" },
+    question: { ru: 'Сравни 2/5 и 4/7, опираясь на 1/2. Что верно?', uz: "2/5 va 4/7 ni 1/2 ga tayanib solishtiring. Nima to'g'ri?" },
+    opt0: { ru: '2/5 < 4/7', uz: "2/5 < 4/7" },
+    opt1: { ru: '2/5 > 4/7', uz: "2/5 > 4/7" },
+    opt2: { ru: '2/5 = 4/7', uz: "2/5 = 4/7" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: знаменатель один (7), а 3 меньше 6. Значит, 3/7 < 6/7.', uz: "To'g'ri: maxraj bir xil (7), 3 esa 6 dan kichik. Demak, 3/7 < 6/7." },
-    hint_1: { ru: 'Наоборот: 3 дольки меньше 6 долек. Значит, 3/7 меньше.', uz: "Aksincha: 3 ta bo'lak 6 ta bo'lakdan kam. Demak, 3/7 kichik." },
-    hint_2: { ru: 'Числители разные: 3 и 6. Дроби не равны.', uz: "Suratlar har xil: 3 va 6. Kasrlar teng emas." },
-    hint_3: { ru: 'Сравнить можно: знаменатель один, смотрим на числители.', uz: "Solishtirsa bo'ladi: maxraj bir xil, suratlarga qaraymiz." },
-    wrong_default: { ru: 'Знаменатель один, 3 меньше 6. Значит, 3/7 < 6/7.', uz: "Maxraj bir xil, 3 esa 6 dan kichik. Demak, 3/7 < 6/7." },
+    correct_text: { ru: 'Верно: 2/5 меньше 1/2 (половина — 2,5/5), а 4/7 больше 1/2 (половина — 3,5/7). Значит 2/5 < 4/7.', uz: "To'g'ri: 2/5 1/2 dan kichik (yarim — 2,5/5), 4/7 esa 1/2 dan katta (yarim — 3,5/7). Demak 2/5 < 4/7." },
+    hint_1: { ru: 'Наоборот: 2/5 меньше половины, 4/7 больше. Значит 4/7 больше.', uz: "Aksincha: 2/5 yarimdan kichik, 4/7 katta. Demak 4/7 katta." },
+    hint_2: { ru: 'Не равны: одна меньше половины, другая больше. Они по разные стороны от 1/2.', uz: "Teng emas: biri yarimdan kichik, ikkinchisi katta. Ular 1/2 ning har xil tomonida." },
+    hint_3: { ru: 'Сравнить можно: 2/5 меньше 1/2, 4/7 больше 1/2.', uz: "Solishtirsa bo'ladi: 2/5 1/2 dan kichik, 4/7 1/2 dan katta." },
+    wrong_default: { ru: '2/5 меньше половины, 4/7 больше половины. Значит 2/5 < 4/7.', uz: "2/5 yarimdan kichik, 4/7 yarimdan katta. Demak 2/5 < 4/7." },
     audio: {
-      intro: { ru: 'Сравни три седьмых и шесть седьмых. Выбери, что верно.', uz: "Yettidan uch va yettidan oltini solishtiring. Nima to'g'ri ekanini tanlang." },
-      on_correct: { ru: 'Верно. Три меньше шести — три седьмых меньше.', uz: "To'g'ri. Uch kichik oltidan, yettidan uch kichik." },
-      on_wrong: { ru: 'Пока нет. Знаменатель один, сравни числители: 3 и 6.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: 3 va 6." }
+      intro: { ru: 'Сравни две пятых и четыре седьмых, опираясь на одну вторую. Выбери, что верно.', uz: "Beshdan ikki va yettidan to'rtni ikkidan birga tayanib solishtiring. Nima to'g'ri ekanini tanlang." },
+      on_correct: { ru: 'Верно. Две пятых меньше половины, четыре седьмых больше — значит четыре седьмых больше.', uz: "To'g'ri. Beshdan ikki yarimdan kichik, yettidan to'rt katta — demak yettidan to'rt katta." },
+      on_wrong: { ru: 'Пока нет. Сравни каждую с половиной: две пятых меньше, четыре седьмых больше.', uz: "Hali emas. Har birini yarim bilan solishtiring: beshdan ikki kichik, yettidan to'rt katta." }
     }
   },
 
-  // ---- s7 TEST (MC, текст): равны ли дроби с одним знаменателем? (correct idx 0) ----
+  // ---- s7 TEST (MC, текст misconception): 3/5 > 2/3, потому что 3>2? Нет (correct opt0) ----
   s7: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Всегда ли они равны?', uz: "Ular doim tengmi?" },
-    question: { ru: 'Дроби с одинаковым знаменателем всегда равны?', uz: "Maxraji bir xil kasrlar doim tengmi?" },
-    opt0: { ru: 'Нет — больше та, у которой числитель больше', uz: "Yo'q — surati katta bo'lgani katta" },
-    opt1: { ru: 'Да — если знаменатель один, дроби равны', uz: "Ha — maxraj bir xil bo'lsa, kasrlar teng" },
-    opt2: { ru: 'Равны, только если и числитель меньше', uz: "Faqat surati ham kichik bo'lsa teng" },
-    opt3: { ru: 'Такие дроби сравнить нельзя', uz: "Bunday kasrlarni solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: одинаковый знаменатель не делает дроби равными. Больше та, где числитель больше.', uz: "To'g'ri: bir xil maxraj kasrlarni teng qilmaydi. Surati katta bo'lgani katta." },
-    hint_1: { ru: '3/8 и 5/8 — знаменатель один, но не равны: 5/8 больше. Числители-то разные.', uz: "3/8 va 5/8 — maxraj bir xil, lekin teng emas: 5/8 katta. Suratlar-ku har xil." },
-    hint_2: { ru: 'Тут дело только в числителях: больше числитель — больше дробь.', uz: "Bu yerda gap faqat suratlarda: surat katta — kasr katta." },
-    hint_3: { ru: 'Как раз наоборот: одинаковый знаменатель и помогает сравнить — по числителям.', uz: "Aynan aksincha: bir xil maxraj solishtirishga yordam beradi — suratlar bo'yicha." },
-    wrong_default: { ru: 'Нет. Одинаковый знаменатель — дольки равны, но больше та дробь, где числитель больше.', uz: "Yo'q. Bir xil maxraj — bo'laklar teng, lekin surati katta bo'lgan kasr katta." },
+    label: { ru: 'Не сравнивай только числители', uz: "Faqat suratlarni solishtirmang" },
+    question: { ru: 'Кто-то говорит: «3/5 больше 2/3, ведь сверху 3 больше 2». Это так?', uz: "Kimdir aytadi: «3/5 katta 2/3 dan, axir yuqorida 3 katta 2 dan». Shundaymi?" },
+    opt0: { ru: 'Неверно — знаменатели разные; в пятнадцатых 3/5 = 9/15, а 2/3 = 10/15, значит 2/3 больше', uz: "Noto'g'ri — maxrajlar har xil; o'n beshdan ulushlarda 3/5 = 9/15, 2/3 = 10/15, demak 2/3 katta" },
+    opt1: { ru: 'Верно — раз 3 больше 2, то 3/5 больше', uz: "To'g'ri — 3 katta 2 dan, demak 3/5 katta" },
+    opt2: { ru: 'Они равны — числители близкие', uz: "Ular teng — suratlar yaqin" },
+    opt3: { ru: 'Сравнить нельзя — знаменатели разные', uz: "Solishtirib bo'lmaydi — maxrajlar har xil" },
+    correct_text: { ru: 'Верно: при разных знаменателях числители так не сравнить. В пятнадцатых: 3/5 = 9/15, 2/3 = 10/15 — значит 2/3 больше.', uz: "To'g'ri: maxrajlar har xil bo'lganda suratlarni shunday solishtirib bo'lmaydi. O'n beshdan ulushlarda: 3/5 = 9/15, 2/3 = 10/15 — demak 2/3 katta." },
+    hint_1: { ru: 'Это ловушка. Знаменатели разные, поэтому одни числители ничего не говорят. Приведи к пятнадцатым.', uz: "Bu tuzoq. Maxrajlar har xil, shuning uchun faqat suratlar hech narsa demaydi. O'n beshdanlarga keltiring." },
+    hint_2: { ru: 'Не равны: 9/15 и 10/15 — разные. Одна больше.', uz: "Teng emas: 9/15 va 10/15 — har xil. Biri katta." },
+    hint_3: { ru: 'Сравнить можно — нужно привести к общим долям, к пятнадцатым.', uz: "Solishtirsa bo'ladi — umumiy ulushga, o'n beshdanlarga keltirish kerak." },
+    wrong_default: { ru: 'Знаменатели разные. В пятнадцатых 3/5 = 9/15, 2/3 = 10/15 — значит 2/3 больше.', uz: "Maxrajlar har xil. O'n beshdanlarda 3/5 = 9/15, 2/3 = 10/15 — demak 2/3 katta." },
     audio: {
-      intro: { ru: 'Дроби с одинаковым знаменателем всегда равны? Выбери ответ.', uz: "Maxraji bir xil kasrlar doim tengmi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Не равны — больше та, у которой числитель больше.', uz: "To'g'ri. Teng emas — surati katta bo'lgani katta." },
-      on_wrong: { ru: 'Посмотри ещё раз: три восьмых и пять восьмых не равны, хотя знаменатель один.', uz: "Yana qarang: sakkizdan uch va sakkizdan besh teng emas, garchi maxraj bir xil bo'lsa ham." }
+      intro: { ru: 'Кто-то говорит, что три пятых больше двух третьих, ведь сверху три больше двух. Так ли это? Выбери ответ.', uz: "Kimdir aytadi: beshdan uch katta uchdan ikkidan, axir yuqorida 3 katta 2 dan. Shundaymi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Знаменатели разные, числители так не сравнить. В пятнадцатых два третьих больше.', uz: "To'g'ri. Maxrajlar har xil, suratlarni shunday solishtirib bo'lmaydi. O'n beshdanlarda uchdan ikki katta." },
+      on_wrong: { ru: 'Это ловушка: при разных знаменателях нельзя сравнивать одни числители.', uz: "Bu tuzoq: maxrajlar har xil bo'lsa, faqat suratlarni solishtirib bo'lmaydi." }
     }
   },
 
-  // ---- s8 CASE setup: Гулнора и Азиз, одинаковая плитка шоколада ----
+  // ---- s8 CASE setup: Сабина качает два файла (3/4 и 5/6) ----
   s8: {
-    eyebrow: { ru: 'Задача · шоколад', uz: "Masala · shokolad" },
-    title: { ru: 'У Гулноры и Азиза по одинаковой плитке шоколада.', uz: "Gulnora va Azizda bir xil shokolad plitkasidan bor." },
-    body_p1: { ru: 'Каждая плитка разделена на 10 равных долек. Гулнора съела 4/10 своей плитки, Азиз — 7/10 своей. Кто съел больше шоколада?', uz: "Har bir plitka 10 ta teng bo'lakka bo'lingan. Gulnora o'z plitkasining 4/10 qismini yedi, Aziz — o'zinikining 7/10 qismini. Kim ko'proq shokolad yedi?" },
-    card_line_label: { ru: 'Гулнора', uz: "Gulnora" },
-    card_line_value: { ru: '4/10 плитки', uz: "plitkaning 4/10 qismi" },
-    card_parts_label: { ru: 'Азиз', uz: "Aziz" },
-    card_parts_value: { ru: '7/10 плитки', uz: "plitkaning 7/10 qismi" },
-    outro: { ru: 'Плитки одинаковые и поделены на 10 равных долек. Помоги сравнить на следующем шаге.', uz: "Plitkalar bir xil va 10 ta teng bo'lakka bo'lingan. Keyingi bosqichda solishtirishga yordam bering." },
-    btn_help: { ru: 'Помочь сравнить', uz: "Solishtirishga yordam" },
-    audio: { ru: 'У Гулноры и Азиза по одинаковой плитке шоколада, каждая разделена на десять равных долек. Гулнора съела четыре десятых своей плитки, Азиз — семь десятых. Кто съел больше шоколада? Плитки одинаковые, дольки равны. Подумай, как их сравнить.', uz: "Gulnora va Azizda bir xil shokolad plitkasidan bor, har biri 10 ta teng bo'lakka bo'lingan. Gulnora o'z plitkasining 4/10 qismini, Aziz 7/10 qismini yedi. Kim ko'proq yedi? Plitkalar bir xil, bo'laklar teng. Ularni qanday solishtirishni o'ylab ko'ring." }
+    eyebrow: { ru: 'Задача · загрузка', uz: "Masala · yuklash" },
+    title: { ru: 'Сабина качает два файла одинакового размера.', uz: "Sabina bir xil hajmli ikki faylni yuklayapti." },
+    body_p1: { ru: 'Файлы одинаковые. Первый загрузился на 3/4, второй — на 5/6. Какой файл ближе к концу загрузки?', uz: "Fayllar bir xil. Birinchisi 3/4 ga, ikkinchisi — 5/6 ga yuklandi. Qaysi fayl yuklanish oxiriga yaqinroq?" },
+    card_line_label: { ru: 'Первый файл', uz: "Birinchi fayl" },
+    card_line_value: { ru: 'загружен на 3/4', uz: "3/4 ga yuklandi" },
+    card_parts_label: { ru: 'Второй файл', uz: "Ikkinchi fayl" },
+    card_parts_value: { ru: 'загружен на 5/6', uz: "5/6 ga yuklandi" },
+    outro: { ru: 'Знаменатели разные (4 и 6). Приведи их к общим долям на следующем шаге.', uz: "Maxrajlar har xil (4 va 6). Keyingi bosqichda ularni umumiy ulushga keltiring." },
+    btn_help: { ru: 'Помочь Сабине', uz: "Sabinaga yordam berish" },
+    audio: { ru: 'Сабина качает два файла одинакового размера. Первый загрузился на три четвёртых, второй на пять шестых. Какой файл ближе к концу загрузки? Знаменатели разные, четыре и шесть. Подумай, к каким общим долям их привести.', uz: "Sabina bir xil hajmli ikki faylni yuklayapti. Birinchisi to'rtdan uchga, ikkinchisi oltidan beshga yuklandi. Qaysi fayl oxiriga yaqinroq? Maxrajlar har xil, to'rt va olti. Qanday umumiy ulushga keltirishni o'ylab ko'ring." }
   },
 
-  // ---- s9 CASE step (MC, текст-отношение): 4/10 vs 7/10 → Азиз больше (correct idx 0) ----
+  // ---- s9 CASE step (MC, отношение): 3/4 vs 5/6 → 9/12 vs 10/12 → второй больше (correct opt0) ----
   s9: {
-    eyebrow: { ru: 'Задача · шоколад', uz: "Masala · shokolad" },
-    label: { ru: 'Кто съел больше?', uz: "Kim ko'proq yedi?" },
-    question: { ru: 'Гулнора съела 4/10, Азиз — 7/10. Что верно?', uz: "Gulnora 4/10, Aziz — 7/10 yedi. Nima to'g'ri?" },
-    opt0: { ru: 'Азиз съел больше: 7/10 > 4/10', uz: "Aziz ko'proq yedi: 7/10 > 4/10" },
-    opt1: { ru: 'Гулнора съела больше: 4/10 > 7/10', uz: "Gulnora ko'proq yedi: 4/10 > 7/10" },
-    opt2: { ru: 'Они съели поровну', uz: "Ular teng yedi" },
+    eyebrow: { ru: 'Задача · загрузка', uz: "Masala · yuklash" },
+    label: { ru: 'Какой ближе к концу?', uz: "Qaysi oxiriga yaqin?" },
+    question: { ru: 'Первый файл на 3/4, второй на 5/6. Что верно?', uz: "Birinchi fayl 3/4 da, ikkinchisi 5/6 da. Nima to'g'ri?" },
+    opt0: { ru: 'Второй ближе: 5/6 > 3/4', uz: "Ikkinchisi yaqinroq: 5/6 > 3/4" },
+    opt1: { ru: 'Первый ближе: 3/4 > 5/6', uz: "Birinchisi yaqinroq: 3/4 > 5/6" },
+    opt2: { ru: 'Загружены поровну', uz: "Teng yuklangan" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: дольки равны (десятые), а 7 больше 4. Значит, 7/10 > 4/10 — Азиз съел больше.', uz: "To'g'ri: bo'laklar teng (o'ndan), 7 esa 4 dan katta. Demak, 7/10 > 4/10 — Aziz ko'proq yedi." },
-    hint_1: { ru: 'Наоборот: 7 долек больше 4. Больше съел Азиз.', uz: "Aksincha: 7 ta bo'lak 4 tadan ko'p. Ko'proq Aziz yedi." },
-    hint_2: { ru: 'Числители разные: 4 и 7. Значит, не поровну.', uz: "Suratlar har xil: 4 va 7. Demak, teng emas." },
-    hint_3: { ru: 'Плитки одинаковые, знаменатель один — сравнить можно по числителям.', uz: "Plitkalar bir xil, maxraj bir — suratlar bo'yicha solishtirsa bo'ladi." },
-    wrong_default: { ru: 'Знаменатель один (10), 7 больше 4. Значит, 7/10 > 4/10 — Азиз съел больше.', uz: "Maxraj bir xil (10), 7 esa 4 dan katta. Demak, 7/10 > 4/10 — Aziz ko'proq yedi." },
+    correct_text: { ru: 'Верно: в двенадцатых 3/4 = 9/12, 5/6 = 10/12. 10 больше 9 — значит 5/6 больше, второй файл ближе.', uz: "To'g'ri: o'n ikkidan ulushlarda 3/4 = 9/12, 5/6 = 10/12. 10 katta 9 dan — demak 5/6 katta, ikkinchi fayl yaqinroq." },
+    hint_1: { ru: 'Наоборот: 3/4 это 9/12, 5/6 это 10/12. Десять больше девяти — больше 5/6.', uz: "Aksincha: 3/4 bu 9/12, 5/6 bu 10/12. O'n katta to'qqizdan — 5/6 katta." },
+    hint_2: { ru: 'Не поровну: 9/12 и 10/12 разные. Приведи к двенадцатым.', uz: "Teng emas: 9/12 va 10/12 har xil. O'n ikkidanlarga keltiring." },
+    hint_3: { ru: 'Сравнить можно: приведи обе к двенадцатым долям.', uz: "Solishtirsa bo'ladi: ikkalasini o'n ikkidan ulushga keltiring." },
+    wrong_default: { ru: 'В двенадцатых: 3/4 = 9/12, 5/6 = 10/12. Значит 5/6 больше.', uz: "O'n ikkidanlarda: 3/4 = 9/12, 5/6 = 10/12. Demak 5/6 katta." },
     audio: {
-      intro: { ru: 'Гулнора съела четыре десятых, Азиз — семь десятых. Кто съел больше? Выбери верное.', uz: "Gulnora o'ndan to'rt, Aziz o'ndan yetti yedi. Kim ko'proq yedi? To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Семь десятых больше четырёх десятых — больше съел Азиз.', uz: "To'g'ri. O'ndan yetti katta o'ndan to'rtdan, ko'proq Aziz yedi." },
-      on_wrong: { ru: 'Пока нет. Знаменатель один, сравни числители: 4 и 7.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: 4 va 7." }
+      intro: { ru: 'Первый файл загружен на три четвёртых, второй на пять шестых. Какой ближе к концу? Выбери верное.', uz: "Birinchi fayl to'rtdan uchga, ikkinchisi oltidan beshga yuklandi. Qaysi oxiriga yaqin? To'g'risini tanlang." },
+      on_correct: { ru: 'Верно. Девять двенадцатых меньше десяти двенадцатых — пять шестых больше.', uz: "To'g'ri. O'n ikkidan to'qqiz o'n ikkidan o'ndan kichik — oltidan besh katta." },
+      on_wrong: { ru: 'Пока нет. Приведи обе к двенадцатым: три четвёртых это девять двенадцатых, пять шестых это десять двенадцатых.', uz: "Hali emas. Ikkalasini o'n ikkidanlarga keltiring: to'rtdan uch bu o'n ikkidan to'qqiz, oltidan besh bu o'n ikkidan o'n." }
     }
   },
 
-  // ---- s10 CASE conclusion (MC, текст): почему 7/10 > 4/10 (correct idx 0) ----
+  // ---- s10 CASE conclusion (MC, текст): почему 5/6 > 3/4 (correct opt0) ----
   s10: {
-    eyebrow: { ru: 'Задача · шоколад', uz: "Masala · shokolad" },
+    eyebrow: { ru: 'Задача · загрузка', uz: "Masala · yuklash" },
     label: { ru: 'Почему так', uz: "Nega shunday" },
-    question: { ru: 'Почему 7/10 больше 4/10?', uz: "Nega 7/10 katta 4/10 dan?" },
-    opt0: { ru: 'Плитки поделены одинаково, и 7 равных долек больше 4 таких же долек.', uz: "Plitkalar bir xil bo'lingan, 7 ta teng bo'lak 4 ta xuddi shunday bo'lakdan ko'p." },
-    opt1: { ru: 'Потому что 7 — большое число, оно всегда больше.', uz: "Chunki 7 — katta son, u doim katta." },
-    opt2: { ru: 'Потому что у 4/10 знаменатель меньше.', uz: "Chunki 4/10 ning maxraji kichik." },
-    opt3: { ru: 'Они на самом деле равны.', uz: "Aslida ular teng." },
-    correct_text: { ru: 'Верно: дольки одного размера, поэтому 7 долек больше 4. Дело в числителях.', uz: "To'g'ri: bo'laklar bir o'lchamda, shuning uchun 7 ta bo'lak 4 tadan ko'p. Gap suratlarda." },
-    hint_1: { ru: 'Само по себе «7 большое» не работает: 7/100 меньше 4/10. Тут важно, что дольки равны.', uz: "«7 katta» o'zi ishlamaydi: 7/100 kichik 4/10 dan. Bu yerda bo'laklar teng bo'lgani muhim." },
-    hint_2: { ru: 'Знаменатель у обеих один и тот же — 10. Дело не в нём, а в числителях.', uz: "Ikkalasining maxraji bir xil — 10. Gap unda emas, suratlarda." },
-    hint_3: { ru: 'Числители разные (4 и 7), значит дроби не равны.', uz: "Suratlar har xil (4 va 7), demak kasrlar teng emas." },
-    wrong_default: { ru: 'Дольки равны, поэтому 7 долек больше 4 долек. Сравниваем числители.', uz: "Bo'laklar teng, shuning uchun 7 ta bo'lak 4 tadan ko'p. Suratlarni solishtiramiz." },
+    question: { ru: 'Почему 5/6 больше 3/4?', uz: "Nega 5/6 katta 3/4 dan?" },
+    opt0: { ru: 'Если привести к одинаковым (двенадцатым) долям, 5/6 = 10/12, а 3/4 = 9/12 — закрашено больше.', uz: "Bir xil (o'n ikkidan) ulushga keltirsak, 5/6 = 10/12, 3/4 = 9/12 — ko'proq bo'yalgan." },
+    opt1: { ru: 'Потому что 6 больше 4, значит 5/6 всегда больше.', uz: "Chunki 6 katta 4 dan, demak 5/6 doim katta." },
+    opt2: { ru: 'Потому что сверху 5 больше 3.', uz: "Chunki yuqorida 5 katta 3 dan." },
+    opt3: { ru: 'На самом деле они равны.', uz: "Aslida ular teng." },
+    correct_text: { ru: 'Верно: при общих двенадцатых долях 5/6 = 10/12, 3/4 = 9/12, и десять больше девяти.', uz: "To'g'ri: umumiy o'n ikkidan ulushlarda 5/6 = 10/12, 3/4 = 9/12, o'n esa to'qqizdan katta." },
+    hint_1: { ru: 'Сам по себе больший знаменатель не делает дробь больше. Нужно привести к общим долям.', uz: "Katta maxraj o'zi kasrni katta qilmaydi. Umumiy ulushga keltirish kerak." },
+    hint_2: { ru: 'Одни числители при разных знаменателях не сравнивают. Приведи к двенадцатым.', uz: "Maxrajlar har xil bo'lsa, faqat suratlarni solishtirmaydi. O'n ikkidanlarga keltiring." },
+    hint_3: { ru: 'Они не равны: 10/12 и 9/12 разные.', uz: "Ular teng emas: 10/12 va 9/12 har xil." },
+    wrong_default: { ru: 'Привели к двенадцатым: 5/6 = 10/12, 3/4 = 9/12, десять больше девяти.', uz: "O'n ikkidanlarga keltirdik: 5/6 = 10/12, 3/4 = 9/12, o'n katta to'qqizdan." },
     audio: {
-      intro: { ru: 'Почему семь десятых больше четырёх десятых? Выбери верное объяснение.', uz: "Nega o'ndan yetti katta o'ndan to'rtdan? To'g'ri izohni tanlang." },
-      on_correct: { ru: 'Верно. Дольки одного размера, и семь их больше, чем четыре.', uz: "To'g'ri. Bo'laklar bir o'lchamda, ettitasi to'rttadan ko'p." },
-      on_wrong: { ru: 'Пока нет. Важно, что дольки равны, а числитель у Азиза больше.', uz: "Hali emas. Bo'laklar teng ekani muhim, Azizning surati esa katta." }
+      intro: { ru: 'Почему пять шестых больше трёх четвёртых? Выбери верное объяснение.', uz: "Nega oltidan besh katta to'rtdan uchdan? To'g'ri izohni tanlang." },
+      on_correct: { ru: 'Верно. В общих двенадцатых долях пять шестых это десять двенадцатых, а три четвёртых девять.', uz: "To'g'ri. Umumiy o'n ikkidan ulushlarda oltidan besh o'n ikkidan o'nta, to'rtdan uch o'n ikkidan to'qqizta." },
+      on_wrong: { ru: 'Пока нет. Нужно привести обе дроби к одинаковым долям и сравнить.', uz: "Hali emas. Ikkala kasrni bir xil ulushga keltirib solishtirish kerak." }
     }
   },
 
-  // ---- s11 TEST (MC, текст-отношение): 5/6 ? 4/6 → 5/6 > 4/6 (correct idx 0) ----
+  // ---- s11 TEST (MC, отношение): 1/2 ? 5/8 → 4/8 vs 5/8 → 5/8 больше (correct opt0) ----
   s11: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
     label: { ru: 'Последняя — сравни', uz: "Oxirgisi — solishtiring" },
-    question: { ru: 'Сравни 5/6 и 4/6. Что верно?', uz: "5/6 va 4/6 ni solishtiring. Nima to'g'ri?" },
-    opt0: { ru: '5/6 > 4/6', uz: "5/6 > 4/6" },
-    opt1: { ru: '5/6 < 4/6', uz: "5/6 < 4/6" },
-    opt2: { ru: '5/6 = 4/6', uz: "5/6 = 4/6" },
+    question: { ru: 'Сравни 1/2 и 5/8. Что верно?', uz: "1/2 va 5/8 ni solishtiring. Nima to'g'ri?" },
+    opt0: { ru: '1/2 < 5/8', uz: "1/2 < 5/8" },
+    opt1: { ru: '1/2 > 5/8', uz: "1/2 > 5/8" },
+    opt2: { ru: '1/2 = 5/8', uz: "1/2 = 5/8" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: знаменатель один (6), а 5 больше 4. Значит, 5/6 > 4/6.', uz: "To'g'ri: maxraj bir xil (6), 5 esa 4 dan katta. Demak, 5/6 > 4/6." },
-    hint_1: { ru: 'Наоборот: 5 долек больше 4. Значит, 5/6 больше.', uz: "Aksincha: 5 ta bo'lak 4 tadan ko'p. Demak, 5/6 katta." },
-    hint_2: { ru: 'Числители разные: 5 и 4. Дроби не равны.', uz: "Suratlar har xil: 5 va 4. Kasrlar teng emas." },
-    hint_3: { ru: 'Сравнить можно: знаменатель один, смотрим на числители.', uz: "Solishtirsa bo'ladi: maxraj bir xil, suratlarga qaraymiz." },
-    wrong_default: { ru: 'Знаменатель один, 5 больше 4. Значит, 5/6 > 4/6.', uz: "Maxraj bir xil, 5 esa 4 dan katta. Demak, 5/6 > 4/6." },
+    correct_text: { ru: 'Верно: в восьмых 1/2 = 4/8, а 5/8 уже в восьмых. 5 больше 4 — значит 5/8 больше. 1/2 < 5/8.', uz: "To'g'ri: sakkizdan ulushlarda 1/2 = 4/8, 5/8 esa allaqachon sakkizdan. 5 katta 4 dan — demak 5/8 katta. 1/2 < 5/8." },
+    hint_1: { ru: 'Наоборот: 1/2 это 4/8, а 5/8 больше четырёх восьмых. Больше 5/8.', uz: "Aksincha: 1/2 bu 4/8, 5/8 esa sakkizdan to'rtdan katta. 5/8 katta." },
+    hint_2: { ru: 'Не равны: 4/8 и 5/8 разные. Приведи 1/2 к восьмым.', uz: "Teng emas: 4/8 va 5/8 har xil. 1/2 ni sakkizdanlarga keltiring." },
+    hint_3: { ru: 'Сравнить можно: 1/2 это 4/8, дальше сравни с 5/8.', uz: "Solishtirsa bo'ladi: 1/2 bu 4/8, keyin 5/8 bilan solishtiring." },
+    wrong_default: { ru: 'В восьмых 1/2 = 4/8, и 5/8 больше. 1/2 < 5/8.', uz: "Sakkizdanlarda 1/2 = 4/8, 5/8 esa katta. 1/2 < 5/8." },
     audio: {
-      intro: { ru: 'Последнее задание. Сравни пять шестых и четыре шестых. Выбери верное.', uz: "Oxirgi topshiriq. Oltidan besh va oltidan to'rtni solishtiring. To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Пять больше четырёх — пять шестых больше.', uz: "To'g'ri. Besh katta to'rtdan, oltidan besh katta." },
-      on_wrong: { ru: 'Пока нет. Знаменатель один, сравни числители: 5 и 4.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: 5 va 4." }
+      intro: { ru: 'Последнее задание. Сравни одну вторую и пять восьмых. Подсказка: приведи к восьмым. Выбери верное.', uz: "Oxirgi topshiriq. Ikkidan bir va sakkizdan beshni solishtiring. Maslahat: sakkizdanlarga keltiring. To'g'risini tanlang." },
+      on_correct: { ru: 'Верно. Одна вторая это четыре восьмых, пять восьмых больше.', uz: "To'g'ri. Ikkidan bir sakkizdan to'rt, sakkizdan besh katta." },
+      on_wrong: { ru: 'Пока нет. Приведи одну вторую к восьмым: получится четыре восьмых, а пять восьмых больше.', uz: "Hali emas. Ikkidan birni sakkizdanlarga keltiring: sakkizdan to'rt chiqadi, sakkizdan besh esa katta." }
     }
   },
 
@@ -1032,45 +1032,45 @@ const CONTENT = {
   s12: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
     label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    title: { ru: 'Теперь ты сравниваешь дроби с одним знаменателем.', uz: "Endi siz bir xil maxrajli kasrlarni solishtirasiz." },
+    title: { ru: 'Теперь ты сравниваешь дроби с разными знаменателями.', uz: "Endi siz har xil maxrajli kasrlarni solishtirasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Одинаковый знаменатель — дольки одного размера.', uz: "Bir xil maxraj — bo'laklar bir o'lchamda." },
-    main_2: { ru: 'Больше та дробь, у которой числитель больше: смотрим только на числители.', uz: "Surati katta bo'lgan kasr katta: faqat suratlarga qaraymiz." },
-    main_3: { ru: 'Одинаковый знаменатель не значит «дроби равны».', uz: "Bir xil maxraj «kasrlar teng» degani emas." },
-    main_4: { ru: 'Это правило работает, только когда знаменатели одинаковые.', uz: "Bu qoida faqat maxrajlar bir xil bo'lganda ishlaydi." },
-    back_to_hook: { ru: 'Нигора съела 3/8, Дилшод — 5/8. Дольки равны, 5 больше 3 — Дилшод съел больше. «Поровну» было ошибкой.', uz: "Nigora 3/8, Dilshod — 5/8 yedi. Bo'laklar teng, 5 esa 3 dan katta — Dilshod ko'proq yedi. «Teng» degani xato edi." },
+    main_1: { ru: 'Разные знаменатели — нельзя сравнивать одни числители.', uz: "Maxraj har xil — faqat suratlarni solishtirib bo'lmaydi." },
+    main_2: { ru: 'Приведи обе дроби к одинаковым (общим) долям и сравни, сколько закрашено.', uz: "Ikkala kasrni bir xil (umumiy) ulushga keltiring va nechtasi bo'yalganini solishtiring." },
+    main_3: { ru: 'Общие доли бери самые маленькие — это не всегда произведение знаменателей.', uz: "Umumiy ulushni eng kichigini oling — bu har doim maxrajlar ko'paytmasi emas." },
+    main_4: { ru: 'Быстрый приём: сравни каждую дробь с 1/2 — если они по разные стороны, ответ сразу ясен.', uz: "Tez usul: har bir kasrni 1/2 bilan solishtiring — agar har xil tomonda bo'lsa, javob darrov aniq." },
+    back_to_hook: { ru: 'Джавохир пробежал 2/3, Умид 3/4. В двенадцатых это 8/12 и 9/12 — больше пробежал Умид. Сравнивать одни числители было нельзя.', uz: "Javohir 2/3, Umid 3/4 yugurdi. O'n ikkidanlarda bu 8/12 va 9/12 — ko'proq Umid yugurdi. Faqat suratlarni solishtirib bo'lmasdi." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'уроки о дроби: что это, на прямой, как деление.', uz: "kasr darslari: nima, son o'qida, bo'lish natijasi." },
+    conn_refs: { ru: '«Сравнение с одинаковым знаменателем» и «...с одинаковым числителем».', uz: "«Bir xil maxrajli» va «bir xil suratli» taqqoslash darslari." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'сравнение дробей с одинаковым числителем.', uz: "bir xil suratli kasrlarni taqqoslash." },
-    audio: { ru: 'Отлично! Теперь ты умеешь сравнивать дроби с одинаковым знаменателем. Одинаковый знаменатель — это дольки одного размера. Больше та дробь, у которой числитель больше: смотрим только на числители. Но одинаковый знаменатель не значит, что дроби равны. И помни: это правило работает, только когда знаменатели одинаковые. Нигора съела три восьмых, Дилшод — пять восьмых. Дольки равны, пять больше трёх — Дилшод съел больше. «Поровну» было ошибкой.', uz: "Zo'r! Endi siz bir xil maxrajli kasrlarni solishtira olasiz. Bir xil maxraj — bu bir o'lchamdagi bo'laklar. Surati katta bo'lgan kasr katta: faqat suratlarga qaraymiz. Lekin bir xil maxraj kasrlar teng degani emas. Va esda tuting: bu qoida faqat maxrajlar bir xil bo'lganda ishlaydi. Nigora 3/8, Dilshod 5/8 yedi. Bo'laklar teng, 5 esa 3 dan katta — Dilshod ko'proq yedi. «Teng» degani xato edi." }
+    conn_next: { ru: 'эквивалентные дроби — правило (1/2 = 2/4 = 3/6).', uz: "ekvivalent kasrlar — qoida (1/2 = 2/4 = 3/6)." },
+    audio: { ru: 'Отлично! Теперь ты умеешь сравнивать дроби с разными знаменателями. При разных знаменателях нельзя сравнивать одни числители. Приведи обе дроби к одинаковым общим долям и сравни, сколько закрашено. Общие доли бери самые маленькие. А ещё есть быстрый приём: сравни каждую дробь с одной второй. Джавохир пробежал две третьих, Умид три четвёртых. В двенадцатых это восемь и девять двенадцатых, больше пробежал Умид.', uz: "Zo'r! Endi siz har xil maxrajli kasrlarni solishtira olasiz. Maxraj har xil bo'lganda faqat suratlarni solishtirib bo'lmaydi. Ikkala kasrni bir xil umumiy ulushga keltiring va nechtasi bo'yalganini solishtiring. Umumiy ulushni eng kichigini oling. Yana tez usul bor: har bir kasrni ikkidan bir bilan solishtiring. Javohir uchdan ikki, Umid to'rtdan uch yugurdi. O'n ikkidanlarda bu o'n ikkidan sakkiz va to'qqiz, ko'proq Umid yugurdi." }
   }
 };
 
 // ============================================================
-// УРОК-СПЕЦИФИЧНЫЙ ВИЗУАЛИЗАТОР (под тему «сравнение дробей с одним знаменателем»)
+// УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «разные знаменатели, интуитивно»)
 // ============================================================
-// FracBar: горизонтальная полоса из den равных долей, первые num — закрашены.
-// marker — у края заливки скользит вертикальная «финишная черта» (cb-marker/cb-slide).
-// winner — на этой полосе у финишной черты появляется флажок (она длиннее = дробь больше).
-// animateIn — заливка вырастает 0→цель и черта въезжает при появлении экрана (cb-grow/cb-slide);
-//             при animateIn=false ширина/позиция меняются через transition (живой слайдер, шаги).
-const FracBar = ({ num, den, color = T.accent, height = 40, marker = false, winner = false, animateIn = false }) => {
+// FracBar: полоса. Закраска = num/den (точная длина). grid — число делений сетки
+// (по умолчанию = den; при приведении к общим долям передаём общее число — длина
+// заливки НЕ меняется, а сетка становится мельче → «общие доли»). sweep — линии сетки
+// въезжают слева направо (анимация деления). marker/winner — финишная черта + флажок.
+const FracBar = ({ num, den, grid = null, color = T.accent, height = 34, marker = false, winner = false, animateIn = false, sweep = false }) => {
   const pct = (num / den) * 100;
+  const g = grid || den;
   const ease = 'cubic-bezier(0.34, 1.1, 0.64, 1)';
   return (
-    <div className="cb-bar" style={{ position: 'relative', width: '100%', height, borderRadius: 9, background: T.paper, boxShadow: `inset 0 0 0 2px ${T.ink3}` }}>
-      <div style={{ position: 'absolute', inset: 0, borderRadius: 9, overflow: 'hidden' }}>
-        <div className={`cb-fill${animateIn ? ' cb-grow' : ''}`} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct}%`, background: color, transition: `width 0.45s ${ease}` }}/>
-        {Array.from({ length: den - 1 }).map((_, i) => (
-          <div key={i} style={{ position: 'absolute', left: `${((i + 1) / den) * 100}%`, top: 0, bottom: 0, width: 2, background: T.bg }}/>
+    <div className="cp-bar" style={{ position: 'relative', width: '100%', height, borderRadius: 8, background: T.paper, boxShadow: `inset 0 0 0 2px ${T.ink3}` }}>
+      <div style={{ position: 'absolute', inset: 0, borderRadius: 8, overflow: 'hidden' }}>
+        <div className={`cp-fill${animateIn ? ' cp-grow' : ''}`} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct}%`, background: color, transition: `width 0.5s ${ease}` }}/>
+        {Array.from({ length: g - 1 }).map((_, i) => (
+          <div key={`${g}-${i}`} className={sweep ? 'cp-line' : undefined} style={{ position: 'absolute', left: `${((i + 1) / g) * 100}%`, top: 0, bottom: 0, width: 2, background: T.bg, animationDelay: sweep ? `${i * 0.045}s` : undefined }}/>
         ))}
       </div>
       {marker && num > 0 && (
-        <div className={`cb-marker${animateIn ? ' cb-slide' : ''}`} style={{ position: 'absolute', left: `${pct}%`, top: -6, bottom: -6, width: 3, marginLeft: -1.5, background: color, borderRadius: 2, boxShadow: `0 0 7px ${color}`, transition: `left 0.45s ${ease}` }}>
+        <div className={`cp-marker${animateIn ? ' cp-slide' : ''}`} style={{ position: 'absolute', left: `${pct}%`, top: -5, bottom: -5, width: 3, marginLeft: -1.5, background: color, borderRadius: 2, boxShadow: `0 0 7px ${color}`, transition: `left 0.5s ${ease}` }}>
           {winner && (
-            <svg className="cb-flag" width="18" height="16" viewBox="0 0 18 16" style={{ position: 'absolute', top: -15, left: 1, overflow: 'visible' }}>
+            <svg className="cp-flag" width="18" height="16" viewBox="0 0 18 16" style={{ position: 'absolute', top: -15, left: 1, overflow: 'visible' }}>
               <path d="M1 1 L14 4 L1 8 Z" fill={color}/>
             </svg>
           )}
@@ -1080,22 +1080,54 @@ const FracBar = ({ num, den, color = T.accent, height = 40, marker = false, winn
   );
 };
 
-// ComparisonBars: две полосы с ОДНИМ den и разным num — для наглядного сравнения.
-// fracA / fracB — готовые узлы <Frac/> (подписи слева). Вторая полоса — синяя.
-// winner: 'A' | 'B' | null — на чьей полосе показать флажок «больше» (только на обучающих
-// экранах; на тестах winner=null, чтобы не выдать ответ). marker/animateIn — см. FracBar.
-const ComparisonBars = ({ numA, numB, den, fracA, fracB, marker = true, winner = null, animateIn = true }) => (
+// CompareBars: две полосы с РАЗНЫМИ знаменателями. grid=null — у каждой своя сетка;
+// grid=N — обе разрезаны на N общих долей (видно приведение). showRegrid — рядом с дробью
+// печатается её запись в общих долях (= k/N). winnerIdx — индекс большей дроби (флажок).
+const CompareBars = ({ rows, grid = null, marker = false, winnerIdx = null, animateIn = true, sweep = false, showRegrid = false }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 520, margin: '0 auto' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.5vw, 16px)' }}>
-      <div style={{ width: 'clamp(38px, 9vw, 52px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}>{fracA}</div>
-      <div style={{ flex: 1 }}><FracBar num={numA} den={den} marker={marker} winner={winner === 'A'} animateIn={animateIn}/></div>
-    </div>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.5vw, 16px)' }}>
-      <div style={{ width: 'clamp(38px, 9vw, 52px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}>{fracB}</div>
-      <div style={{ flex: 1 }}><FracBar num={numB} den={den} color={T.blue} marker={marker} winner={winner === 'B'} animateIn={animateIn}/></div>
-    </div>
+    {rows.map((r, i) => {
+      const isWin = winnerIdx === i;
+      const reNum = grid ? Math.round((r.num / r.den) * grid) : null;
+      return (
+        <div key={i} className="cp-row" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
+          <div style={{ width: 'clamp(54px, 13vw, 78px)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4 }}>
+            <Frac n={String(r.num)} d={String(r.den)} size="sm"/>
+            {showRegrid && grid && reNum != null && <span className="mono small" style={{ color: T.ink3 }}>={reNum}/{grid}</span>}
+          </div>
+          <div style={{ flex: 1 }}><FracBar num={r.num} den={r.den} grid={grid || r.den} color={isWin ? T.accent : T.blue} marker={marker} winner={isWin} animateIn={animateIn} sweep={sweep}/></div>
+        </div>
+      );
+    })}
   </div>
 );
+
+// BenchmarkLine: числовая прямая 0..1 с выделенной серединой 1/2 и точками-дробями.
+// Сразу видно, какая дробь левее/правее половины. animateIn — метка 1/2 въезжает к центру.
+const BenchmarkLine = ({ points, animateIn = true, height = 78 }) => {
+  const lineTop = 34;
+  return (
+    <div style={{ width: '100%', maxWidth: 520, margin: '0 auto', padding: '0 16px' }}>
+      <div style={{ position: 'relative', height }}>
+        <div style={{ position: 'absolute', left: 0, right: 0, top: lineTop, height: 3, background: T.ink2, borderRadius: 2 }}/>
+        <span className="mono small" style={{ position: 'absolute', left: 0, top: lineTop + 12, color: T.ink2 }}>0</span>
+        <span className="mono small" style={{ position: 'absolute', right: 0, top: lineTop + 12, color: T.ink2 }}>1</span>
+        {/* середина 1/2 */}
+        <div className={`cp-half${animateIn ? ' cp-half-in' : ''}`} style={{ position: 'absolute', left: '50%', top: lineTop - 13, height: 26, width: 3, marginLeft: -1.5, background: T.accent, borderRadius: 2 }}/>
+        <span className="mono small" style={{ position: 'absolute', left: '50%', top: lineTop - 32, transform: 'translateX(-50%)', color: T.accent, fontWeight: 600 }}>1/2</span>
+        {/* точки-дроби */}
+        {points.map((p, i) => {
+          const pct = (p.num / p.den) * 100;
+          return (
+            <div key={i} className="cp-dot-wrap" style={{ animationDelay: `${0.25 + i * 0.15}s` }}>
+              <div style={{ position: 'absolute', left: `${pct}%`, top: lineTop, width: 14, height: 14, marginLeft: -7, marginTop: -7, borderRadius: '50%', background: p.color || T.blue, boxShadow: `0 0 0 4px ${T.paper}, 0 2px 6px rgba(0,0,0,0.22)`, zIndex: 2 }}/>
+              <span className="mono small" style={{ position: 'absolute', left: `${pct}%`, top: lineTop + 12, transform: 'translateX(-50%)', color: p.color || T.blue, fontWeight: 600 }}>{p.num}/{p.den}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 // ============================================================
 // SCREEN-КОМПОНЕНТЫ
@@ -1125,17 +1157,17 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <h1 className="title h-title fade-up">{t(c.title)}</h1>
         <div className="frame fade-up delay-1">
-          <ComparisonBars numA={3} numB={5} den={8} marker={false} fracA={<Frac n="3" d="8" size="sm"/>} fracB={<Frac n="5" d="8" size="sm"/>}/>
+          <CompareBars rows={[{ num: 2, den: 3 }, { num: 3, den: 4 }]} animateIn={true}/>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.body)}</p>
         <h2 className="title h-sub fade-up delay-2">{t(c.question)}</h2>
         <div className="fade-up delay-3" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {opts.map((o, i) => (
             <button key={i} className="option" onClick={() => pick(i)}
-              style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
               <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span>
               <span style={{ flex: 1 }}>{t(o)}</span>
             </button>
@@ -1146,7 +1178,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   );
 };
 
-// s1 — EXPLORATION step-by-step: сравниваем 3/8 и 5/8, голос ведёт. Заливка по шагам.
+// s1 — EXPLORATION step-by-step: 1/2 и 2/3 → общие шестые (линии въезжают).
 const Screen1 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s1;
   const arr = c.audio[lang];
@@ -1159,21 +1191,18 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
     if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 120); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
   };
-  const numA = step >= 2 ? 3 : 0;
-  const numB = step >= 2 ? 5 : 0;
+  const grid = step >= 2 ? 6 : null;          // на шаге 2 режем на шестые
+  const showWinner = step >= 3 ? 1 : null;    // 2/3 (индекс 1) больше
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center' }}>
-          <ComparisonBars numA={numA} numB={numB} den={8} animateIn={false} winner={step >= 3 ? 'B' : null} fracA={<Frac n="3" d="8" size="sm"/>} fracB={<Frac n="5" d="8" size="sm"/>}/>
-          {step >= 3 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <span className="mop" style={{ color: T.success, fontSize: 'clamp(18px, 3vw, 26px)' }}>5/8 &gt; 3/8</span>
-              <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>
-            </div>
-          )}
+          {step >= 1
+            ? <CompareBars rows={[{ num: 1, den: 2 }, { num: 2, den: 3 }]} grid={grid} sweep={step === 2} showRegrid={step >= 2} winnerIdx={showWinner} marker={step >= 3} animateIn={true}/>
+            : <p className="body" style={{ color: T.ink3, margin: 0 }}>…</p>}
+          {step >= 3 && <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>}
         </div>
         <div ref={endRef}/>
       </div>
@@ -1181,17 +1210,16 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s2 — EXPLORATION slider + check: собери 5/6 и сравни с 2/6.
+// s2 — EXPLORATION slider: подбери общие доли для 2/3 и 3/4 (живое деление).
 const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
-  const den = 6; const fixed = 2;
-  const [num, setNum] = useState(1);
+  const [grid, setGrid] = useState(5);
   const [checked, setChecked] = useState(false);
   const [solved, setSolved] = useState(false);
-  const onSlider = (v) => { if (solved) return; setChecked(false); setNum(v); };
+  const onSlider = (v) => { if (solved) return; setChecked(false); setGrid(v); };
   const check = () => {
-    const ok = num === 5;
+    const ok = grid === 12;
     setChecked(true);
     if (ok) setSolved(true);
     if (!audio.muted) { setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.fb_success[lang] : c.fb_wrong[lang]); }, 250); }
@@ -1199,15 +1227,15 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={solved ? <NextLabel/> : t(c.btn_disabled_label)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(15px, 2.4vw, 22px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.intro)}</p>
         <p className="small fade-up delay-1" style={{ color: T.accent, fontWeight: 600 }}>{t(c.target_text)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <ComparisonBars numA={fixed} numB={num} den={den} animateIn={false} winner={solved ? 'B' : null} fracA={<Frac n={String(fixed)} d={String(den)} size="sm"/>} fracB={<Frac n={String(num)} d={String(den)} size="sm"/>}/>
+          <CompareBars rows={[{ num: 2, den: 3 }, { num: 3, den: 4 }]} grid={grid} sweep={true} showRegrid={solved} winnerIdx={solved ? 1 : null} marker={solved} animateIn={false}/>
           <div>
-            <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.eyebrow_slider)} {num}</p>
-            <Slider value={num} min={1} max={6} step={1} onChange={onSlider} disabled={solved}/>
+            <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.eyebrow_slider)} {grid}</p>
+            <Slider value={grid} min={2} max={12} step={1} onChange={onSlider} disabled={solved}/>
           </div>
           {!solved && (<div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(11px, 1.8vw, 13px) clamp(20px, 2.6vw, 28px)', fontSize: 'clamp(13px, 1.6vw, 14px)' }}>{t(c.btn_check)}</button></div>)}
         </div>
@@ -1220,20 +1248,20 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s3 — RULE: одинаковый знаменатель → сравниваем числители.
+// s3 — RULE: привести к общим долям.
 const Screen3 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s3;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-          <ComparisonBars numA={2} numB={5} den={6} winner="B" fracA={<Frac n="2" d="6" size="sm"/>} fracB={<Frac n="5" d="6" size="sm"/>}/>
+          <CompareBars rows={[{ num: 2, den: 3 }, { num: 3, den: 4 }]} grid={12} showRegrid={true} winnerIdx={1} marker={true} animateIn={true} sweep={true}/>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 460, margin: '0 auto' }}>
             <p className="body" style={{ margin: 0 }}>{t(c.card_top)}</p>
             <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
@@ -1247,32 +1275,32 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s4 — TEST choice (отношение): 5/8 ? 2/8 → 5/8 > 2/8 (correct idx 0).
+// s4 — TEST choice (отношение): 1/2 ? 3/5 → 1/2 < 3/5.
 const Screen4 = (props) => {
   const t = useT(); const c = CONTENT.s4;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 0, 2, 3]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><ComparisonBars numA={5} numB={2} den={8} fracA={<Frac n="5" d="8" size="sm"/>} fracB={<Frac n="2" d="8" size="sm"/>}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 0, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><CompareBars rows={[{ num: 1, den: 2 }, { num: 3, den: 5 }]} animateIn={true}/></div></>);
   return <QuestionScreen {...props} idx={4} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[4]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s5 — RULE: одинаковый знаменатель ≠ равные дроби.
+// s5 — RULE benchmark 1/2.
 const Screen5 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s5;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 26px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-          <ComparisonBars numA={1} numB={4} den={5} winner="B" fracA={<Frac n="1" d="5" size="sm"/>} fracB={<Frac n="4" d="5" size="sm"/>}/>
+          <BenchmarkLine points={[{ num: 3, den: 8, color: T.blue }, { num: 4, den: 7, color: T.accent }]} animateIn={true}/>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 460, margin: '0 auto' }}>
-            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 600 }}>{t(c.card_ok)}</p>
+            <p className="body" style={{ margin: 0 }}>{t(c.card_ok)}</p>
             <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
-            <p className="body" style={{ margin: 0 }}>{t(c.card_bad)}</p>
+            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 600 }}>{t(c.card_bad)}</p>
           </div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.outro)}</p>
@@ -1281,37 +1309,37 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s6 — TEST choice (отношение): 3/7 ? 6/7 → 3/7 < 6/7 (correct idx 0).
+// s6 — TEST choice (benchmark): 2/5 ? 4/7 → 2/5 < 4/7.
 const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 0, 3]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><ComparisonBars numA={3} numB={6} den={7} fracA={<Frac n="3" d="7" size="sm"/>} fracB={<Frac n="6" d="7" size="sm"/>}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [0, 2, 3, 1]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><BenchmarkLine points={[{ num: 2, den: 5, color: T.blue }, { num: 4, den: 7, color: T.accent }]} animateIn={true}/></div></>);
   return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s7 — TEST choice (текст): равны ли дроби с одним знаменателем? (correct idx 0).
+// s7 — TEST choice (текст misconception): 3/5 > 2/3? Нет.
 const Screen7 = (props) => {
   const t = useT(); const c = CONTENT.s7;
-  const options = [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)];
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 3, 0]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
-  return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={c} question={question} options={options} correctIdx={0}/>;
+  return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s8 — CASE setup: Гулнора и Азиз, плитки шоколада.
+// s8 — CASE setup: Сабина, загрузка файлов.
 const Screen8 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s8;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.body_p1)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <ComparisonBars numA={4} numB={7} den={10} fracA={<Frac n="4" d="10" size="sm"/>} fracB={<Frac n="7" d="10" size="sm"/>}/>
+          <CompareBars rows={[{ num: 3, den: 4 }, { num: 5, den: 6 }]} animateIn={true}/>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(20px, 6vw, 56px)', flexWrap: 'wrap' }}>
-            <div><p className="eyebrow" style={{ color: T.ink2, marginBottom: 4 }}>{t(c.card_line_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_line_value)}</p></div>
-            <div><p className="eyebrow" style={{ color: T.blue, marginBottom: 4 }}>{t(c.card_parts_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_parts_value)}</p></div>
+            <div><p className="eyebrow" style={{ color: T.blue, marginBottom: 4 }}>{t(c.card_line_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_line_value)}</p></div>
+            <div><p className="eyebrow" style={{ color: T.accent, marginBottom: 4 }}>{t(c.card_parts_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_parts_value)}</p></div>
           </div>
         </div>
         <p className="body fade-up delay-2">{t(c.outro)}</p>
@@ -1320,27 +1348,27 @@ const Screen8 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s9 — CASE step (отношение): 4/10 vs 7/10 → Азиз больше (correct idx 0).
+// s9 — CASE step (отношение): 3/4 vs 5/6 → 5/6 больше.
 const Screen9 = (props) => {
   const t = useT(); const c = CONTENT.s9;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 3, 0]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><ComparisonBars numA={4} numB={7} den={10} fracA={<Frac n="4" d="10" size="sm"/>} fracB={<Frac n="7" d="10" size="sm"/>}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 0, 1, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><CompareBars rows={[{ num: 3, den: 4 }, { num: 5, den: 6 }]} animateIn={true}/></div></>);
   return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s10 — CASE conclusion (текст): почему 7/10 > 4/10 (correct idx 0).
+// s10 — CASE conclusion (текст): почему 5/6 > 3/4.
 const Screen10 = (props) => {
   const t = useT(); const c = CONTENT.s10;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 0, 1, 3]);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 1, 0, 3]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
   return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s11 — TEST choice (отношение): 5/6 ? 4/6 → 5/6 > 4/6 (correct idx 0).
+// s11 — TEST choice (отношение): 1/2 ? 5/8 → 1/2 < 5/8.
 const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 3, 0, 2]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><ComparisonBars numA={5} numB={4} den={6} fracA={<Frac n="5" d="6" size="sm"/>} fracB={<Frac n="4" d="6" size="sm"/>}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [0, 3, 1, 2]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><CompareBars rows={[{ num: 1, den: 2 }, { num: 5, den: 8 }]} animateIn={true}/></div></>);
   return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1363,7 +1391,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 24px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.success }}>{t(c.label)}</p>
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
@@ -1375,7 +1403,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
           </div>
         </div>
         <div className="frame-success fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <ComparisonBars numA={3} numB={5} den={8} winner="B" fracA={<Frac n="3" d="8" size="sm"/>} fracB={<Frac n="5" d="8" size="sm"/>}/>
+          <CompareBars rows={[{ num: 2, den: 3 }, { num: 3, den: 4 }]} grid={12} showRegrid={true} winnerIdx={1} marker={true} animateIn={true} height={28}/>
           <p className="body" style={{ margin: 0 }}>{t(c.back_to_hook)}</p>
         </div>
         <ConnectionsBlock c={c}/>
@@ -1387,7 +1415,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
 // ============================================================
 // КОРНЕВОЙ КОМПОНЕНТ (шаблон из infrastructure_v1)
 // ============================================================
-export default function FractionCompareSameDenLesson({
+export default function FractionCompareDiffDenLesson({
   studentName, lang: langProp, ttsApiBase,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -1630,13 +1658,13 @@ html, body { margin: 0; padding: 0; }
 }
 
 /* === ТИПОГРАФИКА v15 (× 0.85 upper bounds) === */
-.h-title { font-size: clamp(22px, 4vw, 38px); }
-.h-sub { font-size: clamp(17px, 2.5vw, 20px); }
-.body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.5; }
+.h-title { font-size: clamp(22px, 3.4vw, 30px); }
+.h-sub { font-size: clamp(16px, 2.2vw, 18px); }
+.body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.42; }
 .eyebrow { font-size: clamp(11px, 1.3vw, 11px); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
 .small { font-size: clamp(13px, 1.5vw, 13px); }
 .frac-display { font-size: clamp(45px, 9vw, 75px); }
-.frac-mid { font-size: clamp(26px, 5vw, 38px); }
+.frac-mid { font-size: clamp(20px, 3.2vw, 24px); }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
@@ -1644,13 +1672,13 @@ html, body { margin: 0; padding: 0; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
-  padding-top: clamp(12px, 2vw, 18px);
+  padding-top: clamp(8px, 1.4vw, 12px);
   padding-bottom: clamp(8px, 1.5vw, 12px);
 }
 .stage-content {
   flex: 1;
-  padding-top: clamp(10px, 1.7vw, 16px);
-  padding-bottom: clamp(17px, 3.4vw, 34px);
+  padding-top: clamp(8px, 1.3vw, 12px);
+  padding-bottom: clamp(12px, 2.2vw, 20px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1661,8 +1689,8 @@ html, body { margin: 0; padding: 0; }
   flex-shrink: 0;
   background: #F6F4EF;
   border-top: 1px solid rgba(167, 166, 162, 0.25);
-  padding-top: clamp(12px, 2vw, 15px);
-  padding-bottom: clamp(12px, 2vw, 15px);
+  padding-top: clamp(9px, 1.5vw, 11px);
+  padding-bottom: clamp(9px, 1.5vw, 11px);
   display: flex;
   gap: 12px;
 }
@@ -1795,7 +1823,7 @@ html, body { margin: 0; padding: 0; }
 .frame {
   background: #FFFFFF;
   border-radius: 16px;
-  padding: clamp(17px, 3.4vw, 30px);
+  padding: clamp(13px, 2.2vw, 17px);
   border: none;
   box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14);
 }
@@ -1803,14 +1831,14 @@ html, body { margin: 0; padding: 0; }
   background: #FFE8E1;
   border-left: 4px solid #FF4F28;
   border-radius: 12px;
-  padding: clamp(14px, 2.5vw, 20px);
+  padding: clamp(11px, 1.8vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
   border-left: 4px solid #1F7A4D;
   border-radius: 12px;
-  padding: clamp(14px, 2.5vw, 20px);
+  padding: clamp(11px, 1.8vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22);
 }
 
@@ -1818,20 +1846,26 @@ html, body { margin: 0; padding: 0; }
 .cell-pop { display: inline-block; animation: cellPop 0.34s cubic-bezier(0.34, 1.2, 0.64, 1); }
 @keyframes cellPop { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
-.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 20px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
+.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(11px, 1.8vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
 
-/* MATH: полосы сравнения дробей — анимации (frac_5_04). */
-.cb-bar { animation: cbBarIn 0.4s ease-out backwards; transform-origin: left center; }
-@keyframes cbBarIn { from { opacity: 0; transform: scaleX(0.9); } to { opacity: 1; transform: scaleX(1); } }
-/* финишная черта: заливка вырастает 0→цель, черта въезжает 0→край (implicit to = inline left/width). */
-.cb-grow { animation: cbGrow 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes cbGrow { from { width: 0; } }
-.cb-marker { animation: cbMarkerIn 0.3s ease-out backwards; }
-@keyframes cbMarkerIn { from { opacity: 0; } }
-.cb-slide { animation: cbSlide 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes cbSlide { from { left: 0; } }
-/* флажок «больше»: выскакивает у финишной черты и мягко покачивается. */
-.cb-flag { transform-origin: bottom left; animation: cbFlagPop 0.4s cubic-bezier(0.34, 1.5, 0.64, 1) 0.45s backwards, cbFlagWave 1.8s ease-in-out 0.9s infinite; }
-@keyframes cbFlagPop { from { opacity: 0; transform: scale(0); } }
-@keyframes cbFlagWave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
+/* MATH: сравнение разных знаменателей — приведение к общим долям (frac_5_11). */
+.cp-row { animation: cpRowIn 0.42s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
+@keyframes cpRowIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+.cp-grow { animation: cpGrow 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
+@keyframes cpGrow { from { width: 0; } }
+/* линии сетки въезжают слева направо (деление на общие доли) */
+.cp-line { animation: cpLineIn 0.32s ease-out backwards; transform-origin: center top; }
+@keyframes cpLineIn { from { opacity: 0; transform: scaleY(0.1); } to { opacity: 1; transform: scaleY(1); } }
+.cp-marker { animation: cpMarkerIn 0.3s ease-out backwards; }
+@keyframes cpMarkerIn { from { opacity: 0; } }
+.cp-slide { animation: cpSlide 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
+@keyframes cpSlide { from { left: 0; } }
+.cp-flag { transform-origin: bottom left; animation: cpFlagPop 0.4s cubic-bezier(0.34, 1.5, 0.64, 1) 0.45s backwards, cpFlagWave 1.8s ease-in-out 0.9s infinite; }
+@keyframes cpFlagPop { from { opacity: 0; transform: scale(0); } }
+@keyframes cpFlagWave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
+/* ориентир 1/2 въезжает к центру; точки-дроби мягко появляются */
+.cp-half-in { animation: cpHalfIn 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
+@keyframes cpHalfIn { from { left: 0; opacity: 0; } }
+.cp-dot-wrap { animation: cpDotIn 0.35s ease-out backwards; }
+@keyframes cpDotIn { from { opacity: 0; } }
 `;
