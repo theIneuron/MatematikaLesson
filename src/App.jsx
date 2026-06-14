@@ -109,6 +109,24 @@ const lessons = [
     desc: "5/6 − 1/3 = 3/6: umumiy maxrajga keltirib ayirish (kvest)",
     Component: lazy(() => import('./components/Dars17.jsx')),
   },
+  {
+    slug: 'kasr-aralash-son',
+    title: "Урок 18. To'g'ri, noto'g'ri va aralash sonlar",
+    desc: "5/3 = 1 2/3: noto'g'ri kasr va aralash son — butun va kasrning yig'indisi",
+    Component: lazy(() => import('./components/Dars18.jsx')),
+  },
+  {
+    slug: 'kasr-aralash-otkazish',
+    title: "Урок 19. Aralash sonni noto'g'ri kasrga o'tkazish",
+    desc: "1 2/3 = 5/3 va 11/4 = 2 3/4: aralash va noto'g'ri kasrni ikki tomonlama o'tkazish",
+    Component: lazy(() => import('./components/Dars19.jsx')),
+  },
+  {
+    slug: 'kasr-aralash-qoshish-ayirish',
+    title: "Урок 20. Aralash sonlarni qo'shish va ayirish",
+    desc: "1 2/3 + 2 2/3 = 4 1/3: ko'chirish va qarz olish, har xil maxraj",
+    Component: lazy(() => import('./components/Dars20.jsx')),
+  },
 ]
 
 function App() {

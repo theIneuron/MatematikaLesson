@@ -697,7 +697,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up">{question}</div>
         <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
           {options.map((opt, i) => {
@@ -713,7 +713,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
                   {String.fromCharCode(65 + i)}
                 </span>
@@ -777,7 +777,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -1052,6 +1052,7 @@ const CONTENT = {
   // s12 — CASE FracInput: 7/8 − 2/8 − 4/8 = 1/8
   s12: {
     eyebrow: { ru: 'Босс · 2-й шаг', uz: "Boss · 2-qadam" },
+    lock_label: { ru: 'Босс', uz: "Boss" },
     question: { ru: 'Вычти все траты: 7/8 − 2/8 − 4/8 = ?', uz: "Barcha sarflarni ayiring: 7/8 − 2/8 − 4/8 = ?" },
     placeholder: { ru: '0/0', uz: "0/0" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -1104,6 +1105,7 @@ const CONTENT = {
   // s15 — FINAL FracInput сложный: 3/8 − 1/6 = 5/24 (принимается 5/24 и 10/48)
   s15: {
     eyebrow: { ru: 'Финальное испытание · 2', uz: "Yakuniy sinov · 2" },
+    lock_label: { ru: 'Замок', uz: "Qulf" },
     question: { ru: 'Последний замок: 3/8 − 1/6 = ?', uz: "Oxirgi qulf: 3/8 − 1/6 = ?" },
     placeholder: { ru: '0/0', uz: "0/0" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -1214,6 +1216,20 @@ const QBars = ({ items, bare = false }) => {
   return <div className="frame" style={{ marginTop: 14, padding: 'clamp(12px, 2vw, 16px)', display: 'flex', flexDirection: 'column', gap: 10 }}>{inner}</div>;
 };
 
+// MATH: квест-замок — «заперт» (accent) → «открыт» (success + галочка) при solved.
+// Декоративная тема (мост/дверь/босс), не показывает ответ. (frac_5_12 s12/s15)
+const QuestLock = ({ open, label }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+    <div className={open ? 'qlock qlock-open' : 'qlock'} aria-hidden="true">
+      <span className="qlock-shackle"/>
+      <span className="qlock-body">{open
+        ? <span style={{ color: '#fff', fontWeight: 800, fontSize: 18 }}>✓</span>
+        : <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#fff', display: 'block' }}/>}</span>
+    </div>
+    {label && <span className="small" style={{ color: open ? T.success : T.ink3, fontWeight: 600 }}>{label}</span>}
+  </div>
+);
+
 // Fact-карта: компактный жёлтый callout «Интересный факт» (s3, s10, s16).
 const FactCard = ({ c, delay = 'delay-3' }) => {
   const t = useT();
@@ -1279,7 +1295,7 @@ const FracInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent,
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -1326,6 +1342,33 @@ const ConnectionsBlock = ({ c }) => {
 };
 
 // s0 — HOOK: баг в игре, 5/6 − 1/3 = 4/3 (полный сброс picked при возврате)
+// MATH: umumiy maxraj — bitta 0..1 chiziq, slayder n bo'lakka bo'ladi; kasr belgisi
+// n den ga bo'linsa to'r chizig'iga "qulflanadi" (frac_5_12 slayd 3 & 8).
+const CommonLine = ({ n, marks }) => (
+  <div className="cl-wrap">
+    <div className="cl-band">
+      <div className="cl-line"/>
+      {Array.from({ length: n + 1 }).map((_, i) => (
+        <div key={i} className={i === 0 || i === n ? 'cl-tick cl-tick-end' : 'cl-tick'} style={{ left: `${(i / n) * 100}%` }}/>
+      ))}
+      {marks.map((m, k) => {
+        const pos = (m.num / m.den) * 100;
+        const locked = n % m.den === 0;
+        return (
+          <div key={k} className={`cl-mark ${k === 0 ? 'cl-mark-up' : 'cl-mark-down'} ${locked ? 'cl-mark-lock' : ''}`} style={{ left: `${pos}%`, color: m.color }}>
+            <span className="cl-lab">{locked
+              ? <Frac n={String((n / m.den) * m.num)} d={String(n)} size="sm" color={m.color}/>
+              : <Frac n={String(m.num)} d={String(m.den)} size="sm" color={m.color}/>}</span>
+            <span className="cl-stem"/>
+            <span className="cl-dot"/>
+          </div>
+        );
+      })}
+    </div>
+    <div className="cl-axis"><span className="mono small" style={{ color: T.ink3 }}>0</span><span className="mono small" style={{ color: T.ink3 }}>1</span></div>
+  </div>
+);
+
 const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s0;
   const audio = useAudio(makeAudioSegments(c, lang));
@@ -1340,18 +1383,18 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
         <h1 className="title h-title fade-up">{mt(t(c.title))}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+        <div className="frame fade-up delay-1 hook-alive" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}><span className="hook-sheen" aria-hidden="true"/><span className="hook-glow" aria-hidden="true"/>
           <WallBar cols={6} accentW={5 / 6} growFill aColor={T.accent} h={46} maxW={420}/>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="5" d="6" size="mid"/><Op>−</Op><Frac n="1" d="3" size="mid" color={T.blue}/><Op>=</Op><Frac n="4" d="3" size="mid" color={T.accent}/><span className="mop" style={{ color: T.ink3 }}>?</span></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="5" d="6" size="mid"/><Op>−</Op><Frac n="1" d="3" size="mid" color={T.blue}/><Op>=</Op><span className="hook-trap" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Frac n="4" d="3" size="mid" color={T.accent}/><span className="mop" style={{ color: T.ink3 }}>?</span></span></div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{mt(t(c.body))}</p>
         <h2 className="title h-sub fade-up delay-2">{mt(t(c.question))}</h2>
         <div className="fade-up delay-3" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {opts.map((o, i) => (
             <button key={i} className="option" onClick={() => pick(i)}
-              style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
+              style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
               <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span>
               <span style={{ flex: 1 }}>{t(o)}</span>
             </button>
@@ -1377,7 +1420,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', minHeight: 200, justifyContent: 'center' }}>
           <div style={{ width: '100%', maxWidth: 460, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -1414,28 +1457,14 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
   const [n, setN] = useState(5);
-  const halfOk = n % 2 === 0, thirdOk = n % 3 === 0;
-  const fit = halfOk && thirdOk;
-  const chk = (ok, cells) => ok
-    ? <Frac n={String(cells)} d={String(n)} size="sm" color={T.success}/>
-    : <span className="mono small" style={{ color: T.ink3 }}>—</span>;
+  const fit = n % 2 === 0 && n % 3 === 0;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!fit} onClick={onNext} label={t(c.btn)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{mt(t(c.title))}</h2>
-        <div className={fit ? 'frame fade-up delay-1 fig-glow' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Frac n="1" d="2" size="sm" color={T.accent}/>
-            <div style={{ flex: 1 }}><WallBar cols={n} accentW={0.5} aColor={T.accent} lineColor={'rgba(167, 166, 162, 0.55)'} h={44} maxW={9999}/></div>
-            <div style={{ minWidth: 58, textAlign: 'center' }}>{chk(halfOk, n / 2)}</div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Frac n="1" d="3" size="sm" color={T.blue}/>
-            <div style={{ flex: 1 }}><WallBar cols={n} accentW={1 / 3} aColor={T.blue} lineColor={'rgba(167, 166, 162, 0.55)'} h={44} maxW={9999}/></div>
-            <div style={{ minWidth: 58, textAlign: 'center' }}>{chk(thirdOk, n / 3)}</div>
-          </div>
-          {fit && <FracRow parts={[{ n: n / 2, d: n, c: T.accent }, { n: n / 3, d: n, c: T.blue }]} sumN={n / 2 - n / 3} sumD={n}/>}
+        <div className={fit ? 'frame fade-up delay-1 fig-glow' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <CommonLine n={n} marks={[{ num: 1, den: 2, color: T.accent }, { num: 1, den: 3, color: T.blue }]}/>
           <p className="body" style={{ margin: 0, textAlign: 'center', color: fit ? T.success : T.ink2, fontWeight: fit ? 600 : 400 }}>{t(fit ? c.note_fit : c.note_nofit)}</p>
         </div>
         <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 460, margin: '0 auto', width: '100%' }}>
@@ -1565,7 +1594,7 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={t(c.btn)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{mt(t(c.title))}</h2>
         <div className={done ? 'frame fade-up delay-1 fig-glow' : 'frame fade-up delay-1'} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
           {LOCKS12.map(lock => {
@@ -1609,27 +1638,14 @@ const Screen7 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s7;
   const audio = useAudio(makeAudioSegments(c, lang));
   const [n, setN] = useState(8);
-  const sixOk = n % 6 === 0, quartOk = n % 4 === 0;
-  const fit = sixOk && quartOk;
-  const chk = (ok, cells) => ok
-    ? <Frac n={String(cells)} d={String(n)} size="sm" color={T.success}/>
-    : <span className="mono small" style={{ color: T.ink3 }}>—</span>;
+  const fit = n % 6 === 0 && n % 4 === 0;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!fit} onClick={onNext} label={t(c.btn)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{mt(t(c.title))}</h2>
-        <div className={fit ? 'frame fade-up delay-1 fig-glow' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Frac n="5" d="6" size="sm" color={T.accent}/>
-            <div style={{ flex: 1 }}><WallBar cols={n} accentW={5 / 6} aColor={T.accent} lineColor={'rgba(167, 166, 162, 0.55)'} h={44} maxW={9999}/></div>
-            <div style={{ minWidth: 64, textAlign: 'center' }}>{chk(sixOk, (n / 6) * 5)}</div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Frac n="3" d="4" size="sm" color={T.blue}/>
-            <div style={{ flex: 1 }}><WallBar cols={n} accentW={3 / 4} aColor={T.blue} lineColor={'rgba(167, 166, 162, 0.55)'} h={44} maxW={9999}/></div>
-            <div style={{ minWidth: 64, textAlign: 'center' }}>{chk(quartOk, (n / 4) * 3)}</div>
-          </div>
+        <div className={fit ? 'frame fade-up delay-1 fig-glow' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <CommonLine n={n} marks={[{ num: 5, den: 6, color: T.accent }, { num: 3, den: 4, color: T.blue }]}/>
           <p className="body" style={{ margin: 0, textAlign: 'center', color: fit ? (n === 24 ? T.ink2 : T.success) : T.ink2, fontWeight: fit ? 600 : 400 }}>
             {t(fit ? (n === 24 ? c.note_24 : c.note_fit) : c.note_nofit)}
           </p>
@@ -1745,12 +1761,15 @@ const Screen11 = (props) => {
 
 // s12 — CASE step input (дробь): 7/8 − 2/8 − 4/8 = 1/8 (HP-бар гаснет до 1/8 при верном ответе)
 const Screen12 = (props) => {
-  const c = CONTENT.s12;
+  const t = useT(); const c = CONTENT.s12;
   return <FracInputScreen {...props} idx={12} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[12]} screenContent={c} accepted={['1/8']} primary={'1/8'}
     renderVisual={({ solved }) => (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%' }}>
-        <WallBar cols={8} accentW={solved ? 1 / 8 : 7 / 8} aColor={solved ? T.success : T.accent} h={44} maxW={9999}/>
-        <FracRow parts={[{ n: 7, d: 8, c: T.accent }, { n: 2, d: 8, c: T.blue }, { n: 4, d: 8, c: T.blue }]} sumN={solved ? 1 : null} sumD={8}/>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 4vw, 32px)', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 220, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <WallBar cols={8} accentW={solved ? 1 / 8 : 7 / 8} aColor={solved ? T.success : T.accent} h={44} maxW={9999}/>
+          <FracRow parts={[{ n: 7, d: 8, c: T.accent }, { n: 2, d: 8, c: T.blue }, { n: 4, d: 8, c: T.blue }]} sumN={solved ? 1 : null} sumD={8}/>
+        </div>
+        <QuestLock open={solved} label={t(c.lock_label)}/>
       </div>
     )}/>;
 };
@@ -1779,6 +1798,7 @@ const Screen14 = (props) => {
     <>
       <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
       <h2 className="title h-sub" style={{ marginTop: 8 }}>{mt(t(c.question))}</h2>
+      <QBars items={[{ n: '3', d: '4', cols: 4, w: 3 / 4, color: T.accent }, { n: '1', d: '3', cols: 3, w: 1 / 3, color: T.blue }]}/>
     </>
   );
   return <QuestionScreen {...props} idx={14} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[14]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
@@ -1786,8 +1806,14 @@ const Screen14 = (props) => {
 
 // s15 — FINAL input (дробь) сложный: 3/8 − 1/6 = 5/24 (24 < произведения 48; принимается и 10/48)
 const Screen15 = (props) => {
-  const c = CONTENT.s15;
-  return <FracInputScreen {...props} idx={15} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[15]} screenContent={c} accepted={['5/24', '10/48']} primary={'5/24'}/>;
+  const t = useT(); const c = CONTENT.s15;
+  return <FracInputScreen {...props} idx={15} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[15]} screenContent={c} accepted={['5/24', '10/48']} primary={'5/24'}
+    renderVisual={({ solved }) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 4vw, 32px)', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 220 }}><QBars items={[{ n: '3', d: '8', cols: 8, w: 3 / 8, color: T.accent }, { n: '1', d: '6', cols: 6, w: 1 / 6, color: T.blue }]} bare/></div>
+        <QuestLock open={solved} label={t(c.lock_label)}/>
+      </div>
+    )}/>;
 };
 
 // s16 — SUMMARY + fact-карта (музыка) + связи
@@ -1803,12 +1829,12 @@ const Screen16 = ({ screen, onPrev, onReset, finishLesson }) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 1.9vw, 16px)', justifyContent: 'center' }}>
         <div className="fade-up"><p className="eyebrow" style={{ color: T.success }}>{t(c.label)}</p><h2 className="title h-title" style={{ marginTop: 8 }}>{mt(t(c.title))}</h2></div>
         <div className="frame fade-up delay-1">
-          <p className="eyebrow" style={{ color: T.ink2, marginBottom: 14 }}>{t(c.main_label)}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.main_label)}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {mains.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{mt(t(m))}</p></div>))}
           </div>
         </div>
-        <div className="frame-success fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className="frame-success fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <FracRow parts={[{ n: 5, d: 6, c: T.accent }, { n: 1, d: 3, c: T.blue }]} sumN={3} sumD={6}/>
           <p className="body" style={{ margin: 0 }}>{mt(t(c.back_to_hook))}</p>
         </div>
@@ -1836,7 +1862,7 @@ export default function FractionSubUnlikeDenLesson({
     console.log('[Preview] onFinished payload:', payload);
   });
 
-  const [current, setCurrent] = useState(0); useEffect(()=>{window.__goScreen=(i)=>setCurrent(i);window.__total=TOTAL_SCREENS;},[]);/*SCROLLPROBE*/
+  const [current, setCurrent] = useState(0); useEffect(()=>{window.__go=(i)=>setCurrent(i);},[]);/*SCROLLPROBE*/
   const [answers, setAnswers] = useState([]);
   const startTimeRef = useRef(Date.now());
 
@@ -2035,13 +2061,43 @@ html, body { margin: 0; padding: 0; }
 }
 
 /* === ТИПОГРАФИКА v15 (× 0.85 upper bounds) === */
-.h-title { font-size: clamp(22px, 3.4vw, 30px); }
-.h-sub { font-size: clamp(17px, 2.5vw, 20px); }
+.h-title { font-size: clamp(22px, 4vw, 30px); }
+.h-sub { font-size: clamp(17px, 2.5vw, 18px); }
 .body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.42; }
 .eyebrow { font-size: clamp(11px, 1.3vw, 11px); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
 .small { font-size: clamp(13px, 1.5vw, 13px); }
 .frac-display { font-size: clamp(45px, 9vw, 75px); }
-.frac-mid { font-size: clamp(22px, 3.6vw, 27px); }
+.frac-mid { font-size: clamp(24px, 5vw, 24px); }
+/* HOOK jonli animatsiya (uzluksiz bezakli harakat — Dars01 uslubiga monand) */
+.hook-alive { position: relative; overflow: hidden; }
+.hook-glow { position: absolute; inset: 0; pointer-events: none; z-index: 1; border-radius: inherit; animation: hookGlow 3.4s ease-in-out infinite; }
+.hook-sheen { position: absolute; top: 0; bottom: 0; left: 0; width: 45%; pointer-events: none; z-index: 2; background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 100%); transform: translateX(-110%); animation: hookSheen 3.4s ease-in-out infinite; }
+@keyframes hookSheen { 0% { transform: translateX(-110%); } 55%, 100% { transform: translateX(240%); } }
+@keyframes hookGlow { 0%, 100% { box-shadow: inset 0 0 0 0 rgba(255, 79, 40, 0); } 50% { box-shadow: inset 0 0 26px 2px rgba(255, 79, 40, 0.10); } }
+.hook-trap { transform-origin: center; animation: hookTrap 1.6s ease-in-out infinite; }
+@keyframes hookTrap { 0%, 100% { transform: scale(1); filter: none; } 50% { transform: scale(1.14); filter: drop-shadow(0 2px 8px rgba(255, 79, 40, 0.45)); } }
+/* MATH: umumiy maxraj — bitta 0..1 chiziq, belgilar to'rga qulflanadi (frac_5_12 s2/s7). */
+.cl-wrap { width: 100%; max-width: 480px; margin: 0 auto; padding: 0 18px; }
+.cl-band { position: relative; height: 92px; }
+.cl-line { position: absolute; left: 0; right: 0; top: 50%; height: 3px; background: rgba(167, 166, 162, 0.45); border-radius: 99px; transform: translateY(-50%); }
+.cl-tick { position: absolute; top: 50%; width: 2px; height: 12px; background: rgba(167, 166, 162, 0.7); transform: translate(-50%, -50%); border-radius: 2px; }
+.cl-tick-end { height: 22px; background: rgba(167, 166, 162, 0.95); }
+.cl-mark { position: absolute; top: 0; height: 100%; width: 0; transform: translateX(-50%); }
+.cl-dot { position: absolute; top: 50%; left: 0; transform: translate(-50%, -50%); width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid currentColor; background: #FFFFFF; transition: background 0.2s, box-shadow 0.2s; z-index: 2; }
+.cl-mark-lock .cl-dot { background: currentColor; box-shadow: 0 0 0 4px rgba(31, 122, 77, 0.20); }
+.cl-stem { position: absolute; left: 0; width: 2px; transform: translateX(-50%); background: currentColor; opacity: 0.4; }
+.cl-mark-up .cl-stem { top: 24px; height: calc(50% - 24px); }
+.cl-mark-down .cl-stem { bottom: 24px; height: calc(50% - 24px); }
+.cl-lab { position: absolute; left: 0; transform: translateX(-50%); white-space: nowrap; }
+.cl-mark-up .cl-lab { top: 0; }
+.cl-mark-down .cl-lab { bottom: 0; }
+.cl-axis { display: flex; justify-content: space-between; margin-top: 2px; }
+/* MATH: квест-замок (frac_5_12 s12/s15). */
+.qlock { display: inline-flex; flex-direction: column; align-items: center; }
+.qlock-shackle { width: 24px; height: 16px; border: 4px solid #FF4F28; border-bottom: none; border-radius: 12px 12px 0 0; transition: transform 0.4s ease, border-color 0.4s ease; transform-origin: 100% 100%; margin-bottom: -2px; }
+.qlock-body { width: 40px; height: 32px; border-radius: 8px; background: #FF4F28; display: flex; align-items: center; justify-content: center; transition: background 0.4s ease; }
+.qlock-open .qlock-shackle { transform: rotate(-32deg); border-color: #1F7A4D; }
+.qlock-open .qlock-body { background: #1F7A4D; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
@@ -2049,13 +2105,13 @@ html, body { margin: 0; padding: 0; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
-  padding-top: clamp(8px, 1.4vw, 12px);
+  padding-top: clamp(11px, 2vw, 11px);
   padding-bottom: clamp(8px, 1.5vw, 12px);
 }
 .stage-content {
   flex: 1;
-  padding-top: clamp(8px, 1.3vw, 12px);
-  padding-bottom: clamp(12px, 2.2vw, 20px);
+  padding-top: clamp(10px, 1.7vw, 12px);
+  padding-bottom: clamp(17px, 3.4vw, 20px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -2066,8 +2122,8 @@ html, body { margin: 0; padding: 0; }
   flex-shrink: 0;
   background: #F6F4EF;
   border-top: 1px solid rgba(167, 166, 162, 0.25);
-  padding-top: clamp(9px, 1.5vw, 11px);
-  padding-bottom: clamp(9px, 1.5vw, 11px);
+  padding-top: clamp(11px, 2vw, 11px);
+  padding-bottom: clamp(11px, 2vw, 11px);
   display: flex;
   gap: 12px;
 }
@@ -2200,7 +2256,7 @@ html, body { margin: 0; padding: 0; }
 .frame {
   background: #FFFFFF;
   border-radius: 16px;
-  padding: clamp(14px, 2.6vw, 20px);
+  padding: clamp(17px, 3.4vw, 17px);
   border: none;
   box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14);
 }
@@ -2208,14 +2264,14 @@ html, body { margin: 0; padding: 0; }
   background: #FFE8E1;
   border-left: 4px solid #FF4F28;
   border-radius: 12px;
-  padding: clamp(12px, 2vw, 16px);
+  padding: clamp(14px, 2.5vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
   border-left: 4px solid #1F7A4D;
   border-radius: 12px;
-  padding: clamp(12px, 2vw, 16px);
+  padding: clamp(14px, 2.5vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22);
 }
 
@@ -2223,7 +2279,7 @@ html, body { margin: 0; padding: 0; }
 .cell-pop { display: inline-block; animation: cellPop 0.34s cubic-bezier(0.34, 1.2, 0.64, 1); }
 @keyframes cellPop { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
-.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(12px, 2vw, 16px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
+.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
 
 /* MATH: сравнение разных знаменателей — приведение к общим долям (frac_5_07). */
 .cp-row { animation: cpRowIn 0.42s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
@@ -2267,7 +2323,7 @@ html, body { margin: 0; padding: 0; }
 .chip:active { cursor: grabbing; }
 .chip-pop { animation: chipPop 0.3s cubic-bezier(0.34, 1.3, 0.64, 1) backwards; }
 @keyframes chipPop { from { opacity: 0; transform: scale(0.5); } }
-.fig-glow { animation: figGlow 0.7s ease; }
+.fig-glow { animation: figGlow 0.7s ease; opacity: 1; }
 @keyframes figGlow {
   0% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); }
   50% { filter: drop-shadow(0 0 12px rgba(31, 122, 77, 0.45)); }

@@ -11,15 +11,23 @@
 ## 0. KIRITILADIGAN MA'LUMOTLAR (metodist to'ldiradi)
 
 ```
-Dars ID:            [masalan: frac_5_13 — src/program_grade5.md dagi ID]
-Fayl:               [masalan: Dars18.jsx — navbatdagi DarsNN raqami]
-Mavzu (ru):         [masalan: Правильные, неправильные, смешанные числа]
-Mavzu (uz):         [masalan: To'g'ri, noto'g'ri va aralash sonlar]
-Maqsad:             [dars oxirida o'quvchi nimani biladi/qiladi]
-Prerekvizitlar:     [masalan: frac_5_01…03 (kasr tushunchasi), frac_5_11 (taqqoslash)]
-Misconceptionlar:   [masalan: "noto'g'ri kasr — bu xato"; "aralash son — ko'paytirish"]
-Vizualizator g'oyasi: [bo'sh qoldirsa bo'ladi — Claude 2-3 variant taklif qiladi]
-Hook uslubi:        [ikki qahramon taqqoslovi / "nega-nima uchun" savoli / bo'sh — Claude taklif qiladi]
+Dars ID:            frac_5_13 (program Блок 5.1, Смешанные числа)
+Fayl:               Dars18.jsx (navbatdagi DarsNN — «Урок 18»)
+Mavzu (ru):         Правильные, неправильные, смешанные числа
+Mavzu (uz):         To'g'ri, noto'g'ri va aralash sonlar
+Maqsad:             O'quvchi to'g'ri va noto'g'ri kasrni farqlaydi; aralash sonni
+                    "butun + kasr" sifatida tushunadi.
+                    (ru: различать правильные и неправильные дроби, понимать смешанное
+                    число как «целое + дробь».)
+Prerekvizitlar:     frac_5_01…frac_5_03 (kasr tushunchasi: part-of-whole, son o'qida,
+                    bo'lish natijasi), frac_5_11 (kasrlarni taqqoslash)
+Misconceptionlar:   1) "noto'g'ri kasr — bu xato" (surat >= maxraj bo'lsa ham — to'liq haqiqiy son);
+                    2) "aralash son — bu butunni kasrga KO'PAYTIRISH" (aslida butun + kasr QO'SHUV)
+Vizualizator g'oyasi: [bo'sh — Claude skelet bosqichida 2-3 variant taklif qiladi.
+                    Dastur yo'nalishi: 1 dan tashqaridagi son o'qi + bir nechta butunli bar-model.]
+Hook uslubi:        [bo'sh — Claude taklif qiladi. Eslatma: oldingi Block 4 darslari
+                    ko'p "qahramon xatosi/taqqoslov" hook ishlatdi → bu yerda "nega/nima uchun"
+                    konseptual hook tabiiyroq bo'lishi mumkin.]
 ```
 
 Agar dars `src/program_grade5.md` dasturida bo'lsa — maqsad, prerekvizit va misconceptionlarni
@@ -39,8 +47,8 @@ model shakllanishi. "MVP, keyin tuzatamiz" rejimi YO'Q — har dars bir xil stan
    har variantga noto'g'ri-javob izohi). Shu bosqichda AskUserQuestion bilan taklif qil va
    tasdiqsiz qurma: (a) vizualizator + hook uslubi (2-3 variant, animatsiyalar bilan);
    (b) 2-3 ta qiziqarli fakt mavzusi va ular qaysi ekranlarga qo'yilishi (5-A bo'lim);
-   (c) mavzuga tabiiy mos kelsa — "noto'g'risini top" va/yoki drag-and-drop test taklifi
-   (3-bo'lim oxiri) — metodist tanlaydi.
+   (c) har test ekrani uchun savol turi — 3-bo'limdagi PALITRADAN mavzuga eng mosini tanla
+   (turlarni almashtirib; faqat MC bilan to'ldirma) va metodistga taklif qil.
 2. **KONTENT** — to'liq CONTENT obyekti (ru + uz + audio). Metodist ko'rib chiqadi.
 3. **JSX** — fayl yig'iladi (quyidagi 8-bo'limdagi infra baytma-bayt + unikal o'rta qism).
 4. **QA** — 9-bo'limdagi chek-list bo'yicha tekshiruv hisoboti; buzilishlar tuzatiladi.
@@ -77,7 +85,7 @@ Seksiyalar tartibi (Dars15.jsx etaloni bilan bir xil — unda infra'ning eng so'
 
 | Bosqich | Ekranlar | Tavsif |
 |---|---|---|
-| HOOK | s0 | Qahramon xatosi YOKI "nega?" savoli. Tuzoq = markaziy misconception. 3 variantli savol (Yo'q / Ha / Bilmayman uslubida), scored=false, scope='hook' |
+| HOOK | s0 | Qahramon xatosi YOKI "nega?" savoli. Tuzoq = markaziy misconception. 3 variantli savol (Yo'q / Ha / Bilmayman uslubida), scored=false, scope='hook'. **Birinchi ekranda MAJBURIY harakatlanuvchi animatsiya** — pastdagi layout qoidasiga qarang |
 | EXPLORATION | s1–s2(–s3) | Qadam-baqadam ochish (step-tugma + audio-segmentlar) + jonli interaktiv (slayder/bosish). Qoidani O'QUVCHI kashf qiladi — qoidadan OLDIN |
 | RULE | 1–2 ta | Qoida kartasi. Ikkinchi rule ko'pincha tuzoq-ogohlantirish ("ehtiyot bo'l: ...") |
 | TEST | 5 ta practice | MC (QuestionScreen) va kamida 1 ta NumInputScreen aralash; scored=true, scope='practice' |
@@ -88,6 +96,14 @@ Seksiyalar tartibi (Dars15.jsx etaloni bilan bir xil — unda infra'ning eng so'
 **Baholash:** darsning o'zi baholanmaydi (final/practice scope faqat analitika uchun),
 testlar "веди-до-верного": noto'g'ri variant xiralashadi va o'chadi, "Keyingi" faqat
 to'g'ridan keyin ochiladi, firstTry analitikaga yoziladi. Jami scored = 6 (5 practice + 1 final).
+
+**O'tgan darsni qayta eslash — spaced retrieval (metodist talabi 2026-06-13):** agar darsning
+aniq prerekviziti bo'lsa (0-bo'lim), HOOK'dan keyin (odatda s1) bitta QISQA "o'tgan dars"
+mikro-savoli qo'yiladi — prerekvizit konseptni haqiqatan qayta-test qiladi (matnli havola
+emas, real savol; oson, 1 ta, веди-до-верного). Bu bilimni mustahkamlaydi va yangi mavzuni
+eskisiga ulaydi (4-A linker bilan: "O'tgan darsda ... — endi ..."). ConnectionsBlock dagi
+`conn_refs` aynan shu eslatilgan konseptga mos kelsin. Bu mikro-savol scored bo'lishi shart
+emas (warm-up); ekran budjetiga (13–16) kiradi.
 
 **Ekranga qaytish xulqi:** hook — `useState(null)`, tanlov TO'LIQ tozalanadi; test ekranlari —
 `storedAnswer` dan tiklanadi.
@@ -101,9 +117,17 @@ to'g'ridan keyin ochiladi, firstTry analitikaga yoziladi. Jami scored = 6 (5 pra
   Kontent darhol boshlanadi; zarur kontekst — kontent ichidagi bitta qisqa kirish gap.
   Stage'ning progress-paneli (progress bar, audio-indikator, ekran hisoblagichi) saqlanadi —
   bu navigatsiya, sarlavha emas.
-- **Bo'sh joy qolmasin:** katta bo'sh maydonlar taqiqlanadi — vizual, matn va boshqaruvlar
-  ekranni zich va muvozanatli to'ldiradi (lekin siqilib ham ketmasin — `clamp()` bilan
-  moslashuvchan o'lchamlar).
+- **BIRINCHI EKRAN (s0) — MAJBURIY harakatlanuvchi animatsiya (metodist talabi 2026-06-13):**
+  dars zerikarli boshlanmasligi uchun s0 dagi vizual STATIK bo'lmasligi kerak — mount'da
+  harakatga keladigan animatsiya (qahramon/obyekt kirib keladi, kasr-bar to'ladi, son o'qida
+  marker yuradi, sahna jonlanadi). Bu birinchi taassurot — diqqatni darhol ushlaydi.
+  CSS-only, 6-bo'lim qoidalari bilan (keyframe yoki transition, set-state-in-effect'siz).
+- **Bo'sh joy qolmasin — uni HARAKAT bilan boyit (metodist talabi 2026-06-13):** katta bo'sh
+  maydonlar taqiqlanadi. Agar ekranda joy ortib qolsa — uni qiziq, harakatlanuvchi
+  animatsiyalar bilan to'ldir (fon'da yengil suzuvchi elementlar, mavzuga oid jonli motif,
+  pulsatsiya/parallaks). Animatsiya kontentdan diqqatni chalg'itmasin — yordamchi, sekin,
+  loop'li bo'lsin. Vizual, matn va boshqaruvlar ekranni zich va muvozanatli to'ldiradi
+  (lekin siqilib ham ketmasin — `clamp()` bilan moslashuvchan o'lchamlar).
 - **Isbotlangan texnikalar (Dars15/16 scroll-fix tajribasi):** MC variantlar 2×2 setkada
   (8.1-dagi QuestionScreen'da tayyor — vertikal 4 qator emas); test-freymlarda savol matni
   takrorlanmaydi (bitta joyda); freym padding kompakt; vizual balandliklari kichraytirilgan.
@@ -131,21 +155,90 @@ to'g'ridan keyin ochiladi, firstTry analitikaga yoziladi. Jami scored = 6 (5 pra
 - Misconceptionlar — 0-bo'limdagi ro'yxatdan: har biri kamida bitta test variantida tuzoq
   sifatida qatnashadi.
 
-**Qo'shimcha test turlari (skelet bosqichida mavzuga qarab taklif qilinadi, metodist tanlaydi):**
-- **"Noto'g'risini top"** — savol teskari qo'yiladi: "Qaysi yechim XATO?" / "Qaysi tasdiq
-  noto'g'ri?". O'quvchi nafaqat to'g'rini, balki xatoni ham tanib olishni o'rganadi.
-  Variantlar: 2-3 ta to'g'ri tasdiq + 1 ta misconception'ga asoslangan xato (to'g'ri javob =
-  o'sha xato variant). Hint mantiqi teskari: o'quvchi to'g'ri tasdiqni tanlasa, hint NEGA u
-  aslida to'g'ri ekanini tushuntiradi. Savol matnida "XATO / noto'g'ri" so'zi vizual
-  ta'kidlanadi (o'quvchi savolni odatdagidek o'qib yubormasligi uchun). Audio-intro ham
-  teskari savolni aniq aytadi. Veди-до-верного va shuffleMC bu yerda ham amal qiladi.
-- **Drag-and-drop (sudrab qo'yish)** — chip'larni joyiga sudrash: juftlash (qiymat ↔ rasm),
-  tartiblash (o'sish bo'yicha), bo'sh katakni to'ldirish. Bazaviy CSS'da `.chip` klassi tayyor
-  (8.4-bo'lim), mexanika namunasi — Dars01 s11 drag-match. Qoidalar: `touch-action: none`,
-  pointer-events bilan (mobilda ham ishlasin); tekshirish alohida "Tekshirish" tugmasi bilan
-  (har sudrashda emas); noto'g'ri joylashgan chip ortga qaytadi + hint; qaytib kelganda
-  joylashuv `storedAnswer` dan tiklanadi; firstTry = birinchi "Tekshirish" bosilishi.
-  Drag-zona ham scroll'siz layoutga sig'ishi shart.
+### SAVOL TURLARI PALITRASI (metodist talabi 2026-06-13: hammasi mavjud, AI-baholashdan tashqari)
+
+Quyidagi turlarning HAMMASI ishlatishga ruxsat etilgan. Skelet bosqichida har test ekraniga
+mavzuga eng mosini tanla va metodistga taklif qil — bir darsda turlarni ALMASHTIRIB ishlat
+(faqat MC bilan to'ldirma; xilma-xillik diqqatni ushlaydi). Jami ~6 scored test qoladi.
+
+**HAMMA scored turga umumiy qoidalar:** веди-до-верного (noto'g'ri urinish xiralashadi/qaytadi,
+"Keyingi" faqat to'g'ridan keyin); har noto'g'ri yo'lga aniq hint (umumiy "noto'g'ri" TAQIQ);
+test vizuali NATIJANI oshkor qilmaydi (winner-flag yo'q); firstTry analitikaga yoziladi;
+qaytishda `storedAnswer` dan tiklanadi; scroll'siz layoutga sig'adi.
+
+**Javobni BARDOSHLI tekshirish (metodist talabi 2026-06-13):** raqam/kasr kiritiladigan
+turlar (NumInput, fill-blank, ko'p kataklik) ekvivalent to'g'ri shakllarni QABUL QILSIN —
+matematik jihatdan to'g'ri javob "noto'g'ri" deyilmasligi kerak (bu ishonchni buzadi):
+o'nlik vergul ham, nuqta ham (`0,5` = `0.5`); ortiqcha bo'shliq tashlanadi; kasrlarda — agar
+mavzu qisqartirishni talab qilmasa — qisqartirilmagan va qisqartirilgan shakl ikkalasi
+(`4/6` = `2/3`); aralash son va noto'g'ri kasr (`1 1/2` = `3/2`) mavzuga qarab. Tekshiruv
+mantig'i: stringni emas, QIYMATNI solishtir (kasrlarda ko'ndalang ko'paytma `a*d == c*b`).
+Faqat o'sha darsning maqsadi aniq bir shaklni talab qilsa (masalan "qisqartiring") — o'shanda
+qat'iy shakl, lekin buni savol matnida aniq ayt.
+
+**A. Tanlash / tanib olish (yopiq)**
+1. **MC — bitta to'g'ri variant** — ✅ infra tayyor (QuestionScreen, 2×2 setka). 3–4 variant,
+   `wrong_N` hint, **shuffleMC MAJBURIY** (`order` QAT'IY massiv, Math.random EMAS; to'g'ri
+   javob A/B/C/D bo'ylab taqsimlangan; hintlar ham qayta xaritalanadi). Asosiy ishchi tur.
+2. **Multi-select — bir nechta to'g'ri variant** — yangi mexanika (custom screen). To'plam
+   javob to'liq to'g'ri bo'lsagina o'tadi; har variant uchun tanlangan/tanlanmagan hint.
+   Taxminni keskin kamaytiradi. "Quyidagilardan QAYSILARI noto'g'ri kasr?"
+3. **Ha/Yo'q · To'g'ri/Noto'g'ri** — MC ning 2 variantli ko'rinishi. Tez refleksiya;
+   hook va oraliq tekshiruvlar uchun.
+4. **Noto'g'risini top (error-spotting)** — savol teskari: "Qaysi yechim XATO?". 2-3 to'g'ri
+   tasdiq + 1 xato (to'g'ri javob = xato variant); hint mantiqi teskari (to'g'rini tanlasa —
+   NEGA to'g'ri ekanini tushuntiradi). "XATO/noto'g'ri" so'zi vizual ta'kidlanadi, audio-intro
+   ham aniq aytadi. shuffleMC amal qiladi.
+5. **Ortiqchasini top (odd-one-out)** — MC ustida: 4 obyektdan biri guruhga mos emas.
+   Tasniflashga kirish. Hint — qaysi xususiyat bo'yicha mos emasligini ochadi.
+
+**B. Yaratish / ishlab chiqarish (ochiq javob, taxminsiz)**
+6. **Raqam kiritish (NumInputScreen)** — ✅ infra tayyor. Kamida 1 ta har darsda. Placeholder
+   NEYTRAL (`0` / `0,0`), hech qachon to'g'ri javob emas. renderVisual bilan jonli figura.
+7. **Bo'sh joyni to'ldirish (fill-in-the-blank)** — ifoda ichida bitta katak: `2/3 = ?/6`.
+   NumInput'ning ifodaga joylashgan ko'rinishi.
+8. **Ko'p kataklik to'ldirish** — ✅ Nat darslarida bor (Dars03/04 ColumnSolver — ustun
+   arifmetikasi: raqamlar + ko'chirish/qarz). Kasrlarga moslashtirilsa — surat/maxraj kataklari.
+
+**C. Manipulyatsiya / interaktiv (qo'l bilan — eng yodda qoladigan)**
+9. **Drag-and-drop (sudrab qo'yish)** — `.chip` CSS tayyor (8.4), namunalar: Dars01 s11
+   drag-match, Dars17 qulf/kalit kvesti. Qoidalar: `touch-action: none` + pointer-events
+   (mobil); alohida "Tekshirish" tugmasi (har sudrashda emas); noto'g'ri chip ortga qaytadi +
+   hint; firstTry = birinchi "Tekshirish". Ichki turlari:
+   - *Juftlash* (qiymat ↔ rasm / kasr ↔ bar-model)
+   - *Tasniflash — savatlarga ajratish* (masalan: to'g'ri / noto'g'ri / aralash savatlari)
+   - *Tartiblash* (hajm bo'yicha o'sish tartibida sudrab)
+   - *Bo'sh katakni to'ldirish* (chip'ni ifodaga tashlash)
+10. **Slayder bilan qiymat o'rnatish** — ✅ Slider bazaviy komponent bor (hozir exploration'da).
+    Test sifatida: o'quvchi slayderni to'g'ri qiymatga qo'yadi, "Tekshirish" baholaydi.
+11. **Bosib bo'laklarni tanlash (tap-to-shade)** — ✅ exploration kodi bor. Test sifatida:
+    "5/6 ni bo'yang" — N katakni bosib tanlaydi; to'g'ri soni bo'lsa o'tadi.
+12. **Son o'qiga nuqta qo'yish (drag-on-number-line)** — vizual bor (Dars02/07). Test sifatida:
+    markerni to'g'ri kasrga sudraydi; ruxsat berilgan xatolik oralig'i bilan baholanadi.
+
+**D. Tartiblash / ketma-ketlik**
+13. **Hajm bo'yicha tartiblash** — drag (9-tartiblash) yoki tap-bilan-tartib. Bir nechta
+    kasrni o'sish/kamayish tartibiga keltirish.
+14. **Yechim qadamlarini tartibga solish** — algoritmik fikrlash: "Bu masalani qaysi tartibda
+    yechamiz?" qadam-kartalarini to'g'ri ketma-ketlikka sudrash. Ustun arifmetikasi / umumiy
+    maxrajga keltirish kabi ko'p qadamli mavzularда foydali.
+
+**E. Tasniflash**
+15. **Toifalarga ajratish** — drag (9-tasniflash) ning kuchaytirilgan ko'rinishi: kartalarni
+    2-3 nomlangan guruhga ajratish. Misconception'ni bevosita sindiradi (masalan "noto'g'ri
+    kasr = xato" — uni haqiqiy son sifatida o'z savatiga qo'yib).
+
+**F. Chama / baholash (estimation)**
+16. **"Taxminan qancha? / qaysi tomonda?"** — ✅ qisman bor (Dars11 BenchmarkLine: 1/2 dan
+    katta-kichikmi). Aniq hisob emas — sonli sezgi. MC yoki number-line bilan amalga oshadi.
+
+**Eslatma:** "Tushuntir/asoslab ber" (erkin matn, AI-baholanadigan) tur HOZIRCHA QO'SHILMAYDI —
+u `aiGradingEndpoint` + production qaroriga bog'liq, alohida masala (Fuzayl).
+
+**Texnik holat:** 1, 6, 9 — infra tayyor. 8 — Nat'da bor, moslashtirish kerak. 10, 11, 12,
+16 — komponentlar bor, test-rejimga o'tkazish kerak. 2, 4, 5, 7, 13, 14, 15 — custom screen
+sifatida quriladi (yangi mexanika; lekin barchasi `recordAnswer`/firstTry/веди-до-верного
+naqshiga bo'ysunadi).
 
 ---
 
@@ -160,6 +253,47 @@ to'g'ridan keyin ochiladi, firstTry analitikaga yoziladi. Jami scored = 6 (5 pra
 - Rekvizitlar mahalliy: non/lepyoshka, sharbat, bog', devor bo'yash, fayl yuklash, internet-GB.
   G'arbona rekvizit (pitsa va h.k.) ishlatma. Zamonaviy-relatable stsenariylar yaxshi.
 - Case — hayotiy va mavzuga organik bog'liq masala, hook qahramonidan BOSHQA qahramon bilan.
+- **Syujet o'yin / kvest / multfilm formatida bo'lishi mumkin (metodist talabi 2026-06-13):**
+  butun darsni bitta o'yin yoki kvest (bosqichlar, daraja oshirish, missiya) yoki tanish
+  multfilm-stil qahramonlari atrofida qurish — qiziqarliroq va marketing uchun foydali.
+  **MUHIM HUQUQIY OGOHLANTIRISH:** mashhur litsenziyalangan qahramonlar (Disney, Pixar,
+  anime, "Mashalar", super-qahramonlar va h.k.) — mualliflik huquqi/savdo belgisi bilan
+  himoyalangan; ularni tijoriy mahsulotda RUXSATSIZ ishlatish huquqiy xavf. Shuning uchun:
+  (1) afzal variant — **erkin/ochiq qahramonlar:** o'zbek xalq ertaklari (Alpomish, Nasriddin
+  Afandi, Zumrad va Qimmat), folklor, yoki LOYIHANING O'Z original mascot'i — bular bepul
+  va brendni mustahkamlaydi; (2) litsenziyalangan mashhur qahramon kerak bo'lsa — buni
+  metodistga ALOHIDA flag qil, "huquqlarni tozalash Fuzayl/legal orqali kerak" deb belgila,
+  o'zboshimchalik bilan ishlatma. G'oyani taklif qil, lekin xavfni yashirma.
+
+---
+
+## 4-A. SLAYDLARNI MA'NAVIY BOG'LASH — ASOSIY QOIDA (metodist talabi 2026-06-13)
+
+Dars uzilgan, alohida ekranlar yig'indisi bo'lmasligi kerak — **bitta uzluksiz hikoya**.
+Har ekran oldingisidan mantiqan o'sib chiqadi va keyingisiga ko'prik tashlaydi. Bu — qat'iy
+asosiy qoida, dekoratsiya emas.
+
+**Qanday bog'lanadi:**
+- Har ekranning kirish gapi (yoki audio-intro boshi) oldingi ekran natijasiga ishora qiladi:
+  "Buni ko'rdik — endi...", "Demak...", "Shuning uchun...".
+- Syujet ipi uzilmaydi: qahramon/kvest/masala butun dars bo'ylab davom etadi, har bosqich
+  bir qadam oldinga.
+- Test'dan keyingi ekran o'sha test natijasiga tayanadi; summary butun yo'lni bitta zanjir
+  qilib yopadi (ConnectionsBlock bilan).
+
+**Linker so'zlar (har ekran boshida ishlatib bog'la — ru + uz):**
+
+| Maqsad | UZ | RU |
+|---|---|---|
+| Xulosa/natija | Demak; Shuning uchun; Natijada; Ko'rib turibmizki | Итак; Поэтому; В итоге; Получается |
+| Yangi qadam | Endi esa; Keling, ko'ramiz; Navbatdagi qadam | Теперь; Давайте посмотрим; Следующий шаг |
+| Eslatish | Yodingizdami; Biroz oldin ko'rdik; Avval aytgandik | Помните; Чуть раньше мы видели; Мы уже говорили |
+| Qarama-qarshilik | Lekin; Ammo; Shunга qaramay | Но; Однако; Тем не менее |
+| Sabab | Chunki; Xuddi shu sababli; Mana shu yerda | Потому что; Именно поэтому; Вот здесь |
+| Davom | Shu bilan birga; Bundan tashqari; Va mana | Кроме того; Вдобавок; И вот |
+
+Ro'yxat to'liq emas — mosini tanla, lekin har o'tishda ataylab ko'prik tashla. Linker so'z
+audioda ham, ekran matnida ham tabiiy yangrasin (mexanik takror emas).
 
 ---
 
@@ -207,17 +341,27 @@ anim={<AnimX/>}/>}` prop beriladi — karta `solved` bo'lgandagina chiqadi. Fakt
 sifatida yoki summary-ekranda ko'rsatilmaydi. Noto'g'ri javobda ko'rinmaydi — веди-до-верного
 orqali to'g'riga yetganda ochiladi.
 
-**Ovoz — QISQA:** faktning 1 jumlalik mohiyati `on_correct` audio-matnining OXIRIGA
-qo'shiladi (alohida segment kerak emas — on_correct baribir o'qiladi); to'liq fakt-matni
-faqat vizual kartada. Bu asosiy narratsiya bilan raqobatni oldini oladi. Qisqa jumlaga ham
-5-bo'limdagi barcha TTS qoidalari amal qiladi (belgilar yo'q, sonlar so'z bilan).
+**Ovoz — QISQA va ANIQ (metodist talabi 2026-06-13):** ozvuchka qilinganda fakt qisqa va
+aniq aytilsin — faktning 1 jumlalik mohiyati `on_correct` audio-matnining OXIRIGA qo'shiladi
+(alohida segment kerak emas — on_correct baribir o'qiladi); to'liq fakt-matni faqat vizual
+kartada. Ovozli jumla — 1 ta, qisqa (~8–14 so'z), bitta aniq fikr; cho'zilgan tushuntirish,
+sanab o'tish, ergash gaplar TAQIQ (ular vizual kartada qoladi). Bu asosiy narratsiya bilan
+raqobatni oldini oladi. Qisqa jumlaga ham 5-bo'limdagi barcha TTS qoidalari amal qiladi
+(belgilar yo'q, sonlar so'z bilan, bir segment = bir fikr).
 
-**Har faktning O'Z MINI-ANIMATSIYASI bo'ladi** — mazmuniga mos (masalan, Yer-Oy masofasi
-haqida fakt → masshtabli mini-diagramma; yuklanish haqida → progress-bar). Tayyor namunalar
-8.2-da: `AnimProgress`, `AnimBattery`, `AnimSlider` — yangi fakt uchun shu uslubda yangi
-CSS-only Anim-komponent yoziladi (loop, set-state-in-effect'siz). Statik matn-karta yetarli
-emas. Karta dizayni — ko'k tema (#019ACB), `FACT_BADGE` yorlig'i: IT-fakt bo'lsa
-"Bilasizmi? · IT", boshqa yo'nalishda mos teg ("Bilasizmi? · Tarix" va h.k.).
+**Har faktning O'Z HARAKATLANUVCHI ANIMATSIYASI bo'ladi — KATTA, matn KAM (metodist
+talabi 2026-06-13):** animatsiya kartaning asosiy qismini egallaydi (vizual ustun, matn
+ikkilamchi); mazmuniga mos (masalan, Yer-Oy masofasi haqida fakt → masshtabli harakatli
+diagramma; yuklanish haqida → to'layotgan progress-bar). Animatsiya doim harakatda (loop),
+statik matn-karta YETARLI EMAS. Matn — qisqa, 1-2 jumla; tushuntirish vizual orqali ketadi.
+Shuning uchun `.fact-anim` o'lchami pilotdagi 54px dan KATTAROQ bo'lsin (masalan
+`clamp(90px, 18vw, 130px)`), `.fact-text` kichraytiriladi — kartaning vizual-og'irligi
+animatsiyada. Tayyor namunalar 8.2-da: `AnimProgress`, `AnimBattery`, `AnimSlider` — yangi
+fakt uchun shu uslubda yangi, KATTAROQ CSS-only Anim-komponent yoziladi (loop,
+set-state-in-effect'siz). Karta dizayni — ko'k tema (#019ACB), `FACT_BADGE` yorlig'i:
+IT-fakt bo'lsa "Bilasizmi? · IT", boshqa yo'nalishda mos teg ("Bilasizmi? · Tarix" va h.k.).
+Fakt-karta kattaroq bo'lgani uchun scroll'siz layoutga sig'ishini alohida tekshir (2×2
+variant-setka joy bo'shatadi; kerak bo'lsa karta variantlar tagida, kompakt joylashadi).
 
 **CONTENT tuzilishi:** tegishli test ekraniga `fact` maydoni ({ru, uz}), on_correct
 oxirida qisqa ovozli jumla. Fakt-karta scroll'siz layoutga sig'ishi shart (2×2 variant-setka
@@ -250,6 +394,17 @@ Texnik qoidalar:
 - Qadam-baqadam ochilish — useEffect ichidagi interval taymer.
 - Staggered delay (`animationDelay: i*0.1s`) — qatorlar/kataklar ketma-ket kirishi uchun.
 - Display o'lchamlari etalon boshlang'ichidan 80% dan oshmasin; max-width: 936px.
+
+**Accessibility (metodist talabi 2026-06-13):**
+- **Feedback faqat RANGGA tayanmasin** — rang-ko'r bola (har ~12 o'g'il boladan 1 ta) qizil/
+  yashilni farqlay olmaydi. To'g'ri/noto'g'ri har doim RANG + BELGI bilan: to'g'ri = ✓ ikonka/
+  galochka, noto'g'ri = ✗ yoki xira+chiziq. G'olib/yutuq ham faqat rang bilan emas (ikonka/
+  shakl). Bu butun feedback va vizualizatorlarga taalluqli.
+- **`prefers-reduced-motion` ni hurmat qil** — ba'zi bolalar harakatdan bezovtalanadi
+  (vestibulyar sezgirlik). STYLES oxirida media-so'rov: tizimda "harakatni kamaytir" yoqilgan
+  bo'lsa, bezak/loop animatsiyalari so'ndiriladi (kontent darhol ko'rinadi, funksiya buzilmaydi):
+  `@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }`
+  Bu yangi animatsiya-yo'nalishimizning (s0, bo'sh joy, katta faktlar) zaruriy muvozanati.
 
 ---
 
@@ -1602,11 +1757,27 @@ html, body { margin: 0; padding: 0; }
 - [ ] Hook s0 — qaytishda picked tozalanadi; testlar — storedAnswer'dan tiklanadi
 - [ ] Summary hookni yopadi + ConnectionsBlock (conn_refs / conn_next ru+uz)
 
+**Hikoya bog'lanishi (4-A — asosiy qoida)**
+- [ ] Har ekran oldingisiga linker so'z bilan bog'langan (Demak/Endi/Yodingizdami…); syujet ipi
+      uzilmaydi; dars bitta uzluksiz hikoya, alohida ekranlar yig'indisi emas
+
+**Animatsiya (metodist talabi 2026-06-13)**
+- [ ] s0 (birinchi ekran) — harakatlanuvchi animatsiya bilan boshlanadi (statik emas)
+- [ ] Ortib qolgan bo'sh joy harakatli animatsiya bilan boyitilgan (chalg'itmaydigan, loop'li)
+- [ ] Fakt-kartalarda animatsiya KATTA (`.fact-anim` kattalashtirilgan), matn kam
+- [ ] Feedback faqat rangga tayanmaydi (✓/✗ ikonka/shakl ham bor — rang-ko'r uchun)
+- [ ] STYLES'da `prefers-reduced-motion` media-so'rovi bor (animatsiyalar so'ndiriladi)
+
 **Testlar**
 - [ ] Har MC'da shuffleMC, qat'iy order, to'g'ri javob A/B/C/D bo'ylab taqsimlangan
 - [ ] Har noto'g'ri variantga aniq wrong_N izoh (misconceptionga mos)
 - [ ] Kamida 1 NumInputScreen, placeholder neytral
 - [ ] Test vizuallari natijani oshkor qilmaydi (winner-flag yo'q)
+- [ ] Savol turlari ALMASHTIRILGAN (3-bo'lim palitrasidan, faqat MC emas); har scored turda
+      веди-до-верного + hint + firstTry + storedAnswer tiklash ishlaydi
+- [ ] Javob bardoshli tekshiriladi: `0,5`=`0.5`, ekvivalent kasrlar (`4/6`=`2/3`) qabul
+      qilinadi (agar mavzu aniq shaklni talab qilmasa); qiymat solishtiriladi, string emas
+- [ ] Prerekvizit bo'lsa — s1 da "o'tgan dars" qayta-eslash mikro-savoli bor, conn_refs ga mos
 
 **Til**
 - [ ] ru va uz hamma joyda to'liq; uz lotin, kirill-aralashuv 0
@@ -1620,7 +1791,7 @@ html, body { margin: 0; padding: 0; }
 
 **Faktlar va layout**
 - [ ] 2-3 ta fakt (`fact` {ru,uz}): mazmunga mos mini-animatsiya bilan, factOnCorrect orqali;
-      qisqa ovozli jumla on_correct oxirida (TTS qoidalariga mos)
+      qisqa ovozli jumla on_correct oxirida (1 ta, ~8–14 so'z, aniq; TTS qoidalariga mos)
 - [ ] Faktlar faqat to'g'ri javobdan keyin ochiladi (help/summary'da emas); "faktlar metodist
       tasdig'ini talab qiladi (draft)" deb belgilangan
 - [ ] Hech bir ekranda scroll yo'q — 1280×800 va 390×844 da tekshirilgan
@@ -1630,9 +1801,9 @@ html, body { margin: 0; padding: 0; }
       drag-and-drop'da storedAnswer tiklanadi, mobil touch ishlaydi
 
 **Texnika**
-- [ ] Infra Dars14 bilan baytma-bayt; fayl UTF-8 BOM'siz LF
+- [ ] Infra Dars15 bilan baytma-bayt; fayl UTF-8 BOM'siz LF
 - [ ] Vizualizatorlar modul darajasida, o'z CSS-nomfazosi `/* MATH: ... */` bilan
-- [ ] `npm run build` o'tdi; eslint taqsimoti Dars14 bazasiga mos, yangi rule-id yo'q
+- [ ] `npm run build` o'tdi; eslint taqsimoti Dars15 bazasiga mos, yangi rule-id yo'q
 - [ ] App.jsx'da registratsiya (slug, "Урок NN." titul, lazy import)
 - [ ] UZ terminologiya "draft — o'zbek metodisti validatsiyasi kutilmoqda" deb belgilangan
 
