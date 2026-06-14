@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-const BASE = 'http://localhost:5176';
+const BASE = 'http://localhost:5177';
 const VIEWPORT = { width: 1366, height: 768 };
 const TOL = 2;
 (async () => {
@@ -8,8 +8,8 @@ const TOL = 2;
   const setLang = async (l) => { await page.evaluate((x) => { const b=[...document.querySelectorAll('button')].find(z=>z.textContent.trim().toUpperCase()===x.toUpperCase()&&z.offsetParent!==null); if(b)b.click(); }, l); };
   for (const lang of ['ru','uz']) {
     await page.goto(`${BASE}/dars/kasr-ayirish-harxil`, { waitUntil: 'networkidle' });
-    await page.waitForSelector('.stage-content', { timeout: 10000 }); await page.waitForFunction(()=>typeof window.__total==='number', { timeout: 10000 });
-    if (lang==='uz'){ await setLang('uz'); await page.waitForTimeout(250); }
+    await page.waitForSelector('.stage-content', { timeout: 10000 }); 
+    await page.waitForTimeout(900); if (lang==='uz'){ await setLang('uz'); await page.waitForTimeout(250); }
     const total = await page.evaluate(()=>window.__total);
     const bad = [];
     for (let i=0;i<total;i++){

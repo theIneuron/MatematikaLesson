@@ -341,13 +341,24 @@ anim={<AnimX/>}/>}` prop beriladi — karta `solved` bo'lgandagina chiqadi. Fakt
 sifatida yoki summary-ekranda ko'rsatilmaydi. Noto'g'ri javobda ko'rinmaydi — веди-до-верного
 orqali to'g'riga yetganda ochiladi.
 
-**Ovoz — QISQA va ANIQ (metodist talabi 2026-06-13):** ozvuchka qilinganda fakt qisqa va
-aniq aytilsin — faktning 1 jumlalik mohiyati `on_correct` audio-matnining OXIRIGA qo'shiladi
-(alohida segment kerak emas — on_correct baribir o'qiladi); to'liq fakt-matni faqat vizual
-kartada. Ovozli jumla — 1 ta, qisqa (~8–14 so'z), bitta aniq fikr; cho'zilgan tushuntirish,
-sanab o'tish, ergash gaplar TAQIQ (ular vizual kartada qoladi). Bu asosiy narratsiya bilan
-raqobatni oldini oladi. Qisqa jumlaga ham 5-bo'limdagi barcha TTS qoidalari amal qiladi
-(belgilar yo'q, sonlar so'z bilan, bir segment = bir fikr).
+**Ovoz — QISQA va ANIQ, lekin KERAKLI joyda to'liq (metodist talabi 2026-06-13/14):**
+ozvuchka qilinganda fakt qisqa va aniq aytilsin. STANDART holatda — faktning 1 jumlalik
+mohiyati `on_correct` audio-matnining OXIRIGA qo'shiladi (alohida segment kerak emas),
+to'liq matn faqat vizual kartada; jumla qisqa (~8–14 so'z), bitta aniq fikr. LEKIN fakt
+qisqa, markaziy yoki ayniqsa qiziqarli bo'lsa — to'liq matnni ham ovozда o'qib berish mumkin
+(o'shanda alohida audio-segment). Qaysi holatda qaysisini — skelet bosqichida har faktga
+belgilanadi. Cho'zilgan tushuntirish, sanab o'tish, ergash gaplar har holда TAQIQ (ular
+vizualda qoladi). Barcha holatda 5-bo'lim TTS qoidalari amal qiladi (belgilar yo'q, sonlar
+so'z bilan, bir segment = bir fikr).
+
+**Faktni KERAKLI joyda misol bilan tushuntir + NEGA aynan shu yerda ekanini ayt (metodist
+talabi 2026-06-14):** quruq fakt emas — kerak bo'lganda qisqa, aniq misol bilan ochib ber
+(masalan kasr-tarixi faktida real kichik misol). Va har fakt o'quvchiga NEGA aynan shu darsда/
+shu slaydda berilayotganini qisqacha, lekin MA'NOLI tushuntirsin — uni mavzuga 4-A linker
+so'zlar bilan ulasin: "Demak, kasrlar qadimда ham kerak bo'lgan...", "Shuning uchun bu yerда
+eslatdik...", "Mana shu sababli...". Bog'lanishsiz "shunchaki qiziqarli" fakt ishlamaydi —
+u darsning mantiqiy ipiga tushib tursin. CONTENT'da `fact` matni shu bog'lovchi gapni o'z
+ichiga olsin (yoki `fact_why` maydoni).
 
 **Har faktning O'Z HARAKATLANUVCHI ANIMATSIYASI bo'ladi — KATTA, matn KAM (metodist
 talabi 2026-06-13):** animatsiya kartaning asosiy qismini egallaydi (vizual ustun, matn

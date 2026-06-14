@@ -1862,7 +1862,7 @@ export default function FractionSubUnlikeDenLesson({
     console.log('[Preview] onFinished payload:', payload);
   });
 
-  const [current, setCurrent] = useState(0); useEffect(()=>{window.__go=(i)=>setCurrent(i);},[]);/*SCROLLPROBE*/
+  const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
   const startTimeRef = useRef(Date.now());
 

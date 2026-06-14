@@ -1271,13 +1271,89 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   );
 };
 
-// s1 — SPACED RETRIEVAL: разминка по прошлому уроку (правильная/неправильная), не scored
-const Screen1 = (props) => {
-  const t = useT(); const c = CONTENT.s1;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 1, [1, 0]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}><Frac n="7" d="4" size="mid" color={T.ink}/></div></>);
-  return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+// s1 — SPACED RETRIEVAL (классификация по сундукам): tap-to-sort, веди-до-верного, ✓ (доступность)
+const Screen1 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s1; const sfx = useSfx();
+  const audio = useAudio([{ id: 's1_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+  const cards = c.cards;
+  const baskets = c.baskets[lang] || c.baskets.ru;
+  const wasSolved = storedAnswer?.solved === true;
+  const [assign, setAssign] = useState(wasSolved ? cards.map(cd => cd.cat) : cards.map(() => null));
+  const [selected, setSelected] = useState(null);
+  const [solved, setSolved] = useState(wasSolved);
+  const [hint, setHint] = useState('');
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
+  const introAdvancedRef = useRef(wasSolved);
+  const placeInBasket = (b) => {
+    if (solved || selected === null) return;
+    setAssign(prev => { const n = prev.slice(); n[selected] = b; return n; });
+    setSelected(null); setHint('');
+  };
+  const tapCard = (ci) => {
+    if (solved) return;
+    if (assign[ci] !== null) { setAssign(prev => { const n = prev.slice(); n[ci] = null; return n; }); setSelected(null); setHint(''); return; }
+    setSelected(s => (s === ci ? null : ci));
+  };
+  const check = () => {
+    if (solved) return;
+    if (assign.some(a => a === null)) { setHint('pick'); return; }
+    const allCorrect = assign.every((b, i) => b === cards[i].cat);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
+    if (firstTryRef.current === null) firstTryRef.current = allCorrect;
+    if (allCorrect) {
+      setSolved(true); setHint(''); sfx.playCorrect();
+      onAnswer({ stage: null, screenIdx: 1, question: 'classify', correctAnswer: 'sorted', studentAnswer: 'sorted', correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
+      if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_correct[lang]); }, 300);
+    } else {
+      sfx.playWrong(); setHint('retry');
+      setAssign(prev => prev.map((b, i) => (b === cards[i].cat ? b : null)));
+      if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_wrong[lang]); }, 300);
+    }
+  };
+  const cardEl = (v, color) => { const m = parseMixed(v); return m.whole !== null ? <MixedLabel whole={m.whole} n={m.n} d={m.d} color={color}/> : <Frac n={m.n} d={m.d} size="mid" color={color}/>; };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
+        <div className="cl-baskets fade-up delay-1">
+          {baskets.map((b, bi) => (
+            <div key={bi} className={`cl-basket${!solved && selected !== null ? ' cl-basket-active' : ''}`} onClick={() => placeInBasket(bi)}>
+              <span className="cl-basket-label mono small">{b}</span>
+              <div className="cl-basket-drop">
+                {assign.map((a, ci) => a === bi && (
+                  <span key={ci} className={`cl-chip${solved ? ' cl-chip-done' : ''}`} onClick={(e) => { e.stopPropagation(); tapCard(ci); }}>
+                    {solved && <span className="cl-ok" aria-hidden="true">✓</span>}{cardEl(cards[ci].v, solved ? T.success : T.ink)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="cl-tray fade-up delay-2">
+          {cards.map((cd, ci) => assign[ci] === null && (
+            <span key={ci} className={`cl-chip cl-chip-free${selected === ci ? ' cl-chip-sel' : ''}`} onClick={() => tapCard(ci)}>{cardEl(cd.v, selected === ci ? T.accent : T.ink)}</span>
+          ))}
+        </div>
+        {!solved && (
+          <div className="fade-up delay-3" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
+          </div>
+        )}
+        {hint && !solved && (
+          <div className="frame-tip fade-up" style={{ textAlign: 'center' }}>
+            <p className="body" style={{ margin: 0 }}>{mt(t(hint === 'pick' ? c.pick_hint : c.retry_hint))}</p>
+          </div>
+        )}
+        {solved && (
+          <FeedbackBlock show={true} isCorrect={true}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>✓ {lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
 };
 
 // s2 — EXPLORATION (по одной монете за нажатие): 1 2/3 -> 5/3
@@ -1496,13 +1572,84 @@ const Screen9 = (props) => {
     )}/>;
 };
 
-// s10 — TEST: 11/3 -> 3 2/3 (correct на C, ловушка M2 opt2) + Факт modulo
-const Screen10 = (props) => {
-  const t = useT(); const c = CONTENT.s10;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 3, 0, 2]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}><Frac n="11" d="3" size="mid" color={T.ink}/></div></>);
-  return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimCoinSplit/>}/>}/>;
+// s10 — MULTI-SELECT (выбрать все верные превращения): веди-до-верного, ✓/✗ (доступность) + Факт modulo
+const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s10; const sfx = useSfx();
+  const audio = useAudio([{ id: 's10_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+  const items = c.items;
+  const wrongTexts = c.item_wrong[lang] || c.item_wrong.ru;
+  const correctSet = items.map(it => it.correct);
+  const wasSolved = storedAnswer?.solved === true;
+  const [sel, setSel] = useState(wasSolved ? items.map(it => it.correct) : items.map(() => false));
+  const [marks, setMarks] = useState(items.map(() => null));
+  const [solved, setSolved] = useState(wasSolved);
+  const [hint, setHint] = useState(false);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
+  const introAdvancedRef = useRef(wasSolved);
+  const toggle = (i) => {
+    if (solved) return;
+    setSel(prev => { const n = prev.slice(); n[i] = !n[i]; return n; });
+    setMarks(prev => { const n = prev.slice(); n[i] = null; return n; });
+    setHint(false);
+  };
+  const check = () => {
+    if (solved) return;
+    const allCorrect = sel.every((s, i) => s === correctSet[i]);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
+    if (firstTryRef.current === null) firstTryRef.current = allCorrect;
+    if (allCorrect) {
+      setSolved(true); setHint(false); sfx.playCorrect();
+      onAnswer({ stage: SCREEN_META[10]?.scope ?? null, screenIdx: 10, question: 'multi-select', correctAnswer: 'set', studentAnswer: 'set', correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
+      if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_correct[lang]); }, 300);
+    } else {
+      sfx.playWrong(); setHint(true);
+      setMarks(items.map((it, i) => (sel[i] && !it.correct ? 'bad' : null)));
+      setSel(prev => prev.map((s, i) => (s && !items[i].correct ? false : s)));
+      if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_wrong[lang]); }, 300);
+    }
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-sub fade-up">{t(c.question_pre)} <span className="italic" style={{ color: T.success }}>{t(c.question_em)}</span>{t(c.question_post)}</h2>
+        <div className="ms-list fade-up delay-1">
+          {items.map((it, i) => {
+            const on = sel[i];
+            const cls = solved ? (it.correct ? 'ms-item ms-ok' : 'ms-item ms-muted') : (marks[i] === 'bad' ? 'ms-item ms-bad' : (on ? 'ms-item ms-on' : 'ms-item'));
+            const icon = (solved && it.correct) || on ? '✓' : (marks[i] === 'bad' ? '✗' : '');
+            return (
+              <button key={i} className={cls} disabled={solved} onClick={() => toggle(i)}>
+                <span className="ms-box" aria-hidden="true">{icon}</span>
+                <span className="ms-txt">{mt(it.txt)}</span>
+              </button>
+            );
+          })}
+        </div>
+        {!solved && (
+          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
+          </div>
+        )}
+        {hint && !solved && (
+          <div className="frame-tip fade-up">
+            {marks.some(m => m === 'bad')
+              ? items.map((it, i) => (marks[i] === 'bad' && wrongTexts[i] ? <p key={i} className="body" style={{ margin: '0 0 4px' }}>✗ {mt(wrongTexts[i])}</p> : null))
+              : <p className="body" style={{ margin: 0 }}>{mt(t(c.miss_hint))}</p>}
+          </div>
+        )}
+        {solved && (
+          <>
+            <FeedbackBlock show={true} isCorrect={true}>
+              <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>✓ {lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+              <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
+            </FeedbackBlock>
+            <FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimCoinSplit/>}/>
+          </>
+        )}
+      </div>
+    </Stage>
+  );
 };
 
 // s11 — TEST find-the-wrong: какая запись карты ошибочна (correct на B = opt1, ловушка M1)
@@ -1938,6 +2085,33 @@ html, body { margin: 0; padding: 0; }
 .amb-d2 { left: 54%; top: 20%; animation-delay: 4.4s; } .amb-d3 { left: 72%; top: 64%; animation-delay: 1.1s; }
 .amb-d4 { left: 88%; top: 34%; animation-delay: 6.1s; } .amb-d5 { left: 40%; top: 84%; animation-delay: 3.3s; }
 @keyframes ambDrift { 0%, 100% { transform: translateY(0) scale(1); opacity: 0.12; } 50% { transform: translateY(-14px) scale(1.25); opacity: 0.3; } }
+
+/* MATH frac_5_14: CLASSIFY (3 сундука) — tap-to-sort, ✓ при верной (доступность). */
+.cl-baskets { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; }
+.cl-basket { flex: 1; min-width: 92px; max-width: 200px; display: flex; flex-direction: column; align-items: center; gap: 8px; background: #FFFFFF; border-radius: 14px; padding: clamp(8px, 1.6vw, 12px); box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14); transition: box-shadow 0.2s, transform 0.15s; cursor: default; }
+.cl-basket-active { cursor: pointer; box-shadow: 0 10px 24px -6px rgba(255, 79, 40, 0.3); transform: translateY(-2px); }
+.cl-basket-label { color: #5A5A60; text-align: center; }
+.cl-basket-drop { width: 100%; min-height: clamp(46px, 8vw, 56px); border-radius: 10px; border: 2px dashed rgba(168, 132, 58, 0.45); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; padding: 6px; background: rgba(246, 244, 239, 0.6); }
+.cl-tray { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; min-height: clamp(50px, 9vw, 60px); align-items: center; }
+.cl-chip { display: inline-flex; align-items: center; gap: 5px; padding: clamp(7px, 1.5vw, 11px) clamp(11px, 2.2vw, 16px); border-radius: 12px; background: #FFFFFF; border: none; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.18); cursor: pointer; font-family: 'Manrope', sans-serif; }
+.cl-chip-free { box-shadow: 0 6px 16px -6px rgba(216, 155, 30, 0.34); }
+.cl-chip-sel { box-shadow: 0 0 0 2px #FF4F28, 0 8px 20px -6px rgba(255, 79, 40, 0.4); transform: translateY(-2px); }
+.cl-chip-done { box-shadow: none; background: transparent; cursor: default; }
+.cl-ok { color: #1F7A4D; font-weight: 700; font-size: 13px; }
+
+/* MATH frac_5_14: MULTI-SELECT — отметить все верные; ✓ выбрано / ✗ ошибка (доступность). */
+.ms-list { display: flex; flex-direction: column; gap: 10px; }
+.ms-item { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: #FFFFFF; border: none; border-radius: 12px; padding: clamp(11px, 1.8vw, 14px) clamp(14px, 2.2vw, 18px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); cursor: pointer; transition: all 0.18s; font-family: 'Manrope', sans-serif; }
+.ms-item:hover:not(:disabled) { background: #FDFBF7; box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22); }
+.ms-on { box-shadow: 0 8px 22px -6px rgba(31, 122, 77, 0.3), 0 0 0 1px rgba(31, 122, 77, 0.25); }
+.ms-bad { background: #FFE8E1; box-shadow: 0 8px 22px -6px rgba(255, 79, 40, 0.36); }
+.ms-ok { background: #E3F0E8; box-shadow: 0 8px 22px -6px rgba(31, 122, 77, 0.32); }
+.ms-muted { opacity: 0.5; }
+.ms-box { flex-shrink: 0; width: 24px; height: 24px; border-radius: 7px; box-shadow: inset 0 0 0 2px rgba(167, 166, 162, 0.6); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; color: #1F7A4D; }
+.ms-on .ms-box { box-shadow: inset 0 0 0 2px #1F7A4D; background: #E3F0E8; }
+.ms-bad .ms-box { box-shadow: inset 0 0 0 2px #FF4F28; color: #FF4F28; }
+.ms-ok .ms-box { box-shadow: inset 0 0 0 2px #1F7A4D; background: #1F7A4D; color: #FFFFFF; }
+.ms-txt { flex: 1; }
 
 /* MATH frac_5_14: DRAG-MATCH (touch-friendly), ✓ при верной паре (доступность). */
 .dg-slots { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; }
