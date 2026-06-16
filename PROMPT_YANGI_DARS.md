@@ -128,6 +128,14 @@ emas (warm-up); ekran budjetiga (13–16) kiradi.
   pulsatsiya/parallaks). Animatsiya kontentdan diqqatni chalg'itmasin — yordamchi, sekin,
   loop'li bo'lsin. Vizual, matn va boshqaruvlar ekranni zich va muvozanatli to'ldiradi
   (lekin siqilib ham ketmasin — `clamp()` bilan moslashuvchan o'lchamlar).
+- **HARAKAT UZLUKSIZ — hech bir ekran o'lik (statik) bo'lmasin (2026-06-15 nuqson: s3/s4 da
+  animatsiya tugab/yo'qolib qolmoqda):** Dars18–23 da odatiy naqsh — s0 da loop animatsiya,
+  lekin s3/s4 (step-tugma yoki slayder bilan ishlaydigan exploration) qadamlar tugagach STATIK
+  bo'lib qoladi → bola "animatsiya o'chib qoldi" deb sezadi. Shuning uchun HAR ekranда doimiy
+  (loop) harakat qatlami bo'lsin: yo fon'dagi yengil ambient (masalan `Floaters`/`amb-host`),
+  yo jonli vizual (`alive`/`live` element, sekin nafas-pulsatsiya). Step-exploration ekranida
+  qadamlar tugaganda ham bitta tirik element qolsin (masalan markerning yengil pulsatsiyasi).
+  Animatsiyani FAQAT s0/s1/s2 ga emas — BARCHA ekranga bir xil tekis tarqat (rule/test/case ham).
 - **Isbotlangan texnikalar (Dars15/16 scroll-fix tajribasi):** MC variantlar 2×2 setkada
   (8.1-dagi QuestionScreen'da tayyor — vertikal 4 qator emas); test-freymlarda savol matni
   takrorlanmaydi (bitta joyda); freym padding kompakt; vizual balandliklari kichraytirilgan.
@@ -323,7 +331,24 @@ UZ — lotin alifbosi. UZ matnli JS-stringlar — FAQAT qo'shtirnoq `"..."` yoki
 - Audio vizualni TAKRORLAMAYDI — to'ldiradi (ekranda ko'rinmagan tushuntirishni beradi).
 - Exploration ekranlarda audio — massiv segmentlar, `waits_for` step-tugmalarga bog'lanadi.
 
-**i18n:** matnlardagi bo'shliqlar CONTENT stringlari ichida, JSX-razmetkada emas.
+**i18n — bo'shliqlar:** matnlardagi bo'shliqlar CONTENT stringlari ichida, JSX-razmetkada emas.
+
+**TIL TO'LIQLIGI — eng muhim (2026-06-15 nuqson: ru darsda uz so'z, uz darsda ru so'z):**
+- Bu nuqsonning ASOSIY sababi — yetishmagan tarjima `|| .ru` ga FALLBACK bo'lishi.
+  Kod ko'p joyda `c.audio[lang] || c.audio.ru` yoki `t()` orqali — agar `uz` maydoni
+  YO'Q/bo'sh bo'lsa, ekranda/ovozda RUSCHA matn chiqadi (va aksincha). Statik skan buni
+  ko'rmaydi (matn uz-stringда emas — u umuman yo'q), lekin ishlaganda chiqadi.
+- Shuning uchun: HAR ko'rinadigan/aytiladigan maydonda `ru` VA `uz` ikkalasi ham bo'lishi
+  shart — birortasi bo'sh/yo'q bo'lmasin. Bu mukofot-fakt, hint, eyebrow, tugma, audio-segment,
+  step-label — HAMMASIGA taalluqli.
+- **Massivlar (audio segmentlari, step_labels) `ru` va `uz` da BIR XIL UZUNLIKDA** bo'lsin —
+  uzunligi farq qilsa, indeks mos kelmay yoki fallback orqali til aralashadi.
+- **JSX/komponent ichida QO'LDA yozilgan bir tilli matn TAQIQ** — barcha matn CONTENT orqali,
+  ikkala til bilan. Diqqat: infra'dagi `NavBack` ning standart `label = 'Назад'` (ruscha) —
+  uni hech qachon labelsiz chaqirma, doim `<BackLabel/>`/`<NextLabel/>` (yoki lokalizatsiya)
+  uzat. Aks holda uz-darsда "Назад" chiqadi.
+- Tekshiruv (7-bo'limga): har CONTENT kaliti `ru` bilan bo'lsa — `uz` ham bo'sh emas (va
+  aksincha); ru/uz massiv uzunliklari teng; JSX'da kirill yoki qattiq bir tilli matn yo'q.
 
 ---
 
@@ -367,16 +392,20 @@ diagramma; yuklanish haqida → to'layotgan progress-bar). Animatsiya doim harak
 statik matn-karta YETARLI EMAS. Matn — qisqa, 1-2 jumla; tushuntirish vizual orqali ketadi.
 Shuning uchun `.fact-anim` o'lchami pilotdagi 54px dan KATTAROQ bo'lsin (masalan
 `clamp(90px, 18vw, 130px)`), `.fact-text` kichraytiriladi — kartaning vizual-og'irligi
-animatsiyada. Tayyor namunalar 8.2-da: `AnimProgress`, `AnimBattery`, `AnimSlider` — yangi
-fakt uchun shu uslubda yangi, KATTAROQ CSS-only Anim-komponent yoziladi (loop,
-set-state-in-effect'siz). Karta dizayni — ko'k tema (#019ACB), `FACT_BADGE` yorlig'i:
+animatsiyada. **OVERFLOW XAVFI (2026-06-15 nuqson):** `.fact-anim` da `overflow: hidden`
+MAJBURIY (8.4-da tayyor); Anim-komponentni qutiga MOSLAB yoz — kichik animatsiyani
+`transform: scale(1.55)` bilan kattalashtirib qutidan chiqarib yuborma (aynan shu xato
+Dars18–23 da animatsiyani chegaradan chiqarib yubordi). Tayyor namunalar 8.2-da:
+`AnimProgress`, `AnimBattery`, `AnimSlider` — yangi fakt uchun shu uslubda yangi, KATTAROQ
+CSS-only Anim-komponent yoziladi (loop, set-state-in-effect'siz; o'lchami qutiga sig'adi). Karta dizayni — ko'k tema (#019ACB), `FACT_BADGE` yorlig'i:
 IT-fakt bo'lsa "Bilasizmi? · IT", boshqa yo'nalishda mos teg ("Bilasizmi? · Tarix" va h.k.).
 Fakt-karta kattaroq bo'lgani uchun scroll'siz layoutga sig'ishini alohida tekshir (2×2
 variant-setka joy bo'shatadi; kerak bo'lsa karta variantlar tagida, kompakt joylashadi).
 
-**CONTENT tuzilishi:** tegishli test ekraniga `fact` maydoni ({ru, uz}), on_correct
-oxirida qisqa ovozli jumla. Fakt-karta scroll'siz layoutga sig'ishi shart (2×2 variant-setka
-bunga joy bo'shatadi).
+**CONTENT tuzilishi:** tegishli test ekraniga `fact` maydoni ({ru, uz}) — vizual matn +
+mavzuga bog'lovchi gap (yoki alohida `fact_why`); ovoz uchun on_correct oxirida qisqa jumla
+YOKI (kerakli faktда) to'liq matnni o'qiydigan alohida segment. Fakt-karta scroll'siz
+layoutga sig'ishi shart (2×2 variant-setka bunga joy bo'shatadi).
 
 **Aniqlik:** har faktdagi raqam, sana va nomlar — DRAFT. Skelet bosqichida fakt ro'yxatini
 asoslari bilan metodistga ko'rsat va "faktlar metodist tasdig'ini talab qiladi" deb belgila.
@@ -405,12 +434,25 @@ Texnik qoidalar:
 - Qadam-baqadam ochilish — useEffect ichidagi interval taymer.
 - Staggered delay (`animationDelay: i*0.1s`) — qatorlar/kataklar ketma-ket kirishi uchun.
 - Display o'lchamlari etalon boshlang'ichidan 80% dan oshmasin; max-width: 936px.
+- **RANG INTIZOMI — faqat palitra (2026-06-15 nuqson: ranglarда o'zgarishlar):** faqat `T`
+  palitra tokenlari ishlatiladi (ink/ink2/ink3, accent #FF4F28, success #1F7A4D, bg #F6F4EF,
+  paper #FFFFFF) + ikki hujjatlangan oila: tip-sariq (`.frame-tip` — bg #FBF3D6, ramka #D8A93A,
+  MATN `T.ink`, yangi sariq-hex `#A07D14` kabilar EMAS) va fakt-ko'k (#019ACB / #EAF6FB).
+  Boshqa ixtiyoriy hex (`#FBF8F2`, `#FFD23F`, `#A07D14` va h.k.) TAQIQ — Dars18/21–23 da aynan
+  shular intizomni buzdi. Anim-komponentlar ham faqat accent/blue/success/ink dan foydalanadi.
+  Animatsiya rangni keskin almashtirib "miltillama" (glitch) effekti bermasin — rang o'zgarsa,
+  ma'noli va sekin bo'lsin (masalan ortib borayotgan yashil), tasodifiy emas.
 
 **Accessibility (metodist talabi 2026-06-13):**
 - **Feedback faqat RANGGA tayanmasin** — rang-ko'r bola (har ~12 o'g'il boladan 1 ta) qizil/
   yashilni farqlay olmaydi. To'g'ri/noto'g'ri har doim RANG + BELGI bilan: to'g'ri = ✓ ikonka/
   galochka, noto'g'ri = ✗ yoki xira+chiziq. G'olib/yutuq ham faqat rang bilan emas (ikonka/
   shakl). Bu butun feedback va vizualizatorlarga taalluqli.
+  **DIQQAT — ikonka MATNGA YOPISHMASIN (2026-06-15 nuqson):** `{<IconOk/>}{mt(t(...))}` kabi
+  yondosh JSX ifodalar ikonka bilan matnni bo'shliqsiz yopishtirib qo'yadi ("✓Javob"). Ikonka
+  va matnni doim `display:flex; gap:8px` li o'rovchi `<span>`/`<div>` ichiga ol — yondosh
+  `}{ ` qo'yib bevosita ulama. Umuman: ekranda yonma-yon turadigan ikki matn-ifodaga aniq
+  bo'shliq kerak (`{a}{' '}{b}` yoki flex+gap), aks holda so'zlar yopishadi.
 - **`prefers-reduced-motion` ni hurmat qil** — ba'zi bolalar harakatdan bezovtalanadi
   (vestibulyar sezgirlik). STYLES oxirida media-so'rov: tizimda "harakatni kamaytir" yoqilgan
   bo'lsa, bezak/loop animatsiyalari so'ndiriladi (kontent darhol ko'rinadi, funksiya buzilmaydi):
@@ -446,6 +488,19 @@ Texnik qoidalar:
   5. **Kirill-in-uz skan:** uz qiymatlarida kirill harf — 0 ta.
   6. **Kasr o'qilish skan:** uz audioda teskari tartib ("besh oltidan" tipidagi surat-avval) — 0 ta.
   7. **shuffleMC taqsimot:** to'g'ri javob pozitsiyalari ro'yxatini chiqar (A/B/C/D bo'ylab).
+  8. **Til-to'liqlik skani (2026-06-15):** har CONTENT kalitida `ru` bo'lsa `uz` ham bo'sh emas
+     (va aksincha); `ru`/`uz` massivlari (audio, step_labels) bir xil uzunlikda; JSX'da qo'lda
+     yozilgan kirill yoki bir tilli matn yo'q (`NavBack` labelsiz chaqirilmagan). Bu — "uz darsда
+     ruscha so'z" nuqsonining oldini oladi (fallback yashirin aralashuv beradi).
+  9. **Yopishgan so'z skani (2026-06-15):** JSX'da `}{` yondoshligi (ayniqsa `{<IconOk/>}{mt(`
+     kabi ikonka+matn) — bo'shliq yoki flex+gap bilan ajratilgan; CONTENT stringlarida
+     bo'shliqsiz qo'shilib ketgan so'zlar yo'q.
+  10. **Animatsiya uzluksizligi (2026-06-15):** har Screen0..N da kamida bitta loop/ambient
+     harakat bor — ayniqsa s3/s4 (step/slayder) statik bo'lib qolmasin. Har ekranni preview'da
+     ko'rib chiq.
+  11. **Fakt-overflow + rang skani (2026-06-15):** `.fact-anim`da `overflow: hidden` bor va
+     Anim bola qutidan chiqmaydi (scale bilan oshirilmagan); STYLES'da palitradan tashqari
+     hex (`#A07D14`/`#FBF8F2`/`#FFD23F` kabi) yo'q.
 - **Taqiqlar:** localStorage yo'q; production uchun Web Speech va'da qilinmaydi (preview-rejim
   bor — bu normal); proprietar shriftlar yo'q (faqat Source Serif 4, Fraunces, Manrope,
   JetBrains Mono); Math.random / Date.now faqat infra'dagi mavjud joylarda; etalon v14
@@ -1734,7 +1789,8 @@ html, body { margin: 0; padding: 0; }
 
 /* MATH frac_5_10: ФАКТ-БЛОК (IT) — синяя карта + мини-анимации (loop, CSS-only). */
 .fact-card { display: flex; gap: 14px; align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
-.fact-anim { flex-shrink: 0; width: 54px; display: flex; align-items: center; justify-content: center; }
+.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(64px, 13vw, 92px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+/* MUHIM: fakt-animatsiya o'z chegarasidan CHIQMASIN — overflow:hidden majburiy; bolani transform:scale() bilan kattalashtirib oshirib yuborma, Anim-komponentni shu qutiga moslab yoz. */
 .fact-body { flex: 1; }
 .fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
 .fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
@@ -1772,11 +1828,16 @@ html, body { margin: 0; padding: 0; }
 - [ ] Har ekran oldingisiga linker so'z bilan bog'langan (Demak/Endi/Yodingizdami…); syujet ipi
       uzilmaydi; dars bitta uzluksiz hikoya, alohida ekranlar yig'indisi emas
 
-**Animatsiya (metodist talabi 2026-06-13)**
+**Animatsiya va vizual (metodist talabi 2026-06-13/15)**
 - [ ] s0 (birinchi ekran) — harakatlanuvchi animatsiya bilan boshlanadi (statik emas)
 - [ ] Ortib qolgan bo'sh joy harakatli animatsiya bilan boyitilgan (chalg'itmaydigan, loop'li)
-- [ ] Fakt-kartalarda animatsiya KATTA (`.fact-anim` kattalashtirilgan), matn kam
-- [ ] Feedback faqat rangga tayanmaydi (✓/✗ ikonka/shakl ham bor — rang-ko'r uchun)
+- [ ] **HARAKAT UZLUKSIZ — HAR ekranda (s0..N) loop/ambient bor; s3/s4 step/slayder ekranlari
+      qadamlar tugagach STATIK bo'lib qolmaydi** (2026-06-15 nuqson)
+- [ ] Fakt-kartalarda animatsiya KATTA, lekin `.fact-anim`da `overflow: hidden` — Anim qutidan
+      CHIQMAYDI (scale bilan oshirilmagan); matn kam
+- [ ] Rang faqat palitra + tip-sariq/fakt-ko'k oilalari; off-palette hex yo'q; animatsiya
+      rangni glitch qilib almashtirmaydi (2026-06-15 nuqson)
+- [ ] Feedback faqat rangga tayanmaydi (✓/✗ ikonka/shakl); ikonka MATNGA YOPISHMAGAN (flex+gap)
 - [ ] STYLES'da `prefers-reduced-motion` media-so'rovi bor (animatsiyalar so'ndiriladi)
 
 **Testlar**
@@ -1791,7 +1852,11 @@ html, body { margin: 0; padding: 0; }
 - [ ] Prerekvizit bo'lsa — s1 da "o'tgan dars" qayta-eslash mikro-savoli bor, conn_refs ga mos
 
 **Til**
-- [ ] ru va uz hamma joyda to'liq; uz lotin, kirill-aralashuv 0
+- [ ] **TIL TO'LIQLIGI (2026-06-15 nuqson): har kalitda ru VA uz bo'sh emas; ru/uz massivlar
+      bir xil uzunlikda; JSX'da qo'lda bir tilli/kirill matn yo'q (NavBack labelsiz emas) —
+      "uz darsda ruscha so'z" fallback orqali chiqmasin**
+- [ ] Yopishgan so'z yo'q: JSX'da `}{` (ikonka+matn) bo'shliq/flex+gap bilan; stringlarda ham
+- [ ] uz lotin, kirill-aralashuv 0
 - [ ] siz-register: sen/imperativ/-sang/o'zing — 0 (case-insensitive skan + qo'lda o'qish)
 - [ ] Apostrof `'`; uz-stringlar qo'shtirnoqda; SOV
 - [ ] Kasr o'qilishi: maxrajdan-surat ("oltidan besh" = 5/6), sanashda ham
@@ -1802,7 +1867,9 @@ html, body { margin: 0; padding: 0; }
 
 **Faktlar va layout**
 - [ ] 2-3 ta fakt (`fact` {ru,uz}): mazmunga mos mini-animatsiya bilan, factOnCorrect orqali;
-      qisqa ovozli jumla on_correct oxirida (1 ta, ~8–14 so'z, aniq; TTS qoidalariga mos)
+      ovoz standart qisqa (~8–14 so'z) YOKI kerakli faktда to'liq o'qiladi (TTS qoidalariga mos)
+- [ ] Har fakt kerakli joyda misol bilan ochilgan; NEGA shu darsда/slaydda ekani linker so'z
+      bilan qisqa, ma'noli aytilgan (mavzuga ulangan, "shunchaki qiziqarli" emas)
 - [ ] Faktlar faqat to'g'ri javobdan keyin ochiladi (help/summary'da emas); "faktlar metodist
       tasdig'ini talab qiladi (draft)" deb belgilangan
 - [ ] Hech bir ekranda scroll yo'q — 1280×800 va 390×844 da tekshirilgan

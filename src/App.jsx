@@ -127,6 +127,89 @@ const lessons = [
     desc: "1 2/3 + 2 2/3 = 4 1/3: ko'chirish va qarz olish, har xil maxraj",
     Component: lazy(() => import('./components/Dars20.jsx')),
   },
+  {
+    slug: 'onlik-kasr-konsept',
+    title: "Урок 21. O'nli kasr — tushuncha",
+    desc: "0,1 = 1/10: vergul, razryadlar (o'ndan, yuzdan, mingdan)",
+    Component: lazy(() => import('./components/Dars21.jsx')),
+  },
+  {
+    slug: 'onlik-solishtirish-yaxlitlash',
+    title: "Урок 22. O'nli kasrlarni solishtirish va yaxlitlash",
+    desc: "0,5 katta 0,45 dan: vergul ostiga vergul, razryadma-razryad solishtirish va yaxlitlash",
+    Component: lazy(() => import('./components/Dars22.jsx')),
+  },
+  {
+    slug: 'onlik-qoshish-ayirish',
+    title: "Урок 23. O'nli kasrlarni qo'shish va ayirish",
+    desc: "2 + 0,5 = 2,5: vergulni vergul ostiga qo'yib, xonalab qo'shish va ayirish",
+    Component: lazy(() => import('./components/Dars23.jsx')),
+  },
+  {
+    slug: 'onlik-kopaytirish-bolish',
+    title: "Урок 24. O'nli kasrni 10, 100, 1000 ga ko'paytirish va bo'lish",
+    desc: "2,5 × 10 = 25: vergulni surish — o'nga, yuzga, mingga ko'paytirish va bo'lish",
+    Component: lazy(() => import('./components/Dars24.jsx')),
+  },
+  {
+    slug: 'foiz-yuzdan-ulush',
+    title: "Урок 25. Foiz — yuzdan bir ulush",
+    desc: "1% = 1/100 = 0,01: foiz — yuzdan ulush, bitta sonning to'rt ko'rinishi",
+    Component: lazy(() => import('./components/Dars25.jsx')),
+  },
+  {
+    slug: 'foiz-sonning-foizi',
+    title: "Урок 26. Sonning foizini topish",
+    desc: "iPhone $1200 ga 20% chegirma = $240: 1% ni topib foizga ko'paytirish",
+    Component: lazy(() => import('./components/Dars26.jsx')),
+  },
+  {
+    slug: 'foiz-songa-foiz',
+    title: "Урок 27. Foizi bo'yicha sonni topish",
+    desc: "20% i 10 bo'lsa, butun 50: teskari foiz — qism va foizdan butunni topish",
+    Component: lazy(() => import('./components/Dars27.jsx')),
+  },
+  {
+    slug: 'perimetr',
+    title: "Урок 28. To'rtburchak va kvadrat perimetri",
+    desc: "5 ga 3 tomorqa: perimetr = 16 metr, chegara bo'ylab barcha tomonlar yig'indisi",
+    Component: lazy(() => import('./components/Dars28.jsx')),
+  },
+
+  {
+    slug: 'yuza',
+    title: "Урок 29. To'rtburchak va kvadrat yuzasi",
+    desc: "5 ga 3 to'rtburchak: yuza = 15 katak, bo'yi ko'paytirilgan eni (S = a × b)",
+    Component: lazy(() => import('./components/Dars29.jsx')),
+  },
+
+  {
+    slug: 'uchburchak-yuza',
+    title: "Урок 30. Uchburchak yuzasi",
+    desc: "Uchburchak — to'rtburchakning yarmi: yuza = (asos × balandlik) : 2",
+    Component: lazy(() => import('./components/Dars30.jsx')),
+  },
+
+  {
+    slug: 'hajm-parallelepiped',
+    title: "Урок 31. To'rtburchakli parallelepiped hajmi",
+    desc: "Quti birlik kublardan: hajm = uzunlik × en × balandlik (V = a × b × c, sm³)",
+    Component: lazy(() => import('./components/Dars31.jsx')),
+  },
+
+  {
+    slug: 'manfiy-sonlar',
+    title: "Урок 32. Manfiy sonlar koordinata chizig'ida",
+    desc: "Dengiz sathidan past: 0 dan chapda manfiy son, −5 < −3 (whole-number bias)",
+    Component: lazy(() => import('./components/Dars32.jsx')),
+  },
+
+  {
+    slug: 'butun-sonlar-taqqoslash',
+    title: "Урок 33. Butun sonlarni taqqoslash va qarama-qarshi sonlar",
+    desc: "O'ngroq — kattaroq, −2 < 3; qarama-qarshi son — ishorani almashtirish (4 → −4)",
+    Component: lazy(() => import('./components/Dars33.jsx')),
+  },
 ]
 
 function App() {
