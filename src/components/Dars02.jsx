@@ -526,7 +526,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -1271,7 +1271,7 @@ const QuestionScreenHint = ({ screen, idx, totalScreens, screenMeta, screenConte
             const dis = solved || tried.includes(i);
             return (
               <button key={i} className={cls} disabled={dis} onClick={() => pick(i)} style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>{String.fromCharCode(65 + i)}</span>
+                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (tried.includes(i) ? T.accent : T.ink3) }}>{solved && i === correctIdx ? '✓' : (tried.includes(i) ? '✗' : String.fromCharCode(65 + i))}</span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
             );
@@ -1279,12 +1279,12 @@ const QuestionScreenHint = ({ screen, idx, totalScreens, screenMeta, screenConte
         </div>
         {!solved && lastWrong !== null && (
           <div className="frame-tip">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : '\u041f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0430'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : '\u041f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0430'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c[`hint_${lastWrong}`])}</p>
           </div>
         )}
         <FeedbackBlock show={solved} isCorrect={true}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "To'g'ri" : '\u0412\u0435\u0440\u043d\u043e'}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : '\u0412\u0435\u0440\u043d\u043e'}</p>
           <p className="body" style={{ margin: 0 }}>{t(c.correct_text)}</p>
         </FeedbackBlock>
       </div>
@@ -1610,12 +1610,12 @@ const InputScreenHint = ({ screen, idx, totalScreens, base, correctValue, screen
         </div>
         {hintShown && !solved && (
           <div className="frame-tip">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : '\u041f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0430'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : '\u041f\u043e\u0434\u0441\u043a\u0430\u0437\u043a\u0430'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.hint)}</p>
           </div>
         )}
         <FeedbackBlock show={solved} isCorrect={true}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "To'g'ri" : '\u0412\u0435\u0440\u043d\u043e'}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : '\u0412\u0435\u0440\u043d\u043e'}</p>
           <p className="body" style={{ margin: 0 }}>{t(c.fb_correct)}</p>
         </FeedbackBlock>
       </div>
@@ -1981,7 +1981,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;

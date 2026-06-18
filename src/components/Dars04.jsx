@@ -574,7 +574,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -1174,7 +1174,7 @@ const MulColumnSolver = ({ top, mul, result, texts, narrSol, onResolved }) => {
       )}
       {solved && (
         <div className="frame-success fade-up">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
           <p className="body" style={{ margin: 0 }}>{firstRef.current === 'ok' ? (texts && texts.correct ? t(texts.correct) : '') : UI.retryOk[lang]}</p>
         </div>
       )}
@@ -1323,7 +1323,7 @@ const MulSumSolver = ({ sol, onResolved }) => {
       )}
       {solved && (
         <div className="frame-success fade-up">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "Endi to'g'ri" : 'Теперь верно'}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "Endi to'g'ri" : 'Теперь верно'}</p>
           <p className="body" style={{ margin: 0 }}>{UI.retryOk[lang]}</p>
         </div>
       )}
@@ -1429,7 +1429,7 @@ const MulQuestionRetry = ({ idx, screen, totalScreens, storedAnswer, onAnswer, o
               const isC = i === correctIdx;
               return (
                 <span key={i} className="small" style={{ padding: '6px 12px', borderRadius: 8, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6, background: isC ? T.successSoft : T.accentSoft, color: isC ? T.success : T.accent }}>
-                  <span className="mono">{String.fromCharCode(65 + i)}</span>
+                  <span className="mono">{isC ? '✓' : '✗'}</span>
                   <span>{t(opt)}</span>
                 </span>
               );
@@ -1438,8 +1438,8 @@ const MulQuestionRetry = ({ idx, screen, totalScreens, storedAnswer, onAnswer, o
         )}
         {firstDone && isCorrect && (
           <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <p className="small mono" style={{ margin: 0, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              {lang === 'uz' ? "To'g'ri" : 'Верно'}
+            <p className="small mono" style={{ margin: 0, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}
             </p>
             <p className="body" style={{ margin: 0 }}>{t(c.correct_text)}</p>
             {sol && <AnimatedMulSolution sol={sol} onDone={() => setNavReady(true)}/>}
@@ -1448,8 +1448,8 @@ const MulQuestionRetry = ({ idx, screen, totalScreens, storedAnswer, onAnswer, o
         {firstDone && !isCorrect && (
           <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div className="frame-tip" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <p className="small mono" style={{ margin: 0, fontWeight: 600, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                {lang === 'uz' ? "Noto'g'ri" : 'Не совсем'}
+              <p className="small mono" style={{ margin: 0, fontWeight: 600, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span aria-hidden="true">✗</span>{lang === 'uz' ? "Noto'g'ri" : 'Не совсем'}
               </p>
               <p className="body" style={{ margin: 0 }}>{t(c[`wrong_${picked}`] || c.wrong_default)}</p>
             </div>
@@ -1764,9 +1764,9 @@ const CONTENT = {
     why_heading: { ru: 'Почему так', uz: 'Nega bunday' },
     why_1: { ru: 'Сдвиг — это разряд: строка «×10» в десять раз больше, поэтому стоит на разряд левее.', uz: "Surish — bu xona: '×10' qatori o'n barobar katta, shuning uchun bir xona chaproqda turadi." },
     why_2: { ru: 'Сложить строки без сдвига нельзя — это и была ошибка Бекзода.', uz: "Qatorlarni surishsiz qo'shib bo'lmaydi — Bekzodning xatosi shu edi." },
-    teaser: { ru: 'Дальше — деление столбиком: разберём, как разложить число на равные части.', uz: "Keyingi — ustun shaklida bo'lish: sonni teng qismlarga qanday ajratishni ko'rib chiqamiz." },
+    teaser: { ru: 'Дальше — деление уголком: разберём, как разложить число на равные части.', uz: "Keyingi — burchak usulida bo'lish: sonni teng qismlarga qanday ajratishni ko'rib chiqamiz." },
     ref: { ru: 'Это продолжение линии многозначных чисел (nat_5_01 — nat_5_03).', uz: "Bu ko'p xonali sonlar chizig'ining davomi (nat_5_01 — nat_5_03)." },
-    audio: { ru: 'Подведём итог. Бекзод получил шестьсот тридцать девять, потому что сложил строки без сдвига и потерял разряды. На самом деле двести тринадцать на двенадцать дают две тысячи пятьсот пятьдесят шесть. Главное: умножаем на каждую цифру отдельно, пишем строки со сдвигом по разряду, ноль держит разряд, а в конце складываем. Дальше нас ждёт деление столбиком.', uz: "Yakunlaymiz. Bekzod olti yuz o'ttiz to'qqiz oldi, chunki qatorlarni surishsiz qo'shib xonalarni yo'qotdi. Aslida ikki yuz o'n uch karra o'n ikki ikki ming besh yuz ellik olti beradi. Asosiysi: har bir raqamga alohida ko'paytiramiz, qatorlarni xonaga qarab surib yozamiz, nol xonani saqlaydi, oxirida qo'shamiz. Keyingi safar ustun shaklida bo'lish kutadi." }
+    audio: { ru: 'Подведём итог. Бекзод получил шестьсот тридцать девять, потому что сложил строки без сдвига и потерял разряды. На самом деле двести тринадцать на двенадцать дают две тысячи пятьсот пятьдесят шесть. Главное: умножаем на каждую цифру отдельно, пишем строки со сдвигом по разряду, ноль держит разряд, а в конце складываем. Дальше нас ждёт деление уголком.', uz: "Yakunlaymiz. Bekzod olti yuz o'ttiz to'qqiz oldi, chunki qatorlarni surishsiz qo'shib xonalarni yo'qotdi. Aslida ikki yuz o'n uch karra o'n ikki ikki ming besh yuz ellik olti beradi. Asosiysi: har bir raqamga alohida ko'paytiramiz, qatorlarni xonaga qarab surib yozamiz, nol xonani saqlaydi, oxirida qo'shamiz. Keyingi safar burchak usulida bo'lish kutadi." }
   }
 };
 
@@ -2341,7 +2341,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -2519,7 +2519,7 @@ html, body { margin: 0; padding: 0; }
 .mb-chip { background: #FFFFFF; border-radius: 10px; padding: 6px 10px; font-size: clamp(13px, 1.7vw, 15px); box-shadow: 0 4px 12px -6px rgba(58, 53, 48, 0.16); white-space: nowrap; }
 .mb-carry { font-size: 0.6em; margin-left: 1px; font-weight: 700; }
 
-.hint-toggle { background: transparent; border: 1px dashed rgba(58, 53, 48, 0.28); border-radius: 10px; padding: 8px 14px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #B25A1E; cursor: pointer; transition: all 0.15s; }
+.hint-toggle { background: transparent; border: 1px dashed rgba(58, 53, 48, 0.28); border-radius: 10px; padding: 8px 14px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #A07D14; cursor: pointer; transition: all 0.15s; }
 .hint-toggle:hover { border-color: rgba(178, 90, 30, 0.6); }
 .sol-replay { background: #FFFFFF; border: 1px solid rgba(58, 53, 48, 0.14); border-radius: 99px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #5A5A60; cursor: pointer; transition: color 0.15s; }
 .sol-replay:hover { color: #0E0E10; }

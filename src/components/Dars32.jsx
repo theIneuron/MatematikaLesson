@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -779,7 +779,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -851,6 +851,7 @@ const CONTENT = {
   // ---- s0 HOOK — Nilufar (−3) va Asror (−5) sho'ng'ishyapti. Tuzoq M1: "5 > 3 demak balandroq". ----
   s0: {
     eyebrow: { ru: 'Вопрос', uz: 'Savol' },
+    title: { ru: 'Кто выше под водой', uz: "Suv ostida kim balandroq" },
     lead: {
       ru: 'Нилуфар и Асрор ныряют в море. Нилуфар на 3 метра ниже уровня моря, Асрор — на 5 метров ниже. Асрор говорит: «Я выше, ведь 5 больше 3». Он прав?',
       uz: "Nilufar va Asror dengizda sho'ng'ishyapti. Nilufar dengiz sathidan 3 metr pastda, Asror esa 5 metr pastda. Asror «men balandroqman, chunki 5 dan 3 katta» deydi. U haqmi?"
@@ -871,6 +872,7 @@ const CONTENT = {
   // ---- s1 WARM-UP — son o'qida o'ngdagi katta (prereq retrieval). correct "7" (B). ----
   s1: {
     eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
+    title: { ru: 'Кто стоит правее', uz: "Kim o'ngroqda turadi" },
     question: {
       ru: 'Помнишь числовую прямую? Число 7 стоит правее, чем 2. Какое из них больше?',
       uz: "Son o'qini eslaysizmi? 7 soni 2 dan o'ngroqda turadi. Qaysi biri katta?"
@@ -909,6 +911,7 @@ const CONTENT = {
   // ---- s2 EXPLORATION — SeaScale: sath 0, marker pastga tushadi −1, −2, −3 (step). M2. ----
   s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Спускаемся ниже нуля', uz: "Noldan pastga tushamiz" },
     lead: {
       ru: 'Уровень моря — это ноль. Нажимай и смотри, как ныряльщик опускается ниже нуля.',
       uz: "Dengiz sathi — bu nol. Tugmani bosing va g'avvos noldan pastga qanday tushishini kuzating."
@@ -945,6 +948,7 @@ const CONTENT = {
   // ---- s3 EXPLORATION — CoordLine slayder: 0 markaz, chap manfiy, o'ng musbat; qarama-qarshi son. ----
   s3: {
     eyebrow: { ru: 'Эксперимент', uz: 'Tajriba' },
+    title: { ru: 'Слева минус, справа плюс', uz: "Chapda minus, o'ngda plyus" },
     lead: {
       ru: 'Повернём прямую горизонтально. Ноль в центре. Двигай ползунок — смотри, где число.',
       uz: "O'qni gorizontal qilamiz. Nol — markazda. Slayderni suring — son qayerda ekanini kuzating."
@@ -972,6 +976,7 @@ const CONTENT = {
   // ---- s4 RULE 1 — CoordLine: 0 dan o'ng musbat / chap manfiy; o'ngga — katta. ----
   s4: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
+    title: { ru: 'Правило про знаки', uz: "Belgilar haqida qoida" },
     lead: { ru: 'Запишем правило, которое ты открыл.', uz: "Siz kashf etgan qoidani yozamiz." },
     rule_main: {
       ru: 'Справа от нуля — плюс, слева — минус',
@@ -994,6 +999,7 @@ const CONTENT = {
   // ---- s5 RULE 2 — tuzoq-ogohlantirish: −5, −3 dan KICHIK (chapda). M1. CoordLine highlight. ----
   s5: {
     eyebrow: { ru: 'Внимание', uz: 'Diqqat' },
+    title: { ru: 'У минусов всё наоборот', uz: "Minuslarda hammasi teskari" },
     lead: { ru: 'Важно: у минусов всё наоборот.', uz: "Muhim: minuslarda hammasi teskari." },
     point1: {
       ru: 'У обычных чисел: 5 больше 3. У минусов −5 меньше −3.',
@@ -1016,6 +1022,7 @@ const CONTENT = {
   // ---- s6 TEST NumInput — CoordLine marker −4 ni o'qish. correctValue −4. ----
   s6: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'Прочитай число на прямой', uz: "O'qdagi sonni o'qing" },
     question: {
       ru: 'Какое число отмечено на прямой? Если оно отрицательное, напиши со знаком минус.',
       uz: "O'qda qaysi son belgilangan? Agar manfiy bo'lsa, minus belgisi bilan yozing."
@@ -1043,6 +1050,7 @@ const CONTENT = {
   // ---- s7 TEST MC — taqqoslash −5 va −3, qaysi katta. correct −3 (A). M1. Fakt Tarix. ----
   s7: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'Какое число больше', uz: "Qaysi son katta" },
     lead: {
       ru: 'Какое число больше: −5 или −3? Вспомни, где они на прямой.',
       uz: "Qaysi son katta: −5 yoki −3? Ular o'qda qayerda turishini eslang."
@@ -1079,7 +1087,7 @@ const CONTENT = {
       },
       on_correct: {
         ru: 'Верно. Минус три больше. Отрицательные числа первыми стали использовать в древних Китае и Индии.',
-        uz: "To'g'ri. Minus uch katta. Manfiy sonlarni qadimda Xitoy va Hindiston olimları birinchi qo'llagan."
+        uz: "To'g'ri. Minus uch katta. Manfiy sonlarni qadimda Xitoy va Hindiston olimlari birinchi qo'llagan."
       },
       on_wrong: { ru: 'Не совсем. Кто правее на прямой, тот больше.', uz: "Unchalik emas. O'qda kim o'ngroqda, o'sha katta." }
     }
@@ -1088,6 +1096,7 @@ const CONTENT = {
   // ---- s8 TEST son o'qiga bosib qo'yish — markerni −2 ga. correct −2. ----
   s8: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'Отметь число на прямой', uz: "O'qda sonni belgilang" },
     lead: {
       ru: 'Поставь отметку на число −2. Нажми на нужное деление прямой.',
       uz: "Markerni −2 soniga qo'ying. O'qdagi kerakli bo'linmani bosing."
@@ -1115,6 +1124,7 @@ const CONTENT = {
   // ---- s9 TEST tartiblash — haroratlarni sovuqdan issiqgacha. correct −7, −2, 0, 3. Fakt Fan. ----
   s9: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'От холода к теплу', uz: "Sovuqdan issiqqa" },
     lead: {
       ru: 'Расставь температуры от самой холодной к самой тёплой. Нажимай по порядку.',
       uz: "Haroratlarni eng sovuqdan eng issiqga qarab joylashtiring. Tartib bilan bosing."
@@ -1149,6 +1159,7 @@ const CONTENT = {
   // ---- s10 TEST tasniflash — sonlarni musbat/manfiy/nol savatlariga. Fakt IT. ----
   s10: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'Разложи по корзинам', uz: "Savatlarga ajrating" },
     lead: {
       ru: 'Разложи числа по корзинам: положительное, отрицательное или ноль.',
       uz: "Sonlarni savatlarga ajrating: musbat, manfiy yoki nol."
@@ -1188,6 +1199,7 @@ const CONTENT = {
   // ---- s11 CASE setup — Zarina (−4) va Komil (−2) suv ostida. SeaScale. ----
   s11: {
     eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
+    title: { ru: 'Кто из них глубже', uz: "Qaysi biri chuqurroqda" },
     lead: {
       ru: 'Зарина и Комил исследуют море. Зарина на отметке −4 метра, Комил — на −2 метра. Кто из них глубже?',
       uz: "Zarina va Komil dengizni o'rganmoqda. Zarina −4 metr belgisida, Komil esa −2 metrda. Qaysi biri chuqurroqda?"
@@ -1210,6 +1222,7 @@ const CONTENT = {
   // ---- s12 CASE/FINAL MC — kim chuqurroqda. correct Zarina −4 (D). M1. Fakt Fan (O'lik dengiz). ----
   s12: {
     eyebrow: { ru: 'Итоговое задание', uz: 'Yakuniy topshiriq' },
+    title: { ru: 'Реши задачу про глубину', uz: "Chuqurlik masalasini yeching" },
     lead: {
       ru: 'Зарина на −4 метра, Комил на −2 метра. Кто глубже под водой?',
       uz: "Zarina −4 metrda, Komil −2 metrda. Kim suv ostida chuqurroqda?"
@@ -1255,6 +1268,7 @@ const CONTENT = {
   // ---- s13 SUMMARY — hookni yopadi + ConnectionsBlock ----
   s13: {
     eyebrow: { ru: 'Итог', uz: 'Xulosa' },
+    heading: { ru: 'Что мы узнали об отрицательных числах', uz: "Manfiy sonlar haqida nimani bildik" },
     title: { ru: 'Отлично! Теперь ты понимаешь отрицательные числа.', uz: "Ajoyib! Endi siz manfiy sonlarni tushunasiz." },
     main_label: { ru: 'Что мы узнали', uz: "Nimani bilib oldik" },
     main_1: { ru: 'Минус показывает: число ниже нуля, слева на прямой.', uz: "Minus shuni ko'rsatadi: son noldan past, o'qda chapda." },
@@ -1473,6 +1487,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{mt(t(c.lead))}</h2>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.6vw, 12px)', display: 'flex', justifyContent: 'center' }}>
           <SeaScale min={-6} max={3} markers={[{ v: -3, label: 'Nilufar' }, { v: -5, label: 'Asror' }]} dive unit={20}/>
@@ -1497,7 +1512,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1523,6 +1538,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
           <SeaScale min={-4} max={2} markers={[{ v: -step, label: fmtN(-step), ok: done }]} unit={20}/>
@@ -1548,6 +1564,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
           <CoordLine value={v} highlight={[-Math.abs(v), Math.abs(v)].filter(n => n !== 0)}/>
@@ -1575,6 +1592,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
@@ -1596,6 +1614,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <CoordLine value={-5} value2={-3} highlight={[-5, -3]} min={-6} max={4}/>
@@ -1623,7 +1642,7 @@ const Screen7 = (props) => {
   const t = useT(); const c = CONTENT.s7;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.lead))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2></>);
   return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimHistory/>}/>}/>;
 };
 
@@ -1658,6 +1677,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ margin: 0, fontWeight: 600, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
           <CoordLine min={-6} max={6} onPick={choose} picked={picked} success={solved}/>
@@ -1722,6 +1742,7 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ margin: 0, fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="od-grid fade-up delay-1">
           {S9_VALS.map((v, i) => {
@@ -1794,6 +1815,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="cl-list fade-up delay-1" style={{ position: 'relative' }}>
           {items.map((it, i) => {
@@ -1842,6 +1864,7 @@ const Screen11 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(8px, 1.8vw, 14px)' }}>
           <SeaScale min={-6} max={2} markers={[{ v: -2, label: 'Komil' }, { v: -4, label: 'Zarina' }]} unit={20}/>
@@ -1858,7 +1881,7 @@ const Screen12 = (props) => {
   const t = useT(); const c = CONTENT.s12;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [3, 1, 2, 0]);
-  const question = (<h2 className="title h-sub">{mt(t(c.lead))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2></>);
   return <QuestionScreen {...props} idx={12} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[12]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_SCI} anim={<AnimDeadSea/>}/>}/>;
 };
 
@@ -1874,6 +1897,7 @@ const Screen13 = ({ screen, onPrev, onReset, finishLesson }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
@@ -2156,7 +2180,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;

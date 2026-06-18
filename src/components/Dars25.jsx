@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -779,7 +779,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -844,6 +844,7 @@ const CONTENT = {
   // ---- s0 HOOK — batareya (Rustam). Tuzoq: foiz = absolyut miqdor (M2). ----
   s0: {
     eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
+    title: { ru: 'Загадка про заряд', uz: "Zaryad topishmog'i" },
     lead: {
       ru: 'У Рустама на телефоне заряд 50%. На повербанке тоже 50%. В обоих одинаковый запас энергии?',
       uz: "Rustam telefonida zaryad 50%. Power-bankda ham 50%. Ikkalasida energiya zaxirasi bir xilmi?"
@@ -868,6 +869,7 @@ const CONTENT = {
   // ---- s1 WARM-UP — Dars21 ni eslash (yuzdan ulush -> o'nli kasr). scored=false, correct A ----
   s1: {
     eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
+    title: { ru: 'Вспомним сотые', uz: "Yuzdan ulushni eslaymiz" },
     question: {
       ru: 'Из ста клеток закрашены 9. Какая это десятичная дробь?',
       uz: "Yuzta katakdan 9 tasi bo'yalgan. Bu qanday o'nli kasr?"
@@ -890,7 +892,7 @@ const CONTENT = {
     },
     wrong_2: {
       ru: 'Тысячных тут нет: клеток сто, а не тысяча. Значит, разряд — сотые.',
-      uz: "Bu yerda mingdan yo'q: katak yuzta, ming emas. Demak razryad — yuzdan."
+      uz: "Bu yerda mingdan yo'q: katak yuzta, ming emas. Demak xona — yuzdan."
     },
     audio: {
       intro: {
@@ -905,6 +907,7 @@ const CONTENT = {
   // ---- s2 EXPLORATION — 100-setka: 1 katak = 1% = 1/100 = 0,01. Step-gated ----
   s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Сотая доля целого', uz: "Butunning yuzdan biri" },
     lead: {
       ru: 'Возьмём целое и разделим на 100 равных клеток. Одна клетка — это сотая доля целого.',
       uz: "Butunni olamiz va 100 ta teng katakka bo'lamiz. Bitta katak — butunning yuzdan biri."
@@ -933,6 +936,7 @@ const CONTENT = {
   // ---- s3 EXPLORATION — jonli slayder, to'rt shakl morflanadi; 100% = butun ----
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Одно число — четыре записи', uz: "Bitta son — to'rt yozuv" },
     lead: {
       ru: 'Теперь подвигай ползунок. Сколько клеток закрашено — столько и процентов. Смотри, как меняются четыре записи одного числа.',
       uz: "Endi slayderni suring. Nechta katak bo'yalsa — shuncha foiz. Bitta sonning to'rt yozuvi qanday o'zgarishini kuzating."
@@ -954,6 +958,7 @@ const CONTENT = {
   // ---- s4 RULE 1 — N% = N/100, to'rt ko'rinish (oson 20%, qiyin 45%) ----
   s4: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
+    title: { ru: 'Процент — это сотая', uz: "Foiz — yuzdan ulush" },
     lead: {
       ru: 'Итак, процент — это сотая доля. Значит, любой процент легко записать дробью и десятичной дробью.',
       uz: "Demak, foiz — bu yuzdan ulush. Demak, har qanday foizni kasr va o'nli kasr bilan oson yozish mumkin."
@@ -974,6 +979,7 @@ const CONTENT = {
   // ---- s5 RULE 2 — M2 chuqur (100% = butun, nisbat) + M1 (foiz = kasr) ----
   s5: {
     eyebrow: { ru: 'Важно', uz: 'Muhim' },
+    title: { ru: '100% — это целое', uz: "100% — bu butun" },
     lead: {
       ru: 'Но будь внимателен: 100% — это не всегда одно и то же количество.',
       uz: "Lekin ehtiyot bo'ling: 100% — bu har doim bir xil miqdor emas."
@@ -999,6 +1005,7 @@ const CONTENT = {
   // ---- s6 TEST MC — 45% = 9/20 (qisqartirish). practice + FAKT etimologiya. correct B ----
   s6: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Процент в дробь', uz: "Foizni kasrga" },
     lead: {
       ru: 'Какой обыкновенной дроби равны 45%? Выбери сокращённую запись.',
       uz: "45% qaysi oddiy kasrga teng? Qisqartirilgan yozuvni tanlang."
@@ -1043,6 +1050,7 @@ const CONTENT = {
   // ---- s7 TEST fill-blank — 7/20 = box% -> 35. practice ----
   s7: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Дробь в процент', uz: "Kasrni foizga" },
     lead: {
       ru: 'Двигаемся в обратную сторону: от дроби к проценту. Заполни пропуск.',
       uz: "Teskari tomonga boramiz: kasrdan foizga. Bo'sh joyni to'ldiring."
@@ -1067,6 +1075,7 @@ const CONTENT = {
   // ---- s8 TEST classify — savatlar = 1/2 / != 1/2. practice (M1 sindirgich) ----
   s8: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Найди половину', uz: "Yarmini toping" },
     lead: {
       ru: 'Одно число прячется в разных одеждах. Разложи карточки: какие равны 1/2, а какие нет.',
       uz: "Bitta son har xil kiyimda yashirinadi. Kartalarni ajrating: qaysilari 1/2 ga teng, qaysilari yo'q."
@@ -1107,6 +1116,7 @@ const CONTENT = {
   // ---- s9 TEST NumInput — 130/200 = ?% -> 65. practice (3 xonali butun) ----
   s9: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Доля в процентах', uz: "Ulush foizda" },
     question: {
       ru: 'В зале 200 мест, заняты 130. Сколько это процентов?',
       uz: "Zalda 200 o'rindiq bor, 130 tasi band. Bu necha foiz?"
@@ -1131,6 +1141,7 @@ const CONTENT = {
   // ---- s10 TEST find-the-wrong — XATO tenglikni top. practice + FAKT batareya. correct C ----
   s10: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni top' },
+    title: { ru: 'Неверное равенство', uz: "Xato tenglik" },
     q_pre: { ru: 'Одно из равенств ', uz: 'Tengliklardan biri ' },
     q_em:  { ru: 'ОШИБОЧНО', uz: 'XATO' },
     q_post: { ru: '. Найди именно его.', uz: '. Aynan o\'shani toping.' },
@@ -1174,6 +1185,7 @@ const CONTENT = {
   // ---- s11 CASE setup — Nafisa, ikki sinf olimpiada bali (3 xonali) ----
   s11: {
     eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
+    title: { ru: 'Сравним два класса', uz: "Ikki sinfni solishtiramiz" },
     lead: {
       ru: 'Нафиса посмотрела результаты двух классов на олимпиаде. Баллы разные, и максимум у классов разный.',
       uz: "Nafisa ikki sinfning olimpiada natijasini ko'rdi. Ballar har xil, sinflarning maksimal bali ham har xil."
@@ -1198,6 +1210,7 @@ const CONTENT = {
   // ---- s12 CASE/FINAL MC — qaysi sinf natijasi yaxshiroq? -> 7-A (75%). final + FAKT. correct D ----
   s12: {
     eyebrow: { ru: 'Итог задачи', uz: 'Masala yakuni' },
+    title: { ru: 'Чей результат лучше', uz: "Kimning natijasi yaxshi" },
     lead: {
       ru: 'В каком классе результат лучше? 7-А: 180 из 240. 7-Б: 210 из 300.',
       uz: "Qaysi sinf natijasi yaxshiroq? 7-A: 240 dan 180. 7-B: 300 dan 210."
@@ -1242,6 +1255,7 @@ const CONTENT = {
   // ---- s13 SUMMARY — batareya hookini yopadi + ConnectionsBlock ----
   s13: {
     eyebrow: { ru: 'Итог', uz: 'Xulosa' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
     title: {
       ru: 'Вернёмся к загадке Рустама.',
       uz: "Rustam topishmog'iga qaytamiz."
@@ -1418,6 +1432,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{mt(t(c.lead))}</h2>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(14px, 2.6vw, 20px) clamp(10px, 2vw, 16px)', display: 'flex', justifyContent: 'center' }}>
           <BatteryHook/>
@@ -1442,7 +1457,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1469,6 +1484,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={done ? 'frame fade-up pg-pulse' : 'frame fade-up'} style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center', minHeight: 160 }}>
           <PercentGrid shaded={filled} alive={true} glow={done}/>
@@ -1494,6 +1510,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
           <PercentGrid shaded={n} live={true} glow={n === 100}/>
@@ -1515,6 +1532,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
@@ -1539,6 +1557,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="body" style={{ margin: 0 }}>{mt(t(c.point1))}</p>
@@ -1565,7 +1584,7 @@ const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [2, 0, 1, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><PercentGrid shaded={45}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><PercentGrid shaded={45}/></div></>);
   return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimPercent/>}/>}/>;
 };
 
@@ -1600,6 +1619,7 @@ const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 1.6vw, 12px)', flexWrap: 'wrap' }}>
           <Frac n="7" d="20" size="mid"/>
@@ -1677,6 +1697,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="cl-tray fade-up delay-1">{tray.length ? tray.map(cd => chip(cd)) : <span className="small" style={{ color: T.ink3 }}>{t(c.tap_hint)}</span>}</div>
         <div className="cl-bins fade-up delay-2">
@@ -1711,7 +1732,7 @@ const Screen10 = (props) => {
   const t = useT(); const c = CONTENT.s10;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 3, [0, 1, 3, 2]);
-  const question = (<h2 className="title h-sub">{t(c.q_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.q_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2></>);
   return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimBat/>}/>}/>;
 };
 
@@ -1729,6 +1750,7 @@ const Screen11 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="fade-up delay-1" style={{ display: 'flex', gap: 'clamp(12px, 2.6vw, 22px)', justifyContent: 'center', flexWrap: 'wrap' }}>
           {card(c.labelA, '180', '240')}
@@ -1749,7 +1771,7 @@ const Screen12 = (props) => {
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
   const question = (
-    <><h2 className="title h-sub">{mt(t(c.lead))}</h2>
+    <><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2>
     <div className="frame" style={{ marginTop: 10, display: 'flex', gap: 'clamp(12px, 2.6vw, 22px)', justifyContent: 'center', flexWrap: 'wrap' }}>
       <Frac n="180" d="240" size="mid"/>
       <Frac n="210" d="300" size="mid"/>
@@ -1770,6 +1792,7 @@ const Screen13 = ({ screen, onPrev, onReset, finishLesson }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
@@ -2048,7 +2071,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;

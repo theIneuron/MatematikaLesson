@@ -451,6 +451,23 @@ const Frac = React.memo(({ n, d, color, size = 'sm' }) => (
   </span>
 ));
 
+// mt: рендерит текст, заменяя «a/b» (и «?/b») настоящей дробью Frac — без слэша.
+const FRAC_RE = /(\d+|\?)\/(\d+)/g;
+const mt = (str) => {
+  const s = typeof str === 'string' ? str : String(str ?? '');
+  if (s.indexOf('/') === -1) return s;
+  const out = []; let last = 0; let m; let key = 0;
+  FRAC_RE.lastIndex = 0;
+  while ((m = FRAC_RE.exec(s)) !== null) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<Frac key={`mtf${key}`} n={m[1]} d={m[2]} size="sm"/>);
+    key += 1;
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(s.slice(last));
+  return out;
+};
+
 const AudioIndicator = ({ audioState }) => {
   const { isPlaying, muted, replay, toggleMute } = audioState;
   return (
@@ -555,7 +572,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -596,7 +613,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -681,7 +698,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
@@ -695,23 +712,24 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
-                  {String.fromCharCode(65 + i)}
+                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
             );
           })}
         </div>
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass={c[`hint_${picked}`] ? 'frame-tip' : undefined}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
-            {solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default)}
+            {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
           </p>
         </FeedbackBlock>
+        {solved && factOnCorrect}
       </div>
     </Stage>
   );
@@ -926,9 +944,10 @@ const CONTENT = {
     hint_2: { ru: 'Доли разного размера: пятые крупнее восьмых. Не равны.', uz: "Ulushlar har xil o'lchamda: beshdan ulushlar sakkizdan ulushlardan yirik. Teng emas." },
     hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
     wrong_default: { ru: 'Числитель один (3), знаменатель меньше у 3/5 — значит 3/5 больше.', uz: "Surat bir xil (3), maxraj 3/5 da kichik — demak 3/5 katta." },
+    fact: { ru: 'Одну лепёшку можно разделить на двоих — каждому половина. А если за столом восемь человек, каждому достаётся лишь восьмая. Чем больше людей, тем мельче кусок.', uz: "Bitta lepyoshkani ikki kishiga bo'lish mumkin — har biriga yarim. Dasturxonda sakkiz kishi bo'lsa, har biriga atigi sakkizdan bir tegadi. Odam qancha ko'p bo'lsa, bo'lak shuncha mayda." },
     audio: {
       intro: { ru: 'Сравни три пятых и три восьмых. Выбери, что верно.', uz: "Beshdan uch va sakkizdan uchni solishtiring. Nima to'g'ri ekanini tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель меньше у трёх пятых — они больше.', uz: "To'g'ri. Maxraj beshdan uchda kichik — ular katta." },
+      on_correct: { ru: 'Верно. Знаменатель меньше у трёх пятых — они больше. Кстати, так же делят и лепёшку: чем больше людей за столом, тем мельче каждому кусок.', uz: "To'g'ri. Maxraj beshdan uchda kichik — ular katta. Aytgancha, lepyoshkani ham shunday bo'lishadi: dasturxonda odam qancha ko'p bo'lsa, har biriga bo'lak shuncha mayda." },
       on_wrong: { ru: 'Пока нет. Числитель один, больше та дробь, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan kasr katta." }
     }
   },
@@ -982,9 +1001,10 @@ const CONTENT = {
     hint_2: { ru: 'Доли разные: 1/4 крупнее 1/6. Не поровну.', uz: "Ulushlar har xil: 1/4 1/6 dan yirik. Teng emas." },
     hint_3: { ru: 'Хранилище одинаковое, числитель один — сравнить можно по знаменателям.', uz: "Xotira bir xil, surat bir — maxrajlar bo'yicha solishtirsa bo'ladi." },
     wrong_default: { ru: 'Учеников меньше у группы Диёры — каждому больше. 1/4 > 1/6.', uz: "Diyora guruhida o'quvchi kam — har biriga ko'proq. 1/4 > 1/6." },
+    fact: { ru: 'Разрежь яблоко на 2 части — получишь крупные половинки. А раздели то же яблоко на 8 — кусочки выйдут совсем маленькими. Яблоко одно, числитель один, а чем больше знаменатель, тем мельче доля.', uz: "Olmani 2 bo'lakka kessang — yirik yarimliklar chiqadi. Xuddi shu olmani 8 ga bo'lsang — bo'laklar juda mayda bo'ladi. Olma bitta, surat bir xil, maxraj qancha katta bo'lsa, ulush shuncha mayda." },
     audio: {
       intro: { ru: 'В группе Диёры каждому достаётся одна четвёртая, в другой группе одна шестая. У кого на ученика больше места? Выбери верное.', uz: "Diyora guruhida har biriga to'rtdan bir, boshqa guruhda oltidan bir tegadi. O'quvchiga qaysisida ko'proq joy? To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Учеников меньше — каждому больше. Одна четвёртая больше одной шестой.', uz: "To'g'ri. O'quvchi kam — har biriga ko'proq. To'rtdan bir katta oltidan birdan." },
+      on_correct: { ru: 'Верно. Учеников меньше — каждому больше. Одна четвёртая больше одной шестой. Так и с яблоком: разрежешь на два — куски крупные, на восемь — совсем мелкие.', uz: "To'g'ri. O'quvchi kam — har biriga ko'proq. To'rtdan bir katta oltidan birdan. Olma ham shunday: ikkiga kessang bo'laklar yirik, sakkizga bo'lsang juda mayda." },
       on_wrong: { ru: 'Пока нет. Числитель один, больше та доля, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan ulush katta." }
     }
   },
@@ -1024,9 +1044,10 @@ const CONTENT = {
     hint_2: { ru: 'Доли разные: пятые крупнее седьмых. Не равны.', uz: "Ulushlar har xil: beshdan ulushlar yettidan ulushlardan yirik. Teng emas." },
     hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
     wrong_default: { ru: 'Числитель один (2), знаменатель меньше у 2/5 — значит 2/5 больше.', uz: "Surat bir xil (2), maxraj 2/5 da kichik — demak 2/5 katta." },
+    fact: { ru: 'Картинку на экране делят на пиксели. Чем на больше пикселей разбит один и тот же экран, тем мельче каждый пиксель — и тем чётче картинка. Знаменатель растёт, а доля каждого пикселя падает.', uz: "Ekrandagi rasm piksellarga bo'linadi. Bitta ekran qancha ko'p pikselga bo'linsa, har piksel shuncha mayda — va rasm shuncha aniq. Maxraj o'sadi, har pikselning ulushi esa kichrayadi." },
     audio: {
       intro: { ru: 'Последнее задание. Сравни две пятых и две седьмых. Выбери верное.', uz: "Oxirgi topshiriq. Beshdan ikki va yettidan ikkini solishtiring. To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель меньше у двух пятых — они больше.', uz: "To'g'ri. Maxraj beshdan ikkida kichik — ular katta." },
+      on_correct: { ru: 'Верно. Знаменатель меньше у двух пятых — они больше. Так и с экраном: чем на больше пикселей он разбит, тем мельче каждый пиксель.', uz: "To'g'ri. Maxraj beshdan ikkida kichik — ular katta. Ekran ham shunday: qancha ko'p pikselga bo'linsa, har piksel shuncha mayda." },
       on_wrong: { ru: 'Пока нет. Числитель один, больше та дробь, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan kasr katta." }
     }
   },
@@ -1050,6 +1071,50 @@ const CONTENT = {
     audio: { ru: 'Отлично! Теперь тебя не обманет большой знаменатель. Если у дробей одинаковый числитель, больше та, у которой знаменатель меньше: доля крупнее. Большое число снизу не делает дробь больше — оно лишь делит целое на больше мелких частей. Помни: одинаковый числитель — смотри на знаменатель, одинаковый знаменатель — на числитель. У Эльдора три устройства, у Темура пять. Интернет один, а у Темура устройств больше, значит каждому достаётся меньше. Одна третья больше одной пятой. Темур попал в ловушку.', uz: "Zo'r! Endi katta maxraj sizni alday olmaydi. Agar kasrlarning surati bir xil bo'lsa, maxraji kichik bo'lgani katta: ulush yirikroq. Pastdagi katta son kasrni katta qilmaydi — u faqat butunni ko'proq mayda bo'lakka bo'ladi. Esda tuting: surat bir xil — maxrajga qarang, maxraj bir xil — suratga qarang. Eldorda uchta qurilma, Temurda beshta. Internet bir xil, Temurda esa qurilma ko'p, demak har biriga kamroq tegadi. Uchdan bir katta beshdan birdan. Temur tuzoqqa tushgan ekan." }
   }
 };
+
+// ============================================================
+// FACTCARD — fakt to'g'ri javobdan keyin (FB_* badge + Anim*). Namuna: Dars06.
+// ============================================================
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+
+const FactCard = ({ text, anim, badge }) => {
+  const t = useT();
+  return (
+    <div className="fact-card fade-up">
+      <div className="fact-anim">{anim}</div>
+      <div className="fact-body">
+        <p className="fact-badge"><span className="fact-dot"/>{t(badge)}</p>
+        <p className="fact-text">{mt(t(text))}</p>
+      </div>
+    </div>
+  );
+};
+// Tarix (lepyoshkani ulashish): bir xil non ko'proq kishiga bo'linadi — bo'laklar mayda-mayda.
+const AnimShare = () => (
+  <div className="fa-share" aria-hidden="true">
+    <span className="fa-share-d fa-share-1"/>
+    <span className="fa-share-d fa-share-2"/>
+    <span className="fa-share-d fa-share-3"/>
+  </div>
+);
+// Fan (olmani bo'lish): bitta doira 2 → 4 → 8 bo'lakka maydalanadi.
+const AnimApple = () => (
+  <div className="fa-apple" aria-hidden="true">
+    {Array.from({ length: 8 }).map((_, i) => (
+      <span key={i} className="fa-apple-s" style={{ transform: `rotate(${i * 45}deg)`, animationDelay: `${i * 0.12}s` }}/>
+    ))}
+  </div>
+);
+// IT (piksel): bir xil ekran ko'proq pikselga bo'linadi — kataklar maydalashadi.
+const AnimPixel = () => (
+  <div className="fa-px" aria-hidden="true">
+    {Array.from({ length: 16 }).map((_, i) => (
+      <span key={i} className="fa-px-c" style={{ animationDelay: `${(i % 4 + Math.floor(i / 4)) * 0.12}s` }}/>
+    ))}
+  </div>
+);
 
 // ============================================================
 // УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «одинаковый числитель»)
@@ -1158,7 +1223,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   const [step, setStep] = useState(0);
   const endRef = useRef(null);
   const handleStep = () => {
-    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 120); }
+    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
   };
   const allRows = [{ num: 1, den: 2 }, { num: 1, den: 3 }, { num: 1, den: 4 }];
@@ -1315,7 +1380,7 @@ const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
   const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 3, 0]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FractionWall rows={[{ num: 3, den: 5 }, { num: 3, den: 8 }]} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimShare/>}/>}/>;
 };
 
 // s7 — TEST choice (текст): 1/8 > 1/5? Нет.
@@ -1354,7 +1419,7 @@ const Screen9 = (props) => {
   const t = useT(); const c = CONTENT.s9;
   const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 0, 3]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FractionWall rows={[{ num: 1, den: 4 }, { num: 1, den: 6 }]} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_SCI} anim={<AnimApple/>}/>}/>;
 };
 
 // s10 — CASE conclusion (текст): почему 1/4 > 1/6.
@@ -1370,7 +1435,7 @@ const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
   const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [3, 1, 2, 0]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FractionWall rows={[{ num: 2, den: 5 }, { num: 2, den: 7 }]} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimPixel/>}/>}/>;
 };
 
 // s12 — SUMMARY: без счёта, закрывает крючок; finishLesson один раз.
@@ -1714,7 +1779,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -1873,4 +1938,32 @@ html, body { margin: 0; padding: 0; }
 .flip-inner.flipped { transform: rotateY(180deg); }
 .flip-face { position: absolute; inset: 0; display: flex; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .flip-back { transform: rotateY(180deg); }
+
+/* MATH: FactCard — fakt to'g'ri javobdan keyin (ko'k tema). */
+.fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
+.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.fact-body { flex: 1; }
+.fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
+.fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
+.fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
+/* Tarix (lepyoshkani ulashish): bir xil non ko'proq kishiga — bo'laklar maydalashadi. */
+.fa-share { display: flex; flex-direction: column; gap: 6px; width: clamp(84px, 16vw, 112px); }
+.fa-share-d { height: 12px; border-radius: 99px; background: #019ACB; opacity: 0.25; animation: faShare 2.6s ease-in-out infinite; }
+.fa-share-1 { width: 100%; animation-delay: 0s; }
+.fa-share-2 { width: 60%; animation-delay: 0.3s; }
+.fa-share-3 { width: 30%; animation-delay: 0.6s; }
+@keyframes faShare { 0%, 100% { opacity: 0.2; } 45% { opacity: 0.95; } }
+/* Fan (olmani bo'lish): doira 8 ulushga maydalanadi. */
+.fa-apple { position: relative; width: clamp(58px, 12vw, 78px); height: clamp(58px, 12vw, 78px); border-radius: 50%; border: 2px solid #019ACB; }
+.fa-apple-s { position: absolute; left: 50%; top: 50%; width: 1.5px; height: 50%; margin-left: -0.75px; transform-origin: top center; background: #019ACB; opacity: 0.2; animation: faApple 2.8s ease-in-out infinite; }
+@keyframes faApple { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.85; } }
+/* IT (piksel): bir xil ekran ko'proq pikselga bo'linadi. */
+.fa-px { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; width: clamp(58px, 12vw, 78px); }
+.fa-px-c { aspect-ratio: 1; background: #019ACB; opacity: 0.18; border-radius: 2px; animation: faPx 2.4s ease-in-out infinite; }
+@keyframes faPx { 0%, 100% { opacity: 0.18; } 50% { opacity: 0.9; } }
+
+/* Accessibility: prefers-reduced-motion — gasim dekorativ sikllarni. */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 `;

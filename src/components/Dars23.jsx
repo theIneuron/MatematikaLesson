@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -843,6 +843,7 @@ const CONTENT = {
   // ── s0 HOOK (анимация HookCommaSnap) ─────────────────────────────
   s0: {
     eyebrow: { ru: 'Загадка', uz: "Topishmoq" },
+    title: { ru: 'Странный итог пробежки', uz: "Yugurishning g'alati natijasi" },
     lead: { ru: 'Жахонгир пробежал 2 км утром и ещё 0,5 км вечером. Он сложил столбиком, выровняв по правому краю, и получил 0,7 км.', uz: "Jahongir ertalab 2 km, kechqurun yana 0,5 km yugurdi. U ustunda o'ng chetdan tekislab qo'shdi va 0,7 km chiqardi." },
     objection: { ru: 'Но 0,7 меньше, чем 2. Как итог может быть меньше начала?', uz: "Lekin 0,7 — 2 dan kichik. Natija boshlanishdan qanday kam bo'ladi?" },
     question: { ru: 'Жахонгир прав?', uz: "Jahongir haqmi?" },
@@ -855,6 +856,7 @@ const CONTENT = {
   // ── s1 WARM-UP — spaced retrieval (прошлый урок: сравнение десятичных) ──
   s1: {
     eyebrow: { ru: 'Вспомним', uz: "Eslaymiz" },
+    title: { ru: 'Какое число больше', uz: "Qaysi son katta" },
     question: { ru: 'Помнишь прошлый урок? Какое число больше: 0,5 или 0,45?', uz: "O'tgan dars yodingizdami? Qaysi son katta: 0,5 yoki 0,45?" },
     opt0: { ru: '0,5', uz: "0,5" },
     opt1: { ru: '0,45', uz: "0,45" },
@@ -874,6 +876,7 @@ const CONTENT = {
   // ── s2 EXPLORATION: сложение, линия запятой + дописывание нуля ─────
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Складываем по запятой', uz: "Vergul bo'yicha qo'shamiz" },
     lead: { ru: 'Раз сравнивать умеем — вернёмся к загадке. Сложим 2 и 0,5 правильно.', uz: "Solishtirishni bilamiz — endi topishmoqqa qaytamiz. 2 va 0,5 ni to'g'ri qo'shamiz." },
     step_labels: {
       ru: ['Запятую ставим под запятой. Но у числа 2 нет десятых.', 'Поэтому дописываем ноль: 2 это 2,0. Теперь разряды на месте.', 'Складываем по разрядам: десятые 0 и 5 это 5, целые 2 и 0 это 2. Запятая опускается вниз. Итого 2,5.'],
@@ -898,6 +901,7 @@ const CONTENT = {
   // ── s3 EXPLORATION: вычитание, дописывание нуля + займ ─────────────
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Вычитаем с займом', uz: "Qarz bilan ayiramiz" },
     lead: { ru: 'Это было сложение. Теперь вычитание: 5,2 минус 1,75.', uz: "Bu qo'shish edi. Endi ayirish: 5,2 minus 1,75." },
     step_labels: {
       ru: ['У 5,2 только десятые, а у 1,75 есть сотые. Разряды не совпадают.', 'Допишем ноль: 5,2 это 5,20. Теперь запятые и разряды на месте.', 'Вычитаем по разрядам справа. Из 0 сотых нельзя забрать 5 — занимаем у десятых. Дальше десятые и целые. Итого 3,45.'],
@@ -922,6 +926,7 @@ const CONTENT = {
   // ── s4 RULE 1 ─────────────────────────────────────────────────────
   s4: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Правило сложения и вычитания', uz: "Qo'shish va ayirish qoidasi" },
     rule_main: { ru: 'Соберём в правило. Чтобы складывать и вычитать десятичные дроби: запятую ставим под запятой, в пустые разряды дописываем ноль, считаем по разрядам как обычные числа, а в ответе запятая опускается на ту же линию.', uz: "Qoidaga yig'amiz. O'nli kasrlarni qo'shish va ayirish uchun: vergulni vergul ostiga qo'yamiz, bo'sh xonalarga nol qo'shamiz, oddiy sonlardek xonalab hisoblaymiz, javobda vergul shu chiziqqa tushadi." },
     rule_note: { ru: 'Почему так? Складывать можно только одинаковые разряды: десятые с десятыми, сотые с сотыми. Запятая под запятой это и гарантирует.', uz: "Nega shunday? Faqat bir xil xonalarni qo'shish mumkin: o'ndanni o'ndanga, yuzdanni yuzdanga. Vergul vergul ostida shuni kafolatlaydi." },
     audio: { ru: 'Соберём увиденное в правило. Запятую ставим под запятой, в пустые разряды дописываем ноль, считаем по разрядам как обычные числа, а запятая в ответе опускается на ту же линию. Так складываются только одинаковые разряды.', uz: "Ko'rganlarimizni qoidaga yig'amiz. Vergulni vergul ostiga qo'yamiz, bo'sh xonalarga nol qo'shamiz, oddiy sonlardek xonalab hisoblaymiz, javobda vergul shu chiziqqa tushadi. Shunda faqat bir xil xonalar qo'shiladi." }
@@ -930,6 +935,7 @@ const CONTENT = {
   // ── s5 RULE 2 — две осторожности (M1 + M2) ────────────────────────
   s5: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Две осторожности', uz: "Ikkita ehtiyotkorlik" },
     rule_main: { ru: 'Сложение и вычитание знаем. Теперь две осторожности.', uz: "Qo'shish va ayirishni bildik. Endi ikkita ehtiyotkorlik." },
     warn1_label: { ru: 'Осторожно: выравнивание', uz: "Ehtiyot bo'ling: tekislash" },
     warn1: { ru: 'Не выравнивай по правому краю, как обычные числа. Выравнивай по запятой — иначе сложатся разные разряды.', uz: "Oddiy sonlardek o'ng chetdan tekislamang. Vergul bo'yicha tekislang — aks holda har xil xonalar qo'shilib qoladi." },
@@ -941,6 +947,7 @@ const CONTENT = {
   // ── s6 TEST MC: сложение (correct A) ──────────────────────────────
   s6: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Сложи сам', uz: "O'zingiz qo'shing" },
     question: { ru: 'Теперь сам. Сколько будет 2,5 + 1,25?', uz: "Endi o'zingiz. 2,5 + 1,25 nechaga teng?" },
     opt0: { ru: '3,75', uz: "3,75" },
     opt1: { ru: '0,75', uz: "0,75" },
@@ -960,6 +967,7 @@ const CONTENT = {
   // ── s7 TEST ColumnFill: заполни ответ по разрядам (3,6 + 2,75 = 6,35) ──
   s7: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Заполни ответ по разрядам', uz: "Javobni xonalab to'ldiring" },
     lead: { ru: 'Продолжаем. Заполни ответ по разрядам: целые, десятые, сотые.', uz: "Davom etamiz. Javobni xonalab to'ldiring: butun, o'ndan, yuzdan." },
     question: { ru: '3,6 + 2,75 = ?', uz: "3,6 + 2,75 = ?" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -975,6 +983,7 @@ const CONTENT = {
   // ── s8 TEST DecInput: вычитание с дописыванием и займом (7,5 − 2,35 = 5,15) ──
   s8: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Теперь вычитание', uz: "Endi ayirish" },
     lead: { ru: 'Хорошо. Теперь вычитание. Заполни ответ по разрядам: целые, десятые, сотые.', uz: "Yaxshi. Endi ayirish. Javobni xonalab to'ldiring: butun, o'ndan, yuzdan." },
     question: { ru: '7,5 − 2,35 = ?', uz: "7,5 − 2,35 = ?" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -990,6 +999,7 @@ const CONTENT = {
   // ── s9 TEST find-the-wrong (correct C) + Факт «запятая или точка» ──
   s9: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Найди ошибку', uz: "Xatoni toping" },
     question_pre: { ru: 'Найди ошибку. Какое утверждение про 4,2 + 1,35', uz: "Xatoni toping. 4,2 + 1,35 haqidagi qaysi tasdiq" },
     question_em: { ru: 'неверное', uz: "noto'g'ri" },
     question_post: { ru: '?', uz: "?" },
@@ -1015,6 +1025,7 @@ const CONTENT = {
   // ── s10 TEST ordering + Факт аль-Каши ─────────────────────────────
   s10: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Расставь по возрастанию', uz: "O'sish tartibida joylang" },
     instruction: { ru: 'Расставь числа от меньшего к большему: нажимай по порядку.', uz: "Sonlarni kichikdan kattaga joylang: tartib bilan bosing." },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint: { ru: 'Допиши до равной длины: 0,25, 0,50, 0,30. Теперь видно, что меньше.', uz: "Teng uzunlikka to'ldiring: 0,25, 0,50, 0,30. Endi qaysi kichik ko'rinadi." },
@@ -1035,6 +1046,7 @@ const CONTENT = {
   // ── s11 CASE setup (Феруза, вычитание) ────────────────────────────
   s11: {
     eyebrow: { ru: 'Задача', uz: "Masala" },
+    title: { ru: 'Лента Ферузы', uz: "Feruzaning lentasi" },
     lead: { ru: 'Всё это нужно в жизни. У Ферузы было 10 метров ленты. На подарки она потратила 3,75 метра.', uz: "Bularning hammasi hayotda kerak. Feruzaning 10 metr lentasi bor edi. Sovg'alarga 3,75 metr ishlatdi." },
     question_setup: { ru: 'Сколько метров ленты осталось?', uz: "Necha metr lenta qoldi?" },
     btn_help: { ru: 'Помочь Ферузе', uz: "Feruzaga yordam berish" },
@@ -1044,6 +1056,7 @@ const CONTENT = {
   // ── s12 CASE solve / FINAL (correct D) + Факт термометр ────────────
   s12: {
     eyebrow: { ru: 'Финальная проверка', uz: "Yakuniy tekshiruv" },
+    title: { ru: 'Сколько ленты осталось', uz: "Necha lenta qoldi" },
     question: { ru: 'Помоги Ферузе: сколько ленты осталось — 10 − 3,75?', uz: "Feruzaga yordam bering: necha lenta qoldi — 10 − 3,75?" },
     opt0: { ru: '6,25', uz: "6,25" },
     opt1: { ru: '7,25', uz: "7,25" },
@@ -1067,6 +1080,7 @@ const CONTENT = {
   // ── s13 SUMMARY ───────────────────────────────────────────────────
   s13: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
+    heading: { ru: 'Десятичные сложены и вычтены', uz: "O'nli kasrlar qo'shildi va ayrildi" },
     title: { ru: 'Итак, теперь ты умеешь складывать и вычитать десятичные дроби.', uz: "Demak, endi siz o'nli kasrlarni qo'shish va ayirishni bilasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
     points: {
@@ -1222,6 +1236,7 @@ const ExplorationStep = ({ screen, onNext, onPrev, cKey, render }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center', minHeight: 160 }}>
           {render(step, done)}
@@ -1253,6 +1268,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.4vw, 18px) clamp(10px, 2vw, 16px)' }}>
           <HookCommaSnap/>
@@ -1278,7 +1294,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1305,6 +1321,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <p className="body" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
           <VergulUstun a="2" b="0,5" op="+" result="2,5" zeroFill={true} showResult={true} glow={true}/>
@@ -1324,6 +1341,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 1.9vw, 15px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.rule_main))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
           <VergulUstun a="2" b="0,5" op="+" result="2,5" zeroFill={true} showResult={true} glow={true}/>
@@ -1346,7 +1364,7 @@ const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><VergulUstun a="2,5" b="1,25" op="+"/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><VergulUstun a="2,5" b="1,25" op="+"/></div></>);
   return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1394,6 +1412,7 @@ const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}><VergulUstun a="3,6" b="2,75" op="+"/></div>
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px, 1.4vw, 10px)', flexWrap: 'wrap' }}>
@@ -1462,6 +1481,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}><VergulUstun a="7,5" b="2,35" op="−" zeroFill={true}/></div>
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px, 1.4vw, 10px)', flexWrap: 'wrap' }}>
@@ -1491,7 +1511,7 @@ const Screen9 = (props) => {
   const t = useT(); const c = CONTENT.s9;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 2, [0, 1, 2, 3]);
-  const question = (<h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2></>);
   return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimComma/>}/>}/>;
 };
 
@@ -1534,6 +1554,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.instruction))}</p>
         <div className="fade-up delay-1" style={{ display: 'flex', gap: 'clamp(8px, 1.6vw, 12px)', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
           {ORDER_ITEMS.map((_, i) => {
@@ -1579,6 +1600,7 @@ const Screen11 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}><VergulUstun a="10" b="3,75" op="−" zeroFill={true}/></div>
         <h2 className="title h-sub fade-up delay-2" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.question_setup))}</h2>
@@ -1592,7 +1614,7 @@ const Screen12 = (props) => {
   const t = useT(); const c = CONTENT.s12;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><VergulUstun a="10" b="3,75" op="−" zeroFill={true}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><VergulUstun a="10" b="3,75" op="−" zeroFill={true}/></div></>);
   return <QuestionScreen {...props} idx={12} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[12]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimThermo/>}/>}/>;
 };
 
@@ -1608,6 +1630,7 @@ const Screen13 = ({ screen, onPrev, onReset, finishLesson }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
@@ -1887,7 +1910,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;

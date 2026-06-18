@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -614,7 +614,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -681,7 +681,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       setTimeout(() => {
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
-          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || c.audio.on_wrong[lang];
+          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
         }
       }, 300);
@@ -698,8 +698,9 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+        <div className="fade-up" style={{ maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(16px, 2.6vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{question}</div>
+        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(16px, 2.6vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
@@ -779,9 +780,9 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up" style={{ maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(16px, 2.6vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
-        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(16px, 2.6vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
           {c.base && <span className="mop">≈</span>}
           <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
@@ -850,6 +851,7 @@ const CONTENT = {
   // ---- s0 HOOK — Feruza uchburchak bayroqcha (matoning yarmi). Tuzoq M1: to'liq 24. ----
   s0: {
     eyebrow: { ru: 'Квест', uz: 'Kvest' },
+    title: { ru: 'Флажок Ферузы', uz: "Feruzaning bayroqchasi" },
     lead: {
       ru: 'Феруза шьёт треугольный флажок. Она берёт прямоугольный кусок ткани со сторонами 6 и 4 и разрезает его по диагонали — получается треугольник. В прямоугольник помещается 24 клетки. Сколько же занимает треугольник?',
       uz: "Feruza uchburchak bayroqcha tikmoqda. U tomonlari 6 va 4 bo'lgan to'rtburchak matoni olib, uni diagonal bo'yicha kesadi — uchburchak hosil bo'ladi. To'rtburchakka 24 ta katak sig'adi. Uchburchak qancha joy egallaydi?"
@@ -870,6 +872,7 @@ const CONTENT = {
   // ---- s1 WARM-UP — to'rtburchak yuzasi retrieval (geom_5_02). 6x4 = 24. correct B. ----
   s1: {
     eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
+    title: { ru: 'Площадь прямоугольника', uz: "To'rtburchak yuzasi" },
     question: {
       ru: 'На прошлом уроке мы находили площадь прямоугольника. У прямоугольника стороны 6 и 4 — сколько клеток внутри, то есть чему равна площадь?',
       uz: "O'tgan darsda to'rtburchak yuzasini topgandik. To'rtburchakning tomonlari 6 va 4 — ichida nechta katak bor, ya'ni yuzasi qancha?"
@@ -908,6 +911,7 @@ const CONTENT = {
   // ---- s2 EXPLORATION — to'rtburchakni diagonal bo'yicha 2 teng uchburchakka bo'lish (step). ----
   s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Режем по диагонали', uz: "Diagonal bo'yicha kesamiz" },
     lead: {
       ru: 'Возьмём прямоугольник 6 на 4 — в нём 24 клетки. Проведём диагональ и посмотрим, что получится.',
       uz: "6 ga 4 to'rtburchakni olamiz — unda 24 ta katak bor. Diagonal o'tkazamiz va nima bo'lishini ko'ramiz."
@@ -944,6 +948,7 @@ const CONTENT = {
   // ---- s3 EXPLORATION — birlik setkada uchburchak (to'liq + yarim kataklar = 12). ----
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Считаем клетки', uz: "Kataklarni sanaymiz" },
     lead: {
       ru: 'Итак, треугольник — половина. Посчитаем клетки прямо внутри него.',
       uz: "Demak, uchburchak — yarmi. Endi uning ichidagi kataklarni sanaymiz."
@@ -965,6 +970,7 @@ const CONTENT = {
   // ---- s4 EXPLORATION — jonli slayder: asos o'zgaradi, balandlik=4, S=(a x 4):2. ----
   s4: {
     eyebrow: { ru: 'Эксперимент', uz: 'Tajriba' },
+    title: { ru: 'Меняем основание', uz: "Asosni o'zgartiramiz" },
     lead: {
       ru: 'Теперь подвигай ползунок. Меняется основание, высота остаётся 4. Смотри, как считается площадь.',
       uz: "Endi slayderni suring. Asos o'zgaradi, balandlik 4 bo'lib qoladi. Yuza qanday hisoblanishini kuzating."
@@ -986,6 +992,7 @@ const CONTENT = {
   // ---- s5 RULE 1 — S = (asos x balandlik) : 2. ----
   s5: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
+    title: { ru: 'Формула площади', uz: "Yuza formulasi" },
     lead: { ru: 'Запишем правило, которое ты открыл.', uz: "Siz kashf etgan qoidani yozamiz." },
     rule_main: {
       ru: 'Площадь треугольника = (основание × высота) : 2',
@@ -1008,6 +1015,7 @@ const CONTENT = {
   // ---- s6 RULE 2 — balandlik = perpendikulyar, qiya tomon EMAS (M2). ----
   s6: {
     eyebrow: { ru: 'Внимание', uz: 'Diqqat' },
+    title: { ru: 'Что такое высота', uz: "Balandlik nima" },
     lead: { ru: 'Важно: высота — это НЕ наклонная сторона.', uz: "Muhim: balandlik — bu QIYA tomon EMAS." },
     point1: {
       ru: 'Высота — это перпендикуляр от вершины к основанию (на рисунке — пунктир).',
@@ -1030,6 +1038,7 @@ const CONTENT = {
   // ---- s7 RULE 3 / worked example — a=8, h=3 -> (8x3):2 = 12. ----
   s7: {
     eyebrow: { ru: 'Пример', uz: 'Misol' },
+    title: { ru: 'Пример по шагам', uz: "Qadamma-qadam misol" },
     lead: { ru: 'Разберём пример по шагам.', uz: "Misolni qadamma-qadam ko'ramiz." },
     point1: { ru: '1) Основание × высота: 8 × 3 = 24.', uz: "1) Asos × balandlik: 8 × 3 = 24." },
     point2: { ru: '2) Делим пополам: 24 : 2 = 12.', uz: "2) Ikkiga bo'lamiz: 24 : 2 = 12." },
@@ -1043,6 +1052,7 @@ const CONTENT = {
   // ---- s8 TEST multi-select — qaysilari to'g'ri yuza? (M1 tuzoq) + Fakt Matematika ----
   s8: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'Найди верные площади', uz: "To'g'ri yuzalarni toping" },
     lead: {
       ru: 'Какие площади посчитаны ВЕРНО? Отметь все правильные.',
       uz: "Qaysi yuzalar TO'G'RI hisoblangan? Hammasini belgilang."
@@ -1052,8 +1062,8 @@ const CONTENT = {
     opt2: { ru: 'Основание 8, высота 2 → площадь 8', uz: "Asos 8, balandlik 2 → yuza 8" },
     opt3: { ru: 'Основание 5, высота 6 → площадь 30', uz: "Asos 5, balandlik 6 → yuza 30" },
     hint_wrong: {
-      ru: 'Где-то забыли разделить пополам. 10 × 4 — это 40, но у треугольника половина: 20. 5 × 6 — это 30, половина: 15. Проверь ещё раз.',
-      uz: "Bir joyda ikkiga bo'lish unutilgan. 10 ni 4 ga ko'paytirsa 40, lekin uchburchakda yarmi: 20. 5 ni 6 ga ko'paytirsa 30, yarmi: 15. Yana tekshiring."
+      ru: 'Где-то забыли взять половину. У треугольника площадь это основание умножить на высоту, а потом разделить на два. Не пропусти деление на два. Проверь ещё раз.',
+      uz: "Bir joyda yarmini olish unutilgan. Uchburchak yuzasi asosni balandlikka ko'paytirib, keyin ikkiga bo'lishdir. Ikkiga bo'lishni o'tkazib yubormang. Yana tekshiring."
     },
     correct_text: {
       ru: 'Верно! Правильные — первый и третий: 6 × 4 : 2 = 12 и 8 × 2 : 2 = 8. В остальных забыли половину.',
@@ -1080,6 +1090,7 @@ const CONTENT = {
   // ---- s9 TEST NumInput — a=10, h=6 -> (10x6):2 = 30. ----
   s9: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'Посчитай площадь', uz: "Yuzani hisoblang" },
     question: {
       ru: 'Найди площадь треугольника: основание 10, высота 6.',
       uz: "Uchburchak yuzasini toping: asos 10, balandlik 6."
@@ -1107,6 +1118,7 @@ const CONTENT = {
   // ---- s10 TEST fill-blank — (6x4) : [box] = 12, box=2. ----
   s10: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'Заполни пропуск', uz: "Bo'sh katakni to'ldiring" },
     lead: {
       ru: 'Заполни пропуск, чтобы формула площади треугольника стала верной.',
       uz: "Uchburchak yuzasi formulasi to'g'ri bo'lishi uchun bo'sh katakni to'ldiring."
@@ -1134,6 +1146,7 @@ const CONTENT = {
   // ---- s11 TEST find-the-wrong — qaysi yechim XATO? (M1) + Fakt Tarix ----
   s11: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
+    title: { ru: 'Где ошибка?', uz: "Xato qayerda?" },
     q_pre: { ru: 'Три решения верные, а одно —', uz: "Uchta yechim to'g'ri, bittasi esa —" },
     q_em: { ru: 'ОШИБОЧНО', uz: 'XATO' },
     q_post: { ru: '. Найди ошибочное.', uz: '. Xatosini toping.' },
@@ -1146,16 +1159,16 @@ const CONTENT = {
       uz: "To'g'ri! Bu yerda ikkiga bo'lish unutilgan: 10 ni 4 ga ko'paytirsa, bu to'rtburchak yuzasi, 40. Uchburchakda yarmi — 20."
     },
     wrong_0: {
-      ru: 'Это решение верное: 8 × 4 = 32, и пополам — 16. Ошибка в другом.',
-      uz: "Bu yechim to'g'ri: 8 × 4 = 32, yarmi esa — 16. Xato boshqasida."
+      ru: 'Это решение верное. Здесь стороны перемножили и взяли половину. Ищи там, где половину не взяли.',
+      uz: "Bu yechim to'g'ri. Bu yerda tomonlar ko'paytirilgan va yarmi olingan. Yarmi olinmagan joyni qidiring."
     },
     wrong_1: {
-      ru: 'Это верно: 6 × 5 = 30, пополам — 15. Ищи ошибку в другом.',
-      uz: "Bu to'g'ri: 6 × 5 = 30, yarmi — 15. Xatoni boshqasidan qidiring."
+      ru: 'Это решение верное. Стороны перемножили и разделили на два. Ищи там, где на два не делили.',
+      uz: "Bu yechim to'g'ri. Tomonlar ko'paytirilib, ikkiga bo'lingan. Ikkiga bo'linmagan joyni qidiring."
     },
     wrong_3: {
-      ru: 'Это верно: 4 × 4 = 16, пополам — 8. Ищи ошибку в другом.',
-      uz: "Bu to'g'ri: 4 × 4 = 16, yarmi — 8. Xatoni boshqasidan qidiring."
+      ru: 'Это решение верное. Здесь всё по правилу, с делением на два. Ищи то, где деления на два нет.',
+      uz: "Bu yechim to'g'ri. Bu yerda hammasi qoida bo'yicha, ikkiga bo'lish bilan. Ikkiga bo'lish yo'q joyni qidiring."
     },
     wrong_default: { ru: 'Ищи решение, где забыли разделить пополам.', uz: "Ikkiga bo'lish unutilgan yechimni qidiring." },
     fact: {
@@ -1178,6 +1191,7 @@ const CONTENT = {
   // ---- s12 TEST balandlik-tap — perpendikulyarni bos (M2) + Fakt IT ----
   s12: {
     eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
+    title: { ru: 'Где высота?', uz: "Balandlik qayerda?" },
     lead: {
       ru: 'Какая из линий — ВЫСОТА треугольника? Нажми на неё.',
       uz: "Chiziqlardan qaysi biri — uchburchak BALANDLIGI? Uni bosing."
@@ -1211,6 +1225,7 @@ const CONTENT = {
   // ---- s13 CASE setup — Anvar uchburchak gulzor (asos 5 m, balandlik 4 m). ----
   s13: {
     eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
+    title: { ru: 'Клумба Анвара', uz: "Anvarning gulzori" },
     lead: {
       ru: 'Анвар разбивает в саду треугольную клумбу. Основание — 5 метров, высота — 4 метра. Сколько земли под цветы?',
       uz: "Anvar bog'da uchburchak gulzor barpo qilmoqda. Asos — 5 metr, balandlik — 4 metr. Gullar uchun qancha yer kerak?"
@@ -1233,6 +1248,7 @@ const CONTENT = {
   // ---- s14 CASE/FINAL MC — gulzor yuzasi (5x4):2 = 10. correct D + Fakt IT ----
   s14: {
     eyebrow: { ru: 'Итоговое задание', uz: 'Yakuniy topshiriq' },
+    title: { ru: 'Площадь клумбы', uz: "Gulzor yuzasi" },
     lead: {
       ru: 'Клумба Анвара: основание 5 м, высота 4 м. Чему равна площадь?',
       uz: "Anvarning gulzori: asos 5 m, balandlik 4 m. Yuzasi qancha?"
@@ -1246,18 +1262,18 @@ const CONTENT = {
       uz: "To'g'ri! 5 ni 4 ga ko'paytirsa 20, yarmi esa — 10 kvadrat metr."
     },
     wrong_1: {
-      ru: 'Почти: 5 × 4 — это 20, но это весь прямоугольник. У треугольника половина — 10.',
-      uz: "Deyarli: 5 ni 4 ga ko'paytirsa 20, lekin bu butun to'rtburchak. Uchburchakda yarmi — 10."
+      ru: 'Почти. Это площадь всего прямоугольника. У треугольника бери половину, раздели на два.',
+      uz: "Deyarli. Bu butun to'rtburchak yuzasi. Uchburchakda yarmini oling, ikkiga bo'ling."
     },
     wrong_2: {
-      ru: 'Это 5 плюс 4. А нужна площадь: 5 × 4, потом пополам — 10.',
-      uz: "Bu 5 qo'shuv 4. Yuza esa kerak: 5 ni 4 ga ko'paytirib, keyin yarmi — 10."
+      ru: 'Тут стороны сложили. Площадь это основание умножить на высоту, а потом разделить на два.',
+      uz: "Bu yerda tomonlar qo'shilgan. Yuza asosni balandlikka ko'paytirib, keyin ikkiga bo'lishdir."
     },
     wrong_3: {
-      ru: 'Это слишком много. 5 × 4 — это 20, и пополам — 10.',
-      uz: "Bu juda ko'p. 5 ni 4 ga ko'paytirsa 20, yarmi esa — 10."
+      ru: 'Это слишком много, тут забыли половину. Перемножь стороны и раздели на два.',
+      uz: "Bu juda ko'p, bu yerda yarmi unutilgan. Tomonlarni ko'paytirib, ikkiga bo'ling."
     },
-    wrong_default: { ru: 'Площадь треугольника: 5 × 4, потом пополам — 10.', uz: "Uchburchak yuzasi: 5 ni 4 ga ko'paytirib, keyin yarmi — 10." },
+    wrong_default: { ru: 'Площадь треугольника: перемножь стороны, а потом раздели на два.', uz: "Uchburchak yuzasi: tomonlarni ko'paytirib, keyin ikkiga bo'ling." },
     fact: {
       ru: 'В играх и мультфильмах все трёхмерные фигуры собраны из тысяч маленьких треугольников.',
       uz: "O'yinlar va multfilmlarda barcha uch o'lchamli shakllar minglab kichik uchburchaklardan yig'iladi."
@@ -1278,11 +1294,13 @@ const CONTENT = {
   // ---- s15 SUMMARY — hookni yopadi + ConnectionsBlock ----
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Xulosa' },
+    heading: { ru: 'Что мы узнали', uz: "Nimani bilib oldik" },
     title: { ru: 'Отлично! Теперь ты умеешь находить площадь треугольника.', uz: "Ajoyib! Endi siz uchburchak yuzasini topa olasiz." },
     main_label: { ru: 'Что мы узнали', uz: "Nimani bilib oldik" },
     main_1: { ru: 'Треугольник — это половина прямоугольника.', uz: "Uchburchak — bu to'rtburchakning yarmi." },
     main_2: { ru: 'Площадь = (основание × высота) : 2.', uz: "Yuza = (asos × balandlik) : 2." },
     main_3: { ru: 'Высота — это перпендикуляр, а не наклонная сторона.', uz: "Balandlik — bu perpendikulyar, qiya tomon emas." },
+    score_label: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob" },
     hook_close: {
       ru: 'Помнишь флажок Ферузы? Прямоугольник ткани 6 на 4 — это 24, а треугольный флажок — половина, 12. Она была права!',
       uz: "Feruzaning bayroqchasini eslaysizmi? 6 ga 4 to'rtburchak mato — bu 24, uchburchak bayroqcha esa yarmi, 12. U haq edi!"
@@ -1331,12 +1349,15 @@ const optEl = (t, node) => <span className="body" style={{ display: 'inline' }}>
 const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
 const IconNo = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
 
-// Ambient-harakat siyrak ekranlar uchun: yumshoq suzuvchi doiralar.
-const Floaters = () => (
-  <div className="amb" aria-hidden="true">
-    <span className="amb-o amb-o1"/>
-    <span className="amb-o amb-o2"/>
-    <span className="amb-o amb-o3"/>
+// Ambient-harakat siyrak ekranlar uchun: yumshoq suzuvchi uchburchaklar (mavzuga mos).
+const FloatTris = () => (
+  <div className="flr" aria-hidden="true">
+    <span className="flr-t flr-t1"/>
+    <span className="flr-t flr-t2 flr-c"/>
+    <span className="flr-t flr-t3"/>
+    <span className="flr-t flr-t4 flr-c"/>
+    <span className="flr-t flr-t5"/>
+    <span className="flr-t flr-t6 flr-c"/>
   </div>
 );
 
@@ -1403,7 +1424,7 @@ const AnimMesh = () => (
 // 'split' (to'rtburchak + diagonal + 2 teng uchburchak; phase 0 rect / 1 ikkala yarim / 2 bitta yarim).
 // apexFrac: uchning gorizontal o'rni (0..1). showHeight: ichki perpendikulyar + to'g'ri burchak belgisi.
 // alive: uzluksiz shine loop. success: yashil. grid: birlik setka chiziqlari.
-const TriViz = ({ base, height, cell = 28, mode = 'tri', phase = 1, apexFrac = 0.5, grid = false, showHeight = false, success = false, alive = true, compact = false, aLabel, hLabel }) => {
+const TriViz = ({ base, height, cell = 28, mode = 'tri', phase = 1, apexFrac = 0.5, grid = false, showHeight = false, success = false, showHalf = false, alive = true, compact = false, aLabel, hLabel }) => {
   const cs = compact ? Math.max(18, cell - 7) : cell;
   const padL = 30, padB = 24, padT = 12, padR = 12;
   const W = base * cs, H = height * cs;
@@ -1428,6 +1449,8 @@ const TriViz = ({ base, height, cell = 28, mode = 'tri', phase = 1, apexFrac = 0
         </>
       ) : (
         <>
+          {showHalf && <polygon points={`${x0},${y0} ${apexX},${y0} ${x0},${yB}`} className="tv-half"/>}
+          {showHalf && <polygon points={`${apexX},${y0} ${xR},${y0} ${xR},${yB}`} className="tv-half"/>}
           <polygon points={`${x0},${yB} ${xR},${yB} ${apexX},${y0}`} className="tv-fill"/>
           {showHeight && <line x1={apexX} y1={y0} x2={apexX} y2={yB} className="tv-height"/>}
           {showHeight && <polyline points={`${apexX - 8},${yB} ${apexX - 8},${yB - 8} ${apexX},${yB - 8}`} className="tv-rangle"/>}
@@ -1469,12 +1492,14 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{mt(t(c.lead))}</h2>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 16px)', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
+        <h2 className="title h-sub fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.lead))}</h2>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', padding: 'clamp(10px, 2vw, 16px)', display: 'flex', justifyContent: 'center' }}>
           <HookSplit/>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="fade-up delay-2" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {opts.map((o, i) => (
             <button key={i} className="option" onClick={() => pick(i)}
               style={{ padding: 'clamp(11px, 1.6vw, 13px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
@@ -1483,7 +1508,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
             </button>
           ))}
         </div>
-        {picked !== null && <p className="body fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center' }}>{mt(t(c.reveal))}</p>}
+        {picked !== null && <p className="body fade-up" style={{ position: 'relative', margin: 0, color: T.ink2, textAlign: 'center' }}>{mt(t(c.reveal))}</p>}
       </div>
     </Stage>
   );
@@ -1494,7 +1519,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1519,9 +1544,11 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
           <TriViz base={6} height={4} cell={28} mode="split" phase={step} grid={true} success={done}/>
           {done && (
             <div className="hr-calc">
@@ -1531,11 +1558,11 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
           )}
         </div>
         {!done && (
-          <div className="fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
+          <div className="fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
             <button className="btn-white-accent" onClick={doStep} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_step)}</button>
           </div>
         )}
-        <p className="body fade-up delay-2" style={{ margin: 0, textAlign: 'center', color: done ? T.success : T.ink2, fontWeight: done ? 600 : 400 }}>{mt(done ? t(c.note) : caps[step])}</p>
+        <p className="body fade-up delay-2" style={{ position: 'relative', margin: 0, textAlign: 'center', color: done ? T.success : T.ink2, fontWeight: done ? 600 : 400 }}>{mt(done ? t(c.note) : caps[step])}</p>
       </div>
     </Stage>
   );
@@ -1549,7 +1576,8 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
           <TriViz base={6} height={4} cell={30} mode="tri" apexFrac={0} grid={true} showHeight={true} aLabel="6" hLabel="4"/>
@@ -1574,9 +1602,11 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
           <TriViz base={a} height={H} cell={26} mode="tri" apexFrac={0.5} showHeight={true} success={isTarget} aLabel={String(a)} hLabel="4"/>
           <div className="hr-calc">
             <span className="hr-calc-on">{a}</span><span className="hr-calc-op">×</span><span className="hr-calc-on">{H}</span>
@@ -1584,8 +1614,8 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
             <span className="hr-calc-op">=</span><span className="hr-calc-res">{area}</span>
           </div>
         </div>
-        <div className="fade-up delay-2"><Slider value={a} min={2} max={8} step={1} onChange={setA}/></div>
-        <p className="body fade-up delay-3" style={{ margin: 0, textAlign: 'center', color: isTarget ? T.success : T.ink2, fontWeight: isTarget ? 600 : 400 }}>{mt(t(isTarget ? c.note_target : c.hint_move))}</p>
+        <div className="fade-up delay-2" style={{ position: 'relative' }}><Slider value={a} min={2} max={8} step={1} onChange={setA}/></div>
+        <p className="body fade-up delay-3" style={{ position: 'relative', margin: 0, textAlign: 'center', color: isTarget ? T.success : T.ink2, fontWeight: isTarget ? 600 : 400 }}>{mt(t(isTarget ? c.note_target : c.hint_move))}</p>
       </div>
     </Stage>
   );
@@ -1599,7 +1629,8 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
@@ -1620,7 +1651,8 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(16px, 3.5vw, 30px)', flexWrap: 'wrap' }}>
           <TriViz base={6} height={4} cell={26} mode="tri" apexFrac={0.34} showHeight={true} aLabel="asos" hLabel=""/>
@@ -1645,7 +1677,8 @@ const Screen7 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(16px, 3.5vw, 30px)', flexWrap: 'wrap' }}>
           <TriViz base={8} height={3} cell={26} mode="tri" apexFrac={0.5} showHeight={true} aLabel="8" hLabel="3"/>
@@ -1691,9 +1724,10 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <p className="body fade-up" style={{ position: 'relative', margin: 0, fontWeight: 600 }}>{mt(t(c.lead))}</p>
-        <div className="ms-list fade-up delay-1" style={{ position: 'relative' }}>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, maxHeight: solved ? 0 : 200, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', margin: 0, fontWeight: 600, maxHeight: solved ? 0 : 200, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{mt(t(c.lead))}</p>
+        <div className="ms-list fade-up delay-1" style={{ position: 'relative', maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
           {opts.map((o, i) => {
             const on = sel[i];
             let cls = 'ms-item';
@@ -1734,7 +1768,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
 // s9 — TEST NumInput (a=10, h=6 -> 30)
 const Screen9 = (props) => {
   const c = CONTENT.s9;
-  return <NumInputScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={c} correctValue={30} renderVisual={() => <TriViz base={10} height={6} cell={20} mode="tri" apexFrac={0.5} showHeight={true} compact={true} aLabel="10" hLabel="6"/>}/>;
+  return <NumInputScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={c} correctValue={30} renderVisual={({ solved }) => <TriViz base={10} height={6} cell={20} mode="tri" apexFrac={0.5} showHeight={true} compact={true} success={solved} showHalf={solved} aLabel="10" hLabel="6"/>}/>;
 };
 
 // s10 — TEST fill-blank ((6 x 4) : [box] = 12, box=2)
@@ -1767,9 +1801,10 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <p className="body fade-up" style={{ position: 'relative', margin: 0, fontWeight: 600 }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px, 1.4vw, 10px)', flexWrap: 'wrap' }}>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, maxHeight: solved ? 0 : 200, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', margin: 0, fontWeight: 600, maxHeight: solved ? 0 : 200, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px, 1.4vw, 10px)', flexWrap: 'wrap', maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
           <span className="fb-expr">( 6 <Op size="mid">×</Op> 4 )</span>
           <Op size="mid">:</Op>
           <input type="number" inputMode="numeric" className={`answer-input fb-box ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
@@ -1805,7 +1840,7 @@ const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 2, [1, 3, 2, 0]);
-  const question = (<h2 className="title h-sub">{t(c.q_pre)}{' '}<span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.q_pre)}{' '}<span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2></>);
   return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimPyramid/>}/>}/>;
 };
 
@@ -1842,7 +1877,8 @@ const Screen12 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ margin: 0, fontWeight: 600 }}>{mt(t(c.lead))}</p>
+        <h2 className="title h-title fade-up" style={{ margin: 0, maxHeight: solved ? 0 : 200, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ margin: 0, fontWeight: 600, maxHeight: solved ? 0 : 200, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
           <svg viewBox={`0 0 ${xR + 30} ${yB + 26}`} className={`ht-svg${solved ? ' ht-ok' : ''}`} style={{ maxWidth: '100%', height: 'auto' }}>
             <polygon points={`${x0},${yB} ${xR},${yB} ${apexX},${y0}`} className="ht-fill"/>
@@ -1884,13 +1920,15 @@ const Screen13 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 20px) clamp(10px, 2vw, 16px)' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 20px) clamp(10px, 2vw, 16px)' }}>
           <TriViz base={5} height={4} cell={30} mode="tri" apexFrac={0.5} showHeight={true} aLabel="5 m" hLabel="4 m"/>
         </div>
-        <p className="body fade-up delay-2" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.note))}</p>
-        <div className="frame-tip fade-up delay-3"><p className="body" style={{ margin: 0 }}>{mt(t(c.hint_calc))}</p></div>
+        <p className="body fade-up delay-2" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.note))}</p>
+        <div className="frame-tip fade-up delay-3" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c.hint_calc))}</p></div>
       </div>
     </Stage>
   );
@@ -1901,28 +1939,37 @@ const Screen14 = (props) => {
   const t = useT(); const c = CONTENT.s14;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><TriViz base={5} height={4} cell={24} mode="tri" apexFrac={0.5} showHeight={true} compact={true} aLabel="5 m" hLabel="4 m"/></div></>);
-  return <QuestionScreen {...props} idx={14} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[14]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimMesh/>}/>}/>;
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2></>);
+  const figure = (solved) => <TriViz base={5} height={4} cell={24} mode="tri" apexFrac={0.5} showHeight={true} compact={true} success={solved} showHalf={solved} aLabel="5 m" hLabel="4 m"/>;
+  return <QuestionScreen {...props} idx={14} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[14]} screenContent={content} question={question} options={options} correctIdx={correctIdx} figure={figure} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimMesh/>}/>}/>;
 };
 
 // s15 — SUMMARY + hook yopilishi + bog'lanishlar + ambient
-const Screen15 = ({ screen, onPrev, onReset, finishLesson }) => {
+const Screen15 = ({ screen, onPrev, onReset, finishLesson, answers }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s15;
   const audio = useAudio(makeAudioSegments(c, lang));
   const calledRef = useRef(false);
   useEffect(() => { if (!calledRef.current) { calledRef.current = true; finishLesson(); } }, []);
   const points = [c.main_1, c.main_2, c.main_3];
+  const scoredIdx = SCREEN_META.map((s, i) => (s.scored ? i : -1)).filter(i => i >= 0);
+  const total = scoredIdx.length;
+  const correct = scoredIdx.filter(i => (answers || [])[i] && (answers || [])[i].correct === true).length;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTris/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
             {points.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{mt(t(m))}</p></div>))}
           </div>
+        </div>
+        <div className="frame-success fade-up delay-2" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span className="mono" style={{ fontSize: 'clamp(20px, 4vw, 26px)', fontWeight: 700, color: T.success }}>{correct} / {total}</span>
+          <p className="body" style={{ margin: 0, color: T.ink2 }}>{t(c.score_label)}</p>
         </div>
         <div className="frame-success fade-up delay-2" style={{ position: 'relative' }}>
           <p className="body" style={{ margin: 0 }}>{mt(t(c.hook_close))}</p>
@@ -2197,7 +2244,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -2347,6 +2394,7 @@ html, body { margin: 0; padding: 0; }
 .tv-grid { stroke: rgba(167, 166, 162, 0.4); stroke-width: 1; }
 .tv-fill { fill: #FF4F28; fill-opacity: 0.82; stroke: #FF4F28; stroke-width: 2; stroke-linejoin: round; transition: fill 0.3s ease, fill-opacity 0.3s ease; }
 .tv-ok .tv-fill { fill: #1F7A4D; stroke: #1F7A4D; }
+.tv-half { fill: #019ACB; fill-opacity: 0.16; }
 .tv-alive .tv-fill { animation: tvShine 2.8s ease-in-out infinite; }
 .tv-fillA { fill: #FF4F28; fill-opacity: 0.82; stroke: #FFFFFF; stroke-width: 1.5; stroke-linejoin: round; }
 .tv-fillB { fill: #019ACB; fill-opacity: 0.5; stroke: #FFFFFF; stroke-width: 1.5; stroke-linejoin: round; }
@@ -2434,13 +2482,17 @@ html, body { margin: 0; padding: 0; }
 .fa-ms-d { clip-path: polygon(0 0, 100% 0, 50% 100%); }
 @keyframes faMs { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.95; } }
 
-/* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
-.amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
-.amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
-.amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
-.amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
-@keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
+/* MATH geom_5_03: ambient — мягкие плавающие треугольники на разрежённых экранах (декор). */
+.flr { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.flr-t { position: absolute; clip-path: polygon(50% 0, 100% 100%, 0 100%); background: rgba(255, 79, 40, 0.08); animation: flrFloat 16s ease-in-out infinite; }
+.flr-c { background: rgba(1, 154, 203, 0.08); }
+.flr-t1 { width: 64px; height: 64px; left: 5%; top: 10%; animation-delay: 0s; }
+.flr-t2 { width: 96px; height: 96px; right: 4%; bottom: 8%; animation-delay: -4s; }
+.flr-t3 { width: 44px; height: 44px; left: 40%; top: 62%; animation-delay: -8s; }
+.flr-t4 { width: 56px; height: 56px; right: 16%; top: 14%; animation-delay: -11s; }
+.flr-t5 { width: 38px; height: 38px; left: 12%; bottom: 14%; animation-delay: -6s; }
+.flr-t6 { width: 72px; height: 72px; left: 64%; top: 44%; animation-delay: -13s; }
+@keyframes flrFloat { 0%, 100% { transform: translateY(0) translateX(0) rotate(0deg); } 33% { transform: translateY(-14px) translateX(8px) rotate(8deg); } 66% { transform: translateY(8px) translateX(-10px) rotate(-6deg); } }
 
 /* Accessibility: prefers-reduced-motion — гасим декоративные циклы. */
 @media (prefers-reduced-motion: reduce) {

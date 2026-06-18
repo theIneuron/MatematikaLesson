@@ -580,7 +580,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -721,8 +721,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
                 style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
-                  {String.fromCharCode(65 + i)}
+                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (wrong.has(i) ? T.accent : T.ink3) }}>
+                  {solved && i === correctIdx ? '✓' : (wrong.has(i) ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
@@ -730,8 +730,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
           })}
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass={c[`hint_${picked}`] ? 'frame-tip' : undefined}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default)}
@@ -799,13 +799,13 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.hint)}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.fb_correct)}</p>
           </FeedbackBlock>
         )}
@@ -843,7 +843,7 @@ const HintToggle = ({ hint }) => {
   return (
     <div>
       <button className="hint-toggle" onClick={() => setOpen(o => !o)}>{open ? UI.hide[lang] : `? ${UI.hint[lang]}`}</button>
-      {open && <div className="frame-soft" style={{ marginTop: 8 }}><p className="body" style={{ margin: 0 }}>{t(hint)}</p></div>}
+      {open && <div className="frame-tip" style={{ marginTop: 8 }}><p className="body" style={{ margin: 0 }}>{t(hint)}</p></div>}
     </div>
   );
 };
@@ -936,7 +936,7 @@ const DivSolutionPlayer = ({ sol }) => {
     return () => clearTimeout(id);
   }, [step, playing, steps]);
   return (
-    <div className="frame-soft fade-up" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div className="frame-success fade-up" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <span className="mono small" style={{ color: T.success, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{UI.solution[lang]}</span>
         <button className="sol-replay" onClick={() => { setStep(0); setPlaying(true); }}>{UI.replay[lang]}</button>
@@ -1127,9 +1127,9 @@ const CONTENT = {
     correctIndex: 1,
     hint: { ru: 'После первой цифры посмотри: делится ли следующее число на 4? Если нет — поставь ноль и сноси дальше.', uz: "Birinchi raqamdan keyin qarang: keyingi son 4 ga bo'linadimi? Bo'linmasa — nol qo'ying va davom eting." },
     correct_text: { ru: 'Правильно. После первой цифры 2 не делится на 4 — ставим ноль и сносим дальше: 24 на 4 равно 6. Выходит 206.', uz: "To'g'ri. Birinchi raqamdan keyin 2 ni 4 ga bo'lib bo'lmaydi — nol qo'yib davom etamiz: 24 ni 4 ga bo'lsak 6. 206 chiqadi." },
-    wrong_0: { ru: 'Ноль пропущен. Здесь 2 не делится на 4 — нужен ноль, иначе частное теряет разряд. Верно 206.', uz: "Nol tushib qolgan. Bu yerda 2 ni 4 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma xonasini yo'qotadi. To'g'risi 206." },
-    wrong_2: { ru: 'Ноль не на месте. Он возникает в середине, когда 2 не делится на 4, а не в конце. Верно 206.', uz: "Nol joyida emas. U o'rtada, 2 ni 4 ga bo'lib bo'lmaganda paydo bo'ladi, oxirida emas. To'g'risi 206." },
-    wrong_default: { ru: 'Делим слева направо; если число не делится — ставим ноль и сносим дальше. Верно 206.', uz: "Chapdan o'ngga bo'lamiz; son bo'linmasa — nol qo'yib davom etamiz. To'g'risi 206." },
+    wrong_0: { ru: 'Ноль пропущен. Здесь 2 не делится на 4 — нужен ноль, иначе частное теряет разряд.', uz: "Nol tushib qolgan. Bu yerda 2 ni 4 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma xonasini yo'qotadi." },
+    wrong_2: { ru: 'Ноль не на месте. Он возникает в середине, когда 2 не делится на 4, а не в конце.', uz: "Nol joyida emas. U o'rtada, 2 ni 4 ga bo'lib bo'lmaganda paydo bo'ladi, oxirida emas." },
+    wrong_default: { ru: 'Делим слева направо; если число не делится — ставим ноль и сносим дальше.', uz: "Chapdan o'ngga bo'lamiz; son bo'linmasa — nol qo'yib davom etamiz." },
     audio: {
       intro: { ru: 'Сколько будет восемьсот двадцать четыре разделить на четыре? Выбери ответ.', uz: "Sakkiz yuz yigirma to'rtni to'rtga bo'lsak, nechaga teng? Javobni tanlang." },
       on_correct: { ru: 'Верно. Деление выходит ровным не всегда — дальше узнаем, откуда берётся остаток.', uz: "To'g'ri. Bo'lish doim qoldiqsiz bo'lavermaydi — keyin qoldiq qayerdan paydo bo'lishini bilamiz." },
@@ -1203,14 +1203,14 @@ const CONTENT = {
     correctIndex: 1,
     hint: { ru: 'Остаток должен быть меньше 4. Если он 4 или больше — раздай ещё по одной.', uz: "Qoldiq 4 dan kichik bo'lishi kerak. Agar 4 yoki katta bo'lsa — yana bittadan tarqating." },
     correct_text: { ru: 'Правильно. 7 умножить на 4 равно 28, до 30 остаётся 2, и 2 меньше 4.', uz: "To'g'ri. 7 ni 4 ga ko'paytirsak 28, 30 gacha 2 qoladi, 2 esa 4 dan kichik." },
-    wrong_0: { ru: 'Это ошибка из начала урока. Остаток 6 больше делителя 4 — значит, каждому можно дать ещё по одной. Верно 7, остаток 2.', uz: "Bu darsning boshidagi xato. Qoldiq 6 bo'luvchi 4 dan katta — demak, har biriga yana bittadan berish mumkin. To'g'risi 7, qoldiq 2." },
-    wrong_2: { ru: 'Частное верное, а остаток нет. 7 умножить на 4 равно 28, остаётся не 6, а 2. Верно 7, остаток 2.', uz: "Bo'linma to'g'ri, qoldiq esa yo'q. 7 ni 4 ga ko'paytirsak 28, 6 emas, 2 qoladi. To'g'risi 7, qoldiq 2." },
-    wrong_3: { ru: 'Деление остановлено слишком рано. Остаток 10 больше делителя 4 — раздаём ещё. Верно 7, остаток 2.', uz: "Bo'lish juda erta to'xtatilgan. Qoldiq 10 bo'luvchi 4 dan katta — yana tarqatamiz. To'g'risi 7, qoldiq 2." },
-    wrong_default: { ru: 'Остаток должен быть меньше делителя. Верно 7, остаток 2.', uz: "Qoldiq bo'luvchidan kichik bo'lishi kerak. To'g'risi 7, qoldiq 2." },
+    wrong_0: { ru: 'Это ошибка из начала урока. Остаток 6 больше делителя 4 — значит, каждому можно дать ещё по одной.', uz: "Bu darsning boshidagi xato. Qoldiq 6 bo'luvchi 4 dan katta — demak, har biriga yana bittadan berish mumkin." },
+    wrong_2: { ru: 'Частное верное, а остаток нет. 7 умножить на 4 равно 28, остаётся не 6, а 2.', uz: "Bo'linma to'g'ri, qoldiq esa yo'q. 7 ni 4 ga ko'paytirsak 28, 6 emas, 2 qoladi." },
+    wrong_3: { ru: 'Деление остановлено слишком рано. Остаток 10 больше делителя 4 — раздаём ещё.', uz: "Bo'lish juda erta to'xtatilgan. Qoldiq 10 bo'luvchi 4 dan katta — yana tarqatamiz." },
+    wrong_default: { ru: 'Остаток должен быть меньше делителя.', uz: "Qoldiq bo'luvchidan kichik bo'lishi kerak." },
     audio: {
       intro: { ru: 'Вернёмся к Зайнаб. Тридцать конфет нужно раздать поровну четырём друзьям. Сколько достанется каждому и сколько останется? Выбери ответ.', uz: "Zaynabga qaytamiz. O'ttizta konfetni to'rtta do'stga teng bo'lish kerak. Har biriga nechtadan tegadi va nechta qoladi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Теперь применим это к задаче побольше.', uz: "To'g'ri. Endi buni kattaroq masalaga qo'llaymiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang." }
     }
   },
 
@@ -1237,9 +1237,9 @@ const CONTENT = {
     correctIndex: 1,
     hint: { ru: 'Сколько раз 8 помещается в 100? Что осталось — лишние тетради.', uz: "8 son 100 ga necha marta sig'adi? Qolgani — ortgan daftarlar." },
     correct_text: { ru: 'Правильно. 8 умножить на 12 равно 96, до 100 остаётся 4 тетради — на полную пачку их не хватает.', uz: "To'g'ri. 8 ni 12 ga ko'paytirsak 96, 100 gacha 4 ta daftar qoladi — to'liq pachkaga yetmaydi." },
-    wrong_0: { ru: 'Остаток потерян. 8 умножить на 12 равно 96, а тетрадей 100 — 4 не вошли ни в одну полную пачку. Верно 12 пачек и 4 лишних.', uz: "Qoldiq yo'qolgan. 8 ni 12 ga ko'paytirsak 96, daftar esa 100 — 4 tasi birorta to'liq pachkaga kirmadi. To'g'risi 12 pachka va 4 ta ortadi." },
-    wrong_2: { ru: '13-й пачки не выйдет. 4 оставшиеся тетради не образуют полную пачку из 8. Верно 12 пачек и 4 лишних.', uz: "13-pachka chiqmaydi. Qolgan 4 ta daftar 8 talik to'liq pachka hosil qilmaydi. To'g'risi 12 pachka va 4 ta ortadi." },
-    wrong_default: { ru: 'Полные пачки — это частное, лишние тетради — остаток. Верно 12 пачек и 4 лишних.', uz: "To'liq pachkalar — bo'linma, ortgan daftarlar — qoldiq. To'g'risi 12 pachka va 4 ta ortadi." },
+    wrong_0: { ru: 'Остаток потерян. 8 умножить на 12 равно 96, а тетрадей 100 — 4 не вошли ни в одну полную пачку.', uz: "Qoldiq yo'qolgan. 8 ni 12 ga ko'paytirsak 96, daftar esa 100 — 4 tasi birorta to'liq pachkaga kirmadi." },
+    wrong_2: { ru: '13-й пачки не выйдет. 4 оставшиеся тетради не образуют полную пачку из 8.', uz: "13-pachka chiqmaydi. Qolgan 4 ta daftar 8 talik to'liq pachka hosil qilmaydi." },
+    wrong_default: { ru: 'Полные пачки — это частное, лишние тетради — остаток.', uz: "To'liq pachkalar — bo'linma, ortgan daftarlar — qoldiq." },
     audio: {
       intro: { ru: 'Сколько получится полных пачек и сколько тетрадей останется лишними? Сто разделить на восемь. Выбери ответ.', uz: "Nechta to'liq pachka chiqadi va nechta daftar ortib qoladi? Yuzni sakkizga bo'lamiz. Javobni tanlang." },
       on_correct: { ru: 'Верно. Перейдём к итоговым примерам.', uz: "To'g'ri. Endi yakuniy misollarga o'tamiz." },
@@ -1258,10 +1258,10 @@ const CONTENT = {
     correctIndex: 1,
     hint: { ru: 'В среднем разряде проверь: делится ли 1 на 6? И проверь ответ умножением.', uz: "O'rtadagi xonani tekshiring: 1 son 6 ga bo'linadimi? Javobni ko'paytirib ham tekshiring." },
     correct_text: { ru: 'Правильно. В среднем разряде 1 не делится на 6 — ставим ноль, потом 12 на 6 равно 2. Проверка: 102 умножить на 6 равно 612.', uz: "To'g'ri. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol qo'yamiz, keyin 12 ni 6 ga bo'lsak 2. Tekshirish: 102 ni 6 ga ko'paytirsak 612." },
-    wrong_0: { ru: 'Ноль пропущен. В среднем разряде 1 не делится на 6 — нужен ноль, иначе частное короче на разряд. Верно 102.', uz: "Nol tushib qolgan. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma bir xonaga qisqa. To'g'risi 102." },
-    wrong_2: { ru: 'Проверка не сходится: 112 умножить на 6 равно 672, а не 612. Перепроверь среднюю цифру. Верно 102.', uz: "Tekshirish to'g'ri kelmaydi: 112 ni 6 ga ko'paytirsak 672, 612 emas. O'rtadagi raqamni qayta tekshiring. To'g'risi 102." },
-    wrong_3: { ru: 'Ноль не на месте. Он стоит в середине, где 1 не делится на 6, а не в конце. Верно 102.', uz: "Nol joyida emas. U o'rtada, 1 ni 6 ga bo'lib bo'lmagan joyda turadi, oxirida emas. To'g'risi 102." },
-    wrong_default: { ru: 'Не теряй ноль в частном и проверяй ответ умножением. Верно 102.', uz: "Bo'linmadagi nolni yo'qotmang va javobni ko'paytirib tekshiring. To'g'risi 102." },
+    wrong_0: { ru: 'Ноль пропущен. В среднем разряде 1 не делится на 6 — нужен ноль, иначе частное короче на разряд.', uz: "Nol tushib qolgan. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma bir xonaga qisqa." },
+    wrong_2: { ru: 'Проверка не сходится: 112 умножить на 6 равно 672, а не 612. Перепроверь среднюю цифру.', uz: "Tekshirish to'g'ri kelmaydi: 112 ni 6 ga ko'paytirsak 672, 612 emas. O'rtadagi raqamni qayta tekshiring." },
+    wrong_3: { ru: 'Ноль не на месте. Он стоит в середине, где 1 не делится на 6, а не в конце.', uz: "Nol joyida emas. U o'rtada, 1 ni 6 ga bo'lib bo'lmagan joyda turadi, oxirida emas." },
+    wrong_default: { ru: 'Не теряй ноль в частном и проверяй ответ умножением.', uz: "Bo'linmadagi nolni yo'qotmang va javobni ko'paytirib tekshiring." },
     audio: {
       intro: { ru: 'Сколько будет шестьсот двенадцать разделить на шесть? Выбери ответ.', uz: "Olti yuz o'n ikkini oltiga bo'lsak, nechaga teng? Javobni tanlang." },
       on_correct: { ru: 'Верно. Ещё один, последний пример.', uz: "To'g'ri. Yana bitta, oxirgi misol." },
@@ -1367,7 +1367,7 @@ const ExplorationStep = ({ idx, screen, totalScreens, onNext, onPrev, board }) =
             )
           ))}
         </div>
-        {step >= last && <div className="fade-up frame-soft"><p className="body" style={{ margin: 0 }}>{t(c.step3_text)}</p></div>}
+        {step >= last && <div className="fade-up frame-tip"><p className="body" style={{ margin: 0 }}>{t(c.step3_text)}</p></div>}
         <div ref={endRef}/>
       </div>
     </Stage>
@@ -1392,7 +1392,7 @@ const RuleScreenGold = ({ idx, screen, totalScreens, onNext, onPrev, rules }) =>
               <div className="body" style={{ color: T.ink }}>{t(c[r])}</div>
             </div>
           ))}
-          {c.term && <div className="frame-soft" style={{ marginTop: 4 }}><p className="body" style={{ margin: 0 }}>{t(c.term)}</p></div>}
+          {c.term && <div className="frame-tip" style={{ marginTop: 4 }}><p className="body" style={{ margin: 0 }}>{t(c.term)}</p></div>}
           <div style={{ textAlign: 'center', marginTop: 4 }}><span className="mono" style={{ fontSize: 'clamp(16px, 2.6vw, 20px)', color: T.ink }}>{t(c.example)}</span></div>
         </div>
         <RefNote idx={idx}/>
@@ -1406,28 +1406,46 @@ const MCScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onNext, o
   const meta = SCREEN_META[idx];
   const lang = useLang();
   const t = useT();
+  const sfx = useSfx();
   const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
   const opts = [c.opt0, c.opt1, c.opt2, c.opt3].filter(Boolean);
-  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
-  const [revealed, setRevealed] = useState(storedAnswer !== undefined);
+
+  // Веди-до-верного: неверный гаснет и отключается, остальные активны, правильный
+  // НЕ раскрывается; «Дальше» — только когда выбран верный.
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [solved, setSolved] = useState(wasSolved);
+  const [picked, setPicked] = useState(wasSolved ? c.correctIndex : null);
+  const [wrong, setWrong] = useState(() => new Set());
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
+  const introAdvancedRef = useRef(wasSolved);
 
   const pick = (i) => {
-    if (revealed) return;
-    setPicked(i); setRevealed(true);
+    if (solved) return;
+    if (wrong.has(i)) return;
     const isCorrect = i === c.correctIndex;
-    onAnswer({
-      stage: meta.scope, screenIdx: idx, question: c.question?.[lang] ?? null,
-      options: opts.map(o => o[lang]), correctIndex: c.correctIndex,
-      correctAnswer: opts[c.correctIndex]?.[lang] ?? null,
-      studentAnswerIndex: i, studentAnswer: opts[i]?.[lang] ?? null, correct: isCorrect
-    });
-    audio.triggerEvent('option_picked');
+    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstIdxRef.current = i; }
+    setPicked(i);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    if (isCorrect) {
+      setSolved(true); sfx.playCorrect();
+      onAnswer({
+        stage: meta.scope, screenIdx: idx, question: c.question?.[lang] ?? null,
+        options: opts.map(o => o[lang]), correctIndex: c.correctIndex,
+        correctAnswer: opts[c.correctIndex]?.[lang] ?? null,
+        studentAnswerIndex: firstIdxRef.current, studentAnswer: opts[firstIdxRef.current]?.[lang] ?? null,
+        correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true
+      });
+    } else {
+      sfx.playWrong();
+      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
+    }
     if (!audio.muted) {
       setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(isCorrect ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
     }
   };
 
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!revealed} onClick={onNext} label={<NextLabel/>}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
@@ -1435,27 +1453,35 @@ const MCScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onNext, o
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           <h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2>
         </div>
-        {!revealed && c.hint && <div className="fade-up delay-1"><HintToggle hint={c.hint}/></div>}
+        {!solved && c.hint && <div className="fade-up delay-1"><HintToggle hint={c.hint}/></div>}
         <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {opts.map((opt, i) => {
             let cls = 'option';
-            if (revealed) { if (i === c.correctIndex) cls += ' option-correct'; else if (i === picked) cls += ' option-picked-wrong'; else cls += ' option-wrong'; }
+            const isWrongPicked = wrong.has(i);
+            if (solved) {
+              if (i === c.correctIndex) cls += ' option-correct';
+              else if (isWrongPicked) cls += ' option-picked-wrong';
+              else cls += ' option-wrong';
+            } else if (isWrongPicked) {
+              cls += ' option-picked-wrong';
+            }
+            const disabled = solved || isWrongPicked;
             return (
-              <button key={i} className={cls} disabled={revealed} onClick={() => pick(i)}
+              <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
                 style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: revealed && i === c.correctIndex ? T.success : T.ink3 }}>{String.fromCharCode(65 + i)}</span>
+                <span className="mono small" style={{ minWidth: 20, color: solved && i === c.correctIndex ? T.success : (wrong.has(i) ? T.accent : T.ink3) }}>{solved && i === c.correctIndex ? '✓' : (wrong.has(i) ? '✗' : String.fromCharCode(65 + i))}</span>
                 <span style={{ flex: 1 }}>{t(opt)}</span>
               </button>
             );
           })}
         </div>
-        <FeedbackBlock show={revealed} isCorrect={picked === c.correctIndex}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: picked === c.correctIndex ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {picked === c.correctIndex ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? "Noto'g'ri" : 'Не совсем')}
+        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
-          <p className="body" style={{ margin: 0 }}>{picked === c.correctIndex ? t(c.correct_text) : t(c[`wrong_${picked}`] || c.wrong_default)}</p>
+          <p className="body" style={{ margin: 0 }}>{solved ? t(c.correct_text) : t(c[`wrong_${picked}`] || c.wrong_default)}</p>
         </FeedbackBlock>
-        {revealed && DIV_SOLUTIONS[idx] && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
+        {solved && DIV_SOLUTIONS[idx] && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
       </div>
     </Stage>
   );
@@ -1465,51 +1491,50 @@ const DivNumInputScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
   const c = CONTENT[`s${idx}`];
   const t = useT(); const lang = useLang();
   const meta = SCREEN_META[idx];
+  const sfx = useSfx();
   const target = parseInt(c.correctValue, 10);
   const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const restored = storedAnswer !== undefined;
-  const [value, setValue] = useState(storedAnswer?.studentAnswer ?? '');
-  const [firstDone, setFirstDone] = useState(restored);
-  const [firstCorrect, setFirstCorrect] = useState(restored ? !!storedAnswer.correct : false);
-  const [solved, setSolved] = useState(restored ? !!storedAnswer.correct : false);
-  const [gaveUp, setGaveUp] = useState(restored ? !storedAnswer.correct : false);
-  const locked = solved || gaveUp;
-  const showSolution = locked && !!DIV_SOLUTIONS[idx];
+  // Веди-до-верного: пробуем до верного, без кнопки «Показать решение»; «Дальше» — только на верном.
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [value, setValue] = useState(wasSolved ? String(target) : (storedAnswer?.studentAnswer ?? ''));
+  const [solved, setSolved] = useState(wasSolved);
+  const [tried, setTried] = useState(wasSolved);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
+  const introAdvancedRef = useRef(wasSolved);
 
   const submit = () => {
-    if (value === '' || locked) return;
+    if (value === '' || solved) return;
     const ok = parseInt(value, 10) === target;
-    if (!firstDone) {
-      setFirstDone(true); setFirstCorrect(ok);
-      onAnswer({ stage: meta.scope, screenIdx: idx, question: c.question?.[lang] ?? null, options: null, correctIndex: null, correctAnswer: c.correctValue, studentAnswerIndex: null, studentAnswer: String(value), correct: ok });
-    }
-    setSolved(ok);
-    audio.triggerEvent('check_pressed');
-    if (!audio.muted) { const fb = ok ? c.audio.on_correct[lang] : UI.wrongAudio[lang]; setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(fb); }, 300); }
+    if (firstTryRef.current === null) { firstTryRef.current = ok; firstAnsRef.current = String(value); }
+    setTried(true);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
+    if (ok) {
+      setSolved(true); sfx.playCorrect();
+      onAnswer({ stage: meta.scope, screenIdx: idx, question: c.question?.[lang] ?? null, options: null, correctIndex: null, correctAnswer: c.correctValue, studentAnswerIndex: null, studentAnswer: firstAnsRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
+    } else { sfx.playWrong(); }
+    if (!audio.muted) { const fb = ok ? c.audio.on_correct[lang] : (c.audio.on_wrong?.[lang] || UI.wrongAudio[lang]); setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(fb); }, 300); }
   };
 
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!firstDone} onClick={onNext} label={<NextLabel/>}/></>);
-  const inputState = solved ? 'correct' : (firstDone ? 'wrong' : '');
-  const banner = solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? "Noto'g'ri" : 'Не совсем');
-  const feedbackText = solved ? (firstCorrect ? t(c.fb_correct) : UI.retryOk[lang]) : (gaveUp ? UI.gaveUp[lang] : UI.tryAgain[lang]);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  const feedbackText = solved ? (firstTryRef.current ? t(c.fb_correct) : UI.retryOk[lang]) : UI.tryAgain[lang];
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 24px)' }}>
         <div className="fade-up"><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></div>
-        {!locked && c.hint && <div className="fade-up delay-1"><HintToggle hint={c.hint}/></div>}
+        {!solved && c.hint && <div className="fade-up delay-1"><HintToggle hint={c.hint}/></div>}
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
-          <input type="number" inputMode="numeric" className={`answer-input ${inputState}`} value={value} placeholder={t(c.placeholder)} onChange={e => setValue(e.target.value)} disabled={locked} onKeyDown={e => e.key === 'Enter' && submit()} style={{ minWidth: 'min(70%, 240px)' }}/>
+          <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} onChange={e => { if (!solved) setValue(e.target.value); }} disabled={solved} onKeyDown={e => e.key === 'Enter' && submit()} style={{ minWidth: 'min(70%, 240px)' }}/>
         </div>
         <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-          {firstDone && !locked && <button className="btn-ghost" onClick={() => setGaveUp(true)} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{UI.showSolution[lang]}</button>}
-          <button className="btn-white-accent" disabled={!value || locked} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}><CheckLabel/></button>
+          {!solved && <button className="btn-white-accent" disabled={!value} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}><CheckLabel/></button>}
         </div>
-        <FeedbackBlock show={firstDone} isCorrect={solved}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{banner}</p>
+        <FeedbackBlock show={tried} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}</p>
           <p className="body" style={{ margin: 0 }}>{feedbackText}</p>
         </FeedbackBlock>
-        {showSolution && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
+        {solved && DIV_SOLUTIONS[idx] && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
       </div>
     </Stage>
   );
@@ -1519,41 +1544,41 @@ const NumInputRemainder = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
   const c = CONTENT[`s${idx}`];
   const t = useT(); const lang = useLang();
   const meta = SCREEN_META[idx];
+  const sfx = useSfx();
   const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const restored = storedAnswer !== undefined;
-  const parsed = (storedAnswer?.studentAnswer || '').match(/\d+/g) || [];
-  const [q, setQ] = useState(restored ? (parsed[0] ?? '') : '');
-  const [r, setR] = useState(restored ? (parsed[1] ?? '') : '');
-  const [firstDone, setFirstDone] = useState(restored);
-  const [firstCorrect, setFirstCorrect] = useState(restored ? !!storedAnswer.correct : false);
-  const [solved, setSolved] = useState(restored ? !!storedAnswer.correct : false);
-  const [gaveUp, setGaveUp] = useState(restored ? !storedAnswer.correct : false);
-  const locked = solved || gaveUp;
-  const showSolution = locked && !!DIV_SOLUTIONS[idx];
   const remWord = lang === 'uz' ? 'qoldiq' : 'ост';
+  // Веди-до-верного: пробуем до верного, без кнопки «Показать решение»; «Дальше» — только на верном.
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const parsed = (storedAnswer?.studentAnswer || '').match(/\d+/g) || [];
+  const [q, setQ] = useState(wasSolved ? c.correctQuotient : (parsed[0] ?? ''));
+  const [r, setR] = useState(wasSolved ? c.correctRemainder : (parsed[1] ?? ''));
+  const [solved, setSolved] = useState(wasSolved);
+  const [tried, setTried] = useState(wasSolved);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
+  const introAdvancedRef = useRef(wasSolved);
   const qLabel = lang === 'uz' ? "To'liqsiz bo'linma" : 'Неполное частное';
   const rLabel = lang === 'uz' ? 'Qoldiq' : 'Остаток';
 
   const submit = () => {
-    if (q === '' || r === '' || locked) return;
+    if (q === '' || r === '' || solved) return;
     const ok = q === c.correctQuotient && r === c.correctRemainder;
-    if (!firstDone) {
-      setFirstDone(true); setFirstCorrect(ok);
-      onAnswer({ stage: meta.scope, screenIdx: idx, question: c.question?.[lang] ?? null, options: null, correctIndex: null, correctAnswer: `${c.correctQuotient} ${remWord} ${c.correctRemainder}`, studentAnswerIndex: null, studentAnswer: `${q} ${remWord} ${r}`, correct: ok });
-    }
-    setSolved(ok);
-    audio.triggerEvent('check_pressed');
-    if (!audio.muted) { const fb = ok ? c.audio.on_correct[lang] : UI.wrongAudio[lang]; setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(fb); }, 300); }
+    if (firstTryRef.current === null) { firstTryRef.current = ok; firstAnsRef.current = `${q} ${remWord} ${r}`; }
+    setTried(true);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
+    if (ok) {
+      setSolved(true); sfx.playCorrect();
+      onAnswer({ stage: meta.scope, screenIdx: idx, question: c.question?.[lang] ?? null, options: null, correctIndex: null, correctAnswer: `${c.correctQuotient} ${remWord} ${c.correctRemainder}`, studentAnswerIndex: null, studentAnswer: firstAnsRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
+    } else { sfx.playWrong(); }
+    if (!audio.muted) { const fb = ok ? c.audio.on_correct[lang] : (c.audio.on_wrong?.[lang] || UI.wrongAudio[lang]); setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(fb); }, 300); }
   };
 
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!firstDone} onClick={onNext} label={<NextLabel/>}/></>);
-  const inputState = solved ? 'correct' : (firstDone ? 'wrong' : '');
-  const banner = solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? "Noto'g'ri" : 'Не совсем');
-  const feedbackText = solved ? (firstCorrect ? t(c.fb_correct) : UI.retryOk[lang]) : (gaveUp ? UI.gaveUp[lang] : UI.tryAgain[lang]);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  const feedbackText = solved ? (firstTryRef.current ? t(c.fb_correct) : UI.retryOk[lang]) : UI.tryAgain[lang];
   const field = (label, val, setVal) => (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
       <span className="small mono" style={{ color: T.ink2, fontWeight: 600 }}>{label}</span>
-      <input type="number" inputMode="numeric" className={`answer-input ${inputState}`} value={val} placeholder={t(c.placeholder) || '0'} onChange={e => setVal(e.target.value)} disabled={locked} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'min(40vw, 130px)' }}/>
+      <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={val} placeholder={t(c.placeholder) || '0'} onChange={e => { if (!solved) setVal(e.target.value); }} disabled={solved} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'min(40vw, 130px)' }}/>
     </div>
   );
 
@@ -1561,17 +1586,16 @@ const NumInputRemainder = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 24px)' }}>
         <div className="fade-up"><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></div>
-        {!locked && c.hint && <div className="fade-up delay-1"><HintToggle hint={c.hint}/></div>}
+        {!solved && c.hint && <div className="fade-up delay-1"><HintToggle hint={c.hint}/></div>}
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(16px, 4vw, 32px)', flexWrap: 'wrap' }}>{field(qLabel, q, setQ)}{field(rLabel, r, setR)}</div>
         <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-          {firstDone && !locked && <button className="btn-ghost" onClick={() => setGaveUp(true)} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{UI.showSolution[lang]}</button>}
-          <button className="btn-white-accent" disabled={!q || !r || locked} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}><CheckLabel/></button>
+          {!solved && <button className="btn-white-accent" disabled={!q || !r} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}><CheckLabel/></button>}
         </div>
-        <FeedbackBlock show={firstDone} isCorrect={solved}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{banner}</p>
+        <FeedbackBlock show={tried} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}</p>
           <p className="body" style={{ margin: 0 }}>{feedbackText}</p>
         </FeedbackBlock>
-        {showSolution && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
+        {solved && DIV_SOLUTIONS[idx] && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
       </div>
     </Stage>
   );
@@ -1661,7 +1685,7 @@ const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 24px)' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
-        <div className="frame-soft fade-up delay-1"><p className="body" style={{ margin: 0 }}>{t(c.ring_back)}</p></div>
+        <div className="frame-tip fade-up delay-1"><p className="body" style={{ margin: 0 }}>{t(c.ring_back)}</p></div>
         <div className="frame fade-up delay-1" style={{ textAlign: 'center' }}>
           <p className="eyebrow" style={{ color: T.ink3, margin: 0 }}>{t(c.score_label)}</p>
           <div className="display" style={{ fontSize: 'clamp(56px, 11vw, 80px)', marginTop: 8 }}>
@@ -1969,7 +1993,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -2114,7 +2138,7 @@ html, body { margin: 0; padding: 0; }
 .mb-pop { display: inline-block; animation: mb-pop-in 0.32s ease-out both; }
 .mb-work-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .mb-chip { background: #FFFFFF; border-radius: 10px; padding: 6px 10px; font-size: clamp(13px, 1.7vw, 15px); box-shadow: 0 4px 12px -6px rgba(58, 53, 48, 0.16); white-space: nowrap; }
-.hint-toggle { background: transparent; border: 1px dashed rgba(58, 53, 48, 0.28); border-radius: 10px; padding: 8px 14px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #B25A1E; cursor: pointer; transition: all 0.15s; }
+.hint-toggle { background: transparent; border: 1px dashed rgba(58, 53, 48, 0.28); border-radius: 10px; padding: 8px 14px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #A07D14; cursor: pointer; transition: all 0.15s; }
 .hint-toggle:hover { border-color: rgba(178, 90, 30, 0.6); }
 .sol-replay { background: #FFFFFF; border: 1px solid rgba(58, 53, 48, 0.14); border-radius: 99px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #5A5A60; cursor: pointer; transition: color 0.15s; }
 .sol-replay:hover { color: #0E0E10; }

@@ -1,0 +1,10 @@
+const fs=require('fs');const m=fs.readFileSync('dars31_middle.txt','utf8');const s=fs.readFileSync('src/components/Dars31.jsx','utf8');
+const issues=[];
+const chk=(re,label)=>{[...m.matchAll(re)].forEach(x=>{[x[1],x[2]].forEach(t=>{if(/[×]|sm²|sm³|—|: [A-Za-zА-Яа-я]/.test(t))issues.push(label+': '+t);});});};
+chk(/wrong_[0-9]:\s*\{\s*ru:\s*'([^']*)',\s*uz:\s*"([^"]*)"/g,'wrong');
+chk(/hint:\s*\{\s*ru:\s*'([^']*)',\s*uz:\s*"([^"]*)"\s*\}/g,'hint');
+chk(/on_wrong:\s*\{\s*ru:\s*'([^']*)',\s*uz:\s*"([^"]*)"/g,'on_wrong');
+console.log('voiced-hint TTS issues:',issues.length,issues);
+const uz=[...m.matchAll(/uz:\s*("(?:[^"\]|\.)*"|`(?:[^`\]|\.)*`)/g)].map(x=>x[1]);
+console.log('cyrillic-in-uz:',uz.filter(v=>/[Ѐ-ӿ]/.test(v)).length,'| sen:',uz.filter(v=>/\bsen\b|\bo'zing\b|(?:san|sang|ding)\b/i.test(v)).length,'| ru/uz:',(m.match(/\bru:/g)||[]).length,'/',(m.match(/\buz:/g)||[]).length);
+const b=fs.readFileSync('src/components/Dars31.jsx');console.log('BOM:',b[0]===0xEF,'| CRLF:',(s.match(/\r/g)||[]).length,'| off-palette hex:',(s.match(/#A07D14|#FBF8F2|#FFD23F/g)||[]).length,'| .lb-wsurf gone:',!/lb-wsurf/.test(s));

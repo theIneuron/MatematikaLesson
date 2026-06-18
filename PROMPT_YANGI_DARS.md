@@ -146,6 +146,48 @@ emas (warm-up); ekran budjetiga (13–16) kiradi.
   sig'ishi preview'da tekshiriladi. Sig'masa — kontent qisqartiriladi yoki svyortkaga
   olinadi; scroll qaytarish taqiqlanadi.
 
+- **Isbotlangan SCROLL-FIX texnikalari (Dars01 refaktori, 2026-06-17) — javob/interaktiv ekranlarda:**
+  Bular yangi darsda scroll chiqsa qo'llaniladigan aniq retsept. Hammasi CSS-only transition,
+  6-bo'lim qoidalariga bo'ysunadi (`prefers-reduced-motion` hurmat qilinadi).
+  1. **Hook (s0) — variantlar chiqqanda vizual kichrayadi:** audio tugab variantlar paydo
+     bo'lganda animatsiya/vizual masshtabi yumshoq kichrayadi (`maxW` props + `transition:
+     max-width`), ikkilamchi matn (kirish gap/podzagolovok) plavno yig'iladi — shunda
+     variantlar scroll'siz sig'adi. Kolonka `justifyContent: center` + `clamp()` gap.
+  2. **To'g'ri javobdan keyin — SARLAVHA + SAVOL + TO'G'RI JAVOB qoladi, qolgani yig'iladi
+     (YANGILANGAN ANTI-SCROLL METOD, metodist talabi 2026-06-18, Dars37 — oldingi "savol blokini
+     ham yig'ish" yondashuvini ALMASHTIRADI):** MC practice ekranlarida `solved` bo'lganda
+     sarlavha (Title), savol matni VA to'g'ri variant joyida QOLADI — faqat NOTO'G'RI variantlar
+     yig'ilib g'oyib bo'ladi. To'g'ri variant markazga chiqadi: variant-konteyner setkasini
+     `gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0,1fr))'` + `justifyItems: solved ?
+     'center' : 'stretch'` qil; to'g'ri tugmaga `width:'100%'; maxWidth:440`; yashil ✓ saqlanadi.
+     Kolonka `justifyContent: solved ? 'center' : 'flex-start'`. Sabab: o'quvchi javobdan keyin
+     ham NIMAGA javob berganini ko'rib tursin, ammo ortiqcha variantlar joy egallamasin —
+     scroll ham ketadi, kontekst ham yo'qolmaydi.
+     - **Title alohida `titleNode` prop bilan uzatiladi** (savol matnidan ajratilgan): shunda
+       kerak bo'lsa (boshqa darsда) faqat savol matnini yig'ib, sarlavhani qoldirish mumkin.
+       Dars37'da esa savol ham qoldiriladi (hech narsa yig'ilmaydi — faqat noto'g'ri variantlar).
+     - (Eski usul — `solved` da eyebrow+savol blokini ham `maxHeight:0/opacity:0` bilan yig'ish —
+       endi standart EMAS; faqat savolni ko'rsatishning hojati bo'lmagan maxsus ekranда ishlatilsin.)
+  3. **Noto'g'ri variantlar mgnovenno o'chmaydi — plavno va KETMA-KET yig'iladi (yanada silliq,
+     2026-06-18):** `return null` o'rniga variantni DOM da qoldirib `maxHeight/opacity/padding/
+     border` ni 0 ga animatsiya qil (`overflow:hidden`) + yengil `transform: translateY(-6px)
+     scale(0.97)`; setka `gap`ini `solved` da 0 ga tushir. Har variantга **`transitionDelay:
+     i*0.07s`** ber — noto'g'rilar BIRGA emas, ketma-ket so'nadi (ko'z yanada kam charchaydi).
+     O'tish uzunroq: max-height ~0.75s, opacity ~0.6s, min-height ~0.75s, `cubic-bezier(0.33, 0, 0.2, 1)`.
+     **DIQQAT (Dars37'da tutilgan tuzoq):** `.option-wrong`dagi `opacity: .55 !important` inline
+     `opacity:0` ni BLOKLAYDI — yig'ilayotgan variantга rang-klass (`option-wrong`/`option-picked-wrong`)
+     QO'SHMA, bazaviy `option` qoldir; shunda inline `opacity:0` silliq so'nadi.
+  4. **Keraksiz elementlarni `solved` da yashir:** "Tekshirish" tugmasi va bank/manba zonasi
+     javobdan keyin kerak emas — `{!solved && (...)}` bilan olib tashla → balandlik bo'shaydi.
+  5. **Drag+bank o'rniga tap-to-assign (juftlash/match ekrani — mobil scroll'ni ketkazadi):**
+     alohida "bank" kartalari + slotlardagi nusxalar = ikki barobar balandlik (asosiy sabab).
+     Tap-bilan-tanlash naqshi: slotni bos (aktiv ramka) → tagida variantlar ro'yxati ochiladi →
+     tap belgilaydi va ro'yxat yopiladi; band variant belgilanadi, qayta tap ko'chiradi.
+     Dublikat yo'q → scroll yo'q. UZ matn drag'dan tap'ga moslab o'zgartiriladi
+     ("torting" → "bosing va tanlang"), bu draft — UZ metodist validatsiyasi.
+  6. **Umumiy zichlash:** flex `gap`ni `clamp(12px, 2vw, 16px)` ga tushir; `useIsMobile` bilan
+     mobil shrift/`line-height`/padding kichraytir; kontent kolonkasi `justifyContent: center`.
+
 ---
 
 ## 3. TEST EKRANLARI QOIDALARI
@@ -349,6 +391,44 @@ UZ — lotin alifbosi. UZ matnli JS-stringlar — FAQAT qo'shtirnoq `"..."` yoki
   uzat. Aks holda uz-darsда "Назад" chiqadi.
 - Tekshiruv (7-bo'limga): har CONTENT kaliti `ru` bilan bo'lsa — `uz` ham bo'sh emas (va
   aksincha); ru/uz massiv uzunliklari teng; JSX'da kirill yoki qattiq bir tilli matn yo'q.
+
+---
+
+## 5-B. MATEMATIK TERMINOLOGIYA — DARSLIKKA ASOSLANISH (metodist, 2026-06-16)
+
+**Manba:** o'zbekcha matematik terminlar O'zbekiston darsliklariga asoslanadi — asosiysi
+B. Haydarov "Matematika 5-sinf" (2015, lotin), `src/books/` papkasida. To'liq glossariy —
+Notion `uz_locale` §6 va MATH-ГЛОССАРИЙ bloklarida.
+
+**Har dars yaratganda (content + qa bosqichida):**
+- UZ termini bazaga (`uz_locale`) mos kelishini tekshir. Bazada bo'lsa — o'sha shaklni ishlat.
+- Bazada yo'q (yangi mavzu) bo'lsa — Haydarov kitobidan ol, sahifa/§ havolasi bilan, va
+  "draft — UZ metodist validatsiyasi kerak" deб belgila. O'zingdan termin TO'QIMA.
+- Farq topilsa (ekranда bir xil, kitobда boshqacha) — metodistga ko'rsat: "ekranда X,
+  kitobда (§N, b.NN) Y", taklif ber, lekin o'zing jimgina o'zgartirma.
+
+**yuza vs yuz (muhim — 2026-06-16):**
+- `yuza` = площадь. Har doim площадь uchun shu.
+- `yuz` = 100 (son). Faqat shu ma'noda.
+- Haydarov kitobi площадь uchun `yuz/yuzi` yozadi (eski/chalkash shakl) — ishlatma. Kitobда
+  площадь ma'nosida `yuzi` ko'rsang — `yuza` deб o'qi.
+
+**Eng ko'p ishlatiladigan 5-sinf terminlari (qisqa svod, kitobdan):**
+- Kasrlar: `kasr` / `oddiy kasr`, surat (числитель), maxraj (знаменатель), `ulush` (доля),
+  `kasr chizig'i`, `to'g'ri kasr` / `noto'g'ri kasr`, `aralash son`, `umumiy maxraj`.
+- Amallar: qo'shiluvchi/`yig'indi`, kamayuvchi/ayiriluvchi/`ayirma`, ko'paytuvchi/`ko'paytma`,
+  bo'linuvchi/bo'luvchi/`bo'linma`, `to'liqsiz bo'linma`, `qoldiq`, `qoldiqli bo'lish`.
+- Razryad: `xona` (birlar/o'nlar/yuzlar...), `sinf` (NE klass), `ko'p xonali son`.
+- Daraja: `daraja`, `daraja asosi`, `daraja ko'rsatkichi`, `kvadrati`, `kubi`.
+- Geometriya: `kesma`, `to'g'ri chiziq`, `nur`, `burchak` (uchi/tomonlari), `to'g'ri burchak`,
+  `yoyiq burchak`, `aylana`/`doira` (markaz/radius/diametr/yoy), `parallelepiped`
+  (yoq/qirra/uch, bo'y/en/balandlik), `yuza`, `hajm`, `perimetr`.
+- O'nli kasr: `o'nli kasr`, `vergul`, `o'ndan/yuzdan/mingdan birlar xonasi`, `yaxlitlash`,
+  `taqribiy qiymat`.
+- Boshqa: `tenglama` (ildizi/yechimi), `sonli/harfli ifoda`, `formula`, `o'rta arifmetik`,
+  `foiz`, `doiraviy diagramma`, `taqqoslash`.
+
+Batafsil RU↔UZ jadval, sahifa havolalari va boshqa boblar — Notion `uz_locale`да.
 
 ---
 

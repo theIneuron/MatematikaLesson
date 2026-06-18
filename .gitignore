@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Reference textbooks (large PDFs, not pushed to GitHub)
+src/books/

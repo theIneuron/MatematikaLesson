@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -714,8 +714,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
                 style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
-                  {String.fromCharCode(65 + i)}
+                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
@@ -723,8 +723,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
           })}
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -1152,7 +1152,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <p className="body fade-up" style={{ color: T.ink2 }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+        <div className="frame fade-up delay-1 hook-alive" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}><span className="hook-sheen" aria-hidden="true"/><span className="hook-glow" aria-hidden="true"/>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 360 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="2" size="sm" color={T.accent}/><div style={{ flex: 1 }}><CellRow total={2} fills={gridFills([{ count: 1, color: T.accent }], 2)} h={30} max={9999}/></div></div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="3" size="sm" color={T.blue}/><div style={{ flex: 1 }}><CellRow total={3} fills={gridFills([{ count: 1, color: T.blue }], 3)} h={30} max={9999}/></div></div>
@@ -1452,7 +1452,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
                 {placeHint && (<div className="frame-tip fade-up"><p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p><p className="body" style={{ margin: 0 }}>{mt(t(c.place_hint))}</p></div>)}
               </>
             )}
-            {phase === 2 && (<FeedbackBlock show={true} isCorrect={true}><p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p><p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p><div style={{ marginTop: 10 }}><FactCard text={c.fact} anim={<AnimPixel/>}/></div></FeedbackBlock>)}
+            {phase === 2 && (<FeedbackBlock show={true} isCorrect={true}><p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p><p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p><div style={{ marginTop: 10 }}><FactCard text={c.fact} anim={<AnimPixel/>}/></div></FeedbackBlock>)}
           </>
         )}
       </div>
@@ -1768,7 +1768,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -2050,4 +2050,8 @@ html, body { margin: 0; padding: 0; }
 .fa-px-c { width: 100%; aspect-ratio: 1 / 1; border-radius: 2px; background: #019ACB; animation: faPx 2.2s ease-in-out infinite; }
 @keyframes faPx { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
 
+/* Accessibility: prefers-reduced-motion — gasim dekorativ sikllarni. */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 `;

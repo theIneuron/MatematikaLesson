@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -779,7 +779,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -838,6 +838,7 @@ const CONTENT = {
   // s0 — HOOK (konseptual): ayirganda maxraj o'zgaradimi?
   s0: {
     eyebrow: { ru: 'Вопрос', uz: "Savol" },
+    title: { ru: 'Мохира отмотала сериал назад', uz: "Mohira serialni orqaga qaytardi" },
     lead: { ru: 'Мохира посмотрела 5/6 сериала, но отмотала 2/6 назад, чтобы пересмотреть.', uz: "Mohira serialning 5/6 qismini ko'rgan edi, lekin 2/6 qismini qayta ko'rish uchun orqaga qaytardi." },
     question: { ru: 'Когда вычитаем, нижнее число — знаменатель — изменится?', uz: "Ayirganimizda pastki son — maxraj — o'zgaradimi?" },
     opt0: { ru: 'Нет, знаменатель остаётся', uz: "Yo'q, maxraj o'zgarmaydi" },
@@ -849,6 +850,7 @@ const CONTENT = {
   // s1 — EXPLORATION (step): son o'qida orqaga qadam, 5/6 − 2/6 = 3/6
   s1: {
     eyebrow: { ru: 'Разбор', uz: "Tahlil" },
+    heading: { ru: 'Шаг назад по числовой прямой', uz: "Son o'qida orqaga qadam" },
     title: { ru: 'Вычесть — значит шагнуть назад по числовой прямой', uz: "Ayirish — son o'qida orqaga qadam tashlash" },
     conclusion: { ru: 'Шагнули назад на 2 шестых. Шаги одного размера — знаменатель остался 6. 5/6 − 2/6 = 3/6.', uz: "Oltidan ikki qadam orqaga tashladik. Qadamlar bir o'lchamda — maxraj 6 bo'lib qoldi. 5/6 − 2/6 = 3/6." },
     btn_step: { ru: 'Дальше', uz: "Davom etish" },
@@ -872,6 +874,7 @@ const CONTENT = {
   // s2 — EXPLORATION (jonli): o'quvchi markerni o'zi orqaga suradi (den 8)
   s2: {
     eyebrow: { ru: 'Поиграй', uz: "O'ynab ko'ring" },
+    heading: { ru: 'Двигай метку назад сам', uz: "Belgini o'zingiz orqaga suring" },
     title: { ru: 'Двигай назад сам — собери разность.', uz: "O'zingiz orqaga suring — ayirmani toping." },
     label_start: { ru: 'Старт: 7/8', uz: "Boshlanish: 7/8" },
     label_back: { ru: 'Шагов назад', uz: "Orqaga qadam" },
@@ -883,6 +886,7 @@ const CONTENT = {
   // s3 — RULE
   s3: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    heading: { ru: 'Вычитаем числители, знаменатель тот же', uz: "Suratlarni ayiramiz, maxraj o'sha" },
     label: { ru: 'Вычитание при равном знаменателе', uz: "Maxraj teng bo'lganda ayirish" },
     label_back: { ru: 'Вычли', uz: "Ayirildi" },
     title: { ru: 'Вычитаем числители, а знаменатель не меняем.', uz: "Suratlarni ayiramiz, maxrajni o'zgartirmaymiz." },
@@ -895,6 +899,7 @@ const CONTENT = {
   // s4 — TEST MC (p1): 4/5 − 1/5 = 3/5  (fakt: yuklanish)
   s4: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Вычти дроби с равным знаменателем', uz: "Teng maxrajli kasrlarni ayiring" },
     label: { ru: 'Вычти дроби', uz: "Kasrlarni ayiring" },
     question: { ru: '4/5 − 1/5 = ?', uz: "4/5 − 1/5 = ?" },
     correct_text: { ru: 'Правильно. 4 − 1 = 3, знаменатель 5 не меняется: 3/5.', uz: "To'g'ri. 4 − 1 = 3, maxraj 5 o'zgarmaydi: 3/5." },
@@ -913,6 +918,7 @@ const CONTENT = {
   // s5 — TEST NumInput (p2): 7/9 − 3/9 = ?/9  -> 4
   s5: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Найди числитель разности', uz: "Ayirma suratini toping" },
     question: { ru: 'Вычти: 7/9 − 3/9 = ?/9. Введи числитель.', uz: "Ayiring: 7/9 − 3/9 = ?/9. Suratni kiriting." },
     placeholder: { ru: '0', uz: "0" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -928,6 +934,7 @@ const CONTENT = {
   // s6 — RULE: maxsus holat — natija nol
   s6: {
     eyebrow: { ru: 'Особый случай', uz: "Maxsus holat" },
+    heading: { ru: 'Когда разность равна нулю', uz: "Ayirma nolga teng bo'lganda" },
     label: { ru: 'Когда долей не осталось', uz: "Ulush qolmaganda" },
     title: { ru: 'Если числители равны — разность равна нулю.', uz: "Suratlar teng bo'lsa — ayirma nolga teng." },
     card_top: { ru: '3/7 − 3/7: отняли все доли. Осталось 0 долей из 7.', uz: "3/7 − 3/7: hamma ulushni ayirdik. 7 dan 0 ulush qoldi." },
@@ -938,6 +945,7 @@ const CONTENT = {
   // s7 — TEST "noto'g'risini top" (p3)
   s7: {
     eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
+    title: { ru: 'Найди неверное равенство', uz: "Noto'g'ri tenglikni toping" },
     label: { ru: 'Какое равенство НЕВЕРНО?', uz: "Qaysi tenglik NOTO'G'RI?" },
     question: { ru: 'Выбери запись, где допущена ошибка.', uz: "Xato qilingan yozuvni tanlang." },
     correct_text: { ru: 'Верно — ошибка здесь. Знаменатель вычитать нельзя, он остаётся 6: 5/6 − 2/6 = 3/6.', uz: "To'g'ri — xato shu yerda. Maxrajni ayirib bo'lmaydi, u 6 bo'lib qoladi: 5/6 − 2/6 = 3/6." },
@@ -955,6 +963,7 @@ const CONTENT = {
   // s8 — TEST MC (p4, markaziy M1): 5/6 − 2/6 = 3/6  (fakt: batareya)
   s8: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Вычти доли, не трогай знаменатель', uz: "Ulushlarni ayiring, maxrajga tegmang" },
     label: { ru: 'Вычти дроби', uz: "Kasrlarni ayiring" },
     question: { ru: '5/6 − 2/6 = ?', uz: "5/6 − 2/6 = ?" },
     correct_text: { ru: 'Правильно. 5 − 2 = 3, знаменатель 6 не меняется: 3/6.', uz: "To'g'ri. 5 − 2 = 3, maxraj 6 o'zgarmaydi: 3/6." },
@@ -973,6 +982,7 @@ const CONTENT = {
   // s9 — CASE setup: Jahongir, batareya
   s9: {
     eyebrow: { ru: 'Задача · заряд', uz: "Masala · zaryad" },
+    heading: { ru: 'Сколько заряда осталось у Жахонгира?', uz: "Jahongirda qancha zaryad qoldi?" },
     title: { ru: 'У Жахонгира телефон заряжен на 8/10.', uz: "Jahongirning telefoni 8/10 ga zaryadlangan." },
     body_p1: { ru: 'Шкала заряда поделена на 10 равных долей. Жахонгир потратил 3/10 заряда. Сколько осталось?', uz: "Zaryad shkalasi 10 ta teng ulushga bo'lingan. Jahongir 3/10 zaryadni sarfladi. Qancha qoldi?" },
     card_line_label: { ru: 'Было', uz: "Bor edi" },
@@ -987,6 +997,7 @@ const CONTENT = {
   // s10 — CASE drag (p5): batareyadan 3 katakni olib tashlash -> 5/10
   s10: {
     eyebrow: { ru: 'Задача · 1-й шаг', uz: "Masala · 1-qadam" },
+    heading: { ru: 'Убери потраченные доли заряда', uz: "Sarflangan zaryad ulushlarini oling" },
     title: { ru: 'Убери потраченные доли: вытащи 3 десятых из заряда.', uz: "Sarflangan ulushlarni oling: zaryaddan 3 ta o'ndan birni chiqaring." },
     hint: { ru: 'Заряд был 8 долей. Убери ровно 3 доли — потяни их вниз. Знаменатель остаётся 10.', uz: "Zaryad 8 ulush edi. Rosa 3 ulushni oling — pastga torting. Maxraj 10 bo'lib qoladi." },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -1001,6 +1012,7 @@ const CONTENT = {
   // s11 — CASE conclusion FINAL: 8/10 − 3/10 = 5/10  (fakt: Misr)
   s11: {
     eyebrow: { ru: 'Задача · итог', uz: "Masala · natija" },
+    title: { ru: 'Посчитай оставшийся заряд', uz: "Qolgan zaryadni hisoblang" },
     label: { ru: 'Сколько заряда осталось?', uz: "Qancha zaryad qoldi?" },
     question: { ru: '8/10 − 3/10 = ?', uz: "8/10 − 3/10 = ?" },
     correct_text: { ru: 'Правильно. 8 − 3 = 5, знаменатель 10: осталось 5/10 заряда.', uz: "To'g'ri. 8 − 3 = 5, maxraj 10: 5/10 zaryad qoldi." },
@@ -1019,6 +1031,7 @@ const CONTENT = {
   // s12 — SUMMARY + ConnectionsBlock
   s12: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
+    heading: { ru: 'Что мы усвоили', uz: "Nimani o'rgandik" },
     label: { ru: 'Урок пройден', uz: "Dars tugadi" },
     title: { ru: 'Теперь ты вычитаешь дроби с равным знаменателем.', uz: "Endi siz teng maxrajli kasrlarni ayirasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
@@ -1169,6 +1182,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1 hook-alive" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}><span className="hook-sheen" aria-hidden="true"/><span className="hook-glow" aria-hidden="true"/>
           <TvRewind/>
@@ -1205,6 +1219,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center', minHeight: 150, justifyContent: 'center' }}>
           <StepLine den={6} pos={pos} hi={step >= 3} alive/>
@@ -1227,6 +1242,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center', minHeight: 150, justifyContent: 'center' }}>
           <StepLine den={den} pos={pos} alive/>
@@ -1253,6 +1269,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <StepLine den={den} pos={pos} hi={back > 0} alive/>
@@ -1275,6 +1292,7 @@ const Screen4 = (props) => {
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
   const question = (
     <>
+      <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>
       <h2 className="title h-sub">{mt(t(c.question))}</h2>
       <div className="frame" style={{ marginTop: 12 }}><MinuendBar den={5} num={4}/></div>
     </>
@@ -1297,6 +1315,7 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <StepLine den={7} pos={0} hi alive/>
@@ -1323,7 +1342,7 @@ const Screen7 = (props) => {
   // base[0] — XATO yozuv (to'g'ri javob), qolganlari to'g'ri tengliklar
   const base = [eq(5, 2, 6, 3, 0), eq(4, 1, 5, 3, 5), eq(7, 3, 8, 4, 8), eq(6, 6, 7, 0, 0)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1334,6 +1353,7 @@ const Screen8 = (props) => {
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
   const question = (
     <>
+      <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>
       <h2 className="title h-sub">{mt(t(c.question))}</h2>
       <div className="frame" style={{ marginTop: 12 }}><MinuendBar den={6} num={5}/></div>
     </>
@@ -1349,6 +1369,7 @@ const Screen9 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ color: T.ink2 }}>{mt(t(c.body_p1))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <MinuendBar den={10} num={8}/>
@@ -1398,6 +1419,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <div className="bt-wrap">
@@ -1441,6 +1463,7 @@ const Screen11 = (props) => {
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
   const question = (
     <>
+      <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>
       <h2 className="title h-sub">{mt(t(c.question))}</h2>
       <div className="frame" style={{ marginTop: 12 }}><MinuendBar den={10} num={8}/></div>
     </>
@@ -1459,6 +1482,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1">
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 10 }}>{t(c.main_label)}</p>
@@ -1748,7 +1772,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;

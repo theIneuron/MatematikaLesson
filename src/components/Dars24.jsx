@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -779,7 +779,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -846,6 +846,7 @@ const CONTENT = {
   // ── s0 HOOK (анимация HookUpload — загрузка CoddyCamp.jpeg) ──────
   s0: {
     eyebrow: { ru: 'Загадка', uz: "Topishmoq" },
+    title: { ru: 'Десять картинок весят как одна?', uz: "O'nta rasm bittasidek tortadimi?" },
     lead: { ru: 'Davron загрузил для игры 10 картинок, каждая по 2,5 МБ. Чтобы найти общий размер, он умножил 2,5 на 10 и приписал ноль — получил 2,50 МБ.', uz: "Davron o'yin uchun 10 ta rasm yukladi, har biri 2,5 MB. Umumiy hajmni topish uchun u 2,5 ni 10 ga ko'paytirdi va oxiriga nol qo'shdi — 2,50 MB chiqardi." },
     objection: { ru: 'Но 2,50 — это столько же, сколько 2,5, то есть как одна картинка. Разве 10 картинок весят как одна?', uz: "Lekin 2,50 — bu 2,5 ning o'zi, ya'ni bitta rasmcha. 10 ta rasm bittasidek tortadimi?" },
     question: { ru: 'Davron прав?', uz: "Davron haqmi?" },
@@ -858,17 +859,18 @@ const CONTENT = {
   // ── s1 WARM-UP — spaced retrieval (прошлый блок: разряды, dec_5_01) ──
   s1: {
     eyebrow: { ru: 'Вспомним', uz: "Eslaymiz" },
-    question: { ru: 'Сначала вспомним разряды. Чему равна 0,7 в виде дроби?', uz: "Avval razryadlarni eslaymiz. 0,7 kasr ko'rinishida nechaga teng?" },
+    title: { ru: 'Вспомним разряды', uz: "Xonalarni eslaymiz" },
+    question: { ru: 'Сначала вспомним разряды. Чему равна 0,7 в виде дроби?', uz: "Avval xonalarni eslaymiz. 0,7 kasr ko'rinishida nechaga teng?" },
     opt0: { ru: '7/10', uz: "7/10" },
     opt1: { ru: '7/100', uz: "7/100" },
     opt2: { ru: '1/7', uz: "1/7" },
     opt3: { ru: '70', uz: "70" },
-    correct_text: { ru: 'Верно. 0,7 это семь десятых, то есть 7/10. Первый разряд после запятой — десятые.', uz: "To'g'ri. 0,7 bu o'ndan yetti, ya'ni 7/10. Verguldan keyingi birinchi razryad — o'ndan." },
+    correct_text: { ru: 'Верно. 0,7 это семь десятых, то есть 7/10. Первый разряд после запятой — десятые.', uz: "To'g'ri. 0,7 bu o'ndan yetti, ya'ni 7/10. Verguldan keyingi birinchi xona — o'ndan." },
     wrong_1: { ru: 'Это сотые. У 0,7 одна цифра после запятой — это десятые: 7/10.', uz: "Bu yuzdan. 0,7 da verguldan keyin bitta raqam — bu o'ndan: 7/10." },
     wrong_2: { ru: '0,7 это семь десятых, а не одна седьмая. Знаменатель — 10.', uz: "0,7 bu o'ndan yetti, yettidan bir emas. Maxraj — 10." },
     wrong_3: { ru: '0,7 меньше единицы, это не 70. Это семь десятых: 7/10.', uz: "0,7 birdan kichik, bu 70 emas. Bu o'ndan yetti: 7/10." },
     audio: {
-      intro: { ru: 'Вспомни прошлый блок про разряды. Чему равна ноль целых семь десятых в виде обыкновенной дроби? Выбери.', uz: "Razryadlar haqidagi o'tgan blokni eslang. Nol butun o'ndan yetti oddiy kasr ko'rinishida nechaga teng? Tanlang." },
+      intro: { ru: 'Вспомни прошлый блок про разряды. Чему равна ноль целых семь десятых в виде обыкновенной дроби? Выбери.', uz: "Xonalar haqidagi o'tgan blokni eslang. Nol butun o'ndan yetti oddiy kasr ko'rinishida nechaga teng? Tanlang." },
       on_correct: { ru: 'Верно, семь десятых.', uz: "To'g'ri, o'ndan yetti." },
       on_wrong: { ru: 'Не совсем. Одна цифра после запятой — это десятые.', uz: "Unchalik emas. Verguldan keyingi bitta raqam — bu o'ndan." }
     }
@@ -877,10 +879,11 @@ const CONTENT = {
   // ── s2 EXPLORATION: ×10 — запятая прыгает на 1 разряд вправо ──────
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    lead: { ru: 'Разряды помним — вернёмся к загадке. Умножим 2,5 на 10 правильно.', uz: "Razryadlarni eslaymiz — topishmoqqa qaytamiz. 2,5 ni 10 ga to'g'ri ko'paytiramiz." },
+    title: { ru: 'Умножаем на 10', uz: "10 ga ko'paytiramiz" },
+    lead: { ru: 'Разряды помним — вернёмся к загадке. Умножим 2,5 на 10 правильно.', uz: "Xonalarni eslaymiz — topishmoqqa qaytamiz. 2,5 ni 10 ga to'g'ri ko'paytiramiz." },
     step_labels: {
       ru: ['Вот число 2,5. Умножаем на 10 — каждая цифра поднимается на разряд.', 'Запятая прыгнула на одно место вправо: было 2,5, стало 25. В десять раз больше — как и должно быть.'],
-      uz: ["Mana 2,5 soni. 10 ga ko'paytiramiz — har bir raqam bir razryadga ko'tariladi.", "Vergul bir o'rin o'ngga sakradi: 2,5 edi, 25 bo'ldi. O'n marta ko'p — shunday bo'lishi kerak ham."]
+      uz: ["Mana 2,5 soni. 10 ga ko'paytiramiz — har bir raqam bir xonaga ko'tariladi.", "Vergul bir o'rin o'ngga sakradi: 2,5 edi, 25 bo'ldi. O'n marta ko'p — shunday bo'lishi kerak ham."]
     },
     note: { ru: 'Вот секрет: умножить на 10 — это сдвинуть запятую на одно место вправо.', uz: "Mana siri: 10 ga ko'paytirish — vergulni bir o'rin o'ngga surish." },
     btn_step: { ru: 'Дальше', uz: "Davom" },
@@ -890,7 +893,7 @@ const CONTENT = {
         'Запятая прыгнула на одно место вправо. Было две целых пять десятых, стало двадцать пять. Это в десять раз больше, как и должно быть.'
       ],
       uz: [
-        "Razryadlarni eslaymiz, topishmoqqa qaytamiz. Mana ikki butun o'ndan besh soni, uni o'nga ko'paytiramiz. Tugmani bosing.",
+        "Xonalarni eslaymiz, topishmoqqa qaytamiz. Mana ikki butun o'ndan besh soni, uni o'nga ko'paytiramiz. Tugmani bosing.",
         "Vergul bir o'rin o'ngga sakradi. Ikki butun o'ndan besh edi, yigirma besh bo'ldi. Bu o'n marta ko'p, shunday bo'lishi kerak ham."
       ]
     }
@@ -899,10 +902,11 @@ const CONTENT = {
   // ── s3 EXPLORATION: ×100 и ×1000 — два и три прыжка, нули появляются ──
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'На 100 и на 1000', uz: "100 va 1000 ga" },
     lead: { ru: 'А если на 100? Тогда запятая прыгает на два места. На 1000 — на три.', uz: "100 ga-chi? Unda vergul ikki o'rin sakraydi. 1000 ga — uch o'rin." },
     step_labels: {
       ru: ['2,5 умножаем на 100. Запятая прыгает на одно место…', '…и на второе место. Цифр не хватило — на пустой разряд встал ноль. Стало 250.', 'На 1000 запятая прыгнула бы на три места: 2,5 стало бы 2500, с двумя нулями.'],
-      uz: ["2,5 ni 100 ga ko'paytiramiz. Vergul bir o'rin sakraydi…", "…va ikkinchi o'ringa. Raqam yetmadi — bo'sh razryadga nol turdi. 250 bo'ldi.", "1000 ga vergul uch o'rin sakrardi: 2,5 endi 2500 bo'lardi, ikkita nol bilan."]
+      uz: ["2,5 ni 100 ga ko'paytiramiz. Vergul bir o'rin sakraydi…", "…va ikkinchi o'ringa. Raqam yetmadi — bo'sh xonaga nol turdi. 250 bo'ldi.", "1000 ga vergul uch o'rin sakrardi: 2,5 endi 2500 bo'lardi, ikkita nol bilan."]
     },
     note: { ru: 'Сколько нулей в множителе — на столько мест прыгает запятая вправо. Не хватает цифр — дописываем нули.', uz: "Ko'paytuvchida nechta nol — vergul shuncha o'rin o'ngga sakraydi. Raqam yetmasa — nol qo'shamiz." },
     btn_step: { ru: 'Дальше', uz: "Davom" },
@@ -914,7 +918,7 @@ const CONTENT = {
       ],
       uz: [
         "100 ga ko'paytirsak-chi? Unda vergul ikki o'rin sakraydi. Birinchi sakrash. Tugmani bosing.",
-        "Ikkinchi sakrash. Raqam yetmadi va bo'sh razryadga nol turdi. Ikki yuz ellik bo'ldi.",
+        "Ikkinchi sakrash. Raqam yetmadi va bo'sh xonaga nol turdi. Ikki yuz ellik bo'ldi.",
         "Mingga esa vergul uch o'rin sakrardi, ikki butun o'ndan besh ikki ming besh yuz bo'lardi, ikkita nol bilan."
       ]
     }
@@ -923,6 +927,7 @@ const CONTENT = {
   // ── s4 EXPLORATION: пограничные случаи (запятая исчезает / нули слева) ──
   s4: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Два особых случая', uz: "Ikki maxsus holat" },
     lead: { ru: 'Теперь два особых случая на краях. Смотри внимательно.', uz: "Endi cheklardagi ikki maxsus holat. Diqqat bilan qarang." },
     cap_a: { ru: '0,5 × 100: запятая ушла за последнюю цифру — число стало целым: 50.', uz: "0,5 × 100: vergul oxirgi raqamdan o'tdi — son butun bo'ldi: 50." },
     cap_b: { ru: '5 ÷ 100: цифр слева не хватило — впереди появились нули: 0,05.', uz: "5 ÷ 100: chapda raqam yetmadi — oldida nollar paydo bo'ldi: 0,05." },
@@ -933,6 +938,7 @@ const CONTENT = {
   // ── s5 EXPLORATION: живой выбор операции (направление) ─────────────
   s5: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Куда прыгает запятая', uz: "Vergul qayoqqa sakraydi" },
     lead: { ru: 'Попробуй сам. Возьмём 7,5 и нажимай — запятая прыгает живьём.', uz: "O'zingiz sinab ko'ring. 7,5 ni olamiz va bosing — vergul jonli sakraydi." },
     mul_label: { ru: 'Умножить', uz: "Ko'paytirish" },
     div_label: { ru: 'Разделить', uz: "Bo'lish" },
@@ -945,25 +951,28 @@ const CONTENT = {
   // ── s6 RULE 1 ─────────────────────────────────────────────────────
   s6: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Правило умножения', uz: "Ko'paytirish qoidasi" },
     rule_main: { ru: 'Соберём в правило. Чтобы умножить на 10, 100 или 1000 — сдвигаем запятую вправо на столько мест, сколько нулей в множителе. Если цифр не хватает, дописываем нули.', uz: "Qoidaga yig'amiz. 10, 100 yoki 1000 ga ko'paytirish uchun — vergulni ko'paytuvchidagi nollar soni qancha bo'lsa, shuncha o'rin o'ngga suramiz. Raqam yetmasa, nol qo'shamiz." },
-    rule_note: { ru: 'Почему вправо? Умножение на 10 поднимает каждую цифру на разряд выше — десятые становятся единицами.', uz: "Nega o'ngga? 10 ga ko'paytirish har bir raqamni bir razryad yuqori ko'taradi — o'ndan birlarga aylanadi." },
-    audio: { ru: 'Соберём увиденное в правило. Чтобы умножить на десять, сто или тысячу, сдвигаем запятую вправо на столько мест, сколько нулей в множителе. Если цифр не хватает, дописываем нули. Так выходит, потому что каждая цифра поднимается на разряд выше.', uz: "Ko'rganlarimizni qoidaga yig'amiz. O'nga, yuzga yoki mingga ko'paytirish uchun vergulni nollar soni qancha bo'lsa shuncha o'rin o'ngga suramiz. Raqam yetmasa nol qo'shamiz. Shunday bo'ladi, chunki har bir raqam bir razryad yuqori ko'tariladi." }
+    rule_note: { ru: 'Почему вправо? Умножение на 10 поднимает каждую цифру на разряд выше — десятые становятся единицами.', uz: "Nega o'ngga? 10 ga ko'paytirish har bir raqamni bir xona yuqori ko'taradi — o'ndan birlarga aylanadi." },
+    audio: { ru: 'Соберём увиденное в правило. Чтобы умножить на десять, сто или тысячу, сдвигаем запятую вправо на столько мест, сколько нулей в множителе. Если цифр не хватает, дописываем нули. Так выходит, потому что каждая цифра поднимается на разряд выше.', uz: "Ko'rganlarimizni qoidaga yig'amiz. O'nga, yuzga yoki mingga ko'paytirish uchun vergulni nollar soni qancha bo'lsa shuncha o'rin o'ngga suramiz. Raqam yetmasa nol qo'shamiz. Shunday bo'ladi, chunki har bir raqam bir xona yuqori ko'tariladi." }
   },
 
   // ── s7 RULE 2 — две осторожности (направление + лишние нули) ───────
   s7: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Деление и две осторожности', uz: "Bo'lish va ikki ehtiyotkorlik" },
     rule_main: { ru: 'Умножение знаем. Деление — наоборот, и есть две осторожности.', uz: "Ko'paytirishni bildik. Bo'lish — aksincha, va ikkita ehtiyotkorlik bor." },
     warn1_label: { ru: 'Деление: влево', uz: "Bo'lish: chapga" },
     warn1: { ru: 'При делении на 10, 100, 1000 запятая идёт влево — на столько мест, сколько нулей. Не хватает цифр слева — впереди дописываем нули и ноль целых.', uz: "10, 100, 1000 ga bo'lishda vergul chapga boradi — nollar soni qancha bo'lsa shuncha o'rin. Chapda raqam yetmasa — oldiga nol va nol butun qo'shamiz." },
     warn2_label: { ru: 'Осторожно: лишний ноль', uz: "Ehtiyot bo'ling: ortiqcha nol" },
-    warn2: { ru: 'Не приписывай ноль, как у натуральных чисел. 2,5 × 10 это 25, а не 2,50. Двигай запятую, а нули — только чтобы заполнить пустые разряды.', uz: "Natural sonlardek nol qo'shmang. 2,5 × 10 bu 25, 2,50 emas. Vergulni suring, nollarni esa — faqat bo'sh razryadlarni to'ldirish uchun." },
+    warn2: { ru: 'Не приписывай ноль, как у натуральных чисел. 2,5 × 10 это 25, а не 2,50. Двигай запятую, а нули — только чтобы заполнить пустые разряды.', uz: "Natural sonlardek nol qo'shmang. 2,5 × 10 bu 25, 2,50 emas. Vergulni suring, nollarni esa — faqat bo'sh xonalarni to'ldirish uchun." },
     audio: { ru: 'Умножение мы знаем, а деление — наоборот: запятая идёт влево на столько мест, сколько нулей. И две осторожности. Первое: при нехватке цифр слева впереди дописываем нули и ноль целых. Второе: не приписывай лишний ноль, как у натуральных чисел. Две целых пять десятых на десять это двадцать пять, а не две целых пять десятых с нулём.', uz: "Ko'paytirishni bilamiz, bo'lish esa aksincha: vergul nollar soni qancha bo'lsa shuncha o'rin chapga boradi. Va ikkita ehtiyotkorlik. Birinchi: chapda raqam yetmasa oldiga nol va nol butun qo'shamiz. Ikkinchi: natural sonlardek ortiqcha nol qo'shmang. Ikki butun o'ndan besh karra o'n bu yigirma besh, nol bilan ikki butun o'ndan besh emas." }
   },
 
   // ── s8 TEST MC: ×100 (correct C) + Факт научная запись ─────────────
   s8: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Умножь на 100', uz: "100 ga ko'paytiring" },
     question: { ru: 'Теперь сам. Сколько будет 3,2 × 100?', uz: "Endi o'zingiz. 3,2 × 100 nechaga teng?" },
     opt0: { ru: '320', uz: "320" },
     opt1: { ru: '0,032', uz: "0,032" },
@@ -987,6 +996,7 @@ const CONTENT = {
   // ── s9 TEST NumInput: деление, целое → десятичная (5 ÷ 100 = 0,05) ──
   s9: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Раздели на 100', uz: "100 ga bo'ling" },
     question: { ru: 'Хорошо. А теперь деление: 5 ÷ 100. Введи ответ.', uz: "Yaxshi. Endi bo'lish: 5 ÷ 100. Javobni kiriting." },
     placeholder: { ru: '0', uz: "0" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -1002,6 +1012,7 @@ const CONTENT = {
   // ── s10 TEST find-the-wrong (correct B) + Факт КБ-МБ-ГБ ─────────────
   s10: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Найди ошибку', uz: "Xatoni toping" },
     question_pre: { ru: 'Найди ошибку. Какая запись', uz: "Xatoni toping. Qaysi yozuv" },
     question_em: { ru: 'неверная', uz: "noto'g'ri" },
     question_post: { ru: '?', uz: "?" },
@@ -1027,6 +1038,7 @@ const CONTENT = {
   // ── s11 TEST fill-blank: на что умножили (0,04 × ▢ = 40 → 1000) ─────
   s11: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'На что умножили?', uz: "Nechaga ko'paytirilgan?" },
     lead: { ru: 'Обратный ход. На что умножили 0,04, чтобы получить 40? Впиши множитель.', uz: "Teskari yo'l. 0,04 ni nechaga ko'paytirsak 40 chiqadi? Ko'paytuvchini yozing." },
     placeholder: { ru: '0', uz: "0" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -1042,6 +1054,7 @@ const CONTENT = {
   // ── s12 TEST comma-placement: поставь запятую (475 ÷ 100 = 4,75) ────
   s12: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Поставь запятую', uz: "Vergulni qo'ying" },
     lead: { ru: 'Поставь запятую сам. 475 ÷ 100 — нажми на нужный промежуток между цифрами.', uz: "Vergulni o'zingiz qo'ying. 475 ÷ 100 — raqamlar orasidagi kerakli oraliqni bosing." },
     digits: '475',
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -1059,6 +1072,7 @@ const CONTENT = {
   // ── s13 CASE setup (Madina, размер фото) ──────────────────────────
   s13: {
     eyebrow: { ru: 'Задача', uz: "Masala" },
+    title: { ru: 'Галерея Madina', uz: "Madinaning galereyasi" },
     lead: { ru: 'Это нужно в жизни. Madina загружает в галерею 100 фотографий, каждая по 0,2 МБ.', uz: "Bu hayotda kerak. Madina galereyaga 100 ta foto yuklamoqda, har biri 0,2 MB." },
     question_setup: { ru: 'Сколько мегабайт займут все 100 фотографий?', uz: "Hammasi 100 ta foto necha megabayt egallaydi?" },
     btn_help: { ru: 'Помочь Madina', uz: "Madinaga yordam berish" },
@@ -1068,6 +1082,7 @@ const CONTENT = {
   // ── s14 CASE solve: 0,2 × 100 (correct A) + Факт двоичный сдвиг ─────
   s14: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Помоги Madina', uz: "Madinaga yordam bering" },
     question: { ru: 'Помоги Madina: 100 фото по 0,2 МБ — это сколько?', uz: "Madinaga yordam bering: 100 ta foto, har biri 0,2 MB — bu nechta?" },
     opt0: { ru: '20 МБ', uz: "20 MB" },
     opt1: { ru: '2 МБ', uz: "2 MB" },
@@ -1091,6 +1106,7 @@ const CONTENT = {
   // ── s15 FINAL: деление, целое → тысячные (45 ÷ 1000 = 0,045) (correct D) ──
   s15: {
     eyebrow: { ru: 'Финальная проверка', uz: "Yakuniy tekshiruv" },
+    title: { ru: 'Из мегабайт в гигабайты', uz: "Megabaytdan gigabaytga" },
     question: { ru: 'Последнее. 45 МБ — это сколько ГБ? Раздели 45 на 1000.', uz: "Oxirgisi. 45 MB — bu necha GB? 45 ni 1000 ga bo'ling." },
     opt0: { ru: '0,45', uz: "0,45" },
     opt1: { ru: '4,5', uz: "4,5" },
@@ -1110,6 +1126,7 @@ const CONTENT = {
   // ── s16 SUMMARY ───────────────────────────────────────────────────
   s16: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
+    heading: { ru: 'Что мы освоили', uz: "Nimani o'rgandik" },
     title: { ru: 'Итак, теперь вы умеете умножать и делить десятичные на 10, 100, 1000.', uz: "Demak, endi siz o'nli kasrlarni 10, 100, 1000 ga ko'paytirish va bo'lishni bilasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
     points: {
@@ -1355,6 +1372,7 @@ const ExplorationStep = ({ screen, onNext, onPrev, cKey, render }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        {c.title && <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>}
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={done ? 'frame fade-up ch-pulse' : 'frame fade-up'} style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center', minHeight: 160 }}>
           {render(step, done)}
@@ -1386,6 +1404,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.4vw, 18px) clamp(10px, 2vw, 16px)' }}>
           <HookUpload/>
@@ -1411,7 +1430,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1437,6 +1456,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="fade-up delay-1" style={{ display: 'flex', gap: 'clamp(10px, 2vw, 18px)', justifyContent: 'center', flexWrap: 'wrap' }}>
           <div className="frame ch-pulse" style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', minWidth: 150 }}>
@@ -1474,6 +1494,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1 ch-pulse" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 130 }}>
           <CommaLoop value="7,5" op={sel ? sel.op : 'mul'} factor={sel ? sel.f : 10} lead={2} trail={2}/>
@@ -1505,6 +1526,7 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <p className="body" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
           <CommaHop value="2,5" op="mul" factor={100} step={2} showResult={true} glow={true}/>
@@ -1524,6 +1546,7 @@ const Screen7 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 1.9vw, 15px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.rule_main))}</p>
         <div className="fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
           <CommaHop value="5" op="div" factor={100} step={2} showResult={true} glow={true}/>
@@ -1546,7 +1569,7 @@ const Screen8 = (props) => {
   const t = useT(); const c = CONTENT.s8;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 3, 0, 2]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><CommaHop value="3,2" op="mul" factor={100} showResult={false}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><CommaHop value="3,2" op="mul" factor={100} showResult={false}/></div></>);
   return <QuestionScreen {...props} idx={8} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[8]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimSci/>}/>}/>;
 };
 
@@ -1561,7 +1584,7 @@ const Screen10 = (props) => {
   const t = useT(); const c = CONTENT.s10;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 1, [3, 1, 0, 2]);
-  const question = (<h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2></>);
   return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx} findWrong={true} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimUnits/>}/>}/>;
 };
 
@@ -1596,6 +1619,7 @@ const Screen11 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px, 1.4vw, 10px)', flexWrap: 'wrap' }}>
           <span className="mono" style={{ fontSize: 'clamp(20px, 3.6vw, 28px)', fontWeight: 600 }}>0,04</span>
@@ -1658,6 +1682,7 @@ const Screen12 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, minHeight: 110 }}>
           {DIG.map((d, i) => (
@@ -1687,6 +1712,7 @@ const Screen13 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}><CommaHop value="0,2" op="mul" factor={100} showResult={false}/></div>
         <h2 className="title h-sub fade-up delay-2" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.question_setup))}</h2>
@@ -1700,7 +1726,7 @@ const Screen14 = (props) => {
   const t = useT(); const c = CONTENT.s14;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (solved) => (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><CommaSlide value="0,2" op="mul" factor={100} step={solved ? 2 : 0} lead={0} trail={1}/></div></>);
+  const question = (solved) => (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><CommaSlide value="0,2" op="mul" factor={100} step={solved ? 2 : 0} lead={0} trail={1}/></div></>);
   return <QuestionScreen {...props} idx={14} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[14]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimBinary/>}/>}/>;
 };
 
@@ -1709,7 +1735,7 @@ const Screen15 = (props) => {
   const t = useT(); const c = CONTENT.s15;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 3, [1, 0, 2, 3]);
-  const question = (solved) => (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><CommaSlide value="45" op="div" factor={1000} step={solved ? 3 : 0} lead={2} trail={0}/></div></>);
+  const question = (solved) => (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><CommaSlide value="45" op="div" factor={1000} step={solved ? 3 : 0} lead={2} trail={0}/></div></>);
   return <QuestionScreen {...props} idx={15} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[15]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1725,6 +1751,7 @@ const Screen16 = ({ screen, onPrev, onReset, finishLesson }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
@@ -2005,7 +2032,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;

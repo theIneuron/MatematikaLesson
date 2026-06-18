@@ -451,6 +451,23 @@ const Frac = React.memo(({ n, d, color, size = 'sm' }) => (
   </span>
 ));
 
+// mt: рендерит текст, заменяя «a/b» (и «?/b») настоящей дробью Frac — без слэша.
+const FRAC_RE = /(\d+|\?)\/(\d+)/g;
+const mt = (str) => {
+  const s = typeof str === 'string' ? str : String(str ?? '');
+  if (s.indexOf('/') === -1) return s;
+  const out = []; let last = 0; let m; let key = 0;
+  FRAC_RE.lastIndex = 0;
+  while ((m = FRAC_RE.exec(s)) !== null) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<Frac key={`mtf${key}`} n={m[1]} d={m[2]} size="sm"/>);
+    key += 1;
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(s.slice(last));
+  return out;
+};
+
 const AudioIndicator = ({ audioState }) => {
   const { isPlaying, muted, replay, toggleMute } = audioState;
   return (
@@ -555,7 +572,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -596,7 +613,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -681,7 +698,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
@@ -695,23 +712,24 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
-                  {String.fromCharCode(65 + i)}
+                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
             );
           })}
         </div>
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass={c[`hint_${picked}`] ? 'frame-tip' : undefined}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
-            {solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default)}
+            {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
           </p>
         </FeedbackBlock>
+        {solved && factOnCorrect}
       </div>
     </Stage>
   );
@@ -915,9 +933,10 @@ const CONTENT = {
     hint_2: { ru: 'Одна вторая стоит между 0 и 1, а наша точка — за единицей. Шагов больше.', uz: "Ikkidan bir 0 va 1 orasida turadi, bizning nuqta esa birdan keyin. Qadamlar ko'proq." },
     hint_3: { ru: 'Здесь делим на половинки, знаменатель 2, а не 4.', uz: "Bu yerda yarimlarga bo'lamiz, maxraj 2, 4 emas." },
     wrong_default: { ru: 'Половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых.', uz: "Yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch." },
+    fact: { ru: 'В древности расстояние мерили верёвкой с равными узлами: между узлами — одинаковые доли. Это далёкий предок числовой прямой.', uz: "Qadimda masofa teng tugunli arqon bilan o'lchangan: tugunlar orasi — bir xil ulushlar. Bu son o'qining uzoq ajdodi." },
     audio: {
       intro: { ru: 'Линия от нуля до двух разделена на половинки. Точка стоит на третьей метке, между единицей и двойкой. Выбери нужную дробь.', uz: "Noldan ikkigacha chiziq yarimlarga bo'lingan. Nuqta uchinchi belgida, bir va ikki orasida turibdi. Kerakli kasrni tanlang." },
-      on_correct: { ru: 'Верно. Три половинки от нуля — это три вторых.', uz: "To'g'ri. Noldan uchta yarim — bu ikkidan uch." },
+      on_correct: { ru: 'Верно. Три половинки от нуля — это три вторых. Кстати, в древности расстояние мерили верёвкой с равными узлами — это далёкий предок числовой прямой.', uz: "To'g'ri. Noldan uchta yarim — bu ikkidan uch. Aytgancha, qadimda masofa teng tugunli arqon bilan o'lchangan — bu son o'qining uzoq ajdodi." },
       on_wrong: { ru: 'Пока нет. Делим на половинки — знаменатель 2, считаем три шага — числитель 3.', uz: "Hali emas. Yarimlarga bo'lamiz — maxraj 2, uch qadam sanaymiz — surat 3." }
     }
   },
@@ -967,9 +986,10 @@ const CONTENT = {
     hint_1: { ru: 'Снизу — на сколько частей разделили планку. Их 4.', uz: "Pastda — reyka nechta bo'lakka bo'lingani. Ular to'rtta." },
     hint_3: { ru: 'Сверху — сколько шагов от нуля. Их 3, а не 1.', uz: "Yuqorida — noldan nechta qadam. Ular uchta, bir emas." },
     wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов до отметки (3).', uz: "Maxraj — bo'laklar soni (to'rt), surat — belgigacha qadamlar soni (uch)." },
+    fact: { ru: 'В музыке длительности нот — это дроби, как метки на линии: целая нота, половинная, четвертная. Четвертная звучит вдвое короче половинной.', uz: "Musiqada nota cho'zimlari — chiziqdagi belgilar kabi kasrlar: butun nota, yarim nota, chorak nota. Chorak nota yarim notadan ikki barobar qisqa yangraydi." },
     audio: {
       intro: { ru: 'Планка от нуля до одного метра разделена на четыре части, отметка стоит на третьей метке. Выбери дробь метра, которая показывает её место.', uz: "Noldan bir metrgacha reyka to'rtta bo'lakka bo'lingan, belgi uchinchi metkada turibdi. Uning joyini ko'rsatadigan metr kasrini tanlang." },
-      on_correct: { ru: 'Верно. Четыре части и три шага — три четвёртых метра.', uz: "To'g'ri. To'rt bo'lak va uch qadam — metrning to'rtdan uchi." },
+      on_correct: { ru: 'Верно. Четыре части и три шага — три четвёртых метра. А ещё в музыке длительности нот — это тоже дроби: половинная нота вдвое короче целой, а четвертная — ещё вдвое короче.', uz: "To'g'ri. To'rt bo'lak va uch qadam — metrning to'rtdan uchi. Musiqada ham nota cho'zimlari — bu kasrlar: yarim nota butundan ikki barobar qisqa, chorak nota esa yana ikki barobar qisqa." },
       on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов от нуля.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — noldan qadamlar soni." }
     }
   },
@@ -1005,9 +1025,10 @@ const CONTENT = {
     hint_2: { ru: 'Снизу — на сколько частей разделили отрезок. Их 4.', uz: "Pastda — kesma nechta bo'lakka bo'lingani. Ular to'rtta." },
     hint_3: { ru: 'Сверху — сколько шагов от нуля до точки. Их 2, а не 3.', uz: "Yuqorida — noldan nuqtagacha nechta qadam. Ular ikkita, uch emas." },
     wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов (2). Это две четвёртых.', uz: "Maxraj — bo'laklar soni (to'rt), surat — qadamlar soni (ikki). Bu to'rtdan ikki." },
+    fact: { ru: 'Полоса времени видеоплеера — это и есть числовая прямая: начало 0, конец 1. Точка 1/2 на ней — ровно середина видео.', uz: "Video pleyerning vaqt chizig'i — bu aynan son o'qi: boshi 0, oxiri 1. Undagi 1/2 nuqta — videoning aniq yarmi." },
     audio: {
       intro: { ru: 'Последнее задание. Отрезок от нуля до единицы разделён на четыре части, точка на второй метке. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Noldan birgacha kesma to'rtta bo'lakka bo'lingan, nuqta ikkinchi belgida. Kerakli kasrni tanlang." },
-      on_correct: { ru: 'Верно. Две четвёртых — это ровно середина, то же место, что и одна вторая.', uz: "To'g'ri. To'rtdan ikki — aniq o'rta, ikkidan bir bilan bir xil joy." },
+      on_correct: { ru: 'Верно. Две четвёртых — это ровно середина, то же место, что и одна вторая. Кстати, полоса времени видеоплеера — это та же числовая прямая, и точка одна вторая на ней — ровно середина видео.', uz: "To'g'ri. To'rtdan ikki — aniq o'rta, ikkidan bir bilan bir xil joy. Aytgancha, video pleyerning vaqt chizig'i — o'sha son o'qi, undagi ikkidan bir nuqta — videoning aniq yarmi." },
       on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов до точки.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — nuqtagacha qadamlar soni." }
     }
   },
@@ -1031,6 +1052,51 @@ const CONTENT = {
     audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это число, и у неё есть своё место на числовой прямой. Знаменатель делит отрезок от нуля до единицы на равные части, а числитель отсчитывает шаги от нуля. Линия не кончается на единице — за ней те же части идут к двойке. А равные дроби, например одна вторая и две четвёртых, стоят на одном месте. Три четвёртых нашли точку между нулём и единицей. Жасур ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu son, va uning son o'qida o'z joyi bor. Maxraj noldan birgacha kesmani teng bo'laklarga bo'ladi, surat esa noldan qadamlarni sanaydi. Chiziq birda tugamaydi — undan keyin o'sha bo'laklar ikki tomon ketadi. Teng kasrlar esa, masalan ikkidan bir va to'rtdan ikki, bir joyda turadi. To'rtdan uch nol va bir orasidan nuqta topdi. Jasur xato qilgan ekan." }
   }
 };
+
+// ============================================================
+// FACTCARD — fakt to'g'ri javobdan keyin (FB_* badge + Anim*). Namuna: Dars06.
+// ============================================================
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+
+const FactCard = ({ text, anim, badge }) => {
+  const t = useT();
+  return (
+    <div className="fact-card fade-up">
+      <div className="fact-anim">{anim}</div>
+      <div className="fact-body">
+        <p className="fact-badge"><span className="fact-dot"/>{t(badge)}</p>
+        <p className="fact-text">{mt(t(text))}</p>
+      </div>
+    </div>
+  );
+};
+// Tarix (arqon o'lchovi): teng tugunlar arqonni teng bo'laklarga ajratadi — son o'qining ajdodi.
+const AnimRope = () => (
+  <div className="fa-rope" aria-hidden="true">
+    <span className="fa-rope-line"/>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <span key={i} className="fa-rope-knot" style={{ left: `${i * 25}%`, animationDelay: `${i * 0.22}s` }}/>
+    ))}
+  </div>
+);
+// Fan (musiqa cho'zimlari): butun, yarim, chorak nota — kasrlar kabi kamayuvchi davomiylik.
+const AnimNote = () => (
+  <div className="fa-note" aria-hidden="true">
+    {[100, 50, 25].map((w, i) => (
+      <span key={i} className="fa-note-bar" style={{ width: `${w}%`, animationDelay: `${i * 0.3}s` }}/>
+    ))}
+  </div>
+);
+// IT (video timeline): pleyer chizig'i — son o'qi, playhead 1/2 nuqtada yarmida turadi.
+const AnimTimeline = () => (
+  <div className="fa-tl" aria-hidden="true">
+    <span className="fa-tl-track"/>
+    <span className="fa-tl-fill"/>
+    <span className="fa-tl-head"/>
+  </div>
+);
 
 // ============================================================
 // УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «дробь на числовой прямой»)
@@ -1148,7 +1214,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   const [step, setStep] = useState(0);
   const endRef = useRef(null);
   const handleStep = () => {
-    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 120); }
+    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
   };
   // Анимация отсчёта: на шаге 3 точка прыгает от 0 к 3/4, метка за меткой — видно «3 шага от нуля».
@@ -1295,7 +1361,7 @@ const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
   const { options, correctIdx, content } = shuffleMC(c, [<Frac n="3" d="2" size="mid"/>, <Frac n="2" d="3" size="mid"/>, <Frac n="1" d="2" size="mid"/>, <Frac n="3" d="4" size="mid"/>], 0, [1, 2, 3, 0]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={2} max={2} mark={3} fillTo={3} height={58}/></div></>);
-  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimRope/>}/>}/>;
 };
 
 // s7 — TEST choice (текст): 1/2 и 2/4 — одна точка (correct idx 0).
@@ -1349,7 +1415,7 @@ const Screen9 = (props) => {
   const t = useT(); const c = CONTENT.s9;
   const { options, correctIdx, content } = shuffleMC(c, [<Frac n="4" d="3" size="mid"/>, <Frac n="3" d="1" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="1" d="4" size="mid"/>], 2, [1, 0, 2, 3]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={4} max={1} mark={3} fillTo={3} height={58}/></div></>);
-  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_SCI} anim={<AnimNote/>}/>}/>;
 };
 
 // s10 — CASE conclusion (текст): что значит 3/4 метра (correct idx 0).
@@ -1365,7 +1431,7 @@ const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
   const { options, correctIdx, content } = shuffleMC(c, [<Frac n="2" d="4" size="mid"/>, <Frac n="4" d="2" size="mid"/>, <Frac n="1" d="4" size="mid"/>, <Frac n="2" d="3" size="mid"/>], 0, [0, 2, 1, 3]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={4} max={1} mark={2} fillTo={2} height={58}/></div></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimTimeline/>}/>}/>;
 };
 
 // s12 — SUMMARY: без счёта, закрывает крючок; onFinished один раз.
@@ -1709,7 +1775,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -1859,4 +1925,33 @@ html, body { margin: 0; padding: 0; }
 @keyframes nlMarkerPop { 0% { opacity: 0; transform: translateY(-16px) scale(0.3); } 60% { opacity: 1; transform: translateY(0) scale(1.18); } 100% { opacity: 1; transform: scale(1); } }
 .nl-ring { animation: nlRingIn 0.3s ease-out backwards; }
 @keyframes nlRingIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+/* MATH: FactCard — fakt to'g'ri javobdan keyin (ko'k tema). */
+.fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
+.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.fact-body { flex: 1; }
+.fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
+.fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
+.fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
+/* Tarix (arqon o'lchovi): teng tugunlar arqon bo'ylab ketma-ket yonadi. */
+.fa-rope { position: relative; width: clamp(90px, 18vw, 116px); height: 24px; }
+.fa-rope-line { position: absolute; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1.5px; background: #019ACB; opacity: 0.3; border-radius: 2px; }
+.fa-rope-knot { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; background: #019ACB; opacity: 0.25; animation: faRope 2.4s ease-in-out infinite; }
+@keyframes faRope { 0%, 100% { opacity: 0.2; transform: scale(0.85); } 45% { opacity: 0.95; transform: scale(1.15); } }
+/* Fan (musiqa cho'zimlari): butun, yarim, chorak — kamayuvchi kenglik navbatma-navbat yonadi. */
+.fa-note { display: flex; flex-direction: column; gap: 6px; width: clamp(84px, 16vw, 112px); }
+.fa-note-bar { height: 13px; border-radius: 3px; background: #019ACB; opacity: 0.25; animation: faNote 2.7s ease-in-out infinite; }
+@keyframes faNote { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.95; } }
+/* IT (video timeline): chiziq, yarmigacha to'ladi, playhead o'rtada turadi. */
+.fa-tl { position: relative; width: clamp(88px, 17vw, 116px); height: 18px; }
+.fa-tl-track { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; background: #019ACB; opacity: 0.22; border-radius: 3px; }
+.fa-tl-fill { position: absolute; left: 0; top: 50%; height: 4px; margin-top: -2px; background: #019ACB; border-radius: 3px; animation: faTlFill 3s ease-in-out infinite; }
+.fa-tl-head { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.5); animation: faTlHead 3s ease-in-out infinite; }
+@keyframes faTlFill { 0% { width: 0; } 50%, 100% { width: 50%; } }
+@keyframes faTlHead { 0% { left: 0; } 50%, 100% { left: 50%; } }
+
+/* Accessibility: prefers-reduced-motion — gasim dekorativ sikllarni. */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 `;

@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -842,6 +842,7 @@ const SCREEN_META = [
 const CONTENT = {
   s0: {
     eyebrow: { ru: 'Приключение', uz: "Sarguzasht" },
+    title: { ru: 'Карта клада с пометкой', uz: "Belgili xazina xaritasi" },
     lead: { ru: 'Дониёр нашёл старую карту сокровищ. На ней клад отмечен как «пять третьих сундука золота». В один сундук помещается три монеты.', uz: "Doniyor eski xazina xaritasini topdi. Unda xazina «uchdan besh sandiq oltin» deb belgilangan. Bitta sandiqqa uchta tanga sig'adi." },
     question: { ru: 'Пять третьих — это одно количество или ошибочная пометка?', uz: "Uchdan besh — bu bitta miqdormi yoki xato belgimi?" },
     options: [
@@ -855,6 +856,7 @@ const CONTENT = {
   // s1 — SPACED RETRIEVAL: классификация по 3 сундукам (правильная/неправильная/смешанное) — обзор frac_5_13
   s1: {
     eyebrow: { ru: 'Вспомним', uz: "Eslab ko'ring" },
+    title: { ru: 'Разложите по трём сундукам', uz: "Uchta savatga ajrating" },
     lead: { ru: 'Прежде чем идти за кладом, вспомним прошлый урок: разложите записи по трём сундукам.', uz: "Xazina ortidan ketishdan oldin o'tgan darsni eslaylik: yozuvlarni uchta savatga ajrating." },
     baskets: { ru: ['Правильная', 'Неправильная', 'Смешанное'], uz: ["To'g'ri kasr", "Noto'g'ri kasr", "Aralash son"] },
     cards: [
@@ -875,6 +877,7 @@ const CONTENT = {
   },
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Складываем монеты по одной', uz: "Tangalarni bittalab joylaymiz" },
     lead: { ru: 'Итак, пять третьих — настоящий клад. Теперь сложим монеты в сундуки по одной: в каждый входит три.', uz: "Demak, uchdan besh — haqiqiy xazina. Endi tangalarni sandiqlarga bittalab joylaymiz: har biriga uchta." },
     cells: {
       ru: ['Нажимайте кнопку и кладите по одной монете.', 'Одна третья сундука.', 'Две третьих сундука.', 'Три монеты — первый сундук полон, это одно целое.', 'Четыре третьих — пошёл второй сундук.', 'Пять третьих. Это один целый сундук и две третьих.'],
@@ -887,6 +890,7 @@ const CONTENT = {
   },
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Обратный путь: монеты в сундуки', uz: "Teskari yo'l: tangalar sandiqqa" },
     lead: { ru: 'Это мы увидели. Теперь наоборот: у Дониёра одиннадцать монет, а в сундук входит четыре. Сколько будет сундуков?', uz: "Buni ko'rdik. Endi teskari: Doniyorda o'n bitta tanga bor, sandiqqa esa to'rtta sig'adi. Nechta sandiq bo'ladi?" },
     step_labels: {
       ru: ['Одиннадцать четвёртых — одиннадцать монет.', 'Каждые четыре монеты — один полный сундук: набралось два сундука.', 'Три монеты остались. Одиннадцать делим на четыре: два сундука, остаток три.'],
@@ -910,18 +914,21 @@ const CONTENT = {
   },
   s4: {
     eyebrow: { ru: 'Попробуй сам', uz: "O'zingiz sinab ko'ring" },
+    title: { ru: 'Двигайте ползунок сами', uz: "Slayderni o'zingiz suring" },
     lead: { ru: 'Теперь попробуйте сами: двигайте ползунок и меняйте число монет. В сундук по-прежнему входит четыре.', uz: "Endi o'zingiz sinab ko'ring: slayderni surib, tangalar sonini o'zgartiring. Sandiqqa avvalgidek to'rtta sig'adi." },
     note: { ru: 'Как только монет больше, чем в одном сундуке, клад можно записать смешанным числом.', uz: "Tangalar bitta sandiqdan ko'p bo'lishi bilanoq xazinani aralash son bilan yozish mumkin." },
     audio: { ru: 'Теперь попробуйте сами. Подвигайте ползунок: когда меняется число монет, сундуки заполняются, а клад показан сразу как неправильная дробь и как смешанное число. Это всегда одно количество.', uz: "Endi o'zingiz sinab ko'ring. Slayderni suring: tangalar soni o'zgarganda sandiqlar to'ladi, xazina esa darhol ham noto'g'ri kasr, ham aralash son ko'rinishida ko'rinadi. Bu doim bitta miqdor." }
   },
   s5: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Правило: туда', uz: "Qoida: oldinga" },
     rule_title: { ru: 'Смешанное → неправильная дробь', uz: "Aralash → noto'g'ri kasr" },
     rule_body: { ru: 'Целые сундуки умножьте на вместимость и прибавьте остаток монет. Знаменатель не меняется.', uz: "To'la sandiqlarni sig'imiga ko'paytiring, ortgan tangalarni qo'shing. Maxraj o'zgarmaydi." },
     audio: { ru: 'Получается, каждый раз одно и то же действие — сделаем из него правило. Чтобы из смешанного числа получить неправильную дробь, целое умножают на знаменатель и прибавляют числитель.', uz: "Ko'rib turibmizki, har gal bir xil amal — uni qoida qilamiz. Aralash sondan noto'g'ri kasr olish uchun butun maxrajga ko'paytiriladi va surat qo'shiladi." }
   },
   s6: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Правило: обратно', uz: "Qoida: orqaga" },
     rule_title: { ru: 'Неправильная дробь → смешанное число', uz: "Noto'g'ri kasr → aralash son" },
     rule_body: { ru: 'Разделите монеты на сундуки с остатком. Частное — полные сундуки, остаток — лишние монеты.', uz: "Tangalarni sandiqlarga qoldiqli bo'ling. Bo'linma — to'la sandiqlar, qoldiq — ortgan tangalar." },
     warning_label: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
@@ -931,6 +938,7 @@ const CONTENT = {
   },
   s7: {
     eyebrow: { ru: 'Разбор', uz: "Tahlil" },
+    title: { ru: 'Оба пути в одной записи', uz: "Ikki yo'l bitta yozuvda" },
     lead: { ru: 'Соберём оба пути вместе — на одной записи карты.', uz: "Ikkala yo'lni birga yig'amiz — bitta xarita yozuvida." },
     fwd_label: { ru: 'Туда', uz: "Oldinga" },
     rev_label: { ru: 'Обратно', uz: "Orqaga" },
@@ -940,6 +948,7 @@ const CONTENT = {
   },
   s8: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Сколько монет всего?', uz: "Jami nechta tanga?" },
     question: { ru: 'Теперь сами. Два целых сундука и две пятых, в сундук входит пять монет — сколько монет всего, как неправильная дробь?', uz: "Endi o'zingiz. Ikki butun sandiq va beshdan ikki, sandiqqa besh tanga sig'adi — noto'g'ri kasr bilan jami nechta tanga?" },
     opt0: { ru: '12/5', uz: "12/5" },
     opt1: { ru: '4/5', uz: "4/5" },
@@ -957,6 +966,7 @@ const CONTENT = {
   },
   s9: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Посчитайте монеты тайника', uz: "Xilxona tangalarini sanang" },
     question: { ru: 'Следующий тайник: три полных сундука и четыре монеты, в сундук входит пять. Сколько монет всего?', uz: "Navbatdagi xilxona: uch to'la sandiq va to'rt tanga, sandiqqa besh sig'adi. Jami nechta tanga?" },
     placeholder: { ru: '0', uz: "0" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -971,6 +981,7 @@ const CONTENT = {
   // s10 — MULTI-SELECT: какие превращения верны (обратный путь, ловушки M1+M2) + Факт modulo
   s10: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Найдите верные превращения', uz: "To'g'ri o'tkazishlarni toping" },
     question_pre: { ru: 'Теперь обратный путь. Какие превращения', uz: "Endi teskari yo'l. Qaysi o'tkazishlar" },
     question_em: { ru: 'верны', uz: "TO'G'RI" },
     question_post: { ru: '? Отметьте все.', uz: "? Hammasini belgilang." },
@@ -999,6 +1010,7 @@ const CONTENT = {
   },
   s11: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Найдите ошибочную запись', uz: "Xato yozuvni toping" },
     question_pre: { ru: 'Но осторожно: на карте четыре пометки, и одна неверна. Какая запись', uz: "Lekin ehtiyot bo'ling: xaritada to'rt belgi bor, bittasi noto'g'ri. Qaysi yozuv" },
     question_em: { ru: 'ошибочна', uz: "XATO" },
     question_post: { ru: '?', uz: "?" },
@@ -1018,12 +1030,14 @@ const CONTENT = {
   },
   s12: {
     eyebrow: { ru: 'Задача', uz: "Masala" },
+    title: { ru: 'Запертые ворота клада', uz: "Xazinaning berk darvozasi" },
     lead: { ru: 'Путь привёл к запертым воротам клада. Там ждёт спутница Дониёра — Ирода. Замок откроется, только если соединить две записи одного количества: смешанное число и неправильную дробь.', uz: "Yo'l xazinaning berk darvozasiga olib keldi. U yerda Doniyorning hamrohi Iroda kutmoqda. Qulf bitta miqdorning ikki yozuvini — aralash son va noto'g'ri kasrni — ulagandagina ochiladi." },
     btn_help: { ru: 'Открыть замок', uz: "Qulfni ochish" },
     audio: { ru: 'Путь привёл к запертым воротам клада. Там ждёт Ирода. Замок откроется, только если для каждого количества соединить две его записи: смешанное число и неправильную дробь. Поможем подобрать пары.', uz: "Yo'l xazinaning berk darvozasiga olib keldi. U yerda Iroda kutmoqda. Qulf har bir miqdorning ikki yozuvini — aralash son va noto'g'ri kasrni — ulagandagina ochiladi. Juftlarni topishga yordam beramiz." }
   },
   s13: {
     eyebrow: { ru: 'Задача', uz: "Masala" },
+    title: { ru: 'Соедините пары и откройте замок', uz: "Juftlarni ulab, qulfni oching" },
     question: { ru: 'Перетащите каждое смешанное число к его неправильной дроби — и замок откроется.', uz: "Har bir aralash sonni mos noto'g'ri kasriga suring — va qulf ochiladi." },
     pairs: [
       { mixed: '2 1/2', improper: '5/2' },
@@ -1046,6 +1060,7 @@ const CONTENT = {
   },
   s14: {
     eyebrow: { ru: 'Финальная проверка', uz: "Yakuniy tekshiruv" },
+    title: { ru: 'Последний тайник клада', uz: "Xazinaning so'nggi xilxonasi" },
     question: { ru: 'Вот и последний тайник: восемь монет, в сундук входит три. Каким смешанным числом записать клад?', uz: "Mana so'nggi xilxona: sakkizta tanga, sandiqqa uchta sig'adi. Xazinani qaysi aralash son bilan yozamiz?" },
     opt0: { ru: '2 2/3', uz: "2 2/3" },
     opt1: { ru: '2 1/3', uz: "2 1/3" },
@@ -1067,6 +1082,7 @@ const CONTENT = {
   },
   s15: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
+    heading: { ru: 'Клад найден!', uz: "Xazina topildi!" },
     title: { ru: 'Клад найден! Теперь вы переводите смешанное число в неправильную дробь и обратно.', uz: "Xazina topildi! Endi siz aralash sonni noto'g'ri kasrga va aksincha o'tkazasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
     points: {
@@ -1246,6 +1262,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame amb-host fade-up delay-1" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 20px)', padding: 'clamp(16px, 2.8vw, 24px)' }}>
           <AmbientCoins/>
@@ -1315,6 +1332,7 @@ const Screen1 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="cl-baskets fade-up delay-1">
           {baskets.map((b, bi) => (
@@ -1378,6 +1396,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={done ? 'frame fade-up ub-glow' : 'frame fade-up'} style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center' }}>
           <UnitBars den={3} filled={filled} units={2} splitWholes={true} success={done}/>
@@ -1414,6 +1433,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={done ? 'frame fade-up ub-glow' : 'frame fade-up'} style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center' }}>
           <UnitBars den={4} filled={11} units={3} splitWholes={splitW} success={done}/>
@@ -1443,6 +1463,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center' }}>
           <UnitBars den={den} filled={num} units={3} splitWholes={true} showLine={true} lineMax={3} live={true} success={num % den === 0 && num > 0}/>
@@ -1471,6 +1492,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <div className="frame amb-host fade-up" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <AmbientCoins/>
           <p className="small mono" style={{ margin: 0, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, position: 'relative', zIndex: 1 }}>{t(c.rule_title)}</p>
@@ -1496,6 +1518,7 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
           <p className="small mono" style={{ margin: 0, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t(c.rule_title)}</p>
           <p className="body" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_body))}</p>
@@ -1524,6 +1547,7 @@ const Screen7 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <p className="small mono" style={{ margin: 0, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t(c.fwd_label)}</p>
@@ -1556,7 +1580,7 @@ const Screen8 = (props) => {
   const t = useT(); const c = CONTENT.s8;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}><MixedLabel whole={2} n={2} d={5} color={T.ink}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}><MixedLabel whole={2} n={2} d={5} color={T.ink}/></div></>);
   return <QuestionScreen {...props} idx={8} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[8]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1612,6 +1636,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>
         <h2 className="title h-sub fade-up">{t(c.question_pre)} <span className="italic" style={{ color: T.success }}>{t(c.question_em)}</span>{t(c.question_post)}</h2>
         <div className="ms-list fade-up delay-1">
           {items.map((it, i) => {
@@ -1657,7 +1682,7 @@ const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 1, [2, 1, 0, 3]);
-  const question = (<h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2></>);
   return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1669,6 +1694,7 @@ const Screen12 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame amb-host fade-up delay-1" style={{ position: 'relative', overflow: 'hidden', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 'clamp(14px, 4vw, 32px)', flexWrap: 'wrap' }}>
           <AmbientCoins/>
@@ -1764,6 +1790,7 @@ const Screen13 = ({ screen, idx, totalScreens, screenMeta, screenContent, stored
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>
         <h2 className="title h-sub fade-up">{mt(t(c.question))}</h2>
         <div className="dg-slots fade-up delay-1">
           {SLOTS.map((impIdx, si) => {
@@ -1822,7 +1849,7 @@ const Screen14 = (props) => {
   const t = useT(); const c = CONTENT.s14;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}><Frac n="8" d="3" size="mid" color={T.accent}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', justifyContent: 'center' }}><Frac n="8" d="3" size="mid" color={T.accent}/></div></>);
   return <QuestionScreen {...props} idx={14} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[14]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimSunArc/>}/>}/>;
 };
 
@@ -1837,6 +1864,7 @@ const Screen15 = ({ screen, onPrev, onReset, finishLesson }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1">
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
@@ -2010,7 +2038,7 @@ html, body { margin: 0; padding: 0; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: #FF4F28; box-shadow: 0 0 8px rgba(255, 79, 40, 0.55); }
 
 /* === PROGRESS v15 === */
-.progress-track { height: 3px; background: rgba(167, 166, 162, 0.25); width: 100%; margin-bottom: 12px; border-radius: 99px; overflow: visible; }
+.progress-track { height: 6px; background: rgba(167, 166, 162, 0.25); width: 100%; margin-bottom: 12px; border-radius: 99px; overflow: visible; }
 .progress-bar { height: 100%; background: #FF4F28; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 99px; box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40); }
 
 /* === SLIDER v15 === */

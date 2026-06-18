@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -779,7 +779,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -835,6 +835,7 @@ const CONTENT = {
   // ── s0 HOOK (концептуальный: что значит запятая?) ──────────────────
   s0: {
     eyebrow: { ru: 'Загадка', uz: "Topishmoq" },
+    title: { ru: 'Что значит запятая в числе', uz: "Songa vergul nima uchun kerak" },
     lead: { ru: 'Во многих числах есть запятая: 0,5 ; 1,45 ; 3,14. А что эта запятая вообще значит?', uz: "Ko'p sonlarda vergul bor: 0,5 ; 1,45 ; 3,14. Bu vergul umuman nimani anglatadi?" },
     objection: { ru: 'Возьмём 0,5 и 0,45. У второго числа цифр после запятой больше — целых две. Значит, оно больше?', uz: "0,5 va 0,45 ni olaylik. Ikkinchi sonda verguldan keyin raqam ko'proq — hatto ikkita. Demak, u kattaroqmi?" },
     question: { ru: 'Какое число больше: 0,45 или 0,5?', uz: "Qaysi son katta: 0,45 yoki 0,5?" },
@@ -847,6 +848,7 @@ const CONTENT = {
   // ── s1 WARM-UP — spaced retrieval (frac_5_07: эквивалентные дроби) ──
   s1: {
     eyebrow: { ru: 'Вспомним', uz: "Eslaymiz" },
+    title: { ru: 'Половина в десятых', uz: "Yarim o'ndan ulushlarda" },
     question: { ru: 'Помните прошлые уроки? Запишите 1/2 дробью со знаменателем 10: 1/2 = ?/10.', uz: "O'tgan darslar yodingizdami? 1/2 ni maxraji 10 bo'lgan kasr qilib yozing: 1/2 = ?/10." },
     opt0: { ru: '5/10', uz: "5/10" },
     opt1: { ru: '2/10', uz: "2/10" },
@@ -866,6 +868,7 @@ const CONTENT = {
   // ── s2 EXPLORATION 1: десятые — живой слайдер (крупные полосы, шаг 0,1) ──
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Десятые доли единицы', uz: "Birlikning o'ndan ulushlari" },
     lead: { ru: 'Раз половина это 5/10, посмотрим на десятые. Единица поделена на 10 равных полос — каждая 0,1. Двигайте ползунок.', uz: "Yarim 5/10 ekan, o'ndan ulushlarga qaraymiz. Birlik 10 ta teng bo'lakka bo'lingan — har biri 0,1. Slayderni suring." },
     note: { ru: 'Доведите до 0,3: это 3 полосы из 10, или 3/10. Каждая полоса равна 0,1.', uz: "0,3 gacha suring: bu 10 dan 3 bo'lak, ya'ni 3/10. Har bo'lak 0,1 ga teng." },
     audio: { ru: 'Раз половина это пять десятых, посмотрим на десятые доли. Единица разделена на десять равных полос, каждая это одна десятая, или ноль целых одна десятая. Двигайте ползунок и заполняйте полосы. Остановитесь на ноль целых три десятых.', uz: "Yarim o'ndan besh ekan, o'ndan ulushlarga qaraymiz. Birlik o'nta teng bo'lakka bo'lingan, har biri o'ndan bir, ya'ni nol butun o'ndan bir. Slayderni suring va bo'laklarni to'ldiring. Nol butun o'ndan uchda to'xtang." }
@@ -874,6 +877,7 @@ const CONTENT = {
   // ── s3 EXPLORATION 2: сотые — живой слайдер до 0,45 ───────────────
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Сотые доли единицы', uz: "Birlikning yuzdan ulushlari" },
     lead: { ru: 'А если доля ещё меньше? Каждую полосу делим ещё на 10 — всего 100 клеток, каждая 0,01. Двигайте ползунок.', uz: "Agar ulush yanada kichik bo'lsa-chi? Har bo'lakni yana 10 ga bo'lamiz — jami 100 ta katak, har biri 0,01. Slayderni suring." },
     note: { ru: 'Доведите до 0,45: это 45 клеток из 100, или 45/100. Первая цифра — десятые, вторая — сотые.', uz: "0,45 gacha suring: bu 100 dan 45 katak, ya'ni 45/100. Birinchi raqam — o'ndan, ikkinchi — yuzdan." },
     audio: { ru: 'А если доля ещё меньше? Каждую из десяти полос делим ещё на десять — получается сто клеток, каждая ноль целых одна сотая. Двигайте ползунок и наблюдайте, как растёт число. Остановитесь на ноль целых сорок пять сотых.', uz: "Agar ulush yanada kichik bo'lsa-chi? O'nta bo'lakning har birini yana o'nga bo'lamiz — yuzta katak chiqadi, har biri nol butun yuzdan bir. Slayderni suring va sonning o'sishini kuzating. Nol butun yuzdan qirq beshda to'xtang." }
@@ -882,15 +886,17 @@ const CONTENT = {
   // ── s4 RULE 1: десятичная = дробь + разрядная таблица ──────────────
   s4: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Что такое десятичная дробь', uz: "O'nli kasr nima" },
     rule_main: { ru: 'Десятичная дробь — это дробь со знаменателем 10, 100 или 1000. Запятая отделяет целую часть от долей.', uz: "O'nli kasr — bu maxraji 10, 100 yoki 1000 bo'lgan kasr. Vergul butun qismni ulushlardan ajratadi." },
-    rule_note: { ru: 'Каждый разряд вправо в 10 раз меньше: десятые, сотые, тысячные.', uz: "Har razryad o'ngga qarab 10 marta kichik: o'ndan, yuzdan, mingdan." },
-    audio: { ru: 'Запомним. Десятичная дробь это просто дробь со знаменателем десять, сто или тысяча. Запятая отделяет целую часть от долей. А каждый следующий разряд вправо в десять раз меньше: десятые, сотые, тысячные.', uz: "Eslab qolamiz. O'nli kasr — bu maxraji o'n, yuz yoki ming bo'lgan oddiy kasr. Vergul butun qismni ulushlardan ajratadi. Verguldan o'ngga har keyingi razryad o'n marta kichik: o'ndan, yuzdan, mingdan." }
+    rule_note: { ru: 'Каждый разряд вправо в 10 раз меньше: десятые, сотые, тысячные.', uz: "Har xona o'ngga qarab 10 marta kichik: o'ndan, yuzdan, mingdan." },
+    audio: { ru: 'Запомним. Десятичная дробь это просто дробь со знаменателем десять, сто или тысяча. Запятая отделяет целую часть от долей. А каждый следующий разряд вправо в десять раз меньше: десятые, сотые, тысячные.', uz: "Eslab qolamiz. O'nli kasr — bu maxraji o'n, yuz yoki ming bo'lgan oddiy kasr. Vergul butun qismni ulushlardan ajratadi. Verguldan o'ngga har keyingi xona o'n marta kichik: o'ndan, yuzdan, mingdan." }
   },
 
   // ── s5 RULE 2: предупреждение M1 ──────────────────────────────────
   s5: {
     eyebrow: { ru: 'Внимание', uz: "Diqqat" },
-    rule_main: { ru: 'Больше цифр после запятой — НЕ значит больше число. Сравните по разрядам, а не по длине.', uz: "Verguldan keyin raqam ko'p bo'lsa — son KATTA degani emas. Uzunligi bo'yicha emas, razryadma-razryad solishtiring." },
+    title: { ru: 'Длиннее — не значит больше', uz: "Uzunroq — kattaroq degani emas" },
+    rule_main: { ru: 'Больше цифр после запятой — НЕ значит больше число. Сравните по разрядам, а не по длине.', uz: "Verguldan keyin raqam ko'p bo'lsa — son KATTA degani emas. Uzunligi bo'yicha emas, xonama-xona solishtiring." },
     warning_label: { ru: 'Секрет сравнения', uz: "Solishtirish siri" },
     warning: { ru: 'Допишите ноль: 0,5 = 0,50. Теперь видно — 0,50 это 50 сотых, а 0,45 это 45 сотых. Значит 0,5 больше 0,45.', uz: "Nol qo'shing: 0,5 = 0,50. Endi ko'rinadi — 0,50 bu 50 yuzdan, 0,45 esa 45 yuzdan. Demak 0,5, 0,45 dan katta." },
     audio: { ru: 'Важное предупреждение. Если после запятой больше цифр, это не значит, что число больше. Секрет в том, чтобы дописать ноль. Ноль целых пять десятых это то же, что ноль целых пятьдесят сотых. А пятьдесят сотых больше сорока пяти сотых. Значит, ноль целых пять десятых больше.', uz: "Muhim ogohlantirish. Verguldan keyin raqam ko'p bo'lsa, bu son katta degani emas. Sir shundaki, oxiriga nol qo'shiladi. Nol butun o'ndan besh — bu nol butun yuzdan ellik bilan bir xil. Yuzdan ellik esa yuzdan qirq beshdan katta. Demak, nol butun o'ndan besh kattaroq." }
@@ -899,6 +905,7 @@ const CONTENT = {
   // ── s6 TEST MC: 0,3 = 3/10 (correct A) + Факт ал-Каши ──────────────
   s6: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
+    title: { ru: 'Переведи в дробь', uz: "Kasrga aylantiring" },
     question: { ru: 'Какой обыкновенной дроби равно 0,3?', uz: "0,3 qaysi oddiy kasrga teng?" },
     opt0: { ru: '3/10', uz: "3/10" },
     opt1: { ru: '3/100', uz: "3/100" },
@@ -913,7 +920,7 @@ const CONTENT = {
       text: { ru: 'Десятичные дроби систематизировал ал-Каши в Самарканде в XV веке, в обсерватории Улугбека.', uz: "O'nli kasrlarni XV asrda Samarqandda, Ulug'bek rasadxonasida Jamshid al-Koshiy tizimlashtirgan." }
     },
     audio: {
-      intro: { ru: 'После запятой одна цифра — какой это разряд? Какой дроби равно ноль целых три десятых? Выберите вариант.', uz: "Verguldan keyin bitta raqam — bu qaysi razryad? Nol butun o'ndan uch qaysi kasrga teng? Variantni tanlang." },
+      intro: { ru: 'После запятой одна цифра — какой это разряд? Какой дроби равно ноль целых три десятых? Выберите вариант.', uz: "Verguldan keyin bitta raqam — bu qaysi xona? Nol butun o'ndan uch qaysi kasrga teng? Variantni tanlang." },
       on_correct: { ru: 'Верно, три десятых. Кстати, десятичные дроби систематизировал учёный ал-Каши в Самарканде в пятнадцатом веке, в обсерватории Улугбека.', uz: "To'g'ri, o'ndan uch. Aytgancha, o'nli kasrlarni o'n beshinchi asrda Samarqandda, Ulug'bek rasadxonasida olim Jamshid al-Koshiy tizimlashtirgan." },
       on_wrong: { ru: 'Не совсем. Посчитай цифры после запятой.', uz: "Unchalik emas. Verguldan keyingi raqamlarni sanang." }
     }
@@ -922,7 +929,8 @@ const CONTENT = {
   // ── s7 TEST classify: разряды 0,372 ───────────────────────────────
   s7: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    instruction: { ru: 'В числе 0,372 каждая цифра в своём разряде. Поставьте каждую цифру в свою корзину.', uz: "0,372 sonida har raqam o'z razryadida. Har raqamni o'z savatiga qo'ying." },
+    title: { ru: 'Каждой цифре свой разряд', uz: "Har raqamga o'z xonasi" },
+    instruction: { ru: 'В числе 0,372 каждая цифра в своём разряде. Поставьте каждую цифру в свою корзину.', uz: "0,372 sonida har raqam o'z xonasida. Har raqamni o'z savatiga qo'ying." },
     cards: {
       ru: [{ id: '3', label: '3' }, { id: '7', label: '7' }, { id: '2', label: '2' }],
       uz: [{ id: '3', label: '3' }, { id: '7', label: '7' }, { id: '2', label: '2' }]
@@ -933,12 +941,12 @@ const CONTENT = {
     },
     hint: { ru: 'Считайте от запятой вправо: первая цифра — десятые, вторая — сотые, третья — тысячные.', uz: "Verguldan o'ngga sanang: birinchi raqam — o'ndan, ikkinchi — yuzdan, uchinchi — mingdan." },
     ok_text: { ru: 'Все расставлены — нажмите «Проверить».', uz: "Hammasi joylandi — «Tekshirish» ni bosing." },
-    wrong_text: { ru: 'Не всё на месте. Считайте разряды вправо от запятой.', uz: "Hammasi joyida emas. Razryadlarni verguldan o'ngga sanang." },
+    wrong_text: { ru: 'Не всё на месте. Считайте разряды вправо от запятой.', uz: "Hammasi joyida emas. Xonalarni verguldan o'ngga sanang." },
     done_text: { ru: 'Верно. 3 — десятые, 7 — сотые, 2 — тысячные.', uz: "To'g'ri. 3 — o'ndan, 7 — yuzdan, 2 — mingdan." },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     audio: {
-      intro: { ru: 'В числе ноль целых триста семьдесят две тысячных каждая цифра в своём разряде. Поставьте каждую цифру в нужную корзину и нажмите проверить.', uz: "Nol butun mingdan uch yuz yetmish ikki sonida har raqam o'z razryadida. Har raqamni kerakli savatga qo'ying va tekshirishni bosing." },
-      on_correct: { ru: 'Верно. Тройка в десятых, семёрка в сотых, двойка в тысячных.', uz: "To'g'ri. Uchlik o'ndan, yettilik yuzdan, ikkilik mingdan razryadida." },
+      intro: { ru: 'В числе ноль целых триста семьдесят две тысячных каждая цифра в своём разряде. Поставьте каждую цифру в нужную корзину и нажмите проверить.', uz: "Nol butun mingdan uch yuz yetmish ikki sonida har raqam o'z xonasida. Har raqamni kerakli savatga qo'ying va tekshirishni bosing." },
+      on_correct: { ru: 'Верно. Тройка в десятых, семёрка в сотых, двойка в тысячных.', uz: "To'g'ri. Uchlik o'ndan, yettilik yuzdan, ikkilik mingdan xonasida." },
       on_wrong: { ru: 'Не совсем. Первая цифра после запятой это десятые.', uz: "Unchalik emas. Verguldan keyingi birinchi raqam — o'ndan." }
     }
   },
@@ -946,6 +954,7 @@ const CONTENT = {
   // ── s8 TEST fill-blank: 1/2 = 0,? (decimal) ───────────────────────
   s8: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
+    title: { ru: 'Запиши половину десятичной', uz: "Yarimni o'nli kasr qilib yozing" },
     lead: { ru: 'В начале мы вспомнили: половина это 5/10. А как записать половину десятичной дробью? Впишите цифру после запятой.', uz: "Boshida eslagan edik: yarim — bu 5/10. Yarimni o'nli kasr bilan qanday yozamiz? Verguldan keyingi raqamni yozing." },
     hint: { ru: 'Половина это пять десятых: 5/10. Значит после запятой стоит цифра 5.', uz: "Yarim — bu o'ndan besh: 5/10. Demak verguldan keyin 5 turadi." },
     fb_correct: { ru: 'Верно. 1/2 = 5/10 = 0,5. Запятая и одна цифра — это десятые.', uz: "To'g'ri. 1/2 = 5/10 = 0,5. Vergul va bitta raqam — bu o'ndan." },
@@ -960,6 +969,7 @@ const CONTENT = {
   // ── s9 TEST NumInput: сколько сотых в 0,07 → 7 ────────────────────
   s9: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
+    title: { ru: 'Посчитай сотые', uz: "Yuzdan ulushlarni sanang" },
     question: { ru: 'Сколько сотых в числе 0,07?', uz: "0,07 sonida nechta yuzdan bor?" },
     placeholder: { ru: '0', uz: "0" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -975,6 +985,7 @@ const CONTENT = {
   // ── s10 TEST find-the-wrong: ошибочное сравнение (correct B) + Факт ─
   s10: {
     eyebrow: { ru: 'Найди ошибку', uz: "Xatoni top" },
+    title: { ru: 'Найди ошибочное сравнение', uz: "Xato taqqoslashni toping" },
     question_pre: { ru: 'Какое сравнение ', uz: "Qaysi taqqoslash " },
     question_em: { ru: 'ОШИБОЧНО', uz: "XATO" },
     question_post: { ru: '?', uz: "?" },
@@ -1000,6 +1011,7 @@ const CONTENT = {
   // ── s11 CASE setup (Ойбек, чтение) ────────────────────────────────
   s11: {
     eyebrow: { ru: 'Жизненная задача', uz: "Hayotiy masala" },
+    title: { ru: 'Прочитано 0,7 книги', uz: "Kitobning 0,7 qismi o'qildi" },
     lead: { ru: 'Ойбек читает книгу для проекта. Приложение показывает: прочитано 0,7 книги. Он хочет увидеть это на числовой прямой.', uz: "Oybek loyiha uchun kitob o'qiyapti. Ilova ko'rsatadi: kitobning 0,7 qismi o'qildi. U buni son o'qida ko'rmoqchi." },
     question_setup: { ru: 'Где на отрезке от 0 до 1 стоит 0,7?', uz: "0 dan 1 gacha kesmada 0,7 qayerda turadi?" },
     btn_help: { ru: 'Помочь Ойбеку', uz: "Oybekka yordam berish" },
@@ -1009,6 +1021,7 @@ const CONTENT = {
   // ── s12 TEST number-line place: 0,7 (scored) + Факт метр ───────────
   s12: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
+    title: { ru: 'Отметь 0,7 на прямой', uz: "0,7 ni o'qda belgilang" },
     instruction: { ru: 'Поставьте метку на 0,7. Отрезок от 0 до 1 разделён на десятые.', uz: "Belgini 0,7 ga qo'ying. 0 dan 1 gacha kesma o'ndan ulushlarga bo'lingan." },
     hint: { ru: '0,7 это семь десятых. Отсчитайте семь делений от нуля.', uz: "0,7 — bu o'ndan yetti. Noldan boshlab yetti bo'linmani sanang." },
     ok_text: { ru: 'Метка поставлена — нажмите «Проверить».', uz: "Belgi qo'yildi — «Tekshirish» ni bosing." },
@@ -1029,17 +1042,18 @@ const CONTENT = {
   // ── s13 FINAL MC: какое больше (correct D) + Факт ──────────────────
   s13: {
     eyebrow: { ru: 'Итоговый вопрос', uz: "Yakuniy savol" },
+    title: { ru: 'Выбери самое большое', uz: "Eng kattasini tanlang" },
     question: { ru: 'Какое из чисел самое БОЛЬШОЕ?', uz: "Qaysi son eng KATTA?" },
     opt0: { ru: '0,5', uz: "0,5" },
     opt1: { ru: '0,45', uz: "0,45" },
     opt2: { ru: '0,305', uz: "0,305" },
     opt3: { ru: '0,1', uz: "0,1" },
-    correct_text: { ru: 'Верно. 0,5 = 0,50 это 50 сотых — больше всех. Важно не число цифр, а значение разрядов.', uz: "To'g'ri. 0,5 = 0,50 — bu 50 yuzdan, hammadan katta. Raqam soni emas, razryad qiymati muhim." },
+    correct_text: { ru: 'Верно. 0,5 = 0,50 это 50 сотых — больше всех. Важно не число цифр, а значение разрядов.', uz: "To'g'ri. 0,5 = 0,50 — bu 50 yuzdan, hammadan katta. Raqam soni emas, xona qiymati muhim." },
     hint_1: { ru: '0,45 это 45 сотых. А 0,5 это 50 сотых — больше.', uz: "0,45 — bu 45 yuzdan. 0,5 esa 50 yuzdan — kattaroq." },
     hint_2: { ru: 'Цифр больше, но 0,305 меньше половины. 0,5 — пять десятых, больше.', uz: "Raqami ko'p, lekin 0,305 yarimdan kichik. 0,5 — o'ndan besh, kattaroq." },
     hint_3: { ru: '0,1 это одна десятая — самое маленькое. 0,5 больше.', uz: "0,1 — bu o'ndan bir, eng kichigi. 0,5 kattaroq." },
     audio: {
-      intro: { ru: 'Итоговый вопрос. Из четырёх чисел выберите самое большое. Помните: сравнивают по разрядам, а не по длине.', uz: "Yakuniy savol. To'rt sondan eng kattasini tanlang. Esda tuting: uzunlik bo'yicha emas, razryad bo'yicha solishtiriladi." },
+      intro: { ru: 'Итоговый вопрос. Из четырёх чисел выберите самое большое. Помните: сравнивают по разрядам, а не по длине.', uz: "Yakuniy savol. To'rt sondan eng kattasini tanlang. Esda tuting: uzunlik bo'yicha emas, xona bo'yicha solishtiriladi." },
       on_correct: { ru: 'Верно, ноль целых пять десятых — самое большое.', uz: "To'g'ri, nol butun o'ndan besh — eng kattasi." },
       on_wrong: { ru: 'Не совсем. Допишите нули и сравните сотые.', uz: "Unchalik emas. Nollarni qo'shing va yuzdanlarni solishtiring." }
     }
@@ -1048,6 +1062,7 @@ const CONTENT = {
   // ── s14 SUMMARY ───────────────────────────────────────────────────
   s14: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
+    heading: { ru: 'Десятичная дробь понятна', uz: "O'nli kasr tushunarli" },
     title: { ru: 'Итак, теперь вы понимаете, что значит десятичная дробь.', uz: "Demak, endi siz o'nli kasr nimani anglatishini tushunasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
     points: {
@@ -1058,17 +1073,17 @@ const CONTENT = {
       ],
       uz: [
         "O'nli kasr — bu maxraji 10, 100, 1000 bo'lgan kasr. Vergul butunni ulushlardan ajratadi.",
-        "Razryadlar o'ngga: o'ndan, yuzdan, mingdan — har biri 10 marta kichik. 0,1 = 1/10.",
-        "Verguldan keyin raqam ko'p bo'lsa, son katta degani emas. Nol qo'shib, razryad bo'yicha solishtiring."
+        "Xonalar o'ngga: o'ndan, yuzdan, mingdan — har biri 10 marta kichik. 0,1 = 1/10.",
+        "Verguldan keyin raqam ko'p bo'lsa, son katta degani emas. Nol qo'shib, xona bo'yicha solishtiring."
       ]
     },
-    hook_close: { ru: 'Помните загадку? 0,45 не больше 0,5. Допишем ноль: 0,50 это 50 сотых, 0,45 это 45 сотых. Значит 0,5 больше — дело в разрядах, а не в числе цифр.', uz: "Topishmoq yodingizdami? 0,45, 0,5 dan katta emas. Nol qo'shamiz: 0,50 — bu 50 yuzdan, 0,45 — bu 45 yuzdan. Demak 0,5 katta — gap razryadda, raqam sonida emas." },
+    hook_close: { ru: 'Помните загадку? 0,45 не больше 0,5. Допишем ноль: 0,50 это 50 сотых, 0,45 это 45 сотых. Значит 0,5 больше — дело в разрядах, а не в числе цифр.', uz: "Topishmoq yodingizdami? 0,45, 0,5 dan katta emas. Nol qo'shamiz: 0,50 — bu 50 yuzdan, 0,45 — bu 45 yuzdan. Demak 0,5 katta — gap xonada, raqam sonida emas." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Дробь как часть целого», «Эквивалентные дроби», «Разряды натуральных чисел».', uz: "«Kasr — butunning qismi», «Ekvivalent kasrlar», «Natural sonlar razryadlari»." },
+    conn_refs: { ru: '«Дробь как часть целого», «Эквивалентные дроби», «Разряды натуральных чисел».', uz: "«Kasr — butunning qismi», «Ekvivalent kasrlar», «Natural sonlar xonalari»." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'сравнение и округление десятичных дробей.', uz: "o'nli kasrlarni solishtirish va yaxlitlash." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    audio: { ru: 'Итак, сегодня мы поняли, что такое десятичная дробь. Это дробь со знаменателем десять, сто или тысяча. Запятая отделяет целое от долей, а разряды вправо это десятые, сотые, тысячные. И помните: длина числа не главное, сравнивают по разрядам. Дальше нас ждёт сравнение и округление десятичных дробей.', uz: "Demak, bugun o'nli kasr nimaligini tushundik. Bu maxraji o'n, yuz yoki ming bo'lgan kasr. Vergul butunni ulushlardan ajratadi, o'ngdagi razryadlar esa o'ndan, yuzdan, mingdan. Va esda tuting: sonning uzunligi muhim emas, razryad bo'yicha solishtiriladi. Keyingi darsda o'nli kasrlarni solishtirish va yaxlitlash bizni kutadi." }
+    audio: { ru: 'Итак, сегодня мы поняли, что такое десятичная дробь. Это дробь со знаменателем десять, сто или тысяча. Запятая отделяет целое от долей, а разряды вправо это десятые, сотые, тысячные. И помните: длина числа не главное, сравнивают по разрядам. Дальше нас ждёт сравнение и округление десятичных дробей.', uz: "Demak, bugun o'nli kasr nimaligini tushundik. Bu maxraji o'n, yuz yoki ming bo'lgan kasr. Vergul butunni ulushlardan ajratadi, o'ngdagi xonalar esa o'ndan, yuzdan, mingdan. Va esda tuting: sonning uzunligi muhim emas, xona bo'yicha solishtiriladi. Keyingi darsda o'nli kasrlarni solishtirish va yaxlitlash bizni kutadi." }
   }
 };
 
@@ -1242,6 +1257,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.4vw, 18px) clamp(10px, 2vw, 16px)', display: 'flex', justifyContent: 'center' }}>
           <HookGrid/>
@@ -1267,7 +1283,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1283,6 +1299,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 2.5vw, 22px)', flexWrap: 'wrap', justifyContent: 'center', minHeight: 156 }}>
           <DecimalGrid value={k / 10} mode="tenths" color={T.accent} sz={130} live={true} success={hit}/>
@@ -1311,6 +1328,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 2.5vw, 22px)', flexWrap: 'wrap', justifyContent: 'center', minHeight: 156 }}>
           <DecimalGrid value={n / 100} mode="hundredths" color={T.blue} sz={130} live={true} success={n === 45}/>
@@ -1338,6 +1356,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <p className="body" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
           <PlaceTable whole={0} tenths={4} hundredths={5} thousandths={null} highlight="ondan"/>
@@ -1360,6 +1379,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', gap: 'clamp(14px, 3vw, 26px)', justifyContent: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
@@ -1386,7 +1406,7 @@ const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><DecLabel value={0.3} color={T.accent}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><DecLabel value={0.3} color={T.accent}/></div></>);
   return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimKashi/>}/>}/>;
 };
 
@@ -1435,6 +1455,7 @@ const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.instruction))}</p>
         <div className="fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(8px, 1.6vw, 12px)', minHeight: 50, alignItems: 'center', flexWrap: 'wrap' }}>
           {pool.length === 0 ? <span className="mono small" style={{ color: T.ink3 }}>{mt(t(c.ok_text))}</span> : pool.map(cd => (
@@ -1502,6 +1523,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 1.6vw, 14px)', flexWrap: 'wrap' }}>
           <Frac n="1" d="2" size="mid" color={T.accent}/>
@@ -1548,7 +1570,7 @@ const Screen10 = (props) => {
   const { options, correctIdx, content } = shuffleMC(c, base, 2, [0, 2, 1, 3]);
   // {' '} перед <span> ОБЯЗАТЕЛЕН: t() (useT→stripAudioTags) делает .trim(), срезая хвостовой
   // пробел question_pre → иначе «сравнениеОШИБОЧНО»/«taqqoslashXATO» слипаются.
-  const question = (<h2 className="title h-sub">{t(c.question_pre)}{' '}<span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.question_pre)}{' '}<span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2></>);
   return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimStop/>}/>}/>;
 };
 
@@ -1560,6 +1582,7 @@ const Screen11 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
           <DecimalGrid value={0.7} mode="tenths" color={T.accent} sz={120}/>
@@ -1604,6 +1627,7 @@ const Screen12 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.instruction))}</p>
         <div className="frame fade-up delay-1" style={{ paddingTop: 34, paddingBottom: 18 }}>
           <div className="nlp-track">
@@ -1642,7 +1666,7 @@ const Screen13 = (props) => {
   const t = useT(); const c = CONTENT.s13;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={13} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[13]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1658,6 +1682,7 @@ const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
@@ -1939,7 +1964,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;

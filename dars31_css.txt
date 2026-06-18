@@ -7,39 +7,50 @@
 .lb-ok .lb-top { fill: #1F7A4D; }
 .lb-ok .lb-left { fill: #1F7A4D; fill-opacity: 0.55; }
 .lb-ok .lb-right { fill: #1F7A4D; fill-opacity: 0.72; }
-.lb-alive .lb-top { animation: lbShine 2.8s ease-in-out infinite; }
-.lb-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; fill: #5A5A60; }
-.lb-pop { transform-origin: center; animation: lbPop 0.4s ease both; }
-@keyframes lbShine { 0%, 100% { fill-opacity: 0.9; } 50% { fill-opacity: 1; } }
-@keyframes lbPop { from { opacity: 0; transform: translateY(-6px) scale(0.85); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.lb-alive .lb-top { animation: lbShine 4s ease-in-out infinite; }
+.lb-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 16px; fill: #0E0E10; }
+.lb-lbl-bg { fill: #FFFFFF; fill-opacity: 0.94; stroke: #A7A6A2; stroke-width: 1; }
+.lb-pop { transform-origin: center; animation: lbPop 0.55s ease-out both; }
+@keyframes lbShine { 0%, 100% { fill-opacity: 0.88; } 50% { fill-opacity: 1; } }
+@keyframes lbPop { from { opacity: 0; transform: translateY(-3px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 /* MATH geom_5_04: hr-calc — hisob qatori (a x b x c = res). */
-.hr-calc { display: inline-flex; align-items: center; gap: clamp(4px, 1vw, 8px); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(16px, 3vw, 22px); flex-wrap: wrap; justify-content: center; }
+.hr-calc { display: inline-flex; align-items: center; gap: clamp(5px, 1.1vw, 9px); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(18px, 3.2vw, 24px); flex-wrap: wrap; justify-content: center; }
 .hr-calc-on { color: #FF4F28; }
 .hr-calc-op { color: #A7A6A2; }
 .hr-calc-res { color: #019ACB; min-width: 1.2em; text-align: center; }
+.hr-calc-unit { font-size: clamp(11px, 1.4vw, 13px); color: #5A5A60; font-weight: 600; margin-left: 2px; }
 
-/* MATH geom_5_04: HookGrow — 2D yuza 3D qutiga o'sadi (CSS loop). */
+/* MATH geom_5_04: u3 — sm/sm²/sm³ birlik-belgilari (faqat palitra: ink2 / blue / accent). */
+.u3-list { display: flex; flex-direction: column; gap: 10px; max-width: 360px; }
+.u3-row { display: flex; align-items: center; gap: 10px; }
+.u3-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 38px; padding: 3px 9px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px, 1.6vw, 14px); color: #FFFFFF; flex-shrink: 0; }
+.u3-b1 { background: #5A5A60; }
+.u3-b2 { background: #019ACB; }
+.u3-b3 { background: #FF4F28; }
+
+/* MATH geom_5_04: HookGrow — 2D yuza 3D quti; chuqurlik YUMSHOQ nafas oladi (keskin emas). */
 .hg-host { display: flex; align-items: center; justify-content: center; width: 100%; }
-.hg-svg { width: clamp(180px, 42vw, 220px); height: auto; }
+.hg-svg { width: clamp(190px, 44vw, 230px); height: auto; }
 .hg-front { fill: #FF4F28; fill-opacity: 0.85; stroke: #FF4F28; stroke-width: 2; stroke-linejoin: round; }
 .hg-fg { stroke: #FFFFFF; stroke-width: 1.4; opacity: 0.7; }
-.hg-top { fill: #019ACB; fill-opacity: 0.55; stroke: #FFFFFF; stroke-width: 1.4; stroke-linejoin: round; animation: hgDepth 4.4s ease-in-out infinite; }
-.hg-side { fill: #019ACB; fill-opacity: 0.72; stroke: #FFFFFF; stroke-width: 1.4; stroke-linejoin: round; animation: hgDepth 4.4s ease-in-out infinite; }
-@keyframes hgDepth { 0%, 10% { opacity: 0; transform: translate(-14px, 10px); } 32%, 78% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(-14px, 10px); } }
+.hg-top { fill: #019ACB; fill-opacity: 0.5; stroke: #FFFFFF; stroke-width: 1.4; stroke-linejoin: round; transform-origin: center; animation: hgFloat 5.5s ease-in-out infinite; }
+.hg-side { fill: #019ACB; fill-opacity: 0.68; stroke: #FFFFFF; stroke-width: 1.4; stroke-linejoin: round; transform-origin: center; animation: hgFloat 5.5s ease-in-out infinite; }
+@keyframes hgFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 
-/* MATH geom_5_04: cl — classify (sm/sm²/sm³ tap-to-bin; M3). */
-.cl-list { display: flex; flex-direction: column; gap: 10px; }
-.cl-row { display: flex; align-items: center; justify-content: space-between; gap: clamp(8px, 2vw, 16px); flex-wrap: wrap; background: #FFFFFF; border-radius: 12px; padding: clamp(9px, 1.5vw, 12px) clamp(12px, 2vw, 16px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); transition: all 0.18s; }
-.cl-item { font-family: 'Manrope', sans-serif; font-size: clamp(13px, 1.8vw, 15px); color: #0E0E10; font-weight: 600; }
-.cl-bins { display: flex; gap: 6px; flex-wrap: wrap; }
-.cl-bin { cursor: pointer; border: 1.5px solid #A7A6A2; background: #FFFFFF; border-radius: 99px; padding: clamp(6px, 1vw, 8px) clamp(10px, 1.6vw, 14px); font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 1.5vw, 13px); font-weight: 600; color: #5A5A60; transition: all 0.16s; }
-.cl-bin:hover:not(:disabled) { border-color: #FF4F28; color: #0E0E10; }
-.cl-bin:disabled { cursor: default; }
-.cl-on { background: #FF4F28; border-color: #FF4F28; color: #FFFFFF; }
-.cl-bad { box-shadow: 0 0 0 2px #FF4F28 inset, 0 6px 16px -6px rgba(255, 79, 40, 0.3); }
-.cl-ok { box-shadow: 0 0 0 2px #1F7A4D inset, 0 6px 16px -6px rgba(31, 122, 77, 0.3); }
-.cl-ok .cl-on { background: #1F7A4D; border-color: #1F7A4D; }
+/* MATH geom_5_04: dnd — drag-and-drop (chiplarni sm/sm²/sm³ savatlariga sudrash). */
+.dnd-bins { display: flex; gap: clamp(8px, 1.8vw, 14px); }
+.dnd-bin { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; background: #FDFBF7; border: 2px dashed #A7A6A2; border-radius: 14px; padding: clamp(8px, 1.5vw, 11px) clamp(6px, 1.2vw, 10px); transition: border-color 0.2s, background 0.2s; }
+.dnd-bin-armed { border-color: #019ACB; background: #EAF6FB; }
+.dnd-bin-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(11px, 1.5vw, 13px); color: #5A5A60; text-align: center; }
+.dnd-bin-slot { display: flex; flex-direction: column; gap: 6px; min-height: clamp(40px, 8vw, 52px); align-items: stretch; justify-content: center; }
+.dnd-tray { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #FFFFFF; border-radius: 12px; padding: clamp(9px, 1.6vw, 12px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
+.dnd-tray-lbl { font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 1.4vw, 12px); font-weight: 600; color: #A7A6A2; text-transform: uppercase; letter-spacing: 0.06em; }
+.dnd-chip { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; background: #FFFFFF; border: 1.5px solid #FF4F28; border-radius: 99px; padding: clamp(7px, 1.3vw, 9px) clamp(12px, 2vw, 16px); font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(12px, 1.6vw, 14px); color: #0E0E10; box-shadow: 0 4px 12px -4px rgba(255, 79, 40, 0.25); transition: transform 0.15s, box-shadow 0.15s, background 0.18s; }
+.dnd-chip:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -5px rgba(255, 79, 40, 0.38); }
+.dnd-chip-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 8px 20px -5px rgba(255, 79, 40, 0.5); }
+.dnd-chip-in { cursor: pointer; text-align: center; border-color: #019ACB; box-shadow: 0 4px 12px -4px rgba(1, 154, 203, 0.28); }
+.dnd-ok { border-color: #1F7A4D; background: #E3F0E8; color: #1F7A4D; box-shadow: 0 4px 12px -4px rgba(31, 122, 77, 0.3); }
 
 /* MATH geom_5_04: mbk — multi-blank (tag x qatlam = hajm). */
 .mbk-rows { display: flex; flex-direction: column; gap: 10px; }
@@ -48,19 +59,50 @@
 .mbk-box { width: clamp(70px, 16vw, 92px) !important; font-size: clamp(18px, 3.4vw, 24px) !important; }
 .mbk-wrong { box-shadow: 0 0 0 2px #D8A93A inset !important; }
 
-/* MATH geom_5_04: fakt-animatsiyalar (CSS-only loop, qutiga sig'adi, overflow:hidden). */
-/* 1 litr = 10x10x10: kubcha suv bilan to'ladi (Matematika). */
+/* MATH geom_5_04: fcz — dekorativ suzuvchi mini-kubchalar (sekin, yengil — bo'sh joyni boyitadi). */
+.fcz { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.fcz-c { position: absolute; width: 18px; height: 18px; border-radius: 4px; opacity: 0.5; background: linear-gradient(135deg, rgba(255, 79, 40, 0.22), rgba(255, 79, 40, 0.06)); box-shadow: inset 0 0 0 1px rgba(255, 79, 40, 0.18); animation: fczFloat 16s ease-in-out infinite; }
+.fcz-1 { left: 7%; top: 16%; animation-delay: 0s; }
+.fcz-2 { right: 9%; top: 22%; width: 13px; height: 13px; background: linear-gradient(135deg, rgba(1, 154, 203, 0.22), rgba(1, 154, 203, 0.06)); box-shadow: inset 0 0 0 1px rgba(1, 154, 203, 0.18); animation-delay: -6s; }
+.fcz-3 { left: 14%; bottom: 14%; width: 14px; height: 14px; animation-delay: -10s; }
+.fcz-4 { right: 13%; bottom: 20%; width: 20px; height: 20px; background: linear-gradient(135deg, rgba(1, 154, 203, 0.2), rgba(1, 154, 203, 0.05)); box-shadow: inset 0 0 0 1px rgba(1, 154, 203, 0.16); animation-delay: -3s; }
+.fcz-5 { left: 30%; top: 8%; width: 12px; height: 12px; animation-delay: -13s; }
+.fcz-6 { right: 32%; bottom: 9%; width: 15px; height: 15px; background: linear-gradient(135deg, rgba(255, 79, 40, 0.18), rgba(255, 79, 40, 0.05)); box-shadow: inset 0 0 0 1px rgba(255, 79, 40, 0.15); animation-delay: -8s; }
+@keyframes fczFloat { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.45; } 50% { transform: translateY(-14px) rotate(6deg); opacity: 0.75; } }
+
+/* MATH geom_5_04: mq — ko'p-savol javoblangan ✓ qatori (s1, s8 tepada yig'iladi). */
+.mq-done { display: flex; align-items: center; gap: 10px; background: #E3F0E8; border-radius: 10px; padding: clamp(7px, 1.3vw, 10px) clamp(12px, 2vw, 16px); font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(12px, 1.6vw, 14px); color: #1F7A4D; box-shadow: 0 4px 12px -6px rgba(31, 122, 77, 0.25); }
+.mq-done-ic { display: flex; color: #1F7A4D; }
+
+/* MATH geom_5_04: db — DimBuild (1 o'lcham chiziq -> 2 kvadrat -> 3 kub; s4, harakatli). */
+.db-host { display: flex; align-items: center; justify-content: center; }
+.db-svg { width: clamp(120px, 28vw, 164px); height: auto; }
+.db-sq { fill: #FF4F28; fill-opacity: 0.82; stroke: #FFFFFF; stroke-width: 1.4; stroke-linejoin: round; animation: dbSq 5.5s ease-in-out infinite; }
+.db-line { stroke: #FF4F28; stroke-width: 5; stroke-linecap: round; animation: dbLine 5.5s ease-in-out infinite; }
+.db-top { fill: #019ACB; fill-opacity: 0.5; stroke: #FFFFFF; stroke-width: 1.4; stroke-linejoin: round; transform-origin: center; animation: dbDepth 5.5s ease-in-out infinite; }
+.db-side { fill: #019ACB; fill-opacity: 0.68; stroke: #FFFFFF; stroke-width: 1.4; stroke-linejoin: round; transform-origin: center; animation: dbDepth 5.5s ease-in-out infinite; }
+@keyframes dbLine { 0%, 12% { opacity: 1; } 24%, 100% { opacity: 0.82; } }
+@keyframes dbSq { 0%, 18% { opacity: 0; } 30%, 100% { opacity: 1; } }
+@keyframes dbDepth { 0%, 50% { opacity: 0; transform: translate(-7px, 5px); } 64%, 88% { opacity: 1; transform: translate(0, 0); } 100% { opacity: 0; transform: translate(-7px, 5px); } }
+
+/* MATH geom_5_04: rc — RiseCubes (yengil "плавно" mukofot, to'g'ri javobdan keyin pastdan). */
+.rc-host { display: flex; align-items: flex-end; justify-content: center; gap: 8px; height: 30px; }
+.rc-c { width: 13px; height: 13px; border-radius: 3px; background: linear-gradient(135deg, rgba(1, 154, 203, 0.5), rgba(1, 154, 203, 0.18)); box-shadow: inset 0 0 0 1px rgba(1, 154, 203, 0.3); animation: rcRise 2.8s ease-in-out infinite; }
+@keyframes rcRise { 0%, 100% { transform: translateY(5px); opacity: 0.3; } 50% { transform: translateY(-5px); opacity: 0.85; } }
+
+/* MATH geom_5_04: fakt-animatsiyalar (CSS-only loop, ko'k tema, YUMSHOQ — keskin emas). */
+/* 1 litr = 10x10x10: kubcha suv bilan yumshoq to'ladi (Matematika). */
 .fa-lt { width: clamp(82px, 17vw, 116px); height: auto; }
 .fa-lt-front { fill: rgba(1, 154, 203, 0.1); stroke: #019ACB; stroke-width: 2; stroke-linejoin: round; }
 .fa-lt-top { fill: rgba(1, 154, 203, 0.22); stroke: #019ACB; stroke-width: 1.6; stroke-linejoin: round; }
 .fa-lt-side { fill: rgba(1, 154, 203, 0.3); stroke: #019ACB; stroke-width: 1.6; stroke-linejoin: round; }
-.fa-lt-water { fill: #019ACB; fill-opacity: 0.55; transform-origin: 45px 54px; animation: faLt 2.6s ease-in-out infinite; }
-@keyframes faLt { 0%, 100% { transform: scaleY(0.15); } 55%, 80% { transform: scaleY(1); } }
-/* Voksel — 3D o'yin kubchalari to'lqinli yorishadi (IT). */
+.fa-lt-water { fill: #019ACB; fill-opacity: 0.5; transform-origin: 45px 54px; animation: faLt 4s ease-in-out infinite; }
+@keyframes faLt { 0%, 100% { transform: scaleY(0.82); } 50% { transform: scaleY(1); } }
+/* Voksel — 3D o'yin kubchalari yumshoq to'lqinli yorishadi (IT). */
 .fa-vx { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: clamp(66px, 13vw, 92px); height: clamp(66px, 13vw, 92px); }
-.fa-vx-c { background: #019ACB; opacity: 0.25; border-radius: 3px; animation: faVx 1.8s ease-in-out infinite; }
-@keyframes faVx { 0%, 100% { opacity: 0.2; transform: scale(0.82); } 50% { opacity: 0.95; transform: scale(1); } }
-/* Rubik kubi 3x3 old yuz — qator-qator yorishadi (Matematika). */
+.fa-vx-c { background: #019ACB; opacity: 0.35; border-radius: 3px; animation: faVx 2.6s ease-in-out infinite; }
+@keyframes faVx { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.9; } }
+/* Rubik kubi 3x3 old yuz — qator-qator yumshoq yorishadi (Matematika). */
 .fa-rb { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: clamp(70px, 14vw, 96px); height: clamp(70px, 14vw, 96px); padding: 4px; background: rgba(1, 154, 203, 0.12); border-radius: 8px; }
-.fa-rb-c { background: #019ACB; opacity: 0.3; border-radius: 4px; animation: faRb 2.1s ease-in-out infinite; }
-@keyframes faRb { 0%, 100% { opacity: 0.25; } 45% { opacity: 0.95; } }
+.fa-rb-c { background: #019ACB; opacity: 0.35; border-radius: 4px; animation: faRb 3s ease-in-out infinite; }
+@keyframes faRb { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.85; } }

@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -779,7 +779,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -840,6 +840,7 @@ const SCREEN_META = [
 const CONTENT = {
   s0: {
     eyebrow: { ru: 'Загадка', uz: "Topishmoq" },
+    title: { ru: 'Странное число на дисплее', uz: "Displeydagi g'alati son" },
     lead: { ru: 'Капитан Кувват заряжает энергию. Каждое ядро — это три деления. Он зарядил пять делений, и на дисплее загорелось:', uz: "Kapitan Quvvat energiya to'playapti. Har yadro — uchta bo'lim. U besh bo'lim zaryadladi va displeyda yondi:" },
     objection: { ru: 'Юсуф удивился: так не бывает — верх не может быть больше низа. Это ошибка.', uz: "Yusuf hayron bo'ldi: bunday bo'lmaydi — surat maxrajdan katta bo'lolmaydi. Bu xato." },
     question: { ru: 'Юсуф прав?', uz: "Yusuf haqmi?" },
@@ -850,6 +851,7 @@ const CONTENT = {
   },
   s1: {
     eyebrow: { ru: 'Вспомним', uz: "Eslab ko'ramiz" },
+    title: { ru: 'Какая дробь больше', uz: "Qaysi kasr katta" },
     question: { ru: 'Прежде чем идти дальше — вспомним: что больше, 2/3 или 1/3?', uz: "Davom etishdan oldin eslaymiz: 2/3 va 1/3 — qaysi biri katta?" },
     opt0: { ru: '2/3', uz: "2/3" },
     opt1: { ru: '1/3', uz: "1/3" },
@@ -867,6 +869,7 @@ const CONTENT = {
   },
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Когда верх больше низа', uz: "Surat maxrajdan oshganda" },
     lead: { ru: 'Заряжай ядро по одному делению. Нажимай кнопку заряд.', uz: "Yadroni bittadan bo'lim zaryadlang. Zaryad tugmasini bosing." },
     read_charged: { ru: 'Заряжено', uz: "Zaryadlangan" },
     read_percore: { ru: 'В одном ядре', uz: "Bir yadroda" },
@@ -892,6 +895,7 @@ const CONTENT = {
   },
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    title: { ru: 'Рождение смешанного числа', uz: "Aralash sonning paydo bo'lishi" },
     lead: { ru: 'Прочитаем те же пять третьих по-другому.', uz: "O'sha uchdan beshni boshqacha o'qiymiz." },
     step_labels: {
       ru: ['Вот пять третьих в двух ядрах.', 'Первое ядро — это одно полное целое.', 'Во втором осталось две третьих. Одно целое и две третьих — это смешанное число.'],
@@ -914,12 +918,14 @@ const CONTENT = {
   },
   s4: {
     eyebrow: { ru: 'Попробуй сам', uz: "O'zingiz sinab ko'ring" },
+    title: { ru: 'Две записи одного числа', uz: "Bir sonning ikki yozuvi" },
     lead: { ru: 'Двигайте ползунок заряда. Знаменатель остаётся четыре.', uz: "Zaryad suriladigan tugmasini suring. Maxraj to'rt bo'lib qoladi." },
     note: { ru: 'Как только верх становится больше низа, дробь становится больше одного — и её можно записать смешанным числом.', uz: "Surat maxrajdan oshishi bilan kasr birdan katta bo'ladi — va uni aralash son bilan yozish mumkin." },
     audio: { ru: 'Подвигайте ползунок заряда. Когда меняется число делений, ячейки заполняются. Обратите внимание: как только верх дроби становится больше низа, число становится больше одного и превращается в смешанное.', uz: "Zaryad suriladigan tugmasini suring. Bo'limlar soni o'zgarganda kataklar to'ladi. E'tibor bering: surat maxrajdan katta bo'lishi bilanoq son birdan oshadi va aralash songa aylanadi." }
   },
   s5: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Правильная и неправильная дробь', uz: "To'g'ri va noto'g'ri kasr" },
     rule_main: { ru: 'Если верх меньше низа — дробь правильная, она меньше одного. Если верх больше низа или равен ему — дробь неправильная, она больше одного или равна одному.', uz: "Agar surat maxrajdan kichik bo'lsa — kasr to'g'ri, u birdan kichik. Agar surat maxrajdan katta yoki teng bo'lsa — kasr noto'g'ri, u birdan katta yoki teng." },
     rule_note: { ru: 'Неправильная дробь — не ошибка. Это полноценное число.', uz: "Noto'g'ri kasr — xato emas. Bu to'liq haqiqiy son." },
     ex_good: { ru: 'правильная', uz: "to'g'ri" },
@@ -928,6 +934,7 @@ const CONTENT = {
   },
   s6: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Что такое смешанное число', uz: "Aralash son nima" },
     rule_main: { ru: 'Смешанное число — это сумма целого и дроби. Один целый две третьих — это один плюс две третьих.', uz: "Aralash son — butun va kasrning yig'indisi. Bir butun uchdan ikki — bu bir qo'shuv uchdan ikki." },
     warning_label: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
     warning: { ru: 'Это не умножение. Один целый две третьих — это не один умножить на две третьих.', uz: "Bu ko'paytirish emas. Bir butun uchdan ikki — bu bir ko'paytuv uchdan ikki degani emas." },
@@ -935,6 +942,7 @@ const CONTENT = {
   },
   s7: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Найди неправильную дробь', uz: "Noto'g'ri kasrni toping" },
     question: { ru: 'Какая дробь неправильная?', uz: "Qaysi kasr noto'g'ri kasr?" },
     opt0: { ru: '2/3', uz: "2/3" },
     opt1: { ru: '5/3', uz: "5/3" },
@@ -952,6 +960,7 @@ const CONTENT = {
   },
   s8: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Прочитай рисунок числом', uz: "Rasmni son bilan o'qing" },
     question: { ru: 'Сколько закрашено — каким смешанным числом?', uz: "Bo'yalgan miqdor — qaysi aralash son?" },
     opt0: { ru: '1 2/3', uz: "1 2/3" },
     opt1: { ru: '2/3', uz: "2/3" },
@@ -973,6 +982,7 @@ const CONTENT = {
   },
   s9: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Сколько целых спрятано', uz: "Nechta butun yashiringan" },
     question: { ru: 'Сколько полных целых в 11/4? Введи число.', uz: "11/4 da nechta to'liq butun bor? Sonni kiriting." },
     placeholder: { ru: '0', uz: "0" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
@@ -986,6 +996,7 @@ const CONTENT = {
   },
   s10: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Сложение, а не умножение', uz: "Qo'shish, ko'paytirish emas" },
     question_pre: { ru: 'Какое утверждение', uz: "Qaysi tasdiq" },
     question_em: { ru: 'неверное', uz: "noto'g'ri" },
     question_post: { ru: '?', uz: "?" },
@@ -1005,6 +1016,7 @@ const CONTENT = {
   },
   s11: {
     eyebrow: { ru: 'Миссия', uz: "Missiya" },
+    title: { ru: 'Энергия для миссии', uz: "Missiya uchun energiya" },
     lead: { ru: 'Дилноза готовит энергию для миссии. Каждый блок — одна четвёртая ядра. Она зарядила девять блоков.', uz: "Dilnoza missiya uchun energiya tayyorlayapti. Har blok — to'rtdan bir yadro. U to'qqiz blok zaryadladi." },
     question_setup: { ru: 'Сколько всего ядер энергии?', uz: "Jami qancha yadro energiya?" },
     btn_help: { ru: 'Помочь Дилнозе', uz: "Dilnozaga yordam berish" },
@@ -1012,6 +1024,7 @@ const CONTENT = {
   },
   s12: {
     eyebrow: { ru: 'Миссия', uz: "Missiya" },
+    title: { ru: 'Сколько всего ядер', uz: "Jami qancha yadro" },
     question: { ru: 'Сколько всего ядер зарядила Дилноза?', uz: "Dilnoza jami qancha yadro zaryadladi?" },
     opt0: { ru: '2 1/4 ядра', uz: "2 1/4 yadro" },
     opt1: { ru: '9/4 — это неверная запись', uz: "9/4 — noto'g'ri yozuv" },
@@ -1033,6 +1046,7 @@ const CONTENT = {
   },
   s13: {
     eyebrow: { ru: 'Финальная проверка', uz: "Yakuniy tekshiruv" },
+    title: { ru: 'Запиши смешанным числом', uz: "Aralash son bilan yozing" },
     question: { ru: 'Как записать 8/3 смешанным числом?', uz: "8/3 ni aralash son ko'rinishida qanday yozamiz?" },
     opt0: { ru: '2 2/3', uz: "2 2/3" },
     opt1: { ru: '2 умножить на 2/3', uz: "2 ko'paytuv 2/3" },
@@ -1054,6 +1068,7 @@ const CONTENT = {
   },
   s14: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
+    heading: { ru: 'Три вида чисел понятны', uz: "Uch xil son tushunarli" },
     title: { ru: 'Теперь ты различаешь правильные, неправильные и смешанные числа.', uz: "Endi siz to'g'ri, noto'g'ri va aralash sonlarni farqlaysiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
     points: {
@@ -1213,6 +1228,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: 'clamp(14px, 2.4vw, 20px)' }}>
           <HeroCharge/>
@@ -1240,7 +1256,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 2, 1, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1264,6 +1280,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={done ? 'frame fade-up ub-glow' : 'frame fade-up'} style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', justifyContent: 'center' }}>
           <UnitBars den={3} filled={filled} units={2} splitWholes={true} alive={true} labels={true} success={done}/>
@@ -1303,6 +1320,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={done ? 'frame fade-up ub-glow' : 'frame fade-up'} style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', justifyContent: 'center' }}>
           <UnitBars den={3} filled={5} units={2} splitWholes={splitW} showLine={showLine} lineMax={2} markerValue={markerVal} alive={true} labels={true} success={done}/>
@@ -1331,6 +1349,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', justifyContent: 'center' }}>
           <UnitBars den={den} filled={num} units={3} splitWholes={true} showLine={true} lineMax={3} live={true} alive={true} compact={true} success={num % den === 0 && num > 0}/>
@@ -1359,6 +1378,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <p className="body" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(18px, 5vw, 44px)', flexWrap: 'wrap' }}>
@@ -1388,6 +1408,7 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
           <p className="body" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -1412,7 +1433,7 @@ const Screen7 = (props) => {
   const t = useT(); const c = CONTENT.s7;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 1, [2, 1, 0, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1421,7 +1442,7 @@ const Screen8 = (props) => {
   const t = useT(); const c = CONTENT.s8;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12 }}><UnitBars den={3} filled={5} units={2} splitWholes={false} compact={true}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12 }}><UnitBars den={3} filled={5} units={2} splitWholes={false} compact={true}/></div></>);
   return <QuestionScreen {...props} idx={8} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[8]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimQuarters/>}/>}/>;
 };
 
@@ -1437,7 +1458,7 @@ const Screen10 = (props) => {
   const t = useT(); const c = CONTENT.s10;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 2, [0, 1, 3, 2]);
-  const question = (<h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2></>);
   return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1449,6 +1470,7 @@ const Screen11 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
           <UnitBars den={4} filled={9} units={3} splitWholes={false} labels={true}/>
@@ -1464,7 +1486,7 @@ const Screen12 = (props) => {
   const t = useT(); const c = CONTENT.s12;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 2, 1, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12 }}><UnitBars den={4} filled={9} units={3} splitWholes={false} compact={true}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12 }}><UnitBars den={4} filled={9} units={3} splitWholes={false} compact={true}/></div></>);
   return <QuestionScreen {...props} idx={12} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[12]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimProgressSeg/>}/>}/>;
 };
 
@@ -1473,7 +1495,7 @@ const Screen13 = (props) => {
   const t = useT(); const c = CONTENT.s13;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}><Frac n="8" d="3" size="mid" color={T.accent}/><UnitBars den={3} filled={8} units={3} splitWholes={false} compact={true}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}><Frac n="8" d="3" size="mid" color={T.accent}/><UnitBars den={3} filled={8} units={3} splitWholes={false} compact={true}/></div></>);
   return <QuestionScreen {...props} idx={13} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[13]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimDivMod/>}/>}/>;
 };
 
@@ -1488,6 +1510,7 @@ const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1">
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
@@ -1771,7 +1794,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -1983,8 +2006,8 @@ html, body { margin: 0; padding: 0; }
 .fa-q i:nth-child(3) { bottom: 0; right: 0; border-radius: 0 0 100% 0; animation-delay: 0.8s; }
 .fa-q i:nth-child(4) { bottom: 0; left: 0; border-radius: 0 0 0 100%; animation-delay: 1.2s; }
 @keyframes faQuart { 0%, 10% { opacity: 0; } 30%, 70% { opacity: 1; } 90%, 100% { opacity: 0; } }
-/* MATH frac_5_13: noto'g'ri TANLANGAN variant — aniq QIZIL belgi (xato). */
-.option-picked-wrong { background: #FF4F28 !important; color: #FFFFFF !important; box-shadow: 0 10px 24px -6px rgba(255, 79, 40, 0.5) !important; }
+/* MATH frac_5_13: noto'g'ri TANLANGAN variant — yumshoq qizil (barcha darslar bilan bir xil). */
+.option-picked-wrong { background: #FFE8E1 !important; color: #FF4F28 !important; box-shadow: 0 8px 22px -6px rgba(255, 79, 40, 0.38) !important; }
 /* Accessibility: harakatni kamaytirish so'rovi — bezak/loop animatsiyalar so'ndiriladi (funksiya buzilmaydi). */
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 `;

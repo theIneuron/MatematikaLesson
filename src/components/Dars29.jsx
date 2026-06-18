@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -614,7 +614,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -681,7 +681,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       setTimeout(() => {
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
-          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || c.audio.on_wrong[lang];
+          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
         }
       }, 300);
@@ -698,8 +698,9 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+        <div className="fade-up" style={{ maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(16px, 2.6vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{question}</div>
+        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(16px, 2.6vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
@@ -779,9 +780,9 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up" style={{ maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(16px, 2.6vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
-        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(16px, 2.6vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
           {c.base && <span className="mop">≈</span>}
           <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
@@ -849,6 +850,7 @@ const CONTENT = {
   // ---- s0 HOOK — "nega ko'paytiramiz?" konseptual (qahramonsiz). Grid 5x3 to'ladi. ----
   s0: {
     eyebrow: { ru: 'Квест', uz: 'Kvest' },
+    title: { ru: 'Сколько блоков нужно?', uz: "Nechta blok kerak?" },
     lead: {
       ru: 'Ты строишь в игре: нужно покрыть прямоугольный участок земли квадратными блоками. В один ряд помещается 5 блоков, и таких рядов 3. Сколько всего блоков нужно? Можно ставить по одному — раз, два, три... А можно ли быстрее?',
       uz: "O'yinda qurmoqdasiz: to'rtburchak yer uchastkasini kvadrat bloklar bilan qoplash kerak. Bir qatorga 5 ta blok sig'adi, shunday qatorlar esa 3 ta. Hammasi bo'lib nechta blok kerak? Bittalab qo'ysa bo'ladi — bir, ikki, uch... Ammo tezroq yo'li bormi?"
@@ -873,6 +875,7 @@ const CONTENT = {
   // ---- s1 WARM-UP — perimetr retrieval (Dars28). 5x3 perimetri = 16. Tuzoq 15 = yuza (oldindan). ----
   s1: {
     eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
+    title: { ru: 'Вспомним периметр', uz: "Perimetrni eslaymiz" },
     question: {
       ru: 'На прошлом уроке мы измеряли границу. У прямоугольника 5 на 3 — чему равен периметр, то есть длина всей границы?',
       uz: "O'tgan darsda chegarani o'lchagandik. 5 ga 3 to'rtburchakning perimetri, ya'ni butun chegara uzunligi qancha?"
@@ -914,6 +917,7 @@ const CONTENT = {
   // ---- s2 EXPLORATION — birlik kvadratlar bilan to'ldirish: qatorma-qator. 5x3 = 15. ----
   s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Заглянем внутрь фигуры', uz: "Shakl ichiga qaraymiz" },
     lead: {
       ru: 'Заглянем внутрь. Заполним прямоугольник одинаковыми квадратиками и посчитаем их. Нажимай — будем выкладывать ряд за рядом.',
       uz: "Ichiga qaraymiz. To'rtburchakni bir xil kvadratchalar bilan to'ldirib, ularni sanaymiz. Bosing — qatorma-qator teramiz."
@@ -942,6 +946,7 @@ const CONTENT = {
   // ---- s3 EXPLORATION — bitta birlik kvadrat: 1 sm x 1 sm = 1 sm^2 ----
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Мерка площади', uz: "Yuza o'lchovi" },
     lead: {
       ru: 'А какой квадратик мы считаем за один? Договорились о мерке: квадрат со стороной 1 сантиметр. Его площадь — один квадратный сантиметр.',
       uz: "Qaysi kvadratchani bittaga olamiz? O'lchov haqida kelishamiz: tomoni 1 santimetr bo'lgan kvadrat. Uning yuzasi — bir kvadrat santimetr."
@@ -963,6 +968,7 @@ const CONTENT = {
   // ---- s4 EXPLORATION — jonli slayder: bo'y o'zgaradi, en=4; S = a x 4 ----
   s4: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Зачем умножать?', uz: "Nega ko'paytiramiz?" },
     lead: {
       ru: 'Считать по одной долго. Заметь: в каждом ряду одинаковое число клеток, а рядов несколько. Двигай ползунок и смотри, как меняется площадь.',
       uz: "Bittalab sanash uzoq. Sezing: har qatorda bir xil sondagi katak, qatorlar esa bir nechta. Slayderni suring va yuza qanday o'zgarishini kuzating."
@@ -984,6 +990,7 @@ const CONTENT = {
   // ---- s5 RULE 1 — S = a x b (bo'yi x eni) ----
   s5: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
+    title: { ru: 'Площадь прямоугольника', uz: "To'rtburchak yuzasi" },
     lead: {
       ru: 'Итак, мы открыли правило. Чтобы найти площадь прямоугольника, число клеток в ряду умножают на число рядов.',
       uz: "Demak, biz qoidani kashf qildik. To'rtburchak yuzasini topish uchun qatordagi kataklar soni qatorlar soniga ko'paytiriladi."
@@ -1003,6 +1010,7 @@ const CONTENT = {
   // ---- s6 RULE 2 — kvadrat: S = a x a ----
   s6: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
+    title: { ru: 'Площадь квадрата', uz: "Kvadrat yuzasi" },
     lead: {
       ru: 'А у квадрата всё ещё проще. У него длина и ширина равны, поэтому сторону умножают саму на себя.',
       uz: "Kvadratda esa bundan ham oson. Unda bo'y va en teng, shuning uchun tomon o'zini-o'ziga ko'paytiriladi."
@@ -1022,6 +1030,7 @@ const CONTENT = {
   // ---- s7 RULE 3 / TIP — M1 ogohlantirish: yuza (ichi) perimetr (chegara) EMAS; sm va sm^2 ----
   s7: {
     eyebrow: { ru: 'Важно', uz: 'Muhim' },
+    title: { ru: 'Не путай с периметром', uz: "Perimetr bilan adashtirmang" },
     lead: {
       ru: 'Но будь внимателен. Площадь легко спутать с периметром. Это разные вещи.',
       uz: "Lekin ehtiyot bo'ling. Yuzani perimetr bilan adashtirish oson. Bu har xil narsa."
@@ -1047,6 +1056,7 @@ const CONTENT = {
   // ---- s8 TEST MC — 4x3 yuzasi? correct 12 (C). Tuzoq 14 = perimetr. practice + FAKT Tarix ----
   s8: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Найди площадь', uz: "Yuzani toping" },
     lead: { ru: 'Теперь сам. У прямоугольника длина 4 и ширина 3. Чему равна его площадь в клетках?', uz: "Endi o'zingiz. To'rtburchakning bo'yi 4, eni 3. Uning yuzasi necha katak?" },
     opt0: { ru: '12', uz: '12' },
     opt1: { ru: '14', uz: '14' },
@@ -1057,16 +1067,16 @@ const CONTENT = {
       uz: "To'g'ri. Yuza = 4 ni 3 ga ko'paytirsak = 12 katak. To'rttadan uchta qator."
     },
     wrong_1: {
-      ru: '14 — это периметр, граница: 4 плюс 3 плюс 4 плюс 3. А площадь — это умножение: 4 умножить на 3 — это 12.',
-      uz: "14 — bu perimetr, chegara: 4 qo'shuv 3 qo'shuv 4 qo'shuv 3. Yuza esa — ko'paytirish: 4 ni 3 ga ko'paytirsak — 12."
+      ru: 'Это периметр, длина границы. Стороны складывают по кругу. А площадь находят умножением, сосчитай клетки внутри и умножь длину на ширину.',
+      uz: "Bu perimetr, chegara uzunligi. Tomonlar aylana bo'ylab qo'shiladi. Yuza esa ko'paytirish bilan topiladi, ichidagi kataklarni sanang va bo'yni enga ko'paytiring."
     },
     wrong_2: {
-      ru: '7 — это 4 плюс 3, ты сложил стороны. А площадь умножают: 4 умножить на 3 — это 12.',
-      uz: "7 — bu 4 qo'shuv 3, siz tomonlarni qo'shdingiz. Yuza esa ko'paytiriladi: 4 ni 3 ga ko'paytirsak — 12."
+      ru: 'Здесь ты сложил стороны. Площадь не складывают, а умножают. Возьми длину столько раз, сколько рядов.',
+      uz: "Bu yerda siz tomonlarni qo'shdingiz. Yuza qo'shilmaydi, balki ko'paytiriladi. Bo'yni qatorlar soniga ko'paytiring."
     },
     wrong_3: {
-      ru: '24 — это вдвое больше. Перемножь именно стороны: 4 умножить на 3 — это 12.',
-      uz: "24 — bu ikki barobar ko'p. Aynan tomonlarni ko'paytiring: 4 ni 3 ga ko'paytirsak — 12."
+      ru: 'Это слишком много, вдвое больше нужного. Перемножь стороны один раз, не удваивай.',
+      uz: "Bu juda ko'p, keragidan ikki barobar. Tomonlarni bir marta ko'paytiring, ikkilantirmang."
     },
     fact: {
       ru: 'Само слово «геометрия» значит «измерение земли». В Древнем Египте после разлива Нила поля заново перемеряли — так и родилась наука о площадях. Поэтому мы начинаем с измерения.',
@@ -1088,12 +1098,13 @@ const CONTENT = {
   // ---- s9 TEST NumInput — bo'yi 6, eni 4 -> yuza 24. practice ----
   s9: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Посчитай площадь', uz: "Yuzani hisoblang" },
     question: { ru: 'У прямоугольника длина 6 и ширина 4. Чему равна площадь в клетках?', uz: "To'rtburchakning bo'yi 6, eni 4. Yuzasi necha katak?" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     hint: {
-      ru: 'Площадь — это длина умножить на ширину. Возьми 6 раз по 4 (или 4 раза по 6): 6 умножить на 4 будет 24.',
-      uz: "Yuza — bu bo'yni enga ko'paytirish. 4 ni 6 marta oling (yoki 6 ni 4 marta): 6 ni 4 ga ko'paytirsak 24 bo'ladi."
+      ru: 'Площадь — это длина умножить на ширину. Не складывай стороны, а умножь: возьми 6 раз по 4 клетки.',
+      uz: "Yuza — bu bo'yni enga ko'paytirish. Tomonlarni qo'shmang, balki ko'paytiring: 4 ta katakni 6 marta oling."
     },
     fb_correct: { ru: 'Верно. 6 умножить на 4 — это 24 клетки.', uz: "To'g'ri. 6 ni 4 ga ko'paytirsak — 24 katak." },
     audio: {
@@ -1109,6 +1120,7 @@ const CONTENT = {
   // ---- s10 TEST find-the-wrong — XATO hisobni top. correct = opt2 (6x4: yuza 20, aslida 24). practice ----
   s10: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
+    title: { ru: 'Где ошибка?', uz: "Xato qayerda?" },
     q_pre: { ru: 'Один из расчётов площади ', uz: 'Yuza hisoblaridan biri ' },
     q_em:  { ru: 'ОШИБОЧЕН', uz: 'XATO' },
     q_post: { ru: '. Найди именно его.', uz: ". Aynan o'shani toping." },
@@ -1121,16 +1133,16 @@ const CONTENT = {
       uz: "To'g'ri, xato shu. 20 — bu perimetr, chegara: 6 qo'shuv 4 qo'shuv 6 qo'shuv 4. Yuza esa 6 ni 4 ga ko'paytirgan — 24."
     },
     wrong_0: {
-      ru: 'Это верно: 5 умножить на 2 — это 10. Ошибка в другом расчёте.',
-      uz: "Bu to'g'ri: 5 ni 2 ga ko'paytirsak — 10. Xato boshqa hisobda."
+      ru: 'Это верно. Пять умножить на два это десять. Ошибка в другом расчёте.',
+      uz: "Bu to'g'ri. Besh ni ikki ga ko'paytirsak o'n bo'ladi. Xato boshqa hisobda."
     },
     wrong_1: {
-      ru: 'Это верно: у квадрата 3 умножить на 3 — это 9. Ищи ошибку дальше.',
-      uz: "Bu to'g'ri: kvadratda 3 ni 3 ga ko'paytirsak — 9. Xatoni boshqa joydan qidiring."
+      ru: 'Это верно. У квадрата три умножить на три это девять. Ищи ошибку дальше.',
+      uz: "Bu to'g'ri. Kvadratda uch ni uch ga ko'paytirsak to'qqiz bo'ladi. Xatoni boshqa joydan qidiring."
     },
     wrong_3: {
-      ru: 'Это верно: у квадрата 5 умножить на 5 — это 25. Ошибка не здесь.',
-      uz: "Bu to'g'ri: kvadratda 5 ni 5 ga ko'paytirsak — 25. Xato bu yerda emas."
+      ru: 'Это верно. У квадрата пять умножить на пять это двадцать пять. Ошибка не здесь.',
+      uz: "Bu to'g'ri. Kvadratda besh ni besh ga ko'paytirsak yigirma besh bo'ladi. Xato bu yerda emas."
     },
     audio: {
       intro: {
@@ -1148,6 +1160,7 @@ const CONTENT = {
   // ---- s11 TEST tap-to-shade — "4x3 = nechta katak? O'shancha bo'yang" -> 12. practice + FAKT Matematika ----
   s11: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Закрась площадь', uz: "Yuzani bo'yang" },
     lead: {
       ru: 'Закрась столько клеток, какова площадь прямоугольника 4 на 3. Нажимай на клетки, потом проверь.',
       uz: "Bo'yi 4, eni 3 to'rtburchakning yuzasi qancha bo'lsa, shuncha katakni bo'yang. Kataklarni bosing, keyin tekshiring."
@@ -1155,12 +1168,12 @@ const CONTENT = {
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     count_label: { ru: 'Закрашено клеток', uz: "Bo'yalgan kataklar" },
     hint_low: {
-      ru: 'Пока мало. Площадь 4 на 3 — это 4 умножить на 3, то есть 12 клеток. Добавь ещё.',
-      uz: "Hozircha kam. 4 ga 3 yuzasi — bu 4 ni 3 ga ko'paytirgan, ya'ni 12 katak. Yana qo'shing."
+      ru: 'Пока мало. Площадь 4 на 3 — это длина умножить на ширину. Закрась столько клеток, сколько получится при умножении.',
+      uz: "Hozircha kam. 4 ga 3 yuzasi — bu bo'yni enga ko'paytirgan. Ko'paytirish natijasi qancha bo'lsa, shuncha katakni bo'yang."
     },
     hint_high: {
-      ru: 'Слишком много. Нужно ровно 12 клеток: 4 умножить на 3. Убери лишние.',
-      uz: "Juda ko'p. Aynan 12 ta katak kerak: 4 ni 3 ga ko'paytirgan. Ortiqchasini olib tashlang."
+      ru: 'Слишком много. Нужно ровно столько клеток, сколько даёт 4 умножить на 3. Убери лишние.',
+      uz: "Juda ko'p. Aynan 4 ni 3 ga ko'paytirgan natijacha katak kerak. Ortiqchasini olib tashlang."
     },
     fb_correct: { ru: 'Верно. 12 клеток — это и есть площадь 4 умножить на 3.', uz: "To'g'ri. 12 ta katak — bu aynan 4 ni 3 ga ko'paytirgan yuza." },
     fact: {
@@ -1183,6 +1196,7 @@ const CONTENT = {
   // ---- s12 TEST drag-classify — chiplarni Yuza / Perimetr savatlariga ajratish. practice (M1+M3) ----
   s12: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Площадь или периметр?', uz: "Yuza yoki perimetr?" },
     lead: {
       ru: 'Разложи карточки по корзинам: что относится к площади, а что — к периметру. Нажми карточку, потом корзину. Затем проверь.',
       uz: "Kartochkalarni savatlarga ajrating: nimasi yuzaga, nimasi perimetrga tegishli. Kartochkani bosing, keyin savatni. So'ng tekshiring."
@@ -1212,6 +1226,7 @@ const CONTENT = {
   // ---- s13 CASE setup — Shahnoza xona poliga koshin (6x4) ----
   s13: {
     eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
+    title: { ru: 'Плитки для пола', uz: "Pol uchun koshinlar" },
     lead: {
       ru: 'Шахноза выкладывает пол комнаты квадратными плитками. Пол прямоугольный: 6 метров в длину и 4 в ширину, а каждая плитка — это квадрат 1 на 1 метр. Сколько плиток нужно на весь пол?',
       uz: "Shahnoza xona poliga kvadrat koshinlar teradi. Pol to'rtburchak: bo'yi 6 metr, eni 4 metr, har bir koshin esa 1 ga 1 metrli kvadrat. Butun polga nechta koshin kerak?"
@@ -1234,6 +1249,7 @@ const CONTENT = {
   // ---- s14 CASE/FINAL MC — koshin soni? correct 24 (A). Tuzoq 20 = perimetr. final + FAKT IT ----
   s14: {
     eyebrow: { ru: 'Итоговая задача', uz: 'Yakuniy masala' },
+    title: { ru: 'Сколько плиток нужно?', uz: "Nechta koshin kerak?" },
     lead: {
       ru: 'Пол 6 на 4 метра, плитки по 1 метру. Сколько всего плиток нужно на весь пол?',
       uz: "Pol 6 ga 4 metr, koshinlar 1 metrdan. Butun polga hammasi bo'lib nechta koshin kerak?"
@@ -1247,16 +1263,16 @@ const CONTENT = {
       uz: "To'g'ri. Pol yuzasi = 6 ni 4 ga ko'paytirsak = 24 koshin. To'rttadan oltita qator."
     },
     wrong_1: {
-      ru: '20 — это периметр, граница пола: 6 плюс 4 плюс 6 плюс 4. А плитки заполняют внутри: 6 умножить на 4 — это 24.',
-      uz: "20 — bu perimetr, pol chegarasi: 6 qo'shuv 4 qo'shuv 6 qo'shuv 4. Koshinlar esa ichini to'ldiradi: 6 ni 4 ga ko'paytirsak — 24."
+      ru: 'Это периметр, граница пола. Стороны складывают по кругу. А плитки заполняют пол внутри, умножь длину на ширину.',
+      uz: "Bu perimetr, pol chegarasi. Tomonlar aylana bo'ylab qo'shiladi. Koshinlar esa polni ichidan to'ldiradi, bo'yni enga ko'paytiring."
     },
     wrong_2: {
-      ru: '10 — это 6 плюс 4, ты сложил стороны. А площадь умножают: 6 умножить на 4 — это 24.',
-      uz: "10 — bu 6 qo'shuv 4, siz tomonlarni qo'shdingiz. Yuza esa ko'paytiriladi: 6 ni 4 ga ko'paytirsak — 24."
+      ru: 'Здесь ты сложил стороны. Плитки внутри считают умножением, длину на ширину.',
+      uz: "Bu yerda siz tomonlarni qo'shdingiz. Ichidagi koshinlar ko'paytirish bilan sanaladi, bo'yni enga."
     },
     wrong_3: {
-      ru: '48 — это вдвое больше нужного. Перемножь стороны один раз: 6 умножить на 4 — это 24.',
-      uz: "48 — bu keragidan ikki barobar ko'p. Tomonlarni bir marta ko'paytiring: 6 ni 4 ga ko'paytirsak — 24."
+      ru: 'Это слишком много, вдвое больше нужного. Перемножь стороны один раз, не удваивай.',
+      uz: "Bu juda ko'p, keragidan ikki barobar. Tomonlarni bir marta ko'paytiring, ikkilantirmang."
     },
     fact: {
       ru: 'Экран телефона состоит из миллионов крошечных квадратиков — пикселей. Размер картинки тоже считают так: ширину умножают на высоту в пикселях. Например, 1000 на 2000 — это два миллиона пикселей.',
@@ -1278,6 +1294,7 @@ const CONTENT = {
   // ---- s15 SUMMARY — hookni yopadi + ConnectionsBlock ----
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Xulosa' },
+    heading: { ru: 'Площадь освоена', uz: "Yuza o'zlashtirildi" },
     title: { ru: 'Вернёмся к блокам на участке.', uz: "Uchastkadagi bloklarga qaytamiz." },
     main_label: { ru: 'Главное', uz: 'Asosiy' },
     main_1: { ru: 'Площадь — это сколько одинаковых квадратиков помещается ВНУТРИ фигуры.', uz: "Yuza — bu shakl ICHIGA nechta bir xil kvadratcha sig'ishi." },
@@ -1304,6 +1321,7 @@ const CONTENT = {
       uz: "uchburchak yuzasi: bu to'rtburchakning yarmi."
     },
     btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
+    score_label: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob" },
     audio: {
       ru: "Подведём итог. Площадь это сколько одинаковых квадратиков помещается внутри фигуры. У прямоугольника площадь равна длине умножить на ширину, у квадрата стороне умножить на сторону. И помни: площадь это серединка, а не граница, не путай её с периметром, и меряй в квадратных сантиметрах. Поэтому пять плиток в ряд и три ряда это пять умножить на три, всего пятнадцать плиток. Умножение и есть быстрый способ сосчитать клетки.",
       uz: "Xulosa qilamiz. Yuza bu shakl ichiga nechta bir xil kvadratcha sig'ishi. To'rtburchak yuzasi bo'yni enga ko'paytirgan, kvadrat yuzasi tomonni tomonga ko'paytirgan. Va esda tuting: yuza bu o'rta, chegara emas, uni perimetr bilan chalkashtirmang va kvadrat santimetrda o'lchang. Shuning uchun bir qatorda besh koshin va uch qator bu beshni uchga ko'paytirgan, hammasi o'n besh koshin. Ko'paytirish kataklarni tez sanashning aynan o'zi."
@@ -1337,12 +1355,15 @@ const optEl = (t, node) => <span className="body" style={{ display: 'inline' }}>
 const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
 const IconNo = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
 
-// Ambient-harakat siyrak ekranlar uchun (qoida, summary): yumshoq suzuvchi doiralar.
-const Floaters = () => (
-  <div className="amb" aria-hidden="true">
-    <span className="amb-o amb-o1"/>
-    <span className="amb-o amb-o2"/>
-    <span className="amb-o amb-o3"/>
+// Tematik dekor (yuza mavzusi): sekin suzuvchi birlik kvadratchalar — bo'sh joyni boyitadi.
+const FloatTiles = () => (
+  <div className="flt" aria-hidden="true">
+    <span className="flt-c flt-1"/>
+    <span className="flt-c flt-2"/>
+    <span className="flt-c flt-3"/>
+    <span className="flt-c flt-4"/>
+    <span className="flt-c flt-5"/>
+    <span className="flt-c flt-6"/>
   </div>
 );
 
@@ -1391,19 +1412,20 @@ const AnimPixels = () => (
 // ============================================================
 // TileGrid: to'rtburchak cols x rows birlik kataklar; filled = to'ldirilgan kataklar soni
 // (row-major, null = hammasi); unit — o'lcham birligi belgisi; compact — kichik; glow — yoritish.
-const TileGrid = ({ cols = 5, rows = 3, filled = null, unit = '', compact = false, glow = false }) => {
+const TileGrid = ({ cols = 5, rows = 3, filled = null, unit = '', compact = false, glow = false, stagger = false, success = false }) => {
   const total = cols * rows;
   const fill = filled === null ? total : filled;
   const big = Math.max(cols, rows);
   const cell = compact ? (big >= 8 ? 16 : 22) : (big >= 8 ? 24 : 32);
   return (
-    <div className={`tg-host${glow ? ' tg-glow' : ''}`} aria-hidden="true">
+    <div className={`tg-host${glow ? ' tg-glow' : ''}${success ? ' tg-ok' : ''}`} aria-hidden="true">
       {unit !== '' && <span className="tg-dim tg-dim-top">{cols}{unit}</span>}
       {unit !== '' && <span className="tg-dim tg-dim-left">{rows}{unit}</span>}
       <div className="tg-grid" style={{ gridTemplateColumns: `repeat(${cols}, ${cell}px)`, gridTemplateRows: `repeat(${rows}, ${cell}px)` }}>
         {Array.from({ length: total }).map((_, i) => {
           const on = i < fill;
-          return <span key={i} className={`tg-cell${on ? ' tg-on' : ''}`} style={{ animationDelay: on ? `${((i % cols) + Math.floor(i / cols)) * 0.05}s` : undefined }}/>;
+          const delay = (i % cols) + Math.floor(i / cols);
+          return <span key={i} className={`tg-cell${on ? ' tg-on' : ''}${on && stagger ? ' tg-pop' : ''}`} style={{ animationDelay: on ? `${delay * (stagger ? 0.03 : 0.05)}s` : undefined }}/>;
         })}
       </div>
     </div>
@@ -1428,9 +1450,11 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{mt(t(c.lead))}</h2>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(14px, 2.6vw, 22px) clamp(10px, 2vw, 16px)', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
+        <h2 className="title h-sub fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.lead))}</h2>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', padding: 'clamp(14px, 2.6vw, 22px) clamp(10px, 2vw, 16px)', display: 'flex', justifyContent: 'center' }}>
           <TileGrid cols={5} rows={3}/>
         </div>
         <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1453,7 +1477,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1479,9 +1503,11 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center' }}>
           <TileGrid cols={COLS} rows={ROWS} filled={filled} glow={done}/>
           <div className="yz-calc">
             <span className={filled > 0 ? 'yz-calc-on' : 'yz-calc-off'}>{filled}</span>
@@ -1507,7 +1533,8 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(18px, 4vw, 36px)', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
@@ -1536,9 +1563,11 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
           <TileGrid cols={a} rows={B} glow={isSquare}/>
           <div className="yz-calc">
             <span className="yz-calc-on">{a}</span><span className="yz-calc-op">×</span><span className="yz-calc-on">{B}</span>
@@ -1560,7 +1589,8 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
@@ -1581,7 +1611,8 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
@@ -1602,7 +1633,8 @@ const Screen7 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p className="body" style={{ margin: 0 }}>{mt(t(c.point1))}</p>
@@ -1621,14 +1653,14 @@ const Screen8 = (props) => {
   const t = useT(); const c = CONTENT.s8;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 3, 0, 2]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><TileGrid cols={4} rows={3} compact={true}/></div></>);
-  return <QuestionScreen {...props} idx={8} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[8]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimLand/>}/>}/>;
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2></>);
+  return <QuestionScreen {...props} idx={8} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[8]} screenContent={content} question={question} options={options} correctIdx={correctIdx} figure={(solved) => <TileGrid cols={4} rows={3} compact={true} filled={solved ? 12 : 0} stagger={solved} success={solved}/>} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimLand/>}/>}/>;
 };
 
 // s9 — TEST NumInput (6x4 -> 24)
 const Screen9 = (props) => {
   const c = CONTENT.s9;
-  return <NumInputScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={c} correctValue={24} renderVisual={() => <TileGrid cols={6} rows={4} compact={true}/>}/>;
+  return <NumInputScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={c} correctValue={24} renderVisual={({ solved }) => <TileGrid cols={6} rows={4} compact={true} filled={solved ? 24 : 0} stagger={solved} success={solved}/>}/>;
 };
 
 // s10 — TEST find-the-wrong (correct = opt2 "6x4: yuza 20", shuffle -> D)
@@ -1636,7 +1668,7 @@ const Screen10 = (props) => {
   const t = useT(); const c = CONTENT.s10;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 2, [0, 1, 3, 2]);
-  const question = (<h2 className="title h-sub">{t(c.q_pre)}<span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.q_pre)}<span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2></>);
   return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1676,7 +1708,10 @@ const Screen11 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        <div className="fade-up" style={{ maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(10px, 1.8vw, 14px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)' }}>
+          <h2 className="title h-title" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
+          <p className="body" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <div className={`sh-grid${solved ? ' sh-ok' : ''}`} style={{ gridTemplateColumns: `repeat(${COLS}, clamp(30px, 6.6vw, 44px))`, gridTemplateRows: `repeat(${ROWS}, clamp(30px, 6.6vw, 44px))` }}>
             {cells.map((on, i) => (
@@ -1761,7 +1796,10 @@ const Screen12 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        <div className="fade-up" style={{ maxHeight: solved ? 0 : 600, opacity: solved ? 0 : 1, marginBottom: solved ? 'calc(-1 * clamp(10px, 1.8vw, 14px))' : 0, overflow: 'hidden', transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)' }}>
+          <h2 className="title h-title" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
+          <p className="body" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        </div>
         <div className="cl-bins fade-up delay-1">
           {renderBin('area', t(c.bin_area))}
           {renderBin('per', t(c.bin_per))}
@@ -1805,9 +1843,11 @@ const Screen13 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.6vw, 22px) clamp(10px, 2vw, 16px)' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.6vw, 22px) clamp(10px, 2vw, 16px)' }}>
           <TileGrid cols={6} rows={4} unit="m"/>
         </div>
         <p className="body fade-up delay-2" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.note))}</p>
@@ -1822,23 +1862,31 @@ const Screen14 = (props) => {
   const t = useT(); const c = CONTENT.s14;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 2, 1, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><TileGrid cols={6} rows={4} compact={true}/></div></>);
-  return <QuestionScreen {...props} idx={14} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[14]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimPixels/>}/>}/>;
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2></>);
+  return <QuestionScreen {...props} idx={14} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[14]} screenContent={content} question={question} options={options} correctIdx={correctIdx} figure={(solved) => <TileGrid cols={6} rows={4} compact={true} filled={solved ? 24 : 0} stagger={solved} success={solved}/>} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimPixels/>}/>}/>;
 };
 
 // s15 — SUMMARY + hook yopilishi + bog'lanishlar + ambient
-const Screen15 = ({ screen, onPrev, onReset, finishLesson }) => {
+const Screen15 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s15;
   const audio = useAudio(makeAudioSegments(c, lang));
   const calledRef = useRef(false);
   useEffect(() => { if (!calledRef.current) { calledRef.current = true; finishLesson(); } }, []);
   const points = [c.main_1, c.main_2, c.main_3];
+  const scoredIdx = SCREEN_META.map((m, i) => (m.scored ? i : -1)).filter(i => i >= 0);
+  const correct = scoredIdx.filter(i => answers && answers[i] && answers[i].correct).length;
+  const total = scoredIdx.length;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
-        <Floaters/>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
+        <div className="frame-success fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span className="mono" style={{ fontSize: 'clamp(26px, 6vw, 36px)', fontWeight: 700, color: T.success, lineHeight: 1, flexShrink: 0 }}>{correct} / {total}</span>
+          <span className="body" style={{ margin: 0, color: T.ink2 }}>{t(c.score_label)}</span>
+        </div>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
@@ -2117,7 +2165,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -2268,7 +2316,9 @@ html, body { margin: 0; padding: 0; }
 .tg-glow .tg-grid { animation: tgGlow 0.9s ease, tgBreathe 3.6s ease-in-out infinite; }
 .tg-cell { background: #FFFFFF; border-radius: 2px; transition: background 0.3s ease, box-shadow 0.3s ease; }
 .tg-on { background: #FF4F28; box-shadow: 0 0 6px rgba(255, 79, 40, 0.45); animation: tgPop 0.3s ease both; }
-@keyframes tgPop { from { transform: scale(0.4); } to { transform: scale(1); } }
+.tg-pop { transform-origin: center; animation: tgPop 0.4s ease-out both; }
+.tg-ok .tg-on { background: #1F7A4D; box-shadow: 0 0 6px rgba(31, 122, 77, 0.45); }
+@keyframes tgPop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
 @keyframes tgBreathe { 0%, 100% { box-shadow: 0 0 0 rgba(255, 79, 40, 0); } 50% { box-shadow: 0 0 12px rgba(255, 79, 40, 0.14); } }
 @keyframes tgGlow { 0% { filter: drop-shadow(0 0 0 rgba(255, 79, 40, 0)); } 50% { filter: drop-shadow(0 0 14px rgba(255, 79, 40, 0.45)); } 100% { filter: drop-shadow(0 0 0 rgba(255, 79, 40, 0)); } }
 .tg-dim { position: absolute; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(11px, 2vw, 14px); color: #5A5A60; white-space: nowrap; }
@@ -2329,6 +2379,17 @@ html, body { margin: 0; padding: 0; }
 .fa-px { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 3px; width: clamp(58px, 12vw, 82px); height: clamp(58px, 12vw, 82px); }
 .fa-px-c { background: #019ACB; border-radius: 2px; opacity: 0.22; animation: faPx 1.8s ease-in-out infinite; }
 @keyframes faPx { 0%, 100% { opacity: 0.18; } 50% { opacity: 1; } }
+
+/* MATH geom_5_02: flt — dekorativ suzuvchi birlik kvadratchalar (yuza mavzusi, sekin, yengil). */
+.flt { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.flt-c { position: absolute; width: 18px; height: 18px; border-radius: 4px; opacity: 0.5; background: linear-gradient(135deg, rgba(255, 79, 40, 0.22), rgba(255, 79, 40, 0.06)); box-shadow: inset 0 0 0 1px rgba(255, 79, 40, 0.18); animation: fltFloat 16s ease-in-out infinite; }
+.flt-1 { left: 7%; top: 16%; animation-delay: 0s; }
+.flt-2 { right: 9%; top: 22%; width: 13px; height: 13px; background: linear-gradient(135deg, rgba(1, 154, 203, 0.22), rgba(1, 154, 203, 0.06)); box-shadow: inset 0 0 0 1px rgba(1, 154, 203, 0.18); animation-delay: -6s; }
+.flt-3 { left: 14%; bottom: 14%; width: 14px; height: 14px; animation-delay: -10s; }
+.flt-4 { right: 13%; bottom: 20%; width: 20px; height: 20px; background: linear-gradient(135deg, rgba(1, 154, 203, 0.2), rgba(1, 154, 203, 0.05)); box-shadow: inset 0 0 0 1px rgba(1, 154, 203, 0.16); animation-delay: -3s; }
+.flt-5 { left: 30%; top: 8%; width: 12px; height: 12px; animation-delay: -13s; }
+.flt-6 { right: 32%; bottom: 9%; width: 15px; height: 15px; background: linear-gradient(135deg, rgba(255, 79, 40, 0.18), rgba(255, 79, 40, 0.05)); box-shadow: inset 0 0 0 1px rgba(255, 79, 40, 0.15); animation-delay: -8s; }
+@keyframes fltFloat { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.45; } 50% { transform: translateY(-14px) rotate(6deg); opacity: 0.75; } }
 
 /* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }

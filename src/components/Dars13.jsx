@@ -451,6 +451,23 @@ const Frac = React.memo(({ n, d, color, size = 'sm' }) => (
   </span>
 ));
 
+// mt: рендерит текст, заменяя «a/b» (и «?/b») настоящей дробью Frac — без слэша.
+const FRAC_RE = /(\d+|\?)\/(\d+)/g;
+const mt = (str) => {
+  const s = typeof str === 'string' ? str : String(str ?? '');
+  if (s.indexOf('/') === -1) return s;
+  const out = []; let last = 0; let m; let key = 0;
+  FRAC_RE.lastIndex = 0;
+  while ((m = FRAC_RE.exec(s)) !== null) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<Frac key={`mtf${key}`} n={m[1]} d={m[2]} size="sm"/>);
+    key += 1;
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(s.slice(last));
+  return out;
+};
+
 const AudioIndicator = ({ audioState }) => {
   const { isPlaying, muted, replay, toggleMute } = audioState;
   return (
@@ -555,7 +572,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -596,7 +613,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -681,7 +698,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
@@ -695,23 +712,24 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
-                  {String.fromCharCode(65 + i)}
+                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
             );
           })}
         </div>
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass={c[`hint_${picked}`] ? 'frame-tip' : undefined}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
-            {solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default)}
+            {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
           </p>
         </FeedbackBlock>
+        {solved && factOnCorrect}
       </div>
     </Stage>
   );
@@ -915,9 +933,10 @@ const CONTENT = {
     hint_2: { ru: '2/5 не равно 10/15. На 5 делятся оба: 10 и 15. Выйдет 2/3.', uz: "2/5 10/15 ga teng emas. 5 ga ikkalasi bo'linadi: 10 va 15. 2/3 chiqadi." },
     hint_3: { ru: '10/15 — ещё не сокращено. Раздели оба числа на 5.', uz: "10/15 — hali qisqarmagan. Ikkala sonni 5 ga bo'ling." },
     wrong_default: { ru: '10 и 15 делятся на 5: 10÷5=2, 15÷5=3. Значит 10/15 = 2/3.', uz: "10 va 15 5 ga bo'linadi: 10÷5=2, 15÷5=3. Demak 10/15 = 2/3." },
+    fact: { ru: 'Повара веками уменьшают рецепты: блюдо на 4 человек делают на 2, и все количества делят пополам. Это то же сокращение: соотношение продуктов упрощается, а вкус не меняется.', uz: "Oshpazlar asrlar davomida retseptlarni kichraytirib keladi: 4 kishilik taom 2 kishiga qilinadi, barcha miqdorlar ikkiga bo'linadi. Bu — o'sha qisqartirish: mahsulotlar nisbati soddalashadi, ta'm esa o'zgarmaydi." },
     audio: {
       intro: { ru: 'Сократи десять пятнадцатых. Что получится? Выбери ответ.', uz: "O'n beshdan o'nni qisqartiring. Nima chiqadi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Разделили на пять: вышло две третьих.', uz: "To'g'ri. Beshga bo'ldik: uchdan ikki chiqdi." },
+      on_correct: { ru: 'Верно. Разделили на пять: вышло две третьих. Кстати, повара так же уменьшают рецепты: блюдо на четыре человека делают на двоих, и все количества делят пополам. Соотношение упрощается, а вкус тот же.', uz: "To'g'ri. Beshga bo'ldik: uchdan ikki chiqdi. Aytgancha, oshpazlar ham retseptlarni shunday kichraytiradi: to'rt kishilik taomni ikki kishiga qiladi, barcha miqdorlarni ikkiga bo'ladi. Nisbat soddalashadi, ta'm esa o'sha." },
       on_wrong: { ru: 'Пока нет. И 10, и 15 делятся на 5. Раздели оба.', uz: "Hali emas. 10 ham, 15 ham 5 ga bo'linadi. Ikkalasini bo'ling." }
     }
   },
@@ -967,9 +986,10 @@ const CONTENT = {
     hint_2: { ru: '2/4 не равно 8/12. На 4 делятся оба: 8 и 12. Выйдет 2/3.', uz: "2/4 8/12 ga teng emas. 4 ga ikkalasi bo'linadi: 8 va 12. 2/3 chiqadi." },
     hint_3: { ru: '8/12 — ещё не сокращено. Раздели оба на 4.', uz: "8/12 — hali qisqarmagan. Ikkalasini 4 ga bo'ling." },
     wrong_default: { ru: '8 и 12 делятся на 4: 8÷4=2, 12÷4=3. Значит 8/12 = 2/3.', uz: "8 va 12 4 ga bo'linadi: 8÷4=2, 12÷4=3. Demak 8/12 = 2/3." },
+    fact: { ru: 'У шестерёнок передаточное число записывают так же. Если большая шестерня имеет 8 зубьев, а малая 4, инженеры пишут не 8 к 4, а 2 к 1 — то же самое отношение в простом виде. Суть передачи не меняется.', uz: "Tishli g'ildiraklarda uzatma nisbati ham shunday yoziladi. Katta g'ildirakda 8 tish, kichikida 4 bo'lsa, muhandislar 8 dan 4 emas, 2 dan 1 deb yozadi — o'sha nisbat sodda holatda. Uzatmaning mohiyati o'zgarmaydi." },
     audio: {
       intro: { ru: 'Сократи восемь двенадцатых до дроби со знаменателем три. Что получится? Выбери ответ.', uz: "O'n ikkidan sakkizni maxraji uch bo'lgan kasrgacha qisqartiring. Nima chiqadi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Разделили на четыре: вышло две третьих.', uz: "To'g'ri. To'rtga bo'ldik: uchdan ikki chiqdi." },
+      on_correct: { ru: 'Верно. Разделили на четыре: вышло две третьих. Так же инженеры записывают передаточное число шестерёнок: восемь зубьев к четырём это два к одному, то же отношение проще, и суть передачи не меняется.', uz: "To'g'ri. To'rtga bo'ldik: uchdan ikki chiqdi. Muhandislar tishli g'ildiraklarning uzatma nisbatini ham shunday yozadi: sakkiz tishdan to'rtga bu ikkidan birga, o'sha nisbat soddaroq, uzatma mohiyati o'zgarmaydi." },
       on_wrong: { ru: 'Пока нет. И 8, и 12 делятся на 4. Раздели оба.', uz: "Hali emas. 8 ham, 12 ham 4 ga bo'linadi. Ikkalasini bo'ling." }
     }
   },
@@ -1005,9 +1025,10 @@ const CONTENT = {
     hint_2: { ru: '4/4 — это целое (1), а 12/16 меньше 1. Раздели оба на 4 → 3/4.', uz: "4/4 — bu butun (1), 12/16 esa 1 dan kichik. Ikkalasini 4 ga bo'ling → 3/4." },
     hint_3: { ru: '12/16 — ещё не сокращено. Раздели оба на 4.', uz: "12/16 — hali qisqarmagan. Ikkalasini 4 ga bo'ling." },
     wrong_default: { ru: '12 и 16 делятся на 4: 12÷4=3, 16÷4=4. Значит 12/16 = 3/4.', uz: "12 va 16 4 ga bo'linadi: 12÷4=3, 16÷4=4. Demak 12/16 = 3/4." },
+    fact: { ru: 'Сжатие файлов работает по той же идее: программа убирает лишнее и записывает данные короче, но само содержимое — картинка или текст — остаётся прежним. Как у дроби: запись короче, значение то же.', uz: "Fayllarni siqish ham shu g'oyada ishlaydi: dastur ortiqchasini olib tashlab, ma'lumotni qisqaroq yozadi, lekin mazmun — rasm yoki matn — o'sha bo'lib qoladi. Xuddi kasrdek: yozuv qisqaroq, qiymat o'sha." },
     audio: {
       intro: { ru: 'Последнее задание. Сократи двенадцать шестнадцатых. Что получится? Выбери ответ.', uz: "Oxirgi topshiriq. O'n oltidan o'n ikkini qisqartiring. Nima chiqadi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Разделили на четыре: вышло три четвёртых.', uz: "To'g'ri. To'rtga bo'ldik: to'rtdan uch chiqdi." },
+      on_correct: { ru: 'Верно. Разделили на четыре: вышло три четвёртых. Так же работает сжатие файлов: программа убирает лишнее и пишет данные короче, но картинка или текст остаются прежними. Как у дроби: запись короче, значение то же.', uz: "To'g'ri. To'rtga bo'ldik: to'rtdan uch chiqdi. Fayllarni siqish ham shunday ishlaydi: dastur ortiqchasini olib tashlab, ma'lumotni qisqaroq yozadi, lekin rasm yoki matn o'sha bo'lib qoladi. Xuddi kasrdek: yozuv qisqaroq, qiymat o'sha." },
       on_wrong: { ru: 'Пока нет. И 12, и 16 делятся на 4. Раздели оба.', uz: "Hali emas. 12 ham, 16 ham 4 ga bo'linadi. Ikkalasini bo'ling." }
     }
   },
@@ -1024,13 +1045,57 @@ const CONTENT = {
     main_4: { ru: 'На наибольший общий делитель — и дробь сразу самая простая.', uz: "Eng katta umumiy bo'luvchiga — kasr darrov eng sodda bo'ladi." },
     back_to_hook: { ru: 'Так зачем сокращать? 6/8 и 3/4 — одно число, но 3/4 проще: меньше частей, легче читать и считать. Вот зачем.', uz: "Xo'sh, nima uchun qisqartiramiz? 6/8 va 3/4 — bitta son, lekin 3/4 soddaroq: bo'laklar kam, o'qish va hisoblash oson. Mana nima uchun." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Эквивалентные дроби» (обратное действие) и «Деление столбиком».', uz: "«Ekvivalent kasrlar» (teskari amal) va «Burchak usulida bo'lish»." },
+    conn_refs: { ru: '«Эквивалентные дроби» (обратное действие) и «Деление уголком».', uz: "«Ekvivalent kasrlar» (teskari amal) va «Burchak usulida bo'lish»." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'сложение дробей с одинаковым знаменателем — начинаем действия с дробями.', uz: "bir xil maxrajli kasrlarni qo'shish — kasrlar ustida amallarni boshlaymiz." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
     audio: { ru: 'Отлично! Теперь ты умеешь сокращать дроби. Сократить дробь значит записать её проще, не меняя величину. Для этого раздели числитель и знаменатель на их общий делитель. Делить нужно оба числа на одно, иначе дробь изменится. А если разделить на наибольший общий делитель, дробь сразу станет самой простой. Зачем сокращать? Шесть восьмых и три четвёртых это одно число, но три четвёртых проще читать и считать. Дальше начнём складывать дроби.', uz: "Zo'r! Endi siz kasrlarni qisqartira olasiz. Kasrni qisqartirish — qiymatini o'zgartirmasdan soddaroq yozish. Buning uchun surat va maxrajni ularning umumiy bo'luvchisiga bo'ling. Ikkala sonni bir songa bo'lish kerak, aks holda kasr o'zgaradi. Eng katta umumiy bo'luvchiga bo'linsa, kasr darrov eng sodda bo'ladi. Nima uchun qisqartiramiz? 6/8 va 3/4 bitta son, lekin 3/4 ni o'qish va hisoblash oson. Keyin kasrlarni qo'shishni boshlaymiz." }
   }
 };
+
+// ============================================================
+// FACTCARD — fakt to'g'ri javobdan keyin (FB_* badge + Anim*). Namuna: Dars06.
+// ============================================================
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+
+const FactCard = ({ text, anim, badge }) => {
+  const t = useT();
+  return (
+    <div className="fact-card fade-up">
+      <div className="fact-anim">{anim}</div>
+      <div className="fact-body">
+        <p className="fact-badge"><span className="fact-dot"/>{t(badge)}</p>
+        <p className="fact-text">{mt(t(text))}</p>
+      </div>
+    </div>
+  );
+};
+// Tarix (oshpazlar retsepti): 4 ulush 2 tadan guruhlanib 2 ga «qisqaradi» — nisbat soddalashadi.
+const AnimRecipe = () => (
+  <div className="fa-rec" aria-hidden="true">
+    <span className="fa-rec-c fa-rec-1"/>
+    <span className="fa-rec-c fa-rec-2"/>
+    <span className="fa-rec-c fa-rec-3"/>
+    <span className="fa-rec-c fa-rec-4"/>
+  </div>
+);
+// Fan (tishli uzatma): katta g'ildirak sekin, kichigi tez — 2:1 nisbat aylanib turadi.
+const AnimGears = () => (
+  <div className="fa-gear" aria-hidden="true">
+    <span className="fa-gear-big"/>
+    <span className="fa-gear-small"/>
+  </div>
+);
+// IT (siqish): keng blok ortiqchasini «siqib» qisqasiga aylanadi — mazmun o'sha.
+const AnimCompress = () => (
+  <div className="fa-cmp" aria-hidden="true">
+    <span className="fa-cmp-bar"/>
+    <span className="fa-cmp-arrow fa-cmp-a-l"/>
+    <span className="fa-cmp-arrow fa-cmp-a-r"/>
+  </div>
+);
 
 // ============================================================
 // УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «сокращение дробей»)
@@ -1149,7 +1214,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   const [step, setStep] = useState(0);
   const endRef = useRef(null);
   const handleStep = () => {
-    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 120); }
+    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
   };
   const merging = step >= 2;
@@ -1298,7 +1363,7 @@ const Screen6 = (props) => {
   const base = [<Frac n="2" d="3" size="mid"/>, <Frac n="5" d="3" size="mid"/>, <Frac n="2" d="5" size="mid"/>, <Frac n="10" d="15" size="mid"/>];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 2, 3, 1]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={10} den={15} color={T.blue} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimRecipe/>}/>}/>;
 };
 
 // s7 — TEST choice (текст): сократил только числитель? Нет.
@@ -1338,7 +1403,7 @@ const Screen9 = (props) => {
   const base = [<Frac n="2" d="3" size="mid"/>, <Frac n="4" d="6" size="mid"/>, <Frac n="2" d="4" size="mid"/>, <Frac n="8" d="12" size="mid"/>];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [2, 0, 1, 3]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={8} den={12} color={T.blue} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_SCI} anim={<AnimGears/>}/>}/>;
 };
 
 // s10 — CASE conclusion (текст): почему 8/12 = 2/3.
@@ -1355,7 +1420,7 @@ const Screen11 = (props) => {
   const base = [<Frac n="3" d="4" size="mid"/>, <Frac n="6" d="8" size="mid"/>, <Frac n="4" d="4" size="mid"/>, <Frac n="12" d="16" size="mid"/>];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 3, 1, 2]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={12} den={16} color={T.blue} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimCompress/>}/>}/>;
 };
 
 // s12 — SUMMARY: без счёта, закрывает крючок + блок связей; finishLesson один раз.
@@ -1690,7 +1755,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -1858,4 +1923,38 @@ html, body { margin: 0; padding: 0; }
 @keyframes cpSpin { 0% { opacity: 0; transform: translateY(-8px) scale(0.6); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 .cp-ladder-step { animation: cpLadderIn 0.4s ease-out backwards; }
 @keyframes cpLadderIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+
+/* MATH: FactCard — fakt to'g'ri javobdan keyin (ko'k tema). */
+.fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
+.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.fact-body { flex: 1; }
+.fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
+.fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
+.fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
+/* Tarix (oshpazlar retsepti): 4 ulush → 2 tadan guruhlanib qisqaradi, nisbat soddalashadi. */
+.fa-rec { display: flex; gap: 4px; width: clamp(86px, 17vw, 116px); }
+.fa-rec-c { flex: 1; height: clamp(24px, 5vw, 32px); background: #019ACB; opacity: 0.22; border-radius: 4px; animation: faRec 2.8s ease-in-out infinite; }
+.fa-rec-1 { animation-delay: 0s; } .fa-rec-2 { animation-delay: 0.7s; }
+.fa-rec-3 { animation-delay: 0.35s; } .fa-rec-4 { animation-delay: 1.05s; }
+@keyframes faRec { 0%, 100% { opacity: 0.18; transform: scaleX(1); } 50% { opacity: 0.9; transform: scaleX(0.92); } }
+/* Fan (tishli uzatma 2:1): katta g'ildirak sekin, kichigi ikki barobar tez aylanadi. */
+.fa-gear { position: relative; width: clamp(78px, 16vw, 104px); height: clamp(60px, 12vw, 80px); }
+.fa-gear-big { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: clamp(40px, 8vw, 54px); height: clamp(40px, 8vw, 54px); border-radius: 50%; border: clamp(7px, 1.6vw, 10px) dashed #019ACB; opacity: 0.55; animation: faGearSpin 5.2s linear infinite; }
+.fa-gear-small { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: clamp(22px, 4.5vw, 30px); height: clamp(22px, 4.5vw, 30px); border-radius: 50%; border: clamp(5px, 1.1vw, 7px) dashed #019ACB; opacity: 0.8; animation: faGearSpinR 2.6s linear infinite; }
+@keyframes faGearSpin { to { transform: translateY(-50%) rotate(360deg); } }
+@keyframes faGearSpinR { to { transform: translateY(-50%) rotate(-360deg); } }
+/* IT (siqish): keng blok ortiqchasini siqib qisqasiga aylanadi — mazmun o'sha. */
+.fa-cmp { position: relative; width: clamp(86px, 17vw, 116px); height: clamp(26px, 6vw, 34px); }
+.fa-cmp-bar { position: absolute; left: 50%; top: 0; bottom: 0; transform: translateX(-50%); background: #019ACB; opacity: 0.8; border-radius: 4px; animation: faCmp 2.6s ease-in-out infinite; }
+.fa-cmp-arrow { position: absolute; top: 50%; width: 0; height: 0; border-top: clamp(5px, 1.1vw, 7px) solid transparent; border-bottom: clamp(5px, 1.1vw, 7px) solid transparent; }
+.fa-cmp-a-l { left: 0; transform: translateY(-50%); border-left: clamp(7px, 1.6vw, 10px) solid #019ACB; animation: faCmpArrL 2.6s ease-in-out infinite; }
+.fa-cmp-a-r { right: 0; transform: translateY(-50%); border-right: clamp(7px, 1.6vw, 10px) solid #019ACB; animation: faCmpArrR 2.6s ease-in-out infinite; }
+@keyframes faCmp { 0%, 100% { width: 88%; opacity: 0.55; } 50% { width: 36%; opacity: 0.95; } }
+@keyframes faCmpArrL { 0%, 100% { left: 0; opacity: 0.4; } 50% { left: 28%; opacity: 0.95; } }
+@keyframes faCmpArrR { 0%, 100% { right: 0; opacity: 0.4; } 50% { right: 28%; opacity: 0.95; } }
+
+/* Accessibility: prefers-reduced-motion — gasim dekorativ sikllarni. */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 `;

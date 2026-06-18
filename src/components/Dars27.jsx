@@ -573,7 +573,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -779,7 +779,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
         {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
@@ -848,6 +848,7 @@ const CONTENT = {
   // ---- s0 HOOK — Oybek: yirtilgan xarita bo'lagi = 20% = 10 katak; "xarita 10 katak" (M1). ----
   s0: {
     eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
+    title: { ru: 'Порванная карта Ойбека', uz: "Oybekning yirtilgan xaritasi" },
     lead: {
       ru: 'Ойбек и Дилноза нашли старую карту, но она порвана. Уцелевший кусок — это 20% всей карты, и на нём 10 клеток. Ойбек говорит: «Значит, вся карта — 10 клеток!» Дилноза сомневается. Прав ли Ойбек?',
       uz: "Oybek va Dilnoza eski xarita topishdi, lekin u yirtilgan. Saqlanib qolgan bo'lak — butun xaritaning 20% i, va unda 10 katak bor. Oybek: «Demak, butun xarita — 10 katak!» — deydi. Dilnoza shubhalanadi. Oybek haqmi?"
@@ -872,6 +873,7 @@ const CONTENT = {
   // ---- s1 WARM-UP — perc_5_02 eslash (butundan foiz). correct '40' -> target B. ----
   s1: {
     eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
+    title: { ru: 'Процент от целого', uz: "Butundan foiz" },
     question: {
       ru: 'В прошлом уроке мы находили процент от целого. Быстрая проверка: чему равны 20% от 200?',
       uz: "O'tgan darsda butundan foizni topgandik. Tez tekshiruv: 200 ning 20% i nechta?"
@@ -900,6 +902,7 @@ const CONTENT = {
   // ---- s2 EXPLORATION 1 — tap-paced: 20% = 10 -> beshdan bir -> 5 nusxa = 50 ----
   s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Соберём карту из кусков', uz: "Xaritani bo'laklardan yig'amiz" },
     lead: {
       ru: 'Вернёмся к карте. Кусок — это 20% карты, и на нём 10 клеток. 20% — это пятая часть. Значит вся карта в 5 раз больше куска. Нажимай и прикладывай куски один за другим.',
       uz: "Xaritaga qaytamiz. Bo'lak — bu xaritaning 20% i, va unda 10 katak. 20% — bu beshdan bir. Demak butun xarita bo'lakdan 5 marta katta. Bosing va bo'laklarni birin-ketin qo'shing."
@@ -928,6 +931,7 @@ const CONTENT = {
   // ---- s3 EXPLORATION 2 — jonli slayder: butunni top, 25% = 15 -> 60 ----
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    title: { ru: 'Найди всю карту', uz: "Butun xaritani toping" },
     lead: {
       ru: 'Теперь вторая карта. Кусок — это 25% всей карты, и на нём 15 клеток. Двигай ползунок: найди размер всей карты так, чтобы её 25% были 15 клеток.',
       uz: "Endi ikkinchi xarita. Bo'lak — bu butun xaritaning 25% i, va unda 15 katak. Slayderni suring: butun xarita o'lchamini toping, toki uning 25% i 15 katak bo'lsin."
@@ -949,6 +953,7 @@ const CONTENT = {
   // ---- s4 RULE 1 — ikki usul ----
   s4: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
+    title: { ru: 'Два способа найти целое', uz: "Butunni topishning ikki usuli" },
     lead: {
       ru: 'Итак, если известны часть и процент, целое число можно найти двумя надёжными способами.',
       uz: "Demak, qism va foiz ma'lum bo'lsa, butun sonni ikki ishonchli usul bilan topish mumkin."
@@ -969,6 +974,7 @@ const CONTENT = {
   // ---- s5 RULE 2 — M1/M2 ogohlantirish (frame-tip) ----
   s5: {
     eyebrow: { ru: 'Важно', uz: 'Muhim' },
+    title: { ru: 'Часть — это не ответ', uz: "Qism — javob emas" },
     lead: {
       ru: 'Но будь внимателен: данное число — это ЧАСТЬ, а не ответ.',
       uz: "Lekin ehtiyot bo'ling: berilgan son — bu QISM, javob emas."
@@ -994,6 +1000,7 @@ const CONTENT = {
   // ---- s6 TEST MC — 30% = 60 -> 200. + FAKT A (saylov). correct '200' -> target C ----
   s6: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Сколько клеток во всей карте', uz: "Butun xaritada nechta katak" },
     lead: {
       ru: 'Теперь сам. Новый кусок — это 30% всей карты, и на нём 60 клеток. Сколько клеток во всей карте?',
       uz: "Endi o'zingiz. Yangi bo'lak — bu butun xaritaning 30% i, va unda 60 katak. Butun xaritada nechta katak?"
@@ -1029,6 +1036,7 @@ const CONTENT = {
   // ---- s7 TEST NumInput — 50% = 35 -> 70 ----
   s7: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
+    title: { ru: 'Половина известна', uz: "Yarmi ma'lum" },
     question: {
       ru: 'Кусок — это 50% карты, и на нём 35 клеток. Сколько клеток во всей карте?',
       uz: "Bo'lak — bu xaritaning 50% i, va unda 35 katak. Butun xarita necha katak?"
@@ -1053,6 +1061,7 @@ const CONTENT = {
   // ---- s8 TEST TAP-MATCH — bir xil qism (12), har xil foiz -> har xil butun. M2 sindiradi ----
   s8: {
     eyebrow: { ru: 'Соедини', uz: 'Juftlang' },
+    title: { ru: 'Часть одна, целое разное', uz: "Qism bir xil, butun har xil" },
     lead: {
       ru: 'У каждого куска свой процент, но клеток поровну — по 12. Выбери число снизу и нажми на нужный кусок, чтобы соединить с размером всей карты.',
       uz: "Har bo'lakda foiz har xil, lekin kataklar teng — har birida 12 ta. Pastdan sonni tanlang va kerakli bo'lakni bosing — butun xarita o'lchamiga ulang."
@@ -1084,6 +1093,7 @@ const CONTENT = {
   // ---- s9 TEST SLIDER — butunni top: 40% = 20 -> 50 ----
   s9: {
     eyebrow: { ru: 'Найди целое', uz: 'Butunni toping' },
+    title: { ru: 'Поставь ползунок на ответ', uz: "Slayderni javobga qo'ying" },
     lead: {
       ru: 'Новый кусок — это 40% карты, на нём 20 клеток. Двигай ползунок: найди, сколько клеток во всей карте (чтобы её 40% были 20).',
       uz: "Yangi bo'lak — bu xaritaning 40% i, va unda 20 katak. Slayderni suring: butun xarita necha katak ekanini toping (uning 40% i 20 bo'lsin)."
@@ -1107,6 +1117,7 @@ const CONTENT = {
   // ---- s10 TEST NUMBER-LINE — butunni qo'y: 60% = 30 -> 50 (chiziq 0..100) ----
   s10: {
     eyebrow: { ru: 'Отметь на прямой', uz: "Son o'qida belgilang" },
+    title: { ru: 'Отметь целое на прямой', uz: "Butunni son o'qida belgilang" },
     lead: {
       ru: 'Последний кусок — это 60% карты, на нём 30 клеток. Сколько клеток во всей карте? Поставь маркер на это число.',
       uz: "Oxirgi bo'lak — bu xaritaning 60% i, va unda 30 katak. Butun xarita necha katak? Markerni shu songa qo'ying."
@@ -1130,6 +1141,7 @@ const CONTENT = {
   // ---- s11 TEST FIND-THE-WRONG — xato yechimni top (M2). + FAKT B (% tarixi). correct=opt2 -> target D ----
   s11: {
     eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
+    title: { ru: 'Найди ошибочный расчёт', uz: "Xato hisobni toping" },
     q_pre: { ru: 'Один из расчётов ', uz: 'Hisoblardan biri ' },
     q_em:  { ru: 'ОШИБОЧЕН', uz: 'XATO' },
     q_post: { ru: '. Найди именно его.', uz: ". Aynan o'shani toping." },
@@ -1164,6 +1176,7 @@ const CONTENT = {
   // ---- s12 CASE setup — Iroda so'rovnoma: 30% = 18 -> jami? ----
   s12: {
     eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
+    title: { ru: 'Опрос в классе Ироды', uz: "Iroda sinfidagi so'rovnoma" },
     lead: {
       ru: 'Карта восстановлена! Теперь этот навык в жизни. Ирода провела опрос в классе: 30% учеников ответили «да», и это 18 человек. Сколько всего учеников в классе?',
       uz: "Xaritani tikladingiz! Endi shu ko'nikma hayotda. Iroda sinfda so'rovnoma o'tkazdi: o'quvchilarning 30% i «ha» dedi, va bu 18 ta o'quvchi. Sinfda jami nechta o'quvchi bor?"
@@ -1186,6 +1199,7 @@ const CONTENT = {
   // ---- s13 CASE/FINAL MC — jami o'quvchi? -> 60. + FAKT C (diskont). correct '60' -> target A ----
   s13: {
     eyebrow: { ru: 'Итог задачи', uz: 'Masala yakuni' },
+    title: { ru: 'Сколько всего учеников', uz: "Jami nechta o'quvchi" },
     lead: {
       ru: 'Сколько всего учеников в классе? «Да» ответили 30% — это 18 человек.',
       uz: "Sinfda jami nechta o'quvchi? «Ha» javobini 30% berdi — bu 18 o'quvchi."
@@ -1221,6 +1235,7 @@ const CONTENT = {
   // ---- s14 SUMMARY — Oybek hookini yopadi + ConnectionsBlock ----
   s14: {
     eyebrow: { ru: 'Итог', uz: 'Xulosa' },
+    heading: { ru: 'Целое по проценту найдено', uz: "Foizdan butun topildi" },
     title: { ru: 'Вернёмся к карте Ойбека.', uz: "Oybekning xaritasiga qaytamiz." },
     main_label: { ru: 'Главное', uz: 'Asosiy' },
     main_1: { ru: 'Если известны часть и процент: пойми, какая это доля, и умножь часть во столько же раз.', uz: "Qism va foiz ma'lum bo'lsa: foiz qaysi ulush ekanini toping va qismni shuncha marta ko'paytiring." },
@@ -1391,6 +1406,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{mt(t(c.lead))}</h2>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(14px, 2.6vw, 20px) clamp(10px, 2vw, 16px)', display: 'flex', justifyContent: 'center' }}>
           <MapHook/>
@@ -1415,7 +1431,7 @@ const Screen1 = (props) => {
   const t = useT(); const c = CONTENT.s1;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
   return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1441,6 +1457,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={done ? 'frame fade-up pb-pulse' : 'frame fade-up'} style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center' }}>
           <MapTiles count={count} max={MAX}/>
@@ -1475,6 +1492,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={matched ? 'frame fade-up delay-1 pb-pulse' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
           <RevBar pct={PCT} part={part} whole={whole} reveal={true} live={true} alive={true} glow={matched}/>
@@ -1495,6 +1513,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
@@ -1517,6 +1536,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="body" style={{ margin: 0 }}>{mt(t(c.point1))}</p>
@@ -1538,7 +1558,7 @@ const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 3, 0, 2]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><RevBar pct={30} part={60} reveal={false} alive={true}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><RevBar pct={30} part={60} reveal={false} alive={true}/></div></>);
   return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_STAT} anim={<AnimVote/>}/>}/>;
 };
 
@@ -1597,6 +1617,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="dm-clues fade-up delay-1">
           {c.clues.map(cl => {
@@ -1670,6 +1691,7 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={solved ? 'frame fade-up delay-1 pb-pulse' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
           <RevBar pct={PCT} part={part} whole={val} reveal={true} live={true} alive={true} glow={solved}/>
@@ -1727,6 +1749,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className={solved ? 'frame fade-up delay-1 pb-pulse' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
           <NumLine val={val} max={100} alive={true}/>
@@ -1759,7 +1782,7 @@ const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 2, [0, 1, 3, 2]);
-  const question = (<h2 className="title h-sub">{t(c.q_pre)}<span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.q_pre)}<span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2></>);
   return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimPct/>}/>}/>;
 };
 
@@ -1771,6 +1794,7 @@ const Screen12 = ({ screen, onNext, onPrev }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
           <RevBar pct={30} part={18} reveal={false} alive={true}/>
@@ -1787,7 +1811,7 @@ const Screen13 = (props) => {
   const t = useT(); const c = CONTENT.s13;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><RevBar pct={30} part={18} reveal={false} alive={true}/></div></>);
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><RevBar pct={30} part={18} reveal={false} alive={true}/></div></>);
   return <QuestionScreen {...props} idx={13} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[13]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_LIFE} anim={<AnimTag/>}/>}/>;
 };
 
@@ -1803,6 +1827,7 @@ const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
         <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
@@ -2081,7 +2106,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -2248,7 +2273,7 @@ html, body { margin: 0; padding: 0; }
 .pb-calc-n { color: #0E0E10; min-width: 1.4em; text-align: center; }
 .pb-calc-res { color: #019ACB; }
 
-/* MATH perc_5_02: PercentHook — iPhone narx yorlig'i + chegirma (CSS-only loop). */
+/* MATH perc_5_02: PercentHook — smartfon narx yorlig'i + chegirma (CSS-only loop). */
 .ph-wrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 12px); }
 .ph-tag { position: relative; display: inline-flex; align-items: baseline; gap: 8px; background: #FFFFFF; border-radius: 12px; padding: clamp(8px, 1.8vw, 12px) clamp(16px, 3vw, 24px); box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.18); }
 .ph-name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(13px, 2vw, 16px); color: #5A5A60; }

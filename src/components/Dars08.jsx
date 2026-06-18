@@ -451,6 +451,23 @@ const Frac = React.memo(({ n, d, color, size = 'sm' }) => (
   </span>
 ));
 
+// mt: рендерит текст, заменяя «a/b» (и «?/b») настоящей дробью Frac — без слэша.
+const FRAC_RE = /(\d+|\?)\/(\d+)/g;
+const mt = (str) => {
+  const s = typeof str === 'string' ? str : String(str ?? '');
+  if (s.indexOf('/') === -1) return s;
+  const out = []; let last = 0; let m; let key = 0;
+  FRAC_RE.lastIndex = 0;
+  while ((m = FRAC_RE.exec(s)) !== null) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<Frac key={`mtf${key}`} n={m[1]} d={m[2]} size="sm"/>);
+    key += 1;
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(s.slice(last));
+  return out;
+};
+
 const AudioIndicator = ({ audioState }) => {
   const { isPlaying, muted, replay, toggleMute } = audioState;
   return (
@@ -555,7 +572,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink3 }}>
+            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
             </div>
           </div>
@@ -596,7 +613,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -681,7 +698,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
@@ -695,23 +712,24 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : T.ink3 }}>
-                  {String.fromCharCode(65 + i)}
+                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
             );
           })}
         </div>
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass={c[`hint_${picked}`] ? 'frame-tip' : undefined}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
-            {solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default)}
+            {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
           </p>
         </FeedbackBlock>
+        {solved && factOnCorrect}
       </div>
     </Stage>
   );
@@ -887,9 +905,10 @@ const CONTENT = {
     hint_2: { ru: 'Это значило бы «целая лепёшка каждому». Но лепёшек 4, а друзей 5 — каждому меньше целого.', uz: "Bu «har biriga butun non» degani bo'lardi. Lekin non 4 ta, do'st 5 ta — har biriga butundan kam." },
     hint_3: { ru: 'Снизу — число друзей. Их 5, а не 4.', uz: "Pastda — do'stlar soni. Ular 5 ta, 4 emas." },
     wrong_default: { ru: 'Числитель — что делим (4 лепёшки), знаменатель — на сколько (5 друзей). Это 4/5.', uz: "Surat — nimani bo'lamiz (4 non), maxraj — nechtaga (5 do'st). Bu 4/5." },
+    fact: { ru: 'Пчёлы делят соты на равные шестиугольные ячейки — это деление пространства на равные доли в самой природе.', uz: "Asalarilar uyani teng oltburchak katakchalarga bo'ladi — bu tabiatdagi fazoni teng ulushlarga bo'lishdir." },
     audio: {
       intro: { ru: 'Четыре лепёшки разделили поровну между пятью друзьями. Выбери дробь, которая показывает долю каждого.', uz: "4 ta non 5 ta do'stga teng bo'lindi. Har birining ulushini ko'rsatadigan kasrni tanlang." },
-      on_correct: { ru: 'Верно. Четыре на пять — это четыре пятых.', uz: "To'g'ri. To'rtni beshga — bu beshdan to'rt." },
+      on_correct: { ru: 'Верно. Четыре на пять — это четыре пятых. Кстати, пчёлы тоже делят соты на равные шестиугольные ячейки — равное деление встречается в самой природе.', uz: "To'g'ri. To'rtni beshga — bu beshdan to'rt. Aytgancha, asalarilar ham uyani teng oltburchak katakchalarga bo'ladi — teng bo'lish tabiatning o'zida uchraydi." },
       on_wrong: { ru: 'Пока нет. Сверху — сколько лепёшек, снизу — сколько друзей.', uz: "Hali emas. Yuqorida — nechta non, pastda — nechta do'st." }
     }
   },
@@ -936,9 +955,10 @@ const CONTENT = {
     hint_2: { ru: 'Лепёшек 3, а друзей 4 — целой на каждого не хватит. Каждому 3/4, меньше целой.', uz: "Non 3 ta, do'st 4 ta — har biriga butun yetmaydi. Har biriga 3/4, butundan kam." },
     hint_3: { ru: 'Как раз при том, что нацело не делится, и появляется дробь: 3 ÷ 4 = 3/4.', uz: "Aynan butun bo'linmaganda kasr paydo bo'ladi: 3 ÷ 4 = 3/4." },
     wrong_default: { ru: '3 на 4 делится, ответ — дробь 3/4. Каждому меньше целой лепёшки.', uz: "3 ni 4 ga bo'lsa bo'ladi, javob — 3/4 kasri. Har biriga butun nondan kam." },
+    fact: { ru: 'В Древнем Египте, чтобы поделить хлеб и зерно поровну, пользовались особыми таблицами деления — для писцов деление и было записью дроби.', uz: "Qadimgi Misrda nonni va donni teng bo'lish uchun maxsus bo'lish jadvallaridan foydalanilgan — mirzalar uchun bo'lishning o'zi kasr yozuvi edi." },
     audio: {
       intro: { ru: 'Кто-то говорит, что три на четыре не делится, ведь три меньше четырёх. Так ли это? Выбери ответ.', uz: "Kimdir aytadi: 3 ni 4 ga bo'lib bo'lmaydi, axir 3 kichik. Shundaymi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Делится — каждому достаётся три четвёртых, меньше целой.', uz: "To'g'ri. Bo'linadi — har biriga to'rtdan uch tegadi, butundan kam." },
+      on_correct: { ru: 'Верно. Делится — каждому достаётся три четвёртых, меньше целой. Кстати, в Древнем Египте хлеб и зерно делили поровну по особым таблицам деления — деление там и было записью дроби.', uz: "To'g'ri. Bo'linadi — har biriga to'rtdan uch tegadi, butundan kam. Aytgancha, qadimgi Misrda non va don maxsus bo'lish jadvallari bo'yicha teng bo'lingan — bo'lishning o'zi kasr yozuvi edi." },
       on_wrong: { ru: 'Посмотри ещё раз: лепёшку можно разрезать, поэтому ответ — дробь.', uz: "Yana qarang: nonni kessa bo'ladi, shuning uchun javob — kasr." }
     }
   },
@@ -1005,9 +1025,10 @@ const CONTENT = {
     hint_2: { ru: 'Это «1 на 3». А друзей 4.', uz: "Bu «1 ni 3 ga». Do'st esa 4 ta." },
     hint_3: { ru: 'Это половина. А делим на 4, значит получается четверть.', uz: "Bu yarim. Biz esa 4 ga bo'lamiz, demak chorak chiqadi." },
     wrong_default: { ru: 'Числитель — что делим (1 лепёшка), знаменатель — на сколько (4 друга). Это 1/4.', uz: "Surat — nimani bo'lamiz (1 non), maxraj — nechtaga (4 do'st). Bu 1/4." },
+    fact: { ru: 'Когда файл качают сразу с нескольких серверов, нагрузку делят между ними поровну — это тоже деление, и доля каждого сервера записывается дробью.', uz: "Fayl bir nechta serverdan yuklanganda, yuklama ular o'rtasida teng bo'linadi — bu ham bo'lish, va har bir serverning ulushi kasr bilan yoziladi." },
     audio: {
       intro: { ru: 'Последнее задание. Одну лепёшку разделили поровну на четырёх друзей. Сколько достанется каждому? Выбери дробь.', uz: "Oxirgi topshiriq. 1 ta non 4 do'stga teng bo'lindi. Har biriga qancha tegadi? Kasrni tanlang." },
-      on_correct: { ru: 'Верно. Одна лепёшка на четыре — это одна четвёртая.', uz: "To'g'ri. 1 ta non 4 ga — bu to'rtdan bir." },
+      on_correct: { ru: 'Верно. Одна лепёшка на четыре — это одна четвёртая. Кстати, когда файл качают сразу с нескольких серверов, нагрузку тоже делят между ними поровну — доля каждого сервера это дробь.', uz: "To'g'ri. 1 ta non 4 ga — bu to'rtdan bir. Aytgancha, fayl bir nechta serverdan yuklanganda, yuklama ham ular o'rtasida teng bo'linadi — har bir serverning ulushi kasr." },
       on_wrong: { ru: 'Пока нет. Сверху — сколько лепёшек, снизу — сколько друзей.', uz: "Hali emas. Yuqorida — nechta non, pastda — nechta do'st." }
     }
   },
@@ -1025,12 +1046,63 @@ const CONTENT = {
     back_to_hook: { ru: '3 лепёшки на 4 друзей разделились поровну — каждому по 3/4. Улугбек ошибался: делить можно, ответ просто стал дробью.', uz: "3 ta non 4 do'stga teng bo'lindi — har biriga 3/4 dan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan, javob shunchaki kasr bo'ldi." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Что такое дробь», «Дробь на прямой», «Деление столбиком».', uz: "«Kasr nima», «Kasr son o'qida», «Burchak usulida bo'lish»." },
+    conn_refs: { ru: '«Что такое дробь», «Дробь на прямой», «Деление уголком».', uz: "«Kasr nima», «Kasr son o'qida», «Burchak usulida bo'lish»." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'сравнение дробей с одинаковым знаменателем.', uz: "bir xil maxrajli kasrlarni taqqoslash." },
     audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это деление. Запись a дробь b означает a разделить на b. Сверху — что делим, снизу — на сколько. Меньшее можно делить на большее, и тогда получается дробь меньше целого. А порядок важен: три четвёртых и четыре третьих — разные дроби. Три лепёшки на четыре друга разделились поровну, каждому по три четвёртых. Улугбек ошибался: делить можно.', uz: "Zo'r! Endi bilasiz: kasr — bu bo'lish. a kasr b yozuvi a ni b ga bo'lish degani. Yuqorida — nimani bo'lamiz, pastda — nechtaga. Kichikni kattaga bo'lsa bo'ladi va shunda butundan kichik kasr chiqadi. Tartib esa muhim: to'rtdan uch va uchdan to'rt — har xil kasrlar. 3 ta non 4 do'stga teng bo'lindi, har biriga to'rtdan uchdan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan." }
   }
 };
+
+// ============================================================
+// FACTCARD — fakt to'g'ri javobdan keyin (FB_* badge + Anim*). Namuna: Dars06.
+// ============================================================
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+
+const FactCard = ({ text, anim, badge }) => {
+  const t = useT();
+  return (
+    <div className="fact-card fade-up">
+      <div className="fact-anim">{anim}</div>
+      <div className="fact-body">
+        <p className="fact-badge"><span className="fact-dot"/>{t(badge)}</p>
+        <p className="fact-text">{mt(t(text))}</p>
+      </div>
+    </div>
+  );
+};
+// Tarix (Misr bo'lish jadvali): don/non qatorlari teng ulushlarga bo'linadi — kamayuvchi qatorlar yonadi.
+const AnimEgypt = () => (
+  <div className="fd-egy" aria-hidden="true">
+    {[3, 4, 5].map((cells, r) => (
+      <div key={r} className="fd-egy-row" style={{ animationDelay: `${r * 0.35}s` }}>
+        {Array.from({ length: cells }).map((_, k) => (
+          <span key={k} className="fd-egy-c" style={{ animationDelay: `${r * 0.35 + k * 0.12}s` }}/>
+        ))}
+      </div>
+    ))}
+  </div>
+);
+// Fan (asalari uyasi): teng oltburchak katakchalar navbatma-navbat yonadi — tabiatdagi teng bo'lish.
+const AnimHive = () => (
+  <div className="fd-hex" aria-hidden="true">
+    {Array.from({ length: 7 }).map((_, i) => (
+      <span key={i} className="fd-hex-c" style={{ animationDelay: `${i * 0.22}s` }}/>
+    ))}
+  </div>
+);
+// IT (load balancing): oqim 3 ta serverga teng ulushlarga bo'linadi — bo'lish natijasi.
+const AnimServers = () => (
+  <div className="fd-srv" aria-hidden="true">
+    <span className="fd-srv-stream"/>
+    <div className="fd-srv-rack">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <span key={i} className="fd-srv-node" style={{ animationDelay: `${i * 0.3}s` }}/>
+      ))}
+    </div>
+  </div>
+);
 
 // ============================================================
 // УРОК-СПЕЦИФИЧНЫЙ ВИЗУАЛИЗАТОР (под тему «дробь как деление»)
@@ -1161,7 +1233,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   const [step, setStep] = useState(0);
   const endRef = useRef(null);
   const handleStep = () => {
-    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 120); }
+    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
   };
   const reveal = step >= 3 ? 3 : step >= 2 ? 1 : 0;
@@ -1253,7 +1325,7 @@ const Screen4 = (props) => {
   const t = useT(); const c = CONTENT.s4;
   const { options, correctIdx, content } = shuffleMC(c, [<Frac n="5" d="4" size="mid"/>, <Frac n="4" d="5" size="mid"/>, <Frac n="4" d="4" size="mid"/>, <Frac n="1" d="5" size="mid"/>], 1, [0, 2, 3, 1]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><SharingBoard loaves={4} people={5} reveal={1} showShare={false} size={54}/></div></>);
-  return <QuestionScreen {...props} idx={4} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[4]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={4} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[4]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_SCI} anim={<AnimHive/>}/>}/>;
 };
 
 // s5 — RULE: порядок важен, 3/4 ≠ 4/3.
@@ -1305,7 +1377,7 @@ const Screen7 = (props) => {
   const t = useT(); const c = CONTENT.s7;
   const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 0, 1, 3]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
-  return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimEgypt/>}/>}/>;
 };
 
 // s8 — CASE setup: Камола разливает 3 литра сока в 4 стакана.
@@ -1352,7 +1424,7 @@ const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
   const { options, correctIdx, content } = shuffleMC(c, [<Frac n="4" d="1" size="mid"/>, <Frac n="1" d="4" size="mid"/>, <Frac n="1" d="3" size="mid"/>, <Frac n="1" d="2" size="mid"/>], 1, [2, 1, 3, 0]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><SharingBoard loaves={1} people={4} reveal={3} size={44}/></div></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimServers/>}/>}/>;
 };
 
 // s12 — SUMMARY: без счёта, закрывает крючок; finishLesson один раз.
@@ -1696,7 +1768,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === PROGRESS v15 (с orange glow) === */
 .progress-track {
-  height: 3px;
+  height: 6px;
   background: rgba(167, 166, 162, 0.25);
   width: 100%;
   margin-bottom: 12px;
@@ -1843,4 +1915,36 @@ html, body { margin: 0; padding: 0; }
 .sb-slice { transition: fill-opacity 0.45s ease; }
 .sb-plate { animation: sbPlateIn 0.5s ease-out backwards; }
 @keyframes sbPlateIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* MATH: FactCard — fakt to'g'ri javobdan keyin (ko'k tema). */
+.fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
+.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.fact-body { flex: 1; }
+.fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
+.fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
+.fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
+
+/* Tarix (Misr bo'lish jadvali): qatorlar teng katakchalarga bo'linib navbatma-navbat yonadi. */
+.fd-egy { display: flex; flex-direction: column; gap: 5px; width: clamp(84px, 16vw, 110px); }
+.fd-egy-row { display: flex; gap: 3px; }
+.fd-egy-c { flex: 1; height: clamp(9px, 2vw, 12px); border-radius: 2px; background: #019ACB; opacity: 0.18; animation: fdEgy 2.6s ease-in-out infinite; }
+@keyframes fdEgy { 0%, 100% { opacity: 0.15; } 45% { opacity: 0.92; } }
+/* Fan (asalari uyasi): oltburchak katakchalar teng to'lqin bo'lib yonadi. */
+.fd-hex { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: clamp(70px, 14vw, 92px); }
+.fd-hex-c { aspect-ratio: 1; background: #019ACB; opacity: 0.2; clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%); animation: fdHex 2.4s ease-in-out infinite; }
+.fd-hex-c:nth-child(2) { transform: translateY(50%); }
+.fd-hex-c:nth-child(5) { transform: translateY(50%); }
+@keyframes fdHex { 0%, 100% { opacity: 0.16; } 50% { opacity: 0.95; } }
+/* IT (load balancing): oqim 3 ta serverga teng tushadi. */
+.fd-srv { display: flex; flex-direction: column; align-items: center; gap: 6px; width: clamp(70px, 14vw, 96px); }
+.fd-srv-stream { width: clamp(40px, 9vw, 60px); height: 6px; border-radius: 3px; background: #019ACB; opacity: 0.55; animation: fdStream 1.8s ease-in-out infinite; }
+.fd-srv-rack { display: flex; gap: 6px; width: 100%; justify-content: center; }
+.fd-srv-node { width: clamp(16px, 4vw, 24px); height: clamp(20px, 5vw, 30px); border-radius: 3px; background: #019ACB; opacity: 0.2; animation: fdNode 2.1s ease-in-out infinite; }
+@keyframes fdStream { 0%, 100% { opacity: 0.3; transform: scaleX(0.6); } 50% { opacity: 0.85; transform: scaleX(1); } }
+@keyframes fdNode { 0%, 100% { opacity: 0.18; } 50% { opacity: 0.9; } }
+
+/* Accessibility: prefers-reduced-motion — gasim dekorativ sikllarni. */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 `;
