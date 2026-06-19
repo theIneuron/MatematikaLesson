@@ -186,7 +186,62 @@ emas (warm-up); ekran budjetiga (13–16) kiradi.
      Dublikat yo'q → scroll yo'q. UZ matn drag'dan tap'ga moslab o'zgartiriladi
      ("torting" → "bosing va tanlang"), bu draft — UZ metodist validatsiyasi.
   6. **Umumiy zichlash:** flex `gap`ni `clamp(12px, 2vw, 16px)` ga tushir; `useIsMobile` bilan
-     mobil shrift/`line-height`/padding kichraytir; kontent kolonkasi `justifyContent: center`.
+     mobil shrift/`line-height`/padding kichraytir; kontent kolonkasi YUQORIDAN tekislanadi
+     (`justifyContent: flex-start` — markazlamang, 2-B bo'limga qarang).
+
+---
+
+## 2-B. KEEP-VISIBLE REBUILD STANDARTLARI (metodist, 2026-06-18/19; etalon: Dars37 va Dars28/29/30)
+
+Geometriya bloki (Dars28 perimetr, Dars29 yuza, Dars30 uchburchak) Dars37 ning toza infra'si
+asosida qayta yig'ildi. Quyidagilar — barcha YANGI darslar uchun MAJBURIY (Dars37/Dars28 = ishchi
+etalon; infra'ni baytma-bayt o'shandan ol). Dars31 va Dars37 — etalon, O'ZGARTIRILMAYDI.
+
+1. **Anti-scroll = keep-visible (collapse EMAS).** To'g'ri javobdan keyin SARLAVHA + SAVOL +
+   TO'G'RI VARIANT joyida QOLADI; faqat NOTO'G'RI variantlar ketma-ket yig'iladi (QuestionScreen
+   infra'da tayyor — `titleNode` + `question` uzat). Custom/NumInput test ekranlarida ham savol
+   solved'da KO'RINIB QOLADI (yig'ilmaydi). Eski "collapse-on-correct" (savolni yig'ish) — endi EMAS.
+
+2. **Top-align — markazlamaslik (Dars01/Dars37 kabi).** Kontent wrapper divlarida
+   (`flex:1; flexDirection:'column'`) `justifyContent:'center'` ISHLATILMAYDI — kontent yuqoridan
+   boshlanadi. Sarlavha/lead/matnda `textAlign:'center'` ISHLATILMAYDI — chapga tekislanadi.
+   Faqat figura RAMKASI gorizontal markazlashi mumkin (`.frame ... justifyContent:center`).
+
+3. **Figurada aylanuvchi/sayohatchi animatsiya YO'Q (metodist 2026-06-19).** Chegara bo'ylab
+   yuguruvchi chiziq/nuqta, aylanuvchi marker va h.k. TAQIQ — bola chalg'iydi, ma'no yo'qoladi.
+   Figura javob berilganda TO'LADI / yashilga o'tadi (`success`/`filled`/`stagger`); ekran harakati
+   esa fondagi yengil suzuvchi shakllar (Float*) orqali. Yumshoq joyida puls mumkin, sayohatchi emas.
+
+4. **To'g'ri javob + IZOH ovozlanadi (HAR slaydda).** To'g'ri javobda `audio.on_correct` JAVOBNI
+   aytadi VA izohni o'qiydi (qisqa, TTS-toza). Multi-savol yakunida `on_correct + done_text`
+   ovozlanadi. Quruq "To'g'ri" yetarli emas.
+
+5. **Pale-yellow ogohlantirish/xulosa.** Misconception-ogohlantirish yoki asosiy xulosa qatori
+   (masalan "perimetr ≠ yuza") pale-yellow `frame-tip` kartada beriladi (oddiy/yashil frame emas).
+
+6. **`wrong_N` kalitlash (shuffleMC bilan KRITIK).** `shuffleMC(c, base, correctIdx, order)`
+   `content.wrong_${newI} = c.wrong_${order[newI]}` qiladi — ya'ni `wrong_K` = ASLIY variant
+   indeksi K ning hinti. Har NOTO'G'RI variant indeksiga `wrong_K` ber, TO'G'RI variant indeksini
+   tashlab ket: correct=opt0 → wrong_1/wrong_2/wrong_3; correct=opt2 → wrong_0/wrong_1/wrong_3.
+   Aks holda shuffle'dan keyin bitta variant hint'siz qoladi.
+
+7. **Ovozlanadigan maydonlar TTS-toza — `wrong_N` va `hint` HAM ovozlanadi.** QuestionScreen
+   `wrongVoice` zanjiri `wrong_N` ni, NumGeoScreen `hint` ni OVOZLAYDI. Shuning uchun `wrong_N`/
+   `hint` larda uzun tire «—», ikki nuqta + ro'yxat, va ×÷=+−<>%$ belgilar TAQIQ; bo'lish "ikkiga
+   bo'lish" so'zi bilan. Faqat KO'RINADIGAN maydonlarda (correct_text, lead, opt, note) raqam/«» mumkin.
+
+8. **`t()` trim qiladi** (`stripAudioTags` ichida `.trim()`): lokalizatsiya stringi oxiri/boshidagi
+   probelga TAYANMA — yondosh inline element bilan ajratish uchun aniq `{' '}` qo'y (aks holda
+   "biriXATO" kabi yopishadi).
+
+9. **s0 hook ovozi.** Agar ekran `makeAudioSegments(c, lang)` ishlatsa, uning `audio` maydoni TEKIS
+   `{ru,uz}` yoki massiv bo'lishi SHART — ichma-ich `{intro,...}` bo'lsa bo'sh ro'yxat qaytib, hook
+   OVOZSIZ qoladi. (MC/NumGeo ekranlari `audio:{intro,on_correct,on_wrong}` ishlatadi — ular
+   `c.audio.intro` ni to'g'ridan o'qiydi.)
+
+10. **Multi-savol warmup ✓-buklash.** s1 warmup 3 ketma-ket sub-savol; javob berilgani yuqorida
+    ixcham yashil "✓ Savol N — to'g'ri" qatoriga buklanadi; har sub-savol ovozlanadi; to'g'ri javob
+    pozitsiyalari A/B/C/D bo'ylab almashtiriladi (hammasi A emas).
 
 ---
 
