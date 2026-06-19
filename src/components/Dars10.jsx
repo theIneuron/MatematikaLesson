@@ -805,11 +805,11 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- ПОД УРОК: frac_5_05 — Сравнение дробей с одинаковым числителем ---
+// --- ПОД УРОК: frac_5_02 — Дробь на числовой прямой ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-05-v1',
-  lessonTitle: { ru: 'Сравнение дробей с одинаковым числителем', uz: "Bir xil suratli kasrlarni taqqoslash" }
+  lessonId: 'frac-5-02-v1',
+  lessonTitle: { ru: 'Дробь на числовой прямой', uz: "Kasr son o'qida" }
 };
 const TOTAL_SCREENS = 13;
 
@@ -832,223 +832,204 @@ const SCREEN_META = [
 ];
 
 const CONTENT = {
-  // ---- s0 HOOK: Эльдор (1/3) и Темур (1/5) делят одинаковый интернет-пакет ----
+  // ---- s0 HOOK: Малика хочет отметить 3/4 на линии, Жасур: «это просто кусок, не место» ----
   s0: {
-    eyebrow: { ru: 'Сравнение дробей · вступление', uz: "Kasrlarni taqqoslash · kirish" },
-    title: { ru: 'Эльдор и Темур купили одинаковый интернет-пакет и делят его поровну между своими устройствами.', uz: "Eldor va Temur bir xil internet paketini sotib olib, uni qurilmalari o'rtasida teng ulashadi." },
-    body: { ru: 'У Эльдора 3 устройства — каждому достаётся 1/3 пакета. У Темура 5 устройств — каждому 1/5. Темур хвастается: «у меня устройств больше, 5 — значит каждому достаётся больше интернета, 1/5 больше 1/3!».', uz: "Eldorda 3 ta qurilma — har biriga paketning 1/3 qismi tegadi. Temurda 5 ta qurilma — har biriga 1/5. Temur maqtanadi: «menda qurilma ko'p, 5 ta — demak har biriga ko'proq internet tegadi, 1/5 katta 1/3 dan!»." },
-    question: { ru: 'А ты как думаешь: на одно устройство больше интернета у 1/3 или у 1/5?', uz: "Sizningcha-chi: bitta qurilmaga ko'proq internet 1/3 da-mi yoki 1/5 da-mi?" },
-    opt0: { ru: '1/3 больше — у Эльдора устройств меньше, каждому достаётся больше', uz: "1/3 katta — Eldorda qurilma kam, har biriga ko'proq tegadi" },
-    opt1: { ru: '1/5 больше — ведь 5 больше 3', uz: "1/5 katta — axir 5 katta 3 dan" },
+    eyebrow: { ru: 'Дробь на прямой · вступление', uz: "Kasr o'qda · kirish" },
+    title: { ru: 'Малика чертит линейку от 0 до 1 и хочет отметить на ней три четвёртых.', uz: "Malika 0 dan 1 gacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi." },
+    body: { ru: 'Жасур качает головой: «три четвёртых — это же просто кусок, его нельзя поставить точкой на линии. Это не настоящее число с местом».', uz: "Jasur bosh chayqaydi: «to'rtdan uch — bu shunchaki bir bo'lak-ku, uni chiziqqa nuqta qilib qo'yib bo'lmaydi. Bu o'z joyi bor haqiqiy son emas»." },
+    question: { ru: 'А ты как думаешь: можно ли поставить три четвёртых одной точкой на линии между 0 и 1?', uz: "Sizningcha-chi: to'rtdan uchni 0 va 1 orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi?" },
+    opt0: { ru: 'Да — у дроби есть своё место на линии', uz: "Ha — kasrning chiziqda o'z joyi bor" },
+    opt1: { ru: 'Нет — дробь это только кусок, а не место', uz: "Yo'q — kasr faqat bo'lak, joy emas" },
     opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Эльдор и Темур купили одинаковый интернет-пакет и делят его поровну между устройствами. У Эльдора три устройства, каждому достаётся одна третья. У Темура пять устройств, каждому одна пятая. Темур говорит, что у него устройств больше, поэтому каждому достаётся больше. А ты как думаешь — на одно устройство больше интернета у одной третьей или у одной пятой? Выбери ответ.', uz: "Eldor va Temur bir xil internet paketini sotib olib, uni qurilmalari o'rtasida teng ulashadi. Eldorda 3 ta qurilma, har biriga uchdan bir tegadi. Temurda 5 ta qurilma, har biriga beshdan bir. Temur aytadiki, unda qurilma ko'p, shuning uchun har biriga ko'proq tegadi. Sizningcha, bitta qurilmaga ko'proq internet uchdan birda-mi yoki beshdan birda-mi? Javobni tanlang." }
+    audio: { ru: 'Малика чертит линейку от нуля до единицы и хочет отметить на ней три четвёртых. Жасур говорит, что три четвёртых это просто кусок, его нельзя поставить точкой. А ты как думаешь — можно ли поставить три четвёртых одной точкой на линии между нулём и единицей? Выбери ответ.', uz: "Malika noldan birgacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi. Jasur aytadiki, to'rtdan uch shunchaki bo'lak, uni nuqta qilib qo'yib bo'lmaydi. Sizningcha, to'rtdan uchni nol va bir orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi? Javobni tanlang." }
   },
 
-  // ---- s1 EXPLORATION (step-by-step): стена дробей 1/2, 1/3, 1/4 ----
+  // ---- s1 EXPLORATION (step-by-step): ставим 3/4 на отрезок 0..1 ----
   s1: {
-    eyebrow: { ru: 'Стена дробей', uz: "Kasr devori" },
-    title: { ru: 'Соберём «стену дробей» по шагам', uz: "«Kasr devori»ni bosqichma-bosqich yig'amiz" },
-    conclusion: { ru: 'Числитель один и тот же — везде одна доля. Но чем больше знаменатель, тем доля мельче: 1/2 > 1/3 > 1/4.', uz: "Surat bir xil — hamma joyda bitta ulush. Lekin maxraj qancha katta bo'lsa, ulush shuncha mayda: 1/2 > 1/3 > 1/4." },
+    eyebrow: { ru: 'Дробь на прямой', uz: "Kasr o'qda" },
+    title: { ru: 'Поставим 3/4 на линию по шагам', uz: "3/4 ni chiziqqa bosqichma-bosqich qo'yamiz" },
+    conclusion: { ru: 'Три четвёртых — это точка: 3 шага из 4 от нуля.', uz: "To'rtdan uch — bu nuqta: noldan 4 qadamdan 3 tasi." },
     btn_step: { ru: 'Дальше', uz: "Davom etish" },
     btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?" },
     audio: {
       ru: [
-        'Соберём стену дробей по шагам. Нажимай кнопку Дальше.',
-        'Вот целая полоса, поделённая на 2 части. Закрасим одну — это одна вторая, половина.',
-        'Ниже такая же полоса, но поделённая на 3 части. Закрасим одну долю — это одна третья. Смотри: доля стала мельче, чем половина.',
-        'Ещё ниже — полоса на 4 части, закрашена одна. Это одна четвёртая, и она ещё мельче. Числитель везде один, а доли всё меньше — получается лесенка вниз: одна вторая больше одной третьей, а та больше одной четвёртой.'
+        'Поставим три четвёртых на линию по шагам. Нажимай кнопку Дальше.',
+        'Вот отрезок от нуля до единицы. Это наше целое — как и полоса в прошлом уроке, только вытянутая в линию.',
+        'Знаменатель четыре. Значит, делим отрезок от нуля до единицы на четыре равные части. Появились метки: одна четвёртая, две четвёртых, три четвёртых.',
+        'Числитель три. Отсчитываем три шага от нуля и ставим точку. Эта точка и есть три четвёртых — у дроби нашлось своё место на линии.'
       ],
       uz: [
-        "Kasr devorini bosqichma-bosqich yig'amiz. Davom etish tugmasini bosing.",
-        "Mana butun chiziq, 2 bo'lakka bo'lingan. Bittasini bo'yaymiz — bu ikkidan bir, yarim.",
-        "Pastda xuddi shunday chiziq, lekin 3 bo'lakka bo'lingan. Bitta ulushni bo'yaymiz — bu uchdan bir. Qarang: ulush yarimdan mayda bo'ldi.",
-        "Yana pastda — 4 bo'lakli chiziq, bittasi bo'yalgan. Bu to'rtdan bir, u yana ham mayda. Surat hamma joyda bitta, ulushlar esa kichrayib boradi — zinapoya pastga tushadi: ikkidan bir katta uchdan birdan, u esa katta to'rtdan birdan."
+        "To'rtdan uchni chiziqqa bosqichma-bosqich qo'yamiz. Davom etish tugmasini bosing.",
+        "Mana noldan birgacha kesma. Bu — bizning butunimiz, o'tgan darsdagi chiziqdek, faqat uzunasiga cho'zilgan.",
+        "Maxraj to'rt. Demak, noldan birgacha kesmani to'rtta teng bo'lakka bo'lamiz. Belgilar paydo bo'ldi: to'rtdan bir, to'rtdan ikki, to'rtdan uch.",
+        "Surat uch. Noldan uch qadam sanab, nuqta qo'yamiz. Mana shu nuqta — to'rtdan uch. Kasr chiziqda o'z joyini topdi."
       ]
     }
   },
 
-  // ---- s2 EXPLORATION (slider, shrinking slice): доля уменьшается с ростом знаменателя ----
+  // ---- s2 EXPLORATION (slider + tap): поставь 2/5 сам ----
   s2: {
-    eyebrow: { ru: 'Доля уменьшается', uz: "Ulush kichrayadi" },
-    title: { ru: 'Двигай ползунок — смотри, как доля уменьшается', uz: "Slayderni suring — ulush qanday kichrayishini kuzating" },
-    intro: { ru: 'Сверху для сравнения — одна третья. Снизу одна доля: двигай ползунок и меняй знаменатель. Закрашенный кусочек будет меняться.', uz: "Yuqorida solishtirish uchun — uchdan bir. Pastda bitta ulush: slayderni surib, maxrajni o'zgartiring. Bo'yalgan bo'lak o'zgarib turadi." },
-    target_text: { ru: 'Цель: сделай долю 1/6 и сравни её с 1/3.', uz: "Maqsad: ulushni 1/6 qiling va uni 1/3 bilan solishtiring." },
-    eyebrow_slider: { ru: 'Знаменатель:', uz: "Maxraj:" },
+    eyebrow: { ru: 'Поставь сам', uz: "O'zingiz qo'ying" },
+    title: { ru: 'Поставь дробь на линию сам', uz: "Kasrni chiziqqa o'zingiz qo'ying" },
+    intro: { ru: 'Двигай ползунок — меняй, на сколько равных частей делим отрезок от 0 до 1. Нажми на нужную метку, чтобы поставить точку.', uz: "Slayderni suring — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lishni o'zgartiring. Nuqta qo'yish uchun kerakli belgini bosing." },
+    target_text: { ru: 'Цель: поставь две пятых — раздели на 5 частей и отметь вторую метку от нуля.', uz: "Maqsad: beshdan ikkini qo'ying — 5 ta bo'lakka bo'ling va noldan ikkinchi belgini belgilang." },
+    eyebrow_slider: { ru: 'Равных частей:', uz: "Teng bo'laklar:" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    btn_disabled_label: { ru: 'Сначала собери', uz: "Avval yig'ing" },
+    btn_disabled_label: { ru: 'Сначала поставь', uz: "Avval qo'ying" },
     fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
-    fb_success: { ru: 'Одна шестая мельче одной третьей: знаменатель больше, шесть против трёх, значит доля меньше. Одна шестая меньше одной третьей.', uz: "Oltidan bir uchdan birdan mayda: maxraj katta, olti uchga qarshi, demak ulush kichik. Oltidan bir uchdan birdan kichik." },
+    fb_success: { ru: 'Это две пятых: отрезок поделён на 5 равных частей, точка на второй метке от нуля.', uz: "Bu — beshdan ikki: kesma 5 ta teng bo'lakka bo'lingan, nuqta noldan ikkinchi belgida." },
     fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
-    fb_wrong: { ru: 'Нужна доля одна шестая — поставь знаменатель на шесть.', uz: "Oltidan bir ulush kerak — maxrajni oltiga qo'ying." },
-    audio: { ru: 'Двигай ползунок и смотри, как доля уменьшается, когда знаменатель растёт. Сверху для сравнения стоит одна третья. Сделай нижнюю долю одной шестой — поставь знаменатель на шесть. Увидишь: одна шестая мельче одной третьей, ведь знаменатель больше.', uz: "Slayderni surib, maxraj o'sganda ulush qanday kichrayishini kuzating. Yuqorida solishtirish uchun uchdan bir turibdi. Pastki ulushni beshdan... ya'ni oltidan bir qiling — maxrajni 6 ga qo'ying. Ko'rasiz: oltidan bir uchdan birdan mayda, chunki maxraj katta." }
+    fb_wrong: { ru: 'Нужно 5 равных частей и точка на второй метке. Поставь ползунок на 5 и нажми вторую метку от нуля.', uz: "5 ta teng bo'lak va ikkinchi belgida nuqta kerak. Slayderni 5 ga qo'ying va noldan ikkinchi belgini bosing." },
+    audio: { ru: 'Поставь дробь на линию сам. Двигай ползунок, чтобы выбрать число равных частей, и нажми на метку, чтобы поставить точку. Твоя цель — две пятых: пять равных частей, точка на второй метке от нуля.', uz: "Kasrni chiziqqa o'zingiz qo'ying. Teng bo'laklar sonini tanlash uchun slayderni suring va nuqta qo'yish uchun belgini bosing. Maqsadingiz — beshdan ikki: beshta teng bo'lak, nuqta noldan ikkinchi belgida." }
   },
 
-  // ---- s3 RULE: одинаковый числитель → больше знаменатель = меньше дробь ----
+  // ---- s3 RULE: как поставить дробь на прямую ----
   s3: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Числитель один — смотрим на знаменатель', uz: "Surat bir xil — maxrajga qaraymiz" },
-    title: { ru: 'Если числитель одинаковый, больше та дробь, у которой знаменатель меньше.', uz: "Surat bir xil bo'lsa, maxraji kichik bo'lgan kasr katta." },
-    card_top: { ru: 'Одинаковый числитель — берём одинаковое число долей.', uz: "Bir xil surat — bir xil sondagi ulush olamiz." },
-    card_bottom: { ru: 'Чем больше знаменатель, тем мельче доля — значит дробь меньше.', uz: "Maxraj qancha katta bo'lsa, ulush shuncha mayda — demak kasr kichik." },
-    card_line: { ru: 'Больше знаменатель — меньше дробь.', uz: "Maxraj katta — kasr kichik." },
-    outro: { ru: 'Стена дробей: 1/2 > 1/3 > 1/4 > 1/5. Числитель один, а доли всё мельче.', uz: "Kasr devori: 1/2 > 1/3 > 1/4 > 1/5. Surat bir xil, ulushlar esa mayda-mayda bo'ladi." },
-    audio: { ru: 'Запомни правило. Если у дробей одинаковый числитель, больше та, у которой знаменатель меньше. Числитель один — мы берём одинаковое число долей. А чем больше знаменатель, тем мельче сама доля, поэтому дробь меньше. Смотри на стену дробей: одна вторая больше одной третьей, та больше одной четвёртой, и так далее.', uz: "Qoidani eslab qoling. Agar kasrlarning surati bir xil bo'lsa, maxraji kichik bo'lgani katta. Surat bir xil — biz bir xil sondagi ulush olamiz. Maxraj qancha katta bo'lsa, ulushning o'zi shuncha mayda, shuning uchun kasr kichik. Kasr devoriga qarang: ikkidan bir katta uchdan birdan, u to'rtdan birdan, va hokazo." }
+    label: { ru: 'Как поставить дробь на прямую', uz: "Kasrni o'qqa qanday qo'yish" },
+    title: { ru: 'Дробь — это число, у него есть место на линии.', uz: "Kasr — bu son, uning chiziqda joyi bor." },
+    card_bottom: { ru: 'Знаменатель — на сколько равных частей делим отрезок от 0 до 1.', uz: "Maxraj — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lamiz." },
+    card_top: { ru: 'Числитель — сколько шагов отсчитываем от нуля.', uz: "Surat — noldan nechta qadam sanaymiz." },
+    card_line: { ru: 'Метка, на которой остановились, — это и есть место дроби.', uz: "To'xtagan belgimiz — kasrning o'sha joyi." },
+    outro: { ru: 'Знаменатель 4 делит отрезок на 4 части, числитель 3 отсчитывает 3 шага — и точка три четвёртых готова.', uz: "Maxraj 4 kesmani 4 bo'lakka bo'ladi, surat 3 esa 3 qadam sanaydi — va to'rtdan uch nuqtasi tayyor." },
+    audio: { ru: 'Чтобы поставить дробь на прямую, смотри на знаменатель и числитель. Знаменатель показывает, на сколько равных частей разделить отрезок от нуля до единицы. Числитель показывает, сколько шагов отсчитать от нуля. Метка, на которой остановились, и есть место дроби. Для трёх четвёртых делим на четыре части и отсчитываем три шага.', uz: "Kasrni o'qqa qo'yish uchun maxraj va suratga qarang. Maxraj noldan birgacha kesmani nechta teng bo'lakka bo'lishni ko'rsatadi. Surat noldan nechta qadam sanashni ko'rsatadi. To'xtagan belgimiz — kasrning joyi. To'rtdan uch uchun to'rt bo'lakka bo'lib, uch qadam sanaymiz." }
   },
 
-  // ---- s4 TEST (MC, отношение): 1/4 ? 1/7 → 1/4 > 1/7 (correct opt0) ----
+  // ---- s4 TEST (MC, дроби): линия 0..1, 5 частей, точка на 3-й → 3/5 (correct idx 1) ----
   s4: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Сравни доли', uz: "Ulushlarni solishtiring" },
-    question: { ru: 'Сравни 1/4 и 1/7. Что верно?', uz: "1/4 va 1/7 ni solishtiring. Nima to'g'ri?" },
-    opt0: { ru: '1/4 > 1/7', uz: "1/4 > 1/7" },
-    opt1: { ru: '1/4 < 1/7', uz: "1/4 < 1/7" },
-    opt2: { ru: '1/4 = 1/7', uz: "1/4 = 1/7" },
-    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: числитель один, знаменатель 4 меньше 7 — значит доля крупнее. 1/4 > 1/7.', uz: "To'g'ri: surat bir xil, maxraj 4 kichik 7 dan — demak ulush yirikroq. 1/4 > 1/7." },
-    hint_1: { ru: 'Тут ловушка: 7 больше 4, но доля 1/7 мельче. Больше та, где знаменатель меньше — 1/4.', uz: "Bu yerda tuzoq: 7 katta 4 dan, lekin 1/7 ulushi mayda. Maxraji kichik bo'lgani katta — 1/4." },
-    hint_2: { ru: 'Доли разного размера: четвёртая крупнее седьмой. Они не равны.', uz: "Ulushlar har xil o'lchamda: to'rtdan bir yettidan biridan yirik. Ular teng emas." },
-    hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
-    wrong_default: { ru: 'Числитель один, знаменатель меньше у 1/4 — значит 1/4 больше. 1/4 > 1/7.', uz: "Surat bir xil, maxraj 1/4 da kichik — demak 1/4 katta. 1/4 > 1/7." },
+    label: { ru: 'Назови дробь точки', uz: "Nuqtaning kasrini ayting" },
+    question: { ru: 'Отрезок от 0 до 1 разделён на 5 равных частей. Точка стоит на третьей метке от нуля. Какая это дробь?', uz: "0 dan 1 gacha kesma 5 ta teng bo'lakka bo'lingan. Nuqta noldan uchinchi belgida turibdi. Bu qaysi kasr?" },
+    correct_text: { ru: 'Верно: 5 частей — знаменатель 5, точка на 3-м шаге — числитель 3. Это три пятых.', uz: "To'g'ri: 5 bo'lak — maxraj 5, nuqta 3-qadamda — surat 3. Bu beshdan uch." },
+    hint_0: { ru: 'Числитель и знаменатель перепутаны: сверху число шагов (3), снизу число частей (5).', uz: "Surat va maxraj almashgan: yuqorida qadamlar soni (uch), pastda bo'laklar soni (besh)." },
+    hint_2: { ru: 'Снизу — на сколько частей разделён отрезок. Их 5, а не 4.', uz: "Pastda — kesma nechta bo'lakka bo'lingani. Ular beshta, to'rt emas." },
+    hint_3: { ru: 'Сверху — сколько шагов от нуля до точки. Их 3, а не 2.', uz: "Yuqorida — noldan nuqtagacha nechta qadam. Ular uchta, ikki emas." },
+    wrong_default: { ru: 'Знаменатель — число частей (5), числитель — число шагов до точки (3).', uz: "Maxraj — bo'laklar soni (besh), surat — nuqtagacha qadamlar soni (uch)." },
     audio: {
-      intro: { ru: 'Сравни одну четвёртую и одну седьмую. Выбери, что верно.', uz: "To'rtdan bir va yettidan birni solishtiring. Nima to'g'ri ekanini tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель меньше у одной четвёртой — она крупнее.', uz: "To'g'ri. Maxraj to'rtdan birda kichik — u yirikroq." },
-      on_wrong: { ru: 'Пока нет. Числитель один, больше та доля, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan ulush katta." }
+      intro: { ru: 'Отрезок от нуля до единицы разделён на пять равных частей, точка стоит на третьей метке. Выбери дробь, которая показывает её место.', uz: "Noldan birgacha kesma beshta teng bo'lakka bo'lingan, nuqta uchinchi belgida turibdi. Uning joyini ko'rsatadigan kasrni tanlang." },
+      on_correct: { ru: 'Верно. Пять частей и три шага — это три пятых.', uz: "To'g'ri. Besh bo'lak va uch qadam — bu beshdan uch." },
+      on_wrong: { ru: 'Пока нет. Снизу — на сколько частей разделили, сверху — сколько шагов до точки.', uz: "Hali emas. Pastda — nechta bo'lakka bo'lingani, yuqorida — nuqtagacha nechta qadam." }
     }
   },
 
-  // ---- s5 RULE (bias-flip): 5 > 3, но 1/5 < 1/3 ----
+  // ---- s5 RULE: линия не кончается на 1 — отрезок 0..2, точка 3/2 ----
   s5: {
-    eyebrow: { ru: 'Правило · ловушка', uz: "Qoida · tuzoq" },
-    label: { ru: 'Осторожно: ловушка', uz: "Ehtiyot bo'ling: tuzoq" },
-    trap_title: { ru: '5 больше 3...', uz: "5 katta 3 dan..." },
-    trap_text: { ru: 'Кажется, раз 5 больше 3, то и 1/5 должна быть больше 1/3. Это и есть ловушка. Проверим?', uz: "Go'yo 5 katta 3 dan, demak 1/5 ham 1/3 dan katta bo'lishi kerak. Mana shu — tuzoq. Tekshiramizmi?" },
-    btn_reveal: { ru: 'Показать правду', uz: "Haqiqatni ko'rsatish" },
-    truth_title: { ru: 'На самом деле 1/5 < 1/3', uz: "Aslida 1/5 < 1/3" },
-    truth_text: { ru: 'Числитель один и тот же. Большее число снизу делит целое на больше частей — доля мельче. Поэтому 1/5 меньше 1/3.', uz: "Surat bir xil. Pastdagi katta son butunni ko'proq bo'lakka bo'ladi — ulush mayda. Shuning uchun 1/5 kichik 1/3 dan." },
-    contrast: { ru: 'В прошлом уроке знаменатель был одинаковый — там больше тот, у кого числитель больше. Здесь наоборот: числитель один, и больше тот, у кого знаменатель меньше.', uz: "O'tgan darsda maxraj bir xil edi — u yerda surati katta bo'lgani katta. Bu yerda aksincha: surat bir xil, va maxraji kichik bo'lgani katta." },
-    btn_next: { ru: 'Понял ловушку', uz: "Tuzoqni tushundim" },
-    audio: { ru: 'Осторожно, тут ловушка. Кажется, раз пять больше трёх, то одна пятая больше одной третьей. Нажми кнопку и проверь. На самом деле одна пятая меньше одной третьей. Числитель один, а большее число снизу делит целое на больше частей, поэтому доля мельче. В прошлом уроке знаменатель был одинаковый и правило было обратное. Будь внимателен.', uz: "Ehtiyot bo'ling, bu yerda tuzoq bor. Go'yo besh katta uchdan, demak beshdan bir katta uchdan bir. Tugmani bosib tekshiring. Aslida beshdan bir kichik uchdan bir. Surat bir xil, pastdagi katta son butunni ko'proq bo'lakka bo'ladi, shuning uchun ulush mayda. O'tgan darsda maxraj bir xil edi va qoida teskari edi. Diqqatli bo'ling." }
+    eyebrow: { ru: 'Правило', uz: "Qoida" },
+    label: { ru: 'За единицей', uz: "Birdan keyin" },
+    title: { ru: 'Линия не кончается на 1.', uz: "Chiziq 1 da tugamaydi." },
+    card_ok: { ru: 'После 1 линия продолжается: те же равные части идут дальше — к 2 и больше.', uz: "1 dan keyin chiziq davom etadi: o'sha teng bo'laklar yana ketadi — 2 ga va undan nariga." },
+    card_bad: { ru: 'Три вторых — это три половинки: один целый и ещё половина. Точка стоит за единицей.', uz: "Ikkidan uch — bu uchta yarim: bitta butun va yana yarim. Nuqta birdan keyin turadi." },
+    outro: { ru: 'Знаменатель 2 делит каждую единицу пополам. Отсчитываем 3 половинки от нуля — попадаем между 1 и 2.', uz: "Maxraj 2 har bir birlikni teng ikkiga bo'ladi. Noldan 3 ta yarimni sanaymiz — 1 va 2 orasiga tushamiz." },
+    audio: { ru: 'Линия не кончается на единице. После единицы те же равные части продолжаются дальше, к двойке. Три вторых — это три половинки: целое и ещё половина. Знаменатель два делит каждую единицу пополам, а числитель три отсчитывает три половинки. Точка три вторых стоит между единицей и двойкой.', uz: "Chiziq birda tugamaydi. Birdan keyin o'sha teng bo'laklar ikki tomon davom etadi. Ikkidan uch — bu uchta yarim: butun va yana yarim. Maxraj ikki har bir birlikni yarimga bo'ladi, surat uch esa uchta yarimni sanaydi. Ikkidan uch nuqtasi bir va ikki orasida turadi." }
   },
 
-  // ---- s6 TEST (MC, отношение): 3/5 ? 3/8 → 3/5 > 3/8 (correct opt0) ----
+  // ---- s6 TEST (MC, дроби): линия 0..2 в половинках, точка на 3/2 (correct idx 0) ----
   s6: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Сравни дроби', uz: "Kasrlarni solishtiring" },
-    question: { ru: 'Сравни 3/5 и 3/8. Что верно?', uz: "3/5 va 3/8 ni solishtiring. Nima to'g'ri?" },
-    opt0: { ru: '3/5 > 3/8', uz: "3/5 > 3/8" },
-    opt1: { ru: '3/5 < 3/8', uz: "3/5 < 3/8" },
-    opt2: { ru: '3/5 = 3/8', uz: "3/5 = 3/8" },
-    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: числитель один и тот же (3), знаменатель 5 меньше 8 — доли пятых крупнее восьмых. 3/5 > 3/8.', uz: "To'g'ri: surat bir xil (3), maxraj 5 kichik 8 dan — beshdan ulushlar sakkizdan ulushlardan yirik. 3/5 > 3/8." },
-    hint_1: { ru: 'Ловушка: 8 больше 5, но восьмые мельче пятых. Больше 3/5.', uz: "Tuzoq: 8 katta 5 dan, lekin sakkizdan ulushlar beshdan ulushlardan mayda. 3/5 katta." },
-    hint_2: { ru: 'Доли разного размера: пятые крупнее восьмых. Не равны.', uz: "Ulushlar har xil o'lchamda: beshdan ulushlar sakkizdan ulushlardan yirik. Teng emas." },
-    hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
-    wrong_default: { ru: 'Числитель один (3), знаменатель меньше у 3/5 — значит 3/5 больше.', uz: "Surat bir xil (3), maxraj 3/5 da kichik — demak 3/5 katta." },
-    fact: { ru: 'Одну лепёшку можно разделить на двоих — каждому половина. А если за столом восемь человек, каждому достаётся лишь восьмая. Чем больше людей, тем мельче кусок.', uz: "Bitta lepyoshkani ikki kishiga bo'lish mumkin — har biriga yarim. Dasturxonda sakkiz kishi bo'lsa, har biriga atigi sakkizdan bir tegadi. Odam qancha ko'p bo'lsa, bo'lak shuncha mayda." },
+    label: { ru: 'Точка за единицей', uz: "Birdan keyingi nuqta" },
+    question: { ru: 'Линия от 0 до 2 разделена на половинки. Точка стоит между 1 и 2, на третьей метке от нуля. Какая это дробь?', uz: "0 dan 2 gacha chiziq yarimlarga bo'lingan. Nuqta 1 va 2 orasida, noldan uchinchi belgida turibdi. Bu qaysi kasr?" },
+    correct_text: { ru: 'Верно: половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых, между 1 и 2.', uz: "To'g'ri: yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch, 1 va 2 orasida." },
+    hint_1: { ru: 'Числитель и знаменатель перепутаны: шагов 3, а делим на 2.', uz: "Surat va maxraj almashgan: qadamlar 3 ta, bo'lamiz esa 2 ga." },
+    hint_2: { ru: 'Одна вторая стоит между 0 и 1, а наша точка — за единицей. Шагов больше.', uz: "Ikkidan bir 0 va 1 orasida turadi, bizning nuqta esa birdan keyin. Qadamlar ko'proq." },
+    hint_3: { ru: 'Здесь делим на половинки, знаменатель 2, а не 4.', uz: "Bu yerda yarimlarga bo'lamiz, maxraj 2, 4 emas." },
+    wrong_default: { ru: 'Половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых.', uz: "Yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch." },
+    fact: { ru: 'В древности расстояние мерили верёвкой с равными узлами: между узлами — одинаковые доли. Это далёкий предок числовой прямой.', uz: "Qadimda masofa teng tugunli arqon bilan o'lchangan: tugunlar orasi — bir xil ulushlar. Bu son o'qining uzoq ajdodi." },
     audio: {
-      intro: { ru: 'Сравни три пятых и три восьмых. Выбери, что верно.', uz: "Beshdan uch va sakkizdan uchni solishtiring. Nima to'g'ri ekanini tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель меньше у трёх пятых — они больше. Кстати, так же делят и лепёшку: чем больше людей за столом, тем мельче каждому кусок.', uz: "To'g'ri. Maxraj beshdan uchda kichik — ular katta. Aytgancha, lepyoshkani ham shunday bo'lishadi: dasturxonda odam qancha ko'p bo'lsa, har biriga bo'lak shuncha mayda." },
-      on_wrong: { ru: 'Пока нет. Числитель один, больше та дробь, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan kasr katta." }
+      intro: { ru: 'Линия от нуля до двух разделена на половинки. Точка стоит на третьей метке, между единицей и двойкой. Выбери нужную дробь.', uz: "Noldan ikkigacha chiziq yarimlarga bo'lingan. Nuqta uchinchi belgida, bir va ikki orasida turibdi. Kerakli kasrni tanlang." },
+      on_correct: { ru: 'Верно. Три половинки от нуля — это три вторых. Кстати, в древности расстояние мерили верёвкой с равными узлами — это далёкий предок числовой прямой.', uz: "To'g'ri. Noldan uchta yarim — bu ikkidan uch. Aytgancha, qadimda masofa teng tugunli arqon bilan o'lchangan — bu son o'qining uzoq ajdodi." },
+      on_wrong: { ru: 'Пока нет. Делим на половинки — знаменатель 2, считаем три шага — числитель 3.', uz: "Hali emas. Yarimlarga bo'lamiz — maxraj 2, uch qadam sanaymiz — surat 3." }
     }
   },
 
-  // ---- s7 TEST (MC, текст): 1/8 больше 1/5, потому что 8 > 5? Нет (correct opt0) ----
+  // ---- s7 TEST (MC, текст): 1/2 и 2/4 — одна точка (correct idx 0) ----
   s7: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Не попадись в ловушку', uz: "Tuzoqqa tushmang" },
-    question: { ru: 'Кто-то говорит: «1/8 больше 1/5, ведь 8 больше 5». Это так?', uz: "Kimdir aytadi: «1/8 katta 1/5 dan, axir 8 katta 5 dan». Shundaymi?" },
-    opt0: { ru: 'Неверно — 1/8 меньше: знаменатель больше, доля мельче', uz: "Noto'g'ri — 1/8 kichik: maxraj katta, ulush mayda" },
-    opt1: { ru: 'Верно — раз 8 больше 5, то 1/8 больше', uz: "To'g'ri — 8 katta 5 dan, demak 1/8 katta" },
-    opt2: { ru: 'Они равны — числитель ведь один', uz: "Ular teng — surat-ku bitta" },
-    opt3: { ru: 'Такие дроби сравнить нельзя', uz: "Bunday kasrlarni solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: большее число снизу делит целое на больше частей, доля мельче. 1/8 < 1/5.', uz: "To'g'ri: pastdagi katta son butunni ko'proq bo'lakka bo'ladi, ulush mayda. 1/8 < 1/5." },
-    hint_1: { ru: 'Это и есть ловушка. 8 больше 5, но доля 1/8 мельче. Меньше, а не больше.', uz: "Mana shu — tuzoq. 8 katta 5 dan, lekin 1/8 ulushi mayda. Kichik, katta emas." },
-    hint_2: { ru: 'Не равны: восьмая доля мельче пятой, ведь целое поделено на больше частей.', uz: "Teng emas: sakkizdan ulush beshdan ulushdan mayda, chunki butun ko'proq bo'lakka bo'lingan." },
-    hint_3: { ru: 'Сравнить можно: числитель один, больше та доля, у которой знаменатель меньше.', uz: "Solishtirsa bo'ladi: surat bir xil, maxraji kichik bo'lgan ulush katta." },
-    wrong_default: { ru: 'Нет. Знаменатель больше — доля мельче. 1/8 меньше 1/5.', uz: "Yo'q. Maxraj katta — ulush mayda. 1/8 kichik 1/5 dan." },
+    label: { ru: 'Одна точка или разные?', uz: "Bir nuqtami yoki har xilmi?" },
+    question: { ru: 'На верхней линии отмечена 1/2, на нижней — 2/4. Что про эти точки верно?', uz: "Yuqori chiziqda 1/2, pastkisida — 2/4 belgilangan. Bu nuqtalar haqida nima to'g'ri?" },
+    opt0: { ru: 'Это одна и та же точка — 1/2 и 2/4 стоят на одном месте', uz: "Bu bitta nuqta — 1/2 va 2/4 bir joyda turadi" },
+    opt1: { ru: 'Это разные точки — у них разные числа', uz: "Bu har xil nuqta — ularning sonlari har xil" },
+    opt2: { ru: '1/2 стоит левее, потому что знаменатель меньше', uz: "1/2 chaproqda, chunki maxraji kichik" },
+    opt3: { ru: '2/4 стоит правее, потому что цифры больше', uz: "2/4 o'ngroqda, chunki raqamlari katta" },
+    correct_text: { ru: 'Верно: 1/2 и 2/4 — это одно и то же место на линии. Две дроби, а точка одна — они равны.', uz: "To'g'ri: 1/2 va 2/4 — chiziqda bir xil joy. Ikkita kasr, nuqta esa bitta — ular teng." },
+    hint_1: { ru: 'Посмотри на линии: обе точки ровно посередине между 0 и 1. Место одно.', uz: "Chiziqlarga qarang: ikkala nuqta ham 0 va 1 ning aniq o'rtasida. Joyi bitta." },
+    hint_2: { ru: 'Знаменатель меняет число меток, но место точки то же — ровно посередине.', uz: "Maxraj belgilar sonini o'zgartiradi, lekin nuqtaning joyi o'sha — aniq o'rtada." },
+    hint_3: { ru: 'Больше цифр не значит правее. Обе точки в середине отрезка.', uz: "Raqamlar ko'p bo'lsa, o'ngroq degani emas. Ikkala nuqta ham kesmaning o'rtasida." },
+    wrong_default: { ru: '1/2 и 2/4 стоят на одном месте — это одна точка, дроби равны.', uz: "1/2 va 2/4 bir joyda turadi — bu bitta nuqta, kasrlar teng." },
     audio: {
-      intro: { ru: 'Кто-то говорит, что одна восьмая больше одной пятой, ведь восемь больше пяти. Так ли это? Выбери ответ.', uz: "Kimdir aytadi: sakkizdan bir katta beshdan birdan, axir 8 katta 5 dan. Shundaymi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель больше — доля мельче, поэтому одна восьмая меньше.', uz: "To'g'ri. Maxraj katta — ulush mayda, shuning uchun sakkizdan bir kichik." },
-      on_wrong: { ru: 'Это ловушка: большее число снизу делает долю мельче, а не крупнее.', uz: "Bu tuzoq: pastdagi katta son ulushni mayda qiladi, yirik emas." }
+      intro: { ru: 'На верхней линии отмечена одна вторая, на нижней — две четвёртых. Посмотри, где стоят точки, и выбери, что про них верно.', uz: "Yuqori chiziqda ikkidan bir, pastkisida — to'rtdan ikki belgilangan. Nuqtalar qayerda turganiga qarang va ular haqida nima to'g'ri ekanini tanlang." },
+      on_correct: { ru: 'Верно. Обе точки в одном месте — одна вторая и две четвёртых равны.', uz: "To'g'ri. Ikkala nuqta bir joyda — ikkidan bir va to'rtdan ikki teng." },
+      on_wrong: { ru: 'Посмотри ещё раз: обе точки ровно посередине между нулём и единицей. Это одно место.', uz: "Yana qarang: ikkala nuqta ham nol va bir orasining aniq o'rtasida. Bu bitta joy." }
     }
   },
 
-  // ---- s8 CASE setup: Диёра, общее облачное хранилище класса ----
+  // ---- s8 CASE setup: Сардор, измерительная линейка (метр), отметка 3/4 м ----
   s8: {
-    eyebrow: { ru: 'Задача · облако', uz: "Masala · bulut" },
-    title: { ru: 'Диёра делит общее облачное хранилище.', uz: "Diyora umumiy bulutli xotirani bo'ladi." },
-    body_p1: { ru: 'Две группы получили одинаковое по объёму облачное хранилище и делят его поровну между учениками. В группе Диёры 4 ученика — каждому достаётся 1/4 хранилища. В другой группе 6 учеников — каждому 1/6. У кого на одного ученика больше места?', uz: "Ikki guruh bir xil hajmdagi bulutli xotira oldi va uni o'quvchilar o'rtasida teng bo'ladi. Diyoraning guruhida 4 o'quvchi — har biriga xotiraning 1/4 qismi tegadi. Boshqa guruhda 6 o'quvchi — har biriga 1/6. Bitta o'quvchiga qaysisida ko'proq joy tegadi?" },
-    card_line_label: { ru: 'Группа Диёры', uz: "Diyora guruhi" },
-    card_line_value: { ru: '4 ученика · по 1/4', uz: "4 o'quvchi · 1/4 dan" },
-    card_parts_label: { ru: 'Другая группа', uz: "Boshqa guruh" },
-    card_parts_value: { ru: '6 учеников · по 1/6', uz: "6 o'quvchi · 1/6 dan" },
-    outro: { ru: 'Хранилище одинаковое, числитель один (по одной доле на ученика). Помоги сравнить на следующем шаге.', uz: "Xotira bir xil, surat bir xil (har o'quvchiga bitta ulushdan). Keyingi bosqichda solishtirishga yordam bering." },
-    btn_help: { ru: 'Помочь сравнить', uz: "Solishtirishga yordam" },
-    audio: { ru: 'Две группы получили одинаковое облачное хранилище и делят его поровну между учениками. В группе Диёры четыре ученика, каждому достаётся одна четвёртая. В другой группе шесть учеников, каждому одна шестая. У кого на одного ученика больше места? Хранилище одинаковое, числитель один. Подумай, как сравнить.', uz: "Ikki guruh bir xil bulutli xotira oldi va uni o'quvchilar o'rtasida teng bo'ladi. Diyoraning guruhida to'rtta o'quvchi, har biriga to'rtdan bir tegadi. Boshqa guruhda oltita o'quvchi, har biriga oltidan bir. Bitta o'quvchiga qaysisida ko'proq joy tegadi? Xotira bir xil, surat bir xil. Qanday solishtirishni o'ylab ko'ring." }
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
+    title: { ru: 'Сардор размечает метровую планку.', uz: "Sardor bir metrli reykani belgilaydi." },
+    body_p1: { ru: 'Планка длиной 1 метр. Сардор разделил её на 4 равные части и хочет поставить отметку на трёх четвёртых метра.', uz: "Reyka uzunligi 1 metr. Sardor uni 4 ta teng bo'lakka bo'lib, metrning to'rtdan uchiga belgi qo'ymoqchi." },
+    card_line_label: { ru: 'Длина планки', uz: "Reyka uzunligi" },
+    card_line_value: { ru: 'от 0 до 1 метра', uz: "0 dan 1 metrgacha" },
+    card_parts_label: { ru: 'Делений', uz: "Bo'limlar" },
+    card_parts_value: { ru: '4 равные части', uz: "4 ta teng bo'lak" },
+    outro: { ru: 'Где на планке стоит отметка три четвёртых метра? Помоги Сардору на следующем шаге.', uz: "Metrning to'rtdan uch belgisi reykada qayerda turadi? Keyingi bosqichda Sardorga yordam bering." },
+    btn_help: { ru: 'Помочь Сардору', uz: "Sardorga yordam berish" },
+    audio: { ru: 'Сардор размечает метровую планку. Её длина один метр, и он разделил планку на четыре равные части. Сардор хочет поставить отметку на трёх четвёртых метра. Подумай, где на планке стоит эта точка.', uz: "Sardor bir metrli reykani belgilaydi. Uning uzunligi bir metr va u reykani to'rtta teng bo'lakka bo'ldi. Sardor metrning to'rtdan uchiga belgi qo'ymoqchi. Bu nuqta reykada qayerda turishini o'ylab ko'ring." }
   },
 
-  // ---- s9 CASE step (MC, отношение): 1/4 vs 1/6 → группа Диёры больше (correct opt0) ----
+  // ---- s9 CASE step (MC, дроби): отметка на 3/4 (correct idx 2) ----
   s9: {
-    eyebrow: { ru: 'Задача · облако', uz: "Masala · bulut" },
-    label: { ru: 'У кого больше места?', uz: "Kimda ko'proq joy?" },
-    question: { ru: 'В группе Диёры по 1/4, в другой по 1/6. Что верно?', uz: "Diyora guruhida 1/4 dan, boshqasida 1/6 dan. Nima to'g'ri?" },
-    opt0: { ru: 'У группы Диёры больше: 1/4 > 1/6', uz: "Diyora guruhida ko'proq: 1/4 > 1/6" },
-    opt1: { ru: 'У другой группы больше: 1/6 > 1/4', uz: "Boshqa guruhda ko'proq: 1/6 > 1/4" },
-    opt2: { ru: 'Поровну', uz: "Teng" },
-    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: учеников меньше (4 против 6) — на каждого больше места. 1/4 > 1/6.', uz: "To'g'ri: o'quvchi kam (4, 6 ga qarshi) — har biriga ko'proq joy. 1/4 > 1/6." },
-    hint_1: { ru: 'Ловушка: 6 больше 4, но больше учеников — меньше каждому. 1/6 мельче 1/4.', uz: "Tuzoq: 6 katta 4 dan, lekin o'quvchi ko'p — har biriga kam. 1/6 1/4 dan mayda." },
-    hint_2: { ru: 'Доли разные: 1/4 крупнее 1/6. Не поровну.', uz: "Ulushlar har xil: 1/4 1/6 dan yirik. Teng emas." },
-    hint_3: { ru: 'Хранилище одинаковое, числитель один — сравнить можно по знаменателям.', uz: "Xotira bir xil, surat bir — maxrajlar bo'yicha solishtirsa bo'ladi." },
-    wrong_default: { ru: 'Учеников меньше у группы Диёры — каждому больше. 1/4 > 1/6.', uz: "Diyora guruhida o'quvchi kam — har biriga ko'proq. 1/4 > 1/6." },
-    fact: { ru: 'Разрежь яблоко на 2 части — получишь крупные половинки. А раздели то же яблоко на 8 — кусочки выйдут совсем маленькими. Яблоко одно, числитель один, а чем больше знаменатель, тем мельче доля.', uz: "Olmani 2 bo'lakka kessang — yirik yarimliklar chiqadi. Xuddi shu olmani 8 ga bo'lsang — bo'laklar juda mayda bo'ladi. Olma bitta, surat bir xil, maxraj qancha katta bo'lsa, ulush shuncha mayda." },
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
+    label: { ru: 'Где отметка?', uz: "Belgi qayerda?" },
+    question: { ru: 'Планка от 0 до 1 метра разделена на 4 части. Отметка стоит на третьей метке от нуля. Какая это дробь метра?', uz: "0 dan 1 metrgacha reyka 4 bo'lakka bo'lingan. Belgi noldan uchinchi metkada turibdi. Bu metrning qaysi kasri?" },
+    correct_text: { ru: 'Верно: 4 части — знаменатель 4, три шага — числитель 3. Отметка на трёх четвёртых метра.', uz: "To'g'ri: 4 bo'lak — maxraj 4, uch qadam — surat 3. Belgi metrning to'rtdan uchida." },
+    hint_0: { ru: 'Числитель и знаменатель перепутаны: шагов 3, частей 4.', uz: "Surat va maxraj almashgan: qadamlar 3 ta, bo'laklar 4 ta." },
+    hint_1: { ru: 'Снизу — на сколько частей разделили планку. Их 4.', uz: "Pastda — reyka nechta bo'lakka bo'lingani. Ular to'rtta." },
+    hint_3: { ru: 'Сверху — сколько шагов от нуля. Их 3, а не 1.', uz: "Yuqorida — noldan nechta qadam. Ular uchta, bir emas." },
+    wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов до отметки (3).', uz: "Maxraj — bo'laklar soni (to'rt), surat — belgigacha qadamlar soni (uch)." },
+    fact: { ru: 'В музыке длительности нот — это дроби, как метки на линии: целая нота, половинная, четвертная. Четвертная звучит вдвое короче половинной.', uz: "Musiqada nota cho'zimlari — chiziqdagi belgilar kabi kasrlar: butun nota, yarim nota, chorak nota. Chorak nota yarim notadan ikki barobar qisqa yangraydi." },
     audio: {
-      intro: { ru: 'В группе Диёры каждому достаётся одна четвёртая, в другой группе одна шестая. У кого на ученика больше места? Выбери верное.', uz: "Diyora guruhida har biriga to'rtdan bir, boshqa guruhda oltidan bir tegadi. O'quvchiga qaysisida ko'proq joy? To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Учеников меньше — каждому больше. Одна четвёртая больше одной шестой. Так и с яблоком: разрежешь на два — куски крупные, на восемь — совсем мелкие.', uz: "To'g'ri. O'quvchi kam — har biriga ko'proq. To'rtdan bir katta oltidan birdan. Olma ham shunday: ikkiga kessang bo'laklar yirik, sakkizga bo'lsang juda mayda." },
-      on_wrong: { ru: 'Пока нет. Числитель один, больше та доля, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan ulush katta." }
+      intro: { ru: 'Планка от нуля до одного метра разделена на четыре части, отметка стоит на третьей метке. Выбери дробь метра, которая показывает её место.', uz: "Noldan bir metrgacha reyka to'rtta bo'lakka bo'lingan, belgi uchinchi metkada turibdi. Uning joyini ko'rsatadigan metr kasrini tanlang." },
+      on_correct: { ru: 'Верно. Четыре части и три шага — три четвёртых метра. А ещё в музыке длительности нот — это тоже дроби: половинная нота вдвое короче целой, а четвертная — ещё вдвое короче.', uz: "To'g'ri. To'rt bo'lak va uch qadam — metrning to'rtdan uchi. Musiqada ham nota cho'zimlari — bu kasrlar: yarim nota butundan ikki barobar qisqa, chorak nota esa yana ikki barobar qisqa." },
+      on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов от нуля.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — noldan qadamlar soni." }
     }
   },
 
-  // ---- s10 CASE conclusion (MC, текст): почему 1/4 > 1/6 (correct opt0) ----
+  // ---- s10 CASE conclusion (MC, текст): что значит 3/4 метра на планке (correct idx 0) ----
   s10: {
-    eyebrow: { ru: 'Задача · облако', uz: "Masala · bulut" },
-    label: { ru: 'Почему так', uz: "Nega shunday" },
-    question: { ru: 'Почему 1/4 больше 1/6?', uz: "Nega 1/4 katta 1/6 dan?" },
-    opt0: { ru: 'Хранилище одно, но учеников меньше — каждому достаётся доля покрупнее.', uz: "Xotira bitta, lekin o'quvchi kam — har biriga yirikroq ulush tegadi." },
-    opt1: { ru: 'Потому что 6 больше 4, значит 1/6 всегда больше.', uz: "Chunki 6 katta 4 dan, demak 1/6 doim katta." },
-    opt2: { ru: 'Потому что у 1/4 знаменатель больше.', uz: "Chunki 1/4 ning maxraji katta." },
-    opt3: { ru: 'На самом деле они равны.', uz: "Aslida ular teng." },
-    correct_text: { ru: 'Верно: одно и то же хранилище делят на меньше частей — доля крупнее. Дело в знаменателе.', uz: "To'g'ri: bir xil xotira kamroq bo'lakka bo'linadi — ulush yirik. Gap maxrajda." },
-    hint_1: { ru: 'Это ловушка: большее число снизу делает долю мельче, а не больше.', uz: "Bu tuzoq: pastdagi katta son ulushni mayda qiladi, katta emas." },
-    hint_2: { ru: 'У 1/4 знаменатель как раз меньше (4), поэтому доля крупнее.', uz: "1/4 da maxraj aynan kichik (4), shuning uchun ulush yirik." },
-    hint_3: { ru: 'Знаменатели разные (4 и 6) — дроби не равны.', uz: "Maxrajlar har xil (4 va 6) — kasrlar teng emas." },
-    wrong_default: { ru: 'Меньше учеников — крупнее доля. 1/4 больше 1/6 из-за меньшего знаменателя.', uz: "O'quvchi kam — ulush yirik. Maxraj kichik bo'lgani uchun 1/4 katta 1/6 dan." },
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
+    label: { ru: 'Что это значит', uz: "Bu nimani bildiradi" },
+    question: { ru: 'Отметка стоит на трёх четвёртых метра. Что это означает про место на планке?', uz: "Belgi metrning to'rtdan uchida turibdi. Bu reykadagi joy haqida nimani bildiradi?" },
+    opt0: { ru: 'Метр разделён на 4 равные части, и точка на конце третьей части от нуля.', uz: "Metr 4 ta teng bo'lakka bo'lingan va nuqta noldan uchinchi bo'lak oxirida." },
+    opt1: { ru: 'На планке ровно 3 метра.', uz: "Reykada aniq 3 metr bor." },
+    opt2: { ru: 'Метр разделён на 3 части, и отмечены 4.', uz: "Metr 3 bo'lakka bo'lingan va 4 tasi belgilangan." },
+    opt3: { ru: 'Точка стоит ровно на середине планки.', uz: "Nuqta reykaning aniq o'rtasida turadi." },
+    correct_text: { ru: 'Верно: три четвёртых метра — это место, где пройдены 3 части из 4. Это ближе к 1, чем к 0.', uz: "To'g'ri: metrning to'rtdan uchi — 4 bo'lakdan 3 tasi o'tilgan joy. Bu 0 dan ko'ra 1 ga yaqinroq." },
+    hint_1: { ru: 'Дробь не говорит про целые метры. Она показывает место внутри одного метра.', uz: "Kasr butun metrlar haqida gapirmaydi. U bir metr ichidagi joyni ko'rsatadi." },
+    hint_2: { ru: 'Знаменатель 4 — число частей, числитель 3 — сколько пройдено. Не наоборот.', uz: "Maxraj to'rt — bo'laklar soni, surat uch — nechtasi o'tilgani. Aksincha emas." },
+    hint_3: { ru: 'На середине стояла бы две четвёртых. А три четвёртых — дальше, ближе к 1.', uz: "O'rtada to'rtdan ikki bo'lardi. To'rtdan uch esa naridaroq, 1 ga yaqinroq." },
+    wrong_default: { ru: 'Три четвёртых метра — это место, где из 4 равных частей пройдены 3.', uz: "Metrning to'rtdan uchi — 4 teng bo'lakdan 3 tasi o'tilgan joy." },
     audio: {
-      intro: { ru: 'Почему одна четвёртая больше одной шестой? Выбери верное объяснение.', uz: "Nega to'rtdan bir katta oltidan birdan? To'g'ri izohni tanlang." },
-      on_correct: { ru: 'Верно. Учеников меньше — хранилище делится на меньше частей, доля крупнее.', uz: "To'g'ri. O'quvchi kam — xotira kamroq bo'lakka bo'linadi, ulush yirik." },
-      on_wrong: { ru: 'Пока нет. Большее число снизу делает долю мельче.', uz: "Hali emas. Pastdagi katta son ulushni mayda qiladi." }
+      intro: { ru: 'Отметка стоит на трёх четвёртых метра. Выбери, что это означает про место на планке.', uz: "Belgi metrning to'rtdan uchida turibdi. Bu reykadagi joy haqida nimani bildirishini tanlang." },
+      on_correct: { ru: 'Верно. Метр поделён на четыре части, и точка там, где пройдены три из них.', uz: "To'g'ri. Metr to'rtta bo'lakka bo'lingan va nuqta uchtasi o'tilgan joyda." },
+      on_wrong: { ru: 'Пока нет. Дробь показывает место внутри метра, а не число метров.', uz: "Hali emas. Kasr metr ichidagi joyni ko'rsatadi, metrlar sonini emas." }
     }
   },
 
-  // ---- s11 TEST (MC, отношение): 2/5 ? 2/7 → 2/5 > 2/7 (correct opt0) ----
+  // ---- s11 TEST (MC, дроби): линия 0..1, 4 части, точка на 2-й → 2/4 (= 1/2) (correct idx 0) ----
   s11: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Последняя — сравни', uz: "Oxirgisi — solishtiring" },
-    question: { ru: 'Сравни 2/5 и 2/7. Что верно?', uz: "2/5 va 2/7 ni solishtiring. Nima to'g'ri?" },
-    opt0: { ru: '2/5 > 2/7', uz: "2/5 > 2/7" },
-    opt1: { ru: '2/5 < 2/7', uz: "2/5 < 2/7" },
-    opt2: { ru: '2/5 = 2/7', uz: "2/5 = 2/7" },
-    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: числитель один (2), знаменатель 5 меньше 7 — пятые доли крупнее седьмых. 2/5 > 2/7.', uz: "To'g'ri: surat bir xil (2), maxraj 5 kichik 7 dan — beshdan ulushlar yettidan ulushlardan yirik. 2/5 > 2/7." },
-    hint_1: { ru: 'Ловушка: 7 больше 5, но седьмые мельче пятых. Больше 2/5.', uz: "Tuzoq: 7 katta 5 dan, lekin yettidan ulushlar mayda. 2/5 katta." },
-    hint_2: { ru: 'Доли разные: пятые крупнее седьмых. Не равны.', uz: "Ulushlar har xil: beshdan ulushlar yettidan ulushlardan yirik. Teng emas." },
-    hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
-    wrong_default: { ru: 'Числитель один (2), знаменатель меньше у 2/5 — значит 2/5 больше.', uz: "Surat bir xil (2), maxraj 2/5 da kichik — demak 2/5 katta." },
-    fact: { ru: 'Картинку на экране делят на пиксели. Чем на больше пикселей разбит один и тот же экран, тем мельче каждый пиксель — и тем чётче картинка. Знаменатель растёт, а доля каждого пикселя падает.', uz: "Ekrandagi rasm piksellarga bo'linadi. Bitta ekran qancha ko'p pikselga bo'linsa, har piksel shuncha mayda — va rasm shuncha aniq. Maxraj o'sadi, har pikselning ulushi esa kichrayadi." },
+    label: { ru: 'Последняя — назови дробь', uz: "Oxirgisi — kasrni ayting" },
+    question: { ru: 'Отрезок от 0 до 1 разделён на 4 части. Точка стоит на второй метке от нуля. Какая это дробь?', uz: "0 dan 1 gacha kesma 4 bo'lakka bo'lingan. Nuqta noldan ikkinchi belgida turibdi. Bu qaysi kasr?" },
+    correct_text: { ru: 'Верно: 4 части — знаменатель 4, два шага — числитель 2. Это две четвёртых, и это ровно середина — то же место, что и одна вторая.', uz: "To'g'ri: 4 bo'lak — maxraj 4, ikki qadam — surat 2. Bu to'rtdan ikki, va bu aniq o'rta — ikkidan bir bilan bir xil joy." },
+    hint_1: { ru: 'Числитель и знаменатель перепутаны: шагов 2, частей 4.', uz: "Surat va maxraj almashgan: qadamlar 2 ta, bo'laklar 4 ta." },
+    hint_2: { ru: 'Снизу — на сколько частей разделили отрезок. Их 4.', uz: "Pastda — kesma nechta bo'lakka bo'lingani. Ular to'rtta." },
+    hint_3: { ru: 'Сверху — сколько шагов от нуля до точки. Их 2, а не 3.', uz: "Yuqorida — noldan nuqtagacha nechta qadam. Ular ikkita, uch emas." },
+    wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов (2). Это две четвёртых.', uz: "Maxraj — bo'laklar soni (to'rt), surat — qadamlar soni (ikki). Bu to'rtdan ikki." },
+    fact: { ru: 'Полоса времени видеоплеера — это и есть числовая прямая: начало 0, конец 1. Точка 1/2 на ней — ровно середина видео.', uz: "Video pleyerning vaqt chizig'i — bu aynan son o'qi: boshi 0, oxiri 1. Undagi 1/2 nuqta — videoning aniq yarmi." },
     audio: {
-      intro: { ru: 'Последнее задание. Сравни две пятых и две седьмых. Выбери верное.', uz: "Oxirgi topshiriq. Beshdan ikki va yettidan ikkini solishtiring. To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель меньше у двух пятых — они больше. Так и с экраном: чем на больше пикселей он разбит, тем мельче каждый пиксель.', uz: "To'g'ri. Maxraj beshdan ikkida kichik — ular katta. Ekran ham shunday: qancha ko'p pikselga bo'linsa, har piksel shuncha mayda." },
-      on_wrong: { ru: 'Пока нет. Числитель один, больше та дробь, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan kasr katta." }
+      intro: { ru: 'Последнее задание. Отрезок от нуля до единицы разделён на четыре части, точка на второй метке. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Noldan birgacha kesma to'rtta bo'lakka bo'lingan, nuqta ikkinchi belgida. Kerakli kasrni tanlang." },
+      on_correct: { ru: 'Верно. Две четвёртых — это ровно середина, то же место, что и одна вторая. Кстати, полоса времени видеоплеера — это та же числовая прямая, и точка одна вторая на ней — ровно середина видео.', uz: "To'g'ri. To'rtdan ikki — aniq o'rta, ikkidan bir bilan bir xil joy. Aytgancha, video pleyerning vaqt chizig'i — o'sha son o'qi, undagi ikkidan bir nuqta — videoning aniq yarmi." },
+      on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов до точки.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — nuqtagacha qadamlar soni." }
     }
   },
 
@@ -1056,19 +1037,19 @@ const CONTENT = {
   s12: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
     label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    title: { ru: 'Теперь тебя не обманет большой знаменатель.', uz: "Endi katta maxraj sizni alday olmaydi." },
+    title: { ru: 'Теперь дробь для тебя — число со своим местом на линии.', uz: "Endi kasr siz uchun — chiziqda o'z joyi bor son." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Одинаковый числитель — берём одинаковое число долей.', uz: "Bir xil surat — bir xil sondagi ulush olamiz." },
-    main_2: { ru: 'Больше та дробь, у которой знаменатель МЕНЬШЕ: доля крупнее.', uz: "Maxraji KICHIK bo'lgan kasr katta: ulush yirikroq." },
-    main_3: { ru: 'Большое число снизу не делает дробь больше — оно делит целое на больше мелких частей.', uz: "Pastdagi katta son kasrni katta qilmaydi — u butunni ko'proq mayda bo'lakka bo'ladi." },
-    main_4: { ru: 'Одинаковый числитель — смотрим на знаменатель; одинаковый знаменатель — на числитель.', uz: "Surat bir xil — maxrajga qaraymiz; maxraj bir xil — suratga qaraymiz." },
-    back_to_hook: { ru: 'У Эльдора 3 устройства, у Темура 5. Интернет один, но у Темура устройств больше — значит каждому достаётся меньше. 1/3 > 1/5. Темур попал в ловушку.', uz: "Eldorda 3 ta qurilma, Temurda 5 ta. Internet bir xil, lekin Temurda qurilma ko'p — demak har biriga kamroq tegadi. 1/3 > 1/5. Temur tuzoqqa tushgan ekan." },
+    main_1: { ru: 'Дробь — это число, и у неё есть точка на числовой прямой.', uz: "Kasr — bu son, va uning son o'qida nuqtasi bor." },
+    main_2: { ru: 'Знаменатель — на сколько равных частей делим отрезок 0…1. Числитель — сколько шагов от нуля.', uz: "Maxraj — 0…1 kesmani nechta teng bo'lakka bo'lamiz. Surat — noldan nechta qadam." },
+    main_3: { ru: 'Линия не кончается на 1: за единицей те же части идут к 2 и дальше.', uz: "Chiziq 1 da tugamaydi: birdan keyin o'sha bo'laklar 2 ga va nariga ketadi." },
+    main_4: { ru: '1/2 и 2/4 — одна и та же точка. Равные дроби стоят на одном месте.', uz: "1/2 va 2/4 — bitta nuqta. Teng kasrlar bir joyda turadi." },
+    back_to_hook: { ru: 'Три четвёртых нашлись на линии точкой между 0 и 1. У дроби есть место. Жасур ошибался.', uz: "To'rtdan uch chiziqda 0 va 1 orasidagi nuqta bo'lib topildi. Kasrning joyi bor. Jasur xato qilgan ekan." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'урок «Сравнение дробей с одинаковым знаменателем».', uz: "«Bir xil maxrajli kasrlarni taqqoslash» darsi." },
+    conn_refs: { ru: 'урок «Что такое дробь».', uz: "«Kasr nima» darsi." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'сравнение дробей с разными знаменателями.', uz: "har xil maxrajli kasrlarni taqqoslash." },
-    audio: { ru: 'Отлично! Теперь тебя не обманет большой знаменатель. Если у дробей одинаковый числитель, больше та, у которой знаменатель меньше: доля крупнее. Большое число снизу не делает дробь больше — оно лишь делит целое на больше мелких частей. Помни: одинаковый числитель — смотри на знаменатель, одинаковый знаменатель — на числитель. У Эльдора три устройства, у Темура пять. Интернет один, а у Темура устройств больше, значит каждому достаётся меньше. Одна третья больше одной пятой. Темур попал в ловушку.', uz: "Zo'r! Endi katta maxraj sizni alday olmaydi. Agar kasrlarning surati bir xil bo'lsa, maxraji kichik bo'lgani katta: ulush yirikroq. Pastdagi katta son kasrni katta qilmaydi — u faqat butunni ko'proq mayda bo'lakka bo'ladi. Esda tuting: surat bir xil — maxrajga qarang, maxraj bir xil — suratga qarang. Eldorda uchta qurilma, Temurda beshta. Internet bir xil, Temurda esa qurilma ko'p, demak har biriga kamroq tegadi. Uchdan bir katta beshdan birdan. Temur tuzoqqa tushgan ekan." }
+    conn_next: { ru: 'дробь как деление: a/b это a разделить на b.', uz: "kasr — bo'lish natijasi: a/b bu a ni b ga bo'lish." },
+    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это число, и у неё есть своё место на числовой прямой. Знаменатель делит отрезок от нуля до единицы на равные части, а числитель отсчитывает шаги от нуля. Линия не кончается на единице — за ней те же части идут к двойке. А равные дроби, например одна вторая и две четвёртых, стоят на одном месте. Три четвёртых нашли точку между нулём и единицей. Жасур ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu son, va uning son o'qida o'z joyi bor. Maxraj noldan birgacha kesmani teng bo'laklarga bo'ladi, surat esa noldan qadamlarni sanaydi. Chiziq birda tugamaydi — undan keyin o'sha bo'laklar ikki tomon ketadi. Teng kasrlar esa, masalan ikkidan bir va to'rtdan ikki, bir joyda turadi. To'rtdan uch nol va bir orasidan nuqta topdi. Jasur xato qilgan ekan." }
   }
 };
 
@@ -1091,78 +1072,84 @@ const FactCard = ({ text, anim, badge }) => {
     </div>
   );
 };
-// Tarix (lepyoshkani ulashish): bir xil non ko'proq kishiga bo'linadi — bo'laklar mayda-mayda.
-const AnimShare = () => (
-  <div className="fa-share" aria-hidden="true">
-    <span className="fa-share-d fa-share-1"/>
-    <span className="fa-share-d fa-share-2"/>
-    <span className="fa-share-d fa-share-3"/>
-  </div>
-);
-// Fan (olmani bo'lish): bitta doira 2 → 4 → 8 bo'lakka maydalanadi.
-const AnimApple = () => (
-  <div className="fa-apple" aria-hidden="true">
-    {Array.from({ length: 8 }).map((_, i) => (
-      <span key={i} className="fa-apple-s" style={{ transform: `rotate(${i * 45}deg)`, animationDelay: `${i * 0.12}s` }}/>
+// Tarix (arqon o'lchovi): teng tugunlar arqonni teng bo'laklarga ajratadi — son o'qining ajdodi.
+const AnimRope = () => (
+  <div className="fa-rope" aria-hidden="true">
+    <span className="fa-rope-line"/>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <span key={i} className="fa-rope-knot" style={{ left: `${i * 25}%`, animationDelay: `${i * 0.22}s` }}/>
     ))}
   </div>
 );
-// IT (piksel): bir xil ekran ko'proq pikselga bo'linadi — kataklar maydalashadi.
-const AnimPixel = () => (
-  <div className="fa-px" aria-hidden="true">
-    {Array.from({ length: 16 }).map((_, i) => (
-      <span key={i} className="fa-px-c" style={{ animationDelay: `${(i % 4 + Math.floor(i / 4)) * 0.12}s` }}/>
+// Fan (musiqa cho'zimlari): butun, yarim, chorak nota — kasrlar kabi kamayuvchi davomiylik.
+const AnimNote = () => (
+  <div className="fa-note" aria-hidden="true">
+    {[100, 50, 25].map((w, i) => (
+      <span key={i} className="fa-note-bar" style={{ width: `${w}%`, animationDelay: `${i * 0.3}s` }}/>
     ))}
+  </div>
+);
+// IT (video timeline): pleyer chizig'i — son o'qi, playhead 1/2 nuqtada yarmida turadi.
+const AnimTimeline = () => (
+  <div className="fa-tl" aria-hidden="true">
+    <span className="fa-tl-track"/>
+    <span className="fa-tl-fill"/>
+    <span className="fa-tl-head"/>
   </div>
 );
 
 // ============================================================
-// УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «одинаковый числитель»)
+// УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «дробь на числовой прямой»)
 // ============================================================
-// FracBar: горизонтальная полоса den долей, первые num — закрашены.
-// marker — у края заливки «финишная черта»; winner — на ней флажок (эта дробь больше).
-// animateIn — заливка вырастает 0→цель и черта въезжает; иначе ширина меняется через transition
-//             (живой ползунок «доля уменьшается»).
-const FracBar = ({ num, den, color = T.accent, height = 34, marker = false, winner = false, animateIn = false }) => {
-  const pct = (num / den) * 100;
-  const ease = 'cubic-bezier(0.34, 1.1, 0.64, 1)';
+// Числовая прямая: отрезок 0..max единиц, на каждую единицу — den равных долей.
+// Всего интервалов = den*max, тиков = den*max+1 (включая 0). Тик i стоит на значении i/den.
+// mark — индекс тика с точкой-маркером. fillTo — индекс заливки 0..fillTo (растёт плавно).
+// interactive — тики кликабельны (onPick(i)); selected — текущий выбранный тик.
+// АНИМАЦИИ: метки появляются с лёгким «раскрытием» при смене den (key=den-i),
+// заливка плавно растёт (nl-fill), точка-маркер скользит между метками (nl-marker)
+// и «впрыгивает» при первом появлении (nl-marker-pop) — ученик видит отсчёт шагов.
+const NumberLine = ({ den = 4, max = 1, mark = null, showMark = true, interactive = false, selected = null, onPick, fillTo = null, height = 76 }) => {
+  const total = den * max;
+  const ticks = total + 1;
+  const pctOf = (i) => total === 0 ? 0 : (i / total) * 100;
+  const lineTop = 30; // позиция оси по вертикали (px)
+  // Единый источник позиции точки: явный mark (если показываем) либо выбранный тик в интерактиве.
+  const markerIdx = (showMark && mark != null) ? mark : (interactive && selected != null ? selected : null);
   return (
-    <div className="fw-bar" style={{ position: 'relative', width: '100%', height, borderRadius: 8, background: T.paper, boxShadow: `inset 0 0 0 2px ${T.ink3}` }}>
-      <div style={{ position: 'absolute', inset: 0, borderRadius: 8, overflow: 'hidden' }}>
-        <div className={`fw-fill${animateIn ? ' fw-grow' : ''}`} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct}%`, background: color, transition: `width 0.5s ${ease}` }}/>
-        {Array.from({ length: den - 1 }).map((_, i) => (
-          <div key={i} style={{ position: 'absolute', left: `${((i + 1) / den) * 100}%`, top: 0, bottom: 0, width: 2, background: T.bg }}/>
-        ))}
+    <div style={{ width: '100%', maxWidth: 560, padding: '0 16px', margin: '0 auto' }}>
+      <div style={{ position: 'relative', height }}>
+        {/* ось */}
+        <div style={{ position: 'absolute', left: 0, right: 0, top: lineTop, height: 3, background: T.ink2, borderRadius: 2 }}/>
+        {/* заливка 0..fillTo — плавно растёт */}
+        {fillTo != null && fillTo > 0 && (
+          <div className="nl-fill" style={{ position: 'absolute', left: 0, width: `${pctOf(fillTo)}%`, top: lineTop, height: 3, background: T.accent, borderRadius: 2, boxShadow: '0 0 8px rgba(255, 79, 40, 0.5)' }}/>
+        )}
+        {/* метки (при смене den перерисовываются с анимацией раскрытия) */}
+        {Array.from({ length: ticks }).map((_, i) => {
+          const isInt = i % den === 0;
+          const showRing = interactive && i >= 1 && i !== markerIdx;
+          return (
+            <div key={`${den}-${i}`} onClick={interactive ? () => onPick(i) : undefined}
+              style={{ position: 'absolute', left: `${pctOf(i)}%`, top: 0, height: '100%', width: interactive ? 34 : 14, marginLeft: interactive ? -17 : -7, cursor: interactive ? 'pointer' : 'default' }}>
+              {/* вертикальная метка */}
+              <div className="nl-tick" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: lineTop - (isInt ? 11 : 7), width: isInt ? 3 : 2, height: isInt ? 22 : 14, background: isInt ? T.ink : T.ink3, borderRadius: 2, animationDelay: `${i * 0.04}s` }}/>
+              {/* подпись целых */}
+              {isInt && (<span className="mono small" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', top: lineTop + 18, color: T.ink2 }}>{i / den}</span>)}
+              {/* интерактивная цель (пустой кружок-приглашение нажать) */}
+              {showRing && (
+                <div className="nl-ring" style={{ position: 'absolute', left: '50%', top: lineTop, transform: 'translate(-50%, -50%)', width: 16, height: 16, borderRadius: '50%', background: T.paper, boxShadow: `inset 0 0 0 2px ${T.ink3}`, transition: 'all 0.15s' }}/>
+              )}
+            </div>
+          );
+        })}
+        {/* точка-маркер: скользит к нужной метке и впрыгивает при появлении */}
+        {markerIdx != null && (
+          <div className="nl-marker nl-marker-pop" style={{ position: 'absolute', left: `${pctOf(markerIdx)}%`, top: lineTop, width: 20, height: 20, marginLeft: -10, marginTop: -10, borderRadius: '50%', background: T.accent, boxShadow: `0 0 0 5px ${T.accentSoft}, 0 4px 12px -2px rgba(255, 79, 40, 0.5)`, zIndex: 3 }}/>
+        )}
       </div>
-      {marker && num > 0 && (
-        <div className={`fw-marker${animateIn ? ' fw-slide' : ''}`} style={{ position: 'absolute', left: `${pct}%`, top: -5, bottom: -5, width: 3, marginLeft: -1.5, background: color, borderRadius: 2, boxShadow: `0 0 7px ${color}`, transition: `left 0.5s ${ease}` }}>
-          {winner && (
-            <svg className="fw-flag" width="18" height="16" viewBox="0 0 18 16" style={{ position: 'absolute', top: -15, left: 1, overflow: 'visible' }}>
-              <path d="M1 1 L14 4 L1 8 Z" fill={color}/>
-            </svg>
-          )}
-        </div>
-      )}
     </div>
   );
 };
-
-// FractionWall: «стена дробей» — стопка строк с ОДИНАКОВЫМ числителем и разными знаменателями.
-// rows: [{num, den}]. Видно, как доля уменьшается с ростом знаменателя (лесенка вниз).
-// winnerDen — строка-победитель (большая дробь) красится accent + флажок; остальные — синие.
-const FractionWall = ({ rows, marker = false, winnerDen = null, animateIn = true, height = 32 }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: '100%', maxWidth: 520, margin: '0 auto' }}>
-    {rows.map((r, i) => {
-      const isWin = winnerDen === r.den;
-      return (
-        <div key={r.den} className="fw-row" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.5vw, 16px)', animationDelay: `${i * 0.09}s` }}>
-          <div style={{ width: 'clamp(40px, 9vw, 54px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n={String(r.num)} d={String(r.den)} size="sm"/></div>
-          <div style={{ flex: 1 }}><FracBar num={r.num} den={r.den} color={isWin ? T.accent : T.blue} marker={marker} winner={isWin} animateIn={animateIn} height={height}/></div>
-        </div>
-      );
-    })}
-  </div>
-);
 
 // ============================================================
 // SCREEN-КОМПОНЕНТЫ
@@ -1194,8 +1181,12 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
         <h1 className="title h-title fade-up">{t(c.title)}</h1>
-        <div className="frame fade-up delay-1 hook-alive"><span className="hook-sheen" aria-hidden="true"/><span className="hook-glow" aria-hidden="true"/>
-          <FractionWall rows={[{ num: 1, den: 3 }, { num: 1, den: 5 }]} animateIn={true}/>
+        <div className="frame fade-up delay-1 hook-alive" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}><span className="hook-sheen" aria-hidden="true"/><span className="hook-glow" aria-hidden="true"/>
+          <NumberLine den={4} max={1} showMark={false} height={70}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Frac n="3" d="4" size="mid"/>
+            <span className="mop" style={{ color: T.ink3 }}>= ?</span>
+          </div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.body)}</p>
         <h2 className="title h-sub fade-up delay-2">{t(c.question)}</h2>
@@ -1213,7 +1204,7 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   );
 };
 
-// s1 — EXPLORATION step-by-step: стена дробей растёт построчно (1/2, 1/3, 1/4).
+// s1 — EXPLORATION step-by-step: ставим 3/4 на отрезок 0..1, голос ведёт.
 const Screen1 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s1;
   const arr = c.audio[lang];
@@ -1226,18 +1217,31 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
     if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
   };
-  const allRows = [{ num: 1, den: 2 }, { num: 1, den: 3 }, { num: 1, den: 4 }];
-  const rows = allRows.slice(0, Math.max(0, step));
+  // Анимация отсчёта: на шаге 3 точка прыгает от 0 к 3/4, метка за меткой — видно «3 шага от нуля».
+  // hop остаётся 0 до шага 3, поэтому setState вызываем только из интервала (без синхронного setState в эффекте).
+  const [hop, setHop] = useState(0);
+  useEffect(() => {
+    if (step < 3) return;
+    let k = 0;
+    const id = setInterval(() => { k += 1; setHop(k); if (k >= 3) clearInterval(id); }, 430);
+    return () => clearInterval(id);
+  }, [step]);
+  const den = step >= 2 ? 4 : 1;
+  const mark = step >= 3 ? hop : null;
+  const fillTo = step >= 3 ? hop : null;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center', minHeight: 120, justifyContent: 'center' }}>
-          {rows.length > 0
-            ? <FractionWall rows={rows} winnerDen={step >= 3 ? 2 : null} marker={step >= 3} animateIn={true}/>
-            : <p className="body" style={{ color: T.ink3, margin: 0 }}>…</p>}
-          {step >= 3 && <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center' }}>
+          <NumberLine den={den} max={1} mark={mark} fillTo={fillTo} showMark={step >= 3} height={58}/>
+          {step >= 3 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Frac n="3" d="4" size="mid"/>
+              <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>
+            </div>
+          )}
         </div>
         <div ref={endRef}/>
       </div>
@@ -1245,17 +1249,18 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s2 — EXPLORATION slider: доля уменьшается с ростом знаменателя (живая заливка).
+// s2 — EXPLORATION slider + tap: поставь 2/5. Слайдер задаёт число частей, тап — точку.
 const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
-  const ref = 3;
-  const [den, setDen] = useState(2);
+  const [den, setDen] = useState(3);
+  const [selected, setSelected] = useState(null);
   const [checked, setChecked] = useState(false);
   const [solved, setSolved] = useState(false);
-  const onSlider = (v) => { if (solved) return; setChecked(false); setDen(v); };
+  const pickTick = (i) => { if (solved) return; if (i === 0) return; setChecked(false); setSelected(i); };
+  const onSlider = (v) => { if (solved) return; setChecked(false); setDen(v); setSelected(null); };
   const check = () => {
-    const ok = den === 6;
+    const ok = den === 5 && selected === 2;
     setChecked(true);
     if (ok) setSolved(true);
     if (!audio.muted) { setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.fb_success[lang] : c.fb_wrong[lang]); }, 250); }
@@ -1267,20 +1272,11 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.intro)}</p>
         <p className="small fade-up delay-1" style={{ color: T.accent, fontWeight: 600 }}>{t(c.target_text)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* эталон 1/3 — победитель при решении (он крупнее 1/6) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.5vw, 16px)' }}>
-            <div style={{ width: 'clamp(40px, 9vw, 54px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n="1" d="3" size="sm"/></div>
-            <div style={{ flex: 1 }}><FracBar num={1} den={ref} color={T.blue} marker={solved} winner={solved}/></div>
-          </div>
-          {/* регулируемая доля — заливка живо уменьшается при росте знаменателя */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.5vw, 16px)' }}>
-            <div style={{ width: 'clamp(40px, 9vw, 54px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n="1" d={String(den)} size="sm"/></div>
-            <div style={{ flex: 1 }}><FracBar num={1} den={den} color={T.accent} marker={solved}/></div>
-          </div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <NumberLine den={den} max={1} interactive={!solved} selected={selected} onPick={pickTick} mark={solved ? selected : null} showMark={solved} height={58}/>
           <div>
             <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.eyebrow_slider)} {den}</p>
-            <Slider value={den} min={2} max={8} step={1} onChange={onSlider} disabled={solved}/>
+            <Slider value={den} min={2} max={6} step={1} onChange={onSlider} disabled={solved}/>
           </div>
           {!solved && (<div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(11px, 1.8vw, 13px) clamp(20px, 2.6vw, 28px)', fontSize: 'clamp(13px, 1.6vw, 14px)' }}>{t(c.btn_check)}</button></div>)}
         </div>
@@ -1293,7 +1289,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s3 — RULE: одинаковый числитель → больше знаменатель = меньше дробь.
+// s3 — RULE: знаменатель делит, числитель отсчитывает.
 const Screen3 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s3;
   const audio = useAudio(makeAudioSegments(c, lang));
@@ -1306,12 +1302,15 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
           <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-          <FractionWall rows={[{ num: 1, den: 2 }, { num: 1, den: 3 }, { num: 1, den: 4 }, { num: 1, den: 5 }]} winnerDen={2} marker={true} animateIn={true}/>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 460, margin: '0 auto' }}>
-            <p className="body" style={{ margin: 0 }}>{t(c.card_top)}</p>
-            <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
-            <p className="body" style={{ margin: 0 }}>{t(c.card_bottom)}</p>
-            <p className="small" style={{ margin: 0, color: T.ink3 }}>{t(c.card_line)}</p>
+          <NumberLine den={4} max={1} mark={3} fillTo={3} height={58}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 5vw, 36px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Frac n="3" d="4" size="display"/>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 220, flex: 1 }}>
+              <p className="body" style={{ margin: 0 }}>{t(c.card_top)}</p>
+              <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
+              <p className="body" style={{ margin: 0 }}>{t(c.card_bottom)}</p>
+              <p className="small" style={{ margin: 0, color: T.ink3 }}>{t(c.card_line)}</p>
+            </div>
           </div>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.outro)}</p>
@@ -1320,78 +1319,75 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s4 — TEST choice (отношение): 1/4 ? 1/7 → 1/4 > 1/7.
+// s4 — TEST choice (дроби): линия 0..1, 5 частей, точка на 3-й → 3/5 (correct idx 1).
 const Screen4 = (props) => {
   const t = useT(); const c = CONTENT.s4;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 0, 2, 3]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FractionWall rows={[{ num: 1, den: 4 }, { num: 1, den: 7 }]} animateIn={true}/></div></>);
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="5" d="3" size="mid"/>, <Frac n="3" d="5" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="2" d="5" size="mid"/>], 1, [0, 2, 1, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={5} max={1} mark={3} fillTo={3} height={58}/></div></>);
   return <QuestionScreen {...props} idx={4} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[4]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s5 — RULE bias-flip: 5 > 3, но 1/5 < 1/3 (карта-перевёртыш).
+// s5 — RULE: линия не кончается на 1, отрезок 0..2, точка 3/2.
 const Screen5 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s5;
   const audio = useAudio(makeAudioSegments(c, lang));
-  const [flipped, setFlipped] = useState(false);
-  const reveal = () => {
-    if (flipped) return;
-    setFlipped(true);
-    if (!audio.muted) { setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.truth_text[lang]); }, 250); }
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={flipped ? onNext : reveal} label={flipped ? t(c.btn_next) : t(c.btn_reveal)}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 18px)', justifyContent: 'center' }}>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
+          <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
         </div>
-        <div className="flip-card fade-up delay-1" style={{ height: 'clamp(250px, 50vw, 300px)' }}>
-          <div className={`flip-inner${flipped ? ' flipped' : ''}`}>
-            {/* лицо — ловушка */}
-            <div className="flip-face">
-              <div className="frame-tip" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <span className="display" style={{ fontSize: 'clamp(34px, 7vw, 56px)' }}>5</span>
-                  <span className="mop" style={{ color: '#A07D14', fontSize: 'clamp(22px, 4vw, 32px)' }}>&gt;</span>
-                  <span className="display" style={{ fontSize: 'clamp(34px, 7vw, 56px)' }}>3</span>
-                </div>
-                <h2 className="title h-sub" style={{ margin: 0 }}>{t(c.trap_title)}</h2>
-                <p className="body" style={{ margin: 0, maxWidth: 420 }}>{t(c.trap_text)}</p>
-              </div>
-            </div>
-            {/* оборот — правда */}
-            <div className="flip-face flip-back">
-              <div className="frame-success" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 14, justifyContent: 'center' }}>
-                <h2 className="title h-sub" style={{ margin: 0, textAlign: 'center', color: T.success }}>{t(c.truth_title)}</h2>
-                <FractionWall rows={[{ num: 1, den: 3 }, { num: 1, den: 5 }]} winnerDen={3} marker={true} animateIn={true} height={28}/>
-                <p className="body" style={{ margin: 0 }}>{t(c.truth_text)}</p>
-              </div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <NumberLine den={2} max={2} mark={3} fillTo={3} height={58}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(16px, 5vw, 36px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Frac n="3" d="2" size="display"/>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, minWidth: 220, flex: 1 }}>
+              <p className="body" style={{ margin: 0, color: T.success, fontWeight: 600 }}>{t(c.card_ok)}</p>
+              <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
+              <p className="body" style={{ margin: 0 }}>{t(c.card_bad)}</p>
             </div>
           </div>
         </div>
-        {flipped && <p className="body fade-up frame-tip" style={{ margin: 0 }}>{t(c.contrast)}</p>}
+        <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.outro)}</p>
       </div>
     </Stage>
   );
 };
 
-// s6 — TEST choice (отношение): 3/5 ? 3/8 → 3/5 > 3/8.
+// s6 — TEST choice (дроби): линия 0..2 в половинках, точка 3/2 (correct idx 0).
 const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 3, 0]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FractionWall rows={[{ num: 3, den: 5 }, { num: 3, den: 8 }]} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimShare/>}/>}/>;
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="3" d="2" size="mid"/>, <Frac n="2" d="3" size="mid"/>, <Frac n="1" d="2" size="mid"/>, <Frac n="3" d="4" size="mid"/>], 0, [1, 2, 3, 0]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={2} max={2} mark={3} fillTo={3} height={58}/></div></>);
+  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimRope/>}/>}/>;
 };
 
-// s7 — TEST choice (текст): 1/8 > 1/5? Нет.
+// s7 — TEST choice (текст): 1/2 и 2/4 — одна точка (correct idx 0).
 const Screen7 = (props) => {
   const t = useT(); const c = CONTENT.s7;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [0, 2, 1, 3]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 0, 3, 1]);
+  const question = (
+    <>
+      <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
+      <h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2>
+      <div className="frame" style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <Frac n="1" d="2" size="sm"/>
+          <div style={{ flex: 1 }}><NumberLine den={2} max={1} mark={1} fillTo={1} height={64}/></div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <Frac n="2" d="4" size="sm"/>
+          <div style={{ flex: 1 }}><NumberLine den={4} max={1} mark={2} fillTo={2} height={64}/></div>
+        </div>
+      </div>
+    </>
+  );
   return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s8 — CASE setup: Диёра, облачное хранилище.
+// s8 — CASE setup: Сардор, метровая планка.
 const Screen8 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s8;
   const audio = useAudio(makeAudioSegments(c, lang));
@@ -1401,11 +1397,11 @@ const Screen8 = ({ screen, onNext, onPrev }) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.body_p1)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <FractionWall rows={[{ num: 1, den: 4 }, { num: 1, den: 6 }]} animateIn={true}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <NumberLine den={4} max={1} showMark={false} height={70}/>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(20px, 6vw, 56px)', flexWrap: 'wrap' }}>
-            <div><p className="eyebrow" style={{ color: T.accent, marginBottom: 4 }}>{t(c.card_line_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_line_value)}</p></div>
-            <div><p className="eyebrow" style={{ color: T.blue, marginBottom: 4 }}>{t(c.card_parts_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_parts_value)}</p></div>
+            <div><p className="eyebrow" style={{ color: T.ink2, marginBottom: 4 }}>{t(c.card_line_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_line_value)}</p></div>
+            <div><p className="eyebrow" style={{ color: T.accent, marginBottom: 4 }}>{t(c.card_parts_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_parts_value)}</p></div>
           </div>
         </div>
         <p className="body fade-up delay-2">{t(c.outro)}</p>
@@ -1414,31 +1410,31 @@ const Screen8 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s9 — CASE step (отношение): 1/4 vs 1/6 → группа Диёры больше.
+// s9 — CASE step (дроби): отметка на 3/4 (correct idx 2).
 const Screen9 = (props) => {
   const t = useT(); const c = CONTENT.s9;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 0, 3]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FractionWall rows={[{ num: 1, den: 4 }, { num: 1, den: 6 }]} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_SCI} anim={<AnimApple/>}/>}/>;
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="4" d="3" size="mid"/>, <Frac n="3" d="1" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="1" d="4" size="mid"/>], 2, [1, 0, 2, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={4} max={1} mark={3} fillTo={3} height={58}/></div></>);
+  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_SCI} anim={<AnimNote/>}/>}/>;
 };
 
-// s10 — CASE conclusion (текст): почему 1/4 > 1/6.
+// s10 — CASE conclusion (текст): что значит 3/4 метра (correct idx 0).
 const Screen10 = (props) => {
   const t = useT(); const c = CONTENT.s10;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 0, 1, 3]);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 3, 0]);
   const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
   return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s11 — TEST choice (отношение): 2/5 ? 2/7 → 2/5 > 2/7.
+// s11 — TEST choice (дроби): линия 0..1, 4 части, точка на 2-й → 2/4 (= 1/2) (correct idx 0).
 const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
-  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [3, 1, 2, 0]);
-  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FractionWall rows={[{ num: 2, den: 5 }, { num: 2, den: 7 }]} animateIn={true}/></div></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimPixel/>}/>}/>;
+  const { options, correctIdx, content } = shuffleMC(c, [<Frac n="2" d="4" size="mid"/>, <Frac n="4" d="2" size="mid"/>, <Frac n="1" d="4" size="mid"/>, <Frac n="2" d="3" size="mid"/>], 0, [0, 2, 1, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div style={{ marginTop: 18 }}><NumberLine den={4} max={1} mark={2} fillTo={2} height={58}/></div></>);
+  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimTimeline/>}/>}/>;
 };
 
-// s12 — SUMMARY: без счёта, закрывает крючок; finishLesson один раз.
+// s12 — SUMMARY: без счёта, закрывает крючок; onFinished один раз.
 const ConnectionsBlock = ({ c }) => {
   const t = useT();
   return (
@@ -1468,9 +1464,9 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
             {mains.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{t(m)}</p></div>))}
           </div>
         </div>
-        <div className="frame-success fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <FractionWall rows={[{ num: 1, den: 3 }, { num: 1, den: 5 }]} winnerDen={3} marker={true} animateIn={true} height={28}/>
-          <p className="body" style={{ margin: 0 }}>{t(c.back_to_hook)}</p>
+        <div className="frame-success fade-up delay-2" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ flexShrink: 0, width: 'clamp(150px, 36vw, 220px)' }}><NumberLine den={4} max={1} mark={3} fillTo={3} height={64}/></div>
+          <p className="body" style={{ margin: 0, flex: 1, minWidth: 180 }}>{t(c.back_to_hook)}</p>
         </div>
         <ConnectionsBlock c={c}/>
       </div>
@@ -1481,7 +1477,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
 // ============================================================
 // КОРНЕВОЙ КОМПОНЕНТ (шаблон из infrastructure_v1)
 // ============================================================
-export default function FractionCompareSameNumLesson({
+export default function FractionLineLesson({
   studentName, lang: langProp, ttsApiBase,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -1920,24 +1916,15 @@ html, body { margin: 0; padding: 0; }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
 .frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
 
-/* MATH: стена дробей + финишная черта/флажок (frac_5_05). */
-.fw-row { animation: fwRowIn 0.42s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes fwRowIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-.fw-grow { animation: fwGrow 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes fwGrow { from { width: 0; } }
-.fw-marker { animation: fwMarkerIn 0.3s ease-out backwards; }
-@keyframes fwMarkerIn { from { opacity: 0; } }
-.fw-slide { animation: fwSlide 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
-@keyframes fwSlide { from { left: 0; } }
-.fw-flag { transform-origin: bottom left; animation: fwFlagPop 0.4s cubic-bezier(0.34, 1.5, 0.64, 1) 0.45s backwards, fwFlagWave 1.8s ease-in-out 0.9s infinite; }
-@keyframes fwFlagPop { from { opacity: 0; transform: scale(0); } }
-@keyframes fwFlagWave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
-/* MATH: карта-перевёртыш «ловушка → правда» (3D-flip). */
-.flip-card { width: 100%; perspective: 1300px; }
-.flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
-.flip-inner.flipped { transform: rotateY(180deg); }
-.flip-face { position: absolute; inset: 0; display: flex; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.flip-back { transform: rotateY(180deg); }
+/* MATH: числовая прямая — интерактивные анимации (frac_5_02). */
+.nl-fill { transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
+.nl-tick { animation: nlTickIn 0.34s ease-out backwards; transform-origin: center bottom; }
+@keyframes nlTickIn { from { opacity: 0; transform: translateX(-50%) scaleY(0.15); } to { opacity: 1; transform: translateX(-50%) scaleY(1); } }
+.nl-marker { transition: left 0.4s cubic-bezier(0.34, 1.1, 0.64, 1); }
+.nl-marker-pop { animation: nlMarkerPop 0.44s cubic-bezier(0.34, 1.35, 0.64, 1); }
+@keyframes nlMarkerPop { 0% { opacity: 0; transform: translateY(-16px) scale(0.3); } 60% { opacity: 1; transform: translateY(0) scale(1.18); } 100% { opacity: 1; transform: scale(1); } }
+.nl-ring { animation: nlRingIn 0.3s ease-out backwards; }
+@keyframes nlRingIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 
 /* MATH: FactCard — fakt to'g'ri javobdan keyin (ko'k tema). */
 .fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
@@ -1946,21 +1933,22 @@ html, body { margin: 0; padding: 0; }
 .fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
 .fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
 .fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
-/* Tarix (lepyoshkani ulashish): bir xil non ko'proq kishiga — bo'laklar maydalashadi. */
-.fa-share { display: flex; flex-direction: column; gap: 6px; width: clamp(84px, 16vw, 112px); }
-.fa-share-d { height: 12px; border-radius: 99px; background: #019ACB; opacity: 0.25; animation: faShare 2.6s ease-in-out infinite; }
-.fa-share-1 { width: 100%; animation-delay: 0s; }
-.fa-share-2 { width: 60%; animation-delay: 0.3s; }
-.fa-share-3 { width: 30%; animation-delay: 0.6s; }
-@keyframes faShare { 0%, 100% { opacity: 0.2; } 45% { opacity: 0.95; } }
-/* Fan (olmani bo'lish): doira 8 ulushga maydalanadi. */
-.fa-apple { position: relative; width: clamp(58px, 12vw, 78px); height: clamp(58px, 12vw, 78px); border-radius: 50%; border: 2px solid #019ACB; }
-.fa-apple-s { position: absolute; left: 50%; top: 50%; width: 1.5px; height: 50%; margin-left: -0.75px; transform-origin: top center; background: #019ACB; opacity: 0.2; animation: faApple 2.8s ease-in-out infinite; }
-@keyframes faApple { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.85; } }
-/* IT (piksel): bir xil ekran ko'proq pikselga bo'linadi. */
-.fa-px { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; width: clamp(58px, 12vw, 78px); }
-.fa-px-c { aspect-ratio: 1; background: #019ACB; opacity: 0.18; border-radius: 2px; animation: faPx 2.4s ease-in-out infinite; }
-@keyframes faPx { 0%, 100% { opacity: 0.18; } 50% { opacity: 0.9; } }
+/* Tarix (arqon o'lchovi): teng tugunlar arqon bo'ylab ketma-ket yonadi. */
+.fa-rope { position: relative; width: clamp(90px, 18vw, 116px); height: 24px; }
+.fa-rope-line { position: absolute; left: 0; right: 0; top: 50%; height: 3px; margin-top: -1.5px; background: #019ACB; opacity: 0.3; border-radius: 2px; }
+.fa-rope-knot { position: absolute; top: 50%; width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; border-radius: 50%; background: #019ACB; opacity: 0.25; animation: faRope 2.4s ease-in-out infinite; }
+@keyframes faRope { 0%, 100% { opacity: 0.2; transform: scale(0.85); } 45% { opacity: 0.95; transform: scale(1.15); } }
+/* Fan (musiqa cho'zimlari): butun, yarim, chorak — kamayuvchi kenglik navbatma-navbat yonadi. */
+.fa-note { display: flex; flex-direction: column; gap: 6px; width: clamp(84px, 16vw, 112px); }
+.fa-note-bar { height: 13px; border-radius: 3px; background: #019ACB; opacity: 0.25; animation: faNote 2.7s ease-in-out infinite; }
+@keyframes faNote { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.95; } }
+/* IT (video timeline): chiziq, yarmigacha to'ladi, playhead o'rtada turadi. */
+.fa-tl { position: relative; width: clamp(88px, 17vw, 116px); height: 18px; }
+.fa-tl-track { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; background: #019ACB; opacity: 0.22; border-radius: 3px; }
+.fa-tl-fill { position: absolute; left: 0; top: 50%; height: 4px; margin-top: -2px; background: #019ACB; border-radius: 3px; animation: faTlFill 3s ease-in-out infinite; }
+.fa-tl-head { position: absolute; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.5); animation: faTlHead 3s ease-in-out infinite; }
+@keyframes faTlFill { 0% { width: 0; } 50%, 100% { width: 50%; } }
+@keyframes faTlHead { 0% { left: 0; } 50%, 100% { left: 50%; } }
 
 /* Accessibility: prefers-reduced-motion — gasim dekorativ sikllarni. */
 @media (prefers-reduced-motion: reduce) {

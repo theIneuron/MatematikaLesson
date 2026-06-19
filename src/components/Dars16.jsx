@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-// УРОК: Сложение дробей с разными знаменателями — frac_5_06 (Dars16)
+// УРОК: Что такое дробь (часть целого) — frac_5_01
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
 // ============================================================
@@ -452,7 +452,6 @@ const Frac = React.memo(({ n, d, color, size = 'sm' }) => (
 ));
 
 // mt: рендерит текст, заменяя «a/b» (и «?/b») настоящей дробью Frac — без слэша.
-// Если дробей нет, возвращает строку как есть. Применяется во всех видимых текстах.
 const FRAC_RE = /(\d+|\?)\/(\d+)/g;
 const mt = (str) => {
   const s = typeof str === 'string' ? str : String(str ?? '');
@@ -739,7 +738,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 // NUM INPUT SCREEN — числовой ввод: веди-до-верного + наводящая подсказка, счёт первой попытки.
 // ============================================================
-const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, correctValue, renderVisual, storedAnswer, onAnswer, onNext, onPrev }) => {
+const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, correctValue, storedAnswer, onAnswer, onNext, onPrev }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -779,8 +778,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
-        {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
+        <div className="fade-up"><h2 className="title h-sub">{t(c.question)}</h2></div>
         <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
           {c.base && <span className="mop">≈</span>}
@@ -792,13 +790,13 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
             <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
+            <p className="body" style={{ margin: 0 }}>{t(c.hint)}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
             <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
+            <p className="body" style={{ margin: 0 }}>{t(c.fb_correct)}</p>
           </FeedbackBlock>
         )}
       </div>
@@ -807,305 +805,262 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- ПОД УРОК: frac_5_10 — Вычитание дробей с равными знаменателями ---
-// Визуализатор BackLine: числовая прямая 0..1, маркер прыгает ВЛЕВО (вычитание = шаг назад).
-// Анимации: убираемые сегменты гаснут + перечёркиваются, обратный слайд маркера, count-down spin счётчика.
+// --- ПОД УРОК: frac_5_08 — Сокращение дробей ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-06-v2',
-  lessonTitle: { ru: 'Сложение дробей с разными знаменателями', uz: "Har xil maxrajli kasrlarni qo'shish" }
+  lessonId: 'frac-5-08-v1',
+  lessonTitle: { ru: 'Сокращение дробей', uz: "Kasrlarni qisqartirish" }
 };
 const TOTAL_SCREENS = 13;
 
+// Обучающий урок — НЕ оценивается (teaching_methodology §1.4): scored:false везде,
+// проверочные — веди-до-верного, recordAnswer пишет firstTry для аналитики.
 const SCREEN_META = [
-  { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
-  { id: 's1',  type: 'exploration', template: 'custom',         scored: false, scope: null },
-  { id: 's2',  type: 'exploration', template: 'custom',         scored: false, scope: null },
-  { id: 's3',  type: 'exploration', template: 'custom',         scored: false, scope: null },
-  { id: 's4',  type: 'rule',        template: 'custom',         scored: false, scope: null },
-  { id: 's5',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
-  { id: 's6',  type: 'test',        template: 'NumInputScreen', scored: true,  scope: 'practice' },
-  { id: 's7',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
-  { id: 's8',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
-  { id: 's9',  type: 'case',        template: 'custom',         scored: false, scope: null },
-  { id: 's10', type: 'case',        template: 'custom',         scored: true,  scope: 'practice' },
-  { id: 's11', type: 'case',        template: 'MCScreen',       scored: true,  scope: 'final' },
-  { id: 's12', type: 'summary',     template: 'custom',         scored: false, scope: null },
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
+  { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
+  { id: 's8',  type: 'case',        template: 'custom',   scored: false, scope: null },
+  { id: 's9',  type: 'case',        template: 'MCScreen', scored: true,  scope: 'practice' },
+  { id: 's10', type: 'case',        template: 'MCScreen', scored: true,  scope: 'practice' },
+  { id: 's11', type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },
+  { id: 's12', type: 'summary',     template: 'custom',   scored: false, scope: null },
 ];
 
 const CONTENT = {
-  // s0 — HOOK (konseptual): nega 1/2 va 1/3 ni darrov qo'shib bo'lmaydi?
+  // ---- s0 HOOK (why): ответ 6/8 верный, но можно ли проще? зачем? ----
   s0: {
-    eyebrow: { ru: 'Вопрос', uz: "Savol" },
-    lead: { ru: 'Один ученик сложил так: 1/2 + 1/3 = 2/5.', uz: "Bir o'quvchi shunday qo'shdi: 1/2 + 1/3 = 2/5." },
-    question: { ru: 'Половина — это уже больше, чем 2/5. Почему так сложить нельзя?', uz: "Yarim — bu 2/5 dan ko'p. Nega bunday qo'shib bo'lmaydi?" },
-    opt0: { ru: 'Доли разного размера', uz: "Bo'laklar har xil o'lchamda" },
-    opt1: { ru: 'Так складывать можно', uz: "Bunday qo'shsa bo'ladi" },
+    eyebrow: { ru: 'Сокращение дробей · вступление', uz: "Kasrlarni qisqartirish · kirish" },
+    title: { ru: 'Ответ 6/8 — верный. Но можно ли записать его проще?', uz: "Javob 6/8 — to'g'ri. Lekin uni soddaroq yozsa bo'ladimi?" },
+    body: { ru: '6/8 и 3/4 закрашивают одинаковую длину — это одно и то же число. 3/4 записать проще: меньше частей, легче читать и считать. Возникает вопрос: зачем и как «сокращать» дробь до простого вида?', uz: "6/8 va 3/4 bir xil uzunlikni bo'yaydi — bu bitta son. 3/4 ni yozish soddaroq: bo'laklar kam, o'qish va hisoblash oson. Savol tug'iladi: kasrni sodda holatga «qisqartirish» nima uchun va qanday kerak?" },
+    question: { ru: 'А ты как думаешь: 6/8 и 3/4 — это одно и то же, и зачем тогда сокращать?', uz: "Sizningcha-chi: 6/8 va 3/4 — bir xilmi, va nima uchun qisqartiramiz?" },
+    opt0: { ru: 'Это одно и то же число; сокращаем, чтобы запись была проще', uz: "Bu bitta son; yozuv soddaroq bo'lishi uchun qisqartiramiz" },
+    opt1: { ru: 'Это разные числа; 3/4 меньше 6/8', uz: "Bu har xil sonlar; 3/4 6/8 dan kichik" },
     opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Один ученик сложил две дроби так: одна вторая плюс одна третья равно две пятых. Но половина это уже больше, чем две пятых, значит ответ стал меньше, хотя мы складывали. Почему так складывать нельзя? Подумай и выбери ответ.', uz: "Bir o'quvchi ikki kasrni shunday qo'shdi: ikkidan bir plyus uchdan bir teng beshdan ikki. Lekin yarim beshdan ikkidan ko'p, demak qo'shgan bo'lsak ham javob kichrayib qoldi. Nega bunday qo'shib bo'lmaydi? O'ylab, javobni tanlang." }
+    audio: { ru: 'Ответ шесть восьмых верный. Но шесть восьмых и три четвёртых закрашивают одинаковую длину, это одно и то же число. Три четвёртых записать проще: меньше частей, легче читать. Зачем и как сокращать дробь до простого вида? А ты как думаешь — шесть восьмых и три четвёртых это одно и то же, и зачем тогда сокращать? Выбери ответ.', uz: "Javob oltidan olti... ya'ni sakkizdan olti to'g'ri. Lekin sakkizdan olti va to'rtdan uch bir xil uzunlikni bo'yaydi, bu bitta son. To'rtdan uch yozish soddaroq: bo'laklar kam, o'qish oson. Kasrni sodda holatga qisqartirish nima uchun va qanday kerak? Sizningcha, 6/8 va 3/4 bir xilmi, va nima uchun qisqartiramiz? Javobni tanlang." }
   },
 
-  // s1 — EXPLORATION (step): bo'laklar har xil o'lchamda
+  // ---- s1 EXPLORATION (step): объединяем доли 6/8 → 3/4 ----
   s1: {
-    eyebrow: { ru: 'Разбор', uz: "Tahlil" },
-    title: { ru: 'Половина и треть — доли разного размера', uz: "Yarim va uchdan bir — har xil o'lchamdagi ulushlar" },
-    conclusion: { ru: 'Доли разного размера. Чтобы сложить, сначала сделаем их одинаковыми — найдём общий знаменатель.', uz: "Ulushlar har xil o'lchamda. Qo'shish uchun avval ularni bir xil qilamiz — umumiy maxraj topamiz." },
+    eyebrow: { ru: 'Объединяем доли', uz: "Ulushlarni birlashtiramiz" },
+    title: { ru: 'Объединим мелкие доли: 6/8 → 3/4', uz: "Mayda ulushlarni birlashtiramiz: 6/8 → 3/4" },
+    conclusion: { ru: 'Сгруппировали по 2 доли — частей стало вдвое меньше. Числитель и знаменатель разделили на 2: 6÷2=3, 8÷2=4. Длина та же: 6/8 = 3/4.', uz: "2 tadan guruhladik — bo'laklar ikki barobar kamaydi. Surat va maxrajni 2 ga bo'ldik: 6÷2=3, 8÷2=4. Uzunlik o'sha: 6/8 = 3/4." },
     btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Как сделать доли одинаковыми?', uz: "Ulushlarni qanday bir xil qilamiz?" },
+    btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?" },
     audio: {
       ru: [
-        'Сравним половину и треть. Нажимай кнопку дальше.',
-        'Половина — это одна доля из двух. Она большая.',
-        'Треть — это одна доля из трёх. Она меньше половины.',
-        'Доли разного размера, поэтому просто сложить их количество нельзя. Сначала сделаем доли одинаковыми.'
+        'Объединим мелкие доли. Нажимай кнопку Дальше.',
+        'Вот полоса, поделённая на 8 частей, закрашено шесть — это шесть восьмых.',
+        'Сгруппируем доли по две: соседние линии исчезают, и восемь долей превращаются в четыре. Закрашенная длина не меняется.',
+        'Теперь закрашено три части из четырёх — это три четвёртых. Мы разделили и числитель, и знаменатель на два: шесть на два три, восемь на два четыре. Шесть восьмых равно трём четвёртым, просто записано проще.'
       ],
       uz: [
-        "Yarim bilan uchdan birni solishtiramiz. Davom etish tugmasini bosing.",
-        "Yarim — bu ikkidan bir ulush. U katta.",
-        "Uchdan bir — bu uchdan bir ulush. U yarimdan kichik.",
-        "Ulushlar har xil o'lchamda, shuning uchun shunchaki sonini qo'shib bo'lmaydi. Avval ulushlarni bir xil qilamiz."
+        "Mayda ulushlarni birlashtiramiz. Davom etish tugmasini bosing.",
+        "Mana 8 bo'lakka bo'lingan polosa, oltitasi bo'yalgan — bu sakkizdan olti.",
+        "Ulushlarni ikkitadan guruhlaymiz: yondosh chiziqlar yo'qoladi va sakkizta ulush to'rttaga aylanadi. Bo'yalgan uzunlik o'zgarmaydi.",
+        "Endi to'rttadan uchtasi bo'yalgan — bu to'rtdan uch. Biz surat va maxrajni ham ikkiga bo'ldik: olti bo'lib ikki uch, sakkiz bo'lib ikki to'rt. Sakkizdan olti to'rtdan uchga teng, faqat soddaroq yozilgan."
       ]
     }
   },
 
-  // s2 — EXPLORATION (g'ildiraklar): umumiy karra = 6
+  // ---- s2 EXPLORATION (slider, divisor): сократи 8/12 до конца ----
   s2: {
-    eyebrow: { ru: 'Поиграй', uz: "O'ynab ko'ring" },
-    title: { ru: 'Где встретятся шестерёнки? Это и есть общий знаменатель.', uz: "Tishli g'ildiraklar qayerda uchrashadi? Bu — umumiy maxraj." },
-    note_hit: { ru: 'Совпало! Обе вернулись в начало через 6 — общий знаменатель 6.', uz: "Mos keldi! Ikkalasi 6 dan keyin boshiga qaytdi — umumiy maxraj 6." },
-    note_miss: { ru: 'Ещё не совпало. Крути дальше.', uz: "Hali mos kelmadi. Aylantiring." },
-    conclusion: { ru: 'Шестерёнка на 2 и на 3 встречаются на 6. 6 делится и на 2, и на 3 — это наименьший общий знаменатель.', uz: "2 tishli va 3 tishli g'ildirak 6 da uchrashadi. 6 ham 2 ga, ham 3 ga bo'linadi — bu eng kichik umumiy maxraj." },
-    btn: { ru: 'Понятно, дальше', uz: "Tushunarli, davom" },
-    audio: { ru: 'Крути шестерёнки. Одна делится на два, другая на три. Считай, через сколько шагов обе разом вернутся в начало. Это число делится и на два, и на три — шесть. Шесть и будет общим знаменателем.', uz: "G'ildiraklarni aylantiring. Biri ikkiga, ikkinchisi uchga bo'lingan. Necha qadamdan keyin ikkalasi birga boshiga qaytishini sanang. Bu son ham ikkiga, ham uchga bo'linadi — olti. Olti umumiy maxraj bo'ladi." }
+    eyebrow: { ru: 'Подбери делитель', uz: "Bo'luvchini tanlang" },
+    title: { ru: 'Сократи 8/12 как можно сильнее', uz: "8/12 ni imkon qadar kuchli qisqartiring" },
+    intro: { ru: 'Двигай ползунок — на какое число делить и числитель, и знаменатель. Подходит только то, на что делятся оба. Найди самое большое такое число.', uz: "Slayderni suring — surat va maxrajni qaysi songa bo'lish. Faqat ikkalasi ham bo'linadigan son to'g'ri keladi. Eng katta shunday sonni toping." },
+    target_text: { ru: 'Цель: сократи 8/12 до самой простой дроби.', uz: "Maqsad: 8/12 ni eng sodda kasrgacha qisqartiring." },
+    eyebrow_slider: { ru: 'Делим на:', uz: "Bo'luvchi:" },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
+    btn_disabled_label: { ru: 'Сначала сократи', uz: "Avval qisqartiring" },
+    fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
+    fb_success: { ru: 'Восемь и двенадцать делятся на четыре, это наибольший общий делитель. Восемь разделить на четыре два, двенадцать разделить на четыре три. Получилось две третьих, проще уже не сократить.', uz: "Sakkiz va o'n ikki to'rtga bo'linadi, bu eng katta umumiy bo'luvchi. Sakkizni to'rtga bo'lsak ikki, o'n ikkini to'rtga bo'lsak uch. Uchdan ikki chiqdi, bundan sodda qisqarmaydi." },
+    fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
+    fb_wrong: { ru: 'И восемь, и двенадцать делятся на четыре. Восемь разделить на четыре два, двенадцать разделить на четыре три. На четыре самое сильное сокращение. Поставь ползунок на четыре.', uz: "Sakkiz ham, o'n ikki ham to'rtga bo'linadi. Sakkizni to'rtga bo'lsak ikki, o'n ikkini to'rtga bo'lsak uch. To'rtga eng kuchli qisqartirish. Slayderni to'rtga qo'ying." },
+    audio: { ru: 'Сократи восемь двенадцатых как можно сильнее. Двигай ползунок: на какое число делить и числитель, и знаменатель. Подходит только то, на что делятся оба. И восемь, и двенадцать делятся на четыре, это самое большое такое число. Восемь на четыре два, двенадцать на четыре три. Получится две третьих.', uz: "Sakkizdan o'n ikkidan... ya'ni o'n ikkidan sakkizni imkon qadar kuchli qisqartiring. Slayderni suring: surat va maxrajni qaysi songa bo'lish. Faqat ikkalasi bo'linadigan son to'g'ri. 8 ham, 12 ham 4 ga bo'linadi, bu eng katta son. Sakkiz bo'lib to'rt ikki, o'n ikki bo'lib to'rt uch. Uchdan ikki chiqadi." }
   },
 
-  // s3 — EXPLORATION/RULE: qayta bo'lish (1/2=3/6, 1/3=2/6)
+  // ---- s3 RULE: делим И числитель, И знаменатель на общий делитель ----
   s3: {
-    eyebrow: { ru: 'Разбор', uz: "Tahlil" },
-    title: { ru: 'Приводим обе дроби к шестым', uz: "Ikkala kasrni oltilarga keltiramiz" },
-    conclusion: { ru: '1/2 = 3/6, 1/3 = 2/6. Теперь доли одинаковые — шестые.', uz: "1/2 = 3/6, 1/3 = 2/6. Endi ulushlar bir xil — oltidan." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
-    audio: {
-      ru: [
-        'Делим каждую полосу на шесть равных долей. Нажимай дальше.',
-        'Половина — это три доли из шести. Значит одна вторая равна три шестых.',
-        'Треть — это две доли из шести. Значит одна третья равна две шестых. Теперь обе дроби в шестых.'
-      ],
-      uz: [
-        "Har bir chiziqni olti teng ulushga bo'lamiz. Davom etishni bosing.",
-        "Yarim — bu oltidan uch ulush. Demak ikkidan bir teng oltidan uch.",
-        "Uchdan bir — bu oltidan ikki ulush. Demak uchdan bir teng oltidan ikki. Endi ikkala kasr oltidan."
-      ]
-    }
-  },
-
-  // s4 — RULE: suratlarni qo'shamiz, maxraj qoladi + algoritm
-  s4: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Как сложить — 3 шага', uz: "Qanday qo'shamiz — 3 qadam" },
-    title: { ru: 'Привели к общему знаменателю — складываем числители.', uz: "Umumiy maxrajga keltirdik — suratlarni qo'shamiz." },
-    step1: { ru: 'Найди общий знаменатель (наименьший).', uz: "Umumiy maxrajni toping (eng kichik)." },
-    step2: { ru: 'Приведи обе дроби к нему: 1/2 = 3/6, 1/3 = 2/6.', uz: "Ikkala kasrni unga keltiring: 1/2 = 3/6, 1/3 = 2/6." },
-    step3: { ru: 'Сложи числители, знаменатель оставь: 3/6 + 2/6 = 5/6.', uz: "Suratlarni qo'shing, maxrajni qoldiring: 3/6 + 2/6 = 5/6." },
-    card_line: { ru: '1/2 + 1/3 = 5/6. Не 2/5 и не 5/12!', uz: "1/2 + 1/3 = 5/6. 2/5 ham, 5/12 ham emas!" },
-    audio: { ru: 'Запомни три шага. Первый: найди общий знаменатель, для двух и трёх это шесть. Второй: приведи обе дроби к шестым, одна вторая это три шестых, одна третья это две шестых. Третий: сложи числители, а знаменатель оставь. Три шестых плюс две шестых равно пять шестых.', uz: "Uch qadamni eslab qoling. Birinchi: umumiy maxrajni toping, ikki va uch uchun bu olti. Ikkinchi: ikkala kasrni oltilarga keltiring, ikkidan bir bu oltidan uch, uchdan bir bu oltidan ikki. Uchinchi: suratlarni qo'shing, maxrajni qoldiring. Oltidan uch plyus oltidan ikki teng oltidan besh." }
+    label: { ru: 'Сокращение дроби', uz: "Kasrni qisqartirish" },
+    title: { ru: 'Раздели числитель и знаменатель на их общий делитель — дробь станет проще, но не изменится.', uz: "Surat va maxrajni ularning umumiy bo'luvchisiga bo'ling — kasr soddalashadi, lekin o'zgarmaydi." },
+    card_top: { ru: 'Найди число, на которое делятся и числитель, и знаменатель.', uz: "Surat ham, maxraj ham bo'linadigan sonni toping." },
+    card_bottom: { ru: 'Раздели оба на это число. Длина дроби не меняется — меняется только запись.', uz: "Ikkalasini shu songa bo'ling. Kasr uzunligi o'zgarmaydi — faqat yozuv o'zgaradi." },
+    card_line: { ru: '6/8 = 3/4 (÷2). Это обратное к умножению из прошлого урока.', uz: "6/8 = 3/4 (÷2). Bu o'tgan darsdagi ko'paytirishning teskarisi." },
+    outro: { ru: 'Если делить на наибольший общий делитель — дробь сразу становится самой простой.', uz: "Eng katta umumiy bo'luvchiga bo'linsa — kasr darrov eng sodda holga keladi." },
+    audio: { ru: 'Запомни правило. Чтобы сократить дробь, раздели числитель и знаменатель на их общий делитель. Найди число, на которое делятся оба, и раздели на него и верх, и низ. Длина дроби не меняется, меняется только запись. Шесть восьмых равно трём четвёртым, разделили на два. Это обратное действие к умножению из прошлого урока. Если разделить на наибольший общий делитель, дробь сразу станет самой простой.', uz: "Qoidani eslab qoling. Kasrni qisqartirish uchun surat va maxrajni ularning umumiy bo'luvchisiga bo'ling. Ikkalasi bo'linadigan sonni toping va unga yuqorini ham, pastni ham bo'ling. Kasr uzunligi o'zgarmaydi, faqat yozuv o'zgaradi. Sakkizdan olti to'rtdan uchga teng, ikkiga bo'ldik. Bu o'tgan darsdagi ko'paytirishning teskarisi. Eng katta umumiy bo'luvchiga bo'linsa, kasr darrov eng sodda bo'ladi." }
   },
 
-  // s5 — TEST MC p1: umumiy maxraj 1/4 va 1/6 -> 12 (fakt: g'ildiraklar)
-  s5: {
+  // ---- s4 TEST (MC, дроби): 6/9 = ? → 2/3 (correct opt0) ----
+  s4: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Найди общий знаменатель', uz: "Umumiy maxrajni toping" },
-    question: { ru: 'Общий знаменатель для 1/4 и 1/6?', uz: "1/4 va 1/6 uchun umumiy maxraj?" },
-    correct_text: { ru: 'Правильно. 12 делится и на 4, и на 6, и это наименьшее.', uz: "To'g'ri. 12 ham 4 ga, ham 6 ga bo'linadi, va eng kichigi." },
-    wrong_1: { ru: 'Это сумма 4 + 6 = 10. Но 10 не делится на 4. Нужно число, которое делится на оба.', uz: "Bu 4 + 6 = 10 yig'indisi. Lekin 10 ni 4 ga bo'lib bo'lmaydi. Ikkalasiga bo'linadigan son kerak." },
-    wrong_2: { ru: 'Произведение 4 × 6 = 24 подходит, но не наименьшее. 12 экономнее.', uz: "Ko'paytma 4 × 6 = 24 mos keladi, lekin eng kichik emas. 12 tejamliroq." },
-    wrong_3: { ru: 'Это общий делитель 2, а нужно число, которое делится на 4 и 6.', uz: "Bu umumiy bo'luvchi 2, lekin 4 ga ham, 6 ga ham bo'linadigan son kerak." },
-    wrong_default: { ru: 'Нужно наименьшее число, делящееся на 4 и 6. Это 12.', uz: "4 ga ham, 6 ga ham bo'linadigan eng kichik son. Bu 12." },
-    fact: { ru: 'В механизмах число зубьев у шестерёнок подбирают по общему кратному — иначе они не совпадут.', uz: "Mexanizmlarda g'ildiraklar tish soni umumiy karra bo'yicha tanlanadi — aks holda ular mos kelmaydi." },
+    label: { ru: 'Сократи дробь', uz: "Kasrni qisqartiring" },
+    question: { ru: 'Сократи 6/9 до простого вида. Что получится?', uz: "6/9 ni sodda holgacha qisqartiring. Nima chiqadi?" },
+    correct_text: { ru: 'Верно: 6 и 9 делятся на 3. 6÷3=2, 9÷3=3. Получается 2/3.', uz: "To'g'ri: 6 ham, 9 ham 3 ga bo'linadi. 6÷3=2, 9÷3=3. 2/3 chiqadi." },
+    hint_1: { ru: '3/4 — это другая дробь. 6/9 делим на 3, выйдет 2/3.', uz: "3/4 — boshqa kasr. 6/9 ni 3 ga bo'lamiz, 2/3 chiqadi." },
+    hint_2: { ru: '2/4 не равно 6/9. На 3 делятся оба: 6 и 9. Выйдет 2/3.', uz: "2/4 6/9 ga teng emas. 3 ga ikkalasi bo'linadi: 6 va 9. 2/3 chiqadi." },
+    hint_3: { ru: '6/9 — это ещё не сокращённая запись. Раздели оба на 3.', uz: "6/9 — hali qisqarmagan yozuv. Ikkalasini 3 ga bo'ling." },
+    wrong_default: { ru: '6 и 9 делятся на 3: 6÷3=2, 9÷3=3. Значит 6/9 = 2/3.', uz: "6 va 9 3 ga bo'linadi: 6÷3=2, 9÷3=3. Demak 6/9 = 2/3." },
     audio: {
-      intro: { ru: 'Найди общий знаменатель для одной четвёртой и одной шестой. Выбери ответ.', uz: "Bir to'rtdan va bir oltidan uchun umumiy maxrajni toping. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Двенадцать делится и на четыре, и на шесть. Кстати, у шестерёнок число зубьев тоже подбирают по общему кратному.', uz: "To'g'ri. O'n ikki ham to'rtga, ham oltiga bo'linadi. Aytgancha, g'ildiraklar tishi ham umumiy karra bo'yicha tanlanadi." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: "Unchalik emas. Tushuntirishga qarang." }
+      intro: { ru: 'Сократи шесть девятых до простого вида. Что получится? Выбери ответ.', uz: "To'qqizdan oltini sodda holgacha qisqartiring. Nima chiqadi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Разделили на три: вышло две третьих.', uz: "To'g'ri. Uchga bo'ldik: uchdan ikki chiqdi." },
+      on_wrong: { ru: 'Пока нет. И 6, и 9 делятся на 3. Раздели оба.', uz: "Hali emas. 6 ham, 9 ham 3 ga bo'linadi. Ikkalasini bo'ling." }
     }
   },
 
-  // s6 — TEST NumInput p2: umumiy maxraj 1/2 va 1/5 -> 10
+  // ---- s5 RULE-2 (misconception): делим ОБА числа, не только одно ----
+  s5: {
+    eyebrow: { ru: 'Правило · ошибка', uz: "Qoida · xato" },
+    label: { ru: 'Делим оба числа, не одно', uz: "Ikkala sonni bo'lamiz, bittasini emas" },
+    title: { ru: 'Сокращать нужно И числитель, И знаменатель. Разделишь только одно — дробь изменится.', uz: "Qisqartirishda surat ham, maxraj ham bo'linadi. Faqat bittasi bo'linsa — kasr o'zgaradi." },
+    card_ok: { ru: 'Если у 6/8 разделить только числитель → 3/8. Это короче закрашено, дробь стала ДРУГОЙ, меньше.', uz: "6/8 da faqat surat bo'linsa → 3/8. Bo'yoq qisqaradi, kasr BOSHQA, kichik bo'lib qoladi." },
+    card_bad: { ru: 'Правильно: делим и числитель, и знаменатель на 2 → 3/4. Длина та же, дробь равна.', uz: "To'g'risi: surat va maxrajni ham 2 ga bo'lamiz → 3/4. Uzunlik o'sha, kasr teng." },
+    outro: { ru: 'Сокращение не меняет величину дроби — но только если делить оба числа на одно.', uz: "Qisqartirish kasr qiymatini o'zgartirmaydi — lekin faqat ikkala son bir songa bo'linsa." },
+    audio: { ru: 'Внимание, частая ошибка. Сокращать нужно и числитель, и знаменатель. Если у шести восьмых разделить только числитель, выйдет три восьмых, и закрашено станет короче, дробь стала другой, меньше. Правильно делить и верх, и низ на два, тогда выйдет три четвёртых, длина та же. Сокращение не меняет величину дроби, но только если делить оба числа на одно и то же.', uz: "Diqqat, ko'p uchraydigan xato. Qisqartirishda surat ham, maxraj ham bo'linadi. Sakkizdan oltida faqat surat bo'linsa, sakkizdan uch chiqadi, bo'yoq qisqaradi, kasr boshqa, kichik bo'lib qoladi. To'g'risi yuqorini ham, pastni ham ikkiga bo'lish, shunda to'rtdan uch chiqadi, uzunlik o'sha. Qisqartirish kasr qiymatini o'zgartirmaydi, lekin faqat ikkala son bir songa bo'linsa." }
+  },
+
+  // ---- s6 TEST (MC, дроби): 10/15 = ? → 2/3 (correct opt0) ----
   s6: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    question: { ru: 'Наименьший общий знаменатель для 1/2 + 1/5. Введи число.', uz: "1/2 + 1/5 uchun eng kichik umumiy maxraj. Sonni kiriting." },
-    placeholder: { ru: '0', uz: "0" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Наименьшее число, делящееся и на 2, и на 5. Не сумма и не больше нужного.', uz: "Ham 2 ga, ham 5 ga bo'linadigan eng kichik son. Yig'indi ham, ortiqcha ham emas." },
-    fb_correct: { ru: 'Верно. 10 делится и на 2, и на 5, и это наименьшее.', uz: "To'g'ri. 10 ham 2 ga, ham 5 ga bo'linadi, va eng kichigi." },
+    label: { ru: 'Сократи дробь', uz: "Kasrni qisqartiring" },
+    question: { ru: 'Сократи 10/15 до простого вида. Что получится?', uz: "10/15 ni sodda holgacha qisqartiring. Nima chiqadi?" },
+    correct_text: { ru: 'Верно: 10 и 15 делятся на 5. 10÷5=2, 15÷5=3. Получается 2/3.', uz: "To'g'ri: 10 va 15 5 ga bo'linadi. 10÷5=2, 15÷5=3. 2/3 chiqadi." },
+    hint_1: { ru: 'Числа перепутаны: делим 10 (верх) и 15 (низ) на 5, выйдет 2/3, а не 5/3.', uz: "Sonlar almashgan: 10 (yuqori) va 15 (past) ni 5 ga bo'lamiz, 2/3 chiqadi, 5/3 emas." },
+    hint_2: { ru: '2/5 не равно 10/15. На 5 делятся оба: 10 и 15. Выйдет 2/3.', uz: "2/5 10/15 ga teng emas. 5 ga ikkalasi bo'linadi: 10 va 15. 2/3 chiqadi." },
+    hint_3: { ru: '10/15 — ещё не сокращено. Раздели оба числа на 5.', uz: "10/15 — hali qisqarmagan. Ikkala sonni 5 ga bo'ling." },
+    wrong_default: { ru: '10 и 15 делятся на 5: 10÷5=2, 15÷5=3. Значит 10/15 = 2/3.', uz: "10 va 15 5 ga bo'linadi: 10÷5=2, 15÷5=3. Demak 10/15 = 2/3." },
+    fact: { ru: 'Повара веками уменьшают рецепты: блюдо на 4 человек делают на 2, и все количества делят пополам. Это то же сокращение: соотношение продуктов упрощается, а вкус не меняется.', uz: "Oshpazlar asrlar davomida retseptlarni kichraytirib keladi: 4 kishilik taom 2 kishiga qilinadi, barcha miqdorlar ikkiga bo'linadi. Bu — o'sha qisqartirish: mahsulotlar nisbati soddalashadi, ta'm esa o'zgarmaydi." },
     audio: {
-      intro: { ru: 'Найди наименьший общий знаменатель для одной второй и одной пятой. Введи число и нажми проверить.', uz: "Bir ikkidan va bir beshdan uchun eng kichik umumiy maxrajni toping. Sonni kiriting va tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Десять делится и на два, и на пять.', uz: "To'g'ri. O'n ham ikkiga, ham beshga bo'linadi." },
-      on_wrong: { ru: 'Не совсем. Это не сумма знаменателей. Ищи наименьшее общее.', uz: "Unchalik emas. Bu maxrajlar yig'indisi emas. Eng kichik umumiy sonni qidiring." }
+      intro: { ru: 'Сократи десять пятнадцатых. Что получится? Выбери ответ.', uz: "O'n beshdan o'nni qisqartiring. Nima chiqadi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Разделили на пять: вышло две третьих. Кстати, повара так же уменьшают рецепты: блюдо на четыре человека делают на двоих, и все количества делят пополам. Соотношение упрощается, а вкус тот же.', uz: "To'g'ri. Beshga bo'ldik: uchdan ikki chiqdi. Aytgancha, oshpazlar ham retseptlarni shunday kichraytiradi: to'rt kishilik taomni ikki kishiga qiladi, barcha miqdorlarni ikkiga bo'ladi. Nisbat soddalashadi, ta'm esa o'sha." },
+      on_wrong: { ru: 'Пока нет. И 10, и 15 делятся на 5. Раздели оба.', uz: "Hali emas. 10 ham, 15 ham 5 ga bo'linadi. Ikkalasini bo'ling." }
     }
   },
 
-  // s7 — TEST "xatoni top" p3
+  // ---- s7 TEST (MC, текст misconception): сократил только числитель 6/8→3/8? Нет (correct opt0) ----
   s7: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    label: { ru: 'Какое сложение НЕВЕРНО?', uz: "Qaysi qo'shish NOTO'G'RI?" },
-    question: { ru: 'Выбери запись, где допущена ошибка.', uz: "Xato qilingan yozuvni tanlang." },
-    correct_text: { ru: 'Верно — ошибка здесь. Сложили числители и знаменатели. Нужно привести к общему: 1/2 + 1/3 = 3/6 + 2/6 = 5/6.', uz: "To'g'ri — xato shu yerda. Surat va maxraj qo'shilgan. Umumiy maxrajga keltirish kerak: 1/2 + 1/3 = 3/6 + 2/6 = 5/6." },
-    wrong_1: { ru: 'Эта запись верна: привели к шестым, 3/6 + 2/6 = 5/6. Ищи, где сложили знаменатели.', uz: "Bu yozuv to'g'ri: oltilarga keltirildi, 3/6 + 2/6 = 5/6. Maxraj qo'shilgan joyni qidiring." },
-    wrong_2: { ru: 'Эта запись верна: 1/4 + 1/4 = 2/4, знаменатели одинаковые. Ошибка в другом.', uz: "Bu yozuv to'g'ri: 1/4 + 1/4 = 2/4, maxrajlar bir xil. Xato boshqasida." },
-    wrong_3: { ru: 'Эта запись верна: привели к 12, 4/12 + 3/12 = 7/12. Ищи, где знаменатели сложили.', uz: "Bu yozuv to'g'ri: 12 ga keltirildi, 4/12 + 3/12 = 7/12. Maxraj qo'shilgan joyni qidiring." },
-    wrong_default: { ru: 'Ошибка там, где сложили и знаменатели вместо приведения.', uz: "Xato keltirish o'rniga maxraj ham qo'shilgan joyda." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
+    label: { ru: 'Оба числа или одно?', uz: "Ikkala sonmi yoki bitta?" },
+    question: { ru: 'Кто-то «сократил» 6/8, разделив только числитель: 6÷2=3, и написал 3/8. Верно?', uz: "Kimdir 6/8 ni faqat suratni bo'lib «qisqartirdi»: 6÷2=3, va 3/8 deb yozdi. To'g'rimi?" },
+    opt0: { ru: 'Неверно — надо разделить и знаменатель: 6/8 = 3/4', uz: "Noto'g'ri — maxrajni ham bo'lish kerak: 6/8 = 3/4" },
+    opt1: { ru: 'Верно — числитель сократили, значит 3/8', uz: "To'g'ri — suratni qisqartirdik, demak 3/8" },
+    opt2: { ru: 'Верно, но только если дробь была меньше 1', uz: "To'g'ri, lekin faqat kasr 1 dan kichik bo'lsa" },
+    opt3: { ru: 'Так дробь вообще не сократить', uz: "Bunday kasrni umuman qisqartirib bo'lmaydi" },
+    correct_text: { ru: 'Верно: разделили только верх — дробь уменьшилась. Надо делить оба: 6÷2=3, 8÷2=4 → 3/4.', uz: "To'g'ri: faqat yuqorini bo'ldik — kasr kichraydi. Ikkalasini bo'lish kerak: 6÷2=3, 8÷2=4 → 3/4." },
+    hint_1: { ru: 'Это ошибка: 3/8 меньше 6/8. Знаменатель тоже надо разделить на 2.', uz: "Bu xato: 3/8 6/8 dan kichik. Maxrajni ham 2 ga bo'lish kerak." },
+    hint_2: { ru: 'Делить только числитель нельзя — дробь меняется. Нужно 3/4.', uz: "Faqat suratni bo'lib bo'lmaydi — kasr o'zgaradi. 3/4 kerak." },
+    hint_3: { ru: 'Сократить можно: раздели оба числа на 2 → 3/4.', uz: "Qisqartirsa bo'ladi: ikkala sonni 2 ga bo'ling → 3/4." },
+    wrong_default: { ru: 'Нет. Делим и числитель, и знаменатель на 2: 6/8 = 3/4.', uz: "Yo'q. Surat va maxrajni 2 ga bo'lamiz: 6/8 = 3/4." },
     audio: {
-      intro: { ru: 'Внимание: найди запись, где допущена ошибка. Не где верно, а где неверно. Выбери ответ.', uz: "Diqqat: xato qilingan yozuvni toping. To'g'risini emas, noto'g'risini. Javobni tanlang." },
-      on_correct: { ru: 'Верно. В том варианте сложили знаменатели — так нельзя.', uz: "To'g'ri. O'sha variantda maxraj qo'shilgan — bunday bo'lmaydi." },
-      on_wrong: { ru: 'Это верная запись. Ищи, где сложили знаменатели.', uz: "Bu to'g'ri yozuv. Maxraj qo'shilganini qidiring." }
+      intro: { ru: 'Кто-то сократил шесть восьмых, разделив только числитель, и написал три восьмых. Верно ли это? Выбери ответ.', uz: "Kimdir sakkizdan oltini faqat suratni bo'lib qisqartirdi va sakkizdan uch deb yozdi. Bu to'g'rimi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Надо разделить и знаменатель: вышло бы три четвёртых.', uz: "To'g'ri. Maxrajni ham bo'lish kerak: to'rtdan uch chiqardi." },
+      on_wrong: { ru: 'Это ошибка: делишь верх — дели и низ на то же число.', uz: "Bu xato: yuqori bo'linsa — past ham shu songa bo'linadi." }
     }
   },
 
-  // s8 — TEST bosqichli yechim quruvchi p4: 1/2 + 1/3
+  // ---- s8 CASE setup (what-for): Санжар, рецепт 8/12 → проще измерить ----
   s8: {
-    eyebrow: { ru: 'Собери решение', uz: "Yechimni quring" },
-    title: { ru: 'Сложи 1/2 + 1/3 по шагам.', uz: "1/2 + 1/3 ni bosqichma-bosqich qo'shing." },
-    q_step1: { ru: 'Шаг 1. Общий знаменатель?', uz: "1-qadam. Umumiy maxraj?" },
-    q_step2: { ru: 'Шаг 2. Чему равна 1/2 в шестых?', uz: "2-qadam. 1/2 oltilarda nechaga teng?" },
-    q_step3: { ru: 'Шаг 3. Сколько будет 3/6 + 2/6?', uz: "3-qadam. 3/6 + 2/6 nechaga teng?" },
-    hint_step1: { ru: 'Число, которое делится и на 2, и на 3.', uz: "Ham 2 ga, ham 3 ga bo'linadigan son." },
-    hint_step2: { ru: 'Умножь числитель и знаменатель 1/2 на 3.', uz: "1/2 ning surat va maxrajini 3 ga ko'paytiring." },
-    hint_step3: { ru: 'Сложи числители, знаменатель оставь 6.', uz: "Suratlarni qo'shing, maxrajni 6 qoldiring." },
-    fb_correct: { ru: 'Готово! 1/2 + 1/3 = 3/6 + 2/6 = 5/6.', uz: "Tayyor! 1/2 + 1/3 = 3/6 + 2/6 = 5/6." },
-    audio: {
-      intro: { ru: 'Собери решение по шагам. Сначала выбери общий знаменатель, потом приведи дробь, потом сложи. Отвечай на каждый шаг.', uz: "Yechimni bosqichma-bosqich quring. Avval umumiy maxrajni tanlang, keyin kasrni keltiring, keyin qo'shing. Har qadamga javob bering." },
-      on_correct: { ru: 'Верно. Все три шага собраны: получилось пять шестых.', uz: "To'g'ri. Uchala qadam yig'ildi: oltidan besh chiqdi." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку к шагу.', uz: "Unchalik emas. Qadam maslahatiga qarang." }
-    }
+    eyebrow: { ru: 'Задача · рецепт', uz: "Masala · retsept" },
+    title: { ru: 'Санжар печёт по рецепту.', uz: "Sanjar retsept bo'yicha pishiradi." },
+    body_p1: { ru: 'В рецепте странно записано: 8/12 стакана сахара. Мерный стакан у Санжара делится на трети. В какой простой дроби удобно отмерить — то есть до чего сократить 8/12?', uz: "Retseptda g'alati yozilgan: 8/12 stakan shakar. Sanjarning o'lchov stakani uchdanlarga bo'lingan. Qaysi sodda kasrda o'lchash qulay — ya'ni 8/12 ni nimagacha qisqartirish kerak?" },
+    card_line_label: { ru: 'В рецепте', uz: "Retseptda" },
+    card_line_value: { ru: '8/12 стакана', uz: "8/12 stakan" },
+    card_parts_label: { ru: 'Мерка делит на', uz: "O'lchov bo'ladi" },
+    card_parts_value: { ru: 'трети', uz: "uchdanlar" },
+    outro: { ru: 'Нужно сократить 8/12 до дроби со знаменателем 3. Помоги Санжару на следующем шаге.', uz: "8/12 ni maxraji 3 bo'lgan kasrgacha qisqartirish kerak. Keyingi bosqichda Sanjarga yordam bering." },
+    btn_help: { ru: 'Помочь Санжару', uz: "Sanjarga yordam berish" },
+    audio: { ru: 'Санжар печёт по рецепту. Там странно записано: восемь двенадцатых стакана сахара. А мерный стакан делится на трети. В какой простой дроби удобно отмерить, то есть до чего сократить восемь двенадцатых? Нужно получить дробь со знаменателем три. Подумай, как.', uz: "Sanjar retsept bo'yicha pishiradi. U yerda g'alati yozilgan: o'n ikkidan sakkiz stakan shakar. O'lchov stakani esa uchdanlarga bo'lingan. Qaysi sodda kasrda o'lchash qulay, ya'ni o'n ikkidan sakkizni nimagacha qisqartirish kerak? Maxraji uch bo'lgan kasr olish kerak. Qanday qilishni o'ylab ko'ring." }
   },
 
-  // s9 — CASE setup: Bahodir, o'yin yuklash 1/4 + 1/6
+  // ---- s9 CASE step (MC, дроби): 8/12 = ? → 2/3 (correct opt0) ----
   s9: {
-    eyebrow: { ru: 'Задача · загрузка', uz: "Masala · yuklash" },
-    title: { ru: 'Баходир скачал игру в два захода.', uz: "Bahodir o'yinni ikki bosqichda yukladi." },
-    body_p1: { ru: 'Сначала загрузилось 1/4 игры, потом ещё 1/6. Сколько загрузилось всего?', uz: "Avval o'yinning 1/4 qismi, keyin yana 1/6 qismi yuklandi. Jami qancha yuklandi?" },
-    card_line_label: { ru: 'Сначала', uz: "Avval" },
-    card_line_value: { ru: '1/4 игры', uz: "o'yinning 1/4 qismi" },
-    card_parts_label: { ru: 'Потом', uz: "Keyin" },
-    card_parts_value: { ru: 'ещё 1/6', uz: "yana 1/6" },
-    outro: { ru: 'Знаменатели разные — 4 и 6. Сначала найди общий знаменатель.', uz: "Maxrajlar har xil — 4 va 6. Avval umumiy maxrajni toping." },
-    btn_help: { ru: 'Помочь Баходиру', uz: "Bahodirga yordam berish" },
-    audio: { ru: 'Баходир скачал игру в два захода. Сначала загрузилось одна четвёртая игры, потом ещё одна шестая. Сколько загрузилось всего? Знаменатели разные, четыре и шесть. Сначала найдём общий знаменатель. Помоги на следующем шаге.', uz: "Bahodir o'yinni ikki bosqichda yukladi. Avval o'yinning to'rtdan biri, keyin yana oltidan biri yuklandi. Jami qancha yuklandi? Maxrajlar har xil, to'rt va olti. Avval umumiy maxrajni topamiz. Keyingi bosqichda yordam bering." }
+    eyebrow: { ru: 'Задача · рецепт', uz: "Masala · retsept" },
+    label: { ru: 'До чего сократить?', uz: "Nimagacha qisqaradi?" },
+    question: { ru: 'Сократи 8/12 до простого вида (со знаменателем 3). Что получится?', uz: "8/12 ni sodda holgacha (maxraji 3) qisqartiring. Nima chiqadi?" },
+    correct_text: { ru: 'Верно: 8 и 12 делятся на 4. 8÷4=2, 12÷4=3. Получается 2/3 — Санжар отмерит две трети.', uz: "To'g'ri: 8 va 12 4 ga bo'linadi. 8÷4=2, 12÷4=3. 2/3 chiqadi — Sanjar uchdan ikkini o'lchaydi." },
+    hint_1: { ru: '4/6 ещё не сокращено до конца: и 4, и 6 делятся на 2. Дойди до 2/3.', uz: "4/6 hali oxirigacha qisqarmagan: 4 ham, 6 ham 2 ga bo'linadi. 2/3 gacha yetkazing." },
+    hint_2: { ru: '2/4 не равно 8/12. На 4 делятся оба: 8 и 12. Выйдет 2/3.', uz: "2/4 8/12 ga teng emas. 4 ga ikkalasi bo'linadi: 8 va 12. 2/3 chiqadi." },
+    hint_3: { ru: '8/12 — ещё не сокращено. Раздели оба на 4.', uz: "8/12 — hali qisqarmagan. Ikkalasini 4 ga bo'ling." },
+    wrong_default: { ru: '8 и 12 делятся на 4: 8÷4=2, 12÷4=3. Значит 8/12 = 2/3.', uz: "8 va 12 4 ga bo'linadi: 8÷4=2, 12÷4=3. Demak 8/12 = 2/3." },
+    fact: { ru: 'У шестерёнок передаточное число записывают так же. Если большая шестерня имеет 8 зубьев, а малая 4, инженеры пишут не 8 к 4, а 2 к 1 — то же самое отношение в простом виде. Суть передачи не меняется.', uz: "Tishli g'ildiraklarda uzatma nisbati ham shunday yoziladi. Katta g'ildirakda 8 tish, kichikida 4 bo'lsa, muhandislar 8 dan 4 emas, 2 dan 1 deb yozadi — o'sha nisbat sodda holatda. Uzatmaning mohiyati o'zgarmaydi." },
+    audio: {
+      intro: { ru: 'Сократи восемь двенадцатых до дроби со знаменателем три. Что получится? Выбери ответ.', uz: "O'n ikkidan sakkizni maxraji uch bo'lgan kasrgacha qisqartiring. Nima chiqadi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Разделили на четыре: вышло две третьих. Так же инженеры записывают передаточное число шестерёнок: восемь зубьев к четырём это два к одному, то же отношение проще, и суть передачи не меняется.', uz: "To'g'ri. To'rtga bo'ldik: uchdan ikki chiqdi. Muhandislar tishli g'ildiraklarning uzatma nisbatini ham shunday yozadi: sakkiz tishdan to'rtga bu ikkidan birga, o'sha nisbat soddaroq, uzatma mohiyati o'zgarmaydi." },
+      on_wrong: { ru: 'Пока нет. И 8, и 12 делятся на 4. Раздели оба.', uz: "Hali emas. 8 ham, 12 ham 4 ga bo'linadi. Ikkalasini bo'ling." }
+    }
   },
 
-  // s10 — CASE drag p5: 1/4 va 1/6 ni 12 li to'rga keltirish (fakt: IT piksel)
+  // ---- s10 CASE conclusion (MC, текст): почему 8/12 = 2/3 (correct opt0) ----
   s10: {
-    eyebrow: { ru: 'Задача · 1-й шаг', uz: "Masala · 1-qadam" },
-    title: { ru: 'Сначала посчитай: сколько это в двенадцатых?', uz: "Avval hisoblang: bu o'n ikkilarda nechta?" },
-    q_calc1: { ru: '1/4 = ?/12', uz: "1/4 = ?/12" },
-    q_calc2: { ru: '1/6 = ?/12', uz: "1/6 = ?/12" },
-    calc_hint: { ru: 'Раздели 12 на знаменатель: 12 ÷ 4 и 12 ÷ 6.', uz: "12 ni maxrajga bo'ling: 12 ni 4 ga va 12 ni 6 ga." },
-    place_title: { ru: 'Теперь поставь столько клеток на сетку из 12.', uz: "Endi 12 li to'rga shuncha katak qo'ying." },
-    place_hint: { ru: 'Ты нашёл: 1/4 = 3/12, 1/6 = 2/12. Поставь 3 синие и 2 оранжевые.', uz: "Siz topdingiz: 1/4 = 3/12, 1/6 = 2/12. 3 ko'k va 2 to'q sariq qo'ying." },
-    chips_a: { ru: '1/4 → синие', uz: "1/4 → ko'k" },
-    chips_b: { ru: '1/6 → оранжевые', uz: "1/6 → to'q sariq" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    fb_correct: { ru: 'Верно. 1/4 = 3/12, 1/6 = 2/12. Теперь доли одинаковые.', uz: "To'g'ri. 1/4 = 3/12, 1/6 = 2/12. Endi ulushlar bir xil." },
-    fact: { ru: 'Размеры картинок на экране тоже приводят к общему размеру пикселя, прежде чем сложить.', uz: "Ekrandagi rasmlar o'lchami ham qo'shishdan oldin umumiy piksel o'lchoviga keltiriladi." },
+    eyebrow: { ru: 'Задача · рецепт', uz: "Masala · retsept" },
+    label: { ru: 'Почему так', uz: "Nega shunday" },
+    question: { ru: 'Почему 8/12 можно записать как 2/3?', uz: "Nega 8/12 ni 2/3 deb yozsa bo'ladi?" },
+    opt0: { ru: 'Числитель и знаменатель разделили на одно число (4) — длина не изменилась.', uz: "Surat va maxrajni bir songa (4 ga) bo'ldik — uzunlik o'zgarmadi." },
+    opt1: { ru: 'Потому что 2 и 3 меньше, чем 8 и 12.', uz: "Chunki 2 va 3 8 va 12 dan kichik." },
+    opt2: { ru: 'Потому что вычли по одинаковому числу.', uz: "Chunki bir xil son ayirdik." },
+    opt3: { ru: 'На самом деле они не равны.', uz: "Aslida ular teng emas." },
+    correct_text: { ru: 'Верно: разделили оба числа на 4. 8÷4=2, 12÷4=3 — дробь та же, только записана проще.', uz: "To'g'ri: ikkala sonni 4 ga bo'ldik. 8÷4=2, 12÷4=3 — kasr o'sha, faqat soddaroq yozilgan." },
+    hint_1: { ru: 'Дело не в том, что числа меньше, а в том, что их разделили на ОДНО число.', uz: "Gap sonlar kichik bo'lganida emas, balki ularni BIR songa bo'linganida." },
+    hint_2: { ru: 'Не вычли, а разделили: 8÷4 и 12÷4. Вычитание меняет дробь.', uz: "Ayirmadik, bo'ldik: 8÷4 va 12÷4. Ayirish kasrni o'zgartiradi." },
+    hint_3: { ru: 'Они равны: 8/12 и 2/3 закрашивают одинаковую длину.', uz: "Ular teng: 8/12 va 2/3 bir xil uzunlikni bo'yaydi." },
+    wrong_default: { ru: 'Разделили числитель и знаменатель на одно число (4) — дробь та же, проще.', uz: "Surat va maxrajni bir songa (4 ga) bo'ldik — kasr o'sha, soddaroq." },
     audio: {
-      intro: { ru: 'Сначала посчитай в двенадцатых: сколько двенадцатых в одной четвёртой и в одной шестой. Раздели двенадцать на знаменатель. Введи числа и нажми проверить.', uz: "Avval o'n ikkilarda hisoblang: bir to'rtdan va bir oltidan nechta o'n ikkidan bo'ladi. O'n ikkini maxrajga bo'ling. Sonlarni kiriting va tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Одна четвёртая это три двенадцатых, одна шестая две двенадцатых. Кстати, картинки на экране тоже приводят к общему размеру пикселя.', uz: "To'g'ri. Bir to'rtdan bu o'n ikkidan uch, bir oltidan o'n ikkidan ikki. Aytgancha, ekrandagi rasmlar ham umumiy piksel o'lchoviga keltiriladi." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
+      intro: { ru: 'Почему восемь двенадцатых можно записать как две третьих? Выбери верное объяснение.', uz: "Nega o'n ikkidan sakkizni uchdan ikki deb yozsa bo'ladi? To'g'ri izohni tanlang." },
+      on_correct: { ru: 'Верно. Разделили оба числа на четыре, длина не изменилась.', uz: "To'g'ri. Ikkala sonni to'rtga bo'ldik, uzunlik o'zgarmadi." },
+      on_wrong: { ru: 'Пока нет. Главное — разделили оба числа на одно и то же.', uz: "Hali emas. Asosiysi — ikkala sonni bir xil songa bo'ldik." }
     }
   },
 
-  // s11 — CASE final MC: 1/4 + 1/6 = 5/12 (fakt: IT progress)
+  // ---- s11 TEST (MC, дроби): 12/16 = ? → 3/4 (correct opt0) ----
   s11: {
-    eyebrow: { ru: 'Задача · итог', uz: "Masala · natija" },
-    label: { ru: 'Сколько загрузилось всего?', uz: "Jami qancha yuklandi?" },
-    question: { ru: '1/4 + 1/6 = ?', uz: "1/4 + 1/6 = ?" },
-    correct_text: { ru: 'Правильно. 1/4 = 3/12, 1/6 = 2/12. 3/12 + 2/12 = 5/12.', uz: "To'g'ri. 1/4 = 3/12, 1/6 = 2/12. 3/12 + 2/12 = 5/12." },
-    wrong_1: { ru: 'Сложили числители и знаменатели: (1+1)/(4+6). Сначала общий знаменатель 12: 3/12 + 2/12 = 5/12.', uz: "Surat va maxraj qo'shilgan: (1+1)/(4+6). Avval umumiy maxraj 12: 3/12 + 2/12 = 5/12." },
-    wrong_2: { ru: 'Взяли произведение 24 и не пересчитали. Наименьший общий — 12: 5/12.', uz: "Ko'paytma 24 olingan va qayta sanalmagan. Eng kichik umumiy — 12: 5/12." },
-    wrong_3: { ru: 'Потеряли числители при приведении. 1/4 = 3/12, 1/6 = 2/12. Сумма 5/12.', uz: "Keltirishda suratlar yo'qolgan. 1/4 = 3/12, 1/6 = 2/12. Yig'indi 5/12." },
-    wrong_default: { ru: 'Приведи к 12: 1/4 = 3/12, 1/6 = 2/12. Тогда 5/12.', uz: "12 ga keltiring: 1/4 = 3/12, 1/6 = 2/12. U holda 5/12." },
-    fact: { ru: 'Полоса загрузки складывает части по-разному большие, приводя их к общей доле — как мы сейчас.', uz: "Yuklanish chizig'i har xil katta qismlarni umumiy ulushga keltirib qo'shadi — huddi biz hozir qilganday." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
+    label: { ru: 'Последняя — сократи', uz: "Oxirgisi — qisqartiring" },
+    question: { ru: 'Сократи 12/16 до простого вида. Что получится?', uz: "12/16 ni sodda holgacha qisqartiring. Nima chiqadi?" },
+    correct_text: { ru: 'Верно: 12 и 16 делятся на 4. 12÷4=3, 16÷4=4. Получается 3/4.', uz: "To'g'ri: 12 va 16 4 ga bo'linadi. 12÷4=3, 16÷4=4. 3/4 chiqadi." },
+    hint_1: { ru: '6/8 ещё не сокращено до конца: оба делятся на 2. Дойди до 3/4.', uz: "6/8 hali oxirigacha qisqarmagan: ikkalasi 2 ga bo'linadi. 3/4 gacha yetkazing." },
+    hint_2: { ru: '4/4 — это целое (1), а 12/16 меньше 1. Раздели оба на 4 → 3/4.', uz: "4/4 — bu butun (1), 12/16 esa 1 dan kichik. Ikkalasini 4 ga bo'ling → 3/4." },
+    hint_3: { ru: '12/16 — ещё не сокращено. Раздели оба на 4.', uz: "12/16 — hali qisqarmagan. Ikkalasini 4 ga bo'ling." },
+    wrong_default: { ru: '12 и 16 делятся на 4: 12÷4=3, 16÷4=4. Значит 12/16 = 3/4.', uz: "12 va 16 4 ga bo'linadi: 12÷4=3, 16÷4=4. Demak 12/16 = 3/4." },
+    fact: { ru: 'Сжатие файлов работает по той же идее: программа убирает лишнее и записывает данные короче, но само содержимое — картинка или текст — остаётся прежним. Как у дроби: запись короче, значение то же.', uz: "Fayllarni siqish ham shu g'oyada ishlaydi: dastur ortiqchasini olib tashlab, ma'lumotni qisqaroq yozadi, lekin mazmun — rasm yoki matn — o'sha bo'lib qoladi. Xuddi kasrdek: yozuv qisqaroq, qiymat o'sha." },
     audio: {
-      intro: { ru: 'Сложи одну четвёртую и одну шестую. Сколько игры загрузилось всего? Выбери ответ.', uz: "Bir to'rtdan va bir oltidan qo'shing. O'yinning jami qancha qismi yuklandi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Три двенадцатых плюс две двенадцатых это пять двенадцатых. Полоса загрузки складывает части так же.', uz: "To'g'ri. O'n ikkidan uch plyus o'n ikkidan ikki bu o'n ikkidan besh. Yuklanish chizig'i ham qismlarni shunday qo'shadi." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: "Unchalik emas. Tushuntirishga qarang." }
+      intro: { ru: 'Последнее задание. Сократи двенадцать шестнадцатых. Что получится? Выбери ответ.', uz: "Oxirgi topshiriq. O'n oltidan o'n ikkini qisqartiring. Nima chiqadi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Разделили на четыре: вышло три четвёртых. Так же работает сжатие файлов: программа убирает лишнее и пишет данные короче, но картинка или текст остаются прежними. Как у дроби: запись короче, значение то же.', uz: "To'g'ri. To'rtga bo'ldik: to'rtdan uch chiqdi. Fayllarni siqish ham shunday ishlaydi: dastur ortiqchasini olib tashlab, ma'lumotni qisqaroq yozadi, lekin rasm yoki matn o'sha bo'lib qoladi. Xuddi kasrdek: yozuv qisqaroq, qiymat o'sha." },
+      on_wrong: { ru: 'Пока нет. И 12, и 16 делятся на 4. Раздели оба.', uz: "Hali emas. 12 ham, 16 ham 4 ga bo'linadi. Ikkalasini bo'ling." }
     }
   },
 
-  // s12 — SUMMARY
+  // ---- s12 SUMMARY: закрывает крючок + блок связей ----
   s12: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
     label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    title: { ru: 'Теперь ты складываешь дроби с разными знаменателями.', uz: "Endi siz har xil maxrajli kasrlarni qo'shasiz." },
+    title: { ru: 'Теперь ты умеешь сокращать дроби.', uz: "Endi siz kasrlarni qisqartira olasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Дроби с разными знаменателями нельзя складывать сразу — доли разного размера.', uz: "Har xil maxrajli kasrlarni darrov qo'shib bo'lmaydi — ulushlar har xil o'lchamda." },
-    main_2: { ru: 'Сначала находим общий знаменатель — наименьшее число, делящееся на оба.', uz: "Avval umumiy maxraj topamiz — ikkalasiga bo'linadigan eng kichik son." },
-    main_3: { ru: 'Приводим обе дроби к нему (1/2 = 3/6, 1/3 = 2/6).', uz: "Ikkala kasrni unga keltiramiz (1/2 = 3/6, 1/3 = 2/6)." },
-    main_4: { ru: 'Складываем числители, знаменатель оставляем (3/6 + 2/6 = 5/6).', uz: "Suratlarni qo'shamiz, maxrajni qoldiramiz (3/6 + 2/6 = 5/6)." },
-    back_to_hook: { ru: '1/2 + 1/3 это не 2/5. Привели к шестым: 3/6 + 2/6 = 5/6.', uz: "1/2 + 1/3 bu 2/5 emas. Oltilarga keltirdik: 3/6 + 2/6 = 5/6." },
+    main_1: { ru: 'Сократить дробь — записать её проще, не меняя величину.', uz: "Kasrni qisqartirish — qiymatini o'zgartirmasdan soddaroq yozish." },
+    main_2: { ru: 'Раздели числитель и знаменатель на их общий делитель.', uz: "Surat va maxrajni ularning umumiy bo'luvchisiga bo'ling." },
+    main_3: { ru: 'Делить нужно ОБА числа на одно — иначе дробь изменится.', uz: "IKKALA sonni bir songa bo'lish kerak — aks holda kasr o'zgaradi." },
+    main_4: { ru: 'На наибольший общий делитель — и дробь сразу самая простая.', uz: "Eng katta umumiy bo'luvchiga — kasr darrov eng sodda bo'ladi." },
+    back_to_hook: { ru: 'Так зачем сокращать? 6/8 и 3/4 — одно число, но 3/4 проще: меньше частей, легче читать и считать. Вот зачем.', uz: "Xo'sh, nima uchun qisqartiramiz? 6/8 va 3/4 — bitta son, lekin 3/4 soddaroq: bo'laklar kam, o'qish va hisoblash oson. Mana nima uchun." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Эквивалентные дроби» (приведение) и «Сложение дробей с равным знаменателем».', uz: "«Ekvivalent kasrlar» (keltirish) va «Teng maxrajli kasrlarni qo'shish»." },
+    conn_refs: { ru: '«Эквивалентные дроби» (обратное действие) и «Деление уголком».', uz: "«Ekvivalent kasrlar» (teskari amal) va «Burchak usulida bo'lish»." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'вычитание дробей с разными знаменателями.', uz: "har xil maxrajli kasrlarni ayirish." },
+    conn_next: { ru: 'сложение дробей с одинаковым знаменателем — начинаем действия с дробями.', uz: "bir xil maxrajli kasrlarni qo'shish — kasrlar ustida amallarni boshlaymiz." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    audio: { ru: 'Отлично. Теперь ты складываешь дроби с разными знаменателями. Сначала находим общий знаменатель, приводим к нему обе дроби, потом складываем числители, а знаменатель оставляем. Одна вторая плюс одна третья это не две пятых, а пять шестых. Дальше научимся вычитать дроби с разными знаменателями.', uz: "Zo'r. Endi siz har xil maxrajli kasrlarni qo'shasiz. Avval umumiy maxraj topamiz, ikkala kasrni unga keltiramiz, keyin suratlarni qo'shamiz, maxrajni qoldiramiz. Ikkidan bir plyus uchdan bir bu beshdan ikki emas, oltidan besh. Keyin har xil maxrajli kasrlarni ayirishni o'rganamiz." }
+    audio: { ru: 'Отлично! Теперь ты умеешь сокращать дроби. Сократить дробь значит записать её проще, не меняя величину. Для этого раздели числитель и знаменатель на их общий делитель. Делить нужно оба числа на одно, иначе дробь изменится. А если разделить на наибольший общий делитель, дробь сразу станет самой простой. Зачем сокращать? Шесть восьмых и три четвёртых это одно число, но три четвёртых проще читать и считать. Дальше начнём складывать дроби.', uz: "Zo'r! Endi siz kasrlarni qisqartira olasiz. Kasrni qisqartirish — qiymatini o'zgartirmasdan soddaroq yozish. Buning uchun surat va maxrajni ularning umumiy bo'luvchisiga bo'ling. Ikkala sonni bir songa bo'lish kerak, aks holda kasr o'zgaradi. Eng katta umumiy bo'luvchiga bo'linsa, kasr darrov eng sodda bo'ladi. Nima uchun qisqartiramiz? 6/8 va 3/4 bitta son, lekin 3/4 ni o'qish va hisoblash oson. Keyin kasrlarni qo'shishni boshlaymiz." }
   }
 };
 
 // ============================================================
-// ВИЗУАЛИЗАТОР frac_5_06: шестерёнки (общее кратное = общий знаменатель) + полосы-доли.
+// FACTCARD — fakt to'g'ri javobdan keyin (FB_* badge + Anim*). Namuna: Dars06.
 // ============================================================
-const gridFills = (parts, total) => {
-  const a = Array.from({ length: total }, () => null); let i = 0;
-  parts.forEach(p => { for (let k = 0; k < p.count && i < total; k++) { a[i] = p.color; i++; } });
-  return a;
-};
-const CellRow = ({ total, fills, h = 44, max = 420 }) => (
-  <div className="cr-wrap" style={{ display: 'flex', width: '100%', maxWidth: max, height: h, margin: '0 auto', borderRadius: 10, overflow: 'hidden', background: T.paper, boxShadow: `inset 0 0 0 2px ${T.ink3}` }}>
-    {Array.from({ length: total }).map((_, i) => (
-      <div key={i} className="cr-cell" style={{ flex: 1, position: 'relative', borderRight: i < total - 1 ? `2px solid ${T.bg}` : 'none', background: (fills && fills[i]) || 'transparent' }}>{(fills && fills[i]) && <span className="cr-shine"/>}</div>
-    ))}
-  </div>
-);
-const FracPlus = ({ parts, sumN, sumD, showSum = true }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1.6vw, 12px)', flexWrap: 'wrap', justifyContent: 'center' }}>
-    {parts.map((p, j) => (<React.Fragment key={j}>{j > 0 && <Op>+</Op>}<Frac n={String(p.n)} d={String(p.d)} size="mid" color={p.c}/></React.Fragment>))}
-    {showSum && <><Op>=</Op><Frac n={String(sumN)} d={String(sumD)} size="mid" color={T.success}/></>}
-  </div>
-);
-// Gear — управляемая шестерёнка: teeth зубьев, поворот по steps (1 шаг = 1/teeth оборота).
-// Зелёный зуб (i=0) — «дом»; он возвращается наверх к указателю каждые teeth шагов.
-const Gear = ({ teeth, steps, size, color }) => {
-  const c = size / 2, rr = c - 11;
-  const angle = (steps / teeth) * 360;
-  return (
-    <div style={{ position: 'relative', width: size, height: size }}>
-      <span className="mono" style={{ position: 'absolute', top: -5, left: '50%', transform: 'translateX(-50%)', color: T.ink2, fontSize: 14, zIndex: 2 }}>▾</span>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: 'block', transform: `rotate(${angle}deg)`, transition: 'transform 0.45s cubic-bezier(0.34, 1.1, 0.64, 1)' }}>
-        {Array.from({ length: teeth }).map((_, i) => { const a = ((i / teeth) * 360 - 90) * Math.PI / 180; const x = c + Math.cos(a) * (rr + 5); const y = c + Math.sin(a) * (rr + 5); return <rect key={i} x={x - 5} y={y - 5} width={10} height={10} rx={2} fill={i === 0 ? T.success : color} transform={`rotate(${(i / teeth) * 360} ${x} ${y})`}/>; })}
-        <circle cx={c} cy={c} r={rr} fill={color}/>
-        <circle cx={c} cy={c} r={rr * 0.4} fill={T.paper}/>
-      </svg>
-      <span className="mono" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontWeight: 700, fontSize: 'clamp(14px, 2vw, 18px)', color }}>{teeth}</span>
-    </div>
-  );
-};
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
 
-// ============================================================
-// ФАКТ-БЛОК — карта с мини-анимацией, открывается на верном ответе.
-// ============================================================
-const FACT_BADGE = { ru: 'Знаешь ли ты? · IT', uz: "Bilasizmi? · IT" };
-const FACT_BADGE_TECH = { ru: 'Знаешь ли ты? · Техника', uz: "Bilasizmi? · Texnika" };
-const AnimProgress = () => (<div className="fa-prog"><div className="fa-prog-fill"/></div>);
-const AnimPixel = () => (<div className="fa-px">{Array.from({ length: 9 }).map((_, i) => <span key={i} className="fa-px-c" style={{ animationDelay: `${i * 0.16}s` }}/>)}</div>);
-const AnimGear = () => (
-  <svg className="fa-gear" width="42" height="42" viewBox="0 0 42 42">
-    {Array.from({ length: 8 }).map((_, i) => { const a = (i / 8) * 360 * Math.PI / 180; const x = 21 + Math.cos(a) * 15; const y = 21 + Math.sin(a) * 15; return <rect key={i} x={x - 2.5} y={y - 2.5} width="5" height="5" fill="#019ACB" transform={`rotate(${(i / 8) * 360} ${x} ${y})`}/>; })}
-    <circle cx="21" cy="21" r="12" fill="#019ACB"/><circle cx="21" cy="21" r="5" fill="#EAF6FB"/>
-  </svg>
-);
-const FactCard = ({ text, anim, badge = FACT_BADGE }) => {
+const FactCard = ({ text, anim, badge }) => {
   const t = useT();
   return (
     <div className="fact-card fade-up">
@@ -1117,12 +1072,91 @@ const FactCard = ({ text, anim, badge = FACT_BADGE }) => {
     </div>
   );
 };
+// Tarix (oshpazlar retsepti): 4 ulush 2 tadan guruhlanib 2 ga «qisqaradi» — nisbat soddalashadi.
+const AnimRecipe = () => (
+  <div className="fa-rec" aria-hidden="true">
+    <span className="fa-rec-c fa-rec-1"/>
+    <span className="fa-rec-c fa-rec-2"/>
+    <span className="fa-rec-c fa-rec-3"/>
+    <span className="fa-rec-c fa-rec-4"/>
+  </div>
+);
+// Fan (tishli uzatma): katta g'ildirak sekin, kichigi tez — 2:1 nisbat aylanib turadi.
+const AnimGears = () => (
+  <div className="fa-gear" aria-hidden="true">
+    <span className="fa-gear-big"/>
+    <span className="fa-gear-small"/>
+  </div>
+);
+// IT (siqish): keng blok ortiqchasini «siqib» qisqasiga aylanadi — mazmun o'sha.
+const AnimCompress = () => (
+  <div className="fa-cmp" aria-hidden="true">
+    <span className="fa-cmp-bar"/>
+    <span className="fa-cmp-arrow fa-cmp-a-l"/>
+    <span className="fa-cmp-arrow fa-cmp-a-r"/>
+  </div>
+);
 
+// ============================================================
+// УРОК-СПЕЦИФИЧНЫЕ ВИЗУАЛИЗАТОРЫ (под тему «сокращение дробей»)
+// ============================================================
+// FracBar: полоса, закраска num/den. grid — число делений. mergeTo+merging — при сокращении
+// «лишние» линии (не кратные grid/mergeTo) плавно исчезают (cp-merge): доли объединяются.
+const FracBar = ({ num, den, grid = null, mergeTo = null, merging = false, color = T.accent, height = 38, marker = false, winner = false, animateIn = false }) => {
+  const pct = (num / den) * 100;
+  const g = grid || den;
+  const keep = (mergeTo && mergeTo > 0) ? g / mergeTo : 1;
+  const ease = 'cubic-bezier(0.34, 1.1, 0.64, 1)';
+  return (
+    <div className="cp-bar" style={{ position: 'relative', width: '100%', height, borderRadius: 8, background: T.paper, boxShadow: `inset 0 0 0 2px ${T.ink3}` }}>
+      <div style={{ position: 'absolute', inset: 0, borderRadius: 8, overflow: 'hidden' }}>
+        <div className={`cp-fill${animateIn ? ' cp-grow' : ''}`} style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${pct}%`, background: color, transition: `width 0.5s ${ease}` }}/>
+        {Array.from({ length: g - 1 }).map((_, i) => {
+          const survive = !merging || !(mergeTo && mergeTo > 0) || ((i + 1) % keep === 0);
+          return <div key={`${g}-${merging}-${i}`} className={(merging && !survive) ? 'cp-merge' : undefined} style={{ position: 'absolute', left: `${((i + 1) / g) * 100}%`, top: 0, bottom: 0, width: 2, background: T.bg }}/>;
+        })}
+      </div>
+      {marker && num > 0 && (
+        <div className={`cp-marker${animateIn ? ' cp-slide' : ''}`} style={{ position: 'absolute', left: `${pct}%`, top: -5, bottom: -5, width: 3, marginLeft: -1.5, background: color, borderRadius: 2, boxShadow: `0 0 7px ${color}`, transition: `left 0.5s ${ease}` }}>
+          {winner && (<svg className="cp-flag" width="18" height="16" viewBox="0 0 18 16" style={{ position: 'absolute', top: -15, left: 1, overflow: 'visible' }}><path d="M1 1 L14 4 L1 8 Z" fill={color}/></svg>)}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// SpinNum: число, которое «впрыгивает» при изменении (key=value → перемонтаж → cp-spin).
+const SpinNum = ({ value, color = T.ink, size = 'clamp(22px, 4vw, 32px)' }) => (
+  <span key={value} className="cp-spin display" style={{ color, fontSize: size, display: 'inline-block' }}>{value}</span>
+);
+
+// DivLadder: «лесенка деления» — строки сокращения с подписью ÷.
+// steps: [{ a, b, by }] — было a/b, разделили на by.
+const DivLadder = ({ steps }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+    {steps.map((s, i) => (
+      <div key={i} className="cp-ladder-step" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', animationDelay: `${i * 0.18}s` }}>
+        <Frac n={String(s.a)} d={String(s.b)} size="mid"/>
+        <span className="mono small" style={{ color: T.accent, fontWeight: 700 }}>÷{s.by}</span>
+        <Op size="mid">=</Op>
+        <Frac n={String(s.a / s.by)} d={String(s.b / s.by)} size="mid" color={T.accent}/>
+      </div>
+    ))}
+  </div>
+);
+
+// ============================================================
+// SCREEN-КОМПОНЕНТЫ
+// ============================================================
+
+// Детерминированно переставляет варианты MC, чтобы верный ответ не всегда был «A».
 const shuffleMC = (c, options, correctIdx, order) => {
   const content = { ...c };
-  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; });
+  order.forEach((oldI, newI) => { content[`hint_${newI}`] = c[`hint_${oldI}`]; });
   return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
 };
+
+// Блок связей урока (опора + следующий урок) — печатается на summary.
 const ConnectionsBlock = ({ c }) => {
   const t = useT();
   return (
@@ -1133,9 +1167,7 @@ const ConnectionsBlock = ({ c }) => {
   );
 };
 
-const numOpt = (x) => <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{x}</span>;
-
-// s0 — HOOK (konseptual)
+// s0 — HOOK: любой выбор продвигает дальше (нет верного); при возврате полный сброс.
 const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s0;
   const audio = useAudio(makeAudioSegments(c, lang));
@@ -1150,20 +1182,20 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
-        <p className="body fade-up" style={{ color: T.ink2 }}>{mt(t(c.lead))}</p>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
+        <h1 className="title h-title fade-up">{t(c.title)}</h1>
         <div className="frame fade-up delay-1 hook-alive" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}><span className="hook-sheen" aria-hidden="true"/><span className="hook-glow" aria-hidden="true"/>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 360 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="2" size="sm" color={T.accent}/><div style={{ flex: 1 }}><CellRow total={2} fills={gridFills([{ count: 1, color: T.accent }], 2)} h={30} max={9999}/></div></div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="3" size="sm" color={T.blue}/><div style={{ flex: 1 }}><CellRow total={3} fills={gridFills([{ count: 1, color: T.blue }], 3)} h={30} max={9999}/></div></div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="2" size="mid" color={T.accent}/><Op>+</Op><Frac n="1" d="3" size="mid" color={T.blue}/><Op>=</Op><Frac n="2" d="5" size="mid" color={T.ink3}/><span className="mop" style={{ color: T.ink3 }}>?</span></div>
+          <div style={{ width: '100%', maxWidth: 520 }}><FracBar num={6} den={8} color={T.accent} animateIn={true}/></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="6" d="8" size="mid"/><Op>=</Op><Frac n="3" d="4" size="mid"/><span className="mop" style={{ color: T.ink3 }}>?</span></div>
         </div>
-        <h2 className="title h-sub fade-up delay-2">{mt(t(c.question))}</h2>
+        <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.body)}</p>
+        <h2 className="title h-sub fade-up delay-2">{t(c.question)}</h2>
         <div className="fade-up delay-3" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {opts.map((o, i) => (
-            <button key={i} className="option" onClick={() => pick(i)} style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(46px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
-              <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span><span style={{ flex: 1 }}>{t(o)}</span>
+            <button key={i} className="option" onClick={() => pick(i)}
+              style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
+              <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span>
+              <span style={{ flex: 1 }}>{t(o)}</span>
             </button>
           ))}
         </div>
@@ -1172,304 +1204,226 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   );
 };
 
-// s1 — EXPLORATION step: bo'laklar teng emas
+// s1 — EXPLORATION step-by-step: 6/8 → 3/4 (доли объединяются).
 const Screen1 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s1;
-  const arr = c.audio[lang]; const last = arr.length - 1;
+  const arr = c.audio[lang];
+  const last = arr.length - 1;
   const segs = arr.map((text, i) => ({ id: `s1_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
   const audio = useAudio(segs);
   const [step, setStep] = useState(0);
-  const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
+  const endRef = useRef(null);
+  const handleStep = () => {
+    if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); }
+    else { audio.triggerEvent('button_click', 'next'); onNext(); }
+  };
+  const merging = step >= 2;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', minHeight: 150, justifyContent: 'center' }}>
-          {step >= 1 && <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 380 }}><Frac n="1" d="2" size="sm" color={T.accent}/><div style={{ flex: 1 }}><CellRow total={2} fills={gridFills([{ count: 1, color: T.accent }], 2)} h={34} max={9999}/></div></div>}
-          {step >= 2 && <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 380 }}><Frac n="1" d="3" size="sm" color={T.blue}/><div style={{ flex: 1 }}><CellRow total={3} fills={gridFills([{ count: 1, color: T.blue }], 3)} h={34} max={9999}/></div></div>}
-          {step >= 3 && <p className="body" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.conclusion))}</p>}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up">{t(c.title)}</h2>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center', minHeight: 120, justifyContent: 'center' }}>
+          {step >= 1
+            ? <>
+                <div style={{ width: '100%', maxWidth: 520 }}><FracBar num={6} den={8} grid={8} mergeTo={4} merging={merging} marker={step >= 3} color={T.accent}/></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Frac n={step >= 3 ? '3' : '6'} d={step >= 3 ? '4' : '8'} size="mid"/>
+                  {step >= 3 && <><Op>=</Op><span className="mono small" style={{ color: T.accent, fontWeight: 700 }}>6÷2=<SpinNum value={3} color={T.accent} size="clamp(16px,3vw,22px)"/>, 8÷2=<SpinNum value={4} color={T.accent} size="clamp(16px,3vw,22px)"/></span></>}
+                </div>
+              </>
+            : <p className="body" style={{ color: T.ink3, margin: 0 }}>…</p>}
+          {step >= 3 && <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{t(c.conclusion)}</p>}
         </div>
+        <div ref={endRef}/>
       </div>
     </Stage>
   );
 };
 
-// s2 — EXPLORATION g'ildiraklar: umumiy 6
+// s2 — EXPLORATION slider: сократи 8/12 до конца (живое объединение).
 const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
-  const [steps, setSteps] = useState(0);
-  const fit = steps > 0 && steps % 2 === 0 && steps % 3 === 0;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn)}/></>);
+  const [d, setD] = useState(1);
+  const [checked, setChecked] = useState(false);
+  const [solved, setSolved] = useState(false);
+  const valid = (d > 1) && (8 % d === 0) && (12 % d === 0);   // делит оба
+  const mergeTo = valid ? 12 / d : null;
+  const onSlider = (v) => { if (solved) return; setChecked(false); setD(v); };
+  const check = () => {
+    const ok = d === 4;
+    setChecked(true);
+    if (ok) setSolved(true);
+    if (!audio.muted) { setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.fb_success[lang] : c.fb_wrong[lang]); }, 250); }
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={solved ? <NextLabel/> : t(c.btn_disabled_label)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', minHeight: 180, justifyContent: 'center', boxShadow: fit ? '0 0 0 2px #1F7A4D, 0 8px 22px -6px rgba(31, 122, 77, 0.35)' : undefined }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 4vw, 28px)' }}>
-            <Gear teeth={2} steps={steps} size={88} color={T.accent}/>
-            <Gear teeth={3} steps={steps} size={110} color={T.blue}/>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(15px, 2.4vw, 16px)' }}>
+        <h2 className="title h-title fade-up">{t(c.title)}</h2>
+        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.intro)}</p>
+        <p className="small fade-up delay-1" style={{ color: T.accent, fontWeight: 600 }}>{t(c.target_text)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ width: '100%', maxWidth: 520, margin: '0 auto' }}><FracBar num={8} den={12} grid={12} mergeTo={mergeTo} merging={valid} marker={solved} color={T.accent}/></div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+            <Frac n="8" d="12" size="mid"/>
+            {valid && <><span className="mono small" style={{ color: T.accent, fontWeight: 700 }}>÷{d}</span><Op>=</Op><Frac n={String(8 / d)} d={String(12 / d)} size="mid" color={T.accent}/></>}
           </div>
-          <p className="mono small" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? 'Qadam' : 'Шаг'}: {steps}</p>
-          <p className="body" style={{ margin: 0, textAlign: 'center', fontWeight: fit ? 600 : 400, color: fit ? T.success : T.ink2 }}>{mt(t(fit ? c.note_hit : c.note_miss))}</p>
+          <div>
+            <p className="eyebrow" style={{ color: T.ink2, marginBottom: 6 }}>{t(c.eyebrow_slider)} {d}{valid ? '' : (d > 1 ? ' ✗' : '')}</p>
+            <Slider value={d} min={1} max={6} step={1} onChange={onSlider} disabled={solved}/>
+          </div>
+          {!solved && (<div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(11px, 1.8vw, 13px) clamp(20px, 2.6vw, 28px)', fontSize: 'clamp(13px, 1.6vw, 14px)' }}>{t(c.btn_check)}</button></div>)}
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-          <button className="btn-white-accent" onClick={() => setSteps(s => s + 1)} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.5vw, 24px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Aylantir' : 'Крутить'}</button>
-          <button className="btn-ghost" onClick={() => setSteps(0)} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Boshidan' : 'Сначала'}</button>
-        </div>
-        {fit && <p className="small fade-up" style={{ textAlign: 'center', color: T.ink2 }}>{mt(t(c.conclusion))}</p>}
+        <FeedbackBlock show={checked} isCorrect={solved} wrongClass={solved ? undefined : 'frame-tip'}>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{solved ? t(c.fb_success_title) : t(c.fb_wrong_title)}</p>
+          <p className="body" style={{ margin: 0 }}>{solved ? t(c.fb_success) : t(c.fb_wrong)}</p>
+        </FeedbackBlock>
       </div>
     </Stage>
   );
 };
 
-// s3 — EXPLORATION step: qayta bo'lish 1/2=3/6, 1/3=2/6
+// s3 — RULE: делим оба на общий делитель.
 const Screen3 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s3;
-  const arr = c.audio[lang]; const last = arr.length - 1;
-  const segs = arr.map((text, i) => ({ id: `s3_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
-  const audio = useAudio(segs);
-  const [step, setStep] = useState(0);
-  const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', minHeight: 150, justifyContent: 'center' }}>
-          {step >= 1 && <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 400 }}><Frac n="3" d="6" size="sm" color={T.accent}/><div style={{ flex: 1 }}><CellRow total={6} fills={gridFills([{ count: 3, color: T.accent }], 6)} h={34} max={9999}/></div></div>}
-          {step >= 2 && <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 400 }}><Frac n="2" d="6" size="sm" color={T.blue}/><div style={{ flex: 1 }}><CellRow total={6} fills={gridFills([{ count: 2, color: T.blue }], 6)} h={34} max={9999}/></div></div>}
-          {step >= 2 && <p className="body" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.conclusion))}</p>}
-        </div>
-      </div>
-    </Stage>
-  );
-};
-
-// s4 — RULE: 3 qadam
-const Screen4 = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s4;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
-          <CellRow total={6} fills={gridFills([{ count: 3, color: T.accent }, { count: 2, color: T.blue }], 6)} h={40}/>
-          <FracPlus parts={[{ n: 3, d: 6, c: T.accent }, { n: 2, d: 6, c: T.blue }]} sumN={5} sumD={6}/>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 460, margin: '0 auto', width: '100%' }}>
-            <p className="eyebrow" style={{ color: T.ink2, margin: 0 }}>{t(c.label)}</p>
-            {[c.step1, c.step2, c.step3].map((stp, i) => (<div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 1 }}>{i + 1}</span><p className="body" style={{ margin: 0 }}>{mt(t(stp))}</p></div>))}
-            <p className="small" style={{ margin: 0, color: T.accent, fontWeight: 600 }}>{mt(t(c.card_line))}</p>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 18px)', justifyContent: 'center' }}>
+        <div className="fade-up">
+          <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
+          <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
+        </div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+          <div style={{ width: '100%', maxWidth: 520, margin: '0 auto' }}><FracBar num={6} den={8} grid={8} mergeTo={4} merging={true} marker={true} color={T.accent}/></div>
+          <DivLadder steps={[{ a: 6, b: 8, by: 2 }]}/>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 460, margin: '0 auto' }}>
+            <p className="body" style={{ margin: 0 }}>{t(c.card_top)}</p>
+            <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
+            <p className="body" style={{ margin: 0 }}>{t(c.card_bottom)}</p>
+            <p className="small" style={{ margin: 0, color: T.ink3 }}>{t(c.card_line)}</p>
           </div>
         </div>
+        <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.outro)}</p>
       </div>
     </Stage>
   );
 };
 
-// s5 — TEST MC p1: umumiy maxraj 1/4 & 1/6 -> 12 (fakt g'ildirak)
-const Screen5 = (props) => {
-  const t = useT(); const c = CONTENT.s5;
-  const base = [numOpt(12), numOpt(10), numOpt(24), numOpt(2)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}><CellRow total={4} fills={gridFills([{ count: 1, color: T.accent }], 4)} h={26}/><CellRow total={6} fills={gridFills([{ count: 1, color: T.blue }], 6)} h={26}/></div></>);
-  return <QuestionScreen {...props} idx={5} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[5]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} anim={<AnimGear/>} badge={FACT_BADGE_TECH}/>}/>;
+// s4 — TEST choice (дроби): 6/9 → 2/3.
+const Screen4 = (props) => {
+  const t = useT(); const c = CONTENT.s4;
+  const base = [<Frac n="2" d="3" size="mid"/>, <Frac n="3" d="4" size="mid"/>, <Frac n="2" d="4" size="mid"/>, <Frac n="6" d="9" size="mid"/>];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={6} den={9} color={T.blue} animateIn={true}/></div></>);
+  return <QuestionScreen {...props} idx={4} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[4]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s6 — TEST NumInput p2: 1/2 & 1/5 -> 10
+// s5 — RULE-2: делим оба числа, не одно.
+const Screen5 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s5;
+  const audio = useAudio(makeAudioSegments(c, lang));
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 18px)', justifyContent: 'center' }}>
+        <div className="fade-up">
+          <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
+          <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
+        </div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* 3/8 — неправильно (только числитель), тусклая */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', opacity: 0.55 }}>
+            <div style={{ width: 'clamp(48px, 11vw, 64px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n="3" d="8" size="sm"/></div>
+            <div style={{ flex: 1 }}><FracBar num={3} den={8} color={T.ink3} height={30}/></div>
+          </div>
+          {/* 3/4 — правильно */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
+            <div style={{ width: 'clamp(48px, 11vw, 64px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n="3" d="4" size="sm"/></div>
+            <div style={{ flex: 1 }}><FracBar num={3} den={4} color={T.accent} marker={true} winner={true} height={30}/></div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 460, margin: '0 auto' }}>
+            <p className="body" style={{ margin: 0 }}>{t(c.card_ok)}</p>
+            <div style={{ height: 1, background: 'rgba(167, 166, 162, 0.4)' }}/>
+            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 600 }}>{t(c.card_bad)}</p>
+          </div>
+        </div>
+        <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.outro)}</p>
+      </div>
+    </Stage>
+  );
+};
+
+// s6 — TEST choice (дроби): 10/15 → 2/3.
 const Screen6 = (props) => {
-  const c = CONTENT.s6;
-  return <NumInputScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={c} correctValue={10}
-    renderVisual={() => (<div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%', maxWidth: 360 }}><CellRow total={2} fills={gridFills([{ count: 1, color: T.accent }], 2)} h={26} max={9999}/><CellRow total={5} fills={gridFills([{ count: 1, color: T.blue }], 5)} h={26} max={9999}/></div>)}/>;
+  const t = useT(); const c = CONTENT.s6;
+  const base = [<Frac n="2" d="3" size="mid"/>, <Frac n="5" d="3" size="mid"/>, <Frac n="2" d="5" size="mid"/>, <Frac n="10" d="15" size="mid"/>];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 2, 3, 1]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={10} den={15} color={T.blue} animateIn={true}/></div></>);
+  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimRecipe/>}/>}/>;
 };
 
-// s7 — TEST xatoni-top p3
+// s7 — TEST choice (текст): сократил только числитель? Нет.
 const Screen7 = (props) => {
   const t = useT(); const c = CONTENT.s7;
-  const eq = (a, b, d1, d2, r, rd) => (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-      <Frac n={String(a)} d={String(d1)} size="sm"/><Op size="sm">+</Op><Frac n={String(b)} d={String(d2)} size="sm"/><Op size="sm">=</Op><Frac n={String(r)} d={String(rd)} size="sm"/>
-    </span>
-  );
-  // base[0] — XATO: 1/2 + 1/3 = 2/5 (surat+maxraj qo'shilgan)
-  const base = [eq(1, 1, 2, 3, 2, 5), eq(3, 2, 6, 6, 5, 6), eq(1, 1, 4, 4, 2, 4), eq(4, 3, 12, 12, 7, 12)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [1, 2, 3, 0]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
   return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
-// s8 — TEST bosqichli yechim quruvchi p4: 1/2 + 1/3
-const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+// s8 — CASE setup: Санжар, рецепт.
+const Screen8 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s8;
-  const sfx = useSfx();
-  const audio = useAudio([{ id: 's8_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
-  const STEPS = [
-    { q: c.q_step1, hint: c.hint_step1, opts: [numOpt(6), numOpt(5), numOpt(3)], correct: 0 },
-    { q: c.q_step2, hint: c.hint_step2, opts: [<Frac n="3" d="6" size="mid"/>, <Frac n="1" d="6" size="mid"/>, <Frac n="2" d="6" size="mid"/>], correct: 0 },
-    { q: c.q_step3, hint: c.hint_step3, opts: [<Frac n="5" d="6" size="mid"/>, <Frac n="5" d="12" size="mid"/>, <Frac n="2" d="5" size="mid"/>], correct: 0 },
-  ];
-  const wasSolved = storedAnswer?.solved === true;
-  const [stepIdx, setStepIdx] = useState(wasSolved ? 3 : 0);
-  const [wrong, setWrong] = useState(() => new Set());
-  const allFirstRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? true) : true);
-  const introAdvRef = useRef(wasSolved);
-  const solved = stepIdx >= 3;
-  const pick = (i) => {
-    if (solved) return;
-    const st = STEPS[stepIdx];
-    if (!introAdvRef.current) { introAdvRef.current = true; audio.triggerEvent('option_picked'); }
-    if (i === st.correct) {
-      sfx.playCorrect();
-      const ns = stepIdx + 1;
-      setWrong(new Set());
-      setStepIdx(ns);
-      if (ns >= 3) {
-        onAnswer({ stage: 'practice', screenIdx: 8, question: c.title[lang], correctAnswer: '5/6', studentAnswer: '5/6', correct: allFirstRef.current, firstTry: allFirstRef.current, solved: true });
-        if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_correct[lang]); }, 300);
-      }
-    } else {
-      sfx.playWrong(); allFirstRef.current = false;
-      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
-      if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_wrong[lang]); }, 300);
-    }
-  };
-  const st = STEPS[Math.min(stepIdx, 2)];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-          {[0, 1, 2].map(s => <span key={s} className="mono small" style={{ width: 26, height: 26, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: s < stepIdx ? T.success : (s === stepIdx ? T.accent : 'rgba(167,166,162,0.25)'), color: s <= stepIdx ? '#FFF' : T.ink3, fontWeight: 600 }}>{s + 1}</span>)}
-        </div>
-        {!solved && (
-          <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <p className="body" style={{ margin: 0, fontWeight: 600, textAlign: 'center' }}>{mt(t(st.q))}</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
-              {st.opts.map((opt, i) => { const dead = wrong.has(i); return (
-                <button key={i} className={dead ? 'option option-picked-wrong' : 'option'} disabled={dead} onClick={() => pick(i)} style={{ padding: 'clamp(10px, 1.5vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{opt}</button>
-              ); })}
-            </div>
-            {wrong.size > 0 && <p className="small" style={{ margin: 0, color: '#A07D14', textAlign: 'center' }}>{mt(t(st.hint))}</p>}
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s9 — CASE setup: Bahodir 1/4 + 1/6
-const Screen9 = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s9;
   const audio = useAudio(makeAudioSegments(c, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
-        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{mt(t(c.body_p1))}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="4" size="sm" color={T.accent}/><div style={{ flex: 1 }}><CellRow total={4} fills={gridFills([{ count: 1, color: T.accent }], 4)} h={28} max={9999}/></div></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="6" size="sm" color={T.blue}/><div style={{ flex: 1 }}><CellRow total={6} fills={gridFills([{ count: 1, color: T.blue }], 6)} h={28} max={9999}/></div></div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
+        <h2 className="title h-title fade-up">{t(c.title)}</h2>
+        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.body_p1)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div style={{ width: '100%', maxWidth: 520, margin: '0 auto' }}><FracBar num={8} den={12} color={T.blue} animateIn={true}/></div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(20px, 6vw, 56px)', flexWrap: 'wrap' }}>
+            <div><p className="eyebrow" style={{ color: T.blue, marginBottom: 4 }}>{t(c.card_line_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_line_value)}</p></div>
+            <div><p className="eyebrow" style={{ color: T.accent, marginBottom: 4 }}>{t(c.card_parts_label)}</p><p className="body" style={{ margin: 0 }}>{t(c.card_parts_value)}</p></div>
+          </div>
         </div>
-        <p className="body fade-up delay-2">{mt(t(c.outro))}</p>
+        <p className="body fade-up delay-2">{t(c.outro)}</p>
       </div>
     </Stage>
   );
 };
 
-// s10 — CASE drag/tap p5: 1/4->3/12, 1/6->2/12 (fakt piksel)
-const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s10;
-  const sfx = useSfx();
-  const audio = useAudio([{ id: 's10_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const wasSolved = storedAnswer?.solved === true;
-  const [phase, setPhase] = useState(wasSolved ? 2 : 0);
-  const [v1, setV1] = useState(wasSolved ? '3' : '');
-  const [v2, setV2] = useState(wasSolved ? '2' : '');
-  const [calcHint, setCalcHint] = useState(false);
-  const [a, setA] = useState(wasSolved ? 3 : 0);
-  const [b, setB] = useState(wasSolved ? 2 : 0);
-  const [placeHint, setPlaceHint] = useState(false);
-  const erroredRef = useRef(storedAnswer ? !(storedAnswer.firstTry ?? true) : false);
-  const introAdvRef = useRef(wasSolved);
-  const voice = (key) => { if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio[key][lang]); }, 300); };
-  const checkCalc = () => {
-    if (!introAdvRef.current) { introAdvRef.current = true; audio.triggerEvent('check_pressed'); }
-    const ok = parseInt(v1, 10) === 3 && parseInt(v2, 10) === 2;
-    if (ok) { sfx.playCorrect(); setCalcHint(false); setPhase(1); }
-    else { erroredRef.current = true; sfx.playWrong(); setCalcHint(true); voice('on_wrong'); }
-  };
-  const checkPlace = () => {
-    const ok = a === 3 && b === 2;
-    if (ok) {
-      sfx.playCorrect(); setPlaceHint(false); setPhase(2);
-      const ft = !erroredRef.current;
-      onAnswer({ stage: 'practice', screenIdx: 10, question: c.q_calc1[lang], correctAnswer: '5/12', studentAnswer: `${a + b}/12`, correct: ft, firstTry: ft, solved: true });
-      voice('on_correct');
-    } else { erroredRef.current = true; sfx.playWrong(); setPlaceHint(true); voice('on_wrong'); }
-  };
-  const fills = gridFills([{ count: a, color: T.accent }, { count: b, color: T.blue }], 12);
-  const inSt = { width: 'clamp(60px, 14vw, 80px)' };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={phase < 2} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
-        {phase === 0 && (
-          <>
-            <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
-            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="4" size="mid" color={T.accent}/><Op>=</Op><input type="number" inputMode="numeric" className="answer-input" value={v1} placeholder="0" onChange={e => { setV1(e.target.value); setCalcHint(false); }} style={inSt}/><span className="mono" style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: T.ink2 }}>/12</span></div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><Frac n="1" d="6" size="mid" color={T.blue}/><Op>=</Op><input type="number" inputMode="numeric" className="answer-input" value={v2} placeholder="0" onChange={e => { setV2(e.target.value); setCalcHint(false); }} style={inSt}/><span className="mono" style={{ fontSize: 'clamp(15px, 2vw, 18px)', color: T.ink2 }}>/12</span></div>
-            </div>
-            {calcHint && (<div className="frame-tip fade-up"><p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p><p className="body" style={{ margin: 0 }}>{mt(t(c.calc_hint))}</p></div>)}
-            <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={checkCalc} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button></div>
-          </>
-        )}
-        {phase >= 1 && (
-          <>
-            <h2 className="title h-sub fade-up">{mt(t(c.place_title))}</h2>
-            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
-              <CellRow total={12} fills={fills} h={40}/>
-              <FracPlus parts={[{ n: a, d: 12, c: T.accent }, { n: b, d: 12, c: T.blue }]} sumN={a + b} sumD={12} showSum={phase === 2}/>
-            </div>
-            {phase === 1 && (
-              <>
-                <div className="fade-up delay-2" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button className="btn-ghost" onClick={() => { setA(v => (v >= 6 ? 0 : v + 1)); setPlaceHint(false); }} style={{ padding: '10px 16px', boxShadow: '0 4px 12px -4px rgba(255,79,40,0.3)' }}><span style={{ color: T.accent, fontWeight: 600 }}>{t(c.chips_a)}: {a}</span></button>
-                  <button className="btn-ghost" onClick={() => { setB(v => (v >= 6 ? 0 : v + 1)); setPlaceHint(false); }} style={{ padding: '10px 16px', boxShadow: '0 4px 12px -4px rgba(1,154,203,0.3)' }}><span style={{ color: T.blue, fontWeight: 600 }}>{t(c.chips_b)}: {b}</span></button>
-                  <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={checkPlace} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button></div>
-                </div>
-                {placeHint && (<div className="frame-tip fade-up"><p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p><p className="body" style={{ margin: 0 }}>{mt(t(c.place_hint))}</p></div>)}
-              </>
-            )}
-            {phase === 2 && (<FeedbackBlock show={true} isCorrect={true}><p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p><p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p><div style={{ marginTop: 10 }}><FactCard text={c.fact} anim={<AnimPixel/>}/></div></FeedbackBlock>)}
-          </>
-        )}
-      </div>
-    </Stage>
-  );
+// s9 — CASE step (дроби): 8/12 → 2/3.
+const Screen9 = (props) => {
+  const t = useT(); const c = CONTENT.s9;
+  const base = [<Frac n="2" d="3" size="mid"/>, <Frac n="4" d="6" size="mid"/>, <Frac n="2" d="4" size="mid"/>, <Frac n="8" d="12" size="mid"/>];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [2, 0, 1, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={8} den={12} color={T.blue} animateIn={true}/></div></>);
+  return <QuestionScreen {...props} idx={9} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[9]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_SCI} anim={<AnimGears/>}/>}/>;
 };
 
-// s11 — CASE final MC: 1/4 + 1/6 = 5/12 (fakt progress)
+// s10 — CASE conclusion (текст): почему 8/12 = 2/3.
+const Screen10 = (props) => {
+  const t = useT(); const c = CONTENT.s10;
+  const { options, correctIdx, content } = shuffleMC(c, [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)], 0, [2, 1, 0, 3]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2></>);
+  return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+};
+
+// s11 — TEST choice (дроби): 12/16 → 3/4.
 const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
-  const base = [<Frac n="5" d="12" size="mid"/>, <Frac n="2" d="10" size="mid"/>, <Frac n="5" d="24" size="mid"/>, <Frac n="1" d="12" size="mid"/>];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}><CellRow total={4} fills={gridFills([{ count: 1, color: T.accent }], 4)} h={26}/><CellRow total={6} fills={gridFills([{ count: 1, color: T.blue }], 6)} h={26}/></div></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} anim={<AnimProgress/>}/>}/>;
+  const base = [<Frac n="3" d="4" size="mid"/>, <Frac n="6" d="8" size="mid"/>, <Frac n="4" d="4" size="mid"/>, <Frac n="12" d="16" size="mid"/>];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 3, 1, 2]);
+  const question = (<><p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p><h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2><div className="frame" style={{ marginTop: 16 }}><FracBar num={12} den={16} color={T.blue} animateIn={true}/></div></>);
+  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimCompress/>}/>}/>;
 };
 
-// s12 — SUMMARY
+// s12 — SUMMARY: без счёта, закрывает крючок + блок связей; finishLesson один раз.
 const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s12;
   const audio = useAudio(makeAudioSegments(c, lang));
@@ -1479,17 +1433,20 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 16px)', justifyContent: 'center' }}>
-        <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: 'center' }}>
+        <div className="fade-up">
+          <p className="eyebrow" style={{ color: T.success }}>{t(c.label)}</p>
+          <h2 className="title h-title" style={{ marginTop: 8 }}>{t(c.title)}</h2>
+        </div>
         <div className="frame fade-up delay-1">
-          <p className="eyebrow" style={{ color: T.ink2, marginBottom: 10 }}>{t(c.main_label)}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {mains.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 1 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{mt(t(m))}</p></div>))}
+          <p className="eyebrow" style={{ color: T.ink2, marginBottom: 14 }}>{t(c.main_label)}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {mains.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{t(m)}</p></div>))}
           </div>
         </div>
-        <div className="frame-success fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <FracPlus parts={[{ n: 1, d: 2, c: T.accent }, { n: 1, d: 3, c: T.blue }]} sumN={5} sumD={6}/>
-          <p className="body" style={{ margin: 0 }}>{mt(t(c.back_to_hook))}</p>
+        <div className="frame-success fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <DivLadder steps={[{ a: 6, b: 8, by: 2 }]}/>
+          <p className="body" style={{ margin: 0 }}>{t(c.back_to_hook)}</p>
         </div>
         <ConnectionsBlock c={c}/>
       </div>
@@ -1498,16 +1455,18 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
 };
 
 // ============================================================
-// КОРНЕВОЙ КОМПОНЕНТ
+// КОРНЕВОЙ КОМПОНЕНТ (шаблон из infrastructure_v1)
 // ============================================================
-export default function FractionAddUnlikeDenLesson({
+export default function FractionReduceLesson({
   studentName, lang: langProp, ttsApiBase,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  // Preview-режим = props от LMS не пришли (запуск в artifacts).
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  // Конфигурируем урок: движок/SFX/AI читают из ttsConfig.
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1519,12 +1478,22 @@ export default function FractionAddUnlikeDenLesson({
   const startTimeRef = useRef(Date.now());
 
   const recordAnswer = useCallback((screenIdx, data) => {
-    setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
+    setAnswers(prev => {
+      const next = [...prev];
+      next[screenIdx] = data;
+      return next;
+    });
   }, []);
 
-  const reset = useCallback(() => { setAnswers([]); setCurrent(0); startTimeRef.current = Date.now(); }, []);
+  const reset = useCallback(() => {
+    setAnswers([]);
+    setCurrent(0);
+    startTimeRef.current = Date.now();
+  }, []);
 
   const finishLesson = useCallback(() => {
+  // Обучающий урок не оценивается (teaching_methodology §1.4): scored:false на всех
+  // экранах → score-поля payload = 0/false. Аналитика первой попытки сохраняется (firstTryStats).
   const scored = SCREEN_META.filter(s => s.scored);
   const finalScreens = scored.filter(s => s.scope === 'final');
   const correctCount = answers.filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
@@ -1539,8 +1508,14 @@ export default function FractionAddUnlikeDenLesson({
     scorePercent: scored.length > 0 ? Math.round((correctCount / scored.length) * 100) : 0,
     finalScore: finalCorrect,
     finalTotal: finalScreens.length,
-    passed: finalScreens.length > 0 ? finalCorrect / finalScreens.length >= 0.6 : (scored.length > 0 ? correctCount / scored.length >= 0.6 : false),
-    firstTryStats: { total: checked.length, firstTryCorrect: checked.filter(a => a.firstTry === true).length },
+    passed: finalScreens.length > 0
+      ? finalCorrect / finalScreens.length >= 0.6
+      : (scored.length > 0 ? correctCount / scored.length >= 0.6 : false),
+    // аналитика первой попытки (ученику не показывается)
+    firstTryStats: {
+      total: checked.length,
+      firstTryCorrect: checked.filter(a => a.firstTry === true).length
+    },
     answers: answers.filter(Boolean)
   };
   safeOnFinished(payload);
@@ -1552,7 +1527,9 @@ export default function FractionAddUnlikeDenLesson({
   const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
   const prev = () => setCurrent(s => Math.max(s - 1, 0));
 
-  const handleAnswer = useCallback((data) => { recordAnswer(current, data); }, [current, recordAnswer]);
+  const handleAnswer = useCallback((data) => {
+    recordAnswer(current, data);
+  }, [current, recordAnswer]);
 
   return (
     <LangContext.Provider value={lang}>
@@ -1569,14 +1546,24 @@ export default function FractionAddUnlikeDenLesson({
             ))}
           </div>
         )}
-        <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+        <CurrentScreen
+          screen={current}
+          studentName={safeName}
+          storedAnswer={answers[current]}
+          answers={answers}
+          onAnswer={handleAnswer}
+          onNext={next}
+          onPrev={prev}
+          onReset={reset}
+          finishLesson={finishLesson}
+        />
       </div>
     </LangContext.Provider>
   );
 }
 
 // ============================================================
-// CSS-БЛОК (STYLES) — визуальный язык v15 из infrastructure_v1 + BackLine (frac_5_10)
+// CSS-БЛОК (STYLES) — визуальный язык v15 из infrastructure_v1 + math-дополнения
 // ============================================================
 const STYLES = `
 html, body { margin: 0; padding: 0; }
@@ -1908,147 +1895,63 @@ html, body { margin: 0; padding: 0; }
 @keyframes cellPop { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
 .frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
-/* MATH frac_5_10: BackLine — health-bar: сплошная заливка плавно убывает (transition width) + маркер едет. */
-.bl-bar { position: relative; width: 100%; height: 32px; border-radius: 9px; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167, 166, 162, 0.6); }
-.bl-ghost { position: absolute; top: 0; bottom: 0; left: 0; background: rgba(255, 79, 40, 0.12); border-radius: 9px 0 0 9px; }
-.bl-fill { position: absolute; top: 0; bottom: 0; left: 0; background: #FF4F28; border-radius: 9px 0 0 9px; transition: width 0.6s cubic-bezier(0.34, 1.1, 0.64, 1); }
-.bl-fill-done { background: #1F7A4D; }
-.bl-tick { position: absolute; top: 0; bottom: 0; width: 2px; background: #F6F4EF; transform: translateX(-1px); }
-.bl-hit { position: absolute; top: 0; bottom: 0; cursor: pointer; z-index: 3; }
-.bl-marker { position: absolute; top: -7px; bottom: -7px; width: 3px; background: #0E0E10; border-radius: 2px; transform: translateX(-1.5px); transition: left 0.6s cubic-bezier(0.34, 1.1, 0.64, 1); z-index: 4; }
-.bl-dot { position: absolute; top: -7px; left: 50%; width: 13px; height: 13px; border-radius: 50%; background: #0E0E10; transform: translateX(-50%); box-shadow: 0 0 8px rgba(14, 14, 16, 0.4); }
-.bl-axis { display: flex; justify-content: space-between; margin-top: 6px; }
-.bl-count { display: flex; justify-content: center; margin-top: 8px; animation: blSpin 0.4s cubic-bezier(0.34, 1.4, 0.64, 1); }
-@keyframes blSpin { 0% { opacity: 0; transform: translateY(-8px) scale(0.6); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-.bl-glow { animation: blGlow 0.7s ease; }
-@keyframes blGlow { 0% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); } 50% { filter: drop-shadow(0 0 12px rgba(31, 122, 77, 0.45)); } 100% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); } }
 
-/* MATH frac_5_10: SubMachine — «машина вычитания»: числитель↓, знаменатель заблокирован. */
-.sm-rows { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 420px; }
-.sm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #FFFFFF; border-radius: 10px; padding: 10px 14px; box-shadow: 0 4px 12px -6px rgba(58, 53, 48, 0.16); transition: box-shadow 0.4s ease; }
-.sm-tag { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-.sm-eq { display: inline-flex; align-items: center; gap: 6px; font-size: clamp(17px, 2.5vw, 22px); font-weight: 600; }
-.sm-res { font-family: 'Fraunces', serif; font-weight: 600; color: #1F7A4D; display: inline-block; animation: blSpin 0.45s cubic-bezier(0.34, 1.4, 0.64, 1); }
-.sm-lock { font-family: 'Manrope', sans-serif; font-size: clamp(11px, 1.4vw, 12px); font-weight: 600; color: #1F7A4D; display: inline-flex; align-items: center; gap: 4px; }
-.sm-lock::before { content: '🔒'; font-size: 0.85em; }
+/* MATH: сравнение разных знаменателей — приведение к общим долям (frac_5_07). */
+.cp-row { animation: cpRowIn 0.42s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
+@keyframes cpRowIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+.cp-grow { animation: cpGrow 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
+@keyframes cpGrow { from { width: 0; } }
+/* линии сетки въезжают слева направо (деление на общие доли) */
+.cp-line { animation: cpLineIn 0.32s ease-out backwards; transform-origin: center top; }
+@keyframes cpLineIn { from { opacity: 0; transform: scaleY(0.1); } to { opacity: 1; transform: scaleY(1); } }
+.cp-marker { animation: cpMarkerIn 0.3s ease-out backwards; }
+@keyframes cpMarkerIn { from { opacity: 0; } }
+.cp-slide { animation: cpSlide 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
+@keyframes cpSlide { from { left: 0; } }
+.cp-flag { transform-origin: bottom left; animation: cpFlagPop 0.4s cubic-bezier(0.34, 1.5, 0.64, 1) 0.45s backwards, cpFlagWave 1.8s ease-in-out 0.9s infinite; }
+@keyframes cpFlagPop { from { opacity: 0; transform: scale(0); } }
+@keyframes cpFlagWave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-7deg); } }
+/* ориентир 1/2 въезжает к центру; точки-дроби мягко появляются */
+.cp-half-in { animation: cpHalfIn 0.55s cubic-bezier(0.34, 1.1, 0.64, 1) backwards; }
+@keyframes cpHalfIn { from { left: 0; opacity: 0; } }
+.cp-dot-wrap { animation: cpDotIn 0.35s ease-out backwards; }
+@keyframes cpDotIn { from { opacity: 0; } }
+/* MATH: сокращение — слияние долей, счётчик, лесенка деления (frac_5_08). */
+.cp-merge { animation: cpMerge 0.5s ease forwards; }
+@keyframes cpMerge { from { opacity: 1; } to { opacity: 0; } }
+.cp-spin { animation: cpSpin 0.4s cubic-bezier(0.34, 1.4, 0.64, 1); }
+@keyframes cpSpin { 0% { opacity: 0; transform: translateY(-8px) scale(0.6); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.cp-ladder-step { animation: cpLadderIn 0.4s ease-out backwards; }
+@keyframes cpLadderIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
 
-/* MATH frac_5_10: ФАКТ-БЛОК (IT) — синяя карта + мини-анимации (loop, CSS-only). */
-.fact-card { display: flex; gap: 14px; align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
-.fact-anim { flex-shrink: 0; width: 72px; display: flex; align-items: center; justify-content: center; }
+/* MATH: FactCard — fakt to'g'ri javobdan keyin (ko'k tema). */
+.fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
+.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .fact-body { flex: 1; }
 .fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
 .fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
-.fact-text { margin: 0; font-size: clamp(13px, 1.6vw, 14px); line-height: 1.45; color: #0E0E10; }
-/* progress (загрузка): полоса заполняется + бегущая стрелка вниз */
-.fa-prog { position: relative; width: 66px; height: 16px; border-radius: 99px; background: rgba(1, 154, 203, 0.18); overflow: hidden; }
-.fa-prog-fill { height: 100%; border-radius: 99px; background: #019ACB; animation: faProg 2.2s ease-in-out infinite; }
-@keyframes faProg { 0% { width: 6%; } 60% { width: 80%; } 100% { width: 6%; } }
-.fa-prog-arr { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: 12px; color: #FFFFFF; animation: faArr 1.1s ease-in-out infinite; }
-@keyframes faArr { 0%, 100% { transform: translate(-50%, -75%); opacity: 0.5; } 50% { transform: translate(-50%, -25%); opacity: 1; } }
-/* battery (заряд): уровень + пульсирующая молния */
-.fa-bat { position: relative; width: 58px; height: 28px; border: 2px solid #019ACB; border-radius: 6px; padding: 2px; }
-.fa-bat-tip { position: absolute; right: -6px; top: 8px; width: 4px; height: 10px; background: #019ACB; border-radius: 0 2px 2px 0; }
-.fa-bat-fill { height: 100%; border-radius: 3px; animation: faBat 2.8s ease-in-out infinite; }
-@keyframes faBat { 0% { width: 90%; background: #1F7A4D; } 50% { width: 26%; background: #FF4F28; } 100% { width: 90%; background: #1F7A4D; } }
-.fa-bat-bolt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 14px; animation: faBolt 1.4s ease-in-out infinite; }
-@keyframes faBolt { 0%, 100% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.6; } 50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; } }
-/* slider (громкость): заполнение + бегущий бегунок */
-.fa-sld { position: relative; width: 66px; height: 26px; display: flex; align-items: center; }
-.fa-sld-track { position: absolute; left: 0; right: 0; height: 5px; border-radius: 99px; background: rgba(1, 154, 203, 0.22); }
-.fa-sld-fill { position: absolute; left: 0; height: 5px; border-radius: 99px; background: #019ACB; animation: faSldFill 2.6s ease-in-out infinite; }
-@keyframes faSldFill { 0% { width: 62%; } 50% { width: 8%; } 100% { width: 62%; } }
-.fa-sld-knob { position: absolute; top: 50%; width: 16px; height: 16px; border-radius: 50%; background: #019ACB; transform: translate(-50%, -50%); box-shadow: 0 0 0 3px #EAF6FB, 0 0 10px rgba(1, 154, 203, 0.6); animation: faSld 2.6s ease-in-out infinite; }
-@keyframes faSld { 0% { left: 62%; } 50% { left: 8%; } 100% { left: 62%; } }
-/* egypt (история): пирамида пульсирует + солнце движется */
-.fa-pyr { position: relative; width: 60px; height: 34px; display: flex; align-items: flex-end; justify-content: center; }
-.fa-pyr-tri { width: 0; height: 0; border-left: 26px solid transparent; border-right: 26px solid transparent; border-bottom: 30px solid #019ACB; animation: faPyr 2.6s ease-in-out infinite; }
-@keyframes faPyr { 0%, 100% { filter: drop-shadow(0 0 0 rgba(1, 154, 203, 0)); transform: translateY(0); } 50% { filter: drop-shadow(0 0 9px rgba(1, 154, 203, 0.6)); transform: translateY(-2px); } }
-.fa-pyr-sun { position: absolute; top: 0; left: 50%; width: 10px; height: 10px; border-radius: 50%; background: #FF9A3C; box-shadow: 0 0 8px rgba(255, 154, 60, 0.7); animation: faSun 3.2s ease-in-out infinite; }
-@keyframes faSun { 0% { transform: translateX(-26px); opacity: 0.4; } 50% { transform: translateX(20px); opacity: 1; } 100% { transform: translateX(-26px); opacity: 0.4; } }
-
-/* MATH frac_5_10: StepLine (son o'qida orqaga qadam) + MinuendBar + batareya (s10 drag/remove). */
-.sl-wrap { position: relative; width: 100%; max-width: 440px; margin: 0 auto; }
-.sl-track { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 4px; border-radius: 99px; background: rgba(167, 166, 162, 0.30); }
-.sl-fill { position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 4px; border-radius: 99px; background: #FF4F28; box-shadow: 0 0 8px rgba(255, 79, 40, 0.45); transition: width 0.5s cubic-bezier(0.34, 1.1, 0.64, 1); }
-.sl-tick { position: absolute; top: 50%; width: 2px; height: 10px; transform: translate(-50%, -50%); background: rgba(167, 166, 162, 0.7); border-radius: 2px; }
-.sl-marker { position: absolute; top: 50%; width: 20px; height: 20px; border-radius: 50%; background: #FF4F28; transform: translate(-50%, -50%); box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px rgba(255, 79, 40, 0.55); transition: left 0.5s cubic-bezier(0.34, 1.4, 0.64, 1), background 0.3s; z-index: 2; }
-.sl-marker-hi { background: #1F7A4D; box-shadow: 0 0 0 4px #F6F4EF, 0 0 14px rgba(31, 122, 77, 0.6); }
-/* MATH frac_5_10: «живой» маркер на примерах — расходящееся кольцо (ripple), цвет нейтральный. */
-.sl-alive::after { content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(58, 53, 48, 0.35); transform: translate(-50%, -50%); pointer-events: none; animation: slPing 1.9s ease-out infinite; }
-@keyframes slPing { 0% { transform: translate(-50%, -50%) scale(0.55); opacity: 0.85; } 100% { transform: translate(-50%, -50%) scale(2.6); opacity: 0; } }
-.sl-flag { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 1.4vw, 13px); font-weight: 600; color: #0E0E10; white-space: nowrap; background: #FFFFFF; padding: 1px 6px; border-radius: 6px; box-shadow: 0 3px 8px -3px rgba(58, 53, 48, 0.25); }
-.sl-end { position: absolute; top: calc(50% + 14px); font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 1.3vw, 12px); color: #A7A6A2; }
-.sl-end-0 { left: 0; transform: translateX(-50%); }
-.sl-end-1 { right: 0; transform: translateX(50%); }
-.sl-loop { animation: slMarkLoop 2.8s cubic-bezier(0.45, 0, 0.55, 1) infinite, slMarkGlow 1.4s ease-in-out infinite !important; }
-@keyframes slMarkLoop { 0%, 20% { left: 83.333%; } 50%, 70% { left: 50%; } 100% { left: 83.333%; } }
-@keyframes slMarkGlow { 0%, 100% { box-shadow: 0 0 0 4px #F6F4EF, 0 0 8px rgba(255, 79, 40, 0.5); } 50% { box-shadow: 0 0 0 4px #F6F4EF, 0 0 20px rgba(255, 79, 40, 0.9); } }
-/* MATH frac_5_10: пульс «?» в хуке. */
-.hk-q { display: inline-block; animation: hkQ 1.3s ease-in-out infinite; }
-@keyframes hkQ { 0%, 100% { transform: scale(1); opacity: 0.7; text-shadow: 0 0 0 rgba(255, 79, 40, 0); } 50% { transform: scale(1.25); opacity: 1; text-shadow: 0 0 12px rgba(255, 79, 40, 0.5); } }
-.sl-loop-fill { animation: slFillLoop 2.8s cubic-bezier(0.45, 0, 0.55, 1) infinite !important; }
-@keyframes slFillLoop { 0%, 20% { width: 83.333%; } 50%, 70% { width: 50%; } 100% { width: 83.333%; } }
-.sl-stepin { animation: slStepIn 0.9s cubic-bezier(0.34, 1.2, 0.64, 1) backwards; }
-@keyframes slStepIn { from { left: 83.333%; } }
-.sl-stepin-fill { animation: slStepInFill 0.9s cubic-bezier(0.34, 1.2, 0.64, 1) backwards; }
-@keyframes slStepInFill { from { width: 83.333%; } }
-.mb-wrap { position: relative; display: flex; width: 100%; max-width: 360px; height: 42px; border-radius: 10px; overflow: hidden; background: #FFFFFF; box-shadow: inset 0 0 0 2px #A7A6A2; }
-.mb-cell { flex: 1; }
-/* MATH frac_5_10: бегущий блик на примере-полосе (движение без раскрытия ответа). */
-.mb-shimmer { position: absolute; top: 0; bottom: 0; width: 38%; left: -38%; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent); animation: mbShine 2.4s ease-in-out infinite; }
-@keyframes mbShine { 0% { left: -38%; } 70%, 100% { left: 100%; } }
-/* MATH frac_5_10: SubFlyLoop — «улетающие доли» в хуке (вычитание = забираем), CSS-only loop. */
-.sf-bar { position: relative; display: flex; width: 100%; max-width: 340px; height: 40px; border-radius: 9px; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167, 166, 162, 0.6); }
-.sf-cell { flex: 1; position: relative; }
-.sf-on { background: #FF4F28; }
-.sf-on:first-child { border-radius: 9px 0 0 9px; }
-.sf-fly { animation: sfFly 2.6s ease-in-out infinite; transform-origin: center bottom; }
-@keyframes sfFly { 0%, 26% { transform: translateY(0) scale(1); opacity: 1; } 50% { transform: translateY(-24px) scale(0.78); opacity: 0; } 52%, 74% { transform: translateY(-24px); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
-/* MATH frac_5_10: FloatFracs — бледные дрейфующие дроби, заполняют пустые зоны движением (декор). */
-.ff-wrap { display: flex; justify-content: center; align-items: center; gap: clamp(18px, 6vw, 44px); opacity: 0.3; pointer-events: none; margin-top: 6px; }
-.ff { display: inline-flex; color: #5A5A60; animation: ffBob 3.2s ease-in-out infinite; }
-.ff-1 { animation-delay: 0s; } .ff-2 { animation-delay: 0.5s; } .ff-3 { animation-delay: 1s; } .ff-4 { animation-delay: 1.5s; }
-@keyframes ffBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
-/* MATH frac_5_10: TvRewind — ТВ с отмоткой назад (хук, по сюжету сериала). */
-.tv { display: flex; flex-direction: column; align-items: center; }
-.tv-screen { position: relative; width: clamp(160px, 42vw, 210px); height: clamp(96px, 25vw, 124px); border-radius: 12px; background: #0E0E10; box-shadow: 0 0 0 4px #FFFFFF, 0 10px 24px -6px rgba(58, 53, 48, 0.4); overflow: hidden; }
-.tv-tick { position: absolute; top: 8px; bottom: 24px; width: 2px; background: rgba(255, 255, 255, 0.12); transform: translateX(-1px); }
-.tv-rew { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -58%); color: #FF4F28; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(24px, 7vw, 38px); letter-spacing: -3px; text-shadow: 0 0 14px rgba(255, 79, 40, 0.55); animation: tvRew 1.1s ease-in-out infinite; }
-@keyframes tvRew { 0%, 100% { opacity: 0.45; transform: translate(-50%, -58%) scale(0.9); } 50% { opacity: 1; transform: translate(-50%, -58%) scale(1.12); } }
-.tv-seek { position: absolute; left: 12px; right: 12px; bottom: 12px; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, 0.22); }
-.tv-seek-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: #FF4F28; animation: tvSeek 3s cubic-bezier(0.4, 0, 0.5, 1) infinite; }
-@keyframes tvSeek { 0% { width: 12%; } 40% { width: 83.3%; } 58% { width: 50%; } 82% { width: 50%; } 100% { width: 12%; } }
-.tv-seek-head { position: absolute; top: 50%; width: 11px; height: 11px; border-radius: 50%; background: #FFFFFF; transform: translate(-50%, -50%); box-shadow: 0 0 6px rgba(255, 255, 255, 0.7); animation: tvHead 3s cubic-bezier(0.4, 0, 0.5, 1) infinite; }
-@keyframes tvHead { 0% { left: 12%; } 40% { left: 83.3%; } 58% { left: 50%; } 82% { left: 50%; } 100% { left: 12%; } }
-.tv-neck { width: 10px; height: 9px; background: #A7A6A2; }
-.tv-base { width: 60px; height: 7px; background: #A7A6A2; border-radius: 99px; }
-.bt-wrap { position: relative; display: flex; width: 100%; max-width: 360px; height: 60px; border: 3px solid #019ACB; border-radius: 8px; padding: 3px; background: #FFFFFF; }
-.bt-tip { position: absolute; right: -8px; top: 50%; transform: translateY(-50%); width: 5px; height: 22px; background: #019ACB; border-radius: 0 3px 3px 0; }
-.bt-cell { flex: 1; border: none; background: transparent; cursor: pointer; position: relative; border-radius: 3px; transition: background 0.25s; padding: 0; display: flex; align-items: center; justify-content: center; }
-.bt-cell.bt-on { background: #1F7A4D; }
-.bt-cell.bt-on:hover:not(:disabled) { background: #FF4F28; }
-.bt-cell:disabled { cursor: default; }
-.bt-x { color: #FF4F28; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px; }
-
-
-/* MATH frac_5_10: EatingNon — dumaloq lepyoshka, 2 bo'lak aylanada uchib ketadi (ayirish). */
-.non-fly { animation: nonFly 3s ease-in-out infinite; }
-@keyframes nonFly { 0%, 14% { opacity: 1; transform: translateY(0) scale(1); } 42%, 60% { opacity: 0; transform: translateY(-14px) scale(0.5); } 86%, 100% { opacity: 1; transform: translateY(0) scale(1); } }
-
-
-/* MATH frac_5_10: FloatFracs — plavayushchaya stroka drobey (dekorativ, reconstructed). */
-.ff-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 2px; flex-wrap: wrap; }
-.ff-chip { display: inline-flex; animation: ffFloat 2.6s ease-in-out infinite; }
-@keyframes ffFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-
-
-/* MATH frac_5_06: shesteryonki (g'ildiraklar), cell-row, fakt-anim (piksel, g'ildirak). */
-@keyframes gearSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.cr-shine { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0) 55%); }
-.fa-gear { animation: gearSpin 4s linear infinite; transform-origin: center; }
-.fa-px { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: 44px; }
-.fa-px-c { width: 100%; aspect-ratio: 1 / 1; border-radius: 2px; background: #019ACB; animation: faPx 2.2s ease-in-out infinite; }
-@keyframes faPx { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+.fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
+/* Tarix (oshpazlar retsepti): 4 ulush → 2 tadan guruhlanib qisqaradi, nisbat soddalashadi. */
+.fa-rec { display: flex; gap: 4px; width: clamp(86px, 17vw, 116px); }
+.fa-rec-c { flex: 1; height: clamp(24px, 5vw, 32px); background: #019ACB; opacity: 0.22; border-radius: 4px; animation: faRec 2.8s ease-in-out infinite; }
+.fa-rec-1 { animation-delay: 0s; } .fa-rec-2 { animation-delay: 0.7s; }
+.fa-rec-3 { animation-delay: 0.35s; } .fa-rec-4 { animation-delay: 1.05s; }
+@keyframes faRec { 0%, 100% { opacity: 0.18; transform: scaleX(1); } 50% { opacity: 0.9; transform: scaleX(0.92); } }
+/* Fan (tishli uzatma 2:1): katta g'ildirak sekin, kichigi ikki barobar tez aylanadi. */
+.fa-gear { position: relative; width: clamp(78px, 16vw, 104px); height: clamp(60px, 12vw, 80px); }
+.fa-gear-big { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: clamp(40px, 8vw, 54px); height: clamp(40px, 8vw, 54px); border-radius: 50%; border: clamp(7px, 1.6vw, 10px) dashed #019ACB; opacity: 0.55; animation: faGearSpin 5.2s linear infinite; }
+.fa-gear-small { position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: clamp(22px, 4.5vw, 30px); height: clamp(22px, 4.5vw, 30px); border-radius: 50%; border: clamp(5px, 1.1vw, 7px) dashed #019ACB; opacity: 0.8; animation: faGearSpinR 2.6s linear infinite; }
+@keyframes faGearSpin { to { transform: translateY(-50%) rotate(360deg); } }
+@keyframes faGearSpinR { to { transform: translateY(-50%) rotate(-360deg); } }
+/* IT (siqish): keng blok ortiqchasini siqib qisqasiga aylanadi — mazmun o'sha. */
+.fa-cmp { position: relative; width: clamp(86px, 17vw, 116px); height: clamp(26px, 6vw, 34px); }
+.fa-cmp-bar { position: absolute; left: 50%; top: 0; bottom: 0; transform: translateX(-50%); background: #019ACB; opacity: 0.8; border-radius: 4px; animation: faCmp 2.6s ease-in-out infinite; }
+.fa-cmp-arrow { position: absolute; top: 50%; width: 0; height: 0; border-top: clamp(5px, 1.1vw, 7px) solid transparent; border-bottom: clamp(5px, 1.1vw, 7px) solid transparent; }
+.fa-cmp-a-l { left: 0; transform: translateY(-50%); border-left: clamp(7px, 1.6vw, 10px) solid #019ACB; animation: faCmpArrL 2.6s ease-in-out infinite; }
+.fa-cmp-a-r { right: 0; transform: translateY(-50%); border-right: clamp(7px, 1.6vw, 10px) solid #019ACB; animation: faCmpArrR 2.6s ease-in-out infinite; }
+@keyframes faCmp { 0%, 100% { width: 88%; opacity: 0.55; } 50% { width: 36%; opacity: 0.95; } }
+@keyframes faCmpArrL { 0%, 100% { left: 0; opacity: 0.4; } 50% { left: 28%; opacity: 0.95; } }
+@keyframes faCmpArrR { 0%, 100% { right: 0; opacity: 0.4; } 50% { right: 28%; opacity: 0.95; } }
 
 /* Accessibility: prefers-reduced-motion — gasim dekorativ sikllarni. */
 @media (prefers-reduced-motion: reduce) {
