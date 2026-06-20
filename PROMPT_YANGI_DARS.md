@@ -245,7 +245,100 @@ etalon; infra'ni baytma-bayt o'shandan ol). Dars31 va Dars37 — etalon, O'ZGART
 
 ---
 
-## 3. TEST EKRANLARI QOIDALARI
+## 2-C. DARS28 ETALON — TO'LIQ STANDARTLAR REESTRI (metodist, 2026-06-20; etalon fayl: `Dars28.jsx`)
+
+Dars28 (o'nli kasrlarni ko'paytirish) to'rt raund metodist kommenti bilan etalon darajasiga chiqarildi.
+Quyidagilar — barcha YANGI va QAYTA YIG'ILADIGAN darslar uchun MAJBURIY. Tuzilma namunasi sifatida
+`Dars28.jsx` ni ochib qara. 8 toifa:
+
+### A. Tuzilma va arxitektura
+- **Aralash dars yoyi:** hook → warmup → exploration(lar) → area-model → qoida → testlar → so'zli
+  masala → xulosa. Dars28 = 16 ekran (mavzuga qarab ±).
+- **Jonli `screen` idx — qattiq kod TAQIQ.** Komponentlarda `idx={8}` / `SCREEN_META[12]` YOZMA;
+  `idx={props.screen}` / `SCREEN_META[screen]` va `screenIdx: screen` ishlat. Shunda ekran qo'shish/
+  o'chirish/reorder ichki raqamlarni sindirmaydi (`onAnswer` storage `current`ga tayanadi, hardcoded
+  idx faqat analitika maydoni).
+- **3 manba sinxron:** `SCREEN_META` (id/type/template/scored/scope) ↔ `screens` massiv ↔
+  `TOTAL_SCREENS`. scored test = `scope:'practice'`, oxirgisi = `scope:'final'`.
+- **Progressiv birlashtirish** (ekran sonini kamaytiradi, kognitiv yukni bosqichlaydi): ikki bog'liq
+  ekranni bittaga qo'sh — (1) Qoida + Ikki-xato → birinchi blok ko'rinadi/ovozlanadi → "Davom" →
+  YASHIL chip-tugmaga yig'iladi (qayta bosib ochiladi) → ikkinchi blok ochiladi. (2) So'zli masala —
+  D bo'limiga qara. Scrollsiz, bir vaqtda bitta blok ochiq.
+
+### B. Layout va ranglar
+- **Top-anchor — markazlamaslik.** Kontent wrapperda `justifyContent:'center'` YO'Q; HAR ekran
+  tepadan boshlanadi (faqat s0 hook markazlashishi mumkin, Dars01 kabi). Bo'sh joy past tomonda
+  qolsa ham to'g'ri. **To'g'ri javobdan KEYIN ham** vertikal markazlamaslik — `justifyContent: solved
+  ? 'center'` YOZMA. Variantlar yig'ilganda yagona to'g'ri variant faqat GORIZONTAL markazlashi
+  mumkin (`justifyItems`), butun kontent emas.
+- **Ranglar qat'iy semantik:** YASHIL (`#1F7A4D`) = faqat to'g'ri javob. APELSIN (`#FF4F28`) = faqat
+  noto'g'ri javob FEEDBACKDA. KO'K (`#019ACB`, FactCard) = fakt/foydali ma'lumot. PALE-YELLOW
+  (`#FBF3D6`, frame-tip) = maslahat/ogohlantirish/kalit-g'oya. `accent` brend rangi (slayder, progress,
+  eyebrow) informatsion urg'uda ishlatilsa bo'ladi; JAVOB feedbackida esa apelsin = faqat xato.
+  max-width 936.
+
+### C. Mobil input
+- **Tap-first.** Recall/tanlash savollari TAP bilan (MC, tap-to-place, tasniflash) — klaviatura emas.
+- **Decimal `.` VA `,` ikkalasini qabul qil; `type="number"` TAQIQ.** `type="number"` vergulni
+  ("3,25") rad etadi → bo'sh string. HAR DOIM `type="text" inputMode="decimal"` + normalizatsiya:
+  `const norm = (s) => parseFloat(String(s).replace(',', '.').replace(/\s/g, ''));`
+  solishtirish `Math.abs(norm(v) - correct) < 1e-9`. `DecInputScreen` va `mbk` shunday.
+- **Gibrid:** butun darsda KAMIDA 1, KO'PI 2 "javobni o'zi terish" ekrani (bola hosil qilsin);
+  qolgani tap.
+
+### D. Qayta ishlatiladigan komponent naqshlari (`Dars28.jsx` dan)
+- **SeqMC** — ketma-ket 4 misol (warmup va scored mashq, bitta komponent). Ixcham savol (qisqa
+  formula = `dm-prob`; uzun matn = `h-sub`, uzunlikka qarab o'lcham — aks holda `dm-prob` toshadi),
+  3 tap variant, веди-до-верного, to'g'ridan keyin avto o'tish, tepada progress-nuqtalar. scored bo'lsa
+  oxirida bitta natija (barcha 1-urinish to'g'ri → correct).
+- **MulSolve** — "harakatlanuvchi yechim": (1) `a × b`, (2) vergulsiz ko'paytma, (3) oxirgi kasr xonalar
+  pale-yellow yoritiladi (sanash), (4) vergul joyiga TUSHADI (drop-in), natija yashil. Yetmagan raqam —
+  chap nol. State'ga bog'langan (step); fonda yuguruvchi loop YO'Q.
+- **So'zli masala merge** — shart "Yordam" bosilgach IXCHAM bir qatorga (tag + qisqa matn + son, masalan
+  "1,5 × 1,2") yig'iladi va EKRANDA QOLADI (bola sonlarni ko'rib javob tanlasin), pastdan MC ochiladi.
+  scored=final; MC mantiq (веди-до-верного, keep-visible, FactCard) ekran ichida inline.
+- **Tasniflash (sort)** — son BITTA-BITTA chiqadi (tray, pop-anim), bola savatni bosib joylaydi,
+  веди-до-верного, keyingisi. Tartib HAR seansda RANDOM (useState init, Fisher-Yates — bir seansda deck
+  o'zgarmaydi, tiklanish buzilmaydi). Kartalar KO'P (≈8-10), oson (aniq) + qiyin (1 ga yaqin: 0,9×0,9,
+  2×0,8) aralash. Savatlar — to'q rangli ZICH kartalar (soya, shevron ↓/↑, <1 ko'k / >1 neytral),
+  PUNKTIR EMAS. Joylangan = yashil chip.
+- **mbk (ko'p-maydonli protsedura)** — raqamli qadam badge (1, 2, 3), buyruq-label ("Vergulsiz
+  ko'paytir: 3 × 4 =", "Vergul qo'y — javob:"), lead aniq harakat ("O'zing yech: ... Tekshirishni bos").
+- **Slayder/interaktiv vidjet** — yolg'iz qoldirilmaydi: (a) dinamik formula (`6 × 0,5 = 3`, natija
+  rangi semantik), (b) legenda (rang nimani bildiradi), (c) ko'rsatma qatori. Vidjet + matn birga.
+
+### E. Pedagogika va kontent
+- **Podskazka javobni BERMAYDI — faqat metodni ko'rsatadi.** `hint` / `wrong_N` / SeqMC `no` /
+  `audio.on_wrong` xatoda chiqadi va OVOZLANADI; ularda yakuniy son BO'LMAYDI ("...→ 0,8" TAQIQ).
+  To'g'ri yo'lni ayt ("vergulsiz ko'paytir, keyin xonalarni sanab o'shancha ajrat"). Son faqat
+  `correct_text` / `fb_correct` / `audio.on_correct` da (TO'G'RIdan KEYIN).
+- **Misol qiyinligi bir pog'ona** balandroq ol (o'tkazmali 3,6×4=14,4; ko'p nolli 0,12×0,3=0,036),
+  lekin sinf darajasidan oshirma. Misol KO'P bo'lsin (mashqda 4 band; tasniflashda ≈8-10).
+- **Kontentni "chiroy sifatida" to'ldir — matn devori EMAS:** har g'oya ALOHIDA blok (ishlangan misol
+  kartasi = statik `MulSolve` step=3; kalit-g'oya pale-yellow tip; ko'k FactCard), vizual bilan.
+- **Misconception** (0-bo'lim ro'yxati) har biri kamida bitta test variantida tuzoq; **shuffleMC
+  MAJBURIY** (3-bo'lim qoidasi), har NOTO'G'RI variantga aniq `wrong_N`.
+
+### F. Audio (asosiy o'rgatish kanali)
+- **TTS-toza:** belgi (× = % / < >), «», uzun tire YO'Q; sonlar SO'Z bilan ("nol butun o'ndan besh").
+- **Step-audio: har qadam BITTA qisqa sokin fikr**, parallel slaydlar bir xil tempda. Qadam o'tish
+  tugmasi audio TUGAGUNCHA o'chiq (`disabled={audio.isPlaying && !audio.muted}`) — audio kesilmaydi,
+  shoshmaydi. Mute bo'lsa to'siq yo'q (engine `onended`/`onerror` ham `isPlaying`ni bekor qiladi).
+- **Fakt OVOZLANADI:** ko'rinadigan `fact` da «»/son bo'lishi mumkin, lekin alohida TTS-toza
+  `fact_audio` (son so'z bilan) `pushOneOff` orqali o'qiladi.
+- **To'g'ri javob audiosi JAVOBNI aytadi + qisqa izoh** (`audio.on_correct`); `on_wrong` esa metodni
+  aytadi, javobni emas (E bilan mos).
+
+### G. Slaydlararo ma'noli o'tish (bridge)
+- Faza chegaralarida (≈5: warmup→tushuntirish, tushuntirish→qoida, qoida→test, test→masala) qisqa
+  ulovchi gap — ham EKRANDA (`.bridge` kichik qator, ↳ belgili, sarlavhadan tepada) ham OVOZDA (intro
+  audiosining boshiga qo'shiladi). Masalan "Qoidani bilamiz, endi o'zing qo'llab ko'r". HAR slaydda
+  EMAS (takror/shovqin); `Bridge` komponenti `node` bo'lmasa null qaytaradi.
+
+### H. Fakt / mukofot bloki
+- Ko'k `FactCard`: KATTA CSS-anim + KAM matn (badge + 1-2 gap). Interaksiyadan KEYIN chiqsin (masalan
+  slayderda o'rgangach, kechiktirilgan reveal) va OVOZLANSIN (F bo'limi). Ahamiyatli faktlar: vergul/
+  nuqta (IT), Simon Stevin (tarix), ×<1 kamaytiradi.
 
 - Har MC ekranda 3–4 variant, har NOTO'G'RI variantga alohida `wrong_N` (hint) — umumiy
   "noto'g'ri, qayta urinib ko'r" TAQIQLANADI. Har hint aynan O'SHA xatoning sababini ochadi.
@@ -253,8 +346,9 @@ etalon; infra'ni baytma-bayt o'shandan ol). Dars31 va Dars37 — etalon, O'ZGART
   QAT'IY massiv (Math.random EMAS — u storedAnswer tiklanishini buzadi). To'g'ri javob
   darsdagi testlar bo'ylab A/B/C/D ga taqsimlanishi SHART (hammasi A bo'lib qolmasin).
   shuffleMC hintlarni ham qayta xaritalaydi — variantlarni qo'lda aralashtirish taqiqlanadi.
-- Kamida 1 ta **NumInputScreen** (raqam kiritish). Placeholder — NEYTRAL (`0` yoki `0,0`),
-  hech qachon to'g'ri javob emas.
+- Kamida 1 ta "javobni o'zi terish" ekrani (`DecInputScreen` — o'nli-bardosh, 2-C/C bo'limi).
+  Eski `NumInputScreen` (`type="number"`) o'nli javob uchun ISHLATILMAYDI — u vergulni rad etadi.
+  Placeholder — NEYTRAL (`0` yoki `0,0`), hech qachon to'g'ri javob emas.
 - Test ekranidagi yordamchi vizual faqat SHARTNI ko'rsatadi (qo'shiluvchilar/ayiriluvchilar),
   hech qachon NATIJANI emas. G'olib-bayroq / winner-belgi test ekranida TAQIQLANGAN.
 - Misconceptionlar — 0-bo'limdagi ro'yxatdan: har biri kamida bitta test variantida tuzoq

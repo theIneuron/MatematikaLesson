@@ -683,6 +683,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         if (engine && !audio.muted) {
           const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+          if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
     }
@@ -697,13 +698,14 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: solved ? 'center' : 'flex-start' }}>
-        {titleNode && <Title node={titleNode}/>}
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        <FloatTris/>
+        {titleNode && <div style={{ position: 'relative' }}><Title node={titleNode}/></div>}
         {/* Sarlavha (Title) + savol matni to'g'ri javobdan keyin ham qoladi — faqat noto'g'ri variantlar yig'iladi. */}
-        <div className="fade-up">{question}</div>
-        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        <div className="fade-up" style={{ position: 'relative' }}>{question}</div>
+        {figure && <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
         {/* To'g'ri javobdan keyin: faqat to'g'ri variant qoladi, noto'g'rilari silliq yig'ilib g'oyib bo'ladi (yangilangan anti-scroll). */}
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
+        <div className="fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
@@ -735,7 +737,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
           </p>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && <div style={{ position: 'relative' }}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -763,8 +765,8 @@ const SCREEN_META = [
   { id: 's3',  type: 'exploration', template: 'custom',         scored: false, scope: null },
   { id: 's4',  type: 'rule',        template: 'custom',         scored: false, scope: null },
   { id: 's5',  type: 'rule',        template: 'custom',         scored: false, scope: null },
-  { id: 's6',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
-  { id: 's7',  type: 'test',        template: 'NumGeoScreen',   scored: true,  scope: 'practice' },
+  { id: 's6',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
+  { id: 's7',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
   { id: 's8',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
   { id: 's9',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
   { id: 's10', type: 'case',        template: 'custom',         scored: false, scope: null },
@@ -827,6 +829,7 @@ const CONTENT = {
   // ===== s2 EXPLORATION — to'rtburchak diagonal bo'yicha 2 teng uchburchakka bo'linadi (step), TriViz split =====
   s2: {
     eyebrow: { ru: 'Половина', uz: "Yarmi" },
+    bridge: { ru: 'Счёт работает, теперь разрежем прямоугольник.', uz: "Hisob ishladi, endi to'rtburchakni kesamiz." },
     title: { ru: 'Разрежем прямоугольник', uz: "To'rtburchakni kesamiz" },
     lead: { ru: 'Возьмём прямоугольник и проведём в нём диагональ. Посмотрим, что получится.', uz: "To'rtburchak olamiz va unda diagonal o'tkazamiz. Nima bo'lishini ko'ramiz." },
     step_1: { ru: 'Вот прямоугольник: основание 6, высота 4.', uz: "Mana to'rtburchak: asosi 6, balandligi 4." },
@@ -865,6 +868,7 @@ const CONTENT = {
   // ===== s4 RULE 1 — S = (asos x balandlik) : 2; balandlik asosga perpendikulyar =====
   s4: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    bridge: { ru: 'Мы увидели половину, соберём это в правило.', uz: "Yarmini ko'rdik, buni qoidaga yig'amiz." },
     heading: { ru: 'Как найти площадь', uz: "Yuzani qanday topamiz" },
     rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
     rule_1: { ru: 'Площадь треугольника: S = (основание × высота) : 2.', uz: "Uchburchak yuzasi: S = (asos × balandlik) : 2." },
@@ -879,42 +883,75 @@ const CONTENT = {
     heading: { ru: 'Не попадись в ловушку', uz: "Tuzoqqa tushmang" },
     rule_1: { ru: 'Не забывайте делить на два. Без этого получится площадь прямоугольника, вдвое больше.', uz: "Ikkiga bo'lishni unutmang. Busiz to'rtburchak yuzasi, ikki barobar ko'p chiqadi." },
     rule_2: { ru: 'Высота — это перпендикуляр к основанию, а не наклонная сторона треугольника.', uz: "Balandlik — asosga perpendikulyar, uchburchakning qiya tomoni emas." },
-    tip: { ru: 'Темур умножил основание на высоту, но забыл взять половину, поэтому получил вдвое больше. Половина от 24 — это 12.', uz: "Temur asosni balandlikka ko'paytirdi, lekin yarmini olishni unutdi, shuning uchun ikki barobar ko'p oldi. 24 ning yarmi — bu 12." },
+    tip: { ru: 'Темур забыл разделить на два — взял площадь прямоугольника, а не треугольника.', uz: "Temur ikkiga bo'lishni unutdi — uchburchak emas, to'rtburchak yuzasini oldi." },
     audio: { ru: "Запомните две ловушки. Первая, не забудьте разделить на два, иначе получится площадь прямоугольника, вдвое больше. Вторая, высота это перпендикуляр к основанию, а не наклонная сторона. Темур забыл взять половину, поэтому ошибся.", uz: "Ikki tuzoqni yodda tuting. Birinchisi, ikkiga bo'lishni unutmang, aks holda to'rtburchak yuzasi, ikki barobar ko'p chiqadi. Ikkinchisi, balandlik asosga perpendikulyar, qiya tomon emas. Temur yarmini olishni unutdi, shuning uchun yanglishdi." }
   },
 
-  // ===== s6 TEST MC — asos 6, balandlik 4 -> 12 (M1: 24, +10, +20) =====
+  // ===== s6 TEST (interaktiv): "Balandlikni top" — perpendikulyar balandlikni aniqlash (M2), keyin yuza yarmini ko'rish (Dars36 imzo metodi) =====
   s6: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Площадь треугольника', uz: "Uchburchak yuzasi" },
-    question: { ru: 'У треугольника основание 6, высота 4. Чему равна площадь?', uz: "Uchburchakning asosi 6, balandligi 4. Yuzasi nechaga teng?" },
-    opt0: { ru: '12', uz: "12" },
-    opt1: { ru: '24', uz: "24" },
-    opt2: { ru: '10', uz: "10" },
-    opt3: { ru: '20', uz: "20" },
-    correct_text: { ru: 'Верно: 6 × 4 = 24, потом 24 : 2 = 12.', uz: "To'g'ri: 6 × 4 = 24, keyin 24 : 2 = 12." },
-    wrong_1: { ru: 'Вы умножили основание на высоту, но забыли взять половину. Это площадь прямоугольника. Поделите на два.', uz: "Siz asosni balandlikka ko'paytirdingiz, lekin yarmini olishni unutdingiz. Bu to'rtburchak yuzasi. Ikkiga bo'ling." },
-    wrong_2: { ru: 'Это похоже на сложение сторон. Нужно умножить основание на высоту и взять половину.', uz: "Bu tomonlarni qo'shishga o'xshaydi. Asosni balandlikka ko'paytirib, yarmini olish kerak." },
-    wrong_3: { ru: 'Почти. Сначала 6 умножить на 4, это 24, а потом возьмите половину.', uz: "Deyarli. Avval 6 ni 4 ga ko'paytiring, bu 24, keyin yarmini oling." },
+    eyebrow: { ru: 'Найди высоту', uz: "Balandlikni toping" },
+    bridge: { ru: 'Правило знаем, теперь найди высоту сам.', uz: "Qoidani bilamiz, endi balandlikni o'zingiz toping." },
+    title: { ru: 'Где высота треугольника?', uz: "Uchburchak balandligi qayerda?" },
+    lead: { ru: 'Высота — это перпендикуляр от вершины к основанию, под прямым углом. Выбери её, а не наклонную сторону.', uz: "Balandlik — uchidan asosga tushirilgan perpendikulyar, to'g'ri burchak ostida. Uni tanlang, qiya tomonni emas." },
+    opts: [
+      { ru: 'Перпендикуляр к основанию', uz: "Asosga perpendikulyar" },
+      { ru: 'Наклонная сторона', uz: "Qiya tomon" },
+      { ru: 'Основание', uz: "Asos" }
+    ],
+    correct: 0,
+    hint: { ru: 'Высота всегда под прямым углом к основанию, а не вдоль наклонной стороны.', uz: "Balandlik doim asosga to'g'ri burchak ostida, qiya tomon bo'ylab emas." },
+    correct_text: { ru: 'Верно: высота — это перпендикуляр. Теперь площадь — половина от 6 · 4 = 12.', uz: "To'g'ri: balandlik — perpendikulyar. Endi yuza — 6 · 4 ning yarmi = 12." },
     audio: {
-      intro: { ru: "Теперь сами. У треугольника основание шесть, высота четыре. Чему равна площадь?", uz: "Endi o'zingiz. Uchburchakning asosi olti, balandligi to'rt. Yuzasi nechaga teng?" },
-      on_correct: { ru: "Верно, двенадцать. Шесть умножить на четыре это двадцать четыре, а половина от двадцати четырёх это двенадцать.", uz: "To'g'ri, o'n ikki. Oltini to'rtga ko'paytirsak yigirma to'rt, yigirma to'rtning yarmi esa o'n ikki." },
-      on_wrong: { ru: "Умножьте основание на высоту, а потом возьмите половину.", uz: "Asosni balandlikka ko'paytiring, keyin yarmini oling." }
+      intro: { ru: "Выбери высоту треугольника. Это перпендикуляр от вершины к основанию, под прямым углом, а не наклонная сторона.", uz: "Uchburchak balandligini tanlang. Bu uchidan asosga tushirilgan perpendikulyar, to'g'ri burchak ostida, qiya tomon emas." },
+      on_correct: { ru: "Верно. Высота это перпендикуляр к основанию. Теперь площадь это половина от шесть умножить четыре, то есть двенадцать.", uz: "To'g'ri. Balandlik asosga perpendikulyar. Endi yuza olti ko'paytiruv to'rtning yarmi, ya'ni o'n ikki." },
+      on_wrong: { ru: "Высота под прямым углом к основанию, а не вдоль наклонной стороны.", uz: "Balandlik asosga to'g'ri burchak ostida, qiya tomon bo'ylab emas." }
     }
   },
 
-  // ===== s7 TEST NumGeo — asos 8 balandlik 5 -> 20 =====
+  // ===== s7 TEST (aralash blok): 4 ta har xil tipdagi savol — MC, o'nlik typed, to'g'ri/noto'g'ri, qadamlarni tartiblash =====
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    question: { ru: 'У треугольника основание 8, высота 5. Чему равна площадь?', uz: "Uchburchakning asosi 8, balandligi 5. Yuzasi nechaga teng?" },
+    eyebrow: { ru: 'Разные задачи', uz: "Har xil savollar" },
+    title: { ru: 'Четыре разных вопроса', uz: "To'rt xil savol" },
+    lead: { ru: 'Четыре задания на площадь треугольника — все разного вида. Отвечай по очереди.', uz: "Uchburchak yuzasiga oid to'rt topshiriq — har biri har xil. Navbatma-navbat javob bering." },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Сначала умножьте 8 на 5, потом разделите результат пополам.', uz: "Avval 8 ni 5 ga ko'paytiring, keyin natijani yarmiga bo'ling." },
-    fb_correct: { ru: 'Верно: 8 × 5 = 40, потом 40 : 2 = 20.', uz: "To'g'ri: 8 × 5 = 40, keyin 40 : 2 = 20." },
+    items: [
+      { kind: 'choice', base: 6, height: 4,
+        q: { ru: 'Выбери площадь треугольника: основание 6, высота 4.', uz: "Uchburchak yuzasini tanlang: asos 6, balandlik 4." },
+        opts: [{ ru: '12', uz: '12' }, { ru: '24', uz: '24' }, { ru: '10', uz: '10' }, { ru: '20', uz: '20' }], correct: 0,
+        hint: { ru: 'Умножь основание на высоту и возьми половину.', uz: "Asosni balandlikka ko'paytirib, yarmini ol." },
+        audio_q: { ru: "Первый вопрос. Выбери площадь треугольника с основанием шесть и высотой четыре.", uz: "Birinchi savol. Asosi olti, balandligi to'rt uchburchak yuzasini tanlang." },
+        audio_ok: { ru: "Верно, двенадцать. Шесть на четыре, потом половина.", uz: "To'g'ri, o'n ikki. Olti ko'paytiruv to'rt, keyin yarmi." } },
+      { kind: 'num', dec: true, base: 5, height: 3, answer: 7.5,
+        q: { ru: 'Основание 5, высота 3. Посчитай площадь сам — может получиться дробь.', uz: "Asos 5, balandlik 3. Yuzasini o'zingiz hisoblang — kasr chiqishi mumkin." },
+        hint: { ru: 'Пять умножить на три, потом половина. Ответ может быть с запятой.', uz: "Beshni uchga ko'paytir, keyin yarmini. Javob vergulli bo'lishi mumkin." },
+        audio_q: { ru: "Второй вопрос. Основание пять, высота три. Посчитай площадь сам, ответ может быть дробным.", uz: "Ikkinchi savol. Asos besh, balandlik uch. Yuzasini o'zingiz hisoblang, javob kasrli bo'lishi mumkin." },
+        audio_ok: { ru: "Верно, семь целых пять десятых. Пять на три это пятнадцать, а половина это семь с половиной.", uz: "To'g'ri, yetti butun o'ndan besh. Beshni uchga ko'paytirsak o'n besh, yarmi esa yetti yarim." } },
+      { kind: 'choice',
+        q: { ru: 'Верно ли: у треугольника с основанием 6 и высотой 4 площадь равна 24?', uz: "To'g'rimi: asosi 6, balandligi 4 uchburchakning yuzasi 24?" },
+        opts: [{ ru: 'Верно', uz: "To'g'ri" }, { ru: 'Неверно', uz: "Noto'g'ri" }], correct: 1,
+        hint: { ru: '24 — это площадь прямоугольника. У треугольника берут половину.', uz: "24 — bu to'rtburchak yuzasi. Uchburchakda yarmini oladilar." },
+        audio_q: { ru: "Третий вопрос. Верно ли, что у треугольника с основанием шесть и высотой четыре площадь равна двадцати четырём?", uz: "Uchinchi savol. Asosi olti, balandligi to'rt uchburchakning yuzasi yigirma to'rt, to'g'rimi?" },
+        audio_ok: { ru: "Правильно, это неверно. Двадцать четыре это прямоугольник, а у треугольника половина, двенадцать.", uz: "To'g'ri javob, bu noto'g'ri. Yigirma to'rt — bu to'rtburchak, uchburchakda esa yarmi, o'n ikki." } },
+      { kind: 'order',
+        q: { ru: 'Расставь шаги по порядку: как найти площадь треугольника?', uz: "Qadamlarni tartibga sol: uchburchak yuzasini qanday topamiz?" },
+        steps: [
+          { ru: 'Умножить основание на высоту', uz: "Asosni balandlikka ko'paytirish" },
+          { ru: 'Разделить результат на два', uz: "Natijani ikkiga bo'lish" },
+          { ru: 'Получили площадь треугольника', uz: "Uchburchak yuzasini oldik" }
+        ],
+        shuffle: [1, 2, 0],
+        hint: { ru: 'Сначала умножают стороны, и только потом делят пополам.', uz: "Avval tomonlarni ko'paytiradilar, keyin yarmiga bo'ladilar." },
+        audio_q: { ru: "Четвёртый вопрос. Расставь по порядку шаги: как найти площадь треугольника?", uz: "To'rtinchi savol. Qadamlarni tartibga sol: uchburchak yuzasini qanday topamiz?" },
+        audio_ok: { ru: "Верно. Сначала умножить основание на высоту, потом разделить пополам.", uz: "To'g'ri. Avval asosni balandlikka ko'paytirish, keyin yarmiga bo'lish." } }
+    ],
+    done_label: { ru: 'Вопрос', uz: "Savol" },
+    done_ok: { ru: 'верно', uz: "to'g'ri" },
+    done_text: { ru: 'Отлично, ты справился со всеми четырьмя.', uz: "Zo'r, to'rttasini ham yechdingiz." },
     audio: {
-      intro: { ru: "Ещё треугольник. Основание восемь, высота пять. Чему равна площадь?", uz: "Yana uchburchak. Asosi sakkiz, balandligi besh. Yuzasi nechaga teng?" },
-      on_correct: { ru: "Верно, двадцать. Восемь умножить на пять это сорок, а половина от сорока это двадцать.", uz: "To'g'ri, yigirma. Sakkizni beshga ko'paytirsak qirq, qirqning yarmi esa yigirma." },
-      on_wrong: { ru: "Умножьте основание на высоту, а потом разделите пополам.", uz: "Asosni balandlikka ko'paytiring, keyin yarmiga bo'ling." }
+      next: { ru: 'Четыре разных задания на площадь треугольника.', uz: "Uchburchak yuzasiga oid to'rt xil topshiriq." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Посмотри подсказку и попробуй ещё раз.', uz: "Maslahatni ko'ring va yana urinib ko'ring." }
     }
   },
 
@@ -950,6 +987,7 @@ const CONTENT = {
     wrong_0: { ru: 'Малика умножила основание на высоту и взяла половину, получила двенадцать. Это верно.', uz: "Malika asosni balandlikka ko'paytirib yarmini oldi, o'n ikki chiqdi. Bu to'g'ri." },
     wrong_2: { ru: 'Дильшод сначала перемножил стороны, потом взял половину, получил двенадцать. Это верно.', uz: "Dilshod avval tomonlarni ko'paytirdi, keyin yarmini oldi, o'n ikki chiqdi. Bu to'g'ri." },
     fact: { ru: 'Грани египетских пирамид — огромные треугольники. Строители тысячи лет назад умели находить их площадь, чтобы рассчитать камень.', uz: "Misr piramidalarining yon yuzlari — ulkan uchburchaklar. Quruvchilar ming yillar oldin tosh hisoblash uchun ularning yuzasini topa olishgan." },
+    fact_audio: { ru: "Грани египетских пирамид это огромные треугольники. Строители тысячи лет назад умели находить их площадь, чтобы рассчитать камень.", uz: "Misr piramidalarining yon yuzlari ulkan uchburchaklar. Quruvchilar ming yillar oldin tosh hisoblash uchun ularning yuzasini topa olishgan." },
     audio: {
       intro: { ru: "Три ученика искали площадь треугольника с основанием шесть и высотой четыре. Найдите того, кто посчитал неправильно.", uz: "Uch o'quvchi asosi olti, balandligi to'rt uchburchak yuzasini topdi. Noto'g'ri hisoblaganini toping." },
       on_correct: { ru: "Верно, ошибся Азиз. Он умножил основание на высоту, но не взял половину, поэтому получил площадь прямоугольника, двадцать четыре вместо двенадцати.", uz: "To'g'ri, Aziz xato qildi. U asosni balandlikka ko'paytirdi, lekin yarmini olmadi, shuning uchun to'rtburchak yuzasini topdi, o'n ikki o'rniga yigirma to'rt." },
@@ -960,6 +998,7 @@ const CONTENT = {
   // ===== s10 CASE setup — Bekzod uchburchak bayroq tikadi, asos 8, balandlik 6 =====
   s10: {
     eyebrow: { ru: 'Задача', uz: "Masala" },
+    bridge: { ru: 'Задачи решили, перейдём к настоящему флажку.', uz: "Masalalarni yechdik, endi haqiqiy bayroqchaga o'tamiz." },
     title: { ru: 'Флажок Бекзода', uz: "Bekzodning bayrog'i" },
     lead: { ru: 'Бекзод шьёт треугольный флажок. Основание флажка 8 см, высота 6 см.', uz: "Bekzod uchburchak bayroqcha tikyapti. Bayroqning asosi 8 sm, balandligi 6 sm." },
     note: { ru: 'Сколько ткани нужно на один такой флажок?', uz: "Bitta shunday bayroq uchun qancha mato kerak?" },
@@ -982,6 +1021,7 @@ const CONTENT = {
     wrong_2: { ru: 'Похоже, вы сложили стороны. Площадь, это основание умножить на высоту и взять половину.', uz: "Tomonlarni qo'shganga o'xshaysiz. Yuza, asosni balandlikka ko'paytirib, yarmini olish." },
     wrong_3: { ru: 'Почти. Сначала 8 умножить на 6, это 48, а потом возьмите половину.', uz: "Deyarli. Avval 8 ni 6 ga ko'paytiring, bu 48, keyin yarmini oling." },
     fact: { ru: 'Половина прямоугольника — это и есть треугольник. Поэтому площадь треугольника всегда вдвое меньше площади прямоугольника с теми же основанием и высотой.', uz: "To'rtburchakning yarmi — aynan uchburchak. Shuning uchun uchburchak yuzasi xuddi shu asos va balandlikka ega to'rtburchak yuzasidan doim ikki barobar kichik." },
+    fact_audio: { ru: "Половина прямоугольника это и есть треугольник. Поэтому площадь треугольника всегда вдвое меньше площади прямоугольника с теми же основанием и высотой.", uz: "To'rtburchakning yarmi aynan uchburchak. Shuning uchun uchburchak yuzasi xuddi shu asos va balandlikka ega to'rtburchak yuzasidan doim ikki barobar kichik." },
     audio: {
       intro: { ru: "Флажок с основанием восемь сантиметров и высотой шесть. Сколько ткани нужно?", uz: "Asosi sakkiz santimetr, balandligi olti bo'lgan bayroq. Qancha mato kerak?" },
       on_correct: { ru: "Верно, двадцать четыре квадратных сантиметра. Восемь умножить на шесть это сорок восемь, а половина от сорока восьми это двадцать четыре.", uz: "To'g'ri, yigirma to'rt kvadrat santimetr. Sakkizni oltiga ko'paytirsak qirq sakkiz, qirq sakkizning yarmi esa yigirma to'rt." },
@@ -1003,6 +1043,7 @@ const CONTENT = {
     wrong_2: { ru: 'Похоже, вы сложили стороны. Площадь, это основание умножить на высоту и взять половину.', uz: "Tomonlarni qo'shganga o'xshaysiz. Yuza, asosni balandlikka ko'paytirib, yarmini olish." },
     wrong_3: { ru: 'Почти. Сначала 10 умножить на 4, это 40, а потом возьмите половину.', uz: "Deyarli. Avval 10 ni 4 ga ko'paytiring, bu 40, keyin yarmini oling." },
     fact: { ru: 'В компьютерной графике любую 3D-модель собирают из тысяч маленьких треугольников. Площадь каждого считают по той же формуле.', uz: "Kompyuter grafikasida har qanday uch o'lchamli model minglab kichik uchburchaklardan yig'iladi. Har birining yuzasi xuddi shu formula bilan hisoblanadi." },
+    fact_audio: { ru: "В компьютерной графике любую трёхмерную модель собирают из тысяч маленьких треугольников. Площадь каждого считают по той же формуле.", uz: "Kompyuter grafikasida har qanday uch o'lchamli model minglab kichik uchburchaklardan yig'iladi. Har birining yuzasi xuddi shu formula bilan hisoblanadi." },
     audio: {
       intro: { ru: "Последнее задание. Треугольный фронтон крыши, основание десять метров, высота четыре. Чему равна площадь?", uz: "Oxirgi topshiriq. Tomning uchburchak peshtog'i, asosi o'n metr, balandligi to'rt. Yuzasi nechaga teng?" },
       on_correct: { ru: "Верно, двадцать квадратных метров. Десять умножить на четыре это сорок, а половина от сорока это двадцать.", uz: "To'g'ri, yigirma kvadrat metr. O'nni to'rtga ko'paytirsak qirq, qirqning yarmi esa yigirma." },
@@ -1048,6 +1089,8 @@ const optEl = (t, node) => <span className="body" style={{ display: 'inline' }}>
 
 // Qisqa sarlavha — har slayd tepasida (kam so'z, metodist 2026-06-17).
 const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
+// Bridge — slaydlararo ulovchi gap (faza chegaralarida): ekranda ↳ qator, ovozda intro boshiga qo'shiladi.
+const Bridge = ({ node }) => { const t = useT(); return node ? <p className="bridge fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(node))}</p> : null; };
 
 // Ikonkalar ✓/✗ — feedback faqat rang bilan emas (accessibility).
 const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
@@ -1195,9 +1238,9 @@ const NumGeoScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, co
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <FloatTris/>
-        <h2 className="title h-sub fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.question))}</h2>
+        <h2 className="title h-sub fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.question))}</h2>
         {figure && <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(10px, 2vw, 16px)' }}>{figure(solved)}</div>}
         <div className="fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
@@ -1331,6 +1374,12 @@ const Screen1 = ({ screen, onAnswer, onNext, onPrev }) => {
             </div>
           )}
         </div>
+        <FeedbackBlock show={wrong.size > 0 && !done} isCorrect={false} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}
+          </p>
+          <p className="body" style={{ margin: 0 }}>{mt(t(cur.hint))}</p>
+        </FeedbackBlock>
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
             <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
@@ -1347,6 +1396,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
   const arr = c.audio[lang]; const last = arr.length - 1;
   const segs = arr.map((text, i) => ({ id: `s2_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
+  if (c.bridge && segs[0]) segs[0] = { ...segs[0], text: `${t(c.bridge)} ${segs[0].text}` };
   const audio = useAudio(segs);
   const [step, setStep] = useState(0);
   const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
@@ -1358,10 +1408,11 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
         <FloatTris/>
+        <Bridge node={c.bridge}/>
         <Title node={c.title}/>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center', minHeight: 160 }}>
-          <TriViz base={6} height={4} cell={28} mode="split" phase={phases[step]} grid={true} alive={false} success={step === last}/>
+          <TriViz base={6} height={4} cell={28} mode="split" phase={phases[step]} grid={true} alive={true} success={step === last}/>
         </div>
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 7 }}>
           {steps.map((s, i) => i <= step && (
@@ -1392,7 +1443,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
         <Title node={c.title}/>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', justifyContent: 'center', minHeight: 168 }}>
-          <TriViz base={a} height={H} cell={26} mode="tri" apexFrac={0.5} grid={true} showHalf={true} showHeight={true} alive={false} aLabel={String(a)} hLabel="4"/>
+          <TriViz base={a} height={H} cell={26} mode="tri" apexFrac={0.5} grid={true} showHalf={true} showHeight={true} alive={true} aLabel={String(a)} hLabel="4"/>
         </div>
         <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 460, margin: '0 auto', width: '100%' }}>
           <p className="small mono" style={{ margin: 0, color: T.accent }}>{t(c.slider_label)}</p>
@@ -1410,13 +1461,16 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
 // s4 — RULE 1: S = (asos x balandlik) : 2; balandlik perpendikulyar.
 const Screen4 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s4;
-  const audio = useAudio(makeAudioSegments(c, lang));
+  const segs = makeAudioSegments(c, lang);
+  if (c.bridge && segs[0]) segs[0] = { ...segs[0], text: `${t(c.bridge)} ${segs[0].text}` };
+  const audio = useAudio(segs);
   const rules = [c.rule_1, c.rule_2, c.rule_3];
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
         <FloatTris/>
+        <Bridge node={c.bridge}/>
         <Title node={c.heading}/>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 10 }}>{t(c.rule_label)}</p>
@@ -1425,7 +1479,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
           </div>
         </div>
         <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(10px, 2vw, 16px)' }}>
-          <TriViz base={6} height={4} cell={26} mode="tri" apexFrac={0.34} showHeight={true} alive={false} aLabel="asos" hLabel="balandlik"/>
+          <TriViz base={6} height={4} cell={26} mode="tri" apexFrac={0.34} showHeight={true} alive={true} aLabel="asos" hLabel="balandlik"/>
         </div>
       </div>
     </Stage>
@@ -1454,20 +1508,204 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s6 — TEST MC: asos 6, balandlik 4 -> 12 (M1: 24, +10, +20).
-const Screen6 = (props) => {
-  const t = useT(); const c = CONTENT.s6;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 2, 1, 3]);
-  const question = (<h2 className="title h-sub" style={{ margin: 0 }}>{mt(t(c.question))}</h2>);
-  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} figure={(solved) => <TriViz base={6} height={4} cell={24} mode="tri" apexFrac={0.5} showHeight={true} compact={true} success={solved} showHalf={solved} alive={false} aLabel="6" hLabel="4"/>}/>;
+// s6 — TEST (interaktiv): "Balandlikni top" — perpendikulyar balandlikni tanlash (M2), keyin uchburchak to'rtburchakning yarmi sifatida to'ladi.
+const Screen6 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s6; const sfx = useSfx();
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [solved, setSolved] = useState(wasSolved);
+  const [wrong, setWrong] = useState(() => new Set());
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
+  const introAdvancedRef = useRef(wasSolved);
+  const introText = c.bridge ? `${t(c.bridge)} ${c.audio.intro[lang]}` : c.audio.intro[lang];
+  const audio = useAudio([{ id: 's6_intro', text: introText, trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const pick = (i) => {
+    if (solved || wrong.has(i)) return;
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    attemptsRef.current += 1;
+    const ok = i === c.correct;
+    if (firstTryRef.current === null) firstTryRef.current = ok;
+    if (ok) {
+      setSolved(true); sfx.playCorrect();
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: c.title[lang], correctAnswer: c.opts[c.correct][lang], studentAnswer: c.opts[c.correct][lang], correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
+    } else { setWrong(prev => { const n = new Set(prev); n.add(i); return n; }); sfx.playWrong(); }
+    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <FloatTris/>
+        <Bridge node={c.bridge}/>
+        <Title node={c.title}/>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(10px, 2vw, 16px)' }}>
+          <TriViz base={6} height={4} cell={26} mode="tri" apexFrac={0.32} showHeight={solved} showHalf={solved} success={solved} compact={true} aLabel="asos"/>
+        </div>
+        <div className="fade-up delay-2" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {c.opts.map((o, i) => {
+            const isW = wrong.has(i);
+            const isC = solved && i === c.correct;
+            const collapse = solved && i !== c.correct;
+            return (
+              <button key={i} className={`option${isC ? ' option-correct' : ''}${isW ? ' option-picked-wrong' : ''}`} disabled={solved || isW} onClick={() => pick(i)}
+                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transition: 'all 0.5s cubic-bezier(0.33, 0, 0.2, 1)' }}>
+                <span className="mono small" style={{ minWidth: 20, display: 'flex', justifyContent: 'center', color: isC ? T.success : (isW ? T.accent : T.ink3) }}>{isC ? '✓' : (isW ? <IconNo/> : String.fromCharCode(65 + i))}</span>
+                <span style={{ flex: 1 }}>{mt(t(o))}</span>
+              </button>
+            );
+          })}
+        </div>
+        {wrong.size > 0 && !solved && (
+          <div className="frame-tip fade-up" style={{ position: 'relative' }}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
+          </div>
+        )}
+        {solved && (
+          <FeedbackBlock show={true} isCorrect={true}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
 };
 
 // s7 — TEST NumGeo: asos 8 balandlik 5 -> 20.
-const Screen7 = (props) => {
-  const c = CONTENT.s7;
-  return <NumGeoScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={c} correctValue={20}
-    figure={(solved) => <TriViz base={8} height={5} cell={22} mode="tri" apexFrac={0.5} showHeight={true} compact={true} success={solved} showHalf={solved} alive={false} aLabel="8" hLabel="5"/>}/>;
+// s7 — TEST (aralash blok): 4 ta har xil tipdagi savol ketma-ket (MC, o'nlik typed, to'g'ri/noto'g'ri, tartiblash), ✓-buklash + веди-до-верного. Hammasi tap-asosli (mobil+desktop).
+const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s7; const sfx = useSfx();
+  const items = c.items;
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [qi, setQi] = useState(wasSolved ? items.length : 0);
+  const [wrong, setWrong] = useState(() => new Set());        // choice
+  const [val, setVal] = useState('');                          // num
+  const [numWrong, setNumWrong] = useState(false);
+  const [picked, setPicked] = useState([]);                    // order: tanlangan original indekslar ketma-ketligi
+  const [orderHint, setOrderHint] = useState(false);
+  const [done, setDone] = useState(wasSolved);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const allFirstRef = useRef(storedAnswer ? (storedAnswer.correct ?? true) : true);
+  const orderCleanRef = useRef(true);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
+  const audio = useAudio([{ id: 's7_q0', text: items[0].audio_q[lang], trigger: 'on_mount', waits_for: null }]);
+  const voice = (text) => { if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(text); }, 300); };
+  const cur = items[Math.min(qi, items.length - 1)];
+
+  const advance = (firstOk) => {
+    if (!firstOk) allFirstRef.current = false;
+    const okVoice = cur.audio_ok[lang];
+    if (qi < items.length - 1) {
+      const ni = qi + 1;
+      setQi(ni); setWrong(new Set()); setVal(''); setNumWrong(false); setPicked([]); setOrderHint(false); orderCleanRef.current = true;
+      voice(okVoice);
+      setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(items[ni].audio_q[lang]); }, 1500);
+    } else {
+      setDone(true);
+      if (firstTryRef.current === null) firstTryRef.current = allFirstRef.current;
+      voice(`${okVoice} ${c.done_text[lang]}`);
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: c.title[lang], correctAnswer: 'all', studentAnswer: 'all', correct: allFirstRef.current, firstTry: allFirstRef.current, attempts: attemptsRef.current, solved: true });
+    }
+  };
+  const pickChoice = (i) => {
+    if (done || wrong.has(i)) return;
+    attemptsRef.current += 1;
+    const firstForItem = wrong.size === 0;
+    if (i === cur.correct) { sfx.playCorrect(); advance(firstForItem); }
+    else { sfx.playWrong(); setWrong(prev => { const n = new Set(prev); n.add(i); return n; }); voice(cur.hint[lang]); }
+  };
+  const submitNum = () => {
+    if (done) return;
+    const norm = parseFloat(String(val).replace(',', '.').replace(/\s/g, ''));
+    if (Number.isNaN(norm)) return;
+    attemptsRef.current += 1;
+    const firstForItem = !numWrong;
+    if (Math.abs(norm - cur.answer) < 1e-9) { sfx.playCorrect(); advance(firstForItem); }
+    else { sfx.playWrong(); setNumWrong(true); voice(cur.hint[lang]); }
+  };
+  const numKey = (k) => {
+    if (done) return;
+    setNumWrong(false);
+    if (k === '⌫') setVal(v => v.slice(0, -1));
+    else if (k === ',') setVal(v => (v.includes(',') ? v : (v === '' ? '0,' : v + ',')));
+    else setVal(v => (v.length < 6 ? v + k : v));
+  };
+  const tapStep = (oi) => {
+    if (done || picked.includes(oi)) return;
+    attemptsRef.current += 1;
+    if (oi === picked.length) {            // to'g'ri keyingi qadam
+      sfx.playCorrect(); setOrderHint(false);
+      const np = [...picked, oi]; setPicked(np);
+      if (np.length === cur.steps.length) advance(orderCleanRef.current);
+    } else { sfx.playWrong(); setOrderHint(true); orderCleanRef.current = false; voice(cur.hint[lang]); }
+  };
+  const showHint = !done && ((cur.kind === 'choice' && wrong.size > 0) || (cur.kind === 'num' && numWrong) || (cur.kind === 'order' && orderHint));
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
+        <FloatTris/>
+        <Title node={c.title}/>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {items.map((it, i) => (i < qi || (done && i === items.length - 1)) ? (
+            <div key={`d${i}`} className="mq-done fade-up"><span className="mq-done-ic"><IconOk/></span><span>{t(c.done_label)} {i + 1} — {t(c.done_ok)}</span></div>
+          ) : null)}
+          {!done && (
+            <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {cur.kind === 'choice' && cur.base && <div className="frame" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(8px, 1.8vw, 14px)' }}><TriViz base={cur.base} height={cur.height} cell={22} mode="tri" apexFrac={0.34} showHeight={true} compact={true} aLabel="asos"/></div>}
+              <h2 className="title h-sub" style={{ margin: 0 }}>{mt(t(cur.q))}</h2>
+              {cur.kind === 'choice' ? (
+                <div style={{ display: 'grid', gridTemplateColumns: cur.opts.length > 2 ? 'repeat(2, minmax(0, 1fr))' : '1fr', gap: 10 }}>
+                  {cur.opts.map((o, i) => { const isW = wrong.has(i); return (
+                    <button key={i} className={`option${isW ? ' option-picked-wrong' : ''}`} disabled={isW} onClick={() => pickChoice(i)}
+                      style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span className="mono small" style={{ minWidth: 20, display: 'flex', justifyContent: 'center', color: isW ? T.accent : T.ink3 }}>{isW ? <IconNo/> : String.fromCharCode(65 + i)}</span>
+                      <span style={{ flex: 1 }}>{mt(t(o))}</span>
+                    </button>
+                  ); })}
+                </div>
+              ) : cur.kind === 'num' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+                  <div className="numpad-display mono" style={{ color: val ? T.ink : T.ink3 }}>{val || t(c.placeholder)}</div>
+                  <div className="numpad">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '0', '⌫'].map(k => (
+                      <button key={k} className="numpad-key" onClick={() => numKey(k)}>{k}</button>
+                    ))}
+                  </div>
+                  <button className="btn-white-accent" onClick={submitNum} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 3vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {cur.shuffle.map((oi, slot) => { const pos = picked.indexOf(oi); const isP = pos >= 0; return (
+                    <button key={slot} className={`order-card${isP ? ' order-card-done' : ''}`} disabled={isP} onClick={() => tapStep(oi)}>
+                      <span className="order-num">{isP ? pos + 1 : '?'}</span>
+                      <span style={{ flex: 1 }}>{mt(t(cur.steps[oi]))}</span>
+                      {isP && <IconOk/>}
+                    </button>
+                  ); })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {showHint && (
+          <div className="frame-tip fade-up" style={{ position: 'relative' }}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(cur.hint))}</p>
+          </div>
+        )}
+        {done && (
+          <FeedbackBlock show={true} isCorrect={true}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.done_text))}</p>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
 };
 
 // s8 — TEST MC: asos 10, balandlik 6 -> 30 (M1: 60, +16, +40).
@@ -1476,7 +1714,7 @@ const Screen8 = (props) => {
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [2, 0, 3, 1]);
   const question = (<h2 className="title h-sub" style={{ margin: 0 }}>{mt(t(c.question))}</h2>);
-  return <QuestionScreen {...props} idx={8} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[8]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} figure={(solved) => <TriViz base={10} height={6} cell={20} mode="tri" apexFrac={0.5} showHeight={true} compact={true} success={solved} showHalf={solved} alive={false} aLabel="10" hLabel="6"/>}/>;
+  return <QuestionScreen {...props} idx={8} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[8]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} figure={(solved) => <TriViz base={10} height={6} cell={20} mode="tri" apexFrac={0.5} showHeight={true} compact={true} success={solved} showHalf={solved} alive={true} aLabel="10" hLabel="6"/>}/>;
 };
 
 // s9 — TEST MC: qaysi hisob NOTO'G'RI (Aziz yarmini olmadi). [FAKT Misr piramidalari]
@@ -1491,16 +1729,19 @@ const Screen9 = (props) => {
 // s10 — CASE setup: Bekzod uchburchak bayroq tikadi, asos 8, balandlik 6.
 const Screen10 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s10;
-  const audio = useAudio(makeAudioSegments(c, lang));
+  const segs = makeAudioSegments(c, lang);
+  if (c.bridge && segs[0]) segs[0] = { ...segs[0], text: `${t(c.bridge)} ${segs[0].text}` };
+  const audio = useAudio(segs);
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
         <FloatTris/>
+        <Bridge node={c.bridge}/>
         <Title node={c.title}/>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(10px, 2vw, 16px)' }}>
-          <TriViz base={8} height={6} cell={24} mode="tri" apexFrac={0.5} showHeight={true} alive={false} aLabel="8 sm" hLabel="6 sm"/>
+          <TriViz base={8} height={6} cell={24} mode="tri" apexFrac={0.5} showHeight={true} alive={true} aLabel="8 sm" hLabel="6 sm"/>
         </div>
         <p className="body fade-up delay-2" style={{ position: 'relative', margin: 0, fontWeight: 600 }}>{mt(t(c.note))}</p>
         <div className="frame-tip fade-up delay-3" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c.hint_calc))}</p></div>
@@ -1515,7 +1756,7 @@ const Screen11 = (props) => {
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
   const question = (<h2 className="title h-sub" style={{ margin: 0 }}>{mt(t(c.question))}</h2>);
-  const figure = (solved) => <TriViz base={8} height={6} cell={22} mode="tri" apexFrac={0.5} showHeight={true} compact={true} success={solved} showHalf={solved} alive={false} aLabel="8 sm" hLabel="6 sm"/>;
+  const figure = (solved) => <TriViz base={8} height={6} cell={22} mode="tri" apexFrac={0.5} showHeight={true} compact={true} success={solved} showHalf={solved} alive={true} aLabel="8 sm" hLabel="6 sm"/>;
   return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} figure={figure} factOnCorrect={<FactCard text={c.fact} badge={FB_MATH} anim={<AnimHalf/>}/>}/>;
 };
 
@@ -1525,7 +1766,7 @@ const Screen12 = (props) => {
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
   const question = (<h2 className="title h-sub" style={{ margin: 0 }}>{mt(t(c.question))}</h2>);
-  const figure = (solved) => <TriViz base={10} height={4} cell={20} mode="tri" apexFrac={0.42} showHeight={true} compact={true} success={solved} showHalf={solved} alive={false} aLabel="10 m" hLabel="4 m"/>;
+  const figure = (solved) => <TriViz base={10} height={4} cell={20} mode="tri" apexFrac={0.42} showHeight={true} compact={true} success={solved} showHalf={solved} alive={true} aLabel="10 m" hLabel="4 m"/>;
   return <QuestionScreen {...props} idx={12} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[12]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} figure={figure} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimMesh/>}/>}/>;
 };
 
@@ -2117,6 +2358,22 @@ html, body { margin: 0; padding: 0; }
 .tv-rangle { fill: none; stroke: #019ACB; stroke-width: 1.5; }
 .tv-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; fill: #5A5A60; }
 @keyframes tvShine { 0%, 100% { fill-opacity: 0.82; } 50% { fill-opacity: 1; } }
+/* Bridge — slaydlararo ulovchi gap (↳ qator) */
+.bridge { font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 1.5vw, 13px); font-weight: 600; color: #FF4F28; letter-spacing: 0.01em; opacity: 0.92; }
+.bridge::before { content: '↳ '; opacity: 0.7; }
+/* s7 qadamlarni tartiblash (order) — tap-asosli karta (mobil+desktop) */
+.order-card { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: clamp(11px, 1.8vw, 14px) clamp(13px, 2vw, 17px); border-radius: 12px; border: 2px solid rgba(255, 79, 40, 0.28); background: #FFFFFF; color: #3A3530; font-family: 'Manrope', sans-serif; font-size: clamp(13px, 1.7vw, 15px); font-weight: 600; cursor: pointer; transition: border-color 0.18s ease, background 0.18s ease, transform 0.12s ease; }
+.order-card:hover:not(:disabled) { border-color: #FF4F28; background: #FFF6F3; }
+.order-card:active:not(:disabled) { transform: scale(0.99); }
+.order-card-done { border-color: #1F7A4D; background: #EAF6EE; cursor: default; }
+.order-num { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; background: rgba(255, 79, 40, 0.12); color: #FF4F28; }
+.order-card-done .order-num { background: #1F7A4D; color: #FFFFFF; }
+/* s7 raqam-paneli (num) — ekran klaviaturasiz, tap-asosli (mobil+desktop) */
+.numpad-display { min-width: 130px; min-height: 46px; padding: 8px 18px; border: 2px solid rgba(58, 53, 48, 0.18); border-radius: 10px; font-size: clamp(20px, 4vw, 26px); font-weight: 700; text-align: center; background: #FFFFFF; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 280px; }
+.numpad-key { padding: clamp(10px, 2.2vw, 14px) 0; border-radius: 10px; border: 1.5px solid rgba(58, 53, 48, 0.14); background: #FFFFFF; color: #3A3530; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(16px, 2.8vw, 20px); cursor: pointer; transition: background 0.12s ease, transform 0.1s ease; }
+.numpad-key:hover { background: #F4F2EF; }
+.numpad-key:active { transform: scale(0.95); background: #FFE9E2; }
 
 /* MATH geom_5_03: fakt-animatsiyalar (CSS-only loop, qutiga sig'adi, aylanuvchi/iz YO'Q). */
 /* Misr piramidasi — uchburchak yuz + quyosh pulsi (Tarix). */

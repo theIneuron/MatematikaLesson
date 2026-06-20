@@ -683,6 +683,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         if (engine && !audio.muted) {
           const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+          if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
     }
@@ -697,13 +698,14 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)', justifyContent: solved ? 'center' : 'flex-start' }}>
-        {titleNode && <Title node={titleNode}/>}
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        <FloatFrames/>
+        {titleNode && <div style={{ position: 'relative' }}><Title node={titleNode}/></div>}
         {/* Sarlavha (Title) + savol matni to'g'ri javobdan keyin ham qoladi — faqat noto'g'ri variantlar yig'iladi. */}
-        <div className="fade-up">{question}</div>
-        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        <div className="fade-up" style={{ position: 'relative' }}>{question}</div>
+        {figure && <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
         {/* To'g'ri javobdan keyin: faqat to'g'ri variant qoladi, noto'g'rilari silliq yig'ilib g'oyib bo'ladi (yangilangan anti-scroll). */}
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
+        <div className="fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
@@ -735,7 +737,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
           </p>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && <div style={{ position: 'relative' }}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -763,8 +765,8 @@ const SCREEN_META = [
   { id: 's3',  type: 'exploration', template: 'custom',         scored: false, scope: null },
   { id: 's4',  type: 'rule',        template: 'custom',         scored: false, scope: null },
   { id: 's5',  type: 'rule',        template: 'custom',         scored: false, scope: null },
-  { id: 's6',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
-  { id: 's7',  type: 'test',        template: 'NumGeoScreen',   scored: true,  scope: 'practice' },
+  { id: 's6',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
+  { id: 's7',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
   { id: 's8',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
   { id: 's9',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
   { id: 's10', type: 'case',        template: 'custom',         scored: false, scope: null },
@@ -827,6 +829,7 @@ const CONTENT = {
   // ===== s2 EXPLORATION — chegara bo'ylab yurish (step), tomonlar yig'indisi 5,8,13,16 =====
   s2: {
     eyebrow: { ru: 'Граница', uz: "Chegara" },
+    bridge: { ru: 'Счёт работает, теперь пройдём по самой границе.', uz: "Hisob ishladi, endi chegaraning o'zidan yuramiz." },
     title: { ru: 'Идём по границе', uz: "Chegara bo'ylab yuramiz" },
     lead: { ru: 'Теперь пройдём по краю прямоугольника со сторонами 5 и 3 и сложим путь.', uz: "Endi 5 va 3 tomonli to'rtburchak chetidan yuramiz va yo'lni qo'shamiz." },
     step_1: { ru: 'Первая сторона: 5. Прошли пять.', uz: "Birinchi tomon: 5. Beshni o'tdik." },
@@ -865,6 +868,7 @@ const CONTENT = {
   // ===== s4 RULE 1 — P = barcha tomonlar; P = 2·(a+b); kvadrat P = 4·a =====
   s4: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    bridge: { ru: 'Мы прошли границу, соберём это в правило.', uz: "Chegarani yurib chiqdik, buni qoidaga yig'amiz." },
     heading: { ru: 'Как найти периметр', uz: "Perimetrni qanday topamiz" },
     rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
     rule_1: { ru: 'Периметр — это сумма всех сторон фигуры.', uz: "Perimetr — figuraning barcha tomonlari yig'indisi." },
@@ -879,42 +883,66 @@ const CONTENT = {
     heading: { ru: 'Периметр — это не площадь', uz: "Perimetr — yuza emas" },
     rule_1: { ru: 'Периметр — это длина границы, путь вокруг фигуры. Его складывают.', uz: "Perimetr — chegara uzunligi, figura atrofidagi yo'l. Uni qo'shadilar." },
     rule_2: { ru: 'Площадь — это сколько места внутри. Её находят умножением сторон.', uz: "Yuza — ichidagi joy miqdori. Uni tomonlarni ko'paytirib topadilar." },
-    tip: { ru: 'Жасур умножил стороны и получил площадь, а забор идёт по границе. Для забора нужен периметр — стороны складывают.', uz: "Jasur tomonlarni ko'paytirib yuzani topdi, panjara esa chegara bo'ylab boradi. Panjara uchun perimetr kerak — tomonlar qo'shiladi." },
+    tip: { ru: 'Жасуру нужен забор — это граница. Значит периметр, а не площадь.', uz: "Jasurga panjara kerak — bu chegara. Demak perimetr, yuza emas." },
     audio: { ru: "Запомните разницу. Периметр это длина границы, его получают сложением сторон. А площадь это место внутри, её получают умножением. Жасур умножил стороны и нашёл площадь, но для забора нужна именно граница, то есть периметр.", uz: "Farqni yodda tuting. Perimetr chegara uzunligi, uni tomonlarni qo'shib olamiz. Yuza esa ichidagi joy, uni ko'paytirib olamiz. Jasur tomonlarni ko'paytirib yuzani topdi, lekin panjara uchun aynan chegara, ya'ni perimetr kerak." }
   },
 
-  // ===== s6 TEST MC — to'rtburchak 6x4 -> 20 (M1: 24 yuza, M2: 10, +12) =====
+  // ===== s6 TEST (interaktiv): "Chegarani bos" — tomonlarni bosib perimetr yig'iladi (Dars34 imzo metodi) =====
   s6: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Периметр прямоугольника', uz: "To'rtburchak perimetri" },
-    question: { ru: 'У прямоугольника стороны 6 и 4. Чему равен периметр?', uz: "To'rtburchak tomonlari 6 va 4. Perimetri nechaga teng?" },
-    opt0: { ru: '20', uz: "20" },
-    opt1: { ru: '24', uz: "24" },
-    opt2: { ru: '10', uz: "10" },
-    opt3: { ru: '12', uz: "12" },
-    correct_text: { ru: 'Верно: 6 + 4 + 6 + 4 = 20. Можно и так: 2·(6 + 4) = 20.', uz: "To'g'ri: 6 + 4 + 6 + 4 = 20. Yoki: 2·(6 + 4) = 20." },
-    wrong_1: { ru: 'Это 6 умножить на 4, получилась площадь, а не периметр. Стороны нужно сложить.', uz: "Bu 6 ni 4 ga ko'paytirish, yuza chiqdi, perimetr emas. Tomonlarni qo'shish kerak." },
-    wrong_2: { ru: 'Вы сложили только две стороны. У прямоугольника их четыре.', uz: "Siz faqat ikki tomonni qo'shdingiz. To'rtburchakda ular to'rtta." },
-    wrong_3: { ru: 'Этого мало. Сложите все четыре стороны прямоугольника.', uz: "Bu kam. To'rtburchakning to'rtala tomonini qo'shing." },
+    eyebrow: { ru: 'Собери периметр', uz: "Perimetrni yig'ing" },
+    bridge: { ru: 'Правило знаем, теперь примени его сам.', uz: "Qoidani bilamiz, endi o'zingiz qo'llang." },
+    title: { ru: 'Пройди по всей границе', uz: "Butun chegaradan yuring" },
+    lead: { ru: 'Прямоугольник 6 и 4. Нажимай на стороны — пройди всю границу, потом подтверди периметр.', uz: "To'rtburchak 6 va 4. Tomonlarni bosing — butun chegarani yuring, keyin perimetrni tasdiqlang." },
+    walk_label: { ru: 'Пройдено', uz: "Yurildi" },
+    btn_confirm: { ru: 'Подтвердить периметр', uz: "Perimetrni tasdiqlash" },
+    hint: { ru: 'Ты обошёл не все стороны. Периметр — это вся граница, пройди каждую из четырёх сторон.', uz: "Hamma tomonni aylanmadingiz. Perimetr — butun chegara, to'rtala tomonning har birini yuring." },
+    correct_text: { ru: 'Верно: 6 + 4 + 6 + 4 = 20. Ты прошёл всю границу — это и есть периметр.', uz: "To'g'ri: 6 + 4 + 6 + 4 = 20. Butun chegarani yurdingiz — mana shu perimetr." },
     audio: {
-      intro: { ru: "Теперь сами. У прямоугольника стороны шесть и четыре. Чему равен периметр?", uz: "Endi o'zingiz. To'rtburchak tomonlari olti va to'rt. Perimetri nechaga teng?" },
-      on_correct: { ru: "Верно, двадцать. Сложили все четыре стороны, шесть плюс четыре плюс шесть плюс четыре, получилось двадцать.", uz: "To'g'ri, yigirma. To'rtta tomonni qo'shdik, olti qo'shamiz to'rt qo'shamiz olti qo'shamiz to'rt, yigirma bo'ldi." },
-      on_wrong: { ru: "Сложите все четыре стороны, не умножайте.", uz: "To'rtta tomonni qo'shing, ko'paytirmang." }
+      intro: { ru: "Пройди по всей границе прямоугольника. Нажимай на стороны по очереди и складывай их длины, а потом подтверди периметр.", uz: "To'rtburchakning butun chegarasidan yuring. Tomonlarni navbatma-navbat bosing, uzunliklarini qo'shing, keyin perimetrni tasdiqlang." },
+      on_correct: { ru: "Верно, двадцать. Ты сложил все четыре стороны: шесть плюс четыре плюс шесть плюс четыре. Это и есть периметр.", uz: "To'g'ri, yigirma. To'rtala tomonni qo'shdingiz: olti qo'shamiz to'rt qo'shamiz olti qo'shamiz to'rt. Mana shu perimetr." },
+      on_wrong: { ru: "Пройди каждую из четырёх сторон, а потом подтверди.", uz: "To'rtala tomonning har birini yuring, keyin tasdiqlang." }
     }
   },
 
-  // ===== s7 TEST NumGeo — kvadrat tomoni 7 -> 28 =====
+  // ===== s7 TEST (aralash blok): 4 ta har xil tipdagi savol — MC, typed, to'g'ri/noto'g'ri, taqqoslash =====
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    question: { ru: 'У квадрата сторона 7. Чему равен периметр?', uz: "Kvadrat tomoni 7. Perimetri nechaga teng?" },
+    eyebrow: { ru: 'Разные задачи', uz: "Har xil savollar" },
+    title: { ru: 'Четыре разных вопроса', uz: "To'rt xil savol" },
+    lead: { ru: 'Четыре задания на периметр — все разного вида. Отвечай по очереди.', uz: "Perimetrga oid to'rt topshiriq — har biri har xil. Navbatma-navbat javob bering." },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'У квадрата четыре равные стороны. Возьмите сторону четыре раза.', uz: "Kvadratning to'rt teng tomoni bor. Tomonni to'rt marta oling." },
-    fb_correct: { ru: 'Верно: 4 умножить на 7 равно 28.', uz: "To'g'ri: 4 ni 7 ga ko'paytirsak 28 bo'ladi." },
+    items: [
+      { kind: 'choice', a: 7, b: 3,
+        q: { ru: 'Выбери периметр прямоугольника 7 и 3.', uz: "7 va 3 to'rtburchak perimetrini tanlang." },
+        opts: [{ ru: '20', uz: '20' }, { ru: '21', uz: '21' }, { ru: '10', uz: '10' }, { ru: '13', uz: '13' }], correct: 0,
+        hint: { ru: 'Сложи все четыре стороны прямоугольника.', uz: "To'rtburchakning to'rtala tomonini qo'shing." },
+        audio_q: { ru: "Первый вопрос. Выбери периметр прямоугольника со сторонами семь и три.", uz: "Birinchi savol. Tomonlari yetti va uch to'rtburchak perimetrini tanlang." },
+        audio_ok: { ru: "Верно, двадцать. Сложили семь и три и семь и три.", uz: "To'g'ri, yigirma. Yetti va uch va yetti va uchni qo'shdik." } },
+      { kind: 'num', a: 6, b: 6, answer: 24,
+        q: { ru: 'Квадрат со стороной 6. Посчитай периметр сам.', uz: "Tomoni 6 kvadrat. Perimetrini o'zingiz hisoblang." },
+        hint: { ru: 'У квадрата четыре равные стороны. Возьми сторону четыре раза.', uz: "Kvadratning to'rt teng tomoni bor. Tomonni to'rt marta oling." },
+        audio_q: { ru: "Второй вопрос. У квадрата сторона шесть. Посчитай периметр сам и введи ответ.", uz: "Ikkinchi savol. Kvadrat tomoni olti. Perimetrini o'zingiz hisoblang va javobni kiriting." },
+        audio_ok: { ru: "Верно, двадцать четыре. Четыре стороны по шесть.", uz: "To'g'ri, yigirma to'rt. Oltidan to'rt tomon." } },
+      { kind: 'choice',
+        q: { ru: 'Верно ли: у квадрата со стороной 5 периметр равен 25?', uz: "To'g'rimi: tomoni 5 kvadratning perimetri 25?" },
+        opts: [{ ru: 'Верно', uz: "To'g'ri" }, { ru: 'Неверно', uz: "Noto'g'ri" }], correct: 1,
+        hint: { ru: 'Подумай: умножение даёт площадь, а периметр складывают.', uz: "O'ylab ko'ring: ko'paytirish yuzani beradi, perimetrni qo'shadilar." },
+        audio_q: { ru: "Третий вопрос. Верно ли, что у квадрата со стороной пять периметр равен двадцати пяти?", uz: "Uchinchi savol. Tomoni besh kvadratning perimetri yigirma besh, to'g'rimi?" },
+        audio_ok: { ru: "Правильно, это неверно. Двадцать пять это площадь, а периметр равен двадцати.", uz: "To'g'ri javob, bu noto'g'ri. Yigirma besh — bu yuza, perimetr esa yigirmaga teng." } },
+      { kind: 'choice',
+        q: { ru: 'У какой фигуры периметр больше?', uz: "Qaysi figuraning perimetri kattaroq?" },
+        opts: [{ ru: 'Прямоугольник 6 и 3', uz: "To'rtburchak 6 va 3" }, { ru: 'Квадрат со стороной 5', uz: "Tomoni 5 kvadrat" }], correct: 1,
+        hint: { ru: 'Посчитай периметр каждой фигуры и сравни.', uz: "Har bir figuraning perimetrini hisoblab solishtiring." },
+        audio_q: { ru: "Четвёртый вопрос. У какой фигуры периметр больше: у прямоугольника шесть и три или у квадрата со стороной пять?", uz: "To'rtinchi savol. Qaysi figuraning perimetri kattaroq: olti va uch to'rtburchakmi yoki tomoni besh kvadratmi?" },
+        audio_ok: { ru: "Верно. У квадрата периметр двадцать, у прямоугольника восемнадцать, у квадрата больше.", uz: "To'g'ri. Kvadratning perimetri yigirma, to'rtburchakniki o'n sakkiz, kvadratniki kattaroq." } }
+    ],
+    done_label: { ru: 'Вопрос', uz: "Savol" },
+    done_ok: { ru: 'верно', uz: "to'g'ri" },
+    done_text: { ru: 'Отлично, ты справился со всеми четырьмя.', uz: "Zo'r, to'rttasini ham yechdingiz." },
     audio: {
-      intro: { ru: "А теперь квадрат. Его сторона семь. Чему равен периметр?", uz: "Endi kvadrat. Uning tomoni yetti. Perimetri nechaga teng?" },
-      on_correct: { ru: "Верно, двадцать восемь. У квадрата четыре равные стороны, четыре умножить на семь равно двадцать восемь.", uz: "To'g'ri, yigirma sakkiz. Kvadratning to'rt teng tomoni bor, to'rtni yettiga ko'paytirsak yigirma sakkiz bo'ladi." },
-      on_wrong: { ru: "У квадрата четыре равные стороны, сложите их.", uz: "Kvadratning to'rt teng tomoni bor, ularni qo'shing." }
+      next: { ru: 'Четыре разных задания на периметр.', uz: "Perimetrga oid to'rt xil topshiriq." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Посмотри подсказку и попробуй ещё раз.', uz: "Maslahatni ko'ring va yana urinib ko'ring." }
     }
   },
 
@@ -950,6 +978,7 @@ const CONTENT = {
     wrong_0: { ru: 'Камола сложила все четыре стороны и получила шестнадцать, это верный периметр.', uz: "Kamola to'rtta tomonni qo'shib o'n olti oldi, bu to'g'ri perimetr." },
     wrong_2: { ru: 'Сардор взял 2 умножить на сумму сторон и получил шестнадцать, это верный способ.', uz: "Sardor 2 ni tomonlar yig'indisiga ko'paytirib o'n olti oldi, bu to'g'ri usul." },
     fact: { ru: 'В Древнем Египте землю отмеряли верёвкой с узлами: натягивали её по границе участка. Так измеряли периметр полей.', uz: "Qadimgi Misrda yerni tugunli arqon bilan o'lchashgan: uni yer chegarasi bo'ylab tortishgan. Maydonlar perimetri shunday o'lchangan." },
+    fact_audio: { ru: "В древнем Египте землю мерили верёвкой с узлами. Её натягивали по границе участка и так находили периметр поля.", uz: "Qadimgi Misrda yerni tugunli arqon bilan o'lchashgan. Uni yer chegarasi bo'ylab tortib, maydon perimetrini topishgan." },
     audio: {
       intro: { ru: "Три ученика искали периметр прямоугольника пять на три. Найдите того, кто посчитал неправильно.", uz: "Uch o'quvchi besh ga uch to'rtburchak perimetrini topdi. Noto'g'ri hisoblaganini toping." },
       on_correct: { ru: "Верно, ошибся Отабек. Он умножил стороны и получил площадь, а периметр это сумма сторон, шестнадцать.", uz: "To'g'ri, Otabek xato qildi. U tomonlarni ko'paytirib yuzani topdi, perimetr esa tomonlar yig'indisi, o'n olti." },
@@ -960,6 +989,7 @@ const CONTENT = {
   // ===== s10 CASE setup — Sevara rasmni lenta bilan o'raydi, 8x5 =====
   s10: {
     eyebrow: { ru: 'Задача', uz: "Masala" },
+    bridge: { ru: 'Задачи решили, перейдём к настоящей рамке.', uz: "Masalalarni yechdik, endi haqiqiy ramkaga o'tamiz." },
     title: { ru: 'Рамка Севары', uz: "Sevaraning ramkasi" },
     lead: { ru: 'Севара обрамляет фотографию лентой по краю. Фото прямоугольное: 8 см и 5 см.', uz: "Sevara fotosuratni chet bo'ylab lenta bilan o'rayapti. Foto to'rtburchak: 8 sm va 5 sm." },
     note: { ru: 'Сколько ленты нужно, чтобы обойти фото по границе?', uz: "Fotoni chegara bo'ylab aylanib chiqish uchun qancha lenta kerak?" },
@@ -982,6 +1012,7 @@ const CONTENT = {
     wrong_2: { ru: 'Это только две стороны. Лента обходит все четыре.', uz: "Bu faqat ikki tomon. Lenta to'rttasini aylanib chiqadi." },
     wrong_3: { ru: 'Этого не хватит. Сложите все четыре стороны рамки.', uz: "Bu yetmaydi. Ramkaning to'rtala tomonini qo'shing." },
     fact: { ru: 'Пчёлы строят соты шестиугольниками: у такой формы самая короткая граница при той же площади, поэтому экономится воск.', uz: "Asalarilar uyacha hujayralarini oltiburchak qilib quradi: bunday shaklning yuzasi bir xilda chegarasi eng qisqa, shuning uchun mum tejaladi." },
+    fact_audio: { ru: "Пчёлы строят соты шестиугольниками. У такой формы самая короткая граница при той же площади, поэтому пчёлы экономят воск.", uz: "Asalarilar uyachalarni oltiburchak qilib quradi. Bunday shaklning chegarasi eng qisqa, shuning uchun asalari mum tejaydi." },
     audio: {
       intro: { ru: "Фото восемь на пять сантиметров. Сколько ленты нужно на рамку по краю?", uz: "Foto sakkizga besh santimetr. Chet bo'ylab ramkaga qancha lenta kerak?" },
       on_correct: { ru: "Верно, двадцать шесть сантиметров. Лента обходит все четыре стороны, восемь плюс пять плюс восемь плюс пять.", uz: "To'g'ri, yigirma olti santimetr. Lenta to'rtta tomonni aylanadi, sakkiz qo'shamiz besh qo'shamiz sakkiz qo'shamiz besh." },
@@ -1003,6 +1034,7 @@ const CONTENT = {
     wrong_2: { ru: 'Это только две стороны. У квадрата их четыре.', uz: "Bu faqat ikki tomon. Kvadratning to'rttasi bor." },
     wrong_3: { ru: 'Это три стороны. У квадрата четыре стороны.', uz: "Bu uch tomon. Kvadratning to'rt tomoni bor." },
     fact: { ru: 'В компьютерной графике пунктир, который «бежит» по краю выделенной области, называют «марширующими муравьями» — это и есть его периметр.', uz: "Kompyuter grafikasida tanlangan soha cheti bo'ylab «yuguradigan» punktir «yuruvchi chumolilar» deyiladi — bu uning perimetri." },
+    fact_audio: { ru: "В компьютерной графике пунктир, который бежит по краю выделенной области, называют марширующими муравьями. Это и есть её периметр.", uz: "Kompyuter grafikasida tanlangan soha cheti bo'ylab yuguradigan punktir yuruvchi chumolilar deyiladi. Bu uning perimetri." },
     audio: {
       intro: { ru: "Последнее задание. Квадратный двор со стороной девять метров. Сколько метров забора нужно по всему краю?", uz: "Oxirgi topshiriq. Tomoni to'qqiz metr bo'lgan kvadrat hovli. Butun chet bo'ylab necha metr panjara kerak?" },
       on_correct: { ru: "Верно, тридцать шесть метров. У квадрата четыре стороны по девять, четыре умножить на девять равно тридцать шесть.", uz: "To'g'ri, o'ttiz olti metr. Kvadratning to'rt tomoni to'qqizdan, to'rtni to'qqizga ko'paytirsak o'ttiz olti bo'ladi." },
@@ -1048,6 +1080,8 @@ const optEl = (t, node) => <span className="body" style={{ display: 'inline' }}>
 
 // Qisqa sarlavha — har slayd tepasida (kam so'z, metodist 2026-06-17).
 const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
+// Bridge — slaydlararo ulovchi gap (faza chegaralarida): ekranda ↳ qator, ovozda intro boshiga qo'shiladi.
+const Bridge = ({ node }) => { const t = useT(); return node ? <p className="bridge fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(node))}</p> : null; };
 
 // Ikonkalar ✓/✗ — feedback faqat rang bilan emas (accessibility).
 const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
@@ -1105,13 +1139,13 @@ const AnimAnts = () => (
 // a,b — tomonlar; lit — yoritilgan tomonlar soni (0..4); compact — kichik variant.
 // ============================================================
 const SIDE_ORDER = ['top', 'right', 'bottom', 'left'];
-const BorderWalk = ({ a = 5, b = 3, unit = 'm', lit = 4, compact = false, glow = false, success = false }) => {
+const BorderWalk = ({ a = 5, b = 3, unit = 'm', lit = 4, compact = false, glow = false, success = false, walkedSet = null }) => {
   const big = Math.max(a, b);
   const base = compact ? (big >= 8 ? 16 : 22) : (big >= 8 ? 26 : 34);
   const W = Math.round(a * base);
   const H = Math.round(b * base);
   const sides = { top: a, bottom: a, left: b, right: b };
-  const isLit = (name) => SIDE_ORDER.indexOf(name) < lit;
+  const isLit = (name) => walkedSet ? walkedSet.has(name) : SIDE_ORDER.indexOf(name) < lit;
   return (
     <div className={`bw-host${glow ? ' bw-glow' : ''}${success ? ' bw-success' : ''}`} aria-hidden="true">
       <div className="bw-rect" style={{ width: W, height: H }}>
@@ -1165,9 +1199,9 @@ const NumGeoScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, co
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <FloatFrames/>
-        <h2 className="title h-sub fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.question))}</h2>
+        <h2 className="title h-sub fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.question))}</h2>
         {figure && <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(10px, 2vw, 16px)' }}>{figure(solved)}</div>}
         <div className="fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
           <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
@@ -1301,6 +1335,12 @@ const Screen1 = ({ screen, onAnswer, onNext, onPrev }) => {
             </div>
           )}
         </div>
+        <FeedbackBlock show={wrong.size > 0 && !done} isCorrect={false} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}
+          </p>
+          <p className="body" style={{ margin: 0 }}>{mt(t(cur.hint))}</p>
+        </FeedbackBlock>
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
             <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
@@ -1317,6 +1357,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
   const arr = c.audio[lang]; const last = arr.length - 1;
   const segs = arr.map((text, i) => ({ id: `s2_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
+  if (c.bridge && segs[0]) segs[0] = { ...segs[0], text: `${t(c.bridge)} ${segs[0].text}` };
   const audio = useAudio(segs);
   const [step, setStep] = useState(0);
   const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
@@ -1327,6 +1368,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
         <FloatFrames/>
+        <Bridge node={c.bridge}/>
         <Title node={c.title}/>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center', minHeight: 150 }}>
@@ -1376,13 +1418,16 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
 // s4 — RULE 1: P = barcha tomonlar; P = 2·(a+b); kvadrat P = 4·a.
 const Screen4 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s4;
-  const audio = useAudio(makeAudioSegments(c, lang));
+  const segs = makeAudioSegments(c, lang);
+  if (c.bridge && segs[0]) segs[0] = { ...segs[0], text: `${t(c.bridge)} ${segs[0].text}` };
+  const audio = useAudio(segs);
   const rules = [c.rule_1, c.rule_2, c.rule_3];
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
         <FloatFrames/>
+        <Bridge node={c.bridge}/>
         <Title node={c.heading}/>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 10 }}>{t(c.rule_label)}</p>
@@ -1420,20 +1465,181 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s6 — TEST MC: to'rtburchak 6x4 -> 20 (M1: 24 yuza, M2: 10, +12).
-const Screen6 = (props) => {
-  const t = useT(); const c = CONTENT.s6;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 2, 1, 3]);
-  const question = (<h2 className="title h-sub" style={{ margin: 0 }}>{mt(t(c.question))}</h2>);
-  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} figure={(solved) => <BorderWalk a={6} b={4} unit="" lit={solved ? 4 : 0} success={solved} compact={true}/>}/>;
+// s6 — TEST (interaktiv): "Chegarani bos" — o'quvchi tomonlarni bosib butun chegarani yuradi, perimetrni yig'adi.
+const Screen6 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s6; const sfx = useSfx();
+  const sideLen = { top: 6, right: 4, bottom: 6, left: 4 };
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [walked, setWalked] = useState(() => wasSolved ? new Set(SIDE_ORDER) : new Set());
+  const [solved, setSolved] = useState(wasSolved);
+  const [hint, setHint] = useState(false);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
+  const total = SIDE_ORDER.reduce((s, n) => s + (walked.has(n) ? sideLen[n] : 0), 0);
+  const introText = c.bridge ? `${t(c.bridge)} ${c.audio.intro[lang]}` : c.audio.intro[lang];
+  const audio = useAudio([{ id: 's6_intro', text: introText, trigger: 'on_mount', waits_for: null }]);
+  const voice = (text) => { if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(text); }, 300); };
+  const tapSide = (name) => { if (solved || walked.has(name)) return; setHint(false); setWalked(prev => { const n = new Set(prev); n.add(name); return n; }); };
+  const confirm = () => {
+    if (solved) return;
+    attemptsRef.current += 1;
+    const ok = walked.size === 4;
+    if (firstTryRef.current === null) firstTryRef.current = ok;
+    if (ok) {
+      setSolved(true); sfx.playCorrect();
+      voice(c.audio.on_correct[lang]);
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: c.title[lang], correctAnswer: '20', studentAnswer: String(total), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
+    } else { sfx.playWrong(); setHint(true); voice(c.audio.on_wrong[lang]); }
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <FloatFrames/>
+        <Bridge node={c.bridge}/>
+        <Title node={c.title}/>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center', minHeight: 150 }}>
+          <BorderWalk a={6} b={4} unit="" walkedSet={walked} success={solved} compact={true}/>
+          <p className="mono" style={{ margin: 0, fontSize: 'clamp(15px, 2.4vw, 18px)', fontWeight: 700, color: solved ? T.success : T.accent }}>{t(c.walk_label)}: {total}</p>
+        </div>
+        {!solved && (
+          <div className="psd-chips fade-up delay-2" style={{ position: 'relative' }}>
+            {SIDE_ORDER.map(name => { const isW = walked.has(name); return (
+              <button key={name} className={`psd-chip${isW ? ' psd-chip-done' : ''}`} disabled={isW} onClick={() => tapSide(name)}>
+                <span className="mono">{isW ? '✓' : '+'}</span> {sideLen[name]}
+              </button>
+            ); })}
+          </div>
+        )}
+        {!solved && <button className="btn-white-accent fade-up delay-3" onClick={confirm} style={{ position: 'relative', alignSelf: 'flex-start', padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_confirm)}</button>}
+        {hint && !solved && (
+          <div className="frame-tip fade-up" style={{ position: 'relative' }}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
+          </div>
+        )}
+        {solved && (
+          <FeedbackBlock show={true} isCorrect={true}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
 };
 
-// s7 — TEST NumGeo: kvadrat tomoni 7 -> 28.
-const Screen7 = (props) => {
-  const c = CONTENT.s7;
-  return <NumGeoScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={c} correctValue={28}
-    figure={(solved) => <BorderWalk a={7} b={7} unit="" lit={solved ? 4 : 0} success={solved} compact={true}/>}/>;
+// s7 — TEST (aralash blok): 4 ta har xil tipdagi savol ketma-ket (MC, typed, to'g'ri/noto'g'ri, taqqoslash), ✓-buklash + веди-до-верного.
+const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s7; const sfx = useSfx();
+  const items = c.items;
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [qi, setQi] = useState(wasSolved ? items.length : 0);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [val, setVal] = useState('');
+  const [numWrong, setNumWrong] = useState(false);
+  const [done, setDone] = useState(wasSolved);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const allFirstRef = useRef(storedAnswer ? (storedAnswer.correct ?? true) : true);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
+  const audio = useAudio([{ id: 's7_q0', text: items[0].audio_q[lang], trigger: 'on_mount', waits_for: null }]);
+  const voice = (text) => { if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(text); }, 300); };
+  const cur = items[Math.min(qi, items.length - 1)];
+
+  const advance = (firstOk) => {
+    if (!firstOk) allFirstRef.current = false;
+    const okVoice = cur.audio_ok[lang];
+    if (qi < items.length - 1) {
+      const ni = qi + 1;
+      setQi(ni); setWrong(new Set()); setVal(''); setNumWrong(false);
+      voice(okVoice);
+      setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(items[ni].audio_q[lang]); }, 1500);
+    } else {
+      setDone(true);
+      if (firstTryRef.current === null) firstTryRef.current = allFirstRef.current;
+      voice(`${okVoice} ${c.done_text[lang]}`);
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: c.title[lang], correctAnswer: 'all', studentAnswer: 'all', correct: allFirstRef.current, firstTry: allFirstRef.current, attempts: attemptsRef.current, solved: true });
+    }
+  };
+  const pickChoice = (i) => {
+    if (done || wrong.has(i)) return;
+    attemptsRef.current += 1;
+    const firstForItem = wrong.size === 0;
+    if (i === cur.correct) { sfx.playCorrect(); advance(firstForItem); }
+    else { sfx.playWrong(); setWrong(prev => { const n = new Set(prev); n.add(i); return n; }); voice(cur.hint[lang]); }
+  };
+  const submitNum = () => {
+    if (done) return;
+    const norm = parseFloat(String(val).replace(',', '.').replace(/\s/g, ''));
+    if (Number.isNaN(norm)) return;
+    attemptsRef.current += 1;
+    const firstForItem = !numWrong;
+    if (Math.abs(norm - cur.answer) < 1e-9) { sfx.playCorrect(); advance(firstForItem); }
+    else { sfx.playWrong(); setNumWrong(true); voice(cur.hint[lang]); }
+  };
+  const numKey = (k) => {
+    if (done) return;
+    setNumWrong(false);
+    if (k === '⌫') setVal(v => v.slice(0, -1));
+    else if (k === ',') setVal(v => (v.includes(',') ? v : (v === '' ? '0,' : v + ',')));
+    else setVal(v => (v.length < 6 ? v + k : v));
+  };
+  const showHint = !done && ((cur.kind === 'choice' && wrong.size > 0) || (cur.kind === 'num' && numWrong));
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
+        <FloatFrames/>
+        <Title node={c.title}/>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {items.map((it, i) => (i < qi || (done && i === items.length - 1)) ? (
+            <div key={`d${i}`} className="mq-done fade-up"><span className="mq-done-ic"><IconOk/></span><span>{t(c.done_label)} {i + 1} — {t(c.done_ok)}</span></div>
+          ) : null)}
+          {!done && (
+            <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {cur.kind === 'choice' && cur.a && <div className="frame" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(8px, 1.8vw, 14px)' }}><BorderWalk a={cur.a} b={cur.b} unit="" lit={4} compact={true}/></div>}
+              <h2 className="title h-sub" style={{ margin: 0 }}>{mt(t(cur.q))}</h2>
+              {cur.kind === 'choice' ? (
+                <div style={{ display: 'grid', gridTemplateColumns: cur.opts.length > 2 ? 'repeat(2, minmax(0, 1fr))' : '1fr', gap: 10 }}>
+                  {cur.opts.map((o, i) => { const isW = wrong.has(i); return (
+                    <button key={i} className={`option${isW ? ' option-picked-wrong' : ''}`} disabled={isW} onClick={() => pickChoice(i)}
+                      style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span className="mono small" style={{ minWidth: 20, display: 'flex', justifyContent: 'center', color: isW ? T.accent : T.ink3 }}>{isW ? <IconNo/> : String.fromCharCode(65 + i)}</span>
+                      <span style={{ flex: 1 }}>{mt(t(o))}</span>
+                    </button>
+                  ); })}
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
+                  <div className="numpad-display mono" style={{ color: val ? T.ink : T.ink3 }}>{val || t(c.placeholder)}</div>
+                  <div className="numpad">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '0', '⌫'].map(k => (
+                      <button key={k} className="numpad-key" onClick={() => numKey(k)}>{k}</button>
+                    ))}
+                  </div>
+                  <button className="btn-white-accent" onClick={submitNum} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 3vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {showHint && (
+          <div className="frame-tip fade-up" style={{ position: 'relative' }}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(cur.hint))}</p>
+          </div>
+        )}
+        {done && (
+          <FeedbackBlock show={true} isCorrect={true}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.done_text))}</p>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
 };
 
 // s8 — TEST MC: teskari masala, P=16, en=3 -> bo'y 5.
@@ -1457,12 +1663,15 @@ const Screen9 = (props) => {
 // s10 — CASE setup: Sevara rasmni lenta bilan o'raydi, 8x5.
 const Screen10 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s10;
-  const audio = useAudio(makeAudioSegments(c, lang));
+  const segs = makeAudioSegments(c, lang);
+  if (c.bridge && segs[0]) segs[0] = { ...segs[0], text: `${t(c.bridge)} ${segs[0].text}` };
+  const audio = useAudio(segs);
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
         <FloatFrames/>
+        <Bridge node={c.bridge}/>
         <Title node={c.title}/>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(10px, 2vw, 16px)' }}>
@@ -2075,7 +2284,8 @@ html, body { margin: 0; padding: 0; }
 .bw-bottom { bottom: -2px; left: 0; right: 0; height: 4px; }
 .bw-left { left: -2px; top: 0; bottom: 0; width: 4px; }
 .bw-right { right: -2px; top: 0; bottom: 0; width: 4px; }
-.bw-lit { background: #FF4F28; box-shadow: 0 0 8px rgba(255, 79, 40, 0.5); }
+.bw-lit { background: #FF4F28; box-shadow: 0 0 8px rgba(255, 79, 40, 0.5); animation: bwBreathe 3.6s ease-in-out infinite; }
+@keyframes bwBreathe { 0%, 100% { box-shadow: 0 0 5px rgba(255, 79, 40, 0.35); } 50% { box-shadow: 0 0 12px rgba(255, 79, 40, 0.7); } }
 .bw-success .bw-side { background: #1F7A4D; box-shadow: 0 0 8px rgba(31, 122, 77, 0.5); animation: bwEdge 0.5s ease-out both; }
 .bw-success .bw-len { color: #1F7A4D; }
 @keyframes bwEdge { 0% { opacity: 0.25; box-shadow: 0 0 0 rgba(31, 122, 77, 0); } 60% { opacity: 1; box-shadow: 0 0 12px rgba(31, 122, 77, 0.6); } 100% { opacity: 1; box-shadow: 0 0 8px rgba(31, 122, 77, 0.5); } }
@@ -2087,6 +2297,20 @@ html, body { margin: 0; padding: 0; }
 .bw-len-lit { color: #FF4F28; }
 .bw-pulse { animation: bwGlow 0.8s ease; }
 @keyframes bwGlow { 0% { filter: drop-shadow(0 0 0 rgba(255, 79, 40, 0)); } 50% { filter: drop-shadow(0 0 12px rgba(255, 79, 40, 0.4)); } 100% { filter: drop-shadow(0 0 0 rgba(255, 79, 40, 0)); } }
+/* s6 interaktiv "Chegarani bos" — tomon chiplari */
+.psd-chips { display: flex; gap: clamp(8px, 1.6vw, 12px); flex-wrap: wrap; justify-content: center; }
+.psd-chip { display: inline-flex; align-items: center; gap: 8px; padding: clamp(10px, 1.6vw, 13px) clamp(16px, 2.4vw, 22px); border-radius: 12px; border: 2px solid rgba(255, 79, 40, 0.3); background: #FFFFFF; color: #3A3530; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(14px, 2vw, 17px); cursor: pointer; transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease; }
+.psd-chip:hover:not(:disabled) { border-color: #FF4F28; transform: translateY(-2px); box-shadow: 0 4px 12px -4px rgba(255, 79, 40, 0.4); }
+.psd-chip-done { background: #EAF6EE; border-color: #1F7A4D; color: #1F7A4D; cursor: default; }
+/* Bridge — slaydlararo ulovchi gap (↳ qator) */
+.bridge { font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 1.5vw, 13px); font-weight: 600; color: #FF4F28; letter-spacing: 0.01em; opacity: 0.92; }
+.bridge::before { content: '↳ '; opacity: 0.7; }
+/* s7 raqam-paneli (num) — ekran klaviaturasiz, tap-asosli (mobil+desktop) */
+.numpad-display { min-width: 130px; min-height: 46px; padding: 8px 18px; border: 2px solid rgba(58, 53, 48, 0.18); border-radius: 10px; font-size: clamp(20px, 4vw, 26px); font-weight: 700; text-align: center; background: #FFFFFF; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 280px; }
+.numpad-key { padding: clamp(10px, 2.2vw, 14px) 0; border-radius: 10px; border: 1.5px solid rgba(58, 53, 48, 0.14); background: #FFFFFF; color: #3A3530; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(16px, 2.8vw, 20px); cursor: pointer; transition: background 0.12s ease, transform 0.1s ease; }
+.numpad-key:hover { background: #F4F2EF; }
+.numpad-key:active { transform: scale(0.95); background: #FFE9E2; }
 /* Uzluksiz ko'k iz — chegara bo'ylab aylanadi (kulrang/accent/yashil ustida ham ko'rinadi). */
 
 /* MATH geom_5_01: факт-анимации (CSS-only loop, ko'k tema, qutiga sig'adi). */

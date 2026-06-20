@@ -534,26 +534,6 @@ const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   );
 };
 
-// Slider — компонент v15 с track-wrap + track-bg + track-fill + glow
-const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
-  const pct = ((value - min) / (max - min)) * 100;
-  return (
-    <div className="track-wrap">
-      <div className="track-bg"/>
-      <div className="track-fill" style={{ width: `${pct}%` }}/>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        disabled={disabled}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="slider-input"
-      />
-    </div>
-  );
-};
 
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
@@ -614,7 +594,12 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
+const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
+
+// Мост между фазами: видимая ↳-связка «откуда пришли». Текст также вплетён в intro-аудио/lead экрана.
+const Bridge = ({ node }) => { const t = useT(); return node ? <p className="bridge fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(node))}</p> : null; };
+
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -681,7 +666,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       setTimeout(() => {
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
-          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || c.audio.on_wrong[lang];
+          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
         }
       }, 300);
@@ -697,34 +682,38 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <Floaters/>
-        <div className="fade-up" style={{ position: 'relative' }}>{question}</div>
-        <div className="fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        {titleNode && <Title node={titleNode}/>}
+        {/* Заголовок (Title) + текст вопроса остаются и после верного ответа — сворачиваются только неверные варианты. */}
+        <div className="fade-up">{question}</div>
+        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        {/* После верного: остаётся только верный вариант, неверные плавно (с задержкой) сворачиваются — keep-visible anti-scroll. */}
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
+            const isCorrect = i === correctIdx;
+            const collapse = solved && !isCorrect;        // после верного неверные сворачиваются
             if (solved) {
-              if (i === correctIdx) cls += ' option-correct';
-              else if (isWrongPicked) cls += ' option-picked-wrong';
-              else cls += ' option-wrong';
+              if (isCorrect) cls += ' option-correct';
+              // неверным НЕ добавляем цвет-класс — плавно гаснут через inline opacity
             } else if (isWrongPicked) {
               cls += ' option-picked-wrong';
             }
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
-                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
+                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
             );
           })}
         </div>
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass={c[`hint_${picked}`] ? 'frame-tip' : undefined}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.ink, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
@@ -732,76 +721,6 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
           </p>
         </FeedbackBlock>
         {solved && factOnCorrect}
-      </div>
-    </Stage>
-  );
-};
-
-// ============================================================
-// NUM INPUT SCREEN — числовой ввод: веди-до-верного + наводящая подсказка, счёт первой попытки.
-// ============================================================
-const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, correctValue, renderVisual, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang();
-  const t = useT();
-  const c = screenContent;
-  const sfx = useSfx();
-  const correct = Number(correctValue);
-  const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
-  const [value, setValue] = useState(wasSolved ? String(correct) : (storedAnswer?.studentAnswer ?? ''));
-  const [solved, setSolved] = useState(wasSolved);
-  const [hintShown, setHintShown] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const submit = () => {
-    if (solved) return;
-    const v = parseFloat(String(value).trim().replace(',', '.')); if (isNaN(v)) return;
-    const isCorrect = Math.abs(v - correct) < 1e-9;
-    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstAnsRef.current = String(v); }
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    if (isCorrect) {
-      setSolved(true); setHintShown(false); sfx.playCorrect();
-      onAnswer({ stage: screenMeta?.scope ?? null, screenIdx: idx, question: typeof c.question === 'object' ? (c.question[lang] || c.question.ru) : null, correctAnswer: String(correct), studentAnswer: firstAnsRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { setHintShown(true); sfx.playWrong(); }
-    if (!audio.muted) {
-      setTimeout(() => {
-        const engine = getAudioEngine();
-        if (engine && !audio.muted) {
-          const wrongVoice = (c.audio_hint && c.audio_hint[lang]) || (c.hint && c.hint[lang]) || (c.audio.on_wrong && c.audio.on_wrong[lang]);
-          engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
-        }
-      }, 300);
-    }
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
-        {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
-        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
-          {c.base && <span className="mop">≈</span>}
-          <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
-            onChange={e => { if (!solved) { setValue(e.target.value); setHintShown(false); } }}
-            onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'clamp(100px, 22vw, 140px)' }}/>
-          {!solved && <button className="btn-white-accent" onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>}
-        </div>
-        {hintShown && !solved && (
-          <div className="frame-soft fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
-          </FeedbackBlock>
-        )}
       </div>
     </Stage>
   );
@@ -876,6 +795,7 @@ const CONTENT = {
   // ── s2 EXPLORATION: сложение, линия запятой + дописывание нуля ─────
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
+    bridge: { ru: 'Размялись со сравнением — теперь вернёмся к загадке.', uz: "Solishtirish bilan mashq qildik — endi topishmoqqa qaytamiz." },
     title: { ru: 'Складываем по запятой', uz: "Vergul bo'yicha qo'shamiz" },
     lead: { ru: 'Раз сравнивать умеем — вернёмся к загадке. Сложим 2 и 0,5 правильно.', uz: "Solishtirishni bilamiz — endi topishmoqqa qaytamiz. 2 va 0,5 ni to'g'ri qo'shamiz." },
     step_labels: {
@@ -926,6 +846,7 @@ const CONTENT = {
   // ── s4 RULE 1 ─────────────────────────────────────────────────────
   s4: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
+    bridge: { ru: 'Сложение и вычитание увидели — теперь соберём правило.', uz: "Qo'shish va ayirishni ko'rdik — endi qoidaga yig'amiz." },
     title: { ru: 'Правило сложения и вычитания', uz: "Qo'shish va ayirish qoidasi" },
     rule_main: { ru: 'Соберём в правило. Чтобы складывать и вычитать десятичные дроби: запятую ставим под запятой, в пустые разряды дописываем ноль, считаем по разрядам как обычные числа, а в ответе запятая опускается на ту же линию.', uz: "Qoidaga yig'amiz. O'nli kasrlarni qo'shish va ayirish uchun: vergulni vergul ostiga qo'yamiz, bo'sh xonalarga nol qo'shamiz, oddiy sonlardek xonalab hisoblaymiz, javobda vergul shu chiziqqa tushadi." },
     rule_note: { ru: 'Почему так? Складывать можно только одинаковые разряды: десятые с десятыми, сотые с сотыми. Запятая под запятой это и гарантирует.', uz: "Nega shunday? Faqat bir xil xonalarni qo'shish mumkin: o'ndanni o'ndanga, yuzdanni yuzdanga. Vergul vergul ostida shuni kafolatlaydi." },
@@ -947,6 +868,7 @@ const CONTENT = {
   // ── s6 TEST MC: сложение (correct A) ──────────────────────────────
   s6: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    bridge: { ru: 'Правило знаем — теперь попробуй сам.', uz: "Qoidani bildik — endi o'zingiz sinab ko'ring." },
     title: { ru: 'Сложи сам', uz: "O'zingiz qo'shing" },
     question: { ru: 'Теперь сам. Сколько будет 2,5 + 1,25?', uz: "Endi o'zingiz. 2,5 + 1,25 nechaga teng?" },
     opt0: { ru: '3,75', uz: "3,75" },
@@ -954,9 +876,9 @@ const CONTENT = {
     opt2: { ru: '3,30', uz: "3,30" },
     opt3: { ru: '1,50', uz: "1,50" },
     correct_text: { ru: 'Верно. 2,5 это 2,50. Сотые 0 и 5 это 5, десятые 5 и 2 это 7, целые 2 и 1 это 3. Итого 3,75.', uz: "To'g'ri. 2,5 bu 2,50. Yuzdan 0 va 5 bu 5, o'ndan 5 va 2 bu 7, butun 2 va 1 bu 3. Jami 3,75." },
-    hint_1: { ru: 'Целые части не сложены: 2 и 1 это 3. Ответ 3,75.', uz: "Butun qismlar qo'shilmagan: 2 va 1 bu 3. Javob 3,75." },
-    hint_2: { ru: 'Это выравнивание по правому краю. Запиши 2,5 как 2,50 и выровняй запятые. Ответ 3,75.', uz: "Bu o'ng chetdan tekislash. 2,5 ni 2,50 deb yozing va vergullarni tekislang. Javob 3,75." },
-    hint_3: { ru: 'Запятые не учтены: нельзя складывать как 25 и 125. Выровняй по запятой. Ответ 3,75.', uz: "Vergullar e'tiborga olinmagan: 25 va 125 kabi qo'shib bo'lmaydi. Vergul bo'yicha tekislang. Javob 3,75." },
+    hint_1: { ru: 'Целые части не сложены: 2 и 1 это 3.', uz: "Butun qismlar qo'shilmagan: 2 va 1 bu 3." },
+    hint_2: { ru: 'Это выравнивание по правому краю. Запиши 2,5 как 2,50 и выровняй запятые.', uz: "Bu o'ng chetdan tekislash. 2,5 ni 2,50 deb yozing va vergullarni tekislang." },
+    hint_3: { ru: 'Запятые не учтены: нельзя складывать как 25 и 125. Выровняй по запятой.', uz: "Vergullar e'tiborga olinmagan: 25 va 125 kabi qo'shib bo'lmaydi. Vergul bo'yicha tekislang." },
     audio: {
       intro: { ru: 'Теперь сам сложи две целых пять десятых и одну целую двадцать пять сотых. Выбери вариант.', uz: "Endi o'zingiz ikki butun o'ndan besh va bir butun yuzdan yigirma beshni qo'shing. Variantni tanlang." },
       on_correct: { ru: 'Верно. Три целых семьдесят пять сотых.', uz: "To'g'ri. Uch butun yuzdan yetmish besh." },
@@ -1046,6 +968,7 @@ const CONTENT = {
   // ── s11 CASE setup (Феруза, вычитание) ────────────────────────────
   s11: {
     eyebrow: { ru: 'Задача', uz: "Masala" },
+    bridge: { ru: 'Потренировались — теперь применим в жизни.', uz: "Mashq qildik — endi hayotda qo'llaymiz." },
     title: { ru: 'Лента Ферузы', uz: "Feruzaning lentasi" },
     lead: { ru: 'Всё это нужно в жизни. У Ферузы было 10 метров ленты. На подарки она потратила 3,75 метра.', uz: "Bularning hammasi hayotda kerak. Feruzaning 10 metr lentasi bor edi. Sovg'alarga 3,75 metr ishlatdi." },
     question_setup: { ru: 'Сколько метров ленты осталось?', uz: "Necha metr lenta qoldi?" },
@@ -1063,9 +986,9 @@ const CONTENT = {
     opt2: { ru: '6,75', uz: "6,75" },
     opt3: { ru: '13,75', uz: "13,75" },
     correct_text: { ru: 'Верно. 10 это 10,00. Из 0 сотых занимаем, дальше по разрядам: 10,00 минус 3,75 это 6,25 метра.', uz: "To'g'ri. 10 bu 10,00. 0 yuzdandan qarz olamiz, keyin xonalab: 10,00 minus 3,75 bu 6,25 metr." },
-    hint_1: { ru: 'Запятые на месте, но из-за займа ошибка в целых: после займа остаётся 6 целых. Ответ 6,25.', uz: "Vergullar joyida, lekin qarz tufayli butunda xato: qarzdan keyin 6 butun qoladi. Javob 6,25." },
-    hint_2: { ru: 'Ошибка в десятых из-за займа. После займа в десятых получается 2. Ответ 6,25.', uz: "Qarz tufayli o'ndanda xato. Qarzdan keyin o'ndanda 2 chiqadi. Javob 6,25." },
-    hint_3: { ru: 'Это сложение, а нужно вычитание: 10 минус 3,75. Ответ 6,25.', uz: "Bu qo'shish bo'lib qoldi, ayirish kerak edi: 10 minus 3,75. Javob 6,25." },
+    hint_1: { ru: 'Запятые на месте, но из-за займа ошибка в целых: после займа остаётся 6 целых.', uz: "Vergullar joyida, lekin qarz tufayli butunda xato: qarzdan keyin 6 butun qoladi." },
+    hint_2: { ru: 'Ошибка в десятых из-за займа. После займа в десятых получается 2.', uz: "Qarz tufayli o'ndanda xato. Qarzdan keyin o'ndanda 2 chiqadi." },
+    hint_3: { ru: 'Это сложение, а нужно вычитание: 10 минус 3,75.', uz: "Bu qo'shish bo'lib qoldi, ayirish kerak edi: 10 minus 3,75." },
     fact: {
       badge: { ru: 'Знаешь ли ты? · Наука', uz: "Bilasizmi? · Fan" },
       text: { ru: 'Температуру тела измеряют десятичной дробью: 36,6 градуса. Даже полградуса важны.', uz: "Tana harorati o'nli kasr bilan o'lchanadi: 36,6 daraja. Hatto yarim daraja ham muhim." }
@@ -1080,6 +1003,7 @@ const CONTENT = {
   // ── s13 SUMMARY ───────────────────────────────────────────────────
   s13: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
+    bridge: { ru: 'Задачу решили — подведём итог.', uz: "Masalani yechdik — yakun yasaymiz." },
     heading: { ru: 'Десятичные сложены и вычтены', uz: "O'nli kasrlar qo'shildi va ayrildi" },
     title: { ru: 'Итак, теперь ты умеешь складывать и вычитать десятичные дроби.', uz: "Demak, endi siz o'nli kasrlarni qo'shish va ayirishni bilasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
@@ -1121,18 +1045,21 @@ const VergulUstun = ({ a, b, op = '+', result = null, zeroFill = true, showResul
   const maxInt = Math.max(A.int.length, B.int.length, R ? R.int.length : 1);
   const maxFrac = Math.max(A.frac.length, B.frac.length, R ? R.frac.length : 0);
   const hasFrac = maxFrac > 0;
-  const cell = (ch, key, cls) => <span key={key} className={`vc-cell ${cls || ''}`}>{ch}</span>;
-  const rowCells = (P) => {
+  // delay !== null → раскадровка появления (результат каскадом слева направо).
+  const cell = (ch, key, cls, delay = null) => <span key={key} className={`vc-cell ${cls || ''}`} style={delay != null ? { animationName: 'vcRin', animationDuration: '0.42s', animationFillMode: 'both', animationTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', animationDelay: `${delay}s` } : undefined}>{ch}</span>;
+  const rowCells = (P, isResult = false) => {
     const out = [];
     const intPad = maxInt - P.int.length;
+    let pos = 0;
+    const mk = (ch, key, cls) => { const d = isResult ? pos * 0.075 : null; pos++; return cell(ch, key, cls, d); };
     for (let k = 0; k < maxInt; k++) {
-      if (k < intPad) out.push(cell('', `i${k}`, 'vc-empty'));
-      else out.push(cell(P.int[k - intPad], `i${k}`, ''));
+      if (k < intPad) out.push(mk('', `i${k}`, 'vc-empty'));
+      else out.push(mk(P.int[k - intPad], `i${k}`, ''));
     }
-    if (hasFrac) out.push(cell(',', 'comma', `vc-c ${glow ? 'vc-c-glow' : ''}`));
+    if (hasFrac) out.push(mk(',', 'comma', `vc-c ${glow ? 'vc-c-glow' : ''}`));
     for (let k = 0; k < maxFrac; k++) {
-      if (k < P.frac.length) out.push(cell(P.frac[k], `f${k}`, ''));
-      else out.push(cell(zeroFill ? '0' : '', `f${k}`, zeroFill ? 'vc-zero' : 'vc-empty'));
+      if (k < P.frac.length) out.push(mk(P.frac[k], `f${k}`, ''));
+      else out.push(mk(zeroFill ? '0' : '', `f${k}`, zeroFill ? 'vc-zero' : 'vc-empty'));
     }
     return out;
   };
@@ -1142,14 +1069,15 @@ const VergulUstun = ({ a, b, op = '+', result = null, zeroFill = true, showResul
       <div className="vc-body">
         <div className="vc-row">{rowCells(A)}</div>
         <div className="vc-row">{rowCells(B)}</div>
-        {R && <div className="vc-row vc-result">{rowCells(R)}</div>}
+        {R && <div className="vc-row vc-result">{rowCells(R, true)}</div>}
       </div>
     </div>
   );
 };
 
-// HOOK loop-анимация s0 (CSS-only, без state): нижнее число съезжает с правого края на
-// линию запятой; неверное 0,7 (✗) сменяется верным 2,5 (✓). Цикл ~6с.
+// HOOK-анимация s0 (CSS-only, без state): на mount нижнее число один раз встаёт с правого
+// края на линию запятой и ОСТАЁТСЯ; неверное 0,7 (✗) сменяется верным 2,5 (✓) и фиксируется.
+// Без бегущего цикла (запрет «путешественника»); живость экрана — мягкий пульс линии запятой.
 const HookCommaSnap = () => (
   <div className="hk">
     <div className="hk-grid">
@@ -1234,19 +1162,27 @@ const ExplorationStep = ({ screen, onNext, onPrev, cKey, render }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <Floaters/>
+        <Bridge node={c.bridge}/>
         <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center', minHeight: 160 }}>
           {render(step, done)}
+        </div>
+        {/* Izohlar TO'PLANADI: yangi qadam pastdan chiqadi, eskisi qoladi (oxirgi, to'g'ri bo'lsa — yashil). */}
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {caps.slice(0, step + 1).map((label, i) => {
+            const green = done && i === step;
+            return <div key={i} className={`cap-line fade-up${green ? ' cap-line-ok' : ''}`}><span className="cap-mark">{green ? '✓' : i + 1}</span><p className="body" style={{ margin: 0, fontWeight: 600 }}>{mt(label)}</p></div>;
+          })}
         </div>
         {!done && (
           <div className="fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
             <button className="btn-white-accent" onClick={advance} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_step)}</button>
           </div>
         )}
-        <p ref={stepEndRef} className="body fade-up delay-2" style={{ position: 'relative', margin: 0, textAlign: 'center', color: done ? T.success : T.ink2, fontWeight: done ? 600 : 400 }}>{mt(done ? t(c.note) : caps[step])}</p>
+        <p ref={stepEndRef} className="body fade-up delay-2" style={{ position: 'relative', margin: 0, textAlign: 'center', color: done ? T.success : T.ink2, fontWeight: done ? 600 : 400 }}>{done ? mt(t(c.note)) : ''}</p>
       </div>
     </Stage>
   );
@@ -1319,8 +1255,9 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <Floaters/>
+        <Bridge node={c.bridge}/>
         <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <div className="frame fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
           <p className="body" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
@@ -1339,7 +1276,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 1.9vw, 15px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 1.9vw, 15px)' }}>
         <Floaters/>
         <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.rule_main))}</p>
@@ -1364,7 +1301,7 @@ const Screen6 = (props) => {
   const t = useT(); const c = CONTENT.s6;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><VergulUstun a="2,5" b="1,25" op="+"/></div></>);
+  const question = (<><Bridge node={c.bridge}/><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><VergulUstun a="2,5" b="1,25" op="+"/></div></>);
   return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
@@ -1410,7 +1347,7 @@ const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const box = (i) => <input key={i} type="text" inputMode="numeric" className={`fb-box ${solved ? 'correct' : ''} ${bad.has(i) ? 'wrongcell' : ''}`} value={cells[i]} placeholder="0" disabled={solved} onChange={e => setCell(i, e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'clamp(38px, 8vw, 50px)' }}/>;
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <Floaters/>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
@@ -1479,7 +1416,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const box = (i) => <input key={i} type="text" inputMode="numeric" className={`fb-box ${solved ? 'correct' : ''} ${bad.has(i) ? 'wrongcell' : ''}`} value={cells[i]} placeholder="0" disabled={solved} onChange={e => setCell(i, e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'clamp(38px, 8vw, 50px)' }}/>;
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <Floaters/>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
@@ -1552,7 +1489,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <Floaters/>
         <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.instruction))}</p>
@@ -1598,8 +1535,9 @@ const Screen11 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <Floaters/>
+        <Bridge node={c.bridge}/>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}><VergulUstun a="10" b="3,75" op="−" zeroFill={true}/></div>
@@ -1628,8 +1566,9 @@ const Screen13 = ({ screen, onPrev, onReset, finishLesson }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)' }}>
         <Floaters/>
+        <Bridge node={c.bridge}/>
         <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
@@ -2065,7 +2004,9 @@ html, body { margin: 0; padding: 0; }
 .vc-row { display: flex; align-items: stretch; justify-content: center; }
 .vc-cell { width: clamp(22px, 4.5vw, 30px); text-align: center; font-size: clamp(20px, 4vw, 28px); line-height: 1.18; color: #0E0E10; }
 .vc-empty { color: transparent; }
-.vc-zero { color: rgba(167, 166, 162, 0.6); }
+.vc-zero { color: rgba(167, 166, 162, 0.6); animation: vcZeroPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+@keyframes vcZeroPop { 0% { opacity: 0; transform: scale(0.35); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes vcRin { from { opacity: 0; transform: translateY(-9px); } to { opacity: 1; transform: translateY(0); } }
 .vc-c { width: clamp(10px, 2vw, 14px); color: #FF4F28; font-weight: 700; background: rgba(255, 79, 40, 0.07); }
 .vc-c-glow { color: #1F7A4D; background: rgba(31, 122, 77, 0.16); animation: vcCommaPulse 2.6s ease-in-out infinite; }
 @keyframes vcCommaPulse { 0%, 100% { box-shadow: 0 0 5px rgba(31, 122, 77, 0.25); } 50% { box-shadow: 0 0 13px rgba(31, 122, 77, 0.5); } }
@@ -2074,24 +2015,24 @@ html, body { margin: 0; padding: 0; }
 .vc-glow { animation: vcGlow 0.7s ease; opacity: 1; }
 @keyframes vcGlow { 0% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); } 50% { filter: drop-shadow(0 0 12px rgba(31, 122, 77, 0.4)); } 100% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); } }
 
-/* MATH dec_5_03: hook-анимация HookCommaSnap — нижнее число съезжает на линию запятой (CSS loop). */
+/* MATH dec_5_03: hook-анимация HookCommaSnap — нижнее число один раз встаёт на линию запятой (mount-settle, без бегущего цикла); линия запятой мягко пульсирует на месте. */
 .hk { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.2vw, 16px); }
 .hk-grid { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 6px 0; }
-.hk-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; transform: translateX(-50%); background: #1F7A4D; border-radius: 2px; box-shadow: 0 0 10px rgba(31, 122, 77, 0.55); animation: hkLine 6s ease-in-out infinite; }
+.hk-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; transform: translateX(-50%); background: #1F7A4D; border-radius: 2px; animation: hkLine 2.6s ease-in-out infinite; }
 .hk-row { display: flex; justify-content: center; align-items: center; font-family: 'Fraunces', serif; font-size: clamp(24px, 5vw, 34px); position: relative; }
 .hk-d { width: clamp(18px, 3.6vw, 24px); text-align: center; }
 .hk-cm { width: clamp(8px, 1.6vw, 11px); text-align: center; color: #FF4F28; font-weight: 700; }
 .hk-zero { color: #A7A6A2; }
-.hk-bot { animation: hkBot 6s cubic-bezier(0.5, 0, 0.2, 1) infinite; }
-@keyframes hkBot { 0%, 12% { transform: translateX(26px); } 24%, 78% { transform: translateX(0); } 90%, 100% { transform: translateX(26px); } }
-@keyframes hkLine { 0%, 18% { opacity: 0.25; } 30%, 80% { opacity: 1; } 100% { opacity: 0.25; } }
+.hk-bot { animation: hkBot 1.5s cubic-bezier(0.5, 0, 0.2, 1) 0.35s both; }
+@keyframes hkBot { from { transform: translateX(26px); } to { transform: translateX(0); } }
+@keyframes hkLine { 0%, 100% { opacity: 0.55; box-shadow: 0 0 8px rgba(31, 122, 77, 0.4); } 50% { opacity: 1; box-shadow: 0 0 15px rgba(31, 122, 77, 0.65); } }
 .hk-eq { position: relative; height: clamp(26px, 5vw, 34px); display: flex; justify-content: center; align-items: center; font-family: 'Fraunces', serif; font-size: clamp(20px, 4vw, 26px); }
 .hk-bad, .hk-good { position: absolute; display: inline-flex; align-items: center; gap: 6px; }
-.hk-bad { color: #FF4F28; animation: hkBad 6s ease-in-out infinite; }
-.hk-good { color: #1F7A4D; animation: hkGood 6s ease-in-out infinite; }
+.hk-bad { color: #FF4F28; animation: hkBad 1.5s ease-in 0.35s both; }
+.hk-good { color: #1F7A4D; animation: hkGood 1.5s ease-in 0.35s both; }
 .hk-mark { font-size: 0.8em; }
-@keyframes hkBad { 0%, 16% { opacity: 1; } 22%, 100% { opacity: 0; } }
-@keyframes hkGood { 0%, 26% { opacity: 0; } 32%, 82% { opacity: 1; } 90%, 100% { opacity: 0; } }
+@keyframes hkBad { 0% { opacity: 1; } 45%, 100% { opacity: 0; } }
+@keyframes hkGood { 0%, 35% { opacity: 0; } 70%, 100% { opacity: 1; } }
 
 /* MATH dec_5_03: fill-in-blank клетки ответа (ColumnFill). */
 .fb-box { font-family: 'Fraunces', serif; font-size: clamp(20px, 3.8vw, 26px); font-weight: 400; text-align: center; border: none; border-radius: 8px; background: #FFFFFF; padding: 6px 4px; outline: none; color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); transition: all 0.2s; }
@@ -2131,6 +2072,16 @@ html, body { margin: 0; padding: 0; }
 .amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
 .amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
 @keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
+
+/* Bridge — видимая ↳-связка между фазами урока (PROMPT 2-C). */
+.bridge { display: flex; align-items: center; gap: 6px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #5A5A60; }
+.bridge::before { content: "\\21B3"; color: #FF4F28; font-weight: 700; font-size: 1.05em; }
+
+/* cap-line — qadam izohlari TO'PLANADI (yangi pastdan chiqadi, eskisi qoladi); oxirgi to'g'ri — yashil. */
+.cap-line { display: flex; align-items: center; gap: 10px; background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 10px; padding: clamp(7px, 1.4vw, 10px) clamp(10px, 2vw, 14px); }
+.cap-line-ok { background: #E3F0E8; border-left-color: #1F7A4D; }
+.cap-mark { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: #D8A93A; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+.cap-line-ok .cap-mark { background: #1F7A4D; }
 
 /* Accessibility: prefers-reduced-motion — гасим декоративные циклы (PROMPT 2026-06-13). */
 @media (prefers-reduced-motion: reduce) {
