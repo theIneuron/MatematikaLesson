@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-// УРОК: Нахождение числа по проценту — perc_5_03 (Dars27)
+// УРОК: Умножение десятичных дробей — dec_5_05
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
 // ============================================================
@@ -614,7 +614,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -681,7 +681,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       setTimeout(() => {
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
-          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || c.audio.on_wrong[lang];
+          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
         }
       }, 300);
@@ -698,24 +698,29 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        {titleNode && <Title node={titleNode}/>}
+        {/* Заголовок (Title) + текст вопроса остаются и после верного ответа — сворачиваются только неверные варианты. */}
         <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        {/* После верного: остаётся только верный вариант, неверные плавно (с задержкой) сворачиваются — keep-visible anti-scroll. */}
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
+            const isCorrect = i === correctIdx;
+            const collapse = solved && !isCorrect;        // после верного неверные сворачиваются
             if (solved) {
-              if (i === correctIdx) cls += ' option-correct';
-              else if (isWrongPicked) cls += ' option-picked-wrong';
-              else cls += ' option-wrong';
+              if (isCorrect) cls += ' option-correct';
+              // неверным НЕ добавляем цвет-класс — плавно гаснут через inline opacity
             } else if (isWrongPicked) {
               cls += ' option-picked-wrong';
             }
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
-                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
+                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
@@ -736,537 +741,325 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   );
 };
 
-// ============================================================
-// NUM INPUT SCREEN — числовой ввод: веди-до-верного + наводящая подсказка, счёт первой попытки.
-// ============================================================
-const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, correctValue, renderVisual, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang();
-  const t = useT();
-  const c = screenContent;
-  const sfx = useSfx();
-  const correct = Number(correctValue);
-  const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
-  const [value, setValue] = useState(wasSolved ? String(correct) : (storedAnswer?.studentAnswer ?? ''));
-  const [solved, setSolved] = useState(wasSolved);
-  const [hintShown, setHintShown] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const submit = () => {
-    if (solved) return;
-    const v = parseFloat(String(value).trim().replace(',', '.')); if (isNaN(v)) return;
-    const isCorrect = Math.abs(v - correct) < 1e-9;
-    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstAnsRef.current = String(v); }
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    if (isCorrect) {
-      setSolved(true); setHintShown(false); sfx.playCorrect();
-      onAnswer({ stage: screenMeta?.scope ?? null, screenIdx: idx, question: typeof c.question === 'object' ? (c.question[lang] || c.question.ru) : null, correctAnswer: String(correct), studentAnswer: firstAnsRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { setHintShown(true); sfx.playWrong(); }
-    if (!audio.muted) {
-      setTimeout(() => {
-        const engine = getAudioEngine();
-        if (engine && !audio.muted) {
-          const wrongVoice = (c.audio_hint && c.audio_hint[lang]) || (c.hint && c.hint[lang]) || (c.audio.on_wrong && c.audio.on_wrong[lang]);
-          engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
-        }
-      }, 300);
-    }
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
-        {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 190, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
-        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
-          {c.base && <span className="mop">≈</span>}
-          <input type="number" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
-            onChange={e => { if (!solved) { setValue(e.target.value); setHintShown(false); } }}
-            onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'clamp(100px, 22vw, 140px)' }}/>
-          {!solved && <button className="btn-white-accent" onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>}
-        </div>
-        {hintShown && !solved && (
-          <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
-};
 
 // ============================================================
-// --- POD UROK: perc_5_03 — Foizi bo'yicha sonni topish / Нахождение числа по проценту (PROMPT 2026-06-15) ---
-// Markaziy misconception M1: berilgan QISMni butun deb olish ("20% = 10 bo'lsa, butun 10").
-// M2: qismni foizga KO'PAYTIRISH yoki noto'g'ri songa bo'lish (to'g'risi: qism / foiz x 100).
-// Asosiy usul: foiz qaysi ulush ekanini top, qismni shuncha marta ko'paytir (20% = beshdan bir -> x5);
-// yordamchi (har qanday foiz): butun = qism / foiz x 100. Vizualizator RevBar (butun = ?, qismdan
-// tiklanadi) + MapHook (yirtilgan xarita loop). SYUJET: KVEST "Yo'qolgan xaritani tikla" — har
-// darvoza ma'lum bo'lak (qism + foiz) bo'yicha butun xaritani topib ochiladi. Test turlari (interaktiv
-// urg'u): warm-up MC / MC / NumInput / tap-match (juftlash) / slider / number-line / find-the-wrong / MC.
-// Hook: Oybek (xaritani 10 katak deb adashadi), Dilnoza (shubha); case: Iroda (sinf so'rovnomasi).
-// Faktlar: saylov teskari foizi / foiz belgisi (%) tarixi / diskont teskari hisobi — DRAFT, validatsiya kerak.
-// UZ terminologiya (foizi bo'yicha topish, butun, ulush) — draft, o'zbek metodisti tasdig'i kerak.
+// --- POD UROK: percent_5_03 — Foizi bo'yicha sonni topish / Нахождение числа по проценту (PROMPT 2026-06-20) ---
+// Markaziy g'oya (teskari foiz): QISM va uning FOIZI berilgan -> BUTUNni top. "1% ko'prigi": qism / foiz = 1%, *100 = butun.
+// Misol: 20% i 10 bo'lsa -> 10 / 20 = 0,5 (bu 1%) -> *100 = 50. Teng usul: qism / (foiz/100).
+// M1: qism = butun deb adashish (xarita bo'lagi 10 katak -> butun ham 10 katak deb o'ylash).
+// M2: BIR XIL qism, BOSHQA foiz -> BOSHQA butun (12 i 20% bo'lsa 60; 12 i 30% bo'lsa 40 — foiz butunni o'zgartiradi).
+// Hook: Oybek yirtilgan xaritani topadi — bo'lak 20% = 10 katak; butun xaritani 10 katak deb adashadi (M1). Case: Iroda sinf so'rovnomasi.
+// Vizualizator: PartWholeBar (qism->butun yig'iladi) + TileGrid (Dars35 uzluksiz tgBreathe loop; circling YO'Q). Etalon: Dars28.
+// Faktlar (DRAFT): saylov/so'rovnoma teskari foizi (Statistika) / per cento = yuzdan tarixi (Tarix) / chegirmadan asl narx (Hayot).
 // ============================================================
-
-const TOTAL_SCREENS = 15;
+const TOTAL_SCREENS = 12;
 const LESSON_META = {
-  lessonId: 'perc-5-03-v1',
+  lessonId: 'percent_5_03',
   lessonTitle: { ru: 'Нахождение числа по проценту', uz: "Foizi bo'yicha sonni topish" }
 };
+// Eslatma: ekran ID lari qattiq indeks emas — har komponent jonli `screen` propidan idx oladi.
+// Reorder qilishda faqat SCREEN_META + screens massivini bir xil tartibda yangilang.
 const SCREEN_META = [
-  { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
-  { id: 's1',  type: 'warmup',      template: 'MCScreen',       scored: false, scope: null },
-  { id: 's2',  type: 'exploration', template: 'custom',         scored: false, scope: null },
-  { id: 's3',  type: 'exploration', template: 'custom',         scored: false, scope: null },
-  { id: 's4',  type: 'rule',        template: 'custom',         scored: false, scope: null },
-  { id: 's5',  type: 'rule',        template: 'custom',         scored: false, scope: null },
-  { id: 's6',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
-  { id: 's7',  type: 'test',        template: 'NumInputScreen', scored: true,  scope: 'practice' },
-  { id: 's8',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
-  { id: 's9',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
-  { id: 's10', type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
-  { id: 's11', type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
-  { id: 's12', type: 'case',        template: 'custom',         scored: false, scope: null },
-  { id: 's13', type: 'case',        template: 'MCScreen',       scored: true,  scope: 'final' },
-  { id: 's14', type: 'summary',     template: 'custom',         scored: false, scope: null }
+  { id: 's0',  type: 'hook',        template: 'custom',          scored: false, scope: 'hook' },     // 0
+  { id: 's1',  type: 'warmup',      template: 'SeqMC',           scored: false, scope: null },       // 1
+  { id: 's2',  type: 'exploration', template: 'custom',          scored: false, scope: null },       // 2
+  { id: 's3',  type: 'rule',        template: 'custom',          scored: false, scope: null },       // 3 (qoida + M1/M2 birlashgan)
+  { id: 's4',  type: 'test',        template: 'DecInputScreen',  scored: true,  scope: 'practice' },  // 4 (ishlangan misol + mashq)
+  { id: 's5',  type: 'test',        template: 'MCScreen',        scored: true,  scope: 'practice' },  // 5
+  { id: 's6',  type: 'test',        template: 'DecInputScreen',  scored: true,  scope: 'practice' },  // 6
+  { id: 's7',  type: 'test',        template: 'SeqMC',           scored: true,  scope: 'practice' },  // 7 (3 oson teskari misol)
+  { id: 's8',  type: 'test',        template: 'custom',          scored: true,  scope: 'practice' },  // 8 (tasniflash, M2)
+  { id: 's9',  type: 'test',        template: 'MCScreen',        scored: true,  scope: 'practice' },  // 9 (xatoni top)
+  { id: 's10', type: 'case',        template: 'custom',          scored: true,  scope: 'final' },     // 10 (masala + yakuniy birlashgan)
+  { id: 's11', type: 'summary',     template: 'custom',          scored: false, scope: null }         // 11
 ];
 
 const CONTENT = {
-
-  // ---- s0 HOOK — Oybek: yirtilgan xarita bo'lagi = 20% = 10 katak; "xarita 10 katak" (M1). ----
+  // ===== s0 HOOK (M1: qism = butun) — Oybek yirtilgan xarita =====
   s0: {
-    eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
-    title: { ru: 'Порванная карта Ойбека', uz: "Oybekning yirtilgan xaritasi" },
-    lead: {
-      ru: 'Ойбек и Дилноза нашли старую карту, но она порвана. Уцелевший кусок — это 20% всей карты, и на нём 10 клеток. Ойбек говорит: «Значит, вся карта — 10 клеток!» Дилноза сомневается. Прав ли Ойбек?',
-      uz: "Oybek va Dilnoza eski xarita topishdi, lekin u yirtilgan. Saqlanib qolgan bo'lak — butun xaritaning 20% i, va unda 10 katak bor. Oybek: «Demak, butun xarita — 10 katak!» — deydi. Dilnoza shubhalanadi. Oybek haqmi?"
-    },
-    opt0: { ru: 'Да, вся карта — 10 клеток', uz: "Ha, butun xarita — 10 katak" },
-    opt1: { ru: 'Нет, вся карта больше', uz: "Yo'q, butun xarita kattaroq" },
-    opt2: { ru: 'Так не определить', uz: "Bunday aniqlab bo'lmaydi" },
-    reveal: {
-      ru: 'Запомни свой ответ. В конце урока вернёмся к карте Ойбека.',
-      uz: "Javobingizni eslab qoling. Dars oxirida Oybekning xaritasiga qaytamiz."
-    },
-    audio: {
-      intro: {
-        ru: 'Ойбек и Дилноза нашли старую порванную карту. Уцелевший кусок это двадцать процентов всей карты, и на нём десять клеток. Ойбек говорит, что вся карта десять клеток. Дилноза сомневается. Как думаешь, прав ли Ойбек?',
-        uz: "Oybek va Dilnoza eski yirtilgan xarita topishdi. Saqlanib qolgan bo'lak butun xaritaning yigirma foizi, va unda o'n katak bor. Oybek butun xarita o'n katak deydi. Dilnoza shubhalanadi. Sizningcha, Oybek haqmi?"
-      },
-      on_correct: { ru: 'Хорошо. Разберёмся вместе.', uz: "Yaxshi. Birgalikda aniqlab olamiz." },
-      on_wrong:   { ru: 'Хорошо. Разберёмся вместе.', uz: "Yaxshi. Birgalikda aniqlab olamiz." }
-    }
+    eyebrow: { ru: 'Часть и целое', uz: "Qism va butun" },
+    title: { ru: 'Карта Ойбека', uz: "Oybekning xaritasi" },
+    lead: { ru: 'Ойбек нашёл обрывок карты: это 20 процентов, в нём 10 клеток. Сколько клеток во всей карте?', uz: "Oybek xarita bo'lagini topdi: bu yigirma foiz, unda 10 katak. Butun xaritada nechta katak?" },
+    opt0: { ru: 'Всего 10 клеток', uz: "Jami 10 katak" },
+    opt1: { ru: 'Больше 10 клеток', uz: "10 katakdan ko'p" },
+    opt2: { ru: 'Меньше 10 клеток', uz: "10 katakdan kam" },
+    reveal0: { ru: 'Так думают многие. Но 10 — это только обрывок, 20 процентов. Целая карта больше.', uz: "Ko'pchilik shunday o'ylaydi. Lekin 10 — bu faqat bo'lak, yigirma foiz. Butun xarita kattaroq." },
+    reveal1: { ru: 'Верно. Обрывок — это только часть, значит целая карта больше десяти.', uz: "To'g'ri. Bo'lak — bu faqat qism, demak butun xarita o'ndan katta." },
+    reveal2: { ru: 'Нет: целое не может быть меньше своей части. Карта больше обрывка.', uz: "Yo'q: butun o'z qismidan kichik bo'lolmaydi. Xarita bo'lakdan katta." },
+    audio: { ru: "Ойбек нашёл обрывок старой карты. Это двадцать процентов всей карты, и в нём десять клеток. Подумайте: во всей карте больше или меньше десяти клеток?", uz: "Oybek eski xaritaning bo'lagini topdi. Bu butun xaritaning yigirma foizi, va unda o'nta katak bor. O'ylab ko'ring: butun xaritada o'ntadan ko'pmi yoki kammi?" }
   },
 
-  // ---- s1 WARM-UP — perc_5_02 eslash (butundan foiz). correct '40' -> target B. ----
+  // ===== s1 WARM-UP — 3 ta tez prereq (1% va foiz) =====
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
-    title: { ru: 'Процент от целого', uz: "Butundan foiz" },
-    question: {
-      ru: 'В прошлом уроке мы находили процент от целого. Быстрая проверка: чему равны 20% от 200?',
-      uz: "O'tgan darsda butundan foizni topgandik. Tez tekshiruv: 200 ning 20% i nechta?"
-    },
-    opt0: { ru: '40', uz: '40' },
-    opt1: { ru: '20', uz: '20' },
-    opt2: { ru: '220', uz: '220' },
-    opt3: { ru: '10', uz: '10' },
-    correct_text: {
-      ru: 'Верно. 1% от 200 = 2, значит 20% = 2 × 20 = 40. А сегодня — наоборот: по проценту найдём целое.',
-      uz: "To'g'ri. 200 ning 1% i — 2, demak 20% = 2 x 20 = 40. Bugun esa teskari: foizdan butunni topamiz."
-    },
-    wrong_1: { ru: '20 — это само число процентов. 20% от 200: 1% = 2, значит 20% = 40.', uz: "20 — bu foiz raqamining o'zi. 200 ning 20% i: 1% = 2, demak 20% = 40." },
-    wrong_2: { ru: 'Это сложение (200 + 20). При проценте умножаем: 1% = 2, 20% = 40.', uz: "Bu qo'shish bo'ldi (200 + 20). Foiz topishda ko'paytiramiz: 1% = 2, 20% = 40." },
-    wrong_3: { ru: 'Это похоже на 5%. А 20% от 200: 1% = 2, значит 20% = 40.', uz: "Bu 5% ga o'xshaydi. 200 ning 20% i: 1% = 2, demak 20% = 40." },
-    audio: {
-      intro: {
-        ru: 'Вспомним прошлый урок. Тогда мы находили процент от целого. Сколько будет двадцать процентов от двухсот? Выбери вариант.',
-        uz: "O'tgan darsni eslaymiz. O'tgan safar butundan foizni topgandik. Ikki yuzning yigirma foizi nechta? Variantni tanlang."
+    eyebrow: { ru: 'Вспомним прошлый урок', uz: "O'tgan darsni eslaylik" },
+    title: { ru: 'Разминка', uz: "Mashq" },
+    lead: { ru: 'Три быстрых примера про проценты. Выбери ответ.', uz: "Foiz haqida uchta tez misol. Javobni tanlang." },
+    bridge: { ru: 'Прежде чем помочь Ойбеку, вспомним проценты.', uz: "Oybekka yordam berishdan oldin foizni eslaylik." },
+    questions: [
+      {
+        q: { ru: '1% = 4. Сколько 100%?', uz: "1% = 4. 100% nechaga teng?" },
+        say: { ru: "Если один процент равен четырём, чему равно сто процентов?", uz: "Agar bir foiz to'rtga teng bo'lsa, yuz foiz nechaga teng?" },
+        opts: [{ ru: '40', uz: '40' }, { ru: '400', uz: '400' }, { ru: '104', uz: '104' }],
+        correct: 1,
+        ok: { ru: 'Верно: один процент берём сто раз.', uz: "To'g'ri: bir foizni yuz marta olamiz." },
+        no: { ru: 'Целое это сто таких частей. Умножьте на сто.', uz: "Butun, bu shunday yuzta qism. Yuzga ko'paytiring." }
       },
-      on_correct: { ru: 'Верно. Сорок. А сегодня изучим обратное: процент известен, ищем целое.', uz: "To'g'ri. Qirq. Bugun esa teskarisini o'rganamiz: foiz ma'lum, butunni topamiz." },
-      on_wrong:   { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
-    }
-  },
-
-  // ---- s2 EXPLORATION 1 — tap-paced: 20% = 10 -> beshdan bir -> 5 nusxa = 50 ----
-  s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'Соберём карту из кусков', uz: "Xaritani bo'laklardan yig'amiz" },
-    lead: {
-      ru: 'Вернёмся к карте. Кусок — это 20% карты, и на нём 10 клеток. 20% — это пятая часть. Значит вся карта в 5 раз больше куска. Нажимай и прикладывай куски один за другим.',
-      uz: "Xaritaga qaytamiz. Bo'lak — bu xaritaning 20% i, va unda 10 katak. 20% — bu beshdan bir. Demak butun xarita bo'lakdan 5 marta katta. Bosing va bo'laklarni birin-ketin qo'shing."
-    },
-    btn_step: { ru: 'Приложить кусок', uz: "Bo'lak qo'shish" },
-    cells: {
-      ru: ['Один кусок — 10 клеток. Продолжай.', 'Два куска — 20 клеток.', 'Три куска — 30 клеток.', 'Четыре куска — 40 клеток.', 'Пять кусков — 50 клеток. Карта целая!'],
-      uz: ["Bir bo'lak — 10 katak. Davom eting.", "Ikki bo'lak — 20 katak.", "Uch bo'lak — 30 katak.", "To'rt bo'lak — 40 katak.", "Besh bo'lak — 50 katak. Xarita to'liq!"]
-    },
-    note: {
-      ru: 'Готово. 20% — это пятая часть, поэтому вся карта 5 × 10 = 50 клеток. Ойбек ошибался: 10 — это лишь один кусок.',
-      uz: "Tayyor. 20% — bu beshdan bir, shuning uchun butun xarita 5 x 10 = 50 katak. Oybek adashgan edi: 10 — bu faqat bir bo'lak."
-    },
-    audio: {
-      intro: {
-        ru: 'Вернёмся к карте. Уцелевший кусок это двадцать процентов всей карты, на нём десять клеток. Двадцать процентов это пятая часть. Значит вся карта в пять раз больше куска. Нажми кнопку и прикладывай куски один за другим.',
-        uz: "Xaritaga qaytamiz. Saqlangan bo'lak butun xaritaning yigirma foizi, unda o'n katak bor. Yigirma foiz — bu beshdan bir. Demak butun xarita bo'lakdan besh marta katta. Tugmani bosing va bo'laklarni birin-ketin qo'shing."
+      {
+        q: { ru: '10% = 5. Сколько 100%?', uz: "10% = 5. 100% nechaga teng?" },
+        say: { ru: "Если десять процентов равно пяти, чему равно сто процентов?", uz: "Agar o'n foiz beshga teng bo'lsa, yuz foiz nechaga teng?" },
+        opts: [{ ru: '50', uz: '50' }, { ru: '15', uz: '15' }, { ru: '500', uz: '500' }],
+        correct: 0,
+        ok: { ru: 'Верно: сто процентов — это десять таких десятков.', uz: "To'g'ri: yuz foiz — bu shunday o'nta o'nlik." },
+        no: { ru: 'В целом десять таких долей. Подумайте, во сколько раз больше.', uz: "Butunda shunday o'nta ulush bor. Necha barobar ko'pligini o'ylang." }
       },
-      done: {
-        ru: 'Пять кусков составляют всю карту. Десять умножить на пять это пятьдесят. Вот вся карта, а не десять клеток. Ойбек принял один кусок за целое и ошибся.',
-        uz: "Besh bo'lak butun xaritani tashkil etadi. O'nni beshga ko'paytirsak, ellik chiqadi. Mana butun xarita, o'n katak emas. Oybek bir bo'lakni butun deb o'ylab adashdi."
+      {
+        q: { ru: '20 разделить на 20', uz: "20 ni 20 ga bo'ling" },
+        say: { ru: "Сколько будет двадцать разделить на двадцать?", uz: "Yigirmani yigirmaga bo'lsak qancha bo'ladi?" },
+        opts: [{ ru: '1', uz: '1' }, { ru: '0', uz: '0' }, { ru: '20', uz: '20' }],
+        correct: 0,
+        ok: { ru: 'Верно: число на само себя — единица.', uz: "To'g'ri: son o'ziga bo'linsa — bir." },
+        no: { ru: 'Любое число, делённое на само себя, равно единице.', uz: "Har qanday son o'ziga bo'linsa, birga teng." }
       }
-    }
-  },
-
-  // ---- s3 EXPLORATION 2 — jonli slayder: butunni top, 25% = 15 -> 60 ----
-  s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'Найди всю карту', uz: "Butun xaritani toping" },
-    lead: {
-      ru: 'Теперь вторая карта. Кусок — это 25% всей карты, и на нём 15 клеток. Двигай ползунок: найди размер всей карты так, чтобы её 25% были 15 клеток.',
-      uz: "Endi ikkinchi xarita. Bo'lak — bu butun xaritaning 25% i, va unda 15 katak. Slayderni suring: butun xarita o'lchamini toping, toki uning 25% i 15 katak bo'lsin."
-    },
-    hint_move: {
-      ru: '25% — это четверть. Если четверть 15, то целое в четыре раза больше: 15 × 4 = 60.',
-      uz: "25% — bu chorak. Agar chorak 15 bo'lsa, butun to'rt marta katta: 15 x 4 = 60."
-    },
-    note_full: {
-      ru: 'Нашёл: вся карта 60 клеток. Её 25% — это 15, как раз клетки на куске.',
-      uz: "Topdingiz: butun xarita 60 katak. Uning 25% i — 15, ya'ni bo'lakdagi kataklar soni."
-    },
-    audio: {
-      ru: 'На второй карте кусок это двадцать пять процентов, на нём пятнадцать клеток. Двадцать пять процентов это четверть. Двигай ползунок и найди всю карту. Если четверть пятнадцать, то целое в четыре раза больше, то есть шестьдесят. Двадцать пять процентов от шестидесяти снова дают пятнадцать.',
-      uz: "Ikkinchi xaritada bo'lak butun xaritaning yigirma besh foizi, unda o'n besh katak bor. Yigirma besh foiz — bu chorak. Slayderni suring va butun xaritani toping. Agar chorak o'n besh bo'lsa, butun to'rt marta katta, ya'ni oltmish. Oltmishning yigirma besh foizi yana o'n beshga teng bo'ladi."
-    }
-  },
-
-  // ---- s4 RULE 1 — ikki usul ----
-  s4: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Два способа найти целое', uz: "Butunni topishning ikki usuli" },
-    lead: {
-      ru: 'Итак, если известны часть и процент, целое число можно найти двумя надёжными способами.',
-      uz: "Demak, qism va foiz ma'lum bo'lsa, butun sonni ikki ishonchli usul bilan topish mumkin."
-    },
-    rule_main: { ru: 'Способ 1: пойми, какая это доля, и умножь часть во столько же раз', uz: "1-usul: foiz qaysi ulush ekanini toping, keyin qismni shuncha marta ko'paytiring" },
-    ex_easy: { ru: 'Например: 20% — пятая часть, значит целое = часть × 5. 10 × 5 = 50.', uz: "Masalan: 20% — beshdan bir, demak butun = qism x 5. 10 x 5 = 50." },
-    ex_hard: { ru: 'Способ 2 (для любого процента): целое = часть ÷ процент × 100. 10 ÷ 20 × 100 = 50.', uz: "2-usul (har qanday foiz uchun): butun = qism / foiz x 100. 10 / 20 x 100 = 50." },
-    note: {
-      ru: 'Оба способа дают одно и то же. Выбирай тот, что удобнее.',
-      uz: "Ikkala usul bir xil natija beradi. Qaysi qulay bo'lsa, o'shani tanlang."
-    },
-    audio: {
-      ru: 'Запомни два способа. Первый: пойми, какая это доля, и умножь часть во столько же раз. Двадцать процентов это пятая часть, значит умножаем часть на пять, десять на пять это пятьдесят. Второй способ подходит для любого процента: раздели часть на процент и умножь на сто. Десять разделить на двадцать и умножить на сто снова пятьдесят. Оба способа дают один ответ.',
-      uz: "Ikki usulni eslab qoling. Birinchisi: foiz qaysi ulush ekanini toping, keyin qismni shuncha marta ko'paytiring. Yigirma foiz — beshdan bir, demak qismni beshga ko'paytiramiz, o'nni beshga ko'paytirsak ellik. Ikkinchi usul har qanday foiz uchun: qismni foizga bo'ling, keyin yuzga ko'paytiring. O'nni yigirmaga bo'lib yuzga ko'paytirsak, yana ellik. Ikkala usul bitta javob beradi."
-    }
-  },
-
-  // ---- s5 RULE 2 — M1/M2 ogohlantirish (frame-tip) ----
-  s5: {
-    eyebrow: { ru: 'Важно', uz: 'Muhim' },
-    title: { ru: 'Часть — это не ответ', uz: "Qism — javob emas" },
-    lead: {
-      ru: 'Но будь внимателен: данное число — это ЧАСТЬ, а не ответ.',
-      uz: "Lekin ehtiyot bo'ling: berilgan son — bu QISM, javob emas."
-    },
-    point1: {
-      ru: 'Если процент меньше 100, то целое всегда БОЛЬШЕ части.',
-      uz: "Foiz 100 dan kichik bo'lsa, butun har doim qismdan KATTA bo'ladi."
-    },
-    point2: {
-      ru: 'Если 20% = 10, то целое не 10, а 50. Ведь 10 — это лишь пятая часть.',
-      uz: "Agar 20% = 10 bo'lsa, butun 10 emas — u 50. 10 — bu faqat beshdan bir."
-    },
-    point3: {
-      ru: 'И не умножай часть на процент — дели. Умножение даёт не целое, а маленькое число.',
-      uz: "Va qismni foizga ko'paytirmang — bo'ling. Ko'paytirish butunni emas, kichik sonni beradi."
-    },
-    audio: {
-      ru: 'Главное предостережение. Данное число это часть, а не ответ. Если процент меньше ста, целое всегда больше части. Если двадцать процентов это десять, то целое не десять, а пятьдесят. И не умножай часть на процент, а дели. Иначе получишь не целое, а маленькое число.',
-      uz: "Asosiy ogohlantirish. Berilgan son — bu qism, javob emas. Foiz yuzdan kichik bo'lsa, butun doim qismdan katta. Agar yigirma foiz o'nga teng bo'lsa, butun o'n emas, ellik. Va qismni foizga ko'paytirmang, bo'ling. Aks holda butunni emas, kichik sonni olasiz."
-    }
-  },
-
-  // ---- s6 TEST MC — 30% = 60 -> 200. + FAKT A (saylov). correct '200' -> target C ----
-  s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    title: { ru: 'Сколько клеток во всей карте', uz: "Butun xaritada nechta katak" },
-    lead: {
-      ru: 'Теперь сам. Новый кусок — это 30% всей карты, и на нём 60 клеток. Сколько клеток во всей карте?',
-      uz: "Endi o'zingiz. Yangi bo'lak — bu butun xaritaning 30% i, va unda 60 katak. Butun xaritada nechta katak?"
-    },
-    opt0: { ru: '200', uz: '200' },
-    opt1: { ru: '60',  uz: '60' },
-    opt2: { ru: '90',  uz: '90' },
-    opt3: { ru: '1800', uz: '1800' },
-    correct_text: {
-      ru: 'Верно. 60 — это 30%. 1%: 60 ÷ 30 = 2. Сто процентов: 2 × 100 = 200 клеток.',
-      uz: "To'g'ri. 60 — bu 30%. 1%: 60 / 30 = 2. Yuz foiz: 2 x 100 = 200 katak."
-    },
-    wrong_1: { ru: '60 — это данная ЧАСТЬ (30%), а не целое. Целое больше: 60 ÷ 30 × 100 = 200.', uz: "60 — bu berilgan QISM (30%), butun emas. Butun kattaroq: 60 / 30 x 100 = 200." },
-    wrong_2: { ru: 'Тут к 60 прибавили 30. Не сложение: найди 1% (60 ÷ 30 = 2), потом × 100 = 200.', uz: "Bu yerda 60 ga 30 ni qo'shgansiz. Qo'shish emas: 1% ni toping (60 / 30 = 2), keyin x 100 = 200." },
-    wrong_3: { ru: 'Ты умножил часть на процент (60 × 30). Наоборот — дели: 60 ÷ 30 = 2, потом × 100 = 200.', uz: "Qismni foizga ko'paytirdingiz (60 x 30). Aksincha — bo'ling: 60 / 30 = 2, keyin x 100 = 200." },
-    fact: {
-      ru: 'На выборах, когда подсчитана часть голосов, по проценту обратно находят, сколько всего проголосовало. Поэтому обратный процент важен в статистике.',
-      uz: "Saylovda ovozlarning bir qismi sanalganda, foiz orqali teskari hisoblab jami nechta odam ovoz berganini topishadi. Shuning uchun teskari foiz statistikada muhim."
-    },
-    audio: {
-      intro: {
-        ru: 'Новый кусок это тридцать процентов всей карты, на нём шестьдесят клеток. Сколько клеток во всей карте? Сначала найди один процент, потом умножь на сто. Выбери ответ.',
-        uz: "Yangi bo'lak butun xaritaning o'ttiz foizi, unda oltmish katak. Butun xaritada nechta katak? Avval bir foizni toping, keyin yuzga ko'paytiring. Javobni tanlang."
-      },
-      on_correct: {
-        ru: 'Верно, двести клеток. Кстати, на выборах по части подсчитанных голосов обратным процентом находят, сколько всего проголосовало.',
-        uz: "To'g'ri, ikki yuz katak. Aytgancha, saylovda sanalgan ovozlarning bir qismidan teskari foiz bilan jami nechta odam ovoz berganini topishadi."
-      },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
-    }
-  },
-
-  // ---- s7 TEST NumInput — 50% = 35 -> 70 ----
-  s7: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    title: { ru: 'Половина известна', uz: "Yarmi ma'lum" },
-    question: {
-      ru: 'Кусок — это 50% карты, и на нём 35 клеток. Сколько клеток во всей карте?',
-      uz: "Bo'lak — bu xaritaning 50% i, va unda 35 katak. Butun xarita necha katak?"
-    },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    hint: {
-      ru: '50% — это половина. Если половина 35, то целое вдвое больше: 35 × 2 = 70.',
-      uz: "50% — bu yarmi. Agar yarmi 35 bo'lsa, butun ikki barobar: 35 x 2 = 70."
-    },
-    fb_correct: { ru: 'Верно. 50% — половина, целое 35 × 2 = 70 клеток.', uz: "To'g'ri. 50% — yarmi, butun 35 x 2 = 70 katak." },
-    audio: {
-      intro: {
-        ru: 'Кусок это пятьдесят процентов карты, на нём тридцать пять клеток. Сколько клеток во всей карте? Пятьдесят процентов это половина, значит целое вдвое больше. Введи число.',
-        uz: "Bo'lak xaritaning ellik foizi, unda o'ttiz besh katak. Butun xarita necha katak? Ellik foiz — bu yarmi, demak butun ikki barobar. Sonni kiriting."
-      },
-      on_correct: { ru: 'Верно. Семьдесят.', uz: "To'g'ri. Yetmish." },
-      on_wrong:   { ru: 'Пока нет. Посмотри подсказку.', uz: "Hozircha yo'q. Maslahatga qarang." }
-    }
-  },
-
-  // ---- s8 TEST TAP-MATCH — bir xil qism (12), har xil foiz -> har xil butun. M2 sindiradi ----
-  s8: {
-    eyebrow: { ru: 'Соедини', uz: 'Juftlang' },
-    title: { ru: 'Часть одна, целое разное', uz: "Qism bir xil, butun har xil" },
-    lead: {
-      ru: 'У каждого куска свой процент, но клеток поровну — по 12. Выбери число снизу и нажми на нужный кусок, чтобы соединить с размером всей карты.',
-      uz: "Har bo'lakda foiz har xil, lekin kataklar teng — har birida 12 ta. Pastdan sonni tanlang va kerakli bo'lakni bosing — butun xarita o'lchamiga ulang."
-    },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    clues: [
-      { id: 'c1', label: { ru: '20% = 12 клеток', uz: '20% = 12 katak' }, answer: '60',
-        hint: { ru: '20% — пятая часть: 12 × 5 = 60.', uz: "20% — beshdan bir: 12 x 5 = 60." } },
-      { id: 'c2', label: { ru: '25% = 12 клеток', uz: '25% = 12 katak' }, answer: '48',
-        hint: { ru: '25% — четверть: 12 × 4 = 48.', uz: "25% — chorak: 12 x 4 = 48." } },
-      { id: 'c3', label: { ru: '50% = 12 клеток', uz: '50% = 12 katak' }, answer: '24',
-        hint: { ru: '50% — половина: 12 × 2 = 24.', uz: "50% — yarmi: 12 x 2 = 24." } }
     ],
-    chips: { ru: ['24', '48', '60'], uz: ['24', '48', '60'] },
-    fb_correct: {
-      ru: 'Верно. Часть одна и та же — 12, а целое разное: чем меньше процент, тем больше карта.',
-      uz: "To'g'ri. Qism bir xil — 12, butun esa har xil: foiz qancha kichik bo'lsa, xarita shuncha katta."
-    },
     audio: {
-      intro: {
-        ru: 'На каждом куске по двенадцать клеток, но проценты разные. Соедини каждый кусок с размером всей карты, потом нажми проверить.',
-        uz: "Har bo'lakda o'n ikki katak, lekin foizlar har xil. Har bo'lakni butun xarita o'lchamiga ulang, keyin tekshirishni bosing."
-      },
-      on_correct: { ru: 'Верно. Часть одинакова, но при меньшем проценте целое больше.', uz: "To'g'ri. Qism bir xil bo'lsa ham, foiz kichraysa, butun kattalashadi." },
-      on_wrong:   { ru: 'Пока не всё верно. Посмотри подсказки.', uz: "Hozircha hammasi to'g'ri emas. Maslahatlarga qarang." }
+      intro: { ru: "Прежде чем помочь Ойбеку, вспомним проценты. Три быстрых примера.", uz: "Oybekka yordam berishdan oldin, foizni eslaylik. Uchta tez misol." },
+      on_correct: { ru: "Верно.", uz: "To'g'ri." },
+      on_wrong: { ru: "Почти. Попробуй ещё раз.", uz: "Deyarli. Yana urinib ko'ring." },
+      on_done: { ru: "Отлично, разминка пройдена.", uz: "Zo'r, mashq tugadi." }
     }
   },
 
-  // ---- s9 TEST SLIDER — butunni top: 40% = 20 -> 50 ----
+  // ===== s2 EXPLORATION — 20% = 10 -> *5 = 50 (step, tiles assemble) =====
+  s2: {
+    eyebrow: { ru: 'Собираем целое', uz: "Butunni yig'amiz" },
+    title: { ru: 'От части — к целому', uz: "Qismdan — butunga" },
+    lead: { ru: 'Вернёмся к карте: 20 процентов — это 10 клеток.', uz: "Xaritaga qaytamiz: yigirma foiz — bu 10 katak." },
+    bridge: { ru: 'Размялись. Теперь шаг за шагом соберём целую карту.', uz: "Mashq qildik. Endi butun xaritani qadam-baqadam yig'amiz." },
+    line_part: { ru: '20% — это 10 клеток.', uz: "20% — bu 10 katak." },
+    line_count: { ru: 'Сколько таких частей в целом? Сто делим на двадцать — пять.', uz: "Butunda shunday nechta qism bor? Yuzni yigirmaga bo'lamiz — besh." },
+    line_whole: { ru: 'Пять раз по 10 клеток — это 50 клеток. Вот вся карта.', uz: "Besh marta 10 katakdan — bu 50 katak. Mana butun xarita." },
+    line_key: { ru: 'Часть меньше целого. Чтобы найти целое, узнаём, сколько в нём таких частей.', uz: "Qism butundan kichik. Butunni topish uchun unda shunday nechta qism borligini bilamiz." },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    audio: {
+      ru: [
+        "Размялись. Теперь соберём целую карту по шагам.",
+        "Двадцать процентов, это десять клеток. Это только часть.",
+        "Сколько таких частей в целом? Сто делим на двадцать, получается пять.",
+        "Пять раз по десять клеток, это пятьдесят клеток. Вот и вся карта."
+      ],
+      uz: [
+        "Mashq qildik. Endi butun xaritani qadamlab yig'amiz.",
+        "Yigirma foiz, bu o'nta katak. Bu faqat qism.",
+        "Butunda shunday nechta qism bor? Yuzni yigirmaga bo'lamiz, besh chiqadi.",
+        "Besh marta o'ntadan katak, bu ellik katak. Mana butun xarita."
+      ]
+    }
+  },
+
+  // ===== s3 RULE + M1/M2 (birlashgan) =====
+  s3: {
+    eyebrow: { ru: 'Правило', uz: "Qoida" },
+    heading: { ru: 'Как найти целое по проценту', uz: "Foiz bo'yicha butunni qanday topamiz" },
+    bridge: { ru: 'Мы собрали целое руками. Теперь соберём это в правило.', uz: "Butunni qo'l bilan yig'dik. Endi buni qoidaga yig'amiz." },
+    rule_label: { ru: 'Мост через один процент', uz: "Bir foiz ko'prigi" },
+    rule_1: { ru: 'Делим часть на её процент — получаем один процент.', uz: "Qismni uning foiziga bo'lamiz — bir foizni olamiz." },
+    rule_2: { ru: 'Умножаем один процент на сто — получаем целое.', uz: "Bir foizni yuzga ko'paytiramiz — butunni olamiz." },
+    rule_3: { ru: 'Коротко: часть делим на процент, потом умножаем на сто.', uz: "Qisqacha: qismni foizga bo'lib, keyin yuzga ko'paytiramiz." },
+    ex_label: { ru: 'Пример', uz: "Misol" },
+    ex_caption: { ru: '20% = 10 → 10 делим на 20 = 0,5 → умножаем на 100 = 50.', uz: "20% = 10 → 10 ni 20 ga bo'lamiz = 0,5 → yuzga ko'paytiramiz = 50." },
+    warn_label: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
+    warn_1: { ru: 'Часть — не целое. 10 клеток — это только обрывок, не вся карта.', uz: "Qism — butun emas. 10 katak — bu faqat bo'lak, butun xarita emas." },
+    warn_2: { ru: 'Одна и та же часть при разном проценте даёт разное целое.', uz: "Bir xil qism turli foizda turli butun beradi." },
+    audio: { ru: "Мы собрали целое руками. Теперь правило. Делим часть на её процент и получаем один процент. Потом умножаем один процент на сто и получаем целое. И запомните: одна и та же часть при разном проценте даёт разное целое.", uz: "Butunni qo'l bilan yig'dik. Endi qoida. Qismni uning foiziga bo'lib, bir foizni olamiz. Keyin bir foizni yuzga ko'paytirib, butunni olamiz. Va yodda tuting: bir xil qism turli foizda turli butun beradi." }
+  },
+
+  // ===== s4 ISHLANGAN MISOL + MASHQ (scored): yuqorida 30%=15->50; pastda 40%=20->50 (DecInput) =====
+  s4: {
+    eyebrow: { ru: 'Сначала пример, потом сами', uz: "Avval misol, keyin o'zingiz" },
+    title: { ru: 'Найди целое', uz: "Butunni toping" },
+    bridge: { ru: 'Правило знаем. Сначала посмотрите пример, потом решите сами.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching." },
+    we_label: { ru: 'Разобранный пример', uz: "Ishlangan misol" },
+    we_caption: { ru: '30% = 15 → 15 делим на 30 = 0,5 → умножаем на 100 = 50.', uz: "30% = 15 → 15 ni 30 ga bo'lamiz = 0,5 → yuzga ko'paytiramiz = 50." },
+    question: { ru: 'Теперь сами: 40% числа равно 20. Чему равно число?', uz: "Endi o'zingiz: sonning 40% i 20 ga teng. Son nechaga teng?" },
+    placeholder: { ru: '0', uz: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
+    hint: { ru: 'Разделите часть на её процент, потом умножьте на сто.', uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring." },
+    fb_correct: { ru: 'Верно: 20 делим на 40 = 0,5, умножаем на 100 = 50.', uz: "To'g'ri: 20 ni 40 ga bo'lamiz = 0,5, yuzga ko'paytiramiz = 50." },
+    audio: {
+      intro: { ru: "Сначала посмотрите разобранный пример сверху. Теперь сами: сорок процентов числа равно двадцати. Чему равно само число?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: sonning qirq foizi yigirmaga teng. Sonning o'zi nechaga teng?" },
+      on_correct: { ru: "Верно, число пятьдесят.", uz: "To'g'ri, son ellik." },
+      on_wrong: { ru: "Разделите часть на её процент, потом умножьте на сто.", uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring." }
+    }
+  },
+
+  // ===== s5 TEST MC — 30% = 60 -> 200 [FAKT saylov] =====
+  s5: {
+    eyebrow: { ru: 'Находим целое', uz: "Butunni topamiz" },
+    title: { ru: 'Найди всё число', uz: "Butun sonni toping" },
+    question: { ru: '30% числа равно 60. Чему равно число?', uz: "Sonning 30% i 60 ga teng. Son nechaga teng?" },
+    opt0: { ru: '200', uz: '200' },
+    opt1: { ru: '90', uz: '90' },
+    opt2: { ru: '18', uz: '18' },
+    opt3: { ru: '600', uz: '600' },
+    correct_text: { ru: 'Верно: 60 делим на 30 = 2, умножаем на 100 = 200.', uz: "To'g'ri: 60 ni 30 ga bo'lamiz = 2, yuzga ko'paytiramiz = 200." },
+    wrong_1: { ru: 'Вы сложили часть и процент. Разделите часть на процент, потом умножьте на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
+    wrong_2: { ru: 'Это часть от 60, а нужно наоборот, найти целое. Целое больше части.', uz: "Bu 60 dan qism, kerak esa aksincha, butunni topish. Butun qismdan katta." },
+    wrong_3: { ru: 'Слишком много. Разделите часть на процент, потом умножьте на сто.', uz: "Juda ko'p. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
+    fact: { ru: 'На выборах по части подсчитанных голосов и их проценту обратным счётом находят, сколько всего человек проголосовало.', uz: "Saylovda sanalgan ovozlarning bir qismi va ularning foizi bo'yicha teskari hisob bilan jami nechta odam ovoz berganini topishadi." },
+    fact_audio: { ru: "На выборах по части подсчитанных голосов и их проценту обратным счётом находят, сколько всего человек проголосовало.", uz: "Saylovda sanalgan ovozlarning bir qismi va ularning foizi bo'yicha teskari hisob bilan jami nechta odam ovoz berganini topishadi." },
+    audio: {
+      intro: { ru: "Тридцать процентов числа равно шестидесяти. Чему равно само число?", uz: "Sonning o'ttiz foizi oltmishga teng. Sonning o'zi nechaga teng?" },
+      on_correct: { ru: "Верно, двести. Шестьдесят делим на тридцать, получается два, умножаем на сто.", uz: "To'g'ri, ikki yuz. Oltmishni o'ttizga bo'lamiz, ikki chiqadi, yuzga ko'paytiramiz." },
+      on_wrong: { ru: "Разделите часть на её процент, потом умножьте на сто.", uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring." }
+    }
+  },
+
+  // ===== s6 TEST DecInput — 50% = 35 -> 70 =====
+  s6: {
+    eyebrow: { ru: 'Половина известна', uz: "Yarmi ma'lum" },
+    bridge: { ru: 'Хорошо. Теперь наберите ответ сами.', uz: "Yaxshi. Endi javobni o'zingiz tering." },
+    question: { ru: '50% числа равно 35. Чему равно число?', uz: "Sonning 50% i 35 ga teng. Son nechaga teng?" },
+    placeholder: { ru: '0', uz: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
+    hint: { ru: '50 процентов это половина. Если половина известна, целое вдвое больше.', uz: "50 foiz, bu yarim. Yarmi ma'lum bo'lsa, butun ikki barobar katta." },
+    fb_correct: { ru: 'Верно: 35 делим на 50 = 0,7, умножаем на 100 = 70.', uz: "To'g'ri: 35 ni 50 ga bo'lamiz = 0,7, yuzga ko'paytiramiz = 70." },
+    audio: {
+      intro: { ru: "Наберите ответ сами. Пятьдесят процентов числа равно тридцати пяти. Чему равно число?", uz: "Javobni o'zingiz tering. Sonning ellik foizi o'ttiz beshga teng. Son nechaga teng?" },
+      on_correct: { ru: "Верно, семьдесят. Половина равна тридцати пяти, значит целое семьдесят.", uz: "To'g'ri, yetmish. Yarmi o'ttiz beshga teng, demak butun yetmish." },
+      on_wrong: { ru: "Половина известна, целое вдвое больше. Разделите на процент и умножьте на сто.", uz: "Yarmi ma'lum, butun ikki barobar katta. Foizga bo'ling va yuzga ko'paytiring." }
+    }
+  },
+
+  // ===== s7 TEST SeqMC — 3 ta oson teskari misol (scored) =====
+  s7: {
+    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Найди целое', uz: "Butunni toping" },
+    lead: { ru: 'Три примера. Часть и процент даны, найдите число.', uz: "Uchta misol. Qism va foiz berilgan, sonni toping." },
+    questions: [
+      {
+        q: { ru: '25% = 5. Целое?', uz: "25% = 5. Butun?" },
+        say: { ru: "Двадцать пять процентов равно пяти. Чему равно целое?", uz: "Yigirma besh foiz beshga teng. Butun nechaga teng?" },
+        opts: [{ ru: '20', uz: '20' }, { ru: '10', uz: '10' }, { ru: '125', uz: '125' }],
+        correct: 0,
+        ok: { ru: 'Верно: 5 делим на 25, умножаем на 100.', uz: "To'g'ri: 5 ni 25 ga bo'lib, yuzga ko'paytiramiz." },
+        no: { ru: 'Разделите часть на процент, потом умножьте на сто.', uz: "Qismni foizga bo'ling, keyin yuzga ko'paytiring." }
+      },
+      {
+        q: { ru: '10% = 7. Целое?', uz: "10% = 7. Butun?" },
+        say: { ru: "Десять процентов равно семи. Чему равно целое?", uz: "O'n foiz yettiga teng. Butun nechaga teng?" },
+        opts: [{ ru: '70', uz: '70' }, { ru: '17', uz: '17' }, { ru: '700', uz: '700' }],
+        correct: 0,
+        ok: { ru: 'Верно: десять таких частей — это семьдесят.', uz: "To'g'ri: shunday o'nta qism — bu yetmish." },
+        no: { ru: 'В целом десять таких долей. Разделите на процент, умножьте на сто.', uz: "Butunda shunday o'nta ulush. Foizga bo'ling, yuzga ko'paytiring." }
+      },
+      {
+        q: { ru: '50% = 9. Целое?', uz: "50% = 9. Butun?" },
+        say: { ru: "Пятьдесят процентов равно девяти. Чему равно целое?", uz: "Ellik foiz to'qqizga teng. Butun nechaga teng?" },
+        opts: [{ ru: '18', uz: '18' }, { ru: '4,5', uz: '4,5' }, { ru: '90', uz: '90' }],
+        correct: 0,
+        ok: { ru: 'Верно: половина равна девяти, целое вдвое больше.', uz: "To'g'ri: yarmi to'qqizga teng, butun ikki barobar." },
+        no: { ru: 'Половина известна, целое вдвое больше.', uz: "Yarmi ma'lum, butun ikki barobar katta." }
+      }
+    ],
+    audio: {
+      intro: { ru: "Тренировка. Три примера. Часть и процент даны, найдите целое число.", uz: "Mashq. Uchta misol. Qism va foiz berilgan, butun sonni toping." },
+      on_correct: { ru: "Верно.", uz: "To'g'ri." },
+      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring." },
+      on_done: { ru: "Молодец, все примеры верны.", uz: "Barakalla, hamma misol to'g'ri." }
+    }
+  },
+
+  // ===== s8 TEST tasniflash (sort, M2): bir xil qism 12, foiz boshqa -> butun boshqa =====
+  s8: {
+    eyebrow: { ru: 'Один и тот же 12', uz: "Bir xil 12" },
+    title: { ru: 'Часть 12 — разный процент', uz: "Qism 12 — har xil foiz" },
+    lead: { ru: 'Часть всюду 12, но процент разный. В какую группу — целое больше 60 или нет?', uz: "Qism hamma joyda 12, lekin foiz har xil. Qaysi guruhga — butun 60 dan katta yoki yo'q?" },
+    bin_sq: { ru: 'Целое 60 и меньше', uz: "Butun 60 va undan kichik" },
+    bin_cu: { ru: 'Целое больше 60', uz: "Butun 60 dan katta" },
+    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bos." },
+    done_text: { ru: 'Готово! Чем меньше процент, тем больше целое.', uz: "Tayyor! Foiz qancha kichik bo'lsa, butun shuncha katta." },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
+    hint_wrong: { ru: 'Подумайте: при меньшем проценте целое больше. Разделите 12 на процент, умножьте на сто.', uz: "O'ylang: foiz kichikroq bo'lsa butun kattaroq. 12 ni foizga bo'ling, yuzga ko'paytiring." },
+    correct_text: { ru: 'Верно! Одна и та же часть 12 при разном проценте даёт разное целое.', uz: "To'g'ri! Bir xil qism 12 turli foizda turli butun beradi." },
+    audio: {
+      intro: { ru: "Часть всюду двенадцать, но процент разный. Поставьте каждое в группу: целое шестьдесят и меньше, или больше шестидесяти. Чем меньше процент, тем больше целое.", uz: "Qism hamma joyda o'n ikki, lekin foiz har xil. Har birini guruhga joylang: butun oltmish va undan kichik, yoki oltmishdan katta. Foiz qancha kichik bo'lsa, butun shuncha katta." },
+      on_correct: { ru: "Верно. Одна и та же часть при разном проценте даёт разное целое.", uz: "To'g'ri. Bir xil qism turli foizda turli butun beradi." },
+      on_wrong: { ru: "При меньшем проценте целое больше. Разделите часть на процент, умножьте на сто.", uz: "Foiz kichikroq bo'lsa butun kattaroq. Qismni foizga bo'ling, yuzga ko'paytiring." }
+    }
+  },
+
+  // ===== s9 TEST MC (xatoni top) — teskari hisob xatosi [FAKT per cento] =====
   s9: {
-    eyebrow: { ru: 'Найди целое', uz: 'Butunni toping' },
-    title: { ru: 'Поставь ползунок на ответ', uz: "Slayderni javobga qo'ying" },
-    lead: {
-      ru: 'Новый кусок — это 40% карты, на нём 20 клеток. Двигай ползунок: найди, сколько клеток во всей карте (чтобы её 40% были 20).',
-      uz: "Yangi bo'lak — bu xaritaning 40% i, va unda 20 katak. Slayderni suring: butun xarita necha katak ekanini toping (uning 40% i 20 bo'lsin)."
-    },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    hint: {
-      ru: '40% — это две пятых. Раздели 20 на 2 — это пятая часть, 10. Теперь 10 × 5 = 50.',
-      uz: "40% — bu beshdan ikki. 20 ni 2 ga bo'ling — beshdan bir, ya'ni 10. Endi 10 ni 5 ga ko'paytiring — 50."
-    },
-    fb_correct: { ru: 'Верно. Вся карта 50 клеток: её 40% — 20.', uz: "To'g'ri. Butun xarita 50 katak: uning 40% i — 20." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
+    title: { ru: 'Где целое найдено неверно?', uz: "Qaysi butun noto'g'ri topilgan?" },
+    question: { ru: 'В одном примере целое найдено неправильно. В каком?', uz: "Bitta misolda butun noto'g'ri topilgan. Qaysi birida?" },
+    opt0: { ru: '10% = 8 → целое 80', uz: "10% = 8 → butun 80" },
+    opt1: { ru: '25% = 6 → целое 24', uz: "25% = 6 → butun 24" },
+    opt2: { ru: '20% = 9 → целое 18', uz: "20% = 9 → butun 18" },
+    opt3: { ru: '50% = 8 → целое 16', uz: "50% = 8 → butun 16" },
+    correct_text: { ru: 'Верно! 9 делим на 20 = 0,45, умножаем на 100 = 45, а не 18.', uz: "To'g'ri! 9 ni 20 ga bo'lamiz = 0,45, yuzga ko'paytiramiz = 45, 18 emas." },
+    wrong_0: { ru: 'Здесь верно: 8 делим на 10, умножаем на сто, выходит восемьдесят.', uz: "Bu yerda to'g'ri: 8 ni 10 ga bo'lib, yuzga ko'paytiramiz, sakson chiqadi." },
+    wrong_1: { ru: 'Здесь верно: 6 делим на 25, умножаем на сто, выходит двадцать четыре.', uz: "Bu yerda to'g'ri: 6 ni 25 ga bo'lib, yuzga ko'paytiramiz, yigirma to'rt chiqadi." },
+    wrong_3: { ru: 'Здесь верно: половина равна восьми, целое шестнадцать.', uz: "Bu yerda to'g'ri: yarmi sakkizga teng, butun o'n olti." },
+    wrong_default: { ru: 'Посчитайте каждый: часть делим на процент, умножаем на сто.', uz: "Har birini hisoblang: qismni foizga bo'lib, yuzga ko'paytiramiz." },
+    fact: { ru: 'Знак процента вырос из итальянского «per cento» — «из ста». Поэтому процент всегда означает долю от ста.', uz: "Foiz belgisi italyancha «per cento» — «yuzdan» — yozuvidan o'sib chiqqan. Shuning uchun foiz doim yuzdan ulushni bildiradi." },
+    fact_audio: { ru: "Знак процента вырос из итальянского пер ченто, что значит из ста. Поэтому процент всегда означает долю от ста.", uz: "Foiz belgisi italyancha per cento, ya'ni yuzdan, degan yozuvdan o'sib chiqqan. Shuning uchun foiz doim yuzdan ulushni bildiradi." },
     audio: {
-      intro: {
-        ru: 'Новый кусок это сорок процентов карты, на нём двадцать клеток. Двигай ползунок и найди всю карту. Сначала посчитай в уме, потом поставь маркер и нажми проверить.',
-        uz: "Yangi bo'lak xaritaning qirq foizi, unda yigirma katak bor. Slayderni suring va butun xaritani toping. Avval xayolan hisoblang, keyin markerni qo'ying va tekshirishni bosing."
-      },
-      on_correct: { ru: 'Верно. Пятьдесят.', uz: "To'g'ri. Ellik." },
-      on_wrong:   { ru: 'Пока нет. Посмотри подсказку.', uz: "Hozircha yo'q. Maslahatga qarang." }
+      intro: { ru: "В одном из этих примеров целое найдено неправильно. Найдите, где обратный счёт сделан с ошибкой.", uz: "Bu misollardan birida butun noto'g'ri topilgan. Teskari hisob xato qilingan joyni toping." },
+      on_correct: { ru: "Верно. Девять делим на двадцать, получается ноль целых сорок пять сотых, умножаем на сто, выходит сорок пять, а не восемнадцать.", uz: "To'g'ri. To'qqizni yigirmaga bo'lamiz, nol butun yuzdan qirq besh chiqadi, yuzga ko'paytiramiz, qirq besh bo'ladi, o'n sakkiz emas." },
+      on_wrong: { ru: "Посчитайте каждый: разделите часть на процент и умножьте на сто.", uz: "Har birini hisoblang: qismni foizga bo'ling va yuzga ko'paytiring." }
     }
   },
 
-  // ---- s10 TEST NUMBER-LINE — butunni qo'y: 60% = 30 -> 50 (chiziq 0..100) ----
+  // ===== s10 CASE setup + FINAL (birlashgan) — Iroda so'rovnoma 30% = 18 -> 60 [FAKT chegirma] =====
   s10: {
-    eyebrow: { ru: 'Отметь на прямой', uz: "Son o'qida belgilang" },
-    title: { ru: 'Отметь целое на прямой', uz: "Butunni son o'qida belgilang" },
-    lead: {
-      ru: 'Последний кусок — это 60% карты, на нём 30 клеток. Сколько клеток во всей карте? Поставь маркер на это число.',
-      uz: "Oxirgi bo'lak — bu xaritaning 60% i, va unda 30 katak. Butun xarita necha katak? Markerni shu songa qo'ying."
-    },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    hint: {
-      ru: '60% — это шесть десятых. Раздели 30 на 6 — десятая часть, 5. Теперь 5 × 10 = 50.',
-      uz: "60% — bu o'ndan olti. 30 ni 6 ga bo'ling — o'ndan bir, ya'ni 5. Endi 5 ni 10 ga ko'paytiring — 50."
-    },
-    fb_correct: { ru: 'Верно. Вся карта 50 клеток.', uz: "To'g'ri. Butun xarita 50 katak." },
-    audio: {
-      intro: {
-        ru: 'Последний кусок это шестьдесят процентов карты, на нём тридцать клеток. Сколько клеток во всей карте? Сначала посчитай, потом поставь маркер на прямой и нажми проверить.',
-        uz: "Oxirgi bo'lak xaritaning oltmish foizi, unda o'ttiz katak. Butun xarita necha katak? Avval hisoblang, keyin markerni son o'qiga qo'ying va tekshirishni bosing."
-      },
-      on_correct: { ru: 'Верно. Пятьдесят.', uz: "To'g'ri. Ellik." },
-      on_wrong:   { ru: 'Пока нет. Посмотри подсказку.', uz: "Hozircha yo'q. Maslahatga qarang." }
-    }
-  },
-
-  // ---- s11 TEST FIND-THE-WRONG — xato yechimni top (M2). + FAKT B (% tarixi). correct=opt2 -> target D ----
-  s11: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    title: { ru: 'Найди ошибочный расчёт', uz: "Xato hisobni toping" },
-    q_pre: { ru: 'Один из расчётов ', uz: 'Hisoblardan biri ' },
-    q_em:  { ru: 'ОШИБОЧЕН', uz: 'XATO' },
-    q_post: { ru: '. Найди именно его.', uz: ". Aynan o'shani toping." },
-    opt0: { ru: '25% = 20, целое 80', uz: '25% = 20, butun 80' },
-    opt1: { ru: '50% = 30, целое 60', uz: '50% = 30, butun 60' },
-    opt2: { ru: '20% = 15, целое 3',  uz: '20% = 15, butun 3' },
-    opt3: { ru: '10% = 9, целое 90',  uz: '10% = 9, butun 90' },
-    correct_text: {
-      ru: 'Верно, ошибка здесь. Если 20% = 15, то целое 75, а не 3. Тут часть умножили на процент.',
-      uz: "To'g'ri, xato shu. 20% = 15 bo'lsa, butun 75, 3 emas. Bu yerda qismni foizga ko'paytirgan."
-    },
-    wrong_0: { ru: 'Это верно: 25% — четверть, 20 × 4 = 80. Ошибка в другом.', uz: "Bu to'g'ri: 25% — chorak, 20 x 4 = 80. Xato boshqasida." },
-    wrong_1: { ru: 'Это верно: 50% — половина, 30 × 2 = 60. Ищи ошибку дальше.', uz: "Bu to'g'ri: 50% — yarmi, 30 x 2 = 60. Xatoni boshqa joydan qidiring." },
-    wrong_3: { ru: 'Это верно: 10% — десятая часть, 9 × 10 = 90. Ошибка не здесь.', uz: "Bu to'g'ri: 10% — o'ndan bir, 9 x 10 = 90. Xato bu yerda emas." },
-    fact: {
-      ru: 'Знак процента появился из итальянского «per cento» — «из ста», которое веками сокращалось до значка %. Поэтому процент всегда означает долю от ста.',
-      uz: "Foiz belgisi italyancha «per cento» — «yuzdan» — yozuvining asrlar davomida qisqarishidan paydo bo'lgan. Shuning uchun foiz doim yuzdan ulushni bildiradi."
-    },
-    audio: {
-      intro: {
-        ru: 'Здесь вопрос наоборот. Один расчёт ошибочен. Найди именно ошибочный и выбери его.',
-        uz: "Bu yerda savol teskari. Hisoblardan biri xato. Aynan xato bo'lganini toping va tanlang."
-      },
-      on_correct: {
-        ru: 'Верно. Если двадцать процентов это пятнадцать, то целое семьдесят пять, а не три. Кстати, знак процента появился из итальянского пер ченто, то есть из ста.',
-        uz: "To'g'ri. Yigirma foiz o'n beshga teng bo'lsa, butun yetmish besh, uch emas. Aytgancha, foiz belgisi italyancha per cento, ya'ni yuzdan, degan yozuvning qisqarishidan paydo bo'lgan."
-      },
-      on_wrong: { ru: 'Этот расчёт верный. Ошибка в другом.', uz: "Bu hisob to'g'ri. Xato boshqasida." }
-    }
-  },
-
-  // ---- s12 CASE setup — Iroda so'rovnoma: 30% = 18 -> jami? ----
-  s12: {
-    eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
+    eyebrow: { ru: 'Задача', uz: "Masala" },
     title: { ru: 'Опрос в классе Ироды', uz: "Iroda sinfidagi so'rovnoma" },
-    lead: {
-      ru: 'Карта восстановлена! Теперь этот навык в жизни. Ирода провела опрос в классе: 30% учеников ответили «да», и это 18 человек. Сколько всего учеников в классе?',
-      uz: "Xaritani tikladingiz! Endi shu ko'nikma hayotda. Iroda sinfda so'rovnoma o'tkazdi: o'quvchilarning 30% i «ha» dedi, va bu 18 ta o'quvchi. Sinfda jami nechta o'quvchi bor?"
-    },
-    note: {
-      ru: 'Внимание: 18 — это только ответившие «да» (30%), а не весь класс. Весь класс больше.',
-      uz: "Diqqat: 18 — bu faqat «ha» deganlar (30%), butun sinf emas. Butun sinf undan katta."
-    },
-    hint_calc: {
-      ru: '30% — это три десятых. Раздели 18 на 3 — десятая часть, 6. Теперь 6 × 10 = 60.',
-      uz: "30% — bu o'ndan uch. 18 ni 3 ga bo'ling — o'ndan bir, ya'ni 6. Endi 6 ni 10 ga ko'paytiring — 60."
-    },
-    btn_help: { ru: 'Решить', uz: 'Yechish' },
-    audio: {
-      ru: 'Ирода провела в классе опрос. Тридцать процентов учеников ответили да, и это восемнадцать человек. Сколько всего учеников в классе? Обрати внимание: восемнадцать это только ответившие да, а не весь класс. Тридцать процентов это три десятых, значит сначала найди десятую часть, потом умножь на десять.',
-      uz: "Iroda sinfda so'rovnoma o'tkazdi. O'quvchilarning o'ttiz foizi ha dedi, va bu o'n sakkiz o'quvchi. Sinfda jami nechta o'quvchi bor? Diqqat qiling: o'n sakkiz — bu faqat ha deganlar, butun sinf emas. O'ttiz foiz o'ndan uch, demak avval o'ndan birni toping, keyin o'nga ko'paytiring."
-    }
-  },
-
-  // ---- s13 CASE/FINAL MC — jami o'quvchi? -> 60. + FAKT C (diskont). correct '60' -> target A ----
-  s13: {
-    eyebrow: { ru: 'Итог задачи', uz: 'Masala yakuni' },
-    title: { ru: 'Сколько всего учеников', uz: "Jami nechta o'quvchi" },
-    lead: {
-      ru: 'Сколько всего учеников в классе? «Да» ответили 30% — это 18 человек.',
-      uz: "Sinfda jami nechta o'quvchi? «Ha» javobini 30% berdi — bu 18 o'quvchi."
-    },
+    bridge: { ru: 'Карта собрана. Теперь применим навык в жизни.', uz: "Xarita yig'ildi. Endi ko'nikmani hayotda qo'llaymiz." },
+    lead: { ru: 'Ирода провела опрос. «Да» ответили 30 процентов класса, и это 18 учеников.', uz: "Iroda so'rovnoma o'tkazdi. Sinfning 30 foizi «ha» dedi, va bu 18 o'quvchi." },
+    note: { ru: 'Сколько всего учеников в классе?', uz: "Sinfda jami nechta o'quvchi bor?" },
+    hint_calc: { ru: '18 это только «да». Разделите 18 на 30, потом умножьте на сто.', uz: "18, bu faqat «ha» deganlar. 18 ni 30 ga bo'ling, keyin yuzga ko'paytiring." },
+    compact: { ru: '«Да» = 30% · это 18 учеников', uz: "«Ha» = 30% · bu 18 o'quvchi" },
+    btn_help: { ru: 'Помочь Ироде', uz: "Irodaga yordam berish" },
+    question: { ru: 'Сколько всего учеников в классе?', uz: "Sinfda jami nechta o'quvchi?" },
     opt0: { ru: '60', uz: '60' },
     opt1: { ru: '18', uz: '18' },
-    opt2: { ru: '54', uz: '54' },
-    opt3: { ru: '540', uz: '540' },
-    correct_text: {
-      ru: 'Верно. 30% — три десятых. 18 ÷ 3 = 6, а 6 × 10 = 60 учеников.',
-      uz: "To'g'ri. 30% — o'ndan uch. 18 / 3 = 6, 6 x 10 = 60 o'quvchi."
-    },
-    wrong_1: { ru: '18 — это только ответившие «да» (30%), а не весь класс. Класс больше: 60.', uz: "18 — bu faqat «ha» deganlar (30%), butun sinf emas. Sinf kattaroq: 60." },
-    wrong_2: { ru: 'Ты умножил 18 на 3. Наоборот: сначала раздели на 3 (6), потом × 10 (60).', uz: "18 ni 3 ga ko'paytirdingiz. Aksincha: avval 3 ga bo'ling (6), keyin 10 ga ko'paytiring (60)." },
-    wrong_3: { ru: 'Ты умножил часть на процент (18 × 30). Верно: 18 ÷ 30 × 100 = 60.', uz: "Qismni foizga ko'paytirdingiz (18 x 30). To'g'risi: 18 / 30 x 100 = 60." },
-    fact: {
-      ru: 'Магазины по надписи «вы сэкономили 24 000 сум» обратным процентом находят исходную цену: если 24 000 — это 30%, то цена была 80 000 сум.',
-      uz: "Do'konlar «siz 24 000 so'm tejadingiz» yozuvidan asl narxni teskari foiz bilan topadi: 24 000 — bu 30% bo'lsa, asl narx 80 000 so'm."
-    },
+    opt2: { ru: '48', uz: '48' },
+    opt3: { ru: '600', uz: '600' },
+    correct_text: { ru: 'Верно: 18 делим на 30 = 0,6, умножаем на 100 = 60 учеников.', uz: "To'g'ri: 18 ni 30 ga bo'lamiz = 0,6, yuzga ko'paytiramiz = 60 o'quvchi." },
+    wrong_1: { ru: 'Это только ответившие да, а нужен весь класс. Целое больше части.', uz: "Bu faqat ha deganlar, butun sinf kerak. Butun qismdan katta." },
+    wrong_2: { ru: 'Вы сложили часть и процент. Разделите часть на процент, умножьте на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, yuzga ko'paytiring." },
+    wrong_3: { ru: 'Слишком много. Разделите часть на процент, потом умножьте на сто.', uz: "Juda ko'p. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
+    fact: { ru: 'В магазине по цене со скидкой и проценту скидки обратным счётом находят первоначальную цену.', uz: "Do'konda chegirmali narx va chegirma foizi bo'yicha teskari hisob bilan dastlabki narxni topishadi." },
+    fact_audio: { ru: "В магазине по цене со скидкой и проценту скидки обратным счётом находят первоначальную цену.", uz: "Do'konda chegirmali narx va chegirma foizi bo'yicha teskari hisob bilan dastlabki narxni topishadi." },
     audio: {
-      intro: {
-        ru: 'Сколько всего учеников в классе? Сначала вспомни, сколько процентов это восемнадцать, потом найди целое и выбери ответ.',
-        uz: "Sinfda jami nechta o'quvchi? Avval o'n sakkiz necha foiz ekanini eslang, keyin butunni toping va javobni tanlang."
-      },
-      on_correct: {
-        ru: 'Верно. Шестьдесят учеников. Кстати, магазины тоже по сумме, которую ты сэкономил, обратным процентом находят исходную цену: двадцать четыре тысячи сум это тридцать процентов, значит цена была восемьдесят тысяч.',
-        uz: "To'g'ri. Oltmish o'quvchi. Aytgancha, do'konlar ham siz qancha tejaganingizdan asl narxni teskari foiz bilan topadi: yigirma to'rt ming so'm o'ttiz foiz bo'lsa, asl narx sakson ming so'm."
-      },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      intro: { ru: "Карта собрана, теперь навык в жизни. Ирода провела опрос. Тридцать процентов класса ответили да, и это восемнадцать учеников. Восемнадцать, это только ответившие да, а не весь класс. Нажмите решить.", uz: "Xarita yig'ildi, endi ko'nikma hayotda. Iroda so'rovnoma o'tkazdi. Sinfning o'ttiz foizi ha dedi, va bu o'n sakkiz o'quvchi. O'n sakkiz, bu faqat ha deganlar, butun sinf emas. Yechishni bosing." },
+      intro2: { ru: "Сколько всего учеников в классе?", uz: "Sinfda jami nechta o'quvchi bor?" },
+      on_correct: { ru: "Верно, шестьдесят. Восемнадцать делим на тридцать, умножаем на сто.", uz: "To'g'ri, oltmish. O'n sakkizni o'ttizga bo'lamiz, yuzga ko'paytiramiz." },
+      on_wrong: { ru: "Восемнадцать это часть. Разделите часть на процент, умножьте на сто.", uz: "O'n sakkiz, bu qism. Qismni foizga bo'ling, yuzga ko'paytiring." }
     }
   },
 
-  // ---- s14 SUMMARY — Oybek hookini yopadi + ConnectionsBlock ----
-  s14: {
-    eyebrow: { ru: 'Итог', uz: 'Xulosa' },
-    heading: { ru: 'Целое по проценту найдено', uz: "Foizdan butun topildi" },
-    title: { ru: 'Вернёмся к карте Ойбека.', uz: "Oybekning xaritasiga qaytamiz." },
-    main_label: { ru: 'Главное', uz: 'Asosiy' },
-    main_1: { ru: 'Если известны часть и процент: пойми, какая это доля, и умножь часть во столько же раз.', uz: "Qism va foiz ma'lum bo'lsa: foiz qaysi ulush ekanini toping va qismni shuncha marta ko'paytiring." },
-    main_2: { ru: 'Для любого процента: целое = часть ÷ процент × 100.', uz: "Har qanday foiz uchun: butun = qism / foiz x 100." },
-    main_3: { ru: 'Данное число — это ЧАСТЬ, а не ответ. Если процент меньше 100, целое больше части.', uz: "Berilgan son — bu QISM, javob emas. Foiz 100 dan kichik bo'lsa, butun qismdan katta." },
-    hook_close: {
-      ru: 'Кусок был 20% всей карты, 10 клеток. Значит вся карта 5 × 10 = 50 клеток, а не 10. Ойбек принял один кусок за целое и ошибся.',
-      uz: "Bo'lak butun xaritaning 20% i, 10 katak edi. Demak butun xarita 5 x 10 = 50 katak, 10 emas. Oybek bir bo'lakni butun deb o'ylab adashdi."
-    },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: {
-      ru: '«Процент как сотая доля», «Нахождение процента от числа», «Сокращение дробей».',
-      uz: "«Foiz — yuzdan bir ulush», «Sonning foizini topish», «Kasrlarni qisqartirish»."
-    },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi dars' },
-    conn_next: {
-      ru: 'начинается геометрия: периметр прямоугольника и квадрата — длина границы фигуры.',
-      uz: "geometriya boshlanadi: to'g'ri to'rtburchak va kvadrat perimetri — figuraning chegara uzunligi."
-    },
+  // ===== s11 SUMMARY =====
+  s11: {
+    eyebrow: { ru: 'Итог', uz: "Xulosa" },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
+    title: { ru: 'По части — найти целое', uz: "Qism bo'yicha butunni topish" },
+    main_label: { ru: 'Главное', uz: "Asosiy" },
+    main_1: { ru: 'Делим часть на её процент — получаем один процент.', uz: "Qismni uning foiziga bo'lamiz — bir foizni olamiz." },
+    main_2: { ru: 'Умножаем один процент на сто — получаем целое.', uz: "Bir foizni yuzga ko'paytiramiz — butunni olamiz." },
+    main_3: { ru: 'Одна и та же часть при разном проценте даёт разное целое.', uz: "Bir xil qism turli foizda turli butun beradi." },
+    hook_close: { ru: 'Вот и ответ Ойбеку: 20% = 10 клеток, значит вся карта — 50 клеток.', uz: "Mana Oybekka javob: 20% = 10 katak, demak butun xarita — 50 katak." },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
+    conn_refs: { ru: 'Процент как доля от ста (Урок 30) и нахождение процента от числа (Урок 31).', uz: "Foiz yuzdan ulush sifatida (30-dars) va sonning foizini topish (31-dars)." },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
+    conn_next: { ru: 'Задачи на проценты в жизни.', uz: "Hayotdagi foiz masalalari." },
     btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: {
-      ru: 'Подведём итог. Если известны часть и процент, пойми, какая это доля, и умножь часть во столько же раз. Для любого процента раздели часть на процент и умножь на сто. И помни: данное число это часть, а не ответ, целое больше неё. Поэтому карта, у которой двадцать процентов это десять клеток, целиком пятьдесят клеток, а не десять. Ойбек принял один кусок за целое и ошибся.',
-      uz: "Xulosa qilamiz. Qism va foiz ma'lum bo'lsa, foiz qaysi ulush ekanini toping va qismni shuncha marta ko'paytiring. Har qanday foiz uchun esa qismni foizga bo'lib, yuzga ko'paytiring. Va esda tuting: berilgan son — bu qism, javob emas, butun undan katta. Shuning uchun yigirma foizi o'n katak bo'lgan xarita to'liq ellik katak, o'n emas. Oybek bir bo'lakni butun deb o'ylab adashdi."
-    }
+    audio: { ru: "Итак, чтобы найти целое: делим часть на её процент, получаем один процент, и умножаем на сто. И помним: одна и та же часть при разном проценте даёт разное целое.", uz: "Demak, butunni topish uchun: qismni uning foiziga bo'lib, bir foizni olamiz, va yuzga ko'paytiramiz. Va yodda tutamiz: bir xil qism turli foizda turli butun beradi." }
   }
-
 };
 
-// ============================================================
-// MAJBURIY YORDAMCHILAR (infrastructure_v1 / Dars26 bilan baytma-bayt)
-// ============================================================
 const shuffleMC = (c, options, correctIdx, order) => {
   const content = { ...c };
   order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
@@ -1284,17 +1077,19 @@ const ConnectionsBlock = ({ c }) => {
 };
 
 const optEl = (t, node) => <span className="body" style={{ display: 'inline' }}>{mt(t(node))}</span>;
+const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
+// Bridge — slaydlararo ma'noli o'tish qatori (faza chegaralarida). Ovozda intro'ga qo'shilgan.
+const Bridge = ({ node }) => { const t = useT(); return node ? <p className="bridge fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(node))}</p> : null; };
 
-// Ikonkalar ✓/✗ — feedback faqat rang bilan emas (accessibility).
+// Ikonkalar — feedback faqat rang bilan emas (accessibility).
 const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
 const IconNo = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
 
-// Ambient-harakat siyrak ekranlar uchun (qoida, summary): yumshoq suzuvchi doiralar.
-const Floaters = () => (
-  <div className="amb" aria-hidden="true">
-    <span className="amb-o amb-o1"/>
-    <span className="amb-o amb-o2"/>
-    <span className="amb-o amb-o3"/>
+// Dekorativ suzuvchi birlik kvadratchalar (qism mavzusi, sekin, yengil) — uzluksiz loop.
+const FloatTiles = () => (
+  <div className="flt" aria-hidden="true">
+    <span className="flt-c flt-1"/><span className="flt-c flt-2"/><span className="flt-c flt-3"/>
+    <span className="flt-c flt-4"/><span className="flt-c flt-5"/><span className="flt-c flt-6"/>
   </div>
 );
 
@@ -1303,14 +1098,7 @@ const Floaters = () => (
 // ============================================================
 const FB_STAT = { ru: 'Знаешь ли ты? · Статистика', uz: "Bilasizmi? · Statistika" };
 const FB_HIST = { ru: 'Знаешь ли ты? · История',     uz: "Bilasizmi? · Tarix" };
-const FB_LIFE = { ru: 'Знаешь ли ты? · Жизнь',       uz: "Bilasizmi? · Hayot" };
-
-// Saylov — ovoz qutisi to'ladi + "?" (CSS loop).
-const AnimVote = () => (<div className="fa-vt"><div className="fa-vt-box"><div className="fa-vt-fill"/></div><span className="fa-vt-q">?</span></div>);
-// Foiz belgisi (%) — glif yig'iladi/pulsatsiya (CSS loop).
-const AnimPct = () => (<div className="fa-pc"><span className="fa-pc-sign">%</span></div>);
-// Diskont — narx-yorlig'i + tejov rozetkasi (CSS loop).
-const AnimTag = () => (<div className="fa-tg"><span className="fa-tg-tag">?</span><span className="fa-tg-save">−30%</span></div>);
+const FB_LIFE = { ru: 'Полезно знать · Жизнь',       uz: "Bilib qo'ying · Hayot" };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1326,64 +1114,232 @@ const FactCard = ({ text, anim, badge }) => {
 };
 
 // ============================================================
-// VIZUALIZATORLAR — perc_5_03 (RevBar teskari + MapHook + MapTiles + NumLine)
+// FAKT-ANIMATSIYALAR (CSS-only loop, ko'k tema) — har biri uzluksiz infinite.
 // ============================================================
-const fmtNum = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+// Statistika: ovoz ustunlari to'lqinli yorishadi (saylov/so'rovnoma).
+const AnimVotes = () => (
+  <div className="pa-votes" aria-hidden="true">
+    {[0, 1, 2, 3, 4].map(i => <span key={i} className="pa-votes-b" style={{ animationDelay: `${i * 0.18}s` }}/>)}
+  </div>
+);
+// Tarix: foiz belgisi (per cento) yengil pulse bilan.
+const AnimPercent = () => (
+  <div className="pa-pct" aria-hidden="true"><span className="pa-pct-s">%</span></div>
+);
+// Hayot: narx tegi — chegirma ko'rsatkichi to'lqinli yonadi.
+const AnimTag = () => (
+  <div className="pa-tag" aria-hidden="true"><span className="pa-tag-dot"/><span className="pa-tag-body"/></div>
+);
 
-// RevBar: butun (track to'liq eni) = ?, ma'lum qism pct% ni egallaydi, qolgani noma'lum (chiziqli fon).
-// reveal=true bo'lsagina butun (whole) ko'rsatiladi — test ekranida javob oshkor bo'lmaydi.
-const RevBar = ({ pct = 0, part = null, whole = null, reveal = false, live = false, alive = false, glow = false }) => {
-  const w = Math.max(0, Math.min(100, pct));
+// ============================================================
+// VIZUALIZATOR — TileGrid (Dars35 uzluksiz tgBreathe loop) + PartWholeBar (qism->butun yig'iladi) + DecInputScreen
+// Hech bir figura prop-gated yoki one-shot animatsiyaga TAYANMAYDI — har biriga uzluksiz "nafas" (infinite).
+// ============================================================
+const fmtNum = (v) => { const r = Math.round(v * 100) / 100; return String(r).replace('.', ','); };
+
+// TileGrid — to'rtburchak birlik kvadratlar bilan to'ladi (Dars35 dan). Uzluksiz tgBreathe; circling YO'Q.
+// filled = to'ldirilgan kataklar soni (null = hammasi). glow/stagger/success — breathe DOIM saqlanadi.
+const TileGrid = ({ cols = 5, rows = 2, filled = null, compact = false, glow = false, stagger = false, success = false }) => {
+  const total = cols * rows;
+  const fill = filled === null ? total : filled;
+  const big = Math.max(cols, rows);
+  const cell = compact ? (big >= 8 ? 16 : 22) : (big >= 8 ? 24 : 32);
   return (
-    <div className={`rb-wrap${glow ? ' rb-glow' : ''}`} aria-hidden="true">
-      <div className="rb-track">
-        <div className={`rb-frag${live ? ' rb-live' : ''}${alive ? ' rb-alive' : ''}`} style={{ width: `${w}%` }}>
-          {part !== null ? <span className="rb-frag-lbl">{fmtNum(part)}</span> : null}
-        </div>
-      </div>
-      <div className="rb-readout">
-        <b className="rb-pct">{pct}%</b>
-        <span className="rb-arrow" aria-hidden="true">→</span>
-        <b className="rb-whole">{reveal && whole !== null ? fmtNum(whole) : '?'}</b>
+    <div className={`tg-host${glow ? ' tg-glow' : ''}${success ? ' tg-ok' : ''}`} aria-hidden="true">
+      <div className="tg-grid" style={{ gridTemplateColumns: `repeat(${cols}, ${cell}px)`, gridTemplateRows: `repeat(${rows}, ${cell}px)` }}>
+        {Array.from({ length: total }).map((_, i) => {
+          const on = i < fill;
+          const delay = (i % cols) + Math.floor(i / cols);
+          return <span key={i} className={`tg-cell${on ? ' tg-on' : ''}${on && stagger ? ' tg-pop' : ''}`} style={{ animationDelay: on ? `${delay * (stagger ? 0.03 : 0.05)}s` : undefined }}/>;
+        })}
       </div>
     </div>
   );
 };
 
-// MapHook (s0): yirtilgan xarita — bo'lak chapdan kirib keladi (mhIn) + suzadi (mhFloat), "?" pulsatsiya.
-const MapHook = () => (
-  <div className="mh-wrap" aria-hidden="true">
-    <div className="mh-map">
-      <div className="mh-frag"><span className="mh-frag-lbl">10</span></div>
-      <span className="mh-q">?</span>
-    </div>
-    <div className="mh-cap"><b className="mh-pct">20%</b><span className="mh-arrow">→</span><b className="mh-whole">?</b></div>
-  </div>
-);
-
-// MapTiles (s2): bo'laklar birin-ketin qo'shilib butun xaritani yig'adi (har biri 10 katak).
-const MapTiles = ({ count = 0, max = 5 }) => (
-  <div className="qt-row" aria-hidden="true">
-    {Array.from({ length: max }).map((_, i) => (
-      <div key={i} className={`qt-tile${i < count ? ' qt-on' : ''}`}>
-        <span className="qt-cells">10</span>
-      </div>
-    ))}
-  </div>
-);
-
-// NumLine (s10): 0..max son o'qi, markerda joriy qiymat bayrog'i.
-const NumLine = ({ val = 0, max = 100, alive = false }) => {
-  const w = Math.max(0, Math.min(100, val / max * 100));
+// PartWholeBar — qism (apelsin segment) butunni (kulrang track) to'ldirishi step bilan ko'rsatiladi.
+// Root .pwb-track DOIM uzluksiz pwbBreathe loop; solved/glow holatda glow QO'SHILADI, breathe DROP QILINMAYDI.
+// step 0: faqat berilgan qism segment. step >=2: butun to'ladi (yashil) + kichik kapsiya.
+const PartWholeBar = ({ part, percent, whole, step = 2, glow = false }) => {
+  const segCount = Math.round(100 / percent);                 // butunda nechta shunday qism (masalan 100/20 = 5)
+  const show = step >= 2 ? segCount : 1;                       // step<2: faqat berilgan qism; step>=2: butun
+  const filledColor = step >= 2 ? T.success : T.accent;
   return (
-    <div className="nl-wrap" aria-hidden="true">
-      <div className="nl-track">
-        <div className={`nl-cur${alive ? ' rb-alive' : ''}`} style={{ left: `${w}%` }}>
-          <span className="nl-flag">{fmtNum(val)}</span>
-        </div>
+    <div className="pwb-wrap">
+      <div className={`pwb-track${glow || step >= 2 ? ' pwb-glow' : ''}`}>
+        {Array.from({ length: segCount }).map((_, i) => (
+          <span key={i} className={`pwb-seg${i < show ? ' pwb-on' : ''}`} style={{ background: i < show ? filledColor : undefined, transitionDelay: `${i * 0.06}s` }}/>
+        ))}
       </div>
-      <div className="nl-axis"><span>0</span><span>{fmtNum(max / 4)}</span><span>{fmtNum(max / 2)}</span><span>{fmtNum(max * 3 / 4)}</span><span>{fmtNum(max)}</span></div>
+      <div className="pwb-caps">
+        <span className="pwb-cap"><span className="pwb-cap-k pwb-cap-part">{fmtNum(part)}</span> = {percent}%</span>
+        {step >= 2 && <span className="pwb-cap"><span className="pwb-cap-k pwb-cap-whole">{fmtNum(whole)}</span> = 100%</span>}
+      </div>
     </div>
+  );
+};
+
+// DecInputScreen — o'nli/butun javob: вeди-до-верного + bardoshli tekshiruv (40 = 40; vergul ham qabul). type="number" YO'Q.
+const DecInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, correctValue, renderVisual, topNode, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = screenContent; const sfx = useSfx();
+  const correct = Number(correctValue);
+  const norm = (s) => parseFloat(String(s).replace(',', '.').replace(/\s/g, ''));
+  const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [value, setValue] = useState(wasSolved ? String(correct).replace('.', ',') : (storedAnswer?.studentAnswer ?? ''));
+  const [solved, setSolved] = useState(wasSolved);
+  const [hintShown, setHintShown] = useState(false);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
+  const introAdvancedRef = useRef(wasSolved);
+  const submit = () => {
+    if (solved) return;
+    const v = norm(value); if (isNaN(v)) return;
+    const isCorrect = Math.abs(v - correct) < 1e-9;
+    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstAnsRef.current = String(value); }
+    attemptsRef.current += 1;
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
+    if (isCorrect) {
+      setSolved(true); setHintShown(false); sfx.playCorrect();
+      onAnswer({ stage: screenMeta?.scope ?? null, screenIdx: idx, question: typeof c.question === 'object' ? (c.question[lang] || c.question.ru) : null, correctAnswer: String(correct), studentAnswer: firstAnsRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
+    } else { setHintShown(true); sfx.playWrong(); }
+    if (!audio.muted) {
+      setTimeout(() => {
+        const engine = getAudioEngine();
+        if (engine && !audio.muted) {
+          const wrongVoice = (c.hint && c.hint[lang]) || (c.audio.on_wrong && c.audio.on_wrong[lang]);
+          engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+        }
+      }, 300);
+    }
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
+        <Bridge node={c.bridge}/>
+        {topNode}
+        <div className="fade-up"><h2 className="title h-sub">{mt(t(c.question))}</h2></div>
+        {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 110, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{renderVisual({ value, solved })}</div>}
+        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <input type="text" inputMode="decimal" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
+            onChange={e => { if (!solved) { setValue(e.target.value); setHintShown(false); } }}
+            onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'clamp(110px, 24vw, 150px)' }}/>
+          {!solved && <button className="btn-white-accent" onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>}
+        </div>
+        {hintShown && !solved && (
+          <div className="frame-tip fade-up">
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
+          </div>
+        )}
+        {solved && (
+          <FeedbackBlock show={true} isCorrect={true}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// ============================================================
+// SeqMC — ketma-ket bir nechta tez MC (warmup / practice). Mobil-do'st tap.
+// Har savolda веди-до-верного; to'g'ridan keyin avto o'tadi. scored=true bo'lsa oxirida bitta natija.
+// ============================================================
+const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = screenContent; const sfx = useSfx();
+  const qs = c.questions; const n = qs.length;
+  const tx = (v) => (typeof v === 'string' ? v : t(v));
+  const audio = useAudio([{ id: `seq${screen}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const wasSolved = storedAnswer?.solved === true;
+  const [idx, setIdx] = useState(wasSolved ? n - 1 : 0);
+  const [picked, setPicked] = useState(null);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [done, setDone] = useState(wasSolved);
+  const firstTryRef = useRef(storedAnswer?.itemsFirstTry ? storedAnswer.itemsFirstTry.slice() : []);
+  const introAdvancedRef = useRef(wasSolved);
+  const advanceRef = useRef(null);
+  const q = qs[idx];
+  const solvedItem = picked === q.correct;
+  const sayItem = (i) => { if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted && qs[i].say) e.pushOneOff(qs[i].say[lang]); } };
+  const finish = (firstTries) => {
+    setDone(true);
+    if (scored) {
+      const itemsCorrect = firstTries.filter(Boolean).length; const allOk = itemsCorrect === n;
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: tx(c.title), correctAnswer: 'all', studentAnswer: `${itemsCorrect}/${n}`, correct: allOk, firstTry: allOk, attempts: n, itemsCorrect, itemsTotal: n, itemsFirstTry: firstTries, solved: true });
+    }
+    if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_done[lang]); }
+  };
+  const pick = (i) => {
+    if (done || solvedItem || wrong.has(i)) return;
+    const isCorrect = i === q.correct;
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    if (firstTryRef.current[idx] === undefined) firstTryRef.current[idx] = isCorrect;
+    if (isCorrect) {
+      setPicked(i); sfx.playCorrect();
+      const cur = firstTryRef.current.slice();
+      advanceRef.current = setTimeout(() => {
+        if (idx < n - 1) { const ni = idx + 1; setIdx(ni); setPicked(null); setWrong(new Set()); sayItem(ni); }
+        else finish(cur);
+      }, 850);
+    } else {
+      sfx.playWrong();
+      setWrong(prev => { const s = new Set(prev); s.add(i); return s; });
+      if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(q.no ? q.no[lang] : c.audio.on_wrong[lang]); }
+    }
+  };
+  useEffect(() => () => { if (advanceRef.current) clearTimeout(advanceRef.current); }, []);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.3vw, 18px)' }}>
+        <Bridge node={c.bridge}/>
+        <div className="fade-up">
+          <h2 className="title h-title" style={{ marginBottom: 6 }}>{mt(tx(c.title))}</h2>
+          <p className="body" style={{ margin: 0, color: T.ink2 }}>{mt(tx(c.lead))}</p>
+        </div>
+        <div className="seq-dots fade-up" aria-hidden="true">
+          {qs.map((_, i) => <span key={i} className={`seq-dot${(i < idx || (i === idx && solvedItem) || done) ? ' seq-dot-done' : ''}${(i === idx && !done) ? ' seq-dot-cur' : ''}`}/>)}
+        </div>
+        {done ? (
+          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ color: T.success }}><IconOk/></span>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+          </div>
+        ) : (
+          <>
+            <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.6vw, 22px)' }}>
+              {(() => { const qStr = tx(q.q); return qStr.length <= 14
+                ? <div className="dm-prob">{mt(qStr)}</div>
+                : <p className="title h-sub" style={{ margin: 0, textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{mt(qStr)}</p>; })()}
+            </div>
+            <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
+              {q.opts.map((o, i) => {
+                let cls = 'option';
+                const isWrong = wrong.has(i); const isCorr = i === q.correct;
+                if (solvedItem && isCorr) cls += ' option-correct';
+                else if (isWrong) cls += ' option-picked-wrong';
+                return (
+                  <button key={i} className={cls} disabled={solvedItem || isWrong} onClick={() => pick(i)}
+                    style={{ padding: 'clamp(12px, 1.8vw, 14px) clamp(8px, 1.4vw, 12px)', fontSize: 'clamp(14px, 2vw, 18px)', minHeight: 'clamp(52px, 8vw, 62px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
+                    {tx(o)}
+                  </button>
+                );
+              })}
+            </div>
+            <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
+              <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+              </p>
+              <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
+            </FeedbackBlock>
+          </>
+        )}
+      </div>
+    </Stage>
   );
 };
 
@@ -1391,433 +1347,379 @@ const NumLine = ({ val = 0, max = 100, alive = false }) => {
 // SCREEN-KOMPONENTLAR
 // ============================================================
 
-// s0 — HOOK (kvest: yirtilgan xarita). Qaytish: picked TO'LIQ sbros.
+// s0 — HOOK (M1: qism = butun). Qaytishda picked TO'LIQ sbros.
 const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s0;
   const audio = useAudio(makeAudioSegments(c, lang));
   const opts = [c.opt0, c.opt1, c.opt2];
+  const reveals = [c.reveal0, c.reveal1, c.reveal2];
   const [picked, setPicked] = useState(null);
   const pick = (i) => {
     if (picked !== null) return;
     setPicked(i);
-    onAnswer({ stage: 'hook', screenIdx: 0, question: c.lead[lang], options: opts.map(o => o[lang]), correctIndex: null, correctAnswer: null, studentAnswerIndex: i, studentAnswer: opts[i][lang], correct: null, firstTry: null });
+    onAnswer({ stage: 'hook', screenIdx: screen, question: c.lead[lang], options: opts.map(o => o[lang]), correctIndex: null, correctAnswer: null, studentAnswerIndex: i, studentAnswer: opts[i][lang], correct: null, firstTry: null });
   };
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
-        <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{mt(t(c.lead))}</h2>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(14px, 2.6vw, 20px) clamp(10px, 2vw, 16px)', display: 'flex', justifyContent: 'center' }}>
-          <MapHook/>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
+        <FloatTiles/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
+        <h2 className="title h-sub fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.lead))}</h2>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 20px)' }}>
+          <TileGrid cols={5} rows={2} filled={2} compact={true}/>
         </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="fade-up delay-2" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 9 }}>
           {opts.map((o, i) => (
-            <button key={i} className="option" onClick={() => pick(i)}
-              style={{ padding: 'clamp(11px, 1.6vw, 13px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
+            <button key={i} className="option" disabled={picked !== null} onClick={() => pick(i)}
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
               <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span>
               <span style={{ flex: 1 }}>{mt(t(o))}</span>
             </button>
           ))}
         </div>
-        {picked !== null && <p className="body fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center' }}>{mt(t(c.reveal))}</p>}
+        {picked !== null && <p className="body fade-up" style={{ position: 'relative', margin: 0, color: T.ink2 }}>{mt(t(reveals[picked]))}</p>}
       </div>
     </Stage>
   );
 };
 
-// s1 — WARM-UP (spaced retrieval, scored emas) QuestionScreen orqali (correct B)
-const Screen1 = (props) => {
-  const t = useT(); const c = CONTENT.s1;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
-  return <QuestionScreen {...props} idx={1} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[1]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
-};
+// s1 — WARM-UP: 3 ta tez prereq (tap)
+const Screen1 = (props) => <SeqMC {...props} screenContent={CONTENT.s1} scored={false}/>;
+// s7 — MASHQ: 3 ta oson teskari misol (tap, scored)
+const Screen7 = (props) => <SeqMC {...props} screenContent={CONTENT.s7} scored={true}/>;
 
-// s2 — EXPLORATION (bo'laklarni yig'ish, tap-paced: count 0..5)
+// s2 — EXPLORATION (20% = 10 -> 50, step, tiles assemble)
 const Screen2 = ({ screen, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s2;
-  const audio = useAudio([{ id: 's2_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
-  const MAX = 5;
-  const [count, setCount] = useState(0);
-  const doneAnnouncedRef = useRef(false);
-  const caps = c.cells[lang] || c.cells.ru;
-  const done = count >= MAX;
-  const add = () => {
-    if (done) return;
-    const nv = count + 1;
-    setCount(nv);
-    if (nv >= MAX && !doneAnnouncedRef.current) {
-      doneAnnouncedRef.current = true;
-      if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.done[lang]); }, 250);
+  const arr = c.audio[lang]; const last = arr.length - 1;
+  const segs = arr.map((text, i) => ({ id: `s2_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
+  const audio = useAudio(segs);
+  const [step, setStep] = useState(0);
+  const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
+  // tile to'lishi: step 1 = 10 katak (qism), step 2 = 30, step 3 = 50 (butun). 10x5 setka, 50 katak.
+  const fills = [10, 10, 30, 50];
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
+        <FloatTiles/>
+        <Bridge node={c.bridge}/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center', minHeight: 184 }}>
+          <TileGrid cols={10} rows={5} compact={true} filled={fills[step]} stagger={true} glow={step >= last} success={step >= last}/>
+          {step >= 1 && <p className="small fade-up" style={{ margin: 0, textAlign: 'center', color: T.accent, fontWeight: 600 }}>{mt(t(c.line_part))}</p>}
+          {step >= 2 && <p className="small fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2 }}>{mt(t(c.line_count))}</p>}
+          {step >= 3 && <p className="dm-res fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.line_whole))}</p>}
+        </div>
+        {step >= last && <div className="frame-tip fade-up" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c.line_key))}</p></div>}
+      </div>
+    </Stage>
+  );
+};
+
+// s3 — RULE + M1/M2 birlashgan (progressiv: Qoida -> chip -> Ogohlantirish). Scrollsiz.
+const ScreenRule = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s3;
+  const audio = useAudio([
+    { id: 'rule_a0', text: c.audio[lang], trigger: 'on_mount', waits_for: { type: 'button_click', target: 'more' } }
+  ]);
+  const [phase, setPhase] = useState(0);          // 0 = qoida, 1 = M1/M2 ogohlantirish
+  const rules = [c.rule_1, c.rule_2, c.rule_3];
+  const reveal = () => { setPhase(1); };
+  const navContent = phase === 0
+    ? (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={reveal} label={lang === 'uz' ? "Davom etish" : 'Дальше'}/></>)
+    : (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
+        <FloatTiles/>
+        {phase === 0 ? (
+          <>
+            <Bridge node={c.bridge}/>
+            <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
+            <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
+              <p className="eyebrow" style={{ color: T.ink2, marginBottom: 10 }}>{t(c.rule_label)}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+                {rules.map((r, i) => (<div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{mt(t(r))}</p></div>))}
+              </div>
+            </div>
+            <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 'clamp(12px, 2.5vw, 18px)' }}>
+              <div style={{ flexShrink: 0 }}><TileGrid cols={5} rows={2} compact={true} glow={true} success={true}/></div>
+              <div>
+                <p className="eyebrow" style={{ color: T.ink2, marginBottom: 4 }}>{t(c.ex_label)}</p>
+                <p className="body" style={{ margin: 0 }}>{mt(t(c.ex_caption))}</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <>
+            <button className="rule-chip fade-up" onClick={() => setPhase(0)} style={{ position: 'relative' }}>
+              <span className="rule-chip-ic" aria-hidden="true"><IconOk/></span>
+              <span className="rule-chip-tx">{mt(t(c.heading))}</span>
+              <span className="rule-chip-act">{lang === 'uz' ? "ko'rish" : 'показать'}</span>
+            </button>
+            <h2 className="title h-title fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{mt(t(c.warn_label))}</h2>
+            <div className="frame-tip fade-up delay-1" style={{ position: 'relative' }}>
+              <p className="body" style={{ margin: 0, fontWeight: 600 }}>{mt(t(c.warn_1))}</p>
+            </div>
+            <div className="frame-tip fade-up delay-2" style={{ position: 'relative' }}>
+              <p className="body" style={{ margin: 0, fontWeight: 600 }}>{mt(t(c.warn_2))}</p>
+            </div>
+          </>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s4 — ISHLANGAN MISOL + MASHQ (scored): yuqorida 30%=15->50 statik bar; pastda 40%=20->50 DecInput
+const Screen4 = (props) => {
+  const t = useT(); const c = CONTENT.s4;
+  const topNode = (
+    <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <p className="eyebrow" style={{ color: T.ink2, margin: 0 }}>{t(c.we_label)}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}><PartWholeBar part={15} percent={30} whole={50} step={2}/></div>
+      <p className="small" style={{ margin: 0, textAlign: 'center', color: T.ink2 }}>{mt(t(c.we_caption))}</p>
+    </div>
+  );
+  return <DecInputScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={c} correctValue={50} topNode={topNode}
+    renderVisual={({ solved }) => <PartWholeBar part={20} percent={40} whole={50} step={solved ? 2 : 0} glow={solved}/>}/>;
+};
+
+// s5 — TEST MC: 30% = 60 -> 200 [FAKT saylov]
+const Screen5 = (props) => {
+  const t = useT(); const c = CONTENT.s5;
+  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);   // to'g'ri -> B
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} question={question} options={options} correctIdx={correctIdx}
+    figure={(solved) => <PartWholeBar part={60} percent={30} whole={200} step={solved ? 2 : 0} glow={solved}/>}
+    factOnCorrect={<FactCard text={c.fact} badge={FB_STAT} anim={<AnimVotes/>}/>}/>;
+};
+
+// s6 — TEST DecInput: 50% = 35 -> 70
+const Screen6 = (props) => {
+  const c = CONTENT.s6;
+  return <DecInputScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={c} correctValue={70}
+    renderVisual={({ solved }) => <PartWholeBar part={35} percent={50} whole={70} step={solved ? 2 : 0} glow={solved}/>}/>;
+};
+
+// s8 — TEST tasniflash (M2): bir xil qism 12, foiz boshqa -> butun boshqa. Tartib RANDOM (Fisher-Yates).
+const S8_CARDS = [
+  { label: '12 = 20%', bin: 'sq' },   // butun 60 -> 60 va undan kichik
+  { label: '12 = 30%', bin: 'sq' },   // butun 40
+  { label: '12 = 40%', bin: 'sq' },   // butun 30
+  { label: '12 = 25%', bin: 'sq' },   // butun 48
+  { label: '12 = 10%', bin: 'cu' },   // butun 120 -> 60 dan katta
+  { label: '12 = 5%',  bin: 'cu' },   // butun 240
+  { label: '12 = 15%', bin: 'cu' },   // butun 80
+  { label: '12 = 8%',  bin: 'cu' }    // butun 150
+];
+const SORT_BINS = [{ key: 'sq', dir: 'down' }, { key: 'cu', dir: 'up' }];
+const SortChevron = ({ dir }) => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+    {dir === 'down' ? <polyline points="6 9 12 15 18 9"/> : <polyline points="6 15 12 9 18 15"/>}
+  </svg>
+);
+const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s8; const sfx = useSfx();
+  const [deck] = useState(() => { const a = S8_CARDS.map(x => x); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; });
+  const n = deck.length;
+  const audio = useAudio([{ id: 's8_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const wasSolved = storedAnswer?.solved === true;
+  const allPlaced = () => { const o = {}; deck.forEach((cd, i) => { o[i] = cd.bin; }); return o; };
+  const [idx, setIdx] = useState(wasSolved ? n : 0);
+  const [placed, setPlaced] = useState(() => (wasSolved ? allPlaced() : {}));
+  const [done, setDone] = useState(wasSolved);
+  const [hint, setHint] = useState(false);
+  const [flash, setFlash] = useState(null);
+  const firstTryRef = useRef(storedAnswer?.itemsFirstTry ? storedAnswer.itemsFirstTry.slice() : []);
+  const introAdvancedRef = useRef(wasSolved);
+  const advRef = useRef(null); const flashRef = useRef(null);
+  const cur = idx < n ? deck[idx] : null;
+  const finish = (fts) => {
+    setDone(true);
+    const itemsCorrect = fts.filter(Boolean).length; const allOk = itemsCorrect === n;
+    onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: c.title[lang], correctAnswer: deck.map(cd => cd.bin).join(','), studentAnswer: `${itemsCorrect}/${n}`, correct: allOk, firstTry: allOk, attempts: n, itemsCorrect, itemsTotal: n, itemsFirstTry: fts, solved: true });
+    if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_correct[lang]); }
+  };
+  const tapBin = (bin) => {
+    if (done || !cur) return;
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    const correct = bin === cur.bin;
+    if (firstTryRef.current[idx] === undefined) firstTryRef.current[idx] = correct;
+    if (correct) {
+      setHint(false); setPlaced(p => ({ ...p, [idx]: bin })); sfx.playCorrect();
+      const snap = firstTryRef.current.slice();
+      advRef.current = setTimeout(() => { if (idx + 1 < n) setIdx(idx + 1); else { setIdx(n); finish(snap); } }, 480);
+    } else {
+      sfx.playWrong(); setHint(true);
+      setFlash(bin); if (flashRef.current) clearTimeout(flashRef.current);
+      flashRef.current = setTimeout(() => setFlash(null), 450);
+      if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_wrong[lang]); }
     }
   };
+  useEffect(() => () => { if (advRef.current) clearTimeout(advRef.current); if (flashRef.current) clearTimeout(flashRef.current); }, []);
+  const inBin = (bin) => deck.map((cd, i) => i).filter(i => placed[i] === bin);
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className={done ? 'frame fade-up pb-pulse' : 'frame fade-up'} style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center' }}>
-          <MapTiles count={count} max={MAX}/>
-          <div className="pb-calc">
-            <span className="pb-calc-unit">10</span>
-            <span className="pb-calc-op">×</span>
-            <span className="pb-calc-n">{count}</span>
-            <span className="pb-calc-op">=</span>
-            <span className="pb-calc-res">{fmtNum(count * 10)}</span>
-          </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
+        <div className="fade-up">
+          <h2 className="title h-title" style={{ marginBottom: 6 }}>{mt(t(c.title))}</h2>
+          <p className="body" style={{ margin: 0, color: T.ink2 }}>{mt(t(c.lead))}</p>
         </div>
-        {!done && (
-          <div className="fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className="btn-white-accent" onClick={add} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_step)}</button>
+        <div className="seq-dots fade-up" aria-hidden="true">
+          {deck.map((_, i) => <span key={i} className={`seq-dot${(i < idx || done) ? ' seq-dot-done' : ''}${(i === idx && !done) ? ' seq-dot-cur' : ''}`}/>)}
+        </div>
+        <div className="sort-tray fade-up delay-1">
+          {done
+            ? <span className="sort-tray-card" style={{ color: T.success }} aria-hidden="true">✓</span>
+            : <><span className="sort-tray-card" key={idx}>{cur.label}</span><span className="sort-tray-ask">{mt(t(c.ask))}</span></>}
+        </div>
+        <div className="sort-bins fade-up delay-2">
+          {SORT_BINS.map(b => (
+            <button key={b.key} className={`sort-bin sort-bin-${b.key}${flash === b.key ? ' sort-bin-bad' : ''}`} disabled={done} onClick={() => tapBin(b.key)}>
+              <span className="sort-bin-h"><SortChevron dir={b.dir}/>{b.key === 'sq' ? mt(t(c.bin_sq)) : mt(t(c.bin_cu))}</span>
+              <span className="sort-bin-cards">
+                {inBin(b.key).map(i => <span key={i} className="sort-chip-in">{deck[i].label}</span>)}
+              </span>
+            </button>
+          ))}
+        </div>
+        {hint && !done && (
+          <div className="frame-tip fade-up" style={{ display: 'flex', gap: 8 }}>
+            <span style={{ color: '#D8A93A' }} aria-hidden="true"><IconNo/></span>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint_wrong))}</p>
           </div>
         )}
-        <p className="body fade-up delay-2" style={{ margin: 0, textAlign: 'center', color: done ? T.success : T.ink2, fontWeight: done ? 600 : 400 }}>{mt(done ? t(c.note) : caps[Math.max(0, count - 1)])}</p>
+        {done && (
+          <FeedbackBlock show={true} isCorrect={true}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
+          </FeedbackBlock>
+        )}
       </div>
     </Stage>
   );
 };
 
-// s3 — EXPLORATION (jonli slayder: butunni top, 25% = 15 -> 60)
-const Screen3 = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s3;
-  const audio = useAudio(makeAudioSegments(c, lang));
-  const PCT = 25; const TARGET = 60;
-  const [whole, setWhole] = useState(20);
-  const part = Math.round(whole * PCT / 100);
-  const matched = whole === TARGET;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className={matched ? 'frame fade-up delay-1 pb-pulse' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
-          <RevBar pct={PCT} part={part} whole={whole} reveal={true} live={true} alive={true} glow={matched}/>
-        </div>
-        <div className="fade-up delay-2"><Slider value={whole} min={0} max={100} step={5} onChange={setWhole}/></div>
-        <p className="body fade-up delay-3" style={{ margin: 0, textAlign: 'center', color: matched ? T.success : T.ink2, fontWeight: matched ? 600 : 400 }}>{mt(t(matched ? c.note_full : c.hint_move))}</p>
-      </div>
-    </Stage>
-  );
-};
-
-// s4 — RULE 1 (ikki usul) + ambient
-const Screen4 = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s4;
-  const audio = useAudio(makeAudioSegments(c, lang));
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
-          <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
-          <RevBar pct={20} part={10} whole={50} reveal={true} alive={true} glow={true}/>
-          <p className="body" style={{ margin: 0, textAlign: 'center', color: T.ink2 }}>{mt(t(c.ex_easy))}</p>
-        </div>
-        <p className="body fade-up delay-2" style={{ position: 'relative', margin: 0, textAlign: 'center', color: T.ink2 }}>{mt(t(c.ex_hard))}</p>
-        <p className="body fade-up delay-3" style={{ position: 'relative', margin: 0, textAlign: 'center', color: T.success, fontWeight: 600 }}>{mt(t(c.note))}</p>
-      </div>
-    </Stage>
-  );
-};
-
-// s5 — RULE 2 (M1/M2 ogohlantirish) + ambient
-const Screen5 = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s5;
-  const audio = useAudio(makeAudioSegments(c, lang));
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
-          <p className="body" style={{ margin: 0 }}>{mt(t(c.point1))}</p>
-        </div>
-        <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-          <RevBar pct={20} part={10} whole={50} reveal={true} alive={true}/>
-        </div>
-        <div className="frame-tip fade-up delay-3" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <p className="body" style={{ margin: 0 }}>{mt(t(c.point2))}</p>
-          <p className="body" style={{ margin: 0, color: T.ink2 }}>{mt(t(c.point3))}</p>
-        </div>
-      </div>
-    </Stage>
-  );
-};
-
-// s6 — TEST MC: 30% = 60 -> 200 (correct C) + Fakt saylov
-const Screen6 = (props) => {
-  const t = useT(); const c = CONTENT.s6;
+// s9 — TEST MC (xatoni top) [FAKT per cento]
+const Screen9 = (props) => {
+  const t = useT(); const c = CONTENT.s9;
   const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 3, 0, 2]);
-  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><RevBar pct={30} part={60} reveal={false} alive={true}/></div></>);
-  return <QuestionScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_STAT} anim={<AnimVote/>}/>}/>;
+  const { options, correctIdx, content } = shuffleMC(c, base, 2, [0, 1, 2, 3]);   // to'g'ri -> C
+  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimPercent/>}/>}/>;
 };
 
-// s7 — TEST NumInput: 50% = 35 -> 70
-const Screen7 = (props) => {
-  const c = CONTENT.s7;
-  return <NumInputScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={c} correctValue={70} renderVisual={() => <RevBar pct={50} part={35} reveal={false} alive={true}/>}/>;
-};
-
-// s8 — TEST tap-match: bir xil qism (12), har xil foiz -> har xil butun (M2 sindiradi)
-const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s8;
-  const sfx = useSfx();
-  const audio = useAudio([{ id: 's8_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const chips = c.chips[lang] || c.chips.ru;
-  const correctMap = {}; c.clues.forEach(cl => { correctMap[cl.id] = cl.answer; });
-  const wasSolved = storedAnswer?.solved === true;
-  const [assign, setAssign] = useState(() => wasSolved ? { ...correctMap } : {});
-  const [selected, setSelected] = useState(null);
+// s10 — CASE setup + FINAL birlashgan (progressiv: shart -> ixcham kontekst KO'RINIB qoladi + MC ochiladi). Scored: final.
+const ScreenCase = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const sfx = useSfx();
+  const c = CONTENT.s10;
+  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [3, 0, 1, 2]);   // to'g'ri -> B
+  const audio = useAudio([
+    { id: 'case_a0', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'button_click', target: 'help' } },
+    { id: 'case_a1', text: c.audio.intro2[lang], trigger: 'on_event:help', waits_for: { type: 'option_picked' } }
+  ]);
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [phase, setPhase] = useState(wasSolved ? 1 : 0);
   const [solved, setSolved] = useState(wasSolved);
-  const [flash, setFlash] = useState(() => new Set());
-  const [hintIds, setHintIds] = useState(() => new Set());
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
+  const [picked, setPicked] = useState(wasSolved ? correctIdx : null);
+  const [wrong, setWrong] = useState(() => new Set());
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
   const introAdvancedRef = useRef(wasSolved);
-  const usedVals = Object.values(assign);
-  const tapClue = (id) => {
-    if (solved) return;
-    setHintIds(new Set());
-    const had = assign[id] != null;
-    setAssign(prev => { const n = { ...prev }; if (had) { delete n[id]; } else if (selected !== null) { n[id] = selected; } return n; });
-    if (!had && selected !== null) setSelected(null);
-  };
-  const tapChip = (ch) => { if (solved) return; if (usedVals.includes(ch)) return; setSelected(s => s === ch ? null : ch); };
-  const allAssigned = c.clues.every(cl => assign[cl.id]);
-  const check = () => {
-    if (solved || !allAssigned) return;
-    const wrongClues = c.clues.filter(cl => assign[cl.id] !== cl.answer);
-    const ok = wrongClues.length === 0;
-    if (firstTryRef.current === null) firstTryRef.current = ok;
+  const helpRef = useRef(wasSolved);
+  const reveal = () => { setPhase(1); if (!helpRef.current) { helpRef.current = true; audio.triggerInternal('help'); } };
+  const pick = (i) => {
+    if (solved || wrong.has(i)) return;
+    const isCorrect = i === correctIdx;
+    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstIdxRef.current = i; }
     attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    if (ok) {
+    setPicked(i);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    if (isCorrect) {
       setSolved(true); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[8].scope, screenIdx: 8, question: c.lead[lang], correctAnswer: c.clues.map(cl => `${cl.id}:${cl.answer}`).join(','), studentAnswer: c.clues.map(cl => `${cl.id}:${assign[cl.id] || ''}`).join(','), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: content.question?.[lang] ?? null, correctIndex: correctIdx, correctAnswer: typeof options[correctIdx] === 'string' ? options[correctIdx] : null, studentAnswerIndex: firstIdxRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
     } else {
       sfx.playWrong();
-      setFlash(new Set(wrongClues.map(cl => cl.id)));
-      setHintIds(new Set(wrongClues.map(cl => cl.id)));
-      setTimeout(() => { setAssign(prev => { const n = { ...prev }; wrongClues.forEach(cl => delete n[cl.id]); return n; }); setFlash(new Set()); }, 700);
+      setWrong(prev => { const nn = new Set(prev); nn.add(i); return nn; });
     }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
+    if (!audio.muted) {
+      setTimeout(() => {
+        const e = getAudioEngine();
+        if (e && !audio.muted) {
+          const wrongVoice = (content[`wrong_${i}`] && content[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
+          e.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+        }
+      }, 300);
+    }
   };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  const hintClues = c.clues.filter(cl => hintIds.has(cl.id));
+  const navContent = phase === 0
+    ? (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={reveal} label={t(c.btn_help)}/></>)
+    : (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
-        <div className="dm-clues fade-up delay-1">
-          {c.clues.map(cl => {
-            const v = assign[cl.id];
-            const cls = `dm-clue${v != null ? ' dm-filled' : ''}${flash.has(cl.id) ? ' dm-bad' : ''}${solved ? ' dm-ok' : ''}`;
-            return (
-              <button key={cl.id} className={cls} disabled={solved} onClick={() => tapClue(cl.id)}>
-                <span className="dm-clue-lbl">{mt(t(cl.label))}</span>
-                <span className="dm-arrow" aria-hidden="true">→</span>
-                <span className="dm-slot">{v != null ? v : '?'}</span>
-              </button>
-            );
-          })}
-        </div>
-        <div className="dm-chips fade-up delay-2">
-          {chips.map((ch, i) => {
-            const used = usedVals.includes(ch);
-            const sel = selected === ch;
-            return <button key={i} className={`dm-chip${sel ? ' dm-sel' : ''}${used ? ' dm-used' : ''}`} disabled={solved || used} onClick={() => tapChip(ch)}>{ch}</button>;
-          })}
-        </div>
-        {hintClues.length > 0 && !solved && (
-          <div className="frame-tip fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {hintClues.map(cl => (<p key={cl.id} className="small" style={{ margin: 0, display: 'flex', gap: 8, alignItems: 'flex-start' }}><span style={{ color: T.accent, marginTop: 1 }}><IconNo/></span><span>{mt(t(cl.hint))}</span></p>))}
-          </div>
-        )}
-        {!solved && (
-          <div className="fade-up delay-3" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn-white-accent" disabled={!allAssigned} onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
-          </FeedbackBlock>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
+        <FloatTiles/>
+        {phase === 0 ? (
+          <>
+            <Bridge node={c.bridge}/>
+            <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
+            <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 20px)' }}>
+              <PartWholeBar part={18} percent={30} whole={60} step={0}/>
+            </div>
+            <p className="body fade-up delay-2" style={{ position: 'relative', margin: 0, fontWeight: 600 }}>{mt(t(c.note))}</p>
+            <div className="frame-tip fade-up delay-3" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c.hint_calc))}</p></div>
+          </>
+        ) : (
+          <>
+            <div className="case-ctx fade-up" style={{ position: 'relative' }}>
+              <span className="case-ctx-tag">{mt(t(c.title))}</span>
+              <span className="case-ctx-tx">{mt(t(c.compact))}</span>
+            </div>
+            <h2 className="title h-sub fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{mt(t(c.question))}</h2>
+            <div className="fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
+              {options.map((opt, i) => {
+                let cls = 'option';
+                const isWrongPicked = wrong.has(i);
+                const isCorrect = i === correctIdx;
+                const collapse = solved && !isCorrect;
+                if (solved && isCorrect) cls += ' option-correct';
+                else if (isWrongPicked) cls += ' option-picked-wrong';
+                const disabled = solved || isWrongPicked;
+                return (
+                  <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
+                    style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
+                    <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>{solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}</span>
+                    <span style={{ flex: 1 }}>{opt}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+              <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+              </p>
+              <p className="body" style={{ margin: 0 }}>{mt(solved ? t(content.correct_text) : t(content[`wrong_${picked}`] || content.wrong_default || content.correct_text))}</p>
+            </FeedbackBlock>
+            {solved && <FactCard text={c.fact} badge={FB_LIFE} anim={<AnimTag/>}/>}
+          </>
         )}
       </div>
     </Stage>
   );
 };
 
-// s9 — TEST slider: butunni top, 40% = 20 -> 50
-const Screen9 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s9;
-  const sfx = useSfx();
-  const audio = useAudio([{ id: 's9_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const PCT = 40; const TARGET = 50;
-  const wasSolved = storedAnswer?.solved === true;
-  const [val, setVal] = useState(wasSolved ? TARGET : (typeof storedAnswer?.studentValue === 'number' ? storedAnswer.studentValue : 0));
-  const [solved, setSolved] = useState(wasSolved);
-  const [hintShown, setHintShown] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
-  const firstValRef = useRef(typeof storedAnswer?.studentValue === 'number' ? storedAnswer.studentValue : null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const part = Math.round(val * PCT / 100);
-  const submit = () => {
-    if (solved) return;
-    const isCorrect = val === TARGET;
-    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstValRef.current = val; }
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    if (isCorrect) {
-      setSolved(true); setHintShown(false); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[9].scope, screenIdx: 9, question: c.lead[lang], correctAnswer: TARGET, studentAnswer: String(firstValRef.current), studentValue: firstValRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { setHintShown(true); sfx.playWrong(); }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(isCorrect ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className={solved ? 'frame fade-up delay-1 pb-pulse' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', justifyContent: 'center' }}>
-          <RevBar pct={PCT} part={part} whole={val} reveal={true} live={true} alive={true} glow={solved}/>
-        </div>
-        <div className="fade-up delay-2"><Slider value={val} min={0} max={100} step={5} onChange={(v) => { if (!solved) { setVal(v); setHintShown(false); } }}/></div>
-        {!solved && (
-          <div className="fade-up delay-3" style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className="btn-white-accent" onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
-          </div>
-        )}
-        {hintShown && !solved && (
-          <div className="frame-tip fade-up" style={{ display: 'flex', gap: 8 }}>
-            <span style={{ color: T.ink2 }}><IconNo/></span>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s10 — TEST number-line: butunni qo'y, 60% = 30 -> 50
-const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s10;
-  const sfx = useSfx();
-  const audio = useAudio([{ id: 's10_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const TARGET = 50;
-  const wasSolved = storedAnswer?.solved === true;
-  const [val, setVal] = useState(wasSolved ? TARGET : (typeof storedAnswer?.studentValue === 'number' ? storedAnswer.studentValue : 0));
-  const [solved, setSolved] = useState(wasSolved);
-  const [hintShown, setHintShown] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
-  const firstValRef = useRef(typeof storedAnswer?.studentValue === 'number' ? storedAnswer.studentValue : null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const submit = () => {
-    if (solved) return;
-    const isCorrect = val === TARGET;
-    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstValRef.current = val; }
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    if (isCorrect) {
-      setSolved(true); setHintShown(false); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[10].scope, screenIdx: 10, question: c.lead[lang], correctAnswer: TARGET, studentAnswer: String(firstValRef.current), studentValue: firstValRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { setHintShown(true); sfx.playWrong(); }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(isCorrect ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className={solved ? 'frame fade-up delay-1 pb-pulse' : 'frame fade-up delay-1'} style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
-          <NumLine val={val} max={100} alive={true}/>
-        </div>
-        <div className="fade-up delay-2"><Slider value={val} min={0} max={100} step={5} onChange={(v) => { if (!solved) { setVal(v); setHintShown(false); } }}/></div>
-        {!solved && (
-          <div className="fade-up delay-3" style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className="btn-white-accent" onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
-          </div>
-        )}
-        {hintShown && !solved && (
-          <div className="frame-tip fade-up" style={{ display: 'flex', gap: 8 }}>
-            <span style={{ color: T.ink2 }}><IconNo/></span>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s11 — TEST find-the-wrong (correct D) + Fakt % tarixi
-const Screen11 = (props) => {
-  const t = useT(); const c = CONTENT.s11;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 2, [0, 1, 3, 2]);
-  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.q_pre)}<span className="italic" style={{ color: T.accent }}>{t(c.q_em)}</span>{t(c.q_post)}</h2></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimPct/>}/>}/>;
-};
-
-// s12 — CASE setup (Iroda sinf so'rovnomasi)
-const Screen12 = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s12;
-  const audio = useAudio(makeAudioSegments(c, lang));
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
-          <RevBar pct={30} part={18} reveal={false} alive={true}/>
-        </div>
-        <p className="body fade-up delay-2" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.note))}</p>
-        <div className="frame-tip fade-up delay-3"><p className="body" style={{ margin: 0 }}>{mt(t(c.hint_calc))}</p></div>
-      </div>
-    </Stage>
-  );
-};
-
-// s13 — CASE solve / FINAL (correct A) + Fakt diskont
-const Screen13 = (props) => {
-  const t = useT(); const c = CONTENT.s13;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2><div className="frame" style={{ marginTop: 10, display: 'flex', justifyContent: 'center' }}><RevBar pct={30} part={18} reveal={false} alive={true}/></div></>);
-  return <QuestionScreen {...props} idx={13} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[13]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_LIFE} anim={<AnimTag/>}/>}/>;
-};
-
-// s14 — SUMMARY + hook yopilishi + bog'lanishlar + ambient
-const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s14;
+// s11 — SUMMARY
+const Screen11 = ({ screen, onPrev, onReset, finishLesson }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s11;
   const audio = useAudio(makeAudioSegments(c, lang));
   const calledRef = useRef(false);
   useEffect(() => { if (!calledRef.current) { calledRef.current = true; finishLesson(); } }, []);
@@ -1825,8 +1727,8 @@ const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
-        <Floaters/>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)' }}>
+        <FloatTiles/>
         <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
@@ -1844,10 +1746,7 @@ const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
   );
 };
 
-// ============================================================
-// KORNEVOY KOMPONENT
-// ============================================================
-export default function PercentFindNumberLesson({
+export default function NumberByPercentLesson({
   studentName, lang: langProp, ttsApiBase,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -1893,7 +1792,7 @@ export default function PercentFindNumberLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const screens = [Screen0, Screen1, Screen2, ScreenRule, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, ScreenCase, Screen11];
   const CurrentScreen = screens[current];
 
   const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
@@ -1921,8 +1820,11 @@ export default function PercentFindNumberLesson({
     </LangContext.Provider>
   );
 }
-
 const STYLES = `
+
+
+
+
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
 .lesson-root {
@@ -2250,150 +2152,82 @@ html, body { margin: 0; padding: 0; }
 .fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
 .fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
 
-/* MATH perc_5_02: PercentBar — dual-axis bar (tepada foiz, pastda qiymat). */
-.pb-wrap { width: clamp(220px, 60vw, 420px); display: flex; flex-direction: column; gap: 4px; }
-.pb-axis { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: clamp(9px, 1.3vw, 11px); color: #5A5A60; }
-.pb-axis-bot { color: #019ACB; font-weight: 600; }
-.pb-track { position: relative; height: clamp(22px, 4.5vw, 30px); background: rgba(255, 79, 40, 0.10); border-radius: 8px; overflow: visible; }
-.pb-fill { height: 100%; background: linear-gradient(90deg, #FF8A66, #FF4F28); border-radius: 8px; width: 0; }
-.pb-fill.pb-live { transition: width 0.12s ease-out; }
-.pb-fill.pb-alive { animation: pbShine 2.6s ease-in-out infinite; }
-@keyframes pbShine { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.12); } }
-.pb-marker { position: absolute; top: -4px; bottom: -4px; width: 3px; background: #0E0E10; border-radius: 2px; transform: translateX(-50%); transition: left 0.12s ease-out; box-shadow: 0 0 6px rgba(14, 14, 16, 0.35); }
-.pb-readout { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 1.8vw, 14px); margin-top: 4px; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 2.6vw, 20px); }
-.pb-readout b { color: #FF4F28; }
-.pb-readout .pb-val { color: #019ACB; }
-.pb-arrow { color: #A7A6A2; font-size: clamp(14px, 2.2vw, 18px); }
-.pb-glow { animation: pbGlow 0.7s ease; }
-@keyframes pbGlow { 0% { filter: drop-shadow(0 0 0 rgba(255, 79, 40, 0)); } 50% { filter: drop-shadow(0 0 12px rgba(255, 79, 40, 0.4)); } 100% { filter: drop-shadow(0 0 0 rgba(255, 79, 40, 0)); } }
-.pb-pulse { animation: pbGlow 0.7s ease; }
-.pb-calc { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(14px, 2.4vw, 18px); flex-wrap: wrap; justify-content: center; }
-.pb-calc-unit { color: #FF4F28; }
-.pb-calc-op { color: #A7A6A2; }
-.pb-calc-n { color: #0E0E10; min-width: 1.4em; text-align: center; }
-.pb-calc-res { color: #019ACB; }
 
-/* MATH perc_5_02: PercentHook — smartfon narx yorlig'i + chegirma (CSS-only loop). */
-.ph-wrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 12px); }
-.ph-tag { position: relative; display: inline-flex; align-items: baseline; gap: 8px; background: #FFFFFF; border-radius: 12px; padding: clamp(8px, 1.8vw, 12px) clamp(16px, 3vw, 24px); box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.18); }
-.ph-name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(13px, 2vw, 16px); color: #5A5A60; }
-.ph-price { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(20px, 4vw, 30px); color: #0E0E10; }
-.ph-badge { position: absolute; top: -12px; right: -12px; background: #FF4F28; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(11px, 1.8vw, 14px); border-radius: 99px; padding: 4px 10px; box-shadow: 0 4px 12px -2px rgba(255, 79, 40, 0.5); animation: phBadge 2.6s ease-in-out infinite; }
-@keyframes phBadge { 0%, 100% { transform: scale(1) rotate(-6deg); } 50% { transform: scale(1.12) rotate(-6deg); } }
-.ph-bar { width: clamp(180px, 50vw, 300px); height: clamp(14px, 3vw, 20px); background: rgba(255, 79, 40, 0.12); border-radius: 8px; overflow: hidden; }
-.ph-fill { height: 100%; background: linear-gradient(90deg, #FF8A66, #FF4F28); border-radius: 8px; width: 0; animation: phFill 3.4s ease-in-out infinite; }
-@keyframes phFill { 0% { width: 0; } 35% { width: 20%; } 80% { width: 20%; } 100% { width: 0; } }
-.ph-q { font-family: 'Fraunces', serif; font-size: clamp(20px, 4vw, 30px); color: #019ACB; animation: phQ 2.6s ease-in-out infinite; }
-@keyframes phQ { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+/* MATH neg_5_02: CoordLine — gorizontal koordinata o'qi (dars maqsadi) + mirror (qarama-qarshi). */
+.cn { display: block; }
+.cn-neg { fill: rgba(1, 154, 203, 0.10); }
+.cn-pos { fill: rgba(255, 79, 40, 0.06); }
+.cn-axis { stroke: #0E0E10; stroke-width: 2; }
+.cn-arrow { fill: #0E0E10; }
+.cn-tick { stroke: #A7A6A2; stroke-width: 1.5; }
+.cn-tick0 { stroke: #019ACB; stroke-width: 2.6; }
+.cn-tickhl { stroke: #FF4F28; stroke-width: 2.4; }
+.cn-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 12px; fill: #5A5A60; }
+.cn-lbl0 { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; fill: #019ACB; }
+.cn-lblhl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; fill: #FF4F28; }
+.cn-mk { transition: transform 0.42s cubic-bezier(0.34, 1.2, 0.64, 1); }
+.cn-pin { fill: #FF4F28; stroke: #FFFFFF; stroke-width: 1.4; transform-box: fill-box; transform-origin: center bottom; animation: cnPulse 2.4s ease-in-out infinite; }
+.cn-pin-ok { fill: #1F7A4D; }
+.cn-pin2 { fill: #019ACB; stroke: #FFFFFF; stroke-width: 1.4; animation: none; }
+.cn-dot { fill: #FF4F28; }
+.cn-dot-ok { fill: #1F7A4D; }
+@keyframes cnPulse { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+/* mirror: noldan teng masofa punktiri (qarama-qarshi simmetriya). */
+.cn-span { stroke: #019ACB; stroke-width: 2; stroke-dasharray: 3 3; opacity: 0.55; animation: cnSpan 2.8s ease-in-out infinite; }
+@keyframes cnSpan { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+.cn-readout { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 12px); flex-wrap: wrap; justify-content: center; }
+.cn-ro-lbl { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.3vw, 11px); text-transform: uppercase; letter-spacing: 0.06em; color: #A7A6A2; }
+.cn-ro-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(18px, 3.4vw, 24px); color: #FF4F28; }
+.cn-ro-opp { color: #019ACB; }
+.cn-ro-sep { width: 1px; height: 20px; background: #E4E1DA; }
 
-/* MATH perc_5_02: multi-select — bir nechta to'g'ri (✓/✗ per item, веди-до-верного). */
-.ms-list { display: flex; flex-direction: column; gap: clamp(7px, 1.4vw, 10px); }
-.ms-item { display: flex; align-items: center; gap: 12px; background: #FFFFFF; border: none; border-radius: 12px; padding: clamp(10px, 1.8vw, 13px) clamp(13px, 2.1vw, 17px); cursor: pointer; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); transition: all 0.15s; text-align: left; }
-.ms-item:hover:not(:disabled) { box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22); }
-.ms-item:disabled { cursor: default; }
-.ms-box { flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: 2px solid #A7A6A2; display: flex; align-items: center; justify-content: center; color: #FF4F28; }
-.ms-on { box-shadow: 0 0 0 2px #FF4F28, 0 8px 20px -6px rgba(255, 79, 40, 0.32); }
-.ms-on .ms-box { border-color: #FF4F28; }
-.ms-bad { background: #FFE8E1 !important; animation: msShake 0.4s; }
-.ms-bad .ms-box { border-color: #FF4F28; color: #FF4F28; }
-@keyframes msShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-.ms-ok { background: #E3F0E8 !important; }
-.ms-ok .ms-box { border-color: #1F7A4D; color: #1F7A4D; }
-.ms-label { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(14px, 2.3vw, 17px); color: #0E0E10; }
+/* MATH neg_5_02: od — tartiblash kartalari (o'sish tartibi tap-in-order). */
+.od-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 1.8vw, 14px); }
+.od-card { position: relative; cursor: pointer; border: 1.5px solid #A7A6A2; background: #FFFFFF; border-radius: 14px; padding: clamp(14px, 2.6vw, 22px) clamp(6px, 1.4vw, 12px); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); transition: all 0.16s; }
+.od-card:hover:not(:disabled) { border-color: #FF4F28; }
+.od-card:disabled { cursor: default; }
+.od-temp { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(18px, 3.8vw, 26px); color: #0E0E10; }
+.od-on { border-color: #FF4F28; box-shadow: 0 0 0 2px #FF4F28 inset, 0 8px 18px -6px rgba(255, 79, 40, 0.28); }
+.od-badge { position: absolute; top: -9px; left: -9px; width: 24px; height: 24px; border-radius: 50%; background: #FF4F28; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -3px rgba(255, 79, 40, 0.5); }
+.od-ok { border-color: #1F7A4D; box-shadow: 0 0 0 2px #1F7A4D inset, 0 8px 18px -6px rgba(31, 122, 77, 0.28); }
+.od-ok .od-badge { background: #1F7A4D; box-shadow: 0 4px 10px -3px rgba(31, 122, 77, 0.5); }
+.od-bad { border-color: #FF4F28; animation: odShake 0.4s ease; }
+@keyframes odShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
-/* MATH perc_5_02: факт-анимации (CSS-only loop, КРУПНЫЕ). */
-.fa-rm { position: relative; display: inline-flex; align-items: center; justify-content: center; }
-.fa-rm-coin { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(46px, 10vw, 70px); color: #019ACB; animation: faRmSpin 3.2s ease-in-out infinite; }
-.fa-rm-pct { position: absolute; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 3vw, 22px); color: #FF4F28; animation: faRmPct 3.2s ease-in-out infinite; }
-@keyframes faRmSpin { 0%, 100% { transform: scale(1) rotateY(0deg); } 50% { transform: scale(1.06) rotateY(180deg); } }
-@keyframes faRmPct { 0%, 40% { opacity: 0; transform: scale(0.6); } 60%, 100% { opacity: 1; transform: scale(1); } }
-.fa-dl { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
-.fa-dl-bar { width: clamp(58px, 12vw, 84px); height: clamp(12px, 2.6vw, 18px); background: rgba(1, 154, 203, 0.14); border-radius: 6px; overflow: hidden; }
-.fa-dl-fill { height: 100%; background: #019ACB; border-radius: 6px; width: 0; animation: faDl 3s ease-in-out infinite; }
-@keyframes faDl { 0% { width: 0; } 60% { width: 40%; } 85% { width: 40%; } 100% { width: 0; } }
-.fa-dl-mark { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(11px, 1.8vw, 14px); color: #019ACB; text-align: center; line-height: 1.05; }
-.fa-hp { position: relative; width: clamp(60px, 12vw, 86px); height: clamp(60px, 12vw, 86px); display: inline-flex; align-items: center; justify-content: center; }
-.fa-hp-rim { position: absolute; bottom: 12%; width: clamp(30px, 6vw, 44px); height: clamp(10px, 2vw, 14px); border: 3px solid #FF4F28; border-radius: 50%; }
-.fa-hp-ball { position: absolute; width: clamp(14px, 3vw, 20px); height: clamp(14px, 3vw, 20px); border-radius: 50%; background: #019ACB; animation: faHp 2.8s ease-in-out infinite; }
-@keyframes faHp { 0% { transform: translateY(-150%); opacity: 0; } 30% { opacity: 1; } 70% { transform: translateY(60%); opacity: 1; } 100% { transform: translateY(60%); opacity: 0; } }
-.fa-hp-pct { position: absolute; top: 4%; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(13px, 2.4vw, 18px); color: #FF4F28; }
+/* MATH neg_5_02: ms — multi-select (qaysi juftlar qarama-qarshi). */
+.ms-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(8px, 1.8vw, 14px); }
+.ms-card { cursor: pointer; display: flex; align-items: center; gap: clamp(8px, 1.6vw, 12px); border: 1.5px solid #A7A6A2; background: #FFFFFF; border-radius: 14px; padding: clamp(12px, 2.2vw, 18px) clamp(12px, 2vw, 18px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); transition: all 0.16s; text-align: left; }
+.ms-card:hover:not(:disabled) { border-color: #FF4F28; }
+.ms-card:disabled { cursor: default; }
+.ms-box { flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: 1.6px solid #A7A6A2; display: flex; align-items: center; justify-content: center; color: #FFFFFF; transition: all 0.14s; }
+.ms-box-on { background: #FF4F28; border-color: #FF4F28; }
+.ms-pair { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 2.6vw, 20px); color: #0E0E10; }
+.ms-on { border-color: #FF4F28; box-shadow: 0 0 0 2px #FF4F28 inset, 0 8px 18px -6px rgba(255, 79, 40, 0.24); }
+.ms-bad { border-color: #FF4F28; animation: odShake 0.4s ease; }
+.ms-ok { border-color: #1F7A4D; box-shadow: 0 0 0 2px #1F7A4D inset, 0 8px 18px -6px rgba(31, 122, 77, 0.26); }
+.ms-ok .ms-box-on { background: #1F7A4D; border-color: #1F7A4D; }
 
-/* MATH perc_5_03: RevBar — teskari bar (butun=?, qismdan tiklanadi). */
-.rb-wrap { width: clamp(220px, 60vw, 420px); display: flex; flex-direction: column; gap: 6px; }
-.rb-track { position: relative; height: clamp(26px, 5vw, 34px); background: repeating-linear-gradient(45deg, rgba(1, 154, 203, 0.06), rgba(1, 154, 203, 0.06) 8px, rgba(1, 154, 203, 0.12) 8px, rgba(1, 154, 203, 0.12) 16px); border-radius: 8px; box-shadow: inset 0 0 0 2px rgba(1, 154, 203, 0.18); }
-.rb-frag { position: relative; height: 100%; background: linear-gradient(90deg, #FF8A66, #FF4F28); border-radius: 8px 0 0 8px; width: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px -4px rgba(255, 79, 40, 0.45); }
-.rb-frag.rb-live { transition: width 0.15s ease-out; }
-.rb-frag.rb-alive { animation: rbShine 2.6s ease-in-out infinite; }
-@keyframes rbShine { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.12); } }
-.rb-frag-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(13px, 2.2vw, 16px); color: #FFFFFF; }
-.rb-readout { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 1.8vw, 14px); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(16px, 2.8vw, 22px); }
-.rb-pct { color: #FF4F28; }
-.rb-whole { color: #019ACB; }
-.rb-arrow { color: #A7A6A2; }
-.rb-glow { animation: pbGlow 0.7s ease; }
-
-/* MATH perc_5_03: MapHook — yirtilgan xarita (CSS-only loop), s0 majburiy animatsiya. */
-.mh-wrap { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2vw, 14px); }
-.mh-map { position: relative; width: clamp(170px, 44vw, 260px); height: clamp(96px, 20vw, 140px); background: repeating-linear-gradient(45deg, rgba(1, 154, 203, 0.05), rgba(1, 154, 203, 0.05) 10px, rgba(1, 154, 203, 0.10) 10px, rgba(1, 154, 203, 0.10) 20px); border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(1, 154, 203, 0.18); overflow: hidden; }
-.mh-frag { position: absolute; left: 0; top: 0; width: 20%; height: 100%; background: linear-gradient(90deg, #FF8A66, #FF4F28); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -4px rgba(255, 79, 40, 0.5); animation: mhIn 1s ease both, mhFloat 4s ease-in-out 1s infinite; }
-@keyframes mhIn { from { transform: translateX(-120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes mhFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-.mh-frag-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 3vw, 22px); color: #FFFFFF; }
-.mh-q { position: absolute; right: 22%; top: 50%; transform: translateY(-50%); font-family: 'Fraunces', serif; font-size: clamp(34px, 8vw, 52px); color: #019ACB; animation: mhQ 2.2s ease-in-out infinite; }
-@keyframes mhQ { 0%, 100% { opacity: 0.4; transform: translateY(-50%) scale(0.92); } 50% { opacity: 1; transform: translateY(-50%) scale(1.04); } }
-.mh-cap { display: flex; align-items: center; gap: clamp(8px, 1.8vw, 14px); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(16px, 2.8vw, 22px); }
-.mh-pct { color: #FF4F28; }
-.mh-whole { color: #019ACB; }
-.mh-arrow { color: #A7A6A2; }
-
-/* MATH perc_5_03: MapTiles — bo'laklar butun xaritaga yig'iladi (tap). */
-.qt-row { display: flex; gap: clamp(6px, 1.4vw, 10px); flex-wrap: wrap; justify-content: center; }
-.qt-tile { width: clamp(40px, 9vw, 58px); height: clamp(40px, 9vw, 58px); border-radius: 8px; background: rgba(1, 154, 203, 0.08); box-shadow: inset 0 0 0 2px rgba(1, 154, 203, 0.15); display: flex; align-items: center; justify-content: center; opacity: 0.35; transition: all 0.3s ease; }
-.qt-tile.qt-on { opacity: 1; background: linear-gradient(135deg, #FF8A66, #FF4F28); box-shadow: 0 6px 14px -4px rgba(255, 79, 40, 0.4); animation: qtPop 0.35s ease both; }
-@keyframes qtPop { from { transform: scale(0.6); } to { transform: scale(1); } }
-.qt-cells { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(13px, 2.4vw, 17px); color: #FFFFFF; }
-.qt-tile:not(.qt-on) .qt-cells { color: #019ACB; opacity: 0.5; }
-
-/* MATH perc_5_03: NumLine — 0..max son o'qi, marker bayrog'i. */
-.nl-wrap { width: clamp(240px, 64vw, 440px); display: flex; flex-direction: column; gap: 6px; }
-.nl-track { position: relative; height: 4px; background: rgba(1, 154, 203, 0.25); border-radius: 99px; margin: 26px 0 6px; }
-.nl-cur { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 16px; height: 16px; border-radius: 50%; background: #FF4F28; box-shadow: 0 0 0 4px #F6F4EF, 0 0 10px rgba(255, 79, 40, 0.5); transition: left 0.15s ease-out; }
-.nl-flag { position: absolute; left: 50%; top: -10px; transform: translate(-50%, -100%); background: #FF4F28; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px, 2vw, 15px); padding: 3px 8px; border-radius: 8px; white-space: nowrap; box-shadow: 0 4px 12px -2px rgba(255, 79, 40, 0.5); }
-.nl-axis { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: clamp(9px, 1.3vw, 11px); color: #019ACB; font-weight: 600; }
-
-/* MATH perc_5_03: tap-match (juftlash) — qism (ipucha) <-> butun. */
-.dm-clues { display: flex; flex-direction: column; gap: clamp(7px, 1.4vw, 10px); }
-.dm-clue { display: flex; align-items: center; gap: clamp(8px, 1.8vw, 12px); background: #FFFFFF; border: none; border-radius: 12px; padding: clamp(10px, 1.8vw, 13px) clamp(13px, 2.1vw, 17px); cursor: pointer; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); transition: all 0.15s; text-align: left; }
-.dm-clue:hover:not(:disabled) { box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22); }
-.dm-clue:disabled { cursor: default; }
-.dm-clue-lbl { flex: 1; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(13px, 2.2vw, 16px); color: #0E0E10; }
-.dm-arrow { color: #A7A6A2; font-family: 'JetBrains Mono', monospace; }
-.dm-slot { flex-shrink: 0; min-width: clamp(46px, 10vw, 60px); text-align: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 2.5vw, 18px); color: #019ACB; background: rgba(1, 154, 203, 0.08); border-radius: 8px; padding: 6px 10px; box-shadow: inset 0 0 0 2px rgba(1, 154, 203, 0.18); }
-.dm-filled .dm-slot { background: rgba(1, 154, 203, 0.16); }
-.dm-bad { background: #FFE8E1 !important; animation: msShake 0.4s; }
-.dm-ok { background: #E3F0E8 !important; }
-.dm-ok .dm-slot { color: #1F7A4D; background: rgba(31, 122, 77, 0.12); box-shadow: inset 0 0 0 2px rgba(31, 122, 77, 0.25); }
-.dm-chips { display: flex; gap: clamp(8px, 1.8vw, 12px); justify-content: center; flex-wrap: wrap; }
-.dm-chip { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 2.6vw, 19px); color: #FF4F28; background: #FFFFFF; border: none; border-radius: 12px; padding: clamp(9px, 1.7vw, 12px) clamp(16px, 2.6vw, 22px); cursor: pointer; box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.28); transition: all 0.15s; }
-.dm-chip:hover:not(:disabled) { box-shadow: 0 10px 22px -6px rgba(255, 79, 40, 0.4); }
-.dm-sel { box-shadow: 0 0 0 2px #FF4F28, 0 8px 20px -6px rgba(255, 79, 40, 0.4) !important; background: #FFE8E1; }
-.dm-used { opacity: 0.35; cursor: default; }
-
-/* MATH perc_5_03: факт-анимации (CSS-only loop). */
-.fa-vt { position: relative; width: clamp(60px, 12vw, 86px); height: clamp(60px, 12vw, 86px); display: inline-flex; align-items: flex-end; justify-content: center; }
-.fa-vt-box { width: clamp(40px, 8vw, 58px); height: clamp(34px, 7vw, 48px); background: rgba(1, 154, 203, 0.12); border-radius: 6px; box-shadow: inset 0 0 0 2px rgba(1, 154, 203, 0.25); overflow: hidden; display: flex; align-items: flex-end; }
-.fa-vt-fill { width: 100%; height: 0; background: #019ACB; animation: faVt 3s ease-in-out infinite; }
-@keyframes faVt { 0% { height: 0; } 60% { height: 60%; } 85% { height: 60%; } 100% { height: 0; } }
-.fa-vt-q { position: absolute; top: 0; right: 8%; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 3vw, 22px); color: #FF4F28; animation: faVtQ 3s ease-in-out infinite; }
-@keyframes faVtQ { 0%, 40% { opacity: 0; } 60%, 100% { opacity: 1; } }
-.fa-pc { display: inline-flex; align-items: center; justify-content: center; }
-.fa-pc-sign { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(40px, 9vw, 64px); color: #019ACB; animation: faPc 3s ease-in-out infinite; }
-@keyframes faPc { 0%, 100% { transform: scale(0.9) rotate(-4deg); opacity: 0.7; } 50% { transform: scale(1.08) rotate(4deg); opacity: 1; } }
-.fa-tg { position: relative; display: inline-flex; align-items: center; justify-content: center; }
-.fa-tg-tag { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(40px, 9vw, 62px); color: #019ACB; animation: faTg 3.2s ease-in-out infinite; }
-@keyframes faTg { 0%, 100% { transform: rotate(-8deg) scale(1); } 50% { transform: rotate(-8deg) scale(1.08); } }
-.fa-tg-save { position: absolute; bottom: 6%; right: 0; background: #FF4F28; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(10px, 1.8vw, 13px); border-radius: 99px; padding: 2px 7px; box-shadow: 0 4px 10px -2px rgba(255, 79, 40, 0.5); animation: faTgSave 3.2s ease-in-out infinite; }
-@keyframes faTgSave { 0%, 40% { opacity: 0; transform: scale(0.6); } 60%, 100% { opacity: 1; transform: scale(1); } }
+/* MATH neg_5_02: fakt-animatsiyalar (CSS-only loop, ko'k tema, qutiga sig'adi). */
+/* Tarix: qadimgi sanoq tayoqchalari navbatma-navbat yorishadi. */
+.fa-hist { display: flex; align-items: flex-end; gap: 5px; height: clamp(56px, 12vw, 80px); }
+.fa-hist-r { width: 7px; background: #019ACB; opacity: 0.3; border-radius: 3px; animation: faHist 2s ease-in-out infinite; }
+.fa-hist-r:nth-child(1) { height: 40%; }
+.fa-hist-r:nth-child(2) { height: 70%; }
+.fa-hist-r:nth-child(3) { height: 100%; }
+.fa-hist-r:nth-child(4) { height: 60%; }
+.fa-hist-r:nth-child(5) { height: 85%; }
+@keyframes faHist { 0%, 100% { opacity: 0.25; } 45% { opacity: 0.95; } }
+/* Eng past harorat: termometr simobi pastga tushadi. */
+.fa-th { width: clamp(34px, 7vw, 46px); height: auto; }
+.fa-th-tube { fill: rgba(1, 154, 203, 0.12); stroke: #019ACB; stroke-width: 1.6; }
+.fa-th-bulb { fill: #019ACB; }
+.fa-th-merc { fill: #019ACB; transform-box: fill-box; transform-origin: bottom; animation: faTh 2.8s ease-in-out infinite; }
+@keyframes faTh { 0%, 100% { transform: scaleY(0.2); } 55%, 75% { transform: scaleY(1); } }
+/* IT: ikkilik bitlar yonadi, belgi-bit ko'kroq. */
+.fa-bit { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: clamp(76px, 15vw, 104px); }
+.fa-bit-c { aspect-ratio: 1; background: #019ACB; opacity: 0.22; border-radius: 4px; animation: faBit 1.8s ease-in-out infinite; }
+.fa-bit-sign { opacity: 0.5; box-shadow: 0 0 0 2px #019ACB; }
+@keyframes faBit { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.92; } }
 
 /* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
@@ -2404,7 +2238,185 @@ html, body { margin: 0; padding: 0; }
 @keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
 
 /* Accessibility: prefers-reduced-motion — гасим декоративные циклы. */
+/* MATH dec_5_05: AreaModel — единичный квадрат 10×10, столбцы×строки = сотые клетки. */
+.am-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; width: clamp(124px, 32vw, 168px); aspect-ratio: 1; }
+.am-cell { background: #EEEAE2; border-radius: 2px; transition: background 0.45s ease; }
+.am-col { background: rgba(255, 79, 40, 0.24); }
+.am-row { background: rgba(1, 154, 203, 0.24); }
+.am-both { background: #1F7A4D; }
+
+/* MATH dec_5_05: mbk — пошаговые клетки ввода (без запятой / знаки / ответ). */
+.mbk-rows { display: flex; flex-direction: column; gap: 10px; }
+.mbk-row { display: flex; align-items: center; justify-content: space-between; gap: clamp(10px, 2vw, 18px); }
+.mbk-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(13px, 2.3vw, 17px); color: #0E0E10; }
+.mbk-box { width: clamp(76px, 17vw, 98px) !important; font-size: clamp(18px, 3.4vw, 24px) !important; text-align: center; flex-shrink: 0; }
+.mbk-wrong { box-shadow: 0 0 0 2px #D8A93A inset !important; }
+.mbk-num { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: #FF4F28; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -3px rgba(255, 79, 40, 0.45); }
+.mbk-num-ok { background: #1F7A4D; box-shadow: 0 4px 10px -3px rgba(31, 122, 77, 0.45); }
+
 @media (prefers-reduced-motion: reduce) {
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+
+
+
+
+/* ============================================================ */
+/* MATH: MagBar (magnituda) + ko'paytirish yozuvi + tasniflash + fakt-anim (dec_5_05). */
+/* ============================================================ */
+.dm-prob { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(26px, 6vw, 42px); color: #0E0E10; letter-spacing: 0.02em; text-align: center; }
+.dm-res { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: clamp(26px, 6vw, 40px); color: #1F7A4D; }
+
+.mb-wrap { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 460px; margin: 0 auto; }
+.mb-row { display: flex; align-items: center; gap: 12px; }
+.mb-cap { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 2.4vw, 19px); color: #0E0E10; min-width: 46px; text-align: right; }
+.mb-track { flex: 1; height: 22px; background: rgba(58, 53, 48, 0.10); border-radius: 11px; overflow: hidden; }
+.mb-fill { height: 100%; border-radius: 11px; transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.mb-fill-base { background: #A7A6A2; }
+.mb-fill-res { background: #FF4F28; }
+.mb-fill-res.mb-more { background: #1F7A4D; }
+
+/* Tasniflash (tap-to-place) */
+.cl-pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 46px; align-items: center; }
+.cl-pool-done { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A7A6A2; }
+.cl-chip { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(14px, 2.2vw, 18px); color: #0E0E10; background: #FFFFFF; border: 2px solid #E8E4DC; border-radius: 12px; padding: 8px 13px; cursor: pointer; box-shadow: 0 4px 12px -6px rgba(58, 53, 48, 0.25); transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease; }
+.cl-chip:disabled { cursor: default; }
+.cl-chip-sel { border-color: #FF4F28; background: #FFE8E1; transform: translateY(-2px) scale(1.05); }
+.cl-bins { display: flex; gap: 10px; }
+.cl-bin { flex: 1; min-width: 0; border: 2px dashed #D8D3C9; border-radius: 16px; padding: 10px; min-height: 96px; display: flex; flex-direction: column; gap: 8px; cursor: default; transition: border-color 0.15s ease, background 0.15s ease; }
+.cl-bin-active { border-color: #FF4F28; background: rgba(255, 79, 40, 0.05); cursor: pointer; }
+.cl-bin-h { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: clamp(12px, 1.8vw, 14px); font-weight: 600; color: #5A5A60; text-align: center; }
+.cl-bin-cards { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.cl-chip-in { box-shadow: none; }
+.cl-chip-ok { border-color: #1F7A4D; background: #E3F0E8; color: #1F7A4D; }
+.cl-chip-bad { border-color: #FF4F28; background: #FFE8E1; }
+
+/* Fakt-animatsiyalar (ko'k tema) */
+.pa-dc { display: flex; align-items: baseline; justify-content: center; gap: 2px; width: 100%; height: 100%; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 7vw, 40px); color: #019ACB; }
+.pa-dc-sep { position: relative; display: inline-block; width: 0.55em; }
+.pa-dc-comma, .pa-dc-dot { position: absolute; left: 0; bottom: 0; }
+.pa-dc-comma { animation: pa-dc-a 2.4s steps(1) infinite; }
+.pa-dc-dot { animation: pa-dc-b 2.4s steps(1) infinite; }
+@keyframes pa-dc-a { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+@keyframes pa-dc-b { 0%, 50% { opacity: 0; } 50.01%, 100% { opacity: 1; } }
+.pa-st { display: flex; align-items: center; justify-content: center; gap: 1px; width: 100%; height: 100%; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(24px, 6vw, 38px); color: #019ACB; }
+.pa-st-c { opacity: 0; animation: pa-st-in 1.8s ease-in-out infinite; }
+@keyframes pa-st-in { 0% { opacity: 0; transform: translateY(4px); } 20%, 70% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
+
+/* MATH dec_5_05: SeqMC — ketma-ket tez MC progress nuqtalari. */
+.seq-dots { display: flex; gap: 8px; justify-content: center; }
+.seq-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(167, 166, 162, 0.35); transition: background 0.3s ease, transform 0.3s ease; }
+.seq-dot-cur { background: #FF4F28; transform: scale(1.18); box-shadow: 0 0 8px rgba(255, 79, 40, 0.5); }
+.seq-dot-done { background: #1F7A4D; }
+
+/* MATH dec_5_05: MulSolve — "harakatlanuvchi yechim" (vergulsiz → sanash → vergul tushadi). */
+.ms-solve { display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); align-items: center; }
+.ms-row { display: flex; align-items: baseline; gap: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(24px, 5.5vw, 38px); color: #0E0E10; }
+.ms-fac { transition: color 0.4s ease; }
+.ms-dim { color: #A7A6A2; }
+.ms-op { color: #5A5A60; font-weight: 600; }
+.ms-digits { display: inline-flex; align-items: baseline; }
+.ms-dwrap { display: inline-flex; align-items: baseline; }
+.ms-d { display: inline-block; padding: 0 1px; border-radius: 4px; transition: background 0.4s ease, color 0.4s ease; }
+.ms-d-hl { background: #FBF3D6; color: #0E0E10; }
+.ms-comma { display: inline-block; color: #1F7A4D; animation: ms-drop 0.55s cubic-bezier(0.34, 1.3, 0.5, 1) both; }
+@keyframes ms-drop { 0% { opacity: 0; transform: translateY(-0.7em) scale(0.5); } 100% { opacity: 1; transform: none; } }
+.ms-result { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: clamp(24px, 5.5vw, 38px); color: #1F7A4D; }
+
+/* MATH dec_5_05: rule-chip — birlashgan qoida ekranida yopilgan qoida tugmasi. */
+.rule-chip { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; cursor: pointer; background: #E3F0E8; border: none; border-radius: 12px; padding: clamp(10px, 1.8vw, 13px) clamp(12px, 2vw, 16px); box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22); transition: box-shadow 0.2s ease; }
+.rule-chip:hover { box-shadow: 0 10px 22px -6px rgba(31, 122, 77, 0.3); }
+.rule-chip-ic { display: flex; color: #1F7A4D; flex-shrink: 0; }
+.rule-chip-tx { flex: 1; font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px, 1.7vw, 15px); color: #1F7A4D; }
+.rule-chip-act { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.3vw, 12px); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5A5A60; flex-shrink: 0; }
+
+/* MATH dec_5_05: case-ctx — birlashgan masala ekranida shart ixcham KO'RINIB qoladigan qatori. */
+.case-ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; background: #EFEEE9; border-radius: 12px; padding: clamp(9px, 1.7vw, 12px) clamp(12px, 2vw, 16px); }
+.case-ctx-tag { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.3vw, 11px); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5A5A60; }
+.case-ctx-tx { flex: 1; min-width: 0; font-size: clamp(12px, 1.6vw, 14px); color: #0E0E10; }
+.case-ctx-prob { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(15px, 2.4vw, 19px); color: #0E0E10; }
+
+/* MATH dec_5_05: sort — ketma-ket tasniflash (son chiqadi → chiroyli savatga joylaydi). */
+.sort-tray { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #FFFFFF; border-radius: 16px; padding: clamp(13px, 2.5vw, 18px); box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14); min-height: clamp(84px, 15vw, 100px); }
+.sort-tray-card { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 6vw, 40px); color: #0E0E10; animation: sort-pop 0.4s cubic-bezier(0.34, 1.3, 0.5, 1) both; }
+@keyframes sort-pop { 0% { opacity: 0; transform: translateY(-8px) scale(0.8); } 100% { opacity: 1; transform: none; } }
+.sort-tray-ask { font-size: clamp(12px, 1.6vw, 13px); color: #5A5A60; }
+.sort-bins { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(10px, 2vw, 14px); }
+.sort-bin { display: flex; flex-direction: column; gap: 10px; background: #FFFFFF; border: none; border-radius: 16px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.16); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease; min-height: clamp(94px, 17vw, 116px); text-align: left; }
+.sort-bin:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 13px 28px -6px rgba(58, 53, 48, 0.24); }
+.sort-bin:disabled { cursor: default; }
+.sort-bin-h { display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(12px, 1.7vw, 14px); padding: 5px 10px; border-radius: 9px; }
+.sort-bin-sq .sort-bin-h { color: #019ACB; background: #EAF6FB; }
+.sort-bin-cu .sort-bin-h { color: #5A5A60; background: #EFEEE9; }
+.sort-bin-cards { display: flex; flex-wrap: wrap; gap: 6px; }
+.sort-chip-in { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px, 1.8vw, 14px); color: #1F7A4D; background: #E3F0E8; border-radius: 9px; padding: 5px 9px; animation: sort-pop 0.35s ease both; }
+.sort-bin-bad { animation: odShake 0.4s ease; box-shadow: 0 0 0 2px #FF4F28 inset, 0 8px 22px -6px rgba(255, 79, 40, 0.3); }
+
+/* MATH dec_5_05: bridge — slaydlararo ma'noli o'tish qatori (faza chegarasi). */
+.bridge { display: flex; align-items: center; gap: 6px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #5A5A60; }
+.bridge::before { content: "\\21B3"; color: #FF4F28; font-weight: 700; font-size: 1.05em; }
+
+/* ============================================================ */
+/* MATH percent_5_03: figuralar — TileGrid (uzluksiz tgBreathe) + PartWholeBar (pwbBreathe) + fakt-anim. */
+/* HAR figura ildizida infinite nafas loop; solved/glow holatda glow QO'SHILADI, nafas DROP QILINMAYDI. */
+/* ============================================================ */
+
+/* TileGrid (Dars35) — birlik kvadratlar bilan to'ldirish (CSS pop + uzluksiz breathe loop; circling YO'Q). */
+.tg-host { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: clamp(8px, 1.8vw, 14px); }
+.tg-grid { display: grid; gap: 2px; background: #A7A6A2; padding: 2px; border-radius: 4px; animation: tgBreathe 3.6s ease-in-out infinite; }
+.tg-glow .tg-grid { animation: tgGlow 0.9s ease, tgBreathe 3.6s ease-in-out infinite; }
+.tg-cell { background: #FFFFFF; border-radius: 2px; transition: background 0.3s ease, box-shadow 0.3s ease; }
+.tg-on { background: #FF4F28; box-shadow: 0 0 6px rgba(255, 79, 40, 0.45); animation: tgPop 0.3s ease both; }
+.tg-pop { transform-origin: center; animation: tgPop 0.4s ease-out both; }
+.tg-ok .tg-on { background: #1F7A4D; box-shadow: 0 0 6px rgba(31, 122, 77, 0.45); }
+@keyframes tgPop { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+@keyframes tgBreathe { 0%, 100% { box-shadow: 0 0 0 rgba(255, 79, 40, 0); } 50% { box-shadow: 0 0 12px rgba(255, 79, 40, 0.14); } }
+@keyframes tgGlow { 0% { filter: drop-shadow(0 0 0 rgba(255, 79, 40, 0)); } 50% { filter: drop-shadow(0 0 14px rgba(255, 79, 40, 0.45)); } 100% { filter: drop-shadow(0 0 0 rgba(255, 79, 40, 0)); } }
+
+/* PartWholeBar — qism->butun segmentli ko'rsatkich. Ildiz .pwb-track DOIM uzluksiz pwbBreathe loop. */
+.pwb-wrap { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 440px; margin: 0 auto; align-items: center; }
+.pwb-track { display: flex; gap: 3px; width: 100%; padding: 6px; background: rgba(58, 53, 48, 0.08); border-radius: 12px; animation: pwbBreathe 3.6s ease-in-out infinite; }
+.pwb-track.pwb-glow { animation: pwbGlow 0.9s ease, pwbBreathe 3.6s ease-in-out infinite; }
+.pwb-seg { flex: 1; height: clamp(28px, 6vw, 40px); background: #E4E1DA; border-radius: 7px; transition: background 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.pwb-seg.pwb-on { box-shadow: 0 0 8px rgba(31, 122, 77, 0.25); }
+@keyframes pwbBreathe { 0%, 100% { box-shadow: 0 0 0 rgba(255, 79, 40, 0); } 50% { box-shadow: 0 0 12px rgba(255, 79, 40, 0.14); } }
+@keyframes pwbGlow { 0% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); } 50% { filter: drop-shadow(0 0 14px rgba(31, 122, 77, 0.4)); } 100% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); } }
+.pwb-caps { display: flex; gap: clamp(14px, 4vw, 28px); flex-wrap: wrap; justify-content: center; }
+.pwb-cap { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: clamp(13px, 2vw, 16px); color: #5A5A60; }
+.pwb-cap-k { font-weight: 800; }
+.pwb-cap-part { color: #FF4F28; }
+.pwb-cap-whole { color: #1F7A4D; }
+
+/* Fakt-animatsiyalar (ko'k tema, qutiga sig'adi, uzluksiz loop). */
+/* Statistika: ovoz ustunlari to'lqinli yorishadi. */
+.pa-votes { display: flex; align-items: flex-end; gap: 5px; height: clamp(56px, 12vw, 80px); }
+.pa-votes-b { width: 9px; background: #019ACB; opacity: 0.3; border-radius: 3px; animation: paVotes 1.9s ease-in-out infinite; }
+.pa-votes-b:nth-child(1) { height: 45%; }
+.pa-votes-b:nth-child(2) { height: 72%; }
+.pa-votes-b:nth-child(3) { height: 100%; }
+.pa-votes-b:nth-child(4) { height: 62%; }
+.pa-votes-b:nth-child(5) { height: 84%; }
+@keyframes paVotes { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.95; } }
+/* Tarix: foiz belgisi (per cento) yengil pulse. */
+.pa-pct { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.pa-pct-s { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(40px, 10vw, 62px); color: #019ACB; animation: paPct 2.6s ease-in-out infinite; }
+@keyframes paPct { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.12); opacity: 1; } }
+/* Hayot: narx tegi — chegirma ko'rsatkichi to'lqinli yonadi. */
+.pa-tag { position: relative; width: clamp(64px, 13vw, 90px); height: clamp(48px, 10vw, 64px); }
+.pa-tag-body { position: absolute; inset: 0; background: rgba(1, 154, 203, 0.12); border: 3px solid #019ACB; border-radius: 8px; animation: paTag 2.4s ease-in-out infinite; }
+.pa-tag-dot { position: absolute; top: 22%; left: 16%; width: 9px; height: 9px; border-radius: 50%; background: #019ACB; z-index: 2; }
+@keyframes paTag { 0%, 100% { box-shadow: inset 0 0 0 rgba(1, 154, 203, 0); } 50% { box-shadow: inset 0 0 16px rgba(1, 154, 203, 0.45); } }
+
+/* flt — dekorativ suzuvchi birlik kvadratchalar (qism mavzusi, sekin, yengil, uzluksiz). */
+.flt { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.flt-c { position: absolute; width: 18px; height: 18px; border-radius: 4px; opacity: 0.5; background: linear-gradient(135deg, rgba(255, 79, 40, 0.22), rgba(255, 79, 40, 0.06)); box-shadow: inset 0 0 0 1px rgba(255, 79, 40, 0.18); animation: fltFloat 16s ease-in-out infinite; }
+.flt-1 { left: 7%; top: 16%; animation-delay: 0s; }
+.flt-2 { right: 9%; top: 22%; width: 13px; height: 13px; background: linear-gradient(135deg, rgba(1, 154, 203, 0.22), rgba(1, 154, 203, 0.06)); box-shadow: inset 0 0 0 1px rgba(1, 154, 203, 0.18); animation-delay: -6s; }
+.flt-3 { left: 14%; bottom: 14%; width: 14px; height: 14px; animation-delay: -10s; }
+.flt-4 { right: 13%; bottom: 20%; width: 20px; height: 20px; background: linear-gradient(135deg, rgba(1, 154, 203, 0.2), rgba(1, 154, 203, 0.05)); box-shadow: inset 0 0 0 1px rgba(1, 154, 203, 0.16); animation-delay: -3s; }
+.flt-5 { left: 30%; top: 8%; width: 12px; height: 12px; animation-delay: -13s; }
+.flt-6 { right: 32%; bottom: 9%; width: 15px; height: 15px; background: linear-gradient(135deg, rgba(255, 79, 40, 0.18), rgba(255, 79, 40, 0.05)); box-shadow: inset 0 0 0 1px rgba(255, 79, 40, 0.15); animation-delay: -8s; }
+@keyframes fltFloat { 0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.45; } 50% { transform: translateY(-14px) rotate(6deg); opacity: 0.75; } }
+
 `;

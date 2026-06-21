@@ -476,6 +476,37 @@ const Frac = React.memo(({ n, d, color, size = 'sm' }) => (
   </span>
 ));
 
+// mt: рендерит текст, заменяя «a/b» (и «?/b») настоящей дробью Frac — без слэша.
+// Если дробей нет, возвращает строку как есть. Применяется во всех видимых текстах.
+const FRAC_RE = /(\d+|\?)\/(\d+)/g;
+const mt = (str) => {
+  const s = typeof str === 'string' ? str : String(str ?? '');
+  if (s.indexOf('/') === -1) return s;
+  const out = []; let last = 0; let m; let key = 0;
+  FRAC_RE.lastIndex = 0;
+  while ((m = FRAC_RE.exec(s)) !== null) {
+    if (m.index > last) out.push(s.slice(last, m.index));
+    out.push(<Frac key={`mtf${key}`} n={m[1]} d={m[2]} size="sm"/>);
+    key += 1;
+    last = m.index + m[0].length;
+  }
+  if (last < s.length) out.push(s.slice(last));
+  return out;
+};
+
+// Title — заголовок слайда (h-title). Передаётся в QuestionScreen через titleNode и
+// остаётся видимым после верного ответа (keep-visible): сворачиваются только неверные варианты.
+const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
+
+// shuffleMC — детерминированно переставляет варианты по фикс-массиву order и
+// ремапит подсказки wrong_N/hint_N (correct распределяется по A/B/C/D; НЕ Math.random,
+// иначе ломается восстановление storedAnswer).
+const shuffleMC = (c, options, correctIdx, order) => {
+  const content = { ...c };
+  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
+  return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
+};
+
 const AudioIndicator = ({ audioState }) => {
   const { isPlaying, muted, replay, toggleMute } = audioState;
   return (
@@ -621,7 +652,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -688,7 +719,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       setTimeout(() => {
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
-          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || c.audio.on_wrong[lang];
+          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
         }
       }, 300);
@@ -704,39 +735,45 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(17px, 2.5vw, 24px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        {titleNode && <Title node={titleNode}/>}
+        {/* Заголовок (Title) + текст вопроса остаются и после верного ответа — сворачиваются только неверные варианты. */}
         <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        {/* После верного: остаётся только верный вариант, неверные плавно (с задержкой) сворачиваются — keep-visible anti-scroll. */}
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
+            const isCorrect = i === correctIdx;
+            const collapse = solved && !isCorrect;        // после верного неверные сворачиваются
             if (solved) {
-              if (i === correctIdx) cls += ' option-correct';
-              else if (isWrongPicked) cls += ' option-picked-wrong';
-              else cls += ' option-wrong';
+              if (isCorrect) cls += ' option-correct';
+              // неверным НЕ добавляем цвет-класс — плавно гаснут через inline opacity
             } else if (isWrongPicked) {
               cls += ' option-picked-wrong';
             }
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (wrong.has(i) ? T.accent : T.ink3) }}>
-                  {solved && i === correctIdx ? '✓' : (wrong.has(i) ? '✗' : String.fromCharCode(65 + i))}
+                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
             );
           })}
         </div>
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass={c[`hint_${picked}`] ? 'frame-tip' : undefined}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
-            {solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default)}
+            {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
           </p>
         </FeedbackBlock>
+        {solved && factOnCorrect}
       </div>
     </Stage>
   );
@@ -1050,14 +1087,14 @@ const CONTENT = {
     btn_step: { ru: 'Дальше', uz: 'Davom etish' },
     audio: {
       ru: [
-        'Первое неполное делимое — девять. Девять на четыре — это два. Умножаем два на четыре, получается восемь, вычитаем из девяти — остаётся один.',
-        'Сносим тройку — неполное делимое тринадцать. Тринадцать на четыре — это три. Умножаем три на четыре, получается двенадцать, вычитаем — остаётся один.',
-        'Сносим шестёрку — неполное делимое шестнадцать. Шестнадцать на четыре равно четыре. Умножаем четыре на четыре, получается шестнадцать, вычитаем — остаётся ноль. Частное двести тридцать четыре. Теперь посмотрим, что происходит, когда в частном появляется ноль.'
+        'Первое неполное делимое, девять. Девять на четыре, это два. Умножаем два на четыре, получается восемь, вычитаем из девяти, остаётся один.',
+        'Сносим тройку, неполное делимое тринадцать. Тринадцать на четыре, это три. Умножаем три на четыре, получается двенадцать, вычитаем, остаётся один.',
+        'Сносим шестёрку, неполное делимое шестнадцать. Шестнадцать на четыре равно четыре. Умножаем четыре на четыре, получается шестнадцать, вычитаем, остаётся ноль. Частное двести тридцать четыре. Теперь посмотрим, что происходит, когда в частном появляется ноль.'
       ],
       uz: [
-        "Birinchi to'liqsiz bo'linuvchi — to'qqiz. To'qqizni to'rtga — bu ikki. Ikkini to'rtga ko'paytiramiz, sakkiz chiqadi, to'qqizdan ayiramiz — bir qoladi.",
-        "Uchni tushiramiz — to'liqsiz bo'linuvchi o'n uch. O'n uchni to'rtga — bu uch. Uchni to'rtga ko'paytiramiz, o'n ikki chiqadi, ayiramiz — bir qoladi.",
-        "Oltini tushiramiz — to'liqsiz bo'linuvchi o'n olti. O'n oltini to'rtga teng to'rt. To'rtni to'rtga ko'paytiramiz, o'n olti chiqadi, ayiramiz — nol qoladi. Bo'linma ikki yuz o'ttiz to'rt. Endi bo'linmada nol paydo bo'lganda nima bo'lishini ko'ramiz."
+        "Birinchi to'liqsiz bo'linuvchi, to'qqiz. To'qqizni to'rtga, bu ikki. Ikkini to'rtga ko'paytiramiz, sakkiz chiqadi, to'qqizdan ayiramiz, bir qoladi.",
+        "Uchni tushiramiz, to'liqsiz bo'linuvchi o'n uch. O'n uchni to'rtga, bu uch. Uchni to'rtga ko'paytiramiz, o'n ikki chiqadi, ayiramiz, bir qoladi.",
+        "Oltini tushiramiz, to'liqsiz bo'linuvchi o'n olti. O'n oltini to'rtga teng to'rt. To'rtni to'rtga ko'paytiramiz, o'n olti chiqadi, ayiramiz, nol qoladi. Bo'linma ikki yuz o'ttiz to'rt. Endi bo'linmada nol paydo bo'lganda nima bo'lishini ko'ramiz."
       ]
     }
   },
@@ -1075,14 +1112,14 @@ const CONTENT = {
     btn_step: { ru: 'Дальше', uz: 'Davom etish' },
     audio: {
       ru: [
-        'Первое неполное делимое — шесть. Шесть на шесть равно один. Умножаем один на шесть, вычитаем — остаётся ноль.',
-        'Сносим единицу — неполное делимое один. Но один меньше шести, делится ноль раз. Поэтому в частное пишем ноль и сносим дальше.',
-        'Сносим восьмёрку — неполное делимое восемнадцать. Восемнадцать на шесть равно три. Частное сто три. Если пропустить ноль, получится тринадцать — это на разряд короче и неверно. Мы разобрали это на примерах — теперь соберём всё в одно правило.'
+        'Первое неполное делимое, шесть. Шесть на шесть равно один. Умножаем один на шесть, вычитаем, остаётся ноль.',
+        'Сносим единицу, неполное делимое один. Но один меньше шести, делится ноль раз. Поэтому в частное пишем ноль и сносим дальше.',
+        'Сносим восьмёрку, неполное делимое восемнадцать. Восемнадцать на шесть равно три. Частное сто три. Если пропустить ноль, получится тринадцать, это на разряд короче и неверно. Мы разобрали это на примерах. Теперь соберём всё в одно правило.'
       ],
       uz: [
-        "Birinchi to'liqsiz bo'linuvchi — olti. Oltini oltiga teng bir. Birni oltiga ko'paytiramiz, ayiramiz — nol qoladi.",
-        "Birni tushiramiz — to'liqsiz bo'linuvchi bir. Ammo bir oltidan kichik, nol marta bo'linadi. Shuning uchun bo'linmaga nol yozamiz va davom etamiz.",
-        "Sakkizni tushiramiz — to'liqsiz bo'linuvchi o'n sakkiz. O'n sakkizni oltiga teng uch. Bo'linma bir yuz uch. Nolni tashlab ketsak, o'n uch chiqadi — bu bir xonaga qisqa va noto'g'ri. Buni misollarda ko'rdik — endi hammasini bitta qoidaga jamlaymiz."
+        "Birinchi to'liqsiz bo'linuvchi, olti. Oltini oltiga teng bir. Birni oltiga ko'paytiramiz, ayiramiz, nol qoladi.",
+        "Birni tushiramiz, to'liqsiz bo'linuvchi bir. Ammo bir oltidan kichik, nol marta bo'linadi. Shuning uchun bo'linmaga nol yozamiz va davom etamiz.",
+        "Sakkizni tushiramiz, to'liqsiz bo'linuvchi o'n sakkiz. O'n sakkizni oltiga teng uch. Bo'linma bir yuz uch. Nolni tashlab ketsak, o'n uch chiqadi, bu bir xonaga qisqa va noto'g'ri. Buni misollarda ko'rdik. Endi hammasini bitta qoidaga jamlaymiz."
       ]
     }
   },
@@ -1096,8 +1133,8 @@ const CONTENT = {
     term: { ru: 'Неполное делимое — часть числа, которую делим на этом шаге. Делимое — что делим целиком, делитель — на что делим, частное — результат.', uz: "To'liqsiz bo'linuvchi — shu qadamda bo'linadigan qism. Bo'linuvchi — butun bo'linadigan son, bo'luvchi — nimaga bo'lsak, bo'linma — natija." },
     example: { ru: '936 : 4 = 234', uz: '936 : 4 = 234' },
     audio: {
-      ru: 'Запомним правило. Сначала выделяем первое неполное делимое — наименьшую левую часть, которая делится на делитель. Сколько неполных делимых, столько цифр в частном. Дальше на каждом шаге делим, умножаем цифру частного на делитель, вычитаем и сносим следующую цифру. Если неполное делимое меньше делителя, в частное ставим ноль. В конце проверяем умножением: частное умножить на делитель даёт делимое. Теперь потренируйся сам.',
-      uz: "Qoidani eslab qolamiz. Avval birinchi to'liqsiz bo'linuvchini ajratamiz — bo'luvchiga bo'linadigan eng kichik chap qism. Nechta to'liqsiz bo'linuvchi bo'lsa, bo'linmada shuncha raqam bo'ladi. Keyin har qadamda bo'lamiz, bo'linma raqamini bo'luvchiga ko'paytiramiz, ayiramiz va keyingi raqamni tushiramiz. To'liqsiz bo'linuvchi bo'luvchidan kichik bo'lsa, bo'linmaga nol qo'yamiz. Oxirida ko'paytirib tekshiramiz: bo'linmani bo'luvchiga ko'paytirsak, bo'linuvchi chiqadi. Endi o'zingiz mashq qiling."
+      ru: 'Запомним правило. Сначала выделяем первое неполное делимое, наименьшую левую часть, которая делится на делитель. Сколько неполных делимых, столько цифр в частном. Дальше на каждом шаге делим, умножаем цифру частного на делитель, вычитаем и сносим следующую цифру. Если неполное делимое меньше делителя, в частное ставим ноль. В конце проверяем умножением. Частное умножить на делитель даёт делимое. Теперь потренируйся сам.',
+      uz: "Qoidani eslab qolamiz. Avval birinchi to'liqsiz bo'linuvchini ajratamiz, bo'luvchiga bo'linadigan eng kichik chap qism. Nechta to'liqsiz bo'linuvchi bo'lsa, bo'linmada shuncha raqam bo'ladi. Keyin har qadamda bo'lamiz, bo'linma raqamini bo'luvchiga ko'paytiramiz, ayiramiz va keyingi raqamni tushiramiz. To'liqsiz bo'linuvchi bo'luvchidan kichik bo'lsa, bo'linmaga nol qo'yamiz. Oxirida ko'paytirib tekshiramiz. Bo'linmani bo'luvchiga ko'paytirsak, bo'linuvchi chiqadi. Endi o'zingiz mashq qiling."
     }
   },
 
@@ -1125,6 +1162,7 @@ const CONTENT = {
     opt1: { ru: '206 — делится точно', uz: "206 — qoldiqsiz bo'linadi" },
     opt2: { ru: '260 — ноль в конце', uz: '260 — nol oxirida' },
     correctIndex: 1,
+    order: [1, 0, 2],
     hint: { ru: 'После первой цифры посмотри: делится ли следующее число на 4? Если нет — поставь ноль и сноси дальше.', uz: "Birinchi raqamdan keyin qarang: keyingi son 4 ga bo'linadimi? Bo'linmasa — nol qo'ying va davom eting." },
     correct_text: { ru: 'Правильно. После первой цифры 2 не делится на 4 — ставим ноль и сносим дальше: 24 на 4 равно 6. Выходит 206.', uz: "To'g'ri. Birinchi raqamdan keyin 2 ni 4 ga bo'lib bo'lmaydi — nol qo'yib davom etamiz: 24 ni 4 ga bo'lsak 6. 206 chiqadi." },
     wrong_0: { ru: 'Ноль пропущен. Здесь 2 не делится на 4 — нужен ноль, иначе частное теряет разряд.', uz: "Nol tushib qolgan. Bu yerda 2 ni 4 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma xonasini yo'qotadi." },
@@ -1132,7 +1170,7 @@ const CONTENT = {
     wrong_default: { ru: 'Делим слева направо; если число не делится — ставим ноль и сносим дальше.', uz: "Chapdan o'ngga bo'lamiz; son bo'linmasa — nol qo'yib davom etamiz." },
     audio: {
       intro: { ru: 'Сколько будет восемьсот двадцать четыре разделить на четыре? Выбери ответ.', uz: "Sakkiz yuz yigirma to'rtni to'rtga bo'lsak, nechaga teng? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Деление выходит ровным не всегда — дальше узнаем, откуда берётся остаток.', uz: "To'g'ri. Bo'lish doim qoldiqsiz bo'lavermaydi — keyin qoldiq qayerdan paydo bo'lishini bilamiz." },
+      on_correct: { ru: 'Верно. Деление выходит ровным не всегда, дальше узнаем, откуда берётся остаток.', uz: "To'g'ri. Bo'lish doim qoldiqsiz bo'lavermaydi, keyin qoldiq qayerdan paydo bo'lishini bilamiz." },
       on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang." }
     }
   },
@@ -1150,14 +1188,14 @@ const CONTENT = {
     btn_step: { ru: 'Дальше', uz: 'Davom etish' },
     audio: {
       ru: [
-        'Двадцать три предмета раздаём поровну в пять групп. Кладём по одному по кругу: один круг — по одному, ушло пять, дальше по два, по три, по четыре.',
-        'Раздали по четыре, ушло двадцать. Осталось три предмета — на новый полный круг их уже не хватает.',
-        'Значит, каждой группе досталось четыре, а в остатке три. Остаток три меньше пяти, иначе мы раздали бы ещё по одному. Записываем: двадцать три разделить на пять равно четыре, остаток три. Теперь оформим это как правило деления с остатком.'
+        'Двадцать три предмета раздаём поровну в пять групп. Кладём по одному по кругу. Один круг, по одному, ушло пять, дальше по два, по три, по четыре.',
+        'Раздали по четыре, ушло двадцать. Осталось три предмета, на новый полный круг их уже не хватает.',
+        'Значит, каждой группе досталось четыре, а в остатке три. Остаток три меньше пяти, иначе мы раздали бы ещё по одному. Записываем. Двадцать три разделить на пять равно четыре, остаток три. Теперь оформим это как правило деления с остатком.'
       ],
       uz: [
-        "Yigirma uchta narsani besh guruhga teng bo'lamiz. Aylana bo'ylab bittadan qo'yamiz: bir aylana — bittadan, beshtasi ketdi, keyin ikkitadan, uchtadan, to'rttadan.",
-        "To'rttadan tarqatdik, yigirmatasi ketdi. Uchta narsa qoldi — yangi to'liq aylanaga endi yetmaydi.",
-        "Demak, har guruhga to'rttadan tegdi, qoldiqda uchta. Qoldiq uch beshdan kichik, aks holda yana bittadan tarqatardik. Yozamiz: yigirma uchni beshga bo'lamiz teng to'rt, qoldiq uch. Endi buni qoldiqli bo'lish qoidasi sifatida rasmiylashtiramiz."
+        "Yigirma uchta narsani besh guruhga teng bo'lamiz. Aylana bo'ylab bittadan qo'yamiz. Bir aylana, bittadan, beshtasi ketdi, keyin ikkitadan, uchtadan, to'rttadan.",
+        "To'rttadan tarqatdik, yigirmatasi ketdi. Uchta narsa qoldi, yangi to'liq aylanaga endi yetmaydi.",
+        "Demak, har guruhga to'rttadan tegdi, qoldiqda uchta. Qoldiq uch beshdan kichik, aks holda yana bittadan tarqatardik. Yozamiz. Yigirma uchni beshga bo'lamiz teng to'rt, qoldiq uch. Endi buni qoldiqli bo'lish qoidasi sifatida rasmiylashtiramiz."
       ]
     }
   },
@@ -1170,8 +1208,8 @@ const CONTENT = {
     term: { ru: 'В записи 23 : 5 = 4, остаток 3 число 4 — неполное частное, 3 — остаток.', uz: "23 : 5 = 4, qoldiq 3 yozuvida 4 — to'liqsiz bo'linma, 3 — qoldiq." },
     example: { ru: '23 : 5 = 4 (остаток 3)', uz: '23 : 5 = 4 (qoldiq 3)' },
     audio: {
-      ru: 'Запомним правило. Если число не делится нацело, получаем неполное частное и остаток. Остаток всегда меньше делителя — если он не меньше, деление ещё не закончено. Проверить можно так: неполное частное умножить на делитель и прибавить остаток, должно выйти делимое. Закрепим это на задаче.',
-      uz: "Qoidani eslab qolamiz. Son qoldiqsiz bo'linmasa, to'liqsiz bo'linma va qoldiq chiqadi. Qoldiq har doim bo'luvchidan kichik — agar kichik bo'lmasa, bo'lish hali tugamagan. Tekshirish: to'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqishi kerak. Buni masalada mustahkamlaymiz."
+      ru: 'Запомним правило. Если число не делится нацело, получаем неполное частное и остаток. Остаток всегда меньше делителя. Если он не меньше, деление ещё не закончено. Проверить можно так. Неполное частное умножить на делитель и прибавить остаток, должно выйти делимое. Закрепим это на задаче.',
+      uz: "Qoidani eslab qolamiz. Son qoldiqsiz bo'linmasa, to'liqsiz bo'linma va qoldiq chiqadi. Qoldiq har doim bo'luvchidan kichik. Agar kichik bo'lmasa, bo'lish hali tugamagan. Tekshirish. To'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqishi kerak. Buni masalada mustahkamlaymiz."
     }
   },
 
@@ -1201,6 +1239,7 @@ const CONTENT = {
     opt2: { ru: 'По 7, остаток 6', uz: '7 tadan, qoldiq 6' },
     opt3: { ru: 'По 5, остаток 10', uz: '5 tadan, qoldiq 10' },
     correctIndex: 1,
+    order: [0, 2, 1, 3],
     hint: { ru: 'Остаток должен быть меньше 4. Если он 4 или больше — раздай ещё по одной.', uz: "Qoldiq 4 dan kichik bo'lishi kerak. Agar 4 yoki katta bo'lsa — yana bittadan tarqating." },
     correct_text: { ru: 'Правильно. 7 умножить на 4 равно 28, до 30 остаётся 2, и 2 меньше 4.', uz: "To'g'ri. 7 ni 4 ga ko'paytirsak 28, 30 gacha 2 qoladi, 2 esa 4 dan kichik." },
     wrong_0: { ru: 'Это ошибка из начала урока. Остаток 6 больше делителя 4 — значит, каждому можно дать ещё по одной.', uz: "Bu darsning boshidagi xato. Qoldiq 6 bo'luvchi 4 dan katta — demak, har biriga yana bittadan berish mumkin." },
@@ -1235,6 +1274,7 @@ const CONTENT = {
     opt1: { ru: '12 пачек, 4 лишних', uz: '12 pachka, 4 ta ortadi' },
     opt2: { ru: '13 пачек', uz: '13 pachka' },
     correctIndex: 1,
+    order: [0, 1, 2],
     hint: { ru: 'Сколько раз 8 помещается в 100? Что осталось — лишние тетради.', uz: "8 son 100 ga necha marta sig'adi? Qolgani — ortgan daftarlar." },
     correct_text: { ru: 'Правильно. 8 умножить на 12 равно 96, до 100 остаётся 4 тетради — на полную пачку их не хватает.', uz: "To'g'ri. 8 ni 12 ga ko'paytirsak 96, 100 gacha 4 ta daftar qoladi — to'liq pachkaga yetmaydi." },
     wrong_0: { ru: 'Остаток потерян. 8 умножить на 12 равно 96, а тетрадей 100 — 4 не вошли ни в одну полную пачку.', uz: "Qoldiq yo'qolgan. 8 ni 12 ga ko'paytirsak 96, daftar esa 100 — 4 tasi birorta to'liq pachkaga kirmadi." },
@@ -1256,6 +1296,7 @@ const CONTENT = {
     opt2: { ru: '112 — проверь умножением', uz: "112 — ko'paytirib tekshiring" },
     opt3: { ru: '120 — ноль в конце', uz: '120 — nol oxirida' },
     correctIndex: 1,
+    order: [0, 2, 3, 1],
     hint: { ru: 'В среднем разряде проверь: делится ли 1 на 6? И проверь ответ умножением.', uz: "O'rtadagi xonani tekshiring: 1 son 6 ga bo'linadimi? Javobni ko'paytirib ham tekshiring." },
     correct_text: { ru: 'Правильно. В среднем разряде 1 не делится на 6 — ставим ноль, потом 12 на 6 равно 2. Проверка: 102 умножить на 6 равно 612.', uz: "To'g'ri. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol qo'yamiz, keyin 12 ni 6 ga bo'lsak 2. Tekshirish: 102 ni 6 ga ko'paytirsak 612." },
     wrong_0: { ru: 'Ноль пропущен. В среднем разряде 1 не делится на 6 — нужен ноль, иначе частное короче на разряд.', uz: "Nol tushib qolgan. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma bir xonaga qisqa." },
@@ -1298,16 +1339,16 @@ const CONTENT = {
     teaser: { ru: 'Дальше — обыкновенные дроби: что такое часть целого.', uz: "Keyin — oddiy kasrlar: butunning qismi nima." },
     audio: {
       ru: [
-        'Вернёмся к началу. Зайнаб сказала: по шесть, остаток шесть. Но остаток шесть больше делителя четыре — значит, каждому можно дать ещё по одной. На самом деле тридцать разделить на четыре равно семь, остаток два.',
+        'Вернёмся к началу. Зайнаб сказала, по шесть, остаток шесть. Но остаток шесть больше делителя четыре, значит, каждому можно дать ещё по одной. На самом деле тридцать разделить на четыре равно семь, остаток два.',
         'Теперь ты умеешь делить уголком, не теряя ноль в частном, и делить с остатком, помня, что остаток меньше делителя.',
-        'Проверка умножением ловит ошибку: неполное частное умножить на делитель и прибавить остаток даёт делимое. А ещё деление — это основа дробей.',
-        'Дальше начнём обыкновенные дроби — что такое часть целого.'
+        'Проверка умножением ловит ошибку. Неполное частное умножить на делитель и прибавить остаток даёт делимое. А ещё деление, это основа дробей.',
+        'Дальше начнём обыкновенные дроби, что такое часть целого.'
       ],
       uz: [
-        "Boshiga qaytamiz. Zaynab: oltitadan, qoldiq olti dedi. Ammo qoldiq olti bo'luvchi to'rtdan katta — demak, har biriga yana bittadan berish mumkin. Aslida o'ttizni to'rtga bo'lamiz teng yetti, qoldiq ikki.",
+        "Boshiga qaytamiz. Zaynab oltitadan, qoldiq olti dedi. Ammo qoldiq olti bo'luvchi to'rtdan katta, demak, har biriga yana bittadan berish mumkin. Aslida o'ttizni to'rtga bo'lamiz teng yetti, qoldiq ikki.",
         "Endi siz bo'linmadagi nolni yo'qotmasdan burchak usulida bo'lishni va qoldiq bo'luvchidan kichikligini eslab, qoldiqli bo'lishni bilasiz.",
-        "Ko'paytirib tekshirish xatoni tutadi: to'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqadi. Bundan tashqari, bo'lish — kasrlarning asosi.",
-        "Keyin oddiy kasrlarni boshlaymiz — butunning qismi nima."
+        "Ko'paytirib tekshirish xatoni tutadi. To'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqadi. Bundan tashqari, bo'lish, kasrlarning asosi.",
+        "Keyin oddiy kasrlarni boshlaymiz, butunning qismi nima."
       ]
     }
   }
@@ -1330,14 +1371,8 @@ const ExplorationStep = ({ idx, screen, totalScreens, onNext, onPrev, board }) =
   const audio = useAudio(segs);
   const [step, setStep] = useState(0);
   const last = c.audio[lang].length - 1;
-  const endRef = useRef(null);
 
-  useEffect(() => {
-    if (step > 0 && endRef.current) {
-      setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 150);
-    }
-  }, [step]);
-
+  // keep-visible: автоскролл к концу шага убран — контент должен помещаться без скролла.
   const handleStep = () => {
     if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); }
     else { audio.triggerEvent('button_click', 'next'); onNext(); }
@@ -1368,7 +1403,6 @@ const ExplorationStep = ({ idx, screen, totalScreens, onNext, onPrev, board }) =
           ))}
         </div>
         {step >= last && <div className="fade-up frame-tip"><p className="body" style={{ margin: 0 }}>{t(c.step3_text)}</p></div>}
-        <div ref={endRef}/>
       </div>
     </Stage>
   );
@@ -1408,13 +1442,18 @@ const MCScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onNext, o
   const t = useT();
   const sfx = useSfx();
   const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
-  const opts = [c.opt0, c.opt1, c.opt2, c.opt3].filter(Boolean);
+  // shuffleMC: детерминированная перестановка (correct распределён по A/B/C/D), ремап подсказок wrong_N.
+  const base = [c.opt0, c.opt1, c.opt2, c.opt3].filter(Boolean);
+  const sh = shuffleMC(c, base, c.correctIndex, c.order || base.map((_, i) => i));
+  const opts = sh.options;
+  const correctIndex = sh.correctIdx;
+  const cc = sh.content;
 
   // Веди-до-верного: неверный гаснет и отключается, остальные активны, правильный
   // НЕ раскрывается; «Дальше» — только когда выбран верный.
   const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
   const [solved, setSolved] = useState(wasSolved);
-  const [picked, setPicked] = useState(wasSolved ? c.correctIndex : null);
+  const [picked, setPicked] = useState(wasSolved ? correctIndex : null);
   const [wrong, setWrong] = useState(() => new Set());
   const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
   const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
@@ -1423,7 +1462,7 @@ const MCScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onNext, o
   const pick = (i) => {
     if (solved) return;
     if (wrong.has(i)) return;
-    const isCorrect = i === c.correctIndex;
+    const isCorrect = i === correctIndex;
     if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstIdxRef.current = i; }
     setPicked(i);
     if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
@@ -1431,8 +1470,8 @@ const MCScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onNext, o
       setSolved(true); sfx.playCorrect();
       onAnswer({
         stage: meta.scope, screenIdx: idx, question: c.question?.[lang] ?? null,
-        options: opts.map(o => o[lang]), correctIndex: c.correctIndex,
-        correctAnswer: opts[c.correctIndex]?.[lang] ?? null,
+        options: opts.map(o => o[lang]), correctIndex,
+        correctAnswer: opts[correctIndex]?.[lang] ?? null,
         studentAnswerIndex: firstIdxRef.current, studentAnswer: opts[firstIdxRef.current]?.[lang] ?? null,
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true
       });
@@ -1454,32 +1493,34 @@ const MCScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onNext, o
           <h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2>
         </div>
         {!solved && c.hint && <div className="fade-up delay-1"><HintToggle hint={c.hint}/></div>}
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* keep-visible: после верного остаётся только верный вариант, неверные плавно сворачиваются */}
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {opts.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
+            const isCorrect = i === correctIndex;
+            const collapse = solved && !isCorrect;
             if (solved) {
-              if (i === c.correctIndex) cls += ' option-correct';
-              else if (isWrongPicked) cls += ' option-picked-wrong';
-              else cls += ' option-wrong';
+              if (isCorrect) cls += ' option-correct';
+              // неверным НЕ добавляем цвет-класс — плавно гаснут через inline opacity
             } else if (isWrongPicked) {
               cls += ' option-picked-wrong';
             }
             const disabled = solved || isWrongPicked;
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 15px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === c.correctIndex ? T.success : (wrong.has(i) ? T.accent : T.ink3) }}>{solved && i === c.correctIndex ? '✓' : (wrong.has(i) ? '✗' : String.fromCharCode(65 + i))}</span>
+                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>{solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}</span>
                 <span style={{ flex: 1 }}>{t(opt)}</span>
               </button>
             );
           })}
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
-          <p className="body" style={{ margin: 0 }}>{solved ? t(c.correct_text) : t(c[`wrong_${picked}`] || c.wrong_default)}</p>
+          <p className="body" style={{ margin: 0 }}>{mt(solved ? t(c.correct_text) : t(cc[`wrong_${picked}`] || c.wrong_default))}</p>
         </FeedbackBlock>
         {solved && DIV_SOLUTIONS[idx] && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
       </div>
@@ -1601,6 +1642,16 @@ const NumInputRemainder = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
   );
 };
 
+// s0 hook uchun jonli animatsiya: 30 konfet mount'da yengil paydo bo'lib suzadi
+// (mavzu: Zaynab 30 konfetni 4 do'stga bo'ladi). Javobni KO'RSATMAYDI — savatlarga taqsimlanmaydi.
+const CandyDivide = () => (
+  <div className="cd-row" aria-hidden="true">
+    {Array.from({ length: 30 }).map((_, i) => (
+      <span key={i} className="cd-candy" style={{ animationDelay: `${(i * 0.04).toFixed(2)}s, ${((i % 6) * 0.3).toFixed(2)}s` }}/>
+    ))}
+  </div>
+);
+
 const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
   const c = CONTENT.s0;
   const t = useT(); const lang = useLang();
@@ -1613,6 +1664,7 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
         <h1 className="title h-title fade-up">{t(c.global_q)}</h1>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.claim_lead)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2vw, 18px)' }}>
+          <CandyDivide/>
           <div style={{ ...MONO, fontSize: 'clamp(30px, 7vw, 46px)', fontWeight: 700, color: T.ink }}>30 : 4</div>
           <p className="body italic" style={{ margin: 0, color: T.accent, textAlign: 'center' }}>{t(c.claim_em)}</p>
         </div>
@@ -2142,4 +2194,14 @@ html, body { margin: 0; padding: 0; }
 .hint-toggle:hover { border-color: rgba(178, 90, 30, 0.6); }
 .sol-replay { background: #FFFFFF; border: 1px solid rgba(58, 53, 48, 0.14); border-radius: 99px; padding: 6px 12px; font-size: 12px; font-weight: 600; color: #5A5A60; cursor: pointer; transition: color 0.15s; }
 .sol-replay:hover { color: #0E0E10; }
+
+/* === s0 hook: jonli konfet animatsiyasi (mavzu: 30 konfet 4 do'stga) — javobni oshkor qilmaydi === */
+.cd-row { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; max-width: 280px; margin-bottom: 4px; }
+.cd-candy { width: 13px; height: 13px; border-radius: 50%; background: linear-gradient(145deg, #FF6B47, #FF4F28); box-shadow: 0 3px 7px -2px rgba(255, 79, 40, 0.45); opacity: 0; animation: cdIn 0.45s ease-out forwards, cdFloat 3s ease-in-out infinite; }
+@keyframes cdIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes cdFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .cd-candy { animation: cdIn 0.3s ease-out forwards; }
+  .fade-up { animation-duration: 0.01s; }
+}
 `;
