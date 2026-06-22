@@ -1531,7 +1531,7 @@ const SeqMix = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext,
             )}
 
             {(it.kind === 'mixfill' || it.kind === 'dragbin') && (
-              <DragDropItem it={it} solved={solvedItem}
+              <DragDropItem key={idx} it={it} solved={solvedItem}
                 instr={it.kind === 'dragbin' ? c.bin_ask : c.drag_num}
                 binLabels={[{ key: 'carry', label: c.bin_carry }, { key: 'borrow', label: c.bin_borrow }, { key: 'direct', label: c.bin_direct }]}
                 onResult={dragResult}/>
