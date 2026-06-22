@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-// УРОК: Умножение и деление десятичной дроби на 10, 100, 1000 — dec_5_04
+// УРОК: Умножение десятичных дробей — dec_5_05
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
 // ============================================================
@@ -534,6 +534,26 @@ const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   );
 };
 
+// Slider — компонент v15 с track-wrap + track-bg + track-fill + glow
+const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <div className="track-wrap">
+      <div className="track-bg"/>
+      <div className="track-fill" style={{ width: `${pct}%` }}/>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="slider-input"
+      />
+    </div>
+  );
+};
 
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
@@ -594,7 +614,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, findWrong = false }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -680,9 +700,9 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         {titleNode && <Title node={titleNode}/>}
         {/* Заголовок (Title) + текст вопроса остаются и после верного ответа — сворачиваются только неверные варианты. */}
-        <div className="fade-up">{typeof question === 'function' ? question(solved) : question}</div>
+        <div className="fade-up">{question}</div>
         {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
-        {/* keep-visible anti-scroll: остаётся только «верный» вариант (в режиме findWrong — это найденная ошибка), неверные плавно (с задержкой) сворачиваются. */}
+        {/* После верного: остаётся только верный вариант, неверные плавно (с задержкой) сворачиваются — keep-visible anti-scroll. */}
         <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
@@ -690,8 +710,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const isCorrect = i === correctIdx;
             const collapse = solved && !isCorrect;        // после верного неверные сворачиваются
             if (solved) {
-              if (isCorrect) cls += findWrong ? ' option-picked-wrong' : ' option-correct';
-              // сворачивающимся НЕ добавляем цвет-класс — плавно гаснут через inline opacity
+              if (isCorrect) cls += ' option-correct';
+              // неверным НЕ добавляем цвет-класс — плавно гаснут через inline opacity
             } else if (isWrongPicked) {
               cls += ' option-picked-wrong';
             }
@@ -699,8 +719,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
                 style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? (findWrong ? T.accent : T.success) : (isWrongPicked ? T.accent : T.ink3) }}>
-                  {solved && isCorrect ? (findWrong ? '✗' : '✓') : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
+                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
@@ -709,7 +729,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (findWrong ? (lang === 'uz' ? "Xatoni topdingiz" : 'Ошибку нашли') : (lang === 'uz' ? "To'g'ri" : 'Верно')) : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -721,573 +741,342 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   );
 };
 
-// ============================================================
-// NUM INPUT SCREEN — числовой ввод: веди-до-верного + наводящая подсказка, счёт первой попытки.
-// ============================================================
-const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, correctValue, renderVisual, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang();
-  const t = useT();
-  const c = screenContent;
-  const sfx = useSfx();
-  const correct = Number(correctValue);
-  const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
-  const [value, setValue] = useState(wasSolved ? String(correct) : (storedAnswer?.studentAnswer ?? ''));
-  const [solved, setSolved] = useState(wasSolved);
-  const [hintShown, setHintShown] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const submit = () => {
-    if (solved) return;
-    const v = parseFloat(String(value).trim().replace(',', '.')); if (isNaN(v)) return;
-    const isCorrect = Math.abs(v - correct) < 1e-9;
-    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstAnsRef.current = String(v); }
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    if (isCorrect) {
-      setSolved(true); setHintShown(false); sfx.playCorrect();
-      onAnswer({ stage: screenMeta?.scope ?? null, screenIdx: idx, question: typeof c.question === 'object' ? (c.question[lang] || c.question.ru) : null, correctAnswer: String(correct), studentAnswer: firstAnsRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { setHintShown(true); sfx.playWrong(); }
-    if (!audio.muted) {
-      setTimeout(() => {
-        const engine = getAudioEngine();
-        if (engine && !audio.muted) {
-          const wrongVoice = (c.audio_hint && c.audio_hint[lang]) || (c.hint && c.hint[lang]) || (c.audio.on_wrong && c.audio.on_wrong[lang]);
-          engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
-        }
-      }, 300);
-    }
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
-        <div className="fade-up">{c.title && <h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2>}<h2 className="title h-sub">{mt(t(c.question))}</h2></div>
-        {renderVisual && <div className="frame fade-up delay-1" style={{ minHeight: 'clamp(110px, 22vw, 150px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{renderVisual({ value, solved })}</div>}
-        <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          {c.base && <span className="mono" style={{ fontSize: 'clamp(18px, 3vw, 24px)', fontWeight: 600 }}>{t(c.base)}</span>}
-          {c.base && <span className="mop">≈</span>}
-          <input type="text" inputMode="decimal" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
-            onChange={e => { if (!solved) { setValue(e.target.value); setHintShown(false); } }}
-            onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'clamp(100px, 22vw, 140px)' }}/>
-          {!solved && <button className="btn-white-accent" onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>}
-        </div>
-        {hintShown && !solved && (
-          <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
-};
 
 // ============================================================
-// --- ПОД УРОК: dec_5_04 — Умножение и деление десятичной на 10, 100, 1000 (PROMPT 2026-06-14) ---
-// Центральный misconception: "×10 = приписать ноль" (как у натуральных): 2,5×10=2,50 вместо 25.
-// Плюс: двигает запятую не в ту сторону; теряет/дописывает лишние нули. Визуализатор CommaHop
-// (CommaHop/CommaSlide: запятая едет вправо/влево, нули материализуются). Hook = HookUpload (загрузка картинки).
-// Типы тестов: warm-up MC / MC / NumInput / find-the-wrong / fill-blank / comma-placement / MC.
-// Spaced-retrieval s1 (разряды, dec_5_01). Linker-связки 4-A, факты, ✓/✗ feedback, reduced-motion.
-// IT-сюжет: Davron (hook, размеры файлов), Madina (кейс). Факты: научная запись / КБ-МБ-ГБ /
-// двоичный сдвиг — все DRAFT, требуют валидации методиста.
+// --- UROK: dec_5_04 — O'nli kasrni 10, 100, 1000 ga ko'paytirish va bo'lish
+//          Умножение и деление десятичной дроби на 10, 100, 1000
+// Keep-visible noldan yig'ish (etalon: Dars28/Dars37/Dars09). Infra Dars28 dan bayt-aniq.
+// Model: VergulSakraydi — raqam yo'lakchasi; vergul o'ngga (×) yoki chapga (÷) sakraydi,
+//        bo'sh kataklarga nol to'ladi. Hook = konseptual "nega nol qo'shsak xato?".
 // ============================================================
-const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'dec-5-04-v1',
+  lessonId: 'dec-5-04-v2',
   lessonTitle: { ru: 'Умножение и деление десятичной дроби на 10, 100, 1000', uz: "O'nli kasrni 10, 100, 1000 ga ko'paytirish va bo'lish" }
 };
-
-// PROMPT 2-C etaloni (Dars28): jonli idx — komponentlar SCREEN_META[props.screen] ishlatadi.
-// Progressiv birlashtirish: s6+s7 → bitta rule (chip-collapse); s13+s14 → bitta case (final).
+const TOTAL_SCREENS = 13;
 const SCREEN_META = [
-  { id: 's0',         type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0
-  { id: 's1',         type: 'warmup',      template: 'SeqMC',          scored: false, scope: null },        // 1  spaced-retrieval (razryadlar)
-  { id: 's2',         type: 'exploration', template: 'custom',         scored: false, scope: null },        // 2  ×10
-  { id: 's3',         type: 'exploration', template: 'custom',         scored: false, scope: null },        // 3  ×100/×1000
-  { id: 's4',         type: 'exploration', template: 'custom',         scored: false, scope: null },        // 4  maxsus holatlar
-  { id: 's5',         type: 'exploration', template: 'custom',         scored: false, scope: null },        // 5  jonli ×/÷ yo'nalish
-  { id: 's6_7',       type: 'rule',        template: 'custom',         scored: false, scope: null },        // 6  qoida + 2 ehtiyot (birlashgan)
-  { id: 's9',         type: 'test',        template: 'NumInputScreen', scored: true,  scope: 'practice' },  // 7  5÷100=0,05
-  { id: 's_multi',    type: 'test',        template: 'MultiSelect',    scored: true,  scope: 'practice' },  // 8  qaysilari 25 ga teng (multi-select)
-  { id: 's10',        type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },  // 9  xatoni top
-  { id: 's_sort',     type: 'test',        template: 'Sort',           scored: true,  scope: 'practice' },  // 10 katta/kichik (tasniflash)
-  { id: 's_practice', type: 'test',        template: 'SeqMC',          scored: true,  scope: 'practice' },  // 11 4 aralash misol
-  { id: 's11',        type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },  // 12 fill-blank
-  { id: 's12',        type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },  // 13 vergul qo'yish
-  { id: 's13_14',     type: 'case',        template: 'custom',         scored: true,  scope: 'final' },     // 14 masala + yechim (birlashgan)
-  { id: 's16',        type: 'summary',     template: 'custom',         scored: false, scope: null },        // 15
+  { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0
+  { id: 's1',  type: 'warmup',      template: 'SeqMC',          scored: false, scope: null },        // 1  spaced-retrieval (razryadlar)
+  { id: 's2',  type: 'exploration', template: 'custom',         scored: false, scope: null },        // 2  ×10
+  { id: 's3',  type: 'exploration', template: 'custom',         scored: false, scope: null },        // 3  ×100/×1000
+  { id: 's4',  type: 'exploration', template: 'custom',         scored: false, scope: null },        // 4  ÷ (chapga, oldida nollar)
+  { id: 's5',  type: 'rule',        template: 'custom',         scored: false, scope: null },        // 5  qoida (birlashgan)
+  { id: 's6',  type: 'test',        template: 'SeqMC',          scored: true,  scope: 'practice' },  // 6  5 OSON SAVOL
+  { id: 's7',  type: 'test',        template: 'DragToBins',     scored: true,  scope: 'practice' },  // 7  drag-classify ×/÷
+  { id: 's8',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },  // 8  vergulni qo'yish
+  { id: 's9',  type: 'test',        template: 'DragToSlots',    scored: true,  scope: 'practice' },  // 9  drag-fill (nechaga?)
+  { id: 's10', type: 'case',        template: 'QuestionScreen', scored: true,  scope: 'practice' },  // 10 masala (Nilufar)
+  { id: 's11', type: 'test',        template: 'SeqMix',         scored: true,  scope: 'final' },      // 11 6-8 MISOL OSON->QIYIN
+  { id: 's12', type: 'summary',     template: 'custom',         scored: false, scope: null }          // 12
 ];
 
 const CONTENT = {
-  // ── s0 HOOK (анимация HookUpload — загрузка CoddyCamp.jpeg) ──────
+  // ── s0 HOOK — konseptual "nega nol qo'shsak xato?" (harakatli VergulSakraydi) ──
   s0: {
-    eyebrow: { ru: 'Загадка', uz: "Topishmoq" },
-    title: { ru: 'Десять картинок весят как одна?', uz: "O'nta rasm bittasidek tortadimi?" },
-    lead: { ru: 'Davron загрузил для игры 10 картинок, каждая по 2,5 МБ. Чтобы найти общий размер, он умножил 2,5 на 10 и приписал ноль — получил 2,50 МБ.', uz: "Davron o'yin uchun 10 ta rasm yukladi, har biri 2,5 MB. Umumiy hajmni topish uchun u 2,5 ni 10 ga ko'paytirdi va oxiriga nol qo'shdi — 2,50 MB chiqardi." },
-    objection: { ru: 'Но 2,50 — это столько же, сколько 2,5, то есть как одна картинка. Разве 10 картинок весят как одна?', uz: "Lekin 2,50 — bu 2,5 ning o'zi, ya'ni bitta rasmcha. 10 ta rasm bittasidek tortadimi?" },
-    question: { ru: 'Davron прав?', uz: "Davron haqmi?" },
-    opt_yes: { ru: 'Да, 2,50 МБ — верно', uz: "Ha, 2,50 MB — to'g'ri" },
-    opt_no: { ru: 'Нет, 2,50 это то же, что 2,5 — надо двигать запятую, будет 25', uz: "Yo'q, 2,50 bu 2,5 ning o'zi — vergulni surish kerak, 25 bo'ladi" },
-    opt_idk: { ru: 'Не уверен(а)', uz: "Ishonchim komil emas" },
-    audio: { ru: 'Davron загрузил десять картинок, каждая по две целых пять десятых мегабайта. Он умножил на десять и просто приписал ноль, получив две целых пять десятых, только с нулём на конце. Но это столько же, сколько одна картинка. Разве десять картинок весят как одна? Выбери.', uz: "Davron o'nta rasm yukladi, har biri ikki butun o'ndan besh megabayt. U o'nga ko'paytirib, oxiriga shunchaki nol qo'shdi va yana ikki butun o'ndan besh chiqardi, faqat nol bilan. Lekin bu bitta rasmcha bilan barobar. O'nta rasm bittasidek tortadimi? Tanlang." }
+    eyebrow: { ru: 'Вопрос', uz: "Savol" },
+    lead: { ru: 'Кто-то умножил 2,5 на 10 и просто приписал ноль справа — получил 2,50.', uz: "Kimdir 2,5 ni 10 ga ko'paytirdi va o'ngiga shunchaki nol qo'shdi — 2,50 chiqardi." },
+    question: { ru: 'Почему приписать ноль (2,50) — это ошибка?', uz: "Nega oxiriga nol qo'shish (2,50) — bu xato?" },
+    opt0: { ru: '2,50 это столько же, сколько 2,5. Умножение должно увеличить число — двигаем запятую, выходит 25.', uz: "2,50 bu 2,5 ning o'zi. Ko'paytirish sonni kattalashtirishi kerak — vergulni suramiz, 25 bo'ladi." },
+    opt1: { ru: 'Всё верно, 2,50 — это правильный ответ.', uz: "Hammasi to'g'ri, 2,50 — to'g'ri javob." },
+    opt2: { ru: 'Пока не уверен(а).', uz: "Hozircha aniq emas." },
+    audio: { ru: 'Смотри: число две целых пять десятых умножили на десять и просто приписали ноль справа, получив две целых пять десятых с нулём. Но это то же самое число, оно не выросло. А умножение должно увеличивать. Значит ноль приписывать нельзя. Подумай, в чём тут секрет, и выбери ответ.', uz: "Qara: ikki butun o'ndan besh sonini o'nga ko'paytirib, o'ngiga shunchaki nol qo'shishdi, nol bilan ikki butun o'ndan besh chiqdi. Lekin bu o'sha sonning o'zi, u o'smadi. Ko'paytirish esa kattalashtirishi kerak. Demak nol qo'shib bo'lmaydi. Siri nimada ekanini o'ylab, javobni tanlang." }
   },
 
-  // ── s1 WARM-UP — SeqMC, spaced retrieval (прошлый блок: разряды, dec_5_01) ──
+  // ── s1 WARM-UP — SeqMC, spaced retrieval (razryadlar, dec_5_01) ──
   s1: {
     eyebrow: { ru: 'Вспомним', uz: "Eslaymiz" },
-    bridge: { ru: 'Перед новой темой — быстрая разминка по разрядам.', uz: "Yangi mavzudan oldin — xonalar bo'yicha tezkor mashq." },
     title: { ru: 'Вспомним разряды', uz: "Xonalarni eslaymiz" },
-    lead: { ru: 'Три быстрых вопроса. Сегодня это пригодится.', uz: "Uchta tez savol. Bugun bu asqotadi." },
-    questions: [
-      { q: '0,7 = ?', opts: ['7/100', '7/10', '1/7'], correct: 1,
-        ok: { ru: 'Одна цифра после запятой — десятые: 7/10.', uz: "Verguldan keyin bitta raqam — o'ndan: 7/10." },
-        no: { ru: 'Одна цифра после запятой — это десятые. Это 7/10.', uz: "Verguldan keyingi bitta raqam — o'ndan. Bu 7/10." },
-        say: { ru: 'Семь десятых.', uz: "O'ndan yetti." } },
-      { q: '0,03 = ?', opts: ['3/100', '3/10', '3/1000'], correct: 0,
-        ok: { ru: 'Две цифры после запятой — сотые: 3/100.', uz: "Verguldan keyin ikki raqam — yuzdan: 3/100." },
-        no: { ru: 'Две цифры после запятой — это сотые. Это 3/100.', uz: "Verguldan keyin ikki raqam — yuzdan. Bu 3/100." },
-        say: { ru: 'Теперь сотые.', uz: "Endi yuzdan." } },
-      { q: '1/1000 = ?', opts: ['0,1', '0,01', '0,001'], correct: 2,
-        ok: { ru: 'Тысячные — три цифры после запятой: 0,001.', uz: "Mingdan — verguldan keyin uch raqam: 0,001." },
-        no: { ru: 'Тысячные стоят на третьем месте после запятой.', uz: "Mingdan verguldan keyin uchinchi o'rinda turadi." },
-        say: { ru: 'И последний.', uz: "Va oxirgisi." } }
-    ],
+    lead: { ru: 'Три быстрых вопроса — сегодня пригодятся.', uz: "Uchta tez savol — bugun asqotadi." },
     audio: {
-      intro: { ru: 'Перед новой темой вспомним разряды. Чему равна ноль целых семь десятых обыкновенной дробью? Выбери.', uz: "Yangi mavzudan oldin xonalarni eslaymiz. Nol butun o'ndan yetti oddiy kasr bilan nechaga teng? Tanlang." },
-      on_wrong: { ru: 'Не совсем. Сколько цифр после запятой — столько нулей в знаменателе.', uz: "Unchalik emas. Verguldan keyin nechta raqam — maxrajda shuncha nol." },
+      intro: { ru: 'Перед новой темой вспомним разряды. Чему равна ноль целых семь десятых обыкновенной дробью? Нажми ответ.', uz: "Yangi mavzudan oldin xonalarni eslaymiz. Nol butun o'ndan yetti oddiy kasr bilan nechaga teng? Javobni bosing." },
+      on_wrong: { ru: 'Не совсем. Сколько цифр после запятой, столько нулей в знаменателе.', uz: "Unchalik emas. Verguldan keyin nechta raqam, maxrajda shuncha nol." },
       on_done: { ru: 'Разряды помним. Теперь к новой теме.', uz: "Xonalarni eslaymiz. Endi yangi mavzuga." }
-    }
-  },
-
-  // ── s_practice TEST — SeqMC, 4 смешанных примера (×10 / ÷10 / ×100 / ÷1000), scored ──
-  s_practice: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    bridge: { ru: 'Правило в руках — прогоним несколько примеров.', uz: "Qoida qo'lda — bir nechta misol yechamiz." },
-    title: { ru: 'Четыре примера', uz: "To'rtta misol" },
-    lead: { ru: 'Сдвигай запятую в уме. Выбери ответ.', uz: "Vergulni xayolan suring. Javobni tanlang." },
+    },
     questions: [
-      { q: '1,4 × 10', opts: ['1,40', '14', '140'], correct: 1,
-        ok: { ru: 'На 10 — одно место вправо: 14.', uz: "10 ga — bir o'rin o'ngga: 14." },
-        no: { ru: 'Двигай запятую на одно место вправо, не дописывай ноль.', uz: "Vergulni bir o'rin o'ngga suring, nol qo'shmang." },
-        say: { ru: 'Теперь деление.', uz: "Endi bo'lish." } },
-      { q: '6 ÷ 10', opts: ['0,6', '60', '0,06'], correct: 0,
-        ok: { ru: 'На 10 — одно место влево: 0,6.', uz: "10 ga — bir o'rin chapga: 0,6." },
-        no: { ru: 'При делении запятая идёт влево на одно место.', uz: "Bo'lishda vergul bir o'rin chapga boradi." },
-        say: { ru: 'Дальше на сто.', uz: "Keyingisi yuzga." } },
-      { q: '0,3 × 100', opts: ['3', '300', '30'], correct: 2,
-        ok: { ru: 'На 100 — два места вправо: 30.', uz: "100 ga — ikki o'rin o'ngga: 30." },
-        no: { ru: 'На сто двигай вправо на два места.', uz: "Yuzga ikki o'rin o'ngga suring." },
-        say: { ru: 'И последний, на тысячу.', uz: "Va oxirgisi, mingga." } },
-      { q: '45 ÷ 1000', opts: ['0,45', '0,045', '0,0045'], correct: 1,
-        ok: { ru: 'На 1000 — три места влево: 0,045.', uz: "1000 ga — uch o'rin chapga: 0,045." },
-        no: { ru: 'На тысячу запятая идёт влево на три места.', uz: "Mingga vergul uch o'rin chapga boradi." },
-        say: { ru: '', uz: "" } }
-    ],
-    audio: {
-      intro: { ru: 'Прогоним примеры. Сколько будет одна целая четыре десятых умножить на десять? Выбери.', uz: "Misollarni yechamiz. Bir butun o'ndan to'rt karra o'n nechaga teng? Tanlang." },
-      on_wrong: { ru: 'Не спеши. Считай, на сколько мест и в какую сторону.', uz: "Shoshmang. Necha o'rin va qaysi tomonga ekanini sanang." },
-      on_done: { ru: 'Отлично, все примеры решены.', uz: "Ajoyib, hamma misol yechildi." }
-    }
+      { q: { ru: '0,7 = ?', uz: "0,7 = ?" }, opts: ['7/100', '7/10', '1/7'], correct: 1,
+        say: { ru: 'Сколько это обыкновенной дробью?', uz: "Bu oddiy kasr bilan nechaga teng?" },
+        ok: { ru: 'Одна цифра после запятой — десятые: 7/10.', uz: "Verguldan keyin bitta raqam — o'ndan: 7/10." },
+        no: { ru: 'Одна цифра после запятой, это десятые.', uz: "Verguldan keyingi bitta raqam, o'ndan." } },
+      { q: { ru: '0,03 = ?', uz: "0,03 = ?" }, opts: ['3/100', '3/10', '3/1000'], correct: 0,
+        say: { ru: 'А теперь сотые.', uz: "Endi yuzdan." },
+        ok: { ru: 'Две цифры после запятой — сотые: 3/100.', uz: "Verguldan keyin ikki raqam — yuzdan: 3/100." },
+        no: { ru: 'Две цифры после запятой, это сотые.', uz: "Verguldan keyin ikki raqam, yuzdan." } },
+      { q: { ru: '1/1000 = ?', uz: "1/1000 = ?" }, opts: ['0,1', '0,01', '0,001'], correct: 2,
+        say: { ru: 'И последний.', uz: "Va oxirgisi." },
+        ok: { ru: 'Тысячные — три цифры после запятой: 0,001.', uz: "Mingdan — verguldan keyin uch raqam: 0,001." },
+        no: { ru: 'Тысячные стоят на третьем месте после запятой.', uz: "Mingdan verguldan keyin uchinchi o'rinda turadi." } }
+    ]
   },
 
-  // ── s2 EXPLORATION: ×10 — запятая прыгает на 1 разряд вправо ──────
+  // ── s2 EXPLORATION: ×10 — vergul 1 o'rin o'ngga (harakatli) ──
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    bridge: { ru: 'Вспомнили прошлое — теперь исследуем умножение на 10.', uz: "O'tganni esladik — endi 10 ga ko'paytirishni tekshiramiz." },
     title: { ru: 'Умножаем на 10', uz: "10 ga ko'paytiramiz" },
-    lead: { ru: 'Разряды помним — вернёмся к загадке. Умножим 2,5 на 10 правильно.', uz: "Xonalarni eslaymiz — topishmoqqa qaytamiz. 2,5 ni 10 ga to'g'ri ko'paytiramiz." },
-    step_labels: {
-      ru: ['Вот число 2,5. Умножаем на 10 — каждая цифра поднимается на разряд.', 'Запятая прыгнула на одно место вправо: было 2,5, стало 25. В десять раз больше — как и должно быть.'],
-      uz: ["Mana 2,5 soni. 10 ga ko'paytiramiz — har bir raqam bir xonaga ko'tariladi.", "Vergul bir o'rin o'ngga sakradi: 2,5 edi, 25 bo'ldi. O'n marta ko'p — shunday bo'lishi kerak ham."]
-    },
-    note: { ru: 'Вот секрет: умножить на 10 — это сдвинуть запятую на одно место вправо.', uz: "Mana siri: 10 ga ko'paytirish — vergulni bir o'rin o'ngga surish." },
-    btn_step: { ru: 'Дальше', uz: "Davom" },
+    conclusion: { ru: 'Умножить на 10 — это сдвинуть запятую на одно место вправо. 2,5 стало 25 — в десять раз больше.', uz: "10 ga ko'paytirish — vergulni bir o'rin o'ngga surish. 2,5 endi 25 bo'ldi — o'n marta katta." },
+    btn_step: { ru: 'Умножить на 10', uz: "10 ga ko'paytirish" },
+    btn_final: { ru: 'Понятно, дальше', uz: "Tushunarli, davom" },
     audio: {
       ru: [
-        'Разряды мы помним, вернёмся к загадке. Вот число две целых пять десятых, умножаем его на десять. Нажми кнопку.',
-        'Запятая прыгнула на одно место вправо. Было две целых пять десятых, стало двадцать пять. Это в десять раз больше, как и должно быть.'
+        'Вернёмся к нашему числу две целых пять десятых. Умножим его на десять. Нажми кнопку.',
+        'Запятая прыгнула на одно место вправо. Было две целых пять десятых, стало двадцать пять. Это в десять раз больше, как и должно быть при умножении. Никакого нуля приписывать не нужно.'
       ],
       uz: [
-        "Xonalarni eslaymiz, topishmoqqa qaytamiz. Mana ikki butun o'ndan besh soni, uni o'nga ko'paytiramiz. Tugmani bosing.",
-        "Vergul bir o'rin o'ngga sakradi. Ikki butun o'ndan besh edi, yigirma besh bo'ldi. Bu o'n marta ko'p, shunday bo'lishi kerak ham."
+        "Sonimizga qaytamiz, ikki butun o'ndan besh. Uni o'nga ko'paytiramiz. Tugmani bosing.",
+        "Vergul bir o'rin o'ngga sakradi. Ikki butun o'ndan besh edi, yigirma besh bo'ldi. Bu o'n marta katta, ko'paytirishda shunday bo'lishi kerak. Hech qanday nol qo'shish shart emas."
       ]
     }
   },
 
-  // ── s3 EXPLORATION: ×100 и ×1000 — два и три прыжка, нули появляются ──
+  // ── s3 EXPLORATION: ×100 — ikki sakrash, bo'sh xonaga nol ──
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    title: { ru: 'На 100 и на 1000', uz: "100 va 1000 ga" },
-    lead: { ru: 'А если на 100? Тогда запятая прыгает на два места. На 1000 — на три.', uz: "100 ga-chi? Unda vergul ikki o'rin sakraydi. 1000 ga — uch o'rin." },
-    step_labels: {
-      ru: ['2,5 умножаем на 100. Запятая прыгает на одно место…', '…и на второе место. Цифр не хватило — на пустой разряд встал ноль. Стало 250.', 'На 1000 запятая прыгнула бы на три места: 2,5 стало бы 2500, с двумя нулями.'],
-      uz: ["2,5 ni 100 ga ko'paytiramiz. Vergul bir o'rin sakraydi…", "…va ikkinchi o'ringa. Raqam yetmadi — bo'sh xonaga nol turdi. 250 bo'ldi.", "1000 ga vergul uch o'rin sakrardi: 2,5 endi 2500 bo'lardi, ikkita nol bilan."]
-    },
-    note: { ru: 'Сколько нулей в множителе — на столько мест прыгает запятая вправо. Не хватает цифр — дописываем нули.', uz: "Ko'paytuvchida nechta nol — vergul shuncha o'rin o'ngga sakraydi. Raqam yetmasa — nol qo'shamiz." },
-    btn_step: { ru: 'Дальше', uz: "Davom" },
+    title: { ru: 'На 100 — два прыжка', uz: "100 ga — ikki sakrash" },
+    conclusion: { ru: 'Сколько нулей в множителе — на столько мест прыгает запятая. На 100 — два места; не хватило цифры — встал ноль: 250. На 1000 было бы три места.', uz: "Ko'paytuvchida nechta nol — vergul shuncha o'rin sakraydi. 100 ga — ikki o'rin; raqam yetmadi — nol turdi: 250. 1000 ga uch o'rin bo'lardi." },
+    btn_step: { ru: 'Умножить на 100', uz: "100 ga ko'paytirish" },
+    btn_final: { ru: 'Понятно, дальше', uz: "Tushunarli, davom" },
     audio: {
       ru: [
-        'А если умножить на сто? Тогда запятая прыгает на два места. Первый прыжок. Нажми кнопку.',
-        'Второй прыжок. Цифр не хватило, и на пустой разряд встал ноль. Получилось двести пятьдесят.',
-        'А на тысячу запятая прыгнула бы на три места, и две целых пять десятых стало бы две тысячи пятьсот, с двумя нулями.'
+        'А если умножить на сто? У ста два нуля, значит запятая прыгнет на два места. Нажми кнопку.',
+        'Запятая прыгнула на два места вправо. Цифры не хватило, и на пустой разряд встал ноль, получилось двести пятьдесят. А на тысячу запятая прыгнула бы на три места, потому что у тысячи три нуля.'
       ],
       uz: [
-        "100 ga ko'paytirsak-chi? Unda vergul ikki o'rin sakraydi. Birinchi sakrash. Tugmani bosing.",
-        "Ikkinchi sakrash. Raqam yetmadi va bo'sh xonaga nol turdi. Ikki yuz ellik bo'ldi.",
-        "Mingga esa vergul uch o'rin sakrardi, ikki butun o'ndan besh ikki ming besh yuz bo'lardi, ikkita nol bilan."
+        "100 ga ko'paytirsak-chi? Yuzning ikkita noli bor, demak vergul ikki o'rin sakraydi. Tugmani bosing.",
+        "Vergul ikki o'rin o'ngga sakradi. Raqam yetmadi va bo'sh xonaga nol turdi, ikki yuz ellik bo'ldi. Mingga esa vergul uch o'rin sakrardi, chunki mingning uchta noli bor."
       ]
     }
   },
 
-  // ── s4 EXPLORATION: пограничные случаи (запятая исчезает / нули слева) ──
+  // ── s4 EXPLORATION: ÷100 — vergul chapga, oldida nollar ──
   s4: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    title: { ru: 'Два особых случая', uz: "Ikki maxsus holat" },
-    lead: { ru: 'Теперь два особых случая на краях. Смотри внимательно.', uz: "Endi cheklardagi ikki maxsus holat. Diqqat bilan qarang." },
-    cap_a: { ru: '0,5 × 100: запятая ушла за последнюю цифру — число стало целым: 50.', uz: "0,5 × 100: vergul oxirgi raqamdan o'tdi — son butun bo'ldi: 50." },
-    cap_b: { ru: '5 ÷ 100: цифр слева не хватило — впереди появились нули: 0,05.', uz: "5 ÷ 100: chapda raqam yetmadi — oldida nollar paydo bo'ldi: 0,05." },
-    note: { ru: 'При умножении запятая может исчезнуть (целое), при делении — впереди дописываем нули и ноль целых.', uz: "Ko'paytirishda vergul yo'qolishi mumkin (butun), bo'lishda — oldiga nol va nol butun qo'shamiz." },
-    audio: { ru: 'Теперь два особых случая. Ноль целых пять десятых умножить на сто: запятая ушла за последнюю цифру, и число стало целым — пятьдесят. А пять разделить на сто: слева цифр не хватило, поэтому впереди появились нули, получилось ноль целых пять сотых.', uz: "Endi ikki maxsus holat. Nol butun o'ndan beshni yuzga ko'paytiramiz: vergul oxirgi raqamdan o'tdi va son butun bo'ldi — ellik. Beshni yuzga bo'lsak: chapda raqam yetmadi, shuning uchun oldida nollar paydo bo'ldi, nol butun yuzdan besh bo'ldi." }
-  },
-
-  // ── s5 EXPLORATION: живой выбор операции (направление) ─────────────
-  s5: {
-    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    title: { ru: 'Куда прыгает запятая', uz: "Vergul qayoqqa sakraydi" },
-    lead: { ru: 'Попробуй сам. Возьмём 7,5 и нажимай — запятая прыгает живьём.', uz: "O'zingiz sinab ko'ring. 7,5 ni olamiz va bosing — vergul jonli sakraydi." },
-    mul_label: { ru: 'Умножить', uz: "Ko'paytirish" },
-    div_label: { ru: 'Разделить', uz: "Bo'lish" },
-    hint_pick: { ru: 'Нажми любую кнопку — посмотри, куда и на сколько прыгнет запятая.', uz: "Istalgan tugmani bosing — vergul qayoqqa va qancha sakrashini ko'ring." },
-    note_mul: { ru: 'Умножаем — запятая идёт вправо, число растёт.', uz: "Ko'paytiramiz — vergul o'ngga boradi, son o'sadi." },
-    note_div: { ru: 'Делим — запятая идёт влево, число уменьшается.', uz: "Bo'lamiz — vergul chapga boradi, son kichrayadi." },
-    audio: { ru: 'Теперь попробуй сам. Возьмём семь целых пять десятых. Нажимай кнопки умножения и деления и смотри, куда прыгает запятая. При умножении она идёт вправо, при делении — влево.', uz: "Endi o'zingiz sinab ko'ring. Yetti butun o'ndan beshni olamiz. Ko'paytirish va bo'lish tugmalarini bosing va vergul qayoqqa sakrashini kuzating. Ko'paytirishda u o'ngga, bo'lishda chapga boradi." }
-  },
-
-  // ── s6 RULE 1 ─────────────────────────────────────────────────────
-  s6: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Сдвиг запятой увидели — теперь соберём правило.', uz: "Vergul siljishini ko'rdik — endi qoidaga yig'amiz." },
-    title: { ru: 'Правило умножения', uz: "Ko'paytirish qoidasi" },
-    rule_main: { ru: 'Соберём в правило. Чтобы умножить на 10, 100 или 1000 — сдвигаем запятую вправо на столько мест, сколько нулей в множителе. Если цифр не хватает, дописываем нули.', uz: "Qoidaga yig'amiz. 10, 100 yoki 1000 ga ko'paytirish uchun — vergulni ko'paytuvchidagi nollar soni qancha bo'lsa, shuncha o'rin o'ngga suramiz. Raqam yetmasa, nol qo'shamiz." },
-    rule_note: { ru: 'Почему вправо? Умножение на 10 поднимает каждую цифру на разряд выше — десятые становятся единицами.', uz: "Nega o'ngga? 10 ga ko'paytirish har bir raqamni bir xona yuqori ko'taradi — o'ndan birlarga aylanadi." },
-    audio: { ru: 'Соберём увиденное в правило. Чтобы умножить на десять, сто или тысячу, сдвигаем запятую вправо на столько мест, сколько нулей в множителе. Если цифр не хватает, дописываем нули. Так выходит, потому что каждая цифра поднимается на разряд выше.', uz: "Ko'rganlarimizni qoidaga yig'amiz. O'nga, yuzga yoki mingga ko'paytirish uchun vergulni nollar soni qancha bo'lsa shuncha o'rin o'ngga suramiz. Raqam yetmasa nol qo'shamiz. Shunday bo'ladi, chunki har bir raqam bir xona yuqori ko'tariladi." }
-  },
-
-  // ── s7 RULE 2 — две осторожности (направление + лишние нули) ───────
-  s7: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    title: { ru: 'Деление и две осторожности', uz: "Bo'lish va ikki ehtiyotkorlik" },
-    rule_main: { ru: 'Умножение знаем. Деление — наоборот, и есть две осторожности.', uz: "Ko'paytirishni bildik. Bo'lish — aksincha, va ikkita ehtiyotkorlik bor." },
-    warn1_label: { ru: 'Деление: влево', uz: "Bo'lish: chapga" },
-    warn1: { ru: 'При делении на 10, 100, 1000 запятая идёт влево — на столько мест, сколько нулей. Не хватает цифр слева — впереди дописываем нули и ноль целых.', uz: "10, 100, 1000 ga bo'lishda vergul chapga boradi — nollar soni qancha bo'lsa shuncha o'rin. Chapda raqam yetmasa — oldiga nol va nol butun qo'shamiz." },
-    warn2_label: { ru: 'Осторожно: лишний ноль', uz: "Ehtiyot bo'ling: ortiqcha nol" },
-    warn2: { ru: 'Не приписывай ноль, как у натуральных чисел. 2,5 × 10 это 25, а не 2,50. Двигай запятую, а нули — только чтобы заполнить пустые разряды.', uz: "Natural sonlardek nol qo'shmang. 2,5 × 10 bu 25, 2,50 emas. Vergulni suring, nollarni esa — faqat bo'sh xonalarni to'ldirish uchun." },
-    audio: { ru: 'Умножение мы знаем, а деление — наоборот: запятая идёт влево на столько мест, сколько нулей. И две осторожности. Первое: при нехватке цифр слева впереди дописываем нули и ноль целых. Второе: не приписывай лишний ноль, как у натуральных чисел. Две целых пять десятых на десять это двадцать пять, а не две целых пять десятых с нулём.', uz: "Ko'paytirishni bilamiz, bo'lish esa aksincha: vergul nollar soni qancha bo'lsa shuncha o'rin chapga boradi. Va ikkita ehtiyotkorlik. Birinchi: chapda raqam yetmasa oldiga nol va nol butun qo'shamiz. Ikkinchi: natural sonlardek ortiqcha nol qo'shmang. Ikki butun o'ndan besh karra o'n bu yigirma besh, nol bilan ikki butun o'ndan besh emas." }
-  },
-
-  // ── s_multi TEST multi-select: что равно 25 (ломает «приписать ноль») + Факт научная запись ──
-  s_multi: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    bridge: { ru: 'Правило знаем — теперь будь внимателен.', uz: "Qoidani bildik — endi diqqatli bo'ling." },
-    title: { ru: 'Что равно 25?', uz: "Nima 25 ga teng?" },
-    lead: { ru: 'Выбери ВСЕ записи, равные 25. Их несколько. Потом нажми проверить.', uz: "25 ga teng BARCHA yozuvlarni tanlang. Ular bir nechta. So'ng tekshirishni bosing." },
-    opts: ['2,5 × 10', '2,50', '250 ÷ 10', '0,25 × 10'],
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_extra: { ru: 'Среди выбранных есть лишняя. Помни: приписать ноль нельзя, 2,50 это 2,5.', uz: "Tanlanganlar orasida ortiqchasi bor. Yodda tuting: nol qo'shib bo'lmaydi, 2,50 bu 2,5." },
-    hint_missing: { ru: 'Верные выбраны, но не все. Поищи ещё одну.', uz: "To'g'rilari tanlandi, lekin hammasi emas. Yana bittasini qidiring." },
-    correct_text: { ru: 'Верно. 2,5 × 10 и 250 ÷ 10 дают 25. А 2,50 это 2,5, и 0,25 × 10 это 2,5.', uz: "To'g'ri. 2,5 × 10 va 250 ÷ 10 25 ga teng. 2,50 esa 2,5, 0,25 × 10 ham 2,5." },
-    fact: {
-      badge: { ru: 'Знаешь ли ты? · Наука', uz: "Bilasizmi? · Fan" },
-      text: { ru: 'Учёные большие и малые числа пишут через степени десяти и сдвиг запятой. Скорость света — около 3·10⁵ км/с.', uz: "Olimlar katta va kichik sonlarni o'nning darajasi va vergul surish bilan yozadi. Yorug'lik tezligi — taxminan 3·10⁵ km/s." }
-    },
+    title: { ru: 'Делим — запятая идёт влево', uz: "Bo'lamiz — vergul chapga boradi" },
+    conclusion: { ru: 'При делении запятая идёт влево. 5 разделить на 100 — два места влево; слева цифр не хватило, поэтому впереди появились нули и ноль целых: 0,05. На 1000 было бы три места — 0,005.', uz: "Bo'lishda vergul chapga boradi. 5 ni 100 ga — ikki o'rin chapga; chapda raqam yetmadi, shuning uchun oldida nollar va nol butun paydo bo'ldi: 0,05. 1000 ga uch o'rin bo'lardi — 0,005." },
+    btn_step: { ru: 'Разделить на 100', uz: "100 ga bo'lish" },
+    btn_final: { ru: 'Понятно, дальше', uz: "Tushunarli, davom" },
     audio: {
-      intro: { ru: 'Будь внимателен. Выбери все записи, равные двадцати пяти. Их несколько. Потом нажми проверить.', uz: "Diqqatli bo'ling. Yigirma beshga teng barcha yozuvlarni tanlang. Ular bir nechta. So'ng tekshirishni bosing." },
-      on_correct: { ru: 'Верно. Две целых пять десятых умножить на десять и двести пятьдесят разделить на десять дают двадцать пять. А две целых пять десятых с нулём это всё та же две целых пять десятых. А вот и факт: учёные большие и малые числа пишут через степени десяти и сдвиг запятой.', uz: "To'g'ri. Ikki butun o'ndan beshni o'nga ko'paytirish va ikki yuz ellikni o'nga bo'lish yigirma beshga teng. Nol bilan ikki butun o'ndan besh esa o'sha sonning o'zi. Mana fakt: olimlar katta va kichik sonlarni o'nning darajalari va vergul surish bilan yozadi." },
-      on_wrong: { ru: 'Пока нет. Посчитай каждую запись и помни про лишний ноль.', uz: "Hali emas. Har yozuvni hisoblang va ortiqcha nolni yodda tuting." }
+      ru: [
+        'Теперь деление. Возьмём целое число пять и разделим на сто. У ста два нуля. Нажми кнопку.',
+        'Запятая пошла влево на два места. Слева цифр не хватило, поэтому впереди появились нули и ноль целых, получилось ноль целых пять сотых. Деление уменьшает число, и это правильно.'
+      ],
+      uz: [
+        "Endi bo'lish. Butun son beshni olamiz va yuzga bo'lamiz. Yuzning ikkita noli bor. Tugmani bosing.",
+        "Vergul chapga ikki o'rin bordi. Chapda raqam yetmadi, shuning uchun oldida nollar va nol butun paydo bo'ldi, nol butun yuzdan besh chiqdi. Bo'lish sonni kichraytiradi, bu to'g'ri."
+      ]
     }
   },
 
-  // ── s_sort TEST классификация: станет больше (×) / меньше (÷) — ломает направление ──
-  s_sort: {
+  // ── s5 RULE — birlashgan qoida ──
+  s5: {
+    eyebrow: { ru: 'Правило', uz: "Qoida" },
+    title: { ru: 'Одно правило для всего', uz: "Hammasi uchun bitta qoida" },
+    label: { ru: 'Запомни', uz: "Eslab qoling" },
+    rule_mul: { ru: 'Умножаем на 10, 100, 1000 — запятая идёт ВПРАВО на столько мест, сколько нулей в множителе.', uz: "10, 100, 1000 ga ko'paytiramiz — vergul ko'paytuvchidagi nollar soni qancha bo'lsa, shuncha o'rin O'NGGA boradi." },
+    rule_div: { ru: 'Делим на 10, 100, 1000 — запятая идёт ВЛЕВО на столько же мест.', uz: "10, 100, 1000 ga bo'lamiz — vergul shuncha o'rin CHAPGA boradi." },
+    warn_label: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
+    warn: { ru: 'Не приписывай ноль, как у целых чисел! Двигай запятую, а нули — только чтобы заполнить пустые разряды.', uz: "Butun sonlardek nol qo'shmang! Vergulni suring, nollarni esa — faqat bo'sh xonalarni to'ldirish uchun." },
+    audio: { ru: 'Соберём одно правило. Чтобы умножить на десять, сто или тысячу, сдвигаем запятую вправо на столько мест, сколько нулей в множителе. Чтобы разделить — на столько же мест, но влево. И главное: не приписывай ноль, как у целых чисел. Мы двигаем запятую, а нули ставим только туда, где не хватило цифр.', uz: "Bitta qoidaga yig'amiz. O'nga, yuzga yoki mingga ko'paytirish uchun vergulni nollar soni qancha bo'lsa shuncha o'rin o'ngga suramiz. Bo'lish uchun — shuncha o'rin, lekin chapga. Eng muhimi: butun sonlardek nol qo'shmang. Biz vergulni suramiz, nollarni esa faqat raqam yetmagan joyga qo'yamiz." }
+  },
+
+  // ── s6 — 5 OSON SAVOL (SeqMC, scored practice) ──
+  s6: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    bridge: { ru: 'А теперь рассортируй сам.', uz: "Endi o'zingiz ajrating." },
-    title: { ru: 'Больше или меньше?', uz: "Katta yoki kichik?" },
-    lead: { ru: 'Каждую запись отправь в нужную корзину: число станет больше или меньше.', uz: "Har yozuvni kerakli savatga joylang: son katta yoki kichik bo'ladi." },
-    ask: { ru: 'в какую корзину?', uz: "qaysi savatga?" },
+    title: { ru: '5 быстрых примеров', uz: "5 ta tez misol" },
+    lead: { ru: 'Сдвигай запятую в уме. Нажми ответ.', uz: "Vergulni xayolan suring. Javobni bosing." },
+    audio: {
+      intro: { ru: 'Пять быстрых примеров. Считай, на сколько мест и в какую сторону идёт запятая. Нажимай ответ.', uz: "Besh ta tez misol. Vergul necha o'rin va qaysi tomonga borishini sanang. Javobni bosing." },
+      on_wrong: { ru: 'Не спеши. Сколько нулей, столько мест; умножаем, вправо, делим, влево.', uz: "Shoshmang. Nechta nol, shuncha o'rin; ko'paytirsak, o'ngga, bo'lsak, chapga." },
+      on_done: { ru: 'Отлично, все пять решены.', uz: "Ajoyib, beshtasi ham yechildi." }
+    },
+    questions: [
+      { q: { ru: '1,4 × 10', uz: "1,4 × 10" }, opts: ['1,40', '14', '140'], correct: 1,
+        say: { ru: 'Одна целая четыре десятых умножить на десять.', uz: "Bir butun o'ndan to'rt karra o'n." },
+        ok: { ru: 'На 10 — одно место вправо: 14.', uz: "10 ga — bir o'rin o'ngga: 14." },
+        no: { ru: 'Двигай запятую на одно место вправо, ноль не дописывай.', uz: "Vergulni bir o'rin o'ngga suring, nol qo'shmang." } },
+      { q: { ru: '6 ÷ 10', uz: "6 ÷ 10" }, opts: ['0,6', '60', '0,06'], correct: 0,
+        say: { ru: 'Шесть разделить на десять.', uz: "Olti bo'lingan o'n." },
+        ok: { ru: 'На 10 — одно место влево: 0,6.', uz: "10 ga — bir o'rin chapga: 0,6." },
+        no: { ru: 'При делении запятая идёт влево на одно место.', uz: "Bo'lishda vergul bir o'rin chapga boradi." } },
+      { q: { ru: '0,3 × 100', uz: "0,3 × 100" }, opts: ['3', '300', '30'], correct: 2,
+        say: { ru: 'Ноль целых три десятых умножить на сто.', uz: "Nol butun o'ndan uch karra yuz." },
+        ok: { ru: 'На 100 — два места вправо: 30.', uz: "100 ga — ikki o'rin o'ngga: 30." },
+        no: { ru: 'На сто двигай вправо на два места.', uz: "Yuzga ikki o'rin o'ngga suring." } },
+      { q: { ru: '2,5 × 10', uz: "2,5 × 10" }, opts: ['2,50', '25', '250'], correct: 1,
+        say: { ru: 'Две целых пять десятых умножить на десять.', uz: "Ikki butun o'ndan besh karra o'n." },
+        ok: { ru: 'Верно: 25, а не 2,50. Запятую двигаем, ноль не приписываем.', uz: "To'g'ri: 25, 2,50 emas. Vergulni suramiz, nol qo'shmaymiz." },
+        no: { ru: '2,50 это то же, что 2,5. Сдвинь запятую, будет 25.', uz: "2,50 bu 2,5 ning o'zi. Vergulni suring, 25 bo'ladi." } },
+      { q: { ru: '45 ÷ 1000', uz: "45 ÷ 1000" }, opts: ['0,45', '0,045', '0,0045'], correct: 1,
+        say: { ru: 'Сорок пять разделить на тысячу.', uz: "Qirq besh bo'lingan ming." },
+        ok: { ru: 'На 1000 — три места влево: 0,045.', uz: "1000 ga — uch o'rin chapga: 0,045." },
+        no: { ru: 'На тысячу запятая идёт влево на три места.', uz: "Mingga vergul uch o'rin chapga boradi." } }
+    ]
+  },
+
+  // ── s7 — DRAG-CLASSIFY: ×(katta) / ÷(kichik) savatlari ──
+  s7: {
+    eyebrow: { ru: 'Перетащи', uz: "Sudrang" },
+    title: { ru: 'Станет больше или меньше?', uz: "Katta yoki kichik bo'ladi?" },
+    lead: { ru: 'Перетащи каждую запись в нужную корзину: число станет больше или меньше.', uz: "Har bir yozuvni kerakli savatga sudrang: son katta yoki kichik bo'ladi." },
     bin_big: { ru: 'Станет больше (×)', uz: "Katta bo'ladi (×)" },
     bin_small: { ru: 'Станет меньше (÷)', uz: "Kichik bo'ladi (÷)" },
-    hint_wrong: { ru: 'Умножение увеличивает, деление уменьшает. Посмотри на знак.', uz: "Ko'paytirish kattalashtiradi, bo'lish kichraytiradi. Belgiga qarang." },
-    correct_text: { ru: 'Верно. Умножение на 10, 100, 1000 увеличивает число, деление — уменьшает.', uz: "To'g'ri. 10, 100, 1000 ga ko'paytirish sonni kattalashtiradi, bo'lish — kichraytiradi." },
+    it0: { ru: '2,5 × 10', uz: "2,5 × 10" },
+    it1: { ru: '6 ÷ 10', uz: "6 ÷ 10" },
+    it2: { ru: '0,3 × 100', uz: "0,3 × 100" },
+    it3: { ru: '40 ÷ 1000', uz: "40 ÷ 1000" },
+    tray_label: { ru: 'Записи', uz: "Yozuvlar" },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
+    hint_wrong: { ru: 'Умножение увеличивает число, деление уменьшает. Смотри на знак.', uz: "Ko'paytirish sonni kattalashtiradi, bo'lish kichraytiradi. Belgiga qarang." },
+    correct_text: { ru: 'Верно! Умножение на 10, 100, 1000 увеличивает, деление — уменьшает.', uz: "To'g'ri! 10, 100, 1000 ga ko'paytirish kattalashtiradi, bo'lish — kichraytiradi." },
+    fact: { ru: 'Компьютер умножение на 10, 100 и 1000 делает сдвигом запятой — это одна из самых быстрых операций.', uz: "Kompyuter 10, 100, 1000 ga ko'paytirishni vergul surish bilan bajaradi — bu eng tez amallardan biri." },
     audio: {
-      intro: { ru: 'Рассортируй записи. Если умножаем — число станет больше, если делим — меньше. Нажимай на корзину.', uz: "Yozuvlarni ajrating. Ko'paytirsak — son katta, bo'lsak — kichik bo'ladi. Savatni bosing." },
+      intro: { ru: 'Рассортируй записи. Если умножаем, число станет больше, если делим, меньше. Нажми или перетащи в корзину, потом нажми проверить.', uz: "Yozuvlarni ajrating. Ko'paytirsak, son katta, bo'lsak, kichik bo'ladi. Savatga bosing yoki sudrang, keyin tekshirishni bosing." },
       on_correct: { ru: 'Отлично. Умножение увеличивает, деление уменьшает.', uz: "Ajoyib. Ko'paytirish kattalashtiradi, bo'lish kichraytiradi." },
-      on_wrong: { ru: 'Не туда. Знак умножения увеличивает, деления — уменьшает.', uz: "U yer emas. Ko'paytirish belgisi kattalashtiradi, bo'lish — kichraytiradi." }
+      on_wrong: { ru: 'Пока не так. Знак умножения увеличивает, деления, уменьшает.', uz: "Hozircha emas. Ko'paytirish belgisi kattalashtiradi, bo'lish, kichraytiradi." }
     }
   },
 
-  // ── s9 TEST NumInput: деление, целое → десятичная (5 ÷ 100 = 0,05) ──
+  // ── s8 — VERGULNI QO'YISH (custom): 475 ÷ 100 = 4,75 ──
+  s8: {
+    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Поставь запятую', uz: "Vergulni qo'ying" },
+    lead: { ru: '475 ÷ 100. Нажми на промежуток между цифрами, куда встанет запятая.', uz: "475 ÷ 100. Vergul turadigan, raqamlar orasidagi oraliqni bosing." },
+    digits: '475',
+    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
+    hint_wrong: { ru: 'На 100 запятая идёт влево на два места от правого края: между 4 и 7.', uz: "100 ga vergul o'ng chetdan chapga ikki o'rin boradi: 4 va 7 orasiga." },
+    correct_text: { ru: 'Верно: 475 ÷ 100 = 4,75. Два места влево.', uz: "To'g'ri: 475 ÷ 100 = 4,75. Ikki o'rin chapga." },
+    audio: {
+      intro: { ru: 'Поставь запятую сам. Четыреста семьдесят пять разделить на сто. Нажми на нужный промежуток между цифрами, потом нажми проверить.', uz: "Vergulni o'zingiz qo'ying. To'rt yuz yetmish beshni yuzga bo'lamiz. Kerakli oraliqni bosing, keyin tekshirishni bosing." },
+      on_correct: { ru: 'Верно, четыре целых семьдесят пять сотых.', uz: "To'g'ri, to'rt butun yuzdan yetmish besh." },
+      on_wrong: { ru: 'Пока нет. На сто, это два места влево от конца.', uz: "Hali emas. Yuzga, bu oxiridan ikki o'rin chapga." }
+    }
+  },
+
+  // ── s9 — DRAG-FILL: 0,04 ni nechaga ko'paytirsak 40 chiqadi? ──
   s9: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Раздели на 100', uz: "100 ga bo'ling" },
-    question: { ru: 'Хорошо. А теперь деление: 5 ÷ 100. Введи ответ.', uz: "Yaxshi. Endi bo'lish: 5 ÷ 100. Javobni kiriting." },
-    placeholder: { ru: '0', uz: "0" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'На 100 запятая идёт влево на два места. У 5 запятая справа: 5,0. Цифр слева не хватает — впереди ноль целых и ноль: 0,05.', uz: "100 ga vergul chapga ikki o'rin boradi. 5 da vergul o'ngda: 5,0. Chapda raqam yetmaydi — oldiga nol butun va nol: 0,05." },
-    fb_correct: { ru: 'Верно. 5 это 5,0; запятая влево на два места — 0,05.', uz: "To'g'ri. 5 bu 5,0; vergul chapga ikki o'rin — 0,05." },
-    audio: {
-      intro: { ru: 'Хорошо, теперь деление. Пять разделить на сто. Запятая пойдёт влево на два места. Введи ответ и нажми проверить.', uz: "Yaxshi, endi bo'lish. Beshni yuzga bo'lamiz. Vergul chapga ikki o'rin boradi. Javobni kiriting va tekshirishni bosing." },
-      on_correct: { ru: 'Верно, ноль целых пять сотых.', uz: "To'g'ri, nol butun yuzdan besh." },
-      on_wrong: { ru: 'Пока нет. Двигай запятую влево и впереди допиши нули.', uz: "Hali emas. Vergulni chapga suring va oldiga nol qo'shing." }
-    }
-  },
-
-  // ── s10 TEST find-the-wrong (correct B) + Факт КБ-МБ-ГБ ─────────────
-  s10: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    question_pre: { ru: 'Найди ошибку. Какая запись', uz: "Xatoni toping. Qaysi yozuv" },
-    question_em: { ru: 'неверная', uz: "noto'g'ri" },
-    question_post: { ru: '?', uz: "?" },
-    opt0: { ru: '3,1 × 10 = 31', uz: "3,1 × 10 = 31" },
-    opt1: { ru: '2,5 × 10 = 2,50', uz: "2,5 × 10 = 2,50" },
-    opt2: { ru: '0,5 × 100 = 50', uz: "0,5 × 100 = 50" },
-    opt3: { ru: '8,4 ÷ 10 = 0,84', uz: "8,4 ÷ 10 = 0,84" },
-    correct_text: { ru: 'Верно нашёл. 2,5 × 10 = 2,50 — ошибка: 2,50 это то же, что 2,5. Надо двигать запятую: 25.', uz: "To'g'ri topdingiz. 2,5 × 10 = 2,50 — xato: 2,50 bu 2,5 ning o'zi. Vergulni surish kerak: 25." },
-    wrong_0: { ru: 'Ошибка не здесь: 3,1 × 10 = 31 записано правильно. Ищи неверную запись.', uz: "Xato bu yerda emas: 3,1 × 10 = 31 to'g'ri yozilgan. Noto'g'ri yozuvni qidiring." },
-    wrong_2: { ru: 'Ошибка не здесь: 0,5 × 100 = 50 записано правильно. Ищи неверную запись.', uz: "Xato bu yerda emas: 0,5 × 100 = 50 to'g'ri yozilgan. Noto'g'ri yozuvni qidiring." },
-    wrong_3: { ru: 'Ошибка не здесь: 8,4 ÷ 10 = 0,84 записано правильно. Ищи неверную запись.', uz: "Xato bu yerda emas: 8,4 ÷ 10 = 0,84 to'g'ri yozilgan. Noto'g'ri yozuvni qidiring." },
-    fact: {
-      badge: { ru: 'Знаешь ли ты? · IT', uz: "Bilasizmi? · IT" },
-      text: { ru: 'Размеры данных растут шагами по 1000: килобайт, мегабайт, гигабайт. Каждый шаг — сдвиг запятой на три места.', uz: "Ma'lumot hajmi 1000 lik qadamlar bilan o'sadi: kilobayt, megabayt, gigabayt. Har qadam — vergulni uch o'rin surish." }
-    },
-    audio: {
-      intro: { ru: 'Найди неверную запись среди четырёх. В какой из них ошибка? Выбери.', uz: "To'rttasi orasidan noto'g'ri yozuvni toping. Qaysi birida xato? Tanlang." },
-      on_correct: { ru: 'Верно. Приписать ноль нельзя, надо двигать запятую. А вот и факт: размеры данных растут шагами по тысяче — килобайт, мегабайт, гигабайт. Каждый шаг это сдвиг запятой на три места.', uz: "To'g'ri. Nol qo'shib bo'lmaydi, vergulni surish kerak. Mana fakt: ma'lumot hajmi mingtalab qadam bilan o'sadi — kilobayt, megabayt, gigabayt. Har bir qadam vergulni uch o'rin surishdir." },
-      on_wrong: { ru: 'Здесь ошибки нет, запись верная. Ищи ту, где приписали ноль вместо сдвига.', uz: "Bu yerda xato yo'q, yozuv to'g'ri. Nol qo'shilgan, surilmagan yozuvni qidiring." }
-    }
-  },
-
-  // ── s11 TEST fill-blank: на что умножили (0,04 × ▢ = 40 → 1000) ─────
-  s11: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    eyebrow: { ru: 'Перетащи', uz: "Sudrang" },
     title: { ru: 'На что умножили?', uz: "Nechaga ko'paytirilgan?" },
-    lead: { ru: 'Обратный ход. На что умножили 0,04, чтобы получить 40? Впиши множитель.', uz: "Teskari yo'l. 0,04 ni nechaga ko'paytirsak 40 chiqadi? Ko'paytuvchini yozing." },
-    placeholder: { ru: '0', uz: "0" },
+    lead: { ru: 'Обратный ход. Перетащи нужный множитель в клетку, чтобы из 0,04 получилось 40.', uz: "Teskari yo'l. 0,04 dan 40 chiqishi uchun kerakli ko'paytuvchini katakka sudrang." },
+    tray_label: { ru: 'Множители', uz: "Ko'paytuvchilar" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'От 0,04 до 40 запятая прыгнула на три места вправо. Три нуля — это 1000.', uz: "0,04 dan 40 gacha vergul uch o'rin o'ngga sakradi. Uch nol — bu 1000." },
-    fb_correct: { ru: 'Верно. Запятая прыгнула на три места — значит умножили на 1000.', uz: "To'g'ri. Vergul uch o'rin sakradi — demak 1000 ga ko'paytirilgan." },
+    hint_wrong: { ru: 'От 0,04 до 40 запятая прыгнула на три места вправо. Три нуля — это 1000.', uz: "0,04 dan 40 gacha vergul uch o'rin o'ngga sakradi. Uch nol — bu 1000." },
+    correct_text: { ru: 'Верно! Запятая прыгнула на три места — значит умножили на 1000.', uz: "To'g'ri! Vergul uch o'rin sakradi — demak 1000 ga ko'paytirilgan." },
+    fact: { ru: 'Размеры данных растут шагами по 1000: килобайт, мегабайт, гигабайт. Каждый шаг — сдвиг запятой на три места.', uz: "Ma'lumot hajmi 1000 lik qadamlar bilan o'sadi: kilobayt, megabayt, gigabayt. Har qadam — vergulni uch o'rin surish." },
     audio: {
-      intro: { ru: 'Обратный ход. На что умножили ноль целых четыре сотых, чтобы вышло сорок? Впиши множитель и нажми проверить.', uz: "Teskari yo'l. Nol butun yuzdan to'rtni nechaga ko'paytirsak qirq chiqadi? Ko'paytuvchini yozing va tekshirishni bosing." },
-      on_correct: { ru: 'Верно, на тысячу.', uz: "To'g'ri, mingga." },
+      intro: { ru: 'Обратный ход. На что умножили ноль целых четыре сотых, чтобы вышло сорок? Перетащи или нажми нужный множитель в клетку, потом нажми проверить.', uz: "Teskari yo'l. Nol butun yuzdan to'rtni nechaga ko'paytirsak qirq chiqadi? Kerakli ko'paytuvchini katakka sudrang yoki bosing, keyin tekshirishni bosing." },
+      on_correct: { ru: 'Верно, на тысячу. Запятая прошла три места вправо.', uz: "To'g'ri, mingga. Vergul uch o'rin o'ngga bordi." },
       on_wrong: { ru: 'Пока нет. Посчитай, на сколько мест прыгнула запятая.', uz: "Hali emas. Vergul necha o'rin sakraganini sanang." }
     }
   },
 
-  // ── s12 TEST comma-placement: поставь запятую (475 ÷ 100 = 4,75) ────
-  s12: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Поставь запятую', uz: "Vergulni qo'ying" },
-    lead: { ru: 'Поставь запятую сам. 475 ÷ 100 — нажми на нужный промежуток между цифрами.', uz: "Vergulni o'zingiz qo'ying. 475 ÷ 100 — raqamlar orasidagi kerakli oraliqni bosing." },
-    digits: '475',
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'На 100 запятая идёт влево на два места от правого края: между 4 и 7 — будет 4,75.', uz: "100 ga vergul o'ng chetdan chapga ikki o'rin boradi: 4 va 7 orasida — 4,75 bo'ladi." },
-    pick_text: { ru: 'Нажми на промежуток, куда встанет запятая.', uz: "Vergul turadigan oraliqni bosing." },
-    wrong_text: { ru: 'Не там. На 100 — два места влево от конца.', uz: "U yer emas. 100 ga — oxiridan ikki o'rin chapga." },
-    done_text: { ru: 'Верно: 475 ÷ 100 = 4,75. Два места влево.', uz: "To'g'ri: 475 ÷ 100 = 4,75. Ikki o'rin chapga." },
-    audio: {
-      intro: { ru: 'Поставь запятую сам. Четыреста семьдесят пять разделить на сто. Нажми на промежуток между цифрами, куда встанет запятая, и нажми проверить.', uz: "Vergulni o'zingiz qo'ying. To'rt yuz yetmish beshni yuzga bo'lamiz. Vergul turadigan oraliqni bosing va tekshirishni bosing." },
-      on_correct: { ru: 'Верно, четыре целых семьдесят пять сотых.', uz: "To'g'ri, to'rt butun yuzdan yetmish besh." },
-      on_wrong: { ru: 'Пока нет. На сто — это два места влево от конца.', uz: "Hali emas. Yuzga — bu oxiridan ikki o'rin chapga." }
-    }
-  },
-
-  // ── s13 CASE setup (Madina, размер фото) ──────────────────────────
-  s13: {
+  // ── s10 — CASE (Nilufar, foto hajmi): 100 × 0,2 = 20 MB (QuestionScreen, keep-visible) ──
+  s10: {
     eyebrow: { ru: 'Задача', uz: "Masala" },
-    bridge: { ru: 'Потренировались — теперь применим в жизни.', uz: "Mashq qildik — endi hayotda qo'llaymiz." },
-    title: { ru: 'Галерея Madina', uz: "Madinaning galereyasi" },
-    lead: { ru: 'Это нужно в жизни. Madina загружает в галерею 100 фотографий, каждая по 0,2 МБ.', uz: "Bu hayotda kerak. Madina galereyaga 100 ta foto yuklamoqda, har biri 0,2 MB." },
-    question_setup: { ru: 'Сколько мегабайт займут все 100 фотографий?', uz: "Hammasi 100 ta foto necha megabayt egallaydi?" },
-    compact: { ru: '100 фото × 0,2 МБ', uz: "100 ta foto × 0,2 MB" },
-    hint_calc: { ru: 'Здесь умножаем на 100: запятая идёт вправо на два места.', uz: "Bu yerda 100 ga ko'paytiramiz: vergul o'ngga ikki o'rin boradi." },
-    btn_help: { ru: 'Помочь Madina', uz: "Madinaga yordam berish" },
-    audio: { ru: 'Это нужно в жизни. Madina загружает сто фотографий, каждая по ноль целых две десятых мегабайта. Сколько мегабайт займут все сто? Здесь умножаем на сто.', uz: "Bu hayotda kerak. Madina yuzta foto yuklamoqda, har biri nol butun o'ndan ikki megabayt. Hammasi yuztasi necha megabayt egallaydi? Bu yerda yuzga ko'paytiramiz." }
-  },
-
-  // ── s14 CASE solve: 0,2 × 100 (correct A) + Факт двоичный сдвиг ─────
-  s14: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Помоги Madina', uz: "Madinaga yordam bering" },
-    question: { ru: 'Помоги Madina: 100 фото по 0,2 МБ — это сколько?', uz: "Madinaga yordam bering: 100 ta foto, har biri 0,2 MB — bu nechta?" },
+    label: { ru: 'Сколько весят все фото?', uz: "Hamma foto qancha tortadi?" },
+    lead: { ru: 'Это нужно в жизни. Нилуфар загружает в облако 100 фотографий, каждая по 0,2 МБ.', uz: "Bu hayotda kerak. Nilufar bulutga 100 ta foto yuklamoqda, har biri 0,2 MB." },
+    question_text: { ru: '100 × 0,2 МБ = ?', uz: "100 × 0,2 MB = ?" },
     opt0: { ru: '20 МБ', uz: "20 MB" },
     opt1: { ru: '2 МБ', uz: "2 MB" },
     opt2: { ru: '200 МБ', uz: "200 MB" },
-    opt3: { ru: '0,02 МБ', uz: "0,02 MB" },
-    correct_text: { ru: 'Верно. 0,2 × 100 — запятая на два места вправо: 20 МБ.', uz: "To'g'ri. 0,2 × 100 — vergul ikki o'rin o'ngga: 20 MB." },
-    wrong_1: { ru: 'Это умножение только на 10. А на 100 — два места: 20 МБ.', uz: "Bu faqat 10 ga ko'paytirish. 100 ga esa — ikki o'rin: 20 MB." },
-    wrong_2: { ru: 'Это слишком много — на два места, а не на три. Будет 20 МБ.', uz: "Bu juda ko'p — ikki o'rin, uch emas. 20 MB bo'ladi." },
-    wrong_3: { ru: 'Запятая ушла влево, как при делении. При умножении — вправо: 20 МБ.', uz: "Vergul chapga ketdi, bo'lishdagidek. Ko'paytirishda — o'ngga: 20 MB." },
-    wrong_default: { ru: 'Посмотри: на 100 запятая идёт вправо на два места.', uz: "Qarang: 100 ga vergul o'ngga ikki o'rin boradi." },
-    fact: {
-      badge: { ru: 'Знаешь ли ты? · IT', uz: "Bilasizmi? · IT" },
-      text: { ru: 'Компьютер считает в двоичной системе: там сдвиг цифр умножает на 2. У нас сдвиг запятой умножает на 10.', uz: "Kompyuter ikkilik sanoqda ishlaydi: u yerda raqam surish 2 ga ko'paytiradi. Bizda vergul surish 10 ga ko'paytiradi." }
-    },
+    opt3: { ru: '0,2 МБ', uz: "0,2 MB" },
+    correct_text: { ru: 'Верно. Умножаем на 100 — запятая на два места вправо: 0,2 → 20 МБ.', uz: "To'g'ri. 100 ga ko'paytiramiz — vergul ikki o'rin o'ngga: 0,2 → 20 MB." },
+    wrong_1: { ru: 'Это сдвиг лишь на одно место (на 10). А множитель 100 — два места: 20 МБ.', uz: "Bu faqat bir o'rin surish (10 ga). Ko'paytuvchi 100 esa — ikki o'rin: 20 MB." },
+    wrong_2: { ru: 'Три места — это умножение на 1000. А у нас 100 — два места: 20 МБ.', uz: "Uch o'rin — bu 1000 ga ko'paytirish. Bizda 100 — ikki o'rin: 20 MB." },
+    wrong_3: { ru: 'Это размер одной фотографии. А их 100, значит число станет больше: 20 МБ.', uz: "Bu bitta fotoning hajmi. Ular 100 ta, demak son katta bo'ladi: 20 MB." },
+    wrong_default: { ru: 'Умножаем на 100 — два места вправо: 0,2 → 20 МБ.', uz: "100 ga ko'paytiramiz — ikki o'rin o'ngga: 0,2 → 20 MB." },
+    audio_hint_1: { ru: 'Это сдвиг только на одно место. У множителя сто два нуля, нужно два места.', uz: "Bu faqat bir o'rin surish. Ko'paytuvchi yuzning ikkita noli bor, ikki o'rin kerak." },
+    audio_hint_2: { ru: 'Три места, это для тысячи. У нас сто, значит два места.', uz: "Uch o'rin, bu ming uchun. Bizda yuz, demak ikki o'rin." },
+    audio_hint_3: { ru: 'Это размер одной фотографии. Их сто, поэтому число должно вырасти.', uz: "Bu bitta fotoning hajmi. Ular yuzta, shuning uchun son o'sishi kerak." },
+    fact: { ru: 'Учёные большие и малые числа пишут через степени десяти и сдвиг запятой. Скорость света — около 3·10⁵ км/с.', uz: "Olimlar katta va kichik sonlarni o'nning darajasi va vergul surish bilan yozadi. Yorug'lik tezligi — taxminan 3·10⁵ km/s." },
     audio: {
-      intro: { ru: 'Помоги Madina. Сто фотографий по ноль целых две десятых мегабайта. Умножь на сто. Выбери вариант.', uz: "Madinaga yordam bering. Yuzta foto, har biri nol butun o'ndan ikki megabayt. Yuzga ko'paytiring. Variantni tanlang." },
-      on_correct: { ru: 'Верно, двадцать мегабайт. А вот и факт: компьютер считает в двоичной системе, там сдвиг цифр умножает на два, а у нас сдвиг запятой умножает на десять.', uz: "To'g'ri, yigirma megabayt. Mana fakt: kompyuter ikkilik sanoqda ishlaydi, u yerda raqam surish ikkiga ko'paytiradi, bizda esa vergul surish o'nga ko'paytiradi." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tushuntirishga qarang." }
+      intro: { ru: 'Нилуфар загружает сто фотографий, каждая по ноль целых две десятых мегабайта. Сколько мегабайт займут все сто? Здесь умножаем на сто. Выбери ответ.', uz: "Nilufar yuzta foto yuklamoqda, har biri nol butun o'ndan ikki megabayt. Hammasi yuztasi necha megabayt egallaydi? Bu yerda yuzga ko'paytiramiz. Javobni tanlang." },
+      on_correct: { ru: 'Верно. Умножили на сто, запятая прошла два места вправо: ноль целых две десятых стало двадцать. А вот и факт: учёные большие и малые числа записывают через степени десяти и сдвиг запятой.', uz: "To'g'ri. Yuzga ko'paytirdik, vergul ikki o'rin o'ngga bordi: nol butun o'ndan ikki yigirma bo'ldi. Mana fakt: olimlar katta va kichik sonlarni o'nning darajalari va vergul surish bilan yozadi." },
+      on_wrong: { ru: 'Пока нет. Посмотри разбор.', uz: "Hali emas. Tushuntirishga qarang." }
     }
   },
 
-  // ── s16 SUMMARY ───────────────────────────────────────────────────
-  s16: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    bridge: { ru: 'Задачу решили — подведём итог.', uz: "Masalani yechdik — yakun yasaymiz." },
-    heading: { ru: 'Что мы освоили', uz: "Nimani o'rgandik" },
-    title: { ru: 'Итак, теперь вы умеете умножать и делить десятичные на 10, 100, 1000.', uz: "Demak, endi siz o'nli kasrlarni 10, 100, 1000 ga ko'paytirish va bo'lishni bilasiz." },
-    main_label: { ru: 'Главное', uz: "Asosiysi" },
-    points: {
-      ru: [
-        'Умножаем — запятая вправо, делим — влево; на столько мест, сколько нулей.',
-        'Не хватает цифр — дописываем нули (а при делении — ноль целых впереди).',
-        'Не приписывай лишний ноль: 2,5 × 10 это 25, а не 2,50.'
-      ],
-      uz: [
-        "Ko'paytirsak — vergul o'ngga, bo'lsak — chapga; nollar soni qancha bo'lsa shuncha o'rin.",
-        "Raqam yetmasa — nol qo'shamiz (bo'lishda esa — oldiga nol butun).",
-        "Ortiqcha nol qo'shmang: 2,5 × 10 bu 25, 2,50 emas."
-      ]
+  // ── s11 — 6-8 MISOL OSON->QIYIN (SeqMix: mc / input / multi), YAKUNIY ──
+  s11: {
+    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    title: { ru: 'Примеры: от простого к сложному', uz: "Misollar: oddiydan murakkabga" },
+    lead: { ru: 'Семь примеров. Каждый чуть сложнее.', uz: "Yetti misol. Har biri biroz qiyinroq." },
+    audio: {
+      intro: { ru: 'Семь примеров, от простого к сложному. Для каждого считай, на сколько мест и в какую сторону идёт запятая. Поехали.', uz: "Yetti misol, oddiydan murakkabga. Har biriga vergul necha o'rin va qaysi tomonga borishini sanang. Boshladik." },
+      on_wrong: { ru: 'Не совсем. Считай нули множителя и сторону: умножаем, вправо, делим, влево.', uz: "Unchalik emas. Ko'paytuvchi nollarini va tomonni sanang: ko'paytirsak, o'ngga, bo'lsak, chapga." },
+      on_done: { ru: 'Отлично. Ты прошёл от простого примера до самого трудного.', uz: "Zo'r. Oson misoldan eng qiyiniga qadar yetib bordingiz." }
     },
-    hook_close: { ru: 'Помнишь Davron? Он приписал ноль и получил 2,50 — как одна картинка. По правилу 2,5 × 10 это 25 МБ — в десять раз больше, как и должно быть.', uz: "Davron yodingizdami? U nol qo'shib 2,50 chiqardi — bitta rasmcha kabi. Qoida bo'yicha 2,5 × 10 bu 25 MB — o'n marta ko'p, shunday bo'lishi kerak ham." },
+    items: [
+      { type: 'mc', q: { ru: '3,1 × 10', uz: "3,1 × 10" }, opts: ['31', '3,10', '310'], correct: 0,
+        say: { ru: 'Три целых одна десятая умножить на десять.', uz: "Uch butun o'ndan bir karra o'n." },
+        ok: { ru: 'Верно. Одно место вправо: 31.', uz: "To'g'ri. Bir o'rin o'ngga: 31." },
+        no: { ru: 'На 10, одно место вправо, ноль не дописывай.', uz: "10 ga, bir o'rin o'ngga, nol qo'shmang." } },
+      { type: 'input', q: { ru: '8 ÷ 10 = ?', uz: "8 ÷ 10 = ?" }, answer: 0.8,
+        say: { ru: 'Восемь разделить на десять. Введи ответ.', uz: "Sakkiz bo'lingan o'n. Javobni kiriting." },
+        ok: { ru: 'Верно. 8 это 8,0; влево на одно место — 0,8.', uz: "To'g'ri. 8 bu 8,0; chapga bir o'rin — 0,8." },
+        no: { ru: 'У 8 запятая справа: 8,0. Подвинь влево на одно место.', uz: "8 da vergul o'ngda: 8,0. Chapga bir o'rin suring." } },
+      { type: 'mc', q: { ru: '0,5 × 100', uz: "0,5 × 100" }, opts: ['5', '50', '500'], correct: 1,
+        say: { ru: 'Ноль целых пять десятых умножить на сто.', uz: "Nol butun o'ndan besh karra yuz." },
+        ok: { ru: 'Верно. Два места вправо — запятая ушла, стало целое 50.', uz: "To'g'ri. Ikki o'rin o'ngga — vergul ketdi, butun 50 bo'ldi." },
+        no: { ru: 'На 100, два места вправо. Запятая уйдёт за цифру, выйдет целое.', uz: "100 ga, ikki o'rin o'ngga. Vergul raqamdan o'tadi, butun chiqadi." } },
+      { type: 'multi', q: { ru: 'Какие записи равны 25?', uz: "Qaysi yozuvlar 25 ga teng?" }, opts: ['2,5 × 10', '2,50', '250 ÷ 10', '0,25 × 100'], correctSet: [0, 2, 3],
+        say: { ru: 'Отметь все записи, равные двадцати пяти. Их несколько.', uz: "Yigirma beshga teng barcha yozuvlarni belgilang. Ular bir nechta." },
+        ok: { ru: 'Верно. 2,5 × 10, 250 ÷ 10 и 0,25 × 100 дают 25. А 2,50 это всего лишь 2,5.', uz: "To'g'ri. 2,5 × 10, 250 ÷ 10 va 0,25 × 100 25 ga teng. 2,50 esa atigi 2,5." },
+        no: { ru: 'Посчитай каждую и помни: приписать ноль нельзя, 2,50 это 2,5.', uz: "Har birini hisoblang va yodda tuting: nol qo'shib bo'lmaydi, 2,50 bu 2,5." } },
+      { type: 'input', q: { ru: '5 ÷ 100 = ?', uz: "5 ÷ 100 = ?" }, answer: 0.05,
+        say: { ru: 'Пять разделить на сто. Запятая пойдёт влево на два места.', uz: "Beshni yuzga bo'lamiz. Vergul chapga ikki o'rin boradi." },
+        ok: { ru: 'Верно. Слева не хватило цифр — впереди ноль целых и ноль: 0,05.', uz: "To'g'ri. Chapda raqam yetmadi — oldida nol butun va nol: 0,05." },
+        no: { ru: 'Двигай запятую влево и впереди допиши нули: 0,05.', uz: "Vergulni chapga suring va oldiga nol qo'shing: 0,05." } },
+      { type: 'mc', q: { ru: '3,6 ÷ 100', uz: "3,6 ÷ 100" }, opts: ['36', '0,036', '0,36'], correct: 1,
+        say: { ru: 'Три целых шесть десятых разделить на сто.', uz: "Uch butun o'ndan olti bo'lingan yuz." },
+        ok: { ru: 'Верно. Влево на два места, впереди нули: 0,036.', uz: "To'g'ri. Chapga ikki o'rin, oldida nollar: 0,036." },
+        no: { ru: 'Деление, влево на два места; впереди допиши нули.', uz: "Bo'lish, chapga ikki o'rin; oldiga nol qo'shing." } },
+      { type: 'input', q: { ru: '0,008 × 1000 = ?', uz: "0,008 × 1000 = ?" }, answer: 8,
+        say: { ru: 'Ноль целых восемь тысячных умножить на тысячу. Введи ответ.', uz: "Nol butun mingdan sakkiz karra ming. Javobni kiriting." },
+        ok: { ru: 'Верно. Три места вправо — запятая ушла, стало целое 8.', uz: "To'g'ri. Uch o'rin o'ngga — vergul ketdi, butun 8 bo'ldi." },
+        no: { ru: 'У 1000 три нуля, три места вправо. Запятая уйдёт, выйдет 8.', uz: "1000 ning uchta noli bor, uch o'rin o'ngga. Vergul ketadi, 8 chiqadi." } }
+    ]
+  },
+
+  // ── s12 — SUMMARY (kanonik Dars09-13 layout) ──
+  s12: {
+    eyebrow: { ru: 'Итог', uz: "Yakun" },
+    label: { ru: 'Урок пройден', uz: "Dars tugadi" },
+    title: { ru: 'Теперь ты умножаешь и делишь на 10, 100 и 1000.', uz: "Endi siz 10, 100 va 1000 ga ko'paytirasiz va bo'lasiz." },
+    score_caption: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob" },
+    main_label: { ru: 'Главное', uz: "Asosiysi" },
+    main_1: { ru: 'Умножаем — запятая идёт вправо, делим — влево.', uz: "Ko'paytiramiz — vergul o'ngga, bo'lamiz — chapga boradi." },
+    main_2: { ru: 'На сколько мест: сколько нулей в множителе (10 — одно, 100 — два, 1000 — три).', uz: "Necha o'rin: ko'paytuvchida nechta nol (10 — bir, 100 — ikki, 1000 — uch)." },
+    main_3: { ru: 'Не хватает цифр — ставим нули в пустые разряды (250; 0,05).', uz: "Raqam yetmasa — bo'sh xonalarga nol qo'yamiz (250; 0,05)." },
+    main_4: { ru: 'Не приписывай ноль, как у целых: 2,5 × 10 это 25, а не 2,50.', uz: "Butun sonlardek nol qo'shmang: 2,5 × 10 bu 25, 2,50 emas." },
+    back_to_hook: { ru: '2,5 × 10 это не 2,50, а 25 — запятая шагнула вправо.', uz: "2,5 × 10 bu 2,50 emas, 25 — vergul o'ngga qadam tashladi." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Десятичная дробь — концепт», «Сравнение десятичных», «Сложение и вычитание десятичных».', uz: "«O'nli kasr — tushuncha», «O'nli kasrlarni solishtirish», «O'nli kasrlarni qo'shish va ayirish»." },
+    conn_refs: { ru: '«Десятичная дробь и разряды» — десятые, сотые, тысячные.', uz: "«O'nli kasr va xonalar» — o'ndan, yuzdan, mingdan." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'проценты — сотые доли числа.', uz: "foizlar — sonning yuzdan ulushlari." },
+    conn_next: { ru: 'умножение десятичной дроби на десятичную дробь.', uz: "o'nli kasrni o'nli kasrga ko'paytirish." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    audio: { ru: 'Итак, сегодня мы научились умножать и делить десятичные на десять, сто и тысячу. Умножаем — запятая вправо, делим — влево, на столько мест, сколько нулей. Лишний ноль не приписываем. Дальше нас ждут проценты — сотые доли числа.', uz: "Demak, bugun o'nli kasrlarni o'nga, yuzga va mingga ko'paytirish va bo'lishni o'rgandik. Ko'paytirsak vergul o'ngga, bo'lsak chapga, nollar soni qancha bo'lsa shuncha o'rin. Ortiqcha nol qo'shmaymiz. Keyingi darsda foizlar — sonning yuzdan ulushlari kutadi." }
+    audio: { ru: 'Отлично. Теперь ты умножаешь и делишь десятичную дробь на десять, сто и тысячу. Умножаем — запятая идёт вправо, делим — влево, на столько мест, сколько нулей в множителе. Если цифр не хватило, ставим нули в пустые разряды. И помни: ноль приписывать нельзя — две целых пять десятых умножить на десять это двадцать пять, а не две целых пять десятых с нулём. Дальше научимся умножать десятичную дробь на десятичную.', uz: "Zo'r. Endi siz o'nli kasrni o'nga, yuzga va mingga ko'paytirasiz va bo'lasiz. Ko'paytiramiz — vergul o'ngga, bo'lamiz — chapga, ko'paytuvchidagi nollar soni qancha bo'lsa shuncha o'rin. Raqam yetmasa, bo'sh xonalarga nol qo'yamiz. Va yodda tuting: nol qo'shib bo'lmaydi — ikki butun o'ndan besh karra o'n bu yigirma besh, nol bilan ikki butun o'ndan besh emas. Keyin o'nli kasrni o'nli kasrga ko'paytirishni o'rganamiz." }
   }
 };
 
 // ============================================================
-// ВИЗУАЛИЗАТОР dec_5_04: CommaHop — "прыгающая запятая".
-// Число + операция ×/÷ 10/100/1000. При showResult запятая перепрыгивает на places мест
-// (mul → вправо, div → влево), новые нули материализуются (ch-new). На тестах showResult=false →
-// виден только пример (без ответа). Чистый рендер, без state.
+// YORDAMCHILAR (Title/shuffleMC/ConnectionsBlock/Floaters infra'da YO'Q — shu yerda)
 // ============================================================
-const splitDec = (s) => {
-  const str = String(s);
-  const ix = str.indexOf(',');
-  return ix === -1 ? { int: str, frac: '' } : { int: str.slice(0, ix), frac: str.slice(ix + 1) };
-};
-const OP_SIGN = { mul: '×', div: '÷' };
-const placesOf = (f) => (f >= 1000 ? 3 : f >= 100 ? 2 : 1);
+const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
 
-const CommaHop = ({ value, op = 'mul', factor = 10, step = 0, showResult = false, glow = false }) => {
-  const places = placesOf(factor);
-  const moved = Math.max(0, Math.min(step, places));
-  const sp = splitDec(value);
-  const digits = (sp.int + sp.frac).split('');
-  let comma = sp.int.length;
-  let lead = 0, trail = 0;
-  if (showResult && moved > 0) {
-    if (op === 'div') {
-      comma -= moved;
-      while (comma < 1) { digits.unshift('0'); comma += 1; lead += 1; }
-    } else {
-      comma += moved;
-      while (comma > digits.length) { digits.push('0'); trail += 1; }
-    }
-  }
-  const isNew = (i) => i < lead || i >= digits.length - trail;
-  const cells = [];
-  digits.forEach((d, i) => {
-    if (i === comma) cells.push(<span key="cm" className={`ch-cm ${glow ? 'ch-cm-glow' : ''}`}>,</span>);
-    cells.push(<span key={`d${i}`} className={`ch-d ${(lead || trail) && isNew(i) ? 'ch-new' : ''}`}>{d}</span>);
-  });
-  return (
-    <div className={`ch ${glow ? 'ch-glow' : ''}`}>
-      <div className="ch-op"><span className="ch-op-sign">{OP_SIGN[op]}</span><span className="ch-op-f">{factor}</span></div>
-      <div className="ch-num">{cells}</div>
-    </div>
-  );
-};
-
-// ВИЗУАЛИЗАТОР dec_5_04: CommaSlide — запятая ПЛАВНО скользит между разрядами (CSS transition
-// на left), нули проявляются по мере прохода. Сетка ячеек фиксирована (lead+digits+trail),
-// запятая абсолютна по индексу. Объясняет правило ДВИЖЕНИЕМ, не текстом. Чистый рендер.
-const CommaSlide = ({ value, op = 'mul', factor = 10, step = 0, lead = 0, trail = 0, keepComma = false }) => {
-  const places = placesOf(factor);
-  const moved = Math.max(0, Math.min(step, places));
-  const sp = splitDec(value);
-  const digits = (sp.int + sp.frac).split('');
-  const L = lead, len = digits.length;
-  const origComma = lead + sp.int.length;
-  const commaIndex = origComma + (op === 'div' ? -moved : moved);
-  const total = lead + len + trail;
-  const activeOf = (i) => {
-    if (i >= L && i < L + len) return true;   // исходная цифра — всегда
-    if (i < L) return i >= commaIndex - 1;    // ведущий ноль (деление)
-    return i <= commaIndex - 1;               // хвостовой ноль (умножение)
-  };
-  let firstActive = -1;
-  for (let i = 0; i < total; i++) { if (activeOf(i)) { firstActive = i; break; } }
-  // незначащий ведущий ноль исходного числа (стало >= 1) — прячем (0,2 × 100 = 20, не 020)
-  const hideLeadZero = firstActive >= L && digits[firstActive - L] === '0' && (commaIndex - firstActive) >= 2;
-  const lzIdx = hideLeadZero ? firstActive : -1;
-  let hasFrac = false;
-  for (let i = commaIndex; i < total; i++) { if (activeOf(i)) { hasFrac = true; break; } }
-  const cells = [];
-  for (let i = 0; i < total; i++) {
-    const isOrig = i >= L && i < L + len;
-    const ch = isOrig ? digits[i - L] : '0';
-    const on = activeOf(i) && i !== lzIdx;
-    cells.push(<span key={i} className={`cs-d ${isOrig ? '' : 'cs-z'} ${on ? 'cs-on' : 'cs-off'}`}>{ch}</span>);
-  }
-  return (
-    <div className="cs">
-      <div className="ch-op"><span className="ch-op-sign">{OP_SIGN[op]}</span><span className="ch-op-f">{factor}</span></div>
-      <div className="cs-row">
-        {cells}
-        <span className={`cs-cm ${(hasFrac || keepComma) ? '' : 'cs-cm-hide'}`} style={{ left: `calc(${commaIndex} * var(--cw))` }}>,</span>
-      </div>
-    </div>
-  );
-};
-
-// HOOK-анимация s0 (CSS-only, без state): ребёнок загружает картинку (квадрат
-// "CoddyCamp.jpeg", 2,5 МБ) в компьютер — карточка ОДИН раз долетает до монитора и причаливает
-// (mount-settle, без бегущего цикла); непрерывная жизнь экрана — пульс стрелки загрузки на ПК.
-const HookUpload = () => (
-  <div className="hu">
-    <div className="hu-kid" aria-hidden="true"><span className="hu-head"/><span className="hu-body"/></div>
-    <div className="hu-track">
-      <div className="hu-file">
-        <span className="hu-img"><span className="hu-sun"/><span className="hu-hill"/></span>
-        <span className="hu-meta"><span className="hu-name">CoddyCamp.jpeg</span><span className="hu-size">2,5 MB</span></span>
-      </div>
-    </div>
-    <div className="hu-pc" aria-hidden="true"><span className="hu-screen"><span className="hu-arrow"/></span><span className="hu-stand"/><span className="hu-base"/></div>
-  </div>
-);
-
-// ============================================================
-// SCREEN-КОМПОНЕНТЫ — переиспользуемые helpers (из infrastructure_v1 / Dars23)
-// ============================================================
 const shuffleMC = (c, options, correctIdx, order) => {
   const content = { ...c };
-  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
+  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; content[`audio_hint_${newI}`] = c[`audio_hint_${oldI}`]; });
   return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
 };
+
+// Ikonka ✓ — feedback faqat rang bilan emas (accessibility).
+const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
+
+const Floaters = () => (
+  <div className="amb" aria-hidden="true">
+    <span className="amb-o amb-o1"/>
+    <span className="amb-o amb-o2"/>
+    <span className="amb-o amb-o3"/>
+  </div>
+);
 
 const ConnectionsBlock = ({ c }) => {
   const t = useT();
@@ -1299,102 +1088,54 @@ const ConnectionsBlock = ({ c }) => {
   );
 };
 
-const optEl = (t, node) => <span className="body" style={{ display: 'inline' }}>{mt(t(node))}</span>;
-const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
-
-// Мост между фазами: видимая ↳-связка «откуда пришли». Текст также вплетён в lead/intro-аудио экрана.
-const Bridge = ({ node }) => { const t = useT(); return node ? <p className="bridge fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(node))}</p> : null; };
-
-// Устойчивая проверка ответа ПО ЗНАЧЕНИЮ: целые/десятичные (0,5=0.5) и дроби (4/6=2/3).
-const parseAnswerValue = (raw) => {
-  const s = String(raw).trim().replace(',', '.');
-  if (s === '') return null;
-  const mf = s.match(/^(-?\d+)\s*\/\s*(\d+)$/);
-  if (mf) { const d = Number(mf[2]); if (d === 0) return null; return { n: Number(mf[1]), d }; }
-  const num = Number(s);
-  if (!isNaN(num)) return { n: num, d: 1 };
-  return null;
-};
-const answerEq = (raw, target) => {
-  const a = parseAnswerValue(raw); if (!a) return false;
-  const tg = parseAnswerValue(target); if (!tg) return false;
-  return a.n * tg.d === tg.n * a.d;
-};
-
-// Иконки ✓/✗ — feedback не только цветом (accessibility).
-const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
-const IconNo = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
-
-// Ambient-движение для разрежённых экранов (правила, summary): мягкие плавающие круги.
-const Floaters = () => (
-  <div className="amb" aria-hidden="true">
-    <span className="amb-o amb-o1"/>
-    <span className="amb-o amb-o2"/>
-    <span className="amb-o amb-o3"/>
-  </div>
-);
-
 // ============================================================
-// ФАКТ-БЛОК — синяя карта, КРУПНАЯ анимация + мало текста (CSS-only, после верного).
+// FAKT-BLOK (ko'k karta, to'g'ri javobdan keyin)
 // ============================================================
-const FACT_BADGE = { ru: 'Знаешь ли ты?', uz: "Bilasizmi?" };
-const AnimSci = () => (<div className="fa-sci"><span className="fa-sci-base">10</span><span className="fa-sci-exp">5</span><span className="fa-sci-cm">,</span></div>);
-const AnimUnits = () => (<div className="fa-du">{['KB', 'MB', 'GB'].map((u, i) => <span key={u} className="fa-du-u" style={{ animationDelay: `${i * 0.9}s` }}>{u}</span>)}</div>);
-const AnimBinary = () => (<div className="fa-bin">{['1', '0', '1', '0'].map((b, i) => <span key={i} style={{ animationDelay: `${i * 0.3}s` }}>{b}</span>)}</div>);
-
-const FactCard = ({ text, anim, badge }) => {
+const FACT_BADGE = { ru: 'Знаешь ли ты? · IT', uz: "Bilasizmi? · IT" };
+const FACT_BADGE_SCI = { ru: 'Знаешь ли ты? · Наука', uz: "Bilasizmi? · Fan" };
+const AnimProgress = () => (<div className="fa-prog"><div className="fa-prog-fill"/></div>);
+const AnimPow = () => (<div className="fa-pow"><span className="fa-pow-b">10</span><span className="fa-pow-e">n</span></div>);
+const FactCard = ({ text, anim, badge = FACT_BADGE }) => {
   const t = useT();
   return (
     <div className="fact-card fade-up">
       <div className="fact-anim">{anim}</div>
       <div className="fact-body">
-        <p className="fact-badge"><span className="fact-dot"/>{t(badge || FACT_BADGE)}</p>
+        <p className="fact-badge"><span className="fact-dot"/>{t(badge)}</p>
         <p className="fact-text">{mt(t(text))}</p>
       </div>
     </div>
   );
 };
 
-// StepExplore (эталон Dars28): step-gated exploration. Audio TUGAGUNCHA "Davom" tugmasi o'chiq
-// (disabled={audio.isPlaying && !audio.muted}) — bir qadam = bir fikr, audio kesilmaydi. Top-align,
-// scrollsiz; izohlar to'planadi, oxirgisi yashil; qoida pastda frame-tip da.
-const StepExplore = ({ screen, onNext, onPrev, cKey, render }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT[cKey];
-  const arr = c.audio[lang] || c.audio.ru; const last = arr.length - 1;
-  const segs = arr.map((text, i) => ({ id: `${cKey}_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
-  const audio = useAudio(segs);
-  const caps = c.step_labels[lang] || c.step_labels.ru;
-  const [step, setStep] = useState(0);
-  const done = step >= last;
-  const advance = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} onClick={done ? onNext : advance} label={done ? <NextLabel/> : t(c.btn_step)}/></>);
+// ============================================================
+// VIZUALIZATOR — VergulSakraydi (raqam yo'lakchasi; vergul sakraydi, bo'sh katakka nol)
+// cells: [{ d:'2', state:'on'|'off'|'new' }], comma: chegara indeksi (1..cells.length).
+// vergul left = comma * (katak eni + 4px); transition bilan siljiydi. comma===length => butun (yashirin).
+// ============================================================
+const CommaHop = ({ cells, comma, cw = 'clamp(28px, 6.5vw, 40px)' }) => {
+  const n = cells.length;
+  const showComma = comma > 0 && comma < n;
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
-        <Floaters/>
-        <Bridge node={c.bridge}/>
-        {c.title && <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>}
-        {c.lead && <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>}
-        <div className={done ? 'frame fade-up ch-pulse' : 'frame fade-up'} style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', justifyContent: 'center', minHeight: 150 }}>
-          {render(step, done)}
-        </div>
-        {/* Izohlar TO'PLANADI: yangi qadam pastdan chiqadi, eskisi qoladi (oxirgi, to'g'ri bo'lsa — yashil). */}
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 7 }}>
-          {caps.slice(0, step + 1).map((label, i) => {
-            const green = done && i === last;
-            return <div key={i} className={`cap-line fade-up${green ? ' cap-line-ok' : ''}`}><span className="cap-mark">{green ? '✓' : i + 1}</span><p className="body" style={{ margin: 0, fontWeight: 600 }}>{mt(label)}</p></div>;
-          })}
-        </div>
-        {done && c.note && <div className="frame-tip fade-up delay-1" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c.note))}</p></div>}
-      </div>
-    </Stage>
+    <div className="vh-wrap" aria-hidden="true">
+      <span className="vh-cells" style={{ '--vcw': cw, '--cp': comma }}>
+        {cells.map((cell, i) => (
+          <span key={i} className={`vh-cell${cell.state === 'off' ? ' vh-off' : ''}${cell.state === 'new' ? ' vh-new' : ''}`}>{cell.state === 'off' ? '' : cell.d}</span>
+        ))}
+        <span className={`vh-comma${showComma ? '' : ' vh-comma-off'}`}>,</span>
+      </span>
+    </div>
   );
 };
+// Tayyor satr "a × b = c" / "a ÷ b = c" — mono, bo'yalgan natija (rule/case uchun).
+const EqLine = ({ a, op, b, c }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1.6vw, 10px)', justifyContent: 'center', flexWrap: 'wrap', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 'clamp(18px, 3.4vw, 24px)' }}>
+    <span style={{ color: T.ink }}>{a}</span><Op>{op}</Op><span style={{ color: T.ink }}>{b}</span><Op>=</Op><span style={{ color: T.success }}>{c}</span>
+  </div>
+);
 
 // ============================================================
-// SeqMC (эталон Dars28) — ketma-ket bir nechta tez MC (warmup / practice). Mobil-do'st tap.
-// Веди-до-верного: noto'g'ri o'chadi, to'g'ridan keyin avtomatik keyingisiga. scored=true bo'lsa
-// oxirida bitta natija (barcha 1-urinish to'g'ri → correct). Top-anchor (justifyContent center YO'Q).
+// SeqMC — ketma-ket bir nechta tez MC (mobil tap). веди-до-верного; oxirida bitta ball.
 // ============================================================
 const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, onPrev }) => {
   const lang = useLang(); const t = useT(); const c = screenContent; const sfx = useSfx();
@@ -1411,7 +1152,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
   const advanceRef = useRef(null);
   const q = qs[idx];
   const solvedItem = picked === q.correct;
-  const sayItem = (i) => { if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted && qs[i].say && tx(qs[i].say)) e.pushOneOff(qs[i].say[lang]); } };
+  const sayItem = (i) => { if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted && qs[i].say) e.pushOneOff(qs[i].say[lang]); } };
   const finish = (firstTries) => {
     setDone(true);
     if (scored) {
@@ -1444,18 +1185,17 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.3vw, 18px)' }}>
         <Floaters/>
-        <Bridge node={c.bridge}/>
         <div className="fade-up" style={{ position: 'relative' }}>
           <h2 className="title h-title" style={{ marginBottom: 6 }}>{mt(tx(c.title))}</h2>
           <p className="body" style={{ margin: 0, color: T.ink2 }}>{mt(tx(c.lead))}</p>
         </div>
-        <div className="seq-dots fade-up" aria-hidden="true">
+        <div className="seq-dots fade-up" aria-hidden="true" style={{ position: 'relative' }}>
           {qs.map((_, i) => <span key={i} className={`seq-dot${(i < idx || (i === idx && solvedItem) || done) ? ' seq-dot-done' : ''}${(i === idx && !done) ? ' seq-dot-cur' : ''}`}/>)}
         </div>
         {done ? (
           <div className="frame-success fade-up" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma savol yechildi." : 'Все вопросы решены.'}</p>
           </div>
         ) : (
           <>
@@ -1472,7 +1212,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
                 else if (isWrong) cls += ' option-picked-wrong';
                 return (
                   <button key={i} className={cls} disabled={solvedItem || isWrong} onClick={() => pick(i)}
-                    style={{ padding: 'clamp(12px, 1.8vw, 14px) clamp(8px, 1.4vw, 12px)', fontSize: 'clamp(14px, 2vw, 18px)', minHeight: 'clamp(52px, 8vw, 62px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
+                    style={{ padding: 'clamp(12px, 1.8vw, 14px) clamp(8px, 1.4vw, 12px)', fontSize: 'clamp(16px, 2.4vw, 20px)', minHeight: 'clamp(52px, 8vw, 62px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
                     {mt(tx(o))}
                   </button>
                 );
@@ -1491,190 +1231,149 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
   );
 };
 
-// s0 — HOOK (концептуальный) с анимацией HookUpload
-const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s0;
-  const audio = useAudio(makeAudioSegments(c, lang));
-  const opts = [c.opt_yes, c.opt_no, c.opt_idk];
-  const [picked, setPicked] = useState(null);
-  const pick = (i) => {
-    if (picked !== null) return;
-    setPicked(i);
-    onAnswer({ stage: 'hook', screenIdx: 0, question: c.question[lang], options: opts.map(o => o[lang]), correctIndex: null, correctAnswer: null, studentAnswerIndex: i, studentAnswer: opts[i][lang], correct: null, firstTry: null });
-    setTimeout(() => onNext(), 650);
+// ============================================================
+// SeqMix — ketma-ket har xil turdagi savollar (mc / input / multi). веди-до-верного; oxirida bitta ball.
+// input — o'nli son (vergul yoki nuqta qabul qilinadi).
+// ============================================================
+const parseDec = (s) => { const v = parseFloat(String(s).replace(',', '.').replace(/[^\d.-]/g, '')); return isNaN(v) ? null : v; };
+const fmtDec = (n) => String(n).replace('.', ',');
+
+const SeqMix = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = screenContent; const sfx = useSfx();
+  const items = c.items; const n = items.length;
+  const tx = (v) => (typeof v === 'string' ? v : t(v));
+  const audio = useAudio([{ id: `mix${screen}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const wasSolved = storedAnswer?.solved === true;
+  const [idx, setIdx] = useState(wasSolved ? n - 1 : 0);
+  const [done, setDone] = useState(wasSolved);
+  const [solvedItem, setSolvedItem] = useState(wasSolved);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [sel, setSel] = useState(() => new Set());
+  const [val, setVal] = useState('');
+  const [showHint, setShowHint] = useState(false);
+  const firstTryRef = useRef(storedAnswer?.itemsFirstTry ? storedAnswer.itemsFirstTry.slice() : []);
+  const itemErrRef = useRef(false);
+  const introAdvancedRef = useRef(wasSolved);
+  const advanceRef = useRef(null);
+  const it = items[idx];
+
+  const sayItem = (i) => { if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted && items[i].say) e.pushOneOff(items[i].say[lang]); } };
+  const voiceWrong = (node) => { if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff((node && node[lang]) || c.audio.on_wrong[lang]); } };
+
+  const finishAll = (firstTries) => {
+    setDone(true);
+    if (scored) {
+      const ok = firstTries.filter(Boolean).length; const allOk = ok === n;
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: tx(c.title), correctAnswer: 'all', studentAnswer: `${ok}/${n}`, correct: allOk, firstTry: allOk, attempts: n, itemsCorrect: ok, itemsTotal: n, itemsFirstTry: firstTries, solved: true });
+    }
+    if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_done[lang]); }
   };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', padding: 'clamp(12px, 2.4vw, 18px) clamp(10px, 2vw, 16px)' }}>
-          <HookUpload/>
-        </div>
-        <p className="body fade-up delay-2" style={{ position: 'relative', margin: 0 }}>{mt(t(c.objection))}</p>
-        <h2 className="title h-sub fade-up delay-2" style={{ position: 'relative', margin: 0 }}>{mt(t(c.question))}</h2>
-        <div className="fade-up delay-3" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {opts.map((o, i) => (
-            <button key={i} className="option" onClick={() => pick(i)}
-              style={{ padding: 'clamp(11px, 1.6vw, 13px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
-              <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span>
-              <span style={{ flex: 1 }}>{mt(t(o))}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </Stage>
-  );
-};
 
-// s1 — WARM-UP (spaced retrieval, не scored) через SeqMC
-const Screen1 = (props) => <SeqMC {...props} screenContent={CONTENT.s1} scored={false}/>;
-// s_practice — TRENIROVKA: 4 смешанных примера (tap, scored)
-const ScreenPractice = (props) => <SeqMC {...props} screenContent={CONTENT.s_practice} scored={true}/>;
-
-// s2 — EXPLORATION ×10 (один прыжок)
-const Screen2 = (props) => (
-  <StepExplore {...props} cKey="s2" render={(step) => (
-    <CommaSlide value="2,5" op="mul" factor={10} step={step} lead={0} trail={0} keepComma={true}/>
-  )}/>
-);
-
-// s3 — EXPLORATION ×100 / ×1000 (два прыжка + нуль)
-const Screen3 = (props) => (
-  <StepExplore {...props} cKey="s3" render={(step) => (
-    <CommaSlide value="2,5" op="mul" factor={100} step={step} lead={0} trail={1} keepComma={true}/>
-  )}/>
-);
-
-// s4 — EXPLORATION пограничные случаи (целое / нули слева) — custom
-const Screen4 = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s4;
-  const audio = useAudio(makeAudioSegments(c, lang));
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
-        <div className="fade-up delay-1" style={{ position: 'relative', display: 'flex', gap: 'clamp(10px, 2vw, 18px)', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <div className="frame ch-pulse" style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', minWidth: 150 }}>
-            <CommaHop value="0,5" op="mul" factor={100} step={2} showResult={true} glow={true}/>
-            <p className="small" style={{ margin: 0, textAlign: 'center', color: T.ink2 }}>{mt(t(c.cap_a))}</p>
-          </div>
-          <div className="frame ch-pulse" style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', minWidth: 150 }}>
-            <CommaHop value="5" op="div" factor={100} step={2} showResult={true} glow={true}/>
-            <p className="small" style={{ margin: 0, textAlign: 'center', color: T.ink2 }}>{mt(t(c.cap_b))}</p>
-          </div>
-        </div>
-        <div className="frame-tip fade-up delay-2" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c.note))}</p></div>
-      </div>
-    </Stage>
-  );
-};
-
-// s5 — EXPLORATION живой выбор операции — custom (виджет + динамическая формула + легенда)
-const MUL_OPS = [{ op: 'mul', f: 10 }, { op: 'mul', f: 100 }, { op: 'mul', f: 1000 }];
-const DIV_OPS = [{ op: 'div', f: 10 }, { op: 'div', f: 100 }];
-const fmtNum = (n) => (Math.round(n * 1000) / 1000).toString().replace('.', ',');
-const Screen5 = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s5;
-  const audio = useAudio(makeAudioSegments(c, lang));
-  const [sel, setSel] = useState(null);
-  const [hop, setHop] = useState(0);
-  const result = sel ? (sel.op === 'mul' ? 7.5 * sel.f : 7.5 / sel.f) : null;
-  const resColor = sel ? (sel.op === 'mul' ? T.success : T.blue) : T.ink3;
-  const opBtn = (o) => {
-    const active = sel && sel.op === o.op && sel.f === o.f;
-    return (
-      <button key={`${o.op}${o.f}`} className="chip" onClick={() => { setSel(o); setHop(h => h + 1); }}
-        style={{ background: active ? (o.op === 'mul' ? T.success : T.blue) : T.ink2 }}>
-        {OP_SIGN[o.op]} {o.f}
-      </button>
-    );
+  const markFirstTry = (correct) => { if (firstTryRef.current[idx] === undefined) firstTryRef.current[idx] = correct; };
+  const advance = () => {
+    setSolvedItem(true); sfx.playCorrect();
+    const cur = firstTryRef.current.slice();
+    advanceRef.current = setTimeout(() => {
+      if (idx < n - 1) { const ni = idx + 1; setIdx(ni); setSolvedItem(false); setWrong(new Set()); setSel(new Set()); setVal(''); setShowHint(false); itemErrRef.current = false; sayItem(ni); }
+      else finishAll(cur);
+    }, 850);
   };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
+
+  const pickMc = (i) => {
+    if (done || solvedItem || wrong.has(i)) return;
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    const isCorrect = i === it.correct;
+    if (isCorrect) { markFirstTry(!itemErrRef.current); advance(); }
+    else { itemErrRef.current = true; markFirstTry(false); sfx.playWrong(); setWrong(prev => { const s = new Set(prev); s.add(i); return s; }); voiceWrong(it.no); }
+  };
+  const submitInput = () => {
+    if (done || solvedItem) return;
+    const v = parseDec(val);
+    if (v === null) return;
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    const isCorrect = Math.abs(v - it.answer) < 1e-9;
+    if (isCorrect) { markFirstTry(!itemErrRef.current); advance(); }
+    else { itemErrRef.current = true; markFirstTry(false); sfx.playWrong(); setShowHint(true); voiceWrong(it.no); }
+  };
+  const toggleMulti = (i) => { if (done || solvedItem) return; setShowHint(false); setSel(prev => { const s = new Set(prev); if (s.has(i)) s.delete(i); else s.add(i); return s; }); };
+  const submitMulti = () => {
+    if (done || solvedItem) return;
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    const want = new Set(it.correctSet);
+    const ok = sel.size === want.size && [...sel].every(i => want.has(i));
+    if (ok) { markFirstTry(!itemErrRef.current); advance(); }
+    else { itemErrRef.current = true; markFirstTry(false); sfx.playWrong(); setShowHint(true); voiceWrong(it.no); }
+  };
+  useEffect(() => () => { if (advanceRef.current) clearTimeout(advanceRef.current); }, []);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.3vw, 18px)' }}>
         <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1 ch-pulse" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', justifyContent: 'center', alignItems: 'center', minHeight: 150 }}>
-          {sel !== null && <span key={hop} className="cs-flash" aria-hidden="true"/>}
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(20px, 4.4vw, 30px)', letterSpacing: '0.02em' }}>
-            <span>7,5</span> <span style={{ color: T.ink2 }}>{sel ? OP_SIGN[sel.op] : '×'}</span> <span style={{ color: T.accent }}>{sel ? sel.f : 10}</span> <span style={{ color: T.ink2 }}>=</span> <span style={{ color: resColor }}>{sel ? fmtNum(result) : '?'}</span>
-          </div>
-          <CommaSlide value="7,5" op={sel ? sel.op : 'mul'} factor={sel ? sel.f : 10} step={sel ? placesOf(sel.f) : 0} lead={2} trail={2} keepComma={true}/>
+        <div className="fade-up" style={{ position: 'relative' }}>
+          <h2 className="title h-title" style={{ marginBottom: 6 }}>{mt(tx(c.title))}</h2>
+          <p className="body" style={{ margin: 0, color: T.ink2 }}>{mt(tx(c.lead))}</p>
         </div>
-        <div className="fade-up delay-2" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span className="mono small" style={{ color: T.success, minWidth: 90 }}>{t(c.mul_label)}</span>
-            {MUL_OPS.map(opBtn)}
-          </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span className="mono small" style={{ color: T.blue, minWidth: 90 }}>{t(c.div_label)}</span>
-            {DIV_OPS.map(opBtn)}
-          </div>
+        <div className="seq-dots fade-up" aria-hidden="true" style={{ position: 'relative' }}>
+          {items.map((_, i) => <span key={i} className={`seq-dot${(i < idx || (i === idx && solvedItem) || done) ? ' seq-dot-done' : ''}${(i === idx && !done) ? ' seq-dot-cur' : ''}`}/>)}
         </div>
-        <p className="body fade-up delay-3" style={{ position: 'relative', margin: 0, color: sel ? (sel.op === 'mul' ? T.success : T.blue) : T.ink2, fontWeight: sel ? 600 : 400 }}>
-          {mt(t(sel ? (sel.op === 'mul' ? c.note_mul : c.note_div) : c.hint_pick))}
-        </p>
-      </div>
-    </Stage>
-  );
-};
-
-// s6 + s7 — RULE + ИСКЛЮЧЕНИЯ объединены (прогрессивно: правило → chip → деление + две осторожности).
-// Top-align, scrollsiz, bir vaqtda bitta blok ochiq (эталон Dars28 ScreenRule).
-const ScreenRule = ({ screen, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT();
-  const c6 = CONTENT.s6; const c7 = CONTENT.s7;
-  const audio = useAudio([
-    { id: 'rule_a0', text: c6.audio[lang], trigger: 'on_mount', waits_for: { type: 'button_click', target: 'more' } },
-    { id: 'rule_a1', text: c7.audio[lang], trigger: 'on_event:more', waits_for: { type: 'button_click', target: 'next' } }
-  ]);
-  const [phase, setPhase] = useState(0);
-  const moreRef = useRef(false);
-  const reveal = () => { setPhase(1); if (!moreRef.current) { moreRef.current = true; audio.triggerInternal('more'); } };
-  const navContent = phase === 0
-    ? (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={reveal} label={lang === 'uz' ? "Davom etish" : 'Дальше'}/></>)
-    : (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={phase === 0 ? c6.eyebrow : c7.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
-        <Floaters/>
-        {phase === 0 ? (
-          <>
-            <Bridge node={c6.bridge}/>
-            <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c6.title))}</h2>
-            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <p className="body" style={{ margin: 0 }}>{mt(t(c6.rule_main))}</p>
-              <div style={{ display: 'flex', justifyContent: 'center' }}><CommaHop value="2,5" op="mul" factor={100} step={2} showResult={true} glow={true}/></div>
-            </div>
-            <div className="frame-tip fade-up delay-2" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c6.rule_note))}</p></div>
-          </>
+        {done ? (
+          <div className="frame-success fade-up" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ color: T.success }}><IconOk/></span>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.'}</p>
+          </div>
         ) : (
           <>
-            <button className="rule-chip fade-up" onClick={() => setPhase(0)} style={{ position: 'relative' }}>
-              <span className="rule-chip-ic" aria-hidden="true"><IconOk/></span>
-              <span className="rule-chip-tx">{mt(t(c6.title))}</span>
-              <span className="rule-chip-act">{lang === 'uz' ? "ko'rish" : 'показать'}</span>
-            </button>
-            <h2 className="title h-title fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{mt(t(c7.title))}</h2>
-            <div className="fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-              <CommaHop value="5" op="div" factor={100} step={2} showResult={true} glow={true}/>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: 'clamp(14px, 2.6vw, 20px)' }}>
+              {(() => { const qStr = tx(it.q); return qStr.length <= 12
+                ? <div className="dm-prob">{mt(qStr)}</div>
+                : <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(qStr)}</p>; })()}
+              {it.type === 'input' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <input type="text" inputMode="decimal" className={`answer-input ${solvedItem ? 'correct' : ''}`} value={solvedItem ? fmtDec(it.answer) : val} placeholder="0,0" disabled={solvedItem}
+                    onChange={e => { setVal(e.target.value); setShowHint(false); }} onKeyDown={e => e.key === 'Enter' && submitInput()} style={{ width: 'clamp(100px, 22vw, 130px)' }}/>
+                  {!solvedItem && <button className="btn-white-accent" onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>}
+                </div>
+              )}
             </div>
-            <div className="frame-tip fade-up delay-2" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <p className="small mono" style={{ margin: 0, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t(c7.warn1_label)}</p>
-              <p className="body" style={{ margin: 0 }}>{mt(t(c7.warn1))}</p>
-            </div>
-            <div className="frame-tip fade-up delay-3" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <p className="small mono" style={{ margin: 0, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{t(c7.warn2_label)}</p>
-              <p className="body" style={{ margin: 0 }}>{mt(t(c7.warn2))}</p>
-            </div>
+            {it.type === 'mc' && (
+              <div className="fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
+                {it.opts.map((o, i) => {
+                  let cls = 'option';
+                  const isWrong = wrong.has(i); const isCorr = i === it.correct;
+                  if (solvedItem && isCorr) cls += ' option-correct';
+                  else if (isWrong) cls += ' option-picked-wrong';
+                  return (
+                    <button key={i} className={cls} disabled={solvedItem || isWrong} onClick={() => pickMc(i)}
+                      style={{ padding: 'clamp(12px, 1.8vw, 14px) clamp(8px, 1.4vw, 12px)', fontSize: 'clamp(15px, 2.2vw, 19px)', minHeight: 'clamp(52px, 8vw, 62px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
+                      {mt(tx(o))}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {it.type === 'multi' && (
+              <>
+                <div className="fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+                  {it.opts.map((o, i) => {
+                    const on = sel.has(i);
+                    return (
+                      <button key={i} className={`option${on ? ' option-correct' : ''}`} disabled={solvedItem} onClick={() => toggleMulti(i)}
+                        style={{ padding: 'clamp(12px, 1.8vw, 14px) clamp(8px, 1.4vw, 12px)', fontSize: 'clamp(14px, 2vw, 18px)', minHeight: 'clamp(52px, 8vw, 62px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
+                        {mt(tx(o))}
+                      </button>
+                    );
+                  })}
+                </div>
+                {!solvedItem && <div className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={submitMulti} disabled={sel.size === 0} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button></div>}
+              </>
+            )}
+            <FeedbackBlock show={solvedItem || showHint || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
+              <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+              </p>
+              <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? it.ok : it.no))}</p>
+            </FeedbackBlock>
           </>
         )}
       </div>
@@ -1682,445 +1381,460 @@ const ScreenRule = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s_multi — TEST multi-select: выбери ВСЕ, равные 25 (correct = индексы 0 и 2). Ломает «приписать ноль».
-const MULTI_CORRECT = [0, 2];
-const ScreenMulti = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s_multi; const sfx = useSfx();
-  const opts = c.opts;
-  const isCorrectSet = (s) => s.size === MULTI_CORRECT.length && MULTI_CORRECT.every(i => s.has(i));
-  const audio = useAudio([{ id: 's_multi_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+// ============================================================
+// DRAG-AND-DROP — tap (mobil) + sichqoncha-drag gibridi. веди-до-верного, keep-visible, storedAnswer tiklash.
+// ============================================================
+const DragToSlots = ({ screen, idx, c, chips, correct, renderBoard, slotSize = 'sm', factOnCorrect, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const sfx = useSfx();
+  const N = correct.length;
+  const audio = useAudio([{ id: `d${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
   const wasSolved = storedAnswer?.solved === true;
-  const [sel, setSel] = useState(() => new Set(wasSolved ? MULTI_CORRECT : []));
+  const [place, setPlace] = useState(() => (wasSolved ? correct.slice() : Array(N).fill(null)));
+  const [sel, setSel] = useState(null);
   const [solved, setSolved] = useState(wasSolved);
   const [checked, setChecked] = useState(false);
   const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const toggle = (i) => { if (solved) return; setChecked(false); setSel(prev => { const n = new Set(prev); if (n.has(i)) n.delete(i); else n.add(i); return n; }); };
+  const introAdvRef = useRef(wasSolved);
+  const chipById = (id) => chips.find(ch => ch.id === id);
+  const dropTo = (slot) => { if (solved || sel === null) return; setChecked(false); setPlace(p => { const m = [...p]; m[slot] = sel; return m; }); setSel(null); };
+  const returnChip = (slot) => { if (solved) return; setChecked(false); setPlace(p => { const m = [...p]; m[slot] = null; return m; }); };
+  const allPlaced = place.every(v => v !== null);
   const check = () => {
-    if (solved || sel.size === 0) return;
-    const ok = isCorrectSet(sel);
+    if (solved || !allPlaced) return;
+    const ok = correct.every((v, i) => v === place[i]);
     if (firstTryRef.current === null) firstTryRef.current = ok;
     attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
+    if (!introAdvRef.current) { introAdvRef.current = true; audio.triggerEvent('check_pressed'); }
     setChecked(true);
     if (ok) {
       setSolved(true); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: c.title[lang], correctAnswer: MULTI_CORRECT.join(','), studentAnswer: [...sel].join(','), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { sfx.playWrong(); }
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: t(c.title), correctAnswer: correct.join(','), studentAnswer: place.join(','), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
+    } else {
+      sfx.playWrong();
+      setPlace(p => p.map((v, i) => (v === correct[i] ? v : null)));
+    }
     if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
   };
-  const hasExtra = checked && !solved && [...sel].some(i => !MULTI_CORRECT.includes(i));
+  const slotEl = (i) => (
+    <span key={`sl${i}`} className={`dnd-slot dnd-slot-${slotSize}${sel !== null && place[i] === null ? ' dnd-slot-armed' : ''}${solved ? ' dnd-ok' : ''}`}
+      onClick={() => { if (place[i] === null) dropTo(i); else returnChip(i); }}
+      onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); dropTo(i); }}>
+      {place[i] !== null ? chipById(place[i]).node : <span className="dnd-slot-q">?</span>}
+    </span>
+  );
+  const trayChips = chips.filter(ch => !place.includes(ch.id));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 18px)', justifyContent: 'center' }}>
         <Floaters/>
-        <Bridge node={c.bridge}/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
-        <div className="fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
-          {opts.map((o, i) => {
-            const isSel = sel.has(i); const isCorr = MULTI_CORRECT.includes(i);
-            let cls = 'option';
-            if (solved && isCorr) cls += ' option-correct';
-            else if (checked && isSel && isCorr) cls += ' option-correct';
-            else if (checked && isSel && !isCorr) cls += ' option-picked-wrong';
-            const showOk = (solved && isCorr) || (checked && isSel && isCorr);
-            const showNo = checked && isSel && !isCorr;
-            const mark = showOk ? '✓' : (showNo ? '✗' : (isSel ? '☑' : '☐'));
-            const markColor = showOk ? T.success : (showNo ? T.accent : (isSel ? T.accent : T.ink3));
+        <Title node={c.title}/>
+        <p className="body fade-up" style={{ position: 'relative', margin: 0, color: T.ink2 }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.6vw, 22px)' }}>{renderBoard(slotEl)}</div>
+        {!solved && (
+          <div className="dnd-tray fade-up delay-2" style={{ position: 'relative' }}>
+            <span className="dnd-tray-lbl">{t(c.tray_label)}:</span>
+            {trayChips.length === 0 && <span className="small" style={{ color: T.ink3 }}>—</span>}
+            {trayChips.map(ch => (
+              <span key={ch.id} className={`dnd-chip${sel === ch.id ? ' dnd-chip-sel' : ''}`} draggable onDragStart={() => setSel(ch.id)} onClick={() => setSel(s => (s === ch.id ? null : ch.id))}>{ch.node}</span>
+            ))}
+          </div>
+        )}
+        {!solved && <div className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" disabled={!allPlaced} onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button></div>}
+        {checked && !solved && (
+          <div className="frame-tip fade-up" style={{ position: 'relative', display: 'flex', gap: 8 }}>
+            <span style={{ color: '#D8A93A' }} aria-hidden="true">✗</span>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint_wrong))}</p>
+          </div>
+        )}
+        {solved && (
+          <FeedbackBlock show={true} isCorrect={true}>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
+          </FeedbackBlock>
+        )}
+        {solved && factOnCorrect}
+      </div>
+    </Stage>
+  );
+};
+
+const DragToBins = ({ screen, idx, c, items, bins, correct, factOnCorrect, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const sfx = useSfx();
+  const audio = useAudio([{ id: `d${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+  const wasSolved = storedAnswer?.solved === true;
+  const [place, setPlace] = useState(() => (wasSolved ? correct.slice() : items.map(() => null)));
+  const [sel, setSel] = useState(null);
+  const [solved, setSolved] = useState(wasSolved);
+  const [checked, setChecked] = useState(false);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
+  const introAdvRef = useRef(wasSolved);
+  const dropTo = (bin) => { if (solved || sel === null) return; setChecked(false); setPlace(p => { const m = [...p]; m[sel] = bin; return m; }); setSel(null); };
+  const onChipClick = (i) => { if (solved) return; setChecked(false); setSel(s => (s === i ? null : i)); };
+  const returnChip = (i) => { if (solved) return; setChecked(false); setPlace(p => { const m = [...p]; m[i] = null; return m; }); };
+  const allPlaced = place.every(v => v !== null);
+  const check = () => {
+    if (solved || !allPlaced) return;
+    const ok = correct.every((v, i) => v === place[i]);
+    if (firstTryRef.current === null) firstTryRef.current = ok;
+    attemptsRef.current += 1;
+    if (!introAdvRef.current) { introAdvRef.current = true; audio.triggerEvent('check_pressed'); }
+    setChecked(true);
+    if (ok) {
+      setSolved(true); sfx.playCorrect();
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: t(c.title), correctAnswer: correct.join(','), studentAnswer: place.join(','), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
+    } else {
+      sfx.playWrong();
+      setPlace(p => p.map((v, i) => (v === correct[i] ? v : null)));
+    }
+    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
+  };
+  const trayChips = items.map((it, i) => (place[i] === null ? i : null)).filter(i => i !== null);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
+        <Floaters/>
+        <Title node={c.title}/>
+        <p className="body fade-up" style={{ position: 'relative', margin: 0, fontWeight: 600 }}>{mt(t(c.lead))}</p>
+        <div className="dnd-bins fade-up delay-1" style={{ position: 'relative', maxHeight: solved ? 0 : 900, opacity: solved ? 0 : 1, overflow: 'hidden', transition: 'opacity 0.4s, max-height 0.6s' }}>
+          {bins.map(bin => {
+            const inBin = items.map((it, i) => (place[i] === bin.id ? i : null)).filter(i => i !== null);
             return (
-              <button key={i} className={cls} disabled={solved} onClick={() => toggle(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 14px) clamp(12px, 2vw, 16px)', fontSize: 'clamp(15px, 2vw, 18px)', minHeight: 'clamp(52px, 8vw, 62px)', display: 'flex', alignItems: 'center', gap: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, boxShadow: !checked && !solved && isSel ? '0 8px 22px -6px rgba(255, 79, 40, 0.34)' : undefined }}>
-                <span style={{ minWidth: 22, fontSize: 18, color: markColor }}>{mark}</span>
-                <span style={{ flex: 1 }}>{o}</span>
-              </button>
+              <div key={bin.id} className={`dnd-bin${sel !== null ? ' dnd-bin-armed' : ''}`} onClick={() => dropTo(bin.id)}
+                onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); dropTo(bin.id); }}>
+                <span className="dnd-bin-lbl">{t(bin.label)}</span>
+                <div className="dnd-bin-slot">
+                  {inBin.map(i => {
+                    const right = solved && place[i] === correct[i];
+                    return (
+                      <span key={i} className={`dnd-chip dnd-chip-in${right ? ' dnd-ok' : ''}`} draggable={!solved} onDragStart={() => setSel(i)}
+                        onClick={e => { e.stopPropagation(); returnChip(i); }}>{items[i].node}</span>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </div>
         {!solved && (
-          <div className="fade-up delay-2" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-            <button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 28px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
+          <div className="dnd-tray fade-up delay-2" style={{ position: 'relative' }}>
+            <span className="dnd-tray-lbl">{t(c.tray_label)}:</span>
+            {trayChips.length === 0 && <span className="small" style={{ color: T.ink3 }}>—</span>}
+            {trayChips.map(i => (
+              <span key={i} className={`dnd-chip${sel === i ? ' dnd-chip-sel' : ''}`} draggable onDragStart={() => setSel(i)} onClick={() => onChipClick(i)}>{items[i].node}</span>
+            ))}
           </div>
         )}
+        {!solved && <div className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" disabled={!allPlaced} onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button></div>}
         {checked && !solved && (
           <div className="frame-tip fade-up" style={{ position: 'relative', display: 'flex', gap: 8 }}>
-            <span style={{ color: '#D8A93A' }} aria-hidden="true"><IconNo/></span>
-            <p className="body" style={{ margin: 0 }}>{mt(t(hasExtra ? c.hint_extra : c.hint_missing))}</p>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
-          </FeedbackBlock>
-        )}
-        {solved && <FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimSci/>}/>}
-      </div>
-    </Stage>
-  );
-};
-
-// s_sort — TEST классификация: станет больше (×) / меньше (÷). Ломает направление сдвига.
-const SortChevron = ({ dir }) => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-    {dir === 'down' ? <polyline points="6 9 12 15 18 9"/> : <polyline points="6 15 12 9 18 15"/>}
-  </svg>
-);
-const SORT_CARDS = [
-  { label: '2,5 × 10', bin: 'big' }, { label: '7 × 100', bin: 'big' },
-  { label: '0,5 × 1000', bin: 'big' }, { label: '0,9 × 10', bin: 'big' },
-  { label: '3,2 ÷ 10', bin: 'small' }, { label: '45 ÷ 100', bin: 'small' },
-  { label: '8 ÷ 10', bin: 'small' }, { label: '60 ÷ 100', bin: 'small' }
-];
-const SORT_BINS = [{ key: 'big', dir: 'up' }, { key: 'small', dir: 'down' }];
-const ScreenSort = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s_sort; const sfx = useSfx();
-  const [deck] = useState(() => { const a = SORT_CARDS.map(x => x); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; });
-  const n = deck.length;
-  const audio = useAudio([{ id: 's_sort_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
-  const wasSolved = storedAnswer?.solved === true;
-  const allPlaced = () => { const o = {}; deck.forEach((cd, i) => { o[i] = cd.bin; }); return o; };
-  const [idx, setIdx] = useState(wasSolved ? n : 0);
-  const [placed, setPlaced] = useState(() => (wasSolved ? allPlaced() : {}));
-  const [done, setDone] = useState(wasSolved);
-  const [hint, setHint] = useState(false);
-  const [flash, setFlash] = useState(null);
-  const firstTryRef = useRef(storedAnswer?.itemsFirstTry ? storedAnswer.itemsFirstTry.slice() : []);
-  const introAdvancedRef = useRef(wasSolved);
-  const advRef = useRef(null); const flashRef = useRef(null);
-  const cur = idx < n ? deck[idx] : null;
-  const finish = (fts) => {
-    setDone(true);
-    const itemsCorrect = fts.filter(Boolean).length; const allOk = itemsCorrect === n;
-    onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: c.title[lang], correctAnswer: deck.map(cd => cd.bin).join(','), studentAnswer: `${itemsCorrect}/${n}`, correct: allOk, firstTry: allOk, attempts: n, itemsCorrect, itemsTotal: n, itemsFirstTry: fts, solved: true });
-    if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_correct[lang]); }
-  };
-  const tapBin = (bin) => {
-    if (done || !cur) return;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
-    const correct = bin === cur.bin;
-    if (firstTryRef.current[idx] === undefined) firstTryRef.current[idx] = correct;
-    if (correct) {
-      setHint(false); setPlaced(p => ({ ...p, [idx]: bin })); sfx.playCorrect();
-      const snap = firstTryRef.current.slice();
-      advRef.current = setTimeout(() => { if (idx + 1 < n) setIdx(idx + 1); else { setIdx(n); finish(snap); } }, 480);
-    } else {
-      sfx.playWrong(); setHint(true);
-      setFlash(bin); if (flashRef.current) clearTimeout(flashRef.current);
-      flashRef.current = setTimeout(() => setFlash(null), 450);
-      if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_wrong[lang]); }
-    }
-  };
-  useEffect(() => () => { if (advRef.current) clearTimeout(advRef.current); if (flashRef.current) clearTimeout(flashRef.current); }, []);
-  const inBin = (bin) => deck.map((cd, i) => i).filter(i => placed[i] === bin);
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
-        <Floaters/>
-        <Bridge node={c.bridge}/>
-        <div className="fade-up" style={{ position: 'relative' }}>
-          <h2 className="title h-title" style={{ marginBottom: 6 }}>{mt(t(c.title))}</h2>
-          <p className="body" style={{ margin: 0, color: T.ink2 }}>{mt(t(c.lead))}</p>
-        </div>
-        <div className="seq-dots fade-up" aria-hidden="true">
-          {deck.map((_, i) => <span key={i} className={`seq-dot${(i < idx || done) ? ' seq-dot-done' : ''}${(i === idx && !done) ? ' seq-dot-cur' : ''}`}/>)}
-        </div>
-        <div className="sort-tray fade-up delay-1">
-          {done
-            ? <span className="sort-tray-card" style={{ color: T.success }} aria-hidden="true">✓</span>
-            : <><span className="sort-tray-card" key={idx}>{cur.label}</span><span className="sort-tray-ask">{mt(t(c.ask))}</span></>}
-        </div>
-        <div className="sort-bins fade-up delay-2">
-          {SORT_BINS.map(b => (
-            <button key={b.key} className={`sort-bin sort-bin-${b.key === 'big' ? 'sq' : 'cu'}${flash === b.key ? ' sort-bin-bad' : ''}`} disabled={done} onClick={() => tapBin(b.key)}>
-              <span className="sort-bin-h"><SortChevron dir={b.dir}/>{b.key === 'big' ? mt(t(c.bin_big)) : mt(t(c.bin_small))}</span>
-              <span className="sort-bin-cards">
-                {inBin(b.key).map(i => <span key={i} className="sort-chip-in">{deck[i].label}</span>)}
-              </span>
-            </button>
-          ))}
-        </div>
-        {hint && !done && (
-          <div className="frame-tip fade-up" style={{ position: 'relative', display: 'flex', gap: 8 }}>
-            <span style={{ color: '#D8A93A' }} aria-hidden="true"><IconNo/></span>
+            <span style={{ color: '#D8A93A' }} aria-hidden="true">✗</span>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint_wrong))}</p>
           </div>
         )}
-        {done && (
+        {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
             <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
+        {solved && factOnCorrect}
       </div>
     </Stage>
   );
 };
 
-// s9 — TEST NumInput: 5 ÷ 100 = 0,05 (decimal-bardosh: type=text inputMode=decimal, vergul/nuqta)
-const Screen9 = (props) => {
-  const c = CONTENT.s9;
-  return <NumInputScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={c} correctValue={0.05} renderVisual={({ solved }) => <CommaSlide value="5" op="div" factor={100} step={solved ? 2 : 0} lead={2} trail={0}/>}/>;
-};
-
-// s10 — TEST find-the-wrong (correct B) + Факт КБ-МБ-ГБ
-const Screen10 = (props) => {
-  const t = useT(); const c = CONTENT.s10;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 1, [3, 1, 0, 2]);
-  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{t(c.question_pre)} <span className="italic" style={{ color: T.accent }}>{t(c.question_em)}</span>{t(c.question_post)}</h2></>);
-  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} question={question} options={options} correctIdx={correctIdx} findWrong={true} factOnCorrect={<FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimUnits/>}/>}/>;
-};
-
-// s11 — TEST fill-blank: на что умножили (0,04 × ▢ = 40 → 1000)
-const Screen11 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s11;
-  const sfx = useSfx();
-  const audio = useAudio([{ id: 's11_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const TARGET = '1000';
-  const wasSolved = storedAnswer?.solved === true;
-  const [value, setValue] = useState(wasSolved ? TARGET : (storedAnswer?.studentAnswer ?? ''));
-  const [solved, setSolved] = useState(wasSolved);
-  const [hintShown, setHintShown] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
-  const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const submit = () => {
-    if (solved) return;
-    if (value.trim() === '') return;
-    const isCorrect = answerEq(value, TARGET);
-    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstAnsRef.current = value.trim(); }
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    if (isCorrect) {
-      setSolved(true); setHintShown(false); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.lead[lang], correctAnswer: TARGET, studentAnswer: firstAnsRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { setHintShown(true); sfx.playWrong(); }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(isCorrect ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
+// ============================================================
+// SCREEN-KOMPONENTLAR
+// ============================================================
+// s0 — HOOK: konseptual, harakatli VergulSakraydi (2,5 ↔ 25 loop) + reveal-MC
+const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s0;
+  const audio = useAudio(makeAudioSegments(c, lang));
+  const opts = [c.opt0, c.opt1, c.opt2];
+  const [picked, setPicked] = useState(null);
+  const [phase, setPhase] = useState(0);   // 0: 2,5  1: 25 (vergul o'ngga sakradi)
+  useEffect(() => {
+    const id = setInterval(() => setPhase(p => (p === 0 ? 1 : 0)), 1700);
+    return () => clearInterval(id);
+  }, []);
+  const cells = [{ d: '2', state: 'on' }, { d: '5', state: 'on' }];
+  const comma = phase === 0 ? 1 : 2;
+  const pick = (i) => {
+    if (picked !== null) return;
+    setPicked(i);
+    onAnswer({ stage: 'hook', screenIdx: 0, question: c.question[lang], options: opts.map(o => o[lang]), correctIndex: null, correctAnswer: null, studentAnswerIndex: i, studentAnswer: opts[i][lang], correct: null, firstTry: null });
   };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
         <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
-        <div className="fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px, 1.4vw, 10px)', flexWrap: 'wrap' }}>
-          <span className="mono" style={{ fontSize: 'clamp(20px, 3.6vw, 28px)', fontWeight: 600 }}>0,04</span>
-          <span className="mop" style={{ fontSize: 'clamp(18px, 3vw, 24px)' }}>×</span>
-          <input type="text" inputMode="numeric" className={`answer-input ${solved ? 'correct' : ''}`} value={value} placeholder={t(c.placeholder)} disabled={solved}
-            onChange={e => { if (!solved) { setValue(e.target.value); setHintShown(false); } }}
-            onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'clamp(90px, 20vw, 120px)' }}/>
-          <span className="mop" style={{ fontSize: 'clamp(18px, 3vw, 24px)' }}>=</span>
-          <span className="mono" style={{ fontSize: 'clamp(20px, 3.6vw, 28px)', fontWeight: 600 }}>40</span>
-          {!solved && <button className="btn-white-accent" onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>}
-        </div>
-        {hintShown && !solved && (
-          <div className="frame-tip fade-up" style={{ display: 'flex', gap: 8 }}>
-            <span style={{ color: '#D8A93A' }}><IconNo/></span>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
+        <p className="body fade-up" style={{ position: 'relative', color: T.ink2 }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1 hook-alive" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}><span className="hook-sheen" aria-hidden="true"/><span className="hook-glow" aria-hidden="true"/>
+          <CommaHop cells={cells} comma={comma}/>
+          <p className="mono small" style={{ margin: 0, color: phase === 1 ? T.success : T.ink2, fontWeight: 600 }}>{phase === 0 ? '2,5  × 10 …' : (lang === 'uz' ? "→ vergul o'ngga: 25" : '→ запятая вправо: 25')}</p>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+            <span className="mono" style={{ fontSize: 'clamp(15px, 2.4vw, 18px)', color: T.ink3, textDecoration: 'line-through' }}>2,50 ✗</span>
+            <span className="mono" style={{ fontSize: 'clamp(15px, 2.4vw, 18px)', color: T.success, fontWeight: 700 }}>25 ✓</span>
           </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s12 — TEST comma-placement: поставь запятую в 475 (475 ÷ 100 = 4,75; верный gap = 1)
-const Screen12 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s12;
-  const sfx = useSfx();
-  const audio = useAudio([{ id: 's12_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
-  const DIG = c.digits.split('');
-  const CORRECT_GAP = 1; // между 4 и 7
-  const wasSolved = storedAnswer?.solved === true;
-  const [pickedGap, setPickedGap] = useState(wasSolved ? CORRECT_GAP : (storedAnswer?.pickedGap ?? null));
-  const [solved, setSolved] = useState(wasSolved);
-  const [bad, setBad] = useState(() => new Set());
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const pick = (g) => {
-    if (solved || bad.has(g)) return;
-    const isCorrect = g === CORRECT_GAP;
-    setPickedGap(g);
-    if (firstTryRef.current === null) firstTryRef.current = isCorrect;
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
-    if (isCorrect) {
-      setSolved(true); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.lead[lang], correctAnswer: '4,75', studentAnswer: '4,75', correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-      if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_correct[lang]); }, 300);
-    } else {
-      setBad(prev => { const n = new Set(prev); n.add(g); return n; }); setPickedGap(null); sfx.playWrong();
-      if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.audio.on_wrong[lang]); }, 300);
-    }
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, minHeight: 110 }}>
-          {DIG.map((d, i) => (
-            <React.Fragment key={i}>
-              {i > 0 && (
-                <button className={`cp-gap ${solved && CORRECT_GAP === i ? 'cp-on' : ''} ${bad.has(i) ? 'cp-bad' : ''}`} disabled={solved || bad.has(i)} onClick={() => pick(i)} aria-label="comma gap">
-                  <span className="cp-cm" style={{ opacity: (solved && CORRECT_GAP === i) || pickedGap === i ? 1 : 0 }}>,</span>
-                </button>
-              )}
-              <span className="cp-d">{d}</span>
-            </React.Fragment>
+        </div>
+        <h2 className="title h-sub fade-up delay-2" style={{ position: 'relative' }}>{mt(t(c.question))}</h2>
+        <div className="fade-up delay-3" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {opts.map((o, i) => (
+            <button key={i} className="option" disabled={picked !== null} onClick={() => pick(i)} style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(46px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
+              <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span><span style={{ flex: 1 }}>{t(o)}</span>
+            </button>
           ))}
         </div>
-        <p className="body fade-up delay-2" style={{ margin: 0, textAlign: 'center', color: solved ? T.success : (bad.size ? T.accent : T.ink2), fontWeight: solved || bad.size ? 600 : 400, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-          {solved && <IconOk/>}{mt(t(solved ? c.done_text : (bad.size ? c.wrong_text : c.pick_text)))}
-        </p>
       </div>
     </Stage>
   );
 };
 
-// s13 + s14 — CASE объединён (прогрессивно: условие → компактный контекст ОСТАЁТСЯ + вопрос).
-// Scored: final. Keep-visible MC (заголовок+вопрос+верный остаются, неверные сворачиваются).
-const ScreenCase = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const sfx = useSfx();
-  const c0 = CONTENT.s13; const c = CONTENT.s14;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [2, 0, 3, 1]);
-  const audio = useAudio([
-    { id: 'case_a0', text: c0.audio[lang], trigger: 'on_mount', waits_for: { type: 'button_click', target: 'help' } },
-    { id: 'case_a1', text: c.audio.intro[lang], trigger: 'on_event:help', waits_for: { type: 'option_picked' } }
-  ]);
-  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
-  const [phase, setPhase] = useState(wasSolved ? 1 : 0);
-  const [solved, setSolved] = useState(wasSolved);
-  const [picked, setPicked] = useState(wasSolved ? correctIdx : null);
-  const [wrong, setWrong] = useState(() => new Set());
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const helpRef = useRef(wasSolved);
-  const reveal = () => { setPhase(1); if (!helpRef.current) { helpRef.current = true; audio.triggerInternal('help'); } };
-  const pick = (i) => {
-    if (solved || wrong.has(i)) return;
-    const isCorrect = i === correctIdx;
-    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstIdxRef.current = i; }
-    attemptsRef.current += 1;
-    setPicked(i);
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
-    if (isCorrect) {
-      setSolved(true); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: content.question?.[lang] ?? null, correctIndex: correctIdx, correctAnswer: typeof options[correctIdx] === 'string' ? options[correctIdx] : null, studentAnswerIndex: firstIdxRef.current, correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else {
-      sfx.playWrong();
-      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
-    }
-    if (!audio.muted) {
-      setTimeout(() => {
-        const e = getAudioEngine();
-        if (e && !audio.muted) {
-          const wrongVoice = (content[`wrong_${i}`] && content[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
-          e.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
-        }
-      }, 300);
-    }
-  };
-  const navContent = phase === 0
-    ? (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={reveal} label={t(c0.btn_help)}/></>)
-    : (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={phase === 0 ? c0.eyebrow : c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)' }}>
-        <Floaters/>
-        {phase === 0 ? (
-          <>
-            <Bridge node={c0.bridge}/>
-            <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c0.title))}</h2>
-            <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{mt(t(c0.lead))}</p>
-            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}><CommaHop value="0,2" op="mul" factor={100} showResult={false}/></div>
-            <p className="body fade-up delay-2" style={{ position: 'relative', margin: 0, fontWeight: 600 }}>{mt(t(c0.question_setup))}</p>
-            <div className="frame-tip fade-up delay-3" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c0.hint_calc))}</p></div>
-          </>
-        ) : (
-          <>
-            <div className="case-ctx fade-up" style={{ position: 'relative' }}>
-              <span className="case-ctx-tag">{mt(t(c0.title))}</span>
-              <span className="case-ctx-tx">{mt(t(c0.compact))}</span>
-              <span className="case-ctx-prob">0,2 × 100</span>
-            </div>
-            <h2 className="title h-sub fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{mt(t(c.question))}</h2>
-            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}><CommaSlide value="0,2" op="mul" factor={100} step={solved ? 2 : 0} lead={0} trail={1}/></div>
-            <div className="fade-up delay-1" style={{ position: 'relative', display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
-              {options.map((opt, i) => {
-                let cls = 'option';
-                const isWrongPicked = wrong.has(i);
-                const isCorrect = i === correctIdx;
-                const collapse = solved && !isCorrect;
-                if (solved && isCorrect) cls += ' option-correct';
-                else if (isWrongPicked) cls += ' option-picked-wrong';
-                const disabled = solved || isWrongPicked;
-                return (
-                  <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                    style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
-                    <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>{solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}</span>
-                    <span style={{ flex: 1 }}>{opt}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-              <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
-              </p>
-              <p className="body" style={{ margin: 0 }}>{mt(solved ? t(content.correct_text) : t(content[`wrong_${picked}`] || c.wrong_default || content.correct_text))}</p>
-            </FeedbackBlock>
-            {solved && <FactCard text={c.fact.text} badge={c.fact.badge} anim={<AnimBinary/>}/>}
-          </>
-        )}
-      </div>
-    </Stage>
-  );
-};
+// s1 — WARM-UP SeqMC (razryadlar)
+const Screen1 = (props) => <SeqMC {...props} screenContent={CONTENT.s1} scored={false}/>;
 
-// s16 — SUMMARY + закрытие hook + связи + ambient
-const Screen16 = ({ screen, onPrev, onReset, finishLesson }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s16;
-  const audio = useAudio(makeAudioSegments(c, lang));
-  const calledRef = useRef(false);
-  useEffect(() => { if (!calledRef.current) { calledRef.current = true; finishLesson(); } }, []);
-  const points = c.points[lang] || c.points.ru;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button></>);
+// s2 — EXPLORATION ×10 (VergulSakraydi)
+const Screen2 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s2;
+  const arr = c.audio[lang]; const last = arr.length - 1;
+  const segs = arr.map((text, i) => ({ id: `s2_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
+  const audio = useAudio(segs);
+  const [step, setStep] = useState(0);
+  const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
+  const cells = [{ d: '2', state: 'on' }, { d: '5', state: 'on' }];
+  const comma = step >= 1 ? 2 : 1;
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)' }}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)', justifyContent: 'center' }}>
         <Floaters/>
-        <Bridge node={c.bridge}/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
-        <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
-          <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            {points.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{mt(m)}</p></div>))}
+        <h2 className="title h-sub fade-up" style={{ position: 'relative' }}>{mt(t(c.title))}</h2>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', minHeight: 170, justifyContent: 'center' }}>
+          <span className="mono" style={{ fontSize: 'clamp(15px, 2.4vw, 18px)', color: step >= 1 ? T.success : T.ink2, fontWeight: 600 }}>{step >= 1 ? '2,5 × 10 = 25' : '2,5 × 10'}</span>
+          <CommaHop cells={cells} comma={comma}/>
+          {step >= 1 && <p className="body fade-up" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.conclusion))}</p>}
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+// s3 — EXPLORATION ×100 (ikki sakrash + nol)
+const Screen3 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s3;
+  const arr = c.audio[lang]; const last = arr.length - 1;
+  const segs = arr.map((text, i) => ({ id: `s3_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
+  const audio = useAudio(segs);
+  const [step, setStep] = useState(0);
+  const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
+  const cells = [{ d: '2', state: 'on' }, { d: '5', state: 'on' }, { d: '0', state: step >= 1 ? 'new' : 'off' }];
+  const comma = step >= 1 ? 3 : 1;
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)', justifyContent: 'center' }}>
+        <Floaters/>
+        <h2 className="title h-sub fade-up" style={{ position: 'relative' }}>{mt(t(c.title))}</h2>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', minHeight: 170, justifyContent: 'center' }}>
+          <span className="mono" style={{ fontSize: 'clamp(15px, 2.4vw, 18px)', color: step >= 1 ? T.success : T.ink2, fontWeight: 600 }}>{step >= 1 ? '2,5 × 100 = 250' : '2,5 × 100'}</span>
+          <CommaHop cells={cells} comma={comma}/>
+          {step >= 1 && <p className="body fade-up" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.conclusion))}</p>}
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+// s4 — EXPLORATION ÷100 (chapga, oldida nollar)
+const Screen4 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s4;
+  const arr = c.audio[lang]; const last = arr.length - 1;
+  const segs = arr.map((text, i) => ({ id: `s4_a${i}`, text, trigger: i === 0 ? 'on_mount' : `on_event:step_${i}`, waits_for: { type: 'button_click', target: i < last ? 'step' : 'next' } }));
+  const audio = useAudio(segs);
+  const [step, setStep] = useState(0);
+  const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
+  // 5 ÷ 100 = 0,05  →  cells ['0','0','5']; boshda faqat '5' (butun, comma=3), keyin chapga 2 o'rin (comma=1), oldida ikki nol
+  const cells = [{ d: '0', state: step >= 1 ? 'new' : 'off' }, { d: '0', state: step >= 1 ? 'new' : 'off' }, { d: '5', state: 'on' }];
+  const comma = step >= 1 ? 1 : 3;
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)', justifyContent: 'center' }}>
+        <Floaters/>
+        <h2 className="title h-sub fade-up" style={{ position: 'relative' }}>{mt(t(c.title))}</h2>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', minHeight: 170, justifyContent: 'center' }}>
+          <span className="mono" style={{ fontSize: 'clamp(15px, 2.4vw, 18px)', color: step >= 1 ? T.success : T.ink2, fontWeight: 600 }}>{step >= 1 ? '5 ÷ 100 = 0,05' : '5 ÷ 100'}</span>
+          <CommaHop cells={cells} comma={comma}/>
+          {step >= 1 && <p className="body fade-up" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.conclusion))}</p>}
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+// s5 — RULE (birlashgan)
+const Screen5 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s5;
+  const audio = useAudio(makeAudioSegments(c, lang));
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+        <Floaters/>
+        <h2 className="title h-sub fade-up" style={{ position: 'relative' }}>{mt(t(c.title))}</h2>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <EqLine a="2,5" op="×" b="10" c="25"/>
+            <EqLine a="5" op="÷" b="100" c="0,05"/>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <p className="eyebrow" style={{ color: T.ink2, margin: 0 }}>{t(c.label)}</p>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}><span style={{ color: T.success, fontWeight: 700, marginTop: 1 }}>→</span><p className="body" style={{ margin: 0 }}>{mt(t(c.rule_mul))}</p></div>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}><span style={{ color: T.blue, fontWeight: 700, marginTop: 1 }}>←</span><p className="body" style={{ margin: 0 }}>{mt(t(c.rule_div))}</p></div>
+          </div>
+          <div className="frame-tip" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <p className="small mono" style={{ margin: 0, fontWeight: 700, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t(c.warn_label)}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.warn))}</p>
           </div>
         </div>
-        <div className="frame-success fade-up delay-2" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div style={{ display: 'flex', justifyContent: 'center' }}><CommaHop value="2,5" op="mul" factor={10} step={1} showResult={true} glow={true}/></div>
-          <p className="body" style={{ margin: 0 }}>{mt(t(c.hook_close))}</p>
+      </div>
+    </Stage>
+  );
+};
+
+// s6 — 5 OSON SAVOL (SeqMC)
+const Screen6 = (props) => <SeqMC {...props} screenContent={CONTENT.s6} scored={true}/>;
+
+// s7 — DRAG-CLASSIFY (×/÷ savatlari)
+const Screen7 = (props) => {
+  const t = useT(); const c = CONTENT.s7;
+  const items = [c.it0, c.it1, c.it2, c.it3].map((node, i) => ({ id: i, node: <span className="mono" style={{ fontWeight: 700, fontSize: 'clamp(14px, 2.1vw, 17px)' }}>{t(node)}</span> }));
+  const bins = [{ id: 'big', label: c.bin_big }, { id: 'small', label: c.bin_small }];
+  const correct = ['big', 'small', 'big', 'small'];   // 2,5×10 / 6÷10 / 0,3×100 / 40÷1000
+  return <DragToBins {...props} idx={7} c={c} items={items} bins={bins} correct={correct} factOnCorrect={<FactCard text={c.fact} anim={<AnimProgress/>} badge={FACT_BADGE}/>}/>;
+};
+
+// s8 — VERGULNI QO'YISH (custom): 475 ÷ 100 = 4,75
+const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s8; const sfx = useSfx();
+  const digits = c.digits.split('');                  // ['4','7','5']
+  const correctGap = 1;                               // 4 | 7 5  →  4,75
+  const audio = useAudio([{ id: 's8_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const wasSolved = storedAnswer?.solved === true;
+  const [pickedGap, setPickedGap] = useState(wasSolved ? correctGap : null);
+  const [solved, setSolved] = useState(wasSolved);
+  const [wrong, setWrong] = useState(false);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
+  const introAdvRef = useRef(wasSolved);
+  const pickGap = (g) => {
+    if (solved) return;
+    const ok = g === correctGap;
+    if (firstTryRef.current === null) firstTryRef.current = ok;
+    attemptsRef.current += 1;
+    setPickedGap(g);
+    if (!introAdvRef.current) { introAdvRef.current = true; audio.triggerEvent('option_picked'); }
+    if (ok) {
+      setSolved(true); setWrong(false); sfx.playCorrect();
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? null, screenIdx: screen, question: t(c.title), correctAnswer: '4,75', studentAnswer: '4,75', correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
+    } else { setWrong(true); sfx.playWrong(); }
+    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 18px)', justifyContent: 'center' }}>
+        <Floaters/>
+        <Title node={c.title}/>
+        <p className="body fade-up" style={{ position: 'relative', margin: 0, color: T.ink2 }}>{mt(t(c.lead))}</p>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(16px, 3vw, 26px)' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center' }}>
+            {digits.map((d, i) => (
+              <React.Fragment key={i}>
+                {i > 0 && (
+                  <button className={`cp-gap${pickedGap === i ? (i === correctGap ? ' cp-gap-ok' : ' cp-gap-no') : ''}`} disabled={solved} onClick={() => pickGap(i)} aria-label="comma slot">
+                    <span className="cp-comma">{pickedGap === i ? ',' : ''}</span>
+                  </button>
+                )}
+                <span className="cp-digit">{d}</span>
+              </React.Fragment>
+            ))}
+          </span>
         </div>
+        <FeedbackBlock show={pickedGap !== null} isCorrect={solved} wrongClass="frame-tip">
+          <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+          </p>
+          <p className="body" style={{ margin: 0 }}>{mt(t(solved ? c.correct_text : c.hint_wrong))}</p>
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+};
+
+// s9 — DRAG-FILL: 0,04 × [1000] = 40
+const Screen9 = (props) => {
+  const c = CONTENT.s9;
+  const chips = ['10', '100', '1000'].map(v => ({ id: v, node: <span className="mono" style={{ fontWeight: 700, fontSize: 'clamp(15px, 2.4vw, 19px)' }}>{v}</span> }));
+  const correct = ['1000'];
+  const renderBoard = (slotEl) => (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'clamp(6px, 1.8vw, 12px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, fontSize: 'clamp(18px, 3.4vw, 24px)' }}>
+      <span style={{ color: T.ink }}>0,04</span><Op>×</Op>{slotEl(0)}<Op>=</Op><span style={{ color: T.success }}>40</span>
+    </span>
+  );
+  return <DragToSlots {...props} idx={9} c={c} chips={chips} correct={correct} slotSize="lg" renderBoard={renderBoard} factOnCorrect={<FactCard text={c.fact} anim={<AnimProgress/>} badge={FACT_BADGE}/>}/>;
+};
+
+// s10 — CASE final MC (Nilufar): 100 × 0,2 = 20 MB (keep-visible)
+const Screen10 = (props) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s10;
+  const base = [c.opt0[lang], c.opt1[lang], c.opt2[lang], c.opt3[lang]];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [2, 0, 3, 1]);
+  const lead = (
+    <>
+      <p className="body fade-up" style={{ margin: 0, color: T.ink2 }}>{mt(t(c.lead))}</p>
+      <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.6vw, 20px)', marginTop: 12 }}>
+        <span className="mono" style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 700, color: T.ink }}>{mt(t(c.question_text))}</span>
+      </div>
+    </>
+  );
+  return <QuestionScreen {...props} idx={10} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[10]} screenContent={content} titleNode={c.label} question={lead} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} anim={<AnimPow/>} badge={FACT_BADGE_SCI}/>}/>;
+};
+
+// s11 — 6-8 MISOL OSON->QIYIN (SeqMix), YAKUNIY
+const Screen11 = (props) => <SeqMix {...props} screenContent={CONTENT.s11} scored={true}/>;
+
+// s12 — SUMMARY (kanonik Dars09-13 layout)
+const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s12;
+  const audio = useAudio(makeAudioSegments(c, lang));
+  const calledRef = useRef(false);
+  useEffect(() => { if (!calledRef.current) { calledRef.current = true; finishLesson(); } }, [finishLesson]);
+  const scoredScreens = SCREEN_META.filter(s => s.scored);
+  const total = scoredScreens.length;
+  const correct = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
+  const mains = [c.main_1, c.main_2, c.main_3, c.main_4];
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-white-accent" onClick={onReset} style={{ marginLeft: 'auto', padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_reset)}</button></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
+        <Floaters/>
+        <p className="eyebrow fade-up" style={{ position: 'relative', color: T.success, margin: 0 }}>{t(c.label)}</p>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
+        <div className="frame-success fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+          <span className="mono" style={{ fontSize: 'clamp(26px, 5vw, 34px)', fontWeight: 700, color: T.success }}>{correct} / {total}</span>
+          <span className="small" style={{ color: T.ink2 }}>{t(c.score_caption)}</span>
+        </div>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <p className="eyebrow" style={{ color: T.ink2, margin: 0 }}>{t(c.main_label)}</p>
+          {mains.map((mn, i) => (<div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 1 }}>{i + 1}</span><p className="body" style={{ margin: 0 }}>{mt(t(mn))}</p></div>))}
+        </div>
+        <div className="frame-success fade-up delay-2" style={{ position: 'relative' }}><p className="body" style={{ margin: 0, fontWeight: 600 }}>{mt(t(c.back_to_hook))}</p></div>
         <ConnectionsBlock c={c}/>
       </div>
     </Stage>
@@ -2128,9 +1842,9 @@ const Screen16 = ({ screen, onPrev, onReset, finishLesson }) => {
 };
 
 // ============================================================
-// КОРНЕВОЙ КОМПОНЕНТ
+// KORNEVIY KOMPONENT
 // ============================================================
-export default function DecimalMulDivLesson({
+export default function DecimalShiftLesson({
   studentName, lang: langProp, ttsApiBase,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -2155,28 +1869,28 @@ export default function DecimalMulDivLesson({
   const reset = useCallback(() => { setAnswers([]); setCurrent(0); startTimeRef.current = Date.now(); }, []);
 
   const finishLesson = useCallback(() => {
-  const scored = SCREEN_META.filter(s => s.scored);
-  const finalScreens = scored.filter(s => s.scope === 'final');
-  const correctCount = answers.filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const finalCorrect = answers.filter((a, i) => a && SCREEN_META[i]?.scope === 'final' && a.correct).length;
-  const checked = answers.filter(a => a && typeof a.firstTry === 'boolean');
-  const payload = {
-    lessonId: LESSON_META.lessonId,
-    lessonTitle: LESSON_META.lessonTitle,
-    durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
-    totalQuestions: scored.length,
-    correctAnswers: correctCount,
-    scorePercent: scored.length > 0 ? Math.round((correctCount / scored.length) * 100) : 0,
-    finalScore: finalCorrect,
-    finalTotal: finalScreens.length,
-    passed: finalScreens.length > 0 ? finalCorrect / finalScreens.length >= 0.6 : (scored.length > 0 ? correctCount / scored.length >= 0.6 : false),
-    firstTryStats: { total: checked.length, firstTryCorrect: checked.filter(a => a.firstTry === true).length },
-    answers: answers.filter(Boolean)
-  };
-  safeOnFinished(payload);
-}, [answers, safeOnFinished]);
+    const scored = SCREEN_META.filter(s => s.scored);
+    const finalScreens = scored.filter(s => s.scope === 'final');
+    const correctCount = answers.filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
+    const finalCorrect = answers.filter((a, i) => a && SCREEN_META[i]?.scope === 'final' && a.correct).length;
+    const checked = answers.filter(a => a && typeof a.firstTry === 'boolean');
+    const payload = {
+      lessonId: LESSON_META.lessonId,
+      lessonTitle: LESSON_META.lessonTitle,
+      durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
+      totalQuestions: scored.length,
+      correctAnswers: correctCount,
+      scorePercent: scored.length > 0 ? Math.round((correctCount / scored.length) * 100) : 0,
+      finalScore: finalCorrect,
+      finalTotal: finalScreens.length,
+      passed: finalScreens.length > 0 ? finalCorrect / finalScreens.length >= 0.6 : (scored.length > 0 ? correctCount / scored.length >= 0.6 : false),
+      firstTryStats: { total: checked.length, firstTryCorrect: checked.filter(a => a.firstTry === true).length },
+      answers: answers.filter(Boolean)
+    };
+    safeOnFinished(payload);
+  }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, ScreenRule, Screen9, ScreenMulti, Screen10, ScreenSort, ScreenPractice, Screen11, Screen12, ScreenCase, Screen16];
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12];
   const CurrentScreen = screens[current];
 
   const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
@@ -2188,7 +1902,6 @@ export default function DecimalMulDivLesson({
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
       <div className="lesson-root">
-        <div className="amb-host"><Floaters/></div>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
             {['ru', 'uz'].map(l => (
@@ -2206,7 +1919,14 @@ export default function DecimalMulDivLesson({
   );
 }
 
+// ============================================================
+// CSS — bazaviy (Dars28) + dars27 maxsus (vergul-yo'lakcha/hook/fakt-anim/dnd/vergul-qo'yish)
+// ============================================================
 const STYLES = `
+
+
+
+
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
 .lesson-root {
@@ -2405,7 +2125,7 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40);
 }
 
-/* === SLIDER v15 (track-wrap + track-bg + track-fill + glow + круговая тень handle) === */
+/* === SLIDER v15 === */
 .track-wrap {
   position: relative;
   height: 26px;
@@ -2473,7 +2193,7 @@ html, body { margin: 0; padding: 0; }
 .slider-input:disabled { cursor: not-allowed; }
 .slider-input:disabled::-webkit-slider-thumb { opacity: 0.5; cursor: not-allowed; }
 
-/* === INPUT v15 (без рамок, на тенях) === */
+/* === INPUT v15 === */
 .answer-input {
   font-family: 'Fraunces', serif;
   font-size: clamp(22px, 4vw, 27px);
@@ -2502,7 +2222,7 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 8px 20px -6px rgba(255, 79, 40, 0.36);
 }
 
-/* === FRAMES v15 (без рамок, на тенях; polosa-исключение в soft/success) === */
+/* === FRAMES v15 === */
 .frame {
   background: #FFFFFF;
   border-radius: 16px;
@@ -2524,102 +2244,94 @@ html, body { margin: 0; padding: 0; }
   padding: clamp(14px, 2.5vw, 14px);
   box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22);
 }
-
-/* MATH: анимация появления цифры в квадрате. */
-.cell-pop { display: inline-block; animation: cellPop 0.34s cubic-bezier(0.34, 1.2, 0.64, 1); }
-@keyframes cellPop { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
 .frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
-/* MATH dec_5_03: ФАКТ-БЛОК — синяя карта, КРУПНАЯ анимация + мало текста. */
+/* MATH: ФАКТ-БЛОК — синяя карта, КРУПНАЯ анимация + мало текста. */
 .fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
-.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; }
+.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .fact-body { flex: 1; }
 .fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
 .fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
 .fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
 
-/* MATH dec_5_04: CommaHop — "прыгающая запятая" (×/÷ 10/100/1000). */
-.ch { display: inline-flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
-.ch-op { display: inline-flex; align-items: center; gap: 4px; font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(13px, 2.2vw, 16px); color: #019ACB; background: rgba(1, 154, 203, 0.10); border-radius: 99px; padding: 3px 12px; }
-.ch-op-sign { font-weight: 700; }
-.ch-num { display: inline-flex; align-items: flex-end; font-family: 'Fraunces', serif; font-size: clamp(28px, 6vw, 42px); line-height: 1; }
-.ch-d { display: inline-block; min-width: clamp(16px, 3.4vw, 24px); text-align: center; color: #0E0E10; }
-.ch-cm { display: inline-block; width: clamp(8px, 1.7vw, 12px); text-align: center; color: #FF4F28; font-weight: 700; animation: chCmSoft 2.4s ease-in-out infinite; }
-@keyframes chCmSoft { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.14); opacity: 0.8; } }
-.ch-cm-glow { color: #1F7A4D; }
-.ch-new { color: #A7A6A2; animation: chNew 0.4s cubic-bezier(0.34, 1.3, 0.64, 1); }
-@keyframes chNew { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-.ch-glow { animation: chGlow 0.7s ease; }
-@keyframes chGlow { 0% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); } 50% { filter: drop-shadow(0 0 12px rgba(31, 122, 77, 0.4)); } 100% { filter: drop-shadow(0 0 0 rgba(31, 122, 77, 0)); } }
-.ch-pulse { animation: chGlow 0.7s ease; }
-/* MATH dec_5_04: living element — раскрытая запятая дышит (exploration не статична после шагов). */
-.ch-cm-glow { animation: chBreathe 2.8s ease-in-out infinite; }
-@keyframes chBreathe { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } }
-/* MATH dec_5_04: непрерывное движение фоном на КАЖДОМ экране (ambient за сценой) + fact-anim не вылезает. */
-.amb-host { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-.stage { position: relative; z-index: 1; }
-.fact-anim { overflow: hidden; }
 
-/* MATH dec_5_04: CommaSlide — запятая плавно скользит (transition на left) + проявление нулей. */
-.cs { display: inline-flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.6vw, 12px); }
-.cs-row { position: relative; --cw: clamp(22px, 4.6vw, 32px); display: flex; align-items: flex-end; height: clamp(42px, 8.5vw, 58px); }
-.cs-d { width: var(--cw); text-align: center; font-family: 'Fraunces', serif; font-size: clamp(28px, 6vw, 42px); line-height: 1; color: #0E0E10; transition: opacity 0.35s ease; }
-.cs-off { opacity: 0; }
-.cs-on { opacity: 1; }
-.cs-z.cs-on { animation: chNew 0.4s cubic-bezier(0.34, 1.3, 0.64, 1); }
-.cs-cm { position: absolute; bottom: clamp(-2px, 0vw, 0px); transform: translateX(-50%); font-family: 'Fraunces', serif; font-size: clamp(28px, 6vw, 42px); line-height: 1; color: #FF4F28; font-weight: 700; transition: left 0.5s cubic-bezier(0.5, 0, 0.2, 1), opacity 0.45s ease; animation: csCmBreathe 2.6s ease-in-out infinite; }
-.cs-cm-hide { opacity: 0; }
-/* MATH dec_5_04: запятая дышит — фигура остаётся живой после шагов (PROMPT 2-B/4: ни один экран не статичен). */
-@keyframes csCmBreathe { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.15); } }
-/* MATH dec_5_04: вспышка-обводка при нажатии (живой виджет s5 — нажатие явно отзывается). */
-.cs-flash { position: absolute; inset: 0; border-radius: 16px; pointer-events: none; animation: csFlash 0.55s ease-out; }
-@keyframes csFlash { 0% { box-shadow: 0 0 0 2px rgba(255, 79, 40, 0.55), 0 0 20px rgba(255, 79, 40, 0.4); } 100% { box-shadow: 0 0 0 2px rgba(255, 79, 40, 0); } }
-/* MATH dec_5_04: HookUpload — ребёнок загружает картинку CoddyCamp.jpeg в компьютер (mount-settle). */
-.hu { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 18px); min-height: clamp(96px, 18vw, 128px); }
-.hu-kid { position: relative; width: clamp(26px, 5vw, 36px); height: clamp(46px, 9vw, 64px); flex-shrink: 0; }
-.hu-head { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: clamp(15px, 3vw, 21px); height: clamp(15px, 3vw, 21px); border-radius: 50%; background: #FF4F28; }
-.hu-body { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: clamp(24px, 4.6vw, 34px); height: clamp(26px, 5vw, 36px); border-radius: 12px 12px 6px 6px; background: rgba(255, 79, 40, 0.5); }
-.hu-track { position: relative; flex: 1; max-width: clamp(120px, 30vw, 210px); height: clamp(60px, 12vw, 84px); }
-.hu-file { position: absolute; top: 50%; left: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px; border-radius: 10px; background: #FFFFFF; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.28); animation: huFly 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both; }
-@keyframes huFly { 0% { left: 0; transform: translateY(-50%) scale(0.7); opacity: 0; } 20% { opacity: 1; transform: translateY(-50%) scale(1); } 100% { left: 100%; transform: translate(-100%, -50%) scale(0.82); opacity: 1; } }
-.hu-img { position: relative; width: clamp(34px, 7vw, 50px); height: clamp(26px, 5.4vw, 38px); border-radius: 5px; overflow: hidden; background: linear-gradient(160deg, #EAF6FB, rgba(1, 154, 203, 0.22)); display: block; }
-.hu-sun { position: absolute; top: 4px; right: 5px; width: clamp(7px, 1.6vw, 11px); height: clamp(7px, 1.6vw, 11px); border-radius: 50%; background: #FF4F28; }
-.hu-hill { position: absolute; bottom: 0; left: 0; right: 0; height: 55%; background: #1F7A4D; clip-path: polygon(0 100%, 30% 35%, 55% 75%, 80% 20%, 100% 60%, 100% 100%); }
-.hu-meta { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
-.hu-name { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: clamp(8px, 1.5vw, 10px); color: #0E0E10; }
-.hu-size { font-family: 'JetBrains Mono', monospace; font-size: clamp(7px, 1.3vw, 9px); color: #019ACB; }
-.hu-pc { position: relative; width: clamp(46px, 9vw, 64px); height: clamp(48px, 9.5vw, 66px); flex-shrink: 0; }
-.hu-screen { position: absolute; top: 0; left: 0; right: 0; height: clamp(34px, 6.6vw, 46px); border-radius: 7px; background: #0E0E10; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.28); }
-.hu-arrow { width: clamp(11px, 2.4vw, 16px); height: clamp(11px, 2.4vw, 16px); border-right: 3px solid #019ACB; border-bottom: 3px solid #019ACB; animation: huArrow 1.4s ease-in-out infinite; }
-@keyframes huArrow { 0%, 100% { opacity: 0.3; transform: rotate(45deg) translate(-2px, -2px); } 50% { opacity: 1; transform: rotate(45deg) translate(2px, 2px); } }
-.hu-stand { position: absolute; bottom: clamp(7px, 1.5vw, 11px); left: 50%; transform: translateX(-50%); width: 6px; height: clamp(8px, 1.6vw, 11px); background: #A7A6A2; }
-.hu-base { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: clamp(30px, 6vw, 42px); height: 5px; border-radius: 3px; background: #A7A6A2; }
+/* MATH neg_5_02: CoordLine — gorizontal koordinata o'qi (dars maqsadi) + mirror (qarama-qarshi). */
+.cn { display: block; }
+.cn-neg { fill: rgba(1, 154, 203, 0.10); }
+.cn-pos { fill: rgba(255, 79, 40, 0.06); }
+.cn-axis { stroke: #0E0E10; stroke-width: 2; }
+.cn-arrow { fill: #0E0E10; }
+.cn-tick { stroke: #A7A6A2; stroke-width: 1.5; }
+.cn-tick0 { stroke: #019ACB; stroke-width: 2.6; }
+.cn-tickhl { stroke: #FF4F28; stroke-width: 2.4; }
+.cn-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 12px; fill: #5A5A60; }
+.cn-lbl0 { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; fill: #019ACB; }
+.cn-lblhl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; fill: #FF4F28; }
+.cn-mk { transition: transform 0.42s cubic-bezier(0.34, 1.2, 0.64, 1); }
+.cn-pin { fill: #FF4F28; stroke: #FFFFFF; stroke-width: 1.4; transform-box: fill-box; transform-origin: center bottom; animation: cnPulse 2.4s ease-in-out infinite; }
+.cn-pin-ok { fill: #1F7A4D; }
+.cn-pin2 { fill: #019ACB; stroke: #FFFFFF; stroke-width: 1.4; animation: none; }
+.cn-dot { fill: #FF4F28; }
+.cn-dot-ok { fill: #1F7A4D; }
+@keyframes cnPulse { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+/* mirror: noldan teng masofa punktiri (qarama-qarshi simmetriya). */
+.cn-span { stroke: #019ACB; stroke-width: 2; stroke-dasharray: 3 3; opacity: 0.55; animation: cnSpan 2.8s ease-in-out infinite; }
+@keyframes cnSpan { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.7; } }
+.cn-readout { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 12px); flex-wrap: wrap; justify-content: center; }
+.cn-ro-lbl { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.3vw, 11px); text-transform: uppercase; letter-spacing: 0.06em; color: #A7A6A2; }
+.cn-ro-val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(18px, 3.4vw, 24px); color: #FF4F28; }
+.cn-ro-opp { color: #019ACB; }
+.cn-ro-sep { width: 1px; height: 20px; background: #E4E1DA; }
 
-/* MATH dec_5_04: comma-placement — промежутки между цифрами (tap). */
-.cp-d { font-family: 'Fraunces', serif; font-size: clamp(30px, 6.5vw, 46px); line-height: 1; color: #0E0E10; padding: 0 2px; }
-.cp-gap { width: clamp(20px, 4.4vw, 30px); height: clamp(44px, 9vw, 60px); border: none; border-radius: 8px; background: rgba(255, 79, 40, 0.06); cursor: pointer; display: inline-flex; align-items: flex-end; justify-content: center; transition: all 0.2s; box-shadow: inset 0 0 0 1.5px rgba(255, 79, 40, 0.18); }
-.cp-gap:hover:not(:disabled) { background: rgba(255, 79, 40, 0.14); }
-.cp-gap:disabled { cursor: default; }
-.cp-on { background: rgba(31, 122, 77, 0.16) !important; box-shadow: inset 0 0 0 1.5px rgba(31, 122, 77, 0.4) !important; }
-.cp-bad { background: #FFFFFF !important; box-shadow: none !important; opacity: 0.4; }
-.cp-cm { font-family: 'Fraunces', serif; font-size: clamp(30px, 6.5vw, 46px); font-weight: 700; color: #1F7A4D; line-height: 1; transition: opacity 0.2s; }
-.cp-gap:not(.cp-on) .cp-cm { color: #FF4F28; }
+/* MATH neg_5_02: od — tartiblash kartalari (o'sish tartibi tap-in-order). */
+.od-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(8px, 1.8vw, 14px); }
+.od-card { position: relative; cursor: pointer; border: 1.5px solid #A7A6A2; background: #FFFFFF; border-radius: 14px; padding: clamp(14px, 2.6vw, 22px) clamp(6px, 1.4vw, 12px); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); transition: all 0.16s; }
+.od-card:hover:not(:disabled) { border-color: #FF4F28; }
+.od-card:disabled { cursor: default; }
+.od-temp { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(18px, 3.8vw, 26px); color: #0E0E10; }
+.od-on { border-color: #FF4F28; box-shadow: 0 0 0 2px #FF4F28 inset, 0 8px 18px -6px rgba(255, 79, 40, 0.28); }
+.od-badge { position: absolute; top: -9px; left: -9px; width: 24px; height: 24px; border-radius: 50%; background: #FF4F28; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -3px rgba(255, 79, 40, 0.5); }
+.od-ok { border-color: #1F7A4D; box-shadow: 0 0 0 2px #1F7A4D inset, 0 8px 18px -6px rgba(31, 122, 77, 0.28); }
+.od-ok .od-badge { background: #1F7A4D; box-shadow: 0 4px 10px -3px rgba(31, 122, 77, 0.5); }
+.od-bad { border-color: #FF4F28; animation: odShake 0.4s ease; }
+@keyframes odShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
-/* MATH dec_5_04: факт-анимации (CSS-only loop). */
-.fa-sci { position: relative; display: inline-flex; align-items: flex-start; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #019ACB; }
-.fa-sci-base { font-size: clamp(34px, 7vw, 50px); line-height: 1; }
-.fa-sci-exp { font-size: clamp(18px, 3.6vw, 26px); line-height: 1; margin-top: -4px; animation: faSci 2.4s ease-in-out infinite; }
-.fa-sci-cm { position: absolute; left: 2px; bottom: 6px; font-size: clamp(20px, 4vw, 28px); color: #FF4F28; opacity: 0; animation: faSciCm 2.4s ease-in-out infinite; }
-@keyframes faSci { 0%, 100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(-4px); opacity: 0.55; } }
-@keyframes faSciCm { 0%, 60% { opacity: 0; transform: translateX(0); } 75% { opacity: 1; transform: translateX(2px); } 100% { opacity: 0; } }
-.fa-du { display: inline-flex; gap: clamp(6px, 1.4vw, 10px); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(14px, 2.8vw, 19px); color: #019ACB; }
-.fa-du-u { opacity: 0.3; animation: faDu 2.7s ease-in-out infinite; }
-@keyframes faDu { 0%, 8% { opacity: 0.3; transform: scale(1); } 22%, 30% { opacity: 1; transform: scale(1.18); } 50%, 100% { opacity: 0.3; transform: scale(1); } }
-.fa-bin { display: inline-flex; gap: clamp(4px, 1vw, 7px); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(22px, 4.4vw, 32px); color: #019ACB; }
-.fa-bin span { display: inline-block; animation: faBin 1.6s ease-in-out infinite; }
-@keyframes faBin { 0%, 100% { transform: translateX(0); opacity: 1; } 40% { transform: translateX(7px); opacity: 0.5; } 60% { transform: translateX(7px); opacity: 0.5; } }
+/* MATH neg_5_02: ms — multi-select (qaysi juftlar qarama-qarshi). */
+.ms-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(8px, 1.8vw, 14px); }
+.ms-card { cursor: pointer; display: flex; align-items: center; gap: clamp(8px, 1.6vw, 12px); border: 1.5px solid #A7A6A2; background: #FFFFFF; border-radius: 14px; padding: clamp(12px, 2.2vw, 18px) clamp(12px, 2vw, 18px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); transition: all 0.16s; text-align: left; }
+.ms-card:hover:not(:disabled) { border-color: #FF4F28; }
+.ms-card:disabled { cursor: default; }
+.ms-box { flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: 1.6px solid #A7A6A2; display: flex; align-items: center; justify-content: center; color: #FFFFFF; transition: all 0.14s; }
+.ms-box-on { background: #FF4F28; border-color: #FF4F28; }
+.ms-pair { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 2.6vw, 20px); color: #0E0E10; }
+.ms-on { border-color: #FF4F28; box-shadow: 0 0 0 2px #FF4F28 inset, 0 8px 18px -6px rgba(255, 79, 40, 0.24); }
+.ms-bad { border-color: #FF4F28; animation: odShake 0.4s ease; }
+.ms-ok { border-color: #1F7A4D; box-shadow: 0 0 0 2px #1F7A4D inset, 0 8px 18px -6px rgba(31, 122, 77, 0.26); }
+.ms-ok .ms-box-on { background: #1F7A4D; border-color: #1F7A4D; }
 
-/* MATH dec_5_03: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
+/* MATH neg_5_02: fakt-animatsiyalar (CSS-only loop, ko'k tema, qutiga sig'adi). */
+/* Tarix: qadimgi sanoq tayoqchalari navbatma-navbat yorishadi. */
+.fa-hist { display: flex; align-items: flex-end; gap: 5px; height: clamp(56px, 12vw, 80px); }
+.fa-hist-r { width: 7px; background: #019ACB; opacity: 0.3; border-radius: 3px; animation: faHist 2s ease-in-out infinite; }
+.fa-hist-r:nth-child(1) { height: 40%; }
+.fa-hist-r:nth-child(2) { height: 70%; }
+.fa-hist-r:nth-child(3) { height: 100%; }
+.fa-hist-r:nth-child(4) { height: 60%; }
+.fa-hist-r:nth-child(5) { height: 85%; }
+@keyframes faHist { 0%, 100% { opacity: 0.25; } 45% { opacity: 0.95; } }
+/* Eng past harorat: termometr simobi pastga tushadi. */
+.fa-th { width: clamp(34px, 7vw, 46px); height: auto; }
+.fa-th-tube { fill: rgba(1, 154, 203, 0.12); stroke: #019ACB; stroke-width: 1.6; }
+.fa-th-bulb { fill: #019ACB; }
+.fa-th-merc { fill: #019ACB; transform-box: fill-box; transform-origin: bottom; animation: faTh 2.8s ease-in-out infinite; }
+@keyframes faTh { 0%, 100% { transform: scaleY(0.2); } 55%, 75% { transform: scaleY(1); } }
+/* IT: ikkilik bitlar yonadi, belgi-bit ko'kroq. */
+.fa-bit { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: clamp(76px, 15vw, 104px); }
+.fa-bit-c { aspect-ratio: 1; background: #019ACB; opacity: 0.22; border-radius: 4px; animation: faBit 1.8s ease-in-out infinite; }
+.fa-bit-sign { opacity: 0.5; box-shadow: 0 0 0 2px #019ACB; }
+@keyframes faBit { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.92; } }
+
+/* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
 .amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
 .amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
@@ -2627,45 +2339,107 @@ html, body { margin: 0; padding: 0; }
 .amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
 @keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
 
-/* Bridge — видимая ↳-связка между фазами урока (PROMPT 2-C). */
-.bridge { display: flex; align-items: center; gap: 6px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #5A5A60; }
-.bridge::before { content: "\\21B3"; color: #FF4F28; font-weight: 700; font-size: 1.05em; }
+/* Accessibility: prefers-reduced-motion — гасим декоративные циклы. */
+/* MATH dec_5_05: AreaModel — единичный квадрат 10×10, столбцы×строки = сотые клетки. */
+.am-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; width: clamp(124px, 32vw, 168px); aspect-ratio: 1; }
+.am-cell { background: #EEEAE2; border-radius: 2px; transition: background 0.45s ease; }
+.am-col { background: rgba(255, 79, 40, 0.24); }
+.am-row { background: rgba(1, 154, 203, 0.24); }
+.am-both { background: #1F7A4D; }
 
-/* cap-line — qadam izohlari TO'PLANADI (yangi pastdan chiqadi, eskisi qoladi); oxirgi to'g'ri — yashil. */
-.cap-line { display: flex; align-items: center; gap: 10px; background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 10px; padding: clamp(7px, 1.4vw, 10px) clamp(10px, 2vw, 14px); }
-.cap-line-ok { background: #E3F0E8; border-left-color: #1F7A4D; }
-.cap-mark { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; background: #D8A93A; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; }
-.cap-line-ok .cap-mark { background: #1F7A4D; }
+/* MATH dec_5_05: mbk — пошаговые клетки ввода (без запятой / знаки / ответ). */
+.mbk-rows { display: flex; flex-direction: column; gap: 10px; }
+.mbk-row { display: flex; align-items: center; justify-content: space-between; gap: clamp(10px, 2vw, 18px); }
+.mbk-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(13px, 2.3vw, 17px); color: #0E0E10; }
+.mbk-box { width: clamp(76px, 17vw, 98px) !important; font-size: clamp(18px, 3.4vw, 24px) !important; text-align: center; flex-shrink: 0; }
+.mbk-wrong { box-shadow: 0 0 0 2px #D8A93A inset !important; }
+.mbk-num { flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; background: #FF4F28; color: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -3px rgba(255, 79, 40, 0.45); }
+.mbk-num-ok { background: #1F7A4D; box-shadow: 0 4px 10px -3px rgba(31, 122, 77, 0.45); }
 
-/* MATH dec_5_04 (эталон Dars28): chip — pill-кнопка операции (живой виджет s5). */
-.chip { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px, 1.6vw, 14px); color: #FFFFFF; border: none; border-radius: 99px; padding: 8px 14px; cursor: pointer; transition: filter 0.2s, transform 0.1s; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.25); }
-.chip:hover { filter: brightness(1.08); }
-.chip:active { transform: scale(0.96); }
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 
-/* MATH dec_5_04 (эталон Dars28): dm-prob — крупная мономного формула (SeqMC / case visual). */
+
+
+
+
+/* ============================================================ */
+/* MATH: MagBar (magnituda) + ko'paytirish yozuvi + tasniflash + fakt-anim (dec_5_05). */
+/* ============================================================ */
 .dm-prob { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(26px, 6vw, 42px); color: #0E0E10; letter-spacing: 0.02em; text-align: center; }
 .dm-res { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: clamp(26px, 6vw, 40px); color: #1F7A4D; }
 
-/* MATH dec_5_04 (эталон Dars28): seq-dots — прогресс по подвопросам SeqMC. */
+.mb-wrap { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 460px; margin: 0 auto; }
+.mb-row { display: flex; align-items: center; gap: 12px; }
+.mb-cap { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 2.4vw, 19px); color: #0E0E10; min-width: 46px; text-align: right; }
+.mb-track { flex: 1; height: 22px; background: rgba(58, 53, 48, 0.10); border-radius: 11px; overflow: hidden; }
+.mb-fill { height: 100%; border-radius: 11px; transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+.mb-fill-base { background: #A7A6A2; }
+.mb-fill-res { background: #FF4F28; }
+.mb-fill-res.mb-more { background: #1F7A4D; }
+
+/* Tasniflash (tap-to-place) */
+.cl-pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; min-height: 46px; align-items: center; }
+.cl-pool-done { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #A7A6A2; }
+.cl-chip { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(14px, 2.2vw, 18px); color: #0E0E10; background: #FFFFFF; border: 2px solid #E8E4DC; border-radius: 12px; padding: 8px 13px; cursor: pointer; box-shadow: 0 4px 12px -6px rgba(58, 53, 48, 0.25); transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease; }
+.cl-chip:disabled { cursor: default; }
+.cl-chip-sel { border-color: #FF4F28; background: #FFE8E1; transform: translateY(-2px) scale(1.05); }
+.cl-bins { display: flex; gap: 10px; }
+.cl-bin { flex: 1; min-width: 0; border: 2px dashed #D8D3C9; border-radius: 16px; padding: 10px; min-height: 96px; display: flex; flex-direction: column; gap: 8px; cursor: default; transition: border-color 0.15s ease, background 0.15s ease; }
+.cl-bin-active { border-color: #FF4F28; background: rgba(255, 79, 40, 0.05); cursor: pointer; }
+.cl-bin-h { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: clamp(12px, 1.8vw, 14px); font-weight: 600; color: #5A5A60; text-align: center; }
+.cl-bin-cards { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.cl-chip-in { box-shadow: none; }
+.cl-chip-ok { border-color: #1F7A4D; background: #E3F0E8; color: #1F7A4D; }
+.cl-chip-bad { border-color: #FF4F28; background: #FFE8E1; }
+
+/* Fakt-animatsiyalar (ko'k tema) */
+.pa-dc { display: flex; align-items: baseline; justify-content: center; gap: 2px; width: 100%; height: 100%; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 7vw, 40px); color: #019ACB; }
+.pa-dc-sep { position: relative; display: inline-block; width: 0.55em; }
+.pa-dc-comma, .pa-dc-dot { position: absolute; left: 0; bottom: 0; }
+.pa-dc-comma { animation: pa-dc-a 2.4s steps(1) infinite; }
+.pa-dc-dot { animation: pa-dc-b 2.4s steps(1) infinite; }
+@keyframes pa-dc-a { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+@keyframes pa-dc-b { 0%, 50% { opacity: 0; } 50.01%, 100% { opacity: 1; } }
+.pa-st { display: flex; align-items: center; justify-content: center; gap: 1px; width: 100%; height: 100%; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(24px, 6vw, 38px); color: #019ACB; }
+.pa-st-c { opacity: 0; animation: pa-st-in 1.8s ease-in-out infinite; }
+@keyframes pa-st-in { 0% { opacity: 0; transform: translateY(4px); } 20%, 70% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; } }
+
+/* MATH dec_5_05: SeqMC — ketma-ket tez MC progress nuqtalari. */
 .seq-dots { display: flex; gap: 8px; justify-content: center; }
 .seq-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(167, 166, 162, 0.35); transition: background 0.3s ease, transform 0.3s ease; }
 .seq-dot-cur { background: #FF4F28; transform: scale(1.18); box-shadow: 0 0 8px rgba(255, 79, 40, 0.5); }
 .seq-dot-done { background: #1F7A4D; }
 
-/* MATH dec_5_04 (эталон Dars28): rule-chip — свёрнутое правило (merged rule, повторно раскрывается). */
+/* MATH dec_5_05: MulSolve — "harakatlanuvchi yechim" (vergulsiz → sanash → vergul tushadi). */
+.ms-solve { display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); align-items: center; }
+.ms-row { display: flex; align-items: baseline; gap: 8px; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(24px, 5.5vw, 38px); color: #0E0E10; }
+.ms-fac { transition: color 0.4s ease; }
+.ms-dim { color: #A7A6A2; }
+.ms-op { color: #5A5A60; font-weight: 600; }
+.ms-digits { display: inline-flex; align-items: baseline; }
+.ms-dwrap { display: inline-flex; align-items: baseline; }
+.ms-d { display: inline-block; padding: 0 1px; border-radius: 4px; transition: background 0.4s ease, color 0.4s ease; }
+.ms-d-hl { background: #FBF3D6; color: #0E0E10; }
+.ms-comma { display: inline-block; color: #1F7A4D; animation: ms-drop 0.55s cubic-bezier(0.34, 1.3, 0.5, 1) both; }
+@keyframes ms-drop { 0% { opacity: 0; transform: translateY(-0.7em) scale(0.5); } 100% { opacity: 1; transform: none; } }
+.ms-result { font-family: 'Source Serif 4', serif; font-weight: 600; font-size: clamp(24px, 5.5vw, 38px); color: #1F7A4D; }
+
+/* MATH dec_5_05: rule-chip — birlashgan qoida ekranida yopilgan qoida tugmasi. */
 .rule-chip { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; cursor: pointer; background: #E3F0E8; border: none; border-radius: 12px; padding: clamp(10px, 1.8vw, 13px) clamp(12px, 2vw, 16px); box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22); transition: box-shadow 0.2s ease; }
 .rule-chip:hover { box-shadow: 0 10px 22px -6px rgba(31, 122, 77, 0.3); }
 .rule-chip-ic { display: flex; color: #1F7A4D; flex-shrink: 0; }
 .rule-chip-tx { flex: 1; font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px, 1.7vw, 15px); color: #1F7A4D; }
 .rule-chip-act { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.3vw, 12px); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #5A5A60; flex-shrink: 0; }
 
-/* MATH dec_5_04 (эталон Dars28): case-ctx — компактный контекст задачи остаётся при решении. */
+/* MATH dec_5_05: case-ctx — birlashgan masala ekranida shart ixcham KO'RINIB qoladigan qatori. */
 .case-ctx { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; background: #EFEEE9; border-radius: 12px; padding: clamp(9px, 1.7vw, 12px) clamp(12px, 2vw, 16px); }
 .case-ctx-tag { font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.3vw, 11px); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5A5A60; }
 .case-ctx-tx { flex: 1; min-width: 0; font-size: clamp(12px, 1.6vw, 14px); color: #0E0E10; }
 .case-ctx-prob { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(15px, 2.4vw, 19px); color: #0E0E10; }
 
-/* MATH dec_5_04 (эталон Dars28): классификация (sort) — карточка в лоток, корзины tap. */
+/* MATH dec_5_05: sort — ketma-ket tasniflash (son chiqadi → chiroyli savatga joylaydi). */
 .sort-tray { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: #FFFFFF; border-radius: 16px; padding: clamp(13px, 2.5vw, 18px); box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14); min-height: clamp(84px, 15vw, 100px); }
 .sort-tray-card { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 6vw, 40px); color: #0E0E10; animation: sort-pop 0.4s cubic-bezier(0.34, 1.3, 0.5, 1) both; }
 @keyframes sort-pop { 0% { opacity: 0; transform: translateY(-8px) scale(0.8); } 100% { opacity: 1; transform: none; } }
@@ -2680,10 +2454,81 @@ html, body { margin: 0; padding: 0; }
 .sort-bin-cards { display: flex; flex-wrap: wrap; gap: 6px; }
 .sort-chip-in { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px, 1.8vw, 14px); color: #1F7A4D; background: #E3F0E8; border-radius: 9px; padding: 5px 9px; animation: sort-pop 0.35s ease both; }
 .sort-bin-bad { animation: odShake 0.4s ease; box-shadow: 0 0 0 2px #FF4F28 inset, 0 8px 22px -6px rgba(255, 79, 40, 0.3); }
-@keyframes odShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 
-/* Accessibility: prefers-reduced-motion — гасим декоративные циклы (PROMPT 2026-06-13). */
+/* MATH dec_5_05: bridge — slaydlararo ma'noli o'tish qatori (faza chegarasi). */
+.bridge { display: flex; align-items: center; gap: 6px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #5A5A60; }
+.bridge::before { content: "\\21B3"; color: #FF4F28; font-weight: 700; font-size: 1.05em; }
+
+
+/* === Dars27 (dec_5_04) maxsus CSS === */
+/* HOOK jonli animatsiya */
+.hook-alive { position: relative; overflow: hidden; }
+.hook-glow { position: absolute; inset: 0; pointer-events: none; z-index: 1; border-radius: inherit; animation: hookGlow 3.4s ease-in-out infinite; }
+.hook-sheen { position: absolute; top: 0; bottom: 0; left: 0; width: 45%; pointer-events: none; z-index: 2; background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 100%); transform: translateX(-110%); animation: hookSheen 3.4s ease-in-out infinite; }
+@keyframes hookSheen { 0% { transform: translateX(-110%); } 55%, 100% { transform: translateX(240%); } }
+@keyframes hookGlow { 0%, 100% { box-shadow: inset 0 0 0 0 rgba(255, 79, 40, 0); } 50% { box-shadow: inset 0 0 26px 2px rgba(255, 79, 40, 0.10); } }
+
+/* === VergulSakraydi — raqam yo'lakchasi === */
+.vh-wrap { display: flex; justify-content: center; width: 100%; padding: 6px 0; }
+.vh-cells { position: relative; display: inline-flex; }
+.vh-cell { width: var(--vcw); height: calc(var(--vcw) * 1.34); margin: 0 2px; display: inline-flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(22px, 5vw, 32px); color: #0E0E10; border-radius: 8px; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167, 166, 162, 0.35); transition: background 0.3s, box-shadow 0.3s, color 0.3s; }
+.vh-off { background: rgba(167, 166, 162, 0.08); box-shadow: inset 0 0 0 2px rgba(167, 166, 162, 0.16); color: transparent; }
+.vh-new { animation: vhPop 0.55s cubic-bezier(0.34, 1.5, 0.6, 1) backwards; color: #019ACB; box-shadow: inset 0 0 0 2px #019ACB; }
+@keyframes vhPop { from { transform: translateY(-12px) scale(0.4); opacity: 0; } }
+.vh-comma { position: absolute; bottom: calc(var(--vcw) * 0.12); left: calc(var(--cp) * (var(--vcw) + 4px)); transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 6vw, 40px); color: #FF4F28; line-height: 1; pointer-events: none; transition: left 0.6s cubic-bezier(0.34, 1.1, 0.64, 1), opacity 0.45s; }
+.vh-comma-off { opacity: 0; }
+
+/* === vergulni qo'yish (s8) === */
+.cp-digit { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(30px, 7vw, 46px); color: #0E0E10; padding: 0 2px; }
+.cp-gap { width: clamp(16px, 4vw, 24px); height: clamp(40px, 9vw, 58px); border: none; background: transparent; cursor: pointer; position: relative; vertical-align: middle; border-radius: 8px; transition: background 0.2s; }
+.cp-gap:not(:disabled):hover { background: rgba(1, 154, 203, 0.12); }
+.cp-gap::after { content: ''; position: absolute; left: 50%; bottom: 8px; width: 2px; height: 40%; transform: translateX(-50%); background: rgba(167, 166, 162, 0.45); border-radius: 2px; transition: background 0.2s; }
+.cp-gap:not(:disabled):hover::after { background: #019ACB; }
+.cp-gap-ok::after { background: transparent; }
+.cp-gap-no::after { background: transparent; }
+.cp-comma { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(28px, 6.5vw, 42px); line-height: 1; }
+.cp-gap-ok .cp-comma { color: #1F7A4D; }
+.cp-gap-no .cp-comma { color: #FF4F28; }
+
+/* === fakt-anim === */
+.fa-prog { position: relative; width: 66px; height: 16px; border-radius: 99px; background: rgba(1, 154, 203, 0.18); overflow: hidden; }
+.fa-prog-fill { height: 100%; border-radius: 99px; background: #019ACB; animation: faProg 2.2s ease-in-out infinite; }
+@keyframes faProg { 0% { width: 6%; } 60% { width: 80%; } 100% { width: 6%; } }
+.fa-pow { display: inline-flex; align-items: flex-start; font-family: 'JetBrains Mono', monospace; font-weight: 800; color: #019ACB; }
+.fa-pow-b { font-size: clamp(26px, 5vw, 34px); }
+.fa-pow-e { font-size: clamp(14px, 2.6vw, 18px); animation: faPowE 1.8s ease-in-out infinite; }
+@keyframes faPowE { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(-3px); opacity: 1; } }
+
+/* === ambient fon (har bir ekranda) === */
+.amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; border-radius: inherit; }
+.amb-o { position: absolute; border-radius: 50%; filter: blur(2px); opacity: 0.5; }
+.amb-o1 { width: 120px; height: 120px; left: -28px; top: 8%; background: radial-gradient(circle at 30% 30%, rgba(255,79,40,0.16), rgba(255,79,40,0)); animation: ambFloat 13s ease-in-out infinite; }
+.amb-o2 { width: 90px; height: 90px; right: -20px; top: 38%; background: radial-gradient(circle at 30% 30%, rgba(1,154,203,0.16), rgba(1,154,203,0)); animation: ambFloat 17s ease-in-out infinite reverse; }
+.amb-o3 { width: 70px; height: 70px; left: 22%; bottom: -18px; background: radial-gradient(circle at 30% 30%, rgba(31,122,77,0.13), rgba(31,122,77,0)); animation: ambFloat 15s ease-in-out infinite; }
+@keyframes ambFloat { 0%, 100% { transform: translate(0, 0); } 33% { transform: translate(14px, -16px); } 66% { transform: translate(-10px, 12px); } }
+
+/* === DRAG-AND-DROP (Dars37 dnd uslubi) === */
+.dnd-bins { display: flex; gap: clamp(8px, 1.8vw, 14px); }
+.dnd-bin { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; background: #FDFBF7; border: 2px dashed #A7A6A2; border-radius: 14px; padding: clamp(8px, 1.5vw, 11px) clamp(6px, 1.2vw, 10px); transition: border-color 0.2s, background 0.2s; cursor: pointer; }
+.dnd-bin-armed { border-color: #019ACB; background: #EAF6FB; }
+.dnd-bin-lbl { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px, 1.6vw, 14px); color: #5A5A60; text-align: center; }
+.dnd-bin-slot { display: flex; flex-direction: column; gap: 6px; min-height: clamp(42px, 8vw, 54px); align-items: stretch; justify-content: center; }
+.dnd-tray { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #FFFFFF; border-radius: 12px; padding: clamp(9px, 1.6vw, 12px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
+.dnd-tray-lbl { font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 1.4vw, 12px); font-weight: 600; color: #A7A6A2; text-transform: uppercase; letter-spacing: 0.06em; }
+.dnd-chip { cursor: grab; user-select: none; -webkit-user-select: none; touch-action: none; display: inline-flex; align-items: center; justify-content: center; background: #FFFFFF; border: 1.5px solid #FF4F28; border-radius: 99px; padding: clamp(8px, 1.4vw, 10px) clamp(13px, 2.1vw, 17px); font-weight: 600; color: #0E0E10; box-shadow: 0 4px 12px -4px rgba(255, 79, 40, 0.25); transition: transform 0.15s, box-shadow 0.15s, background 0.18s; }
+.dnd-chip:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -5px rgba(255, 79, 40, 0.38); }
+.dnd-chip-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 8px 20px -5px rgba(255, 79, 40, 0.5); }
+.dnd-chip-in { cursor: pointer; text-align: center; border-color: #019ACB; box-shadow: 0 4px 12px -4px rgba(1, 154, 203, 0.28); }
+.dnd-ok { border-color: #1F7A4D !important; background: #E3F0E8 !important; color: #1F7A4D !important; box-shadow: 0 4px 12px -4px rgba(31, 122, 77, 0.3) !important; }
+.dnd-slot { display: inline-flex; align-items: center; justify-content: center; border: 2px dashed #A7A6A2; border-radius: 10px; background: #FDFBF7; cursor: pointer; transition: border-color 0.2s, background 0.2s, transform 0.15s; vertical-align: middle; }
+.dnd-slot-sm { min-width: clamp(34px, 7vw, 44px); min-height: clamp(30px, 6vw, 38px); }
+.dnd-slot-lg { min-width: clamp(56px, 13vw, 76px); min-height: clamp(52px, 11vw, 66px); }
+.dnd-slot-armed { border-color: #019ACB; background: #EAF6FB; }
+.dnd-slot-q { color: #A7A6A2; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(15px, 2.4vw, 20px); }
+
+/* === reduced-motion === */
 @media (prefers-reduced-motion: reduce) {
-  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .hook-sheen, .hook-glow, .vh-new, .fa-prog-fill, .fa-pow-e, .amb-o { animation: none !important; }
+  .vh-comma { transition: none !important; }
 }
 `;
