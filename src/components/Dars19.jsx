@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-// УРОК: Сложение дробей с разными знаменателями — frac_5_06 (Dars16)
+// УРОК: Сложение дробей с разными знаменателями — frac_5_06 (эталон-тема v14)
+// Перестроен под keep-visible 2-B/2-C: QuestionScreen с titleNode (сворачиваются только неверные),
+// top-align, Bridge (s5/s9), shuffleMC с remap hint_N, forward-ссылка НОК/НОД (6 класс) на summary.
+// Сохранены уникальные визуализаторы: шестерёнки Gear (общее кратное), пошаговый сборщик решения (s8), сетка-укладка 1/12 (s10).
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
 // ============================================================
@@ -611,10 +614,13 @@ const BackLabel = () => {
   return lang === 'uz' ? 'Orqaga' : 'Назад';
 };
 
+const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
+const Bridge = ({ node }) => { const t = useT(); return node ? <p className="bridge fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(node))}</p> : null; };
+
 // ============================================================
-// QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
+// QUESTION SCREEN — keep-visible 2-B: titleNode + question + верный остаются, неверные сворачиваются.
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -627,30 +633,28 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     waits_for: { type: 'option_picked' }
   }]);
 
-  // Веди-до-верного: экран НЕ блокируется на первом ответе.
-  // Неверный гаснет и отключается, остальные активны, «Дальше» — только когда выбран верный.
   const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
   const [solved, setSolved] = useState(wasSolved);
-  const [picked, setPicked] = useState(wasSolved ? correctIdx : null);  // текущий показываемый вариант
-  const [wrong, setWrong]   = useState(() => new Set());                // погашенные неверные
+  const [picked, setPicked] = useState(wasSolved ? correctIdx : null);
+  const [wrong, setWrong]   = useState(() => new Set());
   const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
   const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
   const introAdvancedRef = useRef(wasSolved);
 
   const pick = (i) => {
-    if (solved) return;        // после верного — заблокировано
-    if (wrong.has(i)) return;  // уже погашенный неверный — игнор
+    if (solved) return;
+    if (wrong.has(i)) return;
     const isCorrect = i === correctIdx;
 
-    if (firstTryRef.current === null) {   // фиксируем первую попытку (аналитика)
+    if (firstTryRef.current === null) {
       firstTryRef.current = isCorrect;
       firstIdxRef.current = i;
     }
     attemptsRef.current += 1;
     setPicked(i);
 
-    if (!introAdvancedRef.current) {      // продвинуть intro-очередь один раз
+    if (!introAdvancedRef.current) {
       introAdvancedRef.current = true;
       audio.triggerEvent('option_picked');
     }
@@ -665,9 +669,9 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         options: options.map(o => typeof o === 'string' ? o : null),
         correctIndex: correctIdx,
         correctAnswer: typeof options[correctIdx] === 'string' ? options[correctIdx] : null,
-        studentAnswerIndex: firstIdxRef.current,                                   // ПЕРВЫЙ выбор
+        studentAnswerIndex: firstIdxRef.current,
         studentAnswer: typeof options[firstIdxRef.current] === 'string' ? options[firstIdxRef.current] : null,
-        correct: firstTryRef.current,                                              // верность ПЕРВОЙ попытки
+        correct: firstTryRef.current,
         firstTry: firstTryRef.current,
         attempts: attemptsRef.current,
         solved: true
@@ -681,7 +685,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       setTimeout(() => {
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
-          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || c.audio.on_wrong[lang];
+          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
         }
       }, 300);
@@ -698,24 +702,26 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        {titleNode && <Title node={titleNode}/>}
         <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
+            const isCorrect = i === correctIdx;
+            const collapse = solved && !isCorrect;
             if (solved) {
-              if (i === correctIdx) cls += ' option-correct';
-              else if (isWrongPicked) cls += ' option-picked-wrong';
-              else cls += ' option-wrong';
+              if (isCorrect) cls += ' option-correct';
             } else if (isWrongPicked) {
               cls += ' option-picked-wrong';
             }
-            const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
+            const disabled = solved || isWrongPicked;
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
-                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
+                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
@@ -807,7 +813,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- ПОД УРОК: frac_5_10 — Вычитание дробей с равными знаменателями ---
+// --- ПОД УРОК: frac_5_06 — Сложение дробей с разными знаменателями ---
 // Визуализатор BackLine: числовая прямая 0..1, маркер прыгает ВЛЕВО (вычитание = шаг назад).
 // Анимации: убираемые сегменты гаснут + перечёркиваются, обратный слайд маркера, count-down spin счётчика.
 // ============================================================
@@ -876,7 +882,7 @@ const CONTENT = {
     note_miss: { ru: 'Ещё не совпало. Крути дальше.', uz: "Hali mos kelmadi. Aylantiring." },
     conclusion: { ru: 'Шестерёнка на 2 и на 3 встречаются на 6. 6 делится и на 2, и на 3 — это наименьший общий знаменатель.', uz: "2 tishli va 3 tishli g'ildirak 6 da uchrashadi. 6 ham 2 ga, ham 3 ga bo'linadi — bu eng kichik umumiy maxraj." },
     btn: { ru: 'Понятно, дальше', uz: "Tushunarli, davom" },
-    audio: { ru: 'Крути шестерёнки. Одна делится на два, другая на три. Считай, через сколько шагов обе разом вернутся в начало. Это число делится и на два, и на три — шесть. Шесть и будет общим знаменателем.', uz: "G'ildiraklarni aylantiring. Biri ikkiga, ikkinchisi uchga bo'lingan. Necha qadamdan keyin ikkalasi birga boshiga qaytishini sanang. Bu son ham ikkiga, ham uchga bo'linadi — olti. Olti umumiy maxraj bo'ladi." }
+    audio: { ru: 'Крути шестерёнки. Одна делится на два, другая на три. Считай, через сколько шагов обе разом вернутся в начало. Это число делится и на два, и на три, это шесть. Шесть и будет общим знаменателем.', uz: "G'ildiraklarni aylantiring. Biri ikkiga, ikkinchisi uchga bo'lingan. Necha qadamdan keyin ikkalasi birga boshiga qaytishini sanang. Bu son ham ikkiga, ham uchga bo'linadi, bu olti. Olti umumiy maxraj bo'ladi." }
   },
 
   // s3 — EXPLORATION/RULE: qayta bo'lish (1/2=3/6, 1/3=2/6)
@@ -915,6 +921,7 @@ const CONTENT = {
   // s5 — TEST MC p1: umumiy maxraj 1/4 va 1/6 -> 12 (fakt: g'ildiraklar)
   s5: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
+    bridge: { ru: 'Правило знаем — теперь потренируемся находить общий знаменатель.', uz: "Qoidani bilamiz — endi umumiy maxraj topishni mashq qilamiz." },
     label: { ru: 'Найди общий знаменатель', uz: "Umumiy maxrajni toping" },
     question: { ru: 'Общий знаменатель для 1/4 и 1/6?', uz: "1/4 va 1/6 uchun umumiy maxraj?" },
     correct_text: { ru: 'Правильно. 12 делится и на 4, и на 6, и это наименьшее.', uz: "To'g'ri. 12 ham 4 ga, ham 6 ga bo'linadi, va eng kichigi." },
@@ -957,7 +964,7 @@ const CONTENT = {
     wrong_default: { ru: 'Ошибка там, где сложили и знаменатели вместо приведения.', uz: "Xato keltirish o'rniga maxraj ham qo'shilgan joyda." },
     audio: {
       intro: { ru: 'Внимание: найди запись, где допущена ошибка. Не где верно, а где неверно. Выбери ответ.', uz: "Diqqat: xato qilingan yozuvni toping. To'g'risini emas, noto'g'risini. Javobni tanlang." },
-      on_correct: { ru: 'Верно. В том варианте сложили знаменатели — так нельзя.', uz: "To'g'ri. O'sha variantda maxraj qo'shilgan — bunday bo'lmaydi." },
+      on_correct: { ru: 'Верно. В том варианте сложили знаменатели, а так делать нельзя.', uz: "To'g'ri. O'sha variantda maxraj qo'shilgan, bunday qilib bo'lmaydi." },
       on_wrong: { ru: 'Это верная запись. Ищи, где сложили знаменатели.', uz: "Bu to'g'ri yozuv. Maxraj qo'shilganini qidiring." }
     }
   },
@@ -983,6 +990,7 @@ const CONTENT = {
   // s9 — CASE setup: Bahodir, o'yin yuklash 1/4 + 1/6
   s9: {
     eyebrow: { ru: 'Задача · загрузка', uz: "Masala · yuklash" },
+    bridge: { ru: 'Правило освоено — попробуем на живой задаче.', uz: "Qoidani o'zlashtirdik — jonli masalada sinab ko'ramiz." },
     title: { ru: 'Баходир скачал игру в два захода.', uz: "Bahodir o'yinni ikki bosqichda yukladi." },
     body_p1: { ru: 'Сначала загрузилось 1/4 игры, потом ещё 1/6. Сколько загрузилось всего?', uz: "Avval o'yinning 1/4 qismi, keyin yana 1/6 qismi yuklandi. Jami qancha yuklandi?" },
     card_line_label: { ru: 'Сначала', uz: "Avval" },
@@ -1022,7 +1030,7 @@ const CONTENT = {
     question: { ru: '1/4 + 1/6 = ?', uz: "1/4 + 1/6 = ?" },
     correct_text: { ru: 'Правильно. 1/4 = 3/12, 1/6 = 2/12. 3/12 + 2/12 = 5/12.', uz: "To'g'ri. 1/4 = 3/12, 1/6 = 2/12. 3/12 + 2/12 = 5/12." },
     wrong_1: { ru: 'Сложили числители и знаменатели: (1+1)/(4+6). Сначала общий знаменатель 12: 3/12 + 2/12 = 5/12.', uz: "Surat va maxraj qo'shilgan: (1+1)/(4+6). Avval umumiy maxraj 12: 3/12 + 2/12 = 5/12." },
-    wrong_2: { ru: 'Взяли произведение 24 и не пересчитали. Наименьший общий — 12: 5/12.', uz: "Ko'paytma 24 olingan va qayta sanalmagan. Eng kichik umumiy — 12: 5/12." },
+    wrong_2: { ru: 'Взяли произведение 24 и не пересчитали. Наименьший общий это 12, выйдет 5/12.', uz: "Ko'paytma 24 olingan va qayta sanalmagan. Eng kichik umumiy bu 12, 5/12 chiqadi." },
     wrong_3: { ru: 'Потеряли числители при приведении. 1/4 = 3/12, 1/6 = 2/12. Сумма 5/12.', uz: "Keltirishda suratlar yo'qolgan. 1/4 = 3/12, 1/6 = 2/12. Yig'indi 5/12." },
     wrong_default: { ru: 'Приведи к 12: 1/4 = 3/12, 1/6 = 2/12. Тогда 5/12.', uz: "12 ga keltiring: 1/4 = 3/12, 1/6 = 2/12. U holda 5/12." },
     fact: { ru: 'Полоса загрузки складывает части по-разному большие, приводя их к общей доле — как мы сейчас.', uz: "Yuklanish chizig'i har xil katta qismlarni umumiy ulushga keltirib qo'shadi — huddi biz hozir qilganday." },
@@ -1044,6 +1052,8 @@ const CONTENT = {
     main_3: { ru: 'Приводим обе дроби к нему (1/2 = 3/6, 1/3 = 2/6).', uz: "Ikkala kasrni unga keltiramiz (1/2 = 3/6, 1/3 = 2/6)." },
     main_4: { ru: 'Складываем числители, знаменатель оставляем (3/6 + 2/6 = 5/6).', uz: "Suratlarni qo'shamiz, maxrajni qoldiramiz (3/6 + 2/6 = 5/6)." },
     back_to_hook: { ru: '1/2 + 1/3 это не 2/5. Привели к шестым: 3/6 + 2/6 = 5/6.', uz: "1/2 + 1/3 bu 2/5 emas. Oltilarga keltirdik: 3/6 + 2/6 = 5/6." },
+    forward_label: { ru: 'Заглянем вперёд · 6 класс', uz: "Oldinga nazar · 6-sinf" },
+    forward: { ru: 'Такой общий знаменатель можно искать через НОК (наименьшее общее кратное), а сокращать дробь — через НОД (наибольший общий делитель). Эти приёмы вы изучите в 6 классе.', uz: "Bunday umumiy maxrajni EKUK (eng kichik umumiy karrali) orqali topsa bo'ladi, kasrni qisqartirishni esa EKUB (eng katta umumiy bo'luvchi) orqali. Bu usullarni 6-sinfda o'rganasiz." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
     conn_refs: { ru: '«Эквивалентные дроби» (приведение) и «Сложение дробей с равным знаменателем».', uz: "«Ekvivalent kasrlar» (keltirish) va «Teng maxrajli kasrlarni qo'shish»." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
@@ -1120,7 +1130,7 @@ const FactCard = ({ text, anim, badge = FACT_BADGE }) => {
 
 const shuffleMC = (c, options, correctIdx, order) => {
   const content = { ...c };
-  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; });
+  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
   return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
 };
 const ConnectionsBlock = ({ c }) => {
@@ -1183,7 +1193,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)' }}>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center', minHeight: 150, justifyContent: 'center' }}>
           {step >= 1 && <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 380 }}><Frac n="1" d="2" size="sm" color={T.accent}/><div style={{ flex: 1 }}><CellRow total={2} fills={gridFills([{ count: 1, color: T.accent }], 2)} h={34} max={9999}/></div></div>}
@@ -1204,7 +1214,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center', minHeight: 180, justifyContent: 'center', boxShadow: fit ? '0 0 0 2px #1F7A4D, 0 8px 22px -6px rgba(31, 122, 77, 0.35)' : undefined }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 4vw, 28px)' }}>
@@ -1235,7 +1245,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 22px)' }}>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', minHeight: 150, justifyContent: 'center' }}>
           {step >= 1 && <div style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', maxWidth: 400 }}><Frac n="3" d="6" size="sm" color={T.accent}/><div style={{ flex: 1 }}><CellRow total={6} fills={gridFills([{ count: 3, color: T.accent }], 6)} h={34} max={9999}/></div></div>}
@@ -1254,7 +1264,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
           <CellRow total={6} fills={gridFills([{ count: 3, color: T.accent }, { count: 2, color: T.blue }], 6)} h={40}/>
@@ -1275,8 +1285,9 @@ const Screen5 = (props) => {
   const t = useT(); const c = CONTENT.s5;
   const base = [numOpt(12), numOpt(10), numOpt(24), numOpt(2)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 0, 2, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}><CellRow total={4} fills={gridFills([{ count: 1, color: T.accent }], 4)} h={26}/><CellRow total={6} fills={gridFills([{ count: 1, color: T.blue }], 6)} h={26}/></div></>);
-  return <QuestionScreen {...props} idx={5} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[5]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} anim={<AnimGear/>} badge={FACT_BADGE_TECH}/>}/>;
+  const question = (<><Bridge node={c.bridge}/><h2 className="title h-sub" style={{ marginTop: 8 }}>{mt(t(c.question))}</h2></>);
+  const figure = () => (<div style={{ width: '100%', maxWidth: 460, display: 'flex', flexDirection: 'column', gap: 8 }}><CellRow total={4} fills={gridFills([{ count: 1, color: T.accent }], 4)} h={26} max={9999}/><CellRow total={6} fills={gridFills([{ count: 1, color: T.blue }], 6)} h={26} max={9999}/></div>);
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} titleNode={c.label} question={question} options={options} correctIdx={correctIdx} figure={figure} factOnCorrect={<FactCard text={c.fact} anim={<AnimGear/>} badge={FACT_BADGE_TECH}/>}/>;
 };
 
 // s6 — TEST NumInput p2: 1/2 & 1/5 -> 10
@@ -1297,8 +1308,8 @@ const Screen7 = (props) => {
   // base[0] — XATO: 1/2 + 1/3 = 2/5 (surat+maxraj qo'shilgan)
   const base = [eq(1, 1, 2, 3, 2, 5), eq(3, 2, 6, 6, 5, 6), eq(1, 1, 4, 4, 2, 4), eq(4, 3, 12, 12, 7, 12)];
   const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
-  return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx}/>;
+  const question = (<h2 className="title h-sub" style={{ marginTop: 8 }}>{mt(t(c.question))}</h2>);
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} titleNode={c.label} question={question} options={options} correctIdx={correctIdx}/>;
 };
 
 // s8 — TEST bosqichli yechim quruvchi p4: 1/2 + 1/3
@@ -1340,7 +1351,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
           {[0, 1, 2].map(s => <span key={s} className="mono small" style={{ width: 26, height: 26, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: s < stepIdx ? T.success : (s === stepIdx ? T.accent : 'rgba(167,166,162,0.25)'), color: s <= stepIdx ? '#FFF' : T.ink3, fontWeight: 600 }}>{s + 1}</span>)}
@@ -1374,7 +1385,8 @@ const Screen9 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={t(c.btn_help)}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
+        <Bridge node={c.bridge}/>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{mt(t(c.body_p1))}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -1423,7 +1435,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={phase < 2} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 18px)' }}>
         {phase === 0 && (
           <>
             <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
@@ -1464,9 +1476,10 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
 const Screen11 = (props) => {
   const t = useT(); const c = CONTENT.s11;
   const base = [<Frac n="5" d="12" size="mid"/>, <Frac n="2" d="10" size="mid"/>, <Frac n="5" d="24" size="mid"/>, <Frac n="1" d="12" size="mid"/>];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-sub">{mt(t(c.question))}</h2><div className="frame" style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}><CellRow total={4} fills={gridFills([{ count: 1, color: T.accent }], 4)} h={26}/><CellRow total={6} fills={gridFills([{ count: 1, color: T.blue }], 6)} h={26}/></div></>);
-  return <QuestionScreen {...props} idx={11} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[11]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} anim={<AnimProgress/>}/>}/>;
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 3, 0]);
+  const question = (<h2 className="title h-sub" style={{ marginTop: 8 }}>{mt(t(c.question))}</h2>);
+  const figure = () => (<div style={{ width: '100%', maxWidth: 460, display: 'flex', flexDirection: 'column', gap: 8 }}><CellRow total={4} fills={gridFills([{ count: 1, color: T.accent }], 4)} h={26} max={9999}/><CellRow total={6} fills={gridFills([{ count: 1, color: T.blue }], 6)} h={26} max={9999}/></div>);
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} titleNode={c.label} question={question} options={options} correctIdx={correctIdx} figure={figure} factOnCorrect={<FactCard text={c.fact} anim={<AnimProgress/>}/>}/>;
 };
 
 // s12 — SUMMARY
@@ -1479,7 +1492,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 16px)', justifyContent: 'center' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 16px)' }}>
         <h2 className="title h-sub fade-up">{mt(t(c.title))}</h2>
         <div className="frame fade-up delay-1">
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 10 }}>{t(c.main_label)}</p>
@@ -1490,6 +1503,10 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
         <div className="frame-success fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           <FracPlus parts={[{ n: 1, d: 2, c: T.accent }, { n: 1, d: 3, c: T.blue }]} sumN={5} sumD={6}/>
           <p className="body" style={{ margin: 0 }}>{mt(t(c.back_to_hook))}</p>
+        </div>
+        <div className="frame-tip fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <p className="small mono" style={{ margin: 0, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t(c.forward_label)}</p>
+          <p className="body" style={{ margin: 0 }}>{mt(t(c.forward))}</p>
         </div>
         <ConnectionsBlock c={c}/>
       </div>
@@ -1908,6 +1925,9 @@ html, body { margin: 0; padding: 0; }
 @keyframes cellPop { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы). */
 .frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 14px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
+/* MATH: bridge — qadamlararo bog'lovchi satr. */
+.bridge { display: flex; align-items: center; gap: 6px; font-size: clamp(12px, 1.5vw, 13px); font-weight: 600; color: #5A5A60; }
+.bridge::before { content: "\\21B3"; color: #FF4F28; font-weight: 700; font-size: 1.05em; }
 /* MATH frac_5_10: BackLine — health-bar: сплошная заливка плавно убывает (transition width) + маркер едет. */
 .bl-bar { position: relative; width: 100%; height: 32px; border-radius: 9px; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167, 166, 162, 0.6); }
 .bl-ghost { position: absolute; top: 0; bottom: 0; left: 0; background: rgba(255, 79, 40, 0.12); border-radius: 9px 0 0 9px; }
