@@ -1039,7 +1039,8 @@ const InteractiveColumn = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!resolved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: resolved ? 'clamp(11px, 1.8vw, 15px)' : 'clamp(16px, 2.5vw, 22px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: resolved ? 'clamp(11px, 1.8vw, 15px)' : 'clamp(16px, 2.5vw, 22px)' }}>
+        <Floaters/>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           {resolved
@@ -1306,13 +1307,18 @@ const ColumnAutoAnim = ({ sol, onDone }) => {
 // Чтобы решение влезало без скролла: после ответа вопрос ужимается в строку,
 //   а варианты сворачиваются в компактные чипы (виден выбор и, когда уместно, верный).
 // ============================================================
+// To'g'ri javob pozitsiyasini A/B/C/D bo'ylab tarqatish (qat'iy tartib — tiklanish buzilmaydi).
+const MC_ORDER = { 4: [1, 0, 2, 3], 8: [0, 2, 3, 1], 10: [0, 2, 1], 11: [2, 0, 1] };
+
 const QuestionScreenRetry = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onNext, onPrev }) => {
   const c = CONTENT[`s${idx}`];
   const meta = SCREEN_META[idx];
   const t = useT();
   const lang = useLang();
-  const opts = [c.opt0, c.opt1, c.opt2, c.opt3].filter(o => o !== undefined);
-  const correctIdx = c.correctIndex;
+  const baseOpts = [c.opt0, c.opt1, c.opt2, c.opt3].filter(o => o !== undefined);
+  const order = MC_ORDER[idx] || baseOpts.map((_, i) => i);
+  const opts = order.map(i => baseOpts[i]);
+  const correctIdx = order.indexOf(c.correctIndex);
   const sol = SOLUTIONS[idx];
 
   const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
@@ -1357,7 +1363,8 @@ const QuestionScreenRetry = ({ idx, screen, totalScreens, storedAnswer, onAnswer
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: firstDone ? 'clamp(11px, 1.8vw, 15px)' : 'clamp(16px, 2.5vw, 22px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: firstDone ? 'clamp(11px, 1.8vw, 15px)' : 'clamp(16px, 2.5vw, 22px)' }}>
+        <Floaters/>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           {firstDone
@@ -1904,14 +1911,8 @@ const ExplorationAddSub = ({ idx, screen, totalScreens, onNext, onPrev, op, top,
   const audio = useAudio(segs);
   const [step, setStep] = useState(0);
   const last = c.audio[lang].length - 1;
-  const endRef = useRef(null);
 
-  useEffect(() => {
-    if (step > 0 && endRef.current) {
-      setTimeout(() => { if (endRef.current) endRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 150);
-    }
-  }, [step]);
-
+  // Keep-visible / no-scroll: step ochilganda avtoskroll YO'Q (kontent sig'adi).
   const handleStep = () => {
     if (step < last) {
       const ns = step + 1;
@@ -1937,7 +1938,8 @@ const ExplorationAddSub = ({ idx, screen, totalScreens, onNext, onPrev, op, top,
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 22px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 22px)' }}>
+        <Floaters/>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.intro)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.5vw, 20px) clamp(10px, 2vw, 16px)', overflowX: 'auto' }}>
@@ -1961,7 +1963,6 @@ const ExplorationAddSub = ({ idx, screen, totalScreens, onNext, onPrev, op, top,
             <p className="body" style={{ margin: 0 }}>{t(c.step3_text)}</p>
           </div>
         )}
-        <div ref={endRef}/>
       </div>
     </Stage>
   );
@@ -2131,7 +2132,8 @@ const RuleScreenGold = ({ idx, screen, totalScreens, onNext, onPrev, rules, demo
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={handleNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 24px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 24px)' }}>
+        <Floaters/>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {rules.map((r, i) => (
@@ -2158,6 +2160,15 @@ const RuleScreenGold = ({ idx, screen, totalScreens, onNext, onPrev, rules, demo
   );
 };
 
+// Ambient fon — yumshoq suzuvchi doiralar (bo'sh joyni to'ldiradi, Dars01/02 kabi).
+const Floaters = () => (
+  <div className="amb" aria-hidden="true">
+    <span className="amb-o amb-o1"/>
+    <span className="amb-o amb-o2"/>
+    <span className="amb-o amb-o3"/>
+  </div>
+);
+
 // s0 — HOOK (полный сброс picked при возврате)
 const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
   const c = CONTENT.s0;
@@ -2176,12 +2187,13 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 24px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 24px)' }}>
+        <Floaters/>
         <h1 className="title h-title fade-up">{t(c.global_q)}</h1>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.claim_lead)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2vw, 18px)' }}>
           <AddSubBoard op="+" top="168" bottom="257" result="315" resultColor={T.accent}/>
-          <p className="body italic" style={{ margin: 0, color: T.accent, textAlign: 'center' }}>{t(c.claim_em)}</p>
+          <p className="body italic s0-pulse" style={{ margin: 0, color: T.accent, textAlign: 'center' }}>{t(c.claim_em)}</p>
         </div>
         <p className="h-sub title fade-up delay-3">{t(c.question)}</p>
         <div className="fade-up delay-4" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2261,7 +2273,8 @@ const Screen9 = ({ screen, totalScreens, onNext, onPrev }) => {
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 24px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 2.5vw, 24px)' }}>
+        <Floaters/>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(c.intro)}</p>
         <div className="fade-up delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12 }}>
@@ -2318,7 +2331,8 @@ const Screen13 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 24px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(18px, 3vw, 24px)' }}>
+        <Floaters/>
         <h2 className="title h-title fade-up">{t(c.title)}</h2>
         <div className="frame-tip fade-up delay-1"><p className="body" style={{ margin: 0 }}>{t(c.ring_back)}</p></div>
         <div className="frame fade-up delay-1" style={{ textAlign: 'center' }}>
@@ -2775,4 +2789,23 @@ html, body { margin: 0; padding: 0; }
 @keyframes cellPop { 0% { opacity: 0; transform: scale(0.4) translateY(-6px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 /* MATH: бледно-жёлтый callout для справочного (подсказки, выводы, термины, факты). design_system math-секция v1.1. */
 .frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 20px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
+
+/* s0 hook — Bekzodning (xato) da'vosiga yumshoq puls (harakat bor, sayohatchi yo'q). */
+@keyframes s0pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.045); opacity: 0.85; } }
+.s0-pulse { display: inline-block; animation: s0pulse 2.2s ease-in-out infinite; }
+
+/* Ambient fon — yumshoq suzuvchi doiralar (Dars01/02 kabi). Kontent .has-amb orqali ustida turadi. */
+.has-amb { position: relative; }
+.has-amb > :not(.amb) { position: relative; z-index: 1; }
+.amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
+.amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
+.amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
+.amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
+@keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
+
+/* Accessibility: prefers-reduced-motion — dekorativ sikllarni gasitiramiz. */
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
 `;

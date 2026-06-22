@@ -593,6 +593,15 @@ const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
   );
 };
 
+// Ambient fon — yumshoq suzuvchi doiralar (har slaydda, Stage ichida).
+const Floaters = () => (
+  <div className="amb" aria-hidden="true">
+    <span className="amb-o amb-o1"/>
+    <span className="amb-o amb-o2"/>
+    <span className="amb-o amb-o3"/>
+  </div>
+);
+
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
   const t = useT();
@@ -617,7 +626,8 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
         </div>
       </div>
-      <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
+      <div className="stage-content has-amb" style={{ paddingLeft: padH, paddingRight: padH }}>
+        <Floaters/>
         {children}
       </div>
       {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
@@ -2200,8 +2210,19 @@ html, body { margin: 0; padding: 0; }
 .cd-candy { width: 13px; height: 13px; border-radius: 50%; background: linear-gradient(145deg, #FF6B47, #FF4F28); box-shadow: 0 3px 7px -2px rgba(255, 79, 40, 0.45); opacity: 0; animation: cdIn 0.45s ease-out forwards, cdFloat 3s ease-in-out infinite; }
 @keyframes cdIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cdFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+/* Ambient fon — yumshoq suzuvchi doiralar (har slaydda, Stage ichida). Kontent .has-amb orqali ustida. */
+.has-amb { position: relative; }
+.has-amb > :not(.amb) { position: relative; z-index: 1; }
+.amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
+.amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
+.amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
+.amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
+@keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
+
 @media (prefers-reduced-motion: reduce) {
   .cd-candy { animation: cdIn 0.3s ease-out forwards; }
   .fade-up { animation-duration: 0.01s; }
+  .amb-o { animation: none; }
 }
 `;

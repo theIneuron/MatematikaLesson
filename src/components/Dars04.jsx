@@ -697,7 +697,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        <Floaters/>
         {titleNode && <Title node={titleNode}/>}
         {/* Заголовок (Title) + текст вопроса остаются и после верного ответа — сворачиваются только неверные варианты. */}
         <div className="fade-up">{question}</div>
@@ -1239,7 +1240,8 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.3vw, 18px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.3vw, 18px)' }}>
+        <Floaters/>
         <Bridge node={c.bridge}/>
         <div className="fade-up">
           <h2 className="title h-title" style={{ marginBottom: 6 }}>{mt(tx(c.title))}</h2>
@@ -1602,7 +1604,8 @@ const InteractiveMulColumn = ({ idx, screen, totalScreens, storedAnswer, onAnswe
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!resolved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: resolved ? 'clamp(11px, 1.8vw, 15px)' : 'clamp(16px, 2.5vw, 22px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: resolved ? 'clamp(11px, 1.8vw, 15px)' : 'clamp(16px, 2.5vw, 22px)' }}>
+        <Floaters/>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
           {resolved
@@ -1890,7 +1893,8 @@ const Screen5 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.3vw, 18px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.3vw, 18px)' }}>
+        <Floaters/>
         <Bridge node={c.bridge}/>
         <div className="fade-up">
           <h2 className="title h-sub" style={{ marginBottom: 6 }}>{mt(t(c.question))}</h2>
@@ -2002,7 +2006,8 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!resolved} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: resolved ? 'clamp(11px, 1.8vw, 15px)' : 'clamp(16px, 2.5vw, 22px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: resolved ? 'clamp(11px, 1.8vw, 15px)' : 'clamp(16px, 2.5vw, 22px)' }}>
+        <Floaters/>
         <Bridge node={c.bridge}/>
         <div className="fade-up">
           <p className="eyebrow" style={{ color: T.accent }}>{t(c.label)}</p>
@@ -2058,7 +2063,8 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const stepById = (id) => c.steps.find(s => s.id === id);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
+        <Floaters/>
         <Bridge node={c.bridge}/>
         <div className="fade-up">
           <h2 className="title h-sub" style={{ marginBottom: 6 }}>{mt(t(c.title))}</h2>
