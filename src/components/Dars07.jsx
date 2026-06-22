@@ -579,7 +579,8 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           </div>
         </div>
       </div>
-      <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
+      <div className="stage-content has-amb" style={{ paddingLeft: padH, paddingRight: padH }}>
+        <Floaters/>
         {children}
       </div>
       {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
@@ -699,23 +700,24 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up">{question}</div>
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+        {/* keep-visible anti-scroll: to'g'ri javobdan keyin savol+to'g'ri variant qoladi, noto'g'rilar yig'iladi. */}
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
             let cls = 'option';
             const isWrongPicked = wrong.has(i);
+            const isCorrect = i === correctIdx;
+            const collapse = solved && !isCorrect;
             if (solved) {
-              if (i === correctIdx) cls += ' option-correct';
-              else if (isWrongPicked) cls += ' option-picked-wrong';
-              else cls += ' option-wrong';
+              if (isCorrect) cls += ' option-correct';
             } else if (isWrongPicked) {
               cls += ' option-picked-wrong';
             }
             const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
-                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
+                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
+                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                  {solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
@@ -825,7 +827,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // manfiy ham bo'ladi, ekran markazi nol (IT).
 // ============================================================
 
-const TOTAL_SCREENS = 14;
+const TOTAL_SCREENS = 10;
 const LESSON_META = {
   lessonId: 'neg-5-02-v1',
   lessonTitle: { ru: 'Сравнение целых чисел. Противоположные числа', uz: "Butun sonlarni taqqoslash va qarama-qarshi sonlar" }
@@ -837,14 +839,10 @@ const SCREEN_META = [
   { id: 's3',  type: 'exploration', template: 'custom',         scored: false, scope: null },
   { id: 's4',  type: 'rule',        template: 'custom',         scored: false, scope: null },
   { id: 's5',  type: 'rule',        template: 'custom',         scored: false, scope: null },
-  { id: 's6',  type: 'test',        template: 'NumInputScreen', scored: true,  scope: 'practice' },
-  { id: 's7',  type: 'test',        template: 'MCScreen',       scored: true,  scope: 'practice' },
-  { id: 's8',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
-  { id: 's9',  type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
-  { id: 's10', type: 'test',        template: 'custom',         scored: true,  scope: 'practice' },
-  { id: 's11', type: 'case',        template: 'custom',         scored: false, scope: null },
-  { id: 's12', type: 'case',        template: 'MCScreen',       scored: true,  scope: 'final' },
-  { id: 's13', type: 'summary',     template: 'custom',         scored: false, scope: null }
+  { id: 'b1',  type: 'test',        template: 'SeqMix',         scored: true,  scope: 'practice' }, // 6  BLOCK1 (s6+s7+s8)
+  { id: 's11', type: 'case',        template: 'custom',         scored: false, scope: null },       // 7  case setup
+  { id: 'b2',  type: 'test',        template: 'SeqMix',         scored: true,  scope: 'final' },     // 8  BLOCK2 (s9+s10+s12)
+  { id: 's13', type: 'summary',     template: 'custom',         scored: false, scope: null }        // 9  xulosa
 ];
 
 const CONTENT = {
@@ -1531,9 +1529,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', color: T.ink2, margin: 0, textAlign: 'center' }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <p className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.rule_main))}</p>
@@ -1553,9 +1549,7 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
         <p className="body fade-up" style={{ position: 'relative', margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'center' }}>
           <CoordLine value={4} value2={-4} mirror highlight={[4, -4]} min={-6} max={6}/>
@@ -1572,223 +1566,171 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s6 — TEST NumInput (5 ning qarama-qarshisi -> −5)
-const Screen6 = (props) => {
-  const c = CONTENT.s6;
-  return <NumInputScreen {...props} idx={6} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[6]} screenContent={c} correctValue={-5} renderVisual={() => <CoordLine value={5} value2={-5} mirror min={-6} max={6}/>}/>;
+// ============================================================
+// SeqMix — bitta slaydda 4-5 HAR XIL turdagi savol KETMA-KET (kiritish, taqqoslash MC,
+// o'qqa belgilash, tartiblash, multi-select). Progress nuqtalari (scrollsiz), веди-до-верного,
+// mobil-do'st. Ovozli xato = on_wrong (toza). Son so'z bilan. Fakt blok oxirida alohida karta.
+// ============================================================
+const W_B1 = {
+  eyebrow: { ru: 'Тренировка', uz: 'Mashq' },
+  title: { ru: 'Противоположные числа и сравнение', uz: "Qarama-qarshi sonlar va taqqoslash" },
+  lead: { ru: 'Несколько разных заданий подряд.', uz: "Bir nechta har xil topshiriq birin-ketin." },
+  done_text: { ru: 'Все верно! Противоположное меняет знак, а правее на прямой — больше.', uz: "Hammasi to'g'ri! Qarama-qarshi son ishorani almashtiradi, o'qda o'ngroq esa — katta." }
 };
-
-// s7 — TEST MC (noldan o'tib taqqoslash −4 va 2, correct 2 -> shuffle) + Fakt Tarix
-const Screen7 = (props) => {
-  const t = useT(); const c = CONTENT.s7;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0, 3]);
-  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2></>);
-  return <QuestionScreen {...props} idx={7} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[7]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_HIST} anim={<AnimHistory/>}/>}/>;
+const W_B2 = {
+  eyebrow: { ru: 'Итог', uz: 'Yakun' },
+  title: { ru: 'Проверь себя', uz: "O'zingni tekshir" },
+  lead: { ru: 'Реши задания одно за другим.', uz: "Topshiriqlarni birin-ketin yech." },
+  done_text: { ru: 'Отлично! Ты сравниваешь, упорядочиваешь и находишь противоположные числа.', uz: "Ajoyib! Sonlarni taqqoslaysan, tartiblaysan va qarama-qarshisini topasan." }
 };
+// Yangi qiyin taqqoslash misollari (draft — UZ tasdiq kutadi). c-shape: lead + opt + wrong_N + audio.
+const NH1 = {
+  lead: { ru: 'Что больше: −15 или −8?', uz: "Qaysi katta: −15 yoki −8?" },
+  opt0: { ru: '−8', uz: '−8' }, opt1: { ru: '−15', uz: '−15' }, opt2: { ru: 'Они равны', uz: 'Ular teng' },
+  wrong_1: { ru: '−15 кажется больше, ведь 15 больше 8. Но он левее, значит меньше. Больше −8.', uz: "−15 katta tuyuladi, axir 15, 8 dan katta. Lekin u chaproqda, demak kichik. Katta — −8." },
+  wrong_2: { ru: 'Они не равны: −8 правее −15.', uz: "Ular teng emas: −8, −15 dan o'ngroqda." },
+  audio: { intro: { ru: 'Что больше: минус пятнадцать или минус восемь? Выбери ответ.', uz: "Qaysi katta: minus o'n besh yoki minus sakkiz? Javobni tanla." }, on_correct: { ru: 'Верно. Минус восемь больше.', uz: "To'g'ri. Minus sakkiz katta." }, on_wrong: { ru: 'Большая цифра не делает минус больше. Кто правее, тот больше.', uz: "Katta raqam minusni katta qilmaydi. Kim o'ngroqda, o'sha katta." } }
+};
+const NH2 = {
+  lead: { ru: 'Чему равно противоположное числу −7?', uz: "−7 ning qarama-qarshisi nechaga teng?" },
+  opt0: { ru: '7', uz: '7' }, opt1: { ru: '−7', uz: '−7' }, opt2: { ru: '0', uz: '0' },
+  wrong_1: { ru: 'Противоположное меняет знак. У −7 противоположное это +7.', uz: "Qarama-qarshi ishorani almashtiradi. −7 ning qarama-qarshisi +7." },
+  wrong_2: { ru: 'Противоположное к −7 это не ноль, а 7 — на той же высоте справа от нуля.', uz: "−7 ning qarama-qarshisi nol emas, balki 7 — noldan o'ng tomonda, xuddi shu masofada." },
+  audio: { intro: { ru: 'Чему равно число, противоположное минус семи? Выбери ответ.', uz: "Minus yettiga qarama-qarshi son nechaga teng? Javobni tanla." }, on_correct: { ru: 'Верно. Противоположное минус семи это семь.', uz: "To'g'ri. Minus yettining qarama-qarshisi yetti." }, on_wrong: { ru: 'Противоположное меняет только знак.', uz: "Qarama-qarshi faqat ishorani almashtiradi." } }
+};
+const NH3 = {
+  lead: { ru: 'Что больше: −20 или −19?', uz: "Qaysi katta: −20 yoki −19?" },
+  opt0: { ru: '−19', uz: '−19' }, opt1: { ru: '−20', uz: '−20' }, opt2: { ru: 'Они равны', uz: 'Ular teng' },
+  wrong_1: { ru: '−20 левее −19 на один шаг, значит меньше. Больше −19.', uz: "−20, −19 dan bir qadam chaproqda, demak kichik. Katta — −19." },
+  wrong_2: { ru: 'Числа близкие, но не равные. Больше −19.', uz: "Sonlar yaqin, lekin teng emas. Katta — −19." },
+  audio: { intro: { ru: 'Что больше: минус двадцать или минус девятнадцать? Выбери ответ.', uz: "Qaysi katta: minus yigirma yoki minus o'n to'qqiz? Javobni tanla." }, on_correct: { ru: 'Верно. Минус девятнадцать больше.', uz: "To'g'ri. Minus o'n to'qqiz katta." }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "O'qda kim o'ngroqda, o'sha katta." } }
+};
+const NH4 = {
+  lead: { ru: 'Какое число самое маленькое: −2, −11 или −7?', uz: "Qaysi son eng kichik: −2, −11 yoki −7?" },
+  opt0: { ru: '−11', uz: '−11' }, opt1: { ru: '−2', uz: '−2' }, opt2: { ru: '−7', uz: '−7' },
+  wrong_1: { ru: '−2 правее всех, значит самое большое, а не маленькое. Меньше всех −11.', uz: "−2 hammadan o'ngda, demak eng katta, kichik emas. Eng kichigi — −11." },
+  wrong_2: { ru: '−7 левее −2, но −11 ещё левее. Самое маленькое −11.', uz: "−7, −2 dan chapda, lekin −11 yanada chapda. Eng kichigi — −11." },
+  audio: { intro: { ru: 'Какое число самое маленькое: минус два, минус одиннадцать или минус семь? Выбери ответ.', uz: "Qaysi son eng kichik: minus ikki, minus o'n bir yoki minus yetti? Javobni tanla." }, on_correct: { ru: 'Верно. Минус одиннадцать самое маленькое.', uz: "To'g'ri. Minus o'n bir eng kichik." }, on_wrong: { ru: 'Кто левее на прямой, тот меньше.', uz: "O'qda kim chaproqda, o'sha kichik." } }
+};
+const B1_ITEMS = [
+  { type: 'input', c: CONTENT.s6, answer: -5, coord: { value: 5, value2: -5, mirror: true } },
+  { type: 'mc', c: CONTENT.s7, optKeys: ['opt0', 'opt1', 'opt2', 'opt3'], correct: 0, order: [1, 2, 0, 3] },
+  { type: 'place', c: CONTENT.s8, answer: 3, coord: { value2: -3 } },
+  { type: 'mc', c: NH1, optKeys: ['opt0', 'opt1', 'opt2'], correct: 0, order: [1, 0, 2] },
+  { type: 'mc', c: NH2, optKeys: ['opt0', 'opt1', 'opt2'], correct: 0, order: [2, 0, 1] }
+];
+const B2_ITEMS = [
+  { type: 'order', c: CONTENT.s9, vals: [4, -5, 2, -1], correctOrder: [1, 3, 2, 0] },
+  { type: 'multiselect', c: CONTENT.s10, itemKeys: ['it0', 'it1', 'it2', 'it3'], mask: [true, true, false, false] },
+  { type: 'mc', c: NH3, optKeys: ['opt0', 'opt1', 'opt2'], correct: 0, order: [1, 2, 0] },
+  { type: 'mc', c: NH4, optKeys: ['opt0', 'opt1', 'opt2'], correct: 0, order: [2, 1, 0] },
+  { type: 'mc', c: CONTENT.s12, optKeys: ['opt0', 'opt1', 'opt2', 'opt3'], correct: 3, order: [3, 1, 2, 0] }
+];
 
-// s8 — TEST son o'qiga bosish (−3 ko'k pin; qarama-qarshisi 3 ga marker)
-const S8_OK = 3;
-const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s8; const sfx = useSfx();
-  const audio = useAudio([{ id: 's8_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+const SeqMix = ({ screen, totalScreens, items, screenContent, scope, factOnDone, storedAnswer, onAnswer, onNext, onPrev }) => {
+  const w = screenContent; const t = useT(); const lang = useLang(); const sfx = useSfx();
+  const n = items.length;
   const wasSolved = storedAnswer?.solved === true;
-  const [picked, setPicked] = useState(() => (wasSolved ? S8_OK : null));
-  const [solved, setSolved] = useState(wasSolved);
-  const [checked, setChecked] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const choose = (v) => { if (solved) return; setChecked(false); setPicked(v); };
-  const check = () => {
-    if (solved) return;
-    if (picked === null) return;
-    const ok = picked === S8_OK;
-    if (firstTryRef.current === null) firstTryRef.current = ok;
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    setChecked(true);
-    if (ok) {
-      setSolved(true); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[8].scope, screenIdx: 8, question: c.lead[lang], correctAnswer: String(S8_OK), studentAnswer: String(picked), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { sfx.playWrong(); }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
+  const audio = useAudio([{ id: `s${screen}_i0`, text: items[0].c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+  const [idx, setIdx] = useState(wasSolved ? n : 0);
+  const [results, setResults] = useState(() => (wasSolved ? items.map(() => true) : []));
+  const [val, setVal] = useState('');
+  const [pickV, setPickV] = useState(null);
+  const [seq, setSeq] = useState([]);
+  const [msel, setMsel] = useState([]);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hint, setHint] = useState(false);
+  const [flash, setFlash] = useState(false);
+  const wrongRef = useRef(false);
+  const advRef = useRef(wasSolved);
+  const done = idx >= n;
+  const cur = done ? null : items[idx];
+  const sh = (cur && cur.type === 'mc') ? shuffleMC(cur.c, cur.optKeys.map(k => optEl(t, cur.c[k])), cur.correct, cur.order || cur.optKeys.map((_, i) => i)) : null;
+  const speak = (txt) => { if (txt && !audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(txt); } };
+  const advance = (ft) => {
+    const nr = [...results]; nr[idx] = ft; const ni = idx + 1;
+    setResults(nr); setVal(''); setPickV(null); setSeq([]); setMsel([]); setWrongSet(new Set()); setHint(false); setFlash(false); wrongRef.current = false; setIdx(ni);
+    if (ni >= n) { const allOk = nr.every(Boolean); onAnswer({ stage: scope, screenIdx: screen, correctAnswer: 'seqmix', studentAnswer: JSON.stringify(nr), correct: allOk, firstTry: allOk, solved: true }); speak(w.done_text && w.done_text[lang]); }
+    else speak(items[ni].c.audio.intro[lang]);
   };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
+  const fireOk = () => { setFlash(true); sfx.playCorrect(); speak(cur.c.audio.on_correct && cur.c.audio.on_correct[lang]); const ft = !wrongRef.current; setTimeout(() => advance(ft), 800); };
+  const fireBad = () => { wrongRef.current = true; sfx.playWrong(); setHint(true); speak(cur.c.audio.on_wrong && cur.c.audio.on_wrong[lang]); };
+  const ensureAdv = () => { if (!advRef.current) { advRef.current = true; audio.triggerEvent('check_pressed'); } };
+  const submitInput = () => { if (flash) return; const v = parseInt(String(val).replace(/[^0-9-]/g, ''), 10); if (isNaN(v)) return; ensureAdv(); v === cur.answer ? fireOk() : fireBad(); };
+  const submitPlace = () => { if (flash || pickV === null) return; ensureAdv(); pickV === cur.answer ? fireOk() : fireBad(); };
+  const pickMC = (i) => { if (flash || wrongSet.has(i)) return; ensureAdv(); if (i === sh.correctIdx) { fireOk(); } else { wrongRef.current = true; sfx.playWrong(); setWrongSet(p => { const s = new Set(p); s.add(i); return s; }); setHint(true); speak(cur.c.audio.on_wrong && cur.c.audio.on_wrong[lang]); } };
+  const submitOrder = () => { if (flash || seq.length < cur.vals.length) return; ensureAdv(); const okk = seq.every((s, p) => s === cur.correctOrder[p]); if (okk) fireOk(); else { fireBad(); setTimeout(() => setSeq([]), 500); } };
+  const submitMsel = () => { if (flash) return; ensureAdv(); const okk = cur.mask.every((b, i) => b === msel.includes(i)); okk ? fireOk() : fireBad(); };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
+  const visHint = cur && (cur.type === 'mc' ? (sh && [...wrongSet].slice(-1)[0] !== undefined && sh.content[`wrong_${[...wrongSet].slice(-1)[0]}`]) : (cur.c.hint || cur.c.hint_wrong));
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0, textAlign: 'center' }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ margin: 0, fontWeight: 600, textAlign: 'center' }}>{mt(t(c.lead))}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
-          <CoordLine min={-6} max={6} value2={-3} onPick={choose} picked={picked} success={solved}/>
-          <p className="small mono" style={{ margin: 0, color: T.ink3 }}>{picked === null ? t(c.tap_prompt) : fmtN(picked)}</p>
+    <Stage eyebrow={w.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
+        <div className="fade-up">
+          <h2 className="title h-title" style={{ margin: 0 }}>{mt(t(w.title))}</h2>
+          {!done && <p className="small" style={{ marginTop: 6, color: T.ink3 }}>{mt(t(w.lead))}</p>}
         </div>
-        {checked && !solved && (
-          <div className="frame-tip fade-up" style={{ display: 'flex', gap: 8 }}>
-            <span style={{ color: '#D8A93A' }} aria-hidden="true">✗</span>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint_wrong))}</p>
+        <div className="fade-up" style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
+          {items.map((_, k) => (<span key={k} style={{ width: 9, height: 9, borderRadius: '50%', background: k < idx ? T.success : (k === idx ? T.accent : `${T.ink3}55`), transition: 'background 0.3s' }}/>))}
+          <span className="small mono" style={{ marginLeft: 6, color: T.ink3 }}>{Math.min(idx + (done ? 0 : 1), n)} / {n}</span>
+        </div>
+        {cur && (
+          <div className="fade-up" key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)' }}>
+            <h3 className="title h-sub" style={{ margin: 0 }}>{mt(t(cur.c.lead || cur.c.title))}</h3>
+            {cur.type === 'input' && (<>
+              <div className="frame" style={{ display: 'flex', justifyContent: 'center' }}><CoordLine value={cur.coord.value} value2={cur.coord.value2} mirror={cur.coord.mirror} min={-6} max={6} success={flash}/></div>
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <input type="text" inputMode="numeric" className={`answer-input ${flash ? 'correct' : (hint ? 'wrong' : '')}`} value={val} placeholder="0" disabled={flash} onChange={e => { setVal(e.target.value); setHint(false); }} onKeyDown={e => e.key === 'Enter' && submitInput()} style={{ width: 'clamp(100px, 24vw, 140px)' }}/>
+                {!flash && <button className="btn-white-accent" disabled={!val} onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : 'Проверить')}</button>}
+              </div>
+            </>)}
+            {cur.type === 'place' && (<>
+              <div className="frame" style={{ display: 'flex', justifyContent: 'center' }}><CoordLine min={-6} max={6} value2={cur.coord.value2} onPick={(v) => { if (!flash) { setPickV(v); setHint(false); } }} picked={pickV} success={flash}/></div>
+              {!flash && <div style={{ display: 'flex', justifyContent: 'center' }}><button className="btn-white-accent" disabled={pickV === null} onClick={submitPlace} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.4vw, 24px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : 'Проверить')}</button></div>}
+            </>)}
+            {cur.type === 'mc' && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+                {sh.options.map((opt, i) => { const isWrong = wrongSet.has(i); const isC = flash && i === sh.correctIdx; let cls = 'option'; if (isC) cls += ' option-correct'; else if (isWrong) cls += ' option-picked-wrong';
+                  return (<button key={i} className={cls} disabled={flash || isWrong} onClick={() => pickMC(i)} style={{ padding: 'clamp(12px, 1.7vw, 14px) clamp(12px, 2vw, 16px)', minHeight: 'clamp(50px, 7vw, 60px)', fontSize: 'clamp(14px, 1.8vw, 16px)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span className="mono small" style={{ minWidth: 18, color: isC ? T.success : (isWrong ? T.accent : T.ink3) }}>{isC ? '✓' : (isWrong ? '✗' : String.fromCharCode(65 + i))}</span><span style={{ flex: 1 }}>{opt}</span></button>); })}
+              </div>
+            )}
+            {cur.type === 'order' && (<>
+              <div className="od-grid">
+                {cur.vals.map((v, i) => { const pos = seq.indexOf(i); return (
+                  <button key={i} className={`od-card${pos !== -1 ? ' od-on' : ''}${flash ? ' od-ok' : ''}`} disabled={flash} onClick={() => { if (!flash) { setSeq(p => p.includes(i) ? p : [...p, i]); setHint(false); } }}>
+                    {pos !== -1 && <span className="od-badge">{pos + 1}</span>}<span className="od-temp">{fmtN(v)}</span></button>); })}
+              </div>
+              {!flash && <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}><button className="btn-ghost" disabled={seq.length === 0} onClick={() => setSeq([])} style={{ padding: 'clamp(9px, 1.5vw, 11px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(11px, 1.4vw, 13px)' }}>{lang === 'uz' ? 'Tozalash' : 'Сброс'}</button><button className="btn-white-accent" disabled={seq.length < cur.vals.length} onClick={submitOrder} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : 'Проверить')}</button></div>}
+            </>)}
+            {cur.type === 'multiselect' && (<>
+              <div className="ms-grid">
+                {cur.itemKeys.map((k, i) => { const on = msel.includes(i); const isC = flash && cur.mask[i]; return (
+                  <button key={i} className={`ms-card${on ? ' ms-on' : ''}${isC ? ' ms-ok' : ''}`} disabled={flash} onClick={() => { if (!flash) { setMsel(p => p.includes(i) ? p.filter(x => x !== i) : [...p, i]); setHint(false); } }}>
+                    <span className={`ms-box${on ? ' ms-box-on' : ''}`} aria-hidden="true">{on && <IconOk/>}</span><span className="ms-pair">{mt(t(cur.c[k]))}</span></button>); })}
+              </div>
+              {!flash && <div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={submitMsel} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : 'Проверить')}</button></div>}
+            </>)}
+            {hint && !flash && visHint && (<div className="frame-tip fade-up"><p className="body" style={{ margin: 0 }}>{mt(t(visHint))}</p></div>)}
           </div>
         )}
-        {!solved && (
-          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.4vw, 24px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
-          </div>
-        )}
-        {solved && (
+        {done && (<>
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? 'Tayyor' : 'Готово'}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(w.done_text))}</p>
           </FeedbackBlock>
-        )}
+          {factOnDone}
+        </>)}
       </div>
     </Stage>
   );
 };
 
-// s9 — TEST tartiblash (o'sish tartibi: −5, −1, 2, 4) tap-in-order + Fakt Fan
-const S9_VALS = [4, -5, 2, -1];          // ko'rsatish tartibi
-const S9_ORDER = [1, 3, 2, 0];           // to'g'ri ketma-ketlik (index): −5, −1, 2, 4
-const Screen9 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s9; const sfx = useSfx();
-  const audio = useAudio([{ id: 's9_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const wasSolved = storedAnswer?.solved === true;
-  const [seq, setSeq] = useState(() => (wasSolved ? S9_ORDER.slice() : []));
-  const [solved, setSolved] = useState(wasSolved);
-  const [checked, setChecked] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const tap = (i) => {
-    if (solved) return;
-    setChecked(false);
-    setSeq(prev => (prev.includes(i) ? prev : [...prev, i]));
-  };
-  const clear = () => { if (!solved) { setSeq([]); setChecked(false); } };
-  const check = () => {
-    if (solved) return;
-    if (seq.length < S9_VALS.length) return;
-    const ok = seq.every((idx, pos) => idx === S9_ORDER[pos]);
-    if (firstTryRef.current === null) firstTryRef.current = ok;
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    setChecked(true);
-    if (ok) {
-      setSolved(true); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[9].scope, screenIdx: 9, question: c.lead[lang], correctAnswer: S9_ORDER.join(','), studentAnswer: seq.join(','), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { sfx.playWrong(); setTimeout(() => setSeq([]), 600); }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 15px)', justifyContent: 'center' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ margin: 0, fontWeight: 600 }}>{mt(t(c.lead))}</p>
-        <div className="od-grid fade-up delay-1">
-          {S9_VALS.map((v, i) => {
-            const pos = seq.indexOf(i);
-            const isBad = checked && !solved && pos !== -1 && seq[pos] !== S9_ORDER[pos];
-            return (
-              <button key={i} className={`od-card${pos !== -1 ? ' od-on' : ''}${solved ? ' od-ok' : ''}${isBad ? ' od-bad' : ''}`} disabled={solved} onClick={() => tap(i)}>
-                {pos !== -1 && <span className="od-badge">{pos + 1}</span>}
-                <span className="od-temp">{fmtN(v)}</span>
-              </button>
-            );
-          })}
-        </div>
-        {checked && !solved && (
-          <div className="frame-tip fade-up" style={{ display: 'flex', gap: 8 }}>
-            <span style={{ color: T.accent }}><IconNo/></span>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint_wrong))}</p>
-          </div>
-        )}
-        {!solved && (
-          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-            <button className="btn-ghost" onClick={clear} disabled={seq.length === 0} style={{ padding: 'clamp(9px, 1.5vw, 11px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(11px, 1.4vw, 13px)' }}>{t(c.reset_hint)}</button>
-            <button className="btn-white-accent" onClick={check} disabled={seq.length < S9_VALS.length} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.4vw, 24px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
-            <div style={{ marginTop: 12 }}><FactCard text={c.fact} badge={FB_SCI} anim={<AnimAbsZero/>}/></div>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
-};
+// s6 — BLOCK 1: kiritish + taqqoslash MC + o'qqa belgilash (ketma-ket)
+const Screen6 = (props) => <SeqMix {...props} items={B1_ITEMS} screenContent={W_B1} scope={SCREEN_META[props.screen].scope} factOnDone={<FactCard text={CONTENT.s7.fact} badge={FB_HIST} anim={<AnimHistory/>}/>}/>;
 
-// s10 — TEST MULTI-SELECT (qaysi juftlar qarama-qarshi; correct {0,1})
-const S10_OK = [true, true, false, false];
-const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang(); const t = useT(); const c = CONTENT.s10; const sfx = useSfx();
-  const audio = useAudio([{ id: 's10_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const items = [c.it0, c.it1, c.it2, c.it3];
-  const wasSolved = storedAnswer?.solved === true;
-  const [sel, setSel] = useState(() => (wasSolved ? S10_OK.slice() : [false, false, false, false]));
-  const [solved, setSolved] = useState(wasSolved);
-  const [checked, setChecked] = useState(false);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? null) : null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const toggle = (i) => { if (solved) return; setChecked(false); setSel(p => { const n = [...p]; n[i] = !n[i]; return n; }); };
-  const check = () => {
-    if (solved) return;
-    const ok = S10_OK.every((v, i) => v === sel[i]);
-    if (firstTryRef.current === null) firstTryRef.current = ok;
-    attemptsRef.current += 1;
-    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('check_pressed'); }
-    setChecked(true);
-    if (ok) {
-      setSolved(true); sfx.playCorrect();
-      onAnswer({ stage: SCREEN_META[10].scope, screenIdx: 10, question: c.lead[lang], correctAnswer: S10_OK.map(b => b ? 1 : 0).join(''), studentAnswer: sel.map(b => b ? 1 : 0).join(''), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
-    } else { sfx.playWrong(); }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
-  };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 14px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', margin: 0, fontWeight: 600 }}>{mt(t(c.lead))}</p>
-        <div className="ms-grid fade-up delay-1" style={{ position: 'relative' }}>
-          {items.map((it, i) => {
-            const on = sel[i];
-            const right = checked && sel[i] === S10_OK[i];
-            const bad = checked && !solved && sel[i] !== S10_OK[i];
-            return (
-              <button key={i} className={`ms-card${on ? ' ms-on' : ''}${solved && right ? ' ms-ok' : ''}${bad ? ' ms-bad' : ''}`} disabled={solved} onClick={() => toggle(i)}>
-                <span className={`ms-box${on ? ' ms-box-on' : ''}`} aria-hidden="true">{on && <IconOk/>}</span>
-                <span className="ms-pair">{mt(t(it))}</span>
-              </button>
-            );
-          })}
-        </div>
-        {checked && !solved && (
-          <div className="frame-tip fade-up" style={{ position: 'relative', display: 'flex', gap: 8 }}>
-            <span style={{ color: T.accent }}><IconNo/></span>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.hint_wrong))}</p>
-          </div>
-        )}
-        {!solved && (
-          <div className="fade-up delay-2" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn-white-accent" onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_check)}</button>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
-          </FeedbackBlock>
-        )}
-      </div>
-    </Stage>
-  );
-};
+
+
 
 // s11 — CASE setup (Oybek −3, Nafisa 2; CoordLine)
 const Screen11 = ({ screen, onNext, onPrev }) => {
@@ -1810,33 +1752,36 @@ const Screen11 = ({ screen, onNext, onPrev }) => {
   );
 };
 
-// s12 — CASE/FINAL MC (kim oldinda; correct Nafisa 2) + Fakt IT
-const Screen12 = (props) => {
-  const t = useT(); const c = CONTENT.s12;
-  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, 3, [0, 1, 2, 3]);
-  const question = (<><h2 className="title h-title" style={{ marginBottom: 8 }}>{mt(t(c.title))}</h2><h2 className="title h-sub">{mt(t(c.lead))}</h2></>);
-  return <QuestionScreen {...props} idx={12} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[12]} screenContent={content} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimBits/>}/>}/>;
-};
+// BLOCK 2: tartiblash + multi-select + final MC (ketma-ket)
+const ScreenB2 = (props) => <SeqMix {...props} items={B2_ITEMS} screenContent={W_B2} scope={SCREEN_META[props.screen].scope} factOnDone={<FactCard text={CONTENT.s12.fact} badge={FB_IT} anim={<AnimBits/>}/>}/>;
 
 // s13 — SUMMARY + hook yopilishi + bog'lanishlar + ambient
-const Screen13 = ({ screen, onPrev, onReset, finishLesson }) => {
+// SUMMARY — yagona standart (etalon: Dars09-13): eyebrow + h-title + ball qatori (X/Y) +
+// asosiy punktlar + hookni yopish + ConnectionsBlock, top-anchor.
+const Screen13 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s13;
   const audio = useAudio(makeAudioSegments(c, lang));
   const calledRef = useRef(false);
   useEffect(() => { if (!calledRef.current) { calledRef.current = true; finishLesson(); } }, []);
-  const points = [c.main_1, c.main_2, c.main_3];
+  const mains = [c.main_1, c.main_2, c.main_3];
+  const scoreTotal = SCREEN_META.filter(s => s.scored).length;
+  const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.heading))}</h2>
-        <p className="body fade-up" style={{ position: 'relative', color: T.success, fontWeight: 600, margin: 0 }}>{mt(t(c.title))}</p>
+      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
+        <div className="fade-up" style={{ position: 'relative' }}>
+          <p className="eyebrow" style={{ color: T.success }}>{t(c.eyebrow)}</p>
+          <h2 className="title h-title" style={{ marginTop: 8 }}>{mt(t(c.heading))}</h2>
+        </div>
+        <div className="frame-success fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 32px)', fontWeight: 700, color: T.success, lineHeight: 1, flexShrink: 0 }}>{scoreCorrect} / {scoreTotal}</span>
+          <span className="body" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "savolga birinchi urinishda to'g'ri javob" : 'вопросов решено с первой попытки'}</span>
+        </div>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
-          <p className="eyebrow" style={{ color: T.ink2, marginBottom: 8 }}>{t(c.main_label)}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-            {points.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{mt(t(m))}</p></div>))}
+          <p className="eyebrow" style={{ color: T.ink2, marginBottom: 14 }}>{t(c.main_label)}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {mains.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{mt(t(m))}</p></div>))}
           </div>
         </div>
         <div className="frame-success fade-up delay-2" style={{ position: 'relative' }}>
@@ -1897,7 +1842,7 @@ export default function NegCompareLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13];
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen11, ScreenB2, Screen13];
   const CurrentScreen = screens[current];
 
   const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
@@ -2337,6 +2282,8 @@ html, body { margin: 0; padding: 0; }
 @keyframes faBit { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.92; } }
 
 /* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
+.has-amb { position: relative; }
+.has-amb > :not(.amb) { position: relative; z-index: 1; }
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
 .amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
 .amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
