@@ -631,7 +631,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, bigOptions = false }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -728,13 +728,16 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
               cls += ' option-picked-wrong';
             }
             const disabled = solved || isWrongPicked;
+            const showMark = solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : null);
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
-                  {solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
-                </span>
-                <span style={{ flex: 1 }}>{opt}</span>
+                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: bigOptions ? 'clamp(18px, 3.4vw, 24px)' : 'clamp(13px, 1.6vw, 14px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: bigOptions ? 'center' : 'flex-start', gap: bigOptions ? 8 : 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
+                {(!bigOptions || showMark) && (
+                  <span className="mono small" style={{ minWidth: bigOptions ? 'auto' : 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
+                    {showMark || String.fromCharCode(65 + i)}
+                  </span>
+                )}
+                <span style={{ flex: bigOptions ? '0 1 auto' : 1, textAlign: bigOptions ? 'center' : 'left' }}>{opt}</span>
               </button>
             );
           })}
@@ -1031,9 +1034,13 @@ const CONTENT = {
     eyebrow: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
     heading: { ru: 'Знаменатели не складываются', uz: "Maxrajlar qo'shilmaydi" },
     warn_1: { ru: 'Самая частая ошибка — сложить и знаменатели тоже.', uz: "Eng ko'p uchraydigan xato — maxrajlarni ham qo'shib yuborish." },
-    warn_ex: { ru: 'Правильно: 2/6 + 3/6 = 5/6. Неправильно: 5/12.', uz: "To'g'ri: 2/6 + 3/6 = 5/6. Noto'g'ri: 5/12." },
+    ok_label: { ru: 'Правильно', uz: "To'g'ri" },
+    ok_note: { ru: 'Знаменатель остаётся шестым.', uz: "Maxraj oltidan bo'lib qoladi." },
+    bad_label: { ru: 'Неправильно', uz: "Noto'g'ri" },
+    bad_cause: { ru: 'Здесь сложили и знаменатели: 6 + 6 = 12.', uz: "Bu yerda maxrajlar ham qo'shilgan: 6 + 6 = 12." },
+    bad_note: { ru: 'Так нельзя — знаменатель не складывают.', uz: "Bunday bo'lmaydi — maxraj qo'shilmaydi." },
     warn_2: { ru: 'Знаменатель — это размер доли. Долю не делим заново, поэтому он не меняется.', uz: "Maxraj — bu ulush kattaligi. Ulushni qaytadan bo'lmaymiz, shuning uchun u o'zgarmaydi." },
-    audio: { ru: "Будьте внимательны. Самая частая ошибка это сложить ещё и знаменатели. Тогда вместо пяти шестых получится пять двенадцатых. Но знаменатель показывает размер доли, и он остаётся тем же.", uz: "Diqqat bo'ling. Eng ko'p uchraydigan xato bu maxrajlarni ham qo'shib yuborish. Unda oltidan besh o'rniga o'n ikkidan besh chiqadi. Lekin maxraj ulush kattaligini ko'rsatadi, va u o'sha holicha qoladi." }
+    audio: { ru: "Будьте внимательны. Самая частая ошибка это сложить ещё и знаменатели: шесть плюс шесть двенадцать. Тогда вместо пяти шестых получится пять двенадцатых. Но знаменатель показывает размер доли, и он остаётся прежним, шестым.", uz: "Diqqat bo'ling. Eng ko'p uchraydigan xato bu maxrajlarni ham qo'shib yuborish: olti qo'shuv olti o'n ikki. Unda oltidan besh o'rniga o'n ikkidan besh chiqadi. Lekin maxraj ulush kattaligini ko'rsatadi, va u o'sha holicha, oltidan bo'lib qoladi." }
   },
 
   // ===== s6 TEST MC — 2/7 + 4/7 (FAKT: musiqa) =====
@@ -1530,8 +1537,14 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         ) : (
           <>
             <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-              <span className="small mono" style={{ color: T.ink2 }}>{lang === 'uz' ? "qo'sh:" : 'сложи:'}</span>
-              <div className="dm-prob">{mt(tx(q.q))}</div>
+              {scored ? (
+                <>
+                  <span className="small mono" style={{ color: T.ink2 }}>{lang === 'uz' ? "qo'sh:" : 'сложи:'}</span>
+                  <div className="dm-prob">{mt(tx(q.q))}</div>
+                </>
+              ) : (
+                <h3 className="title h-sub" style={{ margin: 0, textAlign: 'center' }}>{mt(tx(q.q))}</h3>
+              )}
             </div>
             <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
               {q.opts.map((o, i) => {
@@ -1612,7 +1625,6 @@ const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(13px, 2.3vw, 16px)' }}>
         <Floaters/>
         <h1 className="title h-title fade-up" style={{ position: 'relative' }}>{mt(t(c.title))}</h1>
-        <p className="body fade-up delay-1" style={{ position: 'relative', margin: 0, color: T.ink2 }}>{mt(t(c.lead))}</p>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.6vw, 20px)' }}><JuicePour/></div>
         <div className="fade-up delay-2" style={{ position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
           {opts.map((o, i) => {
@@ -1762,9 +1774,22 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
         </div>
         <div className="frame-tip fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 16 }}>
           <p className="body" style={{ margin: 0 }}>{mt(t(c.warn_1))}</p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><span style={{ color: T.success }}><IconOk/></span><Frac n="2" d="6" size="sm"/><Op>+</Op><Frac n="3" d="6" size="sm"/><Op>=</Op><Frac n="5" d="6" size="mid" color={T.success}/></span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, opacity: 0.85 }}><span style={{ color: T.accent }}><IconNo/></span><Frac n="5" d="12" size="mid" color={T.accent}/></span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <span style={{ color: T.success, display: 'inline-flex' }}><IconOk/></span>
+                <Frac n="2" d="6" size="mid"/><Op>+</Op><Frac n="3" d="6" size="mid"/><Op>=</Op><Frac n="5" d="6" size="mid" color={T.success}/>
+              </span>
+              <span className="small" style={{ color: T.success, fontWeight: 600 }}>{t(c.ok_note)}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <span style={{ color: T.accent, display: 'inline-flex' }}><IconNo/></span>
+                <Frac n="2" d="6" size="mid"/><Op>+</Op><Frac n="3" d="6" size="mid"/><Op>=</Op><Frac n="5" d="12" size="mid" color={T.accent}/>
+              </span>
+              <span className="small" style={{ color: T.accent, fontWeight: 700 }}>{t(c.bad_cause)}</span>
+              <span className="small" style={{ color: T.ink2 }}>{t(c.bad_note)}</span>
+            </div>
           </div>
           <div style={{ height: 1, background: 'rgba(180, 138, 30, 0.3)' }}/>
           <p className="body" style={{ margin: 0 }}>{mt(t(c.warn_2))}</p>
@@ -1785,7 +1810,7 @@ const Screen6 = (props) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><div style={{ width: 'clamp(44px, 10vw, 58px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n="4" d="7" size="sm" color={T.blue}/></div><div style={{ flex: 1 }}><FigBar den={7} fills={buildFills([{ count: 4, color: T.blue }], 7)}/></div></div>
     </div>
   );
-  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} figure={figure} factOnCorrect={<FactCard text={c.fact} badge={FB_MUS} anim={<AnimShares/>}/>}/>;
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} figure={figure} bigOptions factOnCorrect={<FactCard text={c.fact} badge={FB_MUS} anim={<AnimShares/>}/>}/>;
 };
 
 // s7 — TEST error-spotting: qaysi yozuv noto'g'ri (correct old idx 2). FactCard vaqt.
@@ -1830,7 +1855,7 @@ const Screen11 = (props) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><div style={{ width: 'clamp(44px, 10vw, 58px)', flexShrink: 0, display: 'flex', justifyContent: 'center' }}><Frac n="3" d="8" size="sm" color={T.blue}/></div><div style={{ flex: 1 }}><FigBar den={8} fills={buildFills([{ count: 3, color: T.blue }], 8)}/></div></div>
     </div>
   );
-  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} question={question} options={options} correctIdx={correctIdx} figure={figure} factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimUpload/>}/>}/>;
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} question={question} options={options} correctIdx={correctIdx} figure={figure} bigOptions factOnCorrect={<FactCard text={c.fact} badge={FB_IT} anim={<AnimUpload/>}/>}/>;
 };
 
 // s12 — SUMMARY: hisob + «Главное»; hookni yopadi; finishLesson bir marta. (top-align)
