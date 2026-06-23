@@ -42,12 +42,6 @@ const T = {
 let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
-// ===== [TEMP PREVIEW TTS — удалить перед загрузкой в updater] =====
-// Прототипная озвучка через Web Speech API для прокликивания, когда нет ttsApiBase.
-// В production звук приходит с HTTP-TTS сервера — Web Speech НЕ используется.
-const PREVIEW_WEBSPEECH_TTS = true;
-// ===== [/TEMP PREVIEW TTS] =====
-
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
 // ============================================================
@@ -218,41 +212,15 @@ class AudioEngine {
   playSegment(segment) {
     if (!segment) return;
     const base = ttsConfig.ttsApiBase;
-    // Нет базы / нет текста → движок молчит, но логика очереди сохраняется.
-    if (!base || !segment.text) {
-      // ===== [TEMP PREVIEW TTS — удалить перед загрузкой в updater] =====
-      if (PREVIEW_WEBSPEECH_TTS && segment.text && typeof window !== 'undefined' && window.speechSynthesis) {
-        try {
-          window.speechSynthesis.cancel();
-          const u = new SpeechSynthesisUtterance(stripAudioTags(segment.text));
-          const segLang = segment.lang || this.currentLang;
-          u.lang = segLang === 'uz' ? 'uz-UZ' : 'ru-RU';
-          const voices = window.speechSynthesis.getVoices() || [];
-          const v = voices.find(x => x.lang && x.lang.toLowerCase().startsWith(segLang === 'uz' ? 'uz' : 'ru'));
-          if (v) u.voice = v;
-          u.rate = 1;
-          u.onend = () => {
-            this.isPlaying = false;
-            if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
-            this.handleSegmentEnd(segment);
-          };
-          u.onerror = () => {
-            this.isPlaying = false;
-            if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
-            this.handleSegmentEnd(segment);
-          };
-          this.isPlaying = true;
-          if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id });
-          window.speechSynthesis.speak(u);
-          return;
-        } catch (e) { /* фолбэк в тишину ниже */ }
-      }
-      // ===== [/TEMP PREVIEW TTS] =====
+    // Нет текста → пропускаем (логика очереди сохраняется).
+    if (!segment.text) {
       this.isPlaying = false;
       if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
       setTimeout(() => this.handleSegmentEnd(segment), 0);
       return;
     }
+    // База НЕ пришла от LMS → этап preview: браузерная озвучка (мёртвая ветка на платформе).
+    if (!base) { this.playSegmentPreview(segment); return; }
     const el = this.ensureEl();
     if (!el) { setTimeout(() => this.handleSegmentEnd(segment), 0); return; }
 
@@ -282,6 +250,39 @@ class AudioEngine {
         if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
       });
     }
+  }
+
+  // Preview-озвучка через браузерный Web Speech — ТОЛЬКО когда ttsApiBase пуст
+  // (запуск вне LMS / в artifacts). На платформе ttsApiBase непустой → ветка мёртвая.
+  // Не «боевой» транспорт; нужна, чтобы методист слышал озвучку при разработке.
+  playSegmentPreview(segment) {
+    if (typeof window === 'undefined' || !window.speechSynthesis) {
+      setTimeout(() => this.handleSegmentEnd(segment), 0); return;
+    }
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    // тег языка/настроения на экран и в Web Speech не нужен — снимаем
+    const clean = stripAudioTags(String(segment.text));
+    const u = new SpeechSynthesisUtterance(clean);
+    const lang = segment.lang || this.currentLang;
+    u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
+    u.rate = 0.95; u.pitch = 1.0;
+    u.onstart = () => {
+      this.isPlaying = true;
+      if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id });
+    };
+    u.onend = () => {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      this.handleSegmentEnd(segment);
+    };
+    u.onerror = () => {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      this.handleSegmentEnd(segment);
+    };
+    this.previewUtterance = u;
+    setTimeout(() => { try { synth.speak(u); } catch (e) { this.handleSegmentEnd(segment); } }, 60);
   }
 
   // Возобновление после блокировки автоплея (по первому жесту).
@@ -349,9 +350,10 @@ class AudioEngine {
     if (this.audioEl) {
       try { this.audioEl.pause(); this.audioEl.onended = null; this.audioEl.onerror = null; } catch (e) {}
     }
-    // ===== [TEMP PREVIEW TTS — удалить перед загрузкой в updater] =====
-    try { if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
-    // ===== [/TEMP PREVIEW TTS] =====
+    // preview-ветка: гасим браузерную озвучку
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
     this.isPlaying = false;
     if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
   }
@@ -2411,11 +2413,11 @@ export default function ColumnArithmeticLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
-  // ===== [TEMP LANG TOGGLE — удалить перед загрузкой в updater] =====
-  // Временный ru/uz переключатель для прокликивания. В production lang приходит prop'ом.
-  const [langOverride, setLangOverride] = useState(langProp || 'ru');
-  const lang = langOverride;
-  // ===== [/TEMP LANG TOGGLE] =====
+  // Preview-режим = lang от LMS не пришёл (запуск в artifacts/вне LMS). Тогда показываем
+  // RU/UZ-тумблер. Если lang пришёл — тумблера нет, язык фиксирован (platform_contract §1).
+  const isPreview = (langProp === undefined || langProp === null);
+  const [previewLang, setPreviewLang] = useState('ru');
+  const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
   // Конфигурируем урок: движок/SFX/AI читают из ttsConfig.
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
@@ -2468,20 +2470,18 @@ export default function ColumnArithmeticLesson({
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
-      {/* ===== [TEMP LANG TOGGLE — удалить перед загрузкой в updater] ===== */}
-      <button
-        onClick={() => setLangOverride(l => (l === 'ru' ? 'uz' : 'ru'))}
-        style={{
-          position: 'fixed', top: 10, right: 10, zIndex: 9999,
-          padding: '6px 12px', borderRadius: 8, border: '1px solid #58353055',
-          background: '#fff', color: '#583530', fontFamily: 'monospace',
-          fontSize: 13, fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px #58353022',
-        }}
-      >
-        {lang === 'ru' ? 'RU → UZ' : 'UZ → RU'}
-      </button>
-      {/* ===== [/TEMP LANG TOGGLE] ===== */}
       <div className="lesson-root">
+        {isPreview && (
+          <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
+            {['ru', 'uz'].map(l => (
+              <button key={l} onClick={() => setPreviewLang(l)}
+                style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
+                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
         <CurrentScreen
           screen={current}
           studentName={safeName}

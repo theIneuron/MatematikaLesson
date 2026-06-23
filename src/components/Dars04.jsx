@@ -1800,10 +1800,23 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const audio = useAudio(segs);
   const [step, setStep] = useState(0);
   const [factShown, setFactShown] = useState(false);
-  const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); if (ns >= last && !factShown) { setFactShown(true); if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.fact_audio[lang]); } } } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
+  const factRef = useRef(false);
+  // Сначала ПОКАЗ строки (setStep → перерисовка), потом ОЗВУЧКА (triggerInternal в эффекте после отрисовки).
+  // seg0 звучит on_mount — первая строка уже видна (step 0). Остальные сегменты — в useEffect[step], когда строка уже на экране.
+  useEffect(() => {
+    if (step === 0) return;
+    audio.triggerInternal(`step_${step}`);
+    if (step >= last && !factRef.current) {
+      factRef.current = true;
+      setFactShown(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.fact_audio[lang]); }
+    }
+  // eslint-disable-next-line
+  }, [step]);
+  const handleStep = () => { if (step < last) { setStep(step + 1); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
   const ROWS = [];
-  if (step >= 1) ROWS.push({ digits: '426', shift: 0, color: T.accent, caption: '213 × 2', active: step === 1, work: [{ a: 3, b: 2 }, { a: 1, b: 2 }, { a: 2, b: 2 }] });
-  if (step >= 2) ROWS.push({ digits: '213', shift: 1, color: T.blue, caption: '213 × 1 (десятки)', active: step === 2, work: [{ a: 3, b: 1 }, { a: 1, b: 1 }, { a: 2, b: 1 }] });
+  if (step >= 0) ROWS.push({ digits: '426', shift: 0, color: T.accent, caption: '213 × 2', active: step === 0, work: [{ a: 3, b: 2 }, { a: 1, b: 2 }, { a: 2, b: 2 }] });
+  if (step >= 1) ROWS.push({ digits: '213', shift: 1, color: T.blue, caption: '213 × 1 (десятки)', active: step === 1, work: [{ a: 3, b: 1 }, { a: 1, b: 1 }, { a: 2, b: 1 }] });
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -1934,11 +1947,24 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
   const audio = useAudio(segs);
   const [step, setStep] = useState(0);
   const [factShown, setFactShown] = useState(false);
-  const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); if (ns >= last && !factShown) { setFactShown(true); if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.fact_audio[lang]); } } } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
+  const factRef = useRef(false);
+  // Сначала ПОКАЗ строки (setStep → перерисовка), потом ОЗВУЧКА (triggerInternal в эффекте после отрисовки).
+  // seg0 звучит on_mount — первая строка уже видна (step 0). Остальные сегменты — в useEffect[step], когда строка уже на экране.
+  useEffect(() => {
+    if (step === 0) return;
+    audio.triggerInternal(`step_${step}`);
+    if (step >= last && !factRef.current) {
+      factRef.current = true;
+      setFactShown(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(c.fact_audio[lang]); }
+    }
+  // eslint-disable-next-line
+  }, [step]);
+  const handleStep = () => { if (step < last) { setStep(step + 1); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
   const ROWS = [];
-  if (step >= 1) ROWS.push({ digits: '528', shift: 0, color: T.accent, caption: '132 × 4', active: step === 1, work: [{ a: 2, b: 4 }, { a: 3, b: 4, carryIn: 1 }, { a: 1, b: 4, carryIn: 1 }] });
-  if (step >= 2) ROWS.push({ digits: '0', shift: 1, color: T.ink3, caption: '132 × 0 (десятки)', kind: 'zero', active: step === 2 });
-  if (step >= 3) ROWS.push({ digits: '264', shift: 2, color: T.blue, caption: '132 × 2 (сотни)', active: step === 3, work: [{ a: 2, b: 2 }, { a: 3, b: 2 }, { a: 1, b: 2 }] });
+  if (step >= 0) ROWS.push({ digits: '528', shift: 0, color: T.accent, caption: '132 × 4', active: step === 0, work: [{ a: 2, b: 4 }, { a: 3, b: 4, carryIn: 1 }, { a: 1, b: 4, carryIn: 1 }] });
+  if (step >= 1) ROWS.push({ digits: '0', shift: 1, color: T.ink3, caption: '132 × 0 (десятки)', kind: 'zero', active: step === 1 });
+  if (step >= 2) ROWS.push({ digits: '264', shift: 2, color: T.blue, caption: '132 × 2 (сотни)', active: step === 2, work: [{ a: 2, b: 2 }, { a: 3, b: 2 }, { a: 1, b: 2 }] });
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
