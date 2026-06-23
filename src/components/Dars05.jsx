@@ -48,7 +48,7 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // ============================================================
@@ -59,21 +59,21 @@ const LANG_TAG = {
   uz: "[O'zbekcha tallaffuz]",
   en: '[English pronunciation]',
 };
-const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const END_TAG = '[end]';
+const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]/g;
 
 const stripAudioTags = (s) => typeof s === 'string'
-  ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]\s*/g, '')
+  ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS: {base}/api/tts?text=<теги+текст, encoded>&g=m|f
-// Если в тексте уже есть языковой тег (смешанные языки) — свой не добавляем.
-function buildTtsUrl(base, text, lang, gender) {
-  const tag = LANG_TAG[lang] || LANG_TAG.ru;
+// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
+// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
+// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+function buildTtsUrl(base, text, gender) {
   const raw = String(text);
-  const tagged = TAG_RE.test(raw) ? raw : `${tag} ${raw}`;
-  const enc = encodeURIComponent(tagged.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+  const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = gender === 'f' ? 'f' : 'm';
   return `${base}/api/tts?text=${enc}&g=${g}`;
 }
@@ -208,7 +208,8 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }
+  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
     this.stop();
@@ -247,9 +248,8 @@ class AudioEngine {
       this.handleSegmentEnd(segment);
     };
 
-    const lang = segment.lang || this.currentLang;
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, lang, gender);
+    el.src = buildTtsUrl(base, segment.text, gender);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -398,6 +398,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
+    engine.setGender(ttsConfig.voiceGender || 'm');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -1781,14 +1782,14 @@ const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
 // КОРНЕВОЙ КОМПОНЕНТ = default export = сам урок (platform_contract §1).
 // ============================================================
 export default function DivisionLesson({
-  studentName, lang: langProp, ttsApiBase,
+  studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

@@ -23,7 +23,7 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // ============================================================
@@ -34,21 +34,21 @@ const LANG_TAG = {
   uz: "[O'zbekcha tallaffuz]",
   en: '[English pronunciation]',
 };
-const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const END_TAG = '[end]';
+const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]/g;
 
 const stripAudioTags = (s) => typeof s === 'string'
-  ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]\s*/g, '')
+  ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS: {base}/api/tts?text=<теги+текст, encoded>&g=m|f
-// Если в тексте уже есть языковой тег (смешанные языки) — свой не добавляем.
-function buildTtsUrl(base, text, lang, gender) {
-  const tag = LANG_TAG[lang] || LANG_TAG.ru;
+// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
+// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
+// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+function buildTtsUrl(base, text, gender) {
   const raw = String(text);
-  const tagged = TAG_RE.test(raw) ? raw : `${tag} ${raw}`;
-  const enc = encodeURIComponent(tagged.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+  const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = gender === 'f' ? 'f' : 'm';
   return `${base}/api/tts?text=${enc}&g=${g}`;
 }
@@ -183,7 +183,8 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }
+  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
     this.stop();
@@ -222,9 +223,8 @@ class AudioEngine {
       this.handleSegmentEnd(segment);
     };
 
-    const lang = segment.lang || this.currentLang;
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, lang, gender);
+    el.src = buildTtsUrl(base, segment.text, gender);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -373,6 +373,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
+    engine.setGender(ttsConfig.voiceGender || 'm');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -775,14 +776,14 @@ const CONTENT = {
   s0: {
     eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli' },
     global_q: { ru: 'Как прочитать огромные числа вокруг нас?', uz: "Atrofimizdagi katta sonlarni qanday o'qiymiz?" },
-    lead: { ru: 'Земля летит вокруг Солнца. Расстояние до него — вот столько километров:', uz: "Yer Quyosh atrofida aylanadi. Ungacha masofa — mana shuncha kilometr:" },
+    lead: { ru: 'Земля движется вокруг Солнца. Расстояние до него — вот столько километров:', uz: "Yer Quyosh atrofida aylanadi. Ungacha masofa — mana shuncha kilometr:" },
     number_em: { ru: '149 600 000', uz: '149 600 000' },
     question: { ru: 'Сможешь прочитать это число?', uz: "Bu sonni o'qiy olasizmi?" },
     opt_yes: { ru: 'Прочту легко', uz: "Bemalol o'qiyman" },
     opt_no: { ru: 'Пока трудно', uz: 'Hozircha qiyin' },
     opt_idk: { ru: 'Хочу научиться', uz: "O'rganmoqchiman" },
     audio: {
-      intro: { ru: 'Земля летит вокруг Солнца, и расстояние до него сто сорок девять миллионов шестьсот тысяч километров. Прочитать такое число с ходу трудно. Главный вопрос урока: как прочитать и представить себе огромные числа вокруг нас? Сможешь прочитать это число?', uz: "Yer Quyosh atrofida aylanadi, va ungacha masofa bir yuz qirq to'qqiz million olti yuz ming kilometr. Bunday sonni darrov o'qish qiyin. Darsning asosiy savoli: atrofimizdagi katta sonlarni qanday o'qish va tasavvur qilamiz? Bu sonni o'qiy olasizmi?" },
+      intro: { ru: 'Земля движется вокруг Солнца, и расстояние до него сто сорок девять миллионов шестьсот тысяч километров. Прочитать такое число с ходу трудно. Главный вопрос урока: как прочитать и представить себе огромные числа вокруг нас? Сможешь прочитать это число?', uz: "Yer Quyosh atrofida aylanadi, va ungacha masofa bir yuz qirq to'qqiz million olti yuz ming kilometr. Bunday sonni darrov o'qish qiyin. Darsning asosiy savoli: atrofimizdagi katta sonlarni qanday o'qish va tasavvur qilamiz? Bu sonni o'qiy olasizmi?" },
       on_correct: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.' },
       on_wrong: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.' }
     }
@@ -848,7 +849,7 @@ const CONTENT = {
     fb_wrong: { ru: 'Считай три цифры справа и ставь пробел только там. Так число делится на класс тысяч и класс единиц.', uz: "O'ngdan uchta xonani sanang va faqat o'sha yerga bo'sh joy qo'ying. Shunda son minglar sinfi va birlar sinfiga bo'linadi." },
     audio: {
       intro: { ru: 'Расстояние до Луны записано без пробелов. Поставь пробел так, чтобы число делилось на классы. Потом нажми кнопку проверить.', uz: "Oygacha masofa bo'shliqsiz yozilgan. Son sinflarga bo'linishi uchun bo'sh joy qo'ying. Keyin tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Через три цифры справа число разделилось на классы.', uz: "To'g'ri. O'ngdan uch xonadan keyin son sinflarga bo'lindi." },
+      on_correct: { ru: 'Верно. Через три цифры справа число разделилось на классы. Читается оно как триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. O'ngdan uch xonadan keyin son sinflarga bo'lindi. U uch yuz sakson to'rt ming to'rt yuz deb o'qiladi." },
       on_wrong: { ru: 'Пока не так. Считай три цифры справа.', uz: "Hali emas. O'ngdan uchta xonani sanang." }
     }
   },
@@ -879,7 +880,7 @@ const CONTENT = {
     rule_1: { ru: 'Читаем слева направо: называем число в каждом классе и добавляем название класса.', uz: "Chapdan o'ngga o'qiymiz: har bir sinfdagi sonni aytamiz va sinf nomini qo'shamiz." },
     rule_2: { ru: 'Класс единиц название не получает — его просто называют.', uz: "Birlar sinfining nomi aytilmaydi — uni shunchaki aytamiz." },
     example: { ru: '384 400  →  триста восемьдесят четыре тысячи четыреста', uz: "384 400  →  uch yuz sakson to'rt ming to'rt yuz" },
-    audio: { ru: 'Правило чтения. Идём слева направо, называем число в каждом классе и добавляем название класса. Класс единиц название не получает, его просто называют.', uz: "O'qish qoidasi. Chapdan o'ngga boramiz, har bir sinfdagi sonni aytamiz va sinf nomini qo'shamiz. Birlar sinfining nomi aytilmaydi, uni shunchaki aytamiz." }
+    audio: { ru: 'Правило чтения. Идём слева направо, называем число в каждом классе и добавляем название класса. Класс единиц название не получает, его просто называют. Например, число на экране читается как триста восемьдесят четыре тысячи четыреста.', uz: "O'qish qoidasi. Chapdan o'ngga boramiz, har bir sinfdagi sonni aytamiz va sinf nomini qo'shamiz. Birlar sinfining nomi aytilmaydi, uni shunchaki aytamiz. Masalan, ekrandagi son uch yuz sakson to'rt ming to'rt yuz deb o'qiladi." }
   },
 
   s7: {
@@ -900,7 +901,7 @@ const CONTENT = {
     wrong_3: { ru: 'Один миллион триста девяносто две тысячи прочитано верно. Ошибка в другом числе.', uz: "Bir million uch yuz to'qson ikki ming to'g'ri o'qilgan. Xato boshqa sonda." },
     audio: {
       intro: { ru: 'Три числа прочитаны верно, а в одном чтение ошибочно. Найди число с ошибкой и тапни его.', uz: "Uch son to'g'ri o'qilgan, bittasida o'qish xato. Xato sonni toping va uni bosing." },
-      on_correct: { ru: 'Верно. Ноль в классе единиц нельзя терять.', uz: "To'g'ri. Birlar sinfidagi nolni yo'qotib bo'lmaydi." },
+      on_correct: { ru: 'Верно. Ноль в классе единиц нельзя терять. Правильно это число читается как триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. Birlar sinfidagi nolni yo'qotib bo'lmaydi. To'g'risi bu son uch yuz sakson to'rt ming to'rt yuz deb o'qiladi." },
       on_wrong: { ru: 'Это число прочитано правильно. Ищи потерянный ноль.', uz: "Bu son to'g'ri o'qilgan. Yo'qolgan nolni qidiring." }
     }
   },
@@ -1166,6 +1167,19 @@ const Floaters = () => (<div className="amb" aria-hidden="true"><span className=
 const StepLine = ({ children, soft }) => (
   <div className={`fade-up ${soft ? 'frame-tip' : 'frame'}`} style={{ padding: 'clamp(12px, 2vw, 16px)' }}>
     <p className="body" style={{ margin: 0, color: T.ink }}>{children}</p>
+  </div>
+);
+// Bosqichli izohlar yig'iladi: oldingi qatorlar (so'lg'in) qoladi, yangisi pastdan chiqadi (fade-up).
+const StepLinesAccum = ({ lines, step }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.5vw, 12px)' }}>
+    {lines.slice(0, step + 1).map((ln, i) => {
+      const isCurrent = i === step;
+      return (
+        <div key={i} className={`${isCurrent ? 'fade-up frame' : 'frame-tip'}`} style={{ padding: 'clamp(12px, 2vw, 16px)', opacity: isCurrent ? 1 : 0.72, transition: 'opacity 0.4s ease' }}>
+          <p className="body" style={{ margin: 0, color: isCurrent ? T.ink : T.ink2 }}>{ln}</p>
+        </div>
+      );
+    })}
   </div>
 );
 const HintBlock = ({ show, children }) => {
@@ -1675,7 +1689,7 @@ const Screen2 = (props) => (
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s2.title)}</h2>
         <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s2.bridge)}</p>
         <div className="frame fade-up delay-2"><GroupingReveal groups={['149', '600', '000']} active={step < 3 ? [2, 1, 0][step] : -1}/></div>
-        <StepLine>{CONTENT.s2.audio[lang][step]}</StepLine>
+        <StepLinesAccum lines={CONTENT.s2.audio[lang]} step={step}/>
       </div>
     )}/>
 );
@@ -1701,7 +1715,7 @@ const Screen5 = (props) => (
               </div>
             ))}
           </div>
-          <StepLine>{CONTENT.s5.audio[lang][step]}</StepLine>
+          <StepLinesAccum lines={CONTENT.s5.audio[lang]} step={step}/>
           {step >= last && <FactCard badge={FB_HIST} anim={<AnimDigits/>} text={CONTENT.s5.fact}/>}
         </div>
       );
@@ -1725,7 +1739,7 @@ const Screen8 = (props) => (
             <p className="small mono" style={{ marginTop: 8, color: step >= 1 ? T.accent : T.ink3 }}>{step >= 1 ? t(CONTENT.s8.number_b) : t(CONTENT.s8.number_a)}</p>
           </div>
         </div>
-        <StepLine>{CONTENT.s8.audio[lang][step]}</StepLine>
+        <StepLinesAccum lines={CONTENT.s8.audio[lang]} step={step}/>
         {step >= 2 && <div className="frame-tip fade-up"><p className="body" style={{ margin: 0, color: T.ink }}>{t(CONTENT.s8.warn)}</p></div>}
       </div>
     )}/>
@@ -1743,7 +1757,7 @@ const Screen10 = (props) => (
           <GroupingReveal groups={['299', '792', '458']} active={Math.min(step, 2)}/>
           <div className="light-track"><div className="light-beam"/></div>
         </div>
-        <StepLine>{CONTENT.s10.audio[lang][step]}</StepLine>
+        <StepLinesAccum lines={CONTENT.s10.audio[lang]} step={step}/>
         {step >= last && <FactCard badge={FB_SCI} anim={<AnimStars/>} text={CONTENT.s10.fact}/>}
       </div>
     )}/>
@@ -1951,12 +1965,12 @@ html, body { margin: 0; padding: 0; }
 // КОРНЕВОЙ КОМПОНЕНТ — default export (platform_contract §1)
 // ============================================================
 export default function NaturalNumbersLesson({
-  studentName, lang: langProp, ttsApiBase,
+  studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
   const lang = langProp || 'ru';
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => { console.log('[Preview] onFinished payload:', payload); });
 
   const [current, setCurrent] = useState(0);

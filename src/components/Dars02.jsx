@@ -23,7 +23,7 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // ============================================================
@@ -34,21 +34,21 @@ const LANG_TAG = {
   uz: "[O'zbekcha tallaffuz]",
   en: '[English pronunciation]',
 };
-const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const END_TAG = '[end]';
+const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]/g;
 
 const stripAudioTags = (s) => typeof s === 'string'
-  ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]\s*/g, '')
+  ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS: {base}/api/tts?text=<теги+текст, encoded>&g=m|f
-// Если в тексте уже есть языковой тег (смешанные языки) — свой не добавляем.
-function buildTtsUrl(base, text, lang, gender) {
-  const tag = LANG_TAG[lang] || LANG_TAG.ru;
+// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
+// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
+// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+function buildTtsUrl(base, text, gender) {
   const raw = String(text);
-  const tagged = TAG_RE.test(raw) ? raw : `${tag} ${raw}`;
-  const enc = encodeURIComponent(tagged.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+  const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = gender === 'f' ? 'f' : 'm';
   return `${base}/api/tts?text=${enc}&g=${g}`;
 }
@@ -183,7 +183,8 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }
+  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
     this.stop();
@@ -222,9 +223,8 @@ class AudioEngine {
       this.handleSegmentEnd(segment);
     };
 
-    const lang = segment.lang || this.currentLang;
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, lang, gender);
+    el.src = buildTtsUrl(base, segment.text, gender);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -373,6 +373,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
+    engine.setGender(ttsConfig.voiceGender || 'm');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -908,6 +909,12 @@ const CONTENT = {
     axis_left_note: { ru: 'ближайшая круглая тысяча снизу', uz: "pastdan eng yaqin yaxlit ming" },
     axis_right_note: { ru: 'ближайшая круглая тысяча сверху', uz: "tepadan eng yaqin yaxlit ming" },
     prompt: { ru: 'Двигай ползунок и наблюдай, к какому круглому ближе.', uz: "Slayderni harakatlantiring va qaysi yaxlit songa yaqinroq ekanini kuzating." },
+    bars_caption: { ru: 'Расстояние до каждой границы:', uz: "Har bir chegaragacha masofa:" },
+    near_tag: { ru: 'ближе', uz: "yaqinroq" },
+    near_note: {
+      ru: 'Оранжевая — ближняя граница: к ней и округляем.',
+      uz: "To'q sariq — yaqin chegara: shu tomonga yaxlitlaymiz."
+    },
     play_hint: { ru: 'Подвигай ползунок и попробуй разные числа — так легче почувствовать, к какому круглому каждое ближе.', uz: "Slayderni harakatlantiring va turli sonlarni sinab ko'ring — har biri qaysi yaxlit songa yaqinroq ekanini his qilish osonroq bo'ladi." },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     audio: {
@@ -1098,10 +1105,10 @@ const CONTENT = {
   // ───────────────────────────── s11 · CASE conclusion ─────────────────────────────
   s13: {
     eyebrow: { ru: 'Случай из космоса', uz: 'Kosmik holat' },
-    label: { ru: 'Расставь по размеру', uz: "O'lchami bo'yicha tartibla" },
+    label: { ru: 'Расставь по размеру', uz: "O'lchami bo'yicha tartiblang" },
     question: {
       ru: 'Округлили: Марс ≈ 7 000, Земля ≈ 13 000, Юпитер ≈ 140 000 км. Расставь от меньшей к большей.',
-      uz: "Yaxlitladik: Mars ≈ 7 000, Yer ≈ 13 000, Yupiter ≈ 140 000 km. Kichikdan kattaga tartibla."
+      uz: "Yaxlitladik: Mars ≈ 7 000, Yer ≈ 13 000, Yupiter ≈ 140 000 km. Kichikdan kattaga tartiblang."
     },
     opt0: { ru: 'Юпитер, Земля, Марс', uz: 'Yupiter, Yer, Mars' },
     opt1: { ru: 'Марс, Земля, Юпитер', uz: 'Mars, Yer, Yupiter' },
@@ -1123,7 +1130,7 @@ const CONTENT = {
     hint_2: { ru: 'Сравни округлённые: 7 000, 13 000, 140 000, какое меньше?', uz: "Yaxlit sonlarni taqqoslang: 7 000, 13 000, 140 000, qaysi biri kichik?" },
     audio_hint_2: { ru: 'Сравни округлённые: семь тысяч, тринадцать тысяч, сто сорок тысяч. Какое меньше?', uz: "Yaxlit sonlarni taqqoslang: yetti ming, o'n uch ming, bir yuz qirq ming. Qaysi biri kichik?" },
     audio: {
-      intro: { ru: 'Округлённые диаметры: Марс около семи тысяч, Земля около тринадцати тысяч, Юпитер около ста сорока тысяч. Расставь планеты от меньшей к большей.', uz: "Yaxlit diametrlar: Mars yetti ming atrofida, Yer o'n uch ming atrofida, Yupiter bir yuz qirq ming atrofida. Sayyoralarni kichikdan kattaga tartibla." },
+      intro: { ru: 'Округлённые диаметры: Марс около семи тысяч, Земля около тринадцати тысяч, Юпитер около ста сорока тысяч. Расставь планеты от меньшей к большей.', uz: "Yaxlit diametrlar: Mars yetti ming atrofida, Yer o'n uch ming atrofida, Yupiter bir yuz qirq ming atrofida. Sayyoralarni kichikdan kattaga tartiblang." },
       on_correct: { ru: 'Верно. Семь тысяч меньше тринадцати тысяч, а тринадцать тысяч меньше ста сорока тысяч. Порядок от меньшего к большему.', uz: "To'g'ri. Yetti ming o'n uch mingdan kichik, o'n uch ming esa bir yuz qirq mingdan kichik. Kichikdan kattaga tartib." },
       on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
     }
@@ -1270,26 +1277,26 @@ const TOTAL_SCREENS = SCREEN_META.length;
 const W_ROUND = {
   eyebrow: { ru: 'Тренировка · округление', uz: 'Mashq · yaxlitlash' },
   title: { ru: 'Округли числа по очереди', uz: 'Sonlarni navbat bilan yaxlitlang' },
-  lead: { ru: 'Реши три примера один за другим. Где написано — введи ответ сам.', uz: "Uch misolni birin-ketin yech. Yozish kerak bo'lsa, javobni o'zing kirit." },
+  lead: { ru: 'Реши три примера один за другим. Где написано — введи ответ сам.', uz: "Uch misolni birin-ketin yeching. Yozish kerak bo'lsa, javobni o'zingiz kiriting." },
   done_text: { ru: 'Все три числа округлены верно. Разряд решает, куда округлять.', uz: "Uchala son to'g'ri yaxlitlandi. Qaysi tomonga yaxlitlashni xona hal qiladi." }
 };
 const W_MIX = {
   eyebrow: { ru: 'Случай и итог', uz: 'Holat va yakun' },
-  title: { ru: 'Расставь планеты и проверь себя', uz: "Sayyoralarni tartibla va o'zingni tekshir" },
+  title: { ru: 'Расставь планеты и проверь себя', uz: "Sayyoralarni tartiblang va o'zingizni tekshiring" },
   lead: { ru: 'Четыре задания подряд: округление, порядок и сравнение.', uz: "To'rt topshiriq ketma-ket: yaxlitlash, tartib va taqqoslash." },
-  done_text: { ru: 'Готово. Ты округлил, расставил по размеру и сравнил близкие числа.', uz: "Tayyor. Yaxlitlading, o'lchami bo'yicha tartiblading va yaqin sonlarni taqqoslading." }
+  done_text: { ru: 'Готово. Ты округлил, расставил по размеру и сравнил близкие числа.', uz: "Tayyor. Yaxlitladingiz, o'lchami bo'yicha tartibladingiz va yaqin sonlarni taqqosladingiz." }
 };
 const W_HARD1 = {
   eyebrow: { ru: 'Сложные примеры · 1', uz: 'Qiyin misollar · 1' },
   title: { ru: 'Округление с переносом', uz: "Ko'tarish bilan yaxlitlash" },
-  lead: { ru: 'Здесь округление поднимает соседний разряд. Реши по очереди.', uz: "Bu yerda yaxlitlash qo'shni xonani ko'taradi. Navbat bilan yech." },
+  lead: { ru: 'Здесь округление поднимает соседний разряд. Реши по очереди.', uz: "Bu yerda yaxlitlash qo'shni xonani ko'taradi. Navbat bilan yeching." },
   done_text: { ru: 'Отлично. Когда цифра 5 или больше, перенос может дойти до старшего класса.', uz: "Zo'r. Raqam 5 yoki katta bo'lsa, ko'tarish katta sinfgacha yetishi mumkin." }
 };
 const W_HARD2 = {
   eyebrow: { ru: 'Сложные примеры · 2', uz: 'Qiyin misollar · 2' },
   title: { ru: 'Середина и цепной перенос', uz: "O'rta holat va zanjirli ko'tarish" },
-  lead: { ru: 'Серединное число округляем вверх, а перенос идёт цепочкой. Реши все три.', uz: "O'rtadagi sonni yuqoriga yaxlitlaymiz, ko'tarish esa zanjir bo'lib boradi. Uchalasini yech." },
-  done_text: { ru: 'Ты справился со сложными случаями округления — переносом и серединой.', uz: "Yaxlitlashning qiyin holatlarini — ko'tarish va o'rtani — uddalading." }
+  lead: { ru: 'Серединное число округляем вверх, а перенос идёт цепочкой. Реши все три.', uz: "O'rtadagi sonni yuqoriga yaxlitlaymiz, ko'tarish esa zanjir bo'lib boradi. Uchalasini yeching." },
+  done_text: { ru: 'Ты справился со сложными случаями округления — переносом и серединой.', uz: "Yaxlitlashning qiyin holatlarini — ko'tarish va o'rtani — uddaladingiz." }
 };
 
 // ── Yangi qiyin misollar (draft, RU+UZ, TTS-toza) ──
@@ -1298,18 +1305,18 @@ const HARD1_ITEMS = [
     question: { ru: 'Округли 2 999 500 до тысяч.', uz: "2 999 500 ni minglar xonasigacha yaxlitlang." },
     opt0: { ru: '2 999 000', uz: '2 999 000' }, opt1: { ru: '3 000 000', uz: '3 000 000' }, opt2: { ru: '2 990 000', uz: '2 990 000' },
     hint_0: { ru: 'В разряде сотен 5, округляем вверх, а перенос идёт дальше.', uz: "Yuzlar xonasida 5, yuqoriga yaxlitlaymiz, ko'tarish davom etadi." },
-    hint_2: { ru: 'Смотри на сотни, а не на десятки тысяч.', uz: "O'n minglarga emas, yuzlarga qara." },
+    hint_2: { ru: 'Смотри на сотни, а не на десятки тысяч.', uz: "O'n minglarga emas, yuzlarga qarang." },
     audio: { intro: { ru: 'Округли два миллиона девятьсот девяносто девять тысяч пятьсот до тысяч.', uz: "Ikki million to'qqiz yuz to'qson to'qqiz ming besh yuzni minglar xonasigacha yaxlitlang." },
       on_correct: { ru: 'Верно. В сотнях пять, округляем вверх, перенос проходит через все девятки и даёт три миллиона.', uz: "To'g'ri. Yuzlarda besh, yuqoriga yaxlitlaymiz, ko'tarish hamma to'qqizlardan o'tib uch million beradi." },
-      on_wrong: { ru: 'Посмотри на разряд сотен.', uz: "Yuzlar xonasiga qara." } } } },
+      on_wrong: { ru: 'Посмотри на разряд сотен.', uz: "Yuzlar xonasiga qarang." } } } },
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [2, 0, 1], c: {
     question: { ru: 'Округли 149 600 000 до миллионов.', uz: "149 600 000 ni millionlar xonasigacha yaxlitlang." },
     opt0: { ru: '150 000 000', uz: '150 000 000' }, opt1: { ru: '149 000 000', uz: '149 000 000' }, opt2: { ru: '140 000 000', uz: '140 000 000' },
-    hint_1: { ru: 'Смотри на разряд сотен тысяч: там 6, это вверх.', uz: "Yuz minglar xonasiga qara: u yerda 6, bu yuqoriga." },
+    hint_1: { ru: 'Смотри на разряд сотен тысяч: там 6, это вверх.', uz: "Yuz minglar xonasiga qarang: u yerda 6, bu yuqoriga." },
     hint_2: { ru: 'Это округление до десятков миллионов. А нужно до миллионов.', uz: "Bu o'n millionlargacha yaxlitlash. Kerak esa millionlargacha." },
     audio: { intro: { ru: 'Округли сто сорок девять миллионов шестьсот тысяч до миллионов.', uz: "Bir yuz qirq to'qqiz million olti yuz mingni millionlar xonasigacha yaxlitlang." },
       on_correct: { ru: 'Верно. В разряде сотен тысяч шесть, это больше пяти, округляем вверх до ста пятидесяти миллионов.', uz: "To'g'ri. Yuz minglar xonasida olti, bu beshdan katta, bir yuz ellik milliongacha yuqoriga yaxlitlaymiz." },
-      on_wrong: { ru: 'Найди разряд после миллионов.', uz: "Millionlardan keyingi xonani top." } } } },
+      on_wrong: { ru: 'Найди разряд после миллионов.', uz: "Millionlardan keyingi xonani toping." } } } },
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [1, 2, 0], c: {
     question: { ru: 'Округли 45 678 до тысяч.', uz: "45 678 ni minglar xonasigacha yaxlitlang." },
     opt0: { ru: '46 000', uz: '46 000' }, opt1: { ru: '45 000', uz: '45 000' }, opt2: { ru: '45 700', uz: '45 700' },
@@ -1317,7 +1324,7 @@ const HARD1_ITEMS = [
     hint_2: { ru: 'Это округление до сотен, а нужно до тысяч.', uz: "Bu yuzlargacha yaxlitlash, kerak esa minglargacha." },
     audio: { intro: { ru: 'Округли сорок пять тысяч шестьсот семьдесят восемь до тысяч.', uz: "Qirq besh ming olti yuz yetmish sakkizni minglar xonasigacha yaxlitlang." },
       on_correct: { ru: 'Верно. В сотнях шесть, округляем вверх до сорока шести тысяч.', uz: "To'g'ri. Yuzlarda olti, qirq olti minggacha yuqoriga yaxlitlaymiz." },
-      on_wrong: { ru: 'Посмотри на сотни.', uz: "Yuzlarga qara." } } } }
+      on_wrong: { ru: 'Посмотри на сотни.', uz: "Yuzlarga qarang." } } } }
 ];
 const HARD2_ITEMS = [
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [2, 1, 0], c: {
@@ -1327,7 +1334,7 @@ const HARD2_ITEMS = [
     hint_2: { ru: 'Округление убирает младшие разряды, они становятся нулями.', uz: "Yaxlitlash kichik xonalarni olib tashlaydi, ular nolga aylanadi." },
     audio: { intro: { ru: 'Округли восемь тысяч пятьсот до тысяч.', uz: "Sakkiz ming besh yuzni minglar xonasigacha yaxlitlang." },
       on_correct: { ru: 'Верно. Это ровно посередине, серединное округляем вверх, до девяти тысяч.', uz: "To'g'ri. Bu aynan o'rtada, o'rtadagini yuqoriga, to'qqiz minggacha yaxlitlaymiz." },
-      on_wrong: { ru: 'Вспомни правило про середину.', uz: "O'rta haqidagi qoidani esla." } } } },
+      on_wrong: { ru: 'Вспомни правило про середину.', uz: "O'rta haqidagi qoidani eslang." } } } },
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [1, 0, 2], c: {
     question: { ru: 'Округли 199 950 до сотен.', uz: "199 950 ni yuzlar xonasigacha yaxlitlang." },
     opt0: { ru: '200 000', uz: '200 000' }, opt1: { ru: '199 900', uz: '199 900' }, opt2: { ru: '199 000', uz: '199 000' },
@@ -1335,15 +1342,15 @@ const HARD2_ITEMS = [
     hint_2: { ru: 'Это округление до тысяч, а нужно до сотен.', uz: "Bu minglargacha yaxlitlash, kerak esa yuzlargacha." },
     audio: { intro: { ru: 'Округли сто девяносто девять тысяч девятьсот пятьдесят до сотен.', uz: "Bir yuz to'qson to'qqiz ming to'qqiz yuz ellikni yuzlar xonasigacha yaxlitlang." },
       on_correct: { ru: 'Верно. В десятках пять, округляем вверх, и цепной перенос даёт двести тысяч.', uz: "To'g'ri. O'nlarda besh, yuqoriga yaxlitlaymiz, zanjirli ko'tarish ikki yuz ming beradi." },
-      on_wrong: { ru: 'Посмотри на разряд десятков.', uz: "O'nlar xonasiga qara." } } } },
+      on_wrong: { ru: 'Посмотри на разряд десятков.', uz: "O'nlar xonasiga qarang." } } } },
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [2, 0, 1], c: {
     question: { ru: 'Округли 6 449 до сотен.', uz: "6 449 ni yuzlar xonasigacha yaxlitlang." },
     opt0: { ru: '6 400', uz: '6 400' }, opt1: { ru: '6 500', uz: '6 500' }, opt2: { ru: '6 000', uz: '6 000' },
-    hint_1: { ru: 'Смотри на десятки: там 4, это меньше пяти, значит вниз.', uz: "O'nlarga qara: u yerda 4, bu beshdan kichik, demak pastga." },
+    hint_1: { ru: 'Смотри на десятки: там 4, это меньше пяти, значит вниз.', uz: "O'nlarga qarang: u yerda 4, bu beshdan kichik, demak pastga." },
     hint_2: { ru: 'Это округление до тысяч, а нужно до сотен.', uz: "Bu minglargacha yaxlitlash, kerak esa yuzlargacha." },
     audio: { intro: { ru: 'Округли шесть тысяч четыреста сорок девять до сотен.', uz: "Olti ming to'rt yuz qirq to'qqizni yuzlar xonasigacha yaxlitlang." },
       on_correct: { ru: 'Верно. В десятках четыре, это меньше пяти, округляем вниз до шести тысяч четырёхсот.', uz: "To'g'ri. O'nlarda to'rt, bu beshdan kichik, olti ming to'rt yuzgacha pastga yaxlitlaymiz." },
-      on_wrong: { ru: 'Посмотри на десятки.', uz: "O'nlarga qara." } } } }
+      on_wrong: { ru: 'Посмотри на десятки.', uz: "O'nlarga qarang." } } } }
 ];
 
 // ============================================================
@@ -1365,13 +1372,25 @@ const HintBlock = ({ show, children }) => {
   );
 };
 // Taqqoslanayotgan sonlar — katta, markazda, urg'uli (slayd 3 aksenti).
-const CompareFigure = ({ a, b }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(14px, 5vw, 40px)', flexWrap: 'wrap' }}>
-    <span className="display" style={{ fontSize: 'clamp(28px, 7vw, 48px)', color: T.ink, letterSpacing: '0.02em' }}>{a}</span>
-    <span className="mono" style={{ fontSize: 'clamp(22px, 4.5vw, 32px)', color: T.accent, fontWeight: 700 }}>?</span>
-    <span className="display" style={{ fontSize: 'clamp(28px, 7vw, 48px)', color: T.ink, letterSpacing: '0.02em' }}>{b}</span>
-  </div>
-);
+// to'g'ri javobdan keyin "?" mos belgiga (< / > / =) animatsiya bilan o'zgaradi.
+const CompareFigure = ({ a, b, solved }) => {
+  const na = Number(String(a).replace(/\s/g, ''));
+  const nb = Number(String(b).replace(/\s/g, ''));
+  const sign = na < nb ? '<' : na > nb ? '>' : '=';
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(14px, 5vw, 40px)', flexWrap: 'wrap' }}>
+      <span className="display" style={{ fontSize: 'clamp(28px, 7vw, 48px)', color: T.ink, letterSpacing: '0.02em' }}>{a}</span>
+      <span
+        key={solved ? 'sign' : 'q'}
+        className={`mono compare-sign${solved ? ' revealed' : ''}`}
+        style={{ fontSize: 'clamp(26px, 5.5vw, 40px)', color: solved ? T.success : T.accent, fontWeight: 700, minWidth: '0.7em', textAlign: 'center', display: 'inline-block' }}
+      >
+        {solved ? sign : '?'}
+      </span>
+      <span className="display" style={{ fontSize: 'clamp(28px, 7vw, 48px)', color: T.ink, letterSpacing: '0.02em' }}>{b}</span>
+    </div>
+  );
+};
 
 // MC ekran (keep-visible infra QuestionScreen + shuffleMC), ixtiyoriy figura.
 const mcOf = (props, c, optKeys, correctIndex, order, figure) => {
@@ -1643,8 +1662,8 @@ const Screen2 = ({ screen, totalScreens, onNext, onPrev }) => {
   );
 };
 
-const Screen3 = (props) => mcOf({ ...props, t: useT() }, CONTENT.s3, ['opt0', 'opt1', 'opt2'], 0, [1, 2, 0], () => <CompareFigure a="4 879" b="139 820"/>);
-const Screen4 = (props) => mcOf({ ...props, t: useT() }, CONTENT.s4, ['opt0', 'opt1', 'opt2'], 1, [1, 0, 2], () => <CompareFigure a="49 244" b="50 724"/>);
+const Screen3 = (props) => mcOf({ ...props, t: useT() }, CONTENT.s3, ['opt0', 'opt1', 'opt2'], 0, [1, 2, 0], (solved) => <CompareFigure a="4 879" b="139 820" solved={solved}/>);
+const Screen4 = (props) => mcOf({ ...props, t: useT() }, CONTENT.s4, ['opt0', 'opt1', 'opt2'], 1, [1, 0, 2], (solved) => <CompareFigure a="49 244" b="50 724" solved={solved}/>);
 
 // s5 — округление на оси (slider, без скролла)
 const Screen5 = ({ screen, totalScreens, onNext, onPrev }) => {
@@ -1660,13 +1679,20 @@ const Screen5 = ({ screen, totalScreens, onNext, onPrev }) => {
   const handleCheck = () => { setChecked(true); audio.triggerEvent('check_pressed'); };
   const pct = ((value - MIN) / (MAX - MIN)) * 100;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!checked} label={<NextLabel/>} onClick={onNext}/></>);
-  const barRow = (labelNode, dist, isNear) => (
+  const barRow = (labelNode, dist, isNear, tagNode) => (
     <div style={{ display: 'flex', gap: 8, marginTop: 8, alignItems: 'center' }}>
-      <span className="mono small" style={{ color: T.ink3, minWidth: 'clamp(48px, 12vw, 64px)' }}>{labelNode}</span>
+      <span className="mono small" style={{ color: isNear ? T.accent : T.ink3, fontWeight: isNear ? 700 : 400, minWidth: 'clamp(48px, 12vw, 64px)' }}>{labelNode}</span>
       <div style={{ flex: 1, height: 10, background: `${T.ink3}33`, borderRadius: 99, overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${(dist / 1000) * 100}%`, background: isNear ? T.accent : T.ink3, borderRadius: 99, transition: 'width 0.2s ease-out' }}/>
       </div>
       <span className="mono small" style={{ color: isNear ? T.accent : T.ink2, minWidth: 38, textAlign: 'right' }}>{dist}</span>
+      <span style={{ minWidth: 'clamp(56px, 16vw, 76px)', display: 'flex', justifyContent: 'flex-start' }}>
+        {isNear && (
+          <span key={`near-${nearer}`} className="near-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 9px', borderRadius: 99, background: `${T.accent}1A`, color: T.accent, fontWeight: 700, fontSize: 'clamp(9px, 1.4vw, 11px)', lineHeight: 1.25, whiteSpace: 'nowrap' }}>
+            <span aria-hidden="true">←</span>{tagNode}
+          </span>
+        )}
+      </span>
     </div>
   );
   return (
@@ -1691,8 +1717,13 @@ const Screen5 = ({ screen, totalScreens, onNext, onPrev }) => {
             <div className="display" style={{ position: 'absolute', left: `${pct}%`, top: -26, transform: 'translateX(-50%)', fontSize: 'clamp(15px, 2.4vw, 19px)', color: T.ink, whiteSpace: 'nowrap' }}>{value}</div>
           </div>
           <Slider value={value} min={MIN} max={MAX} step={1} onChange={handleChange}/>
-          {barRow(t(c.axis_left), dLeft, nearer === MIN)}
-          {barRow(t(c.axis_right), dRight, nearer === MAX)}
+          <p className="mono" style={{ margin: 0, marginTop: 'clamp(12px, 2.2vw, 16px)', color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: 'clamp(10px, 1.4vw, 11px)' }}>{t(c.bars_caption)}</p>
+          {barRow(t(c.axis_left), dLeft, nearer === MIN, t(c.near_tag))}
+          {barRow(t(c.axis_right), dRight, nearer === MAX, t(c.near_tag))}
+          <p className="small" style={{ margin: 0, marginTop: 'clamp(8px, 1.6vw, 12px)', color: T.accent, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 10, height: 10, borderRadius: 3, background: T.accent, flexShrink: 0 }} aria-hidden="true"/>
+            {t(c.near_note)}
+          </p>
         </div>
         {!checked && (
           <div className="fade-up delay-3" style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -1975,6 +2006,13 @@ html, body { margin: 0; padding: 0; }
 .planet { border-radius: 50%; box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.30), inset -6px -6px 16px rgba(0, 0, 0, 0.18); flex-shrink: 0; }
 @keyframes tap-pulse { 0%, 100% { box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); } 50% { box-shadow: 0 8px 20px -4px rgba(255, 79, 40, 0.45); } }
 .tap-pulse { animation: tap-pulse 1.4s ease-in-out infinite; }
+/* "?" → to'g'ri belgi (< / > / =) almashinuvi: belgiga aylanib chiqadi */
+@keyframes compare-pop { 0% { opacity: 0; transform: scale(0.4) rotate(-12deg); } 60% { opacity: 1; transform: scale(1.25) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+.compare-sign { transition: color 0.3s ease; }
+.compare-sign.revealed { animation: compare-pop 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+/* "ближе" yorlig'i yaqin chegara tomonga sakraganda yumshoq paydo bo'ladi */
+@keyframes near-badge-pop { 0% { opacity: 0; transform: translateX(-6px) scale(0.85); } 100% { opacity: 1; transform: translateX(0) scale(1); } }
+.near-badge { animation: near-badge-pop 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
 .amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
@@ -1992,12 +2030,12 @@ html, body { margin: 0; padding: 0; }
 // КОРНЕВОЙ КОМПОНЕНТ — default export (platform_contract §1)
 // ============================================================
 export default function NumbersLesson_5_02({
-  studentName, lang: langProp, ttsApiBase,
+  studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
   const lang = langProp || 'ru';
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => { console.log('[Preview] onFinished payload:', payload); });
 
   const [current, setCurrent] = useState(0);
