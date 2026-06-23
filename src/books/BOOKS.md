@@ -4,24 +4,36 @@ Bu papkadagi PDF'lar — kontent yozishda termin va metodikani solishtirish uchu
 **manba**. Saytga import qilinmaydi, GitHub'ga yuborilmaydi (`.gitignore`:
 `src/books/**/*.pdf`). Bu fayl (`BOOKS.md`) esa git'da kuzatiladi.
 
-Yangi PDF qo'shganda: tegishli `gradeN/` papkaga sol va quyidagi jadvalga satr qo'sh.
+Fayllar `gradeN/` papkalarga bo'lingan. Yangi PDF qo'shganda: tegishli `gradeN/`
+papkaga sol va quyidagi jadvalga satr qo'sh.
 
 ## Qaysi PDF qaysi sinf
 
-| Sinf | Fayl | Til | Matn qatlami / `pdftotext` | Izoh |
-|---|---|---|---|---|
-| 1 | `grade1/1-matematika.pdf` | UZ | tekshirilmagan | asosiy UZ manba (1-sinf) |
-| 1 | `grade1/матем-1.pdf` | RU | skan (~189 MB), faqat Read/OCR | katta hajmli skan |
-| 2 | `grade2/Matematika 2 sinf UZ.pdf` | UZ | tekshirilmagan (~157 MB) | |
-| 2 | `grade2/матем 2 класс.pdf` | RU | skan (~168 MB), faqat Read/OCR | |
-| 3 | `grade3/matematika_3_uzb.pdf` | UZ | tekshirilmagan | |
-| 3 | `grade3/матем 3 класс.pdf` | RU | skan (~54 MB), faqat Read/OCR | |
-| 4 | `grade4/4-matematika.pdf` | UZ | tekshirilmagan | |
-| 4 | `grade4/matematika_4_rus.pdf` | RU | tekshirilmagan | |
-| 5 | `grade5/Matematika. 5-sinf (2015, B.Haydarov).pdf` | UZ | **a'lo** — `pdftotext` toza | **asosiy UZ termin manbasi**, 240 bet |
-| 5 | `grade5/matematika_1qism_5_rus.pdf` | RU | kirill qatlami buzuq — faqat Read/OCR | 144 bet |
-| 5 | `grade5/matematika_5_rus_2.pdf` | RU | kirill qatlami buzuq — faqat Read/OCR | |
-| 6 | `grade6/matematika_6_uzb_2022.pdf` | UZ | tekshirilmagan | geometriya termin sverka uchun ishlatilgan |
+Quyidagi jadval shu kompyuterdagi `src/books/gradeN/` papkalaridagi haqiqiy fayllarni
+aks ettiradi (PDF'lar git'ga yuborilmaydi, shuning uchun ikkinchi kompyuterda boshqa
+RU manbalar ham bo'lishi mumkin — pastdagi izohga qarang).
+
+| Sinf | Fayl | Til | Tur | Matn qatlami / `pdftotext` | Izoh |
+|---|---|---|---|---|---|
+| 1 | `grade1/1-matematika.pdf` | UZ | darslik | tekshirilmagan | asosiy UZ manba (1-sinf) |
+| 1 | `grade1/1-matematika-yozuv-daftari.pdf` | UZ | ish daftari | tekshirilmagan | |
+| 1 | `grade1/1-матем тетрадь.pdf` | RU | ish daftari | skan, faqat Read/OCR | |
+| 1 | `grade1/1-матем.pdf` | RU | darslik | skan (~181 MB), faqat Read/OCR | katta hajmli skan |
+| 2 | `grade2/Matematika 2 sinf UZ.pdf` | UZ | darslik | tekshirilmagan (~150 MB) | |
+| 3 | `grade3/matematika_3_uzb.pdf` | UZ | darslik | tekshirilmagan | asosiy UZ manba (3-sinf) |
+| 3 | `grade3/matematika_3-daftar_uzb_2022.pdf` | UZ | ish daftari | tekshirilmagan | |
+| 3 | `grade3/matematika_3-metodika_uzb_2022.pdf` | UZ | metodika | tekshirilmagan | o'qituvchi uchun |
+| 3 | `grade3/matematika_3-metodika_rus_2022.pdf` | RU | metodika | tekshirilmagan | o'qituvchi uchun |
+| 3 | `grade3/3 матем рабочая тетрадь.pdf` | RU | ish daftari | skan, faqat Read/OCR | |
+| 3 | `grade3/3 матем сжат.pdf` | RU | darslik | skan (~52 MB), faqat Read/OCR | |
+| 4 | `grade4/4-matematika.pdf` | UZ | darslik | tekshirilmagan | |
+| 4 | `grade4/matematika_4_rus.pdf` | RU | darslik | tekshirilmagan | |
+| 5 | `grade5/Matematika. 5-sinf (2015, B.Haydarov).pdf` | UZ | darslik | **a'lo** — `pdftotext` toza | **asosiy UZ termin manbasi**, 240 bet |
+| 6 | `grade6/matematika_6_uzb_2022.pdf` | UZ | darslik | tekshirilmagan | geometriya termin sverka uchun ishlatilgan |
+
+> Eslatma: 5-sinf RU manbalari (`matematika_1qism_5_rus.pdf`, `matematika_5_rus_2.pdf`)
+> ikkinchi kompyuterda bo'lishi mumkin — bu yerda hozir yo'q. PDF'lar `.gitignore`
+> tufayli sinxronlanmaydi; kerak bo'lsa qo'lda ko'chiriladi.
 
 ## Qanday o'qiladi
 
