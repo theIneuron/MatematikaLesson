@@ -283,3 +283,25 @@ Hammasi namuna (Dars33) bilan teng: QS v2, reduced-motion, FactCard (badge+anim)
 3. **FactCard soni** — qat'iy "2-3 ta" mi, yoki 4 ta (Dars30/32) ham maqbulmi?
 4. **scrollIntoView** — FeedbackBlock skrolli (hamma darsda, namunada ham bor) qoladi; faqat qo'shimcha step-skroll olib tashlanadi — to'g'rimi?
 5. **Boshlash tartibi** — A guruhdan (eng katta farq) boshlaymizmi, yoki B guruhdan (tez g'alaba)?
+
+---
+
+## 6. Dars34–37 (audit kengaytmasi, 2026-06-23)
+
+Bu audit dastlab Dars01–33 ni qamragandi. Geometriya to'plami Dars34–37 keyin
+qurilgan va **zamonaviy standartga mos** (tez tekshiruv: reduced-motion ✓,
+katta in-content `h-title` yo'q, 1 ta `scrollIntoView`, `max-width: 936`, FactCard).
+Ya'ni C guruh (o'zgartirish shart emas) endi **Dars18, 25–37** ni qamraydi.
+
+| Dars | Mavzu | Holat |
+|---|---|---|
+| Dars34 | To'rtburchak/kvadrat perimetri | mos |
+| Dars35 | To'rtburchak/kvadrat yuzasi | mos |
+| Dars36 | Uchburchak yuzasi | mos |
+| Dars37 | Parallelepiped hajmi | **keep-visible etalon** (tokenlar manbasi) |
+
+> Eslatma: §2/§4 dagi ba'zi mavzu↔raqam yorliqlari (Dars28–33) eski tartibdan
+> qolgan — joriy tartib `src/App.jsx` / `src/lessons/grade5.js` da. Dizayn-status
+> fayl bo'yicha to'g'ri; faqat mavzu nomlari siljigan bo'lishi mumkin.
+
+Aniq dizayn tokenlari va 1-sinf adaptatsiyalari: **`DIZAYN_STANDART_1SINF.md`**.
