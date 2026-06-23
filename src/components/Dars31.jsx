@@ -789,7 +789,7 @@ const CONTENT = {
     reveal0: { ru: 'Так думают многие. Но 20 — это процент, а не сумма скидки. Скидка считается от цены.', uz: "Ko'pchilik shunday o'ylaydi. Lekin 20 — bu foiz, chegirma summasi emas. Chegirma narxdan hisoblanadi." },
     reveal1: { ru: 'Похоже на правду. Дальше проверим: 20 процентов от 1200 — это сколько?', uz: "Haqiqatga o'xshaydi. Keyin tekshiramiz: 1200 ning yigirma foizi — bu nechaga teng?" },
     reveal2: { ru: 'Близко, но не точно. Дальше посчитаем 20 процентов от 1200 шаг за шагом.', uz: "Yaqin, lekin aniq emas. Keyin 1200 ning yigirma foizini qadam-baqadam hisoblaymiz." },
-    audio: { ru: "Камол увидел смартфон за тысячу двести. На него скидка двадцать процентов. Подумайте: на сколько подешевеет смартфон? На двадцать или на другую сумму?", uz: "Kamol ming ikki yuz turadigan smartfon ko'rdi. Unga yigirma foiz chegirma bor. O'ylab ko'ring: smartfon necha pulga arzonlashadi? Yigirmagami yoki boshqa summagami?" }
+    audio: { ru: "Камол увидел смартфон за тысячу двести. На него скидка двадцать процентов. Подумай: на сколько подешевеет смартфон? На двадцать или на другую сумму?", uz: "Kamol ming ikki yuz turadigan smartfon ko'rdi. Unga yigirma foiz chegirma bor. O'ylab ko'ring: smartfon necha pulga arzonlashadi? Yigirmagami yoki boshqa summagami?" }
   },
 
   // ===== s1 WARM-UP — 3 ta tez prereq (1% va foiz) =====
@@ -805,7 +805,7 @@ const CONTENT = {
         opts: [{ ru: '3', uz: '3' }, { ru: '30', uz: '30' }, { ru: '300', uz: '300' }],
         correct: 0,
         ok: { ru: 'Верно: один процент — это число разделить на сто.', uz: "To'g'ri: bir foiz — bu sonni yuzga bo'lish." },
-        no: { ru: 'Один процент это сотая доля. Разделите число на сто.', uz: "Bir foiz, bu yuzdan bir ulush. Sonni yuzga bo'ling." }
+        no: { ru: 'Один процент это сотая доля. Раздели число на сто.', uz: "Bir foiz, bu yuzdan bir ulush. Sonni yuzga bo'ling." }
       },
       {
         q: { ru: '10% от 200', uz: "200 ning 10% i" },
@@ -813,7 +813,7 @@ const CONTENT = {
         opts: [{ ru: '2', uz: '2' }, { ru: '20', uz: '20' }, { ru: '210', uz: '210' }],
         correct: 1,
         ok: { ru: 'Верно: десять процентов — это десятая доля.', uz: "To'g'ri: o'n foiz — bu o'ndan bir ulush." },
-        no: { ru: 'Десять процентов это десятая доля. Разделите число на десять.', uz: "O'n foiz, bu o'ndan bir ulush. Sonni o'nga bo'ling." }
+        no: { ru: 'Десять процентов это десятая доля. Раздели число на десять.', uz: "O'n foiz, bu o'ndan bir ulush. Sonni o'nga bo'ling." }
       },
       {
         q: { ru: '12 умножить на 3', uz: "12 ni 3 ga ko'paytiring" },
@@ -869,7 +869,7 @@ const CONTENT = {
     instr: { ru: 'Чем больше процент, тем больше часть от числа.', uz: "Foiz qancha katta bo'lsa, sondan olingan qism shuncha katta." },
     legend_pct: { ru: 'процент', uz: "foiz" },
     legend_val: { ru: 'часть от 80', uz: "80 dan qism" },
-    audio: { ru: "Здесь число всегда восемьдесят. Двигайте ползунок процента и смотрите, какая часть от числа берётся. Чем больше процент, тем больше часть.", uz: "Bu yerda son doim sakson. Foiz slayderini suring va sondan qaysi qism olinishini kuzating. Foiz qancha katta bo'lsa, qism shuncha katta." }
+    audio: { ru: "Здесь число всегда восемьдесят. Двигай ползунок процента и смотри, какая часть от числа берётся. Чем больше процент, тем больше часть.", uz: "Bu yerda son doim sakson. Foiz slayderini suring va sondan qaysi qism olinishini kuzating. Foiz qancha katta bo'lsa, qism shuncha katta." }
   },
 
   // ===== s4 RULE + M1 (birlashgan) =====
@@ -885,25 +885,25 @@ const CONTENT = {
     ex_caption: { ru: '25% от 80 → 80 делим на 100 = 0,8 → умножаем на 25 = 20.', uz: "80 ning 25% i → 80 ni 100 ga bo'lamiz = 0,8 → 25 ga ko'paytiramiz = 20." },
     warn_label: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
     warn_1: { ru: 'Процент — это не ответ. Скидка 20 процентов от 1200 равна 240, а не 20.', uz: "Foiz — bu javob emas. 1200 dan 20 foiz chegirma 240 ga teng, 20 emas." },
-    audio: { ru: "Мы нашли часть руками. Теперь правило. Делим число на сто и получаем один процент. Потом умножаем один процент на нужный процент и получаем часть. И запомните: сам процент это не ответ, его всегда берут от числа.", uz: "Qismni qo'l bilan topdik. Endi qoida. Sonni yuzga bo'lib, bir foizni olamiz. Keyin bir foizni kerakli foizga ko'paytirib, qismni olamiz. Va yodda tuting: foizning o'zi javob emas, u doim sondan olinadi." }
+    audio: { ru: "Мы нашли часть руками. Теперь правило. Делим число на сто и получаем один процент. Потом умножаем один процент на нужный процент и получаем часть. И запомни: сам процент это не ответ, его всегда берут от числа.", uz: "Qismni qo'l bilan topdik. Endi qoida. Sonni yuzga bo'lib, bir foizni olamiz. Keyin bir foizni kerakli foizga ko'paytirib, qismni olamiz. Va yodda tuting: foizning o'zi javob emas, u doim sondan olinadi." }
   },
 
   // ===== s5 ISHLANGAN MISOL + MASHQ (scored): yuqorida 25%=20 statik; pastda 30% dan 50 = 15 (DecInput) =====
   s5: {
     eyebrow: { ru: 'Сначала пример, потом сами', uz: "Avval misol, keyin o'zingiz" },
     title: { ru: 'Найди часть', uz: "Qismni toping" },
-    bridge: { ru: 'Правило знаем. Сначала посмотрите пример, потом решите сами.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching." },
+    bridge: { ru: 'Правило знаем. Сначала посмотри пример, потом реши сами.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching." },
     we_label: { ru: 'Разобранный пример', uz: "Ishlangan misol" },
     we_caption: { ru: '25% от 80 → 80 делим на 100 = 0,8 → умножаем на 25 = 20.', uz: "80 ning 25% i → 80 ni 100 ga bo'lamiz = 0,8 → 25 ga ko'paytiramiz = 20." },
     question: { ru: 'Теперь сами: сколько будет 30% от 50?', uz: "Endi o'zingiz: 50 ning 30% i nechaga teng?" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Разделите число на сто, потом умножьте на процент.', uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." },
+    hint: { ru: 'Раздели число на сто, потом умножь на процент.', uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." },
     fb_correct: { ru: 'Верно: 50 делим на 100 = 0,5, умножаем на 30 = 15.', uz: "To'g'ri: 50 ni 100 ga bo'lamiz = 0,5, 30 ga ko'paytiramiz = 15." },
     audio: {
-      intro: { ru: "Сначала посмотрите разобранный пример сверху. Теперь сами: сколько будет тридцать процентов от пятидесяти?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: ellikning o'ttiz foizi nechaga teng?" },
+      intro: { ru: "Сначала посмотри разобранный пример сверху. Теперь сами: сколько будет тридцать процентов от пятидесяти?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: ellikning o'ttiz foizi nechaga teng?" },
       on_correct: { ru: "Верно, пятнадцать.", uz: "To'g'ri, o'n besh." },
-      on_wrong: { ru: "Разделите число на сто, потом умножьте на процент.", uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
+      on_wrong: { ru: "Раздели число на сто, потом умножь на процент.", uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
     }
   },
 
@@ -917,31 +917,31 @@ const CONTENT = {
     opt2: { ru: '40', uz: '40' },
     opt3: { ru: '320', uz: '320' },
     correct_text: { ru: 'Верно: 80 делим на 100 = 0,8, умножаем на 25 = 20.', uz: "To'g'ri: 80 ni 100 ga bo'lamiz = 0,8, 25 ga ko'paytiramiz = 20." },
-    wrong_1: { ru: 'Это сам процент, а не часть. Разделите число на сто и умножьте на процент.', uz: "Bu foizning o'zi, qism emas. Sonni yuzga bo'lib, foizga ko'paytiring." },
-    wrong_2: { ru: 'Это половина, а нужна четверть. Разделите на сто, умножьте на двадцать пять.', uz: "Bu yarmi, kerak esa chorak. Yuzga bo'ling, yigirma beshga ko'paytiring." },
-    wrong_3: { ru: 'Слишком много. Часть меньше числа. Разделите на сто, умножьте на процент.', uz: "Juda ko'p. Qism sondan kichik. Yuzga bo'ling, foizga ko'paytiring." },
+    wrong_1: { ru: 'Это сам процент, а не часть. Раздели число на сто и умножь на процент.', uz: "Bu foizning o'zi, qism emas. Sonni yuzga bo'lib, foizga ko'paytiring." },
+    wrong_2: { ru: 'Это половина, а нужна четверть. Раздели на сто, умножь на двадцать пять.', uz: "Bu yarmi, kerak esa chorak. Yuzga bo'ling, yigirma beshga ko'paytiring." },
+    wrong_3: { ru: 'Слишком много. Часть меньше числа. Раздели на сто, умножь на процент.', uz: "Juda ko'p. Qism sondan kichik. Yuzga bo'ling, foizga ko'paytiring." },
     fact: { ru: 'В Древнем Риме был налог «центезима» — сотая доля цены при продаже. Это и есть один процент.', uz: "Qadimgi Rimda «centesima» solig'i bo'lgan — sotuvda narxning yuzdan bir ulushi. Bu, aslida, bir foiz." },
     fact_audio: { ru: "В Древнем Риме был налог центезима, сотая доля цены при продаже. Это и есть один процент.", uz: "Qadimgi Rimda centesima solig'i bo'lgan, sotuvda narxning yuzdan bir ulushi. Bu, aslida, bir foiz." },
     audio: {
       intro: { ru: "Сколько будет двадцать пять процентов от восьмидесяти?", uz: "Saksonning yigirma besh foizi nechaga teng?" },
       on_correct: { ru: "Верно, двадцать. Восемьдесят делим на сто, выходит ноль целых восемь десятых, умножаем на двадцать пять.", uz: "To'g'ri, yigirma. Saksonni yuzga bo'lamiz, nol butun o'ndan sakkiz chiqadi, yigirma beshga ko'paytiramiz." },
-      on_wrong: { ru: "Разделите число на сто, потом умножьте на процент.", uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
+      on_wrong: { ru: "Раздели число на сто, потом умножь на процент.", uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
     }
   },
 
   // ===== s7 TEST DecInput — 40% от 350 -> 140 =====
   s7: {
     eyebrow: { ru: 'Набери ответ', uz: "Javobni tering" },
-    bridge: { ru: 'Хорошо. Теперь наберите ответ сами.', uz: "Yaxshi. Endi javobni o'zingiz tering." },
+    bridge: { ru: 'Хорошо. Теперь набери ответ сами.', uz: "Yaxshi. Endi javobni o'zingiz tering." },
     question: { ru: 'Сколько будет 40% от 350?', uz: "350 ning 40% i nechaga teng?" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Разделите число на сто, потом умножьте на процент.', uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." },
+    hint: { ru: 'Раздели число на сто, потом умножь на процент.', uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." },
     fb_correct: { ru: 'Верно: 350 делим на 100 = 3,5, умножаем на 40 = 140.', uz: "To'g'ri: 350 ni 100 ga bo'lamiz = 3,5, 40 ga ko'paytiramiz = 140." },
     audio: {
-      intro: { ru: "Наберите ответ сами. Сколько будет сорок процентов от трёхсот пятидесяти?", uz: "Javobni o'zingiz tering. Uch yuz ellikning qirq foizi nechaga teng?" },
+      intro: { ru: "Набери ответ сами. Сколько будет сорок процентов от трёхсот пятидесяти?", uz: "Javobni o'zingiz tering. Uch yuz ellikning qirq foizi nechaga teng?" },
       on_correct: { ru: "Верно, сто сорок. Триста пятьдесят делим на сто, выходит три целых пять десятых, умножаем на сорок.", uz: "To'g'ri, bir yuz qirq. Uch yuz ellikni yuzga bo'lamiz, uch butun o'ndan besh chiqadi, qirqqa ko'paytiramiz." },
-      on_wrong: { ru: "Разделите число на сто, потом умножьте на процент.", uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
+      on_wrong: { ru: "Раздели число на сто, потом умножь на процент.", uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
     }
   },
 
@@ -958,12 +958,12 @@ const CONTENT = {
     ],
     ask: { ru: 'Отметь верные и нажми «Проверить».', uz: "To'g'rilarni belgilang va «Tekshirish» ni bosing." },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Проверьте каждое: число делим на сто, потом умножаем на процент.', uz: "Har birini tekshiring: sonni yuzga bo'lib, keyin foizga ko'paytiring." },
+    hint_wrong: { ru: 'Проверь каждое: число делим на сто, потом умножаем на процент.', uz: "Har birini tekshiring: sonni yuzga bo'lib, keyin foizga ko'paytiring." },
     correct_text: { ru: 'Верно! Неверным было только 20% от 90 — там получается 18, а не 20.', uz: "To'g'ri! Faqat 90 ning 20% i noto'g'ri edi — u yerda 18 chiqadi, 20 emas." },
     audio: {
-      intro: { ru: "Отметьте все верные равенства, их несколько. В каждом проверьте: число делим на сто, потом умножаем на процент.", uz: "Barcha to'g'ri tengliklarni belgilang, ular bir nechta. Har birida tekshiring: sonni yuzga bo'lib, keyin foizga ko'paytiramiz." },
+      intro: { ru: "Отметь все верные равенства, их несколько. В каждом проверь: число делим на сто, потом умножаем на процент.", uz: "Barcha to'g'ri tengliklarni belgilang, ular bir nechta. Har birida tekshiring: sonni yuzga bo'lib, keyin foizga ko'paytiramiz." },
       on_correct: { ru: "Верно. В неверном равенстве двадцать процентов от девяноста дают восемнадцать, а не двадцать.", uz: "To'g'ri. Noto'g'ri tenglikda to'qsonning yigirma foizi o'n sakkizni beradi, yigirmani emas." },
-      on_wrong: { ru: "Проверьте каждое: число делим на сто, потом умножаем на процент.", uz: "Har birini tekshiring: sonni yuzga bo'lib, keyin foizga ko'paytiramiz." }
+      on_wrong: { ru: "Проверь каждое: число делим на сто, потом умножаем на процент.", uz: "Har birini tekshiring: sonni yuzga bo'lib, keyin foizga ko'paytiramiz." }
     }
   },
 
@@ -980,13 +980,13 @@ const CONTENT = {
     wrong_0: { ru: 'Здесь верно: 70 делим на сто, умножаем на десять, выходит семь.', uz: "Bu yerda to'g'ri: 70 ni yuzga bo'lib, o'nga ko'paytiramiz, yetti chiqadi." },
     wrong_1: { ru: 'Здесь верно: 50 делим на сто, умножаем на двадцать, выходит десять.', uz: "Bu yerda to'g'ri: 50 ni yuzga bo'lib, yigirmaga ko'paytiramiz, o'n chiqadi." },
     wrong_3: { ru: 'Здесь верно: половина от сорока равна двадцати.', uz: "Bu yerda to'g'ri: qirqning yarmi yigirmaga teng." },
-    wrong_default: { ru: 'Посчитайте каждый: число делим на сто, умножаем на процент.', uz: "Har birini hisoblang: sonni yuzga bo'lib, foizga ko'paytiramiz." },
+    wrong_default: { ru: 'Посчитай каждый: число делим на сто, умножаем на процент.', uz: "Har birini hisoblang: sonni yuzga bo'lib, foizga ko'paytiramiz." },
     fact: { ru: 'Когда файл загружается, индикатор показывает проценты: это часть от целого файла, уже скачанная.', uz: "Fayl yuklanayotganda ko'rsatkich foizlarni ko'rsatadi: bu butun fayldan allaqachon yuklab olingan qism." },
     fact_audio: { ru: "Когда файл загружается, индикатор показывает проценты. Это часть от целого файла, которая уже скачана.", uz: "Fayl yuklanayotganda ko'rsatkich foizlarni ko'rsatadi. Bu butun fayldan allaqachon yuklab olingan qism." },
     audio: {
-      intro: { ru: "В одном из этих примеров процент найден неправильно. Найдите, где сделана ошибка.", uz: "Bu misollardan birida foiz noto'g'ri topilgan. Xato qilingan joyni toping." },
+      intro: { ru: "В одном из этих примеров процент найден неправильно. Найди, где сделана ошибка.", uz: "Bu misollardan birida foiz noto'g'ri topilgan. Xato qilingan joyni toping." },
       on_correct: { ru: "Верно. Шестьдесят делим на сто, выходит ноль целых шесть десятых, умножаем на тридцать, получается восемнадцать, а не девять.", uz: "To'g'ri. Oltmishni yuzga bo'lamiz, nol butun o'ndan olti chiqadi, o'ttizga ko'paytiramiz, o'n sakkiz bo'ladi, to'qqiz emas." },
-      on_wrong: { ru: "Посчитайте каждый: разделите число на сто и умножьте на процент.", uz: "Har birini hisoblang: sonni yuzga bo'ling va foizga ko'paytiring." }
+      on_wrong: { ru: "Посчитай каждый: раздели число на сто и умножь на процент.", uz: "Har birini hisoblang: sonni yuzga bo'ling va foizga ko'paytiring." }
     }
   },
 
@@ -1002,7 +1002,7 @@ const CONTENT = {
         opts: [{ ru: '5', uz: '5' }, { ru: '10', uz: '10' }, { ru: '50', uz: '50' }],
         correct: 0,
         ok: { ru: 'Верно: 50 делим на сто, умножаем на десять.', uz: "To'g'ri: 50 ni yuzga bo'lib, o'nga ko'paytiramiz." },
-        no: { ru: 'Разделите число на сто, потом умножьте на процент.', uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
+        no: { ru: 'Раздели число на сто, потом умножь на процент.', uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
       },
       {
         q: { ru: '50% от 60', uz: "60 ning 50% i" },
@@ -1010,7 +1010,7 @@ const CONTENT = {
         opts: [{ ru: '30', uz: '30' }, { ru: '50', uz: '50' }, { ru: '6', uz: '6' }],
         correct: 0,
         ok: { ru: 'Верно: пятьдесят процентов — это половина.', uz: "To'g'ri: ellik foiz — bu yarmi." },
-        no: { ru: 'Пятьдесят процентов это половина. Разделите число пополам.', uz: "Ellik foiz, bu yarim. Sonni teng ikkiga bo'ling." }
+        no: { ru: 'Пятьдесят процентов это половина. Раздели число пополам.', uz: "Ellik foiz, bu yarim. Sonni teng ikkiga bo'ling." }
       },
       {
         q: { ru: '25% от 40', uz: "40 ning 25% i" },
@@ -1018,11 +1018,11 @@ const CONTENT = {
         opts: [{ ru: '10', uz: '10' }, { ru: '25', uz: '25' }, { ru: '4', uz: '4' }],
         correct: 0,
         ok: { ru: 'Верно: двадцать пять процентов — это четверть.', uz: "To'g'ri: yigirma besh foiz — bu chorak." },
-        no: { ru: 'Двадцать пять процентов это четверть. Разделите число на четыре.', uz: "Yigirma besh foiz, bu chorak. Sonni to'rtga bo'ling." }
+        no: { ru: 'Двадцать пять процентов это четверть. Раздели число на четыре.', uz: "Yigirma besh foiz, bu chorak. Sonni to'rtga bo'ling." }
       }
     ],
     audio: {
-      intro: { ru: "Тренировка. Три примера. Найдите процент от числа.", uz: "Mashq. Uchta misol. Sondan foizni toping." },
+      intro: { ru: "Тренировка. Три примера. Найди процент от числа.", uz: "Mashq. Uchta misol. Sondan foizni toping." },
       on_correct: { ru: "Верно.", uz: "To'g'ri." },
       on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring." },
       on_done: { ru: "Молодец, все примеры верны.", uz: "Barakalla, hamma misol to'g'ri." }
@@ -1036,7 +1036,7 @@ const CONTENT = {
     bridge: { ru: 'Навык есть. Теперь применим его в жизни.', uz: "Ko'nikma bor. Endi uni hayotda qo'llaymiz." },
     lead: { ru: 'Феруза сравнивает скидки. Магазин А: 800, скидка 25 процентов. Магазин Б: 600, скидка 40 процентов.', uz: "Feruza chegirmalarni solishtiradi. A do'kon: 800, chegirma yigirma besh foiz. B do'kon: 600, chegirma qirq foiz." },
     note: { ru: 'Где скидка в деньгах больше?', uz: "Qaysi do'konda chegirma pulda ko'proq?" },
-    hint_calc: { ru: 'Посчитайте скидку в каждом: число делим на сто, умножаем на процент.', uz: "Har birida chegirmani hisoblang: sonni yuzga bo'lib, foizga ko'paytiring." },
+    hint_calc: { ru: 'Посчитай скидку в каждом: число делим на сто, умножаем на процент.', uz: "Har birida chegirmani hisoblang: sonni yuzga bo'lib, foizga ko'paytiring." },
     compact: { ru: 'А: 800 · −25% · Б: 600 · −40%', uz: "A: 800 · −25% · B: 600 · −40%" },
     btn_help: { ru: 'Помочь Ферузе', uz: "Feruzaga yordam berish" },
     question: { ru: 'Где скидка в деньгах больше?', uz: "Qaysi do'konda chegirma pulda ko'proq?" },
@@ -1045,16 +1045,16 @@ const CONTENT = {
     opt2: { ru: 'Скидки равны', uz: "Chegirmalar teng" },
     opt3: { ru: 'У Б больше процент, значит и деньги', uz: "B da foiz ko'proq, demak pul ham" },
     correct_text: { ru: 'Верно: А даёт скидку 200, а Б даёт 240. У Б скидка в деньгах больше.', uz: "To'g'ri: A 200 chegirma beradi, B esa 240. B da chegirma pulda ko'proq." },
-    wrong_1: { ru: 'У А скидка 200, но у Б — 240. Посчитайте обе и сравните деньги.', uz: "A da chegirma 200, lekin B da — 240. Ikkalasini hisoblab, pulni solishtiring." },
+    wrong_1: { ru: 'У А скидка 200, но у Б — 240. Посчитай обе и сравни деньги.', uz: "A da chegirma 200, lekin B da — 240. Ikkalasini hisoblab, pulni solishtiring." },
     wrong_2: { ru: 'Скидки не равны: у А 200, у Б 240. Цены и проценты разные.', uz: "Chegirmalar teng emas: A da 200, B da 240. Narx va foizlar har xil." },
-    wrong_3: { ru: 'Больший процент не всегда больше денег. Посчитайте обе скидки.', uz: "Katta foiz doim ko'p pul degani emas. Ikkala chegirmani hisoblang." },
+    wrong_3: { ru: 'Больший процент не всегда больше денег. Посчитай обе скидки.', uz: "Katta foiz doim ko'p pul degani emas. Ikkala chegirmani hisoblang." },
     fact: { ru: 'В спорте процент показывает точность: баскетболист с 80 процентами штрафных попадает 8 из 10 раз.', uz: "Sportda foiz aniqlikni ko'rsatadi: jarima zarbalarda 80 foizli basketbolchi 10 tadan 8 tasini kiritadi." },
     fact_audio: { ru: "В спорте процент показывает точность. Баскетболист с восьмьюдесятью процентами штрафных попадает восемь раз из десяти.", uz: "Sportda foiz aniqlikni ko'rsatadi. Jarima zarbalarda sakson foizli basketbolchi o'n tadan sakkiz tasini kiritadi." },
     audio: {
-      intro: { ru: "Навык есть, теперь применим в жизни. Феруза сравнивает скидки. Магазин А: восемьсот, скидка двадцать пять процентов. Магазин Б: шестьсот, скидка сорок процентов. Не спешите выбрать больший процент. Нажмите помочь.", uz: "Ko'nikma bor, endi hayotda qo'llaymiz. Feruza chegirmalarni solishtiradi. A do'kon: sakkiz yuz, chegirma yigirma besh foiz. B do'kon: olti yuz, chegirma qirq foiz. Katta foizni tanlashga shoshilmang. Yordam berishni bosing." },
+      intro: { ru: "Навык есть, теперь применим в жизни. Феруза сравнивает скидки. Магазин А: восемьсот, скидка двадцать пять процентов. Магазин Б: шестьсот, скидка сорок процентов. Не спеши выбрать больший процент. Нажми помочь.", uz: "Ko'nikma bor, endi hayotda qo'llaymiz. Feruza chegirmalarni solishtiradi. A do'kon: sakkiz yuz, chegirma yigirma besh foiz. B do'kon: olti yuz, chegirma qirq foiz. Katta foizni tanlashga shoshilmang. Yordam berishni bosing." },
       intro2: { ru: "Где скидка в деньгах больше?", uz: "Qaysi do'konda chegirma pulda ko'proq?" },
       on_correct: { ru: "Верно. У А скидка двести, у Б двести сорок. У Б больше.", uz: "To'g'ri. A da chegirma ikki yuz, B da ikki yuz qirq. B da ko'proq." },
-      on_wrong: { ru: "Посчитайте обе скидки и сравните деньги, а не проценты.", uz: "Ikkala chegirmani hisoblab, foizni emas, pulni solishtiring." }
+      on_wrong: { ru: "Посчитай обе скидки и сравни деньги, а не проценты.", uz: "Ikkala chegirmani hisoblab, foizni emas, pulni solishtiring." }
     }
   },
 
@@ -1152,7 +1152,7 @@ const AnimTarget = () => (
 // ============================================================
 const fmtNum = (v) => { const r = Math.round(v * 100) / 100; return String(r).replace('.', ','); };
 
-// TileGrid — to'rtburchak birlik kvadratlar bilan to'ladi (Dars35 dan). Uzluksiz tgBreathe; circling YO'Q.
+// TileGrid — to'g'ri to'rtburchak birlik kvadratlar bilan to'ladi (Dars35 dan). Uzluksiz tgBreathe; circling YO'Q.
 // filled = to'ldirilgan kataklar soni (null = hammasi). glow/stagger/success — breathe DOIM saqlanadi.
 const TileGrid = ({ cols = 5, rows = 2, filled = null, compact = false, glow = false, stagger = false, success = false }) => {
   const total = cols * rows;

@@ -745,19 +745,19 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- POD UROK: geom_5_01 — To'rtburchak va kvadrat perimetri / Периметр прямоугольника и квадрата (PROMPT 2026-06-19) ---
+// --- POD UROK: geom_5_01 — To'g'ri to'rtburchak va kvadrat perimetri / Периметр прямоугольника и квадрата (PROMPT 2026-06-19) ---
 // Markaziy misconception M1: perimetrni yuza bilan chalkashtirish (tomonlarni KO'PAYTIRADI, qo'shish o'rniga).
 // M2: faqat ikki tomonni qo'shish (qarama-qarshi tomonlar teng ekanini unutish). M3: kvadratda 4 emas, 2 tomonni hisoblash.
-// Darslik: perimetr = barcha tomonlar yig'indisi; to'rtburchak P = 2·(a+b); kvadrat P = 4·a; yuza ≠ perimetr.
-// Hook: yangi qahramon (Jasur) to'rtburchak narsa atrofiga panjara/chegara o'rnatmoqchi, lekin tomonlarni KO'PAYTIRADI (= yuza).
-// Vizualizator: BorderWalk (to'rtburchak chegarasi + uzluksiz ko'k iz/trace, chumolisiz).
+// Darslik: perimetr = barcha tomonlar yig'indisi; to'g'ri to'rtburchak P = 2·(a+b); kvadrat P = 4·a; yuza ≠ perimetr.
+// Hook: yangi qahramon (Jasur) to'g'ri to'rtburchak narsa atrofiga panjara/chegara o'rnatmoqchi, lekin tomonlarni KO'PAYTIRADI (= yuza).
+// Vizualizator: BorderWalk (to'g'ri to'rtburchak chegarasi + uzluksiz ko'k iz/trace, chumolisiz).
 // Etalon: Dars37 (geom) — keep-visible QuestionScreen, NumGeoScreen, FloatFrames ambient, FactCard.
 // Faktlar (DRAFT): Misr arqon-o'lchovchilari / asalari oltiburchagi (kam perimetr) / marching ants (IT).
 // ============================================================
 const TOTAL_SCREENS = 14;
 const LESSON_META = {
   lessonId: 'geom_5_01',
-  lessonTitle: { ru: 'Периметр прямоугольника и квадрата', uz: "To'rtburchak va kvadrat perimetri" }
+  lessonTitle: { ru: 'Периметр прямоугольника и квадрата', uz: "To'g'ri to'rtburchak va kvadrat perimetri" }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
@@ -777,16 +777,16 @@ const SCREEN_META = [
 ];
 
 const CONTENT = {
-  // ===== s0 HOOK — Jasur to'rtburchak yer atrofiga panjara, lekin tomonlarni KO'PAYTIRADI (= yuza, M1) =====
+  // ===== s0 HOOK — Jasur to'g'ri to'rtburchak yer atrofiga panjara, lekin tomonlarni KO'PAYTIRADI (= yuza, M1) =====
   s0: {
     eyebrow: { ru: 'Начало', uz: "Boshlanish" },
     title: { ru: 'Забор Жасура', uz: "Jasurning panjarasi" },
-    lead: { ru: 'Жасур ставит забор вокруг прямоугольного огорода: 8 метров и 5 метров. Он умножил 8 на 5 и говорит: «нужно 40 метров забора». Он прав?', uz: "Jasur to'rtburchak tomorqa atrofiga panjara o'rnatyapti: 8 metr va 5 metr. U 8 ni 5 ga ko'paytirdi va «40 metr panjara kerak» deyapti. U haqmi?" },
+    lead: { ru: 'Жасур ставит забор вокруг прямоугольного огорода: 8 метров и 5 метров. Он умножил 8 на 5 и говорит: «нужно 40 метров забора». Он прав?', uz: "Jasur to'g'ri to'rtburchak tomorqa atrofiga panjara o'rnatyapti: 8 metr va 5 metr. U 8 ni 5 ga ko'paytirdi va «40 metr panjara kerak» deyapti. U haqmi?" },
     opt0: { ru: 'Да, 40 метров', uz: "Ha, 40 metr" },
     opt1: { ru: 'Нет, забор — это длина границы', uz: "Yo'q, panjara — chegara uzunligi" },
     opt2: { ru: 'Не знаю', uz: "Bilmayman" },
     reveal: { ru: 'Забор идёт по границе, а не закрывает поле целиком. Умножение даёт площадь, а нам нужна длина границы. Сегодня разберёмся.', uz: "Panjara chegara bo'ylab boradi, butun maydonni qoplamaydi. Ko'paytirish yuzani beradi, bizga esa chegara uzunligi kerak. Bugun shuni o'rganamiz." },
-    audio: { ru: "Жасур ставит забор вокруг огорода восемь на пять метров. Он умножил восемь на пять и говорит, что нужно сорок метров забора. Подумайте, забор идёт по краю или закрывает всё поле?", uz: "Jasur sakkizga besh metrli tomorqa atrofiga panjara o'rnatyapti. U sakkizni beshga ko'paytirdi va qirq metr panjara kerak deyapti. O'ylab ko'ring, panjara chet bo'ylab boradimi yoki butun maydonni qoplaydimi?" }
+    audio: { ru: "Жасур ставит забор вокруг огорода восемь на пять метров. Он умножил восемь на пять и говорит, что нужно сорок метров забора. Подумай, забор идёт по краю или закрывает всё поле?", uz: "Jasur sakkizga besh metrli tomorqa atrofiga panjara o'rnatyapti. U sakkizni beshga ko'paytirdi va qirq metr panjara kerak deyapti. O'ylab ko'ring, panjara chet bo'ylab boradimi yoki butun maydonni qoplaydimi?" }
   },
 
   // ===== s1 WARM-UP — uchta ketma-ket ko'paytma (✓-fold). Veди-do-vernogo har savolda. =====
@@ -806,14 +806,14 @@ const CONTENT = {
         q: { ru: 'Сколько будет 4 × 7?', uz: "4 × 7 nechaga teng?" },
         opts: [{ ru: '24', uz: "24" }, { ru: '21', uz: "21" }, { ru: '28', uz: "28" }, { ru: '32', uz: "32" }],
         correct: 2,
-        hint: { ru: 'Возьмите семь четыре раза подряд.', uz: "Yettini ketma-ket to'rt marta oling." },
+        hint: { ru: 'Возьми семь четыре раза подряд.', uz: "Yettini ketma-ket to'rt marta oling." },
         audio: { ru: "А сколько будет четыре умножить на семь?", uz: "To'rtni yettiga ko'paytirsak nechi bo'ladi?" }
       },
       {
         q: { ru: 'Сколько будет 4 × 9?', uz: "4 × 9 nechaga teng?" },
         opts: [{ ru: '32', uz: "32" }, { ru: '36', uz: "36" }, { ru: '45', uz: "45" }, { ru: '40', uz: "40" }],
         correct: 1,
-        hint: { ru: 'Возьмите девять четыре раза подряд.', uz: "To'qqizni ketma-ket to'rt marta oling." },
+        hint: { ru: 'Возьми девять четыре раза подряд.', uz: "To'qqizni ketma-ket to'rt marta oling." },
         audio: { ru: "И последнее. Сколько будет четыре умножить на девять?", uz: "Va oxirgisi. To'rtni to'qqizga ko'paytirsak nechi bo'ladi?" }
       }
     ],
@@ -823,7 +823,7 @@ const CONTENT = {
     audio: {
       next: { ru: 'Разомнёмся перед задачами.', uz: "Masalalardan oldin mashq qilamiz." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посчитайте ещё раз спокойно.', uz: "Yana bir bor xotirjam hisoblang." }
+      on_wrong: { ru: 'Посчитай ещё раз спокойно.', uz: "Yana bir bor xotirjam hisoblang." }
     }
   },
 
@@ -832,7 +832,7 @@ const CONTENT = {
     eyebrow: { ru: 'Граница', uz: "Chegara" },
     bridge: { ru: 'Счёт работает, теперь пройдём по самой границе.', uz: "Hisob ishladi, endi chegaraning o'zidan yuramiz." },
     title: { ru: 'Идём по границе', uz: "Chegara bo'ylab yuramiz" },
-    lead: { ru: 'Теперь пройдём по краю прямоугольника со сторонами 5 и 3 и сложим путь.', uz: "Endi 5 va 3 tomonli to'rtburchak chetidan yuramiz va yo'lni qo'shamiz." },
+    lead: { ru: 'Теперь пройдём по краю прямоугольника со сторонами 5 и 3 и сложим путь.', uz: "Endi 5 va 3 tomonli to'g'ri to'rtburchak chetidan yuramiz va yo'lni qo'shamiz." },
     step_1: { ru: 'Первая сторона: 5. Прошли пять.', uz: "Birinchi tomon: 5. Beshni o'tdik." },
     step_2: { ru: 'Плюс короткая сторона 3. Стало 8.', uz: "Qisqa 3 tomon qo'shildi. 8 bo'ldi." },
     step_3: { ru: 'Плюс ещё длинная сторона 5. Стало 13.', uz: "Yana uzun 5 tomon qo'shildi. 13 bo'ldi." },
@@ -847,7 +847,7 @@ const CONTENT = {
         "Прибавим последнюю сторону три, получилось шестнадцать. Длина всей границы и есть периметр."
       ],
       uz: [
-        "To'rtburchak chetidan yuramiz va tomonlarni qo'shamiz. Birinchi tomon besh.",
+        "To'g'ri to'rtburchak chetidan yuramiz va tomonlarni qo'shamiz. Birinchi tomon besh.",
         "Qisqa tomon uchni qo'shamiz, sakkiz bo'ldi.",
         "Ikkinchi uzun tomon beshni qo'shamiz, o'n uch bo'ldi.",
         "Oxirgi tomon uchni qo'shamiz, o'n olti bo'ldi. Butun chegara uzunligi perimetr bo'ladi."
@@ -859,11 +859,11 @@ const CONTENT = {
   s3: {
     eyebrow: { ru: 'Стороны', uz: "Tomonlar" },
     title: { ru: 'Две пары сторон', uz: "Ikki juft tomon" },
-    lead: { ru: 'Итак, у прямоугольника две длинные и две короткие стороны. Двигайте длину и смотрите, что будет.', uz: "Demak, to'rtburchakda ikki uzun va ikki qisqa tomon bor. Bo'yni suring va nima bo'lishini ko'ring." },
+    lead: { ru: 'Итак, у прямоугольника две длинные и две короткие стороны. Двигай длину и смотри, что будет.', uz: "Demak, to'g'ri to'rtburchakda ikki uzun va ikki qisqa tomon bor. Bo'yni suring va nima bo'lishini ko'ring." },
     slider_label: { ru: 'Длина', uz: "Bo'y" },
     note_rect: { ru: 'Длинные стороны равны между собой, короткие — тоже.', uz: "Uzun tomonlar o'zaro teng, qisqalar ham." },
     note_square: { ru: 'Все четыре стороны равны — это квадрат!', uz: "Hamma to'rt tomon teng — bu kvadrat!" },
-    audio: { ru: "У прямоугольника противоположные стороны равны, это две длинные и две короткие. Двигайте длину. Когда длина станет равна ширине, все стороны сравняются, и получится квадрат.", uz: "To'rtburchakda qarama-qarshi tomonlar teng, ya'ni ikki uzun va ikki qisqa. Bo'yni suring. Bo'y enga teng bo'lganda hamma tomon tenglashadi va kvadrat hosil bo'ladi." }
+    audio: { ru: "У прямоугольника противоположные стороны равны, это две длинные и две короткие. Двигай длину. Когда длина станет равна ширине, все стороны сравняются, и получится квадрат.", uz: "To'g'ri to'rtburchakda qarama-qarshi tomonlar teng, ya'ni ikki uzun va ikki qisqa. Bo'yni suring. Bo'y enga teng bo'lganda hamma tomon tenglashadi va kvadrat hosil bo'ladi." }
   },
 
   // ===== s4 RULE 1 — P = barcha tomonlar; P = 2·(a+b); kvadrat P = 4·a =====
@@ -871,11 +871,11 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     bridge: { ru: 'Мы прошли границу, соберём это в правило.', uz: "Chegarani yurib chiqdik, buni qoidaga yig'amiz." },
     heading: { ru: 'Как найти периметр', uz: "Perimetrni qanday topamiz" },
-    rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
     rule_1: { ru: 'Периметр — это сумма всех сторон фигуры.', uz: "Perimetr — figuraning barcha tomonlari yig'indisi." },
-    rule_2: { ru: 'У прямоугольника: P = 2·(a + b), где a и b — длина и ширина.', uz: "To'rtburchakda: P = 2·(a + b), bu yerda a va b — bo'y va en." },
+    rule_2: { ru: 'У прямоугольника: P = 2·(a + b), где a и b — длина и ширина.', uz: "To'g'ri to'rtburchakda: P = 2·(a + b), bu yerda a va b — bo'y va en." },
     rule_3: { ru: 'У квадрата все стороны равны: P = 4·a.', uz: "Kvadratda barcha tomon teng: P = 4·a." },
-    audio: { ru: "Итак, периметр это сумма всех сторон. У прямоугольника две длины и две ширины, поэтому периметр равен двум суммам стороны а и стороны бэ. А у квадрата все четыре стороны равны, значит периметр равен четырём сторонам.", uz: "Demak, perimetr barcha tomonlar yig'indisi. To'rtburchakda ikki bo'y va ikki en bor, shuning uchun perimetr a tomon va b tomon yig'indisining ikki barobariga teng. Kvadratda esa hamma to'rt tomon teng, ya'ni perimetr to'rt tomonga teng." }
+    audio: { ru: "Итак, периметр это сумма всех сторон. У прямоугольника две длины и две ширины, поэтому периметр равен двум суммам стороны а и стороны бэ. А у квадрата все четыре стороны равны, значит периметр равен четырём сторонам.", uz: "Demak, perimetr barcha tomonlar yig'indisi. To'g'ri to'rtburchakda ikki bo'y va ikki en bor, shuning uchun perimetr a tomon va b tomon yig'indisining ikki barobariga teng. Kvadratda esa hamma to'rt tomon teng, ya'ni perimetr to'rt tomonga teng." }
   },
 
   // ===== s5 RULE 2 — perimetr ≠ yuza (Jasur shu yerda yanglishgan), xulosa frame-tip da =====
@@ -885,7 +885,7 @@ const CONTENT = {
     rule_1: { ru: 'Периметр — это длина границы, путь вокруг фигуры. Его складывают.', uz: "Perimetr — chegara uzunligi, figura atrofidagi yo'l. Uni qo'shadilar." },
     rule_2: { ru: 'Площадь — это сколько места внутри. Её находят умножением сторон.', uz: "Yuza — ichidagi joy miqdori. Uni tomonlarni ko'paytirib topadilar." },
     tip: { ru: 'Жасуру нужен забор — это граница. Значит периметр, а не площадь.', uz: "Jasurga panjara kerak — bu chegara. Demak perimetr, yuza emas." },
-    audio: { ru: "Запомните разницу. Периметр это длина границы, его получают сложением сторон. А площадь это место внутри, её получают умножением. Жасур умножил стороны и нашёл площадь, но для забора нужна именно граница, то есть периметр.", uz: "Farqni yodda tuting. Perimetr chegara uzunligi, uni tomonlarni qo'shib olamiz. Yuza esa ichidagi joy, uni ko'paytirib olamiz. Jasur tomonlarni ko'paytirib yuzani topdi, lekin panjara uchun aynan chegara, ya'ni perimetr kerak." }
+    audio: { ru: "Запомни разницу. Периметр это длина границы, его получают сложением сторон. А площадь это место внутри, её получают умножением. Жасур умножил стороны и нашёл площадь, но для забора нужна именно граница, то есть периметр.", uz: "Farqni yodda tuting. Perimetr chegara uzunligi, uni tomonlarni qo'shib olamiz. Yuza esa ichidagi joy, uni ko'paytirib olamiz. Jasur tomonlarni ko'paytirib yuzani topdi, lekin panjara uchun aynan chegara, ya'ni perimetr kerak." }
   },
 
   // ===== s6 TEST (interaktiv): "Chegarani bos" — tomonlarni bosib perimetr yig'iladi (Dars34 imzo metodi) =====
@@ -893,13 +893,13 @@ const CONTENT = {
     eyebrow: { ru: 'Собери периметр', uz: "Perimetrni yig'ing" },
     bridge: { ru: 'Правило знаем, теперь примени его сам.', uz: "Qoidani bilamiz, endi o'zingiz qo'llang." },
     title: { ru: 'Пройди по всей границе', uz: "Butun chegaradan yuring" },
-    lead: { ru: 'Прямоугольник 6 и 4. Нажимай на стороны — пройди всю границу, потом подтверди периметр.', uz: "To'rtburchak 6 va 4. Tomonlarni bosing — butun chegarani yuring, keyin perimetrni tasdiqlang." },
+    lead: { ru: 'Прямоугольник 6 и 4. Нажимай на стороны — пройди всю границу, потом подтверди периметр.', uz: "To'g'ri to'rtburchak 6 va 4. Tomonlarni bosing — butun chegarani yuring, keyin perimetrni tasdiqlang." },
     walk_label: { ru: 'Пройдено', uz: "Yurildi" },
     btn_confirm: { ru: 'Подтвердить периметр', uz: "Perimetrni tasdiqlash" },
     hint: { ru: 'Ты обошёл не все стороны. Периметр — это вся граница, пройди каждую из четырёх сторон.', uz: "Hamma tomonni aylanmadingiz. Perimetr — butun chegara, to'rtala tomonning har birini yuring." },
     correct_text: { ru: 'Верно: 6 + 4 + 6 + 4 = 20. Ты прошёл всю границу — это и есть периметр.', uz: "To'g'ri: 6 + 4 + 6 + 4 = 20. Butun chegarani yurdingiz — mana shu perimetr." },
     audio: {
-      intro: { ru: "Пройди по всей границе прямоугольника. Нажимай на стороны по очереди и складывай их длины, а потом подтверди периметр.", uz: "To'rtburchakning butun chegarasidan yuring. Tomonlarni navbatma-navbat bosing, uzunliklarini qo'shing, keyin perimetrni tasdiqlang." },
+      intro: { ru: "Пройди по всей границе прямоугольника. Нажимай на стороны по очереди и складывай их длины, а потом подтверди периметр.", uz: "To'g'ri to'rtburchakning butun chegarasidan yuring. Tomonlarni navbatma-navbat bosing, uzunliklarini qo'shing, keyin perimetrni tasdiqlang." },
       on_correct: { ru: "Верно, двадцать. Ты сложил все четыре стороны: шесть плюс четыре плюс шесть плюс четыре. Это и есть периметр.", uz: "To'g'ri, yigirma. To'rtala tomonni qo'shdingiz: olti qo'shamiz to'rt qo'shamiz olti qo'shamiz to'rt. Mana shu perimetr." },
       on_wrong: { ru: "Пройди каждую из четырёх сторон, а потом подтверди.", uz: "To'rtala tomonning har birini yuring, keyin tasdiqlang." }
     }
@@ -914,10 +914,10 @@ const CONTENT = {
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     items: [
       { kind: 'choice', a: 7, b: 3,
-        q: { ru: 'Выбери периметр прямоугольника 7 и 3.', uz: "7 va 3 to'rtburchak perimetrini tanlang." },
+        q: { ru: 'Выбери периметр прямоугольника 7 и 3.', uz: "7 va 3 to'g'ri to'rtburchak perimetrini tanlang." },
         opts: [{ ru: '20', uz: '20' }, { ru: '21', uz: '21' }, { ru: '10', uz: '10' }, { ru: '13', uz: '13' }], correct: 0,
-        hint: { ru: 'Сложи все четыре стороны прямоугольника.', uz: "To'rtburchakning to'rtala tomonini qo'shing." },
-        audio_q: { ru: "Первый вопрос. Выбери периметр прямоугольника со сторонами семь и три.", uz: "Birinchi savol. Tomonlari yetti va uch to'rtburchak perimetrini tanlang." },
+        hint: { ru: 'Сложи все четыре стороны прямоугольника.', uz: "To'g'ri to'rtburchakning to'rtala tomonini qo'shing." },
+        audio_q: { ru: "Первый вопрос. Выбери периметр прямоугольника со сторонами семь и три.", uz: "Birinchi savol. Tomonlari yetti va uch to'g'ri to'rtburchak perimetrini tanlang." },
         audio_ok: { ru: "Верно, двадцать. Сложили семь и три и семь и три.", uz: "To'g'ri, yigirma. Yetti va uch va yetti va uchni qo'shdik." } },
       { kind: 'num', a: 6, b: 6, answer: 24,
         q: { ru: 'Квадрат со стороной 6. Посчитай периметр сам.', uz: "Tomoni 6 kvadrat. Perimetrini o'zingiz hisoblang." },
@@ -932,10 +932,10 @@ const CONTENT = {
         audio_ok: { ru: "Правильно, это неверно. Двадцать пять это площадь, а периметр равен двадцати.", uz: "To'g'ri javob, bu noto'g'ri. Yigirma besh — bu yuza, perimetr esa yigirmaga teng." } },
       { kind: 'choice',
         q: { ru: 'У какой фигуры периметр больше?', uz: "Qaysi figuraning perimetri kattaroq?" },
-        opts: [{ ru: 'Прямоугольник 6 и 3', uz: "To'rtburchak 6 va 3" }, { ru: 'Квадрат со стороной 5', uz: "Tomoni 5 kvadrat" }], correct: 1,
+        opts: [{ ru: 'Прямоугольник 6 и 3', uz: "To'g'ri to'rtburchak 6 va 3" }, { ru: 'Квадрат со стороной 5', uz: "Tomoni 5 kvadrat" }], correct: 1,
         hint: { ru: 'Посчитай периметр каждой фигуры и сравни.', uz: "Har bir figuraning perimetrini hisoblab solishtiring." },
-        audio_q: { ru: "Четвёртый вопрос. У какой фигуры периметр больше: у прямоугольника шесть и три или у квадрата со стороной пять?", uz: "To'rtinchi savol. Qaysi figuraning perimetri kattaroq: olti va uch to'rtburchakmi yoki tomoni besh kvadratmi?" },
-        audio_ok: { ru: "Верно. У квадрата периметр двадцать, у прямоугольника восемнадцать, у квадрата больше.", uz: "To'g'ri. Kvadratning perimetri yigirma, to'rtburchakniki o'n sakkiz, kvadratniki kattaroq." } }
+        audio_q: { ru: "Четвёртый вопрос. У какой фигуры периметр больше: у прямоугольника шесть и три или у квадрата со стороной пять?", uz: "To'rtinchi savol. Qaysi figuraning perimetri kattaroq: olti va uch to'g'ri to'rtburchakmi yoki tomoni besh kvadratmi?" },
+        audio_ok: { ru: "Верно. У квадрата периметр двадцать, у прямоугольника восемнадцать, у квадрата больше.", uz: "To'g'ri. Kvadratning perimetri yigirma, to'g'ri to'rtburchakniki o'n sakkiz, kvadratniki kattaroq." } }
     ],
     done_label: { ru: 'Вопрос', uz: "Savol" },
     done_ok: { ru: 'верно', uz: "to'g'ri" },
@@ -951,19 +951,19 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Обратная задача', uz: "Teskari masala" },
     title: { ru: 'Найди сторону', uz: "Tomonni toping" },
-    question: { ru: 'Периметр прямоугольника 16, ширина 3. Чему равна длина?', uz: "To'rtburchak perimetri 16, eni 3. Bo'yi nechaga teng?" },
+    question: { ru: 'Периметр прямоугольника 16, ширина 3. Чему равна длина?', uz: "To'g'ri to'rtburchak perimetri 16, eni 3. Bo'yi nechaga teng?" },
     opt0: { ru: '5', uz: "5" },
     opt1: { ru: '13', uz: "13" },
     opt2: { ru: '8', uz: "8" },
     opt3: { ru: '10', uz: "10" },
     correct_text: { ru: 'Верно: две ширины — это 6, значит на две длины осталось 16 − 6 = 10, и одна длина — это 5.', uz: "To'g'ri: ikki en — bu 6, demak ikki bo'yga 16 − 6 = 10 qoldi, bitta bo'y esa 5." },
-    wrong_1: { ru: 'Вы вычли только одну ширину, а их две. Вычтите из периметра обе ширины.', uz: "Siz faqat bitta enni ayirdingiz, ular ikkita. Perimetrdan ikkala enni ayiring." },
+    wrong_1: { ru: 'Вы вычли только одну ширину, а их две. Вычти из периметра обе ширины.', uz: "Siz faqat bitta enni ayirdingiz, ular ikkita. Perimetrdan ikkala enni ayiring." },
     wrong_2: { ru: 'Это половина периметра. Но в неё входит и ширина, её ещё нужно вычесть.', uz: "Bu perimetrning yarmi. Lekin unda en ham bor, uni yana ayirish kerak." },
     wrong_3: { ru: 'Это сумма двух длин. Одну длину нужно поделить пополам.', uz: "Bu ikki bo'y yig'indisi. Bitta bo'yni yarmiga bo'lish kerak." },
     audio: {
-      intro: { ru: "Задача наоборот. Периметр прямоугольника шестнадцать, ширина три. Чему равна длина?", uz: "Teskari masala. To'rtburchak perimetri o'n olti, eni uch. Bo'yi nechaga teng?" },
+      intro: { ru: "Задача наоборот. Периметр прямоугольника шестнадцать, ширина три. Чему равна длина?", uz: "Teskari masala. To'g'ri to'rtburchak perimetri o'n olti, eni uch. Bo'yi nechaga teng?" },
       on_correct: { ru: "Верно, пять. Две ширины это шесть, осталось десять на две длины, значит одна длина равна пяти.", uz: "To'g'ri, besh. Ikki en olti, ikki bo'yga o'n qoldi, demak bitta bo'y beshga teng." },
-      on_wrong: { ru: "Вычтите обе ширины из периметра, потом поделите на две длины.", uz: "Perimetrdan ikkala enni ayiring, keyin ikki bo'yga bo'ling." }
+      on_wrong: { ru: "Вычти обе ширины из периметра, потом подели на две длины.", uz: "Perimetrdan ikkala enni ayiring, keyin ikki bo'yga bo'ling." }
     }
   },
 
@@ -971,7 +971,7 @@ const CONTENT = {
   s9: {
     eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
     title: { ru: 'Где ошибка?', uz: "Xato qayerda?" },
-    question: { ru: 'Три ученика искали периметр прямоугольника 5 на 3. Кто посчитал НЕправильно?', uz: "Uch o'quvchi 5 ga 3 to'rtburchak perimetrini topdi. Kim NOTO'G'RI hisobladi?" },
+    question: { ru: 'Три ученика искали периметр прямоугольника 5 на 3. Кто посчитал НЕправильно?', uz: "Uch o'quvchi 5 ga 3 to'g'ri to'rtburchak perimetrini topdi. Kim NOTO'G'RI hisobladi?" },
     opt0: { ru: 'Камола: 5 + 3 + 5 + 3 = 16', uz: "Kamola: 5 + 3 + 5 + 3 = 16" },
     opt1: { ru: 'Отабек: 5 умножить на 3 = 15', uz: "Otabek: 5 ni 3 ga ko'paytirsak = 15" },
     opt2: { ru: 'Сардор: 2 умножить на (5 + 3) = 16', uz: "Sardor: 2 ni (5 + 3) ga ko'paytirsak = 16" },
@@ -981,7 +981,7 @@ const CONTENT = {
     fact: { ru: 'В Древнем Египте землю отмеряли верёвкой с узлами: натягивали её по границе участка. Так измеряли периметр полей.', uz: "Qadimgi Misrda yerni tugunli arqon bilan o'lchashgan: uni yer chegarasi bo'ylab tortishgan. Maydonlar perimetri shunday o'lchangan." },
     fact_audio: { ru: "В древнем Египте землю мерили верёвкой с узлами. Её натягивали по границе участка и так находили периметр поля.", uz: "Qadimgi Misrda yerni tugunli arqon bilan o'lchashgan. Uni yer chegarasi bo'ylab tortib, maydon perimetrini topishgan." },
     audio: {
-      intro: { ru: "Три ученика искали периметр прямоугольника пять на три. Найдите того, кто посчитал неправильно.", uz: "Uch o'quvchi besh ga uch to'rtburchak perimetrini topdi. Noto'g'ri hisoblaganini toping." },
+      intro: { ru: "Три ученика искали периметр прямоугольника пять на три. Найди того, кто посчитал неправильно.", uz: "Uch o'quvchi besh ga uch to'g'ri to'rtburchak perimetrini topdi. Noto'g'ri hisoblaganini toping." },
       on_correct: { ru: "Верно, ошибся Отабек. Он умножил стороны и получил площадь, а периметр это сумма сторон, шестнадцать.", uz: "To'g'ri, Otabek xato qildi. U tomonlarni ko'paytirib yuzani topdi, perimetr esa tomonlar yig'indisi, o'n olti." },
       on_wrong: { ru: "Периметр складывают. Кто умножил стороны, тот нашёл площадь.", uz: "Perimetrni qo'shadilar. Kim tomonlarni ko'paytirgan bo'lsa, yuzani topgan." }
     }
@@ -992,11 +992,11 @@ const CONTENT = {
     eyebrow: { ru: 'Задача', uz: "Masala" },
     bridge: { ru: 'Задачи решили, перейдём к настоящей рамке.', uz: "Masalalarni yechdik, endi haqiqiy ramkaga o'tamiz." },
     title: { ru: 'Рамка Севары', uz: "Sevaraning ramkasi" },
-    lead: { ru: 'Севара обрамляет фотографию лентой по краю. Фото прямоугольное: 8 см и 5 см.', uz: "Sevara fotosuratni chet bo'ylab lenta bilan o'rayapti. Foto to'rtburchak: 8 sm va 5 sm." },
+    lead: { ru: 'Севара обрамляет фотографию лентой по краю. Фото прямоугольное: 8 см и 5 см.', uz: "Sevara fotosuratni chet bo'ylab lenta bilan o'rayapti. Foto to'g'ri to'rtburchak: 8 sm va 5 sm." },
     note: { ru: 'Сколько ленты нужно, чтобы обойти фото по границе?', uz: "Fotoni chegara bo'ylab aylanib chiqish uchun qancha lenta kerak?" },
-    hint_calc: { ru: 'Лента идёт по краю — это периметр. Сложите все четыре стороны.', uz: "Lenta chet bo'ylab boradi — bu perimetr. To'rtta tomonni qo'shing." },
+    hint_calc: { ru: 'Лента идёт по краю — это периметр. Сложи все четыре стороны.', uz: "Lenta chet bo'ylab boradi — bu perimetr. To'rtta tomonni qo'shing." },
     btn_help: { ru: 'Решить', uz: "Yechish" },
-    audio: { ru: "Севара обрамляет фотографию лентой по краю. Фото восемь на пять сантиметров. Подумайте, лента идёт по границе, значит её длина это периметр.", uz: "Sevara fotosuratni chet bo'ylab lenta bilan o'rayapti. Foto sakkizga besh santimetr. O'ylab ko'ring, lenta chegara bo'ylab boradi, demak uning uzunligi perimetr." }
+    audio: { ru: "Севара обрамляет фотографию лентой по краю. Фото восемь на пять сантиметров. Подумай, лента идёт по границе, значит её длина это периметр.", uz: "Sevara fotosuratni chet bo'ylab lenta bilan o'rayapti. Foto sakkizga besh santimetr. O'ylab ko'ring, lenta chegara bo'ylab boradi, demak uning uzunligi perimetr." }
   },
 
   // ===== s11 TEST MC (case) — lenta uzunligi 8x5 -> 26 + FactCard FB_NATURE (AnimHex) =====
@@ -1011,13 +1011,13 @@ const CONTENT = {
     correct_text: { ru: 'Верно: 8 + 5 + 8 + 5 = 26 см. Или 2·(8 + 5) = 26 см.', uz: "To'g'ri: 8 + 5 + 8 + 5 = 26 sm. Yoki 2·(8 + 5) = 26 sm." },
     wrong_1: { ru: 'Это 8 умножить на 5, получилась площадь фото, а не длина рамки.', uz: "Bu 8 ni 5 ga ko'paytirish, foto yuzasi chiqdi, ramka uzunligi emas." },
     wrong_2: { ru: 'Это только две стороны. Лента обходит все четыре.', uz: "Bu faqat ikki tomon. Lenta to'rttasini aylanib chiqadi." },
-    wrong_3: { ru: 'Этого не хватит. Сложите все четыре стороны рамки.', uz: "Bu yetmaydi. Ramkaning to'rtala tomonini qo'shing." },
+    wrong_3: { ru: 'Этого не хватит. Сложи все четыре стороны рамки.', uz: "Bu yetmaydi. Ramkaning to'rtala tomonini qo'shing." },
     fact: { ru: 'Пчёлы строят соты шестиугольниками: у такой формы самая короткая граница при той же площади, поэтому экономится воск.', uz: "Asalarilar uyacha hujayralarini oltiburchak qilib quradi: bunday shaklning yuzasi bir xilda chegarasi eng qisqa, shuning uchun mum tejaladi." },
     fact_audio: { ru: "Пчёлы строят соты шестиугольниками. У такой формы самая короткая граница при той же площади, поэтому пчёлы экономят воск.", uz: "Asalarilar uyachalarni oltiburchak qilib quradi. Bunday shaklning chegarasi eng qisqa, shuning uchun asalari mum tejaydi." },
     audio: {
       intro: { ru: "Фото восемь на пять сантиметров. Сколько ленты нужно на рамку по краю?", uz: "Foto sakkizga besh santimetr. Chet bo'ylab ramkaga qancha lenta kerak?" },
       on_correct: { ru: "Верно, двадцать шесть сантиметров. Лента обходит все четыре стороны, восемь плюс пять плюс восемь плюс пять.", uz: "To'g'ri, yigirma olti santimetr. Lenta to'rtta tomonni aylanadi, sakkiz qo'shamiz besh qo'shamiz sakkiz qo'shamiz besh." },
-      on_wrong: { ru: "Лента идёт по краю, сложите все четыре стороны.", uz: "Lenta chet bo'ylab boradi, to'rtta tomonni qo'shing." }
+      on_wrong: { ru: "Лента идёт по краю, сложи все четыре стороны.", uz: "Lenta chet bo'ylab boradi, to'rtta tomonni qo'shing." }
     }
   },
 
@@ -1039,7 +1039,7 @@ const CONTENT = {
     audio: {
       intro: { ru: "Последнее задание. Квадратный двор со стороной девять метров. Сколько метров забора нужно по всему краю?", uz: "Oxirgi topshiriq. Tomoni to'qqiz metr bo'lgan kvadrat hovli. Butun chet bo'ylab necha metr panjara kerak?" },
       on_correct: { ru: "Верно, тридцать шесть метров. У квадрата четыре стороны по девять, четыре умножить на девять равно тридцать шесть.", uz: "To'g'ri, o'ttiz olti metr. Kvadratning to'rt tomoni to'qqizdan, to'rtni to'qqizga ko'paytirsak o'ttiz olti bo'ladi." },
-      on_wrong: { ru: "Забор идёт по краю. Сложите четыре стороны квадрата.", uz: "Panjara chet bo'ylab boradi. Kvadratning to'rt tomonini qo'shing." }
+      on_wrong: { ru: "Забор идёт по краю. Сложи четыре стороны квадрата.", uz: "Panjara chet bo'ylab boradi. Kvadratning to'rt tomonini qo'shing." }
     }
   },
 
@@ -1050,15 +1050,15 @@ const CONTENT = {
     title: { ru: 'Периметр — это граница', uz: "Perimetr — bu chegara" },
     main_label: { ru: 'Главное', uz: "Asosiy" },
     main_1: { ru: 'Периметр — длина границы фигуры, сумма всех её сторон.', uz: "Perimetr — figura chegarasi uzunligi, barcha tomonlari yig'indisi." },
-    main_2: { ru: 'У прямоугольника P = 2·(a + b), у квадрата P = 4·a.', uz: "To'rtburchakda P = 2·(a + b), kvadratda P = 4·a." },
+    main_2: { ru: 'У прямоугольника P = 2·(a + b), у квадрата P = 4·a.', uz: "To'g'ri to'rtburchakda P = 2·(a + b), kvadratda P = 4·a." },
     main_3: { ru: 'Периметр складывают, а площадь — умножают. Это разные вещи.', uz: "Perimetrni qo'shadilar, yuzani esa ko'paytiradilar. Bu ikki xil narsa." },
     hook_close: { ru: 'Теперь ясно: Жасуру нужно не 40, а 26 метров забора — это периметр огорода, а 40 было бы площадью.', uz: "Endi aniq: Jasurga 40 emas, 26 metr panjara kerak — bu tomorqa perimetri, 40 esa yuza bo'lardi." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
     conn_refs: { ru: 'Сложение и умножение, отрезки и стороны фигур.', uz: "Qo'shish va ko'paytirish, kesma va figura tomonlari." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Площадь прямоугольника и квадрата.', uz: "To'rtburchak va kvadrat yuzasi." },
+    conn_next: { ru: 'Площадь прямоугольника и квадрата.', uz: "To'g'ri to'rtburchak va kvadrat yuzasi." },
     btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, периметр это длина границы, сумма всех сторон. У прямоугольника берут две суммы длины и ширины, а у квадрата четыре стороны. И помните, периметр складывают, а площадь умножают.", uz: "Demak, perimetr chegara uzunligi, barcha tomonlar yig'indisi. To'rtburchakda bo'y va en yig'indisining ikki barobari, kvadratda esa to'rt tomon olinadi. Va yodda tuting, perimetrni qo'shadilar, yuzani ko'paytiradilar." }
+    audio: { ru: "Итак, периметр это длина границы, сумма всех сторон. У прямоугольника берут две суммы длины и ширины, а у квадрата четыре стороны. И помни, периметр складывают, а площадь умножают.", uz: "Demak, perimetr chegara uzunligi, barcha tomonlar yig'indisi. To'g'ri to'rtburchakda bo'y va en yig'indisining ikki barobari, kvadratda esa to'rt tomon olinadi. Va yodda tuting, perimetrni qo'shadilar, yuzani ko'paytiradilar." }
   }
 };
 const shuffleMC = (c, options, correctIdx, order) => {
@@ -1126,7 +1126,7 @@ const FloatFrames = () => (
 const AnimRope = () => (<div className="fa-rp" aria-hidden="true"><span className="fa-rp-cord"><i/><i/><i/><i/></span></div>);
 // Tabiat: asalari oltiburchagi — kam perimetr (CSS pulse loop).
 const AnimHex = () => (<div className="fa-hx" aria-hidden="true"><span className="fa-hx-cell fa-hx-a"/><span className="fa-hx-cell fa-hx-b"/></div>);
-// IT: marching ants — punktir to'rtburchak chegara bo'ylab yuguradi (SVG stroke-dashoffset loop).
+// IT: marching ants — punktir to'g'ri to'rtburchak chegara bo'ylab yuguradi (SVG stroke-dashoffset loop).
 const AnimAnts = () => (
   <div className="fa-ma" aria-hidden="true">
     <svg viewBox="0 0 60 44" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
@@ -1136,7 +1136,7 @@ const AnimAnts = () => (
 );
 
 // ============================================================
-// VIZUALIZATOR — BorderWalk: to'rtburchak chegarasi + uzluksiz ko'k iz (trace)
+// VIZUALIZATOR — BorderWalk: to'g'ri to'rtburchak chegarasi + uzluksiz ko'k iz (trace)
 // a,b — tomonlar; lit — yoritilgan tomonlar soni (0..4); compact — kichik variant.
 // ============================================================
 const SIDE_ORDER = ['top', 'right', 'bottom', 'left'];
@@ -2275,7 +2275,7 @@ html, body { margin: 0; padding: 0; }
 }
 
 /* ============================================================ */
-/* MATH geom_5_01: BorderWalk — to'rtburchak chegarasi + uzluksiz ko'k iz (trace, chumolisiz). */
+/* MATH geom_5_01: BorderWalk — to'g'ri to'rtburchak chegarasi + uzluksiz ko'k iz (trace, chumolisiz). */
 /* ============================================================ */
 .bw-host { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: clamp(20px, 4.5vw, 32px); }
 .bw-host.bw-glow .bw-rect { animation: bwGlow 0.8s ease; }

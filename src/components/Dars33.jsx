@@ -785,7 +785,7 @@ const CONTENT = {
     opt1: { ru: 'Нет, это просто предметы', uz: "Yo'q, bular shunchaki narsalar" },
     opt2: { ru: 'Не знаю', uz: "Bilmayman" },
     reveal: { ru: 'Да! Геометрия — наука о формах и их свойствах. Сегодня знакомимся с линией, углом и окружностью.', uz: "Ha! Geometriya — shakllar va ularning xossalarini o'rganadigan fan. Bugun chiziq, burchak va aylana bilan tanishamiz." },
-    audio: { ru: "Посмотрите вокруг: колесо круглое, угол книги острый, нить прямая. У каждой формы есть своё имя в геометрии. Узнаем их.", uz: "Atrofga qarang: g'ildirak dumaloq, kitob burchagi o'tkir, ip to'g'ri. Har bir shaklning geometriyada o'z nomi bor. Ularni bilib olamiz." }
+    audio: { ru: "Посмотри вокруг: колесо круглое, угол книги острый, нить прямая. У каждой формы есть своё имя в геометрии. Узнаем их.", uz: "Atrofga qarang: g'ildirak dumaloq, kitob burchagi o'tkir, ip to'g'ri. Har bir shaklning geometriyada o'z nomi bor. Ularni bilib olamiz." }
   },
 
   // ===== s1 WARM-UP — kesma (step: ikki nuqta -> tutashtirish -> kesma). Savolsiz, bosqichli izoh tepada yig'iladi. =====
@@ -841,32 +841,32 @@ const CONTENT = {
   s3: {
     eyebrow: { ru: 'Угол', uz: "Burchak" },
     title: { ru: 'Угол — это раскрытие', uz: "Burchak — bu ochilish" },
-    lead: { ru: 'Угол — два луча из одной точки. Меняйте раскрытие.', uz: "Burchak — bir nuqtadan ikki nur. Ochilishni o'zgartiring." },
+    lead: { ru: 'Угол — два луча из одной точки. Меняй раскрытие.', uz: "Burchak — bir nuqtadan ikki nur. Ochilishni o'zgartiring." },
     slider_label: { ru: 'Раскрытие', uz: "Ochilish" },
     note_acute: { ru: 'Меньше прямого угла.', uz: "To'g'ri burchakdan kichik." },
     note_right: { ru: 'Прямой угол — 90 градусов.', uz: "To'g'ri burchak — to'qson daraja." },
     note_straight: { ru: 'Развёрнутый угол — 180 градусов, прямая линия.', uz: "Yoyiq burchak — bir yuz sakson daraja, to'g'ri chiziq." },
     note_obtuse: { ru: 'Больше прямого угла.', uz: "To'g'ri burchakdan katta." },
     warn: { ru: 'Длина сторон не меняет угол — важно только раскрытие.', uz: "Tomonlar uzunligi burchakni o'zgartirmaydi — faqat ochilish muhim." },
-    audio: { ru: "Угол — это два луча, выходящие из одной точки, его вершины. Важно, насколько они раскрыты, а не какой длины стороны. Двигайте и смотрите: при девяноста градусах угол прямой, при ста восьмидесяти — развёрнутый.", uz: "Burchak — bir nuqtadan, uning uchidan chiqqan ikki nur. Muhimi — ular qanchalik ochilgani, tomonlar uzunligi emas. Suring va qarang: to'qson darajada burchak to'g'ri, bir yuz saksonda — yoyiq." }
+    audio: { ru: "Угол — это два луча, выходящие из одной точки, его вершины. Важно, насколько они раскрыты, а не какой длины стороны. Двигай и смотри: при девяноста градусах угол прямой, при ста восьмидесяти — развёрнутый.", uz: "Burchak — bir nuqtadan, uning uchidan chiqqan ikki nur. Muhimi — ular qanchalik ochilgani, tomonlar uzunligi emas. Suring va qarang: to'qson darajada burchak to'g'ri, bir yuz saksonda — yoyiq." }
   },
 
   // ===== s4 EXPLORATION — aylana (slider radius) =====
   s4: {
     eyebrow: { ru: 'Окружность', uz: "Aylana" },
     title: { ru: 'Центр, радиус, диаметр', uz: "Markaz, radius, diametr" },
-    lead: { ru: 'Двигайте радиус и смотрите на диаметр.', uz: "Radiusni suring va diametrga qarang." },
+    lead: { ru: 'Двигай радиус и смотри на диаметр.', uz: "Radiusni suring va diametrga qarang." },
     slider_label: { ru: 'Радиус', uz: "Radius" },
     line_def: { ru: 'Радиус — от центра до края. Диаметр — через центр, от края до края.', uz: "Radius — markazdan chetgacha. Diametr — markazdan o'tib, chetdan chetgacha." },
     line_rel: { ru: 'Диаметр всегда в два раза больше радиуса.', uz: "Diametr har doim radiusdan ikki barobar katta." },
-    audio: { ru: "Окружность — это линия, все точки которой одинаково удалены от центра. Радиус идёт от центра до края, а диаметр проходит через центр и равен двум радиусам. Двигайте радиус и проверьте.", uz: "Aylana — barcha nuqtalari markazdan bir xil uzoqlikdagi chiziq. Radius markazdan chetgacha boradi, diametr esa markazdan o'tib, ikki radiusga teng bo'ladi. Radiusni suring va tekshiring." }
+    audio: { ru: "Окружность — это линия, все точки которой одинаково удалены от центра. Радиус идёт от центра до края, а диаметр проходит через центр и равен двум радиусам. Двигай радиус и проверь.", uz: "Aylana — barcha nuqtalari markazdan bir xil uzoqlikdagi chiziq. Radius markazdan chetgacha boradi, diametr esa markazdan o'tib, ikki radiusga teng bo'ladi. Radiusni suring va tekshiring." }
   },
 
   // ===== s5 RULE 1 — chiziqlar + burchak =====
   s5: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     heading: { ru: 'Линии и угол', uz: "Chiziqlar va burchak" },
-    rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
     rule_1: { ru: 'Отрезок — два конца. Луч — один конец. Прямая — концов нет.', uz: "Kesma — ikki uchi. Nur — bir uchi. To'g'ri chiziq — uchi yo'q." },
     rule_2: { ru: 'Угол — два луча из одной вершины.', uz: "Burchak — bir uchdan chiqqan ikki nur." },
     rule_3: { ru: 'Прямой угол — 90 градусов. Развёрнутый — 180 градусов.', uz: "To'g'ri burchak — to'qson daraja. Yoyiq — bir yuz sakson daraja." },
@@ -881,7 +881,7 @@ const CONTENT = {
     rule_1: { ru: 'Окружность — линия вокруг центра; круг — это окружность с её внутренностью.', uz: "Aylana — markaz atrofidagi chiziq; doira — aylana va uning ichi." },
     rule_2: { ru: 'Радиус — от центра до края. Диаметр = 2 радиуса.', uz: "Radius — markazdan chetgacha. Diametr = 2 radius." },
     warn_1: { ru: 'Угол с длинными сторонами НЕ больше угла с короткими, если раскрытие одинаково.', uz: "Uzun tomonli burchak qisqa tomonlidan KATTA emas, agar ochilish bir xil bo'lsa." },
-    audio: { ru: "Окружность — это линия вокруг центра, а круг — ещё и всё, что внутри. Радиус идёт до края, диаметр вдвое больше. И помните: длинные стороны не делают угол больше — смотрите только на раскрытие.", uz: "Aylana — markaz atrofidagi chiziq, doira esa — ichidagi hamma narsa ham. Radius chetgacha boradi, diametr ikki barobar. Va yodda tuting: uzun tomonlar burchakni katta qilmaydi — faqat ochilishga qarang." }
+    audio: { ru: "Окружность — это линия вокруг центра, а круг — ещё и всё, что внутри. Радиус идёт до края, диаметр вдвое больше. И помни: длинные стороны не делают угол больше — смотри только на раскрытие.", uz: "Aylana — markaz atrofidagi chiziq, doira esa — ichidagi hamma narsa ham. Radius chetgacha boradi, diametr ikki barobar. Va yodda tuting: uzun tomonlar burchakni katta qilmaydi — faqat ochilishga qarang." }
   },
 
   // ===== s7 TEST MC (figure) — qaysi nur? (M2) =====
@@ -896,15 +896,15 @@ const CONTENT = {
     wrong_0: { ru: 'У отрезка два конца. А здесь один конец и стрелка.', uz: "Kesmaning ikki uchi bor. Bu yerda bir uchi va o'q." },
     wrong_2: { ru: 'У прямой нет концов, стрелки с обеих сторон. А здесь один конец.', uz: "To'g'ri chiziqning uchi yo'q, ikki tomonda o'q. Bu yerda bir uchi bor." },
     audio: {
-      intro: { ru: "Посмотрите на линию: один конец, а в другую сторону стрелка. Как она называется?", uz: "Chiziqqa qarang: bir uchi, ikkinchi tomonda o'q. U qanday ataladi?" },
+      intro: { ru: "Посмотри на линию: один конец, а в другую сторону стрелка. Как она называется?", uz: "Chiziqqa qarang: bir uchi, ikkinchi tomonda o'q. U qanday ataladi?" },
       on_correct: { ru: "Верно, это луч.", uz: "To'g'ri, bu nur." },
-      on_wrong: { ru: "Считайте концы: у луча один конец.", uz: "Uchlarni sanang: nurning bir uchi bor." }
+      on_wrong: { ru: "Считай концы: у луча один конец.", uz: "Uchlarni sanang: nurning bir uchi bor." }
     }
   },
 
   // ===== s8 TEST MC (figure) — qaysi burchak katta? (M1) [FAKT to'g'ri burchak] =====
   s8: {
-    eyebrow: { ru: 'Сравните углы', uz: "Burchaklarni solishtiring" },
+    eyebrow: { ru: 'Сравни углы', uz: "Burchaklarni solishtiring" },
     title: { ru: 'Какой угол больше?', uz: "Qaysi burchak katta?" },
     question: { ru: 'У угла А стороны длиннее, у угла Б — короче. Какой угол больше?', uz: "A burchakning tomonlari uzun, B burchakniki qisqa. Qaysi burchak katta?" },
     opt0: { ru: 'Угол А', uz: "A burchak" },
@@ -912,12 +912,12 @@ const CONTENT = {
     opt2: { ru: 'Они равны', uz: "Ular teng" },
     correct_text: { ru: 'Верно: у Б раскрытие больше. Длина сторон не важна — важно раскрытие.', uz: "To'g'ri: B ning ochilishi katta. Tomon uzunligi muhim emas — ochilish muhim." },
     wrong_0: { ru: 'Стороны длиннее, но раскрытие меньше. Угол — это раскрытие.', uz: "Tomonlar uzun, lekin ochilishi kichik. Burchak — bu ochilish." },
-    wrong_2: { ru: 'Раскрытие у них разное, посмотрите внимательно.', uz: "Ularning ochilishi har xil, diqqat bilan qarang." },
+    wrong_2: { ru: 'Раскрытие у них разное, посмотри внимательно.', uz: "Ularning ochilishi har xil, diqqat bilan qarang." },
     fact: { ru: 'Прямой угол в 90 градусов нужен в стройке: чтобы стены стояли ровно, их углы проверяют угольником.', uz: "To'qson darajali to'g'ri burchak qurilishda kerak: devorlar tik turishi uchun ularning burchaklari go'niya bilan tekshiriladi." },
     audio: {
-      intro: { ru: "У угла А стороны длиннее, у угла Б короче. Не спешите: какой угол больше?", uz: "A burchakning tomonlari uzunroq, B niki qisqaroq. Shoshilmang: qaysi burchak katta?" },
+      intro: { ru: "У угла А стороны длиннее, у угла Б короче. Не спеши: какой угол больше?", uz: "A burchakning tomonlari uzunroq, B niki qisqaroq. Shoshilmang: qaysi burchak katta?" },
       on_correct: { ru: "Верно, угол Б. А прямой угол очень важен в стройке, чтобы стены стояли ровно.", uz: "To'g'ri, B burchak. To'g'ri burchak esa qurilishda juda muhim, devorlar tik turishi uchun." },
-      on_wrong: { ru: "Смотрите на раскрытие, а не на длину сторон.", uz: "Tomon uzunligiga emas, ochilishga qarang." }
+      on_wrong: { ru: "Смотри на раскрытие, а не на длину сторон.", uz: "Tomon uzunligiga emas, ochilishga qarang." }
     }
   },
 
@@ -954,19 +954,19 @@ const CONTENT = {
 
   // ===== s11 TEST tasniflash (tap) — to'g'ri burchak / emas [FAKT geometriya] =====
   s11: {
-    eyebrow: { ru: 'Разложите по группам', uz: "Guruhlarga ajrating" },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
     title: { ru: 'Прямой угол или нет?', uz: "To'g'ri burchakmi yoki yo'q?" },
-    lead: { ru: 'Поставьте каждый угол в свою группу.', uz: "Har bir burchakni o'z guruhiga joylang." },
+    lead: { ru: 'Поставь каждый угол в свою группу.', uz: "Har bir burchakni o'z guruhiga joylang." },
     bin_sq: { ru: 'Прямой угол', uz: "To'g'ri burchak" },
     bin_cu: { ru: 'Не прямой', uz: "To'g'ri emas" },
-    tap_prompt: { ru: 'Сначала выберите угол', uz: "Avval burchakni tanlang" },
+    tap_prompt: { ru: 'Сначала выбери угол', uz: "Avval burchakni tanlang" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint_wrong: { ru: 'Прямой угол — ровно 90 градусов, как угол квадрата.', uz: "To'g'ri burchak — roppa-rosa to'qson daraja, kvadrat burchagidek." },
     correct_text: { ru: 'Верно! Прямой угол — это 90 градусов.', uz: "To'g'ri! To'g'ri burchak — bu to'qson daraja." },
     fact: { ru: 'Слово геометрия греческое: гео — земля, метрия — измерение. Всё началось с измерения земельных участков.', uz: "Geometriya so'zi yunoncha: geo — yer, metriya — o'lchash. Hammasi yer maydonlarini o'lchashdan boshlangan." },
     audio: {
-      intro: { ru: "Поставьте углы по группам: где прямой угол, а где нет. Прямой — это уголок квадрата.", uz: "Burchaklarni guruhlarga joylang: qaysi biri to'g'ri burchak, qaysi biri yo'q. To'g'ri — kvadrat burchagi kabi." },
-      on_correct: { ru: "Верно. Прямой угол всегда 90 градусов.", uz: "To'g'ri. To'g'ri burchak har doim to'qson daraja." },
+      intro: { ru: "Поставь углы по группам: где прямой угол, а где нет. Прямой — это уголок квадрата.", uz: "Burchaklarni guruhlarga joylang: qaysi biri to'g'ri burchak, qaysi biri yo'q. To'g'ri — kvadrat burchagi kabi." },
+      on_correct: { ru: "Верно, прямой угол всегда девяносто градусов. А слово геометрия пришло из греческого. Гео это земля, а метрия это измерение. Всё началось с измерения земли.", uz: "To'g'ri, to'g'ri burchak har doim to'qson daraja. Geometriya so'zi esa yunonchadan kelgan. Geo yer degani, metriya esa o'lchash. Hammasi yerni o'lchashdan boshlangan." },
       on_wrong: { ru: "Прямой угол похож на уголок квадрата.", uz: "To'g'ri burchak kvadrat burchagiga o'xshaydi." }
     }
   },
@@ -979,7 +979,7 @@ const CONTENT = {
     note: { ru: 'Чему равен радиус? Вспомним связь диаметра и радиуса.', uz: "Radius necha? Diametr va radius bog'lanishini eslaymiz." },
     hint_calc: { ru: 'Диаметр — это два радиуса. Значит радиус — половина диаметра.', uz: "Diametr — bu ikki radius. Demak radius — diametrning yarmi." },
     btn_help: { ru: 'Помочь Ойше', uz: "Oyshaga yordam berish" },
-    audio: { ru: "У колеса Ойши диаметр шестьдесят сантиметров. Она хочет узнать радиус. Вспомните, как связаны диаметр и радиус.", uz: "Oyshaning g'ildiragi diametri oltmish santimetr. U radiusni bilmoqchi. Diametr va radius qanday bog'langanini eslang." }
+    audio: { ru: "У колеса Ойши диаметр шестьдесят сантиметров. Она хочет узнать радиус. Вспомни, как связаны диаметр и радиус.", uz: "Oyshaning g'ildiragi diametri oltmish santimetr. U radiusni bilmoqchi. Diametr va radius qanday bog'langanini eslang." }
   },
 
   // ===== s13 CASE FINAL MC — diametr 60 -> radius 30 [FAKT pi] =====
