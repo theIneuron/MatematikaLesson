@@ -1580,9 +1580,9 @@ const W_B1 = {
 };
 const W_B2 = {
   eyebrow: { ru: 'Итог', uz: 'Yakun' },
-  title: { ru: 'Проверь себя', uz: "O'zingni tekshir" },
-  lead: { ru: 'Реши задания одно за другим.', uz: "Topshiriqlarni birin-ketin yech." },
-  done_text: { ru: 'Отлично! Ты сравниваешь, упорядочиваешь и находишь противоположные числа.', uz: "Ajoyib! Sonlarni taqqoslaysan, tartiblaysan va qarama-qarshisini topasan." }
+  title: { ru: 'Проверь себя', uz: "O'zingizni tekshiring" },
+  lead: { ru: 'Реши задания одно за другим.', uz: "Topshiriqlarni birin-ketin yeching." },
+  done_text: { ru: 'Отлично! Ты сравниваешь, упорядочиваешь и находишь противоположные числа.', uz: "Ajoyib! Sonlarni taqqoslaysiz, tartiblaysiz va qarama-qarshisini topasiz." }
 };
 // Yangi qiyin taqqoslash misollari (draft — UZ tasdiq kutadi). c-shape: lead + opt + wrong_N + audio.
 const NH1 = {
@@ -1590,28 +1590,28 @@ const NH1 = {
   opt0: { ru: '−8', uz: '−8' }, opt1: { ru: '−15', uz: '−15' }, opt2: { ru: 'Они равны', uz: 'Ular teng' },
   wrong_1: { ru: '−15 кажется больше, ведь 15 больше 8. Но он левее, значит меньше. Больше −8.', uz: "−15 katta tuyuladi, axir 15, 8 dan katta. Lekin u chaproqda, demak kichik. Katta — −8." },
   wrong_2: { ru: 'Они не равны: −8 правее −15.', uz: "Ular teng emas: −8, −15 dan o'ngroqda." },
-  audio: { intro: { ru: 'Что больше: минус пятнадцать или минус восемь? Выбери ответ.', uz: "Qaysi katta: minus o'n besh yoki minus sakkiz? Javobni tanla." }, on_correct: { ru: 'Верно. Минус восемь больше.', uz: "To'g'ri. Minus sakkiz katta." }, on_wrong: { ru: 'Большая цифра не делает минус больше. Кто правее, тот больше.', uz: "Katta raqam minusni katta qilmaydi. Kim o'ngroqda, o'sha katta." } }
+  audio: { intro: { ru: 'Что больше: минус пятнадцать или минус восемь? Выбери ответ.', uz: "Qaysi katta: minus o'n besh yoki minus sakkiz? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус восемь больше.', uz: "To'g'ri. Minus sakkiz katta." }, on_wrong: { ru: 'Большая цифра не делает минус больше. Кто правее, тот больше.', uz: "Katta raqam minusni katta qilmaydi. Kim o'ngroqda, o'sha katta." } }
 };
 const NH2 = {
   lead: { ru: 'Чему равно противоположное числу −7?', uz: "−7 ning qarama-qarshisi nechaga teng?" },
   opt0: { ru: '7', uz: '7' }, opt1: { ru: '−7', uz: '−7' }, opt2: { ru: '0', uz: '0' },
   wrong_1: { ru: 'Противоположное меняет знак. У −7 противоположное это +7.', uz: "Qarama-qarshi ishorani almashtiradi. −7 ning qarama-qarshisi +7." },
   wrong_2: { ru: 'Противоположное к −7 это не ноль, а 7 — на той же высоте справа от нуля.', uz: "−7 ning qarama-qarshisi nol emas, balki 7 — noldan o'ng tomonda, xuddi shu masofada." },
-  audio: { intro: { ru: 'Чему равно число, противоположное минус семи? Выбери ответ.', uz: "Minus yettiga qarama-qarshi son nechaga teng? Javobni tanla." }, on_correct: { ru: 'Верно. Противоположное минус семи это семь.', uz: "To'g'ri. Minus yettining qarama-qarshisi yetti." }, on_wrong: { ru: 'Противоположное меняет только знак.', uz: "Qarama-qarshi faqat ishorani almashtiradi." } }
+  audio: { intro: { ru: 'Чему равно число, противоположное минус семи? Выбери ответ.', uz: "Minus yettiga qarama-qarshi son nechaga teng? Javobni tanlang." }, on_correct: { ru: 'Верно. Противоположное минус семи это семь.', uz: "To'g'ri. Minus yettining qarama-qarshisi yetti." }, on_wrong: { ru: 'Противоположное меняет только знак.', uz: "Qarama-qarshi faqat ishorani almashtiradi." } }
 };
 const NH3 = {
   lead: { ru: 'Что больше: −20 или −19?', uz: "Qaysi katta: −20 yoki −19?" },
   opt0: { ru: '−19', uz: '−19' }, opt1: { ru: '−20', uz: '−20' }, opt2: { ru: 'Они равны', uz: 'Ular teng' },
   wrong_1: { ru: '−20 левее −19 на один шаг, значит меньше. Больше −19.', uz: "−20, −19 dan bir qadam chaproqda, demak kichik. Katta — −19." },
   wrong_2: { ru: 'Числа близкие, но не равные. Больше −19.', uz: "Sonlar yaqin, lekin teng emas. Katta — −19." },
-  audio: { intro: { ru: 'Что больше: минус двадцать или минус девятнадцать? Выбери ответ.', uz: "Qaysi katta: minus yigirma yoki minus o'n to'qqiz? Javobni tanla." }, on_correct: { ru: 'Верно. Минус девятнадцать больше.', uz: "To'g'ri. Minus o'n to'qqiz katta." }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "O'qda kim o'ngroqda, o'sha katta." } }
+  audio: { intro: { ru: 'Что больше: минус двадцать или минус девятнадцать? Выбери ответ.', uz: "Qaysi katta: minus yigirma yoki minus o'n to'qqiz? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус девятнадцать больше.', uz: "To'g'ri. Minus o'n to'qqiz katta." }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "O'qda kim o'ngroqda, o'sha katta." } }
 };
 const NH4 = {
   lead: { ru: 'Какое число самое маленькое: −2, −11 или −7?', uz: "Qaysi son eng kichik: −2, −11 yoki −7?" },
   opt0: { ru: '−11', uz: '−11' }, opt1: { ru: '−2', uz: '−2' }, opt2: { ru: '−7', uz: '−7' },
   wrong_1: { ru: '−2 правее всех, значит самое большое, а не маленькое. Меньше всех −11.', uz: "−2 hammadan o'ngda, demak eng katta, kichik emas. Eng kichigi — −11." },
   wrong_2: { ru: '−7 левее −2, но −11 ещё левее. Самое маленькое −11.', uz: "−7, −2 dan chapda, lekin −11 yanada chapda. Eng kichigi — −11." },
-  audio: { intro: { ru: 'Какое число самое маленькое: минус два, минус одиннадцать или минус семь? Выбери ответ.', uz: "Qaysi son eng kichik: minus ikki, minus o'n bir yoki minus yetti? Javobni tanla." }, on_correct: { ru: 'Верно. Минус одиннадцать самое маленькое.', uz: "To'g'ri. Minus o'n bir eng kichik." }, on_wrong: { ru: 'Кто левее на прямой, тот меньше.', uz: "O'qda kim chaproqda, o'sha kichik." } }
+  audio: { intro: { ru: 'Какое число самое маленькое: минус два, минус одиннадцать или минус семь? Выбери ответ.', uz: "Qaysi son eng kichik: minus ikki, minus o'n bir yoki minus yetti? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус одиннадцать самое маленькое.', uz: "To'g'ri. Minus o'n bir eng kichik." }, on_wrong: { ru: 'Кто левее на прямой, тот меньше.', uz: "O'qda kim chaproqda, o'sha kichik." } }
 };
 const B1_ITEMS = [
   { type: 'input', c: CONTENT.s6, answer: -5, coord: { value: 5, value2: -5, mirror: true } },

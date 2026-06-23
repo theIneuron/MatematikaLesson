@@ -996,7 +996,7 @@ const CONTENT = {
 
   // ---- s_seq TEST (SeqMC): 5 примеров — поставь знак >, <, = (сложнее) ----
   s_seq: {
-    eyebrow: { ru: 'Тренировка · поставь знак', uz: "Mashq · belgi qo'y" },
+    eyebrow: { ru: 'Тренировка · поставь знак', uz: "Mashq · belgi qo'ying" },
     title: { ru: 'Поставь знак: больше, меньше или равно', uz: "Belgi qo'ying: katta, kichik yoki teng" },
     lead: { ru: 'Пять пар дробей. Знаменатель один — сравни числители и выбери знак.', uz: "Beshta juft kasr. Maxraj bir xil — suratlarni solishtirib, belgini tanlang." },
     bridge: { ru: 'Сравнивать умеем. Теперь — быстро, со знаком.', uz: "Solishtirishni bilamiz. Endi — tez, belgi bilan." },

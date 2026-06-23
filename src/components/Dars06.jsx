@@ -1640,35 +1640,35 @@ const MIX_W = {
   eyebrow: { ru: 'Тренировка', uz: 'Mashq' },
   title: { ru: 'Числа на прямой', uz: "Son o'qida" },
   lead: { ru: 'Несколько разных заданий подряд.', uz: "Bir nechta har xil topshiriq birin-ketin." },
-  done_text: { ru: 'Все верно! Ты читаешь, сравниваешь и отмечаешь числа на прямой.', uz: "Hammasi to'g'ri! Sonlarni o'qda o'qiysan, taqqoslaysan va belgilaysan." }
+  done_text: { ru: 'Все верно! Ты читаешь, сравниваешь и отмечаешь числа на прямой.', uz: "Hammasi to'g'ri! Sonlarni o'qda o'qiysiz, taqqoslaysiz va belgilaysiz." }
 };
 const MIX_ITEMS = [
   { type: 'input', value: -4, answer: -4,
-    lead: { ru: 'Какое число отмечено на прямой? Напиши со знаком.', uz: "O'qda qaysi son belgilangan? Ishorasi bilan yoz." },
-    hint: { ru: 'Отметка слева от нуля — значит минус. Сосчитай шаги влево.', uz: "Belgi noldan chapda — demak minus. Chapga qadamlarni sana." },
-    intro: { ru: 'Какое число отмечено на прямой? Напиши со знаком минус, если оно слева от нуля.', uz: "O'qda qaysi son belgilangan? Agar noldan chapda bo'lsa, minus bilan yoz." },
+    lead: { ru: 'Какое число отмечено на прямой? Напиши со знаком.', uz: "O'qda qaysi son belgilangan? Ishorasi bilan yozing." },
+    hint: { ru: 'Отметка слева от нуля — значит минус. Сосчитай шаги влево.', uz: "Belgi noldan chapda — demak minus. Chapga qadamlarni sanang." },
+    intro: { ru: 'Какое число отмечено на прямой? Напиши со знаком минус, если оно слева от нуля.', uz: "O'qda qaysi son belgilangan? Agar noldan chapda bo'lsa, minus bilan yozing." },
     on_correct: { ru: 'Верно. Минус четыре.', uz: "To'g'ri. Minus to'rt." }, on_wrong: { ru: 'Слева от нуля — это минус.', uz: "Noldan chapda — bu minus." } },
   { type: 'mc', opt0: { ru: '−3', uz: '−3' }, opt1: { ru: '−5', uz: '−5' }, opt2: { ru: 'Они равны', uz: 'Ular teng' }, correct: 0, order: [1, 0, 2],
     lead: { ru: 'Какое число больше: −5 или −3?', uz: "Qaysi son katta: −5 yoki −3?" },
     wrong_1: { ru: '−5 левее, значит меньше. Больше −3.', uz: "−5 chaproqda, demak kichik. Katta — −3." },
     wrong_2: { ru: 'Они разные. Правее — больше, это −3.', uz: "Ular har xil. O'ngroqda — katta, bu −3." },
-    intro: { ru: 'Какое число больше: минус пять или минус три? Выбери ответ.', uz: "Qaysi son katta: minus besh yoki minus uch? Javobni tanla." },
+    intro: { ru: 'Какое число больше: минус пять или минус три? Выбери ответ.', uz: "Qaysi son katta: minus besh yoki minus uch? Javobni tanlang." },
     on_correct: { ru: 'Верно. Минус три больше.', uz: "To'g'ri. Minus uch katta." }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "O'qda kim o'ngroqda, o'sha katta." } },
   { type: 'place', answer: -2, min: -6, max: 6,
-    lead: { ru: 'Отметь на прямой число −2. Нажми на нужное деление.', uz: "O'qda −2 sonini belgila. Kerakli bo'linmani bos." },
-    hint: { ru: 'Отсчитай два шага влево от нуля.', uz: "Noldan chapga ikki qadam sana." },
-    intro: { ru: 'Поставь отметку на число минус два. Нажми на нужное деление прямой.', uz: "Markerni minus ikki soniga qo'y. O'qdagi kerakli bo'linmani bos." },
+    lead: { ru: 'Отметь на прямой число −2. Нажми на нужное деление.', uz: "O'qda −2 sonini belgilang. Kerakli bo'linmani bosing." },
+    hint: { ru: 'Отсчитай два шага влево от нуля.', uz: "Noldan chapga ikki qadam sanang." },
+    intro: { ru: 'Поставь отметку на число минус два. Нажми на нужное деление прямой.', uz: "Markerni minus ikki soniga qo'ying. O'qdagi kerakli bo'linmani bosing." },
     on_correct: { ru: 'Верно. Минус два — два шага влево от нуля.', uz: "To'g'ri. Minus ikki — noldan ikki qadam chapda." }, on_wrong: { ru: 'Это два шага влево от нуля.', uz: "Bu noldan ikki qadam chapda." } },
   { type: 'order', vals: [-5, -1, 3],
-    lead: { ru: 'Расставь от меньшего к большему. Нажимай по порядку.', uz: "Kichikdan kattaga tartibla. Tartib bilan bos." },
-    hint: { ru: 'Левее на прямой — меньше. Начни с самого левого.', uz: "O'qda chaproq — kichik. Eng chapdagidan boshla." },
-    intro: { ru: 'Расставь числа от меньшего к большему. Нажимай их по порядку.', uz: "Sonlarni kichikdan kattaga tartibla. Ularni tartib bilan bos." },
+    lead: { ru: 'Расставь от меньшего к большему. Нажимай по порядку.', uz: "Kichikdan kattaga tartiblang. Tartib bilan bosing." },
+    hint: { ru: 'Левее на прямой — меньше. Начни с самого левого.', uz: "O'qda chaproq — kichik. Eng chapdagidan boshlang." },
+    intro: { ru: 'Расставь числа от меньшего к большему. Нажимай их по порядку.', uz: "Sonlarni kichikdan kattaga tartiblang. Ularni tartib bilan bosing." },
     on_correct: { ru: 'Верно. Минус пять, минус один, три.', uz: "To'g'ri. Minus besh, minus bir, uch." }, on_wrong: { ru: 'Левее на прямой — меньше.', uz: "O'qda chaproq — kichik." } },
   { type: 'mc', opt0: { ru: '−8', uz: '−8' }, opt1: { ru: '−12', uz: '−12' }, opt2: { ru: 'Они равны', uz: 'Ular teng' }, correct: 0, order: [1, 0, 2],
     lead: { ru: 'Какое число больше: −12 или −8?', uz: "Qaysi son katta: −12 yoki −8?" },
     wrong_1: { ru: 'Большая цифра не делает минус больше. −12 левее. Больше −8.', uz: "Katta raqam minusni katta qilmaydi. −12 chaproqda. Katta — −8." },
     wrong_2: { ru: 'Они разные. Правее — больше, это −8.', uz: "Ular har xil. O'ngroqda — katta, bu −8." },
-    intro: { ru: 'Какое число больше: минус двенадцать или минус восемь? Выбери ответ.', uz: "Qaysi son katta: minus o'n ikki yoki minus sakkiz? Javobni tanla." },
+    intro: { ru: 'Какое число больше: минус двенадцать или минус восемь? Выбери ответ.', uz: "Qaysi son katta: minus o'n ikki yoki minus sakkiz? Javobni tanlang." },
     on_correct: { ru: 'Верно. Минус восемь больше.', uz: "To'g'ri. Minus sakkiz katta." }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "O'qda kim o'ngroqda, o'sha katta." } }
 ];
 
@@ -1922,14 +1922,14 @@ const NEW_B2 = {
 const W_BLOCK_A = {
   eyebrow: { ru: 'Тренировка · сравнение', uz: 'Mashq · taqqoslash' },
   title: { ru: 'Сравни числа по очереди', uz: 'Sonlarni navbat bilan taqqosla' },
-  lead: { ru: 'Несколько примеров подряд. Подумай, кто правее на прямой.', uz: "Bir nechta misol birin-ketin. O'qda kim o'ngroqda — o'ylab ko'r." },
+  lead: { ru: 'Несколько примеров подряд. Подумай, кто правее на прямой.', uz: "Bir nechta misol birin-ketin. O'qda kim o'ngroqda — o'ylab ko'ring." },
   done_text: { ru: 'Все верно! Кто правее на прямой, тот больше — даже среди отрицательных.', uz: "Hammasi to'g'ri! O'qda kim o'ngroqda, o'sha katta — manfiylar orasida ham." }
 };
 const W_BLOCK_B = {
   eyebrow: { ru: 'Итог · сравнение', uz: 'Yakun · taqqoslash' },
-  title: { ru: 'Проверь себя', uz: "O'zingni tekshir" },
-  lead: { ru: 'Реши примеры один за другим.', uz: "Misollarni birin-ketin yech." },
-  done_text: { ru: 'Отлично! Ты сравниваешь отрицательные числа по их месту на прямой.', uz: "Ajoyib! Manfiy sonlarni o'qdagi o'rni bo'yicha taqqoslayapsan." }
+  title: { ru: 'Проверь себя', uz: "O'zingizni tekshiring" },
+  lead: { ru: 'Реши примеры один за другим.', uz: "Misollarni birin-ketin yeching." },
+  done_text: { ru: 'Отлично! Ты сравниваешь отрицательные числа по их месту на прямой.', uz: "Ajoyib! Manfiy sonlarni o'qdagi o'rni bo'yicha taqqoslayapsiz." }
 };
 
 // s7 — BLOCK A: ketma-ket taqqoslash misollari (s7 + 2 yangi) + Fakt Tarix

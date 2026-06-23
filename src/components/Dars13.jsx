@@ -1000,7 +1000,7 @@ const CONTENT = {
 
   // ---- s_seq TEST (SeqMC): 5 примеров — поставь знак, одинаковый числитель (bias-trap) ----
   s_seq: {
-    eyebrow: { ru: 'Тренировка · поставь знак', uz: "Mashq · belgi qo'y" },
+    eyebrow: { ru: 'Тренировка · поставь знак', uz: "Mashq · belgi qo'ying" },
     title: { ru: 'Поставь знак: больше, меньше или равно', uz: "Belgi qo'ying: katta, kichik yoki teng" },
     lead: { ru: 'Числитель в паре одинаковый. Числа будут расти: одна цифра, две, три, потом четыре. Правило одно: больше знаменатель — меньше дробь.', uz: "Juftda surat bir xil. Sonlar o'sib boradi: bir xonali, ikki, uch, keyin to'rt. Qoida bitta: maxraj katta — kasr kichik." },
     bridge: { ru: 'Ловушку знаем. Теперь — со знаком, и числа будут расти.', uz: "Tuzoqni bilamiz. Endi — belgi bilan, sonlar esa o'sib boradi." },
@@ -1101,7 +1101,7 @@ const CONTENT = {
 
   // ---- s10 TEST (error-spotting): какое сравнение НЕВЕРНО (correct old idx 2) ----
   s10: {
-    eyebrow: { ru: 'Проверка · найди ошибку', uz: "Tekshiruv · xatoni top" },
+    eyebrow: { ru: 'Проверка · найди ошибку', uz: "Tekshiruv · xatoni toping" },
     label: { ru: 'Найди неверное', uz: "Noto'g'risini toping" },
     title: { ru: 'Одно сравнение неверно', uz: "Bitta solishtirish noto'g'ri" },
     question: { ru: 'Три сравнения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Uchta solishtirish to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?" },

@@ -1018,7 +1018,7 @@ const CONTENT = {
 
   // ---- s_seq TEST (SeqMC): 5 примеров — запиши деление дробью (порядок важен; сложнее) ----
   s_seq: {
-    eyebrow: { ru: 'Тренировка · запиши дробью', uz: "Mashq · kasr bilan yoz" },
+    eyebrow: { ru: 'Тренировка · запиши дробью', uz: "Mashq · kasr bilan yozing" },
     title: { ru: 'Запиши деление дробью', uz: "Bo'lishni kasr bilan yozing" },
     lead: { ru: 'Пять делений. Сверху — что делим, снизу — на сколько. Порядок важен!', uz: "Beshta bo'lish. Yuqorida — nimani bo'lamiz, pastda — nechtaga. Tartib muhim!" },
     bridge: { ru: 'Правило знаем. Теперь быстро запишем пять делений дробью.', uz: "Qoidani bilamiz. Endi beshta bo'lishni tez kasr bilan yozamiz." },

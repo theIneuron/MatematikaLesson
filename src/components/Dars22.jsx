@@ -882,7 +882,7 @@ const CONTENT = {
     title: { ru: 'Собери перевод перетаскиванием', uz: "O'tkazishni sudrab yig'ing" },
     lead: { ru: 'Переведи 2 3/5 в неправильную дробь за два шага. Перетащи (или нажми) числа в клетки.', uz: "2 3/5 ni noto'g'ri kasrga ikki qadamda o'tkazing. Sonlarni kataklarga sudrang yoki bosing." },
     lbl_mul: { ru: '1-шаг · целое × знаменатель', uz: "1-qadam · butun × maxraj" },
-    lbl_add: { ru: '2-шаг · прибавь числитель', uz: "2-qadam · suratni qo'sh" },
+    lbl_add: { ru: '2-шаг · прибавь числитель', uz: "2-qadam · suratni qo'shing" },
     goal_lbl: { ru: 'Цель', uz: "Maqsad" },
     tray_label: { ru: 'Числа', uz: "Sonlar" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },

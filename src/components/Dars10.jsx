@@ -926,7 +926,7 @@ const CONTENT = {
 
   // ---- s4 TEST (tap-on-line, ketma-ket): поставь точку — 5 примеров от простого к сложному ----
   s4: {
-    eyebrow: { ru: 'Тренировка · поставь точку', uz: "Mashq · nuqta qo'y" },
+    eyebrow: { ru: 'Тренировка · поставь точку', uz: "Mashq · nuqta qo'ying" },
     bridge: { ru: 'Правило знаем — теперь поставь точки сам, от простого к сложному.', uz: "Qoidani bilamiz — endi nuqtalarni o'zingiz qo'ying, osondan qiyinga." },
     title: { ru: 'Поставь точку на прямой', uz: "Nuqtani o'qqa qo'ying" },
     lead: { ru: 'Пять дробей по очереди. Нажми метку, где стоит дробь. От простого к сложному.', uz: "Beshta kasr navbatma-navbat. Kasr turgan belgini bosing. Osondan qiyinga." },

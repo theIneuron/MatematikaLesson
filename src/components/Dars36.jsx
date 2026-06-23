@@ -925,7 +925,7 @@ const CONTENT = {
         audio_ok: { ru: "Верно, двенадцать. Шесть на четыре, потом половина.", uz: "To'g'ri, o'n ikki. Olti ko'paytiruv to'rt, keyin yarmi." } },
       { kind: 'num', dec: true, base: 5, height: 3, answer: 7.5,
         q: { ru: 'Основание 5, высота 3. Посчитай площадь сам — может получиться дробь.', uz: "Asos 5, balandlik 3. Yuzasini o'zingiz hisoblang — kasr chiqishi mumkin." },
-        hint: { ru: 'Пять умножить на три, потом половина. Ответ может быть с запятой.', uz: "Beshni uchga ko'paytir, keyin yarmini. Javob vergulli bo'lishi mumkin." },
+        hint: { ru: 'Пять умножить на три, потом половина. Ответ может быть с запятой.', uz: "Beshni uchga ko'paytiring, keyin yarmini. Javob vergulli bo'lishi mumkin." },
         audio_q: { ru: "Второй вопрос. Основание пять, высота три. Посчитай площадь сам, ответ может быть дробным.", uz: "Ikkinchi savol. Asos besh, balandlik uch. Yuzasini o'zingiz hisoblang, javob kasrli bo'lishi mumkin." },
         audio_ok: { ru: "Верно, семь целых пять десятых. Пять на три это пятнадцать, а половина это семь с половиной.", uz: "To'g'ri, yetti butun o'ndan besh. Beshni uchga ko'paytirsak o'n besh, yarmi esa yetti yarim." } },
       { kind: 'choice',
@@ -935,7 +935,7 @@ const CONTENT = {
         audio_q: { ru: "Третий вопрос. Верно ли, что у треугольника с основанием шесть и высотой четыре площадь равна двадцати четырём?", uz: "Uchinchi savol. Asosi olti, balandligi to'rt uchburchakning yuzasi yigirma to'rt, to'g'rimi?" },
         audio_ok: { ru: "Правильно, это неверно. Двадцать четыре это прямоугольник, а у треугольника половина, двенадцать.", uz: "To'g'ri javob, bu noto'g'ri. Yigirma to'rt — bu to'rtburchak, uchburchakda esa yarmi, o'n ikki." } },
       { kind: 'order',
-        q: { ru: 'Расставь шаги по порядку: как найти площадь треугольника?', uz: "Qadamlarni tartibga sol: uchburchak yuzasini qanday topamiz?" },
+        q: { ru: 'Расставь шаги по порядку: как найти площадь треугольника?', uz: "Qadamlarni tartibga soling: uchburchak yuzasini qanday topamiz?" },
         steps: [
           { ru: 'Умножить основание на высоту', uz: "Asosni balandlikka ko'paytirish" },
           { ru: 'Разделить результат на два', uz: "Natijani ikkiga bo'lish" },
@@ -943,7 +943,7 @@ const CONTENT = {
         ],
         shuffle: [1, 2, 0],
         hint: { ru: 'Сначала умножают стороны, и только потом делят пополам.', uz: "Avval tomonlarni ko'paytiradilar, keyin yarmiga bo'ladilar." },
-        audio_q: { ru: "Четвёртый вопрос. Расставь по порядку шаги: как найти площадь треугольника?", uz: "To'rtinchi savol. Qadamlarni tartibga sol: uchburchak yuzasini qanday topamiz?" },
+        audio_q: { ru: "Четвёртый вопрос. Расставь по порядку шаги: как найти площадь треугольника?", uz: "To'rtinchi savol. Qadamlarni tartibga soling: uchburchak yuzasini qanday topamiz?" },
         audio_ok: { ru: "Верно. Сначала умножить основание на высоту, потом разделить пополам.", uz: "To'g'ri. Avval asosni balandlikka ko'paytirish, keyin yarmiga bo'lish." } }
     ],
     done_label: { ru: 'Вопрос', uz: "Savol" },

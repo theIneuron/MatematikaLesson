@@ -978,7 +978,7 @@ const CONTENT = {
     lead: { ru: 'Часть всюду 12, но процент разный. В какую группу — целое больше 60 или нет?', uz: "Qism hamma joyda 12, lekin foiz har xil. Qaysi guruhga — butun 60 dan katta yoki yo'q?" },
     bin_sq: { ru: 'Целое 60 и меньше', uz: "Butun 60 va undan kichik" },
     bin_cu: { ru: 'Целое больше 60', uz: "Butun 60 dan katta" },
-    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bos." },
+    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bosing." },
     done_text: { ru: 'Готово! Чем меньше процент, тем больше целое.', uz: "Tayyor! Foiz qancha kichik bo'lsa, butun shuncha katta." },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint_wrong: { ru: 'Подумайте: при меньшем проценте целое больше. Разделите 12 на процент, умножьте на сто.', uz: "O'ylang: foiz kichikroq bo'lsa butun kattaroq. 12 ni foizga bo'ling, yuzga ko'paytiring." },

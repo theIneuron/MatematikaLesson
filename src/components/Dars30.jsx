@@ -979,11 +979,11 @@ const CONTENT = {
     lead: { ru: 'Одно число прячется в разных одеждах. Поставь каждую карточку в свою группу.', uz: "Bitta son har xil kiyimda yashirinadi. Har kartani o'z guruhiga joylang." },
     bin_sq:  { ru: 'Равно 1/2', uz: "1/2 ga teng" },
     bin_cu:  { ru: 'Не равно 1/2', uz: "1/2 ga teng emas" },
-    ask: { ru: 'Это равно 1/2? Тапни корзину.', uz: "Bu 1/2 ga tengmi? Savatni bos." },
+    ask: { ru: 'Это равно 1/2? Тапни корзину.', uz: "Bu 1/2 ga tengmi? Savatni bosing." },
     hint_wrong: { ru: 'Переведи карточку в проценты или в сотые. Половина — это пятьдесят процентов.', uz: "Kartani foizga yoki yuzdan ulushga aylantiring. Yarmi — bu ellik foiz." },
     correct_text: { ru: 'Верно. 50%, 0,5, 150/300 и 4/8 — это всё половина. А 5%, 0,05, 2/5 и 9/20 — нет.', uz: "To'g'ri. 50%, 0,5, 150/300 va 4/8 — bularning hammasi yarmi. 5%, 0,05, 2/5 va 9/20 esa — yo'q." },
     audio: {
-      intro: { ru: "Поставь каждую карточку по группам: какая равна одной второй, а какая нет. Тапни корзину.", uz: "Har kartani guruhlarga joylang: qaysi biri ikkidan birga teng, qaysi biri yo'q. Savatni bos." },
+      intro: { ru: "Поставь каждую карточку по группам: какая равна одной второй, а какая нет. Тапни корзину.", uz: "Har kartani guruhlarga joylang: qaysi biri ikkidan birga teng, qaysi biri yo'q. Savatni bosing." },
       on_correct: { ru: "Верно. Пятьдесят процентов, ноль целых пять десятых и сто пятьдесят из трёхсот это одна и та же половина.", uz: "To'g'ri. Ellik foiz, nol butun o'ndan besh va uch yuzdan bir yuz ellik bu o'sha bitta yarmi." },
       on_wrong: { ru: "Переведи карточку в проценты: половина это пятьдесят процентов.", uz: "Kartani foizga aylantiring: yarmi, bu ellik foiz." }
     }
@@ -1030,7 +1030,7 @@ const CONTENT = {
 
   // ===== s11 TEST find-the-wrong — XATO tenglikni top. practice + FAKT batareya. correct = 3/5=35%. =====
   s11: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni top' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
     title: { ru: 'Неверное равенство', uz: "Xato tenglik" },
     question: { ru: 'Одно из равенств ошибочно. Найди именно его.', uz: "Tengliklardan biri xato. Aynan o'shani toping." },
     opt0: { ru: '150/200 = 75%', uz: '150/200 = 75%' },
@@ -1070,7 +1070,7 @@ const CONTENT = {
     wrong_3: { ru: 'Определить можно — для этого и нужны проценты. Приведи обе доли к знаменателю сто.', uz: "Aniqlash mumkin — foiz aynan shuning uchun kerak. Ikkala ulushni yuz maxrajiga keltiring." },
     fact: { ru: 'Тело человека примерно на 60% состоит из воды. Это тоже доля из ста.', uz: "Inson tanasi taxminan 60% suvdan iborat. Bu ham — yuzdan ulush." },
     audio: {
-      intro: { ru: "Хорошо потренировались, теперь жизненная задача. Нафиса смотрит результаты двух классов. Класс семь А набрал сто восемьдесят баллов из двухсот сорока. Класс семь Б набрал двести десять из трёхсот. Баллы большие и разные, поэтому сравним их в процентах. Нажми решить.", uz: "Yaxshi mashq qildik, endi hayotiy masala. Nafisa ikki sinf natijasini ko'radi. Yetti A sinf ikki yuz qirq balldan bir yuz sakson ball to'pladi. Yetti B sinf uch yuzdan ikki yuz o'n ball to'pladi. Ballar katta va har xil, shuning uchun ularni foizda solishtiramiz. Yechishni bos." },
+      intro: { ru: "Хорошо потренировались, теперь жизненная задача. Нафиса смотрит результаты двух классов. Класс семь А набрал сто восемьдесят баллов из двухсот сорока. Класс семь Б набрал двести десять из трёхсот. Баллы большие и разные, поэтому сравним их в процентах. Нажми решить.", uz: "Yaxshi mashq qildik, endi hayotiy masala. Nafisa ikki sinf natijasini ko'radi. Yetti A sinf ikki yuz qirq balldan bir yuz sakson ball to'pladi. Yetti B sinf uch yuzdan ikki yuz o'n ball to'pladi. Ballar katta va har xil, shuning uchun ularni foizda solishtiramiz. Yechishni bosing." },
       intro2: { ru: "В каком классе результат лучше?", uz: "Qaysi sinf natijasi yaxshiroq?" },
       on_correct: { ru: "Верно. Семьдесят пять процентов больше семидесяти. Кстати, тело человека почти на шестьдесят процентов из воды.", uz: "To'g'ri. Yetmish besh foiz yetmishdan katta. Aytgancha, inson tanasi deyarli oltmish foiz suvdan iborat." },
       on_wrong: { ru: "Приведи обе доли к сотым и сравни проценты.", uz: "Ikkala ulushni yuzdan ulushga keltiring va foizni solishtiring." }

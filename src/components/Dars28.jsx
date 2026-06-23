@@ -951,14 +951,14 @@ const CONTENT = {
   // ===== s7 TEST DecInput — 0,2 × 4 = 0,8 =====
   s7: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    bridge: { ru: 'Правило знаем — теперь попробуй применить его сам.', uz: "Qoidani bilamiz — endi uni o'zing qo'llab ko'r." },
+    bridge: { ru: 'Правило знаем — теперь попробуй применить его сам.', uz: "Qoidani bilamiz — endi uni o'zingiz qo'llab ko'ring." },
     question: { ru: 'Вычислите: 0,2 × 4', uz: "Hisoblang: 0,2 × 4" },
     placeholder: { ru: '0,0', uz: '0,0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Сначала перемножь без запятой, потом посчитай знаки у множителей и отдели столько же.', uz: "Avval vergulsiz ko'paytir, keyin ko'paytuvchilardagi xonalarni sanab, o'shancha ajrat." },
+    hint: { ru: 'Сначала перемножь без запятой, потом посчитай знаки у множителей и отдели столько же.', uz: "Avval vergulsiz ko'paytiring, keyin ko'paytuvchilardagi xonalarni sanab, o'shancha ajrating." },
     fb_correct: { ru: 'Верно: 0,2 × 4 = 0,8.', uz: "To'g'ri: 0,2 × 4 = 0,8." },
     audio: {
-      intro: { ru: "Правило знаем, теперь попробуй сам. Вычислите ноль целых две десятых умножить на четыре.", uz: "Qoidani bilamiz, endi o'zing urinib ko'r. Nol butun o'ndan ikkini to'rtga ko'paytiring." },
+      intro: { ru: "Правило знаем, теперь попробуй сам. Вычислите ноль целых две десятых умножить на четыре.", uz: "Qoidani bilamiz, endi o'zingiz urinib ko'ring. Nol butun o'ndan ikkini to'rtga ko'paytiring." },
       on_correct: { ru: "Верно, ноль целых восемь десятых.", uz: "To'g'ri, nol butun o'ndan sakkiz." },
       on_wrong: { ru: "Умножьте без запятой, потом отделите один знак.", uz: "Vergulsiz ko'paytiring, keyin bitta raqam ajrating." }
     }
@@ -974,9 +974,9 @@ const CONTENT = {
     opt2: { ru: '0,006', uz: '0,006' },
     opt3: { ru: '6', uz: '6' },
     correct_text: { ru: 'Верно: 2 × 3 = 6, два знака после запятой → 0,06.', uz: "To'g'ri: 2 × 3 = 6, ikki kasr xona → 0,06." },
-    wrong_1: { ru: 'Ты отделил один знак. Посчитай: сколько их у обоих множителей вместе?', uz: "Sen bitta xona ajratding. Sanab ko'r: ikkala ko'paytuvchida jami nechta?" },
-    wrong_2: { ru: 'Знаков слишком много. Сложи знаки после запятой у обоих множителей.', uz: "Xona juda ko'p. Ikkala ko'paytuvchidagi kasr xonalarni qo'sh." },
-    wrong_3: { ru: 'Ты потерял запятую. Сначала перемножь, потом посчитай знаки.', uz: "Vergulni yo'qotding. Avval ko'paytir, keyin xonalarni sana." },
+    wrong_1: { ru: 'Ты отделил один знак. Посчитай: сколько их у обоих множителей вместе?', uz: "Siz bitta xona ajratdingiz. Sanab ko'ring: ikkala ko'paytuvchida jami nechta?" },
+    wrong_2: { ru: 'Знаков слишком много. Сложи знаки после запятой у обоих множителей.', uz: "Xona juda ko'p. Ikkala ko'paytuvchidagi kasr xonalarni qo'shing." },
+    wrong_3: { ru: 'Ты потерял запятую. Сначала перемножь, потом посчитай знаки.', uz: "Vergulni yo'qotdingiz. Avval ko'paytiring, keyin xonalarni sanang." },
     fact: { ru: 'В одних странах дробь пишут с запятой (0,06), в других — с точкой (0.06). В программировании всегда точка.', uz: "Ba'zi davlatlarda kasr vergul bilan yoziladi (0,06), boshqalarida nuqta bilan (0.06). Dasturlashda doim nuqta." },
     audio: {
       intro: { ru: "Сколько будет ноль целых две десятых умножить на ноль целых три десятых?", uz: "Nol butun o'ndan ikkini nol butun o'ndan uchga ko'paytirsak qancha bo'ladi?" },
@@ -1010,10 +1010,10 @@ const CONTENT = {
     lead: { ru: 'Поставьте каждое произведение в свою группу. Считать точно не нужно.', uz: "Har bir ko'paytmani o'z guruhiga joylang. Aniq hisoblash shart emas." },
     bin_sq: { ru: 'Меньше 1', uz: "1 dan kichik" },
     bin_cu: { ru: 'Больше 1', uz: "1 dan katta" },
-    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bos." },
+    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bosing." },
     done_text: { ru: 'Готово! Все произведения разложены по группам.', uz: "Tayyor! Hamma ko'paytma guruhlarga ajratildi." },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Множитель меньше 1 уменьшает, больше 1 — увеличивает. Прикинь ещё раз.', uz: "Birdan kichik ko'paytuvchi kamaytiradi, kattasi — oshiradi. Yana chamalab ko'r." },
+    hint_wrong: { ru: 'Множитель меньше 1 уменьшает, больше 1 — увеличивает. Прикинь ещё раз.', uz: "Birdan kichik ko'paytuvchi kamaytiradi, kattasi — oshiradi. Yana chamalab ko'ring." },
     correct_text: { ru: 'Верно! Множитель меньше единицы уменьшает результат.', uz: "To'g'ri! Birdan kichik ko'paytuvchi natijani kamaytiradi." },
     audio: {
       intro: { ru: "Поставьте произведения по группам: какое меньше единицы, какое больше. Считать точно не нужно, прикиньте.", uz: "Ko'paytmalarni guruhlarga joylang: qaysi biri birdan kichik, qaysi biri katta. Aniq hisoblash shart emas, chamalang." },
@@ -1045,7 +1045,7 @@ const CONTENT = {
     opt2: { ru: '0,18', uz: '0,18' },
     opt3: { ru: '2,7', uz: '2,7' },
     correct_text: { ru: 'Верно: 15 × 12 = 180, два знака → 1,80, то есть 1,8.', uz: "To'g'ri: 15 × 12 = 180, ikki xona → 1,80, ya'ni 1,8." },
-    wrong_1: { ru: 'Запятая потерялась. Посчитай знаки после запятой у обоих множителей.', uz: "Vergul yo'qoldi. Ikkala ko'paytuvchidagi kasr xonalarni sana." },
+    wrong_1: { ru: 'Запятая потерялась. Посчитай знаки после запятой у обоих множителей.', uz: "Vergul yo'qoldi. Ikkala ko'paytuvchidagi kasr xonalarni sanang." },
     wrong_2: { ru: 'Знаков слишком много. Сколько их у множителей вместе?', uz: "Xona juda ko'p. Ko'paytuvchilarda jami nechta?" },
     wrong_3: { ru: 'Это сложение. А цену умножают на длину.', uz: "Bu qo'shish. Narx esa uzunlikka ko'paytiriladi." },
     fact: { ru: 'Десятичные дроби ввёл в широкое употребление Симон Стевин около 1585 года. До него дроби писали очень сложно.', uz: "O'nli kasrlarni keng qo'llanishga Simon Stevin taxminan 1585-yili kiritgan. Undan oldin kasrlar juda murakkab yozilardi." },
@@ -1104,13 +1104,13 @@ const CONTENT = {
   s_colmul: {
     eyebrow: { ru: 'Считаем по шагам', uz: "Qadamlab hisoblaymiz" },
     title: { ru: 'Умножаем 0,3 × 0,4', uz: "0,3 × 0,4 ni ko'paytiramiz" },
-    lead: { ru: 'Реши сам: заполни три поля по порядку и нажми «Проверить».', uz: "O'zing yech: uchta katakni tartib bilan to'ldir va «Tekshirish»ni bos." },
-    lbl_1: { ru: 'Умножь без запятой: 3 × 4 =', uz: "Vergulsiz ko'paytir: 3 × 4 =" },
+    lead: { ru: 'Реши сам: заполни три поля по порядку и нажми «Проверить».', uz: "O'zingiz yeching: uchta katakni tartib bilan to'ldiring va «Tekshirish»ni bosing." },
+    lbl_1: { ru: 'Умножь без запятой: 3 × 4 =', uz: "Vergulsiz ko'paytiring: 3 × 4 =" },
     lbl_2: { ru: 'Сколько знаков после запятой всего?', uz: "Verguldan keyin jami nechta xona?" },
-    lbl_3: { ru: 'Поставь запятую — ответ:', uz: "Vergul qo'y — javob:" },
+    lbl_3: { ru: 'Поставь запятую — ответ:', uz: "Vergul qo'ying — javob:" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Сначала перемножь 3 и 4 без запятой. Потом сложи знаки после запятой и отдели столько же.', uz: "Avval 3 va 4 ni vergulsiz ko'paytir. Keyin kasr xonalarni qo'shib, o'shancha ajrat." },
+    hint: { ru: 'Сначала перемножь 3 и 4 без запятой. Потом сложи знаки после запятой и отдели столько же.', uz: "Avval 3 va 4 ni vergulsiz ko'paytiring. Keyin kasr xonalarni qo'shib, o'shancha ajrating." },
     fb_correct: { ru: 'Верно: 12, два знака, ответ 0,12.', uz: "To'g'ri: 12, ikki xona, javob 0,12." },
     audio: {
       intro: { ru: "Заполните три шага. Сначала умножьте три на четыре без запятой. Потом сколько знаков после запятой. Потом ответ. Нажмите проверить.", uz: "Uchta qadamni to'ldiring. Avval uchni to'rtga vergulsiz ko'paytiring. Keyin nechta kasr xona. Keyin javob. Tekshirishni bosing." },
@@ -1144,7 +1144,7 @@ const CONTENT = {
   // ===== s_practice — НОВЫЙ TEST: 4 ta tez oson misol (tap, mobil-do'st) =====
   s_practice: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Посчитай произведение', uz: "Ko'paytmani hisobla" },
+    title: { ru: 'Посчитай произведение', uz: "Ko'paytmani hisoblang" },
     lead: { ru: 'Четыре примера. Выбери верный ответ — считай в уме.', uz: "To'rtta misol. To'g'ri javobni tanlang — xayolan hisoblang." },
     questions: [
       {
@@ -1153,7 +1153,7 @@ const CONTENT = {
         opts: [{ ru: '0,6', uz: '0,6' }, { ru: '6', uz: '6' }, { ru: '0,06', uz: '0,06' }],
         correct: 0,
         ok: { ru: 'Верно: 2 × 3 = 6, один знак → 0,6.', uz: "To'g'ri: 2 × 3 = 6, bitta xona → 0,6." },
-        no: { ru: 'Умножь без запятой, отдели один знак.', uz: "Vergulsiz ko'paytir, bitta xona ajrat." }
+        no: { ru: 'Умножь без запятой, отдели один знак.', uz: "Vergulsiz ko'paytiring, bitta xona ajrating." }
       },
       {
         q: { ru: '0,1 × 0,5', uz: '0,1 × 0,5' },
@@ -1161,7 +1161,7 @@ const CONTENT = {
         opts: [{ ru: '0,5', uz: '0,5' }, { ru: '0,05', uz: '0,05' }, { ru: '0,005', uz: '0,005' }],
         correct: 1,
         ok: { ru: 'Верно: 1 × 5 = 5, два знака → 0,05.', uz: "To'g'ri: 1 × 5 = 5, ikki xona → 0,05." },
-        no: { ru: 'Перемножь без запятой, потом сложи знаки после запятой у множителей.', uz: "Vergulsiz ko'paytir, keyin ko'paytuvchilardagi kasr xonalarni qo'sh." }
+        no: { ru: 'Перемножь без запятой, потом сложи знаки после запятой у множителей.', uz: "Vergulsiz ko'paytiring, keyin ko'paytuvchilardagi kasr xonalarni qo'shing." }
       },
       {
         q: { ru: '1,1 × 2', uz: '1,1 × 2' },
@@ -1169,7 +1169,7 @@ const CONTENT = {
         opts: [{ ru: '2,2', uz: '2,2' }, { ru: '22', uz: '22' }, { ru: '0,22', uz: '0,22' }],
         correct: 0,
         ok: { ru: 'Верно: 11 × 2 = 22, один знак → 2,2.', uz: "To'g'ri: 11 × 2 = 22, bitta xona → 2,2." },
-        no: { ru: 'Перемножь без запятой, потом посчитай знаки после запятой.', uz: "Vergulsiz ko'paytir, keyin verguldan keyin nechta xona borligini sana." }
+        no: { ru: 'Перемножь без запятой, потом посчитай знаки после запятой.', uz: "Vergulsiz ko'paytiring, keyin verguldan keyin nechta xona borligini sanang." }
       },
       {
         q: { ru: '0,4 × 0,2', uz: '0,4 × 0,2' },
@@ -1177,7 +1177,7 @@ const CONTENT = {
         opts: [{ ru: '0,8', uz: '0,8' }, { ru: '0,08', uz: '0,08' }, { ru: '0,008', uz: '0,008' }],
         correct: 1,
         ok: { ru: 'Верно: 4 × 2 = 8, два знака → 0,08.', uz: "To'g'ri: 4 × 2 = 8, ikki xona → 0,08." },
-        no: { ru: 'Сложи знаки после запятой у обоих множителей и отдели столько же.', uz: "Ikkala ko'paytuvchidagi kasr xonalarni qo'shib, o'shancha ajrat." }
+        no: { ru: 'Сложи знаки после запятой у обоих множителей и отдели столько же.', uz: "Ikkala ko'paytuvchidagi kasr xonalarni qo'shib, o'shancha ajrating." }
       }
     ],
     audio: {

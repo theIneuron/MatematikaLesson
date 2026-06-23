@@ -803,7 +803,7 @@ const CONTENT = {
         opts: [{ ru: '5/10', uz: '5/10' }, { ru: '2/10', uz: '2/10' }, { ru: '1/10', uz: '1/10' }],
         correct: 0,
         ok: { ru: 'Верно: половина это пять десятых.', uz: "To'g'ri: yarim — o'ndan besh." },
-        no: { ru: 'Раздели целое на десять и возьми половину.', uz: "Butunni o'nga bo'lib, yarmini ol." }
+        no: { ru: 'Раздели целое на десять и возьми половину.', uz: "Butunni o'nga bo'lib, yarmini oling." }
       },
       {
         q: { ru: '1/5 = ?/10', uz: '1/5 = ?/10' },
@@ -811,7 +811,7 @@ const CONTENT = {
         opts: [{ ru: '2/10', uz: '2/10' }, { ru: '5/10', uz: '5/10' }, { ru: '1/10', uz: '1/10' }],
         correct: 0,
         ok: { ru: 'Верно: одна пятая это две десятых.', uz: "To'g'ri: beshdan bir — o'ndan ikki." },
-        no: { ru: 'Умножь числитель и знаменатель на два.', uz: "Surat va maxrajni ikkiga ko'paytir." }
+        no: { ru: 'Умножь числитель и знаменатель на два.', uz: "Surat va maxrajni ikkiga ko'paytiring." }
       },
       {
         q: { ru: '1/2 или 1/4 — что больше?', uz: "1/2 yoki 1/4 — qaysi katta?" },
@@ -844,8 +844,8 @@ const CONTENT = {
     title: { ru: 'Десятые доли единицы', uz: "Birlikning o'ndan ulushlari" },
     lead: { ru: 'Раз половина это 5/10, посмотрим на десятые. Единица поделена на 10 равных полос — каждая 0,1. Двигайте ползунок.', uz: "Yarim 5/10 ekan, o'ndan ulushlarga qaraymiz. Birlik 10 ta teng bo'lakka bo'lingan — har biri 0,1. Slayderni suring." },
     bridge: { ru: 'Размялись. Теперь разберём, что прячется за запятой.', uz: "Mashq qildik. Endi vergul ortida nima yashirinishini ko'ramiz." },
-    note: { ru: 'Что делать: тяни ползунок до 0,3 — три полосы из десяти. Дойдёшь — станет ЗЕЛЁНЫМ, значит верно.', uz: "Nima qilish: slayderni 0,3 gacha tort — o'ntadan uch bo'lak. Yetsang YASHIL bo'ladi, demak to'g'ri." },
-    note_done: { ru: 'Зелёный — ты на цели! 0,3 это три десятых: 3/10.', uz: "Yashil — maqsadga yetding! 0,3 — o'ndan uch: 3/10." },
+    note: { ru: 'Что делать: тяни ползунок до 0,3 — три полосы из десяти. Дойдёшь — станет ЗЕЛЁНЫМ, значит верно.', uz: "Nima qilish: slayderni 0,3 gacha torting — o'ntadan uch bo'lak. Yetsangiz YASHIL bo'ladi, demak to'g'ri." },
+    note_done: { ru: 'Зелёный — ты на цели! 0,3 это три десятых: 3/10.', uz: "Yashil — maqsadga yetdingiz! 0,3 — o'ndan uch: 3/10." },
     audio: { ru: "Раз половина это пять десятых, посмотрим на десятые доли. Единица разделена на десять равных полос, каждая это одна десятая. Двигайте ползунок и заполняйте полосы. Остановитесь на ноль целых три десятых.", uz: "Yarim o'ndan besh ekan, o'ndan ulushlarga qaraymiz. Birlik o'nta teng bo'lakka bo'lingan, har biri o'ndan bir. Slayderni suring va bo'laklarni to'ldiring. Nol butun o'ndan uchda to'xtang." }
   },
 
@@ -854,8 +854,8 @@ const CONTENT = {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
     title: { ru: 'Сотые доли единицы', uz: "Birlikning yuzdan ulushlari" },
     lead: { ru: 'А если доля ещё меньше? Каждую полосу делим ещё на 10 — всего 100 клеток, каждая 0,01. Двигайте ползунок.', uz: "Agar ulush yanada kichik bo'lsa-chi? Har bo'lakni yana 10 ga bo'lamiz — jami 100 ta katak, har biri 0,01. Slayderni suring." },
-    note: { ru: 'Что делать: тяни ползунок до 0,45 — сорок пять клеток из ста. Дойдёшь — станет ЗЕЛЁНЫМ, значит верно.', uz: "Nima qilish: slayderni 0,45 gacha tort — yuzdan qirq besh katak. Yetsang YASHIL bo'ladi, demak to'g'ri." },
-    note_done: { ru: 'Зелёный — ты на цели! 0,45 это 45 сотых: 45/100.', uz: "Yashil — maqsadga yetding! 0,45 — yuzdan qirq besh: 45/100." },
+    note: { ru: 'Что делать: тяни ползунок до 0,45 — сорок пять клеток из ста. Дойдёшь — станет ЗЕЛЁНЫМ, значит верно.', uz: "Nima qilish: slayderni 0,45 gacha torting — yuzdan qirq besh katak. Yetsangiz YASHIL bo'ladi, demak to'g'ri." },
+    note_done: { ru: 'Зелёный — ты на цели! 0,45 это 45 сотых: 45/100.', uz: "Yashil — maqsadga yetdingiz! 0,45 — yuzdan qirq besh: 45/100." },
     audio: { ru: "А если доля ещё меньше? Каждую из десяти полос делим ещё на десять — получается сто клеток, каждая ноль целых одна сотая. Двигайте ползунок и наблюдайте, как растёт число. Остановитесь на ноль целых сорок пять сотых.", uz: "Agar ulush yanada kichik bo'lsa-chi? O'nta bo'lakning har birini yana o'nga bo'lamiz — yuzta katak chiqadi, har biri nol butun yuzdan bir. Slayderni suring va sonning o'sishini kuzating. Nol butun yuzdan qirq beshda to'xtang." }
   },
 
@@ -882,7 +882,7 @@ const CONTENT = {
   // ===== s6 TEST MC — 0,3 = 3/10 + al-Koshiy fakti =====
   s6: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    bridge: { ru: 'Правило знаем — теперь попробуй сам.', uz: "Qoidani bilamiz — endi o'zing urinib ko'r." },
+    bridge: { ru: 'Правило знаем — теперь попробуй сам.', uz: "Qoidani bilamiz — endi o'zingiz urinib ko'ring." },
     title: { ru: 'Переведи в дробь', uz: "Kasrga aylantiring" },
     question: { ru: 'Какой обыкновенной дроби равно 0,3?', uz: "0,3 qaysi oddiy kasrga teng?" },
     opt0: { ru: '3/10', uz: '3/10' },
@@ -891,14 +891,14 @@ const CONTENT = {
     opt3: { ru: '10/3', uz: '10/3' },
     correct_text: { ru: 'Верно. После запятой одна цифра — это десятые. 0,3 = 3/10.', uz: "To'g'ri. Verguldan keyin bitta raqam — bu o'ndan. 0,3 = 3/10." },
     wrong_1: { ru: 'Это сотые: 3/100 = 0,03. А в 0,3 одна цифра — десятые.', uz: "Bu yuzdan: 3/100 = 0,03. 0,3 da esa bitta raqam — o'ndan." },
-    wrong_2: { ru: 'У 1/3 знаменатель 3, это не десятичная дробь. Считай цифры после запятой.', uz: "1/3 maxraji 3, bu o'nli kasr emas. Verguldan keyingi raqamni sana." },
+    wrong_2: { ru: 'У 1/3 знаменатель 3, это не десятичная дробь. Считай цифры после запятой.', uz: "1/3 maxraji 3, bu o'nli kasr emas. Verguldan keyingi raqamni sanang." },
     wrong_3: { ru: '10/3 больше целого. А 0,3 меньше целого. Сколько цифр после запятой?', uz: "10/3 butundan katta. 0,3 esa kichik. Verguldan keyin nechta raqam?" },
     fact: { ru: 'Десятичные дроби систематизировал ал-Каши в Самарканде в XV веке, в обсерватории Улугбека.', uz: "O'nli kasrlarni XV asrda Samarqandda, Ulug'bek rasadxonasida Jamshid al-Koshiy tizimlashtirgan." },
     fact_audio: { ru: "Кстати, десятичные дроби систематизировал учёный ал-Каши в Самарканде в пятнадцатом веке, в обсерватории Улугбека.", uz: "Aytgancha, o'nli kasrlarni o'n beshinchi asrda Samarqandda, Ulug'bek rasadxonasida olim Jamshid al-Koshiy tizimlashtirgan." },
     audio: {
-      intro: { ru: "Правило знаем, теперь попробуй сам. Какой обыкновенной дроби равно ноль целых три десятых? Выбери вариант.", uz: "Qoidani bilamiz, endi o'zing urinib ko'r. Nol butun o'ndan uch qaysi oddiy kasrga teng? Variantni tanlang." },
+      intro: { ru: "Правило знаем, теперь попробуй сам. Какой обыкновенной дроби равно ноль целых три десятых? Выбери вариант.", uz: "Qoidani bilamiz, endi o'zingiz urinib ko'ring. Nol butun o'ndan uch qaysi oddiy kasrga teng? Variantni tanlang." },
       on_correct: { ru: "Верно, три десятых. Кстати, десятичные дроби систематизировал учёный ал-Каши в Самарканде в пятнадцатом веке, в обсерватории Улугбека.", uz: "To'g'ri, o'ndan uch. Aytgancha, o'nli kasrlarni o'n beshinchi asrda Samarqandda, Ulug'bek rasadxonasida olim Jamshid al-Koshiy tizimlashtirgan." },
-      on_wrong: { ru: "Не совсем. Посчитай цифры после запятой.", uz: "Unchalik emas. Verguldan keyingi raqamlarni sana." }
+      on_wrong: { ru: "Не совсем. Посчитай цифры после запятой.", uz: "Unchalik emas. Verguldan keyingi raqamlarni sanang." }
     }
   },
 
@@ -906,15 +906,15 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Разряды', uz: "Xonalar" },
     title: { ru: 'Каждой цифре свой разряд', uz: "Har raqamga o'z xonasi" },
-    lead: { ru: 'В числе 0,372 — три цифры. Поставь каждую в свой разряд.', uz: "0,372 sonida uch raqam. Har birini o'z xonasiga qo'y." },
-    ask: { ru: 'В какой разряд? Тапни корзину.', uz: "Qaysi xonaga? Savatni bos." },
+    lead: { ru: 'В числе 0,372 — три цифры. Поставь каждую в свой разряд.', uz: "0,372 sonida uch raqam. Har birini o'z xonasiga qo'ying." },
+    ask: { ru: 'В какой разряд? Тапни корзину.', uz: "Qaysi xonaga? Savatni bosing." },
     bin_ondan: { ru: 'Десятые', uz: "O'ndan" },
     bin_yuzdan: { ru: 'Сотые', uz: "Yuzdan" },
     bin_mingdan: { ru: 'Тысячные', uz: "Mingdan" },
     done_text: { ru: 'Верно. 3 — десятые, 7 — сотые, 2 — тысячные.', uz: "To'g'ri. 3 — o'ndan, 7 — yuzdan, 2 — mingdan." },
-    hint_wrong: { ru: 'Считай от запятой вправо: первая — десятые, вторая — сотые, третья — тысячные.', uz: "Verguldan o'ngga sana: birinchi — o'ndan, ikkinchi — yuzdan, uchinchi — mingdan." },
+    hint_wrong: { ru: 'Считай от запятой вправо: первая — десятые, вторая — сотые, третья — тысячные.', uz: "Verguldan o'ngga sanang: birinchi — o'ndan, ikkinchi — yuzdan, uchinchi — mingdan." },
     audio: {
-      intro: { ru: "В числе ноль целых триста семьдесят две тысячных каждая цифра в своём разряде. Поставь каждую цифру в нужную корзину.", uz: "Nol butun mingdan uch yuz yetmish ikki sonida har raqam o'z xonasida. Har raqamni kerakli savatga qo'y." },
+      intro: { ru: "В числе ноль целых триста семьдесят две тысячных каждая цифра в своём разряде. Поставь каждую цифру в нужную корзину.", uz: "Nol butun mingdan uch yuz yetmish ikki sonida har raqam o'z xonasida. Har raqamni kerakli savatga qo'ying." },
       on_correct: { ru: "Верно. Тройка в десятых, семёрка в сотых, двойка в тысячных.", uz: "To'g'ri. Uchlik o'ndan, yettilik yuzdan, ikkilik mingdan xonasida." },
       on_wrong: { ru: "Не совсем. Первая цифра после запятой это десятые.", uz: "Unchalik emas. Verguldan keyingi birinchi raqam — o'ndan." }
     }
@@ -923,13 +923,13 @@ const CONTENT = {
   // ===== s8 DecInput — 1/2 ni o'nli yoz (0,5) =====
   s8: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    bridge: { ru: 'Разряды освоили. Теперь записывай числа сам — тапай цифры.', uz: "Xonalarni o'zlashtirdik. Endi sonlarni o'zing yoz — raqamlarni bos." },
-    title: { ru: 'Запиши десятичной', uz: "O'nli kasr qilib yoz" },
-    lead: { ru: 'Четыре примера. Тапай цифры после запятой.', uz: "To'rtta misol. Verguldan keyingi raqamlarni bos." },
+    bridge: { ru: 'Разряды освоили. Теперь записывай числа сам — тапай цифры.', uz: "Xonalarni o'zlashtirdik. Endi sonlarni o'zingiz yozing — raqamlarni bosing." },
+    title: { ru: 'Запиши десятичной', uz: "O'nli kasr qilib yozing" },
+    lead: { ru: 'Четыре примера. Тапай цифры после запятой.', uz: "To'rtta misol. Verguldan keyingi raqamlarni bosing." },
     questions: [
       {
         prompt: { ru: '1/2 = ?', uz: '1/2 = ?' }, answer: '5',
-        say: { ru: "Запиши половину. Одна вторая — сколько десятых?", uz: "Yarimni yoz. Ikkidan bir necha o'ndan?" },
+        say: { ru: "Запиши половину. Одна вторая — сколько десятых?", uz: "Yarimni yozing. Ikkidan bir necha o'ndan?" },
         hint: { ru: 'Половина это пять десятых: 5/10. Значит 0,5.', uz: "Yarim — o'ndan besh: 5/10. Demak 0,5." },
         ok: { ru: '1/2 = 5/10 = 0,5.', uz: "1/2 = 5/10 = 0,5." }
       },
@@ -953,9 +953,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: "Разряды освоили, теперь записывай сам. Тапай цифры после запятой. Сколько десятых в половине?", uz: "Xonalarni o'zlashtirdik, endi o'zing yoz. Verguldan keyingi raqamlarni bos. Yarimda nechta o'ndan?" },
+      intro: { ru: "Разряды освоили, теперь записывай сам. Тапай цифры после запятой. Сколько десятых в половине?", uz: "Xonalarni o'zlashtirdik, endi o'zingiz yozing. Verguldan keyingi raqamlarni bosing. Yarimda nechta o'ndan?" },
       on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'r." },
+      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring." },
       on_done: { ru: "Отлично, все числа записаны верно.", uz: "Zo'r, hamma son to'g'ri yozildi." }
     }
   },
@@ -963,16 +963,16 @@ const CONTENT = {
   // ===== s9 TEST tap MC — 0,07 da nechta yuzdan =====
   s9: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Посчитай сотые', uz: "Yuzdan ulushlarni sana" },
+    title: { ru: 'Посчитай сотые', uz: "Yuzdan ulushlarni sanang" },
     question: { ru: 'Сколько сотых в числе 0,07?', uz: "0,07 sonida nechta yuzdan bor?" },
     opt0: { ru: '7', uz: '7' },
     opt1: { ru: '70', uz: '70' },
     opt2: { ru: '0', uz: '0' },
     correct_text: { ru: 'Верно. 0,07 это семь сотых: 7/100. Вторая цифра после запятой — сотые.', uz: "To'g'ri. 0,07 — yuzdan yetti: 7/100. Verguldan keyingi ikkinchi raqam — yuzdan." },
-    wrong_1: { ru: '70 это семьдесят сотых, то есть 0,70. А у нас 0,07. Смотри на вторую цифру.', uz: "70 — yuzdan yetmish, ya'ni 0,70. Bizda esa 0,07. Ikkinchi raqamga qara." },
+    wrong_1: { ru: '70 это семьдесят сотых, то есть 0,70. А у нас 0,07. Смотри на вторую цифру.', uz: "70 — yuzdan yetmish, ya'ni 0,70. Bizda esa 0,07. Ikkinchi raqamga qarang." },
     wrong_2: { ru: 'Сотые не ноль — вторая цифра после запятой это 7.', uz: "Yuzdan nol emas — verguldan keyingi ikkinchi raqam 7." },
     audio: {
-      intro: { ru: "Посмотри на число ноль целых семь сотых. Сколько в нём сотых долей? Выбери вариант.", uz: "Nol butun yuzdan yetti soniga qara. Unda nechta yuzdan ulush bor? Variantni tanla." },
+      intro: { ru: "Посмотри на число ноль целых семь сотых. Сколько в нём сотых долей? Выбери вариант.", uz: "Nol butun yuzdan yetti soniga qarang. Unda nechta yuzdan ulush bor? Variantni tanlang." },
       on_correct: { ru: "Верно, семь сотых.", uz: "To'g'ri, yuzdan yetti." },
       on_wrong: { ru: "Вторая цифра после запятой это сотые.", uz: "Verguldan keyingi ikkinchi raqam — yuzdan." }
     }
@@ -981,8 +981,8 @@ const CONTENT = {
   // ===== s_practice — solishtirish mashqi (SeqMC) =====
   s_practice: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Сравни числа', uz: "Sonlarni solishtir" },
-    lead: { ru: 'Четыре примера. Сравнивай по разрядам, а не по длине.', uz: "To'rtta misol. Uzunlik emas, xona bo'yicha solishtir." },
+    title: { ru: 'Сравни числа', uz: "Sonlarni solishtiring" },
+    lead: { ru: 'Четыре примера. Сравнивай по разрядам, а не по длине.', uz: "To'rtta misol. Uzunlik emas, xona bo'yicha solishtiring." },
     bridge: { ru: 'Хорошо! Закрепим сравнение на нескольких примерах.', uz: "Yaxshi! Solishtirishni bir nechta misolda mustahkamlaymiz." },
     questions: [
       {
@@ -991,7 +991,7 @@ const CONTENT = {
         opts: [{ ru: '0,5', uz: '0,5' }, { ru: '0,45', uz: '0,45' }, { ru: 'Равны', uz: 'Teng' }],
         correct: 0,
         ok: { ru: 'Верно: 0,5 = 0,50 это 50 сотых, больше 45.', uz: "To'g'ri: 0,5 = 0,50 — 50 yuzdan, 45 dan katta." },
-        no: { ru: 'Допиши ноль: 0,50 и 0,45. Сравни сотые.', uz: "Nol qo'sh: 0,50 va 0,45. Yuzdanlarni solishtir." }
+        no: { ru: 'Допиши ноль: 0,50 и 0,45. Сравни сотые.', uz: "Nol qo'shing: 0,50 va 0,45. Yuzdanlarni solishtiring." }
       },
       {
         q: { ru: '0,7 или 0,07 — что больше?', uz: "0,7 yoki 0,07 — qaysi katta?" },
@@ -1015,36 +1015,36 @@ const CONTENT = {
         opts: [{ ru: 'Равны', uz: 'Teng' }, { ru: '0,60', uz: '0,60' }, { ru: '0,6', uz: '0,6' }],
         correct: 0,
         ok: { ru: 'Верно: 0,6 = 0,60. Ноль в конце не меняет числа.', uz: "To'g'ri: 0,6 = 0,60. Oxirdagi nol sonni o'zgartirmaydi." },
-        no: { ru: 'Допиши ноль: 0,6 это 0,60. Они равны.', uz: "Nol qo'sh: 0,6 — bu 0,60. Ular teng." }
+        no: { ru: 'Допиши ноль: 0,6 это 0,60. Они равны.', uz: "Nol qo'shing: 0,6 — bu 0,60. Ular teng." }
       }
     ],
     audio: {
-      intro: { ru: "Тренировка. Четыре примера. Сравнивай по разрядам.", uz: "Mashq. To'rtta misol. Xona bo'yicha solishtir." },
+      intro: { ru: "Тренировка. Четыре примера. Сравнивай по разрядам.", uz: "Mashq. To'rtta misol. Xona bo'yicha solishtiring." },
       on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'r." },
-      on_done: { ru: "Молодец, сравнения освоены.", uz: "Barakalla, solishtirishni o'zlashtirding." }
+      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring." },
+      on_done: { ru: "Молодец, сравнения освоены.", uz: "Barakalla, solishtirishni o'zlashtirdingiz." }
     }
   },
 
   // ===== s10 TEST find-the-wrong — xato taqqoslash + sport fakti =====
   s10: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni top" },
-    title: { ru: 'Найди ошибочное сравнение', uz: "Xato taqqoslashni top" },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
+    title: { ru: 'Найди ошибочное сравнение', uz: "Xato taqqoslashni toping" },
     question: { ru: 'Какое сравнение ОШИБОЧНО?', uz: "Qaysi taqqoslash XATO?" },
     opt0: { ru: '0,5 больше 0,45', uz: "0,5 > 0,45" },
     opt1: { ru: '0,7 больше 0,07', uz: "0,7 > 0,07" },
     opt2: { ru: '0,45 больше 0,5', uz: "0,45 > 0,5" },
     opt3: { ru: '0,3 равно 3/10', uz: "0,3 = 3/10" },
-    correct_text: { ru: 'Точно! 0,45 больше 0,5 — ошибка. 0,50 это 50 сотых, а 0,45 это 45 сотых. На деле 0,45 меньше.', uz: "Aniq topding! 0,45 > 0,5 — xato. 0,50 — 50 yuzdan, 0,45 — 45 yuzdan. Aslida 0,45 kichik." },
-    wrong_0: { ru: '0,5 больше 0,45 — это верно (0,5 = 0,50). Ищи ошибочное.', uz: "0,5 > 0,45 — to'g'ri (0,5 = 0,50). Xato bo'lganini qidir." },
-    wrong_1: { ru: '0,7 больше 0,07 — это верно. Ищи ошибочное.', uz: "0,7 > 0,07 — to'g'ri. Xato bo'lganini qidir." },
-    wrong_3: { ru: '0,3 = 3/10 — это верно. Ищи ошибочное сравнение.', uz: "0,3 = 3/10 — to'g'ri. Xato taqqoslashni qidir." },
+    correct_text: { ru: 'Точно! 0,45 больше 0,5 — ошибка. 0,50 это 50 сотых, а 0,45 это 45 сотых. На деле 0,45 меньше.', uz: "Aniq topdingiz! 0,45 > 0,5 — xato. 0,50 — 50 yuzdan, 0,45 — 45 yuzdan. Aslida 0,45 kichik." },
+    wrong_0: { ru: '0,5 больше 0,45 — это верно (0,5 = 0,50). Ищи ошибочное.', uz: "0,5 > 0,45 — to'g'ri (0,5 = 0,50). Xato bo'lganini qidiring." },
+    wrong_1: { ru: '0,7 больше 0,07 — это верно. Ищи ошибочное.', uz: "0,7 > 0,07 — to'g'ri. Xato bo'lganini qidiring." },
+    wrong_3: { ru: '0,3 = 3/10 — это верно. Ищи ошибочное сравнение.', uz: "0,3 = 3/10 — to'g'ri. Xato taqqoslashni qidiring." },
     fact: { ru: 'На крупных стартах победителя определяют сотые доли секунды: мировой рекорд в беге на 100 метров около 9,58 с.', uz: "Yirik musobaqalarda g'olib soniyaning yuzdan ulushi bilan aniqlanadi: 100 metr yugurish jahon rekordi taxminan 9,58 soniya." },
     fact_audio: { ru: "Кстати, на крупных стартах победителя определяют сотые доли секунды. Мировой рекорд в беге на сто метров около девяти целых пятидесяти восьми сотых секунды.", uz: "Aytgancha, yirik musobaqalarda g'olibni soniyaning yuzdan ulushlari aniqlaydi. Yuz metr yugurish jahon rekordi taxminan to'qqiz butun yuzdan ellik sakkiz soniya." },
     audio: {
-      intro: { ru: "Будь внимателен: одно из сравнений ошибочно. Найди неверное и выбери его.", uz: "Diqqatli bo'l: taqqoslashlardan biri xato. Noto'g'risini topib tanla." },
+      intro: { ru: "Будь внимателен: одно из сравнений ошибочно. Найди неверное и выбери его.", uz: "Diqqatli bo'ling: taqqoslashlardan biri xato. Noto'g'risini topib tanlang." },
       on_correct: { ru: "Верно. Сорок пять сотых меньше пятидесяти сотых. Кстати, на крупных стартах победителя определяют сотые доли секунды: мировой рекорд в беге на сто метров около девяти целых пятидесяти восьми сотых секунды.", uz: "To'g'ri. Yuzdan qirq besh yuzdan ellikdan kichik. Aytgancha, yirik musobaqalarda g'olibni soniyaning yuzdan ulushlari aniqlaydi: yuz metr yugurish jahon rekordi taxminan to'qqiz butun yuzdan ellik sakkiz soniya." },
-      on_wrong: { ru: "Это сравнение верное. Ищи ошибочное.", uz: "Bu taqqoslash to'g'ri. Xato bo'lganini qidir." }
+      on_wrong: { ru: "Это сравнение верное. Ищи ошибочное.", uz: "Bu taqqoslash to'g'ri. Xato bo'lganini qidiring." }
     }
   },
 
@@ -1057,24 +1057,24 @@ const CONTENT = {
     note: { ru: 'Где на отрезке от 0 до 1 стоит 0,7?', uz: "0 dan 1 gacha kesmada 0,7 qayerda turadi?" },
     compact: { ru: 'Прочитано 0,7 из 1 книги', uz: "1 kitobdan 0,7 qismi o'qildi" },
     btn_help: { ru: 'Помочь Ойбеку', uz: "Oybekka yordam berish" },
-    audio: { ru: "Потренировались, теперь задача из жизни. Ойбек читает книгу. Приложение показывает: прочитано ноль целых семь десятых книги. Помоги отметить это на числовой прямой от нуля до единицы.", uz: "Mashq qildik, endi hayotiy masala. Oybek kitob o'qiyapti. Ilova ko'rsatadi: kitobning nol butun o'ndan yetti qismi o'qildi. Buni nol dan bir gacha son o'qida belgilashga yordam ber." }
+    audio: { ru: "Потренировались, теперь задача из жизни. Ойбек читает книгу. Приложение показывает: прочитано ноль целых семь десятых книги. Помоги отметить это на числовой прямой от нуля до единицы.", uz: "Mashq qildik, endi hayotiy masala. Oybek kitob o'qiyapti. Ilova ko'rsatadi: kitobning nol butun o'ndan yetti qismi o'qildi. Buni nol dan bir gacha son o'qida belgilashga yordam bering." }
   },
 
   // ===== s12 — son o'qiga 0,7 belgilash (scored=final) + metr fakti =====
   s12: {
     eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq" },
-    title: { ru: 'Отметь 0,7 на прямой', uz: "0,7 ni o'qda belgila" },
-    instruction: { ru: 'Поставь метку на 0,7. Отрезок от 0 до 1 разделён на десятые.', uz: "Belgini 0,7 ga qo'y. 0 dan 1 gacha kesma o'ndan ulushlarga bo'lingan." },
-    hint: { ru: '0,7 это семь десятых. Отсчитай семь делений от нуля.', uz: "0,7 — bu o'ndan yetti. Noldan boshlab yetti bo'linmani sana." },
+    title: { ru: 'Отметь 0,7 на прямой', uz: "0,7 ni o'qda belgilang" },
+    instruction: { ru: 'Поставь метку на 0,7. Отрезок от 0 до 1 разделён на десятые.', uz: "Belgini 0,7 ga qo'ying. 0 dan 1 gacha kesma o'ndan ulushlarga bo'lingan." },
+    hint: { ru: '0,7 это семь десятых. Отсчитай семь делений от нуля.', uz: "0,7 — bu o'ndan yetti. Noldan boshlab yetti bo'linmani sanang." },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     fb_correct: { ru: 'Верно. 0,7 — это семь десятых, седьмое деление.', uz: "To'g'ri. 0,7 — o'ndan yetti, yettinchi bo'linma." },
     hint_wrong: { ru: 'Пока не туда. 0,7 это семь делений из десяти.', uz: "Hozircha noto'g'ri. 0,7 — o'ndan yetti bo'linma." },
     fact: { ru: 'Вся метрическая система десятичная: 1 метр это 10 дециметров и 100 сантиметров.', uz: "Butun metr tizimi o'nlik: 1 metr — bu 10 detsimetr va 100 santimetr." },
     fact_audio: { ru: "Кстати, вся метрическая система десятичная: один метр это десять дециметров и сто сантиметров.", uz: "Aytgancha, butun metr tizimi o'nlikka asoslangan: bir metr — bu o'n detsimetr va yuz santimetr." },
     audio: {
-      intro: { ru: "Помоги Ойбеку. Поставь метку на ноль целых семь десятых и нажми проверить. Отрезок разделён на десять равных частей.", uz: "Oybekka yordam ber. Belgini nol butun o'ndan yettiga qo'yib, tekshirishni bos. Kesma o'nta teng qismga bo'lingan." },
+      intro: { ru: "Помоги Ойбеку. Поставь метку на ноль целых семь десятых и нажми проверить. Отрезок разделён на десять равных частей.", uz: "Oybekka yordam bering. Belgini nol butun o'ndan yettiga qo'yib, tekshirishni bosing. Kesma o'nta teng qismga bo'lingan." },
       on_correct: { ru: "Верно, седьмое деление.", uz: "To'g'ri, yettinchi bo'linma." },
-      on_wrong: { ru: "Пока не туда. Отсчитай семь делений от нуля.", uz: "Hozircha noto'g'ri. Noldan yetti bo'linmani sana." }
+      on_wrong: { ru: "Пока не туда. Отсчитай семь делений от нуля.", uz: "Hozircha noto'g'ri. Noldan yetti bo'linmani sanang." }
     }
   },
 
@@ -1086,14 +1086,14 @@ const CONTENT = {
     main_label: { ru: 'Главное', uz: "Asosiy" },
     main_1: { ru: 'Десятичная дробь — это дробь со знаменателем 10, 100, 1000. Запятая отделяет целое от долей.', uz: "O'nli kasr — maxraji 10, 100, 1000 bo'lgan kasr. Vergul butunni ulushlardan ajratadi." },
     main_2: { ru: 'Разряды вправо: десятые, сотые, тысячные — каждый в 10 раз меньше. 0,1 = 1/10.', uz: "Xonalar o'ngga: o'ndan, yuzdan, mingdan — har biri 10 marta kichik. 0,1 = 1/10." },
-    main_3: { ru: 'Больше цифр не значит больше число. Дописывай ноль и сравнивай по разрядам.', uz: "Raqam ko'p — son katta degani emas. Nol qo'shib, xona bo'yicha solishtir." },
+    main_3: { ru: 'Больше цифр не значит больше число. Дописывай ноль и сравнивай по разрядам.', uz: "Raqam ko'p — son katta degani emas. Nol qo'shib, xona bo'yicha solishtiring." },
     hook_close: { ru: 'Помните загадку? 0,45 не больше 0,5. Допишем ноль: 0,50 это 50 сотых, 0,45 это 45 сотых. Значит 0,5 больше.', uz: "Topishmoq yodingizdami? 0,45, 0,5 dan katta emas. Nol qo'shamiz: 0,50 — 50 yuzdan, 0,45 — 45 yuzdan. Demak 0,5 katta." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
     conn_refs: { ru: 'Дробь как часть целого, эквивалентные дроби, разряды натуральных чисел.', uz: "Kasr — butunning qismi, ekvivalent kasrlar, natural sonlar xonalari." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'Сравнение и округление десятичных дробей.', uz: "O'nli kasrlarni solishtirish va yaxlitlash." },
     btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, десятичная дробь это дробь со знаменателем десять, сто, тысяча. Разряды вправо: десятые, сотые, тысячные. И помни: больше цифр не значит больше число.", uz: "Demak, o'nli kasr — maxraji o'n, yuz, ming bo'lgan kasr. Xonalar o'ngga: o'ndan, yuzdan, mingdan. Va yodda tut: raqam ko'p — son katta degani emas." }
+    audio: { ru: "Итак, десятичная дробь это дробь со знаменателем десять, сто, тысяча. Разряды вправо: десятые, сотые, тысячные. И помни: больше цифр не значит больше число.", uz: "Demak, o'nli kasr — maxraji o'n, yuz, ming bo'lgan kasr. Xonalar o'ngga: o'ndan, yuzdan, mingdan. Va yodda tuting: raqam ko'p — son katta degani emas." }
   }
 };
 
