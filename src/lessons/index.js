@@ -1,14 +1,38 @@
 import { grade1 } from './grade1.js'
 import { grade5 } from './grade5.js'
 
-// Sinflar registri. Yangi sinf qo'shish: lessons/gradeN.js yarating,
-// shu yerda import qilib, quyidagi massivga bitta obyekt qo'shing.
-// `id` URL prefiksi bo'ladi (/<id>/<slug>), `label` Home'da ko'rinadi.
-export const grades = [
-  { id: '1-sinf', label: '1-sinf', lessons: grade1 },
-  { id: '5-sinf', label: '5-sinf', lessons: grade5 },
+// Fanlar ro'yxati. Yangi fan qo'shish: shu yerga obyekt qo'shing.
+// `id` URL bo'lagi bo'ladi (/<sinf>/<fan>/<slug>), `accent` qobiq rangi.
+export const SUBJECTS = [
+  { id: 'matematika', label: 'Matematika', accent: '#ff4f28' },
+  { id: 'fizika', label: 'Fizika', accent: '#2f72ff' },
 ]
 
-// Faqat darslari bor sinflar (bo'shlari Home'da ko'rsatilmaydi, lekin
-// kelajakda "Tez orada" sifatida ko'rsatish uchun grades to'liq qoladi).
-export const activeGrades = grades.filter((g) => g.lessons.length > 0)
+// Sinf + fan -> darslar registri. Darslar bo'lgan kombinatsiyalarni shu yerga
+// yozamiz; qolganlari avtomatik "tez orada" bo'lib qoladi.
+// Yangi sinf darsligi: lessons/gradeN.js yarating, import qiling, shu yerga ulang.
+const REGISTRY = {
+  '1-sinf': { matematika: grade1 },
+  '5-sinf': { matematika: grade5 },
+}
+
+// 1..11 sinflar. Har sinfda barcha fanlar bor; darslari bo'lmagani "tez orada".
+export const grades = Array.from({ length: 11 }, (_, i) => {
+  const id = `${i + 1}-sinf`
+  const reg = REGISTRY[id] || {}
+  return {
+    id,
+    label: id,
+    subjects: SUBJECTS.map((s) => ({
+      ...s,
+      lessons: reg[s.id] || [],
+    })),
+  }
+})
+
+// Routing uchun: sinf + fan + slug bo'yicha darsni topish.
+export function findLesson(gradeId, subjectId, slug) {
+  const grade = grades.find((g) => g.id === gradeId)
+  const subject = grade && grade.subjects.find((s) => s.id === subjectId)
+  return (subject && subject.lessons.find((l) => l.slug === slug)) || null
+}

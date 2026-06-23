@@ -1,29 +1,36 @@
 import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import Home from './components/shared/Home.jsx'
 import LessonPage from './components/shared/LessonPage.jsx'
-import { grades } from './lessons/index.js'
+import { grades, findLesson } from './lessons/index.js'
 import './App.css'
 
-// Eski /dars/<slug> havolalarini 5-sinfga yo'naltirish (orqaga moslik).
-function LegacyRedirect() {
+// Yangi havola: /<sinf>/<fan>/<slug>. Darsni registrdan topib ko'rsatadi.
+function LessonRoute() {
+  const { gradeId, subjectId, slug } = useParams()
+  const lesson = findLesson(gradeId, subjectId, slug)
+  if (!lesson) return <Navigate to="/" replace />
+  return <LessonPage lesson={lesson} gradeId={gradeId} subjectId={subjectId} />
+}
+
+// Orqaga moslik: eski 2-bo'lakli /<sinf>/<slug> -> matematikaga yo'naltiriladi.
+function LegacyGradeRedirect() {
+  const { gradeId, slug } = useParams()
+  return <Navigate to={`/${gradeId}/matematika/${slug}`} replace />
+}
+
+// Juda eski /dars/<slug> havolalar -> 5-sinf matematikaga.
+function LegacyDarsRedirect() {
   const { slug } = useParams()
-  return <Navigate to={`/5-sinf/${slug}`} replace />
+  return <Navigate to={`/5-sinf/matematika/${slug}`} replace />
 }
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home grades={grades} />} />
-      {grades.flatMap((grade) =>
-        grade.lessons.map((lesson) => (
-          <Route
-            key={`${grade.id}/${lesson.slug}`}
-            path={`/${grade.id}/${lesson.slug}`}
-            element={<LessonPage lesson={lesson} />}
-          />
-        )),
-      )}
-      <Route path="/dars/:slug" element={<LegacyRedirect />} />
+      <Route path="/:gradeId/:subjectId/:slug" element={<LessonRoute />} />
+      <Route path="/dars/:slug" element={<LegacyDarsRedirect />} />
+      <Route path="/:gradeId/:slug" element={<LegacyGradeRedirect />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
