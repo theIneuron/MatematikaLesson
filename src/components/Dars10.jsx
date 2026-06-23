@@ -768,7 +768,7 @@ const FactCard = ({ text, anim, badge }) => {
     </div>
   );
 };
-// Tarix (arqon o'lchovi): teng tugunlar arqonni teng bo'laklarga ajratadi — son o'qining ajdodi.
+// Tarix (arqon o'lchovi): teng tugunlar arqonni teng bo'laklarga ajratadi — sonlar nurining ajdodi.
 const AnimRope = () => (
   <div className="fa-rope" aria-hidden="true">
     <span className="fa-rope-line"/>
@@ -785,7 +785,7 @@ const AnimNote = () => (
     ))}
   </div>
 );
-// IT (video timeline): pleyer chizig'i — son o'qi, playhead 1/2 nuqtada.
+// IT (video timeline): pleyer chizig'i — sonlar nuri, playhead 1/2 nuqtada.
 const AnimTimeline = () => (
   <div className="fa-tl" aria-hidden="true">
     <span className="fa-tl-track"/>
@@ -833,11 +833,11 @@ const NumberLine = ({ den = 4, max = 1, mark = null, showMark = true, interactiv
 };
 
 // ============================================================
-// --- POD UROK: frac_5_02 — Дробь на числовой прямой / Kasr son o'qida ---
+// --- POD UROK: frac_5_02 — Дробь на числовой прямой / Kasr sonlar nurida ---
 // ============================================================
 const LESSON_META = {
   lessonId: 'frac-5-02-v1',
-  lessonTitle: { ru: 'Дробь на числовой прямой', uz: "Kasr son o'qida" }
+  lessonTitle: { ru: 'Дробь на числовой прямой', uz: "Kasr sonlar nurida" }
 };
 const TOTAL_SCREENS = 14;
 
@@ -861,7 +861,7 @@ const SCREEN_META = [
 const CONTENT = {
   // ---- s0 HOOK: Малика хочет отметить 3/4 на линии, Жасур: «это просто кусок, не место» ----
   s0: {
-    eyebrow: { ru: 'Дробь на прямой · вступление', uz: "Kasr o'qda · kirish" },
+    eyebrow: { ru: 'Дробь на прямой · вступление', uz: "Kasr sonlar nurida · kirish" },
     title: { ru: 'Малика чертит линейку от 0 до 1 и хочет отметить на ней три четвёртых.', uz: "Malika 0 dan 1 gacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi." },
     body: { ru: 'Жасур качает головой: «три четвёртых — это же просто кусок, его нельзя поставить точкой на линии. Это не настоящее число с местом».', uz: "Jasur bosh chayqaydi: «to'rtdan uch — bu shunchaki bir bo'lak-ku, uni chiziqqa nuqta qilib qo'yib bo'lmaydi. Bu o'z joyi bor haqiqiy son emas»." },
     question: { ru: 'А ты как думаешь: можно ли поставить три четвёртых одной точкой на линии между 0 и 1?', uz: "Sizningcha-chi: to'rtdan uchni 0 va 1 orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi?" },
@@ -873,7 +873,7 @@ const CONTENT = {
 
   // ---- s1 EXPLORATION (step-by-step): ставим 3/4 на отрезок 0..1 ----
   s1: {
-    eyebrow: { ru: 'Дробь на прямой', uz: "Kasr o'qda" },
+    eyebrow: { ru: 'Дробь на прямой', uz: "Kasr sonlar nurida" },
     title: { ru: 'Поставим 3/4 на линию по шагам', uz: "3/4 ni chiziqqa bosqichma-bosqich qo'yamiz" },
     bridge: { ru: 'Жасур сказал «нельзя». Давай проверим — поставим три четвёртых на линию по шагам.', uz: "Jasur «bo'lmaydi» dedi. Keling, tekshiramiz — to'rtdan uchni chiziqqa bosqichma-bosqich qo'yamiz." },
     conclusion: { ru: 'Три четвёртых — это точка: 3 шага из 4 от нуля.', uz: "To'rtdan uch — bu nuqta: noldan 4 qadamdan 3 tasi." },
@@ -915,20 +915,20 @@ const CONTENT = {
   s3: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     bridge: { ru: 'Ты поставил точку сам. Теперь соберём это в правило.', uz: "Nuqtani o'zingiz qo'ydingiz. Endi buni qoidaga yig'amiz." },
-    label: { ru: 'Как поставить дробь на прямую', uz: "Kasrni o'qqa qanday qo'yish" },
+    label: { ru: 'Как поставить дробь на прямую', uz: "Kasrni sonlar nuriga qanday qo'yish" },
     title: { ru: 'Дробь — это число, у него есть место на линии.', uz: "Kasr — bu son, uning chiziqda joyi bor." },
     card_bottom: { ru: 'Знаменатель — на сколько равных частей делим отрезок от 0 до 1.', uz: "Maxraj — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lamiz." },
     card_top: { ru: 'Числитель — сколько шагов отсчитываем от нуля.', uz: "Surat — noldan nechta qadam sanaymiz." },
     card_line: { ru: 'Метка, на которой остановились, — это и есть место дроби.', uz: "To'xtagan belgimiz — kasrning o'sha joyi." },
     outro: { ru: 'Знаменатель 4 делит отрезок на 4 части, числитель 3 отсчитывает 3 шага — и точка три четвёртых готова.', uz: "Maxraj 4 kesmani 4 bo'lakka bo'ladi, surat 3 esa 3 qadam sanaydi — va to'rtdan uch nuqtasi tayyor." },
-    audio: { ru: 'Чтобы поставить дробь на прямую, смотри на знаменатель и числитель. Знаменатель показывает, на сколько равных частей разделить отрезок от нуля до единицы. Числитель показывает, сколько шагов отсчитать от нуля. Метка, на которой остановились, и есть место дроби. Для трёх четвёртых делим на четыре части и отсчитываем три шага.', uz: "Kasrni o'qqa qo'yish uchun maxraj va suratga qarang. Maxraj noldan birgacha kesmani nechta teng bo'lakka bo'lishni ko'rsatadi. Surat noldan nechta qadam sanashni ko'rsatadi. To'xtagan belgimiz — kasrning joyi. To'rtdan uch uchun to'rt bo'lakka bo'lib, uch qadam sanaymiz." }
+    audio: { ru: 'Чтобы поставить дробь на прямую, смотри на знаменатель и числитель. Знаменатель показывает, на сколько равных частей разделить отрезок от нуля до единицы. Числитель показывает, сколько шагов отсчитать от нуля. Метка, на которой остановились, и есть место дроби. Для трёх четвёртых делим на четыре части и отсчитываем три шага.', uz: "Kasrni sonlar nuriga qo'yish uchun maxraj va suratga qarang. Maxraj noldan birgacha kesmani nechta teng bo'lakka bo'lishni ko'rsatadi. Surat noldan nechta qadam sanashni ko'rsatadi. To'xtagan belgimiz — kasrning joyi. To'rtdan uch uchun to'rt bo'lakka bo'lib, uch qadam sanaymiz." }
   },
 
   // ---- s4 TEST (tap-on-line, ketma-ket): поставь точку — 5 примеров от простого к сложному ----
   s4: {
     eyebrow: { ru: 'Тренировка · поставь точку', uz: "Mashq · nuqta qo'ying" },
     bridge: { ru: 'Правило знаем — теперь поставь точки сам, от простого к сложному.', uz: "Qoidani bilamiz — endi nuqtalarni o'zingiz qo'ying, osondan qiyinga." },
-    title: { ru: 'Поставь точку на прямой', uz: "Nuqtani o'qqa qo'ying" },
+    title: { ru: 'Поставь точку на прямой', uz: "Nuqtani sonlar nuriga qo'ying" },
     lead: { ru: 'Пять дробей по очереди. Нажми метку, где стоит дробь. От простого к сложному.', uz: "Beshta kasr navbatma-navbat. Kasr turgan belgini bosing. Osondan qiyinga." },
     ask: { ru: 'Поставь точку на:', uz: "Nuqtani shu yerga qo'ying:" },
     hint: { ru: 'Знаменатель — на сколько частей делим каждый отрезок от целого к целому. Числитель — сколько шагов от нуля.', uz: "Maxraj — har bir butun oralig'ini nechta bo'lakka bo'lamiz. Surat — noldan nechta qadam." },
@@ -968,10 +968,10 @@ const CONTENT = {
     hint_2: { ru: 'Одна вторая стоит между 0 и 1, а наша точка — за единицей. Шагов больше.', uz: "Ikkidan bir 0 va 1 orasida turadi, bizning nuqta esa birdan keyin. Qadamlar ko'proq." },
     hint_3: { ru: 'Здесь делим на половинки, знаменатель 2, а не 4.', uz: "Bu yerda yarimlarga bo'lamiz, maxraj 2, 4 emas." },
     wrong_default: { ru: 'Половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых.', uz: "Yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch." },
-    fact: { ru: 'В древности расстояние мерили верёвкой с равными узлами: между узлами — одинаковые доли. Это далёкий предок числовой прямой.', uz: "Qadimda masofa teng tugunli arqon bilan o'lchangan: tugunlar orasi — bir xil ulushlar. Bu son o'qining uzoq ajdodi." },
+    fact: { ru: 'В древности расстояние мерили верёвкой с равными узлами: между узлами — одинаковые доли. Это далёкий предок числовой прямой.', uz: "Qadimda masofa teng tugunli arqon bilan o'lchangan: tugunlar orasi — bir xil ulushlar. Bu sonlar nurining uzoq ajdodi." },
     audio: {
       intro: { ru: 'Линия от нуля до двух разделена на половинки. Точка стоит на третьей метке, между единицей и двойкой. Выбери нужную дробь.', uz: "Noldan ikkigacha chiziq yarimlarga bo'lingan. Nuqta uchinchi belgida, bir va ikki orasida turibdi. Kerakli kasrni tanlang." },
-      on_correct: { ru: 'Верно. Три половинки от нуля — это три вторых. Кстати, в древности расстояние мерили верёвкой с равными узлами — это далёкий предок числовой прямой.', uz: "To'g'ri. Noldan uchta yarim — bu ikkidan uch. Aytgancha, qadimda masofa teng tugunli arqon bilan o'lchangan — bu son o'qining uzoq ajdodi." },
+      on_correct: { ru: 'Верно. Три половинки от нуля — это три вторых. Кстати, в древности расстояние мерили верёвкой с равными узлами — это далёкий предок числовой прямой.', uz: "To'g'ri. Noldan uchta yarim — bu ikkidan uch. Aytgancha, qadimda masofa teng tugunli arqon bilan o'lchangan — bu sonlar nurining uzoq ajdodi." },
       on_wrong: { ru: 'Пока нет. Делим на половинки — знаменатель 2, считаем три шага — числитель 3.', uz: "Hali emas. Yarimlarga bo'lamiz — maxraj 2, uch qadam sanaymiz — surat 3." }
     }
   },
@@ -999,7 +999,7 @@ const CONTENT = {
 
   // ---- s_seq TEST (SeqMC): 5 примеров — между какими целыми стоит дробь (proper + improper, сложнее) ----
   s_seq: {
-    eyebrow: { ru: 'Тренировка · где на линии', uz: "Mashq · o'qda qayerda" },
+    eyebrow: { ru: 'Тренировка · где на линии', uz: "Mashq · sonlar nurida qayerda" },
     title: { ru: 'Между какими целыми?', uz: "Qaysi butunlar orasida?" },
     lead: { ru: 'Пять дробей. Для каждой выбери, между какими целыми числами стоит её точка.', uz: "Beshta kasr. Har biri uchun nuqtasi qaysi butun sonlar orasida turishini tanlang." },
     bridge: { ru: 'Точку ставить умеем. Теперь прикинем, где дробь живёт на линии.', uz: "Nuqta qo'yishni bilamiz. Endi kasr chiziqda qayerda yashashini chamalaymiz." },
@@ -1056,7 +1056,7 @@ const CONTENT = {
   // ---- s8 CASE setup: Сардор, измерительная линейка (метр), отметка 3/4 м ----
   s8: {
     eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
-    bridge: { ru: 'Числовая прямая — это и линейка в жизни. Поможем Сардору.', uz: "Son o'qi — bu hayotdagi chizg'ich ham. Sardorga yordam beramiz." },
+    bridge: { ru: 'Числовая прямая — это и линейка в жизни. Поможем Сардору.', uz: "Sonlar nuri — bu hayotdagi chizg'ich ham. Sardorga yordam beramiz." },
     title: { ru: 'Сардор размечает метровую планку.', uz: "Sardor bir metrli reykani belgilaydi." },
     body_p1: { ru: 'Планка длиной 1 метр. Сардор разделил её на 4 равные части и хочет поставить отметку на трёх четвёртых метра.', uz: "Reyka uzunligi 1 metr. Sardor uni 4 ta teng bo'lakka bo'lib, metrning to'rtdan uchiga belgi qo'ymoqchi." },
     card_line_label: { ru: 'Длина планки', uz: "Reyka uzunligi" },
@@ -1118,10 +1118,10 @@ const CONTENT = {
     hint_2: { ru: 'Снизу — на сколько частей разделили отрезок. Их 4.', uz: "Pastda — kesma nechta bo'lakka bo'lingani. Ular to'rtta." },
     hint_3: { ru: 'Сверху — сколько шагов от нуля до точки. Их 2, а не 3.', uz: "Yuqorida — noldan nuqtagacha nechta qadam. Ular ikkita, uch emas." },
     wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов (2). Это две четвёртых.', uz: "Maxraj — bo'laklar soni (to'rt), surat — qadamlar soni (ikki). Bu to'rtdan ikki." },
-    fact: { ru: 'Полоса времени видеоплеера — это и есть числовая прямая: начало 0, конец 1. Точка 1/2 на ней — ровно середина видео.', uz: "Video pleyerning vaqt chizig'i — bu aynan son o'qi: boshi 0, oxiri 1. Undagi 1/2 nuqta — videoning aniq yarmi." },
+    fact: { ru: 'Полоса времени видеоплеера — это и есть числовая прямая: начало 0, конец 1. Точка 1/2 на ней — ровно середина видео.', uz: "Video pleyerning vaqt chizig'i — bu aynan sonlar nuri: boshi 0, oxiri 1. Undagi 1/2 nuqta — videoning aniq yarmi." },
     audio: {
       intro: { ru: 'Последнее задание. Отрезок от нуля до единицы разделён на четыре части, точка на второй метке. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Noldan birgacha kesma to'rtta bo'lakka bo'lingan, nuqta ikkinchi belgida. Kerakli kasrni tanlang." },
-      on_correct: { ru: 'Верно. Две четвёртых — это ровно середина, то же место, что и одна вторая. Кстати, полоса времени видеоплеера — это та же числовая прямая, и точка одна вторая на ней — ровно середина видео.', uz: "To'g'ri. To'rtdan ikki — aniq o'rta, ikkidan bir bilan bir xil joy. Aytgancha, video pleyerning vaqt chizig'i — o'sha son o'qi, undagi ikkidan bir nuqta — videoning aniq yarmi." },
+      on_correct: { ru: 'Верно. Две четвёртых — это ровно середина, то же место, что и одна вторая. Кстати, полоса времени видеоплеера — это та же числовая прямая, и точка одна вторая на ней — ровно середина видео.', uz: "To'g'ri. To'rtdan ikki — aniq o'rta, ikkidan bir bilan bir xil joy. Aytgancha, video pleyerning vaqt chizig'i — o'sha sonlar nuri, undagi ikkidan bir nuqta — videoning aniq yarmi." },
       on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов до точки.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — nuqtagacha qadamlar soni." }
     }
   },
@@ -1133,7 +1133,7 @@ const CONTENT = {
     score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz" },
     title: { ru: 'Теперь дробь для тебя — число со своим местом на линии.', uz: "Endi kasr siz uchun — chiziqda o'z joyi bor son." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Дробь — это число, и у неё есть точка на числовой прямой.', uz: "Kasr — bu son, va uning son o'qida nuqtasi bor." },
+    main_1: { ru: 'Дробь — это число, и у неё есть точка на числовой прямой.', uz: "Kasr — bu son, va uning sonlar nurida nuqtasi bor." },
     main_2: { ru: 'Знаменатель — на сколько равных частей делим отрезок 0…1. Числитель — сколько шагов от нуля.', uz: "Maxraj — 0…1 kesmani nechta teng bo'lakka bo'lamiz. Surat — noldan nechta qadam." },
     main_3: { ru: 'Линия не кончается на 1: за единицей те же части идут к 2 и дальше.', uz: "Chiziq 1 da tugamaydi: birdan keyin o'sha bo'laklar 2 ga va nariga ketadi." },
     main_4: { ru: '1/2 и 2/4 — одна и та же точка. Равные дроби стоят на одном месте.', uz: "1/2 va 2/4 — bitta nuqta. Teng kasrlar bir joyda turadi." },
@@ -1143,7 +1143,7 @@ const CONTENT = {
     conn_refs: { ru: 'урок «Что такое дробь».', uz: "«Kasr nima» darsi." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'дробь как деление: a/b это a разделить на b.', uz: "kasr — bo'lish natijasi: a/b bu a ni b ga bo'lish." },
-    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это число, и у неё есть своё место на числовой прямой. Знаменатель делит отрезок от нуля до единицы на равные части, а числитель отсчитывает шаги от нуля. Линия не кончается на единице — за ней те же части идут к двойке. А равные дроби, например одна вторая и две четвёртых, стоят на одном месте. Три четвёртых нашли точку между нулём и единицей. Жасур ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu son, va uning son o'qida o'z joyi bor. Maxraj noldan birgacha kesmani teng bo'laklarga bo'ladi, surat esa noldan qadamlarni sanaydi. Chiziq birda tugamaydi — undan keyin o'sha bo'laklar ikki tomon ketadi. Teng kasrlar esa, masalan ikkidan bir va to'rtdan ikki, bir joyda turadi. To'rtdan uch nol va bir orasidan nuqta topdi. Jasur xato qilgan ekan." }
+    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это число, и у неё есть своё место на числовой прямой. Знаменатель делит отрезок от нуля до единицы на равные части, а числитель отсчитывает шаги от нуля. Линия не кончается на единице — за ней те же части идут к двойке. А равные дроби, например одна вторая и две четвёртых, стоят на одном месте. Три четвёртых нашли точку между нулём и единицей. Жасур ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu son, va uning sonlar nurida o'z joyi bor. Maxraj noldan birgacha kesmani teng bo'laklarga bo'ladi, surat esa noldan qadamlarni sanaydi. Chiziq birda tugamaydi — undan keyin o'sha bo'laklar ikki tomon ketadi. Teng kasrlar esa, masalan ikkidan bir va to'rtdan ikki, bir joyda turadi. To'rtdan uch nol va bir orasidan nuqta topdi. Jasur xato qilgan ekan." }
   }
 };
 

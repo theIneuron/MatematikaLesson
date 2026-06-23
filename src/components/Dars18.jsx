@@ -827,7 +827,7 @@ const CONTENT = {
     heading: { ru: 'Вычитаем числители, знаменатель тот же', uz: "Suratlarni ayiramiz, maxraj o'sha" },
     bridge: { ru: 'Мы увидели это на кувшине. Теперь соберём в правило.', uz: "Buni idishda ko'rdik. Endi qoidaga yig'amiz." },
     rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
-    rule_1: { ru: 'Если знаменатели равны, вычитаем только числители.', uz: "Maxrajlar teng bo'lsa, faqat suratlarni ayiramiz." },
+    rule_1: { ru: 'Если знаменатели равны, вычитаем только числители.', uz: "Maxrajlar bir xil bo'lsa, faqat suratlarni ayiramiz." },
     rule_2: { ru: 'Знаменатель не меняется — это размер доли, а не количество.', uz: "Maxraj o'zgarmaydi — bu ulush o'lchami, soni emas." },
     card_top: { ru: 'Числитель — сколько долей. Вычитаем: 5 − 2 = 3.', uz: "Surat — nechta ulush. Ayiramiz: 5 − 2 = 3." },
     card_bottom: { ru: 'Знаменатель — размер доли. Он один и тот же, поэтому не меняется.', uz: "Maxraj — ulush o'lchami. U bir xil, shuning uchun o'zgarmaydi." },
@@ -840,7 +840,7 @@ const CONTENT = {
   s4: {
     eyebrow: { ru: 'Тренировка', uz: "Mashq" },
     title: { ru: 'Пять быстрых примеров', uz: "Beshta tez misol" },
-    lead: { ru: 'Вычитай дроби с равным знаменателем. Выбери ответ.', uz: "Teng maxrajli kasrlarni ayiring. Javobni tanlang." },
+    lead: { ru: 'Вычитай дроби с равным знаменателем. Выбери ответ.', uz: "Bir xil maxrajli kasrlarni ayiring. Javobni tanlang." },
     bridge: { ru: 'Правило знаем — теперь потренируемся.', uz: "Qoidani bilamiz — endi mashq qilamiz." },
     questions: [
       {
@@ -999,19 +999,19 @@ const CONTENT = {
   s9: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
     heading: { ru: 'Что мы усвоили', uz: "Nimani o'rgandik" },
-    title: { ru: 'Теперь ты вычитаешь дроби с равным знаменателем.', uz: "Endi siz teng maxrajli kasrlarni ayirasiz." },
+    title: { ru: 'Теперь ты вычитаешь дроби с равным знаменателем.', uz: "Endi siz bir xil maxrajli kasrlarni ayirasiz." },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'У дробей с равным знаменателем вычитаем только числители.', uz: "Teng maxrajli kasrlarda faqat suratlarni ayiramiz." },
+    main_1: { ru: 'У дробей с равным знаменателем вычитаем только числители.', uz: "Bir xil maxrajli kasrlarda faqat suratlarni ayiramiz." },
     main_2: { ru: 'Знаменатель не меняется — это размер доли, а не количество.', uz: "Maxraj o'zgarmaydi — bu ulush o'lchami, soni emas." },
     main_3: { ru: 'Если числители равны, разность равна нулю (3/7 − 3/7 = 0).', uz: "Suratlar teng bo'lsa, ayirma nolga teng (3/7 − 3/7 = 0)." },
     score_label: { ru: 'Верно с первой попытки', uz: "Birinchi urinishda to'g'ri" },
     back_to_hook: { ru: 'Кувшин Севинч: 7/8 − 3/8 = 4/8. Знаменатель не изменился.', uz: "Sevinch idishi: 7/8 − 3/8 = 4/8. Maxraj o'zgarmadi." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Сложение дробей с равным знаменателем» (тот же принцип) и «Что такое дробь».', uz: "«Teng maxrajli kasrlarni qo'shish» (o'sha tamoyil) va «Kasr nima»." },
+    conn_refs: { ru: '«Сложение дробей с равным знаменателем» (тот же принцип) и «Что такое дробь».', uz: "«Bir xil maxrajli kasrlarni qo'shish» (o'sha tamoyil) va «Kasr nima»." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'вычитание дробей с разными знаменателями.', uz: "har xil maxrajli kasrlarni ayirish." },
     btn_restart: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    audio: { ru: 'Отлично. Теперь ты вычитаешь дроби с равным знаменателем. Вычитаем только числители, а знаменатель оставляем тем же, это размер доли. А если числители равны, разность равна нулю. Дальше научимся вычитать дроби с разными знаменателями.', uz: "Zo'r. Endi siz teng maxrajli kasrlarni ayirasiz. Faqat suratlarni ayiramiz, maxrajni esa o'sha qoldiramiz, bu ulush o'lchami. Suratlar teng bo'lsa, ayirma nol bo'ladi. Keyingi darsda har xil maxrajli kasrlarni ayirishni o'rganamiz." }
+    audio: { ru: 'Отлично. Теперь ты вычитаешь дроби с равным знаменателем. Вычитаем только числители, а знаменатель оставляем тем же, это размер доли. А если числители равны, разность равна нулю. Дальше научимся вычитать дроби с разными знаменателями.', uz: "Zo'r. Endi siz bir xil maxrajli kasrlarni ayirasiz. Faqat suratlarni ayiramiz, maxrajni esa o'sha qoldiramiz, bu ulush o'lchami. Suratlar teng bo'lsa, ayirma nol bo'ladi. Keyingi darsda har xil maxrajli kasrlarni ayirishni o'rganamiz." }
   }
 };
 

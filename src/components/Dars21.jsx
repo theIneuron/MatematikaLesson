@@ -747,7 +747,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Markaziy misconception 1: "surat maxrajdan katta bo'lolmaydi" (9/4 = xato). YO'Q — bu noto'g'ri kasr.
 // Markaziy misconception 2: "aralash son = butun KO'PAYTIRILGAN kasr". YO'Q — bu butun + kasr YIG'INDISI.
 // Asosiy usul: noto'g'ri kasr -> aralash son: suratni maxrajga BO'L (qoldiq bilan); butun = bo'linma, qoldiq = yangi surat.
-// Vizualizator: FillWholes (to'lib-toshuvchi butun-qutilar) + NumLine (son o'qiga joylash) + dnd (sudrash).
+// Vizualizator: FillWholes (to'lib-toshuvchi butun-qutilar) + NumLine (sonlar nuriga joylash) + dnd (sudrash).
 // Hook (sodda hayotiy): Madina non yopdi (har non 4 bo'lak), 9 bo'lak = 9/4; do'sti Kamol "xato" dedi (9/4 = 2 1/4).
 // Case: Oybek 11/4 stakan sharbat (= 2 3/4). Yangi qahramonlar: Madina, Kamol, Oybek.
 // Maxsus slaydlar: s5 = 5 ta oson savol (SeqMC); s12 = 6-8 misol oson->qiyin har xil tur (SeqMix) = YAKUNIY.
@@ -1053,9 +1053,9 @@ const CONTENT = {
         say: { ru: 'Переведи пять четвёртых в смешанное число.', uz: "To'rtdan beshni aralash songa o'tkazing." },
         ok: { ru: '5 разделить на 4 — один, остаток один.', uz: "5 ni 4 ga bo'lsak — bir, qoldiq bir." },
         no: { ru: 'Раздели 5 на 4: целое один, остаток один.', uz: "5 ni 4 ga bo'ling: butun bir, qoldiq bir." } },
-      // 4 — place oson (5/4 = 1.25 son o'qida)
-      { type: 'place', prompt: { ru: 'Поставь 5/4 на числовой прямой', uz: "5/4 ni son o'qiga qo'ying" }, max: 2, den: 4, targetK: 5,
-        say: { ru: 'Поставь пять четвёртых на числовой прямой. Это между одним и двумя.', uz: "To'rtdan beshni son o'qiga qo'ying. Bu bir bilan ikki orasida." },
+      // 4 — place oson (5/4 = 1.25 sonlar nurida)
+      { type: 'place', prompt: { ru: 'Поставь 5/4 на числовой прямой', uz: "5/4 ni sonlar nuriga qo'ying" }, max: 2, den: 4, targetK: 5,
+        say: { ru: 'Поставь пять четвёртых на числовой прямой. Это между одним и двумя.', uz: "To'rtdan beshni sonlar nuriga qo'ying. Bu bir bilan ikki orasida." },
         ok: { ru: 'Верно. 5/4 это чуть больше одного целого.', uz: "To'g'ri. 5/4 bu bitta butundan sal kattaroq." },
         no: { ru: '5/4 больше единицы, но меньше двух.', uz: "5/4 birdan katta, lekin ikkidan kichik." } },
       // 5 — mc find-wrong
@@ -1068,9 +1068,9 @@ const CONTENT = {
         say: { ru: 'Переведи одиннадцать четвёртых в смешанное число.', uz: "To'rtdan o'n birni aralash songa o'tkazing." },
         ok: { ru: '11 разделить на 4 — два, остаток три.', uz: "11 ni 4 ga bo'lsak — ikki, qoldiq uch." },
         no: { ru: 'Раздели 11 на 4: целое два, остаток три.', uz: "11 ni 4 ga bo'ling: butun ikki, qoldiq uch." } },
-      // 7 — place qiyin (2 1/3 son o'qida, max 3 den 3 -> k=7)
-      { type: 'place', prompt: { ru: 'Поставь 2 1/3 на числовой прямой', uz: "2 1/3 ni son o'qiga qo'ying" }, max: 3, den: 3, targetK: 7,
-        say: { ru: 'Поставь два целых одну третью на числовой прямой. Это между двумя и тремя.', uz: "Ikki butun uchdan birni son o'qiga qo'ying. Bu ikki bilan uch orasida." },
+      // 7 — place qiyin (2 1/3 sonlar nurida, max 3 den 3 -> k=7)
+      { type: 'place', prompt: { ru: 'Поставь 2 1/3 на числовой прямой', uz: "2 1/3 ni sonlar nuriga qo'ying" }, max: 3, den: 3, targetK: 7,
+        say: { ru: 'Поставь два целых одну третью на числовой прямой. Это между двумя и тремя.', uz: "Ikki butun uchdan birni sonlar nuriga qo'ying. Bu ikki bilan uch orasida." },
         ok: { ru: 'Верно. Самое трудное — и оно сделано.', uz: "To'g'ri. Eng qiyini — u ham bajarildi." },
         no: { ru: '2 1/3 чуть больше двух целых.', uz: "2 1/3 ikki butundan sal kattaroq." } }
     ],
@@ -1163,7 +1163,7 @@ const AnimClock = () => (
 );
 
 // ============================================================
-// VIZUALIZATOR — FillWholes (to'lib-toshuvchi butun-qutilar) + NumLine (son o'qi)
+// VIZUALIZATOR — FillWholes (to'lib-toshuvchi butun-qutilar) + NumLine (sonlar nuri)
 // ============================================================
 // FillWholes: `wholes` ta butun-quti yonma-yon, har biri `den` katak. `filled` katak chapdan to'ladi.
 // mixed=false: barcha to'la katak yashil. mixed=true: to'liq to'lgan quti "1" badge + yashil; qisman quti accent.
@@ -1189,7 +1189,7 @@ const FillWholes = ({ den, filled, wholes, mixed = false, animate = true, max = 
   return <div className="fw-row" aria-hidden="true" style={{ maxWidth: max }}>{boxes}</div>;
 };
 
-// NumLine — 0..max son o'qi, har k/den da nuqta; butun belgilar yorliqli. Bosib joylanadi (place test).
+// NumLine — 0..max sonlar nuri, har k/den da nuqta; butun belgilar yorliqli. Bosib joylanadi (place test).
 const NumLine = ({ max, den, picked, targetK, solved, onPick }) => {
   const total = max * den;
   const dots = [];

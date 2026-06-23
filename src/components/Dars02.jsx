@@ -1120,11 +1120,11 @@ const CONTENT = {
     },
     wrong_0: {
       ru: 'Это от большей к меньшей. Нас просили наоборот — от меньшей к большей.',
-      uz: 'Bu kattadan kichikka. Bizdan teskarisi — kichikdan kattaga so\u2018ralgan.'
+      uz: "Bu kattadan kichikka. Bizdan teskarisi — kichikdan kattaga so'ralgan."
     },
     wrong_2: {
       ru: 'Марс 7 000 — самый маленький, он должен быть первым. Сравни округлённые числа по разрядам.',
-      uz: 'Mars 7 000 — eng kichigi, u birinchi bo\u2018lishi kerak. Yaxlit sonlarni xonalar bo\u2018yicha taqqoslang.'
+      uz: "Mars 7 000 — eng kichigi, u birinchi bo'lishi kerak. Yaxlit sonlarni xonalar bo'yicha taqqoslang."
     },
     hint_0: { ru: 'Нас просили от меньшей к большей. Сравни округлённые числа.', uz: "Bizdan kichikdan kattaga so'rashdi. Yaxlit sonlarni taqqoslang." },
     hint_2: { ru: 'Сравни округлённые: 7 000, 13 000, 140 000, какое меньше?', uz: "Yaxlit sonlarni taqqoslang: 7 000, 13 000, 140 000, qaysi biri kichik?" },
@@ -1140,7 +1140,7 @@ const CONTENT = {
   s14: {
     eyebrow: { ru: 'Итог · 1 из 2', uz: 'Yakun · 2 dan 1' },
     label: { ru: 'Сравни числа', uz: 'Sonlarni taqqoslang' },
-    question: { ru: 'Зонд показал два расстояния: 5 000 009 км и 5 000 010 км. Какое больше?', uz: 'Zond ikki masofani ko\u2018rsatdi: 5 000 009 km va 5 000 010 km. Qaysi biri katta?' },
+    question: { ru: 'Зонд показал два расстояния: 5 000 009 км и 5 000 010 км. Какое больше?', uz: "Zond ikki masofani ko'rsatdi: 5 000 009 km va 5 000 010 km. Qaysi biri katta?" },
     opt0: { ru: '5 000 009 — в нём есть девятка', uz: "5 000 009 — unda to'qqiz bor" },
     opt1: { ru: 'Они равны', uz: 'Ular teng' },
     opt2: { ru: '5 000 010', uz: '5 000 010' },
@@ -1170,7 +1170,7 @@ const CONTENT = {
   s15: {
     eyebrow: { ru: 'Итог · 2 из 2', uz: 'Yakun · 2 dan 2' },
     label: { ru: 'Округли число', uz: 'Sonni yaxlitlang' },
-    question: { ru: 'Астероид пролетел в 9 859 км от станции. Округли до тысяч.', uz: 'Asteroid stansiyadan 9 859 km uzoqlikda uchib o\u2018tdi. Minglar xonasigacha yaxlitlang.' },
+    question: { ru: 'Астероид пролетел в 9 859 км от станции. Округли до тысяч.', uz: "Asteroid stansiyadan 9 859 km uzoqlikda uchib o'tdi. Minglar xonasigacha yaxlitlang." },
     opt0: { ru: '9 000', uz: '9 000' },
     opt1: { ru: '9 800', uz: '9 800' },
     opt2: { ru: '9 900', uz: '9 900' },
@@ -1216,7 +1216,7 @@ const CONTENT = {
     },
     learned_2: {
       ru: 'Округлять число до нужного разряда, выбирая ближайшее круглое на числовой оси.',
-      uz: "Son o'qidagi eng yaqin yaxlit sonni tanlab, sonni kerakli xonagacha yaxlitlash."
+      uz: "Sonlar nuridagi eng yaqin yaxlit sonni tanlab, sonni kerakli xonagacha yaxlitlash."
     },
     why_heading: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak' },
     why_1: {
@@ -1240,7 +1240,7 @@ const CONTENT = {
       ],
       uz: [
         "Boshiga qaytamiz. Bekzod Mars Yerdan katta deb o'yladi, lekin xato qildi: Yerda xona ko'proq, shuning uchun o'n ikki ming oltidan katta.",
-        "Endi siz katta sonlarni xonalar bo'yicha taqqoslay olasiz va ularni son o'qida kerakli xonagacha yaxlitlay olasiz.",
+        "Endi siz katta sonlarni xonalar bo'yicha taqqoslay olasiz va ularni sonlar nurida kerakli xonagacha yaxlitlay olasiz.",
         "Bu miqyosni tushunishga, nima katta va taxminan qancha ekanini ko'rishga, hamda javob mantiqiy chiqdimi tekshirishga yordam beradi.",
         "Keyin ustun usulida qo'shish va ayirish bo'ladi, u yerda chama natijani tekshiradi. Keyinroq yaxlitlash o'nli kasrlar uchun qaytadi."
       ]

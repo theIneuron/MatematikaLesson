@@ -1075,13 +1075,13 @@ const CONTENT = {
     main_1: { ru: '1. Сначала общий знаменатель, потом вычитаем числители.', uz: "1. Avval umumiy maxraj, keyin suratlarni ayiramiz." },
     main_2: { ru: '2. Знаменатель — размер доли, его не вычитают.', uz: "2. Maxraj — ulush o'lchami, u ayirilmaydi." },
     main_3: { ru: '3. Наименьший общий знаменатель ищем перебором долей.', uz: "3. Eng kichik umumiy maxrajni ulushlarni saralab topamiz." },
-    next_note: { ru: 'А наименьший общий знаменатель через НОК и сокращение через НОД — это уже 6 класс.', uz: "Eng kichik umumiy maxrajni NOK orqali va qisqartirishni NOD orqali topish — bu 6-sinf." },
+    next_note: { ru: 'А наименьший общий знаменатель через НОК и сокращение через НОД — это уже 6 класс.', uz: "Eng kichik umumiy maxrajni EKUK orqali va qisqartirishni EKUB orqali topish — bu 6-sinf." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
     conn_refs: { ru: 'Сложение дробей с разными знаменателями; вычитание с равными знаменателями.', uz: "Har xil maxrajli kasrlarni qo'shish; teng maxrajli kasrlarni ayirish." },
     conn_label_next: { ru: 'Следующий урок', uz: "Keyingi dars" },
     conn_next: { ru: 'Смешанные числа: сложение и вычитание.', uz: "Aralash sonlar: qo'shish va ayirish." },
     btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: 'Подведём итог. У Фарруха было пять шестых, он выпил одну третью, это две шестых. Осталось три шестых, ровно половина. Приложение ошиблось, потому что вычло и знаменатели. Запомни. Сначала общий знаменатель, потом вычитаем только числители. Знаменатель не вычитают. Наименьший общий знаменатель ищем перебором долей. А через наибольший общий делитель и наименьшее общее кратное мы научимся в шестом классе.', uz: "Yakun qilamiz. Farruxda oltidan besh bor edi, u uchdan bir ichdi, bu oltidan ikki. Oltidan uch qoldi, roppa rosa yarmi. Ilova xato qildi, chunki maxrajlarni ham ayirdi. Eslab qoling. Avval umumiy maxraj, keyin faqat suratlarni ayiramiz. Maxraj ayirilmaydi. Eng kichik umumiy maxrajni ulushlarni saralab topamiz. NOD va NOK orqali esa oltinchi sinfda o'rganamiz." }
+    audio: { ru: 'Подведём итог. У Фарруха было пять шестых, он выпил одну третью, это две шестых. Осталось три шестых, ровно половина. Приложение ошиблось, потому что вычло и знаменатели. Запомни. Сначала общий знаменатель, потом вычитаем только числители. Знаменатель не вычитают. Наименьший общий знаменатель ищем перебором долей. А через наибольший общий делитель и наименьшее общее кратное мы научимся в шестом классе.', uz: "Yakun qilamiz. Farruxda oltidan besh bor edi, u uchdan bir ichdi, bu oltidan ikki. Oltidan uch qoldi, roppa rosa yarmi. Ilova xato qildi, chunki maxrajlarni ham ayirdi. Eslab qoling. Avval umumiy maxraj, keyin faqat suratlarni ayiramiz. Maxraj ayirilmaydi. Eng kichik umumiy maxrajni ulushlarni saralab topamiz. eng katta umumiy bo'luvchi va eng kichik umumiy karrali orqali esa oltinchi sinfda o'rganamiz." }
   }
 };
 

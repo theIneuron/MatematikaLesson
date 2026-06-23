@@ -846,7 +846,7 @@ const CONTENT = {
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
     title: { ru: 'Ближайшая метка', uz: "Eng yaqin belgi" },
-    lead: { ru: 'Округлить — значит подвести число к ближайшей метке на прямой. Округлим 0,46 до десятых.', uz: "Yaxlitlash — sonni o'qdagi eng yaqin belgiga olib borish. 0,46 ni o'ndangacha yaxlitlaymiz." },
+    lead: { ru: 'Округлить — значит подвести число к ближайшей метке на прямой. Округлим 0,46 до десятых.', uz: "Yaxlitlash — sonni sonlar nuridagi eng yaqin belgiga olib borish. 0,46 ni o'ndangacha yaxlitlaymiz." },
     step_labels: {
       ru: ['0,46 стоит между 0,4 и 0,5.', 'К какой метке ближе? К 0,5. Значит, 0,46 ≈ 0,5.', 'Ещё: 3,7 ближе к 4, чем к 3. Значит 3,7 ≈ 4.'],
       uz: ["0,46 — 0,4 va 0,5 orasida.", "Qaysi belgiga yaqin? 0,5 ga. Demak 0,46 ≈ 0,5.", "Yana: 3,7 uchdan ko'ra 4 ga yaqin. Demak 3,7 ≈ 4."]
@@ -863,7 +863,7 @@ const CONTENT = {
       ],
       uz: [
         "Endi yaxlitlash. Nol butun yuzdan qirq oltini o'ndangacha yaxlitlaymiz.",
-        "O'qda u nol butun o'ndan to'rt va nol butun o'ndan besh orasida turadi.",
+        "Sonlar nurida u nol butun o'ndan to'rt va nol butun o'ndan besh orasida turadi.",
         "Qaysi belgiga yaqin? Nol butun o'ndan beshga yaqin. Demak nol butun o'ndan beshga yaxlitlaymiz.",
         "Yana misol. Uch butun o'ndan yetti to'rtga yaqin. Demak taxminan to'rt."
       ]

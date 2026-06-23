@@ -1158,7 +1158,7 @@ const CONTENT = {
     back_to_hook: { ru: '3 лепёшки на 4 друзей разделились поровну — каждому по 3/4. Улугбек ошибался: делить можно, ответ просто стал дробью.', uz: "3 ta non 4 do'stga teng bo'lindi — har biriga 3/4 dan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan, javob shunchaki kasr bo'ldi." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Что такое дробь», «Дробь на прямой», «Деление уголком».', uz: "«Kasr nima», «Kasr son o'qida», «Burchak usulida bo'lish»." },
+    conn_refs: { ru: '«Что такое дробь», «Дробь на прямой», «Деление уголком».', uz: "«Kasr nima», «Kasr sonlar nurida», «Burchak usulida bo'lish»." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'сравнение дробей с одинаковым знаменателем.', uz: "bir xil maxrajli kasrlarni taqqoslash." },
     audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это деление. Запись a дробь b означает a разделить на b. Сверху — что делим, снизу — на сколько. Меньшее можно делить на большее, и тогда получается дробь меньше целого. А порядок важен: три четвёртых и четыре третьих — разные дроби. Три лепёшки на четыре друга разделились поровну, каждому по три четвёртых. Улугбек ошибался: делить можно.', uz: "Zo'r! Endi bilasiz: kasr — bu bo'lish. a kasr b yozuvi a ni b ga bo'lish degani. Yuqorida — nimani bo'lamiz, pastda — nechtaga. Kichikni kattaga bo'lsa bo'ladi va shunda butundan kichik kasr chiqadi. Tartib esa muhim: to'rtdan uch va uchdan to'rt — har xil kasrlar. 3 ta non 4 do'stga teng bo'lindi, har biriga to'rtdan uchdan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan." }

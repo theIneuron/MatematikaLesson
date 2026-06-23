@@ -899,7 +899,7 @@ const CONTENT = {
     title: { ru: 'Объединим мелкие доли: <b>6/8 → 3/4</b>', uz: "Mayda ulushlarni birlashtiramiz: <b>6/8 → 3/4</b>" },
     step1: { ru: 'Полоса поделена на 8 частей, закрашено 6 — это 6/8.', uz: "Polosa 8 bo'lakka bo'lingan, 6 tasi bo'yalgan — bu 6/8." },
     step2: { ru: 'Группируем доли по 2 — соседние линии исчезают, 8 долей становятся 4.', uz: "Ulushlarni 2 tadan guruhlaymiz — yondosh chiziqlar yo'qoladi, 8 ulush 4 ga aylanadi." },
-    step3: { ru: 'Закрашено 3 части из 4 — это 3/4. Разделили верх и низ на 2: <b>6÷2=3, 8÷2=4</b>. Длина та же.', uz: "4 tadan 3 tasi bo'yalgan — bu 3/4. Yuqori va pastni 2 ga bo'ldik: <b>6÷2=3, 8÷2=4</b>. Uzunlik o'sha." },
+    step3: { ru: 'Закрашено 3 части из 4 — это 3/4. Разделили верх и низ на 2: <b>6÷2=3, 8÷2=4</b>. Длина та же.', uz: "4 tadan 3 tasi bo'yalgan — bu 3/4. Surat va maxrajni 2 ga bo'ldik: <b>6÷2=3, 8÷2=4</b>. Uzunlik o'sha." },
     audio: {
       ru: [
         'Объединим мелкие доли. Нажимай «Дальше».',
@@ -972,27 +972,27 @@ const CONTENT = {
   s5: {
     eyebrow: { ru: 'Важно', uz: 'Muhim' },
     title: { ru: 'Частая ошибка: делить <b>только одно</b> число', uz: "Ko'p uchraydigan xato: <b>faqat bitta</b> sonni bo'lish" },
-    rule_main: { ru: 'Если у <b>6/8</b> разделить только верх → <b>3/8</b>. Закрашено стало короче — дробь <b>другая, меньше</b>!', uz: "<b>6/8</b> da faqat yuqori bo'linsa → <b>3/8</b>. Bo'yoq qisqaradi — kasr <b>boshqa, kichik</b>!" },
-    rule_div: { ru: 'Правильно — делить <b>и верх, и низ</b> на 2: 6/8 = 3/4. Длина та же, дробь равна.', uz: "To'g'risi — <b>yuqorini ham, pastni ham</b> 2 ga bo'lish: 6/8 = 3/4. Uzunlik o'sha, kasr teng." },
+    rule_main: { ru: 'Если у <b>6/8</b> разделить только верх → <b>3/8</b>. Закрашено стало короче — дробь <b>другая, меньше</b>!', uz: "<b>6/8</b> da faqat surat bo'linsa → <b>3/8</b>. Bo'yoq qisqaradi — kasr <b>boshqa, kichik</b>!" },
+    rule_div: { ru: 'Правильно — делить <b>и верх, и низ</b> на 2: 6/8 = 3/4. Длина та же, дробь равна.', uz: "To'g'risi — <b>suratni ham, maxrajni ham</b> 2 ga bo'lish: 6/8 = 3/4. Uzunlik o'sha, kasr teng." },
     outro: { ru: 'Сокращение не меняет величину дроби — но только если делить оба числа на одно.', uz: "Qisqartirish kasr qiymatini o'zgartirmaydi — lekin faqat ikkala son bitta songa bo'linsa." },
     audio: {
       ru: 'Внимание, частая ошибка. Сокращать нужно и числитель, и знаменатель. Если у шести восьмых разделить только верх, выйдет три восьмых — закрашено станет короче, дробь стала другой, меньше. Правильно делить и верх, и низ на два, тогда выйдет три четвёртых, длина та же. Сокращение не меняет величину дроби, но только если делить оба числа на одно и то же.',
-      uz: "Diqqat, ko'p uchraydigan xato. Qisqartirishda surat ham, maxraj ham bo'linadi. Sakkizdan oltida faqat yuqori bo'linsa, sakkizdan uch chiqadi — bo'yoq qisqaradi, kasr boshqa, kichik bo'ladi. To'g'risi yuqorini ham, pastni ham ikkiga bo'lish, shunda to'rtdan uch chiqadi, uzunlik o'sha. Qisqartirish kasr qiymatini o'zgartirmaydi, lekin faqat ikkala son bir songa bo'linsa."
+      uz: "Diqqat, ko'p uchraydigan xato. Qisqartirishda surat ham, maxraj ham bo'linadi. Sakkizdan oltida faqat surat bo'linsa, sakkizdan uch chiqadi — bo'yoq qisqaradi, kasr boshqa, kichik bo'ladi. To'g'risi suratni ham, maxrajni ham ikkiga bo'lish, shunda to'rtdan uch chiqadi, uzunlik o'sha. Qisqartirish kasr qiymatini o'zgartirmaydi, lekin faqat ikkala son bir songa bo'linsa."
     }
   },
   s6: {
     eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
     title: { ru: 'Разложи дроби: <b>сокращена до конца</b> или ещё нет', uz: "Kasrlarni ajrating: <b>oxirigacha qisqargan</b> yoki yo'q" },
-    lead: { ru: 'Нажми на дробь. Можно ли её ещё сократить (у верха и низа есть общий делитель)?', uz: "Kasrni bosing. Uni yana qisqartirsa bo'ladimi (yuqori va pastda umumiy bo'luvchi bormi)?" },
+    lead: { ru: 'Нажми на дробь. Можно ли её ещё сократить (у верха и низа есть общий делитель)?', uz: "Kasrni bosing. Uni yana qisqartirsa bo'ladimi (surat va maxrajda umumiy bo'luvchi bormi)?" },
     ask: { ru: 'сокращена до конца?', uz: "oxirigacha qisqarganmi?" },
     bin_eq: { ru: 'до конца', uz: 'oxirigacha' },
     bin_uneq: { ru: 'можно ещё', uz: "yana bo'ladi" },
-    hint_wrong: { ru: 'Проверь: есть ли число, на которое делятся и верх, и низ? Если да — можно ещё сократить.', uz: "Tekshiring: yuqori ham, past ham bo'linadigan son bormi? Bo'lsa — yana qisqartirsa bo'ladi." },
-    correct_text: { ru: 'Готово. «До конца» — когда у верха и низа нет общего делителя, кроме 1: 2/3, 3/4, 5/7, 4/9, 7/10.', uz: "Tayyor. «Oxirigacha» — yuqori va pastda 1 dan boshqa umumiy bo'luvchi bo'lmaganda: 2/3, 3/4, 5/7, 4/9, 7/10." },
+    hint_wrong: { ru: 'Проверь: есть ли число, на которое делятся и верх, и низ? Если да — можно ещё сократить.', uz: "Tekshiring: surat ham, maxraj ham bo'linadigan son bormi? Bo'lsa — yana qisqartirsa bo'ladi." },
+    correct_text: { ru: 'Готово. «До конца» — когда у верха и низа нет общего делителя, кроме 1: 2/3, 3/4, 5/7, 4/9, 7/10.', uz: "Tayyor. «Oxirigacha» — surat va maxrajda 1 dan boshqa umumiy bo'luvchi bo'lmaganda: 2/3, 3/4, 5/7, 4/9, 7/10." },
     audio: {
       intro: { ru: 'Перед тобой дроби. Разложи их по корзинам: сокращена до конца или можно ещё сократить. Нажимай на дробь — она улетит в корзину.', uz: "Oldingizda kasrlar. Ularni savatga ajrating: oxirigacha qisqargan yoki yana qisqartirsa bo'ladi. Kasrni bosing — u savatga uchadi." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Есть ли у верха и низа общий делитель?', uz: "Yuqori va pastda umumiy bo'luvchi bormi?" }
+      on_wrong: { ru: 'Есть ли у верха и низа общий делитель?', uz: "Surat va maxrajda umumiy bo'luvchi bormi?" }
     }
   },
   s7: {
@@ -1003,21 +1003,21 @@ const CONTENT = {
     opt_b: { ru: 'Верно — числитель сократили, значит 3/8', uz: "To'g'ri — suratni qisqartirdik, demak 3/8" },
     opt_c: { ru: 'Верно, но только если дробь меньше 1', uz: "To'g'ri, lekin faqat kasr 1 dan kichik bo'lsa" },
     opt_d: { ru: 'Так дробь вообще не сократить', uz: "Bunday kasrni umuman qisqartirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: разделили только верх — дробь уменьшилась. Надо делить оба: 6÷2=3, 8÷2=4 → 3/4.', uz: "To'g'ri: faqat yuqorini bo'ldik — kasr kichraydi. Ikkalasini bo'lish kerak: 6÷2=3, 8÷2=4 → 3/4." },
+    correct_text: { ru: 'Верно: разделили только верх — дробь уменьшилась. Надо делить оба: 6÷2=3, 8÷2=4 → 3/4.', uz: "To'g'ri: faqat suratni bo'ldik — kasr kichraydi. Ikkalasini bo'lish kerak: 6÷2=3, 8÷2=4 → 3/4." },
     wrong_0: { ru: 'Да: 3/8 меньше 6/8. Знаменатель тоже надо разделить на 2 → 3/4.', uz: "Ha: 3/8 6/8 dan kichik. Maxrajni ham 2 ga bo'lish kerak → 3/4." },
     wrong_1: { ru: 'Это ошибка: 3/8 меньше 6/8. Делить надо оба числа.', uz: "Bu xato: 3/8 6/8 dan kichik. Ikkala sonni bo'lish kerak." },
-    wrong_2: { ru: 'Нет: делить только верх нельзя ни для какой дроби. Нужно 3/4.', uz: "Yo'q: faqat yuqorini bo'lish hech qaysi kasr uchun mumkin emas. 3/4 kerak." },
+    wrong_2: { ru: 'Нет: делить только верх нельзя ни для какой дроби. Нужно 3/4.', uz: "Yo'q: faqat suratni bo'lish hech qaysi kasr uchun mumkin emas. 3/4 kerak." },
     wrong_3: { ru: 'Сократить можно: раздели оба числа на 2 → 3/4.', uz: "Qisqartirsa bo'ladi: ikkala sonni 2 ga bo'ling → 3/4." },
     audio: {
       intro: { ru: 'Кто-то сократил шесть восьмых, разделив только числитель, и написал три восьмых. Верно ли это? Выбери ответ.', uz: "Kimdir sakkizdan oltini faqat suratni bo'lib qisqartirdi va sakkizdan uch deb yozdi. Bu to'g'rimi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Надо разделить и знаменатель — вышло бы три четвёртых.', uz: "To'g'ri. Maxrajni ham bo'lish kerak — to'rtdan uch chiqardi." },
-      on_wrong: { ru: 'Делишь верх — дели и низ на то же число.', uz: "Yuqorini bo'lsangiz — pastni ham shu songa bo'ling." }
+      on_wrong: { ru: 'Делишь верх — дели и низ на то же число.', uz: "Suratni bo'lsangiz — maxrajni ham shu songa bo'ling." }
     }
   },
   s_seq: {
     eyebrow: { ru: 'Тренажёр', uz: 'Mashqlar' },
     title: { ru: 'Сократи до конца: <b>5 примеров подряд</b>', uz: "Oxirigacha qisqartiring: <b>5 ta misol ketma-ket</b>" },
-    lead: { ru: 'Числа растут. Дели верх и низ на их наибольший общий делитель.', uz: "Sonlar o'sib boradi. Yuqori va pastni eng katta umumiy bo'luvchiga bo'ling." },
+    lead: { ru: 'Числа растут. Дели верх и низ на их наибольший общий делитель.', uz: "Sonlar o'sib boradi. Surat va maxrajni eng katta umumiy bo'luvchiga bo'ling." },
     questions: [
       {
         q: '4/8', opts: ['1/2', '2/4', '1/4'], correct: 0,
@@ -1048,7 +1048,7 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Пять примеров подряд. В каждом сократи дробь до конца. Числа будут расти. Дели верх и низ на их наибольший общий делитель.', uz: "Besh misol ketma-ket. Har birida kasrni oxirigacha qisqartiring. Sonlar o'sib boradi. Yuqori va pastni eng katta umumiy bo'luvchiga bo'ling." },
+      intro: { ru: 'Пять примеров подряд. В каждом сократи дробь до конца. Числа будут расти. Дели верх и низ на их наибольший общий делитель.', uz: "Besh misol ketma-ket. Har birida kasrni oxirigacha qisqartiring. Sonlar o'sib boradi. Surat va maxrajni eng katta umumiy bo'luvchiga bo'ling." },
       on_wrong: { ru: 'Дели оба на наибольший общий делитель.', uz: "Ikkalasini eng katta umumiy bo'luvchiga bo'ling." },
       on_done: { ru: 'Готово. Ты доводил дробь до самого простого вида даже на больших числах.', uz: "Tayyor. Katta sonlarda ham kasrni eng sodda holga keltirdingiz." }
     }
@@ -1094,7 +1094,7 @@ const CONTENT = {
     opt_b: { ru: '10/15 = 2/3', uz: '10/15 = 2/3' },
     opt_c: { ru: '6/9 = 2/3', uz: '6/9 = 2/3' },
     opt_d: { ru: '12/16 = 3/4', uz: '12/16 = 3/4' },
-    correct_text: { ru: 'Верно. 6/8 = 3/8 — ошибка: разделили только верх. Надо и низ: 6/8 = 3/4.', uz: "To'g'ri. 6/8 = 3/8 — xato: faqat yuqori bo'lingan. Pastni ham: 6/8 = 3/4." },
+    correct_text: { ru: 'Верно. 6/8 = 3/8 — ошибка: разделили только верх. Надо и низ: 6/8 = 3/4.', uz: "To'g'ri. 6/8 = 3/8 — xato: faqat surat bo'lingan. Maxrajni ham: 6/8 = 3/4." },
     wrong_0: { ru: 'Да: тут разделили только числитель. Надо оба → 6/8 = 3/4.', uz: "Ha: bu yerda faqat surat bo'lingan. Ikkalasi kerak → 6/8 = 3/4." },
     wrong_1: { ru: '10/15 = 2/3 верно: оба разделили на 5.', uz: "10/15 = 2/3 to'g'ri: ikkalasi 5 ga bo'lingan." },
     wrong_2: { ru: '6/9 = 2/3 верно: оба разделили на 3.', uz: "6/9 = 2/3 to'g'ri: ikkalasi 3 ga bo'lingan." },

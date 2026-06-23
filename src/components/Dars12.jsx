@@ -1178,7 +1178,7 @@ const CONTENT = {
     back_to_hook: { ru: 'Нигора съела 3/8, Дилшод — 5/8. Дольки равны, 5 больше 3 — Дилшод съел больше. «Поровну» было ошибкой.', uz: "Nigora 3/8, Dilshod — 5/8 yedi. Bo'laklar teng, 5 esa 3 dan katta — Dilshod ko'proq yedi. «Teng» degani xato edi." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'уроки о дроби: что это, на прямой, как деление.', uz: "kasr darslari: nima, son o'qida, bo'lish natijasi." },
+    conn_refs: { ru: 'уроки о дроби: что это, на прямой, как деление.', uz: "kasr darslari: nima, sonlar nurida, bo'lish natijasi." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'сравнение дробей с одинаковым числителем.', uz: "bir xil suratli kasrlarni taqqoslash." },
     audio: { ru: 'Отлично! Теперь ты умеешь сравнивать дроби с одинаковым знаменателем. Одинаковый знаменатель — это дольки одного размера. Больше та дробь, у которой числитель больше: смотрим только на числители. Но одинаковый знаменатель не значит, что дроби равны. И помни: это правило работает, только когда знаменатели одинаковые. Нигора съела три восьмых, Дилшод — пять восьмых. Дольки равны, пять больше трёх — Дилшод съел больше. «Поровну» было ошибкой.', uz: "Zo'r! Endi siz bir xil maxrajli kasrlarni solishtira olasiz. Bir xil maxraj — bu bir o'lchamdagi bo'laklar. Surati katta bo'lgan kasr katta: faqat suratlarga qaraymiz. Lekin bir xil maxraj kasrlar teng degani emas. Va esda tuting: bu qoida faqat maxrajlar bir xil bo'lganda ishlaydi. Nigora 3/8, Dilshod 5/8 yedi. Bo'laklar teng, 5 esa 3 dan katta — Dilshod ko'proq yedi. «Teng» degani xato edi." }

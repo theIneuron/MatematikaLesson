@@ -937,7 +937,7 @@ const CONTENT = {
     title: { ru: 'Правило эквивалентных дробей', uz: 'Ekvivalent kasrlar qoidasi' },
     rule_main: { ru: 'Если умножить <b>числитель и знаменатель на одно и то же число</b> (кроме нуля) — получится <b>равная</b> дробь.', uz: "Agar <b>surat va maxrajni bitta songa</b> (noldan tashqari) ko'paytirsak — <b>teng</b> kasr hosil bo'ladi." },
     rule_div: { ru: 'Делить верх и низ на одно и то же число — тоже можно. Дробь останется равной.', uz: "Surat va maxrajni bitta songa bo'lish ham mumkin. Kasr teng qoladi." },
-    outro: { ru: 'Такие дроби называют <b>эквивалентными</b> — равными по величине.', uz: "Bunday kasrlar <b>ekvivalent</b> — qiymati teng kasrlar deyiladi." },
+    outro: { ru: 'Такие дроби называют <b>эквивалентными</b> — равными по величине, а само это правило — <b>основное свойство дроби</b>.', uz: "Bunday kasrlar <b>ekvivalent</b> — qiymati teng kasrlar deyiladi, qoidaning o'zi esa — <b>kasrning asosiy xossasi</b>." },
     audio: {
       ru: 'Запомни правило. Если умножить числитель и знаменатель на одно и то же число, кроме нуля, получится равная дробь. Делить верх и низ на одно и то же число тоже можно, дробь останется равной. Такие дроби называют эквивалентными, то есть равными по величине.',
       uz: "Qoidani eslab qoling. Agar surat va maxrajni bitta songa, noldan tashqari, ko'paytirsak, teng kasr hosil bo'ladi. Surat va maxrajni bitta songa bo'lish ham mumkin, kasr teng qoladi. Bunday kasrlar ekvivalent, yaniy qiymati teng kasrlar deyiladi."
@@ -965,13 +965,13 @@ const CONTENT = {
   },
   s5: {
     eyebrow: { ru: 'Важно', uz: 'Muhim' },
-    title: { ru: 'Частая ошибка: менять <b>только низ</b>', uz: "Ko'p uchraydigan xato: <b>faqat pastni</b> o'zgartirish" },
-    rule_main: { ru: 'Кто-то думает: «<b>1/2</b>, увеличу низ → <b>1/6</b>». Но это <b>другая, меньшая</b> дробь!', uz: "Kimdir o'ylaydi: «<b>1/2</b>, pastni kattalashtiraman → <b>1/6</b>». Lekin bu <b>boshqa, kichikroq</b> kasr!" },
+    title: { ru: 'Частая ошибка: менять <b>только низ</b>', uz: "Ko'p uchraydigan xato: <b>faqat maxrajni</b> o'zgartirish" },
+    rule_main: { ru: 'Кто-то думает: «<b>1/2</b>, увеличу низ → <b>1/6</b>». Но это <b>другая, меньшая</b> дробь!', uz: "Kimdir o'ylaydi: «<b>1/2</b>, maxrajni kattalashtiraman → <b>1/6</b>». Lekin bu <b>boshqa, kichikroq</b> kasr!" },
     rule_div: { ru: 'Смотри: у 1/6 закрашена всего одна часть из шести. Это намного меньше половины.', uz: "Qarang: 1/6 da oltidan atigi bitta qism bo'yalgan. Bu yarmidan ancha kichik." },
     outro: { ru: 'Чтобы дробь осталась равной, меняй <b>и верх, и низ</b> — на одно и то же число.', uz: "Kasr teng qolishi uchun <b>surat ham, maxraj ham</b> bitta songa o'zgartiriladi." },
     audio: {
       ru: 'Будь внимателен к частой ошибке. Кто-то берёт одну вторую и меняет только низ, получая одну шестую. Но смотри: у одной шестой закрашена всего одна часть из шести. Это намного меньше половины. Чтобы дробь осталась равной, нужно менять и верх, и низ на одно и то же число.',
-      uz: "Ko'p uchraydigan xatoga e'tibor bering. Kimdir bir ikkidan ni olib, faqat pastni o'zgartirib, bir oltidan ni hosil qiladi. Lekin qarang: bir oltidan da oltidan atigi bitta qism bo'yalgan. Bu yarmidan ancha kichik. Kasr teng qolishi uchun surat ham, maxraj ham bitta songa o'zgartirilishi kerak."
+      uz: "Ko'p uchraydigan xatoga e'tibor bering. Kimdir bir ikkidan ni olib, faqat maxrajni o'zgartirib, bir oltidan ni hosil qiladi. Lekin qarang: bir oltidan da oltidan atigi bitta qism bo'yalgan. Bu yarmidan ancha kichik. Kasr teng qolishi uchun surat ham, maxraj ham bitta songa o'zgartirilishi kerak."
     }
   },
   s6: {
@@ -981,71 +981,71 @@ const CONTENT = {
     ask: { ru: 'равна 1/2?', uz: "1/2 ga tengmi?" },
     bin_eq: { ru: 'равна 1/2', uz: "1/2 ga teng" },
     bin_uneq: { ru: 'не равна 1/2', uz: "1/2 ga teng emas" },
-    hint_wrong: { ru: 'Проверь: низ ровно вдвое больше верха? Тогда дробь равна половине.', uz: "Tekshiring: pasti yuqoridan aniq ikki barobar kattami? Unda kasr yarmiga teng." },
-    correct_text: { ru: 'Готово. Равны половине те дроби, где низ ровно вдвое больше верха: 2/4, 3/6, 4/8, 5/10.', uz: "Tayyor. Pasti yuqoridan aniq ikki barobar katta kasrlar yarmiga teng: 2/4, 3/6, 4/8, 5/10." },
+    hint_wrong: { ru: 'Проверь: низ ровно вдвое больше верха? Тогда дробь равна половине.', uz: "Tekshiring: maxraji suratdan aniq ikki barobar kattami? Unda kasr yarmiga teng." },
+    correct_text: { ru: 'Готово. Равны половине те дроби, где низ ровно вдвое больше верха: 2/4, 3/6, 4/8, 5/10.', uz: "Tayyor. Maxraji suratdan aniq ikki barobar katta kasrlar yarmiga teng: 2/4, 3/6, 4/8, 5/10." },
     audio: {
       intro: { ru: 'Перед тобой дроби. Разложи их по двум корзинам: равна одной второй или нет. Нажимай на дробь — она улетит в корзину.', uz: "Oldingizda kasrlar. Ularni ikki savatga ajrating: bir ikkidan ga tengmi yoki yo'q. Kasrni bosing — u savatga uchadi." },
       on_correct: { ru: 'Верно, в нужную корзину.', uz: "To'g'ri, kerakli savatga." },
-      on_wrong: { ru: 'Подумай: низ ровно вдвое больше верха?', uz: "O'ylab ko'ring: pasti yuqoridan aniq ikki barobar kattami?" }
+      on_wrong: { ru: 'Подумай: низ ровно вдвое больше верха?', uz: "O'ylab ko'ring: maxraji suratdan aniq ikki barobar kattami?" }
     }
   },
   s7: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
     title: { ru: 'Дополни до равной дроби: <b>2/3 = ?/6</b>', uz: "Teng kasrgacha to'ldiring: <b>2/3 = ?/6</b>" },
-    question: { ru: 'Низ умножили на 2 (3·2=6). На что нужно умножить верх?', uz: "Past 2 ga ko'paytirildi (3·2=6). Yuqorini nechaga ko'paytirish kerak?" },
+    question: { ru: 'Низ умножили на 2 (3·2=6). На что нужно умножить верх?', uz: "Maxraj 2 ga ko'paytirildi (3·2=6). Suratni nechaga ko'paytirish kerak?" },
     opt_a: { ru: '4', uz: '4' },
     opt_b: { ru: '2', uz: '2' },
     opt_c: { ru: '5', uz: '5' },
     opt_d: { ru: '6', uz: '6' },
     correct_text: { ru: 'Верно. 3 умножили на 2, значит и 2 умножаем на 2: получаем 4. 2/3 = 4/6.', uz: "To'g'ri. 3 ni 2 ga ko'paytirdik, demak 2 ni ham 2 ga: 4 chiqadi. 2/3 = 4/6." },
-    wrong_0: { ru: 'Да: низ умножили на 2, верх тоже на 2 — это 4. 2/3 = 4/6.', uz: "Ha: past 2 ga ko'paytirildi, yuqori ham 2 ga — bu 4. 2/3 = 4/6." },
-    wrong_1: { ru: 'Если оставить верх как 2, дробь 2/6 — она меньше. Верх тоже надо умножить на 2.', uz: "Yuqorini 2 qoldirsak, 2/6 kasri kichikroq. Yuqorini ham 2 ga ko'paytirish kerak." },
-    wrong_2: { ru: 'Откуда 5? Множитель один — 2, и для верха, и для низа.', uz: "5 qayerdan? Ko'paytuvchi bitta — 2, yuqori uchun ham, past uchun ham." },
-    wrong_3: { ru: '6 — это новый низ, а не верх. Верх: 2 умножить на 2 равно 4.', uz: "6 — bu yangi past, yuqori emas. Yuqori: 2 karra 2 teng 4." },
+    wrong_0: { ru: 'Да: низ умножили на 2, верх тоже на 2 — это 4. 2/3 = 4/6.', uz: "Ha: maxraj 2 ga ko'paytirildi, surat ham 2 ga — bu 4. 2/3 = 4/6." },
+    wrong_1: { ru: 'Если оставить верх как 2, дробь 2/6 — она меньше. Верх тоже надо умножить на 2.', uz: "Suratni 2 qoldirsak, 2/6 kasri kichikroq. Suratni ham 2 ga ko'paytirish kerak." },
+    wrong_2: { ru: 'Откуда 5? Множитель один — 2, и для верха, и для низа.', uz: "5 qayerdan? Ko'paytuvchi bitta — 2, surat uchun ham, maxraj uchun ham." },
+    wrong_3: { ru: '6 — это новый низ, а не верх. Верх: 2 умножить на 2 равно 4.', uz: "6 — bu yangi maxraj, surat emas. Surat: 2 karra 2 teng 4." },
     fact: { ru: 'В шестерёнках часов одно колесо вдвое больше другого — это та же эквивалентность 1 к 2, что и 3/6 = 1/2.', uz: "Soat tishli g'ildiraklarida bir g'ildirak ikkinchisidan ikki barobar katta — bu xuddi 3/6 = 1/2 dagi 1 ga 2 ekvivalentligi." },
     audio: {
-      intro: { ru: 'Дополни дробь так, чтобы две третьих стали равны чему-то шестых. Низ умножили на два. На что умножить верх?', uz: "Kasrni to'ldiring: uch ikkidan nechadir oltidan ga teng bo'lsin. Past ikkiga ko'paytirildi. Yuqorini nechaga ko'paytiramiz?" },
+      intro: { ru: 'Дополни дробь так, чтобы две третьих стали равны чему-то шестых. Низ умножили на два. На что умножить верх?', uz: "Kasrni to'ldiring: uch ikkidan nechadir oltidan ga teng bo'lsin. Maxraj ikkiga ko'paytirildi. Suratni nechaga ko'paytiramiz?" },
       on_correct: { ru: 'Верно, четыре.', uz: "To'g'ri, to'rt." },
-      on_wrong: { ru: 'Тот же множитель, что и у низа.', uz: "Pastdagi bilan bir xil ko'paytuvchi." }
+      on_wrong: { ru: 'Тот же множитель, что и у низа.', uz: "Maxrajdagi bilan bir xil ko'paytuvchi." }
     }
   },
   s_seq: {
     eyebrow: { ru: 'Тренажёр', uz: 'Mashqlar' },
     title: { ru: 'Найди числитель: <b>5 примеров подряд</b>', uz: "Suratni toping: <b>5 ta misol ketma-ket</b>" },
-    lead: { ru: 'Числа растут. Умножай верх на тот же множитель, что и низ.', uz: "Sonlar o'sib boradi. Yuqorini pastdagi bilan bir xil ko'paytuvchiga ko'paytiring." },
+    lead: { ru: 'Числа растут. Умножай верх на тот же множитель, что и низ.', uz: "Sonlar o'sib boradi. Suratni maxrajdagi bilan bir xil ko'paytuvchiga ko'paytiring." },
     questions: [
       {
         q: '1/2 = ?/8', opts: ['4', '2', '6'], correct: 0,
-        ok: { ru: 'Верно. Низ 2·4=8, значит верх 1·4=4. 1/2 = 4/8.', uz: "To'g'ri. Past 2·4=8, demak yuqori 1·4=4. 1/2 = 4/8." },
-        no: { ru: 'Низ умножили на 4. На столько же умножь верх.', uz: "Past 4 ga ko'paytirildi. Yuqorini ham shuncha songa ko'paytiring." }
+        ok: { ru: 'Верно. Низ 2·4=8, значит верх 1·4=4. 1/2 = 4/8.', uz: "To'g'ri. Maxraj 2·4=8, demak surat 1·4=4. 1/2 = 4/8." },
+        no: { ru: 'Низ умножили на 4. На столько же умножь верх.', uz: "Maxraj 4 ga ko'paytirildi. Suratni ham shuncha songa ko'paytiring." }
       },
       {
         q: '2/5 = ?/20', opts: ['2', '8', '10'], correct: 1,
-        ok: { ru: 'Верно. Низ 5·4=20, значит верх 2·4=8. 2/5 = 8/20.', uz: "To'g'ri. Past 5·4=20, demak yuqori 2·4=8. 2/5 = 8/20." },
-        no: { ru: 'Низ умножили на 4. Верх 2 тоже умножь на 4.', uz: "Past 4 ga ko'paytirildi. Yuqori 2 ni ham 4 ga ko'paytiring." }
+        ok: { ru: 'Верно. Низ 5·4=20, значит верх 2·4=8. 2/5 = 8/20.', uz: "To'g'ri. Maxraj 5·4=20, demak surat 2·4=8. 2/5 = 8/20." },
+        no: { ru: 'Низ умножили на 4. Верх 2 тоже умножь на 4.', uz: "Maxraj 4 ga ko'paytirildi. Surat 2 ni ham 4 ga ko'paytiring." }
       },
       {
         q: '3/4 = ?/40', opts: ['12', '30', '3'], correct: 1,
-        ok: { ru: 'Верно. Низ 4·10=40, значит верх 3·10=30. 3/4 = 30/40.', uz: "To'g'ri. Past 4·10=40, demak yuqori 3·10=30. 3/4 = 30/40." },
-        no: { ru: 'Низ умножили на 10. Верх 3 тоже умножь на 10.', uz: "Past 10 ga ko'paytirildi. Yuqori 3 ni ham 10 ga ko'paytiring." }
+        ok: { ru: 'Верно. Низ 4·10=40, значит верх 3·10=30. 3/4 = 30/40.', uz: "To'g'ri. Maxraj 4·10=40, demak surat 3·10=30. 3/4 = 30/40." },
+        no: { ru: 'Низ умножили на 10. Верх 3 тоже умножь на 10.', uz: "Maxraj 10 ga ko'paytirildi. Surat 3 ni ham 10 ga ko'paytiring." }
       },
       {
         q: '3/5 = ?/100', opts: ['60', '20', '3'], correct: 0,
-        ok: { ru: 'Верно. Низ 5·20=100, значит верх 3·20=60. 3/5 = 60/100.', uz: "To'g'ri. Past 5·20=100, demak yuqori 3·20=60. 3/5 = 60/100." },
-        no: { ru: 'Низ умножили на 20. На столько же умножь верх.', uz: "Past 20 ga ko'paytirildi. Yuqorini ham shuncha songa ko'paytiring." },
-        say: { ru: 'Знаменатель большой. На сколько умножили низ, на столько умножь и верх.', uz: "Maxraj katta. Pastni nechaga ko'paytirgan bo'lsangiz, yuqorini ham shuncha songa ko'paytiring." }
+        ok: { ru: 'Верно. Низ 5·20=100, значит верх 3·20=60. 3/5 = 60/100.', uz: "To'g'ri. Maxraj 5·20=100, demak surat 3·20=60. 3/5 = 60/100." },
+        no: { ru: 'Низ умножили на 20. На столько же умножь верх.', uz: "Maxraj 20 ga ko'paytirildi. Suratni ham shuncha songa ko'paytiring." },
+        say: { ru: 'Знаменатель большой. На сколько умножили низ, на столько умножь и верх.', uz: "Maxraj katta. Maxrajni nechaga ko'paytirgan bo'lsangiz, suratni ham shuncha songa ko'paytiring." }
       },
       {
         q: '1/4 = ?/1000', opts: ['100', '25', '250'], correct: 2,
-        ok: { ru: 'Верно. Низ 4·250=1000, значит верх 1·250=250. 1/4 = 250/1000.', uz: "To'g'ri. Past 4·250=1000, demak yuqori 1·250=250. 1/4 = 250/1000." },
-        no: { ru: 'Низ умножили на 250. Верх 1 тоже умножь на 250.', uz: "Past 250 ga ko'paytirildi. Yuqori 1 ni ham 250 ga ko'paytiring." },
-        say: { ru: 'Числа большие, но правило то же: один множитель для верха и низа.', uz: "Sonlar katta, lekin qoida o'sha: yuqori va past uchun bitta ko'paytuvchi." }
+        ok: { ru: 'Верно. Низ 4·250=1000, значит верх 1·250=250. 1/4 = 250/1000.', uz: "To'g'ri. Maxraj 4·250=1000, demak surat 1·250=250. 1/4 = 250/1000." },
+        no: { ru: 'Низ умножили на 250. Верх 1 тоже умножь на 250.', uz: "Maxraj 250 ga ko'paytirildi. Surat 1 ni ham 250 ga ko'paytiring." },
+        say: { ru: 'Числа большие, но правило то же: один множитель для верха и низа.', uz: "Sonlar katta, lekin qoida o'sha: surat va maxraj uchun bitta ko'paytuvchi." }
       }
     ],
     audio: {
-      intro: { ru: 'Пять примеров подряд. В каждом найди числитель равной дроби. Числа будут расти. Множитель для верха всегда такой же, как для низа.', uz: "Besh misol ketma-ket. Har birida teng kasrning suratini toping. Sonlar o'sib boradi. Yuqori uchun ko'paytuvchi doim past bilan bir xil." },
-      on_wrong: { ru: 'На сколько умножили низ, на столько умножь и верх.', uz: "Pastni nechaga ko'paytirgan bo'lsangiz, yuqorini ham shuncha songa ko'paytiring." },
-      on_done: { ru: 'Готово. Ты держал один множитель для верха и низа даже на больших числах.', uz: "Tayyor. Katta sonlarda ham yuqori va past uchun bitta ko'paytuvchini ushlab turdingiz." }
+      intro: { ru: 'Пять примеров подряд. В каждом найди числитель равной дроби. Числа будут расти. Множитель для верха всегда такой же, как для низа.', uz: "Besh misol ketma-ket. Har birida teng kasrning suratini toping. Sonlar o'sib boradi. Surat uchun ko'paytuvchi doim maxraj bilan bir xil." },
+      on_wrong: { ru: 'На сколько умножили низ, на столько умножь и верх.', uz: "Maxrajni nechaga ko'paytirgan bo'lsangiz, suratni ham shuncha songa ko'paytiring." },
+      on_done: { ru: 'Готово. Ты держал один множитель для верха и низа даже на больших числах.', uz: "Tayyor. Katta sonlarda ham surat va maxraj uchun bitta ko'paytuvchini ushlab turdingiz." }
     }
   },
   s8: {
@@ -1064,21 +1064,21 @@ const CONTENT = {
   s9: {
     eyebrow: { ru: 'Случай', uz: 'Vaziyat' },
     title: { ru: 'Сколько шестых стакана нужно Лайло?', uz: "Layloga necha oltidan stakan kerak?" },
-    question: { ru: '2/3 — это сколько шестых? Низ с 3 стал 6 (умножили на 2).', uz: "2/3 — necha oltidan? Past 3 dan 6 bo'ldi (2 ga ko'paytirildi)." },
+    question: { ru: '2/3 — это сколько шестых? Низ с 3 стал 6 (умножили на 2).', uz: "2/3 — necha oltidan? Maxraj 3 dan 6 bo'ldi (2 ga ko'paytirildi)." },
     opt_a: { ru: '4/6', uz: '4/6' },
     opt_b: { ru: '2/6', uz: '2/6' },
     opt_c: { ru: '3/6', uz: '3/6' },
     opt_d: { ru: '6/6', uz: '6/6' },
     correct_text: { ru: 'Верно. 2·2=4, 3·2=6. Значит 2/3 = 4/6. Лайло отмерит 4 деления.', uz: "To'g'ri. 2·2=4, 3·2=6. Demak 2/3 = 4/6. Laylo 4 bo'limni o'lchaydi." },
-    wrong_0: { ru: 'Да, 4/6: верх 2 умножили на 2, низ 3 умножили на 2.', uz: "Ha, 4/6: yuqori 2 ni 2 ga, past 3 ni 2 ga ko'paytirdik." },
-    wrong_1: { ru: '2/6 — низ умножили, верх забыли. Это меньше, чем 2/3.', uz: "2/6 — pastni ko'paytirib, yuqorini unutdik. Bu 2/3 dan kichik." },
+    wrong_0: { ru: 'Да, 4/6: верх 2 умножили на 2, низ 3 умножили на 2.', uz: "Ha, 4/6: surat 2 ni 2 ga, maxraj 3 ni 2 ga ko'paytirdik." },
+    wrong_1: { ru: '2/6 — низ умножили, верх забыли. Это меньше, чем 2/3.', uz: "2/6 — maxrajni ko'paytirib, suratni unutdik. Bu 2/3 dan kichik." },
     wrong_2: { ru: '3/6 — это половина, а 2/3 больше половины. Не подходит.', uz: "3/6 — bu yarmi, 2/3 esa yarmidan katta. To'g'ri kelmaydi." },
     wrong_3: { ru: '6/6 — это целый стакан. 2/3 меньше целого.', uz: "6/6 — bu butun stakan. 2/3 butundan kichik." },
     fact: { ru: 'В нотах целая нота равна двум половинным, а половинная — двум четвертным. Музыканты считают такими же эквивалентными дробями.', uz: "Notalarda butun nota ikki yarim notaga, yarim nota esa ikki chorak notaga teng. Musiqachilar xuddi shunday ekvivalent kasrlar bilan sanaydi." },
     audio: {
-      intro: { ru: 'Помоги Лайло. Две третьих стакана — это сколько шестых? Низ был три, стал шесть. Выбирай.', uz: "Layloga yordam bering. Uch ikkidan stakan — necha oltidan? Past uch edi, olti bo'ldi. Tanlang." },
+      intro: { ru: 'Помоги Лайло. Две третьих стакана — это сколько шестых? Низ был три, стал шесть. Выбирай.', uz: "Layloga yordam bering. Uch ikkidan stakan — necha oltidan? Maxraj uch edi, olti bo'ldi. Tanlang." },
       on_correct: { ru: 'Верно, четыре шестых.', uz: "To'g'ri, to'rt oltidan." },
-      on_wrong: { ru: 'Верх тоже умножь на 2.', uz: "Yuqorini ham 2 ga ko'paytiring." }
+      on_wrong: { ru: 'Верх тоже умножь на 2.', uz: "Suratni ham 2 ga ko'paytiring." }
     }
   },
   s10: {
@@ -1089,46 +1089,46 @@ const CONTENT = {
     opt_b: { ru: '1/2 = 5/10', uz: '1/2 = 5/10' },
     opt_c: { ru: '3/4 = 6/8', uz: '3/4 = 6/8' },
     opt_d: { ru: '2/5 = 4/10', uz: '2/5 = 4/10' },
-    correct_text: { ru: 'Верно. 1/2 = 1/6 — ошибка: низ умножили на 3, а верх оставили. Надо 1/2 = 3/6.', uz: "To'g'ri. 1/2 = 1/6 — xato: past 3 ga ko'paytirilib, yuqori qoldirilgan. 1/2 = 3/6 bo'lishi kerak." },
-    wrong_0: { ru: 'Да: низ умножили на 3, а верх нет. Поэтому 1/2 не равно 1/6.', uz: "Ha: past 3 ga ko'paytirilib, yuqori ko'paytirilmagan. Shuning uchun 1/2 teng emas 1/6." },
-    wrong_1: { ru: '1/2 = 5/10 верно: и верх, и низ умножили на 5.', uz: "1/2 = 5/10 to'g'ri: yuqori ham, past ham 5 ga ko'paytirilgan." },
-    wrong_2: { ru: '3/4 = 6/8 верно: и верх, и низ умножили на 2.', uz: "3/4 = 6/8 to'g'ri: yuqori ham, past ham 2 ga ko'paytirilgan." },
-    wrong_3: { ru: '2/5 = 4/10 верно: и верх, и низ умножили на 2.', uz: "2/5 = 4/10 to'g'ri: yuqori ham, past ham 2 ga ko'paytirilgan." },
+    correct_text: { ru: 'Верно. 1/2 = 1/6 — ошибка: низ умножили на 3, а верх оставили. Надо 1/2 = 3/6.', uz: "To'g'ri. 1/2 = 1/6 — xato: maxraj 3 ga ko'paytirilib, surat qoldirilgan. 1/2 = 3/6 bo'lishi kerak." },
+    wrong_0: { ru: 'Да: низ умножили на 3, а верх нет. Поэтому 1/2 не равно 1/6.', uz: "Ha: maxraj 3 ga ko'paytirilib, surat ko'paytirilmagan. Shuning uchun 1/2 teng emas 1/6." },
+    wrong_1: { ru: '1/2 = 5/10 верно: и верх, и низ умножили на 5.', uz: "1/2 = 5/10 to'g'ri: surat ham, maxraj ham 5 ga ko'paytirilgan." },
+    wrong_2: { ru: '3/4 = 6/8 верно: и верх, и низ умножили на 2.', uz: "3/4 = 6/8 to'g'ri: surat ham, maxraj ham 2 ga ko'paytirilgan." },
+    wrong_3: { ru: '2/5 = 4/10 верно: и верх, и низ умножили на 2.', uz: "2/5 = 4/10 to'g'ri: surat ham, maxraj ham 2 ga ko'paytirilgan." },
     audio: {
       intro: { ru: 'Три записи равных дробей сделаны правильно, одна — с ошибкой. Найди ту, где равенство неверно.', uz: "Teng kasrlarning uchta yozuvi to'g'ri, bittasi xato. Tenglik noto'g'ri bo'lganini toping." },
-      on_correct: { ru: 'Верно, тут низ умножили, а верх забыли.', uz: "To'g'ri, bu yerda pastni ko'paytirib, yuqorini unutgan." },
-      on_wrong: { ru: 'Проверь каждое: и верх, и низ умножены на одно число?', uz: "Har birini tekshiring: yuqori ham, past ham bitta songa ko'paytirilganmi?" }
+      on_correct: { ru: 'Верно, тут низ умножили, а верх забыли.', uz: "To'g'ri, bu yerda maxrajni ko'paytirib, suratni unutgan." },
+      on_wrong: { ru: 'Проверь каждое: и верх, и низ умножены на одно число?', uz: "Har birini tekshiring: surat ham, maxraj ham bitta songa ko'paytirilganmi?" }
     }
   },
   s11: {
     eyebrow: { ru: 'Итоговая проверка', uz: 'Yakuniy tekshiruv' },
     title: { ru: 'Сократи <b>6/8</b> до меньших чисел', uz: "<b>6/8</b> ni kichikroq sonlarga keltiring" },
-    question: { ru: 'Раздели верх и низ на одно и то же число. Какая дробь получится равной?', uz: "Yuqori va pastni bitta songa bo'ling. Qaysi teng kasr hosil bo'ladi?" },
+    question: { ru: 'Раздели верх и низ на одно и то же число. Какая дробь получится равной?', uz: "Surat va maxrajni bitta songa bo'ling. Qaysi teng kasr hosil bo'ladi?" },
     opt_a: { ru: '3/4', uz: '3/4' },
     opt_b: { ru: '6/8', uz: '6/8' },
     opt_c: { ru: '3/8', uz: '3/8' },
     opt_d: { ru: '2/4', uz: '2/4' },
-    correct_text: { ru: 'Верно. 6/8: делим верх и низ на 2 → 3/4. Это та же величина, числа меньше.', uz: "To'g'ri. 6/8: yuqori va pastni 2 ga bo'lamiz → 3/4. Bu o'sha qiymat, sonlar kichikroq." },
+    correct_text: { ru: 'Верно. 6/8: делим верх и низ на 2 → 3/4. Это та же величина, числа меньше.', uz: "To'g'ri. 6/8: surat va maxrajni 2 ga bo'lamiz → 3/4. Bu o'sha qiymat, sonlar kichikroq." },
     wrong_0: { ru: 'Да: 6 разделить на 2 равно 3, 8 разделить на 2 равно 4. 6/8 = 3/4.', uz: "Ha: 6 ni 2 ga bo'lsak 3, 8 ni 2 ga bo'lsak 4. 6/8 = 3/4." },
     wrong_1: { ru: '6/8 — это исходная дробь, её ещё не сократили.', uz: "6/8 — boshlang'ich kasr, hali keltirilmagan." },
-    wrong_2: { ru: '3/8 — низ оставили без деления. Делить надо и верх, и низ.', uz: "3/8 — past bo'linmay qoldi. Yuqori ham, past ham bo'linadi." },
+    wrong_2: { ru: '3/8 — низ оставили без деления. Делить надо и верх, и низ.', uz: "3/8 — maxraj bo'linmay qoldi. Surat ham, maxraj ham bo'linadi." },
     wrong_3: { ru: '2/4 не равно 6/8: тут другое отношение. Раздели 6/8 на 2.', uz: "2/4 teng emas 6/8: bu boshqa nisbat. 6/8 ni 2 ga bo'ling." },
     audio: {
-      intro: { ru: 'Итоговое задание. Сократи дробь шесть восьмых — раздели верх и низ на одно и то же число. Какая равная дробь получится?', uz: "Yakuniy topshiriq. Olti sakkizdan kasrini keltiring — yuqori va pastni bitta songa bo'ling. Qaysi teng kasr chiqadi?" },
+      intro: { ru: 'Итоговое задание. Сократи дробь шесть восьмых — раздели верх и низ на одно и то же число. Какая равная дробь получится?', uz: "Yakuniy topshiriq. Olti sakkizdan kasrini keltiring — surat va maxrajni bitta songa bo'ling. Qaysi teng kasr chiqadi?" },
       on_correct: { ru: 'Верно, три четвёртых.', uz: "To'g'ri, uch to'rtdan." },
-      on_wrong: { ru: 'Дели и верх, и низ на одно число.', uz: "Yuqori va pastni bitta songa bo'ling." }
+      on_wrong: { ru: 'Дели и верх, и низ на одно число.', uz: "Surat va maxrajni bitta songa bo'ling." }
     }
   },
   s12: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz' },
     point1: { ru: 'Эквивалентные дроби — это <b>разные записи одной величины</b> (1/2 = 3/6).', uz: "Ekvivalent kasrlar — <b>bir qiymatning har xil yozuvi</b> (1/2 = 3/6)." },
-    point2: { ru: 'Умножай или дели <b>верх и низ на одно и то же число</b> — дробь не меняется.', uz: "<b>Yuqori va pastni bitta songa</b> ko'paytiring yoki bo'ling — kasr o'zgarmaydi." },
-    point3: { ru: 'Менять только низ — <b>ошибка</b>: получится другая дробь.', uz: "Faqat pastni o'zgartirish — <b>xato</b>: boshqa kasr chiqadi." },
+    point2: { ru: 'Умножай или дели <b>верх и низ на одно и то же число</b> — дробь не меняется.', uz: "<b>Surat va maxrajni bitta songa</b> ko'paytiring yoki bo'ling — kasr o'zgarmaydi." },
+    point3: { ru: 'Менять только низ — <b>ошибка</b>: получится другая дробь.', uz: "Faqat maxrajni o'zgartirish — <b>xato</b>: boshqa kasr chiqadi." },
     score_caption: { ru: 'Правильных ответов', uz: "To'g'ri javoblar" },
     audio: {
       ru: 'Подведём итог. Эквивалентные дроби — это разные записи одной и той же величины. Чтобы получить равную дробь, умножай или дели верх и низ на одно и то же число. Менять только низ нельзя — получится другая дробь. Ты молодец.',
-      uz: "Xulosa qilamiz. Ekvivalent kasrlar — bir xil qiymatning har xil yozuvi. Teng kasr olish uchun yuqori va pastni bitta songa ko'paytiring yoki bo'ling. Faqat pastni o'zgartirib bo'lmaydi — boshqa kasr chiqadi. Ofarin."
+      uz: "Xulosa qilamiz. Ekvivalent kasrlar — bir xil qiymatning har xil yozuvi. Teng kasr olish uchun surat va maxrajni bitta songa ko'paytiring yoki bo'ling. Faqat maxrajni o'zgartirib bo'lmaydi — boshqa kasr chiqadi. Ofarin."
     }
   }
 };

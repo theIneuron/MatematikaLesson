@@ -875,7 +875,7 @@ const CONTENT = {
     title: { ru: 'Какое число больше', uz: "Qaysi son katta" },
     question: {
       ru: 'На прошлом уроке мы сравнивали числа на прямой. Какое число больше: −5 или −3?',
-      uz: "O'tgan darsda sonlarni o'qda taqqosladik. Qaysi son katta: −5 yoki −3?"
+      uz: "O'tgan darsda sonlarni son o'qida taqqosladik. Qaysi son katta: −5 yoki −3?"
     },
     opt0: { ru: '−3', uz: "−3" },
     opt1: { ru: '−5', uz: "−5" },
@@ -883,11 +883,11 @@ const CONTENT = {
     opt3: { ru: 'Нельзя сравнить', uz: "Taqqoslab bo'lmaydi" },
     correct_text: {
       ru: 'Верно. −3 правее на прямой, чем −5, а правее — значит больше. Это правило нам сегодня пригодится.',
-      uz: "To'g'ri. −3 o'qda −5 dan o'ngroqda, o'ngroq esa — kattaroq. Bu qoida bugun asqotadi."
+      uz: "To'g'ri. −3 son o'qida −5 dan o'ngroqda, o'ngroq esa — kattaroq. Bu qoida bugun asqotadi."
     },
     wrong_1: {
       ru: '−5 кажется больше, ведь 5 больше 3. Но −5 левее на прямой, значит он меньше. Больше −3.',
-      uz: "−5 katta tuyuladi, axir 5, 3 dan katta. Lekin −5 o'qda chaproqda, demak u kichik. −3 kattaroq."
+      uz: "−5 katta tuyuladi, axir 5, 3 dan katta. Lekin −5 son o'qida chaproqda, demak u kichik. −3 kattaroq."
     },
     wrong_2: {
       ru: 'Они не равны: −3 и −5 — разные точки. −3 правее, значит больше.',
@@ -897,7 +897,7 @@ const CONTENT = {
       ru: 'Отрицательные тоже сравнивают: кто правее, тот больше. Это −3.',
       uz: "Manfiy sonlar ham taqqoslanadi: kim o'ngroqda, o'sha katta. Bu — −3."
     },
-    wrong_default: { ru: 'Правее на прямой — больше. Это −3.', uz: "O'qda o'ngroqda — katta. Bu — −3." },
+    wrong_default: { ru: 'Правее на прямой — больше. Это −3.', uz: "Son o'qida o'ngroqda — katta. Bu — −3." },
     audio: {
       intro: {
         ru: 'Сначала вспомним прошлый урок. Какое число больше: минус пять или минус три? Выбери ответ.',
@@ -914,7 +914,7 @@ const CONTENT = {
     title: { ru: 'Кто правее, тот больше', uz: "Kim o'ngroqda, o'sha katta" },
     lead: {
       ru: 'Ноль в центре. Двигай ползунок и сравнивай число с единицей: кто правее на прямой, тот больше.',
-      uz: "Nol — markazda. Slayderni suring va sonni 1 bilan taqqoslang: o'qda kim o'ngroqda, o'sha katta."
+      uz: "Nol — markazda. Slayderni suring va sonni 1 bilan taqqoslang: son o'qida kim o'ngroqda, o'sha katta."
     },
     note_bigger: {
       ru: 'Это число правее единицы — значит оно больше единицы.',
@@ -964,14 +964,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s4 RULE 1 — taqqoslash: o'qda o'ngroq — katta (har qanday butun son). ----
+  // ---- s4 RULE 1 — taqqoslash: son o'qida o'ngroq — katta (har qanday butun son). ----
   s4: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     title: { ru: 'Правило сравнения', uz: "Taqqoslash qoidasi" },
     lead: { ru: 'Запишем первое правило — про сравнение.', uz: "Birinchi qoidani yozamiz — taqqoslash haqida." },
     rule_main: {
       ru: 'Кто правее на прямой, тот больше',
-      uz: "O'qda kim o'ngroqda, o'sha katta"
+      uz: "Son o'qida kim o'ngroqda, o'sha katta"
     },
     ex_easy: {
       ru: 'Это работает для всех целых чисел: −2 меньше 3, потому что −2 левее. Любой минус меньше любого плюса.',
@@ -983,7 +983,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Первое правило. Кто правее на прямой, тот больше. Это верно для любых целых чисел. Минус два меньше трёх, ведь минус два стоит левее. И любое отрицательное меньше любого положительного.',
-      uz: "Birinchi qoida. O'qda kim o'ngroqda, o'sha katta. Bu istalgan butun son uchun to'g'ri. Minus ikki uchdan kichik, chunki minus ikki chaproqda. Va har qanday manfiy har qanday musbatdan kichik."
+      uz: "Birinchi qoida. Son o'qida kim o'ngroqda, o'sha katta. Bu istalgan butun son uchun to'g'ri. Minus ikki uchdan kichik, chunki minus ikki chaproqda. Va har qanday manfiy har qanday musbatdan kichik."
     }
   },
 
@@ -1022,7 +1022,7 @@ const CONTENT = {
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     hint: {
       ru: 'Противоположное — это смена знака, не «убрать минус». У 5 на прямой пара слева, на том же расстоянии: −5.',
-      uz: "Qarama-qarshi — bu ishorani almashtirish, «minusni olib tashlash» emas. 5 ning o'qda chapdagi jufti, xuddi shu masofada: −5."
+      uz: "Qarama-qarshi — bu ishorani almashtirish, «minusni olib tashlash» emas. 5 ning son o'qida chapdagi jufti, xuddi shu masofada: −5."
     },
     fb_correct: {
       ru: 'Верно! Противоположное к 5 — это −5. Знак сменился, расстояние от нуля то же.',
@@ -1044,7 +1044,7 @@ const CONTENT = {
     title: { ru: 'Сравни через ноль', uz: "Noldan o'tib taqqoslang" },
     lead: {
       ru: 'Какое число больше: −4 или 2? Подумай, где они на прямой.',
-      uz: "Qaysi son katta: −4 yoki 2? Ular o'qda qayerda turishini o'ylang."
+      uz: "Qaysi son katta: −4 yoki 2? Ular son o'qida qayerda turishini o'ylang."
     },
     opt0: { ru: '2', uz: "2" },
     opt1: { ru: '−4', uz: "−4" },
@@ -1066,7 +1066,7 @@ const CONTENT = {
       ru: 'Сравнить можно: положительное правее отрицательного. Больше 2.',
       uz: "Taqqoslasa bo'ladi: musbat manfiydan o'ngroqda. Katta — 2."
     },
-    wrong_default: { ru: 'Справа на прямой — больше. Это 2.', uz: "O'qda o'ngroqda — katta. Bu — 2." },
+    wrong_default: { ru: 'Справа на прямой — больше. Это 2.', uz: "Son o'qida o'ngroqda — katta. Bu — 2." },
     fact: {
       ru: 'Знак минус появился у математиков около 500 лет назад; до этого отрицательные числа записывали словами. Поэтому привыкнуть к минусу — это нормально.',
       uz: "Minus belgisi matematiklarda taxminan 500 yil oldin paydo bo'lgan; undan oldin manfiy sonlarni so'z bilan yozishgan. Shuning uchun minusga ko'nikish — bu tabiiy."
@@ -1074,7 +1074,7 @@ const CONTENT = {
     audio: {
       intro: {
         ru: 'Какое число больше: минус четыре или два? Подумай, где каждое на прямой. Выбери ответ.',
-        uz: "Qaysi son katta: minus to'rt yoki ikki? Har biri o'qda qayerda turishini o'ylang. Javobni tanlang."
+        uz: "Qaysi son katta: minus to'rt yoki ikki? Har biri son o'qida qayerda turishini o'ylang. Javobni tanlang."
       },
       on_correct: {
         ru: 'Верно. Два больше. Кстати, знак минус появился у математиков всего около пятисот лет назад.',
@@ -1090,7 +1090,7 @@ const CONTENT = {
     title: { ru: 'Отметь противоположное', uz: "Qarama-qarshisini belgilang" },
     lead: {
       ru: 'Синяя метка стоит на −3. Поставь отметку на противоположное число. Нажми нужное деление прямой.',
-      uz: "Ko'k belgi −3 da turibdi. Uning qarama-qarshi soniga marker qo'ying. O'qdagi kerakli bo'linmani bosing."
+      uz: "Ko'k belgi −3 da turibdi. Uning qarama-qarshi soniga marker qo'ying. Son o'qidagi kerakli bo'linmani bosing."
     },
     hint_wrong: {
       ru: 'Противоположное к −3 — на том же расстоянии от нуля, но справа. Отсчитай три шага вправо: это 3.',
@@ -1101,7 +1101,7 @@ const CONTENT = {
       uz: "To'g'ri! 3 noldan o'ngda, −3 chapdagi masofa bilan bir xil. Bular qarama-qarshi sonlar."
     },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    tap_prompt: { ru: 'Нажми деление на прямой', uz: "O'qdagi bo'linmani bosing" },
+    tap_prompt: { ru: 'Нажми деление на прямой', uz: "Son o'qidagi bo'linmani bosing" },
     audio: {
       intro: {
         ru: 'Синяя метка на минус три. Поставь отметку на противоположное число. Нажми нужное деление и нажми проверить.',
@@ -1122,11 +1122,11 @@ const CONTENT = {
     },
     hint_wrong: {
       ru: 'Самое маленькое — левее всех на прямой. Это −5, потом −1, потом 2, потом 4.',
-      uz: "Eng kichik — o'qda hammadan chapda. Bu −5, keyin −1, keyin 2, keyin 4."
+      uz: "Eng kichik — son o'qida hammadan chapda. Bu −5, keyin −1, keyin 2, keyin 4."
     },
     correct_text: {
       ru: 'Верно! От меньшего к большему: −5, −1, 2, 4. Это порядок слева направо на прямой.',
-      uz: "To'g'ri! Kichikdan kattaga: −5, −1, 2, 4. Bu o'qda chapdan o'ngga tartib."
+      uz: "To'g'ri! Kichikdan kattaga: −5, −1, 2, 4. Bu son o'qida chapdan o'ngga tartib."
     },
     fact: {
       ru: 'Самая низкая температура на Земле, около минус 89 градусов, измерена в Антарктиде. Отрицательные числа помогают записывать такой холод.',
@@ -1191,11 +1191,11 @@ const CONTENT = {
     },
     note: {
       ru: 'Впереди — у кого счёт больше, то есть правее на прямой.',
-      uz: "Oldinda — hisobi katta bo'lgan, ya'ni o'qda o'ngroqda turgan."
+      uz: "Oldinda — hisobi katta bo'lgan, ya'ni son o'qida o'ngroqda turgan."
     },
     hint_calc: {
       ru: 'Сравни −3 и 2. Кто правее на прямой, у того счёт больше.',
-      uz: "−3 va 2 ni taqqoslang. O'qda kim o'ngroqda, o'shaning hisobi katta."
+      uz: "−3 va 2 ni taqqoslang. Son o'qida kim o'ngroqda, o'shaning hisobi katta."
     },
     btn_help: { ru: 'Решить', uz: 'Yechish' },
     audio: {
@@ -1230,9 +1230,9 @@ const CONTENT = {
     },
     wrong_2: {
       ru: 'Узнать можно: сравни −3 и 2 на прямой. Больше 2 — впереди Нафиса.',
-      uz: "Bilsa bo'ladi: −3 va 2 ni o'qda taqqoslang. Katta — 2, oldinda Nafisa."
+      uz: "Bilsa bo'ladi: −3 va 2 ni son o'qida taqqoslang. Katta — 2, oldinda Nafisa."
     },
-    wrong_default: { ru: '2 правее −3 на прямой. Впереди Нафиса.', uz: "2 o'qda −3 dan o'ngda. Oldinda — Nafisa." },
+    wrong_default: { ru: '2 правее −3 на прямой. Впереди Нафиса.', uz: "2 son o'qida −3 dan o'ngda. Oldinda — Nafisa." },
     fact: {
       ru: 'В компьютерных играх и графике координаты бывают отрицательными: центр экрана — это ноль. Так что отрицательные числа нужны и здесь.',
       uz: "Kompyuter o'yinlari va grafikasida koordinatalar manfiy bo'lishi mumkin: ekran markazi — bu nol. Demak manfiy sonlar bu yerda ham kerak."
@@ -1246,7 +1246,7 @@ const CONTENT = {
         ru: 'Верно. Впереди Нафиса. Кстати, в компьютерных играх координаты тоже бывают отрицательными, ведь центр экрана, это ноль.',
         uz: "To'g'ri. Oldinda Nafisa. Aytgancha, kompyuter o'yinlarida ham koordinatalar manfiy bo'ladi, axir ekran markazi, bu nol."
       },
-      on_wrong: { ru: 'Не совсем. Два правее минус трёх на прямой.', uz: "Unchalik emas. Ikki, o'qda minus uchdan o'ngda." }
+      on_wrong: { ru: 'Не совсем. Два правее минус трёх на прямой.', uz: "Unchalik emas. Ikki, son o'qida minus uchdan o'ngda." }
     }
   },
 
@@ -1256,7 +1256,7 @@ const CONTENT = {
     heading: { ru: 'Целые числа покорены', uz: "Butun sonlar bo'ysundi" },
     title: { ru: 'Отлично! Это был последний урок 5 класса.', uz: "Ajoyib! Bu 5-sinfning oxirgi darsi edi." },
     main_label: { ru: 'Что мы узнали', uz: "Nimani bilib oldik" },
-    main_1: { ru: 'Кто правее на прямой, тот больше — для любых целых чисел.', uz: "O'qda kim o'ngroqda, o'sha katta — barcha butun sonlar uchun." },
+    main_1: { ru: 'Кто правее на прямой, тот больше — для любых целых чисел.', uz: "Son o'qida kim o'ngroqda, o'sha katta — barcha butun sonlar uchun." },
     main_2: { ru: 'Любое отрицательное меньше любого положительного.', uz: "Har qanday manfiy har qanday musbatdan kichik." },
     main_3: { ru: 'Противоположное число — это смена знака; у нуля это сам ноль.', uz: "Qarama-qarshi son — bu ishorani almashtirish; nol niki esa o'zi nol." },
     hook_close: {
@@ -1266,7 +1266,7 @@ const CONTENT = {
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: {
       ru: 'Отрицательные числа на координатной прямой (правее — больше).',
-      uz: "Manfiy sonlar koordinata chizig'ida (o'ngroq — kattaroq)."
+      uz: "Manfiy sonlar son o'qida (o'ngroq — kattaroq)."
     },
     conn_label_next: { ru: 'Дальше', uz: 'Keyin' },
     conn_next: {
@@ -1276,7 +1276,7 @@ const CONTENT = {
     btn_restart: { ru: 'Пройти заново', uz: 'Qaytadan' },
     audio: {
       ru: 'Отлично. Теперь ты знаешь: кто правее на прямой, тот больше, а любое отрицательное меньше любого положительного. А противоположное число, это смена знака. Это был последний урок пятого класса. Молодец!',
-      uz: "Ajoyib. Endi bilasiz: o'qda kim o'ngroqda, o'sha katta, har qanday manfiy esa istalgan musbatdan kichik. Qarama-qarshi son, bu ishorani almashtirish. Bu 5-sinfning oxirgi darsi edi. Barakalla!"
+      uz: "Ajoyib. Endi bilasiz: son o'qida kim o'ngroqda, o'sha katta, har qanday manfiy esa istalgan musbatdan kichik. Qarama-qarshi son, bu ishorani almashtirish. Bu 5-sinfning oxirgi darsi edi. Barakalla!"
     }
   }
 
@@ -1576,7 +1576,7 @@ const W_B1 = {
   eyebrow: { ru: 'Тренировка', uz: 'Mashq' },
   title: { ru: 'Противоположные числа и сравнение', uz: "Qarama-qarshi sonlar va taqqoslash" },
   lead: { ru: 'Несколько разных заданий подряд.', uz: "Bir nechta har xil topshiriq birin-ketin." },
-  done_text: { ru: 'Все верно! Противоположное меняет знак, а правее на прямой — больше.', uz: "Hammasi to'g'ri! Qarama-qarshi son ishorani almashtiradi, o'qda o'ngroq esa — katta." }
+  done_text: { ru: 'Все верно! Противоположное меняет знак, а правее на прямой — больше.', uz: "Hammasi to'g'ri! Qarama-qarshi son ishorani almashtiradi, son o'qida o'ngroq esa — katta." }
 };
 const W_B2 = {
   eyebrow: { ru: 'Итог', uz: 'Yakun' },
@@ -1604,14 +1604,14 @@ const NH3 = {
   opt0: { ru: '−19', uz: '−19' }, opt1: { ru: '−20', uz: '−20' }, opt2: { ru: 'Они равны', uz: 'Ular teng' },
   wrong_1: { ru: '−20 левее −19 на один шаг, значит меньше. Больше −19.', uz: "−20, −19 dan bir qadam chaproqda, demak kichik. Katta — −19." },
   wrong_2: { ru: 'Числа близкие, но не равные. Больше −19.', uz: "Sonlar yaqin, lekin teng emas. Katta — −19." },
-  audio: { intro: { ru: 'Что больше: минус двадцать или минус девятнадцать? Выбери ответ.', uz: "Qaysi katta: minus yigirma yoki minus o'n to'qqiz? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус девятнадцать больше.', uz: "To'g'ri. Minus o'n to'qqiz katta." }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "O'qda kim o'ngroqda, o'sha katta." } }
+  audio: { intro: { ru: 'Что больше: минус двадцать или минус девятнадцать? Выбери ответ.', uz: "Qaysi katta: minus yigirma yoki minus o'n to'qqiz? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус девятнадцать больше.', uz: "To'g'ri. Minus o'n to'qqiz katta." }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "Son o'qida kim o'ngroqda, o'sha katta." } }
 };
 const NH4 = {
   lead: { ru: 'Какое число самое маленькое: −2, −11 или −7?', uz: "Qaysi son eng kichik: −2, −11 yoki −7?" },
   opt0: { ru: '−11', uz: '−11' }, opt1: { ru: '−2', uz: '−2' }, opt2: { ru: '−7', uz: '−7' },
   wrong_1: { ru: '−2 правее всех, значит самое большое, а не маленькое. Меньше всех −11.', uz: "−2 hammadan o'ngda, demak eng katta, kichik emas. Eng kichigi — −11." },
   wrong_2: { ru: '−7 левее −2, но −11 ещё левее. Самое маленькое −11.', uz: "−7, −2 dan chapda, lekin −11 yanada chapda. Eng kichigi — −11." },
-  audio: { intro: { ru: 'Какое число самое маленькое: минус два, минус одиннадцать или минус семь? Выбери ответ.', uz: "Qaysi son eng kichik: minus ikki, minus o'n bir yoki minus yetti? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус одиннадцать самое маленькое.', uz: "To'g'ri. Minus o'n bir eng kichik." }, on_wrong: { ru: 'Кто левее на прямой, тот меньше.', uz: "O'qda kim chaproqda, o'sha kichik." } }
+  audio: { intro: { ru: 'Какое число самое маленькое: минус два, минус одиннадцать или минус семь? Выбери ответ.', uz: "Qaysi son eng kichik: minus ikki, minus o'n bir yoki minus yetti? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус одиннадцать самое маленькое.', uz: "To'g'ri. Minus o'n bir eng kichik." }, on_wrong: { ru: 'Кто левее на прямой, тот меньше.', uz: "Son o'qida kim chaproqda, o'sha kichik." } }
 };
 const B1_ITEMS = [
   { type: 'input', c: CONTENT.s6, answer: -5, coord: { value: 5, value2: -5, mirror: true } },

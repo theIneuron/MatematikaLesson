@@ -805,15 +805,15 @@ const CONTENT = {
       { q: { ru: '1/1000 = ?', uz: "1/1000 = ?" }, opts: ['0,1', '0,01', '0,001'], correct: 2,
         say: { ru: 'И последний.', uz: "Va oxirgisi." },
         ok: { ru: 'Тысячные — три цифры после запятой: 0,001.', uz: "Mingdan — verguldan keyin uch raqam: 0,001." },
-        no: { ru: 'Тысячные стоят на третьем месте после запятой.', uz: "Mingdan verguldan keyin uchinchi o'rinda turadi." } }
+        no: { ru: 'Тысячные стоят на третьем месте после запятой.', uz: "Mingdan verguldan keyin uchinchi xonada turadi." } }
     ]
   },
 
-  // ── s2 EXPLORATION: ×10 — vergul 1 o'rin o'ngga (harakatli) ──
+  // ── s2 EXPLORATION: ×10 — vergul 1 xona o'ngga (harakatli) ──
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
     title: { ru: 'Умножаем на 10', uz: "10 ga ko'paytiramiz" },
-    conclusion: { ru: 'Умножить на 10 — это сдвинуть запятую на одно место вправо. 2,5 стало 25 — в десять раз больше.', uz: "10 ga ko'paytirish — vergulni bir o'rin o'ngga surish. 2,5 endi 25 bo'ldi — o'n marta katta." },
+    conclusion: { ru: 'Умножить на 10 — это сдвинуть запятую на одно место вправо. 2,5 стало 25 — в десять раз больше.', uz: "10 ga ko'paytirish — vergulni bir xona o'ngga surish. 2,5 endi 25 bo'ldi — o'n marta katta." },
     btn_step: { ru: 'Умножить на 10', uz: "10 ga ko'paytirish" },
     btn_final: { ru: 'Понятно, дальше', uz: "Tushunarli, davom" },
     audio: {
@@ -823,7 +823,7 @@ const CONTENT = {
       ],
       uz: [
         "Sonimizga qaytamiz, ikki butun o'ndan besh. Uni o'nga ko'paytiramiz. Tugmani bosing.",
-        "Vergul bir o'rin o'ngga sakradi. Ikki butun o'ndan besh edi, yigirma besh bo'ldi. Bu o'n marta katta, ko'paytirishda shunday bo'lishi kerak. Hech qanday nol qo'shish shart emas."
+        "Vergul bir xona o'ngga sakradi. Ikki butun o'ndan besh edi, yigirma besh bo'ldi. Bu o'n marta katta, ko'paytirishda shunday bo'lishi kerak. Hech qanday nol qo'shish shart emas."
       ]
     }
   },
@@ -832,7 +832,7 @@ const CONTENT = {
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
     title: { ru: 'На 100 — два прыжка', uz: "100 ga — ikki sakrash" },
-    conclusion: { ru: 'Сколько нулей в множителе — на столько мест прыгает запятая. На 100 — два места; не хватило цифры — встал ноль: 250. На 1000 было бы три места.', uz: "Ko'paytuvchida nechta nol — vergul shuncha o'rin sakraydi. 100 ga — ikki o'rin; raqam yetmadi — nol turdi: 250. 1000 ga uch o'rin bo'lardi." },
+    conclusion: { ru: 'Сколько нулей в множителе — на столько мест прыгает запятая. На 100 — два места; не хватило цифры — встал ноль: 250. На 1000 было бы три места.', uz: "Ko'paytuvchida nechta nol — vergul shuncha xona sakraydi. 100 ga — ikki xona; raqam yetmadi — nol turdi: 250. 1000 ga uch xona bo'lardi." },
     btn_step: { ru: 'Умножить на 100', uz: "100 ga ko'paytirish" },
     btn_final: { ru: 'Понятно, дальше', uz: "Tushunarli, davom" },
     audio: {
@@ -841,8 +841,8 @@ const CONTENT = {
         'Запятая прыгнула на два места вправо. Цифры не хватило, и на пустой разряд встал ноль, получилось двести пятьдесят. А на тысячу запятая прыгнула бы на три места, потому что у тысячи три нуля.'
       ],
       uz: [
-        "100 ga ko'paytirsak-chi? Yuzning ikkita noli bor, demak vergul ikki o'rin sakraydi. Tugmani bosing.",
-        "Vergul ikki o'rin o'ngga sakradi. Raqam yetmadi va bo'sh xonaga nol turdi, ikki yuz ellik bo'ldi. Mingga esa vergul uch o'rin sakrardi, chunki mingning uchta noli bor."
+        "100 ga ko'paytirsak-chi? Yuzning ikkita noli bor, demak vergul ikki xona sakraydi. Tugmani bosing.",
+        "Vergul ikki xona o'ngga sakradi. Raqam yetmadi va bo'sh xonaga nol turdi, ikki yuz ellik bo'ldi. Mingga esa vergul uch xona sakrardi, chunki mingning uchta noli bor."
       ]
     }
   },
@@ -851,7 +851,7 @@ const CONTENT = {
   s4: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
     title: { ru: 'Делим — запятая идёт влево', uz: "Bo'lamiz — vergul chapga boradi" },
-    conclusion: { ru: 'При делении запятая идёт влево. 5 разделить на 100 — два места влево; слева цифр не хватило, поэтому впереди появились нули и ноль целых: 0,05. На 1000 было бы три места — 0,005.', uz: "Bo'lishda vergul chapga boradi. 5 ni 100 ga — ikki o'rin chapga; chapda raqam yetmadi, shuning uchun oldida nollar va nol butun paydo bo'ldi: 0,05. 1000 ga uch o'rin bo'lardi — 0,005." },
+    conclusion: { ru: 'При делении запятая идёт влево. 5 разделить на 100 — два места влево; слева цифр не хватило, поэтому впереди появились нули и ноль целых: 0,05. На 1000 было бы три места — 0,005.', uz: "Bo'lishda vergul chapga boradi. 5 ni 100 ga — ikki xona chapga; chapda raqam yetmadi, shuning uchun oldida nollar va nol butun paydo bo'ldi: 0,05. 1000 ga uch xona bo'lardi — 0,005." },
     btn_step: { ru: 'Разделить на 100', uz: "100 ga bo'lish" },
     btn_final: { ru: 'Понятно, дальше', uz: "Tushunarli, davom" },
     audio: {
@@ -861,7 +861,7 @@ const CONTENT = {
       ],
       uz: [
         "Endi bo'lish. Butun son beshni olamiz va yuzga bo'lamiz. Yuzning ikkita noli bor. Tugmani bosing.",
-        "Vergul chapga ikki o'rin bordi. Chapda raqam yetmadi, shuning uchun oldida nollar va nol butun paydo bo'ldi, nol butun yuzdan besh chiqdi. Bo'lish sonni kichraytiradi, bu to'g'ri."
+        "Vergul chapga ikki xona bordi. Chapda raqam yetmadi, shuning uchun oldida nollar va nol butun paydo bo'ldi, nol butun yuzdan besh chiqdi. Bo'lish sonni kichraytiradi, bu to'g'ri."
       ]
     }
   },
@@ -871,11 +871,11 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     title: { ru: 'Одно правило для всего', uz: "Hammasi uchun bitta qoida" },
     label: { ru: 'Запомни', uz: "Eslab qoling" },
-    rule_mul: { ru: 'Умножаем на 10, 100, 1000 — запятая идёт ВПРАВО на столько мест, сколько нулей в множителе.', uz: "10, 100, 1000 ga ko'paytiramiz — vergul ko'paytuvchidagi nollar soni qancha bo'lsa, shuncha o'rin O'NGGA boradi." },
-    rule_div: { ru: 'Делим на 10, 100, 1000 — запятая идёт ВЛЕВО на столько же мест.', uz: "10, 100, 1000 ga bo'lamiz — vergul shuncha o'rin CHAPGA boradi." },
+    rule_mul: { ru: 'Умножаем на 10, 100, 1000 — запятая идёт ВПРАВО на столько мест, сколько нулей в множителе.', uz: "10, 100, 1000 ga ko'paytiramiz — vergul ko'paytuvchidagi nollar soni qancha bo'lsa, shuncha xona O'NGGA boradi." },
+    rule_div: { ru: 'Делим на 10, 100, 1000 — запятая идёт ВЛЕВО на столько же мест.', uz: "10, 100, 1000 ga bo'lamiz — vergul shuncha xona CHAPGA boradi." },
     warn_label: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
     warn: { ru: 'Не приписывай ноль, как у целых чисел! Двигай запятую, а нули — только чтобы заполнить пустые разряды.', uz: "Butun sonlardek nol qo'shmang! Vergulni suring, nollarni esa — faqat bo'sh xonalarni to'ldirish uchun." },
-    audio: { ru: 'Соберём одно правило. Чтобы умножить на десять, сто или тысячу, сдвигаем запятую вправо на столько мест, сколько нулей в множителе. Чтобы разделить — на столько же мест, но влево. И главное: не приписывай ноль, как у целых чисел. Мы двигаем запятую, а нули ставим только туда, где не хватило цифр.', uz: "Bitta qoidaga yig'amiz. O'nga, yuzga yoki mingga ko'paytirish uchun vergulni nollar soni qancha bo'lsa shuncha o'rin o'ngga suramiz. Bo'lish uchun — shuncha o'rin, lekin chapga. Eng muhimi: butun sonlardek nol qo'shmang. Biz vergulni suramiz, nollarni esa faqat raqam yetmagan joyga qo'yamiz." }
+    audio: { ru: 'Соберём одно правило. Чтобы умножить на десять, сто или тысячу, сдвигаем запятую вправо на столько мест, сколько нулей в множителе. Чтобы разделить — на столько же мест, но влево. И главное: не приписывай ноль, как у целых чисел. Мы двигаем запятую, а нули ставим только туда, где не хватило цифр.', uz: "Bitta qoidaga yig'amiz. O'nga, yuzga yoki mingga ko'paytirish uchun vergulni nollar soni qancha bo'lsa shuncha xona o'ngga suramiz. Bo'lish uchun — shuncha xona, lekin chapga. Eng muhimi: butun sonlardek nol qo'shmang. Biz vergulni suramiz, nollarni esa faqat raqam yetmagan joyga qo'yamiz." }
   },
 
   // ── s6 — 5 OSON SAVOL (SeqMC, scored practice) ──
@@ -884,31 +884,31 @@ const CONTENT = {
     title: { ru: '5 быстрых примеров', uz: "5 ta tez misol" },
     lead: { ru: 'Сдвигай запятую в уме. Нажми ответ.', uz: "Vergulni xayolan suring. Javobni bosing." },
     audio: {
-      intro: { ru: 'Пять быстрых примеров. Считай, на сколько мест и в какую сторону идёт запятая. Нажимай ответ.', uz: "Besh ta tez misol. Vergul necha o'rin va qaysi tomonga borishini sanang. Javobni bosing." },
-      on_wrong: { ru: 'Не спеши. Сколько нулей, столько мест; умножаем, вправо, делим, влево.', uz: "Shoshmang. Nechta nol, shuncha o'rin; ko'paytirsak, o'ngga, bo'lsak, chapga." },
+      intro: { ru: 'Пять быстрых примеров. Считай, на сколько мест и в какую сторону идёт запятая. Нажимай ответ.', uz: "Besh ta tez misol. Vergul necha xona va qaysi tomonga borishini sanang. Javobni bosing." },
+      on_wrong: { ru: 'Не спеши. Сколько нулей, столько мест; умножаем, вправо, делим, влево.', uz: "Shoshmang. Nechta nol, shuncha xona; ko'paytirsak, o'ngga, bo'lsak, chapga." },
       on_done: { ru: 'Отлично, все пять решены.', uz: "Ajoyib, beshtasi ham yechildi." }
     },
     questions: [
       { q: { ru: '1,4 × 10', uz: "1,4 × 10" }, opts: ['1,40', '14', '140'], correct: 1,
         say: { ru: 'Одна целая четыре десятых умножить на десять.', uz: "Bir butun o'ndan to'rt karra o'n." },
-        ok: { ru: 'На 10 — одно место вправо: 14.', uz: "10 ga — bir o'rin o'ngga: 14." },
-        no: { ru: 'Двигай запятую на одно место вправо, ноль не дописывай.', uz: "Vergulni bir o'rin o'ngga suring, nol qo'shmang." } },
+        ok: { ru: 'На 10 — одно место вправо: 14.', uz: "10 ga — bir xona o'ngga: 14." },
+        no: { ru: 'Двигай запятую на одно место вправо, ноль не дописывай.', uz: "Vergulni bir xona o'ngga suring, nol qo'shmang." } },
       { q: { ru: '6 ÷ 10', uz: "6 ÷ 10" }, opts: ['0,6', '60', '0,06'], correct: 0,
         say: { ru: 'Шесть разделить на десять.', uz: "Olti bo'lingan o'n." },
-        ok: { ru: 'На 10 — одно место влево: 0,6.', uz: "10 ga — bir o'rin chapga: 0,6." },
-        no: { ru: 'При делении запятая идёт влево на одно место.', uz: "Bo'lishda vergul bir o'rin chapga boradi." } },
+        ok: { ru: 'На 10 — одно место влево: 0,6.', uz: "10 ga — bir xona chapga: 0,6." },
+        no: { ru: 'При делении запятая идёт влево на одно место.', uz: "Bo'lishda vergul bir xona chapga boradi." } },
       { q: { ru: '0,3 × 100', uz: "0,3 × 100" }, opts: ['3', '300', '30'], correct: 2,
         say: { ru: 'Ноль целых три десятых умножить на сто.', uz: "Nol butun o'ndan uch karra yuz." },
-        ok: { ru: 'На 100 — два места вправо: 30.', uz: "100 ga — ikki o'rin o'ngga: 30." },
-        no: { ru: 'На сто двигай вправо на два места.', uz: "Yuzga ikki o'rin o'ngga suring." } },
+        ok: { ru: 'На 100 — два места вправо: 30.', uz: "100 ga — ikki xona o'ngga: 30." },
+        no: { ru: 'На сто двигай вправо на два места.', uz: "Yuzga ikki xona o'ngga suring." } },
       { q: { ru: '2,5 × 10', uz: "2,5 × 10" }, opts: ['2,50', '25', '250'], correct: 1,
         say: { ru: 'Две целых пять десятых умножить на десять.', uz: "Ikki butun o'ndan besh karra o'n." },
         ok: { ru: 'Верно: 25, а не 2,50. Запятую двигаем, ноль не приписываем.', uz: "To'g'ri: 25, 2,50 emas. Vergulni suramiz, nol qo'shmaymiz." },
         no: { ru: '2,50 это то же, что 2,5. Сдвинь запятую, будет 25.', uz: "2,50 bu 2,5 ning o'zi. Vergulni suring, 25 bo'ladi." } },
       { q: { ru: '45 ÷ 1000', uz: "45 ÷ 1000" }, opts: ['0,45', '0,045', '0,0045'], correct: 1,
         say: { ru: 'Сорок пять разделить на тысячу.', uz: "Qirq besh bo'lingan ming." },
-        ok: { ru: 'На 1000 — три места влево: 0,045.', uz: "1000 ga — uch o'rin chapga: 0,045." },
-        no: { ru: 'На тысячу запятая идёт влево на три места.', uz: "Mingga vergul uch o'rin chapga boradi." } }
+        ok: { ru: 'На 1000 — три места влево: 0,045.', uz: "1000 ga — uch xona chapga: 0,045." },
+        no: { ru: 'На тысячу запятая идёт влево на три места.', uz: "Mingga vergul uch xona chapga boradi." } }
     ]
   },
 
@@ -942,12 +942,12 @@ const CONTENT = {
     lead: { ru: '475 ÷ 100. Нажми на промежуток между цифрами, куда встанет запятая.', uz: "475 ÷ 100. Vergul turadigan, raqamlar orasidagi oraliqni bosing." },
     digits: '475',
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'На 100 запятая идёт влево на два места от правого края: между 4 и 7.', uz: "100 ga vergul o'ng chetdan chapga ikki o'rin boradi: 4 va 7 orasiga." },
-    correct_text: { ru: 'Верно: 475 ÷ 100 = 4,75. Два места влево.', uz: "To'g'ri: 475 ÷ 100 = 4,75. Ikki o'rin chapga." },
+    hint_wrong: { ru: 'На 100 запятая идёт влево на два места от правого края: между 4 и 7.', uz: "100 ga vergul o'ng chetdan chapga ikki xona boradi: 4 va 7 orasiga." },
+    correct_text: { ru: 'Верно: 475 ÷ 100 = 4,75. Два места влево.', uz: "To'g'ri: 475 ÷ 100 = 4,75. Ikki xona chapga." },
     audio: {
       intro: { ru: 'Поставь запятую сам. Четыреста семьдесят пять разделить на сто. Нажми на нужный промежуток между цифрами, потом нажми проверить.', uz: "Vergulni o'zingiz qo'ying. To'rt yuz yetmish beshni yuzga bo'lamiz. Kerakli oraliqni bosing, keyin tekshirishni bosing." },
       on_correct: { ru: 'Верно, четыре целых семьдесят пять сотых.', uz: "To'g'ri, to'rt butun yuzdan yetmish besh." },
-      on_wrong: { ru: 'Пока нет. На сто, это два места влево от конца.', uz: "Hali emas. Yuzga, bu oxiridan ikki o'rin chapga." }
+      on_wrong: { ru: 'Пока нет. На сто, это два места влево от конца.', uz: "Hali emas. Yuzga, bu oxiridan ikki xona chapga." }
     }
   },
 
@@ -958,13 +958,13 @@ const CONTENT = {
     lead: { ru: 'Обратный ход. Перетащи нужный множитель в клетку, чтобы из 0,04 получилось 40.', uz: "Teskari yo'l. 0,04 dan 40 chiqishi uchun kerakli ko'paytuvchini katakka sudrang." },
     tray_label: { ru: 'Множители', uz: "Ko'paytuvchilar" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'От 0,04 до 40 запятая прыгнула на три места вправо. Три нуля — это 1000.', uz: "0,04 dan 40 gacha vergul uch o'rin o'ngga sakradi. Uch nol — bu 1000." },
-    correct_text: { ru: 'Верно! Запятая прыгнула на три места — значит умножили на 1000.', uz: "To'g'ri! Vergul uch o'rin sakradi — demak 1000 ga ko'paytirilgan." },
-    fact: { ru: 'Размеры данных растут шагами по 1000: килобайт, мегабайт, гигабайт. Каждый шаг — сдвиг запятой на три места.', uz: "Ma'lumot hajmi 1000 lik qadamlar bilan o'sadi: kilobayt, megabayt, gigabayt. Har qadam — vergulni uch o'rin surish." },
+    hint_wrong: { ru: 'От 0,04 до 40 запятая прыгнула на три места вправо. Три нуля — это 1000.', uz: "0,04 dan 40 gacha vergul uch xona o'ngga sakradi. Uch nol — bu 1000." },
+    correct_text: { ru: 'Верно! Запятая прыгнула на три места — значит умножили на 1000.', uz: "To'g'ri! Vergul uch xona sakradi — demak 1000 ga ko'paytirilgan." },
+    fact: { ru: 'Размеры данных растут шагами по 1000: килобайт, мегабайт, гигабайт. Каждый шаг — сдвиг запятой на три места.', uz: "Ma'lumot hajmi 1000 lik qadamlar bilan o'sadi: kilobayt, megabayt, gigabayt. Har qadam — vergulni uch xona surish." },
     audio: {
       intro: { ru: 'Обратный ход. На что умножили ноль целых четыре сотых, чтобы вышло сорок? Перетащи или нажми нужный множитель в клетку, потом нажми проверить.', uz: "Teskari yo'l. Nol butun yuzdan to'rtni nechaga ko'paytirsak qirq chiqadi? Kerakli ko'paytuvchini katakka sudrang yoki bosing, keyin tekshirishni bosing." },
-      on_correct: { ru: 'Верно, на тысячу. Запятая прошла три места вправо.', uz: "To'g'ri, mingga. Vergul uch o'rin o'ngga bordi." },
-      on_wrong: { ru: 'Пока нет. Посчитай, на сколько мест прыгнула запятая.', uz: "Hali emas. Vergul necha o'rin sakraganini sanang." }
+      on_correct: { ru: 'Верно, на тысячу. Запятая прошла три места вправо.', uz: "To'g'ri, mingga. Vergul uch xona o'ngga bordi." },
+      on_wrong: { ru: 'Пока нет. Посчитай, на сколько мест прыгнула запятая.', uz: "Hali emas. Vergul necha xona sakraganini sanang." }
     }
   },
 
@@ -978,18 +978,18 @@ const CONTENT = {
     opt1: { ru: '2 МБ', uz: "2 MB" },
     opt2: { ru: '200 МБ', uz: "200 MB" },
     opt3: { ru: '0,2 МБ', uz: "0,2 MB" },
-    correct_text: { ru: 'Верно. Умножаем на 100 — запятая на два места вправо: 0,2 → 20 МБ.', uz: "To'g'ri. 100 ga ko'paytiramiz — vergul ikki o'rin o'ngga: 0,2 → 20 MB." },
-    wrong_1: { ru: 'Это сдвиг лишь на одно место (на 10). А множитель 100 — два места: 20 МБ.', uz: "Bu faqat bir o'rin surish (10 ga). Ko'paytuvchi 100 esa — ikki o'rin: 20 MB." },
-    wrong_2: { ru: 'Три места — это умножение на 1000. А у нас 100 — два места: 20 МБ.', uz: "Uch o'rin — bu 1000 ga ko'paytirish. Bizda 100 — ikki o'rin: 20 MB." },
+    correct_text: { ru: 'Верно. Умножаем на 100 — запятая на два места вправо: 0,2 → 20 МБ.', uz: "To'g'ri. 100 ga ko'paytiramiz — vergul ikki xona o'ngga: 0,2 → 20 MB." },
+    wrong_1: { ru: 'Это сдвиг лишь на одно место (на 10). А множитель 100 — два места: 20 МБ.', uz: "Bu faqat bir xona surish (10 ga). Ko'paytuvchi 100 esa — ikki xona: 20 MB." },
+    wrong_2: { ru: 'Три места — это умножение на 1000. А у нас 100 — два места: 20 МБ.', uz: "Uch xona — bu 1000 ga ko'paytirish. Bizda 100 — ikki xona: 20 MB." },
     wrong_3: { ru: 'Это размер одной фотографии. А их 100, значит число станет больше: 20 МБ.', uz: "Bu bitta fotoning hajmi. Ular 100 ta, demak son katta bo'ladi: 20 MB." },
-    wrong_default: { ru: 'Умножаем на 100 — два места вправо: 0,2 → 20 МБ.', uz: "100 ga ko'paytiramiz — ikki o'rin o'ngga: 0,2 → 20 MB." },
-    audio_hint_1: { ru: 'Это сдвиг только на одно место. У множителя сто два нуля, нужно два места.', uz: "Bu faqat bir o'rin surish. Ko'paytuvchi yuzning ikkita noli bor, ikki o'rin kerak." },
-    audio_hint_2: { ru: 'Три места, это для тысячи. У нас сто, значит два места.', uz: "Uch o'rin, bu ming uchun. Bizda yuz, demak ikki o'rin." },
+    wrong_default: { ru: 'Умножаем на 100 — два места вправо: 0,2 → 20 МБ.', uz: "100 ga ko'paytiramiz — ikki xona o'ngga: 0,2 → 20 MB." },
+    audio_hint_1: { ru: 'Это сдвиг только на одно место. У множителя сто два нуля, нужно два места.', uz: "Bu faqat bir xona surish. Ko'paytuvchi yuzning ikkita noli bor, ikki xona kerak." },
+    audio_hint_2: { ru: 'Три места, это для тысячи. У нас сто, значит два места.', uz: "Uch xona, bu ming uchun. Bizda yuz, demak ikki xona." },
     audio_hint_3: { ru: 'Это размер одной фотографии. Их сто, поэтому число должно вырасти.', uz: "Bu bitta fotoning hajmi. Ular yuzta, shuning uchun son o'sishi kerak." },
     fact: { ru: 'Учёные большие и малые числа пишут через степени десяти и сдвиг запятой. Скорость света — около 3·10⁵ км/с.', uz: "Olimlar katta va kichik sonlarni o'nning darajasi va vergul surish bilan yozadi. Yorug'lik tezligi — taxminan 3·10⁵ km/s." },
     audio: {
       intro: { ru: 'Нилуфар загружает сто фотографий, каждая по ноль целых две десятых мегабайта. Сколько мегабайт займут все сто? Здесь умножаем на сто. Выбери ответ.', uz: "Nilufar yuzta foto yuklamoqda, har biri nol butun o'ndan ikki megabayt. Hammasi yuztasi necha megabayt egallaydi? Bu yerda yuzga ko'paytiramiz. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Умножили на сто, запятая прошла два места вправо: ноль целых две десятых стало двадцать. А вот и факт: учёные большие и малые числа записывают через степени десяти и сдвиг запятой.', uz: "To'g'ri. Yuzga ko'paytirdik, vergul ikki o'rin o'ngga bordi: nol butun o'ndan ikki yigirma bo'ldi. Mana fakt: olimlar katta va kichik sonlarni o'nning darajalari va vergul surish bilan yozadi." },
+      on_correct: { ru: 'Верно. Умножили на сто, запятая прошла два места вправо: ноль целых две десятых стало двадцать. А вот и факт: учёные большие и малые числа записывают через степени десяти и сдвиг запятой.', uz: "To'g'ri. Yuzga ko'paytirdik, vergul ikki xona o'ngga bordi: nol butun o'ndan ikki yigirma bo'ldi. Mana fakt: olimlar katta va kichik sonlarni o'nning darajalari va vergul surish bilan yozadi." },
       on_wrong: { ru: 'Пока нет. Посмотри разбор.', uz: "Hali emas. Tushuntirishga qarang." }
     }
   },
@@ -1000,39 +1000,39 @@ const CONTENT = {
     title: { ru: 'Примеры: от простого к сложному', uz: "Misollar: oddiydan murakkabga" },
     lead: { ru: 'Семь примеров. Каждый чуть сложнее.', uz: "Yetti misol. Har biri biroz qiyinroq." },
     audio: {
-      intro: { ru: 'Семь примеров, от простого к сложному. Для каждого считай, на сколько мест и в какую сторону идёт запятая. Поехали.', uz: "Yetti misol, oddiydan murakkabga. Har biriga vergul necha o'rin va qaysi tomonga borishini sanang. Boshladik." },
+      intro: { ru: 'Семь примеров, от простого к сложному. Для каждого считай, на сколько мест и в какую сторону идёт запятая. Поехали.', uz: "Yetti misol, oddiydan murakkabga. Har biriga vergul necha xona va qaysi tomonga borishini sanang. Boshladik." },
       on_wrong: { ru: 'Не совсем. Считай нули множителя и сторону: умножаем, вправо, делим, влево.', uz: "Unchalik emas. Ko'paytuvchi nollarini va tomonni sanang: ko'paytirsak, o'ngga, bo'lsak, chapga." },
       on_done: { ru: 'Отлично. Ты прошёл от простого примера до самого трудного.', uz: "Zo'r. Oson misoldan eng qiyiniga qadar yetib bordingiz." }
     },
     items: [
       { type: 'mc', q: { ru: '3,1 × 10', uz: "3,1 × 10" }, opts: ['31', '3,10', '310'], correct: 0,
         say: { ru: 'Три целых одна десятая умножить на десять.', uz: "Uch butun o'ndan bir karra o'n." },
-        ok: { ru: 'Верно. Одно место вправо: 31.', uz: "To'g'ri. Bir o'rin o'ngga: 31." },
-        no: { ru: 'На 10, одно место вправо, ноль не дописывай.', uz: "10 ga, bir o'rin o'ngga, nol qo'shmang." } },
+        ok: { ru: 'Верно. Одно место вправо: 31.', uz: "To'g'ri. Bir xona o'ngga: 31." },
+        no: { ru: 'На 10, одно место вправо, ноль не дописывай.', uz: "10 ga, bir xona o'ngga, nol qo'shmang." } },
       { type: 'input', q: { ru: '8 ÷ 10 = ?', uz: "8 ÷ 10 = ?" }, answer: 0.8,
         say: { ru: 'Восемь разделить на десять. Введи ответ.', uz: "Sakkiz bo'lingan o'n. Javobni kiriting." },
-        ok: { ru: 'Верно. 8 это 8,0; влево на одно место — 0,8.', uz: "To'g'ri. 8 bu 8,0; chapga bir o'rin — 0,8." },
-        no: { ru: 'У 8 запятая справа: 8,0. Подвинь влево на одно место.', uz: "8 da vergul o'ngda: 8,0. Chapga bir o'rin suring." } },
+        ok: { ru: 'Верно. 8 это 8,0; влево на одно место — 0,8.', uz: "To'g'ri. 8 bu 8,0; chapga bir xona — 0,8." },
+        no: { ru: 'У 8 запятая справа: 8,0. Подвинь влево на одно место.', uz: "8 da vergul o'ngda: 8,0. Chapga bir xona suring." } },
       { type: 'mc', q: { ru: '0,5 × 100', uz: "0,5 × 100" }, opts: ['5', '50', '500'], correct: 1,
         say: { ru: 'Ноль целых пять десятых умножить на сто.', uz: "Nol butun o'ndan besh karra yuz." },
-        ok: { ru: 'Верно. Два места вправо — запятая ушла, стало целое 50.', uz: "To'g'ri. Ikki o'rin o'ngga — vergul ketdi, butun 50 bo'ldi." },
-        no: { ru: 'На 100, два места вправо. Запятая уйдёт за цифру, выйдет целое.', uz: "100 ga, ikki o'rin o'ngga. Vergul raqamdan o'tadi, butun chiqadi." } },
+        ok: { ru: 'Верно. Два места вправо — запятая ушла, стало целое 50.', uz: "To'g'ri. Ikki xona o'ngga — vergul ketdi, butun 50 bo'ldi." },
+        no: { ru: 'На 100, два места вправо. Запятая уйдёт за цифру, выйдет целое.', uz: "100 ga, ikki xona o'ngga. Vergul raqamdan o'tadi, butun chiqadi." } },
       { type: 'multi', q: { ru: 'Какие записи равны 25?', uz: "Qaysi yozuvlar 25 ga teng?" }, opts: ['2,5 × 10', '2,50', '250 ÷ 10', '0,25 × 100'], correctSet: [0, 2, 3],
         say: { ru: 'Отметь все записи, равные двадцати пяти. Их несколько.', uz: "Yigirma beshga teng barcha yozuvlarni belgilang. Ular bir nechta." },
         ok: { ru: 'Верно. 2,5 × 10, 250 ÷ 10 и 0,25 × 100 дают 25. А 2,50 это всего лишь 2,5.', uz: "To'g'ri. 2,5 × 10, 250 ÷ 10 va 0,25 × 100 25 ga teng. 2,50 esa atigi 2,5." },
         no: { ru: 'Посчитай каждую и помни: приписать ноль нельзя, 2,50 это 2,5.', uz: "Har birini hisoblang va yodda tuting: nol qo'shib bo'lmaydi, 2,50 bu 2,5." } },
       { type: 'input', q: { ru: '5 ÷ 100 = ?', uz: "5 ÷ 100 = ?" }, answer: 0.05,
-        say: { ru: 'Пять разделить на сто. Запятая пойдёт влево на два места.', uz: "Beshni yuzga bo'lamiz. Vergul chapga ikki o'rin boradi." },
+        say: { ru: 'Пять разделить на сто. Запятая пойдёт влево на два места.', uz: "Beshni yuzga bo'lamiz. Vergul chapga ikki xona boradi." },
         ok: { ru: 'Верно. Слева не хватило цифр — впереди ноль целых и ноль: 0,05.', uz: "To'g'ri. Chapda raqam yetmadi — oldida nol butun va nol: 0,05." },
         no: { ru: 'Двигай запятую влево и впереди допиши нули: 0,05.', uz: "Vergulni chapga suring va oldiga nol qo'shing: 0,05." } },
       { type: 'mc', q: { ru: '3,6 ÷ 100', uz: "3,6 ÷ 100" }, opts: ['36', '0,036', '0,36'], correct: 1,
         say: { ru: 'Три целых шесть десятых разделить на сто.', uz: "Uch butun o'ndan olti bo'lingan yuz." },
-        ok: { ru: 'Верно. Влево на два места, впереди нули: 0,036.', uz: "To'g'ri. Chapga ikki o'rin, oldida nollar: 0,036." },
-        no: { ru: 'Деление, влево на два места; впереди допиши нули.', uz: "Bo'lish, chapga ikki o'rin; oldiga nol qo'shing." } },
+        ok: { ru: 'Верно. Влево на два места, впереди нули: 0,036.', uz: "To'g'ri. Chapga ikki xona, oldida nollar: 0,036." },
+        no: { ru: 'Деление, влево на два места; впереди допиши нули.', uz: "Bo'lish, chapga ikki xona; oldiga nol qo'shing." } },
       { type: 'input', q: { ru: '0,008 × 1000 = ?', uz: "0,008 × 1000 = ?" }, answer: 8,
         say: { ru: 'Ноль целых восемь тысячных умножить на тысячу. Введи ответ.', uz: "Nol butun mingdan sakkiz karra ming. Javobni kiriting." },
-        ok: { ru: 'Верно. Три места вправо — запятая ушла, стало целое 8.', uz: "To'g'ri. Uch o'rin o'ngga — vergul ketdi, butun 8 bo'ldi." },
-        no: { ru: 'У 1000 три нуля, три места вправо. Запятая уйдёт, выйдет 8.', uz: "1000 ning uchta noli bor, uch o'rin o'ngga. Vergul ketadi, 8 chiqadi." } }
+        ok: { ru: 'Верно. Три места вправо — запятая ушла, стало целое 8.', uz: "To'g'ri. Uch xona o'ngga — vergul ketdi, butun 8 bo'ldi." },
+        no: { ru: 'У 1000 три нуля, три места вправо. Запятая уйдёт, выйдет 8.', uz: "1000 ning uchta noli bor, uch xona o'ngga. Vergul ketadi, 8 chiqadi." } }
     ]
   },
 
@@ -1044,7 +1044,7 @@ const CONTENT = {
     score_caption: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob" },
     main_label: { ru: 'Главное', uz: "Asosiysi" },
     main_1: { ru: 'Умножаем — запятая идёт вправо, делим — влево.', uz: "Ko'paytiramiz — vergul o'ngga, bo'lamiz — chapga boradi." },
-    main_2: { ru: 'На сколько мест: сколько нулей в множителе (10 — одно, 100 — два, 1000 — три).', uz: "Necha o'rin: ko'paytuvchida nechta nol (10 — bir, 100 — ikki, 1000 — uch)." },
+    main_2: { ru: 'На сколько мест: сколько нулей в множителе (10 — одно, 100 — два, 1000 — три).', uz: "Necha xona: ko'paytuvchida nechta nol (10 — bir, 100 — ikki, 1000 — uch)." },
     main_3: { ru: 'Не хватает цифр — ставим нули в пустые разряды (250; 0,05).', uz: "Raqam yetmasa — bo'sh xonalarga nol qo'yamiz (250; 0,05)." },
     main_4: { ru: 'Не приписывай ноль, как у целых: 2,5 × 10 это 25, а не 2,50.', uz: "Butun sonlardek nol qo'shmang: 2,5 × 10 bu 25, 2,50 emas." },
     back_to_hook: { ru: '2,5 × 10 это не 2,50, а 25 — запятая шагнула вправо.', uz: "2,5 × 10 bu 2,50 emas, 25 — vergul o'ngga qadam tashladi." },
@@ -1053,7 +1053,7 @@ const CONTENT = {
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'умножение десятичной дроби на десятичную дробь.', uz: "o'nli kasrni o'nli kasrga ko'paytirish." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    audio: { ru: 'Отлично. Теперь ты умножаешь и делишь десятичную дробь на десять, сто и тысячу. Умножаем — запятая идёт вправо, делим — влево, на столько мест, сколько нулей в множителе. Если цифр не хватило, ставим нули в пустые разряды. И помни: ноль приписывать нельзя — две целых пять десятых умножить на десять это двадцать пять, а не две целых пять десятых с нулём. Дальше научимся умножать десятичную дробь на десятичную.', uz: "Zo'r. Endi siz o'nli kasrni o'nga, yuzga va mingga ko'paytirasiz va bo'lasiz. Ko'paytiramiz — vergul o'ngga, bo'lamiz — chapga, ko'paytuvchidagi nollar soni qancha bo'lsa shuncha o'rin. Raqam yetmasa, bo'sh xonalarga nol qo'yamiz. Va yodda tuting: nol qo'shib bo'lmaydi — ikki butun o'ndan besh karra o'n bu yigirma besh, nol bilan ikki butun o'ndan besh emas. Keyin o'nli kasrni o'nli kasrga ko'paytirishni o'rganamiz." }
+    audio: { ru: 'Отлично. Теперь ты умножаешь и делишь десятичную дробь на десять, сто и тысячу. Умножаем — запятая идёт вправо, делим — влево, на столько мест, сколько нулей в множителе. Если цифр не хватило, ставим нули в пустые разряды. И помни: ноль приписывать нельзя — две целых пять десятых умножить на десять это двадцать пять, а не две целых пять десятых с нулём. Дальше научимся умножать десятичную дробь на десятичную.', uz: "Zo'r. Endi siz o'nli kasrni o'nga, yuzga va mingga ko'paytirasiz va bo'lasiz. Ko'paytiramiz — vergul o'ngga, bo'lamiz — chapga, ko'paytuvchidagi nollar soni qancha bo'lsa shuncha xona. Raqam yetmasa, bo'sh xonalarga nol qo'yamiz. Va yodda tuting: nol qo'shib bo'lmaydi — ikki butun o'ndan besh karra o'n bu yigirma besh, nol bilan ikki butun o'ndan besh emas. Keyin o'nli kasrni o'nli kasrga ko'paytirishni o'rganamiz." }
   }
 };
 
@@ -1659,7 +1659,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
   const audio = useAudio(segs);
   const [step, setStep] = useState(0);
   const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
-  // 5 ÷ 100 = 0,05  →  cells ['0','0','5']; boshda faqat '5' (butun, comma=3), keyin chapga 2 o'rin (comma=1), oldida ikki nol
+  // 5 ÷ 100 = 0,05  →  cells ['0','0','5']; boshda faqat '5' (butun, comma=3), keyin chapga 2 xona (comma=1), oldida ikki nol
   const cells = [{ d: '0', state: step >= 1 ? 'new' : 'off' }, { d: '0', state: step >= 1 ? 'new' : 'off' }, { d: '5', state: 'on' }];
   const comma = step >= 1 ? 1 : 3;
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext label={step < last ? t(c.btn_step) : t(c.btn_final)} onClick={handleStep}/></>);

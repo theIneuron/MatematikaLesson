@@ -1053,17 +1053,17 @@ const CONTENT = {
     eyebrow: { ru: 'Жизненная задача', uz: "Hayotiy masala" },
     title: { ru: 'Прочитано 0,7 книги', uz: "Kitobning 0,7 qismi o'qildi" },
     bridge: { ru: 'Потренировались. Теперь применим это в жизни.', uz: "Mashq qildik. Endi buni hayotda qo'llaymiz." },
-    lead: { ru: 'Ойбек читает книгу для проекта. Приложение показывает: прочитано 0,7 книги. Он хочет увидеть это на числовой прямой.', uz: "Oybek loyiha uchun kitob o'qiyapti. Ilova ko'rsatadi: kitobning 0,7 qismi o'qildi. U buni son o'qida ko'rmoqchi." },
+    lead: { ru: 'Ойбек читает книгу для проекта. Приложение показывает: прочитано 0,7 книги. Он хочет увидеть это на числовой прямой.', uz: "Oybek loyiha uchun kitob o'qiyapti. Ilova ko'rsatadi: kitobning 0,7 qismi o'qildi. U buni sonlar nurida ko'rmoqchi." },
     note: { ru: 'Где на отрезке от 0 до 1 стоит 0,7?', uz: "0 dan 1 gacha kesmada 0,7 qayerda turadi?" },
     compact: { ru: 'Прочитано 0,7 из 1 книги', uz: "1 kitobdan 0,7 qismi o'qildi" },
     btn_help: { ru: 'Помочь Ойбеку', uz: "Oybekka yordam berish" },
-    audio: { ru: "Потренировались, теперь задача из жизни. Ойбек читает книгу. Приложение показывает: прочитано ноль целых семь десятых книги. Помоги отметить это на числовой прямой от нуля до единицы.", uz: "Mashq qildik, endi hayotiy masala. Oybek kitob o'qiyapti. Ilova ko'rsatadi: kitobning nol butun o'ndan yetti qismi o'qildi. Buni nol dan bir gacha son o'qida belgilashga yordam bering." }
+    audio: { ru: "Потренировались, теперь задача из жизни. Ойбек читает книгу. Приложение показывает: прочитано ноль целых семь десятых книги. Помоги отметить это на числовой прямой от нуля до единицы.", uz: "Mashq qildik, endi hayotiy masala. Oybek kitob o'qiyapti. Ilova ko'rsatadi: kitobning nol butun o'ndan yetti qismi o'qildi. Buni nol dan bir gacha sonlar nurida belgilashga yordam bering." }
   },
 
   // ===== s12 — son o'qiga 0,7 belgilash (scored=final) + metr fakti =====
   s12: {
     eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq" },
-    title: { ru: 'Отметь 0,7 на прямой', uz: "0,7 ni o'qda belgilang" },
+    title: { ru: 'Отметь 0,7 на прямой', uz: "0,7 ni sonlar nurida belgilang" },
     instruction: { ru: 'Поставь метку на 0,7. Отрезок от 0 до 1 разделён на десятые.', uz: "Belgini 0,7 ga qo'ying. 0 dan 1 gacha kesma o'ndan ulushlarga bo'lingan." },
     hint: { ru: '0,7 это семь десятых. Отсчитай семь делений от нуля.', uz: "0,7 — bu o'ndan yetti. Noldan boshlab yetti bo'linmani sanang." },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },

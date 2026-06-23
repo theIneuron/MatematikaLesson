@@ -1129,7 +1129,7 @@ const CONTENT = {
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
     conn_refs: { ru: 'доли из 4 класса (половина, четверть).', uz: "4-sinf ulushlari (yarim, chorak)." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'дробь на числовой прямой — у дроби есть своё место.', uz: "kasr son o'qida — kasrning o'z joyi bor." },
+    conn_next: { ru: 'дробь на числовой прямой — у дроби есть своё место.', uz: "kasr sonlar nurida — kasrning o'z joyi bor." },
     audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это одно число, часть целого. Числитель показывает, сколько равных долей взяли, а знаменатель — на сколько долей разделили целое. И доли всегда равные. Полоса Нодиры была заполнена на три пятых — это одно число, а не две цифры. Далер ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu bitta son, butunning qismi. Surat nechta teng ulush olinganini, maxraj esa butun nechta ulushga bo'linganini ko'rsatadi. Ulushlar esa doimo teng. Nodiraning chizig'i beshdan uchga to'lgan edi — bu bitta son, ikkita raqam emas. Daler xato qilgan ekan." }
   }
 };

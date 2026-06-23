@@ -1027,7 +1027,7 @@ const CONTENT = {
     main_4: { ru: 'Складываем числители, знаменатель оставляем (3/6 + 2/6 = 5/6).', uz: "Suratlarni qo'shamiz, maxrajni qoldiramiz (3/6 + 2/6 = 5/6)." },
     back_to_hook: { ru: '1/2 + 1/3 это не 2/5. Привели к шестым: 3/6 + 2/6 = 5/6.', uz: "1/2 + 1/3 bu 2/5 emas. Oltilarga keltirdik: 3/6 + 2/6 = 5/6." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Эквивалентные дроби» (приведение) и «Сложение дробей с равным знаменателем».', uz: "«Ekvivalent kasrlar» (keltirish) va «Teng maxrajli kasrlarni qo'shish»." },
+    conn_refs: { ru: '«Эквивалентные дроби» (приведение) и «Сложение дробей с равным знаменателем».', uz: "«Ekvivalent kasrlar» (keltirish) va «Bir xil maxrajli kasrlarni qo'shish»." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'вычитание дробей с разными знаменателями.', uz: "har xil maxrajli kasrlarni ayirish." },
     btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
