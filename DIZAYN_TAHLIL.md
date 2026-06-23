@@ -1,3 +1,4 @@
+
 # Dizayn auditi — barcha 33 dars (Dars01–Dars33)
 
 **Maqsad:** barcha darslar dizaynini bitta standartga (namuna) tenglashtirish.
