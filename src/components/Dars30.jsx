@@ -865,7 +865,7 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     heading: { ru: 'Процент — это сотая', uz: "Foiz — yuzdan ulush" },
     bridge: { ru: 'Мы увидели, что такое процент. Теперь соберём правило.', uz: "Foiz nima ekanini ko'rdik. Endi qoidani yig'amiz." },
-    rule_label: { ru: 'Запомните', uz: 'Yodda tuting' },
+    rule_label: { ru: 'Запомни', uz: 'Yodda tuting' },
     rule_1: { ru: 'Процент — это сотая доля целого.', uz: "Foiz — bu butunning yuzdan ulushi." },
     rule_2: { ru: 'N процентов = N/100.', uz: "N foiz = N/100." },
     rule_3: { ru: 'Дробь со знаменателем 100 при желании сокращаем.', uz: "Maxraji 100 bo'lgan kasrni istasak qisqartiramiz." },
@@ -974,7 +974,7 @@ const CONTENT = {
 
   // ===== s9 TEST sort — =1/2 / teng emas (one-at-a-time, RANDOM, 8 karta). practice. M1 sindirgich. =====
   s9: {
-    eyebrow: { ru: 'Разложите по группам', uz: "Guruhlarga ajrating" },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
     title: { ru: 'Найди половину', uz: "Yarmini toping" },
     lead: { ru: 'Одно число прячется в разных одеждах. Поставь каждую карточку в свою группу.', uz: "Bitta son har xil kiyimda yashirinadi. Har kartani o'z guruhiga joylang." },
     bin_sq:  { ru: 'Равно 1/2', uz: "1/2 ga teng" },

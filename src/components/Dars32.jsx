@@ -877,18 +877,18 @@ const CONTENT = {
 
   // ===== s4 ISHLANGAN MISOL + MASHQ (scored): yuqorida 30%=15->50; pastda 40%=20->50 (DecInput) =====
   s4: {
-    eyebrow: { ru: 'Сначала пример, потом сами', uz: "Avval misol, keyin o'zingiz" },
+    eyebrow: { ru: 'Сначала пример, потом сам', uz: "Avval misol, keyin o'zingiz" },
     title: { ru: 'Найди целое', uz: "Butunni toping" },
-    bridge: { ru: 'Правило знаем. Сначала посмотри пример, потом реши сами.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching." },
+    bridge: { ru: 'Правило знаем. Сначала посмотри пример, потом реши сам.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching." },
     we_label: { ru: 'Разобранный пример', uz: "Ishlangan misol" },
     we_caption: { ru: '30% = 15 → 15 делим на 30 = 0,5 → умножаем на 100 = 50.', uz: "30% = 15 → 15 ni 30 ga bo'lamiz = 0,5 → yuzga ko'paytiramiz = 50." },
-    question: { ru: 'Теперь сами: 40% числа равно 20. Чему равно число?', uz: "Endi o'zingiz: sonning 40% i 20 ga teng. Son nechaga teng?" },
+    question: { ru: 'Теперь сам: 40% числа равно 20. Чему равно число?', uz: "Endi o'zingiz: sonning 40% i 20 ga teng. Son nechaga teng?" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint: { ru: 'Раздели часть на её процент, потом умножь на сто.', uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring." },
     fb_correct: { ru: 'Верно: 20 делим на 40 = 0,5, умножаем на 100 = 50.', uz: "To'g'ri: 20 ni 40 ga bo'lamiz = 0,5, yuzga ko'paytiramiz = 50." },
     audio: {
-      intro: { ru: "Сначала посмотри разобранный пример сверху. Теперь сами: сорок процентов числа равно двадцати. Чему равно само число?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: sonning qirq foizi yigirmaga teng. Sonning o'zi nechaga teng?" },
+      intro: { ru: "Сначала посмотри разобранный пример сверху. Теперь сам: сорок процентов числа равно двадцати. Чему равно само число?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: sonning qirq foizi yigirmaga teng. Sonning o'zi nechaga teng?" },
       on_correct: { ru: "Верно, число пятьдесят.", uz: "To'g'ri, son ellik." },
       on_wrong: { ru: "Раздели часть на её процент, потом умножь на сто.", uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring." }
     }
@@ -919,14 +919,14 @@ const CONTENT = {
   // ===== s6 TEST DecInput — 50% = 35 -> 70 =====
   s6: {
     eyebrow: { ru: 'Половина известна', uz: "Yarmi ma'lum" },
-    bridge: { ru: 'Хорошо. Теперь набери ответ сами.', uz: "Yaxshi. Endi javobni o'zingiz tering." },
+    bridge: { ru: 'Хорошо. Теперь набери ответ сам.', uz: "Yaxshi. Endi javobni o'zingiz tering." },
     question: { ru: '50% числа равно 35. Чему равно число?', uz: "Sonning 50% i 35 ga teng. Son nechaga teng?" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint: { ru: '50 процентов это половина. Если половина известна, целое вдвое больше.', uz: "50 foiz, bu yarim. Yarmi ma'lum bo'lsa, butun ikki barobar katta." },
     fb_correct: { ru: 'Верно: 35 делим на 50 = 0,7, умножаем на 100 = 70.', uz: "To'g'ri: 35 ni 50 ga bo'lamiz = 0,7, yuzga ko'paytiramiz = 70." },
     audio: {
-      intro: { ru: "Набери ответ сами. Пятьдесят процентов числа равно тридцати пяти. Чему равно число?", uz: "Javobni o'zingiz tering. Sonning ellik foizi o'ttiz beshga teng. Son nechaga teng?" },
+      intro: { ru: "Набери ответ сам. Пятьдесят процентов числа равно тридцати пяти. Чему равно число?", uz: "Javobni o'zingiz tering. Sonning ellik foizi o'ttiz beshga teng. Son nechaga teng?" },
       on_correct: { ru: "Верно, семьдесят. Половина равна тридцати пяти, значит целое семьдесят.", uz: "To'g'ri, yetmish. Yarmi o'ttiz beshga teng, demak butun yetmish." },
       on_wrong: { ru: "Половина известна, целое вдвое больше. Раздели на процент и умножь на сто.", uz: "Yarmi ma'lum, butun ikki barobar katta. Foizga bo'ling va yuzga ko'paytiring." }
     }

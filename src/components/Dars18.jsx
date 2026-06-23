@@ -826,14 +826,14 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     heading: { ru: 'Вычитаем числители, знаменатель тот же', uz: "Suratlarni ayiramiz, maxraj o'sha" },
     bridge: { ru: 'Мы увидели это на кувшине. Теперь соберём в правило.', uz: "Buni idishda ko'rdik. Endi qoidaga yig'amiz." },
-    rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
     rule_1: { ru: 'Если знаменатели равны, вычитаем только числители.', uz: "Maxrajlar bir xil bo'lsa, faqat suratlarni ayiramiz." },
     rule_2: { ru: 'Знаменатель не меняется — это размер доли, а не количество.', uz: "Maxraj o'zgarmaydi — bu ulush o'lchami, soni emas." },
     card_top: { ru: 'Числитель — сколько долей. Вычитаем: 5 − 2 = 3.', uz: "Surat — nechta ulush. Ayiramiz: 5 − 2 = 3." },
     card_bottom: { ru: 'Знаменатель — размер доли. Он один и тот же, поэтому не меняется.', uz: "Maxraj — ulush o'lchami. U bir xil, shuning uchun o'zgarmaydi." },
     ex_label: { ru: 'Как это работает', uz: "Bu qanday ishlaydi" },
     ex_caption: { ru: '5/6 − 2/6: знаменатель 6 тот же, ответ 3/6.', uz: "5/6 − 2/6: maxraj 6 o'sha, javob 3/6." },
-    audio: { ru: 'Запомните правило. Когда у дробей одинаковый знаменатель, вычитаем только числители, а знаменатель оставляем тем же. Числитель показывает, сколько долей: пять минус два три. Знаменатель это размер доли, он один и тот же, поэтому не меняется. Пять шестых минус две шестых равно три шестых.', uz: "Qoidani yodda tuting. Kasrlarning maxraji bir xil bo'lganda, faqat suratlarni ayiramiz, maxrajni esa o'sha qoldiramiz. Surat nechta ulush ekanini ko'rsatadi: besh minus ikki uch. Maxraj ulush o'lchami, u bir xil, shuning uchun o'zgarmaydi. Oltidan besh minus oltidan ikki teng oltidan uch." }
+    audio: { ru: 'Запомни правило. Когда у дробей одинаковый знаменатель, вычитаем только числители, а знаменатель оставляем тем же. Числитель показывает, сколько долей: пять минус два три. Знаменатель это размер доли, он один и тот же, поэтому не меняется. Пять шестых минус две шестых равно три шестых.', uz: "Qoidani yodda tuting. Kasrlarning maxraji bir xil bo'lganda, faqat suratlarni ayiramiz, maxrajni esa o'sha qoldiramiz. Surat nechta ulush ekanini ko'rsatadi: besh minus ikki uch. Maxraj ulush o'lchami, u bir xil, shuning uchun o'zgarmaydi. Oltidan besh minus oltidan ikki teng oltidan uch." }
   },
 
   // ===== s4 — BESHTA OSON SAVOL (SeqMC, scored) =====

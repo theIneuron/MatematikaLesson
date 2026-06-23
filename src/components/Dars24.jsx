@@ -842,21 +842,21 @@ const CONTENT = {
   s2: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
     title: { ru: 'Десятые доли единицы', uz: "Birlikning o'ndan ulushlari" },
-    lead: { ru: 'Раз половина это 5/10, посмотрим на десятые. Единица поделена на 10 равных полос — каждая 0,1. Двигайте ползунок.', uz: "Yarim 5/10 ekan, o'ndan ulushlarga qaraymiz. Birlik 10 ta teng bo'lakka bo'lingan — har biri 0,1. Slayderni suring." },
+    lead: { ru: 'Раз половина это 5/10, посмотрим на десятые. Единица поделена на 10 равных полос — каждая 0,1. Двигай ползунок.', uz: "Yarim 5/10 ekan, o'ndan ulushlarga qaraymiz. Birlik 10 ta teng bo'lakka bo'lingan — har biri 0,1. Slayderni suring." },
     bridge: { ru: 'Размялись. Теперь разберём, что прячется за запятой.', uz: "Mashq qildik. Endi vergul ortida nima yashirinishini ko'ramiz." },
     note: { ru: 'Что делать: тяни ползунок до 0,3 — три полосы из десяти. Дойдёшь — станет ЗЕЛЁНЫМ, значит верно.', uz: "Nima qilish: slayderni 0,3 gacha torting — o'ntadan uch bo'lak. Yetsangiz YASHIL bo'ladi, demak to'g'ri." },
     note_done: { ru: 'Зелёный — ты на цели! 0,3 это три десятых: 3/10.', uz: "Yashil — maqsadga yetdingiz! 0,3 — o'ndan uch: 3/10." },
-    audio: { ru: "Раз половина это пять десятых, посмотрим на десятые доли. Единица разделена на десять равных полос, каждая это одна десятая. Двигайте ползунок и заполняйте полосы. Остановитесь на ноль целых три десятых.", uz: "Yarim o'ndan besh ekan, o'ndan ulushlarga qaraymiz. Birlik o'nta teng bo'lakka bo'lingan, har biri o'ndan bir. Slayderni suring va bo'laklarni to'ldiring. Nol butun o'ndan uchda to'xtang." }
+    audio: { ru: "Раз половина это пять десятых, посмотрим на десятые доли. Единица разделена на десять равных полос, каждая это одна десятая. Двигай ползунок и заполняй полосы. Остановитесь на ноль целых три десятых.", uz: "Yarim o'ndan besh ekan, o'ndan ulushlarga qaraymiz. Birlik o'nta teng bo'lakka bo'lingan, har biri o'ndan bir. Slayderni suring va bo'laklarni to'ldiring. Nol butun o'ndan uchda to'xtang." }
   },
 
   // ===== s3 EXPLORATION — yuzdan ulushlar (slayder + DecimalGrid 100) =====
   s3: {
     eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
     title: { ru: 'Сотые доли единицы', uz: "Birlikning yuzdan ulushlari" },
-    lead: { ru: 'А если доля ещё меньше? Каждую полосу делим ещё на 10 — всего 100 клеток, каждая 0,01. Двигайте ползунок.', uz: "Agar ulush yanada kichik bo'lsa-chi? Har bo'lakni yana 10 ga bo'lamiz — jami 100 ta katak, har biri 0,01. Slayderni suring." },
+    lead: { ru: 'А если доля ещё меньше? Каждую полосу делим ещё на 10 — всего 100 клеток, каждая 0,01. Двигай ползунок.', uz: "Agar ulush yanada kichik bo'lsa-chi? Har bo'lakni yana 10 ga bo'lamiz — jami 100 ta katak, har biri 0,01. Slayderni suring." },
     note: { ru: 'Что делать: тяни ползунок до 0,45 — сорок пять клеток из ста. Дойдёшь — станет ЗЕЛЁНЫМ, значит верно.', uz: "Nima qilish: slayderni 0,45 gacha torting — yuzdan qirq besh katak. Yetsangiz YASHIL bo'ladi, demak to'g'ri." },
     note_done: { ru: 'Зелёный — ты на цели! 0,45 это 45 сотых: 45/100.', uz: "Yashil — maqsadga yetdingiz! 0,45 — yuzdan qirq besh: 45/100." },
-    audio: { ru: "А если доля ещё меньше? Каждую из десяти полос делим ещё на десять — получается сто клеток, каждая ноль целых одна сотая. Двигайте ползунок и наблюдайте, как растёт число. Остановитесь на ноль целых сорок пять сотых.", uz: "Agar ulush yanada kichik bo'lsa-chi? O'nta bo'lakning har birini yana o'nga bo'lamiz — yuzta katak chiqadi, har biri nol butun yuzdan bir. Slayderni suring va sonning o'sishini kuzating. Nol butun yuzdan qirq beshda to'xtang." }
+    audio: { ru: "А если доля ещё меньше? Каждую из десяти полос делим ещё на десять — получается сто клеток, каждая ноль целых одна сотая. Двигай ползунок и наблюдай, как растёт число. Остановитесь на ноль целых сорок пять сотых.", uz: "Agar ulush yanada kichik bo'lsa-chi? O'nta bo'lakning har birini yana o'nga bo'lamiz — yuzta katak chiqadi, har biri nol butun yuzdan bir. Slayderni suring va sonning o'sishini kuzating. Nol butun yuzdan qirq beshda to'xtang." }
   },
 
   // ===== s4 RULE 1 — o'nli kasr = kasr 10/100/1000 + PlaceTable =====
@@ -873,9 +873,9 @@ const CONTENT = {
   s5: {
     eyebrow: { ru: 'Внимание', uz: "Diqqat" },
     heading: { ru: 'Длиннее — не значит больше', uz: "Uzunroq — kattaroq degani emas" },
-    rule_main: { ru: 'Больше цифр после запятой — НЕ значит больше число. Сравнивайте по разрядам, а не по длине.', uz: "Verguldan keyin raqam ko'p — son KATTA degani EMAS. Uzunlik emas, xonama-xona solishtiring." },
+    rule_main: { ru: 'Больше цифр после запятой — НЕ значит больше число. Сравнивай по разрядам, а не по длине.', uz: "Verguldan keyin raqam ko'p — son KATTA degani EMAS. Uzunlik emas, xonama-xona solishtiring." },
     warn_label: { ru: 'Секрет сравнения', uz: "Solishtirish siri" },
-    warn: { ru: 'Допишите ноль: 0,5 = 0,50. Теперь видно: 0,50 это 50 сотых, а 0,45 это 45 сотых. Значит 0,5 больше.', uz: "Nol qo'shing: 0,5 = 0,50. Endi ko'rinadi: 0,50 — 50 yuzdan, 0,45 — 45 yuzdan. Demak 0,5 katta." },
+    warn: { ru: 'Допиши ноль: 0,5 = 0,50. Теперь видно: 0,50 это 50 сотых, а 0,45 это 45 сотых. Значит 0,5 больше.', uz: "Nol qo'shing: 0,5 = 0,50. Endi ko'rinadi: 0,50 — 50 yuzdan, 0,45 — 45 yuzdan. Demak 0,5 katta." },
     audio: { ru: "Важное предупреждение. Если после запятой больше цифр, это не значит, что число больше. Секрет в том, чтобы дописать ноль. Ноль целых пять десятых это то же, что ноль целых пятьдесят сотых. А пятьдесят сотых больше сорока пяти сотых.", uz: "Muhim ogohlantirish. Verguldan keyin raqam ko'p bo'lsa, son katta degani emas. Sir shundaki, oxiriga nol qo'shiladi. Nol butun o'ndan besh — bu nol butun yuzdan ellik bilan bir xil. Yuzdan ellik esa yuzdan qirq beshdan katta." }
   },
 
@@ -1082,12 +1082,12 @@ const CONTENT = {
   s14: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
     heading: { ru: 'Десятичная дробь понятна', uz: "O'nli kasr tushunarli" },
-    title: { ru: 'Теперь вы понимаете, что значит десятичная дробь', uz: "Endi siz o'nli kasr nimani anglatishini tushunasiz" },
+    title: { ru: 'Теперь ты понимаешь, что значит десятичная дробь', uz: "Endi siz o'nli kasr nimani anglatishini tushunasiz" },
     main_label: { ru: 'Главное', uz: "Asosiy" },
     main_1: { ru: 'Десятичная дробь — это дробь со знаменателем 10, 100, 1000. Запятая отделяет целое от долей.', uz: "O'nli kasr — maxraji 10, 100, 1000 bo'lgan kasr. Vergul butunni ulushlardan ajratadi." },
     main_2: { ru: 'Разряды вправо: десятые, сотые, тысячные — каждый в 10 раз меньше. 0,1 = 1/10.', uz: "Xonalar o'ngga: o'ndan, yuzdan, mingdan — har biri 10 marta kichik. 0,1 = 1/10." },
     main_3: { ru: 'Больше цифр не значит больше число. Дописывай ноль и сравнивай по разрядам.', uz: "Raqam ko'p — son katta degani emas. Nol qo'shib, xona bo'yicha solishtiring." },
-    hook_close: { ru: 'Помните загадку? 0,45 не больше 0,5. Допишем ноль: 0,50 это 50 сотых, 0,45 это 45 сотых. Значит 0,5 больше.', uz: "Topishmoq yodingizdami? 0,45, 0,5 dan katta emas. Nol qo'shamiz: 0,50 — 50 yuzdan, 0,45 — 45 yuzdan. Demak 0,5 katta." },
+    hook_close: { ru: 'Помни загадку? 0,45 не больше 0,5. Допишем ноль: 0,50 это 50 сотых, 0,45 это 45 сотых. Значит 0,5 больше.', uz: "Topishmoq yodingizdami? 0,45, 0,5 dan katta emas. Nol qo'shamiz: 0,50 — 50 yuzdan, 0,45 — 45 yuzdan. Demak 0,5 katta." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
     conn_refs: { ru: 'Дробь как часть целого, эквивалентные дроби, разряды натуральных чисел.', uz: "Kasr — butunning qismi, ekvivalent kasrlar, natural sonlar xonalari." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },

@@ -875,9 +875,9 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     heading: { ru: 'Правило сравнения', uz: "Solishtirish qoidasi" },
     bridge: { ru: 'Увидели, как сравнивать и округлять. Соберём правила.', uz: "Solishtirish va yaxlitlashni ko'rdik. Qoidalarni yig'amiz." },
-    rule_1: { ru: 'Выровняйте числа по запятой.', uz: "Sonlarni vergul bo'yicha tenglang." },
-    rule_2: { ru: 'При необходимости допишите нули справа.', uz: "Kerak bo'lsa o'ngga nol qo'shing." },
-    rule_3: { ru: 'Сравнивайте разряд за разрядом слева направо.', uz: "Chapdan o'ngga xonama-xona solishtiring." },
+    rule_1: { ru: 'Выровняй числа по запятой.', uz: "Sonlarni vergul bo'yicha tenglang." },
+    rule_2: { ru: 'При необходимости допиши нули справа.', uz: "Kerak bo'lsa o'ngga nol qo'shing." },
+    rule_3: { ru: 'Сравнивай разряд за разрядом слева направо.', uz: "Chapdan o'ngga xonama-xona solishtiring." },
     rule_4: { ru: 'Решает первый разряд, где числа различаются.', uz: "Sonlar farq qilgan birinchi xona hal qiladi." },
     rule_label: { ru: 'Сравнение', uz: "Solishtirish" },
     audio: { ru: "Увидели, как сравнивать и округлять, теперь соберём правила. Чтобы сравнить: выравниваем по запятой, при необходимости дописываем нули, потом сравниваем по разрядам слева направо. Решает первый разряд, где числа различаются.", uz: "Solishtirish va yaxlitlashni ko'rdik, endi qoidalarni yig'amiz. Solishtirish uchun: vergul bo'yicha tenglaymiz, kerak bo'lsa nol qo'shamiz, keyin chapdan o'ngga xona bo'yicha solishtiramiz. Sonlar farq qilgan birinchi xona hal qiladi." }
@@ -887,10 +887,10 @@ const CONTENT = {
   s6: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     heading: { ru: 'Правило округления', uz: "Yaxlitlash qoidasi" },
-    rule_main: { ru: 'Чтобы округлить: посмотрите на цифру справа от нужного разряда. 5 или больше — вверх, меньше 5 — вниз.', uz: "Yaxlitlash uchun: kerakli xonadan o'ngdagi raqamga qarang. 5 yoki katta — yuqoriga, 5 dan kichik — pastga." },
-    warn_label: { ru: 'Запомните', uz: "Esda tuting" },
+    rule_main: { ru: 'Чтобы округлить: посмотри на цифру справа от нужного разряда. 5 или больше — вверх, меньше 5 — вниз.', uz: "Yaxlitlash uchun: kerakli xonadan o'ngdagi raqamga qarang. 5 yoki katta — yuqoriga, 5 dan kichik — pastga." },
+    warn_label: { ru: 'Запомни', uz: "Esda tuting" },
     warn: { ru: '0,5 = 0,50 = 0,500. Нули в конце не меняют число — они лишь выравнивают разряды.', uz: "0,5 = 0,50 = 0,500. Oxirdagi nollar sonni o'zgartirmaydi — ular faqat xonalarni tenglaydi." },
-    audio: { ru: "Теперь округление. Смотрим на цифру справа от разряда, до которого округляем. Пять или больше — вверх, меньше пяти — вниз. И помните: нули в конце десятичной дроби не меняют её значение.", uz: "Endi yaxlitlash. Yaxlitlanayotgan xonadan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga. Va esda tuting: o'nli kasr oxiridagi nollar uning qiymatini o'zgartirmaydi." }
+    audio: { ru: "Теперь округление. Смотрим на цифру справа от разряда, до которого округляем. Пять или больше — вверх, меньше пяти — вниз. И помни: нули в конце десятичной дроби не меняют её значение.", uz: "Endi yaxlitlash. Yaxlitlanayotgan xonadan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga. Va esda tuting: o'nli kasr oxiridagi nollar uning qiymatini o'zgartirmaydi." }
   },
 
   // ===== s7 TEST MC — eng kattasi (0,8) + IT fakti =====
@@ -1117,7 +1117,7 @@ const CONTENT = {
   s14: {
     eyebrow: { ru: 'Итог', uz: "Yakun" },
     heading: { ru: 'Что ты теперь умеешь', uz: "Endi nimani bilasiz" },
-    title: { ru: 'Теперь вы умеете сравнивать и округлять десятичные', uz: "Endi siz o'nli kasrlarni solishtirish va yaxlitlashni bilasiz" },
+    title: { ru: 'Теперь ты умеешь сравнивать и округлять десятичные', uz: "Endi siz o'nli kasrlarni solishtirish va yaxlitlashni bilasiz" },
     main_label: { ru: 'Главное', uz: "Asosiy" },
     main_1: { ru: 'Сравнивай по разрядам, а не по длине: выровняй по запятой, допиши нули.', uz: "Uzunlik emas, xona bo'yicha solishtiring: vergulni tenglab, nol qo'shing." },
     main_2: { ru: 'Округляй по следующей цифре: 5 и больше — вверх, меньше — вниз.', uz: "Keyingi raqamga qarab yaxlitlang: 5 va katta — yuqoriga, kichik — pastga." },

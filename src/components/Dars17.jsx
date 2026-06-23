@@ -915,7 +915,7 @@ const CONTENT = {
     reveal0: { ru: 'Верно. Доли одинаковые, шестые. Складываем только доли: 2 и 3 это 5. Знаменатель остаётся 6.', uz: "To'g'ri. Ulushlar bir xil, oltidan. Faqat ulushlarni qo'shamiz: 2 va 3 bu 5. Maxraj 6 bo'lib qoladi." },
     reveal1: { ru: 'Так думают многие. Но знаменатель показывает размер доли, он не меняется. Доли складываются: получается 5/6.', uz: "Ko'pchilik shunday o'ylaydi. Lekin maxraj ulush kattaligini ko'rsatadi, u o'zgarmaydi. Ulushlar qo'shiladi: 5/6 chiqadi." },
     reveal2: { ru: 'Почти. 6/6 это полный стакан. Но мы налили только 2 и 3 доли, всего 5 из 6.', uz: "Deyarli. 6/6 to'la stakan. Lekin biz faqat 2 va 3 ulush quydik, oltidan 5 ta." },
-    audio: { ru: "У Нилуфар два стакана одного и того же сока. В одном две шестых, в другом три шестых. Она сливает оба в один стакан. Сколько сока стало? Подумайте, прежде чем выбрать.", uz: "Nilufarda bir xil sharbatli ikki stakan bor. Birida oltidan ikki, ikkinchisida oltidan uch. U ikkalasini bitta stakanga quyadi. Sharbat qancha bo'ldi? Tanlashdan oldin o'ylab ko'ring." }
+    audio: { ru: "У Нилуфар два стакана одного и того же сока. В одном две шестых, в другом три шестых. Она сливает оба в один стакан. Сколько сока стало? Подумай, прежде чем выбрать.", uz: "Nilufarda bir xil sharbatli ikki stakan bor. Birida oltidan ikki, ikkinchisida oltidan uch. U ikkalasini bitta stakanga quyadi. Sharbat qancha bo'ldi? Tanlashdan oldin o'ylab ko'ring." }
   },
 
   // ===== s1 WARMUP SeqMC — 5 oson savol (prerekvizit recall) =====
@@ -1014,7 +1014,7 @@ const CONTENT = {
     leg_b: { ru: 'Вторая', uz: "Ikkinchi" },
     leg_sum: { ru: 'Сумма', uz: "Yig'indi" },
     note_rule: { ru: 'Числители складываются, знаменатель 7 не меняется.', uz: "Suratlar qo'shiladi, maxraj 7 o'zgarmaydi." },
-    audio: { ru: "Теперь попробуйте сами. Знаменатель у обеих дробей одинаковый, седьмые. Меняйте числители кнопками и смотрите: внизу всё время остаётся семь, а вверху доли складываются.", uz: "Endi o'zingiz sinab ko'ring. Ikkala kasrning maxraji bir xil, yettidan. Suratlarni tugmalar bilan o'zgartiring va qarang: pastda doim yetti qoladi, yuqorida esa ulushlar qo'shiladi." }
+    audio: { ru: "Теперь попробуй сам. Знаменатель у обеих дробей одинаковый, седьмые. Меняй числители кнопками и смотри: внизу всё время остаётся семь, а вверху доли складываются.", uz: "Endi o'zingiz sinab ko'ring. Ikkala kasrning maxraji bir xil, yettidan. Suratlarni tugmalar bilan o'zgartiring va qarang: pastda doim yetti qoladi, yuqorida esa ulushlar qo'shiladi." }
   },
 
   // ===== s4 RULE =====
@@ -1022,7 +1022,7 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     heading: { ru: 'Сложение дробей с равными знаменателями', uz: "Bir xil maxrajli kasrlarni qo'shish" },
     bridge: { ru: 'Мы увидели, как это работает. Соберём в одно правило.', uz: "Bu qanday ishlashini ko'rdik. Bitta qoidaga yig'amiz." },
-    rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
     rule_1: { ru: 'Складываем числители — верхние числа.', uz: "Suratlarni — yuqoridagi sonlarni qo'shamiz." },
     rule_2: { ru: 'Знаменатель оставляем тот же — он показывает размер доли.', uz: "Maxrajni o'sha holicha qoldiramiz — u ulush kattaligini ko'rsatadi." },
     ex_label: { ru: 'Как это работает', uz: "Bu qanday ishlaydi" },
@@ -1041,7 +1041,7 @@ const CONTENT = {
     bad_cause: { ru: 'Здесь сложили и знаменатели: 6 + 6 = 12.', uz: "Bu yerda maxrajlar ham qo'shilgan: 6 + 6 = 12." },
     bad_note: { ru: 'Так нельзя — знаменатель не складывают.', uz: "Bunday bo'lmaydi — maxraj qo'shilmaydi." },
     warn_2: { ru: 'Знаменатель — это размер доли. Долю не делим заново, поэтому он не меняется.', uz: "Maxraj — bu ulush kattaligi. Ulushni qaytadan bo'lmaymiz, shuning uchun u o'zgarmaydi." },
-    audio: { ru: "Будьте внимательны. Самая частая ошибка это сложить ещё и знаменатели: шесть плюс шесть двенадцать. Тогда вместо пяти шестых получится пять двенадцатых. Но знаменатель показывает размер доли, и он остаётся прежним, шестым.", uz: "Diqqat bo'ling. Eng ko'p uchraydigan xato bu maxrajlarni ham qo'shib yuborish: olti qo'shuv olti o'n ikki. Unda oltidan besh o'rniga o'n ikkidan besh chiqadi. Lekin maxraj ulush kattaligini ko'rsatadi, va u o'sha holicha, oltidan bo'lib qoladi." }
+    audio: { ru: "Будь внимателен. Самая частая ошибка это сложить ещё и знаменатели: шесть плюс шесть двенадцать. Тогда вместо пяти шестых получится пять двенадцатых. Но знаменатель показывает размер доли, и он остаётся прежним, шестым.", uz: "Diqqat bo'ling. Eng ko'p uchraydigan xato bu maxrajlarni ham qo'shib yuborish: olti qo'shuv olti o'n ikki. Unda oltidan besh o'rniga o'n ikkidan besh chiqadi. Lekin maxraj ulush kattaligini ko'rsatadi, va u o'sha holicha, oltidan bo'lib qoladi." }
   },
 
   // ===== s6 TEST MC — 2/7 + 4/7 (FAKT: musiqa) =====
@@ -1082,7 +1082,7 @@ const CONTENT = {
     wrong_default: { ru: 'Проверь каждую запись: знаменатель не должен меняться.', uz: "Har bir yozuvni tekshiring: maxraj o'zgarmasligi kerak." },
     fact: { ru: 'На часах так же: четверть часа плюс четверть часа это полчаса (1/4 + 1/4 = 2/4). Доли времени складываются как доли целого.', uz: "Soatda ham shunday: chorak soat qo'shuv chorak soat — bu yarim soat (1/4 + 1/4 = 2/4). Vaqt ulushlari butun ulushlaridek qo'shiladi." },
     audio: {
-      intro: { ru: "Одна из этих записей неверная. Найдите ту, где знаменатель сложили вместе с числителями.", uz: "Bu yozuvlardan biri noto'g'ri. Maxrajni suratlar bilan qo'shib yuborilgan yozuvni toping." },
+      intro: { ru: "Одна из этих записей неверная. Найди ту, где знаменатель сложили вместе с числителями.", uz: "Bu yozuvlardan biri noto'g'ri. Maxrajni suratlar bilan qo'shib yuborilgan yozuvni toping." },
       on_correct: { ru: "Верно, здесь сложили и знаменатели. Кстати, на часах доли времени складываются правильно: четверть часа и ещё четверть это полчаса.", uz: "To'g'ri, bu yerda maxrajlar ham qo'shilgan. Aytgancha, soatda vaqt ulushlari to'g'ri qo'shiladi: chorak soat va yana chorak yarim soatni beradi." },
       on_wrong: { ru: "Проверь каждую запись: знаменатель должен остаться прежним.", uz: "Har bir yozuvni tekshiring: maxraj o'sha holicha qolishi kerak." }
     }
@@ -1090,7 +1090,7 @@ const CONTENT = {
 
   // ===== s8 TEST classify — yig'indi: butundan kichik / teng / katta (3 savat) =====
   s8: {
-    eyebrow: { ru: 'Разложите по группам', uz: "Guruhlarga ajrating" },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
     title: { ru: 'Сумма меньше целого, равна или больше?', uz: "Yig'indi butundan kichik, teng yoki katta?" },
     lead: { ru: 'Посчитай каждую сумму и поставь её в свою группу. Сравни числитель со знаменателем.', uz: "Har bir yig'indini hisoblang va o'z guruhiga joylang. Suratni maxraj bilan solishtiring." },
     bin_lt: { ru: 'Меньше целого', uz: "Butundan kichik" },
@@ -1109,7 +1109,7 @@ const CONTENT = {
     hint_wrong: { ru: 'Сложи числители и сравни со знаменателем: меньше, равно или больше.', uz: "Suratlarni qo'shib maxraj bilan solishtiring: kichik, teng yoki katta." },
     correct_text: { ru: 'Верно. Числитель меньше знаменателя — меньше целого, равен — целое, больше — больше целого.', uz: "To'g'ri. Surat maxrajdan kichik — butundan kichik, teng — butun, katta — butundan katta." },
     audio: {
-      intro: { ru: "Поставьте каждую сумму в свою группу: меньше целого, равна целому или больше. Сложите числители и сравните со знаменателем.", uz: "Har bir yig'indini o'z guruhiga joylang: butundan kichik, butunga teng yoki katta. Suratlarni qo'shib maxraj bilan solishtiring." },
+      intro: { ru: "Поставь каждую сумму в свою группу: меньше целого, равна целому или больше. Сложи числители и сравни со знаменателем.", uz: "Har bir yig'indini o'z guruhiga joylang: butundan kichik, butunga teng yoki katta. Suratlarni qo'shib maxraj bilan solishtiring." },
       on_correct: { ru: "Верно. Когда числитель равен знаменателю, дробь это целое.", uz: "To'g'ri. Surat maxrajga teng bo'lganda, kasr butun bo'ladi." },
       on_wrong: { ru: "Сложи числители и сравни со знаменателем.", uz: "Suratlarni qo'shib maxraj bilan solishtiring." }
     }

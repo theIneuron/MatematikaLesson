@@ -853,7 +853,7 @@ const CONTENT = {
     reveal0: { ru: 'Верно! Одинаковые множители сворачивают в степень: 3·3·3·3·3 = 3⁵. Сейчас разберёмся.', uz: "To'g'ri! Bir xil ko'paytuvchilar darajaga yig'iladi: 3·3·3·3·3 = 3⁵. Hozir ko'rib chiqamiz." },
     reveal1: { ru: 'Полная запись работает, но она длинная. Есть короткая — степень. Посмотрим.', uz: "To'liq yozuv ishlaydi, lekin uzun. Qisqa yozuv bor — daraja. Ko'ramiz." },
     reveal2: { ru: 'Осторожно: 3·5 = 15, это сложение пяти троек. А тут тройка умножается сама на себя — это 3⁵, намного больше.', uz: "Ehtiyot bo'ling: 3·5 = 15, bu beshta uchni qo'shish. Bu yerda esa uch o'ziga ko'payadi — bu 3⁵, ancha katta." },
-    audio: { ru: "Посмотрите на длинную запись. Её можно записать гораздо короче. Как думаете?", uz: "Uzun yozuvga qarang. Uni ancha qisqa yozish mumkin. Sizningcha, qanday?" }
+    audio: { ru: "Посмотри на длинную запись. Её можно записать гораздо короче. Как думаешь?", uz: "Uzun yozuvga qarang. Uni ancha qisqa yozish mumkin. Sizningcha, qanday?" }
   },
 
   // ===== s1 WARM-UP (prereq: ko'paytirish) =====
@@ -866,9 +866,9 @@ const CONTENT = {
     opt2: { ru: '6', uz: '6' },
     opt3: { ru: '12', uz: '12' },
     correct_text: { ru: 'Верно: 3·3 = 9, потом 9·3 = 27. Скоро запишем это короче.', uz: "To'g'ri: 3·3 = 9, keyin 9·3 = 27. Tez orada qisqaroq yozamiz." },
-    wrong_1: { ru: 'Это только 3·3. Множителей три — умножьте ещё на 3.', uz: "Bu faqat 3·3. Ko'paytuvchilar uchta — yana 3 ga ko'paytiring." },
+    wrong_1: { ru: 'Это только 3·3. Множителей три — умножь ещё на 3.', uz: "Bu faqat 3·3. Ko'paytuvchilar uchta — yana 3 ga ko'paytiring." },
     wrong_2: { ru: 'Это 3+3. Здесь множители умножают, а не складывают.', uz: "Bu 3+3. Bu yerda ko'paytuvchilar ko'paytiriladi, qo'shilmaydi." },
-    wrong_3: { ru: 'Почти. Пересчитайте: 3·3 = 9, затем 9·3.', uz: "Deyarli. Qayta sanang: 3·3 = 9, keyin 9·3." },
+    wrong_3: { ru: 'Почти. Пересчитай: 3·3 = 9, затем 9·3.', uz: "Deyarli. Qayta sanang: 3·3 = 9, keyin 9·3." },
     audio: {
       intro: { ru: "Вспомним умножение. Сколько будет три на три и ещё на три?", uz: "Ko'paytmani eslaylik. Uchni uchga, yana uchga ko'paytirsak qancha bo'ladi?" },
       on_correct: { ru: "Отлично, двадцать семь. Запомним это число.", uz: "Ajoyib, yigirma yetti. Shu sonni yodda tutaylik." },
@@ -880,7 +880,7 @@ const CONTENT = {
   s2: {
     eyebrow: { ru: 'Запись степени', uz: "Daraja yozuvi" },
     title: { ru: 'Свернём в степень', uz: "Darajaga yig'amiz" },
-    lead: { ru: 'Помните 3·3·3 = 27? Теперь запишем это короче.', uz: "3·3·3 = 27 ni eslaysizmi? Endi buni qisqaroq yozamiz." },
+    lead: { ru: 'Помни 3·3·3 = 27? Теперь запишем это короче.', uz: "3·3·3 = 27 ni eslaysizmi? Endi buni qisqaroq yozamiz." },
     line_chain: { ru: 'Пять одинаковых множителей: 3·3·3·3·3', uz: "Beshta bir xil ko'paytuvchi: 3·3·3·3·3" },
     line_power: { ru: 'Коротко это степень: 3⁵', uz: "Qisqacha bu daraja: 3⁵" },
     line_base: { ru: 'Внизу основание: какое число умножаем.', uz: "Pastda asos: qaysi sonni ko'paytiramiz." },
@@ -890,7 +890,7 @@ const CONTENT = {
     btn_final: { ru: 'Понятно', uz: "Tushunarli" },
     audio: {
       ru: [
-        "Помните, мы перемножали тройки. Теперь посмотрим, что делать, когда одинаковых множителей много.",
+        "Помни, мы перемножали тройки. Теперь посмотрим, что делать, когда одинаковых множителей много.",
         "Вот пять одинаковых множителей. Записывать их полностью долго и легко ошибиться.",
         "Поэтому сворачиваем в короткую запись. Нижнее число говорит, какое число мы умножаем.",
         "Верхнее число говорит, сколько раз мы умножаем.",
@@ -910,30 +910,30 @@ const CONTENT = {
   s3: {
     eyebrow: { ru: 'Квадрат числа', uz: "Sonning kvadrati" },
     title: { ru: 'Вторая степень — квадрат', uz: "Ikkinchi daraja — kvadrat" },
-    lead: { ru: 'Двигайте сторону и смотрите на клетки.', uz: "Tomonni suring va kataklarga qarang." },
+    lead: { ru: 'Двигай сторону и смотри на клетки.', uz: "Tomonni suring va kataklarga qarang." },
     slider_label: { ru: 'Сторона', uz: "Tomon" },
     line_def: { ru: 'a² = a·a — число, умноженное само на себя.', uz: "a² = a·a — son o'ziga ko'paytirilgani." },
     line_why: { ru: 'Клетки заполняют квадрат. Поэтому это и есть квадрат.', uz: "Kataklar kvadratni to'ldiradi. Shuning uchun bu kvadrat." },
-    line_warn: { ru: 'Не путайте: a·2 — это всего два ряда, а не квадрат.', uz: "Adashtirmang: a·2 — atigi ikki qator, kvadrat emas." },
-    audio: { ru: "Вторая степень — квадрат. Двигайте сторону: клетки всегда образуют квадрат. Умножить на два — это не квадрат.", uz: "Ikkinchi daraja — kvadrat. Tomonni suring: kataklar har doim kvadrat hosil qiladi. Ikkiga ko'paytirish kvadrat emas." }
+    line_warn: { ru: 'Не путай: a·2 — это всего два ряда, а не квадрат.', uz: "Adashtirmang: a·2 — atigi ikki qator, kvadrat emas." },
+    audio: { ru: "Вторая степень — квадрат. Двигай сторону: клетки всегда образуют квадрат. Умножить на два — это не квадрат.", uz: "Ikkinchi daraja — kvadrat. Tomonni suring: kataklar har doim kvadrat hosil qiladi. Ikkiga ko'paytirish kvadrat emas." }
   },
 
   // ===== s4 EXPLORATION — KUB (slider) =====
   s4: {
     eyebrow: { ru: 'Куб числа', uz: "Sonning kubi" },
     title: { ru: 'Третья степень — куб', uz: "Uchinchi daraja — kub" },
-    lead: { ru: 'Двигайте ребро и смотрите на кубики.', uz: "Qirrani suring va kublarga qarang." },
+    lead: { ru: 'Двигай ребро и смотри на кубики.', uz: "Qirrani suring va kublarga qarang." },
     slider_label: { ru: 'Ребро', uz: "Qirra" },
     line_def: { ru: 'a³ = a·a·a — три одинаковых множителя.', uz: "a³ = a·a·a — uchta bir xil ko'paytuvchi." },
     line_why: { ru: 'Маленькие кубики заполняют большой куб. Поэтому это куб.', uz: "Kichik kublar katta kubni to'ldiradi. Shuning uchun bu kub." },
-    audio: { ru: "Третья степень — куб. Двигайте ребро: маленькие кубики образуют полный куб.", uz: "Uchinchi daraja — kub. Qirrani suring: kichik kublar to'la kubni hosil qiladi." }
+    audio: { ru: "Третья степень — куб. Двигай ребро: маленькие кубики образуют полный куб.", uz: "Uchinchi daraja — kub. Qirrani suring: kichik kublar to'la kubni hosil qiladi." }
   },
 
   // ===== s5 RULE 1 =====
   s5: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     heading: { ru: 'Степень числа', uz: "Sonning darajasi" },
-    rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
     rule_1: { ru: 'Степень — это произведение одинаковых множителей.', uz: "Daraja — bir xil ko'paytuvchilar ko'paytmasi." },
     rule_2: { ru: 'Квадрат: a² = a·a.  Куб: a³ = a·a·a.', uz: "Kvadrat: a² = a·a.  Kub: a³ = a·a·a." },
     rule_3: { ru: 'Первая степень: a¹ = a.', uz: "Birinchi daraja: a¹ = a." },
@@ -954,21 +954,21 @@ const CONTENT = {
   // ===== s7 TEST NumInput — 5² = 25 =====
   s7: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    question: { ru: 'Вычислите: 5²', uz: "Hisoblang: 5²" },
+    question: { ru: 'Вычисли: 5²', uz: "Hisoblang: 5²" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint: { ru: 'Квадрат — это число само на себя: 5·5. Не 5·2.', uz: "Kvadrat — son o'ziga ko'paytirilgani: 5·5. 5·2 emas." },
     fb_correct: { ru: 'Верно: 5·5 = 25.', uz: "To'g'ri: 5·5 = 25." },
     audio: {
-      intro: { ru: "Вычислите пять в квадрате. Помните: само на себя.", uz: "Beshning kvadratini hisoblang. Yodingizda bo'lsin: o'ziga ko'paytiriladi." },
+      intro: { ru: "Вычисли пять в квадрате. Помни: само на себя.", uz: "Beshning kvadratini hisoblang. Yodingizda bo'lsin: o'ziga ko'paytiriladi." },
       on_correct: { ru: "Верно, двадцать пять.", uz: "To'g'ri, yigirma besh." },
-      on_wrong: { ru: "Не то. Умножьте пять само на себя, а не на два.", uz: "Emas. Beshni o'ziga ko'paytiring, ikkiga emas." }
+      on_wrong: { ru: "Не то. Умножь пять само на себя, а не на два.", uz: "Emas. Beshni o'ziga ko'paytiring, ikkiga emas." }
     }
   },
 
   // ===== s8 TEST — Noto'g'risini top [FAKT toq sonlar] =====
   s8: {
-    eyebrow: { ru: 'Найдите ошибку', uz: "Xatoni toping" },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
     title: { ru: 'Внимание, вопрос наоборот', uz: "Diqqat, savol teskari" },
     question: { ru: 'В каком равенстве ошибка?', uz: "Qaysi tenglikda xato bor?" },
     opt0: { ru: '6² = 36', uz: '6² = 36' },
@@ -976,14 +976,14 @@ const CONTENT = {
     opt2: { ru: '10² = 100', uz: '10² = 100' },
     opt3: { ru: '4² = 8', uz: '4² = 8' },
     correct_text: { ru: 'Верно! 4² = 4·4 = 16, а не 8. Восьмёрка — это 4·2. Вот и ошибка.', uz: "To'g'ri! 4² = 4·4 = 16, 8 emas. Sakkiz — bu 4·2. Mana xato shu." },
-    wrong_0: { ru: '6² = 6·6 = 36 — это верно. Ищите ошибочное равенство.', uz: "6² = 6·6 = 36 — bu to'g'ri. Xato tenglikni qidiring." },
+    wrong_0: { ru: '6² = 6·6 = 36 — это верно. Ищи ошибочное равенство.', uz: "6² = 6·6 = 36 — bu to'g'ri. Xato tenglikni qidiring." },
     wrong_1: { ru: '2³ = 2·2·2 = 8 — верно. Это не ошибка.', uz: "2³ = 2·2·2 = 8 — to'g'ri. Bu xato emas." },
-    wrong_2: { ru: '10² = 10·10 = 100 — верно. Ищите ошибку.', uz: "10² = 10·10 = 100 — to'g'ri. Xatoni qidiring." },
+    wrong_2: { ru: '10² = 10·10 = 100 — верно. Ищи ошибку.', uz: "10² = 10·10 = 100 — to'g'ri. Xatoni qidiring." },
     fact: { ru: 'Квадраты — это суммы нечётных чисел: 1, потом 1+3=4, потом 1+3+5=9. Поэтому квадрат всегда складывается из таких слоёв.', uz: "Kvadrat sonlar — toq sonlar yig'indisi: 1, keyin 1+3=4, keyin 1+3+5=9. Shuning uchun kvadrat har doim shunday qatlamlardan tuziladi." },
     audio: {
-      intro: { ru: "Будьте внимательны: здесь вопрос наоборот. Найдите равенство, в котором есть ошибка.", uz: "Diqqat bo'ling: bu yerda savol teskari. Xato bor tenglikni toping." },
+      intro: { ru: "Будь внимателен: здесь вопрос наоборот. Найди равенство, в котором есть ошибка.", uz: "Diqqat bo'ling: bu yerda savol teskari. Xato bor tenglikni toping." },
       on_correct: { ru: "Точно. Четыре в квадрате — шестнадцать, а не восемь. И вот что красиво: квадраты складываются из нечётных чисел.", uz: "Aniq. To'rtning kvadrati o'n olti, sakkiz emas. Mana qizig'i: kvadrat sonlar toq sonlardan yig'iladi." },
-      on_wrong: { ru: "Это равенство верное. Ищите то, где результат не сходится.", uz: "Bu tenglik to'g'ri. Natija to'g'ri kelmaydiganini qidiring." }
+      on_wrong: { ru: "Это равенство верное. Ищи то, где результат не сходится.", uz: "Bu tenglik to'g'ri. Natija to'g'ri kelmaydiganini qidiring." }
     }
   },
 
@@ -1002,43 +1002,43 @@ const CONTENT = {
     wrong_3: { ru: '5 — это 2+3. Здесь множители умножают.', uz: "5 — bu 2+3. Bu yerda ko'paytuvchilar ko'paytiriladi." },
     fact: { ru: 'Память компьютера измеряют степенями двойки: 2¹⁰ = 1024 байта это один килобайт. Поэтому объёмы растут скачками: 256, 512, 1024.', uz: "Kompyuter xotirasi ikkining darajalari bilan o'lchanadi: 2¹⁰ = 1024 bayt — bu bir kilobayt. Shuning uchun hajmlar sakrab o'sadi: 256, 512, 1024." },
     audio: {
-      intro: { ru: "Вычислите два в кубе. Куб — три одинаковых множителя.", uz: "Ikkining kubini hisoblang. Kub — uchta bir xil ko'paytuvchi." },
+      intro: { ru: "Вычисли два в кубе. Куб — три одинаковых множителя.", uz: "Ikkining kubini hisoblang. Kub — uchta bir xil ko'paytuvchi." },
       on_correct: { ru: "Верно, восемь. А степени двойки очень важны в компьютерах: тысяча двадцать четыре байта это один килобайт.", uz: "To'g'ri, sakkiz. Ikkining darajalari kompyuterda juda muhim: bir ming yigirma to'rt bayt — bu bir kilobayt." },
-      on_wrong: { ru: "Не то. Умножьте двойку саму на себя три раза.", uz: "Emas. Ikkini o'ziga uch marta ko'paytiring." }
+      on_wrong: { ru: "Не то. Умножь двойку саму на себя три раза.", uz: "Emas. Ikkini o'ziga uch marta ko'paytiring." }
     }
   },
 
   // ===== s10 TEST NumInput — fill-blank ko'rsatkich =====
   s10: {
-    eyebrow: { ru: 'Заполните пропуск', uz: "Bo'sh joyni to'ldiring" },
-    question: { ru: 'Впишите показатель степени.', uz: "Daraja ko'rsatkichini yozing." },
+    eyebrow: { ru: 'Заполни пропуск', uz: "Bo'sh joyni to'ldiring" },
+    question: { ru: 'Впиши показатель степени.', uz: "Daraja ko'rsatkichini yozing." },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Показатель — это сколько одинаковых множителей. Сосчитайте двойки.', uz: "Ko'rsatkich — nechta bir xil ko'paytuvchi borligi. Ikkilarni sanang." },
+    hint: { ru: 'Показатель — это сколько одинаковых множителей. Сосчитай двойки.', uz: "Ko'rsatkich — nechta bir xil ko'paytuvchi borligi. Ikkilarni sanang." },
     fb_correct: { ru: 'Верно: четыре двойки, значит 2⁴.', uz: "To'g'ri: to'rtta ikki, demak 2⁴." },
     audio: {
-      intro: { ru: "Посчитайте, сколько здесь одинаковых множителей, и впишите показатель.", uz: "Bu yerda nechta bir xil ko'paytuvchi borligini sanang va ko'rsatkichni yozing." },
+      intro: { ru: "Посчитай, сколько здесь одинаковых множителей, и впиши показатель.", uz: "Bu yerda nechta bir xil ko'paytuvchi borligini sanang va ko'rsatkichni yozing." },
       on_correct: { ru: "Верно, четыре.", uz: "To'g'ri, to'rt." },
-      on_wrong: { ru: "Пересчитайте множители — каждый из них это одна двойка.", uz: "Ko'paytuvchilarni qayta sanang — har biri bitta ikki." }
+      on_wrong: { ru: "Пересчитай множители — каждый из них это одна двойка.", uz: "Ko'paytuvchilarni qayta sanang — har biri bitta ikki." }
     }
   },
 
   // ===== s11 TEST — Tasniflash (tap-to-place) =====
   s11: {
-    eyebrow: { ru: 'Разложите по группам', uz: "Guruhlarga ajrating" },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
     title: { ru: 'Квадрат или куб?', uz: "Kvadrat yoki kub?" },
-    lead: { ru: 'Нажмите запись, потом её группу.', uz: "Yozuvni bosing, keyin uning guruhini bosing." },
+    lead: { ru: 'Нажми запись, потом её группу.', uz: "Yozuvni bosing, keyin uning guruhini bosing." },
     bin_sq: { ru: 'Квадрат (a²)', uz: "Kvadrat (a²)" },
     bin_cu: { ru: 'Куб (a³)', uz: "Kub (a³)" },
-    tap_prompt: { ru: 'Сначала выберите запись', uz: "Avval yozuvni tanlang" },
+    tap_prompt: { ru: 'Сначала выбери запись', uz: "Avval yozuvni tanlang" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     reset_hint: { ru: 'Сбросить', uz: "Tozalash" },
-    hint_wrong: { ru: 'Смотрите на показатель: 2 — квадрат, 3 — куб.', uz: "Ko'rsatkichga qarang: 2 — kvadrat, 3 — kub." },
+    hint_wrong: { ru: 'Смотри на показатель: 2 — квадрат, 3 — куб.', uz: "Ko'rsatkichga qarang: 2 — kvadrat, 3 — kub." },
     correct_text: { ru: 'Верно! Показатель 2 — квадрат, показатель 3 — куб.', uz: "To'g'ri! Ko'rsatkich 2 — kvadrat, ko'rsatkich 3 — kub." },
     audio: {
-      intro: { ru: "Разложите записи по группам: где квадрат, а где куб. Подсказка в показателе.", uz: "Yozuvlarni guruhlarga ajrating: qaysi biri kvadrat, qaysi biri kub. Maslahat ko'rsatkichda." },
+      intro: { ru: "Разложи записи по группам: где квадрат, а где куб. Подсказка в показателе.", uz: "Yozuvlarni guruhlarga ajrating: qaysi biri kvadrat, qaysi biri kub. Maslahat ko'rsatkichda." },
       on_correct: { ru: "Верно. Показатель сразу говорит, квадрат это или куб.", uz: "To'g'ri. Ko'rsatkich darhol aytadi: kvadratmi yoki kub." },
-      on_wrong: { ru: "Посмотрите на верхнее число: двойка это квадрат, тройка это куб.", uz: "Tepadagi songa qarang: ikki — kvadrat, uch — kub." }
+      on_wrong: { ru: "Посмотри на верхнее число: двойка это квадрат, тройка это куб.", uz: "Tepadagi songa qarang: ikki — kvadrat, uch — kub." }
     }
   },
 
@@ -1050,7 +1050,7 @@ const CONTENT = {
     note: { ru: 'Сколько всего пикселей в таком квадрате? Сейчас сосчитаем.', uz: "Bunday kvadratda jami nechta piksel bor? Hozir sanaymiz." },
     hint_calc: { ru: 'Квадрат 6 на 6 — это 6², то есть 6·6.', uz: "6 ga 6 kvadrat — bu 6², ya'ni 6·6." },
     btn_help: { ru: 'Помочь Нилуфар', uz: "Nilufarga yordam berish" },
-    audio: { ru: "Нилуфар делает квадратный логотип: шесть пикселей в ширину и шесть в высоту. Подумайте, как быстро сосчитать все пиксели.", uz: "Nilufar kvadrat logotip qiladi: eni olti piksel, bo'yi olti piksel. Barcha piksellarni qanday tez sanashni o'ylang." }
+    audio: { ru: "Нилуфар делает квадратный логотип: шесть пикселей в ширину и шесть в высоту. Подумай, как быстро сосчитать все пиксели.", uz: "Nilufar kvadrat logotip qiladi: eni olti piksel, bo'yi olti piksel. Barcha piksellarni qanday tez sanashni o'ylang." }
   },
 
   // ===== s13 CASE FINAL — 6² = 36 [FAKT shaxmat] =====
@@ -1068,9 +1068,9 @@ const CONTENT = {
     wrong_3: { ru: '18 — это 6·3. Здесь нужен квадрат: 6·6.', uz: "18 — bu 6·3. Bu yerda kvadrat kerak: 6·6." },
     fact: { ru: 'Есть легенда: за изобретение шахмат попросили класть на клетки зёрна, каждый раз удваивая. На последней клетке вышло 2⁶³ зёрен — больше, чем риса во всём мире. Так быстро растёт степень.', uz: "Bir afsona bor: shaxmat ixtirosi uchun kataklarga don qo'yishni so'rashgan, har safar ikki barobar. Oxirgi katakda 2⁶³ dona chiqqan — dunyodagi barcha guruchdan ko'p. Daraja shunchalik tez o'sadi." },
     audio: {
-      intro: { ru: "Последнее задание. Сосчитайте, сколько пикселей в квадрате шесть на шесть.", uz: "Oxirgi topshiriq. Eni olti, bo'yi olti kvadratda nechta piksel borligini sanang." },
+      intro: { ru: "Последнее задание. Сосчитай, сколько пикселей в квадрате шесть на шесть.", uz: "Oxirgi topshiriq. Eni olti, bo'yi olti kvadratda nechta piksel borligini sanang." },
       on_correct: { ru: "Верно, тридцать шесть. И напоследок: степень растёт так быстро, что на шахматной доске зёрен вышло бы больше, чем во всём мире.", uz: "To'g'ri, o'ttiz olti. Va nihoyat: daraja shunchalik tez o'sadiki, shaxmat taxtasida don dunyodagidan ko'p chiqar edi." },
-      on_wrong: { ru: "Это квадрат: умножьте шесть само на себя.", uz: "Bu kvadrat: oltini o'ziga ko'paytiring." }
+      on_wrong: { ru: "Это квадрат: умножь шесть само на себя.", uz: "Bu kvadrat: oltini o'ziga ko'paytiring." }
     }
   },
 
@@ -1082,7 +1082,7 @@ const CONTENT = {
     main_label: { ru: 'Главное', uz: "Asosiy" },
     main_1: { ru: 'Одинаковые множители записывают степенью: 3·3·3·3·3 = 3⁵.', uz: "Bir xil ko'paytuvchilar daraja bilan yoziladi: 3·3·3·3·3 = 3⁵." },
     main_2: { ru: 'Квадрат a² = a·a, куб a³ = a·a·a.', uz: "Kvadrat a² = a·a, kub a³ = a·a·a." },
-    main_3: { ru: 'Помните: 3⁵ — это не 3·5. Степень — это умножение, а не сложение.', uz: "Yodda tuting: 3⁵ — bu 3·5 emas. Daraja — ko'paytirish, qo'shish emas." },
+    main_3: { ru: 'Помни: 3⁵ — это не 3·5. Степень — это умножение, а не сложение.', uz: "Yodda tuting: 3⁵ — bu 3·5 emas. Daraja — ko'paytirish, qo'shish emas." },
     hook_close: { ru: 'Вот и ответ на первый вопрос: 3·3·3·3·3 коротко записывают как 3⁵.', uz: "Mana birinchi savolga javob: 3·3·3·3·3 qisqacha 3⁵ deb yoziladi." },
     conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
     conn_refs: { ru: 'Умножение столбиком (Урок 4) — степень это многократное умножение.', uz: "Ustun shaklida ko'paytirish (4-dars) — daraja ko'p marta ko'paytirish." },

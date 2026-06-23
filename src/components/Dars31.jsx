@@ -890,18 +890,18 @@ const CONTENT = {
 
   // ===== s5 ISHLANGAN MISOL + MASHQ (scored): yuqorida 25%=20 statik; pastda 30% dan 50 = 15 (DecInput) =====
   s5: {
-    eyebrow: { ru: 'Сначала пример, потом сами', uz: "Avval misol, keyin o'zingiz" },
+    eyebrow: { ru: 'Сначала пример, потом сам', uz: "Avval misol, keyin o'zingiz" },
     title: { ru: 'Найди часть', uz: "Qismni toping" },
-    bridge: { ru: 'Правило знаем. Сначала посмотри пример, потом реши сами.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching." },
+    bridge: { ru: 'Правило знаем. Сначала посмотри пример, потом реши сам.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching." },
     we_label: { ru: 'Разобранный пример', uz: "Ishlangan misol" },
     we_caption: { ru: '25% от 80 → 80 делим на 100 = 0,8 → умножаем на 25 = 20.', uz: "80 ning 25% i → 80 ni 100 ga bo'lamiz = 0,8 → 25 ga ko'paytiramiz = 20." },
-    question: { ru: 'Теперь сами: сколько будет 30% от 50?', uz: "Endi o'zingiz: 50 ning 30% i nechaga teng?" },
+    question: { ru: 'Теперь сам: сколько будет 30% от 50?', uz: "Endi o'zingiz: 50 ning 30% i nechaga teng?" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint: { ru: 'Раздели число на сто, потом умножь на процент.', uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." },
     fb_correct: { ru: 'Верно: 50 делим на 100 = 0,5, умножаем на 30 = 15.', uz: "To'g'ri: 50 ni 100 ga bo'lamiz = 0,5, 30 ga ko'paytiramiz = 15." },
     audio: {
-      intro: { ru: "Сначала посмотри разобранный пример сверху. Теперь сами: сколько будет тридцать процентов от пятидесяти?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: ellikning o'ttiz foizi nechaga teng?" },
+      intro: { ru: "Сначала посмотри разобранный пример сверху. Теперь сам: сколько будет тридцать процентов от пятидесяти?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: ellikning o'ttiz foizi nechaga teng?" },
       on_correct: { ru: "Верно, пятнадцать.", uz: "To'g'ri, o'n besh." },
       on_wrong: { ru: "Раздели число на сто, потом умножь на процент.", uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
     }
@@ -932,14 +932,14 @@ const CONTENT = {
   // ===== s7 TEST DecInput — 40% от 350 -> 140 =====
   s7: {
     eyebrow: { ru: 'Набери ответ', uz: "Javobni tering" },
-    bridge: { ru: 'Хорошо. Теперь набери ответ сами.', uz: "Yaxshi. Endi javobni o'zingiz tering." },
+    bridge: { ru: 'Хорошо. Теперь набери ответ сам.', uz: "Yaxshi. Endi javobni o'zingiz tering." },
     question: { ru: 'Сколько будет 40% от 350?', uz: "350 ning 40% i nechaga teng?" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint: { ru: 'Раздели число на сто, потом умножь на процент.', uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." },
     fb_correct: { ru: 'Верно: 350 делим на 100 = 3,5, умножаем на 40 = 140.', uz: "To'g'ri: 350 ni 100 ga bo'lamiz = 3,5, 40 ga ko'paytiramiz = 140." },
     audio: {
-      intro: { ru: "Набери ответ сами. Сколько будет сорок процентов от трёхсот пятидесяти?", uz: "Javobni o'zingiz tering. Uch yuz ellikning qirq foizi nechaga teng?" },
+      intro: { ru: "Набери ответ сам. Сколько будет сорок процентов от трёхсот пятидесяти?", uz: "Javobni o'zingiz tering. Uch yuz ellikning qirq foizi nechaga teng?" },
       on_correct: { ru: "Верно, сто сорок. Триста пятьдесят делим на сто, выходит три целых пять десятых, умножаем на сорок.", uz: "To'g'ri, bir yuz qirq. Uch yuz ellikni yuzga bo'lamiz, uch butun o'ndan besh chiqadi, qirqqa ko'paytiramiz." },
       on_wrong: { ru: "Раздели число на сто, потом умножь на процент.", uz: "Sonni yuzga bo'ling, keyin foizga ko'paytiring." }
     }

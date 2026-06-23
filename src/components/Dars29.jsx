@@ -940,20 +940,20 @@ const CONTENT = {
   // ===== s4 EXPLORATION (slider, M1) =====
   s4: {
     eyebrow: { ru: 'Когда деление увеличивает', uz: "Bo'lish qachon kattalashtiradi" },
-    title: { ru: 'Двигайте делитель', uz: "Bo'luvchini suring" },
+    title: { ru: 'Двигай делитель', uz: "Bo'luvchini suring" },
     lead: { ru: 'Делим 6 на разные числа. Сколько раз делитель помещается в шести?', uz: "6 ni turli sonlarga bo'lamiz. Bo'luvchi oltida necha marta joylashadi?" },
     slider_label: { ru: 'Делитель', uz: "Bo'luvchi" },
     note_less: { ru: 'Делитель меньше 1 → результат больше 6.', uz: "Bo'luvchi 1 dan kichik → natija 6 dan katta." },
     note_eq: { ru: 'Делитель равен 1 → результат равен 6.', uz: "Bo'luvchi 1 ga teng → natija 6 ga teng." },
     note_more: { ru: 'Делитель больше 1 → результат меньше 6.', uz: "Bo'luvchi 1 dan katta → natija 6 dan kichik." },
-    audio: { ru: "Делить можно и на дробь меньше единицы. Тогда результат становится больше исходного числа. Двигайте делитель и проверьте.", uz: "Birdan kichik kasrga ham bo'lish mumkin. Shunda natija boshlang'ich sondan katta bo'ladi. Bo'luvchini suring va tekshiring." }
+    audio: { ru: "Делить можно и на дробь меньше единицы. Тогда результат становится больше исходного числа. Двигай делитель и проверь.", uz: "Birdan kichik kasrga ham bo'lish mumkin. Shunda natija boshlang'ich sondan katta bo'ladi. Bo'luvchini suring va tekshiring." }
   },
 
   // ===== s5 RULE 1 =====
   s5: {
     eyebrow: { ru: 'Правило', uz: "Qoida" },
     heading: { ru: 'Деление десятичных дробей', uz: "O'nli kasrlarni bo'lish" },
-    rule_label: { ru: 'Запомните', uz: "Yodda tuting" },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
     rule_1: { ru: 'На целое: делим как обычно, у запятой делимого ставим запятую в ответе.', uz: "Butun songa: odatdagidek bo'lamiz, bo'linuvchi vergulida javobga vergul qo'yamiz." },
     rule_2: { ru: 'На десятичную: сдвигаем запятую в обоих числах вправо, пока делитель не станет целым.', uz: "O'nliga: bo'luvchi butun bo'lguncha ikkala sonda vergulni o'ngga suramiz." },
     rule_3: { ru: 'Сдвигаем одинаково в делимом и делителе.', uz: "Bo'linuvchi va bo'luvchida bir xil suramiz." },
@@ -965,24 +965,24 @@ const CONTENT = {
   s6: {
     eyebrow: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
     heading: { ru: 'Две частые ошибки', uz: "Ikki ko'p uchraydigan xato" },
-    warn_1: { ru: 'Сдвигайте запятую в обоих числах одинаково, а не в одном.', uz: "Vergulni ikkala sonda bir xil suring, faqat bittasida emas." },
-    warn_ex: { ru: 'И не теряйте запятую в ответе.', uz: "Va javobdagi vergulni yo'qotmang." },
+    warn_1: { ru: 'Сдвигай запятую в обоих числах одинаково, а не в одном.', uz: "Vergulni ikkala sonda bir xil suring, faqat bittasida emas." },
+    warn_ex: { ru: 'И не теряй запятую в ответе.', uz: "Va javobdagi vergulni yo'qotmang." },
     warn_2: { ru: 'Деление на число меньше 1 увеличивает результат.', uz: "Birdan kichik songa bo'lish natijani kattalashtiradi." },
-    audio: { ru: "Будьте внимательны. Сдвигайте запятую в делимом и делителе одинаково. И не забывайте запятую в ответе. И помните: деление на число меньше единицы увеличивает результат.", uz: "Ehtiyot bo'ling. Vergulni bo'linuvchi va bo'luvchida bir xil suring. Javobdagi vergulni ham unutmang. Va yodda tuting: birdan kichik songa bo'lish natijani kattalashtiradi." }
+    audio: { ru: "Будь внимателен. Сдвигай запятую в делимом и делителе одинаково. И не забывай запятую в ответе. И помни: деление на число меньше единицы увеличивает результат.", uz: "Ehtiyot bo'ling. Vergulni bo'linuvchi va bo'luvchida bir xil suring. Javobdagi vergulni ham unutmang. Va yodda tuting: birdan kichik songa bo'lish natijani kattalashtiradi." }
   },
 
   // ===== s7 TEST DecInput — 4,8 : 4 = 1,2 =====
   s7: {
     eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    question: { ru: 'Вычислите: 4,8 : 4', uz: "Hisoblang: 4,8 : 4" },
+    question: { ru: 'Вычисли: 4,8 : 4', uz: "Hisoblang: 4,8 : 4" },
     placeholder: { ru: '0,0', uz: '0,0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint: { ru: 'Делим как обычно: 4 : 4 = 1, ставим запятую, 8 : 4 = 2. Ответ 1,2.', uz: "Odatdagidek bo'lamiz: 4 : 4 = 1, vergul qo'yamiz, 8 : 4 = 2. Javob 1,2." },
     fb_correct: { ru: 'Верно: 4,8 : 4 = 1,2.', uz: "To'g'ri: 4,8 : 4 = 1,2." },
     audio: {
-      intro: { ru: "Вычислите четыре целых восемь десятых разделить на четыре.", uz: "To'rt butun o'ndan sakkizni to'rtga bo'ling." },
+      intro: { ru: "Вычисли четыре целых восемь десятых разделить на четыре.", uz: "To'rt butun o'ndan sakkizni to'rtga bo'ling." },
       on_correct: { ru: "Верно, одна целая две десятых.", uz: "To'g'ri, bir butun o'ndan ikki." },
-      on_wrong: { ru: "Делите как обычно, а на запятой делимого поставьте запятую в ответе.", uz: "Odatdagidek bo'ling, bo'linuvchi vergulida javobga vergul qo'ying." }
+      on_wrong: { ru: "Дели как обычно, а на запятой делимого поставь запятую в ответе.", uz: "Odatdagidek bo'ling, bo'linuvchi vergulida javobga vergul qo'ying." }
     }
   },
 
@@ -1003,7 +1003,7 @@ const CONTENT = {
     audio: {
       intro: { ru: "Сколько будет шесть разделить на ноль целых пять десятых?", uz: "Oltini nol butun o'ndan beshga bo'lsak qancha bo'ladi?" },
       on_correct: { ru: "Верно, двенадцать. Кстати, не всякое деление заканчивается: один разделить на три даёт бесконечные тройки.", uz: "To'g'ri, o'n ikki. Aytgancha, har qanday bo'lish tugamaydi: birni uchga bo'lsak, uchlar cheksiz chiqadi." },
-      on_wrong: { ru: "Посчитайте, сколько половинок помещается в шести.", uz: "Oltida nechta yarim joylashishini sanang." }
+      on_wrong: { ru: "Посчитай, сколько половинок помещается в шести.", uz: "Oltida nechta yarim joylashishini sanang." }
     }
   },
 
@@ -1017,8 +1017,8 @@ const CONTENT = {
     opt2: { ru: '31,2 : 2,6', uz: '31,2 : 2,6' },
     opt3: { ru: '312 : 26', uz: '312 : 26' },
     correct_text: { ru: 'Верно: сдвинули запятую в обоих числах на один разряд вправо.', uz: "To'g'ri: ikkala sonda vergulni bir xona o'ngga surdik." },
-    wrong_1: { ru: 'Вы сдвинули только в делителе. Сдвигать нужно в обоих числах.', uz: "Siz faqat bo'luvchida surdingiz. Ikkala sonda surish kerak." },
-    wrong_2: { ru: 'Вы сдвинули только в делимом. Делитель так и остался дробным.', uz: "Siz faqat bo'linuvchida surdingiz. Bo'luvchi kasrligicha qoldi." },
+    wrong_1: { ru: 'Ты сдвинул только в делителе. Сдвигать нужно в обоих числах.', uz: "Siz faqat bo'luvchida surdingiz. Ikkala sonda surish kerak." },
+    wrong_2: { ru: 'Ты сдвинул только в делимом. Делитель так и остался дробным.', uz: "Siz faqat bo'linuvchida surdingiz. Bo'luvchi kasrligicha qoldi." },
     wrong_3: { ru: 'Это сдвиг на два разряда. А нужен один — пока делитель не станет целым.', uz: "Bu ikki xona surish. Bitta kerak — bo'luvchi butun bo'lguncha." },
     audio: {
       intro: { ru: "Чтобы делить на десятичную, сделаем делитель целым. Какой вариант верный?", uz: "O'nliga bo'lish uchun bo'luvchini butun qilamiz. Qaysi variant to'g'ri?" },
@@ -1033,31 +1033,31 @@ const CONTENT = {
     question: { ru: 'На сколько разрядов сдвинуть запятую в обоих числах при делении на 1,25?', uz: "1,25 ga bo'lishda ikkala sonda vergulni nechta xona surish kerak?" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Смотрите на делитель: у 1,25 два знака после запятой.', uz: "Bo'luvchiga qarang: 1,25 da verguldan keyin ikki raqam." },
+    hint: { ru: 'Смотри на делитель: у 1,25 два знака после запятой.', uz: "Bo'luvchiga qarang: 1,25 da verguldan keyin ikki raqam." },
     fb_correct: { ru: 'Верно: два разряда, чтобы 1,25 стало 125.', uz: "To'g'ri: ikki xona, 1,25 son 125 bo'lishi uchun." },
     audio: {
       intro: { ru: "На сколько разрядов нужно сдвинуть запятую, чтобы делитель стал целым числом?", uz: "Bo'luvchi butun son bo'lishi uchun vergulni nechta xona surish kerak?" },
       on_correct: { ru: "Верно, два разряда.", uz: "To'g'ri, ikki xona." },
-      on_wrong: { ru: "Посчитайте знаки после запятой у делителя.", uz: "Bo'luvchining kasr xonalarini sanang." }
+      on_wrong: { ru: "Посчитай знаки после запятой у делителя.", uz: "Bo'luvchining kasr xonalarini sanang." }
     }
   },
 
   // ===== s11 TEST tasniflash (tap) — natija bo'linuvchidan katta/kichik =====
   s11: {
-    eyebrow: { ru: 'Разложите по группам', uz: "Guruhlarga ajrating" },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
     title: { ru: 'Больше или меньше делимого?', uz: "Bo'linuvchidan katta yoki kichik?" },
-    lead: { ru: 'Поставьте каждое частное в свою группу. Считать точно не нужно.', uz: "Har bir bo'linmani o'z guruhiga joylang. Aniq hisoblash shart emas." },
+    lead: { ru: 'Поставь каждое частное в свою группу. Считать точно не нужно.', uz: "Har bir bo'linmani o'z guruhiga joylang. Aniq hisoblash shart emas." },
     bin_sq: { ru: 'Больше делимого', uz: "Bo'linuvchidan katta" },
     bin_cu: { ru: 'Меньше делимого', uz: "Bo'linuvchidan kichik" },
-    tap_prompt: { ru: 'Сначала выберите запись', uz: "Avval yozuvni tanlang" },
+    tap_prompt: { ru: 'Сначала выбери запись', uz: "Avval yozuvni tanlang" },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
     hint_wrong: { ru: 'Делитель меньше 1 увеличивает, больше 1 — уменьшает.', uz: "Birdan kichik bo'luvchi kattalashtiradi, kattasi — kichraytiradi." },
     correct_text: { ru: 'Верно! Делитель меньше единицы увеличивает результат.', uz: "To'g'ri! Birdan kichik bo'luvchi natijani kattalashtiradi." },
     fact: { ru: 'А на ноль делить нельзя: ни одно число не подходит. Поэтому калькулятор показывает ошибку.', uz: "Nolga esa bo'lib bo'lmaydi: hech qanday son to'g'ri kelmaydi. Shuning uchun kalkulyator xato ko'rsatadi." },
     audio: {
-      intro: { ru: "Поставьте частные по группам: какое больше делимого, какое меньше. Считать точно не нужно, прикиньте.", uz: "Bo'linmalarni guruhlarga joylang: qaysi biri bo'linuvchidan katta, qaysi biri kichik. Aniq hisoblash shart emas, chamalang." },
+      intro: { ru: "Поставь частные по группам: какое больше делимого, какое меньше. Считать точно не нужно, прикинь.", uz: "Bo'linmalarni guruhlarga joylang: qaysi biri bo'linuvchidan katta, qaysi biri kichik. Aniq hisoblash shart emas, chamalang." },
       on_correct: { ru: "Верно. Делитель меньше единицы всегда увеличивает число.", uz: "To'g'ri. Birdan kichik bo'luvchi sonni doim kattalashtiradi." },
-      on_wrong: { ru: "Прикиньте: делитель меньше единицы увеличивает.", uz: "Chamalang: birdan kichik bo'luvchi kattalashtiradi." }
+      on_wrong: { ru: "Прикинь: делитель меньше единицы увеличивает.", uz: "Chamalang: birdan kichik bo'luvchi kattalashtiradi." }
     }
   },
 
@@ -1069,7 +1069,7 @@ const CONTENT = {
     note: { ru: 'Сколько стаканов получится? Посчитаем.', uz: "Nechta stakan chiqadi? Hisoblaymiz." },
     hint_calc: { ru: 'Объём делят на объём стакана: 7,2 : 0,6.', uz: "Hajm stakan hajmiga bo'linadi: 7,2 : 0,6." },
     btn_help: { ru: 'Помочь Бахрому', uz: "Bahromga yordam berish" },
-    audio: { ru: "Бахром разливает семь целых две десятых литра сока по стаканам по ноль целых шесть десятых литра. Подумайте, как узнать число стаканов.", uz: "Bahrom yetti butun o'ndan ikki litr sharbatni nol butun o'ndan olti litrli stakanlarga quyadi. Stakanlar sonini qanday topishni o'ylang." }
+    audio: { ru: "Бахром разливает семь целых две десятых литра сока по стаканам по ноль целых шесть десятых литра. Подумай, как узнать число стаканов.", uz: "Bahrom yetti butun o'ndan ikki litr sharbatni nol butun o'ndan olti litrli stakanlarga quyadi. Stakanlar sonini qanday topishni o'ylang." }
   },
 
   // ===== s13 CASE FINAL MC — 7,2 : 0,6 = 12 [FAKT belgisi tarixi] =====
@@ -1082,14 +1082,14 @@ const CONTENT = {
     opt2: { ru: '120', uz: '120' },
     opt3: { ru: '6', uz: '6' },
     correct_text: { ru: 'Верно: 72 : 6 = 12 после сдвига запятых. Двенадцать стаканов.', uz: "To'g'ri: vergullarni surgach 72 : 6 = 12. O'n ikki stakan." },
-    wrong_1: { ru: 'Вы не сдвинули запятые. Сделайте делитель целым: 72 : 6 = 12.', uz: "Vergullarni surmadingiz. Bo'luvchini butun qiling: 72 : 6 = 12." },
+    wrong_1: { ru: 'Ты не сдвинул запятые. Сделай делитель целым: 72 : 6 = 12.', uz: "Vergullarni surmadingiz. Bo'luvchini butun qiling: 72 : 6 = 12." },
     wrong_2: { ru: 'Слишком много. Сдвиг на один разряд: 72 : 6 = 12.', uz: "Juda ko'p. Bir xona surish: 72 : 6 = 12." },
     wrong_3: { ru: 'Это деление на 1,2. А делитель 0,6: 72 : 6 = 12.', uz: "Bu 1,2 ga bo'lish. Bo'luvchi esa 0,6: 72 : 6 = 12." },
     fact: { ru: 'Знак деления в виде двоеточия и обелюс (÷) ввели около 1659 года. В разных странах пишут и так, и так.', uz: "Bo'lish belgisi — ikki nuqta va obelyus (÷) — taxminan 1659-yili kiritilgan. Turli davlatlarda ham unday, ham bunday yoziladi." },
     audio: {
       intro: { ru: "Последнее задание. Семь целых две десятых литра разливают по стаканам по ноль целых шесть десятых. Сколько стаканов?", uz: "Oxirgi topshiriq. Yetti butun o'ndan ikki litr nol butun o'ndan olti litrli stakanlarga quyiladi. Nechta stakan?" },
       on_correct: { ru: "Верно, двенадцать. Кстати, знак деления придумали больше трёхсот лет назад.", uz: "To'g'ri, o'n ikki. Aytgancha, bo'lish belgisini uch yuz yildan ko'proq oldin o'ylab topishgan." },
-      on_wrong: { ru: "Сдвиньте обе запятые вправо и разделите на целое.", uz: "Ikkala vergulni o'ngga suring va butun songa bo'ling." }
+      on_wrong: { ru: "Сдвинь обе запятые вправо и раздели на целое.", uz: "Ikkala vergulni o'ngga suring va butun songa bo'ling." }
     }
   },
 
