@@ -739,7 +739,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- POD UROK: geom_5_04 — To'rtburchakli parallelepiped hajmi / Объём параллелепипеда (PROMPT 2026-06-17 v2) ---
+// --- POD UROK: geom_5_04 — To'g'ri burchakli parallelepiped hajmi / Объём параллелепипеда (PROMPT 2026-06-17 v2) ---
 // Markaziy misconception M1: "hajm = yuza" (faqat tag qatlamni sanab, qatlamlarni unutish).
 // M2: uchala o'lchovni emas, ikkitasini ko'paytirish. M3: sm² va sm³ ni chalkashtirish.
 // v2 yangilanishlar (metodist 2026-06-17): qisqa sarlavhalar qaytarildi + matn kamaytirildi; bo'sh joy
@@ -751,7 +751,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'geom-5-04-v1',
-  lessonTitle: { ru: 'Объём прямоугольного параллелепипеда', uz: "To'rtburchakli parallelepiped hajmi" }
+  lessonTitle: { ru: 'Объём прямоугольного параллелепипеда', uz: "To'g'ri burchakli parallelepiped hajmi" }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
@@ -779,7 +779,7 @@ const CONTENT = {
     title: { ru: 'Хватит ли двух чисел?', uz: "Ikki son yetadimi?" },
     lead: {
       ru: 'Дно — 8 кубиков. А вся коробка?',
-      uz: "Tag — 8 kubcha. Butun quti-chi?"
+      uz: "Asos — 8 kubcha. Butun quti-chi?"
     },
     opt0: { ru: 'Да, двух хватит', uz: "Ha, ikkitasi yetadi" },
     opt1: { ru: 'Нет, нужна высота', uz: "Yo'q, balandlik kerak" },
@@ -790,41 +790,41 @@ const CONTENT = {
     },
     audio: {
       ru: 'Рустам собрал коробку. На дно, четыре на два, влезает восемь кубиков. Для площади дна хватило двух чисел. А чтобы заполнить всю коробку кубиками, двух чисел хватит? Как думаешь?',
-      uz: "Rustam quti yasadi. Tagiga, to'rtga ikki, sakkizta kubcha sig'adi. Tag yuzasi uchun ikki son yetdi. Butun qutini kubchalar bilan to'ldirish uchun ikki son yetadimi? Sizningcha-chi?"
+      uz: "Rustam quti yasadi. Asosiga, to'rtga ikki, sakkizta kubcha sig'adi. Asosning yuzi uchun ikki son yetdi. Butun qutini kubchalar bilan to'ldirish uchun ikki son yetadimi? Sizningcha-chi?"
     }
   },
 
   // ---- s1 WARM-UP — tag yuzasi retrieval (geom_5_02). 4x2 = 8. correct B. ----
   s1: {
     eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
-    title: { ru: 'Площадь дна', uz: "Tag yuzasi" },
+    title: { ru: 'Площадь дна', uz: "Asosning yuzi" },
     done_label: { ru: 'Вопрос', uz: 'Savol' },
     done_ok: { ru: 'верно', uz: "to'g'ri" },
     done_text: {
       ru: 'Отлично! Площадь дна — это стороны, перемноженные между собой. Это один слой.',
-      uz: "Ajoyib! Tag yuzasi — bu tomonlarning ko'paytmasi. Bu bir qatlam."
+      uz: "Ajoyib! Asosning yuzi — bu tomonlarning ko'paytmasi. Bu bir qatlam."
     },
     questions: [
       {
-        q: { ru: 'Дно 4 на 2. Сколько клеток?', uz: "Tag 4 ga 2. Nechta katak?" },
+        q: { ru: 'Дно 4 на 2. Сколько клеток?', uz: "Asos 4 ga 2. Nechta katak?" },
         opts: [{ ru: '8', uz: '8' }, { ru: '6', uz: '6' }, { ru: '12', uz: '12' }, { ru: '16', uz: '16' }],
         correct: 0,
         hint: { ru: 'Стороны не сложить, а перемножить.', uz: "Tomonlarni qo'shmang, ko'paytiring." },
-        audio: { ru: 'Сначала вспомним прошлый урок. Дно коробки четыре на два. Сколько клеток на дне?', uz: "Avval o'tgan darsni eslaymiz. Quti tagi to'rtga ikki. Tagiga nechta katak?" }
+        audio: { ru: 'Сначала вспомним прошлый урок. Дно коробки четыре на два. Сколько клеток на дне?', uz: "Avval o'tgan darsni eslaymiz. Quti asosi to'rtga ikki. Asosiga nechta katak?" }
       },
       {
-        q: { ru: 'Дно 3 на 2. Сколько клеток?', uz: "Tag 3 ga 2. Nechta katak?" },
+        q: { ru: 'Дно 3 на 2. Сколько клеток?', uz: "Asos 3 ga 2. Nechta katak?" },
         opts: [{ ru: '5', uz: '5' }, { ru: '6', uz: '6' }, { ru: '9', uz: '9' }, { ru: '12', uz: '12' }],
         correct: 1,
-        hint: { ru: 'Перемножь две стороны дна.', uz: "Tagning ikki tomonini ko'paytiring." },
-        audio: { ru: 'Дно три на два. Сколько клеток?', uz: "Tag uchga ikki. Nechta katak?" }
+        hint: { ru: 'Перемножь две стороны дна.', uz: "Asosning ikki tomonini ko'paytiring." },
+        audio: { ru: 'Дно три на два. Сколько клеток?', uz: "Asos uchga ikki. Nechta katak?" }
       },
       {
-        q: { ru: 'Дно 5 на 2. Сколько клеток?', uz: "Tag 5 ga 2. Nechta katak?" },
+        q: { ru: 'Дно 5 на 2. Сколько клеток?', uz: "Asos 5 ga 2. Nechta katak?" },
         opts: [{ ru: '12', uz: '12' }, { ru: '7', uz: '7' }, { ru: '10', uz: '10' }, { ru: '25', uz: '25' }],
         correct: 2,
         hint: { ru: 'Перемножь стороны, не складывай.', uz: "Tomonlarni ko'paytiring, qo'shmang." },
-        audio: { ru: 'Дно пять на два. Сколько клеток?', uz: "Tag beshga ikki. Nechta katak?" }
+        audio: { ru: 'Дно пять на два. Сколько клеток?', uz: "Asos beshga ikki. Nechta katak?" }
       }
     ],
     audio: {
@@ -840,7 +840,7 @@ const CONTENT = {
     title: { ru: 'Первый слой', uz: "Birinchi qatlam" },
     lead: {
       ru: 'Заполним дно кубиками. Нажимай и смотри.',
-      uz: "Tagni kubchalar bilan to'ldiramiz. Bosing va kuzating."
+      uz: "Asosni kubchalar bilan to'ldiramiz. Bosing va kuzating."
     },
     caps: {
       ru: [
@@ -849,24 +849,24 @@ const CONTENT = {
         'Один слой — это 4 умножить на 2, ровно 8 кубиков.'
       ],
       uz: [
-        "Bo'sh quti. Tagi — 4 ga 2.",
+        "Bo'sh quti. Asosi — 4 ga 2.",
         "Kubchalarni qator-qator qo'yamiz.",
         "Bir qatlam — 4 ni 2 ga ko'paytirib, 8 ta kubcha."
       ]
     },
     note: {
       ru: 'Один слой — это как площадь дна: 8 кубиков.',
-      uz: "Bir qatlam — tag yuzasi kabi: 8 ta kubcha."
+      uz: "Bir qatlam — asosning yuzi kabi: 8 ta kubcha."
     },
     btn_step: { ru: 'Дальше', uz: 'Keyingi' },
     audio: {
       intro: {
         ru: 'Положим кубики на дно коробки. Дно четыре на два. Нажимай на кнопку и смотри, как заполняется слой.',
-        uz: "Quti tagiga kubchalar qo'yamiz. Tagi to'rtga ikki. Tugmani bosing va qatlam qanday to'lishini kuzating."
+        uz: "Quti asosiga kubchalar qo'yamiz. Asosi to'rtga ikki. Tugmani bosing va qatlam qanday to'lishini kuzating."
       },
       done: {
         ru: 'Видишь? Один слой, это четыре умножить на два, восемь кубиков. Это как площадь дна.',
-        uz: "Ko'rib turibsizmi? Bir qatlam, bu to'rtni ikkiga ko'paytirib, sakkizta kubcha. Bu tag yuzasi kabi."
+        uz: "Ko'rib turibsizmi? Bir qatlam, bu to'rtni ikkiga ko'paytirib, sakkizta kubcha. Bu asosning yuzi kabi."
       }
     }
   },
@@ -920,14 +920,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s5 RULE 1 — V = a x b x c (uzunlik x en x balandlik) = tag yuzasi x balandlik. ----
+  // ---- s5 RULE 1 — V = a x b x c (bo'yi x eni x balandligi) = asosning yuzi x balandlik. ----
   s5: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     title: { ru: 'Правило объёма', uz: "Hajm qoidasi" },
     lead: { ru: 'Запишем правило, которое ты открыл.', uz: "Siz kashf etgan qoidani yozamiz." },
     rule_main: {
       ru: 'Объём = длина × ширина × высота',
-      uz: "Hajm = uzunlik × en × balandlik"
+      uz: "Hajm = bo'yi × eni × balandligi"
     },
     ex_easy: {
       ru: 'Слой 4 × 2 = 8, и высота 3: 8 × 3 = 24.',
@@ -935,11 +935,11 @@ const CONTENT = {
     },
     note: {
       ru: 'Сначала слой (длина × ширина), потом × число слоёв.',
-      uz: "Avval qatlam (uzunlik × en), keyin × qatlamlar soni."
+      uz: "Avval qatlam (bo'yi × eni), keyin × qatlamlar soni."
     },
     audio: {
       ru: 'Запомним правило. Объём равен длину умножить на ширину и на высоту. Это площадь дна, умноженная на высоту. Сначала слой, потом число слоёв.',
-      uz: "Qoidani eslab qolamiz. Hajm uzunlikni enga va balandlikka ko'paytirishga teng. Bu tag yuzasi, balandlikka ko'paytirilgan. Avval qatlam, keyin qatlamlar soni."
+      uz: "Qoidani eslab qolamiz. Hajm bo'yini eniga va balandlikka ko'paytirishga teng. Bu asosning yuzi, balandlikka ko'paytirilgan. Avval qatlam, keyin qatlamlar soni."
     }
   },
 
@@ -958,7 +958,7 @@ const CONTENT = {
     },
     point3: {
       ru: 'Забыл высоту — получил площадь дна, а не объём.',
-      uz: "Balandlik unutilsa — hajm emas, tag yuzasi chiqadi."
+      uz: "Balandlik unutilsa — hajm emas, asosning yuzi chiqadi."
     },
     audio: {
       ru: 'Будь внимателен. Если умножить только два числа, получится площадь, в квадратных сантиметрах, это лишь один слой. Для объёма нужны все три измерения, и ответ в кубических сантиметрах.',
@@ -978,7 +978,7 @@ const CONTENT = {
     bin_area: { ru: 'Площадь · см²', uz: 'Yuza · sm²' },
     bin_vol: { ru: 'Объём · см³', uz: 'Hajm · sm³' },
     it0: { ru: 'Сторона коробки', uz: "Quti tomoni" },
-    it1: { ru: 'Площадь дна', uz: "Tag yuzasi" },
+    it1: { ru: 'Площадь дна', uz: "Asosning yuzi" },
     it2: { ru: 'Кубики внутри', uz: "Ichidagi kubchalar" },
     tray_label: { ru: 'Карточки', uz: 'Kartalar' },
     hint_wrong: {
@@ -987,7 +987,7 @@ const CONTENT = {
     },
     correct_text: {
       ru: 'Верно! Сторона — длина (см), дно — площадь (см²), кубики внутри — объём (см³).',
-      uz: "To'g'ri! Tomon — uzunlik (sm), tag — yuza (sm²), ichidagi kubchalar — hajm (sm³)."
+      uz: "To'g'ri! Tomon — uzunlik (sm), asos — yuza (sm²), ichidagi kubchalar — hajm (sm³)."
     },
     fact: {
       ru: 'Кубик с ребром 10 см — это ровно 1 литр: 10 × 10 × 10 = 1000 см³. Вот откуда литр.',
@@ -1000,8 +1000,8 @@ const CONTENT = {
         uz: "Har bir kartani to'g'ri birlikli savatga sudrang. Uzunlik, yuza yoki hajm? Keyin tekshirishni bosing."
       },
       on_correct: {
-        ru: 'Верно. Кубик с ребром десять сантиметров, это ровно один литр: десять на десять на десять, тысяча кубических сантиметров.',
-        uz: "To'g'ri. Qirrasi o'n santimetr bo'lgan kubcha, bu aynan bir litr: o'nni o'nga, yana o'nga, ming kub santimetr."
+        ru: 'Верно. Кубик с ребром десять сантиметров, это ровно один литр, десять на десять на десять, тысяча кубических сантиметров.',
+        uz: "To'g'ri. Qirrasi o'n santimetr bo'lgan kubcha, bu aynan bir litr, o'nni o'nga, yana o'nga, ming kub santimetr."
       },
       on_wrong: { ru: 'Не совсем. Посчитай измерения. Длина одно, площадь два, объём три.', uz: "Unchalik emas. O'lchovlarni sanang. Uzunlik bitta, yuza ikkita, hajm uchta." }
     }
@@ -1050,7 +1050,7 @@ const CONTENT = {
     opt3: { ru: '2 × 2 × 5 → 20', uz: "2 × 2 × 5 → 20" },
     correct_text: {
       ru: 'Верно! Здесь умножили только два числа, 6 × 2 — это площадь дна. А высоту 3 забыли.',
-      uz: "To'g'ri! Bu yerda faqat ikki son ko'paytirilgan, 6 × 2 — bu tag yuzasi. Balandlik 3 esa unutilgan."
+      uz: "To'g'ri! Bu yerda faqat ikki son ko'paytirilgan, 6 × 2 — bu asosning yuzi. Balandlik 3 esa unutilgan."
     },
     wrong_0: {
       ru: 'Здесь перемножены все три измерения, это верно. Ищи дальше.',
@@ -1088,7 +1088,7 @@ const CONTENT = {
     title: { ru: 'Считаем по шагам', uz: "Qadamlab hisoblaymiz" },
     lead: {
       ru: 'Коробка: дно 4 на 3, высота 2. Заполни шаги.',
-      uz: "Quti: tagi 4 ga 3, balandlik 2. Qadamlarni to'ldiring."
+      uz: "Quti: asosi 4 ga 3, balandlik 2. Qadamlarni to'ldiring."
     },
     lbl_layer: { ru: 'Слой: 4 × 3 =', uz: "Qatlam: 4 × 3 =" },
     lbl_count: { ru: 'Число слоёв =', uz: "Qatlamlar soni =" },
@@ -1106,7 +1106,7 @@ const CONTENT = {
     audio: {
       intro: {
         ru: 'Заполни шаги. Сначала слой, дно четыре на три. Потом число слоёв. Потом объём. Нажми проверить.',
-        uz: "Qadamlarni to'ldiring. Avval qatlam, tagi to'rtga uch. Keyin qatlamlar soni. Keyin hajm. Tekshirishni bosing."
+        uz: "Qadamlarni to'ldiring. Avval qatlam, asosi to'rtga uch. Keyin qatlamlar soni. Keyin hajm. Tekshirishni bosing."
       },
       on_correct: { ru: 'Верно. Слой двенадцать, объём двадцать четыре.', uz: "To'g'ri. Qatlam o'n ikki, hajm yigirma to'rt." },
       on_wrong: { ru: 'Не совсем. Сначала найди слой, потом умножь на число слоёв.', uz: "Unchalik emas. Avval qatlamni toping, keyin qatlamlar soniga ko'paytiring." }
@@ -1119,7 +1119,7 @@ const CONTENT = {
     title: { ru: 'Объём куба', uz: "Kub hajmi" },
     lead: {
       ru: 'У этого кубика длина 2, ширина 2 и высота 2. Чему равен объём?',
-      uz: "Bu kubchaning uzunligi 2, eni 2 va balandligi 2. Hajmi qancha?"
+      uz: "Bu kubchaning bo'yi 2, eni 2 va balandligi 2. Hajmi qancha?"
     },
     opt0: { ru: '8 см³', uz: "8 sm³" },
     opt1: { ru: '6 см³', uz: "6 sm³" },
@@ -1135,7 +1135,7 @@ const CONTENT = {
     },
     wrong_2: {
       ru: 'Это только дно, два числа. Умножь ещё на высоту.',
-      uz: "Bu faqat tag, ikki son. Yana balandlikka ko'paytiring."
+      uz: "Bu faqat asos, ikki son. Yana balandlikka ko'paytiring."
     },
     wrong_3: {
       ru: 'Это слишком много. Перемножь три ребра по одному разу.',
@@ -1145,7 +1145,7 @@ const CONTENT = {
     audio: {
       intro: {
         ru: 'У коробки длина два, ширина два и высота два. Чему равен объём? Выбери ответ.',
-        uz: "Quti uzunligi ikki, eni ikki va balandligi ikki. Hajmi qancha? Javobni tanlang."
+        uz: "Quti bo'yi ikki, eni ikki va balandligi ikki. Hajmi qancha? Javobni tanlang."
       },
       on_correct: { ru: 'Верно. Восемь кубических сантиметров.', uz: "To'g'ri. Sakkiz kub santimetr." },
       on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
@@ -1158,11 +1158,11 @@ const CONTENT = {
     title: { ru: 'Коробка Шахнозы', uz: "Shahnozaning qutisi" },
     lead: {
       ru: 'Шахноза наполняет коробку кубиками-конфетами. Длина 5, ширина 3, высота 4. Сколько поместится?',
-      uz: "Shahnoza qutini kubcha-konfetlar bilan to'ldirmoqda. Uzunlik 5, en 3, balandlik 4. Nechta sig'adi?"
+      uz: "Shahnoza qutini kubcha-konfetlar bilan to'ldirmoqda. Bo'yi 5, eni 3, balandligi 4. Nechta sig'adi?"
     },
     note: {
       ru: 'Объём = длина × ширина × высота.',
-      uz: "Hajm = uzunlik × en × balandlik."
+      uz: "Hajm = bo'yi × eni × balandligi."
     },
     hint_calc: {
       ru: 'Сначала слой 5 × 3, потом умножь на высоту.',
@@ -1171,7 +1171,7 @@ const CONTENT = {
     btn_help: { ru: 'Посчитать', uz: 'Hisoblash' },
     audio: {
       ru: 'Шахноза наполняет подарочную коробку кубиками-конфетами. Длина пять, ширина три, высота четыре. Сколько конфет поместится? Посчитаем объём.',
-      uz: "Shahnoza sovg'a qutisini kubcha-konfetlar bilan to'ldirmoqda. Uzunligi besh, eni uch, balandligi to'rt. Nechta konfet sig'adi? Hajmni hisoblaymiz."
+      uz: "Shahnoza sovg'a qutisini kubcha-konfetlar bilan to'ldirmoqda. Bo'yi besh, eni uch, balandligi to'rt. Nechta konfet sig'adi? Hajmni hisoblaymiz."
     }
   },
 
@@ -1181,7 +1181,7 @@ const CONTENT = {
     title: { ru: 'Сколько конфет?', uz: "Nechta konfet?" },
     lead: {
       ru: 'Коробка Шахнозы: длина 5, ширина 3, высота 4. Сколько кубиков-конфет поместится?',
-      uz: "Shahnozaning qutisi: uzunlik 5, en 3, balandlik 4. Nechta kubcha-konfet sig'adi?"
+      uz: "Shahnozaning qutisi: bo'yi 5, eni 3, balandligi 4. Nechta kubcha-konfet sig'adi?"
     },
     opt0: { ru: '60', uz: "60" },
     opt1: { ru: '12', uz: "12" },
@@ -1197,7 +1197,7 @@ const CONTENT = {
     },
     wrong_2: {
       ru: 'Это только площадь дна. Умножь её ещё на высоту.',
-      uz: "Bu faqat tag yuzasi. Uni yana balandlikka ko'paytiring."
+      uz: "Bu faqat asosning yuzi. Uni yana balandlikka ko'paytiring."
     },
     wrong_3: {
       ru: 'Слишком много. Перемножь три измерения по одному разу.',
@@ -1211,7 +1211,7 @@ const CONTENT = {
     audio: {
       intro: {
         ru: 'Посчитай объём коробки Шахнозы. Длина пять, ширина три, высота четыре. Не забудь все три числа.',
-        uz: "Shahnoza qutisining hajmini hisoblang. Uzunlik besh, en uch, balandlik to'rt. Uchala sonni unutmang."
+        uz: "Shahnoza qutisining hajmini hisoblang. Bo'yi besh, eni uch, balandligi to'rt. Uchala sonni unutmang."
       },
       on_correct: {
         ru: 'Верно. Шестьдесят. Кубик Рубика, это три на три на три, двадцать семь маленьких кубиков. Три слоя по девять.',
@@ -1228,7 +1228,7 @@ const CONTENT = {
     score_label: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob" },
     main_label: { ru: 'Что узнали', uz: "Nimani bildik" },
     main_1: { ru: 'Объём — число кубиков внутри.', uz: "Hajm — ichidagi kubchalar soni." },
-    main_2: { ru: 'Объём = длина × ширина × высота.', uz: "Hajm = uzunlik × en × balandlik." },
+    main_2: { ru: 'Объём = длина × ширина × высота.', uz: "Hajm = bo'yi × eni × balandligi." },
     main_3: { ru: 'Два числа — площадь, три — объём.', uz: "Ikki son — yuza, uchta — hajm." },
     hook_close: {
       ru: 'Рустаму двух чисел не хватило — нужна была высота.',
@@ -1237,7 +1237,7 @@ const CONTENT = {
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: {
       ru: 'Площадь прямоугольника (один слой — это площадь дна).',
-      uz: "To'rtburchak yuzasi (bir qatlam — bu tag yuzasi)."
+      uz: "To'rtburchak yuzasi (bir qatlam — bu asosning yuzi)."
     },
     conn_label_next: { ru: 'Следующий урок', uz: 'Keyingi dars' },
     conn_next: {
@@ -1247,7 +1247,7 @@ const CONTENT = {
     btn_restart: { ru: 'Пройти заново', uz: 'Qaytadan' },
     audio: {
       ru: 'Отлично. Теперь ты знаешь: объём, это число кубиков внутри. Длина умножить на ширину и на высоту. Два числа дают площадь, а три, объём. Молодец!',
-      uz: "Ajoyib. Endi bilasiz: hajm, bu ichidagi kubchalar soni. Uzunlikni enga va balandlikka ko'paytiramiz. Ikki son yuza beradi, uchta esa, hajm. Barakalla!"
+      uz: "Ajoyib. Endi bilasiz: hajm, bu ichidagi kubchalar soni. Bo'yini eniga va balandlikka ko'paytiramiz. Ikki son yuza beradi, uchta esa, hajm. Barakalla!"
     }
   }
 
@@ -1363,7 +1363,7 @@ const AnimRubik = () => (
 // ============================================================
 // VIZUALIZATOR — LayerBox (izometrik 3D quti, qatlam-qatlam to'ladi), SVG
 // ============================================================
-// cols=a (uzunlik), rows=b (en), layers=c (balandlik). filled = to'ldirilgan qatlamlar (0..layers).
+// cols=a (bo'yi), rows=b (eni), layers=c (balandlik). filled = to'ldirilgan qatlamlar (0..layers).
 // O'lcham yorliqlari OQ fon-tab ustida — aniq o'qiladi (metodist 2026-06-17).
 const lbP = (X, Y, Z, ox, oy, w, th, ch) => [ox + (X - Y) * w, oy + (X + Y) * th - Z * ch];
 const LayerBox = ({ cols, rows, layers, filled = layers, cell = 24, alive = true, success = false, stagger = false, aLabel, bLabel, hLabel }) => {
