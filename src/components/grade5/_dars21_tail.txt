@@ -1,0 +1,333 @@
+
+// ============================================================
+// SCREEN-KOMPONENTLAR
+// ============================================================
+
+// s0 — HOOK. Ekranda FAQAT sarlavha + FillWholes anim + variantlar; barcha ma'lumot OVOZDA. Qaytishda picked sbros.
+const Screen0 = ({ screen, onAnswer, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s0;
+  const audio = useAudio(makeAudioSegments(c, lang));
+  const opts = [c.opt0, c.opt1, c.opt2];
+  const reveals = [c.reveal0, c.reveal1, c.reveal2];
+  const [picked, setPicked] = useState(null);
+  const pick = (i) => {
+    if (picked !== null) return;
+    setPicked(i);
+    onAnswer({ stage: 'hook', screenIdx: 0, question: c.lead[lang], options: opts.map(o => o[lang]), correctIndex: null, correctAnswer: null, studentAnswerIndex: i, studentAnswer: opts[i][lang], correct: null, firstTry: null });
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={picked === null} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div className="has-amb" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 18px)', justifyContent: 'center' }}>
+        <Floaters/>
+        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{mt(t(c.title))}</h2>
+        {/* Faqat sarlavha matnda; qolgan ma'lumot (9/4, 2 1/4, Kamol xatosi) faqat OVOZDA. */}
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <FillWholes den={4} filled={9} wholes={3}/>
+        </div>
+        <div className="fade-up delay-2" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 9 }}>
+          {opts.map((o, i) => (
+            <button key={i} className="option" disabled={picked !== null} onClick={() => pick(i)}
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', display: 'flex', alignItems: 'center', gap: 12, boxShadow: picked === i ? '0 8px 22px -6px rgba(255, 79, 40, 0.38)' : undefined }}>
+              <span className="mono small" style={{ minWidth: 20, color: T.ink3 }}>{String.fromCharCode(65 + i)}</span>
+              <span style={{ flex: 1 }}>{mt(t(o))}</span>
+            </button>
+          ))}
+        </div>
+        {picked !== null && <p className="body fade-up" style={{ position: 'relative', margin: 0, color: T.ink2 }}>{mt(t(reveals[picked]))}</p>}
+      </div>
+    </Stage>
+  );
+};
+
+// s1 — WARMUP MC: 4/4 = 1 (to'g'ri = opt0; order [1,2,0] → C)
+const Screen1 = (props) => {
+  const t = useT(); const c = CONTENT.s1;
+  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2)];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0]);
+  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx}/>;
+};
+
+// s2 — EXPLORATION (FillWholes step): noto'g'ri kasr tug'iladi
+const Screen2 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s2;
+  const lines = c.audio[lang];
+  const audio = useAudio([{ id: 's2_intro', text: lines[0], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+  const [step, setStep] = useState(0);
+  const last = lines.length - 1;
+  const fills = [4, 8, 9, 9];
+  const advance = () => {
+    if (step >= last) return;
+    const ns = step + 1; setStep(ns);
+    if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(lines[ns]); }
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={step < last} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <Floaters/>
+        <Bridge node={c.bridge}/>
+        <Title node={c.title}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: 'clamp(16px, 3vw, 24px)' }}>
+          <FillWholes den={4} filled={fills[step]} wholes={3} animate={false}/>
+          <div className="ag-readout">
+            {step >= 2 ? <Frac n={9} d={4} size="mid" color={T.accent}/> : <span className="dm-prob" style={{ fontSize: 'clamp(18px, 4vw, 26px)' }}>{fills[step]} / 4</span>}
+          </div>
+        </div>
+        {step >= last
+          ? <div className="frame-success fade-up" style={{ minHeight: 56 }}><p className="body" style={{ margin: 0 }}>{mt(t(c.note))}</p></div>
+          : <button className="btn-white-accent fade-up" onClick={advance} disabled={audio.isPlaying && !audio.muted} style={{ alignSelf: 'flex-start', padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.4vw, 24px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_step)}</button>}
+      </div>
+    </Stage>
+  );
+};
+
+// s3 — EXPLORATION (FillWholes mixed + bo'lish-qoldiq): aralash son tug'iladi
+const Screen3 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s3;
+  const lines = c.audio[lang];
+  const audio = useAudio([{ id: 's3_intro', text: lines[0], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+  const [step, setStep] = useState(0);
+  const last = lines.length - 1;
+  const advance = () => {
+    if (step >= last) return;
+    const ns = step + 1; setStep(ns);
+    if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(lines[ns]); }
+  };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={step < last} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <Floaters/>
+        <Bridge node={c.bridge}/>
+        <Title node={c.title}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: 'clamp(16px, 3vw, 24px)' }}>
+          <FillWholes den={4} filled={9} wholes={3} mixed={true} animate={false}/>
+          <div className="ag-readout">
+            {step >= 2
+              ? <><Frac n={9} d={4} size="mid"/><Op>=</Op><span className="mix-read"><b>2</b><Frac n={1} d={4} size="sm" color={T.success}/></span></>
+              : <Frac n={9} d={4} size="mid"/>}
+            {step >= 3 && <span className="nl-div-note">9 ÷ 4 = 2, qoldiq 1</span>}
+          </div>
+        </div>
+        {step >= last
+          ? <div className="frame-success fade-up" style={{ minHeight: 56 }}><p className="body" style={{ margin: 0 }}>{mt(t(c.note))}</p></div>
+          : <button className="btn-white-accent fade-up" onClick={advance} disabled={audio.isPlaying && !audio.muted} style={{ alignSelf: 'flex-start', padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.4vw, 24px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_step)}</button>}
+      </div>
+    </Stage>
+  );
+};
+
+// s4 — RULE: 3 ta'rif + "yig'indi, ko'paytma emas" ogohlantirish + fakt
+const Screen4 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s4;
+  const lines = c.audio[lang];
+  const audio = useAudio([{ id: 's4_intro', text: lines[0], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
+  const [showFact, setShowFact] = useState(false);
+  const revealFact = () => { if (showFact) return; setShowFact(true); if (!audio.muted) { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(lines[1]); } };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={false} onClick={onNext} label={<NextLabel/>}/></>);
+  const defs = [[c.def1_h, c.def1, T.success], [c.def2_h, c.def2, T.accent], [c.def3_h, c.def3, T.blue]];
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 13px)' }}>
+        <Floaters/>
+        <Bridge node={c.bridge}/>
+        <Title node={c.title}/>
+        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {defs.map(([h, body, col], i) => (
+            <div key={i} className="frame" style={{ display: 'flex', alignItems: 'baseline', gap: 10, padding: 'clamp(11px, 2vw, 14px) clamp(13px, 2.3vw, 16px)' }}>
+              <span className="mono" style={{ fontWeight: 700, color: col, flexShrink: 0, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(h)}</span>
+              <span className="body" style={{ margin: 0 }}>{mt(t(body))}</span>
+            </div>
+          ))}
+        </div>
+        <div className="frame-tip fade-up delay-2" style={{ display: 'flex', gap: 8 }}>
+          <span style={{ color: '#D8A93A' }} aria-hidden="true"><IconNo/></span>
+          <p className="body" style={{ margin: 0, fontWeight: 600 }}>{mt(t(c.warn))}</p>
+        </div>
+        {showFact
+          ? <FactCard text={c.fact} badge={FB_HIST} anim={<AnimMixed/>}/>
+          : <button className="btn-ghost fade-up" onClick={revealFact} style={{ alignSelf: 'flex-start', padding: 'clamp(8px, 1.4vw, 10px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(12px, 1.5vw, 13px)', color: T.blue }}>{t(c.fact_btn)}</button>}
+      </div>
+    </Stage>
+  );
+};
+
+// s5 — TEST SeqMC: 5 ta oson savol
+const Screen5 = (props) => <SeqMC {...props} screenContent={CONTENT.s5} scored={true}/>;
+
+// s6 — TEST DragClassify
+const Screen6 = (props) => <DragClassify {...props} idx={props.screen} screenContent={CONTENT.s6}/>;
+
+// s7 — TEST MixedInput: 7/4 = 1 butun 3/4
+const Screen7 = (props) => {
+  const c = CONTENT.s7;
+  return <MixedInputScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={c} w={1} num={3} den={4}
+    figure={(solved) => <FillWholes den={4} filled={7} wholes={2} mixed={solved}/>}/>;
+};
+
+// s8 — TEST: noto'g'risini top (to'g'ri = opt0; order [1,2,0] → C)
+const Screen8 = (props) => {
+  const t = useT(); const c = CONTENT.s8;
+  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2)];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [1, 2, 0]);
+  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx}
+    figure={() => <FillWholes den={4} filled={5} wholes={2}/>} factOnCorrect={<FactCard text={c.fact} badge={FB_LIFE} anim={<AnimCup/>}/>}/>;
+};
+
+// s9 — CASE intro (Oybek 11/4)
+const Screen9 = ({ screen, onNext, onPrev }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s9;
+  const audio = useAudio([{ id: 's9_intro', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={false} onClick={onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <Floaters/>
+        <Bridge node={c.bridge}/>
+        <Title node={c.title}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: 'clamp(16px, 3vw, 22px)' }}>
+          <FillWholes den={4} filled={11} wholes={3}/>
+          <p className="body" style={{ margin: 0 }}>{mt(t(c.body))}</p>
+        </div>
+        <div className="frame-tip fade-up delay-2">
+          <p className="body" style={{ margin: 0, fontWeight: 600 }}>{mt(t(c.hint_card))}</p>
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+// s10 — CASE MC: 11/4 = 2 3/4 (to'g'ri = opt0; order [2,0,3,1] → B)
+const Screen10 = (props) => {
+  const t = useT(); const c = CONTENT.s10;
+  const base = [optEl(t, c.opt0), optEl(t, c.opt1), optEl(t, c.opt2), optEl(t, c.opt3)];
+  const { options, correctIdx, content } = shuffleMC(c, base, 0, [2, 0, 3, 1]);
+  const question = (<h2 className="title h-sub">{mt(t(c.question))}</h2>);
+  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} titleNode={c.title} question={question} options={options} correctIdx={correctIdx} factOnCorrect={<FactCard text={c.fact} badge={FB_LIFE} anim={<AnimClock/>}/>}/>;
+};
+
+// s11 — TEST DragOrder
+const Screen11 = (props) => <DragOrder {...props} idx={props.screen} screenContent={CONTENT.s11}/>;
+
+// s12 — YAKUNIY TEST SeqMix (scope='final')
+const Screen12 = (props) => <SeqMix {...props} screenContent={CONTENT.s12}/>;
+
+// s13 — SUMMARY (Dars09-13 kanonik): score + hookni yopadi + ConnectionsBlock
+const Screen13 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
+  const lang = useLang(); const t = useT(); const c = CONTENT.s13;
+  const audio = useAudio([{ id: 's13_intro', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const finishedRef = useRef(false);
+  useEffect(() => { if (!finishedRef.current) { finishedRef.current = true; finishLesson(); } }, [finishLesson]);
+  const scoredTotal = SCREEN_META.filter(s => s.scored).length;
+  const correctCount = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
+  const restart = () => { onReset(); };
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-white-accent" onClick={restart} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 14px)' }}>
+        <Floaters/>
+        <p className="eyebrow fade-up" style={{ color: T.success, display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Dars yakunlandi" : 'Урок пройден'}</p>
+        <Title node={c.title}/>
+        <div className="frame-success fade-up delay-1" style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+          <span className="dm-prob" style={{ color: T.success }}>{correctCount} / {scoredTotal}</span>
+          <span className="small" style={{ color: T.ink2 }}>{t(c.score_caption)}</span>
+        </div>
+        <div className="frame-success fade-up delay-1">
+          <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t(c.hook_label)}</p>
+          <p className="body" style={{ margin: 0 }}>{mt(t(c.hook_text))}</p>
+        </div>
+        <div className="fade-up delay-2">
+          <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t(c.main_label)}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.main_1))}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.main_2))}</p>
+            <p className="body" style={{ margin: 0 }}>{mt(t(c.main_3))}</p>
+          </div>
+        </div>
+        <p className="small fade-up delay-2" style={{ margin: 0, color: T.ink3, fontStyle: 'italic' }}>{mt(t(c.next_note))}</p>
+        <ConnectionsBlock c={c}/>
+      </div>
+    </Stage>
+  );
+};
+
+// ============================================================
+// КОРНЕВОЙ КОМПОНЕНТ
+// ============================================================
+export default function MixedNumbersLesson({
+  studentName, lang: langProp, ttsApiBase,
+  correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
+}) {
+  const isPreview = (langProp === undefined || langProp === null);
+  const [previewLang, setPreviewLang] = useState('ru');
+  const lang = langProp || previewLang;
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName });
+  const safeOnFinished = onFinished || ((payload) => {
+    // eslint-disable-next-line no-console
+    console.log('[Preview] onFinished payload:', payload);
+  });
+
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const startTimeRef = useRef(Date.now());
+
+  const recordAnswer = useCallback((screenIdx, data) => {
+    setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
+  }, []);
+
+  const reset = useCallback(() => { setAnswers([]); setCurrent(0); startTimeRef.current = Date.now(); }, []);
+
+  const finishLesson = useCallback(() => {
+    const scored = SCREEN_META.filter(s => s.scored);
+    const finalScreens = scored.filter(s => s.scope === 'final');
+    const correctCount = answers.filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
+    const finalCorrect = answers.filter((a, i) => a && SCREEN_META[i]?.scope === 'final' && a.correct).length;
+    const checked = answers.filter(a => a && typeof a.firstTry === 'boolean');
+    const payload = {
+      lessonId: LESSON_META.lessonId,
+      lessonTitle: LESSON_META.lessonTitle,
+      durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
+      totalQuestions: scored.length,
+      correctAnswers: correctCount,
+      scorePercent: scored.length > 0 ? Math.round((correctCount / scored.length) * 100) : 0,
+      finalScore: finalCorrect,
+      finalTotal: finalScreens.length,
+      passed: finalScreens.length > 0 ? finalCorrect / finalScreens.length >= 0.6 : (scored.length > 0 ? correctCount / scored.length >= 0.6 : false),
+      firstTryStats: { total: checked.length, firstTryCorrect: checked.filter(a => a.firstTry === true).length },
+      answers: answers.filter(Boolean)
+    };
+    safeOnFinished(payload);
+  }, [answers, safeOnFinished]);
+
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13];
+  const CurrentScreen = screens[current];
+
+  const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
+  const prev = () => setCurrent(s => Math.max(s - 1, 0));
+
+  const handleAnswer = useCallback((data) => { recordAnswer(current, data); }, [current, recordAnswer]);
+
+  return (
+    <LangContext.Provider value={lang}>
+      <style>{STYLES}</style>
+      <div className="lesson-root">
+        {isPreview && (
+          <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
+            {['ru', 'uz'].map(l => (
+              <button key={l} onClick={() => setPreviewLang(l)}
+                style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
+                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
+        <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+      </div>
+    </LangContext.Provider>
+  );
+}
