@@ -684,6 +684,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         if (engine && !audio.muted) {
           const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+          if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
     }
@@ -904,7 +905,7 @@ const CONTENT = {
     opt2: { ru: '18', uz: '18' },
     opt3: { ru: '600', uz: '600' },
     correct_text: { ru: 'Верно: 60 делим на 30 = 2, умножаем на 100 = 200.', uz: "To'g'ri: 60 ni 30 ga bo'lamiz = 2, yuzga ko'paytiramiz = 200." },
-    wrong_1: { ru: 'Вы сложили часть и процент. Раздели часть на процент, потом умножь на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
+    wrong_1: { ru: 'Ты сложил часть и процент. Раздели часть на процент, потом умножь на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
     wrong_2: { ru: 'Это часть от 60, а нужно наоборот, найти целое. Целое больше части.', uz: "Bu 60 dan qism, kerak esa aksincha, butunni topish. Butun qismdan katta." },
     wrong_3: { ru: 'Слишком много. Раздели часть на процент, потом умножь на сто.', uz: "Juda ko'p. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
     fact: { ru: 'На выборах по части подсчитанных голосов и их проценту обратным счётом находят, сколько всего человек проголосовало.', uz: "Saylovda sanalgan ovozlarning bir qismi va ularning foizi bo'yicha teskari hisob bilan jami nechta odam ovoz berganini topishadi." },
@@ -1030,7 +1031,7 @@ const CONTENT = {
     opt3: { ru: '600', uz: '600' },
     correct_text: { ru: 'Верно: 18 делим на 30 = 0,6, умножаем на 100 = 60 учеников.', uz: "To'g'ri: 18 ni 30 ga bo'lamiz = 0,6, yuzga ko'paytiramiz = 60 o'quvchi." },
     wrong_1: { ru: 'Это только ответившие да, а нужен весь класс. Целое больше части.', uz: "Bu faqat ha deganlar, butun sinf kerak. Butun qismdan katta." },
-    wrong_2: { ru: 'Вы сложили часть и процент. Раздели часть на процент, умножь на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, yuzga ko'paytiring." },
+    wrong_2: { ru: 'Ты сложил часть и процент. Раздели часть на процент, умножь на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, yuzga ko'paytiring." },
     wrong_3: { ru: 'Слишком много. Раздели часть на процент, потом умножь на сто.', uz: "Juda ko'p. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
     fact: { ru: 'В магазине по цене со скидкой и проценту скидки обратным счётом находят первоначальную цену.', uz: "Do'konda chegirmali narx va chegirma foizi bo'yicha teskari hisob bilan dastlabki narxni topishadi." },
     fact_audio: { ru: "В магазине по цене со скидкой и проценту скидки обратным счётом находят первоначальную цену.", uz: "Do'konda chegirmali narx va chegirma foizi bo'yicha teskari hisob bilan dastlabki narxni topishadi." },
@@ -1657,6 +1658,7 @@ const ScreenCase = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         if (e && !audio.muted) {
           const wrongVoice = (content[`wrong_${i}`] && content[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           e.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+          if (isCorrect && c.fact_audio && c.fact_audio[lang]) e.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
     }

@@ -684,6 +684,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         if (engine && !audio.muted) {
           const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+          if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
     }
@@ -914,6 +915,7 @@ const CONTENT = {
     wrong_0: { ru: 'Стороны длиннее, но раскрытие меньше. Угол — это раскрытие.', uz: "Tomonlar uzun, lekin ochilishi kichik. Burchak — bu ochilish." },
     wrong_2: { ru: 'Раскрытие у них разное, посмотри внимательно.', uz: "Ularning ochilishi har xil, diqqat bilan qarang." },
     fact: { ru: 'Прямой угол в 90 градусов нужен в стройке: чтобы стены стояли ровно, их углы проверяют угольником.', uz: "To'qson darajali to'g'ri burchak qurilishda kerak: devorlar tik turishi uchun ularning burchaklari go'niya bilan tekshiriladi." },
+    fact_audio: { ru: "Прямой угол в девяносто градусов нужен в стройке. Чтобы стены стояли ровно, их углы проверяют угольником.", uz: "To'qson darajali to'g'ri burchak qurilishda kerak. Devorlar tik turishi uchun ularning burchaklarini go'niya bilan tekshiradilar." },
     audio: {
       intro: { ru: "У угла А стороны длиннее, у угла Б короче. Не спеши: какой угол больше?", uz: "A burchakning tomonlari uzunroq, B niki qisqaroq. Shoshilmang: qaysi burchak katta?" },
       on_correct: { ru: "Верно, угол Б. А прямой угол очень важен в стройке, чтобы стены стояли ровно.", uz: "To'g'ri, B burchak. To'g'ri burchak esa qurilishda juda muhim, devorlar tik turishi uchun." },
@@ -964,6 +966,7 @@ const CONTENT = {
     hint_wrong: { ru: 'Прямой угол — ровно 90 градусов, как угол квадрата.', uz: "To'g'ri burchak — roppa-rosa to'qson daraja, kvadrat burchagidek." },
     correct_text: { ru: 'Верно! Прямой угол — это 90 градусов.', uz: "To'g'ri! To'g'ri burchak — bu to'qson daraja." },
     fact: { ru: 'Слово геометрия греческое: гео — земля, метрия — измерение. Всё началось с измерения земельных участков.', uz: "Geometriya so'zi yunoncha: geo — yer, metriya — o'lchash. Hammasi yer maydonlarini o'lchashdan boshlangan." },
+    fact_audio: { ru: "Слово геометрия пришло из греческого. Гео это земля, метрия это измерение. Всё началось с измерения земельных участков.", uz: "Geometriya so'zi yunonchadan kelgan. Geo yer degani, metriya o'lchash degani. Hammasi yer maydonlarini o'lchashdan boshlangan." },
     audio: {
       intro: { ru: "Поставь углы по группам: где прямой угол, а где нет. Прямой — это уголок квадрата.", uz: "Burchaklarni guruhlarga joylang: qaysi biri to'g'ri burchak, qaysi biri yo'q. To'g'ri — kvadrat burchagi kabi." },
       on_correct: { ru: "Верно, прямой угол всегда девяносто градусов. А слово геометрия пришло из греческого. Гео это земля, а метрия это измерение. Всё началось с измерения земли.", uz: "To'g'ri, to'g'ri burchak har doim to'qson daraja. Geometriya so'zi esa yunonchadan kelgan. Geo yer degani, metriya esa o'lchash. Hammasi yerni o'lchashdan boshlangan." },
@@ -996,6 +999,7 @@ const CONTENT = {
     wrong_2: { ru: 'Это сам диаметр. Радиус в два раза меньше.', uz: "Bu diametrning o'zi. Radius ikki barobar kichik." },
     wrong_3: { ru: 'Это четверть. А радиус — половина диаметра.', uz: "Bu chorak. Radius esa — diametrning yarmi." },
     fact: { ru: 'А длина самой окружности примерно в 3,14 раза больше диаметра. Это число называют «пи».', uz: "Aylananing uzunligi esa diametridan taxminan 3,14 barobar katta. Bu son «pi» deb ataladi." },
+    fact_audio: { ru: "Длина самой окружности примерно в три целых четырнадцать сотых раза больше диаметра. Это число называют пи.", uz: "Aylananing uzunligi diametridan taxminan uch butun yuzdan o'n to'rt barobar katta. Bu son pi deb ataladi." },
     audio: {
       intro: { ru: "Последнее задание. Диаметр колеса шестьдесят сантиметров. Чему равен радиус?", uz: "Oxirgi topshiriq. G'ildirak diametri oltmish santimetr. Radiusi necha santimetr?" },
       on_correct: { ru: "Верно, тридцать сантиметров. А длина окружности примерно в три и четырнадцать сотых раза больше диаметра — это число пи.", uz: "To'g'ri, o'ttiz santimetr. Aylana uzunligi esa diametridan taxminan uch butun yuzdan o'n to'rt barobar katta — bu pi soni." },
@@ -1518,7 +1522,7 @@ const Screen11 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
       setSolved(true); sfx.playCorrect();
       onAnswer({ stage: SCREEN_META[11].scope, screenIdx: 11, question: c.title[lang], correctAnswer: S11_CARDS.map(cd => cd.bin).join(','), studentAnswer: S11_CARDS.map((_, i) => assign[i] || '').join(','), correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true });
     } else { sfx.playWrong(); }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
+    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) { e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); if (ok && c.fact_audio && c.fact_audio[lang]) e.pushOneOff(c.fact_audio[lang]); } }, 300);
   };
   const pool = S11_CARDS.map((cd, i) => i).filter(i => !assign[i]);
   const inBin = (bin) => S11_CARDS.map((cd, i) => i).filter(i => assign[i] === bin);

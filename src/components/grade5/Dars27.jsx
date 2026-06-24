@@ -841,7 +841,7 @@ const CONTENT = {
         'Запятая прыгнула на два места вправо. Цифры не хватило, и на пустой разряд встал ноль, получилось двести пятьдесят. А на тысячу запятая прыгнула бы на три места, потому что у тысячи три нуля.'
       ],
       uz: [
-        "100 ga ko'paytirsak-chi? Yuzning ikkita noli bor, demak vergul ikki xona sakraydi. Tugmani bosing.",
+        "Yuzga ko'paytirsak-chi? Yuzning ikkita noli bor, demak vergul ikki xona sakraydi. Tugmani bosing.",
         "Vergul ikki xona o'ngga sakradi. Raqam yetmadi va bo'sh xonaga nol turdi, ikki yuz ellik bo'ldi. Mingga esa vergul uch xona sakrardi, chunki mingning uchta noli bor."
       ]
     }

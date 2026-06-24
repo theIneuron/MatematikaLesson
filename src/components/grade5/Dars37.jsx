@@ -684,6 +684,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         if (engine && !audio.muted) {
           const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+          if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
     }
@@ -993,6 +994,10 @@ const CONTENT = {
       ru: 'Кубик с ребром 10 см — это ровно 1 литр: 10 × 10 × 10 = 1000 см³. Вот откуда литр.',
       uz: "Qirrasi 10 sm kubcha — bu aynan 1 litr: 10 × 10 × 10 = 1000 sm³. Litr mana shu yerdan."
     },
+    fact_audio: {
+      ru: "Кубик с ребром десять сантиметров это ровно один литр. Десять умножить на десять и ещё на десять даёт тысячу кубических сантиметров. Вот откуда взялся литр.",
+      uz: "Qirrasi o'n santimetr kubcha aynan bir litrga teng. O'nni o'nga va yana o'nga ko'paytirsak ming kub santimetr chiqadi. Litr mana shu yerdan kelib chiqqan."
+    },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     audio: {
       intro: {
@@ -1068,6 +1073,10 @@ const CONTENT = {
     fact: {
       ru: 'В 3D-играх мир собран из «вокселей» — кубиков. Объём фигуры там — это число кубиков.',
       uz: "3D o'yinlarda dunyo «voksel» — kubchalardan yig'iladi. Shakl hajmi — kubchalar soni."
+    },
+    fact_audio: {
+      ru: "В трёхмерных играх мир собран из вокселей, маленьких кубиков. Объём фигуры там это число кубиков.",
+      uz: "Uch o'lchovli o'yinlarda dunyo voksellardan, ya'ni kubchalardan yig'iladi. U yerda shakl hajmi kubchalar soniga teng."
     },
     audio: {
       intro: {
@@ -1207,6 +1216,10 @@ const CONTENT = {
     fact: {
       ru: 'Кубик Рубика — это 3 × 3 × 3 = 27 маленьких кубиков. Три слоя по девять.',
       uz: "Rubik kubi — bu 3 × 3 × 3 = 27 ta kichik kub. Uch qatlam, har biri to'qqizta."
+    },
+    fact_audio: {
+      ru: "Кубик Рубика это двадцать семь маленьких кубиков. Три на три на три. Три слоя по девять.",
+      uz: "Rubik kubi yigirma yetti ta kichik kubdan iborat. Uchga uchga uch. Uch qatlam, har birida to'qqiztadan."
     },
     audio: {
       intro: {
@@ -1785,7 +1798,7 @@ const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
       // noto'g'ri joylangan chiplar taginiga qaytadi (веди-до-верного)
       setPlace(p => p.map((v, i) => (v === S7_OK[i] ? v : null)));
     }
-    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); }, 300);
+    if (!audio.muted) setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) { e.pushOneOff(ok ? c.audio.on_correct[lang] : c.audio.on_wrong[lang]); if (ok && c.fact_audio && c.fact_audio[lang]) e.pushOneOff(c.fact_audio[lang]); } }, 300);
   };
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/></>);
   const trayChips = items.map((it, i) => (place[i] === null ? i : null)).filter(i => i !== null);

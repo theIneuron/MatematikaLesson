@@ -902,15 +902,15 @@ const CONTENT = {
     step3: { ru: 'Закрашено 3 части из 4 — это 3/4. Разделили верх и низ на 2: <b>6÷2=3, 8÷2=4</b>. Длина та же.', uz: "4 tadan 3 tasi bo'yalgan — bu 3/4. Surat va maxrajni 2 ga bo'ldik: <b>6÷2=3, 8÷2=4</b>. Uzunlik o'sha." },
     audio: {
       ru: [
-        'Объединим мелкие доли. Нажимай «Дальше».',
-        'Вот полоса, поделённая на восемь частей, закрашено шесть — это шесть восьмых. Нажми «Дальше».',
-        'Сгруппируем доли по две: соседние линии исчезают, и восемь долей превращаются в четыре. Закрашенная длина не меняется. Нажми «Дальше».',
+        'Объединим мелкие доли. Нажимай кнопку дальше.',
+        'Вот полоса, поделённая на восемь частей, закрашено шесть — это шесть восьмых. Нажми кнопку дальше.',
+        'Сгруппируем доли по две: соседние линии исчезают, и восемь долей превращаются в четыре. Закрашенная длина не меняется. Нажми кнопку дальше.',
         'Теперь закрашено три части из четырёх — это три четвёртых. Мы разделили и верх, и низ на два: шесть на два три, восемь на два четыре. Шесть восьмых равно трём четвёртым, просто записано проще.'
       ],
       uz: [
-        "Mayda ulushlarni birlashtiramiz. «Davom etish» ni bosing.",
-        "Mana sakkiz bo'lakka bo'lingan polosa, oltitasi bo'yalgan — bu sakkizdan olti. «Davom etish» ni bosing.",
-        "Ulushlarni ikkitadan guruhlaymiz: yondosh chiziqlar yo'qoladi va sakkizta ulush to'rttaga aylanadi. Bo'yalgan uzunlik o'zgarmaydi. «Davom etish» ni bosing.",
+        "Mayda ulushlarni birlashtiramiz. Davom etish tugmasini bosing.",
+        "Mana sakkiz bo'lakka bo'lingan polosa, oltitasi bo'yalgan — bu sakkizdan olti. Davom etish tugmasini bosing.",
+        "Ulushlarni ikkitadan guruhlaymiz: yondosh chiziqlar yo'qoladi va sakkizta ulush to'rttaga aylanadi. Bo'yalgan uzunlik o'zgarmaydi. Davom etish tugmasini bosing.",
         "Endi to'rttadan uchtasi bo'yalgan — bu to'rtdan uch. Biz yuqorini ham, pastni ham ikkiga bo'ldik: olti bo'lib ikki uch, sakkiz bo'lib ikki to'rt. Sakkizdan olti to'rtdan uchga teng, faqat soddaroq yozilgan."
       ]
     }
@@ -923,15 +923,15 @@ const CONTENT = {
     step3: { ru: 'Вышло <b>2/3</b>. Проще уже не сократить — 2 и 3 общего делителя не имеют.', uz: "<b>2/3</b> chiqdi. Bundan sodda qisqarmaydi — 2 va 3 umumiy bo'luvchiga ega emas." },
     audio: {
       ru: [
-        'Сократим восемь двенадцатых до конца. Нажми «Дальше».',
-        'Сначала найдём число, на которое делятся и восемь, и двенадцать. Это четыре — их общий делитель. Нажми «Дальше».',
-        'Делим оба на четыре: восемь на четыре два, двенадцать на четыре три. Нажми «Дальше».',
+        'Сократим восемь двенадцатых до конца. Нажми кнопку дальше.',
+        'Сначала найдём число, на которое делятся и восемь, и двенадцать. Это четыре — их общий делитель. Нажми кнопку дальше.',
+        'Делим оба на четыре: восемь на четыре два, двенадцать на четыре три. Нажми кнопку дальше.',
         'Получилось две третьих. Проще уже не сократить: у двух и трёх нет общего делителя, кроме единицы.'
       ],
       uz: [
-        "Sakkizdan o'n ikkidan ni oxirigacha qisqartiramiz. «Davom etish» ni bosing.",
-        "Avval sakkiz ham, o'n ikki ham bo'linadigan sonni topamiz. Bu to'rt — ularning umumiy bo'luvchisi. «Davom etish» ni bosing.",
-        "Ikkalasini to'rtga bo'lamiz: sakkiz bo'lib to'rt ikki, o'n ikki bo'lib to'rt uch. «Davom etish» ni bosing.",
+        "Sakkizdan o'n ikkidan ni oxirigacha qisqartiramiz. Davom etish tugmasini bosing.",
+        "Avval sakkiz ham, o'n ikki ham bo'linadigan sonni topamiz. Bu to'rt — ularning umumiy bo'luvchisi. Davom etish tugmasini bosing.",
+        "Ikkalasini to'rtga bo'lamiz: sakkiz bo'lib to'rt ikki, o'n ikki bo'lib to'rt uch. Davom etish tugmasini bosing.",
         "Uchdan ikki chiqdi. Bundan sodda qisqarmaydi: ikki va uchda birdan boshqa umumiy bo'luvchi yo'q."
       ]
     }
@@ -966,7 +966,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Сократи шесть девятых до простого вида. На какое число делятся оба? Выбери ответ.', uz: "To'qqizdan oltini sodda holgacha qisqartiring. Ikkalasi qaysi songa bo'linadi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Разделили на три: вышло две третьих.', uz: "To'g'ri. Uchga bo'ldik: uchdan ikki chiqdi." },
-      on_wrong: { ru: 'Пока нет. И 6, и 9 делятся на 3. Раздели оба.', uz: "Hali emas. 6 ham, 9 ham 3 ga bo'linadi. Ikkalasini bo'ling." }
+      on_wrong: { ru: 'Пока нет. И шесть, и девять делятся на три. Раздели оба.', uz: "Hali emas. Olti ham, to'qqiz ham uchga bo'linadi. Ikkalasini bo'ling." }
     }
   },
   s5: {
@@ -1062,8 +1062,8 @@ const CONTENT = {
     fact3: { ru: 'До какой простой дроби (со знаменателем 3) сократить 8/12?', uz: "8/12 ni qaysi sodda kasrgacha (maxraji 3) qisqartirish kerak?" },
     cta: { ru: 'Помочь Санжару', uz: 'Sanjarga yordam berish' },
     audio: {
-      ru: 'Санжар печёт по рецепту. Там странно записано: восемь двенадцатых стакана сахара. А мерный стакан делится на трети. До какой простой дроби со знаменателем три сократить восемь двенадцатых? Нажми «Помочь Санжару».',
-      uz: "Sanjar retsept bo'yicha pishiradi. U yerda g'alati yozilgan: o'n ikkidan sakkiz stakan shakar. O'lchov stakani esa uchdanlarga bo'lingan. O'n ikkidan sakkizni maxraji uch bo'lgan qaysi sodda kasrgacha qisqartirish kerak? «Sanjarga yordam berish» ni bosing."
+      ru: 'Санжар печёт по рецепту. Там странно записано: восемь двенадцатых стакана сахара. А мерный стакан делится на трети. До какой простой дроби со знаменателем три сократить восемь двенадцатых? Нажми кнопку помочь Санжару.',
+      uz: "Sanjar retsept bo'yicha pishiradi. U yerda g'alati yozilgan: o'n ikkidan sakkiz stakan shakar. O'lchov stakani esa uchdanlarga bo'lingan. O'n ikkidan sakkizni maxraji uch bo'lgan qaysi sodda kasrgacha qisqartirish kerak? Sanjarga yordam berish tugmasini bosing."
     }
   },
   s9: {
@@ -1083,7 +1083,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Сократи восемь двенадцатых до дроби со знаменателем три. На что делятся оба? Выбери ответ.', uz: "O'n ikkidan sakkizni maxraji uch bo'lgan kasrgacha qisqartiring. Ikkalasi qaysi songa bo'linadi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Разделили на четыре: вышло две третьих.', uz: "To'g'ri. To'rtga bo'ldik: uchdan ikki chiqdi." },
-      on_wrong: { ru: 'Пока нет. И 8, и 12 делятся на 4. Раздели оба.', uz: "Hali emas. 8 ham, 12 ham 4 ga bo'linadi. Ikkalasini bo'ling." }
+      on_wrong: { ru: 'Пока нет. И восемь, и двенадцать делятся на четыре. Раздели оба.', uz: "Hali emas. Sakkiz ham, o'n ikki ham to'rtga bo'linadi. Ikkalasini bo'ling." }
     }
   },
   s10: {
@@ -1122,7 +1122,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Последнее задание. Сократи двенадцать шестнадцатых до конца. На какой наибольший делитель делятся оба? Выбери ответ.', uz: "Oxirgi topshiriq. O'n oltidan o'n ikkini oxirigacha qisqartiring. Ikkalasi qaysi eng katta songa bo'linadi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Разделили на четыре: вышло три четвёртых.', uz: "To'g'ri. To'rtga bo'ldik: to'rtdan uch chiqdi." },
-      on_wrong: { ru: 'Пока нет. И 12, и 16 делятся на 4. Раздели оба.', uz: "Hali emas. 12 ham, 16 ham 4 ga bo'linadi. Ikkalasini bo'ling." }
+      on_wrong: { ru: 'Пока нет. И двенадцать, и шестнадцать делятся на четыре. Раздели оба.', uz: "Hali emas. O'n ikki ham, o'n olti ham to'rtga bo'linadi. Ikkalasini bo'ling." }
     }
   },
   s12: {

@@ -963,7 +963,7 @@ const CONTENT = {
     opt2: { ru: '12', uz: "12" },
     opt3: { ru: '8', uz: "8" },
     correct_text: { ru: 'Верно: площадь это длина умножить на ширину, значит длина это 24 поделить на 4, получается 6.', uz: "To'g'ri: yuza bo'yni enga ko'paytirgan, demak bo'y 24 ni 4 ga bo'lgan, ya'ni 6." },
-    wrong_1: { ru: 'Вы вычли ширину из площади. Площадь это произведение, значит нужно делить, а не вычитать.', uz: "Siz enni yuzadan ayirdingiz. Yuza ko'paytma, demak bo'lish kerak, ayirish emas." },
+    wrong_1: { ru: 'Ты вычел ширину из площади. Площадь это произведение, значит нужно делить, а не вычитать.', uz: "Siz enni yuzadan ayirdingiz. Yuza ko'paytma, demak bo'lish kerak, ayirish emas." },
     wrong_2: { ru: 'Это половина площади. А длину находят делением площади на ширину.', uz: "Bu yuzaning yarmi. Bo'y esa yuzani enga bo'lib topiladi." },
     wrong_3: { ru: 'Почти, но проверь. Восемь умножить на четыре это тридцать два, а нам нужно двадцать четыре.', uz: "Deyarli, lekin tekshiring. Sakkizni to'rtga ko'paytirsak o'ttiz ikki, bizga esa yigirma to'rt kerak." },
     audio: {
@@ -1016,7 +1016,7 @@ const CONTENT = {
     opt3: { ru: '16', uz: "16" },
     correct_text: { ru: 'Верно: 8 · 3 = 24. Внутри помещается 24 единичных квадрата.', uz: "To'g'ri: 8 · 3 = 24. Ichiga 24 birlik kvadrat sig'adi." },
     wrong_1: { ru: 'Это сумма всех сторон, получился периметр стены, а не число плиток внутри.', uz: "Bu barcha tomonlar yig'indisi, devor perimetri chiqdi, ichidagi plitkalar soni emas." },
-    wrong_2: { ru: 'Вы сложили две стороны. Для числа плиток стороны умножают.', uz: "Siz ikki tomonni qo'shdingiz. Plitkalar soni uchun tomonlar ko'paytiriladi." },
+    wrong_2: { ru: 'Ты сложил две стороны. Для числа плиток стороны умножают.', uz: "Siz ikki tomonni qo'shdingiz. Plitkalar soni uchun tomonlar ko'paytiriladi." },
     wrong_3: { ru: 'Этого не хватит. Умножь 8 на 3.', uz: "Bu yetmaydi. 8 ni 3 ga ko'paytiring." },
     fact: { ru: 'Шахматная доска — это квадрат 8 на 8. Перемножив стороны, получаем 64 клетки, это её площадь в клетках.', uz: "Shaxmat taxtasi — 8 ga 8 kvadrat. Tomonlarni ko'paytirsak 64 katak chiqadi, bu uning kataklardagi yuzasi." },
     fact_audio: { ru: "Шахматная доска это квадрат восемь на восемь. Перемножив стороны, получаем шестьдесят четыре клетки, это её площадь.", uz: "Shaxmat taxtasi sakkizga sakkiz kvadrat. Tomonlarni ko'paytirsak oltmish to'rt katak chiqadi, bu uning yuzasi." },

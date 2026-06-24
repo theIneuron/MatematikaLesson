@@ -936,7 +936,7 @@ const CONTENT = {
     opt2: { ru: '1/4 = 1/7', uz: "1/4 = 1/7" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: числитель один, знаменатель 4 меньше 7 — значит доля крупнее. 1/4 > 1/7.', uz: "To'g'ri: surat bir xil, maxraj 4 kichik 7 dan — demak ulush yirikroq. 1/4 > 1/7." },
-    hint_1: { ru: 'Тут ловушка: 7 больше 4, но доля 1/7 мельче. Больше та, где знаменатель меньше — 1/4.', uz: "Bu yerda tuzoq: 7 katta 4 dan, lekin 1/7 ulushi mayda. Maxraji kichik bo'lgani katta — 1/4." },
+    hint_1: { ru: 'Тут ловушка: 7 больше 4, но доля одна седьмая мельче. Больше та, где знаменатель меньше — одна четвёртая.', uz: "Bu yerda tuzoq: 7 katta 4 dan, lekin yettidan bir ulushi mayda. Maxraji kichik bo'lgani katta — to'rtdan bir." },
     hint_2: { ru: 'Доли разного размера: четвёртая крупнее седьмой. Они не равны.', uz: "Ulushlar har xil o'lchamda: to'rtdan bir yettidan biridan yirik. Ular teng emas." },
     hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
     wrong_default: { ru: 'Числитель один, знаменатель меньше у 1/4 — значит 1/4 больше. 1/4 > 1/7.', uz: "Surat bir xil, maxraj 1/4 da kichik — demak 1/4 katta. 1/4 > 1/7." },
@@ -987,7 +987,7 @@ const CONTENT = {
     opt2: { ru: 'Они равны — числитель ведь один', uz: "Ular teng — surat-ku bitta" },
     opt3: { ru: 'Такие дроби сравнить нельзя', uz: "Bunday kasrlarni solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: большее число снизу делит целое на больше частей, доля мельче. 1/8 < 1/5.', uz: "To'g'ri: pastdagi katta son butunni ko'proq bo'lakka bo'ladi, ulush mayda. 1/8 < 1/5." },
-    hint_1: { ru: 'Это и есть ловушка. 8 больше 5, но доля 1/8 мельче. Меньше, а не больше.', uz: "Mana shu — tuzoq. 8 katta 5 dan, lekin 1/8 ulushi mayda. Kichik, katta emas." },
+    hint_1: { ru: 'Это и есть ловушка. 8 больше 5, но доля одна восьмая мельче. Меньше, а не больше.', uz: "Mana shu — tuzoq. 8 katta 5 dan, lekin sakkizdan bir ulushi mayda. Kichik, katta emas." },
     hint_2: { ru: 'Не равны: восьмая доля мельче пятой, ведь целое поделено на больше частей.', uz: "Teng emas: sakkizdan ulush beshdan ulushdan mayda, chunki butun ko'proq bo'lakka bo'lingan." },
     hint_3: { ru: 'Сравнить можно: числитель один, больше та доля, у которой знаменатель меньше.', uz: "Solishtirsa bo'ladi: surat bir xil, maxraji kichik bo'lgan ulush katta." },
     wrong_default: { ru: 'Нет. Знаменатель больше — доля мельче. 1/8 меньше 1/5.', uz: "Yo'q. Maxraj katta — ulush mayda. 1/8 kichik 1/5 dan." },
@@ -1051,7 +1051,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 1,
         ok: { ru: 'Верно: 1000 больше 750, целое разбито на больше частей — доля мельче. 3/1000 меньше.', uz: "To'g'ri: 1000 katta 750 dan, butun ko'proq bo'lakka bo'lingan — ulush mayda. 3/1000 kichik." },
-        no: { ru: 'Тысяча больше, чем семьсот пятьдесят — значит доля 3/1000 мельче.', uz: "Ming yetti yuz ellikdan katta — demak 3/1000 ulushi mayda." }
+        no: { ru: 'Тысяча больше, чем семьсот пятьдесят — значит доля три тысячных мельче.', uz: "Ming yetti yuz ellikdan katta — demak mingdan uch ulushi mayda." }
       }
     ],
     audio: {
@@ -1087,14 +1087,14 @@ const CONTENT = {
     opt2: { ru: 'Поровну', uz: "Teng" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: учеников меньше (4 против 6) — на каждого больше места. 1/4 > 1/6.', uz: "To'g'ri: o'quvchi kam (4, 6 ga qarshi) — har biriga ko'proq joy. 1/4 > 1/6." },
-    hint_1: { ru: 'Ловушка: 6 больше 4, но больше учеников — меньше каждому. 1/6 мельче 1/4.', uz: "Tuzoq: 6 katta 4 dan, lekin o'quvchi ko'p — har biriga kam. 1/6 1/4 dan mayda." },
-    hint_2: { ru: 'Доли разные: 1/4 крупнее 1/6. Не поровну.', uz: "Ulushlar har xil: 1/4 1/6 dan yirik. Teng emas." },
+    hint_1: { ru: 'Ловушка: 6 больше 4, но больше учеников — меньше каждому. Одна шестая мельче одной четвёртой.', uz: "Tuzoq: 6 katta 4 dan, lekin o'quvchi ko'p — har biriga kam. Oltidan bir to'rtdan birdan mayda." },
+    hint_2: { ru: 'Доли разные: одна четвёртая крупнее одной шестой. Не поровну.', uz: "Ulushlar har xil: to'rtdan bir oltidan birdan yirik. Teng emas." },
     hint_3: { ru: 'Хранилище одинаковое, числитель один — сравнить можно по знаменателям.', uz: "Xotira bir xil, surat bir — maxrajlar bo'yicha solishtirsa bo'ladi." },
     wrong_default: { ru: 'Учеников меньше у группы Диёры — каждому больше. 1/4 > 1/6.', uz: "Diyora guruhida o'quvchi kam — har biriga ko'proq. 1/4 > 1/6." },
-    fact: { ru: 'Разрежь яблоко на 2 части — получишь крупные половинки. А раздели то же яблоко на 8 — кусочки выйдут совсем маленькими. Яблоко одно, числитель один, а чем больше знаменатель, тем мельче доля.', uz: "Olmani 2 bo'lakka kessang — yirik yarimliklar chiqadi. Xuddi shu olmani 8 ga bo'lsang — bo'laklar juda mayda bo'ladi. Olma bitta, surat bir xil, maxraj qancha katta bo'lsa, ulush shuncha mayda." },
+    fact: { ru: 'Разрежь яблоко на 2 части — получишь крупные половинки. А раздели то же яблоко на 8 — кусочки выйдут совсем маленькими. Яблоко одно, числитель один, а чем больше знаменатель, тем мельче доля.', uz: "Olmani 2 bo'lakka kessa — yirik yarimliklar chiqadi. Xuddi shu olmani 8 ga bo'lsa — bo'laklar juda mayda bo'ladi. Olma bitta, surat bir xil, maxraj qancha katta bo'lsa, ulush shuncha mayda." },
     audio: {
       intro: { ru: 'В группе Диёры каждому достаётся одна четвёртая, в другой группе одна шестая. У кого на ученика больше места? Выбери верное.', uz: "Diyora guruhida har biriga to'rtdan bir, boshqa guruhda oltidan bir tegadi. O'quvchiga qaysisida ko'proq joy? To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Учеников меньше — каждому больше. Одна четвёртая больше одной шестой. Так и с яблоком: разрежешь на два — куски крупные, на восемь — совсем мелкие.', uz: "To'g'ri. O'quvchi kam — har biriga ko'proq. To'rtdan bir katta oltidan birdan. Olma ham shunday: ikkiga kessang bo'laklar yirik, sakkizga bo'lsang juda mayda." },
+      on_correct: { ru: 'Верно. Учеников меньше — каждому больше. Одна четвёртая больше одной шестой. Так и с яблоком: разрежешь на два — куски крупные, на восемь — совсем мелкие.', uz: "To'g'ri. O'quvchi kam — har biriga ko'proq. To'rtdan bir katta oltidan birdan. Olma ham shunday: ikkiga kesilsa bo'laklar yirik, sakkizga bo'linsa juda mayda." },
       on_wrong: { ru: 'Пока нет. Числитель один, больше та доля, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan ulush katta." }
     }
   },
@@ -1110,9 +1110,9 @@ const CONTENT = {
     opt2: { ru: '1/8 > 1/6', uz: "1/8 > 1/6" },
     opt3: { ru: '3/10 < 3/4', uz: "3/10 < 3/4" },
     correct_text: { ru: 'Верно, это сравнение неверно: числитель один (1), знаменатель 8 больше 6 — значит 1/8 меньше 1/6, а не больше.', uz: "To'g'ri, bu solishtirish noto'g'ri: surat bir xil (1), maxraj 8 katta 6 dan — demak 1/8 kichik 1/6 dan, katta emas." },
-    wrong_0: { ru: 'Это верно: знаменатель меньше у 1/3, значит она больше. Ищи неверное дальше.', uz: "Bu to'g'ri: maxraj 1/3 da kichik, demak u katta. Noto'g'risini boshqasidan qidiring." },
-    wrong_1: { ru: 'Это верно: 7 больше 4, седьмые мельче четвёртых, значит 2/7 меньше. Ищи дальше.', uz: "Bu to'g'ri: 7 katta 4 dan, yettidan ulush mayda, demak 2/7 kichik. Boshqasidan qidiring." },
-    wrong_3: { ru: 'Это верно: десятые мельче четвёртых, значит 3/10 меньше. Ищи дальше.', uz: "Bu to'g'ri: o'ndan ulush maydaroq, demak 3/10 kichik. Boshqasidan qidiring." },
+    wrong_0: { ru: 'Это верно: знаменатель меньше у одной третьей, значит она больше. Ищи неверное дальше.', uz: "Bu to'g'ri: maxraj uchdan birda kichik, demak u katta. Noto'g'risini boshqasidan qidiring." },
+    wrong_1: { ru: 'Это верно: 7 больше 4, седьмые мельче четвёртых, значит две седьмых меньше. Ищи дальше.', uz: "Bu to'g'ri: 7 katta 4 dan, yettidan ulush mayda, demak yettidan ikki kichik. Boshqasidan qidiring." },
+    wrong_3: { ru: 'Это верно: десятые мельче четвёртых, значит три десятых меньше. Ищи дальше.', uz: "Bu to'g'ri: o'ndan ulush maydaroq, demak o'ndan uch kichik. Boshqasidan qidiring." },
     wrong_default: { ru: 'Ищи сравнение, где попались в ловушку: больший знаменатель приняли за большую дробь.', uz: "Tuzoqqa tushgan solishtirishni qidiring: katta maxrajni katta kasr deb o'ylagan." },
     audio: {
       intro: { ru: 'Три сравнения верны, а одно неверно. Найди то, где попались в ловушку большого знаменателя. Числитель в каждой паре одинаковый.', uz: "Uchta solishtirish to'g'ri, bittasi noto'g'ri. Katta maxraj tuzog'iga tushgan birini toping. Har juftda surat bir xil." },
@@ -1131,7 +1131,7 @@ const CONTENT = {
     opt2: { ru: '2/5 = 2/7', uz: "2/5 = 2/7" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: числитель один (2), знаменатель 5 меньше 7 — пятые доли крупнее седьмых. 2/5 > 2/7.', uz: "To'g'ri: surat bir xil (2), maxraj 5 kichik 7 dan — beshdan ulushlar yettidan ulushlardan yirik. 2/5 > 2/7." },
-    hint_1: { ru: 'Ловушка: 7 больше 5, но седьмые мельче пятых. Больше 2/5.', uz: "Tuzoq: 7 katta 5 dan, lekin yettidan ulushlar mayda. 2/5 katta." },
+    hint_1: { ru: 'Ловушка: 7 больше 5, но седьмые мельче пятых. Больше две пятых.', uz: "Tuzoq: 7 katta 5 dan, lekin yettidan ulushlar mayda. Beshdan ikki katta." },
     hint_2: { ru: 'Доли разные: пятые крупнее седьмых. Не равны.', uz: "Ulushlar har xil: beshdan ulushlar yettidan ulushlardan yirik. Teng emas." },
     hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
     wrong_default: { ru: 'Числитель один (2), знаменатель меньше у 2/5 — значит 2/5 больше.', uz: "Surat bir xil (2), maxraj 2/5 da kichik — demak 2/5 katta." },

@@ -967,9 +967,9 @@ const CONTENT = {
     opt2: { ru: '1/2 = 3/5', uz: "1/2 = 3/5" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: в десятых 1/2 = 5/10, а 3/5 = 6/10. 6 больше 5, значит 3/5 больше. 1/2 < 3/5.', uz: "To'g'ri: o'ndan ulushlarda 1/2 = 5/10, 3/5 = 6/10. 6 katta 5 dan, demak 3/5 katta. 1/2 < 3/5." },
-    hint_1: { ru: 'Наоборот: 1/2 это 5/10, а 3/5 это 6/10. Шесть больше пяти — больше 3/5.', uz: "Aksincha: 1/2 bu 5/10, 3/5 bu 6/10. Olti katta beshdan — 3/5 katta." },
-    hint_2: { ru: 'Они не равны: 5/10 и 6/10 — разные. Приведи к десятым и сравни.', uz: "Ular teng emas: 5/10 va 6/10 — har xil. O'ndanlarga keltirib solishtiring." },
-    hint_3: { ru: 'Сравнить можно: приведи обе к десятым долям. 1/2 = 5/10, 3/5 = 6/10.', uz: "Solishtirsa bo'ladi: ikkalasini o'ndan ulushga keltiring. 1/2 = 5/10, 3/5 = 6/10." },
+    hint_1: { ru: 'Наоборот: одна вторая это пять десятых, а три пятых это шесть десятых. Шесть больше пяти — больше три пятых.', uz: "Aksincha: ikkidan bir bu o'ndan besh, beshdan uch bu o'ndan olti. Olti katta beshdan — beshdan uch katta." },
+    hint_2: { ru: 'Они не равны: пять десятых и шесть десятых — разные. Приведи к десятым и сравни.', uz: "Ular teng emas: o'ndan besh va o'ndan olti — har xil. O'ndanlarga keltirib solishtiring." },
+    hint_3: { ru: 'Сравнить можно: приведи обе к десятым долям. Одна вторая это пять десятых, три пятых это шесть десятых.', uz: "Solishtirsa bo'ladi: ikkalasini o'ndan ulushga keltiring. Ikkidan bir bu o'ndan besh, beshdan uch bu o'ndan olti." },
     wrong_default: { ru: 'В десятых: 1/2 = 5/10, 3/5 = 6/10. Значит 3/5 больше, 1/2 < 3/5.', uz: "O'ndanlarda: 1/2 = 5/10, 3/5 = 6/10. Demak 3/5 katta, 1/2 < 3/5." },
     audio: {
       intro: { ru: 'Сравни одну вторую и три пятых. Подсказка: приведи их к десятым долям. Выбери, что верно.', uz: "Ikkidan bir va beshdan uchni solishtiring. Maslahat: o'ndan ulushga keltiring. Nima to'g'ri ekanini tanlang." },
@@ -1016,7 +1016,7 @@ const CONTENT = {
     opt3: { ru: 'Сравнить нельзя — знаменатели разные', uz: "Solishtirib bo'lmaydi — maxrajlar har xil" },
     correct_text: { ru: 'Верно: при разных знаменателях числители так не сравнить. В пятнадцатых: 3/5 = 9/15, 2/3 = 10/15 — значит 2/3 больше.', uz: "To'g'ri: maxrajlar har xil bo'lganda suratlarni shunday solishtirib bo'lmaydi. O'n beshdan ulushlarda: 3/5 = 9/15, 2/3 = 10/15 — demak 2/3 katta." },
     hint_1: { ru: 'Это ловушка. Знаменатели разные, поэтому одни числители ничего не говорят. Приведи к пятнадцатым.', uz: "Bu tuzoq. Maxrajlar har xil, shuning uchun faqat suratlar hech narsa demaydi. O'n beshdanlarga keltiring." },
-    hint_2: { ru: 'Не равны: 9/15 и 10/15 — разные. Одна больше.', uz: "Teng emas: 9/15 va 10/15 — har xil. Biri katta." },
+    hint_2: { ru: 'Не равны: девять пятнадцатых и десять пятнадцатых — разные. Одна больше.', uz: "Teng emas: o'n beshdan to'qqiz va o'n beshdan o'n — har xil. Biri katta." },
     hint_3: { ru: 'Сравнить можно — нужно привести к общим долям, к пятнадцатым.', uz: "Solishtirsa bo'ladi — umumiy ulushga, o'n beshdanlarga keltirish kerak." },
     wrong_default: { ru: 'Знаменатели разные. В пятнадцатых 3/5 = 9/15, 2/3 = 10/15 — значит 2/3 больше.', uz: "Maxrajlar har xil. O'n beshdanlarda 3/5 = 9/15, 2/3 = 10/15 — demak 2/3 katta." },
     fact: { ru: 'На древних базарах зерно мерили разными мерками — где-то ковшом на 3 пригоршни, где-то на 4. Сравнить «3 ковша» и «4 ковша» напрямую было нельзя: ковши разные. Поэтому купцы сводили всё к одной общей мере — это та же самая идея общих долей.', uz: "Qadimgi bozorlarda donni har xil o'lchov bilan o'lchashgan — qaerdadir 3 hovuchlik idish bilan, qaerdadir 4 hovuchlik bilan. «3 idish» va «4 idish» ni to'g'ridan-to'g'ri solishtirib bo'lmasdi: idishlar har xil. Shuning uchun savdogarlar hammasini bitta umumiy o'lchovga keltirgan — bu umumiy ulush g'oyasining aynan o'zi." },
@@ -1040,7 +1040,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 2,
         ok: { ru: 'Верно: 2/4 это та же половина. Они равны.', uz: "To'g'ri: 2/4 bu o'sha yarim. Ular teng." },
-        no: { ru: 'Две четвёртых это половина, как и 1/2. Значит, равны.', uz: "To'rtdan ikki bu yarim, 1/2 kabi. Demak, teng." }
+        no: { ru: 'Две четвёртых это половина, как и одна вторая. Значит, равны.', uz: "To'rtdan ikki bu yarim, ikkidan bir kabi. Demak, teng." }
       },
       {
         q: { ru: '3/4 ? 5/8', uz: '3/4 ? 5/8' },
@@ -1048,7 +1048,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 0,
         ok: { ru: 'Верно: в восьмых 3/4 = 6/8, а 5/8 меньше. 3/4 больше.', uz: "To'g'ri: sakkizdanlarda 3/4 = 6/8, 5/8 esa kichik. 3/4 katta." },
-        no: { ru: 'Приведи к восьмым: 3/4 это 6/8, сравни с 5/8.', uz: "Sakkizdanlarga keltiring: 3/4 bu 6/8, 5/8 bilan solishtiring." }
+        no: { ru: 'Приведи к восьмым: три четвёртых это шесть восьмых, сравни с пятью восьмыми.', uz: "Sakkizdanlarga keltiring: to'rtdan uch bu sakkizdan olti, sakkizdan besh bilan solishtiring." }
       },
       {
         q: { ru: '3/5 ? 7/10', uz: '3/5 ? 7/10' },
@@ -1056,7 +1056,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 1,
         ok: { ru: 'Верно: в десятых 3/5 = 6/10, а 7/10 больше. 3/5 меньше.', uz: "To'g'ri: o'ndanlarda 3/5 = 6/10, 7/10 esa katta. 3/5 kichik." },
-        no: { ru: 'Приведи к десятым: 3/5 это 6/10, сравни с 7/10.', uz: "O'ndanlarga keltiring: 3/5 bu 6/10, 7/10 bilan solishtiring." }
+        no: { ru: 'Приведи к десятым: три пятых это шесть десятых, сравни с семью десятыми.', uz: "O'ndanlarga keltiring: beshdan uch bu o'ndan olti, o'ndan yetti bilan solishtiring." }
       },
       {
         q: { ru: '7/12 ? 1/2', uz: '7/12 ? 1/2' },
@@ -1116,8 +1116,8 @@ const CONTENT = {
     opt2: { ru: 'Загружены поровну', uz: "Teng yuklangan" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: в двенадцатых 3/4 = 9/12, 5/6 = 10/12. 10 больше 9 — значит 5/6 больше, второй файл ближе.', uz: "To'g'ri: o'n ikkidan ulushlarda 3/4 = 9/12, 5/6 = 10/12. 10 katta 9 dan — demak 5/6 katta, ikkinchi fayl yaqinroq." },
-    hint_1: { ru: 'Наоборот: 3/4 это 9/12, 5/6 это 10/12. Десять больше девяти — больше 5/6.', uz: "Aksincha: 3/4 bu 9/12, 5/6 bu 10/12. O'n katta to'qqizdan — 5/6 katta." },
-    hint_2: { ru: 'Не поровну: 9/12 и 10/12 разные. Приведи к двенадцатым.', uz: "Teng emas: 9/12 va 10/12 har xil. O'n ikkidanlarga keltiring." },
+    hint_1: { ru: 'Наоборот: три четвёртых это девять двенадцатых, пять шестых это десять двенадцатых. Десять больше девяти — больше пять шестых.', uz: "Aksincha: to'rtdan uch bu o'n ikkidan to'qqiz, oltidan besh bu o'n ikkidan o'n. O'n katta to'qqizdan — oltidan besh katta." },
+    hint_2: { ru: 'Не поровну: девять двенадцатых и десять двенадцатых разные. Приведи к двенадцатым.', uz: "Teng emas: o'n ikkidan to'qqiz va o'n ikkidan o'n har xil. O'n ikkidanlarga keltiring." },
     hint_3: { ru: 'Сравнить можно: приведи обе к двенадцатым долям.', uz: "Solishtirsa bo'ladi: ikkalasini o'n ikkidan ulushga keltiring." },
     wrong_default: { ru: 'В двенадцатых: 3/4 = 9/12, 5/6 = 10/12. Значит 5/6 больше.', uz: "O'n ikkidanlarda: 3/4 = 9/12, 5/6 = 10/12. Demak 5/6 katta." },
     fact: { ru: 'У телефона, планшета и монитора разное число пикселей — это как разные знаменатели. В адаптивном дизайне размеры задают не в пикселях, а в процентах от ширины экрана: 50% занимают половину и на маленьком, и на большом. Проценты — общая шкала, тот же приём общих долей.', uz: "Telefon, planshet va monitorda piksellar soni har xil — bu har xil maxraj kabi. Moslashuvchan dizaynda o'lchamlar piksellarda emas, ekran kengligining foizida beriladi: 50% kichikda ham, kattada ham yarmini egallaydi. Foiz — umumiy shkala, aynan o'sha umumiy ulush usuli." },
@@ -1139,9 +1139,9 @@ const CONTENT = {
     opt2: { ru: '2/5 > 3/4', uz: "2/5 > 3/4" },
     opt3: { ru: '5/6 > 7/12', uz: "5/6 > 7/12" },
     correct_text: { ru: 'Верно, это неверно: 2/5 меньше половины, а 3/4 больше — значит 2/5 < 3/4, а не больше.', uz: "To'g'ri, bu noto'g'ri: 2/5 yarimdan kichik, 3/4 esa katta — demak 2/5 < 3/4, katta emas." },
-    wrong_0: { ru: 'Это верно: 1/2 = 5/10, 3/5 = 6/10, значит 1/2 < 3/5. Ищи неверное дальше.', uz: "Bu to'g'ri: 1/2 = 5/10, 3/5 = 6/10, demak 1/2 < 3/5. Noto'g'risini boshqasidan qidiring." },
-    wrong_1: { ru: 'Это верно: 3/4 = 9/12, 2/3 = 8/12, значит 3/4 > 2/3. Ищи дальше.', uz: "Bu to'g'ri: 3/4 = 9/12, 2/3 = 8/12, demak 3/4 > 2/3. Boshqasidan qidiring." },
-    wrong_3: { ru: 'Это верно: 5/6 = 10/12, 7/12 меньше, значит 5/6 > 7/12. Ищи дальше.', uz: "Bu to'g'ri: 5/6 = 10/12, 7/12 kichik, demak 5/6 > 7/12. Boshqasidan qidiring." },
+    wrong_0: { ru: 'Это верно: одна вторая это пять десятых, три пятых это шесть десятых, значит одна вторая меньше трёх пятых. Ищи неверное дальше.', uz: "Bu to'g'ri: ikkidan bir bu o'ndan besh, beshdan uch bu o'ndan olti, demak ikkidan bir beshdan uchdan kichik. Noto'g'risini boshqasidan qidiring." },
+    wrong_1: { ru: 'Это верно: три четвёртых это девять двенадцатых, две третьих это восемь двенадцатых, значит три четвёртых больше двух третьих. Ищи дальше.', uz: "Bu to'g'ri: to'rtdan uch bu o'n ikkidan to'qqiz, uchdan ikki bu o'n ikkidan sakkiz, demak to'rtdan uch uchdan ikkidan katta. Boshqasidan qidiring." },
+    wrong_3: { ru: 'Это верно: пять шестых это десять двенадцатых, семь двенадцатых меньше, значит пять шестых больше семи двенадцатых. Ищи дальше.', uz: "Bu to'g'ri: oltidan besh bu o'n ikkidan o'n, o'n ikkidan yetti kichik, demak oltidan besh o'n ikkidan yettidan katta. Boshqasidan qidiring." },
     wrong_default: { ru: 'Ищи сравнение, где знак развернули не туда. Приводи к общим долям или к 1/2.', uz: "Belgisi teskari qo'yilgan solishtirishni qidiring. Umumiy ulushga yoki 1/2 ga keltiring." },
     audio: {
       intro: { ru: 'Три сравнения верны, а одно неверно. Найди то, где знак стоит не в ту сторону. Приводи к общим долям или сравнивай с половиной.', uz: "Uchta solishtirish to'g'ri, bittasi noto'g'ri. Belgisi noto'g'ri tomonga qo'yilganini toping. Umumiy ulushga keltiring yoki yarim bilan solishtiring." },
@@ -1160,9 +1160,9 @@ const CONTENT = {
     opt2: { ru: '1/2 = 5/8', uz: "1/2 = 5/8" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: в восьмых 1/2 = 4/8, а 5/8 уже в восьмых. 5 больше 4 — значит 5/8 больше. 1/2 < 5/8.', uz: "To'g'ri: sakkizdan ulushlarda 1/2 = 4/8, 5/8 esa allaqachon sakkizdan. 5 katta 4 dan — demak 5/8 katta. 1/2 < 5/8." },
-    hint_1: { ru: 'Наоборот: 1/2 это 4/8, а 5/8 больше четырёх восьмых. Больше 5/8.', uz: "Aksincha: 1/2 bu 4/8, 5/8 esa sakkizdan to'rtdan katta. 5/8 katta." },
-    hint_2: { ru: 'Не равны: 4/8 и 5/8 разные. Приведи 1/2 к восьмым.', uz: "Teng emas: 4/8 va 5/8 har xil. 1/2 ni sakkizdanlarga keltiring." },
-    hint_3: { ru: 'Сравнить можно: 1/2 это 4/8, дальше сравни с 5/8.', uz: "Solishtirsa bo'ladi: 1/2 bu 4/8, keyin 5/8 bilan solishtiring." },
+    hint_1: { ru: 'Наоборот: одна вторая это четыре восьмых, а пять восьмых больше четырёх восьмых. Больше пять восьмых.', uz: "Aksincha: ikkidan bir bu sakkizdan to'rt, sakkizdan besh esa sakkizdan to'rtdan katta. Sakkizdan besh katta." },
+    hint_2: { ru: 'Не равны: четыре восьмых и пять восьмых разные. Приведи одну вторую к восьмым.', uz: "Teng emas: sakkizdan to'rt va sakkizdan besh har xil. Ikkidan birni sakkizdanlarga keltiring." },
+    hint_3: { ru: 'Сравнить можно: одна вторая это четыре восьмых, дальше сравни с пятью восьмыми.', uz: "Solishtirsa bo'ladi: ikkidan bir bu sakkizdan to'rt, keyin sakkizdan besh bilan solishtiring." },
     wrong_default: { ru: 'В восьмых 1/2 = 4/8, и 5/8 больше. 1/2 < 5/8.', uz: "Sakkizdanlarda 1/2 = 4/8, 5/8 esa katta. 1/2 < 5/8." },
     fact: { ru: 'Полоса загрузки на экране — та же дробь от целого. Чтобы показывать прогресс одинаково для файлов разного размера, её переводят в проценты — общую шкалу от 0 до 100. Это тот же приём общих долей.', uz: "Ekrandagi yuklash chizig'i — butundan olingan o'sha kasr. Har xil hajmli fayllar uchun progressni bir xil ko'rsatish uchun u foizga — 0 dan 100 gacha umumiy shkalaga aylantiriladi. Bu o'sha umumiy ulush usuli." },
     audio: {

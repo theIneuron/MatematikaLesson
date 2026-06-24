@@ -985,7 +985,7 @@ const CONTENT = {
     audio: {
       intro: { ru: "Округли ноль целых сорок семь сотых до десятых. Посмотри на цифру после десятых.", uz: "Nol butun yuzdan qirq yettini o'ndangacha yaxlitlang. O'ndandan keyingi raqamga qarang." },
       on_correct: { ru: "Верно, ноль целых пять десятых.", uz: "To'g'ri, nol butun o'ndan besh." },
-      on_wrong: { ru: "Посмотри на цифру после десятых: 5 или больше — вверх.", uz: "O'ndandan keyingi raqamga qarang: 5 yoki katta — yuqoriga." }
+      on_wrong: { ru: "Посмотри на цифру после десятых: пять или больше — вверх.", uz: "O'ndandan keyingi raqamga qarang: besh yoki katta — yuqoriga." }
     }
   },
 

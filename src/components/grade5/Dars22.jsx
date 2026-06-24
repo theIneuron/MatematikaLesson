@@ -1632,7 +1632,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
             {step >= 1 && <span className="qb-fade"><Op>=</Op></span>}
             {step >= 1 && <div className="qb-fade"><MixedBoxes whole={step >= 1 ? 2 : 0} num={step >= 2 ? 3 : 0} den={5} color={T.accent}/></div>}
           </div>
-          {step >= 1 && <p className="small qb-fade" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? '2 ta toʼla quti' : '2 полные коробки'}</p>}
+          {step >= 1 && <p className="small qb-fade" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "2 ta to'la quti" : '2 полные коробки'}</p>}
           {step >= 3 && <p className="body qb-fade" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.conclusion))}</p>}
         </div>
       </div>

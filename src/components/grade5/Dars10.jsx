@@ -1026,7 +1026,7 @@ const CONTENT = {
         opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida" }, { ru: 'между 1 и 2', uz: "1 va 2 orasida" }, { ru: 'между 2 и 3', uz: "2 va 3 orasida" }],
         correct: 2,
         ok: { ru: 'Верно: одиннадцать пятых — это два целых и ещё одна пятая.', uz: "To'g'ri: beshdan o'n bir — ikki butun va yana beshdan bir." },
-        no: { ru: 'Раздели одиннадцать на пять: получается чуть больше двух.', uz: "O'n birni beshga bo'lsang, ikkidan sal ko'p chiqadi." }
+        no: { ru: 'Раздели одиннадцать на пять: получается чуть больше двух.', uz: "O'n birni beshga bo'lsa, ikkidan sal ko'p chiqadi." }
       },
       {
         q: { ru: '8/3', uz: '8/3' },
@@ -1034,7 +1034,7 @@ const CONTENT = {
         opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida" }, { ru: 'между 1 и 2', uz: "1 va 2 orasida" }, { ru: 'между 2 и 3', uz: "2 va 3 orasida" }],
         correct: 2,
         ok: { ru: 'Верно: восемь третьих — это два целых и ещё две третьих.', uz: "To'g'ri: uchdan sakkiz — ikki butun va yana uchdan ikki." },
-        no: { ru: 'Восемь разделить на три — это больше двух, но меньше трёх.', uz: "Sakkizni uchga bo'lsang — ikkidan katta, uchdan kichik." }
+        no: { ru: 'Восемь разделить на три — это больше двух, но меньше трёх.', uz: "Sakkizni uchga bo'lsa — ikkidan katta, uchdan kichik." }
       },
       {
         q: { ru: '7/4', uz: '7/4' },
@@ -1042,7 +1042,7 @@ const CONTENT = {
         opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida" }, { ru: 'между 1 и 2', uz: "1 va 2 orasida" }, { ru: 'между 2 и 3', uz: "2 va 3 orasida" }],
         correct: 1,
         ok: { ru: 'Верно: семь четвёртых — это один целый и ещё три четвёртых.', uz: "To'g'ri: to'rtdan yetti — bir butun va yana to'rtdan uch." },
-        no: { ru: 'Семь разделить на четыре — это чуть меньше двух.', uz: "Yettini to'rtga bo'lsang — ikkidan sal kichik." }
+        no: { ru: 'Семь разделить на четыре — это чуть меньше двух.', uz: "Yettini to'rtga bo'lsa — ikkidan sal kichik." }
       }
     ],
     audio: {

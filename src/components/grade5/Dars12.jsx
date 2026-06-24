@@ -868,7 +868,7 @@ const CONTENT = {
     opt0: { ru: 'Дилшод съел больше — дольки равны, а у него их 5', uz: "Dilshod ko'proq yedi — bo'laklar teng, unda 5 ta" },
     opt1: { ru: 'Поровну — знаменатель одинаковый (8)', uz: "Teng — maxraji bir xil (8)" },
     opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Нигора и Дилшод съели по куску одного торта, разрезанного на восемь равных частей. Нигора съела три восьмых, Дилшод — пять восьмых. Дилшод говорит, что они съели поровну, ведь знаменатель у обоих восемь. А ты как думаешь — три восьмых и пять восьмых это поровну, или кто-то съел больше? Выбери ответ.', uz: "Nigora va Dilshod 8 ta teng bo'lakka kesilgan bitta tortdan yedi. Nigora tortning sakkizdan uchini yedi, Dilshod — sakkizdan beshini. Dilshod aytadiki, ular teng yedi, axir maxraji sakkiz. Sizningcha, 3/8 va 5/8 teng-mi yoki kimdir ko'proq yedi? Javobni tanlang." }
+    audio: { ru: 'Нигора и Дилшод съели по куску одного торта, разрезанного на восемь равных частей. Нигора съела три восьмых, Дилшод — пять восьмых. Дилшод говорит, что они съели поровну, ведь знаменатель у обоих восемь. А ты как думаешь — три восьмых и пять восьмых это поровну, или кто-то съел больше? Выбери ответ.', uz: "Nigora va Dilshod sakkizta teng bo'lakka kesilgan bitta tortdan yedi. Nigora tortning sakkizdan uchini yedi, Dilshod — sakkizdan beshini. Dilshod aytadiki, ular teng yedi, axir maxraji sakkiz. Sizningcha, sakkizdan uch va sakkizdan besh teng-mi yoki kimdir ko'proq yedi? Javobni tanlang." }
   },
 
   // ---- s1 EXPLORATION (step-by-step): сравниваем 3/8 и 5/8 на полосах ----
@@ -887,10 +887,10 @@ const CONTENT = {
         'Смотри: дольки одинаковые, но закрашенная полоса у Дилшода длиннее. Пять долек больше трёх. Значит, пять восьмых больше трёх восьмых.'
       ],
       uz: [
-        "3/8 va 5/8 ni bosqichma-bosqich solishtiramiz. Davom etish tugmasini bosing.",
-        "Mana ikkita bir xil chiziq — bu ikkita bir xil tort. Har birini 8 ta teng bo'lakka bo'lamiz. Bo'laklar bir xil kenglikda chiqdi.",
-        "Yuqori chiziqda 3 ta bo'lakni bo'yaymiz — bu 3/8, Nigoraning ulushi. Pastkisida 5 ta bo'lakni bo'yaymiz — bu 5/8, Dilshodning ulushi.",
-        "Qarang: bo'laklar bir xil, lekin Dilshodning bo'yalgan chizig'i uzunroq. 5 ta bo'lak 3 tadan ko'p. Demak, 5/8 katta 3/8 dan."
+        "Sakkizdan uch va sakkizdan beshni bosqichma-bosqich solishtiramiz. Davom etish tugmasini bosing.",
+        "Mana ikkita bir xil chiziq — bu ikkita bir xil tort. Har birini sakkizta teng bo'lakka bo'lamiz. Bo'laklar bir xil kenglikda chiqdi.",
+        "Yuqori chiziqda uchta bo'lakni bo'yaymiz — bu sakkizdan uch, Nigoraning ulushi. Pastkisida beshta bo'lakni bo'yaymiz — bu sakkizdan besh, Dilshodning ulushi.",
+        "Qarang: bo'laklar bir xil, lekin Dilshodning bo'yalgan chizig'i uzunroq. beshta bo'lak uchtadan ko'p. Demak, sakkizdan besh sakkizdan uchdan katta."
       ]
     }
   },
@@ -908,7 +908,7 @@ const CONTENT = {
     fb_success: { ru: 'Пять шестых это пять долек, две шестых это две дольки. Дольки одинаковые, поэтому пять шестых больше двух шестых.', uz: "Oltidan besh bu besh bo'lak, oltidan ikki bu ikki bo'lak. Bo'laklar bir xil, shuning uchun oltidan besh oltidan ikkidan katta." },
     fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
     fb_wrong: { ru: 'Нужно пять шестых — закрась ровно пять долек. Поставь ползунок на пять.', uz: "Oltidan besh kerak — aniq besh bo'lakni bo'yang. Slayderni beshga qo'ying." },
-    audio: { ru: 'Собери дробь сам и сравни. Обе полосы поделены на шесть равных частей, верхняя показывает две шестых. Двигай ползунок и собери на нижней полосе пять шестых. Дольки одинаковые, поэтому пять шестых больше двух шестых.', uz: "Kasrni o'zingiz yig'ib solishtiring. Ikkala chiziq ham 6 ta teng bo'lakka bo'lingan, yuqorisi 2/6 ni ko'rsatadi. Slayderni surib, pastki chiziqda 5/6 ni yig'ing. Bo'laklar bir xil, shuning uchun 5/6 katta 2/6 dan." }
+    audio: { ru: 'Собери дробь сам и сравни. Обе полосы поделены на шесть равных частей, верхняя показывает две шестых. Двигай ползунок и собери на нижней полосе пять шестых. Дольки одинаковые, поэтому пять шестых больше двух шестых.', uz: "Kasrni o'zingiz yig'ib solishtiring. Ikkala chiziq ham oltita teng bo'lakka bo'lingan, yuqorisi oltidan ikkini ko'rsatadi. Slayderni surib, pastki chiziqda oltidan beshni yig'ing. Bo'laklar bir xil, shuning uchun oltidan besh oltidan ikkidan katta." }
   },
 
   // ---- s3 RULE: одинаковый знаменатель → сравниваем числители ----
@@ -921,7 +921,7 @@ const CONTENT = {
     card_bottom: { ru: 'Чем больше числитель, тем больше закрашенных долек — тем больше дробь.', uz: "Surat qancha katta bo'lsa, bo'yalgan bo'laklar shuncha ko'p — kasr shuncha katta." },
     card_line: { ru: 'Смотрим только на числители.', uz: "Faqat suratlarga qaraymiz." },
     outro: { ru: '5/6 и 2/6: знаменатель один, а 5 больше 2 — значит, 5/6 > 2/6.', uz: "5/6 va 2/6: maxraj bir xil, 5 esa 2 dan katta — demak, 5/6 > 2/6." },
-    audio: { ru: 'Запомни правило. Если у дробей одинаковый знаменатель, дольки одного размера. Тогда больше та дробь, у которой числитель больше — у неё больше закрашенных долек. Смотрим только на числители. Пять шестых и две шестых: знаменатель один, а пять больше двух, значит пять шестых больше.', uz: "Qoidani eslab qoling. Agar kasrlarning maxraji bir xil bo'lsa, bo'laklar bir o'lchamda. Unda surati katta bo'lgan kasr katta — unda bo'yalgan bo'laklar ko'proq. Faqat suratlarga qaraymiz. 5/6 va 2/6: maxraj bir xil, 5 esa 2 dan katta, demak 5/6 katta." }
+    audio: { ru: 'Запомни правило. Если у дробей одинаковый знаменатель, дольки одного размера. Тогда больше та дробь, у которой числитель больше — у неё больше закрашенных долек. Смотрим только на числители. Пять шестых и две шестых: знаменатель один, а пять больше двух, значит пять шестых больше.', uz: "Qoidani eslab qoling. Agar kasrlarning maxraji bir xil bo'lsa, bo'laklar bir o'lchamda. Unda surati katta bo'lgan kasr katta — unda bo'yalgan bo'laklar ko'proq. Faqat suratlarga qaraymiz. Oltidan besh va oltidan ikki: maxraj bir xil, besh esa ikkidan katta, demak oltidan besh katta." }
   },
 
   // ---- s4 TEST (MC, отношение): 5/8 ? 2/8 → 5/8 > 2/8 (correct old idx 0) ----
@@ -934,15 +934,15 @@ const CONTENT = {
     opt2: { ru: '5/8 = 2/8', uz: "5/8 = 2/8" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: знаменатель один (8), а 5 больше 2. Значит, 5/8 > 2/8.', uz: "To'g'ri: maxraj bir xil (8), 5 esa 2 dan katta. Demak, 5/8 > 2/8." },
-    hint_1: { ru: 'Наоборот: 5 долек больше 2 долек. Значит, 5/8 больше, а не меньше.', uz: "Aksincha: 5 ta bo'lak 2 ta bo'lakdan ko'p. Demak, 5/8 katta, kichik emas." },
-    hint_2: { ru: 'Одинаковый знаменатель не значит «равны». Числители-то разные: 5 и 2.', uz: "Bir xil maxraj «teng» degani emas. Suratlar-ku har xil: 5 va 2." },
+    hint_1: { ru: 'Наоборот: пять долек больше двух. Значит, пять восьмых больше, а не меньше.', uz: "Aksincha: besh bo'lak ikki bo'lakdan ko'p. Demak, sakkizdan besh katta, kichik emas." },
+    hint_2: { ru: 'Одинаковый знаменатель не значит равны. Числители-то разные: пять и два.', uz: "Bir xil maxraj teng degani emas. Suratlar-ku har xil: besh va ikki." },
     hint_3: { ru: 'Сравнить можно: знаменатель один, просто смотрим на числители.', uz: "Solishtirsa bo'ladi: maxraj bir xil, faqat suratlarga qaraymiz." },
     wrong_default: { ru: 'Знаменатель один, а 5 больше 2. Значит, 5/8 > 2/8.', uz: "Maxraj bir xil, 5 esa 2 dan katta. Demak, 5/8 > 2/8." },
     fact: { ru: 'На старых выборах большинство искали так же: голоса делили на равные части. Если 5 из 8 за одного, а 2 из 8 за другого, то 5/8 больше 2/8 — побеждает первый.', uz: "Eski saylovlarda ko'pchilik ham shunday topilgan: ovozlar teng qismlarga bo'lingan. Agar 8 tadan 5 tasi biriga, 8 tadan 2 tasi boshqasiga bo'lsa, 5/8 katta 2/8 dan — birinchisi g'olib." },
     audio: {
       intro: { ru: 'Сравни пять восьмых и две восьмых. Выбери, что верно.', uz: "Sakkizdan besh va sakkizdan ikkini solishtiring. Nima to'g'ri ekanini tanlang." },
       on_correct: { ru: 'Верно. Знаменатель один, пять больше двух — пять восьмых больше. Кстати, на старых выборах большинство искали так же: пять голосов из восьми больше двух из восьми.', uz: "To'g'ri. Maxraj bir xil, besh katta ikkidan, sakkizdan besh katta. Aytgancha, eski saylovlarda ko'pchilik ham shunday topilgan: sakkizdan besh ovoz sakkizdan ikkidan ko'p." },
-      on_wrong: { ru: 'Пока нет. Знаменатель одинаковый, сравни числители: 5 и 2.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: 5 va 2." }
+      on_wrong: { ru: 'Пока нет. Знаменатель одинаковый, сравни числители: 5 и 2.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: besh va ikki." }
     }
   },
 
@@ -983,7 +983,7 @@ const CONTENT = {
     opt2: { ru: 'Равны, только если и числитель меньше', uz: "Faqat surati ham kichik bo'lsa teng" },
     opt3: { ru: 'Такие дроби сравнить нельзя', uz: "Bunday kasrlarni solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: одинаковый знаменатель не делает дроби равными. Больше та, где числитель больше.', uz: "To'g'ri: bir xil maxraj kasrlarni teng qilmaydi. Surati katta bo'lgani katta." },
-    hint_1: { ru: '3/8 и 5/8 — знаменатель один, но не равны: 5/8 больше. Числители-то разные.', uz: "3/8 va 5/8 — maxraj bir xil, lekin teng emas: 5/8 katta. Suratlar-ku har xil." },
+    hint_1: { ru: 'Три восьмых и пять восьмых — знаменатель один, но не равны: пять восьмых больше. Числители-то разные.', uz: "Sakkizdan uch va sakkizdan besh — maxraj bir xil, lekin teng emas: sakkizdan besh katta. Suratlar-ku har xil." },
     hint_2: { ru: 'Тут дело только в числителях: больше числитель — больше дробь.', uz: "Bu yerda gap faqat suratlarda: surat katta — kasr katta." },
     hint_3: { ru: 'Как раз наоборот: одинаковый знаменатель и помогает сравнить — по числителям.', uz: "Aynan aksincha: bir xil maxraj solishtirishga yordam beradi — suratlar bo'yicha." },
     wrong_default: { ru: 'Нет. Одинаковый знаменатель — дольки равны, но больше та дробь, где числитель больше.', uz: "Yo'q. Bir xil maxraj — bo'laklar teng, lekin surati katta bo'lgan kasr katta." },
@@ -1031,7 +1031,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 0,
         ok: { ru: 'Верно: 8 больше 7, значит 8/11 больше.', uz: "To'g'ri: 8 katta 7 dan, demak 8/11 katta." },
-        no: { ru: 'Числители близкие, но 8 больше 7. Значит, первая больше.', uz: "Suratlar yaqin, lekin 8 katta 7 dan. Demak, birinchisi katta." }
+        no: { ru: 'Числители близкие, но 8 больше 7. Значит, первая больше.', uz: "Suratlar yaqin, lekin sakkiz katta yettidan. Demak, birinchisi katta." }
       },
       {
         q: { ru: '5/12 ? 9/12', uz: '5/12 ? 9/12' },
@@ -1062,7 +1062,7 @@ const CONTENT = {
     card_parts_value: { ru: '7/10 плитки', uz: "plitkaning 7/10 qismi" },
     outro: { ru: 'Плитки одинаковые и поделены на 10 равных долек. Помоги сравнить на следующем шаге.', uz: "Plitkalar bir xil va 10 ta teng bo'lakka bo'lingan. Keyingi bosqichda solishtirishga yordam bering." },
     btn_help: { ru: 'Помочь сравнить', uz: "Solishtirishga yordam" },
-    audio: { ru: 'У Гулноры и Азиза по одинаковой плитке шоколада, каждая разделена на десять равных долек. Гулнора съела четыре десятых своей плитки, Азиз — семь десятых. Кто съел больше шоколада? Плитки одинаковые, дольки равны. Подумай, как их сравнить.', uz: "Gulnora va Azizda bir xil shokolad plitkasidan bor, har biri 10 ta teng bo'lakka bo'lingan. Gulnora o'z plitkasining 4/10 qismini, Aziz 7/10 qismini yedi. Kim ko'proq yedi? Plitkalar bir xil, bo'laklar teng. Ularni qanday solishtirishni o'ylab ko'ring." }
+    audio: { ru: 'У Гулноры и Азиза по одинаковой плитке шоколада, каждая разделена на десять равных долек. Гулнора съела четыре десятых своей плитки, Азиз — семь десятых. Кто съел больше шоколада? Плитки одинаковые, дольки равны. Подумай, как их сравнить.', uz: "Gulnora va Azizda bir xil shokolad plitkasidan bor, har biri o'nta teng bo'lakka bo'lingan. Gulnora o'z plitkasining o'ndan to'rt qismini, Aziz o'ndan yetti qismini yedi. Kim ko'proq yedi? Plitkalar bir xil, bo'laklar teng. Ularni qanday solishtirishni o'ylab ko'ring." }
   },
 
   // ---- s9 CASE step (MC, отношение): 4/10 vs 7/10 → Азиз больше (correct old idx 0) ----
@@ -1075,15 +1075,15 @@ const CONTENT = {
     opt2: { ru: 'Они съели поровну', uz: "Ular teng yedi" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: дольки равны (десятые), а 7 больше 4. Значит, 7/10 > 4/10 — Азиз съел больше.', uz: "To'g'ri: bo'laklar teng (o'ndan), 7 esa 4 dan katta. Demak, 7/10 > 4/10 — Aziz ko'proq yedi." },
-    hint_1: { ru: 'Наоборот: 7 долек больше 4. Больше съел Азиз.', uz: "Aksincha: 7 ta bo'lak 4 tadan ko'p. Ko'proq Aziz yedi." },
-    hint_2: { ru: 'Числители разные: 4 и 7. Значит, не поровну.', uz: "Suratlar har xil: 4 va 7. Demak, teng emas." },
+    hint_1: { ru: 'Наоборот: 7 долек больше 4. Больше съел Азиз.', uz: "Aksincha: yettita bo'lak to'rttadan ko'p. Ko'proq Aziz yedi." },
+    hint_2: { ru: 'Числители разные: 4 и 7. Значит, не поровну.', uz: "Suratlar har xil: to'rt va yetti. Demak, teng emas." },
     hint_3: { ru: 'Плитки одинаковые, знаменатель один — сравнить можно по числителям.', uz: "Plitkalar bir xil, maxraj bir — suratlar bo'yicha solishtirsa bo'ladi." },
     wrong_default: { ru: 'Знаменатель один (10), 7 больше 4. Значит, 7/10 > 4/10 — Азиз съел больше.', uz: "Maxraj bir xil (10), 7 esa 4 dan katta. Demak, 7/10 > 4/10 — Aziz ko'proq yedi." },
     fact: { ru: 'Так же сравнивают и фазы Луны: диск делят на равные части и считают, какая доля освещена. Чем больше освещённая доля, тем ближе полнолуние — у которого светится всё целое.', uz: "Oy fazalari ham shunday solishtiriladi: disk teng qismlarga bo'linadi va qancha ulush yoritilgani sanaladi. Yoritilgan ulush qancha katta bo'lsa, to'lin oyga shuncha yaqin — unda butun disk yonadi." },
     audio: {
       intro: { ru: 'Гулнора съела четыре десятых, Азиз — семь десятых. Кто съел больше? Выбери верное.', uz: "Gulnora o'ndan to'rt, Aziz o'ndan yetti yedi. Kim ko'proq yedi? To'g'risini tanlang." },
       on_correct: { ru: 'Верно. Семь десятых больше четырёх десятых — больше съел Азиз. Кстати, так же сравнивают и фазы Луны: чем больше освещённая доля диска, тем ближе полнолуние.', uz: "To'g'ri. O'ndan yetti katta o'ndan to'rtdan, ko'proq Aziz yedi. Aytgancha, oy fazalari ham shunday solishtiriladi: yoritilgan ulush qancha katta bo'lsa, to'lin oyga shuncha yaqin." },
-      on_wrong: { ru: 'Пока нет. Знаменатель один, сравни числители: 4 и 7.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: 4 va 7." }
+      on_wrong: { ru: 'Пока нет. Знаменатель один, сравни числители: 4 и 7.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: to'rt va yetti." }
     }
   },
 
@@ -1099,7 +1099,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 0,
         ok: { ru: 'Верно: 23 больше 19, значит 23/30 больше.', uz: "To'g'ri: 23 katta 19 dan, demak 23/30 katta." },
-        no: { ru: 'Не спеши: сравни числители, 23 и 19. Какой больше?', uz: "Shoshmang: suratlarni solishtiring, 23 va 19. Qaysi biri katta?" }
+        no: { ru: 'Не спеши: сравни числители, 23 и 19. Какой больше?', uz: "Shoshmang: suratlarni solishtiring, yigirma uch va o'n to'qqiz. Qaysi biri katta?" }
       },
       {
         q: { ru: '14/17 ? 16/17', uz: '14/17 ? 16/17' },
@@ -1107,7 +1107,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 1,
         ok: { ru: 'Верно: 14 меньше 16, значит 14/17 меньше.', uz: "To'g'ri: 14 kichik 16 dan, demak 14/17 kichik." },
-        no: { ru: 'Сравни числители: 14 и 16. Меньший числитель — меньшая дробь.', uz: "Suratlarni solishtiring: 14 va 16. Kichik surat — kichik kasr." }
+        no: { ru: 'Сравни числители: 14 и 16. Меньший числитель — меньшая дробь.', uz: "Suratlarni solishtiring: o'n to'rt va o'n olti. Kichik surat — kichik kasr." }
       },
       {
         q: { ru: '11/13 ? 11/13', uz: '11/13 ? 11/13' },
@@ -1123,7 +1123,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 1,
         ok: { ru: 'Верно: 47 меньше 49, значит 47/50 меньше — хоть и совсем чуть-чуть.', uz: "To'g'ri: 47 kichik 49 dan, demak 47/50 kichik — arzimas bo'lsa ham." },
-        no: { ru: 'Числа близкие, но 47 меньше 49. Значит, первая дробь меньше.', uz: "Sonlar yaqin, lekin 47 kichik 49 dan. Demak, birinchi kasr kichik." }
+        no: { ru: 'Числа близкие, но 47 меньше 49. Значит, первая дробь меньше.', uz: "Sonlar yaqin, lekin qirq yetti kichik qirq to'qqizdan. Demak, birinchi kasr kichik." }
       },
       {
         q: { ru: '38/45 ? 35/45', uz: '38/45 ? 35/45' },
@@ -1131,7 +1131,7 @@ const CONTENT = {
         opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
         correct: 0,
         ok: { ru: 'Верно: 38 больше 35, значит 38/45 больше.', uz: "To'g'ri: 38 katta 35 dan, demak 38/45 katta." },
-        no: { ru: 'Сравни числители: 38 и 35. Больший числитель — большая дробь.', uz: "Suratlarni solishtiring: 38 va 35. Katta surat — katta kasr." }
+        no: { ru: 'Сравни числители: 38 и 35. Больший числитель — большая дробь.', uz: "Suratlarni solishtiring: o'ttiz sakkiz va o'ttiz besh. Katta surat — katta kasr." }
       }
     ],
     audio: {
@@ -1152,15 +1152,15 @@ const CONTENT = {
     opt2: { ru: '5/6 = 4/6', uz: "5/6 = 4/6" },
     opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
     correct_text: { ru: 'Верно: знаменатель один (6), а 5 больше 4. Значит, 5/6 > 4/6.', uz: "To'g'ri: maxraj bir xil (6), 5 esa 4 dan katta. Demak, 5/6 > 4/6." },
-    hint_1: { ru: 'Наоборот: 5 долек больше 4. Значит, 5/6 больше.', uz: "Aksincha: 5 ta bo'lak 4 tadan ko'p. Demak, 5/6 katta." },
-    hint_2: { ru: 'Числители разные: 5 и 4. Дроби не равны.', uz: "Suratlar har xil: 5 va 4. Kasrlar teng emas." },
+    hint_1: { ru: 'Наоборот: пять долек больше четырёх. Значит, пять шестых больше.', uz: "Aksincha: besh bo'lak to'rt bo'lakdan ko'p. Demak, oltidan besh katta." },
+    hint_2: { ru: 'Числители разные: 5 и 4. Дроби не равны.', uz: "Suratlar har xil: besh va to'rt. Kasrlar teng emas." },
     hint_3: { ru: 'Сравнить можно: знаменатель один, смотрим на числители.', uz: "Solishtirsa bo'ladi: maxraj bir xil, suratlarga qaraymiz." },
     wrong_default: { ru: 'Знаменатель один, 5 больше 4. Значит, 5/6 > 4/6.', uz: "Maxraj bir xil, 5 esa 4 dan katta. Demak, 5/6 > 4/6." },
     fact: { ru: 'Полоса загрузки делит дело на равные части. Если одна заполнена на 5/6, а другая на 4/6, готова сильнее первая: те же шестые, но закрашенных долек больше.', uz: "Yuklash chizig'i ishni teng qismlarga bo'ladi. Agar biri 5/6 ga, ikkinchisi 4/6 ga to'lgan bo'lsa, birinchisi ko'proq tayyor: o'sha oltidan, lekin bo'yalgan bo'laklar ko'proq." },
     audio: {
       intro: { ru: 'Последнее задание. Сравни пять шестых и четыре шестых. Выбери верное.', uz: "Oxirgi topshiriq. Oltidan besh va oltidan to'rtni solishtiring. To'g'risini tanlang." },
       on_correct: { ru: 'Верно. Пять больше четырёх — пять шестых больше. Кстати, полоса загрузки на пять шестых готова сильнее, чем на четыре шестых: дольки те же, но закрашенных больше.', uz: "To'g'ri. Besh katta to'rtdan, oltidan besh katta. Aytgancha, oltidan beshga to'lgan yuklash chizig'i oltidan to'rtdan ko'proq tayyor: bo'laklar o'sha, lekin bo'yalganlari ko'proq." },
-      on_wrong: { ru: 'Пока нет. Знаменатель один, сравни числители: 5 и 4.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: 5 va 4." }
+      on_wrong: { ru: 'Пока нет. Знаменатель один, сравни числители: 5 и 4.', uz: "Hali emas. Maxraj bir xil, suratlarni solishtiring: besh va to'rt." }
     }
   },
 
@@ -1181,7 +1181,7 @@ const CONTENT = {
     conn_refs: { ru: 'уроки о дроби: что это, на прямой, как деление.', uz: "kasr darslari: nima, sonlar nurida, bo'lish natijasi." },
     conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
     conn_next: { ru: 'сравнение дробей с одинаковым числителем.', uz: "bir xil suratli kasrlarni taqqoslash." },
-    audio: { ru: 'Отлично! Теперь ты умеешь сравнивать дроби с одинаковым знаменателем. Одинаковый знаменатель — это дольки одного размера. Больше та дробь, у которой числитель больше: смотрим только на числители. Но одинаковый знаменатель не значит, что дроби равны. И помни: это правило работает, только когда знаменатели одинаковые. Нигора съела три восьмых, Дилшод — пять восьмых. Дольки равны, пять больше трёх — Дилшод съел больше. «Поровну» было ошибкой.', uz: "Zo'r! Endi siz bir xil maxrajli kasrlarni solishtira olasiz. Bir xil maxraj — bu bir o'lchamdagi bo'laklar. Surati katta bo'lgan kasr katta: faqat suratlarga qaraymiz. Lekin bir xil maxraj kasrlar teng degani emas. Va esda tuting: bu qoida faqat maxrajlar bir xil bo'lganda ishlaydi. Nigora 3/8, Dilshod 5/8 yedi. Bo'laklar teng, 5 esa 3 dan katta — Dilshod ko'proq yedi. «Teng» degani xato edi." }
+    audio: { ru: 'Отлично! Теперь ты умеешь сравнивать дроби с одинаковым знаменателем. Одинаковый знаменатель — это дольки одного размера. Больше та дробь, у которой числитель больше: смотрим только на числители. Но одинаковый знаменатель не значит, что дроби равны. И помни: это правило работает, только когда знаменатели одинаковые. Нигора съела три восьмых, Дилшод — пять восьмых. Дольки равны, пять больше трёх — Дилшод съел больше. Ответ поровну был ошибкой.', uz: "Zo'r! Endi siz bir xil maxrajli kasrlarni solishtira olasiz. Bir xil maxraj — bu bir o'lchamdagi bo'laklar. Surati katta bo'lgan kasr katta: faqat suratlarga qaraymiz. Lekin bir xil maxraj kasrlar teng degani emas. Va esda tuting: bu qoida faqat maxrajlar bir xil bo'lganda ishlaydi. Nigora sakkizdan uch, Dilshod sakkizdan besh yedi. Bo'laklar teng, besh esa uchdan katta — Dilshod ko'proq yedi. Teng degani xato edi." }
   }
 };
 

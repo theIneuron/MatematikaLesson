@@ -866,9 +866,9 @@ const CONTENT = {
     opt2: { ru: '6', uz: '6' },
     opt3: { ru: '12', uz: '12' },
     correct_text: { ru: 'Верно: 3·3 = 9, потом 9·3 = 27. Скоро запишем это короче.', uz: "To'g'ri: 3·3 = 9, keyin 9·3 = 27. Tez orada qisqaroq yozamiz." },
-    wrong_1: { ru: 'Это только 3·3. Множителей три — умножь ещё на 3.', uz: "Bu faqat 3·3. Ko'paytuvchilar uchta — yana 3 ga ko'paytiring." },
-    wrong_2: { ru: 'Это 3+3. Здесь множители умножают, а не складывают.', uz: "Bu 3+3. Bu yerda ko'paytuvchilar ko'paytiriladi, qo'shilmaydi." },
-    wrong_3: { ru: 'Почти. Пересчитай: 3·3 = 9, затем 9·3.', uz: "Deyarli. Qayta sanang: 3·3 = 9, keyin 9·3." },
+    wrong_1: { ru: 'Это только три умножить на три. Множителей три — умножь ещё на три.', uz: "Bu faqat uchni uchga ko'paytirish. Ko'paytuvchilar uchta — yana uchga ko'paytiring." },
+    wrong_2: { ru: 'Это три плюс три. Здесь множители умножают, а не складывают.', uz: "Bu uch qo'shuv uch. Bu yerda ko'paytuvchilar ko'paytiriladi, qo'shilmaydi." },
+    wrong_3: { ru: 'Почти. Пересчитай: три умножить на три равно девять, затем девять умножить на три.', uz: "Deyarli. Qayta sanang: uchni uchga ko'paytirsak to'qqiz, keyin to'qqizni uchga." },
     audio: {
       intro: { ru: "Вспомним умножение. Сколько будет три на три и ещё на три?", uz: "Ko'paytmani eslaylik. Uchni uchga, yana uchga ko'paytirsak qancha bo'ladi?" },
       on_correct: { ru: "Отлично, двадцать семь. Запомним это число.", uz: "Ajoyib, yigirma yetti. Shu sonni yodda tutaylik." },
@@ -957,7 +957,7 @@ const CONTENT = {
     question: { ru: 'Вычисли: 5²', uz: "Hisoblang: 5²" },
     placeholder: { ru: '0', uz: '0' },
     btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Квадрат — это число само на себя: 5·5. Не 5·2.', uz: "Kvadrat — son o'ziga ko'paytirilgani: 5·5. 5·2 emas." },
+    hint: { ru: 'Квадрат — это число само на себя: пять умножить на пять. Не пять умножить на два.', uz: "Kvadrat — son o'ziga ko'paytirilgani: beshni beshga. Beshni ikkiga emas." },
     fb_correct: { ru: 'Верно: 5·5 = 25.', uz: "To'g'ri: 5·5 = 25." },
     audio: {
       intro: { ru: "Вычисли пять в квадрате. Помни: само на себя.", uz: "Beshning kvadratini hisoblang. Yodingizda bo'lsin: o'ziga ko'paytiriladi." },
@@ -976,9 +976,9 @@ const CONTENT = {
     opt2: { ru: '10² = 100', uz: '10² = 100' },
     opt3: { ru: '4² = 8', uz: '4² = 8' },
     correct_text: { ru: 'Верно! 4² = 4·4 = 16, а не 8. Восьмёрка — это 4·2. Вот и ошибка.', uz: "To'g'ri! 4² = 4·4 = 16, 8 emas. Sakkiz — bu 4·2. Mana xato shu." },
-    wrong_0: { ru: '6² = 6·6 = 36 — это верно. Ищи ошибочное равенство.', uz: "6² = 6·6 = 36 — bu to'g'ri. Xato tenglikni qidiring." },
-    wrong_1: { ru: '2³ = 2·2·2 = 8 — верно. Это не ошибка.', uz: "2³ = 2·2·2 = 8 — to'g'ri. Bu xato emas." },
-    wrong_2: { ru: '10² = 10·10 = 100 — верно. Ищи ошибку.', uz: "10² = 10·10 = 100 — to'g'ri. Xatoni qidiring." },
+    wrong_0: { ru: 'Шесть в квадрате это шесть умножить на шесть, будет тридцать шесть — это верно. Ищи ошибочное равенство.', uz: "Olti kvadrati — oltini oltiga ko'paytirsak o'ttiz olti, bu to'g'ri. Xato tenglikni qidiring." },
+    wrong_1: { ru: 'Два в кубе это два умножить на два и ещё на два, будет восемь — верно. Это не ошибка.', uz: "Ikki kubi — ikkini ikkiga, yana ikkiga ko'paytirsak sakkiz, to'g'ri. Bu xato emas." },
+    wrong_2: { ru: 'Десять в квадрате это десять умножить на десять, будет сто — верно. Ищи ошибку.', uz: "O'n kvadrati — o'nni o'nga ko'paytirsak yuz, to'g'ri. Xatoni qidiring." },
     fact: { ru: 'Квадраты — это суммы нечётных чисел: 1, потом 1+3=4, потом 1+3+5=9. Поэтому квадрат всегда складывается из таких слоёв.', uz: "Kvadrat sonlar — toq sonlar yig'indisi: 1, keyin 1+3=4, keyin 1+3+5=9. Shuning uchun kvadrat har doim shunday qatlamlardan tuziladi." },
     audio: {
       intro: { ru: "Будь внимателен: здесь вопрос наоборот. Найди равенство, в котором есть ошибка.", uz: "Diqqat bo'ling: bu yerda savol teskari. Xato bor tenglikni toping." },
@@ -997,9 +997,9 @@ const CONTENT = {
     opt2: { ru: '9', uz: '9' },
     opt3: { ru: '5', uz: '5' },
     correct_text: { ru: 'Верно: 2³ = 2·2·2 = 8.', uz: "To'g'ri: 2³ = 2·2·2 = 8." },
-    wrong_1: { ru: '6 — это 2·3. А куб — это 2·2·2.', uz: "6 — bu 2·3. Kub esa 2·2·2." },
-    wrong_2: { ru: '9 — это 3². Основание и показатель поменялись местами.', uz: "9 — bu 3². Asos va ko'rsatkich o'rin almashib qoldi." },
-    wrong_3: { ru: '5 — это 2+3. Здесь множители умножают.', uz: "5 — bu 2+3. Bu yerda ko'paytuvchilar ko'paytiriladi." },
+    wrong_1: { ru: 'Шесть — это два умножить на три. А куб — это два умножить на два и ещё на два.', uz: "Olti — bu ikkini uchga ko'paytirish. Kub esa ikkini ikkiga, yana ikkiga." },
+    wrong_2: { ru: 'Девять — это три в квадрате. Основание и показатель поменялись местами.', uz: "To'qqiz — bu uch kvadrati. Asos va ko'rsatkich o'rin almashib qoldi." },
+    wrong_3: { ru: 'Пять — это два плюс три. Здесь множители умножают.', uz: "Besh — bu ikki qo'shuv uch. Bu yerda ko'paytuvchilar ko'paytiriladi." },
     fact: { ru: 'Память компьютера измеряют степенями двойки: 2¹⁰ = 1024 байта это один килобайт. Поэтому объёмы растут скачками: 256, 512, 1024.', uz: "Kompyuter xotirasi ikkining darajalari bilan o'lchanadi: 2¹⁰ = 1024 bayt — bu bir kilobayt. Shuning uchun hajmlar sakrab o'sadi: 256, 512, 1024." },
     audio: {
       intro: { ru: "Вычисли два в кубе. Куб — три одинаковых множителя.", uz: "Ikkining kubini hisoblang. Kub — uchta bir xil ko'paytuvchi." },
@@ -1063,9 +1063,9 @@ const CONTENT = {
     opt2: { ru: '30', uz: '30' },
     opt3: { ru: '18', uz: '18' },
     correct_text: { ru: 'Верно: 6² = 6·6 = 36 пикселей.', uz: "To'g'ri: 6² = 6·6 = 36 piksel." },
-    wrong_1: { ru: '12 — это 6·2. А квадрат — это 6·6.', uz: "12 — bu 6·2. Kvadrat esa 6·6." },
-    wrong_2: { ru: '30 — это 6·5. Сторона умножается сама на себя: 6·6.', uz: "30 — bu 6·5. Tomon o'ziga ko'paytiriladi: 6·6." },
-    wrong_3: { ru: '18 — это 6·3. Здесь нужен квадрат: 6·6.', uz: "18 — bu 6·3. Bu yerda kvadrat kerak: 6·6." },
+    wrong_1: { ru: 'Двенадцать — это шесть умножить на два. А квадрат — это шесть умножить на шесть.', uz: "O'n ikki — bu oltini ikkiga ko'paytirish. Kvadrat esa oltini oltiga." },
+    wrong_2: { ru: 'Тридцать — это шесть умножить на пять. Сторона умножается сама на себя: шесть на шесть.', uz: "O'ttiz — bu oltini beshga ko'paytirish. Tomon o'ziga ko'paytiriladi: oltini oltiga." },
+    wrong_3: { ru: 'Восемнадцать — это шесть умножить на три. Здесь нужен квадрат: шесть на шесть.', uz: "O'n sakkiz — bu oltini uchga ko'paytirish. Bu yerda kvadrat kerak: oltini oltiga." },
     fact: { ru: 'Есть легенда: за изобретение шахмат попросили класть на клетки зёрна, каждый раз удваивая. На последней клетке вышло 2⁶³ зёрен — больше, чем риса во всём мире. Так быстро растёт степень.', uz: "Bir afsona bor: shaxmat ixtirosi uchun kataklarga don qo'yishni so'rashgan, har safar ikki barobar. Oxirgi katakda 2⁶³ dona chiqqan — dunyodagi barcha guruchdan ko'p. Daraja shunchalik tez o'sadi." },
     audio: {
       intro: { ru: "Последнее задание. Сосчитай, сколько пикселей в квадрате шесть на шесть.", uz: "Oxirgi topshiriq. Eni olti, bo'yi olti kvadratda nechta piksel borligini sanang." },
@@ -1443,7 +1443,7 @@ const A8_ITEMS = [
     intro: { ru: 'Вычисли два в пятой степени.', uz: "Ikki ning beshinchi darajasini hisoblang." }, on_correct: { ru: 'Верно. Два в пятой это тридцать два.', uz: "To'g'ri. Ikki ning beshinchisi o'ttiz ikki." }, on_wrong: { ru: 'Умножь двойку на себя пять раз.', uz: "Ikkini o'ziga besh marta ko'paytiring." } },
   { type: 'mc', opt0: { ru: '2⁴', uz: '2⁴' }, opt1: { ru: '3²', uz: '3²' }, opt2: { ru: 'Они равны', uz: 'Ular teng' }, correct: 0, order: [1, 0, 2],
     lead: { ru: 'Что больше: 2⁴ или 3²?', uz: "Qaysi katta: 2⁴ yoki 3²?" },
-    wrong_1: { ru: '3² это девять, а 2⁴ это шестнадцать. Больше 2⁴.', uz: "3² — to'qqiz, 2⁴ — o'n olti. Katta — 2⁴." },
+    wrong_1: { ru: 'Три в квадрате это девять, а два в четвёртой это шестнадцать. Больше два в четвёртой.', uz: "Uch kvadrati — to'qqiz, ikki ning to'rtinchisi — o'n olti. Katta — ikki ning to'rtinchisi." },
     wrong_2: { ru: 'Они не равны: шестнадцать и девять. Больше 2⁴.', uz: "Ular teng emas: o'n olti va to'qqiz. Katta — 2⁴." },
     intro: { ru: 'Что больше: два в четвёртой или три в квадрате?', uz: "Qaysi katta: ikki ning to'rtinchisi yoki uch ning kvadrati?" }, on_correct: { ru: 'Верно. Два в четвёртой шестнадцать, больше девяти.', uz: "To'g'ri. Ikki ning to'rtinchisi o'n olti, to'qqizdan katta." }, on_wrong: { ru: 'Сначала посчитай каждую степень.', uz: "Avval har bir darajani hisoblang." } },
   { type: 'multiselect', items: [{ ru: '16', uz: '16' }, { ru: '25', uz: '25' }, { ru: '36', uz: '36' }, { ru: '20', uz: '20' }, { ru: '30', uz: '30' }], mask: [true, true, true, false, false],
@@ -1454,14 +1454,14 @@ const A8_ITEMS = [
     intro: { ru: 'Расставь эти степени от меньшего значения к большему.', uz: "Bu darajalarni qiymati bo'yicha kichikdan kattaga tartiblang." }, on_correct: { ru: 'Верно. Четыре, восемь, девять.', uz: "To'g'ri. To'rt, sakkiz, to'qqiz." }, on_wrong: { ru: 'Посчитай значение каждой степени.', uz: "Har bir darajaning qiymatini hisoblang." } },
   { type: 'mc', opt0: { ru: 'Куб (3³)', uz: 'Kub (3³)' }, opt1: { ru: 'Квадрат', uz: 'Kvadrat' }, opt2: { ru: 'Ни то ни другое', uz: 'Hech qaysi' }, correct: 0, order: [1, 0, 2],
     lead: { ru: 'Число 27 — это…', uz: '27 soni — bu…' },
-    wrong_1: { ru: '27 это не квадрат: квадраты это 25 и 36. Зато 27 = 3·3·3 = 3³.', uz: "27 kvadrat emas: kvadratlar 25 va 36. Lekin 27 = 3·3·3 = 3³." },
-    wrong_2: { ru: '27 это куб тройки: 3³ = 27.', uz: "27 — uch ning kubi: 3³ = 27." },
-    intro: { ru: 'Число двадцать семь это куб или квадрат?', uz: "Yigirma yetti soni kub yoki kvadratmi?" }, on_correct: { ru: 'Верно. Двадцать семь это три в кубе.', uz: "To'g'ri. Yigirma yetti — uch ning kubi." }, on_wrong: { ru: 'Проверь: 3·3·3.', uz: "Tekshiring: 3·3·3." } }
+    wrong_1: { ru: 'Двадцать семь это не квадрат: квадраты это двадцать пять и тридцать шесть. Зато двадцать семь это три умножить на три и ещё на три, то есть три в кубе.', uz: "Yigirma yetti kvadrat emas: kvadratlar yigirma besh va o'ttiz olti. Lekin yigirma yetti — uchni uchga, yana uchga ko'paytirish, ya'ni uch kubi." },
+    wrong_2: { ru: 'Двадцать семь это куб тройки: три в кубе равно двадцать семь.', uz: "Yigirma yetti — uch ning kubi: uch kubi yigirma yettiga teng." },
+    intro: { ru: 'Число двадцать семь это куб или квадрат?', uz: "Yigirma yetti soni kub yoki kvadratmi?" }, on_correct: { ru: 'Верно. Двадцать семь это три в кубе.', uz: "To'g'ri. Yigirma yetti — uch ning kubi." }, on_wrong: { ru: 'Проверь: три умножить на три и ещё на три.', uz: "Tekshiring: uchni uchga, yana uchga ko'paytiring." } }
 ];
 const B8_ITEMS = [
   { type: 'mc', opt0: { ru: '2⁵', uz: '2⁵' }, opt1: { ru: '5²', uz: '5²' }, opt2: { ru: 'Они равны', uz: 'Ular teng' }, correct: 0, order: [1, 0, 2],
     lead: { ru: 'Что больше: 2⁵ или 5²?', uz: "Qaysi katta: 2⁵ yoki 5²?" },
-    wrong_1: { ru: '5² это двадцать пять, а 2⁵ это тридцать два. Больше 2⁵.', uz: "5² — yigirma besh, 2⁵ — o'ttiz ikki. Katta — 2⁵." },
+    wrong_1: { ru: 'Пять в квадрате это двадцать пять, а два в пятой это тридцать два. Больше два в пятой.', uz: "Besh kvadrati — yigirma besh, ikki ning beshinchisi — o'ttiz ikki. Katta — ikki ning beshinchisi." },
     wrong_2: { ru: 'Они не равны: тридцать два и двадцать пять. Больше 2⁵.', uz: "Ular teng emas: o'ttiz ikki va yigirma besh. Katta — 2⁵." },
     intro: { ru: 'Что больше: два в пятой или пять в квадрате?', uz: "Qaysi katta: ikki ning beshinchisi yoki besh ning kvadrati?" }, on_correct: { ru: 'Верно. Два в пятой тридцать два, больше двадцати пяти.', uz: "To'g'ri. Ikki ning beshinchisi o'ttiz ikki, yigirma beshdan katta." }, on_wrong: { ru: 'Посчитай каждую степень.', uz: "Har bir darajani hisoblang." } },
   { type: 'multiselect', items: [{ ru: '4³', uz: '4³' }, { ru: '8²', uz: '8²' }, { ru: '2⁶', uz: '2⁶' }, { ru: '6²', uz: '6²' }], mask: [true, true, true, false],
@@ -1471,9 +1471,9 @@ const B8_ITEMS = [
     intro: { ru: 'Вычисли десять в кубе.', uz: "O'n ning kubini hisoblang." }, on_correct: { ru: 'Верно. Десять в кубе это тысяча.', uz: "To'g'ri. O'n ning kubi ming." }, on_wrong: { ru: 'Десять умножь на десять и ещё на десять.', uz: "O'nni o'nga, yana o'nga ko'paytiring." } },
   { type: 'mc', opt0: { ru: '36', uz: '36' }, opt1: { ru: '12', uz: '12' }, opt2: { ru: '66', uz: '66' }, opt3: { ru: '18', uz: '18' }, correct: 0, order: [1, 0, 3, 2],
     lead: { ru: 'Сколько будет 6²?', uz: '6² nechaga teng?' },
-    wrong_1: { ru: '6² это не 6·2. Это 6·6 = 36.', uz: "6² — bu 6·2 emas. Bu 6·6 = 36." },
-    wrong_2: { ru: 'Проверь умножение: 6·6 = 36.', uz: "Ko'paytmani tekshiring: 6·6 = 36." },
-    wrong_3: { ru: '6² это 6·6, а не 6+6+6. Получается 36.', uz: "6² — bu 6·6, 6+6+6 emas. 36 chiqadi." },
+    wrong_1: { ru: 'Шесть в квадрате это не шесть умножить на два. Это шесть умножить на шесть, будет тридцать шесть.', uz: "Olti kvadrati — bu oltini ikkiga ko'paytirish emas. Bu oltini oltiga, o'ttiz olti bo'ladi." },
+    wrong_2: { ru: 'Проверь умножение: шесть умножить на шесть равно тридцать шесть.', uz: "Ko'paytmani tekshiring: oltini oltiga ko'paytirsak o'ttiz olti." },
+    wrong_3: { ru: 'Шесть в квадрате это шесть умножить на шесть, а не шесть плюс шесть плюс шесть. Получается тридцать шесть.', uz: "Olti kvadrati — bu oltini oltiga ko'paytirish, olti qo'shuv olti qo'shuv olti emas. O'ttiz olti chiqadi." },
     intro: { ru: 'Сколько будет шесть в квадрате?', uz: "Olti ning kvadrati nechaga teng?" }, on_correct: { ru: 'Верно. Шесть в квадрате тридцать шесть.', uz: "To'g'ri. Olti ning kvadrati o'ttiz olti." }, on_wrong: { ru: 'Это шесть умножить на шесть.', uz: "Bu olti karra olti." } }
 ];
 
