@@ -432,6 +432,44 @@ const makeAudioSegments = (screenContent, lang) => {
   return [{ id: 'aud_0', text, trigger: 'on_mount', waits_for: null }];
 };
 
+// Avto-zanjir segmentlar: barcha bo'laklar ketma-ket O'ZI yangraydi (step-tugmasiz).
+// Interaktiv bo'lmagan tushuntirish slaydlari uchun (s1, s5, s6).
+const makeAutoSegments = (screenContent, lang) => {
+  const a = screenContent.audio?.[lang];
+  const arr = Array.isArray(a) ? a : (a ? [a] : []);
+  return arr.map((text, i) => ({ id: `aud_${i}`, text, trigger: i === 0 ? 'on_mount' : 'after_previous', waits_for: null }));
+};
+
+// useCanAnswer — javob tanlash faqat ovoz tugagandan keyin (bola avval tinglaydi).
+// Ovoz yangrayotganda yoki hali boshlanmaganda -> false. Mute -> true. 12s himoya (bloklanmasin).
+function useCanAnswer(audio) {
+  const [hasPlayed, setHasPlayed] = useState(false);
+  useEffect(() => {
+    if (audio.isPlaying && !hasPlayed) { const id = setTimeout(() => setHasPlayed(true), 0); return () => clearTimeout(id); }
+    return undefined;
+  }, [audio.isPlaying, hasPlayed]);
+  useEffect(() => { const id = setTimeout(() => setHasPlayed(true), 12000); return () => clearTimeout(id); }, []);
+  return audio.muted || (hasPlayed && !audio.isPlaying);
+}
+
+// useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
+// (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 6s himoya.
+function useAdvanceGate(solved, audio) {
+  const [fbStarted, setFbStarted] = useState(false);
+  useEffect(() => {
+    if (solved && audio.isPlaying && !fbStarted) { const id = setTimeout(() => setFbStarted(true), 0); return () => clearTimeout(id); }
+    return undefined;
+  }, [solved, audio.isPlaying, fbStarted]);
+  useEffect(() => {
+    if (!solved) return undefined;
+    const id = setTimeout(() => setFbStarted(true), 6000);
+    return () => clearTimeout(id);
+  }, [solved]);
+  if (!solved) return false;
+  if (audio.muted) return true;
+  return fbStarted && !audio.isPlaying;
+}
+
 // ============================================================
 // БАЗОВЫЕ КОМПОНЕНТЫ
 // ============================================================
@@ -613,7 +651,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect }) => {
   const lang = useLang();
   const t = useT();
   const c = screenContent;
@@ -625,6 +663,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     trigger: 'on_mount',
     waits_for: { type: 'option_picked' }
   }]);
+  const canAns = useCanAnswer(audio);   // javob faqat ovoz tugagach
 
   // Веди-до-верного: экран НЕ блокируется на первом ответе.
   // Неверный гаснет и отключается, остальные активны, «Дальше» — только когда выбран верный.
@@ -638,6 +677,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const introAdvancedRef = useRef(wasSolved);
 
   const pick = (i) => {
+    if (!canAns) return;       // ovoz tugamaguncha javob yo'q
     if (solved) return;        // после верного — заблокировано
     if (wrong.has(i)) return;  // уже погашенный неверный — игнор
     const isCorrect = i === correctIdx;
@@ -688,10 +728,11 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     }
   };
 
+  const canAdv = useAdvanceGate(solved, audio);   // izoh ovozi tugagach Davom
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!solved} onClick={onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={onNext} label={<NextLabel/>}/>
     </>
   );
 
@@ -700,29 +741,35 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <div className="fade-up">{question}</div>
         {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        {!solved && (
         <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
           {options.map((opt, i) => {
-            let cls = 'option';
             const isWrongPicked = wrong.has(i);
-            if (solved) {
-              if (i === correctIdx) cls += ' option-correct';
-              else if (isWrongPicked) cls += ' option-picked-wrong';
-              else cls += ' option-wrong';
-            } else if (isWrongPicked) {
-              cls += ' option-picked-wrong';
-            }
-            const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
+            const cls = `option${isWrongPicked ? ' option-picked-wrong' : ''}`;
+            const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(50px, 7vw, 60px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && i === correctIdx ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
-                  {solved && i === correctIdx ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? T.accent : T.ink3 }}>
+                  {isWrongPicked ? '✗' : String.fromCharCode(65 + i)}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
             );
           })}
         </div>
+        )}
+        {/* to'g'ri javobdan keyin: faqat to'g'ri variant qoladi (noto'g'rilari yo'qoladi). celebrateOnCorrect bo'lsa -> animatsiya */}
+        {solved && !celebrateOnCorrect && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="option option-correct" disabled
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
+              <span style={{ flex: 1 }}>{options[correctIdx]}</span>
+            </button>
+          </div>
+        )}
+        {solved && celebrateOnCorrect && <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>{typeof celebrateOnCorrect === 'function' ? celebrateOnCorrect() : celebrateOnCorrect}</div>}
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
@@ -792,7 +839,7 @@ const CONTENT = {
   // ---- s1 EXPLORATION — sanash ketma-ketligi 1->5, har xil narsa (darslik 2-bob 1-dars) ----
   s1: {
     eyebrow: { ru: 'Считаем', uz: 'Sanaymiz' },
-    instruction: { ru: 'Мадина считает разные вещи', uz: "Madina turli narsalarni sanaydi" },
+    instruction: { ru: 'Числами считаем разные вещи', uz: "Sonlar bilan har xil narsani sanaymiz" },
     fact: { ru: 'Считать можно что угодно: цветы, яблоки, звёзды, рыбок.', uz: "Hamma narsani sanash mumkin: gul, olma, yulduz, baliq." },
     audio: {
       ru: [
@@ -871,17 +918,18 @@ const CONTENT = {
 
   // ---- s5 EXPLORATION — interaktiv ten-frame: har katakni bosib bitta olma qo'yamiz ----
   s5: {
-    eyebrow: { ru: 'По одному', uz: 'Bittadan' },
-    instruction: { ru: 'Мадина накрывает стол. Нажми на клетку — в неё ляжет яблоко', uz: "Madina dasturxon quryapti. Katakni bosing — unga olma tushadi" },
+    eyebrow: { ru: 'Накрываем стол', uz: 'Dasturxon' },
+    instruction: { ru: 'Мадина накрывает стол. Нажми на тарелку — на неё ляжет яблоко', uz: "Madina dasturxon tayyorlamoqda. Likobchani bosing — unga olma tushadi" },
     count_label: { ru: 'Посчитано', uz: 'Sanaldi' },
-    full_text: { ru: 'Пять клеток — пять яблок. В каждой по одному.', uz: "Besh katak — besh olma. Har katakda bittadan." },
+    full_text: { ru: 'Пять тарелок — пять яблок. На каждой по одному.', uz: "Besh likobcha — besh olma. Har likobchada bittadan." },
+    full_audio: { ru: 'Пять тарелок. Пять яблок. На каждой тарелке по одному.', uz: "Besh likobcha. Besh olma. Har likobchada bittadan." },
     audio: {
       ru: [
-        'Мадина накрывает стол. В каждую клетку ложится одно яблоко.',
+        'Мадина накрывает стол. На каждую тарелку кладём одно яблоко.',
         'Считай вслух. Один, два, три, четыре, пять.'
       ],
       uz: [
-        "Madina dasturxon quryapti. Har katakka bitta olma tushadi.",
+        "Madina dasturxon tayyorlamoqda. Har likobchaga bitta olma qo'yamiz.",
         "Ovoz chiqarib sanang. Bir, ikki, uch, to'rt, besh."
       ]
     }
@@ -896,11 +944,11 @@ const CONTENT = {
     audio: {
       ru: [
         'Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов.',
-        'Цифра один значит одну вещь. А цифра пять значит пять вещей.'
+        'Цифра один значит одну вещь. Цифра пять значит пять вещей. Сколько предметов, такая и цифра.'
       ],
       uz: [
         "Bular birdan beshgacha raqamlar. Har raqam nechta narsa borligini ko'rsatadi.",
-        "Bir raqami bitta narsa degani. Besh raqami esa beshta narsa degani."
+        "Bir raqami bitta narsa degani. Besh raqami beshta narsa degani. Nechta narsa bo'lsa, raqam ham shu."
       ]
     }
   },
@@ -926,11 +974,11 @@ const CONTENT = {
 
   // ---- s8 EXPLORATION — to'g'ri va teskari sanash (darslik 2-bob 13-dars) ----
   s8: {
-    eyebrow: { ru: 'Туда и обратно', uz: 'Oldinga va orqaga' },
-    instruction: { ru: 'Считаем вперёд и назад', uz: "Oldinga va orqaga sanaymiz" },
-    fact: { ru: 'Числа можно называть и вперёд, и назад.', uz: "Sonlarni oldinga ham, orqaga ham aytsa bo'ladi." },
+    eyebrow: { ru: 'По порядку и обратно', uz: "To'g'ri va teskari" },
+    instruction: { ru: 'Считаем по порядку и обратно', uz: "To'g'ri va teskari tartibda sanaymiz" },
+    fact: { ru: 'Числа можно называть по порядку и обратно.', uz: "Sonlarni to'g'ri va teskari tartibda sanasa bo'ladi." },
     audio: {
-      intro: { ru: 'Числа можно называть вперёд и назад. Слушай и считай вместе.', uz: "Sonlarni oldinga ham, orqaga ham aytamiz. Eshiting va birga sanang." }
+      intro: { ru: 'Сейчас посчитаем числа по порядку, а потом обратно. Смотри на число и считай со мной.', uz: "Hozir sonlarni to'g'ri tartibda, keyin teskari tartibda sanaymiz. Songa qarang va men bilan sanang." }
     }
   },
 
@@ -982,20 +1030,24 @@ const CONTENT = {
     }
   },
 
-  // ---- sd — MINI-DRILL: 3-5 tez misol (ball yo'q, mashq) ----
+  // ---- sd — O'YIN BLOKI: drag+tap mashqlar (ball yo'q) ----
   sd: {
-    eyebrow: { ru: 'Потренируемся', uz: 'Mashq qilamiz' },
-    instruction: { ru: 'Посчитай и нажми число', uz: 'Sana va sonni bos' },
-    correct_text: { ru: 'Верно. Идём дальше.', uz: "To'g'ri. Davom etamiz." },
-    done_text: { ru: 'Молодцы! Все примеры сосчитаны.', uz: "Barakalla! Hamma misol sanaldi." },
+    eyebrow: { ru: 'Игра', uz: "O'yin" },
+    q_basket: { ru: 'Положи в корзину три яблока и две вишни', uz: "Savatga uchta olma va ikkita gilos soling" },
+    q_puzzle: { ru: 'Собери картинку из пяти кусочков', uz: "Rasmni beshta bo'lakdan yig'ing" },
+    q_match: { ru: 'Перетащи цифру к нужной группе', uz: "Raqamni mos guruhga torting" },
+    q_order: { ru: 'Расставь числа по порядку', uz: "Sonlarni tartib bilan joylashtiring" },
+    correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
+    done_text: { ru: 'Молодцы! Все игры пройдены.', uz: "Barakalla! Hamma o'yin bajarildi." },
     audio: {
-      intro: { ru: 'Посчитай предметы и нажми правильное число. Готов? Начинаем.', uz: "Narsalarni sanang va to'g'ri sonni bosing. Tayyormisiz? Boshladik." }
+      intro: { ru: 'Поиграем. Перетаскивай пальцем или просто нажимай. Начинаем.', uz: "O'ynaymiz. Barmoq bilan torting yoki bosib qo'ying. Boshladik." }
     }
   },
 
   // ---- s11 SUMMARY — sanaydigan qo'l + can-do ----
   s11: {
     eyebrow: { ru: 'Готово', uz: 'Tayyor' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     main_1: { ru: 'Теперь вы умеете', uz: 'Endi siz' },
     main_2_em: { ru: 'считать до пяти', uz: 'beshgacha sanay olasiz' },
     connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
@@ -1004,8 +1056,8 @@ const CONTENT = {
       uz: "Keyingi darsda birdan beshgacha raqamlarni yozishni o'rganamiz."
     },
     audio: {
-      ru: 'Гость Мадины рад. Вы помогли сосчитать яблоки. Теперь вы умеете считать до пяти, даже на пальцах. На следующем уроке научимся писать цифры.',
-      uz: "Madinaning mehmoni xursand. Siz olmalarni sanashga yordam berdingiz. Endi siz beshgacha sanaysiz, hatto barmoqlarda ham. Keyingi darsda raqamlarni yozishni o'rganamiz."
+      ru: 'Молодец! Гость Мадины рад. Вы помогли сосчитать яблоки. Теперь вы умеете считать до пяти, даже на пальцах. На следующем уроке научимся писать цифры.',
+      uz: "Barakalla! Madinaning mehmoni xursand. Siz olmalarni sanashga yordam berdingiz. Endi siz beshgacha sanaysiz, hatto barmoqlarda ham. Keyingi darsda raqamlarni yozishni o'rganamiz."
     }
   }
 };
@@ -1062,7 +1114,8 @@ const ICON = {
   star: <path d="M20 4 L24.7 14.6 L36 15.6 L27.4 23 L30 34 L20 28 L10 34 L12.6 23 L4 15.6 L15.3 14.6 Z" fill="#019ACB"/>,
   fish: <g><ellipse cx="17" cy="20" rx="12" ry="8" fill="#019ACB"/><path d="M29 20 L38 13 L38 27 Z" fill="#019ACB"/><circle cx="12" cy="18" r="1.7" fill="#FFFFFF"/></g>,
   flower: <g><circle cx="20" cy="11" r="4.5" fill="#FF7AA8"/><circle cx="11.4" cy="17.2" r="4.5" fill="#FF7AA8"/><circle cx="14.7" cy="27.3" r="4.5" fill="#FF7AA8"/><circle cx="25.3" cy="27.3" r="4.5" fill="#FF7AA8"/><circle cx="28.6" cy="17.2" r="4.5" fill="#FF7AA8"/><circle cx="20" cy="20" r="5" fill="#FFC23C"/></g>,
-  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>
+  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
+  cherry: <g><path d="M20 9 Q26 11 28 27" stroke="#1F7A4D" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q15 14 12 26" stroke="#1F7A4D" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M16 6 Q20 4 24 6" stroke="#1F7A4D" strokeWidth="2" fill="none" strokeLinecap="round"/><circle cx="12" cy="30" r="7.5" fill="#C0263B"/><circle cx="27" cy="28" r="7.5" fill="#E0344F"/><ellipse cx="10" cy="27" rx="2" ry="3" fill="rgba(255,255,255,0.45)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
 
@@ -1155,7 +1208,7 @@ const CountExamples = ({ examples, onDone, stepMs = 680, pauseMs = 1100 }) => {
 // CountTrack — son qatori: belgi oldinga (1->5), 5 da pauza, keyin orqaga (5->1).
 // speak=true bo'lsa, har songa kelganda o'sha son ovozda aytiladi (vizual bilan sinxron).
 // Yo'nalish yorlig'i ko'rinadi; demo kuzatish uchun takrorlanadi. reduced-motion -> statik.
-const CountTrack = ({ max = 5, speak = false, muted = false, startDelay = 650, onDone }) => {
+const CountTrack = ({ max = 5, speak = false, muted = false, startDelay = 650, onDone, started = true }) => {
   const lang = useLang();
   const reduced = usePrefersReducedMotion();
   const [pos, setPos] = useState(0);
@@ -1163,6 +1216,7 @@ const CountTrack = ({ max = 5, speak = false, muted = false, startDelay = 650, o
   const mutedRef = useRef(muted);
   useEffect(() => { mutedRef.current = muted; }, [muted]);
   useEffect(() => {
+    if (!started) return;   // "Boshlash" bosilmaguncha turadi (statik qator)
     if (reduced) { const id = setTimeout(() => { setPos(0); setDir(0); if (onDone) onDone(); }, 0); return () => clearTimeout(id); }
     const steps = [];
     for (let n = 1; n <= max; n += 1) steps.push({ n, d: 1 });
@@ -1183,8 +1237,8 @@ const CountTrack = ({ max = 5, speak = false, muted = false, startDelay = 650, o
     };
     timer = setTimeout(tick, startDelay);
     return () => { alive = false; clearTimeout(timer); };
-  }, [max, reduced, speak, lang, startDelay, onDone]);
-  const label = dir > 0 ? (lang === 'uz' ? 'Oldinga' : 'Вперёд') : dir < 0 ? (lang === 'uz' ? 'Orqaga' : 'Назад') : ' ';
+  }, [max, reduced, speak, lang, startDelay, onDone, started]);
+  const label = dir > 0 ? (lang === 'uz' ? "To'g'ri" :'Вперёд') : dir < 0 ? (lang === 'uz' ? 'Teskari' :'Назад') : ' ';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)' }}>
       <div className={`g1-track-label mono ${dir < 0 ? 'back' : ''}`}>
@@ -1202,11 +1256,15 @@ const CountTrack = ({ max = 5, speak = false, muted = false, startDelay = 650, o
 };
 
 // MissingTrack — son qatori bo'sh joy bilan (figura: 1 2 ? 4 5).
-const MissingTrack = ({ seq }) => (
+// solved bo'lsa, bo'sh joyga javob (yashil) paydo bo'ladi.
+const MissingTrack = ({ seq, answer, solved }) => (
   <div className="g1-track">
-    {seq.map((v, i) => (
-      <div key={i} className={`g1-track-tile ${v === '?' ? 'gap' : ''}`}><span className="mono">{v}</span></div>
-    ))}
+    {seq.map((v, i) => {
+      if (v === '?' && solved && answer != null) {
+        return <div key={i} className="g1-track-tile g1-track-filled g1-pop-in"><span className="mono">{answer}</span></div>;
+      }
+      return <div key={i} className={`g1-track-tile ${v === '?' ? 'gap' : ''}`}><span className="mono">{v}</span></div>;
+    })}
   </div>
 );
 
@@ -1256,6 +1314,37 @@ const CountingHand = ({ max = 5, big = false, loop = false }) => {
   );
 };
 
+// DressStars — Madinaning ko'ylagi + ustidagi N ta yulduz (s4 savoliga mos figura).
+const DRESS_STAR_POS = [[50, 52], [37, 70], [63, 70], [44, 88], [58, 88]];
+const DressStars = ({ n = 3 }) => (
+  <div className="g1-dress">
+    <svg viewBox="0 0 100 122" className="g1-dress-svg" aria-hidden="true">
+      <circle cx="50" cy="12" r="8" fill="#F2B58C"/>
+      <path d="M34 22 Q50 15 66 22 L58 46 L78 106 Q50 116 22 106 L42 46 Z" fill="#FF7AA8"/>
+    </svg>
+    {Array.from({ length: n }).map((_, i) => (
+      <span key={i} className="g1-dress-star g1-twinkle" style={{ left: `${DRESS_STAR_POS[i][0]}%`, top: `${DRESS_STAR_POS[i][1]}%`, animationDelay: `${i * 0.25}s` }}>
+        <svg viewBox="0 0 40 40"><path d="M20 4 L24.7 14.6 L36 15.6 L27.4 23 L30 34 L20 28 L10 34 L12.6 23 L4 15.6 L15.3 14.6 Z" fill="#FFC23C"/></svg>
+      </span>
+    ))}
+  </div>
+);
+
+// BasketCelebration — yakuniy testда to'g'ri javobdan keyin: savat ko'tariladi, olmalar
+// birma-bir sekin tushadi (ko'z charchamaydi). reduced-motion -> darrov.
+const BasketCelebration = ({ n = 5 }) => (
+  <div className="g1-celebrate">
+    <div className="g1-realbasket g1-celebrate-basket">
+      <span className="g1-rb-handle"/>
+      <div className="g1-rb-bowl">
+        {Array.from({ length: n }).map((_, i) => (
+          <span key={i} className="g1-token-obj g1-celebrate-apple" style={{ animationDelay: `${0.6 + i * 0.45}s` }}><ObjSvg kind="apple"/></span>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 // AmbientBg — bo'sh joyni to'ldiruvchi yengil suzuvchi shakllar (dekor, reduced-motion bilan o'chadi).
 const AmbientBg = () => (
   <div className="amb" aria-hidden="true">
@@ -1265,54 +1354,178 @@ const AmbientBg = () => (
   </div>
 );
 
-// MiniDrill — bitta slaydda 3-5 tez misol: narsalarni sana, to'g'ri sonni bos.
-// Past bosqichli mashq (ball yo'q), веди-до-верного har item uchun.
-const DRILL_ITEMS = [
-  { n: 3, kind: 'star' },
-  { n: 2, kind: 'apple' },
-  { n: 5, kind: 'fish' },
-  { n: 4, kind: 'flower' },
+// ============================================================
+// GameDrill — drag+tap o'yin bloki (4 mashq): olma yig'ish / pazl / juftlash / tartiblash.
+// Drag (pointer events, touch'da ishlaydi) + TAP-zaxira (tok bos -> zona bos). Ball yo'q.
+// ============================================================
+const PIECE_COLORS = ['#FF4F28', '#019ACB', '#1F7A4D', '#FFC23C', '#FF7AA8'];
+const FLOWER_POS = [[50, 14], [82, 40], [69, 80], [31, 80], [18, 40]];   // 5 bargcha joylashuvi (% )
+const GAME_EX = [
+  // savat: chalg'ituvchilar orasidan kerakli narsalarni topib sanab solish
+  { type: 'basket', targets: { apple: 3, cherry: 2 }, tray: [{ kind: 'apple', count: 5 }, { kind: 'cherry', count: 4 }, { kind: 'star', count: 3 }, { kind: 'fish', count: 2 }] },
+  { type: 'puzzle', n: 5 },
+  { type: 'match', groups: [2, 4, 5] },
+  { type: 'order', n: 5 },
 ];
-const DRILL_OPTS = [2, 3, 4, 5];
-const MiniDrill = (props) => {
+const kindOfId = (id) => id.replace(/[0-9]+$/, '');
+const exTokens = (ex) => {
+  if (ex.type === 'basket') {
+    const toks = [];
+    ex.tray.forEach((g) => { for (let i = 0; i < g.count; i += 1) toks.push({ id: `${g.kind}${i}`, kind: g.kind }); });
+    return toks;
+  }
+  if (ex.type === 'puzzle') return Array.from({ length: ex.n }, (_, i) => ({ id: `p${i}`, color: PIECE_COLORS[i % PIECE_COLORS.length] }));
+  if (ex.type === 'match') return ex.groups.map((v) => ({ id: `n${v}`, value: v }));
+  return [1, 2, 3, 4, 5].map((v) => ({ id: `o${v}`, value: v }));   // order (natural; tray aralashadi)
+};
+const exZones = (ex) => {
+  if (ex.type === 'basket') return [{ id: 'basket' }];
+  if (ex.type === 'puzzle') return Array.from({ length: ex.n }, (_, i) => ({ id: `s${i}` }));
+  if (ex.type === 'match') return ex.groups.map((v) => ({ id: `b${v}`, count: v }));
+  return [1, 2, 3, 4, 5].map((i) => ({ id: `z${i}`, order: i }));
+};
+const exComplete = (ex, placement) => {
+  if (ex.type === 'basket') {
+    const cnt = (k) => Object.keys(placement).filter((tid) => placement[tid] === 'basket' && kindOfId(tid) === k).length;
+    return Object.keys(ex.targets).every((k) => cnt(k) === ex.targets[k]);
+  }
+  return exTokens(ex).every((tk) => placement[tk.id] != null);
+};
+
+// useDnd — pointer-drag + tap. onDrop(tokenId, zoneId|null). Tap: tok bos -> sel; zona bos -> joylash.
+function useDnd(onDrop) {
+  const [drag, setDrag] = useState(null);   // { id, x, y }
+  const [sel, setSel] = useState(null);
+  const startRef = useRef(null);
+  const onDropRef = useRef(onDrop);
+  useEffect(() => { onDropRef.current = onDrop; }, [onDrop]);
+  useEffect(() => {
+    if (!drag) return undefined;
+    const move = (e) => {
+      const s = startRef.current;
+      if (s && (Math.abs(e.clientX - s.sx) > 6 || Math.abs(e.clientY - s.sy) > 6)) s.moved = true;
+      setDrag((d) => (d ? { ...d, x: e.clientX, y: e.clientY } : null));
+    };
+    const up = (e) => {
+      const s = startRef.current;
+      startRef.current = null;
+      setDrag(null);
+      if (!s) return;
+      if (!s.moved) { setSel(s.id); return; }   // tap -> tanlash
+      const el = (typeof document !== 'undefined') ? document.elementFromPoint(e.clientX, e.clientY) : null;
+      const z = el && el.closest ? el.closest('[data-zone]') : null;
+      onDropRef.current(s.id, z ? z.getAttribute('data-zone') : null);
+      setSel(null);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+    return () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
+    };
+  }, [drag]);
+  const startDrag = (e, id) => {
+    if (e.button != null && e.button !== 0) return;
+    startRef.current = { id, sx: e.clientX, sy: e.clientY, moved: false };
+    setDrag({ id, x: e.clientX, y: e.clientY });
+  };
+  const tapZone = (zoneId) => { if (sel != null) { onDropRef.current(sel, zoneId); setSel(null); } };
+  return { drag, sel, startDrag, tapZone };
+}
+
+const GameDrill = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.sd;
   const sfx = useSfx();
   const audio = useAudio([{ id: 'sd_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
-  const [idx, setIdx] = useState(0);
+  const canAns = useCanAnswer(audio);
+  const total = GAME_EX.length;
+  const [exIdx, setExIdx] = useState(0);
+  const [placement, setPlacement] = useState({});   // tokenId -> zoneId
   const [solvedItem, setSolvedItem] = useState(false);
-  const [wrong, setWrong] = useState(() => new Set());
-  const [opts, setOpts] = useState(() => [...DRILL_OPTS]);   // variantlar (aralashtiriladi)
-  const item = DRILL_ITEMS[idx];
-  const total = DRILL_ITEMS.length;
-  const allDone = idx >= total - 1 && solvedItem;
+  const ex = GAME_EX[exIdx];
+  const tokens = exTokens(ex);
+  const zones = exZones(ex);
+  const allDone = exIdx >= total - 1 && solvedItem;
+  const tokenById = (id) => tokens.find((tk) => tk.id === id);
+  const tokenInZone = (zid) => Object.keys(placement).find((tid) => placement[tid] === zid);
+  const promptText = c[`q_${ex.type}`] ? t(c[`q_${ex.type}`]) : '';
 
-  const shuffledInitRef = useRef(false);
+  const [displayOrder, setDisplayOrder] = useState(() => exTokens(GAME_EX[0]).map((tk) => tk.id));
+  const shuffledRef = useRef(false);
   useEffect(() => {
-    if (!shuffledInitRef.current) { shuffledInitRef.current = true; setOpts(shuffleArr([...DRILL_OPTS])); }
-  }, []);
+    if (shuffledRef.current) return undefined;
+    shuffledRef.current = true;
+    const id = setTimeout(() => setDisplayOrder(shuffleArr(exTokens(GAME_EX[exIdx]).map((tk) => tk.id))), 0);
+    return () => clearTimeout(id);
+  }, [exIdx]);
 
-  const prevIdxRef = useRef(0);
+  // har mashq savolini ovozli aytish
+  const prevRef = useRef(-1);
   useEffect(() => {
-    if (idx !== prevIdxRef.current) {
-      prevIdxRef.current = idx;
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.instruction[lang]); }
+    if (exIdx !== prevRef.current) {
+      prevRef.current = exIdx;
+      if (!audio.muted) { const e = getAudioEngine(); if (e && c[`q_${GAME_EX[exIdx].type}`]) e.pushOneOff(c[`q_${GAME_EX[exIdx].type}`][lang]); }
     }
-  }, [idx, audio.muted, c, lang]);
+  }, [exIdx, audio.muted, lang, c]);
 
-  const pick = (val) => {
-    if (solvedItem || wrong.has(val)) return;
-    if (val === item.n) {
+  const placedKind = (kind) => Object.keys(placement).filter((tid) => placement[tid] === 'basket' && kindOfId(tid) === kind).length;
+  const accept = (tokenId, zoneId) => {
+    const tok = tokenById(tokenId);
+    if (!tok) return false;
+    if (ex.type === 'basket') return zoneId === 'basket' && (ex.targets[tok.kind] || 0) > placedKind(tok.kind);
+    if (ex.type === 'puzzle') return zones.some((z) => z.id === zoneId) && tokenInZone(zoneId) == null;
+    if (ex.type === 'match') { const z = zones.find((zz) => zz.id === zoneId); return !!z && z.count === tok.value; }
+    const zo = zones.find((zz) => zz.id === zoneId);
+    return !!zo && zo.order === tok.value && tokenInZone(zoneId) == null;
+  };
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (!canAns || solvedItem || !zoneId) return;
+    if (placement[tokenId]) return;
+    if (!accept(tokenId, zoneId)) { sfx.playWrong(); return; }
+    setPlacement((prev) => ({ ...prev, [tokenId]: zoneId }));
+    if (!audio.muted) {
+      const e = getAudioEngine();
+      if (e) {
+        if (ex.type === 'basket') { const tk = tokenById(tokenId); if (tk) e.pushOneOff(NUM_WORDS[lang][placedKind(tk.kind) + 1] || ''); }   // shu turdan nechinchi
+        else if (ex.type === 'match' || ex.type === 'order') { const tk = tokenById(tokenId); if (tk && tk.value) e.pushOneOff(NUM_WORDS[lang][tk.value] || ''); }
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canAns, solvedItem, placement, exIdx, audio.muted, lang]);
+  const dnd = useDnd(handleDrop);
+
+  // tugallanganini aniqlash
+  useEffect(() => {
+    if (solvedItem) return undefined;
+    const done = exComplete(GAME_EX[exIdx], placement);
+    if (!done) return undefined;
+    const tm = setTimeout(() => {
       setSolvedItem(true);
       sfx.playCorrect();
-      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff({ ru: NUM_WORDS.ru[item.n], uz: NUM_WORDS.uz[item.n] }[lang]); e.pushOneOff((idx >= total - 1 ? c.done_text : c.correct_text)[lang]); } }
-    } else {
-      sfx.playWrong();
-      setWrong(prev => { const s = new Set(prev); s.add(val); return s; });
-    }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((exIdx >= total - 1 ? c.done_text : c.correct_text)[lang]); }
+    }, 0);
+    return () => clearTimeout(tm);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placement, solvedItem, exIdx]);
+
+  const nextItem = () => {
+    const ni = exIdx + 1;
+    setExIdx(ni);
+    setDisplayOrder(shuffleArr(exTokens(GAME_EX[ni]).map((tk) => tk.id)));
+    setPlacement({});
+    setSolvedItem(false);
   };
-  const nextItem = () => { setIdx(i => i + 1); setOpts(shuffleArr([...DRILL_OPTS])); setSolvedItem(false); setWrong(new Set()); };
+
+  const tokenVisual = (tok) => {
+    if (ex.type === 'basket') return <span className="g1-token-obj"><ObjSvg kind={tok.kind}/></span>;
+    if (ex.type === 'puzzle') return <span className="g1-petal"/>;
+    return <span className="g1-token-num mono">{tok.value}</span>;
+  };
+  const trayTokens = displayOrder.map(tokenById).filter((tk) => tk && !placement[tk.id]);
 
   const navContent = (
     <>
@@ -1322,39 +1535,97 @@ const MiniDrill = (props) => {
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
-          <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{idx + 1} / {total}</span></p>
-          <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(16px, 3vw, 24px)' }}>
-            <Pips n={item.n} kind={item.kind}/>
-          </div>
-          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-            {opts.map((val) => {
-              const isCorrect = solvedItem && val === item.n;
-              const isWrong = wrong.has(val);
-              return (
-                <button key={val} disabled={solvedItem || isWrong} onClick={() => pick(val)}
-                  className={`g1-tile ${isCorrect ? 'g1-tile-ok' : ''} ${isWrong ? 'g1-tile-used' : ''}`}
-                  style={{ width: '100%' }}>
-                  {val}
-                </button>
-              );
-            })}
-          </div>
-          {solvedItem && (
-            <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <p className="body" style={{ margin: 0, color: T.success, fontWeight: 700 }}>
-                <span aria-hidden="true">✓ </span>{t(allDone ? c.done_text : c.correct_text)}
-              </p>
-              {!allDone && (
-                <button className="btn-white-accent" onClick={nextItem}
-                  style={{ padding: 'clamp(8px, 1.4vw, 11px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
-                  {lang === 'uz' ? 'Keyingisi' : 'Дальше'}
-                </button>
-              )}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <p className="h-sub title fade-up">{promptText} <span className="mono small" style={{ color: T.ink3 }}>{exIdx + 1} / {total}</span></p>
+
+        {/* nishon (zonalar) */}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          {ex.type === 'basket' && (
+            <div className="g1-basketwrap">
+              <div className="g1-recipe">
+                {Object.keys(ex.targets).map((k) => (
+                  <span key={k} className="g1-recipe-item">
+                    <span className="g1-recipe-ic"><ObjSvg kind={k}/></span>
+                    <span className="g1-recipe-cnt mono">{placedKind(k)} / {ex.targets[k]}</span>
+                  </span>
+                ))}
+              </div>
+              <div className="g1-realbasket g1-dropzone" data-zone="basket" onClick={() => dnd.tapZone('basket')}>
+                <span className="g1-rb-handle"/>
+                <div className="g1-rb-bowl">
+                  {Object.keys(placement).map((tid) => <span key={tid} className="g1-token-obj"><ObjSvg kind={kindOfId(tid)}/></span>)}
+                </div>
+              </div>
+            </div>
+          )}
+          {ex.type === 'puzzle' && (
+            <div className="g1-flowerwrap">
+              <div className="g1-flower">
+                <div className="g1-flower-center"/>
+                {zones.map((z, i) => {
+                  const tid = tokenInZone(z.id);
+                  return <div key={z.id} className={`g1-petal-slot g1-dropzone ${tid ? 'filled' : ''}`} data-zone={z.id}
+                    style={{ left: `${FLOWER_POS[i][0]}%`, top: `${FLOWER_POS[i][1]}%` }} onClick={() => dnd.tapZone(z.id)}>
+                    {tid && <span className="g1-petal g1-pop-in"/>}
+                  </div>;
+                })}
+              </div>
+              <span className="g1-basket-count mono">{Object.keys(placement).length} / {ex.n}</span>
+            </div>
+          )}
+          {ex.type === 'match' && (
+            <div className="g1-mbaskets">
+              {zones.map((z) => {
+                const tid = tokenInZone(z.id);
+                return <div key={z.id} className="g1-mbasket g1-dropzone" data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
+                  <div className="g1-mbasket-num mono">{tid ? tokenById(tid).value : ''}</div>
+                  <Pips n={z.count} kind="apple"/>
+                </div>;
+              })}
+            </div>
+          )}
+          {ex.type === 'order' && (
+            <div className="g1-order">
+              {zones.map((z) => {
+                const tid = tokenInZone(z.id);
+                return <div key={z.id} className={`g1-pos g1-dropzone ${tid ? 'filled' : ''}`} data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
+                  {tid && <span className="g1-token-num mono">{tokenById(tid).value}</span>}
+                </div>;
+              })}
             </div>
           )}
         </div>
+
+        {/* tray (sudraladigan tokenlar) */}
+        {!solvedItem && (
+          <div className="g1-tray fade-up delay-2">
+            {trayTokens.map((tok) => (
+              <div key={tok.id} className={`g1-token ${dnd.sel === tok.id ? 'g1-token-sel' : ''}`}
+                onPointerDown={(e) => { if (canAns && !solvedItem) { e.preventDefault(); dnd.startDrag(e, tok.id); } }}>
+                {tokenVisual(tok)}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {solvedItem && (
+          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 700 }}>
+              <span aria-hidden="true">✓ </span>{t(allDone ? c.done_text : c.correct_text)}
+            </p>
+            {!allDone && (
+              <button className="btn-white-accent" onClick={nextItem}
+                style={{ padding: 'clamp(8px, 1.4vw, 11px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
+                {lang === 'uz' ? 'Keyingisi' : 'Дальше'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* drag arvohi */}
+        {dnd.drag && tokenById(dnd.drag.id) && (
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+        )}
       </div>
     </Stage>
   );
@@ -1418,7 +1689,7 @@ const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
-  const audio = useAudio(makeAudioSegments(c, lang));
+  const audio = useAudio(makeAutoSegments(c, lang));
   const [done, setDone] = useState(false);
   const onDone = useCallback(() => setDone(true), []);
   const navContent = (
@@ -1448,11 +1719,13 @@ const Screen2 = (props) => {
   const t = useT();
   const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
+  const canAns = useCanAnswer(audio);   // Boshlash faqat ovoz tugagach
+  const [started, setStarted] = useState(false);
   const N = 5;
   const [orders, setOrders] = useState({});
   const count = Object.keys(orders).length;
   const tap = (i) => {
-    if (orders[i]) return;
+    if (!started || orders[i]) return;
     const order = count + 1;
     setOrders(prev => ({ ...prev, [i]: order }));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][order]); }
@@ -1471,7 +1744,7 @@ const Screen2 = (props) => {
         <div className="frame fade-up delay-1">
           <div className="g1-count-grid">
             {Array.from({ length: N }).map((_, i) => (
-              <button key={i} className={`g1-item ${orders[i] ? 'g1-item-on' : ''}`} onClick={() => tap(i)}>
+              <button key={i} className={`g1-item ${orders[i] ? 'g1-item-on' : ''}`} onClick={() => tap(i)} disabled={!started}>
                 <span className={`g1-item-icon ${orders[i] ? '' : 'g1-bob'}`} style={{ animationDelay: `${(i % 5) * 0.16}s` }}><ObjSvg kind="apple"/></span>
                 {orders[i] && <span className="g1-item-num mono">{orders[i]}</span>}
               </button>
@@ -1479,6 +1752,14 @@ const Screen2 = (props) => {
           </div>
           <div className="g1-bigcount mono">{t(c.count_label)}: {count}</div>
         </div>
+        {!started && (
+          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="btn-white-accent" disabled={!canAns} onClick={() => setStarted(true)}
+              style={{ padding: 'clamp(10px,1.7vw,12px) clamp(22px,3vw,30px)', fontSize: 'clamp(13px,1.6vw,15px)' }}>
+              {lang === 'uz' ? 'Boshlash' : 'Начать'}
+            </button>
+          </div>
+        )}
       </div>
     </Stage>
   );
@@ -1525,7 +1806,7 @@ const Screen4 = (props) => {
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       options={[bigNum('2'), bigNum('3'), bigNum('4'), bigNum('5')]}
       correctIdx={1}
-      figure={() => <Pips n={3} kind="star" anim="twinkle"/>}
+      figure={() => <DressStars n={3}/>}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -1537,16 +1818,18 @@ const Screen5 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s5;
-  const audio = useAudio(makeAudioSegments(c, lang));
+  const audio = useAudio(makeAutoSegments(c, lang));
+  const canAns = useCanAnswer(audio);   // ovoz tugagach "Boshlash" ochiladi
+  const [started, setStarted] = useState(false);
   const N = 5;
   const [orders, setOrders] = useState({});   // katak indeksi -> tartib (1..5)
   const count = Object.keys(orders).length;
   const full = count === N;
   const tap = (i) => {
-    if (orders[i]) return;
+    if (!started || orders[i]) return;
     const order = count + 1;
     setOrders(prev => ({ ...prev, [i]: order }));
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][order]); }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][order]); if (order === N) e.pushOneOff(c.full_audio[lang]); } }
   };
   const navContent = (
     <>
@@ -1559,20 +1842,42 @@ const Screen5 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-          <div className="g1-tenframe">
-            {Array.from({ length: N }).map((_, i) => (
-              <button key={i} className={`g1-cell-btn ${orders[i] ? 'filled' : ''}`} onClick={() => tap(i)} disabled={!!orders[i]}>
-                {orders[i] && (
-                  <span className="g1-cell-obj g1-drop">
-                    <ObjSvg kind="apple"/>
-                    <span className="g1-cell-num mono">{orders[i]}</span>
-                  </span>
-                )}
-              </button>
-            ))}
+          <div className="g1-dasturxon">
+            <div className="g1-dx-decor">
+              <svg className="g1-dx-non" viewBox="0 0 50 50" aria-hidden="true">
+                <circle cx="25" cy="25" r="23" fill="#D9A35A"/>
+                <circle cx="25" cy="25" r="22" fill="none" stroke="#B9803A" strokeWidth="2.5"/>
+                <circle cx="25" cy="25" r="9" fill="#C28438"/>
+                <circle cx="25" cy="25" r="9" fill="none" stroke="#A86B28" strokeWidth="1.5" strokeDasharray="2 3"/>
+              </svg>
+              <svg className="g1-dx-teapot" viewBox="0 0 64 50" aria-hidden="true">
+                <path d="M44 24 Q54 24 52 33 Q50 40 44 38" stroke="#019ACB" strokeWidth="4" fill="none"/>
+                <ellipse cx="28" cy="32" rx="17" ry="13" fill="#019ACB"/>
+                <path d="M13 30 Q3 28 2 19 L9 22 Q13 26 19 28 Z" fill="#019ACB"/>
+                <rect x="22" y="15" width="12" height="5" rx="2.5" fill="#017BA3"/>
+                <circle cx="28" cy="12" r="3" fill="#017BA3"/>
+                <path d="M20 33 q8 5 16 0" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none"/>
+              </svg>
+            </div>
+            <div className="g1-plates">
+              {Array.from({ length: N }).map((_, i) => (
+                <button key={i} className={`g1-plate ${orders[i] ? 'filled' : ''}`} onClick={() => tap(i)} disabled={!!orders[i]}>
+                  {orders[i] && <span className="g1-plate-obj g1-drop"><ObjSvg kind="apple"/></span>}
+                  {orders[i] && <span className="g1-plate-num mono">{orders[i]}</span>}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="g1-bigcount mono">{t(c.count_label)}: {count}</div>
         </div>
+        {!started && (
+          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="btn-white-accent" disabled={!canAns} onClick={() => setStarted(true)}
+              style={{ padding: 'clamp(10px,1.7vw,12px) clamp(22px,3vw,30px)', fontSize: 'clamp(13px,1.6vw,15px)' }}>
+              {lang === 'uz' ? 'Boshlash' : 'Начать'}
+            </button>
+          </div>
+        )}
         {full && (
           <div className="frame-success fade-up">
             <p className="body" style={{ margin: 0, color: T.success, fontWeight: 700 }}>
@@ -1590,11 +1895,25 @@ const Screen6 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s6;
-  const audio = useAudio(makeAudioSegments(c, lang));
+  const segs = makeAutoSegments(c, lang);
+  const audio = useAudio(segs);
+  const active = useCountOnce(5, { loop: true, stepMs: 950, holdMs: 1100 });   // jonli: urg'u qatordan qatorga ko'chadi
+  // "Davom" faqat oxirgi ovoz tugagandan keyin (metodist talabi)
+  const lastId = segs.length ? segs[segs.length - 1].id : null;
+  const [audioDone, setAudioDone] = useState(false);
+  const reachedLastRef = useRef(false);
+  useEffect(() => {
+    if (lastId && audio.currentSegment === lastId) reachedLastRef.current = true;
+    const finished = audio.muted || (reachedLastRef.current && !audio.isPlaying);
+    if (!finished) return undefined;
+    const id = setTimeout(() => setAudioDone(true), 0);
+    return () => clearTimeout(id);
+  }, [audio.currentSegment, audio.isPlaying, audio.muted, lastId]);
+  useEffect(() => { const id = setTimeout(() => setAudioDone(true), 14000); return () => clearTimeout(id); }, []);  // himoya: bloklanib qolmasin
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!audioDone} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
@@ -1605,9 +1924,9 @@ const Screen6 = (props) => {
         </h2>
         <div className="frame fade-up delay-1">
           {[1, 2, 3, 4, 5].map((n, i) => (
-            <div key={n} className={`g1-numrow fade-up delay-${Math.min(i + 1, 4)}`}>
+            <div key={n} className={`g1-numrow fade-up delay-${Math.min(i + 1, 4)} ${active === n ? 'g1-numrow-on' : ''}`}>
               <span className="g1-digit mono">{n}</span>
-              <Pips n={n} kind="apple"/>
+              <Pips n={n} kind="apple" anim={active === n ? 'bob' : 'none'}/>
             </div>
           ))}
         </div>
@@ -1623,8 +1942,10 @@ const Screen7 = (props) => {
   const c = CONTENT.s7;
   const sfx = useSfx();
   const audio = useAudio([{ id: 's7_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const canAns = useCanAnswer(audio);
 
   const GROUPS = [2, 5, 4];   // ko'rinish tartibi (guruhdagi narsalar soni)
+  const GROUP_KIND = { 2: 'apple', 5: 'star', 4: 'fish' };   // har guruh boshqa narsa (xilma-xil)
   const TILES = [4, 2, 5];    // ko'rinish tartibi (raqamlar)
   const wasSolved = props.storedAnswer?.solved === true;
   const [placed, setPlaced] = useState(() => wasSolved ? { 2: true, 4: true, 5: true } : {});
@@ -1634,6 +1955,7 @@ const Screen7 = (props) => {
   const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
   const introAdvancedRef = useRef(wasSolved);
   const solved = Object.keys(placed).length === GROUPS.length;
+  const canAdv = useAdvanceGate(solved, audio);   // izoh ovozi tugagach Davom
 
   const recordIfSolved = (nextPlaced) => {
     if (Object.keys(nextPlaced).length === GROUPS.length) {
@@ -1648,11 +1970,11 @@ const Screen7 = (props) => {
   };
 
   const tapTile = (val) => {
-    if (placed[val] || solved) return;
+    if (placed[val] || solved || !canAns) return;
     setSelected(val);
   };
   const tapGroup = (count) => {
-    if (placed[count] || solved || selected === null) return;
+    if (placed[count] || solved || selected === null || !canAns) return;
     if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
     attemptsRef.current += 1;
     const ok = selected === count;
@@ -1676,7 +1998,7 @@ const Screen7 = (props) => {
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!solved} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
@@ -1691,7 +2013,7 @@ const Screen7 = (props) => {
             else if (selected !== null) cls += ' g1-group-armed';
             return (
               <div key={count} className={cls} onClick={() => tapGroup(count)}>
-                <Pips n={count} kind="apple"/>
+                <Pips n={count} kind={GROUP_KIND[count]}/>
                 <div className="g1-slot">{placed[count] && <span className="g1-slot-num">{count}</span>}</div>
               </div>
             );
@@ -1699,7 +2021,7 @@ const Screen7 = (props) => {
         </div>
         <div className="g1-tiles fade-up delay-2">
           {TILES.map((val) => (
-            <button key={val} disabled={!!placed[val] || solved} onClick={() => tapTile(val)}
+            <button key={val} disabled={!!placed[val] || solved || !canAns} onClick={() => tapTile(val)}
               className={`g1-tile ${selected === val ? 'g1-tile-sel' : ''} ${placed[val] ? 'g1-tile-used' : ''}`}>
               {val}
             </button>
@@ -1722,6 +2044,8 @@ const Screen8 = (props) => {
   const t = useT();
   const c = CONTENT.s8;
   const audio = useAudio([{ id: 's8_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAns = useCanAnswer(audio);   // Boshlash faqat ovoz tugagach
+  const [started, setStarted] = useState(false);
   const [done, setDone] = useState(false);
   const onDone = useCallback(() => setDone(true), []);
   const navContent = (
@@ -1734,8 +2058,14 @@ const Screen8 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
-          <CountTrack max={5} speak muted={audio.muted} startDelay={2600} onDone={onDone}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 18px)' }}>
+          <CountTrack max={5} speak muted={audio.muted} startDelay={400} started={started} onDone={onDone}/>
+          {!started && (
+            <button className="btn-white-accent" disabled={!canAns} onClick={() => setStarted(true)}
+              style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(22px, 3vw, 30px)', fontSize: 'clamp(13px, 1.6vw, 15px)' }}>
+              {lang === 'uz' ? 'Boshlash' : 'Начать'}
+            </button>
+          )}
         </div>
         <div className="frame-tip fade-up delay-2">
           <p className="body" style={{ margin: 0 }}><b>{lang === 'uz' ? 'Bilasizmi? ' : 'А знаешь? '}</b>{t(c.fact)}</p>
@@ -1789,6 +2119,7 @@ const Screen9 = (props) => {
   const c = CONTENT.s9;
   const sfx = useSfx();
   const audio = useAudio([{ id: 's9_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAns = useCanAnswer(audio);
   const total = DRILL9.length;
   const wasSolved = props.storedAnswer?.solved === true;
   const startIdx = wasSolved ? total - 1 : 0;
@@ -1816,7 +2147,7 @@ const Screen9 = (props) => {
   }, [idx, audio.muted, lang]);
 
   const pick = (key, correct) => {
-    if (solvedItem || wrong.has(key)) return;
+    if (solvedItem || wrong.has(key) || !canAns) return;
     attemptsRef.current += 1;
     if (correct) {
       setSolvedItem(true);
@@ -1846,9 +2177,14 @@ const Screen9 = (props) => {
   };
 
   const figure = (() => {
-    if (item.type === 'count') return <Pips n={item.n} kind={item.kind}/>;
+    if (item.type === 'count') return (
+      <div className="g1-countfig">
+        <Pips n={item.n} kind={item.kind}/>
+        {solvedItem && <span className="g1-countfig-ans mono g1-pop-in">{item.n}</span>}
+      </div>
+    );
     if (item.type === 'next' || item.type === 'prev') return <BigNumberCue n={item.from} dir={item.type} ans={item.ans} solved={solvedItem}/>;
-    if (item.type === 'missing') return <MissingTrack seq={item.seq}/>;
+    if (item.type === 'missing') return <MissingTrack seq={item.seq} answer={item.ans} solved={solvedItem}/>;
     return null;
   })();
 
@@ -1878,7 +2214,7 @@ const Screen9 = (props) => {
               if (isOk) cls += ' g1-group-ok';
               else if (isWrong) cls += ' g1-group-faded';
               return (
-                <div key={o.key} className={cls} onClick={() => { if (!solvedItem && !isWrong) pick(o.key, o.correct); }}>
+                <div key={o.key} className={cls} onClick={() => { if (!solvedItem && !isWrong && canAns) pick(o.key, o.correct); }}>
                   <Pips n={o.n} kind={o.okind}/>
                 </div>
               );
@@ -1890,7 +2226,7 @@ const Screen9 = (props) => {
               const isWrong = wrong.has(o.key);
               const isOk = solvedItem && o.correct;
               return (
-                <button key={o.key} disabled={solvedItem || isWrong} onClick={() => pick(o.key, o.correct)}
+                <button key={o.key} disabled={solvedItem || isWrong || !canAns} onClick={() => pick(o.key, o.correct)}
                   className={`g1-tile ${isOk ? 'g1-tile-ok' : ''} ${isWrong ? 'g1-tile-used' : ''}`} style={{ width: '100%' }}>
                   {o.val}
                 </button>
@@ -1920,15 +2256,6 @@ const Screen9 = (props) => {
 const Screen10 = (props) => {
   const c = CONTENT.s10;
   const t = useT();
-  const fact = (
-    <div className="fact-card fade-up">
-      <div className="fact-anim"><CountingHand max={5}/></div>
-      <div className="fact-body">
-        <p className="fact-badge"><span className="fact-dot"/>{t(c.fact_badge)}</p>
-        <p className="fact-text">{t(c.fact_text)}</p>
-      </div>
-    </div>
-  );
   return (
     <QuestionScreen
       screen={props.screen} idx={11} totalScreens={TOTAL_SCREENS}
@@ -1936,7 +2263,7 @@ const Screen10 = (props) => {
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       options={[<Pips n={4} kind="apple"/>, <Pips n={5} kind="apple"/>, <Pips n={3} kind="apple"/>]}
       correctIdx={1}
-      factOnCorrect={fact}
+      celebrateOnCorrect={() => <BasketCelebration n={5}/>}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -1957,13 +2284,23 @@ const Screen11 = (props) => {
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+        <div className="g1-rating fade-up">
+          <div className="g1-rating-stars">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="g1-rating-star g1-pop-in" style={{ animationDelay: `${0.15 + i * 0.22}s` }}>
+                <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 L25.2 14.6 L38 16 L28.5 24.6 L31.2 37 L20 30.4 L8.8 37 L11.5 24.6 L2 16 L14.8 14.6 Z" fill="#FFC23C"/></svg>
+              </span>
+            ))}
+          </div>
+          <p className="g1-rating-praise">{t(c.praise)}</p>
+        </div>
         <div className="frame-success fade-up">
           <h2 className="title h-sub" style={{ margin: 0 }}>
             {t(c.main_1)} <span className="italic" style={{ color: T.success }}>{t(c.main_2_em)}</span>
           </h2>
         </div>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(10px, 2vw, 16px)' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(8px, 1.8vw, 14px)' }}>
           <CountingHand max={5} big loop/>
         </div>
         <div className="frame fade-up delay-2">
@@ -2024,7 +2361,7 @@ export default function CountingLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, MiniDrill, Screen10, Screen11];
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, GameDrill, Screen10, Screen11];
   const CurrentScreen = screens[current];
 
   const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
@@ -2209,8 +2546,8 @@ html, body { margin: 0; padding: 0; }
 }
 .stage-content {
   flex: 1;
-  padding-top: clamp(10px, 1.7vw, 12px);
-  padding-bottom: clamp(17px, 3.4vw, 20px);
+  padding-top: clamp(8px, 1.5vw, 11px);
+  padding-bottom: clamp(11px, 2.4vw, 15px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -2397,12 +2734,13 @@ html, body { margin: 0; padding: 0; }
 }
 
 /* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
+.g1-listen-hint { margin: 0; color: #019ACB; font-weight: 600; letter-spacing: 0.04em; opacity: 0.9; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-pips { display: flex; flex-wrap: wrap; gap: clamp(7px, 1.8vw, 13px); justify-content: center; align-items: center; }
 .g1-obj { width: clamp(28px, 6.5vw, 44px); height: clamp(28px, 6.5vw, 44px); display: inline-flex; flex-shrink: 0; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
-.g1-bob { animation: g1bob 3.6s ease-in-out infinite; }
-.g1-twinkle { animation: g1twinkle 2.8s ease-in-out infinite; }
-@keyframes g1bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-@keyframes g1twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.9); } }
+.g1-bob { animation: g1bob 3s ease-in-out infinite; }
+.g1-twinkle { animation: g1twinkle 2s ease-in-out infinite; }
+@keyframes g1bob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-7px) rotate(3deg); } }
+@keyframes g1twinkle { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: 0.5; transform: scale(0.82) rotate(8deg); } }
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
@@ -2443,6 +2781,11 @@ html, body { margin: 0; padding: 0; }
 .g1-track-tile.active span { color: #FFFFFF; }
 .g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
 .g1-track-tile.gap span { color: #D8A93A; }
+.g1-track-tile.g1-track-filled { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
+.g1-track-tile.g1-track-filled span { color: #FFFFFF; }
+/* count javob badge'i (sanagandan keyin son paydo bo'ladi) */
+.g1-countfig { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 12px); }
+.g1-countfig-ans { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #1F7A4D; }
 /* BigNumberCue (keyingi/oldingi savol uchun tayanch son) */
 .g1-cue { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vw, 22px); }
 .g1-cue-num { width: clamp(64px, 16vw, 96px); height: clamp(64px, 16vw, 96px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(34px, 8vw, 52px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
@@ -2456,6 +2799,86 @@ html, body { margin: 0; padding: 0; }
 .g1-hand svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.2)); }
 .g1-hand-num { position: absolute; top: -2px; right: 2px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(15px, 2.4vw, 20px); min-width: 28px; height: 28px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -4px rgba(31,122,77,0.5); }
 
+/* s5 dasturxon: tepadan ko'rilgan stol (naqshli) + non/choynak + likobchalar */
+.g1-dasturxon { position: relative; background: #FBF3DE; border-radius: 18px; border: clamp(6px,1.6vw,9px) solid #019ACB; padding: clamp(12px,2.6vw,18px) clamp(12px,2.6vw,18px) clamp(14px,3vw,20px); display: flex; flex-direction: column; align-items: center; gap: clamp(10px,2.2vw,15px); box-shadow: 0 8px 22px -6px rgba(58,53,48,0.18); }
+.g1-dasturxon::before { content: ''; position: absolute; inset: clamp(4px,1vw,6px); border: 2px dashed rgba(1,154,203,0.45); border-radius: 12px; pointer-events: none; }
+.g1-dx-decor { display: flex; align-items: flex-end; justify-content: center; gap: clamp(8px,2vw,16px); position: relative; z-index: 1; }
+.g1-dx-non { width: clamp(34px,8vw,48px); height: clamp(34px,8vw,48px); filter: drop-shadow(0 3px 5px rgba(58,53,48,0.18)); }
+.g1-dx-teapot { width: clamp(44px,10vw,60px); height: clamp(34px,8vw,46px); filter: drop-shadow(0 3px 5px rgba(58,53,48,0.18)); }
+.g1-tablescene { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.g1-plates { display: flex; gap: clamp(6px,1.8vw,12px); justify-content: center; position: relative; z-index: 1; flex-wrap: wrap; }
+.g1-plate { position: relative; width: clamp(48px,11vw,70px); height: clamp(48px,11vw,70px); border-radius: 50%; border: none; cursor: pointer; background: radial-gradient(circle at 50% 42%, #FFFFFF 58%, #E9E3D8 100%); box-shadow: 0 6px 14px -6px rgba(58,53,48,0.3), inset 0 0 0 clamp(3px,0.8vw,5px) #F1ECE2; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+.g1-plate:hover:not(:disabled) { transform: translateY(-2px); }
+.g1-plate.filled { cursor: default; }
+.g1-plate-obj { width: 62%; height: 62%; display: inline-flex; }
+.g1-plate-obj svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 5px rgba(58,53,48,0.2)); }
+.g1-plate-num { position: absolute; bottom: -2px; right: -2px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px,1.6vw,14px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.g1-tabletop { width: clamp(180px,52vw,300px); height: clamp(16px,3.4vw,24px); background: linear-gradient(#C8893E, #B17B34); border-radius: 7px; box-shadow: 0 8px 16px -6px rgba(58,53,48,0.35); position: relative; z-index: 0; }
+
+/* DressStars (s4): ko'ylak + yulduzlar */
+.g1-dress { position: relative; width: clamp(112px,27vw,152px); height: clamp(136px,32vw,184px); }
+.g1-dress-svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.18)); }
+.g1-dress-star { position: absolute; transform: translate(-50%,-50%); width: clamp(20px,4.6vw,28px); height: clamp(20px,4.6vw,28px); }
+.g1-dress-star svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18)); }
+/* yakuniy reyting (rag'bat): 3 yulduz + maqtov */
+.g1-rating { display: flex; flex-direction: column; align-items: center; gap: clamp(4px,1vw,8px); }
+.g1-rating-stars { display: flex; gap: clamp(6px,1.6vw,12px); }
+.g1-rating-star { width: clamp(38px,9vw,56px); height: clamp(38px,9vw,56px); display: inline-flex; }
+.g1-rating-star svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,194,60,0.55)); }
+.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #FF4F28; }
+
+/* === GameDrill (drag+tap o'yin bloki) === */
+.g1-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px,1.7vw,12px); padding: clamp(7px,1.7vw,11px); min-height: clamp(48px,10vw,68px); background: #FBF9F4; border-radius: 14px; }
+.g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(6px,1.4vw,10px); min-width: clamp(46px,10vw,60px); min-height: clamp(46px,10vw,60px); transition: transform 0.15s, box-shadow 0.15s; }
+.g1-token:active { cursor: grabbing; transform: scale(1.05); }
+.g1-token-sel { box-shadow: 0 0 0 3px #FF4F28, 0 8px 20px -6px rgba(255,79,40,0.4); }
+.g1-token-obj { width: clamp(30px,7vw,42px); height: clamp(30px,7vw,42px); display: inline-flex; pointer-events: none; }
+.g1-token-obj svg { width: 100%; height: 100%; }
+.g1-token-num { font-weight: 800; font-size: clamp(24px,5.5vw,34px); color: #0E0E10; pointer-events: none; }
+.g1-piece { width: clamp(30px,7vw,44px); height: clamp(30px,7vw,44px); border-radius: 8px; display: inline-block; pointer-events: none; }
+.g1-dropzone { transition: background 0.2s, box-shadow 0.2s; cursor: pointer; }
+.g1-basket { min-width: clamp(150px,42vw,280px); min-height: clamp(80px,16vw,112px); background: #FBF3D6; border-radius: 16px; box-shadow: inset 0 0 0 2px #D8A93A; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: clamp(10px,2vw,14px); }
+.g1-basket-objs { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(5px,1.4vw,9px); }
+.g1-basket-objs .g1-token-obj { width: clamp(26px,6vw,38px); height: clamp(26px,6vw,38px); }
+.g1-basket-count { font-weight: 800; font-size: clamp(20px,3.4vw,26px); color: #1F7A4D; }
+.g1-puzzle { display: flex; gap: clamp(5px,1.4vw,8px); }
+.g1-slot { width: clamp(34px,8vw,52px); height: clamp(46px,10vw,66px); border-radius: 10px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; }
+.g1-slot.filled { box-shadow: none; }
+.g1-slot .g1-piece { width: 82%; height: 86%; }
+.g1-mbaskets { display: flex; gap: clamp(8px,2vw,16px); justify-content: center; }
+.g1-mbasket { min-width: clamp(82px,24vw,130px); background: #FFFFFF; border-radius: 14px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); padding: clamp(10px,2vw,14px); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.g1-mbasket-num { min-height: clamp(28px,5vw,36px); font-weight: 800; font-size: clamp(24px,5vw,32px); color: #1F7A4D; }
+.g1-order { display: flex; gap: clamp(6px,1.6vw,10px); justify-content: center; }
+.g1-pos { width: clamp(44px,10vw,58px); height: clamp(48px,11vw,64px); border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; background: #FFFFFF; }
+.g1-pos.filled { box-shadow: 0 6px 16px -6px rgba(31,122,77,0.3); background: #E3F0E8; }
+.g1-pos .g1-token-num { color: #1F7A4D; }
+.g1-ghost { position: fixed; transform: translate(-50%,-50%); z-index: 999; pointer-events: none; background: #FFFFFF; border-radius: 12px; box-shadow: 0 12px 28px -6px rgba(58,53,48,0.35); padding: clamp(6px,1.4vw,10px); display: flex; align-items: center; justify-content: center; }
+/* pazl = gul yig'ish */
+.g1-flowerwrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); }
+.g1-flower { position: relative; width: clamp(170px,42vw,230px); height: clamp(170px,42vw,230px); }
+.g1-flower-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: clamp(40px,10vw,58px); height: clamp(40px,10vw,58px); border-radius: 50%; background: #FFC23C; box-shadow: 0 4px 10px -4px rgba(180,138,30,0.5); }
+.g1-petal-slot { position: absolute; transform: translate(-50%,-50%); width: clamp(42px,11vw,60px); height: clamp(42px,11vw,60px); border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; }
+.g1-petal-slot.filled { box-shadow: none; }
+.g1-petal { width: clamp(30px,7vw,44px); height: clamp(38px,9vw,54px); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: #FF7AA8; box-shadow: 0 4px 9px -4px rgba(255,122,168,0.6); display: inline-block; pointer-events: none; }
+.g1-petal-slot .g1-petal { width: 80%; height: 88%; }
+/* savat (3 olma + 2 gilos) */
+.g1-basketwrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); width: 100%; }
+.g1-recipe { display: flex; gap: clamp(12px,3vw,22px); }
+.g1-recipe-item { display: flex; align-items: center; gap: 6px; background: #FFFFFF; border-radius: 10px; padding: 5px 10px; box-shadow: 0 4px 12px -6px rgba(58,53,48,0.16); }
+.g1-recipe-ic { width: clamp(22px,4.5vw,30px); height: clamp(22px,4.5vw,30px); display: inline-flex; }
+.g1-recipe-ic svg { width: 100%; height: 100%; }
+.g1-recipe-cnt { font-weight: 800; font-size: clamp(14px,2vw,17px); color: #1F7A4D; }
+.g1-realbasket { position: relative; width: clamp(200px,54vw,300px); padding-top: clamp(28px,6.5vw,42px); cursor: pointer; }
+.g1-rb-handle { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 58%; height: clamp(34px,8vw,48px); border: clamp(5px,1.3vw,7px) solid #A86B28; border-bottom: none; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
+.g1-rb-bowl { background: repeating-linear-gradient(90deg, #D89A4A 0 11px, #CC8E3E 11px 22px); border: 3px solid #B9803A; border-top-width: clamp(8px,2vw,12px); border-radius: 8px 8px clamp(28px,7vw,46px) clamp(28px,7vw,46px); min-height: clamp(72px,17vw,108px); padding: clamp(10px,2.4vw,15px) clamp(10px,2.4vw,15px) clamp(14px,3vw,20px); display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: clamp(4px,1.4vw,9px); }
+.g1-rb-bowl .g1-token-obj { width: clamp(24px,5.5vw,36px); height: clamp(24px,5.5vw,36px); animation: g1drop 0.5s ease-out; }
+/* yakuniy test: savat ko'tarilib, olmalar sekin tushadi */
+.g1-celebrate { display: flex; justify-content: center; }
+.g1-celebrate-basket { animation: g1rise 0.6s ease-out; }
+.g1-celebrate-apple { animation: g1fallin 0.7s ease-in both; }
+@keyframes g1rise { from { transform: translateY(70px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes g1fallin { 0% { transform: translateY(-80px); opacity: 0; } 70% { opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
+
 .g1-count-grid { display: flex; flex-wrap: wrap; gap: clamp(10px, 2.5vw, 18px); justify-content: center; }
 .g1-item { position: relative; background: #FFFFFF; border: none; border-radius: 16px; cursor: pointer; padding: clamp(12px, 2.6vw, 18px); box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.18s, background 0.18s, box-shadow 0.18s; display: flex; align-items: center; justify-content: center; }
 .g1-item:hover { transform: translateY(-2px); }
@@ -2465,8 +2888,10 @@ html, body { margin: 0; padding: 0; }
 .g1-item-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-bigcount { text-align: center; margin-top: 14px; font-weight: 800; font-size: clamp(16px, 2.4vw, 20px); color: #0E0E10; }
 
-.g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) 0; }
-.g1-digit { font-weight: 800; font-size: clamp(28px, 6vw, 44px); color: #FF4F28; min-width: 1.2em; text-align: center; }
+.g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) clamp(8px, 1.6vw, 12px); border-radius: 12px; transition: background 0.3s ease; }
+.g1-numrow-on { background: #FFE8E1; }
+.g1-digit { font-weight: 800; font-size: clamp(28px, 6vw, 44px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+.g1-numrow-on .g1-digit { transform: scale(1.18); }
 
 /* tap-pair (s5) */
 .g1-groups { display: flex; gap: clamp(8px, 2vw, 16px); justify-content: center; flex-wrap: wrap; }
