@@ -744,34 +744,37 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
 // ============================================================
 
-const TOTAL_SCREENS = 9;
+const TOTAL_SCREENS = 12;
 const LESSON_META = {
   lessonId: 'num-1-01-v1',
   lessonTitle: { ru: 'Счёт предметов и числа 1–5', uz: "Predmetlarni sanash va 1–5 sonlar" }
 };
 const SCREEN_META = [
-  { id: 's0', type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },
-  { id: 's1', type: 'exploration', template: 'custom',   scored: false, scope: null },
-  { id: 's2', type: 'rule',        template: 'custom',   scored: false, scope: null },
-  { id: 's3', type: 'rule',        template: 'custom',   scored: false, scope: null },
-  { id: 's4', type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },
-  { id: 's5', type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },
-  { id: 's6', type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },
-  { id: 's7', type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },
-  { id: 's8', type: 'summary',     template: 'custom',   scored: false, scope: null }
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: nechta olma?
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // sanash ketma-ketligi 1->5
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'zi sanaydi (tap)
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // kardinallik
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nechta yulduz?
+  { id: 's5',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // ten-frame (bo'sh kataklar)
+  { id: 's6',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // raqam <-> miqdor
+  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // raqam<->guruh juftlash
+  { id: 's8',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // to'g'ri va teskari sanash
+  { id: 's9',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi son tushib qoldi?
+  { id: 's10', type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: qaysi savatda 5? + fakt
+  { id: 's11', type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + sanaydigan qo'l
 ];
 
 // Sonlar — so'z bilan (audio_rules: audioda raqam emas, so'z). Indeks = son.
 const NUM_WORDS = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh'] };
 
 const CONTENT = {
-  // ---- s0 HOOK — yumshoq jumboq (to'g'ri javob yo'q) ----
+  // ---- s0 HOOK — yumshoq jumboq (to'g'ri javob yo'q; sanab keyin topamiz) ----
   s0: {
     eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
     title_part1: { ru: 'К Мадине пришёл', uz: 'Madinaga' },
     title_part2_em: { ru: 'гость', uz: 'mehmon' },
     title_part3: { ru: '. На столе яблоки.', uz: 'keldi. Stolda olmalar bor.' },
-    question: { ru: 'Сколько яблок на столе? Давай посчитаем.', uz: 'Stolda nechta olma bor? Keling, sanaymiz.' },
+    question: { ru: 'Сколько яблок на столе? Как ты думаешь?', uz: 'Stolda nechta olma bor? Sizningcha?' },
     opt0: { ru: '3', uz: '3' },
     opt1: { ru: '4', uz: '4' },
     opt2: { ru: '5', uz: '5' },
@@ -785,25 +788,41 @@ const CONTENT = {
     }
   },
 
-  // ---- s1 EXPLORATION — tap-count (birma-bir sanash) ----
+  // ---- s1 EXPLORATION — sanash ketma-ketligi 1->5, har xil narsa (darslik 2-bob 1-dars) ----
   s1: {
     eyebrow: { ru: 'Считаем', uz: 'Sanaymiz' },
-    instruction: { ru: 'Нажми на каждое яблоко и посчитай', uz: "Har olmani bosing va sanang" },
-    count_label: { ru: 'Посчитано', uz: 'Sanaldi' },
+    instruction: { ru: 'Считаем по одному: один, два, три, четыре, пять', uz: "Bittadan sanaymiz: bir, ikki, uch, to'rt, besh" },
     audio: {
       ru: [
-        'Нажимай на каждое яблоко по одному. На каждое нажатие — одно число.',
-        'Мы нажали на все яблоки. Последнее число, пять, говорит, сколько яблок всего.'
+        'Посчитаем вместе по одному. Один, два, три, четыре, пять.',
+        'Каждое следующее число на один больше. Считать можно что угодно.'
       ],
       uz: [
-        "Har olmani bittadan bosing. Har bosishga bitta son.",
-        "Hamma olmani bosdik. Oxirgi son, besh, nechta olma borligini bildiradi."
+        "Keling, birga bittadan sanaymiz. Bir, ikki, uch, to'rt, besh.",
+        "Har keyingi son bittaga ko'p. Hamma narsani sanasa bo'ladi."
       ]
     }
   },
 
-  // ---- s2 RULE — kardinallik ----
+  // ---- s2 EXPLORATION — o'zi sanaydi (tap, birma-bir, kardinallik) ----
   s2: {
+    eyebrow: { ru: 'Посчитай сам', uz: 'O\'zingiz sanang' },
+    instruction: { ru: 'Нажми на каждое яблоко и посчитай', uz: "Har olmani bosing va sanang" },
+    count_label: { ru: 'Посчитано', uz: 'Sanaldi' },
+    audio: {
+      ru: [
+        'Нажимай на каждое яблоко по одному. На каждое нажатие звучит одно число.',
+        'Последнее число, пять, говорит, сколько яблок всего.'
+      ],
+      uz: [
+        "Har olmani bittadan bosing. Har bosishda bitta son aytiladi.",
+        "Oxirgi son, besh, nechta olma borligini bildiradi."
+      ]
+    }
+  },
+
+  // ---- s3 RULE — kardinallik (jonli namoyish, oxirgi son urg'uli) ----
+  s3: {
     eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
     title_part1: { ru: 'Последнее число — это', uz: 'Oxirgi son — bu' },
     title_part2_em: { ru: 'сколько всего', uz: 'jami nechta' },
@@ -812,20 +831,8 @@ const CONTENT = {
       uz: "Sanaganda, eng oxirgi aytilgan son jami nechta narsa borligini bildiradi."
     },
     audio: {
-      ru: 'Когда мы считаем, самое последнее число, которое мы назвали, говорит нам, сколько предметов всего.',
-      uz: "Sanaganimizda, biz aytgan eng oxirgi son bizga jami nechta narsa borligini bildiradi."
-    }
-  },
-
-  // ---- s3 RULE — raqam ↔ miqdor ----
-  s3: {
-    eyebrow: { ru: 'Цифры', uz: 'Raqamlar' },
-    title_part1: { ru: 'Цифра показывает', uz: 'Raqam' },
-    title_part2_em: { ru: 'сколько', uz: 'nechtaligini' },
-    title_part3: { ru: 'предметов', uz: "ko'rsatadi" },
-    audio: {
-      ru: 'Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов. Цифра три — это три предмета.',
-      uz: "Bular birdan beshgacha raqamlar. Har bir raqam nechta narsa borligini ko'rsatadi. Uch raqami — bu uchta narsa."
+      ru: 'Когда мы считаем, самое последнее число говорит, сколько предметов всего. Посчитали до пяти, значит всего пять.',
+      uz: "Sanaganimizda, eng oxirgi son jami nechta narsa borligini bildiradi. Beshgacha sanadik, demak jami besh."
     }
   },
 
@@ -860,8 +867,36 @@ const CONTENT = {
     }
   },
 
-  // ---- s5 TEST tap-pair — raqamni mos guruhga ula (2, 4, 5) ----
+  // ---- s5 EXPLORATION — ten-frame: har katakka bitta narsa (darslik "Bo'sh kataklar-chi?") ----
   s5: {
+    eyebrow: { ru: 'По одному', uz: 'Bittadan' },
+    instruction: { ru: 'В каждую клетку — один предмет', uz: "Har katakka — bitta narsa" },
+    audio: {
+      ru: [
+        'В каждую клетку кладём ровно один предмет.',
+        'Заполнили четыре клетки. Одна клетка осталась пустой.'
+      ],
+      uz: [
+        "Har katakka roppa-rosa bitta narsa qo'yamiz.",
+        "To'rtta katak to'ldi. Bitta katak bo'sh qoldi."
+      ]
+    }
+  },
+
+  // ---- s6 RULE — raqam <-> miqdor (1..5 qatorlar) ----
+  s6: {
+    eyebrow: { ru: 'Цифры', uz: 'Raqamlar' },
+    title_part1: { ru: 'Цифра показывает', uz: 'Raqam' },
+    title_part2_em: { ru: 'сколько', uz: 'nechtaligini' },
+    title_part3: { ru: 'предметов', uz: "ko'rsatadi" },
+    audio: {
+      ru: 'Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов. Цифра три значит три предмета.',
+      uz: "Bular birdan beshgacha raqamlar. Har raqam nechta narsa borligini ko'rsatadi. Uch raqami uchta narsa degani."
+    }
+  },
+
+  // ---- s7 TEST tap-pair — raqamni mos guruhga ula (2, 4, 5) ----
+  s7: {
     eyebrow: { ru: 'Тренировка · 2 / 4', uz: 'Mashq · 2 / 4' },
     instruction: {
       ru: 'Нажми цифру, потом группу, где столько же',
@@ -879,36 +914,55 @@ const CONTENT = {
     }
   },
 
-  // ---- s6 TEST choice — teskari: 4 ta qayerda? Guruhlar: 3 / 4(to'g'ri) / 5 / 2 ----
-  s6: {
-    eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
-    title: { ru: 'В какой группе четыре яблока?', uz: "Qaysi guruhda to'rtta olma bor?" },
-    correct_text: { ru: 'Верно. В этой группе ровно четыре.', uz: "To'g'ri. Bu guruhda roppa-rosa to'rtta." },
-    wrong_0: {
-      ru: 'Здесь только три. До четырёх не хватает одного. Посчитай до четырёх.',
-      uz: "Bu yerda atigi uchta. To'rttaga bittasi yetmaydi. To'rttagacha sanang."
-    },
-    wrong_2: {
-      ru: 'Здесь пять — на один больше четырёх. Считай и остановись на четырёх.',
-      uz: "Bu yerda beshta — to'rttadan bitta ortiq. Sanang va to'rttada to'xtang."
-    },
-    wrong_3: {
-      ru: 'Здесь только два. Посчитай яблоки по одному до четырёх.',
-      uz: "Bu yerda atigi ikkita. Olmalarni bittadan to'rttagacha sanang."
-    },
-    wrong_default: {
-      ru: 'Не совсем. Посчитай яблоки в каждой группе до четырёх.',
-      uz: "Unchalik emas. Har guruhdagi olmalarni to'rttagacha sanang."
-    },
+  // ---- s8 EXPLORATION — to'g'ri va teskari sanash (darslik 2-bob 13-dars) ----
+  s8: {
+    eyebrow: { ru: 'Туда и обратно', uz: 'Oldinga va orqaga' },
+    instruction: { ru: 'Считаем вперёд и назад', uz: "Oldinga va orqaga sanaymiz" },
     audio: {
-      intro: { ru: 'В какой группе четыре яблока? Посчитай в каждой группе и выбери.', uz: "Qaysi guruhda to'rtta olma bor? Har guruhda sanang va tanlang." },
-      on_correct: { ru: 'Верно. Здесь четыре.', uz: "To'g'ri. Bu yerda to'rtta." },
-      on_wrong: { ru: 'Не совсем. Посчитай ещё раз.', uz: "Unchalik emas. Yana sanang." }
+      ru: [
+        'Считаем вперёд: один, два, три, четыре, пять.',
+        'А теперь назад: пять, четыре, три, два, один.'
+      ],
+      uz: [
+        "Oldinga sanaymiz: bir, ikki, uch, to'rt, besh.",
+        "Endi orqaga: besh, to'rt, uch, ikki, bir."
+      ]
     }
   },
 
-  // ---- s7 TEST final + FactCard — qaysi savatda 5 ta? Savatlar: 4 / 5(to'g'ri) / 3 ----
-  s7: {
+  // ---- s9 TEST choice — qaysi son tushib qoldi? Qator: 1 2 ? 4 5. Variantlar: 2 / 3(to'g'ri) / 4 / 5 ----
+  s9: {
+    eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
+    title: { ru: 'Какое число пропущено?', uz: 'Qaysi son tushib qoldi?' },
+    correct_text: {
+      ru: 'Верно. Пропущено три: один, два, три, четыре, пять.',
+      uz: "To'g'ri. Uch tushib qolgan: bir, ikki, uch, to'rt, besh."
+    },
+    wrong_0: {
+      ru: 'Это не два. Два уже стоит на месте. Считай по порядку.',
+      uz: "Bu ikki emas. Ikki allaqachon turibdi. Tartib bilan sanang."
+    },
+    wrong_2: {
+      ru: 'Это не четыре. Четыре уже есть. Назови число между два и четыре.',
+      uz: "Bu to'rt emas. To'rt allaqachon bor. Ikki bilan to'rt orasidagi sonni ayting."
+    },
+    wrong_3: {
+      ru: 'Это не пять. Пять стоит в конце. Какое число идёт после двух?',
+      uz: "Bu besh emas. Besh oxirida turibdi. Ikkidan keyin qaysi son keladi?"
+    },
+    wrong_default: {
+      ru: 'Не совсем. Считай по порядку: один, два, и дальше.',
+      uz: "Unchalik emas. Tartib bilan sanang: bir, ikki, va keyin."
+    },
+    audio: {
+      intro: { ru: 'Какое число пропущено? Посчитай по порядку и найди пропуск.', uz: "Qaysi son tushib qoldi? Tartib bilan sanang va bo'sh joyni toping." },
+      on_correct: { ru: 'Верно. Пропущено три.', uz: "To'g'ri. Uch tushib qolgan." },
+      on_wrong: { ru: 'Не совсем. Считай по порядку.', uz: "Unchalik emas. Tartib bilan sanang." }
+    }
+  },
+
+  // ---- s10 TEST final + FactCard — qaysi savatda 5 ta? Savatlar: 4 / 5(to'g'ri) / 3 ----
+  s10: {
     eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
     title: { ru: 'В какой корзине пять яблок?', uz: 'Qaysi savatda beshta olma bor?' },
     correct_text: { ru: 'Верно. В этой корзине пять яблок.', uz: "To'g'ri. Bu savatda beshta olma bor." },
@@ -929,15 +983,19 @@ const CONTENT = {
       ru: 'На твоей руке тоже пять пальцев — как пять яблок.',
       uz: "Qo'lingizda ham beshta barmoq bor — xuddi beshta olmaday."
     },
+    fact_audio: {
+      ru: 'На твоей руке тоже пять пальцев. Можно считать на пальцах.',
+      uz: "Qo'lingizda ham beshta barmoq bor. Barmoqlarda ham sanasa bo'ladi."
+    },
     audio: {
       intro: { ru: 'В какой корзине пять яблок? Посчитай яблоки в каждой корзине и выбери.', uz: "Qaysi savatda beshta olma bor? Har savatdagi olmalarni sanang va tanlang." },
-      on_correct: { ru: 'Верно. Их пять. А знаешь, на твоей руке тоже пять пальцев.', uz: "To'g'ri. Ular beshta. Bilasizmi, qo'lingizda ham beshta barmoq bor." },
+      on_correct: { ru: 'Верно. Их пять.', uz: "To'g'ri. Ular beshta." },
       on_wrong: { ru: 'Не совсем. Посчитай до пяти.', uz: "Unchalik emas. Beshtagacha sanang." }
     }
   },
 
-  // ---- s8 SUMMARY ----
-  s8: {
+  // ---- s11 SUMMARY — sanaydigan qo'l + can-do ----
+  s11: {
     eyebrow: { ru: 'Готово', uz: 'Tayyor' },
     main_1: { ru: 'Теперь вы умеете', uz: 'Endi siz' },
     main_2_em: { ru: 'считать до пяти', uz: 'beshgacha sanay olasiz' },
@@ -947,28 +1005,186 @@ const CONTENT = {
       uz: "Keyingi darsda birdan beshgacha raqamlarni yozishni o'rganamiz."
     },
     audio: {
-      ru: 'Сегодня вы научились считать предметы до пяти и находить нужную цифру. На следующем уроке научимся писать эти цифры.',
-      uz: "Bugun siz narsalarni beshgacha sanashni va kerakli raqamni topishni o'rgandingiz. Keyingi darsda shu raqamlarni yozishni o'rganamiz."
+      ru: 'Сегодня вы научились считать до пяти и находить нужную цифру. Считать можно даже на пальцах. На следующем уроке научимся писать эти цифры.',
+      uz: "Bugun siz beshgacha sanashni va kerakli raqamni topishni o'rgandingiz. Hatto barmoqlarda ham sanasa bo'ladi. Keyingi darsda shu raqamlarni yozishni o'rganamiz."
     }
   }
 };
 
 // ============================================================
-// YORDAMCHI KOMPONENTLAR (1-sinf vizuallari)
+// 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
+// Barcha sikllar prefers-reduced-motion bilan to'xtaydi (CSS @media + usePrefersReducedMotion).
 // ============================================================
-const Pips = ({ n, kind = 'apple' }) => (
+
+// Reduced-motion holatini kuzatadi — JS sikllarini ham to'xtatish uchun.
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const apply = () => setReduced(mq.matches);
+    apply();
+    if (mq.addEventListener) mq.addEventListener('change', apply); else mq.addListener(apply);
+    return () => { if (mq.removeEventListener) mq.removeEventListener('change', apply); else mq.removeListener(apply); };
+  }, []);
+  return reduced;
+}
+
+// 1..max bo'ylab aylanuvchi jonli sanoq. reduced-motion -> max da turadi.
+function useCountLoop(max, { stepMs = 800, holdMs = 1300, enabled = true } = {}) {
+  const reduced = usePrefersReducedMotion();
+  const [k, setK] = useState(max);
+  useEffect(() => {
+    if (reduced || !enabled) { const id = setTimeout(() => setK(max), 0); return () => clearTimeout(id); }
+    let alive = true; let timer;
+    let val = 0;
+    const tick = () => {
+      if (!alive) return;
+      setK(val);
+      const atEnd = val >= max;
+      const delay = (atEnd || val === 0) ? holdMs : stepMs;
+      val = atEnd ? 0 : val + 1;
+      timer = setTimeout(tick, delay);
+    };
+    timer = setTimeout(tick, 350);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [max, stepMs, holdMs, enabled, reduced]);
+  return k;
+}
+
+// Tabiiy shakllar (bolalar taniydigan). viewBox 0 0 40 40.
+const ICON = {
+  apple: <g><rect x="18.7" y="4" width="2.6" height="7" rx="1.3" fill="#7A5230"/><path d="M27 8c-3 0-5.2 2-6 4.4 3.2 0.6 6-1.4 6-4.4z" fill="#1F7A4D"/><circle cx="20" cy="24" r="13" fill="#FF4F28"/><ellipse cx="15" cy="19" rx="3.2" ry="4.6" fill="rgba(255,255,255,0.4)"/></g>,
+  star: <path d="M20 4 L24.7 14.6 L36 15.6 L27.4 23 L30 34 L20 28 L10 34 L12.6 23 L4 15.6 L15.3 14.6 Z" fill="#019ACB"/>,
+  fish: <g><ellipse cx="17" cy="20" rx="12" ry="8" fill="#019ACB"/><path d="M29 20 L38 13 L38 27 Z" fill="#019ACB"/><circle cx="12" cy="18" r="1.7" fill="#FFFFFF"/></g>,
+  flower: <g><circle cx="20" cy="11" r="4.5" fill="#FF7AA8"/><circle cx="11.4" cy="17.2" r="4.5" fill="#FF7AA8"/><circle cx="14.7" cy="27.3" r="4.5" fill="#FF7AA8"/><circle cx="25.3" cy="27.3" r="4.5" fill="#FF7AA8"/><circle cx="28.6" cy="17.2" r="4.5" fill="#FF7AA8"/><circle cx="20" cy="20" r="5" fill="#FFC23C"/></g>,
+  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>
+};
+const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
+
+const ObjSvg = ({ kind }) => (
+  <svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true">{ICON[kind] || ICON.apple}</svg>
+);
+
+const Obj = ({ kind = 'apple', i = 0, anim = 'bob' }) => (
+  <span className={`g1-obj ${anim ? 'g1-' + anim : ''}`} style={{ animationDelay: `${(i % 5) * 0.16}s` }}>
+    <ObjSvg kind={kind}/>
+  </span>
+);
+
+// Pips — statik pips o'rniga animatsion (idle bob/twinkle). API saqlangan (n, kind).
+const Pips = ({ n, kind = 'apple', anim = 'bob' }) => (
   <div className="g1-pips">
-    {Array.from({ length: n }).map((_, i) => (
-      <span key={i} className={`g1-pip g1-pip-${kind}`} />
+    {Array.from({ length: n }).map((_, i) => <Obj key={i} kind={kind} i={i} anim={anim}/>)}
+  </div>
+);
+
+// CountDemo — jonli sanash: narsalar birma-bir paydo (loop), katta son. variety=har xil narsa.
+const CountDemo = ({ max = 5, kind = 'apple', variety = false, highlightLast = false }) => {
+  const k = useCountLoop(max, { stepMs: 820, holdMs: 1400 });
+  return (
+    <div className="g1-demo">
+      <div className="g1-demo-row">
+        {Array.from({ length: max }).map((_, i) => {
+          const on = i < k;
+          const isLast = i === k - 1;
+          const kk = variety ? KIND_ORDER[i % KIND_ORDER.length] : kind;
+          return (
+            <span key={i} className={`g1-demo-cell ${on ? 'on' : ''} ${on && isLast && highlightLast ? 'pulse' : ''}`}>
+              <ObjSvg kind={kk}/>
+              {on && <span className="g1-demo-tag mono">{i + 1}</span>}
+            </span>
+          );
+        })}
+      </div>
+      <div className={`g1-demo-num mono ${highlightLast ? 'big' : ''}`}>{k}</div>
+    </div>
+  );
+};
+
+// TenFrame — har katakka bitta narsa tushadi (loop). filled<cells -> bitta bo'sh katak qoladi.
+const TenFrame = ({ cells = 5, filled = 4, kind = 'apple' }) => {
+  const k = useCountLoop(filled, { stepMs: 760, holdMs: 1500 });
+  return (
+    <div className="g1-tenframe">
+      {Array.from({ length: cells }).map((_, i) => {
+        const has = i < k;
+        const role = has ? 'filled' : (i < filled ? 'target' : 'empty');
+        return (
+          <div key={i} className={`g1-cell g1-cell-${role}`}>
+            {has && <span className="g1-cell-obj g1-drop"><ObjSvg kind={kind}/></span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// CountTrack — 1..max son qatori, belgi oldinga va orqaga sakraydi (loop).
+const CountTrack = ({ max = 5 }) => {
+  const reduced = usePrefersReducedMotion();
+  const [pos, setPos] = useState(max);
+  const [dir, setDir] = useState(1);
+  useEffect(() => {
+    if (reduced) { const id = setTimeout(() => { setPos(max); setDir(1); }, 0); return () => clearTimeout(id); }
+    let alive = true; let timer;
+    let p = 1; let d = 1;
+    const tick = () => {
+      if (!alive) return;
+      setPos(p); setDir(d);
+      if (p >= max) d = -1; else if (p <= 1) d = 1;
+      p = p + d;
+      timer = setTimeout(tick, 720);
+    };
+    timer = setTimeout(tick, 400);
+    return () => { alive = false; clearTimeout(timer); };
+  }, [max, reduced]);
+  return (
+    <div className="g1-track">
+      {Array.from({ length: max }).map((_, i) => {
+        const n = i + 1;
+        const active = pos === n;
+        return <div key={n} className={`g1-track-tile ${active ? 'active ' + (dir > 0 ? 'fwd' : 'back') : ''}`}><span className="mono">{n}</span></div>;
+      })}
+    </div>
+  );
+};
+
+// MissingTrack — son qatori bo'sh joy bilan (s9 figura: 1 2 ? 4 5).
+const MissingTrack = ({ seq }) => (
+  <div className="g1-track">
+    {seq.map((v, i) => (
+      <div key={i} className={`g1-track-tile ${v === '?' ? 'gap' : ''}`}><span className="mono">{v}</span></div>
     ))}
   </div>
 );
+
+// CountingHand — qo'l, barmoqlar 1..max ko'tariladi (loop). Darslik 2-bob 13-dars.
+const CountingHand = ({ max = 5, big = false }) => {
+  const k = useCountLoop(max, { stepMs: 720, holdMs: 1400 });
+  const baseH = [30, 44, 50, 44, 28];
+  return (
+    <div className={`g1-hand ${big ? 'g1-hand-big' : ''}`}>
+      <svg viewBox="0 0 130 120" width="100%" height="100%" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => {
+          const up = i < k;
+          const h = up ? baseH[i] : 12;
+          const x = 20 + i * 19;
+          return <rect key={i} x={x} y={62 - h} width="14" height={h + 20} rx="7" fill={up ? '#FF4F28' : '#E4DFD7'} style={{ transition: 'y 0.3s ease, height 0.3s ease, fill 0.3s ease' }}/>;
+        })}
+        <rect x="14" y="58" width="102" height="48" rx="22" fill="#FFB59E"/>
+      </svg>
+      <div className="g1-hand-num mono">{k}</div>
+    </div>
+  );
+};
 
 // ============================================================
 // EKRANLAR
 // ============================================================
 
 // s0 — HOOK (custom): qaytishda picked TO'LIQ sbros (useState(null)).
+// s0 — HOOK: yumshoq jumboq. Olmalar tebranadi; javob keyin sanab topiladi.
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -992,8 +1208,8 @@ const Screen0 = (props) => {
         <h1 className="title h-sub fade-up">
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
         </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(18px, 3.4vw, 26px)' }}>
-          <Pips n={4} kind="apple"/>
+        <div className="frame fade-up delay-1 g1-scene" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(18px, 3.4vw, 26px)' }}>
+          <Pips n={5} kind="apple"/>
         </div>
         <p className="body fade-up delay-2" style={{ color: T.ink2 }}>{t(c.question)}</p>
         <div className="fade-up delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
@@ -1008,11 +1224,35 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION tap-count (sbros: orders boshqa storedAnswer'dan emas).
+// s1 — EXPLORATION: sanash ketma-ketligi 1->5, har xil narsa (jonli CountDemo loop).
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const audio = useAudio(makeAudioSegments(c, lang));
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+        <p className="h-sub title fade-up">{t(c.instruction)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
+          <CountDemo max={5} variety/>
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+// s2 — EXPLORATION: o'zi sanaydi (tap, birma-bir). Qaytishda to'liq sbros.
+const Screen2 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
   const N = 5;
   const [orders, setOrders] = useState({});
@@ -1024,11 +1264,10 @@ const Screen1 = (props) => {
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][order]); }
     if (order === N) audio.triggerEvent('button_click', 'step');
   };
-  const done = count === N;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!done} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
@@ -1039,7 +1278,7 @@ const Screen1 = (props) => {
           <div className="g1-count-grid">
             {Array.from({ length: N }).map((_, i) => (
               <button key={i} className={`g1-item ${orders[i] ? 'g1-item-on' : ''}`} onClick={() => tap(i)}>
-                <span className="g1-pip g1-pip-apple"/>
+                <span className={`g1-item-icon ${orders[i] ? '' : 'g1-bob'}`} style={{ animationDelay: `${(i % 5) * 0.16}s` }}><ObjSvg kind="apple"/></span>
                 {orders[i] && <span className="g1-item-num mono">{orders[i]}</span>}
               </button>
             ))}
@@ -1051,12 +1290,12 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — RULE kardinallik.
-const Screen2 = (props) => {
+// s3 — RULE: kardinallik (jonli sanash, oxirgi son urg'uli) + qisqa qoida.
+const Screen3 = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s2;
-  const audio = useAudio([{ id: 's2', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const c = CONTENT.s3;
+  const audio = useAudio([{ id: 's3', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -1065,22 +1304,68 @@ const Screen2 = (props) => {
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
         <h2 className="title h-sub fade-up">
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
         </h2>
-        <div className="frame-tip fade-up delay-1"><p className="body" style={{ margin: 0 }}>{t(c.tip)}</p></div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
+          <CountDemo max={5} kind="apple" highlightLast/>
+        </div>
+        <div className="frame-tip fade-up delay-2"><p className="body" style={{ margin: 0 }}>{t(c.tip)}</p></div>
       </div>
     </Stage>
   );
 };
 
-// s3 — RULE raqam ↔ miqdor (1..5 qatorlar).
-const Screen3 = (props) => {
+// s4 — TEST choice (yirik raqam-variantlar 2/3/4/5, to'g'ri = idx1). Yulduzlar miltillaydi.
+const Screen4 = (props) => {
+  const c = CONTENT.s4;
+  const t = useT();
+  const bigNum = (s) => <span style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800 }}>{s}</span>;
+  return (
+    <QuestionScreen
+      screen={props.screen} idx={4} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[4]} screenContent={c}
+      question={<h2 className="title h-sub">{t(c.title)}</h2>}
+      options={[bigNum('2'), bigNum('3'), bigNum('4'), bigNum('5')]}
+      correctIdx={1}
+      figure={() => <Pips n={3} kind="star" anim="twinkle"/>}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
+  );
+};
+
+// s5 — EXPLORATION: ten-frame, har katakka bitta narsa tushadi (loop). Bo'sh katak qoladi.
+const Screen5 = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s3;
-  const audio = useAudio([{ id: 's3', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const c = CONTENT.s5;
+  const audio = useAudio(makeAudioSegments(c, lang));
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+        <p className="h-sub title fade-up">{t(c.instruction)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
+          <TenFrame cells={5} filled={4} kind="apple"/>
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+// s6 — RULE: raqam <-> miqdor (1..5 qatorlar, har qatorda animatsion narsalar).
+const Screen6 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s6;
+  const audio = useAudio([{ id: 's6', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -1106,38 +1391,18 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST choice (yirik raqam-variantlar 2/3/4/5, to'g'ri = idx1).
-const Screen4 = (props) => {
-  const c = CONTENT.s4;
-  const t = useT();
-  const bigNum = (s) => <span style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800 }}>{s}</span>;
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={4} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[4]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      options={[bigNum('2'), bigNum('3'), bigNum('4'), bigNum('5')]}
-      correctIdx={1}
-      figure={() => <Pips n={3} kind="star"/>}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s5 — TEST tap-pair (raqam tanlash -> guruh tanlash). Drag o'rniga tap-juftlash
-// (touch uchun bardoshli; pedagogik teng — qo'l bilan juftlash). Metodist eslatmasiga qarang.
-const Screen5 = (props) => {
+// s7 — TEST tap-pair (raqam tanlash -> guruh tanlash). Drag o'rniga tap-juftlash.
+const Screen7 = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s5;
+  const c = CONTENT.s7;
   const sfx = useSfx();
-  const audio = useAudio([{ id: 's5_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const audio = useAudio([{ id: 's7_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
 
   const GROUPS = [2, 5, 4];   // ko'rinish tartibi (guruhdagi narsalar soni)
-  const TILES = [4, 2, 5];    // ko'rinish tartibi (sudraladigan raqamlar)
+  const TILES = [4, 2, 5];    // ko'rinish tartibi (raqamlar)
   const wasSolved = props.storedAnswer?.solved === true;
-  const [placed, setPlaced] = useState(() => wasSolved ? { 2: true, 4: true, 5: true } : {}); // count -> joylashgan
+  const [placed, setPlaced] = useState(() => wasSolved ? { 2: true, 4: true, 5: true } : {});
   const [selected, setSelected] = useState(null);
   const [wrongGroup, setWrongGroup] = useState(null);
   const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
@@ -1148,7 +1413,7 @@ const Screen5 = (props) => {
   const recordIfSolved = (nextPlaced) => {
     if (Object.keys(nextPlaced).length === GROUPS.length) {
       props.onAnswer({
-        stage: SCREEN_META[5].scope, screenIdx: 5,
+        stage: SCREEN_META[7].scope, screenIdx: 7,
         question: null, options: null, correctIndex: null, correctAnswer: null,
         studentAnswerIndex: null, studentAnswer: null,
         correct: firstTryRef.current !== false, firstTry: firstTryRef.current !== false,
@@ -1226,30 +1491,56 @@ const Screen5 = (props) => {
   );
 };
 
-// s6 — TEST choice teskari (guruhlar 3/4/5/2, to'g'ri = idx1).
-const Screen6 = (props) => {
-  const c = CONTENT.s6;
+// s8 — EXPLORATION: to'g'ri va teskari sanash (CountTrack belgisi oldinga/orqaga sakraydi).
+const Screen8 = (props) => {
+  const lang = useLang();
   const t = useT();
+  const c = CONTENT.s8;
+  const audio = useAudio(makeAudioSegments(c, lang));
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+        <p className="h-sub title fade-up">{t(c.instruction)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
+          <CountTrack max={5}/>
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+// s9 — TEST choice: qaysi son tushib qoldi? Qator 1 2 ? 4 5. Variantlar 2/3/4/5, to'g'ri = idx1.
+const Screen9 = (props) => {
+  const c = CONTENT.s9;
+  const t = useT();
+  const bigNum = (s) => <span style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800 }}>{s}</span>;
   return (
     <QuestionScreen
-      screen={props.screen} idx={6} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[6]} screenContent={c}
+      screen={props.screen} idx={9} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[9]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      options={[<Pips n={3} kind="apple"/>, <Pips n={4} kind="apple"/>, <Pips n={5} kind="apple"/>, <Pips n={2} kind="apple"/>]}
+      options={[bigNum('2'), bigNum('3'), bigNum('4'), bigNum('5')]}
       correctIdx={1}
+      figure={() => <MissingTrack seq={['1', '2', '?', '4', '5']}/>}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
   );
 };
 
-// s7 — TEST final + FactCard (savatlar 4/5/3, to'g'ri = idx1).
-const Screen7 = (props) => {
-  const c = CONTENT.s7;
+// s10 — TEST final + FactCard (savatlar 4/5/3, to'g'ri = idx1). Faktda sanaydigan qo'l.
+const Screen10 = (props) => {
+  const c = CONTENT.s10;
   const t = useT();
   const fact = (
     <div className="fact-card fade-up">
-      <div className="fact-anim"><Pips n={5} kind="apple"/></div>
+      <div className="fact-anim"><CountingHand max={5}/></div>
       <div className="fact-body">
         <p className="fact-badge"><span className="fact-dot"/>{t(c.fact_badge)}</p>
         <p className="fact-text">{t(c.fact_text)}</p>
@@ -1258,8 +1549,8 @@ const Screen7 = (props) => {
   );
   return (
     <QuestionScreen
-      screen={props.screen} idx={7} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[7]} screenContent={c}
+      screen={props.screen} idx={10} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[10]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       options={[<Pips n={4} kind="apple"/>, <Pips n={5} kind="apple"/>, <Pips n={3} kind="apple"/>]}
       correctIdx={1}
@@ -1270,12 +1561,12 @@ const Screen7 = (props) => {
   );
 };
 
-// s8 — SUMMARY (oxirgi: NavNext -> finishLesson).
-const Screen8 = (props) => {
+// s11 — SUMMARY: sanaydigan qo'l (loop) + can-do. NavNext -> finishLesson.
+const Screen11 = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s8;
-  const audio = useAudio([{ id: 's8', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const c = CONTENT.s11;
+  const audio = useAudio([{ id: 's11', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -1290,7 +1581,10 @@ const Screen8 = (props) => {
             {t(c.main_1)} <span className="italic" style={{ color: T.success }}>{t(c.main_2_em)}</span>
           </h2>
         </div>
-        <div className="frame fade-up delay-1">
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(10px, 2vw, 16px)' }}>
+          <CountingHand max={5} big/>
+        </div>
+        <div className="frame fade-up delay-2">
           <p className="eyebrow" style={{ color: T.ink3, marginBottom: 8 }}>{t(c.connections_title)}</p>
           <p className="body" style={{ margin: 0 }}>{t(c.connections_text)}</p>
         </div>
@@ -1348,7 +1642,7 @@ export default function CountingLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8];
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11];
   const CurrentScreen = screens[current];
 
   const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
@@ -1718,17 +2012,60 @@ html, body { margin: 0; padding: 0; }
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* === GRADE1 num_1_01 — sanash vizuallari (yirik, tap/juftlash) === */
+/* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
 .g1-pips { display: flex; flex-wrap: wrap; gap: clamp(7px, 1.8vw, 13px); justify-content: center; align-items: center; }
-.g1-pip { width: clamp(26px, 6.5vw, 42px); height: clamp(26px, 6.5vw, 42px); border-radius: 50%; display: inline-block; flex-shrink: 0; }
-.g1-pip-apple { background: #FF4F28; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.08), 0 4px 10px -4px rgba(255,79,40,0.45); }
-.g1-pip-star { background: #019ACB; box-shadow: 0 4px 10px -4px rgba(1,154,203,0.45); }
+.g1-obj { width: clamp(28px, 6.5vw, 44px); height: clamp(28px, 6.5vw, 44px); display: inline-flex; flex-shrink: 0; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
+.g1-bob { animation: g1bob 2.4s ease-in-out infinite; }
+.g1-twinkle { animation: g1twinkle 1.8s ease-in-out infinite; }
+@keyframes g1bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes g1twinkle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(0.88); } }
+@keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.16); } }
+@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
+
+/* CountDemo — jonli sanash */
+.g1-demo { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.4vw, 16px); }
+.g1-demo-row { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; align-items: flex-end; min-height: clamp(40px, 9vw, 60px); }
+.g1-demo-cell { position: relative; width: clamp(34px, 7.5vw, 52px); height: clamp(34px, 7.5vw, 52px); opacity: 0; }
+.g1-demo-cell.on { opacity: 1; animation: g1pop 0.45s ease-out; }
+.g1-demo-cell.pulse { animation: g1pop 0.45s ease-out, g1pulse 0.9s ease-in-out 0.45s infinite; }
+.g1-demo-cell svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
+.g1-demo-tag { position: absolute; top: -8px; right: -6px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+.g1-demo-num { font-weight: 800; font-size: clamp(30px, 7vw, 48px); color: #FF4F28; line-height: 1; }
+.g1-demo-num.big { font-size: clamp(40px, 10vw, 66px); }
+
+/* TenFrame — bo'sh kataklar */
+.g1-tenframe { display: flex; gap: clamp(6px, 1.6vw, 10px); justify-content: center; }
+.g1-cell { width: clamp(44px, 10vw, 62px); height: clamp(44px, 10vw, 62px); border-radius: 12px; display: flex; align-items: center; justify-content: center; transition: background 0.25s, box-shadow 0.25s; }
+.g1-cell-target { background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.45); }
+.g1-cell-filled { background: #E3F0E8; box-shadow: inset 0 0 0 2px #1F7A4D; }
+.g1-cell-empty { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; }
+.g1-cell-obj { width: 74%; height: 74%; display: inline-flex; animation: g1drop 0.4s ease-out; }
+.g1-cell-obj svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.18)); }
+
+/* CountTrack / MissingTrack — son qatori */
+.g1-track { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
+.g1-track-tile { width: clamp(40px, 9vw, 56px); height: clamp(44px, 10vw, 62px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
+.g1-track-tile span { font-weight: 800; font-size: clamp(22px, 5vw, 32px); color: #0E0E10; }
+.g1-track-tile.active { background: #FF4F28; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-track-tile.active span { color: #FFFFFF; }
+.g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
+.g1-track-tile.gap span { color: #D8A93A; }
+
+/* CountingHand — sanaydigan qo'l */
+.g1-hand { position: relative; width: clamp(96px, 22vw, 150px); height: clamp(90px, 20vw, 138px); display: flex; align-items: center; justify-content: center; }
+.g1-hand-big { width: clamp(140px, 38vw, 220px); height: clamp(130px, 34vw, 200px); }
+.g1-hand svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.2)); }
+.g1-hand-num { position: absolute; top: -2px; right: 2px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(15px, 2.4vw, 20px); min-width: 28px; height: 28px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -4px rgba(31,122,77,0.5); }
 
 .g1-count-grid { display: flex; flex-wrap: wrap; gap: clamp(10px, 2.5vw, 18px); justify-content: center; }
 .g1-item { position: relative; background: #FFFFFF; border: none; border-radius: 16px; cursor: pointer; padding: clamp(12px, 2.6vw, 18px); box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.18s, background 0.18s, box-shadow 0.18s; display: flex; align-items: center; justify-content: center; }
 .g1-item:hover { transform: translateY(-2px); }
 .g1-item-on { background: #E3F0E8; box-shadow: 0 8px 20px -6px rgba(31,122,77,0.3); }
 .g1-item-num { position: absolute; top: 4px; right: 8px; font-weight: 800; font-size: clamp(14px, 2vw, 18px); color: #1F7A4D; }
+.g1-item-icon { width: clamp(30px, 7vw, 46px); height: clamp(30px, 7vw, 46px); display: inline-flex; }
+.g1-item-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-bigcount { text-align: center; margin-top: 14px; font-weight: 800; font-size: clamp(16px, 2.4vw, 20px); color: #0E0E10; }
 
 .g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) 0; }
