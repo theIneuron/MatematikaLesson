@@ -1,11 +1,11 @@
-import { lazy } from 'react' // eslint-disable-line no-unused-vars
+import { lazy } from 'react'
 
-// 1-sinf darsliklari. Hozircha bo'sh — yangi darslar shu yerga qo'shiladi.
-// Namuna:
-//   {
-//     slug: 'sanash',
-//     title: 'Dars 1. ...',
-//     desc: '...',
-//     Component: lazy(() => import('../components/grade1/Dars01.jsx')),
-//   },
-export const grade1 = []
+// 1-sinf darslari. Yangi darslar shu yerga qo'shiladi.
+export const grade1 = [
+  {
+    slug: 'dars01-sanash-1-5',
+    title: 'Dars 1. Predmetlarni sanash va 1–5 sonlar',
+    desc: 'Predmetlarni birma-bir sanash, kardinallik, raqam ↔ miqdor (1–5).',
+    Component: lazy(() => import('../components/grade1/Dars01.jsx')),
+  },
+]
