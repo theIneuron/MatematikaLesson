@@ -65,7 +65,7 @@ const stripAudioTags = (s) => typeof s === 'string'
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
-  const g = gender === 'f' ? 'f' : 'm';
+  const g = 'm'; // v5.5-male: erkak ovoz qattiq qulflangan
   return `${base}/api/tts?text=${enc}&g=${g}`;
 }
 
@@ -200,7 +200,7 @@ class AudioEngine {
   }
 
   setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
-  setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
+  setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
     this.stop();
@@ -2350,11 +2350,6 @@ const Screen13 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
   const correct = scored.filter(i => answers[i]?.correct).length;
   const total = scored.length;
 
-  useEffect(() => {
-    finishLesson();
-    // eslint-disable-next-line
-  }, []);
-
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
@@ -2366,6 +2361,7 @@ const Screen13 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
         style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
         {lang === 'uz' ? 'Keyingi dars →' : 'Следующий урок →'}
       </button>
+      <button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button>
     </>
   );
 
