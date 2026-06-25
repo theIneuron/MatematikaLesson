@@ -752,7 +752,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
                 <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
                   {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
-                <span style={{ flex: 1 }}>{opt}</span>
+                <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{opt}</span>
               </button>
             );
           })}
@@ -764,7 +764,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             <button className="option option-correct" disabled
               style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
-              <span style={{ flex: 1 }}>{options[correctIdx]}</span>
+              <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
             </button>
           </div>
         )}
