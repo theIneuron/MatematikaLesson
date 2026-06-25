@@ -844,7 +844,7 @@ const CONTENT = {
 
   // ---- s0 HOOK — yumshoq jumboq (to'g'ri javob yo'q; sanab keyin topamiz) ----
   s0: {
-    eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
+    eyebrow: { ru: 'Сколько яблок?', uz: 'Nechta olma?' },
     title_part1: { ru: 'Начнём с угощения. На столе', uz: 'Mevadan boshlaymiz. Stolda' },
     title_part2_em: { ru: 'яблоки', uz: 'olmalar' },
     title_part3: { ru: '. Посчитаем их вместе.', uz: ' bor. Ularni birga sanaymiz.' },
@@ -865,15 +865,15 @@ const CONTENT = {
   // ---- s1 EXPLORATION — sanash ketma-ketligi 1->5, har xil narsa (darslik 2-bob 1-dars) ----
   s1: {
     eyebrow: { ru: 'Считаем', uz: 'Sanaymiz' },
-    instruction: { ru: 'Для гостя считаем разные вещи', uz: "Mehmon uchun har xil narsani sanaymiz" },
+    instruction: { ru: 'Числами считаем разные вещи', uz: "Sonlar bilan har xil narsani sanaymiz" },
     fact: { ru: 'Считать можно что угодно: цветы, яблоки, звёзды, рыбок.', uz: "Hamma narsani sanash mumkin: gul, olma, yulduz, baliq." },
     audio: {
       ru: [
-        'Готовясь к гостю, Мадина считает всё подряд. Числом можно сосчитать что угодно. Цветы для стола, яблоки, звёзды, рыбок.',
+        'Мадина считает разные вещи. Числами можно сосчитать что угодно: цветы, яблоки, звёзды, рыбок.',
         'Посчитаем каждую группу вместе. Число говорит, сколько предметов получилось.'
       ],
       uz: [
-        "Mehmonga tayyorlanar ekan, Madina hammasini sanaydi. Son bilan hamma narsani sanash mumkin. Stol uchun gullar, olmalar, yulduzlar, baliqlar.",
+        "Madina turli narsalarni sanaydi. Sonlar bilan hamma narsani sanash mumkin: gul, olma, yulduz, baliq.",
         "Har guruhni birga sanaymiz. Son nechta narsa borligini bildiradi."
       ]
     }
@@ -971,11 +971,11 @@ const CONTENT = {
     title_part3: { ru: 'предметов', uz: "ko'rsatadi" },
     audio: {
       ru: [
-        'Мадина готовит карточки с цифрами для блюд. Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов.',
+        'Рядом с каждой цифрой — столько же яблок. Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов.',
         'Цифра один значит одну вещь. Цифра пять значит пять вещей. Сколько предметов, такая и цифра.'
       ],
       uz: [
-        "Madina idishlar uchun raqamli kartochkalar tayyorlaydi. Bular birdan beshgacha raqamlar. Har raqam nechta narsa borligini ko'rsatadi.",
+        "Har raqam yonida — shuncha olma. Bular birdan beshgacha raqamlar. Har raqam nechta narsa borligini ko'rsatadi.",
         "Bir raqami bitta narsa degani. Besh raqami beshta narsa degani. Nechta narsa bo'lsa, raqam ham shu."
       ]
     }
@@ -994,7 +994,7 @@ const CONTENT = {
       uz: "Bu yerda shuncha yo'q. Guruhdagi narsalarni sanang va raqam bilan solishtiring."
     },
     audio: {
-      intro: { ru: 'Мадина подписывает блюда. Нажми цифру, а потом группу, где столько же предметов. Сначала посчитай.', uz: "Madina idishlarni belgilaydi. Raqamni bosing, keyin shuncha narsa bor guruhni bosing. Avval sanang." },
+      intro: { ru: 'Каждой группе подберём цифру. Нажми цифру, а потом группу, где столько же предметов. Сначала посчитай.', uz: "Har guruhga raqam tanlaymiz. Raqamni bosing, keyin shuncha narsa bor guruhni bosing. Avval sanang." },
       on_correct: { ru: 'Верно. Цифры на своих местах.', uz: "To'g'ri. Raqamlar o'z joyida." },
       on_wrong: { ru: 'Не совсем. Посчитай группу ещё раз.', uz: "Unchalik emas. Guruhni yana sanang." }
     }
@@ -1028,7 +1028,7 @@ const CONTENT = {
   // ---- s10 TEST final + FactCard — qaysi savatda 5 ta? Savatlar: 4 / 5(to'g'ri) / 3 ----
   s10: {
     eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
-    title: { ru: 'Гость пришёл! Подарим ему корзину с пятью яблоками. В какой их пять?', uz: "Mehmon keldi! Unga beshta olmali savatni beramiz. Qaysida beshta?" },
+    title: { ru: 'Гость пришёл! Подарим ему корзину с пятью яблоками. В какой из них пять?', uz: "Mehmon keldi! Unga beshta olma bor savatni beramiz. Qaysi savatda beshta?" },
     correct_text: { ru: 'Верно. В этой корзине пять яблок — её и подарим гостю.', uz: "To'g'ri. Bu savatda beshta olma bor — uni mehmonga sovg'a qilamiz." },
     wrong_0: {
       ru: 'Посчитай яблоки: один, два, три, четыре. Здесь только четыре — одного не хватает.',
