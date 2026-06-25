@@ -26,3 +26,6 @@ dist-ssr
 # Reference textbooks (large PDFs, not pushed to GitHub).
 # BOOKS.md manifest and folder structure ARE tracked — only the PDFs are ignored.
 src/books/**/*.pdf
+
+# Source snapshot archives (not pushed to GitHub).
+*.rar
