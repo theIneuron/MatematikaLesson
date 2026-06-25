@@ -129,6 +129,9 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 const LangContext = createContext('ru');
 const useLang = () => useContext(LangContext);
 
+// Yulduz-kopilka: to'g'ri javoblar soni (test ekranlari) — yuqorida to'planib boradi.
+const ProgressContext = createContext({ stars: 0, total: 0 });
+
 const useT = () => {
   const lang = useLang();
   return useCallback((node) => {
@@ -597,6 +600,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
   const t = useT();
   const isMobile = useIsMobile();
   const padH = isMobile ? 12 : 100;
+  const { stars, total } = useContext(ProgressContext);
   return (
     <div className="stage">
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
@@ -608,6 +612,13 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
             <span className="dot"/>
             <span>{t(eyebrow)}</span>
           </div>
+          {total > 0 && (
+            <div className="g1-stars" aria-hidden="true">
+              {Array.from({ length: total }).map((_, i) => (
+                <span key={i} className={`g1-star-slot ${i < stars ? 'on' : ''}`}>★</span>
+              ))}
+            </div>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
             <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
@@ -651,7 +662,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true }) => {
   const lang = useLang();
   const c = screenContent;
   const sfx = useSfx();
@@ -674,6 +685,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
   const introAdvancedRef = useRef(wasSolved);
+  const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
+  const praiseRef = useRef('');
 
   const pick = (i) => {
     if (!canAns) return;       // ovoz tugamaguncha javob yo'q
@@ -696,6 +709,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     if (isCorrect) {
       setSolved(true);
       sfx.playCorrect();
+      const pw = nextPraise(lang); praiseRef.current = pw; setPraiseWord(pw);
       onAnswer({
         stage: screenMeta?.scope ?? null,
         screenIdx: idx,
@@ -720,7 +734,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
           const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
-          engine.pushOneOff(isCorrect ? c.audio.on_correct[lang] : wrongVoice);
+          if (isCorrect) { engine.pushOneOff(praiseRef.current); engine.pushOneOff(c.audio.on_correct[lang]); }   // maqtov so'zi + izoh
+          else engine.pushOneOff(wrongVoice);
           if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
@@ -770,9 +785,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         )}
         {solved && celebrateOnCorrect && <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>{typeof celebrateOnCorrect === 'function' ? celebrateOnCorrect() : celebrateOnCorrect}</div>}
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '↺'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Yana sana' : 'Посчитай ещё')}
-          </p>
+          <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : (lang === 'uz' ? ENCOURAGE.uz : ENCOURAGE.ru)} mascot={mascot}/>
         </FeedbackBlock>
         {solved && factOnCorrect}
       </div>
@@ -852,13 +865,15 @@ const CONTENT = {
     opt0: { ru: '3', uz: '3' },
     opt1: { ru: '4', uz: '4' },
     opt2: { ru: '5', uz: '5' },
+    wrong_0: { ru: 'Здесь не три, а пять. Посчитай: один, два, три, четыре, пять.', uz: "Bu uchta emas, beshta. Sana: bir, ikki, uch, to'rt, besh." },
+    wrong_1: { ru: 'Здесь не четыре, а пять. Посчитай: один, два, три, четыре, пять.', uz: "Bu to'rtta emas, beshta. Sana: bir, ikki, uch, to'rt, besh." },
     audio: {
       intro: {
         ru: 'Начнём готовиться. Сперва посчитаем яблоки на столе вместе. Один, два, три, четыре, пять. Сколько яблок получилось? Нажми число.',
         uz: "Tayyorgarlikni boshlaymiz. Avval stoldagi olmalarni birga sanaymiz. Bir, ikki, uch, to'rt, besh. Nechta olma chiqdi? Sonni bosing."
       },
-      on_correct: { ru: 'Мы вместе насчитали пять яблок.', uz: "Biz birga beshta olma sanadik." },
-      on_wrong: { ru: 'Мы вместе насчитали пять яблок.', uz: "Biz birga beshta olma sanadik." }
+      on_correct: { ru: 'Молодец! Получилось пять яблок.', uz: "Barakalla! Beshta olma bo'ldi." },
+      on_wrong: { ru: 'Посчитай ещё раз: один, два, три, четыре, пять.', uz: "Yana bir bor sana: bir, ikki, uch, to'rt, besh." }
     }
   },
 
@@ -1013,13 +1028,19 @@ const CONTENT = {
   // ---- s9 TEST (xilma-xil drill): sana / keyingi-oldingi / ko'p-kam / tushgan son ----
   s9: {
     eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
-    q_count: { ru: 'Сколько здесь?', uz: 'Bu yerda nechta?' },
-    q_next: { ru: 'Какое число идёт дальше?', uz: 'Keyingi son qaysi?' },
-    q_prev: { ru: 'Какое число идёт раньше?', uz: 'Oldingi son qaysi?' },
-    q_more: { ru: 'Где больше?', uz: "Qayerda ko'proq?" },
-    q_missing: { ru: 'Какое число пропущено?', uz: 'Qaysi son tushib qoldi?' },
+    q_count: { ru: 'Сколько здесь предметов? Посчитай их.', uz: "Bu yerda nechta narsa bor? Ularni sana." },
+    q_next: { ru: 'Какое число идёт сразу после этого?', uz: "Shu sondan keyin qaysi son keladi?" },
+    q_prev: { ru: 'Какое число идёт сразу перед этим?', uz: "Shu sondan oldin qaysi son keladi?" },
+    q_more: { ru: 'В какой группе предметов больше?', uz: "Qaysi guruhda narsa ko'proq?" },
+    q_missing: { ru: 'Какое число пропущено в ряду?', uz: "Qatorda qaysi son tushib qolgan?" },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Отлично! Все задания выполнены.', uz: "Zo'r! Hamma topshiriq bajarildi." },
+    w_count: { ru: 'Посчитай ещё раз, по одному.', uz: "Yana bir bor, bittadan sana." },
+    w_next: { ru: 'Считай дальше: какое число идёт после.', uz: "Davom et: shu sondan keyin qaysi son keladi." },
+    w_prev: { ru: 'Считай назад: какое число идёт перед.', uz: "Orqaga sana: shu sondan oldin qaysi son keladi." },
+    w_more: { ru: 'Посчитай в каждой группе и сравни.', uz: "Har guruhni sana va solishtir." },
+    w_missing: { ru: 'Назови числа по порядку и найди пропуск.', uz: "Sonlarni tartib bilan ayt, tushganini top." },
+    wrong_audio: { ru: 'Посчитай ещё раз.', uz: "Yana bir bor sana." },
     audio: {
       intro: { ru: 'Проверим, всё ли мы успели. Несколько разных заданий. Считай и думай. Начинаем.', uz: "Hammasi tayyormi, tekshiramiz. Bir nechta xil topshiriq. Sana va o'yla. Boshladik." }
     }
@@ -1194,6 +1215,67 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
     {Array.from({ length: n }).map((_, i) => <Obj key={i} kind={kind} i={i} anim={anim}/>)}
   </div>
 );
+
+// ============================================================
+// EMOTSIONAL OTKLIK — yagona reaktsiya (maskot + maqtov + konfetti) barcha javob ekranlari uchun
+// ============================================================
+// Maqtov so'zlari navbat bilan (monoton bo'lmasin)
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const ENCOURAGE = { ru: 'Почти! Попробуй ещё раз.', uz: "Sal qoldi! Yana bir bor." };
+let _praiseIdx = 0;
+const nextPraise = (lang) => { const a = PRAISE[lang] || PRAISE.ru; const p = a[_praiseIdx % a.length]; _praiseIdx += 1; return p; };
+
+// HERO — personaj PNG'lari (public/assets). Madina yetakchi + Bit (faqat xato javobda).
+// Joylashuv qoidalari: personaj.md. To'g'ri -> faqat Madina happy; xato -> Madina encourage + Bit hint.
+const HERO = {
+  pointing:  '/assets/madina_pointing.png',   // topshiriq / sanash
+  happy:     '/assets/madina_happy.png',       // to'g'ri javob
+  encourage: '/assets/madina_encourage.png',   // xato (qo'llab-quvvatlaydi)
+  celebrate: '/assets/madina_celebrate.png',   // yakun "Barakalla!"
+  bit_hint:  '/assets/bit_hint.png',           // faqat xato javobda yordamchi
+};
+const HeroFig = ({ name, bit = false }) => (
+  <img src={HERO[name]} alt="" aria-hidden="true" draggable="false"
+    className={`g1-hero ${bit ? 'g1-hero-bit' : 'g1-hero-madina'}`}/>
+);
+
+// Personaj holatini butun urok darajasida boshqaruvchi kontekst.
+// Har bir ekran o'z holatini e'lon qiladi (useHero), bitta doimiy overlay ko'rsatadi.
+const HeroContext = createContext({ setMood: () => {} });
+const useHero = (mood) => {
+  const { setMood } = useContext(HeroContext);
+  useEffect(() => { setMood(mood); }, [mood, setMood]);
+};
+// MOOD -> rasm. Bit FAQAT 'encourage' (xato javob)da chiqadi — personaj.md.
+const MOOD_IMG = { pointing: 'pointing', happy: 'happy', encourage: 'encourage', celebrate: 'celebrate' };
+const StageHero = ({ mood }) => {
+  const m = MOOD_IMG[mood] ? mood : 'pointing';
+  return (
+    <div className={`g1-stage-hero g1-sh-${m}`} aria-hidden="true">
+      {m === 'encourage' && <HeroFig key="bit" name="bit_hint" bit/>}
+      <HeroFig key={m} name={MOOD_IMG[m]}/>
+    </div>
+  );
+};
+
+// Confetti — bayram bo'laklari (qayta ishlatiladigan)
+const Confetti = () => (
+  <>
+    <span className="g1-conf g1-conf1"/><span className="g1-conf g1-conf2"/><span className="g1-conf g1-conf3"/>
+    <span className="g1-conf g1-conf4"/><span className="g1-conf g1-conf5"/><span className="g1-conf g1-conf6"/>
+  </>
+);
+
+// Reaction — javob otkligi: maqtov so'zi. Personaj (to'g'ri->Madina happy;
+// xato->Madina encourage + Bit hint) butun urok overlay'ida holatga qarab almashadi.
+const Reaction = ({ state, praise }) => {
+  useHero(state === 'correct' ? 'happy' : 'encourage');
+  return (
+    <div className={`g1-react ${state === 'correct' ? 'g1-react-ok' : 'g1-react-enc'}`}>
+      <span className="g1-react-txt">{praise}</span>
+    </div>
+  );
+};
 
 // CountDemo — jonli sanash: narsalar birma-bir paydo (loop), katta son. variety=har xil narsa.
 const CountDemo = ({ max = 5, kind = 'apple', variety = false, highlightLast = false, stepMs = 1300, onDone, showNumbers = true }) => {
@@ -1457,7 +1539,8 @@ const DressStars = ({ happy = false }) => (
 // BasketCelebration — yakuniy testда to'g'ri javobdan keyin: savat ko'tariladi, olmalar
 // birma-bir sekin tushadi (ko'z charchamaydi). reduced-motion -> darrov.
 const BasketCelebration = ({ n = 5 }) => (
-  <div className="g1-celebrate">
+  <div className="g1-celebrate" style={{ position: 'relative' }}>
+    <Confetti/>
     <div className="g1-realbasket g1-celebrate-basket">
       <span className="g1-rb-handle"/>
       <div className="g1-rb-bowl">
@@ -1568,10 +1651,10 @@ const HandSvg = () => (
     <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
   </svg>
 );
-const BasketHandDemo = () => (
+const BasketHandDemo = ({ piece }) => (
   <div className="g1-bhd" aria-hidden="true">
     <div className="g1-bhd-move">
-      <span className="g1-bhd-apple"><ObjSvg kind="apple"/></span>
+      {piece}
       <HandSvg/>
     </div>
   </div>
@@ -1668,6 +1751,7 @@ const GameDrill = (props) => {
     setDisplayOrder(shuffleArr(exTokens(GAME_EX[ni]).map((tk) => tk.id)));
     setPlacement({});
     setSolvedItem(false);
+    setDemoOff(false);   // har mashqда qo'l-demo qayta ko'rinadi (q1 savat, q2 pazl)
   };
 
   const tokenVisual = (tok) => {
@@ -1690,7 +1774,11 @@ const GameDrill = (props) => {
 
         {/* nishon (zonalar) */}
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-          {ex.type === 'basket' && exIdx === 0 && !demoOff && !solvedItem && Object.keys(placement).length === 0 && <BasketHandDemo/>}
+          {(ex.type === 'basket' || ex.type === 'puzzle') && exIdx <= 1 && !demoOff && !solvedItem && Object.keys(placement).length === 0 && (
+            <BasketHandDemo piece={ex.type === 'basket'
+              ? <span className="g1-bhd-apple"><ObjSvg kind="apple"/></span>
+              : <span className="g1-bhd-petal"/>}/>
+          )}
           {ex.type === 'basket' && (
             <div className="g1-basketwrap">
               <div className="g1-recipe">
@@ -1804,6 +1892,20 @@ const DasturxonScene = () => (
         <linearGradient id="g1woodG" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#C68A45"/><stop offset="100%" stopColor="#8A5A28"/>
         </linearGradient>
+        <linearGradient id="g1gleam" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0"/>
+          <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.75"/>
+          <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0"/>
+        </linearGradient>
+        <linearGradient id="g1bandSh" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.22"/>
+          <stop offset="45%" stopColor="#FFFFFF" stopOpacity="0"/>
+          <stop offset="100%" stopColor="#003A52" stopOpacity="0.3"/>
+        </linearGradient>
+        <clipPath id="g1clothClip">
+          <ellipse cx="140" cy="108" rx="130" ry="19"/>
+          <path d="M12 108 V148 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 V108 Z"/>
+        </clipPath>
       </defs>
       {/* pol soyasi */}
       <ellipse cx="140" cy="190" rx="110" ry="6" fill="rgba(58,53,48,0.10)"/>
@@ -1816,15 +1918,30 @@ const DasturxonScene = () => (
       <rect x="207" y="182" width="18" height="5" rx="2.5" fill="#7A4E22"/>
       {/* dasturxon etagi (butun old yuzni yopadi, to'lqinli) */}
       <path d="M12 108 V148 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 V108 Z" fill="url(#g1clothS)"/>
-      {/* bezak chizig'i + romblar */}
-      <rect x="12" y="128" width="256" height="12" fill="#019ACB"/>
-      <rect x="12" y="126" width="256" height="2" fill="#F4E8CB"/>
-      {[28, 60, 92, 124, 156, 188, 220, 252].map((x) => (
-        <rect key={x} x="-3.4" y="-3.4" width="6.8" height="6.8" fill="#FCF6E6" transform={`translate(${x} 134) rotate(45)`}/>
+      {/* MILLIY NAQSH bezak chizig'i: ko'k zamin + oltin jiyak + romb-nuqta takrori */}
+      <rect x="12" y="127" width="256" height="15" fill="#0E86B4"/>
+      <rect x="12" y="127" width="256" height="15" fill="url(#g1bandSh)"/>
+      <rect x="12" y="126.5" width="256" height="2" fill="#E8B24A"/>
+      <rect x="12" y="140.5" width="256" height="2" fill="#E8B24A"/>
+      <rect x="12" y="124.5" width="256" height="1.2" fill="#F4E8CB"/>
+      {[24, 48, 72, 96, 120, 144, 168, 192, 216, 240, 264].map((x) => (
+        <g key={x} transform={`translate(${x} 134.5)`}>
+          {/* romb (oq jiyakli) + ko'k markaz */}
+          <rect x="-4.4" y="-4.4" width="8.8" height="8.8" rx="1" fill="#FCF6E6" transform="rotate(45)"/>
+          <rect x="-2.4" y="-2.4" width="4.8" height="4.8" fill="#0E86B4" transform="rotate(45)"/>
+          <circle r="1.1" fill="#FCF6E6"/>
+        </g>
+      ))}
+      {[36, 60, 84, 108, 132, 156, 180, 204, 228, 252].map((x) => (
+        <circle key={x} cx={x} cy="134.5" r="1.4" fill="#E8B24A"/>
       ))}
       {/* dasturxon usti (krem sirt) */}
       <ellipse cx="140" cy="108" rx="130" ry="19" fill="url(#g1clothT)" stroke="#E3D2A6" strokeWidth="1.5"/>
       <ellipse cx="116" cy="103" rx="66" ry="7" fill="rgba(255,255,255,0.32)"/>
+      {/* suzib o'tuvchi yorug'lik (dasturxon ustida) */}
+      <g clipPath="url(#g1clothClip)">
+        <rect className="g1-table-sweep" x="0" y="86" width="30" height="70" fill="url(#g1gleam)"/>
+      </g>
       {/* narsa soyalari */}
       <ellipse cx="74" cy="111" rx="27" ry="5.5" fill="rgba(58,53,48,0.11)"/>
       <ellipse cx="143" cy="113" rx="27" ry="6" fill="rgba(58,53,48,0.11)"/>
@@ -1870,9 +1987,16 @@ const DasturxonScene = () => (
           <circle cx="-3.5" cy="-7" r="1.8" fill="rgba(255,255,255,0.7)"/>
         </g>
       </g>
-      {/* bug' (jo'mrak uchidan) */}
-      <g className="g1-steam"><path d="M182 66 q-5 -7 0 -14 q5 -7 0 -14" stroke="#C6D6DC" strokeWidth="3.4" fill="none" strokeLinecap="round"/></g>
-      <g className="g1-steam g1-steam2"><path d="M191 64 q-5 -7 0 -14 q5 -7 0 -14" stroke="#D8E2E7" strokeWidth="3.4" fill="none" strokeLinecap="round"/></g>
+      {/* bug' (jo'mrak uchidan) — 3 ingichka tabiiy girdob, ko'tarilib tarqaydi */}
+      <g className="g1-steam"><path d="M181 64 q-6 -8 0 -15 q6 -8 0 -16 q-5 -6 -1 -12" stroke="#CBD9DF" strokeWidth="2.6" fill="none" strokeLinecap="round" opacity="0.85"/></g>
+      <g className="g1-steam g1-steam2"><path d="M188 62 q6 -8 0 -15 q-6 -8 0 -16 q5 -6 1 -12" stroke="#D8E2E7" strokeWidth="2.4" fill="none" strokeLinecap="round" opacity="0.8"/></g>
+      <g className="g1-steam g1-steam3"><path d="M184 60 q-5 -7 0 -14 q5 -7 0 -15" stroke="#E2EAEE" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7"/></g>
+      {/* tayyor dasturxon uchqunlari */}
+      <g fill="#FFD86B">
+        <path className="g1-table-spark" style={{ animationDelay: '0s' }} d="M0,-5 L1.4,-1.4 L5,0 L1.4,1.4 L0,5 L-1.4,1.4 L-5,0 L-1.4,-1.4 Z" transform="translate(70 66)"/>
+        <path className="g1-table-spark" style={{ animationDelay: '0.55s' }} d="M0,-5 L1.4,-1.4 L5,0 L1.4,1.4 L0,5 L-1.4,1.4 L-5,0 L-1.4,-1.4 Z" transform="translate(143 60) scale(0.85)"/>
+        <path className="g1-table-spark" style={{ animationDelay: '1s' }} d="M0,-5 L1.4,-1.4 L5,0 L1.4,1.4 L0,5 L-1.4,1.4 L-5,0 L-1.4,-1.4 Z" transform="translate(228 74) scale(0.8)"/>
+      </g>
     </svg>
   </div>
 );
@@ -1894,16 +2018,41 @@ const GuestScene = () => (
         <linearGradient id="g1robe" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#4A93DE"/><stop offset="100%" stopColor="#275FA8"/>
         </linearGradient>
+        <radialGradient id="g1warm" cx="50%" cy="42%" r="60%">
+          <stop offset="0%" stopColor="#FFE7AE" stopOpacity="0.9"/>
+          <stop offset="60%" stopColor="#FFD27A" stopOpacity="0.35"/>
+          <stop offset="100%" stopColor="#FFD27A" stopOpacity="0"/>
+        </radialGradient>
       </defs>
       {/* pol soyalari */}
       <ellipse cx="66" cy="178" rx="48" ry="5.5" fill="rgba(58,53,48,0.12)"/>
       <ellipse cx="170" cy="170" rx="34" ry="5" fill="rgba(58,53,48,0.12)"/>
-      {/* ESHIK: ramka + tabaqa + panellar + dasta */}
-      <rect x="22" y="20" width="90" height="156" rx="6" fill="url(#g1doorF)"/>
-      <rect x="30" y="27" width="74" height="149" rx="4" fill="url(#g1doorS)"/>
-      <rect x="39" y="37" width="56" height="52" rx="5" fill="#9A6430" stroke="#6E4520" strokeWidth="1.5"/>
-      <rect x="39" y="98" width="56" height="66" rx="5" fill="#9A6430" stroke="#6E4520" strokeWidth="1.5"/>
-      <circle cx="96" cy="104" r="4" fill="#E8B24A" stroke="#B8862E" strokeWidth="1"/>
+      {/* gilamcha (ostona oldida) */}
+      <ellipse cx="68" cy="183" rx="42" ry="7.5" fill="#C4452F"/>
+      <ellipse cx="68" cy="183" rx="34" ry="5.2" fill="none" stroke="#F0D9A0" strokeWidth="1.4" strokeDasharray="3 3"/>
+      {/* ESHIK: ramka + ichki soya + tabaqa */}
+      <rect x="22" y="18" width="92" height="160" rx="6" fill="url(#g1doorF)"/>
+      <rect x="28" y="24" width="80" height="154" rx="4" fill="#704626"/>
+      <rect x="31" y="27" width="74" height="151" rx="4" fill="url(#g1doorS)"/>
+      {/* yog'och tola chiziqlari */}
+      <g stroke="#7A4E22" strokeWidth="0.8" opacity="0.38">
+        <line x1="46" y1="30" x2="46" y2="175"/>
+        <line x1="68" y1="30" x2="68" y2="175"/>
+        <line x1="90" y1="30" x2="90" y2="175"/>
+      </g>
+      {/* panellar — bevel: tashqi quyuq ramka + ichki yorqin yuza */}
+      <rect x="38" y="36" width="58" height="54" rx="5" fill="#8A5826" stroke="#6E4520" strokeWidth="1.5"/>
+      <rect x="41" y="39" width="52" height="48" rx="4" fill="#A06A2E" stroke="rgba(255,255,255,0.16)" strokeWidth="1"/>
+      <rect x="38" y="98" width="58" height="68" rx="5" fill="#8A5826" stroke="#6E4520" strokeWidth="1.5"/>
+      <rect x="41" y="101" width="52" height="62" rx="4" fill="#A06A2E" stroke="rgba(255,255,255,0.16)" strokeWidth="1"/>
+      {/* dasta: plastinka + dumaloq tutqich */}
+      <rect x="93" y="97" width="6" height="20" rx="3" fill="#C98E33"/>
+      <circle cx="96" cy="107" r="4.6" fill="#F0C24A" stroke="#B8862E" strokeWidth="1.2"/>
+      <circle cx="94.5" cy="105.5" r="1.4" fill="rgba(255,255,255,0.6)"/>
+      {/* ostona */}
+      <rect x="20" y="176" width="96" height="5" rx="2" fill="#8A5A28"/>
+      {/* iliq kutib-olish nuri (eshikdan) */}
+      <ellipse className="g1-doorglow" cx="67" cy="100" rx="62" ry="78" fill="url(#g1warm)"/>
       {/* taq-taq tovush yoylari */}
       <g className="g1-knock" stroke="#8A8780" strokeWidth="2.4" fill="none" strokeLinecap="round">
         <path d="M120 64 q7 10 0 22"/>
@@ -1914,6 +2063,10 @@ const GuestScene = () => (
         <path d="M152 100 Q150 95 157 93 L181 93 Q188 95 186 100 L193 156 Q195 163 186 163 L152 163 Q143 163 145 156 Z" fill="url(#g1robe)"/>
         <path d="M169 96 L169 160" stroke="rgba(0,0,0,0.12)" strokeWidth="2"/>
         <path d="M161 94 L169 102 L177 94" fill="#275FA8"/>
+        {/* poyabzal (chopon etagidan ko'rinadi) */}
+        <ellipse cx="160" cy="164" rx="8.5" ry="3.6" fill="#3A2A1E"/>
+        <ellipse cx="178" cy="164" rx="8.5" ry="3.6" fill="#3A2A1E"/>
+        <ellipse cx="158" cy="163" rx="4" ry="1.4" fill="rgba(255,255,255,0.18)"/>
         {/* pastki qo'l + sovg'a quticha */}
         <path d="M156 102 Q149 120 153 137" stroke="url(#g1robe)" strokeWidth="10" fill="none" strokeLinecap="round"/>
         <g>
@@ -1923,6 +2076,12 @@ const GuestScene = () => (
           <ellipse cx="149" cy="138" rx="4" ry="3" fill="#FBE3CF"/><ellipse cx="157" cy="138" rx="4" ry="3" fill="#FBE3CF"/><circle cx="153" cy="138" r="2" fill="#F0C9A0"/>
         </g>
         <circle cx="153" cy="138" r="5.5" fill="url(#g1skin)"/>
+        {/* sovg'a ustida uchqunlar */}
+        <g fill="#FFD86B">
+          <path className="g1-giftspark" style={{ animationDelay: '0s' }} d="M0,-4 L1.1,-1.1 L4,0 L1.1,1.1 L0,4 L-1.1,1.1 L-4,0 L-1.1,-1.1 Z" transform="translate(138 131)"/>
+          <path className="g1-giftspark" style={{ animationDelay: '0.5s' }} d="M0,-4 L1.1,-1.1 L4,0 L1.1,1.1 L0,4 L-1.1,1.1 L-4,0 L-1.1,-1.1 Z" transform="translate(168 134) scale(0.8)"/>
+          <path className="g1-giftspark" style={{ animationDelay: '0.9s' }} d="M0,-4 L1.1,-1.1 L4,0 L1.1,1.1 L0,4 L-1.1,1.1 L-4,0 L-1.1,-1.1 Z" transform="translate(153 123) scale(0.7)"/>
+        </g>
         {/* silkiydigan qo'l */}
         <g className="g1-guest-hand">
           <path d="M184 100 Q202 88 208 70" stroke="url(#g1robe)" strokeWidth="10" fill="none" strokeLinecap="round"/>
@@ -1931,8 +2090,22 @@ const GuestScene = () => (
         {/* bo'yin + bosh */}
         <rect x="164" y="84" width="10" height="10" fill="#E0A06E"/>
         <circle cx="169" cy="72" r="16.5" fill="url(#g1skin)"/>
-        {/* soch */}
-        <path d="M152 72 Q156 50 169 49 Q182 50 186 72 Q182 61 169 60 Q156 61 152 72 Z" fill="#5A3A22"/>
+        {/* soch (chakka) */}
+        <path d="M152 73 Q154 62 159 60 Q156 68 158 74 Z" fill="#3A2517"/>
+        <path d="M186 73 Q184 62 179 60 Q182 68 180 74 Z" fill="#3A2517"/>
+        {/* DOPPI (milliy bosh kiyim): gumbaz + jiyak + oq naqsh */}
+        <path d="M151 61 Q169 39 187 61 Q169 67 151 61 Z" fill="#1E2A33"/>
+        <path d="M151 61 Q169 67 187 61 L187 65 Q169 73 151 65 Z" fill="#121A22"/>
+        {/* qalampir motivlari (gumbazda): oq, to'q jiyakli, markaziy tomirli */}
+        <g fill="#F2F0EA" stroke="#121A22" strokeWidth="0.5" strokeLinejoin="round">
+          <g transform="translate(169 56.5)"><path d="M0 1 C -2.7 -1.6 -2.7 -6.2 0 -9.4 C 2.7 -6.2 2.7 -1.6 0 1 Z"/><path d="M0 -0.5 V-8" fill="none"/></g>
+          <g transform="translate(159.5 58) rotate(-26)"><path d="M0 1 C -2.3 -1.4 -2.3 -5.6 0 -8.4 C 2.3 -5.6 2.3 -1.4 0 1 Z"/><path d="M0 -0.5 V-7" fill="none"/></g>
+          <g transform="translate(178.5 58) rotate(26)"><path d="M0 1 C -2.3 -1.4 -2.3 -5.6 0 -8.4 C 2.3 -5.6 2.3 -1.4 0 1 Z"/><path d="M0 -0.5 V-7" fill="none"/></g>
+        </g>
+        {/* band jiyagi: an'anaviy mayda kamarchalar */}
+        <g fill="none" stroke="#F2F0EA" strokeWidth="0.9" strokeLinecap="round">
+          <path d="M154 64.2 q1.8 -2.5 3.6 0 M159.6 64.4 q1.8 -2.5 3.6 0 M165.2 64.5 q1.8 -2.5 3.6 0 M170.8 64.5 q1.8 -2.5 3.6 0 M176.4 64.4 q1.8 -2.5 3.6 0 M182 64.2 q1.8 -2.5 3.6 0"/>
+        </g>
         {/* yuz */}
         <circle cx="163" cy="71" r="1.9" fill="#3A2A1E"/>
         <circle cx="175" cy="71" r="1.9" fill="#3A2A1E"/>
@@ -1997,18 +2170,30 @@ const Screen0 = (props) => {
   const t = useT();
   const c = CONTENT.s0;
   const audio = useAudio([{ id: 's0_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
-  const [picked, setPicked] = useState(null);
+  const sfx = useSfx();
+  const correctIdx = 2;   // opt2 = "5"
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [praiseWord, setPraiseWord] = useState('');
   const [showQ, setShowQ] = useState(false);
   const revealQ = useCallback(() => setShowQ(true), []);
   const pick = (i) => {
-    setPicked(i);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    if (solved || wrong.has(i)) return;   // veди-до-верного: noto'g'ri so'nadi, to'g'ri tanlanmaguncha qayta urinish
+    if (i === correctIdx) {
+      setSolved(true); sfx.playCorrect();
+      const pw = nextPraise(lang); setPraiseWord(pw);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff(c.audio.on_correct[lang]); } }
+    } else {
+      setWrong((prev) => { const n = new Set(prev); n.add(i); return n; });
+      sfx.playWrong();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((c[`wrong_${i}`] || c.audio.on_wrong)[lang]); }   // har variantga alohida izoh
+    }
   };
   const opts = [c.opt0, c.opt1, c.opt2];
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={picked === null} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!solved} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
@@ -2025,11 +2210,14 @@ const Screen0 = (props) => {
             <>
               <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                 {opts.map((o, i) => (
-                  <button key={i} className={`g1-tile ${picked === i ? 'g1-tile-sel' : ''}`} onClick={() => pick(i)} style={{ width: '100%' }}>
+                  <button key={i} className={`g1-tile ${solved && i === correctIdx ? 'g1-tile-ok' : ''} ${wrong.has(i) ? 'g1-tile-used' : ''}`} disabled={solved || wrong.has(i)} onClick={() => pick(i)} style={{ width: '100%' }}>
                     {t(o)}
                   </button>
                 ))}
               </div>
+              <FeedbackBlock show={solved || wrong.size > 0} isCorrect={solved} wrongClass="frame-tip">
+                <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : (lang === 'uz' ? ENCOURAGE.uz : ENCOURAGE.ru)}/>
+              </FeedbackBlock>
             </>
           )}
         </div>
@@ -2156,6 +2344,7 @@ const Screen4 = (props) => {
       options={[bigNum('2'), bigNum('3'), bigNum('4'), bigNum('5')]}
       correctIdx={1}
       figure={(solved) => <DressStars happy={solved}/>}
+      mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -2292,6 +2481,8 @@ const Screen7 = (props) => {
   const [placed, setPlaced] = useState(() => wasSolved ? { 2: true, 4: true, 5: true } : {});
   const [selected, setSelected] = useState(null);
   const [wrongGroup, setWrongGroup] = useState(null);
+  const [praiseWord, setPraiseWord] = useState('');
+  const [enc, setEnc] = useState(false);
   const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
   const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
   const introAdvancedRef = useRef(wasSolved);
@@ -2325,13 +2516,17 @@ const Screen7 = (props) => {
       const next = { ...placed, [count]: true };
       setPlaced(next);
       setSelected(null);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((Object.keys(next).length === GROUPS.length ? c.audio.on_correct : { ru: NUM_WORDS.ru[count], uz: NUM_WORDS.uz[count] })[lang]); }
+      const isFull = Object.keys(next).length === GROUPS.length;
+      const pw = isFull ? nextPraise(lang) : '';
+      if (isFull) setPraiseWord(pw);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { if (isFull) { e.pushOneOff(pw); e.pushOneOff(c.audio.on_correct[lang]); } else e.pushOneOff({ ru: NUM_WORDS.ru[count], uz: NUM_WORDS.uz[count] }[lang]); } }
       recordIfSolved(next);
     } else {
       if (firstTryRef.current === true) firstTryRef.current = false;
       sfx.playWrong();
       setWrongGroup(count);
       setTimeout(() => setWrongGroup(null), 600);
+      setEnc(true); setTimeout(() => setEnc(false), 1600);
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
     }
   };
@@ -2369,10 +2564,13 @@ const Screen7 = (props) => {
           ))}
         </div>
         <FeedbackBlock show={solved} isCorrect={true}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}
-          </p>
+          <Reaction state="correct" praise={praiseWord}/>
         </FeedbackBlock>
+        {!solved && enc && (
+          <FeedbackBlock show={true} isCorrect={false} wrongClass="frame-tip">
+            <Reaction state="wrong" praise={lang === 'uz' ? ENCOURAGE.uz : ENCOURAGE.ru}/>
+          </FeedbackBlock>
+        )}
       </div>
     </Stage>
   );
@@ -2463,6 +2661,7 @@ const Screen9 = (props) => {
   const [solvedItem, setSolvedItem] = useState(wasSolved);
   const [wrong, setWrong] = useState(() => new Set());
   const [opts, setOpts] = useState(() => drill9BuildOpts(DRILL9[startIdx]));   // variantlar (aralashtiriladi)
+  const [praiseWord, setPraiseWord] = useState('');
   const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
   const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
   const item = DRILL9[idx];
@@ -2488,7 +2687,8 @@ const Screen9 = (props) => {
     if (correct) {
       setSolvedItem(true);
       sfx.playCorrect();
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((idx >= total - 1 ? c.done_text : c.correct_text)[lang]); }
+      const pw = nextPraise(lang); setPraiseWord(pw);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff((idx >= total - 1 ? c.done_text : c.correct_text)[lang]); } }
       if (idx >= total - 1) {
         const ft = firstTryRef.current !== false;
         props.onAnswer({
@@ -2500,6 +2700,7 @@ const Screen9 = (props) => {
       }
     } else {
       sfx.playWrong();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((c[`w_${item.type}`] || c.wrong_audio)[lang]); }   // har topshiriqqa alohida yumshoq izoh
       firstTryRef.current = false;
       setWrong(prev => { const s = new Set(prev); s.add(key); return s; });
     }
@@ -2572,7 +2773,7 @@ const Screen9 = (props) => {
         )}
         {solvedItem && (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <span aria-hidden="true" style={{ color: T.success, fontWeight: 800, fontSize: 'clamp(22px, 3.4vw, 28px)' }}>✓</span>
+            <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
                 style={{ padding: 'clamp(8px, 1.4vw, 11px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
@@ -2580,6 +2781,11 @@ const Screen9 = (props) => {
               </button>
             )}
           </div>
+        )}
+        {!solvedItem && wrong.size > 0 && (
+          <FeedbackBlock show={true} isCorrect={false} wrongClass="frame-tip">
+            <Reaction state="wrong" praise={lang === 'uz' ? ENCOURAGE.uz : ENCOURAGE.ru}/>
+          </FeedbackBlock>
         )}
       </div>
     </Stage>
@@ -2609,6 +2815,7 @@ const Screen11 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s11;
+  useHero('celebrate');   // yakun: Madina bayram qiladi
   const audio = useAudio([{ id: 's11', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
   const navContent = (
     <>
@@ -2661,13 +2868,15 @@ export default function CountingLesson({
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [heroMood, setHeroMood] = useState('pointing');   // personaj holati (butun urok bo'ylab bitta overlay)
+  const heroCtx = React.useMemo(() => ({ setMood: setHeroMood }), []);
   const startTimeRef = useRef(Date.now());
 
   const recordAnswer = useCallback((screenIdx, data) => {
     setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
   }, []);
 
-  const reset = useCallback(() => { setAnswers([]); setCurrent(0); startTimeRef.current = Date.now(); }, []);
+  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
 
   const finishLesson = useCallback(() => {
   const scored = SCREEN_META.filter(s => s.scored);
@@ -2694,17 +2903,25 @@ export default function CountingLesson({
   const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, GameDrill, ScreenGuest, Screen10, Screen11];
   const CurrentScreen = screens[current];
 
-  const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
-  const prev = () => setCurrent(s => Math.max(s - 1, 0));
+  // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
+  // javobdan keyin Reaction uni happy/encourage'ga, yakun celebrate'ga o'zgartiradi.
+  const next = () => { setHeroMood('pointing'); setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1)); };
+  const prev = () => { setHeroMood('pointing'); setCurrent(s => Math.max(s - 1, 0)); };
 
   const handleAnswer = useCallback((data) => { recordAnswer(current, data); }, [current, recordAnswer]);
 
+  const starTotal = SCREEN_META.filter((s) => s.scored).length;
+  const starsEarned = answers.filter((a, i) => a && SCREEN_META[i] && SCREEN_META[i].scored && a.correct).length;
+
   return (
     <LangContext.Provider value={lang}>
+      <ProgressContext.Provider value={{ stars: starsEarned, total: starTotal }}>
+      <HeroContext.Provider value={heroCtx}>
       <style>{STYLES}</style>
       <div className="lesson-root">
         <GradientDefs/>
         <AmbientBg/>
+        <StageHero mood={heroMood}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
             {['ru', 'uz'].map(l => (
@@ -2718,6 +2935,8 @@ export default function CountingLesson({
         )}
         <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
       </div>
+      </HeroContext.Provider>
+      </ProgressContext.Provider>
     </LangContext.Provider>
   );
 }
@@ -2897,6 +3116,12 @@ html, body { margin: 0; padding: 0; }
 
 .chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
 .chrome-left { display: flex; align-items: center; gap: 10px; color: #5A5A60; }
+/* yulduz-kopilka (yuqorida): to'g'ri javoblar to'planadi */
+.g1-stars { display: flex; gap: clamp(2px,0.8vw,5px); align-items: center; }
+.g1-star-slot { font-size: clamp(13px,1.9vw,17px); line-height: 1; color: rgba(167,166,162,0.4); }
+.g1-star-slot.on { color: #FFC23C; animation: g1starpop 0.45s cubic-bezier(0.34,1.6,0.64,1); }
+@keyframes g1starpop { 0% { transform: scale(0.3); } 60% { transform: scale(1.35); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-star-slot.on { animation: none; } }
 .dot {
   width: 7px;
   height: 7px;
@@ -3140,27 +3365,42 @@ html, body { margin: 0; padding: 0; }
 .g1-dx-teapot { width: clamp(44px,10vw,60px); height: clamp(34px,8vw,46px); filter: drop-shadow(0 3px 5px rgba(58,53,48,0.18)); }
 /* SYUJET (hikoya) sahnalari — kirish (dasturxon) va ko'prik (mehmon) */
 .g1-table-scene { display: flex; justify-content: center; width: 100%; }
-.g1-table-svg { width: clamp(250px, 64vw, 370px); height: auto; filter: drop-shadow(0 8px 16px rgba(58,53,48,0.16)); }
-.g1-table-non { animation: g1bob 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-.g1-table-apples { animation: g1bob 3.2s ease-in-out 0.5s infinite; transform-box: fill-box; transform-origin: center; }
-.g1-steam { transform-box: fill-box; transform-origin: center bottom; animation: g1steam 2.4s ease-in-out infinite; }
-.g1-steam2 { animation-delay: 0.9s; }
-@keyframes g1steam { 0% { opacity: 0; transform: translateY(5px) scale(0.85); } 40% { opacity: 0.75; } 100% { opacity: 0; transform: translateY(-16px) scale(1.1); } }
-@media (prefers-reduced-motion: reduce) { .g1-table-non, .g1-table-apples, .g1-steam { animation: none; } }
-.g1-guest-scene svg { width: clamp(200px,52vw,290px); height: auto; }
+.g1-table-svg { width: clamp(280px, 72vw, 430px); height: auto; filter: drop-shadow(0 8px 16px rgba(58,53,48,0.16)); }
+/* ovqat: realroq — joyida turadi, faqat sezilmas vertikal "nafas" (aylanishsiz) */
+.g1-table-non { animation: g1float 4s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+.g1-table-apples { animation: g1float 4s ease-in-out 0.7s infinite; transform-box: fill-box; transform-origin: center bottom; }
+@keyframes g1float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.5px); } }
+.g1-steam { transform-box: fill-box; transform-origin: center bottom; animation: g1steam 2.9s ease-in-out infinite; }
+.g1-steam2 { animation-delay: 0.95s; }
+.g1-steam3 { animation-delay: 1.7s; }
+@keyframes g1steam { 0% { opacity: 0; transform: translateY(6px) scale(0.8); } 35% { opacity: 0.85; } 70% { opacity: 0.5; } 100% { opacity: 0; transform: translateY(-24px) scale(1.18); } }
+/* dasturxon ustidan suzib o'tuvchi yorug'lik (chap->o'ng) — "tayyor, chiroyli" */
+.g1-table-sweep { animation: g1tsweep 3.6s ease-in-out infinite; }
+@keyframes g1tsweep { 0% { transform: translateX(-110px) skewX(-20deg); opacity: 0; } 22% { opacity: 0.9; } 78% { opacity: 0.9; } 100% { transform: translateX(300px) skewX(-20deg); opacity: 0; } }
+/* tayyorlangan dasturxon ustidagi uchqunlar */
+.g1-table-spark { animation: g1tspark 1.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes g1tspark { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g1-table-non, .g1-table-apples, .g1-steam, .g1-table-sweep, .g1-table-spark { animation: none; } }
+.g1-guest-scene svg { width: clamp(275px, 68vw, 420px); height: auto; }
 /* yo'riqnoma chipi (1-slayd): tingla -> Davom */
 .g1-onboard { display: flex; align-items: center; justify-content: center; gap: clamp(8px,1.6vw,12px); align-self: center; background: #EAF6FB; border: 1px solid rgba(1,154,203,0.3); border-radius: 99px; padding: clamp(8px,1.5vw,11px) clamp(14px,2.6vw,20px); }
 .g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-onboard-txt { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px,1.7vw,15px); color: #017BA3; }
 .g1-onboard-arrow { color: #A7A6A2; font-weight: 800; font-size: clamp(15px,2vw,18px); }
 .g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #FF4F28; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
-.g1-guest { animation: g1guestBob 2.4s ease-in-out infinite; }
-.g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; }
-.g1-knock { animation: g1knock 1.6s ease-in-out infinite; }
-@keyframes g1guestBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-@keyframes g1wave { 0%,100% { transform: translate(0,0); } 50% { transform: translate(3px,-5px); } }
-@keyframes g1knock { 0%,100% { opacity: 0.2; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .g1-guest, .g1-guest-hand, .g1-knock { animation: none; } }
+/* mehmon: o'ngdan kirib keladi (1x), keyin yengil tebranadi */
+.g1-guest { animation: g1guestEnter 0.85s cubic-bezier(0.34,1.5,0.6,1) both, g1guestBob 2.6s ease-in-out 0.9s infinite; }
+.g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom left; }
+.g1-knock { transform-box: fill-box; transform-origin: left center; animation: g1knock 1.5s ease-in-out infinite; }
+.g1-doorglow { animation: g1glow 2.2s ease-in-out infinite; }
+.g1-giftspark { animation: g1giftspark 1.4s ease-in-out infinite; }
+@keyframes g1guestEnter { 0% { opacity: 0; transform: translateX(48px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes g1guestBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes g1wave { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-14deg); } }
+@keyframes g1knock { 0% { opacity: 0; transform: translateX(-4px) scale(0.85); } 45% { opacity: 1; } 100% { opacity: 0; transform: translateX(6px) scale(1.14); } }
+@keyframes g1glow { 0%,100% { opacity: 0.22; } 50% { opacity: 0.6; } }
+@keyframes g1giftspark { 0%,100% { opacity: 0.1; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g1-guest, .g1-guest-hand, .g1-knock, .g1-doorglow, .g1-giftspark { animation: none; } }
 .g1-tablescene { display: flex; flex-direction: column; align-items: center; width: 100%; }
 .g1-plates { display: flex; gap: clamp(6px,1.8vw,12px); justify-content: center; position: relative; z-index: 1; flex-wrap: wrap; }
 .g1-plate { position: relative; width: clamp(62px,14vw,90px); height: clamp(62px,14vw,90px); border-radius: 50%; border: clamp(3px,0.8vw,4px) solid #5FBFE0; cursor: pointer; background: radial-gradient(circle at 50% 36%, #FFFFFF 0%, #FBFAF5 54%, #E6DDCB 100%); box-shadow: 0 7px 16px -6px rgba(58,53,48,0.4), inset 0 7px 12px -5px rgba(58,53,48,0.22); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
@@ -3197,6 +3437,34 @@ html, body { margin: 0; padding: 0; }
 .g1-conf5 { left: 80%; background: #FF7AA8; animation: g1conf 1.15s ease-in 0.55s infinite; }
 .g1-conf6 { left: 26%; background: #9B5DE5; animation: g1conf 1.2s ease-in 0.75s infinite; }
 @keyframes g1conf { 0% { opacity: 0; transform: translateY(0) rotate(0deg); } 12% { opacity: 1; } 100% { opacity: 0; transform: translateY(190px) rotate(420deg); } }
+/* Reaction — yagona emotsional otklik (maskot + maqtov) */
+.g1-react { display: flex; align-items: center; gap: clamp(8px,1.8vw,12px); }
+/* === PNG personaj overlay — butun urok bo'ylab bitta doimiy element (personaj.md) ===
+   Doimiy joylashuv (sakramaydi), pastki chap burchak, nav ustida; pointer-events yo'q
+   (taplar o'tib ketadi, tugma/predmetlarni bloklamaydi). */
+.g1-hero { width: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.24)); }
+.g1-stage-hero { position: absolute; left: clamp(2px,1.6vw,28px); bottom: clamp(72px,11vh,104px); z-index: 6; pointer-events: none; display: flex; align-items: flex-end; gap: clamp(2px,1vw,8px); }
+.g1-stage-hero .g1-hero { transform-origin: bottom center; }
+.g1-stage-hero .g1-hero-madina { height: clamp(104px,22vh,208px); }
+.g1-stage-hero .g1-hero-bit { height: clamp(80px,17vh,156px); }   /* Bit Madinadan kichikroq */
+/* Mobil (tor ekran): personaj kichikroq va burchakka, kontentni kamroq yopadi */
+@media (max-width: 640px) {
+  .g1-stage-hero { left: 0; bottom: clamp(62px,9vh,84px); gap: 0; }
+  .g1-stage-hero .g1-hero-madina { height: clamp(78px,14vh,116px); }
+  .g1-stage-hero .g1-hero-bit { height: clamp(62px,11vh,92px); }
+}
+.g1-sh-pointing .g1-hero-madina { animation: g1heroIn 0.45s ease; }
+.g1-sh-happy .g1-hero-madina { animation: g1mhop 0.6s ease; }
+.g1-sh-encourage .g1-hero-madina { animation: g1mtilt 0.7s ease; }
+.g1-sh-encourage .g1-hero-bit { animation: g1heroIn 0.45s ease 0.1s both; }
+.g1-sh-celebrate .g1-hero-madina { animation: g1mhop 0.9s ease; }
+@keyframes g1heroIn { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes g1mhop { 0%,100% { transform: translateY(0) scale(1); } 35% { transform: translateY(-9px) scale(1.06); } }
+@keyframes g1mtilt { 0%,100% { transform: rotate(0); } 28% { transform: rotate(-7deg); } 62% { transform: rotate(5deg); } }
+.g1-react-txt { font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(16px,2.6vw,22px); }
+.g1-react-ok .g1-react-txt { color: #1F7A4D; }
+.g1-react-enc .g1-react-txt { color: #D8A93A; }
+@media (prefers-reduced-motion: reduce) { .g1-hero { animation: none !important; } }
 @media (prefers-reduced-motion: reduce) { .g1-dress-happy .g1-dress-svg, .g1-spark1, .g1-spark2, .g1-spark3, .g1-conf1, .g1-conf2, .g1-conf3, .g1-conf4, .g1-conf5, .g1-conf6 { animation: none; } }
 /* yakuniy reyting (rag'bat): 3 yulduz + maqtov */
 .g1-rating { display: flex; flex-direction: column; align-items: center; gap: clamp(4px,1vw,8px); }
@@ -3218,6 +3486,7 @@ html, body { margin: 0; padding: 0; }
 .g1-bhd-move { display: flex; flex-direction: column; align-items: center; animation: g1bhd 2.6s ease-in-out infinite; filter: drop-shadow(0 8px 14px rgba(58,53,48,0.28)); }
 .g1-bhd-apple { width: clamp(30px,7vw,42px); height: clamp(30px,7vw,42px); display: inline-flex; }
 .g1-bhd-apple svg { width: 100%; height: 100%; }
+.g1-bhd-petal { width: clamp(26px,6vw,36px); height: clamp(32px,7.5vw,46px); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: linear-gradient(155deg, #FFB6CE 0%, #FF6FA0 52%, #DA4A82 100%); display: inline-block; }
 .g1-bhd-hand { width: clamp(28px,6.5vw,38px); height: auto; margin-top: -4px; }
 @keyframes g1bhd { 0% { transform: translateY(12px); opacity: 0; } 12% { opacity: 1; } 46% { transform: translateY(-58px); opacity: 1; } 58% { transform: translateY(-58px) scale(0.94); } 74% { opacity: 1; } 88% { transform: translateY(-64px); opacity: 0; } 100% { transform: translateY(-64px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .g1-bounceback, .g1-bhd-move { animation: none; } }
@@ -3296,7 +3565,7 @@ html, body { margin: 0; padding: 0; }
 .g1-group { flex: 1; min-width: clamp(88px, 26vw, 150px); background: #FFFFFF; border: 2px dashed #A7A6A2; border-radius: 16px; padding: clamp(10px, 2vw, 16px); display: flex; flex-direction: column; align-items: center; gap: 10px; transition: border-color 0.18s, background 0.18s; cursor: pointer; }
 .g1-group-armed { border-color: #019ACB; background: #EAF6FB; }
 .g1-group-ok { border-style: solid; border-color: #1F7A4D; background: #E3F0E8; cursor: default; }
-.g1-group-wrong { border-color: #FF4F28; background: #FFE8E1; }
+.g1-group-wrong { border-color: #D8A93A; background: #FBF3D6; }
 .g1-group-faded { opacity: 0.3; cursor: default; }
 .g1-slot { min-height: clamp(38px, 7vw, 50px); display: flex; align-items: center; justify-content: center; }
 .g1-slot-num { font-weight: 800; font-size: clamp(34px, 8vw, 52px); color: #1F7A4D; }
