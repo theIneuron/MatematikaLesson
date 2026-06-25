@@ -827,31 +827,52 @@ const SCREEN_META = [
 const NUM_WORDS = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh'] };
 
 const CONTENT = {
-  // ---- sIntro SYUJET KIRISH — mehmon kutish boshlandi (interaktiv emas) ----
+  // ---- sIntro TANISHUV — Bit boshlovchi + bosqichma-bosqich ochilish (interaktiv emas) ----
   sIntro: {
-    eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'Мадина ждёт гостя', uz: 'Madina mehmon kutmoqda' },
+    eyebrow: { ru: 'Знакомство', uz: 'Tanishuv' },
+    title: { ru: 'Привет, друг!', uz: "Salom, do'stim!" },
     body: {
-      ru: 'Сегодня к Мадине придёт дорогой гость. Нужно красиво накрыть стол и собрать угощение. Мадина просит помощи — поможем ей? На каждом шагу нам пригодится счёт.',
-      uz: "Bugun Madinanikiga aziz mehmon keladi. Dasturxonni chiroyli tuzab, mevalarni tayyorlash kerak. Madina yordam so'rayapti — unga yordam beramizmi? Har bir qadamda sanash kerak bo'ladi."
+      ru: 'Это Бит — наш помощник. Это Мадина. Сегодня к ней придёт друг Анвар, и нужно всё приготовить.',
+      uz: "Bu — Bit, bizning yordamchimiz. Bu — Madina. Bugun unikiga do'sti Anvar keladi, hammasini tayyorlash kerak."
     },
+    // personaj placeholder kapsiyalari (Anvar rasmi hali yo'q — rezerv)
+    bit_label: { ru: 'Бит', uz: 'Bit' },
+    madina_label: { ru: 'Мадина', uz: 'Madina' },
+    anvar_label: { ru: 'Анвар (в пути)', uz: "Anvar (yo'lda)" },
     audio: {
-      ru: 'Сегодня к Мадине придёт гость. Давай поможем ей всё приготовить. На каждом шагу нам нужно будет считать. Слушай голос до конца, а потом нажимай кнопку Дальше.',
-      uz: "Bugun Madinanikiga mehmon keladi. Keling, unga hammasini tayyorlashga yordam beramiz. Har qadamda sanash kerak bo'ladi. Ovozni oxirigacha tingla, keyin Davom tugmasini bos."
+      ru: [
+        'Привет, друг! Меня зовут Бит. Я буду рядом и буду тебе помогать.',
+        'Познакомься, это Мадина. Сегодня у неё особенный день.',
+        'К Мадине идёт её друг Анвар. Скоро он постучит в дверь.',
+        'Нужно всё приготовить и сосчитать. Давай поможем Мадине. Слушай меня до конца и нажимай кнопку дальше.'
+      ],
+      uz: [
+        "Salom, do'stim! Mening ismim Bit. Men yoningizda bo'laman va sizga yordam beraman.",
+        "Tanishing, bu Madina. Bugun uning uchun alohida kun.",
+        "Madinanikiga do'sti Anvar kelyapti. Tez orada eshikni taqillatadi.",
+        "Hammasini tayyorlab, sanash kerak. Keling, Madinaga yordam beramiz. Meni oxirigacha tinglang va davom tugmasini bosing."
+      ]
     }
   },
 
-  // ---- sGuest SYUJET KO'PRIK — mehmon keldi (final oldidan, interaktiv emas) ----
+  // ---- sGuest ANVAR KELDI — Bit e'lon qiladi, payoff (interaktiv emas) ----
   sGuest: {
-    eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'Тук-тук! Гость пришёл', uz: 'Tiq-tiq! Mehmon keldi' },
+    eyebrow: { ru: 'Анвар пришёл', uz: 'Anvar keldi' },
+    title: { ru: 'Тук-тук! Анвар пришёл', uz: 'Tiq-tiq! Anvar keldi' },
     body: {
-      ru: 'Стол накрыт, фрукты собраны, всё готово. И вот в дверь постучали — пришёл гость! Осталось последнее: подарить ему корзину с яблоками.',
-      uz: "Dasturxon tuzaldi, mevalar yig'ildi, hammasi tayyor. Mana, eshik taqilladi — mehmon keldi! Oxirgi ish qoldi: unga olmali savatni sovg'a qilish."
+      ru: 'Стол накрыт, всё готово. В дверь постучали — пришёл Анвар! Осталось подарить ему корзину с яблоками.',
+      uz: "Dasturxon tuzaldi, hammasi tayyor. Eshik taqilladi — Anvar keldi! Unga olmali savatni sovg'a qilish qoldi."
     },
+    anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     audio: {
-      ru: 'Всё готово. В дверь постучали — пришёл гость. Теперь подарим ему правильную корзину, в которой ровно пять яблок.',
-      uz: "Hammasi tayyor. Eshik taqilladi — mehmon keldi. Endi unga to'g'ri savatni sovg'a qilamiz — unda aynan beshta olma bo'lsin."
+      ru: [
+        'Послушай, в дверь постучали. Это пришёл Анвар! Всё готово к встрече.',
+        'Теперь подарим Анвару корзину, в которой ровно пять яблок.'
+      ],
+      uz: [
+        "Tinglang, eshik taqilladi. Bu Anvar keldi! Kutib olishga hammasi tayyor.",
+        "Endi Anvarga aynan beshta olma bor savatni sovg'a qilamiz."
+      ]
     }
   },
 
@@ -1049,15 +1070,15 @@ const CONTENT = {
   // ---- s10 TEST final + FactCard — qaysi savatda 5 ta? Savatlar: 4 / 5(to'g'ri) / 3 ----
   s10: {
     eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
-    title: { ru: 'Гость пришёл! Подарим ему корзину с пятью яблоками. В какой из них пять?', uz: "Mehmon keldi! Unga beshta olma bor savatni beramiz. Qaysi savatda beshta?" },
-    correct_text: { ru: 'Верно. В этой корзине пять яблок — её и подарим гостю.', uz: "To'g'ri. Bu savatda beshta olma bor — uni mehmonga sovg'a qilamiz." },
+    title: { ru: 'Анвар пришёл! Подарим ему корзину с пятью яблоками. В какой из них пять?', uz: "Anvar keldi! Unga beshta olma bor savatni beramiz. Qaysi savatda beshta?" },
+    correct_text: { ru: 'Верно. В этой корзине пять яблок — её и подарим Анвару.', uz: "To'g'ri. Bu savatda beshta olma bor — uni Anvarga sovg'a qilamiz." },
     wrong_0: {
-      ru: 'Посчитай яблоки: один, два, три, четыре. Здесь только четыре — одного не хватает.',
-      uz: "Olmalarni sana: bir, ikki, uch, to'rt. Bu yerda atigi to'rtta — bittasi yetmaydi."
+      ru: 'Посчитай яблоки. Один, два, три, четыре. Здесь только четыре, одного не хватает.',
+      uz: "Olmalarni sana. Bir, ikki, uch, to'rt. Bu yerda atigi to'rtta, bittasi yetmaydi."
     },
     wrong_2: {
-      ru: 'Посчитай яблоки: один, два, три. Здесь только три — это мало.',
-      uz: "Olmalarni sana: bir, ikki, uch. Bu yerda atigi uchta — kam."
+      ru: 'Посчитай яблоки. Один, два, три. Здесь только три, это мало.',
+      uz: "Olmalarni sana. Bir, ikki, uch. Bu yerda atigi uchta, kam."
     },
     wrong_default: {
       ru: 'Не совсем. Посчитай яблоки в каждой корзине до пяти.',
@@ -1072,9 +1093,10 @@ const CONTENT = {
       ru: 'На твоей руке тоже пять пальцев. Можно считать на пальцах.',
       uz: "Qo'lingizda ham beshta barmoq bor. Barmoqlarda ham sanasa bo'ladi."
     },
+    anvar_label: { ru: 'Анвар рад', uz: 'Anvar xursand' },
     audio: {
-      intro: { ru: 'Гость уже за столом. Подарим ему корзину с пятью яблоками. Посчитай в каждой корзине и выбери.', uz: "Mehmon dasturxonda. Unga beshta olmali savatni beramiz. Har savatda sanang va tanlang." },
-      on_correct: { ru: 'Верно. В этой корзине пять яблок. Её и подарим гостю.', uz: "To'g'ri. Bu savatda beshta olma bor. Uni mehmonga beramiz." },
+      intro: { ru: 'Анвар уже за столом. Подарим ему корзину с пятью яблоками. Посчитай в каждой корзине и выбери.', uz: "Anvar dasturxonda. Unga beshta olmali savatni beramiz. Har savatda sanang va tanlang." },
+      on_correct: { ru: 'Верно. В этой корзине пять яблок. Её и подарим Анвару.', uz: "To'g'ri. Bu savatda beshta olma bor. Uni Anvarga beramiz." },
       on_wrong: { ru: 'Не совсем. Посчитай до пяти.', uz: "Unchalik emas. Beshtagacha sanang." }
     }
   },
@@ -1094,20 +1116,27 @@ const CONTENT = {
     }
   },
 
-  // ---- s11 SUMMARY — sanaydigan qo'l + can-do ----
+  // ---- s11 SUMMARY — Bit yakunlaydi, Anvar xursand + sanaydigan qo'l + can-do ----
   s11: {
     eyebrow: { ru: 'Готово', uz: 'Tayyor' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     main_1: { ru: 'Теперь вы умеете', uz: 'Endi siz' },
     main_2_em: { ru: 'считать до пяти', uz: 'beshgacha sanay olasiz' },
+    anvar_label: { ru: 'Анвар рад', uz: 'Anvar xursand' },
     connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
     connections_text: {
       ru: 'На следующем уроке научимся писать цифры от одного до пяти.',
       uz: "Keyingi darsda birdan beshgacha raqamlarni yozishni o'rganamiz."
     },
     audio: {
-      ru: 'Молодец! Гость Мадины рад — стол накрыт, корзина подарена. Вы помогли всё сосчитать и приготовить. Теперь вы умеете считать до пяти, даже на пальцах. На следующем уроке научимся писать цифры.',
-      uz: "Barakalla! Madinaning mehmoni xursand — dasturxon tuzaldi, savat sovg'a qilindi. Siz hammasini sanab, tayyorlashga yordam berdingiz. Endi siz beshgacha sanaysiz, hatto barmoqlarda ham. Keyingi darsda raqamlarni yozishni o'rganamiz."
+      ru: [
+        'Молодец! Анвар очень рад, стол накрыт, корзина подарена. Ты помог всё сосчитать и приготовить.',
+        'Теперь ты умеешь считать до пяти, даже на пальцах. На следующем уроке научимся писать цифры. До встречи!'
+      ],
+      uz: [
+        "Barakalla! Anvar juda xursand, dasturxon tuzaldi, savat sovg'a qilindi. Siz hammasini sanab, tayyorlashga yordam berdingiz.",
+        "Endi siz beshgacha sanaysiz, hatto barmoqlarda ham. Keyingi darsda raqamlarni yozishni o'rganamiz. Ko'rishguncha!"
+      ]
     }
   }
 };
@@ -1232,7 +1261,8 @@ const HERO = {
   happy:     '/assets/madina_happy.png',       // to'g'ri javob
   encourage: '/assets/madina_encourage.png',   // xato (qo'llab-quvvatlaydi)
   celebrate: '/assets/madina_celebrate.png',   // yakun "Barakalla!"
-  bit_hint:  '/assets/bit_hint.png',           // faqat xato javobda yordamchi
+  bit_hint:  '/assets/bit_hint.png',           // xato javobda yordamchi
+  bit_happy: '/assets/bit_happy.png',          // boshlovchi (ramka ekranlari: sIntro/sGuest/s11)
 };
 const HeroFig = ({ name, bit = false }) => (
   <img src={HERO[name]} alt="" aria-hidden="true" draggable="false"
@@ -1246,9 +1276,18 @@ const useHero = (mood) => {
   const { setMood } = useContext(HeroContext);
   useEffect(() => { setMood(mood); }, [mood, setMood]);
 };
-// MOOD -> rasm. Bit FAQAT 'encourage' (xato javob)da chiqadi — personaj.md.
+// MOOD -> rasm. Bit 'encourage'da yordamchi sifatida (xato javob) — personaj.md.
+// 'present' (variant A pilot): Bit BOSHLOVCHI sifatida ramka ekranlarida (sIntro/sGuest/s11) —
+// syujetdan tashqaridagi diktor. Madina/Anvar bunda frame ichida (cast).
 const MOOD_IMG = { pointing: 'pointing', happy: 'happy', encourage: 'encourage', celebrate: 'celebrate' };
 const StageHero = ({ mood }) => {
+  if (mood === 'present') {
+    return (
+      <div className="g1-stage-hero g1-sh-present" aria-hidden="true">
+        <HeroFig key="bit-present" name="bit_happy" bit/>
+      </div>
+    );
+  }
   const m = MOOD_IMG[mood] ? mood : 'pointing';
   return (
     <div className={`g1-stage-hero g1-sh-${m}`} aria-hidden="true">
@@ -2117,8 +2156,77 @@ const GuestScene = () => (
   </div>
 );
 
+// useStoryReveal — auto-zanjir audio segmentlariga bog'langan bosqichma-bosqich ochilish.
+// Qaytaradi: boshlangan segmentlar soni (1-asosli). aud_0 -> 1, aud_1 -> 2, ...
+// Mute yoki autoplay bloklansa / kechiksa -> hammasi ko'rinadi (personaj qotib qolmasin).
+function useStoryReveal(audio, total) {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (audio.muted) { setStep(total); return; }
+    const cs = audio.currentSegment;
+    if (!cs) return;
+    const m = /(\d+)/.exec(cs);
+    if (m) setStep((s) => Math.max(s, parseInt(m[1], 10) + 1));
+  }, [audio.currentSegment, audio.muted, total]);
+  useEffect(() => { const id = setTimeout(() => setStep((s) => Math.max(s, total)), 16000); return () => clearTimeout(id); }, [total]);
+  return step;
+}
+
+// AnvarFig — Anvar uchun PLACEHOLDER (rasm hali yo'q). Punktir ramka + oddiy bola silueti.
+// Rasm tayyor bo'lgach bu komponent <img src={HERO.anvar_*}/> bilan almashtiriladi.
+const AnvarFig = ({ variant = 'coming' }) => (
+  <div className={`g1-anvar-ph g1-anvar-${variant}`} aria-hidden="true">
+    <svg viewBox="0 0 64 96" width="100%" height="100%">
+      <circle cx="32" cy="22" r="13" fill="#CDE7F1" stroke="#019ACB" strokeWidth="2"/>
+      <path d="M14 92 V70 a18 18 0 0 1 36 0 V92 Z" fill="#CDE7F1" stroke="#019ACB" strokeWidth="2" strokeLinejoin="round"/>
+      <circle cx="27" cy="21" r="1.8" fill="#017BA3"/><circle cx="37" cy="21" r="1.8" fill="#017BA3"/>
+      <path d="M27 27 Q32 31 37 27" stroke="#017BA3" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+    </svg>
+  </div>
+);
+
+// IntroCast — sIntro frame ichi: Madina (seg2) + Anvar yo'lda (seg3) bosqichma-bosqich.
+// Bit — overlay (g1-sh-present), bu yerda emas.
+const IntroCast = ({ audio }) => {
+  const t = useT();
+  const c = CONTENT.sIntro;
+  const step = useStoryReveal(audio, 4);
+  return (
+    <div className="g1-cast-row">
+      <div className={`g1-cast ${step >= 2 ? 'in' : ''}`}>
+        <div className="g1-cast-fig"><img className="g1-cast-img" src={HERO.pointing} alt="" aria-hidden="true" draggable="false"/></div>
+        <span className="g1-cast-name">{t(c.madina_label)}</span>
+      </div>
+      <div className={`g1-cast ${step >= 3 ? 'in' : ''}`}>
+        <div className="g1-cast-fig"><AnvarFig variant="coming"/></div>
+        <span className="g1-cast-name g1-cast-sub">{t(c.anvar_label)}</span>
+      </div>
+    </div>
+  );
+};
+
+// GuestCast — sGuest frame ichi: Madina (doim) + Anvar eshikda (seg1, payoff).
+const GuestCast = ({ audio }) => {
+  const t = useT();
+  const c = CONTENT.sGuest;
+  const step = useStoryReveal(audio, 2);
+  return (
+    <div className="g1-cast-row">
+      <div className="g1-cast in">
+        <div className="g1-cast-fig"><img className="g1-cast-img" src={HERO.happy} alt="" aria-hidden="true" draggable="false"/></div>
+        <span className="g1-cast-name">{t(CONTENT.sIntro.madina_label)}</span>
+      </div>
+      <div className={`g1-cast ${step >= 1 ? 'in' : ''}`}>
+        <div className="g1-cast-fig"><AnvarFig variant="door"/></div>
+        <span className="g1-cast-name">{t(c.anvar_label)}</span>
+      </div>
+    </div>
+  );
+};
+
 // StoryLayout — umumiy hikoya-slayd qolipi (sarlavha + sahna + matn). Davom doim ochiq.
-// Yo'riqnoma chipi (faqat 1-slayd): ovozni oxirigacha tingla -> Davom tugmasini bos.
+// Bit — boshlovchi overlay (useHero('present')). children funksiya bo'lsa -> audio uzatiladi
+// (bosqichma-bosqich ochilish uchun). Yo'riqnoma chipi (faqat 1-slayd).
 const OnboardHint = () => {
   const lang = useLang();
   return (
@@ -2138,6 +2246,7 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
   const lang = useLang();
   const t = useT();
   const audio = useAudio(makeAutoSegments(c, lang));
+  useHero('present');   // Bit boshlovchi overlay (syujetdan tashqarida)
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -2149,7 +2258,7 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.title)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(22px, 4.4vw, 32px)' }}>
-          {children}
+          {typeof children === 'function' ? children(audio) : children}
         </div>
         {hint && <OnboardHint/>}
       </div>
@@ -2158,10 +2267,10 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
 };
 
 const ScreenIntro = (props) => (
-  <StoryLayout props={props} c={CONTENT.sIntro} hint><DasturxonScene/></StoryLayout>
+  <StoryLayout props={props} c={CONTENT.sIntro} hint>{(audio) => <IntroCast audio={audio}/>}</StoryLayout>
 );
 const ScreenGuest = (props) => (
-  <StoryLayout props={props} c={CONTENT.sGuest}><GuestScene/></StoryLayout>
+  <StoryLayout props={props} c={CONTENT.sGuest}>{(audio) => <GuestCast audio={audio}/>}</StoryLayout>
 );
 
 // s0 — HOOK: avval olmalarni birga sanaymiz (animatsiya), KEYIN savol chiqadi (PM audit).
@@ -2803,7 +2912,15 @@ const Screen10 = (props) => {
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       options={[<Pips n={4} kind="apple"/>, <Pips n={5} kind="apple"/>, <Pips n={3} kind="apple"/>]}
       correctIdx={1}
-      celebrateOnCorrect={() => <BasketCelebration n={5}/>}
+      celebrateOnCorrect={() => (
+        <div className="g1-final-cel">
+          <BasketCelebration n={5}/>
+          <div className="g1-cast g1-cast-sm in">
+            <div className="g1-cast-fig"><AnvarFig variant="happy"/></div>
+            <span className="g1-cast-name">{t(c.anvar_label)}</span>
+          </div>
+        </div>
+      )}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -2815,8 +2932,8 @@ const Screen11 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s11;
-  useHero('celebrate');   // yakun: Madina bayram qiladi
-  const audio = useAudio([{ id: 's11', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  useHero('present');   // yakun: Bit boshlovchi yopadi (Anvar frame ichida xursand)
+  const audio = useAudio(makeAutoSegments(c, lang));
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -2841,8 +2958,12 @@ const Screen11 = (props) => {
             {t(c.main_1)} <span className="italic" style={{ color: T.success }}>{t(c.main_2_em)}</span>
           </h2>
         </div>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(8px, 1.8vw, 14px)' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 'clamp(14px, 3vw, 28px)', flexWrap: 'wrap', padding: 'clamp(8px, 1.8vw, 14px)' }}>
           <CountingHand max={5} big loop/>
+          <div className="g1-cast g1-cast-sm in">
+            <div className="g1-cast-fig"><AnvarFig variant="happy"/></div>
+            <span className="g1-cast-name">{t(c.anvar_label)}</span>
+          </div>
         </div>
       </div>
     </Stage>
@@ -3458,6 +3579,26 @@ html, body { margin: 0; padding: 0; }
 .g1-sh-encourage .g1-hero-madina { animation: g1mtilt 0.7s ease; }
 .g1-sh-encourage .g1-hero-bit { animation: g1heroIn 0.45s ease 0.1s both; }
 .g1-sh-celebrate .g1-hero-madina { animation: g1mhop 0.9s ease; }
+/* Bit BOSHLOVCHI (present) — ramka ekranlarida diktor, Madina o'lchamida */
+.g1-sh-present .g1-hero-bit { height: clamp(104px,22vh,200px); animation: g1heroIn 0.45s ease; }
+@media (max-width: 640px) { .g1-sh-present .g1-hero-bit { height: clamp(76px,14vh,112px); } }
+/* Story cast (frame ichi): Madina + Anvar, bosqichma-bosqich ochiladi (useStoryReveal) */
+.g1-cast-row { display: flex; align-items: flex-end; justify-content: center; gap: clamp(18px,5vw,48px); flex-wrap: wrap; }
+.g1-cast { display: flex; flex-direction: column; align-items: center; gap: clamp(6px,1.4vw,10px); opacity: 0; transform: translateY(10px) scale(0.96); transition: opacity 0.5s ease, transform 0.5s ease; }
+.g1-cast.in { opacity: 1; transform: translateY(0) scale(1); }
+.g1-cast-fig { height: clamp(96px,20vw,150px); display: flex; align-items: flex-end; justify-content: center; }
+.g1-cast-sm .g1-cast-fig { height: clamp(72px,15vw,110px); }
+.g1-cast-img { height: 100%; width: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.22)); }
+.g1-cast-name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(13px,1.8vw,16px); color: #5A5A60; }
+.g1-cast-sub { color: #A7A6A2; font-weight: 600; }
+/* Anvar PLACEHOLDER (rasm hali yo'q): punktir ramka -> "rasm tez orada keladi" signali */
+.g1-anvar-ph { height: 100%; aspect-ratio: 2 / 3; display: flex; align-items: center; justify-content: center; padding: clamp(6px,1.4vw,10px); border: 2px dashed rgba(1,154,203,0.55); border-radius: 16px; background: rgba(205,231,241,0.18); }
+.g1-anvar-coming { opacity: 0.92; }
+.g1-anvar-door { animation: g1pulse 1.8s ease-in-out infinite; }
+.g1-anvar-happy { animation: g1mhop 0.9s ease; }
+/* s10/s11 final bayram: savat + Anvar yonma-yon */
+.g1-final-cel { display: flex; align-items: center; justify-content: center; gap: clamp(12px,3vw,28px); flex-wrap: wrap; }
+@media (prefers-reduced-motion: reduce) { .g1-cast { transition: none; } .g1-anvar-door, .g1-anvar-happy { animation: none; } }
 @keyframes g1heroIn { 0% { opacity: 0; transform: translateY(10px) scale(0.94); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes g1mhop { 0%,100% { transform: translateY(0) scale(1); } 35% { transform: translateY(-9px) scale(1.06); } }
 @keyframes g1mtilt { 0%,100% { transform: rotate(0); } 28% { transform: rotate(-7deg); } 62% { transform: rotate(5deg); } }
