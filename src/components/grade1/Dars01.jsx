@@ -653,7 +653,6 @@ const BackLabel = () => {
 // ============================================================
 const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect }) => {
   const lang = useLang();
-  const t = useT();
   const c = screenContent;
   const sfx = useSfx();
 
@@ -750,8 +749,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
                 style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? T.accent : T.ink3 }}>
-                  {isWrongPicked ? '✗' : String.fromCharCode(65 + i)}
+                <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
+                  {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
                 <span style={{ flex: 1 }}>{opt}</span>
               </button>
@@ -772,10 +771,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {solved && celebrateOnCorrect && <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>{typeof celebrateOnCorrect === 'function' ? celebrateOnCorrect() : celebrateOnCorrect}</div>}
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
-          </p>
-          <p className="body" style={{ margin: 0 }}>
-            {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
+            <span aria-hidden="true">{solved ? '✓' : '↺'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Yana sana' : 'Посчитай ещё')}
           </p>
         </FeedbackBlock>
         {solved && factOnCorrect}
@@ -791,12 +787,13 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
 // ============================================================
 
-const TOTAL_SCREENS = 13;
+const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-1-01-v1',
   lessonTitle: { ru: 'Счёт предметов и числа 1–5', uz: "Predmetlarni sanash va 1–5 sonlar" }
 };
 const SCREEN_META = [
+  { id: 'sIntro', type: 'hook',      template: 'custom',   scored: false, scope: null },            // syujet kirish: mehmon kutish boshlandi
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: nechta olma?
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // sanash ketma-ketligi 1->5
   { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'zi sanaydi (tap)
@@ -808,6 +805,7 @@ const SCREEN_META = [
   { id: 's8',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // to'g'ri va teskari sanash
   { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // xilma-xil drill (sana/keyingi/ko'p/tushgan)
   { id: 'sd',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-drill (3-5 misol, ball yo'q)
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: mehmon keldi
   { id: 's10', type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: qaysi savatda 5? + fakt
   { id: 's11', type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + sanaydigan qo'l
 ];
@@ -816,20 +814,48 @@ const SCREEN_META = [
 const NUM_WORDS = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh'] };
 
 const CONTENT = {
+  // ---- sIntro SYUJET KIRISH — mehmon kutish boshlandi (interaktiv emas) ----
+  sIntro: {
+    eyebrow: { ru: 'История', uz: 'Hikoya' },
+    title: { ru: 'Мадина ждёт гостя', uz: 'Madina mehmon kutmoqda' },
+    body: {
+      ru: 'Сегодня к Мадине придёт дорогой гость. Нужно красиво накрыть стол и собрать угощение. Мадина просит помощи — поможем ей? На каждом шагу нам пригодится счёт.',
+      uz: "Bugun Madinanikiga aziz mehmon keladi. Dasturxonni chiroyli tuzab, mevalarni tayyorlash kerak. Madina yordam so'rayapti — unga yordam beramizmi? Har bir qadamda sanash kerak bo'ladi."
+    },
+    audio: {
+      ru: 'Сегодня к Мадине придёт гость. Давай поможем ей всё приготовить. На каждом шагу нам нужно будет считать. Слушай голос до конца, а потом нажимай кнопку Дальше.',
+      uz: "Bugun Madinanikiga mehmon keladi. Keling, unga hammasini tayyorlashga yordam beramiz. Har qadamda sanash kerak bo'ladi. Ovozni oxirigacha tingla, keyin Davom tugmasini bos."
+    }
+  },
+
+  // ---- sGuest SYUJET KO'PRIK — mehmon keldi (final oldidan, interaktiv emas) ----
+  sGuest: {
+    eyebrow: { ru: 'История', uz: 'Hikoya' },
+    title: { ru: 'Тук-тук! Гость пришёл', uz: 'Tiq-tiq! Mehmon keldi' },
+    body: {
+      ru: 'Стол накрыт, фрукты собраны, всё готово. И вот в дверь постучали — пришёл гость! Осталось последнее: подарить ему корзину с яблоками.',
+      uz: "Dasturxon tuzaldi, mevalar yig'ildi, hammasi tayyor. Mana, eshik taqilladi — mehmon keldi! Oxirgi ish qoldi: unga olmali savatni sovg'a qilish."
+    },
+    audio: {
+      ru: 'Всё готово. В дверь постучали — пришёл гость. Теперь подарим ему правильную корзину, в которой ровно пять яблок.',
+      uz: "Hammasi tayyor. Eshik taqilladi — mehmon keldi. Endi unga to'g'ri savatni sovg'a qilamiz — unda aynan beshta olma bo'lsin."
+    }
+  },
+
   // ---- s0 HOOK — yumshoq jumboq (to'g'ri javob yo'q; sanab keyin topamiz) ----
   s0: {
     eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
-    title_part1: { ru: 'К Мадине пришёл', uz: 'Madinaga' },
-    title_part2_em: { ru: 'гость', uz: 'mehmon' },
-    title_part3: { ru: '. На столе яблоки.', uz: 'keldi. Stolda olmalar bor.' },
+    title_part1: { ru: 'Начнём с угощения. На столе', uz: 'Mevadan boshlaymiz. Stolda' },
+    title_part2_em: { ru: 'яблоки', uz: 'olmalar' },
+    title_part3: { ru: '. Посчитаем их вместе.', uz: ' bor. Ularni birga sanaymiz.' },
     question: { ru: 'Сколько яблок получилось? Нажми число.', uz: 'Nechta olma chiqdi? Sonni bosing.' },
     opt0: { ru: '3', uz: '3' },
     opt1: { ru: '4', uz: '4' },
     opt2: { ru: '5', uz: '5' },
     audio: {
       intro: {
-        ru: 'К Мадине пришёл гость. Давай вместе посчитаем яблоки на столе. Один, два, три, четыре, пять.',
-        uz: "Madinaga mehmon keldi. Keling, stoldagi olmalarni birga sanaymiz. Bir, ikki, uch, to'rt, besh."
+        ru: 'Начнём готовиться. Сперва посчитаем яблоки на столе вместе. Один, два, три, четыре, пять. Сколько яблок получилось? Нажми число.',
+        uz: "Tayyorgarlikni boshlaymiz. Avval stoldagi olmalarni birga sanaymiz. Bir, ikki, uch, to'rt, besh. Nechta olma chiqdi? Sonni bosing."
       },
       on_correct: { ru: 'Мы вместе насчитали пять яблок.', uz: "Biz birga beshta olma sanadik." },
       on_wrong: { ru: 'Мы вместе насчитали пять яблок.', uz: "Biz birga beshta olma sanadik." }
@@ -839,15 +865,15 @@ const CONTENT = {
   // ---- s1 EXPLORATION — sanash ketma-ketligi 1->5, har xil narsa (darslik 2-bob 1-dars) ----
   s1: {
     eyebrow: { ru: 'Считаем', uz: 'Sanaymiz' },
-    instruction: { ru: 'Числами считаем разные вещи', uz: "Sonlar bilan har xil narsani sanaymiz" },
+    instruction: { ru: 'Для гостя считаем разные вещи', uz: "Mehmon uchun har xil narsani sanaymiz" },
     fact: { ru: 'Считать можно что угодно: цветы, яблоки, звёзды, рыбок.', uz: "Hamma narsani sanash mumkin: gul, olma, yulduz, baliq." },
     audio: {
       ru: [
-        'Мадина считает разные вещи. Числами можно сосчитать что угодно. Цветы, яблоки, звёзды, рыбок.',
+        'Готовясь к гостю, Мадина считает всё подряд. Числом можно сосчитать что угодно. Цветы для стола, яблоки, звёзды, рыбок.',
         'Посчитаем каждую группу вместе. Число говорит, сколько предметов получилось.'
       ],
       uz: [
-        "Madina turli narsalarni sanaydi. Sonlar bilan hamma narsani sanash mumkin. Gul, olma, yulduz, baliq.",
+        "Mehmonga tayyorlanar ekan, Madina hammasini sanaydi. Son bilan hamma narsani sanash mumkin. Stol uchun gullar, olmalar, yulduzlar, baliqlar.",
         "Har guruhni birga sanaymiz. Son nechta narsa borligini bildiradi."
       ]
     }
@@ -856,15 +882,17 @@ const CONTENT = {
   // ---- s2 EXPLORATION — o'zi sanaydi (tap, birma-bir, kardinallik) ----
   s2: {
     eyebrow: { ru: 'Посчитай сам', uz: 'O\'zingiz sanang' },
-    instruction: { ru: 'Нажми на каждое яблоко Мадины и посчитай', uz: "Madinaning har olmasini bosing va sanang" },
+    instruction: { ru: 'Сколько яблок у Мадины? Нажми на каждое и посчитай', uz: "Madinada nechta olma bor? Har biriga bosing va sanang" },
     count_label: { ru: 'Посчитано', uz: 'Sanaldi' },
+    done_text: { ru: 'Молодец! Получилось пять.', uz: "Barakalla! Beshta bo'ldi." },
+    done_audio: { ru: 'Молодец! Получилось пять яблок.', uz: "Barakalla! Beshta olma bo'ldi." },
     audio: {
       ru: [
-        'Нажимай на каждое яблоко по одному. На каждое нажатие звучит одно число.',
+        'Проверим, хватит ли яблок гостю. Нажимай на каждое по одному. На каждое нажатие звучит одно число.',
         'Последнее число, пять, говорит, сколько яблок всего.'
       ],
       uz: [
-        "Har olmani bittadan bosing. Har bosishda bitta son aytiladi.",
+        "Mehmonga olma yetadimi, tekshiramiz. Har olmani bittadan bosing. Har bosishda bitta son aytiladi.",
         "Oxirgi son, besh, nechta olma borligini bildiradi."
       ]
     }
@@ -874,43 +902,43 @@ const CONTENT = {
   s3: {
     eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
     title_part1: { ru: 'Последнее число — это', uz: 'Oxirgi son — bu' },
-    title_part2_em: { ru: 'сколько всего', uz: 'jami nechta' },
+    title_part2_em: { ru: 'сколько всего получилось', uz: "jami nechta bo'ldi" },
     tip: {
       ru: 'Когда считаешь, последнее названное число говорит, сколько предметов всего.',
       uz: "Sanaganda, eng oxirgi aytilgan son jami nechta narsa borligini bildiradi."
     },
     audio: {
-      ru: 'Когда мы считаем, самое последнее число говорит, сколько предметов всего. Посчитали до пяти, значит всего пять.',
-      uz: "Sanaganimizda, eng oxirgi son jami nechta narsa borligini bildiradi. Beshgacha sanadik, demak jami besh."
+      ru: 'Когда мы считаем, самое последнее число говорит, сколько всего. Посчитали до пяти, значит всего пять. Так Мадина знает, сколько у неё яблок для гостя.',
+      uz: "Sanaganimizda, eng oxirgi son jami nechta ekanini bildiradi. Beshgacha sanadik, demak jami besh. Shunda Madina mehmon uchun nechta olmasi borligini biladi."
     }
   },
 
   // ---- s4 TEST choice — nechta? (3 yulduz). Variantlar: 2 / 3(to'g'ri) / 4 / 5 ----
   s4: {
     eyebrow: { ru: 'Тренировка · 1 / 4', uz: 'Mashq · 1 / 4' },
-    title: { ru: 'Сколько звёзд на платье Мадины?', uz: "Madinaning ko'ylagida nechta yulduz bor?" },
+    title: { ru: 'Мадина нарядилась к гостю. Сколько звёзд на платье?', uz: "Madina mehmonga yasandi. Ko'ylagida nechta yulduz bor?" },
     correct_text: {
       ru: 'Верно. Звёзд три — последнее число при счёте было три.',
       uz: "To'g'ri. Yulduz uchta — sanaganda oxirgi son uch edi."
     },
     wrong_0: {
-      ru: 'Здесь не две звезды. Похоже, одну пропустил при счёте. Посчитай снова, не пропуская ни одной.',
-      uz: "Bu yerda ikkita emas. Sanaganda bittasini tashlab ketgansiz. Hech birini tashlamasdan qaytadan sanang."
+      ru: 'Посчитай звёздочки: один, два, три. Их три, а не две.',
+      uz: "Yulduzlarni sana: bir, ikki, uch. Ular uchta, ikkita emas."
     },
     wrong_2: {
-      ru: 'Это не четыре. Похоже, одну звезду посчитал дважды. Посчитай каждую по одному разу.',
-      uz: "Bu to'rt emas. Bitta yulduzni ikki marta sanagansiz. Har birini bir martadan sanang."
+      ru: 'Посчитай звёздочки: один, два, три. Их три, а не четыре.',
+      uz: "Yulduzlarni sana: bir, ikki, uch. Ular uchta, to'rtta emas."
     },
     wrong_3: {
-      ru: 'Это не пять. Кажется, ты выбрал число, не посчитав. Сначала посчитай звёзды по одной.',
-      uz: "Bu besh emas. Sanamasdan son tanlagansiz. Avval yulduzlarni bittadan sanang."
+      ru: 'Посчитай звёздочки: один, два, три. Их три, а не пять.',
+      uz: "Yulduzlarni sana: bir, ikki, uch. Ular uchta, beshta emas."
     },
     wrong_default: {
-      ru: 'Не совсем. Посчитай звёзды по одной и назови последнее число.',
-      uz: "Unchalik emas. Yulduzlarni bittadan sanang va oxirgi sonni ayting."
+      ru: 'Посчитай звёздочки по одной: один, два, три.',
+      uz: "Yulduzlarni bittadan sana: bir, ikki, uch."
     },
     audio: {
-      intro: { ru: 'Сколько звёзд на платье Мадины? Посчитай и нажми правильную цифру.', uz: "Madinaning ko'ylagida nechta yulduz bor? Sanang va to'g'ri raqamni bosing." },
+      intro: { ru: 'Мадина нарядилась к приходу гостя. Сколько звёзд на её платье? Посчитай и нажми правильную цифру.', uz: "Madina mehmon kelishiga yasandi. Ko'ylagida nechta yulduz bor? Sanang va to'g'ri raqamni bosing." },
       on_correct: { ru: 'Верно. Звёзд три. Последнее число при счёте было три.', uz: "To'g'ri. Yulduz uchta. Sanaganda oxirgi son uch edi." },
       on_wrong: { ru: 'Не совсем. Посчитай ещё раз.', uz: "Unchalik emas. Yana bir bor sanang." }
     }
@@ -921,15 +949,15 @@ const CONTENT = {
     eyebrow: { ru: 'Накрываем стол', uz: 'Dasturxon' },
     instruction: { ru: 'Мадина накрывает стол. Нажми на тарелку — на неё ляжет яблоко', uz: "Madina dasturxon tayyorlamoqda. Likobchani bosing — unga olma tushadi" },
     count_label: { ru: 'Посчитано', uz: 'Sanaldi' },
-    full_text: { ru: 'Пять тарелок — пять яблок. На каждой по одному.', uz: "Besh likobcha — besh olma. Har likobchada bittadan." },
-    full_audio: { ru: 'Пять тарелок. Пять яблок. На каждой тарелке по одному.', uz: "Besh likobcha. Besh olma. Har likobchada bittadan." },
+    full_text: { ru: 'Молодец! Пять тарелок — пять яблок.', uz: "Barakalla! Besh likobcha — besh olma." },
+    full_audio: { ru: 'Молодец! Получилось пять. Пять тарелок, пять яблок.', uz: "Barakalla! Beshta bo'ldi. Besh likobcha, besh olma." },
     audio: {
       ru: [
-        'Мадина накрывает стол. На каждую тарелку кладём одно яблоко.',
+        'Теперь накрываем стол к приходу гостя. На каждую тарелку кладём одно яблоко.',
         'Считай вслух. Один, два, три, четыре, пять.'
       ],
       uz: [
-        "Madina dasturxon tayyorlamoqda. Har likobchaga bitta olma qo'yamiz.",
+        "Endi mehmon uchun dasturxon tuzaymiz. Har likobchaga bitta olma qo'yamiz.",
         "Ovoz chiqarib sanang. Bir, ikki, uch, to'rt, besh."
       ]
     }
@@ -943,11 +971,11 @@ const CONTENT = {
     title_part3: { ru: 'предметов', uz: "ko'rsatadi" },
     audio: {
       ru: [
-        'Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов.',
+        'Мадина готовит карточки с цифрами для блюд. Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов.',
         'Цифра один значит одну вещь. Цифра пять значит пять вещей. Сколько предметов, такая и цифра.'
       ],
       uz: [
-        "Bular birdan beshgacha raqamlar. Har raqam nechta narsa borligini ko'rsatadi.",
+        "Madina idishlar uchun raqamli kartochkalar tayyorlaydi. Bular birdan beshgacha raqamlar. Har raqam nechta narsa borligini ko'rsatadi.",
         "Bir raqami bitta narsa degani. Besh raqami beshta narsa degani. Nechta narsa bo'lsa, raqam ham shu."
       ]
     }
@@ -966,7 +994,7 @@ const CONTENT = {
       uz: "Bu yerda shuncha yo'q. Guruhdagi narsalarni sanang va raqam bilan solishtiring."
     },
     audio: {
-      intro: { ru: 'Нажми цифру, а потом группу, где столько же предметов. Сначала посчитай.', uz: "Raqamni bosing, keyin shuncha narsa bor guruhni bosing. Avval sanang." },
+      intro: { ru: 'Мадина подписывает блюда. Нажми цифру, а потом группу, где столько же предметов. Сначала посчитай.', uz: "Madina idishlarni belgilaydi. Raqamni bosing, keyin shuncha narsa bor guruhni bosing. Avval sanang." },
       on_correct: { ru: 'Верно. Цифры на своих местах.', uz: "To'g'ri. Raqamlar o'z joyida." },
       on_wrong: { ru: 'Не совсем. Посчитай группу ещё раз.', uz: "Unchalik emas. Guruhni yana sanang." }
     }
@@ -974,11 +1002,11 @@ const CONTENT = {
 
   // ---- s8 EXPLORATION — to'g'ri va teskari sanash (darslik 2-bob 13-dars) ----
   s8: {
-    eyebrow: { ru: 'По порядку и обратно', uz: "To'g'ri va teskari" },
-    instruction: { ru: 'Считаем по порядку и обратно', uz: "To'g'ri va teskari tartibda sanaymiz" },
-    fact: { ru: 'Числа можно называть по порядку и обратно.', uz: "Sonlarni to'g'ri va teskari tartibda sanasa bo'ladi." },
+    eyebrow: { ru: 'Вперёд и назад', uz: 'Oldinga va orqaga' },
+    instruction: { ru: 'Гость скоро придёт. Считаем вперёд и назад', uz: "Mehmon tez orada keladi. Oldinga va orqaga sanaymiz" },
+    fact: { ru: 'Числа можно называть вперёд и назад.', uz: "Sonlarni oldinga va orqaga sanasa bo'ladi." },
     audio: {
-      intro: { ru: 'Сейчас посчитаем числа по порядку, а потом обратно. Смотри на число и считай со мной.', uz: "Hozir sonlarni to'g'ri tartibda, keyin teskari tartibda sanaymiz. Songa qarang va men bilan sanang." }
+      intro: { ru: 'Гость уже в пути — потренируемся, пока ждём. Посчитаем числа вперёд, а потом назад. Смотри на число и считай со мной.', uz: "Mehmon yo'lda — kutar ekanmiz, mashq qilamiz. Sonlarni oldinga, keyin orqaga sanaymiz. Songa qarang va men bilan sanang." }
     }
   },
 
@@ -993,22 +1021,22 @@ const CONTENT = {
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Отлично! Все задания выполнены.', uz: "Zo'r! Hamma topshiriq bajarildi." },
     audio: {
-      intro: { ru: 'Несколько разных заданий. Считай и думай. Начинаем.', uz: "Bir nechta xil topshiriq. Sana va o'yla. Boshladik." }
+      intro: { ru: 'Проверим, всё ли мы успели. Несколько разных заданий. Считай и думай. Начинаем.', uz: "Hammasi tayyormi, tekshiramiz. Bir nechta xil topshiriq. Sana va o'yla. Boshladik." }
     }
   },
 
   // ---- s10 TEST final + FactCard — qaysi savatda 5 ta? Savatlar: 4 / 5(to'g'ri) / 3 ----
   s10: {
     eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
-    title: { ru: 'Гостю нужна корзина с пятью яблоками. В какой?', uz: "Mehmonga beshta olmali savat kerak. Qaysi savatda?" },
-    correct_text: { ru: 'Верно. В этой корзине пять яблок.', uz: "To'g'ri. Bu savatda beshta olma bor." },
+    title: { ru: 'Гость пришёл! Подарим ему корзину с пятью яблоками. В какой их пять?', uz: "Mehmon keldi! Unga beshta olmali savatni beramiz. Qaysida beshta?" },
+    correct_text: { ru: 'Верно. В этой корзине пять яблок — её и подарим гостю.', uz: "To'g'ri. Bu savatda beshta olma bor — uni mehmonga sovg'a qilamiz." },
     wrong_0: {
-      ru: 'Здесь четыре — до пяти не хватает одного. Посчитай до пяти.',
-      uz: "Bu yerda to'rtta — beshtaga bittasi yetmaydi. Beshtagacha sanang."
+      ru: 'Посчитай яблоки: один, два, три, четыре. Здесь только четыре — одного не хватает.',
+      uz: "Olmalarni sana: bir, ikki, uch, to'rt. Bu yerda atigi to'rtta — bittasi yetmaydi."
     },
     wrong_2: {
-      ru: 'Здесь только три. Считай яблоки до пяти, не останавливайся раньше.',
-      uz: "Bu yerda atigi uchta. Olmalarni beshtagacha sanang, erta to'xtamang."
+      ru: 'Посчитай яблоки: один, два, три. Здесь только три — это мало.',
+      uz: "Olmalarni sana: bir, ikki, uch. Bu yerda atigi uchta — kam."
     },
     wrong_default: {
       ru: 'Не совсем. Посчитай яблоки в каждой корзине до пяти.',
@@ -1024,8 +1052,8 @@ const CONTENT = {
       uz: "Qo'lingizda ham beshta barmoq bor. Barmoqlarda ham sanasa bo'ladi."
     },
     audio: {
-      intro: { ru: 'Гостю нужна корзина с пятью яблоками. Посчитай в каждой корзине и выбери.', uz: "Mehmonga beshta olmali savat kerak. Har savatda sanang va tanlang." },
-      on_correct: { ru: 'Верно. В этой корзине пять яблок.', uz: "To'g'ri. Bu savatda beshta olma bor." },
+      intro: { ru: 'Гость уже за столом. Подарим ему корзину с пятью яблоками. Посчитай в каждой корзине и выбери.', uz: "Mehmon dasturxonda. Unga beshta olmali savatni beramiz. Har savatda sanang va tanlang." },
+      on_correct: { ru: 'Верно. В этой корзине пять яблок. Её и подарим гостю.', uz: "To'g'ri. Bu savatda beshta olma bor. Uni mehmonga beramiz." },
       on_wrong: { ru: 'Не совсем. Посчитай до пяти.', uz: "Unchalik emas. Beshtagacha sanang." }
     }
   },
@@ -1039,8 +1067,9 @@ const CONTENT = {
     q_order: { ru: 'Расставь числа по порядку', uz: "Sonlarni tartib bilan joylashtiring" },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодцы! Все игры пройдены.', uz: "Barakalla! Hamma o'yin bajarildi." },
+    retry_audio: { ru: 'Ничего страшного. Посчитай ещё раз.', uz: "Hechqisi yo'q. Yana bir bor sana." },
     audio: {
-      intro: { ru: 'Поиграем. Перетаскивай пальцем или просто нажимай. Начинаем.', uz: "O'ynaymiz. Barmoq bilan torting yoki bosib qo'ying. Boshladik." }
+      intro: { ru: 'Поможем Мадине доделать всё к приходу гостя. Перетаскивай пальцем или просто нажимай. Начинаем.', uz: "Mehmon kelishiga Madinaga hammasini tugatishga yordam beramiz. Barmoq bilan torting yoki bosib qo'ying. Boshladik." }
     }
   },
 
@@ -1056,8 +1085,8 @@ const CONTENT = {
       uz: "Keyingi darsda birdan beshgacha raqamlarni yozishni o'rganamiz."
     },
     audio: {
-      ru: 'Молодец! Гость Мадины рад. Вы помогли сосчитать яблоки. Теперь вы умеете считать до пяти, даже на пальцах. На следующем уроке научимся писать цифры.',
-      uz: "Barakalla! Madinaning mehmoni xursand. Siz olmalarni sanashga yordam berdingiz. Endi siz beshgacha sanaysiz, hatto barmoqlarda ham. Keyingi darsda raqamlarni yozishni o'rganamiz."
+      ru: 'Молодец! Гость Мадины рад — стол накрыт, корзина подарена. Вы помогли всё сосчитать и приготовить. Теперь вы умеете считать до пяти, даже на пальцах. На следующем уроке научимся писать цифры.',
+      uz: "Barakalla! Madinaning mehmoni xursand — dasturxon tuzaldi, savat sovg'a qilindi. Siz hammasini sanab, tayyorlashga yordam berdingiz. Endi siz beshgacha sanaysiz, hatto barmoqlarda ham. Keyingi darsda raqamlarni yozishni o'rganamiz."
     }
   }
 };
@@ -1108,14 +1137,43 @@ function useCountOnce(max, { stepMs = 1300, startDelay = 600, loop = false, hold
   return k;
 }
 
-// Tabiiy shakllar (bolalar taniydigan). viewBox 0 0 40 40.
+// Umumiy gradientlar — bir marta hujjatga qo'yiladi; ObjSvg va barcha sahnalar shu id'larga murojaat qiladi.
+const GradientDefs = () => (
+  <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
+    <defs>
+      <radialGradient id="g1apA" cx="36%" cy="28%" r="74%">
+        <stop offset="0%" stopColor="#FF7A63"/><stop offset="48%" stopColor="#E5301C"/><stop offset="100%" stopColor="#9C1008"/>
+      </radialGradient>
+      <radialGradient id="g1chrG" cx="36%" cy="30%" r="72%">
+        <stop offset="0%" stopColor="#FF6A66"/><stop offset="50%" stopColor="#C8102E"/><stop offset="100%" stopColor="#7A0820"/>
+      </radialGradient>
+      <radialGradient id="g1nonG" cx="40%" cy="33%" r="72%">
+        <stop offset="0%" stopColor="#F0CC86"/><stop offset="58%" stopColor="#D9A35A"/><stop offset="100%" stopColor="#B07734"/>
+      </radialGradient>
+      <radialGradient id="g1teaG" cx="36%" cy="28%" r="82%">
+        <stop offset="0%" stopColor="#46BEE8"/><stop offset="68%" stopColor="#019ACB"/><stop offset="100%" stopColor="#016E93"/>
+      </radialGradient>
+      <radialGradient id="g1starG" cx="42%" cy="32%" r="70%">
+        <stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FFC23C"/><stop offset="100%" stopColor="#EE9A1E"/>
+      </radialGradient>
+      <radialGradient id="g1fishG" cx="35%" cy="30%" r="80%">
+        <stop offset="0%" stopColor="#5FCAEF"/><stop offset="65%" stopColor="#019ACB"/><stop offset="100%" stopColor="#0179A0"/>
+      </radialGradient>
+      <radialGradient id="g1flwG" cx="40%" cy="32%" r="75%">
+        <stop offset="0%" stopColor="#FFA6C6"/><stop offset="55%" stopColor="#FF6FA0"/><stop offset="100%" stopColor="#E0497E"/>
+      </radialGradient>
+    </defs>
+  </svg>
+);
+
+// Tabiiy shakllar (bolalar taniydigan). viewBox 0 0 40 40. Mevalar (apple/cherry) — realniy, gradientli.
 const ICON = {
-  apple: <g><rect x="18.7" y="4" width="2.6" height="7" rx="1.3" fill="#7A5230"/><path d="M27 8c-3 0-5.2 2-6 4.4 3.2 0.6 6-1.4 6-4.4z" fill="#1F7A4D"/><circle cx="20" cy="24" r="13" fill="#FF4F28"/><ellipse cx="15" cy="19" rx="3.2" ry="4.6" fill="rgba(255,255,255,0.4)"/></g>,
-  star: <path d="M20 4 L24.7 14.6 L36 15.6 L27.4 23 L30 34 L20 28 L10 34 L12.6 23 L4 15.6 L15.3 14.6 Z" fill="#019ACB"/>,
-  fish: <g><ellipse cx="17" cy="20" rx="12" ry="8" fill="#019ACB"/><path d="M29 20 L38 13 L38 27 Z" fill="#019ACB"/><circle cx="12" cy="18" r="1.7" fill="#FFFFFF"/></g>,
-  flower: <g><circle cx="20" cy="11" r="4.5" fill="#FF7AA8"/><circle cx="11.4" cy="17.2" r="4.5" fill="#FF7AA8"/><circle cx="14.7" cy="27.3" r="4.5" fill="#FF7AA8"/><circle cx="25.3" cy="27.3" r="4.5" fill="#FF7AA8"/><circle cx="28.6" cy="17.2" r="4.5" fill="#FF7AA8"/><circle cx="20" cy="20" r="5" fill="#FFC23C"/></g>,
+  apple: <g transform="translate(20 21)"><path d="M0 -7 C -5 -13 -11 -13 -13.5 -8 C -16.5 -2 -15.5 9 -8 14.5 C -4 17 -1.5 16.5 0 14.5 C 1.5 16.5 4 17 8 14.5 C 15.5 9 16.5 -2 13.5 -8 C 11 -13 5 -13 0 -7 Z" fill="url(#g1apA)"/><circle cx="0" cy="14.2" r="1.5" fill="rgba(110,40,20,0.45)"/><path d="M0 -8 Q1 -16 5 -18" stroke="#6E3A20" strokeWidth="2.4" fill="none" strokeLinecap="round"/><ellipse cx="9" cy="-16" rx="6" ry="3.4" fill="#2C9A57" transform="rotate(-18 9 -16)"/><ellipse cx="-6.5" cy="-1" rx="2.8" ry="6.2" fill="rgba(255,255,255,0.55)" transform="rotate(-16 -6.5 -1)"/><circle cx="-3.5" cy="-7" r="1.8" fill="rgba(255,255,255,0.7)"/></g>,
+  star: <g><path d="M20 3 L24.9 14.7 L37.5 15.8 L28 24.2 L30.9 36.5 L20 29.8 L9.1 36.5 L12 24.2 L2.5 15.8 L15.1 14.7 Z" fill="url(#g1starG)" stroke="#E0992A" strokeWidth="0.8" strokeLinejoin="round"/><path d="M20 9 L22.4 15.4 L20 20 L17.6 15.4 Z" fill="rgba(255,255,255,0.38)"/></g>,
+  fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
+  flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
   balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
-  cherry: <g><path d="M20 9 Q26 11 28 27" stroke="#1F7A4D" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q15 14 12 26" stroke="#1F7A4D" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M16 6 Q20 4 24 6" stroke="#1F7A4D" strokeWidth="2" fill="none" strokeLinecap="round"/><circle cx="12" cy="30" r="7.5" fill="#C0263B"/><circle cx="27" cy="28" r="7.5" fill="#E0344F"/><ellipse cx="10" cy="27" rx="2" ry="3" fill="rgba(255,255,255,0.45)"/></g>
+  cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
 
@@ -1130,8 +1188,9 @@ const Obj = ({ kind = 'apple', i = 0, anim = 'bob' }) => (
 );
 
 // Pips — statik pips o'rniga animatsion (idle bob/twinkle). API saqlangan (n, kind).
-const Pips = ({ n, kind = 'apple', anim = 'bob' }) => (
-  <div className="g1-pips">
+// wrap=true -> ko'p qatorga o'raladi (tor idishda skrol bo'lmasin); aks holda bitta qator (sanash uchun).
+const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
+  <div className={`g1-pips ${wrap ? 'g1-pips-wrap' : ''}`}>
     {Array.from({ length: n }).map((_, i) => <Obj key={i} kind={kind} i={i} anim={anim}/>)}
   </div>
 );
@@ -1238,7 +1297,7 @@ const CountTrack = ({ max = 5, speak = false, muted = false, startDelay = 650, o
     timer = setTimeout(tick, startDelay);
     return () => { alive = false; clearTimeout(timer); };
   }, [max, reduced, speak, lang, startDelay, onDone, started]);
-  const label = dir > 0 ? (lang === 'uz' ? "To'g'ri" :'Вперёд') : dir < 0 ? (lang === 'uz' ? 'Teskari' :'Назад') : ' ';
+  const label = dir > 0 ? (lang === 'uz' ? 'Oldinga' :'Вперёд') : dir < 0 ? (lang === 'uz' ? 'Orqaga' :'Назад') : ' ';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)' }}>
       <div className={`g1-track-label mono ${dir < 0 ? 'back' : ''}`}>
@@ -1314,19 +1373,84 @@ const CountingHand = ({ max = 5, big = false, loop = false }) => {
   );
 };
 
-// DressStars — Madinaning ko'ylagi + ustidagi N ta yulduz (s4 savoliga mos figura).
-const DRESS_STAR_POS = [[50, 52], [37, 70], [63, 70], [44, 88], [58, 88]];
-const DressStars = ({ n = 3 }) => (
-  <div className="g1-dress">
-    <svg viewBox="0 0 100 122" className="g1-dress-svg" aria-hidden="true">
-      <circle cx="50" cy="12" r="8" fill="#F2B58C"/>
-      <path d="M34 22 Q50 15 66 22 L58 46 L78 106 Q50 116 22 106 L42 46 Z" fill="#FF7AA8"/>
+// DressStars — Madina yulduzli ko'ylakda; 3 yulduz ko'ylak ichida sochilgan.
+// happy=true (to'g'ri javob): qiz qo'llarini ko'taradi, sakraydi, "Molodec/Ajoyib" chiqadi.
+const DStar = ({ x, y, sc }) => (
+  <g transform={`translate(${x} ${y}) scale(${sc})`}>
+    <g transform="translate(-20 -21)">
+      <path d="M20 3 L24.9 14.7 L37.5 15.8 L28 24.2 L30.9 36.5 L20 29.8 L9.1 36.5 L12 24.2 L2.5 15.8 L15.1 14.7 Z" fill="url(#g1starG)" stroke="#E0992A" strokeWidth="0.8" strokeLinejoin="round"/>
+      <path d="M20 9 L22.4 15.4 L20 20 L17.6 15.4 Z" fill="rgba(255,255,255,0.38)"/>
+    </g>
+  </g>
+);
+const DressStars = ({ happy = false }) => (
+  <div className={`g1-dress ${happy ? 'g1-dress-happy' : ''}`}>
+    <svg viewBox="0 0 130 190" className="g1-dress-svg" aria-hidden="true">
+      <defs>
+        <radialGradient id="g1dskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
+        <linearGradient id="g1ddress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FF92B8"/><stop offset="100%" stopColor="#E84F86"/></linearGradient>
+        <linearGradient id="g1dhair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5A3A22"/><stop offset="100%" stopColor="#3A2516"/></linearGradient>
+      </defs>
+      {/* oyoqlar + tufli */}
+      <rect x="57" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1dskin)"/>
+      <rect x="65.5" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1dskin)"/>
+      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#C23B63"/>
+      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#C23B63"/>
+      {/* soch (orqa, uzun) */}
+      <path d="M43 36 Q43 11 65 11 Q87 11 87 36 L87 80 Q82 66 77 62 L77 40 Q77 27 65 27 Q53 27 53 40 L53 62 Q48 66 43 80 Z" fill="url(#g1dhair)"/>
+      {/* pastdagi qo'llar (oddiy holat) */}
+      <g className="g1-arm-dn">
+        <path d="M53 58 Q46 74 43 91" stroke="url(#g1dskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="43" cy="92" r="4.6" fill="url(#g1dskin)"/>
+        <path d="M77 58 Q84 74 87 91" stroke="url(#g1dskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="87" cy="92" r="4.6" fill="url(#g1dskin)"/>
+      </g>
+      {/* ko'tarilgan qo'llar (xursand holat) */}
+      <g className="g1-arm-up">
+        <path d="M53 58 Q45 42 41 28" stroke="url(#g1dskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="41" cy="27" r="4.6" fill="url(#g1dskin)"/>
+        <path d="M77 58 Q85 42 89 28" stroke="url(#g1dskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="89" cy="27" r="4.6" fill="url(#g1dskin)"/>
+      </g>
+      {/* ko'ylak */}
+      <path d="M50 56 Q52 50 58 49 L72 49 Q78 50 80 56 L94 146 Q65 155 36 146 Z" fill="url(#g1ddress)"/>
+      {/* etak jiyagi (och oq lenta) */}
+      <path d="M37 140 Q65 149 93 140 L94 146 Q65 155 36 146 Z" fill="rgba(255,255,255,0.28)"/>
+      {/* puff yenglar (yelka) */}
+      <ellipse cx="51" cy="57" rx="7" ry="6" fill="url(#g1ddress)"/>
+      <ellipse cx="79" cy="57" rx="7" ry="6" fill="url(#g1ddress)"/>
+      {/* oq yoqa */}
+      <path d="M58 50 Q65 57 72 50 Q68 54 65 54 Q62 54 58 50 Z" fill="#FFFFFF"/>
+      {/* belbog' + to'qa */}
+      <path d="M46 67 Q65 72 84 67 L85 73 Q65 78 45 73 Z" fill="#D43E74"/>
+      <circle cx="65" cy="70" r="2.6" fill="#FFD86B" stroke="#C99A2E" strokeWidth="0.8"/>
+      {/* yulduzlar — ko'ylakда sochilgan */}
+      <DStar x={55} y={88} sc={0.46}/><DStar x={80} y={104} sc={0.46}/><DStar x={53} y={126} sc={0.46}/>
+      {/* bosh */}
+      <circle cx="65" cy="37" r="16.5" fill="url(#g1dskin)"/>
+      {/* pigtaylar (ikki o'rim) + rezinka */}
+      <ellipse cx="45" cy="44" rx="7.5" ry="11" fill="url(#g1dhair)"/>
+      <ellipse cx="85" cy="44" rx="7.5" ry="11" fill="url(#g1dhair)"/>
+      <circle cx="48.5" cy="35" r="2.4" fill="#FF4F8B"/>
+      <circle cx="81.5" cy="35" r="2.4" fill="#FF4F8B"/>
+      {/* peshona sochi */}
+      <path d="M49 37 Q50 18 65 17 Q80 18 81 37 Q74 27 65 26 Q56 27 49 37 Z" fill="url(#g1dhair)"/>
+      {/* bosh ustidagi bantik */}
+      <path d="M65 16 L58 12 Q56 17 62 18 Z M65 16 L72 12 Q74 17 68 18 Z" fill="#FF4F8B"/>
+      <circle cx="65" cy="16.5" r="2" fill="#E03A78"/>
+      {/* yuz: ko'z + kiprik + burun + tabassum + yonoq */}
+      <circle cx="59" cy="37" r="2.1" fill="#3A2A1E"/><circle cx="71" cy="37" r="2.1" fill="#3A2A1E"/>
+      <path d="M56 33.6 Q59 32.2 61.4 33.6" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+      <path d="M68.6 33.6 Q71 32.2 74 33.6" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+      <path d="M64.6 39 Q65 41 65.9 41" stroke="#C98A6A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      <path className="g1-mouth" d="M60 44 Q65 48 70 44" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      <path className="g1-mouth-happy" d="M59 43 Q65 51 71 43 Q65 47 59 43 Z" fill="#C0392B"/>
+      <ellipse cx="54" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+      <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
     </svg>
-    {Array.from({ length: n }).map((_, i) => (
-      <span key={i} className="g1-dress-star g1-twinkle" style={{ left: `${DRESS_STAR_POS[i][0]}%`, top: `${DRESS_STAR_POS[i][1]}%`, animationDelay: `${i * 0.25}s` }}>
-        <svg viewBox="0 0 40 40"><path d="M20 4 L24.7 14.6 L36 15.6 L27.4 23 L30 34 L20 28 L10 34 L12.6 23 L4 15.6 L15.3 14.6 Z" fill="#FFC23C"/></svg>
-      </span>
-    ))}
+    {happy && (
+      <>
+        <span className="g1-spark g1-spark1"/><span className="g1-spark g1-spark2"/><span className="g1-spark g1-spark3"/>
+        <span className="g1-conf g1-conf1"/><span className="g1-conf g1-conf2"/><span className="g1-conf g1-conf3"/>
+        <span className="g1-conf g1-conf4"/><span className="g1-conf g1-conf5"/><span className="g1-conf g1-conf6"/>
+      </>
+    )}
   </div>
 );
 
@@ -1435,17 +1559,37 @@ function useDnd(onDrop) {
   return { drag, sel, startDrag, tapZone };
 }
 
+// Savatga meva qo'yishni ko'rsatuvchi qo'l-demo (mevani olib savatga tashlaydi, sikl).
+const HandSvg = () => (
+  <svg className="g1-bhd-hand" viewBox="0 0 24 24" fill="#FFFFFF" stroke="#5A5A60" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M10 9.5V4a2 2 0 0 0-4 0v10"/>
+    <path d="M14 10V9a2 2 0 0 0-4 0v1"/>
+    <path d="M18 11v-1a2 2 0 0 0-4 0v1"/>
+    <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+  </svg>
+);
+const BasketHandDemo = () => (
+  <div className="g1-bhd" aria-hidden="true">
+    <div className="g1-bhd-move">
+      <span className="g1-bhd-apple"><ObjSvg kind="apple"/></span>
+      <HandSvg/>
+    </div>
+  </div>
+);
+
 const GameDrill = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.sd;
   const sfx = useSfx();
   const audio = useAudio([{ id: 'sd_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
-  const canAns = useCanAnswer(audio);
   const total = GAME_EX.length;
   const [exIdx, setExIdx] = useState(0);
   const [placement, setPlacement] = useState({});   // tokenId -> zoneId
   const [solvedItem, setSolvedItem] = useState(false);
+  const [wrongZone, setWrongZone] = useState(null);   // noto'g'ri sudralganda zona yumshoq tebranadi
+  const [bounceTok, setBounceTok] = useState(null);   // noto'g'ri token tray'ga sakrab qaytadi
+  const [demoOff, setDemoOff] = useState(false);   // qo'l-demo birinchi harakatdan keyin so'nadi
   const ex = GAME_EX[exIdx];
   const tokens = exTokens(ex);
   const zones = exZones(ex);
@@ -1483,9 +1627,15 @@ const GameDrill = (props) => {
     return !!zo && zo.order === tok.value && tokenInZone(zoneId) == null;
   };
   const handleDrop = useCallback((tokenId, zoneId) => {
-    if (!canAns || solvedItem || !zoneId) return;
+    if (solvedItem || !zoneId) return;   // darrov ishlaydi (canAns darvozasi yo'q)
     if (placement[tokenId]) return;
-    if (!accept(tokenId, zoneId)) { sfx.playWrong(); return; }
+    if (!accept(tokenId, zoneId)) {   // yumshoq: token tray'ga sakrab qaytadi, zona tebranadi, ovoz "yana sana"
+      sfx.playWrong();
+      setBounceTok(tokenId); setTimeout(() => setBounceTok(null), 500);
+      setWrongZone(zoneId); setTimeout(() => setWrongZone(null), 450);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.retry_audio[lang]); }
+      return;
+    }
     setPlacement((prev) => ({ ...prev, [tokenId]: zoneId }));
     if (!audio.muted) {
       const e = getAudioEngine();
@@ -1495,7 +1645,7 @@ const GameDrill = (props) => {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canAns, solvedItem, placement, exIdx, audio.muted, lang]);
+  }, [solvedItem, placement, exIdx, audio.muted, lang]);
   const dnd = useDnd(handleDrop);
 
   // tugallanganini aniqlash
@@ -1539,7 +1689,8 @@ const GameDrill = (props) => {
         <p className="h-sub title fade-up">{promptText} <span className="mono small" style={{ color: T.ink3 }}>{exIdx + 1} / {total}</span></p>
 
         {/* nishon (zonalar) */}
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          {ex.type === 'basket' && exIdx === 0 && !demoOff && !solvedItem && Object.keys(placement).length === 0 && <BasketHandDemo/>}
           {ex.type === 'basket' && (
             <div className="g1-basketwrap">
               <div className="g1-recipe">
@@ -1550,7 +1701,7 @@ const GameDrill = (props) => {
                   </span>
                 ))}
               </div>
-              <div className="g1-realbasket g1-dropzone" data-zone="basket" onClick={() => dnd.tapZone('basket')}>
+              <div className={`g1-realbasket g1-dropzone ${wrongZone === 'basket' ? 'g1-nudge' : ''}`} data-zone="basket" onClick={() => dnd.tapZone('basket')}>
                 <span className="g1-rb-handle"/>
                 <div className="g1-rb-bowl">
                   {Object.keys(placement).map((tid) => <span key={tid} className="g1-token-obj"><ObjSvg kind={kindOfId(tid)}/></span>)}
@@ -1560,11 +1711,11 @@ const GameDrill = (props) => {
           )}
           {ex.type === 'puzzle' && (
             <div className="g1-flowerwrap">
-              <div className="g1-flower">
+              <div className={`g1-flower ${solvedItem ? 'g1-flower-spin' : ''}`}>
                 <div className="g1-flower-center"/>
                 {zones.map((z, i) => {
                   const tid = tokenInZone(z.id);
-                  return <div key={z.id} className={`g1-petal-slot g1-dropzone ${tid ? 'filled' : ''}`} data-zone={z.id}
+                  return <div key={z.id} className={`g1-petal-slot g1-dropzone ${tid ? 'filled' : ''} ${wrongZone === z.id ? 'g1-nudge' : ''}`} data-zone={z.id}
                     style={{ left: `${FLOWER_POS[i][0]}%`, top: `${FLOWER_POS[i][1]}%` }} onClick={() => dnd.tapZone(z.id)}>
                     {tid && <span className="g1-petal g1-pop-in"/>}
                   </div>;
@@ -1577,7 +1728,7 @@ const GameDrill = (props) => {
             <div className="g1-mbaskets">
               {zones.map((z) => {
                 const tid = tokenInZone(z.id);
-                return <div key={z.id} className="g1-mbasket g1-dropzone" data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
+                return <div key={z.id} className={`g1-mbasket g1-dropzone ${wrongZone === z.id ? 'g1-nudge' : ''}`} data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
                   <div className="g1-mbasket-num mono">{tid ? tokenById(tid).value : ''}</div>
                   <Pips n={z.count} kind="apple"/>
                 </div>;
@@ -1588,7 +1739,7 @@ const GameDrill = (props) => {
             <div className="g1-order">
               {zones.map((z) => {
                 const tid = tokenInZone(z.id);
-                return <div key={z.id} className={`g1-pos g1-dropzone ${tid ? 'filled' : ''}`} data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
+                return <div key={z.id} className={`g1-pos g1-dropzone ${tid ? 'filled' : ''} ${wrongZone === z.id ? 'g1-nudge' : ''}`} data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
                   {tid && <span className="g1-token-num mono">{tokenById(tid).value}</span>}
                 </div>;
               })}
@@ -1600,8 +1751,8 @@ const GameDrill = (props) => {
         {!solvedItem && (
           <div className="g1-tray fade-up delay-2">
             {trayTokens.map((tok) => (
-              <div key={tok.id} className={`g1-token ${dnd.sel === tok.id ? 'g1-token-sel' : ''}`}
-                onPointerDown={(e) => { if (canAns && !solvedItem) { e.preventDefault(); dnd.startDrag(e, tok.id); } }}>
+              <div key={tok.id} className={`g1-token ${dnd.sel === tok.id ? 'g1-token-sel' : ''} ${bounceTok === tok.id ? 'g1-bounceback' : ''}`}
+                onPointerDown={(e) => { if (!solvedItem) { e.preventDefault(); setDemoOff(true); dnd.startDrag(e, tok.id); } }}>
                 {tokenVisual(tok)}
               </div>
             ))}
@@ -1610,9 +1761,7 @@ const GameDrill = (props) => {
 
         {solvedItem && (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 700 }}>
-              <span aria-hidden="true">✓ </span>{t(allDone ? c.done_text : c.correct_text)}
-            </p>
+            <span aria-hidden="true" style={{ color: T.success, fontWeight: 800, fontSize: 'clamp(22px, 3.4vw, 28px)' }}>✓</span>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
                 style={{ padding: 'clamp(8px, 1.4vw, 11px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
@@ -1634,6 +1783,213 @@ const GameDrill = (props) => {
 // ============================================================
 // EKRANLAR
 // ============================================================
+
+// ============================================================
+// SYUJET (hikoya) slaydlari — interaktiv emas: sahna + matn + audio + Davom.
+// "Madina mehmon kutmoqda" syujetining kirish va ko'prik lahzalari.
+// ============================================================
+
+// Dasturxon sahnasi — krem dasturxon BUTUN stolni yopadi (taxta ko'rinmaydi),
+// haqiqiy olma shakli, aniq choynak (qopqoq + C-dasta + jo'mrak), bug' jo'mrakdan.
+const DasturxonScene = () => (
+  <div className="g1-table-scene">
+    <svg className="g1-table-svg" viewBox="0 0 280 200" aria-hidden="true">
+      <defs>
+        <linearGradient id="g1clothT" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FCF6E6"/><stop offset="100%" stopColor="#F0E2C2"/>
+        </linearGradient>
+        <linearGradient id="g1clothS" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#F4E8CB"/><stop offset="100%" stopColor="#E7D5AA"/>
+        </linearGradient>
+        <linearGradient id="g1woodG" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#C68A45"/><stop offset="100%" stopColor="#8A5A28"/>
+        </linearGradient>
+      </defs>
+      {/* pol soyasi */}
+      <ellipse cx="140" cy="190" rx="110" ry="6" fill="rgba(58,53,48,0.10)"/>
+      {/* stol oyoqlari (dasturxon ostidan ko'rinadi) */}
+      <ellipse cx="64" cy="188" rx="11" ry="3" fill="rgba(58,53,48,0.16)"/>
+      <ellipse cx="216" cy="188" rx="11" ry="3" fill="rgba(58,53,48,0.16)"/>
+      <rect x="57" y="144" width="14" height="42" rx="4" fill="url(#g1woodG)"/>
+      <rect x="209" y="144" width="14" height="42" rx="4" fill="url(#g1woodG)"/>
+      <rect x="55" y="182" width="18" height="5" rx="2.5" fill="#7A4E22"/>
+      <rect x="207" y="182" width="18" height="5" rx="2.5" fill="#7A4E22"/>
+      {/* dasturxon etagi (butun old yuzni yopadi, to'lqinli) */}
+      <path d="M12 108 V148 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 q16 12 32 0 V108 Z" fill="url(#g1clothS)"/>
+      {/* bezak chizig'i + romblar */}
+      <rect x="12" y="128" width="256" height="12" fill="#019ACB"/>
+      <rect x="12" y="126" width="256" height="2" fill="#F4E8CB"/>
+      {[28, 60, 92, 124, 156, 188, 220, 252].map((x) => (
+        <rect key={x} x="-3.4" y="-3.4" width="6.8" height="6.8" fill="#FCF6E6" transform={`translate(${x} 134) rotate(45)`}/>
+      ))}
+      {/* dasturxon usti (krem sirt) */}
+      <ellipse cx="140" cy="108" rx="130" ry="19" fill="url(#g1clothT)" stroke="#E3D2A6" strokeWidth="1.5"/>
+      <ellipse cx="116" cy="103" rx="66" ry="7" fill="rgba(255,255,255,0.32)"/>
+      {/* narsa soyalari */}
+      <ellipse cx="74" cy="111" rx="27" ry="5.5" fill="rgba(58,53,48,0.11)"/>
+      <ellipse cx="143" cy="113" rx="27" ry="6" fill="rgba(58,53,48,0.11)"/>
+      <ellipse cx="214" cy="113" rx="26" ry="5.5" fill="rgba(58,53,48,0.11)"/>
+      {/* NON (lochira: jiyak + bosma markaz + kunjut) */}
+      <g className="g1-table-non">
+        <ellipse cx="74" cy="90" rx="27" ry="22" fill="url(#g1nonG)" stroke="#A86B28" strokeWidth="1.6"/>
+        <ellipse cx="74" cy="90" rx="13" ry="10.5" fill="#C9923F"/>
+        <ellipse cx="74" cy="90" rx="13" ry="10.5" fill="none" stroke="#A86B28" strokeWidth="1.2" strokeDasharray="2 3"/>
+        <g fill="#A06A28">
+          <circle cx="74" cy="71.5" r="1.4"/><circle cx="58" cy="80" r="1.4"/><circle cx="55" cy="93" r="1.4"/>
+          <circle cx="62" cy="103" r="1.4"/><circle cx="86" cy="103" r="1.4"/><circle cx="93" cy="93" r="1.4"/><circle cx="90" cy="80" r="1.4"/>
+        </g>
+        <ellipse cx="64" cy="80" rx="7" ry="3.4" fill="rgba(255,255,255,0.20)"/>
+      </g>
+      {/* CHOYNAK: dasta (orqada) -> tana -> jo'mrak -> qopqoq */}
+      <g>
+        <path d="M123 80 C 104 82 104 106 123 106" stroke="url(#g1teaG)" strokeWidth="6.5" fill="none" strokeLinecap="round"/>
+        <ellipse cx="143" cy="93" rx="24" ry="20" fill="url(#g1teaG)"/>
+        <path d="M163 83 Q177 81 181 69 L186 72 Q182 86 166 94 Z" fill="url(#g1teaG)"/>
+        <ellipse cx="143" cy="75" rx="15" ry="5" fill="#0892C2"/>
+        <ellipse cx="143" cy="75" rx="15" ry="5" fill="none" stroke="#016E93" strokeWidth="1"/>
+        <circle cx="143" cy="69" r="4" fill="#016E93"/>
+        <ellipse cx="133" cy="85" rx="7.5" ry="4.5" fill="rgba(255,255,255,0.42)"/>
+        <path d="M127 99 Q143 105 159 99" stroke="rgba(255,255,255,0.45)" strokeWidth="2.6" fill="none"/>
+      </g>
+      {/* OLMALAR (qizil, yelkali shakl, cho'qqi botig'i + band/barg + yaltiroq) */}
+      <g className="g1-table-apples">
+        <g transform="translate(224 92)">
+          <path d="M0 -7 C -5 -13 -11 -13 -13.5 -8 C -16.5 -2 -15.5 9 -8 14.5 C -4 17 -1.5 16.5 0 14.5 C 1.5 16.5 4 17 8 14.5 C 15.5 9 16.5 -2 13.5 -8 C 11 -13 5 -13 0 -7 Z" fill="url(#g1apA)"/>
+          <circle cx="0" cy="14.2" r="1.5" fill="rgba(110,40,20,0.45)"/>
+          <path d="M0 -8 Q1 -16 5 -18" stroke="#6E3A20" strokeWidth="2.6" fill="none" strokeLinecap="round"/>
+          <ellipse cx="9" cy="-16" rx="6" ry="3.4" fill="#2C9A57" transform="rotate(-18 9 -16)"/>
+          <ellipse cx="-6" cy="-1" rx="2.6" ry="6" fill="rgba(255,255,255,0.5)" transform="rotate(-16 -6 -1)"/>
+          <circle cx="-3" cy="-7" r="1.7" fill="rgba(255,255,255,0.65)"/>
+        </g>
+        <g transform="translate(205 97)">
+          <path d="M0 -7 C -5 -13 -11 -13 -13.5 -8 C -16.5 -2 -15.5 9 -8 14.5 C -4 17 -1.5 16.5 0 14.5 C 1.5 16.5 4 17 8 14.5 C 15.5 9 16.5 -2 13.5 -8 C 11 -13 5 -13 0 -7 Z" fill="url(#g1apA)"/>
+          <circle cx="0" cy="14.2" r="1.5" fill="rgba(110,40,20,0.45)"/>
+          <path d="M0 -8 Q1 -16 5 -18" stroke="#6E3A20" strokeWidth="2.6" fill="none" strokeLinecap="round"/>
+          <ellipse cx="9" cy="-16" rx="6" ry="3.4" fill="#2C9A57" transform="rotate(-18 9 -16)"/>
+          <ellipse cx="-6.5" cy="-1" rx="2.8" ry="6.2" fill="rgba(255,255,255,0.55)" transform="rotate(-16 -6.5 -1)"/>
+          <circle cx="-3.5" cy="-7" r="1.8" fill="rgba(255,255,255,0.7)"/>
+        </g>
+      </g>
+      {/* bug' (jo'mrak uchidan) */}
+      <g className="g1-steam"><path d="M182 66 q-5 -7 0 -14 q5 -7 0 -14" stroke="#C6D6DC" strokeWidth="3.4" fill="none" strokeLinecap="round"/></g>
+      <g className="g1-steam g1-steam2"><path d="M191 64 q-5 -7 0 -14 q5 -7 0 -14" stroke="#D8E2E7" strokeWidth="3.4" fill="none" strokeLinecap="round"/></g>
+    </svg>
+  </div>
+);
+
+// Mehmon sahnasi — gradientli eshik + choponli, yuzli mehmon (qo'l silkitadi, sovg'ali) + "taq-taq".
+const GuestScene = () => (
+  <div className="g1-guest-scene">
+    <svg viewBox="0 0 240 200" aria-hidden="true">
+      <defs>
+        <linearGradient id="g1doorS" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#B5793C"/><stop offset="100%" stopColor="#9A6430"/>
+        </linearGradient>
+        <linearGradient id="g1doorF" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#CE9351"/><stop offset="100%" stopColor="#A86B28"/>
+        </linearGradient>
+        <radialGradient id="g1skin" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/>
+        </radialGradient>
+        <linearGradient id="g1robe" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#4A93DE"/><stop offset="100%" stopColor="#275FA8"/>
+        </linearGradient>
+      </defs>
+      {/* pol soyalari */}
+      <ellipse cx="66" cy="178" rx="48" ry="5.5" fill="rgba(58,53,48,0.12)"/>
+      <ellipse cx="170" cy="170" rx="34" ry="5" fill="rgba(58,53,48,0.12)"/>
+      {/* ESHIK: ramka + tabaqa + panellar + dasta */}
+      <rect x="22" y="20" width="90" height="156" rx="6" fill="url(#g1doorF)"/>
+      <rect x="30" y="27" width="74" height="149" rx="4" fill="url(#g1doorS)"/>
+      <rect x="39" y="37" width="56" height="52" rx="5" fill="#9A6430" stroke="#6E4520" strokeWidth="1.5"/>
+      <rect x="39" y="98" width="56" height="66" rx="5" fill="#9A6430" stroke="#6E4520" strokeWidth="1.5"/>
+      <circle cx="96" cy="104" r="4" fill="#E8B24A" stroke="#B8862E" strokeWidth="1"/>
+      {/* taq-taq tovush yoylari */}
+      <g className="g1-knock" stroke="#8A8780" strokeWidth="2.4" fill="none" strokeLinecap="round">
+        <path d="M120 64 q7 10 0 22"/>
+        <path d="M127 58 q11 16 0 34"/>
+      </g>
+      {/* MEHMON */}
+      <g className="g1-guest">
+        <path d="M152 100 Q150 95 157 93 L181 93 Q188 95 186 100 L193 156 Q195 163 186 163 L152 163 Q143 163 145 156 Z" fill="url(#g1robe)"/>
+        <path d="M169 96 L169 160" stroke="rgba(0,0,0,0.12)" strokeWidth="2"/>
+        <path d="M161 94 L169 102 L177 94" fill="#275FA8"/>
+        {/* pastki qo'l + sovg'a quticha */}
+        <path d="M156 102 Q149 120 153 137" stroke="url(#g1robe)" strokeWidth="10" fill="none" strokeLinecap="round"/>
+        <g>
+          <rect x="143" y="139" width="20" height="15" rx="2.5" fill="#E8557A"/>
+          <rect x="151" y="139" width="4" height="15" fill="#FBE3CF"/>
+          <rect x="143" y="145" width="20" height="4" fill="#FBE3CF"/>
+          <ellipse cx="149" cy="138" rx="4" ry="3" fill="#FBE3CF"/><ellipse cx="157" cy="138" rx="4" ry="3" fill="#FBE3CF"/><circle cx="153" cy="138" r="2" fill="#F0C9A0"/>
+        </g>
+        <circle cx="153" cy="138" r="5.5" fill="url(#g1skin)"/>
+        {/* silkiydigan qo'l */}
+        <g className="g1-guest-hand">
+          <path d="M184 100 Q202 88 208 70" stroke="url(#g1robe)" strokeWidth="10" fill="none" strokeLinecap="round"/>
+          <circle cx="209" cy="67" r="6.5" fill="url(#g1skin)"/>
+        </g>
+        {/* bo'yin + bosh */}
+        <rect x="164" y="84" width="10" height="10" fill="#E0A06E"/>
+        <circle cx="169" cy="72" r="16.5" fill="url(#g1skin)"/>
+        {/* soch */}
+        <path d="M152 72 Q156 50 169 49 Q182 50 186 72 Q182 61 169 60 Q156 61 152 72 Z" fill="#5A3A22"/>
+        {/* yuz */}
+        <circle cx="163" cy="71" r="1.9" fill="#3A2A1E"/>
+        <circle cx="175" cy="71" r="1.9" fill="#3A2A1E"/>
+        <path d="M163 78 Q169 84 175 78" stroke="#3A2A1E" strokeWidth="2" fill="none" strokeLinecap="round"/>
+        <ellipse cx="159" cy="78" rx="3" ry="2" fill="rgba(255,120,120,0.32)"/>
+        <ellipse cx="179" cy="78" rx="3" ry="2" fill="rgba(255,120,120,0.32)"/>
+      </g>
+    </svg>
+  </div>
+);
+
+// StoryLayout — umumiy hikoya-slayd qolipi (sarlavha + sahna + matn). Davom doim ochiq.
+// Yo'riqnoma chipi (faqat 1-slayd): ovozni oxirigacha tingla -> Davom tugmasini bos.
+const OnboardHint = () => {
+  const lang = useLang();
+  return (
+    <div className="g1-onboard fade-up delay-2">
+      <svg className="g1-onboard-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#019ACB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/>
+      </svg>
+      <span className="g1-onboard-txt">{lang === 'uz' ? 'Ovozni oxirigacha tingla' : 'Дослушай до конца'}</span>
+      <span className="g1-onboard-arrow" aria-hidden="true">→</span>
+      <span className="g1-onboard-pill">{lang === 'uz' ? 'Davom' : 'Дальше'}</span>
+    </div>
+  );
+};
+
+const StoryLayout = ({ props, c, children, hint = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const audio = useAudio(makeAutoSegments(c, lang));
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+        <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.title)}</h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(22px, 4.4vw, 32px)' }}>
+          {children}
+        </div>
+        {hint && <OnboardHint/>}
+      </div>
+    </Stage>
+  );
+};
+
+const ScreenIntro = (props) => (
+  <StoryLayout props={props} c={CONTENT.sIntro} hint><DasturxonScene/></StoryLayout>
+);
+const ScreenGuest = (props) => (
+  <StoryLayout props={props} c={CONTENT.sGuest}><GuestScene/></StoryLayout>
+);
 
 // s0 — HOOK: avval olmalarni birga sanaymiz (animatsiya), KEYIN savol chiqadi (PM audit).
 const Screen0 = (props) => {
@@ -1667,7 +2023,6 @@ const Screen0 = (props) => {
           </div>
           {showQ && (
             <>
-              <p className="body fade-up" style={{ color: T.ink2 }}>{t(c.question)}</p>
               <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                 {opts.map((o, i) => (
                   <button key={i} className={`g1-tile ${picked === i ? 'g1-tile-sel' : ''}`} onClick={() => pick(i)} style={{ width: '100%' }}>
@@ -1705,9 +2060,6 @@ const Screen1 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
           <CountExamples examples={S1_EXAMPLES} onDone={onDone}/>
         </div>
-        <div className="frame-tip fade-up delay-2">
-          <p className="body" style={{ margin: 0 }}><b>{lang === 'uz' ? 'Bilasizmi? ' : 'А знаешь? '}</b>{t(c.fact)}</p>
-        </div>
       </div>
     </Stage>
   );
@@ -1719,16 +2071,15 @@ const Screen2 = (props) => {
   const t = useT();
   const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
-  const canAns = useCanAnswer(audio);   // Boshlash faqat ovoz tugagach
-  const [started, setStarted] = useState(false);
   const N = 5;
   const [orders, setOrders] = useState({});
   const count = Object.keys(orders).length;
+  const full = count === N;
   const tap = (i) => {
-    if (!started || orders[i]) return;
+    if (orders[i]) return;   // olmalar ekranda — darrov bosib sanaladi (Boshlash tugmasi yo'q)
     const order = count + 1;
     setOrders(prev => ({ ...prev, [i]: order }));
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][order]); }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][order]); if (order === N) e.pushOneOff(c.done_audio[lang]); } }
     if (order === N) audio.triggerEvent('button_click', 'step');
   };
   const navContent = (
@@ -1744,20 +2095,19 @@ const Screen2 = (props) => {
         <div className="frame fade-up delay-1">
           <div className="g1-count-grid">
             {Array.from({ length: N }).map((_, i) => (
-              <button key={i} className={`g1-item ${orders[i] ? 'g1-item-on' : ''}`} onClick={() => tap(i)} disabled={!started}>
+              <button key={i} className={`g1-item ${orders[i] ? 'g1-item-on' : ''}`} onClick={() => tap(i)}>
                 <span className={`g1-item-icon ${orders[i] ? '' : 'g1-bob'}`} style={{ animationDelay: `${(i % 5) * 0.16}s` }}><ObjSvg kind="apple"/></span>
                 {orders[i] && <span className="g1-item-num mono">{orders[i]}</span>}
               </button>
             ))}
           </div>
-          <div className="g1-bigcount mono">{t(c.count_label)}: {count}</div>
+          <div className="g1-bigcount mono">{count}</div>
         </div>
-        {!started && (
-          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className="btn-white-accent" disabled={!canAns} onClick={() => setStarted(true)}
-              style={{ padding: 'clamp(10px,1.7vw,12px) clamp(22px,3vw,30px)', fontSize: 'clamp(13px,1.6vw,15px)' }}>
-              {lang === 'uz' ? 'Boshlash' : 'Начать'}
-            </button>
+        {full && (
+          <div className="frame-success fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 700 }}>
+              <span aria-hidden="true">✓ </span>{t(c.done_text)}
+            </p>
           </div>
         )}
       </div>
@@ -1788,7 +2138,6 @@ const Screen3 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
           <CountDemo max={5} kind="apple" highlightLast onDone={onDone}/>
         </div>
-        <div className="frame-tip fade-up delay-2"><p className="body" style={{ margin: 0 }}>{t(c.tip)}</p></div>
       </div>
     </Stage>
   );
@@ -1801,12 +2150,12 @@ const Screen4 = (props) => {
   const bigNum = (s) => <span style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800 }}>{s}</span>;
   return (
     <QuestionScreen
-      screen={props.screen} idx={4} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[4]} screenContent={c}
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       options={[bigNum('2'), bigNum('3'), bigNum('4'), bigNum('5')]}
       correctIdx={1}
-      figure={() => <DressStars n={3}/>}
+      figure={(solved) => <DressStars happy={solved}/>}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -1819,14 +2168,12 @@ const Screen5 = (props) => {
   const t = useT();
   const c = CONTENT.s5;
   const audio = useAudio(makeAutoSegments(c, lang));
-  const canAns = useCanAnswer(audio);   // ovoz tugagach "Boshlash" ochiladi
-  const [started, setStarted] = useState(false);
   const N = 5;
   const [orders, setOrders] = useState({});   // katak indeksi -> tartib (1..5)
   const count = Object.keys(orders).length;
   const full = count === N;
   const tap = (i) => {
-    if (!started || orders[i]) return;
+    if (orders[i]) return;   // likobchalar ekranda — darrov bosiladi (Boshlash tugmasi yo'q)
     const order = count + 1;
     setOrders(prev => ({ ...prev, [i]: order }));
     if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][order]); if (order === N) e.pushOneOff(c.full_audio[lang]); } }
@@ -1845,18 +2192,20 @@ const Screen5 = (props) => {
           <div className="g1-dasturxon">
             <div className="g1-dx-decor">
               <svg className="g1-dx-non" viewBox="0 0 50 50" aria-hidden="true">
-                <circle cx="25" cy="25" r="23" fill="#D9A35A"/>
-                <circle cx="25" cy="25" r="22" fill="none" stroke="#B9803A" strokeWidth="2.5"/>
-                <circle cx="25" cy="25" r="9" fill="#C28438"/>
-                <circle cx="25" cy="25" r="9" fill="none" stroke="#A86B28" strokeWidth="1.5" strokeDasharray="2 3"/>
+                <ellipse cx="25" cy="25" rx="23" ry="22" fill="url(#g1nonG)" stroke="#A86B28" strokeWidth="1.6"/>
+                <ellipse cx="25" cy="25" rx="9.5" ry="8" fill="#C9923F"/>
+                <ellipse cx="25" cy="25" rx="9.5" ry="8" fill="none" stroke="#A86B28" strokeWidth="1" strokeDasharray="2 3"/>
+                <g fill="#A06A28"><circle cx="25" cy="10" r="1.1"/><circle cx="12" cy="18" r="1.1"/><circle cx="11" cy="30" r="1.1"/><circle cx="17" cy="40" r="1.1"/><circle cx="33" cy="40" r="1.1"/><circle cx="39" cy="30" r="1.1"/><circle cx="38" cy="18" r="1.1"/></g>
+                <ellipse cx="16" cy="16" rx="6" ry="3" fill="rgba(255,255,255,0.22)"/>
               </svg>
               <svg className="g1-dx-teapot" viewBox="0 0 64 50" aria-hidden="true">
-                <path d="M44 24 Q54 24 52 33 Q50 40 44 38" stroke="#019ACB" strokeWidth="4" fill="none"/>
-                <ellipse cx="28" cy="32" rx="17" ry="13" fill="#019ACB"/>
-                <path d="M13 30 Q3 28 2 19 L9 22 Q13 26 19 28 Z" fill="#019ACB"/>
-                <rect x="22" y="15" width="12" height="5" rx="2.5" fill="#017BA3"/>
-                <circle cx="28" cy="12" r="3" fill="#017BA3"/>
-                <path d="M20 33 q8 5 16 0" stroke="rgba(255,255,255,0.5)" strokeWidth="2" fill="none"/>
+                <path d="M14 22 C 5 23 5 38 14 39" stroke="url(#g1teaG)" strokeWidth="4.5" fill="none" strokeLinecap="round"/>
+                <ellipse cx="30" cy="31" rx="17" ry="14" fill="url(#g1teaG)"/>
+                <path d="M45 26 Q56 24 59 14 L62 16 Q59 28 47 34 Z" fill="url(#g1teaG)"/>
+                <ellipse cx="30" cy="18" rx="11" ry="3.6" fill="#0892C2"/>
+                <circle cx="30" cy="13" r="3" fill="#016E93"/>
+                <ellipse cx="22" cy="25" rx="5" ry="3" fill="rgba(255,255,255,0.4)"/>
+                <path d="M19 37 Q30 42 41 37" stroke="rgba(255,255,255,0.45)" strokeWidth="2" fill="none"/>
               </svg>
             </div>
             <div className="g1-plates">
@@ -1868,18 +2217,10 @@ const Screen5 = (props) => {
               ))}
             </div>
           </div>
-          <div className="g1-bigcount mono">{t(c.count_label)}: {count}</div>
+          <div className="g1-bigcount mono">{count}</div>
         </div>
-        {!started && (
-          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className="btn-white-accent" disabled={!canAns} onClick={() => setStarted(true)}
-              style={{ padding: 'clamp(10px,1.7vw,12px) clamp(22px,3vw,30px)', fontSize: 'clamp(13px,1.6vw,15px)' }}>
-              {lang === 'uz' ? 'Boshlash' : 'Начать'}
-            </button>
-          </div>
-        )}
         {full && (
-          <div className="frame-success fade-up">
+          <div className="frame-success fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <p className="body" style={{ margin: 0, color: T.success, fontWeight: 700 }}>
               <span aria-hidden="true">✓ </span>{t(c.full_text)}
             </p>
@@ -1960,7 +2301,7 @@ const Screen7 = (props) => {
   const recordIfSolved = (nextPlaced) => {
     if (Object.keys(nextPlaced).length === GROUPS.length) {
       props.onAnswer({
-        stage: SCREEN_META[7].scope, screenIdx: 7,
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen,
         question: null, options: null, correctIndex: null, correctAnswer: null,
         studentAnswerIndex: null, studentAnswer: null,
         correct: firstTryRef.current !== false, firstTry: firstTryRef.current !== false,
@@ -2031,7 +2372,6 @@ const Screen7 = (props) => {
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
             <span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}
           </p>
-          <p className="body" style={{ margin: 0 }}>{t(c.correct_text)}</p>
         </FeedbackBlock>
       </div>
     </Stage>
@@ -2066,9 +2406,6 @@ const Screen8 = (props) => {
               {lang === 'uz' ? 'Boshlash' : 'Начать'}
             </button>
           )}
-        </div>
-        <div className="frame-tip fade-up delay-2">
-          <p className="body" style={{ margin: 0 }}><b>{lang === 'uz' ? 'Bilasizmi? ' : 'А знаешь? '}</b>{t(c.fact)}</p>
         </div>
       </div>
     </Stage>
@@ -2115,7 +2452,6 @@ const BigNumberCue = ({ n, dir, ans, solved }) => (
 
 const Screen9 = (props) => {
   const lang = useLang();
-  const t = useT();
   const c = CONTENT.s9;
   const sfx = useSfx();
   const audio = useAudio([{ id: 's9_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
@@ -2156,7 +2492,7 @@ const Screen9 = (props) => {
       if (idx >= total - 1) {
         const ft = firstTryRef.current !== false;
         props.onAnswer({
-          stage: SCREEN_META[9].scope, screenIdx: 9,
+          stage: SCREEN_META[props.screen].scope, screenIdx: props.screen,
           question: null, options: null, correctIndex: null, correctAnswer: null,
           studentAnswerIndex: null, studentAnswer: null,
           correct: ft, firstTry: ft, attempts: attemptsRef.current, solved: true
@@ -2236,9 +2572,7 @@ const Screen9 = (props) => {
         )}
         {solvedItem && (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <p className="body" style={{ margin: 0, color: T.success, fontWeight: 700 }}>
-              <span aria-hidden="true">✓ </span>{t(allDone ? c.done_text : c.correct_text)}
-            </p>
+            <span aria-hidden="true" style={{ color: T.success, fontWeight: 800, fontSize: 'clamp(22px, 3.4vw, 28px)' }}>✓</span>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
                 style={{ padding: 'clamp(8px, 1.4vw, 11px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
@@ -2258,8 +2592,8 @@ const Screen10 = (props) => {
   const t = useT();
   return (
     <QuestionScreen
-      screen={props.screen} idx={11} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[11]} screenContent={c}
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       options={[<Pips n={4} kind="apple"/>, <Pips n={5} kind="apple"/>, <Pips n={3} kind="apple"/>]}
       correctIdx={1}
@@ -2302,10 +2636,6 @@ const Screen11 = (props) => {
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(8px, 1.8vw, 14px)' }}>
           <CountingHand max={5} big loop/>
-        </div>
-        <div className="frame fade-up delay-2">
-          <p className="eyebrow" style={{ color: T.ink3, marginBottom: 8 }}>{t(c.connections_title)}</p>
-          <p className="body" style={{ margin: 0 }}>{t(c.connections_text)}</p>
         </div>
       </div>
     </Stage>
@@ -2361,7 +2691,7 @@ export default function CountingLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, GameDrill, Screen10, Screen11];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, GameDrill, ScreenGuest, Screen10, Screen11];
   const CurrentScreen = screens[current];
 
   const next = () => setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1));
@@ -2373,6 +2703,7 @@ export default function CountingLesson({
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
       <div className="lesson-root">
+        <GradientDefs/>
         <AmbientBg/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
@@ -2521,14 +2852,14 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 4px 12px -6px rgba(58, 53, 48, 0.06) !important;
 }
 .option-picked-wrong {
-  background: #FFE8E1 !important;
-  color: #FF4F28 !important;
-  box-shadow: 0 8px 22px -6px rgba(255, 79, 40, 0.38) !important;
+  background: #FBF3D6 !important;
+  color: #C99A2E !important;
+  box-shadow: 0 8px 22px -6px rgba(216, 169, 58, 0.32) !important;
 }
 
 /* === ТИПОГРАФИКА v15 (× 0.85 upper bounds) === */
 .h-title { font-size: clamp(22px, 4vw, 30px); }
-.h-sub { font-size: clamp(17px, 2.5vw, 18px); }
+.h-sub { font-size: clamp(20px, 3.2vw, 23px); }
 .body { font-size: clamp(15px, 1.9vw, 15px); line-height: 1.42; }
 .eyebrow { font-size: clamp(11px, 1.3vw, 11px); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
 .small { font-size: clamp(13px, 1.5vw, 13px); }
@@ -2692,9 +3023,10 @@ html, body { margin: 0; padding: 0; }
 .frame {
   background: #FFFFFF;
   border-radius: 16px;
-  padding: clamp(17px, 3.4vw, 17px);
+  padding: clamp(20px, 4.2vw, 24px);
   border: none;
   box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14);
+  overflow: hidden;
 }
 .frame-soft {
   background: #FFE8E1;
@@ -2735,8 +3067,9 @@ html, body { margin: 0; padding: 0; }
 
 /* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
 .g1-listen-hint { margin: 0; color: #019ACB; font-weight: 600; letter-spacing: 0.04em; opacity: 0.9; animation: g1twinkle 1.8s ease-in-out infinite; }
-.g1-pips { display: flex; flex-wrap: wrap; gap: clamp(7px, 1.8vw, 13px); justify-content: center; align-items: center; }
-.g1-obj { width: clamp(28px, 6.5vw, 44px); height: clamp(28px, 6.5vw, 44px); display: inline-flex; flex-shrink: 0; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
+.g1-pips { display: flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); justify-content: center; align-items: center; max-width: 100%; }
+.g1-pips-wrap { flex-wrap: wrap; }
+.g1-obj { width: clamp(36px, 8.5vw, 58px); aspect-ratio: 1 / 1; height: auto; min-width: 0; display: inline-flex; flex-shrink: 1; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-bob { animation: g1bob 3s ease-in-out infinite; }
 .g1-twinkle { animation: g1twinkle 2s ease-in-out infinite; }
 @keyframes g1bob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-7px) rotate(3deg); } }
@@ -2748,25 +3081,25 @@ html, body { margin: 0; padding: 0; }
 
 /* CountDemo — jonli sanash */
 .g1-demo { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.4vw, 16px); }
-.g1-demo-row { display: flex; gap: clamp(10px, 2.4vw, 16px); justify-content: center; align-items: flex-end; min-height: clamp(46px, 10vw, 66px); }
-.g1-demo-cell { position: relative; width: clamp(40px, 8.5vw, 60px); height: clamp(40px, 8.5vw, 60px); opacity: 0; }
+.g1-demo-row { display: flex; gap: clamp(12px, 3vw, 20px); justify-content: center; align-items: flex-end; min-height: clamp(60px, 13vw, 86px); }
+.g1-demo-cell { position: relative; width: clamp(52px, 11vw, 78px); height: clamp(52px, 11vw, 78px); opacity: 0; }
 .g1-demo-cell.on { opacity: 1; animation: g1pop 0.45s ease-out; }
 .g1-demo-cell.pulse { animation: g1pop 0.45s ease-out, g1pulse 1.7s ease-in-out 0.5s infinite; }
 .g1-demo-cell svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-demo-tag { position: absolute; top: -8px; right: -6px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
-.g1-demo-num { font-weight: 800; font-size: clamp(30px, 7vw, 48px); color: #FF4F28; line-height: 1; }
-.g1-demo-num.big { font-size: clamp(40px, 10vw, 66px); }
+.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #FF4F28; line-height: 1; }
+.g1-demo-num.big { font-size: clamp(52px, 13vw, 86px); }
 
 /* TenFrame — bo'sh kataklar */
 .g1-tenframe { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
-.g1-cell { width: clamp(50px, 11vw, 72px); height: clamp(50px, 11vw, 72px); border-radius: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.25s, box-shadow 0.25s; }
+.g1-cell { width: clamp(64px, 14vw, 94px); height: clamp(64px, 14vw, 94px); border-radius: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.25s, box-shadow 0.25s; }
 .g1-cell-target { background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.45); }
 .g1-cell-filled { background: #E3F0E8; box-shadow: inset 0 0 0 2px #1F7A4D; }
 .g1-cell-empty { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; }
 .g1-cell-obj { width: 74%; height: 74%; display: inline-flex; animation: g1drop 0.4s ease-out; }
 .g1-cell-obj svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.18)); }
 /* interaktiv ten-frame (s5): bosiladigan kataklar */
-.g1-cell-btn { position: relative; width: clamp(50px, 11vw, 72px); height: clamp(50px, 11vw, 72px); border: none; border-radius: 14px; cursor: pointer; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.45); display: flex; align-items: center; justify-content: center; transition: background 0.2s, box-shadow 0.2s, transform 0.15s; }
+.g1-cell-btn { position: relative; width: clamp(64px, 14vw, 94px); height: clamp(64px, 14vw, 94px); border: none; border-radius: 14px; cursor: pointer; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.45); display: flex; align-items: center; justify-content: center; transition: background 0.2s, box-shadow 0.2s, transform 0.15s; }
 .g1-cell-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: inset 0 0 0 2px #019ACB; }
 .g1-cell-btn.filled { background: #E3F0E8; box-shadow: inset 0 0 0 2px #1F7A4D; cursor: default; }
 .g1-cell-num { position: absolute; top: 3px; right: 6px; font-weight: 800; font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; }
@@ -2775,8 +3108,8 @@ html, body { margin: 0; padding: 0; }
 .g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #FF4F28; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
 .g1-track-label.back { color: #019ACB; }
 .g1-track { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
-.g1-track-tile { width: clamp(40px, 9vw, 56px); height: clamp(44px, 10vw, 62px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
-.g1-track-tile span { font-weight: 800; font-size: clamp(22px, 5vw, 32px); color: #0E0E10; }
+.g1-track-tile { width: clamp(52px, 11.5vw, 72px); height: clamp(56px, 13vw, 80px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
+.g1-track-tile span { font-weight: 800; font-size: clamp(28px, 6.5vw, 42px); color: #0E0E10; }
 .g1-track-tile.active { background: #FF4F28; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
 .g1-track-tile.active span { color: #FFFFFF; }
 .g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
@@ -2788,14 +3121,14 @@ html, body { margin: 0; padding: 0; }
 .g1-countfig-ans { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #1F7A4D; }
 /* BigNumberCue (keyingi/oldingi savol uchun tayanch son) */
 .g1-cue { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vw, 22px); }
-.g1-cue-num { width: clamp(64px, 16vw, 96px); height: clamp(64px, 16vw, 96px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(34px, 8vw, 52px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
-.g1-cue-arrow { font-size: clamp(34px, 9vw, 54px); font-weight: 800; color: #A7A6A2; }
+.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
 .g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
 .g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
 
 /* CountingHand — sanaydigan qo'l */
-.g1-hand { position: relative; width: clamp(110px, 25vw, 168px); height: clamp(104px, 23vw, 156px); display: flex; align-items: center; justify-content: center; }
-.g1-hand-big { width: clamp(165px, 42vw, 250px); height: clamp(155px, 40vw, 232px); }
+.g1-hand { position: relative; width: clamp(143px, 32vw, 218px); height: clamp(135px, 30vw, 204px); display: flex; align-items: center; justify-content: center; }
+.g1-hand-big { width: clamp(200px, 50vw, 300px); height: clamp(190px, 48vw, 280px); }
 .g1-hand svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.2)); }
 .g1-hand-num { position: absolute; top: -2px; right: 2px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(15px, 2.4vw, 20px); min-width: 28px; height: 28px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px -4px rgba(31,122,77,0.5); }
 
@@ -2805,38 +3138,98 @@ html, body { margin: 0; padding: 0; }
 .g1-dx-decor { display: flex; align-items: flex-end; justify-content: center; gap: clamp(8px,2vw,16px); position: relative; z-index: 1; }
 .g1-dx-non { width: clamp(34px,8vw,48px); height: clamp(34px,8vw,48px); filter: drop-shadow(0 3px 5px rgba(58,53,48,0.18)); }
 .g1-dx-teapot { width: clamp(44px,10vw,60px); height: clamp(34px,8vw,46px); filter: drop-shadow(0 3px 5px rgba(58,53,48,0.18)); }
+/* SYUJET (hikoya) sahnalari — kirish (dasturxon) va ko'prik (mehmon) */
+.g1-table-scene { display: flex; justify-content: center; width: 100%; }
+.g1-table-svg { width: clamp(250px, 64vw, 370px); height: auto; filter: drop-shadow(0 8px 16px rgba(58,53,48,0.16)); }
+.g1-table-non { animation: g1bob 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.g1-table-apples { animation: g1bob 3.2s ease-in-out 0.5s infinite; transform-box: fill-box; transform-origin: center; }
+.g1-steam { transform-box: fill-box; transform-origin: center bottom; animation: g1steam 2.4s ease-in-out infinite; }
+.g1-steam2 { animation-delay: 0.9s; }
+@keyframes g1steam { 0% { opacity: 0; transform: translateY(5px) scale(0.85); } 40% { opacity: 0.75; } 100% { opacity: 0; transform: translateY(-16px) scale(1.1); } }
+@media (prefers-reduced-motion: reduce) { .g1-table-non, .g1-table-apples, .g1-steam { animation: none; } }
+.g1-guest-scene svg { width: clamp(200px,52vw,290px); height: auto; }
+/* yo'riqnoma chipi (1-slayd): tingla -> Davom */
+.g1-onboard { display: flex; align-items: center; justify-content: center; gap: clamp(8px,1.6vw,12px); align-self: center; background: #EAF6FB; border: 1px solid rgba(1,154,203,0.3); border-radius: 99px; padding: clamp(8px,1.5vw,11px) clamp(14px,2.6vw,20px); }
+.g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
+.g1-onboard-txt { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px,1.7vw,15px); color: #017BA3; }
+.g1-onboard-arrow { color: #A7A6A2; font-weight: 800; font-size: clamp(15px,2vw,18px); }
+.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #FF4F28; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
+.g1-guest { animation: g1guestBob 2.4s ease-in-out infinite; }
+.g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; }
+.g1-knock { animation: g1knock 1.6s ease-in-out infinite; }
+@keyframes g1guestBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes g1wave { 0%,100% { transform: translate(0,0); } 50% { transform: translate(3px,-5px); } }
+@keyframes g1knock { 0%,100% { opacity: 0.2; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g1-guest, .g1-guest-hand, .g1-knock { animation: none; } }
 .g1-tablescene { display: flex; flex-direction: column; align-items: center; width: 100%; }
 .g1-plates { display: flex; gap: clamp(6px,1.8vw,12px); justify-content: center; position: relative; z-index: 1; flex-wrap: wrap; }
-.g1-plate { position: relative; width: clamp(48px,11vw,70px); height: clamp(48px,11vw,70px); border-radius: 50%; border: none; cursor: pointer; background: radial-gradient(circle at 50% 42%, #FFFFFF 58%, #E9E3D8 100%); box-shadow: 0 6px 14px -6px rgba(58,53,48,0.3), inset 0 0 0 clamp(3px,0.8vw,5px) #F1ECE2; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+.g1-plate { position: relative; width: clamp(62px,14vw,90px); height: clamp(62px,14vw,90px); border-radius: 50%; border: clamp(3px,0.8vw,4px) solid #5FBFE0; cursor: pointer; background: radial-gradient(circle at 50% 36%, #FFFFFF 0%, #FBFAF5 54%, #E6DDCB 100%); box-shadow: 0 7px 16px -6px rgba(58,53,48,0.4), inset 0 7px 12px -5px rgba(58,53,48,0.22); display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+.g1-plate::before { content: ''; position: absolute; inset: clamp(6px,1.5vw,9px); border-radius: 50%; border: 1.5px dashed rgba(1,154,203,0.5); pointer-events: none; }
 .g1-plate:hover:not(:disabled) { transform: translateY(-2px); }
 .g1-plate.filled { cursor: default; }
 .g1-plate-obj { width: 62%; height: 62%; display: inline-flex; }
 .g1-plate-obj svg { width: 100%; height: 100%; filter: drop-shadow(0 3px 5px rgba(58,53,48,0.2)); }
 .g1-plate-num { position: absolute; bottom: -2px; right: -2px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px,1.6vw,14px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
-.g1-tabletop { width: clamp(180px,52vw,300px); height: clamp(16px,3.4vw,24px); background: linear-gradient(#C8893E, #B17B34); border-radius: 7px; box-shadow: 0 8px 16px -6px rgba(58,53,48,0.35); position: relative; z-index: 0; }
+.g1-tabletop { width: clamp(230px,60vw,380px); height: clamp(20px,4.4vw,30px); background: linear-gradient(#C8893E, #B17B34); border-radius: 7px; box-shadow: 0 8px 16px -6px rgba(58,53,48,0.35); position: relative; z-index: 0; }
 
 /* DressStars (s4): ko'ylak + yulduzlar */
-.g1-dress { position: relative; width: clamp(112px,27vw,152px); height: clamp(136px,32vw,184px); }
-.g1-dress-svg { width: 100%; height: 100%; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.18)); }
-.g1-dress-star { position: absolute; transform: translate(-50%,-50%); width: clamp(20px,4.6vw,28px); height: clamp(20px,4.6vw,28px); }
-.g1-dress-star svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18)); }
+.g1-dress { position: relative; display: inline-flex; }
+.g1-dress-svg { width: clamp(150px,38vw,200px); height: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.18)); }
+.g1-arm-up { opacity: 0; transition: opacity 0.35s; }
+.g1-arm-dn { opacity: 1; transition: opacity 0.35s; }
+.g1-dress-happy .g1-arm-up { opacity: 1; }
+.g1-dress-happy .g1-arm-dn { opacity: 0; }
+.g1-dress-happy .g1-dress-svg { animation: g1jump 0.7s ease; }
+@keyframes g1jump { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-14px); } 70% { transform: translateY(0); } }
+.g1-mouth-happy { opacity: 0; }
+.g1-dress-happy .g1-mouth-happy { opacity: 1; }
+.g1-dress-happy .g1-mouth { opacity: 0; }
+.g1-spark { position: absolute; width: 14px; height: 14px; background: radial-gradient(circle, #FFD86B 0%, rgba(255,216,107,0) 70%); border-radius: 50%; pointer-events: none; }
+.g1-spark1 { left: 8%; top: 22%; animation: g1spark 0.9s ease-out 0s infinite; }
+.g1-spark2 { right: 6%; top: 30%; animation: g1spark 0.9s ease-out 0.3s infinite; }
+.g1-spark3 { left: 16%; top: 52%; animation: g1spark 0.9s ease-out 0.6s infinite; }
+@keyframes g1spark { 0% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: scale(0.5); } }
+.g1-conf { position: absolute; top: -8%; width: 8px; height: 12px; border-radius: 2px; pointer-events: none; }
+.g1-conf1 { left: 16%; background: #FF4F28; animation: g1conf 1.1s ease-in 0s infinite; }
+.g1-conf2 { left: 34%; background: #019ACB; animation: g1conf 1.3s ease-in 0.2s infinite; }
+.g1-conf3 { left: 50%; background: #FFC23C; animation: g1conf 1.0s ease-in 0.45s infinite; }
+.g1-conf4 { left: 64%; background: #1F7A4D; animation: g1conf 1.25s ease-in 0.1s infinite; }
+.g1-conf5 { left: 80%; background: #FF7AA8; animation: g1conf 1.15s ease-in 0.55s infinite; }
+.g1-conf6 { left: 26%; background: #9B5DE5; animation: g1conf 1.2s ease-in 0.75s infinite; }
+@keyframes g1conf { 0% { opacity: 0; transform: translateY(0) rotate(0deg); } 12% { opacity: 1; } 100% { opacity: 0; transform: translateY(190px) rotate(420deg); } }
+@media (prefers-reduced-motion: reduce) { .g1-dress-happy .g1-dress-svg, .g1-spark1, .g1-spark2, .g1-spark3, .g1-conf1, .g1-conf2, .g1-conf3, .g1-conf4, .g1-conf5, .g1-conf6 { animation: none; } }
 /* yakuniy reyting (rag'bat): 3 yulduz + maqtov */
 .g1-rating { display: flex; flex-direction: column; align-items: center; gap: clamp(4px,1vw,8px); }
 .g1-rating-stars { display: flex; gap: clamp(6px,1.6vw,12px); }
-.g1-rating-star { width: clamp(38px,9vw,56px); height: clamp(38px,9vw,56px); display: inline-flex; }
+.g1-rating-star { width: clamp(50px,11vw,72px); height: clamp(50px,11vw,72px); display: inline-flex; }
 .g1-rating-star svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,194,60,0.55)); }
 .g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #FF4F28; }
 
 /* === GameDrill (drag+tap o'yin bloki) === */
 .g1-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px,1.7vw,12px); padding: clamp(7px,1.7vw,11px); min-height: clamp(48px,10vw,68px); background: #FBF9F4; border-radius: 14px; }
-.g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(6px,1.4vw,10px); min-width: clamp(46px,10vw,60px); min-height: clamp(46px,10vw,60px); transition: transform 0.15s, box-shadow 0.15s; }
+.g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(8px,1.8vw,12px); min-width: clamp(58px,13vw,78px); min-height: clamp(58px,13vw,78px); transition: transform 0.15s, box-shadow 0.15s; }
 .g1-token:active { cursor: grabbing; transform: scale(1.05); }
 .g1-token-sel { box-shadow: 0 0 0 3px #FF4F28, 0 8px 20px -6px rgba(255,79,40,0.4); }
-.g1-token-obj { width: clamp(30px,7vw,42px); height: clamp(30px,7vw,42px); display: inline-flex; pointer-events: none; }
+/* noto'g'ri sudralganda: token yumshoq sakrab qaytadi (jazo emas) */
+.g1-bounceback { animation: g1bounceback 0.5s ease; }
+@keyframes g1bounceback { 0% { transform: translateY(0) scale(1); } 28% { transform: translateY(-9px) scale(1.1); } 55% { transform: translateY(0) scale(0.97); } 78% { transform: translateY(-3px) scale(1.02); } 100% { transform: translateY(0) scale(1); } }
+/* savatga qo'yishni ko'rsatuvchi qo'l-demo */
+.g1-bhd { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; z-index: 7; padding-bottom: clamp(6px,1.6vw,12px); }
+.g1-bhd-move { display: flex; flex-direction: column; align-items: center; animation: g1bhd 2.6s ease-in-out infinite; filter: drop-shadow(0 8px 14px rgba(58,53,48,0.28)); }
+.g1-bhd-apple { width: clamp(30px,7vw,42px); height: clamp(30px,7vw,42px); display: inline-flex; }
+.g1-bhd-apple svg { width: 100%; height: 100%; }
+.g1-bhd-hand { width: clamp(28px,6.5vw,38px); height: auto; margin-top: -4px; }
+@keyframes g1bhd { 0% { transform: translateY(12px); opacity: 0; } 12% { opacity: 1; } 46% { transform: translateY(-58px); opacity: 1; } 58% { transform: translateY(-58px) scale(0.94); } 74% { opacity: 1; } 88% { transform: translateY(-64px); opacity: 0; } 100% { transform: translateY(-64px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .g1-bounceback, .g1-bhd-move { animation: none; } }
+.g1-token-obj { width: clamp(40px,9vw,56px); height: clamp(40px,9vw,56px); display: inline-flex; pointer-events: none; }
 .g1-token-obj svg { width: 100%; height: 100%; }
-.g1-token-num { font-weight: 800; font-size: clamp(24px,5.5vw,34px); color: #0E0E10; pointer-events: none; }
+.g1-token-num { font-weight: 800; font-size: clamp(32px,7vw,44px); color: #0E0E10; pointer-events: none; }
 .g1-piece { width: clamp(30px,7vw,44px); height: clamp(30px,7vw,44px); border-radius: 8px; display: inline-block; pointer-events: none; }
 .g1-dropzone { transition: background 0.2s, box-shadow 0.2s; cursor: pointer; }
+/* noto'g'ri sudralganda: yumshoq sariq puls (jazo emas, "yana sana") */
+.g1-nudge { animation: g1nudge 0.45s ease; }
+@keyframes g1nudge { 0%, 100% { outline: 2px solid rgba(216,169,58,0); outline-offset: 2px; } 45% { outline: 3px solid rgba(216,169,58,0.75); outline-offset: 3px; } }
+@media (prefers-reduced-motion: reduce) { .g1-nudge { animation: none; } }
 .g1-basket { min-width: clamp(150px,42vw,280px); min-height: clamp(80px,16vw,112px); background: #FBF3D6; border-radius: 16px; box-shadow: inset 0 0 0 2px #D8A93A; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: clamp(10px,2vw,14px); }
 .g1-basket-objs { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(5px,1.4vw,9px); }
 .g1-basket-objs .g1-token-obj { width: clamp(26px,6vw,38px); height: clamp(26px,6vw,38px); }
@@ -2845,22 +3238,27 @@ html, body { margin: 0; padding: 0; }
 .g1-slot { width: clamp(34px,8vw,52px); height: clamp(46px,10vw,66px); border-radius: 10px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; }
 .g1-slot.filled { box-shadow: none; }
 .g1-slot .g1-piece { width: 82%; height: 86%; }
-.g1-mbaskets { display: flex; gap: clamp(8px,2vw,16px); justify-content: center; }
-.g1-mbasket { min-width: clamp(82px,24vw,130px); background: #FFFFFF; border-radius: 14px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); padding: clamp(10px,2vw,14px); display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.g1-mbasket-num { min-height: clamp(28px,5vw,36px); font-weight: 800; font-size: clamp(24px,5vw,32px); color: #1F7A4D; }
+/* match: har variant (2/4/5 olma) o'z qatorida — raqam-uyasi chapda, olmalar bitta qatorda o'ngda */
+.g1-mbaskets { display: flex; flex-direction: column; gap: clamp(8px,1.8vw,12px); align-items: stretch; width: 100%; max-width: clamp(280px,90vw,460px); margin: 0 auto; }
+.g1-mbasket { background: #FFFFFF; border-radius: 14px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); padding: clamp(8px,1.8vw,12px) clamp(12px,2.6vw,18px); display: flex; flex-direction: row; align-items: center; gap: clamp(12px,3vw,20px); min-width: 0; }
+.g1-mbasket-num { flex-shrink: 0; width: clamp(46px,10vw,60px); height: clamp(46px,9vw,58px); border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(30px,6.5vw,40px); color: #1F7A4D; }
 .g1-order { display: flex; gap: clamp(6px,1.6vw,10px); justify-content: center; }
-.g1-pos { width: clamp(44px,10vw,58px); height: clamp(48px,11vw,64px); border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; background: #FFFFFF; }
+.g1-pos { width: clamp(56px,12vw,74px); height: clamp(60px,13vw,80px); border-radius: 12px; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; background: #FFFFFF; }
 .g1-pos.filled { box-shadow: 0 6px 16px -6px rgba(31,122,77,0.3); background: #E3F0E8; }
 .g1-pos .g1-token-num { color: #1F7A4D; }
 .g1-ghost { position: fixed; transform: translate(-50%,-50%); z-index: 999; pointer-events: none; background: #FFFFFF; border-radius: 12px; box-shadow: 0 12px 28px -6px rgba(58,53,48,0.35); padding: clamp(6px,1.4vw,10px); display: flex; align-items: center; justify-content: center; }
 /* pazl = gul yig'ish */
 .g1-flowerwrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); }
-.g1-flower { position: relative; width: clamp(170px,42vw,230px); height: clamp(170px,42vw,230px); }
+.g1-flower { position: relative; width: clamp(210px,50vw,290px); height: clamp(210px,50vw,290px); }
 .g1-flower-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: clamp(40px,10vw,58px); height: clamp(40px,10vw,58px); border-radius: 50%; background: #FFC23C; box-shadow: 0 4px 10px -4px rgba(180,138,30,0.5); }
-.g1-petal-slot { position: absolute; transform: translate(-50%,-50%); width: clamp(42px,11vw,60px); height: clamp(42px,11vw,60px); border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; }
+.g1-petal-slot { position: absolute; transform: translate(-50%,-50%); width: clamp(54px,13vw,76px); height: clamp(54px,13vw,76px); border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(167,166,162,0.5); display: flex; align-items: center; justify-content: center; }
 .g1-petal-slot.filled { box-shadow: none; }
-.g1-petal { width: clamp(30px,7vw,44px); height: clamp(38px,9vw,54px); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: #FF7AA8; box-shadow: 0 4px 9px -4px rgba(255,122,168,0.6); display: inline-block; pointer-events: none; }
+.g1-petal { width: clamp(38px,9vw,56px); height: clamp(48px,11vw,68px); border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: linear-gradient(155deg, #FFB6CE 0%, #FF6FA0 52%, #DA4A82 100%); box-shadow: 0 4px 9px -4px rgba(218,74,130,0.55), inset 0 2px 5px rgba(255,255,255,0.4); display: inline-block; pointer-events: none; }
 .g1-petal-slot .g1-petal { width: 80%; height: 88%; }
+/* gul yig'ilib bo'lgach: bir marta sakrab, keyin sekin aylanadi */
+.g1-flower-spin { animation: g1flowerPop 0.55s ease-out, g1spin 5s linear 0.55s infinite; }
+@keyframes g1flowerPop { 0% { transform: scale(1) rotate(0deg); } 45% { transform: scale(1.14) rotate(18deg); } 100% { transform: scale(1) rotate(0deg); } }
+@keyframes g1spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 /* savat (3 olma + 2 gilos) */
 .g1-basketwrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); width: 100%; }
 .g1-recipe { display: flex; gap: clamp(12px,3vw,22px); }
@@ -2868,7 +3266,7 @@ html, body { margin: 0; padding: 0; }
 .g1-recipe-ic { width: clamp(22px,4.5vw,30px); height: clamp(22px,4.5vw,30px); display: inline-flex; }
 .g1-recipe-ic svg { width: 100%; height: 100%; }
 .g1-recipe-cnt { font-weight: 800; font-size: clamp(14px,2vw,17px); color: #1F7A4D; }
-.g1-realbasket { position: relative; width: clamp(200px,54vw,300px); padding-top: clamp(28px,6.5vw,42px); cursor: pointer; }
+.g1-realbasket { position: relative; width: clamp(250px,64vw,380px); padding-top: clamp(34px,7.5vw,52px); cursor: pointer; }
 .g1-rb-handle { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 58%; height: clamp(34px,8vw,48px); border: clamp(5px,1.3vw,7px) solid #A86B28; border-bottom: none; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
 .g1-rb-bowl { background: repeating-linear-gradient(90deg, #D89A4A 0 11px, #CC8E3E 11px 22px); border: 3px solid #B9803A; border-top-width: clamp(8px,2vw,12px); border-radius: 8px 8px clamp(28px,7vw,46px) clamp(28px,7vw,46px); min-height: clamp(72px,17vw,108px); padding: clamp(10px,2.4vw,15px) clamp(10px,2.4vw,15px) clamp(14px,3vw,20px); display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: clamp(4px,1.4vw,9px); }
 .g1-rb-bowl .g1-token-obj { width: clamp(24px,5.5vw,36px); height: clamp(24px,5.5vw,36px); animation: g1drop 0.5s ease-out; }
@@ -2880,17 +3278,17 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1fallin { 0% { transform: translateY(-80px); opacity: 0; } 70% { opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
 
 .g1-count-grid { display: flex; flex-wrap: wrap; gap: clamp(10px, 2.5vw, 18px); justify-content: center; }
-.g1-item { position: relative; background: #FFFFFF; border: none; border-radius: 16px; cursor: pointer; padding: clamp(12px, 2.6vw, 18px); box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.18s, background 0.18s, box-shadow 0.18s; display: flex; align-items: center; justify-content: center; }
+.g1-item { position: relative; background: #FFFFFF; border: none; border-radius: 16px; cursor: pointer; padding: clamp(16px, 3.4vw, 24px); box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.18s, background 0.18s, box-shadow 0.18s; display: flex; align-items: center; justify-content: center; }
 .g1-item:hover { transform: translateY(-2px); }
 .g1-item-on { background: #E3F0E8; box-shadow: 0 8px 20px -6px rgba(31,122,77,0.3); }
 .g1-item-num { position: absolute; top: 4px; right: 8px; font-weight: 800; font-size: clamp(14px, 2vw, 18px); color: #1F7A4D; }
-.g1-item-icon { width: clamp(30px, 7vw, 46px); height: clamp(30px, 7vw, 46px); display: inline-flex; }
+.g1-item-icon { width: clamp(40px, 9vw, 60px); height: clamp(40px, 9vw, 60px); display: inline-flex; }
 .g1-item-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
-.g1-bigcount { text-align: center; margin-top: 14px; font-weight: 800; font-size: clamp(16px, 2.4vw, 20px); color: #0E0E10; }
+.g1-bigcount { text-align: center; margin-top: 14px; font-weight: 800; font-size: clamp(22px, 3.4vw, 28px); color: #0E0E10; }
 
 .g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) clamp(8px, 1.6vw, 12px); border-radius: 12px; transition: background 0.3s ease; }
 .g1-numrow-on { background: #FFE8E1; }
-.g1-digit { font-weight: 800; font-size: clamp(28px, 6vw, 44px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
 .g1-numrow-on .g1-digit { transform: scale(1.18); }
 
 /* tap-pair (s5) */
@@ -2901,9 +3299,9 @@ html, body { margin: 0; padding: 0; }
 .g1-group-wrong { border-color: #FF4F28; background: #FFE8E1; }
 .g1-group-faded { opacity: 0.3; cursor: default; }
 .g1-slot { min-height: clamp(38px, 7vw, 50px); display: flex; align-items: center; justify-content: center; }
-.g1-slot-num { font-weight: 800; font-size: clamp(26px, 6vw, 40px); color: #1F7A4D; }
+.g1-slot-num { font-weight: 800; font-size: clamp(34px, 8vw, 52px); color: #1F7A4D; }
 .g1-tiles { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; margin-top: 4px; }
-.g1-tile { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(10px, 2vw, 16px) clamp(16px, 3vw, 24px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(24px, 5.5vw, 36px); color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.18); transition: transform 0.18s, background 0.18s, box-shadow 0.18s, color 0.18s; }
+.g1-tile { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(13px, 2.6vw, 21px) clamp(21px, 4vw, 31px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(32px, 7vw, 46px); color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.18); transition: transform 0.18s, background 0.18s, box-shadow 0.18s, color 0.18s; }
 .g1-tile:hover:not(:disabled) { transform: translateY(-2px); }
 .g1-tile-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(255,79,40,0.5); }
 .g1-tile-ok { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 10px 24px -6px rgba(31,122,77,0.4); }
