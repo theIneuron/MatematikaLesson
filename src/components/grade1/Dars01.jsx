@@ -1,5 +1,26 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
+// ============================================================================
+// ░░ 1-SINF ETALONI (Dars01) — spec: ETALON_1SINF.md ░░
+// Bu fayl 1-sinf darslarining ETALON nusxa-manbai (copy source). Har dars mustaqil
+// .jsx bo'lib qoladi: yangi dars yaratganda quyidagi "ETALON KIT" bloklari shu fayldan
+// O'ZGARTIRMASDAN ko'chiriladi (faqat CONTENT / SCREEN_META / Screen-komponentlar /
+// root yangi darsga moslanadi).
+//
+// AVVAL: metodistdan personaj ismlarini so'ra (cast kengayadi — Madina+Anvar + reja
+// bo'yicha yana 2 personaj, ular ham syujetga ulanadi va alohida chiziladi).
+//
+// ETALON KIT bloklari (grep: "ETALON KIT ·"):
+//   1) PERSONAJLAR — MadinaSVG, AnvarSVG, BitSVG, HeroContext/useHero, StageHero
+//   2) BIT-KARTOCHKA + rag'bat — Reaction, PRAISE/ENCOURAGE, nextPraise/nextEncourage
+//   3) SAHNALAR — SceneBg (room/door), DasturxonScene, AmbientBg, GradientDefs
+//   4) WIDGETLAR — BasketArt, DStar/DressStars, CountDemo/CountExamples/CountTrack/
+//      CountingHand, Pips/Obj/ObjSvg, Confetti, animatsion kit (useCountOnce...)
+//   5) INFRA (infrastructure_v1) — T, LangContext/useT, AudioEngine/useAudio,
+//      Stage/QuestionScreen/Nav*, useCanAnswer/useAdvanceGate, CSS (STYLES)
+// Tegishli CSS — STYLES bloki ichida ("ETALON KIT CSS ·" izohlari bilan).
+// ============================================================================
+
 // ============================================================
 // ПАЛИТРА
 // ============================================================
@@ -1244,7 +1265,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 );
 
 // ============================================================
-// EMOTSIONAL OTKLIK — yagona reaktsiya (maskot + maqtov + konfetti) barcha javob ekranlari uchun
+// ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
 const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
@@ -1272,7 +1293,7 @@ let _praiseIdx = 0;
 const nextPraise = (lang) => { const a = PRAISE[lang] || PRAISE.ru; const p = a[_praiseIdx % a.length]; _praiseIdx += 1; return p; };
 
 // ============================================================
-// PERSONAJLAR — koddan SVG vector (PNG'lar olib tashlandi). Madina + Anvar + Bit.
+// ETALON KIT · PERSONAJLAR — koddan SVG (Madina + Anvar + Bit). Yangi personaj — shu uslubda chiziladi.
 // Uslub: sayqalli flat-vector (fotorealizm emas). Ko'z pirpiratish/qo'l silkitish — CSS animatsiya.
 // Pilot: keyingi darslarga ko'chsa, shared/ ga chiqariladi.
 // ============================================================
@@ -1750,7 +1771,7 @@ const DressStars = ({ happy = false }) => (
   </div>
 );
 
-// BasketArt — chinakam SVG savat (egma dasta + konus tana + egri to'qima + oval gardish).
+// ETALON KIT · WIDGET · BasketArt — chinakam SVG savat (egma dasta + konus tana + egri to'qima + oval gardish).
 // Olmalar buning ustiga (g1-rb-bowl) qo'yiladi — gardishdan ko'rinib turadi.
 const BasketArt = () => (
   <svg className="g1-rb-svg" viewBox="0 0 220 170" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
@@ -2381,7 +2402,7 @@ function useStoryReveal(audio, total) {
 // AnvarFig — Anvar SVG'ga ingichka wrapper (variant -> pose). Eski PNG placeholder olib tashlandi.
 const AnvarFig = ({ variant = 'coming' }) => <AnvarSVG pose={variant} className="g1-cast-svg"/>;
 
-// SceneBg — hikoya ekranlari uchun ORQA SAHNA (xona/eshik), personajlar oldida turadi.
+// ETALON KIT · SAHNALAR · SceneBg — hikoya ekranlari uchun ORQA SAHNA (xona/eshik), personajlar oldida.
 // variant: room (sIntro/s11 — deraza, parda, stol, gilam) | door (sGuest — eshik, payoff).
 const SceneBg = ({ variant = 'room' }) => (
   <svg className="g1-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
