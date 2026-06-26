@@ -903,11 +903,11 @@ const CONTENT = {
     fact: { ru: 'Считать можно что угодно: цветы, яблоки, звёзды, рыбок.', uz: "Hamma narsani sanash mumkin: gul, olma, yulduz, baliq." },
     audio: {
       ru: [
-        'Мадина считает разные вещи. Числами можно сосчитать что угодно: цветы, яблоки, звёзды, рыбок.',
+        'Мадина считает разные вещи. Числами можно сосчитать цветы, яблоки, звёзды и рыбок.',
         'Посчитаем каждую группу вместе. Число говорит, сколько предметов получилось.'
       ],
       uz: [
-        "Madina turli narsalarni sanaydi. Sonlar bilan hamma narsani sanash mumkin: gul, olma, yulduz, baliq.",
+        "Madina turli narsalarni sanaydi. Sonlar bilan gul, olma, yulduz va baliq sanaladi.",
         "Har guruhni birga sanaymiz. Son nechta narsa borligini bildiradi."
       ]
     }
@@ -1005,11 +1005,11 @@ const CONTENT = {
     title_part3: { ru: 'предметов', uz: "ko'rsatadi" },
     audio: {
       ru: [
-        'Рядом с каждой цифрой — столько же яблок. Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов.',
+        'Рядом с каждой цифрой столько же яблок. Это цифры от одного до пяти. Каждая цифра показывает, сколько предметов.',
         'Цифра один значит одну вещь. Цифра пять значит пять вещей. Сколько предметов, такая и цифра.'
       ],
       uz: [
-        "Har raqam yonida — shuncha olma. Bular birdan beshgacha raqamlar. Har raqam nechta narsa borligini ko'rsatadi.",
+        "Har raqam yonida shuncha olma bor. Bular birdan beshgacha raqamlar. Har raqam nechta narsa borligini ko'rsatadi.",
         "Bir raqami bitta narsa degani. Besh raqami beshta narsa degani. Nechta narsa bo'lsa, raqam ham shu."
       ]
     }
@@ -1040,28 +1040,28 @@ const CONTENT = {
     instruction: { ru: 'Гость скоро придёт. Считаем вперёд и назад', uz: "Mehmon tez orada keladi. Oldinga va orqaga sanaymiz" },
     fact: { ru: 'Числа можно называть вперёд и назад.', uz: "Sonlarni oldinga va orqaga sanasa bo'ladi." },
     audio: {
-      intro: { ru: 'Гость уже в пути — потренируемся, пока ждём. Посчитаем числа вперёд, а потом назад. Смотри на число и считай со мной.', uz: "Mehmon yo'lda — kutar ekanmiz, mashq qilamiz. Sonlarni oldinga, keyin orqaga sanaymiz. Songa qarang va men bilan sanang." }
+      intro: { ru: 'Гость уже в пути. Потренируемся, пока ждём. Посчитаем числа вперёд, а потом назад. Смотри на число и считай со мной.', uz: "Mehmon yo'lda. Kutar ekanmiz, mashq qilamiz. Sonlarni oldinga, keyin orqaga sanaymiz. Songa qarang va men bilan sanang." }
     }
   },
 
   // ---- s9 TEST (xilma-xil drill): sana / keyingi-oldingi / ko'p-kam / tushgan son ----
   s9: {
     eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
-    q_count: { ru: 'Сколько здесь предметов? Посчитай их.', uz: "Bu yerda nechta narsa bor? Ularni sana." },
+    q_count: { ru: 'Сколько здесь предметов? Посчитай их.', uz: "Bu yerda nechta narsa bor? Ularni sanang." },
     q_next: { ru: 'Какое число идёт сразу после этого?', uz: "Shu sondan keyin qaysi son keladi?" },
     q_prev: { ru: 'Какое число идёт сразу перед этим?', uz: "Shu sondan oldin qaysi son keladi?" },
     q_more: { ru: 'В какой группе предметов больше?', uz: "Qaysi guruhda narsa ko'proq?" },
     q_missing: { ru: 'Какое число пропущено в ряду?', uz: "Qatorda qaysi son tushib qolgan?" },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Отлично! Все задания выполнены.', uz: "Zo'r! Hamma topshiriq bajarildi." },
-    w_count: { ru: 'Посчитай ещё раз, по одному.', uz: "Yana bir bor, bittadan sana." },
-    w_next: { ru: 'Считай дальше: какое число идёт после.', uz: "Davom et: shu sondan keyin qaysi son keladi." },
-    w_prev: { ru: 'Считай назад: какое число идёт перед.', uz: "Orqaga sana: shu sondan oldin qaysi son keladi." },
-    w_more: { ru: 'Посчитай в каждой группе и сравни.', uz: "Har guruhni sana va solishtir." },
-    w_missing: { ru: 'Назови числа по порядку и найди пропуск.', uz: "Sonlarni tartib bilan ayt, tushganini top." },
-    wrong_audio: { ru: 'Посчитай ещё раз.', uz: "Yana bir bor sana." },
+    w_count: { ru: 'Посчитай ещё раз, по одному.', uz: "Yana bir bor, bittadan sanang." },
+    w_next: { ru: 'Считай дальше, какое число идёт после.', uz: "Davom eting, shu sondan keyin qaysi son keladi." },
+    w_prev: { ru: 'Считай назад, какое число идёт перед.', uz: "Orqaga sanang, shu sondan oldin qaysi son keladi." },
+    w_more: { ru: 'Посчитай в каждой группе и сравни.', uz: "Har guruhni sanang va solishtiring." },
+    w_missing: { ru: 'Назови числа по порядку и найди пропуск.', uz: "Sonlarni tartib bilan ayting, tushganini toping." },
+    wrong_audio: { ru: 'Посчитай ещё раз.', uz: "Yana bir bor sanang." },
     audio: {
-      intro: { ru: 'Проверим, всё ли мы успели. Несколько разных заданий. Считай и думай. Начинаем.', uz: "Hammasi tayyormi, tekshiramiz. Bir nechta xil topshiriq. Sana va o'yla. Boshladik." }
+      intro: { ru: 'Проверим, всё ли мы успели. Несколько разных заданий. Считай и думай. Начинаем.', uz: "Hammasi tayyormi, tekshiramiz. Bir nechta xil topshiriq. Sanang va o'ylang. Boshladik." }
     }
   },
 
@@ -1108,7 +1108,7 @@ const CONTENT = {
     q_order: { ru: 'Расставь числа по порядку', uz: "Sonlarni tartib bilan joylashtiring" },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодцы! Все игры пройдены.', uz: "Barakalla! Hamma o'yin bajarildi." },
-    retry_audio: { ru: 'Ничего страшного. Посчитай ещё раз.', uz: "Hechqisi yo'q. Yana bir bor sana." },
+    retry_audio: { ru: 'Ничего страшного. Посчитай ещё раз.', uz: "Hech qisi yo'q. Yana bir bor sanang." },
     audio: {
       intro: { ru: 'Поможем Мадине доделать всё к приходу гостя. Перетаскивай пальцем или просто нажимай. Начинаем.', uz: "Mehmon kelishiga Madinaga hammasini tugatishga yordam beramiz. Barmoq bilan torting yoki bosib qo'ying. Boshladik." }
     }
@@ -1118,7 +1118,7 @@ const CONTENT = {
   s11: {
     eyebrow: { ru: 'Готово', uz: 'Tayyor' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    main_1: { ru: 'Теперь вы умеете', uz: 'Endi siz' },
+    main_1: { ru: 'Теперь ты умеешь', uz: 'Endi siz' },
     main_2_em: { ru: 'считать до пяти', uz: 'beshgacha sanay olasiz' },
     anvar_label: { ru: 'Анвар рад', uz: 'Anvar xursand' },
     connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
@@ -1420,8 +1420,26 @@ const AnvarSVG = ({ pose = 'coming', className = '' }) => {
       <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.34)"/>
       {/* coming: sovg'a sumkasi (qo'lда) */}
       {pose === 'coming' && <g><rect x="30" y="98" width="22" height="20" rx="3" fill="#E0563B"/><path d="M30 105 h22" stroke="#fff" strokeWidth="2"/><path d="M37 98 q4 -7 8 0" stroke="#B23A26" strokeWidth="2.4" fill="none"/></g>}
-      {/* happy: olma savati */}
-      {happy && <g><path d="M44 150 h42 l-5 26 a4 4 0 0 1 -4 3 h-24 a4 4 0 0 1 -4 -3 Z" fill="#C98A3C"/><path d="M48 150 q17 -14 34 0" stroke="#A06A28" strokeWidth="3" fill="none"/><circle cx="56" cy="149" r="4.5" fill="#E0563B"/><circle cx="65" cy="147" r="4.5" fill="#E0563B"/><circle cx="74" cy="149" r="4.5" fill="#E0563B"/></g>}
+      {/* happy: olma savati — to'qimali, gardishli, dastali */}
+      {happy && (
+        <g>
+          {/* tana (konus) */}
+          <path d="M44 153 h42 l-5 27 a4 4 0 0 1 -4 3 h-24 a4 4 0 0 1 -4 -3 Z" fill="#C8893E"/>
+          {/* to'qima: gorizontal qatorlar + vertikal o'rim */}
+          <g stroke="#8F5E26" strokeWidth="0.9" opacity="0.55" fill="none" strokeLinecap="round">
+            <path d="M46 161 h38 M47 169 h36 M48 177 h34"/>
+            <path d="M53 154 l-1.5 30 M61 154 v30 M69 154 v30 M77 154 l1.5 30"/>
+          </g>
+          {/* gardish */}
+          <rect x="42" y="149" width="46" height="6.5" rx="3.2" fill="#B07636"/>
+          {/* dasta */}
+          <path d="M51 150 q14 -15 28 0" stroke="#9A6428" strokeWidth="3.2" fill="none" strokeLinecap="round"/>
+          {/* olmalar (gardishdan ko'rinadi) */}
+          <circle cx="55" cy="147" r="5" fill="#E0563B"/><circle cx="65" cy="145" r="5.5" fill="#E0563B"/><circle cx="75" cy="147" r="5" fill="#E0563B"/>
+          <ellipse cx="63" cy="143.5" rx="1.6" ry="2.4" fill="rgba(255,255,255,0.5)"/>
+          <path d="M65 140 q1.5 -3 4 -2.5" stroke="#1F7A4D" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+        </g>
+      )}
     </svg>
   );
 };
@@ -1732,13 +1750,42 @@ const DressStars = ({ happy = false }) => (
   </div>
 );
 
+// BasketArt — chinakam SVG savat (egma dasta + konus tana + egri to'qima + oval gardish).
+// Olmalar buning ustiga (g1-rb-bowl) qo'yiladi — gardishdan ko'rinib turadi.
+const BasketArt = () => (
+  <svg className="g1-rb-svg" viewBox="0 0 220 170" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <defs>
+      <linearGradient id="g1baskBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D89A4C"/><stop offset="100%" stopColor="#B0712C"/></linearGradient>
+    </defs>
+    {/* dasta */}
+    <path d="M62 86 Q110 14 158 86" fill="none" stroke="#90591D" strokeWidth="12" strokeLinecap="round"/>
+    <path d="M62 86 Q110 22 158 86" fill="none" stroke="#C68E42" strokeWidth="4.5" strokeLinecap="round" opacity="0.7"/>
+    {/* tana (konus, yumaloq tag) */}
+    <path d="M30 84 Q110 72 190 84 L173 144 Q170 156 158 158 Q110 164 62 158 Q50 156 47 144 Z" fill="url(#g1baskBody)" stroke="#8A561B" strokeWidth="2"/>
+    {/* to'qima — gorizontal egri qatorlar */}
+    <g fill="none" stroke="#8A561B" strokeWidth="1.6" opacity="0.45">
+      <path d="M41 100 Q110 89 179 100"/>
+      <path d="M44 114 Q110 104 176 114"/>
+      <path d="M47 128 Q110 119 173 128"/>
+      <path d="M50 142 Q110 134 170 142"/>
+    </g>
+    {/* to'qima — vertikal o'rim */}
+    <g fill="none" stroke="#8A561B" strokeWidth="1.2" opacity="0.32">
+      <path d="M72 86 L68 152"/><path d="M91 84 L89 156"/><path d="M110 83 V158"/><path d="M129 84 L131 156"/><path d="M148 86 L152 152"/>
+    </g>
+    {/* gardish (oval old lab) */}
+    <path d="M28 82 Q110 98 192 82 L192 94 Q110 110 28 94 Z" fill="#B5793A" stroke="#8A561B" strokeWidth="1.5"/>
+    <path d="M32 84 Q110 98 188 84" fill="none" stroke="#EAB97A" strokeWidth="2" opacity="0.6"/>
+  </svg>
+);
+
 // BasketCelebration — yakuniy testда to'g'ri javobdan keyin: savat ko'tariladi, olmalar
 // birma-bir sekin tushadi (ko'z charchamaydi). reduced-motion -> darrov.
 const BasketCelebration = ({ n = 5 }) => (
   <div className="g1-celebrate" style={{ position: 'relative' }}>
     <Confetti/>
     <div className="g1-realbasket g1-celebrate-basket">
-      <span className="g1-rb-handle"/>
+      <BasketArt/>
       <div className="g1-rb-bowl">
         {Array.from({ length: n }).map((_, i) => (
           <span key={i} className="g1-token-obj g1-celebrate-apple" style={{ animationDelay: `${0.6 + i * 0.45}s` }}><ObjSvg kind="apple"/></span>
@@ -1988,7 +2035,7 @@ const GameDrill = (props) => {
                 ))}
               </div>
               <div className={`g1-realbasket g1-dropzone ${wrongZone === 'basket' ? 'g1-nudge' : ''}`} data-zone="basket" onClick={() => dnd.tapZone('basket')}>
-                <span className="g1-rb-handle"/>
+                <BasketArt/>
                 <div className="g1-rb-bowl">
                   {Object.keys(placement).map((tid) => <span key={tid} className="g1-token-obj"><ObjSvg kind={kindOfId(tid)}/></span>)}
                 </div>
@@ -2368,12 +2415,12 @@ const SceneBg = ({ variant = 'room' }) => (
     )}
     {variant === 'door' && (
       <>
-        {/* eshik (markazda) */}
-        <rect x="178" y="20" width="52" height="158" rx="5" fill="#C68B5B" stroke="#9A6738" strokeWidth="3"/>
-        <rect x="185" y="32" width="38" height="58" rx="3" fill="#B97C4C"/>
-        <rect x="185" y="98" width="38" height="58" rx="3" fill="#B97C4C"/>
-        <circle cx="223" cy="100" r="3.5" fill="#FFD86B"/>
-        <path d="M178 20 h52 v6 h-52 Z" fill="#9A6738"/>
+        {/* eshik (markazda) — pastroq/qisqaroq (tepaga cho'zilmaydi) */}
+        <rect x="178" y="66" width="52" height="112" rx="5" fill="#C68B5B" stroke="#9A6738" strokeWidth="3"/>
+        <rect x="185" y="78" width="38" height="42" rx="3" fill="#B97C4C"/>
+        <rect x="185" y="126" width="38" height="42" rx="3" fill="#B97C4C"/>
+        <circle cx="223" cy="146" r="3.5" fill="#FFD86B"/>
+        <path d="M178 66 h52 v6 h-52 Z" fill="#9A6738"/>
         {/* KIYIM SHKAFI (chapda) */}
         <rect x="36" y="66" width="78" height="112" rx="4" fill="#C99A6A" stroke="#9A6738" strokeWidth="3"/>
         <line x1="75" y1="70" x2="75" y2="174" stroke="#9A6738" strokeWidth="2.5"/>
@@ -3968,9 +4015,13 @@ html, body { margin: 0; padding: 0; }
 .g1-recipe-ic { width: clamp(22px,4.5vw,30px); height: clamp(22px,4.5vw,30px); display: inline-flex; }
 .g1-recipe-ic svg { width: 100%; height: 100%; }
 .g1-recipe-cnt { font-weight: 800; font-size: clamp(14px,2vw,17px); color: #1F7A4D; }
-.g1-realbasket { position: relative; width: clamp(250px,64vw,380px); padding-top: clamp(34px,7.5vw,52px); cursor: pointer; }
-.g1-rb-handle { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 58%; height: clamp(34px,8vw,48px); border: clamp(5px,1.3vw,7px) solid #A86B28; border-bottom: none; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
-.g1-rb-bowl { background: repeating-linear-gradient(90deg, #D89A4A 0 11px, #CC8E3E 11px 22px); border: 3px solid #B9803A; border-top-width: clamp(8px,2vw,12px); border-radius: 8px 8px clamp(28px,7vw,46px) clamp(28px,7vw,46px); min-height: clamp(72px,17vw,108px); padding: clamp(10px,2.4vw,15px) clamp(10px,2.4vw,15px) clamp(14px,3vw,20px); display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: clamp(4px,1.4vw,9px); }
+/* SVG savat (BasketArt) + ustidan olmalar (gardishdan ko'rinadi) */
+.g1-realbasket { position: relative; width: clamp(230px,60vw,356px); aspect-ratio: 220 / 170; cursor: pointer; }
+.g1-rb-svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 9px 18px rgba(58,53,48,0.34)); }
+.g1-rb-bowl {
+  position: absolute; left: 16%; right: 16%; top: 14%; bottom: 48%; z-index: 1;
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: clamp(3px,1.2vw,7px);
+}
 .g1-rb-bowl .g1-token-obj { width: clamp(24px,5.5vw,36px); height: clamp(24px,5.5vw,36px); animation: g1drop 0.5s ease-out; }
 /* yakuniy test: savat ko'tarilib, olmalar sekin tushadi */
 .g1-celebrate { display: flex; justify-content: center; }
