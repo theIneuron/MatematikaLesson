@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 1-SINF · Dars03 — "Sonlar 6–10 va 0 soni" (num-1-03-v1) · syujet: ko'cha davomi (6–10 uylar) + bo'sh uy=0 · spec: ETALON_1SINF.md ░░
+// ░░ 1-SINF · Dars03 — "Sonlar 6–10 va 0 soni" (num-1-03-v1) · syujet: ta'mirdan keyin aralashib ketgan uy raqamlari (6–10) + ko'cha oxiridagi YANGI bo'sh uy=0 · spec: ETALON_1SINF.md ░░
 // Dars02 (Raqamlar 1–5) etaloni naqshlariga mos qurildi: infratuzilma + ETALON KIT +
-// uy/ko'cha vizualizatorlari (HouseSVG/DoorCard/ItemRow/StreetScene/HouseCollect)
-// Dars02'dan ko'chirilgan; CONTENT / SCREEN_META / Screen-komponentlar / root shu darsga
-// moslangan. Yangi: 6–10 ni "5 va yana N" struktura bilan; nol = bo'sh uy (s5/s6) +
-// "hech narsa qoldi" (s7b); yangi personaj ZaynabSVG (10-uyga ko'chib kelgan do'st).
+// uy/ko'cha vizualizatorlari (HouseSVG/DoorCard/ItemRow/StreetScene/HouseCollect).
+// Vizualizator MIX: o'rganish/qoidada "besh-besh ramka" (TenFrame: 5+N), testlarda
+// uy + buyumlar sahnasi. Yangi: 6–10 ni "5 va yana N" struktura bilan; nol = bo'sh uy
+// (s5/s6) + "hech narsa qoldi" (s7b); yangi personaj ZuhraSVG (jingalak soch + ko'zoynak
+// + amber ko'ylak — Ra'nodan keskin farqli; yangi bo'sh uyga ko'chib keladi: 0 -> 1 payoff).
 //
-// Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar (tanish) + Zaynab (YANGI). Ra'no/Anvar
+// Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar (tanish) + Zuhra (YANGI). Ra'no/Anvar
 // qayta tanishtirilmaydi (sIntro Dars02'ga callback bilan ochiladi).
 //
 // ETALON KIT bloklari (grep: "ETALON KIT ·"):
@@ -680,7 +681,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
   const lang = useLang();
   const c = screenContent;
   const sfx = useSfx();
@@ -776,7 +777,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <div className="fade-up">{question}</div>
         {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
         {!solved && (
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${optionsCols}, minmax(0, 1fr))`, gap: 10 }}>
           {options.map((opt, i) => {
             const isWrongPicked = wrong.has(i);
             const cls = `option${isWrongPicked ? ' option-picked-wrong' : ''}`;
@@ -826,7 +827,7 @@ const LESSON_META = {
   lessonTitle: { ru: 'Числа 6–10 и ноль', uz: "Sonlar 6–10 va 0 soni" }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: Zaynab ko'chib keldi, mehmonga chaqiradi (6–10 uylar + bo'sh uy)
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: ta'mirdan keyin uy raqamlari aralashdi (6–10) + yangi bo'sh uy
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: beshdan keyingi sonlar + bo'sh uy
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // uylarni bosib 6–10 ni "5 va yana" bilan tanish
   { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'zi: 5 ustiga qo'shib songacha yetkazadi
@@ -840,7 +841,7 @@ const SCREEN_META = [
   { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // raqami noto'g'ri uyni top (find-the-wrong)
   { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // uylarni 6->10 tartiblash (tap)
   { id: 'sd',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: uy oldiga buyum torting (drag), ball yo'q
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: oxirgi uy — Zaynabning uyi (10)
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: yangi bo'sh uyga Zuhra ko'chib keladi (0 -> 1)
   { id: 's11', type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: qaysi uy o'ninchi? + fakt (nol)
   { id: 's12', type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do + ConnectionsBlock
 ];
@@ -855,53 +856,55 @@ const NUM_WORDS = {
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
 const CONTENT = {
-  // ---- sIntro SYUJET KIRISH — Bit boshlovchi, Dars02'ga bog'lanish + Zaynab tanishtiriladi ----
+  // ---- sIntro SYUJET KIRISH — Bit boshlovchi, Dars02'ga bog'lanish + aralash raqamlar/bo'sh uy ----
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'Зайнаб зовёт в гости', uz: 'Zaynab mehmonga chaqiradi' },
+    title: { ru: 'Перепутанные номера домов', uz: 'Aralashib ketgan uy raqamlari' },
     body: {
-      ru: 'В прошлый раз Анвар нашёл дом Рано — дом номер пять. Сегодня на той же улице новая соседка, Зайнаб, переехала в самый дальний дом. Она зовёт Рано и Анвара в гости. На улице есть дома с номерами от шести до десяти, а один дом стоит пустой.',
-      uz: "O'tgan safar Anvar Ra'noning uyini topgan edi — beshinchi uyni. Bugun shu ko'chaga yangi qo'shni, Zaynab, eng chetdagi uyga ko'chib keldi. U Ra'no va Anvarni mehmonga chaqiradi. Ko'chada oltidan o'ngacha raqamli uylar bor, bitta uy esa bo'sh turibdi."
+      ru: 'В прошлый раз Анвар нашёл дом Рано — дом номер пять. Сегодня на этой улице красили дома, и таблички с номерами перепутались. Тут дома с номерами от шести до десяти, а в самом конце — новый дом без номера: в нём пока никто не живёт, он пустой. Рано и Анвар наведут порядок.',
+      uz: "O'tgan safar Anvar Ra'noning uyini topgan edi — beshinchi uyni. Bugun bu ko'chada uylar bo'yaldi va raqamli taxtachalar aralashib ketdi. Bu yerda oltidan o'ngacha raqamli uylar bor, eng oxirida esa raqamsiz yangi uy — unda hali hech kim yashamaydi, u bo'sh. Ra'no va Anvar tartibga soladi."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
-    zaynab_label: { ru: 'Зайнаб', uz: 'Zaynab' },
+    zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
         'Привет, друг! В прошлый раз мы нашли дом Рано — дом номер пять.',
-        'Сегодня на этой улице новая соседка. Её зовут Зайнаб, она переехала в самый дальний дом.',
-        'Зайнаб зовёт Рано и Анвара в гости. На улице дома с номерами от шести до десяти.',
-        'А один дом стоит пустой. Слушай меня до конца и нажимай кнопку дальше.'
+        'Сегодня на этой улице красили дома, и таблички с номерами перепутались. Тут дома от шести до десяти.',
+        'А в самом конце улицы — новый дом без номера. В нём пока никто не живёт, он пустой.',
+        'Рано и Анвар наведут порядок. Слушай меня до конца и нажимай кнопку дальше.'
       ],
       uz: [
         "Salom, do'stim! O'tgan safar biz Ra'noning uyini topgandik — beshinchi uyni.",
-        "Bugun bu ko'chada yangi qo'shni bor. Uning ismi Zaynab, u eng chetdagi uyga ko'chib keldi.",
-        "Zaynab Ra'no va Anvarni mehmonga chaqiradi. Ko'chada oltidan o'ngacha raqamli uylar bor.",
-        "Bitta uy esa bo'sh turibdi. Meni oxirigacha tinglang va davom tugmasini bosing."
+        "Bugun bu ko'chada uylar bo'yaldi va taxtachalar aralashib ketdi. Bu yerda oltidan o'ngacha uylar bor.",
+        "Ko'chaning eng oxirida esa raqamsiz yangi uy bor. Unda hali hech kim yashamaydi, u bo'sh.",
+        "Ra'no va Anvar tartibga soladi. Meni oxirigacha tinglang va davom tugmasini bosing."
       ]
     }
   },
 
-  // ---- sGuest SYUJET KO'PRIK — oxirgi, eng katta uy (10) qoldi ----
+  // ---- sGuest SYUJET KO'PRIK — yangi uyning yaqin plani: bo'sh (0) -> Zuhra ko'chadi (1) ----
   sGuest: {
-    eyebrow: { ru: 'Почти у цели', uz: 'Manzilga yaqin' },
-    title: { ru: 'Остался дом Зайнаб', uz: 'Zaynabning uyi qoldi' },
+    eyebrow: { ru: 'Новая соседка', uz: "Yangi qo'shni" },
+    title: { ru: 'Новый дом и его номер', uz: "Yangi uy va uning raqami" },
     body: {
-      ru: 'Анвар и Рано дошли до конца улицы. Остался последний, самый большой дом. Его номер — десять. Там живёт Зайнаб.',
-      uz: "Anvar va Ra'no ko'chaning oxiriga yetib kelishdi. Oxirgi, eng katta uy qoldi. Uning raqami — o'n. Zaynab o'sha yerda yashaydi."
+      ru: 'Вот тот самый новый дом в конце улицы. Сначала здесь никто не жил и у дома не было номера — пусто, это ноль. Сегодня сюда переезжает новая девочка — Зухра, ваша новая соседка. Познакомься с ней! Теперь дадим дому номер: дома на улице шли до десяти, а этот — следующий. Значит, одиннадцать. Одиннадцать — это десять и ещё один.',
+      uz: "Mana ko'cha oxiridagi o'sha yangi uy. Avval bu yerda hech kim yashamasdi va uyning raqami ham yo'q edi — bo'sh, bu nol. Bugun bu yerga yangi qizcha — Zuhra, sizning yangi qo'shningiz ko'chib kelyapti. U bilan tanishing! Endi uyga raqam beramiz: ko'chadagi uylar o'ngacha edi, bu esa keyingisi. Demak, o'n bir. O'n bir — bu o'n va yana bir."
     },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
-    zaynab_label: { ru: 'Зайнаб', uz: 'Zaynab' },
+    zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Анвар и Рано уже в конце улицы. Остался последний, самый большой дом.',
-        'Его номер десять. Найди дом номер десять — там живёт Зайнаб.'
+        'Вот тот самый новый дом в конце улицы. Здесь пока никто не живёт, и у дома ещё нет номера. Пусто — это ноль.',
+        'А сегодня сюда переезжает новая девочка — Зухра, ваша новая соседка. Познакомься с ней! Теперь дом не пустой.',
+        'Теперь дадим дому номер. Дома на улице шли до десяти, а этот — следующий. Значит, одиннадцать. Это десять и ещё один.'
       ],
       uz: [
-        "Anvar va Ra'no ko'chaning oxirida. Oxirgi, eng katta uy qoldi.",
-        "Uning raqami o'n. O'ninchi uyni toping — Zaynab o'sha yerda yashaydi."
+        "Mana ko'cha oxiridagi o'sha yangi uy. Bu yerda hali hech kim yashamaydi, uyning raqami ham yo'q. Bo'sh — bu nol.",
+        "Bugun bu yerga yangi qizcha — Zuhra ko'chib kelyapti. U sizning yangi qo'shningiz. U bilan tanishing! Endi uy bo'sh emas.",
+        "Endi uyga raqam beramiz. Ko'chadagi uylar o'ngacha edi, bu esa keyingisi. Demak, o'n bir. Bu o'n va yana bir."
       ]
     }
   },
@@ -918,8 +921,8 @@ const CONTENT = {
     opt2: { ru: 'Сейчас узнаю', uz: 'Hozir bilib olaman' },
     audio: {
       intro: {
-        ru: 'После пяти идут другие числа: шесть, семь, восемь, девять, десять. А один дом на улице пустой. Знаешь все эти числа? Нажми любой ответ.',
-        uz: "Beshdan keyin boshqa sonlar keladi: olti, yetti, sakkiz, to'qqiz, o'n. Ko'chada bitta uy esa bo'sh. Bu sonlarni bilasizmi? Qaysi javob bo'lsa ham bosing."
+        ru: 'После пяти идут другие числа. Шесть, семь, восемь, девять, десять. А один дом на улице пустой. Знаешь все эти числа? Нажми любой ответ.',
+        uz: "Beshdan keyin boshqa sonlar keladi. Olti, yetti, sakkiz, to'qqiz, o'n. Ko'chada bitta uy esa bo'sh. Bu sonlarni bilasizmi? Qaysi javob bo'lsa ham bosing."
       },
       on_correct: { ru: 'Хорошо. Сейчас рассмотрим каждое по очереди.', uz: "Yaxshi. Endi har birini navbat bilan ko'rib chiqamiz." },
       on_wrong: { ru: 'Хорошо. Сейчас рассмотрим каждое по очереди.', uz: "Yaxshi. Endi har birini navbat bilan ko'rib chiqamiz." }
@@ -936,11 +939,11 @@ const CONTENT = {
     audio: {
       ru: [
         'Нажимай на каждый дом по очереди. У каждого дома пять предметов и ещё несколько рядом.',
-        'Посчитаем вместе: шесть, семь, восемь, девять, десять. Каждое число — это пять и ещё сколько-то.'
+        'Посчитаем вместе. Шесть, семь, восемь, девять, десять. Каждое число — это пять и ещё сколько-то.'
       ],
       uz: [
         "Har uyni navbat bilan bosing. Har uy oldida besh ta buyum va yonida yana bir nechtasi bor.",
-        "Birgalikda sanaymiz: olti, yetti, sakkiz, to'qqiz, o'n. Har son — besh va yana bir nechta."
+        "Birgalikda sanaymiz. Olti, yetti, sakkiz, to'qqiz, o'n. Har son — besh va yana bir nechta."
       ]
     }
   },
@@ -948,18 +951,18 @@ const CONTENT = {
   // ---- s2 EXPLORATION — o'zi: 5 ustiga qo'shib eshikdagi songacha yetkazadi ----
   s2: {
     eyebrow: { ru: 'Сделай сам', uz: "O'zingiz qiling" },
-    instruction: { ru: 'У дома уже пять предметов. На двери восемь. Добавь, пока не станет восемь', uz: "Uy oldida besh ta buyum bor. Eshikda sakkiz. Sakkizgacha qo'shing" },
-    count_label: { ru: 'Положено', uz: "Qo'yildi" },
-    done_text: { ru: 'Молодец! Стало столько, сколько на двери.', uz: "Barakalla! Eshikdagidek bo'ldi." },
-    done_audio: { ru: 'Молодец! Получилось пять и ещё три — восемь.', uz: "Barakalla! Besh va yana uch — sakkiz bo'ldi." },
+    instruction: { ru: 'Одна рука — это пять. Поднимай пальцы на второй руке, пока не станет восемь', uz: "Bir qo'l — bu besh. Ikkinchi qo'lda sakkizgacha barmoq ko'taring" },
+    count_label: { ru: 'Всего', uz: 'Jami' },
+    done_text: { ru: 'Молодец! Пять и ещё три — восемь.', uz: "Barakalla! Besh va yana uch — sakkiz." },
+    done_audio: { ru: 'Молодец! Пять и ещё три — восемь.', uz: "Barakalla! Besh va yana uch — sakkiz bo'ldi." },
     audio: {
       ru: [
-        'У этого дома уже есть пять предметов. На двери цифра восемь.',
-        'Добавляй по одному. Считай дальше: шесть, семь, восемь. Остановись на восьми.'
+        'Одна рука — это пять пальцев. Поднимай пальцы на второй руке.',
+        'Считай дальше. Шесть, семь, восемь. Остановись на восьми.'
       ],
       uz: [
-        "Bu uy oldida allaqachon besh ta buyum bor. Eshikda sakkiz raqami.",
-        "Bittadan qo'shing. Davom sanang: olti, yetti, sakkiz. Sakkizda to'xtang."
+        "Bir qo'l — bu besh barmoq. Ikkinchi qo'lda barmoq ko'taring.",
+        "Davom sanang. Olti, yetti, sakkiz. Sakkizda to'xtang."
       ]
     }
   },
@@ -970,12 +973,12 @@ const CONTENT = {
     title_part1: { ru: 'Числа от 6 до 10 —', uz: "Oltidan o'ngacha sonlar —" },
     title_part2_em: { ru: 'это пять и ещё', uz: "besh va yana bir nechta" },
     tip: {
-      ru: 'Шесть — это пять и ещё один. Десять — это пять и ещё пять.',
-      uz: "Olti — bu besh va yana bir. O'n — bu besh va yana besh."
+      ru: 'Шесть — это пять и ещё один. Нажми на цифру и посмотри, как её писать.',
+      uz: "Olti — bu besh va yana bir. Raqamni bosing va qanday yozilishini ko'ring."
     },
     audio: {
-      ru: 'Числа от шести до десяти легко узнать. Каждое из них — это пять и ещё сколько-то. Шесть это пять и ещё один. Семь это пять и ещё два. Десять это пять и ещё пять.',
-      uz: "Oltidan o'ngacha sonlarni oson tanish mumkin. Ularning har biri — besh va yana bir nechta. Olti — besh va yana bir. Yetti — besh va yana ikki. O'n — besh va yana besh."
+      ru: 'Числа от шести до десяти — это пять и ещё сколько-то. Нажми на цифру, и я покажу, как её писать. Веди линию с самого начала, не отрывая руки.',
+      uz: "Oltidan o'ngacha sonlar — besh va yana bir nechta. Raqamni bosing, men uni qanday yozishni ko'rsataman. Chiziqni boshidan, qo'lni uzmasdan torting."
     }
   },
 
@@ -992,8 +995,8 @@ const CONTENT = {
       uz: "Bu faqat qatordagi besh ta. Yonida yana ikkitasi bor. Besh va yana ikki — yetti."
     },
     wrong_2: {
-      ru: 'Это на один больше. Посчитай по одному: пять, шесть, семь. Их семь.',
-      uz: "Bu bittaga ko'p. Bittadan sanang: besh, olti, yetti. Ular yetti."
+      ru: 'Это на один больше. Посчитай по одному. Пять, шесть, семь. Их семь.',
+      uz: "Bu bittaga ko'p. Bittadan sanang. Besh, olti, yetti. Ular yetti."
     },
     wrong_3: {
       ru: 'Два — это только те, что добавлены. Не забудь про пять в ряду. Всего семь.',
@@ -1033,12 +1036,12 @@ const CONTENT = {
     title_part1: { ru: 'Ноль — это', uz: 'Nol — bu' },
     title_part2_em: { ru: 'совсем ничего', uz: "butunlay hech narsa" },
     tip: {
-      ru: 'Когда нет ни одного предмета, мы пишем ноль. Номер пустого дома — ноль.',
-      uz: "Bironta ham buyum bo'lmasa, biz nol deb yozamiz. Bo'sh uyning raqami — nol."
+      ru: 'Когда нет ни одного предмета, мы пишем ноль. Вот так он и пишется — один овал.',
+      uz: "Bironta ham buyum bo'lmasa, biz nol deb yozamiz. Mana shunday yoziladi — bitta aylana."
     },
     audio: {
-      ru: 'Ноль — это число для пустоты. Когда нет ни одного предмета, это ноль. У пустого дома номер ноль.',
-      uz: "Nol — bu bo'shlik uchun son. Bironta ham buyum bo'lmasa, bu nol. Bo'sh uyning raqami nol."
+      ru: 'Ноль — это число для пустоты. Когда нет ни одного предмета, это ноль. Посмотри, как пишется ноль — это один овал.',
+      uz: "Nol — bu bo'shlik uchun son. Bironta ham buyum bo'lmasa, bu nol. Nol qanday yozilishini ko'ring — bu bitta aylana."
     }
   },
 
@@ -1096,15 +1099,15 @@ const CONTENT = {
     }
   },
 
-  // ---- s8 TEST custom — son<->uy juftlash (6-10, tap) ----
+  // ---- s8 TEST custom — raqam plitasini eshikka sudrash (8) ----
   s8: {
     eyebrow: { ru: 'Тренировка · 4 / 6', uz: 'Mashq · 4 / 6' },
-    instruction: { ru: 'Нажми число, потом дом, где столько же предметов', uz: "Sonni bosing, keyin shuncha buyumli uyni bosing" },
-    correct_text: { ru: 'Верно. Число подходит к этому дому.', uz: "To'g'ri. Son shu uyga mos keladi." },
-    done_text: { ru: 'Молодец! Все числа нашли свои дома.', uz: "Barakalla! Hamma son o'z uyini topdi." },
-    wrong_default: { ru: 'Здесь другое число предметов. Посчитай у дома и подбери число.', uz: "Bu yerda buyum soni boshqacha. Uy oldida sanang va sonni mos keltiring." },
+    instruction: { ru: 'Сосчитай предметы у дома и перетащи нужную цифру на дверь', uz: "Uy oldidagi buyumlarni sanang va kerakli raqamni eshikka torting" },
+    correct_text: { ru: 'Верно. Цифра подходит к дому.', uz: "To'g'ri. Raqam uyga mos keladi." },
+    done_text: { ru: 'Молодец! Восемь предметов — цифра восемь.', uz: "Barakalla! Sakkizta buyum — sakkiz raqami." },
+    wrong_default: { ru: 'Это другое число. Посчитай предметы ещё раз и подбери цифру.', uz: "Bu boshqa son. Buyumlarni yana sanang va raqamni mos keltiring." },
     audio: {
-      intro: { ru: 'Подбери каждому числу свой дом. Сначала нажми число, потом дом, где столько же предметов.', uz: "Har songa o'z uyini toping. Avval sonni bosing, keyin shuncha buyumli uyni bosing." },
+      intro: { ru: 'Сосчитай, сколько предметов у этого дома. Потом перетащи нужную цифру на дверь.', uz: "Bu uy oldida nechta buyum borligini sanang. Keyin kerakli raqamni eshikka torting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Не совсем. Посчитай ещё раз.', uz: "Unchalik emas. Yana sanang." }
     }
@@ -1134,7 +1137,7 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 6 / 6', uz: 'Mashq · 6 / 6' },
     instruction: { ru: 'Анвар идёт дальше. Нажимай дома по порядку: от 6 до 10', uz: "Anvar oldinga ketyapti. Uylarni tartib bilan bosing: 6 dan 10 gacha" },
     correct_text: { ru: 'Верно, дальше.', uz: "To'g'ri, davom eting." },
-    done_text: { ru: 'Молодец! Все дома по порядку: шесть, семь, восемь, девять, десять.', uz: "Barakalla! Hamma uy tartib bilan: olti, yetti, sakkiz, to'qqiz, o'n." },
+    done_text: { ru: 'Молодец! Все дома по порядку. Шесть, семь, восемь, девять, десять.', uz: "Barakalla! Hamma uy tartib bilan. Olti, yetti, sakkiz, to'qqiz, o'n." },
     wrong_default: { ru: 'Это не следующий дом. Подумай, какое число идёт дальше.', uz: "Bu keyingi uy emas. Keyin qaysi son kelishini o'ylab ko'ring." },
     audio: {
       intro: { ru: 'Помоги Анвару пройти дальше по порядку. Нажимай дома от шести до десяти. Начни с шести.', uz: "Anvarga tartib bilan oldinga o'tishga yordam bering. Uylarni oltidan o'ngacha bosing. Oltidan boshlang." },
@@ -1143,28 +1146,28 @@ const CONTENT = {
     }
   },
 
-  // ---- sd MINI-O'YIN — uy oldiga eshikdagicha buyum torting (6-10, drag, ball yo'q) ----
+  // ---- sd MINI-O'YIN — nuqtalarni ten-frame ramkaga torting (6, 9), drag ----
   sd: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
-    instruction: { ru: 'Перетащи к дому столько предметов, сколько на его двери', uz: "Uy oldiga eshikdagi raqamcha buyum torting" },
+    instruction: { ru: 'Перетащи в рамку столько мячиков, сколько нужно', uz: "Ramkaga kerakli sonicha koptok torting" },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
-    done_text: { ru: 'Молодец! У каждого дома столько предметов, сколько на двери.', uz: "Barakalla! Har uyda eshikdagidek buyum bor." },
-    retry_audio: { ru: 'Ничего страшного. Посчитай ещё раз.', uz: "Zarari yo'q. Yana bir bor sanang." },
+    done_text: { ru: 'Молодец! Рамка заполнена верно.', uz: "Barakalla! Ramka to'g'ri to'ldirildi." },
+    retry_audio: { ru: 'Рамка уже полная. Посчитай ещё раз.', uz: "Ramka allaqachon to'la. Yana bir bor sanang." },
     audio: {
-      intro: { ru: 'Немного поиграем. Перетаскивай предметы пальцем или просто нажимай. Положи к дому столько, сколько на двери.', uz: "Endi biroz o'ynaymiz. Buyumlarni barmoq bilan torting yoki bosib qo'ying. Uy oldiga eshikdagidek qo'ying." }
+      intro: { ru: 'Немного поиграем. Перетаскивай мячики в рамку пальцем или просто нажимай. Сначала заполняется нижний ряд — пять, потом верхний.', uz: "Endi biroz o'ynaymiz. Koptoklarni ramkaga barmoq bilan torting yoki bosib qo'ying. Avval pastki qator — besh, keyin tepasi to'ladi." }
     }
   },
 
   // ---- s11 TEST final + FactCard — qaysi uy o'ninchi? To'g'ri = o'n (idx1) ----
   s11: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Где дом номер десять? Туда придут гости.', uz: "O'ninchi uy qaysi biri? Mehmonlar o'sha yerga boradi." },
+    title: { ru: 'У какого дома десять предметов? Это дом номер десять.', uz: "Qaysi uy oldida o'nta buyum bor? Bu o'ninchi uy." },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
-    zaynab_label: { ru: 'Зайнаб', uz: 'Zaynab' },
-    correct_text: { ru: 'Верно. Это дом номер десять — здесь живёт Зайнаб.', uz: "To'g'ri. Bu o'ninchi uy — Zaynab shu yerda yashaydi." },
-    wrong_0: { ru: 'Здесь девять. До десяти не хватает одного. Посчитай: пять и ещё пять — десять.', uz: "Bu yerda to'qqizta. O'ntaga bittasi yetmaydi. Sanang: besh va yana besh — o'n." },
-    wrong_2: { ru: 'Здесь только семь. Дом Зайнаб — десять. Посчитай ещё раз.', uz: "Bu yerda atigi yettita. Zaynabning uyi — o'n. Yana sanang." },
+    zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
+    correct_text: { ru: 'Верно. Это дом номер десять — пять и ещё пять.', uz: "To'g'ri. Bu o'ninchi uy — besh va yana besh." },
+    wrong_0: { ru: 'Здесь девять. До десяти не хватает одного. Посчитай. Пять и ещё пять — десять.', uz: "Bu yerda to'qqizta. O'ntaga bittasi yetmaydi. Sanang. Besh va yana besh — o'n." },
+    wrong_2: { ru: 'Здесь только семь. В десятом доме десять предметов. Посчитай ещё раз.', uz: "Bu yerda atigi yettita. O'ninchi uyda o'nta buyum bor. Yana sanang." },
     wrong_default: { ru: 'Не совсем. Посчитай предметы у каждого дома до десяти.', uz: "Unchalik emas. Har uy oldidagi buyumlarni o'ngacha sanang." },
     fact_badge: { ru: 'А знаешь? · Мир', uz: 'Bilasizmi? · Dunyo' },
     fact_text: { ru: 'Ноль придумали позже всех цифр — чтобы записывать пустоту, когда нет совсем ничего.', uz: "Nol hamma raqamdan keyin o'ylab topilgan — bo'shlikni, butunlay hech narsa yo'qligini yozish uchun." },
@@ -1184,15 +1187,15 @@ const CONTENT = {
     main_2_em: { ru: 'знаешь числа 6–10 и ноль', uz: "6–10 sonlarni va nolni bilasiz" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
-    zaynab_label: { ru: 'Зайнаб', uz: 'Zaynab' },
+    zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'Цифры 1–5', uz: "Raqamlar 1–5" },
     conn_label_next: { ru: 'Следующий урок', uz: 'Keyingi dars' },
     conn_next: { ru: 'Сравнение чисел до 10.', uz: "10 gacha sonlarni taqqoslash." },
     audio: {
-      ru: 'Анвар и Рано пришли в гости к Зайнаб. А ты сегодня научился узнавать числа от шести до десяти и познакомился с нолём. На следующем уроке будем сравнивать числа до десяти.',
-      uz: "Anvar va Ra'no Zaynabnikiga mehmonga kelishdi. Siz esa bugun oltidan o'ngacha sonlarni tanishni o'rgandingiz va nol bilan tanishdingiz. Keyingi darsda o'ngacha sonlarni taqqoslaymiz."
+      ru: 'Анвар и Рано навели порядок с номерами домов и познакомились с новой соседкой Зухрой. Пустой дом больше не пустой. А ты сегодня научился узнавать числа от шести до десяти и познакомился с нолём. На следующем уроке будем сравнивать числа до десяти.',
+      uz: "Anvar va Ra'no uy raqamlarini tartibga soldi va yangi qo'shni Zuhra bilan tanishdi. Bo'sh uy endi bo'sh emas. Siz esa bugun oltidan o'ngacha sonlarni tanishni o'rgandingiz va nol bilan tanishdingiz. Keyingi darsda o'ngacha sonlarni taqqoslaymiz."
     }
   }
 };
@@ -2706,6 +2709,92 @@ const BitSays = ({ text }) => (
   </div>
 );
 
+// TenFrame — "besh-besh ramka": 2x5 katak. Pastki qator = besh (asos guruh), tepa qator =
+// ortiqcha (n-5). 6–10 ni "besh va yana N" sifatida ko'rsatadi; n=0 -> butunlay bo'sh ramka.
+// anim=true -> kataklar ketma-ket "pop" bilan to'ladi (avval besh, keyin ortiqchasi). CSS: .g1-tf-*
+const tenFrameRow = (count, base, anim, kind, nextCell) => (
+  <div className={`g1-tf-row ${base ? 'g1-tf-base' : ''}`}>
+    {Array.from({ length: 5 }).map((_, i) => {
+      const on = i < count;
+      return (
+        <span key={i} className={`g1-tf-cell ${on ? 'on' : ''} ${anim && on ? 'g1-tf-pop' : ''} ${kind ? 'g1-tf-cell-obj' : ''} ${i === nextCell ? 'g1-tf-next' : ''}`}
+          style={anim ? { animationDelay: `${(base ? i : 5 + i) * 0.12}s` } : undefined}>
+          {kind
+            ? (on && <span className="g1-tf-item"><ItemSvg kind={kind}/></span>)
+            : <span className="g1-tf-dot"/>}
+        </span>
+      );
+    })}
+  </div>
+);
+// TenFrame — kind berilsa: kataklar nuqta o'rniga PREDMET ko'rsatadi (sd o'yini); yangi qo'yilgan
+// predmet realistik TUSHADI (CSS .g1-tf-item -> g1tfDrop). next = keyingi to'ldiriladigan katak
+// (pastdan-yuqoriga to'ladi) — pulslab "qayerga qo'yish" kerakligini ko'rsatadi.
+const TenFrame = ({ n = 0, anim = false, kind = null, next = null }) => {
+  const top = Math.max(0, Math.min(5, n - 5));     // tepa qator: ortiqcha (n-5)
+  const bottom = Math.max(0, Math.min(5, n));      // pastki qator: besh asos
+  const bottomNext = (next != null && next >= 0 && next < 5) ? next : -1;
+  const topNext = (next != null && next >= 5 && next < 10) ? next - 5 : -1;
+  return (
+    <div className="g1-tenframe" aria-hidden="true">
+      {tenFrameRow(top, false, anim, kind, topNext)}
+      {tenFrameRow(bottom, true, anim, kind, bottomNext)}
+    </div>
+  );
+};
+
+// DIGIT_PATHS — 6,7,8,9,0 maktab propis shakllari (viewBox 0 0 64 92). Bitta uzluksiz chiziq
+// (bir M) -> silliq yoziladi. Dars02 metodi (DigitWrite) shu darsga ko'chirildi.
+const DIGIT_PATHS = {
+  0: 'M33 16 Q20 16 20 48 Q20 80 33 80 Q46 80 46 48 Q46 16 33 16',
+  6: 'M42 20 Q34 16 27 24 Q20 35 20 54 Q20 78 33 78 Q46 78 46 62 Q46 48 33 48 Q23 48 20 56',
+  7: 'M19 18 L46 18 L28 80',
+  8: 'M33 16 Q22 16 22 28 Q22 39 33 46 Q44 53 44 63 Q44 78 33 78 Q22 78 22 63 Q22 53 33 46 Q44 39 44 28 Q44 16 33 16',
+  9: 'M44 32 Q44 16 32 16 Q20 16 20 32 Q20 47 33 47 Q40 47 44 41 L42 80',
+};
+// DigitWrite — raqamni qizil siyoh bilan ketma-ket "yozadi" (pathLength=100 + dashoffset).
+// reduced-motion -> to'liq statik raqam. Dars02'dan ko'chirilgan (port).
+const DigitWrite = ({ d }) => {
+  const reduced = usePrefersReducedMotion();
+  const path = DIGIT_PATHS[d];
+  if (!path) return null;
+  const lift = (path.match(/M/g) || []).length > 1;
+  const values     = lift ? '100;20;20;0;0'                              : '100;0;0';
+  const keyTimes   = lift ? '0;0.40;0.54;0.72;1'                         : '0;0.64;1';
+  const keySplines = lift ? '0.42 0 0.58 1;0 0 1 1;0.42 0 0.58 1;0 0 1 1' : '0.42 0 0.58 1;0 0 1 1';
+  return (
+    <svg className="g1-write" viewBox="0 0 64 92" aria-hidden="true">
+      <path className="g1-write-ghost" d={path}/>
+      <path className="g1-write-ink" d={path} pathLength="100" style={reduced ? { strokeDashoffset: 0 } : undefined}>
+        {!reduced && <animate attributeName="stroke-dashoffset" values={values} keyTimes={keyTimes} calcMode="spline" keySplines={keySplines} dur="3.8s" repeatCount="indefinite"/>}
+      </path>
+    </svg>
+  );
+};
+
+// FingerHand — 5 barmoqli qo'l; `up` ta barmoq ko'tarilgan (0..5). 6–10 ni "besh barmoq va
+// yana N" ko'rsatish uchun (Dars02'da yo'q — farqlovchi vizual). Ko'tarilgan = baland barmoq,
+// bukilgan = kalta (kaftda). Ko'tarish tartibi: bosh barmoq -> ko'rsatkich -> ... CSS: .g1-fhand
+const fingerBar = (cx, raised, key) => (
+  <rect key={key} x={cx - 5} y={raised ? 12 : 48} width="10" height={raised ? 50 : 18} rx="5"
+    fill="url(#g1fhSkin)" stroke="#D98E5A" strokeWidth="1.2"/>
+);
+const FingerHand = ({ up = 0 }) => (
+  <svg className="g1-fhand" viewBox="0 0 88 110" aria-hidden="true">
+    <defs>
+      <linearGradient id="g1fhSkin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E7A875"/></linearGradient>
+    </defs>
+    <rect x="22" y="58" width="54" height="46" rx="18" fill="url(#g1fhSkin)" stroke="#D98E5A" strokeWidth="1.5"/>
+    {fingerBar(31, up >= 2, 'i')}
+    {fingerBar(44, up >= 3, 'm')}
+    {fingerBar(57, up >= 4, 'r')}
+    {fingerBar(70, up >= 5, 'p')}
+    <g transform={up >= 1 ? 'rotate(-34 24 72)' : 'rotate(12 24 72)'}>
+      <rect x="17" y={up >= 1 ? 42 : 56} width="11" height={up >= 1 ? 32 : 18} rx="5.5" fill="url(#g1fhSkin)" stroke="#D98E5A" strokeWidth="1.2"/>
+    </g>
+  </svg>
+);
+
 // StreetBg — ko'cha foni (osmon, quyosh, bulutlar, daraxtlar, maysa, trotuar, fonar).
 const StreetBg = () => (
   <svg className="g1-street-bg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -2729,96 +2818,152 @@ const StreetBg = () => (
   </svg>
 );
 
-// Zaynab — YANGI o'zbek qizcha (Ra'no uslubida, lekin ajralib turadi: moviy-yashil ko'ylak,
-// to'pli soch + peshonabog'). 10-uyga ko'chib kelgan do'st. g1-eyes -> pirpiratish.
-const ZaynabSVG = ({ mood = 'pointing', className = '' }) => {
+// Zuhra — YANGI o'zbek qizcha. Ra'nodan KESKIN ajralib turadi: jingalak (bulutsimon)
+// to'q soch, dumaloq ko'k ko'zoynak, amber-sariq ko'ylak, yon gul qisqich. Yangi
+// qurilgan uyga ko'chib keladigan do'st. g1-eyes -> pirpiratish.
+const ZuhraSVG = ({ mood = 'pointing', className = '' }) => {
   const big = mood === 'happy' || mood === 'celebrate';
   return (
-    <svg className={`g1-char g1-char-zaynab ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+    <svg className={`g1-char g1-char-zuhra ${className}`} viewBox="0 0 130 190" aria-hidden="true">
       <defs>
-        <radialGradient id="g1zskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
-        <linearGradient id="g1zdress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4FD0C4"/><stop offset="100%" stopColor="#1E9C92"/></linearGradient>
-        <linearGradient id="g1zhair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4A2E1A"/><stop offset="100%" stopColor="#2C1B10"/></linearGradient>
+        <radialGradient id="g1uskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
+        <linearGradient id="g1udress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFC24B"/><stop offset="100%" stopColor="#EF8E22"/></linearGradient>
+        <linearGradient id="g1uhair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#3E2A1A"/><stop offset="100%" stopColor="#241307"/></linearGradient>
       </defs>
       <ellipse cx="64" cy="178" rx="34" ry="5" fill="rgba(58,53,48,0.13)"/>
       {/* oyoqlar + tufli */}
-      <rect x="57" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1zskin)"/>
-      <rect x="65.5" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1zskin)"/>
-      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#15786F"/>
-      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#15786F"/>
-      {/* soch (orqa, kalta to'lqin) */}
-      <path d="M45 36 Q45 12 65 12 Q85 12 85 36 L85 70 Q80 60 76 58 L76 40 Q76 28 65 28 Q54 28 54 40 L54 58 Q50 60 45 70 Z" fill="url(#g1zhair)"/>
+      <rect x="57" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1uskin)"/>
+      <rect x="65.5" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1uskin)"/>
+      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#C26A12"/>
+      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#C26A12"/>
+      {/* soch (orqa, jingalak bulut — bosh aylanasi ostida) + yon jingalaklar */}
+      <path d="M38 46 Q33 32 41 24 Q41 13 53 14 Q57 5 66 9 Q75 5 80 14 Q92 14 91 26 Q98 34 92 47 Q97 60 87 68 L87 50 Q87 30 64 30 Q43 30 43 50 L43 68 Q33 60 38 46 Z" fill="url(#g1uhair)"/>
+      <circle cx="42" cy="50" r="7.5" fill="url(#g1uhair)"/>
+      <circle cx="88" cy="50" r="7.5" fill="url(#g1uhair)"/>
+      <circle cx="40" cy="40" r="6" fill="url(#g1uhair)"/>
+      <circle cx="90" cy="40" r="6" fill="url(#g1uhair)"/>
       {/* qo'llar — kayfiyatga qarab */}
       {big ? (
         <g>
-          <path d="M53 58 Q45 42 41 28" stroke="url(#g1zskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="41" cy="27" r="4.6" fill="url(#g1zskin)"/>
-          <path d="M77 58 Q85 42 89 28" stroke="url(#g1zskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="89" cy="27" r="4.6" fill="url(#g1zskin)"/>
+          <path d="M53 58 Q45 42 41 28" stroke="url(#g1uskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="41" cy="27" r="4.6" fill="url(#g1uskin)"/>
+          <path d="M77 58 Q85 42 89 28" stroke="url(#g1uskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="89" cy="27" r="4.6" fill="url(#g1uskin)"/>
         </g>
       ) : (
         <g>
-          <path d="M53 58 Q46 74 43 91" stroke="url(#g1zskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="43" cy="92" r="4.6" fill="url(#g1zskin)"/>
-          <path d="M77 58 Q84 74 87 91" stroke="url(#g1zskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="87" cy="92" r="4.6" fill="url(#g1zskin)"/>
+          <path d="M53 58 Q46 74 43 91" stroke="url(#g1uskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="43" cy="92" r="4.6" fill="url(#g1uskin)"/>
+          <path d="M77 58 Q84 74 87 91" stroke="url(#g1uskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="87" cy="92" r="4.6" fill="url(#g1uskin)"/>
         </g>
       )}
       {/* ko'ylak + jiyak + yenglar + yoqa + belbog' */}
-      <path d="M50 56 Q52 50 58 49 L72 49 Q78 50 80 56 L94 146 Q65 155 36 146 Z" fill="url(#g1zdress)"/>
+      <path d="M50 56 Q52 50 58 49 L72 49 Q78 50 80 56 L94 146 Q65 155 36 146 Z" fill="url(#g1udress)"/>
       <path d="M37 140 Q65 149 93 140 L94 146 Q65 155 36 146 Z" fill="rgba(255,255,255,0.28)"/>
-      <ellipse cx="51" cy="57" rx="7" ry="6" fill="url(#g1zdress)"/>
-      <ellipse cx="79" cy="57" rx="7" ry="6" fill="url(#g1zdress)"/>
+      <ellipse cx="51" cy="57" rx="7" ry="6" fill="url(#g1udress)"/>
+      <ellipse cx="79" cy="57" rx="7" ry="6" fill="url(#g1udress)"/>
       <path d="M58 50 Q65 57 72 50 Q68 54 65 54 Q62 54 58 50 Z" fill="#FFFFFF"/>
-      <path d="M46 67 Q65 72 84 67 L85 73 Q65 78 45 73 Z" fill="#15897E"/>
-      <circle cx="65" cy="70" r="2.6" fill="#FFD86B" stroke="#C99A2E" strokeWidth="0.8"/>
-      {/* bosh + to'p (tepada) + peshonabog' + peshona sochi */}
-      <circle cx="65" cy="37" r="16.5" fill="url(#g1zskin)"/>
-      <circle cx="65" cy="13" r="7" fill="url(#g1zhair)"/>
-      <path d="M49 37 Q50 18 65 17 Q80 18 81 37 Q74 27 65 26 Q56 27 49 37 Z" fill="url(#g1zhair)"/>
-      <path d="M48 30 Q65 24 82 30 L82 34 Q65 28 48 34 Z" fill="#FFB23C"/>
-      <circle cx="65" cy="31.5" r="2.2" fill="#FF7AA8"/>
+      <path d="M46 67 Q65 72 84 67 L85 73 Q65 78 45 73 Z" fill="#D9781A"/>
+      <circle cx="65" cy="70" r="2.6" fill="#FFF1C2" stroke="#C99A2E" strokeWidth="0.8"/>
+      {/* bosh + jingalak peshona sochi + yon gul qisqich */}
+      <circle cx="65" cy="37" r="16.5" fill="url(#g1uskin)"/>
+      <path d="M48 39 Q47 24 56 22 Q59 17 65 21 Q71 17 74 22 Q83 24 82 39 Q79 31 74 32 Q71 27 67 31 Q64 26 60 31 Q56 27 53 32 Q50 31 48 39 Z" fill="url(#g1uhair)"/>
+      <g>
+        <circle cx="50" cy="27" r="2.6" fill="#FF7AA8"/>
+        <circle cx="50" cy="22" r="2.3" fill="#FF9CC0"/><circle cx="54.5" cy="25" r="2.3" fill="#FF9CC0"/><circle cx="52.5" cy="30" r="2.3" fill="#FF9CC0"/><circle cx="46.5" cy="29" r="2.3" fill="#FF9CC0"/><circle cx="45.5" cy="24" r="2.3" fill="#FF9CC0"/>
+        <circle cx="50" cy="26" r="1.5" fill="#FFD86B"/>
+      </g>
       {/* yuz */}
       <g className="g1-eyes">
         <circle cx="59" cy="37" r="2.1" fill="#3A2A1E"/><circle cx="71" cy="37" r="2.1" fill="#3A2A1E"/>
-        <path d="M56 33.6 Q59 32.2 61.4 33.6" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
-        <path d="M68.6 33.6 Q71 32.2 74 33.6" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M55.5 33 Q59 31.4 62 33" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M68 33 Q71 31.4 74.5 33" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+      </g>
+      {/* dumaloq ko'k ko'zoynak */}
+      <g fill="none" stroke="#2B7CD3" strokeWidth="1.7" strokeLinecap="round">
+        <circle cx="59" cy="37" r="5"/>
+        <circle cx="71" cy="37" r="5"/>
+        <path d="M64 37 Q65 35.8 66 37"/>
+        <path d="M54 36 L49.5 34.5"/>
+        <path d="M76 36 L80.5 34.5"/>
       </g>
       <path d="M64.6 39 Q65 41 65.9 41" stroke="#C98A6A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
       {big
-        ? <path d="M59 43 Q65 51 71 43 Q65 47 59 43 Z" fill="#C0392B"/>
-        : <path d="M60 44 Q65 48 70 44" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
-      <ellipse cx="54" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
-      <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+        ? <path d="M59 44 Q65 52 71 44 Q65 48 59 44 Z" fill="#C0392B"/>
+        : <path d="M60 45 Q65 49 70 45" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
+      <ellipse cx="53" cy="45" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+      <ellipse cx="77" cy="45" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
     </svg>
   );
 };
 
-// StreetScene — ko'cha: fon + 5 uy (6–10, trotuarda) + Anvar (+ final'da Ra'no/Zaynab 10-uy oldida).
+// StreetScene — ko'cha: fon + 5 uy (6–10, trotuarda) + Anvar (+ final'da Ra'no/Zuhra 10-uy oldida).
+// Syujet: introда raqamlar ARALASH (taxtachalar aralashib ketgan); final/summary'da esa
+// Ra'no va Anvar ularni TARTIBGA solgan -> tartiblangan ko'rinadi (audio "to'g'irlashdi" bilan mos).
+const STREET_NUMS_MIXED = [8, 6, 10, 7, 9];   // intro — aralash
+const STREET_NUMS_ORDER = [6, 7, 8, 9, 10];   // final — tartibga solingan
 const StreetScene = ({ step = 9, final = false }) => {
   const t = useT();
+  const nums = final ? STREET_NUMS_ORDER : STREET_NUMS_MIXED;
   return (
     <div className={`g1-street ${final ? 'g1-street-final' : ''}`}>
       <StreetBg/>
       <div className="g1-street-houses">
-        {[6, 7, 8, 9, 10].map((n, i) => (
-          <div key={n} className={`g1-street-house ${final && n === 10 ? 'g1-street-target' : ''} ${step >= 2 ? 'in' : ''}`} style={{ transitionDelay: `${i * 0.1}s` }}>
-            <HouseSVG digit={n} open={final && n === 10}/>
+        {nums.map((n, i) => (
+          <div key={n} className={`g1-street-house ${step >= 2 ? 'in' : ''}`} style={{ transitionDelay: `${i * 0.1}s` }}>
+            <HouseSVG digit={n}/>
           </div>
         ))}
+        {/* ko'cha oxiridagi YANGI uy — avval bo'sh (raqamsiz=0); final'da Zuhra ko'chadi -> raqam 11 (o'ndan keyin) */}
+        <div className={`g1-street-house g1-street-new ${final ? 'g1-street-target' : ''} ${step >= 2 ? 'in' : ''}`} style={{ transitionDelay: '0.5s' }}>
+          <HouseSVG digit={final ? 11 : null} open={final} v={1}/>
+        </div>
       </div>
+      {/* Anvar + Ra'no ikkalasi ham ko'chada (audio "Ra'no va Anvar" deydi) — intro va final'da */}
       <div className={`g1-street-anvar ${step >= 3 ? 'in' : ''}`}>
         <AnvarSVG pose={final ? 'happy' : 'coming'} className="g1-cast-svg"/>
         <span className="g1-cast-name g1-cast-sub">{t(CONTENT.sIntro.anvar_label)}</span>
       </div>
+      <div className={`g1-street-rano ${step >= 3 ? 'in' : ''}`}>
+        <RanoSVG mood={final ? 'happy' : 'pointing'} className="g1-cast-svg"/>
+        <span className="g1-cast-name g1-cast-sub">{t(CONTENT.sIntro.rano_label)}</span>
+      </div>
       {final && (
-        <>
-          <div className="g1-street-rano in">
-            <RanoSVG mood="happy" className="g1-cast-svg"/>
-            <span className="g1-cast-name">{t(CONTENT.sIntro.rano_label)}</span>
-          </div>
-          <div className="g1-street-zaynab in">
-            <ZaynabSVG mood="happy" className="g1-cast-svg"/>
-            <span className="g1-cast-name">{t(CONTENT.sIntro.zaynab_label)}</span>
-          </div>
-        </>
+        <div className="g1-street-zuhra in">
+          <ZuhraSVG mood="happy" className="g1-cast-svg"/>
+          <span className="g1-cast-name">{t(CONTENT.sIntro.zuhra_label)}</span>
+        </div>
       )}
+    </div>
+  );
+};
+
+// NewHouseScene — sGuest (slayd 15) yaqin plani: ko'cha oxiridagi YANGI uy. Avval BO'SH (katta 0),
+// keyin Zuhra ko'chib keladi -> eshik ochiladi, 0 -> 1. s11/s12 ning keng ko'cha sahnasidan farqli.
+const NewHouseScene = ({ step = 9 }) => {
+  const t = useT();
+  const arrived = step >= 3;   // Zuhra ko'chdi -> uy raqam oladi: 11
+  return (
+    <div className="g1-newhouse-scene">
+      <div className="g1-newhouse-house">
+        <HouseSVG digit={arrived ? 11 : null} open={arrived} v={1}/>
+      </div>
+      <div className="g1-newhouse-side">
+        {arrived ? (
+          <>
+            <div className="g1-newhouse-num fade-up">
+              <DigitGlyph d={11} size="big" tone="success"/>
+              <span className="g1-newhouse-note">{t({ ru: 'десять и ещё один', uz: "o'n va yana bir" })}</span>
+            </div>
+            <div className="g1-newhouse-zuhra fade-up">
+              <ZuhraSVG mood="happy" className="g1-cast-svg"/>
+              <span className="g1-cast-name">{t(CONTENT.sIntro.zuhra_label)}</span>
+            </div>
+          </>
+        ) : (
+          <>
+            <DigitGlyph d={0} size="big" tone="accent"/>
+            <span className="g1-newhouse-empty">{t({ ru: 'пусто — ноль', uz: "bo'sh — nol" })}</span>
+          </>
+        )}
+      </div>
     </div>
   );
 };
@@ -2872,8 +3017,8 @@ const IntroCast = ({ audio }) => {
   return <StreetScene step={step}/>;
 };
 const GuestCast = ({ audio }) => {
-  const step = useStoryReveal(audio, 2);
-  return <StreetScene step={Math.max(step, 3)}/>;
+  const step = useStoryReveal(audio, 3);
+  return <NewHouseScene step={step}/>;
 };
 const ScreenIntro = (props) => (
   <StoryLayout props={props} c={CONTENT.sIntro} hint>{(audio) => <IntroCast audio={audio}/>}</StoryLayout>
@@ -2955,7 +3100,6 @@ function DigitScatter() {
 }
 
 // s1 — EXPLORATION: har uy raqamini (6-10) bosib tanish (nom ovozda + "5 va yana" buyumlar).
-const S1_KIND = { 6: 'ball', 7: 'cube', 8: 'pot', 9: 'ball', 10: 'cube' };
 const S1_DOORS = [6, 7, 8, 9, 10];
 const Screen1 = (props) => {
   const lang = useLang();
@@ -2993,7 +3137,7 @@ const Screen1 = (props) => {
             ))}
           </div>
           <div className="g1-dpips">
-            {active ? <ItemRow n={active} kind={S1_KIND[active]}/> : <span className="g1-hint-txt">{lang === 'uz' ? 'Raqamni bosing' : 'Нажми цифру'}</span>}
+            {active ? <TenFrame key={active} n={active} anim/> : <span className="g1-hint-txt">{lang === 'uz' ? 'Raqamni bosing' : 'Нажми цифру'}</span>}
           </div>
         </div>
       </div>
@@ -3001,22 +3145,21 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — EXPLORATION: "5 va yana" — 5 ta tayyor, eshikdagi songacha (8) bittadan qo'shiladi.
+// s2 — EXPLORATION (BARMOQLAR): bir qo'l = besh, ikkinchi qo'lda songacha (8) barmoq ko'tariladi.
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
   const BASE = 5; const TARGET = 8; const ADD = TARGET - BASE;
-  const [orders, setOrders] = useState({});
-  const added = Object.keys(orders).length;
+  const [added, setAdded] = useState(0);
   const count = BASE + added;
   const done = added === ADD;
-  const tap = (i) => {
-    if (orders[i] || added >= ADD) return;
-    const order = BASE + added + 1;
-    setOrders((prev) => ({ ...prev, [i]: order }));
-    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][order]); if (order === TARGET) e.pushOneOff(c.done_audio[lang]); } }
+  const addOne = () => {
+    if (added >= ADD) return;
+    const next = added + 1;
+    setAdded(next);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][BASE + next]); if (BASE + next === TARGET) e.pushOneOff(c.done_audio[lang]); } }
   };
   const navContent = (
     <>
@@ -3028,43 +3171,40 @@ const Screen2 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(16px, 3vw, 30px)', padding: 'clamp(14px, 2.6vw, 20px)', flexWrap: 'wrap' }}>
-          <div className="g1-s2house"><HouseSVG digit={TARGET}/></div>
-          <div className="g1-tapgrid">
-            {Array.from({ length: BASE }).map((_, i) => (
-              <div key={`b${i}`} className="g1-tapcell g1-tapcell-base on"><ItemSvg kind="ball"/></div>
-            ))}
-            {Array.from({ length: ADD }).map((_, i) => {
-              const on = !!orders[i];
-              return (
-                <button key={i} className={`g1-tapcell ${on ? 'on' : ''}`} disabled={done || on} onClick={() => tap(i)}>
-                  <ItemSvg kind="ball"/>
-                  {on && <span className="g1-tapcell-tag mono">{orders[i]}</span>}
-                </button>
-              );
-            })}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 'clamp(8px, 2.2vw, 18px)', padding: 'clamp(12px, 2.4vw, 18px)', flexWrap: 'wrap' }}>
+          <div className="g1-hand-group">
+            <FingerHand up={5}/>
+            <span className="g1-hand-cap mono">5</span>
           </div>
+          <span className="g1-arrow" aria-hidden="true">+</span>
+          <button className="g1-handbtn" onClick={addOne} disabled={done} aria-label="barmoq ko'tarish">
+            <FingerHand up={added}/>
+            <span className="g1-hand-cap mono">{added}</span>
+          </button>
         </div>
         <div className="g1-count-line fade-up delay-1">
           <span className="g1-count-label">{t(c.count_label)}</span>
           <span className="g1-count-val mono">{count} / {TARGET}</span>
         </div>
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
+        {!done
+          ? <p className="g1-hint-txt fade-up" style={{ textAlign: 'center' }}>{lang === 'uz' ? "Ikkinchi qo'lni bosing" : 'Нажми на вторую руку'}</p>
+          : <div className="frame-success fade-up"><Reaction state="correct" praise={t(c.done_text)}/></div>}
       </div>
     </Stage>
   );
 };
 
-// s3 — RULE: buyum -> o'q -> eshik raqami.
+// s3 — RULE + PROPIS: ten-frame (5+N) -> raqam kataklı daftarda YOZILADI. 6/7/8/9 tanlovi.
 const Screen3 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s3;
   const audio = useAudio([{ id: 's3', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const [active, setActive] = useState(7);
+  const pick = (d) => {
+    setActive(d);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][d]); }
+  };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3073,14 +3213,19 @@ const Screen3 = (props) => {
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h1 className="title h-sub fade-up">
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
         </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.6vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)', flexWrap: 'wrap' }}>
-          <ItemRow n={7} kind="ball"/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2.4vw, 20px)', padding: 'clamp(12px, 2.6vw, 20px)', flexWrap: 'wrap' }}>
+          <TenFrame key={`tf${active}`} n={active} anim/>
           <span className="g1-arrow" aria-hidden="true">→</span>
-          <DoorCard d={7} size="mid" tone="accent"/>
+          <div className="g1-kcell g1-kcell-write active"><DigitWrite key={active} d={active}/></div>
+        </div>
+        <div className="g1-digit-pick fade-up delay-1">
+          {[6, 7, 8, 9].map((d) => (
+            <button key={d} className={`g1-pickbtn ${active === d ? 'active' : ''}`} onClick={() => pick(d)}>{d}</button>
+          ))}
         </div>
         <BitSays text={t(c.tip)}/>
       </div>
@@ -3175,8 +3320,9 @@ const Screen6 = (props) => {
         </h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(16px, 4vw, 34px)', padding: 'clamp(16px, 3vw, 26px)', flexWrap: 'wrap' }}>
           <div className="g1-s2house"><HouseSVG digit={0}/></div>
+          <TenFrame n={0}/>
           <span className="g1-arrow" aria-hidden="true">→</span>
-          <DigitGlyph d={0} size="big" tone="accent"/>
+          <div className="g1-kcell g1-kcell-write active"><DigitWrite d={0}/></div>
         </div>
         <BitSays text={t(c.tip)}/>
       </div>
@@ -3199,6 +3345,7 @@ const Screen7 = (props) => {
         <div className="g1-opt-house"><HouseSVG digit={2}/><div className="g1-yard"><ItemRow n={2} kind="cube"/></div></div>,
       ]}
       correctIdx={1}
+      optionsCols={1}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3237,7 +3384,7 @@ const Screen7b = (props) => {
           </div>
         </div>
       )}
-      options={[<DigitGlyph d={1} size="sm"/>, <DigitGlyph d={0} size="sm"/>, <DigitGlyph d={3} size="sm"/>]}
+      options={[<DigitGlyph d={1} size="sm"/>, <DigitGlyph d={0} size="sm"/>, <DigitGlyph d={3} size="sm"/>, <DigitGlyph d={2} size="sm"/>]}
       correctIdx={1}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -3246,9 +3393,9 @@ const Screen7b = (props) => {
   );
 };
 
-// s8 — TEST (juftlash, tap): sonni bosing -> shuncha buyumli uyni bosing (6-10).
-const S8_NUMS = [6, 8, 10];
-const S8_HOUSES = [{ id: 'h10', n: 10, kind: 'cube' }, { id: 'h6', n: 6, kind: 'ball' }, { id: 'h8', n: 8, kind: 'pot' }];
+// s8 — TEST (raqam plitasini SUDRASH): uy oldidagi buyumlarni sanab, to'g'ri raqamni eshikka tortadi.
+const S8_TARGET = 8;
+const S8_PLATES = [6, 8, 9];   // sudraladigan raqamlar; to'g'ri = 8
 const Screen8 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3257,15 +3404,12 @@ const Screen8 = (props) => {
   const audio = useAudio([{ id: 's8_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
   const canAns = useCanAnswer(audio);
   const wasSolved = props.storedAnswer?.solved === true;
-  const [matched, setMatched] = useState(() => (wasSolved ? { 6: 'h6', 8: 'h8', 10: 'h10' } : {}));
-  const [selNum, setSelNum] = useState(null);
-  const [nudge, setNudge] = useState(null);
+  const [placed, setPlaced] = useState(wasSolved);
+  const [bounceTok, setBounceTok] = useState(null);
+  const [wrongZone, setWrongZone] = useState(false);
   const [praiseWord, setPraiseWord] = useState('');
   const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
   const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
-  const doneCount = Object.keys(matched).length;
-  const allDone = doneCount === S8_NUMS.length;
-  const houseTaken = (hid) => Object.values(matched).includes(hid);
 
   const finish = useCallback(() => {
     const ft = firstTryRef.current !== false;
@@ -3277,61 +3421,67 @@ const Screen8 = (props) => {
     });
   }, [props]);
 
-  const tapNum = (d) => { if (matched[d] || allDone || !canAns) return; setSelNum(d); };
-  const tapHouse = (h) => {
-    if (allDone || selNum === null || houseTaken(h.id) || !canAns) return;
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (placed || zoneId !== 'plate' || !canAns) return;
+    const digit = parseInt(String(tokenId).replace('plate', ''), 10);
     attemptsRef.current += 1;
-    if (h.n === selNum) {
-      const nm = { ...matched, [selNum]: h.id };
-      setMatched(nm); setSelNum(null);
-      sfx.playCorrect();
+    if (digit === S8_TARGET) {
+      setPlaced(true); sfx.playCorrect();
       const pw = nextPraise(lang); setPraiseWord(pw);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][selNum]); if (Object.keys(nm).length < S8_NUMS.length) e.pushOneOff(c.correct_text[lang]); else { e.pushOneOff(pw); e.pushOneOff(c.done_text[lang]); } } }
-      if (Object.keys(nm).length === S8_NUMS.length) finish();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff(c.done_text[lang]); } }
+      finish();
     } else {
       firstTryRef.current = false;
-      setNudge(h.id); setTimeout(() => setNudge(null), 450);
+      setBounceTok(tokenId); setTimeout(() => setBounceTok(null), 500);
+      setWrongZone(true); setTimeout(() => setWrongZone(false), 450);
       sfx.playWrong();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((c.wrong_default || c.audio.on_wrong)[lang]); }
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placed, canAns, lang, audio.muted]);
+  const dnd = useDnd(handleDrop);
+
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!allDone} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!placed} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{doneCount} / {S8_NUMS.length}</span></p>
-        <div className="g1-match fade-up delay-1">
-          <div className="g1-match-digits">
-            {S8_NUMS.map((d) => {
-              const used = !!matched[d];
-              return (
-                <button key={d} className={`g1-doorbtn ${used ? 'used' : ''} ${selNum === d ? 'active' : ''}`} disabled={used || allDone || !canAns} onClick={() => tapNum(d)}>
-                  <DoorCard d={d} tone={selNum === d ? 'accent' : 'ink'}/>
-                </button>
-              );
-            })}
-          </div>
-          <div className="g1-match-houses">
-            {S8_HOUSES.map((h) => {
-              const takenBy = Object.keys(matched).find((d) => matched[d] === h.id);
-              return (
-                <button key={h.id} className={`g1-housebtn ${takenBy ? 'g1-housebtn-ok' : ''} ${nudge === h.id ? 'g1-nudge' : ''}`} disabled={!!takenBy || allDone || selNum === null || !canAns} onClick={() => tapHouse(h)}>
-                  <HouseSVG digit={takenBy || null}/>
-                  <div className="g1-yard"><ItemRow n={h.n} kind={h.kind}/></div>
-                </button>
-              );
-            })}
+        <p className="h-sub title fade-up">{t(c.instruction)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <div className={`g1-plate-drop g1-dropzone ${wrongZone ? 'g1-nudge' : ''} ${!placed ? 'g1-dropzone-wait' : ''}`} data-zone="plate" onClick={() => dnd.tapZone('plate')}>
+            <div className="g1-plate-house">
+              <HouseSVG digit={placed ? S8_TARGET : null}/>
+              <div className="g1-yard"><ItemRow n={S8_TARGET} kind="pot" wrap/></div>
+            </div>
           </div>
         </div>
-        {allDone && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {!placed && (
+          <>
+            <p className="g1-hint-txt fade-up" style={{ textAlign: 'center' }}>{lang === 'uz' ? "To'g'ri raqamni eshikka torting" : 'Перетащи нужную цифру на дверь'}</p>
+            <div className="g1-tray fade-up delay-2">
+              {S8_PLATES.map((d) => {
+                const id = `plate${d}`;
+                return (
+                  <div key={id} className={`g1-token g1-token-plate ${dnd.sel === id ? 'g1-token-sel' : ''} ${bounceTok === id ? 'g1-bounceback' : ''}`}
+                    onPointerDown={(e) => { if (!placed) { e.preventDefault(); dnd.startDrag(e, id); } }}>
+                    <DigitGlyph d={d} size="sm"/>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+        {placed && (
+          <div className="frame-success fade-up">
             <Reaction state="correct" praise={praiseWord}/>
           </div>
+        )}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}><DigitGlyph d={parseInt(String(dnd.drag.id).replace('plate', ''), 10)} size="sm"/></div>
         )}
       </div>
     </Stage>
@@ -3397,7 +3547,7 @@ const Screen9 = (props) => {
             return (
               <button key={i} className={cls} disabled={solved || isWrong || !canAns} onClick={() => pick(i)}>
                 <HouseSVG digit={b.label}/>
-                <div className="g1-yard"><ItemRow n={b.n} kind={b.kind}/></div>
+                <div className="g1-yard"><ItemRow n={b.n} kind={b.kind} wrap/></div>
               </button>
             );
           })}
@@ -3499,7 +3649,9 @@ const Screen10 = (props) => {
 };
 
 // sd — MINI-O'YIN (drag): uy oldiga eshikdagi raqamcha buyum torting (6-10). Ball yo'q.
-const COLLECT_ROUNDS = [{ digit: 6, kind: 'ball' }, { digit: 7, kind: 'cube' }];
+// Ten-frame drag o'yin: nuqtalarni ramkaga torting (5 pastga + qolgani tepaga). Dars02 'uyga
+// buyum tortish'dan farqli (#4b).
+const COLLECT_ROUNDS = [{ digit: 6 }, { digit: 9 }];
 const HouseCollect = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3516,7 +3668,7 @@ const HouseCollect = (props) => {
   const round = COLLECT_ROUNDS[ri];
   const TRAY = round.digit + 2;
   const allDone = ri >= total - 1 && solvedItem;
-  const trayIds = Array.from({ length: TRAY }, (_, i) => `${round.kind}${ri}_${i}`);
+  const trayIds = Array.from({ length: TRAY }, (_, i) => `dot${ri}_${i}`);
 
   const handleDrop = useCallback((tokenId, zoneId) => {
     if (solvedItem || zoneId !== 'yard') return;
@@ -3568,18 +3720,23 @@ const HouseCollect = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-          <div className={`g1-collecthouse g1-dropzone ${wrongZone ? 'g1-nudge' : ''}`} data-zone="yard" onClick={() => dnd.tapZone('yard')}>
-            <HouseSVG digit={round.digit}/>
-            <div className="g1-yard g1-yard-drop"><ItemRow n={placed.length} kind={round.kind} anim="none"/></div>
+          <div className={`g1-tfdrop g1-dropzone ${wrongZone ? 'g1-nudge' : ''} ${!solvedItem && placed.length === 0 ? 'g1-dropzone-wait' : ''}`} data-zone="yard" onClick={() => dnd.tapZone('yard')}>
+            <TenFrame n={placed.length} kind="ball" next={!solvedItem ? placed.length : null}/>
           </div>
           <span className="g1-count-val mono">{placed.length} / {round.digit}</span>
         </div>
+        {!solvedItem && placed.length === 0 && (
+          <div className="g1-drophint fade-up" aria-hidden="true">
+            <span className="g1-drophint-arrow">↑</span>
+            <span>{lang === 'uz' ? "Koptokni yuqoridagi ramkaga torting" : 'Перетащи мяч в рамку наверху'}</span>
+          </div>
+        )}
         {!solvedItem && (
           <div className="g1-tray fade-up delay-2">
             {trayLeft.map((id) => (
               <div key={id} className={`g1-token ${dnd.sel === id ? 'g1-token-sel' : ''} ${bounceTok === id ? 'g1-bounceback' : ''}`}
                 onPointerDown={(e) => { if (!solvedItem) { e.preventDefault(); dnd.startDrag(e, id); } }}>
-                <span className="g1-token-obj"><ItemSvg kind={round.kind}/></span>
+                <span className="g1-token-obj"><ItemSvg kind="ball"/></span>
               </div>
             ))}
           </div>
@@ -3596,15 +3753,15 @@ const HouseCollect = (props) => {
           </div>
         )}
         {dnd.drag && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}><span className="g1-token-obj"><ItemSvg kind={round.kind}/></span></div>
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}><span className="g1-token-obj"><ItemSvg kind="ball"/></span></div>
         )}
       </div>
     </Stage>
   );
 };
 
-// s11 — TEST final + FactCard: qaysi uy o'ninchi? (uylar 9/10/7, plitasiz — sanab topiladi).
-// Tabrik + fakt (nol haqida) YONMA-YON (skrolsiz).
+// s11 — TEST final + FactCard: qaysi uy o'ninchi? (uylar plita+predmet, Dars02 kabi).
+// Tabrik = FAQAT fakt kartochkasi (katta ko'cha animatsiyasi olib tashlandi — ma'nosiz/skroll edi).
 const Screen11 = (props) => {
   const c = CONTENT.s11;
   const t = useT();
@@ -3614,18 +3771,16 @@ const Screen11 = (props) => {
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       options={[
-        <div className="g1-opt-house"><HouseSVG digit={null}/><div className="g1-yard"><ItemRow n={9} kind="ball"/></div></div>,
-        <div className="g1-opt-house"><HouseSVG digit={null}/><div className="g1-yard"><ItemRow n={10} kind="cube"/></div></div>,
-        <div className="g1-opt-house"><HouseSVG digit={null}/><div className="g1-yard"><ItemRow n={7} kind="pot"/></div></div>,
+        <div className="g1-opt-house"><HouseSVG digit={9}/><div className="g1-yard"><ItemRow n={9} kind="ball" wrap/></div></div>,
+        <div className="g1-opt-house"><HouseSVG digit={10}/><div className="g1-yard"><ItemRow n={10} kind="cube" wrap/></div></div>,
+        <div className="g1-opt-house"><HouseSVG digit={7}/><div className="g1-yard"><ItemRow n={7} kind="pot" wrap/></div></div>,
       ]}
       correctIdx={1}
+      optionsCols={1}
       celebrateOnCorrect={() => (
-        <div className="g1-final-row">
-          <div className="g1-final-street"><StreetScene final/></div>
-          <div className="g1-handfact">
-            <div className="g1-factdigits"><DigitGlyph d={0} size="big" tone="accent"/></div>
-            <p className="g1-handfact-txt">{t(c.fact_text)}</p>
-          </div>
+        <div className="g1-handfact fade-up">
+          <div className="g1-factdigits"><DigitGlyph d={0} size="big" tone="accent"/></div>
+          <p className="g1-handfact-txt">{t(c.fact_text)}</p>
         </div>
       )}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -4494,7 +4649,81 @@ html, body { margin: 0; padding: 0; }
 
 /* qator konteyner + sanagich */
 .g1-drow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 1.8vw, 14px); }
-.g1-dpips { min-height: clamp(46px, 9vw, 62px); display: flex; align-items: center; justify-content: center; }
+.g1-dpips { min-height: clamp(92px, 18vw, 128px); display: flex; align-items: center; justify-content: center; }
+
+/* TenFrame — "besh-besh ramka": pastki qator (besh) qizil, tepa qator (ortiqcha) ko'k */
+.g1-tenframe { display: inline-flex; flex-direction: column; gap: clamp(5px, 1vw, 8px); padding: clamp(7px, 1.5vw, 11px); background: #FFFFFF; border-radius: 16px; box-shadow: 0 5px 16px -9px rgba(58, 53, 48, 0.4); }
+.g1-tf-row { display: flex; gap: clamp(5px, 1vw, 8px); }
+.g1-tf-cell { width: clamp(26px, 5.2vw, 38px); height: clamp(26px, 5.2vw, 38px); border-radius: 9px; border: 2px solid #E6E1D6; background: #F6F4EF; display: flex; align-items: center; justify-content: center; }
+.g1-tf-base .g1-tf-cell { border-color: #FFD2C6; }
+.g1-tf-dot { width: 56%; height: 56%; border-radius: 50%; background: transparent; }
+.g1-tf-cell.on { background: #FFE8E1; border-color: #FF4F28; }
+.g1-tf-cell.on .g1-tf-dot { background: #FF4F28; }
+.g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on { background: #E3F2FB; border-color: #019ACB; }
+.g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on .g1-tf-dot { background: #019ACB; }
+@keyframes g1tfPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
+.g1-tf-pop .g1-tf-dot { animation: g1tfPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@media (prefers-reduced-motion: reduce) { .g1-tf-pop .g1-tf-dot { animation: none; } }
+
+/* PROPIS — kataklı daftarda raqam yozish (Dars02'dan) + s3 raqam tanlovi */
+.g1-kcell { position: relative; aspect-ratio: 64 / 92; padding: 0; overflow: hidden; border: 2.5px solid #BFE0EC; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  background-color: #FBFEFF;
+  background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
+  background-size: clamp(15px, 3.6vw, 24px) clamp(15px, 3.6vw, 24px); }
+.g1-kcell.active { border-color: #FF4F28; box-shadow: 0 0 0 2px #FFD3C7; }
+.g1-kcell-write { flex: 0 0 auto; width: clamp(70px, 13vw, 94px); }
+.g1-kcell .g1-write { width: 100%; height: 100%; }
+.g1-write { width: clamp(80px, 17vw, 116px); height: auto; }
+.g1-write-ghost { fill: none; stroke: #F2DDD3; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.g1-write-ink { fill: none; stroke: #FF4F28; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.g1-digit-pick { display: flex; justify-content: center; gap: clamp(8px, 2vw, 14px); }
+.g1-pickbtn { width: clamp(40px, 8vw, 52px); height: clamp(40px, 8vw, 52px); border-radius: 12px; border: 2px solid #E6E1D6; background: #FFFFFF; font-family: 'Fraunces', Georgia, serif; font-size: clamp(18px, 3.4vw, 24px); font-weight: 600; color: #5A5A60; cursor: pointer; transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.15s ease; box-shadow: 0 3px 8px -4px rgba(58, 53, 48, 0.3); }
+.g1-pickbtn:hover:not(.active) { transform: translateY(-2px); }
+.g1-pickbtn.active { border-color: #FF4F28; color: #FF4F28; background: #FFF3EF; }
+
+/* FingerHand — barmoqlar vizualizatori (s2) */
+.g1-fhand { width: clamp(72px, 15vw, 104px); height: auto; }
+.g1-hand-group, .g1-handbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.g1-handbtn { border: 2.5px dashed #FFB9A8; border-radius: 16px; background: #FFF6F3; padding: clamp(6px, 1.4vw, 10px); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(255, 79, 40, 0.5); }
+.g1-handbtn:disabled { cursor: default; border-style: solid; border-color: #1F7A4D; background: #E3F0E8; }
+.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #FF4F28; }
+.g1-handbtn:disabled .g1-hand-cap { color: #1F7A4D; }
+
+/* Ten-frame drag o'yin (sd): drop zona + nuqta tokenlar */
+.g1-tfdrop { padding: clamp(8px, 2vw, 14px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; transition: border-color 0.2s ease, background 0.2s ease; }
+.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FF4F28; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
+/* ten-frame PREDMET rejimi (sd o'yini): kataklar neytral, ichida buyum, tushganda pop */
+.g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
+.g1-tf-row:not(.g1-tf-base) .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
+.g1-tf-base .g1-tf-cell-obj { border-color: #E0DACE; }
+.g1-tf-item { width: 82%; height: 82%; display: flex; align-items: center; justify-content: center; animation: g1tfDrop 0.46s cubic-bezier(0.34, 1.4, 0.64, 1) backwards; }
+@keyframes g1tfDrop { 0% { transform: translateY(-75%); opacity: 0; } 65% { transform: translateY(7%); } 100% { transform: translateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g1-tf-item { animation: none; } }
+/* keyingi to'ldiriladigan katak — pulslab "qayerga qo'yish"ni ko'rsatadi */
+.g1-tf-next { border-color: #FF4F28; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
+@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 79, 40, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(255, 79, 40, 0); } }
+.g1-dropzone-wait { border-color: #FF8A6E; background: #FFF4F0; }
+.g1-drophint { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(13px, 1.8vw, 15px); color: #C23B1E; font-weight: 600; }
+.g1-drophint-arrow { font-size: clamp(18px, 3vw, 24px); animation: g1hintBounce 1s ease-in-out infinite; }
+@keyframes g1hintBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@media (prefers-reduced-motion: reduce) { .g1-tf-next, .g1-drophint-arrow { animation: none; } }
+/* s8 — raqam plitasini eshikka sudrash */
+.g1-plate-drop { padding: clamp(10px, 2.4vw, 16px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; display: flex; justify-content: center; transition: border-color 0.2s ease, background 0.2s ease; }
+.g1-plate-house { display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 8px); }
+.g1-plate-house .g1-house-svg { width: clamp(88px, 19vw, 124px); }
+.g1-token-plate { background: #FCFAF5; border: 2px solid #C9A877; box-shadow: 0 4px 10px -4px rgba(58, 53, 48, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.6); min-width: clamp(48px, 10vw, 62px); min-height: clamp(48px, 10vw, 62px); }
+
+/* sGuest (slayd 15) yaqin plan: yangi uy 0 -> 1 (Zuhra ko'chib keladi) */
+.g1-newhouse-scene { display: flex; align-items: center; justify-content: center; gap: clamp(16px, 5vw, 48px); flex-wrap: wrap; min-height: clamp(170px, 32vw, 230px); }
+.g1-newhouse-house .g1-house-svg { width: clamp(118px, 25vw, 176px); }
+.g1-newhouse-side { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 2vw, 14px); }
+.g1-zerorow { display: flex; align-items: center; gap: clamp(6px, 1.6vw, 12px); }
+.g1-newhouse-zuhra { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.g1-newhouse-zuhra .g1-char { width: clamp(58px, 12vw, 86px); height: auto; }
+.g1-newhouse-empty { font-size: clamp(13px, 1.8vw, 16px); color: #8A8780; }
+.g1-newhouse-num { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.g1-newhouse-note { font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; font-weight: 600; }
 .g1-count-line { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .g1-count-label { font-size: clamp(13px, 1.7vw, 15px); color: #8A8780; }
 .g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #FF4F28; }
@@ -4517,12 +4746,20 @@ html, body { margin: 0; padding: 0; }
 .g1-housefig { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
 .g1-yard { display: flex; justify-content: center; }
 .g1-s2house .g1-house-svg { width: clamp(92px, 19vw, 122px); }
-.g1-opt-house { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.g1-opt-house .g1-house-svg { width: clamp(62px, 13vw, 86px); }
+/* Dars02 realizatsiyasi: uy variantlari BIR QATORDAN, gorizontal tasma (uy | predmetlar), chapga */
+.g1-opt-house { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: clamp(12px, 3vw, 24px); width: 100%; padding-left: clamp(4px, 2vw, 14px); }
+.g1-opt-house .g1-house-svg { width: clamp(56px, 12vw, 78px); flex: none; }
+.g1-opt-house .g1-yard { flex: 1 1 auto; justify-content: flex-start; min-width: 0; }
+.g1-opt-house .g1-pips { justify-content: flex-start; }
 
 /* s8 / s9 — uy tugmalari */
-.g1-houses { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(10px, 2.2vw, 18px); }
+.g1-houses { display: flex; flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
 .g1-housebtn { background: #FFFFFF; border: 2px solid #E7E1D6; border-radius: 18px; padding: clamp(8px, 1.8vw, 13px); display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 8px); cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease, opacity 0.2s ease; }
+/* s8/s9 uy tugmalari ham bir qatordan, gorizontal tasma (uy | predmetlar), chapga */
+.g1-houses .g1-housebtn, .g1-match-houses .g1-housebtn { flex-direction: row; justify-content: flex-start; width: 100%; gap: clamp(12px, 3vw, 22px); }
+.g1-houses .g1-housebtn .g1-house-svg, .g1-match-houses .g1-housebtn .g1-house-svg { width: clamp(54px, 12vw, 74px); flex: none; }
+.g1-houses .g1-housebtn .g1-yard, .g1-match-houses .g1-housebtn .g1-yard { flex: 1 1 auto; justify-content: flex-start; min-width: 0; }
+.g1-houses .g1-pips, .g1-match-houses .g1-pips { justify-content: flex-start; }
 .g1-housebtn:hover:not(:disabled) { transform: translateY(-2px); }
 .g1-housebtn-ok { border-color: #1F7A4D; background: #EFF7F1; }
 .g1-housebtn-faded { opacity: 0.4; }
@@ -4532,7 +4769,7 @@ html, body { margin: 0; padding: 0; }
 /* s9 — juftlash tartibi */
 .g1-match { display: flex; flex-direction: column; gap: clamp(12px, 2.4vw, 18px); }
 .g1-match-digits { display: flex; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 14px); }
-.g1-match-houses { display: flex; justify-content: center; flex-wrap: wrap; gap: clamp(10px, 2.2vw, 16px); }
+.g1-match-houses { display: flex; flex-direction: column; gap: clamp(8px, 1.8vw, 12px); }
 
 /* s5 — shakl belgisi */
 .g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(90px, 18vw, 130px); justify-content: center; }
@@ -4558,19 +4795,20 @@ html, body { margin: 0; padding: 0; }
 .g1-street-houses { position: absolute; left: 2%; right: 2%; bottom: 13%; display: flex; justify-content: center; align-items: flex-end; gap: 1cqw; }
 .g1-street-house { opacity: 0; transform: translateY(8%); transition: opacity 0.5s ease, transform 0.5s ease; }
 .g1-street-house.in { opacity: 1; transform: none; }
-.g1-street-house .g1-house-svg { width: 18cqw; }   /* baland 2-qavatli uy: eshik odam bo'yidan baland */
+.g1-street-house .g1-house-svg { width: 15cqw; }   /* 6 uy (5 raqamli + 1 bo'sh) sig'ishi uchun ozroq tor */
+.g1-street-new { margin-left: 2.5cqw; }            /* yangi bo'sh uy — ko'cha oxirida ajralib turadi */
 .g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(255,79,40,0.8)); }
-.g1-street-anvar, .g1-street-rano, .g1-street-zaynab { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
-.g1-street-anvar.in, .g1-street-rano.in, .g1-street-zaynab.in { opacity: 1; }
+.g1-street-anvar, .g1-street-rano, .g1-street-zuhra { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
+.g1-street-anvar.in, .g1-street-rano.in, .g1-street-zuhra.in { opacity: 1; }
 /* personajlar OLD PLANDA, kichik (eshik bo'yida) — real proporsiya + chuqurlik */
 .g1-street-anvar { left: 6%; bottom: 0; }
-.g1-street-rano { right: 11%; bottom: 6%; }
-.g1-street-zaynab { right: 4%; bottom: 0; }
-.g1-street-anvar .g1-char, .g1-street-rano .g1-char, .g1-street-zaynab .g1-char { width: 6cqw; height: auto; }
+.g1-street-rano { left: 22%; bottom: 4%; }
+.g1-street-zuhra { right: 4%; bottom: 0; }
+.g1-street-anvar .g1-char, .g1-street-rano .g1-char, .g1-street-zuhra .g1-char { width: 6cqw; height: auto; }
 .g1-street .g1-cast-name { display: none; }
 .g1-street-final .g1-street-anvar { left: auto; right: 27%; bottom: 0; }
-.g1-street-final .g1-street-rano { right: 15%; bottom: 4%; }
-.g1-street-final .g1-street-zaynab { right: 3%; bottom: 6%; }
+.g1-street-final .g1-street-rano { left: auto; right: 15%; bottom: 4%; }
+.g1-street-final .g1-street-zuhra { right: 3%; bottom: 6%; }
 /* Anvar YURIB keladi (chapdan o'z joyiga) */
 @keyframes g1WalkIn {
   0%   { transform: translateX(-260%) translateY(0)    rotate(0deg); }
@@ -4618,7 +4856,7 @@ html, body { margin: 0; padding: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .g1-scatter-d { animation: none; }
-  .g1-street-house, .g1-street-anvar, .g1-street-rano, .g1-street-zaynab { transition: none; }
+  .g1-street-house, .g1-street-anvar, .g1-street-rano, .g1-street-zuhra { transition: none; }
   .g1-street-anvar.in { animation: none; }
 }
 
