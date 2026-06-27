@@ -14,31 +14,31 @@ Har dars boshida **metodistdan personaj ismlarini so'rash SHART**:
 - Ularning ismlari?
 
 Sabab: cast bitta umumiy syujet atrofida kengayadi. Hozir asosiy ikkitasi —
-**Madina** (syujet yetakchisi) va **Anvar** (mehmon/do'st). **Reja bo'yicha yana 2 ta
-personaj qo'shiladi**, ular ham Madina–Anvar syujetiga ulanadi va **alohida
+**Ra'no** (syujet yetakchisi) va **Anvar** (mehmon/do'st). **Reja bo'yicha yana 2 ta
+personaj qo'shiladi**, ular ham Ra'no–Anvar syujetiga ulanadi va **alohida
 chiziladi** (yangi SVG komponent). Yangi personaj qo'shilganda:
 1. Yangi SVG komponent chiziladi (mavjudlari uslubida: gradient soya, panja, oyoq
    soyasi, `g1-eyes` pirpiratish).
 2. CONTENT'da ismi va `*_label` maydonlari beriladi (RU+UZ).
 3. Syujetga mantiqan ulanadi.
 
-Ismlar — har doim **o'zbekcha** (Madina, Anvar, Zaynab, Bekzod, Alisher…).
+Ismlar — har doim **o'zbekcha** (Ra'no, Anvar, Zaynab, Bekzod, Alisher…).
 
 ---
 
 ## 1. PERSONAJ TIZIMI (SVG, animatsiya)
 
-- Personajlar — **koddan SVG** (PNG emas): `MadinaSVG` (kanonik yetakchi —
+- Personajlar — **koddan SVG** (PNG emas): `RanoSVG` (kanonik yetakchi —
   `DressStars` ham shuni ishlatadi), `AnvarSVG` (mehmon), `BitSVG` (robot
   boshlovchi). Uslub: sayqalli flat-vector + gradient soya.
 - **Bit = boshlovchi/diktor**, syujetdan tashqarida: salomlashadi, darsni ramkalaydi
   (`present` overlay — sIntro/sGuest/yakun ekranlarida), **bitta erkak ovoz** bilan
-  butun darsni hikoya qiladi. Madina/Anvar o'z ovozi bilan gapirmaydi (Bit 3-shaxsda).
+  butun darsni hikoya qiladi. Ra'no/Anvar o'z ovozi bilan gapirmaydi (Bit 3-shaxsda).
 - **Animatsiya HTML o'rovchida** (`.g1-cast-fig` / `.g1-dress`), `<svg>` ildizida EMAS.
   > Muhim: `<svg>` ildizida `transform-box: fill-box` bilan transform brauzerda
   > ko'rinmaydi. Idle/sakrash o'rovchi `<div>`ga qo'yiladi (kafolatli ishlaydi).
-- Madina **hamma joyda bir xil** (yagona `MadinaSVG` manbai). s4 ko'ylakdagi yulduzlar
-  — `stars` prop orqali qo'shimcha, lekin ayni Madina.
+- Ra'no **hamma joyda bir xil** (yagona `RanoSVG` manbai). s4 ko'ylakdagi yulduzlar
+  — `stars` prop orqali qo'shimcha, lekin ayni Ra'no.
 
 ## 2. BIT-KARTOCHKA — har javobda
 
@@ -48,7 +48,7 @@ Ismlar — har doim **o'zbekcha** (Madina, Anvar, Zaynab, Bekzod, Alisher…).
 - **Xato javob matni YO'NALTIRADI, javobni OCHMAYDI:** usulni ko'rsatadi
   ("bittadan sanang", "qaytadan, diqqat bilan", "ko'proq/kamroq"), aniq sonni
   aytmaydi. Rag'bat so'zlari **navbat bilan, takrorlanmasdan** (`nextEncourage`).
-- Pastki-chap overlay'da Madina YO'Q (faqat Bit `present` ramka ekranlarida).
+- Pastki-chap overlay'da Ra'no YO'Q (faqat Bit `present` ramka ekranlarida).
 
 ## 3. SAHNALAR (SceneBg)
 

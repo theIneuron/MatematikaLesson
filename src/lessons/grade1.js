@@ -14,4 +14,10 @@ export const grade1 = [
     desc: 'Raqam shaklini tanish (1–5), raqam ↔ miqdor, 1–5 tartiblash.',
     Component: lazy(() => import('../components/grade1/Dars02.jsx')),
   },
+  {
+    slug: 'dars03-sonlar-6-10-nol',
+    title: 'Dars 3. Sonlar 6–10 va 0 soni',
+    desc: "6–10 ni \"5 va yana\" bilan sanash, son ↔ miqdor, 6–10 tartiblash, nol (bo'sh uy).",
+    Component: lazy(() => import('../components/grade1/Dars03.jsx')),
+  },
 ]

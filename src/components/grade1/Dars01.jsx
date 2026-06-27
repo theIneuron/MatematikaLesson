@@ -7,11 +7,11 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // O'ZGARTIRMASDAN ko'chiriladi (faqat CONTENT / SCREEN_META / Screen-komponentlar /
 // root yangi darsga moslanadi).
 //
-// AVVAL: metodistdan personaj ismlarini so'ra (cast kengayadi — Madina+Anvar + reja
+// AVVAL: metodistdan personaj ismlarini so'ra (cast kengayadi — Ra'no+Anvar + reja
 // bo'yicha yana 2 personaj, ular ham syujetga ulanadi va alohida chiziladi).
 //
 // ETALON KIT bloklari (grep: "ETALON KIT ·"):
-//   1) PERSONAJLAR — MadinaSVG, AnvarSVG, BitSVG, HeroContext/useHero, StageHero
+//   1) PERSONAJLAR — RanoSVG, AnvarSVG, BitSVG, HeroContext/useHero, StageHero
 //   2) BIT-KARTOCHKA + rag'bat — Reaction, PRAISE/ENCOURAGE, nextPraise/nextEncourage
 //   3) SAHNALAR — SceneBg (room/door), DasturxonScene, AmbientBg, GradientDefs
 //   4) WIDGETLAR — BasketArt, DStar/DressStars, CountDemo/CountExamples/CountTrack/
@@ -851,25 +851,25 @@ const CONTENT = {
     eyebrow: { ru: 'Знакомство', uz: 'Tanishuv' },
     title: { ru: 'Привет, друг!', uz: "Salom, do'stim!" },
     body: {
-      ru: 'Это Бит — наш помощник. Это Мадина. Сегодня к ней придёт друг Анвар, и нужно всё приготовить.',
-      uz: "Bu — Bit, bizning yordamchimiz. Bu — Madina. Bugun unikiga do'sti Anvar keladi, hammasini tayyorlash kerak."
+      ru: 'Это Бит — наш помощник. Это Рано. Сегодня к ней придёт друг Анвар, и нужно всё приготовить.',
+      uz: "Bu — Bit, bizning yordamchimiz. Bu — Ra'no. Bugun unikiga do'sti Anvar keladi, hammasini tayyorlash kerak."
     },
     // personaj placeholder kapsiyalari (Anvar rasmi hali yo'q — rezerv)
     bit_label: { ru: 'Бит', uz: 'Bit' },
-    madina_label: { ru: 'Мадина', uz: 'Madina' },
+    rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар (в пути)', uz: "Anvar (yo'lda)" },
     audio: {
       ru: [
         'Привет, друг! Меня зовут Бит. Я буду рядом и буду тебе помогать.',
-        'Познакомься, это Мадина. Сегодня у неё особенный день.',
-        'К Мадине идёт её друг Анвар. Скоро он постучит в дверь.',
-        'Нужно всё приготовить и сосчитать. Давай поможем Мадине. Слушай меня до конца и нажимай кнопку дальше.'
+        'Познакомься, это Рано. Сегодня у неё особенный день.',
+        'К Рано идёт её друг Анвар. Скоро он постучит в дверь.',
+        'Нужно всё приготовить и сосчитать. Давай поможем Рано. Слушай меня до конца и нажимай кнопку дальше.'
       ],
       uz: [
         "Salom, do'stim! Mening ismim Bit. Men yoningizda bo'laman va sizga yordam beraman.",
-        "Tanishing, bu Madina. Bugun uning uchun alohida kun.",
-        "Madinanikiga do'sti Anvar kelyapti. Tez orada eshikni taqillatadi.",
-        "Hammasini tayyorlab, sanash kerak. Keling, Madinaga yordam beramiz. Meni oxirigacha tinglang va davom tugmasini bosing."
+        "Tanishing, bu Ra'no. Bugun uning uchun alohida kun.",
+        "Ra'nonikiga do'sti Anvar kelyapti. Tez orada eshikni taqillatadi.",
+        "Hammasini tayyorlab, sanash kerak. Keling, Ra'noga yordam beramiz. Meni oxirigacha tinglang va davom tugmasini bosing."
       ]
     }
   },
@@ -924,11 +924,11 @@ const CONTENT = {
     fact: { ru: 'Считать можно что угодно: цветы, яблоки, звёзды, рыбок.', uz: "Hamma narsani sanash mumkin: gul, olma, yulduz, baliq." },
     audio: {
       ru: [
-        'Мадина считает разные вещи. Числами можно сосчитать цветы, яблоки, звёзды и рыбок.',
+        'Рано считает разные вещи. Числами можно сосчитать цветы, яблоки, звёзды и рыбок.',
         'Посчитаем каждую группу вместе. Число говорит, сколько предметов получилось.'
       ],
       uz: [
-        "Madina turli narsalarni sanaydi. Sonlar bilan gul, olma, yulduz va baliq sanaladi.",
+        "Ra'no turli narsalarni sanaydi. Sonlar bilan gul, olma, yulduz va baliq sanaladi.",
         "Har guruhni birga sanaymiz. Son nechta narsa borligini bildiradi."
       ]
     }
@@ -937,7 +937,7 @@ const CONTENT = {
   // ---- s2 EXPLORATION — o'zi sanaydi (tap, birma-bir, kardinallik) ----
   s2: {
     eyebrow: { ru: 'Посчитай сам', uz: 'O\'zingiz sanang' },
-    instruction: { ru: 'Сколько яблок у Мадины? Нажми на каждое и посчитай', uz: "Madinada nechta olma bor? Har biriga bosing va sanang" },
+    instruction: { ru: 'Сколько яблок у Рано? Нажми на каждое и посчитай', uz: "Ra'noda nechta olma bor? Har biriga bosing va sanang" },
     count_label: { ru: 'Посчитано', uz: 'Sanaldi' },
     done_text: { ru: 'Молодец! Получилось пять.', uz: "Barakalla! Beshta bo'ldi." },
     done_audio: { ru: 'Молодец! Получилось пять яблок.', uz: "Barakalla! Beshta olma bo'ldi." },
@@ -963,15 +963,15 @@ const CONTENT = {
       uz: "Sanaganda, eng oxirgi aytilgan son jami nechta narsa borligini bildiradi."
     },
     audio: {
-      ru: 'Когда мы считаем, самое последнее число говорит, сколько всего. Посчитали до пяти, значит всего пять. Так Мадина знает, сколько у неё яблок для гостя.',
-      uz: "Sanaganimizda, eng oxirgi son jami nechta ekanini bildiradi. Beshgacha sanadik, demak jami besh. Shunda Madina mehmon uchun nechta olmasi borligini biladi."
+      ru: 'Когда мы считаем, самое последнее число говорит, сколько всего. Посчитали до пяти, значит всего пять. Так Рано знает, сколько у неё яблок для гостя.',
+      uz: "Sanaganimizda, eng oxirgi son jami nechta ekanini bildiradi. Beshgacha sanadik, demak jami besh. Shunda Ra'no mehmon uchun nechta olmasi borligini biladi."
     }
   },
 
   // ---- s4 TEST choice — nechta? (3 yulduz). Variantlar: 2 / 3(to'g'ri) / 4 / 5 ----
   s4: {
     eyebrow: { ru: 'Тренировка · 1 / 4', uz: 'Mashq · 1 / 4' },
-    title: { ru: 'Мадина нарядилась к гостю. Сколько звёзд на платье?', uz: "Madina mehmonga yasandi. Ko'ylagida nechta yulduz bor?" },
+    title: { ru: 'Рано нарядилась к гостю. Сколько звёзд на платье?', uz: "Ra'no mehmonga yasandi. Ko'ylagida nechta yulduz bor?" },
     correct_text: {
       ru: 'Верно. Звёзд три — последнее число при счёте было три.',
       uz: "To'g'ri. Yulduz uchta — sanaganda oxirgi son uch edi."
@@ -993,7 +993,7 @@ const CONTENT = {
       uz: "Yulduzlarni bittadan, shoshmasdan sanang."
     },
     audio: {
-      intro: { ru: 'Мадина нарядилась к приходу гостя. Сколько звёзд на её платье? Посчитай и нажми правильную цифру.', uz: "Madina mehmon kelishiga yasandi. Ko'ylagida nechta yulduz bor? Sanang va to'g'ri raqamni bosing." },
+      intro: { ru: 'Рано нарядилась к приходу гостя. Сколько звёзд на её платье? Посчитай и нажми правильную цифру.', uz: "Ra'no mehmon kelishiga yasandi. Ko'ylagida nechta yulduz bor? Sanang va to'g'ri raqamni bosing." },
       on_correct: { ru: 'Верно. Звёзд три. Последнее число при счёте было три.', uz: "To'g'ri. Yulduz uchta. Sanaganda oxirgi son uch edi." },
       on_wrong: { ru: 'Не совсем. Посчитай ещё раз.', uz: "Unchalik emas. Yana bir bor sanang." }
     }
@@ -1002,7 +1002,7 @@ const CONTENT = {
   // ---- s5 EXPLORATION — interaktiv ten-frame: har katakni bosib bitta olma qo'yamiz ----
   s5: {
     eyebrow: { ru: 'Накрываем стол', uz: 'Dasturxon' },
-    instruction: { ru: 'Мадина накрывает стол. Нажми на тарелку — на неё ляжет яблоко', uz: "Madina dasturxon tayyorlamoqda. Likobchani bosing — unga olma tushadi" },
+    instruction: { ru: 'Рано накрывает стол. Нажми на тарелку — на неё ляжет яблоко', uz: "Ra'no dasturxon tayyorlamoqda. Likobchani bosing — unga olma tushadi" },
     count_label: { ru: 'Посчитано', uz: 'Sanaldi' },
     full_text: { ru: 'Молодец! Пять тарелок — пять яблок.', uz: "Barakalla! Besh likobcha — besh olma." },
     full_audio: { ru: 'Молодец! Получилось пять. Пять тарелок, пять яблок.', uz: "Barakalla! Beshta bo'ldi. Besh likobcha, besh olma." },
@@ -1131,7 +1131,7 @@ const CONTENT = {
     done_text: { ru: 'Молодцы! Все игры пройдены.', uz: "Barakalla! Hamma o'yin bajarildi." },
     retry_audio: { ru: 'Ничего страшного. Посчитай ещё раз.', uz: "Hech qisi yo'q. Yana bir bor sanang." },
     audio: {
-      intro: { ru: 'Поможем Мадине доделать всё к приходу гостя. Перетаскивай пальцем или просто нажимай. Начинаем.', uz: "Mehmon kelishiga Madinaga hammasini tugatishga yordam beramiz. Barmoq bilan torting yoki bosib qo'ying. Boshladik." }
+      intro: { ru: 'Поможем Рано доделать всё к приходу гостя. Перетаскивай пальцем или просто нажимай. Начинаем.', uz: "Mehmon kelishiga Ra'noga hammasini tugatishga yordam beramiz. Barmoq bilan torting yoki bosib qo'ying. Boshladik." }
     }
   },
 
@@ -1293,18 +1293,18 @@ let _praiseIdx = 0;
 const nextPraise = (lang) => { const a = PRAISE[lang] || PRAISE.ru; const p = a[_praiseIdx % a.length]; _praiseIdx += 1; return p; };
 
 // ============================================================
-// ETALON KIT · PERSONAJLAR — koddan SVG (Madina + Anvar + Bit). Yangi personaj — shu uslubda chiziladi.
+// ETALON KIT · PERSONAJLAR — koddan SVG (Ra'no + Anvar + Bit). Yangi personaj — shu uslubda chiziladi.
 // Uslub: sayqalli flat-vector (fotorealizm emas). Ko'z pirpiratish/qo'l silkitish — CSS animatsiya.
 // Pilot: keyingi darslarga ko'chsa, shared/ ga chiqariladi.
 // ============================================================
 
-// Madina — KANONIK o'zbek qizcha (butun darsda bitta xil ko'rinish; DressStars ham shuni ishlatadi).
+// Ra'no — KANONIK o'zbek qizcha (butun darsda bitta xil ko'rinish; DressStars ham shuni ishlatadi).
 // mood: pointing | happy | encourage | celebrate. stars=true -> ko'ylakda 3 yulduz (s4 mashqi).
 // Gradient soya + panjalar + oyoq soyasi (realroq). g1-eyes -> pirpiratish.
-const MadinaSVG = ({ mood = 'pointing', className = '', stars = false }) => {
+const RanoSVG = ({ mood = 'pointing', className = '', stars = false }) => {
   const big = mood === 'happy' || mood === 'celebrate';
   return (
-    <svg className={`g1-char g1-char-madina ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+    <svg className={`g1-char g1-char-rano ${className}`} viewBox="0 0 130 190" aria-hidden="true">
       <defs>
         <radialGradient id="g1mskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
         <linearGradient id="g1mdress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FF92B8"/><stop offset="100%" stopColor="#E84F86"/></linearGradient>
@@ -1364,7 +1364,7 @@ const MadinaSVG = ({ mood = 'pointing', className = '', stars = false }) => {
   );
 };
 
-// Anvar — o'zbek bolakay (Madina bilan bir xil uslub: gradient soya, panjalar, oyoq soyasi).
+// Anvar — o'zbek bolakay (Ra'no bilan bir xil uslub: gradient soya, panjalar, oyoq soyasi).
 // pose: coming (yo'lda + sovg'a sumkasi) | door (qo'l silkitadi) | happy (savat + qo'l yuqori)
 const AnvarSVG = ({ pose = 'coming', className = '' }) => {
   const happy = pose === 'happy';
@@ -1530,10 +1530,10 @@ const useHero = (mood) => {
   const { setMood } = useContext(HeroContext);
   useEffect(() => { setMood(mood); }, [mood, setMood]);
 };
-// Overlay personaj (pastki-chap): o'quv ekranlarida Madina (syujet ichi), ramkada Bit (boshlovchi).
+// Overlay personaj (pastki-chap): o'quv ekranlarida Ra'no (syujet ichi), ramkada Bit (boshlovchi).
 // 'present' — Bit BOSHLOVCHI (sIntro/sGuest/s11). Reaksiyada Bit endi OVERLAY emas, KARTOCHKADA (Reaction).
-// Overlay faqat BIT (boshlovchi, 'present' — ramka ekranlari). Madina overlay olib tashlandi
-// (metodist talabi): Madina endi faqat frame ichidagi cast'da; reaksiya — Bit-kartochkada.
+// Overlay faqat BIT (boshlovchi, 'present' — ramka ekranlari). Ra'no overlay olib tashlandi
+// (metodist talabi): Ra'no endi faqat frame ichidagi cast'da; reaksiya — Bit-kartochkada.
 const StageHero = ({ mood }) => {
   if (mood !== 'present') return null;
   return (
@@ -1552,7 +1552,7 @@ const Confetti = () => (
 );
 
 // Reaction — javob otkligi: Bit-KARTOCHKA (matn + o'ngda animatsion Bit), 5-sinf fakt-kartochka uslubi.
-// To'g'ri -> Bit happy (sakraydi); xato -> Bit hint (yordam, qiyshayadi). Madina overlay ham reaksiya qiladi.
+// To'g'ri -> Bit happy (sakraydi); xato -> Bit hint (yordam, qiyshayadi). Ra'no overlay ham reaksiya qiladi.
 const Reaction = ({ state, praise }) => {
   const ok = state === 'correct';
   useHero(ok ? 'happy' : 'encourage');
@@ -1742,7 +1742,7 @@ const CountingHand = ({ max = 5, big = false, loop = false }) => {
   );
 };
 
-// DressStars — Madina yulduzli ko'ylakda; 3 yulduz ko'ylak ichida sochilgan.
+// DressStars — Ra'no yulduzli ko'ylakda; 3 yulduz ko'ylak ichida sochilgan.
 // happy=true (to'g'ri javob): qiz qo'llarini ko'taradi, sakraydi, "Molodec/Ajoyib" chiqadi.
 const DStar = ({ x, y, sc }) => (
   <g transform={`translate(${x} ${y}) scale(${sc})`}>
@@ -1752,14 +1752,14 @@ const DStar = ({ x, y, sc }) => (
     </g>
   </g>
 );
-// DressStars — s4 mashqi: kanonik Madina (xush holatda) + ko'ylakda 3 yulduz + xursand uchqunlari.
-// Yagona Madina manbai — MadinaSVG (boshqa joydagi Madina bilan AYNAN bir xil).
+// DressStars — s4 mashqi: kanonik Ra'no (xush holatda) + ko'ylakda 3 yulduz + xursand uchqunlari.
+// Yagona Ra'no manbai — RanoSVG (boshqa joydagi Ra'no bilan AYNAN bir xil).
 // DressStars — s4 figura: boshqa slaydlarda ISHLAYOTGAN cast tuzilishini aynan ishlatadi
 // (g1-cast + g1-cast-fig idle). Shu sabab animatsiya kafolatli (xuddi slayd 1/13/15 dagidek).
 const DressStars = ({ happy = false }) => (
   <div className="g1-cast in" style={{ position: 'relative' }}>
     <div className="g1-cast-fig" style={{ height: 'clamp(160px, 40vw, 250px)' }}>
-      <MadinaSVG mood={happy ? 'happy' : 'pointing'} stars className="g1-cast-svg"/>
+      <RanoSVG mood={happy ? 'happy' : 'pointing'} stars className="g1-cast-svg"/>
     </div>
     {happy && (
       <>
@@ -2140,7 +2140,7 @@ const GameDrill = (props) => {
 
 // ============================================================
 // SYUJET (hikoya) slaydlari — interaktiv emas: sahna + matn + audio + Davom.
-// "Madina mehmon kutmoqda" syujetining kirish va ko'prik lahzalari.
+// "Ra'no mehmon kutmoqda" syujetining kirish va ko'prik lahzalari.
 // ============================================================
 
 // Dasturxon sahnasi — krem dasturxon BUTUN stolni yopadi (taxta ko'rinmaydi),
@@ -2477,7 +2477,7 @@ const SceneBg = ({ variant = 'room' }) => (
   </svg>
 );
 
-// IntroCast — sIntro frame ichi: Madina (seg2) + Anvar yo'lda (seg3) bosqichma-bosqich.
+// IntroCast — sIntro frame ichi: Ra'no (seg2) + Anvar yo'lda (seg3) bosqichma-bosqich.
 // Bit — overlay (g1-sh-present), bu yerda emas.
 const IntroCast = ({ audio }) => {
   const t = useT();
@@ -2489,8 +2489,8 @@ const IntroCast = ({ audio }) => {
       <div className="g1-scene-table"><DasturxonScene/></div>
       <div className="g1-cast-row">
         <div className={`g1-cast ${step >= 2 ? 'in' : ''}`}>
-          <div className="g1-cast-fig"><MadinaSVG mood="pointing" stars className="g1-cast-svg"/></div>
-          <span className="g1-cast-name">{t(c.madina_label)}</span>
+          <div className="g1-cast-fig"><RanoSVG mood="pointing" stars className="g1-cast-svg"/></div>
+          <span className="g1-cast-name">{t(c.rano_label)}</span>
         </div>
         <div className={`g1-cast ${step >= 3 ? 'in' : ''}`}>
           <div className="g1-cast-fig"><AnvarFig variant="coming"/></div>
@@ -2501,7 +2501,7 @@ const IntroCast = ({ audio }) => {
   );
 };
 
-// GuestCast — sGuest frame ichi: Madina (doim) + Anvar eshikda (seg1, payoff).
+// GuestCast — sGuest frame ichi: Ra'no (doim) + Anvar eshikda (seg1, payoff).
 const GuestCast = ({ audio }) => {
   const t = useT();
   const c = CONTENT.sGuest;
@@ -2511,8 +2511,8 @@ const GuestCast = ({ audio }) => {
       <SceneBg variant="door"/>
       <div className="g1-cast-row">
         <div className="g1-cast in">
-          <div className="g1-cast-fig"><MadinaSVG mood="happy" className="g1-cast-svg"/></div>
-          <span className="g1-cast-name">{t(CONTENT.sIntro.madina_label)}</span>
+          <div className="g1-cast-fig"><RanoSVG mood="happy" className="g1-cast-svg"/></div>
+          <span className="g1-cast-name">{t(CONTENT.sIntro.rano_label)}</span>
         </div>
         <div className={`g1-cast ${step >= 1 ? 'in' : ''}`}>
           <div className="g1-cast-fig"><AnvarFig variant="door"/></div>
@@ -3271,8 +3271,8 @@ const Screen11 = (props) => {
             <div className="g1-scene-table"><DasturxonScene/></div>
             <div className="g1-cast-row">
               <div className="g1-cast in">
-                <div className="g1-cast-fig"><MadinaSVG mood="happy" className="g1-cast-svg"/></div>
-                <span className="g1-cast-name">{t(CONTENT.sIntro.madina_label)}</span>
+                <div className="g1-cast-fig"><RanoSVG mood="happy" className="g1-cast-svg"/></div>
+                <span className="g1-cast-name">{t(CONTENT.sIntro.rano_label)}</span>
               </div>
               <div className="g1-cast in">
                 <div className="g1-cast-fig"><AnvarFig variant="happy"/></div>
@@ -3885,7 +3885,7 @@ html, body { margin: 0; padding: 0; }
    Doimiy joylashuv (sakramaydi), pastki chap burchak, nav ustida; pointer-events yo'q
    (taplar o'tib ketadi, tugma/predmetlarni bloklamaydi). */
 .g1-hero { width: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.24)); }
-/* SVG personajlar (Madina/Anvar/Bit): bazaviy o'lcham + jonlanish */
+/* SVG personajlar (Ra'no/Anvar/Bit): bazaviy o'lcham + jonlanish */
 .g1-char { display: block; height: 100%; width: auto; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.22)); }
 .g1-eyes { transform-box: fill-box; transform-origin: center; animation: g1blink 4.4s infinite; }
 @keyframes g1blink { 0%, 93%, 100% { transform: scaleY(1); } 96.5% { transform: scaleY(0.12); } }
@@ -3894,29 +3894,29 @@ html, body { margin: 0; padding: 0; }
 .g1-bit-wave, .g1-anvar-wave { transform-box: fill-box; transform-origin: bottom left; animation: g1wavebig 1s ease-in-out infinite; }
 @keyframes g1wavebig { 0%,100% { transform: rotate(2deg); } 50% { transform: rotate(-26deg); } }
 @keyframes g1bitfloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-/* idle — Madina/Anvar figuralar (cast + s4 ko'ylak) sezilarli nafas/tebranish (#8: kattaroq) */
+/* idle — Ra'no/Anvar figuralar (cast + s4 ko'ylak) sezilarli nafas/tebranish (#8: kattaroq) */
 /* idle — HTML o'rovchida (svg ildizida emas; ishonchli va yaqqol ko'rinadi) */
 .g1-cast-fig, .g1-dress { animation: g1idle 3.2s ease-in-out infinite; transform-origin: center bottom; }
 @keyframes g1idle { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
 .g1-stage-hero { position: absolute; left: clamp(2px,1.6vw,28px); bottom: clamp(72px,11vh,104px); z-index: 6; pointer-events: none; display: flex; align-items: flex-end; gap: clamp(2px,1vw,8px); }
 .g1-stage-hero .g1-hero { transform-origin: bottom center; }
-.g1-stage-hero .g1-hero-madina { height: clamp(104px,22vh,208px); }
-.g1-stage-hero .g1-hero-bit { height: clamp(80px,17vh,156px); }   /* Bit Madinadan kichikroq */
+.g1-stage-hero .g1-hero-rano { height: clamp(104px,22vh,208px); }
+.g1-stage-hero .g1-hero-bit { height: clamp(80px,17vh,156px); }   /* Bit Ra'nodan kichikroq */
 /* Mobil (tor ekran): personaj kichikroq va burchakka, kontentni kamroq yopadi */
 @media (max-width: 640px) {
   .g1-stage-hero { left: 0; bottom: clamp(62px,9vh,84px); gap: 0; }
-  .g1-stage-hero .g1-hero-madina { height: clamp(78px,14vh,116px); }
+  .g1-stage-hero .g1-hero-rano { height: clamp(78px,14vh,116px); }
   .g1-stage-hero .g1-hero-bit { height: clamp(62px,11vh,92px); }
 }
-.g1-sh-pointing .g1-hero-madina { animation: g1heroIn 0.45s ease; }
-.g1-sh-happy .g1-hero-madina { animation: g1mhop 0.6s ease; }
-.g1-sh-encourage .g1-hero-madina { animation: g1mtilt 0.7s ease; }
+.g1-sh-pointing .g1-hero-rano { animation: g1heroIn 0.45s ease; }
+.g1-sh-happy .g1-hero-rano { animation: g1mhop 0.6s ease; }
+.g1-sh-encourage .g1-hero-rano { animation: g1mtilt 0.7s ease; }
 .g1-sh-encourage .g1-hero-bit { animation: g1heroIn 0.45s ease 0.1s both; }
-.g1-sh-celebrate .g1-hero-madina { animation: g1mhop 0.9s ease; }
-/* Bit BOSHLOVCHI (present) — ramka ekranlarida diktor, Madina o'lchamida (kirish + suzish) */
+.g1-sh-celebrate .g1-hero-rano { animation: g1mhop 0.9s ease; }
+/* Bit BOSHLOVCHI (present) — ramka ekranlarida diktor, Ra'no o'lchamida (kirish + suzish) */
 .g1-sh-present .g1-hero-bit { height: clamp(104px,22vh,200px); animation: g1heroIn 0.45s ease, g1bitfloat 3.2s ease-in-out 0.45s infinite; }
 @media (max-width: 640px) { .g1-sh-present .g1-hero-bit { height: clamp(76px,14vh,112px); } }
-/* Story cast (frame ichi): Madina + Anvar, bosqichma-bosqich ochiladi (useStoryReveal) */
+/* Story cast (frame ichi): Ra'no + Anvar, bosqichma-bosqich ochiladi (useStoryReveal) */
 /* Orqa sahna (xona/eshik) — personajlar oldida, REAL masshtab (personaj katta, jihoz proporsional) */
 .g1-scene { position: relative; width: 100%; display: flex; align-items: flex-end; justify-content: center; min-height: clamp(200px,44vw,340px); overflow: hidden; border-radius: 14px; }
 .g1-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }

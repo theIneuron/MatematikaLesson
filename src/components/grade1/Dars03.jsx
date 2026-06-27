@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 1-SINF · Dars02 — "Raqamlar 1–5" (num-1-02-v1) · syujet: Anvar raqamli uyni qidiradi · spec: ETALON_1SINF.md ░░
-// Bu fayl 1-sinf darslarining ETALON nusxa-manbai (copy source). Har dars mustaqil
-// .jsx bo'lib qoladi: yangi dars yaratganda quyidagi "ETALON KIT" bloklari shu fayldan
-// O'ZGARTIRMASDAN ko'chiriladi (faqat CONTENT / SCREEN_META / Screen-komponentlar /
-// root yangi darsga moslanadi).
+// ░░ 1-SINF · Dars03 — "Sonlar 6–10 va 0 soni" (num-1-03-v1) · syujet: ko'cha davomi (6–10 uylar) + bo'sh uy=0 · spec: ETALON_1SINF.md ░░
+// Dars02 (Raqamlar 1–5) etaloni naqshlariga mos qurildi: infratuzilma + ETALON KIT +
+// uy/ko'cha vizualizatorlari (HouseSVG/DoorCard/ItemRow/StreetScene/HouseCollect)
+// Dars02'dan ko'chirilgan; CONTENT / SCREEN_META / Screen-komponentlar / root shu darsga
+// moslangan. Yangi: 6–10 ni "5 va yana N" struktura bilan; nol = bo'sh uy (s5/s6) +
+// "hech narsa qoldi" (s7b); yangi personaj ZaynabSVG (10-uyga ko'chib kelgan do'st).
 //
-// AVVAL: metodistdan personaj ismlarini so'ra (cast kengayadi — Ra'no+Anvar + reja
-// bo'yicha yana 2 personaj, ular ham syujetga ulanadi va alohida chiziladi).
+// Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar (tanish) + Zaynab (YANGI). Ra'no/Anvar
+// qayta tanishtirilmaydi (sIntro Dars02'ga callback bilan ochiladi).
 //
 // ETALON KIT bloklari (grep: "ETALON KIT ·"):
 //   1) PERSONAJLAR — RanoSVG, AnvarSVG, BitSVG, HeroContext/useHero, StageHero
@@ -47,7 +48,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;
+const FREE_NAV = false; // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -679,7 +680,7 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true }) => {
   const lang = useLang();
   const c = screenContent;
   const sfx = useSfx();
@@ -775,7 +776,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <div className="fade-up">{question}</div>
         {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
         {!solved && (
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${optionsCols}, minmax(0, 1fr))`, gap: 10 }}>
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
           {options.map((opt, i) => {
             const isWrongPicked = wrong.has(i);
             const cls = `option${isWrongPicked ? ' option-picked-wrong' : ''}`;
@@ -819,259 +820,303 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
 // ============================================================
 
-const TOTAL_SCREENS = 16;
+const TOTAL_SCREENS = 17;
 const LESSON_META = {
-  lessonId: 'num-1-02-v1',
-  lessonTitle: { ru: 'Цифры 1–5', uz: 'Raqamlar 1–5' }
+  lessonId: 'num-1-03-v1',
+  lessonTitle: { ru: 'Числа 6–10 и ноль', uz: "Sonlar 6–10 va 0 soni" }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: Anvar Ra'noning uyini qidiradi (raqamli uylar)
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: uy raqamlari aralashib ketdi
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // har uy raqamini bosib tanish (nom + buyumlar)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'zi: uy raqamigacha buyum joylaydi
-  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // raqam = sonni yozadigan belgi (eshik plitasi)
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // uy oldida nechta? raqamni tanla
-  { id: 's5',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // raqam SHAKLI: eshik plitalaridagi farq (2/5, 3)
-  { id: 's6',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // ko'rinishidan tanib olamiz
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi eshik besh? (shakl)
-  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // raqami noto'g'ri uyni top
-  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // raqam<->uy juftlash (tap)
-  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // uylarni 1->5 tartiblash (tap)
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: Zaynab ko'chib keldi, mehmonga chaqiradi (6–10 uylar + bo'sh uy)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: beshdan keyingi sonlar + bo'sh uy
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // uylarni bosib 6–10 ni "5 va yana" bilan tanish
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'zi: 5 ustiga qo'shib songacha yetkazadi
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // 6–10 = besh va yana bir nechta
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // uy oldida nechta? (6–10) sonni tanla
+  { id: 's5',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // NOL: bo'sh uy (statik bo'shlik)
+  { id: 's6',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // 0 = butunlay hech narsa
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi uy bo'sh (=0)?
+  { id: 's7b', type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // hammasini olib ketishdi, nechta qoldi? (0 natija)
+  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // son<->uy juftlash (6–10, tap)
+  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // raqami noto'g'ri uyni top (find-the-wrong)
+  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // uylarni 6->10 tartiblash (tap)
   { id: 'sd',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: uy oldiga buyum torting (drag), ball yo'q
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: oxirgi uy qoldi
-  { id: 's11', type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: qaysi uy beshinchi? + fakt
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: oxirgi uy — Zaynabning uyi (10)
+  { id: 's11', type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: qaysi uy o'ninchi? + fakt (nol)
   { id: 's12', type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do + ConnectionsBlock
 ];
 
 // Sonlar — so'z bilan (audio_rules: audioda raqam emas, so'z). Indeks = son.
-const NUM_WORDS = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh'] };
+const NUM_WORDS = {
+  ru: ['ноль', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять', 'десять'],
+  uz: ['nol', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz", "o'n"]
+};
 
 // Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
 const CONTENT = {
-  // ---- sIntro SYUJET KIRISH — Bit boshlovchi, o'tgan darsga bog'lanish (qayta tanishtirish YO'Q) ----
+  // ---- sIntro SYUJET KIRISH — Bit boshlovchi, Dars02'ga bog'lanish + Zaynab tanishtiriladi ----
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: "Анвар ищет дом Рано', uz: 'Anvar Ra'noning uyini qidiradi" },
+    title: { ru: 'Зайнаб зовёт в гости', uz: 'Zaynab mehmonga chaqiradi' },
     body: {
-      ru: 'В прошлый раз мы вместе считали. Сегодня Анвар идёт в гости к Рано. На улице пять домов, и у каждого свой номер. Рано живёт в пятом доме. Но номера на дверях перепутались — поможем Анвару найти нужный дом.',
-      uz: "O'tgan safar biz birga sanagandik. Bugun Anvar Ra'nonikiga mehmonga ketyapti. Ko'chada beshta uy bor, har birining o'z raqami bor. Ra'no beshinchi uyda yashaydi. Lekin eshiklardagi raqamlar aralashib ketdi — Anvarga kerakli uyni topishga yordam beramiz."
+      ru: 'В прошлый раз Анвар нашёл дом Рано — дом номер пять. Сегодня на той же улице новая соседка, Зайнаб, переехала в самый дальний дом. Она зовёт Рано и Анвара в гости. На улице есть дома с номерами от шести до десяти, а один дом стоит пустой.',
+      uz: "O'tgan safar Anvar Ra'noning uyini topgan edi — beshinchi uyni. Bugun shu ko'chaga yangi qo'shni, Zaynab, eng chetdagi uyga ko'chib keldi. U Ra'no va Anvarni mehmonga chaqiradi. Ko'chada oltidan o'ngacha raqamli uylar bor, bitta uy esa bo'sh turibdi."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
+    zaynab_label: { ru: 'Зайнаб', uz: 'Zaynab' },
     audio: {
       ru: [
-        'Привет, друг! В прошлый раз мы с тобой считали предметы. А сегодня будем узнавать цифры.',
-        'Анвар идёт в гости к Рано. На улице пять домов, и у каждого свой номер.',
-        'Рано живёт в пятом доме. Но номера на дверях перепутались.',
-        'Поможем Анвару найти нужный дом. Слушай меня до конца и нажимай кнопку дальше.'
+        'Привет, друг! В прошлый раз мы нашли дом Рано — дом номер пять.',
+        'Сегодня на этой улице новая соседка. Её зовут Зайнаб, она переехала в самый дальний дом.',
+        'Зайнаб зовёт Рано и Анвара в гости. На улице дома с номерами от шести до десяти.',
+        'А один дом стоит пустой. Слушай меня до конца и нажимай кнопку дальше.'
       ],
       uz: [
-        "Salom, do'stim! O'tgan safar biz narsalarni sanagandik. Bugun esa raqamlarni tanib olamiz.",
-        "Anvar Ra'nonikiga mehmonga ketyapti. Ko'chada beshta uy bor, har birining o'z raqami bor.",
-        "Ra'no beshinchi uyda yashaydi. Lekin eshiklardagi raqamlar aralashib ketdi.",
-        "Anvarga kerakli uyni topishga yordam beramiz. Meni oxirigacha tinglang va davom tugmasini bosing."
+        "Salom, do'stim! O'tgan safar biz Ra'noning uyini topgandik — beshinchi uyni.",
+        "Bugun bu ko'chada yangi qo'shni bor. Uning ismi Zaynab, u eng chetdagi uyga ko'chib keldi.",
+        "Zaynab Ra'no va Anvarni mehmonga chaqiradi. Ko'chada oltidan o'ngacha raqamli uylar bor.",
+        "Bitta uy esa bo'sh turibdi. Meni oxirigacha tinglang va davom tugmasini bosing."
       ]
     }
   },
 
-  // ---- sGuest SYUJET KO'PRIK — oxirgi uy qoldi (final oldidan, interaktiv emas) ----
+  // ---- sGuest SYUJET KO'PRIK — oxirgi, eng katta uy (10) qoldi ----
   sGuest: {
     eyebrow: { ru: 'Почти у цели', uz: 'Manzilga yaqin' },
-    title: { ru: 'Остался последний дом', uz: 'Oxirgi uy qoldi' },
+    title: { ru: 'Остался дом Зайнаб', uz: 'Zaynabning uyi qoldi' },
     body: {
-      ru: 'Анвар уже на улице Рано. Все номера на дверях он прочитал. Остался последний шаг: найти дом номер пять — там живёт Рано.',
-      uz: "Anvar Ra'noning ko'chasiga yetib keldi. Eshiklardagi barcha raqamlarni o'qib chiqdi. Oxirgi qadam qoldi: beshinchi uyni topish — Ra'no o'sha yerda yashaydi."
+      ru: 'Анвар и Рано дошли до конца улицы. Остался последний, самый большой дом. Его номер — десять. Там живёт Зайнаб.',
+      uz: "Anvar va Ra'no ko'chaning oxiriga yetib kelishdi. Oxirgi, eng katta uy qoldi. Uning raqami — o'n. Zaynab o'sha yerda yashaydi."
     },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
+    rano_label: { ru: 'Рано', uz: "Ra'no" },
+    zaynab_label: { ru: 'Зайнаб', uz: 'Zaynab' },
     audio: {
       ru: [
-        'Анвар уже на улице Рано и прочитал все номера на дверях.',
-        'Остался последний шаг. Найди дом номер пять — там живёт Рано.'
+        'Анвар и Рано уже в конце улицы. Остался последний, самый большой дом.',
+        'Его номер десять. Найди дом номер десять — там живёт Зайнаб.'
       ],
       uz: [
-        "Anvar Ra'noning ko'chasiga yetib keldi va eshiklardagi barcha raqamlarni o'qib chiqdi.",
-        "Oxirgi qadam qoldi. Beshinchi uyni toping — Ra'no o'sha yerda yashaydi."
+        "Anvar va Ra'no ko'chaning oxirida. Oxirgi, eng katta uy qoldi.",
+        "Uning raqami o'n. O'ninchi uyni toping — Zaynab o'sha yerda yashaydi."
       ]
     }
   },
 
-  // ---- s0 HOOK — yumshoq jumboq (uy raqamlari aralash; to'g'ri javob yo'q, hammasi mos) ----
+  // ---- s0 HOOK — yumshoq jumboq (beshdan keyingi sonlar + bo'sh uy) ----
   s0: {
     eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
-    title_part1: { ru: 'Номера домов', uz: 'Uy raqamlari' },
-    title_part2_em: { ru: 'перепутались', uz: 'aralashib' },
-    title_part3: { ru: '. Узнаёшь их?', uz: ' ketdi. Taniysizmi?' },
-    question: { ru: 'Ты узнаёшь все цифры от 1 до 5? Нажми ответ.', uz: 'Birdan beshgacha raqamlarni taniysizmi? Javobni bosing.' },
+    title_part1: { ru: 'Числа после пяти', uz: 'Beshdan keyingi sonlar' },
+    title_part2_em: { ru: 'и пустой дом', uz: "va bo'sh uy" },
+    title_part3: { ru: '. Узнаёшь их?', uz: '. Taniysizmi?' },
+    question: { ru: 'Знаешь числа от 6 до 10? Нажми ответ.', uz: '6 dan 10 gacha sonlarni bilasizmi? Javobni bosing.' },
     opt0: { ru: 'Да', uz: 'Ha' },
     opt1: { ru: 'Не все', uz: 'Hammasini emas' },
-    opt2: { ru: 'Сейчас узнаю', uz: 'Hozir tanib olaman' },
+    opt2: { ru: 'Сейчас узнаю', uz: 'Hozir bilib olaman' },
     audio: {
       intro: {
-        ru: 'Номера на дверях перепутались. У каждой цифры свой вид и своё имя. Ты узнаёшь их все? Нажми ответ, любой подойдёт.',
-        uz: "Eshiklardagi raqamlar aralashib ketdi. Har raqamning o'z ko'rinishi va o'z nomi bor. Hammasini taniysizmi? Javobni bosing, qaysi bo'lsa ham bo'ladi."
+        ru: 'После пяти идут другие числа: шесть, семь, восемь, девять, десять. А один дом на улице пустой. Знаешь все эти числа? Нажми любой ответ.',
+        uz: "Beshdan keyin boshqa sonlar keladi: olti, yetti, sakkiz, to'qqiz, o'n. Ko'chada bitta uy esa bo'sh. Bu sonlarni bilasizmi? Qaysi javob bo'lsa ham bosing."
       },
-      on_correct: { ru: 'Хорошо. Сейчас рассмотрим каждую по очереди.', uz: "Yaxshi. Endi har birini navbat bilan ko'rib chiqamiz." },
-      on_wrong: { ru: 'Хорошо. Сейчас рассмотрим каждую по очереди.', uz: "Yaxshi. Endi har birini navbat bilan ko'rib chiqamiz." }
+      on_correct: { ru: 'Хорошо. Сейчас рассмотрим каждое по очереди.', uz: "Yaxshi. Endi har birini navbat bilan ko'rib chiqamiz." },
+      on_wrong: { ru: 'Хорошо. Сейчас рассмотрим каждое по очереди.', uz: "Yaxshi. Endi har birini navbat bilan ko'rib chiqamiz." }
     }
   },
 
-  // ---- s1 EXPLORATION — har uy raqamini bosib tanish (nom + buyumlar) ----
+  // ---- s1 EXPLORATION — uylarni bosib 6-10 ni "5 va yana" bilan tanish ----
   s1: {
     eyebrow: { ru: 'Знакомимся', uz: 'Tanishamiz' },
-    instruction: { ru: 'Нажми на номер каждого дома по очереди', uz: "Har uyning raqamini navbat bilan bosing" },
+    instruction: { ru: 'Нажимай на дома по очереди: у каждого пять предметов и ещё несколько', uz: "Uylarni navbat bilan bosing: har birida besh ta va yana bir nechta buyum bor" },
     count_label: { ru: 'Узнали', uz: 'Tanildi' },
-    done_text: { ru: 'Молодец! Ты узнал все пять цифр.', uz: "Barakalla! Beshta raqamni ham tanidingiz." },
-    done_audio: { ru: 'Молодец! Ты узнал все пять цифр.', uz: "Barakalla! Beshta raqamni ham tanidingiz." },
+    done_text: { ru: 'Молодец! Ты узнал числа от шести до десяти.', uz: "Barakalla! Oltidan o'ngacha sonlarni tanidingiz." },
+    done_audio: { ru: 'Молодец! Ты узнал числа от шести до десяти.', uz: "Barakalla! Oltidan o'ngacha sonlarni tanidingiz." },
     audio: {
       ru: [
-        'Нажимай на номер каждого дома по очереди. Ты услышишь его имя и увидишь, сколько предметов лежит у этого дома.',
-        'У каждой цифры свой вид и своё число. Один, два, три, четыре, пять.'
+        'Нажимай на каждый дом по очереди. У каждого дома пять предметов и ещё несколько рядом.',
+        'Посчитаем вместе: шесть, семь, восемь, девять, десять. Каждое число — это пять и ещё сколько-то.'
       ],
       uz: [
-        "Har uyning raqamini navbat bilan bosing. Uning nomini eshitasiz va uy oldida nechta buyum borligini ko'rasiz.",
-        "Har raqamning o'z ko'rinishi va o'z soni bor. Bir, ikki, uch, to'rt, besh."
+        "Har uyni navbat bilan bosing. Har uy oldida besh ta buyum va yonida yana bir nechtasi bor.",
+        "Birgalikda sanaymiz: olti, yetti, sakkiz, to'qqiz, o'n. Har son — besh va yana bir nechta."
       ]
     }
   },
 
-  // ---- s2 EXPLORATION — o'zi: uy raqamigacha buyum joylaydi ----
+  // ---- s2 EXPLORATION — o'zi: 5 ustiga qo'shib eshikdagi songacha yetkazadi ----
   s2: {
     eyebrow: { ru: 'Сделай сам', uz: "O'zingiz qiling" },
-    instruction: { ru: 'На двери номер четыре. Положи к дому столько же предметов', uz: "Eshikda raqam to'rt. Uy oldiga shuncha buyum qo'ying" },
+    instruction: { ru: 'У дома уже пять предметов. На двери восемь. Добавь, пока не станет восемь', uz: "Uy oldida besh ta buyum bor. Eshikda sakkiz. Sakkizgacha qo'shing" },
     count_label: { ru: 'Положено', uz: "Qo'yildi" },
-    done_text: { ru: 'Молодец! Предметов столько же, сколько на двери.', uz: "Barakalla! Buyumlar eshikdagidek bo'ldi." },
-    done_audio: { ru: 'Молодец! Получилось столько же, сколько показывает цифра.', uz: "Barakalla! Raqam ko'rsatgancha bo'ldi." },
+    done_text: { ru: 'Молодец! Стало столько, сколько на двери.', uz: "Barakalla! Eshikdagidek bo'ldi." },
+    done_audio: { ru: 'Молодец! Получилось пять и ещё три — восемь.', uz: "Barakalla! Besh va yana uch — sakkiz bo'ldi." },
     audio: {
       ru: [
-        'На двери этого дома цифра четыре. Она говорит, что нужно ровно четыре предмета.',
-        'Нажимай на предметы по одному. На каждое нажатие звучит одно число. Остановись, когда дойдёшь до четырёх.'
+        'У этого дома уже есть пять предметов. На двери цифра восемь.',
+        'Добавляй по одному. Считай дальше: шесть, семь, восемь. Остановись на восьми.'
       ],
       uz: [
-        "Bu uyning eshigida to'rt raqami bor. U roppa-rosa to'rtta buyum kerakligini bildiradi.",
-        "Buyumlarni bittadan bosing. Har bosishda bitta son aytiladi. To'rtga yetganda to'xtang."
+        "Bu uy oldida allaqachon besh ta buyum bor. Eshikda sakkiz raqami.",
+        "Bittadan qo'shing. Davom sanang: olti, yetti, sakkiz. Sakkizda to'xtang."
       ]
     }
   },
 
-  // ---- s3 RULE — raqam = sonni yozadigan belgi (eshik plitasi) ----
+  // ---- s3 RULE — 6-10 = besh va yana bir nechta ----
   s3: {
     eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
-    title_part1: { ru: 'Цифра — это', uz: 'Raqam — bu' },
-    title_part2_em: { ru: 'знак для числа', uz: "sonni yozadigan belgi" },
+    title_part1: { ru: 'Числа от 6 до 10 —', uz: "Oltidan o'ngacha sonlar —" },
+    title_part2_em: { ru: 'это пять и ещё', uz: "besh va yana bir nechta" },
     tip: {
-      ru: 'Сколько предметов мы сосчитали — такую цифру и пишем на двери. Три предмета — пишем три.',
-      uz: "Nechta buyum sanagan bo'lsak — eshikka o'sha raqamni yozamiz. Uchta buyum — uch deb yozamiz."
+      ru: 'Шесть — это пять и ещё один. Десять — это пять и ещё пять.',
+      uz: "Olti — bu besh va yana bir. O'n — bu besh va yana besh."
     },
     audio: {
-      ru: 'Когда мы сосчитали предметы, мы записываем число цифрой. Сосчитали три предмета — пишем на двери цифру три. Так у каждого дома появляется свой номер.',
-      uz: "Buyumlarni sanab bo'lgach, sonni raqam bilan yozamiz. Uchta buyum sanadik — eshikka uch raqamini yozamiz. Shunday qilib har uyning o'z raqami bo'ladi."
+      ru: 'Числа от шести до десяти легко узнать. Каждое из них — это пять и ещё сколько-то. Шесть это пять и ещё один. Семь это пять и ещё два. Десять это пять и ещё пять.',
+      uz: "Oltidan o'ngacha sonlarni oson tanish mumkin. Ularning har biri — besh va yana bir nechta. Olti — besh va yana bir. Yetti — besh va yana ikki. O'n — besh va yana besh."
     }
   },
 
-  // ---- s4 TEST MC — uy oldida nechta? raqamni tanla (miqdor -> raqam) ----
+  // ---- s4 TEST MC — uy oldida nechta? (6-10, 5+N). To'g'ri = yetti (idx1) ----
   s4: {
     eyebrow: { ru: 'Тренировка · 1 / 6', uz: 'Mashq · 1 / 6' },
-    title: { ru: 'Сколько предметов у дома? Выбери цифру для двери.', uz: 'Uy oldida nechta buyum bor? Eshik uchun raqamni tanlang.' },
+    title: { ru: 'Сколько предметов у дома? Выбери число для двери.', uz: 'Uy oldida nechta buyum bor? Eshik uchun sonni tanlang.' },
     correct_text: {
-      ru: 'Верно. Три предмета — это цифра три.',
-      uz: "To'g'ri. Uchta buyum — bu uch raqami."
+      ru: 'Верно. Пять и ещё два — это семь.',
+      uz: "To'g'ri. Besh va yana ikki — bu yetti."
     },
     wrong_0: {
-      ru: 'Это не два. Посчитай ещё раз. Один, два, три. Их три.',
-      uz: "Bu ikki emas. Yana sanang. Bir, ikki, uch. Ular uchta."
+      ru: 'Это только пять в ряду. Рядом есть ещё два. Пять и ещё два — семь.',
+      uz: "Bu faqat qatordagi besh ta. Yonida yana ikkitasi bor. Besh va yana ikki — yetti."
     },
     wrong_2: {
-      ru: 'Это не четыре. Посчитай по одному. Один, два, три. Их три.',
-      uz: "Bu to'rt emas. Bittadan sanang. Bir, ikki, uch. Ular uchta."
+      ru: 'Это на один больше. Посчитай по одному: пять, шесть, семь. Их семь.',
+      uz: "Bu bittaga ko'p. Bittadan sanang: besh, olti, yetti. Ular yetti."
     },
     wrong_3: {
-      ru: 'Это не пять. Посчитай ещё раз. Один, два, три. Их три.',
-      uz: "Bu besh emas. Yana sanang. Bir, ikki, uch. Ular uchta."
+      ru: 'Два — это только те, что добавлены. Не забудь про пять в ряду. Всего семь.',
+      uz: "Ikki — bu faqat qo'shilganlari. Qatordagi besh tani unutmang. Hammasi yetti."
     },
     wrong_default: {
-      ru: 'Не совсем. Посчитай предметы по одному и выбери цифру.',
-      uz: "Unchalik emas. Buyumlarni bittadan sanang va raqamni tanlang."
+      ru: 'Не совсем. Посчитай предметы по одному и выбери число.',
+      uz: "Unchalik emas. Buyumlarni bittadan sanang va sonni tanlang."
     },
     audio: {
-      intro: { ru: 'Сколько предметов у этого дома? Посчитай и нажми нужную цифру.', uz: "Bu uy oldida nechta buyum bor? Sanang va kerakli raqamni bosing." },
-      on_correct: { ru: 'Верно. Их три.', uz: "To'g'ri. Ular uchta." },
+      intro: { ru: 'Сколько предметов у этого дома? Посчитай и нажми нужное число.', uz: "Bu uy oldida nechta buyum bor? Sanang va kerakli sonni bosing." },
+      on_correct: { ru: 'Верно. Их семь.', uz: "To'g'ri. Ular yetti." },
       on_wrong: { ru: 'Не совсем. Посчитай ещё раз.', uz: "Unchalik emas. Yana sanang." }
     }
   },
 
-  // ---- s5 EXPLORATION — raqam SHAKLI: eshik plitalaridagi farq ----
+  // ---- s5 EXPLORATION — NOL: bo'sh uy (statik bo'shlik), 1 buyumli uy bilan solishtirish ----
   s5: {
-    eyebrow: { ru: 'Смотрим на вид', uz: "Ko'rinishga qaraymiz" },
-    instruction: { ru: 'Нажми на цифру — посмотри на её форму, чтобы узнавать её', uz: "Raqamni bosing — uni tanish uchun shakliga qarang" },
-    done_text: { ru: 'Теперь ты различаешь их по виду.', uz: "Endi ularni ko'rinishidan farqlaysiz." },
+    eyebrow: { ru: 'Пустой дом', uz: "Bo'sh uy" },
+    instruction: { ru: 'Нажми на дома и сравни: где есть предметы, а где совсем пусто', uz: "Uylarni bosing va solishtiring: qayerda buyum bor, qayerda butunlay bo'sh" },
+    done_text: { ru: 'Пустой дом — это ноль. Совсем ничего.', uz: "Bo'sh uy — bu nol. Butunlay hech narsa." },
     audio: {
       ru: [
-        'У каждой цифры свой вид. Нажимай на цифру и смотри на её форму.',
-        'Два смотрит вправо, а пять — влево, и у пятёрки сверху шапочка. Тройка — это два мостика. Так их легко различить.'
+        'В этом доме никто не живёт. Перед ним нет ни одного предмета. Это ноль.',
+        'Рядом дом, где один предмет. Один — это уже не ноль. Ноль — это когда нет совсем ничего.'
       ],
       uz: [
-        "Har raqamning o'z ko'rinishi bor. Raqamni bosing va uning shakliga qarang.",
-        "Ikki o'ngga, besh esa chapga qaraydi, beshning tepasida shapkasi bor. Uch — bu ikkita ko'prikcha. Shunday qilib ularni oson farqlash mumkin."
+        "Bu uyda hech kim yashamaydi. Oldida bironta ham buyum yo'q. Bu nol.",
+        "Yonida bitta buyumli uy bor. Bitta — bu nol emas. Nol — bu butunlay hech narsa yo'qligi."
       ]
     }
   },
 
-  // ---- s6 RULE — ko'rinishidan tanib olamiz ----
+  // ---- s6 RULE — 0 = butunlay hech narsa ----
   s6: {
     eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
-    title_part1: { ru: 'Каждую цифру', uz: 'Har raqamni' },
-    title_part2_em: { ru: 'узнаём по виду', uz: "ko'rinishidan tanaymiz" },
+    title_part1: { ru: 'Ноль — это', uz: 'Nol — bu' },
+    title_part2_em: { ru: 'совсем ничего', uz: "butunlay hech narsa" },
     tip: {
-      ru: 'Не обязательно считать каждый раз. Номер на двери можно узнать по виду, как буквы.',
-      uz: "Har safar sanash shart emas. Eshikdagi raqamni harflar kabi ko'rinishidan tanib olsa bo'ladi."
+      ru: 'Когда нет ни одного предмета, мы пишем ноль. Номер пустого дома — ноль.',
+      uz: "Bironta ham buyum bo'lmasa, biz nol deb yozamiz. Bo'sh uyning raqami — nol."
     },
     audio: {
-      ru: 'Номер можно узнать сразу, по виду, не пересчитывая. Один, два, три, четыре, пять — у каждой цифры свой вид.',
-      uz: "Raqamni qayta sanamasdan, ko'rinishidan darrov tanib olsa bo'ladi. Bir, ikki, uch, to'rt, besh — har birining o'z ko'rinishi bor."
+      ru: 'Ноль — это число для пустоты. Когда нет ни одного предмета, это ноль. У пустого дома номер ноль.',
+      uz: "Nol — bu bo'shlik uchun son. Bironta ham buyum bo'lmasa, bu nol. Bo'sh uyning raqami nol."
     }
   },
 
-  // ---- s7 TEST MC — qaysi eshik besh? (faqat shakl) ----
+  // ---- s7 TEST MC — qaysi uy bo'sh (=0)? To'g'ri = bo'sh (idx1) ----
   s7: {
     eyebrow: { ru: 'Тренировка · 2 / 6', uz: 'Mashq · 2 / 6' },
-    title: { ru: 'На какой двери цифра пять? Узнай по виду.', uz: "Qaysi eshikda besh raqami bor? Ko'rinishidan toping." },
+    title: { ru: 'У какого дома нет ни одного предмета? Это ноль.', uz: "Qaysi uy oldida bironta ham buyum yo'q? Bu nol." },
     correct_text: {
-      ru: 'Верно. Это пять: шапочка сверху и поворот влево.',
-      uz: "To'g'ri. Bu besh: tepasida shapka, chapga buriladi."
+      ru: 'Верно. Здесь совсем пусто — это ноль.',
+      uz: "To'g'ri. Bu yer butunlay bo'sh — bu nol."
     },
     wrong_0: {
-      ru: 'Это два. Двойка смотрит вправо. Пятёрка другая. Посмотри снова.',
-      uz: "Bu ikki. Ikki o'ngga qaraydi. Besh boshqacha. Yana qarang."
+      ru: 'Здесь один предмет. Один — это не ноль. Ищи дом, где нет совсем ничего.',
+      uz: "Bu yerda bitta buyum bor. Bitta — bu nol emas. Butunlay hech narsa yo'q uyni qidiring."
     },
     wrong_2: {
-      ru: 'Это три. У тройки два мостика. Найди пятёрку.',
-      uz: "Bu uch. Uchning ikkita ko'prikchasi bor. Beshni toping."
-    },
-    wrong_3: {
-      ru: 'Это четыре. У четвёрки есть уголок. Пятёрка другая.',
-      uz: "Bu to'rt. To'rtning burchagi bor. Besh boshqacha."
+      ru: 'Здесь два предмета. Ноль — это пусто. Посмотри, где нет ни одного.',
+      uz: "Bu yerda ikkita buyum bor. Nol — bu bo'shlik. Bironta ham yo'q joyni qarang."
     },
     wrong_default: {
-      ru: 'Не совсем. Найди пятёрку по её виду.',
-      uz: "Unchalik emas. Beshni ko'rinishidan toping."
+      ru: 'Не совсем. Ноль там, где нет ни одного предмета.',
+      uz: "Unchalik emas. Nol — bironta ham buyum yo'q joyda."
     },
     audio: {
-      intro: { ru: 'На какой двери цифра пять? Посмотри на вид каждой и выбери.', uz: "Qaysi eshikda besh raqami bor? Har birining ko'rinishiga qarang va tanlang." },
-      on_correct: { ru: 'Верно. Это пять.', uz: "To'g'ri. Bu besh." },
-      on_wrong: { ru: 'Не совсем. Посмотри на вид ещё раз.', uz: "Unchalik emas. Ko'rinishiga yana qarang." }
+      intro: { ru: 'У какого дома перед дверью нет ни одного предмета? Найди дом с номером ноль.', uz: "Qaysi uy oldida bironta ham buyum yo'q? Nol raqamli uyni toping." },
+      on_correct: { ru: 'Верно. Здесь ноль.', uz: "To'g'ri. Bu yerda nol." },
+      on_wrong: { ru: 'Не совсем. Ищи пустой дом.', uz: "Unchalik emas. Bo'sh uyni qidiring." }
     }
   },
 
-  // ---- s8 TEST custom — raqami noto'g'ri uyni top (find-the-wrong) ----
-  s8: {
+  // ---- s7b TEST MC — hammasini olib ketishdi, nechta qoldi? (nol natija). To'g'ri = nol (idx1) ----
+  s7b: {
     eyebrow: { ru: 'Тренировка · 3 / 6', uz: 'Mashq · 3 / 6' },
+    title: { ru: 'Все предметы забрали. Сколько осталось?', uz: "Hamma buyumni olib ketishdi. Nechta qoldi?" },
+    correct_text: {
+      ru: 'Верно. Не осталось ничего — это ноль.',
+      uz: "To'g'ri. Hech narsa qolmadi — bu nol."
+    },
+    wrong_0: {
+      ru: 'Забрали все. Ни одного не осталось. Это ноль, а не один.',
+      uz: "Hammasini olib ketishdi. Bironta qolmadi. Bu nol, bir emas."
+    },
+    wrong_2: {
+      ru: 'Столько было сначала. Потом всё забрали. Сейчас не осталось ничего — ноль.',
+      uz: "Avval shuncha edi. Keyin hammasini olib ketishdi. Hozir hech narsa qolmadi — nol."
+    },
+    wrong_default: {
+      ru: 'Не совсем. Посмотри, во дворе пусто.',
+      uz: "Unchalik emas. Hovli bo'sh ekaniga qarang."
+    },
+    audio: {
+      intro: { ru: 'Предметы забирали по одному, пока не осталось ничего. Сколько предметов во дворе сейчас?', uz: "Buyumlarni bittadan olib ketishdi, hech narsa qolmaguncha. Hozir hovlida nechta buyum bor?" },
+      on_correct: { ru: 'Верно. Осталось ноль.', uz: "To'g'ri. Nol qoldi." },
+      on_wrong: { ru: 'Не совсем. Двор пустой.', uz: "Unchalik emas. Hovli bo'sh." }
+    }
+  },
+
+  // ---- s8 TEST custom — son<->uy juftlash (6-10, tap) ----
+  s8: {
+    eyebrow: { ru: 'Тренировка · 4 / 6', uz: 'Mashq · 4 / 6' },
+    instruction: { ru: 'Нажми число, потом дом, где столько же предметов', uz: "Sonni bosing, keyin shuncha buyumli uyni bosing" },
+    correct_text: { ru: 'Верно. Число подходит к этому дому.', uz: "To'g'ri. Son shu uyga mos keladi." },
+    done_text: { ru: 'Молодец! Все числа нашли свои дома.', uz: "Barakalla! Hamma son o'z uyini topdi." },
+    wrong_default: { ru: 'Здесь другое число предметов. Посчитай у дома и подбери число.', uz: "Bu yerda buyum soni boshqacha. Uy oldida sanang va sonni mos keltiring." },
+    audio: {
+      intro: { ru: 'Подбери каждому числу свой дом. Сначала нажми число, потом дом, где столько же предметов.', uz: "Har songa o'z uyini toping. Avval sonni bosing, keyin shuncha buyumli uyni bosing." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Не совсем. Посчитай ещё раз.', uz: "Unchalik emas. Yana sanang." }
+    }
+  },
+
+  // ---- s9 TEST custom — raqami buyumlariga to'g'ri kelmaydigan uyni top (find-the-wrong) ----
+  s9: {
+    eyebrow: { ru: 'Тренировка · 5 / 6', uz: 'Mashq · 5 / 6' },
     title: { ru: 'У одного дома номер не совпадает с предметами. Найди его.', uz: "Bir uyning raqami buyumlariga to'g'ri kelmaydi. Uni toping." },
     correct_text: {
-      ru: 'Верно. Здесь четыре предмета, а на двери три — это и есть ошибка.',
-      uz: "To'g'ri. Bu yerda to'rtta buyum bor, lekin eshikda uch — xato shu."
+      ru: 'Верно. Здесь девять предметов, а на двери восемь — это и есть ошибка.',
+      uz: "To'g'ri. Bu yerda to'qqizta buyum bor, lekin eshikda sakkiz — xato shu."
     },
     wrong_default: {
       ru: 'Здесь номер совпадает с числом предметов. Посчитай у каждого дома и найди, где не совпало.',
@@ -1084,36 +1129,21 @@ const CONTENT = {
     }
   },
 
-  // ---- s9 TEST MC — raqamga mos uyni top (predmetlarni sanab) ----
-  s9: {
-    eyebrow: { ru: 'Тренировка · 4 / 6', uz: 'Mashq · 4 / 6' },
-    title: { ru: 'Какому дому подходит цифра четыре? Посчитай предметы.', uz: "To'rt raqami qaysi uyga mos? Predmetlarni sanang." },
-    correct_text: { ru: 'Верно. В этом доме четыре предмета.', uz: "To'g'ri. Bu uyda to'rtta predmet bor." },
-    wrong_0: { ru: 'Здесь только два. А нужно четыре. Посчитай ещё раз.', uz: "Bu yerda atigi ikkita. To'rtta kerak. Yana sanang." },
-    wrong_2: { ru: 'Здесь пять, это больше четырёх. Посчитай ещё раз.', uz: "Bu yerda beshta, to'rttadan ko'p. Yana sanang." },
-    wrong_default: { ru: 'Не совсем. Посчитай предметы и найди четыре.', uz: "Unchalik emas. Predmetlarni sanang va to'rttalisini toping." },
-    audio: {
-      intro: { ru: 'Какому дому подходит цифра четыре? Посчитай предметы у каждого дома и выбери дом, где их четыре.', uz: "To'rt raqami qaysi uyga mos? Har uydagi predmetlarni sanang va to'rttasi bor uyni tanlang." },
-      on_correct: { ru: 'Верно. Их четыре.', uz: "To'g'ri. Ular to'rtta." },
-      on_wrong: { ru: 'Не совсем. Посчитай ещё раз.', uz: "Unchalik emas. Yana sanang." }
-    }
-  },
-
-  // ---- s10 TEST custom — uylarni 1->5 tartiblash (tap) ----
+  // ---- s10 TEST custom — uylarni 6->10 tartiblash (tap) ----
   s10: {
-    eyebrow: { ru: 'Тренировка · 5 / 6', uz: 'Mashq · 5 / 6' },
-    instruction: { ru: 'Анвар идёт по улице. Нажимай дома по порядку: от 1 до 5', uz: "Anvar ko'cha bo'ylab ketyapti. Uylarni tartib bilan bosing: 1 dan 5 gacha" },
+    eyebrow: { ru: 'Тренировка · 6 / 6', uz: 'Mashq · 6 / 6' },
+    instruction: { ru: 'Анвар идёт дальше. Нажимай дома по порядку: от 6 до 10', uz: "Anvar oldinga ketyapti. Uylarni tartib bilan bosing: 6 dan 10 gacha" },
     correct_text: { ru: 'Верно, дальше.', uz: "To'g'ri, davom eting." },
-    done_text: { ru: 'Молодец! Все дома по порядку. Один, два, три, четыре, пять.', uz: "Barakalla! Hamma uy tartib bilan. Bir, ikki, uch, to'rt, besh." },
+    done_text: { ru: 'Молодец! Все дома по порядку: шесть, семь, восемь, девять, десять.', uz: "Barakalla! Hamma uy tartib bilan: olti, yetti, sakkiz, to'qqiz, o'n." },
     wrong_default: { ru: 'Это не следующий дом. Подумай, какое число идёт дальше.', uz: "Bu keyingi uy emas. Keyin qaysi son kelishini o'ylab ko'ring." },
     audio: {
-      intro: { ru: 'Помоги Анвару пройти по улице по порядку. Нажимай дома от одного до пяти. Начни с одного.', uz: "Anvarga ko'chadan tartib bilan o'tishga yordam bering. Uylarni birdan beshgacha bosing. Birdan boshlang." },
+      intro: { ru: 'Помоги Анвару пройти дальше по порядку. Нажимай дома от шести до десяти. Начни с шести.', uz: "Anvarga tartib bilan oldinga o'tishga yordam bering. Uylarni oltidan o'ngacha bosing. Oltidan boshlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Не совсем. Какой дом дальше?', uz: "Unchalik emas. Keyingi uy qaysi?" }
     }
   },
 
-  // ---- sd MINI-O'YIN — uy oldiga buyum torting (drag), ball yo'q ----
+  // ---- sd MINI-O'YIN — uy oldiga eshikdagicha buyum torting (6-10, drag, ball yo'q) ----
   sd: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
     instruction: { ru: 'Перетащи к дому столько предметов, сколько на его двери', uz: "Uy oldiga eshikdagi raqamcha buyum torting" },
@@ -1125,23 +1155,24 @@ const CONTENT = {
     }
   },
 
-  // ---- s11 TEST final + FactCard — qaysi uy beshinchi? ----
+  // ---- s11 TEST final + FactCard — qaysi uy o'ninchi? To'g'ri = o'n (idx1) ----
   s11: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Где дом номер пять? Туда придёт Анвар.', uz: "Beshinchi uy qaysi biri? Anvar o'sha yerga boradi." },
+    title: { ru: 'Где дом номер десять? Туда придут гости.', uz: "O'ninchi uy qaysi biri? Mehmonlar o'sha yerga boradi." },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
-    correct_text: { ru: 'Верно. Это дом номер пять — здесь живёт Рано.', uz: "To'g'ri. Bu beshinchi uy — Ra'no shu yerda yashaydi." },
-    wrong_0: { ru: 'Здесь четыре. До пяти не хватает одного. Посчитай до пяти.', uz: "Bu yerda to'rtta. Beshtaga bittasi yetmaydi. Beshtagacha sanang." },
-    wrong_2: { ru: 'Здесь только три. Цифра пять — это пять. Посчитай ещё раз.', uz: "Bu yerda atigi uchta. Besh raqami — bu beshta. Yana sanang." },
-    wrong_default: { ru: 'Не совсем. Посчитай предметы у каждого дома до пяти.', uz: "Unchalik emas. Har uy oldidagi buyumlarni beshtagacha sanang." },
+    zaynab_label: { ru: 'Зайнаб', uz: 'Zaynab' },
+    correct_text: { ru: 'Верно. Это дом номер десять — здесь живёт Зайнаб.', uz: "To'g'ri. Bu o'ninchi uy — Zaynab shu yerda yashaydi." },
+    wrong_0: { ru: 'Здесь девять. До десяти не хватает одного. Посчитай: пять и ещё пять — десять.', uz: "Bu yerda to'qqizta. O'ntaga bittasi yetmaydi. Sanang: besh va yana besh — o'n." },
+    wrong_2: { ru: 'Здесь только семь. Дом Зайнаб — десять. Посчитай ещё раз.', uz: "Bu yerda atigi yettita. Zaynabning uyi — o'n. Yana sanang." },
+    wrong_default: { ru: 'Не совсем. Посчитай предметы у каждого дома до десяти.', uz: "Unchalik emas. Har uy oldidagi buyumlarni o'ngacha sanang." },
     fact_badge: { ru: 'А знаешь? · Мир', uz: 'Bilasizmi? · Dunyo' },
-    fact_text: { ru: 'Эти цифры понимают во всём мире — их пишут одинаково в каждой стране.', uz: "Bu raqamlarni butun dunyo tushunadi — har mamlakatda bir xil yoziladi." },
-    fact_audio: { ru: 'А знаешь, эти цифры пишут одинаково во всём мире.', uz: "Bilasizmi, bu raqamlar butun dunyoda bir xil yoziladi." },
+    fact_text: { ru: 'Ноль придумали позже всех цифр — чтобы записывать пустоту, когда нет совсем ничего.', uz: "Nol hamma raqamdan keyin o'ylab topilgan — bo'shlikni, butunlay hech narsa yo'qligini yozish uchun." },
+    fact_audio: { ru: 'А знаешь, ноль придумали позже всех цифр — чтобы записывать пустоту.', uz: "Bilasizmi, nol hamma raqamdan keyin o'ylab topilgan — bo'shlikni yozish uchun." },
     audio: {
-      intro: { ru: 'Где дом номер пять? Посчитай предметы у каждого дома и выбери.', uz: "Beshinchi uy qaysi biri? Har uy oldidagi buyumlarni sanang va tanlang." },
-      on_correct: { ru: 'Верно. Их пять.', uz: "To'g'ri. Ular beshta." },
-      on_wrong: { ru: 'Не совсем. Посчитай до пяти.', uz: "Unchalik emas. Beshtagacha sanang." }
+      intro: { ru: 'Где дом номер десять? Посчитай предметы у каждого дома и выбери.', uz: "O'ninchi uy qaysi biri? Har uy oldidagi buyumlarni sanang va tanlang." },
+      on_correct: { ru: 'Верно. Их десять.', uz: "To'g'ri. Ular o'nta." },
+      on_wrong: { ru: 'Не совсем. Посчитай до десяти.', uz: "Unchalik emas. O'ngacha sanang." }
     }
   },
 
@@ -1150,17 +1181,18 @@ const CONTENT = {
     eyebrow: { ru: 'Готово', uz: 'Tayyor' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     main_1: { ru: 'Теперь ты', uz: 'Endi siz' },
-    main_2_em: { ru: 'узнаёшь цифры 1–5', uz: '1–5 raqamlarini taniysiz' },
-    main_3: { ru: 'и знаешь, как выглядит каждая цифра.', uz: "va har raqam qanday ko'rinishini bilasiz." },
+    main_2_em: { ru: 'знаешь числа 6–10 и ноль', uz: "6–10 sonlarni va nolni bilasiz" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
+    rano_label: { ru: 'Рано', uz: "Ra'no" },
+    zaynab_label: { ru: 'Зайнаб', uz: 'Zaynab' },
     connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'Счёт предметов 1–5', uz: "Predmetlarni sanash 1–5" },
+    conn_refs: { ru: 'Цифры 1–5', uz: "Raqamlar 1–5" },
     conn_label_next: { ru: 'Следующий урок', uz: 'Keyingi dars' },
-    conn_next: { ru: 'Числа от 6 до 10 и число ноль.', uz: "6 dan 10 gacha sonlar va nol soni." },
+    conn_next: { ru: 'Сравнение чисел до 10.', uz: "10 gacha sonlarni taqqoslash." },
     audio: {
-      ru: 'Анвар нашёл дом Рано. А ты сегодня научился узнавать цифры от одного до пяти. Важно знать не только их имена, но и как выглядит каждая цифра. На следующем уроке встретим числа от шести до десяти и ноль.',
-      uz: "Anvar Ra'noning uyini topdi. Siz esa bugun birdan beshgacha raqamlarni o'rgandingiz. Faqat ularning nomini emas, balki har raqam qanday ko'rinishini bilish ham muhim. Keyingi darsda olti dan o'ngacha sonlar va nol bilan tanishamiz."
+      ru: 'Анвар и Рано пришли в гости к Зайнаб. А ты сегодня научился узнавать числа от шести до десяти и познакомился с нолём. На следующем уроке будем сравнивать числа до десяти.',
+      uz: "Anvar va Ra'no Zaynabnikiga mehmonga kelishdi. Siz esa bugun oltidan o'ngacha sonlarni tanishni o'rgandingiz va nol bilan tanishdingiz. Keyingi darsda o'ngacha sonlarni taqqoslaymiz."
     }
   }
 };
@@ -2559,14 +2591,32 @@ const ITEM2 = {
 const ItemSvg = ({ kind = 'ball' }) => (
   <svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true">{ITEM2[kind] || ITEM2.ball}</svg>
 );
-// ItemRow — sanaladigan buyumlar qatori (kit'ning g1-pips/g1-obj animatsiyasini qayta ishlatadi).
-const ItemRow = ({ n, kind = 'ball', anim = 'bob', wrap = false }) => (
-  <div className={`g1-pips ${wrap ? 'g1-pips-wrap' : ''}`}>
-    {Array.from({ length: n }).map((_, i) => (
-      <span key={i} className={`g1-obj ${anim ? 'g1-' + anim : ''}`} style={{ animationDelay: `${(i % 5) * 0.16}s` }}><ItemSvg kind={kind}/></span>
-    ))}
-  </div>
+// Pip — bitta sanaladigan buyum (kit g1-obj animatsiyasi).
+const Pip = ({ kind, anim, d }) => (
+  <span className={`g1-obj ${anim ? 'g1-' + anim : ''}`} style={{ animationDelay: `${d * 0.16}s` }}><ItemSvg kind={kind}/></span>
 );
+// ItemRow — sanaladigan buyumlar qatori. n>5 bo'lsa "5 talik guruh + yana qolgani" ko'rinishi
+// (g1-five-grp va g1-more-grp orasida bo'shliq) — bola 6–10 ni "besh va yana" deb o'qiydi.
+const ItemRow = ({ n, kind = 'ball', anim = 'bob', wrap = false }) => {
+  if (n > 5) {
+    const more = n - 5;
+    return (
+      <div className={`g1-pips g1-pips-five ${wrap ? 'g1-pips-wrap' : ''}`}>
+        <span className="g1-five-grp">
+          {Array.from({ length: 5 }).map((_, i) => <Pip key={i} kind={kind} anim={anim} d={i % 5}/>)}
+        </span>
+        <span className="g1-more-grp">
+          {Array.from({ length: more }).map((_, i) => <Pip key={i} kind={kind} anim={anim} d={i % 5}/>)}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className={`g1-pips ${wrap ? 'g1-pips-wrap' : ''}`}>
+      {Array.from({ length: n }).map((_, i) => <Pip key={i} kind={kind} anim={anim} d={i % 5}/>)}
+    </div>
+  );
+};
 
 // DoorCard — eshik (raqam plitasi bilan). Raqamga e'tibor qaratiladigan ekranlar uchun.
 const DoorCard = ({ d, tone = 'ink', size = 'sm' }) => (
@@ -2579,7 +2629,7 @@ const DoorCard = ({ d, tone = 'ink', size = 'sm' }) => (
 
 // HouseSVG — IKKI QAVATLI uy, BALAND eshik (odam eshikdan o'tadi — real proporsiya). viewBox 0 0 120 184.
 // v = rang varianti (0..4). digit=null -> bo'sh plita. open -> eshik ochiq (final 5-uy).
-const HouseSVG = ({ digit = null, open = false, v = null, cat = false, className = '' }) => {
+const HouseSVG = ({ digit = null, open = false, v = null, className = '' }) => {
   // Rang RAQAMga bog'langan (v berilmasa): har raqamli uy butun darsda bir xil rangda.
   const base = (v == null) ? (digit == null ? 0 : digit - 1) : v;
   const wv = ((base % 5) + 5) % 5;
@@ -2633,30 +2683,14 @@ const HouseSVG = ({ digit = null, open = false, v = null, cat = false, className
     {digit != null && <text x="60" y="112" textAnchor="middle" fontFamily="Manrope, sans-serif" fontWeight="800" fontSize="14" fill="#FF4F28">{digit}</text>}
     {/* buta */}
     <g><ellipse cx="29" cy="170" rx="8.5" ry="6.5" fill="#5BA85C"/><ellipse cx="35" cy="172" rx="6.5" ry="5" fill="#4F9A50"/><ellipse cx="26" cy="167" rx="3" ry="2" fill="rgba(255,255,255,0.18)"/></g>
-    {/* mushukcha — uy uchidan (tom cho'qqisidan) chiqadi */}
-    {cat && (
-      <g className="g1-house-cat">
-        <ellipse cx="54" cy="20" rx="3" ry="2" fill="#7A5230"/>
-        <ellipse cx="66" cy="20" rx="3" ry="2" fill="#7A5230"/>
-        <path d="M52 6 L51 0 L57 4 Z" fill="#7A5230"/>
-        <path d="M68 6 L69 0 L63 4 Z" fill="#7A5230"/>
-        <circle cx="60" cy="12" r="8.5" fill="#8A5E3B"/>
-        <path d="M53 7 L52.2 2 L56.5 5 Z" fill="#C98A5A"/>
-        <path d="M67 7 L67.8 2 L63.5 5 Z" fill="#C98A5A"/>
-        <ellipse cx="56.6" cy="12" rx="1.5" ry="2" fill="#2A2A2A"/>
-        <ellipse cx="63.4" cy="12" rx="1.5" ry="2" fill="#2A2A2A"/>
-        <path d="M59 15 h2 l-1 1.3 Z" fill="#D87A8A"/>
-        <g stroke="#5A4030" strokeWidth="0.6" strokeLinecap="round"><path d="M53.5 13 l-6 -0.8 M53.5 14.5 l-6 0.8 M66.5 13 l6 -0.8 M66.5 14.5 l6 0.8"/></g>
-      </g>
-    )}
   </svg>
   );
 };
 
 // HouseFig — uy + oldida buyumlar (miqdor). Miqdor-kontekstli ekranlar uchun.
-const HouseFig = ({ digit = null, n = 0, kind = 'ball', cat = false, v = null, className = '' }) => (
+const HouseFig = ({ digit = null, n = 0, kind = 'ball', className = '' }) => (
   <div className={`g1-housefig ${className}`}>
-    <HouseSVG digit={digit} cat={cat} v={v}/>
+    <HouseSVG digit={digit}/>
     {n > 0 && <div className="g1-yard"><ItemRow n={n} kind={kind} anim="bob"/></div>}
   </div>
 );
@@ -2695,20 +2729,77 @@ const StreetBg = () => (
   </svg>
 );
 
-// StreetScene — ko'cha: fon + 5 uy (trotuarda) + Anvar (+ final'da Ra'no 5-uy oldida).
-// Barcha ko'cha sahnalarida uylar BIR XIL joylashuvda (raqam aralash — audio "aralashib ketdi"ga mos).
-// 5-uy o'rtada (indeks 2); final/yakunda o'sha uy porlaydi + Ra'no o'sha yerda.
-const STREET_NUMS = [3, 1, 5, 2, 4];
+// Zaynab — YANGI o'zbek qizcha (Ra'no uslubida, lekin ajralib turadi: moviy-yashil ko'ylak,
+// to'pli soch + peshonabog'). 10-uyga ko'chib kelgan do'st. g1-eyes -> pirpiratish.
+const ZaynabSVG = ({ mood = 'pointing', className = '' }) => {
+  const big = mood === 'happy' || mood === 'celebrate';
+  return (
+    <svg className={`g1-char g1-char-zaynab ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+      <defs>
+        <radialGradient id="g1zskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
+        <linearGradient id="g1zdress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4FD0C4"/><stop offset="100%" stopColor="#1E9C92"/></linearGradient>
+        <linearGradient id="g1zhair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4A2E1A"/><stop offset="100%" stopColor="#2C1B10"/></linearGradient>
+      </defs>
+      <ellipse cx="64" cy="178" rx="34" ry="5" fill="rgba(58,53,48,0.13)"/>
+      {/* oyoqlar + tufli */}
+      <rect x="57" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1zskin)"/>
+      <rect x="65.5" y="140" width="7.5" height="28" rx="3.7" fill="url(#g1zskin)"/>
+      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#15786F"/>
+      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#15786F"/>
+      {/* soch (orqa, kalta to'lqin) */}
+      <path d="M45 36 Q45 12 65 12 Q85 12 85 36 L85 70 Q80 60 76 58 L76 40 Q76 28 65 28 Q54 28 54 40 L54 58 Q50 60 45 70 Z" fill="url(#g1zhair)"/>
+      {/* qo'llar — kayfiyatga qarab */}
+      {big ? (
+        <g>
+          <path d="M53 58 Q45 42 41 28" stroke="url(#g1zskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="41" cy="27" r="4.6" fill="url(#g1zskin)"/>
+          <path d="M77 58 Q85 42 89 28" stroke="url(#g1zskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="89" cy="27" r="4.6" fill="url(#g1zskin)"/>
+        </g>
+      ) : (
+        <g>
+          <path d="M53 58 Q46 74 43 91" stroke="url(#g1zskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="43" cy="92" r="4.6" fill="url(#g1zskin)"/>
+          <path d="M77 58 Q84 74 87 91" stroke="url(#g1zskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="87" cy="92" r="4.6" fill="url(#g1zskin)"/>
+        </g>
+      )}
+      {/* ko'ylak + jiyak + yenglar + yoqa + belbog' */}
+      <path d="M50 56 Q52 50 58 49 L72 49 Q78 50 80 56 L94 146 Q65 155 36 146 Z" fill="url(#g1zdress)"/>
+      <path d="M37 140 Q65 149 93 140 L94 146 Q65 155 36 146 Z" fill="rgba(255,255,255,0.28)"/>
+      <ellipse cx="51" cy="57" rx="7" ry="6" fill="url(#g1zdress)"/>
+      <ellipse cx="79" cy="57" rx="7" ry="6" fill="url(#g1zdress)"/>
+      <path d="M58 50 Q65 57 72 50 Q68 54 65 54 Q62 54 58 50 Z" fill="#FFFFFF"/>
+      <path d="M46 67 Q65 72 84 67 L85 73 Q65 78 45 73 Z" fill="#15897E"/>
+      <circle cx="65" cy="70" r="2.6" fill="#FFD86B" stroke="#C99A2E" strokeWidth="0.8"/>
+      {/* bosh + to'p (tepada) + peshonabog' + peshona sochi */}
+      <circle cx="65" cy="37" r="16.5" fill="url(#g1zskin)"/>
+      <circle cx="65" cy="13" r="7" fill="url(#g1zhair)"/>
+      <path d="M49 37 Q50 18 65 17 Q80 18 81 37 Q74 27 65 26 Q56 27 49 37 Z" fill="url(#g1zhair)"/>
+      <path d="M48 30 Q65 24 82 30 L82 34 Q65 28 48 34 Z" fill="#FFB23C"/>
+      <circle cx="65" cy="31.5" r="2.2" fill="#FF7AA8"/>
+      {/* yuz */}
+      <g className="g1-eyes">
+        <circle cx="59" cy="37" r="2.1" fill="#3A2A1E"/><circle cx="71" cy="37" r="2.1" fill="#3A2A1E"/>
+        <path d="M56 33.6 Q59 32.2 61.4 33.6" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+        <path d="M68.6 33.6 Q71 32.2 74 33.6" stroke="#3A2A1E" strokeWidth="1" fill="none" strokeLinecap="round"/>
+      </g>
+      <path d="M64.6 39 Q65 41 65.9 41" stroke="#C98A6A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {big
+        ? <path d="M59 43 Q65 51 71 43 Q65 47 59 43 Z" fill="#C0392B"/>
+        : <path d="M60 44 Q65 48 70 44" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
+      <ellipse cx="54" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+      <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.4)"/>
+    </svg>
+  );
+};
+
+// StreetScene — ko'cha: fon + 5 uy (6–10, trotuarda) + Anvar (+ final'da Ra'no/Zaynab 10-uy oldida).
 const StreetScene = ({ step = 9, final = false }) => {
   const t = useT();
-  const nums = STREET_NUMS;
   return (
     <div className={`g1-street ${final ? 'g1-street-final' : ''}`}>
       <StreetBg/>
       <div className="g1-street-houses">
-        {nums.map((n, i) => (
-          <div key={n} className={`g1-street-house ${final && n === 5 ? 'g1-street-target' : ''} ${step >= 2 ? 'in' : ''}`} style={{ transitionDelay: `${i * 0.1}s` }}>
-            <HouseSVG digit={n} open={final && n === 5}/>
+        {[6, 7, 8, 9, 10].map((n, i) => (
+          <div key={n} className={`g1-street-house ${final && n === 10 ? 'g1-street-target' : ''} ${step >= 2 ? 'in' : ''}`} style={{ transitionDelay: `${i * 0.1}s` }}>
+            <HouseSVG digit={n} open={final && n === 10}/>
           </div>
         ))}
       </div>
@@ -2717,10 +2808,16 @@ const StreetScene = ({ step = 9, final = false }) => {
         <span className="g1-cast-name g1-cast-sub">{t(CONTENT.sIntro.anvar_label)}</span>
       </div>
       {final && (
-        <div className="g1-street-rano in">
-          <RanoSVG mood="happy" className="g1-cast-svg"/>
-          <span className="g1-cast-name">{t(CONTENT.sIntro.rano_label)}</span>
-        </div>
+        <>
+          <div className="g1-street-rano in">
+            <RanoSVG mood="happy" className="g1-cast-svg"/>
+            <span className="g1-cast-name">{t(CONTENT.sIntro.rano_label)}</span>
+          </div>
+          <div className="g1-street-zaynab in">
+            <ZaynabSVG mood="happy" className="g1-cast-svg"/>
+            <span className="g1-cast-name">{t(CONTENT.sIntro.zaynab_label)}</span>
+          </div>
+        </>
       )}
     </div>
   );
@@ -2835,13 +2932,14 @@ const Screen0 = (props) => {
   );
 };
 
-// DigitScatter — s0: 1-5 raqamlari sochilgan (aralash uy raqamlari), yengil suzadi.
+// DigitScatter — s0: 6-10 raqamlari + 0 sochilgan (beshdan keyingi sonlar + bo'sh uy), yengil suzadi.
 const SCATTER = [
-  { d: 3, x: 8, y: 14, r: -12, dl: '0s' },
-  { d: 5, x: 64, y: 6, r: 9, dl: '0.4s' },
-  { d: 1, x: 38, y: 40, r: -4, dl: '0.8s' },
-  { d: 4, x: 76, y: 52, r: 14, dl: '1.1s' },
-  { d: 2, x: 14, y: 60, r: 8, dl: '0.6s' },
+  { d: 8, x: 8, y: 14, r: -12, dl: '0s' },
+  { d: 10, x: 60, y: 6, r: 9, dl: '0.4s' },
+  { d: 6, x: 35, y: 38, r: -4, dl: '0.8s' },
+  { d: 9, x: 78, y: 50, r: 14, dl: '1.1s' },
+  { d: 7, x: 11, y: 58, r: 8, dl: '0.6s' },
+  { d: 0, x: 53, y: 62, r: -9, dl: '1.4s' },
 ];
 function DigitScatter() {
   return (
@@ -2856,55 +2954,9 @@ function DigitScatter() {
   );
 }
 
-// DIGIT_FEATURE — s5: raqam farqlovchi belgisi.
-const DIGIT_FEATURE = {
-  ru: { 1: 'прямая палочка', 2: 'смотрит вправо', 3: 'два мостика', 4: 'есть уголок', 5: 'шапочка сверху' },
-  uz: { 1: 'tik tayoqcha', 2: "o'ngga qaraydi", 3: "ikki ko'prikcha", 4: 'burchagi bor', 5: 'tepada shapka' },
-};
-
-// DigitDraw — raqamni YOZISH animatsiyasi: qalam raqamni chizib beradi (shakl -> raqam).
-// Har raqam o'z chiziq yo'li bilan (feature'iga mos) chiziladi. key={d} -> har bosishda qaytadan chizadi.
-// QO'LYOZMA (maktab propisi) shakllari — bosma/shrift shaklidan farq qiladi. Tor, baland, o'ngga suyangan.
-//  1 — kichik tayoq markaz tepasidan o'ng-yuqori burchakka, keyin asosiy QIYA tayoq pastki o'rtaga.
-//  2 — yuqori yarim-oval, qiya pastga chap-pastga, pastda TO'LQINLI chiziq o'ngga (tekis tag emas).
-//  3 — ikki yarim-oval (pastkisi kattaroq), uzmasdan.
-// QO'LYOZMA (maktab propisi) usuli, pathLength=100 bilan ketma-ket silliq chiziladi:
-//  1 — markazdan o'ng-yuqori burchakka, so'ng tik tayoq pastga (bitta chiziq).
-//  2 — yuqorida dumaloq bosh -> o'rtada to'lqin -> pastda dumcha (bitta chiziq).
-//  3 — ikki ilmoq (yuqorigi pastkidan ~2 barobar kichik), uzilishsiz.
-//  4 — chap tik pastga -> o'ng ko'ndalang -> tepaga -> ikki barobar uzun tik pastga (uzluksiz, ochiq).
-//  5 — maktab usuli: AVVAL tana (tik tayoq pastga + o'ng yarim doira/qorin), SO'NG yuqori chiziq OXIRIDA chapdan-o'ngga.
-const DIGIT_PATHS = {
-  1: 'M29 44 L42 16 L40 80',
-  2: 'M20 29 Q20 16 33 16 Q45 16 45 29 Q45 40 24 60 L20 73 Q28 68 35 73 Q42 78 48 71',
-  3: 'M19 27 Q21 16 33 16 Q45 16 44 28 Q43 38 31 40 Q45 41 46 56 Q47 71 33 75 Q20 78 17 65',
-  4: 'M24 16 L24 48 L43 48 L43 16 L41 81',
-  5: 'M26 17 L26 47 Q50 45 47 63 Q46 80 24 76 M26 17 L46 17',
-};
-// DigitWrite — raqamni YOZISH demosi: raqam chiziq tartibida o'zi chiziladi (qalam yo'q —
-// o'quvchi chiziqni ko'rib, undan ko'chirib o'rganadi). Yumshoq (ease), takrorlanadi.
-// reduced-motion -> to'liq raqam, animatsiyasiz.
-const DigitWrite = ({ d }) => {
-  const reduced = usePrefersReducedMotion();
-  const path = DIGIT_PATHS[d];
-  // Ko'p elementli raqam (masalan 5: tana + shapochka) bo'lsa, bosqichlar ORASIGA PAUZA:
-  // tana chiziladi -> to'xtaydi -> keyin shapochka (bir vaqtda emas). Bitta element bo'lsa -> silliq.
-  const lift = (path.match(/M/g) || []).length > 1;
-  const values     = lift ? '100;20;20;0;0'                              : '100;0;0';
-  const keyTimes   = lift ? '0;0.40;0.54;0.72;1'                         : '0;0.64;1';
-  const keySplines = lift ? '0.42 0 0.58 1;0 0 1 1;0.42 0 0.58 1;0 0 1 1' : '0.42 0 0.58 1;0 0 1 1';
-  return (
-    <svg className="g1-write" viewBox="0 0 64 92" aria-hidden="true">
-      <path className="g1-write-ghost" d={path}/>
-      <path className="g1-write-ink" d={path} pathLength="100" style={reduced ? { strokeDashoffset: 0 } : undefined}>
-        {!reduced && <animate attributeName="stroke-dashoffset" values={values} keyTimes={keyTimes} calcMode="spline" keySplines={keySplines} dur="3.8s" repeatCount="indefinite"/>}
-      </path>
-    </svg>
-  );
-};
-
-// s1 — EXPLORATION: har uy raqamini bosib tanish (nom ovozda + buyumlar).
-const S1_KIND = { 1: 'ball', 2: 'cube', 3: 'pot', 4: 'ball', 5: 'cube' };
+// s1 — EXPLORATION: har uy raqamini (6-10) bosib tanish (nom ovozda + "5 va yana" buyumlar).
+const S1_KIND = { 6: 'ball', 7: 'cube', 8: 'pot', 9: 'ball', 10: 'cube' };
+const S1_DOORS = [6, 7, 8, 9, 10];
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2934,7 +2986,7 @@ const Screen1 = (props) => {
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{count} / 5</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.2vw, 16px)' }}>
           <div className="g1-drow">
-            {[1, 2, 3, 4, 5].map((d) => (
+            {S1_DOORS.map((d) => (
               <button key={d} className={`g1-doorbtn ${seen[d] ? 'seen' : ''} ${active === d ? 'active' : ''}`} onClick={() => tap(d)}>
                 <DoorCard d={d} tone={active === d ? 'accent' : 'ink'}/>
               </button>
@@ -2949,19 +3001,20 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — EXPLORATION: o'zi joylaydi — eshikda raqam (4), shuncha buyum qo'yiladi.
+// s2 — EXPLORATION: "5 va yana" — 5 ta tayyor, eshikdagi songacha (8) bittadan qo'shiladi.
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s2;
   const audio = useAudio(makeAudioSegments(c, lang));
-  const TARGET = 4;
+  const BASE = 5; const TARGET = 8; const ADD = TARGET - BASE;
   const [orders, setOrders] = useState({});
-  const count = Object.keys(orders).length;
-  const done = count === TARGET;
+  const added = Object.keys(orders).length;
+  const count = BASE + added;
+  const done = added === ADD;
   const tap = (i) => {
-    if (orders[i] || count >= TARGET) return;
-    const order = count + 1;
+    if (orders[i] || added >= ADD) return;
+    const order = BASE + added + 1;
     setOrders((prev) => ({ ...prev, [i]: order }));
     if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][order]); if (order === TARGET) e.pushOneOff(c.done_audio[lang]); } }
   };
@@ -2978,7 +3031,10 @@ const Screen2 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(16px, 3vw, 30px)', padding: 'clamp(14px, 2.6vw, 20px)', flexWrap: 'wrap' }}>
           <div className="g1-s2house"><HouseSVG digit={TARGET}/></div>
           <div className="g1-tapgrid">
-            {Array.from({ length: TARGET }).map((_, i) => {
+            {Array.from({ length: BASE }).map((_, i) => (
+              <div key={`b${i}`} className="g1-tapcell g1-tapcell-base on"><ItemSvg kind="ball"/></div>
+            ))}
+            {Array.from({ length: ADD }).map((_, i) => {
               const on = !!orders[i];
               return (
                 <button key={i} className={`g1-tapcell ${on ? 'on' : ''}`} disabled={done || on} onClick={() => tap(i)}>
@@ -3022,9 +3078,9 @@ const Screen3 = (props) => {
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
         </h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.6vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)', flexWrap: 'wrap' }}>
-          <ItemRow n={3} kind="pot"/>
+          <ItemRow n={7} kind="ball"/>
           <span className="g1-arrow" aria-hidden="true">→</span>
-          <DoorCard d={3} size="mid" tone="accent"/>
+          <DoorCard d={7} size="mid" tone="accent"/>
         </div>
         <BitSays text={t(c.tip)}/>
       </div>
@@ -3041,8 +3097,8 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <HouseFig digit={solved ? 3 : null} n={3} kind="ball" cat={solved} v={2}/>}
-      options={[<DigitGlyph d={2} size="sm"/>, <DigitGlyph d={3} size="sm"/>, <DigitGlyph d={4} size="sm"/>, <DigitGlyph d={5} size="sm"/>]}
+      figure={() => <HouseFig digit={null} n={7} kind="ball"/>}
+      options={[<DigitGlyph d={5} size="sm"/>, <DigitGlyph d={7} size="sm"/>, <DigitGlyph d={8} size="sm"/>, <DigitGlyph d={2} size="sm"/>]}
       correctIdx={1}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -3051,41 +3107,55 @@ const Screen4 = (props) => {
   );
 };
 
-// s5 — EXPLORATION: raqam YOZISH — katakli daftar (kletka) fonida raqam maktab qoidasi bo'yicha yoziladi.
+// s5 — EXPLORATION (NOL): bo'sh uy (0) vs 1 buyumli uy — bosib solishtirish.
+const S5_HOUSES = [
+  { id: 'empty', n: 0 },
+  { id: 'one', n: 1, kind: 'ball' },
+];
 const Screen5 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s5;
   const audio = useAudio(makeAutoSegments(c, lang));
-  const [active, setActive] = useState(1);   // kirishda 1 raqami yoziladi
+  const [seen, setSeen] = useState({});
+  const [active, setActive] = useState(null);
+  const full = Object.keys(seen).length === S5_HOUSES.length;
+  const tap = (h) => {
+    setActive(h.id);
+    if (!seen[h.id]) setSeen((p) => ({ ...p, [h.id]: true }));
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][h.n]); }
+  };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!full} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)' }}>
-          <div className="g1-krow">
-            {[1, 2, 3, 4, 5].map((d) => (
-              <button key={d} className={`g1-kcell ${active === d ? 'active' : ''}`} onClick={() => setActive(d)} aria-label={String(d)}>
-                {active === d
-                  ? <DigitWrite key={d} d={d}/>
-                  : <span className="g1-kcell-num"><DigitGlyph d={d} size="sm" tone="ink"/></span>}
-              </button>
-            ))}
-          </div>
-          <p className="g1-feature-txt">{DIGIT_FEATURE[lang][active]}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 'clamp(16px, 5vw, 44px)', flexWrap: 'wrap', padding: 'clamp(14px, 2.6vw, 22px)' }}>
+          {S5_HOUSES.map((h) => (
+            <button key={h.id} className={`g1-housebtn ${seen[h.id] ? 'g1-housebtn-ok' : ''} ${active === h.id ? 'active' : ''}`} onClick={() => tap(h)}>
+              <HouseSVG digit={h.n}/>
+              <div className="g1-yard">
+                {h.n > 0 ? <ItemRow n={h.n} kind={h.kind}/> : <span className="g1-hint-txt">{lang === 'uz' ? 'hech narsa' : 'ничего'}</span>}
+              </div>
+            </button>
+          ))}
         </div>
+        {full && (
+          <div className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
       </div>
     </Stage>
   );
 };
 
-// s6 — RULE: ko'rinishidan tanaymiz (1-5 eshik plitalari qatori).
+// s6 — RULE (NOL): bo'sh uy + katta 0 raqami.
 const Screen6 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3103,8 +3173,10 @@ const Screen6 = (props) => {
         <h1 className="title h-sub fade-up">
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
         </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(8px, 2vw, 16px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          {[1, 2, 3, 4, 5].map((d) => <DoorCard key={d} d={d} size="sm"/>)}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(16px, 4vw, 34px)', padding: 'clamp(16px, 3vw, 26px)', flexWrap: 'wrap' }}>
+          <div className="g1-s2house"><HouseSVG digit={0}/></div>
+          <span className="g1-arrow" aria-hidden="true">→</span>
+          <DigitGlyph d={0} size="big" tone="accent"/>
         </div>
         <BitSays text={t(c.tip)}/>
       </div>
@@ -3112,7 +3184,7 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST MC: qaysi eshik besh? (faqat shakl). variantlar eshiklar [2,5,3,4] to'g'ri idx1.
+// s7 — TEST MC (NOL): qaysi uy bo'sh (=0)? variantlar uylar [1 buyum, bo'sh, 2 buyum] to'g'ri idx1.
 const Screen7 = (props) => {
   const c = CONTENT.s7;
   const t = useT();
@@ -3121,7 +3193,11 @@ const Screen7 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      options={[<DoorCard d={2}/>, <DoorCard d={5}/>, <DoorCard d={3}/>, <DoorCard d={4}/>]}
+      options={[
+        <div className="g1-opt-house"><HouseSVG digit={1}/><div className="g1-yard"><ItemRow n={1} kind="ball"/></div></div>,
+        <div className="g1-opt-house"><HouseSVG digit={0}/><div className="g1-yard"><span className="g1-hint-txt">{t({ ru: 'пусто', uz: "bo'sh" })}</span></div></div>,
+        <div className="g1-opt-house"><HouseSVG digit={2}/><div className="g1-yard"><ItemRow n={2} kind="cube"/></div></div>,
+      ]}
       correctIdx={1}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -3130,52 +3206,39 @@ const Screen7 = (props) => {
   );
 };
 
-// s8 — TEST (raqami noto'g'ri uyni top): 3 uy = buyumlar + plita raqami; biri mos kelmaydi.
-const S8_HOUSES = [{ n: 3, label: 3, kind: 'pot' }, { n: 4, label: 3, kind: 'ball' }, { n: 2, label: 2, kind: 'cube' }];
-const S8_WRONG = 1;
-const Screen8 = (props) => {
-  const c = CONTENT.s8;
+// s7b — TEST MC (NOL natija): 3 buyum birin-ketin yo'qoladi -> nechta qoldi? to'g'ri = nol (idx1).
+const Screen7b = (props) => {
+  const lang = useLang();
   const t = useT();
+  const c = CONTENT.s7b;
+  const reduced = usePrefersReducedMotion();
+  const [left, setLeft] = useState(3);
+  useEffect(() => {
+    if (reduced) { const id = setTimeout(() => setLeft(0), 0); return () => clearTimeout(id); }
+    let alive = true; let v = 3; const timers = [];
+    const tick = () => {
+      if (!alive) return;
+      v -= 1; setLeft(v);
+      if (v > 0) timers.push(setTimeout(tick, 900));
+    };
+    timers.push(setTimeout(tick, 1100));
+    return () => { alive = false; timers.forEach(clearTimeout); };
+  }, [reduced]);
   return (
     <QuestionScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      options={S8_HOUSES.map((b, i) => (
-        <div key={i} className="g1-opt-house"><HouseSVG digit={b.label} v={b.n - 1}/><div className="g1-yard"><ItemRow n={b.n} kind={b.kind}/></div></div>
-      ))}
-      optionsCols={1}
-      correctIdx={S8_WRONG}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s9 — TEST MC: raqamga mos uyni top (predmetlarni sanab). s10/s15 ko'rinishi (A/B/C, bitta qatordan).
-const S9_TARGET = 4;
-const S9_OPTS = [{ n: 2, kind: 'ball' }, { n: 4, kind: 'cube' }, { n: 5, kind: 'pot' }];   // to'g'ri = idx1 (to'rtta)
-const S9_CORRECT = 1;
-const Screen9 = (props) => {
-  const c = CONTENT.s9;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <div className="g1-qfig"><DoorCard d={S9_TARGET} size="mid"/></div>}
-      options={S9_OPTS.map((o, i) => (
-        <div key={i} className="g1-opt-house"><HouseSVG digit={null} v={o.n - 1}/><div className="g1-yard"><ItemRow n={o.n} kind={o.kind}/></div></div>
-      ))}
-      optionsCols={1}
-      correctIdx={S9_CORRECT}
-      celebrateOnCorrect={() => (
-        <div className="g1-opt-house g1-opt-house-cel">
-          <HouseSVG digit={S9_TARGET} v={S9_TARGET - 1}/>
-          <div className="g1-yard"><ItemRow n={S9_OPTS[S9_CORRECT].n} kind={S9_OPTS[S9_CORRECT].kind}/></div>
+      figure={() => (
+        <div className="g1-housefig">
+          <HouseSVG digit={null}/>
+          <div className="g1-yard" style={{ minHeight: 'clamp(36px, 8vw, 52px)' }}>
+            {left > 0 ? <ItemRow n={left} kind="ball" anim="none"/> : <span className="g1-hint-txt">{lang === 'uz' ? 'hovli bo‘sh' : 'двор пуст'}</span>}
+          </div>
         </div>
       )}
+      options={[<DigitGlyph d={1} size="sm"/>, <DigitGlyph d={0} size="sm"/>, <DigitGlyph d={3} size="sm"/>]}
+      correctIdx={1}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3183,7 +3246,178 @@ const Screen9 = (props) => {
   );
 };
 
-// s10 — TEST (tartiblash, tap): uylarni 1->5 tartibida bosish (Anvar ko'cha bo'ylab).
+// s8 — TEST (juftlash, tap): sonni bosing -> shuncha buyumli uyni bosing (6-10).
+const S8_NUMS = [6, 8, 10];
+const S8_HOUSES = [{ id: 'h10', n: 10, kind: 'cube' }, { id: 'h6', n: 6, kind: 'ball' }, { id: 'h8', n: 8, kind: 'pot' }];
+const Screen8 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s8;
+  const sfx = useSfx();
+  const audio = useAudio([{ id: 's8_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAns = useCanAnswer(audio);
+  const wasSolved = props.storedAnswer?.solved === true;
+  const [matched, setMatched] = useState(() => (wasSolved ? { 6: 'h6', 8: 'h8', 10: 'h10' } : {}));
+  const [selNum, setSelNum] = useState(null);
+  const [nudge, setNudge] = useState(null);
+  const [praiseWord, setPraiseWord] = useState('');
+  const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
+  const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
+  const doneCount = Object.keys(matched).length;
+  const allDone = doneCount === S8_NUMS.length;
+  const houseTaken = (hid) => Object.values(matched).includes(hid);
+
+  const finish = useCallback(() => {
+    const ft = firstTryRef.current !== false;
+    props.onAnswer({
+      stage: SCREEN_META[props.screen].scope, screenIdx: props.screen,
+      question: null, options: null, correctIndex: null, correctAnswer: null,
+      studentAnswerIndex: null, studentAnswer: null,
+      correct: ft, firstTry: ft, attempts: attemptsRef.current, solved: true
+    });
+  }, [props]);
+
+  const tapNum = (d) => { if (matched[d] || allDone || !canAns) return; setSelNum(d); };
+  const tapHouse = (h) => {
+    if (allDone || selNum === null || houseTaken(h.id) || !canAns) return;
+    attemptsRef.current += 1;
+    if (h.n === selNum) {
+      const nm = { ...matched, [selNum]: h.id };
+      setMatched(nm); setSelNum(null);
+      sfx.playCorrect();
+      const pw = nextPraise(lang); setPraiseWord(pw);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][selNum]); if (Object.keys(nm).length < S8_NUMS.length) e.pushOneOff(c.correct_text[lang]); else { e.pushOneOff(pw); e.pushOneOff(c.done_text[lang]); } } }
+      if (Object.keys(nm).length === S8_NUMS.length) finish();
+    } else {
+      firstTryRef.current = false;
+      setNudge(h.id); setTimeout(() => setNudge(null), 450);
+      sfx.playWrong();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((c.wrong_default || c.audio.on_wrong)[lang]); }
+    }
+  };
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!allDone} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{doneCount} / {S8_NUMS.length}</span></p>
+        <div className="g1-match fade-up delay-1">
+          <div className="g1-match-digits">
+            {S8_NUMS.map((d) => {
+              const used = !!matched[d];
+              return (
+                <button key={d} className={`g1-doorbtn ${used ? 'used' : ''} ${selNum === d ? 'active' : ''}`} disabled={used || allDone || !canAns} onClick={() => tapNum(d)}>
+                  <DoorCard d={d} tone={selNum === d ? 'accent' : 'ink'}/>
+                </button>
+              );
+            })}
+          </div>
+          <div className="g1-match-houses">
+            {S8_HOUSES.map((h) => {
+              const takenBy = Object.keys(matched).find((d) => matched[d] === h.id);
+              return (
+                <button key={h.id} className={`g1-housebtn ${takenBy ? 'g1-housebtn-ok' : ''} ${nudge === h.id ? 'g1-nudge' : ''}`} disabled={!!takenBy || allDone || selNum === null || !canAns} onClick={() => tapHouse(h)}>
+                  <HouseSVG digit={takenBy || null}/>
+                  <div className="g1-yard"><ItemRow n={h.n} kind={h.kind}/></div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        {allDone && (
+          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Reaction state="correct" praise={praiseWord}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s9 — TEST (raqami noto'g'ri uyni top): 3 uy = buyumlar + plita raqami; biri mos kelmaydi (n=9, plita=8).
+const S9_HOUSES = [{ n: 7, label: 7, kind: 'pot' }, { n: 9, label: 8, kind: 'ball' }, { n: 6, label: 6, kind: 'cube' }];
+const S9_WRONG = 1;
+const Screen9 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s9;
+  const sfx = useSfx();
+  const audio = useAudio([{ id: 's9_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAns = useCanAnswer(audio);
+  const wasSolved = props.storedAnswer?.solved === true;
+  const [solved, setSolved] = useState(wasSolved);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [praiseWord, setPraiseWord] = useState('');
+  const [encWord, setEncWord] = useState('');
+  const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
+  const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
+  const pick = (i) => {
+    if (solved || wrong.has(i) || !canAns) return;
+    attemptsRef.current += 1;
+    if (i === S9_WRONG) {
+      setSolved(true); sfx.playCorrect();
+      const pw = nextPraise(lang); setPraiseWord(pw);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff(c.correct_text[lang]); } }
+      const ft = firstTryRef.current !== false;
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen,
+        question: null, options: null, correctIndex: S9_WRONG, correctAnswer: null,
+        studentAnswerIndex: i, studentAnswer: null,
+        correct: ft, firstTry: ft, attempts: attemptsRef.current, solved: true
+      });
+    } else {
+      firstTryRef.current = false;
+      setWrong((p) => { const s = new Set(p); s.add(i); return s; });
+      setEncWord(nextEncourage(lang));
+      sfx.playWrong();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((c.wrong_default || c.audio.on_wrong)[lang]); }
+    }
+  };
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!solved} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+        <h2 className="title h-sub fade-up">{t(c.title)}</h2>
+        <div className="g1-houses fade-up delay-1">
+          {S9_HOUSES.map((b, i) => {
+            const isWrong = wrong.has(i);
+            const isOk = solved && i === S9_WRONG;
+            let cls = 'g1-housebtn';
+            if (isOk) cls += ' g1-housebtn-ok';
+            else if (isWrong) cls += ' g1-housebtn-faded';
+            return (
+              <button key={i} className={cls} disabled={solved || isWrong || !canAns} onClick={() => pick(i)}>
+                <HouseSVG digit={b.label}/>
+                <div className="g1-yard"><ItemRow n={b.n} kind={b.kind}/></div>
+              </button>
+            );
+          })}
+        </div>
+        {solved && (
+          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
+            <Reaction state="correct" praise={praiseWord}/>
+          </FeedbackBlock>
+        )}
+        {!solved && wrong.size > 0 && (
+          <FeedbackBlock show={true} isCorrect={false} wrongClass="frame-tip">
+            <Reaction state="wrong" praise={encWord}/>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s10 — TEST (tartiblash, tap): uylarni 6->10 tartibida bosish (Anvar ko'cha bo'ylab).
 const Screen10 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3191,14 +3425,14 @@ const Screen10 = (props) => {
   const sfx = useSfx();
   const audio = useAudio([{ id: 's10_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
   const canAns = useCanAnswer(audio);
-  const ORDER = [3, 1, 5, 2, 4];
+  const ORDER = [8, 6, 10, 7, 9];
   const wasSolved = props.storedAnswer?.solved === true;
-  const [next, setNext] = useState(wasSolved ? 6 : 1);
+  const [next, setNext] = useState(wasSolved ? 11 : 6);
   const [nudge, setNudge] = useState(null);
   const [praiseWord, setPraiseWord] = useState('');
   const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
   const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
-  const allDone = next > 5;
+  const allDone = next > 10;
   const tap = (d) => {
     if (allDone || d < next || !canAns) return;
     attemptsRef.current += 1;
@@ -3207,7 +3441,7 @@ const Screen10 = (props) => {
       setNext(nn);
       sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][d]); }
-      if (nn > 5) {
+      if (nn > 10) {
         const pw = nextPraise(lang); setPraiseWord(pw);
         if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff(c.done_text[lang]); } }
         const ft = firstTryRef.current !== false;
@@ -3237,7 +3471,7 @@ const Screen10 = (props) => {
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
           <div className="g1-track">
-            {[1, 2, 3, 4, 5].map((slot) => (
+            {[6, 7, 8, 9, 10].map((slot) => (
               <div key={slot} className={`g1-track-tile ${slot < next ? 'g1-track-filled g1-pop-in' : 'gap'}`}>
                 <span className="mono">{slot < next ? slot : ''}</span>
               </div>
@@ -3264,8 +3498,8 @@ const Screen10 = (props) => {
   );
 };
 
-// sd — MINI-O'YIN (drag): uy oldiga eshikdagi raqamcha buyum torting. Ball yo'q.
-const COLLECT_ROUNDS = [{ digit: 3, kind: 'ball' }, { digit: 5, kind: 'cube' }];
+// sd — MINI-O'YIN (drag): uy oldiga eshikdagi raqamcha buyum torting (6-10). Ball yo'q.
+const COLLECT_ROUNDS = [{ digit: 6, kind: 'ball' }, { digit: 7, kind: 'cube' }];
 const HouseCollect = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3369,7 +3603,8 @@ const HouseCollect = (props) => {
   );
 };
 
-// s11 — TEST final + FactCard: qaysi uy beshinchi? (uylar 4/5/3). Tabrik+fakt YONMA-YON (skrolsiz).
+// s11 — TEST final + FactCard: qaysi uy o'ninchi? (uylar 9/10/7, plitasiz — sanab topiladi).
+// Tabrik + fakt (nol haqida) YONMA-YON (skrolsiz).
 const Screen11 = (props) => {
   const c = CONTENT.s11;
   const t = useT();
@@ -3379,19 +3614,18 @@ const Screen11 = (props) => {
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       options={[
-        <div className="g1-opt-house"><HouseSVG digit={4}/><div className="g1-yard"><ItemRow n={4} kind="ball"/></div></div>,
-        <div className="g1-opt-house"><HouseSVG digit={5}/><div className="g1-yard"><ItemRow n={5} kind="cube"/></div></div>,
-        <div className="g1-opt-house"><HouseSVG digit={3}/><div className="g1-yard"><ItemRow n={3} kind="pot"/></div></div>,
+        <div className="g1-opt-house"><HouseSVG digit={null}/><div className="g1-yard"><ItemRow n={9} kind="ball"/></div></div>,
+        <div className="g1-opt-house"><HouseSVG digit={null}/><div className="g1-yard"><ItemRow n={10} kind="cube"/></div></div>,
+        <div className="g1-opt-house"><HouseSVG digit={null}/><div className="g1-yard"><ItemRow n={7} kind="pot"/></div></div>,
       ]}
-      optionsCols={1}
       correctIdx={1}
       celebrateOnCorrect={() => (
-        <div className="g1-final-street"><StreetScene final/></div>
-      )}
-      factOnCorrect={(
-        <div className="g1-handfact fade-up">
-          <div className="g1-factdigits">{[1, 2, 3, 4, 5].map((d) => <DigitGlyph key={d} d={d} size="sm"/>)}</div>
-          <p className="g1-handfact-txt">{t(c.fact_text)}</p>
+        <div className="g1-final-row">
+          <div className="g1-final-street"><StreetScene final/></div>
+          <div className="g1-handfact">
+            <div className="g1-factdigits"><DigitGlyph d={0} size="big" tone="accent"/></div>
+            <p className="g1-handfact-txt">{t(c.fact_text)}</p>
+          </div>
         </div>
       )}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -3431,7 +3665,6 @@ const Screen12 = (props) => {
           <h2 className="title h-sub" style={{ margin: 0 }}>
             {t(c.main_1)} <span className="italic" style={{ color: T.success }}>{t(c.main_2_em)}</span>
           </h2>
-          <p className="g1-cando-sub">{t(c.main_3)}</p>
         </div>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <div className="g1-final-street"><StreetScene final/></div>
@@ -3444,7 +3677,7 @@ const Screen12 = (props) => {
 // ============================================================
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1)
 // ============================================================
-export default function CountingDigitsLesson({
+export default function NumbersZeroLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -3492,7 +3725,7 @@ export default function CountingDigitsLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, HouseCollect, ScreenGuest, Screen11, Screen12];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen7b, Screen8, Screen9, Screen10, HouseCollect, ScreenGuest, Screen11, Screen12];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -4279,60 +4512,31 @@ html, body { margin: 0; padding: 0; }
 .g1-doorbtn.placed { opacity: 0.45; }
 .g1-doorbtn:disabled { cursor: default; }
 
-/* UY (svg) + hovli — ixcham (mobil + skrolsiz) */
-.g1-house-svg { width: clamp(74px, 15.5vw, 104px); height: auto; display: block; }
-/* mushukcha uy uchidan chiqadi (to'g'ri javobda) */
-.g1-house-cat { animation: g1CatPop 0.55s cubic-bezier(0.34,1.5,0.6,1) both; }
-@keyframes g1CatPop { 0% { transform: translateY(16px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+/* UY (svg) + hovli */
+.g1-house-svg { width: clamp(92px, 19vw, 126px); height: auto; display: block; }
 .g1-housefig { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.4vw, 10px); }
 .g1-yard { display: flex; justify-content: center; }
-.g1-s2house .g1-house-svg { width: clamp(80px, 16vw, 106px); }
-/* s11 — har variant alohida qatorda: uy | buyumlar (gorizontal, predmetlar ko'rinadi) */
-.g1-opt-house { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: clamp(14px, 3.4vw, 26px); width: 100%; padding-left: clamp(4px, 2vw, 16px); }
-.g1-opt-house .g1-house-svg { width: clamp(56px, 13vw, 82px); flex: none; }
-.g1-opt-house .g1-yard { flex: none; }
-/* s9 — variant harfi (A/B/C), s15 dagidek */
-.g1-opt-letter { font-family: 'JetBrains Mono', monospace; font-size: clamp(12px, 1.6vw, 14px); font-weight: 700; color: #A7A6A2; min-width: 18px; flex: none; text-align: center; }
-/* s9 — to'g'ri javobdan keyin uy raqami bilan ko'rinadi (markazda) */
-.g1-opt-house-cel { justify-content: center; }
+.g1-s2house .g1-house-svg { width: clamp(92px, 19vw, 122px); }
+.g1-opt-house { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.g1-opt-house .g1-house-svg { width: clamp(62px, 13vw, 86px); }
 
-/* s8 / s9 — uy tugmalari: HAR UY ALOHIDA QATORDA, gorizontal (uy | predmetlar), chapga tekis */
-.g1-houses { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 14px); }
-.g1-housebtn { background: #FFFFFF; border: none; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); padding: clamp(8px, 1.8vw, 13px) clamp(14px, 3.4vw, 24px); display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: clamp(14px, 3.6vw, 28px); width: 100%; max-width: 460px; cursor: pointer; transition: all 0.2s; }
-.g1-housebtn:hover:not(:disabled) { background: #FDFBF7; box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22); }
-.g1-housebtn-ok { background: #E3F0E8; box-shadow: 0 8px 22px -6px rgba(31, 122, 77, 0.32); }
+/* s8 / s9 — uy tugmalari */
+.g1-houses { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(10px, 2.2vw, 18px); }
+.g1-housebtn { background: #FFFFFF; border: 2px solid #E7E1D6; border-radius: 18px; padding: clamp(8px, 1.8vw, 13px); display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 8px); cursor: pointer; transition: transform 0.15s ease, border-color 0.2s ease, opacity 0.2s ease; }
+.g1-housebtn:hover:not(:disabled) { transform: translateY(-2px); }
+.g1-housebtn-ok { border-color: #1F7A4D; background: #EFF7F1; }
 .g1-housebtn-faded { opacity: 0.4; }
 .g1-housebtn:disabled { cursor: default; }
-.g1-housebtn .g1-house-svg { width: clamp(56px, 13vw, 82px); flex: none; }
-.g1-housebtn .g1-yard { flex: none; }
+.g1-housebtn .g1-house-svg { width: clamp(64px, 13.5vw, 92px); }
 
 /* s9 — juftlash tartibi */
 .g1-match { display: flex; flex-direction: column; gap: clamp(12px, 2.4vw, 18px); }
 .g1-match-digits { display: flex; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 14px); }
-.g1-match-houses { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.8vw, 14px); }
+.g1-match-houses { display: flex; justify-content: center; flex-wrap: wrap; gap: clamp(10px, 2.2vw, 16px); }
 
 /* s5 — shakl belgisi */
-.g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(120px, 24vw, 168px); justify-content: center; }
+.g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(90px, 18vw, 130px); justify-content: center; }
 .g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #FF4F28; }
-
-/* s5 — KATAKLI DAFTAR (kletka) fonida raqam yoziladi */
-.g1-krow { display: flex; flex-wrap: nowrap; justify-content: center; align-items: stretch; gap: clamp(6px, 1.8vw, 16px); width: 100%; }
-.g1-kcell { position: relative; flex: 1 1 0; min-width: 0; max-width: clamp(98px, 17.5vw, 150px); aspect-ratio: 64 / 92; padding: 0; cursor: pointer; overflow: hidden; border: 2.5px solid #BFE0EC; border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-  background-color: #FBFEFF;
-  background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
-  background-size: clamp(18px, 4.4vw, 29px) clamp(18px, 4.4vw, 29px); }
-.g1-kcell:hover:not(.active) { transform: translateY(-2px); }
-.g1-kcell.active { border-color: #FF4F28; box-shadow: 0 0 0 2px #FFD3C7; }
-.g1-kcell .g1-write { width: 100%; height: 100%; }
-.g1-kcell-num { display: flex; align-items: center; justify-content: center; opacity: 0.5; }
-
-/* s5 — raqamni YOZISH demosi (qizil chiziq pathLength bilan ketma-ket) */
-.g1-write { width: clamp(86px, 19vw, 128px); height: auto; }
-.g1-write-ghost { fill: none; stroke: #F2DDD3; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
-.g1-write-ink { fill: none; stroke: #FF4F28; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
-
-/* summary — qo'shimcha "ko'rinishini bilasiz" qatori */
-.g1-cando-sub { font-size: clamp(13px, 1.7vw, 15px); color: #1F7A4D; font-weight: 600; margin: 6px 0 0; }
 
 /* s2 — joylash katakchalari */
 .g1-tapgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 1.6vw, 12px); }
@@ -4356,14 +4560,17 @@ html, body { margin: 0; padding: 0; }
 .g1-street-house.in { opacity: 1; transform: none; }
 .g1-street-house .g1-house-svg { width: 18cqw; }   /* baland 2-qavatli uy: eshik odam bo'yidan baland */
 .g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(255,79,40,0.8)); }
-.g1-street-anvar, .g1-street-rano { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
-.g1-street-anvar.in, .g1-street-rano.in { opacity: 1; }
+.g1-street-anvar, .g1-street-rano, .g1-street-zaynab { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
+.g1-street-anvar.in, .g1-street-rano.in, .g1-street-zaynab.in { opacity: 1; }
 /* personajlar OLD PLANDA, kichik (eshik bo'yida) — real proporsiya + chuqurlik */
 .g1-street-anvar { left: 6%; bottom: 0; }
-.g1-street-rano { left: 46%; right: auto; bottom: 6%; }   /* 5-uy o'rtada -> Ra'no markazda, o'z eshigi oldida */
-.g1-street-anvar .g1-char, .g1-street-rano .g1-char { width: 6cqw; height: auto; }
+.g1-street-rano { right: 11%; bottom: 6%; }
+.g1-street-zaynab { right: 4%; bottom: 0; }
+.g1-street-anvar .g1-char, .g1-street-rano .g1-char, .g1-street-zaynab .g1-char { width: 6cqw; height: auto; }
 .g1-street .g1-cast-name { display: none; }
-.g1-street-final .g1-street-anvar { left: 28%; right: auto; bottom: 0; }   /* final: Anvar markazdan 5-uy (o'ng) tomon yuradi, Ra'no bilan tig'iz emas */
+.g1-street-final .g1-street-anvar { left: auto; right: 27%; bottom: 0; }
+.g1-street-final .g1-street-rano { right: 15%; bottom: 4%; }
+.g1-street-final .g1-street-zaynab { right: 3%; bottom: 6%; }
 /* Anvar YURIB keladi (chapdan o'z joyiga) */
 @keyframes g1WalkIn {
   0%   { transform: translateX(-260%) translateY(0)    rotate(0deg); }
@@ -4376,6 +4583,16 @@ html, body { margin: 0; padding: 0; }
 }
 .g1-street-anvar.in { animation: g1WalkIn 2.6s ease-out both; }
 
+/* "5 va yana" — 5 talik guruh + qolgani orasida bo'shliq (6-10 ni o'qish uchun) */
+.g1-pips-five { gap: 0; }
+.g1-five-grp, .g1-more-grp { display: inline-flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); align-items: center; }
+.g1-five-grp { padding-right: clamp(8px, 2.4vw, 18px); border-right: 2px dashed rgba(58,53,48,0.16); margin-right: clamp(8px, 2.4vw, 18px); }
+.g1-pips-wrap.g1-pips-five { flex-wrap: wrap; row-gap: clamp(4px, 1.2vw, 9px); }
+
+/* s2 — "5 ta tayyor" kataklari (bosib bo'lmaydi, yengil ko'rsatilgan) */
+.g1-tapcell-base { border-color: #D8D0C2; background: #F4F1EA; cursor: default; }
+.g1-tapcell-base svg { opacity: 0.78; }
+
 /* final / summary — rasm + matn YONMA-YON (skrolsiz) */
 .g1-final-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: clamp(12px, 2.6vw, 22px); width: 100%; }
 .g1-final-row .g1-final-street { flex: 1 1 280px; max-width: 420px; }
@@ -4383,7 +4600,7 @@ html, body { margin: 0; padding: 0; }
 .g1-sum-row { display: flex; flex-wrap: wrap; align-items: center; gap: clamp(12px, 2.6vw, 22px); }
 .g1-sum-row .g1-final-street { flex: 1 1 300px; max-width: 440px; }
 .g1-sum-col { flex: 1 1 240px; min-width: 230px; display: flex; flex-direction: column; gap: clamp(10px, 2vw, 14px); }
-.g1-final-street { width: 100%; max-width: 440px; margin: 0 auto; }
+.g1-final-street { width: 100%; }
 
 /* s11 — final fakt: 1-5 raqamlari qatori */
 .g1-factdigits { display: flex; justify-content: center; gap: clamp(6px, 1.6vw, 12px); }
@@ -4401,9 +4618,8 @@ html, body { margin: 0; padding: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .g1-scatter-d { animation: none; }
-  .g1-street-house, .g1-street-anvar, .g1-street-rano { transition: none; }
+  .g1-street-house, .g1-street-anvar, .g1-street-rano, .g1-street-zaynab { transition: none; }
   .g1-street-anvar.in { animation: none; }
-  .g1-house-cat { animation: none; }
 }
 
 `;
