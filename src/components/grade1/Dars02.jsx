@@ -853,7 +853,7 @@ const CONTENT = {
   // ---- sIntro SYUJET KIRISH — Bit boshlovchi, o'tgan darsga bog'lanish (qayta tanishtirish YO'Q) ----
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: "Анвар ищет дом Рано', uz: 'Anvar Ra'noning uyini qidiradi" },
+    title: { ru: "Анвар ищет дом Рано", uz: "Anvar Ra'noning uyini qidiradi" },
     body: {
       ru: 'В прошлый раз мы вместе считали. Сегодня Анвар идёт в гости к Рано. На улице пять домов, и у каждого свой номер. Рано живёт в пятом доме. Но номера на дверях перепутались — поможем Анвару найти нужный дом.',
       uz: "O'tgan safar biz birga sanagandik. Bugun Anvar Ra'nonikiga mehmonga ketyapti. Ko'chada beshta uy bor, har birining o'z raqami bor. Ra'no beshinchi uyda yashaydi. Lekin eshiklardagi raqamlar aralashib ketdi — Anvarga kerakli uyni topishga yordam beramiz."
@@ -1160,7 +1160,7 @@ const CONTENT = {
     conn_next: { ru: 'Числа от 6 до 10 и число ноль.', uz: "6 dan 10 gacha sonlar va nol soni." },
     audio: {
       ru: 'Анвар нашёл дом Рано. А ты сегодня научился узнавать цифры от одного до пяти. Важно знать не только их имена, но и как выглядит каждая цифра. На следующем уроке встретим числа от шести до десяти и ноль.',
-      uz: "Anvar Ra'noning uyini topdi. Siz esa bugun birdan beshgacha raqamlarni o'rgandingiz. Faqat ularning nomini emas, balki har raqam qanday ko'rinishini bilish ham muhim. Keyingi darsda olti dan o'ngacha sonlar va nol bilan tanishamiz."
+      uz: "Anvar Ra'noning uyini topdi. Siz esa bugun birdan beshgacha raqamlarni o'rgandingiz. Faqat ularning nomini emas, balki har raqam qanday ko'rinishini bilish ham muhim. Keyingi darsda oltidan o'ngacha sonlar va nol bilan tanishamiz."
     }
   }
 };
@@ -1590,50 +1590,6 @@ const CountDemo = ({ max = 5, kind = 'apple', variety = false, highlightLast = f
         })}
       </div>
       {showNumbers && <div className={`g1-demo-num mono ${highlightLast ? 'big' : ''}`}>{k}</div>}
-    </div>
-  );
-};
-
-// CountExamples — bir nechta misolni ketma-ket sanaydi (har xil narsa), so'ng onDone.
-// "Sonlar bilan hamma narsani sanaymiz" g'oyasi uchun. reduced-motion -> oxirgi misol + onDone.
-const S1_EXAMPLES = [{ n: 2, kind: 'flower' }, { n: 3, kind: 'apple' }, { n: 4, kind: 'star' }, { n: 5, kind: 'fish' }];
-const CountExamples = ({ examples, onDone, stepMs = 680, pauseMs = 1100 }) => {
-  const reduced = usePrefersReducedMotion();
-  const [ei, setEi] = useState(0);
-  const [k, setK] = useState(0);
-  const doneRef = useRef(false);
-  useEffect(() => {
-    if (reduced) {
-      const id = setTimeout(() => { setEi(examples.length - 1); setK(examples[examples.length - 1].n); if (onDone) onDone(); }, 0);
-      return () => clearTimeout(id);
-    }
-    let alive = true; let timer; let e = 0; let c = 0;
-    const tick = () => {
-      if (!alive) return;
-      setEi(e); setK(c);
-      const n = examples[e].n;
-      if (c < n) { c += 1; timer = setTimeout(tick, stepMs); return; }
-      if (e < examples.length - 1) { e += 1; c = 0; timer = setTimeout(tick, pauseMs); return; }
-      if (!doneRef.current) { doneRef.current = true; if (onDone) onDone(); }
-    };
-    timer = setTimeout(tick, 550);
-    return () => { alive = false; clearTimeout(timer); };
-  }, [examples, onDone, reduced, stepMs, pauseMs]);
-  const cur = examples[ei];
-  return (
-    <div className="g1-demo">
-      <div className="g1-demo-row">
-        {Array.from({ length: cur.n }).map((_, i) => {
-          const on = i < k;
-          return (
-            <span key={i} className={`g1-demo-cell ${on ? 'on' : ''}`}>
-              <ObjSvg kind={cur.kind}/>
-              {on && <span className="g1-demo-tag mono">{i + 1}</span>}
-            </span>
-          );
-        })}
-      </div>
-      <div className="g1-demo-num mono">{k}</div>
     </div>
   );
 };
@@ -2267,122 +2223,6 @@ const DasturxonScene = () => (
         <path className="g1-table-spark" style={{ animationDelay: '0s' }} d="M0,-5 L1.4,-1.4 L5,0 L1.4,1.4 L0,5 L-1.4,1.4 L-5,0 L-1.4,-1.4 Z" transform="translate(70 66)"/>
         <path className="g1-table-spark" style={{ animationDelay: '0.55s' }} d="M0,-5 L1.4,-1.4 L5,0 L1.4,1.4 L0,5 L-1.4,1.4 L-5,0 L-1.4,-1.4 Z" transform="translate(143 60) scale(0.85)"/>
         <path className="g1-table-spark" style={{ animationDelay: '1s' }} d="M0,-5 L1.4,-1.4 L5,0 L1.4,1.4 L0,5 L-1.4,1.4 L-5,0 L-1.4,-1.4 Z" transform="translate(228 74) scale(0.8)"/>
-      </g>
-    </svg>
-  </div>
-);
-
-// Mehmon sahnasi — gradientli eshik + choponli, yuzli mehmon (qo'l silkitadi, sovg'ali) + "taq-taq".
-const GuestScene = () => (
-  <div className="g1-guest-scene">
-    <svg viewBox="0 0 240 200" aria-hidden="true">
-      <defs>
-        <linearGradient id="g1doorS" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#B5793C"/><stop offset="100%" stopColor="#9A6430"/>
-        </linearGradient>
-        <linearGradient id="g1doorF" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#CE9351"/><stop offset="100%" stopColor="#A86B28"/>
-        </linearGradient>
-        <radialGradient id="g1skin" cx="40%" cy="35%" r="70%">
-          <stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/>
-        </radialGradient>
-        <linearGradient id="g1robe" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#4A93DE"/><stop offset="100%" stopColor="#275FA8"/>
-        </linearGradient>
-        <radialGradient id="g1warm" cx="50%" cy="42%" r="60%">
-          <stop offset="0%" stopColor="#FFE7AE" stopOpacity="0.9"/>
-          <stop offset="60%" stopColor="#FFD27A" stopOpacity="0.35"/>
-          <stop offset="100%" stopColor="#FFD27A" stopOpacity="0"/>
-        </radialGradient>
-      </defs>
-      {/* pol soyalari */}
-      <ellipse cx="66" cy="178" rx="48" ry="5.5" fill="rgba(58,53,48,0.12)"/>
-      <ellipse cx="170" cy="170" rx="34" ry="5" fill="rgba(58,53,48,0.12)"/>
-      {/* gilamcha (ostona oldida) */}
-      <ellipse cx="68" cy="183" rx="42" ry="7.5" fill="#C4452F"/>
-      <ellipse cx="68" cy="183" rx="34" ry="5.2" fill="none" stroke="#F0D9A0" strokeWidth="1.4" strokeDasharray="3 3"/>
-      {/* ESHIK: ramka + ichki soya + tabaqa */}
-      <rect x="22" y="18" width="92" height="160" rx="6" fill="url(#g1doorF)"/>
-      <rect x="28" y="24" width="80" height="154" rx="4" fill="#704626"/>
-      <rect x="31" y="27" width="74" height="151" rx="4" fill="url(#g1doorS)"/>
-      {/* yog'och tola chiziqlari */}
-      <g stroke="#7A4E22" strokeWidth="0.8" opacity="0.38">
-        <line x1="46" y1="30" x2="46" y2="175"/>
-        <line x1="68" y1="30" x2="68" y2="175"/>
-        <line x1="90" y1="30" x2="90" y2="175"/>
-      </g>
-      {/* panellar — bevel: tashqi quyuq ramka + ichki yorqin yuza */}
-      <rect x="38" y="36" width="58" height="54" rx="5" fill="#8A5826" stroke="#6E4520" strokeWidth="1.5"/>
-      <rect x="41" y="39" width="52" height="48" rx="4" fill="#A06A2E" stroke="rgba(255,255,255,0.16)" strokeWidth="1"/>
-      <rect x="38" y="98" width="58" height="68" rx="5" fill="#8A5826" stroke="#6E4520" strokeWidth="1.5"/>
-      <rect x="41" y="101" width="52" height="62" rx="4" fill="#A06A2E" stroke="rgba(255,255,255,0.16)" strokeWidth="1"/>
-      {/* dasta: plastinka + dumaloq tutqich */}
-      <rect x="93" y="97" width="6" height="20" rx="3" fill="#C98E33"/>
-      <circle cx="96" cy="107" r="4.6" fill="#F0C24A" stroke="#B8862E" strokeWidth="1.2"/>
-      <circle cx="94.5" cy="105.5" r="1.4" fill="rgba(255,255,255,0.6)"/>
-      {/* ostona */}
-      <rect x="20" y="176" width="96" height="5" rx="2" fill="#8A5A28"/>
-      {/* iliq kutib-olish nuri (eshikdan) */}
-      <ellipse className="g1-doorglow" cx="67" cy="100" rx="62" ry="78" fill="url(#g1warm)"/>
-      {/* taq-taq tovush yoylari */}
-      <g className="g1-knock" stroke="#8A8780" strokeWidth="2.4" fill="none" strokeLinecap="round">
-        <path d="M120 64 q7 10 0 22"/>
-        <path d="M127 58 q11 16 0 34"/>
-      </g>
-      {/* MEHMON */}
-      <g className="g1-guest">
-        <path d="M152 100 Q150 95 157 93 L181 93 Q188 95 186 100 L193 156 Q195 163 186 163 L152 163 Q143 163 145 156 Z" fill="url(#g1robe)"/>
-        <path d="M169 96 L169 160" stroke="rgba(0,0,0,0.12)" strokeWidth="2"/>
-        <path d="M161 94 L169 102 L177 94" fill="#275FA8"/>
-        {/* poyabzal (chopon etagidan ko'rinadi) */}
-        <ellipse cx="160" cy="164" rx="8.5" ry="3.6" fill="#3A2A1E"/>
-        <ellipse cx="178" cy="164" rx="8.5" ry="3.6" fill="#3A2A1E"/>
-        <ellipse cx="158" cy="163" rx="4" ry="1.4" fill="rgba(255,255,255,0.18)"/>
-        {/* pastki qo'l + sovg'a quticha */}
-        <path d="M156 102 Q149 120 153 137" stroke="url(#g1robe)" strokeWidth="10" fill="none" strokeLinecap="round"/>
-        <g>
-          <rect x="143" y="139" width="20" height="15" rx="2.5" fill="#E8557A"/>
-          <rect x="151" y="139" width="4" height="15" fill="#FBE3CF"/>
-          <rect x="143" y="145" width="20" height="4" fill="#FBE3CF"/>
-          <ellipse cx="149" cy="138" rx="4" ry="3" fill="#FBE3CF"/><ellipse cx="157" cy="138" rx="4" ry="3" fill="#FBE3CF"/><circle cx="153" cy="138" r="2" fill="#F0C9A0"/>
-        </g>
-        <circle cx="153" cy="138" r="5.5" fill="url(#g1skin)"/>
-        {/* sovg'a ustida uchqunlar */}
-        <g fill="#FFD86B">
-          <path className="g1-giftspark" style={{ animationDelay: '0s' }} d="M0,-4 L1.1,-1.1 L4,0 L1.1,1.1 L0,4 L-1.1,1.1 L-4,0 L-1.1,-1.1 Z" transform="translate(138 131)"/>
-          <path className="g1-giftspark" style={{ animationDelay: '0.5s' }} d="M0,-4 L1.1,-1.1 L4,0 L1.1,1.1 L0,4 L-1.1,1.1 L-4,0 L-1.1,-1.1 Z" transform="translate(168 134) scale(0.8)"/>
-          <path className="g1-giftspark" style={{ animationDelay: '0.9s' }} d="M0,-4 L1.1,-1.1 L4,0 L1.1,1.1 L0,4 L-1.1,1.1 L-4,0 L-1.1,-1.1 Z" transform="translate(153 123) scale(0.7)"/>
-        </g>
-        {/* silkiydigan qo'l */}
-        <g className="g1-guest-hand">
-          <path d="M184 100 Q202 88 208 70" stroke="url(#g1robe)" strokeWidth="10" fill="none" strokeLinecap="round"/>
-          <circle cx="209" cy="67" r="6.5" fill="url(#g1skin)"/>
-        </g>
-        {/* bo'yin + bosh */}
-        <rect x="164" y="84" width="10" height="10" fill="#E0A06E"/>
-        <circle cx="169" cy="72" r="16.5" fill="url(#g1skin)"/>
-        {/* soch (chakka) */}
-        <path d="M152 73 Q154 62 159 60 Q156 68 158 74 Z" fill="#3A2517"/>
-        <path d="M186 73 Q184 62 179 60 Q182 68 180 74 Z" fill="#3A2517"/>
-        {/* DOPPI (milliy bosh kiyim): gumbaz + jiyak + oq naqsh */}
-        <path d="M151 61 Q169 39 187 61 Q169 67 151 61 Z" fill="#1E2A33"/>
-        <path d="M151 61 Q169 67 187 61 L187 65 Q169 73 151 65 Z" fill="#121A22"/>
-        {/* qalampir motivlari (gumbazda): oq, to'q jiyakli, markaziy tomirli */}
-        <g fill="#F2F0EA" stroke="#121A22" strokeWidth="0.5" strokeLinejoin="round">
-          <g transform="translate(169 56.5)"><path d="M0 1 C -2.7 -1.6 -2.7 -6.2 0 -9.4 C 2.7 -6.2 2.7 -1.6 0 1 Z"/><path d="M0 -0.5 V-8" fill="none"/></g>
-          <g transform="translate(159.5 58) rotate(-26)"><path d="M0 1 C -2.3 -1.4 -2.3 -5.6 0 -8.4 C 2.3 -5.6 2.3 -1.4 0 1 Z"/><path d="M0 -0.5 V-7" fill="none"/></g>
-          <g transform="translate(178.5 58) rotate(26)"><path d="M0 1 C -2.3 -1.4 -2.3 -5.6 0 -8.4 C 2.3 -5.6 2.3 -1.4 0 1 Z"/><path d="M0 -0.5 V-7" fill="none"/></g>
-        </g>
-        {/* band jiyagi: an'anaviy mayda kamarchalar */}
-        <g fill="none" stroke="#F2F0EA" strokeWidth="0.9" strokeLinecap="round">
-          <path d="M154 64.2 q1.8 -2.5 3.6 0 M159.6 64.4 q1.8 -2.5 3.6 0 M165.2 64.5 q1.8 -2.5 3.6 0 M170.8 64.5 q1.8 -2.5 3.6 0 M176.4 64.4 q1.8 -2.5 3.6 0 M182 64.2 q1.8 -2.5 3.6 0"/>
-        </g>
-        {/* yuz */}
-        <circle cx="163" cy="71" r="1.9" fill="#3A2A1E"/>
-        <circle cx="175" cy="71" r="1.9" fill="#3A2A1E"/>
-        <path d="M163 78 Q169 84 175 78" stroke="#3A2A1E" strokeWidth="2" fill="none" strokeLinecap="round"/>
-        <ellipse cx="159" cy="78" rx="3" ry="2" fill="rgba(255,120,120,0.32)"/>
-        <ellipse cx="179" cy="78" rx="3" ry="2" fill="rgba(255,120,120,0.32)"/>
       </g>
     </svg>
   </div>
@@ -3975,7 +3815,6 @@ html, body { margin: 0; padding: 0; }
 .g1-table-spark { animation: g1tspark 1.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes g1tspark { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g1-table-non, .g1-table-apples, .g1-steam, .g1-table-sweep, .g1-table-spark { animation: none; } }
-.g1-guest-scene svg { width: clamp(275px, 68vw, 420px); height: auto; }
 /* yo'riqnoma chipi (1-slayd): tingla -> Davom */
 .g1-onboard { display: flex; align-items: center; justify-content: center; gap: clamp(8px,1.6vw,12px); align-self: center; background: #EAF6FB; border: 1px solid rgba(1,154,203,0.3); border-radius: 99px; padding: clamp(8px,1.5vw,11px) clamp(14px,2.6vw,20px); }
 .g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
