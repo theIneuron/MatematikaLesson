@@ -661,12 +661,16 @@ const NavBack = ({ onPrev, label = 'Назад' }) => (
   </button>
 );
 
-const NavNext = ({ disabled, label, onClick }) => (
-  <button className="btn-white-accent" disabled={FREE_NAV ? false : disabled} onClick={onClick}
-    style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
-    {label}
-  </button>
-);
+const NavNext = ({ disabled, label, onClick }) => {
+  const isDisabled = FREE_NAV ? false : disabled;
+  // Faol (bosilishi kerak) bo'lganda — to'q rang + puls (bola e'tiborini tortadi).
+  return (
+    <button className={isDisabled ? 'btn-white-accent' : 'btn-white-accent btn-ready'} disabled={isDisabled} onClick={onClick}
+      style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
+      {label}
+    </button>
+  );
+};
 
 const NextLabel = () => {
   const lang = useLang();
@@ -4003,6 +4007,19 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55);
 }
 .btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
+/* btn-ready — "Davom" bosish kerak bo'lgan paytdagi holat: to'q rang + puls (g1) */
+.btn-white-accent.btn-ready {
+  background: #FF4F28;
+  color: #FFFFFF;
+  box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.5), 0 0 0 1px rgba(255, 79, 40, 0.25);
+  animation: btnReadyPulse 1.5s ease-in-out infinite;
+}
+.btn-white-accent.btn-ready:hover:not(:disabled) { background: #E8431F; color: #FFFFFF; }
+@keyframes btnReadyPulse {
+  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.45), 0 0 0 0 rgba(255, 79, 40, 0.5); }
+  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(255, 79, 40, 0.6),  0 0 0 9px rgba(255, 79, 40, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .btn-white-accent.btn-ready { animation: none; } }
 
 .btn-ghost {
   font-family: 'Manrope', sans-serif;
