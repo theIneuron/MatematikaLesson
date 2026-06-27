@@ -88,6 +88,9 @@ Ismlar — har doim **o'zbekcha** (Ra'no, Anvar, Zaynab, Bekzod, Alisher…).
   test(final) → summary.
 - SCREEN_META `scope`: faqat `null` / `'hook'` / `'module-mikro'` / `'final'`.
 - Hook qaytishda to'liq reset (`useState(null)`); test `storedAnswer`'ni tiklaydi.
+- **"Davom" tugmasi faollashganda belgi beradi**: `NavNext` da `disabled` o'chgan zahoti
+  `.btn-ready` (to'q aksent fon + `btnReadyPulse` puls) yonadi — bola bosish vaqtini
+  ko'radi. `prefers-reduced-motion` da puls o'chadi, to'q rang qoladi. (dizayn: §Tugmalar.)
 - payload (`onFinished`): lessonId, lessonTitle, durationSec, totalQuestions,
   correctAnswers, scorePercent, finalScore, finalTotal, passed, answers.
 

@@ -91,6 +91,7 @@ Qattiq qoidalar:
 **Tugmalar** (radius 12, ramka yo'q, soyada):
 - `.btn` — qora fon → hover aksent. Asosiy.
 - `.btn-white-accent` — oq fon, aksent matn → hover to'la aksent. Test "Tekshir".
+- `.btn-white-accent.btn-ready` — **"Davom" faol (bosish kerak) holati**: to'la aksent fon (`#FF4F28`, oq matn) + puls (`btnReadyPulse` 1.5s: scale 1→1.045 + radar-halqa porlash). `prefers-reduced-motion` da puls o'chadi, to'q rang qoladi. `NavNext` da `disabled` o'chgan zahoti avtomat yonadi — bola "endi shu tugmani bos" deb biladi.
 - `.btn-ghost` — shaffof. Ikkilamchi (qayta boshlash).
 
 **Option (MC variant)** — keep-visible holatlar:
