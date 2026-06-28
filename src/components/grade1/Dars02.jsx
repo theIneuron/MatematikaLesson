@@ -893,11 +893,11 @@ const CONTENT = {
     audio: {
       ru: [
         'Анвар уже на улице Рано и прочитал все номера на дверях.',
-        'Остался последний шаг. Найди дом номер пять — там живёт Рано.'
+        'Остался последний шаг. Найди дом номер пять. Там живёт Рано.'
       ],
       uz: [
         "Anvar Ra'noning ko'chasiga yetib keldi va eshiklardagi barcha raqamlarni o'qib chiqdi.",
-        "Oxirgi qadam qoldi. Beshinchi uyni toping — Ra'no o'sha yerda yashaydi."
+        "Oxirgi qadam qoldi. Beshinchi uyni toping. Ra'no o'sha yerda yashaydi."
       ]
     }
   },
@@ -970,8 +970,8 @@ const CONTENT = {
       uz: "Nechta buyum sanagan bo'lsak — eshikka o'sha raqamni yozamiz. Uchta buyum — uch deb yozamiz."
     },
     audio: {
-      ru: 'Когда мы сосчитали предметы, мы записываем число цифрой. Сосчитали три предмета — пишем на двери цифру три. Так у каждого дома появляется свой номер.',
-      uz: "Buyumlarni sanab bo'lgach, sonni raqam bilan yozamiz. Uchta buyum sanadik — eshikka uch raqamini yozamiz. Shunday qilib har uyning o'z raqami bo'ladi."
+      ru: 'Когда мы сосчитали предметы, мы записываем число цифрой. Сосчитали три предмета. Пишем на двери цифру три. Так у каждого дома появляется свой номер.',
+      uz: "Buyumlarni sanab bo'lgach, sonni raqam bilan yozamiz. Uchta buyum sanadik. Eshikka uch raqamini yozamiz. Shunday qilib har uyning o'z raqami bo'ladi."
     }
   },
 
@@ -984,16 +984,16 @@ const CONTENT = {
       uz: "To'g'ri. Uchta buyum — bu uch raqami."
     },
     wrong_0: {
-      ru: 'Это не два. Посчитай ещё раз. Один, два, три. Их три.',
-      uz: "Bu ikki emas. Yana sanang. Bir, ikki, uch. Ular uchta."
+      ru: 'Это не два. Посчитай ещё раз, по одному.',
+      uz: "Bu ikki emas. Yana bittadan sanang."
     },
     wrong_2: {
-      ru: 'Это не четыре. Посчитай по одному. Один, два, три. Их три.',
-      uz: "Bu to'rt emas. Bittadan sanang. Bir, ikki, uch. Ular uchta."
+      ru: 'Это не четыре. Посчитай по одному, ещё раз.',
+      uz: "Bu to'rt emas. Bittadan qaytadan sanang."
     },
     wrong_3: {
-      ru: 'Это не пять. Посчитай ещё раз. Один, два, три. Их три.',
-      uz: "Bu besh emas. Yana sanang. Bir, ikki, uch. Ular uchta."
+      ru: 'Это не пять. Посчитай ещё раз, по одному.',
+      uz: "Bu besh emas. Yana bittadan sanang."
     },
     wrong_default: {
       ru: 'Не совсем. Посчитай предметы по одному и выбери цифру.',
@@ -1009,16 +1009,16 @@ const CONTENT = {
   // ---- s5 EXPLORATION — raqam SHAKLI: eshik plitalaridagi farq ----
   s5: {
     eyebrow: { ru: 'Смотрим на вид', uz: "Ko'rinishga qaraymiz" },
-    instruction: { ru: 'Нажми на цифру — посмотри на её форму, чтобы узнавать её', uz: "Raqamni bosing — uni tanish uchun shakliga qarang" },
+    instruction: { ru: 'Нажми на цифру и посмотри, как она пишется и какой у неё вид', uz: "Raqamni bosing va u qanday yozilishini, qanday ko'rinishini ko'ring" },
     done_text: { ru: 'Теперь ты различаешь их по виду.', uz: "Endi ularni ko'rinishidan farqlaysiz." },
     audio: {
       ru: [
-        'У каждой цифры свой вид. Нажимай на цифру и смотри на её форму.',
-        'Два смотрит вправо, а пять — влево, и у пятёрки сверху шапочка. Тройка — это два мостика. Так их легко различить.'
+        'У каждой цифры свой вид. Нажимай на цифру и смотри, как она пишется.',
+        'Двойка смотрит вправо, а пятёрка влево, и сверху у неё шапочка. У тройки два мостика. По этим приметам цифры легко различить.'
       ],
       uz: [
-        "Har raqamning o'z ko'rinishi bor. Raqamni bosing va uning shakliga qarang.",
-        "Ikki o'ngga, besh esa chapga qaraydi, beshning tepasida shapkasi bor. Uch — bu ikkita ko'prikcha. Shunday qilib ularni oson farqlash mumkin."
+        "Har raqamning o'z ko'rinishi bor. Raqamni bosing va u qanday yozilishini ko'ring.",
+        "Ikki o'ngga, besh esa chapga qaraydi, beshning tepasida shapkasi bor. Uchda ikkita ko'prikcha bor. Shu belgilardan ularni oson farqlash mumkin."
       ]
     }
   },
@@ -1033,8 +1033,8 @@ const CONTENT = {
       uz: "Har safar sanash shart emas. Eshikdagi raqamni harflar kabi ko'rinishidan tanib olsa bo'ladi."
     },
     audio: {
-      ru: 'Номер можно узнать сразу, по виду, не пересчитывая. Один, два, три, четыре, пять — у каждой цифры свой вид.',
-      uz: "Raqamni qayta sanamasdan, ko'rinishidan darrov tanib olsa bo'ladi. Bir, ikki, uch, to'rt, besh — har birining o'z ko'rinishi bor."
+      ru: 'Номер можно узнать сразу, по виду, не пересчитывая. Один, два, три, четыре, пять. У каждой цифры свой вид.',
+      uz: "Raqamni qayta sanamasdan, ko'rinishidan darrov tanib olsa bo'ladi. Bir, ikki, uch, to'rt, besh. Har birining o'z ko'rinishi bor."
     }
   },
 
@@ -1137,7 +1137,7 @@ const CONTENT = {
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     correct_text: { ru: 'Верно. Это дом номер пять — здесь живёт Рано.', uz: "To'g'ri. Bu beshinchi uy — Ra'no shu yerda yashaydi." },
     wrong_0: { ru: 'Здесь четыре. До пяти не хватает одного. Посчитай до пяти.', uz: "Bu yerda to'rtta. Beshtaga bittasi yetmaydi. Beshtagacha sanang." },
-    wrong_2: { ru: 'Здесь только три. Цифра пять — это пять. Посчитай ещё раз.', uz: "Bu yerda atigi uchta. Besh raqami — bu beshta. Yana sanang." },
+    wrong_2: { ru: 'Здесь только три. Цифра пять значит пять. Посчитай ещё раз.', uz: "Bu yerda atigi uchta. Besh raqami beshta degani. Yana sanang." },
     wrong_default: { ru: 'Не совсем. Посчитай предметы у каждого дома до пяти.', uz: "Unchalik emas. Har uy oldidagi buyumlarni beshtagacha sanang." },
     fact_badge: { ru: 'А знаешь? · Мир', uz: 'Bilasizmi? · Dunyo' },
     fact_text: { ru: 'Эти цифры понимают во всём мире — их пишут одинаково в каждой стране.', uz: "Bu raqamlarni butun dunyo tushunadi — har mamlakatda bir xil yoziladi." },
@@ -2798,7 +2798,7 @@ const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s2;
-  const audio = useAudio(makeAudioSegments(c, lang));
+  const audio = useAudio(makeAutoSegments(c, lang));
   const TARGET = 4;
   const [orders, setOrders] = useState({});
   const count = Object.keys(orders).length;

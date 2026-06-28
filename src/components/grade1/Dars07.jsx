@@ -892,7 +892,7 @@ const CONTENT = {
     title: { ru: 'Друзей стало больше', uz: "Do'stlar ko'paydi" },
     body: {
       ru: 'Сегодня мы собирали предметы вместе. Когда мы соединяем две группы, их становится больше. С Зухрой случилось так же: была пара друзей, пришла Зухра — и друзей стало больше. Соединить — значит прибавить.',
-      uz: "Bugun biz narsalarni birga yig'dik. Ikki guruhni birlashtirsak, ular ko'payadi. Zuhra bilan ham xuddi shunday bo'ldi: bir nechta do'st bor edi, Zuhra qo'shildi va do'stlar ko'paydi. Birlashtirish — bu qo'shish."
+      uz: "Bugun biz narsalarni birga yig'dik. Ikki guruhni birlashtirsak, ular ko'payadi. Zuhra bilan ham xuddi shunday bo'ldi: ikki do'st bor edi, Zuhra qo'shildi va do'stlar ko'paydi. Birlashtirish — bu qo'shish."
     },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
@@ -938,16 +938,16 @@ const CONTENT = {
       uz: "To'g'ri. Uch va yana ikki — bu besh."
     },
     wrong_1: {
-      ru: 'Это только три. Посчитай дальше. Четыре, пять. Вместе пять.',
-      uz: "Bu faqat uch. Davom sanang. To'rt, besh. Birga besh."
+      ru: 'Это только три. Соедини обе группы и посчитай дальше, по одному.',
+      uz: "Bu faqat uch. Ikki guruhni birlashtirib, davomidan bittadan sanang."
     },
     wrong_2: {
-      ru: 'Это на один меньше. Соедини обе группы и посчитай по одному. Вместе пять.',
-      uz: "Bu bittaga kam. Ikki guruhni birlashtirib, bittadan sanang. Birga besh."
+      ru: 'Это на один меньше. Соедини обе группы и посчитай по одному.',
+      uz: "Bu bittaga kam. Ikki guruhni birlashtirib, bittadan sanang."
     },
     wrong_3: {
-      ru: 'Это на один больше. Посчитай ещё раз, по одному. Вместе пять.',
-      uz: "Bu bittaga ko'p. Yana bittadan sanang. Birga besh."
+      ru: 'Это на один больше. Посчитай ещё раз, по одному.',
+      uz: "Bu bittaga ko'p. Yana bittadan sanang."
     },
     wrong_default: {
       ru: 'Не совсем. Соедини обе группы и посчитай по одному.',
@@ -1005,16 +1005,16 @@ const CONTENT = {
       uz: "To'g'ri. To'rt va yana ikki — bu olti."
     },
     wrong_0: {
-      ru: 'Это только первая группа. Прибавь вторую и посчитай дальше. Вместе шесть.',
-      uz: "Bu faqat birinchi guruh. Ikkinchisini qo'shing va davom sanang. Birga olti."
+      ru: 'Это только первая группа. Прибавь вторую и посчитай дальше.',
+      uz: "Bu faqat birinchi guruh. Ikkinchisini qo'shing va davomidan sanang."
     },
     wrong_1: {
-      ru: 'Это на один меньше. Соедини обе группы и посчитай по одному. Вместе шесть.',
-      uz: "Bu bittaga kam. Ikki guruhni birlashtirib, bittadan sanang. Birga olti."
+      ru: 'Это на один меньше. Соедини обе группы и посчитай по одному.',
+      uz: "Bu bittaga kam. Ikki guruhni birlashtirib, bittadan sanang."
     },
     wrong_2: {
-      ru: 'Это только то, что принесла Зухра. Не забудь про первую группу. Вместе шесть.',
-      uz: "Bu faqat Zuhra olib kelgani. Birinchi guruhni unutmang. Birga olti."
+      ru: 'Это только то, что принесла Зухра. Не забудь про первую группу.',
+      uz: "Bu faqat Zuhra olib kelgani. Birinchi guruhni unutmang."
     },
     wrong_default: {
       ru: 'Не совсем. Соедини обе группы и посчитай по одному.',
@@ -1034,9 +1034,9 @@ const CONTENT = {
     question: { ru: 'Яблоки соединились в корзине. Сколько вместе?', uz: "Olmalar savatda birlashdi. Birga nechta?" },
     name_a: { ru: 'Корзина Рано', uz: "Ra'no savati" },
     name_b: { ru: 'Яблоки Зухры', uz: 'Zuhra olmalari' },
-    correct_text: { ru: 'Верно. Три и ещё два — это пять.', uz: "To'g'ri. Uch va yana ikki — bu besh." },
-    wrong_0: { ru: 'Это на один меньше. Посчитай все яблоки по одному. Вместе пять.', uz: "Bu bittaga kam. Hamma olmani bittadan sanang. Birga besh." },
-    wrong_2: { ru: 'Это на один больше. Посчитай ещё раз, не спеша. Вместе пять.', uz: "Bu bittaga ko'p. Yana, shoshmasdan sanang. Birga besh." },
+    correct_text: { ru: 'Верно. Три и ещё два, это пять.', uz: "To'g'ri. Uch va yana ikki, bu besh." },
+    wrong_0: { ru: 'Это на один меньше. Посчитай все яблоки по одному.', uz: "Bu bittaga kam. Hamma olmani bittadan sanang." },
+    wrong_2: { ru: 'Это на один больше. Посчитай ещё раз, не спеша.', uz: "Bu bittaga ko'p. Yana, shoshmasdan sanang." },
     wrong_default: { ru: 'Не совсем. Посчитай все яблоки по одному.', uz: "Unchalik emas. Hamma olmani bittadan sanang." },
     audio: {
       intro: { ru: 'У Рано в корзине три яблока. У Зухры ещё два. Перетащи яблоки Зухры в корзину Рано, чтобы соединить. Потом посчитай, сколько вместе.', uz: "Ra'noning savatida uchta olma bor. Zuhrada yana ikkita. Birlashtirish uchun Zuhraning olmalarini Ra'noning savatiga sudrang. Keyin birga nechta ekanini sanang." },
@@ -1054,16 +1054,16 @@ const CONTENT = {
       uz: "To'g'ri. Ikki qo'shuv uch — bu guruhlarni birlashtirish."
     },
     wrong_0: {
-      ru: 'Здесь знак отнять. Отнять значит убрать, а мы соединяли. Нам нужен знак плюс.',
-      uz: "Bu yerda ayirish belgisi. Ayirish olib qo'yish, biz esa birlashtirdik. Bizga plyus belgisi kerak."
+      ru: 'Здесь знак отнять. Отнять значит убрать, а мы объединяли группы. Значит нужен знак плюс.',
+      uz: "Bu yerda ayirish belgisi. Ayirish olib qo'yish degani, biz esa guruhlarni birlashtirdik. Demak qo'shish belgisi kerak."
     },
     wrong_1: {
-      ru: 'Здесь обе группы по два. А у нас было два и ещё три. Нужен плюс и числа два и три.',
-      uz: "Bu yerda ikkala guruh ikkitadan. Bizda esa ikkita va yana uchta edi. Plyus va ikki, uch sonlari kerak."
+      ru: 'Здесь обе группы одинаковые. А у нас группы были разные. Мы объединяли, значит нужен знак плюс.',
+      uz: "Bu yerda ikkala guruh bir xil. Bizda esa guruhlar har xil edi. Biz birlashtirdik, demak qo'shish belgisi kerak."
     },
     wrong_default: {
-      ru: 'Не совсем. Мы соединяли, значит знак плюс. И числа два и три.',
-      uz: "Unchalik emas. Biz birlashtirdik, demak plyus belgisi. Va ikki, uch sonlari."
+      ru: 'Не совсем. Мы объединяли группы, значит нужен знак плюс.',
+      uz: "Unchalik emas. Biz guruhlarni birlashtirdik, demak qo'shish belgisi kerak."
     },
     audio: {
       intro: { ru: 'Две группы соединили в одну. Было два предмета и ещё три. Выбери запись, которая подходит к соединению.', uz: "Ikki guruh bittaga birlashtirildi. Ikkita narsa va yana uchta edi. Birlashtirishga mos yozuvni tanlang." },
@@ -1107,9 +1107,9 @@ const CONTENT = {
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     correct_text: { ru: 'Верно. Три и ещё четыре — это семь.', uz: "To'g'ri. Uch va yana to'rt — bu yetti." },
-    wrong_0: { ru: 'Это только пять. Соедини обе группы и посчитай дальше. Всего семь.', uz: "Bu faqat besh. Ikki guruhni birlashtirib davom sanang. Hammasi yetti." },
-    wrong_2: { ru: 'Это на один меньше. Посчитай по одному обе группы. Всего семь.', uz: "Bu bittaga kam. Ikkala guruhni bittadan sanang. Hammasi yetti." },
-    wrong_3: { ru: 'Это на один больше. Посчитай ещё раз, не спеша. Всего семь.', uz: "Bu bittaga ko'p. Yana, shoshmasdan sanang. Hammasi yetti." },
+    wrong_0: { ru: 'Это меньше, чем нужно. Соедини обе группы и посчитай дальше.', uz: "Bu kerakdan kam. Ikki guruhni birlashtirib, davomidan sanang." },
+    wrong_2: { ru: 'Это на один меньше. Посчитай по одному обе группы.', uz: "Bu bittaga kam. Ikkala guruhni bittadan sanang." },
+    wrong_3: { ru: 'Это на один больше. Посчитай ещё раз, не спеша.', uz: "Bu bittaga ko'p. Yana, shoshmasdan sanang." },
     wrong_default: { ru: 'Не совсем. Соедини обе группы и посчитай по одному.', uz: "Unchalik emas. Ikki guruhni birlashtirib, bittadan sanang." },
     fact_badge: { ru: 'А знаешь? · История', uz: 'Bilasizmi? · Tarix' },
     fact_text: { ru: 'Знак плюс придумали давно, чтобы коротко записывать «соединить вместе» вместо длинных слов.', uz: "Plyus belgisini ko'p yil oldin o'ylab topishgan — uzun so'zlar o'rniga birlashtirishni qisqa yozish uchun." },
@@ -3501,7 +3501,7 @@ const Screen7 = (props) => {
 // sg — MINI-O'YIN: ikki guruhni birlashtir (tugma) -> jamini tanla. 2 raund (oson -> qiyin). Ball yo'q.
 const GAME_ROUNDS = [
   { a: 2, b: 1, kind: 'cherry', opts: [3, 2, 4], correct: 0 },
-  { a: 3, b: 3, kind: 'apple', opts: [5, 7, 6], correct: 1 },
+  { a: 3, b: 3, kind: 'apple', opts: [5, 7, 6], correct: 2 },
 ];
 const ScreenGame = (props) => {
   const lang = useLang();

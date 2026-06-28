@@ -927,8 +927,8 @@ const CONTENT = {
     title_part2_em: { ru: 'Больше, меньше, поровну', uz: 'Katta, kichik, teng' },
     tip: { ru: 'Поровну — числа равны.', uz: "Teng — sonlar teng." },
     audio: {
-      ru: 'Сравнить два числа — значит узнать, какое больше, какое меньше, или они равны. Считаем предметы. У кого больше, то число больше. Если предметов поровну, числа равны.',
-      uz: "Ikki sonni taqqoslash — qaysi biri katta, qaysi biri kichik, yoki teng ekanini bilishdir. Predmetlarni sanaymiz. Kimda ko'p bo'lsa, o'sha son katta. Predmet barobar bo'lsa, sonlar teng."
+      ru: 'Сравнить два числа значит узнать, какое больше, какое меньше, или они равны. Считаем предметы. У кого больше, то число больше. Если предметов поровну, числа равны.',
+      uz: "Ikki sonni taqqoslash, ya'ni qaysi biri katta, qaysi biri kichik, yoki teng ekanini bilishdir. Predmetlarni sanaymiz. Kimda ko'p bo'lsa, o'sha son katta. Predmet barobar bo'lsa, sonlar teng."
     }
   },
   s4: {
@@ -940,7 +940,7 @@ const CONTENT = {
     wrong_default: { ru: 'Не совсем. Сосчитай предметы в каждой корзине и сравни числа.', uz: "Unchalik emas. Har savatdagi predmetni sanang va sonlarni taqqoslang." },
     audio: {
       intro: { ru: 'Сосчитай фрукты в каждой корзине. В какой больше? Нажми это число.', uz: "Har savatdagi mevani sanang. Qaysida ko'p? O'sha sonni bosing." },
-      on_correct: { ru: 'Верно. Их девять — это больше.', uz: "To'g'ri. Ular to'qqizta — bu ko'proq." },
+      on_correct: { ru: 'Верно. Их девять, это больше.', uz: "To'g'ri. Ular to'qqizta, bu ko'proq." },
       on_wrong: { ru: 'Не совсем. Посчитай обе корзины ещё раз.', uz: "Unchalik emas. Ikkala savatni yana sanang." }
     }
   },
@@ -951,11 +951,11 @@ const CONTENT = {
     audio: {
       ru: [
         'Познакомься: это крокодил. Он очень голодный и всегда хочет съесть то, где больше.',
-        'Поэтому он открывает рот к большему числу. Семь больше четырёх — значит, рот открыт к семи.'
+        'Поэтому он открывает рот к большему числу. Семь больше четырёх. Значит, рот открыт к семи.'
       ],
       uz: [
         "Tanishing: bu timsoh. U juda och va doim ko'p bo'lgan tomonni yemoqchi.",
-        "Shuning uchun og'zini kattaroq songa ochadi. Yetti to'rtdan katta — demak og'iz yettiga ochilgan."
+        "Shuning uchun og'zini kattaroq songa ochadi. Yetti to'rtdan katta. Demak og'iz yettiga ochilgan."
       ]
     }
   },
@@ -965,8 +965,8 @@ const CONTENT = {
     title_part2_em: { ru: 'Рот — к большему, равно — закрыт', uz: "Og'iz kattaga, teng — yopiq" },
     tip: { ru: 'Поровну — рот закрыт.', uz: "Teng — og'iz yopiq." },
     audio: {
-      ru: 'У крокодила рот всегда открыт к большему числу. Если слева больше, рот открыт влево. Если справа больше, рот открыт вправо. А если поровну, крокодил спокоен и держит рот закрытым — получаются две ровные чёрточки, это равно.',
-      uz: "Timsohning og'zi doim kattaroq songa ochiladi. Chapda ko'p bo'lsa, og'iz chapga ochiladi. O'ngda ko'p bo'lsa, o'ngga ochiladi. Teng bo'lsa, timsoh tinch turadi va og'zini yopadi — ikkita tekis chiziq hosil bo'ladi, bu teng."
+      ru: 'У крокодила рот всегда открыт к большему числу. Если слева больше, рот открыт влево. Если справа больше, рот открыт вправо. А если поровну, крокодил спокоен и держит рот закрытым. Получаются две ровные чёрточки, это равно.',
+      uz: "Timsohning og'zi doim kattaroq songa ochiladi. Chapda ko'p bo'lsa, og'iz chapga ochiladi. O'ngda ko'p bo'lsa, o'ngga ochiladi. Teng bo'lsa, timsoh tinch turadi va og'zini yopadi. Ikkita tekis chiziq hosil bo'ladi, bu teng."
     }
   },
   s7: {
@@ -978,7 +978,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Поставь крокодила между восемью и пятью. К какому числу он откроет рот?', uz: "Timsohni sakkiz va besh orasiga qo'ying. Og'zini qaysi songa ochadi?" },
       on_correct: { ru: 'Верно. Рот открыт к восьми.', uz: "To'g'ri. Og'iz sakkizga ochilgan." },
-      on_wrong: { ru: 'Не совсем. Рот — к большему числу.', uz: "Unchalik emas. Og'iz — kattaroq songa." }
+      on_wrong: { ru: 'Не совсем. Рот открывается к большему числу.', uz: "Unchalik emas. Og'iz kattaroq songa ochiladi." }
     }
   },
   s8: {
@@ -987,7 +987,7 @@ const CONTENT = {
     opt0: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt1: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
     correct_text: { ru: 'Верно. У обоих по шесть — это поровну. Ни у кого не больше, числа равны.', uz: "To'g'ri. Ikkalasida ham oltitadan — bu teng. Hech kimda ko'p emas, sonlar teng." },
-    wrong_0: { ru: 'Посчитай обе корзины. И там, и там по шесть. Если поровну — никто не больше, числа равны.', uz: "Ikkala savatni sanang. U yerda ham, bu yerda ham oltitadan. Teng bo'lsa — hech kim ko'p emas, sonlar teng." },
+    wrong_0: { ru: 'Посчитай обе корзины. И там, и там по шесть. Если поровну, никто не больше, числа равны.', uz: "Ikkala savatni sanang. U yerda ham, bu yerda ham oltitadan. Teng bo'lsa, hech kim ko'p emas, sonlar teng." },
     wrong_default: { ru: 'Сравни числа ещё раз. Если предметов поровну, то они равны.', uz: "Sonlarni yana taqqoslang. Predmet barobar bo'lsa, ular teng." },
     audio: {
       intro: { ru: 'У Рано шесть яблок и у Анвара шесть яблок. Анвар сказал, что у него больше. Подумай, это верно? Нажми да или нет.', uz: "Ra'noda olti olma va Anvarda olti olma. Anvar menda ko'p dedi. O'ylab ko'ring, bu to'g'rimi? Ha yoki yo'q ni bosing." },
@@ -999,19 +999,19 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 4 / 5', uz: 'Mashq · 4 / 5' },
     title: { ru: 'Какое число больше?', uz: 'Qaysi son katta?' },
     correct_text: { ru: 'Верно. При счёте семь идёт после четырёх, значит, семь больше.', uz: "To'g'ri. Sanaganda yetti to'rtdan keyin keladi, demak yetti katta." },
-    wrong_1: { ru: 'При счёте мы говорим четыре раньше, чем семь. То, что идёт дальше, — больше.', uz: "Sanaganda to'rtni yettidan oldin aytamiz. Keyin kelgani kattaroq bo'ladi." },
-    wrong_default: { ru: 'Вспомни счёт по порядку. Какое число называем дальше — то и больше.', uz: "Tartib bilan sanashni eslang. Qaysi sonni keyinroq aytsak — o'sha katta." },
+    wrong_1: { ru: 'При счёте мы говорим четыре раньше, чем семь. То, что идёт дальше, и есть больше.', uz: "Sanaganda to'rtni yettidan oldin aytamiz. Keyin kelgani kattaroq bo'ladi." },
+    wrong_default: { ru: 'Вспомни счёт по порядку. Какое число называем дальше, то и больше.', uz: "Tartib bilan sanashni eslang. Qaysi sonni keyinroq aytsak, o'sha katta." },
     audio: {
-      intro: { ru: 'Сравни два числа без предметов. Семь или четыре — какое больше? Нажми его.', uz: "Ikki sonni predmetsiz taqqoslang. Yetti yoki to'rt — qaysi katta? O'shani bosing." },
+      intro: { ru: 'Сравни два числа без предметов. Семь или четыре, какое больше? Нажми его.', uz: "Ikki sonni predmetsiz taqqoslang. Yetti yoki to'rt, qaysi katta? O'shani bosing." },
       on_correct: { ru: 'Верно. Семь больше.', uz: "To'g'ri. Yetti katta." },
       on_wrong: { ru: 'Не совсем. Вспомни порядок счёта.', uz: "Unchalik emas. Sanash tartibini eslang." }
     }
   },
   s10: {
     eyebrow: { ru: 'Тренировка · 5 / 5', uz: 'Mashq · 5 / 5' },
-    instruction: { ru: 'Расставь от меньшей к большей.', uz: 'Kichikdan kattaga tartibla.' },
+    instruction: { ru: 'Расставь от меньшей к большей.', uz: 'Kichikdan kattaga tartiblang.' },
     correct_text: { ru: 'Верно, дальше.', uz: "To'g'ri, davom eting." },
-    done_text: { ru: 'Молодец! От меньшего к большему: три, пять, восемь.', uz: "Barakalla! Kichikdan kattaga: uch, besh, sakkiz." },
+    done_text: { ru: 'Молодец! От меньшего к большему получается три, пять, восемь.', uz: "Barakalla! Kichikdan kattaga uch, besh, sakkiz bo'ladi." },
     wrong_default: { ru: 'Это пока не самая маленькая. Сначала найди корзину, где предметов меньше всего.', uz: "Bu hali eng kichigi emas. Avval predmet eng kam savatni toping." },
     audio: {
       intro: { ru: 'Расставь корзины по порядку. Начни с той, где фруктов меньше всего, и иди к самой большой.', uz: "Savatlarni tartibga soling. Meva eng kam bo'lganidan boshlang va eng kattasiga boring." },
@@ -1026,27 +1026,27 @@ const CONTENT = {
     done_text: { ru: 'Молодец! Ты быстро находишь, где больше.', uz: "Barakalla! Qayerda ko'p ekanini tez topasiz." },
     retry_audio: { ru: 'Ничего страшного. Посчитай и нажми снова.', uz: "Zarari yo'q. Sanang va yana bosing." },
     audio: {
-      intro: { ru: 'Немного поиграем. Я показываю две корзины — нажимай ту, где фруктов больше. Можно посчитать.', uz: "Biroz o'ynaymiz. Men ikki savat ko'rsataman — meva ko'proq bo'lganini bosing. Sanasangiz bo'ladi." }
+      intro: { ru: 'Немного поиграем. Я показываю две корзины. Нажимай ту, где фруктов больше. Можно посчитать.', uz: "Biroz o'ynaymiz. Men ikki savat ko'rsataman. Meva ko'proq bo'lganini bosing. Sanasangiz bo'ladi." }
     }
   },
   sGuest: {
     eyebrow: { ru: 'По-честному', uz: 'Adolat bilan' },
-    title: { ru: 'Разделили поровну', uz: "Teng bo'lib olishdi" },
+    title: { ru: 'Поделились по-дружески', uz: "Do'stona bo'lishdi" },
     body: {
-      ru: 'У Анвара было больше, у Рано меньше. Чтобы было по-честному, лишние фрукты переложили — и стало поровну. Теперь у обоих одинаково, и никто не в обиде. А в следующий раз посмотрим, из каких частей складывается число.',
-      uz: "Anvarda ko'proq, Ra'noda kamroq edi. Halol bo'lsin deb ortiqcha mevalarni ko'chirishdi — va teng bo'ldi. Endi ikkalasida barobar, hech kim xafa emas. Keyingi safar son qaysi qismlardan tuzilishini ko'ramiz."
+      ru: 'У Анвара фруктов было больше, у Рано меньше. Друзья не стали спорить. Они собрали фрукты вместе, поделили по-дружески и угостили друг друга. Теперь оба довольны, и никто не в обиде. А в следующий раз посмотрим, из каких частей складывается число.',
+      uz: "Anvarda meva ko'proq, Ra'noda kamroq edi. Do'stlar tortishmadi. Mevani birga bo'lishib, bir-birini mehmon qilishdi. Endi ikkalasi ham xursand, hech kim xafa emas. Keyingi safar son qaysi qismlardan tuzilishini ko'ramiz."
     },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     audio: {
       ru: [
         'У Анвара фруктов было больше, у Рано меньше.',
-        'Чтобы было по-честному, лишние фрукты переложили. Теперь у обоих поровну, никто не в обиде.',
+        'Друзья не стали спорить. Они поделили фрукты по-дружески и угостили друг друга. Никто не в обиде.',
         'А в следующий раз узнаем, из каких частей складывается число.'
       ],
       uz: [
         "Anvarda meva ko'proq, Ra'noda kamroq edi.",
-        "Halol bo'lsin deb ortiqcha mevalarni ko'chirishdi. Endi ikkalasida teng, hech kim xafa emas.",
+        "Do'stlar tortishmadi. Mevani do'stona bo'lishib, bir-birini mehmon qilishdi. Hech kim xafa emas.",
         "Keyingi safar son qaysi qismlardan tuzilishini bilib olamiz."
       ]
     }
@@ -1055,15 +1055,15 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Что сделает крокодил?', uz: 'Timsoh nima qiladi?' },
     correct_text: { ru: 'Верно. Восемь и восемь — поровну, крокодил закрыл рот. Это равно.', uz: "To'g'ri. Sakkiz va sakkiz — teng, timsoh og'zini yopdi. Bu teng." },
-    wrong_0: { ru: 'Числа одинаковые, большего нет — крокодилу нечего есть. Рот закрыт, это равно.', uz: "Sonlar bir xil, katta yo'q — timsohga yeyishga narsa yo'q. Og'iz yopiq, bu teng." },
-    wrong_1: { ru: 'Оба числа равны, меньшего тоже нет. Крокодил держит рот закрытым — равно.', uz: "Ikkala son teng, kichik ham yo'q. Timsoh og'zini yopadi — teng." },
-    wrong_default: { ru: 'Сосчитай обе корзины. Если поровну — рот закрыт, равно.', uz: "Ikkala savatni sanang. Teng bo'lsa — og'iz yopiq, teng." },
+    wrong_0: { ru: 'Числа одинаковые, большего нет, крокодилу нечего есть. Рот закрыт, это равно.', uz: "Sonlar bir xil, katta yo'q, timsohga yeyishga narsa yo'q. Og'iz yopiq, bu teng." },
+    wrong_1: { ru: 'Оба числа равны, меньшего тоже нет. Крокодил держит рот закрытым, равно.', uz: "Ikkala son teng, kichik ham yo'q. Timsoh og'zini yopadi, teng." },
+    wrong_default: { ru: 'Сосчитай обе корзины. Если поровну, рот закрыт, равно.', uz: "Ikkala savatni sanang. Teng bo'lsa, og'iz yopiq, teng." },
     fact_badge: { ru: 'А знаешь? · Дружба', uz: "Bilasizmi? · Do'stlik" },
     fact_text: { ru: 'Когда делят поровну, все довольны. Поэтому друзья и делят по-честному — чтобы никто не обижался.', uz: "Teng bo'linganda hamma rozi bo'ladi. Shuning uchun do'stlar halol — teng bo'lishadi, hech kim xafa bo'lmasin." },
     fact_audio: { ru: 'А знаешь, когда делят поровну, все довольны. Поэтому друзья делят по-честному.', uz: "Bilasizmi, teng bo'linganda hamma rozi bo'ladi. Shuning uchun do'stlar halol bo'lishadi." },
     audio: {
       intro: { ru: 'У Рано восемь яблок и у Анвара восемь. Поровну или у кого-то больше? Что сделает крокодил?', uz: "Ra'noda sakkiz olma va Anvarda sakkiz. Tengmi yoki kimdadir ko'pmi? Timsoh nima qiladi?" },
-      on_correct: { ru: 'Верно. Поровну — рот закрыт, равно.', uz: "To'g'ri. Teng — og'iz yopiq, teng." },
+      on_correct: { ru: 'Верно. Поровну, рот закрыт, равно.', uz: "To'g'ri. Teng, og'iz yopiq, teng." },
       on_wrong: { ru: 'Не совсем. Посчитай обе корзины.', uz: "Unchalik emas. Ikkala savatni sanang." }
     }
   },
@@ -1080,8 +1080,8 @@ const CONTENT = {
     conn_label_next: { ru: 'Следующий урок', uz: 'Keyingi dars' },
     conn_next: { ru: 'Состав числа 2–5.', uz: "Son tarkibi 2–5." },
     audio: {
-      ru: 'Сегодня Рано и Анвар сравнили свои корзины и разделили фрукты поровну. А ты научился сравнивать числа до десяти: где больше, где меньше, а где поровну. И узнал три знака — больше, меньше и равно. На следующем уроке узнаем, из каких частей складываются числа.',
-      uz: "Bugun Ra'no va Anvar savatlarini taqqoslashdi va mevalarni teng bo'lishdi. Siz esa o'ngacha sonlarni taqqoslashni o'rgandingiz: qayerda ko'p, qayerda kam, qayerda teng. Va uchta belgini bildingiz — katta, kichik va teng. Keyingi darsda sonlar qaysi qismlardan tuzilishini bilib olamiz."
+      ru: 'Сегодня Рано и Анвар сравнили свои корзины и вместе поделили фрукты, угостили друг друга. А ты научился сравнивать числа до десяти. Ты видишь, где больше, где меньше, а где поровну. И узнал три знака. Это больше, меньше и равно. На следующем уроке узнаем, из каких частей складываются числа.',
+      uz: "Bugun Ra'no va Anvar savatlarini taqqoslashdi va mevani birga bo'lishib, bir-birini mehmon qilishdi. Siz esa o'ngacha sonlarni taqqoslashni o'rgandingiz. Qayerda ko'p, qayerda kam, qayerda teng ekanini ko'rasiz. Va uchta belgini bildingiz. Bular katta, kichik va teng. Keyingi darsda sonlar qaysi qismlardan tuzilishini bilib olamiz."
     }
   }
 };
@@ -3669,9 +3669,9 @@ const ScreenD = (props) => {
   );
 };
 
-// sGuest — SYUJET KO'PRIK: mevalarni teng bo'lib olishdi (6 va 6).
+// sGuest — SYUJET KO'PRIK: do'stona bo'lishdi (premise bilan mos: Ra'no 4, Anvar 7 — teng emas).
 const ScreenGuest = (props) => (
-  <D4Story props={props} c={CONTENT.sGuest} variant="door" leftN={6} rightN={6} leftKind="apple" rightKind="apple"/>
+  <D4Story props={props} c={CONTENT.sGuest} variant="door" leftN={4} rightN={7} leftKind="apple" rightKind="cherry"/>
 );
 
 // s11 — TEST final + FactCard: 8 va 8 -> qaysi belgi? To'g'ri = teng (idx2).
@@ -3743,7 +3743,7 @@ const Screen12 = (props) => {
                 <div className="d4-castpair">
                   <div className="g1-cast-fig"><RanoSVG mood="happy" stars className="g1-cast-svg"/></div>
                   <div className="d4-basketstack">
-                    <FruitBubble n={6} kind="apple"/>
+                    <FruitBubble n={4} kind="apple"/>
                     <div className="d4-scenebasket"><D4Basket n={0}/></div>
                   </div>
                 </div>
@@ -3753,7 +3753,7 @@ const Screen12 = (props) => {
                 <div className="d4-castpair">
                   <div className="g1-cast-fig"><AnvarSVG pose="idle" className="g1-cast-svg"/></div>
                   <div className="d4-basketstack">
-                    <FruitBubble n={6} kind="cherry"/>
+                    <FruitBubble n={7} kind="cherry"/>
                     <div className="d4-scenebasket"><D4Basket n={0}/></div>
                   </div>
                 </div>

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 1-SINF · Dars04 — "10 gacha sonlarni taqqoslash" (num-1-04-v1) · syujet:
-// Ra'no va Anvar hovlida meva yig'ishdi; kimda ko'p? — sanab taqqoslash (katta/kichik/teng)
-// va > < = belgilari. Oxirida mevalarni teng bo'lib olishadi. ░░
-// Dars03 (Sonlar 6–10 va 0) etaloniga 1:1 mos qurildi: infratuzilma + ETALON KIT +
-// Dars02/03 vizualizatorlari (TenFrame/BasketArt/DoorCard...) BYTE-FOR-BYTE ko'chirildi.
-// YANGI vizualizatorlar (Dars04): TwoBaskets (ikki savat), CompareFrames (ikki ramka),
-// CompareSign (> < = belgisi — ochiq tomoni katta songa qaraydi).
+// ░░ 1-SINF · Dars05 — "Sonning tarkibi 2–5" (num-1-05-v1) · syujet:
+// Anvar Ra'noga beshta olma keltiradi; "5 faqat 5" da'vosi — sonni qizil va yashil ikki
+// qismga bo'lib ko'rsatish (2 dan 5 gacha sonlar tarkibi). Oxirida Anvar tan oladi:
+// sonni ko'p xil ikki qismdan tuzsa bo'larkan. ░░
+// Infratuzilma + ETALON KIT (personaj/sahna/Bit-kartochka) oldingi 1-sinf darslaridan
+// BYTE-FOR-BYTE ko'chirildi.
+// YANGI vizualizatorlar (Dars05): BondFrame (ikki rangli ten-frame), NumberBond (qism-butun),
+// PairCard (juftlar), BondAuto (avto-aylanuvchi tarkib), Domino (fakt).
 //
 // Cast: Bit (boshlovchi) + Ra'no + Anvar. Yangi personaj yo'q.
 // ETALON KIT bloklari Dars03 dan o'zgarishsiz (grep: "ETALON KIT ·").
@@ -805,10 +806,10 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- POD UROK: num_1_01 — Predmetlarni sanash va 1–5 sonlar (1-sinf, Dars01) ---
+// --- POD UROK: num_1_05 — Sonning tarkibi 2–5 (1-sinf, Dars05) ---
 // 1-sinf (6–7 yosh): ovoz yetakchi kanal, typing YO'Q (tap/drag), concrete ustun,
-// bar model YO'Q. Manba: 1sinf_metodologiya.md (§4, §6, §7 Б1) + DIZAYN_STANDART_1SINF.md.
-// Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
+// bar model YO'Q. Manba: 1sinf_metodologiya.md (§4, §5.2, §7 Б1) + DIZAYN_STANDART_1SINF.md.
+// Misconception'lar: M1 sonni faqat bitta usulda ikkiga bo'lish mumkin deb o'ylash · M2 qismni butun bilan adashtirish · M3 qismlarni birga sanamaslik.
 // ============================================================
 
 const TOTAL_SCREENS = 17;
@@ -861,7 +862,7 @@ const CONTENT = {
       ],
       uz: [
         "Salom, do'stim! Anvar Ra'noga beshta olma olib keldi.",
-        "Anvar shunday o'ylaydi. Besh — bu besh, uni faqat bitta yo'l bilan ko'rsatsa bo'ladi.",
+        "Anvar shunday o'ylaydi. Besh. Bu besh, uni faqat bitta yo'l bilan ko'rsatsa bo'ladi.",
         "Ra'no esa olmalarni qizil va yashilga ajratib ko'rmoqchi. Balki yo'l bittadan ko'pdir. Oxirigacha tinglang va davom bosing."
       ]
     }
@@ -879,8 +880,8 @@ const CONTENT = {
     opt2: { ru: 'Сейчас узнаю', uz: 'Hozir bilib olaman' },
     audio: {
       intro: {
-        ru: 'Пять яблок можно разделить на две части. Анвар думает, что способ только один. А как считаешь ты — способ один или их много? Нажми любой ответ.',
-        uz: "Beshta olmani ikki qismga ajratish mumkin. Anvar bitta yo'l bor deb o'ylaydi. Sizningcha-chi — yo'l bittami yoki ko'pmi? Qaysi javob bo'lsa ham bosing."
+        ru: 'Пять яблок можно разделить на две части. Анвар думает, что способ только один. А как считаешь ты, способ один или их много? Нажми любой ответ.',
+        uz: "Beshta olmani ikki qismga ajratish mumkin. Anvar bitta yo'l bor deb o'ylaydi. Sizningcha-chi, yo'l bittami yoki ko'pmi? Qaysi javob bo'lsa ham bosing."
       },
       on_correct: { ru: 'Хорошо. Сейчас разложим яблоки и посмотрим.', uz: "Yaxshi. Endi olmalarni ajratib ko'ramiz." },
       on_wrong: { ru: 'Хорошо. Сейчас разложим яблоки и посмотрим.', uz: "Yaxshi. Endi olmalarni ajratib ko'ramiz." }
@@ -891,16 +892,16 @@ const CONTENT = {
   s1: {
     eyebrow: { ru: 'Пробуем', uz: "Sinab ko'ramiz" },
     instruction: { ru: 'Нажимай на яблоки — они станут красными. Остальные останутся зелёными', uz: "Olmalarni bosing — ular qizil bo'ladi. Qolganlari yashil bo'lib qoladi" },
-    done_text: { ru: 'Видишь? Пять — это красные и зелёные вместе. Частей бывает по-разному.', uz: "Ko'rdingizmi? Besh — bu qizil va yashil birga. Qismlar har xil bo'ladi." },
-    done_audio: { ru: 'Видишь? Пять — это красные и зелёные вместе. Частей бывает по-разному.', uz: "Ko'rdingizmi? Besh — bu qizil va yashil birga. Qismlar har xil bo'ladi." },
+    done_text: { ru: 'Видишь? Пять. Это красные и зелёные вместе. Частей бывает по-разному.', uz: "Ko'rdingizmi? Besh. Bu qizil va yashil birga. Qismlar har xil bo'ladi." },
+    done_audio: { ru: 'Видишь? Пять. Это красные и зелёные вместе. Частей бывает по-разному.', uz: "Ko'rdingizmi? Besh. Bu qizil va yashil birga. Qismlar har xil bo'ladi." },
     audio: {
       ru: [
-        'Здесь пять яблок. Нажимай на яблоко — оно станет красным.',
-        'Сколько яблок ты не тронул — столько останется зелёных. Красные и зелёные вместе всегда пять.'
+        'Здесь пять яблок. Нажимай на яблоко, оно станет красным.',
+        'Сколько яблок ты не тронул, столько останется зелёных. Красные и зелёные вместе всегда пять.'
       ],
       uz: [
-        "Bu yerda beshta olma bor. Olmani bosing — olma qizil bo'ladi.",
-        "Nechta olmani bosmasangiz — shuncha yashil qoladi. Qizil va yashil birga doim besh."
+        "Bu yerda beshta olma bor. Olmani bosing, olma qizil bo'ladi.",
+        "Nechta olmani bosmasangiz, shuncha yashil qoladi. Qizil va yashil birga doim besh."
       ]
     }
   },
@@ -909,7 +910,7 @@ const CONTENT = {
   s2: {
     eyebrow: { ru: 'Закрытая часть', uz: 'Berk qism' },
     instruction: { ru: 'Три яблока красные. Всего пять. Угадай, сколько зелёных закрыто, и открой', uz: "Uchta olma qizil. Hammasi besh. Nechta yashil berk — toping va oching" },
-    done_text: { ru: 'Открыли! Два зелёных. Пять — это три и ещё два.', uz: "Ochdik! Ikkita yashil. Besh — bu uch va yana ikki." },
+    done_text: { ru: 'Открыли! Два зелёных. Пять. Это три и ещё два.', uz: "Ochdik! Ikkita yashil. Besh. Bu uch va yana ikki." },
     audio: {
       ru: [
         'Три яблока уже красные. А всего у нас пять.',
@@ -917,7 +918,7 @@ const CONTENT = {
       ],
       uz: [
         "Uchta olma qizil bo'ldi. Hammasi esa beshta.",
-        "Demak, yashil olmalar yashiringan. Ular nechta? Oching va tekshiring. Besh — bu uch va yana ikki."
+        "Demak, yashil olmalar yashiringan. Ular nechta? Oching va tekshiring. Besh. Bu uch va yana ikki."
       ]
     }
   },
@@ -941,18 +942,18 @@ const CONTENT = {
   s4: {
     eyebrow: { ru: 'Тренировка · 1 / 6', uz: 'Mashq · 1 / 6' },
     title: { ru: 'Три яблока красные. Всего пять. Сколько зелёных?', uz: "Uchta olma qizil. Hammasi besh. Nechta yashil?" },
-    correct_text: { ru: 'Верно. Три и ещё два — это пять.', uz: "To'g'ri. Uch va yana ikki — bu besh." },
+    correct_text: { ru: 'Верно. Три и ещё два. Это пять.', uz: "To'g'ri. Uch va yana ikki. Bu besh." },
     wrong_0: {
-      ru: 'Пять — это всё вместе. Это не одна часть. Часть меньше целого.',
-      uz: "Besh — bu hammasi birga. Bu bitta qism emas. Qism butundan kichik."
+      ru: 'Пять. Это всё вместе. Это не одна часть. Часть меньше целого.',
+      uz: "Besh. Bu hammasi birga. Bu bitta qism emas. Qism butundan kichik."
     },
     wrong_1: {
       ru: 'Столько уже красных. Зелёных другое число. Считай от трёх до пяти.',
       uz: "Bu qizil olmalar soni. Yashillari boshqa son. Uchdan beshgacha sanang."
     },
     wrong_3: {
-      ru: 'Это на одну больше. Посчитай зелёные яблоки по одному. Их два.',
-      uz: "Bu bittaga ko'p. Yashil olmalarni bittadan sanang. Ular ikkita."
+      ru: 'Это на одну больше. Посчитай по порядку от трёх до пяти.',
+      uz: "Bu bittaga ko'p. Uchdan beshgacha tartib bilan sanang."
     },
     wrong_default: {
       ru: 'Не совсем. Считай от трёх до пяти и узнаешь, сколько зелёных.',
@@ -993,8 +994,8 @@ const CONTENT = {
       uz: "Ikki qizil va uch yashil — bu besh. Uch qizil va ikki yashil — ham besh. Qismlar almashdi, hammasi esa o'sha."
     },
     audio: {
-      ru: 'Смотри на яблоки. Два красных и три зелёных — вместе пять. Теперь поменяем местами. Три красных и два зелёных — снова пять. Части можно менять местами, число от этого не меняется.',
-      uz: "Olmalarga qarang. Ikki qizil va uch yashil — birga besh. Endi o'rin almashtiramiz. Uch qizil va ikki yashil — yana besh. Qismlarni almashtirsa bo'ladi, son bundan o'zgarmaydi."
+      ru: 'Смотри на яблоки. Два красных и три зелёных, вместе пять. Теперь поменяем местами. Три красных и два зелёных, снова пять. Части можно менять местами, число от этого не меняется.',
+      uz: "Olmalarga qarang. Ikki qizil va uch yashil, birga besh. Endi o'rin almashtiramiz. Uch qizil va ikki yashil, yana besh. Qismlarni almashtirsa bo'ladi, son bundan o'zgarmaydi."
     }
   },
 
@@ -1002,18 +1003,18 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Тренировка · 2 / 6', uz: 'Mashq · 2 / 6' },
     title: { ru: 'Одно яблоко зелёное. Всего четыре. Сколько красных?', uz: "Bitta olma yashil. Hammasi to'rt. Nechta qizil?" },
-    correct_text: { ru: 'Верно. Три и ещё одно — это четыре.', uz: "To'g'ri. Uch va yana bir — bu to'rt." },
+    correct_text: { ru: 'Верно. Три и ещё одно. Это четыре.', uz: "To'g'ri. Uch va yana bir. Bu to'rt." },
     wrong_1: {
-      ru: 'Четыре — это всё вместе. Это не одна часть. Часть меньше целого.',
-      uz: "To'rt — bu hammasi birga. Bu bitta qism emas. Qism butundan kichik."
+      ru: 'Четыре. Это всё вместе. Это не одна часть. Часть меньше целого.',
+      uz: "To'rt. Bu hammasi birga. Bu bitta qism emas. Qism butundan kichik."
     },
     wrong_2: {
       ru: 'Столько зелёных. Красных другое число. Считай от одного до четырёх.',
       uz: "Bu yashil olmalar soni. Qizillari boshqa son. Birdan to'rtgacha sanang."
     },
     wrong_3: {
-      ru: 'Это на одну меньше. Посчитай красные яблоки. Их три.',
-      uz: "Bu bittaga kam. Qizil olmalarni sanang. Ular uchta."
+      ru: 'Это на одну меньше. Посчитай по порядку от одного до четырёх.',
+      uz: "Bu bittaga kam. Birdan to'rtgacha tartib bilan sanang."
     },
     wrong_default: {
       ru: 'Не совсем. Считай от одного до четырёх и узнаешь, сколько красных.',
@@ -1032,10 +1033,10 @@ const CONTENT = {
     title: { ru: 'Три красных и одно зелёное. Бит говорит: вместе пять. Это верно?', uz: "Uch qizil va bitta yashil. Bit aytadi: birga besh. Bu to'g'rimi?" },
     opt0: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt1: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
-    correct_text: { ru: 'Верно. Здесь три и одно — это четыре, а не пять.', uz: "To'g'ri. Bu yerda uch va bir — to'rt, besh emas." },
+    correct_text: { ru: 'Верно. Здесь три и одно. Это четыре, а не пять.', uz: "To'g'ri. Bu yerda uch va bir, to'rt, besh emas." },
     wrong_0: {
-      ru: 'Посчитай вместе. Три и ещё одно — четыре. До пяти не хватает одного.',
-      uz: "Birga sanang. Uch va yana bir — to'rt. Beshgacha bittasi yetmaydi."
+      ru: 'Посчитай вместе. Три и ещё одно, четыре. До пяти не хватает одного.',
+      uz: "Birga sanang. Uch va yana bir, to'rt. Beshgacha bittasi yetmaydi."
     },
     wrong_default: {
       ru: 'Посчитай обе части вместе. Получится четыре, а не пять.',
@@ -1048,11 +1049,11 @@ const CONTENT = {
     }
   },
 
-  // ---- s9 TEST MC — qaysi juft birga 5? juftlar [(2,2),(2,3),(3,3)], to'g'ri = idx1 ----
+  // ---- s9 TEST MC — qaysi juft birga 5? juftlar [(2,2),(2,3),(3,3),(1,2)], to'g'ri = idx1 ----
   s9: {
     eyebrow: { ru: 'Тренировка · 4 / 6', uz: 'Mashq · 4 / 6' },
     title: { ru: 'У какой пары вместе ровно пять?', uz: "Qaysi juftda birga aniq besh bor?" },
-    correct_text: { ru: 'Верно. Два и три — это ровно пять.', uz: "To'g'ri. Ikki va uch — aniq besh." },
+    correct_text: { ru: 'Верно. Два и три. Это ровно пять.', uz: "To'g'ri. Ikki va uch, aniq besh." },
     wrong_0: {
       ru: 'Здесь вместе четыре. До пяти не хватает одного. Посчитай обе части.',
       uz: "Bu yerda birga to'rt. Beshgacha bittasi yetmaydi. Ikkala qismni sanang."
@@ -1111,7 +1112,7 @@ const CONTENT = {
     done_text: { ru: 'Молодец! Ты сделал все.', uz: "Barakalla! Hammasini yasadingiz." },
     retry_audio: { ru: 'Сделай столько красных, сколько просят.', uz: "So'ralgancha qizil olma yasang." },
     audio: {
-      intro: { ru: 'Поиграем. Бит просит сделать несколько красных яблок. Нажимай — яблоко станет красным, остальные будут зелёными.', uz: "O'ynaymiz. Bit bir nechta qizil olma so'raydi. Bosing — olma qizil bo'ladi, qolgani yashil bo'ladi." }
+      intro: { ru: 'Поиграем. Бит просит сделать несколько красных яблок. Нажимай. Яблоко станет красным, остальные будут зелёными.', uz: "O'ynaymiz. Bit bir nechta qizil olma so'raydi. Bosing. Olma qizil bo'ladi, qolgani yashil bo'ladi." }
     }
   },
 
@@ -1139,18 +1140,18 @@ const CONTENT = {
   s11: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Два яблока красные. Всего пять. Сколько зелёных?', uz: "Ikkita olma qizil. Hammasi besh. Nechta yashil?" },
-    correct_text: { ru: 'Верно. Два и ещё три — это пять.', uz: "To'g'ri. Ikki va yana uch — bu besh." },
+    correct_text: { ru: 'Верно. Два и ещё три. Это пять.', uz: "To'g'ri. Ikki va yana uch. Bu besh." },
     wrong_0: {
       ru: 'Столько уже красных. Зелёных другое число. Считай от двух до пяти.',
       uz: "Bu qizil olmalar soni. Yashillari boshqa son. Ikkidan beshgacha sanang."
     },
     wrong_1: {
-      ru: 'Пять — это всё вместе. Это не одна часть. Часть меньше целого.',
-      uz: "Besh — bu hammasi birga. Bu bitta qism emas. Qism butundan kichik."
+      ru: 'Пять. Это всё вместе. Это не одна часть. Часть меньше целого.',
+      uz: "Besh. Bu hammasi birga. Bu bitta qism emas. Qism butundan kichik."
     },
     wrong_2: {
-      ru: 'Это на одну больше. Посчитай зелёные яблоки. Их три.',
-      uz: "Bu bittaga ko'p. Yashil olmalarni sanang. Ular uchta."
+      ru: 'Это на одну больше. Посчитай по порядку от двух до пяти.',
+      uz: "Bu bittaga ko'p. Ikkidan beshgacha tartib bilan sanang."
     },
     wrong_default: {
       ru: 'Не совсем. Считай от двух до пяти и узнаешь, сколько зелёных.',
@@ -1162,8 +1163,8 @@ const CONTENT = {
       uz: "Domino toshida doim ikki qism — nuqtalar bor. Ularni qo'shsangiz, tosh soni chiqadi. Sonning tarkibini bilgan tezroq o'ynaydi."
     },
     fact_audio: {
-      ru: 'А знаешь, на косточке домино всегда две части с точками. Сложишь их — получишь число косточки.',
-      uz: "Bilasizmi, domino toshida doim ikki qism — nuqtalar bor. Ularni qo'shsangiz, tosh soni chiqadi."
+      ru: 'А знаешь, на косточке домино всегда две части с точками. Сложишь их и получишь число косточки.',
+      uz: "Bilasizmi, domino toshida doim ikkita nuqtali qism bor. Ularni qo'shsangiz, tosh soni chiqadi."
     },
     audio: {
       intro: { ru: 'Последнее задание. Два яблока красные. Всего пять. Сколько яблок зелёные? Нажми число.', uz: "Oxirgi topshiriq. Ikkita olma qizil. Hammasi besh. Nechta olma yashil? Sonni bosing." },
@@ -2962,7 +2963,7 @@ const Screen8 = (props) => {
   );
 };
 
-// s9 — TEST MC: qaysi juft birga 5? Juftlar [(2,2),(2,3),(3,3)], to'g'ri idx1.
+// s9 — TEST MC: qaysi juft birga 5? Juftlar [(2,2),(2,3),(3,3),(1,2)], to'g'ri idx1.
 const Screen9 = (props) => {
   const c = CONTENT.s9;
   const t = useT();

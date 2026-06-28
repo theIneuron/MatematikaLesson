@@ -874,13 +874,13 @@ const CONTENT = {
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Привет, друг! В прошлый раз мы нашли дом Рано — дом номер пять.',
+        'Привет, друг! В прошлый раз мы нашли дом Рано, дом номер пять.',
         'Сегодня на этой улице красили дома, и таблички с номерами перепутались. Тут дома от шести до десяти.',
-        'А в самом конце улицы — новый дом без номера. В нём пока никто не живёт, он пустой.',
+        'А в самом конце улицы стоит новый дом без номера. В нём пока никто не живёт, он пустой.',
         'Рано и Анвар наведут порядок. Слушай меня до конца и нажимай кнопку дальше.'
       ],
       uz: [
-        "Salom, do'stim! O'tgan safar biz Ra'noning uyini topgandik — beshinchi uyni.",
+        "Salom, do'stim! O'tgan safar biz Ra'noning uyini topgandik, beshinchi uyni.",
         "Bugun bu ko'chada uylar bo'yaldi va taxtachalar aralashib ketdi. Bu yerda oltidan o'ngacha uylar bor.",
         "Ko'chaning eng oxirida esa raqamsiz yangi uy bor. Unda hali hech kim yashamaydi, u bo'sh.",
         "Ra'no va Anvar tartibga soladi. Meni oxirigacha tinglang va davom tugmasini bosing."
@@ -891,24 +891,24 @@ const CONTENT = {
   // ---- sGuest SYUJET KO'PRIK — yangi uyning yaqin plani: bo'sh (0) -> Zuhra ko'chadi (1) ----
   sGuest: {
     eyebrow: { ru: 'Новая соседка', uz: "Yangi qo'shni" },
-    title: { ru: 'Новый дом и его номер', uz: "Yangi uy va uning raqami" },
+    title: { ru: 'Новый дом и новая соседка', uz: "Yangi uy va yangi qo'shni" },
     body: {
-      ru: 'Вот тот самый новый дом в конце улицы. Сначала здесь никто не жил и у дома не было номера — пусто, это ноль. Сегодня сюда переезжает новая девочка — Зухра, ваша новая соседка. Познакомься с ней! Теперь дадим дому номер: дома на улице шли до десяти, а этот — следующий. Значит, одиннадцать. Одиннадцать — это десять и ещё один.',
-      uz: "Mana ko'cha oxiridagi o'sha yangi uy. Avval bu yerda hech kim yashamasdi va uyning raqami ham yo'q edi — bo'sh, bu nol. Bugun bu yerga yangi qizcha — Zuhra, sizning yangi qo'shningiz ko'chib kelyapti. U bilan tanishing! Endi uyga raqam beramiz: ko'chadagi uylar o'ngacha edi, bu esa keyingisi. Demak, o'n bir. O'n bir — bu o'n va yana bir."
+      ru: 'Вот тот самый новый дом в конце улицы. Сначала здесь никто не жил, дом был пустой. Пусто, это ноль. Сегодня сюда переезжает новая девочка, Зухра, ваша новая соседка. Познакомься с ней! Был ноль жильцов, а стал один. Теперь в доме живёт один человек.',
+      uz: "Mana ko'cha oxiridagi o'sha yangi uy. Avval bu yerda hech kim yashamasdi, uy bo'sh edi. Bo'sh, bu nol. Bugun bu yerga yangi qizcha, Zuhra, sizning yangi qo'shningiz ko'chib kelyapti. U bilan tanishing! Avval nol kishi edi, endi bitta bo'ldi. Endi uyda bitta kishi yashaydi."
     },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Вот тот самый новый дом в конце улицы. Здесь пока никто не живёт, и у дома ещё нет номера. Пусто — это ноль.',
-        'А сегодня сюда переезжает новая девочка — Зухра, ваша новая соседка. Познакомься с ней! Теперь дом не пустой.',
-        'Теперь дадим дому номер. Дома на улице шли до десяти, а этот — следующий. Значит, одиннадцать. Это десять и ещё один.'
+        'Вот тот самый новый дом в конце улицы. Здесь пока никто не живёт. Пусто, это ноль.',
+        'А сегодня сюда переезжает новая девочка, Зухра, ваша новая соседка. Познакомься с ней! Теперь дом не пустой.',
+        'Был ноль жильцов, а стал один. Теперь в доме живёт один человек.'
       ],
       uz: [
-        "Mana ko'cha oxiridagi o'sha yangi uy. Bu yerda hali hech kim yashamaydi, uyning raqami ham yo'q. Bo'sh — bu nol.",
-        "Bugun bu yerga yangi qizcha — Zuhra ko'chib kelyapti. U sizning yangi qo'shningiz. U bilan tanishing! Endi uy bo'sh emas.",
-        "Endi uyga raqam beramiz. Ko'chadagi uylar o'ngacha edi, bu esa keyingisi. Demak, o'n bir. Bu o'n va yana bir."
+        "Mana ko'cha oxiridagi o'sha yangi uy. Bu yerda hali hech kim yashamaydi. Bo'sh, bu nol.",
+        "Bugun bu yerga yangi qizcha, Zuhra ko'chib kelyapti. U sizning yangi qo'shningiz. U bilan tanishing! Endi uy bo'sh emas.",
+        "Avval nol kishi edi, endi bitta bo'ldi. Endi uyda bitta kishi yashaydi."
       ]
     }
   },
@@ -943,11 +943,11 @@ const CONTENT = {
     audio: {
       ru: [
         'Нажимай на каждый дом по очереди. У каждого дома пять предметов и ещё несколько рядом.',
-        'Посчитаем вместе. Шесть, семь, восемь, девять, десять. Каждое число — это пять и ещё сколько-то.'
+        'Посчитаем вместе. Шесть, семь, восемь, девять, десять. Каждое число это пять и ещё сколько-то.'
       ],
       uz: [
         "Har uyni navbat bilan bosing. Har uy oldida besh ta buyum va yonida yana bir nechtasi bor.",
-        "Birgalikda sanaymiz. Olti, yetti, sakkiz, to'qqiz, o'n. Har son — besh va yana bir nechta."
+        "Birgalikda sanaymiz. Olti, yetti, sakkiz, to'qqiz, o'n. Har son besh va yana bir nechta."
       ]
     }
   },
@@ -958,14 +958,14 @@ const CONTENT = {
     instruction: { ru: 'Одна рука — это пять. Поднимай пальцы на второй руке, пока не станет восемь', uz: "Bir qo'l — bu besh. Ikkinchi qo'lda sakkizgacha barmoq ko'taring" },
     count_label: { ru: 'Всего', uz: 'Jami' },
     done_text: { ru: 'Молодец! Пять и ещё три — восемь.', uz: "Barakalla! Besh va yana uch — sakkiz." },
-    done_audio: { ru: 'Молодец! Пять и ещё три — восемь.', uz: "Barakalla! Besh va yana uch — sakkiz bo'ldi." },
+    done_audio: { ru: 'Молодец! Пять и ещё три, будет восемь.', uz: "Barakalla! Besh va yana uch, sakkiz bo'ldi." },
     audio: {
       ru: [
-        'Одна рука — это пять пальцев. Поднимай пальцы на второй руке.',
+        'Одна рука это пять пальцев. Поднимай пальцы на второй руке.',
         'Считай дальше. Шесть, семь, восемь. Остановись на восьми.'
       ],
       uz: [
-        "Bir qo'l — bu besh barmoq. Ikkinchi qo'lda barmoq ko'taring.",
+        "Bir qo'l bu besh barmoq. Ikkinchi qo'lda barmoq ko'taring.",
         "Davom sanang. Olti, yetti, sakkiz. Sakkizda to'xtang."
       ]
     }
@@ -981,8 +981,8 @@ const CONTENT = {
       uz: "Olti — bu besh va yana bir. Raqamni bosing va qanday yozilishini ko'ring."
     },
     audio: {
-      ru: 'Числа от шести до десяти — это пять и ещё сколько-то. Нажми на цифру, и я покажу, как её писать. Веди линию с самого начала, не отрывая руки.',
-      uz: "Oltidan o'ngacha sonlar — besh va yana bir nechta. Raqamni bosing, men uni qanday yozishni ko'rsataman. Chiziqni boshidan, qo'lni uzmasdan torting."
+      ru: 'Числа от шести до десяти это пять и ещё сколько-то. Нажми на цифру, и я покажу, как её писать. Веди линию с самого начала, не отрывая руки.',
+      uz: "Oltidan o'ngacha sonlar besh va yana bir nechta. Raqamni bosing, men uni qanday yozishni ko'rsataman. Chiziqni boshidan, qo'lni uzmasdan torting."
     }
   },
 
@@ -995,16 +995,16 @@ const CONTENT = {
       uz: "To'g'ri. Besh va yana ikki — bu yetti."
     },
     wrong_0: {
-      ru: 'Это только пять в ряду. Рядом есть ещё два. Пять и ещё два — семь.',
-      uz: "Bu faqat qatordagi besh ta. Yonida yana ikkitasi bor. Besh va yana ikki — yetti."
+      ru: 'Это только пять в ряду. Рядом есть ещё два. Посчитай их вместе по одному.',
+      uz: "Bu faqat qatordagi besh ta. Yonida yana ikkitasi bor. Ularni birga, bittadan sanang."
     },
     wrong_2: {
-      ru: 'Это на один больше. Посчитай по одному. Пять, шесть, семь. Их семь.',
-      uz: "Bu bittaga ko'p. Bittadan sanang. Besh, olti, yetti. Ular yetti."
+      ru: 'Это на один больше, чем нужно. Посчитай ещё раз по одному, не торопись.',
+      uz: "Bu keraklidan bittaga ko'p. Yana bittadan, shoshmasdan sanang."
     },
     wrong_3: {
-      ru: 'Два — это только те, что добавлены. Не забудь про пять в ряду. Всего семь.',
-      uz: "Ikki — bu faqat qo'shilganlari. Qatordagi besh tani unutmang. Hammasi yetti."
+      ru: 'Это только те, что добавлены. Не забудь про пять в ряду и посчитай все вместе.',
+      uz: "Bu faqat qo'shilganlari. Qatordagi besh tani unutmang va hammasini birga sanang."
     },
     wrong_default: {
       ru: 'Не совсем. Посчитай предметы по одному и выбери число.',
@@ -1025,11 +1025,11 @@ const CONTENT = {
     audio: {
       ru: [
         'В этом доме никто не живёт. Перед ним нет ни одного предмета. Это ноль.',
-        'Рядом дом, где один предмет. Один — это уже не ноль. Ноль — это когда нет совсем ничего.'
+        'Рядом дом, где один предмет. Один это уже не ноль. Ноль бывает, когда нет совсем ничего.'
       ],
       uz: [
         "Bu uyda hech kim yashamaydi. Oldida bironta ham buyum yo'q. Bu nol.",
-        "Yonida bitta buyumli uy bor. Bitta — bu nol emas. Nol — bu butunlay hech narsa yo'qligi."
+        "Yonida bitta buyumli uy bor. Bitta bu nol emas. Nol bu butunlay hech narsa yo'qligi."
       ]
     }
   },
@@ -1044,8 +1044,8 @@ const CONTENT = {
       uz: "Bironta ham buyum bo'lmasa, biz nol deb yozamiz. Mana shunday yoziladi — bitta aylana."
     },
     audio: {
-      ru: 'Ноль — это число для пустоты. Когда нет ни одного предмета, это ноль. Посмотри, как пишется ноль — это один овал.',
-      uz: "Nol — bu bo'shlik uchun son. Bironta ham buyum bo'lmasa, bu nol. Nol qanday yozilishini ko'ring — bu bitta aylana."
+      ru: 'Ноль это число для пустоты. Когда нет ни одного предмета, это ноль. Посмотри, как пишется ноль, это один овал.',
+      uz: "Nol bu bo'shlik uchun son. Bironta ham buyum bo'lmasa, bu nol. Nol qanday yozilishini ko'ring, bu bitta aylana."
     }
   },
 
@@ -1058,12 +1058,12 @@ const CONTENT = {
       uz: "To'g'ri. Bu yer butunlay bo'sh — bu nol."
     },
     wrong_0: {
-      ru: 'Здесь один предмет. Один — это не ноль. Ищи дом, где нет совсем ничего.',
-      uz: "Bu yerda bitta buyum bor. Bitta — bu nol emas. Butunlay hech narsa yo'q uyni qidiring."
+      ru: 'Здесь один предмет. Один это не ноль. Ищи дом, где нет совсем ничего.',
+      uz: "Bu yerda bitta buyum bor. Bitta bu nol emas. Butunlay hech narsa yo'q uyni qidiring."
     },
     wrong_2: {
-      ru: 'Здесь два предмета. Ноль — это пусто. Посмотри, где нет ни одного.',
-      uz: "Bu yerda ikkita buyum bor. Nol — bu bo'shlik. Bironta ham yo'q joyni qarang."
+      ru: 'Здесь два предмета. Ноль это пусто. Посмотри, где нет ни одного.',
+      uz: "Bu yerda ikkita buyum bor. Nol bu bo'shlik. Bironta ham yo'q joyni qarang."
     },
     wrong_default: {
       ru: 'Не совсем. Ноль там, где нет ни одного предмета.',
@@ -1089,8 +1089,8 @@ const CONTENT = {
       uz: "Hammasini olib ketishdi. Bironta qolmadi. Bu nol, bir emas."
     },
     wrong_2: {
-      ru: 'Столько было сначала. Потом всё забрали. Сейчас не осталось ничего — ноль.',
-      uz: "Avval shuncha edi. Keyin hammasini olib ketishdi. Hozir hech narsa qolmadi — nol."
+      ru: 'Столько было сначала. Потом всё забрали. Сейчас не осталось ничего, это ноль.',
+      uz: "Avval shuncha edi. Keyin hammasini olib ketishdi. Hozir hech narsa qolmadi, bu nol."
     },
     wrong_default: {
       ru: 'Не совсем. Посмотри, во дворе пусто.',
@@ -1108,7 +1108,7 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 4 / 6', uz: 'Mashq · 4 / 6' },
     instruction: { ru: 'Сосчитай предметы у дома и перетащи нужную цифру на дверь', uz: "Uy oldidagi buyumlarni sanang va kerakli raqamni eshikka torting" },
     correct_text: { ru: 'Верно. Цифра подходит к дому.', uz: "To'g'ri. Raqam uyga mos keladi." },
-    done_text: { ru: 'Молодец! Восемь предметов — цифра восемь.', uz: "Barakalla! Sakkizta buyum — sakkiz raqami." },
+    done_text: { ru: 'Молодец! Восемь предметов, цифра восемь.', uz: "Barakalla! Sakkizta buyum, sakkiz raqami." },
     wrong_default: { ru: 'Это другое число. Посчитай предметы ещё раз и подбери цифру.', uz: "Bu boshqa son. Buyumlarni yana sanang va raqamni mos keltiring." },
     audio: {
       intro: { ru: 'Сосчитай, сколько предметов у этого дома. Потом перетащи нужную цифру на дверь.', uz: "Bu uy oldida nechta buyum borligini sanang. Keyin kerakli raqamni eshikka torting." },
@@ -1122,8 +1122,8 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 5 / 6', uz: 'Mashq · 5 / 6' },
     title: { ru: 'У одного дома номер не совпадает с предметами. Найди его.', uz: "Bir uyning raqami buyumlariga to'g'ri kelmaydi. Uni toping." },
     correct_text: {
-      ru: 'Верно. Здесь девять предметов, а на двери восемь — это и есть ошибка.',
-      uz: "To'g'ri. Bu yerda to'qqizta buyum bor, lekin eshikda sakkiz — xato shu."
+      ru: 'Верно. Здесь девять предметов, а на двери восемь. Вот и ошибка.',
+      uz: "To'g'ri. Bu yerda to'qqizta buyum bor, lekin eshikda sakkiz. Xato shu."
     },
     wrong_default: {
       ru: 'Здесь номер совпадает с числом предметов. Посчитай у каждого дома и найди, где не совпало.',
@@ -1158,7 +1158,7 @@ const CONTENT = {
     done_text: { ru: 'Молодец! Рамка заполнена верно.', uz: "Barakalla! Ramka to'g'ri to'ldirildi." },
     retry_audio: { ru: 'Рамка уже полная. Посчитай ещё раз.', uz: "Ramka allaqachon to'la. Yana bir bor sanang." },
     audio: {
-      intro: { ru: 'Немного поиграем. Перетаскивай мячики в рамку пальцем или просто нажимай. Сначала заполняется нижний ряд — пять, потом верхний.', uz: "Endi biroz o'ynaymiz. Koptoklarni ramkaga barmoq bilan torting yoki bosib qo'ying. Avval pastki qator — besh, keyin tepasi to'ladi." }
+      intro: { ru: 'Немного поиграем. Перетаскивай мячики в рамку пальцем или просто нажимай. Сначала заполняется нижний ряд, там пять, потом верхний.', uz: "Endi biroz o'ynaymiz. Koptoklarni ramkaga barmoq bilan torting yoki bosib qo'ying. Avval pastki qator, besh ta, keyin tepasi to'ladi." }
     }
   },
 
@@ -1170,12 +1170,12 @@ const CONTENT = {
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     correct_text: { ru: 'Верно. Это дом номер десять — пять и ещё пять.', uz: "To'g'ri. Bu o'ninchi uy — besh va yana besh." },
-    wrong_0: { ru: 'Здесь девять. До десяти не хватает одного. Посчитай. Пять и ещё пять — десять.', uz: "Bu yerda to'qqizta. O'ntaga bittasi yetmaydi. Sanang. Besh va yana besh — o'n." },
-    wrong_2: { ru: 'Здесь только семь. В десятом доме десять предметов. Посчитай ещё раз.', uz: "Bu yerda atigi yettita. O'ninchi uyda o'nta buyum bor. Yana sanang." },
+    wrong_0: { ru: 'Здесь девять предметов. До нужного дома не хватает одного. Посчитай ещё раз.', uz: "Bu yerda to'qqizta buyum. Keraklidan bittasi kam. Buyumlarni qaytadan sanang." },
+    wrong_2: { ru: 'Здесь только семь предметов. Это меньше, чем нужно. Посчитай у этого дома ещё раз.', uz: "Bu yerda atigi yettita buyum. Bu keraklidan kam. Bu uy oldidagi buyumlarni yana sanang." },
     wrong_default: { ru: 'Не совсем. Посчитай предметы у каждого дома до десяти.', uz: "Unchalik emas. Har uy oldidagi buyumlarni o'ngacha sanang." },
     fact_badge: { ru: 'А знаешь? · Мир', uz: 'Bilasizmi? · Dunyo' },
     fact_text: { ru: 'Ноль придумали позже всех цифр — чтобы записывать пустоту, когда нет совсем ничего.', uz: "Nol hamma raqamdan keyin o'ylab topilgan — bo'shlikni, butunlay hech narsa yo'qligini yozish uchun." },
-    fact_audio: { ru: 'А знаешь, ноль придумали позже всех цифр — чтобы записывать пустоту.', uz: "Bilasizmi, nol hamma raqamdan keyin o'ylab topilgan — bo'shlikni yozish uchun." },
+    fact_audio: { ru: 'А знаешь, ноль придумали позже всех цифр, чтобы записывать пустоту.', uz: "Bilasizmi, nol hamma raqamdan keyin o'ylab topilgan, bo'shlikni yozish uchun." },
     audio: {
       intro: { ru: 'Где дом номер десять? Посчитай предметы у каждого дома и выбери.', uz: "O'ninchi uy qaysi biri? Har uy oldidagi buyumlarni sanang va tanlang." },
       on_correct: { ru: 'Верно. Их десять.', uz: "To'g'ri. Ular o'nta." },
@@ -3384,7 +3384,7 @@ const Screen7b = (props) => {
         <div className="g1-housefig">
           <HouseSVG digit={null}/>
           <div className="g1-yard" style={{ minHeight: 'clamp(36px, 8vw, 52px)' }}>
-            {left > 0 ? <ItemRow n={left} kind="ball" anim="none"/> : <span className="g1-hint-txt">{lang === 'uz' ? 'hovli bo‘sh' : 'двор пуст'}</span>}
+            {left > 0 ? <ItemRow n={left} kind="ball" anim="none"/> : <span className="g1-hint-txt">{lang === 'uz' ? "hovli bo'sh" : 'двор пуст'}</span>}
           </div>
         </div>
       )}
