@@ -76,7 +76,7 @@ darsni o'tgan darsga ulab ramkalaydi.
 | **Ra'no** | Syujet yetakchisi | Dars01 (bor) | `RanoSVG` |
 | **Anvar** | Do'st/mehmon | Dars01 (bor) | `AnvarSVG` |
 | **Bit** | Boshlovchi/diktor | Dars01 (bor) | `BitSVG` |
-| **Zaynab** | Yangi do'st — guruhga qo'shiladi | **Dars 7** (qo'shish mavzusi: "yana bir do'st qo'shildi" — amal bilan rezonans) | YANGI SVG chiziladi |
+| **Zuhra** | Yangi do'st — guruhga qo'shiladi | **Dars 7** (qo'shish mavzusi: "yana bir do'st qo'shildi" — amal bilan rezonans). *Dars03 da mehmon sifatida tanishtirilgan; Dars 7 da doimiy do'stga aylanadi (metodist qarori 2026-06-27, ilgarigi "Zaynab" o'rniga — chalkashlikni oldini olish uchun).* | `ZuhraSVG` (Dars03 da chizilgan, qayta ishlatiladi) |
 | **Bekzod** | Yangi do'st — maktab/mahalla bosqichida | **Dars 13** (o'nlik, dunyo maktabga kengayadi) | YANGI SVG chiziladi |
 
 Yangi personaj kirganda (ETALON §0): (1) yangi SVG mavjudlari uslubida chiziladi,
@@ -106,7 +106,7 @@ yaratuvchi shu ma'noni RU+UZ qilib yozadi (so'zma-so'z emas, lekin chegara aynan
 
 | № | Mavzu | Joy | Kirish holati | Chiqish holati |
 |---|---|---|---|---|
-| 7 | Qo'shish ma'nosi | hovli/bozor | **Zaynab keladi** — guruhga yangi do'st qo'shildi; narsalar ham qo'shilyapti | "Qo'shilsa — ko'payadi" tushunildi (birlashtirish) |
+| 7 | Qo'shish ma'nosi | hovli | **Zuhra keladi** — guruhga yangi do'st qo'shildi (doimiy); narsalar ham qo'shilyapti | "Qo'shilsa — ko'payadi" tushunildi (birlashtirish) |
 | 8 | Ayirish ma'nosi | hovli/bozor | Narsalardan bir qismi berildi/ketdi — kamaydi | "Olib qo'yilsa — kamayadi" tushunildi |
 | 9 | 5 ichida amallar (amaliyot) | mahalla | Do'stlar 5 ichida qo'shib-ayirib mashq qiladi | 5 ichida amallar puxtalandi |
 | 10 | 10 ichida amallar | mahalla | Endi 10 gacha narsalar bilan ishlanadi | 10 ichida qo'shish-ayirish mahkamlandi |
@@ -141,7 +141,7 @@ yaratuvchi shu ma'noni RU+UZ qilib yozadi (so'zma-so'z emas, lekin chegara aynan
 Bu yagona joy, bunda ikki komp ulanadi. Ikkala tomon AYNAN shu matnga tayanadi.
 
 **Dars12 ning chiqish holati (Komp1 yozadi, sGuest/yakunda):**
-> Mahallada sonlar va amallar o'rganilib bo'ldi. Do'stlar (Ra'no, Anvar, Zaynab)
+> Mahallada sonlar va amallar o'rganilib bo'ldi. Do'stlar (Ra'no, Anvar, Zuhra)
 > endi kattaroq sonlar dunyosiga — maktab tomon yo'l oladi. "Bizga endi
 > o'ndan katta sonlar kerak bo'ladi" degan ishora bilan tugaydi.
 
