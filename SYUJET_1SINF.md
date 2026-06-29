@@ -77,7 +77,7 @@ darsni o'tgan darsga ulab ramkalaydi.
 | **Anvar** | Do'st/mehmon | Dars01 (bor) | `AnvarSVG` |
 | **Bit** | Boshlovchi/diktor | Dars01 (bor) | `BitSVG` |
 | **Zuhra** | Yangi do'st — guruhga qo'shiladi | **Dars 7** (qo'shish mavzusi: "yana bir do'st qo'shildi" — amal bilan rezonans). *Dars03 da mehmon sifatida tanishtirilgan; Dars 7 da doimiy do'stga aylanadi (metodist qarori 2026-06-27, ilgarigi "Zaynab" o'rniga — chalkashlikni oldini olish uchun).* | `ZuhraSVG` (Dars03 da chizilgan, qayta ishlatiladi) |
-| **Bekzod** | Yangi do'st — maktab/mahalla bosqichida | **Dars 13** (o'nlik, dunyo maktabga kengayadi) | YANGI SVG chiziladi |
+| **Jasur** | Yangi do'st — maktab/mahalla bosqichida | **Dars 13** (o'nlik, dunyo maktabga kengayadi) | YANGI SVG chiziladi |
 
 Yangi personaj kirganda (ETALON §0): (1) yangi SVG mavjudlari uslubida chiziladi,
 (2) CONTENT'da ism + `*_label` (RU+UZ), (3) syujetga mantiqan ulanadi — kirish
@@ -117,7 +117,7 @@ yaratuvchi shu ma'noni RU+UZ qilib yozadi (so'zma-so'z emas, lekin chegara aynan
 
 | № | Mavzu | Joy | Kirish holati | Chiqish holati |
 |---|---|---|---|---|
-| 13 | O'nlik — sanoq birligi | maktab/bog' | **[KOMP2 BOSHI]** §4 chiqishidan davom; **Bekzod** maktab/mahalla bosqichida qo'shiladi; 10 ta narsa bitta dasta bo'ladi | "O'nlik = 10 ta birga" tushunildi |
+| 13 | O'nlik — sanoq birligi | maktab/bog' | **[KOMP2 BOSHI]** §4 chiqishidan davom; **Jasur** maktab/mahalla bosqichida qo'shiladi; 10 ta narsa bitta dasta bo'ladi | "O'nlik = 10 ta birga" tushunildi |
 | 14 | Sonlar 11–15 | maktab/mahalla | Bir o'nlik + bir nechta — 11–15 hosil bo'ladi | 11–15 o'qildi/yozildi (razryad) |
 | 15 | Sonlar 16–20 | maktab/mahalla | 16–20 ham xuddi shunday quriladi | 20 gacha sonlar mahkamlandi |
 | 16 | 10gacha to'ldirish | maktab | O'nlikni to'ldirish uchun nechta yetishmaydi? | "to'ldiruvchi juft" topildi (8+2, 7+3…) |
@@ -147,7 +147,7 @@ Bu yagona joy, bunda ikki komp ulanadi. Ikkala tomon AYNAN shu matnga tayanadi.
 
 **Dars13 ning kirish holati (Komp2 yozadi, sIntro'da AYNAN shundan boshlanadi):**
 > O'tgan safar mahallada amallarni o'rgandik. Bugun do'stlar maktab/bog'ga keldi —
-> bu yerda narsalar juda ko'p, ularni bittalab sanash uzoq. **Bekzod** ham shu
+> bu yerda narsalar juda ko'p, ularni bittalab sanash uzoq. **Jasur** ham shu
 > yerda — u 10 tani bitta dasta qilishni ko'rsatadi. Shu tariqa o'nlik tug'iladi.
 
 Ikkala komp ham bu ikki xatboshini O'ZGARTIRMAYDI. Agar biri o'zgartirsa —

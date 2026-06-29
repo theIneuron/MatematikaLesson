@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 1-SINF · Dars03 — "Sonlar 6–10 va 0 soni" (num-1-03-v1) · syujet: ta'mirdan keyin aralashib ketgan uy raqamlari (6–10) + ko'cha oxiridagi YANGI bo'sh uy=0 · spec: ETALON_1SINF.md ░░
-// Dars02 (Raqamlar 1–5) etaloni naqshlariga mos qurildi: infratuzilma + ETALON KIT +
-// uy/ko'cha vizualizatorlari (HouseSVG/DoorCard/ItemRow/StreetScene/HouseCollect).
-// Vizualizator MIX: o'rganish/qoidada "besh-besh ramka" (TenFrame: 5+N), testlarda
-// uy + buyumlar sahnasi. Yangi: 6–10 ni "5 va yana N" struktura bilan; nol = bo'sh uy
-// (s5/s6) + "hech narsa qoldi" (s7b); yangi personaj ZuhraSVG (jingalak soch + ko'zoynak
-// + amber ko'ylak — Ra'nodan keskin farqli; yangi bo'sh uyga ko'chib keladi: 0 -> 1 payoff).
+// ░░ 1-SINF · Dars08 — "Ayirishning ma'nosi" (num-1-08-v1) · syujet: hovlida Zuhra/Anvar olma OLADI/beradi -> kamayadi (Dars07 qo'shish aksi); − belgisi, 10 ichida · spec: ETALON_1SINF.md ░░
+// Dars07 (Qo'shishning ma'nosi) ning mirror'i: infratuzilma + ETALON KIT baytma-bayt;
+// CombineGroups o'rniga ayirish vizuallari. Make-ten YO'Q (Dars16+).
+// Vizualizator MIX: tap-to-remove (YANGI MEXANIKA: olmani bos -> uchadi -> kamayadi; s0/sg),
+// countdown-decrement (s2: 7->5), RemoveRow (MC figuralari), drag-away (s5: savatdan Anvarga),
+// BondFrame qizil/yashil (s7: yo'qolgan qism = ayirish↔qo'shish bog'i), SentTile (− belgi).
 //
-// Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar (tanish) + Zuhra (YANGI). Ra'no/Anvar
-// qayta tanishtirilmaydi (sIntro Dars02'ga callback bilan ochiladi).
+// Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar + Zuhra (tanish — Dars07'da kirgan).
+// Ra'no/Anvar/Zuhra qayta tanishtirilmaydi (sIntro Dars07'ga callback bilan ochiladi).
 //
 // ETALON KIT bloklari (grep: "ETALON KIT ·"):
 //   1) PERSONAJLAR — RanoSVG, AnvarSVG, BitSVG, HeroContext/useHero, StageHero
@@ -827,22 +826,22 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
 const TOTAL_SCREENS = 13;
 const LESSON_META = {
-  lessonId: 'num-1-07-v1',
-  lessonTitle: { ru: 'Смысл сложения', uz: "Qo'shishning ma'nosi" }
+  lessonId: 'num-1-08-v1',
+  lessonTitle: { ru: 'Смысл вычитания', uz: "Ayirishning ma'nosi" }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: hovliga Zuhra keladi — yangi do'st qo'shildi
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // sof syujet: ikki guruh narsa — birga ko'ramizmi?
-  { id: 's1',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // o'tgan dars eslash (son tarkibi): uch va ikki — birga nechta? (A)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // CombineGroups: ikki guruh birlashadi, birga sanaymiz
-  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: qo'shish = birlashtirish, belgisi +, ko'payadi
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // to'rt va ikki birlashsa nechta? (D)
-  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // sudrab-birlashtirish: Zuhra olmalarini Ra'no savatiga sur, jamini tanla (B)
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // rasmga mos yozuvni tanla — qo'shuv vs ayirma tuzog'i (C)
-  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // o'zi hosil qiladi: yetishmaganini qo'shib jami songa yetkaz
-  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: ikki guruhni birlashtirib jamini top
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: Zuhra qo'shildi -> guruh ko'paydi
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: hovli masalasi + fakt (B)
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: Zuhra savatdan olma oladi — kamayadi (Dars07 aksi)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // YANGI MEXANIKA tap-to-remove: olmani bos -> uchadi -> kamayadi
+  { id: 's1',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // razminka: 5 dan 2 olindi -> 3 (B)
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // countdown: 7 dan birma-bir 5 ga kamayadi
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: ayirish = olib tashlash, belgisi −, kamayadi
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 7 − 3 = ? -> 4 (B)
+  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // drag-away: savatdan 3 olmani Anvarga sur, qoldiqni tanla (8−3=5, B)
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // ifoda mosligi: 5 dan 2 olindi -> 5 − 2 (A); tuzoq + va teskari tartib
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // BondFrame yo'qolgan qism: 6 − 2 = 4 (A); ayirish↔qo'shish bog'i
+  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin tap-to-remove: nishonga yetguncha ol (6->4, 8->5)
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: olib qo'yilsa kamayadi; Dars09 ga ishora
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 8 − 3 = 5 + fakt (B)
   { id: 's9',  type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
 ];
 
@@ -856,13 +855,13 @@ const NUM_WORDS = {
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
 const CONTENT = {
-  // ---- sIntro SYUJET KIRISH — Bit boshlovchi, Dars03'ga bog'lanish + Zuhra hovliga keladi ----
+  // ---- sIntro SYUJET KIRISH — Dars07'ga ulash: birlashtirdik->ko'paydi; bugun Zuhra olma OLADI -> kamayadi ----
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'Зухра пришла во двор', uz: "Zuhra hovliga keldi" },
+    title: { ru: 'Во дворе полная корзина', uz: "Hovlida to'la savat" },
     body: {
-      ru: 'В прошлый раз Анвар и Рано навели порядок на улице, а в новый дом переехала Зухра. Сегодня Зухра пришла во двор к Рано — теперь друзей стало больше. У Рано во дворе уже лежат яблоки. А Зухра принесла с собой ещё яблоки. Скоро мы соберём их вместе.',
-      uz: "O'tgan safar Anvar va Ra'no ko'chada tartib o'rnatdi, yangi uyga esa Zuhra ko'chib keldi. Bugun Zuhra Ra'noning hovlisiga keldi — endi do'stlar ko'paydi. Ra'noning hovlisida allaqachon olmalar bor. Zuhra esa yana olma olib keldi. Tez orada ularni birga yig'amiz."
+      ru: 'В прошлый раз друзья соединяли группы — и яблок становилось больше. Сегодня всё наоборот: Зухра подходит к корзине Рано и берёт из неё несколько яблок. Посмотрим, что случится с числом яблок.',
+      uz: "O'tgan safar do'stlar guruhlarni birlashtirgandi — olma ko'paygandi. Bugun esa aksincha: Zuhra Ra'noning savatiga keladi va undan bir nechta olma oladi. Olma soniga nima bo'lishini ko'ramiz."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -870,254 +869,279 @@ const CONTENT = {
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Привет, друг! В прошлый раз в новый дом переехала Зухра.',
-        'Сегодня Зухра пришла во двор к Рано. Теперь друзей стало больше.',
-        'У Рано во дворе уже лежат яблоки. А Зухра принесла ещё яблоки.',
-        'Скоро мы соберём яблоки вместе и посчитаем, сколько их стало.',
+        'Привет, друг! В прошлый раз друзья соединяли группы яблок, и яблок становилось больше.',
+        'Сегодня будет наоборот. Зухра подходит к корзине Рано и берёт из неё несколько яблок.',
+        'Посмотрим, что случится с числом яблок, когда часть забирают.',
         'Слушай меня до конца и нажимай кнопку дальше.'
       ],
       uz: [
-        "Salom, do'stim! O'tgan safar yangi uyga Zuhra ko'chib kelgandi.",
-        "Bugun Zuhra Ra'noning hovlisiga keldi. Endi do'stlar ko'paydi.",
-        "Ra'noning hovlisida allaqachon olmalar bor. Zuhra esa yana olma olib keldi.",
-        "Tez orada olmalarni birga yig'amiz va nechta bo'lganini sanaymiz.",
+        "Salom, do'stim! O'tgan safar do'stlar olma guruhlarini birlashtirgandi va olma ko'paygandi.",
+        "Bugun aksincha bo'ladi. Zuhra Ra'noning savatiga keladi va undan bir nechta olma oladi.",
+        "Bir qism olib qo'yilganda olma soniga nima bo'lishini ko'ramiz.",
         "Meni oxirigacha tinglang va davom tugmasini bosing."
       ]
     }
   },
 
-  // ---- sGuest SYUJET KO'PRIK — Zuhra qo'shildi, guruh ko'paydi ----
+  // ---- sGuest SYUJET KO'PRIK — "olib qo'yilsa kamayadi" tushunildi; Dars09 ga ishora ----
   sGuest: {
     eyebrow: { ru: 'Почти у цели', uz: 'Manzilga yaqin' },
-    title: { ru: 'Друзей стало больше', uz: "Do'stlar ko'paydi" },
+    title: { ru: 'Поделились — стало меньше', uz: "Bo'lishdik — kamaydi" },
     body: {
-      ru: 'Сегодня мы собирали предметы вместе. Когда мы соединяем две группы, их становится больше. С Зухрой случилось так же: была пара друзей, пришла Зухра — и друзей стало больше. Соединить — значит прибавить.',
-      uz: "Bugun biz narsalarni birga yig'dik. Ikki guruhni birlashtirsak, ular ko'payadi. Zuhra bilan ham xuddi shunday bo'ldi: ikki do'st bor edi, Zuhra qo'shildi va do'stlar ko'paydi. Birlashtirish — bu qo'shish."
+      ru: 'Сегодня друзья отдавали и убирали яблоки — и их становилось меньше. Когда что-то убирают или отдают, это вычитание. В следующий раз будем складывать и вычитать в пределах пяти.',
+      uz: "Bugun do'stlar olma berishdi va olishdi — olma kamaydi. Biror narsa olinsa yoki berilsa, bu — ayirish. Keyingi safar besh ichida qo'shib-ayirib mashq qilamiz."
     },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Сегодня мы соединяли две группы предметов. Когда группы соединяются, предметов становится больше.',
-        'С друзьями случилось так же. Пришла Зухра, и друзей стало больше.',
-        'Соединить две группы значит прибавить.'
+        'Сегодня друзья отдавали и убирали яблоки, и яблок становилось меньше.',
+        'Когда что-то убирают или отдают, это называется вычитание.',
+        'В следующий раз будем складывать и вычитать в пределах пяти и потренируемся вместе.'
       ],
       uz: [
-        "Bugun biz ikki guruh narsani birlashtirdik. Guruhlar birlashsa, narsalar ko'payadi.",
-        "Do'stlar bilan ham xuddi shunday bo'ldi. Zuhra qo'shildi va do'stlar ko'paydi.",
-        "Ikki guruhni birlashtirish qo'shish degani."
+        "Bugun do'stlar olma berishdi va olishdi, olma kamaydi.",
+        "Biror narsa olinsa yoki berilsa, buni ayirish deymiz.",
+        "Keyingi safar besh ichida qo'shib-ayirib, birga mashq qilamiz."
       ]
     }
   },
 
-  // ---- s0 HOOK — sof syujet, FAOL: "Birlashtiramiz" bosiladi -> jonli birlashadi, ko'paydi (tuzoqsiz) ----
+  // ---- s0 HOOK (tap-to-remove, YANGI MEXANIKA): savatda 6 olma, bosib olib tashlaydi -> kamayadi ----
   s0: {
-    eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
-    title_part1: { ru: 'У Рано яблоки, у Зухры', uz: "Ra'noda olma bor, Zuhrada" },
-    title_part2_em: { ru: 'тоже яблоки', uz: "ham olma" },
-    title_part3: { ru: '. Соединим?', uz: '. Birlashtiramizmi?' },
-    question: { ru: 'Нажми кнопку и посмотри, что будет, когда группы соединятся.', uz: "Tugmani bosing va guruhlar birlashganda nima bo'lishini ko'ring." },
-    btn: { ru: 'Соединить', uz: 'Birlashtirish' },
-    done_text: { ru: 'Стало больше!', uz: "Ko'paydi!" },
+    eyebrow: { ru: 'Попробуй', uz: "Sinab ko'ring" },
+    title_part1: { ru: 'Нажми на яблоко —', uz: 'Olmani bosing —' },
+    title_part2_em: { ru: 'оно улетит', uz: 'u uchib ketadi' },
+    title_part3: { ru: ' из корзины.', uz: '.' },
+    question: { ru: 'Каждый раз смотри, сколько яблок осталось.', uz: "Har safar nechta olma qolganiga qarang." },
+    counter_label: { ru: 'Осталось', uz: 'Qoldi' },
+    done_text: { ru: 'Видишь: когда убираешь — становится меньше.', uz: "Ko'rdingizmi: olganingizda kamayadi." },
     audio: {
       intro: {
-        ru: 'У Рано во дворе три яблока. Зухра принесла ещё два яблока. Это две отдельные группы. Нажми кнопку соединить и посмотри, что будет.',
-        uz: "Ra'noning hovlisida uchta olma bor. Zuhra yana ikkita olma olib keldi. Bu ikki alohida guruh. Birlashtirish tugmasini bosing va nima bo'lishini ko'ring."
+        ru: 'В корзине шесть яблок. Нажми на яблоко — оно улетит из корзины. Каждый раз смотри, сколько осталось. Когда уберёшь несколько, нажми кнопку дальше.',
+        uz: "Savatda olti olma bor. Olmani bosing — u savatdan uchib ketadi. Har safar nechta qolganiga qarang. Bir nechtasini olgach, davom tugmasini bosing."
       },
-      on_combine: { ru: 'Группы соединились. Стало пять. Когда соединяем, становится больше.', uz: "Guruhlar birlashdi. Besh bo'ldi. Birlashtirganda ko'payadi." }
+      on_done: { ru: 'Ты убрал несколько яблок — их стало меньше.', uz: "Bir nechta olma oldingiz — ular kamaydi." }
     }
   },
 
-  // ---- s1 TEST (o'tgan dars eslash — son tarkibi): uch va ikki birga nechta? to'g'ri = besh (idx0, A) ----
+  // ---- s1 TEST (razminka): 5 dan 2 olib ketildi -> qoldi 3. options [5,3,2,4] to'g'ri idx1 ----
   s1: {
-    eyebrow: { ru: 'Вспомним · разминка', uz: 'Eslaymiz · qizdirish' },
-    title: { ru: 'Три и ещё два — сколько вместе?', uz: "Uch va yana ikki — birga nechta?" },
+    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
+    title: { ru: 'Было 5 яблок, забрали 2. Сколько осталось?', uz: "Beshta olma bor edi, ikkitasi olindi. Nechta qoldi?" },
     correct_text: {
-      ru: 'Верно. Три и ещё два — это пять.',
-      uz: "To'g'ri. Uch va yana ikki — bu besh."
+      ru: 'Верно. Из пяти забрали два — осталось три.',
+      uz: "To'g'ri. Beshtadan ikkita olindi — uchta qoldi."
     },
-    wrong_1: {
-      ru: 'Это только три. Соедини обе группы и посчитай дальше, по одному.',
-      uz: "Bu faqat uch. Ikki guruhni birlashtirib, davomidan bittadan sanang."
+    wrong_0: {
+      ru: 'Это число было сначала. Два яблока забрали, значит, осталось меньше. Посчитай оставшиеся.',
+      uz: "Bu — boshidagi son. Ikkita olma olindi, demak kamroq qoldi. Qolganlarini sanang."
     },
     wrong_2: {
-      ru: 'Это на один меньше. Соедини обе группы и посчитай по одному.',
-      uz: "Bu bittaga kam. Ikki guruhni birlashtirib, bittadan sanang."
+      ru: 'Это сколько забрали, а не сколько осталось. Посчитай те яблоки, что ещё в корзине.',
+      uz: "Bu — nechta olingani, qolgani emas. Savatdagi olmalarni sanang."
     },
     wrong_3: {
-      ru: 'Это на один больше. Посчитай ещё раз, по одному.',
-      uz: "Bu bittaga ko'p. Yana bittadan sanang."
+      ru: 'Чуть больше, чем нужно. Посчитай оставшиеся яблоки заново, по одному.',
+      uz: "Kerakdan bittaga ko'p. Qolgan olmalarni qaytadan, birma-bir sanang."
     },
     wrong_default: {
-      ru: 'Не совсем. Соедини обе группы и посчитай по одному.',
-      uz: "Unchalik emas. Ikki guruhni birlashtirib, bittadan sanang."
+      ru: 'Посмотри, сколько яблок осталось в корзине, и посчитай их по одному.',
+      uz: "Savatda nechta olma qolganiga qarang va ularni birma-bir sanang."
     },
     audio: {
-      intro: { ru: 'Вспомним прошлое. В одной группе три яблока, в другой два. Соедини их и посчитай. Сколько вместе?', uz: "O'tganni eslaymiz. Bir guruhda uchta olma, boshqasida ikkita. Ularni birlashtirib sanang. Birga nechta?" },
-      on_correct: { ru: 'Верно. Вместе пять.', uz: "To'g'ri. Birga besh." },
-      on_wrong: { ru: 'Не совсем. Посчитай по одному.', uz: "Unchalik emas. Bittadan sanang." }
+      intro: { ru: 'Было пять яблок. Два забрали. Сколько осталось? Выбери правильный ответ.', uz: "Beshta olma bor edi. Ikkitasi olindi. Nechta qoldi? To'g'ri javobni tanlang." },
+      on_correct: { ru: 'Верно. Осталось три.', uz: "To'g'ri. Uchta qoldi." },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // ---- s2 EXPLORATION — CombineGroups: ikki guruh birlashadi, birga sanaymiz (3+2=5) ----
+  // ---- s2 EXPLORATION (countdown): 7 dan birma-bir olib tashlanadi -> 5 ----
   s2: {
-    eyebrow: { ru: 'Соединяем', uz: 'Birlashtiramiz' },
-    instruction: { ru: 'У Рано три яблока, у Зухры два. Нажми кнопку и соедини их в одну группу', uz: "Ra'noda uchta olma, Zuhrada ikkita. Tugmani bosing va ularni bitta guruhga birlashtiring" },
-    btn: { ru: 'Соединить', uz: 'Birlashtirish' },
-    count_label: { ru: 'Вместе', uz: 'Birga' },
-    done_text: { ru: 'Три и ещё два — стало пять. Соединили — стало больше.', uz: "Uch va yana ikki — besh bo'ldi. Birlashtirdik — ko'paydi." },
+    eyebrow: { ru: 'Смотри', uz: 'Qarang' },
+    instruction: { ru: 'В корзине семь яблок. Нажми кнопку и убирай по одному', uz: "Savatda yetti olma bor. Tugmani bosing va birtadan oling" },
+    btn: { ru: 'Убрать', uz: 'Olib tashlash' },
+    count_label: { ru: 'Осталось', uz: 'Qoldi' },
+    done_text: { ru: 'Семь, шесть, пять. Когда убираем — становится меньше.', uz: "Yetti, olti, besh. Olganimizda — kamayadi." },
     audio: {
       ru: [
-        'У Рано три яблока. У Зухры ещё два яблока. Это две отдельные группы.',
-        'Нажми кнопку соединить. Две группы становятся одной. Теперь посчитаем все вместе.',
-        'Один, два, три, четыре, пять. Вместе стало пять. Соединили, и стало больше.'
+        'В корзине семь яблок.',
+        'Убираем одно — остаётся шесть.',
+        'Убираем ещё одно — остаётся пять.',
+        'Видишь: когда убираем, яблок становится меньше.'
       ],
       uz: [
-        "Ra'noda uchta olma. Zuhrada yana ikkita olma. Bu ikki alohida guruh.",
-        "Birlashtirish tugmasini bosing. Ikki guruh bittaga aylanadi. Endi hammasini birga sanaymiz.",
-        "Bir, ikki, uch, to'rt, besh. Birga besh bo'ldi. Birlashtirdik va ko'paydi."
+        "Savatda yetti olma bor.",
+        "Bittasini olamiz — olti qoladi.",
+        "Yana bittasini olamiz — besh qoladi.",
+        "Ko'rdingizmi: olganimizda olma kamayadi."
       ]
     }
   },
 
-  // ---- s3 RULE — qo'shish = birlashtirish, belgisi +, ko'payadi ----
+  // ---- s3 RULE — ayirish belgisi (minus), 7 − 2 = 5 ----
   s3: {
     eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
-    title_part1: { ru: 'Соединить две группы —', uz: "Ikki guruhni birlashtirish —" },
-    title_part2_em: { ru: 'это сложить', uz: "bu qo'shish" },
+    title_part1: { ru: 'Убрать —', uz: 'Olib tashlash —' },
+    title_part2_em: { ru: 'это вычесть', uz: 'bu ayirish' },
     tip: {
-      ru: 'Когда соединяем две группы, мы складываем. Знак сложения — плюс. После сложения предметов становится больше.',
-      uz: "Ikki guruhni birlashtirganda, biz qo'shamiz. Qo'shish belgisi — plyus. Qo'shgandan keyin narsalar ko'payadi."
+      ru: 'Убираем — это вычитание. Вычли — стало меньше.',
+      uz: "Olib tashlasak — ayirish. Ayirsak, kamayadi."
     },
     audio: {
-      ru: 'Запомним главное. Когда мы соединяем две группы в одну, мы складываем. У сложения есть свой знак, он называется плюс. Три плюс два равно пять. После сложения предметов всегда становится больше, чем было.',
-      uz: "Asosiyni eslab qolamiz. Ikki guruhni bitta qilib birlashtirganda, biz qo'shamiz. Qo'shishning o'z belgisi bor, u plyus deyiladi. Uch plyus ikki besh bo'ladi. Qo'shgandan keyin narsalar har doim avvalgidan ko'payadi."
+      ru: 'Запомним главное. Когда мы убираем предметы, это называется вычитание. У вычитания есть свой знак, он называется минус. Семь минус два равно пять. После вычитания предметов всегда становится меньше, чем было.',
+      uz: "Asosiyni eslab qolamiz. Narsalarni olib tashlasak, buni ayirish deymiz. Ayirishning o'z belgisi bor, u minus deyiladi. Yetti minus ikki besh bo'ladi. Ayirgandan keyin narsalar har doim avvalgidan kamayadi."
     }
   },
 
-  // ---- s4 TEST MC — to'rt va ikki birlashsa nechta? to'g'ri = olti (idx3, D) ----
+  // ---- s4 TEST MC — 7 − 3 = ? options [10,4,5,3] to'g'ri idx1 ----
   s4: {
-    eyebrow: { ru: 'Тренировка · 1 / 4', uz: 'Mashq · 1 / 4' },
-    title: { ru: 'У Рано четыре вишни, у Зухры две. Соединили. Сколько вместе?', uz: "Ra'noda to'rtta olcha, Zuhrada ikkita. Birlashtirdik. Birga nechta?" },
+    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
+    title: { ru: 'Из семи яблок забрали три. Сколько осталось?', uz: "Yetti olmadan uchtasi olindi. Nechta qoldi?" },
     correct_text: {
-      ru: 'Верно. Четыре и ещё два — это шесть.',
-      uz: "To'g'ri. To'rt va yana ikki — bu olti."
+      ru: 'Верно. Семь минус три равно четыре.',
+      uz: "To'g'ri. Yetti minus uch teng to'rt."
     },
     wrong_0: {
-      ru: 'Это только первая группа. Прибавь вторую и посчитай дальше.',
-      uz: "Bu faqat birinchi guruh. Ikkinchisini qo'shing va davomidan sanang."
-    },
-    wrong_1: {
-      ru: 'Это на один меньше. Соедини обе группы и посчитай по одному.',
-      uz: "Bu bittaga kam. Ikki guruhni birlashtirib, bittadan sanang."
+      ru: 'Это сложение, а не вычитание. Здесь яблоки забирают, поэтому их становится меньше, а не больше.',
+      uz: "Bu — qo'shish, ayirish emas. Bu yerda olma olinadi, shuning uchun ko'paymaydi, kamayadi."
     },
     wrong_2: {
-      ru: 'Это только то, что принесла Зухра. Не забудь про первую группу.',
-      uz: "Bu faqat Zuhra olib kelgani. Birinchi guruhni unutmang."
+      ru: 'Чуть много — убрали на одно меньше. Забери все три яблока и посчитай оставшиеся.',
+      uz: "Bittaga ko'p — bittasi kam olindi. Uchala olmani oling va qolganini sanang."
+    },
+    wrong_3: {
+      ru: 'Это сколько забрали, а не сколько осталось. Посчитай те, что ещё в корзине.',
+      uz: "Bu — nechta olingani, qolgani emas. Savatda qolganlarini sanang."
     },
     wrong_default: {
-      ru: 'Не совсем. Соедини обе группы и посчитай по одному.',
-      uz: "Unchalik emas. Ikki guruhni birlashtirib, bittadan sanang."
+      ru: 'Убери из семи три яблока и посчитай оставшиеся по одному.',
+      uz: "Yettidan uchta olmani oling va qolganini birma-bir sanang."
     },
     audio: {
-      intro: { ru: 'У Рано четыре вишни. Зухра принесла ещё две. Соединили в одну группу. Посчитай и выбери, сколько вместе.', uz: "Ra'noda to'rtta olcha. Zuhra yana ikkita olib keldi. Bitta guruhga birlashtirdik. Sanang va birga nechta ekanini tanlang." },
-      on_correct: { ru: 'Верно. Вместе шесть.', uz: "To'g'ri. Birga olti." },
-      on_wrong: { ru: 'Не совсем. Посчитай по одному.', uz: "Unchalik emas. Bittadan sanang." }
+      intro: { ru: 'Из семи яблок забрали три. Сколько осталось? Выбери ответ.', uz: "Yetti olmadan uchtasi olindi. Nechta qoldi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Осталось четыре.', uz: "To'g'ri. To'rtta qoldi." },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // ---- s5 TEST (sudrab-birlashtirish) — Ra'no savati 3 olma + Zuhra 2 olma -> 5. options [4,5,6] to'g'ri idx1 (B) ----
+  // ---- s5 TEST (drag-away): savatdan 3 olmani 'berildi' zonasiga sur -> qoldiq 5. options [8,5,6,11] to'g'ri idx1 ----
   s5: {
-    eyebrow: { ru: 'Тренировка · 2 / 4', uz: 'Mashq · 2 / 4' },
-    instruction: { ru: 'Перетащи яблоки Зухры в корзину Рано. Потом выбери, сколько стало вместе', uz: "Zuhraning olmalarini Ra'noning savatiga sudrang. Keyin birga nechta bo'lganini tanlang" },
-    question: { ru: 'Яблоки соединились в корзине. Сколько вместе?', uz: "Olmalar savatda birlashdi. Birga nechta?" },
+    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
+    instruction: { ru: 'Перетащи 3 яблока Анвару. Потом выбери, сколько осталось у Рано', uz: "Uchta olmani Anvarga sudrang. Keyin Ra'noda nechta qolganini tanlang" },
+    question: { ru: 'Три яблока ушли Анвару. Сколько осталось у Рано?', uz: "Uchta olma Anvarga ketdi. Ra'noda nechta qoldi?" },
     name_a: { ru: 'Корзина Рано', uz: "Ra'no savati" },
-    name_b: { ru: 'Яблоки Зухры', uz: 'Zuhra olmalari' },
-    correct_text: { ru: 'Верно. Три и ещё два, это пять.', uz: "To'g'ri. Uch va yana ikki, bu besh." },
-    wrong_0: { ru: 'Это на один меньше. Посчитай все яблоки по одному.', uz: "Bu bittaga kam. Hamma olmani bittadan sanang." },
-    wrong_2: { ru: 'Это на один больше. Посчитай ещё раз, не спеша.', uz: "Bu bittaga ko'p. Yana, shoshmasdan sanang." },
-    wrong_default: { ru: 'Не совсем. Посчитай все яблоки по одному.', uz: "Unchalik emas. Hamma olmani bittadan sanang." },
+    name_b: { ru: 'Отдали Анвару', uz: 'Anvarga berildi' },
+    correct_text: { ru: 'Верно. Из восьми отдали три — осталось пять.', uz: "To'g'ri. Sakkiztadan uchta berildi — beshta qoldi." },
+    wrong_0: { ru: 'Это всё, что было сначала. Три яблока ушли — значит, в корзине осталось меньше.', uz: "Bu — boshidagi hammasi. Uchta olma ketdi — demak savatda kamroq qoldi." },
+    wrong_2: { ru: 'Чуть много — отдали на одно меньше. Передвинь все три яблока и посчитай оставшиеся.', uz: "Bittaga ko'p — bittasi kam berildi. Uchala olmani suring va qolganini sanang." },
+    wrong_3: { ru: 'Это сложение. Яблоки отдают, поэтому их становится меньше, а не больше.', uz: "Bu — qo'shish. Olma beriladi, shuning uchun kamayadi, ko'paymaydi." },
+    wrong_default: { ru: 'Передвинь три яблока Анвару и посчитай, сколько осталось в корзине Рано.', uz: "Uchta olmani Anvarga suring va Ra'no savatida nechta qolganini sanang." },
     audio: {
-      intro: { ru: 'У Рано в корзине три яблока. У Зухры ещё два. Перетащи яблоки Зухры в корзину Рано, чтобы соединить. Потом посчитай, сколько вместе.', uz: "Ra'noning savatida uchta olma bor. Zuhrada yana ikkita. Birlashtirish uchun Zuhraning olmalarini Ra'noning savatiga sudrang. Keyin birga nechta ekanini sanang." },
-      on_correct: { ru: 'Верно. Вместе пять.', uz: "To'g'ri. Birga besh." },
-      on_wrong: { ru: 'Не совсем. Посчитай по одному.', uz: "Unchalik emas. Bittadan sanang." }
+      intro: { ru: 'У Рано в корзине восемь яблок. Перетащи три яблока Анвару. Сколько останется у Рано? Потом выбери ответ.', uz: "Ra'no savatida sakkizta olma bor. Uchta olmani Anvarga sudrang. Ra'noda nechta qoladi? Keyin javobni tanlang." },
+      on_correct: { ru: 'Верно. Осталось пять.', uz: "To'g'ri. Beshta qoldi." },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // ---- s6 TEST MC — rasmga (2 va 3 birlashgan) mos yozuvni tanla. to'g'ri = ikki qo'shuv uch (idx2, C) ----
+  // ---- s6 TEST MC (ifoda mosligi): rasm '5 dan 2 olindi'. options ["5 − 2","5 + 2","2 − 5"] to'g'ri idx0 ----
   s6: {
-    eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
-    title: { ru: 'Было два и ещё три, соединили. Какая запись подходит?', uz: "Ikkita va yana uchta edi, birlashtirdik. Qaysi yozuv mos?" },
+    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
+    title: { ru: 'Было пять, забрали два. Какая запись подходит?', uz: "Beshta edi, ikkitasi olindi. Qaysi yozuv mos?" },
     correct_text: {
-      ru: 'Верно. Два прибавить три — это про соединение групп.',
-      uz: "To'g'ri. Ikki qo'shuv uch — bu guruhlarni birlashtirish."
-    },
-    wrong_0: {
-      ru: 'Здесь знак отнять. Отнять значит убрать, а мы объединяли группы. Значит нужен знак плюс.',
-      uz: "Bu yerda ayirish belgisi. Ayirish olib qo'yish degani, biz esa guruhlarni birlashtirdik. Demak qo'shish belgisi kerak."
+      ru: 'Верно. Из пяти забрали два — это пять минус два.',
+      uz: "To'g'ri. Beshtadan ikkita olindi — bu besh minus ikki."
     },
     wrong_1: {
-      ru: 'Здесь обе группы одинаковые. А у нас группы были разные. Мы объединяли, значит нужен знак плюс.',
-      uz: "Bu yerda ikkala guruh bir xil. Bizda esa guruhlar har xil edi. Biz birlashtirdik, demak qo'shish belgisi kerak."
+      ru: 'Здесь знак плюс — это сложение. Но яблоки забрали, а не добавили. Нужен минус.',
+      uz: "Bu yerda plyus belgisi — bu qo'shish. Lekin olma olindi, qo'shilmadi. Minus kerak."
+    },
+    wrong_2: {
+      ru: 'Порядок перевёрнут. Сначала было пять, и из них забрали два — большее число впереди.',
+      uz: "Tartib teskari. Avval beshta bor edi, undan ikkita olindi — katta son oldinda."
     },
     wrong_default: {
-      ru: 'Не совсем. Мы объединяли группы, значит нужен знак плюс.',
-      uz: "Unchalik emas. Biz guruhlarni birlashtirdik, demak qo'shish belgisi kerak."
+      ru: 'Из пяти яблок забрали два. Это запись пять минус два.',
+      uz: "Beshta olmadan ikkita olindi. Bu — besh minus ikki yozuvi."
     },
     audio: {
-      intro: { ru: 'Две группы соединили в одну. Было два предмета и ещё три. Выбери запись, которая подходит к соединению.', uz: "Ikki guruh bittaga birlashtirildi. Ikkita narsa va yana uchta edi. Birlashtirishga mos yozuvni tanlang." },
-      on_correct: { ru: 'Верно. Два прибавить три.', uz: "To'g'ri. Ikki qo'shuv uch." },
-      on_wrong: { ru: 'Не совсем. Нам нужен знак плюс.', uz: "Unchalik emas. Bizga plyus belgisi kerak." }
+      intro: { ru: 'Посмотри на рисунок. Было пять яблок, два забрали. Какая запись это показывает? Выбери ответ.', uz: "Rasmga qarang. Beshta olma bor edi, ikkitasi olindi. Buni qaysi yozuv ko'rsatadi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Пять минус два.', uz: "To'g'ri. Besh minus ikki." },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // ---- s7 TEST custom (o'zi hosil qiladi) — guruhga yetishmaganini qo'shib jami songa yetkaz (5+2 -> 7) ----
+  // ---- s7 TEST (BondFrame, yo'qolgan qism): butun 6, qizil 2, yashil? -> 6 − 2 = 4. options [4,6,8,3] to'g'ri idx0 ----
   s7: {
-    eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
-    instruction: { ru: 'В группе уже пять яблок. Нужно семь. Нажимай и добавляй, пока не станет семь', uz: "Guruhda allaqachon beshta olma bor. Yettita kerak. Yettita bo'lguncha bosib qo'shing" },
-    count_label: { ru: 'Стало', uz: "Bo'ldi" },
-    done_text: { ru: 'Готово! Пять и ещё два — стало семь.', uz: "Tayyor! Besh va yana ikki — yetti bo'ldi." },
-    wrong_default: { ru: 'Уже хватает. Считай по одному и остановись на семи.', uz: "Yetib bo'ldi. Bittadan sanang va yettida to'xtang." },
+    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
+    title: { ru: 'Всего шесть, красных два. Сколько зелёных? Шесть минус два.', uz: "Hammasi oltita, ikkitasi qizil. Nechtasi yashil? Olti minus ikki." },
+    correct_text: {
+      ru: 'Верно. Шесть без двух — это четыре. Четыре и два вместе дают шесть.',
+      uz: "To'g'ri. Oltidan ikki ayrilsa — to'rt. To'rt va ikki birga oltini beradi."
+    },
+    wrong_1: {
+      ru: 'Это всё число вместе. Если убрать красные, зелёных остаётся меньше шести.',
+      uz: "Bu — butun son. Qizillarni olib tashlasak, yashillar oltidan kam qoladi."
+    },
+    wrong_2: {
+      ru: 'Это сложение шесть и два. Часть всегда меньше целого, а не больше.',
+      uz: "Bu — olti va ikkini qo'shish. Qism doim butundan kichik, katta emas."
+    },
+    wrong_3: {
+      ru: 'Чуть мало. Посчитай красные и пустые клетки заново, по одной.',
+      uz: "Bittaga kam. Qizil va bo'sh kataklarni qaytadan, birma-bir sanang."
+    },
+    wrong_default: {
+      ru: 'Из шести убери два красных и посчитай зелёные клетки.',
+      uz: "Oltidan ikkita qizilni oling va yashil kataklarni sanang."
+    },
     audio: {
-      intro: { ru: 'В этой группе уже пять яблок. А нужно семь. Добавляй по одному и считай дальше, пока не станет семь.', uz: "Bu guruhda allaqachon beshta olma bor. Yettita kerak. Bittadan qo'shing va yettita bo'lguncha davom sanang." },
-      on_correct: { ru: 'Верно. Стало семь.', uz: "To'g'ri. Yetti bo'ldi." },
-      on_wrong: { ru: 'Уже хватает. Остановись на семи.', uz: "Yetib bo'ldi. Yettida to'xtang." }
+      intro: { ru: 'Всего шесть клеток. Две красные. Сколько зелёных? Шесть минус два. Выбери ответ.', uz: "Hammasi olti katak. Ikkitasi qizil. Nechtasi yashil? Olti minus ikki. Javobni tanlang." },
+      on_correct: { ru: 'Верно. Четыре зелёных. Четыре и два вместе дают шесть.', uz: "To'g'ri. To'rtta yashil. To'rt va ikki birga oltini beradi." },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // ---- sg MINI-O'YIN — ikki guruhni birlashtirib jamini tanla (oson->qiyin), ball yo'q ----
+  // ---- sg MINI-O'YIN (tap-to-remove): nishonga yetguncha olib tashla. 2 raund (6->4, 8->5). Ball yo'q ----
   sg: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
-    instruction: { ru: 'Соедини две группы и выбери, сколько стало вместе', uz: "Ikki guruhni birlashtiring va birga nechta bo'lganini tanlang" },
-    btn: { ru: 'Соединить', uz: 'Birlashtirish' },
-    correct_text: { ru: 'Верно! Дальше.', uz: "To'g'ri! Davom etamiz." },
-    done_text: { ru: 'Молодец! Ты соединял группы и считал, сколько вместе.', uz: "Barakalla! Siz guruhlarni birlashtirib, birga nechta bo'lganini sanadingiz." },
-    retry_audio: { ru: 'Ничего страшного. Посчитай обе группы вместе ещё раз.', uz: "Zarari yo'q. Ikkala guruhni birga yana sanang." },
+    instruction: { ru: 'Убирай яблоки, пока не останется нужное число', uz: "Kerakli son qolguncha olma oling" },
+    target_label: { ru: 'Нужно оставить', uz: 'Qolishi kerak' },
+    count_label: { ru: 'Осталось', uz: 'Qoldi' },
+    round_ok: { ru: 'Готово! Дальше.', uz: "Tayyor! Davom etamiz." },
+    done_text: { ru: 'Молодец! Ты убирал яблоки и оставлял нужное число.', uz: "Barakalla! Siz olma olib, kerakli sonni qoldirdingiz." },
     audio: {
-      intro: { ru: 'Немного поиграем. Сначала соедини две группы, потом выбери, сколько стало вместе. Считай по одному.', uz: "Endi biroz o'ynaymiz. Avval ikki guruhni birlashtiring, keyin birga nechta bo'lganini tanlang. Bittadan sanang." }
+      ru: [
+        'Немного поиграем. Убирай яблоки, пока в корзине не останется нужное число. Сначала оставь четыре.',
+        'Теперь оставь пять.'
+      ],
+      uz: [
+        "Endi biroz o'ynaymiz. Savatda kerakli son qolguncha olma oling. Avval to'rtta qoldiring.",
+        "Endi beshta qoldiring."
+      ]
     }
   },
 
-  // ---- s8 TEST final + FactCard — hovli masalasi: 3 olma + 4 olma = 7. to'g'ri = yetti (idx1, B) ----
+  // ---- s8 TEST final + FactCard: Ra'noda 8, Anvarga 3 berdi -> 5. options [11,5,6,8] to'g'ri idx1 ----
   s8: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Рано собрала три яблока, Анвар — ещё четыре. Сколько всего?', uz: "Ra'no uchta olma terdi, Anvar yana to'rtta. Hammasi nechta?" },
+    title: { ru: 'У Рано было 8 яблок, она дала Анвару 3. Сколько осталось?', uz: "Ra'noda sakkizta olma bor edi, Anvarga uchta berdi. Nechta qoldi?" },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
-    correct_text: { ru: 'Верно. Три и ещё четыре — это семь.', uz: "To'g'ri. Uch va yana to'rt — bu yetti." },
-    wrong_0: { ru: 'Это меньше, чем нужно. Соедини обе группы и посчитай дальше.', uz: "Bu kerakdan kam. Ikki guruhni birlashtirib, davomidan sanang." },
-    wrong_2: { ru: 'Это на один меньше. Посчитай по одному обе группы.', uz: "Bu bittaga kam. Ikkala guruhni bittadan sanang." },
-    wrong_3: { ru: 'Это на один больше. Посчитай ещё раз, не спеша.', uz: "Bu bittaga ko'p. Yana, shoshmasdan sanang." },
-    wrong_default: { ru: 'Не совсем. Соедини обе группы и посчитай по одному.', uz: "Unchalik emas. Ikki guruhni birlashtirib, bittadan sanang." },
-    fact_badge: { ru: 'А знаешь? · История', uz: 'Bilasizmi? · Tarix' },
-    fact_text: { ru: 'Знак плюс придумали давно, чтобы коротко записывать «соединить вместе» вместо длинных слов.', uz: "Plyus belgisini ko'p yil oldin o'ylab topishgan — uzun so'zlar o'rniga birlashtirishni qisqa yozish uchun." },
-    fact_audio: { ru: 'А знаешь, знак плюс придумали давно, чтобы коротко записывать соединение вместо длинных слов.', uz: "Bilasizmi, plyus belgisini ko'p yil oldin o'ylab topishgan. Birlashtirishni qisqa yozish uchun." },
+    correct_text: { ru: 'Верно. Восемь минус три равно пять.', uz: "To'g'ri. Sakkiz minus uch teng besh." },
+    wrong_0: { ru: 'Это сложение. Рано дала яблоки, поэтому у неё их стало меньше, а не больше.', uz: "Bu — qo'shish. Ra'no olma berdi, shuning uchun unda kamaydi, ko'paymadi." },
+    wrong_2: { ru: 'Чуть много — дала на одно меньше. Убери все три яблока и посчитай оставшиеся.', uz: "Bittaga ko'p — bittasi kam berildi. Uchala olmani oling va qolganini sanang." },
+    wrong_3: { ru: 'Это всё, что было сначала. Три яблока ушли Анвару — осталось меньше.', uz: "Bu — boshidagi hammasi. Uchta olma Anvarga ketdi — kamroq qoldi." },
+    wrong_default: { ru: 'Из восьми яблок убери три и посчитай оставшиеся по одному.', uz: "Sakkizta olmadan uchtasini oling va qolganini birma-bir sanang." },
+    fact_badge: { ru: 'А знаешь? · Жизнь', uz: 'Bilasizmi? · Hayot' },
+    fact_text: { ru: 'Поделился чем-то с другом — у тебя стало меньше.', uz: "Biror narsani bo'lishsangiz — sizda kamayadi." },
+    fact_audio: { ru: 'А знаешь, когда делишься чем-то с другом, у тебя становится меньше. Это маленькое вычитание в жизни.', uz: "Bilasizmi, do'stingiz bilan biror narsani bo'lishsangiz, sizda kamayadi. Bu — hayotdagi kichik ayirish." },
     audio: {
-      intro: { ru: 'Рано собрала три яблока. Анвар собрал ещё четыре. Все яблоки сложили в одну корзину. Посчитай и выбери, сколько всего.', uz: "Ra'no uchta olma terdi. Anvar yana to'rtta terdi. Hamma olma bitta savatga birlashtirildi. Sanang va hammasi nechta ekanini tanlang." },
-      on_correct: { ru: 'Верно. Всего семь.', uz: "To'g'ri. Hammasi yetti." },
-      on_wrong: { ru: 'Не совсем. Посчитай по одному.', uz: "Unchalik emas. Bittadan sanang." }
+      intro: { ru: 'У Рано было восемь яблок. Три она дала Анвару. Сколько осталось у Рано? Выбери ответ.', uz: "Ra'noda sakkizta olma bor edi. Uchtasini Anvarga berdi. Ra'noda nechta qoldi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Осталось пять. Когда делишься, становится меньше.', uz: "To'g'ri. Beshta qoldi. Bo'lishsangiz, kamayadi." },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
@@ -1126,13 +1150,13 @@ const CONTENT = {
     eyebrow: { ru: 'Готово', uz: 'Tayyor' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     main_1: { ru: 'Теперь ты', uz: 'Endi siz' },
-    main_2_em: { ru: 'умеешь соединять группы — складывать', uz: "guruhlarni birlashtira olasiz — qo'sha olasiz" },
+    main_2_em: { ru: 'умеешь вычитать — убирать и считать остаток', uz: 'ayira olasiz — olib, qolganini sanay olasiz' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
-      ru: 'Сегодня Зухра пришла во двор, и друзей стало больше. А ты научился соединять две группы в одну. Это и есть сложение. Когда соединяем, предметов становится больше. На следующем уроке узнаем про вычитание, когда часть забирают.',
-      uz: "Bugun Zuhra hovliga keldi va do'stlar ko'paydi. Siz esa ikki guruhni bittaga birlashtirishni o'rgandingiz. Bu qo'shish degani. Birlashtirganda narsalar ko'payadi. Keyingi darsda ayirish bilan tanishamiz, bir qism olib qo'yilganda."
+      ru: 'Сегодня ты научился вычитать. Когда яблоки убирают или отдают, их становится меньше. Сложение делает больше, а вычитание — меньше. Знак вычитания — минус. На следующем уроке потренируемся складывать и вычитать в пределах пяти.',
+      uz: "Bugun ayirishni o'rgandingiz. Olma olinsa yoki berilsa — kamayadi. Qo'shish ko'paytiradi, ayirish — kamaytiradi. Ayirish belgisi — minus. Keyingi darsda besh ichida qo'shib-ayirishni mashq qilamiz."
     }
   }
 };
@@ -3017,31 +3041,6 @@ const FruitBubble = ({ n, kind = 'apple' }) => (
   </div>
 );
 
-// CombineGroups — pufakchali savatlar. Alohida: Ra'no + Zuhra pufakchasi (plyus oraliqda);
-// birlashgan: bitta pufakcha (a+b) + "a + b = jami" yozuvi.
-const CombineGroups = ({ a, b, kind = 'apple', kindB = null, combined = false, showSum = false, animate = true }) => {
-  const kb = kindB || kind;
-  if (combined) {
-    return (
-      <div className="g1-cg g1-cg-joined">
-        <div className={animate ? 'd4-mount' : ''}><FruitBubble n={a + b} kind={kind}/></div>
-        {showSum && (
-          <div className="g1-cg-sent mono" aria-hidden="true">
-            <span>{a}</span><i className="g1-cg-sign">+</i><span>{b}</span><i className="g1-cg-sign">=</i><span className="g1-cg-tot">{a + b}</span>
-          </div>
-        )}
-      </div>
-    );
-  }
-  return (
-    <div className="g1-cg">
-      <div className={animate ? 'd4-mount' : ''}><FruitBubble n={a} kind={kind}/></div>
-      <span className="g1-cg-op" aria-hidden="true">+</span>
-      <div className={animate ? 'd4-mount-r' : ''}><FruitBubble n={b} kind={kb}/></div>
-    </div>
-  );
-};
-
 // CastScene — hovli: fon + Ra'no + Anvar + Zuhra (Zuhra step>=3 da kirib keladi).
 const CastScene = ({ step = 3, withAnvar = true }) => {
   const t = useT();
@@ -3120,6 +3119,91 @@ const GuestCast = ({ audio }) => {
   const step = useStoryReveal(audio, 3);
   return <CastScene step={Math.max(step, 3)}/>;
 };
+// ===== Dars08 YANGI/QAYTA ISHLATILGAN KOMPONENTLAR (ayirish) =====
+
+// AppleIcon — ikki rangli olma (Dars06 dan): c='r' qizil, c='g' yashil. BondFrame uchun.
+const AppleIcon = ({ c = 'r' }) => {
+  const body = c === 'r' ? '#EE5436' : '#5DBB54';
+  return (
+    <svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true">
+      <g transform="translate(20 21)">
+        <path d="M0 -7 C -5 -13 -11 -13 -13.5 -8 C -16.5 -2 -15.5 9 -8 14.5 C -4 17 -1.5 16.5 0 14.5 C 1.5 16.5 4 17 8 14.5 C 15.5 9 16.5 -2 13.5 -8 C 11 -13 5 -13 0 -7 Z" fill={body}/>
+        <path d="M0 -8 Q1 -16 5 -18" stroke="#6E3A20" strokeWidth="2.4" fill="none" strokeLinecap="round"/>
+        <ellipse cx="9" cy="-16" rx="6" ry="3.4" fill="#3E9B57" transform="rotate(-18 9 -16)"/>
+        <ellipse cx="-6.5" cy="-1" rx="2.8" ry="6.2" fill="rgba(255,255,255,0.42)" transform="rotate(-16 -6.5 -1)"/>
+      </g>
+    </svg>
+  );
+};
+
+// BondFrame — 10 katakli ramka (Dars06 dan): 0..a-1 qizil, a..total-1 yashil; hide -> hideSide qismi "?".
+const BondFrame = ({ total = 6, a = 0, hide = false, hideSide = 'blue', anim = false }) => (
+  <div className="g1-bf" aria-hidden="true">
+    {Array.from({ length: 10 }).map((_, i) => {
+      const filled = i < total;
+      const red = i < a;
+      const hidden = hide && (hideSide === 'blue' ? !red : red);
+      return (
+        <span key={i} className={`g1-bf-cell ${filled ? 'on' : ''} ${anim && filled ? 'g1-bf-pop' : ''}`} style={anim && filled ? { animationDelay: `${i * 0.1}s` } : undefined}>
+          {filled && (hidden
+            ? <span className="g1-bf-q">?</span>
+            : <span className="g1-bf-ap"><AppleIcon c={red ? 'r' : 'g'}/></span>)}
+        </span>
+      );
+    })}
+  </div>
+);
+
+// RemoveRow — ayirish figurasi: total olma, oxirgi `gone` tasi xira (olib ketilgan). Audio sanaydi.
+const RemoveRow = ({ total, gone = 0, kind = 'apple' }) => (
+  <div className="g1-removerow" aria-hidden="true">
+    {Array.from({ length: total }).map((_, i) => (
+      <span key={i} className={`g1-rr-item ${i >= total - gone ? 'g1-rr-gone' : ''}`}>
+        <ObjSvg kind={kind}/>
+      </span>
+    ))}
+  </div>
+);
+
+// SentTile — yozuv plitkasi (5 − 2 / 5 + 2). + va − rangli farq.
+const SentTile = ({ a, op, b }) => (
+  <span className="g1-sent mono" aria-hidden="true">
+    <span>{a}</span><i className={`g1-sent-op ${op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{op}</i><span>{b}</span>
+  </span>
+);
+
+// ExprBig — to'liq ifoda (7 − 2 = 5), qoidada (s3).
+const ExprBig = ({ a, op, b, r }) => (
+  <span className="g1-sent g1-sent-lg mono" aria-hidden="true">
+    <span>{a}</span><i className={`g1-sent-op ${op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{op}</i><span>{b}</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">{r}</span>
+  </span>
+);
+
+// TapRemoveGrid — YANGI MEXANIKA: olmani bos -> uchib ketadi (g1-flyaway), qolgani kamayadi.
+// onRemainChange(remain) — qolgan sonni xabar qiladi. key bilan raund reset bo'ladi.
+const TapRemoveGrid = ({ start, kind = 'apple', disabled, onRemainChange }) => {
+  const [gone, setGone] = useState(() => new Set());
+  const remain = start - gone.size;
+  useEffect(() => { if (onRemainChange) onRemainChange(remain); }, [remain]); // eslint-disable-line react-hooks/exhaustive-deps
+  const remove = (i) => {
+    if (disabled || gone.has(i)) return;
+    setGone((prev) => { const s = new Set(prev); s.add(i); return s; });
+  };
+  return (
+    <div className="g1-tapgrid g1-removegrid">
+      {Array.from({ length: start }).map((_, i) => {
+        const isGone = gone.has(i);
+        return (
+          <button key={i} className={`g1-tapcell on g1-rcell ${isGone ? 'g1-flyaway' : ''}`}
+            disabled={disabled || isGone} onClick={() => remove(i)} aria-hidden={isGone ? 'true' : undefined}>
+            <ObjSvg kind={kind}/>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
 const ScreenIntro = (props) => (
   <StoryLayout props={props} c={CONTENT.sIntro} hint>{(audio) => <IntroCast audio={audio}/>}</StoryLayout>
 );
@@ -3127,50 +3211,46 @@ const ScreenGuest = (props) => (
   <StoryLayout props={props} c={CONTENT.sGuest}>{(audio) => <GuestCast audio={audio}/>}</StoryLayout>
 );
 
-// s0 — HOOK (sof syujet, FAOL): ikki guruh olma -> bola "Birlashtiramiz" bosadi -> jonli birlashadi,
-// jami ko'rinadi (ko'paydi). To'g'ri/noto'g'ri yo'q — faqat kuzatish va davom.
+// s0 — HOOK (tap-to-remove, YANGI MEXANIKA): savatda 6 olma, bola bosib oladi -> kamayadi (erkin).
+const S0_START = 6;
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s0;
   const audio = useAudio([{ id: 's0_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
-  const sfx = useSfx();
-  const [combined, setCombined] = useState(false);
-  const [praiseWord, setPraiseWord] = useState('');
-  const A = 3; const B = 2;
-  const combine = () => {
-    if (combined || !canAct) return;
-    setCombined(true);
-    sfx.playCorrect();
-    const pw = nextPraise(lang); setPraiseWord(pw);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_combine[lang]); }
+  const [remain, setRemain] = useState(S0_START);
+  const [done, setDone] = useState(false);
+  const onRemain = (r) => {
+    setRemain(r);
+    if (!done && (S0_START - r) >= 2) {
+      setDone(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_done[lang]); }
+    }
   };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!combined} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!done} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)' }}>
         <h1 className="title h-sub fade-up">
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
         </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          <CombineGroups a={A} b={B} kind="apple" combined={combined} showSum={combined}/>
-          {!combined && (
-            <button className="btn" disabled={!canAct} onClick={combine}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <TapRemoveGrid start={S0_START} kind="apple" disabled={!canAct || done} onRemainChange={onRemain}/>
+          <div className="g1-count-line">
+            <span className="g1-count-label">{t(c.counter_label)}</span>
+            <span className="g1-count-val mono">{remain}</span>
+          </div>
         </div>
-        {!combined && <p className="g1-q fade-up delay-1">{t(c.question)}</p>}
-        {combined && (
+        {!done && <p className="g1-q fade-up delay-1">{t(c.question)}</p>}
+        {done && (
           <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={`${praiseWord} ${t(c.done_text)}`}/>
+            <Reaction state="correct" praise={t(c.done_text)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -3178,7 +3258,7 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — TEST (o'tgan dars eslash): uch va ikki birga nechta? options [5,3,4,6] to'g'ri idx0 (A).
+// s1 — TEST (razminka): 5 dan 2 olib ketildi -> 3. options [5,3,2,4] to'g'ri idx1.
 const Screen1 = (props) => {
   const c = CONTENT.s1;
   const t = useT();
@@ -3187,9 +3267,9 @@ const Screen1 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={3} b={2} kind="apple"/>}
-      options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={6} size="mid"/>]}
-      correctIdx={0}
+      figure={() => <RemoveRow total={5} gone={2} kind="apple"/>}
+      options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={2} size="mid"/>, <DigitGlyph d={4} size="mid"/>]}
+      correctIdx={1}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3197,24 +3277,40 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — EXPLORATION: "Birlashtirish" tugmasi -> ikki guruh bitta bo'ladi, birga sanaymiz (3+2=5).
+// s2 — EXPLORATION (countdown): "Olib tashlash" tugmasi -> 7 dan birma-bir 5 ga kamayadi, har qadam ovoz.
+const S2_START = 7; const S2_END = 5;
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s2;
+  const reduced = usePrefersReducedMotion();
   const audio = useAudio([{ id: 's2_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
-  const [combined, setCombined] = useState(false);
-  const A = 3; const B = 2;
-  const combine = () => {
-    if (combined || !canAct) return;
-    setCombined(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio[lang][1]); e.pushOneOff(c.audio[lang][2]); } }
+  const [started, setStarted] = useState(false);
+  const [n, setN] = useState(S2_START);
+  const [done, setDone] = useState(false);
+  const start = () => {
+    if (started || !canAct) return;
+    setStarted(true);
+    const e = getAudioEngine();
+    if (reduced) {
+      setN(S2_END); setDone(true);
+      if (!audio.muted && e) e.pushOneOff(c.audio[lang][3]);
+      return;
+    }
+    let v = S2_START;
+    const step = () => {
+      v -= 1; setN(v);
+      if (!audio.muted && e) e.pushOneOff(c.audio[lang][S2_START - v]);
+      if (v > S2_END) { setTimeout(step, 1300); }
+      else { setDone(true); if (!audio.muted && e) e.pushOneOff(c.audio[lang][3]); }
+    };
+    setTimeout(step, 1100);
   };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!combined} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!done} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
@@ -3222,15 +3318,19 @@ const Screen2 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          <CombineGroups a={A} b={B} kind="apple" combined={combined} showSum={combined}/>
-          {!combined && (
-            <button className="btn" disabled={!canAct} onClick={combine}
+          <RemoveRow total={S2_START} gone={S2_START - n} kind="apple"/>
+          <div className="g1-count-line">
+            <span className="g1-count-label">{t(c.count_label)}</span>
+            <span className="g1-count-val mono">{n}</span>
+          </div>
+          {!started && (
+            <button className="btn" disabled={!canAct} onClick={start}
               style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
               {t(c.btn)}
             </button>
           )}
         </div>
-        {combined && (
+        {done && (
           <div className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
@@ -3240,7 +3340,7 @@ const Screen2 = (props) => {
   );
 };
 
-// s3 — RULE: ikki guruh -> bitta guruh (3+2=5) + Bit qoidani aytadi.
+// s3 — RULE: ayirish belgisi (minus), 7 − 2 = 5 + Bit qoidani aytadi.
 const Screen3 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3258,8 +3358,9 @@ const Screen3 = (props) => {
         <h1 className="title h-sub fade-up">
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
         </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(16px, 3vw, 26px)' }}>
-          <CombineGroups a={3} b={2} kind="apple" combined showSum/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 26px)' }}>
+          <RemoveRow total={7} gone={2} kind="apple"/>
+          <ExprBig a={7} op="−" b={2} r={5}/>
         </div>
         <BitSays text={t(c.tip)}/>
       </div>
@@ -3267,7 +3368,7 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST MC: to'rt va ikki birlashsa nechta? options [4,5,2,6] to'g'ri idx3 (D).
+// s4 — TEST MC: 7 − 3 = ? options [10,4,5,3] to'g'ri idx1.
 const Screen4 = (props) => {
   const c = CONTENT.s4;
   const t = useT();
@@ -3276,9 +3377,9 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={4} b={2} kind="cherry"/>}
-      options={[<DigitGlyph d={4} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={2} size="mid"/>, <DigitGlyph d={6} size="mid"/>]}
-      correctIdx={3}
+      figure={() => <RemoveRow total={7} gone={3} kind="apple"/>}
+      options={[<DigitGlyph d={10} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
+      correctIdx={1}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3286,9 +3387,8 @@ const Screen4 = (props) => {
   );
 };
 
-// s5 — TEST (sudrab-birlashtirish): Zuhraning 2 olmasini Ra'noning savatiga (3 olma) sudrab birlashtir,
-// keyin birga nechta ekanini tanla. options [4,5,6] to'g'ri idx1 (B). веди-до-верного. Drop-zona = D4Basket.
-const S5A = 3; const S5B = 2; const S5_OPTS = [4, 5, 6]; const S5_CORRECT = 1;
+// s5 — TEST (drag-away): Ra'no savatidan (8) 3 olmani Anvarga sur -> qoldiq 5. options [8,5,6,11] to'g'ri idx1.
+const S5A = 8; const S5GIVE = 3; const S5_OPTS = [8, 5, 6, 11]; const S5_CORRECT = 1;
 const Screen5 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3297,7 +3397,7 @@ const Screen5 = (props) => {
   const audio = useAudio([{ id: 's5_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
   const canAns = useCanAnswer(audio);
   const wasSolved = props.storedAnswer?.solved === true;
-  const trayIds = ['z0', 'z1'];
+  const trayIds = ['g0', 'g1', 'g2'];
   const [placed, setPlaced] = useState(() => (wasSolved ? trayIds.slice() : []));
   const [wrong, setWrong] = useState(() => new Set());
   const [solved, setSolved] = useState(wasSolved);
@@ -3305,15 +3405,15 @@ const Screen5 = (props) => {
   const [encWord, setEncWord] = useState('');
   const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
   const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
-  const merged = placed.length === S5B;
-  const total = S5A + placed.length;
+  const merged = placed.length === S5GIVE;
+  const remain = S5A - placed.length;
 
   const handleDrop = useCallback((tokenId, zoneId) => {
-    if (zoneId !== 'group') return;
+    if (zoneId !== 'given') return;
     setPlaced((prev) => {
-      if (prev.includes(tokenId) || prev.length >= S5B) return prev;
+      if (prev.includes(tokenId) || prev.length >= S5GIVE) return prev;
       const np = [...prev, tokenId];
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][S5A + np.length]); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][S5A - np.length]); }
       return np;
     });
   }, [audio.muted, lang]);
@@ -3352,32 +3452,31 @@ const Screen5 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{placed.length} / {S5B}</span></p>
+        <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{placed.length} / {S5GIVE}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <div className="g1-combine-row">
             <div className="g1-combine-grouplabel">
-              <div className={`g1-cg-drop g1-s5-drop ${merged ? 'full' : ''}`} data-zone="group" onClick={() => dnd.tapZone('group')}>
-                <BasketTop n={total} kind="apple"/>
-              </div>
+              <div className="g1-cg-drop g1-s5-basket"><BasketTop n={remain} kind="apple"/></div>
               <span className="g1-combine-name">{t(c.name_a)}</span>
             </div>
-            {!merged && (
-              <>
-                <span className="g1-cg-op" aria-hidden="true">+</span>
-                <div className="g1-combine-grouplabel">
-                  <div className="g1-tray">
-                    {trayLeft.map((id) => (
-                      <div key={id} className={`g1-token ${dnd.sel === id ? 'g1-token-sel' : ''}`}
-                        onPointerDown={(e) => { e.preventDefault(); dnd.startDrag(e, id); }}>
-                        <span className="g1-token-obj"><ObjSvg kind="apple"/></span>
-                      </div>
-                    ))}
-                  </div>
-                  <span className="g1-combine-name">{t(c.name_b)}</span>
-                </div>
-              </>
-            )}
+            <span className="g1-cg-op g1-cg-op-minus" aria-hidden="true">−</span>
+            <div className="g1-combine-grouplabel">
+              <div className={`g1-cg-drop g1-s5-drop ${merged ? 'full' : ''}`} data-zone="given" onClick={() => dnd.tapZone('given')}>
+                <BasketTop n={placed.length} kind="apple"/>
+              </div>
+              <span className="g1-combine-name">{t(c.name_b)}</span>
+            </div>
           </div>
+          {!merged && (
+            <div className="g1-tray">
+              {trayLeft.map((id) => (
+                <div key={id} className={`g1-token ${dnd.sel === id ? 'g1-token-sel' : ''}`}
+                  onPointerDown={(e) => { e.preventDefault(); dnd.startDrag(e, id); }}>
+                  <span className="g1-token-obj"><ObjSvg kind="apple"/></span>
+                </div>
+              ))}
+            </div>
+          )}
           {merged && !solved && (
             <div className="g1-gameopts">
               {S5_OPTS.map((v, i) => (
@@ -3387,7 +3486,7 @@ const Screen5 = (props) => {
               ))}
             </div>
           )}
-          {solved && <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={S5A + S5B} size="mid" tone="accent"/></div>}
+          {solved && <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={S5A - S5GIVE} size="mid" tone="accent"/></div>}
         </div>
         {merged && !solved && <p className="g1-q fade-up">{t(c.question)}</p>}
         {solved && (
@@ -3408,12 +3507,7 @@ const Screen5 = (props) => {
   );
 };
 
-// s6 — TEST MC: rasmga (2 + 3) mos yozuvni tanla. options ["2 − 3","2 + 2","2 + 3"] to'g'ri idx2 (C).
-const SentTile = ({ a, op, b }) => (
-  <span className="g1-sent mono" aria-hidden="true">
-    <span>{a}</span><i className={`g1-sent-op ${op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{op}</i><span>{b}</span>
-  </span>
-);
+// s6 — TEST MC (ifoda mosligi): rasm '5 dan 2 olindi'. options ["5 − 2","5 + 2","2 − 5"] to'g'ri idx0.
 const Screen6 = (props) => {
   const c = CONTENT.s6;
   const t = useT();
@@ -3422,13 +3516,13 @@ const Screen6 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={2} b={3} kind="apple"/>}
+      figure={() => <RemoveRow total={5} gone={2} kind="apple"/>}
       options={[
-        <SentTile a={2} op="−" b={3}/>,
-        <SentTile a={2} op="+" b={2}/>,
-        <SentTile a={2} op="+" b={3}/>,
+        <SentTile a={5} op="−" b={2}/>,
+        <SentTile a={5} op="+" b={2}/>,
+        <SentTile a={2} op="−" b={5}/>,
       ]}
-      correctIdx={2}
+      correctIdx={0}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3436,112 +3530,58 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST (o'zi hosil qiladi): guruhda 5 ta olma bor, 7 gacha bittadan qo'shadi (5 + 2 = 7).
+// s7 — TEST (BondFrame, yo'qolgan qism): butun 6, qizil 2, yashil yashirin -> 6 − 2 = 4. options [4,6,8,3] to'g'ri idx0.
 const Screen7 = (props) => {
-  const lang = useLang();
-  const t = useT();
   const c = CONTENT.s7;
-  const audio = useAudio([{ id: 's7_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
-  const canAns = useCanAnswer(audio);
-  const BASE = 5; const TARGET = 7; const ADD = TARGET - BASE;
-  const wasSolved = props.storedAnswer?.solved === true;
-  const [orders, setOrders] = useState(() => (wasSolved ? { 0: 6, 1: 7 } : {}));
-  const added = Object.keys(orders).length;
-  const count = BASE + added;
-  const done = added === ADD;
-  const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
-  const finish = useCallback(() => {
-    const ft = firstTryRef.current !== false;
-    props.onAnswer({
-      stage: SCREEN_META[props.screen].scope, screenIdx: props.screen,
-      question: null, options: null, correctIndex: null, correctAnswer: null,
-      studentAnswerIndex: null, studentAnswer: null,
-      correct: ft, firstTry: ft, attempts: added, solved: true
-    });
-  }, [props, added]);
-  const tap = (i) => {
-    if (orders[i] || added >= ADD || !canAns) return;
-    const order = BASE + added + 1;
-    const no = { ...orders, [i]: order };
-    setOrders(no);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(NUM_WORDS[lang][order]); if (order === TARGET) e.pushOneOff(c.audio.on_correct[lang]); } }
-    if (order === TARGET) finish();
-  };
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!done} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
+  const t = useT();
   return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <div className="g1-tapgrid">
-            {Array.from({ length: BASE }).map((_, i) => (
-              <div key={`b${i}`} className="g1-tapcell g1-tapcell-base on"><ObjSvg kind="apple"/></div>
-            ))}
-            {Array.from({ length: ADD }).map((_, i) => {
-              const on = !!orders[i];
-              return (
-                <button key={i} className={`g1-tapcell ${on ? 'on' : ''}`} disabled={done || on || !canAns} onClick={() => tap(i)}>
-                  <ObjSvg kind="apple"/>
-                  {on && <span className="g1-tapcell-tag mono">{orders[i]}</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <div className="g1-count-line fade-up delay-1">
-          <span className="g1-count-label">{t(c.count_label)}</span>
-          <span className="g1-count-val mono">{count} / {TARGET}</span>
-        </div>
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
-      </div>
-    </Stage>
+    <QuestionScreen
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
+      question={<h2 className="title h-sub">{t(c.title)}</h2>}
+      figure={(solved) => <BondFrame total={6} a={2} hide={!solved} hideSide="blue" anim={solved}/>}
+      options={[<DigitGlyph d={4} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
+      correctIdx={0}
+      mascot={false}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
   );
 };
 
-// sg — MINI-O'YIN: ikki guruhni birlashtir (tugma) -> jamini tanla. 2 raund (oson -> qiyin). Ball yo'q.
+// sg — MINI-O'YIN (tap-to-remove): nishonga yetguncha olib tashla. 2 raund (6->4, 8->5). Ball yo'q.
 const GAME_ROUNDS = [
-  { a: 2, b: 1, kind: 'cherry', opts: [3, 2, 4], correct: 0 },
-  { a: 3, b: 3, kind: 'apple', opts: [5, 7, 6], correct: 2 },
+  { start: 6, target: 4 },
+  { start: 8, target: 5 },
 ];
 const ScreenGame = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.sg;
   const sfx = useSfx();
-  const audio = useAudio([{ id: 'sg_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const audio = useAudio([{ id: 'sg_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAns = useCanAnswer(audio);
   const total = GAME_ROUNDS.length;
   const [ri, setRi] = useState(0);
-  const [combined, setCombined] = useState(false);
+  const [remain, setRemain] = useState(GAME_ROUNDS[0].start);
   const [solvedItem, setSolvedItem] = useState(false);
-  const [wrong, setWrong] = useState(() => new Set());
   const [praiseWord, setPraiseWord] = useState('');
-  const [encWord, setEncWord] = useState('');
   const round = GAME_ROUNDS[ri];
-  const allDone = ri >= total - 1 && solvedItem;
-  const combine = () => { if (combined || !canAns) return; setCombined(true); };
-  const pick = (i) => {
-    if (solvedItem || wrong.has(i) || !combined || !canAns) return;
-    if (i === round.correct) {
+  const lastRound = ri >= total - 1;
+  const allDone = lastRound && solvedItem;
+  const onRemain = (r) => {
+    setRemain(r);
+    if (!solvedItem && r === round.target) {
       setSolvedItem(true); sfx.playCorrect();
       const pw = nextPraise(lang); setPraiseWord(pw);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff((ri >= total - 1 ? c.done_text : c.correct_text)[lang]); } }
-    } else {
-      setWrong((p) => { const s = new Set(p); s.add(i); return s; });
-      setEncWord(nextEncourage(lang)); sfx.playWrong();
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.retry_audio[lang]); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff((lastRound ? c.done_text : c.round_ok)[lang]); } }
     }
   };
-  const nextRound = () => { setRi((v) => v + 1); setCombined(false); setSolvedItem(false); setWrong(new Set()); };
+  const nextRound = () => {
+    const ni = ri + 1;
+    setRi(ni); setSolvedItem(false); setPraiseWord(''); setRemain(GAME_ROUNDS[ni].start);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][ni]); }
+  };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3553,25 +3593,15 @@ const ScreenGame = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <CombineGroups key={ri} a={round.a} b={round.b} kind={round.kind} combined={combined} showSum={false}/>
-          {!combined && (
-            <button className="btn" disabled={!canAns} onClick={combine}
-              style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(18px, 2.8vw, 28px)', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
-          {combined && !solvedItem && (
-            <div className="g1-gameopts">
-              {round.opts.map((v, i) => (
-                <button key={i} className={`g1-numopt ${wrong.has(i) ? 'g1-numopt-wrong' : ''}`} disabled={wrong.has(i) || !canAns} onClick={() => pick(i)}>
-                  <DigitGlyph d={v} size="mid"/>
-                </button>
-              ))}
-            </div>
-          )}
-          {combined && solvedItem && (
-            <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={round.a + round.b} size="mid" tone="accent"/></div>
-          )}
+          <div className="g1-target-row">
+            <span className="g1-count-label">{t(c.target_label)}</span>
+            <span className="g1-target-num mono">{round.target}</span>
+          </div>
+          <TapRemoveGrid key={ri} start={round.start} kind="apple" disabled={!canAns || solvedItem} onRemainChange={onRemain}/>
+          <div className="g1-count-line">
+            <span className="g1-count-label">{t(c.count_label)}</span>
+            <span className="g1-count-val mono">{remain}</span>
+          </div>
         </div>
         {solvedItem && (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -3584,17 +3614,12 @@ const ScreenGame = (props) => {
             )}
           </div>
         )}
-        {!solvedItem && wrong.size > 0 && (
-          <FeedbackBlock show={true} isCorrect={false} wrongClass="frame-tip">
-            <Reaction state="wrong" praise={encWord}/>
-          </FeedbackBlock>
-        )}
       </div>
     </Stage>
   );
 };
 
-// s8 — TEST final + FactCard: hovli masalasi (3 olma + 4 olma = 7). options [5,7,6,8] to'g'ri idx1 (B).
+// s8 — TEST final + FactCard: Ra'no 8, Anvarga 3 berdi -> 5. options [11,5,6,8] to'g'ri idx1.
 const Screen8 = (props) => {
   const c = CONTENT.s8;
   const t = useT();
@@ -3603,15 +3628,15 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={3} b={4} kind="apple"/>}
-      options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={8} size="mid"/>]}
+      figure={() => <RemoveRow total={8} gone={3} kind="apple"/>}
+      options={[<DigitGlyph d={11} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={8} size="mid"/>]}
       correctIdx={1}
       mascot={false}
       factOnCorrect={(
         <div className="g1-factcard fade-up">
           <span className="g1-factcard-badge mono">{t(c.fact_badge)}</span>
           <div className="g1-factcard-row">
-            <span className="g1-factcard-plus" aria-hidden="true">+</span>
+            <span className="g1-factcard-plus g1-factcard-minus" aria-hidden="true">−</span>
             <p className="g1-factcard-txt">{t(c.fact_text)}</p>
           </div>
         </div>
@@ -3622,7 +3647,7 @@ const Screen8 = (props) => {
   );
 };
 
-// s9 — SUMMARY: reyting -> can-do -> hovli sahnasi (Dars01/Dars03 etaloni kabi, ustma-ust).
+// s9 — SUMMARY: reyting -> can-do -> hovli sahnasi.
 const Screen9 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3664,7 +3689,7 @@ const Screen9 = (props) => {
 // ============================================================
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1)
 // ============================================================
-export default function AdditionMeaningLesson({
+export default function SubtractionMeaningLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -4799,5 +4824,47 @@ html, body { margin: 0; padding: 0; }
 @media (prefers-reduced-motion: reduce) {
   .g1-factcard-plus, .g1-yc-zuhra.walkin, .d4-mount, .d4-mount-r { animation: none; }
   .g1-yc-fig, .g1-yard-bubble { transition: none; }
+}
+
+/* === Dars08 — ayirish vizuallari === */
+/* BondFrame (s7, Dars06 dan): 10 katak, qizil/yashil olma, "?" yashirin qism */
+@keyframes g1pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+.g1-bf { display: inline-grid; grid-template-columns: repeat(5, auto); gap: clamp(4px, 1.2vw, 9px); padding: clamp(8px, 1.8vw, 12px); background: #FBF9F4; border-radius: 16px; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.06); justify-items: center; }
+.g1-bf-cell { width: clamp(38px, 8vw, 52px); height: clamp(38px, 8vw, 52px); border-radius: 12px; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.08); display: flex; align-items: center; justify-content: center; }
+.g1-bf-cell.on { box-shadow: inset 0 0 0 2px rgba(58,53,48,0.13); }
+.g1-bf-q { font-weight: 800; font-size: clamp(20px, 4vw, 28px); color: #B6B2AB; }
+.g1-bf-ap { width: 80%; height: 80%; display: inline-flex; align-items: center; justify-content: center; filter: drop-shadow(0 2px 3px rgba(58,53,48,0.2)); }
+.g1-bf-ap svg { width: 100%; height: 100%; }
+.g1-bf-pop { animation: g1pop 0.4s ease-out; }
+
+/* RemoveRow (MC figuralari): total olma, oxirgi "gone" tasi xira + chizib tashlangan */
+.g1-removerow { display: flex; flex-wrap: wrap; gap: clamp(6px, 1.6vw, 12px); justify-content: center; align-items: center; max-width: 470px; }
+.g1-rr-item { width: clamp(34px, 7vw, 46px); height: clamp(34px, 7vw, 46px); display: inline-flex; align-items: center; justify-content: center; position: relative; transition: opacity 0.3s ease; }
+.g1-rr-item svg { width: 100%; height: 100%; }
+.g1-rr-gone { opacity: 0.24; }
+.g1-rr-gone::after { content: ''; position: absolute; left: 10%; right: 10%; top: 50%; height: 3px; background: #C0392B; border-radius: 2px; transform: rotate(-14deg); opacity: 0.72; }
+
+/* tap-to-remove (s0, sg): olma bosilsa uchib ketadi */
+.g1-rcell { cursor: pointer; }
+.g1-flyaway { animation: g1flyaway 0.5s cubic-bezier(0.4, 0, 0.6, 1) forwards; pointer-events: none; }
+@keyframes g1flyaway { 0% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); } 100% { opacity: 0; transform: translateY(-46px) scale(0.5) rotate(18deg); } }
+
+/* nishon satri (sg) */
+.g1-target-row { display: flex; align-items: center; gap: 10px; }
+.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+
+/* katta ifoda (s3 qoida): 7 − 2 = 5 */
+.g1-sent-lg { font-size: clamp(28px, 6vw, 44px); gap: clamp(8px, 2vw, 14px); }
+.g1-sent .g1-sent-eq { font-style: normal; font-weight: 800; color: #5A5A60; }
+.g1-sent .g1-sent-res { color: #1F7A4D; }
+
+/* ayirish belgisi variantlari */
+.g1-cg-op-minus { color: #5A5A60; }
+.g1-factcard-minus { animation: none; }
+.g1-s5-basket { box-shadow: inset 0 0 0 2px rgba(58,53,48,0.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .g1-flyaway { animation: none; opacity: 0; }
+  .g1-bf-pop { animation: none; }
 }
 `;
