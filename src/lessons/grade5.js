@@ -224,4 +224,11 @@ export const grade5 = [
     desc: "Quti birlik kublardan: hajm = uzunlik × en × balandlik (V = a × b × c, sm³)",
     Component: lazy(() => import('../components/grade5/Dars37.jsx')),
   },
+  // — Amaliyot namunalari (10 ta format-namuna, bitta sahifa, chip-navigatsiya) —
+  {
+    slug: 'amaliyot-namunalar',
+    title: '★ Amaliyot namunalari (7 format)',
+    desc: '10 ta format-namuna: tekstli, foiz, jadval, klassifikatsiya, vizual…',
+    Component: lazy(() => import('../components/grade5/practice/PracticePreview.jsx')),
+  },
 ]
