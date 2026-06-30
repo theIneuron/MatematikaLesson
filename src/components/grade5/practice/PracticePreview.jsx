@@ -12,6 +12,9 @@ import Amaliyot07 from './Amaliyot07.jsx';
 import Amaliyot08 from './Amaliyot08.jsx';
 import Amaliyot09 from './Amaliyot09.jsx';
 import Amaliyot10 from './Amaliyot10.jsx';
+import Amaliyot11 from './Amaliyot11.jsx';
+import Amaliyot12 from './Amaliyot12.jsx';
+import Amaliyot13 from './Amaliyot13.jsx';
 
 const ITEMS = [
   { id: '01', label: '1. Tekstli', full: 'Amaliyot 1 — tekstli masala (B1)', C: Amaliyot01 },
@@ -24,6 +27,9 @@ const ITEMS = [
   { id: '08', label: '8. Vizual', full: 'Amaliyot 8 — kasr va ½ (B2)', C: Amaliyot08 },
   { id: '09', label: '9. Yuza', full: "Amaliyot 9 — to'rtburchak yuzasi (B5)", C: Amaliyot09 },
   { id: '10', label: '10. Oshxona', full: 'Amaliyot 10 — retsept (B3)', C: Amaliyot10 },
+  { id: '11', label: '11. Sonlar nuri', full: 'Amaliyot 11 — sonlar nurida nuqta · interaktiv (B1)', C: Amaliyot11 },
+  { id: '12', label: '12. Kasr fabrikasi', full: "Amaliyot 12 — 3/4 ni yig'ish · interaktiv (B2)", C: Amaliyot12 },
+  { id: '13', label: '13. Xona dizayneri', full: 'Amaliyot 13 — yuza + perimetr · interaktiv (B5)', C: Amaliyot13 },
 ];
 
 export default function PracticePreview() {
@@ -43,7 +49,7 @@ export default function PracticePreview() {
         display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center',
         padding: '10px 12px', borderBottom: '1px solid #eef0f4', marginBottom: 6,
       }}>
-        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>Amaliyot namunalari (7 format)</strong>
+        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>Amaliyot namunalari (13 ta · 11–13 interaktiv)</strong>
         {ITEMS.map((item, i) => (
           <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
             {item.label}

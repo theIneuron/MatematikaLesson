@@ -231,4 +231,10 @@ export const grade5 = [
     desc: '10 ta format-namuna: tekstli, foiz, jadval, klassifikatsiya, vizual…',
     Component: lazy(() => import('../components/grade5/practice/PracticePreview.jsx')),
   },
+  {
+    slug: 'praktikumlar',
+    title: '★ Praktikumlar (5 blok prototip)',
+    desc: 'Har blokka bitta praktikum: sonlar nuri, kasr konstruktori, xato top, vergul, dizayner',
+    Component: lazy(() => import('../components/grade5/practice/MathPraktikums.jsx')),
+  },
 ]
