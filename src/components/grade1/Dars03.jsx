@@ -49,7 +49,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false; // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = true; // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -65,7 +65,7 @@ const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|E
 const stripAudioTags = (s) => typeof s === 'string'
   ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
-      .replace(/\s{2,}/g, ' ').trim()
+      .replace(/\s{2,}/g, ' ')
   : s;
 
 // HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
@@ -505,7 +505,7 @@ function useAdvanceGate(solved, audio) {
 // ============================================================
 const Op = React.memo(({ children, size = 'mid' }) => {
   const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
-                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
+                   size === 'mid' ? 'clamp(24px, 5vw, 34px)' :
                    'clamp(12px, 2.1vw, 18px)';
   return <span className="mop" style={{ fontSize }}>{children}</span>;
 });
@@ -788,7 +788,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
                   {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
@@ -802,7 +802,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {solved && !celebrateOnCorrect && (
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <button className="option option-correct" disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
             </button>
@@ -3007,7 +3007,7 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 16px)' }}>
         <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.title)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 16px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(22px, 4.4vw, 32px)' }}>
           {typeof children === 'function' ? children(audio) : children}
         </div>
         {hint && <OnboardHint/>}

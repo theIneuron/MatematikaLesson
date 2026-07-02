@@ -49,7 +49,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -65,7 +65,7 @@ const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|E
 const stripAudioTags = (s) => typeof s === 'string'
   ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
-      .replace(/\s{2,}/g, ' ').trim()
+      .replace(/\s{2,}/g, ' ')
   : s;
 
 // HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
@@ -505,7 +505,7 @@ function useAdvanceGate(solved, audio) {
 // ============================================================
 const Op = React.memo(({ children, size = 'mid' }) => {
   const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
-                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
+                   size === 'mid' ? 'clamp(24px, 5vw, 34px)' :
                    'clamp(12px, 2.1vw, 18px)';
   return <span className="mop" style={{ fontSize }}>{children}</span>;
 });
@@ -777,9 +777,9 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.8vw, 13px)' }}>
         <div className="fade-up">{question}</div>
-        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
+        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(8px, 1.6vw, 12px)' }}>{figure(solved)}</div>}
         {!solved && (
         <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${optionsCols}, minmax(0, 1fr))`, gap: 10 }}>
           {options.map((opt, i) => {
@@ -788,7 +788,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
                   {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
@@ -802,7 +802,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {solved && !celebrateOnCorrect && (
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <button className="option option-correct" disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
             </button>
@@ -819,10 +819,10 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- POD UROK: num_1_01 — Predmetlarni sanash va 1–5 sonlar (1-sinf, Dars01) ---
+// --- 1-SINF DARSI (aniq mavzu va id: pastdagi LESSON_META) ---
 // 1-sinf (6–7 yosh): ovoz yetakchi kanal, typing YO'Q (tap/drag), concrete ustun,
 // bar model YO'Q. Manba: 1sinf_metodologiya.md (§4, §6, §7 Б1) + DIZAYN_STANDART_1SINF.md.
-// Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
+// Misconception'lar test ekranlarining wrong_N hint'larida (mavzuga moslangan).
 // ============================================================
 
 const TOTAL_SCREENS = 13;
@@ -839,7 +839,7 @@ const SCREEN_META = [
   { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nechta o'nlik? 1
   { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // taqqoslash (timsoh): 10 > 7
   { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 1 o'nlik = 10 birlik
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi rasmda aynan 1 o'nlik?
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 1 o'nlik + 4 birlik = ? -> 14
   { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: tayoqchalarni sana (3 raund)
   { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'nlik -> Dars14 (11..15)
   { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 10 birlik = 1 o'nlik + fakt
@@ -861,8 +861,8 @@ const CONTENT = {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
     title: { ru: 'После десятка — дальше', uz: "O'nlikdan keyin — oldinga" },
     body: {
-      ru: 'В прошлый раз мы узнали десяток: десять тетрадей в одной стопке. Сегодня положим рядом с десятком ещё тетради и построим числа одиннадцать, двенадцать и дальше — до пятнадцати.',
-      uz: "O'tgan safar o'nlikni bildik: bir dastada o'nta daftar. Bugun o'nlik yoniga yana daftar qo'shib, o'n bir, o'n ikki va undan keyingi — o'n beshgacha sonlarni quramiz."
+      ru: 'В прошлый раз мы узнали десяток: десять книг в одной стопке. Сегодня положим рядом с десятком ещё книги и построим числа одиннадцать, двенадцать и дальше — до пятнадцати.',
+      uz: "O'tgan safar o'nlikni bildik: bir dastada o'nta kitob. Bugun o'nlik yoniga yana kitob qo'shib, o'n bir, o'n ikki va undan keyingi — o'n beshgacha sonlarni quramiz."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -871,19 +871,19 @@ const CONTENT = {
     jasur_label: { ru: 'Жасур', uz: 'Jasur' },
     audio: {
       ru: [
-        'Привет, друг! В прошлый раз мы узнали десяток, это десять тетрадей в одной стопке.',
-        'Сегодня положим рядом с десятком ещё тетради и построим числа от одиннадцати до пятнадцати.',
+        'Привет, друг! В прошлый раз мы узнали десяток, это десять книг в одной стопке.',
+        'Сегодня положим рядом с десятком ещё книги и построим числа от одиннадцати до пятнадцати.',
         'Слушай и нажимай кнопку дальше.'
       ],
       uz: [
-        "Salom, do'stim! O'tgan safar o'nlikni bildik, bu bir dastada o'nta daftar.",
-        "Bugun o'nlik yoniga yana daftar qo'shib, o'n birdan o'n beshgacha sonlarni quramiz.",
+        "Salom, do'stim! O'tgan safar o'nlikni bildik, bu bir dastada o'nta kitob.",
+        "Bugun o'nlik yoniga yana kitob qo'shib, o'n birdan o'n beshgacha sonlarni quramiz.",
         "Tinglang va davom tugmasini bosing."
       ]
     }
   },
 
-  // ---- s0 HOOK (soft): 1 o'nlik va yana 4 daftar — qaysi son? ----
+  // ---- s0 HOOK (soft): 1 o'nlik va yana 4 kitob — qaysi son? ----
   s0: {
     eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
     title_part1: { ru: 'Десяток и ещё четыре. Какое это', uz: "O'nlik va yana to'rt. Bu qaysi" },
@@ -894,7 +894,7 @@ const CONTENT = {
     opt_no: { ru: 'Четыре', uz: "To'rt" },
     opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' },
     audio: {
-      intro: { ru: 'Посмотри: один десяток и ещё четыре тетради. Как думаешь, какое это число? Выбери ответ, потом построим вместе.', uz: "Qarang: bitta o'nlik va yana to'rtta daftar. Sizningcha bu qaysi son? Javobni tanlang, keyin birga quramiz." },
+      intro: { ru: 'Посмотри: один десяток и ещё четыре книги. Как думаешь, какое это число? Выбери ответ, потом построим вместе.', uz: "Qarang: bitta o'nlik va yana to'rtta kitob. Sizningcha bu qaysi son? Javobni tanlang, keyin birga quramiz." },
       on_correct: { ru: 'Хорошо. Сейчас построим.', uz: "Yaxshi. Hozir quramiz." },
       on_wrong: { ru: 'Хорошо. Сейчас построим.', uz: "Yaxshi. Hozir quramiz." }
     }
@@ -903,19 +903,19 @@ const CONTENT = {
   // ---- s1 EXPLORATION: 1 o'nlik (yuqori qator) + birliklarni qo'sh -> 14 ----
   s1: {
     eyebrow: { ru: 'Построим число', uz: 'Son quramiz' },
-    instruction: { ru: 'Вверху десяток. Нажми — добавим внизу ещё четыре тетради', uz: "Yuqorida o'nlik. Bosing — pastga yana to'rtta daftar qo'shamiz" },
-    btn: { ru: 'Добавить тетради', uz: "Munchoq qo'shish" },
+    instruction: { ru: 'Вверху десяток. Нажми — добавим внизу ещё четыре книги', uz: "Yuqorida o'nlik. Bosing — pastga yana to'rtta kitob qo'shamiz" },
+    btn: { ru: 'Добавить книги', uz: "Kitob qo'shish" },
     label_before: { ru: 'Десяток — это десять', uz: "O'nlik — bu o'n" },
     label_after: { ru: 'Десяток и четыре — четырнадцать', uz: "O'nlik va to'rt — o'n to'rt" },
     done_text: { ru: 'Десяток и ещё четыре — это четырнадцать. Десять и четыре вместе.', uz: "O'nlik va yana to'rt — bu o'n to'rt. O'n va to'rt birga." },
     audio: {
       ru: [
-        'Вверху один десяток, это десять тетрадей. Нажми кнопку добавить тетради.',
-        'Внизу добавились четыре тетради. Десять и ещё четыре — это четырнадцать.'
+        'Вверху один десяток, это десять книг. Нажми кнопку добавить книги.',
+        'Внизу добавились четыре книги. Десять и ещё четыре — это четырнадцать.'
       ],
       uz: [
-        "Yuqorida bitta o'nlik, bu o'nta daftar. Munchoq qo'shish tugmasini bosing.",
-        "Pastga to'rtta daftar qo'shildi. O'n va yana to'rt — bu o'n to'rt."
+        "Yuqorida bitta o'nlik, bu o'nta kitob. Daftar qo'shish tugmasini bosing.",
+        "Pastga to'rtta kitob qo'shildi. O'n va yana to'rt — bu o'n to'rt."
       ]
     }
   },
@@ -941,12 +941,12 @@ const CONTENT = {
     title: { ru: 'Десяток и три единицы. Какое число?', uz: "O'nlik va uchta birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и три — это тринадцать.', uz: "To'g'ri. O'n va uch — bu o'n uch." },
     wrong_1: { ru: 'Это только единицы. А тут целый десяток и ещё три, это тринадцать.', uz: "Bu faqat birliklar. Bu yerda butun o'nlik va yana uch, bu o'n uch." },
-    wrong_2: { ru: 'Цифры стоят наоборот. Десяток впереди: тринадцать.', uz: "Raqamlar teskari. O'nlik oldinda: o'n uch." },
+    wrong_2: { ru: 'Посчитай единицы: их три, а не четыре. Один десяток и три — тринадцать.', uz: "Birliklarni sana: uchta, to'rt emas. Bir o'nlik va uch — o'n uch." },
     wrong_default: { ru: 'Десять и три — это тринадцать.', uz: "O'n va uch — bu o'n uch." },
     audio: {
-      intro: { ru: 'Вверху десяток, внизу три тетради. Какое это число? Выбери ответ.', uz: "Yuqorida o'nlik, pastda uchta daftar. Bu qaysi son? Javobni tanlang." },
+      intro: { ru: 'Вверху десяток, внизу три книги. Какое это число? Выбери ответ.', uz: "Yuqorida o'nlik, pastda uchta kitob. Bu qaysi son? Javobni tanlang." },
       on_correct: { ru: 'Верно. Тринадцать.', uz: "To'g'ri. O'n uch." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -959,9 +959,9 @@ const CONTENT = {
     wrong_2: { ru: 'Это число единиц. Десяток же один.', uz: "Bu birliklar soni. O'nlik esa bitta." },
     wrong_default: { ru: 'В тринадцати один десяток.', uz: "O'n uchda bitta o'nlik bor." },
     audio: {
-      intro: { ru: 'Вот число тринадцать: десяток и три тетради. Сколько в нём десятков? Выбери ответ.', uz: "Mana o'n uch soni: o'nlik va uchta daftar. Unda nechta o'nlik bor? Javobni tanlang." },
+      intro: { ru: 'Вот число тринадцать: десяток и три книги. Сколько в нём десятков? Выбери ответ.', uz: "Mana o'n uch soni: o'nlik va uchta kitob. Unda nechta o'nlik bor? Javobni tanlang." },
       on_correct: { ru: 'Верно. Один десяток.', uz: "To'g'ri. Bitta o'nlik." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -974,9 +974,9 @@ const CONTENT = {
     wrong_2: { ru: 'Это всё число. А единиц сверх десятка три.', uz: "Bu butun son. O'nlikdan tashqari birlik esa uchta." },
     wrong_default: { ru: 'В тринадцати три единицы.', uz: "O'n uchda uchta birlik bor." },
     audio: {
-      intro: { ru: 'В числе тринадцать десяток и сколько единиц? Посчитай отдельные тетради. Выбери ответ.', uz: "O'n uch sonida o'nlik va nechta birlik bor? Yakka daftarlarni sanang. Javobni tanlang." },
+      intro: { ru: 'В числе тринадцать десяток и сколько единиц? Посчитай отдельные книги. Выбери ответ.', uz: "O'n uch sonida o'nlik va nechta birlik bor? Yakka kitoblarni sanang. Javobni tanlang." },
       on_correct: { ru: 'Верно. Три единицы.', uz: "To'g'ri. Uchta birlik." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -992,22 +992,23 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Верно ли, что двенадцать — это десяток и две единицы? Выбери да или нет.', uz: "O'n ikki — bu o'nlik va ikkita birlik, to'g'rimi? Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Десять и два.', uz: "To'g'ri. O'n va ikki." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s7 TEST MC: qaysi son o'n besh (15)? ----
+  // ---- s7 TEST MC: 1 o'nlik + 4 birlik = ? -> 14 (idx0) ----
   s7: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Где число пятнадцать?', uz: "Qayerda o'n besh soni?" },
-    correct_text: { ru: 'Верно. Десяток и пять — это пятнадцать.', uz: "To'g'ri. O'nlik va besh — bu o'n besh." },
-    wrong_1: { ru: 'Тут единиц не пять. Пятнадцать — это десяток и пять.', uz: "Bu yerda birlik beshta emas. O'n besh — bu o'nlik va besh." },
-    wrong_2: { ru: 'Тут единиц не пять. Нужно десяток и пять единиц.', uz: "Bu yerda birlik beshta emas. O'nlik va beshta birlik kerak." },
-    wrong_default: { ru: 'Пятнадцать — это десяток и пять единиц.', uz: "O'n besh — bu o'nlik va beshta birlik." },
+    title: { ru: 'Десяток и четыре единицы. Какое число?', uz: "O'nlik va to'rtta birlik. Qaysi son?" },
+    correct_text: { ru: 'Верно. Десять и четыре — это четырнадцать.', uz: "To'g'ri. O'n va to'rt — bu o'n to'rt." },
+    wrong_1: { ru: 'Это только единицы. А тут целый десяток и ещё четыре — четырнадцать.', uz: "Bu faqat birliklar. Bu yerda butun o'nlik va yana to'rt — o'n to'rt." },
+    wrong_2: { ru: 'Единиц тут четыре, а не одна. Десяток и четыре — четырнадцать.', uz: "Bu yerda birlik to'rtta, bitta emas. O'nlik va to'rt — o'n to'rt." },
+    wrong_3: { ru: 'Это только десяток. А сверху ещё четыре единицы — четырнадцать.', uz: "Bu faqat o'nlik. Ustiga yana to'rtta birlik bor — o'n to'rt." },
+    wrong_default: { ru: 'Десять и четыре — это четырнадцать.', uz: "O'n va to'rt — bu o'n to'rt." },
     audio: {
-      intro: { ru: 'Найди число пятнадцать. Это десяток и пять единиц. Выбери ответ.', uz: "O'n besh sonini toping. Bu o'nlik va beshta birlik. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Это пятнадцать.', uz: "To'g'ri. Bu o'n besh." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Вверху десяток, внизу четыре книги. Какое это число? Выбери ответ.', uz: "Yuqorida o'nlik, pastda to'rtta kitob. Bu qaysi son? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Четырнадцать.', uz: "To'g'ri. O'n to'rt." },
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -1056,7 +1057,7 @@ const CONTENT = {
     title: { ru: 'Десяток и пять единиц. Какое число?', uz: "O'nlik va beshta birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и пять — это пятнадцать.', uz: "To'g'ri. O'n va besh — bu o'n besh." },
     wrong_1: { ru: 'Это только единицы. А с десятком это пятнадцать.', uz: "Bu faqat birliklar. O'nlik bilan esa bu o'n besh." },
-    wrong_2: { ru: 'Цифры наоборот. Десяток впереди: пятнадцать.', uz: "Raqamlar teskari. O'nlik oldinda: o'n besh." },
+    wrong_2: { ru: 'Посчитай единицы: их пять. Один десяток и пять — пятнадцать.', uz: "Birliklarni sana: beshta. Bir o'nlik va besh — o'n besh." },
     wrong_default: { ru: 'Десять и пять — это пятнадцать.', uz: "O'n va besh — bu o'n besh." },
     fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
     fact_text: { ru: 'В числах за десять впереди стоит десяток, а потом единицы. Поэтому говорят десять-и-пять — пятнадцать.', uz: "O'ndan katta sonlarda oldinda o'nlik, keyin birliklar turadi. Shuning uchun o'n-va-besh — o'n besh deyiladi." },
@@ -1064,7 +1065,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Последний вопрос. Десяток и пять единиц. Какое это число? Выбери ответ.', uz: "Oxirgi savol. O'nlik va beshta birlik. Bu qaysi son? Javobni tanlang." },
       on_correct: { ru: 'Верно. Пятнадцать.', uz: "To'g'ri. O'n besh." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -1749,6 +1750,27 @@ const AmbientBg = () => (
     <div className="amb-o amb-o3"/>
   </div>
 );
+
+// SubjectAmbient — fonda juda XIRA, SEKIN suzuvchi fan-belgilari (matematika +, A, barg, palitra, nota).
+// Maqsad: sahnani "fanga oid" qilib jonlantirish. opacity juda past + sekin -> o'quvchini chalg'itmaydi.
+// Oq frame'lar ortida turadi (z-index 0), faqat chetdagi bo'sh joyda ko'rinadi. reduced-motion -> harakatsiz.
+const AMB_SYM = [
+  { sub: 0, style: { left: '6%',  top: '16%' },    size: 60, delay: '0s',   dur: '23s' },
+  { sub: 1, style: { right: '6%', top: '11%' },    size: 50, delay: '-5s',  dur: '27s' },
+  { sub: 2, style: { left: '10%', bottom: '12%' }, size: 56, delay: '-11s', dur: '25s' },
+  { sub: 3, style: { right: '8%', bottom: '9%' },  size: 48, delay: '-16s', dur: '29s' },
+  { sub: 4, style: { left: '47%', top: '6%' },     size: 44, delay: '-8s',  dur: '24s' },
+];
+const SubjectAmbient = () => (
+  <div className="g1-subamb" aria-hidden="true">
+    {AMB_SYM.map((m, i) => (
+      <span key={i} className="g1-subamb-i" style={{ ...m.style, width: m.size, animationDelay: m.delay, animationDuration: m.dur }}>
+        <svg viewBox="0 0 124 124"><SubjectIcon subj={m.sub} color={SUBJECTS[m.sub].c}/></svg>
+      </span>
+    ))}
+  </div>
+);
+
 
 // ============================================================
 // GameDrill — drag+tap o'yin bloki (4 mashq): olma yig'ish / pazl / juftlash / tartiblash.
@@ -3155,7 +3177,7 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 16px)' }}>
         <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.title)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 16px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(22px, 4.4vw, 32px)' }}>
           {typeof children === 'function' ? children(audio) : children}
         </div>
         {hint && <OnboardHint/>}
@@ -3332,44 +3354,141 @@ const Rekenrek = ({ top = 0, bottom = null, slideTop = false, slideBottom = fals
   </div>
 );
 
-// ===== MAKTAB METODI: DAFTAR — 10 daftar bir dastada = 1 o'nlik, + yakka daftarlar =====
-const BOOK_COLORS = ['#4C90E6', '#E0563B', '#3FA45C', '#F0A22E', '#7E5AA6'];
-const Book = ({ tone = 0 }) => {
-  const c = BOOK_COLORS[tone % BOOK_COLORS.length];
+// ===== MAKTAB METODI: DAFTAR — 10 kitob bir dastada = 1 o'nlik, + yakka kitoblar =====
+// Har bir kitob — alohida fan: rang + belgi (ikonka) + qisqa nom. 3D ko'rinish: old muqova + ust + yon (varaq qirralari).
+// Yumshoq, pastel-ga yaqin ranglar (eye-strain kam): hi=ustki yorug', c=asos, lo=pastki chuqurroq.
+const SUBJECTS = [
+  { hi: '#86B7E8', c: '#5E9CD6', lo: '#4D86C0', name: { uz: 'Matematika', ru: 'Матем.' } },  // 0 matematika — "+"
+  { hi: '#F2A79B', c: '#E68476', lo: '#D26A5B', name: { uz: 'Ona tili',  ru: 'Язык'   } },  // 1 ona tili — "A"
+  { hi: '#85C49B', c: '#5FAE7A', lo: '#4C9663', name: { uz: 'Tabiat',    ru: 'Природа'} },  // 2 tabiat — barg
+  { hi: '#F4CA80', c: '#EAB45C', lo: '#D69A39', name: { uz: 'Rasm',      ru: 'Рис.'   } },  // 3 rasm — palitra
+  { hi: '#B9A0E2', c: '#9C7DD4', lo: '#8265BD', name: { uz: 'Musiqa',    ru: 'Муз.'   } },  // 4 musiqa — nota
+];
+// Fan belgisi (oq, muqova markazida ~ (72,70)). opacity bilan yumshatilgan.
+const SubjectIcon = ({ subj, color }) => {
+  const w = color || 'rgba(255,255,255,0.94)';
+  switch (subj % 5) {
+    case 0: return <g fill={w}><rect x="58" y="66" width="28" height="8" rx="3"/><rect x="68" y="56" width="8" height="28" rx="3"/></g>;
+    case 1: return <g fill="none" stroke={w} strokeWidth="7" strokeLinejoin="round" strokeLinecap="round"><path d="M60 90 L72 52 L84 90"/><path d="M64.5 78 L79.5 78"/></g>;
+    case 2: return <g><path d="M72 52 C56 60 54 86 72 94 C90 86 88 60 72 52 Z" fill={w}/><path d="M72 58 L72 90" stroke="#5FAE7A" strokeWidth="3" strokeLinecap="round"/></g>;
+    case 3: return <g fill={w}><circle cx="63" cy="65" r="7"/><circle cx="81" cy="65" r="7"/><circle cx="72" cy="82" r="7"/></g>;
+    default: return <g fill={w}><circle cx="64" cy="88" r="9"/><rect x="71" y="52" width="6" height="38" rx="3"/><path d="M77 52 q14 4 9 18" stroke={w} strokeWidth="5" fill="none" strokeLinecap="round"/></g>;
+  }
+};
+// Bir nechta vizualizator bir sahifada bo'lgani uchun gradient/filter id'lar takrorlanadi — bir xil bo'lgani
+// uchun brauzer birinchisini ishlatadi, rang to'g'ri chiqadi.
+const BookDefs = () => (
+  <defs>
+    {SUBJECTS.map((s, i) => (
+      <linearGradient key={i} id={`bkg${i}`} x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor={s.hi}/>
+        <stop offset="0.55" stopColor={s.c}/>
+        <stop offset="1" stopColor={s.lo}/>
+      </linearGradient>
+    ))}
+    <filter id="bkSoft" x="-30%" y="-20%" width="160%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" floodColor="#3A3530" floodOpacity="0.16"/>
+    </filter>
+  </defs>
+);
+// Book — bitta 3D fan-darsligi. subj = fan indeksi. Yumshoq gradient muqova + yumshoq soya.
+const Book = ({ subj, tone = 0 }) => {
+  const lang = useLang();
+  const i = (subj == null ? tone : subj) % SUBJECTS.length;
+  const s = SUBJECTS[i];
   return (
-    <span className="g1-book" aria-hidden="true">
-      <svg viewBox="0 0 20 26">
-        <rect x="2.5" y="2" width="15.5" height="22" rx="2" fill={c}/>
-        <rect x="2.5" y="2" width="4" height="22" rx="1.5" fill="rgba(0,0,0,0.2)"/>
-        <rect x="9" y="6" width="7" height="2" rx="1" fill="rgba(255,255,255,0.78)"/>
-        <rect x="9" y="10" width="5" height="1.6" rx="0.8" fill="rgba(255,255,255,0.5)"/>
-        <rect x="2.5" y="2" width="15.5" height="3" rx="1.5" fill="rgba(255,255,255,0.16)"/>
+    <span className="g1-book3d" aria-hidden="true">
+      <svg viewBox="0 0 124 150">
+        <BookDefs/>
+        <g filter="url(#bkSoft)">
+          {/* ust qirra (varaqlar) */}
+          <polygon points="38,32 106,32 90,21 22,21" fill="#F6F1E4"/>
+          <line x1="34" y1="28.5" x2="98" y2="28.5" stroke="rgba(176,150,110,0.22)" strokeWidth="1.4"/>
+          {/* yon qirra (varaqlar) — o'ng tomon */}
+          <polygon points="106,32 106,132 90,121 90,21" fill="#ECE4D0"/>
+          <line x1="104" y1="58" x2="92" y2="49" stroke="rgba(176,150,110,0.22)" strokeWidth="1.4"/>
+          <line x1="104" y1="82" x2="92" y2="73" stroke="rgba(176,150,110,0.22)" strokeWidth="1.4"/>
+          <line x1="104" y1="106" x2="92" y2="97" stroke="rgba(176,150,110,0.22)" strokeWidth="1.4"/>
+          {/* old muqova — gradient + yumshoq kontur */}
+          <rect x="38" y="32" width="68" height="100" rx="8" fill={`url(#bkg${i})`} stroke={s.lo} strokeWidth="1.6" strokeOpacity="0.45"/>
+          {/* yumshoq spine (yarim shaffof, kam kontrast) */}
+          <rect x="38" y="32" width="11" height="100" rx="7" fill={s.lo} opacity="0.5"/>
+          {/* spine yaltirog'i + tikuvlar (real muqova) */}
+          <rect x="40.5" y="37" width="2.4" height="90" rx="1.2" fill="rgba(255,255,255,0.22)"/>
+          <rect x="45" y="45" width="2" height="7" rx="1" fill={s.lo} opacity="0.4"/>
+          <rect x="45" y="78.5" width="2" height="7" rx="1" fill={s.lo} opacity="0.4"/>
+          <rect x="45" y="112" width="2" height="7" rx="1" fill={s.lo} opacity="0.4"/>
+          {/* yumshoq yorug'lik dog'i */}
+          <ellipse cx="74" cy="50" rx="26" ry="11" fill="rgba(255,255,255,0.16)"/>
+          <SubjectIcon subj={i}/>
+          <text x="74" y="124" textAnchor="middle" fontFamily="Manrope, sans-serif" fontSize="12" fontWeight="800" fill="rgba(255,255,255,0.95)">{s.name[lang] || s.name.uz}</text>
+        </g>
       </svg>
     </span>
   );
 };
-// BookBundle — 10 daftar yotqizilgan dasta (qatlamlar) + tasma + "10".
-const BookBundle = () => (
-  <span className="g1-bd10" aria-hidden="true">
-    <span className="g1-bd10-stack">
-      {Array.from({ length: 10 }).map((_, i) => (
-        <span key={i} className="g1-bd10-layer" style={{ background: BOOK_COLORS[i % BOOK_COLORS.length] }}/>
-      ))}
+// BookBundle — 10 ta tik turgan fan-darsligi, lenta bilan bog'langan = 1 o'nlik (dasta).
+// Har kitob: gradient muqova + chap kant (spine) + ustki varaq qirrasi + sarlavha chiziqlari -> aniq "kitob".
+const BookBundle = ({ pop = false, animate = false }) => {
+  // Etalon joylashuvi (Dars01): to'liq kenglikdagi frame ichida markazlashgan, tabiiy o'lchamdagi qator.
+  const n = 10, bw = 18, gap = 2.2, topY = 30, bh = 102;
+  const baseY = topY + bh;              // 132
+  const x0 = 14;
+  const span = n * bw + (n - 1) * gap;  // 199.8
+  const cx = x0 + span / 2;             // markaz
+  const ribY = 80;                      // bog'lov lentasi balandligi
+  return (
+    <span className={`g1-bd3d ${pop ? 'g1-bd10-pop' : ''} ${animate ? 'g1-bd-wrap' : ''}`} aria-hidden="true">
+      <svg viewBox="0 0 228 156">
+        <BookDefs/>
+        {/* yumshoq yer soyasi */}
+        <ellipse cx={cx} cy={baseY + 8} rx={span / 2 + 4} ry="6" fill="rgba(58,53,48,0.13)"/>
+        <g filter="url(#bkSoft)">
+          {/* kitoblar — tik turadi */}
+          {Array.from({ length: n }).map((_, i) => {
+            const s = SUBJECTS[i % SUBJECTS.length];
+            const x = x0 + i * (bw + gap);
+            return (
+              <g key={i}>
+                {/* ustki varaq qirrasi (pages) — kitob ekanini bildiradi */}
+                <rect x={x - 0.5} y={topY - 5} width={bw + 1} height="6" rx="1.6" fill="#F2EBDA" stroke="rgba(176,150,110,0.4)" strokeWidth="0.9"/>
+                {/* muqova — gradient + kontur */}
+                <rect x={x} y={topY} width={bw} height={bh} rx="2.6" fill={`url(#bkg${i % SUBJECTS.length})`} stroke={s.lo} strokeWidth="1.3" strokeOpacity="0.5"/>
+                {/* chap kant (spine) */}
+                <rect x={x} y={topY} width="3.6" height={bh} rx="1.8" fill={s.lo} opacity="0.55"/>
+                {/* o'ng yumshoq soya (dumaloqlik) */}
+                <rect x={x + bw - 3} y={topY} width="3" height={bh} fill={s.lo} opacity="0.18"/>
+                {/* fan logotipi (har kitobda — kichraytirilgan SubjectIcon) */}
+                <g transform={`translate(${x - 19.8}, 26) scale(0.4)`}><SubjectIcon subj={i}/></g>
+                {/* sarlavha (nom) chizig'i */}
+                <rect x={x + 4.5} y={topY + 42} width={bw - 9} height="2.4" rx="1.2" fill="rgba(255,255,255,0.8)"/>
+              </g>
+            );
+          })}
+          {/* bog'lov lentasi — markazdan kengayib o'raladi (animate rejimida) */}
+          <g className={animate ? 'g1-bd-rib' : undefined}>
+            <rect x={x0 - 5} y={ribY} width={span + 10} height="13" rx="3" fill="#B98A5E" stroke="#8A5E38" strokeWidth="1.4"/>
+            <rect x={x0 - 5} y={ribY + 2} width={span + 10} height="2.6" fill="rgba(255,255,255,0.25)"/>
+          </g>
+          {/* markaziy muhr + "10" — oxirida chiqadi */}
+          <g className={animate ? 'g1-bd-seal' : undefined}>
+            <circle cx={cx} cy={ribY + 6.5} r="15" fill="#FFFFFF" stroke="#C9BFA8" strokeWidth="2"/>
+            <text x={cx} y={ribY + 12} textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontSize="16" fontWeight="800" fill="#6A6258">10</text>
+          </g>
+        </g>
+      </svg>
     </span>
-    <span className="g1-bd10-band"/>
-    <span className="g1-bd10-band g1-bd10-band2"/>
-    <span className="g1-bd10-label mono">10</span>
-  </span>
-);
-// BookViz — `tens` ta dasta (10 daftar) + `ones` ta yakka daftar. pop -> yakka daftarlar tushib paydo bo'ladi.
-const BookViz = ({ tens = 0, ones = 0, pop = false }) => (
+  );
+};
+// BookViz — `tens` ta dasta (10 darslik) + `ones` ta yakka darslik. pop -> yakka darsliklar tushib paydo bo'ladi.
+const BookViz = ({ tens = 0, ones = 0, pop = false, animate = false }) => (
   <div className="g1-fviz" aria-hidden="true">
-    {Array.from({ length: tens }).map((_, i) => <BookBundle key={`t${i}`}/>)}
+    {Array.from({ length: tens }).map((_, i) => <BookBundle key={`t${i}`} pop={pop} animate={animate}/>)}
     {tens > 0 && ones > 0 && <span className="g1-fviz-plus">+</span>}
     {ones > 0 && (
       <span className={`g1-fviz-ones ${pop ? 'g1-fviz-pop' : ''}`}>
         {Array.from({ length: ones }).map((_, i) => (
-          <span key={i} className="g1-fviz-one" style={pop ? { animationDelay: `${(i * 0.08).toFixed(2)}s` } : undefined}><Book tone={i}/></span>
+          <span key={i} className="g1-fviz-one" style={pop ? { animationDelay: `${(i * 0.12).toFixed(2)}s` } : undefined}><Book subj={i}/></span>
         ))}
       </span>
     )}
@@ -3508,9 +3627,12 @@ const Screen0 = (props) => {
         </div>
         {!picked && (
           <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            <button className="option" disabled={!canAct} onClick={() => pick('yes')}>{t(c.opt_yes)}</button>
-            <button className="option" disabled={!canAct} onClick={() => pick('no')}>{t(c.opt_no)}</button>
-            <button className="option" disabled={!canAct} onClick={() => pick('idk')}>{t(c.opt_idk)}</button>
+            {[['yes', c.opt_yes], ['no', c.opt_no], ['idk', c.opt_idk]].map(([k, lbl]) => (
+              <button key={k} className="option" disabled={!canAct} onClick={() => pick(k)}
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                {t(lbl)}
+              </button>
+            ))}
           </div>
         )}
         {picked && (
@@ -3605,7 +3727,7 @@ const Screen3 = (props) => {
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       figure={(solved) => <BookViz tens={1} ones={3} pop={solved}/>}
-      options={[<DigitGlyph d={13} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={31} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
+      options={[<DigitGlyph d={13} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={14} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
       correctIdx={0}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -3671,7 +3793,7 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST MC: qaysi son 15? options Rekenrek(10+5)/(10+1)/(10+3) -> idx0.
+// s7 — TEST MC: 1 o'nlik + 4 birlik = 14 (idx0). Bitta rasm -> sonni tanla (s3 turidagi aniq savol).
 const Screen7 = (props) => {
   const c = CONTENT.s7;
   const t = useT();
@@ -3680,15 +3802,10 @@ const Screen7 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => null}
-      options={[
-        <BookViz tens={1} ones={5}/>,
-        <BookViz tens={1} ones={1}/>,
-        <BookViz tens={1} ones={3}/>
-      ]}
+      figure={(solved) => <BookViz tens={1} ones={4} pop={solved}/>}
+      options={[<DigitGlyph d={14} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={11} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
       correctIdx={0}
       mascot={false}
-      optionsCols={1}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -3699,7 +3816,7 @@ const Screen7 = (props) => {
 const GAME_ROUNDS = [
   { n: 11, opts: [11, 12, 10] },
   { n: 13, opts: [12, 13, 14] },
-  { n: 15, opts: [15, 14, 51] },
+  { n: 15, opts: [15, 14, 13] },
 ];
 const ScreenGame = (props) => {
   const lang = useLang();
@@ -3787,7 +3904,7 @@ const Screen8 = (props) => {
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       figure={(solved) => <BookViz tens={1} ones={5} pop={solved}/>}
-      options={[<DigitGlyph d={15} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={51} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
+      options={[<DigitGlyph d={15} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={14} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
       correctIdx={0}
       mascot={false}
       factOnCorrect={(
@@ -3917,6 +4034,7 @@ export default function PracticeWithin10Lesson({
         <GradientDefs/>
         <HouseDefs/>
         <AmbientBg/>
+        <SubjectAmbient/>
         <StageHero mood={heroMood}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
@@ -4293,6 +4411,12 @@ html, body { margin: 0; padding: 0; }
 .amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
 .amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
 .amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
+/* fonda suzuvchi fan-belgilari — juda xira, sekin, chalg'itmaydi */
+.g1-subamb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.g1-subamb-i { position: absolute; opacity: 0.08; animation-name: g1subdrift; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
+.g1-subamb-i svg { width: 100%; height: auto; display: block; }
+@keyframes g1subdrift { 0%, 100% { transform: translate(0, 0) rotate(-5deg); } 50% { transform: translate(8px, -16px) rotate(5deg); } }
+@media (prefers-reduced-motion: reduce) { .g1-subamb-i { animation: none; } }
 @keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
 
 /* Accessibility: prefers-reduced-motion — гасим декоративные циклы. */
@@ -4300,7 +4424,7 @@ html, body { margin: 0; padding: 0; }
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
+/* === GRADE1 — vizuallar (animatsion to'plam) === */
 .g1-listen-hint { margin: 0; color: #019ACB; font-weight: 600; letter-spacing: 0.04em; opacity: 0.9; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-pips { display: flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); justify-content: center; align-items: center; max-width: 100%; }
 .g1-pips-wrap { flex-wrap: wrap; }
@@ -4693,7 +4817,7 @@ html, body { margin: 0; padding: 0; }
 .g1-tf-pop .g1-tf-dot { animation: g1tfPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
 @media (prefers-reduced-motion: reduce) { .g1-tf-pop .g1-tf-dot { animation: none; } }
 
-/* PROPIS — kataklı daftarda raqam yozish (Dars02'dan) + s3 raqam tanlovi */
+/* PROPIS — kataklı kitobda raqam yozish (Dars02'dan) + s3 raqam tanlovi */
 .g1-kcell { position: relative; aspect-ratio: 64 / 92; padding: 0; overflow: hidden; border: 2.5px solid #BFE0EC; border-radius: 10px; display: flex; align-items: center; justify-content: center;
   background-color: #FBFEFF;
   background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
@@ -5123,19 +5247,18 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @media (prefers-reduced-motion: reduce) { .g1-rk-bslide, .g1-rk-shake { animation: none; } }
 
 /* === Dars14 — DAFTAR / dasta (maktab sanoq metodi) === */
-.g1-book { display: inline-flex; width: clamp(15px, 3.4vw, 22px); }
-.g1-book svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 2px rgba(58,53,48,0.18)); }
-.g1-bd10 { position: relative; display: inline-flex; flex-direction: column; align-items: center; padding: clamp(8px, 2vw, 12px) clamp(10px, 2.4vw, 15px) clamp(15px, 3.2vw, 21px); }
-.g1-bd10-stack { display: flex; flex-direction: column; gap: 1px; width: clamp(56px, 14vw, 84px); }
-.g1-bd10-layer { height: clamp(4px, 1vw, 6px); border-radius: 2px; box-shadow: inset 0 -1px 1px rgba(0,0,0,0.18), inset 0 1px 1px rgba(255,255,255,0.25); }
-.g1-bd10-band { position: absolute; top: clamp(8px, 2vw, 12px); bottom: clamp(15px, 3.2vw, 21px); width: clamp(7px, 1.8vw, 11px); left: 33%; background: linear-gradient(#9A3F28, #7A2E1C); border-radius: 3px; box-shadow: 0 1px 2px rgba(58,53,48,0.25); }
-.g1-bd10-band2 { left: 62%; }
-.g1-bd10-label { position: absolute; bottom: 1px; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: clamp(11px, 2.2vw, 15px); color: #5A5A60; }
-.g1-fviz { display: flex; align-items: flex-end; justify-content: center; gap: clamp(12px, 3vw, 24px); flex-wrap: wrap; }
-.g1-fviz-ones { display: inline-flex; flex-wrap: wrap; align-items: flex-end; gap: clamp(2px, 0.8vw, 5px); max-width: clamp(110px, 32vw, 190px); }
+.g1-book3d { display: inline-flex; width: clamp(52px, 11vw, 76px); }
+.g1-book3d svg { width: 100%; height: auto; display: block; overflow: visible; }
+.g1-bd3d { position: relative; display: inline-flex; width: clamp(216px, 50vw, 336px); }
+.g1-bd3d svg { width: 100%; height: auto; display: block; overflow: visible; }
+.g1-fviz { display: flex; align-items: flex-end; justify-content: center; gap: clamp(10px, 2.6vw, 18px); flex-wrap: wrap; }
+.g1-fviz-ones { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center; gap: clamp(8px, 2vw, 14px); }
 .g1-fviz-one { display: inline-flex; }
-.g1-fviz-plus { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #A7A6A2; align-self: center; }
-.g1-fviz-pop .g1-fviz-one { animation: g1fpop 0.42s cubic-bezier(0.34, 1.5, 0.6, 1) both; }
-@keyframes g1fpop { 0% { transform: translateY(-16px) scale(0.6); opacity: 0; } 60% { transform: translateY(2px) scale(1.1); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
+.g1-fviz-plus { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5vw, 40px); color: #A7A6A2; align-self: center; }
+.g1-fviz-pop .g1-fviz-one { animation: g1fpop 0.75s cubic-bezier(0.34, 1.4, 0.6, 1) both; }
+@keyframes g1fpop { 0% { transform: translateY(-18px) scale(0.6); opacity: 0; } 60% { transform: translateY(2px) scale(1.1); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .g1-fviz-pop .g1-fviz-one { animation: none; } }
+.g1-bd10-pop { animation: g1bdpop 0.9s cubic-bezier(0.34, 1.4, 0.6, 1) both; transform-origin: center bottom; }
+@keyframes g1bdpop { 0% { transform: scale(1); } 45% { transform: scale(1.08); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-bd10-pop { animation: none; } }
 `;

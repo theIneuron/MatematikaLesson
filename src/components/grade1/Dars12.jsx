@@ -49,7 +49,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -65,7 +65,7 @@ const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|E
 const stripAudioTags = (s) => typeof s === 'string'
   ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
-      .replace(/\s{2,}/g, ' ').trim()
+      .replace(/\s{2,}/g, ' ')
   : s;
 
 // HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
@@ -505,7 +505,7 @@ function useAdvanceGate(solved, audio) {
 // ============================================================
 const Op = React.memo(({ children, size = 'mid' }) => {
   const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
-                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
+                   size === 'mid' ? 'clamp(24px, 5vw, 34px)' :
                    'clamp(12px, 2.1vw, 18px)';
   return <span className="mop" style={{ fontSize }}>{children}</span>;
 });
@@ -788,7 +788,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
                   {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
@@ -802,7 +802,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {solved && !celebrateOnCorrect && (
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <button className="option option-correct" disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
             </button>
@@ -819,10 +819,10 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- POD UROK: num_1_01 — Predmetlarni sanash va 1–5 sonlar (1-sinf, Dars01) ---
+// --- 1-SINF DARSI (aniq mavzu va id: pastdagi LESSON_META) ---
 // 1-sinf (6–7 yosh): ovoz yetakchi kanal, typing YO'Q (tap/drag), concrete ustun,
 // bar model YO'Q. Manba: 1sinf_metodologiya.md (§4, §6, §7 Б1) + DIZAYN_STANDART_1SINF.md.
-// Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
+// Misconception'lar test ekranlarining wrong_N hint'larida (mavzuga moslangan).
 // ============================================================
 
 const TOTAL_SCREENS = 14;
@@ -912,7 +912,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'На доске написано. Два плюс три равно пять. Проверь, верно ли это. Выбери да или нет.', uz: "Doskada yozilgan. Ikki plyus uch teng besh. To'g'rimi, tekshiring. Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Обе стороны равны.', uz: "To'g'ri. Ikki tomon teng." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -960,12 +960,12 @@ const CONTENT = {
     title: { ru: 'Какой знак подойдёт: четыре и два?', uz: "Qaysi belgi to'g'ri keladi: to'rt va ikki?" },
     correct_text: { ru: 'Верно. Четыре больше двух — крокодил открыл рот к четырём.', uz: "To'g'ri. To'rt katta ikkidan — timsoh og'zini to'rtga ochdi." },
     wrong_1: { ru: 'Здесь крокодил смотрит не туда. Четыре больше двух, рот должен быть к четырём.', uz: "Bu yerda timsoh noto'g'ri qaragan. To'rt katta ikkidan, og'iz to'rtga qarashi kerak." },
-    wrong_2: { ru: 'Это знак равно, но стороны разные. Четыре больше двух.', uz: "Bu teng belgisi, lekin tomonlar har xil. To'rt katta ikkidan." },
+    wrong_0: { ru: 'Это знак равно, но стороны разные. Четыре больше двух.', uz: "Bu teng belgisi, lekin tomonlar har xil. To'rt katta ikkidan." },
     wrong_default: { ru: 'Четыре больше двух. Рот крокодила к большему числу.', uz: "To'rt katta ikkidan. Timsoh og'zi katta songa." },
     audio: {
       intro: { ru: 'Слева четыре, справа два. Какой знак подойдёт? Выбери знак больше, меньше или равно.', uz: "Chapda to'rt, o'ngda ikki. Qaysi belgi to'g'ri keladi? Katta, kichik yoki teng belgisini tanlang." },
       on_correct: { ru: 'Верно. Четыре больше двух.', uz: "To'g'ri. To'rt katta ikkidan." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -976,12 +976,12 @@ const CONTENT = {
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
     correct_text: { ru: 'Верно подмечено. Два плюс три равно пять, а не шесть. Запись неверна.', uz: "To'g'ri sezdingiz. Ikki plyus uch teng besh, olti emas. Yozuv noto'g'ri." },
-    wrong_1: { ru: 'Посчитай справа. Два плюс три равно пять. А слева шесть. Стороны разные, запись неверна.', uz: "O'ngni sanang. Ikki plyus uch teng besh. Chapda esa olti. Tomonlar har xil, yozuv noto'g'ri." },
+    wrong_0: { ru: 'Посчитай справа. Два плюс три равно пять. А слева шесть. Стороны разные, запись неверна.', uz: "O'ngni sanang. Ikki plyus uch teng besh. Chapda esa olti. Tomonlar har xil, yozuv noto'g'ri." },
     wrong_default: { ru: 'Два плюс три равно пять, а не шесть. Запись неверна.', uz: "Ikki plyus uch teng besh, olti emas. Yozuv noto'g'ri." },
     audio: {
       intro: { ru: 'На доске: шесть равно два плюс три. Проверь по сторонам. Верно или нет? Выбери да или нет.', uz: "Doskada: olti teng ikki plyus uch. Tomonlarini tekshiring. To'g'rimi yoki yo'q? Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Стороны разные, запись неверна.', uz: "To'g'ri. Tomonlar har xil, yozuv noto'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -997,7 +997,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Верно ли, что пять больше, чем два плюс один? Сначала посчитай справа, потом сравни. Выбери да или нет.', uz: "Besh katta, ikki plyus birdan. To'g'rimi? Avval o'ngni sanang, keyin taqqoslang. Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Пять больше трёх.', uz: "To'g'ri. Besh katta uchdan." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -1079,7 +1079,7 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Сначала в скобках, потом всё. Сколько получится?', uz: "Avval qavsda, keyin hammasi. Nechta bo'ladi?" },
     correct_text: { ru: 'Верно. В скобках два плюс два равно четыре, потом четыре плюс три равно семь.', uz: "To'g'ri. Qavsda ikki plyus ikki teng to'rt, keyin to'rt plyus uch teng yetti." },
-    wrong_1: { ru: 'Это на один меньше. Сначала в скобках. Два плюс два равно четыре, потом плюс три.', uz: "Bu bittaga kam. Avval qavsda. Ikki plyus ikki teng to'rt, keyin plyus uch." },
+    wrong_0: { ru: 'Это на один меньше. Сначала в скобках. Два плюс два равно четыре, потом плюс три.', uz: "Bu bittaga kam. Avval qavsda. Ikki plyus ikki teng to'rt, keyin plyus uch." },
     wrong_2: { ru: 'Это на один больше. Посчитай по шагам. Сначала скобки, потом всё.', uz: "Bu bittaga ko'p. Bosqichma-bosqich sanang. Avval qavs, keyin hammasi." },
     wrong_3: { ru: 'Ты забыл прибавить три после скобок. В скобках четыре, потом плюс три.', uz: "Qavsdan keyin uchni qo'shishni unutdingiz. Qavsda to'rt, keyin plyus uch." },
     wrong_default: { ru: 'Сначала в скобках. Два плюс два равно четыре. Потом четыре плюс три равно семь.', uz: "Avval qavsda. Ikki plyus ikki teng to'rt. Keyin to'rt plyus uch teng yetti." },
@@ -1089,7 +1089,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Последний пример. В скобках два плюс два, и ещё плюс три. Сначала посчитай в скобках, потом всё вместе. Сколько получится? Выбери ответ.', uz: "Oxirgi misol. Qavsda ikki plyus ikki, va yana plyus uch. Avval qavsda sanang, keyin hammasini birga. Nechta bo'ladi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Получилось семь.', uz: "To'g'ri. Yetti chiqdi." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -3034,6 +3034,62 @@ const CastScene = ({ step = 3, withAnvar = true }) => {
   );
 };
 
+// BoardScene — sIntro: doska + ikkita misol (biri to'g'ri: 2+3=5, biri yo'q: 6=2+3) + Ra'no/Anvar.
+// Audioga mos (useStoryReveal): step>=1 -> personajlar doska oldida; step>=2 -> misollar yoziladi;
+// step>=3 -> "?" (to'g'rimi?) belgilar. Misollar BELGILANMAYDI (javob sizdirmaslik) — s1/s5'da tekshiriladi.
+const BoardScene = ({ step = 3 }) => {
+  const t = useT();
+  const written = step >= 2;
+  const asking = step >= 3;
+  return (
+    <div className="g1-boardscene">
+      {/* boyituvchi dekor: devor soati + tuvakdagi gul (sinf muhiti) */}
+      <svg className="g1-bd-clock" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="#FFFFFF" stroke="#C9A877" strokeWidth="2.6"/>
+        <g stroke="#C9A877" strokeWidth="1.4" strokeLinecap="round"><path d="M20 5 v2.4 M20 32.6 v2.4 M5 20 h2.4 M32.6 20 h2.4"/></g>
+        <line x1="20" y1="20" x2="20" y2="10.5" stroke="#5A5A60" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="20" y1="20" x2="26.5" y2="22" stroke="#5A5A60" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="20" cy="20" r="1.6" fill="#FF4F28"/>
+      </svg>
+      <svg className="g1-bd-plant" viewBox="0 0 40 52" aria-hidden="true">
+        <path d="M20 36 C13 30 11 18 16 9" fill="none" stroke="#4E9E55" strokeWidth="3" strokeLinecap="round"/>
+        <ellipse cx="14.5" cy="10" rx="5" ry="8.5" fill="#6FBF6A" transform="rotate(-22 14.5 10)"/>
+        <path d="M20 36 C27 30 29 18 24 9" fill="none" stroke="#4E9E55" strokeWidth="3" strokeLinecap="round"/>
+        <ellipse cx="25.5" cy="10" rx="5" ry="8.5" fill="#7FCB78" transform="rotate(22 25.5 10)"/>
+        <ellipse cx="20" cy="7" rx="5" ry="9.5" fill="#62B45E"/>
+        <path d="M12 35 h16 l-1.8 13 a2 2 0 0 1 -2 1.8 h-8.4 a2 2 0 0 1 -2 -1.8 Z" fill="#CC7A3E"/>
+        <rect x="10" y="32.5" width="20" height="4.6" rx="2" fill="#B5652F"/>
+      </svg>
+      <div className="g1-board" aria-hidden="true">
+        <div className="g1-board-inner">
+          <div className={`g1-board-row ${written ? 'in' : ''}`}>
+            <span className="g1-sent g1-sent-lg mono"><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">5</span></span>
+            <span className={`g1-board-q ${asking ? 'in' : ''}`}>?</span>
+          </div>
+          <div className={`g1-board-row ${written ? 'in delay' : ''}`}>
+            <span className="g1-sent g1-sent-lg mono"><span>6</span><i className="g1-sent-eq">=</i><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span></span>
+            <span className={`g1-board-q ${asking ? 'in' : ''}`}>?</span>
+          </div>
+        </div>
+        {/* bo'r tokchasi: bo'r + o'chirg'ich — "doskaga yozish" konteksti */}
+        <div className="g1-board-ledge" aria-hidden="true">
+          <span className="g1-chalk g1-chalk-a"/><span className="g1-chalk g1-chalk-b"/><span className="g1-eraser"/>
+        </div>
+      </div>
+      <div className="g1-board-cast">
+        <div className={`g1-bc-fig g1-bc-rano ${step >= 1 ? 'in' : ''}`}>
+          <RanoSVG mood="pointing" className="g1-cast-svg"/>
+          <span className="g1-cast-name">{t(CONTENT.sIntro.rano_label)}</span>
+        </div>
+        <div className={`g1-bc-fig g1-bc-anvar ${step >= 1 ? 'in' : ''}`}>
+          <AnvarSVG pose="door" className="g1-cast-svg"/>
+          <span className="g1-cast-name g1-cast-sub">{t(CONTENT.sIntro.anvar_label)}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // StoryLayout — umumiy hikoya-slayd qolipi (Bit boshlovchi overlay + sahna + matn).
 const StoryLayout = ({ props, c, children, hint = false }) => {
   const lang = useLang();
@@ -3050,7 +3106,7 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 16px)' }}>
         <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.title)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 16px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(22px, 4.4vw, 32px)' }}>
           {typeof children === 'function' ? children(audio) : children}
         </div>
         {hint && <OnboardHint/>}
@@ -3060,8 +3116,8 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
 };
 
 const IntroCast = ({ audio }) => {
-  const step = useStoryReveal(audio, 5);
-  return <CastScene step={step}/>;
+  const step = useStoryReveal(audio, 3);
+  return <BoardScene step={step}/>;
 };
 const GuestCast = ({ audio }) => {
   const step = useStoryReveal(audio, 3);
@@ -3167,17 +3223,25 @@ const PanPips = ({ n, kind = 'apple' }) => (
 );
 const Balance = ({ left, right, tilt = 'eq', kind = 'apple' }) => (
   <div className="g1-bal" aria-hidden="true">
+    <span className="g1-bal-base"/>
+    <span className="g1-bal-post"/>
+    <span className="g1-bal-fulcrum"/>
     <div className={`g1-bal-beam g1-bal-${tilt}`}>
-      <span className="g1-bal-arm">
+      <span className="g1-bal-arm g1-bal-arm-l">
+        <svg className="g1-bal-cords" viewBox="0 0 80 48" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="40" y1="4" x2="9" y2="47"/><line x1="40" y1="4" x2="40" y2="47"/><line x1="40" y1="4" x2="71" y2="47"/>
+          <circle cx="40" cy="4" r="2.8"/>
+        </svg>
         <span className="g1-bal-pan"><PanPips n={left} kind={kind}/></span>
       </span>
-      <span className="g1-bal-pivot"/>
-      <span className="g1-bal-arm">
+      <span className="g1-bal-arm g1-bal-arm-r">
+        <svg className="g1-bal-cords" viewBox="0 0 80 48" preserveAspectRatio="none" aria-hidden="true">
+          <line x1="40" y1="4" x2="9" y2="47"/><line x1="40" y1="4" x2="40" y2="47"/><line x1="40" y1="4" x2="71" y2="47"/>
+          <circle cx="40" cy="4" r="2.8"/>
+        </svg>
         <span className="g1-bal-pan"><PanPips n={right} kind={kind}/></span>
       </span>
     </div>
-    <span className="g1-bal-post" aria-hidden="true"/>
-    <span className="g1-bal-base" aria-hidden="true"/>
   </div>
 );
 
@@ -3230,9 +3294,12 @@ const Screen0 = (props) => {
         </div>
         {!picked && (
           <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            <button className="option" disabled={!canAct} onClick={() => pick('yes')}>{t(c.opt_yes)}</button>
-            <button className="option" disabled={!canAct} onClick={() => pick('no')}>{t(c.opt_no)}</button>
-            <button className="option" disabled={!canAct} onClick={() => pick('idk')}>{t(c.opt_idk)}</button>
+            {[['yes', c.opt_yes], ['no', c.opt_no], ['idk', c.opt_idk]].map(([k, lbl]) => (
+              <button key={k} className="option" disabled={!canAct} onClick={() => pick(k)}
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                {t(lbl)}
+              </button>
+            ))}
           </div>
         )}
         {picked && (
@@ -3369,8 +3436,8 @@ const Screen4 = (props) => {
           <NumTile d={4}/><span className="g1-sent-q mono">?</span><NumTile d={2}/>
         </div>
       )}
-      options={[<CompareSign dir="gt"/>, <CompareSign dir="lt"/>, <CompareSign dir="eq"/>]}
-      correctIdx={0}
+      options={[<CompareSign dir="eq"/>, <CompareSign dir="lt"/>, <CompareSign dir="gt"/>]}
+      correctIdx={2}
       mascot={false}
       optionsCols={3}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -3590,8 +3657,8 @@ const ScreenFinal = (props) => {
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
       figure={() => <QavsExpr a={2} b={2} c={3} q={true}/>}
-      options={[<DigitGlyph d={7} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={5} size="mid"/>]}
-      correctIdx={0}
+      options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={5} size="mid"/>]}
+      correctIdx={1}
       mascot={false}
       factOnCorrect={(
         <div className="g1-factcard fade-up">
@@ -4103,7 +4170,7 @@ html, body { margin: 0; padding: 0; }
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
+/* === GRADE1 — vizuallar (animatsion to'plam) === */
 .g1-listen-hint { margin: 0; color: #019ACB; font-weight: 600; letter-spacing: 0.04em; opacity: 0.9; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-pips { display: flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); justify-content: center; align-items: center; max-width: 100%; }
 .g1-pips-wrap { flex-wrap: wrap; }
@@ -4787,6 +4854,44 @@ html, body { margin: 0; padding: 0; }
   .g1-yc-fig, .g1-yard-bubble { transition: none; }
 }
 
+/* --- doska sahnasi (BoardScene, sIntro) — 560px cheklangan (skrolsiz) --- */
+.g1-boardscene { position: relative; width: 100%; max-width: 560px; margin: 0 auto; aspect-ratio: 400 / 215; container-type: size; border-radius: 14px; overflow: hidden;
+  background: linear-gradient(#FCEFDD 0%, #FBEFE0 72%, #EAD8C2 72%, #E4CFB4 100%); }
+.g1-board { position: absolute; z-index: 1; top: 5cqh; left: 50%; transform: translateX(-50%); width: 58cqw;
+  background: linear-gradient(#B47E48, #8A5C30); border-radius: 3cqh; padding: 2.2cqh 2.4cqw; box-shadow: 0 5px 14px rgba(58,53,48,0.28); }
+.g1-board-inner { background: linear-gradient(#305F50, #234B3F); border-radius: 1.6cqh; padding: 4cqh 4cqw; display: flex; flex-direction: column; gap: 2.8cqh;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.07), inset 0 2px 10px rgba(0,0,0,0.2); }
+.g1-board-row { display: flex; align-items: center; justify-content: center; gap: 3cqw; opacity: 0; transform: translateY(1.4cqh); transition: opacity 0.5s ease, transform 0.5s ease; }
+.g1-board-row.in { opacity: 1; transform: translateY(0); }
+.g1-board-row.delay { transition-delay: 0.28s; }
+.g1-board .g1-sent { color: #FBF7EC; text-shadow: 0 1px 0 rgba(0,0,0,0.2); }
+.g1-board .g1-sent .g1-sent-op { color: #FBF7EC; }
+.g1-board .g1-sent .g1-sent-eq { color: #CFE6D6; }
+.g1-board .g1-sent .g1-sent-res { color: #FBF7EC; }
+.g1-board-q { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(20px, 4.5vw, 32px); color: #FFD86B; line-height: 1;
+  opacity: 0; transform: scale(0.6); transition: opacity 0.4s ease, transform 0.4s ease; }
+.g1-board-q.in { opacity: 1; transform: scale(1); }
+/* bo'r tokchasi (board ledge) */
+.g1-board-ledge { position: absolute; left: 9%; right: 9%; bottom: -1.2cqh; height: 1.9cqh; background: linear-gradient(#9A6A38, #774E26); border-radius: 0 0 1.2cqh 1.2cqh; display: flex; align-items: center; gap: 1.6cqw; padding: 0 2.4cqw; box-shadow: 0 2px 4px rgba(58,53,48,0.28); }
+.g1-chalk { display: inline-block; width: 5.5cqw; height: 0.8cqh; border-radius: 2px; }
+.g1-chalk-a { background: #FBF7EC; }
+.g1-chalk-b { background: #FFD86B; }
+.g1-eraser { display: inline-block; width: 4.2cqw; height: 1.2cqh; border-radius: 1px; background: linear-gradient(#5A6B7A, #3E4C59); margin-left: auto; }
+/* dekor: devor soati + tuvakdagi gul */
+.g1-bd-clock { position: absolute; z-index: 0; top: 6cqh; right: 3.5cqw; width: 13cqw; height: auto; filter: drop-shadow(0 2px 4px rgba(58,53,48,0.16)); }
+.g1-bd-plant { position: absolute; z-index: 0; bottom: 1cqh; left: 50%; transform: translateX(-50%); width: 11cqw; height: auto; filter: drop-shadow(0 3px 4px rgba(58,53,48,0.2)); }
+.g1-board-cast { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.g1-bc-fig { position: absolute; bottom: 2cqh; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  opacity: 0; transform: translateY(8cqh) scale(0.96); transition: opacity 0.5s ease, transform 0.5s ease; }
+.g1-bc-fig.in { opacity: 1; transform: translateY(0) scale(1); }
+.g1-bc-fig .g1-cast-svg { height: 50cqh; width: auto; }
+.g1-bc-rano { left: 1cqw; }
+.g1-bc-anvar { right: 1cqw; }
+
+@media (prefers-reduced-motion: reduce) {
+  .g1-board-row, .g1-bc-fig, .g1-board-q { transition: none; }
+}
+
 /* === Dars08 — ayirish vizuallari === */
 /* BondFrame (s7, Dars06 dan): 10 katak, qizil/yashil olma, "?" yashirin qism */
 @keyframes g1pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
@@ -4866,27 +4971,42 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @keyframes d4crocbreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 .d4-numtile { font-family: 'Manrope', sans-serif; font-weight: 800; color: #0E0E10; font-size: clamp(40px, 9vw, 64px); line-height: 1; display: inline-flex; align-items: center; justify-content: center; min-width: 1.1em; }
 
-/* === Dars12 — TAROZI (balance) — YANGI MEXANIKA === */
-.g1-bal { display: inline-flex; flex-direction: column; align-items: center; }
-.g1-bal-beam { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: clamp(34px, 9vw, 64px); padding: 0 clamp(4px, 1.4vw, 10px); transition: transform 0.6s cubic-bezier(0.34,1.2,0.64,1); transform-origin: center center; }
-.g1-bal-beam::before { content: ""; position: absolute; left: clamp(30px, 8vw, 54px); right: clamp(30px, 8vw, 54px); top: 50%; height: clamp(6px, 1.6vw, 9px); border-radius: 99px; background: linear-gradient(#D8B878, #B8954E); transform: translateY(-50%); z-index: -1; }
-.g1-bal-eq { transform: rotate(0deg); }
-.g1-bal-left { transform: rotate(-7deg); }
-.g1-bal-right { transform: rotate(7deg); }
-.g1-bal-arm { flex: 0 0 auto; display: inline-flex; align-items: flex-start; justify-content: center; }
-.g1-bal-pivot { flex: 0 0 auto; width: clamp(14px, 3.4vw, 22px); height: clamp(14px, 3.4vw, 22px); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #E8C98A, #B8954E); box-shadow: 0 2px 6px rgba(58,53,48,0.2); z-index: 1; }
-.g1-bal-pan { position: relative; margin-top: clamp(22px, 5.5vw, 38px); min-width: clamp(60px, 16vw, 96px); min-height: clamp(40px, 10vw, 58px); background: #FFFFFF; border-radius: 8px 8px 50px 50px / 8px 8px 30px 30px; box-shadow: inset 0 0 0 2px #E4DED4, 0 4px 10px rgba(58,53,48,0.12); display: flex; align-items: center; justify-content: center; padding: clamp(4px, 1.2vw, 8px); transform-origin: center top; transition: transform 0.6s cubic-bezier(0.34,1.2,0.64,1); }
-.g1-bal-pan::before { content: ""; position: absolute; bottom: 100%; left: 50%; width: 2px; height: clamp(22px, 5.5vw, 38px); background: #B8954E; transform: translateX(-50%); }
-.g1-bal-left .g1-bal-pan { transform: rotate(7deg); }
-.g1-bal-right .g1-bal-pan { transform: rotate(-7deg); }
-.g1-bal-post { width: clamp(8px, 2vw, 12px); height: clamp(58px, 14vw, 90px); background: linear-gradient(#C9A86A, #A8843E); border-radius: 4px 4px 0 0; margin-top: clamp(-12px, -2.4vw, -8px); z-index: 0; }
-.g1-bal-base { width: clamp(90px, 24vw, 140px); height: clamp(10px, 2.4vw, 14px); background: #A8843E; border-radius: 99px; box-shadow: 0 5px 12px rgba(58,53,48,0.18); z-index: 0; }
-.g1-bal-pips { display: inline-flex; flex-wrap: wrap; gap: clamp(1px, 0.6vw, 4px); align-items: center; justify-content: center; max-width: clamp(56px, 15vw, 90px); }
+/* === Dars12 — TAROZI (balance) — REAL FIZIKA: nur fulcrum ustida aylanadi, tovoqlar ipda tik osiladi === */
+.g1-bal { position: relative; width: clamp(212px, 54vw, 312px); height: clamp(172px, 44vw, 244px); margin: 0 auto; }
+/* qo'zg'almas: poydevor + ustun + fulcrum (uchburchak tayanch) */
+.g1-bal-base { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); width: 42%; height: clamp(10px, 2.6vw, 14px); background: linear-gradient(180deg, #D6B377, #9A7634); border-radius: 99px; box-shadow: 0 5px 12px rgba(58,53,48,0.2), inset 0 1px 1px rgba(255,255,255,0.4); z-index: 0; }
+.g1-bal-base::before { content: ""; position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); width: 32%; height: clamp(6px, 1.6vw, 9px); background: linear-gradient(#C9A86A, #A8843E); border-radius: 6px 6px 0 0; }
+.g1-bal-post { position: absolute; left: 50%; bottom: clamp(8px, 2vw, 11px); top: 31%; transform: translateX(-50%); width: clamp(9px, 2.4vw, 13px); background: linear-gradient(90deg, #A8843E 0%, #E8C98A 42%, #D8B878 58%, #9A7634 100%); border-radius: 5px 5px 0 0; box-shadow: 0 2px 5px rgba(58,53,48,0.16); z-index: 0; }
+.g1-bal-post::before { content: ""; position: absolute; left: 50%; top: clamp(16px, 4vw, 22px); transform: translateX(-50%); width: clamp(11px, 2.8vw, 15px); height: 2px; background: #7A5A24; border-radius: 2px; }
+.g1-bal-fulcrum { position: absolute; left: 50%; top: 31%; transform: translate(-50%, -82%); width: 0; height: 0; border-left: clamp(9px, 2.4vw, 13px) solid transparent; border-right: clamp(9px, 2.4vw, 13px) solid transparent; border-bottom: clamp(14px, 3.6vw, 19px) solid #B8954E; z-index: 1; filter: drop-shadow(0 1px 1px rgba(58,53,48,0.2)); }
+/* nur — markazi fulcrum ustida; SHU nuqta atrofida aylanadi. ::before = pastga strelka, ::after = markaziy bolt */
+.g1-bal-beam { position: absolute; left: 50%; top: 31%; width: 72%; height: clamp(8px, 2vw, 11px); background: linear-gradient(180deg, #F0DCAE 0%, #D8B878 50%, #A8843E 100%); border-radius: 99px; transform: translate(-50%, -50%) rotate(0deg); transform-origin: center center; transition: transform 0.7s cubic-bezier(0.34,1.2,0.64,1); z-index: 2; box-shadow: 0 2px 5px rgba(58,53,48,0.2); }
+.g1-bal-beam::before { content: ""; position: absolute; left: 50%; top: 58%; width: 0; height: 0; border-left: clamp(2px, 0.7vw, 3px) solid transparent; border-right: clamp(2px, 0.7vw, 3px) solid transparent; border-top: clamp(15px, 3.8vw, 21px) solid #9C7A38; transform: translateX(-50%); z-index: 1; }
+.g1-bal-beam::after { content: ""; position: absolute; left: 50%; top: 50%; width: clamp(14px, 3.6vw, 19px); height: clamp(14px, 3.6vw, 19px); border-radius: 50%; background: radial-gradient(circle at 35% 30%, #F3E5C2, #B8954E); transform: translate(-50%, -50%); box-shadow: 0 1px 4px rgba(58,53,48,0.28), inset 0 -1px 2px rgba(120,90,40,0.4); z-index: 2; }
+/* tilt: og'irroq tomon PASTGA (left = chap og'ir -> chap past) */
+.g1-bal-eq { transform: translate(-50%, -50%) rotate(0deg); }
+.g1-bal-left { transform: translate(-50%, -50%) rotate(-9deg); }
+.g1-bal-right { transform: translate(-50%, -50%) rotate(9deg); }
+/* qo'l = 3 ip + tovoq; nurga teskari burilib TIK osiladi (gravitatsiya) */
+.g1-bal-arm { position: absolute; top: 50%; width: 0; display: flex; flex-direction: column; align-items: center; transform-origin: top center; transform: rotate(0deg); transition: transform 0.7s cubic-bezier(0.34,1.2,0.64,1); }
+.g1-bal-arm-l { left: 0; }
+.g1-bal-arm-r { right: 0; }
+.g1-bal-left .g1-bal-arm { transform: rotate(9deg); }
+.g1-bal-right .g1-bal-arm { transform: rotate(-9deg); }
+.g1-bal-cords { width: clamp(62px, 16vw, 92px); height: clamp(22px, 5.5vw, 34px); display: block; overflow: visible; margin-bottom: -1px; }
+.g1-bal-cords line { stroke: #9C7A38; stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+.g1-bal-cords circle { fill: #B8954E; }
+.g1-bal-pan { position: relative; min-width: clamp(62px, 16vw, 96px); min-height: clamp(40px, 10vw, 58px); background: linear-gradient(180deg, #F0DCAE 0%, #D7B87A 52%, #B5914E 100%); border-radius: 9px 9px 46px 46px / 9px 9px 32px 32px; box-shadow: inset 0 2px 4px rgba(255,255,255,0.5), inset 0 -5px 9px rgba(120,90,40,0.32), 0 5px 11px rgba(58,53,48,0.16); display: flex; align-items: center; justify-content: center; padding: clamp(5px, 1.3vw, 9px); }
+.g1-bal-pan::before { content: ""; position: absolute; top: 0; left: 3%; right: 3%; height: clamp(7px, 1.8vw, 11px); background: linear-gradient(#F5EBCF, #D7B87A); border-radius: 50%; box-shadow: inset 0 1px 2px rgba(120,90,40,0.3); }
+.g1-bal-pips { position: relative; z-index: 1; display: inline-flex; flex-wrap: wrap; gap: clamp(1px, 0.6vw, 4px); align-items: center; justify-content: center; max-width: clamp(54px, 14.5vw, 86px); }
 .g1-bal-pip { width: clamp(14px, 3.4vw, 22px); height: clamp(14px, 3.4vw, 22px); display: inline-flex; }
 .g1-bal-pip svg { width: 100%; height: 100%; }
 
 /* === Dars12 — QAVS (ichi yonadi) — YANGI MEXANIKA === */
 .g1-qavs { display: inline-flex; align-items: center; font-family: "JetBrains Mono", monospace; font-weight: 800; font-size: clamp(30px, 7vw, 50px); color: #0E0E10; gap: 0.05em; line-height: 1; }
+/* "+" boshqa frame'lardagi g1-sent "+" bilan bir xil: tik (kursiv emas), qalin, to'q sariq */
+.g1-qavs .g1-sent-op { font-style: normal; font-weight: 800; }
+.g1-qavs .g1-sent-plus { color: #FF4F28; }
 .g1-qavs-paren { color: #A7A6A2; font-weight: 700; transition: color 0.3s ease; padding: 0 0.04em; }
 .g1-qavs-inner { display: inline-flex; align-items: center; border-radius: 10px; padding: 0.04em 0.1em; transition: background 0.35s ease, box-shadow 0.35s ease; }
 .g1-qavs-lit .g1-qavs-paren { color: #FF4F28; }
@@ -4895,7 +5015,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 
 @media (prefers-reduced-motion: reduce) {
   .d4-croc-anim { animation: none; }
-  .g1-bal-beam, .g1-bal-pan { transition: none; }
+  .g1-bal-beam, .g1-bal-arm { transition: none; }
   .g1-qavs-lit .g1-qavs-inner { animation: none; }
 }
 `;

@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 1-SINF · Dars11 — "O'rin almashtirish" (num-1-11-v1) · 3+2=2+3, qo'shiluvchilar o'rin almashsa yig'indi o'zgarmaydi · swap-animatsiya (yangi mexanikasiz) · spec: ETALON_1SINF.md ░░
-// Dars07 (Qo'shishning ma'nosi) ning mirror'i: infratuzilma + ETALON KIT baytma-bayt;
-// CombineGroups o'rniga ayirish vizuallari. Make-ten YO'Q (Dars16+).
-// Vizualizator MIX: tap-to-remove (YANGI MEXANIKA: olmani bos -> uchadi -> kamayadi; s0/sg),
-// countdown-decrement (s2: 7->5), RemoveRow (MC figuralari), drag-away (s5: savatdan Anvarga),
-// BondFrame qizil/yashil (s7: yo'qolgan qism = ayirish↔qo'shish bog'i), SentTile (− belgi).
+// ░░ 1-SINF · Dars32 — "Пространство и линии" (num-1-32-v1) · Б6 (geometriya) · spec: ETALON_1SINF.md ░░
+// Baza: Dars29 (infra + PQ/cast string-in-string). Arifmetika YO'Q — geometrik tanish (chiziq turlari + fazoviy munosabat).
+// YADRO: chiziq turlari — to'g'ri / egri / siniq chiziq; fazoviy munosabat — tepada/pastda, chapda/o'ngda, orasida.
+// MEXANIKA: LineFig (SVG: to'g'ri/egri/siniq chiziq), SpatialScene (stol + to'p: tepada/pastda/chapda/o'ngda/orasida), PQ (savol matni).
+// Matn ovozда to'liq o'qiladi (1-sinf), ekranда qisqa tayanch. Typing YO'Q, tap/tanlash. Sonsiz (tanish-ajratish darsi).
+// Misconception'lar: M1 egri va siniqни chalkashtirish · M2 to'g'ri chiziqni "biroz egilgan" deb hisoblash · M3 chap/o'ng yoki tepa/pastni almashtirish.
 //
 // Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar + Zuhra (tanish — Dars07'da kirgan).
-// Ra'no/Anvar/Zuhra qayta tanishtirilmaydi (sIntro Dars07'ga callback bilan ochiladi).
+// FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
 //
 // ETALON KIT bloklari (grep: "ETALON KIT ·"):
 //   1) PERSONAJLAR — RanoSVG, AnvarSVG, BitSVG, HeroContext/useHero, StageHero
@@ -64,7 +64,7 @@ const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|E
 const stripAudioTags = (s) => typeof s === 'string'
   ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
-      .replace(/\s{2,}/g, ' ')
+      .replace(/\s{2,}/g, ' ').trim()
   : s;
 
 // HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
@@ -504,7 +504,7 @@ function useAdvanceGate(solved, audio) {
 // ============================================================
 const Op = React.memo(({ children, size = 'mid' }) => {
   const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
-                   size === 'mid' ? 'clamp(24px, 5vw, 34px)' :
+                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
                    'clamp(12px, 2.1vw, 18px)';
   return <span className="mop" style={{ fontSize }}>{children}</span>;
 });
@@ -787,7 +787,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
                   {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
@@ -801,7 +801,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {solved && !celebrateOnCorrect && (
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <button className="option option-correct" disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
             </button>
@@ -818,31 +818,36 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- 1-SINF DARSI (aniq mavzu va id: pastdagi LESSON_META) ---
+// --- POD UROK: num_1_01 — Predmetlarni sanash va 1–5 sonlar (1-sinf, Dars01) ---
 // 1-sinf (6–7 yosh): ovoz yetakchi kanal, typing YO'Q (tap/drag), concrete ustun,
 // bar model YO'Q. Manba: 1sinf_metodologiya.md (§4, §6, §7 Б1) + DIZAYN_STANDART_1SINF.md.
-// Misconception'lar test ekranlarining wrong_N hint'larida (mavzuga moslangan).
+// Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
 // ============================================================
 
-const TOTAL_SCREENS = 13;
+const TOTAL_SCREENS = 18;
 const LESSON_META = {
-  lessonId: 'num-1-11-v1',
-  lessonTitle: { ru: 'Переместительное свойство', uz: "O'rin almashtirish" }
+  lessonId: 'num-1-32-v1',
+  lessonTitle: { ru: 'Пространство и линии', uz: 'Fazo va chiziqlar' }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: o'rin almashsa jami o'zgaradimi?
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: 3+2 va 2+3 bir xilmi?
-  { id: 's1',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 3 + 2 = 5 (A)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // swap: 3+2 -> almashtir -> 2+3, ikkalasi 5
-  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: a+b=b+a, o'rin almashsa yig'indi o'zgarmaydi
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 2 + 3 = 5 (A, s1 aksi)
-  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // teng juft: 4+1 ga 1+4 teng (A)
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 2+3=3+2 (A)
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 5+1=6 -> 1+5=6 (A)
-  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: har xil tartib, jami 6 (3 raund)
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: tartib muhim emas; Dars12 ga ishora
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 2+4=6 tartib muhim emas + fakt (A)
-  { id: 's9',  type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: geometriya boshlanadi
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: qaysi chiziq to'g'ri
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // chiziq turlari: to'g'ri/egri/siniq
+  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // uch xil chiziq
+  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi to'g'ri chiziq
+  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // fazo: tepada/pastda
+  { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // fazoviy so'zlar
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // to'p qayerda (tepada/pastda)
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi siniq chiziq
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nima orasida
+  { id: 'sYesNo', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 'sOdd',   type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 'sVary',  type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 'sJuft',  type: 'test', template: 'custom',   scored: true, scope: 'module-mikro' },
+  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'yin: chiziq/fazo aralash
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik -> Dars33
+  { id: 's9',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: qaysi egri chiziq + fakt
+  { id: 's10', type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
 ];
 
 // Sonlar — so'z bilan (audio_rules: audioda raqam emas, so'z). Indeks = son.
@@ -855,13 +860,23 @@ const NUM_WORDS = {
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
 const CONTENT = {
-  // ---- sIntro: do'stlar sezadi — o'rin almashsa, jami o'zgaradimi? ----
+  lab: {
+    straight: { ru: 'Прямая', uz: "To'g'ri" },
+    curved: { ru: 'Кривая', uz: 'Egri' },
+    broken: { ru: 'Ломаная', uz: 'Siniq' },
+    above: { ru: 'Сверху', uz: 'Tepada' },
+    below: { ru: 'Снизу', uz: 'Pastda' },
+    left: { ru: 'Слева', uz: 'Chapda' },
+    right: { ru: 'Справа', uz: "O'ngda" },
+    between: { ru: 'Между', uz: 'Orasida' }
+  },
+
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'А если поменять местами?', uz: "O'rin almashsa-chi?" },
+    title: { ru: 'Линии и пространство', uz: 'Chiziqlar va fazo' },
     body: {
-      ru: 'Рано положила сначала свои яблоки, потом яблоки Анвара. А что если наоборот — сначала Анвара, потом свои? Изменится ли, сколько всего? Сегодня проверим.',
-      uz: "Ra'no avval o'z olmalarini, keyin Anvarning olmalarini qo'ydi. Aksincha bo'lsa-chi — avval Anvarniki, keyin o'ziniki? Hammasi nechtaligi o'zgaradimi? Bugun tekshiramiz."
+      ru: 'Числа мы уже хорошо знаем. Сегодня начнём геометрию — посмотрим на линии и научимся говорить, где что находится.',
+      uz: "Sonlarni endi yaxshi bilamiz. Bugun geometriyani boshlaymiz — chiziqlarga qaraymiz va nima qayerda ekanini aytishni o'rganamiz."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -869,220 +884,399 @@ const CONTENT = {
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Привет, друг! Рано сначала положила свои яблоки, потом яблоки Анвара.',
-        'А что если поменять местами — сначала яблоки Анвара, потом её? Изменится ли, сколько всего?',
-        'Сегодня это проверим. Слушай и нажимай кнопку дальше.'
+        'Привет, друг! Числа мы уже знаем хорошо.',
+        'Сегодня начнём геометрию.',
+        'Посмотрим, какие бывают линии.',
+        'И научимся говорить, где что находится. Слушай до конца и нажимай кнопку дальше.'
       ],
       uz: [
-        "Salom, do'stim! Ra'no avval o'z olmalarini, keyin Anvarning olmalarini qo'ydi.",
-        "O'rin almashtirsak-chi — avval Anvarning olmalari, keyin o'ziniki? Hammasi nechtaligi o'zgaradimi?",
-        "Bugun shuni tekshiramiz. Tinglang va davom tugmasini bosing."
+        "Salom, do'stim! Sonlarni endi yaxshi bilamiz.",
+        "Bugun geometriyani boshlaymiz.",
+        "Qanday chiziqlar bo'lishini ko'ramiz.",
+        "Va nima qayerda ekanini aytishni o'rganamiz. Oxirigacha tinglang va davom tugmasini bosing."
       ]
     }
   },
 
-  // ---- sGuest SYUJET KO'PRIK: tartib muhim emas -> Dars12 ga ishora (tenglik/tengsizlik) ----
-  sGuest: {
-    eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'Порядок не важен', uz: "Tartib muhim emas" },
-    body: {
-      ru: 'Здорово! Ты увидел: поменяй числа местами — сумма та же. А в следующий раз научимся проверять, верна ли запись.',
-      uz: "Zo'r! Ko'rdingiz: sonlar o'rin almashsa ham, yig'indi o'sha. Keyingi safar yozuv to'g'rimi yoki yo'qligini tekshirishni o'rganamiz."
-    },
-    bit_label: { ru: 'Бит', uz: 'Bit' },
-    rano_label: { ru: 'Рано', uz: "Ra'no" },
-    anvar_label: { ru: 'Анвар', uz: 'Anvar' },
-    zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
-    audio: {
-      ru: [
-        'Здорово! Ты увидел, что от перестановки мест сумма не меняется.',
-        'В следующий раз научимся проверять, верна ли запись.',
-        'Слушай и нажимай кнопку дальше.'
-      ],
-      uz: [
-        "Zo'r! O'rin almashsa ham, yig'indi o'zgarmasligini ko'rdingiz.",
-        "Keyingi safar yozuv to'g'rimi yoki yo'qligini tekshirishni o'rganamiz.",
-        "Tinglang va davom tugmasini bosing."
-      ]
-    }
-  },
-
-  // ---- s0 HOOK (soft): 3+2 va 2+3 — bir xilmi? guess ----
   s0: {
     eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
-    title_part1: { ru: 'Три плюс два и два плюс три —', uz: "Uch plyus ikki va ikki plyus uch —" },
-    title_part2_em: { ru: 'одинаково?', uz: 'bir xilmi?' },
-    title_part3: { ru: '', uz: '' },
-    question: { ru: 'Как думаешь? Скоро проверим вместе.', uz: "Sizningcha-chi? Tez orada birga tekshiramiz." },
-    opt_yes: { ru: 'Да, одинаково', uz: "Ha, bir xil" },
-    opt_no: { ru: 'Нет, по-разному', uz: "Yo'q, har xil" },
-    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' },
+    title_part1: { ru: 'Посмотри на линии. Они', uz: 'Chiziqlarga qarang. Ular' },
+    title_part2_em: { ru: 'одинаковые', uz: 'bir xilmi' },
+    title_part3: { ru: '?', uz: '?' },
+    question: { ru: 'Как думаешь? Нажми ответ.', uz: "Qanday o'ylaysiz? Javobni bosing." },
+    opt0: { ru: 'Нет, разные', uz: "Yo'q, har xil" },
+    opt1: { ru: 'Да, одинаковые', uz: 'Ha, bir xil' },
+    opt2: { ru: 'Трудно сказать', uz: 'Aytish qiyin' },
     audio: {
-      intro: { ru: 'Посмотри: три плюс два и два плюс три. Как думаешь, получится одинаково или по-разному? Выбери ответ, а потом проверим.', uz: "Qarang: uch plyus ikki va ikki plyus uch. Sizningcha bir xil chiqadimi yoki har xil? Javobni tanlang, keyin tekshiramiz." },
-      on_correct: { ru: 'Хорошо. Сейчас проверим.', uz: "Yaxshi. Hozir tekshiramiz." },
-      on_wrong: { ru: 'Хорошо. Сейчас проверим.', uz: "Yaxshi. Hozir tekshiramiz." }
+      intro: {
+        ru: 'Посмотри на три линии. Как думаешь, они одинаковые или разные? Нажми ответ.',
+        uz: "Uchta chiziqqa qarang. Sizningcha, ular bir xilmi yoki har xilmi? Javobni bosing."
+      },
+      on_correct: { ru: 'Верно, линии разные. Сейчас разберём каждую.', uz: "To'g'ri, chiziqlar har xil. Endi har birini ko'ramiz." },
+      on_wrong: { ru: 'Верно, линии разные. Сейчас разберём каждую.', uz: "To'g'ri, chiziqlar har xil. Endi har birini ko'ramiz." }
     }
   },
 
-  // ---- s1 TEST MC (+): 3 + 2 = 5. options [5,4,6,3] to'g'ri idx0 ----
   s1: {
-    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
-    title: { ru: 'Сначала Рано: три и ещё два. Сколько вместе?', uz: "Avval Ra'no: uch va yana ikki. Birga nechta?" },
-    correct_text: { ru: 'Верно. Три плюс два равно пять.', uz: "To'g'ri. Uch plyus ikki teng besh." },
-    wrong_1: { ru: 'Это на один меньше. Соедини обе группы и посчитай по одному.', uz: "Bu bittaga kam. Ikki guruhni birlashtirib, bittadan sanang." },
-    wrong_2: { ru: 'Это на один больше. Посчитай ещё раз, не спеша.', uz: "Bu bittaga ko'p. Yana, shoshmasdan sanang." },
-    wrong_3: { ru: 'Это только первая группа. Прибавь вторую и считай дальше.', uz: "Bu faqat birinchi guruh. Ikkinchisini qo'shing va davomidan sanang." },
-    wrong_default: { ru: 'Соедини обе группы и посчитай по одному.', uz: "Ikki guruhni birlashtirib, bittadan sanang." },
-    audio: {
-      intro: { ru: 'У Рано три яблока и ещё два. Соедини и посчитай. Сколько вместе?', uz: "Ra'noda uchta olma va yana ikkita. Birlashtirib sanang. Birga nechta?" },
-      on_correct: { ru: 'Верно. Вместе пять.', uz: "To'g'ri. Birga besh." },
-      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
-    }
-  },
-
-  // ---- s2 EXPLORATION (swap): 3+2 -> 5, almashtir -> 2+3 -> 5, bir xil ----
-  s2: {
-    eyebrow: { ru: 'Поменяем местами', uz: "O'rin almashtiramiz" },
-    instruction: { ru: 'Три плюс два. Нажми — станет два плюс три.', uz: "Uch plyus ikki. Bosing — ikki plyus uch bo'ladi." },
-    btn: { ru: 'Поменять местами', uz: "O'rin almashtirish" },
-    label_before: { ru: 'Три плюс два', uz: 'Uch plyus ikki' },
-    label_after: { ru: 'Два плюс три', uz: 'Ikki plyus uch' },
-    done_text: { ru: 'И так, и так получилось пять. Сумма не изменилась!', uz: "U xil ham, bu xil ham besh chiqdi. Yig'indi o'zgarmadi!" },
+    eyebrow: { ru: 'Три линии', uz: 'Uch chiziq' },
+    demo_prompt: { ru: 'Смотри, как рисуют линию. Нажимай Далее.', uz: "Chiziq qanday chizilishini qara. Keyingisi ni bos." },
+    demo_intro: { ru: 'Посмотри, как рисуют каждую линию.', uz: "Har chiziq qanday chizilishini qarang." },
+    d_straight: { ru: 'Прямая линия рисуется ровно, без изгибов.', uz: "To'g'ri chiziq tekis chiziladi, egilmasdan." },
+    d_curved: { ru: 'Кривая линия плавно гнётся.', uz: 'Egri chiziq silliq egiladi.' },
+    d_broken: { ru: 'Ломаная линия ломается на углах.', uz: 'Siniq chiziq burchaklarda sinadi.' },
+    instruction: { ru: 'Бывают три линии: прямая, кривая и ломаная', uz: "Uch xil chiziq bor: to'g'ri, egri va siniq" },
+    done_label: { ru: 'Понятно', uz: 'Tushundim' },
+    full_text: { ru: 'Прямая — ровная. Кривая — гнётся. Ломаная — с углами.', uz: "To'g'ri — tekis. Egri — egiladi. Siniq — burchakli." },
+    full_audio: { ru: 'Прямая линия ровная. Кривая плавно гнётся. Ломаная сделана из прямых кусочков с углами.', uz: "To'g'ri chiziq tekis. Egri chiziq silliq egiladi. Siniq chiziq burchakli to'g'ri bo'laklardan." },
+    audio_intro: { ru: 'Разберём линии сами. Сначала найди прямую линию — ровную, как нить.', uz: "Chiziqlarni o'zimiz ajratamiz. Avval to'g'ri chiziqni toping — ip kabi tekis." },
+    q_straight: { ru: 'Какая линия прямая?', uz: "Qaysi chiziq to'g'ri?" },
+    q_curved: { ru: 'Теперь из оставшихся: какая кривая?', uz: 'Endi qolganidan: qaysi biri egri?' },
+    a_straight: { ru: 'Верно, это прямая. Она ровная.', uz: "To'g'ri, bu to'g'ri chiziq. U tekis." },
+    a_curved: { ru: 'Верно, кривая плавно гнётся. А последняя — ломаная, с углами.', uz: "To'g'ri, egri silliq egiladi. Oxirgisi esa — siniq, burchakli." },
+    retry: { ru: 'Посмотри внимательнее. Попробуй снова.', uz: "Diqqat bilan qarang. Yana urinib ko'ring." },
+    done_line: { ru: 'Отлично! Прямая, кривая и ломаная.', uz: "Zo'r! To'g'ri, egri va siniq." },
     audio: {
       ru: [
-        'Сейчас на дорожке три плюс два, и вместе пять. Нажми кнопку поменять местами.',
-        'Теперь два плюс три. Посчитаем снова: один, два, три, четыре, пять. Опять пять. Сумма не изменилась.'
+        'Сначала спроси: линия прямая или нет? Прямая — ровная, как натянутая нить.',
+        'Если линия плавно гнётся — это кривая, как тропинка.',
+        'Если она из прямых кусочков с углами — это ломаная. Углы такие же, как у фигур.'
       ],
       uz: [
-        "Hozir uch plyus ikki, birga besh. O'rin almashtirish tugmasini bosing.",
-        "Endi ikki plyus uch. Yana sanaymiz: bir, ikki, uch, to'rt, besh. Yana besh. Yig'indi o'zgarmadi."
+        "Avval so'ra: chiziq to'g'rimi yoki yo'q? To'g'ri — tekis, tortilgan ip kabi.",
+        "Chiziq silliq egilsa — bu egri, so'qmoq kabi.",
+        "To'g'ri bo'laklardan, burchakli bo'lsa — bu siniq. Burchaklari xuddi shakllardagidek."
       ]
     }
   },
 
-  // ---- s3 RULE: o'rin almashsa, yig'indi o'zgarmaydi (a+b=b+a) ----
-  s3: {
+  s2: {
     eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
-    title_part1: { ru: 'Поменяешь местами —', uz: "O'rin almashsa —" },
-    title_part2_em: { ru: 'сумма та же', uz: "yig'indi o'sha" },
+    title_part1: { ru: 'Три линии:', uz: 'Uch chiziq:' },
+    title_part2_em: { ru: 'прямая, кривая, ломаная', uz: "to'g'ri, egri, siniq" },
+    title_part3: { ru: '', uz: '' },
     tip: {
-      ru: 'Поменяй местами — сумма та же. Начни с большего.',
-      uz: "O'rin almashsa — yig'indi o'sha. Katta sondan boshlang."
+      ru: 'Прямая линия ровная. Кривая плавно гнётся. Ломаная состоит из прямых кусочков и имеет углы.',
+      uz: "To'g'ri chiziq tekis. Egri chiziq silliq egiladi. Siniq chiziq to'g'ri bo'laklardan tuzilgan va burchaklari bor."
     },
     audio: {
-      ru: 'Запомним. Если поменять слагаемые местами, сумма не меняется. Три плюс два равно два плюс три. Это удобно: можно начинать считать с большего числа.',
-      uz: "Eslab qolamiz. Qo'shiluvchilar o'rin almashsa, yig'indi o'zgarmaydi. Uch plyus ikki teng ikki plyus uch. Bu qulay: katta sondan sanashni boshlash mumkin."
+      ru: 'Запомни. Прямая линия ровная. Кривая плавно гнётся. Ломаная из прямых кусочков и с углами.',
+      uz: "Eslab qoling. To'g'ri chiziq tekis. Egri chiziq silliq egiladi. Siniq chiziq to'g'ri bo'laklardan va burchakli."
     }
   },
 
-  // ---- s4 TEST MC (swap): endi 2 + 3 = ? (s1 ning aksi) options [5,6,4,3] to'g'ri idx0 ----
+  s3: {
+    eyebrow: { ru: 'Тренировка · 1 / 4', uz: 'Mashq · 1 / 4' },
+    title: { ru: 'Где прямая линия?', uz: "Qaysi to'g'ri chiziq?" },
+    problem: { ru: 'Выбери прямую — ровную линию.', uz: "To'g'ri — tekis chiziqni tanlang." },
+    correct_text: { ru: 'Правильно. Прямая линия ровная.', uz: "To'g'ri. To'g'ri chiziq tekis." },
+    wrong_1: {
+      ru: 'Эта линия плавно гнётся — она кривая. Прямая совсем ровная.',
+      uz: "Bu chiziq silliq egiladi — u egri. To'g'ri chiziq butunlay tekis."
+    },
+    wrong_2: {
+      ru: 'Эта линия с углами — она ломаная. Прямая совсем ровная.',
+      uz: "Bu chiziq burchakli — u siniq. To'g'ri chiziq butunlay tekis."
+    },
+    wrong_default: {
+      ru: 'Прямая — ровная, без изгибов и углов.',
+      uz: "To'g'ri — tekis, egilishsiz va burchaksiz."
+    },
+    audio: {
+      intro: { ru: 'Где здесь прямая линия? Выбери ровную.', uz: "Bu yerda qaysi to'g'ri chiziq? Tekisini tanlang." },
+      on_correct: { ru: 'Верно. Прямая линия ровная.', uz: "To'g'ri. To'g'ri chiziq tekis." },
+      on_wrong: { ru: 'Не совсем. Прямая совсем ровная.', uz: "Unchalik emas. To'g'ri chiziq butunlay tekis." }
+    }
+  },
+
   s4: {
-    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
-    title: { ru: 'Теперь наоборот: два и ещё три. Сколько вместе?', uz: "Endi aksincha: ikki va yana uch. Birga nechta?" },
-    correct_text: { ru: 'Верно. Два плюс три тоже пять — как и три плюс два.', uz: "To'g'ri. Ikki plyus uch ham besh — uch plyus ikki kabi." },
-    wrong_1: { ru: 'Это на один больше. Посчитай по одному.', uz: "Bu bittaga ko'p. Bittadan sanang." },
-    wrong_2: { ru: 'Это на один меньше. Соедини обе группы и посчитай.', uz: "Bu bittaga kam. Ikki guruhni birlashtirib sanang." },
-    wrong_3: { ru: 'Это только одна группа. Прибавь вторую.', uz: "Bu faqat bitta guruh. Ikkinchisini qo'shing." },
-    wrong_default: { ru: 'Это столько же, сколько три плюс два. Посчитай по одному.', uz: "Bu uch plyus ikki bilan bir xil. Bittadan sanang." },
+    eyebrow: { ru: 'Сверху и снизу', uz: 'Tepada va pastda' },
+    instruction: { ru: 'Скажем, где мяч: сверху или снизу от стола', uz: "To'p qayerda ekanini aytamiz: stolning tepasidami yoki pastida" },
+    reveal_label: { ru: 'Подвинуть мяч', uz: "To'pni surish" },
+    full_text: { ru: 'Сначала мяч сверху, потом снизу.', uz: "Avval to'p tepada, keyin pastda." },
+    full_audio: { ru: 'Сначала мяч был сверху, на столе. Потом мяч стал снизу, под столом.', uz: "Avval to'p tepada, stol ustida edi. Keyin to'p pastda, stol tagida bo'ldi." },
+    audio_intro: { ru: 'Скажем, где мяч. Нажимай Далее и слушай слово.', uz: "To'p qayerda ekanini aytamiz. Keyingisi ni bosing va so'zni tinglang." },
+    tour_prompt: { ru: 'Где мяч? Нажимай Далее.', uz: "To'p qayerda? Keyingisi ni bosing." },
+    w_above: { ru: 'Мяч сверху, на столе.', uz: "To'p tepada, stol ustida." },
+    w_below: { ru: 'Мяч снизу, под столом.', uz: "To'p pastda, stol tagida." },
+    w_left: { ru: 'Мяч слева.', uz: "To'p chapda." },
+    w_right: { ru: 'Мяч справа.', uz: "To'p o'ngda." },
+    w_between: { ru: 'Мяч между двумя предметами.', uz: "To'p ikki narsaning orasida." },
+    done_spatial: { ru: 'Отлично! Сверху, снизу, слева, справа и между.', uz: "Zo'r! Tepada, pastda, chapda, o'ngda va orasida." },
     audio: {
-      intro: { ru: 'Теперь поменяли местами: два и ещё три. Соедини и посчитай. Сколько вместе?', uz: "Endi o'rin almashdi: ikki va yana uch. Birlashtirib sanang. Birga nechta?" },
-      on_correct: { ru: 'Верно. Снова пять.', uz: "To'g'ri. Yana besh." },
-      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
+      ru: [
+        'Посмотри. Мяч сейчас сверху, на столе.',
+        'А теперь скажем, где он окажется, если опустить.'
+      ],
+      uz: [
+        "Qarang. To'p hozir tepada, stol ustida.",
+        "Endi uni pastga tushirsak, qayerda bo'lishini aytamiz."
+      ]
     }
   },
 
-  // ---- s5 TEST MC (teng juftni top): 4 + 1 ga teng? options [1+4, 4−1, 1+5] to'g'ri idx0 ----
   s5: {
-    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
-    title: { ru: 'Какая запись равна четыре плюс один?', uz: "Qaysi yozuv to'rt plyus bir ga teng?" },
-    correct_text: { ru: 'Верно. Один плюс четыре — это те же числа, только местами.', uz: "To'g'ri. Bir plyus to'rt — o'sha sonlar, faqat o'rni almashgan." },
-    wrong_1: { ru: 'Здесь знак минус — это вычитание, а не сложение. Нам нужно сложение тех же чисел.', uz: "Bu yerda minus — ayirish, qo'shish emas. Bizga o'sha sonlarning qo'shilishi kerak." },
-    wrong_2: { ru: 'Здесь другое число — пять вместо четырёх. Нужны те же числа, что и в примере.', uz: "Bu yerda boshqa son — to'rt o'rniga besh. Misoldagi sonlar kerak." },
-    wrong_default: { ru: 'Нужны те же числа, четыре и один, только местами.', uz: "O'sha sonlar — to'rt va bir, faqat o'rni almashgan kerak." },
+    eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
+    title_part1: { ru: 'Слова о месте:', uz: "Joy haqida so'zlar:" },
+    title_part2_em: { ru: 'сверху, снизу, слева, справа', uz: "tepada, pastda, chapda, o'ngda" },
+    title_part3: { ru: '', uz: '' },
+    tip: {
+      ru: 'Эти слова говорят, где находится предмет: сверху или снизу, слева или справа, а ещё между двумя предметами.',
+      uz: "Bu so'zlar narsa qayerda ekanini aytadi: tepada yoki pastda, chapda yoki o'ngda, yana ikki narsaning orasida."
+    },
     audio: {
-      intro: { ru: 'Найди запись, которая равна четыре плюс один. Это те же числа, только местами.', uz: "To'rt plyus bir ga teng yozuvni toping. Bu o'sha sonlar, faqat o'rni almashgan." },
-      on_correct: { ru: 'Верно. Один плюс четыре.', uz: "To'g'ri. Bir plyus to'rt." },
-      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
+      ru: 'Запомни. Эти слова говорят, где предмет. Сверху или снизу. Слева или справа. И между двумя предметами.',
+      uz: "Eslab qoling. Bu so'zlar narsa qayerda ekanini aytadi. Tepada yoki pastda. Chapda yoki o'ngda. Va ikki narsaning orasida."
     }
   },
 
-  // ---- s6 TEST Ha/Yo'q: 2+3 = 3+2 to'g'rimi? Ha (idx0) ----
   s6: {
-    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
-    title: { ru: 'Верно ли: два плюс три равно три плюс два?', uz: "To'g'rimi: ikki plyus uch teng uch plyus ikki?" },
-    opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
-    opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
-    correct_text: { ru: 'Верно. Это те же числа, поэтому сумма одинаковая — пять.', uz: "To'g'ri. Bu o'sha sonlar, shuning uchun yig'indi bir xil — besh." },
-    wrong_1: { ru: 'Это одинаково. Те же числа местами дают ту же сумму — пять.', uz: "Bu bir xil. O'sha sonlar o'rin almashsa ham, yig'indi o'sha — besh." },
-    wrong_default: { ru: 'Те же числа местами дают ту же сумму.', uz: "O'sha sonlar o'rin almashsa, yig'indi o'sha bo'ladi." },
+    eyebrow: { ru: 'Тренировка · 2 / 4', uz: 'Mashq · 2 / 4' },
+    title: { ru: 'Где мяч?', uz: "To'p qayerda?" },
+    problem: { ru: 'Посмотри на стол и мяч.', uz: "Stol va to'pga qarang." },
+    opt0: { ru: 'Снизу, под столом', uz: 'Pastda, stol tagida' },
+    opt1: { ru: 'Сверху, на столе', uz: 'Tepada, stol ustida' },
+    correct_text: { ru: 'Правильно. Мяч снизу, под столом.', uz: "To'g'ri. To'p pastda, stol tagida." },
+    wrong_1: {
+      ru: 'Посмотри внимательно: мяч под столом. Значит снизу.',
+      uz: "Diqqat bilan qarang: to'p stol tagida. Demak pastda."
+    },
+    wrong_default: {
+      ru: 'Мяч под столом — это снизу.',
+      uz: "To'p stol tagida — bu pastda."
+    },
     audio: {
-      intro: { ru: 'Верно ли, что два плюс три равно три плюс два? Выбери да или нет.', uz: "Ikki plyus uch teng uch plyus ikki — to'g'rimi? Ha yoki yo'q tanlang." },
-      on_correct: { ru: 'Верно. Сумма та же.', uz: "To'g'ri. Yig'indi o'sha." },
-      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
+      intro: { ru: 'Посмотри на стол и мяч. Где мяч, сверху или снизу? Выбери.', uz: "Stol va to'pga qarang. To'p qayerda, tepadami yoki pastda? Tanlang." },
+      on_correct: { ru: 'Верно. Мяч снизу, под столом.', uz: "To'g'ri. To'p pastda, stol tagida." },
+      on_wrong: { ru: 'Не совсем. Посмотри, мяч под столом.', uz: "Unchalik emas. Qarang, to'p stol tagida." }
     }
   },
 
-  // ---- s7 TEST MC: 5+1=6, unda 1+5=? options [6,5,7,4] to'g'ri idx0 ----
   s7: {
-    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Известно: пять плюс один равно шесть. Сколько будет один плюс пять?', uz: "Ma'lum: besh plyus bir teng olti. Bir plyus besh nechа bo'ladi?" },
-    correct_text: { ru: 'Верно. Те же числа местами — снова шесть, считать не нужно.', uz: "To'g'ri. O'sha sonlar o'rin almashdi — yana olti, sanash shart emas." },
-    wrong_1: { ru: 'Это на один меньше. Это те же числа, ответ тот же — шесть.', uz: "Bu bittaga kam. Bu o'sha sonlar, javob o'sha — olti." },
-    wrong_2: { ru: 'Это на один больше. Те же числа дают ту же сумму — шесть.', uz: "Bu bittaga ko'p. O'sha sonlar o'sha yig'indini beradi — olti." },
-    wrong_default: { ru: 'Те же числа местами дают ту же сумму — шесть.', uz: "O'sha sonlar o'rin almashsa, yig'indi o'sha — olti." },
+    eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
+    title: { ru: 'Где ломаная линия?', uz: 'Qaysi siniq chiziq?' },
+    problem: { ru: 'Выбери ломаную — линию с углами.', uz: "Siniq — burchakli chiziqni tanlang." },
+    correct_text: { ru: 'Правильно. Ломаная — с углами.', uz: "To'g'ri. Siniq chiziq — burchakli." },
+    wrong_1: {
+      ru: 'Эта линия совсем ровная — она прямая. Ломаная имеет углы.',
+      uz: "Bu chiziq butunlay tekis — u to'g'ri. Siniq chiziq burchakli."
+    },
+    wrong_2: {
+      ru: 'Эта линия плавно гнётся — она кривая. У ломаной есть углы.',
+      uz: "Bu chiziq silliq egiladi — u egri. Siniq chiziqning burchaklari bor."
+    },
+    wrong_default: {
+      ru: 'Ломаная — из прямых кусочков с углами.',
+      uz: "Siniq — burchakli to'g'ri bo'laklardan."
+    },
     audio: {
-      intro: { ru: 'Мы знаем, что пять плюс один равно шесть. А сколько будет один плюс пять? Подумай и выбери.', uz: "Biz besh plyus bir teng olti ekanini bilamiz. Bir plyus besh-chi? O'ylab tanlang." },
-      on_correct: { ru: 'Верно. Тоже шесть.', uz: "To'g'ri. Yana olti." },
-      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
+      intro: { ru: 'Где здесь ломаная линия? Выбери линию с углами.', uz: "Bu yerda qaysi siniq chiziq? Burchakli chiziqni tanlang." },
+      on_correct: { ru: 'Верно. Ломаная с углами.', uz: "To'g'ri. Siniq chiziq burchakli." },
+      on_wrong: { ru: 'Не совсем. У ломаной есть углы.', uz: "Unchalik emas. Siniq chiziqning burchaklari bor." }
     }
   },
 
-  // ---- sg MINI-O'YIN: 3 raund, har xil tartibda jami bir xil (hammasi 6). Ball yo'q ----
+  s8: {
+    eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
+    title: { ru: 'Что между яблоком и чашкой?', uz: 'Olma bilan piyola orasida nima?' },
+    problem: { ru: 'Посмотри на ряд. Что стоит посередине?', uz: "Qatorga qarang. O'rtada nima turibdi?" },
+    opt0: { ru: 'Мяч', uz: "To'p" },
+    opt1: { ru: 'Яблоко', uz: 'Olma' },
+    opt2: { ru: 'Чашка', uz: 'Piyola' },
+    correct_text: { ru: 'Правильно. Между яблоком и чашкой — мяч.', uz: "To'g'ri. Olma bilan piyola orasida — to'p." },
+    wrong_1: {
+      ru: 'Яблоко стоит с краю, слева. Между ними — мяч.',
+      uz: "Olma chetda, chapda turibdi. Ular orasida — to'p."
+    },
+    wrong_2: {
+      ru: 'Чашка стоит с краю, справа. Между ними — мяч.',
+      uz: "Piyola chetda, o'ngda turibdi. Ular orasida — to'p."
+    },
+    wrong_default: {
+      ru: 'Между — это посередине, между двумя.',
+      uz: "Orasida — bu o'rtada, ikkisining o'rtasida."
+    },
+    audio: {
+      intro: { ru: 'Посмотри на ряд: яблоко, мяч, чашка. Что между яблоком и чашкой? Выбери.', uz: "Qatorga qarang: olma, to'p, piyola. Olma bilan piyola orasida nima? Tanlang." },
+      on_correct: { ru: 'Верно. Между яблоком и чашкой мяч.', uz: "To'g'ri. Olma bilan piyola orasida to'p." },
+      on_wrong: { ru: 'Не совсем. Между — это посередине.', uz: "Unchalik emas. Orasida — bu o'rtada." }
+    }
+  },
+
+  sYesNo: {
+    eyebrow: { ru: 'Тренировка · да или нет', uz: "Mashq · ha yoki yo'q" },
+    title: { ru: 'Эта линия прямая?', uz: "Bu chiziq to'g'rimi?" },
+    problem: { ru: 'Посмотри на линию. Она прямая? Нажми да или нет.', uz: "Chiziqqa qarang. Bu to'g'ri chiziqmi? Ha yoki yo'q ni bosing." },
+    correct_text: { ru: 'Верно. Это кривая линия, не прямая.', uz: "To'g'ri. Bu egri chiziq, to'g'ri emas." },
+    wrong_0: {
+      ru: 'Посмотри внимательно. Линия изогнута — это кривая, не прямая.',
+      uz: "Diqqat bilan qarang. Chiziq bukilgan — bu egri, to'g'ri emas."
+    },
+    audio: {
+      intro: { ru: 'Посмотри на линию. Она прямая? Нажми да или нет.', uz: "Chiziqqa qarang. Bu to'g'ri chiziqmi? Ha yoki yo'q ni bosing." },
+      on_correct: { ru: 'Верно. Это кривая линия.', uz: "To'g'ri. Bu egri chiziq." },
+      on_wrong: { ru: 'Посмотри внимательно. Линия изогнута.', uz: "Diqqat bilan qarang. Chiziq bukilgan." }
+    }
+  },
+
+  sOdd: {
+    eyebrow: { ru: 'Тренировка · найди другую', uz: 'Mashq · boshqasini top' },
+    title: { ru: 'Какая линия отличается?', uz: 'Qaysi chiziq boshqacha?' },
+    problem: { ru: 'Две линии одинаковые. Выбери другую.', uz: 'Ikki chiziq bir xil. Boshqasini tanlang.' },
+    correct_text: { ru: 'Верно. Это кривая, а остальные прямые.', uz: "To'g'ri. Bu egri chiziq, qolganlari to'g'ri." },
+    wrong_0: {
+      ru: 'Это прямая линия. Две прямые одинаковые — ищи другую.',
+      uz: "Bu to'g'ri chiziq. Ikkita to'g'ri bir xil — boshqasini qidiring."
+    },
+    wrong_1: {
+      ru: 'Это прямая линия. Две прямые одинаковые — ищи другую.',
+      uz: "Bu to'g'ri chiziq. Ikkita to'g'ri bir xil — boshqasini qidiring."
+    },
+    wrong_default: {
+      ru: 'Ищи линию, которая отличается — это кривая.',
+      uz: "Boshqacha chiziqni qidiring — bu egri chiziq."
+    },
+    audio: {
+      intro: { ru: 'Две линии одинаковые, одна отличается. Какая другая? Выбери.', uz: "Ikki chiziq bir xil, biri boshqacha. Qaysi biri boshqacha? Tanlang." },
+      on_correct: { ru: 'Верно. Это кривая линия.', uz: "To'g'ri. Bu egri chiziq." },
+      on_wrong: { ru: 'Ищи линию, которая отличается.', uz: "Boshqacha chiziqni qidiring." }
+    }
+  },
+
+  sVary: {
+    eyebrow: { ru: 'Тренировка · внимание', uz: 'Mashq · diqqat' },
+    title: { ru: 'Какая линия НЕ прямая?', uz: "Qaysi biri to'g'ri chiziq EMAS?" },
+    problem: { ru: 'Две из них прямые, даже наклонённая. Выбери НЕ прямую.', uz: "Ikkitasi to'g'ri — qiya bo'lsa ham. To'g'ri bo'lmaganini tanlang." },
+    correct_text: { ru: 'Верно. Эта линия немного изогнута — она не прямая.', uz: "To'g'ri. Bu chiziq biroz egilgan — u to'g'ri emas." },
+    wrong_0: {
+      ru: 'Это прямая — ровная. Ищи изогнутую линию.',
+      uz: "Bu to'g'ri chiziq — tekis. Egilgan chiziqni qidiring."
+    },
+    wrong_1: {
+      ru: 'И это прямая, просто наклонена. Наклон — не изгиб. Ищи изогнутую.',
+      uz: "Bu ham to'g'ri, faqat qiya. Qiya bo'lsa ham tekis. Egilganini qidiring."
+    },
+    wrong_default: {
+      ru: 'Прямая линия ровная, она не гнётся.',
+      uz: "To'g'ri chiziq tekis, u egilmaydi."
+    },
+    audio: {
+      intro: { ru: 'Две линии прямые, даже наклонённая. Какая НЕ прямая? Выбери.', uz: "Ikki chiziq to'g'ri, qiya bo'lsa ham. Qaysi biri to'g'ri EMAS? Tanlang." },
+      on_correct: { ru: 'Верно. Прямая линия ровная, а эта немного гнётся.', uz: "To'g'ri. To'g'ri chiziq tekis, bu esa biroz egilgan." },
+      on_wrong: { ru: 'Это прямая, просто наклонена. Ищи изогнутую.', uz: "Bu to'g'ri, faqat qiya. Egilganini qidiring." }
+    }
+  },
+
+  sJuft: {
+    eyebrow: { ru: 'Тренировка · соедини', uz: 'Mashq · juftla' },
+    title: { ru: 'Соедини линию с названием', uz: 'Chiziqni nomi bilan juftlang' },
+    problem: { ru: 'Нажми линию, потом её название.', uz: 'Avval chiziqni, keyin uning nomini bosing.' },
+    done_text: { ru: 'Отлично! Все линии названы верно.', uz: "Zo'r! Hamma chiziq to'g'ri nomlandi." },
+    audio: {
+      intro: { ru: 'Соедини каждую линию с её названием. Нажми линию, потом название.', uz: "Har chiziqni nomi bilan juftlang. Avval chiziqni, keyin nomini bosing." },
+      on_correct: { ru: 'Верно, пара найдена.', uz: "To'g'ri, juft topildi." },
+      done: { ru: 'Отлично! Все пары верны.', uz: "Zo'r! Hamma juft to'g'ri." },
+      retry: { ru: 'Не эта пара. Попробуй снова.', uz: "Bu juft emas. Yana urinib ko'ring." }
+    }
+  },
+
   sg: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
-    instruction: { ru: 'Реши пример и выбери сумму', uz: "Misolni yeching va yig'indini tanlang" },
-    round_ok: { ru: 'Верно! Дальше.', uz: "To'g'ri! Davom etamiz." },
-    done_text: { ru: 'Молодец! Порядок разный, а сумма одна, шесть.', uz: "Barakalla! Tartib har xil, yig'indi bitta, olti." },
-    retry_audio: { ru: 'Ничего страшного. Посчитай пример ещё раз.', uz: "Zarari yo'q. Misolni yana sanang." },
+    instruction: { ru: 'Выбери верный ответ', uz: "To'g'ri javobni tanlang" },
+    correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
+    done_text: { ru: 'Молодцы! Всё верно.', uz: "Barakalla! Hammasi to'g'ri." },
+    retry_audio: { ru: 'Ничего страшного. Посмотри внимательно ещё раз.', uz: "Hechqisi yo'q. Yana diqqat bilan qarang." },
+    q_round1: { ru: 'Где кривая линия?', uz: 'Qaysi egri chiziq?' },
+    q_round2: { ru: 'Где мяч: сверху или снизу?', uz: "To'p qayerda: tepada yoki pastda?" },
+    q_round3: { ru: 'Где прямая линия?', uz: "Qaysi to'g'ri chiziq?" },
     audio: {
-      intro: { ru: 'Поиграем. Реши каждый пример и выбери сумму. Заметь, что сумма не меняется.', uz: "O'ynaymiz. Har misolni yeching va yig'indini tanlang. Yig'indi o'zgarmasligiga e'tibor bering." }
+      intro: { ru: 'Поиграем. Я спрашиваю, а ты выбираешь верный ответ. Начинаем.', uz: "O'ynaymiz. Men so'rayman, siz to'g'ri javobni tanlaysiz. Boshladik." }
     }
   },
 
-  // ---- s8 TEST final + FactCard: 2+4 yoki 4+2 — jami o'zgaradimi? 6. options [6,7,5,8] to'g'ri idx0 ----
-  s8: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'У Рано 2 яблока, у Анвара 4. Сколько всего, неважно кто первый?', uz: "Ra'noda 2 olma, Anvarda 4. Kim birinchi bo'lishidan qat'i nazar, hammasi nechta?" },
+  sGuest: {
+    eyebrow: { ru: 'Здорово', uz: "Zo'r" },
+    title: { ru: 'Линии и место', uz: 'Chiziqlar va joy' },
+    body: {
+      ru: 'Рано, Анвар и Зухра узнали три линии и научились говорить, где что находится. Дальше будем смотреть на фигуры.',
+      uz: "Ra'no, Anvar va Zuhra uch xil chiziqni bildi va nima qayerda ekanini aytishni o'rgandi. Keyin shakllarga qaraymiz."
+    },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
-    correct_text: { ru: 'Верно. Два плюс четыре и четыре плюс два — оба равны шести.', uz: "To'g'ri. Ikki plyus to'rt va to'rt plyus ikki — ikkalasi ham olti." },
-    wrong_1: { ru: 'Это на один больше. Сложи оба числа по одному.', uz: "Bu bittaga ko'p. Ikkala sonni bittadan qo'shing." },
-    wrong_2: { ru: 'Это на один меньше. Прибавь обе группы.', uz: "Bu bittaga kam. Ikkala guruhni qo'shing." },
-    wrong_3: { ru: 'Слишком много. Посчитай по одному.', uz: "Juda ko'p. Bittadan sanang." },
-    wrong_default: { ru: 'Сложи два и четыре по одному — порядок не важен.', uz: "Ikki va to'rtni bittadan qo'shing — tartib muhim emas." },
-    fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
-    fact_text: { ru: 'С большего числа считать легче.', uz: "Katta sondan sanash osonroq." },
-    fact_audio: { ru: 'А знаешь, считать удобнее с большего числа. К четырём прибавить два легче, чем к двум четыре.', uz: "Bilasizmi, katta sondan sanash qulay. To'rtga ikki qo'shish, ikkiga to'rt qo'shishdan oson." },
     audio: {
-      intro: { ru: 'У Рано два яблока, у Анвара четыре. Сложили вместе. Сколько всего? Порядок не важен. Выбери ответ.', uz: "Ra'noda ikkita olma, Anvarda to'rtta. Birga qo'shildi. Hammasi nechta? Tartib muhim emas. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Всего шесть.', uz: "To'g'ri. Hammasi olti." },
-      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
+      ru: [
+        'Послушай, мы узнали три линии: прямую, кривую и ломаную.',
+        'И научились говорить, где что находится. Дальше нас ждут фигуры.'
+      ],
+      uz: [
+        "Tinglang, biz uch chiziqni bildik: to'g'ri, egri va siniq.",
+        "Va nima qayerda ekanini aytishni o'rgandik. Keyin bizni shakllar kutadi."
+      ]
     }
   },
 
-  // ---- s9 SUMMARY ----
   s9: {
+    eyebrow: { ru: 'Итог', uz: 'Yakun' },
+    title: { ru: 'Где кривая линия?', uz: 'Qaysi egri chiziq?' },
+    problem: { ru: 'Выбери кривую — линию, которая плавно гнётся.', uz: "Egri — silliq egiladigan chiziqni tanlang." },
+    correct_text: { ru: 'Правильно. Кривая плавно гнётся.', uz: "To'g'ri. Egri chiziq silliq egiladi." },
+    wrong_1: {
+      ru: 'Эта линия совсем ровная — она прямая. Кривая плавно гнётся.',
+      uz: "Bu chiziq butunlay tekis — u to'g'ri. Egri chiziq silliq egiladi."
+    },
+    wrong_2: {
+      ru: 'Эта линия с углами — она ломаная. Кривая гнётся плавно, без углов.',
+      uz: "Bu chiziq burchakli — u siniq. Egri chiziq silliq, burchaksiz egiladi."
+    },
+    wrong_default: {
+      ru: 'Кривая гнётся плавно, без углов.',
+      uz: "Egri chiziq silliq, burchaksiz egiladi."
+    },
+    fact_badge: { ru: 'А знаешь? · Линии', uz: 'Bilasizmi? · Chiziqlar' },
+    fact_text: {
+      ru: 'Прямую линию можно провести по линейке. Кривая и ломаная — нет.',
+      uz: "To'g'ri chiziqni chizg'ich bo'ylab chizish mumkin. Egri va siniqni — yo'q."
+    },
+    fact_audio: {
+      ru: 'Прямую линию можно провести по линейке. Кривую и ломаную так не провести.',
+      uz: "To'g'ri chiziqni chizg'ich bo'ylab chizish mumkin. Egri va siniqni bunday chizib bo'lmaydi."
+    },
+    audio: {
+      intro: { ru: 'Где здесь кривая линия? Выбери ту, что плавно гнётся.', uz: "Bu yerda qaysi egri chiziq? Silliq egiladiganini tanlang." },
+      on_correct: { ru: 'Верно. Кривая плавно гнётся.', uz: "To'g'ri. Egri chiziq silliq egiladi." },
+      on_wrong: { ru: 'Не совсем. Кривая гнётся плавно.', uz: "Unchalik emas. Egri chiziq silliq egiladi." }
+    }
+  },
+
+  s10: {
     eyebrow: { ru: 'Готово', uz: 'Tayyor' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    main_1: { ru: 'Теперь ты знаешь:', uz: 'Endi bilasiz:' },
-    main_2_em: { ru: 'от перестановки мест сумма не меняется', uz: "o'rin almashsa, yig'indi o'zgarmaydi" },
-    rano_label: { ru: 'Рано', uz: "Ra'no" },
-    anvar_label: { ru: 'Анвар', uz: 'Anvar' },
-    zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
+    main_1: { ru: 'Теперь ты знаешь', uz: 'Endi siz' },
+    main_2_em: { ru: 'линии и слова о месте', uz: "chiziqlar va joy so'zlarini bilasiz" },
+    connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
+    connections_text: {
+      ru: 'На следующем уроке будем узнавать фигуры.',
+      uz: "Keyingi darsda shakllarni o'rganamiz."
+    },
+    can_do_title: { ru: 'Теперь я умею:', uz: 'Endi men:' },
+    cd_1: { ru: 'узнавать линии', uz: 'chiziq turlarini taniyman' },
+    cd_2: { ru: 'говорить, где что', uz: 'narsa qayerda ekanini aytaman' },
+    cd_3: { ru: 'видеть линии вокруг', uz: "atrofimdagi chiziqlarni ko'raman" },
+    real_caption: {
+      ru: 'Линии вокруг нас: дорога — прямая, река — кривая, горы — ломаная.',
+      uz: "Chiziqlar atrofimizda: yo'l — to'g'ri, daryo — egri, tog' — siniq."
+    },
     audio: {
-      ru: 'Сегодня ты узнал: если поменять слагаемые местами, сумма не меняется. Два плюс три равно три плюс два. Это помогает считать быстрее. На следующем уроке научимся проверять, верна ли запись.',
-      uz: "Bugun bildingiz: qo'shiluvchilar o'rin almashsa, yig'indi o'zgarmaydi. Ikki plyus uch teng uch plyus ikki. Bu tezroq sanashga yordam beradi. Keyingi darsda yozuv to'g'rimi yoki yo'qligini tekshirishni o'rganamiz."
+      ru: [
+        'Молодец! Ты узнал линии и слова о месте.',
+        'Теперь ты видишь линии вокруг: дорога — прямая, река — кривая, горы — ломаная.',
+        'На следующем уроке узнаем фигуры. До встречи!'
+      ],
+      uz: [
+        "Barakalla! Chiziqlarni va joy so'zlarini bildingiz.",
+        "Endi atrofingizda chiziqlarni ko'rasiz: yo'l — to'g'ri, daryo — egri, tog' — siniq.",
+        "Keyingi darsda shakllarni o'rganamiz. Ko'rishguncha!"
+      ]
     }
   }
 };
@@ -1366,28 +1560,7 @@ const AnvarSVG = ({ pose = 'coming', className = '' }) => {
         : <path d="M60 44 Q65 48 70 44" stroke="#C0392B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
       <ellipse cx="54" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.34)"/>
       <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.34)"/>
-      {/* coming: sovg'a sumkasi (qo'lда) */}
-      {pose === 'coming' && <g><rect x="30" y="98" width="22" height="20" rx="3" fill="#E0563B"/><path d="M30 105 h22" stroke="#fff" strokeWidth="2"/><path d="M37 98 q4 -7 8 0" stroke="#B23A26" strokeWidth="2.4" fill="none"/></g>}
-      {/* happy: olma savati — to'qimali, gardishli, dastali */}
-      {happy && (
-        <g>
-          {/* tana (konus) */}
-          <path d="M44 153 h42 l-5 27 a4 4 0 0 1 -4 3 h-24 a4 4 0 0 1 -4 -3 Z" fill="#C8893E"/>
-          {/* to'qima: gorizontal qatorlar + vertikal o'rim */}
-          <g stroke="#8F5E26" strokeWidth="0.9" opacity="0.55" fill="none" strokeLinecap="round">
-            <path d="M46 161 h38 M47 169 h36 M48 177 h34"/>
-            <path d="M53 154 l-1.5 30 M61 154 v30 M69 154 v30 M77 154 l1.5 30"/>
-          </g>
-          {/* gardish */}
-          <rect x="42" y="149" width="46" height="6.5" rx="3.2" fill="#B07636"/>
-          {/* dasta */}
-          <path d="M51 150 q14 -15 28 0" stroke="#9A6428" strokeWidth="3.2" fill="none" strokeLinecap="round"/>
-          {/* olmalar (gardishdan ko'rinadi) */}
-          <circle cx="55" cy="147" r="5" fill="#E0563B"/><circle cx="65" cy="145" r="5.5" fill="#E0563B"/><circle cx="75" cy="147" r="5" fill="#E0563B"/>
-          <ellipse cx="63" cy="143.5" rx="1.6" ry="2.4" fill="rgba(255,255,255,0.5)"/>
-          <path d="M65 140 q1.5 -3 4 -2.5" stroke="#1F7A4D" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
-        </g>
-      )}
+      {/* Anvar bo'sh qo'lli — savat/sovg'a sumkasi olib tashlandi (geometriya darsi, mavzuga mos) */}
     </svg>
   );
 };
@@ -2401,6 +2574,170 @@ const SceneBg = ({ variant = 'room' }) => (
         <ellipse cx="204" cy="196" rx="48" ry="6" fill="#F2CBD6" opacity="0.7"/>
       </>
     )}
+    {variant === 'maktab' && (
+      <>
+        {/* devor rangi sinfga moslab biroz salqinroq tepa-bo'yoq */}
+        <rect x="0" y="0" width="400" height="120" fill="#EAF3EC" opacity="0.5"/>
+        {/* DERAZA (chap) — yorug'lik tushadi */}
+        <rect x="20" y="40" width="58" height="54" rx="4" fill="#CBEAF5" stroke="#B9986F" strokeWidth="3"/>
+        <line x1="49" y1="40" x2="49" y2="94" stroke="#B9986F" strokeWidth="2.5"/>
+        <line x1="20" y1="67" x2="78" y2="67" stroke="#B9986F" strokeWidth="2.5"/>
+        <circle cx="63" cy="54" r="6" fill="#FFE9A8"/>
+        <path d="M82 39 q-6 30 0 58 l8 0 q-5 -30 0 -58 Z" fill="#BFE3C8"/>
+        {/* DOSKA (yashil) — yog'och ramka + taxta + chalk son o'qi + chalk yozuv + javon */}
+        <rect x="118" y="42" width="166" height="74" rx="5" fill="#A0703C" stroke="#7A5128" strokeWidth="2"/>
+        <rect x="116" y="40" width="170" height="6" rx="3" fill="#B98A52"/>
+        <rect x="124" y="48" width="154" height="60" rx="3" fill="#2E5D4E"/>
+        <rect x="124" y="48" width="154" height="9" rx="3" fill="#3C6E5D" opacity="0.7"/>
+        {/* chalk yozuv (yuqori-chap) */}
+        <g stroke="#E7F0DF" strokeWidth="2" opacity="0.5" strokeLinecap="round" fill="none">
+          <path d="M132 60 v10 M129 61 l3 -1.5"/>
+          <path d="M139 60 q5 -1 5 3 q0 3 -5 4 q5 0 5 4 q0 4 -5 3"/>
+        </g>
+        {/* chalk son o'qi 0..10 (pastki yarmi) */}
+        <line x1="134" y1="96" x2="268" y2="96" stroke="#E7F0DF" strokeWidth="1.6" opacity="0.7"/>
+        <g stroke="#E7F0DF" strokeWidth="1.3" opacity="0.6" strokeLinecap="round">
+          <path d="M138 93 v6 M151 93 v6 M164 93 v6 M177 93 v6 M190 93 v6 M203 93 v6 M216 93 v6 M229 93 v6 M242 93 v6 M255 93 v6 M268 93 v6"/>
+        </g>
+        {/* chalk javoni + bo'r + o'chirg'ich */}
+        <rect x="124" y="109" width="154" height="5" rx="1.5" fill="#8A6038"/>
+        <rect x="142" y="110" width="13" height="3" rx="1.3" fill="#FFFFFF"/>
+        <rect x="244" y="109.5" width="18" height="4.5" rx="1.3" fill="#D8C8A8" stroke="#B7A687" strokeWidth="0.6"/>
+        {/* SOAT (o'ng-yuqori) */}
+        <circle cx="350" cy="48" r="15" fill="#FFFFFF" stroke="#8A6038" strokeWidth="2.6"/>
+        <g stroke="#C3B49C" strokeWidth="1.4" strokeLinecap="round"><path d="M350 36 v3 M350 57 v3 M338 48 h3 M359 48 h3"/></g>
+        <line x1="350" y1="48" x2="350" y2="39" stroke="#3A2A1E" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="350" y1="48" x2="357" y2="48" stroke="#3A2A1E" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="350" cy="48" r="1.6" fill="#3A2A1E"/>
+        {/* RAQAM POSTERI (o'ng) — rangli katakchalar 1..6 */}
+        <rect x="306" y="74" width="50" height="38" rx="3" fill="#FFFFFF" stroke="#B9986F" strokeWidth="2.4"/>
+        <g>
+          <rect x="312" y="80" width="12" height="12" rx="2" fill="#F4B6C2"/><rect x="326" y="80" width="12" height="12" rx="2" fill="#A9D8B8"/><rect x="340" y="80" width="12" height="12" rx="2" fill="#F6CE8B"/>
+          <rect x="312" y="94" width="12" height="12" rx="2" fill="#A9CBE6"/><rect x="326" y="94" width="12" height="12" rx="2" fill="#F6CE8B"/><rect x="340" y="94" width="12" height="12" rx="2" fill="#F4B6C2"/>
+        </g>
+        {/* PARTA (o'ng-old, polда, hayotiy masshtab — bola beliga teng) */}
+        <rect x="300" y="150" width="82" height="8" rx="2" fill="#C68B5B" stroke="#9A6738" strokeWidth="1.4"/>
+        <rect x="300" y="150" width="82" height="3" rx="1.5" fill="#D9A877"/>
+        <rect x="305" y="158" width="5.5" height="22" rx="1.5" fill="#9A6738"/>
+        <rect x="371" y="158" width="5.5" height="22" rx="1.5" fill="#8A5C30"/>
+        <rect x="305" y="167" width="72" height="4" rx="1.5" fill="#A6713E"/>
+        {/* kitob parta ustida */}
+        <rect x="322" y="143" width="32" height="8" rx="1.5" fill="#E0563B"/>
+        <line x1="338" y1="143" x2="338" y2="151" stroke="#B23A26" strokeWidth="1.2"/>
+        {/* pol — parket chiziq */}
+        <g stroke="#D8C2A6" strokeWidth="1" opacity="0.45"><line x1="0" y1="198" x2="400" y2="198"/><line x1="120" y1="178" x2="110" y2="208"/><line x1="250" y1="178" x2="262" y2="208"/></g>
+      </>
+    )}
+    {variant === 'bozor' && (
+      <>
+        <defs>
+          <radialGradient id="g1szApp" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#FF8A6E"/><stop offset="52%" stopColor="#E2432B"/><stop offset="100%" stopColor="#A8281A"/></radialGradient>
+          <radialGradient id="g1szAppD" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#EE6A50"/><stop offset="55%" stopColor="#CC3622"/><stop offset="100%" stopColor="#921F14"/></radialGradient>
+          <radialGradient id="g1szOrg" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#FCB867"/><stop offset="52%" stopColor="#F0902E"/><stop offset="100%" stopColor="#C56A14"/></radialGradient>
+          <radialGradient id="g1szOrgD" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#F0A04A"/><stop offset="55%" stopColor="#DC7A1A"/><stop offset="100%" stopColor="#B05E10"/></radialGradient>
+        </defs>
+        {/* iliq osmon-fon + chuqurlik */}
+        <rect x="0" y="0" width="400" height="178" fill="#FCEFD6"/>
+        <rect x="0" y="0" width="400" height="96" fill="#FBE0B6" opacity="0.55"/>
+        {/* uzoq do'konlar (chuqurlik, xira) */}
+        <g opacity="0.38">
+          <rect x="2" y="56" width="58" height="64" rx="3" fill="#E4C495"/><path d="M-2 56 h66 l-9 -13 h-48 Z" fill="#CBA877"/>
+          <rect x="340" y="56" width="58" height="64" rx="3" fill="#E4C495"/><path d="M336 56 h66 l-9 -13 h-48 Z" fill="#CBA877"/>
+          <rect x="14" y="70" width="16" height="20" rx="2" fill="#C7A06E"/><rect x="356" y="70" width="16" height="20" rx="2" fill="#C7A06E"/>
+        </g>
+        {/* AYVON ustunlari */}
+        <rect x="9" y="28" width="8" height="96" rx="2" fill="#9A6738"/><rect x="6" y="120" width="14" height="6" rx="2" fill="#8A5A2E"/>
+        <rect x="383" y="28" width="8" height="96" rx="2" fill="#8A5A2E"/><rect x="380" y="120" width="14" height="6" rx="2" fill="#7A4E26"/>
+        {/* AYVON — chiziqli soyabon */}
+        <rect x="0" y="6" width="400" height="22" rx="2" fill="#C24A2E"/>
+        <g>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <rect key={i} x={i * 20} y="6" width="10" height="22" fill="#F2ECDA"/>
+          ))}
+        </g>
+        <rect x="0" y="6" width="400" height="5" fill="#9A3520"/>
+        <rect x="0" y="6" width="400" height="2" fill="#E8745A" opacity="0.7"/>
+        {/* scalloped fringe — yengil hilpiraydi */}
+        <g className="g1-bz-fringe">
+          <g fill="#C24A2E">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <path key={i} d={`M${i * 20} 28 h20 v4 q-10 9 -20 0 Z`}/>
+            ))}
+          </g>
+          <g fill="#9A3520" opacity="0.5">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <path key={i} d={`M${i * 20 + 9} 33 q1 4 1 5 q-1 -1 -1 -5 Z`}/>
+            ))}
+          </g>
+        </g>
+        <rect x="0" y="34" width="400" height="7" fill="#000000" opacity="0.05"/>
+        {/* BAYROQCHALAR (bunting) — to'lqinlanadi */}
+        <g className="g1-bz-sway">
+          <path d="M44 44 Q130 56 200 46 Q270 56 356 44" stroke="#B98A52" strokeWidth="1.2" fill="none"/>
+          {[60, 96, 132, 168, 204, 240, 276, 312, 348].map((x, i) => {
+            const y = 46 + Math.round(8 * Math.sin((x - 44) / 312 * Math.PI));
+            const col = ['#E0563B', '#3FA45C', '#F0A22E', '#4C90E6'][i % 4];
+            return <path key={i} d={`M${x - 5} ${y} h10 l-5 9 Z`} fill={col}/>;
+          })}
+        </g>
+        {/* OSMA TAROZI (o'ngda) — zanjir + ikki tovoq, sekin tebranadi */}
+        <g className="g1-bz-swing">
+          <line x1="330" y1="28" x2="330" y2="48" stroke="#6E5236" strokeWidth="2.4"/>
+          <rect x="306" y="47" width="48" height="3.4" rx="1.7" fill="#A88440" stroke="#8A6628" strokeWidth="0.8"/>
+          <circle cx="330" cy="48.5" r="2.8" fill="#C9A042" stroke="#8A6628" strokeWidth="0.8"/>
+          <g stroke="#9A7838" strokeWidth="1" strokeDasharray="1.6 1.4">
+            <line x1="310" y1="50" x2="307" y2="62"/><line x1="313" y1="50" x2="317" y2="62"/>
+            <line x1="347" y1="50" x2="343" y2="62"/><line x1="350" y1="50" x2="353" y2="62"/>
+          </g>
+          <path d="M304 62 q8 9 18 0 Z" fill="#E0C173" stroke="#A98232" strokeWidth="1.1"/>
+          <path d="M340 62 q8 9 18 0 Z" fill="#E0C173" stroke="#A98232" strokeWidth="1.1"/>
+          <circle cx="309" cy="61" r="3" fill="#E2452F"/><circle cx="315" cy="61" r="3" fill="#E2452F"/>
+          <circle cx="346" cy="61" r="3" fill="#F0902E"/><circle cx="352" cy="61" r="3" fill="#F0902E"/>
+        </g>
+        {/* DO'KON PRILAVKASI (yog'och, grain + soya) */}
+        <rect x="30" y="119" width="340" height="16" rx="3" fill="#C68B5B" stroke="#9A6738" strokeWidth="1.5"/>
+        <rect x="30" y="119" width="340" height="5" rx="2" fill="#DBAB7A"/>
+        <g stroke="#A6713E" strokeWidth="0.8" opacity="0.5"><line x1="60" y1="127" x2="150" y2="127"/><line x1="210" y1="130" x2="320" y2="130"/></g>
+        <rect x="44" y="135" width="12" height="43" fill="#9A6738"/><rect x="344" y="135" width="12" height="43" fill="#8A5C30"/>
+        <rect x="44" y="151" width="312" height="5" fill="#A6713E" opacity="0.85"/>
+        <ellipse cx="200" cy="178" rx="172" ry="7" fill="#000000" opacity="0.07"/>
+        {/* MEVA QUTILARI (slatli) + olma(barg)/apelsin/uzum */}
+        <g>
+          {/* chap quti — olma + barg */}
+          <rect x="52" y="98" width="88" height="24" rx="3" fill="#BA7E47" stroke="#8A5A2E" strokeWidth="1.4"/>
+          <g stroke="#9A6534" strokeWidth="0.8" opacity="0.6"><line x1="74" y1="98" x2="74" y2="122"/><line x1="96" y1="98" x2="96" y2="122"/><line x1="118" y1="98" x2="118" y2="122"/></g>
+          <g>
+            {[62, 76, 90, 104, 118, 132].map((cx, i) => <circle key={i} cx={cx} cy="102" r="7.5" fill="url(#g1szApp)"/>)}
+            {[69, 83, 97, 111, 125].map((cx, i) => <circle key={i} cx={cx} cy="111" r="7.5" fill="url(#g1szAppD)"/>)}
+            {[62, 90, 118].map((cx, i) => <path key={i} d={`M${cx} 96 q4 -4 7 -2 q-3 3 -7 3 Z`} fill="#4FA45C"/>)}
+            {[62, 76, 90, 104, 118, 132].map((cx, i) => <circle key={i} cx={cx - 2.4} cy="99.6" r="1.7" fill="#F7A892" opacity="0.85"/>)}
+          </g>
+          {/* o'ng quti — apelsin */}
+          <rect x="236" y="98" width="88" height="24" rx="3" fill="#BA7E47" stroke="#8A5A2E" strokeWidth="1.4"/>
+          <g stroke="#9A6534" strokeWidth="0.8" opacity="0.6"><line x1="258" y1="98" x2="258" y2="122"/><line x1="280" y1="98" x2="280" y2="122"/><line x1="302" y1="98" x2="302" y2="122"/></g>
+          <g>
+            {[246, 260, 274, 288, 302, 316].map((cx, i) => <circle key={i} cx={cx} cy="102" r="7.5" fill="url(#g1szOrg)"/>)}
+            {[253, 267, 281, 295, 309].map((cx, i) => <circle key={i} cx={cx} cy="111" r="7.5" fill="url(#g1szOrgD)"/>)}
+            {[246, 260, 274, 288, 302, 316].map((cx, i) => <circle key={i} cx={cx - 2.4} cy="99.6" r="1.7" fill="#FBC788" opacity="0.9"/>)}
+          </g>
+        </g>
+        {/* o'rtada uzum savati */}
+        <path d="M168 100 h44 l-5 20 h-34 Z" fill="#C99A6A" stroke="#9A6738" strokeWidth="1.3"/>
+        <g fill="#7E5AA6">
+          {[176, 184, 192, 200, 204].map((cx, i) => <circle key={i} cx={cx} cy="98" r="3.2"/>)}
+          {[180, 188, 196].map((cx, i) => <circle key={i} cx={cx} cy="103" r="3.2"/>)}
+          <circle cx="188" cy="108" r="3.2"/>
+        </g>
+        <path d="M188 94 q4 -5 9 -3" stroke="#4FA45C" strokeWidth="1.6" fill="none"/>
+        {/* narx-raqam yorlig'i */}
+        <rect x="146" y="124" width="20" height="14" rx="2" fill="#FFFFFF" stroke="#B9986F" strokeWidth="1.4"/>
+        <rect x="150" y="128" width="12" height="2.6" rx="1.3" fill="#3FA45C"/><rect x="150" y="132" width="8" height="2.6" rx="1.3" fill="#C3B49C"/>
+        {/* pol — tosh + soya */}
+        <rect x="0" y="178" width="400" height="52" fill="#E4D4BE"/>
+        <rect x="0" y="178" width="400" height="4" fill="#D2BF9F" opacity="0.6"/>
+        <g stroke="#CBB99E" strokeWidth="1" opacity="0.5"><line x1="0" y1="198" x2="400" y2="198"/><line x1="80" y1="178" x2="74" y2="208"/><line x1="170" y1="178" x2="170" y2="208"/><line x1="270" y1="178" x2="278" y2="208"/><line x1="0" y1="214" x2="400" y2="214"/></g>
+      </>
+    )}
   </svg>
 );
 
@@ -2708,6 +3045,81 @@ const StreetBg = () => (
 // Zuhra — YANGI o'zbek qizcha. Ra'nodan KESKIN ajralib turadi: jingalak (bulutsimon)
 // to'q soch, dumaloq ko'k ko'zoynak, amber-sariq ko'ylak, yon gul qisqich. Yangi
 // qurilgan uyga ko'chib keladigan do'st. g1-eyes -> pirpiratish.
+// JASUR — yangi personaj (Dars13, maktab). Anvar'dan FARQLI: yashil sviter + RYUKZAK + kepkasiz to'lqin soch.
+const JasurSVG = ({ pose = 'pointing', className = '' }) => {
+  const happy = pose === 'happy';
+  return (
+    <svg className={`g1-char g1-char-jasur ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+      <defs>
+        <radialGradient id="g1jskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F6C79A"/><stop offset="100%" stopColor="#D89A63"/></radialGradient>
+        <linearGradient id="g1jvest" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#54B777"/><stop offset="100%" stopColor="#2F8E52"/></linearGradient>
+        <linearGradient id="g1jhair" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#332A22"/><stop offset="100%" stopColor="#1C1611"/></linearGradient>
+        <linearGradient id="g1jbag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F0843A"/><stop offset="100%" stopColor="#D2611E"/></linearGradient>
+      </defs>
+      <ellipse cx="64" cy="178" rx="32" ry="5" fill="rgba(58,53,48,0.13)"/>
+      {/* RYUKZAK — tana orqasidan o'ngda ko'rinadi */}
+      <rect x="79" y="60" width="25" height="46" rx="9" fill="url(#g1jbag)" stroke="#B9531A" strokeWidth="1.5"/>
+      <rect x="85" y="76" width="15" height="18" rx="4" fill="#E5752B" stroke="#B9531A" strokeWidth="1.1"/>
+      <path d="M88 76 v18" stroke="#B9531A" strokeWidth="1.2"/>
+      {/* oyoqlar (shim) + tufli */}
+      <rect x="57" y="120" width="8" height="48" rx="3.5" fill="#4A5A48"/>
+      <rect x="65" y="120" width="8" height="48" rx="3.5" fill="#3E4D3D"/>
+      <ellipse cx="60" cy="170" rx="8" ry="4.2" fill="#5B3A24"/>
+      <ellipse cx="70" cy="170" rx="8" ry="4.2" fill="#4A2E1C"/>
+      {/* qo'llar */}
+      {!happy && (
+        <g>
+          <path d="M78 60 Q86 76 86 92" stroke="url(#g1jskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="86" cy="93" r="4.6" fill="url(#g1jskin)"/>
+          <path d="M52 58 Q42 50 36 40" stroke="url(#g1jskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="35" cy="39" r="4.6" fill="url(#g1jskin)"/>
+        </g>
+      )}
+      {happy && (
+        <g>
+          <path d="M52 58 Q44 42 40 28" stroke="url(#g1jskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="40" cy="27" r="4.6" fill="url(#g1jskin)"/>
+          <path d="M78 58 Q86 42 90 28" stroke="url(#g1jskin)" strokeWidth="7" fill="none" strokeLinecap="round"/><circle cx="90" cy="27" r="4.6" fill="url(#g1jskin)"/>
+        </g>
+      )}
+      {/* SVITER (yashil) + yenglar */}
+      <path d="M51 56 Q53 50 60 49 L70 49 Q77 50 79 56 L86 118 Q65 124 44 118 Z" fill="url(#g1jvest)"/>
+      <ellipse cx="52" cy="57" rx="6.5" ry="5.5" fill="url(#g1jvest)"/>
+      <ellipse cx="78" cy="57" rx="6.5" ry="5.5" fill="url(#g1jvest)"/>
+      {/* oq yoqa + V-bo'yin */}
+      <path d="M59 49 L65 57 L71 49 L68.5 48 L65 52.5 L61.5 48 Z" fill="#FFFFFF"/>
+      <path d="M60 50 L65 57.5 L70 50" stroke="#2A7E48" strokeWidth="1.6" fill="none"/>
+      {/* RYUKZAK BANDLARI (ko'krak ustida, ~parallel) */}
+      <path d="M58 51 Q60 82 63 113" stroke="#E5752B" strokeWidth="4.6" fill="none" strokeLinecap="round"/>
+      <path d="M73 51 Q70 82 68 113" stroke="#E5752B" strokeWidth="4.6" fill="none" strokeLinecap="round"/>
+      <circle cx="62" cy="100" r="2.2" fill="#C25E1C"/><circle cx="69" cy="100" r="2.2" fill="#C25E1C"/>
+      {/* quloq */}
+      <ellipse cx="50" cy="39" rx="2.6" ry="3.6" fill="url(#g1jskin)"/>
+      <ellipse cx="80" cy="39" rx="2.6" ry="3.6" fill="url(#g1jskin)"/>
+      {/* bosh */}
+      <circle cx="65" cy="37" r="16" fill="url(#g1jskin)"/>
+      {/* SOCH — yon-surilgan to'lqin, peshona to'lqini (kepkasiz, Anvar'dan farqli) */}
+      <path d="M49 37 Q47 19 65 17 Q84 18 82 36 Q79 27 70 25 Q74 31 69 32 Q64 24 55 28 Q50 31 51 39 Z" fill="url(#g1jhair)"/>
+      <path d="M54 29 Q61 23 71 27 Q63 28 58 33 Q55 32 54 29 Z" fill="#241B14"/>
+      {/* qosh */}
+      <g stroke="#332419" strokeWidth="1.6" fill="none" strokeLinecap="round">
+        <path d="M55 36 Q59 34.6 62.5 36"/>
+        <path d="M67.5 36 Q71 34.6 75 36"/>
+      </g>
+      {/* ko'zlar */}
+      <g className="g1-eyes">
+        <circle cx="59" cy="39" r="2.2" fill="#332419"/><circle cx="71" cy="39" r="2.2" fill="#332419"/>
+        <circle cx="59.8" cy="38.2" r="0.7" fill="#fff"/><circle cx="71.8" cy="38.2" r="0.7" fill="#fff"/>
+      </g>
+      <path d="M64.6 39 Q65 41 65.9 41" stroke="#C98A6A" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      {happy
+        ? <path d="M59 43 Q65 51 71 43 Q65 47 59 43 Z" fill="#B83A2B"/>
+        : <path d="M60 44 Q65 48 70 44" stroke="#B83A2B" strokeWidth="2" fill="none" strokeLinecap="round"/>}
+      <ellipse cx="54" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.32)"/>
+      <ellipse cx="76" cy="44" rx="3" ry="2" fill="rgba(255,120,120,0.32)"/>
+      {/* KITOB (o'ng past qo'lда — maktab bolasi) */}
+      {!happy && <g><rect x="79" y="92" width="23" height="16" rx="2" fill="#3C7BC0"/><rect x="79" y="92" width="23" height="4" fill="#2C63A0"/><line x1="90.5" y1="96" x2="90.5" y2="108" stroke="#2C63A0" strokeWidth="1.3"/></g>}
+    </svg>
+  );
+};
+
 const ZuhraSVG = ({ mood = 'pointing', className = '' }) => {
   const big = mood === 'happy' || mood === 'celebrate';
   return (
@@ -2967,13 +3379,101 @@ const FruitBubble = ({ n, kind = 'apple' }) => (
   </div>
 );
 
+// ThoughtBubble — mavzuga oid o'ylov pufakchasi (ichida chiziq/shakl figurasi).
+const ThoughtBubble = ({ children }) => (
+  <div className="fb" aria-hidden="true">
+    <div className="fb-body" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>{children}</div>
+    <span className="fb-dot fb-dot1"/>
+    <span className="fb-dot fb-dot2"/>
+  </div>
+);
+
+// LineLandBg — sIntro foni: CHIZIQLAR O'LKASI (faqat shu darsga xos). Siniq tog'lar,
+//   egri daryo, to'g'ri yo'l, doira quyosh — chiziq turlari tabiatda.
+const LineLandBg = () => (
+  <svg className="g1-yard-bg" viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="d32sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D7E9FF"/><stop offset="100%" stopColor="#F4F9FF"/></linearGradient>
+      <linearGradient id="d32mtn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#A7BFD0"/><stop offset="100%" stopColor="#6E8BA3"/></linearGradient>
+      <linearGradient id="d32grass" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#C2E4A0"/><stop offset="100%" stopColor="#A6D586"/></linearGradient>
+      <linearGradient id="d32river" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#7CC0F0"/><stop offset="100%" stopColor="#3E86C8"/></linearGradient>
+      <linearGradient id="d32road" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D8C29C"/><stop offset="100%" stopColor="#A9854F"/></linearGradient>
+      <radialGradient id="d32sun" cx="40%" cy="36%" r="70%"><stop offset="0%" stopColor="#FFE7A6"/><stop offset="60%" stopColor="#FFC24D"/><stop offset="100%" stopColor="#F39A1E"/></radialGradient>
+    </defs>
+    <rect width="400" height="220" fill="url(#d32sky)"/>
+    {/* kamalak — EGRI chiziq (osmon burchagida konsentrik yoylar) */}
+    <g fill="none" strokeWidth="3.4" strokeLinecap="round" opacity="0.4">
+      <path d="M-6 150 A 96 96 0 0 1 186 150" stroke="#E5709A"/>
+      <path d="M-6 150 A 88 88 0 0 1 170 150" stroke="#F2A65A"/>
+      <path d="M-6 150 A 80 80 0 0 1 154 150" stroke="#F4D35E"/>
+      <path d="M-6 150 A 72 72 0 0 1 138 150" stroke="#7FB77E"/>
+      <path d="M-6 150 A 64 64 0 0 1 122 150" stroke="#6E9BF0"/>
+    </g>
+    {/* quyosh — DOIRA (nurlari aylanadi, o'zi nafas oladi) */}
+    <g className="g1-amb-rays" style={{ transformBox: 'fill-box', transformOrigin: 'center' }} stroke="#FFD86B" strokeWidth="3" strokeLinecap="round"><path d="M348 14 v-6 M348 70 v6 M314 42 h-6 M382 42 h6 M325 23 l-4 -4 M371 61 l4 4 M371 23 l4 -4 M325 61 l-4 4"/></g>
+    <g className="g1-amb-sun" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}><circle cx="348" cy="42" r="19" fill="url(#d32sun)"/><ellipse cx="341" cy="35" rx="5.5" ry="4" fill="rgba(255,255,255,0.45)"/></g>
+    {/* bulutlar — suzadi */}
+    <g className="g1-amb-cloud" fill="#FFFFFF" opacity="0.95"><ellipse cx="78" cy="40" rx="24" ry="12"/><ellipse cx="100" cy="44" rx="18" ry="10"/><ellipse cx="60" cy="45" rx="14" ry="9"/></g>
+    <g className="g1-amb-cloud2" fill="#FFFFFF" opacity="0.82"><ellipse cx="208" cy="30" rx="18" ry="9"/><ellipse cx="224" cy="34" rx="13" ry="7"/></g>
+    {/* qushlar — EGRI chiziq (suzib o'tadi) */}
+    <g className="g1-amb-cloud2" stroke="#6B7B86" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.7">
+      <path d="M250 60 q4 -4 8 0 q4 -4 8 0"/>
+      <path d="M278 50 q3.4 -3.4 6.8 0 q3.4 -3.4 6.8 0"/>
+      <path d="M236 76 q3 -3 6 0 q3 -3 6 0"/>
+    </g>
+    {/* telegraf simlari — TO'G'RI chiziq (ustunlar + osilgan simlar, o'ng tomonda) */}
+    <g>
+      <rect x="332" y="96" width="3" height="56" fill="#7A6A52"/>
+      <rect x="328" y="100" width="11" height="2.6" fill="#5F5240"/>
+      <rect x="374" y="100" width="3" height="52" fill="#7A6A52"/>
+      <rect x="370" y="104" width="11" height="2.6" fill="#5F5240"/>
+      <path d="M333.5 102 Q 355 112 375.5 106" fill="none" stroke="#4A4338" strokeWidth="1" opacity="0.75"/>
+      <path d="M331 104 Q 355 115 373 108" fill="none" stroke="#4A4338" strokeWidth="1" opacity="0.6"/>
+      <path d="M333.5 106 Q 300 120 262 110" fill="none" stroke="#4A4338" strokeWidth="1" opacity="0.55"/>
+    </g>
+    {/* tog' cho'qqilari — SINIQ chiziq (orqada ochroq tizma — atmosfera chuqurligi) */}
+    <polygon points="0,138 60,92 120,134 186,86 252,130 320,90 400,132 400,150 0,150" fill="#BCD0DE" opacity="0.7"/>
+    <polygon points="0,128 44,72 88,124 134,64 182,120 230,66 286,118 338,74 400,122 400,150 0,150" fill="url(#d32mtn)"/>
+    <g fill="rgba(255,255,255,0.82)"><polygon points="44,72 55,90 33,90"/><polygon points="134,64 145,84 123,84"/><polygon points="230,66 241,86 219,86"/><polygon points="338,74 348,90 328,90"/></g>
+    {/* yer */}
+    <rect x="0" y="150" width="400" height="70" fill="url(#d32grass)"/>
+    {/* daryo — EGRI chiziq (oqim jimirlaydi) */}
+    <path d="M-20 176 C 70 156 120 158 200 164 S 330 176 420 160" fill="none" stroke="url(#d32river)" strokeWidth="18" strokeLinecap="round"/>
+    <path d="M-20 178 C 70 159 120 161 200 167 S 330 179 420 163" fill="none" stroke="rgba(40,90,140,0.28)" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M-20 174 C 70 154 120 156 200 162 S 330 174 420 158" fill="none" stroke="rgba(40,90,140,0.22)" strokeWidth="1.6" strokeLinecap="round"/>
+    <path className="g1-amb-shimmer" d="M-20 176 C 70 156 120 158 200 164 S 330 176 420 160" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="5" strokeLinecap="round"/>
+    {/* ko'prik (most) — daryoni KESIB o'tadi: bir uchi orqa sohilda, ikkinchisi old sohilda */}
+    <g>
+      {/* sohil tayanchlari — ko'prik uchlari yerga (sohilga) tushadi */}
+      <path d="M28 151 L39 151 L37 160 L30 160 Z" fill="#9A7240"/>
+      <path d="M99 173 L111 173 L109 183 L101 183 Z" fill="#9A7240"/>
+      {/* suv o'rtasidagi tayanch ustun */}
+      <line x1="69" y1="156" x2="69" y2="172" stroke="#6F4A2A" strokeWidth="3.4" strokeLinecap="round"/>
+      {/* kamar soyasi suvda */}
+      <path d="M40 166 Q 69 160 100 169" fill="none" stroke="rgba(40,70,90,0.2)" strokeWidth="2.5"/>
+      {/* yo'lak taxtasi (kamarsimon, orqa sohildan old sohilga) */}
+      <path d="M34 153 Q 69 150 104 175" fill="none" stroke="#9A6A38" strokeWidth="8" strokeLinecap="round"/>
+      <path d="M34 151.8 Q 69 148.8 104 173.8" fill="none" stroke="#C7995A" strokeWidth="4" strokeLinecap="round"/>
+      {/* qo'l ushlagich (panjara) */}
+      <path d="M34 146 Q 69 143 104 168" fill="none" stroke="#83592F" strokeWidth="2.2" strokeLinecap="round"/>
+      {/* panjara ustunlari */}
+      <g stroke="#83592F" strokeWidth="1.8" strokeLinecap="round">
+        <line x1="46" y1="146" x2="46" y2="153"/>
+        <line x1="60" y1="148" x2="60" y2="155"/>
+        <line x1="74" y1="152" x2="74" y2="159"/>
+        <line x1="88" y1="158" x2="88" y2="165"/>
+      </g>
+    </g>
+  </svg>
+);
+
 // CastScene — hovli: fon + Ra'no + Anvar + Zuhra (Zuhra step>=3 da kirib keladi).
 const CastScene = ({ step = 3, withAnvar = true }) => {
   const t = useT();
   const happy = step >= 3;
   return (
     <div className="g1-yardscene">
-      <YardBg/>
+      <LineLandBg/>
       <div className="g1-yard-cast">
         <div className={`g1-yc-fig g1-yc-rano ${step >= 1 ? 'in' : ''}`}>
           <RanoSVG mood={happy ? 'happy' : 'pointing'} className="g1-cast-svg"/>
@@ -2989,22 +3489,18 @@ const CastScene = ({ step = 3, withAnvar = true }) => {
           <ZuhraSVG mood={happy ? 'happy' : 'pointing'} className="g1-cast-svg"/>
           <span className="g1-cast-name">{t(CONTENT.sIntro.zuhra_label)}</span>
         </div>
-        {/* yerda turgan savatlar (Dars04 uslubi): personaj yonida, oyog'i oldida. Ra'no va Zuhra meva keltirgan */}
-        <div className={`g1-yard-basket g1-yard-basket-rano ${step >= 1 ? 'in' : ''}`} aria-hidden="true">
-          <BasketArt/>
+        {/* o'ylov pufakchalari — bosh USTIDA (yuzni to'smaydi): personajlar CHIZIQLARNI o'ylaydi (mavzuga oid) */}
+        <div className={`g1-yard-bubble g1-yard-bubble-rano ${step >= 1 ? 'in' : ''}`} aria-hidden="true">
+          <ThoughtBubble><LineFig kind="curved" size="sm" anim="static"/></ThoughtBubble>
         </div>
-        {happy && (
-          <div className="g1-yard-basket g1-yard-basket-zuhra in" aria-hidden="true">
-            <BasketArt/>
+        {step >= 2 && (
+          <div className="g1-yard-bubble g1-yard-bubble-anvar in" aria-hidden="true">
+            <ThoughtBubble><LineFig kind="broken" size="sm" anim="static"/></ThoughtBubble>
           </div>
         )}
-        {/* o'ylov pufakchalari — bosh USTIDA (yuzni to'smaydi), audio bilan mos (Ra'no 3, Zuhra 2) */}
-        <div className={`g1-yard-bubble g1-yard-bubble-rano ${step >= 1 ? 'in' : ''}`} aria-hidden="true">
-          <FruitBubble n={3} kind="apple"/>
-        </div>
         {happy && (
           <div className="g1-yard-bubble g1-yard-bubble-zuhra in" aria-hidden="true">
-            <FruitBubble n={2} kind="apple"/>
+            <ThoughtBubble><LineFig kind="straight" size="sm" anim="static"/></ThoughtBubble>
           </div>
         )}
       </div>
@@ -3037,17 +3533,46 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
   );
 };
 
+// MaktabCast — Dars13 sahna: maktab (sinf) foni + Ra'no/Anvar/Zuhra + JASUR (yangi do'st kirib keladi).
+const MaktabCast = ({ step = 3 }) => {
+  const t = useT();
+  const happy = step >= 3;
+  return (
+    <div className="g1-yardscene g1-maktabscene">
+      <SceneBg variant="bozor"/>
+      <div className="g1-yard-cast">
+        <div className={`g1-yc-fig g1-yc-mrano ${step >= 1 ? 'in' : ''}`}>
+          <RanoSVG mood={happy ? 'happy' : 'pointing'} className="g1-cast-svg"/>
+          <span className="g1-cast-name">{t(CONTENT.sIntro.rano_label)}</span>
+        </div>
+        <div className={`g1-yc-fig g1-yc-manvar ${step >= 1 ? 'in' : ''}`}>
+          <AnvarSVG pose={happy ? 'happy' : 'coming'} className="g1-cast-svg"/>
+          <span className="g1-cast-name g1-cast-sub">{t(CONTENT.sIntro.anvar_label)}</span>
+        </div>
+        <div className={`g1-yc-fig g1-yc-mzuhra ${step >= 1 ? 'in' : ''}`}>
+          <ZuhraSVG mood={happy ? 'happy' : 'pointing'} className="g1-cast-svg"/>
+          <span className="g1-cast-name g1-cast-sub">{t(CONTENT.sIntro.zuhra_label)}</span>
+        </div>
+        <div className={`g1-yc-fig g1-yc-jasur ${step >= 2 ? 'in walkin' : ''}`}>
+          <JasurSVG pose={happy ? 'happy' : 'pointing'} className="g1-cast-svg"/>
+          <span className="g1-cast-name">{t(CONTENT.sIntro.jasur_label)}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const IntroCast = ({ audio }) => {
   const step = useStoryReveal(audio, 5);
-  return <CastScene step={step}/>;
+  return <MaktabCast step={step}/>;
 };
 const GuestCast = ({ audio }) => {
   const step = useStoryReveal(audio, 3);
-  return <CastScene step={Math.max(step, 3)}/>;
+  return <MaktabCast step={Math.max(step, 3)}/>;
 };
-// ===== Dars11 KOMPONENTLAR (o'rin almashtirish) =====
+// ===== Dars10 KOMPONENTLAR (meros: Dars09) (5 ichida ± amaliyot) =====
 
-// CombineGroups — qo'shish figurasi: ikki pufakcha + oraliqda. key bilan qayta sirg'aladi.
+// CombineGroups — qo'shish figurasi (Dars07 dan): ikki pufakcha + oraliqda.
 const CombineGroups = ({ a, b, kind = 'apple', kindB = null }) => {
   const kb = kindB || kind;
   return (
@@ -3059,21 +3584,449 @@ const CombineGroups = ({ a, b, kind = 'apple', kindB = null }) => {
   );
 };
 
-// SentTile — yozuv plitkasi (3 + 2).
+// RemoveRow — ayirish figurasi: total olma, oxirgi `gone` tasi xira.
+const RemoveRow = ({ total, gone = 0, kind = 'apple' }) => (
+  <div className="g1-removerow" aria-hidden="true">
+    {Array.from({ length: total }).map((_, i) => (
+      <span key={i} className={`g1-rr-item ${i >= total - gone ? 'g1-rr-gone' : ''}`}>
+        <ObjSvg kind={kind}/>
+      </span>
+    ))}
+  </div>
+);
+
+// SentTile — yozuv plitkasi (1 + 1 / 4 − 1).
 const SentTile = ({ a, op, b }) => (
   <span className="g1-sent mono" aria-hidden="true">
     <span>{a}</span><i className={`g1-sent-op ${op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{op}</i><span>{b}</span>
   </span>
 );
 
-const ScreenIntro = (props) => (
-  <StoryLayout props={props} c={CONTENT.sIntro} hint>{(audio) => <IntroCast audio={audio}/>}</StoryLayout>
+// ===== TIMSOH-BELGI (> < =) — Dars04/06 KIT'dan baytma-bayt ko'chirilgan =====
+// Och timsoh og'zini KATTA songa ochadi (yeydi). Teng -> og'iz yopiq, ikkita teng chiziq (=). dir: gt|lt|eq.
+const CrocDefs = () => (
+  <defs>
+    <linearGradient id="crocG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#7FD37F"/><stop offset="52%" stopColor="#52B95B"/><stop offset="100%" stopColor="#3C9A45"/>
+    </linearGradient>
+    <linearGradient id="crocBelly" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#E3F3C4"/><stop offset="100%" stopColor="#B6DE92"/>
+    </linearGradient>
+  </defs>
 );
-const ScreenGuest = (props) => (
-  <StoryLayout props={props} c={CONTENT.sGuest}>{(audio) => <GuestCast audio={audio}/>}</StoryLayout>
+const CrocOpen = () => (
+  <g>
+    <path d="M52 19 Q59 16 58 22 Q59 28 52 25 Q54 22 52 19 Z" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1"/>
+    <path d="M37 14 Q56 12.5 55 23 Q54 34 37 29.5 Q41.5 22 37 14 Z" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1.3"/>
+    <g fill="#3F9A42" opacity="0.85"><path d="M44 11.5 q1.6 -3 3.2 0 Z"/><path d="M49 12 q1.4 -2.6 2.8 0 Z"/></g>
+    <path d="M43 29 q0.6 4.5 4.5 5 q-1.4 -2.5 -1 -4.6 Z" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="0.9"/>
+    <path d="M40 17 Q22 8 6 9 Q2 9 3 12.5 Q22 16 40 21.5 Z" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1.3" strokeLinejoin="round"/>
+    <path d="M40 27 Q22 36 6 35 Q2 35 3 31.5 Q22 28 40 22.5 Z" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1.3" strokeLinejoin="round"/>
+    <path d="M7 33 Q22 33.4 38 27.6 Q23 31 8.5 31 Z" fill="url(#crocBelly)" opacity="0.9"/>
+    <g fill="#FFFFFF" stroke="#CFE3CF" strokeWidth="0.3">
+      <path d="M8 13.4 L11 13.4 L9.5 16.6 Z"/><path d="M15 15.2 L18 15.2 L16.5 18.4 Z"/><path d="M22 17 L25 17 L23.5 20.2 Z"/><path d="M29 18.7 L32 18.7 L30.5 21.6 Z"/>
+    </g>
+    <g fill="#FFFFFF" stroke="#CFE3CF" strokeWidth="0.3">
+      <path d="M8 30.6 L11 30.6 L9.5 27.4 Z"/><path d="M15 28.8 L18 28.8 L16.5 25.6 Z"/><path d="M22 27 L25 27 L23.5 23.8 Z"/><path d="M29 25.3 L32 25.3 L30.5 22.4 Z"/>
+    </g>
+    <ellipse cx="6.5" cy="10.6" rx="0.9" ry="0.7" fill="#2E7D32"/><ellipse cx="9" cy="11.1" rx="0.9" ry="0.7" fill="#2E7D32"/>
+    <g>
+      <circle cx="49" cy="12.5" r="3.9" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1"/>
+      <circle cx="49" cy="12.1" r="2" fill="#FFFFFF"/><circle cx="49.5" cy="12.1" r="1" fill="#23303A"/><circle cx="49.9" cy="11.5" r="0.4" fill="#fff"/>
+      <circle cx="42" cy="11.2" r="4.6" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1"/>
+      <circle cx="42" cy="10.7" r="2.4" fill="#FFFFFF"/><circle cx="42.7" cy="10.7" r="1.2" fill="#23303A"/><circle cx="43.2" cy="10" r="0.5" fill="#fff"/>
+    </g>
+  </g>
+);
+const CrocCalm = () => (
+  <g>
+    <path d="M5 19 Q-1 16 0 22 Q-1 28 5 25 Q3 22 5 19 Z" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1"/>
+    <path d="M9 15 Q5 15 5 22 Q5 29 9 29 L48 29 Q55 28 55 22 Q55 16 48 15 Z" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1.3"/>
+    <path d="M10 27 Q28 28 48 27 Q28 30.5 10 29 Z" fill="url(#crocBelly)" opacity="0.85"/>
+    <g fill="#3F9A42" opacity="0.85"><path d="M16 14 q1.5 -2.6 3 0 Z"/><path d="M22 14 q1.5 -2.6 3 0 Z"/></g>
+    <rect x="14" y="20" width="30" height="2.6" rx="1.3" fill="#2E7D32"/>
+    <rect x="14" y="24.4" width="30" height="2.6" rx="1.3" fill="#2E7D32"/>
+    <ellipse cx="50" cy="20.5" rx="0.9" ry="0.7" fill="#2E7D32"/><ellipse cx="50" cy="23.5" rx="0.9" ry="0.7" fill="#2E7D32"/>
+    <g>
+      <circle cx="41" cy="12.5" r="3.8" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1"/>
+      <circle cx="41" cy="12.1" r="1.9" fill="#FFFFFF"/><circle cx="41" cy="12.1" r="0.95" fill="#23303A"/>
+      <circle cx="47.5" cy="13" r="3.4" fill="url(#crocG)" stroke="#3F9A42" strokeWidth="1"/>
+      <circle cx="47.5" cy="12.6" r="1.7" fill="#FFFFFF"/><circle cx="47.5" cy="12.6" r="0.85" fill="#23303A"/>
+    </g>
+  </g>
+);
+const CompareSign = ({ dir = 'gt', big = false }) => (
+  <span className={`d4-sign d4-croc ${big ? 'd4-sign-big' : ''} d4-croc-anim`} aria-hidden="true">
+    <svg viewBox="0 0 60 44" preserveAspectRatio="xMidYMid meet">
+      <CrocDefs/>
+      {dir === 'eq'
+        ? <CrocCalm/>
+        : dir === 'lt'
+          ? <g transform="translate(60,0) scale(-1,1)"><CrocOpen/></g>
+          : <CrocOpen/>}
+    </svg>
+  </span>
+);
+// NumTile — yirik raqam tokeni (taqqoslashda son).
+const NumTile = ({ d }) => <span className="d4-numtile" aria-hidden="true">{d}</span>;
+
+// ===== REKENREK (munchoq tasmasi) — YANGI MEXANIKA: 10 munchoq bir qatorga surilsa = 1 o'nlik =====
+// Niderlandiya metodi: har qatorда 10 munchoq (5 qizil + 5 oq, 5-tuzilma). active = chapga surilgan munchoqlar.
+const RkBead = ({ tone, gap = false, slide = false, delay = 0 }) => (
+  <span className={`g1-rk-bead g1-rk-${tone} ${gap ? 'g1-rk-gap' : ''} ${slide ? 'g1-rk-bslide' : ''}`}
+    style={slide ? { animationDelay: `${(delay * 0.07).toFixed(2)}s` } : undefined} aria-hidden="true"/>
+);
+const RekenrekRow = ({ active = 0, max = 10, slide = false }) => {
+  // Munchoqlar bittalab, to'lqin bo'lib chapга urilib yig'iladi (haqiqiy rekenrek "taq-taq" hissi).
+  const left = [], right = [];
+  for (let i = 0; i < max; i += 1) {
+    const tone = i < 5 ? 'red' : 'white';
+    const gap = i === 5;
+    if (i < active) left.push(<RkBead key={i} tone={tone} gap={gap} slide={slide} delay={i}/>);
+    else right.push(<RkBead key={i} tone={tone} gap={gap}/>);
+  }
+  return (
+    <div className="g1-rk-row">
+      <span className="g1-rk-wire"/>
+      <span className="g1-rk-grp g1-rk-grp-l">{left}</span>
+      <span className="g1-rk-grp g1-rk-grp-r">{right}</span>
+    </div>
+  );
+};
+// Rekenrek — yog'och ramka + 1 yoki 2 qator. top/bottom = surilgan munchoqlar soni. slideTop — animatsiya.
+const Rekenrek = ({ top = 0, bottom = null, slideTop = false, slideBottom = false }) => (
+  <div className={`g1-rk ${(slideTop || slideBottom) ? 'g1-rk-shake' : ''}`} aria-hidden="true">
+    <RekenrekRow active={top} slide={slideTop}/>
+    {bottom != null && <RekenrekRow active={bottom} slide={slideBottom}/>}
+  </div>
 );
 
-// s0 — HOOK (soft): 3+2 va 2+3 — bir xilmi? har javob OK.
+// ===== BOZOR METODI: realistik OLMA — 10 olma yashikda = 1 o'nlik, + yakka olmalar =====
+const Apple = () => (
+  <span className="g1-apple" aria-hidden="true">
+    <svg viewBox="0 0 26 28">
+      <defs>
+        <radialGradient id="g1appG" cx="36%" cy="30%" r="74%">
+          <stop offset="0%" stopColor="#FF9176"/><stop offset="48%" stopColor="#E5442C"/><stop offset="100%" stopColor="#A6231A"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="13" cy="25.6" rx="7" ry="1.6" fill="rgba(0,0,0,0.12)"/>
+      <path d="M13 8.5 Q9 6 6 8 Q3 11 4 16 Q5 22 10 25 Q13 26.4 16 25 Q21 22 22 16 Q23 11 20 8 Q17 6 13 8.5 Z" fill="url(#g1appG)"/>
+      <path d="M9.5 8.2 Q13 10.6 16.5 8.2" stroke="#9A2418" strokeWidth="0.8" fill="none" opacity="0.45"/>
+      <ellipse cx="9.4" cy="13" rx="2.3" ry="3.7" fill="#FFFFFF" opacity="0.32" transform="rotate(-18 9.4 13)"/>
+      <path d="M13 8.5 Q13.2 4 14.4 2.4" stroke="#6E4428" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <path d="M14 4.4 Q18.5 1.8 19.4 6.2 Q15.6 7.2 14 4.4 Z" fill="#54AA61"/>
+      <path d="M15 5.4 Q17 4.6 18.6 5.6" stroke="#3E8C4C" strokeWidth="0.6" fill="none"/>
+    </svg>
+  </span>
+);
+const AppleCrate = () => (
+  <span className="g1-crate" aria-hidden="true">
+    <span className="g1-crate-apples">{Array.from({ length: 10 }).map((_, i) => <Apple key={i}/>)}</span>
+    <span className="g1-crate-label mono">10</span>
+  </span>
+);
+// AppleViz — `tens` ta yashik (har biri 10) + `ones` ta yakka olma. pop -> yakka olmalar tushib paydo bo'ladi.
+const AppleViz = ({ tens = 0, ones = 0, pop = false }) => (
+  <div className="g1-fviz" aria-hidden="true">
+    {Array.from({ length: tens }).map((_, i) => <AppleCrate key={`t${i}`}/>)}
+    {tens > 0 && ones > 0 && <span className="g1-fviz-plus">+</span>}
+    {ones > 0 && (
+      <span className={`g1-fviz-ones ${pop ? 'g1-fviz-pop' : ''}`}>
+        {Array.from({ length: ones }).map((_, i) => (
+          <span key={i} className="g1-fviz-one" style={pop ? { animationDelay: `${(i * 0.08).toFixed(2)}s` } : undefined}><Apple/></span>
+        ))}
+      </span>
+    )}
+  </div>
+);
+
+// RabbitHop — do'stona quyoncha (yon profil, o'ngga qaragan), son o'qida sakraydi.
+const RabbitHop = () => (
+  <svg viewBox="0 0 56 50" aria-hidden="true">
+    {/* dumaloq dum */}
+    <circle cx="9" cy="34" r="5.5" fill="#FFFFFF" stroke="#E4DED4" strokeWidth="1.2"/>
+    {/* orqa oyoq */}
+    <ellipse cx="19" cy="40" rx="9" ry="5" fill="#F1ECE3" stroke="#E4DED4" strokeWidth="1"/>
+    {/* tana */}
+    <ellipse cx="26" cy="29" rx="15" ry="12.5" fill="#FFFFFF" stroke="#E4DED4" strokeWidth="1.4"/>
+    {/* quloqlar */}
+    <path d="M39 15 Q36.5 2 32.5 4.5 Q32 12 37 18 Z" fill="#FFFFFF" stroke="#E4DED4" strokeWidth="1.2"/>
+    <path d="M44 15 Q46 1.5 50 4.5 Q50 12 45.5 18 Z" fill="#FFFFFF" stroke="#E4DED4" strokeWidth="1.2"/>
+    <path d="M38.6 14 Q37.5 6 35 6.8 Q34.8 11.5 37.8 16 Z" fill="#FFD3C7"/>
+    <path d="M44 13.5 Q45 5.5 47.6 6.6 Q47.6 11.5 45.2 15.5 Z" fill="#FFD3C7"/>
+    {/* bosh */}
+    <circle cx="41" cy="23" r="9.5" fill="#FFFFFF" stroke="#E4DED4" strokeWidth="1.4"/>
+    {/* old panja */}
+    <ellipse cx="35" cy="39" rx="5.5" ry="3.6" fill="#F1ECE3" stroke="#E4DED4" strokeWidth="1"/>
+    {/* yonoq */}
+    <circle cx="45.5" cy="27" r="2.2" fill="#FFE0D6" opacity="0.85"/>
+    {/* ko'z */}
+    <circle cx="44" cy="22" r="1.9" fill="#23303A"/>
+    <circle cx="44.6" cy="21.4" r="0.6" fill="#FFFFFF"/>
+    {/* burun */}
+    <circle cx="49.6" cy="25" r="1.5" fill="#FF8A6E"/>
+  </svg>
+);
+
+// NumberLine — YANGI MEXANIKA: sonli yo'lak 0..max. marker -> quyon shu raqamda turadi va keyingisiga sakraydi;
+// onPick -> katak bosiladi; yechilgach quyon javob raqamiga qo'nadi. path -> {from,to} oraliq yoritiladi.
+const NumberLine = ({ max = 5, marker = null, picked = null, answer = null, solved = false, onPick = null, path = null }) => {
+  const lineRef = useRef(null);
+  const dotsRef = useRef([]);
+  const rabbitRef = useRef(null);
+  const hopRef = useRef(null);
+  const trailRef = useRef(null);
+  const prevRef = useRef(null);
+  const target = marker != null ? marker : (solved && answer != null ? answer : null);
+  // O'lchov + pozitsiya to'g'ridan-to'g'ri DOM ref orqali (setState yo'q -> ortiqcha render yo'q).
+  React.useLayoutEffect(() => {
+    const wrap = rabbitRef.current; const trail = trailRef.current;
+    if (!wrap) return;
+    const line = lineRef.current; const dot = target == null ? null : dotsRef.current[target];
+    if (target == null || !line || !dot) { wrap.style.display = 'none'; if (trail) trail.style.display = 'none'; prevRef.current = null; return; }
+    const lr = line.getBoundingClientRect(); const dr = dot.getBoundingClientRect();
+    const dx = dr.left + dr.width / 2 - lr.left, dy = dr.top - lr.top;
+    // SAKRASH IZI: oldingi raqamdan shu raqamgача yoy chiziq (qisqa muddat ko'rinadi)
+    const prev = prevRef.current; const pdot = prev == null ? null : dotsRef.current[prev];
+    if (trail && prev != null && prev !== target && pdot) {
+      const pr = pdot.getBoundingClientRect();
+      const px = pr.left + pr.width / 2 - lr.left;
+      trail.style.display = ''; trail.style.left = Math.min(px, dx) + 'px';
+      trail.style.width = Math.abs(dx - px) + 'px'; trail.style.top = dy + 'px';
+      trail.style.animation = 'none'; void trail.offsetWidth; trail.style.animation = '';
+    } else if (trail) { trail.style.display = 'none'; }
+    prevRef.current = target;
+    wrap.style.display = '';
+    wrap.style.left = dx + 'px';
+    wrap.style.top = dy + 'px';
+    const hop = hopRef.current;       // animatsiyani qayta ishga tushirish (sakrash takrorlanadi)
+    if (hop) { hop.style.animation = 'none'; void hop.offsetWidth; hop.style.animation = ''; }
+  }, [target, max]);
+  return (
+    <div className="g1-nl">
+      <div className="g1-nl-line" ref={lineRef}>
+        <div className="g1-nl-trail" ref={trailRef} style={{ display: 'none' }} aria-hidden="true"/>
+        <div className="g1-nl-rabbit" ref={rabbitRef} style={{ display: 'none' }}>
+          <span ref={hopRef} className="g1-nl-rabbit-hop"><RabbitHop/></span>
+        </div>
+        {Array.from({ length: max + 1 }).map((_, i) => {
+          const inPath = path && i >= Math.min(path.from, path.to) && i <= Math.max(path.from, path.to);
+          const setDot = (el) => { dotsRef.current[i] = el; };
+          if (onPick) {
+            const isPicked = picked === i;
+            const isAns = solved && answer === i;
+            return (
+              <button key={i} className={`g1-nl-tick ${isPicked ? 'picked' : ''} ${isAns ? 'ok' : ''} ${inPath ? 'inpath' : ''}`}
+                disabled={solved} onClick={() => onPick(i)}>
+                <span className="g1-nl-dot" ref={setDot}/><span className="g1-nl-num mono">{i}</span>
+              </button>
+            );
+          }
+          return (
+            <div key={i} className={`g1-nl-tick ${inPath ? 'inpath' : ''}`}>
+              <span className={`g1-nl-dot ${marker === i ? 'marker' : ''}`} ref={setDot}/><span className="g1-nl-num mono">{i}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// SCREEN-KOMPONENTLAR — Dars28 (14 ekran) — matnli masala (Б5)
+// ============================================================
+
+
+
+
+
+// PQ — savol + masala matni (QuestionScreen question uchun).
+const PQ = ({ title, problem }) => (
+  <div>
+    <h2 className="title h-sub" style={{ textAlign: 'center' }}>{title}</h2>
+    <p className="h-sub" style={{ textAlign: 'center', color: '#5A5A60', marginTop: 'clamp(6px, 1.4vw, 10px)', fontSize: 'clamp(14px, 2vw, 17px)' }}>{problem}</p>
+  </div>
+);
+
+// Syujet cast — olma-bog' (CastScene, meros saxna).
+const HarvestCast = ({ audio }) => {
+  const step = useStoryReveal(audio, 4);
+  return <CastScene step={step}/>;
+};
+const HarvestGuestCast = ({ audio }) => {
+  const step = useStoryReveal(audio, 2);
+  return <CastScene step={Math.max(step, 3)}/>;
+};
+const ScreenIntro = (props) => (
+  <StoryLayout props={props} c={CONTENT.sIntro} hint>{(audio) => <HarvestCast audio={audio}/>}</StoryLayout>
+);
+const ScreenGuest = (props) => (
+  <StoryLayout props={props} c={CONTENT.sGuest}>{(audio) => <HarvestGuestCast audio={audio}/>}</StoryLayout>
+);
+
+// SparkBurst — to'g'ri javobda chiziq atrofidan otiladigan uchqunlar (g1-line-cele bilan).
+const SPARKS = [
+  { dx: '0px', dy: '-32px', s: 8, d: '0s' },
+  { dx: '26px', dy: '-20px', s: 6, d: '0.05s' },
+  { dx: '-26px', dy: '-20px', s: 6, d: '0.09s' },
+  { dx: '32px', dy: '4px', s: 5, d: '0.13s' },
+  { dx: '-32px', dy: '4px', s: 5, d: '0.07s' },
+  { dx: '15px', dy: '-30px', s: 4, d: '0.11s' },
+];
+const SparkBurst = () => (
+  <>{SPARKS.map((p, i) => (
+    <span key={i} className="g1-csp" style={{ width: `${p.s}px`, height: `${p.s}px`, ['--dx']: p.dx, ['--dy']: p.dy, animationDelay: p.d }}/>
+  ))}</>
+);
+
+// LineFig — chiziq turi REAL buyum sifatida (hajmli gradient, chiziladi): straight→tayoq/chizg'ich,
+//   curved→daryo, broken→chaqmoq. Chiziq turi (to'g'ri/egri/siniq) aniq o'qiladi.
+//   anim: 'enter' (paydo bo'lganda chiziladi) | 'celebrate' (to'g'ri javobda) | 'static'.
+const LineFig = ({ kind, size = 'mid', anim = 'enter' }) => {
+  const w = size === 'sm' ? 88 : 116;
+  const h = size === 'sm' ? 46 : 60;
+  const cls = 'g1-line' + (anim === 'celebrate' ? ' g1-line-cele' : anim === 'enter' ? ' g1-line-in' : '');
+  let gradId, gradStops, d;
+  if (kind === 'straight') {
+    gradId = 'g1lStraight';
+    gradStops = <><stop offset="0%" stopColor="#E8B978"/><stop offset="52%" stopColor="#C68C4C"/><stop offset="100%" stopColor="#A9703A"/></>;
+    d = 'M12 30 L108 30';
+  } else if (kind === 'curved') {
+    gradId = 'g1lCurved';
+    gradStops = <><stop offset="0%" stopColor="#9FD4F7"/><stop offset="50%" stopColor="#6BAEE6"/><stop offset="100%" stopColor="#3E86C8"/></>;
+    d = 'M10 36 Q 34 8 60 30 T 110 24';
+  } else {
+    gradId = 'g1lBroken';
+    gradStops = <><stop offset="0%" stopColor="#FFE08A"/><stop offset="50%" stopColor="#F6C544"/><stop offset="100%" stopColor="#E8902A"/></>;
+    d = 'M10 46 L34 14 L58 46 L82 14 L110 42';
+  }
+  return (
+    <span className={cls} aria-hidden="true">
+      <svg viewBox="0 0 120 60" width={w} height={h}>
+        <defs><linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">{gradStops}</linearGradient></defs>
+        {/* siniq chiziq — chaqmoq: orqada yumshoq oltin nur */}
+        {kind === 'broken' && <path d={d} fill="none" stroke="rgba(246,197,68,0.4)" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round"/>}
+        {/* to'g'ri chiziq — tayoq tagida yumshoq soya */}
+        {kind === 'straight' && <path d="M12 34 L108 34" fill="none" stroke="rgba(60,40,20,0.16)" strokeWidth="8" strokeLinecap="round"/>}
+        <path className="g1-line-path" d={d} fill="none" stroke={`url(#${gradId})`} strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
+        <path className="g1-line-path" d={d} fill="none" stroke="rgba(255,255,255,0.42)" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* egri chiziq — suv to'lqinchalari */}
+        {kind === 'curved' && <g fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M40 22 q 5 -4 10 0"/><path d="M82 20 q 5 -4 10 0"/>
+        </g>}
+      </svg>
+      {anim === 'celebrate' && <SparkBurst/>}
+    </span>
+  );
+};
+
+// SpatialScene — yog'och stol (hajmli) + to'p: rel 'above'|'below'|'left'|'right'.
+//   anim: 'enter' (to'p joyiga tushadi) | 'celebrate' (sakraydi) | 'static'.
+const SpatialScene = ({ rel, anim = 'enter' }) => {
+  const pos = { above: { cx: 60, cy: 36 }, below: { cx: 60, cy: 72 }, left: { cx: 16, cy: 64 }, right: { cx: 104, cy: 64 } }[rel] || { cx: 60, cy: 36 };
+  const ballCls = 'g1-ball' + (anim === 'celebrate' ? ' g1-ball-cele' : anim === 'enter' ? ' g1-ball-in' : '');
+  return (
+    <svg viewBox="0 0 120 100" width="156" height="130" aria-hidden="true">
+      <defs>
+        <linearGradient id="g1spTable" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D79A5C"/><stop offset="100%" stopColor="#A9703A"/></linearGradient>
+        <radialGradient id="g1spBall" cx="38%" cy="32%" r="72%"><stop offset="0%" stopColor="#FFA98C"/><stop offset="55%" stopColor="#E8612C"/><stop offset="100%" stopColor="#B5401A"/></radialGradient>
+      </defs>
+      <ellipse cx="60" cy="92" rx="40" ry="4.5" fill="rgba(40,30,30,0.12)"/>
+      <rect x="22" y="48" width="76" height="9" rx="3" fill="url(#g1spTable)" stroke="#8C5B2E" strokeWidth="1"/>
+      <rect x="28" y="57" width="7" height="33" rx="2.5" fill="#9A6433"/>
+      <rect x="85" y="57" width="7" height="33" rx="2.5" fill="#9A6433"/>
+      <g className={ballCls} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+        <circle cx={pos.cx} cy={pos.cy} r="12" fill="url(#g1spBall)"/>
+        <ellipse cx={pos.cx - 3.6} cy={pos.cy - 3.6} rx="3.6" ry="2.6" fill="rgba(255,255,255,0.5)"/>
+      </g>
+    </svg>
+  );
+};
+
+// HookSceneLines — s0 hook sahnasi: tabiat manzarasi. Chiziq turlari real hayotda
+//   (siniq=tog' cho'qqilari, egri=daryo, to'g'ri=yo'l). Har chiziq ketma-ket jonlanadi.
+const HookSceneLines = () => (
+  <svg viewBox="0 0 240 150" width="100%" style={{ maxWidth: 360, height: 'auto' }} aria-hidden="true">
+    <defs>
+      <linearGradient id="g1lnSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E8F2FF"/><stop offset="100%" stopColor="#FCF8EF"/></linearGradient>
+      <linearGradient id="g1lnMtn" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#9DB6C9"/><stop offset="100%" stopColor="#5E7C95"/></linearGradient>
+      <linearGradient id="g1lnRiver" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#86C6F2"/><stop offset="100%" stopColor="#3E86C8"/></linearGradient>
+      <linearGradient id="g1lnRoad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#CDB89A"/><stop offset="100%" stopColor="#9A7B52"/></linearGradient>
+      <radialGradient id="g1lnSun" cx="38%" cy="34%" r="70%"><stop offset="0%" stopColor="#FFE7A6"/><stop offset="60%" stopColor="#FFC24D"/><stop offset="100%" stopColor="#F39A1E"/></radialGradient>
+    </defs>
+    <rect x="0" y="0" width="240" height="150" rx="14" fill="url(#g1lnSky)"/>
+    {/* Quyosh — DOIRA (nurlari aylanadi, o'zi nafas oladi) */}
+    <g className="g1-scene-in" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+      <g className="g1-amb-rays" style={{ transformBox: 'fill-box', transformOrigin: 'center' }} stroke="#F8B83C" strokeWidth="2.4" strokeLinecap="round">
+        <line x1="208" y1="20" x2="208" y2="13"/>
+        <line x1="223" y1="27" x2="228" y2="22"/>
+        <line x1="193" y1="27" x2="188" y2="22"/>
+        <line x1="187" y1="40" x2="180" y2="40"/>
+        <line x1="229" y1="40" x2="236" y2="40"/>
+        <line x1="193" y1="53" x2="188" y2="58"/>
+        <line x1="208" y1="60" x2="208" y2="67"/>
+        <line x1="223" y1="53" x2="228" y2="58"/>
+      </g>
+      <g className="g1-amb-sun" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+        <circle cx="208" cy="40" r="16" fill="url(#g1lnSun)"/>
+        <ellipse cx="202" cy="34" rx="4.5" ry="3.2" fill="rgba(255,255,255,0.5)"/>
+      </g>
+    </g>
+    {/* bulut — suzadi */}
+    <g className="g1-amb-cloud2" fill="#FFFFFF" opacity="0.9"><ellipse cx="120" cy="26" rx="18" ry="9"/><ellipse cx="136" cy="30" rx="13" ry="7"/><ellipse cx="106" cy="30" rx="11" ry="6"/></g>
+    {/* qushlar — EGRI chiziq (suzib o'tadi) */}
+    <g className="g1-amb-cloud2" stroke="#6B7B86" strokeWidth="1.6" fill="none" strokeLinecap="round" opacity="0.7">
+      <path d="M44 26 q3 -3 6 0 q3 -3 6 0"/>
+      <path d="M66 20 q2.6 -2.6 5.2 0 q2.6 -2.6 5.2 0"/>
+    </g>
+    <rect x="0" y="96" width="240" height="54" fill="#CFE7AE"/>
+    {/* uzoq panjara ustunlari — TO'G'RI chiziq (orqada, kichik) */}
+    <g stroke="#B89B6E" strokeWidth="2" strokeLinecap="round" opacity="0.7">
+      <line x1="18" y1="104" x2="18" y2="96"/>
+      <line x1="30" y1="104" x2="30" y2="97"/>
+      <line x1="42" y1="104" x2="42" y2="96"/>
+      <line x1="18" y1="99" x2="42" y2="99"/>
+    </g>
+    {/* Tog' — to'ldirilgan gavda + qor cho'qqilar */}
+    <g className="g1-scene-in" style={{ transformBox: 'fill-box', transformOrigin: 'bottom center' }}>
+      <polygon points="6,86 44,44 82,86 122,40 162,84 202,48 234,86 234,96 6,96" fill="url(#g1lnMtn)"/>
+      <g fill="rgba(255,255,255,0.9)"><polygon points="44,44 52,57 36,57"/><polygon points="122,40 130,53 114,53"/><polygon points="202,48 210,60 194,60"/></g>
+      <polyline points="6,86 44,44 82,86 122,40 162,84 202,48 234,86" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>
+    </g>
+    {/* SINIQ chiziq — yorqin AKSENT qirra (o'zini chizadi) */}
+    <polyline className="g1-ridge" points="6,86 44,44 82,86 122,40 162,84 202,48 234,86" fill="none" stroke={T.accent} strokeWidth="3.6" strokeLinejoin="round" strokeLinecap="round"/>
+    {/* Daryo — EGRI chiziq (oqim jimirlaydi) */}
+    <g className="g1-scene-in" style={{ transformBox: 'fill-box', transformOrigin: 'center', animationDelay: '0.3s' }}>
+      <path d="M10 120 Q 60 100 116 118 T 232 112" fill="none" stroke="url(#g1lnRiver)" strokeWidth="10" strokeLinecap="round"/>
+      <path className="g1-amb-shimmer" d="M10 120 Q 60 100 116 118 T 232 112" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.6" strokeLinecap="round"/>
+    </g>
+    {/* Yo'l — TO'G'RI chiziq */}
+    <g className="g1-scene-in" style={{ transformBox: 'fill-box', transformOrigin: 'center', animationDelay: '0.55s' }}>
+      <line x1="14" y1="140" x2="226" y2="140" stroke="url(#g1lnRoad)" strokeWidth="11" strokeLinecap="round"/>
+      <line x1="22" y1="140" x2="218" y2="140" stroke="#FCF8EF" strokeWidth="2" strokeLinecap="round" strokeDasharray="9 9"/>
+    </g>
+  </svg>
+);
+
+// MiniIcon — kichik buyum: 'apple' | 'ball' | 'cup'.
+const MiniIcon = ({ kind }) => {
+  if (kind === 'apple') return <svg viewBox="0 0 40 40" width="46" height="46" aria-hidden="true"><rect x="18.8" y="7" width="2.4" height="8" rx="1" fill="#7A5230"/><path d="M21 10 q6 -3 8.5 1.6 q-6 1.6 -8.5 -1.6Z" fill="#3FA34D"/><circle cx="20" cy="24" r="12.5" fill="#E5484D"/><circle cx="15.5" cy="20" r="3" fill="rgba(255,255,255,0.45)"/></svg>;
+  if (kind === 'ball') return <svg viewBox="0 0 40 40" width="46" height="46" aria-hidden="true"><circle cx="20" cy="22" r="13" fill="#E8612C"/><circle cx="15.5" cy="17.5" r="3.6" fill="rgba(255,255,255,0.5)"/></svg>;
+  return <svg viewBox="0 0 40 40" width="46" height="46" aria-hidden="true"><path d="M11 15 h17 v8 a8.5 8.5 0 0 1 -17 0Z" fill="#5B8DEF"/><path d="M28 17.5 q6 0 6 4 q0 4 -6 4.2" fill="none" stroke="#5B8DEF" strokeWidth="2.6"/><ellipse cx="19.5" cy="15" rx="8.5" ry="2.4" fill="#7AA4F2"/></svg>;
+};
+const SpatialRow = ({ items, midGlow }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(14px, 5vw, 34px)' }}>
+    {items.map((k, i) => (
+      <span key={i} style={{ display: 'inline-flex', padding: 6, borderRadius: 12, background: midGlow && i === 1 ? 'rgba(232,97,44,0.12)' : 'transparent', outline: midGlow && i === 1 ? `2px solid ${T.accent}` : 'none' }}>
+        <MiniIcon kind={k}/>
+      </span>
+    ))}
+  </div>
+);
+
+// s0 — HOOK (soft): uchta chiziq bir xilmi? har javob OK.
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3096,26 +4049,21 @@ const Screen0 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)' }}>
         <h1 className="title h-sub fade-up">
-          {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
+          {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
         </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(14px, 3vw, 26px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
-          <SentTile a={3} op="+" b={2}/>
-          <span className="g1-sent-q mono" aria-hidden="true">?</span>
-          <SentTile a={2} op="+" b={3}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <HookSceneLines/>
         </div>
         {!picked && (
-          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
-            {[['yes', c.opt_yes], ['no', c.opt_no], ['idk', c.opt_idk]].map(([k, txt]) => (
-              <button key={k} className="option" disabled={!canAct} onClick={() => pick(k)}
-                style={{ padding: 'clamp(12px, 2vw, 16px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.2vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-                {t(txt)}
-              </button>
-            ))}
+          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            <button className="option" disabled={!canAct} onClick={() => pick('a')} style={{ padding: 'clamp(12px, 2vw, 16px) clamp(8px, 1.6vw, 12px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(54px, 9vw, 66px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.2 }}>{t(c.opt0)}</button>
+            <button className="option" disabled={!canAct} onClick={() => pick('b')} style={{ padding: 'clamp(12px, 2vw, 16px) clamp(8px, 1.6vw, 12px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(54px, 9vw, 66px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.2 }}>{t(c.opt1)}</button>
+            <button className="option" disabled={!canAct} onClick={() => pick('c')} style={{ padding: 'clamp(12px, 2vw, 16px) clamp(8px, 1.6vw, 12px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(54px, 9vw, 66px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.2 }}>{t(c.opt2)}</button>
           </div>
         )}
         {picked && (
           <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.question)}/>
+            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -3123,79 +4071,120 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — TEST MC: 3 + 2 = 5. options [5,4,6,3] to'g'ri idx0.
+// s1 — EXPLORATION: uch chiziq turi (yorliqli).
+const LineCard = ({ kind, label }) => (
+  <div className="frame-soft" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(10px, 2vw, 14px)', minWidth: 'clamp(82px, 24vw, 120px)' }}>
+    <LineFig kind={kind} size="sm"/>
+    <span className="eyebrow mono" style={{ color: T.accent }}>{label}</span>
+  </div>
+);
+// s1 — EXPLORATION (interaktiv): bola o'zi tartiblaydi — avval to'g'ri, keyin egri;
+//   oxirgi (siniq) o'zi belgilanadi. LineFig kartalar bosiladi.
+const S1_GREEN = '#2C7C3B';
+// s1 — jonli namoyish: har chiziq o'zini chizadi (demo), keyin interaktiv tartiblash.
+const LINE_DRAW = [
+  { kind: 'straight', dkey: 'd_straight', d: 'M12 30 L108 30' },
+  { kind: 'curved', dkey: 'd_curved', d: 'M10 36 Q 34 8 60 30 T 110 24' },
+  { kind: 'broken', dkey: 'd_broken', d: 'M10 46 L34 14 L58 46 L82 14 L110 42' },
+];
 const Screen1 = (props) => {
-  const c = CONTENT.s1;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={3} b={2} kind="apple"/>}
-      options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
-      correctIdx={0}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s2 — EXPLORATION (swap): 3+2 -> almashtir -> 2+3, ikkalasi 5.
-const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s2;
-  const audio = useAudio([{ id: 's2_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
+  const c = CONTENT.s1;
+  const L = CONTENT.lab;
+  const sfx = useSfx();
+  const audio = useAudio([{ id: 's1_intro', text: c.demo_intro[lang], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
-  const [swapped, setSwapped] = useState(false);
-  const a = swapped ? 2 : 3;
-  const b = swapped ? 3 : 2;
-  const swap = () => {
-    if (swapped || !canAct) return;
-    setSwapped(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+  const [phase, setPhase] = useState('demo');  // 'demo' — chiziqlar chizilishi; 'sort' — interaktiv tartiblash
+  const [di, setDi] = useState(0);              // demo: nechinchi chiziq
+  const [step, setStep] = useState(0);          // 0 — to'g'rini top, 1 — egrini top
+  const [locked, setLocked] = useState({});     // kind -> true
+  const [finished, setFinished] = useState(false);
+  const speak = (txt) => { if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(txt); } };
+  useEffect(() => {
+    if (phase !== 'demo' || audio.muted) return;
+    const e = getAudioEngine();
+    if (e) e.pushOneOff(c[LINE_DRAW[di].dkey][lang]);
+  }, [di]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const nextDemo = () => {
+    if (!canAct) return;
+    if (di >= LINE_DRAW.length - 1) { setPhase('sort'); speak(c.audio_intro[lang]); }
+    else setDi(di + 1);
   };
+  const tapLine = (kind) => {
+    if (!canAct || finished || locked[kind]) return;
+    if (step === 0) {
+      if (kind === 'straight') { setLocked({ straight: true }); sfx.playCorrect(); speak(c.a_straight[lang]); setStep(1); }
+      else { sfx.playWrong(); speak(c.retry[lang]); }
+    } else {
+      if (kind === 'curved') { setLocked({ straight: true, curved: true, broken: true }); sfx.playCorrect(); speak(c.a_curved[lang]); setFinished(true); }
+      else { sfx.playWrong(); speak(c.retry[lang]); }
+    }
+  };
+  const lockLabel = { straight: L.straight, curved: L.curved, broken: L.broken };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!swapped} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!finished} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          <span className="eyebrow mono" style={{ color: T.ink3 }}>{swapped ? t(c.label_after) : t(c.label_before)}</span>
-          <CombineGroups key={swapped ? 'b' : 'a'} a={a} b={b} kind="apple"/>
-          <div className="g1-sent g1-sent-lg mono" aria-hidden="true">
-            <span>{a}</span><i className="g1-sent-op g1-sent-plus">+</i><span>{b}</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">5</span>
-          </div>
-          {!swapped && (
-            <button className="btn" disabled={!canAct} onClick={swap}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
-        </div>
-        {swapped && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
+        {phase === 'demo' ? (
+          <>
+            <p className="h-sub title fade-up">{t(c.demo_prompt)}</p>
+            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+              <svg viewBox="0 0 120 60" width="150" height="76">
+                <path key={di} className="g1-draw" d={LINE_DRAW[di].d} fill="none" stroke="#5E7C95" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 30 }}>
+                <span className="eyebrow mono" style={{ color: T.accent }}>{t(L[LINE_DRAW[di].kind])}</span>
+                <span className="mono small" style={{ color: T.ink3 }}>{di + 1} / {LINE_DRAW.length}</span>
+              </div>
+              <button className="btn" disabled={!canAct} onClick={nextDemo}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+                {lang === 'uz' ? 'Keyingisi' : 'Далее'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p className="h-sub title fade-up">{finished ? t(c.instruction) : t(step === 0 ? c.q_straight : c.q_curved)}</p>
+            <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+              {['straight', 'curved', 'broken'].map((kind) => {
+                const isLocked = !!locked[kind];
+                const dead = !canAct || finished || isLocked;
+                return (
+                  <button key={kind} className="frame-soft" disabled={dead} onClick={() => tapLine(kind)}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(10px, 2vw, 14px)', minWidth: 'clamp(82px, 24vw, 120px)', font: 'inherit', cursor: dead ? 'default' : 'pointer', border: isLocked ? `2px solid ${S1_GREEN}` : '2px solid transparent', background: isLocked ? 'rgba(44,124,59,0.10)' : undefined }}>
+                    <LineFig kind={kind} size="mid" anim="static"/>
+                    <span className="eyebrow mono" style={{ color: isLocked ? S1_GREEN : T.ink3 }}>
+                      {isLocked ? "✓ " + t(lockLabel[kind]) : '?'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            {finished && (
+              <div className="frame-success fade-up">
+                <Reaction state="correct" praise={t(c.done_line)}/>
+              </div>
+            )}
+          </>
         )}
       </div>
     </Stage>
   );
 };
 
-// s3 — RULE: a + b = b + a.
-const Screen3 = (props) => {
+// s2 — RULE: uch chiziq.
+const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s3;
-  const audio = useAudio([{ id: 's3', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const c = CONTENT.s2;
+  const L = CONTENT.lab;
+  const audio = useAudio([{ id: 's2', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3206,12 +4195,12 @@ const Screen3 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
         <h1 className="title h-sub fade-up">
-          {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
+          {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
         </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
-          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>3</span><i className="g1-sent-op g1-sent-plus">+</i><span>2</span></span>
-          <span className="g1-sent-eq g1-sent-lg mono" aria-hidden="true">=</span>
-          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span></span>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <LineCard kind="straight" label={t(L.straight)}/>
+          <LineCard kind="curved" label={t(L.curved)}/>
+          <LineCard kind="broken" label={t(L.broken)}/>
         </div>
         <BitSays text={t(c.tip)}/>
       </div>
@@ -3219,45 +4208,126 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST MC: 2 + 3 = 5 (s1 aksi). options [5,6,4,3] to'g'ri idx0.
+// s3 — TEST MC: qaysi to'g'ri (idx0). Variantlar — LineFig.
+const Screen3 = (props) => {
+  const c = CONTENT.s3;
+  const t = useT();
+  return (
+    <QuestionScreen
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={() => null}
+      options={[<LineFig kind="straight"/>, <LineFig kind="curved"/>, <LineFig kind="broken"/>]}
+      correctIdx={0}
+      celebrateOnCorrect={() => <LineFig kind="straight" anim="celebrate"/>}
+      optionsCols={3}
+      mascot={false}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
+  );
+};
+
+// s4 — EXPLORATION (interaktiv): 5 fazoviy so'z bo'ylab sayohat — tepada, pastda,
+//   chapda, o'ngda, orasida. Bola "Keyingisi" ni bosib so'zlarni ketma-ket eshitadi.
+const S4_STEPS = [
+  { rel: 'above', lab: 'above', wk: 'w_above' },
+  { rel: 'below', lab: 'below', wk: 'w_below' },
+  { rel: 'left', lab: 'left', wk: 'w_left' },
+  { rel: 'right', lab: 'right', wk: 'w_right' },
+  { rel: 'between', lab: 'between', wk: 'w_between' },
+];
 const Screen4 = (props) => {
+  const lang = useLang();
+  const t = useT();
   const c = CONTENT.s4;
-  const t = useT();
+  const L = CONTENT.lab;
+  const audio = useAudio([
+    { id: 's4_intro', text: c.audio_intro[lang], trigger: 'on_mount', waits_for: null },
+    { id: 's4_w0', text: c.w_above[lang], trigger: 'after_previous', waits_for: null },
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [si, setSi] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const step = S4_STEPS[si];
+  const last = si >= S4_STEPS.length - 1;
+  const speak = (txt) => { if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(txt); } };
+  const nextWord = () => {
+    if (!canAct || finished) return;
+    if (last) { setFinished(true); speak(c.done_spatial[lang]); }
+    else { const ns = si + 1; setSi(ns); speak(c[S4_STEPS[ns].wk][lang]); }
+  };
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!finished} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
   return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={2} b={3} kind="apple"/>}
-      options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
-      correctIdx={0}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <p className="h-sub title fade-up">{finished ? t(c.instruction) : t(c.tour_prompt)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(180px, 34vw, 222px)' }}>
+          {step.rel === 'between'
+            ? <SpatialRow items={['apple', 'ball', 'cup']} midGlow={true}/>
+            : <SpatialScene rel={step.rel} anim="static"/>}
+          <span className="eyebrow mono" style={{ color: T.accent }}>{t(L[step.lab])}</span>
+          {!finished && (
+            <button className="btn" disabled={!canAct} onClick={nextWord}
+              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+              {last ? (lang === 'uz' ? 'Tayyor' : 'Готово') : (lang === 'uz' ? 'Keyingisi' : 'Далее')}
+            </button>
+          )}
+        </div>
+        {finished && (
+          <div className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.done_spatial)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
   );
 };
 
-// s5 — TEST MC (teng juftni top): 4 + 1 ga teng? options [1+4, 4−1, 1+5] to'g'ri idx0.
+// s5 — RULE: fazoviy so'zlar.
 const Screen5 = (props) => {
-  const c = CONTENT.s5;
+  const lang = useLang();
   const t = useT();
+  const c = CONTENT.s5;
+  const L = CONTENT.lab;
+  const audio = useAudio([{ id: 's5', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const item = (rel, lab) => (
+    <div className="frame-soft" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(8px, 1.6vw, 12px)' }}>
+      <SpatialScene rel={rel}/>
+      <span className="eyebrow mono" style={{ color: T.accent }}>{lab}</span>
+    </div>
+  );
   return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>4</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span></span>}
-      options={[<SentTile a={1} op="+" b={4}/>, <SentTile a={4} op="−" b={1}/>, <SentTile a={1} op="+" b={5}/>]}
-      correctIdx={0}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+        <h1 className="title h-sub fade-up">
+          {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
+        </h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          {item('above', t(L.above))}
+          {item('below', t(L.below))}
+          {item('left', t(L.left))}
+          {item('right', t(L.right))}
+        </div>
+        <BitSays text={t(c.tip)}/>
+      </div>
+    </Stage>
   );
 };
 
-// s6 — TEST Ha/Yo'q: 2+3 = 3+2 to'g'rimi? idx0.
+// s6 — TEST MC: to'p qayerda (pastda, idx0). Variantlar — matn.
 const Screen6 = (props) => {
   const c = CONTENT.s6;
   const t = useT();
@@ -3265,15 +4335,9 @@ const Screen6 = (props) => {
     <QuestionScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.4vw, 16px)' }}>
-          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span></span>
-          <span className="g1-sent-q mono" aria-hidden="true">?</span>
-          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>3</span><i className="g1-sent-op g1-sent-plus">+</i><span>2</span></span>
-        </div>
-      )}
-      options={[t(c.opt_yes), t(c.opt_no)]}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={(solved) => <SpatialScene rel="below" anim={solved ? 'celebrate' : 'enter'}/>}
+      options={[t(c.opt0), t(c.opt1)]}
       correctIdx={0}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -3282,7 +4346,7 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST MC: 5+1=6, unda 1+5=? options [6,5,7,4] to'g'ri idx0.
+// s7 — TEST MC: qaysi siniq (idx0). Variantlar — LineFig.
 const Screen7 = (props) => {
   const c = CONTENT.s7;
   const t = useT();
@@ -3290,15 +4354,12 @@ const Screen7 = (props) => {
     <QuestionScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
-          <span className="g1-sent mono" aria-hidden="true" style={{ color: T.ink3 }}><span>5</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span><i className="g1-sent-eq">=</i><span>6</span></span>
-          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>1</span><i className="g1-sent-op g1-sent-plus">+</i><span>5</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">?</span></span>
-        </div>
-      )}
-      options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={4} size="mid"/>]}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={() => null}
+      options={[<LineFig kind="broken"/>, <LineFig kind="straight"/>, <LineFig kind="curved"/>]}
       correctIdx={0}
+      celebrateOnCorrect={() => <LineFig kind="broken" anim="celebrate"/>}
+      optionsCols={3}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3306,16 +4367,171 @@ const Screen7 = (props) => {
   );
 };
 
-// sg — MINI-O'YIN: 3 raund, har xil tartib, jami har safar 6. Ball yo'q.
+// s8 — TEST MC: orasida nima (to'p, idx0). Variantlar — matn.
+const Screen8 = (props) => {
+  const c = CONTENT.s8;
+  const t = useT();
+  return (
+    <QuestionScreen
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={() => <SpatialRow items={['apple', 'ball', 'cup']} midGlow={true}/>}
+      options={[t(c.opt0), t(c.opt1), t(c.opt2)]}
+      correctIdx={0}
+      optionsCols={3}
+      mascot={false}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
+  );
+};
+
+// VLineFig — to'g'ri chiziqlar turli qiyalikda (flat/tilt) + qarshi-namuna (bow: biroz egilgan).
+const VLineFig = ({ variant }) => {
+  const box = { width: 110, height: 56, viewBox: '0 0 120 60' };
+  const d = variant === 'flat' ? 'M12 30 L108 30'
+    : variant === 'tilt' ? 'M14 46 L106 16'
+    : 'M12 30 Q 60 14 108 30';
+  return <span className="g1-line" aria-hidden="true"><svg {...box}><path d={d} fill="none" stroke="#5E7C95" strokeWidth="7" strokeLinecap="round"/></svg></span>;
+};
+
+// sVary — TEST qarshi-namuna: to'g'ri chiziqlar (qiya bo'lsa ham) haqiqiy, egilgani EMAS (idx2).
+const ScreenVary = (props) => {
+  const c = CONTENT.sVary;
+  const t = useT();
+  return (
+    <QuestionScreen
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={() => null}
+      options={[<VLineFig variant="flat"/>, <VLineFig variant="tilt"/>, <VLineFig variant="bow"/>]}
+      correctIdx={2}
+      celebrateOnCorrect={() => <VLineFig variant="bow"/>}
+      optionsCols={3}
+      mascot={false}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
+  );
+};
+
+// sYesNo — TEST Ha/Yo'q: egri chiziq ko'rsatiladi, "Bu to'g'rimi?" -> Yo'q (idx1).
+const ScreenYesNo = (props) => {
+  const c = CONTENT.sYesNo;
+  const t = useT();
+  const lang = useLang();
+  return (
+    <QuestionScreen
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={(solved) => <LineFig kind="curved" anim={solved ? 'celebrate' : 'enter'}/>}
+      options={[lang === 'uz' ? 'Ha' : 'Да', lang === 'uz' ? "Yo'q" : 'Нет']}
+      correctIdx={1}
+      optionsCols={2}
+      mascot={false}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
+  );
+};
+
+// sOdd — TEST ortiqchani top: qaysi chiziq boshqacha -> egri (idx2).
+const ScreenOdd = (props) => {
+  const c = CONTENT.sOdd;
+  const t = useT();
+  return (
+    <QuestionScreen
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={() => null}
+      options={[<LineFig kind="straight"/>, <LineFig kind="straight"/>, <LineFig kind="curved"/>]}
+      correctIdx={2}
+      celebrateOnCorrect={() => <LineFig kind="curved" anim="celebrate"/>}
+      optionsCols={3}
+      mascot={false}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
+  );
+};
+
+// sJuft — TEST juftlash: chiziq <-> nom. Tap chiziqni, keyin nomini.
+const MATCH_FIGS = ['straight', 'curved', 'broken'];
+const MATCH_NAMES = ['curved', 'broken', 'straight'];
+const ScreenMatch = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.sJuft;
+  const L = CONTENT.lab;
+  const sfx = useSfx();
+  const audio = useAudio([{ id: `s${props.screen}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAns = useCanAnswer(audio);
+  const [matched, setMatched] = useState(() => (props.storedAnswer?.solved ? new Set(MATCH_FIGS) : new Set()));
+  const [selFig, setSelFig] = useState(null);
+  const [wrongName, setWrongName] = useState(null);
+  const [praiseWord, setPraiseWord] = useState('');
+  const solved = matched.size === MATCH_FIGS.length;
+  const tapFig = (k) => { if (!canAns || solved || matched.has(k)) return; setSelFig(k); setWrongName(null); };
+  const tapName = (k) => {
+    if (!canAns || solved || matched.has(k) || !selFig) return;
+    if (selFig === k) {
+      const nm = new Set(matched); nm.add(k); setMatched(nm); setSelFig(null); sfx.playCorrect();
+      const pw = nextPraise(lang); setPraiseWord(pw);
+      const done = nm.size === MATCH_FIGS.length;
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff((done ? c.audio.done : c.audio.on_correct)[lang]); } }
+      if (done) props.onAnswer({ stage: SCREEN_META[props.screen]?.scope ?? null, screenIdx: props.screen, correct: true, firstTry: true, attempts: 1, solved: true });
+    } else {
+      setWrongName(k); sfx.playWrong();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.retry[lang]); }
+    }
+  };
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.4vw, 16px)' }}>
+        <div className="fade-up"><PQ title={t(c.title)} problem={t(c.problem)}/></div>
+        <div className="frame fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+            {MATCH_FIGS.map((k) => (
+              <button key={k} className="option" disabled={!canAns || matched.has(k)} onClick={() => tapFig(k)}
+                style={{ display: 'flex', justifyContent: 'center', padding: 8, opacity: matched.has(k) ? 0.5 : 1, outline: selFig === k ? `2px solid ${T.accent}` : 'none' }}>
+                <LineFig kind={k} size="sm" anim="static"/>
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {MATCH_NAMES.map((k) => (
+              <button key={k} className={`option ${matched.has(k) ? 'option-correct' : wrongName === k ? 'option-picked-wrong' : ''}`} disabled={!canAns || matched.has(k)} onClick={() => tapName(k)}
+                style={{ minHeight: 'clamp(44px, 6vw, 54px)', justifyContent: 'center' }}>
+                {matched.has(k) ? '✓ ' : ''}{t(L[k])}
+              </button>
+            ))}
+          </div>
+        </div>
+        <FeedbackBlock show={solved} isCorrect={true} wrongClass="frame-tip">
+          <Reaction state="correct" praise={praiseWord || t(c.done_text)} mascot={false}/>
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+};
+
+// sg — MINI-O'YIN (3 raund, ballsiz): chiziq/fazo aralash.
 const GAME_ROUNDS = [
-  { a: 2, op: '+', b: 4, ans: 6, opts: [6, 5, 7] },
-  { a: 4, op: '+', b: 2, ans: 6, opts: [5, 6, 7] },
-  { a: 1, op: '+', b: 5, ans: 6, opts: [6, 7, 5] },
+  { qk: 'q_round1', kind: 'line', opts: ['curved', 'straight', 'broken'], ans: 0 },
+  { qk: 'q_round2', kind: 'spatial', scene: 'below', opts: ['below', 'above'], ans: 0 },
+  { qk: 'q_round3', kind: 'line', opts: ['straight', 'broken', 'curved'], ans: 0 },
 ];
 const ScreenGame = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.sg;
+  const L = CONTENT.lab;
   const sfx = useSfx();
   const audio = useAudio([{ id: 'sg_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
   const canAns = useCanAnswer(audio);
@@ -3326,15 +4542,14 @@ const ScreenGame = (props) => {
   const [praiseWord, setPraiseWord] = useState('');
   const [encWord, setEncWord] = useState('');
   const round = GAME_ROUNDS[ri];
-  const correctIdx = round.opts.indexOf(round.ans);
   const lastRound = ri >= total - 1;
   const allDone = lastRound && solvedItem;
   const pick = (i) => {
     if (solvedItem || wrong.has(i) || !canAns) return;
-    if (i === correctIdx) {
+    if (i === round.ans) {
       setSolvedItem(true); sfx.playCorrect();
       const pw = nextPraise(lang); setPraiseWord(pw);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff((lastRound ? c.done_text : c.round_ok)[lang]); } }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff((lastRound ? c.done_text : c.correct_text)[lang]); } }
     } else {
       setWrong((p) => { const s = new Set(p); s.add(i); return s; });
       setEncWord(nextEncourage(lang)); sfx.playWrong();
@@ -3351,22 +4566,23 @@ const ScreenGame = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <div className="g1-sent g1-sent-lg mono" aria-hidden="true">
-            <span>{round.a}</span><i className="g1-sent-op g1-sent-plus">+</i><span>{round.b}</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">?</span>
-          </div>
+        <p className="h-sub title fade-up">{t(c[round.qk])} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
+          {round.kind === 'spatial' && <SpatialScene rel={round.scene} anim={solvedItem ? 'celebrate' : 'enter'}/>}
           {!solvedItem && (
-            <div className="g1-gameopts">
-              {round.opts.map((v, i) => (
-                <button key={i} className={`g1-numopt ${wrong.has(i) ? 'g1-numopt-wrong' : ''}`} disabled={wrong.has(i) || !canAns} onClick={() => pick(i)}>
-                  <DigitGlyph d={v} size="mid"/>
+            <div key={ri} style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(10px, 2.4vw, 16px)' }}>
+              {round.opts.map((o, i) => (
+                <button key={i} className={`g1-numopt ${wrong.has(i) ? 'g1-numopt-wrong' : ''}`} disabled={wrong.has(i) || !canAns} onClick={() => pick(i)}
+                  style={{ width: 'auto', minWidth: 'clamp(80px, 26vw, 120px)', padding: 'clamp(8px, 1.6vw, 12px)' }}>
+                  {round.kind === 'line' ? <LineFig kind={o} size="sm"/> : <span style={{ fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>{t(L[o])}</span>}
                 </button>
               ))}
             </div>
           )}
           {solvedItem && (
-            <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={round.ans} size="mid" tone="accent"/></div>
+            <div className="g1-numopt g1-numopt-ok" style={{ width: 'auto', minWidth: 'clamp(80px, 26vw, 120px)', padding: 'clamp(8px, 1.6vw, 12px)' }}>
+              {round.kind === 'line' ? <LineFig kind={round.opts[round.ans]} size="sm" anim="celebrate"/> : <span style={{ fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)', color: T.accent }}>{t(L[round.opts[round.ans]])}</span>}
+            </div>
           )}
         </div>
         {solvedItem && (
@@ -3390,24 +4606,26 @@ const ScreenGame = (props) => {
   );
 };
 
-// s8 — TEST final + FactCard: 2 + 4 = 6 (tartib muhim emas). options [6,7,5,8] to'g'ri idx0.
-const Screen8 = (props) => {
-  const c = CONTENT.s8;
+// s9 — TEST final + FactCard: qaysi egri (idx0). Variantlar — LineFig.
+const Screen9 = (props) => {
+  const c = CONTENT.s9;
   const t = useT();
   return (
     <QuestionScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={2} b={4} kind="apple"/>}
-      options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={8} size="mid"/>]}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={() => null}
+      options={[<LineFig kind="curved"/>, <LineFig kind="straight"/>, <LineFig kind="broken"/>]}
       correctIdx={0}
+      celebrateOnCorrect={() => <LineFig kind="curved" anim="celebrate"/>}
+      optionsCols={3}
       mascot={false}
       factOnCorrect={(
         <div className="g1-factcard fade-up">
           <span className="g1-factcard-badge mono">{t(c.fact_badge)}</span>
           <div className="g1-factcard-row">
-            <span className="g1-factcard-plus" aria-hidden="true">+</span>
+            <span className="g1-factcard-plus" aria-hidden="true">?</span>
             <p className="g1-factcard-txt">{t(c.fact_text)}</p>
           </div>
         </div>
@@ -3417,12 +4635,11 @@ const Screen8 = (props) => {
     />
   );
 };
-
-// s9 — SUMMARY.
-const Screen9 = (props) => {
+// s10 — SUMMARY.
+const Screen10 = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s9;
+  const c = CONTENT.s10;
   useHero('present');
   const audio = useAudio(makeAutoSegments(c, lang));
   const navContent = (
@@ -3444,23 +4661,27 @@ const Screen9 = (props) => {
           </div>
           <p className="g1-rating-praise">{t(c.praise)}</p>
         </div>
-        <div className="frame-success fade-up">
-          <h2 className="title h-sub" style={{ margin: 0 }}>
-            {t(c.main_1)} <span className="italic" style={{ color: T.success }}>{t(c.main_2_em)}</span>
-          </h2>
+        <div className="frame-success fade-up" style={{ padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <p className="eyebrow mono" style={{ color: T.success, margin: '0 0 8px' }}>{t(c.can_do_title)}</p>
+          {[c.cd_1, c.cd_2, c.cd_3].map((item, i) => (
+            <div key={i} className="g1-pop-in" style={{ animationDelay: `${0.2 + i * 0.15}s`, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
+              <span style={{ color: T.success, fontWeight: 800, fontSize: 18, lineHeight: 1 }}>✓</span>
+              <span style={{ fontSize: 'clamp(14px, 1.9vw, 16px)' }}>{t(item)}</span>
+            </div>
+          ))}
         </div>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <CastScene step={3}/>
+          <div style={{ display: 'flex', justifyContent: 'center' }}><HookSceneLines/></div>
+          <p className="small" style={{ textAlign: 'center', color: T.ink2, margin: 'clamp(6px, 1.4vw, 10px) 0 0' }}>{t(c.real_caption)}</p>
         </div>
       </div>
     </Stage>
   );
 };
-
 // ============================================================
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1)
 // ============================================================
-export default function CommutativeLesson({
+export default function WordProblemSumLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -3508,7 +4729,7 @@ export default function CommutativeLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, ScreenGame, ScreenGuest, Screen8, Screen9];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, ScreenYesNo, ScreenOdd, ScreenVary, ScreenMatch, ScreenGame, ScreenGuest, Screen9, Screen10];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -3913,7 +5134,7 @@ html, body { margin: 0; padding: 0; }
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* === GRADE1 — vizuallar (animatsion to'plam) === */
+/* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
 .g1-listen-hint { margin: 0; color: #019ACB; font-weight: 600; letter-spacing: 0.04em; opacity: 0.9; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-pips { display: flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); justify-content: center; align-items: center; max-width: 100%; }
 .g1-pips-wrap { flex-wrap: wrap; }
@@ -3925,6 +5146,46 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+/* Geometriya figuralari (LineFig/SpatialScene): paydo bo'lganda 1 marta jonlanadi, to'g'ri javobda nishonlaydi. */
+.g1-line { display: inline-flex; transform-origin: center; position: relative; }
+.g1-line-in .g1-line-path { stroke-dasharray: 175; animation: g1lineDraw 0.85s ease both; }
+.g1-line-cele { animation: g1lineCele 0.8s cubic-bezier(0.3, 1.3, 0.5, 1) both; }
+@keyframes g1lineDraw { from { stroke-dashoffset: 175; } to { stroke-dashoffset: 0; } }
+.g1-ridge { stroke-dasharray: 340; animation: g1ridgeDraw 1.15s ease 0.25s both; }
+@keyframes g1ridgeDraw { from { stroke-dashoffset: 340; } to { stroke-dashoffset: 0; } }
+@keyframes g1lineCele { 0% { transform: scale(1, 1) rotate(0deg); } 15% { transform: scale(1.18, 0.86) rotate(-5deg); } 35% { transform: scale(0.94, 1.1) rotate(5deg); } 55% { transform: scale(1.08, 0.96) rotate(-3deg); } 100% { transform: scale(1, 1) rotate(0deg); } }
+/* Uchqun chaqnashi — to'g'ri javobda chiziq atrofidan otiladi. */
+.g1-csp { position: absolute; top: 44%; left: 50%; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FFF4CC, #FFB23C); box-shadow: 0 0 5px rgba(255,190,70,0.85); opacity: 0; pointer-events: none; }
+.g1-line-cele .g1-csp { animation: g1sparkPop 0.8s ease-out both; }
+@keyframes g1sparkPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, -24px))) scale(1); } }
+.g1-ball { transform-box: fill-box; transform-origin: center; }
+.g1-ball-in { animation: g1ballIn 0.6s cubic-bezier(0.34, 1.3, 0.5, 1) both; }
+.g1-ball-cele { animation: g1ballCele 0.7s ease both; }
+@keyframes g1ballIn { 0% { opacity: 0; transform: translateY(-18px) scale(0.7); } 70% { transform: translateY(2px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes g1ballCele { 0% { transform: translateY(0) scale(1); } 30% { transform: translateY(-12px) scale(1.08); } 60% { transform: translateY(0) scale(0.96); } 100% { transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-line-in .g1-line-path, .g1-line-cele, .g1-line-cele .g1-csp, .g1-ridge, .g1-ball-in, .g1-ball-cele { animation: none; } }
+/* Konsept demosi (s1): chiziq o'zini chizadi. */
+.g1-draw { stroke-dasharray: 300; animation: g1drawOn 1.2s ease forwards; }
+@keyframes g1drawOn { from { stroke-dashoffset: 300; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .g1-draw { animation: none; stroke-dashoffset: 0; } }
+/* Hook sahnasi elementlari ketma-ket paydo bo'ladi. */
+.g1-scene-in { animation: g1sceneIn 0.55s ease both; }
+@keyframes g1sceneIn { 0% { opacity: 0; transform: translateY(10px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-scene-in { animation: none; } }
+/* Ambient — sahnaga yengil jon (bulut, quyosh, daryo jimirlashi, shamol). reduced-motion'da o'chadi. */
+.g1-amb-cloud { animation: g1drift 9s ease-in-out infinite alternate; }
+.g1-amb-cloud2 { animation: g1driftB 12s ease-in-out infinite alternate; }
+.g1-amb-sun { transform-box: fill-box; transform-origin: center; animation: g1sunPulse 4.5s ease-in-out infinite; }
+.g1-amb-rays { transform-box: fill-box; transform-origin: center; animation: g1sunRays 44s linear infinite; }
+.g1-amb-shimmer { animation: g1shimmer 2.8s ease-in-out infinite; }
+.g1-amb-sway { transform-box: fill-box; transform-origin: bottom center; animation: g1sway 4.8s ease-in-out infinite; }
+@keyframes g1drift { 0% { transform: translateX(0); } 100% { transform: translateX(24px); } }
+@keyframes g1driftB { 0% { transform: translateX(0); } 100% { transform: translateX(-20px); } }
+@keyframes g1sunPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.93; } }
+@keyframes g1sunRays { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes g1shimmer { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.55; } }
+@keyframes g1sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@media (prefers-reduced-motion: reduce) { .g1-amb-cloud, .g1-amb-cloud2, .g1-amb-sun, .g1-amb-rays, .g1-amb-shimmer, .g1-amb-sway { animation: none; } }
 @keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
 
 /* CountDemo — jonli sanash */
@@ -4578,6 +5839,20 @@ html, body { margin: 0; padding: 0; }
 .g1-yc-anvar { left: 44cqw; }
 .g1-yc-zuhra { right: 14cqw; }
 .g1-yc-zuhra.walkin { animation: yardWalkIn 1.6s ease-out both; }
+/* Dars13 maktab sahnasi — 4 personaj (Jasur kirib keladi), kattaroq + yengil tebranish (jonli) */
+.g1-maktabscene .g1-yc-fig .g1-cast-svg { height: 48cqh; animation: g1castbob 3.2s ease-in-out infinite; }
+.g1-maktabscene .g1-cast-name { font-size: clamp(10px, 1.5vw, 13px); }
+.g1-yc-mrano { left: 2cqw; }
+.g1-yc-mrano .g1-cast-svg { animation-delay: 0s; }
+.g1-yc-manvar { left: 25cqw; }
+.g1-yc-manvar .g1-cast-svg { animation-delay: 0.5s; }
+.g1-yc-mzuhra { left: 49cqw; }
+.g1-yc-mzuhra .g1-cast-svg { animation-delay: 1s; }
+.g1-yc-jasur { right: 2cqw; }
+.g1-yc-jasur .g1-cast-svg { animation-delay: 0.75s; }
+.g1-yc-jasur.walkin { animation: yardWalkIn 1.4s cubic-bezier(0.34, 1.2, 0.64, 1) both; }
+@keyframes g1castbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3%); } }
+@media (prefers-reduced-motion: reduce) { .g1-maktabscene .g1-yc-fig .g1-cast-svg { animation: none; } }
 /* yerda turgan savatlar (Dars04 uslubi) — personaj yonida, oyog'i oldida, dekorativ (bo'sh) */
 .g1-yard-basket { position: absolute; bottom: 1cqh; width: 15cqw; z-index: 4; opacity: 0; transition: opacity 0.5s ease; }
 .g1-yard-basket.in { opacity: 1; }
@@ -4589,6 +5864,7 @@ html, body { margin: 0; padding: 0; }
 .g1-yard-bubble.in { opacity: 1; }
 .g1-yard-bubble .fb, .g1-yard-bubble .fb-body { width: 100%; }
 .g1-yard-bubble-rano { left: 13cqw; }
+.g1-yard-bubble-anvar { left: 40cqw; }
 .g1-yard-bubble-zuhra { right: 11cqw; }
 @keyframes yardWalkIn { from { opacity: 0; transform: translateX(18cqw) translateY(0) scale(1); } to { opacity: 1; transform: translateX(0) translateY(0) scale(1); } }
 
@@ -4641,8 +5917,27 @@ html, body { margin: 0; padding: 0; }
 
 /* === Dars09 — son oqi (NumberLine) + juftlash ===*/
 .g1-nl { width: 100%; display: flex; justify-content: center; }
-.g1-nl-line { display: flex; align-items: flex-start; gap: clamp(2px, 1vw, 8px); padding: clamp(6px, 1.6vw, 12px) clamp(4px, 1.2vw, 10px); background: #FBF9F4; border-radius: 16px; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.06); position: relative; }
-.g1-nl-line::before { content: ""; position: absolute; left: clamp(14px, 3vw, 22px); right: clamp(14px, 3vw, 22px); top: clamp(14px, 3.2vw, 20px); height: 3px; background: #D8D2C6; border-radius: 2px; }
+.g1-nl-line { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: clamp(2px, 1vw, 8px); padding: clamp(58px, 13vw, 76px) clamp(14px, 3.4vw, 26px) clamp(6px, 1.6vw, 12px); background: #FBF9F4; border-radius: 16px; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.06); position: relative; }
+.g1-nl-line::before { content: ""; position: absolute; left: calc(clamp(14px, 3.4vw, 26px) + clamp(10px, 2.2vw, 14px)); right: calc(clamp(14px, 3.4vw, 26px) + clamp(10px, 2.2vw, 14px)); top: calc(clamp(58px, 13vw, 76px) + clamp(10px, 2.2vw, 14px)); height: 3px; background: #D8D2C6; border-radius: 2px; }
+/* quyon-sakrovchi: o'lchanган pozitsiyaga gorizontal siljiydi; ichki span yoy chizib sakraydi + qo'nishda sapchiydi */
+.g1-nl-rabbit { position: absolute; z-index: 4; pointer-events: none; transform: translate(-50%, -100%); transition: left 1.2s cubic-bezier(0.34, 1.06, 0.66, 1), top 1.2s cubic-bezier(0.34, 1.06, 0.66, 1); }
+.g1-nl-rabbit-hop { display: block; width: clamp(36px, 8.5vw, 50px); transform-origin: center bottom; animation: g1rabbithop 1.25s cubic-bezier(0.4, 0, 0.5, 1); }
+.g1-nl-rabbit-hop svg { width: 100%; height: auto; display: block; transform: scaleX(1.3); transform-origin: center bottom; filter: drop-shadow(0 4px 5px rgba(58,53,48,0.2)); }
+/* sakrash izi: ikki raqam orasidagi yoy chiziq (qisqa muddat ko'rinib o'chadi) */
+.g1-nl-trail { position: absolute; z-index: 2; pointer-events: none; height: clamp(20px, 4.6vw, 28px); border: 2.5px dashed #FF8A6E; border-bottom: none; border-radius: 50% 50% 0 0 / 100% 100% 0 0; transform: translateY(-100%); animation: g1trail 1.5s ease-out both; }
+@keyframes g1trail { 0% { opacity: 0; } 22% { opacity: 0.95; } 100% { opacity: 0; } }
+@keyframes g1rabbithop {
+  0%   { transform: translateY(0)     scaleX(1)    scaleY(1);    }
+  16%  { transform: translateY(3px)   scaleX(1.12) scaleY(0.82); }
+  50%  { transform: translateY(-24px) scaleX(0.93) scaleY(1.1);  }
+  84%  { transform: translateY(0)     scaleX(1.14) scaleY(0.84); }
+  100% { transform: translateY(0)     scaleX(1)    scaleY(1);    }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g1-nl-rabbit { transition: none; }
+  .g1-nl-rabbit-hop { animation: none; }
+  .g1-nl-trail { animation: none; opacity: 0.55; }
+}
 .g1-nl-tick { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: transparent; border: none; padding: 0 clamp(2px, 0.8vw, 6px); cursor: default; }
 button.g1-nl-tick { cursor: pointer; }
 .g1-nl-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.16); transition: transform 0.2s ease, background 0.2s ease; }
@@ -4664,6 +5959,64 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-mexp:disabled { cursor: default; }
 .g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
 
-/* === Dars11 — savol belgisi (ifodalar orasida) === */
-.g1-sent-q { font-family: "JetBrains Mono", monospace; font-weight: 800; font-size: clamp(22px, 4.5vw, 34px); color: #A7A6A2; }
+/* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
+.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
+.d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
+.d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
+.d4-croc-anim { animation: d4crocopen 0.5s cubic-bezier(0.34,1.5,0.64,1) both, d4crocbreathe 2.8s ease-in-out 0.55s infinite; transform-origin: center; }
+@keyframes d4crocopen { 0% { opacity: 0; transform: scaleX(0.5); } 100% { opacity: 1; transform: scaleX(1); } }
+@keyframes d4crocbreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+.d4-numtile { font-family: 'Manrope', sans-serif; font-weight: 800; color: #0E0E10; font-size: clamp(30px, 6.6vw, 46px); line-height: 1; display: inline-flex; align-items: center; justify-content: center; min-width: 1.1em; }
+
+/* === Dars13 — REKENREK (munchoq tasmasi) — YANGI MEXANIKA === */
+.g1-rk { display: inline-flex; flex-direction: column; gap: clamp(9px, 2.2vw, 15px); padding: clamp(12px, 2.8vw, 18px) clamp(15px, 3.4vw, 24px); background: linear-gradient(100deg, #D9AB73 0%, #C0904F 40%, #A8763E 100%); border-radius: 18px; border: 2px solid #7E5429; box-shadow: inset 0 3px 4px rgba(255,255,255,0.34), inset 0 -4px 6px rgba(0,0,0,0.24), inset 3px 0 5px rgba(255,255,255,0.12), 0 9px 22px -8px rgba(58,53,48,0.4); }
+.g1-rk-row { position: relative; display: flex; justify-content: space-between; align-items: center; min-width: clamp(170px, 44vw, 290px); max-width: 100%; height: clamp(24px, 5vw, 32px); }
+.g1-rk-wire { position: absolute; left: -3px; right: -3px; top: 50%; height: 4px; background: linear-gradient(#9A8463, #6E5436 45%, #4E3A22); transform: translateY(-50%); border-radius: 3px; box-shadow: 0 1px 0 rgba(255,255,255,0.18), inset 0 1px 1px rgba(255,255,255,0.25); }
+.g1-rk-grp { position: relative; z-index: 1; display: inline-flex; gap: clamp(1px, 0.5vw, 3px); }
+.g1-rk-bead { position: relative; width: clamp(18px, 4.3vw, 27px); height: clamp(18px, 4.3vw, 27px); border-radius: 50%; box-shadow: 0 3px 5px rgba(58,53,48,0.34), inset 0 -3px 4px rgba(0,0,0,0.26), inset 0 2px 3px rgba(255,255,255,0.4); }
+.g1-rk-bead::after { content: ""; position: absolute; top: 13%; left: 19%; width: 40%; height: 32%; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.35) 45%, rgba(255,255,255,0) 75%); pointer-events: none; }
+.g1-rk-red { background: radial-gradient(circle at 36% 30%, #FBA388 0%, #EC6040 38%, #C7401F 78%, #A8331A 100%); }
+.g1-rk-white { background: radial-gradient(circle at 36% 30%, #FFFFFF 0%, #F4EFE5 48%, #DCD2C0 82%, #C7BBA4 100%); }
+.g1-rk-gap { margin-left: clamp(7px, 1.8vw, 13px); }
+.g1-rk-bslide { animation: g1rkbead 0.62s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
+@keyframes g1rkbead {
+  0%   { transform: translateX(44px) scale(0.8) rotate(7deg);                  opacity: 0; }
+  42%  { transform: translateX(-6px) scaleX(1.2) scaleY(0.84) rotate(-4deg);   opacity: 1; }
+  60%  { transform: translateX(4px)  scaleX(0.9) scaleY(1.14) rotate(2.5deg); }
+  76%  { transform: translateX(-2px) scaleX(1.07) scaleY(0.96) rotate(-1deg); }
+  90%  { transform: translateX(1px)  scale(1.02) rotate(0.5deg); }
+  100% { transform: translateX(0)    scale(1) rotate(0); }
+}
+/* ramka zarbadan yengil silkinadi (jonli) */
+.g1-rk-shake { animation: g1rkshake 0.5s ease-out 0.18s both; }
+@keyframes g1rkshake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-2px) rotate(-0.5deg); }
+  55% { transform: translateX(2px) rotate(0.5deg); }
+  80% { transform: translateX(-1px) rotate(0); }
+}
+@media (prefers-reduced-motion: reduce) { .g1-rk-bslide, .g1-rk-shake { animation: none; } }
+
+/* === Dars15 — BOZOR sahnasi jonli harakatlari === */
+.g1-bz-swing { transform-box: view-box; transform-origin: 330px 28px; animation: g1bzswing 3.6s ease-in-out infinite; }
+@keyframes g1bzswing { 0%, 100% { transform: rotate(-2.4deg); } 50% { transform: rotate(2.4deg); } }
+.g1-bz-sway { transform-box: view-box; transform-origin: 200px 44px; animation: g1bzsway 4.4s ease-in-out infinite; }
+@keyframes g1bzsway { 0%, 100% { transform: translateY(0) rotate(-0.7deg); } 50% { transform: translateY(1.6px) rotate(0.7deg); } }
+.g1-bz-fringe { transform-box: view-box; transform-origin: 200px 28px; animation: g1bzfringe 3.1s ease-in-out infinite; }
+@keyframes g1bzfringe { 0%, 100% { transform: skewX(0deg) translateY(0); } 50% { transform: skewX(1.5deg) translateY(0.9px); } }
+@media (prefers-reduced-motion: reduce) { .g1-bz-swing, .g1-bz-sway, .g1-bz-fringe { animation: none; } }
+
+/* === Dars15 — OLMA / yashik (bozor sanoq metodi) === */
+.g1-apple { display: inline-flex; width: clamp(20px, 4.6vw, 30px); }
+.g1-apple svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 2px rgba(58,53,48,0.18)); }
+.g1-crate { position: relative; display: inline-flex; flex-direction: column; align-items: center; padding: clamp(6px, 1.6vw, 9px) clamp(8px, 2vw, 12px) clamp(16px, 3.4vw, 22px); background: linear-gradient(#CDA068, #A8763E); border-radius: 9px; border: 2px solid #855A2F; box-shadow: inset 0 2px 3px rgba(255,255,255,0.28), inset 0 -3px 5px rgba(0,0,0,0.18), 0 5px 12px -5px rgba(58,53,48,0.32); }
+.g1-crate-apples { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(1px, 0.5vw, 3px); }
+.g1-crate-label { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: clamp(11px, 2.2vw, 15px); color: #FBEFD8; letter-spacing: 0.04em; }
+.g1-fviz { display: flex; align-items: flex-end; justify-content: center; gap: clamp(10px, 2.6vw, 20px); flex-wrap: wrap; }
+.g1-fviz-ones { display: inline-flex; flex-wrap: wrap; align-items: flex-end; gap: clamp(2px, 0.8vw, 5px); max-width: clamp(120px, 34vw, 210px); }
+.g1-fviz-one { display: inline-flex; }
+.g1-fviz-plus { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #A7A6A2; align-self: center; }
+.g1-fviz-pop .g1-fviz-one { animation: g1fpop 0.42s cubic-bezier(0.34, 1.5, 0.6, 1) both; }
+@keyframes g1fpop { 0% { transform: translateY(-16px) scale(0.6); opacity: 0; } 60% { transform: translateY(2px) scale(1.1); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-fviz-pop .g1-fviz-one { animation: none; } }
 `;

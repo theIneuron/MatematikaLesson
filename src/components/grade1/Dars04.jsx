@@ -39,7 +39,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false; // TEST — slayd gating O'CHIRILGAN (ishlab chiqarishdan oldin false ga qaytaring)
+const FREE_NAV = true; // TEST — slayd gating O'CHIRILGAN (ishlab chiqarishdan oldin false ga qaytaring)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -55,7 +55,7 @@ const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|E
 const stripAudioTags = (s) => typeof s === 'string'
   ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
-      .replace(/\s{2,}/g, ' ').trim()
+      .replace(/\s{2,}/g, ' ')
   : s;
 
 // HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
@@ -495,7 +495,7 @@ function useAdvanceGate(solved, audio) {
 // ============================================================
 const Op = React.memo(({ children, size = 'mid' }) => {
   const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
-                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
+                   size === 'mid' ? 'clamp(24px, 5vw, 34px)' :
                    'clamp(12px, 2.1vw, 18px)';
   return <span className="mop" style={{ fontSize }}>{children}</span>;
 });
@@ -774,7 +774,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
                   {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
@@ -788,7 +788,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {solved && !celebrateOnCorrect && (
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <button className="option option-correct" disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
             </button>
@@ -849,8 +849,8 @@ const CONTENT = {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
     title: { ru: 'У кого больше фруктов?', uz: "Kimda meva ko'p?" },
     body: {
-      ru: 'В прошлый раз мы навели порядок на улице и узнали числа до десяти. Сегодня Рано и Анвар собирали фрукты во дворе. У каждого получилась своя корзина. Рано говорит, что у неё больше. Анвар говорит, что у него. Давай посчитаем и сравним по-честному.',
-      uz: "O'tgan safar ko'chada tartib o'rnatdik va o'ngacha sonlarni o'rgandik. Bugun Ra'no va Anvar hovlida meva yig'ishdi. Har birida o'z savati bor. Ra'no menda ko'p deydi. Anvar esa menda deydi. Keling, sanaymiz va halol taqqoslaymiz."
+      ru: 'В прошлый раз мы навели порядок на улице и узнали числа до десяти. Сегодня Рано и Анвар с корзинами фруктов пришли отдохнуть на берег озера. А в озере живёт большой крокодил. Он немного голодный и всё смотрит, где фруктов больше. Рано говорит, что больше у неё, Анвар — что у него. Давай посчитаем и сравним по-честному, а крокодил поможет нам увидеть, где больше.',
+      uz: "O'tgan safar ko'chada tartib o'rnatdik va o'ngacha sonlarni o'rgandik. Bugun Ra'no va Anvar meva savatlari bilan ko'l bo'yiga dam olgani kelishdi. Ko'lda esa katta timsoh yashaydi. U bir oz och va doim qayerda meva ko'proq ekaniga qaraydi. Ra'no menda ko'p deydi, Anvar esa menda deydi. Keling, sanaymiz va halol taqqoslaymiz, timsoh esa qayerda ko'proq ekanini ko'rsatishga yordam beradi."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -858,15 +858,17 @@ const CONTENT = {
     audio: {
       ru: [
         'Привет, друг! В прошлый раз мы навели порядок на улице и узнали числа до десяти.',
-        'Сегодня Рано и Анвар собирали фрукты во дворе. У каждого своя корзина.',
-        'Рано думает, что у неё больше. Анвар думает, что у него больше.',
-        'Давай посчитаем и сравним по-честному. Слушай меня и нажимай кнопку дальше.'
+        'Сегодня Рано и Анвар с корзинами фруктов пришли отдохнуть на берег озера.',
+        'А в озере живёт большой крокодил. Он немного голодный и всё смотрит, где фруктов больше.',
+        'Рано думает, что больше у неё. Анвар думает, что больше у него.',
+        'Давай посчитаем и сравним по-честному. А крокодил поможет нам увидеть, где больше. Слушай меня и нажимай кнопку дальше.'
       ],
       uz: [
         "Salom, do'stim! O'tgan safar ko'chada tartib o'rnatdik va o'ngacha sonlarni o'rgandik.",
-        "Bugun Ra'no va Anvar hovlida meva yig'ishdi. Har birida o'z savati bor.",
+        "Bugun Ra'no va Anvar meva savatlari bilan ko'l bo'yiga dam olgani kelishdi.",
+        "Ko'lda esa katta timsoh yashaydi. U bir oz och va doim qayerda meva ko'proq ekaniga qaraydi.",
         "Ra'no menda ko'p deb o'ylaydi. Anvar esa menda ko'p deb o'ylaydi.",
-        "Keling, sanaymiz va halol taqqoslaymiz. Meni tinglang va davom tugmasini bosing."
+        "Keling, sanaymiz va halol taqqoslaymiz. Timsoh esa qayerda ko'proq ekanini ko'rsatadi. Meni tinglang va davom tugmasini bosing."
       ]
     }
   },
@@ -881,8 +883,8 @@ const CONTENT = {
     opt2: { ru: 'Трудно сказать', uz: 'Aytish qiyin' },
     audio: {
       intro: {
-        ru: 'У Рано яблоки крупные, и кажется, что их больше. А у Анвара фрукты мелкие. Как думаешь, где больше? Нажми любой ответ, потом посчитаем.',
-        uz: "Ra'noning olmalari yirik, ko'pdek tuyuladi. Anvarniki esa mayda. Sizningcha qayerda ko'p? Qaysi javob bo'lsa ham bosing, keyin sanaymiz."
+        ru: 'У Рано манго крупные, и кажется, что их больше. А у Анвара виноградинки мелкие. Даже крокодил засмотрелся и не поймёт, где больше. Как думаешь? Нажми любой ответ, потом посчитаем.',
+        uz: "Ra'noning mangolari yirik, ko'pdek tuyuladi. Anvarning uzumlari esa mayda. Timsoh ham dovdirab qoldi, qayerda ko'p ekanini bilmayapti. Sizningcha qayerda ko'p? Qaysi javob bo'lsa ham bosing, keyin sanaymiz."
       },
       on_correct: { ru: 'Глазам можно поверить не всегда. Сейчас посчитаем точно.', uz: "Ko'zga doim ishonib bo'lmaydi. Endi aniq sanaymiz." },
       on_wrong: { ru: 'Глазам можно поверить не всегда. Сейчас посчитаем точно.', uz: "Ko'zga doim ishonib bo'lmaydi. Endi aniq sanaymiz." }
@@ -950,12 +952,12 @@ const CONTENT = {
     done_text: { ru: 'Рот крокодила открыт к большему числу.', uz: "Timsohning og'zi kattaroq songa ochilgan." },
     audio: {
       ru: [
-        'Познакомься: это крокодил. Он очень голодный и всегда хочет съесть то, где больше.',
-        'Поэтому он открывает рот к большему числу. Семь больше четырёх. Значит, рот открыт к семи.'
+        'Помнишь нашего друга крокодила? Он голодный и всегда поворачивается открытым ртом туда, где больше.',
+        'Так он показывает большее число. Семь больше четырёх. Значит, рот открыт к семи.'
       ],
       uz: [
-        "Tanishing: bu timsoh. U juda och va doim ko'p bo'lgan tomonni yemoqchi.",
-        "Shuning uchun og'zini kattaroq songa ochadi. Yetti to'rtdan katta. Demak og'iz yettiga ochilgan."
+        "Do'stimiz timsohni eslaysizmi? U och va doim og'zini ko'p tomonga ochib qaraydi.",
+        "Shunday qilib u kattaroq sonni ko'rsatadi. Yetti to'rtdan katta. Demak og'iz yettiga ochilgan."
       ]
     }
   },
@@ -990,7 +992,7 @@ const CONTENT = {
     wrong_0: { ru: 'Посчитай обе корзины. И там, и там по шесть. Если поровну, никто не больше, числа равны.', uz: "Ikkala savatni sanang. U yerda ham, bu yerda ham oltitadan. Teng bo'lsa, hech kim ko'p emas, sonlar teng." },
     wrong_default: { ru: 'Сравни числа ещё раз. Если предметов поровну, то они равны.', uz: "Sonlarni yana taqqoslang. Predmet barobar bo'lsa, ular teng." },
     audio: {
-      intro: { ru: 'У Рано шесть яблок и у Анвара шесть яблок. Анвар сказал, что у него больше. Подумай, это верно? Нажми да или нет.', uz: "Ra'noda olti olma va Anvarda olti olma. Anvar menda ko'p dedi. O'ylab ko'ring, bu to'g'rimi? Ha yoki yo'q ni bosing." },
+      intro: { ru: 'У Рано шесть манго и у Анвара шесть манго. Анвар сказал, что у него больше. Подумай, это верно? Нажми да или нет.', uz: "Ra'noda olti mango va Anvarda olti mango. Anvar menda ko'p dedi. O'ylab ko'ring, bu to'g'rimi? Ha yoki yo'q ni bosing." },
       on_correct: { ru: 'Верно. Их поровну.', uz: "To'g'ri. Ular teng." },
       on_wrong: { ru: 'Не совсем. Посчитай обе корзины.', uz: "Unchalik emas. Ikkala savatni sanang." }
     }
@@ -1033,20 +1035,22 @@ const CONTENT = {
     eyebrow: { ru: 'По-честному', uz: 'Adolat bilan' },
     title: { ru: 'Поделились по-дружески', uz: "Do'stona bo'lishdi" },
     body: {
-      ru: 'У Анвара фруктов было больше, у Рано меньше. Друзья не стали спорить. Они собрали фрукты вместе, поделили по-дружески и угостили друг друга. Теперь оба довольны, и никто не в обиде. А в следующий раз посмотрим, из каких частей складывается число.',
-      uz: "Anvarda meva ko'proq, Ra'noda kamroq edi. Do'stlar tortishmadi. Mevani birga bo'lishib, bir-birini mehmon qilishdi. Endi ikkalasi ham xursand, hech kim xafa emas. Keyingi safar son qaysi qismlardan tuzilishini ko'ramiz."
+      ru: 'У Анвара фруктов было больше, у Рано меньше. Друзья не стали спорить. Они поделили фрукты поровну и угостили друг друга, а голодному крокодилу тоже дали фрукт. Теперь у всех поровну, крокодил довольно закрыл рот — получился знак равно. Все рады. А в следующий раз посмотрим, из каких частей складывается число.',
+      uz: "Anvarda meva ko'proq, Ra'noda kamroq edi. Do'stlar tortishmadi. Mevani teng bo'lishib, bir-birini mehmon qilishdi, och timsohga ham meva berishdi. Endi hammada teng, timsoh mamnun og'zini yopdi — teng belgisi chiqdi. Hamma xursand. Keyingi safar son qaysi qismlardan tuzilishini ko'ramiz."
     },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     audio: {
       ru: [
         'У Анвара фруктов было больше, у Рано меньше.',
-        'Друзья не стали спорить. Они поделили фрукты по-дружески и угостили друг друга. Никто не в обиде.',
+        'Друзья не стали спорить. Они поделили фрукты поровну и угостили друг друга, а голодному крокодилу тоже дали фрукт.',
+        'Теперь у всех поровну. Крокодил довольно закрыл рот, получился знак равно. Все рады.',
         'А в следующий раз узнаем, из каких частей складывается число.'
       ],
       uz: [
         "Anvarda meva ko'proq, Ra'noda kamroq edi.",
-        "Do'stlar tortishmadi. Mevani do'stona bo'lishib, bir-birini mehmon qilishdi. Hech kim xafa emas.",
+        "Do'stlar tortishmadi. Mevani teng bo'lishib, bir-birini mehmon qilishdi, och timsohga ham meva berishdi.",
+        "Endi hammada teng. Timsoh mamnun og'zini yopdi, teng belgisi chiqdi. Hamma xursand.",
         "Keyingi safar son qaysi qismlardan tuzilishini bilib olamiz."
       ]
     }
@@ -1062,7 +1066,7 @@ const CONTENT = {
     fact_text: { ru: 'Когда делят поровну, все довольны. Поэтому друзья и делят по-честному — чтобы никто не обижался.', uz: "Teng bo'linganda hamma rozi bo'ladi. Shuning uchun do'stlar halol — teng bo'lishadi, hech kim xafa bo'lmasin." },
     fact_audio: { ru: 'А знаешь, когда делят поровну, все довольны. Поэтому друзья делят по-честному.', uz: "Bilasizmi, teng bo'linganda hamma rozi bo'ladi. Shuning uchun do'stlar halol bo'lishadi." },
     audio: {
-      intro: { ru: 'У Рано восемь яблок и у Анвара восемь. Поровну или у кого-то больше? Что сделает крокодил?', uz: "Ra'noda sakkiz olma va Anvarda sakkiz. Tengmi yoki kimdadir ko'pmi? Timsoh nima qiladi?" },
+      intro: { ru: 'У Рано восемь манго и у Анвара восемь. Поровну или у кого-то больше? Что сделает крокодил?', uz: "Ra'noda sakkiz mango va Anvarda sakkiz. Tengmi yoki kimdadir ko'pmi? Timsoh nima qiladi?" },
       on_correct: { ru: 'Верно. Поровну, рот закрыт, равно.', uz: "To'g'ri. Teng, og'iz yopiq, teng." },
       on_wrong: { ru: 'Не совсем. Посчитай обе корзины.', uz: "Unchalik emas. Ikkala savatni sanang." }
     }
@@ -1080,8 +1084,8 @@ const CONTENT = {
     conn_label_next: { ru: 'Следующий урок', uz: 'Keyingi dars' },
     conn_next: { ru: 'Состав числа 2–5.', uz: "Son tarkibi 2–5." },
     audio: {
-      ru: 'Сегодня Рано и Анвар сравнили свои корзины и вместе поделили фрукты, угостили друг друга. А ты научился сравнивать числа до десяти. Ты видишь, где больше, где меньше, а где поровну. И узнал три знака. Это больше, меньше и равно. На следующем уроке узнаем, из каких частей складываются числа.',
-      uz: "Bugun Ra'no va Anvar savatlarini taqqoslashdi va mevani birga bo'lishib, bir-birini mehmon qilishdi. Siz esa o'ngacha sonlarni taqqoslashni o'rgandingiz. Qayerda ko'p, qayerda kam, qayerda teng ekanini ko'rasiz. Va uchta belgini bildingiz. Bular katta, kichik va teng. Keyingi darsda sonlar qaysi qismlardan tuzilishini bilib olamiz."
+      ru: 'Сегодня Рано и Анвар сравнили свои корзины и вместе поделили фрукты, угостили друг друга и крокодила. А ты научился сравнивать числа до десяти. Ты видишь, где больше, где меньше, а где поровну. И узнал знак крокодила. Рот открыт к большему, а когда поровну — рот закрыт, это равно. На следующем уроке узнаем, из каких частей складываются числа.',
+      uz: "Bugun Ra'no va Anvar savatlarini taqqoslashdi va mevani birga bo'lishib, bir-birini va timsohni ham mehmon qilishdi. Siz esa o'ngacha sonlarni taqqoslashni o'rgandingiz. Qayerda ko'p, qayerda kam, qayerda teng ekanini ko'rasiz. Va timsoh belgisini bildingiz. Og'iz kattaga ochiladi, teng bo'lsa og'iz yopiq, bu teng. Keyingi darsda sonlar qaysi qismlardan tuzilishini bilib olamiz."
     }
   }
 };
@@ -1142,6 +1146,12 @@ const GradientDefs = () => (
       <radialGradient id="g1chrG" cx="36%" cy="30%" r="72%">
         <stop offset="0%" stopColor="#FF6A66"/><stop offset="50%" stopColor="#C8102E"/><stop offset="100%" stopColor="#7A0820"/>
       </radialGradient>
+      <radialGradient id="g1mangoG" cx="34%" cy="28%" r="76%">
+        <stop offset="0%" stopColor="#FFE07A"/><stop offset="50%" stopColor="#F7A81E"/><stop offset="100%" stopColor="#DE7A10"/>
+      </radialGradient>
+      <radialGradient id="g1grapeG" cx="36%" cy="30%" r="72%">
+        <stop offset="0%" stopColor="#C29BE0"/><stop offset="52%" stopColor="#8E4FC4"/><stop offset="100%" stopColor="#5A2C8E"/>
+      </radialGradient>
       <radialGradient id="g1nonG" cx="40%" cy="33%" r="72%">
         <stop offset="0%" stopColor="#F0CC86"/><stop offset="58%" stopColor="#D9A35A"/><stop offset="100%" stopColor="#B07734"/>
       </radialGradient>
@@ -1168,7 +1178,9 @@ const ICON = {
   fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
   flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
   balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
-  cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
+  cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>,
+  mango: <g><path d="M20 8 q2 -4 5 -4" stroke="#5A7D25" strokeWidth="2" fill="none" strokeLinecap="round"/><ellipse cx="26" cy="7" rx="4.5" ry="2.6" fill="#3E9B3A" transform="rotate(-20 26 7)"/><path d="M20 9 C 11 9 7 16 8 24 C 9 31 14 35 20 35 C 26 35 31 31 32 23 C 33 15 29 9 20 9 Z" fill="url(#g1mangoG)"/><ellipse cx="14" cy="17" rx="2.8" ry="6" fill="rgba(255,255,255,0.5)" transform="rotate(-18 14 17)"/><circle cx="13" cy="14" r="1.9" fill="rgba(255,255,255,0.7)"/></g>,
+  grape: <g><path d="M20 11 q1 -4 4 -5" stroke="#5A7D25" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="24" cy="7" rx="3.4" ry="2" fill="#3E9B3A" transform="rotate(-20 24 7)"/><circle cx="20" cy="24" r="9.5" fill="url(#g1grapeG)"/><ellipse cx="16" cy="20" rx="2.4" ry="3.6" fill="rgba(255,255,255,0.5)" transform="rotate(-18 16 20)"/><circle cx="15" cy="18" r="1.5" fill="rgba(255,255,255,0.72)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
 
@@ -1751,7 +1763,7 @@ const BasketCelebration = ({ n = 5 }) => (
       <BasketArt/>
       <div className="g1-rb-bowl">
         {Array.from({ length: n }).map((_, i) => (
-          <span key={i} className="g1-token-obj g1-celebrate-apple" style={{ animationDelay: `${0.6 + i * 0.45}s` }}><ObjSvg kind="apple"/></span>
+          <span key={i} className="g1-token-obj g1-celebrate-apple" style={{ animationDelay: `${0.6 + i * 0.45}s` }}><ObjSvg kind="mango"/></span>
         ))}
       </div>
     </div>
@@ -1984,7 +1996,7 @@ const GameDrill = (props) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           {(ex.type === 'basket' || ex.type === 'puzzle') && exIdx <= 1 && !demoOff && !solvedItem && Object.keys(placement).length === 0 && (
             <BasketHandDemo piece={ex.type === 'basket'
-              ? <span className="g1-bhd-apple"><ObjSvg kind="apple"/></span>
+              ? <span className="g1-bhd-apple"><ObjSvg kind="mango"/></span>
               : <span className="g1-bhd-petal"/>}/>
           )}
           {ex.type === 'basket' && (
@@ -2026,7 +2038,7 @@ const GameDrill = (props) => {
                 const tid = tokenInZone(z.id);
                 return <div key={z.id} className={`g1-mbasket g1-dropzone ${wrongZone === z.id ? 'g1-nudge' : ''}`} data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
                   <div className="g1-mbasket-num mono">{tid ? tokenById(tid).value : ''}</div>
-                  <Pips n={z.count} kind="apple"/>
+                  <Pips n={z.count} kind="mango"/>
                 </div>;
               })}
             </div>
@@ -2829,7 +2841,25 @@ const D4Basket = ({ n = 0, kind = 'apple', mountCls = '' }) => {
 // TopFruitSvg — USTDAN ko'rinish (qush parvozi) meva tokeni. viewBox 0 0 40 40. g1apA/g1chrG root'da.
 const TopFruitSvg = ({ kind = 'apple' }) => (
   <svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true">
-    {kind === 'cherry' ? (
+    {kind === 'mango' ? (
+      <g>
+        {/* mango (katta, oltinrang, cho'ziq) — USTDAN ko'rinish */}
+        <ellipse cx="20" cy="34" rx="15" ry="3.2" fill="rgba(58,53,48,0.15)"/>
+        <path d="M8 22 C 8 13 16 9 24 10 C 33 11 34 20 31 26 C 28 31 20 33 14 31 C 9.5 29 8 26 8 22 Z" fill="url(#g1mangoG)"/>
+        <path d="M23 9.5 q3 -3 6 -1" stroke="#5A7D25" strokeWidth="2" fill="none" strokeLinecap="round"/>
+        <ellipse cx="15" cy="17" rx="4" ry="6" fill="rgba(255,255,255,0.5)" transform="rotate(-24 15 17)"/>
+        <circle cx="13.5" cy="14.5" r="1.8" fill="rgba(255,255,255,0.7)"/>
+      </g>
+    ) : kind === 'grape' ? (
+      <g>
+        {/* uzum (kichik, siyohrang bitta g'uja) — USTDAN ko'rinish */}
+        <ellipse cx="20" cy="29" rx="8" ry="2.4" fill="rgba(58,53,48,0.15)"/>
+        <circle cx="20" cy="22" r="8" fill="url(#g1grapeG)"/>
+        <path d="M20 14 q2 -3 5 -3" stroke="#5A7D25" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+        <ellipse cx="17" cy="19" rx="2.1" ry="3" fill="rgba(255,255,255,0.5)" transform="rotate(-20 17 19)"/>
+        <circle cx="16" cy="17.5" r="1.2" fill="rgba(255,255,255,0.7)"/>
+      </g>
+    ) : kind === 'cherry' ? (
       <g>
         <ellipse cx="20" cy="33" rx="13" ry="3" fill="rgba(58,53,48,0.15)"/>
         <circle cx="15" cy="22" r="9" fill="url(#g1chrG)"/>
@@ -2950,6 +2980,106 @@ const YardBg = ({ variant = 'room' }) => (
     {/* past yog'och panjara */}
     <g stroke="#B9925E" strokeWidth="4" strokeLinecap="round"><path d="M14 166 v18 M44 166 v18 M74 166 v18 M104 166 v18 M134 166 v18 M164 166 v18 M236 166 v18 M266 166 v18 M296 166 v18 M326 166 v18 M356 166 v18 M386 166 v18"/></g>
     <g stroke="#CDA873" strokeWidth="4" strokeLinecap="round"><path d="M0 170 h170 M232 170 h168 M0 180 h170 M232 180 h168"/></g>
+  </svg>
+);
+
+// LakeBg — ko'l bo'yi sahnasi (osmon, quyosh, palma+qamish, ko'l suvi, old plan qumli qirg'oq).
+// Timsoh tabiiy makonida: bolalar qirg'oqda (y=178), suv ortda, timsoh (D4CrocReal) old planda suv chetida.
+// viewBox 0 0 400 230, xMidYMax slice, yer chizig'i y=178 (YardBg bilan bir xil).
+const LakeBg = ({ variant = 'room' }) => (
+  <svg className="g1-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="d4sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#A9E1F2"/><stop offset="65%" stopColor="#DAF1F8"/><stop offset="100%" stopColor="#EEF9FC"/>
+      </linearGradient>
+      <linearGradient id="d4lake" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#C6ECF3"/><stop offset="18%" stopColor="#6FC6DE"/><stop offset="100%" stopColor="#2580AB"/>
+      </linearGradient>
+      <linearGradient id="d4sand" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#F4E4B4"/><stop offset="100%" stopColor="#DABE77"/>
+      </linearGradient>
+      <linearGradient id="d4trunk" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#B58248"/><stop offset="55%" stopColor="#8A5A30"/><stop offset="100%" stopColor="#6C4522"/>
+      </linearGradient>
+      <linearGradient id="d4frond" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#63B44F"/><stop offset="100%" stopColor="#3B8535"/>
+      </linearGradient>
+      <radialGradient id="d4sun" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#FFFBE2"/><stop offset="55%" stopColor="#FFE990"/><stop offset="100%" stopColor="#FFD65C"/>
+      </radialGradient>
+    </defs>
+    {/* osmon */}
+    <rect x="0" y="0" width="400" height="126" fill="url(#d4sky)"/>
+    {/* quyosh (yumshoq halo bilan) */}
+    <circle cx="330" cy="40" r="34" fill="#FFEFA8" opacity="0.35"/>
+    <circle cx="330" cy="40" r="20" fill="url(#d4sun)"/>
+    <g stroke="#FFDE7A" strokeWidth="2.4" strokeLinecap="round" opacity="0.55"><path d="M330 10 v-5 M330 70 v5 M300 40 h-5 M360 40 h5 M309 19 l-3.5 -3.5 M351 61 l3.5 3.5 M351 19 l3.5 -3.5 M309 61 l-3.5 3.5"/></g>
+    {/* qushlar (uzoqda, sekin uchadi) */}
+    <g className="d4-bird" stroke="#5E5E66" strokeWidth="1.8" fill="none" strokeLinecap="round"><path d="M112 42 q6 -5.5 12 0 q6 -5.5 12 0"/></g>
+    <g className="d4-bird" style={{ animationDelay: '2.4s' }} stroke="#6B6B72" strokeWidth="1.5" fill="none" strokeLinecap="round"><path d="M150 56 q5 -4.5 10 0 q5 -4.5 10 0"/></g>
+    {/* bulutlar — puxta kumulus (yassi tag) */}
+    <g className="d4-cloud"><g fill="#FFFFFF"><ellipse cx="86" cy="34" rx="22" ry="13"/><ellipse cx="104" cy="30" rx="16" ry="12"/><ellipse cx="68" cy="38" rx="14" ry="9"/><ellipse cx="118" cy="39" rx="12" ry="8"/><rect x="55" y="38" width="74" height="9" rx="4.5"/></g><ellipse cx="90" cy="46" rx="38" ry="3.5" fill="#D6E7EF" opacity="0.5"/></g>
+    <g className="d4-cloud2"><g fill="#FFFFFF"><ellipse cx="236" cy="26" rx="18" ry="10"/><ellipse cx="252" cy="24" rx="13" ry="9"/><rect x="220" y="28" width="44" height="7" rx="3.5"/></g></g>
+    {/* uzoq tepaliklar — 3 qatlam (atmosfera perspektivasi) */}
+    <path d="M0 108 Q80 90 172 104 Q280 120 400 98 L400 124 L0 124 Z" fill="#BCDBA6"/>
+    <path d="M0 115 Q110 99 220 112 Q320 122 400 108 L400 126 L0 126 Z" fill="#9AC982"/>
+    <path d="M0 120 Q90 111 182 119 Q300 129 400 116 L400 127 L0 127 Z" fill="#79B268"/>
+    <g fill="#6BA65C"><ellipse cx="120" cy="119" rx="16" ry="8"/><ellipse cx="210" cy="121" rx="14" ry="7"/><ellipse cx="60" cy="121" rx="12" ry="6"/></g>
+    {/* palma (o'ngda) — segmentli tana, egilgan barglar, kokoslar */}
+    <g>
+      <path d="M349 122 Q343 94 351 65 L360 66 Q355 95 359 122 Z" fill="url(#d4trunk)"/>
+      <g stroke="#6C4522" strokeWidth="1" opacity="0.5" fill="none"><path d="M350 114 q5 2 9 0"/><path d="M350 104 q5 2 9 0"/><path d="M351 93 q5 2 8 0"/><path d="M351 82 q4 2 7 0"/><path d="M352 73 q3 2 6 0"/></g>
+      <g fill="url(#d4frond)">
+        <path d="M355 65 Q322 58 300 67 Q325 65 355 70 Z"/>
+        <path d="M355 65 Q388 58 410 67 Q385 65 355 70 Z"/>
+        <path d="M355 65 Q330 45 314 30 Q347 50 358 66 Z"/>
+        <path d="M355 65 Q380 45 396 30 Q363 50 353 66 Z"/>
+        <path d="M355 67 Q328 76 310 90 Q343 71 357 69 Z"/>
+        <path d="M355 67 Q382 76 400 90 Q367 71 354 69 Z"/>
+      </g>
+      <g stroke="#2E6E2C" strokeWidth="1" opacity="0.45" fill="none"><path d="M355 67 Q330 63 305 68"/><path d="M355 67 Q380 63 405 68"/><path d="M355 66 Q334 50 318 34"/><path d="M355 66 Q376 50 392 34"/><path d="M355 68 Q333 75 314 88"/><path d="M355 68 Q377 75 396 88"/></g>
+      <g fill="#7A4B22" stroke="#5E3A1A" strokeWidth="0.6"><circle cx="351" cy="68" r="3.2"/><circle cx="358" cy="69" r="3.2"/><circle cx="354" cy="72" r="3"/></g>
+    </g>
+    {/* qamishlar + o'tlar (chapda, tebranadi) */}
+    <g className="d4-reed" fill="none" stroke="#5A9E3E" strokeWidth="2.4" strokeLinecap="round"><path d="M28 124 Q26 106 31 91"/></g>
+    <g className="d4-reed2"><path d="M40 124 Q38 100 43 82" fill="none" stroke="#4F8E36" strokeWidth="2.6" strokeLinecap="round"/><rect x="40.5" y="78" width="5" height="15" rx="2.5" fill="#8A5A2C"/><path d="M43 78 v-4" stroke="#8A5A2C" strokeWidth="2" strokeLinecap="round"/></g>
+    <g className="d4-reed" style={{ animationDelay: '1s' }} fill="none" stroke="#66AD46" strokeWidth="2.2" strokeLinecap="round"><path d="M50 124 Q52 108 47 95"/></g>
+    <g stroke="#5FA043" strokeWidth="2" strokeLinecap="round" fill="none"><path d="M24 124 q1 -8 4 -12 M33 124 q0 -9 3 -13 M56 124 q1 -8 5 -12"/></g>
+    {/* ninachi (qamish tepasida uchadi) */}
+    <g className="d4-dragon"><g transform="translate(66 90)"><ellipse cx="0" cy="0" rx="1.5" ry="6" fill="#0E86B4"/><circle cx="0" cy="-6" r="1.6" fill="#0A6E96"/><ellipse cx="-4.5" cy="-2" rx="5" ry="1.7" fill="#7FD0E8" opacity="0.85"/><ellipse cx="4.5" cy="-2" rx="5" ry="1.7" fill="#7FD0E8" opacity="0.85"/><ellipse cx="-4" cy="1.5" rx="4" ry="1.4" fill="#A6E0F0" opacity="0.75"/><ellipse cx="4" cy="1.5" rx="4" ry="1.4" fill="#A6E0F0" opacity="0.75"/></g></g>
+    {/* ko'l suvi */}
+    <rect x="0" y="122" width="400" height="58" fill="url(#d4lake)"/>
+    {/* ufq yorug' zolagi (aks) */}
+    <rect x="0" y="122" width="400" height="6" fill="#E8F8FC" opacity="0.7"/>
+    {/* palma aksi suvda */}
+    <path d="M350 124 Q353 142 350 158" stroke="#3B8535" strokeWidth="7" strokeLinecap="round" opacity="0.16" fill="none"/>
+    {/* quyosh aksi (suvda porlash — buzilgan yaltirashlar) */}
+    <g className="d4-shimmer" fill="#FFF6D0" opacity="0.55"><ellipse cx="329" cy="130" rx="14" ry="2.2"/><ellipse cx="333" cy="138" rx="22" ry="3"/><ellipse cx="327" cy="147" rx="16" ry="2.4"/><ellipse cx="332" cy="158" rx="26" ry="3.4"/><ellipse cx="329" cy="168" rx="20" ry="2.8"/></g>
+    {/* to'lqin chiziqlari (yumshoq) */}
+    <g stroke="#E4F6FB" strokeWidth="1.8" strokeLinecap="round" opacity="0.6" fill="none"><path d="M44 138 q10 -3 20 0 q10 3 20 0"/><path d="M120 150 q12 -3 24 0 q12 3 24 0"/><path d="M206 135 q10 -3 20 0 q10 3 20 0"/><path d="M66 168 q10 -3 20 0"/><path d="M150 172 q12 -3 24 0"/></g>
+    {/* nilufar barglari (o'yiqli, tomirli) + lotus (suzadi) */}
+    <g className="d4-lily">
+      <ellipse cx="92" cy="162" rx="18" ry="7" fill="#4FA85C"/>
+      <ellipse cx="92" cy="160.5" rx="18" ry="6.4" fill="#5FB86A"/>
+      <path d="M92 162 L106 158.5 L106 165.5 Z" fill="url(#d4lake)"/>
+      <g stroke="#2E7D42" strokeWidth="0.8" opacity="0.5" fill="none"><path d="M92 162 L78 159"/><path d="M92 162 L79 164"/><path d="M92 162 L86 156"/><path d="M92 162 L86 168"/></g>
+      <g transform="translate(96 156)"><g fill="#FF8FB0"><ellipse cx="0" cy="-3.4" rx="2.6" ry="4.4"/><ellipse cx="-3.2" cy="-1" rx="2.6" ry="4.4" transform="rotate(-44)"/><ellipse cx="3.2" cy="-1" rx="2.6" ry="4.4" transform="rotate(44)"/></g><g fill="#FFB3CB"><ellipse cx="-1.6" cy="-2.6" rx="1.9" ry="3.4" transform="rotate(-22)"/><ellipse cx="1.6" cy="-2.6" rx="1.9" ry="3.4" transform="rotate(22)"/></g><circle cx="0" cy="-1.4" r="1.9" fill="#FFD25A"/></g>
+    </g>
+    <g className="d4-lily" style={{ animationDelay: '1.7s' }}><ellipse cx="252" cy="170" rx="15" ry="6" fill="#4FA85C"/><ellipse cx="252" cy="168.6" rx="15" ry="5.4" fill="#5FB86A"/><path d="M252 170 L264 167 L264 173 Z" fill="url(#d4lake)"/></g>
+    {variant === 'door' && (<g className="d4-lily" style={{ animationDelay: '0.8s' }}><ellipse cx="176" cy="150" rx="13" ry="5" fill="#4FA85C"/><path d="M176 150 L186 147.5 L186 152.5 Z" fill="url(#d4lake)"/></g>)}
+    {/* qumli qirg'oq (old plan, personajlar y=178 da turadi) */}
+    <rect x="0" y="176" width="400" height="54" fill="url(#d4sand)"/>
+    {/* nam qum (suvga yaqin, quyuqroq) */}
+    <path d="M0 176 Q110 172 210 179 Q310 185 400 176 L400 185 L0 185 Z" fill="#CDB06E" opacity="0.55"/>
+    {/* quruq qum yorug'i */}
+    <path d="M0 188 Q120 184 240 189 Q330 192 400 186 L400 200 L0 200 Z" fill="#F4E7BE" opacity="0.6"/>
+    {/* suv chekkasi (nam chiziq) */}
+    <path d="M0 177 Q110 173 210 180 Q310 186 400 177" fill="none" stroke="#CFF0F5" strokeWidth="2" opacity="0.7"/>
+    {/* qum toshlari (yorug' bilan) + o'tlar */}
+    <g><ellipse cx="52" cy="206" rx="10" ry="4" fill="#C6A96C"/><ellipse cx="49" cy="204.5" rx="4" ry="1.5" fill="#E8D6A6" opacity="0.7"/></g>
+    <g><ellipse cx="344" cy="211" rx="12" ry="4.6" fill="#BE9F60"/><ellipse cx="340" cy="209" rx="5" ry="1.8" fill="#E8D6A6" opacity="0.7"/></g>
+    <ellipse cx="150" cy="216" rx="6" ry="2.5" fill="#CBAE70"/>
+    <g stroke="#7FB35E" strokeWidth="2" strokeLinecap="round" fill="none"><path d="M112 192 q2 -7 6 -10 M118 192 q0 -8 3 -12 M124 192 q2 -7 5 -10 M300 197 q2 -7 6 -10 M306 197 q0 -7 3 -11"/></g>
   </svg>
 );
 
@@ -3089,6 +3219,74 @@ const CrocChase = ({ target }) => (
   </div>
 );
 
+// D4CrocReal — SYUJET timsohi: TO'LIQ, real (tanasi, dumi, oyoqlari, uzun tumshug'i). Katta sahnalar uchun.
+// mood='curious' -> og'iz ochiq, ko'z hushyor (kirish); mood='happy' -> og'iz yopiq, jilmayadi (ko'prik/yakun).
+// Savollarda EMAS — u yerda faqat belgi-bosh (CompareSign/CrocOpen/CrocCalm) ishlatiladi.
+const D4CrocReal = ({ mood = 'curious' }) => {
+  const open = mood === 'curious';
+  return (
+    <svg className="d4-crocreal-svg" viewBox="0 0 224 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="d4crBody" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#84D06F"/><stop offset="55%" stopColor="#4FA24A"/><stop offset="100%" stopColor="#357C34"/>
+        </linearGradient>
+        <linearGradient id="d4crWet" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#6FCBE0"/><stop offset="100%" stopColor="#2E88AE"/>
+        </linearGradient>
+      </defs>
+      {/* timsohning suv yamog'i (atrofidagi ko'l yuzasi) */}
+      <ellipse cx="112" cy="64" rx="110" ry="26" fill="url(#d4crWet)" opacity="0.45"/>
+      {/* suv osti tanasi (xira, yumaloq) */}
+      <g opacity="0.38" fill="#3E8F52">
+        <ellipse cx="114" cy="66" rx="82" ry="16"/>
+        <ellipse cx="70" cy="78" rx="8" ry="5"/><ellipse cx="152" cy="78" rx="8" ry="5"/>
+      </g>
+      {/* suv yuzasi porlashi */}
+      <ellipse cx="112" cy="55" rx="104" ry="6" fill="#DCF5FB" opacity="0.4"/>
+      {/* DUM UCHI (yumaloq) */}
+      <path d="M18 56 Q20 44 34 46 Q45 48 43 54 Q41 59 30 59 Q21 59 18 56 Z" fill="url(#d4crBody)" stroke="#2F6E30" strokeWidth="2" strokeLinejoin="round"/>
+      {/* ORQA (yumaloq, past-yassi) */}
+      <path d="M42 57 Q100 40 152 51 Q158 54 152 58 Q100 51 44 60 Q39 58 42 57 Z" fill="url(#d4crBody)" stroke="#2F6E30" strokeWidth="2" strokeLinejoin="round"/>
+      {/* orqa do'ngchalar — mayin yumaloq (uchburchaksiz) */}
+      <g fill="#3C8F3E"><path d="M60 51 q5 -5 10 0 Z"/><path d="M76 49 q5 -5 10 0 Z"/><path d="M92 48 q5 -5 10 0 Z"/><path d="M108 49 q5 -5 10 0 Z"/></g>
+      {/* TUMSHUQ — yumaloq, do'stona (TISHSIZ) */}
+      {open ? (
+        <>
+          <path d="M170 57 Q188 57 204 59 Q190 62 172 61 Q168 59 170 57 Z" fill="#E8899B"/>
+          <path d="M150 50 Q189 45 211 51 Q221 53 214 57 Q192 57 152 57 Q147 53 150 50 Z" fill="url(#d4crBody)" stroke="#2F6E30" strokeWidth="2" strokeLinejoin="round"/>
+          <path d="M152 60 Q187 64 211 60 Q219 60 214 63 Q192 66 154 63 Q149 62 152 60 Z" fill="url(#d4crBody)" stroke="#2F6E30" strokeWidth="2" strokeLinejoin="round"/>
+        </>
+      ) : (
+        <>
+          <path d="M150 51 Q190 46 212 52 Q221 54 214 58 Q192 62 152 58 Q147 54 150 51 Z" fill="url(#d4crBody)" stroke="#2F6E30" strokeWidth="2" strokeLinejoin="round"/>
+          <path d="M162 57 Q187 60 208 55" stroke="#2F6E30" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+        </>
+      )}
+      {/* burun teshigi (yumaloq) */}
+      <ellipse cx="208" cy="52" rx="2.2" ry="1.6" fill="#2F6E30"/>
+      {/* do'stona qizg'ish yonoq */}
+      <ellipse cx="165" cy="52" rx="5" ry="3" fill="#FF9BB0" opacity="0.38"/>
+      {/* KO'Z DO'NGI + KATTA shirin ko'z */}
+      <circle cx="150" cy="43" r="10" fill="url(#d4crBody)" stroke="#2F6E30" strokeWidth="1.6"/>
+      {open ? (
+        <>
+          <circle cx="150" cy="43" r="5.4" fill="#FFFFFF"/>
+          <circle cx="151.4" cy="43.3" r="3" fill="#23303A"/>
+          <circle cx="152.6" cy="41.6" r="1.2" fill="#FFFFFF"/>
+        </>
+      ) : (
+        <path d="M144 44 Q150 38 156 44" stroke="#23303A" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+      )}
+      {/* SUV HALQALARI */}
+      <g fill="none" stroke="#EAF8FB" strokeWidth="1.6" opacity="0.7">
+        <ellipse cx="150" cy="58" rx="22" ry="4"/>
+        <ellipse cx="150" cy="59" rx="33" ry="6" opacity="0.5"/>
+        <ellipse cx="62" cy="60" rx="16" ry="3.4"/>
+      </g>
+    </svg>
+  );
+};
+
 // D4NumTile — yirik raqam tokeni (taqqoslashda son; belgisiz, faqat vizual).
 const D4NumTile = ({ d }) => <span className="d4-numtile" aria-hidden="true">{d}</span>;
 
@@ -3114,7 +3312,7 @@ const OnboardHint = () => {
 
 // D4Story — hikoya slaydi (sIntro / sGuest): SceneBg + Ra'no/Anvar + dekorativ ikki savat.
 // NavNext ovoz tugagach ochiladi (bola hikoyani oxirigacha tinglaydi).
-const D4Story = ({ props, c, variant = 'room', leftN = 4, rightN = 7, leftKind = 'apple', rightKind = 'cherry' }) => {
+const D4Story = ({ props, c, variant = 'room', leftN = 4, rightN = 7, leftKind = 'apple', rightKind = 'cherry', crocMood = 'curious' }) => {
   const lang = useLang();
   const t = useT();
   const audio = useAudio(makeAutoSegments(c, lang));
@@ -3130,11 +3328,11 @@ const D4Story = ({ props, c, variant = 'room', leftN = 4, rightN = 7, leftKind =
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.4vw, 16px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.title)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 16px)' }}>
+        <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.title)}</h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(22px, 4.4vw, 32px)' }}>
           <div className="g1-scene d4-scene">
-            <YardBg variant={variant}/>
+            <LakeBg variant={variant}/>
             <div className="g1-cast-row">
               <div className={`g1-cast ${step >= 1 ? 'in' : ''}`}>
                 <div className="d4-castpair">
@@ -3157,6 +3355,10 @@ const D4Story = ({ props, c, variant = 'room', leftN = 4, rightN = 7, leftKind =
                 <span className="g1-cast-name">{t(c.anvar_label)}</span>
               </div>
             </div>
+            {/* Syujet personaji: to'liq real timsoh — kirishda qiziquvchan (og'zi ochiq), ko'prikda mamnun (jilmayadi). */}
+            <div className={`d4-crocscene ${step >= 2 ? 'in' : ''}`} aria-hidden="true">
+              <D4CrocReal mood={crocMood === 'happy' ? 'happy' : 'curious'}/>
+            </div>
           </div>
         </div>
         <OnboardHint/>
@@ -3167,7 +3369,7 @@ const D4Story = ({ props, c, variant = 'room', leftN = 4, rightN = 7, leftKind =
 
 // sIntro — SYUJET KIRISH: Ra'no (4 olma) va Anvar (7 gilos) hovlida meva yig'ishdi.
 const ScreenIntro = (props) => (
-  <D4Story props={props} c={CONTENT.sIntro} variant="room" leftN={4} rightN={7} leftKind="apple" rightKind="cherry"/>
+  <D4Story props={props} c={CONTENT.sIntro} variant="room" leftN={4} rightN={7} leftKind="mango" rightKind="grape"/>
 );
 
 // s0 — HOOK: ko'z bilan baho (tuzoq: 4 olma keng yoyilgan -> kattaroq ko'rinadi). To'g'ri javob yo'q.
@@ -3200,7 +3402,7 @@ const Screen0 = (props) => {
           {t(c.title_part1) && <>{t(c.title_part1)} </>}<span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
         </h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 3vw, 22px)' }}>
-          <TwoBaskets left={4} right={7} leftKind="apple" rightKind="cherry" mount/>
+          <TwoBaskets left={4} right={7} leftKind="mango" rightKind="grape" mount/>
         </div>
         <div className="fade-up delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {opts.map((o, i) => (
@@ -3259,12 +3461,12 @@ const Screen1 = (props) => {
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: 'clamp(16px, 5vw, 44px)', flexWrap: 'wrap', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <div className="d4-tapcol">
-            <D4TapBasket n={4} kind="apple" count={rcount} active={!ranoDone} onTap={tapRano} showHand={!ranoDone && rcount === 0}/>
-            <TenFrame n={rcount} kind="apple"/>
+            <D4TapBasket n={4} kind="mango" count={rcount} active={!ranoDone} onTap={tapRano} showHand={!ranoDone && rcount === 0}/>
+            <TenFrame n={rcount} kind="mango"/>
           </div>
           <div className="d4-tapcol">
-            <D4TapBasket n={7} kind="cherry" count={acount} active={ranoDone && acount < 7} onTap={tapAnvar} showHand={ranoDone && acount === 0}/>
-            <TenFrame n={acount} kind="cherry"/>
+            <D4TapBasket n={7} kind="grape" count={acount} active={ranoDone && acount < 7} onTap={tapAnvar} showHand={ranoDone && acount === 0}/>
+            <TenFrame n={acount} kind="grape"/>
           </div>
         </div>
         <div className="g1-count-line fade-up delay-1">
@@ -3299,7 +3501,7 @@ const Screen2 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 3vw, 26px)', padding: 'clamp(16px, 3vw, 26px)', flexWrap: 'wrap' }}>
-          <CompareFrames left={4} right={7} leftKind="apple" rightKind="cherry"/>
+          <CompareFrames left={4} right={7} leftKind="mango" rightKind="grape"/>
         </div>
         <BitSays text={t(c.done_text)}/>
       </div>
@@ -3326,7 +3528,7 @@ const Screen3 = (props) => {
           {t(c.title_part1) && <>{t(c.title_part1)} </>}<span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
         </h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 3vw, 24px)', padding: 'clamp(16px, 3vw, 26px)', flexWrap: 'wrap' }}>
-          <CompareFrames left={5} right={5} leftKind="apple" rightKind="cherry"/>
+          <CompareFrames left={5} right={5} leftKind="mango" rightKind="grape"/>
         </div>
         <BitSays text={t(c.tip)}/>
       </div>
@@ -3343,7 +3545,7 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <TwoBaskets left={6} right={9} leftKind="apple" rightKind="cherry" compact/>}
+      figure={() => <TwoBaskets left={6} right={9} leftKind="mango" rightKind="grape" compact/>}
       options={[<D4NumTile d={6}/>, <D4NumTile d={9}/>]}
       correctIdx={1}
       celebrateOnCorrect={() => <CrocChase target={9}/>}
@@ -3504,7 +3706,7 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <TwoBaskets left={6} right={6} leftKind="apple" rightKind="apple" compact/>}
+      figure={() => <TwoBaskets left={6} right={6} leftKind="mango" rightKind="mango" compact/>}
       options={[<span className="d4-opt-txt">{t(c.opt0)}</span>, <span className="d4-opt-txt">{t(c.opt1)}</span>]}
       correctIdx={1}
       mascot={false}
@@ -3671,7 +3873,7 @@ const ScreenD = (props) => {
 
 // sGuest — SYUJET KO'PRIK: do'stona bo'lishdi (premise bilan mos: Ra'no 4, Anvar 7 — teng emas).
 const ScreenGuest = (props) => (
-  <D4Story props={props} c={CONTENT.sGuest} variant="door" leftN={4} rightN={7} leftKind="apple" rightKind="cherry"/>
+  <D4Story props={props} c={CONTENT.sGuest} variant="door" leftN={4} rightN={7} leftKind="mango" rightKind="grape" crocMood="happy"/>
 );
 
 // s11 — TEST final + FactCard: 8 va 8 -> qaysi belgi? To'g'ri = teng (idx2).
@@ -3683,7 +3885,7 @@ const Screen11 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <TwoBaskets left={8} right={8} leftKind="apple" rightKind="apple" compact/>}
+      figure={() => <TwoBaskets left={8} right={8} leftKind="mango" rightKind="mango" compact/>}
       options={[<CompareSign dir="gt"/>, <CompareSign dir="lt"/>, <CompareSign dir="eq"/>]}
       correctIdx={2}
       mascot={false}
@@ -3737,13 +3939,14 @@ const Screen12 = (props) => {
         </div>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <div className="g1-scene d4-scene d4-scene-sum" style={{ minHeight: 'clamp(140px, 26vw, 200px)' }}>
-            <YardBg variant="room"/>
+            <LakeBg variant="room"/>
+            <div className="d4-crocscene in" aria-hidden="true"><D4CrocReal mood="happy"/></div>
             <div className="g1-cast-row">
               <div className="g1-cast in">
                 <div className="d4-castpair">
                   <div className="g1-cast-fig"><RanoSVG mood="happy" stars className="g1-cast-svg"/></div>
                   <div className="d4-basketstack">
-                    <FruitBubble n={4} kind="apple"/>
+                    <FruitBubble n={4} kind="mango"/>
                     <div className="d4-scenebasket"><D4Basket n={0}/></div>
                   </div>
                 </div>
@@ -3753,7 +3956,7 @@ const Screen12 = (props) => {
                 <div className="d4-castpair">
                   <div className="g1-cast-fig"><AnvarSVG pose="idle" className="g1-cast-svg"/></div>
                   <div className="d4-basketstack">
-                    <FruitBubble n={7} kind="cherry"/>
+                    <FruitBubble n={7} kind="grape"/>
                     <div className="d4-scenebasket"><D4Basket n={0}/></div>
                   </div>
                 </div>
@@ -4772,6 +4975,30 @@ html, body { margin: 0; padding: 0; }
 .d4-croc-anim { animation: d4crocopen 0.5s cubic-bezier(0.34,1.5,0.64,1) both, d4crocbreathe 2.8s ease-in-out 0.55s infinite; transform-origin: center; }
 @keyframes d4crocopen { 0% { opacity: 0; transform: scaleX(0.5); } 100% { opacity: 1; transform: scaleX(1); } }
 @keyframes d4crocbreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+
+/* Syujet timsohi — ko'l SUVIDA suzadi (personajlar ortida, suv bandida). z-index:0 -> bolalar oldinda. */
+.d4-crocscene { position: absolute; left: 50%; bottom: clamp(58px, 26%, 132px); transform: translateX(-50%) translateY(8px); width: clamp(148px, 40vw, 274px); opacity: 0; transition: opacity 0.6s ease, transform 0.6s ease; z-index: 0; pointer-events: none; }
+.d4-crocscene.in { opacity: 1; transform: translateX(-50%) translateY(0); }
+.d4-crocscene svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 4px 7px rgba(46,134,168,0.22)); animation: d4crocfloat 4.2s ease-in-out infinite; transform-origin: center; }
+@keyframes d4crocfloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .d4-crocscene svg { animation: none; } }
+
+/* Ko'l bo'yi sahnasi — jonli elementlar (bulut, qush, qamish, ninachi, nilufar, porlash) */
+@keyframes d4cloudDrift { 0% { transform: translateX(0); } 100% { transform: translateX(26px); } }
+@keyframes d4birdFly { 0% { transform: translate(0,0); } 100% { transform: translate(-44px,-7px); } }
+@keyframes d4reedSway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes d4dragon { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(7px,-5px); } 50% { transform: translate(12px,2px); } 75% { transform: translate(4px,6px); } }
+@keyframes d4lilyBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes d4shimmer { 0%, 100% { opacity: 0.35; } 50% { opacity: 0.7; } }
+.d4-cloud { animation: d4cloudDrift 9s ease-in-out infinite alternate; }
+.d4-cloud2 { animation: d4cloudDrift 13s ease-in-out infinite alternate; }
+.d4-bird { animation: d4birdFly 15s linear infinite alternate; }
+.d4-reed { transform-box: fill-box; transform-origin: bottom center; animation: d4reedSway 4s ease-in-out infinite; }
+.d4-reed2 { transform-box: fill-box; transform-origin: bottom center; animation: d4reedSway 5.2s ease-in-out infinite; }
+.d4-dragon { animation: d4dragon 6s ease-in-out infinite; }
+.d4-lily { transform-box: fill-box; transform-origin: center; animation: d4lilyBob 5s ease-in-out infinite; }
+.d4-shimmer { animation: d4shimmer 4.5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .d4-cloud, .d4-cloud2, .d4-bird, .d4-reed, .d4-reed2, .d4-dragon, .d4-lily, .d4-shimmer { animation: none; } }
 
 /* CHASE & EAT mukofoti (s4/s9): timsoh kattaroq songa yuguradi va "yeydi"; son xursand chayqaladi */
 .d4-chase { display: inline-flex; align-items: center; gap: clamp(2px, 1.2vw, 10px); padding: clamp(4px, 1vw, 8px); }

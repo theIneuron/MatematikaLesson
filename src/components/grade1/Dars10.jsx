@@ -48,7 +48,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -64,7 +64,7 @@ const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|E
 const stripAudioTags = (s) => typeof s === 'string'
   ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
-      .replace(/\s{2,}/g, ' ').trim()
+      .replace(/\s{2,}/g, ' ')
   : s;
 
 // HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
@@ -504,7 +504,7 @@ function useAdvanceGate(solved, audio) {
 // ============================================================
 const Op = React.memo(({ children, size = 'mid' }) => {
   const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
-                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
+                   size === 'mid' ? 'clamp(24px, 5vw, 34px)' :
                    'clamp(12px, 2.1vw, 18px)';
   return <span className="mop" style={{ fontSize }}>{children}</span>;
 });
@@ -787,7 +787,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
                   {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
@@ -801,7 +801,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {solved && !celebrateOnCorrect && (
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <button className="option option-correct" disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
             </button>
@@ -818,10 +818,10 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- POD UROK: num_1_01 — Predmetlarni sanash va 1–5 sonlar (1-sinf, Dars01) ---
+// --- 1-SINF DARSI (aniq mavzu va id: pastdagi LESSON_META) ---
 // 1-sinf (6–7 yosh): ovoz yetakchi kanal, typing YO'Q (tap/drag), concrete ustun,
 // bar model YO'Q. Manba: 1sinf_metodologiya.md (§4, §6, §7 Б1) + DIZAYN_STANDART_1SINF.md.
-// Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
+// Misconception'lar test ekranlarining wrong_N hint'larida (mavzuga moslangan).
 // ============================================================
 
 const TOTAL_SCREENS = 13;
@@ -937,7 +937,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Шесть яблок и ещё три. Соедини и посчитай. Сколько вместе?', uz: "Oltita olma va yana uchta. Birlashtirib sanang. Birga nechta?" },
       on_correct: { ru: 'Верно. Вместе девять.', uz: "To'g'ri. Birga to'qqiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -975,7 +975,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Запомним. Правило не меняется для больших чисел. Прибавить значит прыгать вперёд, вычесть значит прыгать назад. До десяти мы считаем точно так же, как до пяти.',
-      uz: "Eslab qolamiz. Katta sonlar uchun ham qoida o'zgarmaydi. Qo'shish — oldinga sakrash, ayirish — orqaga sakrash. O'ngacha xuddi beshgacha kabi sanaymiz."
+      uz: "Eslab qolamiz. Katta sonlar uchun ham qoida o'zgarmaydi. Qo'shish degani oldinga sakrash, ayirish degani orqaga sakrash. O'ngacha xuddi beshgacha kabi sanaymiz."
     }
   },
 
@@ -984,9 +984,9 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
     title: { ru: 'Точка на семи. Прибавь два — куда придёт?', uz: "Nuqta yettida. Ikki qo'sh — qayerga keladi?" },
     correct_text: { ru: 'Верно. Семь плюс два равно девять.', uz: "To'g'ri. Yetti plyus ikki teng to'qqiz." },
-    wrong_default: { ru: 'Прыгай вперёд от семи два раза: восемь, девять. Нажми на это число.', uz: "Yettidan oldinga ikki marta sakrang: sakkiz, to'qqiz. Shu sonni bosing." },
+    wrong_default: { ru: 'Прыгай вперёд от семи два раза и нажми на число, куда придёшь.', uz: "Yettidan oldinga ikki marta sakrab, kelgan sonni bosing." },
     audio: {
-      intro: { ru: 'Точка стоит на числе семь. Прибавь два: прыгни вперёд два раза и нажми на число, куда придёшь.', uz: "Nuqta yetti sonida. Ikki qo'sh: ikki marta oldinga sakrang va kelgan sonni bosing." },
+      intro: { ru: 'Точка стоит на числе семь. Прибавь два. Прыгни вперёд два раза и нажми на число, куда придёшь.', uz: "Nuqta yetti sonida. Ikki qo'sh. Ikki marta oldinga sakrang va kelgan sonni bosing." },
       on_correct: { ru: 'Верно. Пришли на девять.', uz: "To'g'ri. To'qqizga keldik." },
       on_wrong: { ru: 'Не совсем. Посчитай прыжки вперёд.', uz: "Unchalik emas. Oldinga sakrashlarni sanang." }
     }
@@ -1004,7 +1004,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Было девять яблок. Четыре забрали. Сколько осталось? Выбери ответ.', uz: "To'qqizta olma bor edi. To'rttasi olindi. Nechta qoldi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Осталось пять.', uz: "To'g'ri. Beshta qoldi." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -1026,9 +1026,9 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
     title: { ru: 'Точка на восьми. Вычти три — куда придёт?', uz: "Nuqta sakkizda. Uch ayir — qayerga keladi?" },
     correct_text: { ru: 'Верно. Восемь минус три равно пять.', uz: "To'g'ri. Sakkiz minus uch teng besh." },
-    wrong_default: { ru: 'Прыгай назад от восьми три раза: семь, шесть, пять. Нажми на это число.', uz: "Sakkizdan orqaga uch marta sakrang: yetti, olti, besh. Shu sonni bosing." },
+    wrong_default: { ru: 'Прыгай назад от восьми три раза и нажми на число, куда придёшь.', uz: "Sakkizdan orqaga uch marta sakrab, kelgan sonni bosing." },
     audio: {
-      intro: { ru: 'Точка стоит на числе восемь. Вычти три: прыгни назад три раза и нажми на число, куда придёшь.', uz: "Nuqta sakkiz sonida. Uch ayir: uch marta orqaga sakrang va kelgan sonni bosing." },
+      intro: { ru: 'Точка стоит на числе восемь. Вычти три. Прыгни назад три раза и нажми на число, куда придёшь.', uz: "Nuqta sakkiz sonida. Uch ayir. Uch marta orqaga sakrang va kelgan sonni bosing." },
       on_correct: { ru: 'Верно. Пришли на пять.', uz: "To'g'ri. Beshga keldik." },
       on_wrong: { ru: 'Не совсем. Посчитай прыжки назад.', uz: "Unchalik emas. Orqaga sakrashlarni sanang." }
     }
@@ -1064,7 +1064,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Рано собрала шесть яблок. Анвар собрал ещё три. Все яблоки сложили вместе. Посчитай и выбери, сколько всего.', uz: "Ra'no oltita olma terdi. Anvar yana uchta terdi. Hamma olma birga qo'shildi. Sanang va hammasi nechta ekanini tanlang." },
       on_correct: { ru: 'Верно. Всего девять.', uz: "To'g'ri. Hammasi to'qqiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -3025,7 +3025,7 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 16px)' }}>
         <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.title)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 16px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(22px, 4.4vw, 32px)' }}>
           {typeof children === 'function' ? children(audio) : children}
         </div>
         {hint && <OnboardHint/>}
@@ -4114,7 +4114,7 @@ html, body { margin: 0; padding: 0; }
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
+/* === GRADE1 — vizuallar (animatsion to'plam) === */
 .g1-listen-hint { margin: 0; color: #019ACB; font-weight: 600; letter-spacing: 0.04em; opacity: 0.9; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-pips { display: flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); justify-content: center; align-items: center; max-width: 100%; }
 .g1-pips-wrap { flex-wrap: wrap; }

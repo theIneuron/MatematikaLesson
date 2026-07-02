@@ -49,7 +49,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -65,7 +65,7 @@ const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|E
 const stripAudioTags = (s) => typeof s === 'string'
   ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
       .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
-      .replace(/\s{2,}/g, ' ').trim()
+      .replace(/\s{2,}/g, ' ')
   : s;
 
 // HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
@@ -505,7 +505,7 @@ function useAdvanceGate(solved, audio) {
 // ============================================================
 const Op = React.memo(({ children, size = 'mid' }) => {
   const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
-                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
+                   size === 'mid' ? 'clamp(24px, 5vw, 34px)' :
                    'clamp(12px, 2.1vw, 18px)';
   return <span className="mop" style={{ fontSize }}>{children}</span>;
 });
@@ -788,7 +788,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
             const disabled = isWrongPicked || !canAns;   // ovoz tugamaguncha + погашенный неверный
             return (
               <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="mono small" style={{ minWidth: 20, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>
                   {isWrongPicked ? '↺' : String.fromCharCode(65 + i)}
                 </span>
@@ -802,7 +802,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {solved && !celebrateOnCorrect && (
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
             <button className="option option-correct" disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
               <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
               <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{options[correctIdx]}</span>
             </button>
@@ -819,30 +819,31 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- POD UROK: num_1_01 — Predmetlarni sanash va 1–5 sonlar (1-sinf, Dars01) ---
+// --- 1-SINF DARSI (aniq mavzu va id: pastdagi LESSON_META) ---
 // 1-sinf (6–7 yosh): ovoz yetakchi kanal, typing YO'Q (tap/drag), concrete ustun,
 // bar model YO'Q. Manba: 1sinf_metodologiya.md (§4, §6, §7 Б1) + DIZAYN_STANDART_1SINF.md.
-// Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
+// Misconception'lar test ekranlarining wrong_N hint'larida (mavzuga moslangan).
 // ============================================================
 
-const TOTAL_SCREENS = 13;
+const TOTAL_SCREENS = 14;
 const LESSON_META = {
   lessonId: 'ten-1-15-v1',
   lessonTitle: { ru: 'Числа 16–20', uz: "Sonlar 16–20" }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // §4 chok: maktab, Jasur kiradi
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: 10 tayoqcha bittalab uzoqmi?
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // YANGI MEXANIKA: 10 tayoqcha -> bog'la -> 1 dasta
-  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: 10 birlik = 1 o'nlik
-  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // dastada nechta tayoqcha? 10
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nechta o'nlik? 1
-  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // taqqoslash (timsoh): 10 > 7
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 1 o'nlik = 10 birlik
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi rasmda aynan 1 o'nlik?
-  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: tayoqchalarni sana (3 raund)
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'nlik -> Dars14 (11..15)
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 10 birlik = 1 o'nlik + fakt
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // kirish: Dars14 dan davom (16-20 quramiz)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft hook: 16-20
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // exploration: 1 o'nlik + 8 birlik -> 18
+  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: o'nlik va birliklar (16-20)
+  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // o'nlik va 6 birlik = qaysi son? 16
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 16 da nechta o'nlik? 1
+  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 16 da nechta birlik? 6
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 17 = o'nlik va 7 birlik
+  { id: 's6b', type: 'rule',        template: 'custom',   scored: false, scope: null },            // YANGI: 20 = ikki to'la o'nlik (tushuntirish)
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi son yigirma (20)?
+  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin (3 raund)
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: 16-20 -> Dars16
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: o'nlik va 9 birlik = 19 + fakt
   { id: 's9',  type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
 ];
 
@@ -904,18 +905,18 @@ const CONTENT = {
   s1: {
     eyebrow: { ru: 'Построим число', uz: 'Son quramiz' },
     instruction: { ru: 'Вверху десяток. Нажми — добавим внизу восемь яблок', uz: "Yuqorida o'nlik. Bosing — pastga sakkizta olma qo'shamiz" },
-    btn: { ru: 'Добавить яблоки', uz: "Munchoq qo'shish" },
+    btn: { ru: 'Добавить яблоки', uz: "Olma qo'shish" },
     label_before: { ru: 'Десяток — это десять', uz: "O'nlik — bu o'n" },
     label_after: { ru: 'Десяток и восемь — восемнадцать', uz: "O'nlik va sakkiz — o'n sakkiz" },
     done_text: { ru: 'Десяток и ещё восемь — это восемнадцать. Десять и восемь вместе.', uz: "O'nlik va yana sakkiz — bu o'n sakkiz. O'n va sakkiz birga." },
     audio: {
       ru: [
         'Вверху один десяток, это десять яблок. Нажми кнопку добавить яблоки.',
-        'Внизу добавились восемь яблок. Десять и ещё восемь — это восемнадцать.'
+        'Внизу добавились восемь яблок. Десять и ещё восемь, это восемнадцать.'
       ],
       uz: [
-        "Yuqorida bitta o'nlik, bu o'nta olma. Munchoq qo'shish tugmasini bosing.",
-        "Pastga sakkizta olma qo'shildi. O'n va yana sakkiz — bu o'n sakkiz."
+        "Yuqorida bitta o'nlik, bu o'nta olma. Olma qo'shish tugmasini bosing.",
+        "Pastga sakkizta olma qo'shildi. O'n va yana sakkiz, bu o'n sakkiz."
       ]
     }
   },
@@ -940,13 +941,13 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
     title: { ru: 'Десяток и шесть единиц. Какое число?', uz: "O'nlik va oltita birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и шесть — это шестнадцать.', uz: "To'g'ri. O'n va olti — bu o'n olti." },
-    wrong_1: { ru: 'Это только единицы. С десятком это шестнадцать.', uz: "Bu faqat birliklar. O'nlik bilan esa bu o'n olti." },
-    wrong_2: { ru: 'Цифры наоборот. Десяток впереди: шестнадцать.', uz: "Raqamlar teskari. O'nlik oldinda: o'n olti." },
-    wrong_default: { ru: 'Десять и шесть — это шестнадцать.', uz: "O'n va olti — bu o'n olti." },
+    wrong_1: { ru: 'Это только единицы. Прибавь к ним десяток и назови число.', uz: "Bu faqat birliklar. Ularga o'nlikni qo'shib, sonni ayt." },
+    wrong_2: { ru: 'Цифры наоборот. Десяток впереди, потом единицы.', uz: "Raqamlar teskari. Avval o'nlik, keyin birliklar." },
+    wrong_default: { ru: 'Назови десяток, потом единицы.', uz: "Avval o'nlikni, keyin birliklarni sana." },
     audio: {
       intro: { ru: 'Вверху десяток, внизу шесть яблок. Какое это число? Выбери ответ.', uz: "Yuqorida o'nlik, pastda oltita olma. Bu qaysi son? Javobni tanlang." },
       on_correct: { ru: 'Верно. Шестнадцать.', uz: "To'g'ri. O'n olti." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -955,13 +956,13 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
     title: { ru: 'В числе шестнадцать сколько десятков?', uz: "O'n olti sonida nechta o'nlik bor?" },
     correct_text: { ru: 'Верно. В шестнадцати один десяток и шесть единиц.', uz: "To'g'ri. O'n oltida bitta o'nlik va oltita birlik bor." },
-    wrong_1: { ru: 'Это всё число. А десяток в нём один.', uz: "Bu butun son. Undagi o'nlik esa bitta." },
-    wrong_2: { ru: 'Это число единиц. Десяток же один.', uz: "Bu birliklar soni. O'nlik esa bitta." },
-    wrong_default: { ru: 'В шестнадцати один десяток.', uz: "O'n oltida bitta o'nlik bor." },
+    wrong_1: { ru: 'Это всё число. Посчитай только десятки.', uz: "Bu butun son. Faqat o'nliklarni sana." },
+    wrong_0: { ru: 'Это число единиц. Посчитай десятки.', uz: "Bu birliklar soni. O'nliklarni sana." },
+    wrong_default: { ru: 'Посчитай, сколько десятков в числе.', uz: "Sonda nechta o'nlik borligini sana." },
     audio: {
       intro: { ru: 'Вот число шестнадцать: десяток и шесть яблок. Сколько в нём десятков? Выбери ответ.', uz: "Mana o'n olti soni: o'nlik va oltita olma. Unda nechta o'nlik bor? Javobni tanlang." },
       on_correct: { ru: 'Верно. Один десяток.', uz: "To'g'ri. Bitta o'nlik." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -970,13 +971,13 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
     title: { ru: 'В числе шестнадцать сколько единиц?', uz: "O'n olti sonida nechta birlik bor?" },
     correct_text: { ru: 'Верно. Сверх десятка тут шесть единиц.', uz: "To'g'ri. O'nlikdan tashqari bu yerda oltita birlik bor." },
-    wrong_1: { ru: 'Это всё число. А единиц сверх десятка шесть.', uz: "Bu butun son. O'nlikdan tashqari birlik esa oltita." },
-    wrong_2: { ru: 'Это десяток, а не единицы. Единиц тут шесть.', uz: "Bu o'nlik, birlik emas. Birlik esa oltita." },
-    wrong_default: { ru: 'В шестнадцати шесть единиц.', uz: "O'n oltida oltita birlik bor." },
+    wrong_0: { ru: 'Это десяток, а не единицы. Посчитай отдельные.', uz: "Bu o'nlik, birlik emas. Yakkalarini sana." },
+    wrong_2: { ru: 'Это всё число. Посчитай единицы сверх десятка.', uz: "Bu butun son. O'nlikdan tashqari birliklarni sana." },
+    wrong_default: { ru: 'Посчитай отдельные единицы сверх десятка.', uz: "O'nlikdan tashqari yakka birliklarni sana." },
     audio: {
       intro: { ru: 'В числе шестнадцать десяток и сколько единиц? Посчитай отдельные яблоки. Выбери ответ.', uz: "O'n olti sonida o'nlik va nechta birlik bor? Yakka olmalarni sanang. Javobni tanlang." },
       on_correct: { ru: 'Верно. Шесть единиц.', uz: "To'g'ri. Oltita birlik." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -987,27 +988,42 @@ const CONTENT = {
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
     correct_text: { ru: 'Верно. Семнадцать — это десять и ещё семь.', uz: "To'g'ri. O'n yetti — bu o'n va yana yetti." },
-    wrong_1: { ru: 'Это верно. Семнадцать и есть десяток и семь единиц.', uz: "Bu to'g'ri. O'n yetti — bu o'nlik va yettita birlik." },
-    wrong_default: { ru: 'Семнадцать — это десяток и семь единиц.', uz: "O'n yetti — bu o'nlik va yettita birlik." },
+    wrong_1: { ru: 'Посчитай: десяток и отдельные единицы, потом проверь.', uz: "Sana: o'nlik va yakka birliklar, keyin tekshir." },
+    wrong_default: { ru: 'Посчитай десяток и отдельные единицы.', uz: "O'nlik va yakka birliklarni sana." },
     audio: {
       intro: { ru: 'Верно ли, что семнадцать — это десяток и семь единиц? Выбери да или нет.', uz: "O'n yetti — bu o'nlik va yettita birlik, to'g'rimi? Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Десять и семь.', uz: "To'g'ri. O'n va yetti." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s7 TEST MC: qaysi son yigirma (20)? -> ikki to'la yashik (idx0) ----
+  // ---- s6b RULE (YANGI): 20 = ikki to'la o'nlik (s7 testidan oldin tushuntirish) ----
+  s6b: {
+    eyebrow: { ru: 'Двадцать', uz: 'Yigirma' },
+    title_part1: { ru: 'Два полных десятка —', uz: "Ikki to'la o'nlik —" },
+    title_part2_em: { ru: 'это двадцать', uz: 'yigirma' },
+    tip: {
+      ru: 'В каждом ящике по десять. Десять и ещё десять — двадцать.',
+      uz: "Har yashikda o'nta. O'n va yana o'n — yigirma."
+    },
+    audio: {
+      ru: 'Посмотри на два полных ящика. В каждом по десять яблок. Десять и ещё десять, получается двадцать.',
+      uz: "Ikki to'la yashikka qarang. Har yashikda o'nta olma bor. O'n va yana o'n, yigirma bo'ladi."
+    }
+  },
+
+  // ---- s7 TEST (interaktiv): ikkinchi yashikni to'ldirib YIGIRMA quriladi (sanaladi + to'ldiriladi) ----
   s7: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Где число двадцать?', uz: "Qayerda yigirma soni?" },
-    correct_text: { ru: 'Верно. Двадцать — это два полных ящика, два десятка.', uz: "To'g'ri. Yigirma — bu ikki to'la yashik, ikki o'nlik." },
-    wrong_1: { ru: 'Тут не оба ряда полные. Двадцать — это два полных ящика.', uz: "Bu yerda ikkala yashik to'la emas. Yigirma — bu ikki to'la yashik." },
-    wrong_2: { ru: 'Тут не оба ряда полные. Нужно двадцать яблок.', uz: "Bu yerda ikkala yashik to'la emas. Yigirmata olma kerak." },
-    wrong_default: { ru: 'Двадцать — это два полных ящика по десять.', uz: "Yigirma — bu o'ntadan ikki to'la yashik." },
+    title: { ru: 'Заполни второй ящик — собери двадцать, потом проверь.', uz: "Ikkinchi yashikni to'ldiring — yigirma yasang, keyin tekshiring." },
+    btn: { ru: 'Добавить апельсин', uz: "Apelsin qo'shish" },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
+    done_text: { ru: 'Двадцать! Два полных ящика — два десятка.', uz: "Yigirma! Ikki to'la yashik — ikki o'nlik." },
+    try_text: { ru: 'Пока не двадцать. Заполни ящик до конца и проверь снова.', uz: "Hali yigirma emas. Yashikni to'la to'ldiring va yana tekshiring." },
     audio: {
-      intro: { ru: 'Найди число двадцать. Это два полных ящика яблок. Выбери ответ.', uz: "Yigirma sonini toping. Bu ikki to'la yashik olma. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Это двадцать.', uz: "To'g'ri. Bu yigirma." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Один ящик уже полный. Заполни второй и нажми проверить, когда станет двадцать.', uz: "Bir yashik allaqachon to'la. Ikkinchisini to'ldiring va yigirma bo'lganda tekshirishni bosing." },
+      on_correct: { ru: 'Молодец! Два полных ящика — это двадцать.', uz: "Barakalla! Ikki to'la yashik — bu yigirma." },
+      on_wrong: { ru: 'Пока не двадцать. Добавь ещё и проверь.', uz: "Hali yigirma emas. Yana qo'shing va tekshiring." }
     }
   },
 
@@ -1055,16 +1071,16 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Десяток и девять единиц. Какое число?', uz: "O'nlik va to'qqizta birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и девять — это девятнадцать.', uz: "To'g'ri. O'n va to'qqiz — bu o'n to'qqiz." },
-    wrong_1: { ru: 'Это только единицы. С десятком это девятнадцать.', uz: "Bu faqat birliklar. O'nlik bilan esa bu o'n to'qqiz." },
-    wrong_2: { ru: 'Цифры наоборот. Десяток впереди: девятнадцать.', uz: "Raqamlar teskari. O'nlik oldinda: o'n to'qqiz." },
-    wrong_default: { ru: 'Десять и девять — это девятнадцать.', uz: "O'n va to'qqiz — bu o'n to'qqiz." },
+    wrong_1: { ru: 'Это только единицы. Прибавь к ним десяток и назови число.', uz: "Bu faqat birliklar. Ularga o'nlikni qo'shib, sonni ayt." },
+    wrong_0: { ru: 'Цифры наоборот. Десяток впереди, потом единицы.', uz: "Raqamlar teskari. Avval o'nlik, keyin birliklar." },
+    wrong_default: { ru: 'Назови десяток, потом единицы.', uz: "Avval o'nlikni, keyin birliklarni sana." },
     fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
     fact_text: { ru: 'После девятнадцати идёт двадцать — это уже два полных десятка. Так числа растут десятками.', uz: "O'n to'qqizdan keyin yigirma keladi — bu ikki to'la o'nlik. Sonlar shunday o'nliklab o'sadi." },
     fact_audio: { ru: 'А знаешь, после девятнадцати идёт двадцать, это два полных десятка. Так числа растут десятками.', uz: "Bilasizmi, o'n to'qqizdan keyin yigirma keladi, bu ikki to'la o'nlik. Sonlar shunday o'nliklab o'sadi." },
     audio: {
       intro: { ru: 'Последний вопрос. Десяток и девять единиц. Какое это число? Выбери ответ.', uz: "Oxirgi savol. O'nlik va to'qqizta birlik. Bu qaysi son? Javobni tanlang." },
       on_correct: { ru: 'Верно. Девятнадцать.', uz: "To'g'ri. O'n to'qqiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -2327,6 +2343,42 @@ function useStoryReveal(audio, total) {
 // AnvarFig — Anvar SVG'ga ingichka wrapper (variant -> pose). Eski PNG placeholder olib tashlandi.
 const AnvarFig = ({ variant = 'coming' }) => <AnvarSVG pose={variant} className="g1-cast-svg"/>;
 
+// Realistik mayda mevalar (bozor qutilari uchun) — aniq siluet, bandak, barg, yorug'lik.
+// Olma — chetlari botiq siluet + bandak + barg; apelsin — yumaloq, po'st teshikchalari + kosacha; uzum — boshcha.
+const SzApple = ({ cx, cy, grad = 'g1szApp', r = 7.8, leaf = false }) => (
+  <g transform={`translate(${cx} ${cy}) scale(${(r / 8).toFixed(3)})`}>
+    <path d="M0 -5.2 C-2.4 -7.6 -6 -7.4 -7.2 -4.4 C-8.4 -1.4 -7.8 3.4 -4.8 6.6 C-3.2 8.2 -1.4 8.4 -0.4 7.2 C-0.15 6.9 0.15 6.9 0.4 7.2 C1.4 8.4 3.2 8.2 4.8 6.6 C7.8 3.4 8.4 -1.4 7.2 -4.4 C6 -7.4 2.4 -7.6 0 -5.2 Z" fill={`url(#${grad})`}/>
+    <path d="M0 -5.4 q0.3 -2.6 1.7 -3.7" stroke="#6E3A20" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+    {leaf && <path d="M1.5 -8.6 q3.2 -1.5 4.9 0.4 q-2.5 1.8 -4.9 0.5 Z" fill="#4FA45C"/>}
+    <ellipse cx="-3" cy="-1.4" rx="1.6" ry="2.9" fill="rgba(255,255,255,0.5)" transform="rotate(-14 -3 -1.4)"/>
+    <circle cx="-1.4" cy="-3.4" r="0.9" fill="rgba(255,255,255,0.55)"/>
+  </g>
+);
+const SzOrange = ({ cx, cy, grad = 'g1szOrg', r = 7.8, leaf = false }) => (
+  <g transform={`translate(${cx} ${cy}) scale(${(r / 8).toFixed(3)})`}>
+    <circle cx="0" cy="0" r="8" fill={`url(#${grad})`}/>
+    <g fill="rgba(150,80,18,0.16)"><circle cx="2.6" cy="2.2" r="0.7"/><circle cx="-2" cy="3.2" r="0.6"/><circle cx="4.2" cy="-0.8" r="0.6"/><circle cx="-3.6" cy="-1.4" r="0.6"/><circle cx="0.6" cy="4.6" r="0.6"/></g>
+    <circle cx="0" cy="-6.7" r="1.1" fill="#6B8E3F"/>
+    {leaf && <path d="M1.4 -8.2 q3 -1.4 4.6 0.4 q-2.4 1.7 -4.6 0.5 Z" fill="#4FA45C"/>}
+    <ellipse cx="-3" cy="-2.4" rx="1.7" ry="2.6" fill="rgba(255,255,255,0.42)" transform="rotate(-18 -3 -2.4)"/>
+  </g>
+);
+const SzGrapes = () => {
+  const berries = [[178,99,3.3],[185.5,97.5,3.6],[193,98,3.5],[200,99,3.3],[182,103.5,3.5],[189.5,102.5,3.7],[197,103.5,3.4],[185.5,107.5,3.4],[193,107.5,3.3],[189.5,111,3.1]];
+  return (
+    <g>
+      <path d="M189 95 q3 -5 9 -3.5" stroke="#5C3B1E" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+      <path d="M196 90 q5 -2 8 1.5 q-4 2.4 -8 0.4 Z" fill="#4FA45C"/>
+      {berries.map(([bx, by, br], i) => (
+        <g key={i}>
+          <circle cx={bx} cy={by} r={br} fill="url(#g1szGrape)"/>
+          <circle cx={bx - br * 0.35} cy={by - br * 0.4} r={br * 0.28} fill="rgba(255,255,255,0.5)"/>
+        </g>
+      ))}
+    </g>
+  );
+};
+
 // ETALON KIT · SAHNALAR · SceneBg — hikoya ekranlari uchun ORQA SAHNA (xona/eshik), personajlar oldida.
 // variant: room (sIntro/s11 — deraza, parda, stol, gilam) | door (sGuest — eshik, payoff).
 const SceneBg = ({ variant = 'room' }) => (
@@ -2460,6 +2512,7 @@ const SceneBg = ({ variant = 'room' }) => (
           <radialGradient id="g1szAppD" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#EE6A50"/><stop offset="55%" stopColor="#CC3622"/><stop offset="100%" stopColor="#921F14"/></radialGradient>
           <radialGradient id="g1szOrg" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#FCB867"/><stop offset="52%" stopColor="#F0902E"/><stop offset="100%" stopColor="#C56A14"/></radialGradient>
           <radialGradient id="g1szOrgD" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#F0A04A"/><stop offset="55%" stopColor="#DC7A1A"/><stop offset="100%" stopColor="#B05E10"/></radialGradient>
+          <radialGradient id="g1szGrape" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#B488D6"/><stop offset="55%" stopColor="#7E4FA8"/><stop offset="100%" stopColor="#553079"/></radialGradient>
         </defs>
         {/* iliq osmon-fon + chuqurlik */}
         <rect x="0" y="0" width="400" height="178" fill="#FCEFD6"/>
@@ -2505,19 +2558,22 @@ const SceneBg = ({ variant = 'room' }) => (
             return <path key={i} d={`M${x - 5} ${y} h10 l-5 9 Z`} fill={col}/>;
           })}
         </g>
-        {/* OSMA TAROZI (o'ngda) — zanjir + ikki tovoq, sekin tebranadi */}
+        {/* OSMA TAROZI (o'ngda, kattaroq — ko'rinarli) — zanjir + ikki tovoq, sekin tebranadi. Brass — Dars12 palitrasi. */}
         <g className="g1-bz-swing">
-          <line x1="330" y1="28" x2="330" y2="48" stroke="#6E5236" strokeWidth="2.4"/>
-          <rect x="306" y="47" width="48" height="3.4" rx="1.7" fill="#A88440" stroke="#8A6628" strokeWidth="0.8"/>
-          <circle cx="330" cy="48.5" r="2.8" fill="#C9A042" stroke="#8A6628" strokeWidth="0.8"/>
-          <g stroke="#9A7838" strokeWidth="1" strokeDasharray="1.6 1.4">
-            <line x1="310" y1="50" x2="307" y2="62"/><line x1="313" y1="50" x2="317" y2="62"/>
-            <line x1="347" y1="50" x2="343" y2="62"/><line x1="350" y1="50" x2="353" y2="62"/>
+          <line x1="318" y1="30" x2="318" y2="62" stroke="#8A5C30" strokeWidth="3"/>
+          <rect x="282" y="60.5" width="72" height="5.4" rx="2.7" fill="#C9A86A" stroke="#8A6628" strokeWidth="1"/>
+          <rect x="283.5" y="61.1" width="69" height="1.65" rx="0.9" fill="#F0DCAE" opacity="0.85"/>
+          <circle cx="318" cy="62.9" r="4.5" fill="#E8C98A" stroke="#8A6628" strokeWidth="1"/>
+          <g stroke="#9C7A38" strokeWidth="1.3" strokeDasharray="2.2 1.8">
+            <line x1="288" y1="65" x2="283.5" y2="83"/><line x1="292.5" y1="65" x2="298.5" y2="83"/>
+            <line x1="343.5" y1="65" x2="337.5" y2="83"/><line x1="348" y1="65" x2="352.5" y2="83"/>
           </g>
-          <path d="M304 62 q8 9 18 0 Z" fill="#E0C173" stroke="#A98232" strokeWidth="1.1"/>
-          <path d="M340 62 q8 9 18 0 Z" fill="#E0C173" stroke="#A98232" strokeWidth="1.1"/>
-          <circle cx="309" cy="61" r="3" fill="#E2452F"/><circle cx="315" cy="61" r="3" fill="#E2452F"/>
-          <circle cx="346" cy="61" r="3" fill="#F0902E"/><circle cx="352" cy="61" r="3" fill="#F0902E"/>
+          <path d="M279 83 q12 13.5 27 0 Z" fill="#E8C98A" stroke="#A8843E" strokeWidth="1.4"/>
+          <path d="M333 83 q12 13.5 27 0 Z" fill="#E8C98A" stroke="#A8843E" strokeWidth="1.4"/>
+          <path d="M282 83.9 q10.5 7.5 21 0" fill="none" stroke="#F5EBCF" strokeWidth="1.2" opacity="0.8"/>
+          <path d="M336 83.9 q10.5 7.5 21 0" fill="none" stroke="#F5EBCF" strokeWidth="1.2" opacity="0.8"/>
+          <circle cx="286.5" cy="81.5" r="4.5" fill="#E2452F"/><circle cx="295.5" cy="81.5" r="4.5" fill="#E2452F"/>
+          <circle cx="342" cy="81.5" r="4.5" fill="#F0902E"/><circle cx="351" cy="81.5" r="4.5" fill="#F0902E"/>
         </g>
         {/* DO'KON PRILAVKASI (yog'och, grain + soya) */}
         <rect x="30" y="119" width="340" height="16" rx="3" fill="#C68B5B" stroke="#9A6738" strokeWidth="1.5"/>
@@ -2532,28 +2588,20 @@ const SceneBg = ({ variant = 'room' }) => (
           <rect x="52" y="98" width="88" height="24" rx="3" fill="#BA7E47" stroke="#8A5A2E" strokeWidth="1.4"/>
           <g stroke="#9A6534" strokeWidth="0.8" opacity="0.6"><line x1="74" y1="98" x2="74" y2="122"/><line x1="96" y1="98" x2="96" y2="122"/><line x1="118" y1="98" x2="118" y2="122"/></g>
           <g>
-            {[62, 76, 90, 104, 118, 132].map((cx, i) => <circle key={i} cx={cx} cy="102" r="7.5" fill="url(#g1szApp)"/>)}
-            {[69, 83, 97, 111, 125].map((cx, i) => <circle key={i} cx={cx} cy="111" r="7.5" fill="url(#g1szAppD)"/>)}
-            {[62, 90, 118].map((cx, i) => <path key={i} d={`M${cx} 96 q4 -4 7 -2 q-3 3 -7 3 Z`} fill="#4FA45C"/>)}
-            {[62, 76, 90, 104, 118, 132].map((cx, i) => <circle key={i} cx={cx - 2.4} cy="99.6" r="1.7" fill="#F7A892" opacity="0.85"/>)}
+            {[62, 76, 90, 104, 118, 132].map((cx, i) => <SzApple key={`b${i}`} cx={cx} cy={102} grad="g1szApp" r={7.4} leaf={i % 2 === 0}/>)}
+            {[69, 83, 97, 111, 125].map((cx, i) => <SzApple key={`f${i}`} cx={cx} cy={111} grad="g1szAppD" r={7.8}/>)}
           </g>
           {/* o'ng quti — apelsin */}
           <rect x="236" y="98" width="88" height="24" rx="3" fill="#BA7E47" stroke="#8A5A2E" strokeWidth="1.4"/>
           <g stroke="#9A6534" strokeWidth="0.8" opacity="0.6"><line x1="258" y1="98" x2="258" y2="122"/><line x1="280" y1="98" x2="280" y2="122"/><line x1="302" y1="98" x2="302" y2="122"/></g>
           <g>
-            {[246, 260, 274, 288, 302, 316].map((cx, i) => <circle key={i} cx={cx} cy="102" r="7.5" fill="url(#g1szOrg)"/>)}
-            {[253, 267, 281, 295, 309].map((cx, i) => <circle key={i} cx={cx} cy="111" r="7.5" fill="url(#g1szOrgD)"/>)}
-            {[246, 260, 274, 288, 302, 316].map((cx, i) => <circle key={i} cx={cx - 2.4} cy="99.6" r="1.7" fill="#FBC788" opacity="0.9"/>)}
+            {[246, 260, 274, 288, 302, 316].map((cx, i) => <SzOrange key={`b${i}`} cx={cx} cy={102} grad="g1szOrg" r={7.4} leaf={i === 0 || i === 3}/>)}
+            {[253, 267, 281, 295, 309].map((cx, i) => <SzOrange key={`f${i}`} cx={cx} cy={111} grad="g1szOrgD" r={7.8}/>)}
           </g>
         </g>
         {/* o'rtada uzum savati */}
         <path d="M168 100 h44 l-5 20 h-34 Z" fill="#C99A6A" stroke="#9A6738" strokeWidth="1.3"/>
-        <g fill="#7E5AA6">
-          {[176, 184, 192, 200, 204].map((cx, i) => <circle key={i} cx={cx} cy="98" r="3.2"/>)}
-          {[180, 188, 196].map((cx, i) => <circle key={i} cx={cx} cy="103" r="3.2"/>)}
-          <circle cx="188" cy="108" r="3.2"/>
-        </g>
-        <path d="M188 94 q4 -5 9 -3" stroke="#4FA45C" strokeWidth="1.6" fill="none"/>
+        <SzGrapes/>
         {/* narx-raqam yorlig'i */}
         <rect x="146" y="124" width="20" height="14" rx="2" fill="#FFFFFF" stroke="#B9986F" strokeWidth="1.4"/>
         <rect x="150" y="128" width="12" height="2.6" rx="1.3" fill="#3FA45C"/><rect x="150" y="132" width="8" height="2.6" rx="1.3" fill="#C3B49C"/>
@@ -3265,7 +3313,7 @@ const StoryLayout = ({ props, c, children, hint = false }) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 16px)' }}>
         <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.title)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 16px)', overflow: 'hidden' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(22px, 4.4vw, 32px)' }}>
           {typeof children === 'function' ? children(audio) : children}
         </div>
         {hint && <OnboardHint/>}
@@ -3442,40 +3490,128 @@ const Rekenrek = ({ top = 0, bottom = null, slideTop = false, slideBottom = fals
   </div>
 );
 
-// ===== BOZOR METODI: realistik OLMA — 10 olma yashikda = 1 o'nlik, + yakka olmalar =====
-const Apple = () => (
-  <span className="g1-apple" aria-hidden="true">
+// ===== BOZOR METODI: realistik MAHSULOTLAR — 10 dona yashikda = 1 o'nlik, + yakkalar =====
+// Bozor mavzusi: har ekranda boshqa meva/sabzavot (olma, apelsin, uzum, limon, nok).
+// Hammasi Apple sifatida — gradient tana + yorug'lik + bandak/barg + soya. Rang xilma-xil — charchatmaydi.
+const PRODUCE_SVG = {
+  apple: (
     <svg viewBox="0 0 26 28">
-      <defs>
-        <radialGradient id="g1appG" cx="36%" cy="30%" r="74%">
-          <stop offset="0%" stopColor="#FF9176"/><stop offset="48%" stopColor="#E5442C"/><stop offset="100%" stopColor="#A6231A"/>
-        </radialGradient>
-      </defs>
+      <defs><radialGradient id="g1pApple" cx="36%" cy="30%" r="74%"><stop offset="0%" stopColor="#FF9176"/><stop offset="48%" stopColor="#E5442C"/><stop offset="100%" stopColor="#A6231A"/></radialGradient></defs>
       <ellipse cx="13" cy="25.6" rx="7" ry="1.6" fill="rgba(0,0,0,0.12)"/>
-      <path d="M13 8.5 Q9 6 6 8 Q3 11 4 16 Q5 22 10 25 Q13 26.4 16 25 Q21 22 22 16 Q23 11 20 8 Q17 6 13 8.5 Z" fill="url(#g1appG)"/>
+      <path d="M13 8.5 Q9 6 6 8 Q3 11 4 16 Q5 22 10 25 Q13 26.4 16 25 Q21 22 22 16 Q23 11 20 8 Q17 6 13 8.5 Z" fill="url(#g1pApple)"/>
       <path d="M9.5 8.2 Q13 10.6 16.5 8.2" stroke="#9A2418" strokeWidth="0.8" fill="none" opacity="0.45"/>
       <ellipse cx="9.4" cy="13" rx="2.3" ry="3.7" fill="#FFFFFF" opacity="0.32" transform="rotate(-18 9.4 13)"/>
       <path d="M13 8.5 Q13.2 4 14.4 2.4" stroke="#6E4428" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
       <path d="M14 4.4 Q18.5 1.8 19.4 6.2 Q15.6 7.2 14 4.4 Z" fill="#54AA61"/>
       <path d="M15 5.4 Q17 4.6 18.6 5.6" stroke="#3E8C4C" strokeWidth="0.6" fill="none"/>
     </svg>
-  </span>
+  ),
+  orange: (
+    <svg viewBox="0 0 28 28">
+      <defs><radialGradient id="g1pOrg" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#FFC078"/><stop offset="52%" stopColor="#F0902E"/><stop offset="100%" stopColor="#C56A14"/></radialGradient></defs>
+      <ellipse cx="14" cy="26" rx="7.5" ry="1.6" fill="rgba(0,0,0,0.12)"/>
+      <circle cx="14" cy="15" r="10" fill="url(#g1pOrg)"/>
+      <g fill="rgba(150,80,18,0.16)"><circle cx="17" cy="17" r="0.8"/><circle cx="11.5" cy="18.5" r="0.7"/><circle cx="18.5" cy="13" r="0.7"/><circle cx="10" cy="13" r="0.7"/><circle cx="14.5" cy="20" r="0.7"/></g>
+      <circle cx="14" cy="5.4" r="1.4" fill="#5E8B3E"/>
+      <path d="M15 5 Q18 3.4 19.6 5.6 Q17 7 15 5 Z" fill="#54AA61"/>
+      <ellipse cx="10" cy="11" rx="2.6" ry="3.6" fill="#FFFFFF" opacity="0.36" transform="rotate(-18 10 11)"/>
+    </svg>
+  ),
+  grapes: (
+    <svg viewBox="0 0 28 30">
+      <defs><radialGradient id="g1pGrp" cx="36%" cy="30%" r="72%"><stop offset="0%" stopColor="#B488D6"/><stop offset="55%" stopColor="#7E4FA8"/><stop offset="100%" stopColor="#553079"/></radialGradient></defs>
+      <ellipse cx="14" cy="28.4" rx="6" ry="1.3" fill="rgba(0,0,0,0.12)"/>
+      <path d="M14 7 Q15 3.4 18.5 2.4" stroke="#5C3B1E" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <path d="M17.5 2.6 Q21.5 0.8 23.5 3.8 Q20.4 5.8 17.5 3.6 Z" fill="#54AA61"/>
+      {[[10,9,3.4],[14,8.4,3.6],[18,9,3.4],[8,13,3.4],[12,12.6,3.6],[16,12.6,3.6],[20,13,3.4],[10,17,3.5],[14,17,3.6],[18,17,3.5],[12,21,3.4],[16,21,3.4],[14,24.6,3.2]].map(([cx,cy,r],i)=>(
+        <g key={i}><circle cx={cx} cy={cy} r={r} fill="url(#g1pGrp)"/><circle cx={cx-r*0.34} cy={cy-r*0.4} r={r*0.26} fill="rgba(255,255,255,0.5)"/></g>
+      ))}
+    </svg>
+  ),
+  lemon: (
+    <svg viewBox="0 0 30 24">
+      <defs><radialGradient id="g1pLem" cx="38%" cy="32%" r="72%"><stop offset="0%" stopColor="#FFF3AE"/><stop offset="55%" stopColor="#F4D03F"/><stop offset="100%" stopColor="#D9A91E"/></radialGradient></defs>
+      <ellipse cx="15" cy="21.6" rx="8" ry="1.5" fill="rgba(0,0,0,0.12)"/>
+      <ellipse cx="15" cy="12" rx="11" ry="6.6" fill="url(#g1pLem)"/>
+      <ellipse cx="4.2" cy="12" rx="1.5" ry="1.1" fill="#E6BE34"/>
+      <ellipse cx="25.8" cy="12" rx="1.5" ry="1.1" fill="#E6BE34"/>
+      <path d="M14.5 5.6 Q17.5 3.6 19.4 6 Q16.6 7.4 14.5 5.6 Z" fill="#54AA61"/>
+      <ellipse cx="10.5" cy="9" rx="3.4" ry="2.1" fill="#FFFFFF" opacity="0.42" transform="rotate(-16 10.5 9)"/>
+    </svg>
+  ),
+  pear: (
+    <svg viewBox="0 0 24 30">
+      <defs><radialGradient id="g1pPear" cx="40%" cy="36%" r="70%"><stop offset="0%" stopColor="#EAF2A6"/><stop offset="52%" stopColor="#BCD653"/><stop offset="100%" stopColor="#8BAA2E"/></radialGradient></defs>
+      <ellipse cx="12" cy="27.8" rx="6" ry="1.4" fill="rgba(0,0,0,0.12)"/>
+      <path d="M12 6 Q9.6 8 9.9 11 Q10.1 13.6 8 15.6 Q5 18.6 6 23 Q7 27.4 12 27.6 Q17 27.4 18 23 Q19 18.6 16 15.6 Q13.9 13.6 14.1 11 Q14.4 8 12 6 Z" fill="url(#g1pPear)"/>
+      <path d="M12 6 Q12 3 13.6 2" stroke="#6E4428" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <path d="M13 3 Q16.5 1.4 17.8 4.4 Q14.6 5.6 13 3 Z" fill="#54AA61"/>
+      <ellipse cx="9" cy="18" rx="2.2" ry="3.6" fill="#FFFFFF" opacity="0.34" transform="rotate(-12 9 18)"/>
+    </svg>
+  )
+};
+// Produce — yakka mahsulot (kind bo'yicha). Apple ham shu yerda (eski <Apple/> o'rnida).
+const Produce = ({ kind = 'apple' }) => (
+  <span className="g1-produce" aria-hidden="true">{PRODUCE_SVG[kind] || PRODUCE_SVG.apple}</span>
 );
-const AppleCrate = () => (
+// Crate — REAL bozor yog'och yashigi (SVG): burchak ustunlar + old taxtalar + ichki soya + mixlar.
+// Orqa panel (ustun+orqa reyka+ichi) mevalar ortida; old taxtalar mevalar ustida -> mevalar ichida o'tiradi.
+const Crate = ({ kind = 'apple', filled = 10, fill = false }) => (
   <span className="g1-crate" aria-hidden="true">
-    <span className="g1-crate-apples">{Array.from({ length: 10 }).map((_, i) => <Apple key={i}/>)}</span>
-    <span className="g1-crate-label mono">10</span>
+    <svg className="g1-crate-back" viewBox="0 0 120 80" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="g1crW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#E2B475"/><stop offset="1" stopColor="#B5824A"/></linearGradient>
+        <linearGradient id="g1crP" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#AE7B42"/><stop offset="0.5" stopColor="#C8975E"/><stop offset="1" stopColor="#875B30"/></linearGradient>
+        <linearGradient id="g1crIn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6A4626"/><stop offset="1" stopColor="#4A3018"/></linearGradient>
+      </defs>
+      <rect x="12" y="9" width="96" height="69" fill="url(#g1crIn)"/>
+      <rect x="14" y="11" width="92" height="5" fill="rgba(0,0,0,0.28)"/>
+      <rect x="10" y="2" width="100" height="13" rx="1.5" fill="url(#g1crW)" stroke="#7E5430" strokeWidth="1"/>
+      <rect x="11" y="3" width="98" height="3" fill="rgba(255,255,255,0.2)"/>
+      <g stroke="#9A6C3C" strokeWidth="0.6" opacity="0.5"><line x1="16" y1="8" x2="104" y2="8"/><line x1="20" y1="11.5" x2="100" y2="11.5"/></g>
+      <rect x="2" y="2" width="12" height="76" rx="1.5" fill="url(#g1crP)" stroke="#6E4A28" strokeWidth="1"/>
+      <rect x="106" y="2" width="12" height="76" rx="1.5" fill="url(#g1crP)" stroke="#6E4A28" strokeWidth="1"/>
+      <rect x="3.4" y="3" width="2" height="74" fill="rgba(255,255,255,0.18)"/>
+      <rect x="114.6" y="3" width="2" height="74" fill="rgba(0,0,0,0.2)"/>
+      <g fill="#5A3C20"><rect x="6.5" y="8" width="3" height="3" rx="1.2"/><rect x="6.5" y="69" width="3" height="3" rx="1.2"/><rect x="110.5" y="8" width="3" height="3" rx="1.2"/><rect x="110.5" y="69" width="3" height="3" rx="1.2"/></g>
+    </svg>
+    <span className="g1-crate-apples">
+      {(fill || filled < 10)
+        ? Array.from({ length: 10 }).map((_, i) => (
+            i < filled
+              ? <span key={i} className="g1-crate-cell g1-crate-drop"><Produce kind={kind}/></span>
+              : <span key={i} className="g1-crate-cell g1-crate-slot"/>
+          ))
+        : Array.from({ length: 10 }).map((_, i) => <Produce key={i} kind={kind}/>)}
+    </span>
+    <svg className="g1-crate-front" viewBox="0 0 120 44" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="g1crF1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#E4B777"/><stop offset="1" stopColor="#BD8A4F"/></linearGradient>
+        <linearGradient id="g1crF2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#D09D60"/><stop offset="1" stopColor="#A06E38"/></linearGradient>
+      </defs>
+      <rect x="10" y="2" width="100" height="20" fill="url(#g1crF1)" stroke="#7E5430" strokeWidth="1"/>
+      <rect x="10" y="2.5" width="100" height="3.5" fill="rgba(255,255,255,0.24)"/>
+      <g stroke="#9A6C3C" strokeWidth="0.7" opacity="0.42"><line x1="16" y1="9" x2="104" y2="9"/><line x1="22" y1="15" x2="98" y2="15"/></g>
+      <rect x="10" y="21" width="100" height="2.4" fill="rgba(40,22,8,0.42)"/>
+      <rect x="10" y="23" width="100" height="19" fill="url(#g1crF2)" stroke="#7E5430" strokeWidth="1"/>
+      <g stroke="#8A5E32" strokeWidth="0.7" opacity="0.42"><line x1="16" y1="30" x2="104" y2="30"/><line x1="22" y1="36" x2="98" y2="36"/></g>
+      <rect x="47" y="25.5" width="26" height="14" rx="2.5" fill="rgba(66,42,20,0.5)" stroke="rgba(40,24,10,0.4)" strokeWidth="0.8"/>
+    </svg>
+    {filled === 10 && <span className="g1-crate-label mono">10</span>}
   </span>
 );
-// AppleViz — `tens` ta yashik (har biri 10) + `ones` ta yakka olma. pop -> yakka olmalar tushib paydo bo'ladi.
-const AppleViz = ({ tens = 0, ones = 0, pop = false }) => (
+// TenViz (eski nomi AppleViz) — `tens` ta yashik (o'nlik) + `ones` ta yakka mahsulot.
+// pop -> yakkalar tushib paydo bo'ladi; aks holda yumshoq idle harakat (jonli, charchatmaydi).
+const AppleViz = ({ tens = 0, ones = 0, pop = false, kind = 'apple' }) => (
   <div className="g1-fviz" aria-hidden="true">
-    {Array.from({ length: tens }).map((_, i) => <AppleCrate key={`t${i}`}/>)}
+    {Array.from({ length: tens }).map((_, i) => <Crate key={`t${i}`} kind={kind}/>)}
     {tens > 0 && ones > 0 && <span className="g1-fviz-plus">+</span>}
     {ones > 0 && (
       <span className={`g1-fviz-ones ${pop ? 'g1-fviz-pop' : ''}`}>
         {Array.from({ length: ones }).map((_, i) => (
-          <span key={i} className="g1-fviz-one" style={pop ? { animationDelay: `${(i * 0.08).toFixed(2)}s` } : undefined}><Apple/></span>
+          <span key={i} className="g1-fviz-one" style={pop ? { animationDelay: `${(i * 0.08).toFixed(2)}s` } : undefined}>
+            <span className="g1-fviz-idle" style={{ animationDelay: `${((i % 5) * 0.22).toFixed(2)}s` }}><Produce kind={kind}/></span>
+          </span>
         ))}
       </span>
     )}
@@ -3612,13 +3748,16 @@ const Screen0 = (props) => {
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
         </h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(16px, 3vw, 24px)' }}>
-          <AppleViz tens={1} ones={6}/>
+          <AppleViz tens={1} ones={6} kind="apple"/>
         </div>
         {!picked && (
           <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            <button className="option" disabled={!canAct} onClick={() => pick('yes')}>{t(c.opt_yes)}</button>
-            <button className="option" disabled={!canAct} onClick={() => pick('no')}>{t(c.opt_no)}</button>
-            <button className="option" disabled={!canAct} onClick={() => pick('idk')}>{t(c.opt_idk)}</button>
+            {[['yes', c.opt_yes], ['no', c.opt_no], ['idk', c.opt_idk]].map(([k, lbl]) => (
+              <button key={k} className="option" disabled={!canAct} onClick={() => pick(k)}
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(16px, 2.1vw, 18px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                {t(lbl)}
+              </button>
+            ))}
           </div>
         )}
         {picked && (
@@ -3657,8 +3796,8 @@ const Screen1 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
           <span className="eyebrow mono" style={{ color: T.ink3 }}>{built ? t(c.label_after) : t(c.label_before)}</span>
           {built
-            ? <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.6vw, 18px)' }}><AppleViz tens={1} ones={8} pop={true}/><span className="d4-numtile" aria-hidden="true">18</span></div>
-            : <AppleViz tens={1} ones={0}/>}
+            ? <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.6vw, 18px)' }}><AppleViz tens={1} ones={8} pop={true} kind="apple"/><span className="d4-numtile" aria-hidden="true">18</span></div>
+            : <AppleViz tens={1} ones={0} kind="apple"/>}
           {!built && (
             <button className="btn" disabled={!canAct} onClick={add}
               style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
@@ -3712,9 +3851,9 @@ const Screen3 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <AppleViz tens={1} ones={6} pop={solved}/>}
-      options={[<DigitGlyph d={16} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={61} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
-      correctIdx={0}
+      figure={(solved) => <AppleViz tens={1} ones={6} pop={solved} kind="apple"/>}
+      options={[<DigitGlyph d={10} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={61} size="mid"/>, <DigitGlyph d={16} size="mid"/>]}
+      correctIdx={3}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3731,9 +3870,9 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <AppleViz tens={1} ones={6} pop={solved}/>}
-      options={[<DigitGlyph d={1} size="mid"/>, <DigitGlyph d={16} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
-      correctIdx={0}
+      figure={(solved) => <AppleViz tens={1} ones={6} pop={solved} kind="apple"/>}
+      options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={16} size="mid"/>, <DigitGlyph d={1} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
+      correctIdx={2}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3750,9 +3889,9 @@ const Screen5 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <AppleViz tens={1} ones={6} pop={solved}/>}
-      options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={1} size="mid"/>, <DigitGlyph d={16} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
-      correctIdx={0}
+      figure={(solved) => <AppleViz tens={1} ones={6} pop={solved} kind="apple"/>}
+      options={[<DigitGlyph d={1} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={16} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
+      correctIdx={1}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
@@ -3769,7 +3908,7 @@ const Screen6 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <AppleViz tens={1} ones={7} pop={solved}/>}
+      figure={(solved) => <AppleViz tens={1} ones={7} pop={solved} kind="lemon"/>}
       options={[t(c.opt_yes), t(c.opt_no)]}
       correctIdx={0}
       mascot={false}
@@ -3780,26 +3919,107 @@ const Screen6 = (props) => {
 };
 
 // s7 — TEST MC: qaysi son 15? options Rekenrek(10+5)/(10+1)/(10+3) -> idx0.
-const Screen7 = (props) => {
-  const c = CONTENT.s7;
+// s6b — RULE (YANGI): 20 = ikki to'la o'nlik (tushuntirish, s7 testidan oldin).
+const Screen6b = (props) => {
+  const lang = useLang();
   const t = useT();
+  const c = CONTENT.s6b;
+  const audio = useAudio([{ id: 's6b', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
   return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => null}
-      options={[
-        <AppleViz tens={2} ones={0}/>,
-        <AppleViz tens={1} ones={8}/>,
-        <AppleViz tens={1} ones={6}/>
-      ]}
-      correctIdx={0}
-      mascot={false}
-      optionsCols={1}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+        <h1 className="title h-sub fade-up">
+          {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
+        </h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <AppleViz tens={2} ones={0} kind="apple"/>
+        </div>
+        <BitSays text={t(c.tip)}/>
+      </div>
+    </Stage>
+  );
+};
+
+// s7 — TEST (interaktiv): ikkinchi yashikni tap bilan to'ldirib YIGIRMA quriladi (sanaladi + to'ldiriladi).
+// Birinchi yashik to'la (10). Bola "qo'sh" bilan ikkinchisini birma-bir to'ldiradi; sanagich 11..20.
+// To'la bo'lganda (20) -> to'g'ri javob yoziladi.
+const Screen7 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s7;
+  const sfx = useSfx();
+  const audio = useAudio([{ id: 's7_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const [count, setCount] = useState(props.storedAnswer?.solved ? 10 : 0);
+  const [status, setStatus] = useState(props.storedAnswer?.solved ? 'correct' : 'none'); // none | wrong | correct
+  const erredRef = useRef(false);
+  const solved = status === 'correct';
+  const total = 10 + count;
+  const TARGET = 20;
+  const addOne = () => {
+    if (solved || count >= 10 || !canAct) return;
+    setCount(count + 1);
+    if (status === 'wrong') setStatus('none');
+  };
+  const check = () => {
+    if (solved || !canAct) return;
+    if (total === TARGET) {
+      setStatus('correct'); sfx.playCorrect();
+      props.onAnswer({ stage: SCREEN_META[props.screen]?.scope ?? null, screenIdx: props.screen, correct: !erredRef.current, firstTry: !erredRef.current, solved: true });
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    } else {
+      erredRef.current = true; setStatus('wrong'); sfx.playWrong();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
+    }
+  };
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!solved} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <h2 className="title h-sub fade-up">{t(c.title)}</h2>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 'clamp(10px, 2.6vw, 20px)' }}>
+            <Crate kind="orange" filled={10}/>
+            <span className="g1-fviz-plus">+</span>
+            <Crate kind="orange" filled={count} fill={true}/>
+          </div>
+          <span className="d4-numtile" aria-hidden="true">{total}</span>
+          {!solved && (
+            <div style={{ display: 'flex', gap: 'clamp(8px, 1.8vw, 14px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button className="btn-white-accent" disabled={!canAct || count >= 10} onClick={addOne}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+                {t(c.btn)}
+              </button>
+              <button className="btn" disabled={!canAct} onClick={check}
+                style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+                {t(c.btn_check)}
+              </button>
+            </div>
+          )}
+        </div>
+        {status === 'wrong' && (
+          <FeedbackBlock show={true} isCorrect={false} wrongClass="frame-tip">
+            <Reaction state="wrong" praise={t(c.try_text)}/>
+          </FeedbackBlock>
+        )}
+        {solved && (
+          <div className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
   );
 };
 
@@ -3850,7 +4070,7 @@ const ScreenGame = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <AppleViz key={ri} tens={Math.floor(round.n / 10)} ones={round.n % 10} pop={solvedItem}/>
+          <AppleViz key={ri} tens={Math.floor(round.n / 10)} ones={round.n % 10} pop={solvedItem} kind={['orange', 'pear', 'lemon'][ri % 3]}/>
           {!solvedItem && (
             <div className="g1-gameopts">
               {round.opts.map((v, i) => (
@@ -3894,9 +4114,9 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <AppleViz tens={1} ones={9} pop={solved}/>}
-      options={[<DigitGlyph d={19} size="mid"/>, <DigitGlyph d={9} size="mid"/>, <DigitGlyph d={91} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
-      correctIdx={0}
+      figure={(solved) => <AppleViz tens={1} ones={9} pop={solved} kind="grapes"/>}
+      options={[<DigitGlyph d={91} size="mid"/>, <DigitGlyph d={9} size="mid"/>, <DigitGlyph d={19} size="mid"/>, <DigitGlyph d={10} size="mid"/>]}
+      correctIdx={2}
       mascot={false}
       factOnCorrect={(
         <div className="g1-factcard fade-up">
@@ -4003,7 +4223,7 @@ export default function PracticeWithin10Lesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, ScreenGame, ScreenGuest, Screen8, Screen9];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen6b, Screen7, ScreenGame, ScreenGuest, Screen8, Screen9];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -4408,7 +4628,7 @@ html, body { margin: 0; padding: 0; }
   .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* === GRADE1 num_1_01 — sanash vizuallari (animatsion to'plam) === */
+/* === GRADE1 — vizuallar (animatsion to'plam) === */
 .g1-listen-hint { margin: 0; color: #019ACB; font-weight: 600; letter-spacing: 0.04em; opacity: 0.9; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-pips { display: flex; flex-wrap: nowrap; gap: clamp(4px, 1.2vw, 9px); justify-content: center; align-items: center; max-width: 100%; }
 .g1-pips-wrap { flex-wrap: wrap; }
@@ -4417,7 +4637,7 @@ html, body { margin: 0; padding: 0; }
 .g1-twinkle { animation: g1twinkle 2s ease-in-out infinite; }
 @keyframes g1bob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-7px) rotate(3deg); } }
 @keyframes g1twinkle { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: 0.5; transform: scale(0.82) rotate(8deg); } }
-@keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes g1pop { 0% { opacity: 0; transform: scale(0.55); } 62% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 @keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
@@ -4467,7 +4687,7 @@ html, body { margin: 0; padding: 0; }
 .g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
 .g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
 .g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
-.g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+.g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.33,1.1,0.66,1); }
 
 /* CountingHand — sanaydigan qo'l */
 .g1-hand { position: relative; width: clamp(143px, 32vw, 218px); height: clamp(135px, 30vw, 204px); display: flex; align-items: center; justify-content: center; }
@@ -4797,8 +5017,8 @@ html, body { margin: 0; padding: 0; }
 .g1-tf-cell.on .g1-tf-dot { background: #FF4F28; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on { background: #E3F2FB; border-color: #019ACB; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on .g1-tf-dot { background: #019ACB; }
-@keyframes g1tfPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
-.g1-tf-pop .g1-tf-dot { animation: g1tfPop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+@keyframes g1tfPop { 0% { transform: scale(0.3); opacity: 0; } 62% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+.g1-tf-pop .g1-tf-dot { animation: g1tfPop 0.4s cubic-bezier(0.33, 1.1, 0.66, 1) backwards; }
 @media (prefers-reduced-motion: reduce) { .g1-tf-pop .g1-tf-dot { animation: none; } }
 
 /* PROPIS — kataklı daftarda raqam yozish (Dars02'dan) + s3 raqam tanlovi */
@@ -5108,7 +5328,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === Dars08 — ayirish vizuallari === */
 /* BondFrame (s7, Dars06 dan): 10 katak, qizil/yashil olma, "?" yashirin qism */
-@keyframes g1pop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes g1pop { 0% { transform: scale(0.55); opacity: 0; } 62% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); } }
 .g1-bf { display: inline-grid; grid-template-columns: repeat(5, auto); gap: clamp(4px, 1.2vw, 9px); padding: clamp(8px, 1.8vw, 12px); background: #FBF9F4; border-radius: 16px; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.06); justify-items: center; }
 .g1-bf-cell { width: clamp(38px, 8vw, 52px); height: clamp(38px, 8vw, 52px); border-radius: 12px; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.08); display: flex; align-items: center; justify-content: center; }
 .g1-bf-cell.on { box-shadow: inset 0 0 0 2px rgba(58,53,48,0.13); }
@@ -5231,7 +5451,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @media (prefers-reduced-motion: reduce) { .g1-rk-bslide, .g1-rk-shake { animation: none; } }
 
 /* === Dars15 — BOZOR sahnasi jonli harakatlari === */
-.g1-bz-swing { transform-box: view-box; transform-origin: 330px 28px; animation: g1bzswing 3.6s ease-in-out infinite; }
+.g1-bz-swing { transform-box: view-box; transform-origin: 318px 30px; animation: g1bzswing 3.6s ease-in-out infinite; }
 @keyframes g1bzswing { 0%, 100% { transform: rotate(-2.4deg); } 50% { transform: rotate(2.4deg); } }
 .g1-bz-sway { transform-box: view-box; transform-origin: 200px 44px; animation: g1bzsway 4.4s ease-in-out infinite; }
 @keyframes g1bzsway { 0%, 100% { transform: translateY(0) rotate(-0.7deg); } 50% { transform: translateY(1.6px) rotate(0.7deg); } }
@@ -5239,17 +5459,32 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @keyframes g1bzfringe { 0%, 100% { transform: skewX(0deg) translateY(0); } 50% { transform: skewX(1.5deg) translateY(0.9px); } }
 @media (prefers-reduced-motion: reduce) { .g1-bz-swing, .g1-bz-sway, .g1-bz-fringe { animation: none; } }
 
-/* === Dars15 — OLMA / yashik (bozor sanoq metodi) === */
-.g1-apple { display: inline-flex; width: clamp(20px, 4.6vw, 30px); }
-.g1-apple svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 2px rgba(58,53,48,0.18)); }
-.g1-crate { position: relative; display: inline-flex; flex-direction: column; align-items: center; padding: clamp(6px, 1.6vw, 9px) clamp(8px, 2vw, 12px) clamp(16px, 3.4vw, 22px); background: linear-gradient(#CDA068, #A8763E); border-radius: 9px; border: 2px solid #855A2F; box-shadow: inset 0 2px 3px rgba(255,255,255,0.28), inset 0 -3px 5px rgba(0,0,0,0.18), 0 5px 12px -5px rgba(58,53,48,0.32); }
-.g1-crate-apples { display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(1px, 0.5vw, 3px); }
-.g1-crate-label { position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: clamp(11px, 2.2vw, 15px); color: #FBEFD8; letter-spacing: 0.04em; }
+/* === Dars15 — MAHSULOT / yashik (bozor sanoq metodi) === */
+/* REAL bozor yog'och yashigi (SVG qatlamlar): orqa panel (z0) + mevalar (z1) + old taxtalar (z2) */
+.g1-crate { position: relative; display: inline-flex; flex-direction: column; align-items: center;
+  padding: clamp(9px, 2vw, 13px) clamp(11px, 2.3vw, 15px) clamp(21px, 4.4vw, 30px);
+  filter: drop-shadow(0 7px 13px rgba(58, 53, 48, 0.4)); }
+.g1-crate-back { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+.g1-crate-front { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: clamp(18px, 4vw, 26px); z-index: 2; display: block; }
+.g1-crate-apples { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(1px, 0.5vw, 3px); margin-bottom: clamp(2px, 0.6vw, 4px); }
+.g1-crate-cell { display: flex; align-items: flex-end; justify-content: center; }
+.g1-crate-slot { width: clamp(18px, 4.2vw, 27px); aspect-ratio: 1; border-radius: 50%; border: 2px dashed rgba(92, 62, 32, 0.4); background: rgba(50, 32, 16, 0.12); box-shadow: inset 0 2px 4px rgba(0,0,0,0.18); }
+.g1-crate-drop { animation: g1crateDrop 0.36s cubic-bezier(0.33, 1.12, 0.66, 1) both; }
+@keyframes g1crateDrop { 0% { transform: translateY(-45%) scale(0.7); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g1-crate-drop { animation: none; } }
+.g1-crate-label { position: absolute; bottom: clamp(2px, 0.8vw, 5px); left: 50%; transform: translateX(-50%); z-index: 3; font-weight: 800; font-size: clamp(10px, 2vw, 14px); color: #F7E6C8; letter-spacing: 0.04em; text-shadow: 0 1px 1px rgba(40, 24, 8, 0.7); }
 .g1-fviz { display: flex; align-items: flex-end; justify-content: center; gap: clamp(10px, 2.6vw, 20px); flex-wrap: wrap; }
 .g1-fviz-ones { display: inline-flex; flex-wrap: wrap; align-items: flex-end; gap: clamp(2px, 0.8vw, 5px); max-width: clamp(120px, 34vw, 210px); }
 .g1-fviz-one { display: inline-flex; }
+/* yakka birliklar — yumshoq, sekin idle harakat (jonli, charchatmaydi); staggered */
+.g1-fviz-idle { display: inline-flex; animation: g1unitbob 3.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+@keyframes g1unitbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 .g1-fviz-plus { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #A7A6A2; align-self: center; }
-.g1-fviz-pop .g1-fviz-one { animation: g1fpop 0.42s cubic-bezier(0.34, 1.5, 0.6, 1) both; }
-@keyframes g1fpop { 0% { transform: translateY(-16px) scale(0.6); opacity: 0; } 60% { transform: translateY(2px) scale(1.1); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
-@media (prefers-reduced-motion: reduce) { .g1-fviz-pop .g1-fviz-one { animation: none; } }
+.g1-fviz-pop .g1-fviz-one { animation: g1fpop 0.4s cubic-bezier(0.33, 1.1, 0.66, 1) both; }
+
+/* MAHSULOT (yakka meva/sabzavot) — barcha turlar uchun bir o'lcham */
+.g1-produce { display: inline-flex; width: clamp(20px, 4.6vw, 30px); }
+.g1-produce svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 2px 2px rgba(58,53,48,0.18)); }
+@keyframes g1fpop { 0% { transform: translateY(-9px) scale(0.78); opacity: 0; } 62% { transform: translateY(1px) scale(1.03); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .g1-fviz-pop .g1-fviz-one, .g1-fviz-idle { animation: none; } }
 `;
