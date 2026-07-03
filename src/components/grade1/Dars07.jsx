@@ -187,6 +187,34 @@ function useIsMobile(breakpoint = 640) {
 }
 
 // ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
+}
+
+// ============================================================
 // AUDIO ENGINE
 // ============================================================
 class AudioEngine {
@@ -571,6 +599,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -710,6 +761,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const introAdvancedRef = useRef(wasSolved);
   const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
   const [encWord, setEncWord] = useState('');         // navbatdagi UNIKAL rag'bat (xato javob)
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);
   const praiseRef = useRef('');
 
   const pick = (i) => {
@@ -812,7 +864,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -834,7 +886,7 @@ const SCREEN_META = [
   { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: hovliga Zuhra keladi — yangi do'st qo'shildi
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // sof syujet: ikki guruh narsa — birga ko'ramizmi?
   { id: 's1',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // o'tgan dars eslash (son tarkibi): uch va ikki — birga nechta? (A)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // CombineGroups: ikki guruh birlashadi, birga sanaymiz
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // drag-birlashtirish: bola Zuhra olmalarini Ra'noga O'ZI o'tkazadi (3+2 -> 5, sanoq davom etadi)
   { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: qo'shish = birlashtirish, belgisi +, ko'payadi
   { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // to'rt va ikki birlashsa nechta? (D)
   { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // sudrab-birlashtirish: Zuhra olmalarini Ra'no savatiga sur, jamini tanla (B)
@@ -961,22 +1013,23 @@ const CONTENT = {
   },
 
   // ---- s2 EXPLORATION — CombineGroups: ikki guruh birlashadi, birga sanaymiz (3+2=5) ----
+  // s2 — DRAG-BIRLASHTIRISH: bola Zuhraning 2 olmasini Ra'no guruhiga O'ZI o'tkazadi;
+  // har tushishda sanoq davom etadi ("to'rt", "besh"), guruh jonli o'sadi.
+  // Audit qarori: "birlashtirsak ko'payadi" insighti tugma emas, bolaning O'Z harakati bilan.
   s2: {
     eyebrow: { ru: 'Соединяем', uz: 'Birlashtiramiz' },
-    instruction: { ru: 'У Рано три яблока, у Зухры два. Нажми кнопку и соедини их в одну группу', uz: "Ra'noda uchta olma, Zuhrada ikkita. Tugmani bosing va ularni bitta guruhga birlashtiring" },
-    btn: { ru: 'Соединить', uz: 'Birlashtirish' },
+    instruction: { ru: 'У Рано три яблока, у Зухры два. Сам перенеси яблоки Зухры к Рано — соедини группы', uz: "Ra'noda uchta olma, Zuhrada ikkita. Zuhra olmalarini Ra'noga o'zingiz o'tkazing — guruhlarni birlashtiring" },
+    drag_hint: { ru: 'Тяни яблоки сюда, к Рано', uz: "Olmalarni shu yerga, Ra'noga torting" },
     count_label: { ru: 'Вместе', uz: 'Birga' },
     done_text: { ru: 'Три и ещё два — стало пять. Соединили — стало больше.', uz: "Uch va yana ikki — besh bo'ldi. Birlashtirdik — ko'paydi." },
     audio: {
       ru: [
-        'У Рано три яблока. У Зухры ещё два яблока. Это две отдельные группы.',
-        'Нажми кнопку соединить. Две группы становятся одной. Теперь посчитаем все вместе.',
-        'Один, два, три, четыре, пять. Вместе стало пять. Соединили, и стало больше.'
+        'У Рано три яблока. У Зухры ещё два яблока. Это две отдельные группы. Перетащи яблоки Зухры к Рано, по одному.',
+        'Ты соединил две группы в одну. Посчитаем вместе. Один, два, три, четыре, пять. Стало пять, больше, чем было.'
       ],
       uz: [
-        "Ra'noda uchta olma. Zuhrada yana ikkita olma. Bu ikki alohida guruh.",
-        "Birlashtirish tugmasini bosing. Ikki guruh bittaga aylanadi. Endi hammasini birga sanaymiz.",
-        "Bir, ikki, uch, to'rt, besh. Birga besh bo'ldi. Birlashtirdik va ko'paydi."
+        "Ra'noda uchta olma. Zuhrada yana ikkita olma. Bu ikki alohida guruh. Zuhra olmalarini Ra'noga bittadan o'tkazing.",
+        "Siz ikki guruhni bitta qildingiz. Birga sanaymiz. Bir, ikki, uch, to'rt, besh. Besh bo'ldi, avvalgidan ko'p."
       ]
     }
   },
@@ -1924,6 +1977,7 @@ const GameDrill = (props) => {
 
   const [displayOrder, setDisplayOrder] = useState(() => exTokens(GAME_EX[0]).map((tk) => tk.id));
   const [praiseWord, setPraiseWord] = useState('');
+  const revealRef = useRevealScroll(solvedItem);
   const shuffledRef = useRef(false);
   useEffect(() => {
     if (shuffledRef.current) return undefined;
@@ -2091,7 +2145,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2104,7 +2158,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -3017,9 +3071,18 @@ const FruitBubble = ({ n, kind = 'apple' }) => (
   </div>
 );
 
+// AnsPop — to'g'ri javob raqami savol vizualining o'zida paydo bo'ladi ("= N", pop).
+// Barcha test-figuralar shu orqali javobni ko'rsatadi (bola javobni rasmda ham ko'radi).
+const AnsPop = ({ n }) => (
+  <span className="g1-anspop g1-pop-in" aria-hidden="true">
+    <i className="g1-anspop-eq">=</i><b className="g1-anspop-num">{n}</b>
+  </span>
+);
+
 // CombineGroups — pufakchali savatlar. Alohida: Ra'no + Zuhra pufakchasi (plyus oraliqda);
 // birlashgan: bitta pufakcha (a+b) + "a + b = jami" yozuvi.
-const CombineGroups = ({ a, b, kind = 'apple', kindB = null, combined = false, showSum = false, animate = true }) => {
+// ans != null -> javob raqami figuraga qo'shiladi (yechilgach).
+const CombineGroups = ({ a, b, kind = 'apple', kindB = null, combined = false, showSum = false, animate = true, ans = null }) => {
   const kb = kindB || kind;
   if (combined) {
     return (
@@ -3030,6 +3093,7 @@ const CombineGroups = ({ a, b, kind = 'apple', kindB = null, combined = false, s
             <span>{a}</span><i className="g1-cg-sign">+</i><span>{b}</span><i className="g1-cg-sign">=</i><span className="g1-cg-tot">{a + b}</span>
           </div>
         )}
+        {ans != null && <AnsPop n={ans}/>}
       </div>
     );
   }
@@ -3038,6 +3102,7 @@ const CombineGroups = ({ a, b, kind = 'apple', kindB = null, combined = false, s
       <div className={animate ? 'd4-mount' : ''}><FruitBubble n={a} kind={kind}/></div>
       <span className="g1-cg-op" aria-hidden="true">+</span>
       <div className={animate ? 'd4-mount-r' : ''}><FruitBubble n={b} kind={kb}/></div>
+      {ans != null && <AnsPop n={ans}/>}
     </div>
   );
 };
@@ -3187,7 +3252,7 @@ const Screen1 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={3} b={2} kind="apple"/>}
+      figure={(solved) => <CombineGroups a={3} b={2} kind="apple" ans={solved ? 5 : null}/>}
       options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={6} size="mid"/>]}
       correctIdx={0}
       mascot={false}
@@ -3198,19 +3263,50 @@ const Screen1 = (props) => {
 };
 
 // s2 — EXPLORATION: "Birlashtirish" tugmasi -> ikki guruh bitta bo'ladi, birga sanaymiz (3+2=5).
+// s2 — EXPLORATION (DRAG-BIRLASHTIRISH): bola Zuhraning 2 olmasini Ra'no guruhiga
+// O'ZI o'tkazadi (useDnd); har tushishda sanoq davom etadi ("to'rt", "besh"), guruh
+// jonli o'sadi (3 -> 4 -> 5). Insight (birlashtirsak ko'payadi) bolaning qo'lida.
+const S2_ZUHRA = ['z0', 'z1'];
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s2;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's2_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
-  const [combined, setCombined] = useState(false);
   const A = 3; const B = 2;
-  const combine = () => {
-    if (combined || !canAct) return;
-    setCombined(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio[lang][1]); e.pushOneOff(c.audio[lang][2]); } }
-  };
+  const [moved, setMoved] = useState(() => new Set());
+  const [combined, setCombined] = useState(false);
+  const revealRef = useRevealScroll(combined);
+  const doneTimer = useRef(null);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (combined || zoneId !== 'rano') return;
+    setMoved((prev) => {
+      if (prev.has(tokenId)) return prev;
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      if (!audio.muted) {
+        const e = getAudioEngine();
+        if (e) e.pushOneOff(NUM_WORDS[lang][A + n.size] || '');   // sanoq davom etadi: to'rt, besh
+      }
+      if (n.size >= B) {
+        doneTimer.current = setTimeout(() => {
+          setCombined(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 700);
+      }
+      return n;
+    });
+  }, [combined, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const zuhraLeft = S2_ZUHRA.filter((id) => !moved.has(id));
+  const dragTok = (id, i) => (
+    <span key={id} style={{ display: 'inline-flex', cursor: 'grab', touchAction: 'none', borderRadius: 12, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+      onPointerDown={(e) => { if (!canAct || combined) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+      <Obj kind="apple" i={i} anim="bob"/>
+    </span>
+  );
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3222,17 +3318,39 @@ const Screen2 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          <CombineGroups a={A} b={B} kind="apple" combined={combined} showSum={combined}/>
-          {!combined && (
-            <button className="btn" disabled={!canAct} onClick={combine}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
+          {combined
+            ? <CombineGroups a={A} b={B} kind="apple" combined showSum/>
+            : (
+              <>
+                <div className="g1-cg">
+                  {/* Ra'no guruhi = drop-zona, har tushgan olma bilan JONLI o'sadi */}
+                  <div data-zone="rano" onClick={() => { if (canAct && !combined) dnd.tapZone('rano'); }}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, border: `2.5px dashed ${moved.size >= B ? T.success : T.accent}`, borderRadius: 22, padding: 'clamp(6px, 1.4vw, 10px)', background: moved.size >= B ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)' }}>
+                    <FruitBubble n={A + moved.size} kind="apple"/>
+                    <span className="mono small" style={{ color: T.ink2, fontWeight: 700 }}>{t(CONTENT.sIntro.rano_label)} · {A + moved.size}</span>
+                  </div>
+                  <span className="g1-cg-op" aria-hidden="true">+</span>
+                  {/* Zuhra olmalari — sudraladigan */}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                    <div style={{ display: 'flex', gap: 'clamp(6px, 1.6vw, 12px)', minHeight: 'clamp(36px, 8.5vw, 58px)', alignItems: 'center' }}>
+                      {zuhraLeft.map((id) => dragTok(id, Number(id.slice(1))))}
+                    </div>
+                    <span className="mono small" style={{ color: T.ink3, fontWeight: 700 }}>{t(CONTENT.sIntro.zuhra_label)} · {zuhraLeft.length}</span>
+                  </div>
+                </div>
+                <span className="small" style={{ color: T.ink2 }}>⬅ {t(c.drag_hint)}</span>
+              </>
+            )}
         </div>
         {combined && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>
+            <Obj kind="apple" i={0} anim=""/>
           </div>
         )}
       </div>
@@ -3276,7 +3394,7 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={4} b={2} kind="cherry"/>}
+      figure={(solved) => <CombineGroups a={4} b={2} kind="cherry" ans={solved ? 6 : null}/>}
       options={[<DigitGlyph d={4} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={2} size="mid"/>, <DigitGlyph d={6} size="mid"/>]}
       correctIdx={3}
       mascot={false}
@@ -3361,6 +3479,7 @@ const Screen5 = (props) => {
               </div>
               <span className="g1-combine-name">{t(c.name_a)}</span>
             </div>
+            {solved && <AnsPop n={S5A + S5B}/>}
             {!merged && (
               <>
                 <span className="g1-cg-op" aria-hidden="true">+</span>
@@ -3387,7 +3506,6 @@ const Screen5 = (props) => {
               ))}
             </div>
           )}
-          {solved && <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={S5A + S5B} size="mid" tone="accent"/></div>}
         </div>
         {merged && !solved && <p className="g1-q fade-up">{t(c.question)}</p>}
         {solved && (
@@ -3401,7 +3519,7 @@ const Screen5 = (props) => {
           </FeedbackBlock>
         )}
         {dnd.drag && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}><span className="g1-token-obj"><ObjSvg kind="apple"/></span></div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}><span className="g1-token-obj"><ObjSvg kind="apple"/></span></div>
         )}
       </div>
     </Stage>
@@ -3449,6 +3567,7 @@ const Screen7 = (props) => {
   const added = Object.keys(orders).length;
   const count = BASE + added;
   const done = added === ADD;
+  const revealRef = useRevealScroll(done);
   const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
   const finish = useCallback(() => {
     const ft = firstTryRef.current !== false;
@@ -3498,7 +3617,7 @@ const Screen7 = (props) => {
           <span className="g1-count-val mono">{count} / {TARGET}</span>
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
         )}
@@ -3528,6 +3647,7 @@ const ScreenGame = (props) => {
   const [encWord, setEncWord] = useState('');
   const round = GAME_ROUNDS[ri];
   const allDone = ri >= total - 1 && solvedItem;
+  const revealRef = useRevealScroll(solvedItem);
   const combine = () => { if (combined || !canAns) return; setCombined(true); };
   const pick = (i) => {
     if (solvedItem || wrong.has(i) || !combined || !canAns) return;
@@ -3553,7 +3673,7 @@ const ScreenGame = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <CombineGroups key={ri} a={round.a} b={round.b} kind={round.kind} combined={combined} showSum={false}/>
+          <CombineGroups key={ri} a={round.a} b={round.b} kind={round.kind} combined={combined} showSum={false} ans={solvedItem ? round.a + round.b : null}/>
           {!combined && (
             <button className="btn" disabled={!canAns} onClick={combine}
               style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(18px, 2.8vw, 28px)', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>
@@ -3569,12 +3689,9 @@ const ScreenGame = (props) => {
               ))}
             </div>
           )}
-          {combined && solvedItem && (
-            <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={round.a + round.b} size="mid" tone="accent"/></div>
-          )}
         </div>
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
@@ -3603,7 +3720,7 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={3} b={4} kind="apple"/>}
+      figure={(solved) => <CombineGroups a={3} b={4} kind="apple" ans={solved ? 7 : null}/>}
       options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={8} size="mid"/>]}
       correctIdx={1}
       mascot={false}
@@ -3668,6 +3785,7 @@ export default function AdditionMeaningLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -3758,15 +3876,26 @@ export default function AdditionMeaningLesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -3914,7 +4043,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -3929,6 +4058,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {
@@ -4712,6 +4842,11 @@ html, body { margin: 0; padding: 0; }
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
 .g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+
+/* AnsPop — javob raqami savol vizualida ("= N", yashil, pop). Barcha test-figuralar. */
+.g1-anspop { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); margin-left: clamp(4px, 1vw, 8px); }
+.g1-anspop-eq { font-style: normal; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #5A5A60; line-height: 1; }
+.g1-anspop-num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: 1; color: #1F7A4D; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
 .g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }

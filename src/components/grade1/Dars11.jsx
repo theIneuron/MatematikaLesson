@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 1-SINF · Dars11 — "O'rin almashtirish" (num-1-11-v1) · 3+2=2+3, qo'shiluvchilar o'rin almashsa yig'indi o'zgarmaydi · swap-animatsiya (yangi mexanikasiz) · spec: ETALON_1SINF.md ░░
-// Dars07 (Qo'shishning ma'nosi) ning mirror'i: infratuzilma + ETALON KIT baytma-bayt;
-// CombineGroups o'rniga ayirish vizuallari. Make-ten YO'Q (Dars16+).
-// Vizualizator MIX: tap-to-remove (YANGI MEXANIKA: olmani bos -> uchadi -> kamayadi; s0/sg),
-// countdown-decrement (s2: 7->5), RemoveRow (MC figuralari), drag-away (s5: savatdan Anvarga),
-// BondFrame qizil/yashil (s7: yo'qolgan qism = ayirish↔qo'shish bog'i), SentTile (− belgi).
+// ░░ 1-SINF · Dars11 — "O'rin almashtirish" (num-1-11-v1) · 3+2=2+3, qo'shiluvchilar o'rin almashsa yig'indi o'zgarmaydi · s2 DRAG-ALMASHTIRISH: bola guruhlarni O'ZI suradi va qayta sanaydi · spec: ETALON_1SINF.md ░░
+// Dars07 (Qo'shishning ma'nosi) bazasida: infratuzilma + ETALON KIT baytma-bayt.
+// STRUKTURA: 10 ekran. s4-s7 MC-testlar BITTA ZANJIR slaydga jamlangan (ChainTest,
+// Dars33 naqshi): to'g'ri javob topilsa "Keyingi savol" bilan keyingisi ochiladi,
+// ball bitta yozuv (firstTry = hammasi 1-urinishda). Vizuallar: CombineGroups (olma
+// guruhlari), SentTile (yozuv-plitkalar), g1-sent misol-qatorlari, drag-swap (s2).
 //
 // Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar + Zuhra (tanish — Dars07'da kirgan).
 // Ra'no/Anvar/Zuhra qayta tanishtirilmaydi (sIntro Dars07'ga callback bilan ochiladi).
@@ -183,6 +183,34 @@ function useIsMobile(breakpoint = 640) {
     return () => window.removeEventListener('resize', onResize);
   }, [breakpoint]);
   return isMobile;
+}
+
+// ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
 }
 
 // ============================================================
@@ -570,6 +598,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -767,6 +818,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   };
 
   const canAdv = useAdvanceGate(solved, audio);   // izoh ovozi tugagach Davom
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);   // feedback skrollidan keyin fakt ham ko'rinadi
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
@@ -811,7 +863,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -824,7 +876,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar test ekranlarining wrong_N hint'larida (mavzuga moslangan).
 // ============================================================
 
-const TOTAL_SCREENS = 13;
+const TOTAL_SCREENS = 10;
 const LESSON_META = {
   lessonId: 'num-1-11-v1',
   lessonTitle: { ru: 'Переместительное свойство', uz: "O'rin almashtirish" }
@@ -833,12 +885,9 @@ const SCREEN_META = [
   { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: o'rin almashsa jami o'zgaradimi?
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: 3+2 va 2+3 bir xilmi?
   { id: 's1',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 3 + 2 = 5 (A)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // swap: 3+2 -> almashtir -> 2+3, ikkalasi 5
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // drag-almashtirish: bola guruhni O'ZI suradi (3+2 -> 2+3), keyin har olmani bosib qayta sanaydi -> 5
   { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: a+b=b+a, o'rin almashsa yig'indi o'zgarmaydi
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 2 + 3 = 5 (A, s1 aksi)
-  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // teng juft: 4+1 ga 1+4 teng (A)
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 2+3=3+2 (A)
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 5+1=6 -> 1+5=6 (A)
+  { id: 'chain', type: 'test',      template: 'ChainTest', scored: true, scope: 'module-mikro' }, // zanjir: s4->s5->s6->s7 (4 savol bitta slaydda, firstTry = hammasi 1-urinishda)
   { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: har xil tartib, jami 6 (3 raund)
   { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: tartib muhim emas; Dars12 ga ishora
   { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 2+4=6 tartib muhim emas + fakt (A)
@@ -940,22 +989,28 @@ const CONTENT = {
     }
   },
 
-  // ---- s2 EXPLORATION (swap): 3+2 -> 5, almashtir -> 2+3 -> 5, bir xil ----
+  // ---- s2 EXPLORATION (DRAG-ALMASHTIRISH, savat tili): hikoya savat bilan tushuntiradi,
+  // shuning uchun bu yerda ham FAQAT savat. Bola savatni O'ZI ikkinchisining o'rniga
+  // suradi (3+2 -> 2+3, yumshoq uchish-animatsiya), keyin har olmani savat ichida O'ZI
+  // bosib qayta sanaydi -> yana 5. Insight bolaning o'z harakati bilan tug'iladi. ----
   s2: {
     eyebrow: { ru: 'Поменяем местами', uz: "O'rin almashtiramiz" },
-    instruction: { ru: 'Три плюс два. Нажми — станет два плюс три.', uz: "Uch plyus ikki. Bosing — ikki plyus uch bo'ladi." },
-    btn: { ru: 'Поменять местами', uz: "O'rin almashtirish" },
+    instruction: { ru: 'Три плюс два. Сам поменяй корзины местами — перетащи одну на место другой', uz: "Uch plyus ikki. Savatlarni o'zingiz almashtiring — birini ikkinchisining o'rniga suring" },
+    drag_hint: { ru: 'Перетащи корзину на место другой', uz: "Savatni ikkinchisining o'rniga torting" },
+    count_hint: { ru: 'Нажимай на каждое яблоко и считай', uz: "Har olmani bosing va sanang" },
     label_before: { ru: 'Три плюс два', uz: 'Uch plyus ikki' },
     label_after: { ru: 'Два плюс три', uz: 'Ikki plyus uch' },
     done_text: { ru: 'И так, и так получилось пять. Сумма не изменилась!', uz: "U xil ham, bu xil ham besh chiqdi. Yig'indi o'zgarmadi!" },
     audio: {
       ru: [
-        'Сейчас на дорожке три плюс два, и вместе пять. Нажми кнопку поменять местами.',
-        'Теперь два плюс три. Посчитаем снова: один, два, три, четыре, пять. Опять пять. Сумма не изменилась.'
+        'В одной корзине три яблока, в другой два. Вместе пять. Сам поменяй корзины местами. Перетащи одну корзину на место другой.',
+        'Теперь два плюс три. Проверь сам. Нажимай на каждое яблоко и считай.',
+        'Опять пять. Поменяли местами, а сумма не изменилась.'
       ],
       uz: [
-        "Hozir uch plyus ikki, birga besh. O'rin almashtirish tugmasini bosing.",
-        "Endi ikki plyus uch. Yana sanaymiz: bir, ikki, uch, to'rt, besh. Yana besh. Yig'indi o'zgarmadi."
+        "Bir savatda uchta olma, ikkinchisida ikkita. Birga besh. Savatlarni o'zingiz almashtiring. Bir savatni ikkinchisining o'rniga suring.",
+        "Endi ikki plyus uch. O'zingiz tekshiring. Har olmani bosing va sanang.",
+        "Yana besh. O'rin almashdi, yig'indi esa o'zgarmadi."
       ]
     }
   },
@@ -975,7 +1030,15 @@ const CONTENT = {
     }
   },
 
-  // ---- s4 TEST MC (swap): endi 2 + 3 = ? (s1 ning aksi) options [5,6,4,3] to'g'ri idx0 ----
+  // ---- ZANJIR-TEST yorliqlari (Dars33 ChainTest naqshi): s4-s7 bitta slaydda ----
+  chainLab: {
+    q_word: { ru: 'Вопрос', uz: 'Savol' },
+    next_q: { ru: 'Следующий вопрос', uz: 'Keyingi savol' },
+    all_done: { ru: 'Все вопросы решены!', uz: 'Hamma savollar yechildi!' }
+  },
+  chain: { eyebrow: { ru: 'Тренировка · 4 вопроса', uz: 'Mashq · 4 savol' } },
+
+  // ---- s4 TEST MC (swap, chain savol 1): endi 2 + 3 = ? (s1 ning aksi) options [5,6,4,3] to'g'ri idx0 ----
   s4: {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
     title: { ru: 'Теперь наоборот: два и ещё три. Сколько вместе?', uz: "Endi aksincha: ikki va yana uch. Birga nechta?" },
@@ -1025,7 +1088,7 @@ const CONTENT = {
   // ---- s7 TEST MC: 5+1=6, unda 1+5=? options [6,5,7,4] to'g'ri idx0 ----
   s7: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Известно: пять плюс один равно шесть. Сколько будет один плюс пять?', uz: "Ma'lum: besh plyus bir teng olti. Bir plyus besh nechа bo'ladi?" },
+    title: { ru: 'Известно: пять плюс один равно шесть. Сколько будет один плюс пять?', uz: "Ma'lum: besh plyus bir teng olti. Bir plyus besh necha bo'ladi?"},
     correct_text: { ru: 'Верно. Те же числа местами — снова шесть, считать не нужно.', uz: "To'g'ri. O'sha sonlar o'rin almashdi — yana olti, sanash shart emas." },
     wrong_1: { ru: 'Это на один меньше. Это те же числа, ответ тот же — шесть.', uz: "Bu bittaga kam. Bu o'sha sonlar, javob o'sha — olti." },
     wrong_2: { ru: 'Это на один больше. Те же числа дают ту же сумму — шесть.', uz: "Bu bittaga ko'p. O'sha sonlar o'sha yig'indini beradi — olti." },
@@ -1864,6 +1927,7 @@ const GameDrill = (props) => {
   const [wrongZone, setWrongZone] = useState(null);   // noto'g'ri sudralganda zona yumshoq tebranadi
   const [bounceTok, setBounceTok] = useState(null);   // noto'g'ri token tray'ga sakrab qaytadi
   const [demoOff, setDemoOff] = useState(false);   // qo'l-demo birinchi harakatdan keyin so'nadi
+  const revealRef = useRevealScroll(solvedItem);
   const ex = GAME_EX[exIdx];
   const tokens = exTokens(ex);
   const zones = exZones(ex);
@@ -2041,7 +2105,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2054,7 +2118,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -3047,14 +3111,24 @@ const GuestCast = ({ audio }) => {
 };
 // ===== Dars11 KOMPONENTLAR (o'rin almashtirish) =====
 
+// AnsPop — to'g'ri javob raqami savol vizualining o'zida paydo bo'ladi ("= N", pop).
+// Barcha test-figuralar shu orqali javobni ko'rsatadi (bola javobni rasmda ham ko'radi).
+const AnsPop = ({ n }) => (
+  <span className="g1-anspop g1-pop-in" aria-hidden="true">
+    <i className="g1-anspop-eq">=</i><b className="g1-anspop-num">{n}</b>
+  </span>
+);
+
 // CombineGroups — qo'shish figurasi: ikki pufakcha + oraliqda. key bilan qayta sirg'aladi.
-const CombineGroups = ({ a, b, kind = 'apple', kindB = null }) => {
+// ans != null -> javob raqami figuraga qo'shiladi (yechilgach).
+const CombineGroups = ({ a, b, kind = 'apple', kindB = null, ans = null }) => {
   const kb = kindB || kind;
   return (
     <div className="g1-cg">
       <div className="d4-mount"><FruitBubble n={a} kind={kind}/></div>
       <span className="g1-cg-op" aria-hidden="true">+</span>
       <div className="d4-mount-r"><FruitBubble n={b} kind={kb}/></div>
+      {ans != null && <AnsPop n={ans}/>}
     </div>
   );
 };
@@ -3132,7 +3206,7 @@ const Screen1 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={3} b={2} kind="apple"/>}
+      figure={(solved) => <CombineGroups a={3} b={2} kind="apple" ans={solved ? 5 : null}/>}
       options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
       correctIdx={0}
       mascot={false}
@@ -3142,25 +3216,103 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — EXPLORATION (swap): 3+2 -> almashtir -> 2+3, ikkalasi 5.
+// s2 — EXPLORATION (DRAG-ALMASHTIRISH, savat tili): hikoya savat bilan tushuntiradi,
+// shuning uchun bu yerda ham FAQAT savat (pufakcha/karta YO'Q). Bola savatni O'ZI
+// ikkinchisining o'rniga suradi (useDnd: pointer-drag + tap-tap); almashinish YUMSHOQ —
+// ikkala savat bir-birining o'rniga uchib o'tadi (g1swapR/L, rezkiy remont yo'q),
+// keyin har olmani savat ichida O'ZI bosib qayta sanaydi (har bosishda son aytiladi).
+// Insight (yig'indi o'zgarmadi) bolaning o'z qo'lida tug'iladi.
+const S2_LEFT = ['a0', 'a1', 'a2'];   // 3 olmali savat (boshida chapda)
+const S2_RIGHT = ['a3', 'a4'];        // 2 olmali savat (boshida o'ngda)
+const S2_TOTAL = S2_LEFT.length + S2_RIGHT.length;
+
+// Kichik savat: BasketArt + gardishdan ko'rinadigan olmalar. counting=true -> olmalar bosiladi.
+const S2Basket = ({ ids, counted, onTap, canTap }) => (
+  <div className="g1-rb-sm">
+    <BasketArt/>
+    <div className="g1-rb-bowl">
+      {ids.map((id, i) => {
+        const num = counted ? counted[id] : null;
+        return (
+          <button key={id} type="button" className="g1-s2apple" disabled={!onTap || !canTap || !!num}
+            onClick={onTap ? () => onTap(id) : undefined}
+            style={{ cursor: onTap && canTap && !num ? 'pointer' : 'default', pointerEvents: onTap ? 'auto' : 'none' }}>
+            <Obj kind="apple" i={i} anim={onTap && !num ? 'bob' : ''}/>
+            {num && <span className="g1-s2badge mono">{num}</span>}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s2;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's2_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
-  const [swapped, setSwapped] = useState(false);
-  const a = swapped ? 2 : 3;
-  const b = swapped ? 3 : 2;
-  const swap = () => {
-    if (swapped || !canAct) return;
-    setSwapped(true);
+  const [phase, setPhase] = useState('idle');   // idle (drag kutilyapti) -> anim (savatlar uchmoqda) -> count (qayta sanash)
+  const [dx, setDx] = useState(0);              // savatlar orasidagi px masofa (uchish uchun o'lchanadi)
+  const [counted, setCounted] = useState({});   // olma id -> tartib raqami (1..5)
+  const leftRef = useRef(null);
+  const rightRef = useRef(null);
+  const swapped = phase === 'count';
+  const countN = Object.keys(counted).length;
+  const done = countN >= S2_TOTAL;
+  const revealRef = useRevealScroll(done);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (phase !== 'idle') return;
+    // har ikki yo'nalish ham to'g'ri almashtirish: 3-savat o'ngga YOKI 2-savat chapga
+    if ((tokenId === 'g3' && zoneId === 'right') || (tokenId === 'g2' && zoneId === 'left')) {
+      const L = leftRef.current, R = rightRef.current;
+      setDx(L && R ? R.getBoundingClientRect().left - L.getBoundingClientRect().left : 0);
+      setPhase('anim');
+      sfx.playCorrect();
+    }
+  }, [phase, sfx]);
+  // Uchish tugadi -> sanash bosqichi + izoh ovozi (rezkiy almashinish yo'q)
+  const onSwapEnd = () => {
+    if (phase !== 'anim') return;
+    setPhase('count');
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+  };
+  const dnd = useDnd(handleDrop);
+  const tapApple = (id) => {
+    if (!swapped || !canAct || counted[id] || done) return;
+    setCounted((prev) => {
+      if (prev[id]) return prev;
+      const order = Object.keys(prev).length + 1;
+      if (!audio.muted) {
+        const e = getAudioEngine();
+        if (e) {
+          e.pushOneOff(NUM_WORDS[lang][order] || '');
+          if (order >= S2_TOTAL) e.pushOneOff(c.audio[lang][2]);
+        }
+      }
+      if (order >= S2_TOTAL) sfx.playCorrect();
+      return { ...prev, [id]: order };
+    });
+  };
+  const cardPointerDown = (id) => (e) => {
+    if (!canAct || phase !== 'idle') return;
+    e.preventDefault();
+    // tap-tap: bitta savat tanlangan holatda ikkinchisini bosish = uning uyasiga tashlash
+    if (dnd.sel && dnd.sel !== id) { dnd.tapZone(id === 'g3' ? 'left' : 'right'); return; }
+    dnd.startDrag(e, id);
+  };
+  // Uyalar (punktir) faqat drag bosqichida ko'rinadi; keyin yumshoq so'nadi
+  const zoneStyle = {
+    border: `2.5px dashed ${phase === 'idle' ? T.accent : 'transparent'}`,
+    borderRadius: 22, padding: 'clamp(6px, 1.4vw, 10px)',
+    background: phase === 'idle' ? 'rgba(255, 79, 40, 0.05)' : 'transparent',
+    display: 'inline-flex', transition: 'border-color 0.5s ease, background 0.5s ease'
   };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!swapped} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!done} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
@@ -3169,20 +3321,47 @@ const Screen2 = (props) => {
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
           <span className="eyebrow mono" style={{ color: T.ink3 }}>{swapped ? t(c.label_after) : t(c.label_before)}</span>
-          <CombineGroups key={swapped ? 'b' : 'a'} a={a} b={b} kind="apple"/>
-          <div className="g1-sent g1-sent-lg mono" aria-hidden="true">
-            <span>{a}</span><i className="g1-sent-op g1-sent-plus">+</i><span>{b}</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">5</span>
+          {/* Ikkala bosqichda ham AYNI savatlar turadi: drag'da kartalar, almashgach olmalar sanaladi.
+              DOM almashtirilmaydi — savatlar transform bilan bir-birining o'rniga uchadi. */}
+          <div className="g1-cg" style={{ flexWrap: 'nowrap' }}>
+            <div data-zone="left" onClick={() => { if (canAct && phase === 'idle') dnd.tapZone('left'); }} style={zoneStyle}>
+              <div ref={leftRef} onAnimationEnd={onSwapEnd} onPointerDown={cardPointerDown('g3')}
+                className={`g1-s2card${phase !== 'idle' ? ' g1-swapgo-r' : ''}`}
+                style={{ '--s2dx': `${dx}px`, cursor: phase === 'idle' ? 'grab' : 'default', touchAction: 'none', outline: dnd.sel === 'g3' ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 4, borderRadius: 18 }}>
+                <S2Basket ids={S2_LEFT} counted={counted} onTap={swapped ? tapApple : null} canTap={canAct && !done}/>
+              </div>
+            </div>
+            <span className="g1-cg-op" aria-hidden="true">+</span>
+            <div data-zone="right" onClick={() => { if (canAct && phase === 'idle') dnd.tapZone('right'); }} style={zoneStyle}>
+              <div ref={rightRef} onPointerDown={cardPointerDown('g2')}
+                className={`g1-s2card${phase !== 'idle' ? ' g1-swapgo-l' : ''}`}
+                style={{ '--s2dx': `${dx}px`, cursor: phase === 'idle' ? 'grab' : 'default', touchAction: 'none', outline: dnd.sel === 'g2' ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 4, borderRadius: 18 }}>
+                <S2Basket ids={S2_RIGHT} counted={counted} onTap={swapped ? tapApple : null} canTap={canAct && !done}/>
+              </div>
+            </div>
           </div>
-          {!swapped && (
-            <button className="btn" disabled={!canAct} onClick={swap}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
+          {phase === 'idle' && <span className="small" style={{ color: T.ink2 }}>⇄ {t(c.drag_hint)}</span>}
+          {swapped && !done && <span className="small" style={{ color: T.ink2 }}>{t(c.count_hint)} · <span className="mono" style={{ fontWeight: 700 }}>{countN} / 5</span></span>}
+          <div className="g1-sent g1-sent-lg mono" aria-hidden="true">
+            <span>{swapped ? 2 : 3}</span><i className="g1-sent-op g1-sent-plus">+</i><span>{swapped ? 3 : 2}</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">{!swapped || done ? 5 : '?'}</span>
+          </div>
         </div>
-        {swapped && (
-          <div className="frame-success fade-up">
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi — xuddi shu savat (kichraytirilgan) */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>
+            <div className="g1-rb-sm g1-rb-ghost">
+              <BasketArt/>
+              <div className="g1-rb-bowl">
+                {(dnd.drag.id === 'g3' ? S2_LEFT : S2_RIGHT).map((id, i) => (
+                  <span key={id} className="g1-s2apple"><Obj kind="apple" i={i} anim=""/></span>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -3219,91 +3398,193 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST MC: 2 + 3 = 5 (s1 aksi). options [5,6,4,3] to'g'ri idx0.
-const Screen4 = (props) => {
-  const c = CONTENT.s4;
+// ============================================================
+// CHAIN-TEST (Dars33 naqshi) — bitta slaydda 4 savol: to'g'ri javob topilsa keyingisi
+// "Keyingi savol" tugmasi bilan ochiladi. Har savolda веди-до-верного: xato variant
+// o'chadi (↺), qolganlari faol. Ball — bitta yozuv: firstTry = HAMMA savollar birinchi
+// urinishda yechilgan bo'lsa. Savol kontenti — mavjud CONTENT kalitlari (s4, s5, s6, s7).
+// Xato-ovoz zaxira zanjiri QuestionScreen bilan bir xil (wrong_i -> wrong_default -> on_wrong).
+// items: [{ key, opts, correctIdx, figure?(solved) }]
+// ============================================================
+const ChainTest = ({ props, items, eyebrow }) => {
+  const lang = useLang();
   const t = useT();
+  const sfx = useSfx();
+  const CL = CONTENT.chainLab;
+  const wasSolved = props.storedAnswer?.solved === true;
+  const [qi, setQi] = useState(wasSolved ? items.length - 1 : 0);
+  const [solvedItem, setSolvedItem] = useState(wasSolved);
+  const [picked, setPicked] = useState(wasSolved);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [praiseWord, setPraiseWord] = useState('');
+  const [encWord, setEncWord] = useState('');
+  const allFirstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? true) : true);
+  const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
+  const introAdvancedRef = useRef(wasSolved);
+  const item = items[qi];
+  const c = CONTENT[item.key];
+  const last = qi >= items.length - 1;
+  const allDone = last && solvedItem;
+
+  const audio = useAudio([{ id: `chain_${items[0].key}_intro`, text: CONTENT[items[0].key].audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const canAns = useCanAnswer(audio);
+
+  const pick = (i) => {
+    if (!canAns || solvedItem || wrong.has(i)) return;
+    attemptsRef.current += 1;
+    setPicked(true);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    const isCorrect = i === item.correctIdx;
+    if (isCorrect) {
+      setSolvedItem(true);
+      sfx.playCorrect();
+      const pw = nextPraise(lang); setPraiseWord(pw);
+      if (!audio.muted) {
+        setTimeout(() => {
+          const e = getAudioEngine();
+          if (e && !audio.muted) { e.pushOneOff(pw); e.pushOneOff(c.audio.on_correct[lang]); if (last) e.pushOneOff(CL.all_done[lang]); }
+        }, 300);
+      }
+      if (last) {
+        props.onAnswer({
+          stage: SCREEN_META[props.screen]?.scope ?? null,
+          screenIdx: props.screen,
+          correct: allFirstTryRef.current,
+          firstTry: allFirstTryRef.current,
+          attempts: attemptsRef.current,
+          solved: true
+        });
+      }
+    } else {
+      allFirstTryRef.current = false;
+      sfx.playWrong();
+      setEncWord(nextEncourage(lang));
+      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
+      if (!audio.muted) {
+        setTimeout(() => {
+          const e = getAudioEngine();
+          if (e && !audio.muted) {
+            const wv = (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || (c.wrong_default && c.wrong_default[lang]) || c.audio.on_wrong[lang];
+            e.pushOneOff(wv);
+          }
+        }, 300);
+      }
+    }
+  };
+
+  const nextQ = () => {
+    if (!solvedItem || last) return;
+    const nc = CONTENT[items[qi + 1].key];
+    setQi(qi + 1); setSolvedItem(false); setPicked(false); setWrong(new Set()); setPraiseWord(''); setEncWord('');
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(nc.audio.intro[lang]); }
+  };
+
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+
   return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={2} b={3} kind="apple"/>}
-      options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
-      correctIdx={0}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+    <Stage eyebrow={eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div key={`q${qi}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        {allDone && <div style={{ position: 'relative', height: 0 }} aria-hidden="true"><Confetti/></div>}
+        <div className="fade-up" style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+          <span className="eyebrow mono" style={{ color: T.accent }}>{t(CL.q_word)} {qi + 1} / {items.length}</span>
+          <span style={{ display: 'inline-flex', gap: 5 }} aria-hidden="true">
+            {items.map((_, k) => {
+              const done = k < qi || (k === qi && solvedItem);
+              return <span key={k} className="mono small" style={{ color: done ? T.success : T.ink3, fontWeight: 700 }}>{done ? '✓' : '·'}</span>;
+            })}
+          </span>
+        </div>
+        <h2 className="title h-sub fade-up">{t(c.title)}</h2>
+        {item.figure && (
+          <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            {item.figure(solvedItem)}
+          </div>
+        )}
+        {!solvedItem && (
+          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${item.opts.length}, minmax(0, 1fr))`, gap: 10 }}>
+            {item.opts.map((opt, i) => {
+              const isWrongPicked = wrong.has(i);
+              return (
+                <button key={i} className={`option${isWrongPicked ? ' option-picked-wrong' : ''}`} disabled={isWrongPicked || !canAns} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(10px, 1.8vw, 16px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span className="mono small" style={{ minWidth: 18, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>{isWrongPicked ? '↺' : String.fromCharCode(65 + i)}</span>
+                  <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{opt}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {solvedItem && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="option option-correct" disabled
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
+              <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{item.opts[item.correctIdx]}</span>
+            </button>
+          </div>
+        )}
+        <FeedbackBlock show={picked} isCorrect={solvedItem} wrongClass="frame-tip">
+          <Reaction state={solvedItem ? 'correct' : 'wrong'} praise={solvedItem ? praiseWord : encWord} mascot={false}/>
+        </FeedbackBlock>
+        {solvedItem && !last && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="btn" onClick={nextQ}
+              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+              {t(CL.next_q)}
+            </button>
+          </div>
+        )}
+      </div>
+    </Stage>
   );
 };
 
-// s5 — TEST MC (teng juftni top): 4 + 1 ga teng? options [1+4, 4−1, 1+5] to'g'ri idx0.
-const Screen5 = (props) => {
-  const c = CONTENT.s5;
+// chain — 4 savol: 2+3 (s4) -> teng juftni top (s5) -> Ha/Yo'q (s6) -> 5+1=6, unda 1+5 (s7).
+// Ha/Yo'q variantlari til-bog'liq, shuning uchun items render ichida quriladi.
+const ScreenChain = (props) => {
   const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>4</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span></span>}
-      options={[<SentTile a={1} op="+" b={4}/>, <SentTile a={4} op="−" b={1}/>, <SentTile a={1} op="+" b={5}/>]}
-      correctIdx={0}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s6 — TEST Ha/Yo'q: 2+3 = 3+2 to'g'rimi? idx0.
-const Screen6 = (props) => {
-  const c = CONTENT.s6;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => (
+  const items = [
+    { key: 's4', correctIdx: 0,
+      figure: (s) => <CombineGroups a={2} b={3} kind="apple" ans={s ? 5 : null}/>,
+      opts: [<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={3} size="mid"/>] },
+    { key: 's5', correctIdx: 0,
+      // To'g'ri javobda teng juft figuraning o'zida ochiladi: 4+1 = 1+4 (yashil =, pop)
+      figure: (s) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.4vw, 16px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>4</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span></span>
+          {s && <span className="g1-sent-eq g1-sent-lg mono g1-pop-in" aria-hidden="true" style={{ color: T.success }}>=</span>}
+          {s && <span className="g1-sent g1-sent-lg mono g1-pop-in" aria-hidden="true"><span>1</span><i className="g1-sent-op g1-sent-plus">+</i><span>4</span></span>}
+        </div>
+      ),
+      opts: [<SentTile a={1} op="+" b={4}/>, <SentTile a={4} op="−" b={1}/>, <SentTile a={1} op="+" b={5}/>] },
+    { key: 's6', correctIdx: 0,
+      // To'g'ri javobda "?" o'rniga "=" belgisi qo'yiladi (yashil, pop)
+      figure: (s) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.4vw, 16px)' }}>
           <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span></span>
-          <span className="g1-sent-q mono" aria-hidden="true">?</span>
+          {s
+            ? <span className="g1-sent-q mono g1-pop-in" aria-hidden="true" style={{ color: T.success }}>=</span>
+            : <span className="g1-sent-q mono" aria-hidden="true">?</span>}
           <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>3</span><i className="g1-sent-op g1-sent-plus">+</i><span>2</span></span>
         </div>
-      )}
-      options={[t(c.opt_yes), t(c.opt_no)]}
-      correctIdx={0}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s7 — TEST MC: 5+1=6, unda 1+5=? options [6,5,7,4] to'g'ri idx0.
-const Screen7 = (props) => {
-  const c = CONTENT.s7;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => (
+      ),
+      opts: [t(CONTENT.s6.opt_yes), t(CONTENT.s6.opt_no)] },
+    { key: 's7', correctIdx: 0,
+      figure: (s) => (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
           <span className="g1-sent mono" aria-hidden="true" style={{ color: T.ink3 }}><span>5</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span><i className="g1-sent-eq">=</i><span>6</span></span>
-          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>1</span><i className="g1-sent-op g1-sent-plus">+</i><span>5</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">?</span></span>
+          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>1</span><i className="g1-sent-op g1-sent-plus">+</i><span>5</span><i className="g1-sent-eq">=</i>{s ? <span className="g1-sent-res g1-pop-in">6</span> : <span className="g1-sent-res">?</span>}</span>
         </div>
-      )}
-      options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={4} size="mid"/>]}
-      correctIdx={0}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
+      ),
+      opts: [<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={4} size="mid"/>] },
+  ];
+  return <ChainTest props={props} items={items} eyebrow={CONTENT.chain.eyebrow}/>;
 };
 
 // sg — MINI-O'YIN: 3 raund, har xil tartib, jami har safar 6. Ball yo'q.
@@ -3325,6 +3606,7 @@ const ScreenGame = (props) => {
   const [wrong, setWrong] = useState(() => new Set());
   const [praiseWord, setPraiseWord] = useState('');
   const [encWord, setEncWord] = useState('');
+  const revealRef = useRevealScroll(solvedItem);
   const round = GAME_ROUNDS[ri];
   const correctIdx = round.opts.indexOf(round.ans);
   const lastRound = ri >= total - 1;
@@ -3354,7 +3636,7 @@ const ScreenGame = (props) => {
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <div className="g1-sent g1-sent-lg mono" aria-hidden="true">
-            <span>{round.a}</span><i className="g1-sent-op g1-sent-plus">+</i><span>{round.b}</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">?</span>
+            <span>{round.a}</span><i className="g1-sent-op g1-sent-plus">+</i><span>{round.b}</span><i className="g1-sent-eq">=</i>{solvedItem ? <span className="g1-sent-res g1-pop-in">{round.ans}</span> : <span className="g1-sent-res">?</span>}
           </div>
           {!solvedItem && (
             <div className="g1-gameopts">
@@ -3365,12 +3647,9 @@ const ScreenGame = (props) => {
               ))}
             </div>
           )}
-          {solvedItem && (
-            <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={round.ans} size="mid" tone="accent"/></div>
-          )}
         </div>
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
@@ -3399,7 +3678,7 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={2} b={4} kind="apple"/>}
+      figure={(solved) => <CombineGroups a={2} b={4} kind="apple" ans={solved ? 6 : null}/>}
       options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={8} size="mid"/>]}
       correctIdx={0}
       mascot={false}
@@ -3464,6 +3743,7 @@ export default function CommutativeLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -3508,7 +3788,7 @@ export default function CommutativeLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, ScreenGame, ScreenGuest, Screen8, Screen9];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, ScreenChain, ScreenGame, ScreenGuest, Screen8, Screen9];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -3554,15 +3834,26 @@ export default function CommutativeLesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -3710,7 +4001,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -3725,6 +4016,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {
@@ -4508,6 +4800,11 @@ html, body { margin: 0; padding: 0; }
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
 .g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+
+/* AnsPop — javob raqami savol vizualida ("= N", yashil, pop). Barcha test-figuralar. */
+.g1-anspop { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); margin-left: clamp(4px, 1vw, 8px); }
+.g1-anspop-eq { font-style: normal; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #5A5A60; line-height: 1; }
+.g1-anspop-num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: 1; color: #1F7A4D; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
 .g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }
@@ -4666,4 +4963,30 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 
 /* === Dars11 — savol belgisi (ifodalar orasida) === */
 .g1-sent-q { font-family: "JetBrains Mono", monospace; font-weight: 800; font-size: clamp(22px, 4.5vw, 34px); color: #A7A6A2; }
+
+/* === s2 — savat-almashtirish (hikoya savat bilan -> tushuntirish ham faqat savat) === */
+.g1-s2card { position: relative; display: inline-flex; }
+.g1-rb-sm { position: relative; width: clamp(118px, 27vw, 178px); aspect-ratio: 220 / 170; }
+.g1-rb-sm .g1-obj { width: clamp(20px, 4.6vw, 30px); }
+.g1-rb-sm .g1-rb-bowl { gap: clamp(2px, 0.8vw, 5px); }
+.g1-rb-ghost { opacity: 0.92; }
+.g1-s2apple { position: relative; background: none; border: none; padding: 0; display: inline-flex; }
+.g1-s2badge { position: absolute; top: -7px; right: -7px; background: #1F7A4D; color: #FFFFFF; border-radius: 50%; width: clamp(16px, 3vw, 22px); height: clamp(16px, 3vw, 22px); display: inline-flex; align-items: center; justify-content: center; font-size: clamp(10px, 1.6vw, 13px); font-weight: 800; z-index: 2; }
+/* Yumshoq almashinish: savatlar bir-birining o'rniga kichik yoy bo'ylab uchadi (rezkiy remont YO'Q).
+   --s2dx — drop paytida o'lchangan px masofa. forwards: yakuniy joyda qoladi. */
+.g1-swapgo-r { animation: g1swapR 0.85s cubic-bezier(0.45, 0.05, 0.3, 1) forwards; z-index: 2; }
+.g1-swapgo-l { animation: g1swapL 0.85s cubic-bezier(0.45, 0.05, 0.3, 1) forwards; }
+@keyframes g1swapR {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(calc(var(--s2dx) * 0.5), -24px); }
+  100% { transform: translate(var(--s2dx), 0); }
+}
+@keyframes g1swapL {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(calc(var(--s2dx) * -0.5), 20px); }
+  100% { transform: translate(calc(var(--s2dx) * -1), 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g1-swapgo-r, .g1-swapgo-l { animation-duration: 0.01s; }
+}
 `;

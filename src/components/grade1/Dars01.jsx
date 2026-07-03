@@ -185,6 +185,34 @@ function useIsMobile(breakpoint = 640) {
 }
 
 // ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
+}
+
+// ============================================================
 // AUDIO ENGINE
 // ============================================================
 class AudioEngine {
@@ -569,6 +597,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -709,6 +760,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
   const [encWord, setEncWord] = useState('');         // navbatdagi UNIKAL rag'bat (xato javob)
   const praiseRef = useRef('');
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);
 
   const pick = (i) => {
     if (!canAns) return;       // ovoz tugamaguncha javob yo'q
@@ -810,7 +862,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -1941,6 +1993,7 @@ const GameDrill = (props) => {
   const [wrongZone, setWrongZone] = useState(null);   // noto'g'ri sudralganda zona yumshoq tebranadi
   const [bounceTok, setBounceTok] = useState(null);   // noto'g'ri token tray'ga sakrab qaytadi
   const [demoOff, setDemoOff] = useState(false);   // qo'l-demo birinchi harakatdan keyin so'nadi
+  const revealRef = useRevealScroll(solvedItem);
   const ex = GAME_EX[exIdx];
   const tokens = exTokens(ex);
   const zones = exZones(ex);
@@ -2118,7 +2171,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div className="frame-success fade-up" ref={revealRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2131,7 +2184,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -2561,6 +2614,7 @@ const Screen2 = (props) => {
   const [orders, setOrders] = useState({});
   const count = Object.keys(orders).length;
   const full = count === N;
+  const revealRef = useRevealScroll(full);
   const tap = (i) => {
     if (orders[i]) return;   // olmalar ekranda — darrov bosib sanaladi (Boshlash tugmasi yo'q)
     const order = count + 1;
@@ -2590,7 +2644,7 @@ const Screen2 = (props) => {
           <div className="g1-bigcount mono">{count}</div>
         </div>
         {full && (
-          <div className="frame-success fade-up">
+          <div className="frame-success fade-up" ref={revealRef}>
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
         )}
@@ -2657,6 +2711,7 @@ const Screen5 = (props) => {
   const [orders, setOrders] = useState({});   // katak indeksi -> tartib (1..5)
   const count = Object.keys(orders).length;
   const full = count === N;
+  const revealRef = useRevealScroll(full);
   const tap = (i) => {
     if (orders[i]) return;   // likobchalar ekranda — darrov bosiladi (Boshlash tugmasi yo'q)
     const order = count + 1;
@@ -2705,7 +2760,7 @@ const Screen5 = (props) => {
           <div className="g1-bigcount mono">{count}</div>
         </div>
         {full && (
-          <div className="frame-success fade-up">
+          <div className="frame-success fade-up" ref={revealRef}>
             <Reaction state="correct" praise={t(c.full_text)}/>
           </div>
         )}
@@ -2963,6 +3018,7 @@ const Screen9 = (props) => {
   const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
   const item = DRILL9[idx];
   const allDone = idx >= total - 1 && solvedItem;
+  const revealRef = useRevealScroll(solvedItem);
 
   // boshlang'ich variantlarni bir marta aralashtirish (render'da random YO'Q)
   const shuffledInitRef = useRef(false);
@@ -3070,7 +3126,7 @@ const Screen9 = (props) => {
           </div>
         )}
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div className="frame-success fade-up" ref={revealRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -3181,6 +3237,7 @@ export default function CountingLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -3269,15 +3326,26 @@ export default function CountingLesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -3425,7 +3493,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -3440,6 +3508,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {

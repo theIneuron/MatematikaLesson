@@ -186,6 +186,34 @@ function useIsMobile(breakpoint = 640) {
 }
 
 // ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
+}
+
+// ============================================================
 // AUDIO ENGINE
 // ============================================================
 class AudioEngine {
@@ -570,6 +598,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -710,6 +761,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
   const [encWord, setEncWord] = useState('');         // navbatdagi UNIKAL rag'bat (xato javob)
   const praiseRef = useRef('');
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);
 
   const pick = (i) => {
     if (!canAns) return;       // ovoz tugamaguncha javob yo'q
@@ -811,7 +863,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -959,7 +1011,7 @@ const CONTENT = {
       uz: "Birlikni birlikka qo'shing: to'rt va besh."
     },
     audio: {
-      intro: { ru: 'Тридцать четыре и пять. Сколько получится? Выбери.', uz: "O'ttiz to'rt va besh. Nechta bo'ladi? Tanlang." },
+      intro: { ru: 'Тридцать четыре и пять. Прибавь единицы к единицам, десяток не трогай. Сколько получится? Выбери.', uz: "O'ttiz to'rt va besh. Birlikni birlikka qo'shing, o'nlikka tegmang. Nechta bo'ladi? Tanlang." },
       on_correct: { ru: 'Верно. Четыре и пять девять, десятки те же. Тридцать девять.', uz: "To'g'ri. To'rt va besh to'qqiz, o'nliklar o'sha. O'ttiz to'qqiz." },
       on_wrong: { ru: 'Не совсем. Посмотри разбор и прибавь к единицам.', uz: "Unchalik emas. Tushuntirishga qarab, birlikka qo'shing." }
     }
@@ -1022,7 +1074,7 @@ const CONTENT = {
       uz: "Birlikni birlikka qo'shing: ikki va uch."
     },
     audio: {
-      intro: { ru: 'Пятьдесят два и три. Сколько получится? Выбери.', uz: "Ellik ikki va uch. Nechta bo'ladi? Tanlang." },
+      intro: { ru: 'Пятьдесят два и три. Сначала единицы к единицам. Сколько получится? Выбери.', uz: "Ellik ikki va uch. Avval birlikni birlikka. Nechta bo'ladi? Tanlang." },
       on_correct: { ru: 'Верно. Два и три пять. Пятьдесят пять.', uz: "To'g'ri. Ikki va uch besh. Ellik besh." },
       on_wrong: { ru: 'Не совсем. Посмотри разбор и прибавь к единицам.', uz: "Unchalik emas. Tushuntirishga qarab, birlikka qo'shing." }
     }
@@ -1068,7 +1120,7 @@ const CONTENT = {
       uz: "Birlikni birlikka qo'shing: uch va olti."
     },
     audio: {
-      intro: { ru: 'Двадцать три и шесть. Сколько получится? Выбери.', uz: "Yigirma uch va olti. Nechta bo'ladi? Tanlang." },
+      intro: { ru: 'Двадцать три и шесть. Вспомни, единицы прибавляем к единицам. Сколько получится? Выбери.', uz: "Yigirma uch va olti. Eslang, birlikni birlikka qo'shamiz. Nechta bo'ladi? Tanlang." },
       on_correct: { ru: 'Верно. Три и шесть девять. Двадцать девять.', uz: "To'g'ri. Uch va olti to'qqiz. Yigirma to'qqiz." },
       on_wrong: { ru: 'Не совсем. Посмотри разбор и прибавь к единицам.', uz: "Unchalik emas. Tushuntirishga qarab, birlikka qo'shing." }
     }
@@ -1141,7 +1193,7 @@ const CONTENT = {
       uz: "Bilasizmi, narxga bir nechta qo'shsangiz, faqat birlik o'zgaradi. O'nlik o'z joyida qoladi."
     },
     audio: {
-      intro: { ru: 'Последнее задание. Сорок три и пять. Сколько получится? Выбери.', uz: "Oxirgi topshiriq. Qirq uch va besh. Nechta bo'ladi? Tanlang." },
+      intro: { ru: 'Последнее задание. Сорок три и пять. Единицы к единицам, десятки на месте. Сколько получится? Выбери.', uz: "Oxirgi topshiriq. Qirq uch va besh. Birlikni birlikka, o'nlik o'z joyida. Nechta bo'ladi? Tanlang." },
       on_correct: { ru: 'Верно. Три и пять восемь. Сорок восемь.', uz: "To'g'ri. Uch va besh sakkiz. Qirq sakkiz." },
       on_wrong: { ru: 'Не совсем. Посмотри разбор и прибавь к единицам.', uz: "Unchalik emas. Tushuntirishga qarab, birlikka qo'shing." }
     }
@@ -1944,6 +1996,7 @@ const GameDrill = (props) => {
   const [exIdx, setExIdx] = useState(0);
   const [placement, setPlacement] = useState({});   // tokenId -> zoneId
   const [solvedItem, setSolvedItem] = useState(false);
+  const revealRef = useRevealScroll(solvedItem);
   const [wrongZone, setWrongZone] = useState(null);   // noto'g'ri sudralganda zona yumshoq tebranadi
   const [bounceTok, setBounceTok] = useState(null);   // noto'g'ri token tray'ga sakrab qaytadi
   const [demoOff, setDemoOff] = useState(false);   // qo'l-demo birinchi harakatdan keyin so'nadi
@@ -2124,7 +2177,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2137,7 +2190,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -3681,7 +3734,7 @@ const AddFig = ({ a, c, solved = false, result }) => {
         <span className="mono" style={{ ...D25_OP, fontSize: 'clamp(20px, 3.6vw, 28px)' }}>+</span>
         <DigitGlyph d={c} size="mid"/>
         <span className="mono" style={{ ...D25_OP, fontSize: 'clamp(20px, 3.6vw, 28px)' }}>=</span>
-        <span className="d4-numtile" style={{ color: solved ? T.accent : T.ink3 }} aria-hidden="true">{solved ? result : '?'}</span>
+        <span className={solved ? 'd4-numtile g1-pop-in' : 'd4-numtile'} style={{ color: solved ? T.accent : T.ink3 }} aria-hidden="true">{solved ? result : '?'}</span>
       </div>
     </div>
   );
@@ -3765,6 +3818,7 @@ const AddExplore = ({ props, c, baseTens, baseOnes, add, result, btnUz, btnRu })
   const audio = useAudio(makeAutoSegments(c, lang));
   const canAct = useCanAnswer(audio);
   const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
   const go = () => {
     if (done || !canAct) return;
     setDone(true);
@@ -3801,7 +3855,7 @@ const AddExplore = ({ props, c, baseTens, baseOnes, add, result, btnUz, btnRu })
           )}
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div className="frame-success fade-up" ref={revealRef}>
             <Reaction state="correct" praise={t(c.full_text)}/>
           </div>
         )}
@@ -3927,6 +3981,7 @@ const Screen7 = (props) => {
   const [status, setStatus] = useState(props.storedAnswer?.solved ? 'correct' : 'none'); // none | wrong | correct
   const erredRef = useRef(false);
   const solved = status === 'correct';
+  const revealRef = useRevealScroll(solved);
   const ones = BASE_ONES + added;
   const total = TENS * 10 + ones;
   const addOne = () => {
@@ -3978,7 +4033,7 @@ const Screen7 = (props) => {
           </FeedbackBlock>
         )}
         {solved && (
-          <div className="frame-success fade-up">
+          <div className="frame-success fade-up" ref={revealRef}>
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
         )}
@@ -4025,6 +4080,7 @@ const ScreenGame = (props) => {
   const [wrong, setWrong] = useState(() => new Set());
   const [praiseWord, setPraiseWord] = useState('');
   const [encWord, setEncWord] = useState('');
+  const revealRef = useRevealScroll(solvedItem);
   const round = ADD_GAME[ri];
   const correctIdx = round.opts.indexOf(round.ans);
   const lastRound = ri >= total - 1;
@@ -4065,7 +4121,7 @@ const ScreenGame = (props) => {
           )}
         </div>
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
@@ -4158,6 +4214,7 @@ export default function TwoPlusOneDigitLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -4248,15 +4305,26 @@ export default function TwoPlusOneDigitLesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -4404,7 +4472,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -4419,6 +4487,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {

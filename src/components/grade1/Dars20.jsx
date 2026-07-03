@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 
 // ============================================================================
 // ░░ 1-SINF · Dars20 — "O'tib ayirish (amaliyot)" (ten-1-20-v1) · 20 ichida o'nlikdan o'tib ayirish mashqi · [2-YARIM YAKUNI] · spec: ETALON_1SINF.md ░░
-// Dars19 (o'tib ayirish) bazasidan. MEXANIKA: MakeTenSub. Mustaqil mashq. Sahna: UY (room, kitob). Jasur bor.
+// Dars19 (o'tib ayirish) bazasidan. MEXANIKA: MakeTenSub + s1 DRAG-AYIRISH (bola 5 kitobni o'zi suradi, Dars19 s1 naqshi). Mustaqil mashq. Sahna: UY (room, kitob). Jasur bor.
 // Vizualizator MIX: tap-to-remove (YANGI MEXANIKA: olmani bos -> uchadi -> kamayadi; s0/sg),
 // countdown-decrement (s2: 7->5), RemoveRow (MC figuralari), drag-away (s5: savatdan Anvarga),
 // BondFrame qizil/yashil (s7: yo'qolgan qism = ayirish↔qo'shish bog'i), SentTile (− belgi).
@@ -182,6 +182,34 @@ function useIsMobile(breakpoint = 640) {
     return () => window.removeEventListener('resize', onResize);
   }, [breakpoint]);
   return isMobile;
+}
+
+// ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
 }
 
 // ============================================================
@@ -569,6 +597,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -708,6 +759,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const introAdvancedRef = useRef(wasSolved);
   const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
   const [encWord, setEncWord] = useState('');         // navbatdagi UNIKAL rag'bat (xato javob)
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);
   const praiseRef = useRef('');
 
   const pick = (i) => {
@@ -810,7 +862,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -831,7 +883,7 @@ const LESSON_META = {
 const SCREEN_META = [
   { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // kirish: uyda mustaqil mashq (o'tib ayirish)
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft hook: o'tib ayirish
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // demo: 13-5 (avval o'ngacha tushir, keyin qolgani)
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // drag-ayirish: bola 5 kitobni O'ZI savatga suradi (13-5, Dars19 s1 naqshi)
   { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: o'nlikdan o'tib ayirish
   { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 12 - 5 = 7
   { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 14 - 6 = 8
@@ -858,10 +910,10 @@ const CONTENT = {
   // ---- sIntro: UY, mustaqil mashq (amaliyot) ----
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'Тренируемся дома', uz: "Uyda mashq qilamiz" },
+    title: { ru: 'Собираем книги для школы', uz: "Maktab uchun kitob yig'amiz" },
     body: {
-      ru: 'Друзья дома делают уроки. Сегодня закрепим вычитание через десяток сами: будем убирать до десяти, потом остальное. Тринадцать минус пять.',
-      uz: "Do'stlar uyda dars qilmoqda. Bugun o'nlikdan o'tib ayirishni o'zimiz mustahkamlaymiz: o'ngacha tushiramiz, keyin qolganini. O'n uch minus besh."
+      ru: 'В прошлый раз мы научились вычитать через десяток. Сегодня мы дома у Рано: завтра ей нужно отнести в школу пять книг. На полке тринадцать книг — отложим пять в корзину и посчитаем, сколько останется.',
+      uz: "O'tgan safar o'nlikdan o'tib ayirishni o'rgandik. Bugun Ra'noning uyidamiz: ertaga u maktabga beshta kitob olib borishi kerak. Javonda o'n uchta kitob bor — beshtasini savatga ajratamiz va qanchasi qolishini hisoblaymiz."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -870,14 +922,14 @@ const CONTENT = {
     jasur_label: { ru: 'Жасур', uz: 'Jasur' },
     audio: {
       ru: [
-        'Привет, друг! Сегодня друзья дома делают уроки.',
-        'Закрепим вычитание через десяток сами. Сначала убираем до десяти, потом остальное.',
-        'Слушай и нажимай кнопку дальше.'
+        'Привет, друг! В прошлый раз мы научились вычитать через десяток.',
+        'Сегодня мы дома у Рано. Завтра ей нужно отнести в школу пять книг. На полке тринадцать книг.',
+        'Отложим пять книг в корзину и посчитаем, сколько останется. Слушай и нажимай кнопку дальше.'
       ],
       uz: [
-        "Salom, do'stim! Bugun do'stlar uyda dars qilmoqda.",
-        "O'nlikdan o'tib ayirishni o'zimiz mustahkamlaymiz. Avval o'ngacha tushiramiz, keyin qolganini.",
-        "Tinglang va davom tugmasini bosing."
+        "Salom, do'stim! O'tgan safar o'nlikdan o'tib ayirishni o'rgandik.",
+        "Bugun Ra'noning uyidamiz. Ertaga u maktabga beshta kitob olib boradi. Javonda o'n uchta kitob bor.",
+        "Beshta kitobni savatga ajratamiz va qanchasi qolishini hisoblaymiz. Tinglang va davom tugmasini bosing."
       ]
     }
   },
@@ -899,22 +951,28 @@ const CONTENT = {
     }
   },
 
-  // ---- s1 EXPLORATION: 13-5 -> avval 3 (o'ngacha), keyin 2 -> 8 ----
+  // ---- s1 EXPLORATION (DRAG-AYIRISH, mustaqil): 13-5 — bola 5 kitobni O'ZI savatga
+  // suradi (Dars19 s1 naqshi): avval 3 yakka (aynan o'n!), keyin o'nlik ochilib yana 2 -> 8.
+  // Amaliyot darsi: audio kamroq yetaklaydi, "o'zingiz" ohangi. ----
   s1: {
     eyebrow: { ru: 'Вычтем через десяток', uz: "O'nlikdan o'tib ayiramiz" },
-    instruction: { ru: 'Тринадцать книг, нужно убрать пять. Нажми — уберём через десяток', uz: "O'n uchta kitob, beshta olib qo'yish kerak. Bosing — o'nlikdan o'tib ayiramiz" },
-    btn: { ru: 'Вычесть', uz: "Ayirish" },
+    instruction: { ru: 'Тринадцать книг. Сам перетащи пять книг в корзину — через десяток', uz: "O'n uchta kitob. Beshta kitobni savatga o'zingiz suring — o'nlikdan o'tib" },
     label_before: { ru: 'Тринадцать, убираем пять', uz: "O'n uch, beshni olamiz" },
     label_after: { ru: 'Осталось восемь', uz: "Sakkiz qoldi" },
+    drag_hint: { ru: 'Тяни книги сюда, в корзину', uz: 'Kitoblarni shu yerga, savatga torting' },
+    mid_hint: {
+      ru: 'Ровно десять! Десяток раскрылся — возьми ещё две.',
+      uz: "Aynan o'n! O'nlik ochildi — yana ikkitasini oling."
+    },
     done_text: { ru: 'Сначала убрали три до десяти, потом ещё два. Тринадцать минус пять — это восемь.', uz: "Avval uchni olib o'ngacha tushdik, keyin yana ikki. O'n uch minus besh — bu sakkiz." },
     audio: {
       ru: [
-        'У нас тринадцать книг, нужно убрать пять. Нажми кнопку вычесть.',
-        'Сначала убрали три и стало ровно десять. Потом убрали ещё два. Осталось восемь.'
+        'Вспомним, как это делается. Тринадцать книг, нужно убрать пять. Сам перетащи в корзину сначала три отдельные книги.',
+        'Ты сам вычел через десяток. Сначала три до десяти, потом ещё две. Осталось восемь.'
       ],
       uz: [
-        "Bizda o'n uchta kitob, beshta olib qo'yish kerak. Ayirish tugmasini bosing.",
-        "Avval uchni oldik, aynan o'n bo'ldi. Keyin yana ikkita oldik. Sakkiz qoldi."
+        "Qanday qilishni eslaymiz. O'n uchta kitob, beshta olib qo'yish kerak. Avval uchta yakka kitobni savatga o'zingiz suring.",
+        "Siz o'nlikdan o'tib o'zingiz ayirdingiz. Avval uchta o'ngacha, keyin yana ikkita. Sakkiz qoldi."
       ]
     }
   },
@@ -1043,8 +1101,8 @@ const CONTENT = {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
     title: { ru: 'Двадцать — освоено!', uz: "Yigirma — egallandi!" },
     body: {
-      ru: 'Мы прошли большой путь: от десятка до двадцати, через десяток складываем и вычитаем. Друзья отлично потрудились. Скоро нас ждут числа ещё больше — целый город.',
-      uz: "Katta yo'lni bosib o'tdik: o'nlikdan yigirmagacha, o'nlikdan o'tib qo'shamiz va ayiramiz. Do'stlar ajoyib mehnat qildi. Tez orada yanada katta sonlar — butun shahar kutadi."
+      ru: 'Пять книг для школы собраны, все примеры решены! Мы прошли большой путь: от десятка до двадцати, через десяток складываем и вычитаем. Скоро нас ждут числа ещё больше — целый город.',
+      uz: "Maktab uchun beshta kitob yig'ildi, hamma misollar yechildi! Katta yo'lni bosib o'tdik: o'nlikdan yigirmagacha, o'nlikdan o'tib qo'shamiz va ayiramiz. Tez orada yanada katta sonlar — butun shahar kutadi."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -1053,14 +1111,14 @@ const CONTENT = {
     jasur_label: { ru: 'Жасур', uz: 'Jasur' },
     audio: {
       ru: [
-        'Мы прошли большой путь: от десятка до двадцати.',
-        'Через десяток умеем и складывать, и вычитать. Скоро нас ждут числа ещё больше.',
-        'Молодец! Слушай и нажимай кнопку дальше.'
+        'Пять книг для школы собраны, и все примеры решены!',
+        'Мы прошли большой путь, от десятка до двадцати. Через десяток умеем и складывать, и вычитать.',
+        'Скоро нас ждут числа ещё больше. Молодец! Слушай и нажимай кнопку дальше.'
       ],
       uz: [
-        "Katta yo'lni bosib o'tdik: o'nlikdan yigirmagacha.",
-        "O'nlikdan o'tib qo'shish va ayirishni bilamiz. Tez orada yanada katta sonlar kutadi.",
-        "Barakalla! Tinglang va davom tugmasini bosing."
+        "Maktab uchun beshta kitob yig'ildi, hamma misollar ham yechildi!",
+        "Katta yo'lni bosib o'tdik, o'nlikdan yigirmagacha. O'nlikdan o'tib qo'shish va ayirishni bilamiz.",
+        "Tez orada yanada katta sonlar kutadi. Barakalla! Tinglang va davom tugmasini bosing."
       ]
     }
   },
@@ -1089,13 +1147,18 @@ const CONTENT = {
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     main_1: { ru: 'Теперь ты умеешь:', uz: 'Endi bilasiz:' },
     main_2_em: { ru: 'считать в пределах двадцати', uz: "yigirma ichida sanash" },
+    connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
+    connections_text: {
+      ru: 'На следующем уроке — числа больше двадцати: узнаем, как устроены числа до ста.',
+      uz: "Keyingi darsda — yigirmadan katta sonlar: yuzgacha sonlar qanday tuzilganini bilamiz."
+    },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     jasur_label: { ru: 'Жасур', uz: 'Jasur' },
     audio: {
-      ru: 'Молодец! Ты научился считать в пределах двадцати: десяток и единицы, сложение и вычитание через десяток. Это большой шаг. Скоро нас ждут числа ещё больше.',
-      uz: "Barakalla! Yigirma ichida sanashni o'rgandingiz: o'nlik va birliklar, o'nlikdan o'tib qo'shish va ayirish. Bu katta qadam. Tez orada yanada katta sonlar kutadi."
+      ru: 'Молодец! Ты научился считать в пределах двадцати: десяток и единицы, сложение и вычитание через десяток. Это большой шаг. На следующем уроке узнаем числа больше двадцати, до самой сотни.',
+      uz: "Barakalla! Yigirma ichida sanashni o'rgandingiz: o'nlik va birliklar, o'nlikdan o'tib qo'shish va ayirish. Bu katta qadam. Keyingi darsda yigirmadan katta sonlar bilan tanishamiz, yuzgacha."
     }
   }
 };
@@ -1898,6 +1961,7 @@ const GameDrill = (props) => {
   const [wrongZone, setWrongZone] = useState(null);   // noto'g'ri sudralganda zona yumshoq tebranadi
   const [bounceTok, setBounceTok] = useState(null);   // noto'g'ri token tray'ga sakrab qaytadi
   const [demoOff, setDemoOff] = useState(false);   // qo'l-demo birinchi harakatdan keyin so'nadi
+  const revealRef = useRevealScroll(solvedItem);
   const ex = GAME_EX[exIdx];
   const tokens = exTokens(ex);
   const zones = exZones(ex);
@@ -2075,7 +2139,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2088,7 +2152,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -3239,6 +3303,14 @@ const GuestCast = ({ audio }) => {
 };
 // ===== Dars10 KOMPONENTLAR (meros: Dars09) (5 ichida ± amaliyot) =====
 
+// AnsPop — to'g'ri javob raqami savol vizualining o'zida paydo bo'ladi ("= N", pop).
+// Barcha test-figuralar shu orqali javobni ko'rsatadi (bola javobni rasmda ham ko'radi).
+const AnsPop = ({ n }) => (
+  <span className="g1-anspop g1-pop-in" aria-hidden="true">
+    <i className="g1-anspop-eq">=</i><b className="g1-anspop-num">{n}</b>
+  </span>
+);
+
 // CombineGroups — qo'shish figurasi (Dars07 dan): ikki pufakcha + oraliqda.
 const CombineGroups = ({ a, b, kind = 'apple', kindB = null }) => {
   const kb = kindB || kind;
@@ -3547,7 +3619,7 @@ const MakeTenFrames = ({ a = 0, b = 0, done = false }) => {
 };
 
 // ===== MAKE-TEN AYIRISH: 13-5 — 1-bosqich: birliklar (3) yo'qoladi (->10); 2-bosqich: o'nlikdan (2) -> 8 =====
-const MakeTenSub = ({ start = 0, sub = 0, done = false }) => {
+const MakeTenSub = ({ start = 0, sub = 0, done = false, ans = null }) => {
   const ones = Math.max(0, start - 10);          // boshlang'ich birliklar (o'nlikdan ortig'i)
   const fromTen = Math.max(0, sub - ones);       // 2-bosqichda o'nlikdan ayiriladigan
   const result = Math.max(0, start - sub);
@@ -3557,6 +3629,7 @@ const MakeTenSub = ({ start = 0, sub = 0, done = false }) => {
       <TenSlots filled={10} removeFrom={done && fromTen > 0 ? result : null} removeBase={done ? ones * 0.1 + 0.4 : 0}/>
       <span className="g1-mt2-plus">+</span>
       <TenSlots filled={ones} removeFrom={done ? Math.max(0, ones - sub) : null}/>
+      {ans != null && <AnsPop n={ans}/>}
     </div>
   );
 };
@@ -3715,19 +3788,60 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION: 8 to'la -> "To'ldir" -> bo'sh 2 joy to'ladi -> 10.
+// s1 — EXPLORATION (DRAG-AYIRISH): 13 = o'nlik + 3 yakka. Bola 5 kitobni O'ZI savatga
+// suradi (useDnd): 1-bosqich — 3 yakka ("bir, ikki, uch" + "aynan o'n!"); 2-bosqich —
+// o'nlik OCHILIB (8 + 2 yakka ko'rinadi), undan yana 2 olinadi -> 8. Dars19 s1 naqshi.
+const S1_ONES3 = ['o0', 'o1', 'o2'];      // 1-bosqich: yakka birliklar
+const S1_TENS2 = ['t0', 't1'];            // 2-bosqich: o'nlikdan olinadigan ikkitasi
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's1_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
+  const [removed, setRemoved] = useState(() => new Set());
   const [done, setDone] = useState(false);
-  const fill = () => {
-    if (done || !canAct) return;
-    setDone(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
-  };
+  const doneTimer = useRef(null);
+  const revealRef = useRevealScroll(done);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (done || zoneId !== 'savat') return;
+    setRemoved((prev) => {
+      if (prev.has(tokenId)) return prev;
+      // 2-bosqich tokenlari faqat 1-bosqich tugagach qabul qilinadi
+      const phase1Done = S1_ONES3.every((id) => prev.has(id));
+      if (tokenId.startsWith('t') && !phase1Done) return prev;
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      if (!audio.muted) {
+        const e = getAudioEngine();
+        if (e) {
+          e.pushOneOff(NUM_WORDS[lang][n.size] || '');
+          if (n.size === S1_ONES3.length) e.pushOneOff(c.mid_hint[lang]);   // "aynan o'n!"
+        }
+      }
+      if (n.size >= S1_ONES3.length + S1_TENS2.length) {
+        doneTimer.current = setTimeout(() => {
+          setDone(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 800);
+      }
+      return n;
+    });
+  }, [done, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const phase1Done = S1_ONES3.every((id) => removed.has(id));
+  const onesLeft = S1_ONES3.filter((id) => !removed.has(id));
+  const tensLeft = S1_TENS2.filter((id) => !removed.has(id));
+  const inBasket = [...S1_ONES3, ...S1_TENS2].filter((id) => removed.has(id));
+  const dragTok = (id, i) => (
+    <span key={id} className="g1-fviz-one"
+      style={{ cursor: 'grab', touchAction: 'none', borderRadius: 8, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+      onPointerDown={(e) => { if (!canAct || done) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+      <Book tone={i}/>
+    </span>
+  );
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3738,19 +3852,63 @@ const Screen1 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.8vw, 24px)' }}>
           <span className="eyebrow mono" style={{ color: T.ink3 }}>{done ? t(c.label_after) : t(c.label_before)}</span>
-          <MakeTenSub start={13} sub={5} done={done}/>
-          {!done && (
-            <button className="btn" disabled={!canAct} onClick={fill}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
+          {done
+            ? <MakeTenSub start={13} sub={5} done={true}/>
+            : (
+              <>
+                {/* 13: o'nlik (2-bosqichda OCHILADI: 8 + 2 yakka) + 3 yakka birlik */}
+                <div className="g1-mt2" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
+                  {!phase1Done
+                    ? <TenSlots filled={10}/>
+                    : (
+                      <>
+                        <TenSlots filled={10 - S1_TENS2.length}/>
+                        <div className="g1-fviz-ones">
+                          {tensLeft.map((id) => dragTok(id, 8 + Number(id.slice(1))))}
+                        </div>
+                      </>
+                    )}
+                  {onesLeft.length > 0 && <span className="g1-mt2-plus">+</span>}
+                  {onesLeft.length > 0 && (
+                    <div className="g1-fviz-ones">
+                      {onesLeft.map((id) => dragTok(id, Number(id.slice(1))))}
+                    </div>
+                  )}
+                </div>
+                {/* Savat (drop-zona): olib qo'yilganlar shu yerda, xiralashgan */}
+                <div data-zone="savat" onClick={() => { if (canAct && !done) dnd.tapZone('savat'); }}
+                  style={{
+                    width: '100%', boxSizing: 'border-box', minHeight: 'clamp(70px, 14vw, 100px)',
+                    border: `2.5px dashed ${inBasket.length ? T.success : T.accent}`, borderRadius: 14,
+                    background: inBasket.length ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    gap: 6, padding: 'clamp(8px, 1.6vw, 12px)'
+                  }}>
+                  {inBasket.length === 0
+                    ? <span className="small" style={{ color: T.ink2 }}>⬇ {t(c.drag_hint)}</span>
+                    : (
+                      <div className="g1-fviz-ones g1-fviz-pop" style={{ opacity: 0.55 }}>
+                        {inBasket.map((id) => (
+                          <span key={id} className="g1-fviz-one"><Book tone={id.startsWith('t') ? 8 + Number(id.slice(1)) : Number(id.slice(1))}/></span>
+                        ))}
+                      </div>
+                    )}
+                  <span className="mono small" style={{ color: inBasket.length ? T.success : T.ink3, fontWeight: 700 }}>{inBasket.length} / 5</span>
+                </div>
+              </>
+            )}
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>
+            <span className="g1-fviz-one"><Book tone={dnd.drag.id.startsWith('t') ? 8 + Number(dnd.drag.id.slice(1)) : Number(dnd.drag.id.slice(1))}/></span>
           </div>
         )}
       </div>
@@ -3794,7 +3952,7 @@ const Screen3 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenSub start={12} sub={5} done={solved}/>}
+      figure={(solved) => <MakeTenSub start={12} sub={5} done={solved} ans={solved ? 7 : null}/>}
       options={[<DigitGlyph d={2} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={7} size="mid"/>]}
       correctIdx={3}
       mascot={false}
@@ -3813,7 +3971,7 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenSub start={14} sub={6} done={solved}/>}
+      figure={(solved) => <MakeTenSub start={14} sub={6} done={solved} ans={solved ? 8 : null}/>}
       options={[<DigitGlyph d={7} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={9} size="mid"/>, <DigitGlyph d={4} size="mid"/>]}
       correctIdx={1}
       mascot={false}
@@ -3832,7 +3990,7 @@ const Screen5 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenSub start={13} sub={4} done={solved}/>}
+      figure={(solved) => <MakeTenSub start={13} sub={4} done={solved} ans={solved ? 9 : null}/>}
       options={[<DigitGlyph d={10} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={9} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
       correctIdx={2}
       mascot={false}
@@ -3876,6 +4034,7 @@ const Screen7 = (props) => {
   const [status, setStatus] = useState(props.storedAnswer?.solved ? 'correct' : 'none'); // none | wrong | correct
   const erredRef = useRef(false);
   const solved = status === 'correct';
+  const revealRef = useRevealScroll(solved);
   const total = START - removed;
   const f1 = Math.min(10, total);
   const f2 = Math.max(0, total - 10);
@@ -3932,7 +4091,7 @@ const Screen7 = (props) => {
           </FeedbackBlock>
         )}
         {solved && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
         )}
@@ -3979,6 +4138,7 @@ const ScreenGame = (props) => {
   const [praiseWord, setPraiseWord] = useState('');
   const [encWord, setEncWord] = useState('');
   const round = GAME_ROUNDS[ri];
+  const revealRef = useRevealScroll(solvedItem);
   const correctIdx = round.opts.indexOf(round.ans);
   const lastRound = ri >= total - 1;
   const allDone = lastRound && solvedItem;
@@ -4006,7 +4166,7 @@ const ScreenGame = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <MakeTenSub key={ri} start={round.start} sub={round.sub} done={solvedItem}/>
+          <MakeTenSub key={ri} start={round.start} sub={round.sub} done={solvedItem} ans={solvedItem ? round.ans : null}/>
           {!solvedItem && (
             <div className="g1-gameopts">
               {round.opts.map((v, i) => (
@@ -4016,12 +4176,9 @@ const ScreenGame = (props) => {
               ))}
             </div>
           )}
-          {solvedItem && (
-            <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={round.ans} size="mid" tone="accent"/></div>
-          )}
         </div>
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
@@ -4050,7 +4207,7 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenSub start={13} sub={5} done={solved}/>}
+      figure={(solved) => <MakeTenSub start={13} sub={5} done={solved} ans={solved ? 8 : null}/>}
       options={[<DigitGlyph d={7} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={9} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
       correctIdx={1}
       mascot={false}
@@ -4100,6 +4257,10 @@ const Screen9 = (props) => {
             {t(c.main_1)} <span className="italic" style={{ color: T.success }}>{t(c.main_2_em)}</span>
           </h2>
         </div>
+        <div className="frame-tip fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 14px)' }}>
+          <span className="eyebrow mono" style={{ color: T.ink3, display: 'block', marginBottom: 4 }}>{t(c.connections_title)}</span>
+          <p className="body" style={{ margin: 0 }}>{t(c.connections_text)}</p>
+        </div>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <MaktabCast step={3}/>
         </div>
@@ -4115,6 +4276,7 @@ export default function PracticeWithin10Lesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -4206,15 +4368,26 @@ export default function PracticeWithin10Lesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -4362,7 +4535,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -4377,6 +4550,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {
@@ -5421,4 +5595,9 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 /* === Dars17 — MAKE-TEN ikki javon === */
 .g1-mt2 { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2.4vw, 18px); flex-wrap: wrap; }
 .g1-mt2-plus { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #A7A6A2; }
+
+/* AnsPop — javob raqami savol vizualida ("= N", yashil, pop). Barcha test-figuralar. */
+.g1-anspop { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); margin-left: clamp(4px, 1vw, 8px); }
+.g1-anspop-eq { font-style: normal; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #5A5A60; line-height: 1; }
+.g1-anspop-num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: 1; color: #1F7A4D; }
 `;

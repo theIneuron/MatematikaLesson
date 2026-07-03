@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // ░░ 1-SINF · Dars12 — "Tenglik/tengsizlik, qavslar" (eq-1-12-v1) · yozuv to'g'rimi-noto'g'rimi; =, >, <; qavs = "ichidagini avval" · spec: ETALON_1SINF.md · [KOMP1 OXIRI] ░░
 // Dars11 (O'rin almashtirish) ning mirror'i: infratuzilma + ETALON KIT baytma-bayt;
 // Sonlar 10 ichida. Qavs — formal amal tartibi EMAS, "ichidagini avval sanaymiz" intuitsiyasi (ozshanish).
-// YANGI MEXANIKA 1: tarozi/balance (s0 muvozanat = teng; s2 og'sa -> tengsizlik).
-// YANGI MEXANIKA 2: qavs-highlight (s7 qavs ichi yonadi -> avval sanaladi).
+// YANGI MEXANIKA 1: tarozi/balance (s0 muvozanat = teng; s2 DRAG-TAROZI: bola olmalarni pallalarga O'ZI suradi, tarozi jonli og'adi -> tengsizlik).
+// YANGI MEXANIKA 2: qavs (s7 QAVS TAP-TARTIB: bola avval nimani sanashni O'ZI bosib ko'rsatadi; noto'g'ri birinchi bosishga yumshoq hint).
 // Kit: CompareSign timsoh (Dars04/06'dan ko'chirilgan: CrocDefs/CrocOpen/CrocCalm), CombineGroups, SentTile.
 // sGuest = §4 chok (mahalla -> maktab, "o'ndan katta sonlar kerak"); SYUJET_1SINF.md §4 so'zma-so'z.
 //
@@ -184,6 +184,34 @@ function useIsMobile(breakpoint = 640) {
     return () => window.removeEventListener('resize', onResize);
   }, [breakpoint]);
   return isMobile;
+}
+
+// ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
 }
 
 // ============================================================
@@ -571,6 +599,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -710,6 +761,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const introAdvancedRef = useRef(wasSolved);
   const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
   const [encWord, setEncWord] = useState('');         // navbatdagi UNIKAL rag'bat (xato javob)
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);   // feedback skrollidan keyin fakt ham ko'rinadi
   const praiseRef = useRef('');
 
   const pick = (i) => {
@@ -812,7 +864,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -825,7 +877,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar test ekranlarining wrong_N hint'larida (mavzuga moslangan).
 // ============================================================
 
-const TOTAL_SCREENS = 14;
+const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'eq-1-12-v1',
   lessonTitle: { ru: 'Равенство и неравенство, скобки', uz: "Tenglik va tengsizlik, qavslar" }
@@ -834,13 +886,14 @@ const SCREEN_META = [
   { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: doskadagi yozuvlar to'g'rimi-noto'g'rimi?
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: tarozi 3 va 3 -> teng yoki notekis?
   { id: 's1',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // to'g'rimi: 2+3=5? Ha (idx0)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // tarozi 4 va 2 -> og'adi -> tengsizlik, timsoh kattaga (4>2)
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // drag-tarozi: bola 4+2 olmani pallalarga O'ZI suradi -> jonli og'adi -> tengsizlik (4>2)
   { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: = teng, > katta, < kichik
   { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi belgi? 4 _ 2 -> > (idx0)
   { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // to'g'rimi: 6=2+3? Yo'q (idx1)
   { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 5 > 2+1? Ha (idx0)
-  { id: 's7',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // qavs-highlight: (2+1)+3 -> avval qavs ichi -> 3+3=6
-  { id: 's8',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: qavs ichini avval sanaymiz
+  { id: 's7',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // qavs tap-tartib: bola avval qavs ichini O'ZI bosadi (2+1=3), keyin qolganini (3+3=6)
+  { id: 's8',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida JONLI: qavs ichini avval sanaymiz — 2 misol bosqichma-bosqich
+  { id: 's8b', type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qavsli mashq: (1+3)+2 = ? -> 6 (idx1)
   { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: belgi qo'y (>,<,=) 3 raund
   { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // §4 chok: mahalla -> maktab, "o'ndan katta sonlar kerak"
   { id: 's9',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: (2+2)+3 = ? -> 7 + fakt (idx0)
@@ -862,8 +915,8 @@ const CONTENT = {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
     title: { ru: 'Запись верна или нет?', uz: "Yozuv to'g'rimi yoki yo'q?" },
     body: {
-      ru: 'В прошлый раз мы поняли: от перестановки мест сумма не меняется. Сегодня Рано и Анвар написали примеры. Один верный, другой — нет. Научимся проверять, верна ли запись.',
-      uz: "O'tgan safar bilib oldik: o'rin almashsa, yig'indi o'zgarmaydi. Bugun Ra'no va Anvar misollar yozdi. Biri to'g'ri, biri esa — yo'q. Yozuv to'g'rimi yoki yo'qligini tekshirishni o'rganamiz."
+      ru: 'В прошлый раз мы поняли: от перестановки мест сумма не меняется. Сегодня Рано и Анвар взвешивали яблоки на весах и записали свои примеры на доске. Один верный, другой — нет. Кто из друзей прав? Весы не обманывают — научимся проверять запись.',
+      uz: "O'tgan safar bilib oldik: o'rin almashsa, yig'indi o'zgarmaydi. Bugun Ra'no va Anvar olmalarni tarozida tortib, misollarini doskaga yozishdi. Biri to'g'ri, biri esa adashgan. Qaysi do'stimiz haq? Tarozi aldamaydi — yozuvni tekshirishni o'rganamiz."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -872,13 +925,13 @@ const CONTENT = {
     audio: {
       ru: [
         'Привет, друг! В прошлый раз мы узнали, что от перестановки мест сумма не меняется.',
-        'Сегодня Рано и Анвар написали примеры на доске. Один верный, а другой нет.',
-        'Научимся проверять, верна ли запись. Слушай и нажимай кнопку дальше.'
+        'Сегодня Рано и Анвар взвешивали яблоки и записали свои примеры на доске. Один пример верный, а другой нет. Кто же из друзей прав?',
+        'Весы не обманывают. Научимся проверять, верна ли запись. Слушай и нажимай кнопку дальше.'
       ],
       uz: [
         "Salom, do'stim! O'tgan safar o'rin almashsa, yig'indi o'zgarmasligini bilib oldik.",
-        "Bugun Ra'no va Anvar doskaga misollar yozdi. Biri to'g'ri, biri esa yo'q.",
-        "Yozuv to'g'rimi yoki yo'qligini tekshirishni o'rganamiz. Tinglang va davom tugmasini bosing."
+        "Bugun Ra'no va Anvar olmalarni tarozida tortishdi va misollarini doskaga yozishdi. Biri to'g'ri, biri esa adashgan. Qaysi do'stimiz haq?",
+        "Tarozi aldamaydi. Yozuv to'g'rimi yoki yo'qligini tekshirishni o'rganamiz. Tinglang va davom tugmasini bosing."
       ]
     }
   },
@@ -894,7 +947,7 @@ const CONTENT = {
     opt_no: { ru: 'Нет, наклонятся', uz: "Yo'q, og'adi" },
     opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' },
     audio: {
-      intro: { ru: 'Посмотри на весы. Слева три яблока, справа тоже три. Как думаешь, весы будут ровно или наклонятся? Выбери ответ, а потом проверим.', uz: "Taroziga qarang. Chapda uchta olma, o'ngda ham uchta. Sizningcha tarozi tekis turadimi yoki og'adimi? Javobni tanlang, keyin tekshiramiz." },
+      intro: { ru: 'Посмотри на весы. Рано положила на левую чашу три яблока, а Анвар на правую тоже три. Как думаешь, весы будут ровно или наклонятся? Выбери ответ, а потом проверим.', uz: "Taroziga qarang. Ra'no chap pallaga uchta olma qo'ydi, Anvar o'ng pallaga ham uchta qo'ydi. Sizningcha tarozi tekis turadimi yoki og'adimi? Javobni tanlang, keyin tekshiramiz." },
       on_correct: { ru: 'Хорошо. Сейчас проверим.', uz: "Yaxshi. Hozir tekshiramiz." },
       on_wrong: { ru: 'Хорошо. Сейчас проверим.', uz: "Yaxshi. Hozir tekshiramiz." }
     }
@@ -903,35 +956,42 @@ const CONTENT = {
   // ---- s1 TEST MC (to'g'rimi 2+3=5?): Ha (idx0) ----
   s1: {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
-    title: { ru: 'Верна ли запись: два плюс три равно пять?', uz: "Yozuv to'g'rimi: ikki plyus uch teng besh?" },
+    title: { ru: 'Верна ли запись Рано: два плюс три равно пять?', uz: "Ra'noning yozuvi to'g'rimi: ikki plyus uch teng besh?" },
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
-    correct_text: { ru: 'Верно. Два плюс три равно пять — обе стороны равны.', uz: "To'g'ri. Ikki plyus uch teng besh — ikki tomon teng." },
+    correct_text: { ru: 'Верно. Два плюс три равно пять — Рано написала верно.', uz: "To'g'ri. Ikki plyus uch teng besh — Ra'no to'g'ri yozgan." },
     wrong_1: { ru: 'Посчитай. Два и ещё три. Это пять. Значит, запись верна.', uz: "Sanang. Ikki va yana uch. Bu besh. Demak, yozuv to'g'ri." },
     wrong_default: { ru: 'Два плюс три равно пять. Запись верна.', uz: "Ikki plyus uch teng besh. Yozuv to'g'ri." },
     audio: {
-      intro: { ru: 'На доске написано. Два плюс три равно пять. Проверь, верно ли это. Выбери да или нет.', uz: "Doskada yozilgan. Ikki plyus uch teng besh. To'g'rimi, tekshiring. Ha yoki yo'q tanlang." },
-      on_correct: { ru: 'Верно. Обе стороны равны.', uz: "To'g'ri. Ikki tomon teng." },
+      intro: { ru: 'Сначала запись Рано. Два плюс три равно пять. Проверь, верно ли это. Выбери да или нет.', uz: "Avval Ra'noning yozuvi. Ikki plyus uch teng besh. To'g'rimi, tekshiring. Ha yoki yo'q tanlang." },
+      on_correct: { ru: 'Верно. Обе стороны равны, Рано права.', uz: "To'g'ri. Ikki tomon teng, Ra'no haq." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s2 EXPLORATION (tarozi -> tengsizlik): chap 4, o'ng 2 -> og'adi -> timsoh kattaga (4>2) ----
+  // ---- s2 EXPLORATION (DRAG-TAROZI): bola 4+2 olmani pallalarga O'ZI suradi ->
+  // tarozi har tushishda JONLI og'adi -> to'rt katta ikkidan (tengsizlik).
+  // Audit qarori: "ko'p tomon pastga" insighti tugma emas, bolaning O'Z harakati bilan. ----
   s2: {
     eyebrow: { ru: 'Что покажут весы', uz: "Tarozi nima ko'rsatadi" },
-    instruction: { ru: 'Слева четыре, справа два. Нажми — поставим весы', uz: "Chapda to'rt, o'ngda ikki. Bosing — tarozini qo'yamiz" },
-    btn: { ru: 'Поставить весы', uz: "Tarozini qo'yish" },
+    instruction: { ru: 'Сам положи яблоки на чаши: четыре на левую, два на правую', uz: "Olmalarni pallalarga o'zingiz qo'ying: chapga to'rtta, o'ngga ikkita" },
     label_before: { ru: 'Четыре и два', uz: "To'rt va ikki" },
     label_after: { ru: 'Четыре больше двух', uz: "To'rt katta ikkidan" },
+    zone_left: { ru: 'Левая чаша', uz: 'Chap palla' },
+    zone_right: { ru: 'Правая чаша', uz: "O'ng palla" },
+    tray_left: { ru: 'на левую', uz: 'chapga' },
+    tray_right: { ru: 'на правую', uz: "o'ngga" },
+    left_full: { ru: 'На левой чаше четыре.', uz: "Chap pallada to'rtta." },
+    right_full: { ru: 'На правой чаше два.', uz: "O'ng pallada ikkita." },
     done_text: { ru: 'Весы склонились к четырём. Четыре больше двух.', uz: "Tarozi to'rtga og'di. To'rt katta ikkidan." },
     audio: {
       ru: [
-        'Слева четыре яблока, справа два. Нажми кнопку, поставим весы.',
-        'Весы наклонились к четырём. Их больше. Крокодил открывает рот к большему числу. Четыре больше двух. Это называется неравенство.'
+        'Положим яблоки на весы. Сам перетащи четыре яблока на левую чашу и два на правую. Смотри, что покажут весы.',
+        'Ты положил сам, и весы наклонились к четырём. Их больше. Помнишь крокодила с озера? Он открывает рот к большему числу. Четыре больше двух. Это называется неравенство.'
       ],
       uz: [
-        "Chapda to'rtta olma, o'ngda ikkita. Tugmani bosing, tarozini qo'yamiz.",
-        "Tarozi to'rt tomonga og'di. U ko'p. Timsoh og'zini katta songa ochadi. To'rt katta ikkidan. Buni tengsizlik deymiz."
+        "Olmalarni taroziga qo'yamiz. To'rtta olmani chap pallaga, ikkitasini o'ng pallaga o'zingiz suring. Tarozi nima ko'rsatishini kuzating.",
+        "Siz o'zingiz qo'ydingiz va tarozi to'rt tomonga og'di. U ko'p. Ko'l bo'yidagi timsohni eslaysizmi? U og'zini katta songa ochadi. To'rt katta ikkidan. Buni tengsizlik deymiz."
       ]
     }
   },
@@ -942,15 +1002,15 @@ const CONTENT = {
     title_part1: { ru: 'Три знака:', uz: 'Uch belgi:' },
     title_part2_em: { ru: 'равно, больше, меньше', uz: 'teng, katta, kichik' },
     tip: {
-      ru: 'Стороны равны — знак равно. Одна больше — рот к ней.',
-      uz: "Tomonlar teng — teng belgisi. Biri katta — og'iz unga."
+      ru: 'Весы ровно — знак равно. Наклонились — рот к большему.',
+      uz: "Tarozi tekis — teng belgisi. Og'di — og'iz kattaga."
     },
     eq_label: { ru: 'равно', uz: 'teng' },
     gt_label: { ru: 'больше', uz: 'katta' },
     lt_label: { ru: 'меньше', uz: 'kichik' },
     audio: {
-      ru: 'Запомним три знака. Равно, когда обе стороны одинаковы. Больше и меньше, когда крокодил открывает рот к большему числу. Знак всегда смотрит ртом на большее число.',
-      uz: "Uch belgini eslab qolamiz. Teng, qachonki ikki tomon bir xil bo'lsa. Katta va kichik, qachonki timsoh og'zini katta songa ochsa. Belgi doim og'zini katta songa qaratadi."
+      ru: 'Запомним три знака. Если весы стоят ровно, обе стороны одинаковы. Это знак равно. Если весы наклонились, наш друг крокодил открывает рот туда, где больше. Знак всегда смотрит ртом на большее число.',
+      uz: "Uch belgini eslab qolamiz. Tarozi tekis tursa, ikki tomon bir xil. Bu teng belgisi. Tarozi og'sa, do'stimiz timsoh og'zini ko'p tomonga ochadi. Belgi doim og'zini katta songa qaratadi."
     }
   },
 
@@ -963,7 +1023,7 @@ const CONTENT = {
     wrong_0: { ru: 'Это знак равно, но стороны разные. Четыре больше двух.', uz: "Bu teng belgisi, lekin tomonlar har xil. To'rt katta ikkidan." },
     wrong_default: { ru: 'Четыре больше двух. Рот крокодила к большему числу.', uz: "To'rt katta ikkidan. Timsoh og'zi katta songa." },
     audio: {
-      intro: { ru: 'Слева четыре, справа два. Какой знак подойдёт? Выбери знак больше, меньше или равно.', uz: "Chapda to'rt, o'ngda ikki. Qaysi belgi to'g'ri keladi? Katta, kichik yoki teng belgisini tanlang." },
+      intro: { ru: 'Весы показали так. Слева четыре, справа два. Какой знак подойдёт? Выбери знак больше, меньше или равно.', uz: "Tarozi shuni ko'rsatdi. Chapda to'rt, o'ngda ikki. Qaysi belgi to'g'ri keladi? Katta, kichik yoki teng belgisini tanlang." },
       on_correct: { ru: 'Верно. Четыре больше двух.', uz: "To'g'ri. To'rt katta ikkidan." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
@@ -972,15 +1032,15 @@ const CONTENT = {
   // ---- s5 TEST MC (to'g'rimi 6=2+3?): Yo'q (idx1). 2+3=5, 6 emas ----
   s5: {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
-    title: { ru: 'Верна ли запись: шесть равно два плюс три?', uz: "Yozuv to'g'rimi: olti teng ikki plyus uch?" },
+    title: { ru: 'Верна ли запись Анвара: шесть равно два плюс три?', uz: "Anvarning yozuvi to'g'rimi: olti teng ikki plyus uch?" },
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
-    correct_text: { ru: 'Верно подмечено. Два плюс три равно пять, а не шесть. Запись неверна.', uz: "To'g'ri sezdingiz. Ikki plyus uch teng besh, olti emas. Yozuv noto'g'ri." },
+    correct_text: { ru: 'Верно подмечено. Два плюс три равно пять, а не шесть. Анвар ошибся — сейчас исправит.', uz: "To'g'ri sezdingiz. Ikki plyus uch teng besh, olti emas. Anvar adashgan — hozir tuzatadi." },
     wrong_0: { ru: 'Посчитай справа. Два плюс три равно пять. А слева шесть. Стороны разные, запись неверна.', uz: "O'ngni sanang. Ikki plyus uch teng besh. Chapda esa olti. Tomonlar har xil, yozuv noto'g'ri." },
     wrong_default: { ru: 'Два плюс три равно пять, а не шесть. Запись неверна.', uz: "Ikki plyus uch teng besh, olti emas. Yozuv noto'g'ri." },
     audio: {
-      intro: { ru: 'На доске: шесть равно два плюс три. Проверь по сторонам. Верно или нет? Выбери да или нет.', uz: "Doskada: olti teng ikki plyus uch. Tomonlarini tekshiring. To'g'rimi yoki yo'q? Ha yoki yo'q tanlang." },
-      on_correct: { ru: 'Верно. Стороны разные, запись неверна.', uz: "To'g'ri. Tomonlar har xil, yozuv noto'g'ri." },
+      intro: { ru: 'А вот запись Анвара. Шесть равно два плюс три. Проверь по сторонам. Верно или нет? Выбери да или нет.', uz: "Mana Anvarning yozuvi. Olti teng ikki plyus uch. Tomonlarini tekshiring. To'g'rimi yoki yo'q? Ha yoki yo'q tanlang." },
+      on_correct: { ru: 'Верно. Ты нашёл ошибку Анвара. Он её исправит.', uz: "To'g'ri. Anvarning xatosini topdingiz. U buni tuzatadi." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
@@ -988,51 +1048,90 @@ const CONTENT = {
   // ---- s6 TEST Ha/Yo'q (5 > 2+1?): Ha (idx0). 2+1=3, 5>3 ----
   s6: {
     eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
-    title: { ru: 'Верно ли: пять больше, чем два плюс один?', uz: "To'g'rimi: besh katta, ikki plyus birdan?" },
+    title: { ru: 'Верна ли запись Зухры: пять больше, чем два плюс один?', uz: "Zuhraning yozuvi to'g'rimi: besh katta, ikki plyus birdan?" },
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
-    correct_text: { ru: 'Верно. Два плюс один равно три, а пять больше трёх.', uz: "To'g'ri. Ikki plyus bir teng uch, besh esa katta uchdan." },
+    correct_text: { ru: 'Верно. Два плюс один равно три, а пять больше трёх. Зухра права.', uz: "To'g'ri. Ikki plyus bir teng uch, besh esa katta uchdan. Zuhra haq." },
     wrong_1: { ru: 'Сначала посчитай справа. Два плюс один равно три. Пять больше трёх, значит, верно.', uz: "Avval o'ngni sanang. Ikki plyus bir teng uch. Besh katta uchdan, demak, to'g'ri." },
     wrong_default: { ru: 'Два плюс один равно три. Пять больше трёх.', uz: "Ikki plyus bir teng uch. Besh katta uchdan." },
     audio: {
-      intro: { ru: 'Верно ли, что пять больше, чем два плюс один? Сначала посчитай справа, потом сравни. Выбери да или нет.', uz: "Besh katta, ikki plyus birdan. To'g'rimi? Avval o'ngni sanang, keyin taqqoslang. Ha yoki yo'q tanlang." },
+      intro: { ru: 'Зухра тоже написала. Пять больше, чем два плюс один. Верно ли? Сначала посчитай справа, потом сравни. Выбери да или нет.', uz: "Zuhra ham yozdi. Besh katta, ikki plyus birdan. To'g'rimi? Avval o'ngni sanang, keyin taqqoslang. Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Пять больше трёх.', uz: "To'g'ri. Besh katta uchdan." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s7 EXPLORATION (qavs-highlight): (2+1)+3 -> avval qavs ichi 2+1=3 -> keyin 3+3=6 ----
+  // ---- s7 EXPLORATION (QAVS TAP-TARTIB): bola avval nimani sanashni O'ZI ko'rsatadi:
+  // qavs ichini bosadi (yonadi, 2+1=3), keyin qolganini bosadi (3+3=6).
+  // Noto'g'ri birinchi bosish (avval +3) -> yumshoq hint, javob ochilmaydi. ----
   s7: {
     eyebrow: { ru: 'Скобки', uz: 'Qavslar' },
-    instruction: { ru: 'Здесь есть скобки. Нажми — посчитаем сначала внутри скобок', uz: "Bu yerda qavs bor. Bosing — avval qavs ichini sanaymiz" },
-    btn: { ru: 'Посчитать внутри', uz: "Qavs ichini sanash" },
+    instruction: { ru: 'Здесь есть скобки. Покажи сам, что считаем первым — нажми на ту часть', uz: "Bu yerda qavs bor. Avval nimani sanashimizni o'zingiz ko'rsating — o'sha qismni bosing" },
     label_before: { ru: 'Сначала внутри скобок', uz: "Avval qavs ichini" },
     label_after: { ru: 'Теперь всё вместе', uz: 'Endi hammasini birga' },
+    step2_hint: { ru: 'Теперь нажми на остальное', uz: 'Endi qolganini bosing' },
+    wrong_first: { ru: 'Скобки говорят, меня посчитай первым. Нажми на скобки.', uz: "Qavs aytadi, avval meni sana. Qavsni bosing." },
     done_text: { ru: 'Сначала в скобках — три. Потом три плюс три — шесть.', uz: "Avval qavs ichi — uch. Keyin uch plyus uch — olti." },
     audio: {
       ru: [
-        'Посмотри. Два плюс один в скобках, и ещё плюс три. Нажми кнопку, посчитаем сначала внутри скобок.',
-        'Внутри скобок два плюс один равно три. Теперь три плюс три равно шесть. Скобки всегда говорят, меня посчитай первым.'
+        'А это Бит написал хитрую запись. Два плюс один в скобках, и ещё плюс три. Что считаем первым? Нажми сам на ту часть.',
+        'Верно, сначала скобки. Внутри два плюс один равно три. Теперь нажми на остальное.',
+        'Три плюс три равно шесть. Скобки всегда говорят, меня посчитай первым.'
       ],
       uz: [
-        "Qarang. Ikki plyus bir qavs ichida, va yana plyus uch. Tugmani bosing, avval qavs ichini sanaymiz.",
-        "Qavs ichida ikki plyus bir teng uch. Endi uch plyus uch teng olti. Qavs doim aytadi, avval meni sana."
+        "Bit esa qiziq yozuv yozdi. Ikki plyus bir qavs ichida, va yana plyus uch. Avval nimani sanaymiz? O'sha qismni o'zingiz bosing.",
+        "To'g'ri, avval qavs. Ichida ikki plyus bir teng uch. Endi qolganini bosing.",
+        "Uch plyus uch teng olti. Qavs doim aytadi, avval meni sana."
       ]
     }
   },
 
-  // ---- s8 RULE (qavs): qavs ichini avval sanaymiz. misol (4+1)+2 = 5+2 = 7 ----
+  // ---- s8 RULE (qavs, JONLI): 2 misol bosqichma-bosqich audio bilan ochiladi.
+  // Misol 1: (4+1)+2 -> yonadi -> ichi 5 -> 5+2=7. Misol 2: (3+2)+4 -> ichi 5 -> 5+4=9.
+  // Metodologiya (§Б2 d.12): qavs — "ichidagini avval sanaymiz" INTUITSIYASI, formal tartib EMAS. ----
   s8: {
     eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
     title_part1: { ru: 'Скобки —', uz: 'Qavs —' },
     title_part2_em: { ru: 'считаем внутри первым', uz: 'ichini avval sanaymiz' },
+    ex2_label: { ru: 'Ещё пример', uz: 'Yana bir misol' },
     tip: {
       ru: 'Есть скобки — сначала считаем внутри.',
       uz: "Qavs bo'lsa — avval ichini sanaymiz."
     },
     audio: {
-      ru: 'Запомним. Если есть скобки, сначала считаем внутри. Четыре плюс один в скобках равно пять. Потом пять плюс два равно семь. Скобки всегда идут первыми.',
-      uz: "Eslab qolamiz. Qavs bo'lsa, avval ichini sanaymiz. Qavs ichidagi to'rt plyus bir teng besh. Keyin besh plyus ikki teng yetti. Qavs doim birinchi."
+      ru: [
+        'Запомним правило. Если есть скобки, сначала считаем внутри.',
+        'Смотри. Четыре плюс один в скобках, и ещё плюс два. Скобки загорелись. Внутри четыре плюс один равно пять.',
+        'Теперь считаем всё. Пять плюс два равно семь.',
+        'Ещё один пример. Три плюс два в скобках, и ещё плюс четыре. Что считаем первым? Конечно, скобки.',
+        'Внутри три плюс два равно пять. Теперь пять плюс четыре равно девять.',
+        'Скобки всегда идут первыми. Теперь хитрые записи Бита нас не запутают.'
+      ],
+      uz: [
+        "Qoidani eslab qolamiz. Qavs bo'lsa, avval ichini sanaymiz.",
+        "Qarang. To'rt plyus bir qavs ichida, va yana plyus ikki. Qavs yondi. Ichida to'rt plyus bir teng besh.",
+        "Endi hammasini sanaymiz. Besh plyus ikki teng yetti.",
+        "Yana bir misol. Uch plyus ikki qavs ichida, va yana plyus to'rt. Avval nimani sanaymiz? Albatta, qavsni.",
+        "Ichida uch plyus ikki teng besh. Endi besh plyus to'rt teng to'qqiz.",
+        "Qavs doim birinchi. Endi Bitning qiziq yozuvlari bizni chalg'itolmaydi."
+      ]
+    }
+  },
+
+  // ---- s8b TEST MC (qavsli mashq): (1+3)+2 = ? -> 6. options [4,6,7,5] to'g'ri idx1.
+  // Distraktorlar: 4 (faqat qavs ichi — misconception), 7 (bittaga ko'p), 5 (bittaga kam). ----
+  s8b: {
+    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
+    title: { ru: 'Сначала в скобках. Сколько получится?', uz: "Avval qavs ichini sanang. Nechta bo'ladi?" },
+    correct_text: { ru: 'Верно. В скобках один плюс три равно четыре, потом четыре плюс два равно шесть.', uz: "To'g'ri. Qavsda bir plyus uch teng to'rt, keyin to'rt plyus ikki teng olti." },
+    wrong_0: { ru: 'Четыре получается только в скобках. Потом прибавь ещё два.', uz: "To'rt faqat qavs ichida chiqadi. Keyin yana ikkini qo'shing." },
+    wrong_2: { ru: 'Это на один больше. Посчитай по шагам. Сначала скобки, потом всё.', uz: "Bu bittaga ko'p. Bosqichma-bosqich sanang. Avval qavs, keyin hammasi." },
+    wrong_3: { ru: 'Это на один меньше. Сначала посчитай в скобках. Один плюс три равно четыре. Потом плюс два.', uz: "Bu bittaga kam. Avval qavs ichini sanang. Bir plyus uch teng to'rt. Keyin plyus ikki." },
+    wrong_default: { ru: 'Сначала в скобках. Один плюс три равно четыре. Потом четыре плюс два равно шесть.', uz: "Avval qavsda. Bir plyus uch teng to'rt. Keyin to'rt plyus ikki teng olti." },
+    audio: {
+      intro: { ru: 'Теперь сам. В скобках один плюс три, и ещё плюс два. Сначала посчитай в скобках, потом всё вместе. Выбери ответ.', uz: "Endi o'zingiz. Qavsda bir plyus uch, va yana plyus ikki. Avval qavs ichini sanang, keyin hammasini birga. Javobni tanlang." },
+      on_correct: { ru: 'Верно. Получилось шесть.', uz: "To'g'ri. Olti chiqdi." },
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
@@ -1044,7 +1143,7 @@ const CONTENT = {
     done_text: { ru: 'Молодец! Ты ставил знаки точно. Больше, меньше и равно.', uz: "Barakalla! Belgilarni aniq qo'ydingiz. Katta, kichik va teng." },
     retry_audio: { ru: 'Ничего страшного. Крокодил смотрит ртом на большее число. Попробуй ещё раз.', uz: "Zarari yo'q. Timsoh og'zini katta songa qaratadi. Yana urinib ko'ring." },
     audio: {
-      intro: { ru: 'Поиграем. Для каждой пары чисел поставь правильный знак. Больше, меньше или равно. Крокодил смотрит ртом на большее число.', uz: "O'ynaymiz. Har juft son uchun to'g'ri belgini qo'ying. Katta, kichik yoki teng. Timsoh og'zini katta songa qaratadi." }
+      intro: { ru: 'Поиграем. Друзья написали пары чисел. Для каждой пары поставь правильный знак. Больше, меньше или равно. Крокодил смотрит ртом на большее число.', uz: "O'ynaymiz. Do'stlar juft sonlarni yozishdi. Har juft uchun to'g'ri belgini qo'ying. Katta, kichik yoki teng. Timsoh og'zini katta songa qaratadi." }
     }
   },
 
@@ -1087,7 +1186,7 @@ const CONTENT = {
     fact_text: { ru: 'Этими знаками пользуются и взрослые.', uz: "Bu belgilardan kattalar ham foydalanadi." },
     fact_audio: { ru: 'А знаешь, скобки и знаки больше и меньше используют и взрослые. Эти значки есть в каждом учебнике математики.', uz: "Bilasizmi, qavs va katta hamda kichik belgilaridan kattalar ham foydalanadi. Shu belgilar har bir matematika darsligida bor." },
     audio: {
-      intro: { ru: 'Последний пример. В скобках два плюс два, и ещё плюс три. Сначала посчитай в скобках, потом всё вместе. Сколько получится? Выбери ответ.', uz: "Oxirgi misol. Qavsda ikki plyus ikki, va yana plyus uch. Avval qavsda sanang, keyin hammasini birga. Nechta bo'ladi? Javobni tanlang." },
+      intro: { ru: 'Последняя запись на доске. В скобках два плюс два, и ещё плюс три. Сначала посчитай в скобках, потом всё вместе. Сколько получится? Выбери ответ.', uz: "Doskadagi oxirgi yozuv. Qavsda ikki plyus ikki, va yana plyus uch. Avval qavsda sanang, keyin hammasini birga. Nechta bo'ladi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Получилось семь.', uz: "To'g'ri. Yetti chiqdi." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
@@ -1103,8 +1202,8 @@ const CONTENT = {
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
-      ru: 'Сегодня ты научился проверять, верна ли запись, ставить знаки больше, меньше и равно, а в скобках считать сначала внутри. В следующий раз пойдём в школу — там понадобятся числа больше десяти.',
-      uz: "Bugun yozuv to'g'rimi yoki yo'qligini tekshirishni, katta, kichik va teng belgilarini qo'yishni, qavsda esa avval ichini sanashni o'rgandingiz. Keyingi safar maktabga boramiz — u yerda o'ndan katta sonlar kerak bo'ladi."
+      ru: 'Сегодня ты научился проверять, верна ли запись. Весы не обманешь. Рано написала верно, а Анвар нашёл свою ошибку и исправил её. Ты умеешь ставить знаки больше, меньше и равно. А если есть скобки, сначала считаешь внутри. В следующий раз пойдём в школу. Там понадобятся числа больше десяти.',
+      uz: "Bugun yozuv to'g'rimi yoki yo'qligini tekshirishni o'rgandingiz. Tarozini aldab bo'lmaydi. Ra'no to'g'ri yozgan edi, Anvar esa xatosini topib tuzatdi. Siz katta, kichik va teng belgilarini qo'yishni bilasiz. Qavs bo'lsa, avval ichini sanaysiz. Keyingi safar maktabga boramiz. U yerda o'ndan katta sonlar kerak bo'ladi."
     }
   }
 };
@@ -1883,6 +1982,7 @@ const GameDrill = (props) => {
   const [exIdx, setExIdx] = useState(0);
   const [placement, setPlacement] = useState({});   // tokenId -> zoneId
   const [solvedItem, setSolvedItem] = useState(false);
+  const revealRef = useRevealScroll(solvedItem);
   const [wrongZone, setWrongZone] = useState(null);   // noto'g'ri sudralganda zona yumshoq tebranadi
   const [bounceTok, setBounceTok] = useState(null);   // noto'g'ri token tray'ga sakrab qaytadi
   const [demoOff, setDemoOff] = useState(false);   // qo'l-demo birinchi harakatdan keyin so'nadi
@@ -2063,7 +2163,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2076,7 +2176,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -3125,6 +3225,14 @@ const GuestCast = ({ audio }) => {
 };
 // ===== Dars11 KOMPONENTLAR (o'rin almashtirish) =====
 
+// AnsPop — to'g'ri javob raqami savol vizualining o'zida paydo bo'ladi ("= N", pop).
+// Barcha test-figuralar shu orqali javobni ko'rsatadi (bola javobni rasmda ham ko'radi).
+const AnsPop = ({ n }) => (
+  <span className="g1-anspop g1-pop-in" aria-hidden="true">
+    <i className="g1-anspop-eq">=</i><b className="g1-anspop-num">{n}</b>
+  </span>
+);
+
 // CombineGroups — qo'shish figurasi: ikki pufakcha + oraliqda. key bilan qayta sirg'aladi.
 const CombineGroups = ({ a, b, kind = 'apple', kindB = null }) => {
   const kb = kindB || kind;
@@ -3247,13 +3355,14 @@ const Balance = ({ left, right, tilt = 'eq', kind = 'apple' }) => (
 
 // ===== QAVS — YANGI MEXANIKA: (a+b)+c — qavs ichi yonadi -> avval sanaladi =====
 // lit=false: ( a + b ) + c. lit=true: qavs ichi yonadi, ostida [a+b] = c bo'lib qoladi.
-const QavsExpr = ({ a, b, c, lit = false, q = false }) => (
+// ans != null -> "?" o'rnida javob raqami pop bilan chiqadi (yechilgach).
+const QavsExpr = ({ a, b, c, lit = false, q = false, ans = null }) => (
   <span className={`g1-qavs mono ${lit ? 'g1-qavs-lit' : ''}`} aria-hidden="true">
     <span className="g1-qavs-paren">(</span>
     <span className="g1-qavs-inner"><span>{a}</span><i className="g1-sent-op g1-sent-plus">+</i><span>{b}</span></span>
     <span className="g1-qavs-paren">)</span>
     <i className="g1-sent-op g1-sent-plus">+</i><span>{c}</span>
-    {q && <><i className="g1-sent-eq">=</i><span className="g1-sent-res">?</span></>}
+    {q && <><i className="g1-sent-eq">=</i>{ans != null ? <span className="g1-sent-res g1-pop-in">{ans}</span> : <span className="g1-sent-res">?</span>}</>}
   </span>
 );
 
@@ -3321,9 +3430,16 @@ const Screen1 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => (
+      figure={(solved) => (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2.2vw, 16px)' }}>
-          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">5</span></span>
+          {/* Yechilgach oddiy = o'rnida TINCH TIMSOH (og'zi yopiq = teng) pop bilan chiqadi */}
+          <span className="g1-sent g1-sent-lg mono" aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center' }}>
+            <span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span>
+            {solved
+              ? <span className="g1-pop-in" style={{ display: 'inline-flex', margin: '0 0.18em' }}><CompareSign dir="eq"/></span>
+              : <i className="g1-sent-eq">=</i>}
+            <span className="g1-sent-res">5</span>
+          </span>
           <CombineGroups a={2} b={3} kind="apple"/>
         </div>
       )}
@@ -3337,46 +3453,129 @@ const Screen1 = (props) => {
 };
 
 // s2 — EXPLORATION (tarozi -> tengsizlik): chap 4, o'ng 2 -> og'adi -> timsoh kattaga (4>2).
+const S2_LEFT = ['l0', 'l1', 'l2', 'l3'];   // chap pallaga (4)
+const S2_RIGHT = ['r0', 'r1'];              // o'ng pallaga (2)
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s2;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's2_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
-  const [placed, setPlaced] = useState(false);
-  const place = () => {
-    if (placed || !canAct) return;
-    setPlaced(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
-  };
+  const [placed, setPlaced] = useState({});   // token -> 'left' | 'right'
+  const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
+  const doneTimer = useRef(null);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const l = Object.keys(placed).filter((id) => id.startsWith('l')).length;
+  const r = Object.keys(placed).filter((id) => id.startsWith('r')).length;
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (done) return;
+    // har olma o'z pallasiga: l-tokenlar chapga, r-tokenlar o'ngga
+    const want = tokenId.startsWith('l') ? 'left' : 'right';
+    if (zoneId !== want) return;
+    setPlaced((prev) => {
+      if (prev[tokenId]) return prev;
+      const nxt = { ...prev, [tokenId]: zoneId };
+      const keys = Object.keys(nxt);
+      const nl = keys.filter((id) => id.startsWith('l')).length;
+      const nr = keys.filter((id) => id.startsWith('r')).length;
+      sfx.playCorrect();
+      if (!audio.muted) {
+        const e = getAudioEngine();
+        if (e) {
+          e.pushOneOff(NUM_WORDS[lang][zoneId === 'left' ? nl : nr] || '');
+          if (zoneId === 'left' && nl === S2_LEFT.length) e.pushOneOff(c.left_full[lang]);
+          if (zoneId === 'right' && nr === S2_RIGHT.length) e.pushOneOff(c.right_full[lang]);
+        }
+      }
+      if (nl + nr >= S2_LEFT.length + S2_RIGHT.length) {
+        doneTimer.current = setTimeout(() => {
+          setDone(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 800);
+      }
+      return nxt;
+    });
+  }, [done, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const dragTok = (id, i) => (
+    <span key={id} style={{ display: 'inline-flex', cursor: 'grab', touchAction: 'none', borderRadius: 12, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+      onPointerDown={(e) => { if (!canAct || done) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+      <Obj kind="apple" i={i} anim="bob"/>
+    </span>
+  );
+  const zoneStyle = (n, cap) => ({
+    flex: 1, maxWidth: 'clamp(140px, 32vw, 220px)', minHeight: 'clamp(52px, 9vw, 68px)', boxSizing: 'border-box',
+    border: `2.5px dashed ${n >= cap ? T.success : T.accent}`, borderRadius: 14,
+    background: n >= cap ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+    padding: 'clamp(6px, 1.4vw, 10px)'
+  });
+  const leftTray = S2_LEFT.filter((id) => !placed[id]);
+  const rightTray = S2_RIGHT.filter((id) => !placed[id]);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!placed} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!done} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.8vw, 22px)' }}>
-          <span className="eyebrow mono" style={{ color: T.ink3 }}>{placed ? t(c.label_after) : t(c.label_before)}</span>
-          <Balance left={4} right={2} tilt={placed ? 'left' : 'eq'} kind="apple"/>
-          {placed && (
-            <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }} aria-hidden="true">
-              <NumTile d={4}/><CompareSign dir="gt"/><NumTile d={2}/>
-            </div>
-          )}
-          {!placed && (
-            <button className="btn" disabled={!canAct} onClick={place}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 16px)', padding: 'clamp(14px, 2.8vw, 22px)' }}>
+          <span className="eyebrow mono" style={{ color: T.ink3 }}>{done ? t(c.label_after) : t(c.label_before)}</span>
+          {/* Tarozi JONLI: har tushgan olma bilan og'adi — "ko'p tomon pastga" */}
+          <Balance left={l} right={r} tilt={l > r ? 'left' : (l < r ? 'right' : 'eq')} kind="apple"/>
+          {done
+            ? (
+              <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }} aria-hidden="true">
+                <NumTile d={4}/><CompareSign dir="gt"/><NumTile d={2}/>
+              </div>
+            )
+            : (
+              <>
+                {/* Drop-zonalar: chap / o'ng palla */}
+                <div style={{ display: 'flex', gap: 'clamp(10px, 2.4vw, 18px)', width: '100%', justifyContent: 'center' }}>
+                  <div data-zone="left" onClick={() => { if (canAct && !done) dnd.tapZone('left'); }} style={zoneStyle(l, S2_LEFT.length)}>
+                    <span className="small" style={{ color: T.ink2 }}>{t(c.zone_left)}</span>
+                    <span className="mono small" style={{ color: l >= S2_LEFT.length ? T.success : T.ink3, fontWeight: 700 }}>{l} / 4</span>
+                  </div>
+                  <div data-zone="right" onClick={() => { if (canAct && !done) dnd.tapZone('right'); }} style={zoneStyle(r, S2_RIGHT.length)}>
+                    <span className="small" style={{ color: T.ink2 }}>{t(c.zone_right)}</span>
+                    <span className="mono small" style={{ color: r >= S2_RIGHT.length ? T.success : T.ink3, fontWeight: 700 }}>{r} / 2</span>
+                  </div>
+                </div>
+                {/* Tray: qoldiq olmalar (chapga 4 / o'ngga 2 guruhlari) */}
+                {(leftTray.length > 0 || rightTray.length > 0) && (
+                  <div style={{ display: 'flex', gap: 'clamp(16px, 3.4vw, 28px)', alignItems: 'flex-end', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {leftTray.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                        <div style={{ display: 'flex', gap: 'clamp(4px, 1.2vw, 8px)' }}>{leftTray.map((id) => dragTok(id, Number(id.slice(1))))}</div>
+                        <span className="mono small" style={{ color: T.ink3 }}>← {t(c.tray_left)}</span>
+                      </div>
+                    )}
+                    {rightTray.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                        <div style={{ display: 'flex', gap: 'clamp(4px, 1.2vw, 8px)' }}>{rightTray.map((id) => dragTok(id, 4 + Number(id.slice(1))))}</div>
+                        <span className="mono small" style={{ color: T.ink3 }}>{t(c.tray_right)} →</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
         </div>
-        {placed && (
-          <div className="frame-success fade-up">
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>
+            <Obj kind="apple" i={0} anim=""/>
           </div>
         )}
       </div>
@@ -3431,9 +3630,14 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => (
+      figure={(solved) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 3vw, 22px)' }} aria-hidden="true">
-          <NumTile d={4}/><span className="g1-sent-q mono">?</span><NumTile d={2}/>
+          {/* Yechilgach ? o'rnida timsoh boshi (og'zi to'rtga ochiq) pop bilan chiqadi */}
+          <NumTile d={4}/>
+          {solved
+            ? <span className="g1-pop-in" style={{ display: 'inline-flex' }}><CompareSign dir="gt"/></span>
+            : <span className="g1-sent-q mono">?</span>}
+          <NumTile d={2}/>
         </div>
       )}
       options={[<CompareSign dir="eq"/>, <CompareSign dir="lt"/>, <CompareSign dir="gt"/>]}
@@ -3455,8 +3659,19 @@ const Screen5 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => (
-        <span className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>6</span><i className="g1-sent-eq">=</i><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span></span>
+      figure={(solved) => (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2.2vw, 16px)' }}>
+          {/* Yechilgach xato yozuv chizib qo'yiladi, ostida timsoh TO'G'RI belgini ko'rsatadi: 6 > 5 */}
+          <span className="g1-sent g1-sent-lg mono" aria-hidden="true"
+            style={solved ? { opacity: 0.45, textDecoration: 'line-through', textDecorationColor: '#C24141', textDecorationThickness: 3 } : undefined}>
+            <span>6</span><i className="g1-sent-eq">=</i><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span>
+          </span>
+          {solved && (
+            <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }} aria-hidden="true">
+              <NumTile d={6}/><CompareSign dir="gt"/><NumTile d={5}/>
+            </div>
+          )}
+        </div>
       )}
       options={[t(c.opt_yes), t(c.opt_no)]}
       correctIdx={1}
@@ -3476,9 +3691,14 @@ const Screen6 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => (
+      figure={(solved) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }} aria-hidden="true">
-          <NumTile d={5}/><CompareSign dir="gt"/><SentTile a={2} op="+" b={1}/>
+          {/* Yechilgach timsoh KATTALASHIB qayta pop qiladi (belgi tasdiqlanadi) */}
+          <NumTile d={5}/>
+          {solved
+            ? <span className="g1-pop-in" style={{ display: 'inline-flex' }}><CompareSign dir="gt" big/></span>
+            : <CompareSign dir="gt"/>}
+          <SentTile a={2} op="+" b={1}/>
         </div>
       )}
       options={[t(c.opt_yes), t(c.opt_no)]}
@@ -3490,23 +3710,47 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — EXPLORATION (qavs-highlight): (2+1)+3 -> avval qavs ichi -> 3+3=6.
+// s7 — EXPLORATION (QAVS TAP-TARTIB): (2+1)+3 — bola avval nimani sanashni O'ZI
+// ko'rsatadi: qavsni bosadi (yonadi, 2+1=3), keyin qolganini bosadi (3+3=6).
+// Noto'g'ri birinchi bosish (avval +3) -> yumshoq ovozli hint, davom yo'q.
 const Screen7 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s7;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's7_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
-  const [lit, setLit] = useState(false);
-  const reveal = () => {
-    if (lit || !canAct) return;
-    setLit(true);
+  const [step, setStep] = useState(0);   // 0 = kutish, 1 = qavs yondi (2+1=3), 2 = tugadi (3+3=6)
+  const [wrongTail, setWrongTail] = useState(false);
+  const revealRef = useRevealScroll(step >= 2);
+  const wrongTimer = useRef(null);
+  useEffect(() => () => clearTimeout(wrongTimer.current), []);
+  const tapInner = () => {
+    if (!canAct || step >= 1) return;
+    setStep(1);
+    sfx.playCorrect();
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
   };
+  const tapTail = () => {
+    if (!canAct || step >= 2) return;
+    if (step === 0) {
+      // xato yo'l: avval qavs ichi — javob ochilmaydi, usul aytiladi
+      sfx.playWrong();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.wrong_first[lang]); }
+      setWrongTail(true);
+      clearTimeout(wrongTimer.current);
+      wrongTimer.current = setTimeout(() => setWrongTail(false), 900);
+      return;
+    }
+    setStep(2);
+    sfx.playCorrect();
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][2]); }
+  };
+  const partBtn = { background: 'none', border: 'none', padding: '0.04em 0.1em', font: 'inherit', color: 'inherit', display: 'inline-flex', alignItems: 'center', borderRadius: 10, cursor: 'pointer' };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!lit} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={step < 2} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
@@ -3514,20 +3758,29 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.6vw, 20px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          <span className="eyebrow mono" style={{ color: T.ink3 }}>{lit ? t(c.label_after) : t(c.label_before)}</span>
-          <QavsExpr a={2} b={1} c={3} lit={lit}/>
-          {lit && (
+          <span className="eyebrow mono" style={{ color: T.ink3 }}>{step >= 1 ? t(c.label_after) : t(c.label_before)}</span>
+          {/* Bosiladigan ifoda: qavs qismi + qolgan qismi (QavsExpr markup'i, tap bilan) */}
+          <span className={`g1-qavs mono ${step >= 1 ? 'g1-qavs-lit' : ''}`}>
+            <button type="button" style={{ ...partBtn, cursor: step >= 1 ? 'default' : 'pointer' }} disabled={!canAct || step >= 1} onClick={tapInner} aria-label={t(c.label_before)}>
+              <span className="g1-qavs-paren">(</span>
+              <span className="g1-qavs-inner"><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span></span>
+              <span className="g1-qavs-paren">)</span>
+            </button>
+            <button type="button" disabled={!canAct || step >= 2} onClick={tapTail} aria-label={t(c.step2_hint)}
+              style={{ ...partBtn, cursor: step >= 2 ? 'default' : 'pointer', background: wrongTail ? T.accentSoft : 'none', outline: step === 1 ? `2px dashed ${T.accent}` : 'none', outlineOffset: 3, transition: 'background 0.3s ease' }}>
+              <i className="g1-sent-op g1-sent-plus">+</i><span>3</span>
+            </button>
+          </span>
+          {step === 1 && <span className="small fade-up" style={{ color: T.ink2 }}>{t(c.step2_hint)}</span>}
+          {step >= 1 && (
+            <div className="g1-sent mono fade-up" aria-hidden="true"><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">3</span></div>
+          )}
+          {step >= 2 && (
             <div className="g1-sent g1-sent-lg mono fade-up" aria-hidden="true"><span>3</span><i className="g1-sent-op g1-sent-plus">+</i><span>3</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">6</span></div>
           )}
-          {!lit && (
-            <button className="btn" disabled={!canAct} onClick={reveal}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
         </div>
-        {lit && (
-          <div className="frame-success fade-up">
+        {step >= 2 && (
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
         )}
@@ -3536,31 +3789,70 @@ const Screen7 = (props) => {
   );
 };
 
-// s8 — RULE (qavs): qavs ichini avval sanaymiz. (4+1)+2 = 5+2 = 7.
+// s8 — RULE (qavs, JONLI tushuntirish): audio bilan sinxron 2 misol.
+// Misol 1: (4+1)+2 — qavs yonadi (step2), ichi 4+1=5 (step2), hammasi 5+2=7 (step3).
+// Misol 2: (3+2)+4 paydo bo'ladi (step4), yonadi + 3+2=5 + 5+4=9 (step5). Davom — step6'dan.
 const Screen8 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s8;
-  const audio = useAudio([{ id: 's8', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const audio = useAudio(makeAutoSegments(c, lang));
+  const step = useStoryReveal(audio, 6);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={step < 6} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h1 className="title h-sub fade-up">
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>
         </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2.2vw, 16px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          <QavsExpr a={4} b={1} c={2} lit={true}/>
-          <div className="g1-sent g1-sent-lg mono" aria-hidden="true"><span>5</span><i className="g1-sent-op g1-sent-plus">+</i><span>2</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">7</span></div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <QavsExpr a={4} b={1} c={2} lit={step >= 2}/>
+          {step >= 2 && (
+            <div className="g1-sent mono fade-up" aria-hidden="true"><span>4</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">5</span></div>
+          )}
+          {step >= 3 && (
+            <div className="g1-sent g1-sent-lg mono fade-up" aria-hidden="true"><span>5</span><i className="g1-sent-op g1-sent-plus">+</i><span>2</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">7</span></div>
+          )}
         </div>
+        {step >= 4 && (
+          <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+            <span className="eyebrow mono" style={{ color: T.ink3 }}>{t(c.ex2_label)}</span>
+            <QavsExpr a={3} b={2} c={4} lit={step >= 5}/>
+            {step >= 5 && (
+              <div className="g1-sent mono fade-up" aria-hidden="true"><span>3</span><i className="g1-sent-op g1-sent-plus">+</i><span>2</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">5</span></div>
+            )}
+            {step >= 5 && (
+              <div className="g1-sent g1-sent-lg mono fade-up" aria-hidden="true"><span>5</span><i className="g1-sent-op g1-sent-plus">+</i><span>4</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">9</span></div>
+            )}
+          </div>
+        )}
         <BitSays text={t(c.tip)}/>
       </div>
     </Stage>
+  );
+};
+
+// s8b — TEST MC (qavsli mashq): (1+3)+2 = ? -> 6 (idx1). AnsPop qavs ifodasining o'zida.
+const Screen8b = (props) => {
+  const c = CONTENT.s8b;
+  const t = useT();
+  return (
+    <QuestionScreen
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
+      question={<h2 className="title h-sub">{t(c.title)}</h2>}
+      figure={(solved) => <QavsExpr a={1} b={3} c={2} q={true} ans={solved ? 6 : null}/>}
+      options={[<DigitGlyph d={4} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={5} size="mid"/>]}
+      correctIdx={1}
+      mascot={false}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
   );
 };
 
@@ -3581,6 +3873,7 @@ const ScreenGame = (props) => {
   const total = SIGN_ROUNDS.length;
   const [ri, setRi] = useState(0);
   const [solvedItem, setSolvedItem] = useState(false);
+  const revealRef = useRevealScroll(solvedItem);
   const [wrong, setWrong] = useState(() => new Set());
   const [praiseWord, setPraiseWord] = useState('');
   const [encWord, setEncWord] = useState('');
@@ -3627,7 +3920,7 @@ const ScreenGame = (props) => {
           )}
         </div>
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
@@ -3656,7 +3949,7 @@ const ScreenFinal = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <QavsExpr a={2} b={2} c={3} q={true}/>}
+      figure={(solved) => <QavsExpr a={2} b={2} c={3} q={true} ans={solved ? 7 : null}/>}
       options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={5} size="mid"/>]}
       correctIdx={1}
       mascot={false}
@@ -3721,6 +4014,7 @@ export default function EqualityLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -3765,7 +4059,7 @@ export default function EqualityLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, ScreenGame, ScreenGuest, ScreenFinal, Screen9];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen8b, ScreenGame, ScreenGuest, ScreenFinal, Screen9];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -3811,15 +4105,26 @@ export default function EqualityLesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -3967,7 +4272,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -3982,6 +4287,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {
@@ -4765,6 +5071,11 @@ html, body { margin: 0; padding: 0; }
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
 .g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+
+/* AnsPop — javob raqami savol vizualida ("= N", yashil, pop). Barcha test-figuralar. */
+.g1-anspop { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); margin-left: clamp(4px, 1vw, 8px); }
+.g1-anspop-eq { font-style: normal; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #5A5A60; line-height: 1; }
+.g1-anspop-num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: 1; color: #1F7A4D; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
 .g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }

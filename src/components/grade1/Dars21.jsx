@@ -187,6 +187,34 @@ function useIsMobile(breakpoint = 640) {
 }
 
 // ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
+}
+
+// ============================================================
 // AUDIO ENGINE
 // ============================================================
 class AudioEngine {
@@ -571,6 +599,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -768,6 +819,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   };
 
   const canAdv = useAdvanceGate(solved, audio);   // izoh ovozi tugagach Davom
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);   // feedback skrollidan keyin fakt ham ko'rinadi
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
@@ -812,7 +864,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -1955,6 +2007,7 @@ const GameDrill = (props) => {
   const tokens = exTokens(ex);
   const zones = exZones(ex);
   const allDone = exIdx >= total - 1 && solvedItem;
+  const revealRef = useRevealScroll(solvedItem);
   const tokenById = (id) => tokens.find((tk) => tk.id === id);
   const tokenInZone = (zid) => Object.keys(placement).find((tid) => placement[tid] === zid);
   const promptText = c[`q_${ex.type}`] ? t(c[`q_${ex.type}`]) : '';
@@ -2128,7 +2181,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2141,7 +2194,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -3402,6 +3455,14 @@ const GuestCast = ({ audio }) => {
 };
 // ===== Dars10 KOMPONENTLAR (meros: Dars09) (5 ichida ± amaliyot) =====
 
+// AnsPop — to'g'ri javob raqami savol vizualining o'zida paydo bo'ladi ("= N", pop).
+// Barcha test-figuralar shu orqali javobni ko'rsatadi (bola javobni rasmda ham ko'radi).
+const AnsPop = ({ n }) => (
+  <span className="g1-anspop g1-pop-in" aria-hidden="true">
+    <i className="g1-anspop-eq">=</i><b className="g1-anspop-num">{n}</b>
+  </span>
+);
+
 // CombineGroups — qo'shish figurasi (Dars07 dan): ikki pufakcha + oraliqda.
 const CombineGroups = ({ a, b, kind = 'apple', kindB = null }) => {
   const kb = kindB || kind;
@@ -3557,7 +3618,7 @@ const AppleCrate = () => (
   </span>
 );
 // AppleViz — `tens` ta yashik (har biri 10) + `ones` ta yakka olma. pop -> yakka olmalar tushib paydo bo'ladi.
-const AppleViz = ({ tens = 0, ones = 0, pop = false }) => (
+const AppleViz = ({ tens = 0, ones = 0, pop = false, ans = null }) => (
   <div className="g1-fviz" aria-hidden="true">
     {Array.from({ length: tens }).map((_, i) => <AppleCrate key={`t${i}`}/>)}
     {tens > 0 && ones > 0 && <span className="g1-fviz-plus">+</span>}
@@ -3568,6 +3629,7 @@ const AppleViz = ({ tens = 0, ones = 0, pop = false }) => (
         ))}
       </span>
     )}
+    {ans != null && <AnsPop n={ans}/>}
   </div>
 );
 
@@ -3742,6 +3804,7 @@ const Screen1 = (props) => {
   const [orders, setOrders] = useState({});
   const count = Object.keys(orders).length;
   const full = count === N;
+  const revealRef = useRevealScroll(full);
   const tap = (i) => {
     if (orders[i]) return;
     const order = count + 1;
@@ -3770,7 +3833,7 @@ const Screen1 = (props) => {
           <div className="g1-bigcount mono">{count}</div>
         </div>
         {full && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <Reaction state="correct" praise={t(c.full_text)}/>
             <AppleCrate/>
           </div>
@@ -3788,6 +3851,7 @@ const Screen2 = (props) => {
   const audio = useAudio([{ id: 's2_a0', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
   const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
   const reveal = () => {
     if (done || !canAct) return;
     setDone(true);
@@ -3816,7 +3880,7 @@ const Screen2 = (props) => {
           )}
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.full_text)}/>
           </div>
         )}
@@ -3861,7 +3925,7 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <AppleViz tens={3} ones={5} pop={solved}/>}
+      figure={(solved) => <AppleViz tens={3} ones={5} pop={solved} ans={solved ? 35 : null}/>}
       options={[<DigitGlyph d={35} size="mid"/>, <DigitGlyph d={53} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={30} size="mid"/>]}
       correctIdx={0}
       mascot={false}
@@ -3879,6 +3943,7 @@ const Screen5 = (props) => {
   const audio = useAudio([{ id: 's5_a0', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
   const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
   const reveal = () => {
     if (done || !canAct) return;
     setDone(true);
@@ -3910,7 +3975,7 @@ const Screen5 = (props) => {
           )}
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.full_text)}/>
           </div>
         )}
@@ -3956,7 +4021,7 @@ const Screen7 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <AppleViz tens={5} ones={0} pop={solved}/>}
+      figure={(solved) => <AppleViz tens={5} ones={0} pop={solved} ans={solved ? 50 : null}/>}
       options={[<DigitGlyph d={50} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={500} size="mid"/>, <DigitGlyph d={15} size="mid"/>]}
       correctIdx={0}
       mascot={false}
@@ -4086,6 +4151,7 @@ const ScreenGame = (props) => {
   const round = BUILD_ROUNDS[ri];
   const lastRound = ri >= total - 1;
   const allDone = lastRound && solvedItem;
+  const revealRef = useRevealScroll(solvedItem);
   const cur = tens * 10 + ones;
   useEffect(() => {
     if (solvedItem || !canAct) return;
@@ -4119,7 +4185,7 @@ const ScreenGame = (props) => {
           )}
         </div>
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
@@ -4143,7 +4209,7 @@ const Screen9 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <AppleViz tens={6} ones={2} pop={solved}/>}
+      figure={(solved) => <AppleViz tens={6} ones={2} pop={solved} ans={solved ? 62 : null}/>}
       options={[<DigitGlyph d={62} size="mid"/>, <DigitGlyph d={26} size="mid"/>, <DigitGlyph d={8} size="mid"/>, <DigitGlyph d={60} size="mid"/>]}
       correctIdx={0}
       mascot={false}
@@ -4208,6 +4274,7 @@ export default function PlaceValueLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -4298,15 +4365,26 @@ export default function PlaceValueLesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -4454,7 +4532,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -4469,6 +4547,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {
@@ -5501,4 +5580,9 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-fviz-pop .g1-fviz-one { animation: g1fpop 0.42s cubic-bezier(0.34, 1.5, 0.6, 1) both; }
 @keyframes g1fpop { 0% { transform: translateY(-16px) scale(0.6); opacity: 0; } 60% { transform: translateY(2px) scale(1.1); opacity: 1; } 100% { transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .g1-fviz-pop .g1-fviz-one { animation: none; } }
+
+/* AnsPop — javob raqami savol vizualida ("= N", yashil, pop). Barcha test-figuralar. */
+.g1-anspop { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); margin-left: clamp(4px, 1vw, 8px); }
+.g1-anspop-eq { font-style: normal; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #5A5A60; line-height: 1; }
+.g1-anspop-num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: 1; color: #1F7A4D; }
 `;

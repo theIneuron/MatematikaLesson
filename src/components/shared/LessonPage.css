@@ -1,5 +1,7 @@
+/* 100dvh (100vh emas): telefonda URL-panel bilan 100vh ko'rinadigan ekrandan
+   balandroq bo'lib, butun sahifani skroll qilib qo'yadi (dars tugmasi siljiydi). */
 .lesson-page {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .lesson-back {
@@ -27,7 +29,7 @@
 }
 
 .lesson-frame {
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .lesson-missing {

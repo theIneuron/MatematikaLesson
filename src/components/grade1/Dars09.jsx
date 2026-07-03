@@ -186,6 +186,34 @@ function useIsMobile(breakpoint = 640) {
 }
 
 // ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
+}
+
+// ============================================================
 // AUDIO ENGINE
 // ============================================================
 class AudioEngine {
@@ -570,6 +598,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -767,6 +818,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   };
 
   const canAdv = useAdvanceGate(solved, audio);   // izoh ovozi tugagach Davom
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);   // feedback skrollidan keyin fakt ham ko'rinadi
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
@@ -811,7 +863,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -859,10 +911,10 @@ const CONTENT = {
   // ---- sIntro: mahallada do'stlar 5 ichida qo'shib-ayirib mashq qiladi ----
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'Друзья тренируются во дворе', uz: "Do'stlar hovlida mashq qiladi" },
+    title: { ru: 'Игра с прыжками во дворе', uz: "Hovlida sakrash o'yini" },
     body: {
-      ru: 'Мы уже умеем складывать и вычитать. Сегодня Рано, Анвар и Зухра тренируются вместе: где-то прибавляют, где-то убирают. Будем считать в пределах пяти.',
-      uz: "Biz qo'shish va ayirishni bilamiz. Bugun Ra'no, Anvar va Zuhra birga mashq qiladi: bir joyda qo'shadi, bir joyda oladi. Besh ichida sanaymiz."
+      ru: 'Мы уже умеем прибавлять и убавлять. Сегодня во дворе Рано, Анвар и Зухра нарисовали мелом дорожку из клеток — игра в прыжки! Прыжок вперёд — прибавляем, прыжок назад — убираем. Играем в пределах пяти.',
+      uz: "Biz qo'shish va ayirishni bilamiz. Bugun hovlida Ra'no, Anvar va Zuhra bo'r bilan katakchali yo'lak chizishdi — sakrash o'yini! Oldinga sakrasak — qo'shamiz, orqaga sakrasak — olamiz. Besh ichida o'ynaymiz."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -870,14 +922,14 @@ const CONTENT = {
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Привет, друг! Мы уже научились складывать и вычитать.',
-        'Сегодня Рано, Анвар и Зухра тренируются вместе. Где-то будем прибавлять, где-то убирать.',
-        'Считать будем в пределах пяти. Слушай и нажимай кнопку дальше.'
+        'Привет, друг! В прошлый раз мы научились прибавлять и убавлять.',
+        'Сегодня во дворе Рано, Анвар и Зухра нарисовали мелом дорожку из клеток. Это игра в прыжки. Прыгаешь вперёд, число прибавляется. Прыгаешь назад, число убавляется.',
+        'Играем в пределах пяти. Слушай и нажимай кнопку дальше.'
       ],
       uz: [
-        "Salom, do'stim! Biz qo'shish va ayirishni o'rgandik.",
-        "Bugun Ra'no, Anvar va Zuhra birga mashq qiladi. Bir joyda qo'shamiz, bir joyda olamiz.",
-        "Besh ichida sanaymiz. Tinglang va davom tugmasini bosing."
+        "Salom, do'stim! O'tgan safar qo'shish va ayirishni o'rgandik.",
+        "Bugun hovlida Ra'no, Anvar va Zuhra bo'r bilan katakchali yo'lak chizishdi. Bu sakrash o'yini. Oldinga sakrasangiz, son qo'shiladi. Orqaga sakrasangiz, son kamayadi.",
+        "Besh ichida o'ynaymiz. Tinglang va davom tugmasini bosing."
       ]
     }
   },
@@ -885,10 +937,10 @@ const CONTENT = {
   // ---- sGuest SYUJET KO'PRIK: 5 ichida puxta -> Dars10 ga ishora (kattaroq sonlar) ----
   sGuest: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
-    title: { ru: 'Скоро — числа побольше', uz: "Tez orada — kattaroq sonlar" },
+    title: { ru: 'Дорожку сделаем длиннее!', uz: "Yo'lakni uzaytiramiz!" },
     body: {
-      ru: 'Молодцы! В пределах пяти вы считаете уверенно — и прибавляете, и убираете. А скоро будем считать с числами побольше, до десяти.',
-      uz: "Barakalla! Besh ichida ishonch bilan sanaysiz — qo'shasiz ham, olasiz ham. Tez orada kattaroq sonlar bilan, o'ngacha sanaymiz."
+      ru: 'Игра удалась: до пятой клетки ты прыгаешь уверенно — и вперёд, и назад. Друзья решили: завтра дорисуем дорожку до десяти клеток. Прыжки будут длиннее!',
+      uz: "O'yin zo'r chiqdi: beshinchi katakkacha ishonch bilan sakraysiz — oldinga ham, orqaga ham. Do'stlar qaror qilishdi: ertaga yo'lakni o'nta katakkacha chizamiz. Sakrashlar uzunroq bo'ladi!"
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -896,13 +948,13 @@ const CONTENT = {
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Молодец! В пределах пяти ты считаешь уверенно.',
-        'Скоро будем считать с числами побольше, до десяти.',
+        'Игра удалась! До пятой клетки ты прыгаешь уверенно, и вперёд, и назад.',
+        'Друзья решили завтра дорисовать дорожку до десяти клеток. Прыжки будут длиннее.',
         'Слушай и нажимай кнопку дальше.'
       ],
       uz: [
-        "Barakalla! Besh ichida ishonch bilan sanaysiz.",
-        "Tez orada kattaroq sonlar bilan, o'ngacha sanaymiz.",
+        "O'yin zo'r chiqdi! Beshinchi katakkacha ishonch bilan sakraysiz, oldinga ham, orqaga ham.",
+        "Do'stlar ertaga yo'lakni o'nta katakkacha chizishga qaror qilishdi. Sakrashlar uzunroq bo'ladi.",
         "Tinglang va davom tugmasini bosing."
       ]
     }
@@ -919,8 +971,8 @@ const CONTENT = {
     done_text: { ru: 'Прыжок вперёд — число становится больше.', uz: "Oldinga sakrash — son kattalashadi." },
     audio: {
       intro: {
-        ru: 'Это числовая дорожка от нуля до пяти. Нажми на кнопку прыжок — точка прыгнет вперёд на одно число. Попрыгай и посмотри, как число растёт.',
-        uz: "Bu — noldan beshgacha sonli yo'lak. Sakrash tugmasini bosing — nuqta bitta son oldinga sakraydi. Sakratib ko'ring va son qanday o'sishini kuzating."
+        ru: 'Вот дорожка, которую нарисовали друзья. Клетки от нуля до пяти. Нажми на кнопку прыжок, точка прыгнет вперёд на одно число. Попрыгай и посмотри, как число растёт.',
+        uz: "Mana do'stlar chizgan yo'lak. Kataklar noldan beshgacha. Sakrash tugmasini bosing, nuqta bitta son oldinga sakraydi. Sakratib ko'ring va son qanday o'sishini kuzating."
       },
       on_done: { ru: 'Точка прыгала вперёд, и число становилось больше.', uz: "Nuqta oldinga sakradi va son kattalashdi." }
     }
@@ -1885,6 +1937,7 @@ const GameDrill = (props) => {
   const tokens = exTokens(ex);
   const zones = exZones(ex);
   const allDone = exIdx >= total - 1 && solvedItem;
+  const revealRef = useRevealScroll(solvedItem);
   const tokenById = (id) => tokens.find((tk) => tk.id === id);
   const tokenInZone = (zid) => Object.keys(placement).find((tid) => placement[tid] === zid);
   const promptText = c[`q_${ex.type}`] ? t(c[`q_${ex.type}`]) : '';
@@ -2058,7 +2111,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2071,7 +2124,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -3064,33 +3117,45 @@ const GuestCast = ({ audio }) => {
 };
 // ===== Dars09 KOMPONENTLAR (5 ichida ± amaliyot) =====
 
+// AnsPop — to'g'ri javob raqami savol vizualining o'zida paydo bo'ladi ("= N", pop).
+// Barcha test-figuralar shu orqali javobni ko'rsatadi (bola javobni rasmda ham ko'radi).
+const AnsPop = ({ n }) => (
+  <span className="g1-anspop g1-pop-in" aria-hidden="true">
+    <i className="g1-anspop-eq">=</i><b className="g1-anspop-num">{n}</b>
+  </span>
+);
+
 // CombineGroups — qo'shish figurasi (Dars07 dan): ikki pufakcha + oraliqda.
-const CombineGroups = ({ a, b, kind = 'apple', kindB = null }) => {
+// ans != null -> javob raqami figuraga qo'shiladi (yechilgach).
+const CombineGroups = ({ a, b, kind = 'apple', kindB = null, ans = null }) => {
   const kb = kindB || kind;
   return (
     <div className="g1-cg">
       <div className="d4-mount"><FruitBubble n={a} kind={kind}/></div>
       <span className="g1-cg-op" aria-hidden="true">+</span>
       <div className="d4-mount-r"><FruitBubble n={b} kind={kb}/></div>
+      {ans != null && <AnsPop n={ans}/>}
     </div>
   );
 };
 
-// RemoveRow — ayirish figurasi: total olma, oxirgi `gone` tasi xira.
-const RemoveRow = ({ total, gone = 0, kind = 'apple' }) => (
+// RemoveRow — ayirish figurasi: total olma, oxirgi `gone` tasi xira. ans -> javob raqami.
+const RemoveRow = ({ total, gone = 0, kind = 'apple', ans = null }) => (
   <div className="g1-removerow" aria-hidden="true">
     {Array.from({ length: total }).map((_, i) => (
       <span key={i} className={`g1-rr-item ${i >= total - gone ? 'g1-rr-gone' : ''}`}>
         <ObjSvg kind={kind}/>
       </span>
     ))}
+    {ans != null && <AnsPop n={ans}/>}
   </div>
 );
 
-// SentTile — yozuv plitkasi (1 + 1 / 4 − 1).
-const SentTile = ({ a, op, b }) => (
+// SentTile — yozuv plitkasi (1 + 1 / 4 − 1). ans != null -> "= N" pop bilan qo'shiladi.
+const SentTile = ({ a, op, b, ans = null }) => (
   <span className="g1-sent mono" aria-hidden="true">
     <span>{a}</span><i className={`g1-sent-op ${op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{op}</i><span>{b}</span>
+    {ans != null && <><i className="g1-sent-eq">=</i><span className="g1-sent-res g1-pop-in">{ans}</span></>}
   </span>
 );
 
@@ -3256,7 +3321,7 @@ const Screen1 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={() => <CombineGroups a={2} b={2} kind="apple"/>}
+      figure={(solved) => <CombineGroups a={2} b={2} kind="apple" ans={solved ? 4 : null}/>}
       options={[<DigitGlyph d={3} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={2} size="mid"/>]}
       correctIdx={1}
       mascot={false}
@@ -3276,6 +3341,7 @@ const Screen2 = (props) => {
   const [pos, setPos] = useState(2);
   const hops = pos - 2;
   const done = pos === 4;
+  const revealRef = useRevealScroll(done);
   const hop = () => {
     if (!canAct || pos >= 4) return;
     const np = pos + 1; setPos(np);
@@ -3305,7 +3371,7 @@ const Screen2 = (props) => {
           )}
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
         )}
@@ -3395,7 +3461,7 @@ const NumberLineSolve = ({ props, c, start, answer, max, op }) => {
         <h2 className="title h-sub fade-up">{t(c.title)}</h2>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
           <div className="g1-sent g1-sent-lg mono" aria-hidden="true">
-            <span>{start}</span><i className={`g1-sent-op ${op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{op === '+' ? '+' : '−'}</i><span>{op === '+' ? answer - start : start - answer}</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">?</span>
+            <span>{start}</span><i className={`g1-sent-op ${op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{op === '+' ? '+' : '−'}</i><span>{op === '+' ? answer - start : start - answer}</span><i className="g1-sent-eq">=</i>{solved ? <span className="g1-sent-res g1-pop-in">{answer}</span> : <span className="g1-sent-res">?</span>}
           </div>
           <NumberLine max={max} onPick={onPick} picked={picked} answer={answer} solved={solved} path={solved ? { from: start, to: answer } : null}/>
         </div>
@@ -3427,6 +3493,7 @@ const Screen4b = (props) => {
   const [pos, setPos] = useState(5);
   const hops = 5 - pos;
   const done = pos === 3;
+  const revealRef = useRevealScroll(done);
   const hop = () => {
     if (!canAct || pos <= 3) return;
     const np = pos - 1; setPos(np);
@@ -3456,7 +3523,7 @@ const Screen4b = (props) => {
           )}
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
         )}
@@ -3474,7 +3541,7 @@ const Screen5 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <RemoveRow total={5} gone={solved ? 2 : 0} kind="apple"/>}
+      figure={(solved) => <RemoveRow total={5} gone={solved ? 2 : 0} kind="apple" ans={solved ? 3 : null}/>}
       options={[<DigitGlyph d={2} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={1} size="mid"/>]}
       correctIdx={1}
       mascot={false}
@@ -3552,7 +3619,7 @@ const Screen6 = (props) => {
             {S6_ITEMS.map((it) => (
               <button key={it.ans} className={`g1-mexp ${matched.has(it.ans) ? 'g1-mexp-ok' : ''} ${nudge === it.ans ? 'g1-nudge' : ''}`}
                 disabled={matched.has(it.ans) || solved || sel == null || !canAns} onClick={() => tapExp(it)}>
-                <SentTile a={it.a} op={it.op} b={it.b}/>
+                <SentTile a={it.a} op={it.op} b={it.b} ans={matched.has(it.ans) ? it.ans : null}/>
               </button>
             ))}
           </div>
@@ -3598,6 +3665,7 @@ const ScreenGame = (props) => {
   const correctIdx = round.opts.indexOf(round.ans);
   const lastRound = ri >= total - 1;
   const allDone = lastRound && solvedItem;
+  const revealRef = useRevealScroll(solvedItem);
   const pick = (i) => {
     if (solvedItem || wrong.has(i) || !canAns) return;
     if (i === correctIdx) {
@@ -3623,7 +3691,7 @@ const ScreenGame = (props) => {
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <div className="g1-sent g1-sent-lg mono" aria-hidden="true">
-            <span>{round.a}</span><i className={`g1-sent-op ${round.op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{round.op}</i><span>{round.b}</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">?</span>
+            <span>{round.a}</span><i className={`g1-sent-op ${round.op === '+' ? 'g1-sent-plus' : 'g1-sent-minus'}`}>{round.op}</i><span>{round.b}</span><i className="g1-sent-eq">=</i>{solvedItem ? <span className="g1-sent-res g1-pop-in">{round.ans}</span> : <span className="g1-sent-res">?</span>}
           </div>
           {!solvedItem && (
             <div className="g1-gameopts">
@@ -3634,12 +3702,9 @@ const ScreenGame = (props) => {
               ))}
             </div>
           )}
-          {solvedItem && (
-            <div className="g1-numopt g1-numopt-ok"><DigitGlyph d={round.ans} size="mid" tone="accent"/></div>
-          )}
         </div>
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
@@ -3668,7 +3733,7 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <RemoveRow total={5} gone={solved ? 1 : 0} kind="apple"/>}
+      figure={(solved) => <RemoveRow total={5} gone={solved ? 1 : 0} kind="apple" ans={solved ? 4 : null}/>}
       options={[<DigitGlyph d={4} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
       correctIdx={0}
       mascot={false}
@@ -3733,6 +3798,7 @@ export default function PracticeWithin5Lesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -3823,15 +3889,26 @@ export default function PracticeWithin5Lesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -3979,7 +4056,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -3994,6 +4071,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {
@@ -4777,6 +4855,11 @@ html, body { margin: 0; padding: 0; }
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
 .g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+
+/* AnsPop — javob raqami savol vizualida ("= N", yashil, pop). Barcha test-figuralar. */
+.g1-anspop { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); margin-left: clamp(4px, 1vw, 8px); }
+.g1-anspop-eq { font-style: normal; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #5A5A60; line-height: 1; }
+.g1-anspop-num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: 1; color: #1F7A4D; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
 .g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }

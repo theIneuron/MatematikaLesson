@@ -185,6 +185,34 @@ function useIsMobile(breakpoint = 640) {
 }
 
 // ============================================================
+// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
+// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
+// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
+// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
+// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
+// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
+// ============================================================
+const MOBILE_DESIGN_W = 390;
+function useMobileZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
+      root.style.setProperty('--g1z', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--g1z');
+    };
+  }, [breakpoint]);
+}
+
+// ============================================================
 // AUDIO ENGINE
 // ============================================================
 class AudioEngine {
@@ -569,6 +597,29 @@ const AudioIndicator = ({ audioState }) => {
   );
 };
 
+// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
+// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
+// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
+// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
+function useRevealScroll(active, delay = 350, block = 'nearest') {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
+  return ref;
+}
+
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
@@ -709,6 +760,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const [praiseWord, setPraiseWord] = useState('');   // navbatdagi maqtov so'zi (reaktsiya uchun)
   const [encWord, setEncWord] = useState('');         // navbatdagi UNIKAL rag'bat (xato javob)
   const praiseRef = useRef('');
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);   // feedback skrollidan keyin fakt ham ko'rinadi
 
   const pick = (i) => {
     if (!canAns) return;       // ovoz tugamaguncha javob yo'q
@@ -810,7 +862,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={mascot}/>
         </FeedbackBlock>
-        {solved && factOnCorrect}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
       </div>
     </Stage>
   );
@@ -1136,24 +1188,41 @@ const CONTENT = {
     }
   },
 
+  // s10 — YIL FINALI (boyitilgan yakun, Dars32/33 uslubi): butun 1-sinf can-do
+  // ro'yxati + konfetti + do'stlar bilan xayrlashuv. Oddiy dars shabloni EMAS.
   s10: {
-    eyebrow: { ru: 'Готово', uz: 'Tayyor' },
+    eyebrow: { ru: 'Год пройден!', uz: "Yil yakunlandi!" },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    main_1: { ru: 'Теперь ты умеешь', uz: 'Endi siz' },
-    main_2_em: { ru: 'читать данные', uz: "ma'lumotlarni o'qiy olasiz" },
+    main_1: { ru: 'Ты прошёл', uz: 'Siz' },
+    main_2_em: { ru: 'весь первый класс!', uz: "butun birinchi sinfni tugatdingiz!" },
     connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
     connections_text: {
       ru: 'Дальше будем повторять и играть с тем, что узнали за год.',
       uz: "Keyin yil davomida o'rganganlarimizni takrorlaymiz va o'ynaymiz."
     },
+    can_do_title: { ru: 'Теперь я умею:', uz: 'Endi men:' },
+    cd_1: { ru: 'считать до ста', uz: 'yuzgacha sanayman' },
+    cd_2: { ru: 'складывать и вычитать — даже через десяток', uz: "qo'shaman va ayiraman — hatto o'nlikdan o'tib ham" },
+    cd_3: { ru: 'решать задачи', uz: 'masalalar yechaman' },
+    cd_4: { ru: 'узнавать фигуры', uz: 'shakllarni taniyman' },
+    cd_5: { ru: 'измерять длину и массу', uz: "uzunlik va massani o'lchayman" },
+    cd_6: { ru: 'читать пиктограммы и таблицы', uz: "piktogramma va jadvalni o'qiyman" },
+    real_caption: {
+      ru: 'Друзья прошли весь год вместе с тобой!',
+      uz: "Do'stlar butun yilni siz bilan birga bosib o'tishdi!"
+    },
     audio: {
       ru: [
-        'Молодец! Ты научился читать пиктограммы и таблицы.',
-        'Это был последний новый урок года. Дальше будем повторять и играть. До встречи!'
+        'Молодец! Сегодня ты научился читать пиктограммы и таблицы.',
+        'И это был последний новый урок года. Посмотри, сколько всего ты теперь умеешь. Считать до ста, складывать и вычитать, решать задачи, узнавать фигуры, измерять и читать таблицы.',
+        'Ты прошёл весь первый класс. Друзья гордятся тобой!',
+        'Дальше будем повторять и играть. До встречи!'
       ],
       uz: [
-        "Barakalla! Piktogramma va jadvalni o'qishni o'rgandingiz.",
-        "Bu yilning oxirgi yangi darsi edi. Keyin takrorlaymiz va o'ynaymiz. Ko'rishguncha!"
+        "Barakalla! Bugun piktogramma va jadvalni o'qishni o'rgandingiz.",
+        "Bu yilning oxirgi yangi darsi edi. Qarang, endi qanchadan-qancha narsani bilasiz. Yuzgacha sanash, qo'shish va ayirish, masala yechish, shakllarni tanish, o'lchash va jadval o'qish.",
+        "Siz butun birinchi sinfni bosib o'tdingiz. Do'stlar siz bilan faxrlanadi!",
+        "Keyin takrorlaymiz va o'ynaymiz. Ko'rishguncha!"
       ]
     }
   }
@@ -1933,6 +2002,7 @@ const GameDrill = (props) => {
   const [exIdx, setExIdx] = useState(0);
   const [placement, setPlacement] = useState({});   // tokenId -> zoneId
   const [solvedItem, setSolvedItem] = useState(false);
+  const revealRef = useRevealScroll(solvedItem);
   const [wrongZone, setWrongZone] = useState(null);   // noto'g'ri sudralganda zona yumshoq tebranadi
   const [bounceTok, setBounceTok] = useState(null);   // noto'g'ri token tray'ga sakrab qaytadi
   const [demoOff, setDemoOff] = useState(false);   // qo'l-demo birinchi harakatdan keyin so'nadi
@@ -2113,7 +2183,7 @@ const GameDrill = (props) => {
         )}
 
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextItem}
@@ -2126,7 +2196,7 @@ const GameDrill = (props) => {
 
         {/* drag arvohi */}
         {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
         )}
       </div>
     </Stage>
@@ -3747,6 +3817,14 @@ const PictoIcon = ({ kind, size = 28 }) => {
     </svg>
   );
 };
+// AnsPop — to'g'ri javob raqami savol vizualining o'zida paydo bo'ladi ("= N", pop).
+// Barcha test-figuralar shu orqali javobni ko'rsatadi (bola javobni rasmda ham ko'radi).
+const AnsPop = ({ n }) => (
+  <span className="g1-anspop g1-pop-in" aria-hidden="true">
+    <i className="g1-anspop-eq">=</i><b className="g1-anspop-num">{n}</b>
+  </span>
+);
+
 // PictoFig — piktogramma qatorlari: yorliq + rasmlar "yo'lak"da. anim='enter' -> ketma-ket paydo; uzunroq qator bo'ylab
 // yorug'lik o'tadi (jonli); 'celebrate' -> uchqun otiladi. big=true -> KATTA rasm+yorliq (tushuntirish slaydlari uchun).
 const PictoFig = ({ rows, anim, big = false }) => {
@@ -3876,6 +3954,7 @@ const Screen1 = (props) => {
   const audio = useAudio(makeAutoSegments(c, lang));
   const canAct = useCanAnswer(audio);
   const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
   const go = () => {
     if (done || !canAct) return;
     setDone(true);
@@ -3902,7 +3981,7 @@ const Screen1 = (props) => {
           )}
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.full_text)}/>
           </div>
         )}
@@ -3949,7 +4028,7 @@ const Screen3 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <PictoFig rows={[{ label: t(L.apple), kind: 'apple', n: 4 }, { label: t(L.pear), kind: 'pear', n: 3 }]} anim={solved ? 'celebrate' : 'enter'}/>}
+      figure={(solved) => <><PictoFig rows={[{ label: t(L.apple), kind: 'apple', n: 4 }, { label: t(L.pear), kind: 'pear', n: 3 }]} anim={solved ? 'celebrate' : 'enter'}/>{solved && <AnsPop n={4}/>}</>}
       options={[<DigitGlyph d={4} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={5} size="mid"/>]}
       correctIdx={0}
       optionsCols={3}
@@ -3969,6 +4048,7 @@ const Screen4 = (props) => {
   const audio = useAudio(makeAutoSegments(c, lang));
   const canAct = useCanAnswer(audio);
   const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
   const go = () => {
     if (done || !canAct) return;
     setDone(true);
@@ -3995,7 +4075,7 @@ const Screen4 = (props) => {
           )}
         </div>
         {done && (
-          <div className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.full_text)}/>
           </div>
         )}
@@ -4062,7 +4142,7 @@ const Screen7 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => <DataTable rows={[{ label: t(L.apple), n: 4 }, { label: t(L.pear), n: 3 }]} anim="enter"/>}
+      figure={(solved) => <><DataTable rows={[{ label: t(L.apple), n: 4 }, { label: t(L.pear), n: 3 }]} anim="enter"/>{solved && <AnsPop n={3}/>}</>}
       options={[<DigitGlyph d={3} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={2} size="mid"/>]}
       correctIdx={0}
       optionsCols={3}
@@ -4083,7 +4163,7 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <PictoFig rows={[{ label: t(L.apple), kind: 'apple', n: 4 }, { label: t(L.pear), kind: 'pear', n: 3 }]} anim={solved ? 'celebrate' : 'enter'}/>}
+      figure={(solved) => <><PictoFig rows={[{ label: t(L.apple), kind: 'apple', n: 4 }, { label: t(L.pear), kind: 'pear', n: 3 }]} anim={solved ? 'celebrate' : 'enter'}/>{solved && <AnsPop n={7}/>}</>}
       options={[<DigitGlyph d={7} size="mid"/>, <DigitGlyph d={6} size="mid"/>, <DigitGlyph d={8} size="mid"/>]}
       correctIdx={0}
       optionsCols={3}
@@ -4111,6 +4191,7 @@ const ScreenGame = (props) => {
   const total = GAME_ROUNDS.length;
   const [ri, setRi] = useState(0);
   const [solvedItem, setSolvedItem] = useState(false);
+  const revealRef = useRevealScroll(solvedItem);
   const [wrong, setWrong] = useState(() => new Set());
   const [praiseWord, setPraiseWord] = useState('');
   const [encWord, setEncWord] = useState('');
@@ -4144,6 +4225,7 @@ const ScreenGame = (props) => {
         <p className="h-sub title fade-up">{t(c[round.qk])} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <PictoFig rows={round.rows.map((r) => ({ label: labFor[r.k], kind: r.k, n: r.n }))} anim="enter"/>
+          {solvedItem && round.kind === 'digit' && <AnsPop n={round.opts[round.ans]}/>}
           {!solvedItem && (
             <div key={ri} style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(10px, 2.4vw, 16px)' }}>
               {Array.from({ length: optCount }).map((_, i) => (
@@ -4154,14 +4236,14 @@ const ScreenGame = (props) => {
               ))}
             </div>
           )}
-          {solvedItem && (
+          {solvedItem && round.kind !== 'digit' && (
             <div className="g1-numopt g1-numopt-ok" style={{ width: 'auto', minWidth: 'clamp(72px, 22vw, 100px)', padding: 'clamp(8px, 1.6vw, 12px)', fontWeight: 700, fontSize: 'clamp(14px, 1.9vw, 17px)', color: T.accent }}>
-              {round.kind === 'digit' ? <DigitGlyph d={round.opts[round.ans]} size="mid" tone="accent"/> : t(c[round.okeys[round.ans]])}
+              {t(c[round.okeys[round.ans]])}
             </div>
           )}
         </div>
         {solvedItem && (
-          <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <Reaction state="correct" praise={praiseWord}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
@@ -4191,7 +4273,7 @@ const Screen9 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <PictoFig rows={[{ label: t(L.apple), kind: 'apple', n: 5 }, { label: t(L.pear), kind: 'pear', n: 2 }]} anim={solved ? 'celebrate' : 'enter'}/>}
+      figure={(solved) => <><PictoFig rows={[{ label: t(L.apple), kind: 'apple', n: 5 }, { label: t(L.pear), kind: 'pear', n: 2 }]} anim={solved ? 'celebrate' : 'enter'}/>{solved && <AnsPop n={5}/>}</>}
       options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={2} size="mid"/>, <DigitGlyph d={4} size="mid"/>]}
       correctIdx={0}
       optionsCols={3}
@@ -4226,7 +4308,9 @@ const Screen10 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.4vw, 16px)' }}>
-        <div className="g1-rating fade-up">
+        {/* Yil finali: konfetti + yulduzlar */}
+        <div className="g1-rating fade-up" style={{ position: 'relative' }}>
+          <Confetti/>
           <div className="g1-rating-stars">
             {[0, 1, 2].map((i) => (
               <span key={i} className="g1-rating-star g1-pop-in" style={{ animationDelay: `${0.15 + i * 0.22}s` }}>
@@ -4236,13 +4320,22 @@ const Screen10 = (props) => {
           </div>
           <p className="g1-rating-praise">{t(c.praise)}</p>
         </div>
-        <div className="frame-success fade-up">
-          <h2 className="title h-sub" style={{ margin: 0 }}>
+        {/* Yil sarlavhasi + butun 1-sinf can-do ro'yxati bitta ramkada (skroll yo'q qoidasi) */}
+        <div className="frame-success fade-up delay-1" style={{ padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <h2 className="title h-sub" style={{ margin: '0 0 10px' }}>
             {t(c.main_1)} <span className="italic" style={{ color: T.success }}>{t(c.main_2_em)}</span>
           </h2>
+          <p className="eyebrow mono" style={{ color: T.success, margin: '0 0 8px' }}>{t(c.can_do_title)}</p>
+          {[c.cd_1, c.cd_2, c.cd_3, c.cd_4, c.cd_5, c.cd_6].map((item, i) => (
+            <div key={i} className="g1-pop-in" style={{ animationDelay: `${0.2 + i * 0.15}s`, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
+              <span style={{ color: T.success, fontWeight: 800, fontSize: 18, lineHeight: 1 }}>✓</span>
+              <span style={{ fontSize: 'clamp(14px, 1.9vw, 16px)' }}>{t(item)}</span>
+            </div>
+          ))}
         </div>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <CastScene step={3}/>
+          <p className="small" style={{ textAlign: 'center', color: T.ink2, margin: 'clamp(6px, 1.4vw, 10px) 0 0' }}>{t(c.real_caption)}</p>
         </div>
       </div>
     </Stage>
@@ -4255,6 +4348,7 @@ export default function WordProblemSumLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
+  useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
@@ -4345,15 +4439,26 @@ export default function WordProblemSumLesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
+   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
+   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
+   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
   background: #F6F4EF;
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
-  position: relative;
+  overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01","cv11";
+  zoom: var(--g1z, 1);
+}
+/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
+   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root { width: 390px; }
 }
 
 /* Reset margins для типографики внутри урока */
@@ -4501,7 +4606,7 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100dvh; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
   background: #F6F4EF;
@@ -4516,6 +4621,7 @@ html, body { margin: 0; padding: 0; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 .stage-nav {
@@ -4807,6 +4913,11 @@ html, body { margin: 0; padding: 0; }
 .g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
 .g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
 .g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* AnsPop — javob raqami savol vizualida ("= N", yashil, pop). Barcha test-figuralar. */
+.g1-anspop { display: inline-flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); margin-left: clamp(4px, 1vw, 8px); }
+.g1-anspop-eq { font-style: normal; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #5A5A60; line-height: 1; }
+.g1-anspop-num { font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(44px, 9vw, 66px); line-height: 1; color: #1F7A4D; }
 
 /* CountingHand — sanaydigan qo'l */
 .g1-hand { position: relative; width: clamp(143px, 32vw, 218px); height: clamp(135px, 30vw, 204px); display: flex; align-items: center; justify-content: center; }
