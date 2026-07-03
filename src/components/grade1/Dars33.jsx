@@ -3,9 +3,13 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // ============================================================================
 // ░░ 1-SINF · Dars33 — "Фигуры" (num-1-33-v1) · Б6 (geometriya) · spec: ETALON_1SINF.md ░░
 // Baza: Dars29 (infra + PQ/cast string-in-string). YADRO: geometrik shakllar — doira, kvadrat, uchburchak, to'rtburchak; tanish + burchaklar soni + saralash.
-// MEXANIKA: ShapeFig (SVG: doira/kvadrat/uchburchak/to'rtburchak), DigitGlyph (burchaklar soni), PQ (savol matni).
+// + MINI-BO'LIMLAR (darslik IV bob, metodologiya §10.4): SIMMETRIYA (ko'zgu chizig'i, buklash) va HAJMLI SHAKLLAR (shar/kub/silindr, tekis↔hajmli).
+// STRUKTURA: 16 ekran. MC-testlar ZANJIR ekranlarga jamlangan (ChainTest): bitta slaydda
+//   3-4 savol, to'g'ri javob topilsa keyingisi ochiladi; rule'lar exploration ichiga birlashgan.
+// MEXANIKA: ShapeFig (SVG: doira/kvadrat/uchburchak/to'rtburchak), SymDemoFig/SymWhole/WingCand (simmetriya: buklash + qanot-test), SolidFig (shar/kub/silindr), DigitGlyph (burchaklar soni), PQ (savol matni).
 // Matn ovozда to'liq o'qiladi (1-sinf), ekranда qisqa tayanch. Typing YO'Q, tap/tanlash.
-// Misconception'lar: M1 kvadrat va to'rtburchakни chalkashtirish · M2 burchaklar sonini noto'g'ri sanash · M3 doirani burchakli deb hisoblash.
+// Misconception'lar: M1 kvadrat va to'rtburchakни chalkashtirish · M2 burchaklar sonini noto'g'ri sanash · M3 doirani burchakli deb hisoblash ·
+//   M4 har qanday chiroyli shaklni simmetrik deyish (bayroqcha/etikcha qarshi-namuna) · M5 tekis va hajmlini aralashtirish (doira ≠ shar).
 //
 // Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar + Zuhra (tanish — Dars07'da kirgan).
 // FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
@@ -823,7 +827,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
 // ============================================================
 
-const TOTAL_SCREENS = 18;
+const TOTAL_SCREENS = 16;
 const LESSON_META = {
   lessonId: 'num-1-33-v1',
   lessonTitle: { ru: 'Фигуры', uz: 'Shakllar' }
@@ -833,16 +837,14 @@ const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: shakllar bir xilmi
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // 4 shakl: doira/kvadrat/uchburchak/to'rtburchak
   { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // 4 shakl nomlari
-  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi uchburchak
-  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // burchaklar: uchburchak 3, kvadrat 4
-  { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // burchaklar soni
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // uchburchakda nechta burchak (3)
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi doira
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi shaklda 4 burchak (kvadrat)
-  { id: 'sYesNo', type: 'test',     template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // ha/yo'q: bu uchburchakmi
-  { id: 'sOdd',   type: 'test',     template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // ortiqchani top: burchaksiz shakl
-  { id: 'sVary',  type: 'test',     template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qarshi-namuna: burilgan uchburchak vs egri
+  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // burchaklar sanash + qoida shu yerda (eski s5 ichida)
+  { id: 'chain1', type: 'test',     template: 'chain',    scored: true,  scope: 'module-mikro' },  // 4 savol zanjiri: s3/s6/s7/s8 (birin-ketin ochiladi)
+  { id: 'chain2', type: 'test',     template: 'chain',    scored: true,  scope: 'module-mikro' },  // 3 savol zanjiri: sYesNo/sOdd/sVary
   { id: 'sJuft',  type: 'test',     template: 'custom',   scored: true,  scope: 'module-mikro' },  // juftlash: shakl <-> nom
+  { id: 'sSym1', type: 'exploration', template: 'custom', scored: false, scope: null },            // simmetriya: buklaymiz (kapalak ✓, archa ✓, bayroqcha ✗) + xulosa shu yerda
+  { id: 'sSym3', type: 'test',      template: 'chain',    scored: true,  scope: 'module-mikro' },  // simmetriya zanjiri: qanot + chiziq qayerda + yurak yarmi (3 savol)
+  { id: 's3d1', type: 'exploration', template: 'custom',  scored: false, scope: null },            // hajmli: to'p=shar, kubik=kub, stakan=silindr + xulosa shu yerda
+  { id: 's3d3', type: 'test',       template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // to'p qaysi shakl (shar)
   { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'yin: shakl tanish
   { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik -> Dars34
   { id: 's9',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: qaysi kvadrat + fakt
@@ -865,6 +867,27 @@ const CONTENT = {
     triangle: { ru: 'Треугольник', uz: 'Uchburchak' },
     rect: { ru: 'Четырёхугольник', uz: "To'rtburchak" }
   },
+  // Simmetriya mini-bo'limi buyumlari (bola taniydigan, concrete).
+  lab_sym: {
+    butterfly: { ru: 'Бабочка', uz: 'Kapalak' },
+    heart: { ru: 'Сердечко', uz: 'Yurakcha' },
+    tree: { ru: 'Ёлочка', uz: 'Archa' },
+    flag: { ru: 'Флажок', uz: 'Bayroqcha' }
+  },
+  // Hajmli shakllar (Van Hiele 0: real buyum orqali tanish, ta'rifsiz). UZ terminlar — draft.
+  lab3d: {
+    sphere: { ru: 'Шар', uz: 'Shar' },
+    cube: { ru: 'Куб', uz: 'Kub' },
+    cyl: { ru: 'Цилиндр', uz: 'Silindr' }
+  },
+  // Zanjir-test yorliqlari (bir slaydda bir nechta savol; birinchisi yechilsa keyingisi ochiladi).
+  chainLab: {
+    q_word: { ru: 'Вопрос', uz: 'Savol' },
+    next_q: { ru: 'Следующий вопрос', uz: 'Keyingi savol' },
+    all_done: { ru: 'Все вопросы решены!', uz: 'Hamma savollar yechildi!' }
+  },
+  chain1: { eyebrow: { ru: 'Тренировка · 4 вопроса', uz: 'Mashq · 4 savol' } },
+  chain2: { eyebrow: { ru: 'Тренировка · внимание', uz: 'Mashq · diqqat' } },
 
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
@@ -954,7 +977,7 @@ const CONTENT = {
   },
 
   s3: {
-    eyebrow: { ru: 'Тренировка · 1 / 4', uz: 'Mashq · 1 / 4' },
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // chain1 ichida; eyebrow ekranda chain'niki
     title: { ru: 'Где треугольник?', uz: 'Qaysi uchburchak?' },
     problem: { ru: 'Выбери треугольник — фигуру с тремя углами.', uz: "Uchburchakni — uch burchakli shaklni tanlang." },
     correct_text: { ru: 'Правильно. У треугольника три угла.', uz: "To'g'ri. Uchburchakda uch burchak." },
@@ -1013,7 +1036,7 @@ const CONTENT = {
   },
 
   s6: {
-    eyebrow: { ru: 'Тренировка · 2 / 4', uz: 'Mashq · 2 / 4' },
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // chain1 ichida
     title: { ru: 'Сколько углов у треугольника?', uz: 'Uchburchakda nechta burchak?' },
     problem: { ru: 'Посчитай углы.', uz: "Burchaklarni sanang." },
     correct_text: { ru: 'Правильно. У треугольника три угла.', uz: "To'g'ri. Uchburchakda uch burchak." },
@@ -1037,7 +1060,7 @@ const CONTENT = {
   },
 
   s7: {
-    eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // chain1 ichida
     title: { ru: 'Где круг?', uz: 'Qaysi doira?' },
     problem: { ru: 'Выбери круг — фигуру без углов.', uz: "Doirani — burchaksiz shaklni tanlang." },
     correct_text: { ru: 'Правильно. У круга нет углов.', uz: "To'g'ri. Doirada burchak yo'q." },
@@ -1061,7 +1084,7 @@ const CONTENT = {
   },
 
   s8: {
-    eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // chain1 ichida
     title: { ru: 'У какой фигуры 4 угла?', uz: 'Qaysi shaklda 4 burchak?' },
     problem: { ru: 'Выбери фигуру с четырьмя углами.', uz: "To'rt burchakli shaklni tanlang." },
     correct_text: { ru: 'Правильно. У квадрата четыре угла.', uz: "To'g'ri. Kvadratda to'rt burchak." },
@@ -1161,6 +1184,182 @@ const CONTENT = {
     }
   },
 
+  // ---- SIMMETRIYA mini-bo'limi (darslik IV bob; §10.4) ----
+  // sSym1 — exploration + rule bitta ekranda: uch buyum buklanadi (kapalak ✓, archa ✓,
+  // bayroqcha ✗ qarshi-namuna — kontrast ichida qonuniyat), yakunida xulosa-kartalar.
+  sSym1: {
+    eyebrow: { ru: 'Зеркало', uz: "Ko'zgu" },
+    fold_prompt: { ru: 'Сложи фигуру по линии. Совпадут ли половинки?', uz: "Shaklni chiziq bo'ylab buklang. Yarimlari mos keladimi?" },
+    audio_intro: {
+      ru: 'Посмотри на линию посередине фигуры. Сложим фигуру по этой линии и проверим, совпадут ли половинки.',
+      uz: "Shakl o'rtasidagi chiziqqa qarang. Shaklni shu chiziq bo'ylab buklaymiz va yarimlari mos kelishini tekshiramiz."
+    },
+    fold_label: { ru: 'Сложить', uz: 'Buklash' },
+    d_butterfly: { ru: 'Половинки совпали! Оба крыла одинаковые. Такая фигура называется симметричной.', uz: "Yarimlari mos tushdi! Ikkala qanoti bir xil. Bunday shakl simmetrik deyiladi." },
+    d_tree: { ru: 'И у ёлочки половинки совпали. Ёлочка тоже симметричная.', uz: "Archaning ham yarimlari mos tushdi. Archa ham simmetrik." },
+    d_flag: { ru: 'Смотри, половинки не совпали! У флажка стороны разные. Он не симметричный.', uz: "Qarang, yarimlari mos tushmadi! Bayroqchaning tomonlari har xil. U simmetrik emas." },
+    match_tag: { ru: 'совпало', uz: 'mos tushdi' },
+    miss_tag: { ru: 'не совпало', uz: 'mos kelmadi' },
+    done_label: { ru: 'Понятно', uz: 'Tushundim' },
+    full_text: { ru: 'Если половинки совпадают, фигура симметричная.', uz: "Yarimlari mos tushsa, shakl simmetrik bo'ladi." },
+    full_audio: {
+      ru: 'Запомни. Если сложить фигуру по линии и половинки совпадут, фигура симметричная. Бабочка и ёлочка симметричные, а флажок нет.',
+      uz: "Eslab qoling. Shaklni chiziq bo'ylab buklaganda yarimlari mos tushsa, shakl simmetrik. Kapalak va archa simmetrik, bayroqcha esa emas."
+    },
+    // Tabiat-galereya (xulosa blokida): simmetriya atrofimizda. Har rasm BOSILADI va o'z izohini aytadi.
+    nature_title: { ru: 'Симметрия вокруг нас', uz: 'Simmetriya atrofimizda' },
+    nature_tap: { ru: 'Нажми на каждую картинку и послушай.', uz: "Har bir rasmga tegib ko'ring va tinglang." },
+    nature_leaf: { ru: 'Листик', uz: 'Barg' },
+    nature_flake: { ru: 'Снежинка', uz: 'Qor parchasi' },
+    nature_bug: { ru: 'Божья коровка', uz: 'Xonqizi' },
+    nature_star: { ru: 'Звёздочка', uz: 'Yulduzcha' },
+    nature_audio: {
+      ru: 'Посмотри вокруг. Симметрия есть и в природе. Нажми на каждую картинку и послушай.',
+      uz: "Atrofga qarang. Simmetriya tabiatda ham bor. Har bir rasmga tegib ko'ring va tinglang."
+    },
+    nature_d_leaf: {
+      ru: 'Листик. Жилка посередине — это зеркальная линия. Две стороны листика одинаковые.',
+      uz: "Barg. O'rtasidagi tomiri — bu ko'zgu chizig'i. Bargning ikki tomoni bir xil."
+    },
+    nature_d_flake: {
+      ru: 'Снежинка. Как её ни сложи, половинки совпадают. Очень симметричная.',
+      uz: "Qor parchasi. Uni qanday buklasangiz ham, yarimlari mos tushadi. Juda simmetrik."
+    },
+    nature_d_bug: {
+      ru: 'Божья коровка. Сколько точек на левом крыле, столько и на правом.',
+      uz: "Xonqizi. Chap qanotida nechta nuqta bo'lsa, o'ng qanotida ham shuncha."
+    },
+    nature_d_star: {
+      ru: 'Звёздочка. Её половинки тоже одинаковые. Природа любит симметрию!',
+      uz: "Yulduzcha. Uning ham ikki yarmi bir xil. Tabiat simmetriyani yaxshi ko'radi!"
+    }
+  },
+
+  // sSym3 — test: darslikdagi klassik mashq — ikkinchi (ko'zgu) qanotni top.
+  sSym3: {
+    eyebrow: { ru: 'Тренировка · симметрия', uz: 'Mashq · simmetriya' },
+    title: { ru: 'Найди второе крыло бабочки', uz: "Kapalakning ikkinchi qanotini toping" },
+    problem: { ru: 'Выбери крыло, которое в зеркале совпадёт с левым.', uz: "Ko'zguda chap qanot bilan mos tushadigan qanotni tanlang." },
+    correct_text: { ru: 'Правильно. Второе крыло — зеркальная копия первого.', uz: "To'g'ri. Ikkinchi qanot — birinchisining ko'zgu nusxasi." },
+    wrong_0: {
+      ru: 'Это крыло маленькое. В зеркале половинка такого же размера.',
+      uz: "Bu qanot kichkina. Ko'zguda yarim xuddi o'zidek katta bo'ladi."
+    },
+    wrong_2: {
+      ru: 'Это крыло смотрит вниз. Второе крыло смотрит вверх, как первое.',
+      uz: "Bu qanot pastga qaragan. Ikkinchi qanot birinchisi kabi tepaga qaraydi."
+    },
+    wrong_default: {
+      ru: 'Второе крыло — как в зеркале: такое же, но с другой стороны.',
+      uz: "Ikkinchi qanot ko'zgudagidek: xuddi o'zi, faqat boshqa tomonda."
+    },
+    audio: {
+      intro: { ru: 'У бабочки одно крыло. Найди второе крыло. Оно совпадает с первым, как в зеркале.', uz: "Kapalakning bitta qanoti bor. Ikkinchi qanotini toping. U birinchisiga ko'zgudagidek mos keladi." },
+      on_correct: { ru: 'Верно. Крылья бабочки симметричные.', uz: "To'g'ri. Kapalak qanotlari simmetrik." },
+      on_wrong: { ru: 'Не совсем. Ищи зеркальную копию крыла.', uz: "Unchalik emas. Qanotning ko'zgu nusxasini qidiring." }
+    }
+  },
+
+  // symq2 — simmetriya zanjiri, 2-savol: ko'zgu chizig'i QAYERDA (o'rtada / gorizontal emas / chetда emas).
+  symq2: {
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // zanjir ichida
+    title: { ru: 'Где зеркальная линия?', uz: "Ko'zgu chizig'i qayerda?" },
+    problem: { ru: 'Выбери бабочку, где линия делит её на две одинаковые половинки.', uz: "Chiziq kapalakni ikki bir xil yarimga bo'lgan rasmni tanlang." },
+    correct_text: { ru: 'Правильно. Линия посередине: слева крыло и справа крыло.', uz: "To'g'ri. Chiziq o'rtada: chapda qanot, o'ngda qanot." },
+    wrong_0: {
+      ru: 'Эта линия делит бабочку на верх и низ. Голова и хвост разные, половинки не совпадут.',
+      uz: "Bu chiziq kapalakni tepa va pastga bo'ladi. Bosh va dum har xil, yarimlari mos tushmaydi."
+    },
+    wrong_2: {
+      ru: 'Эта линия сбоку. Одна часть большая, другая маленькая.',
+      uz: "Bu chiziq chetda. Bir bo'lak katta, ikkinchisi kichkina bo'lib qoladi."
+    },
+    wrong_default: {
+      ru: 'Ищи линию посередине, чтобы половинки были одинаковые.',
+      uz: "O'rtadan o'tgan chiziqni qidiring, yarimlari bir xil bo'lsin."
+    },
+    audio: {
+      intro: { ru: 'Зеркальная линия делит фигуру на две одинаковые половинки. Где такая линия? Выбери.', uz: "Ko'zgu chizig'i shaklni ikki bir xil yarimga bo'ladi. Bunday chiziq qayerda? Tanlang." },
+      on_correct: { ru: 'Верно. Линия посередине, половинки одинаковые.', uz: "To'g'ri. Chiziq o'rtada, yarimlari bir xil." },
+      on_wrong: { ru: 'Не совсем. Половинки должны совпадать.', uz: "Unchalik emas. Yarimlari mos tushishi kerak." }
+    }
+  },
+
+  // symq3 — simmetriya zanjiri, 3-savol: yurakchaning ikkinchi yarmini top (kichik / teskari / to'g'ri).
+  symq3: {
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // zanjir ichida
+    title: { ru: 'Найди вторую половинку сердечка', uz: "Yurakchaning ikkinchi yarmini toping" },
+    problem: { ru: 'Выбери половинку, которая совпадёт в зеркале.', uz: "Ko'zguda mos tushadigan yarmini tanlang." },
+    correct_text: { ru: 'Правильно. Половинки совпали — сердечко целое.', uz: "To'g'ri. Yarimlari mos tushdi — yurakcha butun bo'ldi." },
+    wrong_0: {
+      ru: 'Эта половинка маленькая. Зеркальная половинка такого же размера.',
+      uz: "Bu yarim kichkina. Ko'zgu yarmi xuddi o'zidek katta bo'ladi."
+    },
+    wrong_1: {
+      ru: 'Эта половинка перевёрнута. Зеркальная половинка смотрит так же, как первая.',
+      uz: "Bu yarim teskari. Ko'zgu yarmi birinchisi kabi turadi."
+    },
+    wrong_default: {
+      ru: 'Вторая половинка — как в зеркале: такая же, но с другой стороны.',
+      uz: "Ikkinchi yarim ko'zgudagidek: xuddi o'zi, faqat boshqa tomonda."
+    },
+    audio: {
+      intro: { ru: 'Вот половинка сердечка. Найди вторую половинку, как в зеркале.', uz: "Mana yurakchaning yarmi. Ikkinchi yarmini toping, ko'zgudagidek." },
+      on_correct: { ru: 'Верно. Сердечко стало целым.', uz: "To'g'ri. Yurakcha butun bo'ldi." },
+      on_wrong: { ru: 'Не совсем. Ищи зеркальную половинку.', uz: "Unchalik emas. Ko'zgu yarmini qidiring." }
+    }
+  },
+
+  // ---- HAJMLI SHAKLLAR mini-bo'limi (darslik IV bob; §10.4) ----
+  // s3d1 — exploration + rule bitta ekranda: 3 juftlik (tekis↔hajmli), yakunida nom-kartalar + xulosa.
+  s3d1: {
+    eyebrow: { ru: 'Объёмные формы', uz: 'Hajmli shakllar' },
+    pair_prompt: { ru: 'Плоская фигура — на бумаге. Объёмную можно взять в руки.', uz: "Tekis shakl qog'ozda turadi. Hajmlisini qo'lga olish mumkin." },
+    audio_intro: {
+      ru: 'Фигуры на бумаге плоские. А мяч и кубик можно взять в руки. Посмотрим на объёмные формы.',
+      uz: "Qog'ozdagi shakllar tekis. To'p va kubikni esa qo'lga olish mumkin. Hajmli shakllarga qaraymiz."
+    },
+    flat_label: { ru: 'плоская', uz: 'tekis' },
+    solid_label: { ru: 'объёмная', uz: 'hajmli' },
+    d_sphere: { ru: 'Это мяч. Он круглый со всех сторон и катится. Эта форма называется шар.', uz: "Bu to'p. U har tomondan dumaloq va dumalaydi. Bu shakl shar deyiladi." },
+    d_cube: { ru: 'Это кубик. Каждая его сторона похожа на квадрат. Эта форма называется куб.', uz: "Bu kubik. Uning har tomoni kvadratga o'xshaydi. Bu shakl kub deyiladi." },
+    d_cyl: { ru: 'Это стакан. Сверху он круг, а сам высокий. Эта форма называется цилиндр.', uz: "Bu stakan. Tepadan qarasak doira, o'zi esa baland. Bu shakl silindr deyiladi." },
+    done_label: { ru: 'Понятно', uz: 'Tushundim' },
+    rule_tip: {
+      ru: 'Шар катится. Куб стоит, у него есть углы. Цилиндр стоит, а на боку катится.',
+      uz: "Shar dumalaydi. Kub turadi, uning burchaklari bor. Silindr tik turadi, yonboshida esa dumalaydi."
+    },
+    full_text: { ru: 'Шар, куб и цилиндр — объёмные формы.', uz: "Shar, kub va silindr — hajmli shakllar." },
+    full_audio: {
+      ru: 'Мяч это шар. Кубик это куб. Стакан это цилиндр. Запомни. Шар катится. Куб стоит на месте. Цилиндр стоит, а если положить на бок, покатится.',
+      uz: "To'p bu shar. Kubik bu kub. Stakan bu silindr. Eslab qoling. Shar dumalaydi. Kub joyida turadi. Silindr tik turadi, yoniga yotqizsak esa dumalab ketadi."
+    }
+  },
+
+  s3d3: {
+    eyebrow: { ru: 'Тренировка · объёмные', uz: 'Mashq · hajmli' },
+    title: { ru: 'Мяч — какая это форма?', uz: "To'p — bu qaysi shakl?" },
+    problem: { ru: 'Посмотри на мяч и выбери его форму.', uz: "To'pga qarang va uning shaklini tanlang." },
+    correct_text: { ru: 'Правильно. Мяч — это шар.', uz: "To'g'ri. To'p — bu shar." },
+    wrong_1: {
+      ru: 'Куб с углами, как коробка. А мяч катится — это шар.',
+      uz: "Kub burchakli, quti kabi. To'p esa dumalaydi — bu shar."
+    },
+    wrong_2: {
+      ru: 'Цилиндр — как стакан, сверху плоский. Мяч круглый со всех сторон — это шар.',
+      uz: "Silindr stakan kabi, tepasi tekis. To'p har tomondan dumaloq — bu shar."
+    },
+    wrong_default: {
+      ru: 'Мяч круглый со всех сторон и катится.',
+      uz: "To'p har tomondan dumaloq va dumalaydi."
+    },
+    audio: {
+      intro: { ru: 'Посмотри на мяч. Какая это форма? Выбери.', uz: "To'pga qarang. Bu qaysi shakl? Tanlang." },
+      on_correct: { ru: 'Верно. Мяч это шар.', uz: "To'g'ri. To'p bu shar." },
+      on_wrong: { ru: 'Не совсем. Мяч катится со всех сторон.', uz: "Unchalik emas. To'p har tomondan dumalaydi." }
+    }
+  },
+
   sg: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
     instruction: { ru: 'Выбери верную фигуру', uz: "To'g'ri shaklni tanlang" },
@@ -1179,20 +1378,20 @@ const CONTENT = {
     eyebrow: { ru: 'Здорово', uz: "Zo'r" },
     title: { ru: 'Узнали фигуры', uz: 'Shakllarni bildik' },
     body: {
-      ru: 'Рано, Анвар и Зухра узнали круг, квадрат, треугольник и четырёхугольник. Дальше будем измерять длину.',
-      uz: "Ra'no, Anvar va Zuhra doira, kvadrat, uchburchak va to'rtburchakni bildi. Keyin uzunlikni o'lchaymiz."
+      ru: 'Рано, Анвар и Зухра узнали фигуры, симметрию и объёмные формы. Дальше будем измерять длину.',
+      uz: "Ra'no, Anvar va Zuhra shakllarni, simmetriyani va hajmli shakllarni bildi. Keyin uzunlikni o'lchaymiz."
     },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Послушай, мы узнали четыре фигуры.',
-        'Круг, квадрат, треугольник и четырёхугольник. Дальше будем измерять длину.'
+        'Послушай, мы узнали четыре фигуры, симметрию и объёмные формы.',
+        'Круг, квадрат, треугольник и четырёхугольник. Шар, куб и цилиндр. Дальше будем измерять длину.'
       ],
       uz: [
-        "Tinglang, biz to'rt shaklni bildik.",
-        "Doira, kvadrat, uchburchak va to'rtburchak. Keyin uzunlikni o'lchaymiz."
+        "Tinglang, biz to'rt shaklni, simmetriyani va hajmli shakllarni bildik.",
+        "Doira, kvadrat, uchburchak va to'rtburchak. Shar, kub va silindr. Keyin uzunlikni o'lchaymiz."
       ]
     }
   },
@@ -1243,7 +1442,9 @@ const CONTENT = {
     can_do_title: { ru: 'Теперь я умею:', uz: 'Endi men:' },
     cd_1: { ru: 'узнавать фигуры', uz: 'shakllarni taniyman' },
     cd_2: { ru: 'считать углы', uz: 'burchaklarni sanayman' },
-    cd_3: { ru: 'видеть фигуры вокруг', uz: "atrofimdagi shakllarni ko'raman" },
+    cd_3: { ru: 'видеть симметрию', uz: "simmetriyani ko'raman" },
+    cd_4: { ru: 'узнавать шар, куб и цилиндр', uz: 'shar, kub va silindrni taniyman' },
+    cd_5: { ru: 'видеть фигуры вокруг', uz: "atrofimdagi shakllarni ko'raman" },
     real_caption: {
       ru: 'Фигуры вокруг нас: солнце — круг, крыша — треугольник, окно — квадрат.',
       uz: "Shakllar atrofimizda: quyosh — doira, tom — uchburchak, deraza — kvadrat."
@@ -1251,11 +1452,13 @@ const CONTENT = {
     audio: {
       ru: [
         'Молодец! Ты узнал фигуры и научился считать углы.',
+        'Ты узнал и симметрию, и объёмные формы. Шар, куб и цилиндр.',
         'Теперь ты видишь фигуры вокруг: солнце — круг, крыша — треугольник, окно — квадрат.',
         'На следующем уроке будем измерять длину. До встречи!'
       ],
       uz: [
         "Barakalla! Shakllarni bildingiz va burchaklarni sanashni o'rgandingiz.",
+        "Simmetriyani va hajmli shakllarni ham bildingiz. Shar, kub va silindr.",
         "Endi atrofingizda shakllarni ko'rasiz: quyosh — doira, tom — uchburchak, deraza — kvadrat.",
         "Keyingi darsda uzunlikni o'lchaymiz. Ko'rishguncha!"
       ]
@@ -4144,10 +4347,11 @@ const Screen2 = (props) => {
           {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
         </h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          <ShapeCard kind="circle" label={t(L.circle)}/>
-          <ShapeCard kind="square" label={t(L.square)}/>
-          <ShapeCard kind="triangle" label={t(L.triangle)}/>
-          <ShapeCard kind="rect" label={t(L.rect)}/>
+          {[['circle', L.circle], ['square', L.square], ['triangle', L.triangle], ['rect', L.rect]].map(([kind, labKey], i) => (
+            <div key={kind} className="g1-pop-in" style={{ animationDelay: `${0.15 + i * 0.16}s` }}>
+              <ShapeCard kind={kind} label={t(labKey)}/>
+            </div>
+          ))}
         </div>
         <BitSays text={t(c.tip)}/>
       </div>
@@ -4155,26 +4359,162 @@ const Screen2 = (props) => {
   );
 };
 
-// s3 — TEST MC: qaysi uchburchak (idx0). Variantlar — ShapeFig.
-const Screen3 = (props) => {
-  const c = CONTENT.s3;
+// ============================================================
+// CHAIN-TEST — bitta slaydda bir nechta savol: to'g'ri javob topilsa keyingisi ochiladi
+// ("Keyingi savol" tugmasi bilan). Har savolda веди-до-верного: xato variant o'chadi (↺),
+// qolganlari faol. Ball — sJuft kabi bitta yozuv: firstTry = HAMMA savollar birinchi
+// urinishda yechilgan bo'lsa. Savol kontenti — mavjud CONTENT kalitlari (s3, s6, ...).
+// items: [{ key, opts, correctIdx, figure?(solved), celebrate?() }]
+// ============================================================
+const ChainTest = ({ props, items, eyebrow }) => {
+  const lang = useLang();
   const t = useT();
+  const sfx = useSfx();
+  const CL = CONTENT.chainLab;
+  const wasSolved = props.storedAnswer?.solved === true;
+  const [qi, setQi] = useState(wasSolved ? items.length - 1 : 0);
+  const [solvedItem, setSolvedItem] = useState(wasSolved);
+  const [picked, setPicked] = useState(wasSolved);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [praiseWord, setPraiseWord] = useState('');
+  const [encWord, setEncWord] = useState('');
+  const allFirstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? true) : true);
+  const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
+  const introAdvancedRef = useRef(wasSolved);
+  const item = items[qi];
+  const c = CONTENT[item.key];
+  const last = qi >= items.length - 1;
+  const allDone = last && solvedItem;
+
+  const audio = useAudio([{ id: `chain_${items[0].key}_intro`, text: CONTENT[items[0].key].audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const canAns = useCanAnswer(audio);
+
+  const pick = (i) => {
+    if (!canAns || solvedItem || wrong.has(i)) return;
+    attemptsRef.current += 1;
+    setPicked(true);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    const isCorrect = i === item.correctIdx;
+    if (isCorrect) {
+      setSolvedItem(true);
+      sfx.playCorrect();
+      const pw = nextPraise(lang); setPraiseWord(pw);
+      if (!audio.muted) {
+        setTimeout(() => {
+          const e = getAudioEngine();
+          if (e && !audio.muted) { e.pushOneOff(pw); e.pushOneOff(c.audio.on_correct[lang]); if (last) e.pushOneOff(CL.all_done[lang]); }
+        }, 300);
+      }
+      if (last) {
+        props.onAnswer({
+          stage: SCREEN_META[props.screen]?.scope ?? null,
+          screenIdx: props.screen,
+          correct: allFirstTryRef.current,
+          firstTry: allFirstTryRef.current,
+          attempts: attemptsRef.current,
+          solved: true
+        });
+      }
+    } else {
+      allFirstTryRef.current = false;
+      sfx.playWrong();
+      setEncWord(nextEncourage(lang));
+      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
+      if (!audio.muted) {
+        setTimeout(() => {
+          const e = getAudioEngine();
+          if (e && !audio.muted) {
+            const wv = (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || (c.wrong_default && c.wrong_default[lang]) || c.audio.on_wrong[lang];
+            e.pushOneOff(wv);
+          }
+        }, 300);
+      }
+    }
+  };
+
+  const nextQ = () => {
+    if (!solvedItem || last) return;
+    const nc = CONTENT[items[qi + 1].key];
+    setQi(qi + 1); setSolvedItem(false); setPicked(false); setWrong(new Set()); setPraiseWord(''); setEncWord('');
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(nc.audio.intro[lang]); }
+  };
+
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+
   return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<ShapeFig kind="triangle"/>, <ShapeFig kind="circle"/>, <ShapeFig kind="square"/>]}
-      correctIdx={0}
-      celebrateOnCorrect={() => <ShapeFig kind="triangle" anim="celebrate"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+    <Stage eyebrow={eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div key={`q${qi}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        {allDone && <div style={{ position: 'relative', height: 0 }} aria-hidden="true"><Confetti/></div>}
+        <div className="fade-up" style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+          <span className="eyebrow mono" style={{ color: T.accent }}>{t(CL.q_word)} {qi + 1} / {items.length}</span>
+          <span style={{ display: 'inline-flex', gap: 5 }} aria-hidden="true">
+            {items.map((_, k) => {
+              const done = k < qi || (k === qi && solvedItem);
+              return <span key={k} className="mono small" style={{ color: done ? T.success : T.ink3, fontWeight: 700 }}>{done ? '✓' : '·'}</span>;
+            })}
+          </span>
+        </div>
+        <div className="fade-up"><PQ title={t(c.title)} problem={t(c.problem)}/></div>
+        {item.figure && (
+          <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            {item.figure(solvedItem)}
+          </div>
+        )}
+        {!solvedItem && (
+          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${item.opts.length}, minmax(0, 1fr))`, gap: 10 }}>
+            {item.opts.map((opt, i) => {
+              const isWrongPicked = wrong.has(i);
+              return (
+                <button key={i} className={`option${isWrongPicked ? ' option-picked-wrong' : ''}`} disabled={isWrongPicked || !canAns} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(10px, 1.8vw, 16px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span className="mono small" style={{ minWidth: 18, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>{isWrongPicked ? '↺' : String.fromCharCode(65 + i)}</span>
+                  <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{opt}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {solvedItem && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            {item.celebrate ? item.celebrate() : (
+              <button className="option option-correct" disabled
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
+                <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{item.opts[item.correctIdx]}</span>
+              </button>
+            )}
+          </div>
+        )}
+        <FeedbackBlock show={picked} isCorrect={solvedItem} wrongClass="frame-tip">
+          <Reaction state={solvedItem ? 'correct' : 'wrong'} praise={solvedItem ? praiseWord : encWord} mascot={false}/>
+        </FeedbackBlock>
+        {solvedItem && !last && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="btn" onClick={nextQ}
+              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+              {t(CL.next_q)}
+            </button>
+          </div>
+        )}
+      </div>
+    </Stage>
   );
 };
+
+// chain1 — 4 savol: qaysi uchburchak (s3) -> nechta burchak (s6) -> qaysi doira (s7) -> 4 burchakli (s8).
+const CHAIN1_ITEMS = [
+  { key: 's3', opts: [<ShapeFig kind="triangle"/>, <ShapeFig kind="circle"/>, <ShapeFig kind="square"/>], correctIdx: 0, celebrate: () => <ShapeFig kind="triangle" anim="celebrate"/> },
+  { key: 's6', opts: [<DigitGlyph d={3} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={0} size="mid"/>], correctIdx: 0, figure: (s) => <ShapeFig kind="triangle" anim={s ? 'celebrate' : 'enter'}/> },
+  { key: 's7', opts: [<ShapeFig kind="circle"/>, <ShapeFig kind="square"/>, <ShapeFig kind="triangle"/>], correctIdx: 0, celebrate: () => <ShapeFig kind="circle" anim="celebrate"/> },
+  { key: 's8', opts: [<ShapeFig kind="square"/>, <ShapeFig kind="triangle"/>, <ShapeFig kind="circle"/>], correctIdx: 0, celebrate: () => <ShapeFig kind="square" anim="celebrate"/> },
+];
+const ScreenChain1 = (props) => <ChainTest props={props} items={CHAIN1_ITEMS} eyebrow={CONTENT.chain1.eyebrow}/>;
 
 // s4 — EXPLORATION: burchaklar (uchburchak 3, kvadrat 4).
 // s4 — EXPLORATION (interaktiv): har burchakni bosib sanaymiz (uchburchak 3, kvadrat 4, doira 0).
@@ -4206,7 +4546,8 @@ const Screen4 = (props) => {
     if (!canAct) return;
     if (last) {
       setFinished(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.full_audio[lang]); }
+      // Xulosa shu ekranda (eski s5-rule shu yerga birlashtirilgan): sanash yakuni + qoida ovozi.
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.full_audio[lang]); e.pushOneOff(CONTENT.s5.audio[lang]); } }
     } else { setSi(si + 1); setTapped(new Set()); }
   };
   const navContent = (
@@ -4219,6 +4560,7 @@ const Screen4 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.tap_prompt)}</p>
+        {!finished && (
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(16px, 3vw, 24px)' }}>
           <svg viewBox="0 0 64 64" width="150" height="150">
             {shape.kind === 'circle'
@@ -4238,117 +4580,33 @@ const Screen4 = (props) => {
               ? <span className="eyebrow mono" style={{ color: T.accent }}>{lang === 'uz' ? "burchagi yo'q" : 'нет углов'}</span>
               : <><DigitGlyph d={shape.n} size="sm" tone="accent"/><span className="eyebrow mono" style={{ color: T.accent }}>{lang === 'uz' ? 'burchak' : 'угла'}</span></>)}
           </div>
-          {shapeDone && !finished && (
+          {shapeDone && (
             <button className="btn" disabled={!canAct} onClick={nextShape}
               style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
               {last ? t(c.done_label) : (lang === 'uz' ? 'Keyingisi' : 'Дальше')}
             </button>
           )}
         </div>
+        )}
         {finished && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.full_text)}/>
-          </div>
+          <>
+            {/* Xulosa (eski s5-rule shu yerда): burchaklar soni kartalari + Bit maslahati. */}
+            <div className="frame fade-up" style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(10px, 3vw, 22px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              {[['circle', 0], ['triangle', 3], ['square', 4]].map(([kind, n], i) => (
+                <div key={kind} className="frame-soft g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.16}s`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(8px, 1.6vw, 12px)' }}>
+                  <ShapeFig kind={kind} size="sm"/>
+                  <DigitGlyph d={n} size="sm" tone="accent"/>
+                </div>
+              ))}
+            </div>
+            <BitSays text={t(CONTENT.s5.tip)}/>
+            <div className="frame-success fade-up delay-1">
+              <Reaction state="correct" praise={t(c.full_text)}/>
+            </div>
+          </>
         )}
       </div>
     </Stage>
-  );
-};
-
-// s5 — RULE: burchaklar soni.
-const Screen5 = (props) => {
-  const lang = useLang();
-  const t = useT();
-  const c = CONTENT.s5;
-  const audio = useAudio([{ id: 's5', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  const row = (kind, n) => (
-    <div className="frame-soft" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(8px, 1.6vw, 12px)' }}>
-      <ShapeFig kind={kind} size="sm"/>
-      <DigitGlyph d={n} size="sm" tone="accent"/>
-    </div>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
-        <h1 className="title h-sub fade-up">
-          {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
-        </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(10px, 3vw, 22px)', padding: 'clamp(16px, 3vw, 24px)' }}>
-          {row('circle', 0)}
-          {row('triangle', 3)}
-          {row('square', 4)}
-        </div>
-        <BitSays text={t(c.tip)}/>
-      </div>
-    </Stage>
-  );
-};
-
-// s6 — TEST MC: uchburchakda nechta burchak (3, idx0). Variantlar — DigitGlyph.
-const Screen6 = (props) => {
-  const c = CONTENT.s6;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <ShapeFig kind="triangle" anim={solved ? 'celebrate' : 'enter'}/>}
-      options={[<DigitGlyph d={3} size="mid"/>, <DigitGlyph d={4} size="mid"/>, <DigitGlyph d={0} size="mid"/>]}
-      correctIdx={0}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s7 — TEST MC: qaysi doira (idx0). Variantlar — ShapeFig.
-const Screen7 = (props) => {
-  const c = CONTENT.s7;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<ShapeFig kind="circle"/>, <ShapeFig kind="square"/>, <ShapeFig kind="triangle"/>]}
-      correctIdx={0}
-      celebrateOnCorrect={() => <ShapeFig kind="circle" anim="celebrate"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s8 — TEST MC: qaysi shaklda 4 burchak (kvadrat, idx0). Variantlar — ShapeFig.
-const Screen8 = (props) => {
-  const c = CONTENT.s8;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<ShapeFig kind="square"/>, <ShapeFig kind="triangle"/>, <ShapeFig kind="circle"/>]}
-      correctIdx={0}
-      celebrateOnCorrect={() => <ShapeFig kind="square" anim="celebrate"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
   );
 };
 
@@ -4362,67 +4620,16 @@ const VariFig = ({ variant }) => {
   return <span className="g1-shape" aria-hidden="true"><svg {...box}><polygon points={poly} fill="#D6F0DC" stroke="#2C7C3B" strokeWidth="3" strokeLinejoin="round"/></svg></span>;
 };
 
-// sVary — TEST qarshi-namuna: burilgan uchburchaklar haqiqiy, egri tomonlisi EMAS (idx2).
-const ScreenVary = (props) => {
-  const c = CONTENT.sVary;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<VariFig variant="down"/>, <VariFig variant="right"/>, <VariFig variant="curved"/>]}
-      correctIdx={2}
-      celebrateOnCorrect={() => <VariFig variant="curved"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// sYesNo — TEST Ha/Yo'q: kvadrat ko'rsatiladi, "Bu uchburchakmi?" -> Yo'q (idx1).
-const ScreenYesNo = (props) => {
-  const c = CONTENT.sYesNo;
-  const t = useT();
+// chain2 — 3 savol: ha/yo'q (sYesNo) -> ortiqchani top (sOdd) -> qarshi-namuna (sVary).
+// Ha/Yo'q variantlari til-bog'liq, shuning uchun items render ichida quriladi.
+const ScreenChain2 = (props) => {
   const lang = useLang();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <ShapeFig kind="square" anim={solved ? 'celebrate' : 'enter'}/>}
-      options={[lang === 'uz' ? 'Ha' : 'Да', lang === 'uz' ? "Yo'q" : 'Нет']}
-      correctIdx={1}
-      optionsCols={2}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// sOdd — TEST ortiqchani top: qaysi shaklda burchak yo'q -> doira (idx2).
-const ScreenOdd = (props) => {
-  const c = CONTENT.sOdd;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<ShapeFig kind="triangle"/>, <ShapeFig kind="square"/>, <ShapeFig kind="circle"/>]}
-      correctIdx={2}
-      celebrateOnCorrect={() => <ShapeFig kind="circle" anim="celebrate"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
+  const items = [
+    { key: 'sYesNo', opts: [lang === 'uz' ? 'Ha' : 'Да', lang === 'uz' ? "Yo'q" : 'Нет'], correctIdx: 1, figure: (s) => <ShapeFig kind="square" anim={s ? 'celebrate' : 'enter'}/> },
+    { key: 'sOdd', opts: [<ShapeFig kind="triangle"/>, <ShapeFig kind="square"/>, <ShapeFig kind="circle"/>], correctIdx: 2, celebrate: () => <ShapeFig kind="circle" anim="celebrate"/> },
+    { key: 'sVary', opts: [<VariFig variant="down"/>, <VariFig variant="right"/>, <VariFig variant="curved"/>], correctIdx: 2, celebrate: () => <VariFig variant="curved"/> },
+  ];
+  return <ChainTest props={props} items={items} eyebrow={CONTENT.chain2.eyebrow}/>;
 };
 
 // sJuft — TEST juftlash: shakl <-> nom. Tap shaklni, keyin nomini.
@@ -4484,6 +4691,590 @@ const ScreenMatch = (props) => {
         </FeedbackBlock>
       </div>
     </Stage>
+  );
+};
+
+// ============================================================
+// SIMMETRIYA mini-bo'limi (sSym1, sSym3) — ko'zgu chizig'i, qog'oz-buklash animatsiyasi.
+// Chap yarim chiziladi (o'q x=32), o'ng yarim — ko'zgu nusxa (scale(-1,1)).
+// Buklash: chap yarim nusxasi o'q atrofida "yotadi" (g1-symfold: scaleX 1 -> -1).
+// ============================================================
+// Gradientlar — har svg ichida (ShapeFig uslubi; id takrori zararsiz).
+const SymDefs = () => (
+  <defs>
+    <radialGradient id="g1symWing" cx="38%" cy="30%" r="78%">
+      <stop offset="0%" stopColor="#FFC4DA"/><stop offset="45%" stopColor="#F26CA0"/><stop offset="100%" stopColor="#C93A72"/>
+    </radialGradient>
+    <radialGradient id="g1symWingB" cx="40%" cy="34%" r="76%">
+      <stop offset="0%" stopColor="#FFE0EC"/><stop offset="55%" stopColor="#FF9EC2"/><stop offset="100%" stopColor="#E0497E"/>
+    </radialGradient>
+    <linearGradient id="g1symBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#9A6B45"/><stop offset="100%" stopColor="#6E4526"/>
+    </linearGradient>
+    <linearGradient id="g1symTree" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stopColor="#6FD37F"/><stop offset="100%" stopColor="#2C7C3B"/>
+    </linearGradient>
+    <radialGradient id="g1symHeart" cx="36%" cy="30%" r="80%">
+      <stop offset="0%" stopColor="#FF8A93"/><stop offset="55%" stopColor="#E5484D"/><stop offset="100%" stopColor="#A81F33"/>
+    </radialGradient>
+    <linearGradient id="g1symFlag" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#F2696B"/><stop offset="100%" stopColor="#C1273C"/>
+    </linearGradient>
+  </defs>
+);
+
+// Chap yarimlar (o'q x=32). Kapalak qanoti sekin qoqadi, archa tebranadi — jonli.
+const SYM_LEFT = {
+  butterfly: (
+    <g>
+      <g className="g1-wingflap" style={{ transformBox: 'view-box', transformOrigin: '32px 32px' }}>
+        <ellipse cx="17" cy="23" rx="12" ry="14" fill="url(#g1symWing)" stroke="#B02D60" strokeWidth="1.7" transform="rotate(-18 17 23)"/>
+        <ellipse cx="21" cy="43" rx="8.5" ry="10" fill="url(#g1symWingB)" stroke="#B02D60" strokeWidth="1.4" transform="rotate(14 21 43)"/>
+        <circle cx="14" cy="19" r="3.4" fill="#FFF3F7" opacity="0.9"/>
+        <circle cx="19" cy="28" r="2.1" fill="#FFD9E8"/>
+        <circle cx="20" cy="44" r="1.9" fill="#FFE9F1"/>
+      </g>
+      <path d="M31 13 Q26 5 22 7" stroke="#7A4A28" strokeWidth="1.7" fill="none" strokeLinecap="round"/>
+      <circle cx="22" cy="7" r="1.6" fill="#7A4A28"/>
+      <circle cx="32" cy="20.5" r="4" fill="url(#g1symBody)"/>
+      <ellipse cx="32" cy="35" rx="3.4" ry="14" fill="url(#g1symBody)"/>
+    </g>
+  ),
+  heart: (
+    <g>
+      <path d="M32 23 C 29 12, 12 12, 12 27 C 12 38, 23 45, 32 53 Z" fill="url(#g1symHeart)" stroke="#B32B3F" strokeWidth="1.6"/>
+      <ellipse cx="20" cy="21.5" rx="4.4" ry="3" fill="rgba(255,255,255,0.55)" transform="rotate(-22 20 21.5)"/>
+    </g>
+  ),
+  tree: (
+    <g>
+      <g className="g1-amb-sway" style={{ transformBox: 'view-box', transformOrigin: '32px 58px' }}>
+        <path d="M32 6 L14 28 L21 28 L10 44 L18 44 L6 57 L32 57 Z" fill="url(#g1symTree)" stroke="#256B33" strokeWidth="1.6" strokeLinejoin="round"/>
+        <circle cx="26" cy="22" r="1.7" fill="#9FD9FF"/>
+        <circle cx="18" cy="38" r="1.9" fill="#FFD34D"/>
+        <circle cx="24" cy="50" r="1.9" fill="#FF8FB4"/>
+      </g>
+      <rect x="28.5" y="57" width="3.5" height="5" rx="1" fill="#8A5A3A"/>
+    </g>
+  ),
+  // Bayroqcha — QARSHI-NAMUNA: chap yarim = tayoq + bayroq boshi (o'ngdagi uchi bilan mos EMAS).
+  flag: (
+    <g>
+      <rect x="23" y="7" width="3.2" height="50" rx="1.6" fill="#8A5A3A"/>
+      <circle cx="24.6" cy="7" r="2.4" fill="#E8B23C"/>
+      <polygon points="26.2,10.5 32,11.5 32,24.5 26.2,26" fill="url(#g1symFlag)"/>
+    </g>
+  )
+};
+// Bayroqchaning haqiqiy O'NG yarmi — hilpiraydigan uch (chapning ko'zgusiga teng emas!).
+const FLAG_RIGHT = (
+  <g className="g1-flagwave" style={{ transformBox: 'view-box', transformOrigin: '32px 18px' }}>
+    <polygon points="32,11.5 54,15 32,24.5" fill="url(#g1symFlag)" stroke="#A81F33" strokeWidth="1"/>
+  </g>
+);
+
+// SymWhole — butun shakl (kartalar, test, celebrate): simmetriklar = chap + ko'zgu; flag = chap + o'z o'ng yarmi.
+const SymWhole = ({ kind, anim = 'static', size = 78 }) => {
+  const animCls = anim === 'celebrate' ? ' g1-shape-cele' : anim === 'enter' ? ' g1-shape-in' : '';
+  return (
+    <span className={`g1-shape${animCls}`} aria-hidden="true">
+      <svg viewBox="0 0 64 64" width={size} height={size}>
+        <SymDefs/>
+        {SYM_LEFT[kind]}
+        {kind === 'flag' ? FLAG_RIGHT : <g transform="translate(64 0) scale(-1 1)">{SYM_LEFT[kind]}</g>}
+      </svg>
+      {anim === 'celebrate' && <SparkBurst/>}
+    </span>
+  );
+};
+
+// SymDemoFig — buklash namoyishi: butun shakl + o'q; fold nusxasi o'q ustidan "yotadi".
+// phase: 'idle' | 'folding' | 'landed'. matched=false (flag) -> nusxa silkinadi (mos emas).
+const SymDemoFig = ({ kind, phase, sym }) => (
+  <span style={{ position: 'relative', display: 'inline-block' }} aria-hidden="true">
+    <svg viewBox="0 0 64 64" width="170" height="170">
+      <SymDefs/>
+      {SYM_LEFT[kind]}
+      {kind === 'flag' ? FLAG_RIGHT : <g transform="translate(64 0) scale(-1 1)">{SYM_LEFT[kind]}</g>}
+      {phase !== 'idle' && (
+        <g className={phase === 'landed' && !sym ? 'g1-symmiss' : 'g1-symfold'}
+          style={{ transformBox: 'view-box', transformOrigin: '32px 32px' }} opacity="0.55">
+          {SYM_LEFT[kind]}
+        </g>
+      )}
+      <line className="g1-axisflow" x1="32" y1="2" x2="32" y2="62" stroke={T.accent} strokeWidth="1.6" strokeDasharray="4 3"/>
+    </svg>
+    {phase === 'landed' && sym && <SparkBurst/>}
+  </span>
+);
+
+// Qanot-kandidatlar (sSym3 testi): to'g'ri ko'zgu nusxa / kichik / teskari (pastga qaragan).
+const WING_ONLY = (
+  <g>
+    <ellipse cx="17" cy="23" rx="12" ry="14" fill="url(#g1symWing)" stroke="#B02D60" strokeWidth="1.7" transform="rotate(-18 17 23)"/>
+    <ellipse cx="21" cy="43" rx="8.5" ry="10" fill="url(#g1symWingB)" stroke="#B02D60" strokeWidth="1.4" transform="rotate(14 21 43)"/>
+    <circle cx="14" cy="19" r="3.4" fill="#FFF3F7" opacity="0.9"/>
+    <circle cx="19" cy="28" r="2.1" fill="#FFD9E8"/>
+    <circle cx="20" cy="44" r="1.9" fill="#FFE9F1"/>
+  </g>
+);
+const WingCand = ({ variant }) => {
+  let inner;
+  if (variant === 'small') {
+    inner = <g transform="translate(32 32) scale(0.62) translate(-32 -32)"><g transform="translate(64 0) scale(-1 1)">{WING_ONLY}</g></g>;
+  } else if (variant === 'down') {
+    inner = <g transform="translate(0 64) scale(1 -1)"><g transform="translate(64 0) scale(-1 1)">{WING_ONLY}</g></g>;
+  } else {
+    inner = <g transform="translate(64 0) scale(-1 1)">{WING_ONLY}</g>;
+  }
+  return (
+    <span className="g1-shape" aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="78" height="78"><SymDefs/>{inner}</svg>
+    </span>
+  );
+};
+// Test figurasi: chap qanot + tana + o'q; o'ng tomonda "?" joyi.
+const WingTaskFig = () => (
+  <span aria-hidden="true">
+    <svg viewBox="0 0 64 64" width="150" height="150">
+      <SymDefs/>
+      <g className="g1-wingflap" style={{ transformBox: 'view-box', transformOrigin: '32px 32px' }}>{WING_ONLY}</g>
+      <path d="M31 13 Q26 5 22 7" stroke="#7A4A28" strokeWidth="1.7" fill="none" strokeLinecap="round"/>
+      <circle cx="22" cy="7" r="1.6" fill="#7A4A28"/>
+      <circle cx="32" cy="20.5" r="4" fill="url(#g1symBody)"/>
+      <ellipse cx="32" cy="35" rx="3.4" ry="14" fill="url(#g1symBody)"/>
+      <line className="g1-axisflow" x1="32" y1="2" x2="32" y2="62" stroke={T.accent} strokeWidth="1.6" strokeDasharray="4 3"/>
+      <circle cx="46" cy="30" r="9" fill="none" stroke={T.ink3} strokeWidth="1.4" strokeDasharray="3 3"/>
+      <text x="46" y="34.5" textAnchor="middle" fontSize="13" fontWeight="800" fill={T.ink3}>?</text>
+    </svg>
+  </span>
+);
+
+// AxisCand — "ko'zgu chizig'i qayerda" kandidatlari: v (o'rtada, to'g'ri) / h (gorizontal) / off (chetda).
+const AxisCand = ({ variant }) => (
+  <span className="g1-shape" aria-hidden="true">
+    <svg viewBox="0 0 64 64" width="78" height="78">
+      <SymDefs/>
+      {SYM_LEFT.butterfly}
+      <g transform="translate(64 0) scale(-1 1)">{SYM_LEFT.butterfly}</g>
+      {variant === 'v' && <line x1="32" y1="2" x2="32" y2="62" stroke={T.accent} strokeWidth="2.2" strokeDasharray="4 3"/>}
+      {variant === 'h' && <line x1="3" y1="32" x2="61" y2="32" stroke={T.accent} strokeWidth="2.2" strokeDasharray="4 3"/>}
+      {variant === 'off' && <line x1="47" y1="2" x2="47" y2="62" stroke={T.accent} strokeWidth="2.2" strokeDasharray="4 3"/>}
+    </svg>
+  </span>
+);
+
+// HeartCand — yurakning o'ng yarmi kandidatlari: small (kichik) / down (teskari) / ok (to'g'ri ko'zgu nusxa).
+const HeartCand = ({ variant }) => {
+  const mirrored = <g transform="translate(64 0) scale(-1 1)">{SYM_LEFT.heart}</g>;
+  let inner = mirrored;
+  if (variant === 'small') inner = <g transform="translate(32 32) scale(0.62) translate(-32 -32)">{mirrored}</g>;
+  else if (variant === 'down') inner = <g transform="translate(0 64) scale(1 -1)">{mirrored}</g>;
+  return (
+    <span className="g1-shape" aria-hidden="true">
+      <svg viewBox="0 0 64 64" width="78" height="78"><SymDefs/>{inner}</svg>
+    </span>
+  );
+};
+// Yurak-topshiriq figurasi: chap yarim + o'q + "?" joyi.
+const HeartTaskFig = () => (
+  <span aria-hidden="true">
+    <svg viewBox="0 0 64 64" width="150" height="150">
+      <SymDefs/>
+      {SYM_LEFT.heart}
+      <line className="g1-axisflow" x1="32" y1="2" x2="32" y2="62" stroke={T.accent} strokeWidth="1.6" strokeDasharray="4 3"/>
+      <circle cx="45" cy="30" r="9" fill="none" stroke={T.ink3} strokeWidth="1.4" strokeDasharray="3 3"/>
+      <text x="45" y="34.5" textAnchor="middle" fontSize="13" fontWeight="800" fill={T.ink3}>?</text>
+    </svg>
+  </span>
+);
+
+// NatureFig — tabiatdagi simmetriya (barg / qor parchasi / xonqizi / yulduzcha), o'q punktiri bilan.
+const NatureFig = ({ kind, size = 56 }) => (
+  <svg viewBox="0 0 64 64" width={size} height={size} aria-hidden="true">
+    <defs>
+      <linearGradient id="g1natLeaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8FD98A"/><stop offset="100%" stopColor="#4C9A44"/></linearGradient>
+      <radialGradient id="g1natBug" cx="38%" cy="30%" r="80%"><stop offset="0%" stopColor="#FF7A63"/><stop offset="55%" stopColor="#D8322A"/><stop offset="100%" stopColor="#8C1420"/></radialGradient>
+    </defs>
+    {kind === 'leaf' && (
+      <g className="g1-amb-sway" style={{ transformBox: 'view-box', transformOrigin: '32px 58px' }}>
+        <path d="M32 6 C 14 20, 12 40, 32 58 C 52 40, 50 20, 32 6 Z" fill="url(#g1natLeaf)" stroke="#3E7D2A" strokeWidth="1.6"/>
+        <line x1="32" y1="10" x2="32" y2="54" stroke="#2C6B20" strokeWidth="1.4"/>
+        <path d="M32 22 L23 30 M32 22 L41 30 M32 36 L24 44 M32 36 L40 44" stroke="#2C6B20" strokeWidth="1" fill="none"/>
+      </g>
+    )}
+    {kind === 'flake' && (
+      <g className="g1-flakespin" style={{ transformBox: 'view-box', transformOrigin: '32px 32px' }} stroke="#5FB7E8" strokeWidth="2.2" strokeLinecap="round">
+        {[0, 60, 120].map((a) => (
+          <g key={a} transform={`rotate(${a} 32 32)`}>
+            <line x1="32" y1="8" x2="32" y2="56"/>
+            <path d="M32 14 L26 8 M32 14 L38 8 M32 50 L26 56 M32 50 L38 56" strokeWidth="1.6" fill="none"/>
+          </g>
+        ))}
+      </g>
+    )}
+    {kind === 'bug' && (
+      <g>
+        <circle cx="32" cy="17" r="7" fill="#26221E"/>
+        <path d="M28 12 Q25 7 22 6 M36 12 Q39 7 42 6" stroke="#26221E" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
+        <ellipse cx="32" cy="36" rx="16" ry="14" fill="url(#g1natBug)" stroke="#8C1420" strokeWidth="1.6"/>
+        <line x1="32" y1="22" x2="32" y2="50" stroke="#26221E" strokeWidth="1.8"/>
+        <circle cx="24" cy="31" r="2.6" fill="#26221E"/><circle cx="40" cy="31" r="2.6" fill="#26221E"/>
+        <circle cx="26" cy="41" r="2.2" fill="#26221E"/><circle cx="38" cy="41" r="2.2" fill="#26221E"/>
+        <ellipse cx="25" cy="28" rx="2.6" ry="1.8" fill="rgba(255,255,255,0.35)"/>
+      </g>
+    )}
+    {kind === 'star' && (
+      <g className="g1-amb-sway" style={{ transformBox: 'view-box', transformOrigin: '32px 32px' }}>
+        <defs>
+          <radialGradient id="g1natStar" cx="42%" cy="32%" r="72%"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FFC23C"/><stop offset="100%" stopColor="#EE9A1E"/></radialGradient>
+        </defs>
+        <polygon points="32,6 38.5,22.5 56,24 42.5,36 46.5,53 32,44 17.5,53 21.5,36 8,24 25.5,22.5"
+          fill="url(#g1natStar)" stroke="#D8901E" strokeWidth="1.4" strokeLinejoin="round"/>
+        <polygon points="32,13 35,21.5 32,27 29,21.5" fill="rgba(255,255,255,0.4)"/>
+      </g>
+    )}
+    <line x1="32" y1="3" x2="32" y2="61" stroke={T.accent} strokeWidth="1.2" strokeDasharray="3 3" opacity="0.75"/>
+  </svg>
+);
+
+// sSym1 — EXPLORATION + XULOSA (bitta ekran): uch buyum buklanadi. Kapalak va archa —
+// yarimlari mos ✓; bayroqcha — mos EMAS ✗ (qarshi-namuna, kontrast ichида sezish).
+// Yakunida shu yerning o'zida xulosa-kartalar + Bit maslahati (alohida rule-slayd yo'q).
+const SYM_ITEMS = [
+  { kind: 'butterfly', dkey: 'd_butterfly', sym: true },
+  { kind: 'tree', dkey: 'd_tree', sym: true },
+  { kind: 'flag', dkey: 'd_flag', sym: false },
+];
+const FOLD_MS = 1200;   // g1-symfold davomiyligi bilan mos
+const ScreenSym1 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.sSym1;
+  const L = CONTENT.lab_sym;
+  const sfx = useSfx();
+  const audio = useAudio([{ id: 'sSym1_intro', text: c.audio_intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const [di, setDi] = useState(0);
+  const [phase, setPhase] = useState('idle');   // idle -> folding -> landed
+  const [finished, setFinished] = useState(false);
+  // Yakunda sarlavha-savol tepaga suzib yo'qoladi (g1-out-up), keyin DOM'dan chiqadi.
+  const [promptGone, setPromptGone] = useState(false);
+  const finRef = useRef(null);
+  useEffect(() => {
+    if (!finished) return;
+    const hideTimer = setTimeout(() => setPromptGone(true), 650);
+    // Avtoscroll — xulosa bloki ko'ringach (fade-up tugashini kutib).
+    const scrollTimer = setTimeout(() => {
+      if (finRef.current) finRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 500);
+    return () => { clearTimeout(hideTimer); clearTimeout(scrollTimer); };
+  }, [finished]);
+  // Tabiat-galereya: bosilgan buyum o'z izohini aytadi va pulsatsiya qiladi.
+  const [natTapped, setNatTapped] = useState(() => new Set());
+  const [natActive, setNatActive] = useState(null);
+  const [natTick, setNatTick] = useState(0);
+  const tapNature = (k) => {
+    setNatActive(k); setNatTick((v) => v + 1);
+    setNatTapped((prev) => { const n = new Set(prev); n.add(k); return n; });
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c[`nature_d_${k}`][lang]); }
+  };
+  const item = SYM_ITEMS[di];
+  const last = di >= SYM_ITEMS.length - 1;
+  useEffect(() => {
+    if (phase !== 'folding') return;
+    const timer = setTimeout(() => {
+      setPhase('landed');
+      if (SYM_ITEMS[di].sym) sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c[SYM_ITEMS[di].dkey][lang]); }
+    }, FOLD_MS);
+    return () => clearTimeout(timer);
+  }, [phase]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const fold = () => { if (!canAct || phase !== 'idle') return; setPhase('folding'); };
+  const nextItem = () => {
+    if (!canAct || phase !== 'landed') return;
+    if (last) {
+      setFinished(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.full_audio[lang]); e.pushOneOff(c.nature_audio[lang]); } }
+    } else { setDi(di + 1); setPhase('idle'); }
+  };
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!finished} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const ruleCard = (kind, ok, i) => (
+    <div className="frame-soft g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.14}s`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(8px, 1.6vw, 12px)' }}>
+      <SymWhole kind={kind} size={62}/>
+      <span className="eyebrow mono" style={{ color: ok ? T.success : T.accent }}>{ok ? '✓ ' : '✗ '}{t(L[kind])}</span>
+    </div>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        {!promptGone && (
+          <p className={`h-sub title fade-up${finished ? ' g1-out-up' : ''}`}>{t(c.fold_prompt)}</p>
+        )}
+        {!finished && (
+          <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+            <SymDemoFig key={di} kind={item.kind} phase={phase} sym={item.sym}/>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 30 }}>
+              <span className="eyebrow mono" style={{ color: T.accent }}>{t(L[item.kind])}</span>
+              {phase === 'landed' && (
+                <span className="eyebrow mono" style={{ color: item.sym ? T.success : T.accent }}>
+                  {item.sym ? '✓ ' : '✗ '}{t(item.sym ? c.match_tag : c.miss_tag)}
+                </span>
+              )}
+              <span className="mono small" style={{ color: T.ink3 }}>{di + 1} / {SYM_ITEMS.length}</span>
+            </div>
+            <button className="btn" disabled={!canAct || phase === 'folding'} onClick={phase === 'idle' ? fold : nextItem}
+              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+              {phase === 'idle' ? t(c.fold_label) : (last ? t(c.done_label) : (lang === 'uz' ? 'Keyingisi' : 'Дальше'))}
+            </button>
+          </div>
+        )}
+        {finished && (
+          <>
+            <div className="frame fade-up" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              {ruleCard('butterfly', true, 0)}
+              {ruleCard('tree', true, 1)}
+              {ruleCard('flag', false, 2)}
+            </div>
+            {/* Tabiat-galereya: simmetriya atrofimizda. Har rasm BOSILADI — o'z izohini aytadi. */}
+            <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 16px)' }}>
+              <p className="eyebrow mono" style={{ color: T.accent, textAlign: 'center', margin: '0 0 4px' }}>{t(c.nature_title)}</p>
+              <p className="small" style={{ color: T.ink2, textAlign: 'center', margin: '0 0 10px' }}>{t(c.nature_tap)}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 'clamp(8px, 1.8vw, 14px)', width: '100%', maxWidth: 420, margin: '0 auto' }}>
+                {[['leaf', c.nature_leaf], ['flake', c.nature_flake], ['bug', c.nature_bug], ['star', c.nature_star]].map(([k, labKey], i) => {
+                  const tappedIt = natTapped.has(k);
+                  return (
+                    <button key={k} className={`g1-nat-card g1-pop-in${natActive === k ? ' g1-nat-on' : ''}`} onClick={() => tapNature(k)}
+                      style={{ animationDelay: `${0.5 + i * 0.16}s` }}>
+                      <span key={natActive === k ? `on${natTick}` : 'off'} className={natActive === k ? 'g1-shape-cele' : ''} style={{ display: 'inline-flex' }}>
+                        <NatureFig kind={k}/>
+                      </span>
+                      <span className="mono small" style={{ color: tappedIt ? T.success : T.ink2, textAlign: 'center' }}>{tappedIt ? '✓ ' : ''}{t(labKey)}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div ref={finRef} className="frame-success fade-up delay-1">
+              <Reaction state="correct" praise={t(c.full_text)}/>
+            </div>
+          </>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// sSym3 — SIMMETRIYA ZANJIRI (3 savol): ikkinchi qanot -> ko'zgu chizig'i qayerda -> yurak yarmi.
+// Har savol simmetriyaning boshqa qirrasini tekshiradi: nusxa o'lchami/yo'nalishi, o'q joyi, butunlash.
+const ScreenSymChain = (props) => {
+  const items = [
+    {
+      key: 'sSym3',
+      opts: [<WingCand variant="small"/>, <WingCand variant="ok"/>, <WingCand variant="down"/>],
+      correctIdx: 1,
+      figure: (s) => (s ? <SymWhole kind="butterfly" anim="celebrate" size={120}/> : <WingTaskFig/>),
+      celebrate: () => null
+    },
+    {
+      key: 'symq2',
+      opts: [<AxisCand variant="h"/>, <AxisCand variant="v"/>, <AxisCand variant="off"/>],
+      correctIdx: 1,
+      celebrate: () => <AxisCand variant="v"/>
+    },
+    {
+      key: 'symq3',
+      opts: [<HeartCand variant="small"/>, <HeartCand variant="down"/>, <HeartCand variant="ok"/>],
+      correctIdx: 2,
+      figure: (s) => (s ? <SymWhole kind="heart" anim="celebrate" size={110}/> : <HeartTaskFig/>),
+      celebrate: () => null
+    },
+  ];
+  return <ChainTest props={props} items={items} eyebrow={CONTENT.sSym3.eyebrow}/>;
+};
+
+// ============================================================
+// HAJMLI SHAKLLAR mini-bo'limi (s3d1–s3d3) — shar/kub/silindr, tekis↔hajmli.
+// ============================================================
+// SolidFig — hajmli shakl real buyum sifatida: sphere→to'p, cube→kubik, cyl→stakan.
+const SolidFig = ({ kind, size = 'mid', anim = 'enter' }) => {
+  const s = size === 'sm' ? 56 : 78;
+  const animCls = anim === 'celebrate' ? ' g1-shape-cele' : anim === 'enter' ? ' g1-shape-in' : '';
+  let body;
+  if (kind === 'sphere') {
+    body = (
+      <>
+        <defs>
+          <radialGradient id="g1sdBall" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stopColor="#FFE0A6"/><stop offset="45%" stopColor="#F6A93C"/><stop offset="100%" stopColor="#B86A12"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="32" cy="56" rx="18" ry="3.8" fill="rgba(60,40,20,0.18)"/>
+        {/* Shar XOSSASINI ko'rsatadi: sekin u yoq-bu yoq dumalaydi (g1-roll). */}
+        <g className="g1-roll" style={{ transformBox: 'view-box', transformOrigin: '32px 31px' }}>
+          <circle cx="32" cy="31" r="22" fill="url(#g1sdBall)"/>
+          <path d="M12 26 Q 32 36 52 26" fill="none" stroke="rgba(120,60,10,0.35)" strokeWidth="2.2"/>
+          <path d="M13 38 Q 32 46 51 38" fill="none" stroke="rgba(120,60,10,0.3)" strokeWidth="2"/>
+          <ellipse cx="24" cy="20" rx="7" ry="5" fill="rgba(255,255,255,0.55)" transform="rotate(-22 24 20)"/>
+        </g>
+      </>
+    );
+  } else if (kind === 'cube') {
+    body = (
+      <>
+        <defs>
+          <linearGradient id="g1sdCube" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#A9C6FF"/><stop offset="100%" stopColor="#6E93E6"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="32" cy="57" rx="20" ry="3.4" fill="rgba(48,40,60,0.16)"/>
+        <polygon points="14,20 32,11 50,20 32,29" fill="#C7DDFF" stroke="#3F6FD6" strokeWidth="2" strokeLinejoin="round"/>
+        <polygon points="14,20 32,29 32,54 14,45" fill="url(#g1sdCube)" stroke="#3F6FD6" strokeWidth="2" strokeLinejoin="round"/>
+        <polygon points="50,20 32,29 32,54 50,45" fill="#5E86DC" stroke="#3F6FD6" strokeWidth="2" strokeLinejoin="round"/>
+        <polygon points="17,21.5 30,15 30,20 19,25.5" fill="rgba(255,255,255,0.45)"/>
+      </>
+    );
+  } else {
+    body = (
+      <>
+        <defs>
+          <linearGradient id="g1sdCyl" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#7FD4EE"/><stop offset="45%" stopColor="#2FB3DC"/><stop offset="100%" stopColor="#0179A0"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="32" cy="56" rx="17" ry="3.4" fill="rgba(30,50,60,0.16)"/>
+        {/* Silindr tik turadi, lekin yengil chayqaladi (g1-cylsway); kub esa qimir etmaydi — kontrast. */}
+        <g className="g1-cylsway" style={{ transformBox: 'view-box', transformOrigin: '32px 55px' }}>
+          <path d="M18 18 L18 50 A 14 5 0 0 0 46 50 L46 18 Z" fill="url(#g1sdCyl)" stroke="#016E93" strokeWidth="2"/>
+          <ellipse cx="32" cy="18" rx="14" ry="5" fill="#BFE9F6" stroke="#016E93" strokeWidth="2"/>
+          <line x1="22" y1="24" x2="22" y2="46" stroke="rgba(255,255,255,0.5)" strokeWidth="2.4"/>
+        </g>
+      </>
+    );
+  }
+  return (
+    <span className={`g1-shape${animCls}`} aria-hidden="true">
+      <svg viewBox="0 0 64 64" width={s} height={s}>{body}</svg>
+      {anim === 'celebrate' && <SparkBurst/>}
+    </span>
+  );
+};
+
+// FlatMini — tekis shakl (kontur) hajmlining yonida kontrast uchun.
+const FlatMini = ({ kind }) => (
+  <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+    {kind === 'square'
+      ? <rect x="14" y="14" width="36" height="36" rx="2" fill="#EDF2FF" stroke="#3F6FD6" strokeWidth="3"/>
+      : <circle cx="32" cy="32" r="19" fill="#FDECEC" stroke="#AE2238" strokeWidth="3"/>}
+  </svg>
+);
+
+// s3d1 — EXPLORATION: tekis ↔ hajmli (to'p=shar, kubik=kub, stakan=silindr).
+const SOLID_ITEMS = [
+  { kind: 'sphere', flat: 'circle', dkey: 'd_sphere' },
+  { kind: 'cube', flat: 'square', dkey: 'd_cube' },
+  { kind: 'cyl', flat: 'circle', dkey: 'd_cyl' },
+];
+const Screen3d1 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s3d1;
+  const L3 = CONTENT.lab3d;
+  const audio = useAudio([{ id: 's3d1_intro', text: c.audio_intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const [di, setDi] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const item = SOLID_ITEMS[di];
+  const last = di >= SOLID_ITEMS.length - 1;
+  useEffect(() => {
+    if (audio.muted) return;
+    const e = getAudioEngine();
+    if (e) e.pushOneOff(c[SOLID_ITEMS[di].dkey][lang]);
+  }, [di]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const next = () => {
+    if (!canAct) return;
+    if (last) {
+      setFinished(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.full_audio[lang]); }
+    } else setDi(di + 1);
+  };
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!finished} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <p className="h-sub title fade-up">{t(c.pair_prompt)}</p>
+        {!finished && (
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <div key={di} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(14px, 3vw, 26px)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <FlatMini kind={item.flat}/>
+              <span className="mono small" style={{ color: T.ink3 }}>{t(c.flat_label)}</span>
+            </div>
+            <span className="mono" style={{ color: T.ink3, fontSize: 22 }} aria-hidden="true">→</span>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <SolidFig kind={item.kind}/>
+              <span className="mono small" style={{ color: T.accent }}>{t(c.solid_label)}</span>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 30 }}>
+            <span className="eyebrow mono" style={{ color: T.accent }}>{t(L3[item.kind])}</span>
+            <span className="mono small" style={{ color: T.ink3 }}>{di + 1} / {SOLID_ITEMS.length}</span>
+          </div>
+          <button className="btn" disabled={!canAct} onClick={next}
+            style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+            {last ? t(c.done_label) : (lang === 'uz' ? 'Keyingisi' : 'Дальше')}
+          </button>
+        </div>
+        )}
+        {finished && (
+          <>
+            <div className="frame fade-up" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              {['sphere', 'cube', 'cyl'].map((k, i) => (
+                <div key={k} className="frame-soft g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.16}s`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(8px, 1.6vw, 12px)', minWidth: 'clamp(68px, 20vw, 100px)' }}>
+                  <SolidFig kind={k} size="sm"/>
+                  <span className="eyebrow mono" style={{ color: T.accent }}>{t(L3[k])}</span>
+                </div>
+              ))}
+            </div>
+            <BitSays text={t(c.rule_tip)}/>
+            <div className="frame-success fade-up delay-1">
+              <Reaction state="correct" praise={t(c.full_text)}/>
+            </div>
+          </>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+// s3d3 — TEST MC: to'p qaysi shakl (shar, idx0). Variantlar — nomlar.
+const Screen3d3 = (props) => {
+  const c = CONTENT.s3d3;
+  const t = useT();
+  const L3 = CONTENT.lab3d;
+  return (
+    <QuestionScreen
+      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
+      screenMeta={SCREEN_META[props.screen]} screenContent={c}
+      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
+      figure={(solved) => <SolidFig kind="sphere" anim={solved ? 'celebrate' : 'enter'}/>}
+      options={[t(L3.sphere), t(L3.cube), t(L3.cyl)]}
+      correctIdx={0}
+      optionsCols={3}
+      mascot={false}
+      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
+      onNext={props.onNext} onPrev={props.onPrev}
+    />
   );
 };
 
@@ -4627,7 +5418,7 @@ const Screen10 = (props) => {
         </div>
         <div className="frame-success fade-up" style={{ padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <p className="eyebrow mono" style={{ color: T.success, margin: '0 0 8px' }}>{t(c.can_do_title)}</p>
-          {[c.cd_1, c.cd_2, c.cd_3].map((item, i) => (
+          {[c.cd_1, c.cd_2, c.cd_3, c.cd_4, c.cd_5].map((item, i) => (
             <div key={i} className="g1-pop-in" style={{ animationDelay: `${0.2 + i * 0.15}s`, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
               <span style={{ color: T.success, fontWeight: 800, fontSize: 18, lineHeight: 1 }}>✓</span>
               <span style={{ fontSize: 'clamp(14px, 1.9vw, 16px)' }}>{t(item)}</span>
@@ -4693,7 +5484,7 @@ export default function WordProblemSumLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, ScreenYesNo, ScreenOdd, ScreenVary, ScreenMatch, ScreenGame, ScreenGuest, Screen9, Screen10];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen4, ScreenChain1, ScreenChain2, ScreenMatch, ScreenSym1, ScreenSymChain, Screen3d1, Screen3d3, ScreenGame, ScreenGuest, Screen9, Screen10];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -5112,7 +5903,9 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
 /* Geometrik shakllar (ShapeFig): paydo bo'lganda 1 marta jonlanadi, to'g'ri javobda nishonlaydi. */
 .g1-shape { display: inline-flex; position: relative; transform-origin: center bottom; }
-.g1-shape-in { animation: g1shapeIn 0.5s cubic-bezier(0.34, 1.4, 0.5, 1) both; }
+/* Kirish + keyin doimiy yengil "nafas" (suzish) — figuralar tirik ko'rinadi. */
+.g1-shape-in { animation: g1shapeIn 0.5s cubic-bezier(0.34, 1.4, 0.5, 1) both, g1ShapeIdle 3.6s ease-in-out 1.6s infinite; }
+@keyframes g1ShapeIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 .g1-shape-cele { animation: g1shapeCele 0.8s cubic-bezier(0.3, 1.3, 0.5, 1) both; }
 @keyframes g1shapeIn { 0% { opacity: 0; transform: scale(0.5) rotate(-12deg); } 60% { transform: scale(1.08) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
 @keyframes g1shapeCele { 0% { transform: scale(1, 1) rotate(0deg); } 15% { transform: scale(1.25, 0.82) rotate(-6deg); } 35% { transform: scale(0.9, 1.14) rotate(6deg); } 55% { transform: scale(1.12, 0.95) rotate(-3deg); } 78% { transform: scale(0.98, 1.04) rotate(2deg); } 100% { transform: scale(1, 1) rotate(0deg); } }
@@ -5125,6 +5918,50 @@ html, body { margin: 0; padding: 0; }
 .g1-scene-in { animation: g1sceneIn 0.55s ease both; }
 @keyframes g1sceneIn { 0% { opacity: 0; transform: translateY(10px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .g1-scene-in { animation: none; } }
+
+/* SIMMETRIYA: qog'oz-buklash — chap yarim nusxasi o'q (x=32) atrofida "yotadi". */
+@keyframes g1SymFold { 0% { transform: scaleX(1); } 55% { transform: scaleX(0.05); } 100% { transform: scaleX(-1); } }
+.g1-symfold { animation: g1SymFold 1.15s cubic-bezier(0.55, 0.06, 0.35, 1) forwards; }
+/* Mos kelmadi (bayroqcha): nusxa yotib bo'lib, yengil silkinadi. */
+@keyframes g1SymMiss { 0%, 100% { transform: scaleX(-1) rotate(0deg); } 30% { transform: scaleX(-1) rotate(-2.6deg); } 60% { transform: scaleX(-1) rotate(2.6deg); } }
+.g1-symmiss { animation: g1SymMiss 0.7s ease-in-out 2; transform: scaleX(-1); }
+/* Jonli buyumlar: kapalak qanot qoqadi, bayroq uchi hilpiraydi. */
+@keyframes g1WingFlap { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.86); } }
+.g1-wingflap { animation: g1WingFlap 1.7s ease-in-out infinite; }
+@keyframes g1FlagWave { 0%, 100% { transform: skewY(0deg); } 50% { transform: skewY(2.5deg); } }
+.g1-flagwave { animation: g1FlagWave 2.2s ease-in-out infinite; }
+/* Hajmli shakllar XOSSA-namoyishi: shar dumalaydi, silindr chayqaladi (kub qimir etmaydi). */
+@keyframes g1Roll { 0%, 100% { transform: translateX(-4px) rotate(-7deg); } 50% { transform: translateX(4px) rotate(7deg); } }
+.g1-roll { animation: g1Roll 3.2s ease-in-out infinite; }
+@keyframes g1CylSway { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
+.g1-cylsway { animation: g1CylSway 3s ease-in-out infinite; }
+/* Ko'zgu o'qi "oqadi" (punktir siljiydi) — chiziqqa e'tibor tortadi. */
+@keyframes g1AxisFlow { to { stroke-dashoffset: -14; } }
+.g1-axisflow { animation: g1AxisFlow 1.4s linear infinite; }
+/* Element sekin tepaga suzib yo'qoladi (masalan, bajarilgan topshiriq sarlavhasi). */
+@keyframes g1OutUp { to { opacity: 0; transform: translateY(-16px); } }
+.g1-out-up { animation: g1OutUp 0.6s ease forwards; }
+/* Qor parchasi sekin aylanadi (g1spin — mavjud keyframe). */
+.g1-flakespin { animation: g1spin 14s linear infinite; }
+/* Tabiat-galereya KARTOCHKASI: yonma-yon turadi (option'dagi width:100% siz), bosiladi. */
+.g1-nat-card {
+  background: #FFFFFF;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: clamp(8px, 1.6vw, 12px) clamp(6px, 1.2vw, 10px);
+  box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.16);
+  transition: transform 0.15s, box-shadow 0.2s;
+  font-family: 'Manrope', sans-serif;
+}
+.g1-nat-card:hover { transform: translateY(-2px); box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.24); }
+.g1-nat-on { outline: 2px solid #FF4F28; outline-offset: 2px; background: #FFF6F3; }
+@media (prefers-reduced-motion: reduce) {
+  .g1-symfold { animation: none; transform: scaleX(-1); }
+  .g1-symmiss, .g1-wingflap, .g1-flagwave, .g1-roll, .g1-cylsway, .g1-axisflow, .g1-flakespin { animation: none; }
+  .g1-out-up { animation: none; opacity: 0; }
+}
 /* Konsept demosi (s1): shakl konturi o'zini chizadi, burchak nuqtalari paydo bo'ladi. */
 .g1-draw { stroke-dasharray: 260; animation: g1drawOn 1.15s ease forwards; }
 @keyframes g1drawOn { from { stroke-dashoffset: 260; } to { stroke-dashoffset: 0; } }

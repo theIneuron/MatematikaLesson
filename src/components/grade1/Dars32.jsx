@@ -3,10 +3,16 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // ============================================================================
 // ░░ 1-SINF · Dars32 — "Пространство и линии" (num-1-32-v1) · Б6 (geometriya) · spec: ETALON_1SINF.md ░░
 // Baza: Dars29 (infra + PQ/cast string-in-string). Arifmetika YO'Q — geometrik tanish (chiziq turlari + fazoviy munosabat).
-// YADRO: chiziq turlari — to'g'ri / egri / siniq chiziq; fazoviy munosabat — tepada/pastda, chapda/o'ngda, orasida.
-// MEXANIKA: LineFig (SVG: to'g'ri/egri/siniq chiziq), SpatialScene (stol + to'p: tepada/pastda/chapda/o'ngda/orasida), PQ (savol matni).
+// YADRO: chiziq turlari — to'g'ri / egri / siniq chiziq; NUQTA va KESMA (darslik: kesma — ikki nuqta orasidagi to'g'ri yo'l);
+//   ORASIDA / CHETDA / TARTIB (kesma ustidagi rangli nuqtalar — sonlar o'qidagi "8 soni 7 bilan 9 orasida" poydevori).
+// STRUKTURA: 14 ekran. MC-testlar ZANJIR ekranlarga jamlangan (ChainTest, Dars33 naqshi): bitta slaydda
+//   2-5 savol, to'g'ri javob topilsa keyingisi ochiladi; nuqta/kesma — NKScene jonli sahnasi (uy->maktab yo'li).
+// MEXANIKA: LineFig (to'g'ri/egri/siniq), SegFig (kesma: ikki uchli), NKScene (nuqta/kesma sahnasi),
+//   BetweenScene/GeoBetweenFig (orasida/chetda: kesma ustida 3 rangli nuqta), PQ (savol matni).
 // Matn ovozда to'liq o'qiladi (1-sinf), ekranда qisqa tayanch. Typing YO'Q, tap/tanlash. Sonsiz (tanish-ajratish darsi).
-// Misconception'lar: M1 egri va siniqни chalkashtirish · M2 to'g'ri chiziqni "biroz egilgan" deb hisoblash · M3 chap/o'ng yoki tepa/pastni almashtirish.
+// Misconception'lar: M1 egri va siniqни chalkashtirish · M2 to'g'ri chiziqni "biroz egilgan" deb hisoblash ·
+//   M3 "orasida" va "chetda"ni almashtirish · M4 kesmani egri yo'l bilan chalkashtirish (kesma — tekis, ikki uchli).
+// ESLATMA (QA): eski fazo-komponentlar (SpatialScene, SpatialRow, MiniIcon, NKSpatialScene) endi ISHLATILMAYDI — dead code, QA'da tozalanadi.
 //
 // Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar + Zuhra (tanish — Dars07'da kirgan).
 // FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
@@ -824,7 +830,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
 // ============================================================
 
-const TOTAL_SCREENS = 18;
+const TOTAL_SCREENS = 14;
 const LESSON_META = {
   lessonId: 'num-1-32-v1',
   lessonTitle: { ru: 'Пространство и линии', uz: 'Fazo va chiziqlar' }
@@ -834,15 +840,11 @@ const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: qaysi chiziq to'g'ri
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // chiziq turlari: to'g'ri/egri/siniq
   { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // uch xil chiziq
-  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi to'g'ri chiziq
-  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // fazo: tepada/pastda
-  { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // fazoviy so'zlar
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // to'p qayerda (tepada/pastda)
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi siniq chiziq
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nima orasida
-  { id: 'sYesNo', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 'sOdd',   type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 'sVary',  type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
+  { id: 'chain1', type: 'test',     template: 'chain',    scored: true,  scope: 'module-mikro' },  // 5 savol zanjiri (chiziqlar): s3/s7/sYesNo/sOdd/sVary
+  { id: 'sNK', type: 'exploration', template: 'custom',   scored: false, scope: null },            // YANGI: nuqta va kesma (uy->maktab sahnasi) + xulosa shu yerda
+  { id: 'chainNK', type: 'test',    template: 'chain',    scored: true,  scope: 'module-mikro' },  // 2 savol zanjiri (kesma): qaysi kesma / nechta uchi
+  { id: 'sBetween', type: 'exploration', template: 'custom', scored: false, scope: null },         // orasida/chetda/tartib (kesma ustida 3 nuqta) + xulosa shu yerda
+  { id: 'chainBetween', type: 'test', template: 'chain',  scored: true,  scope: 'module-mikro' },  // 2 savol zanjiri: s8 (orasida) / sOrder (chap chetda)
   { id: 'sJuft',  type: 'test', template: 'custom',   scored: true, scope: 'module-mikro' },
   { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'yin: chiziq/fazo aralash
   { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik -> Dars33
@@ -868,8 +870,19 @@ const CONTENT = {
     below: { ru: 'Снизу', uz: 'Pastda' },
     left: { ru: 'Слева', uz: 'Chapda' },
     right: { ru: 'Справа', uz: "O'ngda" },
-    between: { ru: 'Между', uz: 'Orasida' }
+    between: { ru: 'Между', uz: 'Orasida' },
+    point: { ru: 'Точка', uz: 'Nuqta' },
+    segment: { ru: 'Отрезок', uz: 'Kesma' }
   },
+  // Zanjir-test yorliqlari (Dars33 naqshi: bir slaydda bir nechta savol).
+  chainLab: {
+    q_word: { ru: 'Вопрос', uz: 'Savol' },
+    next_q: { ru: 'Следующий вопрос', uz: 'Keyingi savol' },
+    all_done: { ru: 'Все вопросы решены!', uz: 'Hamma savollar yechildi!' }
+  },
+  chain1: { eyebrow: { ru: 'Тренировка · линии', uz: 'Mashq · chiziqlar' } },
+  chainNK: { eyebrow: { ru: 'Тренировка · отрезок', uz: 'Mashq · kesma' } },
+  chainBetween: { eyebrow: { ru: 'Тренировка · между и с краю', uz: 'Mashq · orasida va chetda' } },
 
   sIntro: {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
@@ -886,13 +899,13 @@ const CONTENT = {
       ru: [
         'Привет, друг! Числа мы уже знаем хорошо.',
         'Сегодня начнём геометрию.',
-        'Посмотрим, какие бывают линии.',
+        'Посмотрим, какие бывают линии. Узнаем точку и отрезок.',
         'И научимся говорить, где что находится. Слушай до конца и нажимай кнопку дальше.'
       ],
       uz: [
         "Salom, do'stim! Sonlarni endi yaxshi bilamiz.",
         "Bugun geometriyani boshlaymiz.",
-        "Qanday chiziqlar bo'lishini ko'ramiz.",
+        "Qanday chiziqlar bo'lishini ko'ramiz. Nuqta va kesmani bilamiz.",
         "Va nima qayerda ekanini aytishni o'rganamiz. Oxirigacha tinglang va davom tugmasini bosing."
       ]
     }
@@ -964,8 +977,83 @@ const CONTENT = {
     }
   },
 
+  // ---- NUQTA VA KESMA mini-bo'limi (darslik: kesma, nuqta; §10 audit topilmasi) ----
+  // sNK — exploration + rule bitta ekranda: uy (nuqta) -> maktab (2-nuqta) -> kesma
+  // o'zini chizadi -> egri yo'l bilan taqqos. Yakunida nuqta/kesma kartalari.
+  sNK: {
+    eyebrow: { ru: 'Точка и отрезок', uz: 'Nuqta va kesma' },
+    step_prompt: { ru: 'Смотри и нажимай Далее.', uz: "Qarang va Keyingisi ni bosing." },
+    audio_intro: {
+      ru: 'Смотри. Сейчас узнаем, что такое точка и отрезок.',
+      uz: "Qarang. Hozir nuqta va kesma nima ekanini bilamiz."
+    },
+    d_point: { ru: 'Это точка. Она отмечает место. Вот дом Рано — поставим точку.', uz: "Bu nuqta. U joyni belgilaydi. Mana Ra'noning uyi — nuqta qo'yamiz." },
+    d_two: { ru: 'А это школа. Поставим вторую точку. Теперь у нас две точки.', uz: "Bu esa maktab. Ikkinchi nuqtani qo'yamiz. Endi bizda ikkita nuqta." },
+    d_seg: { ru: 'Соединим две точки ровной линией. Это отрезок. У него есть начало и конец.', uz: "Ikki nuqtani tekis chiziq bilan tutashtiramiz. Bu kesma. Uning boshi va oxiri bor." },
+    d_comp: { ru: 'Есть и кривая дорожка. Но отрезок — самый короткий путь.', uz: "Egri yo'lak ham bor. Lekin kesma — eng qisqa yo'l." },
+    done_label: { ru: 'Понятно', uz: 'Tushundim' },
+    full_text: { ru: 'Точка отмечает место. Отрезок соединяет две точки.', uz: "Nuqta joyni belgilaydi. Kesma ikki nuqtani tutashtiradi." },
+    full_audio: {
+      ru: 'Запомни. Точка отмечает место. Отрезок — ровная линия от точки до точки. У отрезка два конца.',
+      uz: "Eslab qoling. Nuqta joyni belgilaydi. Kesma — nuqtadan nuqtagacha tekis chiziq. Kesmaning ikki uchi bor."
+    }
+  },
+
+  // nkq1 — kesma zanjiri, 1-savol: qaysi biri kesma (hammasida uch-nuqtalar bor, faqat bittasi TEKIS).
+  nkq1: {
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // zanjir ichida
+    title: { ru: 'Где отрезок?', uz: 'Qaysi biri kesma?' },
+    problem: { ru: 'Выбери отрезок — ровную линию с двумя концами.', uz: "Kesmani tanlang — ikki uchli tekis chiziqni." },
+    correct_text: { ru: 'Правильно. Отрезок ровный, у него два конца.', uz: "To'g'ri. Kesma tekis, uning ikki uchi bor." },
+    wrong_1: {
+      ru: 'Эта дорожка кривая. Отрезок — ровный, как натянутая нить.',
+      uz: "Bu yo'lak egri. Kesma — tekis, tortilgan ip kabi."
+    },
+    wrong_2: {
+      ru: 'Эта линия ломаная, с углами. Отрезок — один ровный кусочек.',
+      uz: "Bu chiziq siniq, burchakli. Kesma — bitta tekis bo'lak."
+    },
+    wrong_default: {
+      ru: 'Отрезок — ровная линия от точки до точки.',
+      uz: "Kesma — nuqtadan nuqtagacha tekis chiziq."
+    },
+    audio: {
+      intro: { ru: 'Где здесь отрезок? Выбери ровную линию с двумя концами.', uz: "Bu yerda qaysi biri kesma? Ikki uchli tekis chiziqni tanlang." },
+      on_correct: { ru: 'Верно. Отрезок ровный, с двумя концами.', uz: "To'g'ri. Kesma tekis, ikki uchli." },
+      on_wrong: { ru: 'Не совсем. Отрезок совсем ровный.', uz: "Unchalik emas. Kesma butunlay tekis." }
+    }
+  },
+
+  // nkq2 — kesma zanjiri, 2-savol: kesmaning nechta uchi bor (so'z bilan javob variantlari).
+  nkq2: {
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // zanjir ichida
+    title: { ru: 'Сколько концов у отрезка?', uz: 'Kesmaning nechta uchi bor?' },
+    problem: { ru: 'Посмотри на отрезок и посчитай его концы.', uz: "Kesmaga qarang va uchlarini sanang." },
+    opt0: { ru: 'Два', uz: 'Ikkita' },
+    opt1: { ru: 'Один', uz: 'Bitta' },
+    opt2: { ru: 'Три', uz: 'Uchta' },
+    correct_text: { ru: 'Правильно. У отрезка два конца: начало и конец.', uz: "To'g'ri. Kesmaning ikki uchi bor: boshi va oxiri." },
+    wrong_1: {
+      ru: 'Один конец — это только начало. А у отрезка есть и конец. Посчитай точки.',
+      uz: "Bitta uch — bu faqat boshi. Kesmaning oxiri ham bor. Nuqtalarni sanang."
+    },
+    wrong_2: {
+      ru: 'Три не получится. У отрезка только начало и конец.',
+      uz: "Uchta emas. Kesmada faqat boshi va oxiri bor."
+    },
+    wrong_default: {
+      ru: 'У отрезка два конца — начало и конец.',
+      uz: "Kesmaning ikki uchi bor — boshi va oxiri."
+    },
+    audio: {
+      intro: { ru: 'Посмотри на отрезок. Сколько у него концов? Посчитай точки и выбери.', uz: "Kesmaga qarang. Uning nechta uchi bor? Nuqtalarni sanab, tanlang." },
+      on_correct: { ru: 'Верно. У отрезка два конца.', uz: "To'g'ri. Kesmaning ikki uchi bor." },
+      on_wrong: { ru: 'Не совсем. Посчитай точки на концах.', uz: "Unchalik emas. Uchlaridagi nuqtalarni sanang." }
+    }
+  },
+
   s3: {
-    eyebrow: { ru: 'Тренировка · 1 / 4', uz: 'Mashq · 1 / 4' },
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // chain1 ichida; eyebrow ekranda chain'niki
     title: { ru: 'Где прямая линия?', uz: "Qaysi to'g'ri chiziq?" },
     problem: { ru: 'Выбери прямую — ровную линию.', uz: "To'g'ri — tekis chiziqni tanlang." },
     correct_text: { ru: 'Правильно. Прямая линия ровная.', uz: "To'g'ri. To'g'ri chiziq tekis." },
@@ -988,71 +1076,55 @@ const CONTENT = {
     }
   },
 
-  s4: {
-    eyebrow: { ru: 'Сверху и снизу', uz: 'Tepada va pastda' },
-    instruction: { ru: 'Скажем, где мяч: сверху или снизу от стола', uz: "To'p qayerda ekanini aytamiz: stolning tepasidami yoki pastida" },
-    reveal_label: { ru: 'Подвинуть мяч', uz: "To'pni surish" },
-    full_text: { ru: 'Сначала мяч сверху, потом снизу.', uz: "Avval to'p tepada, keyin pastda." },
-    full_audio: { ru: 'Сначала мяч был сверху, на столе. Потом мяч стал снизу, под столом.', uz: "Avval to'p tepada, stol ustida edi. Keyin to'p pastda, stol tagida bo'ldi." },
-    audio_intro: { ru: 'Скажем, где мяч. Нажимай Далее и слушай слово.', uz: "To'p qayerda ekanini aytamiz. Keyingisi ni bosing va so'zni tinglang." },
-    tour_prompt: { ru: 'Где мяч? Нажимай Далее.', uz: "To'p qayerda? Keyingisi ni bosing." },
-    w_above: { ru: 'Мяч сверху, на столе.', uz: "To'p tepada, stol ustida." },
-    w_below: { ru: 'Мяч снизу, под столом.', uz: "To'p pastda, stol tagida." },
-    w_left: { ru: 'Мяч слева.', uz: "To'p chapda." },
-    w_right: { ru: 'Мяч справа.', uz: "To'p o'ngda." },
-    w_between: { ru: 'Мяч между двумя предметами.', uz: "To'p ikki narsaning orasida." },
-    done_spatial: { ru: 'Отлично! Сверху, снизу, слева, справа и между.', uz: "Zo'r! Tepada, pastda, chapda, o'ngda va orasida." },
-    audio: {
-      ru: [
-        'Посмотри. Мяч сейчас сверху, на столе.',
-        'А теперь скажем, где он окажется, если опустить.'
-      ],
-      uz: [
-        "Qarang. To'p hozir tepada, stol ustida.",
-        "Endi uni pastga tushirsak, qayerda bo'lishini aytamiz."
-      ]
+  // sBetween — EXPLORATION + XULOSA: kesma ustida 3 nuqta (qizil chetda, ko'k chetda, sariq o'rtada).
+  // "Orasida" va "chetda/tartib" — sonlar o'qidagi "8 soni 7 bilan 9 orasida" poydevori.
+  sBetween: {
+    eyebrow: { ru: 'Между и с краю', uz: 'Orasida va chetda' },
+    step_prompt: { ru: 'Смотри и нажимай Далее.', uz: 'Qarang va Keyingisi ni bosing.' },
+    audio_intro: { ru: 'На отрезке отметим три точки и посмотрим, где какая.', uz: "Kesmada uchta nuqta belgilaymiz va qaysi biri qayerda ekaniga qaraymiz." },
+    d_red: { ru: 'Красная точка с краю, слева.', uz: "Qizil nuqta chetda, chapda." },
+    d_blue: { ru: 'Синяя точка с краю, справа.', uz: "Ko'k nuqta chetda, o'ngda." },
+    d_yellow: { ru: 'Жёлтая точка посередине, между красной и синей.', uz: "Sariq nuqta o'rtada, qizil bilan ko'k orasida." },
+    done_label: { ru: 'Понятно', uz: 'Tushundim' },
+    red_tag: { ru: 'с краю', uz: 'chetda' },
+    mid_tag: { ru: 'между', uz: 'orasida' },
+    full_text: { ru: 'С краю — по бокам. Между — посередине.', uz: "Chetda — chekkada. Orasida — o'rtada." },
+    full_audio: {
+      ru: 'Запомни. Точки с краю стоят по бокам. Точка между ними — посередине. С числами так же: между семь и девять стоит восемь.',
+      uz: "Eslab qoling. Chetdagi nuqtalar chekkada turadi. Ular orasidagi nuqta — o'rtada. Sonlar bilan ham shunday: yetti bilan to'qqiz orasida sakkiz turadi."
     }
   },
 
-  s5: {
-    eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
-    title_part1: { ru: 'Слова о месте:', uz: "Joy haqida so'zlar:" },
-    title_part2_em: { ru: 'сверху, снизу, слева, справа', uz: "tepada, pastda, chapda, o'ngda" },
-    title_part3: { ru: '', uz: '' },
-    tip: {
-      ru: 'Эти слова говорят, где находится предмет: сверху или снизу, слева или справа, а ещё между двумя предметами.',
-      uz: "Bu so'zlar narsa qayerda ekanini aytadi: tepada yoki pastda, chapda yoki o'ngda, yana ikki narsaning orasida."
-    },
-    audio: {
-      ru: 'Запомни. Эти слова говорят, где предмет. Сверху или снизу. Слева или справа. И между двумя предметами.',
-      uz: "Eslab qoling. Bu so'zlar narsa qayerda ekanini aytadi. Tepada yoki pastda. Chapda yoki o'ngda. Va ikki narsaning orasida."
-    }
-  },
-
-  s6: {
-    eyebrow: { ru: 'Тренировка · 2 / 4', uz: 'Mashq · 2 / 4' },
-    title: { ru: 'Где мяч?', uz: "To'p qayerda?" },
-    problem: { ru: 'Посмотри на стол и мяч.', uz: "Stol va to'pga qarang." },
-    opt0: { ru: 'Снизу, под столом', uz: 'Pastda, stol tagida' },
-    opt1: { ru: 'Сверху, на столе', uz: 'Tepada, stol ustida' },
-    correct_text: { ru: 'Правильно. Мяч снизу, под столом.', uz: "To'g'ri. To'p pastda, stol tagida." },
+  // sOrder — kesma zanjiri, 2-savol: chap chetdagi nuqtani top (tartib/chetda).
+  sOrder: {
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // chainBetween ichida
+    title: { ru: 'Какая точка с краю, слева?', uz: 'Qaysi nuqta chetda, chapda?' },
+    problem: { ru: 'Посмотри на отрезок. Выбери точку на левом краю.', uz: "Kesmaga qarang. Chap chetdagi nuqtani tanlang." },
+    opt0: { ru: 'Красная', uz: 'Qizil' },
+    opt1: { ru: 'Жёлтая', uz: 'Sariq' },
+    opt2: { ru: 'Синяя', uz: "Ko'k" },
+    correct_text: { ru: 'Правильно. Красная точка с краю, слева.', uz: "To'g'ri. Qizil nuqta chetda, chapda." },
     wrong_1: {
-      ru: 'Посмотри внимательно: мяч под столом. Значит снизу.',
-      uz: "Diqqat bilan qarang: to'p stol tagida. Demak pastda."
+      ru: 'Жёлтая точка посередине, между двумя. С краю слева — красная.',
+      uz: "Sariq nuqta o'rtada, ikkisining orasida. Chap chetda — qizil."
+    },
+    wrong_2: {
+      ru: 'Синяя точка с краю, но справа. Слева — красная.',
+      uz: "Ko'k nuqta chetda, lekin o'ngda. Chapda — qizil."
     },
     wrong_default: {
-      ru: 'Мяч под столом — это снизу.',
-      uz: "To'p stol tagida — bu pastda."
+      ru: 'Слева, в самом начале отрезка — красная точка.',
+      uz: "Chapda, kesmaning eng boshida — qizil nuqta."
     },
     audio: {
-      intro: { ru: 'Посмотри на стол и мяч. Где мяч, сверху или снизу? Выбери.', uz: "Stol va to'pga qarang. To'p qayerda, tepadami yoki pastda? Tanlang." },
-      on_correct: { ru: 'Верно. Мяч снизу, под столом.', uz: "To'g'ri. To'p pastda, stol tagida." },
-      on_wrong: { ru: 'Не совсем. Посмотри, мяч под столом.', uz: "Unchalik emas. Qarang, to'p stol tagida." }
+      intro: { ru: 'Посмотри на отрезок. Какая точка с краю, слева? Выбери.', uz: "Kesmaga qarang. Qaysi nuqta chetda, chapda? Tanlang." },
+      on_correct: { ru: 'Верно. Красная точка слева, с краю.', uz: "To'g'ri. Qizil nuqta chapda, chetda." },
+      on_wrong: { ru: 'Не совсем. Слева — красная.', uz: "Unchalik emas. Chapda — qizil." }
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // chain1 ichida
     title: { ru: 'Где ломаная линия?', uz: 'Qaysi siniq chiziq?' },
     problem: { ru: 'Выбери ломаную — линию с углами.', uz: "Siniq — burchakli chiziqni tanlang." },
     correct_text: { ru: 'Правильно. Ломаная — с углами.', uz: "To'g'ri. Siniq chiziq — burchakli." },
@@ -1076,28 +1148,28 @@ const CONTENT = {
   },
 
   s8: {
-    eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
-    title: { ru: 'Что между яблоком и чашкой?', uz: 'Olma bilan piyola orasida nima?' },
-    problem: { ru: 'Посмотри на ряд. Что стоит посередине?', uz: "Qatorga qarang. O'rtada nima turibdi?" },
-    opt0: { ru: 'Мяч', uz: "To'p" },
-    opt1: { ru: 'Яблоко', uz: 'Olma' },
-    opt2: { ru: 'Чашка', uz: 'Piyola' },
-    correct_text: { ru: 'Правильно. Между яблоком и чашкой — мяч.', uz: "To'g'ri. Olma bilan piyola orasida — to'p." },
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },   // chainBetween 1-savol (orasida)
+    title: { ru: 'Какая точка между красной и синей?', uz: "Qizil bilan ko'k orasida qaysi nuqta?" },
+    problem: { ru: 'На отрезке три точки. Посмотри, какая посередине.', uz: "Kesmada uchta nuqta. Qaysi biri o'rtada ekaniga qarang." },
+    opt0: { ru: 'Жёлтая', uz: 'Sariq' },
+    opt1: { ru: 'Красная', uz: 'Qizil' },
+    opt2: { ru: 'Синяя', uz: "Ko'k" },
+    correct_text: { ru: 'Правильно. Жёлтая точка между красной и синей.', uz: "To'g'ri. Sariq nuqta qizil bilan ko'k orasida." },
     wrong_1: {
-      ru: 'Яблоко стоит с краю, слева. Между ними — мяч.',
-      uz: "Olma chetda, chapda turibdi. Ular orasida — to'p."
+      ru: 'Красная точка с краю, слева. Между ними — жёлтая.',
+      uz: "Qizil nuqta chetda, chapda. Ular orasida — sariq."
     },
     wrong_2: {
-      ru: 'Чашка стоит с краю, справа. Между ними — мяч.',
-      uz: "Piyola chetda, o'ngda turibdi. Ular orasida — to'p."
+      ru: 'Синяя точка с краю, справа. Между ними — жёлтая.',
+      uz: "Ko'k nuqta chetda, o'ngda. Ular orasida — sariq."
     },
     wrong_default: {
       ru: 'Между — это посередине, между двумя.',
       uz: "Orasida — bu o'rtada, ikkisining o'rtasida."
     },
     audio: {
-      intro: { ru: 'Посмотри на ряд: яблоко, мяч, чашка. Что между яблоком и чашкой? Выбери.', uz: "Qatorga qarang: olma, to'p, piyola. Olma bilan piyola orasida nima? Tanlang." },
-      on_correct: { ru: 'Верно. Между яблоком и чашкой мяч.', uz: "To'g'ri. Olma bilan piyola orasida to'p." },
+      intro: { ru: 'Посмотри: на отрезке три точки. Какая между красной и синей? Выбери.', uz: "Qarang: kesmada uchta nuqta. Qizil bilan ko'k orasida qaysi biri? Tanlang." },
+      on_correct: { ru: 'Верно. Жёлтая между красной и синей.', uz: "To'g'ri. Sariq qizil bilan ko'k orasida." },
       on_wrong: { ru: 'Не совсем. Между — это посередине.', uz: "Unchalik emas. Orasida — bu o'rtada." }
     }
   },
@@ -1186,7 +1258,7 @@ const CONTENT = {
     done_text: { ru: 'Молодцы! Всё верно.', uz: "Barakalla! Hammasi to'g'ri." },
     retry_audio: { ru: 'Ничего страшного. Посмотри внимательно ещё раз.', uz: "Hechqisi yo'q. Yana diqqat bilan qarang." },
     q_round1: { ru: 'Где кривая линия?', uz: 'Qaysi egri chiziq?' },
-    q_round2: { ru: 'Где мяч: сверху или снизу?', uz: "To'p qayerda: tepada yoki pastda?" },
+    q_round2: { ru: 'Где отрезок?', uz: 'Qaysi biri kesma?' },
     q_round3: { ru: 'Где прямая линия?', uz: "Qaysi to'g'ri chiziq?" },
     audio: {
       intro: { ru: 'Поиграем. Я спрашиваю, а ты выбираешь верный ответ. Начинаем.', uz: "O'ynaymiz. Men so'rayman, siz to'g'ri javobni tanlaysiz. Boshladik." }
@@ -1197,8 +1269,8 @@ const CONTENT = {
     eyebrow: { ru: 'Здорово', uz: "Zo'r" },
     title: { ru: 'Линии и место', uz: 'Chiziqlar va joy' },
     body: {
-      ru: 'Рано, Анвар и Зухра узнали три линии и научились говорить, где что находится. Дальше будем смотреть на фигуры.',
-      uz: "Ra'no, Anvar va Zuhra uch xil chiziqni bildi va nima qayerda ekanini aytishni o'rgandi. Keyin shakllarga qaraymiz."
+      ru: 'Рано, Анвар и Зухра узнали линии, точку и отрезок и научились говорить, где что находится. Дальше будем смотреть на фигуры.',
+      uz: "Ra'no, Anvar va Zuhra chiziqlarni, nuqta va kesmani bildi va nima qayerda ekanini aytishni o'rgandi. Keyin shakllarga qaraymiz."
     },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
@@ -1206,10 +1278,12 @@ const CONTENT = {
     audio: {
       ru: [
         'Послушай, мы узнали три линии: прямую, кривую и ломаную.',
+        'Узнали точку и отрезок.',
         'И научились говорить, где что находится. Дальше нас ждут фигуры.'
       ],
       uz: [
         "Tinglang, biz uch chiziqni bildik: to'g'ri, egri va siniq.",
+        "Nuqta va kesmani bildik.",
         "Va nima qayerda ekanini aytishni o'rgandik. Keyin bizni shakllar kutadi."
       ]
     }
@@ -1260,8 +1334,9 @@ const CONTENT = {
     },
     can_do_title: { ru: 'Теперь я умею:', uz: 'Endi men:' },
     cd_1: { ru: 'узнавать линии', uz: 'chiziq turlarini taniyman' },
-    cd_2: { ru: 'говорить, где что', uz: 'narsa qayerda ekanini aytaman' },
-    cd_3: { ru: 'видеть линии вокруг', uz: "atrofimdagi chiziqlarni ko'raman" },
+    cd_2: { ru: 'узнавать точку и отрезок', uz: 'nuqta va kesmani taniyman' },
+    cd_3: { ru: 'говорить, где что', uz: 'narsa qayerda ekanini aytaman' },
+    cd_4: { ru: 'видеть линии вокруг', uz: "atrofimdagi chiziqlarni ko'raman" },
     real_caption: {
       ru: 'Линии вокруг нас: дорога — прямая, река — кривая, горы — ломаная.',
       uz: "Chiziqlar atrofimizda: yo'l — to'g'ri, daryo — egri, tog' — siniq."
@@ -1269,11 +1344,13 @@ const CONTENT = {
     audio: {
       ru: [
         'Молодец! Ты узнал линии и слова о месте.',
+        'Ты узнал точку и отрезок. У отрезка два конца.',
         'Теперь ты видишь линии вокруг: дорога — прямая, река — кривая, горы — ломаная.',
         'На следующем уроке узнаем фигуры. До встречи!'
       ],
       uz: [
         "Barakalla! Chiziqlarni va joy so'zlarini bildingiz.",
+        "Nuqta va kesmani bildingiz. Kesmaning ikki uchi bor.",
         "Endi atrofingizda chiziqlarni ko'rasiz: yo'l — to'g'ri, daryo — egri, tog' — siniq.",
         "Keyingi darsda shakllarni o'rganamiz. Ko'rishguncha!"
       ]
@@ -4208,55 +4285,375 @@ const Screen2 = (props) => {
   );
 };
 
-// s3 — TEST MC: qaysi to'g'ri (idx0). Variantlar — LineFig.
-const Screen3 = (props) => {
-  const c = CONTENT.s3;
+// ============================================================
+// CHAIN-TEST (Dars33 naqshi) — bitta slaydda bir nechta savol: to'g'ri javob topilsa
+// keyingisi ochiladi ("Keyingi savol" tugmasi bilan). Har savolda веди-до-верного:
+// xato variant o'chadi (↺), qolganlari faol. Ball — sJuft kabi bitta yozuv: firstTry =
+// HAMMA savollar birinchi urinishda yechilgan bo'lsa. Savol kontenti — CONTENT kalitlari.
+// items: [{ key, opts, correctIdx, figure?(solved), celebrate?() }]
+// ============================================================
+const ChainTest = ({ props, items, eyebrow }) => {
+  const lang = useLang();
   const t = useT();
+  const sfx = useSfx();
+  const CL = CONTENT.chainLab;
+  const wasSolved = props.storedAnswer?.solved === true;
+  const [qi, setQi] = useState(wasSolved ? items.length - 1 : 0);
+  const [solvedItem, setSolvedItem] = useState(wasSolved);
+  const [picked, setPicked] = useState(wasSolved);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [praiseWord, setPraiseWord] = useState('');
+  const [encWord, setEncWord] = useState('');
+  const allFirstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? true) : true);
+  const attemptsRef = useRef(props.storedAnswer?.attempts ?? 0);
+  const introAdvancedRef = useRef(wasSolved);
+  const item = items[qi];
+  const c = CONTENT[item.key];
+  const last = qi >= items.length - 1;
+  const allDone = last && solvedItem;
+
+  const audio = useAudio([{ id: `chain_${items[0].key}_intro`, text: CONTENT[items[0].key].audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const canAns = useCanAnswer(audio);
+
+  const pick = (i) => {
+    if (!canAns || solvedItem || wrong.has(i)) return;
+    attemptsRef.current += 1;
+    setPicked(true);
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    const isCorrect = i === item.correctIdx;
+    if (isCorrect) {
+      setSolvedItem(true);
+      sfx.playCorrect();
+      const pw = nextPraise(lang); setPraiseWord(pw);
+      if (!audio.muted) {
+        setTimeout(() => {
+          const e = getAudioEngine();
+          if (e && !audio.muted) { e.pushOneOff(pw); e.pushOneOff(c.audio.on_correct[lang]); if (last) e.pushOneOff(CL.all_done[lang]); }
+        }, 300);
+      }
+      if (last) {
+        props.onAnswer({
+          stage: SCREEN_META[props.screen]?.scope ?? null,
+          screenIdx: props.screen,
+          correct: allFirstTryRef.current,
+          firstTry: allFirstTryRef.current,
+          attempts: attemptsRef.current,
+          solved: true
+        });
+      }
+    } else {
+      allFirstTryRef.current = false;
+      sfx.playWrong();
+      setEncWord(nextEncourage(lang));
+      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
+      if (!audio.muted) {
+        setTimeout(() => {
+          const e = getAudioEngine();
+          if (e && !audio.muted) {
+            const wv = (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || (c.wrong_default && c.wrong_default[lang]) || c.audio.on_wrong[lang];
+            e.pushOneOff(wv);
+          }
+        }, 300);
+      }
+    }
+  };
+
+  const nextQ = () => {
+    if (!solvedItem || last) return;
+    const nc = CONTENT[items[qi + 1].key];
+    setQi(qi + 1); setSolvedItem(false); setPicked(false); setWrong(new Set()); setPraiseWord(''); setEncWord('');
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(nc.audio.intro[lang]); }
+  };
+
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+
   return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<LineFig kind="straight"/>, <LineFig kind="curved"/>, <LineFig kind="broken"/>]}
-      correctIdx={0}
-      celebrateOnCorrect={() => <LineFig kind="straight" anim="celebrate"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+    <Stage eyebrow={eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div key={`q${qi}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        {allDone && <div style={{ position: 'relative', height: 0 }} aria-hidden="true"><Confetti/></div>}
+        <div className="fade-up" style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+          <span className="eyebrow mono" style={{ color: T.accent }}>{t(CL.q_word)} {qi + 1} / {items.length}</span>
+          <span style={{ display: 'inline-flex', gap: 5 }} aria-hidden="true">
+            {items.map((_, k) => {
+              const done = k < qi || (k === qi && solvedItem);
+              return <span key={k} className="mono small" style={{ color: done ? T.success : T.ink3, fontWeight: 700 }}>{done ? '✓' : '·'}</span>;
+            })}
+          </span>
+        </div>
+        <div className="fade-up"><PQ title={t(c.title)} problem={t(c.problem)}/></div>
+        {item.figure && (
+          <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            {item.figure(solvedItem)}
+          </div>
+        )}
+        {!solvedItem && (
+          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: `repeat(${item.opts.length}, minmax(0, 1fr))`, gap: 10 }}>
+            {item.opts.map((opt, i) => {
+              const isWrongPicked = wrong.has(i);
+              return (
+                <button key={i} className={`option${isWrongPicked ? ' option-picked-wrong' : ''}`} disabled={isWrongPicked || !canAns} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(10px, 1.8vw, 16px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span className="mono small" style={{ minWidth: 18, color: isWrongPicked ? '#D8A93A' : T.ink3 }}>{isWrongPicked ? '↺' : String.fromCharCode(65 + i)}</span>
+                  <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{opt}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {solvedItem && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            {item.celebrate ? item.celebrate() : (
+              <button className="option option-correct" disabled
+                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.6vw, 14px)', minHeight: 'clamp(44px, 6vw, 54px)', minWidth: 'clamp(120px, 40vw, 220px)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="mono small" style={{ minWidth: 20, color: T.success }}>✓</span>
+                <span style={{ flex: 1, minWidth: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>{item.opts[item.correctIdx]}</span>
+              </button>
+            )}
+          </div>
+        )}
+        <FeedbackBlock show={picked} isCorrect={solvedItem} wrongClass="frame-tip">
+          <Reaction state={solvedItem ? 'correct' : 'wrong'} praise={solvedItem ? praiseWord : encWord} mascot={false}/>
+        </FeedbackBlock>
+        {solvedItem && !last && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className="btn" onClick={nextQ}
+              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+              {t(CL.next_q)}
+            </button>
+          </div>
+        )}
+      </div>
+    </Stage>
   );
 };
 
-// s4 — EXPLORATION (interaktiv): 5 fazoviy so'z bo'ylab sayohat — tepada, pastda,
-//   chapda, o'ngda, orasida. Bola "Keyingisi" ni bosib so'zlarni ketma-ket eshitadi.
-const S4_STEPS = [
-  { rel: 'above', lab: 'above', wk: 'w_above' },
-  { rel: 'below', lab: 'below', wk: 'w_below' },
-  { rel: 'left', lab: 'left', wk: 'w_left' },
-  { rel: 'right', lab: 'right', wk: 'w_right' },
-  { rel: 'between', lab: 'between', wk: 'w_between' },
-];
-const Screen4 = (props) => {
+// chain1 — 5 savol (chiziqlar): to'g'ri top -> siniq top -> ha/yo'q -> boshqachasini top -> qarshi-namuna.
+const ScreenChain1 = (props) => {
+  const lang = useLang();
+  const items = [
+    { key: 's3', opts: [<LineFig kind="straight"/>, <LineFig kind="curved"/>, <LineFig kind="broken"/>], correctIdx: 0, celebrate: () => <LineFig kind="straight" anim="celebrate"/> },
+    { key: 's7', opts: [<LineFig kind="broken"/>, <LineFig kind="straight"/>, <LineFig kind="curved"/>], correctIdx: 0, celebrate: () => <LineFig kind="broken" anim="celebrate"/> },
+    { key: 'sYesNo', opts: [lang === 'uz' ? 'Ha' : 'Да', lang === 'uz' ? "Yo'q" : 'Нет'], correctIdx: 1, figure: (s) => <LineFig kind="curved" anim={s ? 'celebrate' : 'enter'}/> },
+    { key: 'sOdd', opts: [<LineFig kind="straight"/>, <LineFig kind="straight"/>, <LineFig kind="curved"/>], correctIdx: 2, celebrate: () => <LineFig kind="curved" anim="celebrate"/> },
+    { key: 'sVary', opts: [<VLineFig variant="flat"/>, <VLineFig variant="tilt"/>, <VLineFig variant="bow"/>], correctIdx: 2, celebrate: () => <VLineFig variant="bow"/> },
+  ];
+  return <ChainTest props={props} items={items} eyebrow={CONTENT.chain1.eyebrow}/>;
+};
+
+// ============================================================
+// NUQTA VA KESMA mini-bo'limi (sNK, chainNK) — darslik: kesma — ikki nuqta orasidagi to'g'ri yo'l.
+// ============================================================
+// SegFig — KESMA va taqqos-variantlari: hammasida ikki uch-NUQTA bor, faqat 'seg' TEKIS.
+const SegFig = ({ kind = 'seg', size = 'mid', anim = 'static', accent = false }) => {
+  const w = size === 'lg' ? 150 : size === 'sm' ? 88 : 116;
+  const h = size === 'lg' ? 75 : size === 'sm' ? 44 : 58;
+  const cls = 'g1-line' + (anim === 'celebrate' ? ' g1-line-cele' : anim === 'enter' ? ' g1-line-in' : '');
+  const d = kind === 'curve' ? 'M14 40 Q 60 8 106 36' : kind === 'broken' ? 'M14 44 L48 16 L78 44 L106 22' : 'M14 32 L106 32';
+  const ends = kind === 'curve' ? [[14, 40], [106, 36]] : kind === 'broken' ? [[14, 44], [106, 22]] : [[14, 32], [106, 32]];
+  return (
+    <span className={cls} aria-hidden="true">
+      <svg viewBox="0 0 120 60" width={w} height={h}>
+        {/* KESMA — QORA (metodist: oq/och rangda tushunarsiz); taqqos-variantlar kulrang. */}
+        <path className="g1-line-path" d={d} fill="none" stroke={kind === 'seg' ? '#0E0E10' : '#8FA6B8'} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round"/>
+        {ends.map(([x, y], i) => (
+          <g key={i}>
+            <circle cx={x} cy={y} r="6.5" fill={T.accent} stroke="#FFFFFF" strokeWidth="2"/>
+            {/* AKTSENT: kesmaning IKKI UCHI halqa-puls bilan urg'ulanadi (nkq2 savoli) */}
+            {accent && <circle className="g1-nk-ring" cx={x} cy={y} r="9" fill="none" stroke={T.accent} strokeWidth="2.2"/>}
+          </g>
+        ))}
+      </svg>
+      {anim === 'celebrate' && <SparkBurst/>}
+    </span>
+  );
+};
+
+// NKScene — jonli sahna: Ra'no uyi (nuqta A) -> maktab (nuqta B) -> kesma o'zini chizadi -> egri yo'lak taqqos.
+// step: 0 uy+nuqta · 1 +maktab+nuqta · 2 +kesma (chiziladi) · 3 +egri yo'lak.
+const NKScene = ({ step }) => (
+  <svg viewBox="0 0 240 130" width="100%" style={{ maxWidth: 380, height: 'auto' }} aria-hidden="true">
+    <defs>
+      <linearGradient id="g1nkSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E8F2FF"/><stop offset="100%" stopColor="#FCF8EF"/></linearGradient>
+      <linearGradient id="g1nkWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F6E7C8"/><stop offset="100%" stopColor="#E7CFA0"/></linearGradient>
+      <linearGradient id="g1nkRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E76A6E"/><stop offset="100%" stopColor="#C13A40"/></linearGradient>
+      <linearGradient id="g1nkSchool" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#DCE8FF"/><stop offset="100%" stopColor="#B9CDF2"/></linearGradient>
+      <linearGradient id="g1nkSeg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#6FD37F"/><stop offset="100%" stopColor="#2C7C3B"/></linearGradient>
+    </defs>
+    <rect x="0" y="0" width="240" height="130" rx="14" fill="url(#g1nkSky)"/>
+    <rect x="0" y="100" width="240" height="30" fill="#CFE7AE"/>
+    {/* Uy (chap) — nuqta A eshigi oldida */}
+    <g className="g1-scene-in" style={{ transformBox: 'fill-box', transformOrigin: 'center bottom' }}>
+      <rect x="24" y="62" width="46" height="38" fill="url(#g1nkWall)" stroke="#D8B98A" strokeWidth="1.6"/>
+      <polygon points="20,62 47,40 74,62" fill="url(#g1nkRoof)" stroke="#A52E33" strokeWidth="1.6" strokeLinejoin="round"/>
+      <rect x="40" y="80" width="13" height="20" rx="1.5" fill="#9A6433"/>
+      <rect x="29" y="68" width="9" height="9" rx="1" fill="#AFCCFF" stroke="#3F6FD6" strokeWidth="1.2"/>
+    </g>
+    {step >= 0 && (
+      <g className="g1-scene-in">
+        <circle cx="47" cy="106" r="6" fill={T.accent} stroke="#FFFFFF" strokeWidth="2.2"/>
+        {/* AKTSENT: nuqta atrofида tarqaluvchi halqa */}
+        <circle className="g1-nk-ring" cx="47" cy="106" r="8" fill="none" stroke={T.accent} strokeWidth="2"/>
+      </g>
+    )}
+    {/* Maktab (o'ng) — nuqta B */}
+    {step >= 1 && (
+      <>
+        <g className="g1-scene-in" style={{ transformBox: 'fill-box', transformOrigin: 'center bottom' }}>
+          <rect x="164" y="56" width="60" height="44" fill="url(#g1nkSchool)" stroke="#7E9BD8" strokeWidth="1.6"/>
+          <polygon points="160,56 194,34 228,56" fill="#5E86DC" stroke="#3F6FD6" strokeWidth="1.6" strokeLinejoin="round"/>
+          <rect x="187" y="80" width="14" height="20" rx="1.5" fill="#3F5FA8"/>
+          <rect x="170" y="63" width="10" height="10" rx="1" fill="#FFFFFF" stroke="#7E9BD8" strokeWidth="1.2"/>
+          <rect x="208" y="63" width="10" height="10" rx="1" fill="#FFFFFF" stroke="#7E9BD8" strokeWidth="1.2"/>
+          <line x1="194" y1="34" x2="194" y2="22" stroke="#8A5A3A" strokeWidth="2.2"/>
+          <polygon points="194,22 208,25.5 194,29" fill="#E5484D"/>
+        </g>
+        <g className="g1-scene-in">
+          <circle cx="194" cy="106" r="6" fill={T.accent} stroke="#FFFFFF" strokeWidth="2.2"/>
+          <circle className="g1-nk-ring" cx="194" cy="106" r="8" fill="none" stroke={T.accent} strokeWidth="2"/>
+        </g>
+      </>
+    )}
+    {/* Egri yo'lak (taqqos) — kesma USTIDAN, xira punktir OQADI (dashflow) */}
+    {step >= 3 && (
+      <g className="g1-scene-in">
+        <path className="g1-nk-dashflow" d="M47 106 Q 120 62 194 106" fill="none" stroke="#A7A6A2" strokeWidth="4.5" strokeLinecap="round" strokeDasharray="7 6"/>
+      </g>
+    )}
+    {/* KESMA — QORA, o'zini chizadi + chizilgach yashil PULS (aktsent: eng qisqa yo'l) */}
+    {step >= 2 && (
+      <>
+        <path className="g1-nk-glow" d="M47 106 L194 106" fill="none" stroke="#6FD37F" strokeWidth="14" strokeLinecap="round"/>
+        <path className="g1-seg-draw" d="M47 106 L194 106" fill="none" stroke="#0E0E10" strokeWidth="6" strokeLinecap="round"/>
+        <circle cx="47" cy="106" r="6" fill={T.accent} stroke="#FFFFFF" strokeWidth="2.2"/>
+        <circle cx="194" cy="106" r="6" fill={T.accent} stroke="#FFFFFF" strokeWidth="2.2"/>
+      </>
+    )}
+  </svg>
+);
+
+// NKSpatialScene — fazoviy so'zlar MATEMATIK materialda: qora KESMA (uy-maktab yo'lchasi,
+// ikki uchi bor) va sakraydigan KO'K NUQTA. Uy/maktab — faqat kontekst-fon.
+// rel: above (kesma tepasida) / below (ostida) / left (kesmadan chapda) / right (o'ngda) /
+// between (kesma USTIDA, ikki uchining orasida — halqa bilan urg'ulanadi).
+const NK_BALL_POS = {
+  above: { cx: 120, cy: 30 },
+  below: { cx: 120, cy: 122 },
+  left: { cx: 14, cy: 106 },
+  right: { cx: 229, cy: 106 },
+  between: { cx: 120, cy: 106 }
+};
+const NKSpatialScene = ({ rel, anim = 'enter', size = 'mid' }) => {
+  const pos = NK_BALL_POS[rel] || NK_BALL_POS.above;
+  const w = size === 'sm' ? 132 : 210;
+  const ballCls = 'g1-ball' + (anim === 'celebrate' ? ' g1-ball-cele' : anim === 'enter' ? ' g1-ball-in' : '');
+  return (
+    <svg viewBox="0 0 240 130" width={w} height={w * 130 / 240} aria-hidden="true">
+      <defs>
+        <linearGradient id="g1nksSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E8F2FF"/><stop offset="100%" stopColor="#FCF8EF"/></linearGradient>
+        <linearGradient id="g1nksWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F6E7C8"/><stop offset="100%" stopColor="#E7CFA0"/></linearGradient>
+        <linearGradient id="g1nksRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E76A6E"/><stop offset="100%" stopColor="#C13A40"/></linearGradient>
+        <linearGradient id="g1nksSchool" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#DCE8FF"/><stop offset="100%" stopColor="#B9CDF2"/></linearGradient>
+      </defs>
+      <rect x="0" y="0" width="240" height="130" rx="14" fill="url(#g1nksSky)"/>
+      <rect x="0" y="100" width="240" height="30" fill="#CFE7AE"/>
+      {/* Uy (chap) — kontekst-fon */}
+      <rect x="24" y="62" width="46" height="38" fill="url(#g1nksWall)" stroke="#D8B98A" strokeWidth="1.6"/>
+      <polygon points="20,62 47,40 74,62" fill="url(#g1nksRoof)" stroke="#A52E33" strokeWidth="1.6" strokeLinejoin="round"/>
+      <rect x="40" y="80" width="13" height="20" rx="1.5" fill="#9A6433"/>
+      <rect x="29" y="68" width="9" height="9" rx="1" fill="#AFCCFF" stroke="#3F6FD6" strokeWidth="1.2"/>
+      {/* Maktab (o'ng) — kontekst-fon */}
+      <rect x="164" y="56" width="60" height="44" fill="url(#g1nksSchool)" stroke="#7E9BD8" strokeWidth="1.6"/>
+      <polygon points="160,56 194,34 228,56" fill="#5E86DC" stroke="#3F6FD6" strokeWidth="1.6" strokeLinejoin="round"/>
+      <rect x="187" y="80" width="14" height="20" rx="1.5" fill="#3F5FA8"/>
+      <line x1="194" y1="34" x2="194" y2="22" stroke="#8A5A3A" strokeWidth="2.2"/>
+      <polygon points="194,22 208,25.5 194,29" fill="#E5484D"/>
+      {/* KESMA — qora, ikki uchi accent-nuqtali (sNK dan tanish yo'lcha) */}
+      <path d="M47 106 L194 106" fill="none" stroke="#0E0E10" strokeWidth="5" strokeLinecap="round"/>
+      <circle cx="47" cy="106" r="5" fill={T.accent} stroke="#FFFFFF" strokeWidth="1.8"/>
+      <circle cx="194" cy="106" r="5" fill={T.accent} stroke="#FFFFFF" strokeWidth="1.8"/>
+      {/* "Orasida" holatida joy halqa bilan urg'ulanadi */}
+      {rel === 'between' && <circle className="g1-nk-ring" cx="120" cy="106" r="11" fill="none" stroke="#019ACB" strokeWidth="2.2"/>}
+      {/* Sakraydigan KO'K NUQTA */}
+      <g className={ballCls} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+        <circle cx={pos.cx} cy={pos.cy} r="7.5" fill="#019ACB" stroke="#FFFFFF" strokeWidth="2.2"/>
+      </g>
+    </svg>
+  );
+};
+
+// GeoBetweenFig — "orasida"/"chetda" MATEMATIK savoli: qora kesmada UCHTA rangli nuqta
+// (qizil chapda, sariq o'rtada, ko'k o'ngda) — sonlar o'qidagi "orasida"/"tartib" poydevori.
+// target: 'mid' (sariq, orasida) | 'left' (qizil, chap chetda). Yechilgach shu nuqta urg'ulanadi.
+const GEO_PTS = { left: { x: 66, c: '#E5484D' }, mid: { x: 120, c: '#FFC23C' }, right: { x: 174, c: '#019ACB' } };
+const GeoBetweenFig = ({ solved, target = 'mid' }) => {
+  const tgt = GEO_PTS[target];
+  return (
+    <svg viewBox="0 0 240 70" width="220" aria-hidden="true">
+      <path d="M20 40 L220 40" fill="none" stroke="#0E0E10" strokeWidth="6" strokeLinecap="round"/>
+      <circle cx="20" cy="40" r="5" fill="#0E0E10"/>
+      <circle cx="220" cy="40" r="5" fill="#0E0E10"/>
+      {['left', 'mid', 'right'].map((k) => {
+        const p = GEO_PTS[k];
+        const isTgt = k === target;
+        return (
+          <g key={k} className={solved && isTgt ? 'g1-ball-cele' : ''} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+            <circle cx={p.x} cy="40" r="9.5" fill={p.c} stroke="#FFFFFF" strokeWidth="2.4"/>
+          </g>
+        );
+      })}
+      {/* Halqa faqat YECHILGACH (aks holda javob sizib chiqadi) */}
+      {solved && <circle className="g1-nk-ring" cx={tgt.x} cy="40" r="13" fill="none" stroke="#1F7A4D" strokeWidth="2.4"/>}
+    </svg>
+  );
+};
+
+// BetweenScene — sBetween exploration sahnasi: kesma ustida nuqtalar qadamma-qadam paydo bo'ladi.
+// step 0: qizil (chap chetda) · 1: +ko'k (o'ng chetda) · 2: +sariq (o'rtada, halqa bilan).
+const BetweenScene = ({ step }) => (
+  <svg viewBox="0 0 240 80" width="100%" style={{ maxWidth: 360, height: 'auto' }} aria-hidden="true">
+    <path d="M24 46 L216 46" fill="none" stroke="#0E0E10" strokeWidth="6" strokeLinecap="round"/>
+    <circle cx="24" cy="46" r="5" fill="#0E0E10"/>
+    <circle cx="216" cy="46" r="5" fill="#0E0E10"/>
+    {step >= 0 && <circle className="g1-scene-in" cx="60" cy="46" r="11" fill="#E5484D" stroke="#FFFFFF" strokeWidth="2.6"/>}
+    {step >= 1 && <circle className="g1-scene-in" cx="180" cy="46" r="11" fill="#019ACB" stroke="#FFFFFF" strokeWidth="2.6"/>}
+    {step >= 2 && (
+      <g className="g1-scene-in">
+        <circle cx="120" cy="46" r="11" fill="#FFC23C" stroke="#FFFFFF" strokeWidth="2.6"/>
+        <circle className="g1-nk-ring" cx="120" cy="46" r="15" fill="none" stroke="#1F7A4D" strokeWidth="2.4"/>
+      </g>
+    )}
+  </svg>
+);
+
+// sNK — EXPLORATION + XULOSA: nuqta va kesma (qadamma-qadam sahna), yakunida kartalar.
+const NK_STEPS = ['d_point', 'd_two', 'd_seg', 'd_comp'];
+const ScreenNK = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s4;
+  const c = CONTENT.sNK;
   const L = CONTENT.lab;
-  const audio = useAudio([
-    { id: 's4_intro', text: c.audio_intro[lang], trigger: 'on_mount', waits_for: null },
-    { id: 's4_w0', text: c.w_above[lang], trigger: 'after_previous', waits_for: null },
-  ]);
+  const audio = useAudio([{ id: 'sNK_intro', text: c.audio_intro[lang], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
   const [si, setSi] = useState(0);
   const [finished, setFinished] = useState(false);
-  const step = S4_STEPS[si];
-  const last = si >= S4_STEPS.length - 1;
-  const speak = (txt) => { if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(txt); } };
-  const nextWord = () => {
-    if (!canAct || finished) return;
-    if (last) { setFinished(true); speak(c.done_spatial[lang]); }
-    else { const ns = si + 1; setSi(ns); speak(c[S4_STEPS[ns].wk][lang]); }
+  const last = si >= NK_STEPS.length - 1;
+  useEffect(() => {
+    if (audio.muted) return;
+    const e = getAudioEngine();
+    if (e) e.pushOneOff(c[NK_STEPS[si]][lang]);
+  }, [si]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const next = () => {
+    if (!canAct) return;
+    if (last) {
+      setFinished(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.full_audio[lang]); }
+    } else setSi(si + 1);
   };
   const navContent = (
     <>
@@ -4267,124 +4664,127 @@ const Screen4 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <p className="h-sub title fade-up">{finished ? t(c.instruction) : t(c.tour_prompt)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(180px, 34vw, 222px)' }}>
-          {step.rel === 'between'
-            ? <SpatialRow items={['apple', 'ball', 'cup']} midGlow={true}/>
-            : <SpatialScene rel={step.rel} anim="static"/>}
-          <span className="eyebrow mono" style={{ color: T.accent }}>{t(L[step.lab])}</span>
-          {!finished && (
-            <button className="btn" disabled={!canAct} onClick={nextWord}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {last ? (lang === 'uz' ? 'Tayyor' : 'Готово') : (lang === 'uz' ? 'Keyingisi' : 'Далее')}
-            </button>
-          )}
-        </div>
-        {finished && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_spatial)}/>
+        <p className="h-sub title fade-up">{t(c.step_prompt)}</p>
+        {!finished && (
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <NKScene step={si}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 28 }}>
+            <span className="eyebrow mono" style={{ color: T.accent }}>{si >= 2 ? t(L.segment) : t(L.point)}</span>
+            <span className="mono small" style={{ color: T.ink3 }}>{si + 1} / {NK_STEPS.length}</span>
           </div>
+          <button className="btn" disabled={!canAct} onClick={next}
+            style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+            {last ? t(c.done_label) : (lang === 'uz' ? 'Keyingisi' : 'Далее')}
+          </button>
+        </div>
+        )}
+        {finished && (
+          <>
+            <div className="frame fade-up" style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(10px, 3vw, 22px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              <div className="frame-soft" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(8px, 1.6vw, 12px)' }}>
+                <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true">
+                  <circle cx="32" cy="32" r="7.5" fill={T.accent} stroke="#FFFFFF" strokeWidth="2.4"/>
+                </svg>
+                <span className="eyebrow mono" style={{ color: T.accent }}>{t(L.point)}</span>
+              </div>
+              <div className="frame-soft" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(8px, 1.6vw, 12px)' }}>
+                <SegFig kind="seg" size="sm"/>
+                <span className="eyebrow mono" style={{ color: T.accent }}>{t(L.segment)}</span>
+              </div>
+            </div>
+            <div className="frame-success fade-up delay-1">
+              <Reaction state="correct" praise={t(c.full_text)}/>
+            </div>
+          </>
         )}
       </div>
     </Stage>
   );
 };
 
-// s5 — RULE: fazoviy so'zlar.
-const Screen5 = (props) => {
+// chainNK — 2 savol (kesma): qaysi biri kesma / nechta uchi bor.
+const ScreenChainNK = (props) => {
+  const t = useT();
+  const c2 = CONTENT.nkq2;
+  const items = [
+    { key: 'nkq1', opts: [<SegFig kind="seg" anim="enter"/>, <SegFig kind="curve" anim="enter"/>, <SegFig kind="broken" anim="enter"/>], correctIdx: 0, celebrate: () => <SegFig kind="seg" anim="celebrate"/> },
+    { key: 'nkq2', opts: [t(c2.opt0), t(c2.opt1), t(c2.opt2)], correctIdx: 0, figure: (s) => <SegFig kind="seg" size="lg" anim={s ? 'celebrate' : 'static'} accent={!s}/> },
+  ];
+  return <ChainTest props={props} items={items} eyebrow={CONTENT.chainNK.eyebrow}/>;
+};
+
+// sBetween — EXPLORATION + XULOSA (bitta ekran): kesma ustida 3 nuqta qadamma-qadam.
+// Qizil (chetda) -> ko'k (chetda) -> sariq (o'rtada, orasida). Yakunida "chetda/orasida" kartalari.
+const BTW_STEPS = ['d_red', 'd_blue', 'd_yellow'];
+const ScreenBetween = (props) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT.s5;
-  const L = CONTENT.lab;
-  const audio = useAudio([{ id: 's5', text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
+  const c = CONTENT.sBetween;
+  const audio = useAudio([{ id: 'sBetween_intro', text: c.audio_intro[lang], trigger: 'on_mount', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const [si, setSi] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const last = si >= BTW_STEPS.length - 1;
+  useEffect(() => {
+    if (audio.muted) return;
+    const e = getAudioEngine();
+    if (e) e.pushOneOff(c[BTW_STEPS[si]][lang]);
+  }, [si]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const next = () => {
+    if (!canAct) return;
+    if (last) {
+      setFinished(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.full_audio[lang]); }
+    } else setSi(si + 1);
+  };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={false} onClick={props.onNext} label={<NextLabel/>}/>
+      <NavNext disabled={!finished} onClick={props.onNext} label={<NextLabel/>}/>
     </>
-  );
-  const item = (rel, lab) => (
-    <div className="frame-soft" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(8px, 1.6vw, 12px)' }}>
-      <SpatialScene rel={rel}/>
-      <span className="eyebrow mono" style={{ color: T.accent }}>{lab}</span>
-    </div>
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
-        <h1 className="title h-sub fade-up">
-          {t(c.title_part1)} <span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
-        </h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-          {item('above', t(L.above))}
-          {item('below', t(L.below))}
-          {item('left', t(L.left))}
-          {item('right', t(L.right))}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <p className="h-sub title fade-up">{t(c.step_prompt)}</p>
+        {!finished && (
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <BetweenScene step={si}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 28 }}>
+            <span className="eyebrow mono" style={{ color: T.accent }}>{si >= 2 ? t(c.mid_tag) : t(c.red_tag)}</span>
+            <span className="mono small" style={{ color: T.ink3 }}>{si + 1} / {BTW_STEPS.length}</span>
+          </div>
+          <button className="btn" disabled={!canAct} onClick={next}
+            style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+            {last ? t(c.done_label) : (lang === 'uz' ? 'Keyingisi' : 'Далее')}
+          </button>
         </div>
-        <BitSays text={t(c.tip)}/>
+        )}
+        {finished && (
+          <>
+            <div className="frame fade-up" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+              <BetweenScene step={2}/>
+            </div>
+            <div className="frame-success fade-up delay-1">
+              <Reaction state="correct" praise={t(c.full_text)}/>
+            </div>
+          </>
+        )}
       </div>
     </Stage>
   );
 };
 
-// s6 — TEST MC: to'p qayerda (pastda, idx0). Variantlar — matn.
-const Screen6 = (props) => {
-  const c = CONTENT.s6;
+// chainBetween — 2 savol: orasida qaysi (s8, sariq) / chap chetda qaysi (sOrder, qizil).
+const ScreenChainBetween = (props) => {
   const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <SpatialScene rel="below" anim={solved ? 'celebrate' : 'enter'}/>}
-      options={[t(c.opt0), t(c.opt1)]}
-      correctIdx={0}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s7 — TEST MC: qaysi siniq (idx0). Variantlar — LineFig.
-const Screen7 = (props) => {
-  const c = CONTENT.s7;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<LineFig kind="broken"/>, <LineFig kind="straight"/>, <LineFig kind="curved"/>]}
-      correctIdx={0}
-      celebrateOnCorrect={() => <LineFig kind="broken" anim="celebrate"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// s8 — TEST MC: orasida nima (to'p, idx0). Variantlar — matn.
-const Screen8 = (props) => {
-  const c = CONTENT.s8;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => <SpatialRow items={['apple', 'ball', 'cup']} midGlow={true}/>}
-      options={[t(c.opt0), t(c.opt1), t(c.opt2)]}
-      correctIdx={0}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
+  const c8 = CONTENT.s8;
+  const co = CONTENT.sOrder;
+  const items = [
+    { key: 's8', opts: [t(c8.opt0), t(c8.opt1), t(c8.opt2)], correctIdx: 0, figure: (s) => <GeoBetweenFig solved={s} target="mid"/> },
+    { key: 'sOrder', opts: [t(co.opt0), t(co.opt1), t(co.opt2)], correctIdx: 0, figure: (s) => <GeoBetweenFig solved={s} target="left"/> },
+  ];
+  return <ChainTest props={props} items={items} eyebrow={CONTENT.chainBetween.eyebrow}/>;
 };
 
 // VLineFig — to'g'ri chiziqlar turli qiyalikda (flat/tilt) + qarshi-namuna (bow: biroz egilgan).
@@ -4394,69 +4794,6 @@ const VLineFig = ({ variant }) => {
     : variant === 'tilt' ? 'M14 46 L106 16'
     : 'M12 30 Q 60 14 108 30';
   return <span className="g1-line" aria-hidden="true"><svg {...box}><path d={d} fill="none" stroke="#5E7C95" strokeWidth="7" strokeLinecap="round"/></svg></span>;
-};
-
-// sVary — TEST qarshi-namuna: to'g'ri chiziqlar (qiya bo'lsa ham) haqiqiy, egilgani EMAS (idx2).
-const ScreenVary = (props) => {
-  const c = CONTENT.sVary;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<VLineFig variant="flat"/>, <VLineFig variant="tilt"/>, <VLineFig variant="bow"/>]}
-      correctIdx={2}
-      celebrateOnCorrect={() => <VLineFig variant="bow"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// sYesNo — TEST Ha/Yo'q: egri chiziq ko'rsatiladi, "Bu to'g'rimi?" -> Yo'q (idx1).
-const ScreenYesNo = (props) => {
-  const c = CONTENT.sYesNo;
-  const t = useT();
-  const lang = useLang();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <LineFig kind="curved" anim={solved ? 'celebrate' : 'enter'}/>}
-      options={[lang === 'uz' ? 'Ha' : 'Да', lang === 'uz' ? "Yo'q" : 'Нет']}
-      correctIdx={1}
-      optionsCols={2}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
-
-// sOdd — TEST ortiqchani top: qaysi chiziq boshqacha -> egri (idx2).
-const ScreenOdd = (props) => {
-  const c = CONTENT.sOdd;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={c}
-      question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={() => null}
-      options={[<LineFig kind="straight"/>, <LineFig kind="straight"/>, <LineFig kind="curved"/>]}
-      correctIdx={2}
-      celebrateOnCorrect={() => <LineFig kind="curved" anim="celebrate"/>}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
 };
 
 // sJuft — TEST juftlash: chiziq <-> nom. Tap chiziqni, keyin nomini.
@@ -4524,7 +4861,7 @@ const ScreenMatch = (props) => {
 // sg — MINI-O'YIN (3 raund, ballsiz): chiziq/fazo aralash.
 const GAME_ROUNDS = [
   { qk: 'q_round1', kind: 'line', opts: ['curved', 'straight', 'broken'], ans: 0 },
-  { qk: 'q_round2', kind: 'spatial', scene: 'below', opts: ['below', 'above'], ans: 0 },
+  { qk: 'q_round2', kind: 'seg', opts: ['seg', 'curve', 'broken'], ans: 0 },
   { qk: 'q_round3', kind: 'line', opts: ['straight', 'broken', 'curved'], ans: 0 },
 ];
 const ScreenGame = (props) => {
@@ -4568,20 +4905,19 @@ const ScreenGame = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c[round.qk])} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          {round.kind === 'spatial' && <SpatialScene rel={round.scene} anim={solvedItem ? 'celebrate' : 'enter'}/>}
           {!solvedItem && (
             <div key={ri} style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(10px, 2.4vw, 16px)' }}>
               {round.opts.map((o, i) => (
                 <button key={i} className={`g1-numopt ${wrong.has(i) ? 'g1-numopt-wrong' : ''}`} disabled={wrong.has(i) || !canAns} onClick={() => pick(i)}
                   style={{ width: 'auto', minWidth: 'clamp(80px, 26vw, 120px)', padding: 'clamp(8px, 1.6vw, 12px)' }}>
-                  {round.kind === 'line' ? <LineFig kind={o} size="sm"/> : <span style={{ fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>{t(L[o])}</span>}
+                  {round.kind === 'seg' ? <SegFig kind={o} size="sm"/> : <LineFig kind={o} size="sm"/>}
                 </button>
               ))}
             </div>
           )}
           {solvedItem && (
             <div className="g1-numopt g1-numopt-ok" style={{ width: 'auto', minWidth: 'clamp(80px, 26vw, 120px)', padding: 'clamp(8px, 1.6vw, 12px)' }}>
-              {round.kind === 'line' ? <LineFig kind={round.opts[round.ans]} size="sm" anim="celebrate"/> : <span style={{ fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)', color: T.accent }}>{t(L[round.opts[round.ans]])}</span>}
+              {round.kind === 'seg' ? <SegFig kind={round.opts[round.ans]} size="sm" anim="celebrate"/> : <LineFig kind={round.opts[round.ans]} size="sm" anim="celebrate"/>}
             </div>
           )}
         </div>
@@ -4663,7 +4999,7 @@ const Screen10 = (props) => {
         </div>
         <div className="frame-success fade-up" style={{ padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <p className="eyebrow mono" style={{ color: T.success, margin: '0 0 8px' }}>{t(c.can_do_title)}</p>
-          {[c.cd_1, c.cd_2, c.cd_3].map((item, i) => (
+          {[c.cd_1, c.cd_2, c.cd_3, c.cd_4].map((item, i) => (
             <div key={i} className="g1-pop-in" style={{ animationDelay: `${0.2 + i * 0.15}s`, display: 'flex', alignItems: 'center', gap: 10, padding: '4px 0' }}>
               <span style={{ color: T.success, fontWeight: 800, fontSize: 18, lineHeight: 1 }}>✓</span>
               <span style={{ fontSize: 'clamp(14px, 1.9vw, 16px)' }}>{t(item)}</span>
@@ -4729,7 +5065,7 @@ export default function WordProblemSumLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, ScreenYesNo, ScreenOdd, ScreenVary, ScreenMatch, ScreenGame, ScreenGuest, Screen9, Screen10];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, ScreenChain1, ScreenNK, ScreenChainNK, ScreenBetween, ScreenChainBetween, ScreenMatch, ScreenGame, ScreenGuest, Screen9, Screen10];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -5172,6 +5508,24 @@ html, body { margin: 0; padding: 0; }
 .g1-scene-in { animation: g1sceneIn 0.55s ease both; }
 @keyframes g1sceneIn { 0% { opacity: 0; transform: translateY(10px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .g1-scene-in { animation: none; } }
+
+/* KESMA o'zini chizadi (NKScene: uy nuqtasidan maktab nuqtasigacha). */
+@keyframes g1SegDraw { from { stroke-dashoffset: 240; } to { stroke-dashoffset: 0; } }
+.g1-seg-draw { stroke-dasharray: 240; animation: g1SegDraw 1.1s ease-out both; }
+/* NUQTA aktsenti: nuqta atrofida tarqaluvchi halqa (cheksiz). */
+@keyframes g1NkRing { 0% { transform: scale(0.5); opacity: 0.9; } 100% { transform: scale(2.2); opacity: 0; } }
+.g1-nk-ring { animation: g1NkRing 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+/* KESMA aktsenti: chizilgach yashil puls ("eng qisqa yo'l"). */
+@keyframes g1NkGlow { 0%, 100% { opacity: 0; } 50% { opacity: 0.45; } }
+.g1-nk-glow { animation: g1NkGlow 1.8s ease-in-out 1.2s infinite; opacity: 0; }
+/* Egri yo'lak punktiri oqadi (kesma bilan taqqos ko'zga tashlanadi). */
+@keyframes g1NkDash { to { stroke-dashoffset: -26; } }
+.g1-nk-dashflow { animation: g1NkDash 1.6s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .g1-seg-draw { animation: none; stroke-dashoffset: 0; }
+  .g1-nk-ring, .g1-nk-glow { animation: none; opacity: 0; }
+  .g1-nk-dashflow { animation: none; }   /* egri yo'lak ko'rinib turadi, faqat oqmaydi */
+}
 /* Ambient — sahnaga yengil jon (bulut, quyosh, daryo jimirlashi, shamol). reduced-motion'da o'chadi. */
 .g1-amb-cloud { animation: g1drift 9s ease-in-out infinite alternate; }
 .g1-amb-cloud2 { animation: g1driftB 12s ease-in-out infinite alternate; }
