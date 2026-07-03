@@ -899,22 +899,27 @@ const CONTENT = {
     }
   },
 
-  // ---- s1 EXPLORATION: 13-5 -> avval 3 (o'ngacha), keyin 2 -> 8 ----
+  // ---- s1 EXPLORATION (DRAG-AYIRISH): 13-5 — bola 5 kitobni O'ZI savatga suradi:
+  // avval 3 yakka (aynan o'n qoladi!), keyin o'nlik OCHILIB undan yana 2 -> 8.
   s1: {
     eyebrow: { ru: 'Вычтем через десяток', uz: "O'nlikdan o'tib ayiramiz" },
-    instruction: { ru: 'Тринадцать книг, нужно убрать пять. Нажми — уберём через десяток', uz: "O'n uchta kitob, beshta olib qo'yish kerak. Bosing — o'nlikdan o'tib ayiramiz" },
-    btn: { ru: 'Вычесть', uz: "Ayirish" },
+    instruction: { ru: 'Тринадцать книг. Перетащи пять книг в корзину — через десяток', uz: "O'n uchta kitob. Beshta kitobni savatga suring — o'nlikdan o'tib" },
     label_before: { ru: 'Тринадцать, убираем пять', uz: "O'n uch, beshni olamiz" },
     label_after: { ru: 'Осталось восемь', uz: "Sakkiz qoldi" },
+    drag_hint: { ru: 'Тяни книги сюда, в корзину', uz: 'Kitoblarni shu yerga, savatga torting' },
+    mid_hint: {
+      ru: 'Стало ровно десять! Теперь десяток раскрылся — возьми ещё две.',
+      uz: "Aynan o'n bo'ldi! Endi o'nlik ochildi — yana ikkitasini oling."
+    },
     done_text: { ru: 'Сначала убрали три до десяти, потом ещё два. Тринадцать минус пять — это восемь.', uz: "Avval uchni olib o'ngacha tushdik, keyin yana ikki. O'n uch minus besh — bu sakkiz." },
     audio: {
       ru: [
-        'У нас тринадцать книг, нужно убрать пять. Нажми кнопку вычесть.',
-        'Сначала убрали три и стало ровно десять. Потом убрали ещё два. Осталось восемь.'
+        'У нас тринадцать книг, нужно убрать пять. Сначала перетащи в корзину три отдельные книги.',
+        'Ты убрал три, а потом ещё две из десятка. Тринадцать минус пять — осталось восемь.'
       ],
       uz: [
-        "Bizda o'n uchta kitob, beshta olib qo'yish kerak. Ayirish tugmasini bosing.",
-        "Avval uchni oldik, aynan o'n bo'ldi. Keyin yana ikkita oldik. Sakkiz qoldi."
+        "Bizda o'n uchta kitob, beshta olib qo'yish kerak. Avval uchta yakka kitobni savatga suring.",
+        "Siz uchtasini oldingiz, keyin o'nlikdan yana ikkitasini. O'n uch minus besh — sakkiz qoldi."
       ]
     }
   },
@@ -3693,19 +3698,59 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION: 8 to'la -> "To'ldir" -> bo'sh 2 joy to'ladi -> 10.
+// s1 — EXPLORATION (DRAG-AYIRISH): 13 = o'nlik + 3 yakka. Bola 5 kitobni O'ZI savatga
+// suradi (useDnd): 1-bosqich — 3 yakka ("bir, ikki, uch" + "aynan o'n!"); 2-bosqich —
+// o'nlik OCHILIB (8 + 2 yakka ko'rinadi), undan yana 2 olinadi -> 8. Dars13 naqshi.
+const S1_ONES3 = ['o0', 'o1', 'o2'];      // 1-bosqich: yakka birliklar
+const S1_TENS2 = ['t0', 't1'];            // 2-bosqich: o'nlikdan olinadigan ikkitasi
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's1_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
+  const [removed, setRemoved] = useState(() => new Set());
   const [done, setDone] = useState(false);
-  const fill = () => {
-    if (done || !canAct) return;
-    setDone(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
-  };
+  const doneTimer = useRef(null);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (done || zoneId !== 'savat') return;
+    setRemoved((prev) => {
+      if (prev.has(tokenId)) return prev;
+      // 2-bosqich tokenlari faqat 1-bosqich tugagach qabul qilinadi
+      const phase1Done = S1_ONES3.every((id) => prev.has(id));
+      if (tokenId.startsWith('t') && !phase1Done) return prev;
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      if (!audio.muted) {
+        const e = getAudioEngine();
+        if (e) {
+          e.pushOneOff(NUM_WORDS[lang][n.size] || '');
+          if (n.size === S1_ONES3.length) e.pushOneOff(c.mid_hint[lang]);   // "aynan o'n bo'ldi!"
+        }
+      }
+      if (n.size >= S1_ONES3.length + S1_TENS2.length) {
+        doneTimer.current = setTimeout(() => {
+          setDone(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 800);
+      }
+      return n;
+    });
+  }, [done, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const phase1Done = S1_ONES3.every((id) => removed.has(id));
+  const onesLeft = S1_ONES3.filter((id) => !removed.has(id));
+  const tensLeft = S1_TENS2.filter((id) => !removed.has(id));
+  const inBasket = [...S1_ONES3, ...S1_TENS2].filter((id) => removed.has(id));
+  const dragTok = (id, i) => (
+    <span key={id} className="g1-fviz-one"
+      style={{ cursor: 'grab', touchAction: 'none', borderRadius: 8, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+      onPointerDown={(e) => { if (!canAct || done) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+      <Book tone={i}/>
+    </span>
+  );
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3716,19 +3761,63 @@ const Screen1 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.8vw, 24px)' }}>
           <span className="eyebrow mono" style={{ color: T.ink3 }}>{done ? t(c.label_after) : t(c.label_before)}</span>
-          <MakeTenSub start={13} sub={5} done={done}/>
-          {!done && (
-            <button className="btn" disabled={!canAct} onClick={fill}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
+          {done
+            ? <MakeTenSub start={13} sub={5} done={true}/>
+            : (
+              <>
+                {/* 13: o'nlik (2-bosqichda OCHILADI: 8 + 2 yakka) + 3 yakka birlik */}
+                <div className="g1-mt2" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
+                  {!phase1Done
+                    ? <TenSlots filled={10}/>
+                    : (
+                      <>
+                        <TenSlots filled={10 - S1_TENS2.length}/>
+                        <div className="g1-fviz-ones">
+                          {tensLeft.map((id) => dragTok(id, 8 + Number(id.slice(1))))}
+                        </div>
+                      </>
+                    )}
+                  {onesLeft.length > 0 && <span className="g1-mt2-plus">+</span>}
+                  {onesLeft.length > 0 && (
+                    <div className="g1-fviz-ones">
+                      {onesLeft.map((id) => dragTok(id, Number(id.slice(1))))}
+                    </div>
+                  )}
+                </div>
+                {/* Savat (drop-zona): olib qo'yilganlar shu yerda, xiralashgan */}
+                <div data-zone="savat" onClick={() => { if (canAct && !done) dnd.tapZone('savat'); }}
+                  style={{
+                    width: '100%', boxSizing: 'border-box', minHeight: 'clamp(70px, 14vw, 100px)',
+                    border: `2.5px dashed ${inBasket.length ? T.success : T.accent}`, borderRadius: 14,
+                    background: inBasket.length ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    gap: 6, padding: 'clamp(8px, 1.6vw, 12px)'
+                  }}>
+                  {inBasket.length === 0
+                    ? <span className="small" style={{ color: T.ink2 }}>⬇ {t(c.drag_hint)}</span>
+                    : (
+                      <div className="g1-fviz-ones g1-fviz-pop" style={{ opacity: 0.55 }}>
+                        {inBasket.map((id) => (
+                          <span key={id} className="g1-fviz-one"><Book tone={id.startsWith('t') ? 8 + Number(id.slice(1)) : Number(id.slice(1))}/></span>
+                        ))}
+                      </div>
+                    )}
+                  <span className="mono small" style={{ color: inBasket.length ? T.success : T.ink3, fontWeight: 700 }}>{inBasket.length} / 5</span>
+                </div>
+              </>
+            )}
         </div>
         {done && (
           <div className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>
+            <span className="g1-fviz-one"><Book tone={dnd.drag.id.startsWith('t') ? 8 + Number(dnd.drag.id.slice(1)) : Number(dnd.drag.id.slice(1))}/></span>
           </div>
         )}
       </div>

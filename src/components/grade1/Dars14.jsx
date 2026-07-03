@@ -900,22 +900,27 @@ const CONTENT = {
     }
   },
 
-  // ---- s1 EXPLORATION: 1 o'nlik (yuqori qator) + birliklarni qo'sh -> 14 ----
+  // ---- s1 EXPLORATION (DRAG-QURISH): dasta turibdi, bola 4 birlikni O'ZI javonga suradi -> 14.
+  // Har tushgan kitobda ovoz O'NDAN DAVOM ETIB sanaydi (o'n bir ... o'n to'rt) — asosiy insight.
   s1: {
     eyebrow: { ru: 'Построим число', uz: 'Son quramiz' },
-    instruction: { ru: 'Вверху десяток. Нажми — добавим внизу ещё четыре книги', uz: "Yuqorida o'nlik. Bosing — pastga yana to'rtta kitob qo'shamiz" },
-    btn: { ru: 'Добавить книги', uz: "Kitob qo'shish" },
+    instruction: { ru: 'Вверху десяток. Перетащи вниз ещё четыре книги', uz: "Yuqorida o'nlik. Pastga yana to'rtta kitob suring" },
     label_before: { ru: 'Десяток — это десять', uz: "O'nlik — bu o'n" },
     label_after: { ru: 'Десяток и четыре — четырнадцать', uz: "O'nlik va to'rt — o'n to'rt" },
+    drag_hint: { ru: 'Тяни книги сюда', uz: 'Kitoblarni shu yerga torting' },
+    count_words: {
+      ru: ['одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать'],
+      uz: ["o'n bir", "o'n ikki", "o'n uch", "o'n to'rt"]
+    },
     done_text: { ru: 'Десяток и ещё четыре — это четырнадцать. Десять и четыре вместе.', uz: "O'nlik va yana to'rt — bu o'n to'rt. O'n va to'rt birga." },
     audio: {
       ru: [
-        'Вверху один десяток, это десять книг. Нажми кнопку добавить книги.',
-        'Внизу добавились четыре книги. Десять и ещё четыре — это четырнадцать.'
+        'Вверху один десяток, это десять книг. Перетащи вниз ещё четыре книги, по одной.',
+        'Ты добавил четыре книги. Десять и ещё четыре — это четырнадцать.'
       ],
       uz: [
-        "Yuqorida bitta o'nlik, bu o'nta kitob. Daftar qo'shish tugmasini bosing.",
-        "Pastga to'rtta kitob qo'shildi. O'n va yana to'rt — bu o'n to'rt."
+        "Yuqorida bitta o'nlik, bu o'nta kitob. Pastga yana to'rtta kitobni bittalab suring.",
+        "Siz to'rtta kitob qo'shdingiz. O'n va yana to'rt — bu o'n to'rt."
       ]
     }
   },
@@ -3645,19 +3650,40 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION: 1 o'nlik (yuqori) + "Munchoq qo'sh" -> pastga 4 birlik (slideBottom) -> 14.
+// s1 — EXPLORATION (DRAG-QURISH): dasta yuqorida, bola 4 birlikni O'ZI javonga suradi
+// (useDnd: pointer-drag + tap-tap). Har kitobda ovoz o'ndan davom etib sanaydi
+// (o'n bir ... o'n to'rt); to'rtinchisidan keyin "14" ochiladi. Dars13 naqshi.
+const S1_ONES = Array.from({ length: 4 }, (_, i) => `o${i}`);
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's1_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
+  const [placed, setPlaced] = useState(() => new Set());
   const [built, setBuilt] = useState(false);
-  const add = () => {
-    if (built || !canAct) return;
-    setBuilt(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
-  };
+  const doneTimer = useRef(null);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (built || zoneId !== 'javon') return;
+    setPlaced((prev) => {
+      if (prev.has(tokenId)) return prev;
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.count_words[lang][n.size - 1] || ''); }
+      if (n.size >= S1_ONES.length) {
+        doneTimer.current = setTimeout(() => {
+          setBuilt(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 750);
+      }
+      return n;
+    });
+  }, [built, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const tray = S1_ONES.filter((id) => !placed.has(id));
+  const inZone = S1_ONES.filter((id) => placed.has(id));
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3668,21 +3694,54 @@ const Screen1 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
-          <span className="eyebrow mono" style={{ color: T.ink3 }}>{built ? t(c.label_after) : t(c.label_before)}</span>
-          {built
-            ? <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.6vw, 18px)' }}><BookViz tens={1} ones={4} pop={true}/><span className="d4-numtile" aria-hidden="true">14</span></div>
-            : <BookViz tens={1} ones={0}/>}
-          {!built && (
-            <button className="btn" disabled={!canAct} onClick={add}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
-        </div>
+        {!built ? (
+          <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 16px)', padding: 'clamp(14px, 2.8vw, 22px)' }}>
+            <span className="eyebrow mono" style={{ color: T.ink3 }}>{t(c.label_before)}</span>
+            <BookViz tens={1} ones={0}/>
+            {/* Pastki javon (drop-zona) — birliklar shu yerga yig'iladi */}
+            <div data-zone="javon" onClick={() => { if (canAct && !built) dnd.tapZone('javon'); }}
+              style={{
+                width: '100%', boxSizing: 'border-box', minHeight: 'clamp(76px, 15vw, 108px)',
+                border: `2.5px dashed ${inZone.length ? T.success : T.accent}`, borderRadius: 14,
+                background: inZone.length ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 6, padding: 'clamp(8px, 1.6vw, 12px)'
+              }}>
+              {inZone.length === 0
+                ? <span className="small" style={{ color: T.ink2 }}>⬇ {t(c.drag_hint)}</span>
+                : (
+                  <div className="g1-fviz-ones g1-fviz-pop">
+                    {inZone.map((id) => <span key={id} className="g1-fviz-one"><Book subj={Number(id.slice(1))}/></span>)}
+                  </div>
+                )}
+              <span className="mono small" style={{ color: inZone.length ? T.success : T.ink3, fontWeight: 700 }}>10 + {inZone.length}</span>
+            </div>
+            {/* Tray — sudraladigan birliklar */}
+            <div className="g1-fviz-ones" style={{ minHeight: 'clamp(48px, 10vw, 72px)' }}>
+              {tray.map((id) => (
+                <span key={id} className="g1-fviz-one"
+                  style={{ cursor: 'grab', touchAction: 'none', borderRadius: 8, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+                  onPointerDown={(e) => { if (!canAct || built) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+                  <Book subj={Number(id.slice(1))}/>
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
+            <span className="eyebrow mono" style={{ color: T.ink3 }}>{t(c.label_after)}</span>
+            <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.6vw, 18px)' }}><BookViz tens={1} ones={4} pop={true}/><span className="d4-numtile" aria-hidden="true">14</span></div>
+          </div>
+        )}
         {built && (
           <div className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>
+            <span className="g1-fviz-one"><Book subj={Number(dnd.drag.id.slice(1))}/></span>
           </div>
         )}
       </div>

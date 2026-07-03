@@ -899,22 +899,22 @@ const CONTENT = {
     }
   },
 
-  // ---- s1 EXPLORATION: 8+5 -> avval 2 bilan 10 ga, keyin 3 -> 13 ----
+  // ---- s1 EXPLORATION (DRAG make-ten): 8+5 — bola BESHTADAN IKKITASINI o'zi ramkaga suradi
+  // (o'ngacha to'ldirish = strategiyaning kalit harakati), qolgan 3 yangi qatorga o'zi o'tadi -> 13.
   s1: {
     eyebrow: { ru: 'Сложим через десяток', uz: "O'nlikdan o'tib qo'shamiz" },
-    instruction: { ru: 'Восемь книг и нужно добавить пять. Нажми — сделаем через десяток', uz: "Sakkizta kitob, beshta qo'shish kerak. Bosing — o'nlikdan o'tib qo'shamiz" },
-    btn: { ru: 'Сложить', uz: "Qo'shish" },
+    instruction: { ru: 'Восемь книг и ещё пять. Перетащи две в пустые места — до десяти', uz: "Sakkizta kitob va yana beshta. Ikkitasini bo'sh joylarga suring — o'ngacha" },
     label_before: { ru: 'Восемь и ещё пять', uz: "Sakkiz va yana besh" },
     label_after: { ru: 'Десять и три — тринадцать', uz: "O'n va uch — o'n uch" },
     done_text: { ru: 'Сначала два дополнили до десяти, потом три. Восемь плюс пять — это десять и три, тринадцать.', uz: "Avval ikki bilan o'ngacha to'ldirdik, keyin uch. Sakkiz plyus besh — bu o'n va uch, o'n uch." },
     audio: {
       ru: [
-        'У нас восемь книг, и нужно добавить пять. Нажми кнопку сложить.',
-        'Сначала два места дополнились до десяти. Потом ещё три в новый ряд. Десять и три, это тринадцать.'
+        'У нас восемь книг, и нужно добавить пять. Сначала перетащи две книги в пустые места, чтобы стало десять.',
+        'Ты дополнил до десяти! Остальные три перешли в новый ряд. Десять и три, это тринадцать.'
       ],
       uz: [
-        "Bizda sakkizta kitob, beshta qo'shish kerak. Qo'shish tugmasini bosing.",
-        "Avval ikki joy o'ngacha to'ldi. Keyin yana uch yangi javonga. O'n va uch, bu o'n uch."
+        "Bizda sakkizta kitob, beshta qo'shish kerak. Avval ikkita kitobni bo'sh joylarga suring, o'n bo'lsin.",
+        "Siz o'ngacha to'ldirdingiz! Qolgan uchtasi yangi qatorga o'tdi. O'n va uch, bu o'n uch."
       ]
     }
   },
@@ -3676,19 +3676,40 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION: 8 to'la -> "To'ldir" -> bo'sh 2 joy to'ladi -> 10.
+// s1 — EXPLORATION (DRAG make-ten): ramkada 8 + trayда 5; bola IKKITASINI o'zi bo'sh
+// joylarga suradi (to'qqiz, o'n!) — strategiyaning kalit harakati. Ikkinchisidan keyin
+// qolgan 3 avtomatik yangi qatorga o'tadi (MakeTenFrames done). Dars13 naqshi.
+const S1_ADD = Array.from({ length: 5 }, (_, i) => `a${i}`);
+const S1_NEED = 2;   // 10 gacha yetishmaydigani
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's1_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
+  const [placed, setPlaced] = useState(() => new Set());
   const [done, setDone] = useState(false);
-  const fill = () => {
-    if (done || !canAct) return;
-    setDone(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
-  };
+  const doneTimer = useRef(null);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (done || zoneId !== 'joy') return;
+    setPlaced((prev) => {
+      if (prev.has(tokenId) || prev.size >= S1_NEED) return prev;   // ramka to'la — ortiqcha qabul qilinmaydi
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][8 + n.size] || ''); }
+      if (n.size >= S1_NEED) {
+        doneTimer.current = setTimeout(() => {
+          setDone(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 800);
+      }
+      return n;
+    });
+  }, [done, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const tray = S1_ADD.filter((id) => !placed.has(id));
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3701,17 +3722,42 @@ const Screen1 = (props) => {
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
           <span className="eyebrow mono" style={{ color: T.ink3 }}>{done ? t(c.label_after) : t(c.label_before)}</span>
-          <MakeTenFrames a={8} b={5} done={done}/>
-          {!done && (
-            <button className="btn" disabled={!canAct} onClick={fill}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
+          {done
+            ? <MakeTenFrames a={8} b={5} done={true}/>
+            : (
+              <>
+                {/* Ramka — drop-zona: 8 to'la, 2 joy bo'sh */}
+                <div data-zone="joy" onClick={() => { if (canAct && !done) dnd.tapZone('joy'); }}
+                  style={{
+                    border: `2.5px dashed ${placed.size ? T.success : T.accent}`, borderRadius: 14,
+                    padding: 'clamp(6px, 1.2vw, 10px)',
+                    background: placed.size ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)'
+                  }}>
+                  <TenSlots filled={8 + placed.size}/>
+                </div>
+                <span className="mono small" style={{ color: placed.size ? T.success : T.ink3, fontWeight: 700 }}>8 + {placed.size}</span>
+                {/* Tray — qo'shiladigan 5 kitob (faqat 2 tasi ramkaga sig'adi) */}
+                <div className="g1-fviz-ones" style={{ minHeight: 'clamp(48px, 10vw, 72px)' }}>
+                  {tray.map((id) => (
+                    <span key={id} className="g1-fviz-one"
+                      style={{ cursor: 'grab', touchAction: 'none', borderRadius: 8, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+                      onPointerDown={(e) => { if (!canAct || done) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+                      <Book tone={8 + Number(id.slice(1))}/>
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
         </div>
         {done && (
           <div className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>
+            <span className="g1-fviz-one"><Book tone={8 + Number(dnd.drag.id.slice(1))}/></span>
           </div>
         )}
       </div>

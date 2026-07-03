@@ -901,22 +901,27 @@ const CONTENT = {
     }
   },
 
-  // ---- s1 EXPLORATION: 1 o'nlik + 8 birlik -> 18 ----
+  // ---- s1 EXPLORATION (DRAG-QURISH): yashik (o'nlik) turibdi, bola 8 olmani O'ZI suradi -> 18.
+  // Har tushgan olmada ovoz O'NDAN DAVOM ETIB sanaydi (o'n bir ... o'n sakkiz).
   s1: {
     eyebrow: { ru: 'Построим число', uz: 'Son quramiz' },
-    instruction: { ru: 'Вверху десяток. Нажми — добавим внизу восемь яблок', uz: "Yuqorida o'nlik. Bosing — pastga sakkizta olma qo'shamiz" },
-    btn: { ru: 'Добавить яблоки', uz: "Olma qo'shish" },
+    instruction: { ru: 'Вверху десяток. Перетащи вниз ещё восемь яблок', uz: "Yuqorida o'nlik. Pastga yana sakkizta olma suring" },
     label_before: { ru: 'Десяток — это десять', uz: "O'nlik — bu o'n" },
     label_after: { ru: 'Десяток и восемь — восемнадцать', uz: "O'nlik va sakkiz — o'n sakkiz" },
+    drag_hint: { ru: 'Тяни яблоки сюда', uz: 'Olmalarni shu yerga torting' },
+    count_words: {
+      ru: ['одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать'],
+      uz: ["o'n bir", "o'n ikki", "o'n uch", "o'n to'rt", "o'n besh", "o'n olti", "o'n yetti", "o'n sakkiz"]
+    },
     done_text: { ru: 'Десяток и ещё восемь — это восемнадцать. Десять и восемь вместе.', uz: "O'nlik va yana sakkiz — bu o'n sakkiz. O'n va sakkiz birga." },
     audio: {
       ru: [
-        'Вверху один десяток, это десять яблок. Нажми кнопку добавить яблоки.',
-        'Внизу добавились восемь яблок. Десять и ещё восемь, это восемнадцать.'
+        'Вверху один десяток, это десять яблок. Перетащи вниз ещё восемь яблок, по одному.',
+        'Ты добавил восемь яблок. Десять и ещё восемь, это восемнадцать.'
       ],
       uz: [
-        "Yuqorida bitta o'nlik, bu o'nta olma. Olma qo'shish tugmasini bosing.",
-        "Pastga sakkizta olma qo'shildi. O'n va yana sakkiz, bu o'n sakkiz."
+        "Yuqorida bitta o'nlik, bu o'nta olma. Pastga yana sakkizta olmani bittalab suring.",
+        "Siz sakkizta olma qo'shdingiz. O'n va yana sakkiz, bu o'n sakkiz."
       ]
     }
   },
@@ -3770,19 +3775,40 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION: 1 o'nlik (yuqori) + "Munchoq qo'sh" -> pastga 4 birlik (slideBottom) -> 14.
+// s1 — EXPLORATION (DRAG-QURISH): yashik (o'nlik) yuqorida, bola 8 olmani O'ZI suradi
+// (useDnd: pointer-drag + tap-tap). Har olmada ovoz o'ndan davom etib sanaydi
+// (o'n bir ... o'n sakkiz); sakkizinchisidan keyin "18" ochiladi. Dars13 naqshi.
+const S1_ONES = Array.from({ length: 8 }, (_, i) => `o${i}`);
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's1_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
+  const [placed, setPlaced] = useState(() => new Set());
   const [built, setBuilt] = useState(false);
-  const add = () => {
-    if (built || !canAct) return;
-    setBuilt(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
-  };
+  const doneTimer = useRef(null);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (built || zoneId !== 'javon') return;
+    setPlaced((prev) => {
+      if (prev.has(tokenId)) return prev;
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.count_words[lang][n.size - 1] || ''); }
+      if (n.size >= S1_ONES.length) {
+        doneTimer.current = setTimeout(() => {
+          setBuilt(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 750);
+      }
+      return n;
+    });
+  }, [built, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const tray = S1_ONES.filter((id) => !placed.has(id));
+  const inZone = S1_ONES.filter((id) => placed.has(id));
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3793,21 +3819,54 @@ const Screen1 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
-          <span className="eyebrow mono" style={{ color: T.ink3 }}>{built ? t(c.label_after) : t(c.label_before)}</span>
-          {built
-            ? <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.6vw, 18px)' }}><AppleViz tens={1} ones={8} pop={true} kind="apple"/><span className="d4-numtile" aria-hidden="true">18</span></div>
-            : <AppleViz tens={1} ones={0} kind="apple"/>}
-          {!built && (
-            <button className="btn" disabled={!canAct} onClick={add}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
-        </div>
+        {!built ? (
+          <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 16px)', padding: 'clamp(14px, 2.8vw, 22px)' }}>
+            <span className="eyebrow mono" style={{ color: T.ink3 }}>{t(c.label_before)}</span>
+            <AppleViz tens={1} ones={0} kind="apple"/>
+            {/* Pastki qator (drop-zona) — olmalar shu yerga yig'iladi */}
+            <div data-zone="javon" onClick={() => { if (canAct && !built) dnd.tapZone('javon'); }}
+              style={{
+                width: '100%', boxSizing: 'border-box', minHeight: 'clamp(70px, 14vw, 100px)',
+                border: `2.5px dashed ${inZone.length ? T.success : T.accent}`, borderRadius: 14,
+                background: inZone.length ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 6, padding: 'clamp(8px, 1.6vw, 12px)'
+              }}>
+              {inZone.length === 0
+                ? <span className="small" style={{ color: T.ink2 }}>⬇ {t(c.drag_hint)}</span>
+                : (
+                  <div className="g1-fviz-ones g1-fviz-pop">
+                    {inZone.map((id) => <span key={id} className="g1-fviz-one"><Produce kind="apple"/></span>)}
+                  </div>
+                )}
+              <span className="mono small" style={{ color: inZone.length ? T.success : T.ink3, fontWeight: 700 }}>10 + {inZone.length}</span>
+            </div>
+            {/* Tray — sudraladigan olmalar */}
+            <div className="g1-fviz-ones" style={{ minHeight: 'clamp(44px, 9vw, 64px)' }}>
+              {tray.map((id) => (
+                <span key={id} className="g1-fviz-one"
+                  style={{ cursor: 'grab', touchAction: 'none', borderRadius: 8, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+                  onPointerDown={(e) => { if (!canAct || built) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+                  <Produce kind="apple"/>
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
+            <span className="eyebrow mono" style={{ color: T.ink3 }}>{t(c.label_after)}</span>
+            <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 2.6vw, 18px)' }}><AppleViz tens={1} ones={8} pop={true} kind="apple"/><span className="d4-numtile" aria-hidden="true">18</span></div>
+          </div>
+        )}
         {built && (
           <div className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>
+            <span className="g1-fviz-one"><Produce kind="apple"/></span>
           </div>
         )}
       </div>

@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // ============================================================================
 // ░░ 1-SINF · Dars13 — "O'nlik — sanoq birligi" (ten-1-13-v1) · 10 ta birlik = 1 o'nlik (dasta) · [KOMP2 BOSHI, §4 chok] · spec: ETALON_1SINF.md ░░
 // Dars10 (son o'qi) bazasidan: infratuzilma + ETALON KIT baytma-bayt; +BondFrame (Dars08) +CompareSign (Dars12).
-// YANGI MEXANIKA: O'nlik-bog'lash (TenBundle) — 10 ta tayoqcha/narsa bitta dastaga bog'lanadi.
+// YANGI MEXANIKA: O'nlik-YIG'ISH — bola 10 kitobni O'ZI javonga suradi (useDnd: pointer-drag + tap-tap),
+//   o'ninchisi tushgach dasta o'zi bog'lanadi (merge). Audit qarori: yil tuguni insighti bolaning qo'lida.
 // Yangi personaj: JASUR (maktab bosqichida). Sahna: maktab. §4 chok Dars12->Dars13 sIntro'da so'zma-so'z.
 // Vizualizator MIX: tap-to-remove (YANGI MEXANIKA: olmani bos -> uchadi -> kamayadi; s0/sg),
 // countdown-decrement (s2: 7->5), RemoveRow (MC figuralari), drag-away (s5: savatdan Anvarga),
@@ -902,22 +903,24 @@ const CONTENT = {
     }
   },
 
-  // ---- s1 EXPLORATION (YANGI MEXANIKA): 10 kitob -> Sur -> 1 dasta (o'nlik) ----
+  // ---- s1 EXPLORATION (DRAG-YIG'ISH): bola 10 kitobni O'ZI javonga suradi -> dasta bog'lanadi.
+  // Audit qarori: yil tugunidagi "10 birlik = 1 o'nlik" insighti tugma emas, bolaning O'Z
+  // harakati (sudrash) bilan tug'ilsin. Har kitob tushganda ovoz sanaydi (bir, ikki, ...).
   s1: {
-    eyebrow: { ru: 'Свяжем в стопку', uz: "Dastaga bog'laymiz" },
-    instruction: { ru: 'Здесь десять книг. Нажми — свяжем их в одну стопку', uz: "Bu yerda o'nta kitob. Bosing — ularni bitta dastaga bog'laymiz" },
-    btn: { ru: 'Связать', uz: "Bog'lash" },
+    eyebrow: { ru: 'Соберём десяток', uz: "O'nlikni yig'amiz" },
+    instruction: { ru: 'Перетащи все десять книг на полку — соберём десяток', uz: "O'nta kitobning hammasini javonga suring — o'nlikni yig'amiz" },
     label_before: { ru: 'Десять книг по одной', uz: "O'nta kitob, bittadan" },
     label_after: { ru: 'Одна стопка — это десяток', uz: "To'la dasta — bu o'nlik" },
+    drag_hint: { ru: 'Тяни книги сюда, на полку', uz: 'Kitoblarni shu yerga, javonga torting' },
     done_text: { ru: 'Десять книг связали в одну стопку. Одна стопка — это один десяток.', uz: "O'nta kitob bitta dastaga bog'landi. To'la dasta — bu bitta o'nlik." },
     audio: {
       ru: [
-        'Тут десять книг, и каждая отдельно. Нажми кнопку связать.',
-        'Десять книг стали одной стопкой. Одна стопка, это один десяток. Десять единиц вместе, это десяток.'
+        'Тут десять книг, и каждая отдельно. Перетащи их по одной на полку.',
+        'Ты собрал десять книг, и они стали одной стопкой. Одна стопка, это один десяток. Десять единиц вместе, это десяток.'
       ],
       uz: [
-        "Bu yerda o'nta kitob, har biri alohida. Bog'lash tugmasini bosing.",
-        "O'nta kitob dasta bo'ldi. To'la dasta, bu bitta o'nlik. O'nta birlik birga, bu o'nlik."
+        "Bu yerda o'nta kitob, har biri alohida. Ularni birma-bir javonga suring.",
+        "Siz o'nta kitobni yig'dingiz va ular bitta dasta bo'ldi. To'la dasta, bu bitta o'nlik. O'nta birlik birga, bu o'nlik."
       ]
     }
   },
@@ -3646,19 +3649,41 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION (YANGI MEXANIKA): 10 tayoqcha -> "Bog'lash" -> 1 dasta (o'nlik).
+// s1 — EXPLORATION (DRAG-YIG'ISH): bola 10 kitobni O'ZI javonga suradi (pointer-drag,
+// tap-tap fallback — useDnd). Har tushgan kitobda ovoz sanaydi (bir, ikki, ...);
+// o'ninchisi tushgach dasta O'ZI bog'lanadi (merge animatsiya). Insight bolaning qo'lida.
+const S1_BOOKS = Array.from({ length: 10 }, (_, i) => `b${i}`);
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's1_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
+  const [placed, setPlaced] = useState(() => new Set());
   const [tied, setTied] = useState(false);
-  const tie = () => {
-    if (tied || !canAct) return;
-    setTied(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
-  };
+  const tieTimer = useRef(null);
+  useEffect(() => () => clearTimeout(tieTimer.current), []);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (tied || zoneId !== 'dasta') return;
+    setPlaced((prev) => {
+      if (prev.has(tokenId)) return prev;
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][n.size] || ''); }
+      if (n.size >= S1_BOOKS.length) {
+        // oxirgi kitob joylashib ulgursin, keyin dasta bog'lanadi
+        tieTimer.current = setTimeout(() => {
+          setTied(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 750);
+      }
+      return n;
+    });
+  }, [tied, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const tray = S1_BOOKS.filter((id) => !placed.has(id));
+  const inZone = S1_BOOKS.filter((id) => placed.has(id));
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3669,28 +3694,60 @@ const Screen1 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.6vw, 12px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 14px)', padding: 'clamp(11px, 2.2vw, 18px)' }}>
-          <span className="eyebrow mono" style={{ color: T.ink3 }}>{tied ? t(c.label_after) : t(c.label_before)}</span>
-          {!tied
-            ? <BookViz tens={0} ones={10}/>
-            : (
-              <div className="g1-merge" style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'flex-end' }}>
-                <div className="g1-merge-out" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'flex-end' }}>
-                  <BookViz tens={0} ones={10}/>
-                </div>
-                <div className="g1-merge-in"><BookViz tens={1} ones={0} animate={true}/></div>
+        {!tied ? (
+          <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(11px, 2.2vw, 18px)' }}>
+            <span className="eyebrow mono" style={{ color: T.ink3 }}>{t(c.label_before)}</span>
+            {/* Tray — qolgan kitoblar (sudraladi yoki tap bilan tanlanadi) */}
+            <div className="g1-fviz-ones" style={{ minHeight: 'clamp(56px, 12vw, 84px)' }}>
+              {tray.map((id) => (
+                <span key={id} className="g1-fviz-one"
+                  style={{ cursor: 'grab', touchAction: 'none', borderRadius: 8, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+                  onPointerDown={(e) => { if (!canAct || tied) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+                  <Book subj={Number(id.slice(1))}/>
+                </span>
+              ))}
+            </div>
+            {/* Javon (drop-zona): kitoblar shu yerga yig'iladi */}
+            <div data-zone="dasta" onClick={() => { if (canAct && !tied) dnd.tapZone('dasta'); }}
+              style={{
+                width: '100%', boxSizing: 'border-box', minHeight: 'clamp(84px, 17vw, 118px)',
+                border: `2.5px dashed ${inZone.length ? T.success : T.accent}`, borderRadius: 14,
+                background: inZone.length ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                gap: 6, padding: 'clamp(8px, 1.6vw, 12px)'
+              }}>
+              {inZone.length === 0
+                ? <span className="small" style={{ color: T.ink2 }}>⬇ {t(c.drag_hint)}</span>
+                : (
+                  <div className="g1-fviz-ones g1-fviz-pop">
+                    {inZone.map((id) => (
+                      <span key={id} className="g1-fviz-one"><Book subj={Number(id.slice(1))}/></span>
+                    ))}
+                  </div>
+                )}
+              <span className="mono small" style={{ color: inZone.length ? T.success : T.ink3, fontWeight: 700 }}>{inZone.length} / {S1_BOOKS.length}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 14px)', padding: 'clamp(11px, 2.2vw, 18px)' }}>
+            <span className="eyebrow mono" style={{ color: T.ink3 }}>{t(c.label_after)}</span>
+            <div className="g1-merge" style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'flex-end' }}>
+              <div className="g1-merge-out" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'flex-end' }}>
+                <BookViz tens={0} ones={10}/>
               </div>
-            )}
-          {!tied && (
-            <button className="btn" disabled={!canAct} onClick={tie}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
-          )}
-        </div>
+              <div className="g1-merge-in"><BookViz tens={1} ones={0} animate={true}/></div>
+            </div>
+          </div>
+        )}
         {tied && (
           <div className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi — sudralayotgan kitob barmoq ostida */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>
+            <span className="g1-fviz-one"><Book subj={Number(dnd.drag.id.slice(1))}/></span>
           </div>
         )}
       </div>

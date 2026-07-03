@@ -899,22 +899,21 @@ const CONTENT = {
     }
   },
 
-  // ---- s1 EXPLORATION: 8 to'la, "To'ldir" -> 2 qo'shiladi -> 10 ----
+  // ---- s1 EXPLORATION (DRAG-TO'LDIRISH): 8 to'la, bola 2 kitobni O'ZI bo'sh joylarga suradi -> 10.
   s1: {
     eyebrow: { ru: 'Дополним до десяти', uz: "O'ngacha to'ldiramiz" },
-    instruction: { ru: 'На полке восемь книг. Нажми — дополним пустые места до десяти', uz: "Javonda sakkizta kitob. Bosing — bo'sh joylarni o'ngacha to'ldiramiz" },
-    btn: { ru: 'Дополнить', uz: "To'ldirish" },
+    instruction: { ru: 'На полке восемь книг. Перетащи две книги в пустые места', uz: "Javonda sakkizta kitob. Ikkita kitobni bo'sh joylarga suring" },
     label_before: { ru: 'Восемь, два места пустые', uz: "Sakkiz, ikki joy bo'sh" },
     label_after: { ru: 'Восемь и два — десять', uz: "Sakkiz va ikki — o'n" },
     done_text: { ru: 'Было восемь, добавили два — стало десять. Восемь дополняется до десяти двумя.', uz: "Sakkiz edi, ikki qo'shdik — o'n bo'ldi. Sakkiz o'ngacha ikki bilan to'ladi." },
     audio: {
       ru: [
-        'На полке восемь книг и два пустых места. Нажми кнопку дополнить.',
-        'Добавили две книги, и места заполнились. Восемь и два — это десять, полный десяток.'
+        'На полке восемь книг и два пустых места. Перетащи две книги в пустые места.',
+        'Ты добавил две книги, и места заполнились. Восемь и два — это десять, полный десяток.'
       ],
       uz: [
-        "Javonda sakkizta kitob va ikkita bo'sh joy bor. To'ldirish tugmasini bosing.",
-        "Ikkita kitob qo'shildi, joylar to'ldi. Sakkiz va ikki — bu o'n, to'liq o'nlik."
+        "Javonda sakkizta kitob va ikkita bo'sh joy bor. Ikkita kitobni bo'sh joylarga suring.",
+        "Siz ikkita kitob qo'shdingiz, joylar to'ldi. Sakkiz va ikki — bu o'n, to'liq o'nlik."
       ]
     }
   },
@@ -3661,19 +3660,38 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION: 8 to'la -> "To'ldir" -> bo'sh 2 joy to'ladi -> 10.
+// s1 — EXPLORATION (DRAG-TO'LDIRISH): javonda 8 kitob + 2 bo'sh joy; bola 2 kitobni
+// O'ZI suradi (useDnd) — har birida ovoz sanaydi (to'qqiz, o'n!). Dars13 naqshi.
+const S1_FILL = ['f0', 'f1'];
 const Screen1 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const sfx = useSfx();
   const audio = useAudio([{ id: 's1_intro', text: c.audio[lang][0], trigger: 'on_mount', waits_for: null }]);
   const canAct = useCanAnswer(audio);
+  const [placed, setPlaced] = useState(() => new Set());
   const [done, setDone] = useState(false);
-  const fill = () => {
-    if (done || !canAct) return;
-    setDone(true);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
-  };
+  const doneTimer = useRef(null);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (done || zoneId !== 'joy') return;
+    setPlaced((prev) => {
+      if (prev.has(tokenId)) return prev;
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(NUM_WORDS[lang][8 + n.size] || ''); }
+      if (n.size >= S1_FILL.length) {
+        doneTimer.current = setTimeout(() => {
+          setDone(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[lang][1]); }
+        }, 750);
+      }
+      return n;
+    });
+  }, [done, lang, audio.muted, sfx, c]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const tray = S1_FILL.filter((id) => !placed.has(id));
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3686,17 +3704,38 @@ const Screen1 = (props) => {
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.8vw, 22px)', padding: 'clamp(18px, 3.4vw, 28px)' }}>
           <span className="eyebrow mono" style={{ color: T.ink3 }}>{done ? t(c.label_after) : t(c.label_before)}</span>
-          <TenSlots filled={8} fillTo={done ? 10 : null}/>
+          {/* Javonning o'zi — drop-zona: bo'sh joylar to'lguncha punktir ramkada */}
+          <div data-zone="joy" onClick={() => { if (canAct && !done) dnd.tapZone('joy'); }}
+            style={{
+              border: done ? 'none' : `2.5px dashed ${placed.size ? T.success : T.accent}`,
+              borderRadius: 14, padding: done ? 0 : 'clamp(6px, 1.2vw, 10px)',
+              background: done ? 'transparent' : (placed.size ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)')
+            }}>
+            <TenSlots filled={8 + placed.size}/>
+          </div>
+          <span className="mono small" style={{ color: placed.size ? T.success : T.ink3, fontWeight: 700 }}>8 + {placed.size}</span>
+          {/* Tray — sudraladigan 2 kitob */}
           {!done && (
-            <button className="btn" disabled={!canAct} onClick={fill}
-              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
-              {t(c.btn)}
-            </button>
+            <div className="g1-fviz-ones" style={{ minHeight: 'clamp(48px, 10vw, 72px)' }}>
+              {tray.map((id) => (
+                <span key={id} className="g1-fviz-one"
+                  style={{ cursor: 'grab', touchAction: 'none', borderRadius: 8, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+                  onPointerDown={(e) => { if (!canAct || done) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+                  <Book tone={8 + Number(id.slice(1))}/>
+                </span>
+              ))}
+            </div>
           )}
         </div>
         {done && (
           <div className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: dnd.drag.x, top: dnd.drag.y }}>
+            <span className="g1-fviz-one"><Book tone={8 + Number(dnd.drag.id.slice(1))}/></span>
           </div>
         )}
       </div>
