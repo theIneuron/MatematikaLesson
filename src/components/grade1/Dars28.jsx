@@ -1018,7 +1018,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Вопрос — это о чём спрашивают. Найди предложение со знаком вопроса.',
-      uz: "Savol — bu nima so'ralyapti. Savol belgisi bor gapni top."
+      uz: "Savol — bu nima so'ralyapti. Savol belgisi bor gapni toping."
     },
     audio: {
       intro: { ru: 'У Рано пять яблок, Анвар принёс три. Где здесь вопрос? Выбери.', uz: "Ra'noda besh olma, Anvar uchta keltirdi. Bu yerda savol qayerda? Tanlang." },
@@ -1031,7 +1031,7 @@ const CONTENT = {
     eyebrow: { ru: 'Выбираем действие', uz: 'Amalni tanlaymiz' },
     instruction: { ru: 'Яблоки собрали вместе. Какое это действие?', uz: "Olmalar birga yig'ildi. Bu qanday amal?" },
     full_text: { ru: 'Объединили — сложили: 4 и 3 — семь.', uz: "Birlashtirdik — qo'shdik: 4 va 3 — yetti." },
-    full_audio: { ru: 'Когда яблоки соединяют, мы складываем. Четыре и три — семь. Это сложение.', uz: "Olmalar birlashtirilsa, biz qo'shamiz. To'rt va uch — yetti. Bu qo'shish." },
+    full_audio: { ru: 'Когда яблоки соединяют, мы складываем. Четыре и три, семь. Это сложение.', uz: "Olmalar birlashtirilsa, biz qo'shamiz. To'rt va uch, yetti. Bu qo'shish." },
     audio: {
       ru: [
         'У Рано яблоки, у Анвара яблоки. Их собрали в одну кучку.',
@@ -1094,7 +1094,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи четыре и три.',
-      uz: "To'rt va uchni qo'sh."
+      uz: "To'rt va uchni qo'shing."
     },
     audio: {
       intro: { ru: 'У Рано четыре яблока, Анвар принёс три. Какое решение верное? Выбери.', uz: "Ra'noda to'rt olma, Anvar uchta keltirdi. Qaysi yechim to'g'ri? Tanlang." },
@@ -1121,12 +1121,12 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи пять и два.',
-      uz: "Besh va ikkini qo'sh."
+      uz: "Besh va ikkini qo'shing."
     },
     audio: {
       intro: { ru: 'У Зухры пять яблок, Жасур дал ещё два. Сколько всего? Выбери.', uz: "Zuhrada besh olma, Jasur yana ikkita berdi. Hammasi nechta? Tanlang." },
       on_correct: { ru: 'Верно. Пять и два семь. Вместе семь яблок.', uz: "To'g'ri. Besh va ikki yetti. Birga yetti olma." },
-      on_wrong: { ru: 'Не совсем. Сложи оба числа.', uz: "Unchalik emas. Ikkala sonni qo'sh." }
+      on_wrong: { ru: 'Не совсем. Сложи оба числа.', uz: "Unchalik emas. Ikkala sonni qo'shing." }
     }
   },
 
@@ -1135,7 +1135,7 @@ const CONTENT = {
     instruction: { ru: 'Сколько всего? Выбери ответ', uz: 'Hammasi nechta? Javobni tanlang' },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодцы! Все задачи решены.', uz: "Barakalla! Hamma masala yechildi." },
-    retry_audio: { ru: 'Ничего страшного. Сложи оба числа.', uz: "Hech qisi yo'q. Ikkala sonni qo'sh." },
+    retry_audio: { ru: 'Ничего страшного. Сложи оба числа.', uz: "Hech qisi yo'q. Ikkala sonni qo'shing." },
     q_round1: { ru: 'У Рано 3 яблока, Зухра дала 4.', uz: "Ra'noda 3 olma, Zuhra 4 ta berdi." },
     q_round2: { ru: 'У Анвара 5 яблок, Рано дала 3.', uz: "Anvarda 5 olma, Ra'no 3 ta berdi." },
     q_round3: { ru: 'У Жасура 2 яблока, Анвар дал 6.', uz: 'Jasurda 2 olma, Anvar 6 ta berdi.' },
@@ -1181,7 +1181,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи шесть и три.',
-      uz: "Olti va uchni qo'sh."
+      uz: "Olti va uchni qo'shing."
     },
     fact_badge: { ru: 'А знаешь? · Задача', uz: 'Bilasizmi? · Masala' },
     fact_text: {

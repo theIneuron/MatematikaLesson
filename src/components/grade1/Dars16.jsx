@@ -882,18 +882,18 @@ const LESSON_META = {
   lessonTitle: { ru: 'Дополнение до десяти', uz: "10gacha to'ldirish" }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // §4 chok: maktab, Jasur kiradi
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: 10 tayoqcha bittalab uzoqmi?
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // YANGI MEXANIKA: 10 tayoqcha -> bog'la -> 1 dasta
-  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: 10 birlik = 1 o'nlik
-  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // dastada nechta tayoqcha? 10
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nechta o'nlik? 1
-  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // taqqoslash (timsoh): 10 > 7
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 1 o'nlik = 10 birlik
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi rasmda aynan 1 o'nlik?
-  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: tayoqchalarni sana (3 raund)
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'nlik -> Dars14 (11..15)
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 10 birlik = 1 o'nlik + fakt
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: maktab, 10 ga to'ldirish
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft hook: 8 kitob, 10 ga nechta kerak?
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // exploration (drag-to'ldirish): 8 to'la, 2 kitobni suradi -> 10
+  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: to'liq 10 uchun bo'sh joylarni sana
+  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 7 to'la, 10 ga nechta? -> 3 (idx2)
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 6 to'la, 10 ga nechta? -> 4 (idx1)
+  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 9 to'la, 10 ga nechta? -> 1 (idx3)
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 4 + 6 = 10? Ha (idx0)
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // interaktiv: javon 3 to'la -> 10 gacha to'ldir
+  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: to'ldiruvchi (8->2, 6->4, 9->1)
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: 10 ga to'ldirish -> Dars17
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 8 to'la, 10 ga nechta? -> 2 (idx1) + fakt
   { id: 's9',  type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
 ];
 
@@ -974,25 +974,25 @@ const CONTENT = {
   s2: {
     eyebrow: { ru: 'Запомним', uz: 'Eslab qolamiz' },
     title_part1: { ru: 'До десяти —', uz: "O'ngacha —" },
-    title_part2_em: { ru: 'считай пустые места', uz: "bo'sh joylarni sana" },
+    title_part2_em: { ru: 'считай пустые места', uz: "bo'sh joylarni sanang" },
     tip: {
       ru: 'Чтобы дополнить до десяти, посчитай пустые места. Восемь и два, семь и три, шесть и четыре — все они дают десять.',
-      uz: "O'ngacha to'ldirish uchun bo'sh joylarni sana. Sakkiz va ikki, yetti va uch, olti va to'rt — hammasi o'n beradi."
+      uz: "O'ngacha to'ldirish uchun bo'sh joylarni sanang. Sakkiz va ikki, yetti va uch, olti va to'rt — hammasi o'n beradi."
     },
     audio: {
       ru: 'Запомним. Чтобы дополнить до десяти, посчитай пустые места. Восемь и два. Семь и три. Шесть и четыре. Все эти пары дают десять.',
-      uz: "Eslab qolamiz. O'ngacha to'ldirish uchun bo'sh joylarni sana. Sakkiz va ikki. Yetti va uch. Olti va to'rt. Bu juftlarning hammasi o'n beradi."
+      uz: "Eslab qolamiz. O'ngacha to'ldirish uchun bo'sh joylarni sanang. Sakkiz va ikki. Yetti va uch. Olti va to'rt. Bu juftlarning hammasi o'n beradi."
     }
   },
 
-  // ---- s3 TEST MC: 7 to'la, 10 ga nechta? -> 3 (idx0) ----
+  // ---- s3 TEST MC: 7 to'la, 10 ga nechta? -> 3 (idx2) ----
   s3: {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
     title: { ru: 'Семь книг. Сколько не хватает до десяти?', uz: "Yettita kitob. O'ngacha nechta yetishmaydi?" },
     correct_text: { ru: 'Верно. Семь и три — это десять.', uz: "To'g'ri. Yetti va uch — bu o'n." },
-    wrong_1: { ru: 'Это сами книги. Посчитай пустые места до десяти.', uz: "Bu kitoblarning o'zi. O'ngacha bo'sh joylarni sana." },
-    wrong_0: { ru: 'Посчитай пустые места до десяти.', uz: "O'ngacha bo'sh joylarni sana." },
-    wrong_default: { ru: 'Посчитай, сколько мест пустует до десяти.', uz: "O'ngacha nechta joy bo'shligini sana." },
+    wrong_1: { ru: 'Это сами книги. Посчитай пустые места до десяти.', uz: "Bu kitoblarning o'zi. O'ngacha bo'sh joylarni sanang." },
+    wrong_0: { ru: 'Посчитай пустые места до десяти.', uz: "O'ngacha bo'sh joylarni sanang." },
+    wrong_default: { ru: 'Посчитай, сколько мест пустует до десяти.', uz: "O'ngacha nechta joy bo'shligini sanang." },
     audio: {
       intro: { ru: 'На полке семь книг. Сколько пустых мест до десяти? Выбери ответ.', uz: "Javonda yettita kitob. O'ngacha nechta bo'sh joy bor? Javobni tanlang." },
       on_correct: { ru: 'Верно. Три.', uz: "To'g'ri. Uch." },
@@ -1000,14 +1000,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s4 TEST MC: 6 to'la, 10 ga nechta? -> 4 (idx0) ----
+  // ---- s4 TEST MC: 6 to'la, 10 ga nechta? -> 4 (idx1) ----
   s4: {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
     title: { ru: 'Шесть книг. Сколько добавить до десяти?', uz: "Oltita kitob. O'ngacha nechta qo'shamiz?" },
     correct_text: { ru: 'Верно. Шесть и четыре — это десять.', uz: "To'g'ri. Olti va to'rt — bu o'n." },
-    wrong_0: { ru: 'Это сами книги. Посчитай, сколько добавить до десяти.', uz: "Bu kitoblarning o'zi. O'ngacha nechta qo'shishni sana." },
-    wrong_2: { ru: 'Посчитай пустые места до десяти.', uz: "O'ngacha bo'sh joylarni sana." },
-    wrong_default: { ru: 'Посчитай, сколько добавить до десяти.', uz: "O'ngacha nechta qo'shishni sana." },
+    wrong_0: { ru: 'Это сами книги. Посчитай, сколько добавить до десяти.', uz: "Bu kitoblarning o'zi. O'ngacha nechta qo'shishni sanang." },
+    wrong_2: { ru: 'Посчитай пустые места до десяти.', uz: "O'ngacha bo'sh joylarni sanang." },
+    wrong_default: { ru: 'Посчитай, сколько добавить до десяти.', uz: "O'ngacha nechta qo'shishni sanang." },
     audio: {
       intro: { ru: 'На полке шесть книг. Сколько добавить до десяти? Выбери ответ.', uz: "Javonda oltita kitob. O'ngacha nechta qo'shamiz? Javobni tanlang." },
       on_correct: { ru: 'Верно. Четыре.', uz: "To'g'ri. To'rt." },
@@ -1015,14 +1015,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s5 TEST MC: 9 to'la, 10 ga nechta? -> 1 (idx0) ----
+  // ---- s5 TEST MC: 9 to'la, 10 ga nechta? -> 1 (idx3) ----
   s5: {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
     title: { ru: 'Девять книг. Сколько не хватает до десяти?', uz: "To'qqizta kitob. O'ngacha nechta yetishmaydi?" },
     correct_text: { ru: 'Верно. Девять и один — это десять.', uz: "To'g'ri. To'qqiz va bir — bu o'n." },
-    wrong_1: { ru: 'Это сами книги. Посчитай пустые места до десяти.', uz: "Bu kitoblarning o'zi. O'ngacha bo'sh joylarni sana." },
-    wrong_2: { ru: 'Посчитай пустые места до десяти.', uz: "O'ngacha bo'sh joylarni sana." },
-    wrong_default: { ru: 'Посчитай, сколько мест пустует до десяти.', uz: "O'ngacha nechta joy bo'shligini sana." },
+    wrong_1: { ru: 'Это сами книги. Посчитай пустые места до десяти.', uz: "Bu kitoblarning o'zi. O'ngacha bo'sh joylarni sanang." },
+    wrong_2: { ru: 'Посчитай пустые места до десяти.', uz: "O'ngacha bo'sh joylarni sanang." },
+    wrong_default: { ru: 'Посчитай, сколько мест пустует до десяти.', uz: "O'ngacha nechta joy bo'shligini sanang." },
     audio: {
       intro: { ru: 'На полке девять книг. Сколько пустых мест до десяти? Выбери ответ.', uz: "Javonda to'qqizta kitob. O'ngacha nechta bo'sh joy bor? Javobni tanlang." },
       on_correct: { ru: 'Верно. Один.', uz: "To'g'ri. Bir." },
@@ -1037,8 +1037,8 @@ const CONTENT = {
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
     correct_text: { ru: 'Верно. Четыре и шесть — это десять.', uz: "To'g'ri. To'rt va olti — bu o'n." },
-    wrong_1: { ru: 'Посчитай заново: сколько пустых мест от четырёх до десяти.', uz: "Qaytadan sana: to'rtdan o'ngacha nechta bo'sh joy borligini tekshir." },
-    wrong_default: { ru: 'Посчитай через десяток и проверь.', uz: "O'ngacha sanab tekshir." },
+    wrong_1: { ru: 'Посчитай заново: сколько пустых мест от четырёх до десяти.', uz: "Qaytadan sanang: to'rtdan o'ngacha nechta bo'sh joy borligini tekshiring." },
+    wrong_default: { ru: 'Посчитай через десяток и проверь.', uz: "O'ngacha sanab tekshiring." },
     audio: {
       intro: { ru: 'Верно ли, что четыре дополняется до десяти шестью? Выбери да или нет.', uz: "To'rt o'ngacha olti bilan to'ladi, to'g'rimi? Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Четыре и шесть — десять.', uz: "To'g'ri. To'rt va olti — o'n." },
@@ -1100,13 +1100,13 @@ const CONTENT = {
     }
   },
 
-  // ---- s8 TEST final + FactCard: 8 to'la, 10 ga nechta? -> 2 (idx0) ----
+  // ---- s8 TEST final + FactCard: 8 to'la, 10 ga nechta? -> 2 (idx1) ----
   s8: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Восемь книг. Сколько добавить до десяти?', uz: "Sakkizta kitob. O'ngacha nechta qo'shamiz?" },
     correct_text: { ru: 'Верно. Восемь и два — это десять.', uz: "To'g'ri. Sakkiz va ikki — bu o'n." },
     wrong_0: { ru: 'Это сами книги. Добавить нужно два.', uz: "Bu kitoblarning o'zi. Ikkita qo'shish kerak." },
-    wrong_2: { ru: 'Посчитай пустые места: их два.', uz: "Bo'sh joylarni sana: ikkita." },
+    wrong_2: { ru: 'Посчитай пустые места: их два.', uz: "Bo'sh joylarni sanang: ikkita." },
     wrong_default: { ru: 'До десяти добавляем два.', uz: "O'ngacha ikkita qo'shamiz." },
     fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
     fact_text: { ru: 'Пары до десяти помогают считать быстро. Их полезно запомнить: восемь и два, семь и три, шесть и четыре.', uz: "O'ngacha juftlar tez sanashga yordam beradi. Ularni yodlash foydali: sakkiz va ikki, yetti va uch, olti va to'rt." },
@@ -3832,7 +3832,7 @@ const Screen2 = (props) => {
   );
 };
 
-// s3 — TEST MC: 7 to'la, 10 ga nechta? -> 3 (idx0).
+// s3 — TEST MC: 7 to'la, 10 ga nechta? -> 3 (idx2).
 const Screen3 = (props) => {
   const c = CONTENT.s3;
   const t = useT();
@@ -3851,7 +3851,7 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST MC: 6 to'la, 10 ga nechta? -> 4 (idx0).
+// s4 — TEST MC: 6 to'la, 10 ga nechta? -> 4 (idx1).
 const Screen4 = (props) => {
   const c = CONTENT.s4;
   const t = useT();
@@ -3870,7 +3870,7 @@ const Screen4 = (props) => {
   );
 };
 
-// s5 — TEST MC: 9 to'la, 10 ga nechta? -> 1 (idx0).
+// s5 — TEST MC: 9 to'la, 10 ga nechta? -> 1 (idx3).
 const Screen5 = (props) => {
   const c = CONTENT.s5;
   const t = useT();
@@ -4061,7 +4061,7 @@ const ScreenGame = (props) => {
   );
 };
 
-// s8 — TEST final + FactCard: 8 to'la, 10 ga nechta? -> 2 (idx0).
+// s8 — TEST final + FactCard: 8 to'la, 10 ga nechta? -> 2 (idx1).
 const Screen8 = (props) => {
   const c = CONTENT.s8;
   const t = useT();

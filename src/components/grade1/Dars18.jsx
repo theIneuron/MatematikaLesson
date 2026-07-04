@@ -883,17 +883,17 @@ const LESSON_META = {
 };
 const SCREEN_META = [
   { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // §4 chok: maktab, Jasur kiradi
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: 10 tayoqcha bittalab uzoqmi?
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // YANGI MEXANIKA: 10 tayoqcha -> bog'la -> 1 dasta
-  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: 10 birlik = 1 o'nlik
-  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // dastada nechta tayoqcha? 10
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nechta o'nlik? 1
-  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // taqqoslash (timsoh): 10 > 7
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 1 o'nlik = 10 birlik
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi rasmda aynan 1 o'nlik?
-  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: tayoqchalarni sana (3 raund)
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'nlik -> Dars14 (11..15)
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 10 birlik = 1 o'nlik + fakt
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: 8 + 5 — javob 10 dan katta, qancha?
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // DRAG make-ten: 8+5 — 2 olma yashikka, o'nlik hosil bo'ladi
+  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: avval o'ngacha to'ldir, keyin qolganini qo'sh
+  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // MC: 5 + 8 = 13
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // MC: 9 + 6 = 15
+  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // MC: 6 + 8 = 14
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 7 + 7 = 14? Ha
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // interaktiv build+Check: 8 + 7 = 15
+  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin (DRAG make-ten): 7+5, 5+9 — 2 raund
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'tib qo'shish -> Dars19 (o'tib ayirish)
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 8 + 8 = 16 + fakt
   { id: 's9',  type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
 ];
 
@@ -904,7 +904,6 @@ const NUM_WORDS = {
 };
 
 // Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
-const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
 const CONTENT = {
   // ---- sIntro: BOZOR, o'tib qo'shish amaliyot (olma) ----
@@ -978,100 +977,104 @@ const CONTENT = {
     title_part2_em: { ru: 'сначала до десяти', uz: "avval o'ngacha" },
     tip: {
       ru: 'Чтобы сложить через десяток, сначала дополни до десяти, потом добавь остальное. Восемь плюс пять: восемь и два это десять, и ещё три — тринадцать.',
-      uz: "O'nlikdan o'tib qo'shish uchun avval o'ngacha to'ldir, keyin qolganini qo'sh. Sakkiz plyus besh: sakkiz va ikki o'n, yana uch — o'n uch."
+      uz: "O'nlikdan o'tib qo'shish uchun avval o'ngacha to'ldiring, keyin qolganini qo'shing. Sakkiz plyus besh: sakkiz va ikki o'n, yana uch — o'n uch."
     },
     audio: {
       ru: 'Запомним. Чтобы сложить через десяток, сначала дополни до десяти, потом добавь остальное. Восемь и два это десять, и ещё три, тринадцать.',
-      uz: "Eslab qolamiz. O'nlikdan o'tib qo'shish uchun avval o'ngacha to'ldir, keyin qolganini qo'sh. Sakkiz va ikki o'n, yana uch, o'n uch."
+      uz: "Eslab qolamiz. O'nlikdan o'tib qo'shish uchun avval o'ngacha to'ldiring, keyin qolganini qo'shing. Sakkiz va ikki o'n, yana uch, o'n uch."
     }
   },
 
-  // ---- s3 TEST MC: 7 + 5 = 12 (idx0) ----
+  // ---- s3 TEST MC: 5 + 8 = 13 (idx2) ----
   s3: {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
-    title: { ru: 'Семь плюс пять. Сколько получится?', uz: "Yetti plyus besh. Nechta bo'ladi?" },
-    correct_text: { ru: 'Верно. Семь и три это десять, и ещё два — двенадцать.', uz: "To'g'ri. Yetti va uch o'n, yana ikki — o'n ikki." },
-    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_0: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    title: { ru: 'Пять плюс восемь. Сколько получится?', uz: "Besh plyus sakkiz. Nechta bo'ladi?" },
+    correct_text: { ru: 'Верно. Пять и пять это десять, и ещё три — тринадцать.', uz: "To'g'ri. Besh va besh o'n, yana uch — o'n uch." },
+    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_0: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     audio: {
-      intro: { ru: 'Семь плюс пять. Сначала дополни семь до десяти, потом добавь остальное. Сколько получится? Выбери ответ.', uz: "Yetti plyus besh. Avval yettini o'ngacha to'ldir, keyin qolganini qo'sh. Nechta bo'ladi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Двенадцать.', uz: "To'g'ri. O'n ikki." },
-      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
-    }
-  },
-
-  // ---- s4 TEST MC: 9 + 4 = 13 (idx0) ----
-  s4: {
-    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
-    title: { ru: 'Девять плюс четыре. Сколько получится?', uz: "To'qqiz plyus to'rt. Nechta bo'ladi?" },
-    correct_text: { ru: 'Верно. Девять и один это десять, и ещё три — тринадцать.', uz: "To'g'ri. To'qqiz va bir o'n, yana uch — o'n uch." },
-    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
-    audio: {
-      intro: { ru: 'Девять плюс четыре. Дополни девять до десяти, потом добавь остальное. Сколько? Выбери ответ.', uz: "To'qqiz plyus to'rt. To'qqizni o'ngacha to'ldir, keyin qolganini qo'sh. Nechta? Javobni tanlang." },
+      intro: { ru: 'Пять плюс восемь. Сначала дополни пять до десяти, потом добавь остальное. Сколько получится? Выбери ответ.', uz: "Besh plyus sakkiz. Avval beshni o'ngacha to'ldiring, keyin qolganini qo'shing. Nechta bo'ladi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Тринадцать.', uz: "To'g'ri. O'n uch." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s5 TEST MC: 8 + 6 = 14 (idx0) ----
+  // ---- s4 TEST MC: 9 + 6 = 15 (idx3) ----
+  s4: {
+    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
+    title: { ru: 'Девять плюс шесть. Сколько получится?', uz: "To'qqiz plyus olti. Nechta bo'ladi?" },
+    correct_text: { ru: 'Верно. Девять и один это десять, и ещё пять — пятнадцать.', uz: "To'g'ri. To'qqiz va bir o'n, yana besh — o'n besh." },
+    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
+    audio: {
+      intro: { ru: 'Девять плюс шесть. Дополни девять до десяти, потом добавь остальное. Сколько? Выбери ответ.', uz: "To'qqiz plyus olti. To'qqizni o'ngacha to'ldiring, keyin qolganini qo'shing. Nechta? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Пятнадцать.', uz: "To'g'ri. O'n besh." },
+      on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
+    }
+  },
+
+  // ---- s5 TEST MC: 6 + 8 = 14 (idx1) ----
   s5: {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
-    title: { ru: 'Восемь плюс шесть. Сколько получится?', uz: "Sakkiz plyus olti. Nechta bo'ladi?" },
-    correct_text: { ru: 'Верно. Восемь и два это десять, и ещё четыре — четырнадцать.', uz: "To'g'ri. Sakkiz va ikki o'n, yana to'rt — o'n to'rt." },
-    wrong_0: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    title: { ru: 'Шесть плюс восемь. Сколько получится?', uz: "Olti plyus sakkiz. Nechta bo'ladi?" },
+    correct_text: { ru: 'Верно. Шесть и четыре это десять, и ещё четыре — четырнадцать.', uz: "To'g'ri. Olti va to'rt o'n, yana to'rt — o'n to'rt." },
+    wrong_0: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     audio: {
-      intro: { ru: 'Восемь плюс шесть. Сначала до десяти, потом остальное. Сколько? Выбери ответ.', uz: "Sakkiz plyus olti. Avval o'ngacha, keyin qolgani. Nechta? Javobni tanlang." },
+      intro: { ru: 'Шесть плюс восемь. Сначала до десяти, потом остальное. Сколько? Выбери ответ.', uz: "Olti plyus sakkiz. Avval o'ngacha, keyin qolgani. Nechta? Javobni tanlang." },
       on_correct: { ru: 'Верно. Четырнадцать.', uz: "To'g'ri. O'n to'rt." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s6 TEST Ha/Yo'q: 8 + 5 = 13? Ha (idx0) ----
+  // ---- s6 TEST Ha/Yo'q: 7 + 7 = 14? Ha (idx0) ----
   s6: {
     eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
-    title: { ru: 'Верно ли: восемь плюс пять равно тринадцать?', uz: "To'g'rimi: sakkiz plyus besh teng o'n uch?" },
+    title: { ru: 'Верно ли: семь плюс семь равно четырнадцать?', uz: "To'g'rimi: yetti plyus yetti teng o'n to'rt?" },
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
-    correct_text: { ru: 'Верно. Восемь и два десять, и ещё три — тринадцать.', uz: "To'g'ri. Sakkiz va ikki o'n, yana uch — o'n uch." },
-    wrong_1: { ru: 'Посчитай заново через десяток: дополни до десяти, потом добавь остальное.', uz: "Qaytadan, o'nlikdan o'tib sana: avval o'ngacha to'ldir, keyin qolganini qo'sh." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    correct_text: { ru: 'Верно. Семь и три десять, и ещё четыре — четырнадцать.', uz: "To'g'ri. Yetti va uch o'n, yana to'rt — o'n to'rt." },
+    wrong_1: { ru: 'Посчитай заново через десяток: дополни до десяти, потом добавь остальное.', uz: "Qaytadan, o'nlikdan o'tib sanang: avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     audio: {
-      intro: { ru: 'Верно ли, что восемь плюс пять равно тринадцать? Выбери да или нет.', uz: "Sakkiz plyus besh teng o'n uch, to'g'rimi? Ha yoki yo'q tanlang." },
-      on_correct: { ru: 'Верно. Тринадцать.', uz: "To'g'ri. O'n uch." },
+      intro: { ru: 'Верно ли, что семь плюс семь равно четырнадцать? Выбери да или нет.', uz: "Yetti plyus yetti teng o'n to'rt, to'g'rimi? Ha yoki yo'q tanlang." },
+      on_correct: { ru: 'Верно. Четырнадцать.', uz: "To'g'ri. O'n to'rt." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s7 TEST MC: 7 + 6 = 13 (idx0) ----
+  // ---- s7 TEST (interaktiv build+Check): 8 + 7 = 15 ----
   // s7 TEST (interaktiv): 8+7 — bola bittadan qo'shadi, 1-ramka 10 ga to'ladi, qolgani 2-ramkaga; tekshiradi.
   s7: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Прибавь к восьми семь — по одному, потом проверь.', uz: "Sakkizga yettini qo'sh — bittadan to'ldir, keyin tekshir." },
-    btn: { ru: 'Добавить один', uz: "Bittadan qo'sh" },
+    title: { ru: 'Прибавь к восьми семь — по одному, потом проверь.', uz: "Sakkizga yettini qo'shing — bittadan to'ldiring, keyin tekshiring." },
+    btn: { ru: 'Добавить один', uz: "Bittadan qo'shing" },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     done_text: { ru: 'Десять и пять — пятнадцать! Сначала дополнили до десяти.', uz: "O'n va besh — o'n besh! Avval o'ngacha to'ldirdik." },
-    try_text: { ru: 'Добавлены не все семь. Заполни до конца и проверь снова.', uz: "Yettitasi to'liq qo'shilmadi. Oxirigacha qo'sh va yana tekshir." },
+    try_text: { ru: 'Добавлены не все семь. Заполни до конца и проверь снова.', uz: "Yettitasi to'liq qo'shilmadi. Oxirigacha qo'shing va yana tekshiring." },
     audio: {
       intro: { ru: 'К восьми прибавляем семь. Добавляй по одному: сначала рамка дополнится до десяти, потом остальное. Заполни и нажми проверить.', uz: "Sakkizga yettini qo'shamiz. Bittadan qo'shing: avval ramka o'ngacha to'ladi, keyin qolgani pastga tushadi. To'ldiring va tekshirishni bosing." },
       on_correct: { ru: 'Молодец! Десять и пять — пятнадцать.', uz: "Barakalla! O'n va besh — o'n besh." },
-      on_wrong: { ru: 'Добавлены не все. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'sh va tekshir." }
+      on_wrong: { ru: 'Добавлены не все. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'shing va tekshiring." }
     }
   },
 
-  // ---- sg MINI-O'YIN: 3 raund — o'tib qo'shish. Ball yo'q ----
+  // ---- sg MINI-O'YIN (SUDRAB): 2 raund make-ten qurish. Olmani ramkaga sur — avval o'ngacha to'ldir, keyin qolgani. Ball yo'q ----
   sg: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
-    instruction: { ru: 'Сколько получится?', uz: "Nechta bo'ladi?" },
-    round_ok: { ru: 'Верно! Дальше.', uz: "To'g'ri! Davom etamiz." },
+    instruction: { ru: 'Перетащи яблоки в рамку', uz: "Olmalarni ramkaga sudrang" },
+    ten_full: { ru: 'Десять!', uz: "O'n bo'ldi!" },
+    round_done: [
+      { ru: 'Десять и два, двенадцать.', uz: "O'n va ikki, o'n ikki." },
+      { ru: 'Десять и четыре, четырнадцать.', uz: "O'n va to'rt, o'n to'rt." }
+    ],
+    next_label: { ru: 'Дальше', uz: 'Keyingisi' },
     done_text: { ru: 'Молодец! Ты складываешь через десяток.', uz: "Barakalla! O'nlikdan o'tib qo'shasiz." },
-    retry_audio: { ru: 'Ничего страшного. Сначала дополни до десяти.', uz: "Zarari yo'q. Avval o'ngacha to'ldir." },
     audio: {
-      intro: { ru: 'Поиграем. Складывай через десяток и выбирай ответ.', uz: "O'ynaymiz. O'nlikdan o'tib qo'shing va javobni tanlang." }
+      intro: { ru: 'Поиграем. Перетаскивай яблоки в рамку: сначала дополни до десяти, потом остальные.', uz: "O'ynaymiz. Olmalarni ramkaga sudrang: avval o'ngacha to'ldiring, keyin qolganini." }
     }
   },
 
@@ -1102,20 +1105,20 @@ const CONTENT = {
     }
   },
 
-  // ---- s8 TEST final + FactCard: 8 + 5 = 13 (idx0) ----
+  // ---- s8 TEST final + FactCard: 8 + 8 = 16 (idx3) ----
   s8: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Восемь плюс пять. Сколько получится?', uz: "Sakkiz plyus besh. Nechta bo'ladi?" },
-    correct_text: { ru: 'Верно. Восемь и два десять, и ещё три — тринадцать.', uz: "To'g'ri. Sakkiz va ikki o'n, yana uch — o'n uch." },
-    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    title: { ru: 'Восемь плюс восемь. Сколько получится?', uz: "Sakkiz plyus sakkiz. Nechta bo'ladi?" },
+    correct_text: { ru: 'Верно. Восемь и два это десять, и ещё шесть — шестнадцать.', uz: "To'g'ri. Sakkiz va ikki o'n, yana olti — o'n olti." },
+    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
     fact_text: { ru: 'В магазине при сложении денег часто переходишь через десяток. Дополни до десяти — и складывать легко.', uz: "Do'konda pul qo'shganda ko'pincha o'nlikdan o'tasiz. Avval o'ngacha to'ldirsangiz, qo'shish oson bo'ladi." },
     fact_audio: { ru: 'А знаешь, в магазине деньги часто складывают через десяток. Дополни до десяти, и считать легко.', uz: "Bilasizmi, do'konda pul qo'shganda ko'pincha o'nlikdan o'tasiz. Avval o'ngacha to'ldirsangiz, qo'shish oson." },
     audio: {
-      intro: { ru: 'Последний пример. Восемь плюс пять. Сложи через десяток. Сколько получится? Выбери ответ.', uz: "Oxirgi misol. Sakkiz plyus besh. O'nlikdan o'tib qo'sh. Nechta bo'ladi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Тринадцать.', uz: "To'g'ri. O'n uch." },
+      intro: { ru: 'Последний пример. Восемь плюс восемь. Сложи через десяток. Сколько получится? Выбери ответ.', uz: "Oxirgi misol. Sakkiz plyus sakkiz. O'nlikdan o'tib qo'shing. Nechta bo'ladi? Javobni tanlang." },
+      on_correct: { ru: 'Верно. Шестнадцать.', uz: "To'g'ri. O'n olti." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
@@ -1131,8 +1134,8 @@ const CONTENT = {
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     jasur_label: { ru: 'Жасур', uz: 'Jasur' },
     audio: {
-      ru: 'Сегодня ты складывал через десяток: сначала до десяти, потом остальное. Восемь плюс пять, тринадцать. В следующий раз потренируемся сами.',
-      uz: "Bugun o'nlikdan o'tib qo'shdingiz: avval o'ngacha, keyin qolgani. Sakkiz plyus besh, o'n uch. Keyingi safar o'zimiz mashq qilamiz."
+      ru: 'Сегодня ты складывал через десяток: сначала до десяти, потом остальное. Восемь плюс восемь, шестнадцать. В следующий раз потренируемся сами.',
+      uz: "Bugun o'nlikdan o'tib qo'shdingiz: avval o'ngacha, keyin qolgani. Sakkiz plyus sakkiz, o'n olti. Keyingi safar o'zimiz mashq qilamiz."
     }
   }
 };
@@ -1823,43 +1826,6 @@ const SubjectAmbient = () => (
 );
 
 
-// ============================================================
-// GameDrill — drag+tap o'yin bloki (4 mashq): olma yig'ish / pazl / juftlash / tartiblash.
-// Drag (pointer events, touch'da ishlaydi) + TAP-zaxira (tok bos -> zona bos). Ball yo'q.
-// ============================================================
-const PIECE_COLORS = ['#FF4F28', '#019ACB', '#1F7A4D', '#FFC23C', '#FF7AA8'];
-const FLOWER_POS = [[50, 14], [82, 40], [69, 80], [31, 80], [18, 40]];   // 5 bargcha joylashuvi (% )
-const GAME_EX = [
-  // savat: chalg'ituvchilar orasidan kerakli narsalarni topib sanab solish
-  { type: 'basket', targets: { apple: 3, cherry: 2 }, tray: [{ kind: 'apple', count: 5 }, { kind: 'cherry', count: 4 }, { kind: 'star', count: 3 }, { kind: 'fish', count: 2 }] },
-  { type: 'puzzle', n: 5 },
-  { type: 'match', groups: [2, 4, 5] },
-  { type: 'order', n: 5 },
-];
-const kindOfId = (id) => id.replace(/[0-9]+$/, '');
-const exTokens = (ex) => {
-  if (ex.type === 'basket') {
-    const toks = [];
-    ex.tray.forEach((g) => { for (let i = 0; i < g.count; i += 1) toks.push({ id: `${g.kind}${i}`, kind: g.kind }); });
-    return toks;
-  }
-  if (ex.type === 'puzzle') return Array.from({ length: ex.n }, (_, i) => ({ id: `p${i}`, color: PIECE_COLORS[i % PIECE_COLORS.length] }));
-  if (ex.type === 'match') return ex.groups.map((v) => ({ id: `n${v}`, value: v }));
-  return [1, 2, 3, 4, 5].map((v) => ({ id: `o${v}`, value: v }));   // order (natural; tray aralashadi)
-};
-const exZones = (ex) => {
-  if (ex.type === 'basket') return [{ id: 'basket' }];
-  if (ex.type === 'puzzle') return Array.from({ length: ex.n }, (_, i) => ({ id: `s${i}` }));
-  if (ex.type === 'match') return ex.groups.map((v) => ({ id: `b${v}`, count: v }));
-  return [1, 2, 3, 4, 5].map((i) => ({ id: `z${i}`, order: i }));
-};
-const exComplete = (ex, placement) => {
-  if (ex.type === 'basket') {
-    const cnt = (k) => Object.keys(placement).filter((tid) => placement[tid] === 'basket' && kindOfId(tid) === k).length;
-    return Object.keys(ex.targets).every((k) => cnt(k) === ex.targets[k]);
-  }
-  return exTokens(ex).every((tk) => placement[tk.id] != null);
-};
 
 // useDnd — pointer-drag + tap. onDrop(tokenId, zoneId|null). Tap: tok bos -> sel; zona bos -> joylash.
 function useDnd(onDrop) {
@@ -1904,234 +1870,6 @@ function useDnd(onDrop) {
   return { drag, sel, startDrag, tapZone };
 }
 
-// Savatga meva qo'yishni ko'rsatuvchi qo'l-demo (mevani olib savatga tashlaydi, sikl).
-const HandSvg = () => (
-  <svg className="g1-bhd-hand" viewBox="0 0 24 24" fill="#FFFFFF" stroke="#5A5A60" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M10 9.5V4a2 2 0 0 0-4 0v10"/>
-    <path d="M14 10V9a2 2 0 0 0-4 0v1"/>
-    <path d="M18 11v-1a2 2 0 0 0-4 0v1"/>
-    <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
-  </svg>
-);
-const BasketHandDemo = ({ piece }) => (
-  <div className="g1-bhd" aria-hidden="true">
-    <div className="g1-bhd-move">
-      {piece}
-      <HandSvg/>
-    </div>
-  </div>
-);
-
-const GameDrill = (props) => {
-  const lang = useLang();
-  const t = useT();
-  const c = CONTENT.sd;
-  const sfx = useSfx();
-  const audio = useAudio([{ id: 'sd_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
-  const total = GAME_EX.length;
-  const [exIdx, setExIdx] = useState(0);
-  const [placement, setPlacement] = useState({});   // tokenId -> zoneId
-  const [solvedItem, setSolvedItem] = useState(false);
-  const revealRef = useRevealScroll(solvedItem);
-  const [wrongZone, setWrongZone] = useState(null);   // noto'g'ri sudralganda zona yumshoq tebranadi
-  const [bounceTok, setBounceTok] = useState(null);   // noto'g'ri token tray'ga sakrab qaytadi
-  const [demoOff, setDemoOff] = useState(false);   // qo'l-demo birinchi harakatdan keyin so'nadi
-  const ex = GAME_EX[exIdx];
-  const tokens = exTokens(ex);
-  const zones = exZones(ex);
-  const allDone = exIdx >= total - 1 && solvedItem;
-  const tokenById = (id) => tokens.find((tk) => tk.id === id);
-  const tokenInZone = (zid) => Object.keys(placement).find((tid) => placement[tid] === zid);
-  const promptText = c[`q_${ex.type}`] ? t(c[`q_${ex.type}`]) : '';
-
-  const [displayOrder, setDisplayOrder] = useState(() => exTokens(GAME_EX[0]).map((tk) => tk.id));
-  const [praiseWord, setPraiseWord] = useState('');
-  const shuffledRef = useRef(false);
-  useEffect(() => {
-    if (shuffledRef.current) return undefined;
-    shuffledRef.current = true;
-    const id = setTimeout(() => setDisplayOrder(shuffleArr(exTokens(GAME_EX[exIdx]).map((tk) => tk.id))), 0);
-    return () => clearTimeout(id);
-  }, [exIdx]);
-
-  // har mashq savolini ovozli aytish
-  const prevRef = useRef(-1);
-  useEffect(() => {
-    if (exIdx !== prevRef.current) {
-      prevRef.current = exIdx;
-      if (!audio.muted) { const e = getAudioEngine(); if (e && c[`q_${GAME_EX[exIdx].type}`]) e.pushOneOff(c[`q_${GAME_EX[exIdx].type}`][lang]); }
-    }
-  }, [exIdx, audio.muted, lang, c]);
-
-  const placedKind = (kind) => Object.keys(placement).filter((tid) => placement[tid] === 'basket' && kindOfId(tid) === kind).length;
-  const accept = (tokenId, zoneId) => {
-    const tok = tokenById(tokenId);
-    if (!tok) return false;
-    if (ex.type === 'basket') return zoneId === 'basket' && (ex.targets[tok.kind] || 0) > placedKind(tok.kind);
-    if (ex.type === 'puzzle') return zones.some((z) => z.id === zoneId) && tokenInZone(zoneId) == null;
-    if (ex.type === 'match') { const z = zones.find((zz) => zz.id === zoneId); return !!z && z.count === tok.value; }
-    const zo = zones.find((zz) => zz.id === zoneId);
-    return !!zo && zo.order === tok.value && tokenInZone(zoneId) == null;
-  };
-  const handleDrop = useCallback((tokenId, zoneId) => {
-    if (solvedItem || !zoneId) return;   // darrov ishlaydi (canAns darvozasi yo'q)
-    if (placement[tokenId]) return;
-    if (!accept(tokenId, zoneId)) {   // yumshoq: token tray'ga sakrab qaytadi, zona tebranadi, ovoz "yana sana"
-      sfx.playWrong();
-      setBounceTok(tokenId); setTimeout(() => setBounceTok(null), 500);
-      setWrongZone(zoneId); setTimeout(() => setWrongZone(null), 450);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.retry_audio[lang]); }
-      return;
-    }
-    setPlacement((prev) => ({ ...prev, [tokenId]: zoneId }));
-    if (!audio.muted) {
-      const e = getAudioEngine();
-      if (e) {
-        if (ex.type === 'basket') { const tk = tokenById(tokenId); if (tk) e.pushOneOff(NUM_WORDS[lang][placedKind(tk.kind) + 1] || ''); }   // shu turdan nechinchi
-        else if (ex.type === 'match' || ex.type === 'order') { const tk = tokenById(tokenId); if (tk && tk.value) e.pushOneOff(NUM_WORDS[lang][tk.value] || ''); }
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [solvedItem, placement, exIdx, audio.muted, lang]);
-  const dnd = useDnd(handleDrop);
-
-  // tugallanganini aniqlash
-  useEffect(() => {
-    if (solvedItem) return undefined;
-    const done = exComplete(GAME_EX[exIdx], placement);
-    if (!done) return undefined;
-    const tm = setTimeout(() => {
-      setSolvedItem(true);
-      sfx.playCorrect();
-      const pw = nextPraise(lang); setPraiseWord(pw);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff((exIdx >= total - 1 ? c.done_text : c.correct_text)[lang]); } }
-    }, 0);
-    return () => clearTimeout(tm);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [placement, solvedItem, exIdx]);
-
-  const nextItem = () => {
-    const ni = exIdx + 1;
-    setExIdx(ni);
-    setDisplayOrder(shuffleArr(exTokens(GAME_EX[ni]).map((tk) => tk.id)));
-    setPlacement({});
-    setSolvedItem(false);
-    setDemoOff(false);   // har mashqда qo'l-demo qayta ko'rinadi (q1 savat, q2 pazl)
-  };
-
-  const tokenVisual = (tok) => {
-    if (ex.type === 'basket') return <span className="g1-token-obj"><ObjSvg kind={tok.kind}/></span>;
-    if (ex.type === 'puzzle') return <span className="g1-petal"/>;
-    return <span className="g1-token-num mono">{tok.value}</span>;
-  };
-  const trayTokens = displayOrder.map(tokenById).filter((tk) => tk && !placement[tk.id]);
-
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!allDone} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <p className="h-sub title fade-up">{promptText} <span className="mono small" style={{ color: T.ink3 }}>{exIdx + 1} / {total}</span></p>
-
-        {/* nishon (zonalar) */}
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-          {(ex.type === 'basket' || ex.type === 'puzzle') && exIdx <= 1 && !demoOff && !solvedItem && Object.keys(placement).length === 0 && (
-            <BasketHandDemo piece={ex.type === 'basket'
-              ? <span className="g1-bhd-apple"><ObjSvg kind="apple"/></span>
-              : <span className="g1-bhd-petal"/>}/>
-          )}
-          {ex.type === 'basket' && (
-            <div className="g1-basketwrap">
-              <div className="g1-recipe">
-                {Object.keys(ex.targets).map((k) => (
-                  <span key={k} className="g1-recipe-item">
-                    <span className="g1-recipe-ic"><ObjSvg kind={k}/></span>
-                    <span className="g1-recipe-cnt mono">{placedKind(k)} / {ex.targets[k]}</span>
-                  </span>
-                ))}
-              </div>
-              <div className={`g1-realbasket g1-dropzone ${wrongZone === 'basket' ? 'g1-nudge' : ''}`} data-zone="basket" onClick={() => dnd.tapZone('basket')}>
-                <BasketArt/>
-                <div className="g1-rb-bowl">
-                  {Object.keys(placement).map((tid) => <span key={tid} className="g1-token-obj"><ObjSvg kind={kindOfId(tid)}/></span>)}
-                </div>
-              </div>
-            </div>
-          )}
-          {ex.type === 'puzzle' && (
-            <div className="g1-flowerwrap">
-              <div className={`g1-flower ${solvedItem ? 'g1-flower-spin' : ''}`}>
-                <div className="g1-flower-center"/>
-                {zones.map((z, i) => {
-                  const tid = tokenInZone(z.id);
-                  return <div key={z.id} className={`g1-petal-slot g1-dropzone ${tid ? 'filled' : ''} ${wrongZone === z.id ? 'g1-nudge' : ''}`} data-zone={z.id}
-                    style={{ left: `${FLOWER_POS[i][0]}%`, top: `${FLOWER_POS[i][1]}%` }} onClick={() => dnd.tapZone(z.id)}>
-                    {tid && <span className="g1-petal g1-pop-in"/>}
-                  </div>;
-                })}
-              </div>
-              <span className="g1-basket-count mono">{Object.keys(placement).length} / {ex.n}</span>
-            </div>
-          )}
-          {ex.type === 'match' && (
-            <div className="g1-mbaskets">
-              {zones.map((z) => {
-                const tid = tokenInZone(z.id);
-                return <div key={z.id} className={`g1-mbasket g1-dropzone ${wrongZone === z.id ? 'g1-nudge' : ''}`} data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
-                  <div className="g1-mbasket-num mono">{tid ? tokenById(tid).value : ''}</div>
-                  <Pips n={z.count} kind="apple"/>
-                </div>;
-              })}
-            </div>
-          )}
-          {ex.type === 'order' && (
-            <div className="g1-order">
-              {zones.map((z) => {
-                const tid = tokenInZone(z.id);
-                return <div key={z.id} className={`g1-pos g1-dropzone ${tid ? 'filled' : ''} ${wrongZone === z.id ? 'g1-nudge' : ''}`} data-zone={z.id} onClick={() => dnd.tapZone(z.id)}>
-                  {tid && <span className="g1-token-num mono">{tokenById(tid).value}</span>}
-                </div>;
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* tray (sudraladigan tokenlar) */}
-        {!solvedItem && (
-          <div className="g1-tray fade-up delay-2">
-            {trayTokens.map((tok) => (
-              <div key={tok.id} className={`g1-token ${dnd.sel === tok.id ? 'g1-token-sel' : ''} ${bounceTok === tok.id ? 'g1-bounceback' : ''}`}
-                onPointerDown={(e) => { if (!solvedItem) { e.preventDefault(); setDemoOff(true); dnd.startDrag(e, tok.id); } }}>
-                {tokenVisual(tok)}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {solvedItem && (
-          <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <Reaction state="correct" praise={praiseWord}/>
-            {!allDone && (
-              <button className="btn-white-accent" onClick={nextItem}
-                style={{ padding: 'clamp(8px, 1.4vw, 11px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
-                {lang === 'uz' ? 'Keyingisi' : 'Дальше'}
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* drag arvohi */}
-        {dnd.drag && tokenById(dnd.drag.id) && (
-          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{tokenVisual(tokenById(dnd.drag.id))}</div>
-        )}
-      </div>
-    </Stage>
-  );
-};
 
 // ============================================================
 // EKRANLAR
@@ -3816,10 +3554,7 @@ const ScreenGuest = (props) => (
 
 // s0 — HOOK (son o'qi 0..10, erkin): marker 0 da, "Sakrash" -> oldinga.
 const S0_MAX = 10;
-// s0 — HOOK (soft): 10 tayoqcha bittalab — uzoqmi? har javob OK.
-// s0 — HOOK (soft): 1 o'nlik + 4 birlik — qaysi son? har javob OK.
-// s0 — HOOK (soft): 8 kitob, 10 ga nechta? har javob OK.
-// s0 — HOOK (soft): 8 kitob, 10 ga nechta? har javob OK.
+// s0 — HOOK (soft): 8 + 5, javob 10 dan katta — qancha? har javob OK.
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3984,7 +3719,7 @@ const Screen2 = (props) => {
   );
 };
 
-// s3 — TEST MC: 7 to'la, 10 ga nechta? -> 3 (idx0).
+// s3 — TEST MC: 5 + 8 = 13 (idx2).
 const Screen3 = (props) => {
   const c = CONTENT.s3;
   const t = useT();
@@ -3993,8 +3728,8 @@ const Screen3 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenFrames a={7} b={5} done={solved} ans={solved ? 12 : null}/>}
-      options={[<DigitGlyph d={13} size="mid"/>, <DigitGlyph d={11} size="mid"/>, <DigitGlyph d={12} size="mid"/>, <DigitGlyph d={2} size="mid"/>]}
+      figure={(solved) => <MakeTenFrames a={5} b={8} done={solved} ans={solved ? 13 : null}/>}
+      options={[<DigitGlyph d={14} size="mid"/>, <DigitGlyph d={12} size="mid"/>, <DigitGlyph d={13} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
       correctIdx={2}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -4003,7 +3738,7 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST MC: 6 to'la, 10 ga nechta? -> 4 (idx0).
+// s4 — TEST MC: 9 + 6 = 15 (idx3).
 const Screen4 = (props) => {
   const c = CONTENT.s4;
   const t = useT();
@@ -4012,8 +3747,8 @@ const Screen4 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenFrames a={9} b={4} done={solved} ans={solved ? 13 : null}/>}
-      options={[<DigitGlyph d={3} size="mid"/>, <DigitGlyph d={12} size="mid"/>, <DigitGlyph d={14} size="mid"/>, <DigitGlyph d={13} size="mid"/>]}
+      figure={(solved) => <MakeTenFrames a={9} b={6} done={solved} ans={solved ? 15 : null}/>}
+      options={[<DigitGlyph d={5} size="mid"/>, <DigitGlyph d={14} size="mid"/>, <DigitGlyph d={16} size="mid"/>, <DigitGlyph d={15} size="mid"/>]}
       correctIdx={3}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -4022,7 +3757,7 @@ const Screen4 = (props) => {
   );
 };
 
-// s5 — TEST MC: 9 to'la, 10 ga nechta? -> 1 (idx0).
+// s5 — TEST MC: 6 + 8 = 14 (idx1).
 const Screen5 = (props) => {
   const c = CONTENT.s5;
   const t = useT();
@@ -4031,7 +3766,7 @@ const Screen5 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenFrames a={8} b={6} done={solved} ans={solved ? 14 : null}/>}
+      figure={(solved) => <MakeTenFrames a={6} b={8} done={solved} ans={solved ? 14 : null}/>}
       options={[<DigitGlyph d={13} size="mid"/>, <DigitGlyph d={14} size="mid"/>, <DigitGlyph d={15} size="mid"/>, <DigitGlyph d={4} size="mid"/>]}
       correctIdx={1}
       mascot={false}
@@ -4041,7 +3776,7 @@ const Screen5 = (props) => {
   );
 };
 
-// s6 — TEST Ha/Yo'q: 4 o'ngacha 6 bilan to'ladi? Ha (idx0).
+// s6 — TEST Ha/Yo'q: 7 + 7 = 14? Ha (idx0).
 const Screen6 = (props) => {
   const c = CONTENT.s6;
   const t = useT();
@@ -4050,7 +3785,7 @@ const Screen6 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenFrames a={8} b={5} done={solved}/>}
+      figure={(solved) => <MakeTenFrames a={7} b={7} done={solved}/>}
       options={[t(c.opt_yes), t(c.opt_no)]}
       correctIdx={0}
       mascot={false}
@@ -4060,8 +3795,7 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST MC: qaysi javonда aynan 4 yetishmaydi? -> filled=6 (idx0).
-// s7 — TEST (interaktiv): 8+7 make-ten. Bola "Bittadan qo'sh" bilan yettitani birma-bir qo'shadi;
+// s7 — TEST (interaktiv build+Check): 8+7 make-ten. Bola "Bittadan qo'sh" bilan yettitani birma-bir qo'shadi;
 // 1-ramka 10 ga to'ladi, qolgani 2-ramkaga tushadi. "Tekshirish" bilan tasdiqlaydi (erta bossa — xato yo'li).
 const Screen7 = (props) => {
   const lang = useLang();
@@ -4141,11 +3875,11 @@ const Screen7 = (props) => {
   );
 };
 
-// sg — MINI-O'YIN: 3 raund — to'ldiruvchi. Ball yo'q.
-const GAME_ROUNDS = [
-  { a: 8, b: 4, ans: 12, opts: [12, 11, 13] },
-  { a: 6, b: 7, ans: 13, opts: [12, 13, 14] },
-  { a: 9, b: 5, ans: 14, opts: [14, 13, 15] },
+// sg — MINI-O'YIN (SUDRAB): make-ten qurish. Olmani ramkaga sur — avval o'ngacha to'ladi, keyin qolgani 2-ramkaga. Ball yo'q.
+// seed = ramkada oldindan turgan (kattaroq qo'shiluvchi), add = tepsidan sudriladigan.
+const GAME_DRAG = [
+  { seed: 7, add: 5, ans: 12 },
+  { seed: 5, add: 9, ans: 14 },
 ];
 const ScreenGame = (props) => {
   const lang = useLang();
@@ -4153,31 +3887,43 @@ const ScreenGame = (props) => {
   const c = CONTENT.sg;
   const sfx = useSfx();
   const audio = useAudio([{ id: 'sg_intro', text: c.audio.intro[lang], trigger: 'on_mount', waits_for: null }]);
-  const canAns = useCanAnswer(audio);
-  const total = GAME_ROUNDS.length;
+  const canAct = useCanAnswer(audio);
+  const total = GAME_DRAG.length;
   const [ri, setRi] = useState(0);
-  const [solvedItem, setSolvedItem] = useState(false);
-  const revealRef = useRevealScroll(solvedItem);
-  const [wrong, setWrong] = useState(() => new Set());
-  const [praiseWord, setPraiseWord] = useState('');
-  const [encWord, setEncWord] = useState('');
-  const round = GAME_ROUNDS[ri];
-  const correctIdx = round.opts.indexOf(round.ans);
+  const [placed, setPlaced] = useState(() => new Set());
+  const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
+  const doneTimer = useRef(null);
+  const tenAnnouncedRef = useRef(false);
+  useEffect(() => () => clearTimeout(doneTimer.current), []);
+  const round = GAME_DRAG[ri];
   const lastRound = ri >= total - 1;
-  const allDone = lastRound && solvedItem;
-  const pick = (i) => {
-    if (solvedItem || wrong.has(i) || !canAns) return;
-    if (i === correctIdx) {
-      setSolvedItem(true); sfx.playCorrect();
-      const pw = nextPraise(lang); setPraiseWord(pw);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff((lastRound ? c.done_text : c.round_ok)[lang]); } }
-    } else {
-      setWrong((p) => { const s = new Set(p); s.add(i); return s; });
-      setEncWord(nextEncourage(lang)); sfx.playWrong();
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.retry_audio[lang]); }
-    }
-  };
-  const nextRound = () => { setRi((v) => v + 1); setSolvedItem(false); setWrong(new Set()); setPraiseWord(''); setEncWord(''); };
+  const allDone = lastRound && done;
+  const f1 = Math.min(10, round.seed + placed.size);
+  const f2 = Math.max(0, round.seed + placed.size - 10);
+  const handleDrop = useCallback((tokenId, zoneId) => {
+    if (done || zoneId !== 'frame') return;
+    setPlaced((prev) => {
+      if (prev.has(tokenId) || prev.size >= round.add) return prev;   // hammasi qo'shildi — ortiqcha qabul qilinmaydi
+      const n = new Set(prev); n.add(tokenId);
+      sfx.playCorrect();
+      const nowF1 = Math.min(10, round.seed + n.size);
+      if (nowF1 === 10 && !tenAnnouncedRef.current) {
+        tenAnnouncedRef.current = true;
+        if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.ten_full[lang]); }
+      }
+      if (n.size >= round.add) {
+        doneTimer.current = setTimeout(() => {
+          setDone(true);
+          if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((lastRound ? c.done_text : c.round_done[ri])[lang]); }
+        }, 750);
+      }
+      return n;
+    });
+  }, [done, lang, audio.muted, sfx, c, round, ri, lastRound]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dnd = useDnd(handleDrop);
+  const tray = Array.from({ length: round.add }, (_, i) => `r${ri}_${i}`).filter((id) => !placed.has(id));
+  const nextRound = () => { setRi((v) => v + 1); setPlaced(new Set()); setDone(false); tenAnnouncedRef.current = false; };
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -4188,40 +3934,61 @@ const ScreenGame = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <MakeTenFrames key={ri} a={round.a} b={round.b} done={solvedItem} ans={solvedItem ? round.ans : null}/>
-          {!solvedItem && (
-            <div className="g1-gameopts">
-              {round.opts.map((v, i) => (
-                <button key={i} className={`g1-numopt ${wrong.has(i) ? 'g1-numopt-wrong' : ''}`} disabled={wrong.has(i) || !canAns} onClick={() => pick(i)}>
-                  <DigitGlyph d={v} size="mid"/>
-                </button>
-              ))}
-            </div>
-          )}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <span className="mono" style={{ fontSize: 'clamp(14px, 1.9vw, 17px)', color: T.ink3 }}>{round.seed} + {round.add}</span>
+          {done
+            ? <MakeTenFrames key={ri} a={round.seed} b={round.add} done={true} ans={round.ans}/>
+            : (
+              <>
+                {/* Drop-zona: seed to'la 1-ramka + toshib chiqqani 2-ramkaga */}
+                <div data-zone="frame" onClick={() => { if (canAct && !done) dnd.tapZone('frame'); }}
+                  style={{
+                    border: `2.5px dashed ${placed.size ? T.success : T.accent}`, borderRadius: 14,
+                    padding: 'clamp(8px, 1.6vw, 12px)',
+                    background: placed.size ? 'rgba(31, 122, 77, 0.06)' : 'rgba(255, 79, 40, 0.05)'
+                  }}>
+                  <div className="g1-mt2">
+                    <TenSlots filled={f1}/>
+                    {f2 > 0 && <span className="g1-mt2-plus">+</span>}
+                    {f2 > 0 && <TenSlots filled={f2}/>}
+                  </div>
+                </div>
+                {/* Tepsi — sudriladigan olmalar */}
+                <div className="g1-fviz-ones" style={{ minHeight: 'clamp(44px, 9vw, 64px)' }}>
+                  {tray.map((id) => (
+                    <span key={id} className="g1-fviz-one"
+                      style={{ cursor: 'grab', touchAction: 'none', borderRadius: 8, outline: dnd.sel === id ? `2.5px solid ${T.accent}` : 'none', outlineOffset: 2 }}
+                      onPointerDown={(e) => { if (!canAct || done) return; e.preventDefault(); dnd.startDrag(e, id); }}>
+                      <Apple/>
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
         </div>
-        {solvedItem && (
+        {done && (
           <div ref={revealRef} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-            <Reaction state="correct" praise={praiseWord}/>
+            <Reaction state="correct" praise={t(lastRound ? c.done_text : c.round_done[ri])}/>
             {!allDone && (
               <button className="btn-white-accent" onClick={nextRound}
                 style={{ padding: 'clamp(8px, 1.4vw, 11px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
-                {lang === 'uz' ? 'Keyingisi' : 'Дальше'}
+                {t(c.next_label)}
               </button>
             )}
           </div>
         )}
-        {!solvedItem && wrong.size > 0 && (
-          <FeedbackBlock show={true} isCorrect={false} wrongClass="frame-tip">
-            <Reaction state="wrong" praise={encWord}/>
-          </FeedbackBlock>
+        {/* drag arvohi */}
+        {dnd.drag && (
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>
+            <span className="g1-fviz-one"><Apple/></span>
+          </div>
         )}
       </div>
     </Stage>
   );
 };
 
-// s8 — TEST final + FactCard: 8 to'la, 10 ga nechta? -> 2 (idx0).
+// s8 — TEST final + FactCard: 8 + 8 = 16 (idx3).
 const Screen8 = (props) => {
   const c = CONTENT.s8;
   const t = useT();
@@ -4230,8 +3997,8 @@ const Screen8 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub">{t(c.title)}</h2>}
-      figure={(solved) => <MakeTenFrames a={8} b={5} done={solved} ans={solved ? 13 : null}/>}
-      options={[<DigitGlyph d={3} size="mid"/>, <DigitGlyph d={12} size="mid"/>, <DigitGlyph d={14} size="mid"/>, <DigitGlyph d={13} size="mid"/>]}
+      figure={(solved) => <MakeTenFrames a={8} b={8} done={solved} ans={solved ? 16 : null}/>}
+      options={[<DigitGlyph d={6} size="mid"/>, <DigitGlyph d={15} size="mid"/>, <DigitGlyph d={17} size="mid"/>, <DigitGlyph d={16} size="mid"/>]}
       correctIdx={3}
       mascot={false}
       factOnCorrect={(

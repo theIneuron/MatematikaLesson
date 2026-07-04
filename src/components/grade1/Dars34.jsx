@@ -1102,7 +1102,7 @@ const CONTENT = {
 
   s8: {
     eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
-    title: { ru: 'Сложи длины', uz: "Uzunliklarni qo'sh" },
+    title: { ru: 'Сложи длины', uz: "Uzunliklarni qo'shing" },
     problem: { ru: 'Лента 2 дм и ещё 3 дм. Сколько всего?', uz: "Tasma 2 dm va yana 3 dm. Jami nechta?" },
     opt0: { ru: '5 дм', uz: '5 dm' },
     opt1: { ru: '6 дм', uz: '6 dm' },
@@ -1118,12 +1118,12 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи два и три дециметра.',
-      uz: "Ikki va uch detsimetrni qo'sh."
+      uz: "Ikki va uch detsimetrni qo'shing."
     },
     audio: {
       intro: { ru: 'Лента два дециметра и ещё три дециметра. Сколько всего? Выбери.', uz: "Tasma ikki detsimetr va yana uch detsimetr. Jami nechta? Tanlang." },
       on_correct: { ru: 'Верно. Пять дециметров.', uz: "To'g'ri. Besh detsimetr." },
-      on_wrong: { ru: 'Не совсем. Сложи два и три.', uz: "Unchalik emas. Ikki va uchni qo'sh." }
+      on_wrong: { ru: 'Не совсем. Сложи два и три.', uz: "Unchalik emas. Ikki va uchni qo'shing." }
     }
   },
 
@@ -1168,7 +1168,7 @@ const CONTENT = {
 
   s9: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Сложи длины', uz: "Uzunliklarni qo'sh" },
+    title: { ru: 'Сложи длины', uz: "Uzunliklarni qo'shing" },
     problem: { ru: 'Верёвка 3 дм и ещё 4 дм. Сколько всего?', uz: "Arqon 3 dm va yana 4 dm. Jami nechta?" },
     opt0: { ru: '7 дм', uz: '7 dm' },
     opt1: { ru: '8 дм', uz: '8 dm' },
@@ -1184,7 +1184,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи три и четыре дециметра.',
-      uz: "Uch va to'rt detsimetrni qo'sh."
+      uz: "Uch va to'rt detsimetrni qo'shing."
     },
     fact_badge: { ru: 'А знаешь? · Мерки', uz: "Bilasizmi? · O'lchovlar" },
     fact_text: {
@@ -1198,7 +1198,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Верёвка три дециметра и ещё четыре дециметра. Сколько всего? Выбери.', uz: "Arqon uch detsimetr va yana to'rt detsimetr. Jami nechta? Tanlang." },
       on_correct: { ru: 'Верно. Семь дециметров.', uz: "To'g'ri. Yetti detsimetr." },
-      on_wrong: { ru: 'Не совсем. Сложи три и четыре.', uz: "Unchalik emas. Uch va to'rtni qo'sh." }
+      on_wrong: { ru: 'Не совсем. Сложи три и четыре.', uz: "Unchalik emas. Uch va to'rtni qo'shing." }
     }
   },
 

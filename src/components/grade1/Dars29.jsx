@@ -1067,7 +1067,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Из семи убери два.',
-      uz: "Yettidan ikkini ayir."
+      uz: "Yettidan ikkini ayiring."
     },
     audio: {
       intro: { ru: 'Было семь яблок, два отдали. Сколько осталось? Выбери верное решение.', uz: "Yetti olma edi, ikkitasi berildi. Nechta qoldi? To'g'ri yechimni tanlang." },
@@ -1085,25 +1085,25 @@ const CONTENT = {
     correct_text: { ru: 'Правильно. Из девяти убрать пять — четыре. Добавили четыре.', uz: "To'g'ri. To'qqizdan besh — to'rt. To'rtta qo'shilgan." },
     wrong_1: {
       ru: 'Девять — это сколько стало всего, а не сколько добавили. Из девяти убери пять, получится четыре.',
-      uz: "To'qqiz — bu hammasi nechta bo'lgani, qancha qo'shilgani emas. To'qqizdan besh ayir, to'rt chiqadi."
+      uz: "To'qqiz — bu hammasi nechta bo'lgani, qancha qo'shilgani emas. To'qqizdan besh ayiring, to'rt chiqadi."
     },
     wrong_2: {
       ru: 'Пять было в начале. Чтобы узнать, сколько добавили, из девяти убери пять — четыре.',
-      uz: "Besh boshida bor edi. Qancha qo'shilganini bilish uchun to'qqizdan beshni ayir — to'rt."
+      uz: "Besh boshida bor edi. Qancha qo'shilganini bilish uchun to'qqizdan beshni ayiring — to'rt."
     },
     wrong_default: {
       ru: 'Из девяти убери пять.',
-      uz: "To'qqizdan beshni ayir."
+      uz: "To'qqizdan beshni ayiring."
     },
     audio: {
       intro: { ru: 'Было пять яблок, стало девять. Сколько добавили? Выбери.', uz: "Besh olma edi, to'qqiz bo'ldi. Qancha qo'shilgan? Tanlang." },
       on_correct: { ru: 'Верно. Из девяти убрать пять четыре. Добавили четыре.', uz: "To'g'ri. To'qqizdan besh to'rt. To'rtta qo'shilgan." },
-      on_wrong: { ru: 'Не совсем. Из девяти убери то, что было.', uz: "Unchalik emas. To'qqizdan boshida borini ayir." }
+      on_wrong: { ru: 'Не совсем. Из девяти убери то, что было.', uz: "Unchalik emas. To'qqizdan boshida borini ayiring." }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Найди ошибку · 4 / 4', uz: 'Xatoni top · 4 / 4' },
+    eyebrow: { ru: 'Найди ошибку · 4 / 4', uz: 'Xatoni toping · 4 / 4' },
     title: { ru: 'Где решили верно?', uz: "Qayerda to'g'ri yechilgan?" },
     problem: { ru: 'Было 6 яблок, 2 отдали. Сколько осталось?', uz: "6 olma edi, 2 tasi berildi. Nechta qoldi?" },
     correct_text: { ru: 'Правильно. Шесть без двух — четыре. Это верное решение.', uz: "To'g'ri. Oltidan ikki — to'rt. Bu to'g'ri yechim." },
@@ -1117,7 +1117,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Из шести убери два.',
-      uz: "Oltidan ikkini ayir."
+      uz: "Oltidan ikkini ayiring."
     },
     audio: {
       intro: { ru: 'Было шесть яблок, два отдали. Где решили верно? Выбери.', uz: "Olti olma edi, ikkitasi berildi. Qayerda to'g'ri yechilgan? Tanlang." },
@@ -1131,7 +1131,7 @@ const CONTENT = {
     instruction: { ru: 'Сколько осталось? Выбери ответ', uz: 'Nechta qoldi? Javobni tanlang' },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодцы! Все задачи решены.', uz: "Barakalla! Hamma masala yechildi." },
-    retry_audio: { ru: 'Ничего страшного. Из целого убери то, что отдали.', uz: "Hechqisi yo'q. Butundan berilganni ayir." },
+    retry_audio: { ru: 'Ничего страшного. Из целого убери то, что отдали.', uz: "Hechqisi yo'q. Butundan berilganni ayiring." },
     q_round1: { ru: 'У Рано было 6 яблок, 2 отдала.', uz: "Ra'noda 6 olma edi, 2 tasini berdi." },
     q_round2: { ru: 'У Анвара было 9 яблок, 4 отдал.', uz: 'Anvarda 9 olma edi, 4 tasini berdi.' },
     q_round3: { ru: 'У Жасура было 8 яблок, 5 отдал.', uz: 'Jasurda 8 olma edi, 5 tasini berdi.' },
@@ -1177,7 +1177,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Из шести убери три.',
-      uz: "Oltidan uchni ayir."
+      uz: "Oltidan uchni ayiring."
     },
     fact_badge: { ru: 'А знаешь? · Задача', uz: 'Bilasizmi? · Masala' },
     fact_text: {

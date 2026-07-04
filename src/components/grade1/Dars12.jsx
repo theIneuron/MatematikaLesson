@@ -1070,7 +1070,7 @@ const CONTENT = {
     label_before: { ru: 'Сначала внутри скобок', uz: "Avval qavs ichini" },
     label_after: { ru: 'Теперь всё вместе', uz: 'Endi hammasini birga' },
     step2_hint: { ru: 'Теперь нажми на остальное', uz: 'Endi qolganini bosing' },
-    wrong_first: { ru: 'Скобки говорят, меня посчитай первым. Нажми на скобки.', uz: "Qavs aytadi, avval meni sana. Qavsni bosing." },
+    wrong_first: { ru: 'Скобки говорят, меня посчитай первым. Нажми на скобки.', uz: "Qavs aytadi, avval meni sanang. Qavsni bosing." },
     done_text: { ru: 'Сначала в скобках — три. Потом три плюс три — шесть.', uz: "Avval qavs ichi — uch. Keyin uch plyus uch — olti." },
     audio: {
       ru: [
@@ -1081,7 +1081,7 @@ const CONTENT = {
       uz: [
         "Bit esa qiziq yozuv yozdi. Ikki plyus bir qavs ichida, va yana plyus uch. Avval nimani sanaymiz? O'sha qismni o'zingiz bosing.",
         "To'g'ri, avval qavs. Ichida ikki plyus bir teng uch. Endi qolganini bosing.",
-        "Uch plyus uch teng olti. Qavs doim aytadi, avval meni sana."
+        "Uch plyus uch teng olti. Qavs doim aytadi, avval meni sanang."
       ]
     }
   },

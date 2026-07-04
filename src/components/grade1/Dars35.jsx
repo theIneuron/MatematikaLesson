@@ -1052,14 +1052,14 @@ const CONTENT = {
   s6: {
     eyebrow: { ru: 'Тренировка · 2 / 4', uz: 'Mashq · 2 / 4' },
     title: { ru: 'Сколько килограммов?', uz: 'Nechta kilogramm?' },
-    problem: { ru: 'Сложи гири.', uz: "Toshlarni qo'sh." },
+    problem: { ru: 'Сложи гири.', uz: "Toshlarni qo'shing." },
     opt0: { ru: '3 кг', uz: '3 kg' },
     opt1: { ru: '2 кг', uz: '2 kg' },
     opt2: { ru: '4 кг', uz: '4 kg' },
     correct_text: { ru: 'Правильно. Два и один — три килограмма.', uz: "To'g'ri. Ikki va bir — uch kilogramm." },
     wrong_1: {
       ru: 'Сложи числа на гирях: два и один — это три.',
-      uz: "Toshlardagi sonlarni qo'sh: ikki va bir — bu uch."
+      uz: "Toshlardagi sonlarni qo'shing. Ikki va bir, bu uch."
     },
     wrong_2: {
       ru: 'Не четыре. Два и один — это три килограмма.',
@@ -1067,12 +1067,12 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Прочитай числа на гирях и сложи.',
-      uz: "Toshlardagi sonlarni o'qib, qo'sh."
+      uz: "Toshlardagi sonlarni o'qib, qo'shing."
     },
     audio: {
       intro: { ru: 'Посмотри на гири. Сложи их килограммы. Сколько всего? Выбери.', uz: "Toshlarga qarang. Ularning kilogrammini qo'shing. Jami nechta? Tanlang." },
       on_correct: { ru: 'Верно. Три килограмма.', uz: "To'g'ri. Uch kilogramm." },
-      on_wrong: { ru: 'Не совсем. Сложи числа на гирях.', uz: "Unchalik emas. Toshlardagi sonlarni qo'sh." }
+      on_wrong: { ru: 'Не совсем. Сложи числа на гирях.', uz: "Unchalik emas. Toshlardagi sonlarni qo'shing." }
     }
   },
 
@@ -1100,7 +1100,7 @@ const CONTENT = {
 
   s8: {
     eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
-    title: { ru: 'Сложи массу', uz: "Massani qo'sh" },
+    title: { ru: 'Сложи массу', uz: "Massani qo'shing" },
     problem: { ru: 'В сумке 2 кг и положили ещё 3 кг. Сколько всего?', uz: "Sumkada 2 kg va yana 3 kg qo'yildi. Jami nechta?" },
     opt0: { ru: '5 кг', uz: '5 kg' },
     opt1: { ru: '6 кг', uz: '6 kg' },
@@ -1116,12 +1116,12 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи два и три килограмма.',
-      uz: "Ikki va uch kilogrammni qo'sh."
+      uz: "Ikki va uch kilogrammni qo'shing."
     },
     audio: {
       intro: { ru: 'В сумке два килограмма и положили ещё три. Сколько всего? Выбери.', uz: "Sumkada ikki kilogramm va yana uch qo'yildi. Jami nechta? Tanlang." },
       on_correct: { ru: 'Верно. Пять килограммов.', uz: "To'g'ri. Besh kilogramm." },
-      on_wrong: { ru: 'Не совсем. Сложи два и три.', uz: "Unchalik emas. Ikki va uchni qo'sh." }
+      on_wrong: { ru: 'Не совсем. Сложи два и три.', uz: "Unchalik emas. Ikki va uchni qo'shing." }
     }
   },
 
@@ -1132,7 +1132,7 @@ const CONTENT = {
     done_text: { ru: 'Молодцы! Всё верно.', uz: "Barakalla! Hammasi to'g'ri." },
     retry_audio: { ru: 'Ничего страшного. Посмотри на весы ещё раз.', uz: "Hechqisi yo'q. Taroziga yana qarang." },
     q_round1: { ru: 'Что тяжелее?', uz: "Qaysi og'irroq?" },
-    q_round2: { ru: 'Сложи гири. Сколько килограммов?', uz: "Toshlarni qo'sh. Nechta kilogramm?" },
+    q_round2: { ru: 'Сложи гири. Сколько килограммов?', uz: "Toshlarni qo'shing. Nechta kilogramm?" },
     q_round3: { ru: '4 кг и ещё 3 кг — сколько всего?', uz: '4 kg va yana 3 kg — jami nechta?' },
     r1_o0: { ru: 'Арбуз', uz: 'Tarvuz' }, r1_o1: { ru: 'Виноград', uz: 'Uzum' },
     r2_o0: { ru: '4 кг', uz: '4 kg' }, r2_o1: { ru: '3 кг', uz: '3 kg' }, r2_o2: { ru: '5 кг', uz: '5 kg' },
@@ -1166,7 +1166,7 @@ const CONTENT = {
 
   s9: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Сложи массу', uz: "Massani qo'sh" },
+    title: { ru: 'Сложи массу', uz: "Massani qo'shing" },
     problem: { ru: 'В корзине 3 кг и добавили ещё 4 кг. Сколько всего?', uz: "Savatda 3 kg va yana 4 kg qo'shildi. Jami nechta?" },
     opt0: { ru: '7 кг', uz: '7 kg' },
     opt1: { ru: '8 кг', uz: '8 kg' },
@@ -1182,7 +1182,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи три и четыре килограмма.',
-      uz: "Uch va to'rt kilogrammni qo'sh."
+      uz: "Uch va to'rt kilogrammni qo'shing."
     },
     fact_badge: { ru: 'А знаешь? · Масса', uz: 'Bilasizmi? · Massa' },
     fact_text: {
@@ -1196,7 +1196,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'В корзине три килограмма и добавили ещё четыре. Сколько всего? Выбери.', uz: "Savatda uch kilogramm va yana to'rt qo'shildi. Jami nechta? Tanlang." },
       on_correct: { ru: 'Верно. Семь килограммов.', uz: "To'g'ri. Yetti kilogramm." },
-      on_wrong: { ru: 'Не совсем. Сложи три и четыре.', uz: "Unchalik emas. Uch va to'rtni qo'sh." }
+      on_wrong: { ru: 'Не совсем. Сложи три и четыре.', uz: "Unchalik emas. Uch va to'rtni qo'shing." }
     }
   },
 

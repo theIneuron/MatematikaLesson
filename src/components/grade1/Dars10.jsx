@@ -882,17 +882,17 @@ const LESSON_META = {
   lessonTitle: { ru: 'Сложение и вычитание в пределах 10', uz: "10 ichida qo'shish va ayirish" }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: mahallada do'stlar 5 ichida mashq qiladi
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: yo'lak o'ngacha o'sdi, 10 ichida sakraymiz
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // YANGI MEXANIKA son o'qi: nuqta oldinga sakraydi
-  { id: 's1',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 2 + 2 = 4 (B)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // son o'qi +: markerni 2 dan 2 ta oldinga -> 4
+  { id: 's1',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 6 + 3 = 9 (B)
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // son o'qi +: markerni 6 dan 3 ta oldinga -> 9
   { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: + oldinga, − orqaga (son o'qi)
-  { id: 's4',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // son o'qi scored +: 3 + 2 = 5 (katak bos)
-  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 5 − 2 = 3 (B)
-  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // juftlash: misol -> javob (1+1=2, 4−1=3, 2+3=5)
-  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // son o'qi scored −: 4 − 2 = 2 (katak bos)
-  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin aralash ±5 (3 raund)
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: 5 ichida puxta; Dars10 ga ishora
+  { id: 's4',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // son o'qi scored +: 7 + 2 = 9 (katak bos)
+  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 9 − 4 = 5 (B)
+  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // juftlash: 5+3=8, 10−4=6, 6+1=7 -> 6,7,8
+  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'module-mikro' },  // son o'qi scored −: 8 − 3 = 5 (katak bos)
+  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin aralash ±10 (3 raund)
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: 10 ichida puxta; Dars11 ga ishora (o'rin almashtirish)
   { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 6 + 2 = 8 + fakt (A)
   { id: 's9',  type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
 ];
@@ -1034,11 +1034,11 @@ const CONTENT = {
   // ---- s4 TEST (son o'qi scored +): 7 + 2 = 9 ----
   s4: {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
-    title: { ru: 'Точка на семи. Прибавь два — куда придёт?', uz: "Nuqta yettida. Ikki qo'sh — qayerga keladi?" },
+    title: { ru: 'Точка на семи. Прибавь два — куда придёт?', uz: "Nuqta yettida. Ikki qo'shing — qayerga keladi?" },
     correct_text: { ru: 'Верно. Семь плюс два равно девять.', uz: "To'g'ri. Yetti plyus ikki teng to'qqiz." },
     wrong_default: { ru: 'Прыгай вперёд от семи два раза и нажми на число, куда придёшь.', uz: "Yettidan oldinga ikki marta sakrab, kelgan sonni bosing." },
     audio: {
-      intro: { ru: 'Точка стоит на числе семь. Прибавь два. Прыгни вперёд два раза и нажми на число, куда придёшь.', uz: "Nuqta yetti sonida. Ikki qo'sh. Ikki marta oldinga sakrang va kelgan sonni bosing." },
+      intro: { ru: 'Точка стоит на числе семь. Прибавь два. Прыгни вперёд два раза и нажми на число, куда придёшь.', uz: "Nuqta yetti sonida. Ikki qo'shing. Ikki marta oldinga sakrang va kelgan sonni bosing." },
       on_correct: { ru: 'Верно. Пришли на девять.', uz: "To'g'ri. To'qqizga keldik." },
       on_wrong: { ru: 'Не совсем. Посчитай прыжки вперёд.', uz: "Unchalik emas. Oldinga sakrashlarni sanang." }
     }
@@ -1076,11 +1076,11 @@ const CONTENT = {
   // ---- s7 TEST (son o'qi scored −): 8 − 3 = 5 ----
   s7: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Точка на восьми. Вычти три — куда придёт?', uz: "Nuqta sakkizda. Uch ayir — qayerga keladi?" },
+    title: { ru: 'Точка на восьми. Вычти три — куда придёт?', uz: "Nuqta sakkizda. Uch ayiring — qayerga keladi?" },
     correct_text: { ru: 'Верно. Восемь минус три равно пять.', uz: "To'g'ri. Sakkiz minus uch teng besh." },
     wrong_default: { ru: 'Прыгай назад от восьми три раза и нажми на число, куда придёшь.', uz: "Sakkizdan orqaga uch marta sakrab, kelgan sonni bosing." },
     audio: {
-      intro: { ru: 'Точка стоит на числе восемь. Вычти три. Прыгни назад три раза и нажми на число, куда придёшь.', uz: "Nuqta sakkiz sonida. Uch ayir. Uch marta orqaga sakrang va kelgan sonni bosing." },
+      intro: { ru: 'Точка стоит на числе восемь. Вычти три. Прыгни назад три раза и нажми на число, куда придёшь.', uz: "Nuqta sakkiz sonida. Uch ayiring. Uch marta orqaga sakrang va kelgan sonni bosing." },
       on_correct: { ru: 'Верно. Пришли на пять.', uz: "To'g'ri. Beshga keldik." },
       on_wrong: { ru: 'Не совсем. Посчитай прыжки назад.', uz: "Unchalik emas. Orqaga sakrashlarni sanang." }
     }

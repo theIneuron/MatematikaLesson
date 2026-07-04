@@ -882,18 +882,18 @@ const LESSON_META = {
   lessonTitle: { ru: 'Сложение через десяток', uz: "O'nlikdan o'tib qo'shish" }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // §4 chok: maktab, Jasur kiradi
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: 10 tayoqcha bittalab uzoqmi?
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // YANGI MEXANIKA: 10 tayoqcha -> bog'la -> 1 dasta
-  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: 10 birlik = 1 o'nlik
-  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // dastada nechta tayoqcha? 10
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nechta o'nlik? 1
-  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // taqqoslash (timsoh): 10 > 7
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 1 o'nlik = 10 birlik
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi rasmda aynan 1 o'nlik?
-  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: tayoqchalarni sana (3 raund)
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'nlik -> Dars14 (11..15)
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 10 birlik = 1 o'nlik + fakt
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // kirish: maktab — o'nlikdan o'tib qo'shamiz (8+5)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft hook: 8+5 — javob o'ndan katta, qancha? har javob OK
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // YANGI MEXANIKA: 8+5 drag make-ten — 2 kitobni o'zi ramkaga suradi (10!), qolgan 3 -> 13
+  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: avval o'ngacha to'ldir, keyin qolganini qo'sh (8+2=10, +3)
+  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 7 + 5 = 12
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 9 + 4 = 13
+  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 8 + 6 = 14
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 8 + 5 = 13? Ha
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // interaktiv: 7 + 6 = 13 (bittadan to'ldir)
+  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: o'tib qo'shish (3 raund)
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'tib qo'shish -> Dars18 (bozorda amaliyot)
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 8 + 5 = 13 + fakt
   { id: 's9',  type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
 ];
 
@@ -978,52 +978,52 @@ const CONTENT = {
     title_part2_em: { ru: 'сначала до десяти', uz: "avval o'ngacha" },
     tip: {
       ru: 'Чтобы сложить через десяток, сначала дополни до десяти, потом добавь остальное. Восемь плюс пять: восемь и два это десять, и ещё три — тринадцать.',
-      uz: "O'nlikdan o'tib qo'shish uchun avval o'ngacha to'ldir, keyin qolganini qo'sh. Sakkiz plyus besh: sakkiz va ikki o'n, yana uch — o'n uch."
+      uz: "O'nlikdan o'tib qo'shish uchun avval o'ngacha to'ldiring, keyin qolganini qo'shing. Sakkiz plyus besh: sakkiz va ikki o'n, yana uch — o'n uch."
     },
     audio: {
       ru: 'Запомним. Чтобы сложить через десяток, сначала дополни до десяти, потом добавь остальное. Восемь и два это десять, и ещё три, тринадцать.',
-      uz: "Eslab qolamiz. O'nlikdan o'tib qo'shish uchun avval o'ngacha to'ldir, keyin qolganini qo'sh. Sakkiz va ikki o'n, yana uch, o'n uch."
+      uz: "Eslab qolamiz. O'nlikdan o'tib qo'shish uchun avval o'ngacha to'ldiring, keyin qolganini qo'shing. Sakkiz va ikki o'n, yana uch, o'n uch."
     }
   },
 
-  // ---- s3 TEST MC: 7 + 5 = 12 (idx0) ----
+  // ---- s3 TEST MC: 7 + 5 = 12 (idx3) ----
   s3: {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
     title: { ru: 'Семь плюс пять. Сколько получится?', uz: "Yetti plyus besh. Nechta bo'ladi?" },
     correct_text: { ru: 'Верно. Семь и три это десять, и ещё два — двенадцать.', uz: "To'g'ri. Yetti va uch o'n, yana ikki — o'n ikki." },
-    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     audio: {
-      intro: { ru: 'Семь плюс пять. Сначала дополни семь до десяти, потом добавь остальное. Сколько получится? Выбери ответ.', uz: "Yetti plyus besh. Avval yettini o'ngacha to'ldir, keyin qolganini qo'sh. Nechta bo'ladi? Javobni tanlang." },
+      intro: { ru: 'Семь плюс пять. Сначала дополни семь до десяти, потом добавь остальное. Сколько получится? Выбери ответ.', uz: "Yetti plyus besh. Avval yettini o'ngacha to'ldiring, keyin qolganini qo'shing. Nechta bo'ladi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Двенадцать.', uz: "To'g'ri. O'n ikki." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s4 TEST MC: 9 + 4 = 13 (idx0) ----
+  // ---- s4 TEST MC: 9 + 4 = 13 (idx1) ----
   s4: {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
     title: { ru: 'Девять плюс четыре. Сколько получится?', uz: "To'qqiz plyus to'rt. Nechta bo'ladi?" },
     correct_text: { ru: 'Верно. Девять и один это десять, и ещё три — тринадцать.', uz: "To'g'ri. To'qqiz va bir o'n, yana uch — o'n uch." },
-    wrong_0: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    wrong_0: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_2: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     audio: {
-      intro: { ru: 'Девять плюс четыре. Дополни девять до десяти, потом добавь остальное. Сколько? Выбери ответ.', uz: "To'qqiz plyus to'rt. To'qqizni o'ngacha to'ldir, keyin qolganini qo'sh. Nechta? Javobni tanlang." },
+      intro: { ru: 'Девять плюс четыре. Дополни девять до десяти, потом добавь остальное. Сколько? Выбери ответ.', uz: "To'qqiz plyus to'rt. To'qqizni o'ngacha to'ldiring, keyin qolganini qo'shing. Nechta? Javobni tanlang." },
       on_correct: { ru: 'Верно. Тринадцать.', uz: "To'g'ri. O'n uch." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s5 TEST MC: 8 + 6 = 14 (idx0) ----
+  // ---- s5 TEST MC: 8 + 6 = 14 (idx2) ----
   s5: {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
     title: { ru: 'Восемь плюс шесть. Сколько получится?', uz: "Sakkiz plyus olti. Nechta bo'ladi?" },
     correct_text: { ru: 'Верно. Восемь и два это десять, и ещё четыре — четырнадцать.', uz: "To'g'ri. Sakkiz va ikki o'n, yana to'rt — o'n to'rt." },
-    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_0: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_0: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     audio: {
       intro: { ru: 'Восемь плюс шесть. Сначала до десяти, потом остальное. Сколько? Выбери ответ.', uz: "Sakkiz plyus olti. Avval o'ngacha, keyin qolgani. Nechta? Javobni tanlang." },
       on_correct: { ru: 'Верно. Четырнадцать.', uz: "To'g'ri. O'n to'rt." },
@@ -1038,8 +1038,8 @@ const CONTENT = {
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
     correct_text: { ru: 'Верно. Восемь и два десять, и ещё три — тринадцать.', uz: "To'g'ri. Sakkiz va ikki o'n, yana uch — o'n uch." },
-    wrong_1: { ru: 'Посчитай заново через десяток: дополни до десяти, потом добавь остальное.', uz: "Qaytadan, o'nlikdan o'tib sana: avval o'ngacha to'ldir, keyin qolganini qo'sh." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    wrong_1: { ru: 'Посчитай заново через десяток: дополни до десяти, потом добавь остальное.', uz: "Qaytadan, o'nlikdan o'tib sanang: avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     audio: {
       intro: { ru: 'Верно ли, что восемь плюс пять равно тринадцать? Выбери да или нет.', uz: "Sakkiz plyus besh teng o'n uch, to'g'rimi? Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Тринадцать.', uz: "To'g'ri. O'n uch." },
@@ -1047,19 +1047,19 @@ const CONTENT = {
     }
   },
 
-  // ---- s7 TEST MC: 7 + 6 = 13 (idx0) ----
+  // ---- s7 TEST (interaktiv): 7 + 6 = 13 ----
   // s7 TEST (interaktiv): 7+6 — bola bittadan qo'shadi, 1-ramka 10 ga to'ladi, qolgani 2-ramkaga; tekshiradi.
   s7: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Прибавь к семи шесть — по одному, потом проверь.', uz: "Yettiga oltini qo'sh — bittadan to'ldir, keyin tekshir." },
-    btn: { ru: 'Добавить один', uz: "Bittadan qo'sh" },
+    title: { ru: 'Прибавь к семи шесть — по одному, потом проверь.', uz: "Yettiga oltini qo'shing — bittadan to'ldiring, keyin tekshiring." },
+    btn: { ru: 'Добавить один', uz: "Bittadan qo'shing" },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     done_text: { ru: 'Десять и три — тринадцать! Сначала дополнили до десяти.', uz: "O'n va uch — o'n uch! Avval o'ngacha to'ldirdik." },
-    try_text: { ru: 'Добавлены не все шесть. Заполни до конца и проверь снова.', uz: "Oltitasi to'liq qo'shilmadi. Oxirigacha qo'sh va yana tekshir." },
+    try_text: { ru: 'Добавлены не все шесть. Заполни до конца и проверь снова.', uz: "Oltitasi to'liq qo'shilmadi. Oxirigacha qo'shing va yana tekshiring." },
     audio: {
       intro: { ru: 'К семи прибавляем шесть. Добавляй по одному: сначала рамка дополнится до десяти, потом остальное. Заполни и нажми проверить.', uz: "Yettiga oltini qo'shamiz. Bittadan qo'shing: avval ramka o'ngacha to'ladi, keyin qolgani pastga tushadi. To'ldiring va tekshirishni bosing." },
       on_correct: { ru: 'Молодец! Десять и три — тринадцать.', uz: "Barakalla! O'n va uch — o'n uch." },
-      on_wrong: { ru: 'Добавлены не все. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'sh va tekshir." }
+      on_wrong: { ru: 'Добавлены не все. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'shing va tekshiring." }
     }
   },
 
@@ -1069,7 +1069,7 @@ const CONTENT = {
     instruction: { ru: 'Сколько получится?', uz: "Nechta bo'ladi?" },
     round_ok: { ru: 'Верно! Дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодец! Ты складываешь через десяток.', uz: "Barakalla! O'nlikdan o'tib qo'shasiz." },
-    retry_audio: { ru: 'Ничего страшного. Сначала дополни до десяти.', uz: "Zarari yo'q. Avval o'ngacha to'ldir." },
+    retry_audio: { ru: 'Ничего страшного. Сначала дополни до десяти.', uz: "Zarari yo'q. Avval o'ngacha to'ldiring." },
     audio: {
       intro: { ru: 'Поиграем. Складывай через десяток и выбирай ответ.', uz: "O'ynaymiz. O'nlikdan o'tib qo'shing va javobni tanlang." }
     }
@@ -1102,19 +1102,19 @@ const CONTENT = {
     }
   },
 
-  // ---- s8 TEST final + FactCard: 8 + 5 = 13 (idx0) ----
+  // ---- s8 TEST final + FactCard: 8 + 5 = 13 (idx2) ----
   s8: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Восемь плюс пять. Сколько получится?', uz: "Sakkiz plyus besh. Nechta bo'ladi?" },
     correct_text: { ru: 'Верно. Восемь и два десять, и ещё три — тринадцать.', uz: "To'g'ri. Sakkiz va ikki o'n, yana uch — o'n uch." },
-    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_0: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldir, keyin qolganini qo'shib qaytadan sana." },
-    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldir, keyin qolganini qo'sh." },
+    wrong_1: { ru: 'Чуть меньше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_0: { ru: 'Чуть больше. Сначала дополни до десяти, потом добавь остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha to'ldiring, keyin qolganini qo'shib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала дополни до десяти, потом добавь остальное.', uz: "Avval o'ngacha to'ldiring, keyin qolganini qo'shing." },
     fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
     fact_text: { ru: 'Способ через десяток помогает складывать в уме. Сначала круглый десяток, потом остальное — так считать легче.', uz: "O'nlikdan o'tish usuli og'zaki qo'shishga yordam beradi. Avval to'liq o'nlik, keyin qolgani — shunday sanash oson." },
     fact_audio: { ru: 'А знаешь, способ через десяток помогает складывать в уме. Сначала круглый десяток, потом остальное.', uz: "Bilasizmi, o'nlikdan o'tish usuli og'zaki qo'shishga yordam beradi. Avval to'liq o'nlik, keyin qolgani." },
     audio: {
-      intro: { ru: 'Последний пример. Восемь плюс пять. Сложи через десяток. Сколько получится? Выбери ответ.', uz: "Oxirgi misol. Sakkiz plyus besh. O'nlikdan o'tib qo'sh. Nechta bo'ladi? Javobni tanlang." },
+      intro: { ru: 'Последний пример. Восемь плюс пять. Сложи через десяток. Сколько получится? Выбери ответ.', uz: "Oxirgi misol. Sakkiz plyus besh. O'nlikdan o'tib qo'shing. Nechta bo'ladi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Тринадцать.', uz: "To'g'ri. O'n uch." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
@@ -3685,12 +3685,8 @@ const ScreenGuest = (props) => (
   <StoryLayout props={props} c={CONTENT.sGuest}>{(audio) => <GuestCast audio={audio}/>}</StoryLayout>
 );
 
-// s0 — HOOK (son o'qi 0..10, erkin): marker 0 da, "Sakrash" -> oldinga.
+// s0 — HOOK (soft): 8 + 5 make-ten — javob o'ndan katta, qancha? (ha/yo'q/bilmayman, har javob OK).
 const S0_MAX = 10;
-// s0 — HOOK (soft): 10 tayoqcha bittalab — uzoqmi? har javob OK.
-// s0 — HOOK (soft): 1 o'nlik + 4 birlik — qaysi son? har javob OK.
-// s0 — HOOK (soft): 8 kitob, 10 ga nechta? har javob OK.
-// s0 — HOOK (soft): 8 kitob, 10 ga nechta? har javob OK.
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3828,7 +3824,7 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — RULE: to'liq 10 uchun bo'sh joylarni sana.
+// s2 — RULE: o'nlikdan o'tib qo'shish — avval o'ngacha to'ldir, keyin qolganini qo'sh (8+2=10, +3=13).
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3855,7 +3851,7 @@ const Screen2 = (props) => {
   );
 };
 
-// s3 — TEST MC: 7 to'la, 10 ga nechta? -> 3 (idx0).
+// s3 — TEST MC: 7 + 5 = 12 (idx3).
 const Screen3 = (props) => {
   const c = CONTENT.s3;
   const t = useT();
@@ -3874,7 +3870,7 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST MC: 6 to'la, 10 ga nechta? -> 4 (idx0).
+// s4 — TEST MC: 9 + 4 = 13 (idx1).
 const Screen4 = (props) => {
   const c = CONTENT.s4;
   const t = useT();
@@ -3893,7 +3889,7 @@ const Screen4 = (props) => {
   );
 };
 
-// s5 — TEST MC: 9 to'la, 10 ga nechta? -> 1 (idx0).
+// s5 — TEST MC: 8 + 6 = 14 (idx2).
 const Screen5 = (props) => {
   const c = CONTENT.s5;
   const t = useT();
@@ -3912,7 +3908,7 @@ const Screen5 = (props) => {
   );
 };
 
-// s6 — TEST Ha/Yo'q: 4 o'ngacha 6 bilan to'ladi? Ha (idx0).
+// s6 — TEST Ha/Yo'q: 8 + 5 = 13? Ha (idx0).
 const Screen6 = (props) => {
   const c = CONTENT.s6;
   const t = useT();
@@ -3931,7 +3927,6 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST MC: qaysi javonда aynan 4 yetishmaydi? -> filled=6 (idx0).
 // s7 — TEST (interaktiv): 7+6 make-ten. Bola "Bittadan qo'sh" bilan oltitani birma-bir qo'shadi;
 // 1-ramka 10 ga to'ladi, qolgani 2-ramkaga tushadi. "Tekshirish" bilan tasdiqlaydi (erta bossa — xato yo'li).
 const Screen7 = (props) => {
@@ -4012,7 +4007,7 @@ const Screen7 = (props) => {
   );
 };
 
-// sg — MINI-O'YIN: 3 raund — to'ldiruvchi. Ball yo'q.
+// sg — MINI-O'YIN: 3 raund — o'tib qo'shish (8+4=12, 6+7=13, 9+5=14). Ball yo'q.
 const GAME_ROUNDS = [
   { a: 8, b: 4, ans: 12, opts: [12, 11, 13] },
   { a: 6, b: 7, ans: 13, opts: [12, 13, 14] },
@@ -4092,7 +4087,7 @@ const ScreenGame = (props) => {
   );
 };
 
-// s8 — TEST final + FactCard: 8 to'la, 10 ga nechta? -> 2 (idx0).
+// s8 — TEST final + FactCard: 8 + 5 = 13 (idx2).
 const Screen8 = (props) => {
   const c = CONTENT.s8;
   const t = useT();

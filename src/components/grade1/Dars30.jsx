@@ -1000,7 +1000,7 @@ const CONTENT = {
 
   s3: {
     eyebrow: { ru: 'Тренировка · 1 / 4', uz: 'Mashq · 1 / 4' },
-    title: { ru: 'Найди клетку «всего»', uz: "«Jami» katagini top" },
+    title: { ru: 'Заполни клетку «всего»', uz: "«Jami» katagini to'ldiring" },
     problem: { ru: 'Было 4 яблока, пришло 3.', uz: "4 olma edi, 3 keldi." },
     correct_text: { ru: 'Правильно. Четыре и три — семь. Всего семь.', uz: "To'g'ri. To'rt va uch — yetti. Jami yetti." },
     wrong_1: {
@@ -1013,10 +1013,10 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи было и пришло.',
-      uz: "Edi va keldini qo'sh."
+      uz: "Edi va keldini qo'shing."
     },
     audio: {
-      intro: { ru: 'Было четыре яблока, пришло три. Сколько всего? Выбери верное решение.', uz: "To'rt olma edi, uch keldi. Jami nechta? To'g'ri yechimni tanlang." },
+      intro: { ru: 'Было четыре яблока, пришло три. Сколько всего? Перетащи верное решение в клетку «всего».', uz: "To'rt olma edi, uch keldi. Jami nechta? To'g'ri yechimni «Jami» katagiga suring." },
       on_correct: { ru: 'Верно. Четыре и три семь. Всего семь.', uz: "To'g'ri. To'rt va uch yetti. Jami yetti." },
       on_wrong: { ru: 'Не совсем. Пришло — складываем.', uz: "Unchalik emas. Keldi — qo'shamiz." }
     }
@@ -1057,7 +1057,7 @@ const CONTENT = {
 
   s6: {
     eyebrow: { ru: 'Тренировка · 2 / 4', uz: 'Mashq · 2 / 4' },
-    title: { ru: 'Найди клетку «осталось»', uz: "«Qoldi» katagini top" },
+    title: { ru: 'Заполни клетку «осталось»', uz: "«Qoldi» katagini to'ldiring" },
     problem: { ru: 'Было 8 яблок, 3 ушло.', uz: "8 olma edi, 3 tasi ketdi." },
     correct_text: { ru: 'Правильно. Восемь без трёх — пять. Осталось пять.', uz: "To'g'ri. Sakkizdan uch — besh. Besh qoldi." },
     wrong_1: {
@@ -1070,10 +1070,10 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Из восьми убери три.',
-      uz: "Sakkizdan uchni ayir."
+      uz: "Sakkizdan uchni ayiring."
     },
     audio: {
-      intro: { ru: 'Было восемь яблок, три ушло. Сколько осталось? Выбери верное решение.', uz: "Sakkiz olma edi, uchtasi ketdi. Nechta qoldi? To'g'ri yechimni tanlang." },
+      intro: { ru: 'Было восемь яблок, три ушло. Сколько осталось? Перетащи верное решение в клетку «осталось».', uz: "Sakkiz olma edi, uchtasi ketdi. Nechta qoldi? To'g'ri yechimni «Qoldi» katagiga suring." },
       on_correct: { ru: 'Верно. Восемь без трёх пять. Осталось пять.', uz: "To'g'ri. Sakkizdan uch besh. Besh qoldi." },
       on_wrong: { ru: 'Не совсем. Ушло — вычитаем.', uz: "Unchalik emas. Ketdi — ayiramiz." }
     }
@@ -1101,31 +1101,31 @@ const CONTENT = {
 
   s8: {
     eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
-    title: { ru: 'Найди клетку «было»', uz: "«Edi» katagini top" },
+    title: { ru: 'Заполни клетку «было»', uz: "«Edi» katagini to'ldiring" },
     problem: { ru: 'Пришло 3, всего стало 7. Сколько было?', uz: "3 keldi, jami 7 bo'ldi. Nechta edi?" },
     correct_text: { ru: 'Правильно. Из семи убрать три — четыре. Было четыре.', uz: "To'g'ri. Yettidan uch — to'rt. To'rt edi." },
     wrong_1: {
       ru: 'Семь — это сколько стало всего, а не сколько было. Из семи убери три — четыре.',
-      uz: "Yetti — bu jami nechta bo'lgani, nechta edi emas. Yettidan uch ayir — to'rt."
+      uz: "Yetti — bu jami nechta bo'lgani, nechta edi emas. Yettidan uch ayiring — to'rt."
     },
     wrong_2: {
       ru: 'Три — это сколько пришло. Чтобы узнать было, из семи убери три — четыре.',
-      uz: "Uch — bu nechta kelgani. Nechta edi bilish uchun yettidan uch ayir — to'rt."
+      uz: "Uch — bu nechta kelgani. Nechta edi bilish uchun yettidan uch ayiring — to'rt."
     },
     wrong_default: {
       ru: 'Из семи убери три.',
-      uz: "Yettidan uchni ayir."
+      uz: "Yettidan uchni ayiring."
     },
     audio: {
-      intro: { ru: 'Пришло три, а всего стало семь. Сколько было сначала? Выбери.', uz: "Uch keldi, jami yetti bo'ldi. Boshida nechta edi? Tanlang." },
+      intro: { ru: 'Пришло три, а всего стало семь. Сколько было сначала? Перетащи верное число в клетку «было».', uz: "Uch keldi, jami yetti bo'ldi. Boshida nechta edi? To'g'ri raqamni «Edi» katagiga suring." },
       on_correct: { ru: 'Верно. Из семи убрать три четыре. Было четыре.', uz: "To'g'ri. Yettidan uch to'rt. To'rt edi." },
-      on_wrong: { ru: 'Не совсем. Из всего убери то, что пришло.', uz: "Unchalik emas. Jamidan kelganni ayir." }
+      on_wrong: { ru: 'Не совсем. Из всего убери то, что пришло.', uz: "Unchalik emas. Jamidan kelganni ayiring." }
     }
   },
 
   sg: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
-    instruction: { ru: 'Найди пустую клетку. Выбери ответ', uz: "Bo'sh katakni top. Javobni tanlang" },
+    instruction: { ru: 'Найди пустую клетку. Выбери ответ', uz: "Bo'sh katakni toping. Javobni tanlang" },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодцы! Все таблицы заполнены.', uz: "Barakalla! Hamma jadval to'ldirildi." },
     retry_audio: { ru: 'Ничего страшного. Посмотри, пришло или ушло.', uz: "Hechqisi yo'q. Keldimi yoki ketdimi, qarang." },
@@ -1161,7 +1161,7 @@ const CONTENT = {
 
   s9: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Найди клетку «всего»', uz: "«Jami» katagini top" },
+    title: { ru: 'Заполни клетку «всего»', uz: "«Jami» katagini to'ldiring" },
     problem: { ru: 'Было 5 яблок, пришло 4.', uz: "5 olma edi, 4 keldi." },
     correct_text: { ru: 'Правильно. Пять и четыре — девять. Всего девять.', uz: "To'g'ri. Besh va to'rt — to'qqiz. Jami to'qqiz." },
     wrong_1: {
@@ -1174,7 +1174,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи было и пришло.',
-      uz: "Edi va keldini qo'sh."
+      uz: "Edi va keldini qo'shing."
     },
     fact_badge: { ru: 'А знаешь? · Таблица', uz: 'Bilasizmi? · Jadval' },
     fact_text: {
@@ -1186,7 +1186,7 @@ const CONTENT = {
       uz: "Jadval nima edi, nima o'zgardi va nechta bo'lganini ko'rsatadi. U bilan yechish osonroq."
     },
     audio: {
-      intro: { ru: 'Было пять яблок, пришло четыре. Сколько всего? Выбери верное решение.', uz: "Besh olma edi, to'rt keldi. Jami nechta? To'g'ri yechimni tanlang." },
+      intro: { ru: 'Было пять яблок, пришло четыре. Сколько всего? Перетащи верное решение в клетку «всего».', uz: "Besh olma edi, to'rt keldi. Jami nechta? To'g'ri yechimni «Jami» katagiga suring." },
       on_correct: { ru: 'Верно. Пять и четыре девять. Всего девять.', uz: "To'g'ri. Besh va to'rt to'qqiz. Jami to'qqiz." },
       on_wrong: { ru: 'Не совсем. Пришло — складываем.', uz: "Unchalik emas. Keldi — qo'shamiz." }
     }
@@ -3838,23 +3838,132 @@ const ScreenGuest = (props) => (
 // TableFig — uch ustunli jadval (edi/keldi/jami yoki edi/ketdi/qoldi). Bitta katak '?' (noma'lum).
 // solved: to'g'ri javobda noma'lum katak javobni ko'rsatadi (yashil g1-pop-in). Amalga-mos:
 //   op='add' → kataklar birlashadi (gap yopiladi, qism→butun); op='sub' → `removed` katak xiralaydi.
-const TableFig = ({ cells, pop = false, solved = false, op = null }) => (
+const TableFig = ({ cells, pop = false, solved = false, op = null, dropZone = null, onZoneTap = null, nudge = false }) => (
   <div style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'center', gap: (solved && op === 'add') ? 'clamp(1px, 0.5vw, 4px)' : 'clamp(6px, 1.8vw, 12px)', transition: 'gap 0.55s cubic-bezier(0.4, 0, 0.2, 1)' }}>
     {cells.map((cell, i) => {
       const reveal = solved && cell.unknown && cell.answer != null;
       const gone = solved && op === 'sub' && cell.removed;
+      const isDrop = !!dropZone && cell.unknown && !reveal;   // interaktiv '?' katak — sudrab-tashlash nishoni
       return (
-      <div key={i} className={"frame-soft" + (pop ? " g1-pop-in" : "")} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(8px, 1.8vw, 14px)', minWidth: 'clamp(66px, 18vw, 96px)', border: reveal ? `2px solid ${T.success}` : (cell.unknown ? `2px solid ${T.accent}` : '2px solid transparent'), opacity: gone ? 0.28 : 1, transition: 'opacity 0.5s ease, border-color 0.45s ease', ...(pop ? { animationDelay: `${0.2 + i * 0.22}s` } : {}) }}>
-        <span className="eyebrow mono" style={{ color: cell.unknown ? (reveal ? T.success : T.accent) : T.ink3 }}>{cell.label}</span>
+      <div key={i}
+        {...(isDrop ? { 'data-zone': dropZone, onClick: onZoneTap } : {})}
+        className={"frame-soft" + (pop ? " g1-pop-in" : "") + (isDrop ? " g1-dropzone" : "") + (isDrop && nudge ? " g1-nudge" : "")}
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(8px, 1.8vw, 14px)', minWidth: 'clamp(66px, 18vw, 96px)', border: reveal ? `2px solid ${T.success}` : (cell.unknown ? `2px dashed ${T.ink3}` : '2px solid transparent'), opacity: gone ? 0.28 : 1, cursor: isDrop ? 'pointer' : undefined, transition: 'opacity 0.5s ease, border-color 0.45s ease', ...(pop ? { animationDelay: `${0.2 + i * 0.22}s` } : {}) }}>
+        <span className="eyebrow mono" style={{ color: cell.unknown ? (reveal ? T.success : T.ink3) : T.ink3 }}>{cell.label}</span>
         {cell.unknown
           ? (reveal
               ? <span className="g1-pop-in" style={{ display: 'inline-flex' }}><DigitGlyph d={cell.answer} size="mid"/></span>
-              : <span className="mono" style={{ ...D28_OP, fontSize: 'clamp(24px, 5vw, 34px)', color: T.accent }}>?</span>)
+              : <span className="mono" style={{ ...D28_OP, fontSize: 'clamp(24px, 5vw, 34px)', color: T.ink3 }}>?</span>)
           : <DigitGlyph d={cell.value} size="mid"/>}
       </div>
     );})}
   </div>
 );
+
+// TableFillScreen — QuestionScreen'ning DRAG-varianti: bola to'g'ri plitkani (tenglama/raqam) '?' katakka SUDRAYDI.
+// To'g'ri -> katak javobni ochadi (yashil pop). Xato -> plitka sakrab qaytadi + o'sha variant izohi (веди-до-верного).
+const TableFillScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, cells, op = null, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect }) => {
+  const lang = useLang();
+  const c = screenContent;
+  const sfx = useSfx();
+  const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
+  const canAns = useCanAnswer(audio);
+  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
+  const [solved, setSolved] = useState(wasSolved);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [nudgeZone, setNudgeZone] = useState(false);
+  const [bounceTok, setBounceTok] = useState(null);
+  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
+  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
+  const introAdvancedRef = useRef(wasSolved);
+  const [praiseWord, setPraiseWord] = useState('');
+  const [encWord, setEncWord] = useState('');
+  const praiseRef = useRef('');
+  const revealRef = useRevealScroll(solved, 300);
+  const factRef = useRevealScroll(solved && !!factOnCorrect, 900);
+
+  const resolve = (i) => {
+    if (!canAns || solved || wrong.has(i)) return;
+    const isCorrect = i === correctIdx;
+    if (firstTryRef.current === null) { firstTryRef.current = isCorrect; firstIdxRef.current = i; }
+    attemptsRef.current += 1;
+    if (!introAdvancedRef.current) { introAdvancedRef.current = true; audio.triggerEvent('option_picked'); }
+    if (isCorrect) {
+      setSolved(true); sfx.playCorrect();
+      const pw = nextPraise(lang); praiseRef.current = pw; setPraiseWord(pw);
+      onAnswer({
+        stage: screenMeta?.scope ?? null, screenIdx: idx,
+        question: typeof question === 'string' ? question : null,
+        options: options.map(o => typeof o === 'string' ? o : null),
+        correctIndex: correctIdx, correctAnswer: typeof options[correctIdx] === 'string' ? options[correctIdx] : null,
+        studentAnswerIndex: firstIdxRef.current, studentAnswer: typeof options[firstIdxRef.current] === 'string' ? options[firstIdxRef.current] : null,
+        correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true
+      });
+    } else {
+      sfx.playWrong(); setEncWord(nextEncourage(lang));
+      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
+      setNudgeZone(true); setTimeout(() => setNudgeZone(false), 500);
+      setBounceTok(i); setTimeout(() => setBounceTok(null), 500);
+    }
+    if (!audio.muted) {
+      setTimeout(() => {
+        const engine = getAudioEngine();
+        if (engine && !audio.muted) {
+          const wrongVoice = (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
+          if (isCorrect) { engine.pushOneOff(praiseRef.current); engine.pushOneOff(c.audio.on_correct[lang]); if (c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]); }
+          else engine.pushOneOff(wrongVoice);
+        }
+      }, 300);
+    }
+  };
+
+  const handleDrop = (tokenId, zoneId) => { if (zoneId === 'cell') resolve(Number(tokenId)); };
+  const dnd = useDnd(handleDrop);
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
+        <div className="fade-up">{question}</div>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <TableFig solved={solved} op={op} cells={cells} dropZone={solved ? null : 'cell'} onZoneTap={() => dnd.tapZone('cell')} nudge={nudgeZone}/>
+        </div>
+        {!solved && (
+          <div className="g1-tray fade-up delay-2">
+            {options.map((opt, i) => (
+              wrong.has(i)
+                ? (
+                  <div key={i} className={`g1-token option-picked-wrong ${bounceTok === i ? 'g1-bounceback' : ''}`} style={{ opacity: 0.5 }}>
+                    <span className="mono small" style={{ color: '#D8A93A', marginRight: 6 }}>↺</span>{opt}
+                  </div>
+                )
+                : (
+                  <div key={i} className={`g1-token ${dnd.sel === String(i) ? 'g1-token-sel' : ''}`}
+                    onPointerDown={(e) => { if (!canAns) return; e.preventDefault(); dnd.startDrag(e, String(i)); }}>
+                    {opt}
+                  </div>
+                )
+            ))}
+          </div>
+        )}
+        <FeedbackBlock show={solved || wrong.size > 0} isCorrect={solved} wrongClass="frame-tip">
+          <Reaction state={solved ? 'correct' : 'wrong'} praise={solved ? praiseWord : encWord} mascot={false}/>
+        </FeedbackBlock>
+        {solved && <div ref={revealRef}/>}
+        {solved && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
+        {dnd.drag && options[Number(dnd.drag.id)] && (
+          <div className="g1-ghost" style={{ left: `calc(${dnd.drag.x}px / var(--g1z, 1))`, top: `calc(${dnd.drag.y}px / var(--g1z, 1))` }}>{options[Number(dnd.drag.id)]}</div>
+        )}
+      </div>
+    </Stage>
+  );
+};
 
 // s0 — HOOK (soft): jadvalda bo'sh katak — nima topamiz? har javob OK.
 const Screen0 = (props) => {
@@ -3935,7 +4044,7 @@ const Screen1 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(16px, 3vw, 26px)' }}>
           <TableFig cells={cells}/>
           {done && (
-            <span className="mono fade-up" style={{ ...D28_OP, fontSize: 'clamp(22px, 4.4vw, 32px)', fontWeight: 800, color: T.accent }}>3 + 2 = {showRes ? <span className="g1-pop-in" style={{ display: 'inline-block' }}>5</span> : '?'}</span>
+            <span className="mono fade-up" style={{ ...D28_OP, fontSize: 'clamp(22px, 4.4vw, 32px)', fontWeight: 800, color: '#D8A93A' }}>3 + 2 = {showRes ? <span className="g1-pop-in" style={{ display: 'inline-block' }}>5</span> : '?'}</span>
           )}
           {!done && (
             <button className="btn" disabled={!canAct} onClick={go}
@@ -3988,15 +4097,14 @@ const Screen3 = (props) => {
   const t = useT();
   const L = CONTENT.lab;
   return (
-    <QuestionScreen
+    <TableFillScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <TableFig solved={solved} op="add" cells={[{ label: t(L.edi), value: 4 }, { label: t(L.keldi), value: 3 }, { label: t(L.jami), unknown: true, answer: 7 }]}/>}
+      op="add"
+      cells={[{ label: t(L.edi), value: 4 }, { label: t(L.keldi), value: 3 }, { label: t(L.jami), unknown: true, answer: 7 }]}
       options={[<SolTile a={4} op="add" b={3} r={7}/>, <SolTile a={4} op="sub" b={3} r={1}/>, <SolTile a={4} op="add" b={3} r={8}/>]}
       correctIdx={0}
-      optionsCols={1}
-      mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -4036,7 +4144,7 @@ const Screen4 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(16px, 3vw, 26px)' }}>
           <TableFig cells={cells}/>
           {done && (
-            <span className="mono fade-up" style={{ ...D28_OP, fontSize: 'clamp(22px, 4.4vw, 32px)', fontWeight: 800, color: T.accent }}>6 − 2 = {showRes ? <span className="g1-pop-in" style={{ display: 'inline-block' }}>4</span> : '?'}</span>
+            <span className="mono fade-up" style={{ ...D28_OP, fontSize: 'clamp(22px, 4.4vw, 32px)', fontWeight: 800, color: '#D8A93A' }}>6 − 2 = {showRes ? <span className="g1-pop-in" style={{ display: 'inline-block' }}>4</span> : '?'}</span>
           )}
           {!done && (
             <button className="btn" disabled={!canAct} onClick={go}
@@ -4089,15 +4197,14 @@ const Screen6 = (props) => {
   const t = useT();
   const L = CONTENT.lab;
   return (
-    <QuestionScreen
+    <TableFillScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <TableFig solved={solved} op="sub" cells={[{ label: t(L.edi), value: 8 }, { label: t(L.ketdi), value: 3, removed: true }, { label: t(L.qoldi), unknown: true, answer: 5 }]}/>}
+      op="sub"
+      cells={[{ label: t(L.edi), value: 8 }, { label: t(L.ketdi), value: 3, removed: true }, { label: t(L.qoldi), unknown: true, answer: 5 }]}
       options={[<SolTile a={8} op="sub" b={3} r={5}/>, <SolTile a={8} op="sub" b={3} r={6}/>, <SolTile a={8} op="sub" b={3} r={4}/>]}
       correctIdx={0}
-      optionsCols={1}
-      mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -4130,15 +4237,14 @@ const Screen8 = (props) => {
   const t = useT();
   const L = CONTENT.lab;
   return (
-    <QuestionScreen
+    <TableFillScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <TableFig solved={solved} op="add" cells={[{ label: t(L.edi), unknown: true, answer: 4 }, { label: t(L.keldi), value: 3 }, { label: t(L.jami), value: 7 }]}/>}
+      op="add"
+      cells={[{ label: t(L.edi), unknown: true, answer: 4 }, { label: t(L.keldi), value: 3 }, { label: t(L.jami), value: 7 }]}
       options={[<DigitGlyph d={4} size="mid"/>, <DigitGlyph d={7} size="mid"/>, <DigitGlyph d={3} size="mid"/>]}
       correctIdx={0}
-      optionsCols={3}
-      mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
       onNext={props.onNext} onPrev={props.onPrev}
     />
@@ -4238,15 +4344,14 @@ const Screen9 = (props) => {
   const t = useT();
   const L = CONTENT.lab;
   return (
-    <QuestionScreen
+    <TableFillScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <TableFig solved={solved} op="add" cells={[{ label: t(L.edi), value: 5 }, { label: t(L.keldi), value: 4 }, { label: t(L.jami), unknown: true, answer: 9 }]}/>}
+      op="add"
+      cells={[{ label: t(L.edi), value: 5 }, { label: t(L.keldi), value: 4 }, { label: t(L.jami), unknown: true, answer: 9 }]}
       options={[<SolTile a={5} op="add" b={4} r={9}/>, <SolTile a={5} op="sub" b={4} r={1}/>, <SolTile a={5} op="add" b={4} r={8}/>]}
       correctIdx={0}
-      optionsCols={1}
-      mascot={false}
       factOnCorrect={(
         <div className="g1-factcard fade-up">
           <span className="g1-factcard-badge mono">{t(c.fact_badge)}</span>

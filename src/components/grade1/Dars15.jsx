@@ -993,14 +993,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s3 TEST MC: 1 o'nlik + 6 birlik = 16 (idx0) ----
+  // ---- s3 TEST MC: 1 o'nlik + 6 birlik = 16 (idx3) ----
   s3: {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
     title: { ru: 'Десяток и шесть единиц. Какое число?', uz: "O'nlik va oltita birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и шесть — это шестнадцать.', uz: "To'g'ri. O'n va olti — bu o'n olti." },
-    wrong_1: { ru: 'Это только единицы. Прибавь к ним десяток и назови число.', uz: "Bu faqat birliklar. Ularga o'nlikni qo'shib, sonni ayt." },
+    wrong_1: { ru: 'Это только единицы. Прибавь к ним десяток и назови число.', uz: "Bu faqat birliklar. Ularga o'nlikni qo'shib, sonni ayting." },
     wrong_2: { ru: 'Цифры наоборот. Десяток впереди, потом единицы.', uz: "Raqamlar teskari. Avval o'nlik, keyin birliklar." },
-    wrong_default: { ru: 'Назови десяток, потом единицы.', uz: "Avval o'nlikni, keyin birliklarni sana." },
+    wrong_default: { ru: 'Назови десяток, потом единицы.', uz: "Avval o'nlikni, keyin birliklarni sanang." },
     audio: {
       intro: { ru: 'Вверху десяток, внизу шесть яблок. Какое это число? Выбери ответ.', uz: "Yuqorida o'nlik, pastda oltita olma. Bu qaysi son? Javobni tanlang." },
       on_correct: { ru: 'Верно. Шестнадцать.', uz: "To'g'ri. O'n olti." },
@@ -1008,14 +1008,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s4 TEST MC: 16 da nechta o'nlik? -> 1 (idx0) ----
+  // ---- s4 TEST MC: 16 da nechta o'nlik? -> 1 (idx2) ----
   s4: {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
     title: { ru: 'В числе шестнадцать сколько десятков?', uz: "O'n olti sonida nechta o'nlik bor?" },
     correct_text: { ru: 'Верно. В шестнадцати один десяток и шесть единиц.', uz: "To'g'ri. O'n oltida bitta o'nlik va oltita birlik bor." },
-    wrong_1: { ru: 'Это всё число. Посчитай только десятки.', uz: "Bu butun son. Faqat o'nliklarni sana." },
-    wrong_0: { ru: 'Это число единиц. Посчитай десятки.', uz: "Bu birliklar soni. O'nliklarni sana." },
-    wrong_default: { ru: 'Посчитай, сколько десятков в числе.', uz: "Sonda nechta o'nlik borligini sana." },
+    wrong_1: { ru: 'Это всё число. Посчитай только десятки.', uz: "Bu butun son. Faqat o'nliklarni sanang." },
+    wrong_0: { ru: 'Это число единиц. Посчитай десятки.', uz: "Bu birliklar soni. O'nliklarni sanang." },
+    wrong_default: { ru: 'Посчитай, сколько десятков в числе.', uz: "Sonda nechta o'nlik borligini sanang." },
     audio: {
       intro: { ru: 'Вот число шестнадцать: десяток и шесть яблок. Сколько в нём десятков? Выбери ответ.', uz: "Mana o'n olti soni: o'nlik va oltita olma. Unda nechta o'nlik bor? Javobni tanlang." },
       on_correct: { ru: 'Верно. Один десяток.', uz: "To'g'ri. Bitta o'nlik." },
@@ -1023,14 +1023,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s5 TEST MC: 16 da nechta birlik? -> 6 (idx0) ----
+  // ---- s5 TEST MC: 16 da nechta birlik? -> 6 (idx1) ----
   s5: {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
     title: { ru: 'В числе шестнадцать сколько единиц?', uz: "O'n olti sonida nechta birlik bor?" },
     correct_text: { ru: 'Верно. Сверх десятка тут шесть единиц.', uz: "To'g'ri. O'nlikdan tashqari bu yerda oltita birlik bor." },
-    wrong_0: { ru: 'Это десяток, а не единицы. Посчитай отдельные.', uz: "Bu o'nlik, birlik emas. Yakkalarini sana." },
-    wrong_2: { ru: 'Это всё число. Посчитай единицы сверх десятка.', uz: "Bu butun son. O'nlikdan tashqari birliklarni sana." },
-    wrong_default: { ru: 'Посчитай отдельные единицы сверх десятка.', uz: "O'nlikdan tashqari yakka birliklarni sana." },
+    wrong_0: { ru: 'Это десяток, а не единицы. Посчитай отдельные.', uz: "Bu o'nlik, birlik emas. Yakkalarini sanang." },
+    wrong_2: { ru: 'Это всё число. Посчитай единицы сверх десятка.', uz: "Bu butun son. O'nlikdan tashqari birliklarni sanang." },
+    wrong_default: { ru: 'Посчитай отдельные единицы сверх десятка.', uz: "O'nlikdan tashqari yakka birliklarni sanang." },
     audio: {
       intro: { ru: 'В числе шестнадцать десяток и сколько единиц? Посчитай отдельные яблоки. Выбери ответ.', uz: "O'n olti sonida o'nlik va nechta birlik bor? Yakka olmalarni sanang. Javobni tanlang." },
       on_correct: { ru: 'Верно. Шесть единиц.', uz: "To'g'ri. Oltita birlik." },
@@ -1045,8 +1045,8 @@ const CONTENT = {
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
     correct_text: { ru: 'Верно. Семнадцать — это десять и ещё семь.', uz: "To'g'ri. O'n yetti — bu o'n va yana yetti." },
-    wrong_1: { ru: 'Посчитай: десяток и отдельные единицы, потом проверь.', uz: "Sana: o'nlik va yakka birliklar, keyin tekshir." },
-    wrong_default: { ru: 'Посчитай десяток и отдельные единицы.', uz: "O'nlik va yakka birliklarni sana." },
+    wrong_1: { ru: 'Посчитай: десяток и отдельные единицы, потом проверь.', uz: "Sanang: o'nlik va yakka birliklar, keyin tekshiring." },
+    wrong_default: { ru: 'Посчитай десяток и отдельные единицы.', uz: "O'nlik va yakka birliklarni sanang." },
     audio: {
       intro: { ru: 'Верно ли, что семнадцать — это десяток и семь единиц? Выбери да или нет.', uz: "O'n yetti — bu o'nlik va yettita birlik, to'g'rimi? Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Десять и семь.', uz: "To'g'ri. O'n va yetti." },
@@ -1123,14 +1123,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s8 TEST final + FactCard: 1 o'nlik + 9 birlik = 19 (idx0) ----
+  // ---- s8 TEST final + FactCard: 1 o'nlik + 9 birlik = 19 (idx2) ----
   s8: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Десяток и девять единиц. Какое число?', uz: "O'nlik va to'qqizta birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и девять — это девятнадцать.', uz: "To'g'ri. O'n va to'qqiz — bu o'n to'qqiz." },
-    wrong_1: { ru: 'Это только единицы. Прибавь к ним десяток и назови число.', uz: "Bu faqat birliklar. Ularga o'nlikni qo'shib, sonni ayt." },
+    wrong_1: { ru: 'Это только единицы. Прибавь к ним десяток и назови число.', uz: "Bu faqat birliklar. Ularga o'nlikni qo'shib, sonni ayting." },
     wrong_0: { ru: 'Цифры наоборот. Десяток впереди, потом единицы.', uz: "Raqamlar teskari. Avval o'nlik, keyin birliklar." },
-    wrong_default: { ru: 'Назови десяток, потом единицы.', uz: "Avval o'nlikni, keyin birliklarni sana." },
+    wrong_default: { ru: 'Назови десяток, потом единицы.', uz: "Avval o'nlikni, keyin birliklarni sanang." },
     fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
     fact_text: { ru: 'После девятнадцати идёт двадцать — это уже два полных десятка. Так числа растут десятками.', uz: "O'n to'qqizdan keyin yigirma keladi — bu ikki to'la o'nlik. Sonlar shunday o'nliklab o'sadi." },
     fact_audio: { ru: 'А знаешь, после девятнадцати идёт двадцать, это два полных десятка. Так числа растут десятками.', uz: "Bilasizmi, o'n to'qqizdan keyin yigirma keladi, bu ikki to'la o'nlik. Sonlar shunday o'nliklab o'sadi." },
@@ -3787,11 +3787,8 @@ const ScreenGuest = (props) => (
   <StoryLayout props={props} c={CONTENT.sGuest}>{(audio) => <GuestCast audio={audio}/>}</StoryLayout>
 );
 
-// s0 — HOOK (son o'qi 0..10, erkin): marker 0 da, "Sakrash" -> oldinga.
+// s0 — HOOK (soft): 1 o'nlik va 6 birlik — qaysi son? (=16), har javob OK.
 const S0_MAX = 10;
-// s0 — HOOK (soft): 10 tayoqcha bittalab — uzoqmi? har javob OK.
-// s0 — HOOK (soft): 1 o'nlik + 4 birlik — qaysi son? har javob OK.
-// s0 — HOOK (soft): 1 o'nlik + 4 birlik — qaysi son? har javob OK.
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3939,7 +3936,7 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — RULE: 1 o'nlik + birliklar = o'n son (14 = 10 va 4).
+// s2 — RULE: 1 o'nlik + birliklar = o'n son (18 = 10 va 8).
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3966,7 +3963,7 @@ const Screen2 = (props) => {
   );
 };
 
-// s3 — TEST MC: 1 o'nlik + 3 birlik = 13 (idx0).
+// s3 — TEST MC: 1 o'nlik + 6 birlik = 16 (idx3).
 const Screen3 = (props) => {
   const c = CONTENT.s3;
   const t = useT();
@@ -3985,7 +3982,7 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST MC: 13 da nechta o'nlik? -> 1 (idx0).
+// s4 — TEST MC: 16 da nechta o'nlik? -> 1 (idx2).
 const Screen4 = (props) => {
   const c = CONTENT.s4;
   const t = useT();
@@ -4004,7 +4001,7 @@ const Screen4 = (props) => {
   );
 };
 
-// s5 — TEST MC: 13 da nechta birlik? -> 3 (idx0).
+// s5 — TEST MC: 16 da nechta birlik? -> 6 (idx1).
 const Screen5 = (props) => {
   const c = CONTENT.s5;
   const t = useT();
@@ -4023,7 +4020,7 @@ const Screen5 = (props) => {
   );
 };
 
-// s6 — TEST Ha/Yo'q: 12 = 1 o'nlik va 2 birlik? Ha (idx0).
+// s6 — TEST Ha/Yo'q: 17 = 1 o'nlik va 7 birlik? Ha (idx0).
 const Screen6 = (props) => {
   const c = CONTENT.s6;
   const t = useT();
@@ -4042,7 +4039,6 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST MC: qaysi son 15? options Rekenrek(10+5)/(10+1)/(10+3) -> idx0.
 // s6b — RULE (YANGI): 20 = ikki to'la o'nlik (tushuntirish, s7 testidan oldin).
 const Screen6b = (props) => {
   const lang = useLang();
@@ -4228,7 +4224,7 @@ const ScreenGame = (props) => {
   );
 };
 
-// s8 — TEST final + FactCard: 1 o'nlik + 5 birlik = 15 (idx0).
+// s8 — TEST final + FactCard: 1 o'nlik + 9 birlik = 19 (idx2).
 const Screen8 = (props) => {
   const c = CONTENT.s8;
   const t = useT();

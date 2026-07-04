@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // YADRO: yumaloq o'nliklar ustida amal — o'nliklarni sanaymiz (2 o'nlik + 3 o'nlik = 5 o'nlik = 50). Столбик YO'Q.
 // MEXANIKA: AppleCrate bloklar (har biri 10) — qo'shishda birlashtirish, ayirishda olib tashlash (xira). ExprFig (savat + yozuv).
 // Syujet: Dars21-23 davomi — savatlarni birlashtirib/ulashib, o'nliklab tez sanaymiz (CastScene-bog').
-// Misconception'lar: M1 o'nlikni birlik deb (20+30=5) · M2 yopishtirish (=500) · M3 amal almashtirish (80-30=110) · M4 o'nlik sanash xatosi.
+// Misconception'lar: M1 o'nlikni birlik deb (20+30=5) · M2 raqamlarni yopishtirish (20+30→23) · M3 ayirishda kattalashtirish/ortiq olish · M4 o'nlik sanash xatosi. Barcha distraktor ≤100 (scope ichida).
 //
 // Cast: Bit (boshlovchi/diktor) + Ra'no + Anvar + Zuhra (tanish — Dars07'da kirgan).
 // FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
@@ -992,7 +992,7 @@ const CONTENT = {
     opt0: { ru: '50', uz: '50' },
     opt1: { ru: '5', uz: '5' },
     opt2: { ru: '60', uz: '60' },
-    opt3: { ru: '500', uz: '500' },
+    opt3: { ru: '23', uz: '23' },
     correct_text: { ru: 'Правильно. Два десятка и три — пять десятков, пятьдесят.', uz: "To'g'ri. Ikki o'nlik va uch — besh o'nlik, ellik." },
     wrong_1: {
       ru: 'Это десятки, а не единицы. Два десятка и три десятка — это пять десятков, пятьдесят.',
@@ -1003,8 +1003,8 @@ const CONTENT = {
       uz: "Savat hammasi besh. Ikki va uch — bu besh o'nlik, ellik."
     },
     wrong_3: {
-      ru: 'Пять десятков — это пятьдесят. Лишний ноль не нужен.',
-      uz: "Besh o'nlik — bu ellik. Ortiqcha nol kerak emas."
+      ru: 'Ты склеил цифры два и три. Это десятки: два десятка и три десятка — пять десятков, пятьдесят.',
+      uz: "Ikki va uch raqamlarini yopishtirib qo'ydingiz. Bular o'nlik: ikki o'nlik va uch o'nlik — besh o'nlik, ellik."
     },
     wrong_default: {
       ru: 'Сосчитай десятки: два и три.',
@@ -1054,7 +1054,7 @@ const CONTENT = {
     title: { ru: 'Сколько останется?', uz: "Nechta qoladi?" },
     opt0: { ru: '50', uz: '50' },
     opt1: { ru: '5', uz: '5' },
-    opt2: { ru: '110', uz: '110' },
+    opt2: { ru: '90', uz: '90' },
     opt3: { ru: '60', uz: '60' },
     correct_text: { ru: 'Правильно. Восемь десятков без трёх — пять десятков, пятьдесят.', uz: "To'g'ri. Sakkiz o'nlikdan uch — besh o'nlik, ellik." },
     wrong_1: {
@@ -1062,8 +1062,8 @@ const CONTENT = {
       uz: "Bular o'nlik. Sakkiz o'nlikdan uch — bu besh o'nlik, ellik."
     },
     wrong_2: {
-      ru: 'Здесь убираем, а не прибавляем. Восемь без трёх — пять десятков, пятьдесят.',
-      uz: "Bu yerda olamiz, qo'shmaymiz. Sakkiz dan uch — besh o'nlik, ellik."
+      ru: 'При вычитании число становится меньше, а не больше. Восемь десятков без трёх — пять десятков, пятьдесят.',
+      uz: "Ayirganda son kichrayadi, kattalashmaydi. Sakkiz o'nlikdan uch olsak — besh o'nlik, ellik."
     },
     wrong_3: {
       ru: 'Из восьми убрать три — останется пять. Пять десятков это пятьдесят.',
@@ -1083,15 +1083,15 @@ const CONTENT = {
   // s7 TEST (interaktiv): 40+50 — bola "O'nlik qo'sh" bilan beshta o'nlik (savat) qo'shadi, tekshiradi.
   s7: {
     eyebrow: { ru: 'Тренировка · 3 / 5', uz: 'Mashq · 3 / 5' },
-    title: { ru: 'К сорока прибавь пятьдесят — по десятку, потом проверь.', uz: "Qirqqa ellikni qo'sh — o'nliklab, keyin tekshir." },
-    btn: { ru: 'Добавить десяток', uz: "O'nlik qo'sh" },
+    title: { ru: 'К сорока прибавь пятьдесят — по десятку, потом проверь.', uz: "Qirqqa ellikni qo'shing — o'nliklab, keyin tekshiring." },
+    btn: { ru: 'Добавить десяток', uz: "O'nlik qo'shing" },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     done_text: { ru: 'Девяносто! Четыре десятка и пять — девять десятков.', uz: "To'qson! To'rt o'nlik va besh — to'qqiz o'nlik." },
-    try_text: { ru: 'Добавлены не все пять десятков. Добавь до конца и проверь снова.', uz: "Beshta o'nlik to'liq qo'shilmadi. Oxirigacha qo'sh va yana tekshir." },
+    try_text: { ru: 'Добавлены не все пять десятков. Добавь до конца и проверь снова.', uz: "Beshta o'nlik to'liq qo'shilmadi. Oxirigacha qo'shing va yana tekshiring." },
     audio: {
       intro: { ru: 'К сорока прибавляем пятьдесят. Добавляй по десятку и считай десятками. Заполни и нажми проверить.', uz: "Qirqqa ellikni qo'shamiz. O'nliklab qo'shing va o'nliklab sanang. Qo'shib bo'lib tekshiring." },
       on_correct: { ru: 'Молодец! Девять десятков — девяносто.', uz: "Barakalla! To'qqiz o'nlik — to'qson." },
-      on_wrong: { ru: 'Добавлены не все. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'sh va tekshir." }
+      on_wrong: { ru: 'Добавлены не все. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'shing va tekshiring." }
     }
   },
 
@@ -1100,7 +1100,7 @@ const CONTENT = {
     title: { ru: 'Сколько останется?', uz: "Nechta qoladi?" },
     opt0: { ru: '30', uz: '30' },
     opt1: { ru: '3', uz: '3' },
-    opt2: { ru: '110', uz: '110' },
+    opt2: { ru: '20', uz: '20' },
     opt3: { ru: '40', uz: '40' },
     correct_text: { ru: 'Правильно. Семь десятков без четырёх — три десятка, тридцать.', uz: "To'g'ri. Yetti o'nlikdan to'rt — uch o'nlik, o'ttiz." },
     wrong_1: {
@@ -1108,8 +1108,8 @@ const CONTENT = {
       uz: "Bular o'nlik. Yetti o'nlikdan to'rt — bu uch o'nlik, o'ttiz."
     },
     wrong_2: {
-      ru: 'Здесь убираем, а не прибавляем. Семь без четырёх — три десятка, тридцать.',
-      uz: "Bu yerda olamiz, qo'shmaymiz. Yetti dan to'rt — uch o'nlik, o'ttiz."
+      ru: 'Убрано на десяток больше. Семь десятков без четырёх — три десятка, тридцать.',
+      uz: "Bir o'nlik ortiq olindi. Yetti o'nlikdan to'rt olsak — uch o'nlik qoladi, o'ttiz."
     },
     wrong_3: {
       ru: 'Из семи убрать четыре — останется три. Три десятка это тридцать.',
@@ -3909,7 +3909,7 @@ const Screen3 = (props) => {
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(c.title)}</h2>}
       figure={(solved) => <ExprFig a={20} op="add" b={30} solved={solved} result={50}/>}
-      options={[<DigitGlyph d={50} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={60} size="mid"/>, <DigitGlyph d={500} size="mid"/>]}
+      options={[<DigitGlyph d={50} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={60} size="mid"/>, <DigitGlyph d={23} size="mid"/>]}
       correctIdx={0}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -4001,7 +4001,7 @@ const Screen6 = (props) => {
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(c.title)}</h2>}
       figure={(solved) => <ExprFig a={80} op="sub" b={30} solved={solved} result={50}/>}
-      options={[<DigitGlyph d={50} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={110} size="mid"/>, <DigitGlyph d={60} size="mid"/>]}
+      options={[<DigitGlyph d={50} size="mid"/>, <DigitGlyph d={5} size="mid"/>, <DigitGlyph d={90} size="mid"/>, <DigitGlyph d={60} size="mid"/>]}
       correctIdx={0}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -4096,7 +4096,7 @@ const Screen8 = (props) => {
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(c.title)}</h2>}
       figure={(solved) => <ExprFig a={70} op="sub" b={40} solved={solved} result={30}/>}
-      options={[<DigitGlyph d={30} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={110} size="mid"/>, <DigitGlyph d={40} size="mid"/>]}
+      options={[<DigitGlyph d={30} size="mid"/>, <DigitGlyph d={3} size="mid"/>, <DigitGlyph d={20} size="mid"/>, <DigitGlyph d={40} size="mid"/>]}
       correctIdx={0}
       mascot={false}
       storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
@@ -4108,8 +4108,8 @@ const Screen8 = (props) => {
 // sg — MINI-O'YIN (3 raund, ballsiz): aralash amallar.
 const OP_GAME = [
   { a: 30, op: 'add', b: 40, ans: 70, opts: [70, 7, 80] },
-  { a: 90, op: 'sub', b: 20, ans: 70, opts: [70, 7, 110] },
-  { a: 50, op: 'add', b: 50, ans: 100, opts: [100, 10, 1000] },
+  { a: 90, op: 'sub', b: 20, ans: 70, opts: [70, 7, 80] },
+  { a: 50, op: 'add', b: 50, ans: 100, opts: [100, 10, 90] },
 ];
 const ScreenGame = (props) => {
   const lang = useLang();

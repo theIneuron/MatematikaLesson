@@ -3523,13 +3523,20 @@ const Screen5 = (props) => {
               <div className="g1-cg-drop g1-s5-basket"><BasketTop n={remain} kind="apple"/></div>
               <span className="g1-combine-name">{t(c.name_a)}</span>
             </div>
-            <span className="g1-cg-op g1-cg-op-minus" aria-hidden="true">−</span>
-            <div className="g1-combine-grouplabel">
-              <div className={`g1-cg-drop g1-s5-drop ${merged ? 'full' : ''}`} data-zone="given" onClick={() => dnd.tapZone('given')}>
-                <BasketTop n={placed.length} kind="apple"/>
-              </div>
-              <span className="g1-combine-name">{t(c.name_b)}</span>
-            </div>
+            {/* Ayirma sahnasi: 3 olma Anvarga sudrilgach '−' va Anvar savati yashiriladi —
+                aks holda yakuniy kadr yolg'on "[Ra'no:5] − [Anvar:3] = 5" bo'lib o'qiladi.
+                Birlashgach faqat Ra'no savati (endi 5 ta) qoladi, ovoz "beshta qoldi"ga mos. */}
+            {!merged && (
+              <>
+                <span className="g1-cg-op g1-cg-op-minus" aria-hidden="true">−</span>
+                <div className="g1-combine-grouplabel">
+                  <div className="g1-cg-drop g1-s5-drop" data-zone="given" onClick={() => dnd.tapZone('given')}>
+                    <BasketTop n={placed.length} kind="apple"/>
+                  </div>
+                  <span className="g1-combine-name">{t(c.name_b)}</span>
+                </div>
+              </>
+            )}
           </div>
           {solved && <AnsPop n={S5A - S5GIVE}/>}
           {!merged && (

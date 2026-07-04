@@ -889,7 +889,7 @@ const LESSON_META = {
 };
 const SCREEN_META = [
   { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // syujet: geometriya boshlanadi
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: qaysi chiziq to'g'ri
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: chiziqlar bir xilmi
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // chiziq turlari: to'g'ri/egri/siniq
   { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // uch xil chiziq
   { id: 'chain1', type: 'test',     template: 'chain',    scored: true,  scope: 'module-mikro' },  // 5 savol zanjiri (chiziqlar): s3/s7/sYesNo/sOdd/sVary

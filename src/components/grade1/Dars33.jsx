@@ -4309,7 +4309,7 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — EXPLORATION: tort shakl (yorliqli).
+// s1 — EXPLORATION: to'rt shakl (yorliqli).
 // s1 — EXPLORATION (jonli namoyish): har shakl konturi o'zini chizadi, burchaklari paydo bo'ladi.
 const DRAW_SHAPES = [
   { kind: 'triangle', dkey: 'd_triangle', poly: '32,10 55,51 9,51', corners: [[32, 10], [55, 51], [9, 51]], fill: '#D6F0DC', stroke: '#2C7C3B' },
@@ -4389,7 +4389,7 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — RULE: tort shakl.
+// s2 — RULE: to'rt shakl.
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();

@@ -1012,7 +1012,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Первый шаг — сложи было и пришло.',
-      uz: "Birinchi qadam — edi va keldini qo'sh."
+      uz: "Birinchi qadam — edi va keldini qo'shing."
     },
     audio: {
       intro: { ru: 'Было четыре яблока, пришло три, потом два ушло. Какой первый шаг? Выбери.', uz: "To'rt olma edi, uch keldi, keyin ikki ketdi. Birinchi qadam qanday? Tanlang." },
@@ -1069,7 +1069,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Из семи убери два.',
-      uz: "Yettidan ikkini ayir."
+      uz: "Yettidan ikkini ayiring."
     },
     audio: {
       intro: { ru: 'Первый шаг дал семь, потом два ушло. Какой второй шаг? Выбери.', uz: "Birinchi qadam yetti berdi, keyin ikki ketdi. Ikkinchi qadam qanday? Tanlang." },
@@ -1093,7 +1093,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сделай оба шага: сначала сложи, потом убери.',
-      uz: "Ikkala qadamni qil: avval qo'sh, keyin ayir."
+      uz: "Ikkala qadamni qiling: avval qo'shing, keyin ayiring."
     },
     audio: {
       intro: { ru: 'Было шесть яблок, пришло два, потом три ушло. Сколько осталось? Сделай два шага и выбери.', uz: "Olti olma edi, ikki keldi, keyin uch ketdi. Nechta qoldi? Ikki qadam qilib, tanlang." },
@@ -1103,7 +1103,7 @@ const CONTENT = {
   },
 
   s8: {
-    eyebrow: { ru: 'Найди ошибку · 4 / 4', uz: 'Xatoni top · 4 / 4' },
+    eyebrow: { ru: 'Найди ошибку · 4 / 4', uz: 'Xatoni toping · 4 / 4' },
     title: { ru: 'Какой ответ верный?', uz: "Qaysi javob to'g'ri?" },
     problem: { ru: 'Было 5, пришло 4, потом 2 ушло. Бит второй шаг сделал неверно.', uz: "5 edi, 4 keldi, keyin 2 ketdi. Bit ikkinchi qadamni xato qildi." },
     correct_text: { ru: 'Правильно. Пять и четыре — девять, девять без двух — семь.', uz: "To'g'ri. Besh va to'rt — to'qqiz, to'qqizdan ikki — yetti." },
@@ -1117,7 +1117,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Второй шаг: из девяти убери два.',
-      uz: "Ikkinchi qadam: to'qqizdan ikkini ayir."
+      uz: "Ikkinchi qadam: to'qqizdan ikkini ayiring."
     },
     audio: {
       intro: { ru: 'Было пять, пришло четыре, потом два ушло. Бит второй шаг сделал неверно. Какой ответ верный? Выбери.', uz: "Besh edi, to'rt keldi, keyin ikki ketdi. Bit ikkinchi qadamni xato qildi. Qaysi javob to'g'ri? Tanlang." },
@@ -1169,7 +1169,7 @@ const CONTENT = {
     correct_text: { ru: 'Правильно. Четыре и четыре — восемь, восемь без трёх — пять.', uz: "To'g'ri. To'rt va to'rt — sakkiz, sakkizdan uch — besh." },
     wrong_1: {
       ru: 'Это только первый шаг — восемь. Сделай второй: восемь без трёх — пять.',
-      uz: "Bu faqat birinchi qadam — sakkiz. Ikkinchisini qil: sakkizdan uch — besh."
+      uz: "Bu faqat birinchi qadam — sakkiz. Ikkinchisini qiling: sakkizdan uch — besh."
     },
     wrong_2: {
       ru: 'Восемь без трёх — это пять, не шесть. Осталось пять.',
@@ -1177,7 +1177,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сделай оба шага.',
-      uz: "Ikkala qadamni qil."
+      uz: "Ikkala qadamni qiling."
     },
     fact_badge: { ru: 'А знаешь? · Два шага', uz: 'Bilasizmi? · Ikki qadam' },
     fact_text: {

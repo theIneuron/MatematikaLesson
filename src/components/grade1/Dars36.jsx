@@ -1077,7 +1077,7 @@ const CONTENT = {
     correct_text: { ru: 'Правильно. В таблице три черешни.', uz: "To'g'ri. Jadvalda uch gilos." },
     wrong_1: {
       ru: 'Три — это черешни. Четыре стоит у бананов. Найди строку черешен.',
-      uz: "Uch — bu gilos. To'rt banan qatorida turibdi. Gilos qatorini top."
+      uz: "Uch — bu gilos. To'rt banan qatorida turibdi. Gilos qatorini toping."
     },
     wrong_2: {
       ru: 'Посмотри в строку черешен: там написано три.',
@@ -1085,7 +1085,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Найди строку черешен в таблице.',
-      uz: "Jadvalda gilos qatorini top."
+      uz: "Jadvalda gilos qatorini toping."
     },
     audio: {
       intro: { ru: 'В таблице записаны числа. Сколько черешен? Найди их строку и выбери.', uz: "Jadvalda sonlar yozilgan. Nechta gilos? Ularning qatorini topib, tanlang." },
@@ -1105,16 +1105,16 @@ const CONTENT = {
     },
     wrong_2: {
       ru: 'Сложи оба числа: четыре и три — семь.',
-      uz: "Ikkala sonni qo'sh: to'rt va uch — yetti."
+      uz: "Ikkala sonni qo'shing. To'rt va uch, yetti."
     },
     wrong_default: {
       ru: 'Сложи бананы и черешни.',
-      uz: "Banan va gilosni qo'sh."
+      uz: "Banan va gilosni qo'shing."
     },
     audio: {
       intro: { ru: 'Бананов четыре, черешни три. Сколько фруктов всего? Выбери.', uz: "Banan to'rtta, gilos uchta. Jami nechta meva? Tanlang." },
       on_correct: { ru: 'Верно. Семь фруктов.', uz: "To'g'ri. Yetti meva." },
-      on_wrong: { ru: 'Не совсем. Сложи четыре и три.', uz: "Unchalik emas. To'rt va uchni qo'sh." }
+      on_wrong: { ru: 'Не совсем. Сложи четыре и три.', uz: "Unchalik emas. To'rt va uchni qo'shing." }
     }
   },
 

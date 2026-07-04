@@ -1008,12 +1008,12 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи десятки с десятками, единицы с единицами.',
-      uz: "O'nlikni o'nlikka, birlikni birlikka qo'sh."
+      uz: "O'nlikni o'nlikka, birlikni birlikka qo'shing."
     },
     audio: {
       intro: { ru: 'Тридцать четыре и двадцать пять. Прибавь десятки к десяткам, а единицы к единицам. Сколько получится? Выбери.', uz: "O'ttiz to'rt va yigirma besh. O'nlikni o'nlikka, birlikni birlikka qo'shing. Nechta bo'ladi? Tanlang." },
       on_correct: { ru: 'Верно. Пять десятков и девять единиц. Пятьдесят девять.', uz: "To'g'ri. Besh o'nlik va to'qqiz birlik. Ellik to'qqiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор и сложи по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha qo'sh." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор и сложи по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha qo'shing." }
     }
   },
 
@@ -1071,28 +1071,28 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи десятки с десятками, единицы с единицами.',
-      uz: "O'nlikni o'nlikka, birlikni birlikka qo'sh."
+      uz: "O'nlikni o'nlikka, birlikni birlikka qo'shing."
     },
     audio: {
       intro: { ru: 'Пятьдесят два и тринадцать. Сначала десятки к десяткам, потом единицы к единицам. Сколько получится? Выбери.', uz: "Ellik ikki va o'n uch. Avval o'nlikni o'nlikka, keyin birlikni birlikka. Nechta bo'ladi? Tanlang." },
       on_correct: { ru: 'Верно. Шесть десятков и пять единиц. Шестьдесят пять.', uz: "To'g'ri. Olti o'nlik va besh birlik. Oltmish besh." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор и сложи по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha qo'sh." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор и сложи по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha qo'shing." }
     }
   },
 
   // s7 TEST (interaktiv): 43+21 — "O'nlik qo'sh" (2) va "Birlik qo'sh" (1) bilan razryad bo'yicha qo'shadi, tekshiradi.
   s7: {
     eyebrow: { ru: 'Тренировка · 3 / 5', uz: 'Mashq · 3 / 5' },
-    title: { ru: 'Прибавь двадцать один: десятки и единицы, потом проверь.', uz: "Yigirma birni qo'sh: o'nlik va birlik, keyin tekshir." },
-    btn_tens: { ru: 'Добавить десяток', uz: "O'nlik qo'sh" },
-    btn_ones: { ru: 'Добавить единицу', uz: "Birlik qo'sh" },
+    title: { ru: 'Прибавь двадцать один: десятки и единицы, потом проверь.', uz: "Yigirma birni qo'shing: o'nlik va birlik, keyin tekshiring." },
+    btn_tens: { ru: 'Добавить десяток', uz: "O'nlik qo'shing" },
+    btn_ones: { ru: 'Добавить единицу', uz: "Birlik qo'shing" },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     done_text: { ru: 'Шестьдесят четыре! Десятки к десяткам, единицы к единицам.', uz: "Oltmish to'rt! O'nlik o'nlikka, birlik birlikka." },
-    try_text: { ru: 'Прибавлено не всё. Добавь два десятка и одну единицу, потом проверь.', uz: "Hammasi qo'shilmadi. Ikkita o'nlik va bitta birlik qo'sh, keyin tekshir." },
+    try_text: { ru: 'Прибавлено не всё. Добавь два десятка и одну единицу, потом проверь.', uz: "Hammasi qo'shilmadi. Ikkita o'nlik va bitta birlik qo'shing, keyin tekshiring." },
     audio: {
       intro: { ru: 'К сорока трём прибавляем двадцать один. Добавь два десятка к десяткам и одну единицу к единицам, потом проверь.', uz: "Qirq uchga yigirma birni qo'shamiz. Ikkita o'nlikni o'nlikka, bitta birlikni birlikka qo'shing, keyin tekshiring." },
       on_correct: { ru: 'Молодец! Шестьдесят четыре.', uz: "Barakalla! Oltmish to'rt." },
-      on_wrong: { ru: 'Прибавлено не всё. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'sh va tekshir." }
+      on_wrong: { ru: 'Прибавлено не всё. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'shing va tekshiring." }
     }
   },
 
@@ -1118,21 +1118,21 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи десятки с десятками, единицы с единицами.',
-      uz: "O'nlikni o'nlikka, birlikni birlikka qo'sh."
+      uz: "O'nlikni o'nlikka, birlikni birlikka qo'shing."
     },
     audio: {
       intro: { ru: 'Двадцать три и сорок пять. Вспомни, десятки к десяткам, единицы к единицам. Сколько получится? Выбери.', uz: "Yigirma uch va qirq besh. Eslang, o'nlik o'nlikka, birlik birlikka. Nechta bo'ladi? Tanlang." },
       on_correct: { ru: 'Верно. Шесть десятков и восемь единиц. Шестьдесят восемь.', uz: "To'g'ri. Olti o'nlik va sakkiz birlik. Oltmish sakkiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор и сложи по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha qo'sh." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор и сложи по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha qo'shing." }
     }
   },
 
   sg: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
-    instruction: { ru: 'Сложи по разрядам', uz: "Razryad bo'yicha qo'sh" },
+    instruction: { ru: 'Сложи по разрядам', uz: "Razryad bo'yicha qo'shing" },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодцы! Все примеры решены.', uz: "Barakalla! Hamma misol yechildi." },
-    retry_audio: { ru: 'Ничего страшного. Сложи десятки, потом единицы.', uz: "Hech qisi yo'q. O'nlikni, keyin birlikni qo'sh." },
+    retry_audio: { ru: 'Ничего страшного. Сложи десятки, потом единицы.', uz: "Hech qisi yo'q. O'nlikni, keyin birlikni qo'shing." },
     audio: {
       intro: { ru: 'Поиграем. Я показываю пример, а ты складываешь по разрядам. Начинаем.', uz: "O'ynaymiz. Men misol ko'rsataman, siz razryad bo'yicha qo'shasiz. Boshladik." }
     }
@@ -1182,7 +1182,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сложи десятки с десятками, единицы с единицами.',
-      uz: "O'nlikni o'nlikka, birlikni birlikka qo'sh."
+      uz: "O'nlikni o'nlikka, birlikni birlikka qo'shing."
     },
     fact_badge: { ru: 'А знаешь? · Разряды', uz: 'Bilasizmi? · Razryadlar' },
     fact_text: {
@@ -1196,7 +1196,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Последнее задание. Пятьдесят два и тридцать четыре. Десятки к десяткам, единицы к единицам. Сколько получится? Выбери.', uz: "Oxirgi topshiriq. Ellik ikki va o'ttiz to'rt. O'nlikni o'nlikka, birlikni birlikka. Nechta bo'ladi? Tanlang." },
       on_correct: { ru: 'Верно. Восемь десятков и шесть единиц. Восемьдесят шесть.', uz: "To'g'ri. Sakkiz o'nlik va olti birlik. Sakson olti." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор и сложи по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha qo'sh." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор и сложи по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha qo'shing." }
     }
   },
 

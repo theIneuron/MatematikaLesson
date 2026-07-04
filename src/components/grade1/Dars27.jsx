@@ -1008,12 +1008,12 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Вычти десятки из десятков, единицы из единиц.',
-      uz: "O'nlikdan o'nlik, birlikdan birlik ayir."
+      uz: "O'nlikdan o'nlik, birlikdan birlik ayiring."
     },
     audio: {
       intro: { ru: 'Из шестидесяти восьми убрать двадцать пять. Вычти десятки из десятков, а единицы из единиц. Сколько останется? Выбери.', uz: "Oltmish sakkizdan yigirma besh olinsa. O'nlikni o'nlikdan, birlikni birlikdan ayiring. Nechta qoladi? Tanlang." },
       on_correct: { ru: 'Верно. Четыре десятка и три единицы. Сорок три.', uz: "To'g'ri. To'rt o'nlik va uch birlik. Qirq uch." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор и вычти по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha ayir." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор и вычти по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha ayiring." }
     }
   },
 
@@ -1041,7 +1041,7 @@ const CONTENT = {
     title_part3: { ru: '', uz: '' },
     tip: {
       ru: 'Чтобы вычесть из ста, думай о ста как о десяти десятках. 100 без 30 — десять без трёх, это 70.',
-      uz: "Yuzdan ayirish uchun yuzni o'n o'nlik deb o'yla. 100 dan 30 — o'ndan uch, bu 70."
+      uz: "Yuzdan ayirish uchun yuzni o'n o'nlik deb o'ylang. 100 dan 30 — o'ndan uch, bu 70."
     },
     audio: {
       ru: 'Сто это десять десятков. Чтобы вычесть из ста, убираем десятки. Десять без трёх — семь. Семьдесят.',
@@ -1071,7 +1071,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Сто это десять десятков. Убери четыре десятка.',
-      uz: "Yuz — bu o'n o'nlik. To'rt o'nlikni ol."
+      uz: "Yuz — bu o'n o'nlik. To'rt o'nlikni oling."
     },
     audio: {
       intro: { ru: 'Из ста убрать сорок. Помни, сто это десять десятков, убирай десятками. Сколько останется? Выбери.', uz: "Yuzdan qirq olinsa. Eslang, yuz bu o'nta o'nlik, o'nliklab oling. Nechta qoladi? Tanlang." },
@@ -1083,22 +1083,22 @@ const CONTENT = {
   // s7 TEST (interaktiv): 79−34 — "O'nlik ol" (3) va "Birlik ol" (4) bilan razryad bo'yicha ayiradi, tekshiradi.
   s7: {
     eyebrow: { ru: 'Тренировка · 3 / 5', uz: 'Mashq · 3 / 5' },
-    title: { ru: 'Вычти тридцать четыре: десятки и единицы, потом проверь.', uz: "O'ttiz to'rtni ayir: o'nlik va birlik, keyin tekshir." },
-    btn_tens: { ru: 'Убрать десяток', uz: "O'nlik ol" },
-    btn_ones: { ru: 'Убрать единицу', uz: "Birlik ol" },
+    title: { ru: 'Вычти тридцать четыре: десятки и единицы, потом проверь.', uz: "O'ttiz to'rtni ayiring: o'nlik va birlik, keyin tekshiring." },
+    btn_tens: { ru: 'Убрать десяток', uz: "O'nlik oling" },
+    btn_ones: { ru: 'Убрать единицу', uz: "Birlik oling" },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     done_text: { ru: 'Сорок пять! Десятки от десятков, единицы от единиц.', uz: "Qirq besh! O'nlikdan o'nlik, birlikdan birlik." },
-    try_text: { ru: 'Убрано не всё. Убери три десятка и четыре единицы, потом проверь.', uz: "Hammasi olinmadi. Uchta o'nlik va to'rtta birlik ol, keyin tekshir." },
+    try_text: { ru: 'Убрано не всё. Убери три десятка и четыре единицы, потом проверь.', uz: "Hammasi olinmadi. Uchta o'nlik va to'rtta birlik oling, keyin tekshiring." },
     audio: {
       intro: { ru: 'Из семидесяти девяти вычитаем тридцать четыре. Убери три десятка из десятков и четыре единицы из единиц, потом проверь.', uz: "Yetmish to'qqizdan o'ttiz to'rtni ayiramiz. Uchta o'nlikni o'nlikdan, to'rtta birlikni birlikdan oling, keyin tekshiring." },
       on_correct: { ru: 'Молодец! Сорок пять.', uz: "Barakalla! Qirq besh." },
-      on_wrong: { ru: 'Убрано не всё. Убери ещё и проверь.', uz: "Hammasi olinmadi. Yana ol va tekshir." }
+      on_wrong: { ru: 'Убрано не всё. Убери ещё и проверь.', uz: "Hammasi olinmadi. Yana oling va tekshiring." }
     }
   },
 
   s8: {
     eyebrow: { ru: 'Тренировка · 4 / 5', uz: 'Mashq · 4 / 5' },
-    title: { ru: 'Бит ошибся. Найди верный ответ', uz: "Bit xato qildi. To'g'ri javobni top" },
+    title: { ru: 'Бит ошибся. Найди верный ответ', uz: "Bit xato qildi. To'g'ri javobni toping" },
     bit_answer: { ru: '39', uz: '39' },
     opt0: { ru: '33', uz: '33' },
     opt1: { ru: '39', uz: '39' },
@@ -1119,21 +1119,21 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Вычти десятки из десятков, единицы из единиц.',
-      uz: "O'nlikdan o'nlik, birlikdan birlik ayir."
+      uz: "O'nlikdan o'nlik, birlikdan birlik ayiring."
     },
     audio: {
       intro: { ru: 'Бит вычислял восемьдесят шесть без пятидесяти трёх и ошибся. Проверь десятки и единицы и найди верный ответ. Выбери.', uz: "Bit sakson oltidan ellik uchni ayirib, xato qildi. O'nliklarni va birliklarni tekshiring, to'g'ri javobni toping. Tanlang." },
       on_correct: { ru: 'Верно. Восемь без пяти три, шесть без трёх три. Тридцать три.', uz: "To'g'ri. Sakkizdan besh uch, oltidan uch uch. O'ttiz uch." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор и вычти по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha ayir." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор и вычти по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha ayiring." }
     }
   },
 
   sg: {
     eyebrow: { ru: 'Игра', uz: "O'yin" },
-    instruction: { ru: 'Вычти по разрядам', uz: "Razryad bo'yicha ayir" },
+    instruction: { ru: 'Вычти по разрядам', uz: "Razryad bo'yicha ayiring" },
     correct_text: { ru: 'Верно! Идём дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодцы! Все примеры решены.', uz: "Barakalla! Hamma misol yechildi." },
-    retry_audio: { ru: 'Ничего страшного. Вычти десятки, потом единицы.', uz: "Hech qisi yo'q. O'nlikni, keyin birlikni ayir." },
+    retry_audio: { ru: 'Ничего страшного. Вычти десятки, потом единицы.', uz: "Hech qisi yo'q. O'nlikni, keyin birlikni ayiring." },
     audio: {
       intro: { ru: 'Поиграем. Я показываю пример, а ты вычитаешь по разрядам. Начинаем.', uz: "O'ynaymiz. Men misol ko'rsataman, siz razryad bo'yicha ayirasiz. Boshladik." }
     }
@@ -1183,7 +1183,7 @@ const CONTENT = {
     },
     wrong_default: {
       ru: 'Вычти десятки из десятков, единицы из единиц.',
-      uz: "O'nlikdan o'nlik, birlikdan birlik ayir."
+      uz: "O'nlikdan o'nlik, birlikdan birlik ayiring."
     },
     fact_badge: { ru: 'А знаешь? · Разряды', uz: 'Bilasizmi? · Razryadlar' },
     fact_text: {
@@ -1197,7 +1197,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Последнее задание. Из девяноста пяти убрать сорок два. Десятки из десятков, единицы из единиц. Сколько останется? Выбери.', uz: "Oxirgi topshiriq. To'qson beshdan qirq ikki olinsa. O'nlikni o'nlikdan, birlikni birlikdan. Nechta qoladi? Tanlang." },
       on_correct: { ru: 'Верно. Пять десятков и три единицы. Пятьдесят три.', uz: "To'g'ri. Besh o'nlik va uch birlik. Ellik uch." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор и вычти по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha ayir." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор и вычти по разрядам.', uz: "Unchalik emas. Tushuntirishga qarab, razryad bo'yicha ayiring." }
     }
   },
 

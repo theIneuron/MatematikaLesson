@@ -1033,11 +1033,11 @@ const CONTENT = {
   // ---- s4 TEST (son o'qi, scored +): 3 + 2 = ? markerni 3 dan, javob katakni bos -> 5 ----
   s4: {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
-    title: { ru: 'Точка на трёх. Прибавь два — куда придёт?', uz: "Nuqta uchda. Ikki qo'sh — qayerga keladi?" },
+    title: { ru: 'Точка на трёх. Прибавь два — куда придёт?', uz: "Nuqta uchda. Ikki qo'shing — qayerga keladi?" },
     correct_text: { ru: 'Верно. Три плюс два равно пять.', uz: "To'g'ri. Uch plyus ikki teng besh." },
     wrong_default: { ru: 'Прыгай вперёд от трёх два раза и посчитай: четыре, пять. Нажми на это число.', uz: "Uchdan oldinga ikki marta sakrang va sanang: to'rt, besh. Shu sonni bosing." },
     audio: {
-      intro: { ru: 'Точка стоит на числе три. Прибавь два. Прыгни вперёд два раза и нажми на число, куда придёшь.', uz: "Nuqta uch sonida. Ikki qo'sh. Ikki marta oldinga sakrang va kelgan sonni bosing." },
+      intro: { ru: 'Точка стоит на числе три. Прибавь два. Прыгни вперёд два раза и нажми на число, куда придёшь.', uz: "Nuqta uch sonida. Ikki qo'shing. Ikki marta oldinga sakrang va kelgan sonni bosing." },
       on_correct: { ru: 'Верно. Пришли на пять.', uz: "To'g'ri. Beshga keldik." },
       on_wrong: { ru: 'Не совсем. Посчитай прыжки вперёд.', uz: "Unchalik emas. Oldinga sakrashlarni sanang." }
     }
@@ -1096,11 +1096,11 @@ const CONTENT = {
   // ---- s7 TEST (son o'qi, scored −): 4 − 2 = ? markerni 4 dan orqaga -> 2 ----
   s7: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Точка на четырёх. Вычти два — куда придёт?', uz: "Nuqta to'rtda. Ikki ayir — qayerga keladi?" },
+    title: { ru: 'Точка на четырёх. Вычти два — куда придёт?', uz: "Nuqta to'rtda. Ikki ayiring — qayerga keladi?" },
     correct_text: { ru: 'Верно. Четыре минус два равно два.', uz: "To'g'ri. To'rt minus ikki teng ikki." },
     wrong_default: { ru: 'Прыгай назад от четырёх два раза и посчитай: три, два. Нажми на это число.', uz: "To'rtdan orqaga ikki marta sakrang va sanang: uch, ikki. Shu sonni bosing." },
     audio: {
-      intro: { ru: 'Точка стоит на числе четыре. Вычти два. Прыгни назад два раза и нажми на число, куда придёшь.', uz: "Nuqta to'rt sonida. Ikki ayir. Ikki marta orqaga sakrang va kelgan sonni bosing." },
+      intro: { ru: 'Точка стоит на числе четыре. Вычти два. Прыгни назад два раза и нажми на число, куда придёшь.', uz: "Nuqta to'rt sonida. Ikki ayiring. Ikki marta orqaga sakrang va kelgan sonni bosing." },
       on_correct: { ru: 'Верно. Пришли на два.', uz: "To'g'ri. Ikkiga keldik." },
       on_wrong: { ru: 'Не совсем. Посчитай прыжки назад.', uz: "Unchalik emas. Orqaga sakrashlarni sanang." }
     }

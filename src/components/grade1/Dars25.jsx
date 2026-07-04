@@ -1083,15 +1083,15 @@ const CONTENT = {
   // s7 TEST (interaktiv): 45+4 — bola "Birlik qo'sh" bilan to'rt birlikni birlikka qo'shadi, tekshiradi.
   s7: {
     eyebrow: { ru: 'Тренировка · 3 / 5', uz: 'Mashq · 3 / 5' },
-    title: { ru: 'К сорока пяти прибавь четыре — по одному, потом проверь.', uz: "Qirq beshga to'rtni qo'sh — bittadan, keyin tekshir." },
-    btn: { ru: 'Добавить единицу', uz: "Birlik qo'sh" },
+    title: { ru: 'К сорока пяти прибавь четыре — по одному, потом проверь.', uz: "Qirq beshga to'rtni qo'shing — bittadan, keyin tekshiring." },
+    btn: { ru: 'Добавить единицу', uz: "Birlik qo'shing" },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     done_text: { ru: 'Сорок девять! Пять и четыре — девять, десятки не тронули.', uz: "Qirq to'qqiz! Besh va to'rt — to'qqiz, o'nliklarga tegmadik." },
-    try_text: { ru: 'Добавлены не все четыре единицы. Добавь до конца и проверь снова.', uz: "To'rtta birlik to'liq qo'shilmadi. Oxirigacha qo'sh va yana tekshir." },
+    try_text: { ru: 'Добавлены не все четыре единицы. Добавь до конца и проверь снова.', uz: "To'rtta birlik to'liq qo'shilmadi. Oxirigacha qo'shing va yana tekshiring." },
     audio: {
       intro: { ru: 'К сорока пяти прибавляем четыре. Добавляй по одной единице к единицам, десятки не трогай. Заполни и нажми проверить.', uz: "Qirq beshga to'rtni qo'shamiz. Birlikni birlikka bittadan qo'shing, o'nliklarga tegmang. Qo'shib bo'lib tekshiring." },
       on_correct: { ru: 'Молодец! Сорок девять.', uz: "Barakalla! Qirq to'qqiz." },
-      on_wrong: { ru: 'Добавлены не все. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'sh va tekshir." }
+      on_wrong: { ru: 'Добавлены не все. Добавь ещё и проверь.', uz: "Hammasi qo'shilmadi. Yana qo'shing va tekshiring." }
     }
   },
 

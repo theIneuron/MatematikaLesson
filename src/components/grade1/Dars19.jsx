@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // ============================================================================
 // ░░ 1-SINF · Dars19 — "O'nlikdan o'tib ayirish" (ten-1-19-v1) · 13-5 = 13-3-2 = 10-2 = 8 · spec: ETALON_1SINF.md ░░
 // Dars17 (o'tib qo'shish) bazasidan. MEXANIKA: MakeTenSub — ikki javon; avval birliklarni, keyin o'nlikdan ayiramiz.
-// Make-ten ayirish: avval o'ngacha tushir, keyin qolganini. Sahna: maktab (kitob). Jasur bor.
+// Make-ten ayirish: avval o'ngacha tushiring, keyin qolganini. Sahna: maktab (kitob). Jasur bor.
 // Vizualizator MIX: tap-to-remove (YANGI MEXANIKA: olmani bos -> uchadi -> kamayadi; s0/sg),
 // countdown-decrement (s2: 7->5), RemoveRow (MC figuralari), drag-away (s5: savatdan Anvarga),
 // BondFrame qizil/yashil (s7: yo'qolgan qism = ayirish↔qo'shish bog'i), SentTile (− belgi).
@@ -882,18 +882,18 @@ const LESSON_META = {
   lessonTitle: { ru: 'Вычитание через десяток', uz: "O'nlikdan o'tib ayirish" }
 };
 const SCREEN_META = [
-  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // §4 chok: maktab, Jasur kiradi
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft: 10 tayoqcha bittalab uzoqmi?
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // YANGI MEXANIKA: 10 tayoqcha -> bog'la -> 1 dasta
-  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: 10 birlik = 1 o'nlik
-  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // dastada nechta tayoqcha? 10
-  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nechta o'nlik? 1
-  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // taqqoslash (timsoh): 10 > 7
-  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 1 o'nlik = 10 birlik
-  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi rasmda aynan 1 o'nlik?
-  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: tayoqchalarni sana (3 raund)
-  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'nlik -> Dars14 (11..15)
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 10 birlik = 1 o'nlik + fakt
+  { id: 'sIntro', type: 'hook',        template: 'custom',   scored: false, scope: null },            // kirish: maktab — o'nlikdan o'tib ayiramiz (13-5)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // soft hook: 13 - 5 = ? — qancha? har javob OK
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // YANGI MEXANIKA: 13-5 drag-ayirish — 5 kitobni o'zi savatga suradi (yakka 3, keyin o'nlikdan 2) -> 8
+  { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // qoida: avval o'ngacha tushir, keyin qolganini ayir (13-3=10, -2=8)
+  { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 12 - 5 = 7
+  { id: 's4',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 14 - 6 = 8
+  { id: 's5',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // 13 - 4 = 9
+  { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // Ha/Yo'q: 13 - 5 = 8? Ha
+  { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // interaktiv: 11 - 3 = 8 (bittadan ol)
+  { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // mini-o'yin: o'tib ayirish (3 raund)
+  { id: 'sGuest', type: 'hook',     template: 'custom',   scored: false, scope: null },            // syujet ko'prik: o'tib ayirish -> Dars20 (amaliyot)
+  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'final' },         // final: 13 - 5 = 8 + fakt
   { id: 's9',  type: 'summary',     template: 'custom',   scored: false, scope: null }             // yakun + can-do
 ];
 
@@ -983,37 +983,37 @@ const CONTENT = {
     title_part2_em: { ru: 'сначала до десяти', uz: "avval o'ngacha" },
     tip: {
       ru: 'Чтобы вычесть через десяток, сначала убери до десяти, потом остальное. Тринадцать минус пять: сначала минус три это десять, потом минус два — восемь.',
-      uz: "O'nlikdan o'tib ayirish uchun avval o'ngacha tushir, keyin qolganini. O'n uch minus besh: avval minus uch o'n, keyin minus ikki — sakkiz."
+      uz: "O'nlikdan o'tib ayirish uchun avval o'ngacha tushiring, keyin qolganini. O'n uch minus besh: avval minus uch o'n, keyin minus ikki — sakkiz."
     },
     audio: {
       ru: 'Запомним. Чтобы вычесть через десяток, сначала убери до десяти, потом остальное. Минус три это десять, потом минус два, восемь.',
-      uz: "Eslab qolamiz. O'nlikdan o'tib ayirish uchun avval o'ngacha tushir, keyin qolganini. Minus uch o'n, keyin minus ikki, sakkiz."
+      uz: "Eslab qolamiz. O'nlikdan o'tib ayirish uchun avval o'ngacha tushiring, keyin qolganini. Minus uch o'n, keyin minus ikki, sakkiz."
     }
   },
 
-  // ---- s3 TEST: 12 - 5 = 7 (idx0) ----
+  // ---- s3 TEST: 12 - 5 = 7 (idx1) ----
   s3: {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
     title: { ru: 'Двенадцать минус пять. Сколько останется?', uz: "O'n ikki minus besh. Qancha qoladi?" },
     correct_text: { ru: 'Верно. Минус два это десять, минус три — семь.', uz: "To'g'ri. Minus ikki o'n, minus uch — yetti." },
-    wrong_0: { ru: 'Чуть больше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha tushir, keyin qolganini ayirib qaytadan sana." },
-    wrong_2: { ru: 'Чуть меньше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha tushir, keyin qolganini ayirib qaytadan sana." },
-    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushir, keyin qolganini ayir." },
+    wrong_0: { ru: 'Чуть больше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha tushiring, keyin qolganini ayirib qaytadan sanang." },
+    wrong_2: { ru: 'Чуть меньше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha tushiring, keyin qolganini ayirib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushiring, keyin qolganini ayiring." },
     audio: {
-      intro: { ru: 'Двенадцать минус пять. Сначала убери до десяти, потом остальное. Сколько останется? Выбери ответ.', uz: "O'n ikki minus besh. Avval o'ngacha tushir, keyin qolganini. Qancha qoladi? Javobni tanlang." },
+      intro: { ru: 'Двенадцать минус пять. Сначала убери до десяти, потом остальное. Сколько останется? Выбери ответ.', uz: "O'n ikki minus besh. Avval o'ngacha tushiring, keyin qolganini. Qancha qoladi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Семь.', uz: "To'g'ri. Yetti." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
   },
 
-  // ---- s4 TEST: 14 - 6 = 8 (idx0) ----
+  // ---- s4 TEST: 14 - 6 = 8 (idx2) ----
   s4: {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
     title: { ru: 'Четырнадцать минус шесть. Сколько останется?', uz: "O'n to'rt minus olti. Qancha qoladi?" },
     correct_text: { ru: 'Верно. Минус четыре это десять, минус два — восемь.', uz: "To'g'ri. Minus to'rt o'n, minus ikki — sakkiz." },
-    wrong_1: { ru: 'Чуть меньше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha tushir, keyin qolganini ayirib qaytadan sana." },
-    wrong_0: { ru: 'Чуть больше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha tushir, keyin qolganini ayirib qaytadan sana." },
-    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushir, keyin qolganini ayir." },
+    wrong_1: { ru: 'Чуть меньше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha tushiring, keyin qolganini ayirib qaytadan sanang." },
+    wrong_0: { ru: 'Чуть больше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha tushiring, keyin qolganini ayirib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushiring, keyin qolganini ayiring." },
     audio: {
       intro: { ru: 'Четырнадцать минус шесть. Сначала до десяти, потом остальное. Сколько? Выбери ответ.', uz: "O'n to'rt minus olti. Avval o'ngacha, keyin qolgani. Qancha? Javobni tanlang." },
       on_correct: { ru: 'Верно. Восемь.', uz: "To'g'ri. Sakkiz." },
@@ -1021,14 +1021,14 @@ const CONTENT = {
     }
   },
 
-  // ---- s5 TEST: 13 - 4 = 9 (idx0) ----
+  // ---- s5 TEST: 13 - 4 = 9 (idx3) ----
   s5: {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
     title: { ru: 'Тринадцать минус четыре. Сколько останется?', uz: "O'n uch minus to'rt. Qancha qoladi?" },
     correct_text: { ru: 'Верно. Минус три это десять, минус один — девять.', uz: "To'g'ri. Minus uch o'n, minus bir — to'qqiz." },
-    wrong_1: { ru: 'Чуть меньше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha tushir, keyin qolganini ayirib qaytadan sana." },
-    wrong_2: { ru: 'Чуть больше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha tushir, keyin qolganini ayirib qaytadan sana." },
-    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushir, keyin qolganini ayir." },
+    wrong_1: { ru: 'Чуть меньше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha tushiring, keyin qolganini ayirib qaytadan sanang." },
+    wrong_2: { ru: 'Чуть больше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha tushiring, keyin qolganini ayirib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushiring, keyin qolganini ayiring." },
     audio: {
       intro: { ru: 'Тринадцать минус четыре. Сначала до десяти, потом остальное. Сколько? Выбери ответ.', uz: "O'n uch minus to'rt. Avval o'ngacha, keyin qolgani. Qancha? Javobni tanlang." },
       on_correct: { ru: 'Верно. Девять.', uz: "To'g'ri. To'qqiz." },
@@ -1043,8 +1043,8 @@ const CONTENT = {
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
     correct_text: { ru: 'Верно. Минус три это десять, минус два — восемь.', uz: "To'g'ri. Minus uch o'n, minus ikki — sakkiz." },
-    wrong_1: { ru: 'Посчитай заново через десяток: убери до десяти, потом остальное.', uz: "Qaytadan, o'nlikdan o'tib sana: avval o'ngacha tushir, keyin qolganini ayir." },
-    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushir, keyin qolganini ayir." },
+    wrong_1: { ru: 'Посчитай заново через десяток: убери до десяти, потом остальное.', uz: "Qaytadan, o'nlikdan o'tib sanang: avval o'ngacha tushiring, keyin qolganini ayiring." },
+    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushiring, keyin qolganini ayiring." },
     audio: {
       intro: { ru: 'Верно ли, что тринадцать минус пять равно восемь? Выбери да или нет.', uz: "O'n uch minus besh teng sakkiz, to'g'rimi? Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Восемь.', uz: "To'g'ri. Sakkiz." },
@@ -1052,19 +1052,19 @@ const CONTENT = {
     }
   },
 
-  // ---- s7 TEST: 11 - 3 = 8 (idx0) ----
+  // ---- s7 TEST (interaktiv): 11 - 3 = 8 ----
   // s7 TEST (interaktiv): 11−3 — bola bittadan olib tashlaydi, avval yakka, keyin o'nlikdan; tekshiradi.
   s7: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    title: { ru: 'Вычти из одиннадцати три — по одному, потом проверь.', uz: "O'n birdan uchni ayir — bittadan ol, keyin tekshir." },
-    btn: { ru: 'Убрать один', uz: "Bittadan ol" },
+    title: { ru: 'Вычти из одиннадцати три — по одному, потом проверь.', uz: "O'n birdan uchni ayiring — bittadan oling, keyin tekshiring." },
+    btn: { ru: 'Убрать один', uz: "Bittadan oling" },
     btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
     done_text: { ru: 'Осталось восемь! Сначала спустились до десяти, потом убрали ещё два.', uz: "Sakkiz qoldi! Avval o'ngacha tushdik, keyin yana ikkitani oldik." },
-    try_text: { ru: 'Убраны не все три. Убери до конца и проверь снова.', uz: "Uchtasi to'liq olinmadi. Oxirigacha ol va yana tekshir." },
+    try_text: { ru: 'Убраны не все три. Убери до конца и проверь снова.', uz: "Uchtasi to'liq olinmadi. Oxirigacha oling va yana tekshiring." },
     audio: {
       intro: { ru: 'Из одиннадцати вычитаем три. Убирай по одному: сначала уходит лишняя единица, остаётся десяток, потом убираем из десятка. Убери и нажми проверить.', uz: "O'n birdan uchni ayiramiz. Bittadan oling: avval yakka birlik ketadi, o'nlik qoladi, keyin o'nlikdan olamiz. Olib bo'lib tekshiring." },
       on_correct: { ru: 'Молодец! Осталось восемь.', uz: "Barakalla! Sakkiz qoldi." },
-      on_wrong: { ru: 'Убраны не все. Убери ещё и проверь.', uz: "Hammasi olinmadi. Yana ol va tekshir." }
+      on_wrong: { ru: 'Убраны не все. Убери ещё и проверь.', uz: "Hammasi olinmadi. Yana oling va tekshiring." }
     }
   },
 
@@ -1074,7 +1074,7 @@ const CONTENT = {
     instruction: { ru: 'Сколько останется?', uz: "Qancha qoladi?" },
     round_ok: { ru: 'Верно! Дальше.', uz: "To'g'ri! Davom etamiz." },
     done_text: { ru: 'Молодец! Ты вычитаешь через десяток.', uz: "Barakalla! O'nlikdan o'tib ayirasiz." },
-    retry_audio: { ru: 'Ничего страшного. Сначала убери до десяти.', uz: "Zarari yo'q. Avval o'ngacha tushir." },
+    retry_audio: { ru: 'Ничего страшного. Сначала убери до десяти.', uz: "Zarari yo'q. Avval o'ngacha tushiring." },
     audio: {
       intro: { ru: 'Поиграем. Вычитай через десяток и выбирай ответ.', uz: "O'ynaymiz. O'nlikdan o'tib ayiring va javobni tanlang." }
     }
@@ -1107,19 +1107,19 @@ const CONTENT = {
     }
   },
 
-  // ---- s8 TEST final + FactCard: 13 - 5 = 8 (idx0) ----
+  // ---- s8 TEST final + FactCard: 13 - 5 = 8 (idx2) ----
   s8: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Тринадцать минус пять. Сколько останется?', uz: "O'n uch minus besh. Qancha qoladi?" },
     correct_text: { ru: 'Верно. Минус три это десять, минус два — восемь.', uz: "To'g'ri. Minus uch o'n, minus ikki — sakkiz." },
-    wrong_1: { ru: 'Чуть меньше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha tushir, keyin qolganini ayirib qaytadan sana." },
-    wrong_0: { ru: 'Чуть больше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha tushir, keyin qolganini ayirib qaytadan sana." },
-    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushir, keyin qolganini ayir." },
+    wrong_1: { ru: 'Чуть меньше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal kam. Avval o'ngacha tushiring, keyin qolganini ayirib qaytadan sanang." },
+    wrong_0: { ru: 'Чуть больше. Сначала убери до десяти, потом остальное и посчитай снова.', uz: "Sal ko'p. Avval o'ngacha tushiring, keyin qolganini ayirib qaytadan sanang." },
+    wrong_default: { ru: 'Сначала убери до десяти, потом остальное.', uz: "Avval o'ngacha tushiring, keyin qolganini ayiring." },
     fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
     fact_text: { ru: 'Когда даёшь сдачу или делишься, вычитаешь через десяток. Сначала спустись к круглому десятку.', uz: "Pul qaytim berganda yoki narsa ulashganda o'nlikdan o'tib ayirasiz. Avval to'liq o'nlikkacha tushing." },
     fact_audio: { ru: 'А знаешь, когда даёшь сдачу, вычитаешь через десяток. Сначала к круглому десятку, потом остальное.', uz: "Bilasizmi, pul qaytim berganda o'nlikdan o'tib ayirasiz. Avval to'liq o'nlikkacha tushing, keyin qolganini." },
     audio: {
-      intro: { ru: 'Последний пример. Тринадцать минус пять. Вычти через десяток. Сколько останется? Выбери ответ.', uz: "Oxirgi misol. O'n uch minus besh. O'nlikdan o'tib ayir. Qancha qoladi? Javobni tanlang." },
+      intro: { ru: 'Последний пример. Тринадцать минус пять. Вычти через десяток. Сколько останется? Выбери ответ.', uz: "Oxirgi misol. O'n uch minus besh. O'nlikdan o'tib ayiring. Qancha qoladi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Восемь.', uz: "To'g'ri. Sakkiz." },
       on_wrong: { ru: 'Не совсем. Посчитай заново, внимательно.', uz: "Unchalik emas. Qaytadan diqqat bilan sanang." }
     }
@@ -3706,13 +3706,8 @@ const ScreenGuest = (props) => (
   <StoryLayout props={props} c={CONTENT.sGuest}>{(audio) => <GuestCast audio={audio}/>}</StoryLayout>
 );
 
-// s0 — HOOK (son o'qi 0..10, erkin): marker 0 da, "Sakrash" -> oldinga.
+// s0 — HOOK (soft): 13 - 5 = ? make-ten-back — qancha? (ha/yo'q/bilmayman, har javob OK).
 const S0_MAX = 10;
-// s0 — HOOK (soft): 10 tayoqcha bittalab — uzoqmi? har javob OK.
-// s0 — HOOK (soft): 1 o'nlik + 4 birlik — qaysi son? har javob OK.
-// s0 — HOOK (soft): 8 kitob, 10 ga nechta? har javob OK.
-// s0 — HOOK (soft): 8 kitob, 10 ga nechta? har javob OK.
-// s0 — HOOK (soft): 8 kitob, 10 ga nechta? har javob OK.
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3888,7 +3883,7 @@ const Screen1 = (props) => {
   );
 };
 
-// s2 — RULE: to'liq 10 uchun bo'sh joylarni sana.
+// s2 — RULE: o'nlikdan o'tib ayirish — avval o'ngacha tushir, keyin qolganini ayir (13-3=10, -2=8).
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3915,7 +3910,7 @@ const Screen2 = (props) => {
   );
 };
 
-// s3 — TEST MC: 7 to'la, 10 ga nechta? -> 3 (idx0).
+// s3 — TEST MC: 12 - 5 = 7 (idx1).
 const Screen3 = (props) => {
   const c = CONTENT.s3;
   const t = useT();
@@ -3934,7 +3929,7 @@ const Screen3 = (props) => {
   );
 };
 
-// s4 — TEST MC: 6 to'la, 10 ga nechta? -> 4 (idx0).
+// s4 — TEST MC: 14 - 6 = 8 (idx2).
 const Screen4 = (props) => {
   const c = CONTENT.s4;
   const t = useT();
@@ -3953,7 +3948,7 @@ const Screen4 = (props) => {
   );
 };
 
-// s5 — TEST MC: 9 to'la, 10 ga nechta? -> 1 (idx0).
+// s5 — TEST MC: 13 - 4 = 9 (idx3).
 const Screen5 = (props) => {
   const c = CONTENT.s5;
   const t = useT();
@@ -3972,7 +3967,7 @@ const Screen5 = (props) => {
   );
 };
 
-// s6 — TEST Ha/Yo'q: 4 o'ngacha 6 bilan to'ladi? Ha (idx0).
+// s6 — TEST Ha/Yo'q: 13 - 5 = 8? Ha (idx0).
 const Screen6 = (props) => {
   const c = CONTENT.s6;
   const t = useT();
@@ -3991,7 +3986,6 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — TEST MC: qaysi javonда aynan 4 yetishmaydi? -> filled=6 (idx0).
 // s7 — TEST (interaktiv): 11−3 make-ten-back. Bola "Bittadan ol" bilan uchtani birma-bir oladi;
 // avval yakka birlik (2-ramka), keyin o'nlikdan (1-ramka). "Tekshirish" bilan tasdiqlaydi (erta bossa — xato yo'li).
 const Screen7 = (props) => {
@@ -4072,7 +4066,7 @@ const Screen7 = (props) => {
   );
 };
 
-// sg — MINI-O'YIN: 3 raund — to'ldiruvchi. Ball yo'q.
+// sg — MINI-O'YIN: 3 raund — o'tib ayirish (12-4=8, 13-6=7, 11-5=6). Ball yo'q.
 const GAME_ROUNDS = [
   { start: 12, sub: 4, ans: 8, opts: [8, 7, 9] },
   { start: 13, sub: 6, ans: 7, opts: [6, 7, 8] },
@@ -4152,7 +4146,7 @@ const ScreenGame = (props) => {
   );
 };
 
-// s8 — TEST final + FactCard: 8 to'la, 10 ga nechta? -> 2 (idx0).
+// s8 — TEST final + FactCard: 13 - 5 = 8 (idx2).
 const Screen8 = (props) => {
   const c = CONTENT.s8;
   const t = useT();
