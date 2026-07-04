@@ -218,4 +218,11 @@ export const grade1 = [
     desc: "Rasm-piktogramma va sodda jadvalni o'qish; nima ko'p/kam; jami nechta.",
     Component: lazy(() => import('../components/grade1/Dars36.jsx')),
   },
+  // — Amaliyot namunalari (10 ta prototip, mexanika oilalari bo'yicha; jsx-question kontrakti) —
+  {
+    slug: 'amaliyot-namunalar',
+    title: '★ Amaliyot namunalari (10 ta mexanika)',
+    desc: 'Sanash, juftlar, taqqoslash, son uyi, o\'nlik, o\'tish, razryad, xato top, masala jadvali, kattaliklar.',
+    Component: lazy(() => import('../components/grade1/practice/PracticePreview.jsx')),
+  },
 ]
