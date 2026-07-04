@@ -25,6 +25,8 @@ import Amaliyot20 from './Amaliyot20.jsx';
 import Amaliyot21 from './Amaliyot21.jsx';
 import Amaliyot22 from './Amaliyot22.jsx';
 import Amaliyot23 from './Amaliyot23.jsx';
+import Amaliyot24 from './Amaliyot24.jsx';
+import Amaliyot25 from './Amaliyot25.jsx';
 
 const ITEMS = [
   { id: '01', label: '1. Sanash', full: 'P1 · Sanash — nechta olma? (Blok 1 · 🟢)', C: Amaliyot01 },
@@ -50,6 +52,8 @@ const ITEMS = [
   { id: '21', label: '21. Ortiqcha', full: 'P18 · ortiqchani top (razogrev · 🟡)', C: Amaliyot21 },
   { id: '22', label: '22. To\'g\'ri/noto\'g\'ri', full: 'P12 · 6 + 2 = 9? (Blok 1 · 🟢)', C: Amaliyot22 },
   { id: '23', label: '23. Yechimni tuz', full: 'P15 · 4 + 2 = 6 fishkalardan (Blok 6 · 🟡)', C: Amaliyot23 },
+  { id: '24', label: '24. Kvest-sandiq', full: 'P19 · sandiqni och: 8 + 6 (kvest · 🔴)', C: Amaliyot24 },
+  { id: '25', label: '25. Diagramma', full: 'P20 · nechta olma? piktogramma (ma\'lumot · 🟡)', C: Amaliyot25 },
 ];
 
 export default function PracticePreview() {
@@ -69,7 +73,7 @@ export default function PracticePreview() {
         display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center',
         padding: '10px 12px', borderBottom: '1px solid #eef0f4', marginBottom: 6,
       }}>
-        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>1-sinf amaliyot namunalari (23 ta · mexanika oilalari)</strong>
+        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>1-sinf amaliyot namunalari (25 ta · mexanika oilalari)</strong>
         {ITEMS.map((item, i) => (
           <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
             {item.label}
