@@ -11,21 +11,25 @@
   z-index: 1000;
   display: inline-flex;
   align-items: center;
-  padding: 8px 14px;
+  gap: 0.35rem;
+  padding: 8px 15px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(6px);
-  border: 1px solid #e6e3dd;
-  color: #0e0e10;
+  background: rgba(255, 253, 249, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line, #e6e3dd);
+  color: var(--ink, #24211c);
   text-decoration: none;
+  font-family: var(--font-ui, system-ui, sans-serif);
   font-size: 0.9rem;
   font-weight: 600;
   box-shadow: 0 2px 10px rgba(58, 53, 48, 0.08);
+  transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .lesson-back:hover {
-  border-color: #ff4f28;
-  color: #ff4f28;
+  border-color: var(--accent, #ff4f28);
+  color: var(--accent, #ff4f28);
+  transform: translateX(-2px);
 }
 
 .lesson-frame {

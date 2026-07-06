@@ -1,7 +1,7 @@
 import { lazy } from 'react'
 
-// 5-sinf darsliklari. Yangi dars: faylni grade5/ ga qo'shib, massivga obyekt qo'shing.
-export const grade5 = [
+// 5-sinf NAZARIY darslari (Dars01–37). Yangi dars: faylni grade5/ ga qo'shib, shu massivga qo'shing.
+export const grade5Nazariy = [
   {
     slug: 'katta-sonlar',
     title: 'Dars 1. Atrofimizdagi katta sonlar',
@@ -224,6 +224,11 @@ export const grade5 = [
     desc: "Quti birlik kublardan: hajm = uzunlik × en × balandlik (V = a × b × c, sm³)",
     Component: lazy(() => import('../components/grade5/Dars37.jsx')),
   },
+]
+
+// 5-sinf AMALIY mashg'ulotlar. Hozircha format-namunalari va praktikum prototiplari;
+// har darsga to'liq amaliyot darsi keyin shu yerga qo'shiladi.
+export const grade5Amaliy = [
   // — Amaliyot namunalari (10 ta format-namuna, bitta sahifa, chip-navigatsiya) —
   {
     slug: 'amaliyot-namunalar',

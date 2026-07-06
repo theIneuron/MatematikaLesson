@@ -1,7 +1,7 @@
 import { lazy } from 'react'
 
-// 1-sinf darslari. Yangi darslar shu yerga qo'shiladi.
-export const grade1 = [
+// 1-sinf NAZARIY darslari (Dars01–36). Yangi dars shu yerga qo'shiladi.
+export const grade1Nazariy = [
   {
     slug: 'dars01-sanash-1-5',
     title: 'Dars 1. Predmetlarni sanash va 1–5 sonlar',
@@ -218,11 +218,15 @@ export const grade1 = [
     desc: "Rasm-piktogramma va sodda jadvalni o'qish; nima ko'p/kam; jami nechta.",
     Component: lazy(() => import('../components/grade1/Dars36.jsx')),
   },
-  // — Amaliyot namunalari (10 ta prototip, mexanika oilalari bo'yicha; jsx-question kontrakti) —
+]
+
+// 1-sinf AMALIY mashg'ulotlar. Hozircha faqat mexanika namunalari galereyasi;
+// har darsga to'liq amaliyot darsi keyin bosqichma-bosqich shu yerga qo'shiladi.
+export const grade1Amaliy = [
   {
     slug: 'amaliyot-namunalar',
-    title: '★ Amaliyot namunalari (10 ta mexanika)',
-    desc: 'Sanash, juftlar, taqqoslash, son uyi, o\'nlik, o\'tish, razryad, xato top, masala jadvali, kattaliklar.',
+    title: '★ Amaliyot namunalari (25 ta mexanika)',
+    desc: 'Sanash, juftlar, taqqoslash, son uyi, o\'nlik, o\'tish, razryad, xato top, masala jadvali, kattaliklar va boshqalar (P1–P26 prototiplari).',
     Component: lazy(() => import('../components/grade1/practice/PracticePreview.jsx')),
   },
 ]

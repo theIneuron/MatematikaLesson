@@ -1,8 +1,23 @@
 :root {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* Dizayn-sistema shriftlari */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-ui: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Iliq qog'oz palitrasi */
+  --paper: #f6f4ef;
+  --card: #fffdf9;
+  --ink: #24211c;
+  --ink-soft: #6a635b;
+  --ink-faint: #a49d93;
+  --line: #e7e1d6;
+  --accent: #ff4f28;
+
+  font-family: var(--font-ui);
   line-height: 1.5;
-  color: #0e0e10;
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 * {
@@ -16,8 +31,12 @@ body {
 }
 
 body {
-  background: #f6f4ef;
   min-height: 100vh;
+  background: var(--paper);
+  background-image:
+    radial-gradient(1100px 620px at 15% -8%, #fff8ef 0%, transparent 60%),
+    radial-gradient(1000px 560px at 92% 4%, #f2f5ff 0%, transparent 55%);
+  background-attachment: fixed;
 }
 
 #root {
