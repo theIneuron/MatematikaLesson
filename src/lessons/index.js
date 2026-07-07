@@ -1,4 +1,5 @@
 import { grade1Nazariy, grade1Amaliy } from './grade1.js'
+import { grade2Nazariy, grade2Amaliy } from './grade2.js'
 import { grade5Nazariy, grade5Amaliy } from './grade5.js'
 
 // Fanlar ro'yxati. Yangi fan qo'shish: shu yerga obyekt qo'shing.
@@ -19,6 +20,7 @@ export const SECTIONS = [
 // Yangi sinf: lessons/gradeN.js yarating, import qiling, shu yerga bo'lim(lar) bilan ulang.
 const REGISTRY = {
   '1-sinf': { matematika: { nazariy: grade1Nazariy, amaliy: grade1Amaliy } },
+  '2-sinf': { matematika: { nazariy: grade2Nazariy, amaliy: grade2Amaliy } },
   '5-sinf': { matematika: { nazariy: grade5Nazariy, amaliy: grade5Amaliy } },
 }
 
