@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import Home from './components/shared/Home.jsx'
 import LessonPage from './components/shared/LessonPage.jsx'
+import Trenajyor from './components/trenajyor/Trenajyor.jsx'
 import { grades, findLesson, findLessonAnySection } from './lessons/index.js'
 import './App.css'
 
@@ -43,6 +44,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home grades={grades} />} />
+      <Route path="/trenajyor" element={<Trenajyor lang="uz" />} />
       <Route path="/:gradeId/:subjectId/:sectionId/:slug" element={<LessonRoute />} />
       <Route path="/dars/:slug" element={<LegacyDarsRedirect />} />
       <Route path="/:gradeId/:subjectId/:slug" element={<LegacySectionlessRedirect />} />

@@ -106,6 +106,18 @@ function Home({ grades }) {
         </main>
       )}
 
+      {/* Alohida bo'lim: Tez hisoblash trenajyori (pilot — 1-sinf) */}
+      {!subjectId && (
+        <Link to="/trenajyor" className="trz-banner">
+          <span className="trz-banner__icon">⚡</span>
+          <span className="trz-banner__text">
+            <span className="trz-banner__title">Trenajyor — Tez hisoblash</span>
+            <span className="trz-banner__meta">1-sinf · 60 soniyada imkon qadar ko'p misol</span>
+          </span>
+          <span className="trz-banner__cta">Boshlash →</span>
+        </Link>
+      )}
+
       {/* 2-bosqich: Sinf */}
       {subjectId && !gradeId && (
         <main className="home__grid home__grid--tight">
