@@ -224,9 +224,33 @@ export const grade1Nazariy = [
 // har darsga to'liq amaliyot darsi keyin bosqichma-bosqich shu yerga qo'shiladi.
 export const grade1Amaliy = [
   {
+    slug: 'dars01-amaliyot',
+    title: 'Dars 1 amaliyoti — sanash 1–5 (10 topshiriq)',
+    desc: 'Ra\'noning tongi bo\'ylab 10 ta interaktiv topshiriq (sanash va tanlash), osondan qiyinga; harakatlanuvchi animatsiyalar.',
+    Component: lazy(() => import('../components/grade1/practice/dars01/Dars01Practice.jsx')),
+  },
+  {
+    slug: 'dars02-amaliyot',
+    title: 'Dars 2 amaliyoti — raqamlar 1–5 (10 topshiriq)',
+    desc: '10 ta interaktiv topshiriq (raqamni tanlash va juftlarni ulash), osondan qiyinga; harakatlanuvchi animatsiyalar.',
+    Component: lazy(() => import('../components/grade1/practice/dars02/Dars02Practice.jsx')),
+  },
+  {
+    slug: 'dars03-amaliyot',
+    title: 'Dars 3 amaliyoti — sonlar 6–10 va 0 (10 topshiriq)',
+    desc: '10 ta interaktiv topshiriq («5 va yana» modeli, nol, drag-ulash, son hosil qilish), osondan qiyinga; harakatlanuvchi animatsiyalar.',
+    Component: lazy(() => import('../components/grade1/practice/dars03/Dars03Practice.jsx')),
+  },
+  {
+    slug: 'dars04-amaliyot',
+    title: 'Dars 4 amaliyoti — taqqoslash 10 gacha (10 topshiriq)',
+    desc: '10 ta interaktiv topshiriq (mantiqiy parad, ko\'p/kam/teng, > < = belgilari, teng qilish, timsohni ovqatlantirish), 6 oson + 4 qiyin.',
+    Component: lazy(() => import('../components/grade1/practice/dars04/Dars04Practice.jsx')),
+  },
+  {
     slug: 'amaliyot-namunalar',
-    title: '★ Amaliyot namunalari (25 ta mexanika)',
-    desc: 'Sanash, juftlar, taqqoslash, son uyi, o\'nlik, o\'tish, razryad, xato top, masala jadvali, kattaliklar va boshqalar (P1–P26 prototiplari).',
+    title: '★ Amaliyot namunalari (25 ta)',
+    desc: 'Sanash, juftlar, taqqoslash, son uyi, o\'nlik, o\'tish, razryad, xato top, masala jadvali, kattaliklar va boshqalar.',
     Component: lazy(() => import('../components/grade1/practice/PracticePreview.jsx')),
   },
 ]
