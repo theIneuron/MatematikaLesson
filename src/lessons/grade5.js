@@ -229,11 +229,78 @@ export const grade5Nazariy = [
 // 5-sinf AMALIY mashg'ulotlar. Hozircha format-namunalari va praktikum prototiplari;
 // har darsga to'liq amaliyot darsi keyin shu yerga qo'shiladi.
 export const grade5Amaliy = [
-  // — Amaliyot namunalari (10 ta format-namuna, bitta sahifa, chip-navigatsiya) —
+  // — Har darsga to'liq amaliyot darsi (10 topshiriq, palitradan yig'ilgan) —
+  {
+    slug: 'dars01-amaliyot',
+    title: 'Dars 1 amaliyoti — atrofimizdagi katta sonlar (10 topshiriq)',
+    desc: "O'qish, razryad, sinf, xona birliklari — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars01/Dars01Practice.jsx')),
+  },
+  {
+    slug: 'dars02-amaliyot',
+    title: 'Dars 2 amaliyoti — taqqoslash va yaxlitlash (10 topshiriq)',
+    desc: "Ko'p xonali sonlarni taqqoslash va yaxlitlash — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars02/Dars02Practice.jsx')),
+  },
+  {
+    slug: 'dars03-amaliyot',
+    title: 'Dars 3 amaliyoti — ustun shaklida qo\'shish va ayirish (10 topshiriq)',
+    desc: "Ustun (столбик) qo'shish/ayirish, xossalar, qulay usul — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars03/Dars03Practice.jsx')),
+  },
+  {
+    slug: 'dars04-amaliyot',
+    title: 'Dars 4 amaliyoti — ustun shaklida ko\'paytirish (10 topshiriq)',
+    desc: "Ustun (столбик) ko'paytirish, xossalar, qulay usul — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars04/Dars04Practice.jsx')),
+  },
+  {
+    slug: 'dars05-amaliyot',
+    title: 'Dars 5 amaliyoti — burchak usulida bo\'lish (10 topshiriq)',
+    desc: "Burchak usulida bo'lish, qoldiqli bo'lish, tekshirish — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars05/Dars05Practice.jsx')),
+  },
+  {
+    slug: 'dars06-amaliyot',
+    title: 'Dars 6 amaliyoti — manfiy sonlar son o\'qida (10 topshiriq)',
+    desc: "Manfiy sonlar, son o'qi, harorat, taqqoslash — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars06/Dars06Practice.jsx')),
+  },
+  {
+    slug: 'dars07-amaliyot',
+    title: 'Dars 7 amaliyoti — butun sonlarni taqqoslash (10 topshiriq)',
+    desc: "Butun sonlarni taqqoslash, qarama-qarshi sonlar, ishora — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars07/Dars07Practice.jsx')),
+  },
+  {
+    slug: 'dars08-amaliyot',
+    title: 'Dars 8 amaliyoti — daraja, kvadrat va kub (10 topshiriq)',
+    desc: "Sonning darajasi, kvadrat, kub, amal tartibi — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars08/Dars08Practice.jsx')),
+  },
+  {
+    slug: 'dars09-amaliyot',
+    title: 'Dars 9 amaliyoti — kasr nima (10 topshiriq)',
+    desc: "Kasr — butunning qismi: surat, maxraj, ulush — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars09/Dars09Practice.jsx')),
+  },
+  {
+    slug: 'dars10-amaliyot',
+    title: 'Dars 10 amaliyoti — kasr son o\'qida (10 topshiriq)',
+    desc: "Kasrni son o'qida nuqta sifatida joylashtirish — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars10/Dars10Practice.jsx')),
+  },
+  {
+    slug: 'dars11-amaliyot',
+    title: 'Dars 11 amaliyoti — kasr, bo\'lish natijasi (10 topshiriq)',
+    desc: "a : b = a/b; bo'linmani kasr bilan ifodalash — osondan qiyinga",
+    Component: lazy(() => import('../components/grade5/practice/dars11/Dars11Practice.jsx')),
+  },
+  // — Amaliyot namunalari (format-namunalar palitrasi, bitta sahifa, chip-navigatsiya) —
   {
     slug: 'amaliyot-namunalar',
-    title: '★ Amaliyot namunalari (7 format)',
-    desc: '10 ta format-namuna: tekstli, foiz, jadval, klassifikatsiya, vizual…',
+    title: '★ Amaliyot namunalari (27 format)',
+    desc: 'Format-namunalar palitrasi: tekstli, foiz, konstruktor, столбик, vizual…',
     Component: lazy(() => import('../components/grade5/practice/PracticePreview.jsx')),
   },
   {

@@ -15,6 +15,20 @@ import Amaliyot10 from './Amaliyot10.jsx';
 import Amaliyot11 from './Amaliyot11.jsx';
 import Amaliyot12 from './Amaliyot12.jsx';
 import Amaliyot13 from './Amaliyot13.jsx';
+import Amaliyot14 from './Amaliyot14.jsx';
+import Amaliyot15 from './Amaliyot15.jsx';
+import Amaliyot16 from './Amaliyot16.jsx';
+import Amaliyot17 from './Amaliyot17.jsx';
+import Amaliyot18 from './Amaliyot18.jsx';
+import Amaliyot19 from './Amaliyot19.jsx';
+import Amaliyot20 from './Amaliyot20.jsx';
+import Amaliyot21 from './Amaliyot21.jsx';
+import Amaliyot22 from './Amaliyot22.jsx';
+import Amaliyot23 from './Amaliyot23.jsx';
+import Amaliyot24 from './Amaliyot24.jsx';
+import Amaliyot25 from './Amaliyot25.jsx';
+import Amaliyot26 from './Amaliyot26.jsx';
+import Amaliyot27 from './Amaliyot27.jsx';
 
 const ITEMS = [
   { id: '01', label: '1. Tekstli', full: 'Amaliyot 1 — tekstli masala (B1)', C: Amaliyot01 },
@@ -30,6 +44,20 @@ const ITEMS = [
   { id: '11', label: '11. Sonlar nuri', full: 'Amaliyot 11 — sonlar nurida nuqta · interaktiv (B1)', C: Amaliyot11 },
   { id: '12', label: '12. Kasr fabrikasi', full: "Amaliyot 12 — 3/4 ni yig'ish · interaktiv (B2)", C: Amaliyot12 },
   { id: '13', label: '13. Xona dizayneri', full: 'Amaliyot 13 — yuza + perimetr · interaktiv (B5)', C: Amaliyot13 },
+  { id: '14', label: '14. Sonlar konstruktori', full: "Amaliyot 14 — razryaddan sonni yig'ish · interaktiv (B1)", C: Amaliyot14 },
+  { id: '15', label: '15. Kasr solishtirish', full: 'Amaliyot 15 — polosa-model + >/=/< (B2)', C: Amaliyot15 },
+  { id: '16', label: '16. Yaxlitlash', full: 'Amaliyot 16 — nurda mingga yaxlitlash · interaktiv (B1)', C: Amaliyot16 },
+  { id: '17', label: '17. Daraja', full: 'Amaliyot 17 — kub 4³ (B1)', C: Amaliyot17 },
+  { id: '18', label: "18. Kasr qo'shish", full: 'Amaliyot 18 — 1/2 + 1/3 har xil maxraj (B3)', C: Amaliyot18 },
+  { id: '19', label: '19. Aralash son', full: "Amaliyot 19 — 7/4 → 1 3/4 o'tkazish (B3)", C: Amaliyot19 },
+  { id: '20', label: "20. O'nli solishtirish", full: 'Amaliyot 20 — 0,45 va 0,5 (B4)', C: Amaliyot20 },
+  { id: '21', label: "21. Столбик +", full: "Amaliyot 21 — ustunda qo'shish (perenos) · interaktiv (B1)", C: Amaliyot21 },
+  { id: '22', label: '22. Foiz-setka', full: "Amaliyot 22 — 35% ni bo'yash · interaktiv (B4)", C: Amaliyot22 },
+  { id: '23', label: '23. Uchburchak yuzasi', full: 'Amaliyot 23 — ½·asos·balandlik (B5)', C: Amaliyot23 },
+  { id: '24', label: '24. Hajm — kubiklar', full: 'Amaliyot 24 — 3×2×4 · interaktiv (B5)', C: Amaliyot24 },
+  { id: '25', label: '25. Столбик −', full: 'Amaliyot 25 — ustunda ayirish (zaём) · interaktiv (B1)', C: Amaliyot25 },
+  { id: '26', label: '26. Столбик ×', full: "Amaliyot 26 — ustunda ko'paytirish · interaktiv (B1)", C: Amaliyot26 },
+  { id: '27', label: "27. Столбик ÷", full: "Amaliyot 27 — burchak usulida bo'lish · interaktiv (B1)", C: Amaliyot27 },
 ];
 
 export default function PracticePreview() {
@@ -49,7 +77,7 @@ export default function PracticePreview() {
         display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center',
         padding: '10px 12px', borderBottom: '1px solid #eef0f4', marginBottom: 6,
       }}>
-        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>Amaliyot namunalari (13 ta · 11–13 interaktiv)</strong>
+        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>Amaliyot namunalari (27 ta format-namuna)</strong>
         {ITEMS.map((item, i) => (
           <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
             {item.label}
