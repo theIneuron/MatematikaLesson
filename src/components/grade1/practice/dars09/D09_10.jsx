@@ -273,12 +273,12 @@ export default function D09_10(props) {
               const cx = xAt(i);
               return (
                 <g key={i} className="pq-pad" style={{ animationDelay: `${i * 0.06}s` }}>
-                  <ellipse cx={cx} cy={PAD_CY + 4} rx="27" ry="8" fill="#3f8a39" opacity=".35" />
-                  <ellipse cx={cx} cy={PAD_CY} rx="26" ry="15" fill="#5fb457" stroke="#3c7d36" strokeWidth="2" />
-                  <path d={`M ${cx} ${PAD_CY - 15} L ${cx - 6} ${PAD_CY - 4} L ${cx + 6} ${PAD_CY - 4} Z`} fill="#cfe9fb" opacity=".45" />
-                  <path d={`M ${cx} ${PAD_CY} L ${cx - 20} ${PAD_CY - 5} M ${cx} ${PAD_CY} L ${cx + 20} ${PAD_CY - 5} M ${cx} ${PAD_CY} L ${cx - 21} ${PAD_CY + 5} M ${cx} ${PAD_CY} L ${cx + 21} ${PAD_CY + 5}`} stroke="#4a9640" strokeWidth="1.2" opacity=".55" />
-                  <ellipse cx={cx} cy={PAD_CY - 1} rx="14" ry="11" fill="#7d909b" stroke="#5a6b74" strokeWidth="1.5" />
-                  <ellipse cx={cx} cy={PAD_CY - 3} rx="10" ry="5" fill="#96a9b3" opacity=".7" />
+                  <ellipse cx={cx} cy={PAD_CY + 4} rx="27" ry="8" fill="#4a5560" opacity=".35" />
+                  <ellipse cx={cx} cy={PAD_CY} rx="26" ry="15" fill="#8d99a3" stroke="#5f6b75" strokeWidth="2" />
+                  <ellipse cx={cx - 5} cy={PAD_CY - 4} rx="15" ry="6" fill="#b6c0c9" opacity=".7" />
+                  <path d={`M ${cx - 12} ${PAD_CY + 3} q 6 3 12 0 M ${cx + 4} ${PAD_CY - 2} q 4 2 8 1`} stroke="#6f7b85" strokeWidth="1.1" fill="none" opacity=".5" strokeLinecap="round" />
+                  <ellipse cx={cx} cy={PAD_CY - 1} rx="13" ry="9.5" fill="#7d909b" stroke="#5a6b74" strokeWidth="1.4" />
+                  <ellipse cx={cx} cy={PAD_CY - 3} rx="9" ry="4.5" fill="#a2b2bc" opacity=".7" />
                   <text className={'pq-padnum' + (ok && i === TARGET ? ' glow' : '')} x={cx} y={PAD_CY + 6} textAnchor="middle" fontSize="22" fill="#fff">{i}</text>
                 </g>
               );

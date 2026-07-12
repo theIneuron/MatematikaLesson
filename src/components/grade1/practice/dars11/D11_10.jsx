@@ -3,10 +3,10 @@
 // keyin jami nechta ekanini tanlaydi. Xulosa: o'rin almashsa, yig'indi o'zgarmaydi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-const RED = 3, BLUE = 2, TOTAL = RED + BLUE; // 5
+const RED = 4, BLUE = 3, TOTAL = RED + BLUE; // 7
 const RC = { main: '#d9534b', dark: '#b23b30', roof: '#e88078', win: '#fbe1de' };
 const BC = { main: '#4f8fc4', dark: '#33648f', roof: '#7fb0dc', win: '#dcecf8' };
-const DATA = { a: RED, b: BLUE, target: TOTAL, options: [4, 5, 6], ptype: 'NEW', level: '🔴', tag: 'perform_swap' };
+const DATA = { a: RED, b: BLUE, target: TOTAL, options: [6, 7, 8], ptype: 'NEW', level: '🔴', tag: 'perform_swap' };
 
 // Vagon-guruh geometriyasi (px) — guruhlarni transform bilan joy almashtirish uchun.
 const WW = 52, GAP = 4, GGAP = 12;
@@ -17,17 +17,17 @@ const groupsW = redW + GGAP + blueW;        // 284
 const T = {
   uz: {
     eyebrow: "Poyezd bekati · Almashtir!", title: "Vagonlarni almashtir",
-    setup: "Poyezdda uchta qizil va ikkita ko'k vagon. Almashtir tugmasini bosib, ularning o'rnini almashtiring!",
+    setup: "Poyezdda to'rtta qizil va uchta ko'k vagon. Almashtir tugmasini bosib, ularning o'rnini almashtiring!",
     ask: "Vagonlarni almashtiring, keyin jami nechta vagon qolganini tanlang.",
-    correct: "Barakalla! O'rin almashdi, lekin jami baribir besh! Qo'shiluvchilar o'rin almashsa, yig'indi o'zgarmaydi.",
+    correct: "Barakalla! O'rin almashdi, lekin jami baribir yetti! Qo'shiluvchilar o'rin almashsa, yig'indi o'zgarmaydi.",
     hint: "Vagonlarni sanang: joyi o'zgardi, lekin soni o'zgarmadi. Jami nechta?",
     btnSwap: "Almashtir", swapHint: "Avval almashtiring",
   },
   ru: {
     eyebrow: "Вокзал · Поменяй!", title: "Поменяй вагоны местами",
-    setup: "В поезде три красных и два синих вагона. Нажми кнопку «Поменять» и поменяй их местами!",
+    setup: "В поезде четыре красных и три синих вагона. Нажми кнопку «Поменять» и поменяй их местами!",
     ask: "Поменяй вагоны местами, потом выбери, сколько всего вагонов осталось.",
-    correct: "Молодец! Места поменялись, а всего всё равно пять! От перестановки слагаемых сумма не меняется.",
+    correct: "Молодец! Места поменялись, а всего всё равно семь! От перестановки слагаемых сумма не меняется.",
     hint: "Посчитай вагоны: место изменилось, а количество нет. Сколько всего?",
     btnSwap: "Поменять", swapHint: "Сначала поменяй",
   },

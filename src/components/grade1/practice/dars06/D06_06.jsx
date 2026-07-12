@@ -5,24 +5,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const ROWS = [
-  { left: 5, ans: 3, opts: [2, 3, 4] },
-  { left: 6, ans: 2, opts: [1, 2, 3] },
-  { left: 4, ans: 4, opts: [3, 4, 5] },
+  { left: 5, ans: 3, opts: [1, 2, 3, 4] },
+  { left: 6, ans: 2, opts: [0, 1, 2, 3] },
+  { left: 4, ans: 4, opts: [2, 3, 4, 5] },
+  { left: 7, ans: 1, opts: [0, 1, 2, 3] },
 ];
 const DATA = { ptype: 'P6', level: '🔴', tag: 'house_chain' };
 const T = {
   uz: {
     eyebrow: 'Avtobus sayohati · Bekat', title: 'Qavatlar zanjiri',
-    setup: 'Katta bekat uychasining uch qavati bor — har qavatdagi ikki son birga SAKKIZNI beradi.',
+    setup: 'Katta bekat uychasining to\'rt qavati bor — har qavatdagi ikki son birga SAKKIZNI beradi.',
     ask: 'Har qavatdagi bo\'sh xonachaga to\'g\'ri sonni tanlang.',
-    correct: 'Barakalla! Uchala qavat to\'g\'ri — sakkiz uyi mustahkam!',
+    correct: 'Barakalla! To\'rtala qavat to\'g\'ri — sakkiz uyi mustahkam!',
     hint: 'Qizil qavatlarga qarang: tomda sakkiz — qavatdagi ikki son birga sakkiz bo\'lishi shart.',
   },
   ru: {
     eyebrow: 'Путешествие на автобусе · Остановка', title: 'Цепочка этажей',
-    setup: 'У большого домика-остановки три этажа — два числа на каждом этаже вместе дают ВОСЕМЬ.',
+    setup: 'У большого домика-остановки четыре этажа — два числа на каждом этаже вместе дают ВОСЕМЬ.',
     ask: 'Выбери верное число для пустого окошка на каждом этаже.',
-    correct: 'Молодец! Все три этажа верны — дом восьмёрки стоит крепко!',
+    correct: 'Молодец! Все четыре этажа верны — дом восьмёрки стоит крепко!',
     hint: 'Посмотри на красные этажи: на крыше восемь — два числа этажа вместе должны дать восемь.',
   },
 };
@@ -159,14 +160,16 @@ export default function D06_06(props) {
         .pq0606 .pq-lamp{position:relative;line-height:0;animation:pqBob 2.4s ease-in-out infinite;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));}
         .pq0606 .pq-lamp.win{animation:pqBob 2.4s ease-in-out infinite,pqCele .55s ease;}
         .pq0606 .pq-cnt{position:absolute;top:-7px;right:-7px;min-width:17px;height:17px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:3;}
-        .pq0606 .pq-rows{position:relative;display:flex;flex-direction:column;gap:8px;z-index:2;}
-        .pq0606 .pq-rw{display:flex;gap:8px;align-items:center;padding:7px 9px;border-radius:14px;border:2.5px solid #dbe2ea;background:#fff;transition:.15s;animation:pqFloat 4s ease-in-out infinite;}
+        .pq0606 .pq-rows{position:relative;display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;z-index:2;}
+        .pq0606 .pq-rw{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;align-content:center;padding:7px 9px;border-radius:14px;border:2.5px solid #dbe2ea;background:#fff;transition:.15s;animation:pqFloat 4s ease-in-out infinite;}
         .pq0606 .pq-rw:nth-child(1){animation-delay:0s;}
         .pq0606 .pq-rw:nth-child(2){animation-delay:-1.4s;}
         .pq0606 .pq-rw:nth-child(3){animation-delay:-2.7s;}
+        .pq0606 .pq-rw:nth-child(4){animation-delay:-3.8s;}
         .pq0606 .pq-rw:nth-child(1) .pq-slot{animation-delay:-.3s;}
         .pq0606 .pq-rw:nth-child(2) .pq-slot{animation-delay:-1.1s;}
         .pq0606 .pq-rw:nth-child(3) .pq-slot{animation-delay:-1.9s;}
+        .pq0606 .pq-rw:nth-child(4) .pq-slot{animation-delay:-2.5s;}
         .pq0606 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq0606 .pq-rw.good.win{animation:pqFloat 4s ease-in-out infinite,pqCele .5s ease;}
         .pq0606 .pq-rw.bad{border-color:#e08a8a;background:#fdf1f1;animation:pqFloat 4s ease-in-out infinite,pqShake .35s ease;}
@@ -176,7 +179,7 @@ export default function D06_06(props) {
         .pq0606 .pq-slot{width:44px;height:48px;border-radius:10px;border:2.5px dashed #c3cad6;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#aab3c2;font-variant-numeric:tabular-nums;animation:pqBreath 2.4s ease-in-out infinite;}
         .pq0606 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq0606 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
-        .pq0606 .pq-sgs{display:flex;gap:5px;margin-left:4px;}
+        .pq0606 .pq-sgs{display:flex;gap:5px;margin-left:4px;flex-basis:100%;justify-content:center;}
         .pq0606 .pq-sg{width:38px;height:38px;border-radius:10px;border:2.5px solid #d6dae3;background:#fff;font-size:17px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0606 .pq-sg:hover:not(:disabled){border-color:#e3b878;transform:translateY(-2px);}
         .pq0606 .pq-sg:active:not(:disabled){transform:scale(.92);}

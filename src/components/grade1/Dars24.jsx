@@ -43,12 +43,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -224,7 +224,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -428,7 +428,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -995,16 +995,16 @@ const CONTENT = {
     opt3: { ru: '23', uz: '23' },
     correct_text: { ru: 'Правильно. Два десятка и три — пять десятков, пятьдесят.', uz: "To'g'ri. Ikki o'nlik va uch — besh o'nlik, ellik." },
     wrong_1: {
-      ru: 'Это десятки, а не единицы. Два десятка и три десятка — это пять десятков, пятьдесят.',
-      uz: "Bular o'nlik, birlik emas. Ikki o'nlik va uch o'nlik — bu besh o'nlik, ellik."
+      ru: 'Это десятки, а не единицы. Сосчитай десятки: два десятка и три десятка.',
+      uz: "Bular o'nlik, birlik emas. O'nliklarni sanang: ikki o'nlik va uch o'nlik."
     },
     wrong_2: {
-      ru: 'Корзин всего пять. Два и три — это пять десятков, пятьдесят.',
-      uz: "Savat hammasi besh. Ikki va uch — bu besh o'nlik, ellik."
+      ru: 'Корзин всего пять, но это десятки. Сосчитай десятки: два и три.',
+      uz: "Savat hammasi besh, lekin bular o'nlik. O'nliklarni sanang: ikki va uch."
     },
     wrong_3: {
-      ru: 'Ты склеил цифры два и три. Это десятки: два десятка и три десятка — пять десятков, пятьдесят.',
-      uz: "Ikki va uch raqamlarini yopishtirib qo'ydingiz. Bular o'nlik: ikki o'nlik va uch o'nlik — besh o'nlik, ellik."
+      ru: 'Ты склеил цифры два и три. Их не приписывают — сложи два десятка и три десятка.',
+      uz: "Ikki va uch raqamlarini yopishtirib qo'ydingiz. Yopishtirilmaydi — ikki o'nlik va uch o'nlikni qo'shing."
     },
     wrong_default: {
       ru: 'Сосчитай десятки: два и три.',
@@ -1058,16 +1058,16 @@ const CONTENT = {
     opt3: { ru: '60', uz: '60' },
     correct_text: { ru: 'Правильно. Восемь десятков без трёх — пять десятков, пятьдесят.', uz: "To'g'ri. Sakkiz o'nlikdan uch — besh o'nlik, ellik." },
     wrong_1: {
-      ru: 'Это десятки. Восемь десятков без трёх — это пять десятков, пятьдесят.',
-      uz: "Bular o'nlik. Sakkiz o'nlikdan uch — bu besh o'nlik, ellik."
+      ru: 'Это десятки. Сосчитай десятки: из восьми убери три.',
+      uz: "Bular o'nlik. O'nliklarni sanang: sakkizdan uchni oling."
     },
     wrong_2: {
-      ru: 'При вычитании число становится меньше, а не больше. Восемь десятков без трёх — пять десятков, пятьдесят.',
-      uz: "Ayirganda son kichrayadi, kattalashmaydi. Sakkiz o'nlikdan uch olsak — besh o'nlik, ellik."
+      ru: 'При вычитании число становится меньше, а не больше. Сосчитай десятки: из восьми убери три.',
+      uz: "Ayirganda son kichrayadi, kattalashmaydi. O'nliklarni sanang: sakkizdan uchni oling."
     },
     wrong_3: {
-      ru: 'Из восьми убрать три — останется пять. Пять десятков это пятьдесят.',
-      uz: "Sakkizdan uch olsak — besh qoladi. Besh o'nlik — bu ellik."
+      ru: 'Из восьми десятков убери три и сосчитай, сколько осталось.',
+      uz: "Sakkiz o'nlikdan uchni oling va nechta qolganini sanang."
     },
     wrong_default: {
       ru: 'Сосчитай десятки: из восьми убери три.',
@@ -1104,16 +1104,16 @@ const CONTENT = {
     opt3: { ru: '40', uz: '40' },
     correct_text: { ru: 'Правильно. Семь десятков без четырёх — три десятка, тридцать.', uz: "To'g'ri. Yetti o'nlikdan to'rt — uch o'nlik, o'ttiz." },
     wrong_1: {
-      ru: 'Это десятки. Семь десятков без четырёх — это три десятка, тридцать.',
-      uz: "Bular o'nlik. Yetti o'nlikdan to'rt — bu uch o'nlik, o'ttiz."
+      ru: 'Это десятки. Сосчитай десятки: из семи убери четыре.',
+      uz: "Bular o'nlik. O'nliklarni sanang: yettidan to'rtni oling."
     },
     wrong_2: {
-      ru: 'Убрано на десяток больше. Семь десятков без четырёх — три десятка, тридцать.',
-      uz: "Bir o'nlik ortiq olindi. Yetti o'nlikdan to'rt olsak — uch o'nlik qoladi, o'ttiz."
+      ru: 'Убрано на десяток больше. Сосчитай десятки: из семи убери ровно четыре.',
+      uz: "Bir o'nlik ortiq olindi. O'nliklarni sanang: yettidan roppa-rosa to'rtni oling."
     },
     wrong_3: {
-      ru: 'Из семи убрать четыре — останется три. Три десятка это тридцать.',
-      uz: "Yettidan to'rt olsak — uch qoladi. Uch o'nlik — bu o'ttiz."
+      ru: 'Из семи десятков убери четыре и сосчитай, сколько осталось.',
+      uz: "Yetti o'nlikdan to'rtni oling va nechta qolganini sanang."
     },
     wrong_default: {
       ru: 'Сосчитай десятки: из семи убери четыре.',
@@ -1168,16 +1168,16 @@ const CONTENT = {
     opt3: { ru: '80', uz: '80' },
     correct_text: { ru: 'Правильно. Три десятка и шесть — девять десятков, девяносто.', uz: "To'g'ri. Uch o'nlik va olti — to'qqiz o'nlik, to'qson." },
     wrong_1: {
-      ru: 'Это десятки. Три десятка и шесть десятков — это девять десятков, девяносто.',
-      uz: "Bular o'nlik. Uch o'nlik va olti o'nlik — bu to'qqiz o'nlik, to'qson."
+      ru: 'Это десятки. Сосчитай десятки: три десятка и шесть десятков.',
+      uz: "Bular o'nlik. O'nliklarni sanang: uch o'nlik va olti o'nlik."
     },
     wrong_2: {
-      ru: 'Десятки складывают, а не приписывают. Три и шесть — это девять десятков, девяносто.',
-      uz: "O'nliklar qo'shiladi, yopishtirilmaydi. Uch va olti — bu to'qqiz o'nlik, to'qson."
+      ru: 'Десятки складывают, а не приписывают. Сложи три десятка и шесть десятков.',
+      uz: "O'nliklar qo'shiladi, yopishtirilmaydi. Uch o'nlik va olti o'nlikni qo'shing."
     },
     wrong_3: {
-      ru: 'Три и шесть — это девять, не восемь. Девяносто.',
-      uz: "Uch va olti — bu to'qqiz, sakkiz emas. To'qson."
+      ru: 'Пересчитай десятки: три и шесть — это не восемь.',
+      uz: "O'nliklarni qayta sanang: uch va olti — sakkiz emas."
     },
     wrong_default: {
       ru: 'Сосчитай десятки: три и шесть.',
@@ -3779,7 +3779,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -3809,8 +3810,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4263,7 +4264,7 @@ export default function RoundTensLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

@@ -208,6 +208,12 @@ export default function D11_06(props) {
         .pq1106 .pq-cloud{position:absolute;width:46px;height:15px;background:#fff;border-radius:999px;opacity:.9;box-shadow:14px 5px 0 -4px #fff,-13px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:1;}
         .pq1106 .pq-cloud.c1{top:16px;left:-70px;animation-duration:34s;}
         .pq1106 .pq-cloud.c2{top:40px;left:-70px;width:34px;height:11px;opacity:.7;animation-duration:46s;animation-delay:-20s;}
+        .pq1106 .pq-bird{position:absolute;z-index:0;color:#7c869a;opacity:.68;line-height:0;animation:pq1106Bird linear infinite;}
+        .pq1106 .pq-bird svg{display:block;}
+        .pq1106 .pq-bird.bd1{top:28px;left:-24px;animation-duration:26s;}
+        .pq1106 .pq-bird.bd2{top:50px;left:-24px;animation-duration:35s;animation-delay:-14s;}
+        .pq1106 .pq-bird.bd2 svg{width:12px;height:6px;}
+        @keyframes pq1106Bird{from{transform:translateX(0);}to{transform:translateX(420px);}}
         .pq1106 .pq-wheel{transform-box:fill-box;transform-origin:center;animation:pqSpin 2.4s linear infinite;}
         .pq1106 .pq-consist{transform-box:fill-box;transform-origin:center;animation:pqTrainBob 3.4s ease-in-out infinite;}
         .pq1106 .pq-steam{opacity:0;animation:pqSteam 3.6s ease-in-out infinite;}
@@ -247,6 +253,8 @@ export default function D11_06(props) {
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-train">
+        <span className="pq-bird bd1" aria-hidden="true"><svg viewBox="0 0 24 10" width="14" height="6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M1 8 Q6 1 11 8 Q16 1 21 8" /></svg></span>
+        <span className="pq-bird bd2" aria-hidden="true"><svg viewBox="0 0 24 10" width="14" height="6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M1 8 Q6 1 11 8 Q16 1 21 8" /></svg></span>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <TrainScene />

@@ -41,6 +41,29 @@ function speechLang(lang) {
   return lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB' : 'uz-UZ';
 }
 
+// ---- OVOZ JINSI: grade1 = AYOL ovoz (canon, g=f) --------------------------
+// Production'da ovoz jinsini platforma lesson-runner beradi (grade1 lesson_id
+// uchun g=f). Bu yerda (preview, Web Speech) shu pin'ni taqlid qilamiz: tilga
+// mos AYOL ovozni tanlaymiz. Web Speech'da uz ayol ovozi ko'pincha yo'q —
+// unda til-mos birinchi ovozga qaytamiz (preview cheklovi).
+// MARKER: yangi kontraktda har audio [O'zbekcha tallaffuz]/[Русское произношение]
+// bilan boshlanishi kerak — buni jo'natishda platforma runtime qo'shadi (kontent
+// tegilmaydi). Web Speech marker matnini o'qib yubormasligi uchun shim uni
+// stripAudioTags bilan olib tashlaydi; tilni detectLang o'zi aniqlaydi.
+const FEMALE_RE = /(female|ayol|жен|Milena|Alena|Elena|Katya|Tatyana|Maria|Mariya|Zira|Aylin|Yulia|Google\s?(uz|ru|русский)|Microsoft\s?\w+\s?-\s?(female)?)/i;
+function pickVoice(langCode) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+  const voices = window.speechSynthesis.getVoices() || [];
+  const base = String(langCode).slice(0, 2).toLowerCase();
+  const sameLang = voices.filter((v) => (v.lang || '').toLowerCase().startsWith(base));
+  return sameLang.find((v) => FEMALE_RE.test(v.name)) || sameLang[0] || null;
+}
+// Ovozlar asinxron yuklanadi — ro'yxat tayyor bo'lishini qo'zg'atamiz.
+if (typeof window !== 'undefined' && window.speechSynthesis) {
+  try { window.speechSynthesis.getVoices(); } catch (e) {}
+  window.speechSynthesis.onvoiceschanged = () => {};
+}
+
 // ============================================================
 // AUDIO ENGINE (preview: Web Speech). Dars01 engine bilan bir xil semantika.
 // ============================================================
@@ -82,6 +105,8 @@ class AudioEngine {
     if (!clean) { setTimeout(() => this.handleSegmentEnd(segment), 0); return; }
     const u = new SpeechSynthesisUtterance(clean);
     u.lang = speechLang(segment.lang || detectLang(segment.text));
+    const fv = pickVoice(u.lang);            // grade1 = ayol ovoz (canon g=f)
+    if (fv) u.voice = fv;
     u.rate = 0.95; u.pitch = 1.0;
     u.onstart = () => {
       this._pending = null;

@@ -44,12 +44,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -225,7 +225,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -429,7 +429,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -1015,16 +1015,16 @@ const CONTENT = {
     opt3: { ru: '45', uz: '45' },
     correct_text: { ru: 'Правильно. После тридцати по десять будет сорок.', uz: "To'g'ri. O'ttizdan keyin o'nlab qirq bo'ladi." },
     wrong_1: {
-      ru: 'Здесь шаг десять, а не пять. После тридцати прибавляем десять, получается сорок.',
-      uz: "Bu yerda qadam o'n, besh emas. O'ttizdan keyin o'n qo'shamiz, qirq bo'ladi."
+      ru: 'Здесь шаг десять, а не пять. После тридцати прибавляем десять.',
+      uz: "Bu yerda qadam o'n, besh emas. O'ttizdan keyin o'n qo'shamiz."
     },
     wrong_2: {
-      ru: 'Мы считаем по десять, а не по одному. После тридцати сразу сорок.',
-      uz: "O'nlab sanaymiz, bittalab emas. O'ttizdan keyin darrov qirq."
+      ru: 'Мы считаем по десять, а не по одному. После тридцати прибавь десять.',
+      uz: "O'nlab sanaymiz, bittalab emas. O'ttizga o'n qo'shing."
     },
     wrong_3: {
-      ru: 'Сорок пять стоит между сорока и пятьюдесятью. Сразу после тридцати нужно сорок.',
-      uz: "Qirq besh qirq bilan ellik orasida turadi. O'ttizdan keyin darrov qirq kerak."
+      ru: 'Сорок пять — это слишком много. Считай по десять: к тридцати прибавь десять.',
+      uz: "Qirq besh — bu ko'p. O'nlab sanang: o'ttizga o'n qo'shing."
     },
     wrong_default: {
       ru: 'Считай по десять: после тридцати прибавь десять.',
@@ -1079,16 +1079,16 @@ const CONTENT = {
     opt3: { ru: '40', uz: '40' },
     correct_text: { ru: 'Правильно. После тридцати назад по десять будет двадцать.', uz: "To'g'ri. O'ttizdan keyin orqaga o'nlab yigirma bo'ladi." },
     wrong_1: {
-      ru: 'Шаг десять, а не пять. После тридцати назад будет двадцать.',
-      uz: "Qadam o'n, besh emas. O'ttizdan keyin orqaga yigirma bo'ladi."
+      ru: 'Шаг десять, а не пять. От тридцати назад убери десять.',
+      uz: "Qadam o'n, besh emas. O'ttizdan orqaga o'n kamaytiring."
     },
     wrong_2: {
-      ru: 'Назад тоже считаем по десять, а не по одному. После тридцати сразу двадцать.',
-      uz: "Orqaga ham o'nlab sanaymiz, bittalab emas. O'ttizdan keyin darrov yigirma."
+      ru: 'Назад тоже считаем по десять, а не по одному. От тридцати убери десять.',
+      uz: "Orqaga ham o'nlab sanaymiz, bittalab emas. O'ttizdan o'n kamaytiring."
     },
     wrong_3: {
-      ru: 'Ряд идёт назад, числа уменьшаются. После тридцати число меньше — двадцать.',
-      uz: "Qator orqaga boradi, sonlar kamayadi. O'ttizdan keyin son kichikroq — yigirma."
+      ru: 'Ряд идёт назад, числа уменьшаются. После тридцати число меньше.',
+      uz: "Qator orqaga boradi, sonlar kamayadi. O'ttizdan keyin son kichikroq."
     },
     wrong_default: {
       ru: 'Считай назад по десять: от тридцати убери десять.',
@@ -1110,16 +1110,16 @@ const CONTENT = {
     opt3: { ru: '40', uz: '40' },
     correct_text: { ru: 'Правильно. После двадцати пяти по пять будет тридцать.', uz: "To'g'ri. Yigirma beshdan keyin beshlab o'ttiz bo'ladi." },
     wrong_1: {
-      ru: 'Мы считаем по пять, а не по одному. После двадцати пяти будет тридцать.',
-      uz: "Beshlab sanaymiz, bittalab emas. Yigirma beshdan keyin o'ttiz bo'ladi."
+      ru: 'Мы считаем по пять, а не по одному. К двадцати пяти прибавь пять.',
+      uz: "Beshlab sanaymiz, bittalab emas. Yigirma beshga besh qo'shing."
     },
     wrong_2: {
-      ru: 'Тридцать пять идёт после тридцати. Сначала нужно тридцать.',
-      uz: "O'ttiz besh o'ttizdan keyin keladi. Avval o'ttiz kerak."
+      ru: 'Тридцать пять — это слишком много. К двадцати пяти прибавь пять.',
+      uz: "O'ttiz besh — bu ko'p. Yigirma beshga besh qo'shing."
     },
     wrong_3: {
-      ru: 'По пять после двадцати пяти ровно тридцать, не сорок.',
-      uz: "Beshlab yigirma beshdan keyin aynan o'ttiz, qirq emas."
+      ru: 'Сорок — это слишком много. Считай по пять: к двадцати пяти прибавь пять.',
+      uz: "Qirq — bu ko'p. Beshlab sanang: yigirma beshga besh qo'shing."
     },
     wrong_default: {
       ru: 'Считай по пять: к двадцати пяти прибавь пять.',
@@ -1174,16 +1174,16 @@ const CONTENT = {
     opt3: { ru: '85', uz: '85' },
     correct_text: { ru: 'Правильно. После семидесяти по десять будет восемьдесят.', uz: "To'g'ri. Yetmishdan keyin o'nlab sakson bo'ladi." },
     wrong_1: {
-      ru: 'Шаг десять. После семидесяти будет восемьдесят, а не семьдесят пять.',
-      uz: "Qadam o'n. Yetmishdan keyin sakson bo'ladi, yetmish besh emas."
+      ru: 'Шаг десять, а не пять. К семидесяти прибавь десять.',
+      uz: "Qadam o'n, besh emas. Yetmishga o'n qo'shing."
     },
     wrong_2: {
-      ru: 'Мы считаем по десять, а не по одному. После семидесяти сразу восемьдесят.',
-      uz: "O'nlab sanaymiz, bittalab emas. Yetmishdan keyin darrov sakson."
+      ru: 'Мы считаем по десять, а не по одному. К семидесяти прибавь десять.',
+      uz: "O'nlab sanaymiz, bittalab emas. Yetmishga o'n qo'shing."
     },
     wrong_3: {
-      ru: 'Восемьдесят пять стоит между восемьюдесятью и девяноста. Нужно восемьдесят.',
-      uz: "Sakson besh sakson bilan to'qson orasida turadi. Sakson kerak."
+      ru: 'Восемьдесят пять — это слишком много. Считай по десять: к семидесяти прибавь десять.',
+      uz: "Sakson besh — bu ko'p. O'nlab sanang: yetmishga o'n qo'shing."
     },
     wrong_default: {
       ru: 'Считай по десять: после семидесяти прибавь десять.',
@@ -4184,7 +4184,7 @@ export default function NumberSequenceLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

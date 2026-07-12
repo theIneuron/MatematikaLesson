@@ -122,6 +122,8 @@ const Windows = () => (
 const ROLLERS = [40, 108, 176, 244, 312];
 // Qadam-sanoq badge markazlari — 4→7 uch qadamning o'rtalari (izning ustida sanaladi).
 const STEP_MID = [0, 1, 2].map((i) => (XS[DATA.start + i] + XS[DATA.start + i + 1]) / 2);
+// G'alaba badge'lari joylashadigan kataklar (qadam tushadigan: start+1 … start+jump)
+const STEP_CELLS = Array.from({ length: DATA.jump }, (_, i) => DATA.start + i + 1);
 
 export default function D10_01(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
@@ -230,11 +232,20 @@ export default function D10_01(props) {
         @keyframes pqAns{0%{opacity:0;transform:translateX(-50%) scale(.3);}100%{opacity:1;transform:translateX(-50%) scale(1);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        /* Ambient: sekin suzuvchi mayda uchqunlar (fon dekori) */
+        .pq1001 .pq-mote{position:absolute;z-index:0;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff,rgba(242,177,52,.55) 55%,rgba(242,177,52,0) 72%);pointer-events:none;opacity:0;animation:pq1001Mote 9s ease-in-out infinite;}
+        .pq1001 .pq-mote.m2{width:4px;height:4px;animation-duration:11.5s;animation-delay:-4s;}
+        .pq1001 .pq-mote.m3{width:6px;height:6px;animation-duration:13s;animation-delay:-7.5s;}
+        @keyframes pq1001Mote{0%{opacity:0;transform:translate(0,8px) scale(.7);}22%{opacity:.55;}50%{opacity:.6;transform:translate(5px,-8px) scale(1);}80%{opacity:.35;}100%{opacity:0;transform:translate(0,-20px) scale(.7);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className={'pq-scene' + (still ? ' still' : '') + (rolling ? ' rolling' : '')}>
+        {/* Ambient uchqunlar (fon, dekor) */}
+        <span className="pq-mote m1" aria-hidden="true" style={{ left: 150, top: 34 }} />
+        <span className="pq-mote m2" aria-hidden="true" style={{ left: 206, top: 22 }} />
+        <span className="pq-mote m3" aria-hidden="true" style={{ left: 250, top: 52 }} />
         {/* Fabrika foni: oynalar, tishli-g'ildiraklar, quvur+bug', chiroq-panel */}
         <span className="pq-winw"><Windows /></span>
         <span className="pq-cogw g1"><Cog teeth={10} size={56} fill="#8794a8" line="#4a5568" /></span>

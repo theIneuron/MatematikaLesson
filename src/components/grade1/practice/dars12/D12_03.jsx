@@ -31,7 +31,6 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 // open=false → shut (jag'lar yopiladi). chomp=true → g'alabada qisilib-ochiladi.
 // pq-ctail dum tebranadi, pq-cthroat tomoq puls, pq-cblink ko'z pirpiratadi.
 const Croc = ({ open, chomp }) => {
-  const jaw = !open ? 'pq-cjaws shut' : chomp ? 'pq-cjaws chomping' : 'pq-cjaws';
   return (
     <svg viewBox="0 0 132 72" width="96" height="52" aria-hidden="true" style={{ display: 'block' }}>
       {/* dum — kuchli egilgan, sekin tebranadi */}
@@ -64,18 +63,31 @@ const Croc = ({ open, chomp }) => {
       <path d="M61.5 62 l.5 3.4 M64.3 62.2 l.3 2.9" stroke="#256835" strokeWidth="1.1" strokeLinecap="round" />
       {/* bosh suyagi */}
       <path d="M58 34 Q65 29.5 71 33 L74 42 L72 50 Q65 52.5 58 50.5 Z" fill="#3f9950" />
-      {/* og'iz ichi — och-pushti */}
-      <path d="M68 42 L108 23 L108 55 Z" fill="#f2a9b4" />
-      {/* pastki jag' — zigzag tishlar yuqoriga */}
-      <path d="M66 42 L116 55 Q125 57.5 123 62 Q120.5 65.5 111 62.5 L64 51.5 Z" fill="#b8d488" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M72 45.5 L78.5 40 L82 48 L88.5 42.5 L92 50.5 L98.5 45 L102 53 L108.5 47.5 L112 55.5 Z" fill="#fff" />
-      {/* yuqori jag' — pq-cjaws; open=false bo'lsa shut (yopiladi) */}
-      <g className={jaw}>
-        <path d="M66 34 Q70 30 78 30 L114 14 Q123 10.5 126 15.5 Q127.5 19.5 119 23.5 L74 44 Z" fill="#4aa35b" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
-        <path d="M67.5 33 Q71 30.5 78 30 L114 14 Q120 11.5 123.5 13 L117 16.5 L77 34.5 Z" fill="#2e7a3e" />
-        <path d="M118 24 L116 31.5 L110 27.5 L108 35 L101 31 L99 38.5 L93 35 L91 42 L84 38.5 L82.5 45.5 L76 42 Z" fill="#fff" />
-        <circle cx="117.5" cy="16.5" r="1.3" fill="#1f2430" opacity=".75" />
-      </g>
+      {open ? (
+        <>
+          {/* og'iz OCHIQ — jag'lar «<»/«>» belgisi metaforasi (katta son tomonga) */}
+          <path d="M68 42 L108 23 L108 55 Z" fill="#f2a9b4" />
+          {/* pastki jag' — zigzag tishlar yuqoriga */}
+          <path d="M66 42 L116 55 Q125 57.5 123 62 Q120.5 65.5 111 62.5 L64 51.5 Z" fill="#b8d488" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M72 45.5 L78.5 40 L82 48 L88.5 42.5 L92 50.5 L98.5 45 L102 53 L108.5 47.5 L112 55.5 Z" fill="#fff" />
+          {/* yuqori jag' — pq-cjaws; g'alabada chomp */}
+          <g className={chomp ? 'pq-cjaws chomping' : 'pq-cjaws'}>
+            <path d="M66 34 Q70 30 78 30 L114 14 Q123 10.5 126 15.5 Q127.5 19.5 119 23.5 L74 44 Z" fill="#4aa35b" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
+            <path d="M67.5 33 Q71 30.5 78 30 L114 14 Q120 11.5 123.5 13 L117 16.5 L77 34.5 Z" fill="#2e7a3e" />
+            <path d="M118 24 L116 31.5 L110 27.5 L108 35 L101 31 L99 38.5 L93 35 L91 42 L84 38.5 L82.5 45.5 L76 42 Z" fill="#fff" />
+            <circle cx="117.5" cy="16.5" r="1.3" fill="#1f2430" opacity=".75" />
+          </g>
+        </>
+      ) : (
+        <>
+          {/* og'iz TINCH/YOPIQ — teng poza (D12_01 idle snout): ikki parallel jag' chizig'i «=» metaforasi */}
+          <path d="M66 35 Q92 31 116 40 Q124 42.5 123 47 Q121 51.5 114 50.5 Q92 52.5 66 50.5 Z" fill="#4aa35b" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M66 36 Q92 32.5 114 41" stroke="#2e7a3e" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+          <path d="M70 45.5 Q92 47.5 118 46" stroke="#256835" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+          <path d="M82 46 l2 3.2 l2 -3.2 Z M95 46.5 l2 3.2 l2 -3.2 Z M107 46.5 l1.8 3 l1.8 -3 Z" fill="#fff" stroke="#256835" strokeWidth=".5" strokeLinejoin="round" />
+          <circle cx="118" cy="42.5" r="1.3" fill="#1f2430" opacity=".7" />
+        </>
+      )}
       {/* ko'z do'ngligi + tik qorachiqli ko'z (blik) + pirpiratuvchi qopqoq */}
       <circle cx="63" cy="28.5" r="6" fill="#3f9950" stroke="#256835" strokeWidth="1.5" />
       <circle cx="63.6" cy="27.8" r="3.9" fill="#fff" />

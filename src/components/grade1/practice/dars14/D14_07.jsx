@@ -1,36 +1,37 @@
 // Dars14 · Amaliyot 07 — LOGIC «Tartibda yetishmagan son» (ketma-ketlik) · 🔴 · tag: logic_sequence
-// Raqam-kartalar qatori tokchada: 11, 12, ?, 14, 15. Qaysi son yetishmagan? → 13.
-// Har karta ostida kichik model: 1 dasta (o'nlik) + N yakka qalam — sanoq o'sishini his qilsin.
-// G'alaba: 13 kartasi bo'sh joyga uchib tushadi (pop), butun qator yashil yonadi, chip «11, 12, 13, 14, 15».
+// POYEZD SAHNASI: osmon, quyosh, bulutlar, tepaliklar, temir yo'l. Lokomotiv + raqamlangan vagonlar:
+// 11, 12, ?, 14, 15 — bittasi yetishmaydi. Qaysi son yetishmagan? → 13.
+// G'alaba: 13-vagon bo'sh joyga tushadi (pop), butun poyezd yashil yonadi, chip «11, 12, 13, 14, 15».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const SEQ = [11, 12, null, 14, 15];
 const MISSING = 13;
 const DATA = { seq: SEQ, missing: MISSING, options: [12, 13, 14], ptype: 'LOGIC', level: '🔴', tag: 'logic_sequence' };
 
-// Qalam tanasi rang palitrasi (sariq / qizil / ko'k / yashil) — yakka qalamlar ajralib tursin.
-const PAL = [
-  { c: '#f2b134', d: '#cf9420' }, // sariq
-  { c: '#d9534b', d: '#b23e37' }, // qizil
-  { c: '#4f8fc4', d: '#3a72a3' }, // ko'k
-  { c: '#57a84f', d: '#43893c' }, // yashil
+// Vagon ranglari (palitradan) — har vagon o'z rangida.
+const WAG = [
+  { c: '#e2635b', d: '#b13a33' }, // qizil
+  { c: '#f2b134', d: '#cd9421' }, // sariq
+  { c: '#57a84f', d: '#42813e' }, // yashil
+  { c: '#4f8fc4', d: '#396f9c' }, // ko'k
+  { c: '#c07ac4', d: '#96559a' }, // binafsha
 ];
 
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · Ketma-ketlik", title: "Tartibda yetishmagan son",
-    setup: "Tokchada raqam-kartalar tartib bilan terilgan, biri tushib qolgan.",
+    eyebrow: "Poyezd · Ketma-ketlik", title: "Tartibda yetishmagan son",
+    setup: "Vagonlar tartib bilan raqamlangan, bittasi yetishmaydi.",
     ask: "Qatorda qaysi son yetishmagan?",
-    correct: "Barakalla! O'n ikkidan keyin o'n uch keladi. Endi qator to'liq: o'n bir, o'n ikki, o'n uch, o'n to'rt, o'n besh!",
-    hint: "Kartalarni tartib bilan sanang: o'n bir, o'n ikki, keyin qaysi son keladi?",
+    correct: "Barakalla! O'n ikkidan keyin o'n uch keladi. Endi poyezd to'liq: o'n bir, o'n ikki, o'n uch, o'n to'rt, o'n besh!",
+    hint: "Vagonlarni tartib bilan sanang: o'n bir, o'n ikki, keyin qaysi son keladi?",
     chip: "11, 12, 13, 14, 15",
   },
   ru: {
-    eyebrow: "Магазин карандашей · Последовательность", title: "Пропущенное число по порядку",
-    setup: "На полке карточки с числами стоят по порядку, одна выпала.",
+    eyebrow: "Поезд · Последовательность", title: "Пропущенное число по порядку",
+    setup: "Вагоны пронумерованы по порядку, одного не хватает.",
     ask: "Какое число пропущено в ряду?",
-    correct: "Молодец! После двенадцати идёт тринадцать. Теперь ряд полный: одиннадцать, двенадцать, тринадцать, четырнадцать, пятнадцать!",
-    hint: "Считай карточки по порядку: одиннадцать, двенадцать, а какое число дальше?",
+    correct: "Молодец! После двенадцати идёт тринадцать. Теперь поезд полный: одиннадцать, двенадцать, тринадцать, четырнадцать, пятнадцать!",
+    hint: "Считайте вагоны по порядку: одиннадцать, двенадцать, а какое число дальше?",
     chip: "11, 12, 13, 14, 15",
   },
 };
@@ -38,51 +39,21 @@ const T = {
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
-// QALAM KANONI (mini yakka birlik): tik yog'och qalam — grafit uch + yog'och konus, rangli tana (2-ton),
-// metall halqa, pushti o'chirg'ich. Bitta qalam = bitta birlik.
-const MiniPencil = ({ c = '#f2b134', d = '#cf9420', w = 8 }) => (
-  <svg viewBox="0 0 10 36" width={w} height={w * 36 / 10} aria-hidden="true" style={{ display: 'block' }}>
-    <polygon points="5,1 3.4,5 6.6,5" fill="#2f2f33" />
-    <polygon points="3.4,5 6.6,5 7.4,10.5 2.6,10.5" fill="#e8c187" stroke="rgba(0,0,0,.12)" strokeWidth=".5" strokeLinejoin="round" />
-    <polygon points="3.4,5 5,5 4.2,10.5 2.6,10.5" fill="#f2d6a4" />
-    <rect x="2.6" y="10" width="4.8" height="18.5" fill={c} stroke="rgba(0,0,0,.13)" strokeWidth=".5" />
-    <rect x="2.6" y="10" width="1.7" height="18.5" fill={d} />
-    <rect x="5.9" y="10" width=".9" height="18.5" fill="#fff" opacity=".35" />
-    <rect x="2.4" y="28" width="5.2" height="3.2" rx=".7" fill="#cfd3da" stroke="#a7adb8" strokeWidth=".5" />
-    <rect x="2.7" y="30.8" width="4.6" height="4.2" rx="1.4" fill="#f2a6ba" stroke="#db8398" strokeWidth=".5" />
+// LOKOMOTIV KANONI: kulrang-ko'k parovoz — kabina, qozon, truba (tutun alohida), 2 g'ildirak.
+const Loco = () => (
+  <svg viewBox="0 0 56 46" width="52" height="43" aria-hidden="true" style={{ display: 'block' }}>
+    <rect x="2" y="10" width="18" height="26" rx="3" fill="#5b7a94" stroke="#3f5a70" strokeWidth="1.4" />
+    <rect x="5" y="14" width="12" height="9" rx="2" fill="#cfe6f4" stroke="#3f5a70" strokeWidth="1" />
+    <rect x="18" y="20" width="30" height="16" rx="4" fill="#7195ae" stroke="#3f5a70" strokeWidth="1.4" />
+    <rect x="38" y="8" width="8" height="14" rx="2" fill="#4f6e86" stroke="#3f5a70" strokeWidth="1.2" />
+    <rect x="36" y="6" width="12" height="4" rx="2" fill="#3f5a70" />
+    <rect x="46" y="26" width="8" height="7" rx="2" fill="#c0392b" stroke="#8f2a20" strokeWidth="1" />
+    <circle cx="14" cy="39" r="5.4" fill="#3a4652" stroke="#242c34" strokeWidth="1.2" />
+    <circle cx="14" cy="39" r="2" fill="#8fa2b2" />
+    <circle cx="34" cy="39" r="5.4" fill="#3a4652" stroke="#242c34" strokeWidth="1.2" />
+    <circle cx="34" cy="39" r="2" fill="#8fa2b2" />
   </svg>
 );
-
-// DASTA KANONI (mini o'nlik): 10 qalam yonma-yon tik turgan, qizil rezinka bilan bog'langan, «10» yorlig'i.
-const MiniDasta = ({ penW = 5 }) => (
-  <span className="pq-dasta">
-    <span className="pq-dlabel">10</span>
-    <span className="pq-drow">
-      {Array.from({ length: 10 }).map((_, i) => {
-        const p = PAL[i % PAL.length];
-        return <span key={i} className="pq-dpen"><MiniPencil c={p.c} d={p.d} w={penW} /></span>;
-      })}
-    </span>
-    <span className="pq-dband" />
-  </span>
-);
-
-// Karta ostidagi kichik model: 1 dasta (o'nlik) + N yakka qalam (birlik). Dasta ALOHIDA, yakka ALOHIDA.
-const CardModel = ({ n }) => {
-  const units = n - 10; // 11..15 → 1..5 yakka
-  return (
-    <span className="pq-model">
-      <MiniDasta penW={5} />
-      <span className="pq-gap" />
-      <span className="pq-units">
-        {Array.from({ length: units }).map((_, i) => {
-          const p = PAL[i % PAL.length];
-          return <span key={i} className="pq-upen"><MiniPencil c={p.c} d={p.d} w={9} /></span>;
-        })}
-      </span>
-    </span>
-  );
-};
 
 const Star = ({ fill }) => (
   <svg width="13" height="13" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L12.4 7.6 L18.5 10 L12.4 12.4 L10 18.5 L7.6 12.4 L1.5 10 L7.6 7.6 Z" fill={fill} /></svg>
@@ -95,7 +66,7 @@ export default function D14_07(props) {
   const [picked, setPicked] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
-  // Review yoki qayta ochilishda karta-tushish animatsiyasi qayta ijro etilmaydi — statik yakuniy holat.
+  // Review yoki qayta ochilishda vagon-tushish animatsiyasi qayta ijro etilmaydi — statik yakuniy holat.
   const stillRef = useRef(isReview || !!(initialAnswer && initialAnswer.studentAnswer));
   const still = stillRef.current;
 
@@ -123,48 +94,47 @@ export default function D14_07(props) {
     <div className="pq pq1407">
       <style>{`
         .pq1407{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
-        .pq1407 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c77d2e;text-transform:uppercase;}
+        .pq1407 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f5a70;text-transform:uppercase;}
         .pq1407 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1407 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1407 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq1407 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;}
-        /* SAHNA */
-        .pq1407 .pq-scene{position:relative;width:396px;max-width:100%;min-height:236px;border-radius:20px;background:linear-gradient(#fdf3db 0%,#f8e6ba 58%,#f2d79f 100%);border:2px solid #e6cf9a;overflow:hidden;padding:14px 10px 26px;}
-        .pq1407 .pq-win{position:absolute;right:14px;top:12px;width:52px;height:38px;border-radius:6px;background:linear-gradient(135deg,#eaf6ff 0 46%,#c9e6fb 46% 54%,#eaf6ff 54%);border:3px solid #d8b878;box-shadow:0 0 15px 3px rgba(255,239,178,.65);animation:pqGlow 3.6s ease-in-out infinite;z-index:1;}
-        .pq1407 .pq-win::before,.pq1407 .pq-win::after{content:'';position:absolute;background:#d8b878;}
-        .pq1407 .pq-win::before{left:50%;top:2px;bottom:2px;width:3px;transform:translateX(-1.5px);}
-        .pq1407 .pq-win::after{top:50%;left:2px;right:2px;height:3px;transform:translateY(-1.5px);}
-        .pq1407 .pq-sun{position:absolute;top:14px;left:16px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 13px 3px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
-        .pq1407 .pq-lamp{position:absolute;left:50%;top:0;width:2px;height:16px;background:#8a5628;transform:translateX(-1px);z-index:1;}
-        .pq1407 .pq-shade{position:absolute;left:50%;top:14px;width:26px;height:13px;border-radius:0 0 40% 40%/0 0 100% 100%;background:linear-gradient(#f7d98a,#e0a83f);border:1.5px solid #b98235;transform:translateX(-13px);box-shadow:0 10px 22px 6px rgba(255,213,110,.4);animation:pqLamp 3.2s ease-in-out infinite;z-index:1;}
-        .pq1407 .pq-mote{position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.7);z-index:1;animation:pqMote linear infinite;}
-        .pq1407 .pq-mote.m1{left:28%;top:26px;animation-duration:7s;}
-        .pq1407 .pq-mote.m2{left:70%;top:44px;width:4px;height:4px;animation-duration:9s;animation-delay:-3s;}
-        /* KARTALAR QATORI */
-        .pq1407 .pq-row{position:relative;z-index:3;display:flex;justify-content:center;align-items:flex-end;gap:6px;margin-top:30px;}
-        .pq1407 .pq-card{position:relative;width:66px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px 9px;border-radius:14px;background:#fffdf7;border:2px solid #ecdcb8;box-shadow:0 3px 6px rgba(120,80,30,.14);}
-        .pq1407 .pq-card.win{border-color:#1a7f43;background:#eef9f0;animation:pqCele .5s ease;}
-        .pq1407 .pq-num{font-size:26px;font-weight:900;color:#374151;font-variant-numeric:tabular-nums;line-height:1;}
-        .pq1407 .pq-card.win .pq-num{color:#1a7f43;}
-        /* bo'sh joy (yetishmagan karta) */
-        .pq1407 .pq-card.gap{background:rgba(255,255,255,.4);border-style:dashed;border-color:#d0ab63;}
-        .pq1407 .pq-qmark{font-size:30px;font-weight:900;color:#c19a55;opacity:.85;animation:pqBreath 1.7s ease-in-out infinite;line-height:1;}
-        .pq1407 .pq-card.fill{animation:pqDrop .5s cubic-bezier(.3,1.25,.5,1) both;}
-        .pq1407 .pq-scene.still .pq-card.fill{animation:none;}
-        /* karta modeli */
-        .pq1407 .pq-model{display:flex;align-items:flex-end;justify-content:center;gap:3px;min-height:26px;}
-        .pq1407 .pq-gap{width:2px;}
-        .pq1407 .pq-units{display:flex;align-items:flex-end;gap:1px;}
-        .pq1407 .pq-upen{line-height:0;}
-        .pq1407 .pq-mlabel{font-size:10px;}
-        /* DASTA (mini o'nlik) */
-        .pq1407 .pq-dasta{position:relative;display:inline-flex;flex-direction:column;align-items:center;}
-        .pq1407 .pq-dlabel{position:absolute;top:-9px;left:50%;transform:translateX(-50%);z-index:5;min-width:15px;padding:0 4px;border-radius:6px;background:#c93b32;color:#fff;font-size:9px;font-weight:900;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.22);font-variant-numeric:tabular-nums;line-height:1.4;}
-        .pq1407 .pq-drow{display:flex;align-items:flex-end;}
-        .pq1407 .pq-dpen{margin-left:-2.5px;} .pq1407 .pq-dpen:first-child{margin-left:0;}
-        .pq1407 .pq-dband{position:absolute;left:-1.5px;right:-1.5px;top:44%;height:5px;border-radius:3px;background:linear-gradient(#e8564d,#c93b32);border:1px solid #a52f27;box-shadow:0 1px 2px rgba(0,0,0,.2);z-index:3;}
-        /* taphint */
-        .pq1407 .pq-taphint{font-size:13px;font-weight:700;color:#a06a1f;background:#fdf1d6;padding:4px 14px;border-radius:999px;}
+        /* TABIAT + TEMIR YO'L SAHNASI */
+        .pq1407 .pq-scene{position:relative;width:404px;max-width:100%;height:216px;border-radius:20px;background:linear-gradient(#bfe6fb 0%,#d9f1fd 48%,#eaf8ff 64%);border:2px solid #b8d9e8;overflow:hidden;}
+        .pq1407 .pq-sun{position:absolute;left:18px;top:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 18px 5px rgba(255,214,74,.55);animation:pqSun 3.8s ease-in-out infinite;z-index:1;}
+        .pq1407 .pq-cloud{position:absolute;height:13px;background:#fff;border-radius:20px;opacity:.94;z-index:1;}
+        .pq1407 .pq-cloud::before,.pq1407 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+        .pq1407 .pq-cloud::before{width:18px;height:18px;top:-8px;left:7px;} .pq1407 .pq-cloud::after{width:13px;height:13px;top:-5px;left:22px;}
+        .pq1407 .pq-cloud.c1{top:20px;left:52%;width:38px;animation:pqDrift 14s ease-in-out infinite;}
+        .pq1407 .pq-cloud.c2{top:44px;left:76%;width:30px;transform:scale(.8);animation:pqDrift 18s ease-in-out infinite reverse;}
+        .pq1407 .pq-hills{position:absolute;left:0;right:0;bottom:52px;height:56px;z-index:1;}
+        .pq1407 .pq-hills span{position:absolute;bottom:0;border-radius:50% 50% 0 0;background:linear-gradient(#9ad673,#7cc158);}
+        .pq1407 .pq-hills span:nth-child(1){left:-8%;width:54%;height:48px;background:linear-gradient(#a7dd82,#8ecb6a);}
+        .pq1407 .pq-hills span:nth-child(2){right:-6%;width:50%;height:56px;}
+        /* temir yo'l */
+        .pq1407 .pq-track{position:absolute;left:0;right:0;bottom:0;height:54px;background:linear-gradient(#8ccb64 0%,#69b34c 100%);z-index:2;}
+        .pq1407 .pq-rail{position:absolute;left:0;right:0;bottom:16px;height:5px;background:linear-gradient(#8a949e,#5f6a74);z-index:3;}
+        .pq1407 .pq-rail::before{content:'';position:absolute;left:0;right:0;top:9px;height:4px;background:repeating-linear-gradient(90deg,#8a5a2c 0 14px,transparent 14px 26px);}
+        /* poyezd */
+        .pq1407 .pq-train{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;align-items:flex-end;gap:5px;z-index:4;}
+        .pq1407 .pq-locow{position:relative;animation:pqChug 2.6s ease-in-out infinite;}
+        .pq1407 .pq-scene.still .pq-locow{animation:none;}
+        .pq1407 .pq-smoke{position:absolute;top:-12px;right:4px;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.85);opacity:0;animation:pqSmoke 2.6s ease-out infinite;z-index:1;}
+        .pq1407 .pq-smoke.k2{animation-delay:-1.3s;right:8px;}
+        .pq1407 .pq-scene.still .pq-smoke{animation:none;}
+        /* vagon */
+        .pq1407 .pq-wag{position:relative;width:58px;padding:7px 4px 14px;border-radius:9px 9px 6px 6px;display:flex;flex-direction:column;align-items:center;box-sizing:border-box;animation:pqChug 2.6s ease-in-out infinite;}
+        .pq1407 .pq-scene.still .pq-wag{animation:none;}
+        .pq1407 .pq-wag::before{content:'';position:absolute;left:9px;bottom:-6px;width:12px;height:12px;border-radius:50%;background:#3a4652;border:2px solid #242c34;box-sizing:border-box;}
+        .pq1407 .pq-wag::after{content:'';position:absolute;right:9px;bottom:-6px;width:12px;height:12px;border-radius:50%;background:#3a4652;border:2px solid #242c34;box-sizing:border-box;}
+        .pq1407 .pq-wnum{min-width:34px;padding:3px 6px;border-radius:8px;background:#fffdf7;border:2px solid rgba(0,0,0,.18);font-size:19px;font-weight:900;color:#374151;text-align:center;font-variant-numeric:tabular-nums;line-height:1.1;}
+        .pq1407 .pq-wag.win .pq-wnum{color:#1a7f43;border-color:#1a7f43;}
+        /* bo'sh joy (yetishmagan vagon) */
+        .pq1407 .pq-wag.gap{background:rgba(255,255,255,.45) !important;border:2.5px dashed #d0ab63;animation:none;}
+        .pq1407 .pq-wag.gap::before,.pq1407 .pq-wag.gap::after{opacity:.35;}
+        .pq1407 .pq-qmark{font-size:26px;font-weight:900;color:#c19a55;opacity:.9;animation:pqBreathQ 1.7s ease-in-out infinite;line-height:1.25;}
+        .pq1407 .pq-wag.fill{animation:pqDrop .55s cubic-bezier(.3,1.25,.5,1) both;}
+        .pq1407 .pq-scene.still .pq-wag.fill{animation:none;}
         /* uchqun + chip */
         .pq1407 .pq-star{position:absolute;z-index:6;line-height:0;opacity:0;animation:pqTwinkle 1.5s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
         .pq1407 .pq-star.s2{animation-delay:-.5s;} .pq1407 .pq-star.s3{animation-delay:-1s;}
@@ -172,18 +142,18 @@ export default function D14_07(props) {
         /* variantlar */
         .pq1407 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:2px;}
         .pq1407 .pq-opt{min-width:74px;height:72px;padding:0 6px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
-        .pq1407 .pq-opt:hover:not(:disabled){border-color:#f0c877;transform:translateY(-2px);}
+        .pq1407 .pq-opt:hover:not(:disabled){border-color:#8fb6de;transform:translateY(-2px);}
         .pq1407 .pq-opt:active:not(:disabled){transform:scale(.94);}
         .pq1407 .pq-opt.sel{border-color:#2563eb;background:#e8eefc;}
         .pq1407 .pq-opt.right{border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pqCele .5s ease;}
         .pq1407 .pq-opt:disabled{cursor:default;}
         .pq1407 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
         .pq1407 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq1407 .pq-fb.no{background:#fdecec;color:#c0392b;}
-        @keyframes pqGlow{0%,100%{box-shadow:0 0 11px 2px rgba(255,239,178,.5);}50%{box-shadow:0 0 19px 5px rgba(255,239,178,.8);}}
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-        @keyframes pqLamp{0%,100%{opacity:.85;}50%{opacity:1;}}
-        @keyframes pqMote{0%{transform:translate(0,0);opacity:0;}20%{opacity:.7;}80%{opacity:.55;}100%{transform:translate(16px,24px);opacity:0;}}
-        @keyframes pqBreath{0%,100%{transform:scale(1);opacity:.85;}50%{transform:scale(1.14);opacity:1;}}
+        @keyframes pqDrift{0%,100%{transform:translateX(0);}50%{transform:translateX(-16px);}}
+        @keyframes pqChug{0%,100%{transform:translateY(0);}50%{transform:translateY(-1.5px);}}
+        @keyframes pqSmoke{0%{opacity:0;transform:translate(0,0) scale(.5);}25%{opacity:.85;}100%{opacity:0;transform:translate(-10px,-26px) scale(1.5);}}
+        @keyframes pqBreathQ{0%,100%{transform:scale(1);opacity:.75;}50%{transform:scale(1.16);opacity:1;}}
         @keyframes pqDrop{0%{opacity:0;transform:translateY(-46px) scale(.82);}70%{opacity:1;transform:translateY(4px);}100%{opacity:1;transform:translateY(0) scale(1);}}
         @keyframes pqTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.05);}60%{transform:scale(.97);}100%{transform:scale(1);}}
@@ -194,28 +164,33 @@ export default function D14_07(props) {
 
       <div className="pq-stage">
         <div className={'pq-scene' + (still ? ' still' : '')}>
-          <span className="pq-win" />
           <span className="pq-sun" />
-          <span className="pq-lamp" /><span className="pq-shade" />
-          <span className="pq-mote m1" /><span className="pq-mote m2" />
+          <span className="pq-cloud c1" /><span className="pq-cloud c2" />
+          <div className="pq-hills"><span /><span /></div>
+          <span className="pq-track" />
+          <span className="pq-rail" />
 
-          <div className="pq-row">
+          <div className="pq-train">
+            <span className="pq-locow">
+              <span className="pq-smoke" /><span className="pq-smoke k2" />
+              <Loco />
+            </span>
             {SEQ.map((v, i) => {
               const isGap = v === null;
+              const col = WAG[i % WAG.length];
               if (isGap && !ok) {
                 return (
-                  <div key={i} className="pq-card gap">
+                  <div key={i} className="pq-wag gap">
                     <span className="pq-qmark">?</span>
-                    <span className="pq-model" style={{ opacity: 0 }} />
                   </div>
                 );
               }
               const n = isGap ? MISSING : v;
-              const winHere = ok;
               return (
-                <div key={i} className={'pq-card' + (winHere ? ' win' : '') + (isGap && ok ? ' fill' : '')}>
-                  <span className="pq-num">{n}</span>
-                  <CardModel n={n} />
+                <div key={i}
+                  className={'pq-wag' + (ok ? ' win' : '') + (isGap && ok ? ' fill' : '')}
+                  style={{ background: `linear-gradient(${col.c},${col.d})`, border: `2px solid ${col.d}`, animationDelay: isGap && ok ? undefined : `${-i * 0.3}s` }}>
+                  <span className="pq-wnum">{n}</span>
                 </div>
               );
             })}
@@ -223,9 +198,9 @@ export default function D14_07(props) {
 
           {ok && (
             <>
-              <span className="pq-star" style={{ left: '18%', top: '30px' }}><Star fill="#ffd13f" /></span>
-              <span className="pq-star s2" style={{ left: '52%', top: '22px' }}><Star fill="#f2b134" /></span>
-              <span className="pq-star s3" style={{ left: '82%', top: '34px' }}><Star fill="#ffd13f" /></span>
+              <span className="pq-star" style={{ left: '18%', top: '46px' }}><Star fill="#ffd13f" /></span>
+              <span className="pq-star s2" style={{ left: '52%', top: '34px' }}><Star fill="#f2b134" /></span>
+              <span className="pq-star s3" style={{ left: '82%', top: '48px' }}><Star fill="#ffd13f" /></span>
             </>
           )}
         </div>

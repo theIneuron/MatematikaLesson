@@ -208,9 +208,9 @@ export default function D09_04(props) {
           {/* Son o'qi: 6 nilufar-tosh, katta oq raqamlar 0-5 */}
           {STONES_X.map((x, i) => (
             <g key={i}>
-              <ellipse cx={x} cy="179" rx="25" ry="12" fill="#2e6e28" opacity=".28" />
-              <ellipse cx={x} cy="176" rx="25" ry="13" fill="#4f9a48" stroke="#2e6e28" strokeWidth="2" />
-              <ellipse cx={x - 4} cy="172.5" rx="17" ry="7.5" fill="#5fb356" opacity=".8" />
+              <ellipse cx={x} cy="179" rx="25" ry="12" fill="#4a5560" opacity=".3" />
+              <ellipse cx={x} cy="176" rx="25" ry="13" fill="#8d99a3" stroke="#5f6b75" strokeWidth="2" />
+              <ellipse cx={x - 4} cy="172.5" rx="17" ry="7.5" fill="#b6c0c9" opacity=".8" />
               <text x={x} y="181.5" textAnchor="middle" fontSize="17" fontWeight="900" fill="#fff" fontFamily="'Manrope',system-ui,sans-serif">{i}</text>
             </g>
           ))}

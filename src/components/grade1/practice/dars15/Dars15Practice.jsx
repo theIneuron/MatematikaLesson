@@ -1,5 +1,7 @@
 // Dars15 amaliyoti — 10 topshiriq (Sonlar 16–20): 1 o'nlik + birliklar = o'n olti…yigirma.
-// Kuchaytirilgan ramp: 1🟢 / 3🟡 / 6🔴. Qalam do'koni syujeti (1 dasta + yakka; 20 = 2 dasta).
+// Yumshoq ramp: 2🟢 / 5🟡 / 3🔴. Qalam do'koni syujeti (1 dasta + yakka; 20 = 2 dasta).
+// Darslik 5-bob "11 dan 20 gacha sonlar" mashq turlari: o'qish, tuzish, taqqoslash (> <),
+// sonlar qatori, o'sish tartibi, ajratish, yasash.
 // Misconception qalqoni: 18 = "1 va 8" EMAS, balki 10 va 8; 20 = 2 o'nlik (2 dasta).
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
@@ -16,16 +18,16 @@ import D15_10 from './D15_10.jsx';
 
 // Metodik xarita (o'quvchiga ko'rsatilmaydi): prototip kodi · syujet · qiyinlik
 const ITEMS = [
-  { id: '01', label: '1 · Sanash', C: D15_01 },     // P13 · 1 dasta + 5 = 15 — Dars14 spirali 🟢
-  { id: '02', label: '2 · O\'n olti', C: D15_02 },  // P13 · 1 dasta + 6 = 16 🟡
-  { id: '03', label: '3 · O\'n sakkiz', C: D15_03 },// P13 · 1 dasta + 8 = 18 🟡
-  { id: '04', label: '4 · Qaysi son', C: D15_04 },  // P13 · 17 uchun nechta yakka (7) 🟡
-  { id: '05', label: '5 · Ajrat', C: D15_05 },      // P13 · 19 = 10 + ? (9) 🔴
-  { id: '06', label: '6 · Zanjir', C: D15_06 },     // P13 · 4 qator 1 dasta + N = 16..19 🔴
-  { id: '07', label: '7 · Juftlash', C: D15_07 },   // LOGIC · son ↔ model juftlash (yangi) 🔴
-  { id: '08', label: '8 · Barchasi', C: D15_08 },   // P13 · 18 ga teng barcha kartalar multi 🔴
-  { id: '09', label: '9 · Yigirma', C: D15_09 },    // P13 · 20 = nechta o'nlik (2 dasta) 🔴
-  { id: '10', label: '10 · Yasab ol', C: D15_10 },  // YANGI · 10 yakka qo'shib 2-dasta = 20 🔴
+  { id: '01', label: '1 · O\'n besh', C: D15_01 },  // o'qish · 1 dasta + 5 = 15 — Dars14 spirali 🟢
+  { id: '02', label: '2 · O\'n olti', C: D15_02 },  // o'qish · 1 dasta + 6 = 16 🟢
+  { id: '03', label: '3 · O\'n yetti', C: D15_03 }, // o'qish · 1 dasta + 7 = 17 🟡
+  { id: '04', label: '4 · O\'n sakkiz', C: D15_04 },// tuzish · 18 uchun nechta yakka (8) 🟡
+  { id: '05', label: '5 · Taqqosla', C: D15_05 },   // taqqoslash · 16 ◻ 13 (> < =) 🟡
+  { id: '06', label: '6 · Qaysi katta', C: D15_06 },// taqqoslash · 17 yoki 15 — kattasini bosish 🟡
+  { id: '07', label: '7 · Qator', C: D15_07 },      // sonlar qatori · 15,16,_,18 → 17 🟡
+  { id: '08', label: '8 · Ajrat', C: D15_08 },      // ajratish · 19 = 10 + ? (9) 🔴
+  { id: '09', label: '9 · Tartibla', C: D15_09 },   // o'sish tartibi · 16 17 18 20 (tap-ketma-ket) 🔴
+  { id: '10', label: '10 · Yasab ol', C: D15_10 },  // yasash · 10 yakka qo'shib 2-dasta = 20 🔴
 ];
 
 export default function Dars15Practice() {

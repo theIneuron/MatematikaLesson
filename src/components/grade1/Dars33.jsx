@@ -46,12 +46,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -227,7 +227,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -431,7 +431,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -983,14 +983,14 @@ const CONTENT = {
         uz: "Uchta shaklga qarang. Sizningcha, ular bir xilmi yoki har xilmi? Javobni bosing."
       },
       on_correct: { ru: 'Верно, фигуры разные. Сейчас узнаем каждую.', uz: "To'g'ri, shakllar har xil. Endi har birini bilamiz." },
-      on_wrong: { ru: 'Верно, фигуры разные. Сейчас узнаем каждую.', uz: "To'g'ri, shakllar har xil. Endi har birini bilamiz." }
+      on_wrong: { ru: 'Давай проверим вместе.', uz: "Keling, birga tekshiramiz." }
     }
   },
 
   s1: {
     eyebrow: { ru: 'Четыре фигуры', uz: "To'rt shakl" },
     instruction: { ru: 'Узнаем фигуры: круг, квадрат, треугольник, четырёхугольник', uz: "Shakllarni bilamiz: doira, kvadrat, uchburchak, to'rtburchak" },
-    demo_prompt: { ru: 'Смотри, как рисуют фигуру. Нажимай Далее.', uz: "Shakl qanday chizilishini qara. Keyingisi ni bos." },
+    demo_prompt: { ru: 'Смотри, как рисуют фигуру. Нажимай Далее.', uz: "Shakl qanday chizilishini qarang. Keyingisini bosing." },
     demo_intro: { ru: 'Посмотри, как рисуют каждую фигуру.', uz: "Har shakl qanday chizilishini qarang." },
     d_triangle: { ru: 'Треугольник: три стороны и три угла.', uz: "Uchburchak: uch tomon va uch burchak." },
     d_square: { ru: 'Квадрат: четыре равные стороны и четыре угла.', uz: "Kvadrat: to'rt teng tomon va to'rt burchak." },
@@ -1176,7 +1176,7 @@ const CONTENT = {
   },
 
   sOdd: {
-    eyebrow: { ru: 'Тренировка · найди лишнюю', uz: 'Mashq · ortiqchani top' },
+    eyebrow: { ru: 'Тренировка · найди лишнюю', uz: 'Mashq · ortiqchani toping' },
     title: { ru: 'У какой фигуры нет углов?', uz: "Qaysi shaklda burchak yo'q?" },
     problem: { ru: 'Выбери фигуру без углов.', uz: "Burchagi yo'q shaklni tanlang." },
     correct_text: { ru: 'Верно. У круга нет углов.', uz: "To'g'ri. Doirada burchak yo'q." },
@@ -4275,7 +4275,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -4300,8 +4301,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -5512,7 +5513,7 @@ export default function WordProblemSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

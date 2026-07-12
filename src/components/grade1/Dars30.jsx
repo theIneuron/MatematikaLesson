@@ -43,12 +43,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -224,7 +224,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -428,7 +428,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -1016,7 +1016,7 @@ const CONTENT = {
       uz: "Edi va keldini qo'shing."
     },
     audio: {
-      intro: { ru: 'Было четыре яблока, пришло три. Сколько всего? Перетащи верное решение в клетку «всего».', uz: "To'rt olma edi, uch keldi. Jami nechta? To'g'ri yechimni «Jami» katagiga suring." },
+      intro: { ru: 'Было четыре яблока, пришло три. Сколько всего? Перетащи верное решение в клетку всего.', uz: "To'rt olma edi, uch keldi. Jami nechta? To'g'ri yechimni jami katagiga suring." },
       on_correct: { ru: 'Верно. Четыре и три семь. Всего семь.', uz: "To'g'ri. To'rt va uch yetti. Jami yetti." },
       on_wrong: { ru: 'Не совсем. Пришло — складываем.', uz: "Unchalik emas. Keldi — qo'shamiz." }
     }
@@ -1073,7 +1073,7 @@ const CONTENT = {
       uz: "Sakkizdan uchni ayiring."
     },
     audio: {
-      intro: { ru: 'Было восемь яблок, три ушло. Сколько осталось? Перетащи верное решение в клетку «осталось».', uz: "Sakkiz olma edi, uchtasi ketdi. Nechta qoldi? To'g'ri yechimni «Qoldi» katagiga suring." },
+      intro: { ru: 'Было восемь яблок, три ушло. Сколько осталось? Перетащи верное решение в клетку осталось.', uz: "Sakkiz olma edi, uchtasi ketdi. Nechta qoldi? To'g'ri yechimni qoldi katagiga suring." },
       on_correct: { ru: 'Верно. Восемь без трёх пять. Осталось пять.', uz: "To'g'ri. Sakkizdan uch besh. Besh qoldi." },
       on_wrong: { ru: 'Не совсем. Ушло — вычитаем.', uz: "Unchalik emas. Ketdi — ayiramiz." }
     }
@@ -1117,7 +1117,7 @@ const CONTENT = {
       uz: "Yettidan uchni ayiring."
     },
     audio: {
-      intro: { ru: 'Пришло три, а всего стало семь. Сколько было сначала? Перетащи верное число в клетку «было».', uz: "Uch keldi, jami yetti bo'ldi. Boshida nechta edi? To'g'ri raqamni «Edi» katagiga suring." },
+      intro: { ru: 'Пришло три, а всего стало семь. Сколько было сначала? Перетащи верное число в клетку было.', uz: "Uch keldi, jami yetti bo'ldi. Boshida nechta edi? To'g'ri raqamni edi katagiga suring." },
       on_correct: { ru: 'Верно. Из семи убрать три четыре. Было четыре.', uz: "To'g'ri. Yettidan uch to'rt. To'rt edi." },
       on_wrong: { ru: 'Не совсем. Из всего убери то, что пришло.', uz: "Unchalik emas. Jamidan kelganni ayiring." }
     }
@@ -1186,7 +1186,7 @@ const CONTENT = {
       uz: "Jadval nima edi, nima o'zgardi va nechta bo'lganini ko'rsatadi. U bilan yechish osonroq."
     },
     audio: {
-      intro: { ru: 'Было пять яблок, пришло четыре. Сколько всего? Перетащи верное решение в клетку «всего».', uz: "Besh olma edi, to'rt keldi. Jami nechta? To'g'ri yechimni «Jami» katagiga suring." },
+      intro: { ru: 'Было пять яблок, пришло четыре. Сколько всего? Перетащи верное решение в клетку всего.', uz: "Besh olma edi, to'rt keldi. Jami nechta? To'g'ri yechimni jami katagiga suring." },
       on_correct: { ru: 'Верно. Пять и четыре девять. Всего девять.', uz: "To'g'ri. Besh va to'rt to'qqiz. Jami to'qqiz." },
       on_wrong: { ru: 'Не совсем. Пришло — складываем.', uz: "Unchalik emas. Keldi — qo'shamiz." }
     }
@@ -3977,7 +3977,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -4002,8 +4003,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4042,6 +4043,9 @@ const Screen1 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(16px, 3vw, 26px)' }}>
+          {!showRes
+            ? <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1.6vw, 10px)', justifyContent: 'center' }}><Pips n={3} kind="apple" wrap/><span className="mono" style={{ ...D28_OP, fontSize: 'clamp(20px, 4vw, 26px)', color: T.success }}>+</span><Pips n={2} kind="apple" wrap/></div>
+            : <div key="m" className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}><Pips n={5} kind="apple" wrap/></div>}
           <TableFig cells={cells}/>
           {done && (
             <span className="mono fade-up" style={{ ...D28_OP, fontSize: 'clamp(22px, 4.4vw, 32px)', fontWeight: 800, color: '#D8A93A' }}>3 + 2 = {showRes ? <span className="g1-pop-in" style={{ display: 'inline-block' }}>5</span> : '?'}</span>
@@ -4142,6 +4146,9 @@ const Screen4 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c.instruction)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(16px, 3vw, 26px)' }}>
+          {!showRes
+            ? <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}><Pips n={6} kind="apple" wrap/></div>
+            : <div key="m" className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1.6vw, 10px)', justifyContent: 'center' }}><Pips n={4} kind="apple" wrap/><span className="mono" style={{ ...D28_OP, fontSize: 'clamp(20px, 4vw, 26px)', color: T.accent }}>−</span><span style={{ opacity: 0.32 }}><Pips n={2} kind="apple" wrap/></span></div>}
           <TableFig cells={cells}/>
           {done && (
             <span className="mono fade-up" style={{ ...D28_OP, fontSize: 'clamp(22px, 4.4vw, 32px)', fontWeight: 800, color: '#D8A93A' }}>6 − 2 = {showRes ? <span className="g1-pop-in" style={{ display: 'inline-block' }}>4</span> : '?'}</span>
@@ -4416,7 +4423,7 @@ export default function WordProblemSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

@@ -170,7 +170,7 @@ export default function D09_03(props) {
         .pq0903 .pq-dfly{position:absolute;left:40px;top:40px;animation:pqDfly 13s ease-in-out infinite;z-index:5;filter:drop-shadow(0 1px 1px rgba(0,0,0,.12));}
         .pq0903 .pq-wingsT{transform-box:view-box;transform-origin:23px 11px;animation:pqFlut .14s linear infinite alternate;}
         .pq0903 .pq-wingsB{transform-box:view-box;transform-origin:23px 13px;animation:pqFlut .14s linear infinite alternate;animation-delay:.07s;}
-        .pq0903 .pq-stone{position:absolute;top:${STONE_TOP}px;width:52px;height:40px;border-radius:50%;background:radial-gradient(ellipse at 40% 32%,#8cc97e,#5da24f 68%,#4c8a41);border:2.5px solid #35702c;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 rgba(24,66,84,.35);z-index:2;}
+        .pq0903 .pq-stone{position:absolute;top:${STONE_TOP}px;width:52px;height:40px;border-radius:50%;background:radial-gradient(ellipse at 38% 30%,#b6c0c9,#8d99a3 60%,#727e88);border:2.5px solid #5f6b75;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 0 rgba(40,52,64,.32);z-index:2;}
         .pq0903 .pq-stone.win{animation:pqCele .5s ease;}
         .pq0903 .pq-num{font-size:20px;font-weight:900;color:#fff;text-shadow:0 1px 2px rgba(20,60,25,.6);font-variant-numeric:tabular-nums;}
         .pq0903 .pq-num.pop{animation:pqPop .5s cubic-bezier(.3,1.5,.5,1) both;color:#fdfdc9;}

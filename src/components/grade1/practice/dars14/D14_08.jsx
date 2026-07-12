@@ -1,71 +1,57 @@
 // Dars14 · Amaliyot 08 — Ko'p-tanlov «O'n uch qayerda?» · 🔴 · tag: teen_multi
-// Qalam do'koni: 5 karta. Aynan 13 ga TENG bo'lganlarni BARCHASINI belgila.
-// [0] "1 dasta + 3" (rasm: dasta+3 yakka) =13 ✓  [1] "10 + 3" (matn) =13 ✓  [2] "13" (raqam) ✓
-// [3] "1 dasta + 4" (rasm: dasta+4 yakka) =14 ✗ tuzoq  [4] "12" (raqam) ✗ tuzoq. GOOD = {0,1,2}.
-// TEEN modeli: dasta (10, qizil rezinka) ALOHIDA, yakka qalamlar ALOHIDA — misconception qalqoni.
+// Pechene do'koni: 5 karta. Aynan 13 ga TENG bo'lganlarni BARCHASINI belgila.
+// [0] "to'la quti + 3" (rasm: 10 uyali to'la quti + 3 yakka) =13 ✓  [1] "10 + 3" (matn) =13 ✓
+// [2] "13" (raqam) ✓  [3] "to'la quti + 4" (rasm) =14 ✗ tuzoq  [4] "12" (raqam) ✗ tuzoq. GOOD = {0,1,2}.
+// TEEN modeli: TO'LA QUTI (10 pechene, «10» yorliq) ALOHIDA, yakka pechenelar O'NGDA — misconception qalqoni.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const TARGET = 13, TEN = 10;
-// kind: 'unit' = 1 dasta + N yakka (rasm) · 'sum10' = "10 + N" matn · 'num' = raqam
+// kind: 'unit' = to'la quti + N yakka (rasm) · 'sum10' = "10 + N" matn · 'num' = raqam
 const CARDS = [
-  { kind: 'unit', ones: 3 },   // 1 dasta + 3 = 13 ✓
-  { kind: 'sum10', ones: 3 },  // 10 + 3   = 13 ✓
-  { kind: 'num',  n: 13 },     // 13       = 13 ✓
-  { kind: 'unit', ones: 4 },   // 1 dasta + 4 = 14 ✗ tuzoq
-  { kind: 'num',  n: 12 },     // 12       = 12 ✗ tuzoq
+  { kind: 'unit', ones: 3 },   // to'la quti + 3 = 13 ✓
+  { kind: 'sum10', ones: 3 },  // 10 + 3       = 13 ✓
+  { kind: 'num',  n: 13 },     // 13           = 13 ✓
+  { kind: 'unit', ones: 4 },   // to'la quti + 4 = 14 ✗ tuzoq
+  { kind: 'num',  n: 12 },     // 12           = 12 ✗ tuzoq
 ];
 const cardVal = (c) => (c.kind === 'num' ? c.n : TEN + c.ones);
 const GOOD = CARDS.map((c, i) => (cardVal(c) === TARGET ? i : -1)).filter((i) => i >= 0); // [0,1,2]
-const cardLabel = (c) =>
-  c.kind === 'num' ? String(c.n) : c.kind === 'sum10' ? `10 + ${c.ones}` : `1 dasta + ${c.ones}`;
-
-// Qalam palitrasi (2-ton: tana / to'q chet).
-const PC = [
-  { c: '#f2b134', d: '#cf9016' }, // sariq
-  { c: '#d9534b', d: '#b23a33' }, // qizil
-  { c: '#4f8fc4', d: '#37699a' }, // ko'k
-  { c: '#57a84f', d: '#3d8038' }, // yashil
-];
+const cardLabel = (c, boxWord) =>
+  c.kind === 'num' ? String(c.n) : c.kind === 'sum10' ? `10 + ${c.ones}` : `${boxWord} + ${c.ones}`;
 
 const DATA = { good: [0, 1, 2], target: TARGET, ptype: 'P08', level: '🔴', tag: 'teen_multi' };
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · O'n uch",
+    eyebrow: "Pechene do'koni · O'n uch",
     title: "O'n uch qayerda?",
-    setup: "Kartalarda o'n uchni turlicha ko'rsatishgan — dasta bilan, qo'shish bilan, raqam bilan.",
+    setup: "Kartalarda o'n uchni turlicha ko'rsatishgan — to'la quti bilan, qo'shish bilan, raqam bilan.",
     ask: "Aynan O'N UCH bo'ladigan BARCHA kartalarni bosing.",
-    correct: "Barakalla! Uch xil o'n uch — dasta va uch, o'n qo'shuv uch, hamda o'n uch raqami.",
-    hint: "Har kartada nechta bor? Bir dasta o'nta — ustiga yakkalarni qo'shing. O'n uch kerak.",
-    dasta: "dasta",
+    correct: "Barakalla! Uch xil o'n uch — to'la quti va uch, o'n qo'shuv uch, hamda o'n uch raqami.",
+    hint: "Har kartada nechta bor? To'la quti — o'nta, ustiga yakkalarni qo'shing. O'n uch kerak.",
+    boxWord: "to'la quti",
   },
   ru: {
-    eyebrow: 'Магазин карандашей · Тринадцать',
-    title: 'Где тринадцать?',
-    setup: 'На карточках тринадцать показано по-разному — связкой, сложением, числом.',
-    ask: 'Нажми на ВСЕ карточки, где получается ровно ТРИНАДЦАТЬ.',
-    correct: 'Молодец! Три вида тринадцати — связка и три, десять плюс три и число тринадцать.',
-    hint: 'Сколько на каждой карточке? Связка — это десять, прибавь отдельные. Нужно тринадцать.',
-    dasta: 'связка',
+    eyebrow: "Магазин печенья · Тринадцать",
+    title: "Где тринадцать?",
+    setup: "На карточках тринадцать показано по-разному — полной коробкой, сложением, числом.",
+    ask: "Нажмите на ВСЕ карточки, где получается ровно ТРИНАДЦАТЬ.",
+    correct: "Молодец! Три вида тринадцати — полная коробка и три, десять плюс три и число тринадцать.",
+    hint: "Сколько на каждой карточке? Полная коробка — это десять, прибавьте отдельные. Нужно тринадцать.",
+    boxWord: "коробка",
   },
 };
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
-// QALAM KANONI (yakka birlik): tik yog'och qalam — grafit uch + yog'och konus (tepa),
-// rangli tana (2-ton + blik), metall halqa + pushti o'chirg'ich (past). Bitta qalam = bitta birlik.
-const Pencil = ({ w = 10, c = '#f2b134', dark = '#cf9016' }) => (
-  <svg viewBox="0 0 16 62" width={w} height={(w * 62) / 16} aria-hidden="true" style={{ display: 'block' }}>
-    <polygon points="8,3 10.7,11.5 5.3,11.5" fill="#3b3f49" />
-    <polygon points="8,3 8,11.5 5.3,11.5" fill="#5b616e" />
-    <polygon points="5.3,11.5 10.7,11.5 12,22 4,22" fill="#eccf9f" />
-    <polygon points="8,11.5 10.7,11.5 12,22 8,22" fill="#dcb886" />
-    <rect x="4" y="22" width="8" height="26" fill={c} />
-    <rect x="4.4" y="22" width="2.2" height="26" fill="#ffffff" opacity="0.28" />
-    <rect x="9.7" y="22" width="2.3" height="26" fill={dark} opacity="0.9" />
-    <rect x="3.6" y="48" width="8.8" height="6.2" fill="#cfd3da" stroke="#a3a9b2" strokeWidth="0.6" />
-    <rect x="3.6" y="49.8" width="8.8" height="1.5" fill="#a3a9b2" opacity="0.55" />
-    <rect x="4.3" y="54" width="7.4" height="5.6" rx="2.3" fill="#f3a9c2" stroke="#e087a8" strokeWidth="0.5" />
+// PECHENE KANONI (yakka birlik): dumaloq pechene — shokolad bo'lakchalari. Bitta pechene = bitta birlik.
+const Cookie = ({ w = 16 }) => (
+  <svg viewBox="0 0 26 26" width={w} height={w} aria-hidden="true" style={{ display: 'block' }}>
+    <circle cx="13" cy="13" r="11.5" fill="#e0a45c" stroke="#b97f38" strokeWidth="1.2" />
+    <circle cx="13" cy="13" r="9" fill="#e8b26c" opacity=".6" />
+    <circle cx="9" cy="9.6" r="1.7" fill="#6b4423" /><circle cx="16.4" cy="8.4" r="1.5" fill="#6b4423" />
+    <circle cx="17.6" cy="15.6" r="1.7" fill="#6b4423" /><circle cx="10" cy="16.6" r="1.5" fill="#6b4423" />
+    <circle cx="13.4" cy="12.4" r="1.3" fill="#6b4423" />
   </svg>
 );
 
@@ -122,18 +108,12 @@ export default function D14_08(props) {
     const correct = GOOD.every((i) => pickedSet.has(i)) && [...pickedSet].every((i) => cardVal(CARDS[i]) === TARGET);
     setFeedback({ correct, msg: correct ? t.correct : t.hint }); if (correct) setChecked(true);
     if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: CARDS.map(cardLabel), studentAnswer: { values: [...pickedSet] }, correctAnswer: { values: GOOD }, correct, meta: { ...DATA } });
+    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: CARDS.map((c) => cardLabel(c, t.boxWord)), studentAnswer: { values: [...pickedSet] }, correctAnswer: { values: GOOD }, correct, meta: { ...DATA } });
   }, [pickedSet, playCorrect, playWrong, onSubmit, t]);
   const checkRef = useRef(check); checkRef.current = check;
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
-
-  // Yakka guruh qalamlari — rang tsikli o'nlikdan keyin davom etadi (dasta 0..9, yakka 10+).
-  const units = (n, start) => Array.from({ length: n }).map((_, k) => {
-    const pc = PC[(start + k) % PC.length];
-    return <span key={k} className="pq-pk"><Pencil c={pc.c} dark={pc.d} /></span>;
-  });
 
   return (
     <div className="pq pq1408">
@@ -165,22 +145,23 @@ export default function D14_08(props) {
         .pq1408 .pq-card.won{border-color:#1a7f43;background:#eaf8ef;animation:pqCele .55s ease;}
         .pq1408 .pq-card.dim{opacity:.42;filter:grayscale(.32);}
 
-        .pq1408 .pq-cardv{position:relative;display:flex;align-items:flex-end;justify-content:center;gap:9px;height:56px;}
-        .pq1408 .pq-dasta{position:relative;display:flex;align-items:flex-end;padding-top:8px;}
-        .pq1408 .pq-drow{display:flex;align-items:flex-end;gap:1px;}
-        .pq1408 .pq-units{display:flex;align-items:flex-end;gap:2px;}
+        .pq1408 .pq-cardv{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;height:56px;}
+        /* MINI TO'LA QUTI: 10 uya (2×5), «10» yorlig'i */
+        .pq1408 .pq-mbox{position:relative;display:inline-block;padding:4px 5px 5px;border-radius:8px;background:linear-gradient(#d9a561,#c08a45);border:2px solid #96662b;box-shadow:0 2px 0 #7d5423,0 3px 4px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.25);}
+        .pq1408 .pq-mgrid{display:grid;grid-template-columns:repeat(5,auto);gap:2px;}
+        .pq1408 .pq-mcell{width:15px;height:15px;border-radius:4px;background:rgba(70,40,10,.22);box-shadow:inset 0 1px 2px rgba(0,0,0,.26);display:flex;align-items:center;justify-content:center;}
+        .pq1408 .pq-bandlbl{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#fff;border:1.6px solid #cf3f38;color:#cf3f38;font-weight:900;font-size:10px;line-height:1;padding:1.5px 5px;border-radius:999px;z-index:3;font-variant-numeric:tabular-nums;}
+        /* yakka pechenelar — toza ustun (o'ngda) */
+        .pq1408 .pq-units{display:grid;grid-template-rows:repeat(2,auto);grid-auto-flow:column;gap:2px 3px;align-items:center;}
         .pq1408 .pq-pk{position:relative;line-height:0;}
-        .pq1408 .pq-band{position:absolute;left:-3px;right:-3px;top:9px;height:8px;border-radius:4px;background:linear-gradient(#e26a5f,#c8382f);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 1px 2px rgba(120,20,10,.3);z-index:2;}
-        .pq1408 .pq-band::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#d84a3f;box-shadow:inset 0 1px 1px rgba(255,255,255,.4);}
-        .pq1408 .pq-bandlbl{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#fff;border:1.6px solid #cf3f38;color:#cf3f38;font-weight:900;font-size:10px;line-height:1;padding:1.5px 5px;border-radius:999px;z-index:3;}
         .pq1408 .pq-plus{font-size:20px;font-weight:900;color:#b58a4e;align-self:center;}
 
         .pq1408 .pq-txt{display:flex;align-items:center;justify-content:center;height:56px;font-size:30px;font-weight:900;color:#5a4a2c;font-variant-numeric:tabular-nums;letter-spacing:.01em;}
         .pq1408 .pq-txt.big{font-size:38px;color:#3a3320;}
 
-        .pq1408 .pq-clabel{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:#6a6152;font-variant-numeric:tabular-nums;}
+        .pq1408 .pq-clabel{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800;color:#6a6152;font-variant-numeric:tabular-nums;}
         .pq1408 .pq-card.won .pq-clabel{color:#1a7f43;}
-        .pq1408 .pq-eq{color:#1a7f43;font-size:16px;font-weight:900;animation:pqPop .4s ease both;}
+        .pq1408 .pq-eqb{color:#1a7f43;font-size:16px;font-weight:900;animation:pqPop .4s ease both;}
         .pq1408 .pq-spark{position:absolute;top:6px;right:9px;line-height:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
 
         .pq1408 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
@@ -213,21 +194,23 @@ export default function D14_08(props) {
             const cls = ok ? (good ? ' won' : ' dim') : (sel ? ' sel' : '');
             return (
               <button key={i} type="button" className={'pq-card' + cls} disabled={lock}
-                onClick={() => toggle(i)} aria-label={cardLabel(c)}>
+                onClick={() => toggle(i)} aria-label={cardLabel(c, t.boxWord)}>
                 {c.kind === 'unit' ? (
                   <div className="pq-cardv">
-                    <span className="pq-dasta">
-                      <span className="pq-drow">
-                        {Array.from({ length: TEN }).map((_, k) => {
-                          const pc = PC[k % PC.length];
-                          return <span key={k} className="pq-pk"><Pencil w={9} c={pc.c} dark={pc.d} /></span>;
-                        })}
-                      </span>
-                      <span className="pq-band" />
+                    <span className="pq-mbox">
                       <span className="pq-bandlbl">10</span>
+                      <span className="pq-mgrid">
+                        {Array.from({ length: TEN }).map((_, k) => (
+                          <span key={k} className="pq-mcell"><Cookie w={13} /></span>
+                        ))}
+                      </span>
                     </span>
                     <span className="pq-plus">+</span>
-                    <span className="pq-units">{units(c.ones, 0)}</span>
+                    <span className="pq-units">
+                      {Array.from({ length: c.ones }).map((_, k) => (
+                        <span key={k} className="pq-pk"><Cookie w={16} /></span>
+                      ))}
+                    </span>
                   </div>
                 ) : c.kind === 'sum10' ? (
                   <div className="pq-txt">10 + {c.ones}</div>
@@ -236,8 +219,8 @@ export default function D14_08(props) {
                 )}
 
                 <div className="pq-clabel">
-                  <span>{cardLabel(c)}</span>
-                  {ok && good && <b className="pq-eq">= {TARGET}</b>}
+                  <span>{cardLabel(c, t.boxWord)}</span>
+                  {ok && good && <b className="pq-eqb">= {TARGET}</b>}
                 </div>
 
                 {ok && good && <span className="pq-spark"><Star fill="#f2b134" /></span>}

@@ -109,7 +109,7 @@ const Robot = () => (
   </svg>
 );
 
-export default function D10_03(props) {
+export default function D10_02(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = T[lang] || T.uz;
   const isReview = mode === 'review';
@@ -241,12 +241,22 @@ export default function D10_03(props) {
         @keyframes pqAns{0%{opacity:0;transform:scale(.3);}100%{opacity:1;transform:scale(1);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        /* Ambient: suzuvchi uchqunlar + sekin aylanuvchi bolt (fon dekori) */
+        .pq1002 .pq-mote{position:absolute;z-index:0;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff,rgba(124,240,255,.5) 55%,rgba(124,240,255,0) 74%);pointer-events:none;opacity:0;animation:pq1002Mote 10s ease-in-out infinite;}
+        .pq1002 .pq-mote.m2{width:4px;height:4px;animation-duration:12.5s;animation-delay:-5s;}
+        .pq1002 .pq-nut{position:absolute;z-index:0;line-height:0;opacity:.32;pointer-events:none;animation:pq1002Nut 13s ease-in-out infinite;}
+        @keyframes pq1002Mote{0%{opacity:0;transform:translate(0,8px) scale(.7);}22%{opacity:.5;}50%{opacity:.55;transform:translate(-5px,-8px) scale(1);}80%{opacity:.3;}100%{opacity:0;transform:translate(0,-20px) scale(.7);}}
+        @keyframes pq1002Nut{0%{transform:translate(0,0) rotate(0);}50%{transform:translate(4px,-7px) rotate(180deg);}100%{transform:translate(0,0) rotate(360deg);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-stage">
         <div className="pq-scene">
+          {/* Ambient uchqunlar + bolt (fon, dekor) */}
+          <span className="pq-mote m1" aria-hidden="true" style={{ left: 16, top: 22 }} />
+          <span className="pq-mote m2" aria-hidden="true" style={{ left: 28, top: 66 }} />
+          <span className="pq-nut" aria-hidden="true" style={{ left: 304, top: 150 }}><svg width="13" height="13" viewBox="0 0 20 20"><path d="M10 1.4 L16.9 5.4 L16.9 13.6 L10 17.6 L3.1 13.6 L3.1 5.4 Z" fill="none" stroke="#9aa6b6" strokeWidth="2" /><circle cx="10" cy="10" r="3.2" fill="none" stroke="#9aa6b6" strokeWidth="2" /></svg></span>
           {/* Fabrika foni */}
           <span className="pq-pipe" />
           <span className="pq-valve" />

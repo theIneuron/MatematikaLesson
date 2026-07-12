@@ -28,32 +28,33 @@ import Amaliyot23 from './Amaliyot23.jsx';
 import Amaliyot24 from './Amaliyot24.jsx';
 import Amaliyot25 from './Amaliyot25.jsx';
 
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): prototip kodi · mazmun · blok · qiyinlik
 const ITEMS = [
-  { id: '01', label: '1. Sanash', full: 'P1 · Sanash — nechta olma? (Blok 1 · 🟢)', C: Amaliyot01 },
-  { id: '02', label: '2. Juftlar', full: 'P3 · Juftlarni ula: misol ↔ javob (Blok 2 · 🟢)', C: Amaliyot02 },
-  { id: '03', label: '3. Taqqoslash', full: 'P4 · Belgini qo\'y: 6 __ 8 (Blok 1 · 🟡)', C: Amaliyot03 },
-  { id: '04', label: '4. Son uyi', full: 'P6 · Sonning tarkibi: 7 = 4 va __ (Blok 1 · 🟡)', C: Amaliyot04 },
-  { id: '05', label: '5. O\'nlik', full: 'P9 · Ten-frame: 10 gacha nechta? (Blok 3 · 🟡)', C: Amaliyot05 },
-  { id: '06', label: '6. O\'nlikdan o\'tish', full: 'P8 · 8 + 5 bosqichma-bosqich (Blok 4 · 🔴)', C: Amaliyot06 },
-  { id: '07', label: '7. Razryad', full: 'P21 · 47 = 4 o\'nlik + 7 birlik (Blok 5 · 🟡)', C: Amaliyot07 },
-  { id: '08', label: '8. Xatoni top', full: 'P13 · 53 + 4 = 93? (Blok 5 · 🔴)', C: Amaliyot08 },
-  { id: '09', label: '9. Masala jadvali', full: 'P24 · bor edi / keldi / hammasi (Blok 6 · 🟡)', C: Amaliyot09 },
-  { id: '10', label: '10. Uzunlik', full: 'P26 · 1 dm = ? sm (Blok 7 · 🟡)', C: Amaliyot10 },
-  { id: '11', label: '11. Massa', full: 'P26 · qaysi og\'irroq? tarozi (Blok 7 · 🟡)', C: Amaliyot11 },
-  { id: '12', label: '12. Sonlar nuri', full: 'P7 · chigirtka sakraydi: 4 dan 3 (Blok 2 · 🟡)', C: Amaliyot12 },
-  { id: '13', label: '13. Qonuniyat', full: 'P17 · qatorni davom ettir (Blok 6 · 🟡)', C: Amaliyot13 },
-  { id: '14', label: '14. O\'lchash', full: 'P16 · qalam necha sm? chizg\'ich (Blok 7 · 🟡)', C: Amaliyot14 },
-  { id: '15', label: '15. Saralash', full: 'P10 · doira/kvadrat savatlarga (Blok 7 · 🟡)', C: Amaliyot15 },
-  { id: '16', label: '16. Ikki qadam', full: 'P25 · 4+3, keyin −2 (Blok 6 · 🔴)', C: Amaliyot16 },
-  { id: '17', label: '17. Topib bos', full: 'P11 · barcha doiralarni top (Blok 7 · 🟢)', C: Amaliyot17 },
-  { id: '18', label: '18. Bo\'sh joy', full: 'P5 · 2 3 4 _ 6 7 (Blok 1 · 🟡)', C: Amaliyot18 },
-  { id: '19', label: '19. O\'nliklab', full: 'P23 · 20 30 _ 50 (Blok 5 · 🟡)', C: Amaliyot19 },
-  { id: '20', label: '20. Qaysi amal', full: 'P14 · qo\'shish yoki ayirish? (Blok 6 · 🟡)', C: Amaliyot20 },
-  { id: '21', label: '21. Ortiqcha', full: 'P18 · ortiqchani top (razogrev · 🟡)', C: Amaliyot21 },
-  { id: '22', label: '22. To\'g\'ri/noto\'g\'ri', full: 'P12 · 6 + 2 = 9? (Blok 1 · 🟢)', C: Amaliyot22 },
-  { id: '23', label: '23. Yechimni tuz', full: 'P15 · 4 + 2 = 6 fishkalardan (Blok 6 · 🟡)', C: Amaliyot23 },
-  { id: '24', label: '24. Kvest-sandiq', full: 'P19 · sandiqni och: 8 + 6 (kvest · 🔴)', C: Amaliyot24 },
-  { id: '25', label: '25. Diagramma', full: 'P20 · nechta olma? piktogramma (ma\'lumot · 🟡)', C: Amaliyot25 },
+  { id: '01', label: '1. Sanash', C: Amaliyot01 },            // P1 · Sanash — nechta olma? (Blok 1 · 🟢)
+  { id: '02', label: '2. Juftlar', C: Amaliyot02 },           // P3 · Juftlarni ula: misol ↔ javob (Blok 2 · 🟢)
+  { id: '03', label: '3. Taqqoslash', C: Amaliyot03 },        // P4 · Belgini qo'y: 6 __ 8 (Blok 1 · 🟡)
+  { id: '04', label: '4. Son uyi', C: Amaliyot04 },           // P6 · Sonning tarkibi: 7 = 4 va __ (Blok 1 · 🟡)
+  { id: '05', label: '5. O\'nlik', C: Amaliyot05 },           // P9 · Ten-frame: 10 gacha nechta? (Blok 3 · 🟡)
+  { id: '06', label: '6. O\'nlikdan o\'tish', C: Amaliyot06 }, // P8 · 8 + 5 bosqichma-bosqich (Blok 4 · 🔴)
+  { id: '07', label: '7. Razryad', C: Amaliyot07 },           // P21 · 47 = 4 o'nlik + 7 birlik (Blok 5 · 🟡)
+  { id: '08', label: '8. Xatoni top', C: Amaliyot08 },        // P13 · 53 + 4 = 93? (Blok 5 · 🔴)
+  { id: '09', label: '9. Masala jadvali', C: Amaliyot09 },    // P24 · bor edi / keldi / hammasi (Blok 6 · 🟡)
+  { id: '10', label: '10. Uzunlik', C: Amaliyot10 },          // P26 · 1 dm = ? sm (Blok 7 · 🟡)
+  { id: '11', label: '11. Massa', C: Amaliyot11 },            // P26 · qaysi og'irroq? tarozi (Blok 7 · 🟡)
+  { id: '12', label: '12. Sonlar nuri', C: Amaliyot12 },      // P7 · chigirtka sakraydi: 4 dan 3 (Blok 2 · 🟡)
+  { id: '13', label: '13. Qonuniyat', C: Amaliyot13 },        // P17 · qatorni davom ettir (Blok 6 · 🟡)
+  { id: '14', label: '14. O\'lchash', C: Amaliyot14 },        // P16 · qalam necha sm? chizg'ich (Blok 7 · 🟡)
+  { id: '15', label: '15. Saralash', C: Amaliyot15 },         // P10 · doira/kvadrat savatlarga (Blok 7 · 🟡)
+  { id: '16', label: '16. Ikki qadam', C: Amaliyot16 },       // P25 · 4+3, keyin −2 (Blok 6 · 🔴)
+  { id: '17', label: '17. Topib bos', C: Amaliyot17 },        // P11 · barcha doiralarni top (Blok 7 · 🟢)
+  { id: '18', label: '18. Bo\'sh joy', C: Amaliyot18 },       // P5 · 2 3 4 _ 6 7 (Blok 1 · 🟡)
+  { id: '19', label: '19. O\'nliklab', C: Amaliyot19 },       // P23 · 20 30 _ 50 (Blok 5 · 🟡)
+  { id: '20', label: '20. Qaysi amal', C: Amaliyot20 },       // P14 · qo'shish yoki ayirish? (Blok 6 · 🟡)
+  { id: '21', label: '21. Ortiqcha', C: Amaliyot21 },         // P18 · ortiqchani top (razogrev · 🟡)
+  { id: '22', label: '22. To\'g\'ri/noto\'g\'ri', C: Amaliyot22 }, // P12 · 6 + 2 = 9? (Blok 1 · 🟢)
+  { id: '23', label: '23. Yechimni tuz', C: Amaliyot23 },     // P15 · 4 + 2 = 6 fishkalardan (Blok 6 · 🟡)
+  { id: '24', label: '24. Kvest-sandiq', C: Amaliyot24 },     // P19 · sandiqni och: 8 + 6 (kvest · 🔴)
+  { id: '25', label: '25. Diagramma', C: Amaliyot25 },        // P20 · nechta olma? piktogramma (ma'lumot · 🟡)
 ];
 
 export default function PracticePreview() {
@@ -73,7 +74,7 @@ export default function PracticePreview() {
         display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center',
         padding: '10px 12px', borderBottom: '1px solid #eef0f4', marginBottom: 6,
       }}>
-        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>1-sinf amaliyot namunalari (25 ta · mexanika oilalari)</strong>
+        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>1-sinf amaliyot namunalari (25 ta)</strong>
         {ITEMS.map((item, i) => (
           <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
             {item.label}
@@ -81,7 +82,7 @@ export default function PracticePreview() {
         ))}
       </div>
 
-      <PracticeHost key={q.id} Question={q.C} title={q.full} />
+      <PracticeHost key={q.id} Question={q.C} />
     </div>
   );
 }

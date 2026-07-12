@@ -43,12 +43,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -224,7 +224,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -428,7 +428,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -995,16 +995,16 @@ const CONTENT = {
     opt3: { ru: '38', uz: '38' },
     correct_text: { ru: 'Правильно. Четыре и пять — девять, десятки те же. Тридцать девять.', uz: "To'g'ri. To'rt va besh — to'qqiz, o'nliklar o'sha. O'ttiz to'qqiz." },
     wrong_1: {
-      ru: 'Пять — это единицы, их прибавляют к единицам. Три десятка остаются. Четыре и пять девять, тридцать девять.',
-      uz: "Besh — bu birlik, uni birlikka qo'shamiz. Uch o'nlik qoladi. To'rt va besh to'qqiz, o'ttiz to'qqiz."
+      ru: 'Пять — это единицы, их прибавляют к единицам. Три десятка остаются. Прибавь единицы и посчитай снова.',
+      uz: "Besh — bu birlik, uni birlikka qo'shamiz. Uch o'nlik qoladi. Birlikni qo'shib, qaytadan sanang."
     },
     wrong_2: {
-      ru: 'Здесь не заменяем, а прибавляем. К четырём прибавь пять, будет девять. Тридцать девять.',
-      uz: "Bu yerda almashtirmaymiz, qo'shamiz. To'rtga besh qo'shsang, to'qqiz bo'ladi. O'ttiz to'qqiz."
+      ru: 'Здесь не заменяем, а прибавляем. К четырём прибавь пять и посчитай снова.',
+      uz: "Bu yerda almashtirmaymiz, qo'shamiz. To'rtga beshni qo'shib, qaytadan sanang."
     },
     wrong_3: {
-      ru: 'Четыре и пять — это девять, не восемь. Тридцать девять.',
-      uz: "To'rt va besh — bu to'qqiz, sakkiz emas. O'ttiz to'qqiz."
+      ru: 'Ты посчитал единицы неточно. Прибавь четыре и пять ещё раз, посчитай внимательно.',
+      uz: "Birlikni noto'g'ri sanadingiz. To'rt va beshni qaytadan, diqqat bilan sanang."
     },
     wrong_default: {
       ru: 'Прибавь единицы к единицам: четыре и пять.',
@@ -1058,16 +1058,16 @@ const CONTENT = {
     opt3: { ru: '56', uz: '56' },
     correct_text: { ru: 'Правильно. Два и три — пять. Пятьдесят пять.', uz: "To'g'ri. Ikki va uch — besh. Ellik besh." },
     wrong_1: {
-      ru: 'Три — это единицы. Пять десятков остаются. Два и три пять, пятьдесят пять.',
-      uz: "Uch — bu birlik. Besh o'nlik qoladi. Ikki va uch besh, ellik besh."
+      ru: 'Три — это единицы. Пять десятков остаются. Прибавь единицы и посчитай снова.',
+      uz: "Uch — bu birlik. Besh o'nlik qoladi. Birlikni qo'shib, qaytadan sanang."
     },
     wrong_2: {
-      ru: 'Не заменяем, а прибавляем. Два и три — это пять. Пятьдесят пять.',
-      uz: "Almashtirmaymiz, qo'shamiz. Ikki va uch — bu besh. Ellik besh."
+      ru: 'Не заменяем, а прибавляем. Прибавь два и три и посчитай снова.',
+      uz: "Almashtirmaymiz, qo'shamiz. Ikki va uchni qo'shib, qaytadan sanang."
     },
     wrong_3: {
-      ru: 'Два и три — это пять, не шесть. Пятьдесят пять.',
-      uz: "Ikki va uch — bu besh, olti emas. Ellik besh."
+      ru: 'Ты посчитал единицы неточно. Прибавь два и три ещё раз, посчитай внимательно.',
+      uz: "Birlikni noto'g'ri sanadingiz. Ikki va uchni qaytadan, diqqat bilan sanang."
     },
     wrong_default: {
       ru: 'Прибавь единицы к единицам: два и три.',
@@ -1104,16 +1104,16 @@ const CONTENT = {
     opt3: { ru: '28', uz: '28' },
     correct_text: { ru: 'Правильно. Три и шесть — девять. Двадцать девять.', uz: "To'g'ri. Uch va olti — to'qqiz. Yigirma to'qqiz." },
     wrong_1: {
-      ru: 'Шесть — это единицы. Два десятка остаются. Три и шесть девять, двадцать девять.',
-      uz: "Olti — bu birlik. Ikki o'nlik qoladi. Uch va olti to'qqiz, yigirma to'qqiz."
+      ru: 'Шесть — это единицы. Два десятка остаются. Прибавь единицы и посчитай снова.',
+      uz: "Olti — bu birlik. Ikki o'nlik qoladi. Birlikni qo'shib, qaytadan sanang."
     },
     wrong_2: {
-      ru: 'Не заменяем, а прибавляем. Три и шесть — девять. Двадцать девять.',
-      uz: "Almashtirmaymiz, qo'shamiz. Uch va olti — to'qqiz. Yigirma to'qqiz."
+      ru: 'Не заменяем, а прибавляем. Прибавь три и шесть и посчитай снова.',
+      uz: "Almashtirmaymiz, qo'shamiz. Uch va oltini qo'shib, qaytadan sanang."
     },
     wrong_3: {
-      ru: 'Три и шесть — это девять, не восемь. Двадцать девять.',
-      uz: "Uch va olti — bu to'qqiz, sakkiz emas. Yigirma to'qqiz."
+      ru: 'Ты посчитал единицы неточно. Прибавь три и шесть ещё раз, посчитай внимательно.',
+      uz: "Birlikni noto'g'ri sanadingiz. Uch va oltini qaytadan, diqqat bilan sanang."
     },
     wrong_default: {
       ru: 'Прибавь единицы к единицам: три и шесть.',
@@ -1168,16 +1168,16 @@ const CONTENT = {
     opt3: { ru: '47', uz: '47' },
     correct_text: { ru: 'Правильно. Три и пять — восемь. Сорок восемь.', uz: "To'g'ri. Uch va besh — sakkiz. Qirq sakkiz." },
     wrong_1: {
-      ru: 'Пять — это единицы. Четыре десятка остаются. Три и пять восемь, сорок восемь.',
-      uz: "Besh — bu birlik. To'rt o'nlik qoladi. Uch va besh sakkiz, qirq sakkiz."
+      ru: 'Пять — это единицы. Четыре десятка остаются. Прибавь единицы и посчитай снова.',
+      uz: "Besh — bu birlik. To'rt o'nlik qoladi. Birlikni qo'shib, qaytadan sanang."
     },
     wrong_2: {
-      ru: 'Не заменяем, а прибавляем. Три и пять — восемь. Сорок восемь.',
-      uz: "Almashtirmaymiz, qo'shamiz. Uch va besh — sakkiz. Qirq sakkiz."
+      ru: 'Не заменяем, а прибавляем. Прибавь три и пять и посчитай снова.',
+      uz: "Almashtirmaymiz, qo'shamiz. Uch va beshni qo'shib, qaytadan sanang."
     },
     wrong_3: {
-      ru: 'Три и пять — это восемь, не семь. Сорок восемь.',
-      uz: "Uch va besh — bu sakkiz, yetti emas. Qirq sakkiz."
+      ru: 'Ты посчитал единицы неточно. Прибавь три и пять ещё раз, посчитай внимательно.',
+      uz: "Birlikni noto'g'ri sanadingiz. Uch va beshni qaytadan, diqqat bilan sanang."
     },
     wrong_default: {
       ru: 'Прибавь единицы к единицам: три и пять.',
@@ -3767,7 +3767,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -3802,8 +3803,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4219,7 +4220,7 @@ export default function TwoPlusOneDigitLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

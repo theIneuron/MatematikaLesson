@@ -129,6 +129,14 @@ export default function D11_09(props) {
         .pq1109 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;}
         .pq1109 .pq-cloud.c1{top:26px;left:-70px;animation-duration:34s;}
         .pq1109 .pq-cloud.c2{top:54px;left:-70px;width:38px;height:12px;opacity:.7;animation-duration:46s;animation-delay:-22s;}
+        .pq1109 .pq-bird{position:absolute;z-index:0;color:#7c869a;opacity:.7;line-height:0;animation:pq1109Bird linear infinite;}
+        .pq1109 .pq-bird svg{display:block;}
+        .pq1109 .pq-bird.bd1{top:36px;left:-24px;animation-duration:28s;}
+        .pq1109 .pq-bird.bd2{top:58px;left:-24px;animation-duration:37s;animation-delay:-16s;}
+        .pq1109 .pq-bird.bd2 svg{width:12px;height:6px;}
+        .pq1109 .pq-fly{position:absolute;z-index:0;left:28px;top:60px;line-height:0;animation:pq1109Fly 4s ease-in-out infinite;}
+        @keyframes pq1109Bird{from{transform:translateX(0);}to{transform:translateX(560px);}}
+        @keyframes pq1109Fly{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-8px) rotate(5deg);}}
         .pq1109 .pq-hill{position:absolute;bottom:70px;left:0;right:0;height:60px;background:radial-gradient(120px 60px at 20% 100%,#bfe4a8 0 60%,transparent 62%),radial-gradient(150px 70px at 80% 100%,#b2dd9a 0 60%,transparent 62%);opacity:.8;}
         .pq1109 .pq-tree{position:absolute;bottom:96px;width:0;height:0;}
         .pq1109 .pq-tree.t1{left:64px;} .pq1109 .pq-tree.t2{left:112px;}
@@ -197,6 +205,9 @@ export default function D11_09(props) {
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-scene">
+        <span className="pq-bird bd1" aria-hidden="true"><svg viewBox="0 0 24 10" width="15" height="7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M1 8 Q6 1 11 8 Q16 1 21 8" /></svg></span>
+        <span className="pq-bird bd2" aria-hidden="true"><svg viewBox="0 0 24 10" width="15" height="7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M1 8 Q6 1 11 8 Q16 1 21 8" /></svg></span>
+        <span className="pq-fly" aria-hidden="true"><svg viewBox="0 0 20 16" width="14" height="11"><ellipse cx="7" cy="6" rx="5" ry="4" fill="#f2b134" opacity=".72" /><ellipse cx="13" cy="6" rx="5" ry="4" fill="#e88078" opacity=".72" /><ellipse cx="7" cy="11" rx="4" ry="3" fill="#f2b134" opacity=".62" /><ellipse cx="13" cy="11" rx="4" ry="3" fill="#e88078" opacity=".62" /><rect x="9.4" y="3" width="1.2" height="10" rx="0.6" fill="#5a4632" /></svg></span>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-hill" />

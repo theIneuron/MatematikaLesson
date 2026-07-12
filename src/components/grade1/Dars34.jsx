@@ -42,12 +42,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -223,7 +223,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -427,7 +427,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -959,6 +959,9 @@ const CONTENT = {
     reveal_label: { ru: 'Посчитать сантиметры', uz: 'Santimetrlarni sanash' },
     full_text: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'n santimetr bor." },
     full_audio: { ru: 'Посмотри на линейку. В одном дециметре ровно десять сантиметров.', uz: "Chizg'ichga qarang. Bir detsimetrda roppa-rosa o'n santimetr bor." },
+    zero_note: { ru: 'Измеряем всегда от нуля — с самого края линейки.', uz: "O'lchashni doim noldan — chizg'ichning eng chetidan boshlaymiz." },
+    zero_wrong: { ru: 'Не от нуля', uz: 'Noldan emas' },
+    zero_right: { ru: 'От нуля', uz: 'Noldan' },
     audio: {
       ru: [
         'Дециметр — это мерка длиннее сантиметра.',
@@ -995,16 +998,16 @@ const CONTENT = {
     opt2: { ru: '5 см', uz: '5 sm' },
     correct_text: { ru: 'Правильно. В дециметре десять сантиметров.', uz: "To'g'ri. Detsimetrda o'n santimetr." },
     wrong_1: {
-      ru: 'Один сантиметр — это маленькая мерка. В дециметре их десять.',
-      uz: "Bir santimetr — kichik o'lchov. Detsimetrda ular o'nta."
+      ru: 'Один сантиметр — это маленькая мерка. Вспомни линейку и посчитай ещё раз.',
+      uz: "Bir santimetr — kichik o'lchov. Chizg'ichni eslab, qaytadan sanang."
     },
     wrong_2: {
-      ru: 'В дециметре не пять, а десять сантиметров.',
-      uz: "Detsimetrda besh emas, o'n santimetr."
+      ru: 'В дециметре не пять сантиметров. Вспомни линейку и посчитай ещё раз.',
+      uz: "Detsimetrda besh santimetr emas. Chizg'ichni eslab, qaytadan sanang."
     },
     wrong_default: {
-      ru: 'В одном дециметре десять сантиметров.',
-      uz: "Bir detsimetrda o'n santimetr."
+      ru: 'Вспомни линейку и посчитай сантиметры.',
+      uz: "Chizg'ichni eslab, santimetrlarni sanang."
     },
     audio: {
       intro: { ru: 'Сколько сантиметров в одном дециметре? Выбери.', uz: "Bir detsimetrda nechta santimetr? Tanlang." },
@@ -1055,12 +1058,12 @@ const CONTENT = {
     opt2: { ru: '2 см', uz: '2 sm' },
     correct_text: { ru: 'Правильно. Карандаш длиной два дециметра.', uz: "To'g'ri. Qalam ikki detsimetr uzunlikda." },
     wrong_1: {
-      ru: 'Посчитай отметки ещё раз: карандаш занимает два дециметра, не три.',
-      uz: "Belgilarni yana sanang: qalam ikki detsimetrni egallaydi, uch emas."
+      ru: 'Посчитай отметки ещё раз: карандаш короче трёх дециметров.',
+      uz: "Belgilarni qaytadan sanang: qalam uch detsimetrdan qisqaroq."
     },
     wrong_2: {
-      ru: 'Тут мерка — дециметр, а не сантиметр. Карандаш два дециметра.',
-      uz: "Bu yerda o'lchov — detsimetr, santimetr emas. Qalam ikki detsimetr."
+      ru: 'Тут мерка — дециметр, а не сантиметр. Посмотри на деления ещё раз.',
+      uz: "Bu yerda o'lchov — detsimetr, santimetr emas. Bo'linmalarga yana qarang."
     },
     wrong_default: {
       ru: 'Посчитай, сколько дециметров занимает карандаш.',
@@ -1082,16 +1085,16 @@ const CONTENT = {
     opt2: { ru: '5 дм', uz: '5 dm' },
     correct_text: { ru: 'Правильно. В метре десять дециметров.', uz: "To'g'ri. Metrda o'n detsimetr." },
     wrong_1: {
-      ru: 'Один дециметр — это мало для метра. В метре их десять.',
-      uz: "Bir detsimetr — metr uchun kam. Metrda ular o'nta."
+      ru: 'Один дециметр — это мало для метра. Посчитай ещё раз.',
+      uz: "Bir detsimetr — metr uchun kam. Qaytadan sanang."
     },
     wrong_2: {
-      ru: 'В метре не пять, а десять дециметров.',
-      uz: "Metrda besh emas, o'n detsimetr."
+      ru: 'В метре не пять дециметров. Вспомни мерку метр ещё раз.',
+      uz: "Metrda besh detsimetr emas. Metr o'lchovini yana eslang."
     },
     wrong_default: {
-      ru: 'В одном метре десять дециметров.',
-      uz: "Bir metrda o'n detsimetr."
+      ru: 'Вспомни мерку метр и посчитай дециметры.',
+      uz: "Metr o'lchovini eslab, detsimetrlarni sanang."
     },
     audio: {
       intro: { ru: 'Сколько дециметров в одном метре? Выбери.', uz: "Bir metrda nechta detsimetr? Tanlang." },
@@ -1109,12 +1112,12 @@ const CONTENT = {
     opt2: { ru: '5 см', uz: '5 sm' },
     correct_text: { ru: 'Правильно. Два и три дециметра — пять дециметров.', uz: "To'g'ri. Ikki va uch detsimetr — besh detsimetr." },
     wrong_1: {
-      ru: 'Два и три — это пять, не шесть. Всего пять дециметров.',
-      uz: "Ikki va uch — bu besh, olti emas. Jami besh detsimetr."
+      ru: 'Два и три — это меньше шести. Сложи ещё раз.',
+      uz: "Ikki va uch — oltidan kam. Qaytadan qo'shing."
     },
     wrong_2: {
-      ru: 'Мерка здесь дециметр, а не сантиметр. Получится пять дециметров.',
-      uz: "Bu yerda o'lchov detsimetr, santimetr emas. Besh detsimetr chiqadi."
+      ru: 'Мерка здесь дециметр, а не сантиметр. Сложи дециметры.',
+      uz: "Bu yerda o'lchov detsimetr, santimetr emas. Detsimetrlarni qo'shing."
     },
     wrong_default: {
       ru: 'Сложи два и три дециметра.',
@@ -1175,12 +1178,12 @@ const CONTENT = {
     opt2: { ru: '7 см', uz: '7 sm' },
     correct_text: { ru: 'Правильно. Три и четыре дециметра — семь дециметров.', uz: "To'g'ri. Uch va to'rt detsimetr — yetti detsimetr." },
     wrong_1: {
-      ru: 'Три и четыре — это семь, не восемь. Всего семь дециметров.',
-      uz: "Uch va to'rt — bu yetti, sakkiz emas. Jami yetti detsimetr."
+      ru: 'Три и четыре — это меньше восьми. Сложи ещё раз.',
+      uz: "Uch va to'rt — sakkizdan kam. Qaytadan qo'shing."
     },
     wrong_2: {
-      ru: 'Мерка здесь дециметр, а не сантиметр. Семь дециметров.',
-      uz: "Bu yerda o'lchov detsimetr, santimetr emas. Yetti detsimetr."
+      ru: 'Мерка здесь дециметр, а не сантиметр. Сложи дециметры.',
+      uz: "Bu yerda o'lchov detsimetr, santimetr emas. Detsimetrlarni qo'shing."
     },
     wrong_default: {
       ru: 'Сложи три и четыре дециметра.',
@@ -3788,7 +3791,7 @@ const SparkBurst = () => (
 // RulerFig — REAL yog'och chizg'ich (KATTA, frame bo'ylab cho'ziladi): yer soyasi + hajmli gavda + tola + metall uchliklar.
 // anim: 'enter' (bo'limlar chapdan chiziladi + jonli suzadi) | 'celebrate' (tebranadi + uchqun + JAVOB ko'rsatiladi) | 'static'.
 // demo=true: o'lchov karetkasi suzadi + sm bo'limlari birma-bir yonadi. answer: celebrate'da ko'rsatiladigan javob ("2 dm").
-const RulerFig = ({ dm = 1, obj = null, coarse = false, anim = 'static', demo = false, answer = null }) => {
+const RulerFig = ({ dm = 1, obj = null, objStart = 0, coarse = false, anim = 'static', demo = false, answer = null }) => {
   const dmW = coarse ? 32 : 56;
   const pad = 14;
   const W = dm * dmW + pad * 2;
@@ -3847,9 +3850,9 @@ const RulerFig = ({ dm = 1, obj = null, coarse = false, anim = 'static', demo = 
         <rect x={bodyX + bodyW - 5.5} y={topY - 1} width="6.5" height={bodyH + 2} rx="3" fill="url(#d34metal)" stroke="#8A8E92" strokeWidth="0.5"/>
         {obj != null && (
           <g className="g1-rl-obj" style={{ transformBox: 'fill-box', transformOrigin: 'left center' }}>
-            <ellipse cx={pad + obj * dmW / 2} cy={topY - 9} rx={obj * dmW / 2} ry="2.6" fill="rgba(58,53,48,0.12)"/>
-            <rect x={pad} y={topY - 32} width={obj * dmW} height="20" rx="5" fill="url(#d34obj)" stroke="#C2440F" strokeWidth="0.9"/>
-            <rect x={pad + 2} y={topY - 30} width={Math.max(obj * dmW - 6, 2)} height="5.5" rx="2.5" fill="rgba(255,255,255,0.36)"/>
+            <ellipse cx={pad + objStart * dmW + obj * dmW / 2} cy={topY - 9} rx={obj * dmW / 2} ry="2.6" fill="rgba(58,53,48,0.12)"/>
+            <rect x={pad + objStart * dmW} y={topY - 32} width={obj * dmW} height="20" rx="5" fill="url(#d34obj)" stroke="#C2440F" strokeWidth="0.9"/>
+            <rect x={pad + objStart * dmW + 2} y={topY - 30} width={Math.max(obj * dmW - 6, 2)} height="5.5" rx="2.5" fill="rgba(255,255,255,0.36)"/>
           </g>
         )}
         {demo && <polygon className="g1-rl-caret" points={`${pad - 5},${topY - 10} ${pad + 5},${topY - 10} ${pad},${topY - 1.5}`} fill={T.accent} style={{ ['--sweep']: `${dm * dmW}px` }}/>}
@@ -4073,6 +4076,21 @@ const Screen1 = (props) => {
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.full_text)}/>
+          </div>
+        )}
+        {done && (
+          <div className="frame fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 16px)' }}>
+            <div style={{ display: 'flex', gap: 'clamp(12px, 3vw, 24px)', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'flex-end' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <RulerFig dm={2} obj={1} objStart={1}/>
+                <span className="eyebrow mono" style={{ color: T.accent }}>✗ {t(c.zero_wrong)}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <RulerFig dm={2} obj={1} objStart={0}/>
+                <span className="eyebrow mono" style={{ color: T.success }}>✓ {t(c.zero_right)}</span>
+              </div>
+            </div>
+            <BitSays text={t(c.zero_note)}/>
           </div>
         )}
       </div>
@@ -4423,7 +4441,7 @@ export default function WordProblemSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

@@ -1,63 +1,55 @@
-// Dars13 · Amaliyot 02 — P13 «Dasta nechta?» · 🟡 · tag: ten_is_bundle
-// O'nta yakka qalam (birlik) rezinka bilan bog'lanib bitta DASTA (o'nlik) bo'ladi: dastada 10 qalam.
+// Dars13 · Amaliyot 02 — P13 O'ngacha to'ldirish «Qalam do'koni» · 🟡 · tag: complete_ten
+// 10 katakli qalam-quti: 7 joyda qalam, 3 bo'sh. Yetti va yana uch — o'nta. O'ngacha to'ldiramiz.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-const N = 10; // dastadagi qalamlar
-const DATA = { target: 10, options: [9, 10, 11], ptype: 'P13', level: '🟡', tag: 'ten_is_bundle' };
+const HAVE = 7, NEED = 3, TEN = 10;
+const DATA = { have: HAVE, target: NEED, options: [2, 3, 4], ptype: 'P13', level: '🟡', tag: 'complete_ten' };
 
-// Qalam ranglari (palitradan): sariq / qizil / ko'k / yashil — aylanadi.
+// Qalam tanasi rang palitrasi (sariq / qizil / ko'k / yashil — 2-3 ton).
 const PAL = [
-  { body: '#f2b134', dark: '#cf8f1c' },
-  { body: '#d9534b', dark: '#b23a33' },
-  { body: '#4f8fc4', dark: '#3a6f9e' },
-  { body: '#57a84f', dark: '#43863c' },
+  { body: '#f2b134', light: '#f9ce74', dark: '#cd9421' }, // sariq
+  { body: '#d9534b', light: '#e88881', dark: '#b13a33' }, // qizil
+  { body: '#4f8fc4', light: '#83b1d9', dark: '#396f9c' }, // ko'k
+  { body: '#57a84f', light: '#87c580', dark: '#42813e' }, // yashil
 ];
-const PENCILS = Array.from({ length: N }, (_, i) => PAL[i % PAL.length]);
+// 10 katak (5×2). Dastlab 0..6 to'la, 7..9 bo'sh (shtrix).
+const SLOTS = Array.from({ length: TEN }).map((_, i) => ({ i, filled: i < HAVE, c: PAL[i % PAL.length] }));
 
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · Dasta", title: "Dasta nechta?",
-    setup: "O'nta yakka qalamni rezinka bilan bog'lab, bitta DASTA qilamiz. Dasta — bu o'nlik!",
-    ask: "Bir dastada nechta qalam bor?",
-    correct: "Barakalla! Bir dasta — o'nta qalam. O'n birlik bitta o'nlik bo'ldi!",
-    hint: "Dastadagi qalamlarni sanang: nechta bo'lsa, dasta shuncha.",
-    chip: "1 dasta = 10 qalam",
+    eyebrow: "Qalam do'koni · To'ldirish", title: "O'ngacha nechta yetmaydi?",
+    setup: "Qutida o'nta joy bor, yettitasida qalam turibdi.",
+    ask: "O'ngacha to'ldirish uchun yana nechta qalam kerak?",
+    correct: "Barakalla! Yetti va yana uch — o'nta. Quti to'ldi!",
+    hint: "Bo'sh joylarni sanang: nechta qalam qo'shsak, quti to'ladi?",
   },
   ru: {
-    eyebrow: "Магазин карандашей · Пучок", title: "Сколько в пучке?",
-    setup: "Десять отдельных карандашей свяжем резинкой в один ПУЧОК. Пучок — это десяток!",
-    ask: "Сколько карандашей в одном пучке?",
-    correct: "Молодец! Один пучок — десять карандашей. Десять единиц стали одним десятком!",
-    hint: "Посчитай карандаши в пучке: сколько их — столько и в пучке.",
-    chip: "1 пучок = 10 карандашей",
+    eyebrow: "Магазин карандашей · Дополни", title: "Сколько не хватает до десяти?",
+    setup: "В коробке десять мест, в семи стоят карандаши.",
+    ask: "Сколько карандашей нужно добавить, чтобы получилось десять?",
+    correct: "Молодец! Семь и ещё три — десять. Коробка полная!",
+    hint: "Сосчитай пустые места: сколько карандашей добавить, чтобы коробка заполнилась?",
   },
 };
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
-// QALAM KANONI (yakka birlik): tik yog'och qalam — grafit uch + yog'och konus, rangli tana (2-ton) + blik,
-// metall halqa + pushti o'chirg'ich. Bitta qalam = bitta birlik.
+// QALAM KANONI (yakka birlik): tik yog'och qalam — grafit uchi + yog'och konus,
+// rangli tana (2-3 ton, chap yorug'lik strip / o'ng soya), metall halqa, pushti o'chirg'ich.
 const Pencil = ({ c }) => (
-  <svg viewBox="0 0 18 80" width="18" height="80" aria-hidden="true" style={{ display: 'block' }}>
-    {/* grafit uch */}
-    <polygon points="9,2 12.4,13 5.6,13" fill="#3a3a3a" />
-    <polygon points="9,2 9,13 5.6,13" fill="#1f1f1f" opacity=".45" />
-    {/* yog'och konus */}
-    <polygon points="9,7.5 15,19 3,19" fill="#e7c99c" />
-    <polygon points="9,7.5 9,19 3,19" fill="#d3ac77" opacity=".7" />
-    {/* tana (2-ton) */}
-    <rect x="3" y="18" width="12" height="46" fill={c.body} />
-    <rect x="3" y="18" width="3.6" height="46" fill="#ffffff" opacity=".22" />
-    <rect x="11.4" y="18" width="3.6" height="46" fill={c.dark} />
-    <rect className="pq-glint" x="7.3" y="18" width="1.5" height="46" fill="#ffffff" opacity=".38" />
-    {/* metall halqa */}
-    <rect x="3" y="63" width="12" height="9" fill="#c9ced6" />
-    <rect x="3" y="65.4" width="12" height="1.3" fill="#9aa0aa" />
-    <rect x="3" y="68.4" width="12" height="1.3" fill="#9aa0aa" />
-    {/* o'chirg'ich */}
-    <rect x="3.6" y="71" width="10.8" height="8.4" rx="3" fill="#f2a6c0" />
-    <rect x="3.6" y="71" width="3.8" height="8.4" rx="3" fill="#ffffff" opacity=".3" />
+  <svg viewBox="0 0 22 76" width="20" height="66" aria-hidden="true" style={{ display: 'block' }}>
+    <polygon points="11,2 8.2,10 13.8,10" fill="#3b3b42" />
+    <polygon points="11,2 4.5,17 17.5,17" fill="#edc689" />
+    <polygon points="11,2 11,17 4.5,17" fill="#d6a765" opacity=".7" />
+    <rect x="4.5" y="16.5" width="13" height="44" rx="1" fill={c.body} />
+    <rect x="4.5" y="16.5" width="3.8" height="44" fill={c.light} opacity=".6" />
+    <rect x="14" y="16.5" width="3.5" height="44" fill={c.dark} opacity=".55" />
+    <rect x="4.5" y="60" width="13" height="7" rx="1" fill="#ced1d7" />
+    <rect x="4.5" y="62" width="13" height="1.4" fill="#a6aab2" />
+    <rect x="4.5" y="64.6" width="13" height="1.4" fill="#b8bbc2" />
+    <rect x="5" y="66.5" width="12" height="8.6" rx="2.6" fill="#ea90b5" />
+    <rect x="6" y="67.6" width="3" height="6.4" rx="1.5" fill="#f6bdd6" opacity=".7" />
   </svg>
 );
 
@@ -68,7 +60,7 @@ export default function D13_02(props) {
   const [picked, setPicked] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
-  // Review yoki qayta ochilishda bog'lash animatsiyasi qayta ijro etilmaydi — statik yakuniy holat.
+  // Review yoki qayta ochilishda qalam-tushish qayta ijro etilmaydi — statik yakuniy holat.
   const stillRef = useRef(isReview || !!(initialAnswer && initialAnswer.studentAnswer));
   const still = stillRef.current;
 
@@ -96,91 +88,106 @@ export default function D13_02(props) {
     <div className="pq pq1302">
       <style>{`
         .pq1302{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
-        .pq1302 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9861f;text-transform:uppercase;}
+        .pq1302 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq1302 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1302 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1302 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq1302 .pq-scene{position:relative;width:340px;max-width:100%;height:232px;margin:0 auto;border-radius:20px;background:linear-gradient(#f6e7c9 0%,#efd6ad 60%,#e6c79a 100%);border:2px solid #d9bd8e;overflow:hidden;}
-        .pq1302 .pq-win{position:absolute;left:14px;top:12px;width:56px;height:44px;border-radius:5px;background:linear-gradient(135deg,#dff0fb 0 45%,#bfe0f4 45% 55%,#dff0fb 55%);border:3px solid #b98b52;z-index:0;overflow:hidden;}
-        .pq1302 .pq-win::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:3px;background:#b98b52;transform:translateX(-1.5px);}
-        .pq1302 .pq-win::after{content:'';position:absolute;top:50%;left:0;right:0;height:3px;background:#b98b52;transform:translateY(-1.5px);}
-        .pq1302 .pq-sun{position:absolute;left:20px;top:16px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff6cf,#ffd85e 70%,#f5b52e);box-shadow:0 0 12px 3px rgba(255,216,94,.6);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
-        .pq1302 .pq-cord{position:absolute;left:50%;top:0;width:2px;height:20px;background:#7a6a52;transform:translateX(-1px);z-index:1;}
-        .pq1302 .pq-bulb{position:absolute;left:50%;top:18px;transform:translateX(-50%);width:20px;height:16px;border-radius:0 0 12px 12px/0 0 16px 16px;background:radial-gradient(circle at 50% 30%,#fff3b0,#ffd23f 70%,#e0a41e);box-shadow:0 0 15px 5px rgba(255,210,63,.5);z-index:1;animation:pqLamp 2.7s ease-in-out infinite;}
-        .pq1302 .pq-shelf{position:absolute;left:16px;right:16px;top:76px;height:9px;border-radius:3px;background:linear-gradient(#c8935a,#a9743f);box-shadow:0 2px 3px rgba(0,0,0,.15);z-index:1;}
-        .pq1302 .pq-shbox{position:absolute;top:52px;width:34px;height:24px;border-radius:4px 4px 2px 2px;z-index:1;box-shadow:0 2px 2px rgba(0,0,0,.14);animation:pqBoxBob 3.4s ease-in-out infinite;}
-        .pq1302 .pq-shbox::before{content:'';position:absolute;left:0;right:0;top:0;height:7px;border-radius:4px 4px 0 0;background:rgba(255,255,255,.28);}
-        .pq1302 .pq-shbox::after{content:'';position:absolute;right:3px;bottom:4px;width:10px;height:7px;border-radius:2px;background:#fff;opacity:.85;}
-        .pq1302 .pq-shbox.b1{left:24px;background:linear-gradient(#e08a9a,#cf5f74);}
-        .pq1302 .pq-shbox.b2{right:24px;background:linear-gradient(#7fb0d8,#4f8fc4);animation-delay:-1.6s;}
-        .pq1302 .pq-counter{position:absolute;left:0;right:0;bottom:0;height:38px;background:linear-gradient(#c8935a,#a9743f 60%,#8f5f30);border-top:3px solid #dcae74;z-index:2;}
-        .pq1302 .pq-counter::before{content:'';position:absolute;left:0;right:0;top:9px;height:2px;background:rgba(255,255,255,.14);}
-        .pq1302 .pq-bundlepos{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:4;}
-        .pq1302 .pq-bundle{position:relative;transform-origin:bottom center;animation:pqSway 3.8s ease-in-out infinite;}
-        .pq1302 .pq-scene.still .pq-bundle{animation:none;}
-        .pq1302 .pq-pencils{position:relative;display:flex;gap:5px;align-items:flex-end;filter:drop-shadow(0 3px 3px rgba(0,0,0,.18));}
-        .pq1302 .pq-pencil{position:relative;animation:pqGather .7s cubic-bezier(.3,1.15,.5,1) both;transform:translateX(var(--dx,0));}
-        .pq1302 .pq-scene.still .pq-pencil{animation:none;transform:none;}
-        .pq1302 .pq-glint{animation:pqGlint 2.9s ease-in-out infinite;}
-        .pq1302 .pq-band{position:absolute;left:-4px;right:-4px;top:43px;height:15px;border-radius:5px;background:linear-gradient(#e8635b,#d9534b 45%,#b23a33);border:1px solid #a5342d;box-shadow:0 2px 3px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.35);z-index:5;transform-origin:center;animation:pqBind .5s cubic-bezier(.3,1.4,.5,1) .72s both;}
-        .pq1302 .pq-scene.still .pq-band{animation:none;opacity:1;transform:scaleX(1);}
-        .pq1302 .pq-cnt{position:absolute;top:-9px;left:50%;transform:translateX(-50%);min-width:16px;height:16px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:6;box-shadow:0 1px 2px rgba(0,0,0,.2);animation:pqPop .3s ease both;}
-        .pq1302 .pq-q,.pq1302 .pq-ans{position:absolute;left:50%;bottom:100%;margin-bottom:8px;font-weight:900;z-index:6;white-space:nowrap;}
-        .pq1302 .pq-q{font-size:32px;color:#c9861f;text-shadow:0 2px 6px rgba(255,255,255,.8);animation:pqBreath 1.8s ease-in-out infinite;}
-        .pq1302 .pq-ans{font-size:40px;color:#1a7f43;text-shadow:0 2px 8px rgba(255,255,255,.9);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;transform:translateX(-50%);}
-        .pq1302 .pq-chipwrap{text-align:center;margin-top:10px;min-height:2px;}
-        .pq1302 .pq-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:999px;background:#fff3e0;border:2px solid #f0c98a;color:#a86412;font-size:15px;font-weight:800;animation:pqIn .3s ease both;}
-        .pq1302 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:14px;}
+        .pq1302 .pq-scene{position:relative;width:340px;max-width:100%;height:252px;margin:0 auto;border-radius:20px;background:linear-gradient(#f3e2c6 0%,#eed7b2 46%,#e7c99b 100%);border:2px solid #d9be92;overflow:hidden;}
+        .pq1302 .pq-window{position:absolute;right:14px;top:14px;width:60px;height:46px;border-radius:7px;background:linear-gradient(135deg,#dff0fb 0 46%,#c2ddf0 46% 54%,#e9f6ff 54%);border:2.5px solid #b98f52;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);z-index:1;}
+        .pq1302 .pq-window::after{content:'';position:absolute;left:50%;top:3px;bottom:3px;width:2px;background:#b98f52;transform:translateX(-1px);}
+        .pq1302 .pq-sun{position:absolute;right:22px;top:20px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
+        .pq1302 .pq-lamp{position:absolute;left:36px;top:0;width:2px;height:20px;background:#8a5628;z-index:1;}
+        .pq1302 .pq-lampshade{position:absolute;left:24px;top:18px;width:26px;height:13px;border-radius:0 0 40% 40%/0 0 100% 100%;background:linear-gradient(#f7d98a,#e0a83f);border:1.5px solid #b98235;z-index:1;box-shadow:0 10px 22px 6px rgba(255,213,110,.45);animation:pqLamp 3.2s ease-in-out infinite;}
+        .pq1302 .pq-counter{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(#c8935a,#a5723f);border-top:3px solid #8a5628;z-index:2;box-shadow:inset 0 2px 0 rgba(255,255,255,.2);}
+        .pq1302 .pq-counter::after{content:'';position:absolute;left:0;right:0;top:11px;height:2px;background:rgba(90,54,20,.35);}
+        .pq1302 .pq-jar{position:absolute;left:12px;bottom:26px;width:30px;height:34px;z-index:3;animation:pqSway 3.4s ease-in-out infinite;transform-origin:bottom center;}
+        .pq1302 .pq-jar .cup{position:absolute;left:0;bottom:0;width:30px;height:22px;border-radius:5px 5px 8px 8px;background:linear-gradient(#d7e6ef,#b6cede);border:1.6px solid #8fa9bc;}
+        .pq1302 .pq-jar .p{position:absolute;bottom:16px;width:4px;height:16px;border-radius:2px;}
+        .pq1302 .pq-jar .p.a{left:6px;background:#f2b134;} .pq1302 .pq-jar .p.b{left:13px;height:19px;background:#4f8fc4;} .pq1302 .pq-jar .p.c{left:20px;background:#d9534b;}
+        .pq1302 .pq-tag{position:absolute;right:16px;bottom:118px;width:26px;height:16px;background:#f6c651;border:1.6px solid #cf9a2a;border-radius:3px 8px 8px 3px;z-index:3;transform:rotate(-8deg);transform-origin:left center;animation:pqTag 3s ease-in-out infinite;box-shadow:0 2px 3px rgba(0,0,0,.14);}
+        .pq1302 .pq-tag::before{content:'';position:absolute;left:3px;top:5px;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px #cf9a2a;}
+        .pq1302 .pq-tag::after{content:'';position:absolute;left:9px;top:6px;right:4px;height:2px;background:#cf9a2a;border-radius:2px;box-shadow:0 4px 0 #cf9a2a;}
+
+        .pq1302 .pq-box{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);padding:11px 12px 13px;border-radius:16px;background:linear-gradient(#cd8f52,#b0703a);border:2.5px solid #86531f;box-shadow:0 7px 15px rgba(0,0,0,.24),inset 0 2px 0 rgba(255,255,255,.28);z-index:4;}
+        .pq1302 .pq-box.win{animation:pqBoxCele .55s ease;}
+        .pq1302 .pq-grid{position:relative;display:grid;grid-template-columns:repeat(5,33px);grid-auto-rows:74px;gap:5px;}
+        .pq1302 .pq-cell{position:relative;border-radius:9px;background:rgba(255,250,239,.42);border:1.6px solid rgba(120,74,32,.4);display:flex;align-items:center;justify-content:center;}
+        .pq1302 .pq-cell.empty{background:rgba(255,255,255,.2);border-style:dashed;border-color:rgba(120,74,32,.62);}
+        .pq1302 .pq-penw{position:relative;line-height:0;}
+        .pq1302 .pq-penw.in{animation:pqDrop .5s cubic-bezier(.3,1.25,.5,1) both;animation-delay:var(--dd,0s);}
+        .pq1302 .pq-pen{display:block;position:relative;animation:pqSway 2.9s ease-in-out infinite;animation-delay:var(--sd,0s);transform-origin:bottom center;}
+        .pq1302 .pq-q{font-size:23px;font-weight:900;color:#a06a2e;opacity:.7;animation:pqQ 1.9s ease-in-out infinite;animation-delay:var(--sd,0s);}
+        .pq1302 .pq-cnt{position:absolute;top:-7px;right:-5px;min-width:17px;height:17px;padding:0 2px;border-radius:50%;background:#2563eb;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:6;animation:pqPop .3s ease both;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+        .pq1302 .pq-tenlbl{position:absolute;top:60px;right:-24px;z-index:6;background:#fff;border:2px solid #1a7f43;color:#1a7f43;font-weight:900;font-size:13px;padding:2px 8px;border-radius:999px;box-shadow:0 2px 4px rgba(0,0,0,.18);animation:pqPop .4s .18s both;}
+        .pq1302 .pq-spark{position:absolute;z-index:5;color:#ffd13f;opacity:0;line-height:0;animation:pqTwinkle 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
+        .pq1302 .pq-spark.s2{animation-delay:-.6s;} .pq1302 .pq-spark.s3{animation-delay:-1.15s;}
+
+        .pq1302 .pq-eq7{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;animation:pqIn .3s ease both;}
+        .pq1302 .pq-eq7 b{min-width:34px;height:38px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;border-radius:11px;background:#fff6ea;border:2px solid #e2c79a;color:#a05a1f;font-variant-numeric:tabular-nums;}
+        .pq1302 .pq-eq7 b.ten{background:#e8f7ee;border-color:#1a7f43;color:#1a7f43;}
+        .pq1302 .pq-eq7 i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
+
+        .pq1302 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
         .pq1302 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
-        .pq1302 .pq-opt:hover:not(:disabled){border-color:#f0c98a;transform:translateY(-2px);}
+        .pq1302 .pq-opt:hover:not(:disabled){border-color:#e2c79a;transform:translateY(-2px);}
         .pq1302 .pq-opt:active:not(:disabled){transform:scale(.94);}
         .pq1302 .pq-opt.sel{border-color:#2563eb;background:#e8eefc;}
         .pq1302 .pq-opt.right{border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pqCele .5s ease;}
         .pq1302 .pq-opt:disabled{cursor:default;}
         .pq1302 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
         .pq1302 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq1302 .pq-fb.no{background:#fdecec;color:#c0392b;}
-        @keyframes pqGather{from{transform:translateX(var(--dx,0));}to{transform:translateX(0);}}
-        @keyframes pqBind{0%{opacity:0;transform:scaleX(0);}60%{opacity:1;transform:scaleX(1.06);}100%{opacity:1;transform:scaleX(1);}}
-        @keyframes pqSway{0%,100%{transform:rotate(-1.1deg);}50%{transform:rotate(1.1deg);}}
-        @keyframes pqGlint{0%,100%{opacity:.18;}50%{opacity:.5;}}
+        @keyframes pqSway{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-3px) rotate(-1.4deg);}}
+        @keyframes pqDrop{0%{opacity:0;transform:translateY(-72px) scale(.85);}70%{opacity:1;transform:translateY(4px);}100%{opacity:1;transform:translateY(0);}}
+        @keyframes pqQ{0%,100%{transform:scale(1);opacity:.55;}50%{transform:scale(1.18);opacity:.9;}}
+        @keyframes pqPop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-        @keyframes pqLamp{0%,100%{opacity:.9;box-shadow:0 0 12px 4px rgba(255,210,63,.4);}50%{opacity:1;box-shadow:0 0 18px 6px rgba(255,210,63,.6);}}
-        @keyframes pqBoxBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
-        @keyframes pqBreath{0%,100%{transform:translateX(-50%) scale(1);opacity:.85;}50%{transform:translateX(-50%) scale(1.12);opacity:1;}}
-        @keyframes pqAns{0%{opacity:0;transform:translateX(-50%) scale(.3);}100%{opacity:1;transform:translateX(-50%) scale(1);}}
-        @keyframes pqPop{from{opacity:0;transform:translateX(-50%) scale(.4);}to{opacity:1;transform:translateX(-50%) scale(1);}}
-        @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
+        @keyframes pqLamp{0%,100%{opacity:.85;}50%{opacity:1;}}
+        @keyframes pqTag{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(-3deg);}}
+        @keyframes pqTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
+        @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.05);}60%{transform:scale(.97);}100%{transform:scale(1);}}
+        @keyframes pqBoxCele{0%{transform:translateX(-50%) scale(1);}30%{transform:translateX(-50%) scale(1.04);}60%{transform:translateX(-50%) scale(.98);}100%{transform:translateX(-50%) scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className={'pq-scene' + (still ? ' still' : '')}>
-        <div className="pq-win" />
-        <span className="pq-sun" />
-        <span className="pq-cord" /><span className="pq-bulb" />
-        <span className="pq-shelf" />
-        <span className="pq-shbox b1" /><span className="pq-shbox b2" />
+      <div className="pq-scene">
+        <span className="pq-lamp" /><span className="pq-lampshade" />
+        <span className="pq-window" /><span className="pq-sun" />
+        <span className="pq-tag" />
         <span className="pq-counter" />
+        <span className="pq-jar"><span className="p a" /><span className="p b" /><span className="p c" /><span className="cup" /></span>
 
-        <div className="pq-bundlepos">
-          {!ok && <span className="pq-q">?</span>}
-          {ok && <span className="pq-ans">{DATA.target}</span>}
-          <div className="pq-bundle">
-            <div className="pq-pencils">
-              {PENCILS.map((c, i) => (
-                <span key={i} className="pq-pencil" style={{ '--dx': `${(i - (N - 1) / 2) * 12}px` }}>
-                  <Pencil c={c} />
-                  {ok && <b className="pq-cnt" style={{ animationDelay: `${i * 0.05}s` }}>{i + 1}</b>}
-                </span>
-              ))}
-              <span className="pq-band" />
-            </div>
+        <div className={'pq-box' + (ok ? ' win' : '')}>
+          <div className="pq-grid">
+            {SLOTS.map((s) => {
+              const show = s.filled || ok;
+              const isAdd = !s.filled;
+              return (
+                <div key={s.i} className={'pq-cell' + (show ? ' full' : ' empty')}>
+                  {show ? (
+                    <span className={'pq-penw' + (isAdd && ok && !still ? ' in' : '')} style={{ '--dd': `${(s.i - HAVE) * 0.16}s` }}>
+                      <span className="pq-pen" style={{ '--sd': `${(s.i * 0.16).toFixed(2)}s` }}><Pencil c={s.c} /></span>
+                      {ok && <b className="pq-cnt" style={{ animationDelay: `${s.i * 0.05}s` }}>{s.i + 1}</b>}
+                    </span>
+                  ) : (
+                    <span className="pq-q" style={{ '--sd': `${(s.i - HAVE) * 0.3}s` }}>?</span>
+                  )}
+                </div>
+              );
+            })}
+            {ok && <span className="pq-tenlbl">{TEN}</span>}
           </div>
         </div>
+
+        {ok && (<>
+          <span className="pq-spark" style={{ left: '20%', top: '58px' }}>✦</span>
+          <span className="pq-spark s2" style={{ left: '82%', top: '78px' }}>✦</span>
+          <span className="pq-spark s3" style={{ left: '52%', top: '44px' }}>✦</span>
+        </>)}
       </div>
 
-      <div className="pq-chipwrap">{ok && <span className="pq-chip">{t.chip}</span>}</div>
+      {ok && (<div className="pq-eq7"><b>{HAVE}</b><i>+</i><b>{NEED}</b><i>=</i><b className="ten">{TEN}</b></div>)}
 
       <div className="pq-opts">
         {DATA.options.map((n) => {

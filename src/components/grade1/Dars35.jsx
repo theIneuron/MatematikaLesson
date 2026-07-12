@@ -42,12 +42,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -223,7 +223,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -427,7 +427,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -875,7 +875,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
 // ============================================================
 
-const TOTAL_SCREENS = 14;
+const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-1-35-v1',
   lessonTitle: { ru: 'Масса — килограмм', uz: 'Massa — kilogramm' }
@@ -885,6 +885,7 @@ const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },          // jumboq: qaysi og'ir
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // tarozi: og'ir tomon pastga
   { id: 's2',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // og'ir pastda, yengil tepada
+  { id: 's2b', type: 'exploration', template: 'custom',   scored: false, scope: null },            // qarshi-namuna: katta doim og'ir emas (kichik gir > katta pufak)
   { id: 's3',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // qaysi og'ir (tarozi)
   { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // kilogramm — massa o'lchovi
   { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // kg
@@ -957,7 +958,7 @@ const CONTENT = {
         uz: "Tarvuz va olma. Sizningcha, qaysi biri og'irroq? Javobni bosing."
       },
       on_correct: { ru: 'Верно, арбуз тяжелее. Проверим на весах.', uz: "To'g'ri, tarvuz og'irroq. Tarozida tekshiramiz." },
-      on_wrong: { ru: 'Верно, арбуз тяжелее. Проверим на весах.', uz: "To'g'ri, tarvuz og'irroq. Tarozida tekshiramiz." }
+      on_wrong: { ru: 'Давай проверим вместе.', uz: "Keling, birga tekshiramiz." }
     }
   },
 
@@ -991,6 +992,24 @@ const CONTENT = {
     audio: {
       ru: 'Запомни. На весах тяжёлая чаша идёт вниз, а лёгкая вверх. Ровные чаши значит равная масса.',
       uz: "Eslab qoling. Tarozida og'ir palla pastga, yengili tepaga ketadi. Teng pallalar — teng massa."
+    }
+  },
+
+  s2b: {
+    eyebrow: { ru: 'Весы', uz: 'Tarozi' },
+    instruction: { ru: 'Маленькая гиря и большой шар. Что тяжелее?', uz: "Kichkina tosh va katta shar. Qaysi biri og'irroq?" },
+    reveal_label: { ru: 'Взвесить', uz: "O'lchash" },
+    full_text: { ru: 'Маленькая гиря опустилась вниз — она тяжелее! Большое не значит тяжёлое.', uz: "Kichik tosh pastga tushdi — u og'irroq! Katta bo'lsa ham og'ir degani emas." },
+    full_audio: { ru: 'Смотри. Маленькая гиря опустилась вниз, а большой шар поднялся. Значит гиря тяжелее шара. Большое не всегда тяжелее.', uz: "Qarang. Kichik tosh pastga tushdi, katta shar esa tepaga ko'tarildi. Demak tosh shardan og'irroq. Katta narsa doim og'ir emas." },
+    audio: {
+      ru: [
+        'Теперь маленькая гиря и большой воздушный шар.',
+        'Как думаешь, что тяжелее? Нажми, и проверим на весах.'
+      ],
+      uz: [
+        "Endi kichkina tosh va katta havo shari.",
+        "Sizningcha, qaysi og'irroq? Bosing, tarozida tekshiramiz."
+      ]
     }
   },
 
@@ -3800,6 +3819,27 @@ const PanFruit = ({ kind }) => {
       <circle cx="12" cy="16" r="1.8" fill="rgba(255,255,255,0.55)"/><circle cx="24" cy="16" r="1.4" fill="rgba(255,255,255,0.4)"/><circle cx="18" cy="22" r="1.3" fill="rgba(255,255,255,0.4)"/>
     </svg>
   );
+  if (kind === 'balloon') return (
+    // katta-yengil: pufak (g1-bal-fruit-lg — meloncha katta, lekin yengil)
+    <svg className="g1-bal-fruit g1-bal-fruit-lg" viewBox="0 0 44 48" aria-hidden="true">
+      <defs><radialGradient id="d35bln" cx="38%" cy="30%" r="70%"><stop offset="0%" stopColor="#FFB3C1"/><stop offset="60%" stopColor="#F0607D"/><stop offset="100%" stopColor="#C43E5C"/></radialGradient></defs>
+      <path d="M22 39 l-3 5 h6 Z" fill="#C43E5C"/>
+      <ellipse cx="22" cy="20" rx="16" ry="19" fill="url(#d35bln)"/>
+      <path d="M10 14 A16 19 0 0 1 26 5" fill="none" stroke="rgba(255,255,255,0.42)" strokeWidth="2.6" strokeLinecap="round"/>
+      <ellipse cx="15" cy="14" rx="4" ry="5.4" fill="rgba(255,255,255,0.45)"/>
+      <path d="M22 39 q3 6 -1 9" fill="none" stroke="#8A6A3A" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  );
+  if (kind === 'stone') return (
+    // kichik-og'ir: metall tarozi toshi (gir) — kichkina, lekin metall/og'ir
+    <svg className="g1-bal-fruit" viewBox="0 0 40 44" aria-hidden="true">
+      <defs><linearGradient id="d35stn" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#B8BEC6"/><stop offset="50%" stopColor="#7C828B"/><stop offset="100%" stopColor="#4C515A"/></linearGradient></defs>
+      <ellipse cx="20" cy="40" rx="11" ry="2.6" fill="rgba(58,53,48,0.2)"/>
+      <path d="M15 20 a5 5 0 0 1 10 0" fill="none" stroke="#5B616A" strokeWidth="3"/>
+      <path d="M12 21 h16 l2.4 16 a3 3 0 0 1 -3 2.6 h-14.8 a3 3 0 0 1 -3 -2.6Z" fill="url(#d35stn)" stroke="#474C54" strokeWidth="1"/>
+      <ellipse cx="16" cy="27" rx="2.3" ry="4" fill="rgba(255,255,255,0.3)"/>
+    </svg>
+  );
   return (
     <svg className="g1-bal-fruit" viewBox="0 0 40 44" aria-hidden="true">
       <defs><radialGradient id="d35app" cx="36%" cy="26%" r="74%"><stop offset="0%" stopColor="#FF9184"/><stop offset="52%" stopColor="#E5484D"/><stop offset="100%" stopColor="#A82C33"/></radialGradient></defs>
@@ -3988,7 +4028,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -4013,8 +4054,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4087,6 +4128,49 @@ const Screen2 = (props) => {
           <BalanceFig left="melon" right="apple" down="left"/>
         </div>
         <BitSays text={t(c.tip)}/>
+      </div>
+    </Stage>
+  );
+};
+
+// s2b — EXPLORATION (qarshi-namuna): kichik tosh > katta shar. "Katta doim og'ir emas".
+const Screen2b = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s2b;
+  const audio = useAudio(makeAutoSegments(c, lang));
+  const canAct = useCanAnswer(audio);
+  const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
+  const go = () => {
+    if (done || !canAct) return;
+    setDone(true);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.full_audio[lang]); }
+  };
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!done} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <p className="h-sub title fade-up">{t(c.instruction)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <BalanceFig left="stone" right="balloon" down={done ? 'left' : 'level'}/>
+          {!done && (
+            <button className="btn" disabled={!canAct} onClick={go}
+              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+              {t(c.reveal_label)}
+            </button>
+          )}
+        </div>
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.full_text)}/>
+          </div>
+        )}
       </div>
     </Stage>
   );
@@ -4406,7 +4490,7 @@ export default function WordProblemSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -4446,7 +4530,7 @@ export default function WordProblemSumLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, ScreenGame, ScreenGuest, Screen9, Screen10];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen2b, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, ScreenGame, ScreenGuest, Screen9, Screen10];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;

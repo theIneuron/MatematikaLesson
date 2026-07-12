@@ -1,20 +1,22 @@
-// Dars01 · Amaliyot 03 — P2 Raqamni tanish · 🟢 · Bit robot ekrani · tag: digit_recognize
-// Animatsiya: Bit robotning antennasi yonib-o'chadi, ekrandagi raqam nur sochib pulslaydi.
+// Dars01 · Amaliyot 03 — P2 Sanab raqamni tanish · 🟢 · Bit robot ekrani · tag: digit_recognize
+// Ekranda raqam KO'RINMAYDI: robot bir nechta chiroqni ketma-ket yoqadi, bola sanab mos raqamni tanlaydi.
+// Animatsiya: antenna yonib-o'chadi, chiroqlar birma-bir yonadi + sekin pulslaydi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-const DATA = { target: 3, options: [1, 3, 5], ptype: 'P2', level: '🟢', tag: 'digit_recognize' };
+const DATA = { target: 4, options: [3, 4, 5], ptype: 'P2', level: '🟢', tag: 'digit_recognize' };
+const CELLS = [true, true, false, true, false, true]; // 6 katak — 4 tasi yonadi (target = 4)
 const T = {
   uz: {
-    eyebrow: 'Bit robot', title: 'Raqamni tanish',
-    setup: 'Bit robot ekranida bitta raqamni yoqdi.',
-    ask: 'Bu qaysi raqam?',
-    correct: 'Barakalla! Bu uch raqami.', hint: 'Ekranga yaxshilab qarang va aynan shu raqamni tanlang.',
+    eyebrow: 'Bit robot', title: 'Chiroqlarni sana',
+    setup: 'Bit robot ekranidagi chiroqlarni yoqdi.',
+    ask: 'Nechta chiroq yondi?',
+    correct: 'Barakalla! To\'rtta chiroq yondi.', hint: 'Yonayotgan chiroqlarni birma-bir sanang — o\'chiqlarini hisoblamang.',
   },
   ru: {
-    eyebrow: 'Робот Бит', title: 'Узнай цифру',
-    setup: 'Робот Бит зажёг на экране одну цифру.',
-    ask: 'Какая это цифра?',
-    correct: 'Молодец! Это цифра три.', hint: 'Посмотри на экран и выбери такую же цифру.',
+    eyebrow: 'Робот Бит', title: 'Сосчитай лампочки',
+    setup: 'Робот Бит зажёг лампочки на экране.',
+    ask: 'Сколько лампочек загорелось?',
+    correct: 'Молодец! Загорелись четыре лампочки.', hint: 'Посчитай горящие лампочки по одной — погасшие не считай.',
   },
 };
 
@@ -62,7 +64,9 @@ export default function D01_03(props) {
         .pq03 .pq-ant::before{content:"";position:absolute;top:-9px;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:#ffd23f;box-shadow:0 0 10px #ffd23f;animation:pqBlink 1s ease-in-out infinite;}
         .pq03 .pq-head{margin-top:-2px;width:210px;background:linear-gradient(#ecebff,#dcd9fb);border:3px solid #b7b1f2;border-radius:22px;padding:16px;}
         .pq03 .pq-screen{background:#12103a;border-radius:14px;height:120px;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 20px rgba(120,110,255,.4);}
-        .pq03 .pq-digit{font-size:82px;font-weight:900;color:#7cf0ff;font-variant-numeric:tabular-nums;text-shadow:0 0 14px #38d6ff;animation:pqGlow 1.6s ease-in-out infinite;}
+        .pq03 .pq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 24px;}
+        .pq03 .pq-cell{width:30px;height:30px;border-radius:50%;background:#201d4d;box-shadow:inset 0 0 7px rgba(0,0,0,.55);}
+        .pq03 .pq-cell.on{background:radial-gradient(circle at 38% 34%,#d6fbff,#7cf0ff 52%,#39b6e6);opacity:0;animation:pqLampOn .42s ease both,pqLampGlow 1.9s ease-in-out infinite;}
         .pq03 .pq-eyes{display:flex;gap:26px;justify-content:center;margin-top:12px;}
         .pq03 .pq-eyes span{width:16px;height:16px;border-radius:50%;background:#5b57d6;animation:pqBlink2 3s infinite;}
         .pq03 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
@@ -76,7 +80,8 @@ export default function D01_03(props) {
         .pq03 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq03 .pq-fb.no{background:#fdecec;color:#c0392b;}
         @keyframes pqBlink{0%,100%{opacity:1;}50%{opacity:.35;}}
         @keyframes pqBlink2{0%,92%,100%{transform:scaleY(1);}96%{transform:scaleY(.1);}}
-        @keyframes pqGlow{0%,100%{text-shadow:0 0 10px #38d6ff;transform:scale(1);}50%{text-shadow:0 0 22px #7cf0ff;transform:scale(1.05);}}
+        @keyframes pqLampOn{from{opacity:0;transform:scale(.25);}to{opacity:1;transform:scale(1);}}
+        @keyframes pqLampGlow{0%,100%{box-shadow:0 0 8px 2px rgba(124,240,255,.5),inset 0 0 4px rgba(255,255,255,.7);}50%{box-shadow:0 0 15px 5px rgba(124,240,255,.85),inset 0 0 5px #fff;}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.08);}60%{transform:scale(.96);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
@@ -86,7 +91,13 @@ export default function D01_03(props) {
       <div className="pq-robot">
         <span className="pq-ant" />
         <div className="pq-head">
-          <div className="pq-screen"><span className="pq-digit">{DATA.target}</span></div>
+          <div className="pq-screen">
+            <div className="pq-grid">
+              {CELLS.map((on, i) => (
+                <span key={i} className={'pq-cell' + (on ? ' on' : '')} style={on ? { animationDelay: `${i * 0.22}s` } : undefined} />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

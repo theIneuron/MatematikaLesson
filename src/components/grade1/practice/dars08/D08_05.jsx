@@ -117,36 +117,55 @@ const Hen = () => (
 // olingan tuxumlar ko'rinmaydi, ustida «?» HTML-overlay).
 const Granny = () => (
   <svg viewBox="0 0 96 118" width="96" height="118" aria-hidden="true" style={{ display: 'block' }}>
-    <path d="M40 46 Q30 48 26 68 L20 110 Q19 115 26 115 L72 115 Q79 115 78 110 L72 66 Q68 48 58 46 Z" fill="#7d98b8" stroke="#56708c" strokeWidth="1.6" strokeLinejoin="round" />
-    <path d="M38 68 L60 68 L64 106 Q64 110 58 110 L40 110 Q34 110 34 106 Z" fill="#f4ead2" stroke="#d8c9a4" strokeWidth="1.4" strokeLinejoin="round" />
-    <path d="M42 54 Q26 62 8 83" stroke="#7d98b8" strokeWidth="6.5" strokeLinecap="round" fill="none" />
-    <path d="M47 58 Q38 70 31 84" stroke="#6c88a8" strokeWidth="6.5" strokeLinecap="round" fill="none" />
-    <path d="M2 88 Q3 106 20 106 Q37 106 38 88 Z" fill="#5f8fc4" stroke="#3d6c9c" strokeWidth="1.6" strokeLinejoin="round" />
-    <ellipse cx="20" cy="88" rx="18" ry="5" fill="#7fa8d0" stroke="#3d6c9c" strokeWidth="1.6" />
-    <ellipse cx="20" cy="88" rx="14.5" ry="3.4" fill="#3b6491" />
-    <circle cx="12" cy="98" r="1.6" fill="#cfe2f2" opacity=".9" /><circle cx="20" cy="100" r="1.6" fill="#cfe2f2" opacity=".9" /><circle cx="28" cy="98" r="1.6" fill="#cfe2f2" opacity=".9" />
-    <circle cx="7" cy="85" r="3.6" fill="#f2c096" stroke="#c98d5f" strokeWidth="1.2" />
-    <circle cx="33" cy="85" r="3.6" fill="#f2c096" stroke="#c98d5f" strokeWidth="1.2" />
-    <circle cx="49" cy="25" r="14" fill="#c9647c" stroke="#a84a63" strokeWidth="1.5" />
-    <path d="M38 15 Q48 8 60 15" stroke="#dd87a0" strokeWidth="2.4" fill="none" strokeLinecap="round" opacity=".8" />
-    <circle cx="49" cy="27" r="9.5" fill="#f2c096" stroke="#c98d5f" strokeWidth="1.4" />
-    <path d="M43 37 Q39 47 44 51 L49 46 Q45 42 46 38 Z" fill="#c9647c" stroke="#a84a63" strokeWidth="1.2" strokeLinejoin="round" />
-    <circle cx="45.5" cy="25.5" r="1.35" fill="#1f2430" /><circle cx="46" cy="25" r="0.5" fill="#fff" />
-    <circle cx="52.5" cy="25.5" r="1.35" fill="#1f2430" /><circle cx="53" cy="25" r="0.5" fill="#fff" />
+    {/* ko'ylak (etak) + gul-naqsh */}
+    <path d="M34 52 Q29 55 28 66 L19 108 Q18 113 25 113 L71 113 Q78 113 77 108 L68 66 Q67 55 62 52 Z" fill="#b06f7e" stroke="#8a4f5e" strokeWidth="1.6" strokeLinejoin="round" />
+    <circle cx="34" cy="80" r="1.7" fill="#f4dbe0" opacity=".8" /><circle cx="48" cy="92" r="1.7" fill="#f4dbe0" opacity=".8" /><circle cx="62" cy="80" r="1.7" fill="#f4dbe0" opacity=".8" /><circle cx="41" cy="100" r="1.7" fill="#f4dbe0" opacity=".8" /><circle cx="55" cy="100" r="1.7" fill="#f4dbe0" opacity=".8" />
+    {/* fartuk + belbog' */}
+    <path d="M38 66 L58 66 L61 107 Q61 111 56 111 L40 111 Q35 111 35 107 Z" fill="#f4ead2" stroke="#dcc9a0" strokeWidth="1.4" strokeLinejoin="round" />
+    <rect x="34" y="63" width="28" height="5" rx="2" fill="#e7d3a6" stroke="#cdb680" strokeWidth="1" />
+    {/* bo'yin + bosh */}
+    <rect x="43.5" y="39" width="9" height="12" rx="3" fill="#eab98c" stroke="#d69f6f" strokeWidth="1.2" />
+    <circle cx="48" cy="27" r="15" fill="#f2c79c" stroke="#d69f6f" strokeWidth="1.4" />
+    {/* kulrang soch (peshonada) */}
+    <path d="M35 22 Q48 15 61 22 Q56 25 48 24 Q40 25 35 22 Z" fill="#d6d1c9" />
+    {/* ro'mol: yon draplar + bosh gumbazi + oq nuqta naqsh */}
+    <path d="M32 24 Q27 40 34 52 L41 47 Q35 37 37 26 Z" fill="#c94f4f" stroke="#a53a3a" strokeWidth="1.4" strokeLinejoin="round" />
+    <path d="M64 24 Q69 40 62 52 L55 47 Q61 37 59 26 Z" fill="#bd4747" stroke="#a53a3a" strokeWidth="1.4" strokeLinejoin="round" />
+    <path d="M31 27 Q29 7 48 6 Q67 7 65 27 Q57 19 48 19 Q39 19 31 27 Z" fill="#c94f4f" stroke="#a53a3a" strokeWidth="1.4" strokeLinejoin="round" />
+    <circle cx="41" cy="15" r="1.5" fill="#fff" opacity=".85" /><circle cx="55" cy="15" r="1.5" fill="#fff" opacity=".85" /><circle cx="48" cy="11" r="1.5" fill="#fff" opacity=".85" /><circle cx="35" cy="21" r="1.3" fill="#fff" opacity=".8" /><circle cx="61" cy="21" r="1.3" fill="#fff" opacity=".8" />
+    {/* ko'zoynak */}
+    <circle cx="42" cy="28" r="4.6" fill="#eaf2f7" fillOpacity=".5" stroke="#6b5a4a" strokeWidth="1.3" />
+    <circle cx="54" cy="28" r="4.6" fill="#eaf2f7" fillOpacity=".5" stroke="#6b5a4a" strokeWidth="1.3" />
+    <path d="M46.6 28 h2.8" stroke="#6b5a4a" strokeWidth="1.3" strokeLinecap="round" />
+    <path d="M37.4 28 L33 26 M58.6 28 L63 26" stroke="#6b5a4a" strokeWidth="1.2" strokeLinecap="round" />
+    {/* ko'zlar + pirpirash */}
+    <circle cx="42" cy="28" r="1.4" fill="#1f2430" /><circle cx="54" cy="28" r="1.4" fill="#1f2430" />
     <g className="pq-blink" style={{ '--bd': '0s' }}>
-      <rect x="43.7" y="23.9" width="3.6" height="3.2" rx="1.5" fill="#f2c096" />
-      <rect x="50.7" y="23.9" width="3.6" height="3.2" rx="1.5" fill="#f2c096" />
+      <rect x="39.8" y="26.4" width="4.4" height="3.2" rx="1.5" fill="#f2c79c" />
+      <rect x="51.8" y="26.4" width="4.4" height="3.2" rx="1.5" fill="#f2c79c" />
     </g>
-    <circle cx="42.8" cy="29.4" r="1.8" fill="#e8927c" opacity=".45" />
-    <circle cx="55.2" cy="29.4" r="1.8" fill="#e8927c" opacity=".45" />
-    <path d="M45.5 31 Q49 34 52.5 31" stroke="#8a5f3a" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+    {/* burun, yonoq, tabassum, ajin */}
+    <path d="M48 30 Q46.6 33 48.4 33.8" stroke="#c98d5f" strokeWidth="1.1" fill="none" strokeLinecap="round" />
+    <circle cx="38.5" cy="33" r="2.3" fill="#e8927c" opacity=".5" /><circle cx="57.5" cy="33" r="2.3" fill="#e8927c" opacity=".5" />
+    <path d="M43 36.5 Q48 40.5 53 36.5" stroke="#a0562f" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+    <path d="M34.5 31 q1.4 1 .4 2.4 M61.5 31 q-1.4 1 -.4 2.4" stroke="#d69f6f" strokeWidth=".9" fill="none" strokeLinecap="round" opacity=".7" />
+    {/* qo'llar (yeng) + kaftlar kosani ushlaydi */}
+    <path d="M35 55 Q26 68 35 88" stroke="#b06f7e" strokeWidth="8" strokeLinecap="round" fill="none" />
+    <path d="M61 55 Q70 68 61 88" stroke="#b06f7e" strokeWidth="8" strokeLinecap="round" fill="none" />
+    <circle cx="35" cy="89" r="4.2" fill="#f2c79c" stroke="#d69f6f" strokeWidth="1.2" />
+    <circle cx="61" cy="89" r="4.2" fill="#f2c79c" stroke="#d69f6f" strokeWidth="1.2" />
+    {/* kosa (old-markaz — olingan tuxumlar ichida yashirin) */}
+    <path d="M28 90 Q30 105 48 105 Q66 105 68 90 Z" fill="#e3ddd2" stroke="#b7ab97" strokeWidth="1.6" strokeLinejoin="round" />
+    <path d="M32 95 Q48 100 64 95" stroke="#7fa8d0" strokeWidth="1.8" fill="none" opacity=".7" />
+    <ellipse cx="48" cy="90" rx="20" ry="5.5" fill="#f0ebe1" stroke="#b7ab97" strokeWidth="1.6" />
+    <ellipse cx="48" cy="90" rx="16" ry="3.6" fill="#3a2f28" />
   </svg>
 );
 
 // Savatdagi 5 tuxum (qolganlar) — gardish orqasidan mo'ralaydi.
 const BASKET_EGGS = [{ l: 8, t: -9 }, { l: 27, t: -13 }, { l: 46, t: -9 }, { l: 65, t: -13 }, { l: 84, t: -9 }];
 // Kosadagi 3 tuxum (olinganlar) — faqat g'alabada ochiladi.
-const BOWL_EGGS = [{ l: 1, t: 70 }, { l: 11.5, t: 66 }, { l: 22, t: 70 }];
+const BOWL_EGGS = [{ l: 29, t: 85 }, { l: 41, t: 81 }, { l: 53, t: 85 }];
 
 export default function D08_05(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
@@ -212,7 +231,7 @@ export default function D08_05(props) {
         .pq0805 .pq-gran{position:absolute;left:260px;bottom:6px;width:96px;height:118px;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.16));}
         .pq0805 .pq-walkin{animation:pqWalkIn 1.3s cubic-bezier(.3,.75,.4,1) both;}
         .pq0805 .pq-blink{opacity:0;animation:pqBlink 3.8s linear infinite;animation-delay:var(--bd,0s);}
-        .pq0805 .pq-q{position:absolute;left:5px;top:46px;width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid #cfd9ec;color:#3f7fb5;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(63,127,181,.2);animation:pqQ 2.2s ease-in-out infinite;z-index:4;}
+        .pq0805 .pq-q{position:absolute;left:33px;top:75px;width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid #cfd9ec;color:#3f7fb5;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(63,127,181,.2);animation:pqQ 2.2s ease-in-out infinite;z-index:4;}
         .pq0805 .pq-bowlegg{position:absolute;z-index:4;animation:pqPop .4s cubic-bezier(.3,1.4,.5,1) both;}
         .pq0805 .pq-cnt{position:absolute;top:-7px;right:-7px;min-width:19px;height:19px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:5;}
         .pq0805 .pq-chip{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:23px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:6;white-space:nowrap;font-variant-numeric:tabular-nums;}

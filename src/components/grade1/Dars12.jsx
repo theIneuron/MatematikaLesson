@@ -44,12 +44,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -225,7 +225,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -429,7 +429,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -3384,7 +3384,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'yes';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -3412,8 +3413,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.question)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'yes'} wrongClass="frame-tip">
+            <Reaction state={picked === 'yes' ? 'correct' : 'wrong'} praise={picked === 'yes' ? t(c.question) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -3771,6 +3772,20 @@ const Screen7 = (props) => {
               <i className="g1-sent-op g1-sent-plus">+</i><span>3</span>
             </button>
           </span>
+          {/* konkret: qavs = sanaladigan olma-savat; ichini avval sanaymiz */}
+          <div className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(6px, 1.8vw, 12px)', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {step < 2 ? (
+              <>
+                <span style={{ display: 'inline-flex', padding: '5px 8px', borderRadius: 12, border: `2px solid ${step >= 1 ? T.accent : T.ink3}`, transition: 'border-color 0.3s ease' }}>
+                  <Pips n={3} kind="apple" wrap/>
+                </span>
+                <span className="mono" style={{ fontSize: 'clamp(20px, 4vw, 26px)', fontWeight: 800, color: T.accent }}>+</span>
+                <Pips n={3} kind="apple" wrap/>
+              </>
+            ) : (
+              <span key="m" style={{ display: 'inline-flex' }}><Pips n={6} kind="apple" wrap/></span>
+            )}
+          </div>
           {step === 1 && <span className="small fade-up" style={{ color: T.ink2 }}>{t(c.step2_hint)}</span>}
           {step >= 1 && (
             <div className="g1-sent mono fade-up" aria-hidden="true"><span>2</span><i className="g1-sent-op g1-sent-plus">+</i><span>1</span><i className="g1-sent-eq">=</i><span className="g1-sent-res">3</span></div>
@@ -4019,7 +4034,7 @@ export default function EqualityLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

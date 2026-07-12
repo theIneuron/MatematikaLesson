@@ -6,10 +6,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const ROWS = [
-  { expr: '6 + 3', ans: 9, opts: [8, 9, 10] },
-  { expr: '10 − 4', ans: 6, opts: [5, 6, 7] },
-  { expr: '5 + 4', ans: 9, opts: [8, 9, 10] },
-  { expr: '8 − 6', ans: 2, opts: [1, 2, 3] },
+  { expr: '6 + 3', ans: 9, opts: [7, 8, 9, 10] },
+  { expr: '10 − 4', ans: 6, opts: [4, 5, 6, 7] },
+  { expr: '5 + 4', ans: 9, opts: [7, 8, 9, 10] },
+  { expr: '8 − 6', ans: 2, opts: [0, 1, 2, 3] },
 ];
 const DATA = { ptype: 'P8', level: '🔴', tag: 'mixed_chain_10' };
 const T = {
@@ -183,8 +183,8 @@ export default function D10_06(props) {
         .pq1006 .pq-cnt{position:absolute;top:-9px;right:-5px;min-width:18px;height:18px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:4;}
         .pq1006 .pq-wstar{position:absolute;z-index:5;line-height:0;opacity:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
         .pq1006 .pq-wstar.w2{animation-delay:-.5s;} .pq1006 .pq-wstar.w3{animation-delay:-1.05s;}
-        .pq1006 .pq-rows{display:flex;flex-direction:column;gap:6px;}
-        .pq1006 .pq-rw{display:flex;gap:8px;align-items:center;padding:5px 9px;border-radius:14px;border:2.5px solid #cdd6e2;background:#fff;transition:.15s;}
+        .pq1006 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;}
+        .pq1006 .pq-rw{display:flex;flex-wrap:wrap;gap:8px;align-items:center;align-content:center;justify-content:center;padding:5px 9px;border-radius:14px;border:2.5px solid #cdd6e2;background:#fff;transition:.15s;}
         .pq1006 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq1006 .pq-rw.good.win{animation:pqCele .5s ease;}
         .pq1006 .pq-rw.bad{border-color:#e08a8a;background:#fdf1f1;animation:pqShake .35s ease;}
@@ -198,7 +198,7 @@ export default function D10_06(props) {
         .pq1006 .pq-rw:nth-child(4) .pq-slot{animation-delay:-2.7s;}
         .pq1006 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq1006 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
-        .pq1006 .pq-sgs{display:flex;gap:5px;margin-left:4px;}
+        .pq1006 .pq-sgs{display:flex;align-content:center;gap:5px;margin-left:4px;flex-basis:100%;justify-content:center;}
         .pq1006 .pq-sg{width:38px;height:38px;border-radius:10px;border:2.5px solid #d6dae3;background:#fff;font-size:17px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1006 .pq-sg:hover:not(:disabled){border-color:#9db0cc;transform:translateY(-2px);}
         .pq1006 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -220,12 +220,21 @@ export default function D10_06(props) {
         @keyframes pqPop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        /* Ambient: suzuvchi mayda uchqunlar (fon dekori) */
+        .pq1006 .pq-mote{position:absolute;z-index:0;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff,rgba(242,177,52,.5) 55%,rgba(242,177,52,0) 72%);pointer-events:none;opacity:0;animation:pq1006Mote 10s ease-in-out infinite;}
+        .pq1006 .pq-mote.m2{width:4px;height:4px;animation-duration:12.5s;animation-delay:-4s;}
+        .pq1006 .pq-mote.m3{width:6px;height:6px;animation-duration:13.5s;animation-delay:-8s;}
+        @keyframes pq1006Mote{0%{opacity:0;transform:translate(0,8px) scale(.7);}22%{opacity:.5;}50%{opacity:.55;transform:translate(4px,-9px) scale(1);}80%{opacity:.3;}100%{opacity:0;transform:translate(0,-20px) scale(.7);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-stage">
         <div className={'pq-scene' + (still ? ' still' : '')}>
+          {/* Ambient uchqunlar (fon, dekor) */}
+          <span className="pq-mote m1" aria-hidden="true" style={{ left: 292, top: 30 }} />
+          <span className="pq-mote m2" aria-hidden="true" style={{ left: 322, top: 62 }} />
+          <span className="pq-mote m3" aria-hidden="true" style={{ left: 300, top: 90 }} />
           <span className="pq-window w1" /><span className="pq-window w2" />
           <span className="pq-gear g1"><Gear size={42} /></span>
           <span className="pq-gear g2"><Gear size={26} c="#98a4b6" line="#5f6b80" /></span>

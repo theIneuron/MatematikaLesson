@@ -65,18 +65,31 @@ const Croc = ({ closed }) => (
     <path d="M61.5 62 l.5 3.4 M64.3 62.2 l.3 2.9" stroke="#256835" strokeWidth="1.1" strokeLinecap="round" />
     {/* bosh suyagi */}
     <path d="M58 34 Q65 29.5 71 33 L74 42 L72 50 Q65 52.5 58 50.5 Z" fill="#3f9950" />
-    {/* og'iz ichi — och-pushti */}
-    <path d="M68 42 L108 23 L108 55 Z" fill="#f2a9b4" />
-    {/* pastki jag' — zigzag tishlar yuqoriga */}
-    <path d="M66 42 L116 55 Q125 57.5 123 62 Q120.5 65.5 111 62.5 L64 51.5 Z" fill="#b8d488" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
-    <path d="M72 45.5 L78.5 40 L82 48 L88.5 42.5 L92 50.5 L98.5 45 L102 53 L108.5 47.5 L112 55.5 Z" fill="#fff" />
-    {/* yuqori jag' — teng bo'lsa yopiladi (pq-jaws.closed) */}
-    <g className={'pq-jaws' + (closed ? ' closed' : '')}>
-      <path d="M66 34 Q70 30 78 30 L114 14 Q123 10.5 126 15.5 Q127.5 19.5 119 23.5 L74 44 Z" fill="#4aa35b" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M67.5 33 Q71 30.5 78 30 L114 14 Q120 11.5 123.5 13 L117 16.5 L77 34.5 Z" fill="#2e7a3e" />
-      <path d="M118 24 L116 31.5 L110 27.5 L108 35 L101 31 L99 38.5 L93 35 L91 42 L84 38.5 L82.5 45.5 L76 42 Z" fill="#fff" />
-      <circle cx="117.5" cy="16.5" r="1.3" fill="#1f2430" opacity=".75" />
-    </g>
+    {closed ? (
+      <>
+        {/* og'iz TINCH/YOPIQ — teng poza (D12_01 idle snout): ikki parallel jag' chizig'i «=» metaforasi */}
+        <path d="M66 35 Q92 31 116 40 Q124 42.5 123 47 Q121 51.5 114 50.5 Q92 52.5 66 50.5 Z" fill="#4aa35b" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M66 36 Q92 32.5 114 41" stroke="#2e7a3e" strokeWidth="2.2" fill="none" strokeLinecap="round" />
+        <path d="M70 45.5 Q92 47.5 118 46" stroke="#256835" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+        <path d="M82 46 l2 3.2 l2 -3.2 Z M95 46.5 l2 3.2 l2 -3.2 Z M107 46.5 l1.8 3 l1.8 -3 Z" fill="#fff" stroke="#256835" strokeWidth=".5" strokeLinejoin="round" />
+        <circle cx="118" cy="42.5" r="1.3" fill="#1f2430" opacity=".7" />
+      </>
+    ) : (
+      <>
+        {/* og'iz ichi — och-pushti */}
+        <path d="M68 42 L108 23 L108 55 Z" fill="#f2a9b4" />
+        {/* pastki jag' — zigzag tishlar yuqoriga */}
+        <path d="M66 42 L116 55 Q125 57.5 123 62 Q120.5 65.5 111 62.5 L64 51.5 Z" fill="#b8d488" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M72 45.5 L78.5 40 L82 48 L88.5 42.5 L92 50.5 L98.5 45 L102 53 L108.5 47.5 L112 55.5 Z" fill="#fff" />
+        {/* yuqori jag' — ochiq kutish holati */}
+        <g className="pq-jaws">
+          <path d="M66 34 Q70 30 78 30 L114 14 Q123 10.5 126 15.5 Q127.5 19.5 119 23.5 L74 44 Z" fill="#4aa35b" stroke="#256835" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M67.5 33 Q71 30.5 78 30 L114 14 Q120 11.5 123.5 13 L117 16.5 L77 34.5 Z" fill="#2e7a3e" />
+          <path d="M118 24 L116 31.5 L110 27.5 L108 35 L101 31 L99 38.5 L93 35 L91 42 L84 38.5 L82.5 45.5 L76 42 Z" fill="#fff" />
+          <circle cx="117.5" cy="16.5" r="1.3" fill="#1f2430" opacity=".75" />
+        </g>
+      </>
+    )}
     {/* ko'z do'ngligi + tik qorachiqli ko'z + blik; pirpiratish uchun ustidan yashil qopqoq */}
     <circle cx="63" cy="28.5" r="6" fill="#3f9950" stroke="#256835" strokeWidth="1.5" />
     <circle cx="63.6" cy="27.8" r="3.9" fill="#fff" />

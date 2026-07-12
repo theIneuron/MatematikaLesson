@@ -158,12 +158,12 @@ export default function D08_04(props) {
         .pq0804 .pq-stumpw.win{animation:pqCele .5s ease;}
         .pq0804 .pq-car{position:absolute;font-size:22px;line-height:1;z-index:3;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));}
         .pq0804 .pq-cnt{position:absolute;top:-11px;right:-7px;min-width:19px;height:19px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:4;}
-        .pq0804 .pq-take.a{left:258px;top:190px;animation:pqTakeA .85s cubic-bezier(.35,.8,.45,1) 1.5s both;}
-        .pq0804 .pq-take.b{left:282px;top:194px;animation:pqTakeB .85s cubic-bezier(.35,.8,.45,1) 1.62s both;}
+        .pq0804 .pq-take.a{left:258px;top:190px;animation:pqTakeA .85s cubic-bezier(.35,.8,.45,1) 2.8s both;}
+        .pq0804 .pq-take.b{left:282px;top:194px;animation:pqTakeB .85s cubic-bezier(.35,.8,.45,1) 2.92s both;}
         .pq0804 .pq-scene.still .pq-take.a{animation:none;transform:rotate(36deg);}
         .pq0804 .pq-scene.still .pq-take.b{animation:none;transform:rotate(62deg);}
-        .pq0804 .pq-rgo{position:absolute;left:304px;bottom:26px;z-index:4;animation:pqRGo 3.9s ease-in-out both;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));}
-        .pq0804 .pq-hopY{animation:pqHopY .46s ease-in-out 8;}
+        .pq0804 .pq-rgo{position:absolute;left:304px;bottom:26px;z-index:4;animation:pqRGo 5.4s linear both;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));}
+        .pq0804 .pq-hopY{animation:pqHopY 5.4s linear both;transform-origin:50% 100%;}
         .pq0804 .pq-rbr{animation:pqBreath 3.4s ease-in-out infinite;}
         .pq0804 .pq-scene.still .pq-rgo{animation:none;}
         .pq0804 .pq-scene.still .pq-hopY{animation:none;}
@@ -181,8 +181,23 @@ export default function D08_04(props) {
         .pq0804 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq0804 .pq-fb.no{background:#fdecec;color:#c0392b;}
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
         @keyframes pqCloud{from{transform:translateX(0);}to{transform:translateX(460px);}}
-        @keyframes pqRGo{0%{transform:translateX(70px);}28%{transform:translateX(-80px);}58%{transform:translateX(-80px);}88%{transform:translateX(0);}100%{transform:translateX(0);}}
-        @keyframes pqHopY{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+        @keyframes pqRGo{
+          0%{transform:translateX(70px);}6%{transform:translateX(51px);}12%{transform:translateX(33px);}
+          19%{transform:translateX(14px);}25%{transform:translateX(-4px);}31%{transform:translateX(-24px);}
+          37%{transform:translateX(-42px);}43%{transform:translateX(-61px);}49%{transform:translateX(-80px);}
+          63%{transform:translateX(-80px);}69%{transform:translateX(-67px);}75%{transform:translateX(-53px);}
+          81%{transform:translateX(-40px);}87%{transform:translateX(-27px);}93%{transform:translateX(-13px);}100%{transform:translateX(0);}
+        }
+        @keyframes pqHopY{
+          0%{transform:translateY(0) scaleX(1.06) scaleY(.94);}6%{transform:translateY(-15px) scaleX(.95) scaleY(1.06);}
+          12%{transform:translateY(0) scaleX(1.06) scaleY(.94);}19%{transform:translateY(-15px) scaleX(.95) scaleY(1.06);}
+          25%{transform:translateY(0) scaleX(1.06) scaleY(.94);}31%{transform:translateY(-15px) scaleX(.95) scaleY(1.06);}
+          37%{transform:translateY(0) scaleX(1.06) scaleY(.94);}43%{transform:translateY(-15px) scaleX(.95) scaleY(1.06);}
+          49%{transform:translateY(0) scaleX(1.06) scaleY(.94);}57%{transform:translateY(0) scaleX(1) scaleY(1);}
+          63%{transform:translateY(0) scaleX(1.06) scaleY(.94);}69%{transform:translateY(-15px) scaleX(.95) scaleY(1.06);}
+          75%{transform:translateY(0) scaleX(1.06) scaleY(.94);}81%{transform:translateY(-15px) scaleX(.95) scaleY(1.06);}
+          87%{transform:translateY(0) scaleX(1.06) scaleY(.94);}93%{transform:translateY(-15px) scaleX(.95) scaleY(1.06);}100%{transform:translateY(0) scaleX(1) scaleY(1);}
+        }
         @keyframes pqBreath{0%,100%{transform:scale(1);}50%{transform:scale(1.025);}}
         @keyframes pqTakeA{0%{transform:translate(-64px,-74px) rotate(-8deg);}55%{transform:translate(-30px,-98px) rotate(18deg);}100%{transform:translate(0,0) rotate(36deg);}}
         @keyframes pqTakeB{0%{transform:translate(-66px,-78px) rotate(5deg);}55%{transform:translate(-32px,-102px) rotate(32deg);}100%{transform:translate(0,0) rotate(62deg);}}

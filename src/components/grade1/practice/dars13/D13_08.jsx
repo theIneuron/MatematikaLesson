@@ -7,10 +7,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const TEN = 10;
 const CARDS = [
   { kind: 'sum', a: 7, b: 3 },  // 10 ✓
-  { kind: 'dasta' },            // 10 ✓
+  { kind: 'sum', a: 6, b: 4 },  // 10 ✓
   { kind: 'sum', a: 5, b: 5 },  // 10 ✓
   { kind: 'sum', a: 6, b: 3 },  //  9 ✗ tuzoq
-  { kind: 'sum', a: 8, b: 2 },  // 10 ✓
+  { kind: 'sum', a: 8, b: 1 },  //  9 ✗ tuzoq
 ];
 const cardVal = (c) => (c.kind === 'dasta' ? TEN : c.a + c.b);
 const GOOD = CARDS.map((c, i) => (cardVal(c) === TEN ? i : -1)).filter((i) => i >= 0); // [0,1,2,4]
@@ -27,20 +27,20 @@ const PC = [
 const DATA = { ptype: 'P13', level: '🔴', tag: 'make_ten_multi' };
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · O'nlik", title: "O'nlik kartalari",
-    setup: "Kartalarda qalam-guruhlari bor — faqat aynan O'N bo'lganlari bitta dasta bo'ladi.",
+    eyebrow: "Qalam do'koni · O'nta", title: "O'nta kartalari",
+    setup: "Kartalarda qalam-guruhlari bor. Ba'zilarida jami o'nta, ba'zilarida yo'q.",
     ask: "Aynan O'N bo'ladigan BARCHA kartalarni bosing.",
-    correct: "Barakalla! To'rttala o'nlik topildi — dastalar tayyor!",
-    hint: "Har kartani hisoblang: jami o'n bo'lsa — dasta. «Dasta» ham o'nta.",
-    dasta: "1 dasta",
+    correct: "Barakalla! Jami o'n bo'lgan barcha kartalar topildi!",
+    hint: "Har kartani hisoblang: ikki son qo'shilib o'n bo'lsa — o'sha karta to'g'ri.",
+    dasta: "o'nta",
   },
   ru: {
-    eyebrow: 'Магазин карандашей · Десяток', title: 'Карточки десятка',
-    setup: 'На карточках — группы карандашей. Связкой становятся только те, где ровно ДЕСЯТЬ.',
+    eyebrow: 'Магазин карандашей · Десять', title: 'Карточки: где десять?',
+    setup: 'На карточках — группы карандашей. На одних всего десять, на других — нет.',
     ask: 'Нажми на ВСЕ карточки, где получается ровно ДЕСЯТЬ.',
-    correct: 'Молодец! Найдены все четыре десятка — связки готовы!',
-    hint: 'Посчитай каждую карточку: если всего десять — это связка. «Связка» — тоже десять.',
-    dasta: '1 десяток',
+    correct: 'Молодец! Найдены все карточки, где ровно десять!',
+    hint: 'Посчитай каждую карточку: если два числа дают десять — карточка верная.',
+    dasta: 'десять',
   },
 };
 

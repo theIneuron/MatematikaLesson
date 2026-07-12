@@ -6,10 +6,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const ROWS = [
-  { expr: '2 + 3', ans: 5, opts: [4, 5, 3] },
-  { expr: '5 − 4', ans: 1, opts: [1, 2, 3] },
-  { expr: '1 + 2', ans: 3, opts: [2, 3, 4] },
-  { expr: '4 − 2', ans: 2, opts: [1, 2, 3] },
+  { expr: '2 + 3', ans: 5, opts: [2, 3, 4, 5] },
+  { expr: '5 − 4', ans: 1, opts: [0, 1, 2, 3] },
+  { expr: '1 + 2', ans: 3, opts: [1, 2, 3, 4] },
+  { expr: '4 − 2', ans: 2, opts: [0, 1, 2, 3] },
 ];
 const DATA = { ptype: 'P8', level: '🔴', tag: 'mixed_chain' };
 const T = {
@@ -199,8 +199,8 @@ export default function D09_06(props) {
         .pq0906 .pq-trophy{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:4;line-height:0;filter:drop-shadow(0 3px 6px rgba(201,138,18,.4));animation:pqAns .55s cubic-bezier(.3,1.5,.5,1) both;}
         .pq0906 .pq-wstar{position:absolute;z-index:4;line-height:0;opacity:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
         .pq0906 .pq-wstar.w2{animation-delay:-.5s;} .pq0906 .pq-wstar.w3{animation-delay:-1.05s;}
-        .pq0906 .pq-rows{display:flex;flex-direction:column;gap:6px;}
-        .pq0906 .pq-rw{display:flex;gap:8px;align-items:center;padding:5px 9px;border-radius:14px;border:2.5px solid #cfe3da;background:#fff;transition:.15s;}
+        .pq0906 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;}
+        .pq0906 .pq-rw{display:flex;flex-wrap:wrap;gap:8px;align-items:center;align-content:center;justify-content:center;padding:5px 9px;border-radius:14px;border:2.5px solid #cfe3da;background:#fff;transition:.15s;}
         .pq0906 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq0906 .pq-rw.good.win{animation:pqCele .5s ease;}
         .pq0906 .pq-rw.bad{border-color:#e08a8a;background:#fdf1f1;animation:pqShake .35s ease;}
@@ -214,7 +214,7 @@ export default function D09_06(props) {
         .pq0906 .pq-rw:nth-child(4) .pq-slot{animation-delay:-2.7s;}
         .pq0906 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq0906 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
-        .pq0906 .pq-sgs{display:flex;gap:5px;margin-left:4px;}
+        .pq0906 .pq-sgs{display:flex;align-content:center;flex-basis:100%;gap:5px;margin-left:4px;justify-content:center;}
         .pq0906 .pq-sg{width:38px;height:38px;border-radius:10px;border:2.5px solid #d6dae3;background:#fff;font-size:17px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0906 .pq-sg:hover:not(:disabled){border-color:#8fc4b4;transform:translateY(-2px);}
         .pq0906 .pq-sg:active:not(:disabled){transform:scale(.92);}

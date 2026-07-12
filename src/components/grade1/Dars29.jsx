@@ -43,12 +43,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -224,7 +224,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -428,7 +428,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -1020,7 +1020,7 @@ const CONTENT = {
   s4: {
     eyebrow: { ru: 'Сколько добавили', uz: "Qancha qo'shilgan" },
     instruction: { ru: 'Было 4 яблока, стало 7. Сколько добавили?', uz: "4 olma edi, 7 ta bo'ldi. Qancha qo'shilgan?" },
-    reveal_label: { ru: 'Показать', uz: "Ko'rsatish" },
+    reveal_label: { ru: 'Добавить яблоко', uz: "Olma qo'shish" },
     full_text: { ru: 'К 4 добавили 3 — стало 7.', uz: "4 ga 3 qo'shildi — 7 bo'ldi." },
     full_audio: { ru: 'К четырём добавили три, и стало семь. Добавили три яблока.', uz: "To'rtga uch qo'shildi va yetti bo'ldi. Uch olma qo'shilgan." },
     audio: {
@@ -1058,12 +1058,12 @@ const CONTENT = {
     problem: { ru: 'Было 7 яблок, 2 отдали. Сколько осталось?', uz: "7 olma edi, 2 tasi berildi. Nechta qoldi?" },
     correct_text: { ru: 'Правильно. Семь без двух — пять. Осталось пять.', uz: "To'g'ri. Yettidan ikki — besh. Besh qoldi." },
     wrong_1: {
-      ru: 'Яблоки отдали, значит вычитаем, а не складываем. Семь без двух — пять.',
-      uz: "Olmalar berildi, demak qo'shmaymiz, ayiramiz. Yettidan ikki — besh."
+      ru: 'Яблоки отдали, значит вычитаем, а не складываем.',
+      uz: "Olmalar berildi, demak qo'shmaymiz, ayiramiz."
     },
     wrong_2: {
-      ru: 'Семь без двух — это пять, не четыре. Осталось пять.',
-      uz: "Yettidan ikki — bu besh, to'rt emas. Besh qoldi."
+      ru: 'Из семи убери два, посчитай снова.',
+      uz: "Yettidan ikkini ayiring, qaytadan sanang."
     },
     wrong_default: {
       ru: 'Из семи убери два.',
@@ -1084,12 +1084,12 @@ const CONTENT = {
     lab_became: { ru: 'Стало', uz: "Bo'ldi" },
     correct_text: { ru: 'Правильно. Из девяти убрать пять — четыре. Добавили четыре.', uz: "To'g'ri. To'qqizdan besh — to'rt. To'rtta qo'shilgan." },
     wrong_1: {
-      ru: 'Девять — это сколько стало всего, а не сколько добавили. Из девяти убери пять, получится четыре.',
-      uz: "To'qqiz — bu hammasi nechta bo'lgani, qancha qo'shilgani emas. To'qqizdan besh ayiring, to'rt chiqadi."
+      ru: 'Девять — это сколько стало всего, а не сколько добавили. Из девяти убери пять.',
+      uz: "To'qqiz — bu hammasi nechta bo'lgani, qancha qo'shilgani emas. To'qqizdan besh ayiring."
     },
     wrong_2: {
-      ru: 'Пять было в начале. Чтобы узнать, сколько добавили, из девяти убери пять — четыре.',
-      uz: "Besh boshida bor edi. Qancha qo'shilganini bilish uchun to'qqizdan beshni ayiring — to'rt."
+      ru: 'Пять было в начале. Чтобы узнать, сколько добавили, из девяти убери пять.',
+      uz: "Besh boshida bor edi. Qancha qo'shilganini bilish uchun to'qqizdan beshni ayiring."
     },
     wrong_default: {
       ru: 'Из девяти убери пять.',
@@ -1168,12 +1168,12 @@ const CONTENT = {
     problem: { ru: 'Было 6 яблок, 3 отдали. Сколько осталось?', uz: "6 olma edi, 3 tasi berildi. Nechta qoldi?" },
     correct_text: { ru: 'Правильно. Шесть без трёх — три. Осталось три.', uz: "To'g'ri. Oltidan uch — uch. Uch qoldi." },
     wrong_1: {
-      ru: 'Яблоки отдали, значит вычитаем. Шесть без трёх — три.',
-      uz: "Olmalar berildi, demak ayiramiz. Oltidan uch — uch."
+      ru: 'Яблоки отдали, значит вычитаем.',
+      uz: "Olmalar berildi, demak ayiramiz."
     },
     wrong_2: {
-      ru: 'Шесть без трёх — это три, не два. Осталось три.',
-      uz: "Oltidan uch — bu uch, ikki emas. Uch qoldi."
+      ru: 'Из шести убери три, посчитай снова.',
+      uz: "Oltidan uchni ayiring, qaytadan sanang."
     },
     wrong_default: {
       ru: 'Из шести убери три.',
@@ -3878,7 +3878,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -3903,8 +3904,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4024,16 +4025,15 @@ const Screen4 = (props) => {
   const c = CONTENT.s4;
   const audio = useAudio(makeAutoSegments(c, lang));
   const canAct = useCanAnswer(audio);
-  const [done, setDone] = useState(false);
-  const [showRes, setShowRes] = useState(false);
-  const revealRef = useRevealScroll(done, 1050);   // javob 950ms da materiallashadi
-  const go = () => {
+  const [added, setAdded] = useState(0);
+  const total = 4 + added;
+  const done = total === 7;   // bola yetmagan qismni birma-bir 7 gacha quradi (3 ta)
+  const revealRef = useRevealScroll(done, 300);
+  const addOne = () => {
     if (done || !canAct) return;
-    setDone(true);   // avval "7 − 4 = ?" (son gapi), keyin javob materiallashadi
-    setTimeout(() => {
-      setShowRes(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.full_audio[lang]); }
-    }, 950);
+    const na = added + 1;
+    setAdded(na);
+    if (4 + na === 7 && !audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.full_audio[lang]); }
   };
   const navContent = (
     <>
@@ -4049,19 +4049,17 @@ const Screen4 = (props) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2.4vw, 16px)', flexWrap: 'wrap', justifyContent: 'center' }}>
             <span style={{ display: 'inline-flex', maxWidth: 'clamp(74px, 22vw, 130px)' }}><Pips n={4} kind="apple" wrap={true}/></span>
             <span className="mono" style={{ ...D28_OP, fontSize: 'clamp(24px, 4.5vw, 34px)', color: T.accent }}>+</span>
-            {!showRes ? (
+            {added === 0 ? (
               <span className="mono" style={{ ...D28_OP, fontSize: 'clamp(26px, 5vw, 38px)', color: T.ink3 }}>?</span>
             ) : (
-              <span className="g1-pop-in" style={{ display: 'inline-flex', maxWidth: 'clamp(66px, 18vw, 100px)' }}><Pips n={3} kind="apple" wrap={true}/></span>
+              <span key={added} className="g1-pop-in" style={{ display: 'inline-flex', maxWidth: 'clamp(66px, 18vw, 100px)' }}><Pips n={added} kind="apple" wrap={true}/></span>
             )}
             <span className="mono" style={{ ...D28_OP, fontSize: 'clamp(24px, 4.5vw, 34px)', color: T.ink3 }}>=</span>
             <DigitGlyph d={7} size="mid" tone="accent"/>
           </div>
-          {showRes && (
-            <span className="mono fade-up" style={{ ...D28_OP, fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, color: T.accent }}>4 + 3 = 7</span>
-          )}
+          <span className="mono" style={{ ...D28_OP, fontSize: 'clamp(18px, 3.4vw, 26px)', fontWeight: 800, color: done ? T.success : T.ink3 }}>{done ? '4 + 3 = 7' : `4 + ${added} = ${total}`}</span>
           {!done && (
-            <button className="btn" disabled={!canAct} onClick={go}
+            <button className="btn" disabled={!canAct} onClick={addOne}
               style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
               {t(c.reveal_label)}
             </button>
@@ -4346,7 +4344,7 @@ export default function WordProblemSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

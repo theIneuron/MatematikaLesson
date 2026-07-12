@@ -1,12 +1,12 @@
 // Dars14 · Amaliyot 09 — O'RIN QIYMATI «O'nlik va birlik» · 🔴 · tag: place_value
-// 14 modeli: bitta DASTA (10 qalam, qizil rezinka) + to'rtta YAKKA qalam. Ikkita slot:
-// [O'nlik: ?] va [Birlik: ?]. Har slotga son tanlanadi. To'g'ri: tens=1 (dasta), ones=4 (yakka).
-// Misconception qalqoni: 14 ≠ «1 va 4» — o'nlik = 1 DASTA (o'nta), birlik = 4 yakka. Slot to'lганda
-// mos guruh yonadi (o'nlik → dasta yonadi, birlik → yakkalar yonadi). G'alaba: 14 = 10 + 4.
+// Sinf partasi sahnasi. 14 modeli: 10 UYALI TO'LA QALAM QUTISI (2×5, har uyada 1 qalam) + 4 YAKKA qalam
+// qutining O'NG tomonida. Ikkita slot: [O'nlik: ?] va [Birlik: ?]. To'g'ri: tens=1 (to'la quti), ones=4 (yakka).
+// Misconception qalqoni: 14 ≠ «1 va 4» — o'nlik = 1 TO'LA QUTI (o'nta), birlik = 4 yakka. Slot to'lganda
+// mos guruh yonadi (o'nlik → quti yonadi, birlik → yakkalar yonadi). G'alaba: 14 = 10 + 4.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const DATA = { num: 14, tens: 1, ones: 4, tensOptions: [1, 2, 4], onesOptions: [1, 4, 5], tag: 'place_value', level: '🔴' };
-const TEN = 10; // dastadagi qalamlar soni
+const TEN = 10; // to'la qutidagi qalamlar soni
 
 // Qalam ranglari (palitradan, 2-ton): sariq / qizil / ko'k / yashil.
 const PAL = [
@@ -18,23 +18,23 @@ const PAL = [
 
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · O'rin qiymati", title: "O'nlik va birlik",
-    setup: "Peshtaxtada o'n to'rtta qalam: bitta dasta va bir nechta yakka qalam.",
+    eyebrow: "Sinf partasi · O'rin qiymati", title: "O'nlik va birlik",
+    setup: "Partada o'n to'rtta qalam: to'la quti va bir nechta yakka qalam.",
     ask: "14 nechta O'NLIK va nechta BIRLIKdan iborat? Ikkala slotni to'ldiring.",
-    correct: "Barakalla! 14 — bitta o'nlik va to'rtta birlik. Dasta o'nta qalam, yakkalar to'rtta!",
-    hint: "O'nlik — nechta DASTA borligini sanang. Birlik — nechta YAKKA qalam borligini sanang.",
+    correct: "Barakalla! 14 — bitta o'nlik va to'rtta birlik. To'la qutida o'nta qalam, yakkalar to'rtta!",
+    hint: "O'nlik — nechta TO'LA QUTI borligini sanang. Birlik — nechta YAKKA qalam borligini sanang.",
     sTens: "O'nlik", sOnes: "Birlik",
-    lblDasta: "dasta", lblYakka: "yakka",
+    lblBox: "to'la quti",
     res: "14 = 1 o'nlik + 4 birlik = 10 + 4",
   },
   ru: {
-    eyebrow: "Магазин карандашей · Разряды", title: "Десятки и единицы",
-    setup: "На прилавке четырнадцать карандашей: одна пачка и несколько отдельных.",
-    ask: "Из скольких ДЕСЯТКОВ и скольких ЕДИНИЦ состоит 14? Заполни оба слота.",
-    correct: "Молодец! 14 — это один десяток и четыре единицы. В пачке десять карандашей, отдельных — четыре!",
-    hint: "Десятки — посчитай, сколько ПАЧЕК. Единицы — посчитай, сколько ОТДЕЛЬНЫХ карандашей.",
+    eyebrow: "Школьная парта · Разряды", title: "Десятки и единицы",
+    setup: "На парте четырнадцать карандашей: полная коробка и несколько отдельных.",
+    ask: "Из скольких ДЕСЯТКОВ и скольких ЕДИНИЦ состоит 14? Заполните оба слота.",
+    correct: "Молодец! 14 — это один десяток и четыре единицы. В полной коробке десять карандашей, отдельных — четыре!",
+    hint: "Десятки — посчитайте, сколько ПОЛНЫХ коробок. Единицы — посчитайте, сколько ОТДЕЛЬНЫХ карандашей.",
     sTens: "Десятки", sOnes: "Единицы",
-    lblDasta: "пачка", lblYakka: "поштучно",
+    lblBox: "полная коробка",
     res: "14 = 1 десяток + 4 единицы = 10 + 4",
   },
 };
@@ -104,7 +104,7 @@ export default function D14_09(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
-  const tensLit = tens !== null; // o'nlik slot to'ldi → dasta yonadi
+  const tensLit = tens !== null; // o'nlik slot to'ldi → to'la quti yonadi
   const onesLit = ones !== null; // birlik slot to'ldi → yakkalar yonadi
 
   return (
@@ -116,32 +116,36 @@ export default function D14_09(props) {
         .pq1409 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1409 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1409 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:11px;}
-        .pq1409 .pq-shop{position:relative;width:360px;max-width:100%;height:224px;border-radius:20px;background:linear-gradient(#f7ead2 0%,#f0dcbb 58%,#e6cba1 100%);border:2px solid #dcc59c;overflow:hidden;}
+        /* SINF PARTASI SAHNASI */
+        .pq1409 .pq-shop{position:relative;width:380px;max-width:100%;height:236px;border-radius:20px;background:linear-gradient(#f7f1e2 0%,#f0e6cd 58%,#e6d6b3 100%);border:2px solid #dcc9a0;overflow:hidden;}
         .pq1409 .pq-win{position:absolute;top:0;left:0;width:140px;height:150px;background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(255,255,255,0) 62%);pointer-events:none;animation:pqShine 5s ease-in-out infinite;z-index:1;}
         .pq1409 .pq-sun{position:absolute;top:12px;right:16px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 14px 3px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
-        .pq1409 .pq-cord{position:absolute;left:96px;top:0;width:2px;height:22px;background:#7a6a52;z-index:1;}
-        .pq1409 .pq-bulb{position:absolute;left:89px;top:20px;width:18px;height:15px;border-radius:0 0 12px 12px/0 0 16px 16px;background:radial-gradient(circle at 50% 30%,#fff3b0,#ffd23f 70%,#e0a41e);box-shadow:0 0 14px 5px rgba(255,210,63,.45);z-index:1;animation:pqLamp 2.7s ease-in-out infinite;}
-        .pq1409 .pq-shelf{position:absolute;left:20px;right:20px;top:150px;height:9px;border-radius:3px;background:linear-gradient(#c8935a,#a9743f);box-shadow:0 2px 3px rgba(0,0,0,.15);z-index:1;}
-        .pq1409 .pq-tag{position:absolute;top:40px;padding:3px 11px;border-radius:8px;font-size:12px;font-weight:800;color:#7a4d17;background:#fff6e4;border:1.5px solid #e3c996;box-shadow:0 2px 4px rgba(0,0,0,.12);animation:pqTagBob 3s ease-in-out infinite;z-index:2;}
-        .pq1409 .pq-tag::before{content:'';position:absolute;top:-7px;left:14px;width:2px;height:7px;background:#c7a668;}
-        .pq1409 .pq-tag.r{right:22px;animation-delay:-1.4s;}
+        /* sinf doskasi (dekor, raqamsiz) */
+        .pq1409 .pq-boardd{position:absolute;left:24px;top:14px;width:96px;height:52px;border-radius:7px;background:linear-gradient(#3f7a5c,#2f6248);border:4px solid #a9743f;box-shadow:0 3px 6px rgba(0,0,0,.16);z-index:1;}
+        .pq1409 .pq-boardd::before{content:'';position:absolute;left:10px;top:12px;width:44px;height:3px;border-radius:2px;background:rgba(255,255,255,.55);}
+        .pq1409 .pq-boardd::after{content:'';position:absolute;left:10px;top:22px;width:60px;height:3px;border-radius:2px;background:rgba(255,255,255,.35);}
+        .pq1409 .pq-chalk{position:absolute;left:34px;top:70px;width:18px;height:5px;border-radius:3px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);z-index:1;}
+        /* soat (dekor) */
+        .pq1409 .pq-clock{position:absolute;right:60px;top:18px;width:26px;height:26px;border-radius:50%;background:#fff;border:2.5px solid #b98f52;z-index:1;box-shadow:0 2px 4px rgba(0,0,0,.12);}
+        .pq1409 .pq-clock::before{content:'';position:absolute;left:50%;top:50%;width:2px;height:8px;background:#5a4a2c;transform-origin:bottom center;transform:translate(-1px,-8px) rotate(40deg);animation:pqTick 6s linear infinite;}
+        .pq1409 .pq-clock::after{content:'';position:absolute;left:50%;top:50%;width:2px;height:6px;background:#8a7a55;transform:translate(-1px,-6px) rotate(-70deg);}
+        /* parta */
         .pq1409 .pq-counter{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(#c8935a,#a9743f 60%,#8f5f30);border-top:3px solid #dcae74;z-index:2;}
         .pq1409 .pq-counter::before{content:'';position:absolute;left:0;right:0;top:8px;height:2px;background:rgba(255,255,255,.14);}
 
-        /* 14 modeli: [dasta]  +  [4 yakka] — ikki alohida guruh */
-        .pq1409 .pq-model{position:absolute;left:0;right:0;top:48px;display:flex;justify-content:center;align-items:flex-end;gap:14px;z-index:4;}
-        .pq1409 .pq-grp{position:relative;display:flex;flex-direction:column;align-items:center;gap:9px;padding:9px 11px 8px;border-radius:16px;border:2.5px solid transparent;background:rgba(255,255,255,0);transition:background .2s,border-color .2s,box-shadow .2s;}
+        /* 14 modeli: [to'la quti]  +  [4 yakka] — ikki alohida guruh */
+        .pq1409 .pq-model{position:absolute;left:0;right:0;top:78px;display:flex;justify-content:center;align-items:flex-end;gap:12px;z-index:4;}
+        .pq1409 .pq-grp{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:9px 10px 8px;border-radius:16px;border:2.5px solid transparent;background:rgba(255,255,255,0);transition:background .2s,border-color .2s,box-shadow .2s;}
         .pq1409 .pq-grp.lit{background:rgba(37,99,235,.10);border-color:#2563eb;box-shadow:0 0 0 4px rgba(37,99,235,.14);}
         .pq1409 .pq-grp.litok{background:rgba(26,127,67,.12);border-color:#1a7f43;box-shadow:0 0 0 4px rgba(26,127,67,.16);}
         .pq1409 .pq-glabel{font-size:12.5px;font-weight:800;color:#8a5a1e;letter-spacing:.02em;}
         .pq1409 .pq-grp.lit .pq-glabel{color:#2563eb;} .pq1409 .pq-grp.litok .pq-glabel{color:#1a7f43;}
 
-        .pq1409 .pq-bundle{position:relative;display:flex;align-items:flex-end;animation:pqSway 3.8s ease-in-out infinite;}
-        .pq1409 .pq-shop.still .pq-bundle{animation:none;}
-        .pq1409 .pq-bundle .pq-pen{margin-left:-6px;}
-        .pq1409 .pq-bundle .pq-pen:first-child{margin-left:0;}
-        .pq1409 .pq-pen{position:relative;line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));}
-        .pq1409 .pq-band{position:absolute;left:-4px;right:-4px;top:17px;height:10px;border-radius:6px;background:linear-gradient(#e8564d,#c93b32);border:1.5px solid #a52f27;box-shadow:0 2px 3px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.35);z-index:3;}
+        /* TO'LA QUTI: 10 uya (2×5), har uyada tik qalam */
+        .pq1409 .pq-boxx{position:relative;padding:6px 7px 8px;border-radius:10px;background:linear-gradient(#d9a561,#c08a45);border:2.5px solid #96662b;box-shadow:0 3px 0 #7d5423,0 5px 8px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.25);animation:pqSway 3.8s ease-in-out infinite;}
+        .pq1409 .pq-shop.still .pq-boxx{animation:none;}
+        .pq1409 .pq-grid{display:grid;grid-template-columns:repeat(5,auto);gap:3px;}
+        .pq1409 .pq-cell{width:20px;height:44px;border-radius:5px;background:rgba(70,40,10,.22);box-shadow:inset 0 2px 3px rgba(0,0,0,.26);display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;}
         .pq1409 .pq-dcap{position:absolute;top:-19px;left:50%;transform:translateX(-50%);padding:2px 10px;border-radius:9px;background:#c93b32;color:#fff;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,.2);z-index:4;}
 
         .pq1409 .pq-singles{display:flex;align-items:flex-end;gap:5px;}
@@ -176,12 +180,11 @@ export default function D14_09(props) {
 
         .pq1409 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
         .pq1409 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq1409 .pq-fb.no{background:#fdecec;color:#c0392b;}
-        @keyframes pqSway{0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-2px) rotate(1deg);}}
+        @keyframes pqSway{0%,100%{transform:translateY(0) rotate(-.6deg);}50%{transform:translateY(-2px) rotate(.6deg);}}
         @keyframes pqBob{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-2px) rotate(1deg);}}
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
         @keyframes pqShine{0%,100%{opacity:.5;}50%{opacity:.85;}}
-        @keyframes pqLamp{0%,100%{opacity:.9;box-shadow:0 0 12px 4px rgba(255,210,63,.4);}50%{opacity:1;box-shadow:0 0 18px 6px rgba(255,210,63,.6);}}
-        @keyframes pqTagBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+        @keyframes pqTick{from{transform:translate(-1px,-8px) rotate(40deg);}to{transform:translate(-1px,-8px) rotate(400deg);}}
         @keyframes pqPop{from{opacity:0;transform:translateX(-50%) scale(.4);}to{opacity:1;transform:translateX(-50%) scale(1);}}
         @keyframes pqPop2{from{opacity:0;transform:scale(.6);}to{opacity:1;transform:scale(1);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
@@ -195,27 +198,27 @@ export default function D14_09(props) {
         <div className={'pq-shop' + (still ? ' still' : '')}>
           <span className="pq-win" />
           <span className="pq-sun" />
-          <span className="pq-cord" /><span className="pq-bulb" />
-          <span className="pq-shelf" />
-          <span className="pq-tag r">{DATA.num}</span>
+          <span className="pq-boardd" /><span className="pq-chalk" />
+          <span className="pq-clock" />
           <span className="pq-counter" />
 
           <div className="pq-model">
-            {/* O'NLIK guruhi — bitta dasta (10 qalam) */}
+            {/* O'NLIK guruhi — bitta TO'LA QUTI (10 qalam, 10 uya) */}
             <div className={'pq-grp pq-gtens' + (ok ? ' litok' : tensLit ? ' lit' : '')}>
-              <div className="pq-bundle">
-                <span className="pq-dcap">{t.lblDasta}</span>
-                {Array.from({ length: TEN }).map((_, i) => {
-                  const p = PAL[i % PAL.length];
-                  return <span key={i} className="pq-pen"><Pencil c={p.c} d={p.d} w={12} /></span>;
-                })}
-                <span className="pq-band" />
+              <div className="pq-boxx">
+                <span className="pq-dcap">{t.lblBox}</span>
+                <div className="pq-grid">
+                  {Array.from({ length: TEN }).map((_, i) => {
+                    const p = PAL[i % PAL.length];
+                    return <span key={i} className="pq-cell"><Pencil c={p.c} d={p.d} w={12} /></span>;
+                  })}
+                </div>
                 {ok && <b className="pq-cnt pq-bcnt">{TEN}</b>}
               </div>
               <span className="pq-glabel">{t.sTens}</span>
             </div>
 
-            {/* BIRLIK guruhi — 4 yakka qalam */}
+            {/* BIRLIK guruhi — 4 yakka qalam (qutining O'NG tomonida) */}
             <div className={'pq-grp pq-gones' + (ok ? ' litok' : onesLit ? ' lit' : '')}>
               <div className="pq-singles">
                 {Array.from({ length: DATA.ones }).map((_, i) => {

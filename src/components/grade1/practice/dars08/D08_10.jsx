@@ -6,7 +6,7 @@ const MINUS = '−'; // − (minus sign U+2212)
 const DATA = { start: 7, remove: 3, target: 4, options: [3, 4, 5], ptype: 'NEW', level: '🔴', tag: 'perform_subtraction' };
 const T = {
   uz: {
-    eyebrow: 'Qishloq hovlisi · Ayirishni bajar', title: 'Ayirishni bajar',
+    eyebrow: 'Qishloq hovlisi · Ayirishni bajaring', title: 'Ayirishni bajaring',
     setup: 'Tabloda misol yonmoqda: yetti ayiruv uch. Panjarada yettita chumchuq o\'tiribdi.',
     ask: 'Misol bo\'yicha kerakli sondagi chumchuqni bosib uchiring, keyin nechta qolganini tanlang.',
     correct: 'Barakalla! Yetti ayiruv uch — to\'rt. Ayirishni o\'zingiz bajardingiz!',

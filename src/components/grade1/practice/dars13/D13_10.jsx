@@ -35,26 +35,26 @@ const LOOSE = [
 
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · Yasab ol", title: "O'nlikni yasab ol",
-    setup: "Peshtaxtada yakka qalamlar sochilgan. O'nta qalamni yig'ib, bir dasta (o'nlik) yasang!",
-    ask: "Qalamlarni bosib o'nta yig'ing, keyin dastani bog'lang.",
-    correct: "Barakalla! O'nta qalam — bir dasta. O'nlikni o'zingiz yasadingiz!",
+    eyebrow: "Qalam do'koni · Yig'ish", title: "O'nta yig'",
+    setup: "Peshtaxtada yakka qalamlar sochilgan. Aynan o'nta qalam yig'ing!",
+    ask: "Qalamlarni bosib o'nta yig'ing.",
+    correct: "Barakalla! O'nta qalam yig'ildi. O'ntani o'zingiz to'pladingiz!",
     hint: "Aynan o'nta qalam kerak. Yig'ilganlarni sanang.",
-    board: "O'nlikni yasab ol",
+    board: "O'nta yig'",
     tapHint: "Qalamlarni bosing",
-    chip: "10 qalam = 1 dasta",
-    btnBind: "Bog'la",
+    chip: "10 qalam yig'ildi",
+    btnBind: "Tayyor",
   },
   ru: {
-    eyebrow: 'Магазин карандашей · Собери', title: 'Сделай десяток',
-    setup: 'На прилавке рассыпаны отдельные карандаши. Собери десять карандашей и сделай пучок (десяток)!',
-    ask: 'Нажимай на карандаши — собери десять, потом свяжи пучок.',
-    correct: 'Молодец! Десять карандашей — один пучок. Десяток ты сделал сам!',
+    eyebrow: 'Магазин карандашей · Собери', title: 'Собери десять',
+    setup: 'На прилавке рассыпаны карандаши. Собери ровно десять карандашей!',
+    ask: 'Нажимай на карандаши — собери ровно десять.',
+    correct: 'Молодец! Собрано десять карандашей. Ты собрал десять сам!',
     hint: 'Нужно ровно десять карандашей. Пересчитай собранные.',
-    board: 'Сделай десяток',
+    board: 'Собери десять',
     tapHint: 'Нажимай на карандаши',
-    chip: '10 каранд. = 1 пучок',
-    btnBind: 'Свяжи',
+    chip: 'Собрано десять',
+    btnBind: 'Готово',
   },
 };
 
@@ -237,7 +237,6 @@ export default function D13_10(props) {
                   </span>
                 );
               })}
-              {bound && <span className="pq-band" />}
             </div>
           </div>
 

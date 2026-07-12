@@ -42,12 +42,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -223,7 +223,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -427,7 +427,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -875,7 +875,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Misconception'lar: M1 kardinallik yo'q · M2 miscount (sakrab/ikki marta) · M3 raqam↔miqdor.
 // ============================================================
 
-const TOTAL_SCREENS = 14;
+const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-1-36-v1',
   lessonTitle: { ru: 'Чтение простой пиктограммы и таблицы', uz: "Piktogramma va jadvalni o'qish" }
@@ -889,6 +889,7 @@ const SCREEN_META = [
   { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // qaysi ko'p (uzun qator)
   { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },            // uzun qator = ko'p
   { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // nimadan ko'p (banan/gilos)
+  { id: 's6b', type: 'exploration', template: 'custom',   scored: false, scope: null },            // jadval-ochilish: piktogramma -> jadval (s7 dan oldin)
   { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // jadvaldan o'qish (gilos 3)
   { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'module-mikro' },  // jami nechta (4+3=7)
   { id: 'sg',  type: 'exploration', template: 'custom',   scored: false, scope: null },            // o'yin: ma'lumot aralash
@@ -916,8 +917,8 @@ const CONTENT = {
     eyebrow: { ru: 'История', uz: 'Hikoya' },
     title: { ru: 'Картинки и таблицы', uz: 'Rasmlar va jadvallar' },
     body: {
-      ru: 'Мы многое узнали за год. Сегодня последний новый урок: научимся читать данные — картинки-пиктограммы и таблицы.',
-      uz: "Yil davomida ko'p narsa o'rgandik. Bugun oxirgi yangi dars: ma'lumotlarni o'qishni o'rganamiz — rasm-piktogramma va jadvallarni."
+      ru: 'Мы разобрали главные темы первого класса. Сегодня ещё одна важная тема: научимся читать данные — картинки-пиктограммы и таблицы.',
+      uz: "Birinchi sinfning asosiy mavzularini o'rgandik. Bugun yana bir muhim mavzu: ma'lumotlarni o'qishni o'rganamiz — rasm-piktogramma va jadvallarni."
     },
     bit_label: { ru: 'Бит', uz: 'Bit' },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
@@ -925,14 +926,14 @@ const CONTENT = {
     zuhra_label: { ru: 'Зухра', uz: 'Zuhra' },
     audio: {
       ru: [
-        'Привет, друг! Мы многому научились за год.',
-        'Сегодня последний новый урок.',
+        'Привет, друг! Мы разобрали главные темы первого класса.',
+        'Сегодня ещё одна важная тема.',
         'Данные можно показать картинками или в таблице.',
         'Научимся их читать. Слушай до конца и нажимай кнопку дальше.'
       ],
       uz: [
-        "Salom, do'stim! Yil davomida ko'p narsa o'rgandik.",
-        "Bugun oxirgi yangi dars.",
+        "Salom, do'stim! Birinchi sinfning asosiy mavzularini o'rgandik.",
+        "Bugun yana bir muhim mavzu.",
         "Ma'lumotni rasm bilan yoki jadvalda ko'rsatish mumkin.",
         "Ularni o'qishni o'rganamiz. Oxirigacha tinglang va davom tugmasini bosing."
       ]
@@ -954,7 +955,7 @@ const CONTENT = {
         uz: "Mevalar rasmiga qarang. Ulardan nima nechta ekanini bilsa bo'ladimi? O'ylab, bosing."
       },
       on_correct: { ru: 'Верно. Картинки можно посчитать и всё узнать.', uz: "To'g'ri. Rasmlarni sanab, hammasini bilsa bo'ladi." },
-      on_wrong: { ru: 'Верно. Картинки можно посчитать и всё узнать.', uz: "To'g'ri. Rasmlarni sanab, hammasini bilsa bo'ladi." }
+      on_wrong: { ru: 'Давай проверим вместе.', uz: "Keling, birga tekshiramiz." }
     }
   },
 
@@ -1070,6 +1071,24 @@ const CONTENT = {
     }
   },
 
+  s6b: {
+    eyebrow: { ru: 'Таблица', uz: 'Jadval' },
+    instruction: { ru: 'Те же данные можно записать в таблицу', uz: "Xuddi shu ma'lumotni jadvalga ham yozsa bo'ladi" },
+    reveal_label: { ru: 'Записать в таблицу', uz: 'Jadvalga yozish' },
+    full_text: { ru: 'В каждой строке — название и число.', uz: "Har qatorda — nomi va soni." },
+    full_audio: { ru: 'Пиктограмму можно записать в таблицу. В каждой строке имя и число. Так короче.', uz: "Piktogrammani jadvalga yozsa bo'ladi. Har qatorda nomi va soni. Bunday qisqaroq." },
+    audio: {
+      ru: [
+        'Посмотри. Слева картинки, справа таблица.',
+        'В таблице то же самое: название и сколько.'
+      ],
+      uz: [
+        "Qarang. Chapda rasmlar, o'ngda jadval.",
+        "Jadvalda ham xuddi shu: nomi va nechta."
+      ]
+    }
+  },
+
   s7: {
     eyebrow: { ru: 'Тренировка · 3 / 4', uz: 'Mashq · 3 / 4' },
     title: { ru: 'Сколько черешен в таблице?', uz: 'Jadvalda nechta gilos?' },
@@ -1097,7 +1116,7 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Тренировка · 4 / 4', uz: 'Mashq · 4 / 4' },
     title: { ru: 'Сколько фруктов всего?', uz: 'Jami nechta meva?' },
-    problem: { ru: 'Бананов 4, черешни 3. Сложи.', uz: "Banan 4, gilos 3. Qo'sh." },
+    problem: { ru: 'Бананов 4, черешни 3. Сложи.', uz: "Banan 4, gilos 3. Qo'shing." },
     correct_text: { ru: 'Правильно. Четыре и три — семь фруктов.', uz: "To'g'ri. To'rt va uch — yetti meva." },
     wrong_1: {
       ru: 'Четыре и три — это семь, не шесть. Всего семь фруктов.',
@@ -1134,11 +1153,11 @@ const CONTENT = {
   },
 
   sGuest: {
-    eyebrow: { ru: 'Целый год', uz: 'Butun yil' },
+    eyebrow: { ru: 'Наши умения', uz: 'Bilganlarimiz' },
     title: { ru: 'Сколько мы узнали', uz: "Qancha ko'p o'rgandik" },
     body: {
-      ru: 'Рано, Анвар и Зухра научились читать данные. А за год — считать, сравнивать, складывать, измерять. Молодцы!',
-      uz: "Ra'no, Anvar va Zuhra ma'lumotlarni o'qishni o'rgandi. Yil davomida esa — sanash, solishtirish, qo'shish, o'lchashni. Barakalla!"
+      ru: 'Рано, Анвар и Зухра научились читать данные. А ещё — считать, сравнивать, складывать, измерять. Молодцы!',
+      uz: "Ra'no, Anvar va Zuhra ma'lumotlarni o'qishni o'rgandi. Bulardan tashqari — sanash, solishtirish, qo'shish, o'lchashni ham. Barakalla!"
     },
     rano_label: { ru: 'Рано', uz: "Ra'no" },
     anvar_label: { ru: 'Анвар', uz: 'Anvar' },
@@ -1146,11 +1165,11 @@ const CONTENT = {
     audio: {
       ru: [
         'Послушай, мы научились читать данные.',
-        'А за весь год — считать, сравнивать, складывать и измерять. Ты молодец!'
+        'А ещё — считать, сравнивать, складывать и измерять. Ты молодец!'
       ],
       uz: [
         "Tinglang, biz ma'lumotlarni o'qishni o'rgandik.",
-        "Butun yil davomida esa — sanash, solishtirish, qo'shish va o'lchashni. Siz zo'rsiz!"
+        "Bulardan tashqari — sanash, solishtirish, qo'shish va o'lchashni ham. Siz zo'rsiz!"
       ]
     }
   },
@@ -1188,17 +1207,17 @@ const CONTENT = {
     }
   },
 
-  // s10 — YIL FINALI (boyitilgan yakun, Dars32/33 uslubi): butun 1-sinf can-do
+  // s10 — YAKUN (boyitilgan yakun, Dars32/33 uslubi): 1-sinf asosiy mavzulari can-do
   // ro'yxati + konfetti + do'stlar bilan xayrlashuv. Oddiy dars shabloni EMAS.
   s10: {
-    eyebrow: { ru: 'Год пройден!', uz: "Yil yakunlandi!" },
+    eyebrow: { ru: 'Первый класс!', uz: 'Birinchi sinf!' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    main_1: { ru: 'Ты прошёл', uz: 'Siz' },
-    main_2_em: { ru: 'весь первый класс!', uz: "butun birinchi sinfni tugatdingiz!" },
+    main_1: { ru: 'Ты разобрал', uz: 'Siz' },
+    main_2_em: { ru: 'главные темы первого класса!', uz: "birinchi sinfning asosiy mavzularini o'rgandingiz!" },
     connections_title: { ru: 'Что дальше', uz: 'Keyin nima' },
     connections_text: {
-      ru: 'Дальше будем повторять и играть с тем, что узнали за год.',
-      uz: "Keyin yil davomida o'rganganlarimizni takrorlaymiz va o'ynaymiz."
+      ru: 'Дальше будем повторять и играть с тем, что узнали.',
+      uz: "Keyin o'rganganlarimizni takrorlaymiz va o'ynaymiz."
     },
     can_do_title: { ru: 'Теперь я умею:', uz: 'Endi men:' },
     cd_1: { ru: 'считать до ста', uz: 'yuzgacha sanayman' },
@@ -1208,20 +1227,20 @@ const CONTENT = {
     cd_5: { ru: 'измерять длину и массу', uz: "uzunlik va massani o'lchayman" },
     cd_6: { ru: 'читать пиктограммы и таблицы', uz: "piktogramma va jadvalni o'qiyman" },
     real_caption: {
-      ru: 'Друзья прошли весь год вместе с тобой!',
-      uz: "Do'stlar butun yilni siz bilan birga bosib o'tishdi!"
+      ru: 'Друзья прошли все темы вместе с тобой!',
+      uz: "Do'stlar barcha mavzularni siz bilan birga bosib o'tishdi!"
     },
     audio: {
       ru: [
         'Молодец! Сегодня ты научился читать пиктограммы и таблицы.',
-        'И это был последний новый урок года. Посмотри, сколько всего ты теперь умеешь. Считать до ста, складывать и вычитать, решать задачи, узнавать фигуры, измерять и читать таблицы.',
-        'Ты прошёл весь первый класс. Друзья гордятся тобой!',
+        'Это была одна из главных тем первого класса. Посмотри, сколько всего ты теперь умеешь. Считать до ста, складывать и вычитать, решать задачи, узнавать фигуры, измерять и читать таблицы.',
+        'Ты разобрал главные темы первого класса. Друзья гордятся тобой!',
         'Дальше будем повторять и играть. До встречи!'
       ],
       uz: [
         "Barakalla! Bugun piktogramma va jadvalni o'qishni o'rgandingiz.",
-        "Bu yilning oxirgi yangi darsi edi. Qarang, endi qanchadan-qancha narsani bilasiz. Yuzgacha sanash, qo'shish va ayirish, masala yechish, shakllarni tanish, o'lchash va jadval o'qish.",
-        "Siz butun birinchi sinfni bosib o'tdingiz. Do'stlar siz bilan faxrlanadi!",
+        "Bu birinchi sinfning asosiy mavzularidan biri edi. Qarang, endi qanchadan-qancha narsani bilasiz. Yuzgacha sanash, qo'shish va ayirish, masala yechish, shakllarni tanish, o'lchash va jadval o'qish.",
+        "Siz birinchi sinfning asosiy mavzularini o'rgandingiz. Do'stlar siz bilan faxrlanadi!",
         "Keyin takrorlaymiz va o'ynaymiz. Ko'rishguncha!"
       ]
     }
@@ -3847,6 +3866,25 @@ const PictoFig = ({ rows, anim, big = false }) => {
     </div>
   );
 };
+// PictoTable — piktogrammani HAQIQIY jadval ichida ko'rsatadi: yorliq ustuni | rasm-kataklar ustuni.
+// Ustun treklari grid orqali umumiy (qatorlar tekis), qatorlararo chiziq + ustun ajratgichi bor. DataTable bilan bir xil til.
+const PictoTable = ({ rows, anim, big = false }) => {
+  const isz = big ? 40 : 30;
+  return (
+    <div className={`d36-ptab ${big ? 'd36-ptab-big' : ''}`}>
+      {rows.map((r, i) => (
+        <div key={i} className="d36-ptab-row">
+          <span className="d36-ptab-lab mono">{r.label}</span>
+          <div className="d36-ptab-cells">
+            {Array.from({ length: r.n }).map((_, j) => (
+              <span key={j} className={`d36-ptab-cell ${anim === 'enter' ? 'g1-pi-in' : ''}`} style={{ animationDelay: `${(i * 6 + j) * 0.08}s` }}><PictoIcon kind={r.kind} size={isz}/></span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 // DataTable — 2-ustunli jadval (yumaloq, zebra, tusli qiymat kataklari).
 const DataTable = ({ rows, anim }) => (
   <div className="d36-table">
@@ -3877,25 +3915,15 @@ const HookSceneData = () => {
       <svg className="d36-hook-bg" viewBox="0 0 240 160" preserveAspectRatio="xMidYMid slice">
         <defs>
           <linearGradient id="d36hWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#EAF2FF"/><stop offset="100%" stopColor="#F6EFE0"/></linearGradient>
-          <linearGradient id="d36hBoard" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FBF6EA"/><stop offset="100%" stopColor="#F0E6D0"/></linearGradient>
         </defs>
         <rect x="0" y="0" width="240" height="160" fill="url(#d36hWall)"/>
-        {/* quyosh nuri */}
+        {/* quyosh nuri (ambient) */}
         <g className="g1-amb-sun" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}><circle cx="210" cy="26" r="20" fill="#FFE7A6" opacity="0.55"/></g>
-        {/* ma'lumot taxtasi — ramka + qadalgan varaq */}
-        <rect x="20" y="16" width="200" height="128" rx="10" fill="#C08B4E"/>
-        <rect x="26" y="22" width="188" height="116" rx="7" fill="url(#d36hBoard)" stroke="#D8C7A4" strokeWidth="1"/>
-        {/* sarlavha lentasi (matnsiz — i18n'siz) */}
-        <rect x="40" y="30" width="80" height="9" rx="4.5" fill="#E0552E" opacity="0.85"/>
-        {/* qatorlar uchun yo'nalish chiziqlari + o'q */}
-        <line x1="52" y1="52" x2="52" y2="122" stroke="#CBB78E" strokeWidth="2"/>
-        <line x1="52" y1="122" x2="200" y2="122" stroke="#CBB78E" strokeWidth="2"/>
-        {/* qadama-tugmalar (pushpin) */}
-        <circle cx="34" cy="30" r="4" fill="#E5484D"/><circle cx="206" cy="30" r="4" fill="#4FA84E"/>
         {/* yulduzcha — ma'lumot "o'qildi" hissi (ambient) */}
-        <path className="g1-amb-twk" d="M186 58 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6Z" fill="#F2C94C" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}/>
+        <path className="g1-amb-twk" d="M26 34 l1.6 4 l4 1.6 l-4 1.6 l-1.6 4 l-1.6 -4 l-4 -1.6 l4 -1.6Z" fill="#F2C94C" style={{ transformBox: 'fill-box', transformOrigin: 'center' }}/>
       </svg>
-      <div className="d36-hook-front"><PictoFig rows={[{ label: t(L.apple), kind: 'apple', n: 4 }, { label: t(L.pear), kind: 'pear', n: 3 }]} anim="enter" big={true}/></div>
+      {/* oldida — HAQIQIY jadval (yorliq | rasm-kataklar) */}
+      <div className="d36-hook-front"><PictoTable rows={[{ label: t(L.apple), kind: 'apple', n: 4 }, { label: t(L.pear), kind: 'pear', n: 3 }]} anim="enter" big={true}/></div>
     </div>
   );
 };
@@ -3911,7 +3939,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -3936,8 +3965,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4132,6 +4161,54 @@ const Screen6 = (props) => {
   );
 };
 
+// s6b — EXPLORATION: piktogramma -> jadval ko'prigi (jadval s7 testidan oldin tanishtiriladi).
+const Screen6b = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s6b;
+  const L = CONTENT.lab;
+  const audio = useAudio(makeAutoSegments(c, lang));
+  const canAct = useCanAnswer(audio);
+  const [done, setDone] = useState(false);
+  const revealRef = useRevealScroll(done);
+  const go = () => {
+    if (done || !canAct) return;
+    setDone(true);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.full_audio[lang]); }
+  };
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!done} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const rows = [{ label: t(L.apple), kind: 'apple', n: 4 }, { label: t(L.pear), kind: 'pear', n: 3 }];
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <p className="h-sub title fade-up">{t(c.instruction)}</p>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)' }}>
+          <div style={{ display: 'flex', gap: 'clamp(14px, 4vw, 32px)', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center' }}>
+            <PictoFig rows={rows} anim="enter"/>
+            {done && <div className="fade-up"><DataTable rows={rows} anim="enter"/></div>}
+          </div>
+          {!done && (
+            <button className="btn" disabled={!canAct} onClick={go}
+              style={{ padding: 'clamp(10px, 1.6vw, 13px) clamp(20px, 3vw, 30px)', fontSize: 'clamp(14px, 1.8vw, 16px)' }}>
+              {t(c.reveal_label)}
+            </button>
+          )}
+        </div>
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.full_text)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
 // s7 — TEST MC: jadvaldan nechta gilos (3, idx0). Variantlar — DigitGlyph.
 const Screen7 = (props) => {
   const c = CONTENT.s7;
@@ -4308,7 +4385,7 @@ const Screen10 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.4vw, 16px)' }}>
-        {/* Yil finali: konfetti + yulduzlar */}
+        {/* Yakuniy nishonlash: konfetti + yulduzlar */}
         <div className="g1-rating fade-up" style={{ position: 'relative' }}>
           <Confetti/>
           <div className="g1-rating-stars">
@@ -4320,7 +4397,7 @@ const Screen10 = (props) => {
           </div>
           <p className="g1-rating-praise">{t(c.praise)}</p>
         </div>
-        {/* Yil sarlavhasi + butun 1-sinf can-do ro'yxati bitta ramkada (skroll yo'q qoidasi) */}
+        {/* Sarlavha + 1-sinf asosiy mavzulari can-do ro'yxati bitta ramkada (skroll yo'q qoidasi) */}
         <div className="frame-success fade-up delay-1" style={{ padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <h2 className="title h-sub" style={{ margin: '0 0 10px' }}>
             {t(c.main_1)} <span className="italic" style={{ color: T.success }}>{t(c.main_2_em)}</span>
@@ -4353,7 +4430,7 @@ export default function WordProblemSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -4393,7 +4470,7 @@ export default function WordProblemSumLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, ScreenGame, ScreenGuest, Screen9, Screen10];
+  const screens = [ScreenIntro, Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen6b, Screen7, Screen8, ScreenGame, ScreenGuest, Screen9, Screen10];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -4838,12 +4915,23 @@ html, body { margin: 0; padding: 0; }
 .d36-cells-max { overflow: hidden; }
 .d36-cells-max::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 38%, rgba(255,190,70,0.5) 50%, transparent 62%); transform: translateX(-110%); animation: g1cellsSweep 2.6s ease-in-out infinite; pointer-events: none; }
 @keyframes g1cellsSweep { 0% { transform: translateX(-110%); } 55%, 100% { transform: translateX(110%); } }
-.d36-table { display: inline-flex; flex-direction: column; border: 1.5px solid #D8D2C4; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 16px -8px rgba(58,53,48,0.22); }
-.d36-table-row { display: flex; align-items: stretch; }
-.d36-table-row:nth-child(even) { background: #FAF6EE; }
-.d36-table-row:nth-child(odd) { background: #FFFFFF; }
+/* haqiqiy 2-ustunli grid — ustun treklari barcha qatorlar uchun umumiy (yorliq uzunligidan qat'i nazar qiymatlar bir chiziqda) */
+.d36-table { display: grid; grid-template-columns: auto auto; border: 1.5px solid #D8D2C4; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 16px -8px rgba(58,53,48,0.22); }
+.d36-table-row { display: contents; }
+.d36-table-row:nth-child(even) .d36-table-lab { background: #FAF6EE; }
+.d36-table-row:nth-child(odd) .d36-table-lab { background: #FFFFFF; }
 .d36-table-lab { padding: clamp(8px, 1.8vw, 12px) clamp(12px, 3vw, 20px); min-width: clamp(72px, 20vw, 104px); font-weight: 700; color: #3A3530; border-right: 1px solid #ECE6DA; display: flex; align-items: center; }
 .d36-table-val { padding: clamp(6px, 1.4vw, 9px) clamp(12px, 3vw, 20px); min-width: clamp(46px, 12vw, 62px); display: flex; align-items: center; justify-content: center; background: rgba(255,79,40,0.06); }
+/* PictoTable — piktogramma haqiqiy jadval ichida (yorliq ustuni | rasm-kataklar). Ustunlar grid orqali tekis. */
+.d36-ptab { display: inline-grid; grid-template-columns: auto auto; border: 1.5px solid #D8C7A4; border-radius: 12px; overflow: hidden; background: #FFFFFF; box-shadow: 0 6px 16px -8px rgba(58,53,48,0.22); }
+.d36-ptab-row { display: contents; }
+.d36-ptab-lab { display: flex; align-items: center; justify-content: flex-end; text-align: right; padding: clamp(7px, 1.6vw, 11px) clamp(10px, 2.4vw, 15px); font-weight: 700; color: #3A3530; border-right: 1px solid #E6D9BE; }
+.d36-ptab-cells { display: flex; align-items: center; gap: clamp(3px, 1vw, 7px); padding: clamp(6px, 1.4vw, 10px) clamp(10px, 2.4vw, 15px); }
+.d36-ptab-row:nth-child(even) .d36-ptab-lab, .d36-ptab-row:nth-child(even) .d36-ptab-cells { background: #FBF6EA; }
+.d36-ptab-row:not(:first-child) .d36-ptab-lab, .d36-ptab-row:not(:first-child) .d36-ptab-cells { border-top: 1px solid #E6D9BE; }
+.d36-ptab-cell { display: inline-flex; }
+.d36-ptab-big .d36-ptab-lab { font-size: clamp(15px, 4vw, 20px); padding: clamp(9px, 2.2vw, 14px) clamp(12px, 2.8vw, 18px); }
+.d36-ptab-big .d36-ptab-cells { gap: clamp(4px, 1.4vw, 9px); padding: clamp(8px, 2vw, 13px) clamp(12px, 2.8vw, 18px); }
 .g1-pi-in { animation: g1piIn 0.5s cubic-bezier(0.34,1.3,0.6,1) both; }
 @keyframes g1piIn { 0% { opacity: 0; transform: translateY(10px) scale(0.6); } 70% { transform: translateY(-2px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 /* A1 uchqun chaqnashi — to'g'ri javobda piktogramma atrofidan otiladi */

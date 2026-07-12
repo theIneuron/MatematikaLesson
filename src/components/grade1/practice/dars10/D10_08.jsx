@@ -219,12 +219,22 @@ export default function D10_08(props) {
         @keyframes pqTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0deg);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        /* Ambient: suzuvchi uchqunlar + sekin aylanuvchi bolt (fon dekori) */
+        .pq1008 .pq-mote{position:absolute;z-index:0;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff,rgba(242,177,52,.5) 55%,rgba(242,177,52,0) 72%);pointer-events:none;opacity:0;animation:pq1008Mote 9.5s ease-in-out infinite;}
+        .pq1008 .pq-mote.m2{width:6px;height:6px;animation-duration:12.5s;animation-delay:-5s;}
+        .pq1008 .pq-nut{position:absolute;z-index:0;line-height:0;opacity:.32;pointer-events:none;animation:pq1008Nut 12.5s ease-in-out infinite;}
+        @keyframes pq1008Mote{0%{opacity:0;transform:translate(0,8px) scale(.7);}22%{opacity:.5;}50%{opacity:.55;transform:translate(4px,-9px) scale(1);}80%{opacity:.3;}100%{opacity:0;transform:translate(0,-20px) scale(.7);}}
+        @keyframes pq1008Nut{0%{transform:translate(0,0) rotate(0);}50%{transform:translate(-4px,-7px) rotate(180deg);}100%{transform:translate(0,0) rotate(360deg);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-stage">
         <div className={'pq-scene' + (still ? ' still' : '')}>
+          {/* Ambient uchqunlar + bolt (fon, dekor) */}
+          <span className="pq-mote m1" aria-hidden="true" style={{ left: 135, top: 46 }} />
+          <span className="pq-mote m2" aria-hidden="true" style={{ left: 230, top: 62 }} />
+          <span className="pq-nut" aria-hidden="true" style={{ left: 104, top: 96 }}><svg width="13" height="13" viewBox="0 0 20 20"><path d="M10 1.4 L16.9 5.4 L16.9 13.6 L10 17.6 L3.1 13.6 L3.1 5.4 Z" fill="none" stroke="#9aa6b6" strokeWidth="2" /><circle cx="10" cy="10" r="3.2" fill="none" stroke="#9aa6b6" strokeWidth="2" /></svg></span>
           <span className="pq-window w1" /><span className="pq-window w2" />
           <span className="pq-gear g1"><Gear size={42} /></span>
           <span className="pq-gear g2"><Gear size={26} c="#98a4b6" line="#5f6b80" /></span>

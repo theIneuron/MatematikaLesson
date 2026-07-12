@@ -14,10 +14,10 @@ const T = {
   uz: {
     eyebrow: 'Fabrika · Sehrli mashina', title: 'Sehrli mashina',
     setup: 'Bu sehrli mashina har songa uchtani qo\'shadi! Qarang: ikki kirdi — besh chiqdi. Endi to\'rt kiritamiz.',
-    ask: 'Ishga tushir tugmasini bosing, keyin nechta chiqishini tanlang.',
+    ask: '«Ishga tushiring» tugmasini bosing, keyin nechta chiqishini tanlang.',
     correct: 'Barakalla! To\'rtga uch qo\'shildi — yetti chiqdi. Mashina qoidasini tushundingiz!',
     hint: 'Qoidaga qarang: mashina har songa uch qo\'shadi. To\'rtga uch qo\'shing.',
-    btnRun: 'Ishga tushir', demoNote: 'Namuna',
+    btnRun: 'Ishga tushiring', demoNote: 'Namuna',
   },
   ru: {
     eyebrow: 'Фабрика · Волшебная машина', title: 'Волшебная машина',
@@ -250,12 +250,21 @@ export default function D10_10(props) {
         @keyframes pqPop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        /* Ambient: suzuvchi mayda uchqunlar (fon dekori) */
+        .pq1010 .pq-mote{position:absolute;z-index:0;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff,rgba(242,177,52,.5) 55%,rgba(242,177,52,0) 72%);pointer-events:none;opacity:0;animation:pq1010Mote 10.5s ease-in-out infinite;}
+        .pq1010 .pq-mote.m2{width:4px;height:4px;animation-duration:12s;animation-delay:-4.5s;}
+        .pq1010 .pq-mote.m3{width:6px;height:6px;animation-duration:14s;animation-delay:-8.5s;}
+        @keyframes pq1010Mote{0%{opacity:0;transform:translate(0,8px) scale(.7);}22%{opacity:.5;}50%{opacity:.55;transform:translate(4px,-9px) scale(1);}80%{opacity:.3;}100%{opacity:0;transform:translate(0,-20px) scale(.7);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-stage">
         <div className={'pq-scene' + (still ? ' still' : '')}>
+          {/* Ambient uchqunlar (fon, dekor) */}
+          <span className="pq-mote m1" aria-hidden="true" style={{ left: 40, top: 120 }} />
+          <span className="pq-mote m2" aria-hidden="true" style={{ left: 22, top: 162 }} />
+          <span className="pq-mote m3" aria-hidden="true" style={{ left: 322, top: 110 }} />
           {/* fon */}
           <span className="pq-gear bg1"><Gear size={38} /></span>
           <span className="pq-gear bg2"><Gear size={24} c="#98a4b6" line="#5f6b80" /></span>

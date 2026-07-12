@@ -33,12 +33,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true; // TEST — slayd gating O'CHIRILGAN (ishlab chiqarishdan oldin false ga qaytaring)
+const FREE_NAV = false; // TEST — slayd gating O'CHIRILGAN (ishlab chiqarishdan oldin false ga qaytaring)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -214,7 +214,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -418,7 +418,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -2760,9 +2760,10 @@ const Screen0 = (props) => {
   const pick = (i) => {
     if (picked !== null) return;
     setPicked(i);
-    sfx.playCorrect();
+    const right = i === 1;
+    if (right) sfx.playCorrect();
     const pw = nextPraise(lang); setPraiseWord(pw);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff(c.audio.on_correct[lang]); } }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) { if (right) { e.pushOneOff(pw); e.pushOneOff(c.audio.on_correct[lang]); } else { e.pushOneOff(c.audio.on_wrong[lang]); } } }
   };
   const opts = [c.opt0, c.opt1, c.opt2];
   const navContent = (
@@ -2783,14 +2784,14 @@ const Screen0 = (props) => {
         <p className="g1-q fade-up delay-1">{t(c.question)}</p>
         <div className="fade-up delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {opts.map((o, i) => (
-            <button key={i} className={`g1-tile ${picked === i ? 'g1-tile-ok' : ''}`} disabled={picked !== null} onClick={() => pick(i)} style={{ width: '100%', fontSize: 'clamp(14px, 1.9vw, 17px)' }}>
+            <button key={i} className={`g1-tile ${picked === i && i === 1 ? 'g1-tile-ok' : ''} ${picked === i && i !== 1 ? 'g1-tile-used' : ''}`} disabled={picked !== null} onClick={() => pick(i)} style={{ width: '100%', fontSize: 'clamp(14px, 1.9vw, 17px)' }}>
               {t(o)}
             </button>
           ))}
         </div>
         {picked !== null && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={praiseWord}/>
+          <FeedbackBlock show={true} isCorrect={picked === 1} wrongClass="frame-tip">
+            <Reaction state={picked === 1 ? 'correct' : 'wrong'} praise={picked === 1 ? praiseWord : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -3366,7 +3367,7 @@ export default function CompositionLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

@@ -176,15 +176,20 @@ export default function D11_02(props) {
         .pq1102 .pq-expr{position:relative;z-index:2;font-size:15px;font-weight:900;color:#425064;background:rgba(255,255,255,.82);padding:2px 12px;border-radius:999px;font-variant-numeric:tabular-nums;box-shadow:0 1px 2px rgba(0,0,0,.06);}
         .pq1102 .pq-expr .pq-op{font-style:normal;color:#1a7f43;margin:0 2px;}
         .pq1102 .pq-train{position:relative;z-index:2;width:322px;max-width:100%;height:56px;margin-top:1px;}
-        .pq1102 .pq-rail{position:absolute;left:2px;right:2px;bottom:1px;height:9px;z-index:1;}
-        .pq1102 .pq-rail::after{content:'';position:absolute;left:0;right:0;top:6px;height:3px;border-radius:2px;background:linear-gradient(#a7afba,#79818d);}
-        .pq1102 .pq-sleepers{position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(90deg,#a5744a 0 6px,transparent 6px 15px);opacity:.85;}
+        .pq1102 .pq-ground{position:absolute;left:0;right:0;top:38px;bottom:0;z-index:0;background:linear-gradient(#cdeab0 0%,#b4dd92 46%,#a2d17f 100%);}
+        .pq1102 .pq-ground::before{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:#8fbf6b;}
+        .pq1102 .pq-rail{position:absolute;left:-60px;right:-60px;bottom:2px;height:9px;z-index:1;}
+        .pq1102 .pq-rail::after{content:'';position:absolute;left:0;right:0;top:6px;height:3px;border-radius:2px;background:linear-gradient(#e0e6ee,#9aa4b4);}
+        .pq1102 .pq-sleepers{position:absolute;left:0;right:0;top:0;height:6px;background:repeating-linear-gradient(90deg,#7c5a34 0 6px,transparent 6px 15px);opacity:.9;animation:pqRailMove 1.15s linear infinite;}
         .pq1102 .pq-cars{position:absolute;left:0;right:0;bottom:5px;display:flex;align-items:flex-end;justify-content:center;gap:3px;line-height:0;}
         .pq1102 .pq-loco{line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));animation:pqRollIn .5s ease both;}
         .pq1102 .pq-loco.win{animation:pqCele .55s ease;}
         .pq1102 .pq-wag{position:relative;line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));}
         .pq1102 .pq-train.top .pq-wag{animation:pqDrop .5s cubic-bezier(.3,1.3,.5,1) both;}
         .pq1102 .pq-train.bot .pq-wag{animation:pqSwapIn .55s cubic-bezier(.3,1.15,.5,1) both;}
+        .pq1102 .pq-train.top{animation:pqChug 2s ease-in-out .6s infinite;}
+        .pq1102 .pq-train.bot{animation:pqChug 2.2s ease-in-out .9s infinite;}
+        .pq1102 .pq-scene.still .pq-train{animation:none;}
         .pq1102 .pq-scene.still .pq-wag,.pq1102 .pq-scene.still .pq-loco{animation:none;}
         .pq1102 .pq-cnt{position:absolute;top:-7px;right:-3px;min-width:18px;height:18px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:4;}
         .pq1102 .pq-wheel{transform-box:fill-box;transform-origin:center;animation:pqSpin 2.4s linear infinite;}
@@ -208,6 +213,9 @@ export default function D11_02(props) {
         .pq1102 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
         .pq1102 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq1102 .pq-fb.no{background:#fdecec;color:#c0392b;}
         @keyframes pqSpin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+        @keyframes pqRailMove{from{background-position:0 0;}to{background-position:15px 0;}}
+        @keyframes pqChug{0%,100%{transform:translateY(0) translateX(0);}25%{transform:translateY(-2px) translateX(1.2px);}50%{transform:translateY(0) translateX(0);}75%{transform:translateY(-2px) translateX(-1.2px);}}
+        @keyframes pqBallast{from{background-position:0 0;}to{background-position:18px 0;}}
         @keyframes pqSteam{0%{opacity:0;transform:translate(0,0) scale(.5);}22%{opacity:.8;}100%{opacity:0;transform:translate(-6px,-20px) scale(1.6);}}
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
         @keyframes pqCloud{from{transform:translateX(0);}to{transform:translateX(460px);}}
@@ -227,8 +235,8 @@ export default function D11_02(props) {
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className={'pq-scene' + (still ? ' still' : '')}>
-        <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
+        <span className="pq-ground" />
         <div className="pq-sem"><span className="pq-sempost" /><div className="pq-semhead"><span className="pq-lamp red" /><span className="pq-lamp green" /></div></div>
 
         <span className="pq-expr">3 <i className="pq-op">+</i> 2</span>

@@ -18,7 +18,7 @@ import D01_10 from './D01_10.jsx';
 const ITEMS = [
   { id: '01', label: '1 · Lola', C: D01_01 },    // P1 · Ra'noning bog'i — nechta lola? 🟢
   { id: '02', label: '2 · Baliq', C: D01_02 },   // P1 · Anvarning akvariumi — nechta baliq? 🟢
-  { id: '03', label: '3 · Raqam', C: D01_03 },   // P2 · Bit robot — bu qaysi raqam? 🟢
+  { id: '03', label: '3 · Chiroq', C: D01_03 },  // P2 · Bit robot — nechta chiroq yondi? (sanab raqamni tanla) 🟢
   { id: '04', label: '4 · Yulduz', C: D01_04 },  // P1 · Zuhra osmonda — nechta yulduz? 🟡
   { id: '05', label: '5 · Shar', C: D01_05 },    // P2 · Jasur — qaysi shodada 4 ta shar? 🟡
   { id: '06', label: '6 · Barmoq', C: D01_06 },  // P1 · Barmoq o'yini — nechta barmoq? 🟡

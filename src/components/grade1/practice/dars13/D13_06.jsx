@@ -6,10 +6,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const TEN = 10;
 const ROWS = [
-  { have: 6, ans: 4, opts: [3, 4, 5] },
-  { have: 8, ans: 2, opts: [1, 2, 3] },
-  { have: 3, ans: 7, opts: [6, 7, 8] },
-  { have: 5, ans: 5, opts: [4, 5, 6] },
+  { have: 6, ans: 4, opts: [2, 3, 4, 5] },
+  { have: 8, ans: 2, opts: [0, 1, 2, 3] },
+  { have: 3, ans: 7, opts: [5, 6, 7, 8] },
+  { have: 5, ans: 5, opts: [3, 4, 5, 6] },
 ];
 const DATA = { ptype: 'P13', level: '🔴', tag: 'complete_ten_chain' };
 
@@ -23,20 +23,20 @@ const PAL = [
 
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · Zanjir", title: "O'nlikka to'ldir",
-    setup: "To'rtta qutini o'nlikkacha to'ldiramiz. Har biriga nechta qalam yetmaydi?",
-    ask: "Har qatorda o'nlikka nechta yetmasligini tanlang.",
-    correct: "Barakalla! To'rtala dasta to'ldi — o'nliklar tayyor!",
+    eyebrow: "Qalam do'koni · Zanjir", title: "O'ngacha to'ldir",
+    setup: "To'rtta qutini o'ngacha to'ldiramiz. Har biriga nechta qalam yetmaydi?",
+    ask: "Har qatorda o'ngacha nechta yetmasligini tanlang.",
+    correct: "Barakalla! To'rtala qatorda o'ngacha to'ldi!",
     hint: "Qizil qatorlarga qarang: bordan o'ngacha nechta yetmaydi? Barmoqda sanang.",
-    board: "O'nlikni to'ldir",
+    board: "O'ngacha to'ldir",
   },
   ru: {
-    eyebrow: 'Магазин карандашей · Цепочка', title: 'Дополни до десятка',
-    setup: 'Дополняем четыре коробки до десятка. Сколько карандашей не хватает в каждой?',
-    ask: 'Выбери, сколько не хватает до десятка в каждой строке.',
-    correct: 'Молодец! Все четыре пучка собраны — десятки готовы!',
+    eyebrow: 'Магазин карандашей · Цепочка', title: 'Дополни до десяти',
+    setup: 'Дополняем четыре коробки до десяти. Сколько карандашей не хватает в каждой?',
+    ask: 'Выбери, сколько не хватает до десяти в каждой строке.',
+    correct: 'Молодец! Все четыре строки дополнены до десяти!',
     hint: 'Посмотри на красные строки: от того, что есть, до десяти — сколько не хватает? Посчитай на пальцах.',
-    board: 'Собери десяток',
+    board: 'Дополни до десяти',
   },
 };
 
@@ -142,11 +142,12 @@ export default function D13_06(props) {
         .pq1306 .pq-wstar{position:absolute;z-index:6;line-height:0;opacity:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
         .pq1306 .pq-wstar.w2{animation-delay:-.5s;} .pq1306 .pq-wstar.w3{animation-delay:-1.05s;}
         /* qatorlar */
-        .pq1306 .pq-rows{display:flex;flex-direction:column;gap:6px;width:100%;}
-        .pq1306 .pq-rw{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;padding:5px 8px;border-radius:14px;border:2.5px solid #ecdcbf;background:#fffaf0;transition:.15s;}
+        .pq1306 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;width:100%;}
+        .pq1306 .pq-rw{display:flex;gap:7px;align-items:center;justify-content:center;align-content:center;flex-wrap:wrap;padding:5px 8px;border-radius:14px;border:2.5px solid #ecdcbf;background:#fffaf0;transition:.15s;}
         .pq1306 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq1306 .pq-rw.good.win{animation:pqCele .5s ease;}
         .pq1306 .pq-rw.bad{border-color:#e08a8a;background:#fdf1f1;animation:pqShake .35s ease;}
+        .pq1306 .pq-n{width:42px;height:44px;border-radius:10px;background:#fbf3e2;border:2px solid #e6c98f;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#8a5a1e;font-variant-numeric:tabular-nums;flex-shrink:0;}
         .pq1306 .pq-frame{display:flex;gap:2px;padding:4px 5px;border-radius:9px;background:#fbf3e2;border:2px solid #ecdcbf;}
         .pq1306 .pq-cell{width:9px;height:32px;border-radius:3px;border:1.5px dashed #d8c59c;box-sizing:border-box;padding:1px;background:#fdf8ec;}
         .pq1306 .pq-cell.on{border:1.5px solid transparent;background:transparent;padding:1px;}
@@ -160,7 +161,7 @@ export default function D13_06(props) {
         .pq1306 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq1306 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
         .pq1306 .pq-eq{font-size:19px;font-weight:900;color:#8a7a55;font-variant-numeric:tabular-nums;}
-        .pq1306 .pq-sgs{display:flex;gap:5px;margin-left:2px;}
+        .pq1306 .pq-sgs{display:flex;align-content:center;gap:5px;margin-left:2px;flex-basis:100%;justify-content:center;}
         .pq1306 .pq-sg{width:36px;height:40px;border-radius:10px;border:2.5px solid #e0d3b6;background:#fff;font-size:18px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1306 .pq-sg:hover:not(:disabled){border-color:#e0a94e;transform:translateY(-2px);}
         .pq1306 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -233,17 +234,7 @@ export default function D13_06(props) {
             const cls = feedback ? (rowRight(i) ? ' good' + (ok ? ' win' : '') : ' bad') : '';
             return (
               <div key={i} className={'pq-rw' + cls}>
-                <div className="pq-frame">
-                  {Array.from({ length: TEN }).map((_, k) => {
-                    const filled = k < r.have;
-                    const appear = ok && k >= r.have;
-                    return (
-                      <span key={k} className={'pq-cell' + (filled || ok ? ' on' : '') + (appear ? ' fill' : '')} style={appear ? { animationDelay: `${(k - r.have) * 0.07}s` } : undefined}>
-                        {(filled || ok) && <Pencil c={PAL[i % PAL.length]} />}
-                      </span>
-                    );
-                  })}
-                </div>
+                <div className="pq-n">{r.have}</div>
                 <b className="pq-op">+</b>
                 <div className={'pq-slot' + (vals[i] != null ? ' has' : '')}>{vals[i] != null ? vals[i] : '?'}</div>
                 <span className="pq-eq">= {TEN}</span>

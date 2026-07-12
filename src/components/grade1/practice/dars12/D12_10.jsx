@@ -9,24 +9,29 @@ const A = 4, B = 2, C = 5;
 const SUM = A + B; // 6
 const SIGNS = ['>', '<', '='];
 const TARGET = '>';
+const NUM_OPTIONS = [5, 6, 7]; // 1-bosqich: qavs ichi (4 + 2 = 6) ni bola o'zi hisoblab tanlaydi
 const faceDir = TARGET === '>' ? 'L' : TARGET === '<' ? 'R' : 'E'; // timsoh og'zi kattaga qaraydi
 const DATA = { a: A, b: B, sum: SUM, c: C, target: TARGET, options: SIGNS, ptype: 'NEW', level: '🔴', tag: 'parens_box' };
 const T = {
   uz: {
     eyebrow: "Timsohlar ko'li · Qavs qutisi", title: "Qavs qutisi",
-    setup: "Yozuvda qavs bor: «(to'rt qo'shuv ikki) va besh». Avval qavs qutisini hisoblang!",
-    ask: "«Hisobla» tugmasini bosing, keyin to'g'ri belgini tanlang.",
+    setup: "Yozuvda qavs bor: «(to'rt qo'shuv ikki) va besh». Avval qavs ichini hisoblang!",
+    ask: "Avval qavs ichi (4 + 2) nechaga tengligini tanlang, keyin belgini qo'ying.",
     correct: "Barakalla! Qavs ichi — olti. Olti beshdan katta, timsoh chapga og'iz ochdi!",
-    hint: "Qavs qutisi olti chiqardi. Endi olti va beshni solishtiring: qaysi katta?",
-    btnCompute: "Hisobla",
+    hint: "Qavs ichi olti. Endi olti va beshni solishtiring: qaysi katta?",
+    hintNum: "Qavs ichini sanang: to'rt qo'shuv ikki nechaga teng?",
+    step1: "1. Qavs ichini hisobla",
+    step2: "2. Belgini tanla",
   },
   ru: {
     eyebrow: "Озеро крокодилов · Коробка со скобками", title: "Коробка со скобками",
-    setup: "В записи есть скобки: «(четыре плюс два) и пять». Сначала вычисли коробку со скобками!",
-    ask: "Нажми кнопку «Вычисли», потом выбери верный знак.",
+    setup: "В записи есть скобки: «(четыре плюс два) и пять». Сначала вычисли, что в скобках!",
+    ask: "Сначала выбери, сколько будет в скобках (4 + 2), потом поставь знак.",
     correct: "Молодец! В скобках — шесть. Шесть больше пяти, крокодил открыл пасть влево!",
-    hint: "Коробка со скобками дала шесть. Теперь сравни шесть и пять: какое больше?",
-    btnCompute: "Вычисли",
+    hint: "В скобках — шесть. Теперь сравни шесть и пять: какое больше?",
+    hintNum: "Посчитай, что в скобках: сколько будет четыре плюс два?",
+    step1: "1. Вычисли скобку",
+    step2: "2. Поставь знак",
   },
 };
 
@@ -137,8 +142,9 @@ export default function D12_10(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = T[lang] || T.uz;
   const isReview = mode === 'review';
-  const [computed, setComputed] = useState(false); // 1-bosqich: qavs qutisi hisoblandi
-  const [picked, setPicked] = useState(null);      // 2-bosqich: belgi tanlandi
+  const [numPicked, setNumPicked] = useState(null); // 1-bosqich: qavs ichi qiymati tanlandi
+  const [computed, setComputed] = useState(false);  // 1-bosqich to'g'ri bajarildi (qavs qutisi hisoblandi)
+  const [picked, setPicked] = useState(null);       // 2-bosqich: belgi tanlandi
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
   // Review yoki qayta ochilishda quti-yopilish/«6» pop qayta ijro etilmaydi — statik yakuniy holat.
@@ -147,7 +153,7 @@ export default function D12_10(props) {
 
   useEffect(() => {
     if (initialAnswer && initialAnswer.studentAnswer) {
-      if (initialAnswer.studentAnswer.computed) setComputed(true);
+      if (initialAnswer.studentAnswer.computed) { setComputed(true); setNumPicked(SUM); }
       if (initialAnswer.studentAnswer.value != null) setPicked(initialAnswer.studentAnswer.value);
       if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
     }
@@ -155,7 +161,14 @@ export default function D12_10(props) {
   useEffect(() => { onReady?.(computed && picked !== null && !checked); }, [computed, picked, checked, onReady]);
 
   const lock = isReview || checked;
-  const doCompute = () => { if (computed || lock) return; setComputed(true); setFeedback(null); };
+  // 1-bosqich: bola qavs ichini (4+2) o'zi hisoblab tanlaydi. To'g'ri son → quti yopiladi;
+  // noto'g'ri → maslahat, qayta urinadi (веди-до-верного).
+  const pickNum = (n) => {
+    if (computed || lock) return;
+    setNumPicked(n);
+    if (n === SUM) { setComputed(true); setFeedback(null); }
+    else { setFeedback({ correct: false, msg: t.hintNum }); playWrong?.(); }
+  };
   const pick = (s) => { if (!computed || lock) return; setPicked(s); setFeedback(null); };
 
   const check = useCallback(() => {
@@ -198,8 +211,9 @@ export default function D12_10(props) {
         .pq1210 .pq-cmp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;z-index:4;}
         /* Qavs qutisi (yog'och) */
         .pq1210 .pq-box{position:relative;flex-shrink:0;}
-        .pq1210 .pq-boxlid{position:absolute;top:-3px;left:5px;right:5px;height:12px;border-radius:7px 7px 3px 3px;background:linear-gradient(#e9bd8d,#cf975f);border:2.5px solid #9c6b3a;transform-origin:50% 100%;transform:rotate(-52deg);transition:transform .45s cubic-bezier(.34,1.35,.5,1);z-index:3;}
-        .pq1210 .pq-box.sealed .pq-boxlid{transform:rotate(0deg);}
+        .pq1210 .pq-boxlid{position:absolute;top:-9px;left:5px;right:5px;height:11px;border-radius:6px 6px 3px 3px;background:linear-gradient(#e9bd8d,#cf975f);border:2.5px solid #9c6b3a;transform-origin:4% 100%;transform:rotate(-24deg) translateY(-2px);transition:transform .45s cubic-bezier(.34,1.35,.5,1);z-index:3;}
+        .pq1210 .pq-boxlid::after{content:'';position:absolute;left:5px;top:3px;width:9px;height:3px;border-radius:2px;background:rgba(120,70,30,.35);}
+        .pq1210 .pq-box.sealed .pq-boxlid{transform:rotate(0deg) translateY(0);}
         .pq1210 .pq-boxbody{position:relative;display:flex;align-items:center;gap:1px;padding:11px 9px 12px;border-radius:13px;background:linear-gradient(#e9bd8d,#d19a63);border:3px solid #9c6b3a;box-shadow:inset 0 -6px 10px rgba(120,70,30,.28),inset 0 3px 6px rgba(255,240,215,.5),0 4px 8px rgba(0,0,0,.16);}
         .pq1210 .pq-boxbody::before{content:'';position:absolute;left:6px;right:6px;top:50%;height:2px;transform:translateY(-50%);background:repeating-linear-gradient(90deg,transparent 0 7px,rgba(120,70,30,.16) 7px 8px);pointer-events:none;}
         .pq1210 .pq-box.sealed:not(.still) .pq-boxbody{animation:pqBoxSeal .5s ease;}
@@ -230,6 +244,11 @@ export default function D12_10(props) {
         .pq1210 .pq-chip .op{color:#d0568a;margin:0 5px;}
         /* Boshqaruv: hisobla + belgilar */
         .pq1210 .pq-tools{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:18px;}
+        .pq1210 .pq-step{display:flex;flex-direction:column;align-items:center;gap:8px;transition:opacity .3s;}
+        .pq1210 .pq-step.off{opacity:.45;}
+        .pq1210 .pq-steplbl{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:800;color:#5c6672;letter-spacing:.01em;}
+        .pq1210 .pq-steplbl.done{color:#1a7f43;}
+        .pq1210 .pq-steplbl .pq-chk{font-size:14px;line-height:1;}
         .pq1210 .pq-compute{display:inline-flex;align-items:center;gap:7px;padding:11px 28px;border-radius:14px;border:none;background:linear-gradient(#5ab85f,#3f9d47);color:#fff;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 4px 0 #2e7a3e,0 6px 12px rgba(46,122,62,.3);animation:pqBtnPulse 1.8s ease-in-out infinite;transition:transform .1s;font-family:inherit;}
         .pq1210 .pq-compute:hover:not(:disabled){transform:translateY(-1px);}
         .pq1210 .pq-compute:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 #2e7a3e;}
@@ -314,14 +333,26 @@ export default function D12_10(props) {
       </div>
 
       <div className="pq-tools">
-        <button type="button" className={'pq-compute' + (computed ? ' done' : '')} disabled={computed || lock} onClick={doCompute}>
-          {computed && <span className="pq-chk">✓</span>}{t.btnCompute}
-        </button>
-        <div className="pq-opts">
-          {SIGNS.map((s) => {
-            const sel = picked === s; const right = ok && s === TARGET;
-            return <button key={s} type="button" className={'pq-opt' + (right ? ' right' : sel ? ' sel' : '')} disabled={!computed || lock} onClick={() => pick(s)}>{s}</button>;
-          })}
+        {/* 1-bosqich: qavs ichini (4+2) hisoblab, sonni tanlaydi */}
+        <div className="pq-step">
+          <span className={'pq-steplbl' + (computed ? ' done' : '')}>{computed && <b className="pq-chk">✓</b>}{t.step1}</span>
+          <div className="pq-opts">
+            {NUM_OPTIONS.map((n) => {
+              const isSum = n === SUM; const sel = numPicked === n;
+              const cls = computed ? (isSum ? ' right' : '') : (sel ? ' sel' : '');
+              return <button key={n} type="button" className={'pq-opt' + cls} disabled={computed || lock} onClick={() => pickNum(n)}>{n}</button>;
+            })}
+          </div>
+        </div>
+        {/* 2-bosqich: qavs ichi hisoblangach belgi tanlanadi */}
+        <div className={'pq-step' + (computed ? '' : ' off')}>
+          <span className="pq-steplbl">{t.step2}</span>
+          <div className="pq-opts">
+            {SIGNS.map((s) => {
+              const sel = picked === s; const right = ok && s === TARGET;
+              return <button key={s} type="button" className={'pq-opt' + (right ? ' right' : sel ? ' sel' : '')} disabled={!computed || lock} onClick={() => pick(s)}>{s}</button>;
+            })}
+          </div>
         </div>
       </div>
 

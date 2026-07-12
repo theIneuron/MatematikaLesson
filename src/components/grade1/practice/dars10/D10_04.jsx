@@ -209,12 +209,21 @@ export default function D10_04(props) {
         @keyframes pqAns{0%{opacity:0;transform:translateX(-50%) scale(.3);}100%{opacity:1;transform:translateX(-50%) scale(1);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        /* Ambient: suzuvchi mayda uchqunlar (fon dekori) */
+        .pq1004 .pq-mote{position:absolute;z-index:0;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#fff,rgba(124,240,255,.5) 55%,rgba(124,240,255,0) 74%);pointer-events:none;opacity:0;animation:pq1004Mote 9.5s ease-in-out infinite;}
+        .pq1004 .pq-mote.m2{width:4px;height:4px;animation-duration:12s;animation-delay:-4s;}
+        .pq1004 .pq-mote.m3{width:6px;height:6px;animation-duration:13.5s;animation-delay:-8s;}
+        @keyframes pq1004Mote{0%{opacity:0;transform:translate(0,8px) scale(.7);}22%{opacity:.5;}50%{opacity:.55;transform:translate(-4px,-9px) scale(1);}80%{opacity:.3;}100%{opacity:0;transform:translate(0,-20px) scale(.7);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-stage">
         <div className={'pq-scene' + (still ? ' still' : '')}>
+          {/* Ambient uchqunlar (fon, dekor) */}
+          <span className="pq-mote m1" aria-hidden="true" style={{ left: 162, top: 40 }} />
+          <span className="pq-mote m2" aria-hidden="true" style={{ left: 210, top: 66 }} />
+          <span className="pq-mote m3" aria-hidden="true" style={{ left: 250, top: 34 }} />
           <span className="pq-gear g3"><Gear size={40} teeth={9} /></span>
           <span className="pq-win w1" /><span className="pq-win w2" />
           <span className="pq-gear g1"><Gear size={46} teeth={9} /></span>

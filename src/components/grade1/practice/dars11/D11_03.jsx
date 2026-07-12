@@ -127,6 +127,14 @@ export default function D11_03(props) {
         .pq1103 .pq-cloud{position:absolute;width:50px;height:15px;background:#fff;border-radius:999px;opacity:.9;box-shadow:15px 5px 0 -4px #fff,-14px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:0;}
         .pq1103 .pq-cloud.c1{top:16px;left:-70px;animation-duration:32s;animation-delay:-6s;}
         .pq1103 .pq-cloud.c2{top:120px;left:-70px;width:38px;height:12px;opacity:.7;animation-duration:44s;animation-delay:-22s;}
+        .pq1103 .pq-bird{position:absolute;z-index:0;color:#7c869a;opacity:.7;line-height:0;animation:pq1103Bird linear infinite;}
+        .pq1103 .pq-bird svg{display:block;}
+        .pq1103 .pq-bird.bd1{top:30px;left:-24px;animation-duration:26s;animation-delay:-4s;}
+        .pq1103 .pq-bird.bd2{top:52px;left:-24px;animation-duration:35s;animation-delay:-18s;}
+        .pq1103 .pq-bird.bd2 svg{width:12px;height:6px;}
+        .pq1103 .pq-fly{position:absolute;z-index:0;left:28px;top:40px;line-height:0;animation:pq1103Fly 4s ease-in-out infinite;}
+        @keyframes pq1103Bird{from{transform:translateX(0);}to{transform:translateX(440px);}}
+        @keyframes pq1103Fly{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-8px) rotate(5deg);}}
         .pq1103 .pq-peron{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(#d3c6ac,#bfae8d);border-top:3px solid #c9b892;z-index:1;}
         .pq1103 .pq-peron::after{content:'';position:absolute;left:0;right:0;top:5px;height:3px;background:repeating-linear-gradient(90deg,#a8966f 0 12px,rgba(0,0,0,0) 12px 24px);opacity:.6;}
         .pq1103 .pq-sem{position:absolute;right:14px;bottom:30px;display:flex;flex-direction:column;align-items:center;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));}
@@ -139,23 +147,25 @@ export default function D11_03(props) {
         .pq1103 .pq-sem.win .pq-lamp.g{background:#57d457;animation:pqGlow 1.4s ease-in-out infinite;}
 
         .pq1103 .pq-eq{position:absolute;left:50%;transform:translateX(-50%);z-index:4;font-size:16px;font-weight:900;padding:3px 13px;border-radius:11px;font-variant-numeric:tabular-nums;letter-spacing:.02em;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,.12);}
-        .pq1103 .pq-eq.known{top:8px;background:#eef4f6;color:#3a4c55;border:1.5px solid #cddde2;}
-        .pq1103 .pq-eq.solve{top:128px;background:#fff8f2;color:#b45f2b;border:1.5px solid #f0cfa8;}
+        .pq1103 .pq-eq.known{top:60px;background:#eef4f6;color:#3a4c55;border:1.5px solid #cddde2;}
+        .pq1103 .pq-eq.solve{top:143px;background:#fff8f2;color:#b45f2b;border:1.5px solid #f0cfa8;}
         .pq1103 .pq-eq.solve.win{background:#e8f7ee;color:#1a7f43;border-color:#8ed3a6;animation:pqChip .5s cubic-bezier(.3,1.5,.5,1) both;}
         .pq1103 .pq-q{display:inline-block;color:#d9803a;animation:pqPulse 1.3s ease-in-out infinite;}
         .pq1103 .pq-fill{display:inline-block;color:#1a7f43;animation:pqFillIn .45s cubic-bezier(.3,1.5,.5,1) both;}
 
         .pq1103 .pq-train{position:absolute;left:14px;z-index:3;}
-        .pq1103 .pq-train.top{top:36px;}
-        .pq1103 .pq-train.bottom{top:158px;}
+        .pq1103 .pq-train.top{top:98px;}
+        .pq1103 .pq-train.bottom{top:162px;}
         .pq1103 .pq-cars{position:relative;display:flex;align-items:flex-end;gap:2px;z-index:2;animation:pqIdle 3.4s ease-in-out infinite;}
         .pq1103 .pq-train.bottom .pq-cars{animation-delay:-1.5s;}
         .pq1103 .pq-car{position:relative;line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));}
         .pq1103 .pq-loco{line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));}
         .pq1103 .pq-wheel{transform-box:fill-box;transform-origin:center;animation:pqWheel 6s linear infinite;}
         .pq1103 .pq-blink{opacity:0;animation:pqBlink 4s linear infinite;}
-        .pq1103 .pq-rail{position:absolute;left:-5px;right:-5px;bottom:2px;height:8px;z-index:0;background:repeating-linear-gradient(90deg,#a07d4f 0 3px,rgba(0,0,0,0) 3px 11px);}
-        .pq1103 .pq-rail::before,.pq1103 .pq-rail::after{content:'';position:absolute;left:0;right:0;height:2.4px;border-radius:1px;background:linear-gradient(#cfd6e0,#8b95a6);}
+        .pq1103 .pq-ground{position:absolute;left:0;right:0;top:118px;bottom:0;z-index:0;background:linear-gradient(#cbbda3 0%,#bcab8d 45%,#b0a081 100%);}
+        .pq1103 .pq-ground::before{content:'';position:absolute;left:0;right:0;top:0;height:4px;background:#b8a67e;}
+        .pq1103 .pq-rail{position:absolute;left:-20px;right:-220px;bottom:2px;height:8px;z-index:1;background:repeating-linear-gradient(90deg,#7d6a4c 0 4px,rgba(0,0,0,0) 4px 15px);animation:pqRailMove 1.15s linear infinite;}
+        .pq1103 .pq-rail::before,.pq1103 .pq-rail::after{content:'';position:absolute;left:0;right:0;height:2.4px;border-radius:1px;background:linear-gradient(#e0e6ee,#9aa4b4);}
         .pq1103 .pq-rail::before{top:0;} .pq1103 .pq-rail::after{bottom:0;}
         .pq1103 .pq-steam{position:absolute;left:11px;top:-3px;width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.85);z-index:4;opacity:0;animation:pqSteam 4s ease-in-out infinite;}
         .pq1103 .pq-steam.s2{left:16px;top:-1px;width:8px;height:8px;animation-delay:-2s;}
@@ -180,6 +190,8 @@ export default function D11_03(props) {
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
         @keyframes pqCloud{from{transform:translateX(0);}to{transform:translateX(470px);}}
         @keyframes pqWheel{from{transform:rotate(0);}to{transform:rotate(360deg);}}
+        @keyframes pqRailMove{from{background-position:0 0;}to{background-position:11px 0;}}
+        @keyframes pqBallast{from{background-position:0 0;}to{background-position:18px 0;}}
         @keyframes pqIdle{0%,100%{transform:translateY(0);}50%{transform:translateY(-1.5px);}}
         @keyframes pqSteam{0%,60%,100%{opacity:0;transform:translateY(0) scale(.6);}68%{opacity:.85;transform:translateY(-9px) scale(1);}86%{opacity:0;transform:translateY(-20px) scale(1.4);}}
         @keyframes pqBlink{0%,90%{opacity:0;}92%,96%{opacity:1;}98%,100%{opacity:0;}}
@@ -200,8 +212,11 @@ export default function D11_03(props) {
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-scene">
-        <span className="pq-sun" />
+        <span className="pq-bird bd1" aria-hidden="true"><svg viewBox="0 0 24 10" width="15" height="7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M1 8 Q6 1 11 8 Q16 1 21 8" /></svg></span>
+        <span className="pq-bird bd2" aria-hidden="true"><svg viewBox="0 0 24 10" width="15" height="7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M1 8 Q6 1 11 8 Q16 1 21 8" /></svg></span>
+        <span className="pq-fly" aria-hidden="true"><svg viewBox="0 0 20 16" width="14" height="11"><ellipse cx="7" cy="6" rx="5" ry="4" fill="#f2b134" opacity=".72" /><ellipse cx="13" cy="6" rx="5" ry="4" fill="#e88078" opacity=".72" /><ellipse cx="7" cy="11" rx="4" ry="3" fill="#f2b134" opacity=".62" /><ellipse cx="13" cy="11" rx="4" ry="3" fill="#e88078" opacity=".62" /><rect x="9.4" y="3" width="1.2" height="10" rx="0.6" fill="#5a4632" /></svg></span>
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
+        <span className="pq-ground" />
         <span className="pq-peron" />
 
         {/* Yuqori poyezd — ma'lum: 6 + 2 = 8 */}

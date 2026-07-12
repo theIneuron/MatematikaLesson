@@ -237,7 +237,12 @@ export default function D09_08(props) {
         .pq0908 .pq-pad{position:absolute;width:82px;height:70px;background:none;border:none;padding:0;cursor:pointer;line-height:0;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.16));transition:filter .14s,transform .14s;}
         .pq0908 .pq-pad:hover:not(:disabled){transform:translateY(-2px);}
         .pq0908 .pq-pad:active:not(:disabled){transform:scale(.95);}
-        .pq0908 .pq-pad.sel{filter:drop-shadow(0 2px 2px rgba(0,0,0,.12)) drop-shadow(0 0 7px rgba(37,99,235,.85));}
+        .pq0908 .pq-pad.sel{transform:translateY(-5px) scale(1.06);z-index:6;animation:pqSelAura 1.6s ease-in-out infinite;}
+        .pq0908 .pq-pad.sel:hover:not(:disabled){transform:translateY(-7px) scale(1.06);}
+        .pq0908 .pq-selbadge{position:absolute;top:-5px;right:-3px;width:23px;height:23px;border-radius:50%;background:#2563eb;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 4px rgba(0,0,0,.28);z-index:8;animation:pqPop .28s cubic-bezier(.3,1.5,.5,1) both,pqBadgeGlow 1.6s ease-in-out infinite;}
+        .pq0908 .pq-selspk{position:absolute;line-height:0;z-index:7;opacity:0;pointer-events:none;animation:pqSpk 1.4s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,240,170,.9));}
+        .pq0908 .pq-selspk.s2{animation-delay:-.46s;} .pq0908 .pq-selspk.s3{animation-delay:-.93s;}
+        .pq0908 .pq-selring{position:absolute;left:50%;top:52%;width:78px;height:64px;transform:translate(-50%,-50%);border-radius:50%;border:2px solid rgba(255,245,190,.9);z-index:1;opacity:0;pointer-events:none;animation:pqSelRing 1.9s ease-out infinite;}
         .pq0908 .pq-pad.right{filter:drop-shadow(0 2px 2px rgba(0,0,0,.1)) drop-shadow(0 0 10px rgba(46,180,96,.85));animation:pqCele .55s ease;}
         .pq0908 .pq-pad.dim{opacity:.42;}
         .pq0908 .pq-pad:disabled{cursor:default;}
@@ -267,6 +272,10 @@ export default function D09_08(props) {
         @keyframes pqTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0deg);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes pqSelAura{0%,100%{filter:drop-shadow(0 4px 3px rgba(0,0,0,.22)) drop-shadow(0 0 5px rgba(255,255,255,.9)) drop-shadow(0 0 8px rgba(120,200,255,.45));}50%{filter:drop-shadow(0 5px 4px rgba(0,0,0,.24)) drop-shadow(0 0 9px rgba(255,255,255,1)) drop-shadow(0 0 18px rgba(140,215,255,.85));}}
+        @keyframes pqBadgeGlow{0%,100%{box-shadow:0 2px 4px rgba(0,0,0,.28),0 0 0 0 rgba(37,99,235,.5);}50%{box-shadow:0 2px 4px rgba(0,0,0,.28),0 0 0 5px rgba(37,99,235,0);}}
+        @keyframes pqSpk{0%,100%{opacity:0;transform:scale(.3) rotate(0deg);}50%{opacity:1;transform:scale(1.15) rotate(60deg);}}
+        @keyframes pqSelRing{0%{opacity:.75;transform:translate(-50%,-50%) scale(.55);}70%{opacity:.2;}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
@@ -297,6 +306,17 @@ export default function D09_08(props) {
               style={{ left: POS[i].x, top: POS[i].top, animationDelay: `${i * 0.1}s` }}
               onClick={() => toggle(i)} aria-label={`${e.a} ${e.op} ${e.b}`}>
               <Pad e={e} ans={!!(ok && good)} />
+              {!ok && sel && (
+                <>
+                  <span className="pq-selring" />
+                  <span className="pq-selbadge">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  </span>
+                  <span className="pq-selspk" style={{ left: 4, top: 2 }}><Star fill="#fff3b0" /></span>
+                  <span className="pq-selspk s2" style={{ right: 6, top: 26 }}><Star fill="#bfe6ff" /></span>
+                  <span className="pq-selspk s3" style={{ left: 20, top: 44 }}><Star fill="#fff3b0" /></span>
+                </>
+              )}
               {ok && good && (
                 <span className="pq-cstar" style={{ left: 2, top: -4 }}><Star fill="#f2b134" /></span>
               )}

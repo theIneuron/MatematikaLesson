@@ -11,38 +11,37 @@ const PAL = [
   { c: '#4f8fc4', d: '#3a72a3' }, // ko'k
   { c: '#57a84f', d: '#43893c' }, // yashil
 ];
-// Aralash 5 obyekt: 2 dasta (o'nlik) + 3 yakka (birlik), tartibi aralash.
+// 4 misol-karta: yig'indisi 10 bo'lgan ('onlik' savati = «10 ga teng») va bo'lmaganlar ('birlik' = «teng emas»).
 const ITEMS = [
-  { id: 0, type: 'dasta' },
-  { id: 1, type: 'yakka', pal: PAL[1] },
-  { id: 2, type: 'dasta' },
-  { id: 3, type: 'yakka', pal: PAL[2] },
-  { id: 4, type: 'yakka', pal: PAL[3] },
+  { id: 0, a: 6, b: 4 }, // 10 ✓
+  { id: 1, a: 7, b: 2 }, //  9 ✗
+  { id: 2, a: 5, b: 5 }, // 10 ✓
+  { id: 3, a: 8, b: 1 }, //  9 ✗
 ];
-const catFor = (it) => (it.type === 'dasta' ? 'onlik' : 'birlik');
+const catFor = (it) => (it.a + it.b === 10 ? 'onlik' : 'birlik');
 const CORRECT_MAP = {};
 ITEMS.forEach((it) => { CORRECT_MAP[it.id] = catFor(it); });
 
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · Guruhlash", title: "O'nlik va birlik",
-    setup: "Peshtaxtada dastalar va yakka qalamlar aralashib ketgan. Ularni ajratamiz!",
-    ask: "Har birini to'g'ri savatga joylang: dasta — o'nlik, yakka qalam — birlik.",
-    correct: "Barakalla! Dastalar — o'nliklar, yakka qalamlar — birliklar. To'g'ri ajratdingiz!",
-    hint: "Rezinka bilan bog'langani — dasta (o'nlik). Yolg'iz qalam — birlik.",
-    basketOnlik: "O'NLIKLAR", basketBirlik: "BIRLIKLAR",
-    btnOnlik: "O'nlik", btnBirlik: "Birlik",
-    taphint: "Har birini o'z savatiga joylang",
+    eyebrow: "Qalam do'koni · Saralash", title: "10 ga tengmi?",
+    setup: "Kartalarda qalam-misollari bor. Ularni saralaymiz!",
+    ask: "Har kartani to'g'ri savatga joylang: yig'indisi o'n bo'lsa — «10 ga teng», bo'lmasa — «teng emas».",
+    correct: "Barakalla! Hamma karta to'g'ri saralandi!",
+    hint: "Har kartadagi ikki sonni qo'shing. O'n chiqsa — «10 ga teng».",
+    basketOnlik: "10 GA TENG", basketBirlik: "TENG EMAS",
+    btnOnlik: "= 10", btnBirlik: "≠ 10",
+    taphint: "Har kartani o'z savatiga joylang",
   },
   ru: {
-    eyebrow: "Магазин карандашей · Группировка", title: "Десятки и единицы",
-    setup: "На прилавке перемешались пучки и отдельные карандаши. Разберём их!",
-    ask: "Помести каждый в свою корзину: пучок — десяток, отдельный карандаш — единица.",
-    correct: "Молодец! Пучки — это десятки, отдельные карандаши — единицы. Ты верно рассортировал!",
-    hint: "Связанный резинкой — пучок (десяток). Одинокий карандаш — единица.",
-    basketOnlik: "ДЕСЯТКИ", basketBirlik: "ЕДИНИЦЫ",
-    btnOnlik: "Десяток", btnBirlik: "Единица",
-    taphint: "Помести каждый в свою корзину",
+    eyebrow: "Магазин карандашей · Сортировка", title: "Равно десяти?",
+    setup: "На карточках — примеры с карандашами. Рассортируем их!",
+    ask: "Помести каждую карточку: если сумма десять — «равно десяти», иначе — «не равно».",
+    correct: "Молодец! Все карточки рассортированы верно!",
+    hint: "Сложи два числа на карточке. Если десять — «равно десяти».",
+    basketOnlik: "РАВНО 10", basketBirlik: "НЕ РАВНО",
+    btnOnlik: "= 10", btnBirlik: "≠ 10",
+    taphint: "Помести каждую карточку в свою корзину",
   },
 };
 
@@ -86,6 +85,11 @@ const Star = ({ fill }) => (
   <svg width="13" height="13" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L12.4 7.6 L18.5 10 L12.4 12.4 L10 18.5 L7.6 12.4 L1.5 10 L7.6 7.6 Z" fill={fill} /></svg>
 );
 
+// MISOL-KARTA: «a + b» yozuvli kichik karta (saralash obyekti).
+const SumCard = ({ a, b }) => (
+  <span className="pq-sum"><b>{a}</b><i>+</i><b>{b}</b></span>
+);
+
 const CATS = ['onlik', 'birlik'];
 
 export default function D13_07(props) {
@@ -118,7 +122,7 @@ export default function D13_07(props) {
     const correct = ITEMS.every((it) => placement[it.id] === catFor(it));
     setFeedback({ correct, msg: correct ? t.correct : t.hint }); if (correct) setChecked(true);
     if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: ITEMS.map((it, i) => `${i + 1}:${it.type}`), studentAnswer: { placement }, correctAnswer: { placement: CORRECT_MAP }, correct, meta: { ...DATA } });
+    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: ITEMS.map((it) => `${it.a}+${it.b}`), studentAnswer: { placement }, correctAnswer: { placement: CORRECT_MAP }, correct, meta: { ...DATA } });
   }, [placement, playCorrect, playWrong, onSubmit, t]);
   const checkRef = useRef(check); checkRef.current = check;
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
@@ -165,6 +169,9 @@ export default function D13_07(props) {
         .pq1307 .pq-slot:hover:not(:disabled){transform:translateY(-2px);}
         .pq1307 .pq-slot:active:not(:disabled){transform:scale(.94);}
         .pq1307 .pq-slot:disabled{cursor:default;}
+        .pq1307 .pq-sum{display:inline-flex;align-items:center;gap:3px;padding:8px 11px;border-radius:12px;background:linear-gradient(#fff,#fdf3df);border:2.5px solid #e2c07a;box-shadow:0 2px 4px rgba(0,0,0,.12);font-variant-numeric:tabular-nums;}
+        .pq1307 .pq-sum b{font-size:22px;font-weight:900;color:#a05a1f;line-height:1;}
+        .pq1307 .pq-sum i{font-style:normal;font-size:17px;font-weight:900;color:#c79a55;}
         .pq1307 .pq-basket.win .pq-slot{animation:pqSlotWin .5s ease both,pqSway 2.8s ease-in-out infinite;}
         .pq1307 .pq-scene.still .pq-basket.win .pq-slot{animation:none;}
         .pq1307 .pq-cnt{position:absolute;top:-11px;left:50%;transform:translateX(-50%);min-width:18px;height:18px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.25);z-index:6;animation:pqPop .3s ease both;font-variant-numeric:tabular-nums;}
@@ -226,7 +233,7 @@ export default function D13_07(props) {
                     {items.map((it, idx) => (
                       <button key={it.id} type="button" className="pq-slot" disabled={lock} onClick={() => unplace(it.id)} aria-label={cat}>
                         {ok && <b className="pq-cnt" style={{ animationDelay: `${idx * 0.1}s` }}>{idx + 1}</b>}
-                        {it.type === 'dasta' ? <Dasta penW={11} /> : <Pencil c={it.pal.c} d={it.pal.d} w={16} />}
+                        <SumCard a={it.a} b={it.b} />
                       </button>
                     ))}
                   </div>
@@ -251,7 +258,7 @@ export default function D13_07(props) {
             {trayItems.map((it) => (
               <div key={it.id} className="pq-card">
                 <div className="pq-obj">
-                  {it.type === 'dasta' ? <Dasta penW={9} /> : <Pencil c={it.pal.c} d={it.pal.d} w={17} />}
+                  <SumCard a={it.a} b={it.b} />
                 </div>
                 <div className="pq-cbtns">
                   <button type="button" className="pq-cbtn onlik" disabled={lock} onClick={() => assign(it.id, 'onlik')}>{t.btnOnlik}</button>

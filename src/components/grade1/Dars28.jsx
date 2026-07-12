@@ -43,12 +43,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -224,7 +224,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -428,7 +428,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -1085,12 +1085,12 @@ const CONTENT = {
     problem: { ru: 'У Рано 4 яблока, Анвар принёс 3. Сколько вместе?', uz: "Ra'noda 4 olma, Anvar 3 ta keltirdi. Birga nechta?" },
     correct_text: { ru: 'Правильно. Четыре и три — семь. У них семь яблок.', uz: "To'g'ri. To'rt va uch — yetti. Ularda yetti olma." },
     wrong_1: {
-      ru: 'Яблоки соединяют, значит складываем, а не вычитаем. Четыре и три — семь.',
-      uz: "Olmalar birlashtirilyapti, demak ayirmaymiz, qo'shamiz. To'rt va uch — yetti."
+      ru: 'Яблоки соединяют, значит складываем, а не вычитаем.',
+      uz: "Olmalar birlashtirilyapti, demak ayirmaymiz, qo'shamiz."
     },
     wrong_2: {
-      ru: 'Четыре и три — это семь, не восемь. У них семь яблок.',
-      uz: "To'rt va uch — bu yetti, sakkiz emas. Ularda yetti olma."
+      ru: 'Это не восемь. Сложи четыре и три ещё раз.',
+      uz: "Bu sakkiz emas. To'rt va uchni qo'shib, qaytadan sanang."
     },
     wrong_default: {
       ru: 'Сложи четыре и три.',
@@ -1112,12 +1112,12 @@ const CONTENT = {
     opt2: { ru: '5', uz: '5' },
     correct_text: { ru: 'Правильно. Пять и два — семь. Вместе семь яблок.', uz: "To'g'ri. Besh va ikki — yetti. Birga yetti olma." },
     wrong_1: {
-      ru: 'Здесь объединяют, а не убирают. Пять и два — семь.',
-      uz: "Bu yerda birlashtiriladi, olinmaydi. Besh va ikki — yetti."
+      ru: 'Здесь объединяют, а не убирают. Сложи оба числа.',
+      uz: "Bu yerda birlashtiriladi, olinmaydi. Ikkala sonni qo'shing."
     },
     wrong_2: {
-      ru: 'Нужно сложить оба числа. Пять и два — семь.',
-      uz: "Ikkala sonni qo'shish kerak. Besh va ikki — yetti."
+      ru: 'Нужно сложить оба числа. Посчитай снова.',
+      uz: "Ikkala sonni qo'shish kerak. Qaytadan sanang."
     },
     wrong_default: {
       ru: 'Сложи пять и два.',
@@ -1172,12 +1172,12 @@ const CONTENT = {
     problem: { ru: 'У Рано 6 яблок, Зухра принесла 3. Сколько вместе?', uz: "Ra'noda 6 olma, Zuhra 3 ta keltirdi. Birga nechta?" },
     correct_text: { ru: 'Правильно. Шесть и три — девять. Всего девять яблок.', uz: "To'g'ri. Olti va uch — to'qqiz. Hammasi to'qqiz olma." },
     wrong_1: {
-      ru: 'Яблоки соединяют, значит складываем. Шесть и три — девять.',
-      uz: "Olmalar birlashtirilyapti, demak qo'shamiz. Olti va uch — to'qqiz."
+      ru: 'Яблоки соединяют, значит складываем.',
+      uz: "Olmalar birlashtirilyapti, demak qo'shamiz."
     },
     wrong_2: {
-      ru: 'Шесть и три — это девять, не восемь. Всего девять.',
-      uz: "Olti va uch — bu to'qqiz, sakkiz emas. Hammasi to'qqiz."
+      ru: 'Это не восемь. Сложи шесть и три ещё раз.',
+      uz: "Bu sakkiz emas. Olti va uchni qo'shib, qaytadan sanang."
     },
     wrong_default: {
       ru: 'Сложи шесть и три.',
@@ -3874,7 +3874,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -3902,8 +3903,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4325,7 +4326,7 @@ export default function WordProblemSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

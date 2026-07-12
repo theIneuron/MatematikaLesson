@@ -44,12 +44,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -225,7 +225,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -429,7 +429,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -997,9 +997,9 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
     title: { ru: 'Десяток и три единицы. Какое число?', uz: "O'nlik va uchta birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и три — это тринадцать.', uz: "To'g'ri. O'n va uch — bu o'n uch." },
-    wrong_1: { ru: 'Это только единицы. А тут целый десяток и ещё три, это тринадцать.', uz: "Bu faqat birliklar. Bu yerda butun o'nlik va yana uch, bu o'n uch." },
-    wrong_2: { ru: 'Посчитай единицы: их три, а не четыре. Один десяток и три — тринадцать.', uz: "Birliklarni sana: uchta, to'rt emas. Bir o'nlik va uch — o'n uch." },
-    wrong_default: { ru: 'Десять и три — это тринадцать.', uz: "O'n va uch — bu o'n uch." },
+    wrong_1: { ru: 'Это только единицы. А тут целый десяток и ещё три.', uz: "Bu faqat birliklar. Bu yerda butun o'nlik va yana uch." },
+    wrong_2: { ru: 'Посчитай единицы: их три, а не четыре.', uz: "Birliklarni sanang: uchta, to'rt emas." },
+    wrong_default: { ru: 'Сначала десяток, потом единицы. Посчитай заново.', uz: "Avval o'nlik, keyin birliklar. Qaytadan sanang." },
     audio: {
       intro: { ru: 'Вверху десяток, внизу три книги. Какое это число? Выбери ответ.', uz: "Yuqorida o'nlik, pastda uchta kitob. Bu qaysi son? Javobni tanlang." },
       on_correct: { ru: 'Верно. Тринадцать.', uz: "To'g'ri. O'n uch." },
@@ -1012,9 +1012,9 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
     title: { ru: 'В числе тринадцать сколько десятков?', uz: "O'n uch sonida nechta o'nlik bor?" },
     correct_text: { ru: 'Верно. В тринадцати один десяток и три единицы.', uz: "To'g'ri. O'n uchda bitta o'nlik va uchta birlik bor." },
-    wrong_1: { ru: 'Это всё число. А десяток в нём один.', uz: "Bu butun son. Undagi o'nlik esa bitta." },
-    wrong_2: { ru: 'Это число единиц. Десяток же один.', uz: "Bu birliklar soni. O'nlik esa bitta." },
-    wrong_default: { ru: 'В тринадцати один десяток.', uz: "O'n uchda bitta o'nlik bor." },
+    wrong_1: { ru: 'Это всё число. А десятки посчитай отдельно.', uz: "Bu butun son. O'nliklarni alohida sanang." },
+    wrong_2: { ru: 'Это число единиц. А десятки посчитай отдельно.', uz: "Bu birliklar soni. O'nliklarni alohida sanang." },
+    wrong_default: { ru: 'Посчитай десятки заново.', uz: "O'nliklarni qaytadan sanang." },
     audio: {
       intro: { ru: 'Вот число тринадцать: десяток и три книги. Сколько в нём десятков? Выбери ответ.', uz: "Mana o'n uch soni: o'nlik va uchta kitob. Unda nechta o'nlik bor? Javobni tanlang." },
       on_correct: { ru: 'Верно. Один десяток.', uz: "To'g'ri. Bitta o'nlik." },
@@ -1027,9 +1027,9 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
     title: { ru: 'В числе тринадцать сколько единиц?', uz: "O'n uch sonida nechta birlik bor?" },
     correct_text: { ru: 'Верно. В тринадцати три единицы сверх десятка.', uz: "To'g'ri. O'n uchda o'nlikdan tashqari uchta birlik bor." },
-    wrong_1: { ru: 'Это десяток, а не единицы. Единиц тут три.', uz: "Bu o'nlik, birlik emas. Birlik esa uchta." },
-    wrong_2: { ru: 'Это всё число. А единиц сверх десятка три.', uz: "Bu butun son. O'nlikdan tashqari birlik esa uchta." },
-    wrong_default: { ru: 'В тринадцати три единицы.', uz: "O'n uchda uchta birlik bor." },
+    wrong_1: { ru: 'Это десяток, а не единицы. Единицы посчитай отдельно.', uz: "Bu o'nlik, birlik emas. Birliklarni alohida sanang." },
+    wrong_2: { ru: 'Это всё число. А единицы сверх десятка посчитай отдельно.', uz: "Bu butun son. O'nlikdan tashqari birliklarni sanang." },
+    wrong_default: { ru: 'Посчитай единицы сверх десятка заново.', uz: "O'nlikdan tashqari birliklarni qaytadan sanang." },
     audio: {
       intro: { ru: 'В числе тринадцать десяток и сколько единиц? Посчитай отдельные книги. Выбери ответ.', uz: "O'n uch sonida o'nlik va nechta birlik bor? Yakka kitoblarni sanang. Javobni tanlang." },
       on_correct: { ru: 'Верно. Три единицы.', uz: "To'g'ri. Uchta birlik." },
@@ -1044,8 +1044,8 @@ const CONTENT = {
     opt_yes: { ru: 'Да, верно', uz: "Ha, to'g'ri" },
     opt_no: { ru: 'Нет, неверно', uz: "Yo'q, noto'g'ri" },
     correct_text: { ru: 'Верно. Двенадцать — это десять и ещё два.', uz: "To'g'ri. O'n ikki — bu o'n va yana ikki." },
-    wrong_1: { ru: 'Это верно. Двенадцать и есть десяток и две единицы.', uz: "Bu to'g'ri. O'n ikki — bu o'nlik va ikkita birlik." },
-    wrong_default: { ru: 'Двенадцать — это десяток и две единицы.', uz: "O'n ikki — bu o'nlik va ikkita birlik." },
+    wrong_1: { ru: 'Посмотри: десяток — это десять, и ещё две единицы. Посчитай заново.', uz: "Qarang: o'nlik — bu o'n, va yana ikkita birlik. Qaytadan sanang." },
+    wrong_default: { ru: 'Десяток и ещё две единицы. Посчитай заново.', uz: "O'nlik va yana ikkita birlik. Qaytadan sanang." },
     audio: {
       intro: { ru: 'Верно ли, что двенадцать — это десяток и две единицы? Выбери да или нет.', uz: "O'n ikki — bu o'nlik va ikkita birlik, to'g'rimi? Ha yoki yo'q tanlang." },
       on_correct: { ru: 'Верно. Десять и два.', uz: "To'g'ri. O'n va ikki." },
@@ -1058,10 +1058,10 @@ const CONTENT = {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
     title: { ru: 'Десяток и четыре единицы. Какое число?', uz: "O'nlik va to'rtta birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и четыре — это четырнадцать.', uz: "To'g'ri. O'n va to'rt — bu o'n to'rt." },
-    wrong_1: { ru: 'Это только единицы. А тут целый десяток и ещё четыре — четырнадцать.', uz: "Bu faqat birliklar. Bu yerda butun o'nlik va yana to'rt — o'n to'rt." },
-    wrong_2: { ru: 'Единиц тут четыре, а не одна. Десяток и четыре — четырнадцать.', uz: "Bu yerda birlik to'rtta, bitta emas. O'nlik va to'rt — o'n to'rt." },
-    wrong_3: { ru: 'Это только десяток. А сверху ещё четыре единицы — четырнадцать.', uz: "Bu faqat o'nlik. Ustiga yana to'rtta birlik bor — o'n to'rt." },
-    wrong_default: { ru: 'Десять и четыре — это четырнадцать.', uz: "O'n va to'rt — bu o'n to'rt." },
+    wrong_1: { ru: 'Это только единицы. А тут целый десяток и ещё четыре.', uz: "Bu faqat birliklar. Bu yerda butun o'nlik va yana to'rt." },
+    wrong_2: { ru: 'Единиц тут четыре, а не одна.', uz: "Bu yerda birlik to'rtta, bitta emas." },
+    wrong_3: { ru: 'Это только десяток. А сверху ещё четыре единицы.', uz: "Bu faqat o'nlik. Ustiga yana to'rtta birlik bor." },
+    wrong_default: { ru: 'Сначала десяток, потом единицы. Посчитай заново.', uz: "Avval o'nlik, keyin birliklar. Qaytadan sanang." },
     audio: {
       intro: { ru: 'Вверху десяток, внизу четыре книги. Какое это число? Выбери ответ.', uz: "Yuqorida o'nlik, pastda to'rtta kitob. Bu qaysi son? Javobni tanlang." },
       on_correct: { ru: 'Верно. Четырнадцать.', uz: "To'g'ri. O'n to'rt." },
@@ -1113,9 +1113,9 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     title: { ru: 'Десяток и пять единиц. Какое число?', uz: "O'nlik va beshta birlik. Qaysi son?" },
     correct_text: { ru: 'Верно. Десять и пять — это пятнадцать.', uz: "To'g'ri. O'n va besh — bu o'n besh." },
-    wrong_1: { ru: 'Это только единицы. А с десятком это пятнадцать.', uz: "Bu faqat birliklar. O'nlik bilan esa bu o'n besh." },
-    wrong_2: { ru: 'Посчитай единицы: их пять. Один десяток и пять — пятнадцать.', uz: "Birliklarni sana: beshta. Bir o'nlik va besh — o'n besh." },
-    wrong_default: { ru: 'Десять и пять — это пятнадцать.', uz: "O'n va besh — bu o'n besh." },
+    wrong_1: { ru: 'Это только единицы. Добавь ещё десяток.', uz: "Bu faqat birliklar. Ustiga o'nlikni qo'shing." },
+    wrong_2: { ru: 'Посчитай единицы: их пять.', uz: "Birliklarni sanang: beshta." },
+    wrong_default: { ru: 'Сначала десяток, потом единицы. Посчитай заново.', uz: "Avval o'nlik, keyin birliklar. Qaytadan sanang." },
     fact_badge: { ru: 'А знаешь? · Счёт', uz: 'Bilasizmi? · Sanoq' },
     fact_text: { ru: 'В числах за десять впереди стоит десяток, а потом единицы. Поэтому говорят десять-и-пять — пятнадцать.', uz: "O'ndan katta sonlarda oldinda o'nlik, keyin birliklar turadi. Shuning uchun o'n-va-besh — o'n besh deyiladi." },
     fact_audio: { ru: 'А знаешь, в числах за десять впереди стоит десяток, а потом единицы. Поэтому десять и пять, это пятнадцать.', uz: "Bilasizmi, o'ndan katta sonlarda oldinda o'nlik, keyin birliklar turadi. Shuning uchun o'n va besh, bu o'n besh." },
@@ -3678,7 +3678,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'yes';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -3706,8 +3707,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.question)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'yes'} wrongClass="frame-tip">
+            <Reaction state={picked === 'yes' ? 'correct' : 'wrong'} praise={picked === 'yes' ? (t(c.question)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4096,7 +4097,7 @@ export default function PracticeWithin10Lesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

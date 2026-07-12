@@ -219,8 +219,8 @@ export default function D12_01(props) {
         .pq1201 .pq-jaws{transform-box:fill-box;transform-origin:2% 90%;}
         .pq1201 .pq-jaws.chomping{animation:pqChomp .5s ease-in-out 3;}
         .pq1201 .pq-crocblink{opacity:0;animation:pqBlink 4s linear infinite;}
-        .pq1201 .pq-q{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:#fff;border:2.5px solid #2e7a3e;color:#2e7a3e;font-size:19px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;z-index:6;box-shadow:0 3px 6px rgba(0,0,0,.16);animation:pqQ 1.8s ease-in-out infinite;}
-        .pq1201 .pq-chip{position:absolute;top:2px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:900;color:#1a7f43;background:#fff;padding:3px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.24);z-index:6;white-space:nowrap;animation:pqChipIn .5s cubic-bezier(.3,1.5,.5,1) both;}
+        .pq1201 .pq-q{position:absolute;top:auto;bottom:2px;left:50%;transform:translateX(-50%);width:28px;height:28px;border-radius:50%;background:#fff;border:2.5px solid #2e7a3e;color:#2e7a3e;font-size:19px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;z-index:6;box-shadow:0 3px 6px rgba(0,0,0,.16);animation:pqQ 1.8s ease-in-out infinite;}
+        .pq1201 .pq-chip{position:absolute;top:auto;bottom:-44px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:900;color:#1a7f43;background:#fff;padding:3px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.24);z-index:6;white-space:nowrap;animation:pqChipIn .5s cubic-bezier(.3,1.5,.5,1) both;}
 
         .pq1201 .pq-lake.still .pq-cnt,.pq1201 .pq-lake.still .pq-chip,.pq1201 .pq-lake.still .pq-jaws.chomping,.pq1201 .pq-lake.still .pq-card.big.win{animation:none;}
         .pq1201 .pq-lake.still .pq-fish.win{animation:pqFishBob 2.4s ease-in-out infinite;}

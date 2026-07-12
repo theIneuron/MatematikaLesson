@@ -43,12 +43,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -224,7 +224,7 @@ class AudioEngine {
     this.onStateChange = null;
     this.waitingFor = null;
     this.currentLang = 'ru';
-    this.gender = 'm';
+    this.gender = 'f';
     this.autoplayBlocked = false;
     this.audioEl = null;
   }
@@ -428,7 +428,7 @@ function useAudio(segments) {
     if (!engine) return;
     engineRef.current = engine;
     engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
+    engine.setGender(ttsConfig.voiceGender || 'f');
     engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
     // Возобновление по первому жесту, если браузер заблокировал автоплей.
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
@@ -995,16 +995,16 @@ const CONTENT = {
     opt3: { ru: '95', uz: '95' },
     correct_text: { ru: 'Правильно. Пять десятков и девять единиц. Пятьдесят девять.', uz: "To'g'ri. Besh o'nlik va to'qqiz birlik. Ellik to'qqiz." },
     wrong_1: {
-      ru: 'Все цифры подряд складывать нельзя. Десятки с десятками, единицы с единицами. Пятьдесят девять.',
-      uz: "Hamma raqamni qatorasiga qo'shib bo'lmaydi. O'nlikni o'nlikka, birlikni birlikka. Ellik to'qqiz."
+      ru: 'Все цифры подряд складывать нельзя. Десятки с десятками, единицы с единицами.',
+      uz: "Hamma raqamni qatorasiga qo'shib bo'lmaydi. O'nlikni o'nlikka, birlikni birlikka."
     },
     wrong_2: {
-      ru: 'Десятки сложил, а единицы забыл. Четыре и пять — девять. Пятьдесят девять.',
-      uz: "O'nliklarni qo'shding, birliklarni unutding. To'rt va besh — to'qqiz. Ellik to'qqiz."
+      ru: 'Десятки сложил, а единицы забыл. Прибавь ещё единицы, четыре и пять.',
+      uz: "O'nliklarni qo'shdingiz, birliklarni unutdingiz. Yana birliklarni qo'shing, to'rt va besh."
     },
     wrong_3: {
-      ru: 'Перепутал местами. Девять единиц и пять десятков. Пятьдесят девять.',
-      uz: "O'rinlarini almashtirding. To'qqiz birlik va besh o'nlik. Ellik to'qqiz."
+      ru: 'Перепутал местами. Десятки впереди, единицы сзади, не меняй местами.',
+      uz: "O'rinlarini almashtirdingiz. O'nlik oldinda, birlik keyin, o'rinlarini almashtirmang."
     },
     wrong_default: {
       ru: 'Сложи десятки с десятками, единицы с единицами.',
@@ -1058,16 +1058,16 @@ const CONTENT = {
     opt3: { ru: '56', uz: '56' },
     correct_text: { ru: 'Правильно. Шесть десятков и пять единиц. Шестьдесят пять.', uz: "To'g'ri. Olti o'nlik va besh birlik. Oltmish besh." },
     wrong_1: {
-      ru: 'Все цифры подряд складывать нельзя. Десятки с десятками, единицы с единицами. Шестьдесят пять.',
-      uz: "Hamma raqamni qatorasiga qo'shib bo'lmaydi. O'nlikni o'nlikka, birlikni birlikka. Oltmish besh."
+      ru: 'Все цифры подряд складывать нельзя. Десятки с десятками, единицы с единицами.',
+      uz: "Hamma raqamni qatorasiga qo'shib bo'lmaydi. O'nlikni o'nlikka, birlikni birlikka."
     },
     wrong_2: {
-      ru: 'Единицы забыл. Два и три — пять. Шестьдесят пять.',
-      uz: "Birliklarni unutding. Ikki va uch — besh. Oltmish besh."
+      ru: 'Единицы забыл. Прибавь ещё единицы, два и три.',
+      uz: "Birliklarni unutdingiz. Yana birliklarni qo'shing, ikki va uch."
     },
     wrong_3: {
-      ru: 'Перепутал местами. Шесть десятков и пять единиц. Шестьдесят пять.',
-      uz: "O'rinlarini almashtirding. Olti o'nlik va besh birlik. Oltmish besh."
+      ru: 'Перепутал местами. Десятки впереди, единицы сзади, не меняй местами.',
+      uz: "O'rinlarini almashtirdingiz. O'nlik oldinda, birlik keyin, o'rinlarini almashtirmang."
     },
     wrong_default: {
       ru: 'Сложи десятки с десятками, единицы с единицами.',
@@ -1105,16 +1105,16 @@ const CONTENT = {
     opt3: { ru: '86', uz: '86' },
     correct_text: { ru: 'Правильно. Шесть десятков и восемь единиц. Шестьдесят восемь.', uz: "To'g'ri. Olti o'nlik va sakkiz birlik. Oltmish sakkiz." },
     wrong_1: {
-      ru: 'Все цифры подряд складывать нельзя. Десятки с десятками, единицы с единицами. Шестьдесят восемь.',
-      uz: "Hamma raqamni qatorasiga qo'shib bo'lmaydi. O'nlikni o'nlikka, birlikni birlikka. Oltmish sakkiz."
+      ru: 'Все цифры подряд складывать нельзя. Десятки с десятками, единицы с единицами.',
+      uz: "Hamma raqamni qatorasiga qo'shib bo'lmaydi. O'nlikni o'nlikka, birlikni birlikka."
     },
     wrong_2: {
-      ru: 'Единицы забыл. Три и пять — восемь. Шестьдесят восемь.',
-      uz: "Birliklarni unutding. Uch va besh — sakkiz. Oltmish sakkiz."
+      ru: 'Единицы забыл. Прибавь ещё единицы, три и пять.',
+      uz: "Birliklarni unutdingiz. Yana birliklarni qo'shing, uch va besh."
     },
     wrong_3: {
-      ru: 'Перепутал местами. Шесть десятков и восемь единиц. Шестьдесят восемь.',
-      uz: "O'rinlarini almashtirding. Olti o'nlik va sakkiz birlik. Oltmish sakkiz."
+      ru: 'Перепутал местами. Десятки впереди, единицы сзади, не меняй местами.',
+      uz: "O'rinlarini almashtirdingiz. O'nlik oldinda, birlik keyin, o'rinlarini almashtirmang."
     },
     wrong_default: {
       ru: 'Сложи десятки с десятками, единицы с единицами.',
@@ -1169,16 +1169,16 @@ const CONTENT = {
     opt3: { ru: '68', uz: '68' },
     correct_text: { ru: 'Правильно. Восемь десятков и шесть единиц. Восемьдесят шесть.', uz: "To'g'ri. Sakkiz o'nlik va olti birlik. Sakson olti." },
     wrong_1: {
-      ru: 'Все цифры подряд складывать нельзя. Десятки с десятками, единицы с единицами. Восемьдесят шесть.',
-      uz: "Hamma raqamni qatorasiga qo'shib bo'lmaydi. O'nlikni o'nlikka, birlikni birlikka. Sakson olti."
+      ru: 'Все цифры подряд складывать нельзя. Десятки с десятками, единицы с единицами.',
+      uz: "Hamma raqamni qatorasiga qo'shib bo'lmaydi. O'nlikni o'nlikka, birlikni birlikka."
     },
     wrong_2: {
-      ru: 'Единицы забыл. Два и четыре — шесть. Восемьдесят шесть.',
-      uz: "Birliklarni unutding. Ikki va to'rt — olti. Sakson olti."
+      ru: 'Единицы забыл. Прибавь ещё единицы, два и четыре.',
+      uz: "Birliklarni unutdingiz. Yana birliklarni qo'shing, ikki va to'rt."
     },
     wrong_3: {
-      ru: 'Перепутал местами. Восемь десятков и шесть единиц. Восемьдесят шесть.',
-      uz: "O'rinlarini almashtirding. Sakkiz o'nlik va olti birlik. Sakson olti."
+      ru: 'Перепутал местами. Десятки впереди, единицы сзади, не меняй местами.',
+      uz: "O'rinlarini almashtirdingiz. O'nlik oldinda, birlik keyin, o'rinlarini almashtirmang."
     },
     wrong_default: {
       ru: 'Сложи десятки с десятками, единицы с единицами.',
@@ -3773,7 +3773,8 @@ const Screen0 = (props) => {
   const pick = (k) => {
     if (picked || !canAct) return;
     setPicked(k);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    const right = k === 'a';
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((right ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
   };
   const navContent = (
     <>
@@ -3811,8 +3812,8 @@ const Screen0 = (props) => {
           </div>
         )}
         {picked && (
-          <FeedbackBlock show={true} isCorrect={true} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+          <FeedbackBlock show={true} isCorrect={picked === 'a'} wrongClass="frame-tip">
+            <Reaction state={picked === 'a' ? 'correct' : 'wrong'} praise={picked === 'a' ? (t(c.audio.on_correct)) : t(c.audio.on_wrong)}/>
           </FeedbackBlock>
         )}
       </div>
@@ -4220,7 +4221,7 @@ export default function AddTwoDigitLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

@@ -199,9 +199,9 @@ export default function D09_05(props) {
           {/* son o'qi: 6 nilufar-tosh, 0-5, oralari teng */}
           {[0, 1, 2, 3, 4, 5].map((n) => (
             <g key={n}>
-              <ellipse cx={PAD_X(n)} cy={174} rx={26} ry={10} fill="#1f5b66" opacity=".3" />
-              <ellipse cx={PAD_X(n)} cy={168} rx={25} ry={11} fill="#5da24f" stroke="#2e6e28" strokeWidth="2" />
-              <ellipse cx={PAD_X(n) - 4} cy={166} rx={16} ry={6.5} fill="#6fbc60" opacity=".85" />
+              <ellipse cx={PAD_X(n)} cy={174} rx={26} ry={10} fill="#4a5560" opacity=".3" />
+              <ellipse cx={PAD_X(n)} cy={168} rx={25} ry={11} fill="#8d99a3" stroke="#5f6b75" strokeWidth="2" />
+              <ellipse cx={PAD_X(n) - 4} cy={166} rx={16} ry={6.5} fill="#b6c0c9" opacity=".85" />
               <text x={PAD_X(n)} y={173} textAnchor="middle" fontSize="15" fontWeight="800" fill="#fff" fontFamily="inherit">{n}</text>
             </g>
           ))}

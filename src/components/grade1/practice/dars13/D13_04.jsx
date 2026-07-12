@@ -2,8 +2,8 @@
 // 10 katakli qalam-quti: 7 joyda qalam, 3 bo'sh. Yetti va yana uch — o'nta, dasta to'ladi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-const HAVE = 7, NEED = 3, TEN = 10;
-const DATA = { have: HAVE, target: NEED, options: [2, 3, 4], ptype: 'P13', level: '🟡', tag: 'complete_ten' };
+const HAVE = 8, NEED = 2, TEN = 10;
+const DATA = { have: HAVE, target: NEED, options: [1, 2, 3], ptype: 'P13', level: '🟡', tag: 'complete_ten' };
 
 // Qalam tanasi rang palitrasi (sariq / qizil / ko'k / yashil — 2-3 ton).
 const PAL = [
@@ -17,17 +17,17 @@ const SLOTS = Array.from({ length: TEN }).map((_, i) => ({ i, filled: i < HAVE, 
 
 const T = {
   uz: {
-    eyebrow: "Qalam do'koni · To'ldirish", title: "O'nlikka nechta yetmaydi?",
-    setup: "Qutida o'nta joy bor, yettitasida qalam turibdi. Dasta to'lishi kerak!",
-    ask: "O'nlikni to'ldirish uchun yana nechta qalam kerak?",
-    correct: "Barakalla! Yetti va yana uch — o'nta. Dasta to'ldi!",
+    eyebrow: "Qalam do'koni · To'ldirish", title: "O'ngacha nechta yetmaydi?",
+    setup: "Qutida o'nta joy bor, sakkiztasida qalam turibdi.",
+    ask: "O'ngacha to'ldirish uchun yana nechta qalam kerak?",
+    correct: "Barakalla! Sakkiz va yana ikki — o'nta. Quti to'ldi!",
     hint: "Bo'sh joylarni sanang: nechta qalam qo'shsak, quti to'ladi?",
   },
   ru: {
-    eyebrow: "Магазин карандашей · Дополни", title: "Сколько не хватает до десятка?",
-    setup: "В коробке десять мест, в семи стоят карандаши. Пачка должна заполниться!",
-    ask: "Сколько карандашей нужно добавить, чтобы получился десяток?",
-    correct: "Молодец! Семь и ещё три — десять. Пачка полная!",
+    eyebrow: "Магазин карандашей · Дополни", title: "Сколько не хватает до десяти?",
+    setup: "В коробке десять мест, в восьми стоят карандаши.",
+    ask: "Сколько карандашей нужно добавить, чтобы получилось десять?",
+    correct: "Молодец! Восемь и ещё два — десять. Коробка полная!",
     hint: "Сосчитай пустые места: сколько карандашей добавить, чтобы коробка заполнилась?",
   },
 };
@@ -178,7 +178,6 @@ export default function D13_04(props) {
                 </div>
               );
             })}
-            {ok && <span className="pq-band" />}
             {ok && <span className="pq-tenlbl">{TEN}</span>}
           </div>
         </div>
