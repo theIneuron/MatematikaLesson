@@ -3,6 +3,7 @@
 // G'alaba: qatorda ROSA 5 ta rasm. Ortiq → hint «Ko'p — bittasini oling»; kam → «Yana qo'shing» (qulf/retry YO'Q).
 // ANSWER-LEAK: qator = bola quradigan DATA; javob = bolaning sanashi. To'g'ri javob (5) alohida bosib chiqarilmaydi.
 // VEDI-DO-VERNOGO: setChecked FAQAT son=5 da. Chip STATE (statik son), review'da to'g'ri qoladi (.still gate).
+// OLMA: D36_01 kanon palitrasi + realistik render (gradient soya, yaltirash, bandi va barg); to'g'rida yashil gradient.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const START = 2;     // boshlang'ich olma soni
@@ -13,6 +14,7 @@ const DATA = { start: START, answer: TARGET, unit: 'olma', level: '🔴', tag: '
 const T = {
   uz: {
     eyebrow: "Ma'lumot · Piktogramma", title: 'Piktogramma quring',
+    setup: "Har bir rasm — 1 dona olma.",
     ask: "Olma qatorini 5 taga to'ldiring.",
     add: '+ olma', rem: '− olma',
     row: 'Olma',
@@ -23,6 +25,7 @@ const T = {
   },
   ru: {
     eyebrow: 'Данные · Пиктограмма', title: 'Построй пиктограмму',
+    setup: 'Одна картинка — одно яблоко.',
     ask: 'Дополни ряд яблок до 5.',
     add: '+ яблоко', rem: '− яблоко',
     row: 'Яблоки',
@@ -36,16 +39,35 @@ const T = {
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
+// ——— YAGONA MEVA PALITRASI (D36_01 — kanon, barcha D36-fayllar shundan oladi) ———
+// olma #e5484d (och #ff9a8f / to'q #b7343c), bandi #6b4a2b, barg #4caf50 (och #7ed07f, kontur #3d8c40).
+// «on» (son=5, to'g'ri) da olma yashil gradientga o'tadi (och #7ed07f / #1fa155 / to'q #147a3e).
+// Har ikonka = BITTA sanaladigan dona; realistik: gradient soya, yaltirash, bandi va barg.
+const PFX = 'g3610'; // gradient-id prefiksi (fayl-unikal)
+const FruitDefs = () => (
+  <defs>
+    <radialGradient id={PFX + 'ap'} cx="35%" cy="30%" r="85%">
+      <stop offset="0%" stopColor="#ff9a8f" /><stop offset="55%" stopColor="#e5484d" /><stop offset="100%" stopColor="#b7343c" />
+    </radialGradient>
+    <radialGradient id={PFX + 'apok'} cx="35%" cy="30%" r="85%">
+      <stop offset="0%" stopColor="#7ed07f" /><stop offset="55%" stopColor="#1fa155" /><stop offset="100%" stopColor="#147a3e" />
+    </radialGradient>
+    <linearGradient id={PFX + 'lf'} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stopColor="#7ed07f" /><stop offset="100%" stopColor="#4caf50" />
+    </linearGradient>
+  </defs>
+);
 // Bitta sanaladigan olma (1 rasm = 1 dona). Koordinatalar SON (arifmetika string-concat bermasin).
+// «on» — qatorda rosa 5 ta bo'lganda (to'g'ri): olma yashil gradientga o'tadi.
 function Apple({ cx, cy, on }) {
-  const body = on ? '#1a7f43' : '#e5484d';
-  const shine = on ? '#8fd4a2' : '#ff9a9a';
+  const fill = on ? `url(#${PFX}apok)` : `url(#${PFX}ap)`;
+  const edge = on ? '#147a3e' : '#b7343c';
   return (
     <g>
-      <path d={`M${cx} ${cy - 8} q0 -4 3 -6`} stroke="#6b4a2b" strokeWidth={1.6} fill="none" strokeLinecap="round" />
-      <ellipse cx={cx + 5} cy={cy - 11} rx={4} ry={2.4} fill="#4caf50" transform={`rotate(28 ${cx + 5} ${cy - 11})`} />
-      <circle cx={cx} cy={cy} r={9} fill={body} />
-      <ellipse cx={cx - 3} cy={cy - 3} rx={2.4} ry={3.4} fill={shine} opacity={0.6} />
+      <path d={`M${cx} ${cy - 7} Q${cx + 0.6} ${cy - 11} ${cx + 3.2} ${cy - 13.4}`} stroke="#6b4a2b" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+      <ellipse cx={cx + 5.6} cy={cy - 11.4} rx={4.2} ry={2.3} fill={`url(#${PFX}lf)`} stroke="#3d8c40" strokeWidth={0.6} transform={`rotate(28 ${cx + 5.6} ${cy - 11.4})`} />
+      <path d={`M${cx} ${cy - 6.2} C ${cx - 1.6} ${cy - 8.6} ${cx - 8} ${cy - 9} ${cx - 9.2} ${cy - 3} C ${cx - 10.2} ${cy + 2.6} ${cx - 5.8} ${cy + 8.8} ${cx - 1.6} ${cy + 8.8} C ${cx - 0.6} ${cy + 8} ${cx + 0.6} ${cy + 8} ${cx + 1.6} ${cy + 8.8} C ${cx + 5.8} ${cy + 8.8} ${cx + 10.2} ${cy + 2.6} ${cx + 9.2} ${cy - 3} C ${cx + 8} ${cy - 9} ${cx + 1.6} ${cy - 8.6} ${cx} ${cy - 6.2} Z`} fill={fill} stroke={edge} strokeWidth={0.8} />
+      <ellipse cx={cx - 3.4} cy={cy - 2.4} rx={2.2} ry={3.4} fill="#fff" opacity={0.5} transform={`rotate(-18 ${cx - 3.4} ${cy - 2.4})`} />
     </g>
   );
 }
@@ -61,6 +83,7 @@ function PictoRow({ n, ok, label }) {
   }
   return (
     <svg viewBox="0 0 340 88" width="100%" height="100%" aria-hidden="true" style={{ display: 'block' }}>
+      <FruitDefs />
       {/* Nishon uyachalari: 5 ta xira ramka — bola qatorni shu yergacha to'ldiradi */}
       {Array.from({ length: TARGET }).map((_, i) => (
         <rect key={'slot' + i} x={IX0 + i * ISTEP - 13} y={RCY - 15} width={26} height={30} rx={6} fill="none" stroke="#e0d0a2" strokeWidth={1.4} strokeDasharray="3 4" />
@@ -121,7 +144,8 @@ export default function D36_10(props) {
         .pq3610{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq3610 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f7ac0;text-transform:uppercase;}
         .pq3610 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
-        .pq3610 .pq-ask{display:block;font-size:20px;font-weight:800;}
+        .pq3610 .pq-setup{color:#5c6672;font-weight:500;}
+        .pq3610 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq3610 .pq-board{box-sizing:border-box;position:relative;width:390px;max-width:100%;margin:0 auto;padding:38px 15px 18px;border-radius:20px;background:linear-gradient(#fbf6ec 0%,#f3ead6 100%);border:2px solid #e6d3a8;overflow:hidden;}
         .pq3610 .pq-badge{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;padding:3px 14px 4px;border-radius:9px;background:linear-gradient(#c79338,#a6772a);border:2.5px solid #8a621f;color:#fff6e6;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;pointer-events:none;box-shadow:0 3px 6px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.28);}
         .pq3610 .pq-card{box-sizing:border-box;position:relative;z-index:3;width:100%;max-width:360px;margin:0 auto;padding:8px 10px 4px;border-radius:14px;background:rgba(255,255,255,.92);border:1.5px solid #e6d3a8;}
@@ -144,7 +168,7 @@ export default function D36_10(props) {
         @keyframes pq3610in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
-      <p className="pq-body"><b className="pq-ask">{t.ask}</b></p>
+      <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-board">
         <div className="pq-badge">{t.title}</div>

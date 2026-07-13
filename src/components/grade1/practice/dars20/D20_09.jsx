@@ -4,8 +4,10 @@
 // Make-ten-sub IKKI ANIQ QADAM: (1) avval yo'lakcha birliklari (3 ta) chiqib ketadi — 13−3=10,
 // oraliq «10» ko'rsatiladi; qisqa pauza; (2) keyin o'nlikdan qolgani (2 ta) chiqadi — 10−2=8.
 // Mashina haqiqatan chiqib ketadi: yo'lga qarab siljiydi, g'ildirak aylanadi (bir-martalik, sekin).
-// Chip «13 − 5 = 8», ost-satr «13 − 3 − 2 = 10 − 2». VEDI-DO-VERNOGO: noto'g'rida qulf yo'q,
-// retry yo'q; setChecked FAQAT to'g'rida.
+// Chip «13 − 5 = 8», ost-satr «13 − 3 − 2 = 10 − 2».
+// Sahna (metodist 2026-07-12, real hayotiy): ochiq ko'cha — osmon, quyosh, bulut,
+// uzoqda uylar va daraxtlar, garaj binosi, yo'l va svetofor. Chiziqli tent-tom YO'Q.
+// VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const A = 13, B = 5, TARGET = 8, TEN = 10;
@@ -46,6 +48,34 @@ const T = {
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+
+// KO'CHA ORQA FONI (ambient): uzoqdagi uylar + daraxtlar — syujet ochiq ko'chada kechadi.
+// Matematik zonaga tegmaydi (z-index past, garaj ustidan yopadi).
+const Town = () => (
+  <svg className="pq-town" viewBox="0 0 400 46" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <g opacity=".9">
+      <rect x="42" y="20" width="34" height="26" rx="2" fill="#e6dccb" stroke="#cbb999" strokeWidth="1" />
+      <path d="M39 21 L59 7 L79 21 Z" fill="#cf7458" stroke="#ad573f" strokeWidth="1" strokeLinejoin="round" />
+      <rect x="49" y="28" width="7" height="7" rx="1" fill="#a9c6e2" />
+      <rect x="61" y="28" width="7" height="7" rx="1" fill="#a9c6e2" />
+      <rect x="86" y="12" width="26" height="34" rx="2" fill="#d3dfec" stroke="#aabfd6" strokeWidth="1" />
+      <rect x="91" y="18" width="6" height="6" fill="#f6ecc9" /><rect x="101" y="18" width="6" height="6" fill="#f6ecc9" />
+      <rect x="91" y="29" width="6" height="6" fill="#f6ecc9" /><rect x="101" y="29" width="6" height="6" fill="#f6ecc9" />
+      <rect x="122" y="34" width="4" height="12" rx="2" fill="#8a6242" />
+      <circle cx="124" cy="26" r="10" fill="#85bd7b" />
+      <circle cx="117" cy="31" r="6" fill="#74ad6b" />
+      <rect x="272" y="34" width="4" height="12" rx="2" fill="#8a6242" />
+      <circle cx="274" cy="27" r="9" fill="#85bd7b" />
+      <rect x="290" y="18" width="30" height="28" rx="2" fill="#ead9d3" stroke="#cdb1a7" strokeWidth="1" />
+      <path d="M287 19 L305 5 L323 19 Z" fill="#8aa6c8" stroke="#6d87a8" strokeWidth="1" strokeLinejoin="round" />
+      <rect x="296" y="26" width="6" height="6" rx="1" fill="#f6ecc9" />
+      <rect x="307" y="26" width="6" height="6" rx="1" fill="#f6ecc9" />
+      <rect x="330" y="14" width="26" height="32" rx="2" fill="#d9e4d2" stroke="#b4c6a8" strokeWidth="1" />
+      <rect x="335" y="20" width="6" height="6" fill="#f6ecc9" /><rect x="345" y="20" width="6" height="6" fill="#f6ecc9" />
+      <rect x="335" y="31" width="6" height="6" fill="#f6ecc9" /><rect x="345" y="31" width="6" height="6" fill="#f6ecc9" />
+    </g>
+  </svg>
+);
 
 // MASHINA KANONI (yakka birlik): sodda yumaloq mashina — kabina (2-ton tana) + oynalar +
 // ikki g'ildirak + fara (old, o'ng tomon). Bitta mashina = bitta birlik. O'ngga qaragan
@@ -133,6 +163,9 @@ export default function D20_09(props) {
         .pq2009 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq2009 .pq-scene{position:relative;width:392px;max-width:100%;height:262px;margin:0 auto;border-radius:20px;background:linear-gradient(#dff1fb 0%,#eaf2fb 52%,#eef1f4 100%);border:2px solid #d3ddec;overflow:hidden;}
         .pq2009 .pq-sun{position:absolute;left:18px;top:14px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
+        .pq2009 .pq-cloud{position:absolute;top:8px;right:66px;width:48px;height:15px;border-radius:12px;background:rgba(255,255,255,.85);box-shadow:13px 4px 0 -3px rgba(255,255,255,.8),-13px 3px 0 -4px rgba(255,255,255,.75);z-index:1;animation:pqCloud 6s ease-in-out infinite;}
+        /* uzoqdagi ko'cha: uylar + daraxtlar (ambient orqa fon) */
+        .pq2009 .pq-town{position:absolute;left:0;top:8px;width:100%;height:44px;z-index:1;pointer-events:none;}
         /* svetofor (mayda ambient, o'ng yuqori) */
         .pq2009 .pq-light{position:absolute;right:16px;top:14px;width:14px;z-index:2;}
         .pq2009 .pq-light .pole{position:absolute;left:5px;top:34px;width:4px;height:40px;background:linear-gradient(#8a919c,#5c626c);border-radius:2px;}
@@ -190,6 +223,7 @@ export default function D20_09(props) {
         @keyframes pqTen{0%{opacity:0;transform:translateX(-50%) scale(.5);}14%{opacity:1;transform:translateX(-50%) scale(1);}72%{opacity:1;transform:translateX(-50%) scale(1);}100%{opacity:0;transform:translateX(-50%) scale(.9);}}
         @keyframes pqPop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+        @keyframes pqCloud{0%,100%{transform:translateX(0);}50%{transform:translateX(-8px);}}
         @keyframes pqBlink{0%,60%{opacity:1;}61%,100%{opacity:.35;}}
         @keyframes pqTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
         @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.05);}60%{transform:scale(.97);}100%{transform:scale(1);}}
@@ -200,7 +234,8 @@ export default function D20_09(props) {
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-scene">
-        <span className="pq-sun" />
+        <span className="pq-sun" /><span className="pq-cloud" />
+        <Town />
         <div className="pq-light"><span className="pole" /><span className="box"><i className="r" /><i className="y" /><i className="g on" /></span></div>
         <div className="pq-board">{t.title}</div>
 

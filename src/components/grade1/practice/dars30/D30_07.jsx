@@ -163,15 +163,43 @@ export default function D30_07(props) {
         .pq3007 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq3007 .pq-setup{color:#5c6672;font-weight:500;}
         .pq3007 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq3007 .pq-orchard{box-sizing:border-box;position:relative;width:390px;max-width:100%;margin:0 auto;padding:40px 12px 16px;border-radius:20px;background:linear-gradient(#cdeafd 0%,#dff1fb 40%,#cfeccb 74%,#b6df97 100%);border:2px solid #bfe0cd;overflow:hidden;}
-        .pq3007 .pq-sun{position:absolute;left:16px;top:12px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:2;pointer-events:none;animation:pq3007sun 3.6s ease-in-out infinite;}
+        .pq3007 .pq-orchard{box-sizing:border-box;position:relative;width:390px;max-width:100%;margin:0 auto;padding:40px 12px 64px;border-radius:20px;background:linear-gradient(#bfe6fb 0%,#dff1fb 40%,#cfeccb 74%,#b6df97 100%);border:2px solid #bfe0cd;overflow:hidden;}
+        .pq3007 .pq-sun{position:absolute;left:16px;top:11px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 20px 6px rgba(255,214,74,.55);z-index:2;pointer-events:none;animation:pq3007sun 3.6s ease-in-out infinite;}
+        /* ===== BOG' SAHNASI (D15 etalon darajasi): bulut, qush, maysa, daraxt, gul, kapalak ===== */
+        .pq3007 .pq-cloud{position:absolute;height:14px;background:#fff;border-radius:20px;box-shadow:0 5px 0 -2px #fff;opacity:.95;z-index:1;pointer-events:none;}
+        .pq3007 .pq-cloud::before,.pq3007 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+        .pq3007 .pq-cloud::before{width:20px;height:20px;top:-8px;left:7px;}.pq3007 .pq-cloud::after{width:14px;height:14px;top:-5px;left:22px;}
+        .pq3007 .pq-cloud.c1{top:12px;left:24%;width:42px;animation:pq3007drift 15s ease-in-out infinite;}
+        .pq3007 .pq-cloud.c2{top:26px;left:60%;width:32px;transform:scale(.78);animation:pq3007drift 19s ease-in-out infinite reverse;}
+        .pq3007 .pq-bird{position:absolute;z-index:1;opacity:.7;pointer-events:none;}
+        .pq3007 .pq-bird.b1{top:18px;left:44%;animation:pq3007birdfly 8s ease-in-out infinite;}
+        .pq3007 .pq-bird.b2{top:30px;left:70%;transform:scale(.75);animation:pq3007birdfly 10s ease-in-out infinite;}
+        .pq3007 .pq-grass{position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(#84c95f 0%,#69b34c 60%,#5aa53f 100%);z-index:1;pointer-events:none;}
+        .pq3007 .pq-grass::before{content:'';position:absolute;left:0;right:0;top:-5px;height:9px;background:radial-gradient(circle at 5px 9px,#84c95f 5px,transparent 6px) repeat-x;background-size:14px 9px;}
+        .pq3007 .pq-tree{position:absolute;right:8px;bottom:2px;z-index:2;line-height:0;pointer-events:none;}
+        .pq3007 .pq-crown{transform-box:fill-box;transform-origin:50% 85%;animation:pq3007sway 5.6s ease-in-out infinite;}
+        .pq3007 .pq-tapple{transform-box:fill-box;transform-origin:50% 0;animation:pq3007swing 3.6s ease-in-out infinite;animation-delay:var(--sd,0s);}
+        .pq3007 .pq-flower{position:absolute;width:6px;height:6px;border-radius:50%;z-index:2;pointer-events:none;}
+        .pq3007 .pq-flower::after{content:'';position:absolute;inset:0;border-radius:50%;background:#ffd94a;}
+        .pq3007 .pq-flower.f1{left:30%;bottom:16px;background:#fff;box-shadow:5px 0 0 #fff,-5px 0 0 #fff,0 5px 0 #fff,0 -5px 0 #fff;}
+        .pq3007 .pq-flower.f2{left:52%;bottom:8px;background:#ff9ec4;box-shadow:5px 0 0 #ff9ec4,-5px 0 0 #ff9ec4,0 5px 0 #ff9ec4,0 -5px 0 #ff9ec4;}
+        .pq3007 .pq-flower.f3{left:68%;bottom:18px;transform:scale(.85);background:#c79bf0;box-shadow:5px 0 0 #c79bf0,-5px 0 0 #c79bf0,0 5px 0 #c79bf0,0 -5px 0 #c79bf0;}
+        .pq3007 .pq-bfly{position:absolute;width:8px;height:8px;z-index:5;pointer-events:none;}
+        .pq3007 .pq-bfly::before,.pq3007 .pq-bfly::after{content:'';position:absolute;top:0;width:6px;height:9px;border-radius:60%;background:#ff9ec4;}
+        .pq3007 .pq-bfly::before{left:-3px;transform-origin:right center;animation:pq3007wing .26s ease-in-out infinite alternate;}
+        .pq3007 .pq-bfly::after{right:-3px;transform-origin:left center;animation:pq3007wing .26s ease-in-out infinite alternate;}
+        .pq3007 .pq-bfly.bf2::before,.pq3007 .pq-bfly.bf2::after{background:#ffcf5a;}
+        .pq3007 .pq-bfly.bf1{bottom:42px;left:16%;animation:pq3007flit 9s ease-in-out infinite;}
+        .pq3007 .pq-bfly.bf2{bottom:58px;right:14%;animation:pq3007flit 11s ease-in-out infinite reverse;}
+        /* g'alaba: daraxtdan olma yog'adi */
+        .pq3007 .pq-drop{position:absolute;top:28px;z-index:6;line-height:0;pointer-events:none;animation:pq3007fall 1.6s ease-in both;animation-delay:var(--dd,0s);}
         .pq3007 .pq-leaf{position:absolute;z-index:2;pointer-events:none;transform-origin:top center;}
         .pq3007 .pq-leaf.l{left:-4px;top:2px;animation:pq3007sway 4.2s ease-in-out infinite;}
         .pq3007 .pq-leaf.r{right:-4px;top:-2px;animation:pq3007sway 4.6s ease-in-out .8s infinite;}
         .pq3007 .pq-apple{position:absolute;z-index:2;pointer-events:none;}
         .pq3007 .pq-apple.a1{right:18px;bottom:10px;animation:pq3007bob 3s ease-in-out infinite;}
         .pq3007 .pq-apple.a2{left:20px;bottom:14px;animation:pq3007bob 3.4s ease-in-out .5s infinite;}
-        .pq3007 .pq-board{position:absolute;top:7px;left:50%;transform:translateX(-50%);z-index:6;padding:3px 14px 4px;border-radius:9px;background:linear-gradient(#3f9b57,#2c7c42);border:2.5px solid #226334;color:#f0fff4;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;pointer-events:none;box-shadow:0 3px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.28);}
+        .pq3007 .pq-board{position:absolute;top:7px;left:50%;transform:translateX(-50%);z-index:6;padding:3px 14px 4px;border-radius:9px;background:linear-gradient(#d19b5c,#b67c3f);border:2.5px solid #93602c;color:#fdf3e3;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;pointer-events:none;box-shadow:0 3px 0 #8a5926,0 5px 8px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.3);text-shadow:0 1px 1px rgba(0,0,0,.22);}
 
         /* Jadval: bordered qatorlar, hairline ajratgich */
         .pq3007 .pq-table{box-sizing:border-box;position:relative;z-index:3;width:100%;border-radius:15px;overflow:hidden;border:3px solid #d6dae3;background:rgba(255,255,255,.97);box-shadow:0 4px 10px rgba(40,60,40,.14);}
@@ -208,12 +236,24 @@ export default function D30_07(props) {
         @keyframes pq3007tw{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
         @keyframes pq3007cele{0%{transform:scale(1);}30%{transform:scale(1.02);}60%{transform:scale(.99);}100%{transform:scale(1);}}
         @keyframes pq3007in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes pq3007drift{0%,100%{transform:translateX(0);}50%{transform:translateX(-14px);}}
+        @keyframes pq3007birdfly{0%,100%{transform:translate(0,0);}50%{transform:translate(26px,-5px);}}
+        @keyframes pq3007swing{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+        @keyframes pq3007wing{0%{transform:scaleX(1);}100%{transform:scaleX(.35);}}
+        @keyframes pq3007flit{0%,100%{transform:translate(0,0);}25%{transform:translate(22px,-10px);}50%{transform:translate(40px,5px);}75%{transform:translate(16px,-5px);}}
+        @keyframes pq3007fall{0%{opacity:0;transform:translateY(-14px) rotate(0);}12%{opacity:1;}100%{opacity:0;transform:translateY(150px) rotate(120deg);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-orchard">
         <span className="pq-sun" />
+        <span className="pq-cloud c1" /><span className="pq-cloud c2" />
+        <Bird cls="b1" /><Bird cls="b2" />
+        <div className="pq-grass" />
+        <span className="pq-tree"><AppleTree /></span>
+        <span className="pq-flower f1" /><span className="pq-flower f2" /><span className="pq-flower f3" />
+        <span className="pq-bfly bf1" /><span className="pq-bfly bf2" />
         <span className="pq-leaf l"><Leaf /></span>
         <span className="pq-leaf r"><Leaf flip /></span>
         <span className="pq-apple a1"><Apple w={20} /></span>
@@ -252,6 +292,11 @@ export default function D30_07(props) {
           <span className="pq-spark" style={{ left: '14%', top: '42px' }}>{'✦'}</span>
           <span className="pq-spark s2" style={{ left: '86%', top: '56px' }}>{'✦'}</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '30px' }}>{'✦'}</span>
+        </>)}
+        {ok && !still && (<>
+          <span className="pq-drop" style={{ left: '18%', '--dd': '.05s' }}><Apple w={16} /></span>
+          <span className="pq-drop" style={{ left: '52%', '--dd': '.3s' }}><Apple w={14} /></span>
+          <span className="pq-drop" style={{ left: '80%', '--dd': '.55s' }}><Apple w={16} /></span>
         </>)}
       </div>
 

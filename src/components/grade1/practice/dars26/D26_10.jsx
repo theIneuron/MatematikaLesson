@@ -357,16 +357,17 @@ export default function D26_10(props) {
         <div className="pq-sub">{M_TENS} {t.tens} {'+'} {M_UNITS} {t.units} = {TARGET}</div>
       </>)}
 
-      {/* Birlashgach javob tugmalari faollashadi. Birlashmaguncha o'chirilgan — yig'indi ko'rsatilmaydi. */}
+      {/* Birlashgach 4 sonli variant chiqadi — bola yig'indini XAYOLAN hisoblab tanlaydi. */}
       {combined
-        ? (
+        ? (<>
+          {!ok && <div className="pq-first">{t.covered}</div>}
           <div className="pq-opts">
-            {DATA.options.map((n) => {
+            {OPTIONS.map((n) => {
               const sel = picked === n; const right = ok && n === TARGET;
               return <button key={n} type="button" className={'pq-opt' + (right ? ' right' : sel ? ' sel' : '')} disabled={lock} onClick={() => { setPicked(n); setFeedback(null); }}>{n}</button>;
             })}
           </div>
-        )
+        </>)
         : <div className="pq-first">{t.first}</div>}
 
       {feedback && (<div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>{feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.msg}</span></div>)}

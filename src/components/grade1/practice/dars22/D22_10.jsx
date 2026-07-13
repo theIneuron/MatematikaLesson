@@ -6,6 +6,8 @@
 // o'nlik (10 olma bir joyda, "10" nishoni); yakka olma = bitta birlik. ANSWER-LEAK yo'q: yechilgunga
 // qadar markazda "?" turadi, belgi FAQAT to'g'ri javobda ochiladi. VEDI-DO-VERNOGO: noto'g'rida qulf
 // yo'q, retry yo'q; setChecked FAQAT to'g'rida (picked === 53). studentAnswer = { picked }.
+// Savol matni ANIQ: "Ikkita son bor: 38 va 53" + katta sonni bosish-buyruq.
+// Ambient boyitish: bulutlar + hilpiragan gullar + tushayotgan barglar (dekor, pointer-events YO'Q).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const LEFT = 38, RIGHT = 53, BIG = RIGHT;   // katta son = 53 (o'ngda). Bola shuni bosishi kerak.
@@ -18,7 +20,7 @@ const DATA = { a: LEFT, b: RIGHT, big: BIG, target: SIGN, options: [LEFT, RIGHT]
 const T = {
   uz: {
     eyebrow: "Olma bog'i · Timsoh", title: "Timsoh qaysi tomonga?",
-    setup: "38 va 53.",
+    setup: "Ikkita son bor: 38 va 53.",
     ask: "Katta sonni bosing.",
     correct: "Barakalla! Timsoh kattasini tanladi: 53. 38 < 53.",
     hint: "Timsohning og'zi katta songa qarab ochiladi. Qaysi son katta?",
@@ -26,7 +28,7 @@ const T = {
   },
   ru: {
     eyebrow: "Яблоневый сад · Крокодил", title: "Куда смотрит крокодил?",
-    setup: "38 и 53.",
+    setup: "Есть два числа: 38 и 53.",
     ask: "Нажми большее число.",
     correct: "Молодец! Крокодил выбрал большее: 53. 38 < 53.",
     hint: "Рот крокодила открывается к большему числу. Какое больше?",

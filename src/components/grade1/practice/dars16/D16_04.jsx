@@ -1,5 +1,5 @@
 // Dars16 · Amaliyot 04 — P16 O'nlikka to'ldirish «Shirinlik do'koni» · 🟡 · tag: make_ten
-// 10 uyali laganda: 6 uyada konfet, 4 uya bo'sh. O'nlikni to'ldirish uchun yana nechta? → 4.
+// 10 uyali qutida: 6 uyada konfet, 4 uya bo'sh. O'nlikni to'ldirish uchun yana nechta? → 4.
 // G'alaba: bo'sh uyalarga konfet tushadi, chip «6 + 4 = 10».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
@@ -20,17 +20,17 @@ const SLOTS = Array.from({ length: TEN }).map((_, i) => ({ i, filled: i < HAVE, 
 const T = {
   uz: {
     eyebrow: "Shirinlik do'koni · To'ldirish", title: "O'nlikka nechta yetmaydi?",
-    setup: "Laganda o'nta joy bor, oltitasida konfet turibdi. Lagan to'lishi kerak!",
+    setup: "Qutida o'nta joy bor, oltitasida konfet turibdi. Quti to'lishi kerak!",
     ask: "O'nlikni to'ldirish uchun yana nechta konfet kerak?",
-    correct: "Barakalla! Olti va yana to'rt — o'nta. Lagan to'ldi!",
-    hint: "Bo'sh uyalarni sanang: nechta konfet qo'shsak, lagan to'ladi?",
+    correct: "Barakalla! Olti va yana to'rt — o'nta. Quti to'ldi!",
+    hint: "Bo'sh uyalarni sanang: nechta konfet qo'shsak, quti to'ladi?",
   },
   ru: {
     eyebrow: "Магазин сладостей · Дополни", title: "Сколько не хватает до десятка?",
-    setup: "На подносе десять мест, в шести лежат конфеты. Поднос должен заполниться!",
+    setup: "В коробке десять мест, в шести лежат конфеты. Коробка должна заполниться!",
     ask: "Сколько конфет нужно добавить, чтобы получился десяток?",
-    correct: "Молодец! Шесть и ещё четыре — десять. Поднос полный!",
-    hint: "Сосчитай пустые ячейки: сколько конфет добавить, чтобы поднос заполнился?",
+    correct: "Молодец! Шесть и ещё четыре — десять. Коробка полная!",
+    hint: "Сосчитай пустые ячейки: сколько конфет добавить, чтобы коробка заполнилась?",
   },
 };
 

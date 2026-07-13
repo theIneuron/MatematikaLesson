@@ -39,9 +39,11 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 // old panjalar oldda, orqa oyoq bukilgan; ostida nilufar bargi.
 const Frog = () => (
   <svg viewBox="0 0 64 60" width="52" height="49" aria-hidden="true" style={{ display: 'block' }}>
-    <ellipse cx="32" cy="53" rx="26" ry="6.5" fill="#4f9a48" stroke="#3c7d36" strokeWidth="1.4" />
-    <path d="M32 53 L54 49.5" stroke="#3c7d36" strokeWidth="1.2" opacity=".6" />
-    <ellipse cx="25" cy="51.5" rx="12" ry="2.8" fill="#68bd60" opacity=".55" />
+    {/* tosh — qurbaqa o'tirgan (soya + kulrang tosh + yorug'lik) */}
+    <ellipse cx="32" cy="57.5" rx="25" ry="3.6" fill="#3f4a56" opacity=".3" />
+    <path d="M8 51.5 Q6.5 46 15 45 L49 45 Q57.5 46 56 51.5 Q55 57 46 57.5 L18 57.5 Q9 57 8 51.5 Z" fill="#8d99a3" stroke="#5f6b75" strokeWidth="1.6" strokeLinejoin="round" />
+    <ellipse cx="28" cy="48.5" rx="16" ry="3.2" fill="#b6c0c9" opacity=".65" />
+    <ellipse cx="45" cy="52" rx="4" ry="1.6" fill="#77828c" opacity=".5" />
     <path d="M12 46 Q6 38 11 31 Q16 26 19 33 Q21 41 16 46 Z" fill="#3f8a39" stroke="#2e6e28" strokeWidth="1.4" strokeLinejoin="round" />
     <path d="M52 46 Q58 38 53 31 Q48 26 45 33 Q43 41 48 46 Z" fill="#3f8a39" stroke="#2e6e28" strokeWidth="1.4" strokeLinejoin="round" />
     <path d="M12 47 L7 49.5 M14.5 48 L10.5 51" stroke="#2e6e28" strokeWidth="1.6" strokeLinecap="round" />

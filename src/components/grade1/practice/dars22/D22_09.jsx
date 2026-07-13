@@ -7,6 +7,8 @@
 // G'alabada: yutgan karta yashil, timsoh KATTA son (43) tomonga og'iz ochadi, "43 > 34".
 // VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 // ANSWER-LEAK YO'Q: yutguncha hech qaysi karta g'olib deb belgilanmaydi, belgi ko'rsatilmaydi.
+// Savol matni ANIQ: "Anvar 34, Zuhra 43 olma terdi" + kim ko'p terganini tanlash-buyruq.
+// Ambient boyitish: bulutlar + hilpiragan gullar + tushayotgan barglar (dekor, pointer-events YO'Q).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const BIG = 43, SMALL = 34;               // Zuhra 43, Anvar 34
@@ -107,6 +109,19 @@ const Leaf = () => (
   <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true" style={{ display: "block" }}>
     <path d="M4 16 Q4 4 16 4 Q16 16 4 16 Z" fill="#7cc85e" stroke="#4f9a3f" strokeWidth="1" />
     <path d="M6 14 Q11 9 14 6" stroke="#3f8038" strokeWidth="1" fill="none" strokeLinecap="round" />
+  </svg>
+);
+
+// Gul (ambient) — bog' chetida hilpiragan mayda gul. Dekor, pointer-events YO'Q.
+const Flower = ({ c = "#e8739e" }) => (
+  <svg viewBox="0 0 16 22" width="13" height="18" aria-hidden="true" style={{ display: "block" }}>
+    <path d="M8 11 L8 20" stroke="#4f9a3f" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M8 16 Q4.4 15 4 12.4 Q7.2 12.8 8 16 Z" fill="#5aa84f" />
+    <g fill={c}>
+      <circle cx="8" cy="3.6" r="2.6" /><circle cx="4.3" cy="6.2" r="2.6" /><circle cx="11.7" cy="6.2" r="2.6" />
+      <circle cx="5.5" cy="10" r="2.6" /><circle cx="10.5" cy="10" r="2.6" />
+    </g>
+    <circle cx="8" cy="6.9" r="2.3" fill="#ffd76a" stroke="#e8b53a" strokeWidth=".6" />
   </svg>
 );
 
@@ -218,6 +233,14 @@ export default function D22_09(props) {
         .pq2209 .pq-leaf{position:absolute;z-index:2;line-height:0;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.12));}
         .pq2209 .pq-leaf.l1{left:16%;top:-14px;animation:pq2209leaf 9s linear infinite;}
         .pq2209 .pq-leaf.l2{left:78%;top:-16px;animation:pq2209leaf 12s linear infinite;animation-delay:-5s;}
+        .pq2209 .pq-cloud{position:absolute;z-index:1;pointer-events:none;width:42px;height:13px;border-radius:999px;background:rgba(255,255,255,.88);animation:pq2209drift 12s ease-in-out infinite;}
+        .pq2209 .pq-cloud::before{content:'';position:absolute;left:7px;top:-7px;width:16px;height:12px;border-radius:50%;background:rgba(255,255,255,.88);}
+        .pq2209 .pq-cloud::after{content:'';position:absolute;left:21px;top:-5px;width:12px;height:9px;border-radius:50%;background:rgba(255,255,255,.88);}
+        .pq2209 .pq-cloud.c1{left:6%;top:14px;}
+        .pq2209 .pq-cloud.c2{left:66%;top:28px;width:28px;animation-delay:-6s;}
+        .pq2209 .pq-flw{position:absolute;bottom:5px;z-index:2;line-height:0;pointer-events:none;transform-origin:50% 100%;animation:pq2209flsway 4s ease-in-out infinite;}
+        .pq2209 .pq-flw.f1{left:8px;}
+        .pq2209 .pq-flw.f2{right:10px;animation-delay:-2.2s;}
 
         .pq2209 .pq-arena{position:absolute;left:8px;right:8px;top:42px;bottom:8px;display:flex;align-items:stretch;justify-content:center;gap:12px;z-index:3;}
         /* Bosiladigan nishon = ISMLI karta. Ichidagi savat/olma STATIK (aylanma tebranish YO'Q). */
@@ -263,6 +286,8 @@ export default function D22_09(props) {
         .pq2209 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq2209 .pq-fb.no{background:#fdecec;color:#c0392b;}
 
         @keyframes pq2209sun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+        @keyframes pq2209drift{0%,100%{transform:translateX(0);}50%{transform:translateX(14px);}}
+        @keyframes pq2209flsway{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
         @keyframes pq2209leaf{0%{transform:translate(0,-14px) rotate(0);opacity:0;}12%{opacity:.85;}88%{opacity:.85;}100%{transform:translate(-26px,168px) rotate(210deg);opacity:0;}}
         @keyframes pq2209sway{0%,100%{transform:rotate(0deg);}50%{transform:rotate(4deg);}}
         @keyframes pq2209chomp{0%,100%{transform:rotate(0);}50%{transform:rotate(14deg);}}
@@ -279,8 +304,12 @@ export default function D22_09(props) {
         <span className="pq-sun" />
         <span className="pq-hill" />
         <div className="pq-title">{t.title}</div>
+        <span className="pq-cloud c1" />
+        <span className="pq-cloud c2" />
         <span className="pq-leaf l1"><Leaf /></span>
         <span className="pq-leaf l2"><Leaf /></span>
+        <span className="pq-flw f1"><Flower /></span>
+        <span className="pq-flw f2"><Flower c="#f2a13c" /></span>
 
         {/* Ikki ISMLI karta — bosiladigan nishon. Har biri: ism + son + savatlar (o'nlik) + olmalar
             (birlik). Yutguncha hech qaysi g'olib deb belgilanmaydi (answer-leak YO'Q). */}

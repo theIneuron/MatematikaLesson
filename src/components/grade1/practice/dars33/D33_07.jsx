@@ -176,7 +176,7 @@ export default function D33_07(props) {
             const cls = 'pq-row' + (good ? ' good' + (ok ? ' win' : '') : bad ? ' bad' : '');
             return (
               <div key={r.id} className={cls}>
-                <span className="pq-figbox"><ShapeFig kind={r.kind} on={good} /></span>
+                <span className="pq-figbox"><span className="pq-fig"><ShapeFig kind={r.kind} on={good} /></span></span>
                 <div className="pq-chips">
                   {CHIPS.map((k) => (
                     <button key={k} type="button" className={'pq-chip' + (vals[i] === k ? ' sel' : '')} disabled={lock}
@@ -192,6 +192,7 @@ export default function D33_07(props) {
           <span className="pq-spark" style={{ left: '12%', top: '30px' }}>{'✦'}</span>
           <span className="pq-spark s2" style={{ left: '88%', top: '46px' }}>{'✦'}</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '24px' }}>{'✦'}</span>
+          <span className="pq-conf k1" /><span className="pq-conf k2" /><span className="pq-conf k3" /><span className="pq-conf k4" />
         </>)}
       </div>
 

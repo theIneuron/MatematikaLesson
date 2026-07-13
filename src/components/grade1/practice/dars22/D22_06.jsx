@@ -4,6 +4,8 @@
 // Sahna: son o'qi 40..50, uchlari 40 va 50 belgilangan; oraliqda "?" olma osilib turadi.
 // JAVOB OSHKOR EMAS: olma to'g'ri javobgacha "?" ko'rsatadi; 45 faqat g'alabada tushib joylashadi.
 // VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
+// Savol matni ANIQ: "Ikkita son bor: 40 va 50" + oradagi sonni tanlash-buyruq.
+// Ambient boyitish: bulutlar + hilpiragan gullar (dekor, pointer-events YO'Q).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const A = 40, B = 50, ANSWER = 45;
@@ -15,15 +17,15 @@ const xAt = (n) => X0 + (n - A) * DX; // 40->30, 45->160, 50->290 (viewBox marka
 const T = {
   uz: {
     eyebrow: "Olma bog'i · Mantiq", title: "Oraliqdagi son",
-    setup: "40 va 50 orasidagi son.",
-    ask: "Qaysi son mos?",
+    setup: "Ikkita son bor: 40 va 50.",
+    ask: "Ular orasidagi sonni tanlang.",
     correct: "Barakalla! Qirq besh — qirq bilan ellik orasida. 40 < 45 < 50.",
     hint: "Son 40 dan katta VA 50 dan kichik bo'lsin.",
   },
   ru: {
     eyebrow: "Яблоневый сад · Логика", title: "Число между",
-    setup: "Число между 40 и 50.",
-    ask: "Какое число подходит?",
+    setup: "Есть два числа: 40 и 50.",
+    ask: "Выбери число между ними.",
     correct: "Молодец! Сорок пять — между сорока и пятьюдесятью. 40 < 45 < 50.",
     hint: "Число должно быть больше 40 И меньше 50.",
   },
@@ -31,6 +33,19 @@ const T = {
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+
+// Gul (ambient) — bog' chetida hilpiragan mayda gul. Dekor, pointer-events YO'Q.
+const Flower = ({ c = '#e8739e' }) => (
+  <svg viewBox="0 0 16 22" width="13" height="18" aria-hidden="true" style={{ display: 'block' }}>
+    <path d="M8 11 L8 20" stroke="#4f9a3f" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M8 16 Q4.4 15 4 12.4 Q7.2 12.8 8 16 Z" fill="#5aa84f" />
+    <g fill={c}>
+      <circle cx="8" cy="3.6" r="2.6" /><circle cx="4.3" cy="6.2" r="2.6" /><circle cx="11.7" cy="6.2" r="2.6" />
+      <circle cx="5.5" cy="10" r="2.6" /><circle cx="10.5" cy="10" r="2.6" />
+    </g>
+    <circle cx="8" cy="6.9" r="2.3" fill="#ffd76a" stroke="#e8b53a" strokeWidth=".6" />
+  </svg>
+);
 
 let __uid = 0;
 
@@ -87,6 +102,15 @@ export default function D22_06(props) {
         .pq2206 .pq-leaf{position:absolute;top:-10px;width:9px;height:9px;background:#7cbf5f;border-radius:0 100% 0 100%;z-index:2;pointer-events:none;opacity:.85;}
         .pq2206 .pq-leaf.l1{left:24%;animation:pq2206leaf 6.5s linear infinite;}
         .pq2206 .pq-leaf.l2{left:70%;background:#e0a24a;animation:pq2206leaf 8s linear .8s infinite;}
+        .pq2206 .pq-cloud{position:absolute;z-index:1;pointer-events:none;width:42px;height:13px;border-radius:999px;background:rgba(255,255,255,.88);animation:pq2206drift 12s ease-in-out infinite;}
+        .pq2206 .pq-cloud::before{content:'';position:absolute;left:7px;top:-7px;width:16px;height:12px;border-radius:50%;background:rgba(255,255,255,.88);}
+        .pq2206 .pq-cloud::after{content:'';position:absolute;left:21px;top:-5px;width:12px;height:9px;border-radius:50%;background:rgba(255,255,255,.88);}
+        .pq2206 .pq-cloud.c1{left:7%;top:15px;}
+        .pq2206 .pq-cloud.c2{left:64%;top:30px;width:28px;animation-delay:-6s;}
+        .pq2206 .pq-flw{position:absolute;bottom:5px;z-index:2;line-height:0;pointer-events:none;transform-origin:50% 100%;animation:pq2206flsway 4s ease-in-out infinite;}
+        .pq2206 .pq-flw.f1{left:9px;}
+        .pq2206 .pq-flw.f2{left:30px;bottom:9px;animation-delay:-1.4s;}
+        .pq2206 .pq-flw.f3{right:11px;animation-delay:-2.2s;}
 
         .pq2206 .pq-nlwrap{position:absolute;left:10px;right:10px;top:44px;bottom:14px;display:flex;align-items:center;justify-content:center;z-index:3;}
         .pq2206 .pq-nl{display:block;width:100%;height:auto;}
@@ -119,6 +143,8 @@ export default function D22_06(props) {
         @keyframes pq2206drop{0%{transform:translateY(-2px);}60%{transform:translateY(26px);}100%{transform:translateY(22px);}}
         @keyframes pq2206slot{0%,100%{opacity:.5;}50%{opacity:1;}}
         @keyframes pq2206sun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+        @keyframes pq2206drift{0%,100%{transform:translateX(0);}50%{transform:translateX(14px);}}
+        @keyframes pq2206flsway{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
         @keyframes pq2206leaf{0%{transform:translateY(0) rotate(0);opacity:0;}12%{opacity:.85;}100%{transform:translateY(210px) rotate(320deg);opacity:0;}}
         @keyframes pq2206pop{from{opacity:0;transform:scale(.3);}to{opacity:1;transform:scale(1);}}
         @keyframes pq2206tw{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
@@ -131,7 +157,12 @@ export default function D22_06(props) {
       <div className="pq-scene">
         <span className="pq-sun" />
         <span className="pq-hill" />
+        <span className="pq-cloud c1" />
+        <span className="pq-cloud c2" />
         <span className="pq-leaf l1" /><span className="pq-leaf l2" />
+        <span className="pq-flw f1"><Flower /></span>
+        <span className="pq-flw f2"><Flower c="#8f7ae0" /></span>
+        <span className="pq-flw f3"><Flower c="#f2a13c" /></span>
         <div className="pq-title">{t.title}</div>
 
         <div className="pq-nlwrap">

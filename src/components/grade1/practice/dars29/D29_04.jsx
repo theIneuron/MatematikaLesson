@@ -250,7 +250,7 @@ export default function D29_04(props) {
         .pq2904 .pq-bird.b2{top:44px;left:56%;transform:scale(.78);animation:pq2904Bird 9s ease-in-out infinite;}
         .pq2904 .pq-bird.b3{top:20px;left:68%;transform:scale(.9);animation:pq2904Bird 8s ease-in-out infinite;}
         /* yog'och taxtacha (hikoya sonlari; g'alabada tenglama) */
-        .pq2904 .pq-sign{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:8px;padding:9px 13px 11px;border-radius:14px;background:linear-gradient(#d19b5c,#b67c3f);border:2px solid #93602c;box-shadow:0 5px 0 #8a5926,0 8px 12px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.28);}
+        .pq2904 .pq-sign{position:absolute;top:164px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:8px;padding:9px 13px 11px;border-radius:14px;background:linear-gradient(#d19b5c,#b67c3f);border:2px solid #93602c;box-shadow:0 5px 0 #8a5926,0 8px 12px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.28);}
         .pq2904 .pq-sign::before,.pq2904 .pq-sign::after{content:'';position:absolute;top:100%;width:7px;height:22px;background:linear-gradient(90deg,#7d5122,#9c6a30);border-radius:0 0 3px 3px;box-shadow:0 2px 3px rgba(0,0,0,.15);}
         .pq2904 .pq-sign::before{left:24px;} .pq2904 .pq-sign::after{right:24px;}
         .pq2904 .pq-cell{display:flex;flex-direction:column;align-items:center;gap:3px;}
@@ -261,7 +261,7 @@ export default function D29_04(props) {
         .pq2904 .pq-tile.ans{background:#e8f7ee;border:2.5px solid #1a7f43;color:#1a7f43;animation:pq2904Pop .45s cubic-bezier(.3,1.5,.5,1) both;}
         .pq2904 .pq-opk{font-size:22px;font-weight:900;color:#fbe9d2;text-shadow:0 1px 1px rgba(0,0,0,.25);}
         /* olmalar guruhi (markaz) */
-        .pq2904 .pq-arena{position:absolute;left:0;right:0;top:118px;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:4;}
+        .pq2904 .pq-arena{position:absolute;display:none;left:0;right:0;top:118px;gap:4px;z-index:4;}
         .pq2904 .pq-units{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:5px 7px;max-width:280px;}
         .pq2904 .pq-obj{line-height:0;}
         .pq2904 .pq-obj.idle{animation:pq2904Bob 2.9s ease-in-out infinite;animation-delay:var(--bd,0s);transform-origin:50% 100%;}

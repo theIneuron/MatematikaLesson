@@ -112,6 +112,58 @@ const NumGroup = ({ tens, units, idle }) => (
   </span>
 );
 
+// Uzoqdagi qush (osmonda) — oddiy "m" shakli. (D15 etalon kanoni)
+const Bird = ({ cls }) => (
+  <svg className={"pq-bird " + cls} viewBox="0 0 22 9" width="20" height="8" aria-hidden="true">
+    <path d="M1 7 Q5.5 1 10 6 Q14.5 1 21 7" fill="none" stroke="#6a7b84" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+// OLMA DARAXTI (haqiqiy): po'stloq gradientli tana, uch pog'onali barg toji (radial soya, yorug' blik),
+// shoxlarda bandi bilan osilgan olmalar sekin tebranadi; ostida yumshoq soya. (D15 etalon darajasi)
+const AppleTree = ({ w = 58 }) => {
+  const id = "pq3009t" + (__gid++);
+  return (
+    <svg viewBox="0 0 92 102" width={w} height={w * 102 / 92} aria-hidden="true" style={{ display: "block", overflow: "visible" }}>
+      <defs>
+        <linearGradient id={id + "k"} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#7d4f24" /><stop offset="45%" stopColor="#a9743e" /><stop offset="100%" stopColor="#6d4526" />
+        </linearGradient>
+        <radialGradient id={id + "f"} cx="38%" cy="30%" r="78%">
+          <stop offset="0%" stopColor="#a3dc7e" /><stop offset="55%" stopColor="#6cb84f" /><stop offset="100%" stopColor="#4a8f3d" />
+        </radialGradient>
+        <radialGradient id={id + "a"} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#f2a49c" /><stop offset="55%" stopColor="#df5b52" /><stop offset="100%" stopColor="#b83b33" />
+        </radialGradient>
+      </defs>
+      <ellipse cx="46" cy="98" rx="27" ry="4" fill="rgba(50,80,35,.18)" />
+      <path d="M42 98 C44 80 43 68 40 54 L52 54 C49 70 49 82 50 98 Z" fill={`url(#${id}k)`} stroke="#5f3c1e" strokeWidth="1.1" />
+      <path d="M43 68 Q33 60 29 52 M49 66 Q58 58 62 51" fill="none" stroke="#7d4f24" strokeWidth="3.2" strokeLinecap="round" />
+      <g className="pq-crown">
+        <circle cx="24" cy="44" r="18" fill={`url(#${id}f)`} stroke="#3f7c33" strokeWidth="1.1" />
+        <circle cx="68" cy="43" r="17" fill={`url(#${id}f)`} stroke="#3f7c33" strokeWidth="1.1" />
+        <circle cx="46" cy="27" r="21" fill={`url(#${id}f)`} stroke="#3f7c33" strokeWidth="1.1" />
+        <ellipse cx="38" cy="19" rx="9" ry="5.5" fill="#cdeeaa" opacity=".5" />
+        <g className="pq-tapple" style={{ "--sd": "0s" }}>
+          <path d="M30 33 l0 4" stroke="#6d4526" strokeWidth="1.1" />
+          <circle cx="30" cy="41" r="4.6" fill={`url(#${id}a)`} stroke="#a5342c" strokeWidth=".7" />
+          <circle cx="28.6" cy="39.4" r="1.3" fill="#fff" opacity=".6" />
+        </g>
+        <g className="pq-tapple" style={{ "--sd": "-1.2s" }}>
+          <path d="M54 24 l0 4" stroke="#6d4526" strokeWidth="1.1" />
+          <circle cx="54" cy="32" r="4.2" fill={`url(#${id}a)`} stroke="#a5342c" strokeWidth=".7" />
+          <circle cx="52.8" cy="30.6" r="1.2" fill="#fff" opacity=".6" />
+        </g>
+        <g className="pq-tapple" style={{ "--sd": "-2.1s" }}>
+          <path d="M67 37 l0 4" stroke="#6d4526" strokeWidth="1.1" />
+          <circle cx="67" cy="45" r="4.4" fill={`url(#${id}a)`} stroke="#a5342c" strokeWidth=".7" />
+          <circle cx="65.7" cy="43.5" r="1.2" fill="#fff" opacity=".6" />
+        </g>
+      </g>
+    </svg>
+  );
+};
+
 export default function D30_09(props) {
   const { lang = "uz", mode = "answer", initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = T[lang] || T.uz;
@@ -156,9 +208,37 @@ export default function D30_09(props) {
         .pq3009 .pq-setup{color:#5c6672;font-weight:500;font-variant-numeric:tabular-nums;}
         .pq3009 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
 
-        .pq3009 .pq-scene{position:relative;width:372px;max-width:100%;margin:0 auto;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 60%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;box-sizing:border-box;padding:40px 12px 16px;}
-        .pq3009 .pq-sun{position:absolute;right:18px;top:12px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq3009sun 3.6s ease-in-out infinite;}
-        .pq3009 .pq-title{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 15px 5px;border-radius:9px;background:linear-gradient(#4c9d55,#3a7f42);border:2.5px solid #2c6633;color:#f0fbef;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.28);pointer-events:none;}
+        .pq3009 .pq-scene{position:relative;width:372px;max-width:100%;margin:0 auto;border-radius:20px;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#e4f4d9 70%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;box-sizing:border-box;padding:40px 12px 66px;}
+        .pq3009 .pq-sun{position:absolute;right:16px;top:11px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 20px 6px rgba(255,214,74,.55);z-index:1;pointer-events:none;animation:pq3009sun 3.6s ease-in-out infinite;}
+        .pq3009 .pq-title{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 15px 5px;border-radius:9px;background:linear-gradient(#d19b5c,#b67c3f);border:2.5px solid #93602c;color:#fdf3e3;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;box-shadow:0 3px 0 #8a5926,0 5px 8px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.3);text-shadow:0 1px 1px rgba(0,0,0,.22);pointer-events:none;}
+        /* ===== BOG' SAHNASI (D15 etalon darajasi): bulut, qush, maysa, daraxt, gul, kapalak ===== */
+        .pq3009 .pq-cloud{position:absolute;height:14px;background:#fff;border-radius:20px;box-shadow:0 5px 0 -2px #fff;opacity:.95;z-index:1;pointer-events:none;}
+        .pq3009 .pq-cloud::before,.pq3009 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+        .pq3009 .pq-cloud::before{width:20px;height:20px;top:-8px;left:7px;}.pq3009 .pq-cloud::after{width:14px;height:14px;top:-5px;left:22px;}
+        .pq3009 .pq-cloud.c1{top:10px;left:12%;width:42px;animation:pq3009drift 15s ease-in-out infinite;}
+        .pq3009 .pq-cloud.c2{top:24px;left:52%;width:32px;transform:scale(.78);animation:pq3009drift 19s ease-in-out infinite reverse;}
+        .pq3009 .pq-bird{position:absolute;z-index:1;opacity:.7;pointer-events:none;}
+        .pq3009 .pq-bird.b1{top:15px;left:36%;animation:pq3009bird 8s ease-in-out infinite;}
+        .pq3009 .pq-bird.b2{top:27px;left:8%;transform:scale(.75);animation:pq3009bird 10s ease-in-out infinite;}
+        .pq3009 .pq-grass{position:absolute;left:0;right:0;bottom:0;height:58px;background:linear-gradient(#84c95f 0%,#69b34c 60%,#5aa53f 100%);z-index:1;pointer-events:none;}
+        .pq3009 .pq-grass::before{content:'';position:absolute;left:0;right:0;top:-5px;height:9px;background:radial-gradient(circle at 5px 9px,#84c95f 5px,transparent 6px) repeat-x;background-size:14px 9px;}
+        .pq3009 .pq-tree{position:absolute;left:6px;bottom:2px;z-index:2;line-height:0;pointer-events:none;}
+        .pq3009 .pq-crown{transform-box:fill-box;transform-origin:50% 85%;animation:pq3009sway 5.6s ease-in-out infinite;}
+        .pq3009 .pq-tapple{transform-box:fill-box;transform-origin:50% 0;animation:pq3009swing 3.6s ease-in-out infinite;animation-delay:var(--sd,0s);}
+        .pq3009 .pq-flower{position:absolute;width:6px;height:6px;border-radius:50%;z-index:2;pointer-events:none;}
+        .pq3009 .pq-flower::after{content:'';position:absolute;inset:0;border-radius:50%;background:#ffd94a;}
+        .pq3009 .pq-flower.f1{left:26%;bottom:16px;background:#fff;box-shadow:5px 0 0 #fff,-5px 0 0 #fff,0 5px 0 #fff,0 -5px 0 #fff;}
+        .pq3009 .pq-flower.f2{left:50%;bottom:8px;background:#ff9ec4;box-shadow:5px 0 0 #ff9ec4,-5px 0 0 #ff9ec4,0 5px 0 #ff9ec4,0 -5px 0 #ff9ec4;}
+        .pq3009 .pq-flower.f3{right:9%;bottom:18px;transform:scale(.85);background:#c79bf0;box-shadow:5px 0 0 #c79bf0,-5px 0 0 #c79bf0,0 5px 0 #c79bf0,0 -5px 0 #c79bf0;}
+        .pq3009 .pq-bfly{position:absolute;width:8px;height:8px;z-index:5;pointer-events:none;}
+        .pq3009 .pq-bfly::before,.pq3009 .pq-bfly::after{content:'';position:absolute;top:0;width:6px;height:9px;border-radius:60%;background:#ff9ec4;}
+        .pq3009 .pq-bfly::before{left:-3px;transform-origin:right center;animation:pq3009wing .26s ease-in-out infinite alternate;}
+        .pq3009 .pq-bfly::after{right:-3px;transform-origin:left center;animation:pq3009wing .26s ease-in-out infinite alternate;}
+        .pq3009 .pq-bfly.bf2::before,.pq3009 .pq-bfly.bf2::after{background:#ffcf5a;}
+        .pq3009 .pq-bfly.bf1{bottom:44px;left:14%;animation:pq3009flit 9s ease-in-out infinite;}
+        .pq3009 .pq-bfly.bf2{bottom:60px;right:10%;animation:pq3009flit 11s ease-in-out infinite reverse;}
+        /* g'alaba: daraxtdan olma yog'adi */
+        .pq3009 .pq-drop{position:absolute;top:28px;z-index:6;line-height:0;pointer-events:none;animation:pq3009fall 1.6s ease-in both;animation-delay:var(--dd,0s);}
 
         /* Jadval — sahna markazi (3 qator, hairline separatorlar). Razryad to'plami qiymat katagida. */
         .pq3009 .pq-table{position:relative;z-index:3;width:100%;max-width:344px;margin:0 auto;background:#fff;border:2px solid #cbb58e;border-radius:14px;box-shadow:0 3px 8px rgba(0,0,0,.10);overflow:hidden;box-sizing:border-box;}
@@ -205,6 +285,13 @@ export default function D30_09(props) {
         @keyframes pq3009tw{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
         @keyframes pq3009cele{0%{transform:scale(1);}30%{transform:scale(1.05);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pq3009in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes pq3009drift{0%,100%{transform:translateX(0);}50%{transform:translateX(-14px);}}
+        @keyframes pq3009bird{0%,100%{transform:translate(0,0);}50%{transform:translate(26px,-5px);}}
+        @keyframes pq3009sway{0%,100%{transform:rotate(-1.2deg);}50%{transform:rotate(1.2deg);}}
+        @keyframes pq3009swing{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+        @keyframes pq3009wing{0%{transform:scaleX(1);}100%{transform:scaleX(.35);}}
+        @keyframes pq3009flit{0%,100%{transform:translate(0,0);}25%{transform:translate(22px,-10px);}50%{transform:translate(40px,5px);}75%{transform:translate(16px,-5px);}}
+        @keyframes pq3009fall{0%{opacity:0;transform:translateY(-14px) rotate(0);}12%{opacity:1;}100%{opacity:0;transform:translateY(150px) rotate(120deg);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>

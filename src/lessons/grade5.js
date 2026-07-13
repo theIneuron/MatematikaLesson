@@ -234,7 +234,7 @@ export const grade5Amaliy = [
     slug: 'dars01-amaliyot',
     title: 'Dars 1 amaliyoti — atrofimizdagi katta sonlar (10 topshiriq)',
     desc: "O'qish, razryad, sinf, xona birliklari — osondan qiyinga",
-    Component: lazy(() => import('../components/grade5/practice/dars01/Dars01Practice.jsx')),
+    Component: lazy(() => import('../components/grade5/practice/Dars01Practice.jsx')),
   },
   {
     slug: 'dars02-amaliyot',

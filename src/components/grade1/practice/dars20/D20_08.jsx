@@ -79,6 +79,25 @@ const TargetKey = () => (
 
 const Star = ({ fill }) => (<svg width="13" height="13" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L12.4 7.6 L18.5 10 L12.4 12.4 L10 18.5 L7.6 12.4 L1.5 10 L7.6 7.6 Z" fill={fill} /></svg>);
 
+// KO'CHA ORQA FONI (ambient): uzoqdagi uylar + daraxtlar — osmon-tasmasi gorizontida.
+// Matematik zonaga tegmaydi (z-index past, garaj/kalit ustidan ochiladi).
+const Town = () => (
+  <svg className="pq-town" viewBox="0 0 400 42" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <g opacity=".85">
+      <rect x="30" y="18" width="30" height="24" rx="2" fill="#e6dccb" stroke="#cbb999" strokeWidth="1" />
+      <path d="M27 19 L45 7 L63 19 Z" fill="#cf7458" stroke="#ad573f" strokeWidth="1" strokeLinejoin="round" />
+      <rect x="36" y="25" width="6" height="6" rx="1" fill="#a9c6e2" /><rect x="47" y="25" width="6" height="6" rx="1" fill="#a9c6e2" />
+      <rect x="72" y="11" width="22" height="31" rx="2" fill="#d3dfec" stroke="#aabfd6" strokeWidth="1" />
+      <rect x="77" y="16" width="5" height="5" fill="#f6ecc9" /><rect x="85" y="16" width="5" height="5" fill="#f6ecc9" />
+      <rect x="77" y="25" width="5" height="5" fill="#f6ecc9" /><rect x="85" y="25" width="5" height="5" fill="#f6ecc9" />
+      <rect x="104" y="30" width="4" height="12" rx="2" fill="#8a6242" />
+      <circle cx="106" cy="24" r="9" fill="#85bd7b" /><circle cx="99" cy="28" r="5" fill="#74ad6b" />
+      <rect x="150" y="32" width="4" height="10" rx="2" fill="#8a6242" />
+      <circle cx="152" cy="26" r="8" fill="#85bd7b" />
+    </g>
+  </svg>
+);
+
 export default function D20_08(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = T[lang] || T.uz;
@@ -126,6 +145,9 @@ export default function D20_08(props) {
         .pq2008 .pq-stage{position:relative;border-radius:22px;background:linear-gradient(#dff1fb 0%,#eaf2fb 55%,#f3ecf7 100%);border:2px solid #d3ddec;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);}
         .pq2008 .pq-sky{position:relative;height:74px;}
         .pq2008 .pq-sun{position:absolute;left:20px;top:14px;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 15px 3px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
+        .pq2008 .pq-cloud{position:absolute;top:6px;right:118px;width:44px;height:14px;border-radius:11px;background:rgba(255,255,255,.85);box-shadow:12px 4px 0 -3px rgba(255,255,255,.8),-12px 3px 0 -4px rgba(255,255,255,.75);z-index:1;animation:pqCloud 6s ease-in-out infinite;}
+        /* uzoqdagi ko'cha: uylar + daraxtlar (ambient orqa fon, chapda) */
+        .pq2008 .pq-town{position:absolute;left:0;bottom:0;width:58%;max-width:240px;height:40px;z-index:0;pointer-events:none;}
         .pq2008 .pq-garage{position:absolute;right:18px;bottom:0;width:64px;height:52px;z-index:1;}
         .pq2008 .pq-keyw{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);line-height:0;z-index:3;}
         .pq2008 .pq-keybr{display:inline-block;line-height:0;animation:pqBreath 2.3s ease-in-out infinite;filter:drop-shadow(0 3px 4px rgba(120,80,20,.32));}
@@ -158,6 +180,7 @@ export default function D20_08(props) {
         @keyframes pqBreath{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
         @keyframes pqGlint{0%,76%,100%{opacity:0;transform:scale(.3) rotate(0);}84%{opacity:1;transform:scale(1.25) rotate(80deg);}92%{opacity:0;transform:scale(.4) rotate(150deg);}}
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+        @keyframes pqCloud{0%,100%{transform:translateX(0);}50%{transform:translateX(-8px);}}
         @keyframes pqDrive{0%{transform:translateX(-46px);}100%{transform:translateX(660px);}}
         @keyframes pqSpin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
         @keyframes pqPop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}

@@ -25,7 +25,7 @@ const ITEMS = [
   { id: '07', label: '7 · Orqaga', C: D23_07 },     // skip10_back · 60,50,40,?,20→30 🔴
   { id: '08', label: '8 · 10 lab', C: D23_08 },     // skip_multi · 10 lab barcha son 🔴
   { id: '09', label: '9 · Masala', C: D23_09 },     // skip_word · quyon 10 lab 3 marta→30 🔴
-  { id: '10', label: '10 · Sakra', C: D23_10 },     // YANGI perform_skip · «Quyonni sakrating» 25 🔴
+  { id: '10', label: '10 · Sakra', C: D23_10 },     // YANGI perform_skip · «Quyonni sakrating» → bilim tekshiruvi (yashirin sanoq + variant) 25 🔴
 ];
 
 export default function Dars23Practice() {

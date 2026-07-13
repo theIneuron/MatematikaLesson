@@ -1,5 +1,5 @@
 // Dars16 · Amaliyot 03 — Make-ten (tenglama urg'usi) «Shirinlik do'koni» · 🟡 · tag: make_ten
-// 10 uyali laganda: 7 uyada shirinlik, 3 uya bo'sh (shtrix «?»). Tenglama doim ko'rinadi: «7 + [?] = 10».
+// 10 uyali qutida: 7 uyada shirinlik, 3 uya bo'sh (shtrix «?»). Tenglama doim ko'rinadi: «7 + [?] = 10».
 // Tanlangan variant tenglama slotiga jonli tushadi. To'g'ri javob → 3, chip «7 + 3 = 10», bo'sh uyalar to'ladi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
@@ -20,16 +20,16 @@ const SLOTS = Array.from({ length: TEN }).map((_, i) => ({ i, filled: i < HAVE, 
 const T = {
   uz: {
     eyebrow: "Shirinlik do'koni · O'nlikka to'ldirish", title: "O'nlikka nechta yetmaydi?",
-    setup: "Laganda o'nta joy bor, yettitasida shirinlik turibdi. Lagan to'lishi kerak.",
+    setup: "Qutida o'nta joy bor, yettitasida shirinlik turibdi. Quti to'lishi kerak.",
     ask: "O'nlikni to'ldirish uchun yana nechta shirinlik kerak?",
-    correct: "Barakalla! Yetti va yana uch — o'nta. Lagan to'ldi!",
+    correct: "Barakalla! Yetti va yana uch — o'nta. Quti to'ldi!",
     hint: "Tenglamaga qarang: yetti bor, o'ngacha nechta bo'sh uya qoldi — o'shancha kerak.",
   },
   ru: {
     eyebrow: "Магазин сладостей · Дополни до десятка", title: "Сколько не хватает до десятка?",
-    setup: "На подносе десять мест, в семи лежат сладости. Поднос должен заполниться.",
+    setup: "В коробке десять мест, в семи лежат сладости. Коробка должна заполниться.",
     ask: "Сколько сладостей нужно добавить, чтобы получился десяток?",
-    correct: "Молодец! Семь и ещё три — десять. Поднос полный!",
+    correct: "Молодец! Семь и ещё три — десять. Коробка полная!",
     hint: "Посмотри на равенство: семь есть, сколько пустых мест до десяти — столько и нужно.",
   },
 };

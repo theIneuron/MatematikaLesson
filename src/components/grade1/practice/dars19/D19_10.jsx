@@ -1,15 +1,18 @@
-// Dars19 · Amaliyot 10 — YANGI «Sharlarni uchir!» (tap-to-remove, o'nlikdan o'tib ayirish) · 🔴 · tag: cross_sub_remove
-// Shar do'koni: rakda 13 shar (bitta to'la o'nlik-rak = 10 + birliklar rakida 3). Bola sharni bosadi — shar
-// uyadan chiqib uchib ketadi (yuqoriga suzib so'nadi, bir-martalik). AYNAN 5 shar uchsa — 8 qoladi.
-// CAP=5: beshta uchgach qolganlari bosilmaydi (uchgan shar qaytmaydi). Make-ten-sub: avval 3 birlik — o'nta
-// qoladi, keyin o'nlikdan yana 2. VEDI-DO-VERNOGO: kam uchirsa qulf yo'q, davom etadi; setChecked FAQAT to'g'rida.
+// Dars19 · Amaliyot 10 — BILIM TEKSHIRUVI «Sharlarni uchir va hisobla» · 🔴 · tag: cross_sub_remove
+// Yangi naqsh (trenajyor EMAS): (1) bola 5 ta sharni bosib uchiradi (qiziqarli harakat);
+// (2) harakat tugagach PARDA tushadi — qolgan sharlar BERKITILADI, sanab bo'lmaydi;
+// (3) pastda 4 sonli variant — bola qolganini XAYOLAN hisoblab tanlaydi (13 − 5 = 8);
+// (4) to'g'ri → parda ochiladi, sharlar 1..8 badge bilan sanaladi, bayram; noto'g'ri → hint, qulf yo'q.
+// Jonli «qoldi»-hisoblagich YO'Q (javob sizmasin); onReady faqat variant tanlanganda true.
+// VEDI-DO-VERNOGO: setChecked FAQAT to'g'rida. MINUS = U+2212 «−».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const MINUS = '−'; // minus sign U+2212
 const A = 13, B = 5, TARGET = 8, TEN = 10, UNITS = A - TEN; // 3 birlik
-const DATA = { a: A, b: B, target: TARGET, ptype: 'NEW', level: '🔴', tag: 'cross_sub_remove' };
+const OPTS = [6, 7, 8, 9];
+const DATA = { a: A, b: B, target: TARGET, options: OPTS, ptype: 'NEW', level: '🔴', tag: 'cross_sub_remove' };
 
-// Rak A — to'la o'nlik (2×5 = 10 uya): indekslar 0..9. Rak B — birliklar (3 uya): 10,11,12.
+// Quti A — to'la o'nlik (2×5 = 10 uya): indekslar 0..9. Quti B — birliklar (3 uya): 10,11,12.
 const RACKA = Array.from({ length: TEN }, (_, i) => i);
 const RACKB = Array.from({ length: UNITS }, (_, i) => TEN + i);
 const ALL = [...RACKA, ...RACKB];
@@ -28,21 +31,23 @@ const PAL = [
 const T = {
   uz: {
     eyebrow: "Shar do'koni · Ayirish", title: "Sharlarni uchir!",
-    setup: "Do'konda o'n uchta shar bor. Beshta sharni bosib uchiring.",
-    ask: "Nechta shar qoladi?",
-    tapHint: "Sharlarni bosib uchiring",
-    left: "Qoldi", flew: "uchdi",
-    correct: "Barakalla! O'n uchtadan beshta shar uchdi — sakkizta qoldi. 13 − 5 = 8.",
-    hintFew: "Beshta shar uchishi kerak. Avval uchta birlikni uchiring — o'nta qoladi, keyin o'nlikdan yana ikkitasini uchiring.",
+    setup: "Qutida 13 ta shar bor. 5 ta sharni bosib uchiring.",
+    ask: "Nechta shar qoldi?",
+    tapHint: "Sharlarni bosing",
+    covered: "Sharlar berkitildi. Xayolan hisoblang!",
+    pick: "Javobni tanlang:",
+    correct: "Barakalla! 5 ta shar uchdi — 8 ta qoldi. 13 − 5 = 8.",
+    hint: "Xayolan hisoblang: 13 dan avval 3 tasini ayiring — 10 qoladi. Keyin yana 2 tasini ayiring.",
   },
   ru: {
     eyebrow: 'Магазин шаров · Вычитание', title: 'Отпусти шары!',
-    setup: 'В магазине тринадцать шаров. Нажми и отпусти пять шаров.',
-    ask: 'Сколько шаров останется?',
+    setup: 'В коробке 13 шаров. Нажми и отпусти 5 шаров.',
+    ask: 'Сколько шаров осталось?',
     tapHint: 'Нажимай на шары',
-    left: 'Осталось', flew: 'улетело',
-    correct: 'Молодец! Из тринадцати улетело пять шаров — осталось восемь. 13 − 5 = 8.',
-    hintFew: 'Должно улететь пять шаров. Сначала отпусти три из отдельных — останется десять, потом из десятка ещё два.',
+    covered: 'Шары спрятаны. Посчитай в уме!',
+    pick: 'Выбери ответ:',
+    correct: 'Молодец! Улетели 5 шаров — осталось 8. 13 − 5 = 8.',
+    hint: 'Посчитай в уме: сначала из 13 вычти 3 — останется 10. Потом вычти ещё 2.',
   },
 };
 
@@ -80,9 +85,10 @@ export default function D19_10(props) {
   const t = T[lang] || T.uz;
   const isReview = mode === 'review';
   const [gone, setGone] = useState(() => Array(A).fill(false));
+  const [picked, setPicked] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
-  // Review yoki qayta ochilishda uchish-animatsiyasi qayta ijro etilmaydi — statik yakuniy holat.
+  // Review yoki qayta ochilishda animatsiyalar qayta ijro etilmaydi — statik yakuniy holat.
   const stillRef = useRef(isReview || !!(initialAnswer && initialAnswer.studentAnswer));
   const still = stillRef.current;
   const removed = gone.filter(Boolean).length;
@@ -94,13 +100,15 @@ export default function D19_10(props) {
       const g = Array(A).fill(false);
       REMOVE_ORDER.slice(0, n).forEach((idx) => { g[idx] = true; });
       setGone(g);
+      if (sa.value != null) setPicked(sa.value);
       if (typeof initialAnswer.correct === 'boolean') {
-        setFeedback({ correct: initialAnswer.correct, msg: initialAnswer.correct ? t.correct : t.hintFew });
+        setFeedback({ correct: initialAnswer.correct, msg: initialAnswer.correct ? t.correct : t.hint });
         if (initialAnswer.correct) setChecked(true);
       }
     }
   }, [initialAnswer]);
-  useEffect(() => { onReady?.(removed === B && !checked); }, [removed, checked, onReady]);
+  // Tayyor — faqat harakat TUGAB, variant TANLANGANDA (variantsiz Tekshirish yo'q).
+  useEffect(() => { onReady?.(removed === B && picked !== null && !checked); }, [removed, picked, checked, onReady]);
 
   const lock = isReview || checked;
   const tap = (i) => {
@@ -110,21 +118,23 @@ export default function D19_10(props) {
   };
 
   const check = useCallback(() => {
-    const correct = removed === B;
-    setFeedback({ correct, msg: correct ? t.correct : t.hintFew }); if (correct) setChecked(true);
+    if (removed !== B || picked === null) return;
+    const correct = picked === TARGET;
+    setFeedback({ correct, msg: correct ? t.correct : t.hint }); if (correct) setChecked(true);
     if (correct) playCorrect?.(); else playWrong?.();
     onSubmit?.({
-      questionText: `${t.setup} ${t.ask}`, options: ['8'],
-      studentAnswer: { removed }, correctAnswer: { removed: B },
+      questionText: `${t.setup} ${t.ask}`, options: OPTS.map(String),
+      studentAnswer: { value: picked, removed }, correctAnswer: { value: TARGET },
       correct, meta: { ...DATA },
     });
-  }, [removed, playCorrect, playWrong, onSubmit, t]);
+  }, [removed, picked, playCorrect, playWrong, onSubmit, t]);
   const checkRef = useRef(check); checkRef.current = check;
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const hidden = removed === B && !ok; // parda yopiq: harakat tugadi, javob hali tasdiqlanmagan
 
-  // G'alabada qolgan sharlarga 1..8 badge (ko'rinish tartibida).
+  // G'alabada qolgan sharlarga 1..8 badge (ko'rinish tartibida), parda ochilgach bittalab.
   let remN = 0;
   const badgeFor = {};
   ALL.forEach((i) => { if (!gone[i]) badgeFor[i] = ok ? ++remN : null; });
@@ -144,7 +154,7 @@ export default function D19_10(props) {
             aria-label="shar"
           >
             <Balloon c={PAL[i % PAL.length]} size={22} />
-            {badge != null && <b className="pq-cnt" style={{ animationDelay: `${(badge - 1) * 0.1}s` }}>{badge}</b>}
+            {badge != null && <b className="pq-cnt" style={{ animationDelay: still ? '0s' : `${1 + (badge - 1) * 0.3}s` }}>{badge}</b>}
           </button>
         )}
       </div>
@@ -185,19 +195,26 @@ export default function D19_10(props) {
         .pq1910 .pq-lbl{position:absolute;left:50%;bottom:-11px;transform:translateX(-50%);z-index:6;background:#fff;border:2px solid #a86ba9;color:#8a4e8b;font-weight:900;font-size:12px;padding:1px 9px;border-radius:999px;box-shadow:0 2px 4px rgba(0,0,0,.16);font-variant-numeric:tabular-nums;}
         .pq1910 .pq-plus{font-size:22px;font-weight:900;color:#8a4e8b;flex:0 0 auto;}
 
+        /* PARDA — qolgan sharlarni berkitadi (sanab bo'lmaydi) */
+        .pq1910 .pq-cover{position:absolute;left:6px;right:6px;top:40px;bottom:32px;z-index:8;border-radius:16px;background:repeating-linear-gradient(90deg,#8a63b8 0 26px,#9a74c6 26px 52px);border:3px solid #5f4488;box-shadow:0 8px 18px rgba(70,40,110,.35),inset 0 3px 0 rgba(255,255,255,.25);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;animation:pqCoverDown .55s cubic-bezier(.3,1.3,.5,1) both;}
+        .pq1910 .pq-cover.lift{animation:pqCoverUp .8s ease-in .15s both;pointer-events:none;}
+        .pq1910 .pq-cover .q{font-size:52px;font-weight:900;color:#fff;text-shadow:0 3px 6px rgba(60,30,100,.4);animation:pqBreath 1.8s ease-in-out infinite;line-height:1;}
+        .pq1910 .pq-cover .cap{font-size:13px;font-weight:800;color:#f3eafb;background:rgba(70,40,110,.55);padding:3px 12px;border-radius:999px;white-space:nowrap;}
+
         .pq1910 .pq-taphint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:12.5px;font-weight:700;color:#7a3466;background:rgba(255,255,255,.85);padding:3px 10px;border-radius:999px;animation:pqBob 1.8s ease-in-out infinite;z-index:5;white-space:nowrap;}
+        .pq1910 .pq-prog{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);font-size:13px;font-weight:800;color:#7a3466;background:rgba(255,255,255,.9);padding:3px 12px;border-radius:999px;z-index:9;white-space:nowrap;font-variant-numeric:tabular-nums;}
         .pq1910 .pq-chip{position:absolute;top:9px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:900;color:#1a7f43;background:#fff;padding:3px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:7;white-space:nowrap;font-variant-numeric:tabular-nums;}
         .pq1910 .pq-spark{position:absolute;z-index:6;color:#ffd13f;opacity:0;line-height:0;animation:pqTwinkle 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
         .pq1910 .pq-spark.s2{animation-delay:-.6s;} .pq1910 .pq-spark.s3{animation-delay:-1.15s;}
 
-        .pq1910 .pq-count{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:14px;padding:9px 14px;border-radius:14px;background:#f6f0fb;border:2px solid #e2d3ee;animation:pqIn .3s ease both;}
-        .pq1910 .pq-count.ready{background:#e8f7ee;border-color:#1a7f43;animation:pqReady 1.1s ease-in-out infinite;}
-        .pq1910 .pq-count .lead{font-size:14px;font-weight:800;color:#7a3466;}
-        .pq1910 .pq-count.ready .lead{color:#1a7f43;}
-        .pq1910 .pq-count .big{font-size:30px;font-weight:900;color:#8a4e8b;font-variant-numeric:tabular-nums;min-width:30px;text-align:center;}
-        .pq1910 .pq-count.ready .big{color:#1a7f43;}
-        .pq1910 .pq-count .prog{font-size:13px;font-weight:700;color:#9a7aa8;font-variant-numeric:tabular-nums;}
-        .pq1910 .pq-count.ready .prog{color:#2f8f54;}
+        .pq1910 .pq-pick{text-align:center;margin-top:12px;font-size:15px;font-weight:800;color:#7a3466;animation:pqIn .3s ease both;}
+        .pq1910 .pq-opts{display:flex;gap:10px;justify-content:center;margin-top:8px;}
+        .pq1910 .pq-opt{width:68px;height:68px;font-size:28px;font-weight:800;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
+        .pq1910 .pq-opt:hover:not(:disabled){border-color:#c79bd6;transform:translateY(-2px);}
+        .pq1910 .pq-opt:active:not(:disabled){transform:scale(.94);}
+        .pq1910 .pq-opt.sel{border-color:#2563eb;background:#e8eefc;}
+        .pq1910 .pq-opt.right{border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pqCele .5s ease;}
+        .pq1910 .pq-opt:disabled{cursor:default;}
         .pq1910 .pq-sub{text-align:center;margin-top:8px;font-size:14px;font-weight:800;color:#8a6a56;font-variant-numeric:tabular-nums;animation:pqIn .3s .1s both;}
 
         .pq1910 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
@@ -209,7 +226,10 @@ export default function D19_10(props) {
         @keyframes pqBoxCele{0%{transform:scale(1);}30%{transform:scale(1.04);}60%{transform:scale(.98);}100%{transform:scale(1);}}
         @keyframes pqAns{0%{opacity:0;transform:translateX(-50%) scale(.3);}100%{opacity:1;transform:translateX(-50%) scale(1);}}
         @keyframes pqBob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-3px);}}
-        @keyframes pqReady{0%,100%{transform:scale(1);}50%{transform:scale(1.02);}}
+        @keyframes pqBreath{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+        @keyframes pqCoverDown{from{opacity:0;transform:translateY(-14px);}to{opacity:1;transform:translateY(0);}}
+        @keyframes pqCoverUp{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-108%);}}
+        @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
@@ -222,7 +242,7 @@ export default function D19_10(props) {
         <div className="pq-board">{t.title}</div>
 
         <div className="pq-arena">
-          {/* Rak A — to'la o'nlik (10) */}
+          {/* Quti A — to'la o'nlik (10) */}
           <div className={'pq-box' + (ok ? ' win' : '')}>
             <div className="pq-grid">
               {RACKA.map((i, k) => renderCell(i, 'a' + k))}
@@ -232,7 +252,7 @@ export default function D19_10(props) {
 
           <span className="pq-plus">+</span>
 
-          {/* Rak B — birliklar (3) */}
+          {/* Quti B — birliklar (3) */}
           <div className="pq-box">
             <div className="pq-gridb">
               {RACKB.map((i, k) => renderCell(i, 'b' + k))}
@@ -243,8 +263,23 @@ export default function D19_10(props) {
 
         <span className="pq-shelf" />
 
+        {/* PARDA: 5 ta shar uchgach qolganini berkitadi; to'g'ri javobda ko'tarilib ochiladi */}
+        {hidden && (
+          <div className="pq-cover">
+            <span className="q">?</span>
+            <span className="cap">{t.covered}</span>
+          </div>
+        )}
+        {ok && !still && (
+          <div className="pq-cover lift">
+            <span className="q">?</span>
+            <span className="cap">{t.covered}</span>
+          </div>
+        )}
+
         {!ok && removed === 0 && !lock && <span className="pq-taphint">{t.tapHint}</span>}
-        {ok && <span className="pq-chip">{`${A} ${MINUS} ${B} = ${TARGET}`}</span>}
+        {!ok && removed > 0 && removed < B && <span className="pq-prog">{removed} / {B}</span>}
+        {ok && <span className="pq-chip" style={{ animationDelay: still ? '0s' : '3.6s' }}>{`${A} ${MINUS} ${B} = ${TARGET}`}</span>}
         {ok && (<>
           <span className="pq-spark" style={{ left: '16%', top: '54px' }}>✦</span>
           <span className="pq-spark s2" style={{ left: '86%', top: '70px' }}>✦</span>
@@ -252,15 +287,18 @@ export default function D19_10(props) {
         </>)}
       </div>
 
-      {ok ? (
-        <div className="pq-sub">{`${A} ${MINUS} ${UNITS} ${MINUS} ${B - UNITS} = ${TEN} ${MINUS} ${B - UNITS} = ${TARGET}`}</div>
-      ) : (
-        <div className={'pq-count' + (removed === B ? ' ready' : '')}>
-          <span className="lead">{t.left}</span>
-          <b className="big">{A - removed}</b>
-          <span className="prog">{t.flew} {removed}/{B}</span>
+      {/* Variantlar — faqat harakat tugagach (parda yopilgach) */}
+      {removed === B && !ok && <div className="pq-pick">{t.pick}</div>}
+      {removed === B && (
+        <div className="pq-opts">
+          {OPTS.map((n) => {
+            const sel = picked === n; const right = ok && n === TARGET;
+            return <button key={n} type="button" className={'pq-opt' + (right ? ' right' : sel ? ' sel' : '')} disabled={lock} onClick={() => { setPicked(n); setFeedback(null); }}>{n}</button>;
+          })}
         </div>
       )}
+
+      {ok && <div className="pq-sub">{`${A} ${MINUS} ${UNITS} ${MINUS} ${B - UNITS} = ${TEN} ${MINUS} ${B - UNITS} = ${TARGET}`}</div>}
 
       {feedback && (<div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>{feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.msg}</span></div>)}
     </div>

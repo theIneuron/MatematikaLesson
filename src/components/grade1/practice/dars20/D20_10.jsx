@@ -1,9 +1,10 @@
-// Dars20 · Amaliyot 10 — DRAG ayirish «Mashinalarni chiqar!» · 🔴 YANGI · tag: drag_sub
-// Sahna: Garaj. Ten-frame garajda o'nta mashina + yo'lakchada uchta = o'n uchta. Bola mashinani
+// Dars20 · Amaliyot 10 — DRAG ayirish «Mashinalarni chiqar!» · 🔴 · tag: drag_sub
+// Sahna: Garaj (ko'chada). Ten-frame garajda o'nta mashina + yo'lakchada uchta = o'n uchta. Bola mashinani
 // BARMOQ bilan sudrab yo'lga (chiqish zonasi) tashlaydi → mashina g'ildiragi aylanib chiqib ketadi.
-// AYNAN beshta mashina chiqarilsa — sakkizta qoladi. Hisoblagich "13 − N". CAP=5: beshta chiqqach qolmaydi.
+// BILIM-TEKSHIRUV (mashq emas): beshta mashina chiqarilgach GARAJ ESHIGI yopiladi — qolgan mashinalar
+// sanalmaydi; bola 13 − 5 ni XAYOLAN hisoblab, 4 sonli variantdan tanlaydi. To'g'ri → eshik ko'tariladi,
+// qolgan mashinalar 1..8 sanaladi, bayram. Noto'g'ri → hint, qulf yo'q, qayta urinish.
 // Make-ten-sub: 13 − 5 = 13 − 3 − 2 = 10 − 2 = 8 (avval yo'lakchadagi uch birlik, keyin o'nlikdan ikki).
-// VEDI-DO-VERNOGO: kam chiqarsa qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 // DRAG: pointer + zoom kompensatsiyasi (s = rect.width/offsetWidth) + zona-drop (D18_10 / D05_05 naqshi).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
@@ -11,6 +12,7 @@ const A = 13, B = 5, TARGET = 8, TEN = 10;
 const UNITS = A - TEN;      // 3 — yo'lakchadagi birliklar (avval shular chiqadi)
 const FROMTEN = B - UNITS;  // 2 — o'nlikdan chiqadigan qism
 const CAP = B;              // 5 — ko'pi bilan shuncha mashina chiqariladi
+const OPTS = [7, 8, 18, 9]; // 8 to'g'ri; 18=qo'shib yuborish tuzog'i (13+5), 7/9 = ±1
 const DATA = { a: A, b: B, target: TARGET, ptype: 'NEW', level: '🔴', tag: 'drag_sub' };
 const IDS = Array.from({ length: A }).map((_, i) => i); // 13 mashina
 // Restore uchun kanonik chiqarish tartibi: avval yo'lakcha (10,11,12), keyin o'nlikdan (9,8).
@@ -38,18 +40,22 @@ const T = {
     eyebrow: 'Garaj · Ayirish', title: 'Beshta mashinani chiqaring',
     setup: '13 mashinadan 5 tasi chiqib ketadi.',
     ask: '13 − 5 nechaga teng?',
+    covered: 'Garaj eshigi yopildi. Nechta mashina qoldi?',
     correct: 'Barakalla! O\'n uchdan uchtasi chiqib o\'nta qoldi, yana ikkitasi chiqdi — sakkizta. 13 − 5 = 8.',
     hint: 'Avval yo\'lakchadagi uchta mashinani chiqaring — o\'nta qoladi. Beshdan uchtasi ketdi, o\'nlikdan yana ikkitasini chiqaring.',
     drag: 'Mashinani yo\'lga suring',
+    gone: 'Chiqdi',
     exit: 'Chiqish',
   },
   ru: {
     eyebrow: 'Гараж · Вычитание', title: 'Выведи пять машин',
     setup: 'Из 13 машин выезжают 5.',
     ask: 'Сколько будет 13 − 5?',
+    covered: 'Ворота гаража закрылись. Сколько машин осталось?',
     correct: 'Молодец! Из тринадцати выехали три — осталось десять, ещё две выехали — восемь. 13 − 5 = 8.',
     hint: 'Сначала выведи три машины с дорожки — останется десять. Из пяти выехали три, ещё две выведи из десятка.',
     drag: 'Перетащи машину на дорогу',
+    gone: 'Выехало',
     exit: 'Выезд',
   },
 };
@@ -91,6 +97,7 @@ export default function D20_10(props) {
   const t = T[lang] || T.uz;
   const isReview = mode === 'review';
   const [removedIds, setRemovedIds] = useState([]); // chiqarilgan mashina id'lari (tartibda)
+  const [picked, setPicked] = useState(null);       // tanlangan variant (garaj yopilgach)
   const [drag, setDrag] = useState(null);           // { id, x, y } — sudralayotgan mashina (sahna-lokal koord.)
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
@@ -105,13 +112,14 @@ export default function D20_10(props) {
     if (initialAnswer && initialAnswer.studentAnswer) {
       const r = initialAnswer.studentAnswer.removed;
       if (typeof r === 'number') setRemovedIds(ORDER.slice(0, Math.min(Math.max(r, 0), CAP)));
+      if (initialAnswer.studentAnswer.picked != null) setPicked(initialAnswer.studentAnswer.picked);
       if (typeof initialAnswer.correct === 'boolean') {
         setFeedback({ correct: initialAnswer.correct, msg: initialAnswer.correct ? t.correct : t.hint });
         if (initialAnswer.correct) setChecked(true);
       }
     }
   }, [initialAnswer]); // eslint-disable-line
-  useEffect(() => { onReady?.(removed === CAP && !checked); }, [removed, checked, onReady]);
+  useEffect(() => { onReady?.(picked !== null && !checked); }, [picked, checked, onReady]);
 
   const lock = isReview || checked;
 
@@ -142,15 +150,18 @@ export default function D20_10(props) {
   };
 
   const check = useCallback(() => {
-    const correct = removedIds.length === CAP; // aynan beshtasi chiqarilsa → sakkizta qoladi
+    if (picked === null) return;
+    const correct = picked === TARGET; // 13 − 5 ni xayolan hisoblab tanladi
     setFeedback({ correct, msg: correct ? t.correct : t.hint }); if (correct) setChecked(true);
     if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: ['8'], studentAnswer: { removed: removedIds.length }, correctAnswer: { removed: CAP }, correct, meta: { ...DATA } });
-  }, [removedIds, playCorrect, playWrong, onSubmit, t]);
+    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: OPTS.map(String), studentAnswer: { removed: removedIds.length, picked }, correctAnswer: { value: TARGET }, correct, meta: { ...DATA } });
+  }, [picked, removedIds, playCorrect, playWrong, onSubmit, t]);
   const checkRef = useRef(check); checkRef.current = check;
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const done = removed === CAP;      // beshta chiqarildi — endi savol bosqichi
+  const covered = done && !ok;       // garaj eshigi yopiq (javob berilmagan yoki noto'g'ri)
   // G'alabada qolgan mashinalarga 1..8 sanoq raqami.
   const winNo = {};
   if (ok) { let n = 0; IDS.forEach((id) => { if (!removedIds.includes(id)) winNo[id] = ++n; }); }
@@ -165,11 +176,20 @@ export default function D20_10(props) {
         .pq2010 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq2010 .pq-stage{position:relative;width:${W}px;max-width:100%;height:${H}px;margin:0 auto;border-radius:20px;background:linear-gradient(#dbeefb 0%,#e8f0f8 54%,#eef1f4 100%);border:2px solid #cdd9e6;overflow:hidden;touch-action:none;}
         .pq2010 .pq-sun{position:absolute;top:14px;right:16px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 14px 3px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
+        .pq2010 .pq-cloud{position:absolute;height:12px;background:#fff;border-radius:20px;opacity:.9;z-index:1;box-shadow:0 5px 0 -2px #fff;}
+        .pq2010 .pq-cloud::before{content:'';position:absolute;width:18px;height:18px;top:-7px;left:6px;border-radius:50%;background:#fff;}
+        .pq2010 .pq-cloud.k1{top:22px;left:24px;width:38px;animation:pqDrift 13s ease-in-out infinite;}
+        .pq2010 .pq-cloud.k2{top:40px;left:120px;width:28px;transform:scale(.82);animation:pqDrift 17s ease-in-out infinite reverse;}
         .pq2010 .pq-board{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:7;padding:3px 15px 4px;border-radius:9px;background:linear-gradient(#4f7fb2,#3a6193);border:2.5px solid #2c4c74;color:#eff6ff;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.28);}
         .pq2010 .pq-count{position:absolute;top:34px;left:50%;transform:translateX(-50%);z-index:7;background:#fff;border:2px solid #b8cbe2;color:#2f6bab;font-weight:900;font-size:15px;padding:2px 14px;border-radius:999px;font-variant-numeric:tabular-nums;box-shadow:0 2px 5px rgba(0,0,0,.12);white-space:nowrap;}
         .pq2010 .pq-chip{position:absolute;top:30px;left:50%;transform:translateX(-50%);z-index:9;font-size:20px;font-weight:900;color:#1a7f43;background:#fff;padding:3px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both,pqFloat 3s ease-in-out .6s infinite;white-space:nowrap;}
         .pq2010 .pq-garage{position:absolute;left:8px;top:50px;width:196px;height:74px;border-radius:10px 10px 6px 6px;background:linear-gradient(#e7eaef,#d3d9e2);border:2.5px solid #9aa6b6;box-shadow:inset 0 2px 0 rgba(255,255,255,.5);z-index:2;}
         .pq2010 .pq-garage::before{content:'';position:absolute;left:-8px;right:-8px;top:-13px;height:15px;background:linear-gradient(#c0553f,#9c3f2c);border-radius:6px 6px 0 0;border:2px solid #7d3121;box-shadow:0 2px 3px rgba(0,0,0,.18);}
+        /* garaj eshigi (rolikli panjur) — yopilganda qolgan mashinalarni berkitadi */
+        .pq2010 .pq-door{position:absolute;left:8px;top:50px;width:196px;height:74px;border-radius:10px 10px 6px 6px;z-index:8;background:repeating-linear-gradient(#c3ccd8 0 8px,#aab6c4 8px 10px);border:2.5px solid #8894a6;box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 4px 8px rgba(0,0,0,.16);transform-origin:top;transition:transform .55s cubic-bezier(.4,0,.3,1),opacity .35s;display:flex;align-items:center;justify-content:center;}
+        .pq2010 .pq-door.up{transform:scaleY(0);opacity:0;}
+        .pq2010 .pq-door.still{transition:none;}
+        .pq2010 .pq-door b{font-size:30px;font-weight:900;color:#5a687c;text-shadow:0 1px 0 rgba(255,255,255,.5);}
         .pq2010 .pq-cell{position:absolute;width:30px;height:22px;border-radius:5px;background:rgba(255,255,255,.34);border:1.4px dashed rgba(90,110,140,.5);box-shadow:inset 0 1px 2px rgba(60,80,110,.14);z-index:3;}
         .pq2010 .pq-cell.full{border-style:solid;border-color:rgba(90,110,140,.28);background:rgba(255,255,255,.16);}
         .pq2010 .pq-walk{position:absolute;left:212px;top:70px;width:128px;height:40px;border-radius:9px;background:repeating-linear-gradient(90deg,#c9d2dd 0 12px,#dbe2ea 12px 24px);border:2px solid #a9b4c2;z-index:2;box-shadow:inset 0 1px 0 rgba(255,255,255,.4);}
@@ -191,6 +211,15 @@ export default function D20_10(props) {
         .pq2010 .pq-hint{position:absolute;top:60px;left:50%;transform:translateX(-50%);z-index:9;font-size:12.5px;font-weight:700;color:#274063;background:rgba(255,255,255,.92);padding:3px 12px;border-radius:999px;animation:pqBob 1.8s ease-in-out infinite;white-space:nowrap;}
         .pq2010 .pq-spark{position:absolute;z-index:10;color:#ffd13f;opacity:0;line-height:0;animation:pqTwinkle 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
         .pq2010 .pq-spark.s2{animation-delay:-.6s;} .pq2010 .pq-spark.s3{animation-delay:-1.15s;}
+        /* variant tugmalari (garaj yopilgach) */
+        .pq2010 .pq-qline{text-align:center;margin-top:12px;font-size:15px;font-weight:800;color:#274063;animation:pqIn .3s ease both;}
+        .pq2010 .pq-opts{display:flex;gap:10px;justify-content:center;margin-top:8px;animation:pqIn .3s ease both;}
+        .pq2010 .pq-opt{width:62px;height:60px;font-size:26px;font-weight:800;border-radius:15px;border:2.5px solid #b8cbe2;background:#fff;color:#2f4a6b;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
+        .pq2010 .pq-opt:hover:not(:disabled){border-color:#4a90d9;transform:translateY(-2px);}
+        .pq2010 .pq-opt:active:not(:disabled){transform:scale(.94);}
+        .pq2010 .pq-opt.sel{border-color:#2563eb;background:#e8eefc;color:#2563eb;}
+        .pq2010 .pq-opt.right{border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pqCele .5s ease;}
+        .pq2010 .pq-opt:disabled{cursor:default;}
         .pq2010 .pq-eq{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;animation:pqIn .3s ease both;}
         .pq2010 .pq-eq b{min-width:34px;height:38px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;border-radius:11px;background:#eef4fb;border:2px solid #b8d0ea;color:#2f6bab;font-variant-numeric:tabular-nums;}
         .pq2010 .pq-eq b.res{background:#e8f7ee;border-color:#1a7f43;color:#1a7f43;}
@@ -198,9 +227,10 @@ export default function D20_10(props) {
         .pq2010 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#5c7fa6;font-variant-numeric:tabular-nums;animation:pqIn .3s .1s both;}
         .pq2010 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
         .pq2010 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq2010 .pq-fb.no{background:#fdecec;color:#c0392b;}
-        .pq2010 .pq-board,.pq2010 .pq-count,.pq2010 .pq-chip,.pq2010 .pq-hint,.pq2010 .pq-walk-lbl,.pq2010 .pq-exit,.pq2010 .pq-spark,.pq2010 .pq-cnt,.pq2010 .pq-light{pointer-events:none;}
+        .pq2010 .pq-board,.pq2010 .pq-count,.pq2010 .pq-chip,.pq2010 .pq-hint,.pq2010 .pq-walk-lbl,.pq2010 .pq-exit,.pq2010 .pq-spark,.pq2010 .pq-cnt,.pq2010 .pq-light,.pq2010 .pq-door,.pq2010 .pq-cloud{pointer-events:none;}
         @keyframes pqSpin{from{transform:rotate(0);}to{transform:rotate(360deg);}}
         @keyframes pqDrive{0%{transform:translateX(0);opacity:1;}55%{opacity:1;}100%{transform:translateX(300px);opacity:0;}}
+        @keyframes pqDrift{0%,100%{transform:translateX(0);}50%{transform:translateX(14px);}}
         @keyframes pqPop{from{opacity:0;transform:translateX(-50%) scale(.4);}to{opacity:1;transform:translateX(-50%) scale(1);}}
         @keyframes pqAns{0%{opacity:0;transform:translateX(-50%) scale(.3);}100%{opacity:1;transform:translateX(-50%) scale(1);}}
         @keyframes pqFloat{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-3px);}}
@@ -216,11 +246,12 @@ export default function D20_10(props) {
 
       <div className="pq-stage" ref={stageRef}>
         <div className="pq-sun" />
+        <span className="pq-cloud k1" /><span className="pq-cloud k2" />
         <div className="pq-board">{t.title}</div>
 
         {ok
           ? <span className="pq-chip">{A} {'−'} {B} = {TARGET}</span>
-          : <span className="pq-count">{A} {'−'} {removed}</span>}
+          : !done && <span className="pq-count">{t.gone}: {removed}</span>}
 
         {/* Garaj + yo'lakcha (fon) */}
         <div className="pq-garage" />
@@ -262,7 +293,10 @@ export default function D20_10(props) {
           );
         })}
 
-        {!lock && removed < CAP && <span className="pq-hint">{t.drag}</span>}
+        {/* Garaj eshigi — beshta chiqarilgach yopiladi; to'g'ri javobda ko'tariladi */}
+        <div className={'pq-door' + (covered ? '' : ' up') + (still ? ' still' : '')}><b>?</b></div>
+
+        {!lock && !done && <span className="pq-hint">{t.drag}</span>}
 
         {ok && (<>
           <span className="pq-spark" style={{ left: '16%', top: '58px' }}>✦</span>
@@ -271,7 +305,21 @@ export default function D20_10(props) {
         </>)}
       </div>
 
+      {/* Bilim-tekshiruv: garaj yopilgach xayolan hisoblab, variantdan tanlaydi */}
+      {done && !ok && (<>
+        <div className="pq-qline">{t.covered}</div>
+        <div className="pq-opts">
+          {OPTS.map((n) => {
+            const sel = picked === n;
+            return <button key={n} type="button" className={'pq-opt' + (sel ? ' sel' : '')} disabled={lock} onClick={() => { setPicked(n); setFeedback(null); }}>{n}</button>;
+          })}
+        </div>
+      </>)}
+
       {ok && (<>
+        <div className="pq-opts">
+          {OPTS.map((n) => <button key={n} type="button" className={'pq-opt' + (n === TARGET ? ' right' : '')} disabled>{n}</button>)}
+        </div>
         <div className="pq-eq"><b>{A}</b><i>{'−'}</i><b>{B}</b><i>=</i><b className="res">{TARGET}</b></div>
         <div className="pq-sub">{A} {'−'} {UNITS} {'−'} {FROMTEN} = {TEN} {'−'} {FROMTEN}</div>
       </>)}

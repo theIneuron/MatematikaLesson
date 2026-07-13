@@ -26,18 +26,18 @@ const PAL = [
 const T = {
   uz: {
     eyebrow: "Shirinlik do'koni · Zanjir", title: "O'nlikka to'ldiring",
-    setup: "Har qatorda o'nta joyli laganda bir nechta shirinlik bor, qolgan joylar bo'sh.",
+    setup: "Har qatorda o'nta joyli qutida bir nechta shirinlik bor, qolgan joylar bo'sh.",
     ask: "Har qatorda o'nlikni to'ldirish uchun yana nechta shirinlik kerakligini tanlang.",
-    correct: "Barakalla! Har qatorda o'nta bo'ldi — laganlar to'ldi!",
-    hint: "Qizil qatorlarga qarang: bo'sh uyalarni sanang, nechta shirinlik qo'shsak lagan to'ladi?",
+    correct: "Barakalla! Har qatorda o'nta bo'ldi — qutilar to'ldi!",
+    hint: "Qizil qatorlarga qarang: bo'sh uyalarni sanang, nechta shirinlik qo'shsak quti to'ladi?",
     board: "Shirinlik do'koni",
   },
   ru: {
     eyebrow: 'Магазин сладостей · Цепочка', title: 'Дополни до десятка',
-    setup: 'В каждой строке на подносе на десять мест лежит несколько сладостей, остальные места пусты.',
+    setup: 'В каждой строке в коробке на десять мест лежит несколько сладостей, остальные места пусты.',
     ask: 'Выбери, сколько сладостей не хватает до десятка в каждой строке.',
-    correct: 'Молодец! В каждой строке стало десять — подносы заполнились!',
-    hint: 'Посмотри на красные строки: сосчитай пустые ячейки, сколько сладостей добавить, чтобы поднос заполнился?',
+    correct: 'Молодец! В каждой строке стало десять — коробки заполнились!',
+    hint: 'Посмотри на красные строки: сосчитай пустые ячейки, сколько сладостей добавить, чтобы коробка заполнилась?',
     board: 'Магазин сладостей',
   },
 };
@@ -131,7 +131,7 @@ export default function D16_06(props) {
         .pq1606 .pq-rw.good.win{animation:pqCele .5s ease;}
         .pq1606 .pq-rw.bad{border-color:#e08a8a;background:#fdf1f1;animation:pqShake .35s ease;}
 
-        /* mini ten-frame (2×5) — lagan */
+        /* mini ten-frame (2×5) — quti */
         .pq1606 .pq-frame{display:grid;grid-template-columns:repeat(5,25px);grid-auto-rows:20px;gap:3px;padding:5px;border-radius:11px;background:linear-gradient(#f6e7d2,#efd9bb);border:2px solid #d9be92;box-shadow:inset 0 1px 0 rgba(255,255,255,.4);flex:0 0 auto;}
         .pq1606 .pq-cell{position:relative;border-radius:6px;background:rgba(255,252,246,.5);border:1.4px solid rgba(150,110,70,.32);display:flex;align-items:center;justify-content:center;}
         .pq1606 .pq-cell.empty{background:rgba(255,255,255,.28);border-style:dashed;border-color:rgba(150,110,70,.55);animation:pqBreath 2.4s ease-in-out infinite;}

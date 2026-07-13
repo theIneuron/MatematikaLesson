@@ -6,7 +6,10 @@
 // QO'SHILADI: 45 = 4 savat + 5 olma, 48 = 4 savat + 8 olma. Katta son yutguncha timsoh og'zi
 // hech qayoqqa ochilmaydi (javob sizmaydi) — slotda "?" turadi. G'alabada timsoh og'zini KATTA
 // songa (o'ngdagi 48) ochadi + "48 > 45" chizig'i chiqadi. VEDI-DO-VERNOGO: noto'g'rida qulf yo'q,
-// retry yo'q; setChecked FAQAT to'g'rida.
+// retry yo'q; setChecked FAQAT to'g'rida. Savol matni ANIQ: "Ikkita son bor: 45 va 48" + qaysi katta.
+// "=" (teng) — M2 tuzoq-variant, hech qachon to'g'ri emas; timsoh FAQAT to'g'ri javobda (og'iz KATTA
+// songa) ko'rinadi. Teng bo'lganda tinch/tekis og'iz (CrocCalm) — hech tomonga ochilmaydi.
+// Ambient boyitish: bulutlar + hilpiragan gullar + barglar (dekor, pointer-events YO'Q).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const LEFT = 45, RIGHT = 48;               // taqqoslanadigan ikki xonali sonlar (21-100)
@@ -27,7 +30,7 @@ const DATA = {
 const T = {
   uz: {
     eyebrow: "Olma bog'i · Taqqoslash", title: "Qaysi katta?",
-    setup: "45 va 48.",
+    setup: "Ikkita son bor: 45 va 48.",
     ask: "Qaysi son katta?",
     equal: "teng",
     tens: "O'nliklar", units: "birliklar",
@@ -36,7 +39,7 @@ const T = {
   },
   ru: {
     eyebrow: "Яблоневый сад · Сравнение", title: "Что больше?",
-    setup: "45 и 48.",
+    setup: "Есть два числа: 45 и 48.",
     ask: "Какое число больше?",
     equal: "равно",
     tens: "Десятки", units: "единицы",
@@ -173,6 +176,19 @@ const CrocSign = ({ dir, gid, size = 62 }) => (
   </svg>
 );
 
+// Gul (ambient) — bog' chetida hilpiragan mayda gul. Dekor, pointer-events YO'Q.
+const Flower = ({ c = "#e8739e" }) => (
+  <svg viewBox="0 0 16 22" width="13" height="18" aria-hidden="true" style={{ display: "block" }}>
+    <path d="M8 11 L8 20" stroke="#4f9a3f" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M8 16 Q4.4 15 4 12.4 Q7.2 12.8 8 16 Z" fill="#5aa84f" />
+    <g fill={c}>
+      <circle cx="8" cy="3.6" r="2.6" /><circle cx="4.3" cy="6.2" r="2.6" /><circle cx="11.7" cy="6.2" r="2.6" />
+      <circle cx="5.5" cy="10" r="2.6" /><circle cx="10.5" cy="10" r="2.6" />
+    </g>
+    <circle cx="8" cy="6.9" r="2.3" fill="#ffd76a" stroke="#e8b53a" strokeWidth=".6" />
+  </svg>
+);
+
 let __uid = 0;
 
 export default function D22_08(props) {
@@ -228,6 +244,15 @@ export default function D22_08(props) {
         .pq2208 .pq-hill::before{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 10px,transparent 10px 22px);}
         .pq2208 .pq-leaf{position:absolute;z-index:1;color:#7fbf5a;opacity:.7;line-height:0;pointer-events:none;animation:pq2208leaf 5.5s ease-in-out infinite;}
         .pq2208 .pq-leaf.l2{animation-delay:-2.4s;color:#a7d47f;} .pq2208 .pq-leaf.l3{animation-delay:-4s;color:#8fc267;}
+        .pq2208 .pq-cloud{position:absolute;z-index:1;pointer-events:none;width:42px;height:13px;border-radius:999px;background:rgba(255,255,255,.88);animation:pq2208drift 12s ease-in-out infinite;}
+        .pq2208 .pq-cloud::before{content:'';position:absolute;left:7px;top:-7px;width:16px;height:12px;border-radius:50%;background:rgba(255,255,255,.88);}
+        .pq2208 .pq-cloud::after{content:'';position:absolute;left:21px;top:-5px;width:12px;height:9px;border-radius:50%;background:rgba(255,255,255,.88);}
+        .pq2208 .pq-cloud.c1{left:7%;top:15px;}
+        .pq2208 .pq-cloud.c2{left:64%;top:30px;width:28px;animation-delay:-6s;}
+        .pq2208 .pq-flw{position:absolute;bottom:5px;z-index:2;line-height:0;pointer-events:none;transform-origin:50% 100%;animation:pq2208flsway 4s ease-in-out infinite;}
+        .pq2208 .pq-flw.f1{left:9px;}
+        .pq2208 .pq-flw.f2{left:30px;bottom:9px;animation-delay:-1.4s;}
+        .pq2208 .pq-flw.f3{right:11px;animation-delay:-2.2s;}
         .pq2208 .pq-title{position:absolute;top:9px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 15px 5px;border-radius:9px;background:linear-gradient(#4c9d55,#3a7f42);border:2.5px solid #2c6633;color:#f0fbef;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.28);pointer-events:none;}
 
         .pq2208 .pq-arena{position:absolute;left:8px;right:8px;top:44px;bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px;z-index:3;}
@@ -271,6 +296,8 @@ export default function D22_08(props) {
 
         @keyframes pq2208bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
         @keyframes pq2208sun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+        @keyframes pq2208drift{0%,100%{transform:translateX(0);}50%{transform:translateX(14px);}}
+        @keyframes pq2208flsway{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
         @keyframes pq2208leaf{0%{transform:translate(0,0) rotate(0);}50%{transform:translate(-10px,8px) rotate(24deg);}100%{transform:translate(0,0) rotate(0);}}
         @keyframes pq2208pop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
         @keyframes pq2208croc{0%{opacity:0;transform:scale(.3) rotate(-8deg);}60%{opacity:1;transform:scale(1.12) rotate(3deg);}100%{opacity:1;transform:scale(1) rotate(0);}}
@@ -287,6 +314,11 @@ export default function D22_08(props) {
         <span className="pq-leaf" style={{ left: "14%", top: "60px" }} aria-hidden="true">&#10087;</span>
         <span className="pq-leaf l2" style={{ left: "70%", top: "48px" }} aria-hidden="true">&#10087;</span>
         <span className="pq-leaf l3" style={{ left: "44%", top: "72px" }} aria-hidden="true">&#10087;</span>
+        <span className="pq-cloud c1" />
+        <span className="pq-cloud c2" />
+        <span className="pq-flw f1"><Flower /></span>
+        <span className="pq-flw f2"><Flower c="#8f7ae0" /></span>
+        <span className="pq-flw f3"><Flower c="#f2a13c" /></span>
         <div className="pq-title">{t.title}</div>
 
         <div className="pq-arena">

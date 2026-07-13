@@ -5,6 +5,8 @@
 // KATTA songa qaraydi (Dars04/Dars12 kanoni): 45 > 40, 52 > 40, 60 > 40.
 // M1 birlik-taqqoslash, M2 teng-o'nlik, M3 belgi-yo'nalish, M4 raqam-almashtirish tuzoqlari.
 // VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
+// Savol matni ANIQ: kartalarda 5 ta son bor — har birini 40 bilan solishtirib, kattalarini bosish.
+// Ambient boyitish: bulutlar + hilpiragan gullar (dekor, pointer-events YO'Q).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const THRESH = 40;
@@ -16,16 +18,16 @@ const T = {
   uz: {
     eyebrow: "Olma bog'i · Taqqoslash",
     title: "40 dan katta",
-    setup: "Sonlarga qarang.",
-    ask: "40 dan KATTA barcha sonni bosing.",
+    setup: "Kartalarda 5 ta son bor.",
+    ask: "Har birini 40 bilan solishtiring: 40 dan KATTA sonlarning hammasini bosing.",
     correct: "Barakalla! 45, 52, 60 — hammasi 40 dan katta.",
     hint: "Har sonni 40 bilan solishtiring.",
   },
   ru: {
     eyebrow: "Яблоневый сад · Сравнение",
     title: "Больше 40",
-    setup: "Посмотри на числа.",
-    ask: "Нажми ВСЕ числа больше 40.",
+    setup: "На карточках 5 чисел.",
+    ask: "Сравни каждое с 40: нажми ВСЕ числа больше 40.",
     correct: "Молодец! 45, 52, 60 — все больше 40.",
     hint: "Сравни каждое число с 40.",
   },
@@ -168,6 +170,19 @@ const CrocMascot = ({ w = 78 }) => {
 const Leaf = ({ w = 13 }) => (<svg viewBox="0 0 20 20" width={w} height={w} aria-hidden="true" style={{ display: 'block' }}><path d="M3,17 Q3,4 17,3 Q16,16 3,17 Z" fill="#7cbf5e" stroke="#5a9a41" strokeWidth="1" /><path d="M6,14 Q11,9 15,6" fill="none" stroke="#5a9a41" strokeWidth="1" /></svg>);
 const Star = ({ fill }) => (<svg width="13" height="13" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L12.4 7.6 L18.5 10 L12.4 12.4 L10 18.5 L7.6 12.4 L1.5 10 L7.6 7.6 Z" fill={fill} /></svg>);
 
+// Gul (ambient) — bog' chetida hilpiragan mayda gul. Dekor, pointer-events YO'Q.
+const Flower = ({ c = '#e8739e' }) => (
+  <svg viewBox="0 0 16 22" width="13" height="18" aria-hidden="true" style={{ display: 'block' }}>
+    <path d="M8 11 L8 20" stroke="#4f9a3f" strokeWidth="1.6" strokeLinecap="round" />
+    <path d="M8 16 Q4.4 15 4 12.4 Q7.2 12.8 8 16 Z" fill="#5aa84f" />
+    <g fill={c}>
+      <circle cx="8" cy="3.6" r="2.6" /><circle cx="4.3" cy="6.2" r="2.6" /><circle cx="11.7" cy="6.2" r="2.6" />
+      <circle cx="5.5" cy="10" r="2.6" /><circle cx="10.5" cy="10" r="2.6" />
+    </g>
+    <circle cx="8" cy="6.9" r="2.3" fill="#ffd76a" stroke="#e8b53a" strokeWidth=".6" />
+  </svg>
+);
+
 export default function D22_07(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = T[lang] || T.uz;
@@ -231,6 +246,13 @@ export default function D22_07(props) {
         .pq2207 .pq-leaf{position:absolute;line-height:0;z-index:2;pointer-events:none;opacity:.9;}
         .pq2207 .pq-leaf.l1{left:32%;top:20px;animation:pq2207drift 5s ease-in-out infinite;}
         .pq2207 .pq-leaf.l2{left:62%;top:14px;animation:pq2207drift 6.2s ease-in-out .8s infinite;}
+        .pq2207 .pq-cloud{position:absolute;z-index:1;pointer-events:none;width:40px;height:12px;border-radius:999px;background:rgba(255,255,255,.88);animation:pq2207cdrift 12s ease-in-out infinite;}
+        .pq2207 .pq-cloud::before{content:'';position:absolute;left:6px;top:-6px;width:15px;height:11px;border-radius:50%;background:rgba(255,255,255,.88);}
+        .pq2207 .pq-cloud::after{content:'';position:absolute;left:20px;top:-4px;width:11px;height:9px;border-radius:50%;background:rgba(255,255,255,.88);}
+        .pq2207 .pq-cloud.c1{left:7%;top:14px;}
+        .pq2207 .pq-flw{position:absolute;bottom:5px;z-index:2;line-height:0;pointer-events:none;transform-origin:50% 100%;animation:pq2207flsway 4s ease-in-out infinite;}
+        .pq2207 .pq-flw.f1{left:9px;}
+        .pq2207 .pq-flw.f2{right:11px;animation-delay:-2s;}
         .pq2207 .pq-spark{position:absolute;z-index:5;color:#ffd13f;opacity:0;line-height:0;pointer-events:none;animation:pq2207tw 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
         .pq2207 .pq-spark.s2{animation-delay:-.6s;} .pq2207 .pq-spark.s3{animation-delay:-1.15s;}
 
@@ -256,6 +278,8 @@ export default function D22_07(props) {
         @keyframes pq2207breath{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
         @keyframes pq2207bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
         @keyframes pq2207drift{0%,100%{transform:translate(0,0) rotate(-6deg);}50%{transform:translate(-10px,7px) rotate(9deg);}}
+        @keyframes pq2207cdrift{0%,100%{transform:translateX(0);}50%{transform:translateX(14px);}}
+        @keyframes pq2207flsway{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
         @keyframes pq2207tw{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
         @keyframes pq2207pop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
         @keyframes pq2207cele{0%{transform:scale(1);}30%{transform:scale(1.05);}60%{transform:scale(.97);}100%{transform:scale(1);}}
@@ -268,8 +292,11 @@ export default function D22_07(props) {
         <span className="pq-sun" />
         <span className="pq-hill" />
         <div className="pq-title">{t.title}</div>
+        <span className="pq-cloud c1" />
         <span className="pq-leaf l1"><Leaf w={13} /></span>
         <span className="pq-leaf l2"><Leaf w={11} /></span>
+        <span className="pq-flw f1"><Flower /></span>
+        <span className="pq-flw f2"><Flower c="#f2a13c" /></span>
 
         <div className="pq-arena">
           {/* Bog' qorovuli — timsoh (dekor, ambient nafas) */}

@@ -1,201 +1,316 @@
-// Dars17 · Amaliyot 10 — NEW «O'tkazib qo'sh!» · 🔴 · tag: cross_ten_fill
-// Shirinlik do'koni. IKKI ten-frame quti. 1-quti (5×2=10): sakkizta shirinlik, ikki uya bo'sh.
-// 2-quti (5×2=10): bo'sh. Pastda beshta yakka shirinlik. Bola yakka shirinlikni bosadi →
-// u AVTOMATIK keyingi bo'sh uyaga tushadi: avval 1-qutining ikki bo'sh uyasini to'ldiradi (→10),
-// keyin 2-qutiga o'tadi (uch dona). Make-ten VIZUAL: 1-quti AVVAL to'ladi, keyin 2-quti — bola
-// strategiyani ko'radi. Hisoblagich "8 + N". Beshtasi qo'yilganda jami 13 → «Tekshir».
-// VEDI-DO-VERNOGO: kam qo'ysa qulf yo'q, davom etadi; check jami<13 bo'lsa yo'l ko'rsatiladi.
+// Dars17 · Amaliyot 10 — BILIM TEKSHIRUVI «Savatga sol va hisobla» · 🔴 · tag: cross_ten_fill
+// TABIAT SAHNASI (Dars15 dizayn tili): quyoncha son o'qida 8 da turadi; ifoda yog'och taxtachada.
+// 1-bosqich (harakat): savatda 8 ta sabzi; bola lagandagi 5 ta sabzini birma-bir bosib savatga
+// soladi. 2-bosqich (yashirish): hammasi solingach savat QOPQOG'I YOPILADI — sanab bo'lmaydi.
+// 3-bosqich (tekshiruv): 4 sonli variant chiqadi, bola jamini XAYOLAN hisoblab tanlaydi.
+// To'g'ri: qopqoq ochiladi, sanoq-badge'lar (1..13), quyoncha son o'qida 8→…→13 sekin sakraydi,
+// 10 (o'nlik) va 13 yonadi. Noto'g'ri: hint, qulf YO'Q, qayta urinish mumkin.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-const START = 8, ADD = 5, TARGET = 13, TEN = 10;
-// To'ldirish tartibi (global uya indekslari): avval 1-quti (8,9), keyin 2-quti (10,11,12).
-const FILL_ORDER = [8, 9, 10, 11, 12];
-const DATA = { a: START, b: ADD, target: TARGET, ptype: 'NEW', level: '🔴', tag: 'cross_ten_fill' };
-
-// Shirinlik ranglari (palitradan, aylanma): qizil / ko'k / sariq / yashil / pushti.
-const PAL = [
-  { light: '#f28e88', main: '#e2635b', dark: '#c0433c' }, // qizil
-  { light: '#7fb2e6', main: '#4a90d9', dark: '#2f6fb5' }, // ko'k
-  { light: '#f8cd6c', main: '#f2b134', dark: '#cf9421' }, // sariq
-  { light: '#84c47c', main: '#57a84f', dark: '#42843b' }, // yashil
-  { light: '#f0a3c6', main: '#e879a6', dark: '#c85787' }, // pushti
-];
-// Beshta yakka shirinlik ranglari (palitradan davomi).
-const LOOSE = Array.from({ length: ADD }).map((_, k) => ({ k, c: PAL[(START + k) % PAL.length] }));
-
-// Uyaning holati: preset (1-qutida boshdanoq), yoki qo'yilgan (added > tartib), yoki bo'sh.
-function slotState(gi, added) {
-  if (gi < START) return { filled: true, preset: true, c: PAL[gi % PAL.length], j: -1 };
-  const j = FILL_ORDER.indexOf(gi);
-  if (j >= 0 && added > j) return { filled: true, preset: false, c: LOOSE[j].c, j };
-  return { filled: false, j };
-}
+const A = 8, ADD = 5, TARGET = 13, TEN = 10;
+const DATA = { a: A, b: ADD, target: TARGET, options: [11, 12, 13, 14], ptype: 'NEW', level: '🔴', tag: 'cross_ten_fill' };
+const HOP_PATH = Array.from({ length: TARGET - A + 1 }, (_, i) => A + i); // [8,9,10,11,12,13]
+const NL_FROM = 5, NL_TO = 15;
 
 const T = {
   uz: {
-    eyebrow: "Shirinlik do'koni · O'tkazib qo'sh", title: "O'tkazib qo'sh!",
-    setup: "1-qutida sakkizta shirinlik bor, ikki uya bo'sh. 2-quti butunlay bo'sh. Pastda yana beshta shirinlik turibdi.",
-    ask: "Shirinliklarni bosing — avval 1-quti o'nga to'lsin, keyin ortig'i 2-qutiga o'tsin.",
-    correct: "Barakalla! Sakkizga ikki qo'shsangiz — o'n, yana uch — o'n uch. Jami sakkiz qo'shuv besh — o'n uch!",
-    hintFew: "Hali hammasi qo'yilmadi, davom eting. Qolgan shirinliklarni birma-bir bosing.",
-    hint: "Avval 1-qutini o'nga to'ldiring, keyin ortig'ini 2-qutiga qo'ying.",
-    tapHint: "Shirinlikni bosing",
-    box1: "1-quti", box2: "2-quti",
-    chip: "8 + 5 = 13",
-    btn: "Tekshir",
+    eyebrow: "Bilim tekshiruvi · O'tib qo'shish",
+    setup: "Savatda 8 ta sabzi bor. Quyoncha yana 5 ta sabzi terdi.",
+    ask: "Sabzilarni savatga soling, keyin jamini xayolan hisoblang.",
+    closed: "Savat yopiq — jami nechta sabzi?",
+    basket: "Savat",
+    tapHint: "Sabzini bosing",
+    correct: "Barakalla! Sakkizga ikki — o'n, yana uch — o'n uch. 8 + 5 = 13!",
+    hint: "Xayolan hisoblang: sakkizga avval ikkita qo'shing — o'n bo'ladi, keyin qolgan uchtani qo'shing.",
   },
   ru: {
-    eyebrow: 'Магазин сладостей · Перенеси', title: 'Перенеси через десяток!',
-    setup: 'В первой коробке восемь конфет, две ячейки пустые. Вторая коробка совсем пустая. Внизу лежат ещё пять конфет.',
-    ask: 'Нажимай на конфеты — сначала заполни первую коробку до десяти, потом остаток перейдёт во вторую.',
-    correct: 'Молодец! Восемь плюс два — десять, ещё три — тринадцать. Всего восемь плюс пять — тринадцать!',
-    hintFew: 'Ещё не все выложены, продолжай. Нажимай оставшиеся конфеты по одной.',
-    hint: 'Сначала заполни первую коробку до десяти, потом клади остаток во вторую.',
-    tapHint: 'Нажимай на конфету',
-    box1: 'Коробка 1', box2: 'Коробка 2',
-    chip: '8 + 5 = 13',
-    btn: 'Проверить',
+    eyebrow: 'Проверка знаний · Через десяток',
+    setup: 'В корзине 8 морковок. Зайчик собрал ещё 5 морковок.',
+    ask: 'Положи морковки в корзину, потом сосчитай всё в уме.',
+    closed: 'Корзина закрыта — сколько всего морковок?',
+    basket: 'Корзина',
+    tapHint: 'Нажимай на морковку',
+    correct: 'Молодец! Восемь плюс два — десять, и ещё три — тринадцать. 8 + 5 = 13!',
+    hint: 'Считай в уме: к восьми сначала прибавь две — будет десять, потом прибавь оставшиеся три.',
   },
 };
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
-// SHIRINLIK KANONI (yakka birlik): yumaloq yaltiroq konfet — radial 2-ton doira + oq blik +
-// ikki tomonda burama o'ram (yengil detal). Bitta konfet = bitta birlik. Rang palitradan.
-const Candy = ({ c = PAL[0] }) => (
-  <svg viewBox="0 0 44 30" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style={{ display: 'block' }}>
-    <path d="M11 15 L3 8 Q1 15 3 22 Z" fill={c.dark} />
-    <path d="M11 15 L4.5 10 Q3.6 15 4.5 20 Z" fill={c.main} opacity="0.8" />
-    <path d="M33 15 L41 8 Q43 15 41 22 Z" fill={c.dark} />
-    <path d="M33 15 L39.5 10 Q40.4 15 39.5 20 Z" fill={c.main} opacity="0.8" />
-    <circle cx="22" cy="15" r="12" fill={c.main} />
-    <circle cx="22" cy="15" r="12" fill="none" stroke={c.dark} strokeWidth="1.1" opacity="0.55" />
-    <path d="M22 3 A12 12 0 0 1 34 15 A12 12 0 0 1 22 3 Z" fill={c.light} opacity="0.55" />
-    <ellipse cx="17.5" cy="10.5" rx="4.2" ry="2.8" fill="#ffffff" opacity="0.72" transform="rotate(-28 17.5 10.5)" />
-    <circle cx="26" cy="19" r="1.5" fill="#ffffff" opacity="0.4" />
+// Uzoqdagi qush (osmonda) — oddiy "m" shakli.
+const Bird = ({ cls }) => (
+  <svg className={'pq-bird ' + cls} viewBox="0 0 22 9" width="22" height="9" aria-hidden="true">
+    <path d="M1 7 Q5.5 1 10 6 Q14.5 1 21 7" fill="none" stroke="#6a7b84" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+// O't tutami (maysada).
+const Tuft = ({ cls }) => (
+  <svg className={'pq-tuft ' + cls} viewBox="0 0 18 13" width="18" height="13" aria-hidden="true">
+    <path d="M2 13 Q3.4 4 5 13 M7 13 Q9 2 10.6 13 M12.5 13 Q14 5 15.6 13" fill="none" stroke="#4e9d44" strokeWidth="1.7" strokeLinecap="round" />
+  </svg>
+);
+// Qo'ziqorin (daraxt yonida).
+const Mushroom = ({ cls }) => (
+  <svg className={'pq-mush ' + cls} viewBox="0 0 18 17" width="16" height="15" aria-hidden="true">
+    <rect x="6.4" y="8" width="5.2" height="8" rx="2.2" fill="#f4ecd8" stroke="#dccfa8" strokeWidth=".7" />
+    <path d="M1.5 8.5 C1.5 3.5 5 1 9 1 C13 1 16.5 3.5 16.5 8.5 Z" fill="#e0584c" stroke="#bf4136" strokeWidth=".8" />
+    <circle cx="5.5" cy="6" r="1.1" fill="#fff" /><circle cx="10.5" cy="4.6" r="1.3" fill="#fff" /><circle cx="12.6" cy="7" r="1" fill="#fff" />
+  </svg>
+);
+// Sabzi (bitta sabzi = bitta birlik).
+const Carrot = ({ w = 22 }) => (
+  <svg viewBox="0 0 22 30" width={w} height={(w * 30) / 22} aria-hidden="true" style={{ display: 'block' }}>
+    <path d="M11 8 C7 3 3 2.4 1.6 3.4 C4.6 4.6 7.4 6.4 9.4 8.6 Z" fill="#4f9c46" />
+    <path d="M11 8 C11 2.6 9 .6 7.6 .8 C9 3 10 5.4 10.4 8.4 Z" fill="#5fae54" />
+    <path d="M11 8 C15 3 19 2.4 20.4 3.4 C17.4 4.6 14.6 6.4 12.6 8.6 Z" fill="#4f9c46" />
+    <path d="M11 8.5 C15.4 8.5 17 11.2 16.2 15.4 L12.6 27.6 C12.1 29.3 9.9 29.3 9.4 27.6 L5.8 15.4 C5 11.2 6.6 8.5 11 8.5 Z" fill="#f08a24" stroke="#cc6c12" strokeWidth="1" />
+    <path d="M7.6 14.6 L14.4 14.6 M8.6 19 L13.4 19 M9.6 23.4 L12.4 23.4" stroke="#d97416" strokeWidth="1.1" strokeLinecap="round" fill="none" />
   </svg>
 );
 
-const Star = ({ fill }) => (
-  <svg width="13" height="13" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L12.4 7.6 L18.5 10 L12.4 12.4 L10 18.5 L7.6 12.4 L1.5 10 L7.6 7.6 Z" fill={fill} /></svg>
+// Quyoncha (yon ko'rinish, o'ngga qarab) — kurs maskoti (Dars15 kanoni).
+const Bunny = () => (
+  <svg viewBox="0 0 52 48" width="46" height="42.5" aria-hidden="true" style={{ display: 'block', overflow: 'visible' }}>
+    <defs>
+      <linearGradient id="bfur1710" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#d7c8b7" /><stop offset="1" stopColor="#bda98f" />
+      </linearGradient>
+      <linearGradient id="bhead1710" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#ddcfbf" /><stop offset="1" stopColor="#c6b399" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="26" cy="45" rx="16" ry="2.8" fill="rgba(0,0,0,.13)" />
+    <circle cx="8.5" cy="30" r="6" fill="#fdfbf7" stroke="#e6ddd0" strokeWidth="1" />
+    <path d="M30 20 C25 8 27 1.5 29.5 1.8 C32 2.1 33 9 33.2 19 Z" fill="#c2b096" stroke="#a08b70" strokeWidth="1" />
+    <path d="M7 33 C6 22 15 17 26 18.5 C37 20 42 26 41 33 C40 41 31 43.5 21 43 C12 42.6 8 39 7 33 Z" fill="url(#bfur1710)" stroke="#b09a7e" strokeWidth="1" />
+    <path d="M13 36 C15 42 32 43 36 38 C33 43 15 43.5 12 38 Z" fill="#efe6d6" opacity=".7" />
+    <ellipse cx="17" cy="41.5" rx="10" ry="4" fill="#cbb8a0" stroke="#ac9678" strokeWidth="1" />
+    <circle cx="9" cy="41.5" r="2.1" fill="#e6dccb" />
+    <circle cx="39" cy="25" r="10" fill="url(#bhead1710)" stroke="#b09a7e" strokeWidth="1" />
+    <path d="M35 18 C31.5 5 35 0 37.7 0.4 C40.4 0.8 41 9 40 18 Z" fill="url(#bhead1710)" stroke="#a8977f" strokeWidth="1" />
+    <path d="M36.4 17 C34 7.5 36.2 3.6 37.6 3.8 C39 4 39.4 9.5 38.8 17 Z" fill="#f3bccb" />
+    <ellipse cx="41" cy="29" rx="4.5" ry="3" fill="#d3c0a6" opacity=".55" />
+    <ellipse cx="41.6" cy="23.4" rx="2.1" ry="2.4" fill="#3a322c" />
+    <circle cx="42.4" cy="22.5" r="0.8" fill="#fff" />
+    <path d="M47.6 26.4 L45.4 25.3 L45.4 27.5 Z" fill="#e08aa0" />
+    <path d="M46.4 27.3 Q46.4 29 45 29" fill="none" stroke="#a8977f" strokeWidth="0.8" strokeLinecap="round" />
+    <g stroke="#c9b79c" strokeWidth="0.7" strokeLinecap="round">
+      <line x1="46" y1="26" x2="52" y2="24.5" /><line x1="46" y1="27" x2="52" y2="27" /><line x1="46" y1="28" x2="51.5" y2="29.5" />
+    </g>
+    <ellipse cx="34.5" cy="42" rx="5" ry="3" fill="#d3c0a6" stroke="#ac9678" strokeWidth="1" />
+  </svg>
 );
 
-const BOX1 = Array.from({ length: TEN }).map((_, i) => i);        // global 0..9
-const BOX2 = Array.from({ length: TEN }).map((_, i) => TEN + i);  // global 10..19
+// SON O'QI (5..15) — maysadagi yo'lka. Quyoncha 8 da turadi; to'g'ri javobda sekin sakraydi;
+// `lit` — yashil qoladigan nuqtalar (10-o'nlik va 13). 10-nuqta oltin rangda ajratilgan.
+const NumberLine = ({ from = NL_FROM, to = NL_TO, path = [], lit = [], active = false, still = false }) => {
+  const span = to - from;
+  const pct = (n) => ((n - from) / span) * 100;
+  const [idx, setIdx] = useState(-1);
+
+  useEffect(() => {
+    if (!active) { setIdx(-1); return; }
+    if (still) { setIdx(path.length - 1); return; }
+    const timers = path.map((_, k) => setTimeout(() => setIdx(k), 600 + k * 850));
+    return () => timers.forEach(clearTimeout);
+  }, [active, still]); // eslint-disable-line
+
+  const started = idx >= 0;
+  const bunnyN = started ? path[idx] : (path[0] ?? from);
+  const fillN = active && started ? bunnyN : (path[0] ?? from);
+  const nodeOn = (n) => active && lit.includes(n) && (still || (path.includes(n) && idx >= path.indexOf(n)));
+
+  return (
+    <div className={'pq-nl' + (still ? ' still' : '')}>
+      <div className="pq-nl-track">
+        <div className="pq-nl-fill" style={{ left: `${pct(path[0] ?? from)}%`, width: `${pct(fillN) - pct(path[0] ?? from)}%`, opacity: active && started ? 1 : 0 }} />
+      </div>
+      <div className="pq-nl-bunny" style={{ left: `${pct(bunnyN)}%` }}>
+        <span key={idx} className={'pq-nl-hop' + (started && !still ? ' go' : (!active ? ' idle' : ''))}><Bunny /></span>
+      </div>
+      <div className="pq-nl-nodes">
+        {Array.from({ length: span + 1 }).map((_, i) => {
+          const n = from + i; const on = nodeOn(n);
+          return (
+            <div key={n} className={'pq-nl-node' + (on ? ' on' : '') + (n === TEN ? ' ten' : '')} style={{ left: `${(i / span) * 100}%` }}>
+              <span className="pq-nl-dot" />
+              <span className="pq-nl-lbl">{n}</span>
+              {on && <span className="pq-nl-spark">✦</span>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default function D17_10(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = T[lang] || T.uz;
   const isReview = mode === 'review';
-  const [added, setAdded] = useState(0); // qo'yilgan yakka shirinliklar soni 0..5
+  const [added, setAdded] = useState(0); // savatga solingan sabzi soni 0..5
+  const [picked, setPicked] = useState(null); // tanlangan variant
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
-  // Review yoki qayta ochilishda pop-anim qayta ijro etilmaydi — statik yakuniy holat.
+  // Review yoki qayta ochilishda solish/sakrash animlari qayta ijro etilmaydi — statik yakun.
   const stillRef = useRef(isReview || !!(initialAnswer && initialAnswer.studentAnswer));
   const still = stillRef.current;
-  const total = START + added;
 
   useEffect(() => {
     if (initialAnswer && initialAnswer.studentAnswer) {
-      const p = initialAnswer.studentAnswer.placed;
-      if (typeof p === 'number') setAdded(Math.max(0, Math.min(p, ADD)));
+      setAdded(ADD); // harakat bosqichi tugagan deb tiklanadi
+      if (initialAnswer.studentAnswer.value != null) setPicked(initialAnswer.studentAnswer.value);
       if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct, msg: initialAnswer.correct ? t.correct : t.hint }); if (initialAnswer.correct) setChecked(true); }
     }
   }, [initialAnswer]);
-  useEffect(() => { onReady?.(added === ADD && !checked); }, [added, checked, onReady]);
+  useEffect(() => { onReady?.(added === ADD && picked !== null && !checked); }, [added, picked, checked, onReady]);
 
   const lock = isReview || checked;
-  const place = () => {
-    if (lock || added >= ADD) return;
-    setAdded((prev) => Math.min(prev + 1, ADD));
-    setFeedback(null);
-  };
+  const place = () => { if (lock || added >= ADD) return; setAdded((n) => n + 1); setFeedback(null); };
 
   const check = useCallback(() => {
-    const sum = START + added;
-    const correct = sum === TARGET;
-    setFeedback({ correct, msg: correct ? t.correct : (sum < TARGET ? t.hintFew : t.hint) });
+    if (picked === null) return;
+    const correct = picked === TARGET;
+    setFeedback({ correct, msg: correct ? t.correct : t.hint });
     if (correct) setChecked(true);
     if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: [String(TARGET)], studentAnswer: { placed: added }, correctAnswer: { placed: ADD }, correct, meta: { ...DATA } });
-  }, [added, playCorrect, playWrong, onSubmit, t]); // eslint-disable-line
+    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: DATA.options.map(String), studentAnswer: { value: picked, placed: added }, correctAnswer: { value: TARGET }, correct, meta: { ...DATA } });
+  }, [picked, added, playCorrect, playWrong, onSubmit, t]);
   const checkRef = useRef(check); checkRef.current = check;
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
-  const box1Full = added >= 2; // 1-quti o'nga to'ldi
+  const closed = added === ADD && !ok; // savat qopqog'i yopiq — jami yashirin
 
   return (
     <div className="pq pq1710">
       <style>{`
         .pq1710{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
-        .pq1710 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#d1567f;text-transform:uppercase;}
-        .pq1710 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 10px;}
+        .pq1710 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#4e9d54;text-transform:uppercase;}
+        .pq1710 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1710 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1710 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
-        .pq1710 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;padding:11px 10px 14px;border-radius:22px;background:linear-gradient(#fdeaf2,#f7dbe6);border:2px solid #f0cad9;}
-        .pq1710 .pq-scene{position:relative;width:372px;max-width:100%;height:328px;border-radius:18px;background:linear-gradient(#fff2dc 0%,#fbe6c2 55%,#f4d6a6 100%);border:2px solid #ecd4a8;overflow:hidden;}
-        .pq1710 .pq-window{position:absolute;top:12px;right:14px;width:52px;height:40px;border-radius:6px;background:linear-gradient(135deg,#dff0fb 0 45%,#c2ddf0 45% 55%,#dff0fb 55%);border:2.5px solid #c69a5a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);z-index:1;}
-        .pq1710 .pq-window::after{content:'';position:absolute;left:50%;top:3px;bottom:3px;width:2px;background:#c69a5a;transform:translateX(-1px);}
-        .pq1710 .pq-window::before{content:'';position:absolute;top:50%;left:3px;right:3px;height:2px;background:#c69a5a;transform:translateY(-1px);}
-        .pq1710 .pq-sun{position:absolute;top:18px;right:22px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6ce,#f9c62f 72%,#f0ab18);box-shadow:0 0 15px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
-        .pq1710 .pq-lamp{position:absolute;left:40px;top:0;width:2px;height:20px;background:#9c6a2e;z-index:1;}
-        .pq1710 .pq-lampshade{position:absolute;left:27px;top:18px;width:28px;height:14px;border-radius:0 0 42% 42%/0 0 100% 100%;background:linear-gradient(#f9dd8e,#e6ae42);border:1.5px solid #c08a34;z-index:1;box-shadow:0 11px 24px 6px rgba(255,216,110,.4);animation:pqLamp 3.2s ease-in-out infinite;}
-        .pq1710 .pq-board{position:absolute;top:9px;left:50%;transform:translateX(-50%);z-index:6;padding:5px 15px 6px;border-radius:10px;background:linear-gradient(#e6799f,#cf5680);border:2.5px solid #a83c63;color:#fff3f7;font-size:12px;font-weight:800;letter-spacing:.03em;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.35);}
-        .pq1710 .pq-board::before,.pq1710 .pq-board::after{content:'';position:absolute;bottom:100%;width:2.5px;height:7px;background:#a83c63;}
-        .pq1710 .pq-board::before{left:18px;} .pq1710 .pq-board::after{right:18px;}
-        /* hisoblagich: "8 + N" yoki g'alaba chip "8 + 5 = 13" */
-        .pq1710 .pq-tot{position:absolute;top:40px;left:50%;transform:translateX(-50%);z-index:8;padding:3px 16px;border-radius:12px;background:#fff;color:#374151;font-size:15px;font-weight:900;font-variant-numeric:tabular-nums;box-shadow:0 3px 8px rgba(0,0,0,.16);white-space:nowrap;transition:.15s;}
-        .pq1710 .pq-tot.chip{color:#1a7f43;box-shadow:0 4px 12px rgba(26,127,67,.24);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;}
-        /* peshtaxta */
-        .pq1710 .pq-counter{position:absolute;left:0;right:0;bottom:0;height:24px;background:linear-gradient(#d29a5e,#b1783e 60%,#966032);border-top:3px solid #e0ab68;z-index:1;}
-        .pq1710 .pq-counter::after{content:'';position:absolute;left:0;right:0;top:5px;height:2px;background:rgba(255,255,255,.22);}
-        /* ten-frame qutilar */
-        .pq1710 .pq-box{position:absolute;left:50%;transform:translateX(-50%);padding:8px 9px 9px;border-radius:14px;z-index:4;}
-        .pq1710 .pq-box.b1{top:74px;background:linear-gradient(#f0d9b6,#e2be8c);border:2.5px solid #c79a5c;box-shadow:0 6px 13px rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.4);}
-        .pq1710 .pq-box.b1.full{border-color:#1a7f43;box-shadow:0 6px 16px rgba(26,127,67,.28),inset 0 2px 0 rgba(255,255,255,.4);}
-        .pq1710 .pq-box.b2{top:196px;background:linear-gradient(#f3e3cb,#e7d0aa);border:2.5px dashed #c79a5c;box-shadow:0 6px 13px rgba(0,0,0,.14),inset 0 2px 0 rgba(255,255,255,.35);}
-        .pq1710 .pq-box.win{animation:pqBoxCele .55s ease;}
-        .pq1710 .pq-blabel{position:absolute;top:-1px;left:-2px;transform:translateY(-100%);font-size:10.5px;font-weight:800;color:#9a6a2e;background:rgba(255,255,255,.7);padding:1px 7px;border-radius:7px;letter-spacing:.02em;}
-        .pq1710 .pq-box.b1.full .pq-blabel{color:#1a7f43;}
-        .pq1710 .pq-grid{display:grid;grid-template-columns:repeat(5,28px);grid-auto-rows:26px;gap:5px;}
-        .pq1710 .pq-cell{position:relative;border-radius:8px;box-sizing:border-box;}
-        .pq1710 .pq-cell.candy{background:rgba(255,250,240,.55);border:1.5px solid rgba(150,96,50,.3);}
-        .pq1710 .pq-cell.empt{border:1.5px dashed rgba(150,96,50,.5);background:rgba(255,255,255,.24);}
-        .pq1710 .pq-cw{position:absolute;inset:3px 4px;line-height:0;}
-        .pq1710 .pq-cw.pop{animation:pqFill .42s cubic-bezier(.3,1.4,.5,1) both;}
-        .pq1710 .pq-plus{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:15px;font-weight:900;color:#b07a34;opacity:.4;}
-        .pq1710 .pq-cnt{position:absolute;top:-7px;right:-5px;min-width:15px;height:15px;padding:0 2px;border-radius:50%;background:#2563eb;color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.25);animation:pqPop .3s ease both;z-index:7;}
-        .pq1710 .pq-wstar{position:absolute;z-index:7;line-height:0;opacity:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
-        .pq1710 .pq-wstar.w2{animation-delay:-.5s;} .pq1710 .pq-wstar.w3{animation-delay:-1.05s;}
-        /* yakka shirinliklar laganchasi */
-        .pq1710 .pq-tray{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:16px;background:linear-gradient(#fbe6c2,#f2d3a2);border:2px solid #e6c592;box-shadow:inset 0 2px 4px rgba(120,74,32,.12);min-height:52px;}
-        .pq1710 .pq-loose{width:38px;height:28px;border:none;background:none;padding:0;cursor:pointer;line-height:0;position:relative;transition:transform .12s,filter .2s;filter:drop-shadow(0 2px 3px rgba(0,0,0,.18));animation:pqShimmer 2.4s ease-in-out infinite;}
-        .pq1710 .pq-loose:nth-child(2){animation-delay:-.5s;} .pq1710 .pq-loose:nth-child(3){animation-delay:-1s;}
-        .pq1710 .pq-loose:nth-child(4){animation-delay:-1.5s;} .pq1710 .pq-loose:nth-child(5){animation-delay:-2s;}
-        .pq1710 .pq-loose:hover:not(:disabled){transform:translateY(-3px) scale(1.08);}
-        .pq1710 .pq-loose:active:not(:disabled){transform:scale(.9);}
-        .pq1710 .pq-loose:disabled{cursor:default;}
-        .pq1710 .pq-trayempty{font-size:13px;font-weight:800;color:#a5773e;}
-        .pq1710 .pq-taphint{font-size:12.5px;font-weight:800;color:#a5476b;}
-        /* Tekshir tugmasi */
-        .pq1710 .pq-check{padding:9px 30px;border-radius:14px;border:2.5px solid #2f6f3a;background:linear-gradient(#3f9a4e,#2f7d3c);color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 3px 0 #235c2c;transition:.12s;font-family:inherit;letter-spacing:.02em;}
-        .pq1710 .pq-check:hover:not(:disabled){transform:translateY(-2px);}
-        .pq1710 .pq-check:active:not(:disabled){transform:translateY(1px);box-shadow:0 1px 0 #235c2c;}
-        .pq1710 .pq-check:disabled{background:#ded8ca;border-color:#c3bdb0;color:#8f8a7f;box-shadow:0 3px 0 #c3bdb0;cursor:default;}
-        .pq1710 .pq-check.ready{animation:pqPulseBtn 1.4s ease-in-out infinite;}
-        .pq1710 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
+        .pq1710 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;}
+        /* ===== TABIAT SAHNASI ===== */
+        .pq1710 .pq-scene{position:relative;width:404px;max-width:100%;height:280px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq1710 .pq-sun{position:absolute;top:14px;left:20px;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 42% 40%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 22px 7px rgba(255,214,74,.6);animation:pqSun 4s ease-in-out infinite;z-index:1;}
+        .pq1710 .pq-cloud{position:absolute;height:16px;background:#fff;border-radius:20px;box-shadow:0 6px 0 -2px #fff;opacity:.94;z-index:1;}
+        .pq1710 .pq-cloud::before,.pq1710 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+        .pq1710 .pq-cloud::before{width:22px;height:22px;top:-9px;left:8px;} .pq1710 .pq-cloud::after{width:16px;height:16px;top:-6px;left:26px;}
+        .pq1710 .pq-cloud.c1{top:30px;left:58%;width:46px;animation:pqDrift 14s ease-in-out infinite;}
+        .pq1710 .pq-cloud.c2{top:56px;left:30%;width:34px;transform:scale(.8);animation:pqDrift 18s ease-in-out infinite reverse;}
+        .pq1710 .pq-hills{position:absolute;left:0;right:0;bottom:104px;height:66px;z-index:1;}
+        .pq1710 .pq-hills span{position:absolute;bottom:0;border-radius:50% 50% 0 0;background:linear-gradient(#9ad673,#7cc158);}
+        .pq1710 .pq-hills span:nth-child(1){left:-8%;width:52%;height:58px;background:linear-gradient(#a7dd82,#8ecb6a);}
+        .pq1710 .pq-hills span:nth-child(2){right:-6%;width:48%;height:66px;}
+        .pq1710 .pq-hills span:nth-child(3){left:32%;width:40%;height:48px;background:linear-gradient(#a2da7c,#86c663);}
+        .pq1710 .pq-grass{position:absolute;left:0;right:0;bottom:0;height:112px;background:linear-gradient(#84c95f 0%,#69b34c 60%,#5aa53f 100%);z-index:2;}
+        .pq1710 .pq-grass::before{content:'';position:absolute;left:0;right:0;top:-6px;height:10px;background:radial-gradient(circle at 6px 10px,#84c95f 6px,transparent 7px) repeat-x;background-size:16px 10px;}
+        .pq1710 .pq-flower{position:absolute;width:7px;height:7px;border-radius:50%;z-index:3;}
+        .pq1710 .pq-flower::after{content:'';position:absolute;inset:0;border-radius:50%;background:#ffd94a;}
+        .pq1710 .pq-flower.f1{left:18%;bottom:86px;background:#ffd94a;box-shadow:5px 0 0 #ffd94a,-5px 0 0 #ffd94a,0 5px 0 #ffd94a,0 -5px 0 #ffd94a;}
+        .pq1710 .pq-flower.f2{right:30%;bottom:78px;background:#fff;box-shadow:5px 0 0 #fff,-5px 0 0 #fff,0 5px 0 #fff,0 -5px 0 #fff;}
+        .pq1710 .pq-flower.f3{left:8%;bottom:80px;transform:scale(.85);background:#c79bf0;box-shadow:5px 0 0 #c79bf0,-5px 0 0 #c79bf0,0 5px 0 #c79bf0,0 -5px 0 #c79bf0;}
+        .pq1710 .pq-flower.f4{left:90%;bottom:82px;transform:scale(.8);background:#ff9ec4;box-shadow:5px 0 0 #ff9ec4,-5px 0 0 #ff9ec4,0 5px 0 #ff9ec4,0 -5px 0 #ff9ec4;}
+        .pq1710 .pq-tuft{position:absolute;z-index:3;}
+        .pq1710 .pq-tuft.t1{left:26%;bottom:74px;} .pq1710 .pq-tuft.t2{left:62%;bottom:78px;transform:scale(.85);}
+        .pq1710 .pq-mush{position:absolute;z-index:3;left:52px;bottom:74px;}
+        .pq1710 .pq-tree{position:absolute;left:8px;bottom:96px;width:46px;height:56px;z-index:2;}
+        .pq1710 .pq-tree i{position:absolute;}
+        .pq1710 .pq-trunk{left:19px;bottom:0;width:8px;height:20px;background:linear-gradient(90deg,#8a5a2c,#a9743e);border-radius:2px;}
+        .pq1710 .pq-leaves{left:0;bottom:14px;width:46px;height:42px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#93d36e,#5da845);box-shadow:13px 8px 0 -8px #6fb552,-9px 9px 0 -10px #67ac4c;}
+        .pq1710 .pq-bush{position:absolute;right:12px;bottom:92px;width:36px;height:22px;border-radius:16px 16px 3px 3px;background:radial-gradient(circle at 38% 28%,#86c95f,#5aa542);z-index:2;box-shadow:-13px 3px 0 -7px #6fb552;}
+        .pq1710 .pq-bfly{position:absolute;width:8px;height:8px;z-index:5;}
+        .pq1710 .pq-bfly::before,.pq1710 .pq-bfly::after{content:'';position:absolute;top:0;width:6px;height:9px;border-radius:60%;}
+        .pq1710 .pq-bfly::before{left:-3px;transform-origin:right center;animation:pqWing .26s ease-in-out infinite alternate;}
+        .pq1710 .pq-bfly::after{right:-3px;transform-origin:left center;animation:pqWing .26s ease-in-out infinite alternate;}
+        .pq1710 .pq-bfly.bf1::before,.pq1710 .pq-bfly.bf1::after{background:#ff9ec4;}
+        .pq1710 .pq-bfly.bf1{top:96px;left:24%;animation:pqFlit1 8s ease-in-out infinite;}
+        .pq1710 .pq-bird{position:absolute;z-index:1;opacity:.7;}
+        .pq1710 .pq-bird.b1{top:26px;left:42%;animation:pqBird 7s ease-in-out infinite;}
+        .pq1710 .pq-bird.b2{top:42px;left:56%;transform:scale(.78);animation:pqBird 9s ease-in-out infinite;}
+        /* yog'och taxtacha (ifoda) */
+        .pq1710 .pq-sign{position:absolute;top:44px;left:50%;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:7px;padding:9px 12px 12px;border-radius:14px;background:linear-gradient(#d19b5c,#b67c3f);border:2px solid #93602c;box-shadow:0 5px 0 #8a5926,0 8px 12px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.28);}
+        .pq1710 .pq-sign::before,.pq1710 .pq-sign::after{content:'';position:absolute;top:100%;width:7px;height:26px;background:linear-gradient(90deg,#7d5122,#9c6a30);border-radius:0 0 3px 3px;box-shadow:0 2px 3px rgba(0,0,0,.15);}
+        .pq1710 .pq-sign::before{left:24px;} .pq1710 .pq-sign::after{right:24px;}
+        .pq1710 .pq-tile{min-width:42px;height:52px;display:flex;align-items:center;justify-content:center;font-size:27px;font-weight:900;border-radius:12px;font-variant-numeric:tabular-nums;box-shadow:0 2px 4px rgba(60,40,15,.25);}
+        .pq1710 .pq-tile.ten{background:#fdecec;border:2.5px solid #cf3f38;color:#cf3f38;}
+        .pq1710 .pq-tile.one{background:#fff4e2;border:2.5px solid #d1912b;color:#b16b12;}
+        .pq1710 .pq-tile.hole{background:#fff;border:3px dashed #7a4e12;color:#a05a1f;animation:pqBreath 1.7s ease-in-out infinite;}
+        .pq1710 .pq-tile.ans{background:#e8f7ee;border:2.5px solid #1a7f43;color:#1a7f43;animation:pqPop .45s cubic-bezier(.3,1.5,.5,1) both;}
+        .pq1710 .pq-op{font-size:21px;font-weight:900;color:#fbe9d2;text-shadow:0 1px 1px rgba(0,0,0,.25);}
+        /* SON O'QI — maysadagi yo'lka */
+        .pq1710 .pq-nl{position:absolute;left:10px;right:10px;bottom:16px;z-index:4;padding:50px 10px 22px;}
+        .pq1710 .pq-nl-track{position:relative;height:13px;border-radius:7px;background:linear-gradient(#efe0bd,#e2cd9f);border:1.5px solid #cbb07a;box-shadow:inset 0 1px 2px rgba(120,90,40,.2);margin:0 8px;}
+        .pq1710 .pq-nl-fill{position:absolute;top:0;bottom:0;border-radius:7px;background:linear-gradient(90deg,#f6c760,#3f9a4e);box-shadow:0 0 12px 2px rgba(63,154,78,.5);transition:width .7s cubic-bezier(.4,0,.3,1),opacity .3s;}
+        .pq1710 .pq-nl.still .pq-nl-fill{transition:none;}
+        .pq1710 .pq-nl-bunny{position:absolute;top:2px;transform:translateX(-50%);transition:left .7s cubic-bezier(.4,0,.35,1);z-index:6;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.18));}
+        .pq1710 .pq-nl.still .pq-nl-bunny{transition:none;}
+        .pq1710 .pq-nl-hop{display:block;transform-origin:bottom center;}
+        .pq1710 .pq-nl-hop.idle{animation:pqIdle 2.8s ease-in-out infinite;}
+        .pq1710 .pq-nl-hop.go{animation:pqHop .68s ease;}
+        .pq1710 .pq-nl-nodes{position:relative;height:0;margin:0 8px;}
+        .pq1710 .pq-nl-node{position:absolute;top:-13px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;}
+        .pq1710 .pq-nl-dot{width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid #c9a35f;box-sizing:border-box;box-shadow:0 1px 2px rgba(90,60,20,.3);transition:.25s;}
+        .pq1710 .pq-nl-lbl{margin-top:6px;font-size:13px;font-weight:900;color:#38612a;font-variant-numeric:tabular-nums;text-shadow:0 1px 0 rgba(255,255,255,.4);}
+        .pq1710 .pq-nl-node.ten .pq-nl-dot{border-color:#e0a83f;background:#fff7e0;}
+        .pq1710 .pq-nl-node.ten .pq-nl-lbl{color:#a06a1f;}
+        .pq1710 .pq-nl-node.on .pq-nl-dot{background:#3f9a4e;border-color:#2f7d3c;transform:scale(1.6);box-shadow:0 0 14px 4px rgba(63,154,78,.7);}
+        .pq1710 .pq-nl-node.on .pq-nl-lbl{color:#166a34;font-size:15px;}
+        .pq1710 .pq-nl-spark{position:absolute;top:-22px;font-size:16px;color:#fff2b0;animation:pqTwinkle 1.4s ease-in-out infinite;}
+        /* ===== SAVAT (yog'och quti + qopqoq) ===== */
+        .pq1710 .pq-crate{position:relative;width:404px;max-width:100%;border-radius:18px;background:linear-gradient(#d8ab6c,#c08d4a);border:2.5px solid #96622a;box-shadow:0 6px 13px rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.3);padding:10px 12px 12px;}
+        .pq1710 .pq-crate.win{animation:pqCele .55s ease;}
+        .pq1710 .pq-cratehead{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+        .pq1710 .pq-cratelbl{font-size:12px;font-weight:800;color:#6a4114;letter-spacing:.03em;text-transform:uppercase;}
+        .pq1710 .pq-cratecnt{font-size:13px;font-weight:900;color:#fff;background:#8a5926;padding:1px 10px;border-radius:999px;font-variant-numeric:tabular-nums;}
+        .pq1710 .pq-grid{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px;border-radius:12px;background:rgba(255,248,232,.5);border:1.5px solid rgba(120,74,32,.35);box-shadow:inset 0 1px 4px rgba(90,54,20,.16);}
+        .pq1710 .pq-cell{position:relative;height:42px;border-radius:9px;background:rgba(255,255,255,.35);border:1.4px dashed rgba(120,74,32,.4);display:flex;align-items:center;justify-content:center;}
+        .pq1710 .pq-cell.has{border-style:solid;border-color:rgba(120,74,32,.3);}
+        .pq1710 .pq-cw{position:relative;line-height:0;}
+        .pq1710 .pq-cw.in{animation:pqDropIn .45s cubic-bezier(.3,1.3,.5,1) both;}
+        .pq1710 .pq-cnt{position:absolute;top:-7px;right:-7px;min-width:16px;height:16px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.25);animation:pqPop .3s ease both;z-index:7;}
+        .pq1710 .pq-cnt.hi{background:#1a7f43;}
+        /* qopqoq — jami yashirin, sanab bo'lmaydi */
+        .pq1710 .pq-lid{position:absolute;inset:-2px;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:14px;background:repeating-linear-gradient(90deg,#c08d4a 0 46px,#b07c3a 46px 50px);border:2.5px solid #8a5926;box-shadow:0 4px 10px rgba(0,0,0,.24),inset 0 2px 0 rgba(255,255,255,.28);animation:pqLidClose .45s ease both;}
+        .pq1710 .pq-lid .q{font-size:30px;font-weight:900;color:#fff4dd;text-shadow:0 2px 2px rgba(90,54,20,.4);}
+        .pq1710 .pq-lid .cap{font-size:12.5px;font-weight:800;color:#fbe9d2;}
+        .pq1710 .pq-gridwrap{position:relative;}
+        .pq1710 .pq-spark{position:absolute;z-index:9;color:#ffd13f;opacity:0;line-height:0;font-size:15px;animation:pqTwinkle 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
+        .pq1710 .pq-spark.s2{animation-delay:-.6s;} .pq1710 .pq-spark.s3{animation-delay:-1.15s;}
+        /* sabzi lagani */
+        .pq1710 .pq-tray{display:flex;align-items:center;gap:9px;padding:8px 16px;border-radius:16px;background:linear-gradient(#fdf3df,#f6e6c6);border:2px solid #e6cf9e;box-shadow:inset 0 2px 4px rgba(150,110,50,.12);min-height:50px;}
+        .pq1710 .pq-carrot{width:26px;height:36px;border:none;background:none;padding:0;cursor:pointer;line-height:0;transition:transform .12s;filter:drop-shadow(0 2px 3px rgba(0,0,0,.16));animation:pqBob 2.4s ease-in-out infinite;}
+        .pq1710 .pq-carrot:nth-child(2n){animation-delay:-.8s;} .pq1710 .pq-carrot:nth-child(3n){animation-delay:-1.5s;}
+        .pq1710 .pq-carrot:hover:not(:disabled){transform:translateY(-3px) scale(1.08);}
+        .pq1710 .pq-carrot:active:not(:disabled){transform:scale(.88);}
+        .pq1710 .pq-carrot:disabled{cursor:default;}
+        .pq1710 .pq-taphint{font-size:12.5px;font-weight:800;color:#8a6a2e;}
+        /* variantlar + feedback */
+        .pq1710 .pq-opts{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;animation:pqIn .3s ease both;}
+        .pq1710 .pq-opt{min-width:72px;height:70px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;font-family:inherit;}
+        .pq1710 .pq-opt:hover:not(:disabled){border-color:#7cc158;transform:translateY(-2px);}
+        .pq1710 .pq-opt:active:not(:disabled){transform:scale(.94);}
+        .pq1710 .pq-opt.sel{border-color:#2563eb;background:#e8eefc;}
+        .pq1710 .pq-opt.right{border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pqCele .5s ease;}
+        .pq1710 .pq-opt:disabled{cursor:default;}
+        .pq1710 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:6px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
         .pq1710 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq1710 .pq-fb.no{background:#fdecec;color:#c0392b;}
-        @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-        @keyframes pqLamp{0%,100%{opacity:.85;}50%{opacity:1;}}
-        @keyframes pqFill{0%{opacity:0;transform:translateY(-14px) scale(.5);}60%{opacity:1;transform:translateY(2px) scale(1.08);}100%{opacity:1;transform:translateY(0) scale(1);}}
-        @keyframes pqShimmer{0%,100%{filter:drop-shadow(0 2px 3px rgba(0,0,0,.18)) brightness(1);}50%{filter:drop-shadow(0 3px 5px rgba(0,0,0,.22)) brightness(1.09);}}
+        @keyframes pqSun{0%,100%{transform:scale(1);box-shadow:0 0 20px 6px rgba(255,214,74,.55);}50%{transform:scale(1.06);box-shadow:0 0 26px 9px rgba(255,214,74,.7);}}
+        @keyframes pqDrift{0%,100%{transform:translateX(0);}50%{transform:translateX(-16px);}}
+        @keyframes pqWing{0%{transform:scaleX(1);}100%{transform:scaleX(.35);}}
+        @keyframes pqFlit1{0%,100%{transform:translate(0,0);}25%{transform:translate(26px,-12px);}50%{transform:translate(48px,6px);}75%{transform:translate(20px,-6px);}}
+        @keyframes pqBird{0%,100%{transform:translate(0,0);}50%{transform:translate(-34px,-6px);}}
+        @keyframes pqBreath{0%,100%{transform:scale(1);opacity:.9;}50%{transform:scale(1.05);opacity:1;}}
         @keyframes pqPop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
-        @keyframes pqAns{0%{opacity:0;transform:translateX(-50%) scale(.3);}100%{opacity:1;transform:translateX(-50%) scale(1);}}
-        @keyframes pqTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0deg);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
-        @keyframes pqPulseBtn{0%,100%{transform:translateY(0);box-shadow:0 3px 0 #235c2c;}50%{transform:translateY(-2px);box-shadow:0 5px 13px rgba(47,125,60,.42);}}
-        @keyframes pqBoxCele{0%{transform:translateX(-50%) scale(1);}30%{transform:translateX(-50%) scale(1.04);}60%{transform:translateX(-50%) scale(.98);}100%{transform:translateX(-50%) scale(1);}}
+        @keyframes pqIdle{0%,100%{transform:translateY(0) scaleY(1);}50%{transform:translateY(-1.5px) scaleY(1.02);}}
+        @keyframes pqHop{0%{transform:translateY(0) scaleY(.86);}18%{transform:translateY(0) scaleY(1.05);}45%{transform:translateY(-30px) scaleY(1.08);}80%{transform:translateY(0) scaleY(.82);}100%{transform:translateY(0) scaleY(1);}}
+        @keyframes pqTwinkle{0%,100%{opacity:0;transform:scale(.4) rotate(0);}50%{opacity:1;transform:scale(1) rotate(30deg);}}
+        @keyframes pqCele{0%{transform:scale(1);}30%{transform:scale(1.05);}60%{transform:scale(.97);}100%{transform:scale(1);}}
+        @keyframes pqDropIn{0%{opacity:0;transform:translateY(-30px) scale(.7);}70%{opacity:1;transform:translateY(3px);}100%{opacity:1;transform:translateY(0);}}
+        @keyframes pqLidClose{0%{opacity:0;transform:translateY(-26px);}100%{opacity:1;transform:translateY(0);}}
+        @keyframes pqBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
         @keyframes pqIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
@@ -203,87 +318,86 @@ export default function D17_10(props) {
 
       <div className="pq-stage">
         <div className="pq-scene">
-          <span className="pq-lamp" /><span className="pq-lampshade" />
-          <span className="pq-window" /><span className="pq-sun" />
-          <div className="pq-board">{t.title}</div>
+          <span className="pq-sun" />
+          <Bird cls="b1" /><Bird cls="b2" />
+          <span className="pq-cloud c1" /><span className="pq-cloud c2" />
+          <div className="pq-hills"><span /><span /><span /></div>
+          <div className="pq-grass" />
+          <div className="pq-tree"><i className="pq-trunk" /><i className="pq-leaves" /></div>
+          <Mushroom cls="m1" />
+          <span className="pq-bush" />
+          <Tuft cls="t1" /><Tuft cls="t2" />
+          <span className="pq-flower f1" /><span className="pq-flower f2" /><span className="pq-flower f3" /><span className="pq-flower f4" />
+          <span className="pq-bfly bf1" />
 
-          {/* hisoblagich: "8 + N" yoki g'alaba chip "8 + 5 = 13" */}
-          {ok ? (
-            <span className="pq-tot chip">{t.chip}</span>
-          ) : (
-            <span className="pq-tot">{START} + {added}</span>
-          )}
-
-          {/* 1-quti (avval o'nga to'ladi) */}
-          <div className={'pq-box b1' + (ok ? ' win' : '') + (box1Full ? ' full' : '')}>
-            <span className="pq-blabel">{t.box1}</span>
-            <div className="pq-grid">
-              {BOX1.map((gi) => {
-                const s = slotState(gi, added);
-                if (s.filled) {
-                  const isNew = !s.preset;
-                  return (
-                    <div key={gi} className="pq-cell candy">
-                      <span className={'pq-cw' + (isNew && !still ? ' pop' : '')}>
-                        <Candy c={s.c} />
-                        {ok && <b className="pq-cnt">{gi + 1}</b>}
-                      </span>
-                    </div>
-                  );
-                }
-                return <div key={gi} className="pq-cell empt" aria-hidden="true"><span className="pq-plus">+</span></div>;
-              })}
-            </div>
+          <div className="pq-sign">
+            <span className="pq-tile ten">{A}</span>
+            <span className="pq-op">+</span>
+            <span className="pq-tile one">{ADD}</span>
+            <span className="pq-op">=</span>
+            {ok ? <span className="pq-tile ans">{TARGET}</span> : <span className="pq-tile hole">?</span>}
           </div>
 
-          {/* 2-quti (ortig'i o'tadi) */}
-          <div className={'pq-box b2' + (ok ? ' win' : '')}>
-            <span className="pq-blabel">{t.box2}</span>
-            <div className="pq-grid">
-              {BOX2.map((gi) => {
-                const s = slotState(gi, added);
-                if (s.filled) {
-                  return (
-                    <div key={gi} className="pq-cell candy">
-                      <span className={'pq-cw' + (!still ? ' pop' : '')}>
-                        <Candy c={s.c} />
-                        {ok && <b className="pq-cnt">{gi + 1}</b>}
-                      </span>
-                    </div>
-                  );
-                }
-                return <div key={gi} className="pq-cell empt" aria-hidden="true"><span className="pq-plus">+</span></div>;
-              })}
-            </div>
-          </div>
-
-          <span className="pq-counter" />
-
-          {ok && (
-            <>
-              <span className="pq-wstar" style={{ left: '18%', top: '150px' }}><Star fill="#f2b134" /></span>
-              <span className="pq-wstar w2" style={{ left: '80%', top: '160px' }}><Star fill="#e879a6" /></span>
-              <span className="pq-wstar w3" style={{ left: '50%', top: '116px' }}><Star fill="#4a90d9" /></span>
-            </>
-          )}
+          <NumberLine path={HOP_PATH} lit={[TEN, TARGET]} active={ok} still={still} />
         </div>
 
-        {/* yakka shirinliklar laganchasi — bosilsa keyingi bo'sh uyaga tushadi */}
-        {!ok && (
+        {/* SAVAT: 8 ta bor edi + solinganlar; yopiq holatda jami yashirin */}
+        <div className={'pq-crate' + (ok ? ' win' : '')}>
+          <div className="pq-cratehead">
+            <span className="pq-cratelbl">{t.basket}</span>
+            {ok && <span className="pq-cratecnt">{TARGET}</span>}
+          </div>
+          <div className="pq-gridwrap">
+            <div className="pq-grid">
+              {Array.from({ length: TARGET }).map((_, i) => {
+                const has = i < A + added;
+                const isNew = i >= A && has;
+                return (
+                  <div key={i} className={'pq-cell' + (has ? ' has' : '')}>
+                    {has && (
+                      <span className={'pq-cw' + (isNew && !still && !ok ? ' in' : '')}>
+                        <Carrot w={18} />
+                        {ok && <b className={'pq-cnt' + (i >= A ? ' hi' : '')} style={{ animationDelay: `${i * 0.05}s` }}>{i + 1}</b>}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {closed && (
+              <div className="pq-lid">
+                <span className="q">?</span>
+                <span className="cap">{t.closed}</span>
+              </div>
+            )}
+            {ok && (<>
+              <span className="pq-spark" style={{ left: '10%', top: '-8px' }}>✦</span>
+              <span className="pq-spark s2" style={{ left: '86%', top: '4px' }}>✦</span>
+              <span className="pq-spark s3" style={{ left: '50%', top: '-12px' }}>✦</span>
+            </>)}
+          </div>
+        </div>
+
+        {/* sabzi lagani — harakat bosqichi */}
+        {added < ADD && (
           <div className="pq-tray">
-            {added < ADD
-              ? LOOSE.slice(added).map((L) => (
-                  <button key={L.k} type="button" className="pq-loose" disabled={lock} onClick={place} aria-label={t.tapHint}>
-                    <Candy c={L.c} />
-                  </button>
-                ))
-              : <span className="pq-trayempty">✓</span>}
-            {!lock && added < ADD && <span className="pq-taphint">{t.tapHint}</span>}
+            {Array.from({ length: ADD - added }).map((_, k) => (
+              <button key={k} type="button" className="pq-carrot" disabled={lock} onClick={place} aria-label={t.tapHint}>
+                <Carrot />
+              </button>
+            ))}
+            {!lock && <span className="pq-taphint">{t.tapHint}</span>}
           </div>
         )}
 
-        {!ok && (
-          <button type="button" className={'pq-check' + (added === ADD ? ' ready' : '')} disabled={lock} onClick={() => checkRef.current()}>{t.btn}</button>
+        {/* variantlar — faqat savat yopilgach (harakat tugagach) */}
+        {added === ADD && (
+          <div className="pq-opts">
+            {DATA.options.map((n) => {
+              const sel = picked === n; const right = ok && n === TARGET;
+              return <button key={n} type="button" className={'pq-opt' + (right ? ' right' : sel ? ' sel' : '')} disabled={lock} onClick={() => { setPicked(n); setFeedback(null); }}>{n}</button>;
+            })}
+          </div>
         )}
       </div>
 

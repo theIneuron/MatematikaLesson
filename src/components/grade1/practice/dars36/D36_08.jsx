@@ -20,18 +20,18 @@ const DATA = { rows: ROWS.map((r) => ({ key: r.key, n: r.n })), target: TARGET, 
 const T = {
   uz: {
     eyebrow: "Ma'lumot · Piktogramma", title: "Diagrammani o'qing",
-    setup: 'Har qatordagi rasmlarni sanang.',
-    ask: "5 ta bo'lgan mevalarni belgilang.",
-    correct: 'Barakalla! Uch mevada 5 tadan.',
-    hint: 'Har qatorni sanang: 5 ta rasm bormi?',
+    setup: "Har qatordagi rasmlarni sanang.",
+    ask: "Soni 5 ta bo'lgan barcha mevalarni belgilang.",
+    correct: "Barakalla! Olma, banan va uzum — har birida 5 tadan.",
+    hint: "Har qatorni alohida sanang: unda rosa 5 ta rasm bormi?",
     head1: 'Meva', head2: 'Soni',
   },
   ru: {
     eyebrow: 'Данные · Пиктограмма', title: 'Прочитай диаграмму',
-    setup: 'Сосчитай картинки в каждом ряду.',
-    ask: 'Отметь фрукты, которых по 5.',
-    correct: 'Молодец! У трёх фруктов по 5.',
-    hint: 'Сосчитай каждый ряд: там 5 картинок?',
+    setup: "Сосчитай картинки в каждом ряду.",
+    ask: "Отметь все фрукты, которых ровно по 5.",
+    correct: "Молодец! Яблоки, бананы и виноград — по 5 в каждом ряду.",
+    hint: "Сосчитай каждый ряд отдельно: там ровно 5 картинок?",
     head1: 'Фрукт', head2: 'Кол-во',
   },
 };
@@ -39,41 +39,68 @@ const T = {
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
-// Bitta sanaladigan meva ikonkasi (1 rasm = 1 dona). 24x24 viewBox, markaz 12,12.
+// ——— YAGONA MEVA PALITRASI (D36_01 kanoni): olma #e5484d, nok #b5cf3f, banan #f2c94c, uzum #8e5bc4 ———
+// Bitta sanaladigan meva ikonkasi (1 rasm = 1 dona); realistik: gradient soya, yaltirash, bandi va barg.
+const PFX = 'g3608'; // gradient-id prefiksi (fayl-unikal; nusxa-deflar bir xil — xavfsiz)
+const FruitDefs = () => (
+  <defs>
+    <radialGradient id={PFX + 'ap'} cx="35%" cy="30%" r="85%">
+      <stop offset="0%" stopColor="#ff9a8f" /><stop offset="55%" stopColor="#e5484d" /><stop offset="100%" stopColor="#b7343c" />
+    </radialGradient>
+    <linearGradient id={PFX + 'lf'} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stopColor="#7ed07f" /><stop offset="100%" stopColor="#4caf50" />
+    </linearGradient>
+    <radialGradient id={PFX + 'pe'} cx="38%" cy="60%" r="80%">
+      <stop offset="0%" stopColor="#d3e46a" /><stop offset="60%" stopColor="#b5cf3f" /><stop offset="100%" stopColor="#93ab2c" />
+    </radialGradient>
+    <linearGradient id={PFX + 'ba'} x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stopColor="#ffe07a" /><stop offset="55%" stopColor="#f2c94c" /><stop offset="100%" stopColor="#e0ac2b" />
+    </linearGradient>
+    <radialGradient id={PFX + 'gr'} cx="35%" cy="32%" r="85%">
+      <stop offset="0%" stopColor="#b697e0" /><stop offset="55%" stopColor="#8e5bc4" /><stop offset="100%" stopColor="#6d4fae" />
+    </radialGradient>
+  </defs>
+);
 function Fruit({ type }) {
   if (type === 'apple') {
     return (
-      <svg width={24} height={24} viewBox="0 0 24 24" aria-hidden="true" style={{ display: 'block' }}>
-        <path d="M12 5 q0 -2 1.6 -3" stroke="#6b4a2b" strokeWidth={1.6} fill="none" strokeLinecap="round" />
-        <ellipse cx={14.6} cy={3.4} rx={3.2} ry={1.9} fill="#4caf50" transform="rotate(28 14.6 3.4)" />
-        <circle cx={12} cy={13} r={7} fill="#e5484d" />
-        <ellipse cx={9.6} cy={10.6} rx={1.8} ry={2.6} fill="#ff9a9a" opacity={0.6} />
+      <svg width={24} height={26} viewBox="0 0 28 30" aria-hidden="true" style={{ display: 'block' }}>
+        <FruitDefs />
+        <path d="M14 9 Q14.6 5 17.2 2.6" fill="none" stroke="#6b4a2b" strokeWidth="1.8" strokeLinecap="round" />
+        <ellipse cx="19.6" cy="4.6" rx="4.2" ry="2.3" fill={`url(#${PFX}lf)`} stroke="#3d8c40" strokeWidth=".6" transform="rotate(28 19.6 4.6)" />
+        <path d="M14 9.8 C 12.4 7.4 6 7 4.8 13 C 3.8 18.6 8.2 24.8 12.4 24.8 C 13.4 24 14.6 24 15.6 24.8 C 19.8 24.8 24.2 18.6 23.2 13 C 22 7 15.6 7.4 14 9.8 Z" fill={`url(#${PFX}ap)`} stroke="#b7343c" strokeWidth=".8" />
+        <ellipse cx="10.6" cy="13.6" rx="2.2" ry="3.4" fill="#fff" opacity=".5" transform="rotate(-18 10.6 13.6)" />
       </svg>
     );
   }
   if (type === 'pear') {
     return (
-      <svg width={24} height={24} viewBox="0 0 24 24" aria-hidden="true" style={{ display: 'block' }}>
-        <path d="M12 4 l0.8 2.4" stroke="#6b4a2b" strokeWidth={1.6} strokeLinecap="round" />
-        <circle cx={12} cy={15} r={6.4} fill="#b5cf3f" />
-        <circle cx={12} cy={9} r={3.8} fill="#c6db54" />
-        <ellipse cx={9.6} cy={13} rx={1.6} ry={2.4} fill="#e2eea0" opacity={0.6} />
+      <svg width={24} height={26} viewBox="0 0 28 30" aria-hidden="true" style={{ display: 'block' }}>
+        <FruitDefs />
+        <path d="M14 5 q1.4 -2.6 3.8 -3.2" fill="none" stroke="#6b4a2b" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M14 5.4 C 10.8 5.4 9.6 8.6 10.2 11.4 C 10.6 13.6 6.8 15.4 6.1 19.2 C 5.3 23.9 9.5 27 14 27 C 18.5 27 22.7 23.9 21.9 19.2 C 21.2 15.4 17.4 13.6 17.8 11.4 C 18.4 8.6 17.2 5.4 14 5.4 Z" fill={`url(#${PFX}pe)`} stroke="#93ab2c" strokeWidth=".8" />
+        <ellipse cx="11" cy="20.4" rx="2" ry="3.1" fill="#fff" opacity=".45" transform="rotate(-14 11 20.4)" />
       </svg>
     );
   }
   if (type === 'banana') {
     return (
-      <svg width={24} height={24} viewBox="0 0 24 24" aria-hidden="true" style={{ display: 'block' }}>
-        <path d="M4 7 Q 9 20 21 15 Q 11 17 4 7 Z" fill="#f2c94c" stroke="#d9a827" strokeWidth={1} />
+      <svg width={24} height={26} viewBox="0 0 28 30" aria-hidden="true" style={{ display: 'block' }}>
+        <FruitDefs />
+        <path d="M4.6 10 C 4 18.4 9.8 24.6 20 22.8 C 22.2 22.4 23.8 21.2 24.2 19.4 C 19 21.2 11.6 19.2 8.4 14.4 C 7.1 12.4 6.6 11 6.5 9.7 Z" fill={`url(#${PFX}ba)`} stroke="#d9a827" strokeWidth=".9" strokeLinejoin="round" />
+        <path d="M4.6 10 q-0.6 -1.6 0.4 -2.2 q1.2 -0.4 1.6 1.4 l-0.1 0.5 Z" fill="#8a6512" />
+        <circle cx="24" cy="19.7" r="1.2" fill="#8a6512" />
+        <path d="M6.2 13 C 6.6 18 11 22 17 22.6" stroke="#fff" strokeWidth="1" opacity=".35" fill="none" strokeLinecap="round" />
       </svg>
     );
   }
   // berry (uzum donasi) — bitta binafsha meva (klaster emas)
   return (
-    <svg width={24} height={24} viewBox="0 0 24 24" aria-hidden="true" style={{ display: 'block' }}>
-      <path d="M12 4 l0.6 2" stroke="#6b4a2b" strokeWidth={1.4} strokeLinecap="round" />
-      <circle cx={12} cy={13} r={6.6} fill="#8e5bc4" />
-      <ellipse cx={9.8} cy={10.8} rx={1.8} ry={2.6} fill="#c9a6e6" opacity={0.7} />
+    <svg width={24} height={26} viewBox="0 0 28 30" aria-hidden="true" style={{ display: 'block' }}>
+      <FruitDefs />
+      <path d="M14 8 q0.4 -3 2.6 -4.2" fill="none" stroke="#6b4a2b" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="14" cy="16.5" r="8.8" fill={`url(#${PFX}gr)`} stroke="#6d4fae" strokeWidth=".8" />
+      <ellipse cx="10.8" cy="13.4" rx="2.2" ry="3.2" fill="#c9a6e6" opacity=".8" transform="rotate(-16 10.8 13.4)" />
     </svg>
   );
 }

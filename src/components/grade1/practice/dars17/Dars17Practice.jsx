@@ -1,6 +1,8 @@
 // Dars17 amaliyoti — 10 topshiriq (o'nlikdan o'tib qo'shish): 8+5 = 8+2+3 = 10+3 = 13.
 // Make-ten strategiya: avval o'ngacha to'ldir, keyin qolganini. Ramp: 1🟢 / 3🟡 / 6🔴.
-// Shirinlik qutisi syujeti (IKKI ten-frame: 1-quti 10ga to'ladi, qolgani 2-qutiga). Sonlar 0-20.
+// DIZAYN TILI (Dars15): tabiat sahnasi + quyoncha son o'qida (bir qadam = bir birlik, sekin
+// sakraydi, 10-nuqta va nishon yonadi) + ifoda yog'och taxtachada. Zanjir (06) va ko'p-tanlov
+// (08) karta-panjara formatini saqlaydi. 10 — bilim tekshiruvi (savat yopiladi, 4 variant).
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D17_01 from './D17_01.jsx';
@@ -16,16 +18,16 @@ import D17_10 from './D17_10.jsx';
 
 // Metodik xarita (o'quvchiga ko'rsatilmaydi): prototip kodi · syujet · qiyinlik
 const ITEMS = [
-  { id: '01', label: '1 · 9+2', C: D17_01 },        // P13 · eng kichik o'tish (9+2=11) 🟢
-  { id: '02', label: '2 · 8+5', C: D17_02 },        // P13 · 8+5=13 (8+2+3) 🟡
-  { id: '03', label: '3 · 9+4', C: D17_03 },        // P13 · 9+4=13 (9+1+3) 🟡
-  { id: '04', label: '4 · 7+5', C: D17_04 },        // P13 · 7+5=12 (7+3+2) 🟡
-  { id: '05', label: '5 · 8+6', C: D17_05 },        // P13 · 8+6=14 (8+2+4) 🔴
-  { id: '06', label: '6 · Zanjir', C: D17_06 },     // P13 · 4 qator o'tib qo'shish 🔴
-  { id: '07', label: '7 · Bo\'lish', C: D17_07 },   // LOGIC · make-ten split (yangi mantiq turi) 🔴
+  { id: '01', label: '1 · 9+2', C: D17_01 },        // son o'qi+quyoncha · eng kichik o'tish (9+2=11) 🟢
+  { id: '02', label: '2 · 8+5', C: D17_02 },        // son o'qi+quyoncha · 8+5=13 (8+2+3) 🟡
+  { id: '03', label: '3 · 9+4', C: D17_03 },        // son o'qi+quyoncha · 9+4=13 (9+1+3) 🟡
+  { id: '04', label: '4 · 7+5', C: D17_04 },        // son o'qi+quyoncha · 7+5=12 (7+3+2) 🟡
+  { id: '05', label: '5 · 8+6', C: D17_05 },        // son o'qi interaktiv · sabzi bosilsa bir qadam (8+6=14) 🔴
+  { id: '06', label: '6 · Zanjir', C: D17_06 },     // P13 · 4 qator, ikkala quti to'ldirilgan 🔴
+  { id: '07', label: '7 · Bo\'lish', C: D17_07 },   // LOGIC · make-ten split, son o'qida 🔴
   { id: '08', label: '8 · Barchasi', C: D17_08 },   // P13 · 13 bo'ladigan barcha yig'indilar multi 🔴
-  { id: '09', label: '9 · Masala', C: D17_09 },     // P13 · og'zaki masala 8+5=13 🔴
-  { id: '10', label: '10 · O\'tkaz', C: D17_10 },   // YANGI · ikki qutiga o'tkazib qo'shadi 🔴
+  { id: '09', label: '9 · Masala', C: D17_09 },     // son o'qi+quyoncha · og'zaki masala 8+5=13 🔴
+  { id: '10', label: '10 · O\'tkaz', C: D17_10 },   // BILIM TEKSHIRUVI · savat yopiladi, 4 variant (8+5=13) 🔴
 ];
 
 export default function Dars17Practice() {

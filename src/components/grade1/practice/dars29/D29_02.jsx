@@ -247,7 +247,7 @@ export default function D29_02(props) {
         .pq2902 .pq-bird.b2{top:44px;left:56%;transform:scale(.78);animation:pq2902Bird 9s ease-in-out infinite;}
         .pq2902 .pq-bird.b3{top:20px;left:68%;transform:scale(.9);animation:pq2902Bird 8s ease-in-out infinite;}
         /* yog'och taxtacha (hikoya sonlari; g'alabada tenglama) */
-        .pq2902 .pq-sign{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:8px;padding:9px 13px 11px;border-radius:14px;background:linear-gradient(#d19b5c,#b67c3f);border:2px solid #93602c;box-shadow:0 5px 0 #8a5926,0 8px 12px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.28);}
+        .pq2902 .pq-sign{position:absolute;top:164px;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:8px;padding:9px 13px 11px;border-radius:14px;background:linear-gradient(#d19b5c,#b67c3f);border:2px solid #93602c;box-shadow:0 5px 0 #8a5926,0 8px 12px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.28);}
         .pq2902 .pq-sign::before,.pq2902 .pq-sign::after{content:'';position:absolute;top:100%;width:7px;height:22px;background:linear-gradient(90deg,#7d5122,#9c6a30);border-radius:0 0 3px 3px;box-shadow:0 2px 3px rgba(0,0,0,.15);}
         .pq2902 .pq-sign::before{left:24px;} .pq2902 .pq-sign::after{right:24px;}
         .pq2902 .pq-cell{display:flex;flex-direction:column;align-items:center;gap:3px;}
@@ -258,10 +258,10 @@ export default function D29_02(props) {
         .pq2902 .pq-tile.ans{background:#e8f7ee;border:2.5px solid #1a7f43;color:#1a7f43;animation:pq2902Pop .45s cubic-bezier(.3,1.5,.5,1) both;}
         .pq2902 .pq-op{font-size:22px;font-weight:900;color:#fbe9d2;text-shadow:0 1px 1px rgba(0,0,0,.25);}
         /* shox: gorizontal jigarrang tayoq + barglar — olmalar undan osilib turadi */
-        .pq2902 .pq-branch{position:absolute;left:14px;right:14px;top:126px;height:9px;border-radius:6px;background:linear-gradient(#9a6a3c,#734a26);box-shadow:0 2px 3px rgba(0,0,0,.18);z-index:3;}
+        .pq2902 .pq-branch{position:absolute;display:none;left:14px;right:14px;top:126px;height:9px;border-radius:6px;background:linear-gradient(#9a6a3c,#734a26);box-shadow:0 2px 3px rgba(0,0,0,.18);z-index:3;}
         .pq2902 .pq-branch::before{content:'';position:absolute;right:-2px;top:2px;width:16px;height:5px;border-radius:4px;background:#5aa84f;transform:rotate(14deg);}
         .pq2902 .pq-branch::after{content:'';position:absolute;left:-2px;top:2px;width:16px;height:5px;border-radius:4px;background:#5aa84f;transform:rotate(-18deg);}
-        .pq2902 .pq-apple{position:absolute;top:138px;transform:translateX(-50%);z-index:4;line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.14));}
+        .pq2902 .pq-apple{display:none;position:absolute;top:138px;transform:translateX(-50%);z-index:4;line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.14));}
         .pq2902 .pq-apple::before{content:'';position:absolute;left:50%;top:-13px;width:2px;height:14px;background:#7a4a28;transform:translateX(-50%);border-radius:2px;}
         .pq2902 .pq-apple.gone{opacity:0;}
         .pq2902 .pq-apple.idle{animation:pq2902Sway 2.9s ease-in-out infinite;animation-delay:var(--bd,0s);transform-origin:50% -12px;}

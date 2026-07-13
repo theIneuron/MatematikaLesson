@@ -19,17 +19,19 @@ const DATA = { rows: ROWS.map((r) => ({ key: r.key, n: r.n })), question: 'olma+
 const T = {
   uz: {
     eyebrow: "Ma'lumot · Piktogramma", title: "Diagrammani o'qing",
-    ask: 'Olma va nok jami nechta?',
-    correct: 'Barakalla! 4 va 6 — jami 10 ta.',
-    hint: "Olma va nok qatorlarini qo'shing.",
-    head1: 'Meva', head2: 'Soni',
+    setup: "Har bir rasm — 1 dona meva.",
+    ask: "Olma va nok birgalikda nechta?",
+    correct: "Barakalla! 4 ta olma va 6 ta nok — jami 10 ta.",
+    hint: "Faqat ikki qatorni oling: olma va nok. Rasmlarni qo'shib sanang.",
+    head1: "Meva", head2: "Soni",
   },
   ru: {
-    eyebrow: 'Данные · Пиктограмма', title: 'Прочитай диаграмму',
-    ask: 'Сколько всего яблок и груш?',
-    correct: 'Молодец! 4 и 6 — всего 10.',
-    hint: 'Сложи ряды яблок и груш.',
-    head1: 'Фрукт', head2: 'Кол-во',
+    eyebrow: "Данные · Пиктограмма", title: "Прочитай диаграмму",
+    setup: "Одна картинка — один фрукт.",
+    ask: "Сколько яблок и груш вместе?",
+    correct: "Молодец! 4 яблока и 6 груш — всего 10.",
+    hint: "Возьми только два ряда: яблоки и груши. Сложи их картинки.",
+    head1: "Фрукт", head2: "Кол-во",
   },
 };
 

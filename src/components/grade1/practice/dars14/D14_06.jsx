@@ -130,7 +130,8 @@ export default function D14_06(props) {
         /* YAKKA olmalar (birlik) — toza ustun, 5+ bo'lsa 2 ustun */
         .pq1406 .pq-singles{display:grid;grid-auto-flow:column;gap:2px 3px;align-items:end;padding:0 2px;}
         .pq1406 .pq-single{position:relative;width:16px;height:16px;flex:0 0 auto;}
-        .pq1406 .pq-cnt{position:absolute;top:-10px;left:50%;transform:translateX(-50%);min-width:15px;height:15px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.25);animation:pqPop .3s ease both;z-index:5;font-variant-numeric:tabular-nums;}
+        /* sanoq-badge yakka olmaning O'NG yonida (ustun tartibida ustma-ust tushmasin) */
+        .pq1406 .pq-cnt{position:absolute;top:50%;left:100%;transform:translate(2px,-50%);min-width:15px;height:15px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 2px rgba(0,0,0,.25);animation:pqPopR .3s ease both;z-index:5;font-variant-numeric:tabular-nums;}
 
         .pq1406 .pq-op{font-size:20px;font-weight:900;color:#c0501e;}
         .pq1406 .pq-eq{font-size:20px;font-weight:900;color:#8a7a55;}

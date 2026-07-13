@@ -147,7 +147,7 @@ export default function D16_10(props) {
         /* peshtaxta */
         .pq1610 .pq-counter{position:absolute;left:0;right:0;bottom:0;height:30px;background:linear-gradient(#d29a5e,#b1783e 60%,#966032);border-top:3px solid #e0ab68;z-index:1;}
         .pq1610 .pq-counter::after{content:'';position:absolute;left:0;right:0;top:5px;height:2px;background:rgba(255,255,255,.22);}
-        /* ten-frame quti (5×2), lagan/karton */
+        /* ten-frame quti (5×2), quti/karton */
         .pq1610 .pq-box{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);padding:11px 12px 13px;border-radius:16px;background:linear-gradient(#f0d9b6,#e2be8c);border:2.5px solid #c79a5c;box-shadow:0 7px 15px rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.4);z-index:4;}
         .pq1610 .pq-box.win{animation:pqBoxCele .55s ease;}
         .pq1610 .pq-grid{display:grid;grid-template-columns:repeat(5,44px);grid-auto-rows:38px;gap:6px;}

@@ -38,31 +38,54 @@ const T = {
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
-// Bitta sanaladigan meva ikonkasi (1 rasm = 1 dona). Koordinatalar SON (arifmetika string-concat bermasin).
+// ——— YAGONA MEVA PALITRASI (D36_01 kanoni): olma #e5484d, nok #b5cf3f, banan #f2c94c ———
+// Bitta sanaladigan meva ikonkasi (1 rasm = 1 dona); realistik: gradient soya, yaltirash, bandi va barg.
+// Koordinatalar SON (arifmetika string-concat bermasin).
+const PFX = 'g3607'; // gradient-id prefiksi (fayl-unikal)
+const FruitDefs = () => (
+  <defs>
+    <radialGradient id={PFX + 'ap'} cx="35%" cy="30%" r="85%">
+      <stop offset="0%" stopColor="#ff9a8f" /><stop offset="55%" stopColor="#e5484d" /><stop offset="100%" stopColor="#b7343c" />
+    </radialGradient>
+    <linearGradient id={PFX + 'lf'} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stopColor="#7ed07f" /><stop offset="100%" stopColor="#4caf50" />
+    </linearGradient>
+    <radialGradient id={PFX + 'pe'} cx="38%" cy="60%" r="80%">
+      <stop offset="0%" stopColor="#d3e46a" /><stop offset="60%" stopColor="#b5cf3f" /><stop offset="100%" stopColor="#93ab2c" />
+    </radialGradient>
+    <linearGradient id={PFX + 'ba'} x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0%" stopColor="#ffe07a" /><stop offset="55%" stopColor="#f2c94c" /><stop offset="100%" stopColor="#e0ac2b" />
+    </linearGradient>
+  </defs>
+);
 function Fruit({ type, cx, cy }) {
   if (type === 'apple') {
     return (
       <g>
-        <path d={`M${cx} ${cy - 8} q0 -4 3 -6`} stroke="#6b4a2b" strokeWidth={1.6} fill="none" strokeLinecap="round" />
-        <ellipse cx={cx + 5} cy={cy - 11} rx={4} ry={2.4} fill="#4caf50" transform={`rotate(28 ${cx + 5} ${cy - 11})`} />
-        <circle cx={cx} cy={cy} r={9} fill="#e5484d" />
-        <ellipse cx={cx - 3} cy={cy - 3} rx={2.4} ry={3.4} fill="#ff9a9a" opacity={0.6} />
+        <path d={`M${cx} ${cy - 7} Q${cx + 0.6} ${cy - 11} ${cx + 3.2} ${cy - 13.4}`} stroke="#6b4a2b" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+        <ellipse cx={cx + 5.6} cy={cy - 11.4} rx={4.2} ry={2.3} fill={`url(#${PFX}lf)`} stroke="#3d8c40" strokeWidth={0.6} transform={`rotate(28 ${cx + 5.6} ${cy - 11.4})`} />
+        <path d={`M${cx} ${cy - 6.2} C ${cx - 1.6} ${cy - 8.6} ${cx - 8} ${cy - 9} ${cx - 9.2} ${cy - 3} C ${cx - 10.2} ${cy + 2.6} ${cx - 5.8} ${cy + 8.8} ${cx - 1.6} ${cy + 8.8} C ${cx - 0.6} ${cy + 8} ${cx + 0.6} ${cy + 8} ${cx + 1.6} ${cy + 8.8} C ${cx + 5.8} ${cy + 8.8} ${cx + 10.2} ${cy + 2.6} ${cx + 9.2} ${cy - 3} C ${cx + 8} ${cy - 9} ${cx + 1.6} ${cy - 8.6} ${cx} ${cy - 6.2} Z`} fill={`url(#${PFX}ap)`} stroke="#b7343c" strokeWidth={0.8} />
+        <ellipse cx={cx - 3.4} cy={cy - 2.4} rx={2.2} ry={3.4} fill="#fff" opacity={0.5} transform={`rotate(-18 ${cx - 3.4} ${cy - 2.4})`} />
       </g>
     );
   }
   if (type === 'pear') {
     return (
       <g>
-        <path d={`M${cx} ${cy - 11} l1 3`} stroke="#6b4a2b" strokeWidth={1.6} strokeLinecap="round" />
-        <circle cx={cx} cy={cy + 3} r={8} fill="#b5cf3f" />
-        <circle cx={cx} cy={cy - 5} r={4.6} fill="#c6db54" />
-        <ellipse cx={cx - 3} cy={cy + 1} rx={2} ry={3} fill="#e2eea0" opacity={0.6} />
+        <path d={`M${cx} ${cy - 11} q1.4 -2.6 3.8 -3.2`} stroke="#6b4a2b" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+        <path d={`M${cx} ${cy - 10.6} C ${cx - 3.2} ${cy - 10.6} ${cx - 4.4} ${cy - 7.4} ${cx - 3.8} ${cy - 4.6} C ${cx - 3.4} ${cy - 2.4} ${cx - 7.2} ${cy - 0.6} ${cx - 7.9} ${cy + 3.2} C ${cx - 8.7} ${cy + 7.9} ${cx - 4.5} ${cy + 11} ${cx} ${cy + 11} C ${cx + 4.5} ${cy + 11} ${cx + 8.7} ${cy + 7.9} ${cx + 7.9} ${cy + 3.2} C ${cx + 7.2} ${cy - 0.6} ${cx + 3.4} ${cy - 2.4} ${cx + 3.8} ${cy - 4.6} C ${cx + 4.4} ${cy - 7.4} ${cx + 3.2} ${cy - 10.6} ${cx} ${cy - 10.6} Z`} fill={`url(#${PFX}pe)`} stroke="#93ab2c" strokeWidth={0.8} />
+        <ellipse cx={cx - 3} cy={cy + 4.4} rx={2} ry={3.1} fill="#fff" opacity={0.45} transform={`rotate(-14 ${cx - 3} ${cy + 4.4})`} />
       </g>
     );
   }
-  // banana — bitta qiyshiq banan
+  // banana — bitta realistik crescent
   return (
-    <path d={`M${cx - 9} ${cy - 5} Q ${cx - 4} ${cy + 9} ${cx + 9} ${cy + 3} Q ${cx + 2} ${cy + 6} ${cx - 9} ${cy - 5} Z`} fill="#f2c94c" stroke="#d9a827" strokeWidth={1} />
+    <g>
+      <path d={`M${cx - 9.4} ${cy - 6} C ${cx - 10} ${cy + 2.4} ${cx - 4.2} ${cy + 8.6} ${cx + 6} ${cy + 6.8} C ${cx + 8.2} ${cy + 6.4} ${cx + 9.8} ${cy + 5.2} ${cx + 10.2} ${cy + 3.4} C ${cx + 5} ${cy + 5.2} ${cx - 2.4} ${cy + 3.2} ${cx - 5.6} ${cy - 1.6} C ${cx - 6.9} ${cy - 3.6} ${cx - 7.4} ${cy - 5} ${cx - 7.5} ${cy - 6.3} Z`} fill={`url(#${PFX}ba)`} stroke="#d9a827" strokeWidth={0.9} strokeLinejoin="round" />
+      <path d={`M${cx - 9.4} ${cy - 6} q-0.6 -1.6 0.4 -2.2 q1.2 -0.4 1.6 1.4 l-0.1 0.5 Z`} fill="#8a6512" />
+      <circle cx={cx + 10} cy={cy + 3.7} r={1.2} fill="#8a6512" />
+      <path d={`M${cx - 7.8} ${cy - 3} C ${cx - 7.4} ${cy + 2} ${cx - 3} ${cy + 6} ${cx + 3} ${cy + 6.6}`} stroke="#fff" strokeWidth={1} opacity={0.35} fill="none" strokeLinecap="round" />
+    </g>
   );
 }
 
@@ -75,6 +98,7 @@ const RY = [30, 74, 118]; // qatorlar markazi y
 function Pictogram({ lang }) {
   return (
     <svg viewBox="0 0 340 150" width="100%" height="100%" aria-hidden="true" style={{ display: 'block' }}>
+      <FruitDefs />
       {ROWS.map((r, ri) => {
         const cy = RY[ri];
         const icons = [];
@@ -145,7 +169,8 @@ export default function D36_07(props) {
         .pq3607{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq3607 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f7ac0;text-transform:uppercase;}
         .pq3607 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
-        .pq3607 .pq-ask{display:block;font-size:20px;font-weight:800;}
+        .pq3607 .pq-setup{color:#5c6672;font-weight:500;}
+        .pq3607 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq3607 .pq-board{box-sizing:border-box;position:relative;width:390px;max-width:100%;margin:0 auto;padding:34px 15px 20px;border-radius:20px;background:linear-gradient(#fbf6ec 0%,#f3ead6 100%);border:2px solid #e6d3a8;overflow:hidden;}
         .pq3607 .pq-badge{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;padding:3px 14px 4px;border-radius:9px;background:linear-gradient(#c79338,#a6772a);border:2.5px solid #8a621f;color:#fff6e6;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;pointer-events:none;box-shadow:0 3px 6px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.28);}
         .pq3607 .pq-card{box-sizing:border-box;position:relative;z-index:3;width:100%;max-width:360px;margin:0 auto;padding:10px 10px 6px;border-radius:14px;background:rgba(255,255,255,.9);border:1.5px solid #e6d3a8;}
@@ -174,7 +199,7 @@ export default function D36_07(props) {
         @keyframes pq3607in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
-      <p className="pq-body"><b className="pq-ask">{t.ask}</b></p>
+      <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       <div className="pq-board">
         <div className="pq-badge">{t.title}</div>

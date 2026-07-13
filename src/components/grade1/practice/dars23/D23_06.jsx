@@ -1,21 +1,17 @@
 // Dars23 · Amaliyot 06 — Mantiq «Olma bog'i» · qadamni aniqlash · 🔴 · tag: logic_step
-// Bitta-tanlov (YANGI mantiq = qadamni aniqlash): 20, 30, 40, 50 ketma-ketligida sanoq qadami qancha? -> 10.
-// Distraktorlar: 5 (M2 noto'g'ri qadam — bittalab/yarim qadam), 20 (ikki sakrashni bitta deb hisoblash).
-// VIZUAL MODEL: diskret son TAYLLARI bir qatorda (tayl-yo'lak) + sakrayotgan QUYON. Quyon bir tayldan
-// ikkinchisiga bir xil qadam bilan sakraydi; har sakrash ustida punktir yoy va qadam nishoni turadi.
-// JAVOB OSHKOR EMAS: qadam nishonlari yechilmaguncha "?" ko'rsatadi; "+10" faqat g'alabada ochiladi.
-// Taylardagi 20,30,40,50 — bu SHARTDA berilgan sonlar (savol matni ham shu), leak emas.
-// VEDI-DO-VERNOGO: noto'g'ri javobda qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
+// Bitta-tanlov (mantiq = qadamni aniqlash): 20, 30, 40, 50 ketma-ketligida sanoq qadami qancha? -> 10.
+// Distraktorlar: 5 (M2 noto'g'ri qadam — yarim qadam), 20 (ikki sakrashni bitta deb hisoblash).
+// TABIAT SAHNASI (D15_01 kanoni): quyosh, bulutlar, qushlar, tepaliklar, maysa, gullar, olma daraxti.
+// SON O'QI maysadagi yo'lka: nuqtalar 20,30,40,50 (shartda berilgan — leak emas). Oraliqlar ustida
+// qadam-nishonlari: yechilmaguncha '?', g'alabada '+10' ochiladi. QUYON 20 da turadi (idle);
+// to'g'ri javobda JUDA SEKIN, nuqtadan-nuqtaga sakraydi (20→30→40→50) — har sakrash bir xil qadam;
+// oxirgi nuqta yonadi (✦). VEDI-DO-VERNOGO: noto'g'rida qulf yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-const SEQ = [20, 30, 40, 50];   // shartda berilgan ketma-ketlik (tayl-yo'lak)
+const SEQ = [20, 30, 40, 50];   // shartda berilgan ketma-ketlik (son o'qi nuqtalari)
 const STEP = 10;                // to'g'ri javob: sanoq qadami
+const HOP_PATH = [0, 1, 2, 3];  // quyon yo'li (nuqta indekslari)
 const DATA = { seq: SEQ, target: STEP, options: [10, 5, 20], ptype: 'LOGIC', level: '🔴', tag: 'logic_step' };
-
-// Tayl-yo'lak geometriyasi (SVG user birliklari): 4 tayl, markazlari CX, oraliq 75.
-const CX = [40, 115, 190, 265];
-const HOME = CX[0];             // quyonning boshlang'ich (chap) ustuni
-const SPAN = CX[CX.length - 1] - CX[0]; // 225 — chapdan o'ngga to'liq yo'l
 
 const T = {
   uz: {
@@ -37,7 +33,97 @@ const T = {
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
-let __uid = 0;
+// Uzoqdagi qush (osmonda) — oddiy "m" shakli (D15_01 kanoni).
+const Bird = ({ cls }) => (
+  <svg className={'pq-bird ' + cls} viewBox="0 0 22 9" width="22" height="9" aria-hidden="true">
+    <path d="M1 7 Q5.5 1 10 6 Q14.5 1 21 7" fill="none" stroke="#6a7b84" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+// O't tutami (maysada).
+const Tuft = ({ cls }) => (
+  <svg className={'pq-tuft ' + cls} viewBox="0 0 18 13" width="18" height="13" aria-hidden="true">
+    <path d="M2 13 Q3.4 4 5 13 M7 13 Q9 2 10.6 13 M12.5 13 Q14 5 15.6 13" fill="none" stroke="#4e9d44" strokeWidth="1.7" strokeLinecap="round" />
+  </svg>
+);
+
+// QUYONCHA (D15_01 kanoni, yon ko'rinish, o'ngga qarab) — kurs maskoti.
+const Bunny = () => (
+  <svg viewBox="0 0 52 48" width="46" height="42.5" aria-hidden="true" style={{ display: 'block', overflow: 'visible' }}>
+    <defs>
+      <linearGradient id="pq2306bf" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#d7c8b7" /><stop offset="1" stopColor="#bda98f" />
+      </linearGradient>
+      <linearGradient id="pq2306bh" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stopColor="#ddcfbf" /><stop offset="1" stopColor="#c6b399" />
+      </linearGradient>
+    </defs>
+    <ellipse cx="26" cy="45" rx="16" ry="2.8" fill="rgba(0,0,0,.13)" />
+    <circle cx="8.5" cy="30" r="6" fill="#fdfbf7" stroke="#e6ddd0" strokeWidth="1" />
+    <path d="M30 20 C25 8 27 1.5 29.5 1.8 C32 2.1 33 9 33.2 19 Z" fill="#c2b096" stroke="#a08b70" strokeWidth="1" />
+    <path d="M7 33 C6 22 15 17 26 18.5 C37 20 42 26 41 33 C40 41 31 43.5 21 43 C12 42.6 8 39 7 33 Z" fill="url(#pq2306bf)" stroke="#b09a7e" strokeWidth="1" />
+    <path d="M13 36 C15 42 32 43 36 38 C33 43 15 43.5 12 38 Z" fill="#efe6d6" opacity=".7" />
+    <ellipse cx="17" cy="41.5" rx="10" ry="4" fill="#cbb8a0" stroke="#ac9678" strokeWidth="1" />
+    <circle cx="9" cy="41.5" r="2.1" fill="#e6dccb" />
+    <circle cx="39" cy="25" r="10" fill="url(#pq2306bh)" stroke="#b09a7e" strokeWidth="1" />
+    <path d="M35 18 C31.5 5 35 0 37.7 0.4 C40.4 0.8 41 9 40 18 Z" fill="url(#pq2306bh)" stroke="#a8977f" strokeWidth="1" />
+    <path d="M36.4 17 C34 7.5 36.2 3.6 37.6 3.8 C39 4 39.4 9.5 38.8 17 Z" fill="#f3bccb" />
+    <ellipse cx="41" cy="29" rx="4.5" ry="3" fill="#d3c0a6" opacity=".55" />
+    <ellipse cx="41.6" cy="23.4" rx="2.1" ry="2.4" fill="#3a322c" />
+    <circle cx="42.4" cy="22.5" r="0.8" fill="#fff" />
+    <path d="M47.6 26.4 L45.4 25.3 L45.4 27.5 Z" fill="#e08aa0" />
+    <path d="M46.4 27.3 Q46.4 29 45 29" fill="none" stroke="#a8977f" strokeWidth="0.8" strokeLinecap="round" />
+    <g stroke="#c9b79c" strokeWidth="0.7" strokeLinecap="round">
+      <line x1="46" y1="26" x2="52" y2="24.5" /><line x1="46" y1="27" x2="52" y2="27" /><line x1="46" y1="28" x2="51.5" y2="29.5" />
+    </g>
+    <ellipse cx="34.5" cy="42" rx="5" ry="3" fill="#d3c0a6" stroke="#ac9678" strokeWidth="1" />
+  </svg>
+);
+
+// SON O'QI (D15_01 kanoni) + ORALIQ QADAM-NISHONLARI: yechilmaguncha '?', g'alabada '+10'.
+// Quyon path[0] da turadi; `active` bo'lsa juda sekin, nuqtadan-nuqtaga sakraydi.
+const NumberLine = ({ values = [], path = [], lit = [], active = false, still = false, midLabel = null }) => {
+  const span = Math.max(1, values.length - 1);
+  const pct = (i) => (i / span) * 100;
+  const [idx, setIdx] = useState(-1);
+
+  useEffect(() => {
+    if (!active) { setIdx(-1); return; }
+    if (still) { setIdx(path.length - 1); return; }
+    const timers = path.map((_, k) => setTimeout(() => setIdx(k), 600 + k * 850));
+    return () => timers.forEach(clearTimeout);
+  }, [active, still]); // eslint-disable-line
+
+  const started = idx >= 0;
+  const bunnyI = started ? path[idx] : (path[0] ?? 0);
+  const fillI = active && started ? bunnyI : (path[0] ?? 0);
+  const nodeOn = (i) => active && lit.includes(i) && (still || idx >= (path.includes(i) ? path.indexOf(i) : path.length - 1));
+
+  return (
+    <div className={'pq-nl' + (still ? ' still' : '')}>
+      <div className="pq-nl-track">
+        <div className="pq-nl-fill" style={{ width: `${pct(fillI)}%`, opacity: active && started ? 1 : 0 }} />
+      </div>
+      <div className="pq-nl-bunny" style={{ left: `${pct(bunnyI)}%` }}>
+        <span key={idx} className={'pq-nl-hop' + (started && !still ? ' go' : (!active ? ' idle' : ''))}><Bunny /></span>
+      </div>
+      <div className="pq-nl-nodes">
+        {values.map((n, i) => {
+          const on = nodeOn(i);
+          return (
+            <div key={i} className={'pq-nl-node' + (on ? ' on' : '')} style={{ left: `${pct(i)}%` }}>
+              <span className="pq-nl-dot" />
+              <span className="pq-nl-lbl">{n}</span>
+              {on && <span className="pq-nl-spark">✦</span>}
+            </div>
+          );
+        })}
+        {midLabel && values.slice(0, -1).map((_, i) => (
+          <div key={'m' + i} className={'pq-nl-mid' + (active ? ' on' : '')} style={{ left: `${((i + 0.5) / span) * 100}%` }}>{midLabel}</div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default function D23_06(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
@@ -46,7 +132,6 @@ export default function D23_06(props) {
   const [picked, setPicked] = useState(null); // 10 | 5 | 20
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
-  const uid = useRef('pq2306_' + (__uid++)).current;
   // Review yoki qayta ochilishda sakrash animatsiyasi qayta ijro etilmaydi — quyon statik holatda.
   const stillRef = useRef(isReview || !!(initialAnswer && initialAnswer.studentAnswer));
   const still = stillRef.current;
@@ -71,11 +156,6 @@ export default function D23_06(props) {
 
   const lock = isReview || checked;
   const ok = feedback && feedback.correct;
-  const rid = uid + 'rb';
-  const aid = uid + 'ap';
-  // Quyon: yechilmaguncha bir tayldan ikkinchisiga sakraydi (bosiladigan nishon EMAS — dekor);
-  // to'g'rida oxirgi taylga qo'nadi. Review/qayta ochilishda darhol qo'ngan holatda.
-  const hopperCls = 'pq-hopper' + (ok ? (still ? ' landed' : ' land') : (still ? '' : ' hop'));
 
   return (
     <div className="pq pq2306">
@@ -85,59 +165,102 @@ export default function D23_06(props) {
         .pq2306 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2306 .pq-setup{color:#5c6672;font-weight:500;font-variant-numeric:tabular-nums;}
         .pq2306 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2306 .pq-scene{position:relative;width:360px;max-width:100%;height:214px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
-        .pq2306 .pq-sun{position:absolute;right:20px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2306sun 3.6s ease-in-out infinite;}
-        .pq2306 .pq-hill{position:absolute;left:0;right:0;bottom:0;height:48px;background:linear-gradient(#bfe39a,#a7d47f);border-top:3px solid #8fc267;z-index:1;pointer-events:none;}
-        .pq2306 .pq-hill::before{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 10px,transparent 10px 22px);}
-        .pq2306 .pq-title{position:absolute;top:9px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 15px 5px;border-radius:9px;background:linear-gradient(#4c9d55,#3a7f42);border:2.5px solid #2c6633;color:#f0fbef;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.28);pointer-events:none;}
-        .pq2306 .pq-leaf{position:absolute;top:-10px;width:9px;height:9px;background:#7cbf5f;border-radius:0 100% 0 100%;z-index:2;pointer-events:none;opacity:.85;}
-        .pq2306 .pq-leaf.l1{left:22%;animation:pq2306leaf 6.5s linear infinite;}
-        .pq2306 .pq-leaf.l2{left:66%;background:#e0a24a;animation:pq2306leaf 8s linear .8s infinite;}
-
-        .pq2306 .pq-trwrap{position:absolute;left:8px;right:8px;top:44px;bottom:12px;display:flex;align-items:center;justify-content:center;z-index:3;}
-        .pq2306 .pq-tr{display:block;width:100%;height:auto;}
-        .pq2306 .pq-hopper{transform-box:fill-box;transform-origin:center;}
-        .pq2306 .pq-hopper.hop{animation:pq2306hop 3.8s ease-in-out infinite;}
-        .pq2306 .pq-hopper.land{animation:pq2306land .82s cubic-bezier(.3,1.3,.5,1) both;}
-        .pq2306 .pq-hopper.landed{transform:translate(${SPAN}px,0);}
-        .pq2306 .pq-arc{animation:pq2306arc 1.9s ease-in-out infinite;}
-
-        .pq2306 .pq-spark{position:absolute;z-index:5;color:#ffd13f;opacity:0;line-height:0;pointer-events:none;animation:pq2306tw 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
+        /* ===== TABIAT SAHNASI (D15_01 kanoni) ===== */
+        .pq2306 .pq-scene{position:relative;width:404px;max-width:100%;height:300px;margin:0 auto;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq2306 .pq-sun{position:absolute;top:16px;left:20px;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 42% 40%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 22px 7px rgba(255,214,74,.6);animation:pq2306sun 4s ease-in-out infinite;z-index:1;}
+        .pq2306 .pq-cloud{position:absolute;height:16px;background:#fff;border-radius:20px;box-shadow:0 6px 0 -2px #fff;opacity:.94;z-index:1;}
+        .pq2306 .pq-cloud::before,.pq2306 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+        .pq2306 .pq-cloud::before{width:22px;height:22px;top:-9px;left:8px;} .pq2306 .pq-cloud::after{width:16px;height:16px;top:-6px;left:26px;}
+        .pq2306 .pq-cloud.c1{top:34px;left:58%;width:46px;animation:pq2306drift 14s ease-in-out infinite;}
+        .pq2306 .pq-cloud.c2{top:62px;left:30%;width:34px;transform:scale(.8);animation:pq2306drift 18s ease-in-out infinite reverse;}
+        .pq2306 .pq-cloud.c3{top:18px;left:40%;width:30px;transform:scale(.72);animation:pq2306drift 16s ease-in-out infinite;}
+        .pq2306 .pq-hills{position:absolute;left:0;right:0;bottom:100px;height:70px;z-index:1;}
+        .pq2306 .pq-hills span{position:absolute;bottom:0;border-radius:50% 50% 0 0;background:linear-gradient(#9ad673,#7cc158);}
+        .pq2306 .pq-hills span:nth-child(1){left:-8%;width:52%;height:62px;background:linear-gradient(#a7dd82,#8ecb6a);}
+        .pq2306 .pq-hills span:nth-child(2){right:-6%;width:48%;height:70px;}
+        .pq2306 .pq-hills span:nth-child(3){left:32%;width:40%;height:52px;background:linear-gradient(#a2da7c,#86c663);}
+        .pq2306 .pq-grass{position:absolute;left:0;right:0;bottom:0;height:108px;background:linear-gradient(#84c95f 0%,#69b34c 60%,#5aa53f 100%);z-index:2;}
+        .pq2306 .pq-grass::before{content:'';position:absolute;left:0;right:0;top:-6px;height:10px;background:radial-gradient(circle at 6px 10px,#84c95f 6px,transparent 7px) repeat-x;background-size:16px 10px;}
+        .pq2306 .pq-flower{position:absolute;width:7px;height:7px;border-radius:50%;z-index:3;}
+        .pq2306 .pq-flower.f1{left:16%;bottom:84px;background:#ffd94a;box-shadow:5px 0 0 #ffd94a,-5px 0 0 #ffd94a,0 5px 0 #ffd94a,0 -5px 0 #ffd94a;}
+        .pq2306 .pq-flower.f2{right:28%;bottom:76px;background:#fff;box-shadow:5px 0 0 #fff,-5px 0 0 #fff,0 5px 0 #fff,0 -5px 0 #fff;}
+        .pq2306 .pq-flower.f3{left:8%;bottom:78px;transform:scale(.85);background:#c79bf0;box-shadow:5px 0 0 #c79bf0,-5px 0 0 #c79bf0,0 5px 0 #c79bf0,0 -5px 0 #c79bf0;}
+        .pq2306 .pq-flower.f4{left:88%;bottom:80px;transform:scale(.8);background:#ff9ec4;box-shadow:5px 0 0 #ff9ec4,-5px 0 0 #ff9ec4,0 5px 0 #ff9ec4,0 -5px 0 #ff9ec4;}
+        .pq2306 .pq-flower.f5{left:36%;bottom:78px;background:#ff7fa8;box-shadow:5px 0 0 #ff7fa8,-5px 0 0 #ff7fa8,0 5px 0 #ff7fa8,0 -5px 0 #ff7fa8;}
+        .pq2306 .pq-flower.f6{left:64%;bottom:82px;transform:scale(.82);background:#8ec6ff;box-shadow:5px 0 0 #8ec6ff,-5px 0 0 #8ec6ff,0 5px 0 #8ec6ff,0 -5px 0 #8ec6ff;}
+        .pq2306 .pq-tuft{position:absolute;z-index:3;}
+        .pq2306 .pq-tuft.t1{left:26%;bottom:72px;} .pq2306 .pq-tuft.t2{left:60%;bottom:76px;transform:scale(.85);}
+        /* olma daraxti (chapda) + olmalar — «Olma bog'i» belgisi */
+        .pq2306 .pq-tree{position:absolute;left:8px;bottom:92px;width:46px;height:56px;z-index:2;}
+        .pq2306 .pq-tree i{position:absolute;}
+        .pq2306 .pq-trunk{left:19px;bottom:0;width:8px;height:20px;background:linear-gradient(90deg,#8a5a2c,#a9743e);border-radius:2px;}
+        .pq2306 .pq-leaves{left:0;bottom:14px;width:46px;height:42px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#93d36e,#5da845);box-shadow:13px 8px 0 -8px #6fb552,-9px 9px 0 -10px #67ac4c;}
+        .pq2306 .pq-tapple{position:absolute;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f2a49c,#df5b52 60%,#b83b33);z-index:3;}
+        .pq2306 .pq-tapple.a1{left:18px;bottom:124px;} .pq2306 .pq-tapple.a2{left:36px;bottom:114px;} .pq2306 .pq-tapple.a3{left:10px;bottom:110px;}
+        /* buta (o'ngda) */
+        .pq2306 .pq-bush{position:absolute;right:12px;bottom:88px;width:36px;height:22px;border-radius:16px 16px 3px 3px;background:radial-gradient(circle at 38% 28%,#86c95f,#5aa542);z-index:2;box-shadow:-13px 3px 0 -7px #6fb552;}
+        /* kapalaklar */
+        .pq2306 .pq-bfly{position:absolute;width:8px;height:8px;z-index:5;}
+        .pq2306 .pq-bfly::before,.pq2306 .pq-bfly::after{content:'';position:absolute;top:0;width:6px;height:9px;border-radius:60%;}
+        .pq2306 .pq-bfly::before{left:-3px;transform-origin:right center;animation:pq2306wing .26s ease-in-out infinite alternate;}
+        .pq2306 .pq-bfly::after{right:-3px;transform-origin:left center;animation:pq2306wing .26s ease-in-out infinite alternate;}
+        .pq2306 .pq-bfly.bf1::before,.pq2306 .pq-bfly.bf1::after{background:#ff9ec4;}
+        .pq2306 .pq-bfly.bf2::before,.pq2306 .pq-bfly.bf2::after{background:#ffcf5a;}
+        .pq2306 .pq-bfly.bf1{top:100px;left:24%;animation:pq2306flit1 8s ease-in-out infinite;}
+        .pq2306 .pq-bfly.bf2{top:122px;right:22%;animation:pq2306flit2 9s ease-in-out infinite;}
+        /* qushlar */
+        .pq2306 .pq-bird{position:absolute;z-index:1;opacity:.7;}
+        .pq2306 .pq-bird.b1{top:30px;left:44%;animation:pq2306bird 7s ease-in-out infinite;}
+        .pq2306 .pq-bird.b2{top:46px;left:56%;transform:scale(.78);animation:pq2306bird 9s ease-in-out infinite;}
+        /* yashil lavha (sarlavha) */
+        .pq2306 .pq-board{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 15px 5px;border-radius:9px;background:linear-gradient(#6a9e46,#4d7f30);border:2.5px solid #3c6626;color:#f2fbec;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.28);}
+        /* SON O'QI — maysadagi yo'lka (D15_01 kanoni) + qadam-nishonlari */
+        .pq2306 .pq-nl{position:absolute;left:10px;right:10px;bottom:22px;z-index:4;padding:50px 10px 22px;}
+        .pq2306 .pq-nl-track{position:relative;height:13px;border-radius:7px;background:linear-gradient(#efe0bd,#e2cd9f);border:1.5px solid #cbb07a;box-shadow:inset 0 1px 2px rgba(120,90,40,.2);margin:0 8px;}
+        .pq2306 .pq-nl-fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:linear-gradient(90deg,#f6c760,#3f9a4e);box-shadow:0 0 12px 2px rgba(63,154,78,.5);transition:width .7s cubic-bezier(.4,0,.3,1),opacity .3s;}
+        .pq2306 .pq-nl.still .pq-nl-fill{transition:none;}
+        .pq2306 .pq-nl-bunny{position:absolute;top:2px;transform:translateX(-50%);transition:left .7s cubic-bezier(.4,0,.35,1);z-index:6;pointer-events:none;filter:drop-shadow(0 3px 3px rgba(0,0,0,.18));}
+        .pq2306 .pq-nl.still .pq-nl-bunny{transition:none;}
+        .pq2306 .pq-nl-hop{display:block;transform-origin:bottom center;}
+        .pq2306 .pq-nl-hop.idle{animation:pq2306idle 2.8s ease-in-out infinite;}
+        .pq2306 .pq-nl-hop.go{animation:pq2306hop .68s ease;}
+        .pq2306 .pq-nl-nodes{position:relative;height:0;margin:0 8px;}
+        .pq2306 .pq-nl-node{position:absolute;top:-13px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;}
+        .pq2306 .pq-nl-dot{width:15px;height:15px;border-radius:50%;background:#fff;border:3px solid #c9a35f;box-sizing:border-box;box-shadow:0 1px 2px rgba(90,60,20,.3);transition:.25s;}
+        .pq2306 .pq-nl-lbl{margin-top:6px;font-size:14px;font-weight:900;color:#38612a;font-variant-numeric:tabular-nums;text-shadow:0 1px 0 rgba(255,255,255,.4);}
+        .pq2306 .pq-nl-node.on .pq-nl-dot{background:#3f9a4e;border-color:#2f7d3c;transform:scale(1.6);box-shadow:0 0 14px 4px rgba(63,154,78,.7);}
+        .pq2306 .pq-nl-node.on .pq-nl-lbl{color:#166a34;font-size:16px;}
+        .pq2306 .pq-nl-spark{position:absolute;top:-22px;font-size:16px;color:#fff2b0;animation:pq2306tw 1.4s ease-in-out infinite;}
+        /* qadam-nishonlari (oraliqlar ustida): '?' → '+10' */
+        .pq2306 .pq-nl-mid{position:absolute;top:-58px;transform:translateX(-50%);min-width:26px;padding:2px 8px;border-radius:999px;background:#fff;border:2px solid #e0b96a;color:#c9822f;font-size:13px;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;box-shadow:0 2px 4px rgba(90,60,20,.18);animation:pq2306breath 1.8s ease-in-out infinite;}
+        .pq2306 .pq-nl-mid.on{border-color:#1a7f43;color:#1a7f43;background:#e8f7ee;animation:pq2306pop .4s ease both;}
+        /* yakuniy porlashlar */
+        .pq2306 .pq-spark{position:absolute;z-index:6;color:#ffd13f;opacity:0;line-height:0;pointer-events:none;animation:pq2306tw 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
         .pq2306 .pq-spark.s2{animation-delay:-.6s;} .pq2306 .pq-spark.s3{animation-delay:-1.15s;}
-
+        /* zanjir + variantlar + feedback */
         .pq2306 .pq-chain{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;animation:pq2306in .3s ease both;}
         .pq2306 .pq-chain b{min-width:46px;height:42px;padding:0 6px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;border-radius:11px;background:#eef4fb;border:2px solid #b8d0ea;color:#2f6bab;font-variant-numeric:tabular-nums;}
         .pq2306 .pq-chain i{font-style:normal;min-width:38px;height:26px;padding:0 8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;border-radius:999px;background:#e8f7ee;border:2px solid #1a7f43;color:#1a7f43;font-variant-numeric:tabular-nums;}
-
-        .pq2306 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq2306 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:16px;}
         .pq2306 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
-        .pq2306 .pq-opt:hover:not(:disabled){border-color:#94b8e2;transform:translateY(-2px);}
+        .pq2306 .pq-opt:hover:not(:disabled){border-color:#7cc158;transform:translateY(-2px);}
         .pq2306 .pq-opt:active:not(:disabled){transform:scale(.94);}
         .pq2306 .pq-opt.sel{border-color:#2563eb;background:#e8eefc;}
         .pq2306 .pq-opt.right{border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pq2306cele .5s ease;}
         .pq2306 .pq-opt:disabled{cursor:default;}
-        .pq2306 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pq2306in .22s ease both;}
+        .pq2306 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pq2306in .22s ease both;}
         .pq2306 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq2306 .pq-fb.no{background:#fdecec;color:#c0392b;}
-
-        @keyframes pq2306hop{
-          0%{transform:translate(0,0);opacity:1;}
-          10%{transform:translate(37px,-20px);}
-          20%{transform:translate(75px,0);}
-          30%{transform:translate(112px,-20px);}
-          40%{transform:translate(150px,0);}
-          50%{transform:translate(187px,-20px);}
-          60%{transform:translate(${SPAN}px,0);}
-          78%{transform:translate(${SPAN}px,0);opacity:1;}
-          84%{opacity:0;}
-          85%{transform:translate(0,0);opacity:0;}
-          92%{opacity:1;}
-          100%{transform:translate(0,0);opacity:1;}
-        }
-        @keyframes pq2306land{0%{transform:translate(0,0);}55%{transform:translate(${SPAN}px,-22px);}100%{transform:translate(${SPAN}px,0);}}
-        @keyframes pq2306arc{0%,100%{opacity:.45;}50%{opacity:1;}}
-        @keyframes pq2306sun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-        @keyframes pq2306leaf{0%{transform:translateY(0) rotate(0);opacity:0;}12%{opacity:.85;}100%{transform:translateY(200px) rotate(320deg);opacity:0;}}
-        @keyframes pq2306tw{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
+        @keyframes pq2306sun{0%,100%{transform:scale(1);box-shadow:0 0 20px 6px rgba(255,214,74,.55);}50%{transform:scale(1.06);box-shadow:0 0 26px 9px rgba(255,214,74,.7);}}
+        @keyframes pq2306drift{0%,100%{transform:translateX(0);}50%{transform:translateX(-16px);}}
+        @keyframes pq2306wing{0%{transform:scaleX(1);}100%{transform:scaleX(.35);}}
+        @keyframes pq2306flit1{0%,100%{transform:translate(0,0);}25%{transform:translate(26px,-12px);}50%{transform:translate(48px,6px);}75%{transform:translate(20px,-6px);}}
+        @keyframes pq2306flit2{0%,100%{transform:translate(0,0);}25%{transform:translate(-24px,10px);}50%{transform:translate(-44px,-8px);}75%{transform:translate(-18px,6px);}}
+        @keyframes pq2306bird{0%,100%{transform:translate(0,0);}50%{transform:translate(-34px,-6px);}}
+        @keyframes pq2306idle{0%,100%{transform:translateY(0) scaleY(1);}50%{transform:translateY(-1.5px) scaleY(1.02);}}
+        @keyframes pq2306hop{0%{transform:translateY(0) scaleY(.86);}18%{transform:translateY(0) scaleY(1.05);}45%{transform:translateY(-30px) scaleY(1.08);}80%{transform:translateY(0) scaleY(.82);}100%{transform:translateY(0) scaleY(1);}}
+        @keyframes pq2306tw{0%,100%{opacity:0;transform:scale(.4) rotate(0);}50%{opacity:1;transform:scale(1) rotate(30deg);}}
+        @keyframes pq2306breath{0%,100%{transform:translateX(-50%) scale(1);}50%{transform:translateX(-50%) scale(1.07);}}
+        @keyframes pq2306pop{from{opacity:0;transform:translateX(-50%) scale(.4);}to{opacity:1;transform:translateX(-50%) scale(1);}}
         @keyframes pq2306cele{0%{transform:scale(1);}30%{transform:scale(1.06);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pq2306in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
@@ -146,101 +269,32 @@ export default function D23_06(props) {
 
       <div className="pq-scene">
         <span className="pq-sun" />
-        <span className="pq-hill" />
-        <span className="pq-leaf l1" /><span className="pq-leaf l2" />
-        <div className="pq-title">{t.title}</div>
+        <Bird cls="b1" /><Bird cls="b2" />
+        <span className="pq-cloud c1" /><span className="pq-cloud c2" /><span className="pq-cloud c3" />
+        <div className="pq-hills"><span /><span /><span /></div>
+        <div className="pq-grass" />
+        <div className="pq-tree"><i className="pq-trunk" /><i className="pq-leaves" /></div>
+        <span className="pq-tapple a1" /><span className="pq-tapple a2" /><span className="pq-tapple a3" />
+        <span className="pq-bush" />
+        <Tuft cls="t1" /><Tuft cls="t2" />
+        <span className="pq-flower f1" /><span className="pq-flower f2" /><span className="pq-flower f3" />
+        <span className="pq-flower f4" /><span className="pq-flower f5" /><span className="pq-flower f6" />
+        <span className="pq-bfly bf1" /><span className="pq-bfly bf2" />
+        <div className="pq-board">{t.title}</div>
 
-        <div className="pq-trwrap">
-          <svg className="pq-tr" viewBox="0 0 320 132" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-            <defs>
-              <radialGradient id={rid} cx="40%" cy="30%" r="78%">
-                <stop offset="0%" stopColor="#ffffff" /><stop offset="58%" stopColor="#e2e6ee" /><stop offset="100%" stopColor="#c4c9d4" />
-              </radialGradient>
-              <radialGradient id={aid} cx="35%" cy="30%" r="75%">
-                <stop offset="0%" stopColor="#f2a49c" /><stop offset="55%" stopColor="#df5b52" /><stop offset="100%" stopColor="#b83b33" />
-              </radialGradient>
-            </defs>
-
-            {/* bog' bezaklari: hilol tepasida ikkita kichik olma (dekor, bosilmaydi) */}
-            <g opacity=".9">
-              <circle cx="18" cy="120" r="5" fill={`url(#${aid})`} stroke="#a5342c" strokeWidth=".8" />
-              <path d="M18 115 Q20 112 22 113" fill="none" stroke="#7a4a28" strokeWidth="1.2" strokeLinecap="round" />
-              <circle cx="303" cy="122" r="4.4" fill={`url(#${aid})`} stroke="#a5342c" strokeWidth=".8" />
-              <path d="M303 117.6 Q305 115 307 116" fill="none" stroke="#7a4a28" strokeWidth="1.2" strokeLinecap="round" />
-            </g>
-
-            {/* sakrash yoylari + qadam nishonlari: har oraliq ustida punktir yoy, cho'qqisida nishon.
-                Yechilmaguncha "?" (qadam yashirin); g'alabada "+10" ochiladi. */}
-            {CX.slice(0, -1).map((x1, i) => {
-              const x2 = CX[i + 1];
-              const midX = (x1 + x2) / 2;
-              return (
-                <g key={'arc' + i}>
-                  <path className={ok ? '' : 'pq-arc'} d={`M${x1} 68 Q${midX} 34 ${x2} 68`} fill="none"
-                    stroke={ok ? '#1a7f43' : '#c9822f'} strokeWidth="2.4" strokeDasharray="3 4" strokeLinecap="round" opacity={ok ? .9 : .8} />
-                  {ok ? (
-                    <g>
-                      <rect x={midX - 17} y="30" width="34" height="19" rx="9.5" fill="#e8f7ee" stroke="#1a7f43" strokeWidth="2" />
-                      <text x={midX} y="43.4" textAnchor="middle" fontSize="12" fontWeight="900" fontFamily="Manrope, system-ui, sans-serif" fill="#1a7f43">+10</text>
-                    </g>
-                  ) : (
-                    <g>
-                      <circle cx={midX} cy="39" r="10" fill="#fff" stroke="#e0b96a" strokeWidth="2" />
-                      <text x={midX} y="43.6" textAnchor="middle" fontSize="14" fontWeight="900" fontFamily="Manrope, system-ui, sans-serif" fill="#c9822f">?</text>
-                    </g>
-                  )}
-                </g>
-              );
-            })}
-
-            {/* tayl-yo'lak: 4 ta diskret son tayli (shartda berilgan sonlar) */}
-            {SEQ.map((n, i) => {
-              const x = CX[i];
-              return (
-                <g key={'tile' + i}>
-                  <rect x={x - 26} y="76" width="52" height="40" rx="10"
-                    fill={ok ? '#e8f7ee' : '#ffffff'} stroke={ok ? '#1a7f43' : '#cbd6c2'} strokeWidth="2.4"
-                    style={ok ? { filter: 'drop-shadow(0 2px 3px rgba(26,127,67,.18))' } : { filter: 'drop-shadow(0 2px 3px rgba(60,80,50,.12))' }} />
-                  <text x={x} y="102.5" textAnchor="middle" fontSize="21" fontWeight="900" fontFamily="Manrope, system-ui, sans-serif"
-                    fill={ok ? '#1a7f43' : '#374151'} style={{ fontVariantNumeric: 'tabular-nums' }}>{n}</text>
-                </g>
-              );
-            })}
-
-            {/* QUYON: chap tayldan boshlab bir xil qadam bilan sakraydi (dekor — pointer-events yo'q).
-                translate(HOME, ...) uy holati; ichki .pq-hopper harakati oraliq (px = user birligi). */}
-            <g transform={`translate(${HOME} 60)`} style={{ pointerEvents: 'none' }}>
-              <g className={hopperCls}>
-                {/* soya */}
-                <ellipse cx="-2" cy="16" rx="12" ry="2.6" fill="rgba(60,90,40,.18)" />
-                {/* dumaloq oq dum */}
-                <circle cx="-13" cy="6" r="4.6" fill="#ffffff" stroke="#c4c9d4" strokeWidth="1" />
-                {/* tana (o'tirgan) */}
-                <ellipse cx="-4" cy="6" rx="11" ry="9" fill={`url(#${rid})`} stroke="#b3b9c6" strokeWidth="1.1" />
-                {/* orqa panja */}
-                <ellipse cx="-3" cy="14.5" rx="7.5" ry="3" fill="#eef0f4" stroke="#c4c9d4" strokeWidth=".9" />
-                {/* bosh */}
-                <circle cx="8" cy="-1" r="7.6" fill={`url(#${rid})`} stroke="#b3b9c6" strokeWidth="1.1" />
-                {/* quloqlar (ikki-ton: tashqi kulrang + ichki pushti) */}
-                <path d="M4 -6 C1 -16 2.5 -27 5.5 -28 C8.2 -27 8 -16 7 -6 Z" fill={`url(#${rid})`} stroke="#b3b9c6" strokeWidth="1" />
-                <path d="M5.4 -8 C3.6 -15 4.6 -24 5.8 -25 C7 -24 6.7 -15 6.4 -8 Z" fill="#f6b6c6" opacity=".9" />
-                <path d="M10 -6 C9 -16 12 -25 15 -25 C17.4 -23.4 16 -14 13.4 -6 Z" fill={`url(#${rid})`} stroke="#b3b9c6" strokeWidth="1" />
-                <path d="M11.2 -8 C10.6 -15 12.6 -22 14.2 -22.4 C15.4 -21 14.4 -14 12.9 -8 Z" fill="#f6b6c6" opacity=".9" />
-                {/* ko'z + burun */}
-                <circle cx="10.4" cy="-2.2" r="1.7" fill="#2f3440" />
-                <circle cx="10.9" cy="-2.8" r=".5" fill="#fff" />
-                <ellipse cx="15" cy="1" rx="1.7" ry="1.3" fill="#e77b93" />
-                {/* old panja */}
-                <ellipse cx="9" cy="13" rx="4.2" ry="2.6" fill="#eef0f4" stroke="#c4c9d4" strokeWidth=".9" />
-              </g>
-            </g>
-          </svg>
-        </div>
+        <NumberLine
+          values={SEQ}
+          path={HOP_PATH}
+          lit={[SEQ.length - 1]}
+          active={!!ok}
+          still={still}
+          midLabel={ok ? `+${STEP}` : '?'}
+        />
 
         {ok && (<>
-          <span className="pq-spark" style={{ left: '18%', top: '54px' }}>✦</span>
-          <span className="pq-spark s2" style={{ left: '80%', top: '64px' }}>✦</span>
-          <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
+          <span className="pq-spark" style={{ left: '18%', top: '64px' }}>✦</span>
+          <span className="pq-spark s2" style={{ left: '82%', top: '78px' }}>✦</span>
+          <span className="pq-spark s3" style={{ left: '50%', top: '52px' }}>✦</span>
         </>)}
       </div>
 

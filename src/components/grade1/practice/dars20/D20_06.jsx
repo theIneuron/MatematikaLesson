@@ -1,9 +1,10 @@
 // Dars20 · Amaliyot 06 — P13 Zanjir «Garaj» · 🔴 · tag: make_ten_chain_sub
-// 4 qator: har birida garaj (2×5 = 10 joy to'la) + yo'lakchada birliklar. "A − B = ?" — o'tib ayirish.
-// G'alaba: mashinalar garajdan chiqib yo'lga qarab siljiydi (avval birliklar, so'ng o'nlikdan) —
-// ikki qadamli, sekin, bir-martalik; g'ildirak aylanadi. Qolgan mashinalar sanaladi.
-// Chip «A − B = N», ost-satr make-ten «A − x − y = 10 − y». VEDI-DO-VERNOGO: noto'g'rida qulf yo'q,
-// retry yo'q; setChecked FAQAT to'g'rida. Minus = U+2212 «−».
+// SAVOL-kartalar 2×2 panjara (metodist 2026-07-12): har kartada FAQAT toza sonli ifoda
+// «A − B = ?» + 4 sonli variant. Mashina-panjaralar va chiqish-animatsiyalari kartalardan
+// OLINDI — kartalar juda zich bo'lib ketgan edi. Syujet yuqoridagi sahnada yashaydi:
+// garaj binosi, yo'l, svetofor, quyosh, uzoqda uylar/daraxt + yo'ldan o'tayotgan mashina.
+// G'alabada har kartada chip «A − B = N» + make-ten ost-satr «A − x − y = 10 − y».
+// VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida. Minus = U+2212 «−».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const M = '−';        // U+2212 — display minus (defis EMAS)
@@ -48,8 +49,33 @@ const T = {
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
+// KO'CHA ORQA FONI (ambient): uzoqdagi uylar + daraxtlar — mini-sahna gorizontida turadi.
+const Town = () => (
+  <svg className="pq-town" viewBox="0 0 400 46" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <g opacity=".9">
+      <rect x="42" y="20" width="34" height="26" rx="2" fill="#e6dccb" stroke="#cbb999" strokeWidth="1" />
+      <path d="M39 21 L59 7 L79 21 Z" fill="#cf7458" stroke="#ad573f" strokeWidth="1" strokeLinejoin="round" />
+      <rect x="49" y="28" width="7" height="7" rx="1" fill="#a9c6e2" />
+      <rect x="61" y="28" width="7" height="7" rx="1" fill="#a9c6e2" />
+      <rect x="86" y="12" width="26" height="34" rx="2" fill="#d3dfec" stroke="#aabfd6" strokeWidth="1" />
+      <rect x="91" y="18" width="6" height="6" fill="#f6ecc9" /><rect x="101" y="18" width="6" height="6" fill="#f6ecc9" />
+      <rect x="91" y="29" width="6" height="6" fill="#f6ecc9" /><rect x="101" y="29" width="6" height="6" fill="#f6ecc9" />
+      <rect x="122" y="34" width="4" height="12" rx="2" fill="#8a6242" />
+      <circle cx="124" cy="26" r="10" fill="#85bd7b" />
+      <circle cx="117" cy="31" r="6" fill="#74ad6b" />
+      <rect x="240" y="34" width="4" height="12" rx="2" fill="#8a6242" />
+      <circle cx="242" cy="27" r="9" fill="#85bd7b" />
+      <rect x="258" y="18" width="30" height="28" rx="2" fill="#ead9d3" stroke="#cdb1a7" strokeWidth="1" />
+      <path d="M255 19 L273 5 L291 19 Z" fill="#8aa6c8" stroke="#6d87a8" strokeWidth="1" strokeLinejoin="round" />
+      <rect x="264" y="26" width="6" height="6" rx="1" fill="#f6ecc9" />
+      <rect x="275" y="26" width="6" height="6" rx="1" fill="#f6ecc9" />
+    </g>
+  </svg>
+);
+
 // MASHINA KANONI (yakka birlik): sodda yumaloq mashina — rangli tana (2-ton) + tom/oynalar +
 // 2 g'ildirak + fara. Bitta mashina = bitta birlik. spin=true bo'lsa g'ildiraklar aylanadi.
+// Endi faqat sahnadagi ambient mashina uchun ishlatiladi (kartalarda mashina YO'Q).
 const Car = ({ c = PAL[0], spin = false }) => (
   <svg viewBox="0 0 44 28" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true" style={{ display: 'block' }}>
     {/* tom / kabina */}
@@ -126,6 +152,10 @@ export default function D20_06(props) {
         /* sahna: garaj binosi, yo'l, svetofor, quyosh (ambient) */
         .pq2006 .pq-scene{position:relative;width:372px;max-width:100%;height:88px;border-radius:18px;background:linear-gradient(#dff0fb 0%,#e9f0fb 55%,#eef3f8 100%);border:2px solid #cad9ee;overflow:hidden;}
         .pq2006 .pq-sun{position:absolute;top:14px;left:18px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6ce,#f9c62f 72%,#f0ab18);box-shadow:0 0 14px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
+        /* uzoqdagi ko'cha: uylar + daraxtlar (ambient orqa fon) */
+        .pq2006 .pq-town{position:absolute;left:0;top:24px;width:100%;height:46px;z-index:0;pointer-events:none;}
+        /* yo'ldan o'tayotgan ambient mashina (syujetni jonlantiradi, kartalarga tegmaydi) */
+        .pq2006 .pq-runcar{position:absolute;left:0;bottom:1px;width:34px;height:22px;z-index:3;line-height:0;animation:pqRun 7s linear infinite;}
         .pq2006 .pq-garage{position:absolute;right:20px;bottom:20px;width:78px;height:50px;z-index:1;}
         .pq2006 .pq-garage .wall{position:absolute;left:0;bottom:0;width:78px;height:44px;border-radius:5px 5px 0 0;background:linear-gradient(#cfe0f0,#b7cbe2);border:2px solid #8ea9c6;}
         .pq2006 .pq-garage .roof{position:absolute;left:-4px;top:0;width:86px;height:14px;border-radius:5px;background:linear-gradient(#5a7fa8,#3f6089);border:2px solid #2f4b6d;}
@@ -143,28 +173,15 @@ export default function D20_06(props) {
         .pq2006 .pq-spark{position:absolute;z-index:6;color:#ffd13f;opacity:0;line-height:0;font-size:14px;animation:pqTwinkle 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
         .pq2006 .pq-spark.s2{animation-delay:-.6s;} .pq2006 .pq-spark.s3{animation-delay:-1.15s;}
 
-        /* qatorlar */
+        /* qatorlar: 2×2 panjara, har karta — TOZA ifoda + 4 variant (mashinasiz) */
         .pq2006 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;width:100%;}
-        .pq2006 .pq-rw{display:flex;gap:9px;align-items:center;justify-content:center;align-content:center;flex-wrap:wrap;padding:8px 9px;border-radius:14px;border:2.5px solid #cdd9ea;background:#fbfdff;transition:.15s;}
+        .pq2006 .pq-rw{display:flex;flex-direction:column;gap:9px;align-items:center;justify-content:center;padding:12px 9px 13px;border-radius:14px;border:2.5px solid #cdd9ea;background:#fbfdff;transition:.15s;}
         .pq2006 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq2006 .pq-rw.good.win{animation:pqCele .5s ease;}
         .pq2006 .pq-rw.bad{border-color:#e08a8a;background:#fdf1f1;animation:pqShake .35s ease;}
+        .pq2006 .whl.sp{animation:pqWheel .5s linear infinite;}
 
-        /* garaj (2×5 = 10 joy) + yo'lakcha (birliklar) */
-        .pq2006 .pq-gz{display:flex;align-items:flex-end;gap:6px;flex:0 0 auto;}
-        .pq2006 .pq-frame{display:grid;grid-template-columns:repeat(5,29px);grid-auto-rows:20px;gap:3px;padding:5px;border-radius:11px;background:linear-gradient(#e7edf4,#d6e0ec);border:2px solid #a9c0da;box-shadow:inset 0 1px 0 rgba(255,255,255,.5);}
-        .pq2006 .pq-lane{display:flex;flex-direction:column;justify-content:flex-end;gap:3px;padding:5px 4px;border-radius:9px;background:linear-gradient(#eef1f5,#e0e6ee);border:2px dashed #b7c3d3;}
-        .pq2006 .pq-lane.none{display:none;}
-        .pq2006 .pq-slot2{position:relative;border-radius:6px;background:rgba(255,255,255,.5);border:1.4px solid rgba(120,150,185,.4);display:flex;align-items:center;justify-content:center;}
-        .pq2006 .pq-slot2.gone{background:rgba(255,255,255,.28);border-style:dashed;border-color:rgba(120,150,185,.55);}
-        .pq2006 .pq-lane .pq-slot2{width:29px;height:20px;}
-        .pq2006 .pq-car{width:27px;height:18px;line-height:0;}
-        .pq2006 .pq-car.idle{animation:pqBob 2.6s ease-in-out infinite;animation-delay:var(--bd,0s);}
-        .pq2006 .pq-car.drive{animation:pqDrive .7s ease-in forwards;animation-delay:var(--dd,0s);}
-        .pq2006 .whl.sp{animation:pqWheel .7s linear forwards;animation-delay:var(--dd,0s);}
-        .pq2006 .pq-cnt{position:absolute;top:-7px;right:-4px;min-width:15px;height:15px;padding:0 2px;border-radius:50%;background:#1a7f43;color:#fff;font-size:9.5px;font-weight:800;display:flex;align-items:center;justify-content:center;z-index:6;box-shadow:0 1px 2px rgba(0,0,0,.25);animation:pqPop .3s both;animation-delay:var(--cd,1.1s);opacity:0;}
-
-        .pq2006 .pq-eq{display:flex;align-items:center;gap:5px;font-size:19px;font-weight:900;color:#3f5d80;font-variant-numeric:tabular-nums;}
+        .pq2006 .pq-eq{display:flex;align-items:center;gap:6px;font-size:22px;font-weight:900;color:#3f5d80;font-variant-numeric:tabular-nums;}
         .pq2006 .pq-eq .a{color:#3f6ea5;}
         .pq2006 .pq-eq .mn{color:#a05a2e;}
         .pq2006 .pq-slot{width:38px;height:40px;border-radius:10px;border:2.5px dashed #bcccdf;display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:900;color:#8aa3c4;font-variant-numeric:tabular-nums;animation:pqBreath 2.4s ease-in-out infinite;}
@@ -174,10 +191,10 @@ export default function D20_06(props) {
         .pq2006 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq2006 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
 
-        .pq2006 .pq-win{display:flex;flex-direction:column;gap:2px;margin-left:2px;flex-basis:100%;align-items:center;justify-content:center;}
+        .pq2006 .pq-win{display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;}
         .pq2006 .pq-chip{padding:4px 11px;border-radius:11px;background:#e8f7ee;border:2px solid #1a7f43;color:#1a7f43;font-size:15px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap;animation:pqPop .35s ease both;}
         .pq2006 .pq-step{font-size:12px;font-weight:800;color:#5c7fa6;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:2px;animation:pqIn .3s .12s both;}
-        .pq2006 .pq-sgs{display:flex;align-content:center;gap:6px;margin-left:2px;flex-basis:100%;justify-content:center;}
+        .pq2006 .pq-sgs{display:flex;align-content:center;gap:6px;justify-content:center;}
         .pq2006 .pq-sg{width:40px;height:42px;border-radius:11px;border:2.5px solid #cdd9ea;background:#fff;font-size:20px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2006 .pq-sg:hover:not(:disabled){border-color:#8ab0e0;transform:translateY(-2px);}
         .pq2006 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -190,9 +207,8 @@ export default function D20_06(props) {
         @keyframes pqSun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
         @keyframes pqTl{0%,55%{background:#e2635b;box-shadow:0 0 5px 1px rgba(226,99,91,.7);}56%,100%{background:#3a424c;box-shadow:none;}}
         @keyframes pqTlg{0%,55%{background:#3a424c;box-shadow:none;}56%,100%{background:#57a84f;box-shadow:0 0 5px 1px rgba(87,168,79,.7);}}
-        @keyframes pqBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
-        @keyframes pqDrive{0%{opacity:1;transform:translateX(0);}18%{transform:translateX(3px);}100%{opacity:0;transform:translateX(64px) translateY(-2px);}}
-        @keyframes pqWheel{from{transform:rotate(0);}to{transform:rotate(340deg);}}
+        @keyframes pqRun{0%{transform:translateX(-40px);}100%{transform:translateX(400px);}}
+        @keyframes pqWheel{from{transform:rotate(0);}to{transform:rotate(360deg);}}
         @keyframes pqPop{from{opacity:0;transform:scale(.5);}to{opacity:1;transform:scale(1);}}
         @keyframes pqBreath{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
         @keyframes pqShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
@@ -206,10 +222,12 @@ export default function D20_06(props) {
       <div className="pq-stage">
         <div className="pq-scene">
           <span className="pq-sun" />
+          <Town />
           <div className="pq-board">{t.title}</div>
           <span className="pq-tl"><span className="box"><span className="lt r" /><span className="lt y" /><span className="lt g" /></span><span className="pole" /></span>
           <span className="pq-garage"><span className="roof" /><span className="wall" /><span className="door" /></span>
           <span className="pq-road" />
+          <span className="pq-runcar"><Car c={PAL[1]} spin /></span>
           {ok && (<>
             <span className="pq-spark" style={{ left: '12%', top: '16px' }}>✦</span>
             <span className="pq-spark s2" style={{ left: '48%', bottom: '20px' }}>✦</span>
@@ -220,64 +238,8 @@ export default function D20_06(props) {
         <div className="pq-rows">
           {ROWS.map((r, i) => {
             const cls = feedback ? (rowRight(i) ? ' good' + (ok ? ' win' : '') : ' bad') : '';
-            // Chiqib ketish tartibi (2 qadam): avval yo'lakcha birliklari, keyin garajning oxirgi 'fromten' joyi.
-            const laneDelay = (k) => k * 0.16;                                  // 1-qadam: birliklar
-            const step2Start = r.units * 0.16 + 0.4;                            // pauza
-            const garageDelay = (k) => step2Start + (k - (TEN - r.fromten)) * 0.16; // 2-qadam: o'nlikdan
-            const cntStart = step2Start + r.fromten * 0.16 + 0.55;              // sanoq animatsiya-kechikishi
             return (
               <div key={i} className={'pq-rw' + cls}>
-                <div className="pq-gz">
-                  {/* garaj: 10 joy. G'alabada oxirgi 'fromten' mashina chiqib ketadi. */}
-                  <div className="pq-frame">
-                    {Array.from({ length: TEN }).map((_, k) => {
-                      const gone = k >= TEN - r.fromten;    // g'alabada chiqadigan garaj mashinasi
-                      const stays = !gone;                  // qoladigan
-                      const c = PAL[(i + k) % PAL.length];
-                      return (
-                        <div key={k} className={'pq-slot2' + (ok && gone ? ' gone' : '')}>
-                          {stays && (
-                            <span className={'pq-car' + (!ok && !still ? ' idle' : '')} style={{ '--bd': `${k * 0.11}s` }}>
-                              <Car c={c} />
-                              {ok && <b className="pq-cnt" style={{ '--cd': `${cntStart + (k) * 0.09}s` }}>{k + 1}</b>}
-                            </span>
-                          )}
-                          {gone && !ok && (
-                            <span className={'pq-car' + (!still ? ' idle' : '')} style={{ '--bd': `${k * 0.11}s` }}>
-                              <Car c={c} />
-                            </span>
-                          )}
-                          {gone && ok && !still && (
-                            <span className="pq-car drive" style={{ '--dd': `${garageDelay(k)}s` }}>
-                              <Car c={c} spin />
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {/* yo'lakcha: birliklar (A−10). G'alabada birinchi bo'lib chiqadi. */}
-                  <div className={'pq-lane' + (r.units ? '' : ' none')}>
-                    {Array.from({ length: r.units }).map((_, k) => {
-                      const c = PAL[(i + TEN + k) % PAL.length];
-                      return (
-                        <div key={k} className={'pq-slot2' + (ok ? ' gone' : '')}>
-                          {!ok && (
-                            <span className={'pq-car' + (!still ? ' idle' : '')} style={{ '--bd': `${(TEN + k) * 0.11}s` }}>
-                              <Car c={c} />
-                            </span>
-                          )}
-                          {ok && !still && (
-                            <span className="pq-car drive" style={{ '--dd': `${laneDelay(k)}s` }}>
-                              <Car c={c} spin />
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 <div className="pq-eq">
                   <span className="a">{r.a}</span>
                   <span className="mn">{M}</span>

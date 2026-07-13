@@ -2,8 +2,8 @@
 // Shar do'koni: 5 ifoda-karta. Ayirmasi aynan SAKKIZ (8) bo'lganlarni BARCHASINI belgila.
 // [0] "13 − 5" =8 ✓  [1] "14 − 6" =8 ✓  [2] "12 − 4" =8 ✓
 // [3] "15 − 8" =7 ✗ tuzoq  [4] "11 − 4" =7 ✗ tuzoq. GOOD = {0,1,2}.
-// Make-ten-sub modeli: har karta = 1 to'la rak (10 shar) + birliklar. G'alabada birliklar avval,
-// keyin rakdan qolgani UCHIB ketadi (bir-martalik reveal), qolgan sharlar sanaladi → "= 8".
+// Make-ten-sub modeli: har karta = 1 to'la quti (10 shar) + birliklar. G'alabada SEKIN, bittalab:
+// avval birliklar, keyin qutidan qolgani UCHIB ketadi (bir-martalik reveal) → "= 8" chipi.
 // VEDI-DO-VERNOGO: noto'g'ri javobda qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
@@ -36,18 +36,18 @@ const T = {
   uz: {
     eyebrow: "Shar do'koni · Sakkiz",
     title: "Ayirmasi sakkiz",
-    setup: "Peshtaxtadagi har kartada bitta ayirish yozilgan — javoblari turlicha chiqadi.",
-    ask: "Ayirmasi aynan SAKKIZ bo'ladigan BARCHA kartani bosing.",
-    correct: `Barakalla! 13 ${MINUS} 5, 14 ${MINUS} 6, 12 ${MINUS} 4 — ayirmasi hammasida sakkiz.`,
-    hint: "Har kartada avval o'ngacha tushiring — birliklarni ayiring, keyin o'nlikdan qolganini oling. Qaysi kartada sakkiz qoladi — o'shalarni tanlang.",
+    setup: "Har kartada bitta ayirish bor.",
+    ask: "Javobi 8 bo'lgan hamma kartani bosing.",
+    correct: `Barakalla! 13 ${MINUS} 5, 14 ${MINUS} 6, 12 ${MINUS} 4 — hammasida javob 8.`,
+    hint: "Har kartada avval 10 gacha ayiring, keyin qolganini 10 dan ayiring. Javobi 8 bo'lganlarini tanlang.",
   },
   ru: {
     eyebrow: 'Магазин шаров · Восемь',
     title: 'Разность — восемь',
-    setup: 'На каждой карточке на прилавке записано одно вычитание — ответы получаются разные.',
-    ask: 'Нажми на ВСЕ карточки, где разность ровно ВОСЕМЬ.',
-    correct: `Молодец! 13 ${MINUS} 5, 14 ${MINUS} 6, 12 ${MINUS} 4 — везде разность восемь.`,
-    hint: 'Сначала спусти до десяти — вычти единицы, потом убери остаток из десятка. Выбери те, где остаётся восемь.',
+    setup: 'На каждой карточке одно вычитание.',
+    ask: 'Нажми на все карточки, где ответ 8.',
+    correct: `Молодец! 13 ${MINUS} 5, 14 ${MINUS} 6, 12 ${MINUS} 4 — везде ответ 8.`,
+    hint: 'Сначала вычти до 10, потом остаток из 10. Выбери карточки, где получается 8.',
   },
 };
 
@@ -174,11 +174,11 @@ export default function D19_08(props) {
         .pq1908 .pq-rack{display:grid;grid-template-columns:repeat(5,18px);grid-auto-rows:21px;gap:3px;padding:5px;border-radius:9px;background:#fff6e6;border:1.6px solid #e2c79a;box-shadow:inset 0 1px 2px rgba(150,110,50,.18);}
         .pq1908 .pq-cell{position:relative;border-radius:6px;background:rgba(255,255,255,.5);border:1.2px solid rgba(180,140,80,.35);display:flex;align-items:flex-end;justify-content:center;}
         .pq1908 .pq-sh{line-height:0;}
-        .pq1908 .pq-sh.away{animation:pqAway .7s ease-in forwards;animation-delay:var(--awd,0s);}
+        .pq1908 .pq-sh.away{animation:pqAway 1s ease-in forwards;animation-delay:var(--awd,0s);}
 
         .pq1908 .pq-clabel{display:flex;align-items:center;gap:8px;font-size:21px;font-weight:900;color:#5a4a2c;font-variant-numeric:tabular-nums;letter-spacing:.01em;margin-top:2px;}
         .pq1908 .pq-card.won .pq-clabel{color:#1a7f43;}
-        .pq1908 .pq-eq{color:#1a7f43;font-size:18px;font-weight:900;animation:pqPop .4s .5s both;}
+        .pq1908 .pq-eq{color:#1a7f43;font-size:18px;font-weight:900;animation:pqPop .4s var(--ld,.5s) both;}
         .pq1908 .pq-spark{position:absolute;top:7px;right:10px;line-height:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
 
         .pq1908 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pqIn .22s ease both;}
@@ -217,26 +217,26 @@ export default function D19_08(props) {
             return (
               <button key={i} type="button" className={'pq-card' + cls} disabled={lock}
                 onClick={() => toggle(i)} aria-label={cardLabel(c)}>
-                {/* Birliklar (loose) — g'alabada avval uchadi */}
+                {/* Birliklar (loose) — g'alabada avval, BITTALAB uchadi */}
                 <div className="pq-loose">
                   {Array.from({ length: loose }).map((_, j) => (
-                    <Shar key={'l' + j} pi={j} away={reveal} delay={0.1 * j} />
+                    <Shar key={'l' + j} pi={j} away={reveal} delay={0.3 + 0.5 * j} />
                   ))}
                 </div>
-                {/* Rak — bir to'la o'nlik (10 uya); qolgan remRack shar keyin uchadi */}
+                {/* Quti — bir to'la o'nlik (10 uya); qolgan remRack shar keyin bittalab uchadi */}
                 <div className="pq-rack">
                   {Array.from({ length: 10 }).map((_, k) => {
                     const gone = reveal && k >= rackStart;
                     return (
                       <span key={'r' + k} className="pq-cell">
-                        <Shar pi={k} away={gone} delay={0.35 + (k - rackStart) * 0.1} />
+                        <Shar pi={k} away={gone} delay={3.2 + (k - rackStart) * 0.5} />
                       </span>
                     );
                   })}
                 </div>
                 <div className="pq-clabel">
                   <span>{cardLabel(c)}</span>
-                  {reveal && <b className="pq-eq">= {TARGET}</b>}
+                  {reveal && <b className="pq-eq" style={{ '--ld': still ? '.1s' : '4.6s' }}>= {TARGET}</b>}
                 </div>
                 {reveal && <span className="pq-spark"><Star fill="#f2b134" /></span>}
               </button>

@@ -18,19 +18,19 @@ const GRP_B = Array.from({ length: ADD[1] }).map((_, i) => ({ i, c: RED }));
 const T = {
   uz: {
     eyebrow: "Shar do'koni · Bog'lanish", title: "Qo'shishni bilsangiz, ayirishni ham bilasiz",
-    setup: "Bu faktni bilamiz: 8 + 5 = 13. Sakkizta ko'k shar va yana beshta qizil — o'n uchta.",
+    setup: "Buni bilamiz: 8 + 5 = 13.",
     ask: "Unda 13 − 5 nechaga teng?",
-    correct: "Barakalla! 8 + 5 = 13 bo'lsa, 13 − 5 = 8. Beshta qizil shar uchib ketdi, sakkiztasi qoldi.",
-    hint: "Qo'shishni eslang: 8 + 5 = 13. Ayirish — uning teskarisi. O'n uchdan beshni olsak, qo'shilgan sakkiz qaytadi.",
+    correct: "Barakalla! 8 + 5 = 13, demak 13 − 5 = 8. 5 ta qizil shar uchdi — 8 ta ko'k qoldi.",
+    hint: "8 + 5 = 13 ni eslang. 13 dan 5 ni olsak, qo'shilgan 8 qaytadi.",
     known: "Ma'lum fakt",
     demak: "demak",
   },
   ru: {
     eyebrow: 'Магазин шаров · Связь', title: 'Знаешь сложение — знаешь и вычитание',
-    setup: 'Мы знаем факт: 8 + 5 = 13. Восемь синих шаров и ещё пять красных — тринадцать.',
+    setup: 'Мы знаем: 8 + 5 = 13.',
     ask: 'Тогда сколько будет 13 − 5?',
-    correct: 'Молодец! Если 8 + 5 = 13, то 13 − 5 = 8. Пять красных шаров улетели, восемь остались.',
-    hint: 'Вспомни сложение: 8 + 5 = 13. Вычитание — обратное действие. Из тринадцати вычесть пять — вернутся прибавленные восемь.',
+    correct: 'Молодец! 8 + 5 = 13, значит 13 − 5 = 8. 5 красных шаров улетели — осталось 8 синих.',
+    hint: 'Вспомни: 8 + 5 = 13. Если из 13 убрать 5, вернутся прибавленные 8.',
     known: 'Известный факт',
     demak: 'значит',
   },
@@ -173,7 +173,7 @@ export default function D19_07(props) {
               {GRP_A.map((b) => (
                 <span key={'a' + b.i} className="pq-bw">
                   <Balloon c={b.c} size={26} />
-                  {ok && <b className="pq-cnt" style={{ animationDelay: `${b.i * 0.06}s` }}>{b.i + 1}</b>}
+                  {ok && <b className="pq-cnt" style={{ animationDelay: still ? '0s' : `${3.6 + b.i * 0.25}s` }}>{b.i + 1}</b>}
                 </span>
               ))}
             </div>
@@ -182,7 +182,7 @@ export default function D19_07(props) {
             {!bGone && (
               <div className="pq-grp">
                 {GRP_B.map((b) => (
-                  <span key={'b' + b.i} className={'pq-bw' + (ok && !still ? ' fly' : '')} style={{ animationDelay: ok && !still ? `${b.i * 0.12}s` : undefined }}>
+                  <span key={'b' + b.i} className={'pq-bw' + (ok && !still ? ' fly' : '')} style={{ animationDelay: ok && !still ? `${0.3 + b.i * 0.6}s` : undefined }}>
                     <Balloon c={b.c} size={26} />
                   </span>
                 ))}
