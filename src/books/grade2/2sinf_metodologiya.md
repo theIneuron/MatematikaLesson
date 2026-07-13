@@ -150,6 +150,8 @@ masala qahramonlari: Madina, Bekzod, Kamola, Sardor…).
 
 **3.10. Mentor — platforma ovozi.** Bit — diktor (3-shaxs, ayol ovoz canon); ism/yuz/
 avatar do'st-personajga aylanmaydi.
+**(2-sinf v2 istisno, 2026-07-13):** «Bit uyga qaytadi» syujetida Bit sayohatchi-qahramon
+HAM (ekranda ekipaj bilan); ovoz canon (ayol) saqlanadi. Manba — `SYUJET_2SINF.md` v2.
 
 ---
 
@@ -260,6 +262,21 @@ Chuqurlik > test-og'ir. `qa-validator` tekshiradigan band:
 3. **Qoida hookга qaytadi** — ochilgan qonuniyat hookdagi maqsad/jumboqni yopadi (sikl).
 4. Ovoz tushuntirishni **ko'taradi**, vizualni takrorlamaydi; qadam-baqadam, bir segment
    = bir fikr.
+5. **Mavzu OCHIQ tushuntiriladi + aniq QOIDA beriladi (o'yin emas)** — o'quvchilar
+   iltimosi (2026-07-13; "dars tushuntirilmayapti" past bahosi): (a) ochiq tushuntirish
+   beati — Bit NIMA va NEGA ni ravshan aytadi (ovoz yetakchi), har ochilish "qiladi +
+   tushuntiradi"; (b) ko'rinadigan QOIDA kartasi — sodda, rang-kodli, qonun sifatida,
+   ovozda AYTILADI + ekranda YOZILADI (§1.6 bitta yozma tayanch); (c) qoida sikli:
+   hook → ochilish → QOIDA ekrani → yakunda recap. Interaktiv/o'yin tushuntirishga
+   XIZMAT qiladi, o'rnini bosmaydi.
+6. **Tushuntirish O'ZI harakatlanadi (tugmasiz); kashfiyot AVVAL savol beradi** —
+   (metodist 2026-07-13). Tushuntirish/ochilish slaydida vizual ovoz bilan **sinxron
+   o'zi animatsiyalanadi** (razryad ustuni ovozga qarab yonadi, son o'qida marker
+   o'zi sakraydi, 10→1 birlashuv o'zi yig'iladi) — **«Дальше»-stepper (bir-tugmalik
+   qadam) TAQIQ** (§6.2.1 passiv avto-reveal bilan bir xil nuqson). Kashfiyot avval
+   **SAVOL/TAXMIN** beradi (bola chiziqda bosib taxmin qiladi / bashorat), keyin ochadi;
+   savol ovozi kirish-ko'prigисиз, to'g'ridan boshlanadi. Etalon: Dars01 s1 (birlashuv),
+   s4 (razryad), s6 (son o'qi — savol-birinchi).
 
 ---
 
