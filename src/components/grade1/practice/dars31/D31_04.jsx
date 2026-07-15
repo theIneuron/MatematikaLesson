@@ -6,6 +6,21 @@
 // Natija (5) g'alabagacha YASHIRIN («?»). VEDI-DO-VERNOGO: qadam1 xato -> «avval qo'shing»; qadam2 xato -> «endi ayiring»; qulf yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const PLUS = '+';
 const MINUS = '−'; // U+2212 minus belgisi (ASCII defis EMAS)
 const A = 7, B = 2, C = 4;                        // Bor edi 7, keldi 2, ketdi 4
@@ -188,6 +203,7 @@ export default function D31_04(props) {
 
   const pick1 = (v) => { if (lock) return; setS1(v); setFeedback(null); };
   const pick2 = (v) => { if (lock) return; setS2(v); setFeedback(null); };
+  const [fitRef, scale] = useFitScale(404);
 
   return (
     <div className={"pq pq3104" + (still ? " still" : "")}>
@@ -201,7 +217,8 @@ export default function D31_04(props) {
         .pq3104 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq3104 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:14px;}
         /* ===== TABIAT SAHNASI (D15_01 etaloni) ===== */
-        .pq3104 .pq-scene{position:relative;width:404px;max-width:100%;height:324px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq3104 .pq-scene{box-sizing:border-box;position:relative;width:404px;height:324px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq3104 .pq-fit{position:relative;margin:0 auto;}
         .pq3104 .pq-sun{position:absolute;top:18px;left:22px;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 42% 40%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 22px 7px rgba(255,214,74,.6);animation:pq3104Sun 4s ease-in-out infinite;z-index:1;}
         .pq3104 .pq-cloud{position:absolute;height:16px;background:#fff;border-radius:20px;box-shadow:0 6px 0 -2px #fff;opacity:.94;z-index:1;}
         .pq3104 .pq-cloud::before,.pq3104 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
@@ -323,8 +340,9 @@ export default function D31_04(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 404 * scale, height: 324 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <Bird cls="b1" /><Bird cls="b2" /><Bird cls="b3" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" /><span className="pq-cloud c3" />
@@ -351,6 +369,7 @@ export default function D31_04(props) {
 
           {/* Quyoncha 7 da; ikkala qadam to'g'ri to'lgach: 7→9 (+2, sariq pauza), so'ng orqaga 9→5 (−4, yashil) */}
           <NumberLine from={0} to={10} path={HOP_PATH} mid={[S1]} lit={[S2]} active={ok} still={still} stepMs={780} />
+        </div>
         </div>
 
         {/* IKKI QADAM: 7 + 2 = [?]  va  [9] − 4 = [?] — bola ikkala natijani to'ldiradi */}

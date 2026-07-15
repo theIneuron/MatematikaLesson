@@ -6,6 +6,21 @@
 // robotcha (ko'z pirpiraydi, antenna pulslaydi). Lift YURISHI ko'rsatilmaydi (javobni oshkor qilmaslik).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const FROM = 2, TO = 8, STEPS = TO - FROM; // 6
 const DATA = { from: FROM, to: TO, diff: STEPS, ptype: 'P10', level: '🔴', tag: 'reverse_lift' };
 const CORRECT_ID = 'up6';
@@ -139,16 +154,18 @@ export default function D10_05(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(340);
 
   return (
-    <div className="pq pq1005">
+    <div className="pq pq1005" ref={fitRef}>
       <style>{`
         .pq1005{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq1005 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#5a6bd6;text-transform:uppercase;}
         .pq1005 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1005 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1005 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq1005 .pq-scene{position:relative;width:340px;max-width:100%;height:306px;margin:0 auto;border-radius:20px;background:linear-gradient(#39435c 0%,#455072 44%,#3c4763 100%);border:2px solid #2c3547;overflow:hidden;}
+        .pq1005 .pq-scene{box-sizing:border-box;position:relative;width:340px;height:306px;border-radius:20px;background:linear-gradient(#39435c 0%,#455072 44%,#3c4763 100%);border:2px solid #2c3547;overflow:hidden;}
+        .pq1005 .pq-fit{position:relative;margin:0 auto;}
         .pq1005 .pq-wall{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 40px,rgba(255,255,255,.03) 40px 41px);z-index:0;}
         .pq1005 .pq-ground{position:absolute;left:0;right:0;bottom:0;height:20px;background:linear-gradient(#2c3446,#232a39);border-top:2px solid #1c2230;z-index:1;}
         .pq1005 .pq-win{position:absolute;border-radius:4px;background:linear-gradient(135deg,#cfe3f0,#9cc0d8 60%,#7ea6c2);border:3px solid #33465a;box-shadow:0 0 14px 2px rgba(180,220,245,.28);z-index:1;overflow:hidden;}
@@ -223,7 +240,8 @@ export default function D10_05(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-fit" style={{ width: 340 * scale, height: 306 * scale }}>
+      <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         {/* Ambient uchqunlar (fon, dekor) */}
         <span className="pq-mote m1" aria-hidden="true" style={{ left: 24, top: 150 }} />
         <span className="pq-mote m2" aria-hidden="true" style={{ left: 44, top: 208 }} />
@@ -277,6 +295,7 @@ export default function D10_05(props) {
         {ok && <span className="pq-chip">{FROM} + {STEPS} = {TO}</span>}
 
         <span className="pq-robw"><Robot /></span>
+      </div>
       </div>
 
       <div className="pq-opts">

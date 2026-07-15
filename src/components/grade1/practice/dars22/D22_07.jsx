@@ -9,6 +9,21 @@
 // Ambient boyitish: bulutlar + hilpiragan gullar (dekor, pointer-events YO'Q).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const THRESH = 40;
 const NUMS = [45, 38, 52, 24, 60];
 const GOOD = NUMS.map((n, i) => (n > THRESH ? i : -1)).filter((i) => i >= 0); // [0,2,4]
@@ -219,9 +234,10 @@ export default function D22_07(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(380);
 
   return (
-    <div className="pq pq2207">
+    <div className="pq pq2207" ref={fitRef}>
       <style>{`
         .pq2207{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2207 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
@@ -229,7 +245,8 @@ export default function D22_07(props) {
         .pq2207 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2207 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
 
-        .pq2207 .pq-scene{position:relative;width:380px;max-width:100%;height:176px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2207 .pq-scene{box-sizing:border-box;position:relative;width:380px;height:176px;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2207 .pq-fit{position:relative;margin:0 auto;}
         .pq2207 .pq-sun{position:absolute;right:20px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2207sun 3.6s ease-in-out infinite;}
         .pq2207 .pq-hill{position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(#bfe39a,#a7d47f);border-top:3px solid #8fc267;z-index:1;pointer-events:none;}
         .pq2207 .pq-hill::before{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 10px,transparent 10px 22px);}
@@ -288,7 +305,8 @@ export default function D22_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 380 * scale, height: 176 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-hill" />
         <div className="pq-title">{t.title}</div>
@@ -317,6 +335,7 @@ export default function D22_07(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '60px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '36px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       <div className="pq-cards">

@@ -7,6 +7,21 @@
 // retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 9, B = 6, SUM = 15, TEN = 10;
 const GAP = TEN - A;      // 1 — 1-yashikni to'ldirish uchun kerakli olma
 const OVER = B - GAP;     // 5 — 2-yashikka o'tadigan ortiqcha
@@ -103,16 +118,18 @@ export default function D18_03(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
-    <div className="pq pq1803">
+    <div className="pq pq1803" ref={fitRef}>
       <style>{`
         .pq1803{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq1803 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq1803 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1803 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1803 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq1803 .pq-scene{position:relative;width:372px;max-width:100%;height:252px;margin:0 auto;border-radius:20px;background:linear-gradient(#eaf6ff 0%,#dcefff 44%,#cfe6f6 100%);border:2px solid #b9d6ea;overflow:hidden;}
+        .pq1803 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:252px;border-radius:20px;background:linear-gradient(#eaf6ff 0%,#dcefff 44%,#cfe6f6 100%);border:2px solid #b9d6ea;overflow:hidden;}
+        .pq1803 .pq-fit{position:relative;margin:0 auto;}
         .pq1803 .pq-sun{position:absolute;left:20px;top:16px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 5px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
         .pq1803 .pq-cloud{position:absolute;top:26px;right:24px;width:52px;height:16px;border-radius:12px;background:rgba(255,255,255,.85);box-shadow:14px 4px 0 -3px rgba(255,255,255,.8),-14px 3px 0 -4px rgba(255,255,255,.75);z-index:1;animation:pqCloud 6s ease-in-out infinite;}
         /* chodir-soyabon: qizil-oq yo'lli */
@@ -153,7 +170,7 @@ export default function D18_03(props) {
         .pq1803 .pq-eq .ok{color:#1a7f43;font-size:22px;}
         .pq1803 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#8a7a56;font-variant-numeric:tabular-nums;animation:pqIn .3s .1s both;}
 
-        .pq1803 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq1803 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq1803 .pq-opt{min-width:118px;height:62px;padding:0 18px;font-size:22px;font-weight:800;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq1803 .pq-opt:hover:not(:disabled){border-color:#8fc487;transform:translateY(-2px);}
         .pq1803 .pq-opt:active:not(:disabled){transform:scale(.96);}
@@ -176,7 +193,8 @@ export default function D18_03(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 372 * scale, height: 252 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" /><span className="pq-cloud" />
         <span className="pq-post l" /><span className="pq-post r" />
         <span className="pq-canopy" />
@@ -240,6 +258,7 @@ export default function D18_03(props) {
           <span className="pq-spark s2" style={{ left: '86%', top: '70px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '52%', top: '46px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {ok && (<>

@@ -224,12 +224,6 @@ export const grade1Nazariy = [
 // har darsga to'liq amaliyot darsi keyin bosqichma-bosqich shu yerga qo'shiladi.
 export const grade1Amaliy = [
   {
-    slug: 'pk1-blok1-nazorat',
-    title: 'ПК1 — Blok 1 nazorati (Sonlar 10 gacha)',
-    desc: 'Oraliq nazorat (geyt): 8 topshiriq — sanoq, raqamlar, nol, taqqoslash, son tarkibi. ≥80% → keyingi blok.',
-    Component: lazy(() => import('../components/grade1/practice/pk/PK01.jsx')),
-  },
-  {
     slug: 'dars01-amaliyot',
     title: 'Dars 1 amaliyoti — sanash 1–5 (10 topshiriq)',
     desc: 'Ra\'noning tongi bo\'ylab 10 ta interaktiv topshiriq (sanash va tanlash), osondan qiyinga; harakatlanuvchi animatsiyalar.',
@@ -450,5 +444,84 @@ export const grade1Amaliy = [
     title: '★ Amaliyot namunalari (25 ta)',
     desc: 'Sanash, juftlar, taqqoslash, son uyi, o\'nlik, o\'tish, razryad, xato top, masala jadvali, kattaliklar va boshqalar.',
     Component: lazy(() => import('../components/grade1/practice/PracticePreview.jsx')),
+  },
+]
+
+// 1-sinf NAZORAT bo'limi: ПК (oraliq nazorat/geyt) va ИК (yakuniy nazorat/свёртка).
+// Reja: PK_IK_REJA_1SINF.md. Har geyt PKHost orqali amaliyot bankidagi savollarni ketma-ket
+// yuritadi, ≥passPct → o'tdi. Tartib — o'quv dasturi bo'yicha (ПК1–4, ИК-1, ПК5–10, ИК-2).
+// ◐ belgilangan ПК5/6/8/10 — 8–11-bloklar, metodist tasdig'iga muhtoj (rejadagi status).
+export const grade1Nazorat = [
+  {
+    slug: 'pk1-blok1-nazorat',
+    title: 'ПК1 — Blok 1 nazorati (Sonlar 10 gacha)',
+    desc: 'Oraliq nazorat (geyt): 8 topshiriq — sanoq, raqamlar, nol, taqqoslash, son tarkibi. ≥80% → keyingi blok.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk01/PK01.jsx')),
+  },
+  {
+    slug: 'pk2-blok2-nazorat',
+    title: 'ПК2 — Blok 2 nazorati (± 10 gacha)',
+    desc: 'Oraliq nazorat: 6 topshiriq — qo\'shish/ayirish ma\'nosi, 5/10 ichida ±, o\'rin almashtirish, tenglik. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk02/PK02.jsx')),
+  },
+  {
+    slug: 'pk3-blok3-nazorat',
+    title: 'ПК3 — Blok 3 nazorati (Sonlar 20 gacha)',
+    desc: 'Oraliq nazorat: 6 topshiriq — o\'nlik birligi, 11–15, 16–20, taqqoslash 20 gacha. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk03/PK03.jsx')),
+  },
+  {
+    slug: 'pk4-blok4-nazorat',
+    title: 'ПК4 — Blok 4 nazorati (O\'nlikdan o\'tish) · kalit geyt',
+    desc: 'Kalit geyt: 8 topshiriq — 10 ga to\'ldirish, o\'tib qo\'shish va ayirish. Kursning eng muhim ko\'nikmasi. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk04/PK04.jsx')),
+  },
+  {
+    slug: 'ik1-spiral-doira',
+    title: 'ИК-1 — Spiral doira (Б1–Б4)',
+    desc: 'Свёртка: 10 stansiya — состав + десяток + переход bir aylanaga yig\'iladi. Kurs o\'rtasi. ≥70%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/ik01/IK01.jsx')),
+  },
+  {
+    slug: 'pk5-blok8-nazorat',
+    title: 'ПК5 — Blok 8 nazorati (Sonlar 21–100) ◐',
+    desc: 'Oraliq nazorat: 6 topshiriq — razryad, ikki xonali taqqoslash, 5/10 lab sanoq. ◐ на согласовании. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk05/PK05.jsx')),
+  },
+  {
+    slug: 'pk6-blok9-nazorat',
+    title: 'ПК6 — Blok 9 nazorati (± 100 gacha) ◐',
+    desc: 'Oraliq nazorat: 8 topshiriq — yumaloq o\'nliklar, 2x±1x, 2x±2x (o\'tishsiz), 100 dan ayirish. ◐. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk06/PK06.jsx')),
+  },
+  {
+    slug: 'pk7-blok5-nazorat',
+    title: 'ПК7 — Blok 5 nazorati (Matnli masalalar)',
+    desc: 'Oraliq nazorat: 6 topshiriq — masala tuzilishi, yig\'indi, qoldiq, noma\'lum qo\'shiluvchi. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk07/PK07.jsx')),
+  },
+  {
+    slug: 'pk8-blok10-nazorat',
+    title: 'ПК8 — Blok 10 nazorati (Tarkibli masalalar) ◐',
+    desc: 'Oraliq nazorat: 6 topshiriq — jadval bilan tarkibli masala, ikki qadamli masala. ◐ на согласовании. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk08/PK08.jsx')),
+  },
+  {
+    slug: 'pk9-blok6-nazorat',
+    title: 'ПК9 — Blok 6 nazorati (Geometriya)',
+    desc: 'Oraliq nazorat: 6 topshiriq — chiziq turlari, kesma, shakllar, burchaklar. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk09/PK09.jsx')),
+  },
+  {
+    slug: 'pk10-blok11-nazorat',
+    title: 'ПК10 — Blok 11 nazorati (O\'lchov birliklari) ◐',
+    desc: 'Oraliq nazorat: 6 topshiriq — uzunlik (dm/sm), massa (kg), taqqoslash. ◐ на согласовании. ≥80%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/pk10/PK10.jsx')),
+  },
+  {
+    slug: 'ik2-yakuniy-kvest',
+    title: 'ИК-2 — Yakuniy kvest (butun kurs)',
+    desc: 'Свёртка: 10 stansiya — Б1–Б11 aralash sintezi (применение + логика). Kurs oxiri. ≥70%.',
+    Component: lazy(() => import('../components/grade1/practice/pk/ik02/IK02.jsx')),
   },
 ]

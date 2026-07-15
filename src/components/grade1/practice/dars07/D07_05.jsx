@@ -3,6 +3,21 @@
 // G'alabada eshik ochiladi, 4 bola pop chiqadi, badge 1..9, chip «5 + 4 = 9».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { total: 9, shown: 5, target: 4, options: [3, 4, 5], ptype: 'P7', level: '🟡', tag: 'hidden_part' };
 
 const T = {
@@ -128,16 +143,18 @@ export default function D07_05(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
-    <div className="pq pq0705">
+    <div className="pq pq0705" ref={fitRef}>
       <style>{`
         .pq0705{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0705 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3a7a35;text-transform:uppercase;}
         .pq0705 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0705 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0705 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0705 .pq-scene{position:relative;width:372px;height:256px;margin:0 auto;border-radius:20px;background:linear-gradient(180deg,#cfe9fb 0%,#e9f6ff 40%,#b9e0a0 41%,#a3d68c 66%,#8fca77 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0705 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:256px;border-radius:20px;background:linear-gradient(180deg,#cfe9fb 0%,#e9f6ff 40%,#b9e0a0 41%,#a3d68c 66%,#8fca77 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0705 .pq-fit{position:relative;margin:0 auto;}
         .pq0705 .pq-sun{position:absolute;top:10px;right:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;}
         .pq0705 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;}
         .pq0705 .pq-cloud.c1{top:14px;left:-70px;animation-duration:30s;animation-delay:-12s;}
@@ -174,7 +191,7 @@ export default function D07_05(props) {
         .pq0705 .pq-doorleaf::after{content:'';position:absolute;right:4.5px;top:24px;width:5px;height:5px;border-radius:50%;background:#5f3a17;}
         .pq0705 .pq-house.open .pq-doorleaf{transform:rotateY(-98deg);}
         .pq0705 .pq-chip{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:6;white-space:nowrap;font-variant-numeric:tabular-nums;}
-        .pq0705 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq0705 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq0705 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.13s;}
         .pq0705 .pq-opt:hover:not(:disabled){border-color:#a9cfa4;transform:translateY(-2px);}
         .pq0705 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -199,7 +216,8 @@ export default function D07_05(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 372 * scale, height: 256 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-fence" />
@@ -232,6 +250,7 @@ export default function D07_05(props) {
             <b className="pq-cnt" style={{ animationDelay: `${0.55 + i * 0.16}s` }}>{DATA.shown + i + 1}</b>
           </span>
         ))}
+      </div>
       </div>
 
       <div className="pq-opts">

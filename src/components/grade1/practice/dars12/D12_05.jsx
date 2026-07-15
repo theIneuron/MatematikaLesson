@@ -202,7 +202,7 @@ export default function D12_05(props) {
         .pq1205 .pq-chip{position:absolute;top:12px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:900;color:#1a7f43;background:#fff;padding:4px 18px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.24);white-space:nowrap;z-index:5;animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;font-variant-numeric:tabular-nums;}
         .pq1205 .pq-chip .op{color:#d0568a;margin:0 4px;}
         /* Javob tugmalari */
-        .pq1205 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq1205 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq1205 .pq-opt{width:72px;height:72px;font-size:34px;font-weight:900;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq1205 .pq-opt:hover:not(:disabled){border-color:#8fc9ae;transform:translateY(-2px);}
         .pq1205 .pq-opt:active:not(:disabled){transform:scale(.94);}

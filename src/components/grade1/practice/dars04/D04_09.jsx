@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const BASE = 5;
-const CARDS = [3, 6, 5, 9];
+const CARDS = [3, 6, 4, 9];
 const GOOD = CARDS.filter((n) => n > BASE); // [6, 9]
 const DATA = { ptype: 'P4', level: '🔴', tag: 'inequality_multi' };
 const T = {

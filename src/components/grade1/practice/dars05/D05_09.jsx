@@ -2,6 +2,21 @@
 // Jami 5 koptok: 2 tasi stolda ko'rinadi, 3 tasi sumkada. G'alabada sumka ochiladi, koptoklar sakrab chiqadi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { total: 5, shown: 2, target: 3, options: [1, 2, 3, 4], ptype: 'P5', level: '🔴', tag: 'hidden_bag' };
 const T = {
   uz: {
@@ -160,16 +175,18 @@ export default function D05_09(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(300);
 
   return (
-    <div className="pq pq0509">
+    <div className="pq pq0509" ref={fitRef}>
       <style>{`
         .pq0509{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0509 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#7a3fa8;text-transform:uppercase;}
         .pq0509 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0509 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0509 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0509 .pq-scene{position:relative;width:300px;height:200px;margin:0 auto;border-radius:20px;background:linear-gradient(#43306e 0%,#5a4590 58%,#7a68b4 100%);border:2px solid #8d7cc4;overflow:hidden;}
+        .pq0509 .pq-fit{position:relative;margin:0 auto;}
+        .pq0509 .pq-scene{box-sizing:border-box;position:relative;width:300px;height:200px;border-radius:20px;background:linear-gradient(#43306e 0%,#5a4590 58%,#7a68b4 100%);border:2px solid #8d7cc4;overflow:hidden;}
         .pq0509 .pq-floor{position:absolute;left:0;right:0;bottom:0;height:26px;background:#382a5e;}
         .pq0509 .pq-spot{position:absolute;left:50%;bottom:2px;transform:translateX(-50%);width:264px;height:34px;border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,246,214,.35),transparent 70%);animation:pqBreath 4.4s ease-in-out infinite;}
         .pq0509 .pq-bgstar{position:absolute;opacity:.3;animation:pqBgTw 6s ease-in-out infinite;}
@@ -220,7 +237,8 @@ export default function D05_09(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 300 * scale, height: 200 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-bgstar" style={{ left: 26, top: 16, animationDuration: '5.5s', animationDelay: '-1.2s' }}><Star size={10} /></span>
         <span className="pq-bgstar" style={{ left: 92, top: 8, animationDuration: '7s', animationDelay: '-3.4s' }}><Star size={8} /></span>
         <span className="pq-bgstar" style={{ left: 152, top: 24, animationDuration: '6.2s', animationDelay: '-5s' }}><Star size={9} /></span>
@@ -257,6 +275,7 @@ export default function D05_09(props) {
           <span key={i} className="pq-spark" style={{ left: s.x, top: s.y, animationDelay: `${s.d}s` }}><Star size={s.s} /></span>
         ))}
         {ok && <span className="pq-chip">{DATA.shown} + {DATA.target} = {DATA.total}</span>}
+      </div>
       </div>
 
       <div className="pq-opts">

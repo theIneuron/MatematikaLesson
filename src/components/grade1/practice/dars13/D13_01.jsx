@@ -3,6 +3,21 @@
 // g'alabada har qalamda ko'k badge 1..7 va chip «7 qalam».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { target: 7, options: [6, 7, 8], ptype: 'P1', level: '🟢', tag: 'count_warmup' };
 // 7 yakka qalam — rang aralash, peshtaxtada tik turadi.
 const PENCILS = ['yellow', 'blue', 'red', 'green', 'yellow', 'blue', 'red'];
@@ -163,16 +178,18 @@ export default function D13_01(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(344);
 
   return (
-    <div className="pq pq1301">
+    <div className="pq pq1301" ref={fitRef}>
       <style>{`
         .pq1301{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq1301 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c67f2e;text-transform:uppercase;}
         .pq1301 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq1301 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1301 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq1301 .pq-scene{position:relative;width:344px;max-width:100%;height:210px;margin:0 auto;border-radius:20px;background:linear-gradient(#fdf3e2 0%,#fae8d0 60%,#f6ddc0 100%);border:2px solid #ecd3b0;overflow:hidden;}
+        .pq1301 .pq-scene{box-sizing:border-box;position:relative;width:344px;height:210px;border-radius:20px;background:linear-gradient(#fdf3e2 0%,#fae8d0 60%,#f6ddc0 100%);border:2px solid #ecd3b0;overflow:hidden;}
+        .pq1301 .pq-fit{position:relative;margin:0 auto;}
         .pq1301 .pq-bg{position:absolute;inset:0;z-index:0;}
         .pq1301 .pq-glow{position:absolute;top:34px;left:50%;transform:translateX(-50%);width:230px;height:130px;border-radius:50%;background:radial-gradient(ellipse,rgba(255,236,178,.75),rgba(255,236,178,0) 70%);z-index:1;pointer-events:none;animation:pqGlow 4s ease-in-out infinite;}
         .pq1301 .pq-boyw{position:absolute;left:2px;bottom:2px;z-index:2;line-height:0;filter:drop-shadow(0 3px 3px rgba(0,0,0,.18));animation:pqBob 2.9s ease-in-out infinite;}
@@ -182,7 +199,7 @@ export default function D13_01(props) {
         .pq1301 .pq-cnt{position:absolute;top:-9px;left:50%;transform:translateX(-50%);min-width:18px;height:18px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:4;}
         .pq1301 .pq-q{position:absolute;top:32px;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#fff;color:#d6577a;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.14);z-index:5;animation:pqBreath 2.2s ease-in-out infinite;}
         .pq1301 .pq-chip{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:20px;font-weight:900;color:#1a7f43;background:#fff;padding:3px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);z-index:6;white-space:nowrap;animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;}
-        .pq1301 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq1301 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq1301 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1301 .pq-opt:hover:not(:disabled){border-color:#f0c98a;transform:translateY(-2px);}
         .pq1301 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -205,7 +222,8 @@ export default function D13_01(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 344 * scale, height: 210 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-bg"><ShopBg /></span>
         <span className="pq-glow" />
         <span className="pq-boyw"><Boy /></span>
@@ -219,6 +237,7 @@ export default function D13_01(props) {
 
         {!ok && <span className="pq-q">?</span>}
         {ok && <span className="pq-chip">{DATA.target} {t.unit}</span>}
+      </div>
       </div>
 
       <div className="pq-opts">

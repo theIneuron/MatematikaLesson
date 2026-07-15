@@ -12,6 +12,21 @@
 // Ambient boyitish: bulutlar + hilpiragan gullar + barglar (dekor, pointer-events YO'Q).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const LEFT = 45, RIGHT = 48;               // taqqoslanadigan ikki xonali sonlar (21-100)
 const LT = 4, LU = 5;                       // 45 = 4 o'nlik + 5 birlik
 const RT = 4, RU = 8;                       // 48 = 4 o'nlik + 8 birlik (o'nliklar TENG: 4 = 4)
@@ -229,16 +244,18 @@ export default function D22_08(props) {
   const ok = feedback && feedback.correct;
   const idle = !ok && !still;                        // g'alabagacha yengil tebranish (dekor, bosiladigan EMAS)
   const ansDir = BIG_SIDE === "left" ? "gt" : "lt";  // timsoh og'zi katta son tomonga
+  const [fitRef, scale] = useFitScale(392);
 
   return (
-    <div className="pq pq2208">
+    <div className="pq pq2208" ref={fitRef}>
       <style>{`
         .pq2208{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2208 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#2e7a3e;text-transform:uppercase;}
         .pq2208 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2208 .pq-setup{color:#5c6672;font-weight:500;font-variant-numeric:tabular-nums;}
         .pq2208 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq2208 .pq-scene{position:relative;width:392px;max-width:100%;height:274px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2208 .pq-scene{box-sizing:border-box;position:relative;width:392px;height:274px;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2208 .pq-fit{position:relative;margin:0 auto;}
         .pq2208 .pq-sun{position:absolute;right:20px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2208sun 3.6s ease-in-out infinite;}
         .pq2208 .pq-hill{position:absolute;left:0;right:0;bottom:0;height:52px;background:linear-gradient(#bfe39a,#a7d47f);border-top:3px solid #8fc267;z-index:1;pointer-events:none;}
         .pq2208 .pq-hill::before{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 10px,transparent 10px 22px);}
@@ -308,7 +325,8 @@ export default function D22_08(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className={"pq-scene" + (still ? " still" : "")}>
+      <div className="pq-fit" style={{ width: 392 * scale, height: 274 * scale }}>
+      <div className={"pq-scene" + (still ? " still" : "")} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-hill" />
         <span className="pq-leaf" style={{ left: "14%", top: "60px" }} aria-hidden="true">&#10087;</span>
@@ -377,6 +395,7 @@ export default function D22_08(props) {
           <span className="pq-spark s2" style={{ left: "82%", top: "62px" }}>&#10022;</span>
           <span className="pq-spark s3" style={{ left: "50%", top: "38px" }}>&#10022;</span>
         </>)}
+      </div>
       </div>
 
       {ok && (<>

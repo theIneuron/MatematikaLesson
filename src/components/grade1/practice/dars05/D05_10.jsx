@@ -3,6 +3,21 @@
 // pallani bosib qo'shadi (max 6), qo'shilganini bosib olib tashlaydi (D04_08 naqshi). Веди-до-верного.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const LEFT = 5, START = 2, MAX = 6;
 const DATA = { left: 5, startRight: 2, ptype: 'NEW', level: '🔴', tag: 'balance_compose' };
 const T = {
@@ -146,16 +161,18 @@ export default function D05_10(props) {
   const ok = feedback && feedback.correct;
   // JONLI TILT: chap og'ir bo'lsa burchak manfiy (chap pastda), teng bo'lsa 0 — beam gorizontal.
   const ang = Math.max(-14, Math.min(14, (right - LEFT) * 5));
+  const [fitRef, scale] = useFitScale(330);
 
   return (
-    <div className="pq pq0510">
+    <div className="pq pq0510" ref={fitRef}>
       <style>{`
         .pq0510{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0510 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c2452f;text-transform:uppercase;}
         .pq0510 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0510 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0510 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
-        .pq0510 .pq-scene{position:relative;width:330px;height:300px;margin:0 auto;border-radius:20px;background:linear-gradient(#f6e7f2 0%,#fdf3e3 55%,#f6e6cc 100%);border:2px solid #ecd9c3;overflow:hidden;}
+        .pq0510 .pq-fit{position:relative;margin:0 auto;}
+        .pq0510 .pq-scene{box-sizing:border-box;position:relative;width:330px;height:300px;border-radius:20px;background:linear-gradient(#f6e7f2 0%,#fdf3e3 55%,#f6e6cc 100%);border:2px solid #ecd9c3;overflow:hidden;}
         .pq0510 .pq-bunt{position:absolute;top:0;left:0;right:0;}
         .pq0510 .pq-rope{position:absolute;left:0;right:0;top:56px;height:3px;background:linear-gradient(#a8744a,#7a5233);box-shadow:0 1px 0 rgba(0,0,0,.12);}
         .pq0510 .pq-walkpath{position:absolute;left:14%;top:10px;animation:pqWalk 7s ease-in-out infinite alternate;z-index:1;}
@@ -208,7 +225,8 @@ export default function D05_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 330 * scale, height: 300 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <GradDefs />
         <div className="pq-bunt"><Bunting /></div>
         <span className="pq-rope" />
@@ -254,6 +272,7 @@ export default function D05_10(props) {
         </div>
 
         {!lock && <span className="pq-taphint">{t.tapHint}</span>}
+      </div>
       </div>
 
       {feedback && (<div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>{feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.msg}</span></div>)}

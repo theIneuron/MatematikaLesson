@@ -4,6 +4,21 @@
 // siljish berilmagan (qoida) — sway faqat dekorda: ip uchlari, uy bayroqchasi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const RES = 3;
 // «boshlang'ich − ketgan» — hamma joyda katta − kichik, natija manfiy emas.
 const EXPRS = [{ a: 5, b: 2 }, { a: 7, b: 4 }, { a: 6, b: 2 }, { a: 4, b: 1 }, { a: 8, b: 5 }];
@@ -228,16 +243,18 @@ export default function D08_08(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
-    <div className="pq pq0808">
+    <div className="pq pq0808" ref={fitRef}>
       <style>{`
         .pq0808{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0808 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#a06a2c;text-transform:uppercase;}
         .pq0808 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0808 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0808 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
-        .pq0808 .pq-scene{position:relative;width:372px;max-width:100%;height:216px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#eef9ea 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0808 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:216px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#eef9ea 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0808 .pq-fit{position:relative;margin:0 auto;}
         .pq0808 .pq-sun{position:absolute;top:10px;right:14px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 4px rgba(249,198,47,.55);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq0808 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:0;}
         .pq0808 .pq-cloud.c1{top:16px;left:-70px;animation-duration:30s;animation-delay:-13s;}
@@ -258,7 +275,7 @@ export default function D08_08(props) {
         .pq0808 .pq-keybr{display:inline-block;line-height:0;animation:pqBreath 2.3s ease-in-out infinite;}
         .pq0808 .pq-keybr.win{animation:pqCele .55s ease;}
         .pq0808 .pq-glint{transform-box:fill-box;transform-origin:50% 50%;opacity:0;animation:pqGlint 3.6s ease-in-out infinite;}
-        .pq0808 .pq-line{position:relative;width:372px;max-width:100%;height:132px;margin:10px auto 0;}
+        .pq0808 .pq-line{box-sizing:border-box;position:relative;width:372px;height:132px;}
         .pq0808 .pq-linebg{position:absolute;left:0;top:0;line-height:0;}
         .pq0808 .pq-tail{transform-box:fill-box;transform-origin:50% 0%;animation:pqSway 3s ease-in-out infinite alternate;}
         .pq0808 .pq-shirt{position:absolute;width:64px;height:78px;background:none;border:none;padding:0;cursor:pointer;line-height:0;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.15));transition:filter .14s,transform .14s;}
@@ -293,7 +310,8 @@ export default function D08_08(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 372 * scale, height: 216 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-fence" /><span className="pq-grass" />
@@ -311,9 +329,11 @@ export default function D08_08(props) {
         <span className="pq-sparrow"><Sparrow /></span>
         <span className="pq-keywrap"><span className={'pq-keybr' + (ok ? ' win' : '')}><Key /></span></span>
       </div>
+      </div>
 
       {/* Kir ipi: 5 ko'ylakcha-tugma ip salqisi bo'ylab osilgan */}
-      <div className={'pq-line' + (still ? ' still' : '')}>
+      <div className="pq-fit" style={{ width: 372 * scale, height: 132 * scale, marginTop: 10 }}>
+      <div className={'pq-line' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-linebg"><LineBg /></span>
         {EXPRS.map((e, i) => {
           const good = e.a - e.b === RES;
@@ -330,6 +350,7 @@ export default function D08_08(props) {
             </button>
           );
         })}
+      </div>
       </div>
 
       {feedback && (<div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>{feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.msg}</span></div>)}

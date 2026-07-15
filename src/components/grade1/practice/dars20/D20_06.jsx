@@ -7,6 +7,21 @@
 // VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida. Minus = U+2212 «−».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const M = '−';        // U+2212 — display minus (defis EMAS)
 const TEN = 10;
 // Har qator: teen − bir xonali, o'tib ayirish (musbat natija). units = A−10, fromten = B−units.
@@ -138,6 +153,7 @@ export default function D20_06(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq2006">
@@ -150,7 +166,8 @@ export default function D20_06(props) {
         .pq2006 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:11px;padding:10px 10px 13px;border-radius:22px;background:linear-gradient(#e4eefb,#dbe7f6);border:2px solid #cad9ee;}
 
         /* sahna: garaj binosi, yo'l, svetofor, quyosh (ambient) */
-        .pq2006 .pq-scene{position:relative;width:372px;max-width:100%;height:88px;border-radius:18px;background:linear-gradient(#dff0fb 0%,#e9f0fb 55%,#eef3f8 100%);border:2px solid #cad9ee;overflow:hidden;}
+        .pq2006 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:88px;border-radius:18px;background:linear-gradient(#dff0fb 0%,#e9f0fb 55%,#eef3f8 100%);border:2px solid #cad9ee;overflow:hidden;}
+        .pq2006 .pq-fit{position:relative;margin:0 auto;}
         .pq2006 .pq-sun{position:absolute;top:14px;left:18px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6ce,#f9c62f 72%,#f0ab18);box-shadow:0 0 14px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
         /* uzoqdagi ko'cha: uylar + daraxtlar (ambient orqa fon) */
         .pq2006 .pq-town{position:absolute;left:0;top:24px;width:100%;height:46px;z-index:0;pointer-events:none;}
@@ -174,7 +191,8 @@ export default function D20_06(props) {
         .pq2006 .pq-spark.s2{animation-delay:-.6s;} .pq2006 .pq-spark.s3{animation-delay:-1.15s;}
 
         /* qatorlar: 2×2 panjara, har karta — TOZA ifoda + 4 variant (mashinasiz) */
-        .pq2006 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;width:100%;}
+        .pq2006 .pq-rows{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;width:100%;max-width:360px;}
+        @media (min-width:480px){.pq2006 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq2006 .pq-rw{display:flex;flex-direction:column;gap:9px;align-items:center;justify-content:center;padding:12px 9px 13px;border-radius:14px;border:2.5px solid #cdd9ea;background:#fbfdff;transition:.15s;}
         .pq2006 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq2006 .pq-rw.good.win{animation:pqCele .5s ease;}
@@ -194,7 +212,7 @@ export default function D20_06(props) {
         .pq2006 .pq-win{display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center;}
         .pq2006 .pq-chip{padding:4px 11px;border-radius:11px;background:#e8f7ee;border:2px solid #1a7f43;color:#1a7f43;font-size:15px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap;animation:pqPop .35s ease both;}
         .pq2006 .pq-step{font-size:12px;font-weight:800;color:#5c7fa6;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:2px;animation:pqIn .3s .12s both;}
-        .pq2006 .pq-sgs{display:flex;align-content:center;gap:6px;justify-content:center;}
+        .pq2006 .pq-sgs{display:flex;flex-wrap:wrap;align-content:center;gap:6px;justify-content:center;}
         .pq2006 .pq-sg{width:40px;height:42px;border-radius:11px;border:2.5px solid #cdd9ea;background:#fff;font-size:20px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2006 .pq-sg:hover:not(:disabled){border-color:#8ab0e0;transform:translateY(-2px);}
         .pq2006 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -219,8 +237,9 @@ export default function D20_06(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 88 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <Town />
           <div className="pq-board">{t.title}</div>
@@ -233,6 +252,7 @@ export default function D20_06(props) {
             <span className="pq-spark s2" style={{ left: '48%', bottom: '20px' }}>✦</span>
             <span className="pq-spark s3" style={{ left: '30%', top: '10px' }}>✦</span>
           </>)}
+        </div>
         </div>
 
         <div className="pq-rows">

@@ -11,6 +11,21 @@
 // birlashtirib variant tanlanganda. setChecked FAQAT to'g'rida (picked === 50). studentAnswer = { picked }.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 2, B = 3;                 // savatlar soni: 2 o'nlik + 3 o'nlik
 const TOTAL = A + B;               // birlashgach 5 savat
 const ADD_A = 20, ADD_B = 30, TARGET = 50;
@@ -154,16 +169,18 @@ export default function D24_10(props) {
   const cnDelay = (i) => still ? 0 : 0.5 + i * 0.28;  // sanoq nishonchalari qopqoq ko'tarilgach ketma-ket
   const enDelay = (i) => still ? 0 : i * 0.2;         // savatlar ketma-ket "oqib keladi"
   const coverDelay = still ? 0 : TOTAL * 0.2 + 0.25;  // qopqoq savatlar joylashib bo'lgach yopiladi
+  const [fitRef, scale] = useFitScale(380);
 
   return (
-    <div className="pq pq2410">
+    <div className="pq pq2410" ref={fitRef}>
       <style>{`
         .pq2410{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2410 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f8a41;text-transform:uppercase;}
         .pq2410 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2410 .pq-setup{color:#5c6672;font-weight:700;font-variant-numeric:tabular-nums;}
         .pq2410 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2410 .pq-scene{position:relative;width:380px;max-width:100%;height:214px;margin:0 auto;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2410 .pq-scene{box-sizing:border-box;position:relative;width:380px;height:214px;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2410 .pq-fit{position:relative;margin:0 auto;}
         .pq2410 .pq-sun{position:absolute;right:18px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2410sun 3.6s ease-in-out infinite;}
         .pq2410 .pq-leaf{position:absolute;z-index:1;color:#5fb15a;opacity:.8;line-height:0;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(60,120,50,.3));animation:pq2410sway 4.4s ease-in-out infinite;}
         .pq2410 .pq-leaf.l2{animation-delay:-2.1s;color:#7bc06f;}
@@ -236,7 +253,8 @@ export default function D24_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 380 * scale, height: 214 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-leaf" style={{ left: '16px', top: '30px' }}>❧</span>
         <span className="pq-leaf l2" style={{ right: '18px', bottom: '44px' }}>❧</span>
@@ -300,6 +318,7 @@ export default function D24_10(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '66px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {/* Birlashtirish tugmasi — birlashguncha ko'rinadi */}

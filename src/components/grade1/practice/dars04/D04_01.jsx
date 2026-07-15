@@ -171,7 +171,7 @@ export default function D04_01(props) {
         .pq0401 .pq-q{font-size:26px;font-weight:900;color:#c2803a;}
         .pq0401 .pq-dropin{position:relative;line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));animation:pqDrop .5s cubic-bezier(.3,1.4,.5,1) both;}
         .pq0401 .pq-cnt{position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:2;}
-        .pq0401 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq0401 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq0401 .pq-opt{position:relative;width:86px;height:84px;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:6px;transition:.14s;}
         .pq0401 .pq-opt svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));}
         .pq0401 .pq-opt:disabled{cursor:default;}

@@ -6,6 +6,21 @@
 // VEDI-DO-VERNOGO: noto'g'rida qulf/retry yo'q; setChecked FAQAT to'g'rida. REVIEW/.still: yakuniy holat, animatsiyasiz.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TARGET = 5;
 const CARDS = [
   { a: 2, b: 3 }, // 5 to'g'ri
@@ -163,8 +178,10 @@ export default function D35_08(props) {
   // Gir (o'ng) og'ir → nur o'ngga egiladi. STATE + transition = silliq fizik harakat.
   const tilt = stage >= 2 ? 9 : 0;
 
+  const [fitRef, scale] = useFitScale(404);
+
   return (
-    <div className={"pq pq3508" + (still ? " still" : "")}>
+    <div className={"pq pq3508" + (still ? " still" : "")} ref={fitRef}>
       <style>{`
         .pq3508.still *{animation:none !important;transition:none !important;}
         .pq3508{box-sizing:border-box;max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
@@ -174,7 +191,8 @@ export default function D35_08(props) {
         .pq3508 .pq-setup{color:#5c6672;font-weight:500;}
         .pq3508 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         /* ===== TABIAT SAHNASI (Dars15 kanoni) ===== */
-        .pq3508 .pq-scene{position:relative;width:404px;max-width:100%;height:296px;margin:0 auto;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq3508 .pq-scene{box-sizing:border-box;position:relative;width:404px;height:296px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq3508 .pq-fit{position:relative;margin:0 auto;}
         .pq3508 .pq-sun{position:absolute;top:14px;left:18px;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 42% 40%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 22px 7px rgba(255,214,74,.6);animation:pq3508sun 4s ease-in-out infinite;z-index:1;}
         .pq3508 .pq-cloud{position:absolute;height:16px;background:#fff;border-radius:20px;box-shadow:0 6px 0 -2px #fff;opacity:.94;z-index:1;}
         .pq3508 .pq-cloud::before,.pq3508 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
@@ -247,7 +265,8 @@ export default function D35_08(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 404 * scale, height: 296 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <Bird cls="b1" /><Bird cls="b2" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
@@ -262,6 +281,7 @@ export default function D35_08(props) {
 
         {/* 5-kg gir pallaga tushadi → nur egiladi (nishon halol) */}
         <div className="pq-balwrap"><BrassBalance tilt={tilt} dropped={stage >= 1} celebrate={!!ok} /></div>
+        </div>
       </div>
 
       <div className="pq-cards">

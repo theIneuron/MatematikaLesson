@@ -8,6 +8,21 @@
 // Minus U+2212 «−» (ASCII '-' EMAS). VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const M = '−';                        // haqiqiy minus belgisi (U+2212)
 const MIN = 56, SUB = 23, TARGET = 33; // 56 − 23 = 33
 const MIN_T = 5, MIN_U = 6;            // 56 = 5 o'nlik + 6 birlik
@@ -131,6 +146,7 @@ export default function D27_09(props) {
   const lock = isReview || checked;
   const ok = feedback && feedback.correct;
   const idle = !ok && !still; // g'alabagacha yengil tebranish (bosiladigan nishon EMAS — dekor)
+  const [fitRef, scale] = useFitScale(380);
 
   const baskets = Array.from({ length: MIN_T });
   const apples = Array.from({ length: MIN_U });
@@ -143,7 +159,8 @@ export default function D27_09(props) {
         .pq2709 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2709 .pq-setup{color:#5c6672;font-weight:500;font-variant-numeric:tabular-nums;}
         .pq2709 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2709 .pq-scene{position:relative;width:380px;max-width:100%;height:224px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2709 .pq-scene{box-sizing:border-box;position:relative;width:380px;height:224px;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2709 .pq-fit{position:relative;margin:0 auto;}
         .pq2709 .pq-sun{position:absolute;right:20px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2709sun 3.6s ease-in-out infinite;}
         .pq2709 .pq-hill{position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(#bfe39a,#a7d47f);border-top:3px solid #8fc267;z-index:1;pointer-events:none;}
         .pq2709 .pq-hill::before{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 10px,transparent 10px 22px);}
@@ -170,7 +187,7 @@ export default function D27_09(props) {
         .pq2709 .pq-eq i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
         .pq2709 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#7a5a2c;font-variant-numeric:tabular-nums;animation:pq2709in .3s .1s both;}
 
-        .pq2709 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq2709 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq2709 .pq-opt{min-width:78px;height:72px;padding:0 12px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2709 .pq-opt:hover:not(:disabled){border-color:#eab975;transform:translateY(-2px);}
         .pq2709 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -192,7 +209,8 @@ export default function D27_09(props) {
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
       {/* Sahna faqat 56 sonini ko'rsatadi (5 savat + 6 olma). Ayirma bola yechgunicha KO'RSATILMAYDI. */}
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 380 * scale, height: 224 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-hill" />
         <div className="pq-title">{t.title}</div>
@@ -237,6 +255,7 @@ export default function D27_09(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '66px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {/* G'alaba: razryad bo'yicha ayirish — o'nlikdan o'nlik, birlikdan birlik */}

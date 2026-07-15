@@ -189,7 +189,7 @@ export default function D26_07(props) {
         .pq2607 .pq-sub i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
         .pq2607 .pq-sub .ok{color:#1a7f43;font-size:22px;}
 
-        .pq2607 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq2607 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq2607 .pq-opt{min-width:118px;height:62px;padding:0 18px;font-size:22px;font-weight:800;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq2607 .pq-opt:hover:not(:disabled){border-color:#8fc487;transform:translateY(-2px);}
         .pq2607 .pq-opt:active:not(:disabled){transform:scale(.96);}

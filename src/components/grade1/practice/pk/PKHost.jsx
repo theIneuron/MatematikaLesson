@@ -52,21 +52,25 @@ export default function PKHost({ title, block, tasks = [], passPct = 80, lang: l
   const [phase, setPhase] = useState('quiz'); // 'quiz' | 'result'
 
   const checkFnRef = useRef(null);
+  const answeredRef = useRef(false); // har topshiriq faqat BIR marta yozilishini kafolatlaydi
   const onReady = useCallback((ok) => setCanCheck(!!ok), []);
   const registerCheck = useCallback((fn) => { checkFnRef.current = fn; }, []);
+  // Diqqat: setResults'ni setAnswered updater ICHIDA chaqirmaymiz — updater sof bo'lishi shart
+  // (StrictMode uni ikki marta chaqiradi → qo'sh yozuv). Ref bilan idempotent qilamiz.
   const onSubmit = useCallback((payload) => {
-    setAnswered((was) => {
-      if (!was) setResults((prev) => [...prev, { correct: !!(payload && payload.correct), topic: tasks[idx] && tasks[idx].topic }]);
-      return true;
-    });
+    if (answeredRef.current) return;
+    answeredRef.current = true;
+    setResults((prev) => [...prev, { correct: !!(payload && payload.correct), topic: tasks[idx] && tasks[idx].topic }]);
+    setAnswered(true);
   }, [idx, tasks]);
 
   const doCheck = () => { if (canCheck && !answered && checkFnRef.current) checkFnRef.current(); };
   const goNext = () => {
+    answeredRef.current = false;
     if (idx + 1 < N) { setIdx(idx + 1); setAnswered(false); setCanCheck(false); }
     else setPhase('result');
   };
-  const restart = () => { setIdx(0); setResults([]); setAnswered(false); setCanCheck(false); setPhase('quiz'); };
+  const restart = () => { answeredRef.current = false; setIdx(0); setResults([]); setAnswered(false); setCanCheck(false); setPhase('quiz'); };
 
   const Q = tasks[idx] && tasks[idx].C;
   const correctCount = results.filter((r) => r.correct).length;

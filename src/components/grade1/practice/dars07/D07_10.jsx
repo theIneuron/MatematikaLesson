@@ -3,6 +3,21 @@
 // birin-ketin UCHIB qo'shiladi (merge), «4 + 3 = ?» paydo; (2) variantlar [6,7,8] faollashadi, bola 7 ni tanlaydi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { a: 5, b: 4, target: 9, options: [8, 9, 10], ptype: 'NEW', level: '🔴', tag: 'merge_action' };
 
 // Daraxtdagi 4 kaptar (sahna koordinatalari) + panjaradagi 3 kaptar (uchish deltalari CSS'da).
@@ -176,16 +191,18 @@ export default function D07_10(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
-    <div className="pq pq0710">
+    <div className="pq pq0710" ref={fitRef}>
       <style>{`
         .pq0710{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0710 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#2e8b57;text-transform:uppercase;}
         .pq0710 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0710 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0710 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
-        .pq0710 .pq-scene{position:relative;width:372px;height:260px;margin:0 auto;border-radius:20px;background:linear-gradient(180deg,#cfe9fb 0%,#e8f6ff 44%,#cdeab4 56%,#a9d78e 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0710 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:260px;border-radius:20px;background:linear-gradient(180deg,#cfe9fb 0%,#e8f6ff 44%,#cdeab4 56%,#a9d78e 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0710 .pq-fit{position:relative;margin:0 auto;}
         .pq0710 .pq-sun{position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq0710 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:0;}
         .pq0710 .pq-cloud.c1{top:14px;left:-70px;animation-duration:30s;animation-delay:-12s;}
@@ -230,7 +247,7 @@ export default function D07_10(props) {
         .pq0710 .pq-cnt{position:absolute;top:-8px;right:-4px;min-width:19px;height:19px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:4;}
         .pq0710 .pq-taphint{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:12.5px;font-weight:700;color:#5c6672;background:rgba(255,255,255,.88);padding:3px 10px;border-radius:999px;animation:pqBobY 1.8s ease-in-out infinite;z-index:5;white-space:nowrap;}
         .pq0710 .pq-blink{opacity:0;animation:pqBlink 3.8s linear infinite;animation-delay:var(--bd,0s);}
-        .pq0710 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq0710 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq0710 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.14s;}
         .pq0710 .pq-opt:disabled{opacity:.45;cursor:default;}
         .pq0710 .pq-opt:hover:not(:disabled){border-color:#a9cba0;transform:translateY(-2px);}
@@ -262,7 +279,8 @@ export default function D07_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className={'pq-scene' + (ok ? ' win' : '')}>
+      <div className="pq-fit" style={{ width: 372 * scale, height: 260 * scale }}>
+      <div className={'pq-scene' + (ok ? ' win' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <div className="pq-fence"><span className="pq-rail r1" /><span className="pq-rail r2" /></div>
@@ -303,6 +321,7 @@ export default function D07_10(props) {
         )}
 
         {!merged && !lock && <span className="pq-taphint">{t.tapHint}</span>}
+      </div>
       </div>
 
       <div className="pq-opts">

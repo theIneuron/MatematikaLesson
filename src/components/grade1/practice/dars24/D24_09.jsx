@@ -11,6 +11,21 @@
 // VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 3, B = 2;             // savatlar soni: 3 o'nlik (30 olma) + 2 o'nlik (20 olma)
 const ADD_A = 30, ADD_B = 20, TARGET = 50;
 const DATA = { a: ADD_A, b: ADD_B, target: TARGET, options: [50, 5, 60], answer: TARGET, level: '🔴', tag: 'round_word' };
@@ -123,16 +138,18 @@ export default function D24_09(props) {
   const idle = !ok && !still; // g'alabagacha yengil tebranish (savat bosiladigan nishon EMAS — dekor)
   // 10 lab sanoq nishonchasi: gi = umumiy savat indeksi (0..4) → qiymat (gi+1)*10 (10,20,30,40,50)
   const badgeDelay = (gi) => still ? 0 : 0.25 + gi * 0.24;
+  const [fitRef, scale] = useFitScale(360);
 
   return (
-    <div className="pq pq2409">
+    <div className="pq pq2409" ref={fitRef}>
       <style>{`
         .pq2409{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2409 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f8a41;text-transform:uppercase;}
         .pq2409 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2409 .pq-setup{color:#5c6672;font-weight:700;font-variant-numeric:tabular-nums;}
         .pq2409 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2409 .pq-scene{position:relative;width:360px;max-width:100%;height:212px;margin:0 auto;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2409 .pq-scene{box-sizing:border-box;position:relative;width:360px;height:212px;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2409 .pq-fit{position:relative;margin:0 auto;}
         .pq2409 .pq-sun{position:absolute;right:18px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2409sun 3.6s ease-in-out infinite;}
         .pq2409 .pq-leaf{position:absolute;z-index:1;color:#5fb15a;opacity:.8;line-height:0;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(60,120,50,.3));animation:pq2409sway 4.4s ease-in-out infinite;}
         .pq2409 .pq-leaf.l2{animation-delay:-2.1s;color:#7bc06f;}
@@ -160,7 +177,7 @@ export default function D24_09(props) {
         .pq2409 .pq-eq i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
         .pq2409 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#5a8a4f;font-variant-numeric:tabular-nums;animation:pq2409in .3s .1s both;}
 
-        .pq2409 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq2409 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq2409 .pq-opt{min-width:72px;height:72px;padding:0 8px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2409 .pq-opt:hover:not(:disabled){border-color:#8fcf83;transform:translateY(-2px);}
         .pq2409 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -181,7 +198,8 @@ export default function D24_09(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 360 * scale, height: 212 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-leaf" style={{ left: '16px', top: '30px' }}>❧</span>
         <span className="pq-leaf l2" style={{ right: '18px', bottom: '44px' }}>❧</span>
@@ -228,6 +246,7 @@ export default function D24_09(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '66px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {/* G'alaba: o'nliklar QO'SHILIB 50 beradi (javob faqat shu yerda ochiladi) */}

@@ -170,7 +170,7 @@ export default function D05_03(props) {
         .pq0503 .pq-dear{transform-box:fill-box;transform-origin:50% 8%;animation:pqEar 4.2s ease-in-out infinite;}
         .pq0503 .pq-dblink{opacity:0;animation:pqBlink 3.4s linear infinite;}
         .pq0503 .pq-chip{position:absolute;top:20px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s .9s cubic-bezier(.3,1.5,.5,1) both;z-index:4;white-space:nowrap;}
-        .pq0503 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq0503 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq0503 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0503 .pq-opt:hover:not(:disabled){border-color:#eec6a8;transform:translateY(-2px);}
         .pq0503 .pq-opt:active:not(:disabled){transform:scale(.94);}

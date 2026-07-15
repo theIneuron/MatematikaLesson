@@ -62,7 +62,7 @@ export default function D02_09(props) {
         .pq0209 .pq-cell{width:64px;height:80px;border-radius:14px;border:2.5px solid #e2daf6;background:linear-gradient(#fff,#f5f1fd);display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:900;color:#5b46b0;font-variant-numeric:tabular-nums;}
         .pq0209 .pq-cell.gap{border-style:dashed;border-color:#b7a6ef;color:#b7a6ef;background:#faf8ff;}
         .pq0209 .pq-cell.filled{border-style:solid;border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pqCele .5s ease;}
-        .pq0209 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:16px;}
+        .pq0209 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:16px;}
         .pq0209 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0209 .pq-opt:hover:not(:disabled){border-color:#c3b1f0;transform:translateY(-2px);}
         .pq0209 .pq-opt:active:not(:disabled){transform:scale(.94);}

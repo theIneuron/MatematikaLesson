@@ -4,6 +4,21 @@
 // nuqtaga sakraydi (10→11→…→20) — sakrash soni birlikka teng; oxirgi nuqta yonadi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TEN = 10, TARGET = 20;
 const DATA = { a: 10, b: 10, target: TARGET, options: [18, 19, 20], level: '🔴', tag: 'build_twenty' };
 // Quyoncha sakrash yo'li: 10 dan boshlab har songa (birlik soni marta).
@@ -154,6 +169,7 @@ export default function D15_10(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(404);
 
   return (
     <div className="pq pq1510">
@@ -165,7 +181,8 @@ export default function D15_10(props) {
         .pq1510 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq1510 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:16px;}
         /* ===== TABIAT SAHNASI ===== */
-        .pq1510 .pq-scene{position:relative;width:404px;max-width:100%;height:324px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq1510 .pq-scene{box-sizing:border-box;position:relative;width:404px;height:324px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq1510 .pq-fit{position:relative;margin:0 auto;}
         .pq1510 .pq-sun{position:absolute;top:18px;left:22px;width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 42% 40%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 22px 7px rgba(255,214,74,.6);animation:pqSun 4s ease-in-out infinite;z-index:1;}
         .pq1510 .pq-cloud{position:absolute;height:16px;background:#fff;border-radius:20px;box-shadow:0 6px 0 -2px #fff;opacity:.94;z-index:1;}
         .pq1510 .pq-cloud::before,.pq1510 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
@@ -248,7 +265,7 @@ export default function D15_10(props) {
         .pq1510 .pq-nl-node.on .pq-nl-lbl{color:#166a34;font-size:15px;}
         .pq1510 .pq-nl-spark{position:absolute;top:-22px;font-size:16px;color:#fff2b0;animation:pqTwinkle 1.4s ease-in-out infinite;}
         /* variantlar + feedback */
-        .pq1510 .pq-opts{display:flex;gap:12px;justify-content:center;}
+        .pq1510 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
         .pq1510 .pq-opt{min-width:82px;height:74px;font-size:32px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1510 .pq-opt:hover:not(:disabled){border-color:#7cc158;transform:translateY(-2px);}
         .pq1510 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -274,8 +291,9 @@ export default function D15_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 404 * scale, height: 324 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <Bird cls="b1" /><Bird cls="b2" /><Bird cls="b3" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" /><span className="pq-cloud c3" />
@@ -298,6 +316,7 @@ export default function D15_10(props) {
           </div>
 
           <NumberLine path={HOP_PATH} lit={[TARGET]} active={ok} still={still} />
+        </div>
         </div>
 
         <div className="pq-opts">

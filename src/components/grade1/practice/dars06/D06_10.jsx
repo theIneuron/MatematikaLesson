@@ -3,6 +3,21 @@
 // Bola kataklarni bosib 8 ni o'zi hosil qiladi; g'alabada avtobus jo'naydi (tez g'ildirak, tutun, haydovchi qo'l silkitadi).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TARGET = 8, COLS = 5, CELLS = 10;
 const DATA = { target: 8, ptype: 'NEW', level: '🔴', tag: 'two_color_build' };
 
@@ -133,6 +148,7 @@ export default function D06_10(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
   let badge = 0;
 
   const renderRow = (rowIdx) => {
@@ -155,14 +171,15 @@ export default function D06_10(props) {
   };
 
   return (
-    <div className="pq pq0610">
+    <div className="pq pq0610" ref={fitRef}>
       <style>{`
         .pq0610{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0610 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#b97c14;text-transform:uppercase;}
         .pq0610 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0610 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0610 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
-        .pq0610 .pq-scene{position:relative;width:372px;height:264px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 48%,#eef4e6 72%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0610 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:264px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 48%,#eef4e6 72%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0610 .pq-fit{position:relative;margin:0 auto;}
         .pq0610 .pq-sun{position:absolute;top:8px;right:12px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;}
         .pq0610 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;}
         .pq0610 .pq-cloud.c1{top:14px;left:-70px;animation-duration:28s;animation-delay:-9s;}
@@ -238,7 +255,8 @@ export default function D06_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className={'pq-scene' + (ok ? ' drive' : '')}>
+      <div className="pq-fit" style={{ width: 372 * scale, height: 264 * scale }}>
+      <div className={'pq-scene' + (ok ? ' drive' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-walk" /><span className="pq-road" />
@@ -264,6 +282,7 @@ export default function D06_10(props) {
         </div>
 
         {!lock && <span className="pq-taphint">{t.tapHint}</span>}
+      </div>
       </div>
 
       {feedback && (<div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>{feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.msg}</span></div>)}

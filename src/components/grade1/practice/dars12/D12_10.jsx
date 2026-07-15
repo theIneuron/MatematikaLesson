@@ -254,7 +254,7 @@ export default function D12_10(props) {
         .pq1210 .pq-compute:active:not(:disabled){transform:translateY(2px);box-shadow:0 2px 0 #2e7a3e;}
         .pq1210 .pq-compute.done{background:linear-gradient(#cdd5de,#b6c0cc);color:#5c6672;box-shadow:0 3px 0 #97a2af;animation:none;cursor:default;}
         .pq1210 .pq-chk{font-size:16px;line-height:1;}
-        .pq1210 .pq-opts{display:flex;gap:12px;justify-content:center;}
+        .pq1210 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
         .pq1210 .pq-opt{width:66px;height:66px;font-size:32px;font-weight:900;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;line-height:1;transition:.12s;font-family:inherit;}
         .pq1210 .pq-opt:hover:not(:disabled){border-color:#8fc9ae;transform:translateY(-2px);}
         .pq1210 .pq-opt:active:not(:disabled){transform:scale(.94);}

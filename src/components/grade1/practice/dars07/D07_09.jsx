@@ -3,6 +3,21 @@
 // g'alabada hammasi guruhga qo'shiladi, badge 1..9, chip «6 + 2 + 1 = 9».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { a: 6, b: 3, c: 1, target: 10, options: [7, 8, 9, 10], ptype: 'P7', level: '🔴', tag: 'word_problem_2step' };
 
 const T = {
@@ -147,16 +162,18 @@ export default function D07_09(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(392);
 
   return (
-    <div className="pq pq0709">
+    <div className="pq pq0709" ref={fitRef}>
       <style>{`
         .pq0709{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0709 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3a7a35;text-transform:uppercase;}
         .pq0709 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0709 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0709 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0709 .pq-scene{position:relative;width:392px;max-width:100%;height:272px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e8f6ff 32%,#a3d48d 40%,#7fbf6b 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0709 .pq-scene{box-sizing:border-box;position:relative;width:392px;height:272px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e8f6ff 32%,#a3d48d 40%,#7fbf6b 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0709 .pq-fit{position:relative;margin:0 auto;}
         .pq0709 .pq-sun{position:absolute;top:10px;right:14px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 4px rgba(249,198,47,.55);animation:pqSun 3.6s ease-in-out infinite;}
         .pq0709 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;}
         .pq0709 .pq-cloud.c1{top:16px;left:-70px;animation-duration:30s;animation-delay:-11s;}
@@ -205,7 +222,8 @@ export default function D07_09(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 392 * scale, height: 272 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-fence f1" /><span className="pq-fence f2" />
@@ -233,6 +251,7 @@ export default function D07_09(props) {
 
         {!ok && <span className="pq-q">?</span>}
         {ok && <span className="pq-chip">{DATA.a} + {DATA.b} + {DATA.c} = {DATA.target}</span>}
+      </div>
       </div>
 
       <div className="pq-opts">

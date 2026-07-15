@@ -9,6 +9,21 @@
 // yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 34, B = 25, SUM = 59;               // 34 + 25 = 59 (razryad bo'yicha, o'tmaydi)
 const AT = Math.floor(A / 10), AU = A % 10;   // 3 savat, 4 olma
 const BT = Math.floor(B / 10), BU = B % 10;   // 2 savat, 5 olma
@@ -138,16 +153,18 @@ export default function D28_07(props) {
   // Sanoq nishonchalari: avval o'nliklar (savat) 1..5, keyin birliklar (olma) 1..9.
   const tenDelay = (n) => still ? 0 : 0.5 + (n - 1) * 0.13;              // savatlar
   const unitDelay = (n) => still ? 0 : 0.5 + (TENS + n - 1) * 0.13;     // olmalar
+  const [fitRef, scale] = useFitScale(384);
 
   return (
-    <div className="pq pq2807">
+    <div className="pq pq2807" ref={fitRef}>
       <style>{`
         .pq2807{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2807 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f8a41;text-transform:uppercase;}
         .pq2807 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2807 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2807 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2807 .pq-scene{position:relative;width:384px;max-width:100%;height:244px;margin:0 auto;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2807 .pq-scene{box-sizing:border-box;position:relative;width:384px;height:244px;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2807 .pq-fit{position:relative;margin:0 auto;}
         .pq2807 .pq-sun{position:absolute;right:20px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2807sun 3.6s ease-in-out infinite;}
         .pq2807 .pq-tree{position:absolute;bottom:48px;z-index:1;pointer-events:none;transform-origin:50% 100%;}
         .pq2807 .pq-tree.t1{left:6px;animation:pq2807sway 4.2s ease-in-out infinite;}
@@ -184,7 +201,7 @@ export default function D28_07(props) {
         .pq2807 .pq-eq .ok{color:#1a7f43;font-size:22px;}
         .pq2807 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#5a8a4f;font-variant-numeric:tabular-nums;animation:pq2807in .3s .1s both;}
 
-        .pq2807 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq2807 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq2807 .pq-opt{min-width:118px;height:62px;padding:0 18px;font-size:22px;font-weight:800;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq2807 .pq-opt:hover:not(:disabled){border-color:#8fcf83;transform:translateY(-2px);}
         .pq2807 .pq-opt:active:not(:disabled){transform:scale(.96);}
@@ -204,7 +221,8 @@ export default function D28_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 384 * scale, height: 244 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <div className="pq-tree t1"><span className="pq-crown"><i style={{ left: '14px', top: '16px' }} /><i style={{ left: '32px', top: '10px' }} /><i style={{ left: '24px', top: '28px' }} /></span><span className="pq-trunk" /></div>
         <div className="pq-tree t2"><span className="pq-crown"><i style={{ left: '12px', top: '12px' }} /><i style={{ left: '30px', top: '22px' }} /></span><span className="pq-trunk" /></div>
@@ -268,6 +286,7 @@ export default function D28_07(props) {
           <span className="pq-spark s2" style={{ left: '80%', top: '66px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {/* G'alaba: jami topish — qo'shamiz. 34 + 25 = 59 (ayirish YO'Q) */}

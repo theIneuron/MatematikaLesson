@@ -1,41 +1,48 @@
-// Dars34 · Amaliyot 07 — «Qaysi birlik?» · Blok 7 uzunlik · Birlik hissi · 🔴 · tag: unit_sense
-// Eshik rasmi + uch birlik-karta: [sm, dm, m] — to'g'ri = 'm' (index 2, chapdan emas). Eshik ~2 m.
-// Distraktorlar: sm/dm — kichik birlik (katta narsani kichik birlikda o'lchash tushunmovchiligiga qarshi).
-// VEDI-DO-VERNOGO: noto'g'rida qulf/retry yo'q; setChecked FAQAT to'g'rida; hint («Katta narsa — metr bilan»).
-// ANSWER-LEAK: to'g'ri birlik g'alabagacha yashil emas; g'alaba-anim review'da qayta o'ynamaydi (.still gate).
+// Dars34 · Amaliyot 07 — «Metrdan detsimetrga» · Blok 7 uzunlik · Birlik konversiyasi · 🔴 · tag: convert_m_dm
+// Eshik rasmi (balandligi 2 m — o'lchov qavsi bilan) + uch son-karta: [2, 20, 12] — to'g'ri = 20 (index 1). 2 m = 20 dm.
+// Distraktorlar: 2 (birlikni o'zgartirmagan) · 12 (10 va 2 ni qo'shgan). Aniq berilgan o'lchov — bir ma'noli javob.
+// VEDI-DO-VERNOGO: noto'g'rida qulf/retry yo'q; setChecked FAQAT to'g'rida; hint («Har metrda 10 dm»).
+// ANSWER-LEAK: to'g'ri javob g'alabagacha yashil emas; g'alaba-anim review'da qayta o'ynamaydi (.still gate).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// Birlik-kartalar: 'm' NOT-first (index 2). Katta narsa (eshik) -> metr.
-const OPTS = ['sm', 'dm', 'm'];
-const TARGET = 'm';
-const DATA = { target: TARGET, options: OPTS, level: '🔴', tag: 'unit_sense' };
+// Son-kartalar: 20 NOT-first (index 1). Eshik 2 m = 20 dm (har metr — 10 dm).
+const OPTS = [2, 20, 12];
+const TARGET = 20;
+const DATA = { target: TARGET, options: OPTS, level: '🔴', tag: 'convert_m_dm' };
 
 const T = {
   uz: {
-    eyebrow: "Uzunlik · Birlik", title: "Nima bilan o'lchaymiz?",
-    ask: "Eshik balandligini nima bilan o'lchaymiz?",
-    correct: "Barakalla! Eshik baland — metr bilan.",
-    hint: "Katta narsa — metr bilan.",
+    eyebrow: "Uzunlik · Birlik", title: "Necha detsimetr?",
+    ask: "Eshik balandligi 2 metr. Bu necha detsimetr?",
+    correct: "Barakalla! 2 metr — bu 20 detsimetr.",
+    hint: "Har metrda 10 detsimetr. Ikki metr — 20 detsimetr.",
   },
   ru: {
-    eyebrow: "Длина · Единица", title: "Чем измеряем?",
-    ask: "Чем измеряем высоту двери?",
-    correct: "Молодец! Дверь высокая — в метрах.",
-    hint: "Большое — в метрах.",
+    eyebrow: "Длина · Единица", title: "Сколько дециметров?",
+    ask: "Высота двери 2 метра. Сколько это дециметров?",
+    correct: "Молодец! 2 метра — это 20 дециметров.",
+    hint: "В каждом метре 10 дециметров. Два метра — 20 дециметров.",
   },
 };
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
-// Eshik-figura (DATA — o'lchanadigan narsa). Baland eshik, tutqich; g'alabada yashil ramka.
-const DoorFig = ({ on }) => {
+// Eshik-figura (DATA — berilgan o'lchov: balandligi 2 m, o'lchov qavsi bilan). G'alabada yashil ramka.
+const DoorFig = ({ on, hLabel }) => {
   const frame = on ? '#1a7f43' : '#8a6a3e';
   const panel = on ? '#dcf3e5' : '#f0dcae';
   return (
     <svg viewBox="0 0 120 150" width="100%" height="100%" aria-hidden="true" style={{ display: 'block' }}>
       {/* pol chizig'i */}
       <line x1="8" y1="142" x2="112" y2="142" stroke="#c9b28a" strokeWidth="3" strokeLinecap="round" />
+      {/* balandlik o'lchovi — berilgan: 2 m (qavs + yorliq) */}
+      <g stroke="#c0392b" strokeWidth="1.8" strokeLinecap="round">
+        <line x1="20" y1="15" x2="20" y2="141" />
+        <line x1="16" y1="15" x2="24" y2="15" />
+        <line x1="16" y1="141" x2="24" y2="141" />
+      </g>
+      <text x="11" y="78" fontSize="12" fontWeight="800" fill="#c0392b" fontFamily="'Manrope',system-ui,sans-serif" transform="rotate(-90 11 78)" textAnchor="middle">{hLabel}</text>
       {/* eshik ramkasi */}
       <rect x="30" y="14" width="60" height="128" rx="4" fill={frame} />
       {/* eshik yuzasi */}
@@ -120,10 +127,10 @@ export default function D34_07(props) {
       <div className="pq-board">
         <div className="pq-badge">{t.title}</div>
 
-        {/* Eshik — o'lchanadigan narsa (DATA, ko'rsatish adolatli). */}
-        <div className="pq-door"><DoorFig on={ok} /></div>
+        {/* Eshik — berilgan o'lchov (2 m, DATA; ko'rsatish adolatli). */}
+        <div className="pq-door"><DoorFig on={ok} hLabel={lang === 'ru' ? '2 м' : '2 m'} /></div>
 
-        {/* Uch birlik-karta: 'm' NOT-first. G'alabagacha hech biri yashil emas (javob-leak yo'q). */}
+        {/* Uch son-karta: 20 NOT-first. G'alabagacha hech biri yashil emas (javob-leak yo'q). */}
         <div className="pq-grid">
           {OPTS.map((u) => {
             const sel = picked === u;

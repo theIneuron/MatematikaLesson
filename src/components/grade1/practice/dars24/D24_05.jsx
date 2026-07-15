@@ -186,7 +186,8 @@ export default function D24_05(props) {
         .pq2405 .pq-spark.s2{animation-delay:-.6s;} .pq2405 .pq-spark.s3{animation-delay:-1.15s;}
 
         /* savol-bloklari 2×2 panjara (metodist 2026-07-09): 1+2 yuqori qator, 3+4 past qator */
-        .pq2405 .pq-rows{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;align-items:start;}
+        .pq2405 .pq-rows{display:grid;grid-template-columns:1fr;gap:9px;width:100%;max-width:360px;align-items:start;}
+        @media (min-width:480px){.pq2405 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq2405 .pq-rw{display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px 8px;border-radius:16px;border:2.5px solid #cfe0cd;background:#fbfdf9;transition:.15s;}
         .pq2405 .pq-rw.good{border-color:#1a7f43;background:#eef9f1;}
         .pq2405 .pq-rw.good.win{animation:pq2405cele .5s ease;}

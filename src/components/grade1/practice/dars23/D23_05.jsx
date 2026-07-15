@@ -198,7 +198,8 @@ export default function D23_05(props) {
         .pq2305 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:10px;}
 
         /* SAVOL-KARTALAR 2×2 — toza: faqat sonli ifoda + variantlar (rasm/animatsiya yo'q) */
-        .pq2305 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;width:100%;}
+        .pq2305 .pq-rows{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;width:100%;max-width:360px;}
+        @media (min-width:480px){.pq2305 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq2305 .pq-rw{display:flex;flex-direction:column;gap:9px;align-items:center;min-width:0;padding:10px 8px;border-radius:14px;border:2.5px solid #cfe0cd;background:#fbfdf8;transition:.15s;}
         .pq2305 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq2305 .pq-rw.good.win{animation:pq2305cele .5s ease;}

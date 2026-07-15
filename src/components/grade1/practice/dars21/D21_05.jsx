@@ -8,6 +8,21 @@
 // VEDI-DO-VERNOGO: noto'g'ri qator qulflamaydi, retry tugmasi yo'q; setChecked FAQAT hammasi to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 // Har qator: son, o'nliklar raqami (javob = tens), birliklar, uch variant.
 // opts pozitsiyalari almashtirilgan (to'g'ri javob doim bir joyda emas).
 const ROWS = [
@@ -98,6 +113,7 @@ export default function D21_05(props) {
 
   const lock = isReview || checked;
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq2105">
@@ -110,7 +126,8 @@ export default function D21_05(props) {
         .pq2105 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:11px;padding:10px 10px 13px;border-radius:22px;background:linear-gradient(#eef7e4,#e4f1d8);border:2px solid #d3e6bf;}
 
         /* sahna: olma bog'i — quyosh, daraxtlar, taxta, o't (ambient) */
-        .pq2105 .pq-scene{position:relative;width:372px;max-width:100%;height:82px;border-radius:18px;background:linear-gradient(#dff0fb 0%,#eaf6dd 58%,#dcefc7 100%);border:2px solid #d3e6bf;overflow:hidden;}
+        .pq2105 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:82px;border-radius:18px;background:linear-gradient(#dff0fb 0%,#eaf6dd 58%,#dcefc7 100%);border:2px solid #d3e6bf;overflow:hidden;}
+        .pq2105 .pq-fit{position:relative;margin:0 auto;}
         .pq2105 .pq-sun{position:absolute;top:12px;left:16px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6ce,#f9c62f 72%,#f0ab18);box-shadow:0 0 14px 4px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2105sun 3.6s ease-in-out infinite;}
         .pq2105 .pq-tree{position:absolute;bottom:8px;z-index:1;pointer-events:none;transform-origin:50% 100%;animation:pq2105sway 4.4s ease-in-out infinite;}
         .pq2105 .pq-tree.t1{left:12px;} .pq2105 .pq-tree.t2{right:12px;animation-delay:-2.2s;}
@@ -120,7 +137,8 @@ export default function D21_05(props) {
         .pq2105 .pq-spark.s2{animation-delay:-.6s;} .pq2105 .pq-spark.s3{animation-delay:-1.15s;}
 
         /* qatorlar */
-        .pq2105 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;width:100%;}
+        .pq2105 .pq-rows{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;width:100%;max-width:360px;}
+        @media (min-width:480px){.pq2105 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq2105 .pq-rw{display:flex;gap:10px;align-items:center;justify-content:center;align-content:center;flex-wrap:wrap;padding:8px 9px;border-radius:14px;border:2.5px solid #d7e6c6;background:#fbfdf7;transition:.15s;}
         .pq2105 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq2105 .pq-rw.good.win{animation:pq2105cele .5s ease;}
@@ -144,7 +162,7 @@ export default function D21_05(props) {
         .pq2105 .pq-step{font-size:12px;font-weight:800;color:#5a8a2e;white-space:nowrap;padding-left:2px;animation:pq2105in .3s .12s both;}
 
         /* variantlar (bosiladigan — loop-animatsiya YO'Q) */
-        .pq2105 .pq-sgs{display:flex;gap:6px;margin-left:2px;flex-basis:100%;justify-content:center;align-content:center;}
+        .pq2105 .pq-sgs{display:flex;flex-wrap:wrap;gap:6px;margin-left:2px;flex-basis:100%;justify-content:center;align-content:center;}
         .pq2105 .pq-sg{width:42px;height:44px;border-radius:11px;border:2.5px solid #d7e6c6;background:#fff;font-size:21px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2105 .pq-sg:hover:not(:disabled){border-color:#8fbf5e;transform:translateY(-2px);}
         .pq2105 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -166,8 +184,9 @@ export default function D21_05(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 82 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <div className="pq-board">{t.title}</div>
           <span className="pq-tree t1"><Tree size={44} /></span>
@@ -178,6 +197,7 @@ export default function D21_05(props) {
             <span className="pq-spark s2" style={{ left: '52%', top: '30px' }}>✦</span>
             <span className="pq-spark s3" style={{ left: '68%', top: '12px' }}>✦</span>
           </>)}
+        </div>
         </div>
 
         <div className="pq-rows">

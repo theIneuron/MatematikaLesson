@@ -8,6 +8,21 @@
 // Win-reveal: g'alabada har to'g'ri kartada "= 6" chiqadi, tuzoq xiralashadi (natija win'gacha yopiq).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TARGET = 6;
 // Har karta ikki qadamli: a op1 b op2 c.  op: '+' qo'shish, '-' ayirish.
 const CARDS = [
@@ -139,6 +154,7 @@ export default function D31_08(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(404);
 
   return (
     <div className={"pq pq3108" + (still ? " still" : "")}>
@@ -152,7 +168,8 @@ export default function D31_08(props) {
         .pq3108 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq3108 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:14px;}
         /* ===== TABIAT SAHNASI (D15_01 etaloni) ===== */
-        .pq3108 .pq-scene{position:relative;width:404px;max-width:100%;height:236px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq3108 .pq-scene{box-sizing:border-box;position:relative;width:404px;height:236px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq3108 .pq-fit{position:relative;margin:0 auto;}
         .pq3108 .pq-sun{position:absolute;top:16px;left:22px;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 42% 40%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 22px 7px rgba(255,214,74,.6);animation:pq3108Sun 4s ease-in-out infinite;z-index:1;}
         .pq3108 .pq-cloud{position:absolute;height:15px;background:#fff;border-radius:20px;box-shadow:0 6px 0 -2px #fff;opacity:.94;z-index:1;}
         .pq3108 .pq-cloud::before,.pq3108 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
@@ -238,8 +255,9 @@ export default function D31_08(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 404 * scale, height: 236 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <Bird cls="b1" /><Bird cls="b2" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" />
@@ -267,6 +285,7 @@ export default function D31_08(props) {
               <span className="pq-wstar s3" style={{ left: '47%', top: '40px' }}><Star fill="#f2b134" /></span>
             </>
           )}
+        </div>
         </div>
 
         <div className="pq-cards">

@@ -6,6 +6,21 @@
 // antenna puls, chiroqlar miltillaydi, quvurdan bug', «?» breath-pulse. Harakat mount'da bir marta.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const START = 4, PLUS = 5, MINUS = 2, TARGET = 7; // 4 + 5 − 2 = 7
 const DATA = { start: START, plus: PLUS, minus: MINUS, target: TARGET, options: [6, 7, 8, 5], ptype: 'P9', level: '🔴', tag: 'word_mixed_2step_10' };
 const T = {
@@ -141,6 +156,7 @@ export default function D10_09(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1009">
@@ -151,7 +167,8 @@ export default function D10_09(props) {
         .pq1009 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1009 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq1009 .pq-stage{display:flex;flex-direction:column;align-items:center;padding:10px 10px 12px;border-radius:22px;background:linear-gradient(#eef1f6,#e2e7ef);border:2px solid #d2d9e4;}
-        .pq1009 .pq-scene{position:relative;width:372px;max-width:100%;height:210px;border-radius:18px;background:linear-gradient(#dbe2ec 0%,#ccd5e2 62%,#c0cad9 100%);border:2px solid #c0cad9;overflow:hidden;}
+        .pq1009 .pq-fit{position:relative;margin:0 auto;}
+        .pq1009 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:210px;border-radius:18px;background:linear-gradient(#dbe2ec 0%,#ccd5e2 62%,#c0cad9 100%);border:2px solid #c0cad9;overflow:hidden;}
         .pq1009 .pq-win{position:absolute;top:14px;border-radius:5px;background:linear-gradient(#eaf4fb,#c7e2f2);border:2.5px solid #9bb3c9;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);z-index:0;}
         .pq1009 .pq-win::before,.pq1009 .pq-win::after{content:'';position:absolute;background:#9bb3c9;}
         .pq1009 .pq-win::before{left:50%;top:0;bottom:0;width:2px;margin-left:-1px;}
@@ -234,8 +251,9 @@ export default function D10_09(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 210 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           {/* Ambient uchqunlar (fon, dekor) */}
           <span className="pq-mote m1" aria-hidden="true" style={{ left: 170, top: 48 }} />
           <span className="pq-mote m2" aria-hidden="true" style={{ left: 232, top: 38 }} />
@@ -282,6 +300,7 @@ export default function D10_09(props) {
           )}
           {!ok && <span className="pq-q">?</span>}
           {ok && <span className="pq-chip">{START} + {PLUS} − {MINUS} = {TARGET}</span>}
+        </div>
         </div>
       </div>
 

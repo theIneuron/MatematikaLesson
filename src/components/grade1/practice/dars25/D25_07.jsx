@@ -7,6 +7,21 @@
 // Distraktor "Yo'q" ham ishlaydi (qulf yo'q). VEDI-DO-VERNOGO: setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 53, B = 4, SUM = 57;
 const TENS = 5;          // savatlar soni = o'nliklar (o'zgarmaydi)
 const U1 = 3;            // 53 ning birliklari
@@ -133,6 +148,7 @@ export default function D25_07(props) {
   const crates = Array.from({ length: TENS });
   const base = Array.from({ length: U1 });   // mavjud birliklar (3)
   const add = Array.from({ length: U2 });    // qo'shiladigan birliklar (4)
+  const [fitRef, scale] = useFitScale(384);
 
   return (
     <div className="pq pq2507">
@@ -142,7 +158,8 @@ export default function D25_07(props) {
         .pq2507 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2507 .pq-setup{color:#5c6672;font-weight:500;font-variant-numeric:tabular-nums;}
         .pq2507 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq2507 .pq-scene{position:relative;width:384px;max-width:100%;height:236px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2507 .pq-scene{box-sizing:border-box;position:relative;width:384px;height:236px;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2507 .pq-fit{position:relative;margin:0 auto;}
         .pq2507 .pq-sun{position:absolute;right:20px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2507sun 3.6s ease-in-out infinite;}
         .pq2507 .pq-leaf{position:absolute;left:20px;top:20px;width:9px;height:9px;border-radius:0 60% 0 60%;background:#7cc86a;z-index:1;pointer-events:none;opacity:.85;animation:pq2507leaf 5.2s ease-in-out infinite;}
         .pq2507 .pq-hill{position:absolute;left:0;right:0;bottom:0;height:56px;background:linear-gradient(#bfe39a,#a7d47f);border-top:3px solid #8fc267;z-index:1;pointer-events:none;}
@@ -171,7 +188,7 @@ export default function D25_07(props) {
         .pq2507 .pq-eq .ok{color:#1a7f43;font-size:22px;font-weight:900;}
         .pq2507 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#5a8a4f;font-variant-numeric:tabular-nums;animation:pq2507in .3s .1s both;}
 
-        .pq2507 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq2507 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq2507 .pq-opt{min-width:118px;height:62px;padding:0 18px;font-size:22px;font-weight:800;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq2507 .pq-opt:hover:not(:disabled){border-color:#8fcf83;transform:translateY(-2px);}
         .pq2507 .pq-opt:active:not(:disabled){transform:scale(.96);}
@@ -192,7 +209,8 @@ export default function D25_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 384 * scale, height: 236 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-leaf" />
         <span className="pq-hill" />
@@ -234,6 +252,7 @@ export default function D25_07(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '66px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {/* G'alaba: birliklar qo'shiladi (3 + 4 = 7), o'nlik o'zgarmaydi, 53 + 4 = 57 ✓ */}

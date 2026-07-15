@@ -4,6 +4,21 @@
 // Веди-до-верного, ozvuchkasiz. Belgilar: > U+003E, < U+003C, = U+003D. Sonlar 0-10.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 // op: '>' | '<' | '=' (haqiqiy Unicode belgilar). isTrue — yozuv haqiqatan to'g'rimi.
 const CARDS = [
   { a: 6, op: '>', b: 4 }, // to'g'ri  ✓
@@ -175,16 +190,18 @@ export default function D12_08(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
-    <div className="pq pq1208">
+    <div className="pq pq1208" ref={fitRef}>
       <style>{`
         .pq1208{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq1208 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#2e7a3e;text-transform:uppercase;}
         .pq1208 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1208 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1208 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
-        .pq1208 .pq-scene{position:relative;width:372px;max-width:100%;height:176px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#dff2fb 22%,#bfe6ee 38%);border:2px solid #bfdfe8;overflow:hidden;}
+        .pq1208 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:176px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#dff2fb 22%,#bfe6ee 38%);border:2px solid #bfdfe8;overflow:hidden;}
+        .pq1208 .pq-fit{position:relative;margin:0 auto;}
         .pq1208 .pq-sun{position:absolute;top:10px;right:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq1208 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:1;}
         .pq1208 .pq-cloud.c1{top:14px;left:-70px;animation-duration:30s;animation-delay:-10s;}
@@ -257,7 +274,8 @@ export default function D12_08(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 372 * scale, height: 176 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-water" />
@@ -283,6 +301,7 @@ export default function D12_08(props) {
             <span className="pq-wstar w3" style={{ left: '48%', top: '96px' }}><Star fill="#f2b134" /></span>
           </>
         )}
+      </div>
       </div>
 
       <div className="pq-cards">

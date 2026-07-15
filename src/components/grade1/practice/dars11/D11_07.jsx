@@ -5,6 +5,21 @@
 // Tanlangan naqsh panel o'ng yarmiga darhol qo'yiladi (bola simmetriyani ko'radi); to'g'rida yashil.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 // Rang palitrasi (vagon-kanon ranglar): {f: to'ldirish, s: kontur}.
 const C = {
   R: { f: '#d9534b', s: '#a23a33' },
@@ -130,16 +145,18 @@ export default function D11_07(props) {
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
   const rightPattern = picked !== null ? CARDS[picked] : null; // panel o'ng yarmiga qo'yiladigan tanlov
+  const [fitRef, scale] = useFitScale(372);
 
   return (
-    <div className="pq pq1107">
+    <div className="pq pq1107" ref={fitRef}>
       <style>{`
         .pq1107{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq1107 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#7a5bd6;text-transform:uppercase;}
         .pq1107 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1107 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1107 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq1107 .pq-scene{position:relative;width:372px;max-width:100%;height:214px;margin:0 auto;border-radius:20px;background:linear-gradient(#cdeafb 0%,#e2f3fd 46%,#eaf7ff 64%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq1107 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:214px;border-radius:20px;background:linear-gradient(#cdeafb 0%,#e2f3fd 46%,#eaf7ff 64%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq1107 .pq-fit{position:relative;margin:0 auto;}
         .pq1107 .pq-sun{position:absolute;top:12px;right:16px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq1107 .pq-cloud{position:absolute;width:50px;height:15px;background:#fff;border-radius:999px;opacity:.9;box-shadow:15px 5px 0 -4px #fff,-14px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:1;}
         .pq1107 .pq-cloud.c1{top:18px;left:-70px;animation-duration:34s;}
@@ -232,7 +249,8 @@ export default function D11_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 372 * scale, height: 214 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-bird bd1" aria-hidden="true"><svg viewBox="0 0 24 10" width="15" height="7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M1 8 Q6 1 11 8 Q16 1 21 8" /></svg></span>
         <span className="pq-bird bd2" aria-hidden="true"><svg viewBox="0 0 24 10" width="15" height="7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M1 8 Q6 1 11 8 Q16 1 21 8" /></svg></span>
         <span className="pq-fly" aria-hidden="true"><svg viewBox="0 0 20 16" width="14" height="11"><ellipse cx="7" cy="6" rx="5" ry="4" fill="#f2b134" opacity=".72" /><ellipse cx="13" cy="6" rx="5" ry="4" fill="#7a5bd6" opacity=".6" /><ellipse cx="7" cy="11" rx="4" ry="3" fill="#f2b134" opacity=".62" /><ellipse cx="13" cy="11" rx="4" ry="3" fill="#7a5bd6" opacity=".5" /><rect x="9.4" y="3" width="1.2" height="10" rx="0.6" fill="#5a4632" /></svg></span>
@@ -282,6 +300,7 @@ export default function D11_07(props) {
             <span className="pq-wstar w3" style={{ left: '76%', top: '30px' }}><Star fill="#f2b134" /></span>
           </>
         )}
+      </div>
       </div>
 
       {/* 3 nomzod-naqsh — ko'zgu o'qidan boshlab (chap chekka = o'qqa yaqin). Bittasi to'g'ri aks. */}

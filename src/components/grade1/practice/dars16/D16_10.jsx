@@ -6,6 +6,21 @@
 // chip «6 + 4 = 10», yulduzlar; noto'g'ri → hint, qulf yo'q. onReady faqat variant tanlanganda.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const START = 6, NEED = 4, TARGET = 10, TEN = 10;
 const OPTIONS = [8, 9, 10, 11]; // 9/11 — bittaga adashish, 8 — ikki marta adashish
 const DATA = { start: START, need: NEED, target: TARGET, options: OPTIONS, ptype: 'NEW', level: '🔴', tag: 'make_ten_fill' };
@@ -121,6 +136,7 @@ export default function D16_10(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1610">
@@ -131,7 +147,8 @@ export default function D16_10(props) {
         .pq1610 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1610 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1610 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;padding:11px 10px 14px;border-radius:22px;background:linear-gradient(#fdeaf2,#f7dbe6);border:2px solid #f0cad9;}
-        .pq1610 .pq-scene{position:relative;width:372px;max-width:100%;height:264px;border-radius:18px;background:linear-gradient(#fff2dc 0%,#fbe6c2 55%,#f4d6a6 100%);border:2px solid #ecd4a8;overflow:hidden;}
+        .pq1610 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:264px;border-radius:18px;background:linear-gradient(#fff2dc 0%,#fbe6c2 55%,#f4d6a6 100%);border:2px solid #ecd4a8;overflow:hidden;}
+        .pq1610 .pq-fit{position:relative;margin:0 auto;}
         .pq1610 .pq-window{position:absolute;top:12px;right:14px;width:56px;height:44px;border-radius:6px;background:linear-gradient(135deg,#dff0fb 0 45%,#c2ddf0 45% 55%,#dff0fb 55%);border:2.5px solid #c69a5a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);z-index:1;}
         .pq1610 .pq-window::after{content:'';position:absolute;left:50%;top:3px;bottom:3px;width:2px;background:#c69a5a;transform:translateX(-1px);}
         .pq1610 .pq-window::before{content:'';position:absolute;top:50%;left:3px;right:3px;height:2px;background:#c69a5a;transform:translateY(-1px);}
@@ -173,7 +190,7 @@ export default function D16_10(props) {
         .pq1610 .pq-lid.stillm{animation:none;}
         .pq1610 .pq-lidq{font-size:26px;line-height:1;font-weight:900;color:#7d5626;text-shadow:0 1px 0 rgba(255,255,255,.4);animation:pqQm 1.8s ease-in-out infinite;}
         /* variantlar (xayolan hisoblab tanlash) */
-        .pq1610 .pq-opts{display:flex;gap:12px;justify-content:center;animation:pqIn .3s ease both;}
+        .pq1610 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;animation:pqIn .3s ease both;}
         .pq1610 .pq-opt{width:68px;height:68px;font-size:28px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;font-family:inherit;}
         .pq1610 .pq-opt:hover:not(:disabled){border-color:#dfb271;transform:translateY(-2px);}
         .pq1610 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -200,8 +217,9 @@ export default function D16_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{covered ? t.ask2 : t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 264 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-lamp" /><span className="pq-lampshade" />
           <span className="pq-window" /><span className="pq-sun" />
           <div className="pq-board">{t.title}</div>
@@ -253,6 +271,7 @@ export default function D16_10(props) {
               <span className="pq-wstar w3" style={{ left: '50%', top: '78px' }}><Star fill="#4a90d9" /></span>
             </>
           )}
+        </div>
         </div>
 
         {covered && (

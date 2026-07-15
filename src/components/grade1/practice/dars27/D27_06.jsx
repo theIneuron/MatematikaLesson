@@ -122,7 +122,8 @@ export default function D27_06(props) {
         .pq2706 .pq-apple.a2{left:22px;bottom:16px;animation:pq2706bob 3.4s ease-in-out .5s infinite;}
         .pq2706 .pq-board{position:absolute;top:7px;left:50%;transform:translateX(-50%);z-index:6;padding:3px 14px 4px;border-radius:9px;background:linear-gradient(#3f9b57,#2c7c42);border:2.5px solid #226334;color:#f0fff4;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;pointer-events:none;box-shadow:0 3px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.28);}
 
-        .pq2706 .pq-cards{position:relative;z-index:3;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .pq2706 .pq-cards{position:relative;z-index:3;display:grid;grid-template-columns:1fr;gap:12px;width:100%;max-width:360px;}
+        @media (min-width:480px){.pq2706 .pq-cards{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq2706 .pq-card{position:relative;min-height:74px;display:flex;align-items:center;justify-content:center;padding:12px 8px;border-radius:16px;border:3px solid #d6dae3;background:rgba(255,255,255,.96);cursor:pointer;box-shadow:0 4px 10px rgba(40,60,40,.14);transition:.12s;}
         .pq2706 .pq-card:hover:not(:disabled){border-color:#94b8e2;transform:translateY(-2px);}
         .pq2706 .pq-card:active:not(:disabled){transform:scale(.97);}

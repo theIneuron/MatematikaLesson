@@ -3,6 +3,21 @@
 // 5-qavat raqami «?» yopiq; g'alabada ochilib 5, chip «9 − 4 = 5» (U+2212), qavat-badge 1..5.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const START = 9, JUMP = 4, TARGET = 5;
 const MINUS = '−';
 const DATA = { start: 9, jump: 4, target: 5, options: [4, 5, 6], ptype: 'P10', level: '🟡', tag: 'lift_down' };
@@ -139,6 +154,7 @@ export default function D10_03(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(340);
 
   return (
     <div className="pq pq1003">
@@ -149,7 +165,8 @@ export default function D10_03(props) {
         .pq1003 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1003 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1003 .pq-stage{display:flex;justify-content:center;padding:10px;border-radius:22px;background:linear-gradient(#e7ebf1,#dbe1ea);border:2px solid #c8d0dc;}
-        .pq1003 .pq-scene{position:relative;width:340px;max-width:100%;height:276px;border-radius:18px;background:linear-gradient(#eef1f6 0%,#dfe4ec 55%,#d2d9e4 100%);border:2px solid #c2cad8;overflow:hidden;}
+        .pq1003 .pq-fit{position:relative;margin:0 auto;}
+        .pq1003 .pq-scene{box-sizing:border-box;position:relative;width:340px;height:276px;border-radius:18px;background:linear-gradient(#eef1f6 0%,#dfe4ec 55%,#d2d9e4 100%);border:2px solid #c2cad8;overflow:hidden;}
 
         /* --- Fabrika foni --- */
         .pq1003 .pq-window{position:absolute;top:34px;right:14px;width:78px;height:66px;border-radius:6px;background:linear-gradient(135deg,#bfe0ef,#9fc9e4);border:3px solid #8f9aac;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);z-index:1;background-image:linear-gradient(135deg,#c9e6f2,#a5cee6);}
@@ -216,7 +233,7 @@ export default function D10_03(props) {
         .pq1003 .pq-chip{position:absolute;top:26px;left:50%;transform:translateX(-50%);font-size:23px;font-weight:900;color:#1a7f43;background:#fff;padding:3px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);z-index:6;white-space:nowrap;font-variant-numeric:tabular-nums;animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;}
 
         /* --- Variantlar --- */
-        .pq1003 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq1003 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq1003 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1003 .pq-opt:hover:not(:disabled){border-color:#aeb9c9;transform:translateY(-2px);}
         .pq1003 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -250,8 +267,9 @@ export default function D10_03(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 340 * scale, height: 276 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           {/* Ambient uchqunlar (fon, dekor) */}
           <span className="pq-mote m1" aria-hidden="true" style={{ left: 14, top: 24 }} />
           <span className="pq-mote m2" aria-hidden="true" style={{ left: 28, top: 66 }} />
@@ -311,6 +329,7 @@ export default function D10_03(props) {
 
           {/* Chip */}
           {ok && <span className="pq-chip">{START} {MINUS} {JUMP} = {TARGET}</span>}
+        </div>
         </div>
       </div>
 

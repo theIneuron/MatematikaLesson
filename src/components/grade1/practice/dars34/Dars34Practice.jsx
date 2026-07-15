@@ -22,7 +22,7 @@ const ITEMS = [
   { id: '04', label: '4 · 1 dm', C: D34_04 },           // convert 1 dm=10 sm (M2) 🟡
   { id: '05', label: '5 · 2 dm', C: D34_05 },           // convert 2 dm=20 sm 🟡
   { id: '06', label: '6 · Qaysi uzun', C: D34_06 },     // compare 6 sm vs 1 dm (M1) 🟡
-  { id: '07', label: '7 · Qaysi birlik', C: D34_07 },   // unit-sense (qalam→sm, eshik→m) 🔴
+  { id: '07', label: '7 · m → dm', C: D34_07 },         // convert 2 m=20 dm (eshik, aniq o'lchov) 🔴
   { id: '08', label: '8 · 1 m', C: D34_08 },            // convert 1 m=10 dm 🔴
   { id: '09', label: '9 · Uzunlik qo\'sh', C: D34_09 }, // length add 8 sm+5 sm=13 sm (M3) 🔴
   { id: '10', label: '10 · O\'lcha', C: D34_10 },       // interactive measure (tap ruler mark) 🔴

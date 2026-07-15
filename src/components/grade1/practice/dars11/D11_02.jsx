@@ -203,7 +203,7 @@ export default function D11_02(props) {
         .pq1102 .pq-seq{color:#b0a48f;}
         .pq1102 .pq-sres{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 6px;border-radius:9px;background:#fff;border:2px dashed #d8cdb6;color:#b8ac93;animation:pqBreath 2s ease-in-out infinite;}
         .pq1102 .pq-sres.win{border-style:solid;border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pqPop .45s cubic-bezier(.3,1.5,.5,1) both;}
-        .pq1102 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq1102 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq1102 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.14s;}
         .pq1102 .pq-opt:hover:not(:disabled){border-color:#f0c99a;transform:translateY(-2px);}
         .pq1102 .pq-opt:active:not(:disabled){transform:scale(.94);}

@@ -247,7 +247,7 @@ export default function D12_03(props) {
         .pq1203 .pq-cthroat{transform-box:fill-box;transform-origin:50% 55%;animation:pqCThroat 1.9s ease-in-out infinite;}
         .pq1203 .pq-cblink{opacity:0;animation:pqBlink 4s linear infinite;}
         .pq1203 .pq-numcard{width:70px;height:84px;border-radius:16px;background:linear-gradient(#ffffff,#eaf4fb);border:3px solid #7fb5d6;display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;color:#1c6ea0;font-variant-numeric:tabular-nums;box-shadow:0 3px 8px rgba(0,0,0,.14);animation:pqBreath 2.8s ease-in-out infinite;}
-        .pq1203 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq1203 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq1203 .pq-opt{width:74px;height:74px;font-size:36px;font-weight:900;line-height:1;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq1203 .pq-opt:hover:not(:disabled){border-color:#8fc9a6;transform:translateY(-2px);}
         .pq1203 .pq-opt:active:not(:disabled){transform:scale(.94);}

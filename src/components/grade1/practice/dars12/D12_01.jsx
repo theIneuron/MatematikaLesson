@@ -225,7 +225,7 @@ export default function D12_01(props) {
         .pq1201 .pq-lake.still .pq-cnt,.pq1201 .pq-lake.still .pq-chip,.pq1201 .pq-lake.still .pq-jaws.chomping,.pq1201 .pq-lake.still .pq-card.big.win{animation:none;}
         .pq1201 .pq-lake.still .pq-fish.win{animation:pqFishBob 2.4s ease-in-out infinite;}
 
-        .pq1201 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:20px;}
+        .pq1201 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:20px;}
         .pq1201 .pq-opt{width:76px;height:70px;font-size:38px;font-weight:900;line-height:1;border-radius:18px;border:2.5px solid #cdd8d2;background:#fff;color:#2e7a3e;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;}
         .pq1201 .pq-opt:hover:not(:disabled){border-color:#8fc4a6;transform:translateY(-2px);}
         .pq1201 .pq-opt:active:not(:disabled){transform:scale(.94);}

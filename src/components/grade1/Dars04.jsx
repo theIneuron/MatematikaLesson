@@ -39,7 +39,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false; // TEST — slayd gating O'CHIRILGAN (ishlab chiqarishdan oldin false ga qaytaring)
+const FREE_NAV = true; // TEST — slayd gating O'CHIRILGAN (ishlab chiqarishdan oldin false ga qaytaring)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -1230,7 +1230,7 @@ const ICON = {
   fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
   flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
   balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
-  cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>,
+  cherry: <g><path d="M20 12 Q21.5 20 20 27" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 12 Q24 4 31.5 7.5 Q25.5 13 19 12 Z" fill="#3E9B3A"/><path d="M20.5 11 Q24.5 9 29 11" stroke="#2C7A2E" strokeWidth="0.8" fill="none" strokeLinecap="round"/><circle cx="20" cy="28" r="9" fill="url(#g1chrG)"/><ellipse cx="16.5" cy="24.5" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.6)" transform="rotate(-18 16.5 24.5)"/><circle cx="15.5" cy="22.5" r="1.4" fill="rgba(255,255,255,0.72)"/></g>,
   mango: <g><path d="M20 8 q2 -4 5 -4" stroke="#5A7D25" strokeWidth="2" fill="none" strokeLinecap="round"/><ellipse cx="26" cy="7" rx="4.5" ry="2.6" fill="#3E9B3A" transform="rotate(-20 26 7)"/><path d="M20 9 C 11 9 7 16 8 24 C 9 31 14 35 20 35 C 26 35 31 31 32 23 C 33 15 29 9 20 9 Z" fill="url(#g1mangoG)"/><ellipse cx="14" cy="17" rx="2.8" ry="6" fill="rgba(255,255,255,0.5)" transform="rotate(-18 14 17)"/><circle cx="13" cy="14" r="1.9" fill="rgba(255,255,255,0.7)"/></g>,
   grape: <g><path d="M20 11 q1 -4 4 -5" stroke="#5A7D25" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="24" cy="7" rx="3.4" ry="2" fill="#3E9B3A" transform="rotate(-20 24 7)"/><circle cx="20" cy="24" r="9.5" fill="url(#g1grapeG)"/><ellipse cx="16" cy="20" rx="2.4" ry="3.6" fill="rgba(255,255,255,0.5)" transform="rotate(-18 16 20)"/><circle cx="15" cy="18" r="1.5" fill="rgba(255,255,255,0.72)"/></g>
 };
@@ -1291,10 +1291,10 @@ const nextPraise = (lang) => { const a = PRAISE[lang] || PRAISE.ru; const p = a[
 // Ra'no — KANONIK o'zbek qizcha (butun darsda bitta xil ko'rinish; DressStars ham shuni ishlatadi).
 // mood: pointing | happy | encourage | celebrate. stars=true -> ko'ylakda 3 yulduz (s4 mashqi).
 // Gradient soya + panjalar + oyoq soyasi (realroq). g1-eyes -> pirpiratish.
-const RanoSVG = ({ mood = 'pointing', className = '', stars = false }) => {
+const RanoSVG = ({ mood = 'pointing', className = '', stars = false, headOnly = false }) => {
   const big = mood === 'happy' || mood === 'celebrate';
   return (
-    <svg className={`g1-char g1-char-rano ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+    <svg className={`g1-char g1-char-rano ${className}`} viewBox={headOnly ? '35 6 60 56' : '0 0 130 190'} aria-hidden="true">
       <defs>
         <radialGradient id="g1mskin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
         <linearGradient id="g1mdress" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FF92B8"/><stop offset="100%" stopColor="#E84F86"/></linearGradient>
@@ -1356,11 +1356,11 @@ const RanoSVG = ({ mood = 'pointing', className = '', stars = false }) => {
 
 // Anvar — o'zbek bolakay (Ra'no bilan bir xil uslub: gradient soya, panjalar, oyoq soyasi).
 // pose: coming (yo'lda + sovg'a sumkasi) | door (qo'l silkitadi) | happy (savat + qo'l yuqori)
-const AnvarSVG = ({ pose = 'coming', className = '' }) => {
+const AnvarSVG = ({ pose = 'coming', className = '', headOnly = false }) => {
   const happy = pose === 'happy';
   const door = pose === 'door';
   return (
-    <svg className={`g1-char g1-char-anvar ${className}`} viewBox="0 0 130 190" aria-hidden="true">
+    <svg className={`g1-char g1-char-anvar ${className}`} viewBox={headOnly ? '26 6 68 56' : '0 0 130 190'} aria-hidden="true">
       <defs>
         <radialGradient id="g1askin" cx="40%" cy="35%" r="70%"><stop offset="0%" stopColor="#F8CBA0"/><stop offset="100%" stopColor="#E0A06E"/></radialGradient>
         <linearGradient id="g1ashirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4C90E6"/><stop offset="100%" stopColor="#2C63B0"/></linearGradient>
@@ -2914,13 +2914,14 @@ const TopFruitSvg = ({ kind = 'apple' }) => (
       </g>
     ) : kind === 'cherry' ? (
       <g>
-        <ellipse cx="20" cy="33" rx="13" ry="3" fill="rgba(58,53,48,0.15)"/>
-        <circle cx="15" cy="22" r="9" fill="url(#g1chrG)"/>
-        <circle cx="26" cy="20" r="8" fill="url(#g1chrG)"/>
-        <circle cx="14" cy="14" r="1.4" fill="#5A3A1E"/>
-        <circle cx="25" cy="13" r="1.4" fill="#5A3A1E"/>
-        <ellipse cx="12.5" cy="19" rx="2.4" ry="1.5" fill="rgba(255,255,255,0.55)"/>
-        <ellipse cx="23.5" cy="17.5" rx="2.1" ry="1.4" fill="rgba(255,255,255,0.5)"/>
+        {/* gilos — BITTA shar + poyacha + bitta barg (USTDAN ko'rinish). Olma emas: kichikroq, to'qroq qizil, ingichka poyacha. */}
+        <ellipse cx="20" cy="34" rx="11" ry="2.6" fill="rgba(58,53,48,0.15)"/>
+        <path d="M20 15 Q22 8 27 5" stroke="#5A7D25" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+        <path d="M26 5 Q31 1.5 34.5 6 Q30 9.5 26 5 Z" fill="#3E9B3A"/>
+        <path d="M27 6 Q30.5 5.5 33 7" stroke="#2C7A2E" strokeWidth="0.7" fill="none" strokeLinecap="round"/>
+        <circle cx="20" cy="24" r="11" fill="url(#g1chrG)"/>
+        <ellipse cx="16" cy="20" rx="2.8" ry="1.9" fill="rgba(255,255,255,0.55)"/>
+        <circle cx="15" cy="18.5" r="1.3" fill="rgba(255,255,255,0.72)"/>
       </g>
     ) : (
       <g>
@@ -3455,8 +3456,24 @@ const Screen0 = (props) => {
         <h1 className="title h-sub fade-up">
           {t(c.title_part1) && <>{t(c.title_part1)} </>}<span className="italic" style={{ color: T.accent }}>{t(c.title_part2_em)}</span>{t(c.title_part3)}
         </h1>
+        {/* Slayd 2: personaj boshi (statik) savatning YON tomonida — Ra'no (4) chapda, Anvar (7) o'ngda. */}
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(14px, 3vw, 22px)' }}>
-          <TwoBaskets left={4} right={7} leftKind="mango" rightKind="grape" mount/>
+          <div className="d4-s0row">
+            <div className="d4-s0pair">
+              <div className="d4-s0char">
+                <div className="d4-s0head"><RanoSVG headOnly className="g1-cast-svg"/></div>
+                <span className="g1-cast-name">{t(CONTENT.sIntro.rano_label)}</span>
+              </div>
+              <TopBasket n={4} kind="mango" mountCls="d4-mount"/>
+            </div>
+            <div className="d4-s0pair">
+              <TopBasket n={7} kind="grape" mountCls="d4-mount-r"/>
+              <div className="d4-s0char">
+                <div className="d4-s0head"><AnvarSVG headOnly className="g1-cast-svg"/></div>
+                <span className="g1-cast-name">{t(CONTENT.sIntro.anvar_label)}</span>
+              </div>
+            </div>
+          </div>
         </div>
         <div className="fade-up delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
           {opts.map((o, i) => (
@@ -5008,6 +5025,14 @@ html, body { margin: 0; padding: 0; }
 
 /* === Dars04 — taqqoslash vizuallari (TwoBaskets / CompareFrames / CompareSign) === */
 .d4-baskets { display: flex; align-items: flex-end; justify-content: center; gap: clamp(20px, 7vw, 64px); flex-wrap: wrap; }
+/* s0 (slayd 2): personaj boshi savatning yon tomonida, STATIK, BITTA qatorda */
+.d4-s0row { display: flex; align-items: center; justify-content: center; gap: clamp(6px, 2.6vw, 32px); flex-wrap: nowrap; }
+.d4-s0pair { display: flex; align-items: center; gap: clamp(4px, 1.6vw, 14px); flex: 0 1 auto; min-width: 0; }
+.d4-s0char { display: flex; flex-direction: column; align-items: center; gap: clamp(3px, 1vw, 7px); }
+.d4-s0head { height: clamp(58px, 13vw, 104px); display: flex; align-items: flex-end; justify-content: center; }
+.d4-s0pair .d4-topbasket { width: clamp(84px, 22vw, 150px); }   /* bitta qatorga sig'sin */
+.d4-s0head .g1-char { animation: none; }        /* idle tebranish yo'q */
+.d4-s0head .g1-eyes { animation: none; }         /* ko'z pirpirashi yo'q */
 .d4-basket { position: relative; width: clamp(140px, 32vw, 200px); aspect-ratio: 220 / 170; }
 .d4-basket .g1-rb-svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 8px 16px rgba(58,53,48,0.3)); }
 /* old lab (gardish) mevalar USTIda -> mevalar savat ichida tiqilgan ko'rinadi (yon ko'rinish) */

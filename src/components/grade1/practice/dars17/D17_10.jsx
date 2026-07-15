@@ -7,6 +7,21 @@
 // 10 (o'nlik) va 13 yonadi. Noto'g'ri: hint, qulf YO'Q, qayta urinish mumkin.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 8, ADD = 5, TARGET = 13, TEN = 10;
 const DATA = { a: A, b: ADD, target: TARGET, options: [11, 12, 13, 14], ptype: 'NEW', level: '🔴', tag: 'cross_ten_fill' };
 const HOP_PATH = Array.from({ length: TARGET - A + 1 }, (_, i) => A + i); // [8,9,10,11,12,13]
@@ -182,6 +197,7 @@ export default function D17_10(props) {
 
   const ok = feedback && feedback.correct;
   const closed = added === ADD && !ok; // savat qopqog'i yopiq — jami yashirin
+  const [fitRef, scale] = useFitScale(404);
 
   return (
     <div className="pq pq1710">
@@ -193,7 +209,8 @@ export default function D17_10(props) {
         .pq1710 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1710 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;}
         /* ===== TABIAT SAHNASI ===== */
-        .pq1710 .pq-scene{position:relative;width:404px;max-width:100%;height:280px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq1710 .pq-fit{position:relative;margin:0 auto;}
+        .pq1710 .pq-scene{box-sizing:border-box;position:relative;width:404px;height:280px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
         .pq1710 .pq-sun{position:absolute;top:14px;left:20px;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 42% 40%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 22px 7px rgba(255,214,74,.6);animation:pqSun 4s ease-in-out infinite;z-index:1;}
         .pq1710 .pq-cloud{position:absolute;height:16px;background:#fff;border-radius:20px;box-shadow:0 6px 0 -2px #fff;opacity:.94;z-index:1;}
         .pq1710 .pq-cloud::before,.pq1710 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
@@ -280,7 +297,7 @@ export default function D17_10(props) {
         .pq1710 .pq-spark{position:absolute;z-index:9;color:#ffd13f;opacity:0;line-height:0;font-size:15px;animation:pqTwinkle 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
         .pq1710 .pq-spark.s2{animation-delay:-.6s;} .pq1710 .pq-spark.s3{animation-delay:-1.15s;}
         /* sabzi lagani */
-        .pq1710 .pq-tray{display:flex;align-items:center;gap:9px;padding:8px 16px;border-radius:16px;background:linear-gradient(#fdf3df,#f6e6c6);border:2px solid #e6cf9e;box-shadow:inset 0 2px 4px rgba(150,110,50,.12);min-height:50px;}
+        .pq1710 .pq-tray{display:flex;flex-wrap:wrap;align-items:center;gap:9px;padding:8px 16px;border-radius:16px;background:linear-gradient(#fdf3df,#f6e6c6);border:2px solid #e6cf9e;box-shadow:inset 0 2px 4px rgba(150,110,50,.12);min-height:50px;}
         .pq1710 .pq-carrot{width:26px;height:36px;border:none;background:none;padding:0;cursor:pointer;line-height:0;transition:transform .12s;filter:drop-shadow(0 2px 3px rgba(0,0,0,.16));animation:pqBob 2.4s ease-in-out infinite;}
         .pq1710 .pq-carrot:nth-child(2n){animation-delay:-.8s;} .pq1710 .pq-carrot:nth-child(3n){animation-delay:-1.5s;}
         .pq1710 .pq-carrot:hover:not(:disabled){transform:translateY(-3px) scale(1.08);}
@@ -316,8 +333,9 @@ export default function D17_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 404 * scale, height: 280 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <Bird cls="b1" /><Bird cls="b2" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" />
@@ -339,6 +357,7 @@ export default function D17_10(props) {
           </div>
 
           <NumberLine path={HOP_PATH} lit={[TEN, TARGET]} active={ok} still={still} />
+        </div>
         </div>
 
         {/* SAVAT: 8 ta bor edi + solinganlar; yopiq holatda jami yashirin */}

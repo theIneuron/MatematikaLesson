@@ -5,6 +5,21 @@
 // sway), daraxt, don-dog', 2 tovuq don cho'qiydi (bosh egiladi, stagger), quyosh breath, 2 bulut.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const ROWS = [
   { expr: '6 − 2', ans: 4, opts: [2, 3, 4, 5] },
   { expr: '5 − 3', ans: 2, opts: [0, 1, 2, 3] },
@@ -154,6 +169,7 @@ export default function D08_06(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq0806">
@@ -164,7 +180,8 @@ export default function D08_06(props) {
         .pq0806 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0806 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq0806 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 10px 12px;border-radius:22px;background:linear-gradient(#faf4e4,#f3ead2);border:2px solid #e8dcbc;}
-        .pq0806 .pq-scene{position:relative;width:372px;max-width:100%;height:216px;border-radius:18px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#f2f0dd 70%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0806 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:216px;border-radius:18px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#f2f0dd 70%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0806 .pq-fit{position:relative;margin:0 auto;}
         .pq0806 .pq-sun{position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq0806 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:1;}
         .pq0806 .pq-cloud.c1{top:16px;left:-70px;animation-duration:28s;animation-delay:-11s;}
@@ -191,7 +208,8 @@ export default function D08_06(props) {
         .pq0806 .pq-trophy{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:4;line-height:0;filter:drop-shadow(0 3px 6px rgba(201,138,18,.4));animation:pqAns .55s cubic-bezier(.3,1.5,.5,1) both;}
         .pq0806 .pq-wstar{position:absolute;z-index:4;line-height:0;opacity:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
         .pq0806 .pq-wstar.w2{animation-delay:-.5s;} .pq0806 .pq-wstar.w3{animation-delay:-1.05s;}
-        .pq0806 .pq-rows{position:relative;display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:6px;}
+        .pq0806 .pq-rows{position:relative;display:grid;grid-template-columns:1fr;width:100%;max-width:360px;align-items:start;gap:6px;}
+        @media (min-width:480px){.pq0806 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq0806 .pq-rw{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;align-content:center;padding:5px 9px;border-radius:14px;border:2.5px solid #e3d9bc;background:#fff;transition:.15s;animation:pqFloat 4s ease-in-out infinite;}
         .pq0806 .pq-rw:nth-child(1){animation-delay:0s;}
         .pq0806 .pq-rw:nth-child(2){animation-delay:-1.4s;}
@@ -209,7 +227,7 @@ export default function D08_06(props) {
         .pq0806 .pq-slot{width:44px;height:44px;border-radius:10px;border:2.5px dashed #c3cad6;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#aab3c2;font-variant-numeric:tabular-nums;animation:pqBreath 2.4s ease-in-out infinite;}
         .pq0806 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq0806 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
-        .pq0806 .pq-sgs{display:flex;gap:5px;margin-left:4px;flex-basis:100%;justify-content:center;}
+        .pq0806 .pq-sgs{display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;flex-basis:100%;justify-content:center;}
         .pq0806 .pq-sg{width:38px;height:38px;border-radius:10px;border:2.5px solid #d6dae3;background:#fff;font-size:17px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0806 .pq-sg:hover:not(:disabled){border-color:#d3b878;transform:translateY(-2px);}
         .pq0806 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -239,8 +257,9 @@ export default function D08_06(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 216 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" />
           <span className="pq-house"><House /></span>
@@ -271,6 +290,7 @@ export default function D08_06(props) {
               <span className="pq-wstar w3" style={{ left: '48%', top: '152px' }}><Star fill="#f2b134" /></span>
             </>
           )}
+        </div>
         </div>
 
         <div className="pq-rows">

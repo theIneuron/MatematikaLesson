@@ -8,6 +8,21 @@
 // VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const ROWS = [
   { expr: '24 + 5', ans: 29, opts: [29, 74, 25, 28] },
   { expr: '31 + 6', ans: 37, opts: [37, 91, 36, 38] },
@@ -135,6 +150,7 @@ export default function D25_05(props) {
   const lock = isReview || checked;
   const ok = feedback && feedback.correct;
   const idle = !ok && !still; // g'alabagacha yengil tebranish (bosiladigan nishon EMAS — dekor)
+  const [fitRef, scale] = useFitScale(380);
 
   return (
     <div className="pq pq2505">
@@ -146,7 +162,8 @@ export default function D25_05(props) {
         .pq2505 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq2505 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px 10px 14px;border-radius:22px;background:linear-gradient(#f3f9ec,#e7f3d9);border:2px solid #d3e6bf;}
 
-        .pq2505 .pq-scene{position:relative;width:380px;max-width:100%;height:150px;border-radius:18px;background:linear-gradient(#cfeafc 0%,#e4f4d9 54%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2505 .pq-scene{box-sizing:border-box;position:relative;width:380px;height:150px;border-radius:18px;background:linear-gradient(#cfeafc 0%,#e4f4d9 54%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2505 .pq-fit{position:relative;margin:0 auto;}
         .pq2505 .pq-sun{position:absolute;right:18px;top:12px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2505sun 3.6s ease-in-out infinite;}
         .pq2505 .pq-tree{position:absolute;bottom:34px;z-index:1;pointer-events:none;transform-origin:50% 100%;}
         .pq2505 .pq-tree.t1{left:8px;animation:pq2505sway 4.2s ease-in-out infinite;}
@@ -166,7 +183,8 @@ export default function D25_05(props) {
         .pq2505 .pq-wstar{position:absolute;z-index:5;line-height:0;opacity:0;pointer-events:none;animation:pq2505tw 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
         .pq2505 .pq-wstar.w2{animation-delay:-.5s;} .pq2505 .pq-wstar.w3{animation-delay:-1.05s;}
 
-        .pq2505 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:9px;width:100%;}
+        .pq2505 .pq-rows{display:grid;grid-template-columns:1fr;align-items:start;gap:9px;width:100%;max-width:360px;}
+        @media (min-width:480px){.pq2505 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq2505 .pq-rw{display:flex;flex-direction:column;gap:8px;align-items:center;padding:8px 9px 9px;border-radius:14px;border:2.5px solid #dbe6cf;background:#fff;transition:.15s;}
         .pq2505 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq2505 .pq-rw.good.win{animation:pq2505cele .5s ease;}
@@ -182,7 +200,7 @@ export default function D25_05(props) {
         .pq2505 .pq-rw:nth-child(4) .pq-slot{animation-delay:-2.7s;}
         .pq2505 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq2505 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
-        .pq2505 .pq-sgs{display:flex;gap:6px;justify-content:center;flex-wrap:nowrap;}
+        .pq2505 .pq-sgs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
         .pq2505 .pq-sg{width:44px;height:44px;border-radius:11px;border:2.5px solid #d6dae3;background:#fff;font-size:18px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2505 .pq-sg:hover:not(:disabled){border-color:#8fc083;transform:translateY(-2px);}
         .pq2505 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -203,8 +221,9 @@ export default function D25_05(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 380 * scale, height: 150 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <div className="pq-tree t1"><span className="pq-crown"><i style={{ left: '12px', top: '14px' }} /><i style={{ left: '30px', top: '9px' }} /><i style={{ left: '22px', top: '25px' }} /></span><span className="pq-trunk" /></div>
           <div className="pq-tree t2"><span className="pq-crown"><i style={{ left: '10px', top: '11px' }} /><i style={{ left: '28px', top: '20px' }} /></span><span className="pq-trunk" /></div>
@@ -230,6 +249,7 @@ export default function D25_05(props) {
             <span className="pq-wstar" style={{ left: '34%', top: '58px' }}><Star fill="#f2b134" /></span>
             <span className="pq-wstar w2" style={{ left: '62%', top: '34px' }}><Star fill="#e59a2f" /></span>
           </>)}
+        </div>
         </div>
 
         <div className="pq-rows">

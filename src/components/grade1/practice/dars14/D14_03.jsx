@@ -5,6 +5,21 @@
 // G'alaba: badge 1..14 (quti 1..10, yakka 11..14), chip «10 + 4 = 14».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TEN = 10, ONES = 4, TARGET = 14;
 const DATA = { ten: TEN, ones: ONES, target: TARGET, options: [13, 14, 15], ptype: 'P13', level: '🟡', tag: 'read_teen' };
 
@@ -84,6 +99,7 @@ export default function D14_03(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1403">
@@ -95,7 +111,8 @@ export default function D14_03(props) {
         .pq1403 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq1403 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:11px;}
         /* SHIRINLIK DO'KONI SAHNASI (pushti-krem) */
-        .pq1403 .pq-scene{position:relative;width:372px;max-width:100%;height:252px;border-radius:20px;background:linear-gradient(#fdeef4 0%,#fbdde9 58%,#f6cbdb 100%);border:2px solid #eec3d3;overflow:hidden;}
+        .pq1403 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:252px;border-radius:20px;background:linear-gradient(#fdeef4 0%,#fbdde9 58%,#f6cbdb 100%);border:2px solid #eec3d3;overflow:hidden;}
+        .pq1403 .pq-fit{position:relative;margin:0 auto;}
         .pq1403 .pq-win{position:absolute;right:16px;top:12px;width:56px;height:44px;border-radius:6px;background:linear-gradient(135deg,#eaf6ff 0 46%,#c9e6fb 46% 54%,#eaf6ff 54%);border:3px solid #dba7bc;box-shadow:0 0 16px 3px rgba(255,222,236,.8);animation:pqGlow 3.6s ease-in-out infinite;z-index:1;}
         .pq1403 .pq-win::before,.pq1403 .pq-win::after{content:'';position:absolute;background:#dba7bc;}
         .pq1403 .pq-win::before{left:50%;top:2px;bottom:2px;width:3px;transform:translateX(-1.5px);}
@@ -133,7 +150,7 @@ export default function D14_03(props) {
         .pq1403 .pq-eqchip b.sum{background:#e8f7ee;border:2px solid #1a7f43;color:#1a7f43;}
         .pq1403 .pq-eqchip i{font-style:normal;font-size:21px;font-weight:900;color:#8a94a2;}
         /* variantlar */
-        .pq1403 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:4px;}
+        .pq1403 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:4px;}
         .pq1403 .pq-opt{min-width:74px;height:72px;padding:0 6px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1403 .pq-opt:hover:not(:disabled){border-color:#e88aa8;transform:translateY(-2px);}
         .pq1403 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -156,8 +173,9 @@ export default function D14_03(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 252 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-win" /><span className="pq-sun" />
           <span className="pq-lamp" /><span className="pq-lampshade" />
           <span className="pq-lolli"><b /></span>
@@ -202,6 +220,7 @@ export default function D14_03(props) {
               <span className="pq-star s3" style={{ left: '80%', top: '36px' }}><Star fill="#ffd13f" /></span>
             </>
           )}
+        </div>
         </div>
 
         {ok && (

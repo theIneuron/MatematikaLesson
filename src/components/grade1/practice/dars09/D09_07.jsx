@@ -3,6 +3,21 @@
 // nilufar-barg → «?». Variantlar — 3 mini-rasm karta; g'alabada «?» o'rniga kichik barg.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const CORRECT = 0; // 'kichik barg'
 const DATA = { ptype: 'LOGIC', level: '🔴', tag: 'logic_analogy' };
 const T = {
@@ -139,16 +154,18 @@ export default function D09_07(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
-    <div className="pq pq0907">
+    <div className="pq pq0907" ref={fitRef}>
       <style>{`
         .pq0907{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0907 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#2b8a8f;text-transform:uppercase;}
         .pq0907 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0907 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0907 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0907 .pq-scene{position:relative;width:372px;max-width:100%;height:244px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e2f3fd 24%,#8ed0d8 30%,#6fc0bd 62%,#57ab9d 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0907 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:244px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e2f3fd 24%,#8ed0d8 30%,#6fc0bd 62%,#57ab9d 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0907 .pq-fit{position:relative;margin:0 auto;}
         .pq0907 .pq-sun{position:absolute;top:10px;right:14px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 4px rgba(249,198,47,.55);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq0907 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:0;}
         .pq0907 .pq-cloud.c1{top:14px;left:-70px;animation-duration:32s;animation-delay:-13s;}
@@ -173,7 +190,7 @@ export default function D09_07(props) {
         .pq0907 .pq-pair.q .pq-rock{animation-delay:-1.6s;}
         .pq0907 .pq-qbox{width:52px;height:52px;flex:none;display:flex;align-items:center;justify-content:center;border:3px dashed #7d8aa0;border-radius:14px;background:rgba(255,255,255,.8);font-size:30px;font-weight:900;color:#5c6672;animation:pqQ 2.2s ease-in-out infinite;}
         .pq0907 .pq-dropin{animation:pqDrop .5s cubic-bezier(.3,1.4,.5,1) both;}
-        .pq0907 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq0907 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq0907 .pq-opt{width:96px;height:88px;display:flex;align-items:center;justify-content:center;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;cursor:pointer;transition:.12s;}
         .pq0907 .pq-opt:hover:not(:disabled){border-color:#9fd2cd;transform:translateY(-2px);}
         .pq0907 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -200,7 +217,8 @@ export default function D09_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 372 * scale, height: 244 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-shore l" /><span className="pq-shore r" />
@@ -220,6 +238,7 @@ export default function D09_07(props) {
             ? <span className="pq-dropin"><Leaf w={42} /></span>
             : <span className="pq-qbox">?</span>}
         </div>
+      </div>
       </div>
 
       <div className="pq-opts">

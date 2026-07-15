@@ -10,6 +10,21 @@
 // quyosh, bulut, uzoqda uylar va daraxtlar, pastda yo'l va svetofor.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 15, B = 8, SUM = 7, TEN = 10;
 const UNITS = A - TEN;        // 5 — yo'lakcha birliklari; avval shular chiqadi (15−5=10)
 const FROMTEN = B - UNITS;    // 3 — garajdan (o'nlikdan) olinadigan qolgan qism (10−3=7)
@@ -157,16 +172,18 @@ export default function D20_03(props) {
   // Chiqish tartibi (make-ten-sub): 1) yo'lakcha birliklari (5), 2) garajdan qolgani (3).
   const walkDelay = (i) => i * 0.18;                              // birliklar: 0 … .72
   const garDelay = (i) => 1.65 + (i - STAY) * 0.18;              // o'nlikdan: 1.65, 1.83, 2.01
+  const [fitRef, scale] = useFitScale(384);
 
   return (
-    <div className="pq pq2003">
+    <div className="pq pq2003" ref={fitRef}>
       <style>{`
         .pq2003{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2003 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq2003 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2003 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2003 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2003 .pq-scene{position:relative;width:384px;max-width:100%;height:262px;margin:0 auto;border-radius:20px;background:linear-gradient(#dff0fb 0%,#e9eef5 52%,#e2e6ec 100%);border:2px solid #cdd7e4;overflow:hidden;}
+        .pq2003 .pq-scene{box-sizing:border-box;position:relative;width:384px;height:262px;border-radius:20px;background:linear-gradient(#dff0fb 0%,#e9eef5 52%,#e2e6ec 100%);border:2px solid #cdd7e4;overflow:hidden;}
+        .pq2003 .pq-fit{position:relative;margin:0 auto;}
         .pq2003 .pq-sun{position:absolute;left:18px;top:14px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
         .pq2003 .pq-cloud{position:absolute;top:2px;right:66px;width:48px;height:15px;border-radius:12px;background:rgba(255,255,255,.85);box-shadow:13px 4px 0 -3px rgba(255,255,255,.8),-13px 3px 0 -4px rgba(255,255,255,.75);z-index:1;animation:pqCloud 6s ease-in-out infinite;}
         /* uzoqdagi ko'cha: uylar + daraxtlar (ambient orqa fon) */
@@ -213,7 +230,7 @@ export default function D20_03(props) {
         .pq2003 .pq-eq .ok{color:#1a7f43;font-size:22px;}
         .pq2003 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#6b7686;font-variant-numeric:tabular-nums;animation:pqIn .3s .1s both;}
 
-        .pq2003 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq2003 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq2003 .pq-opt{min-width:118px;height:62px;padding:0 18px;font-size:22px;font-weight:800;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq2003 .pq-opt:hover:not(:disabled){border-color:#8fc487;transform:translateY(-2px);}
         .pq2003 .pq-opt:active:not(:disabled){transform:scale(.96);}
@@ -237,7 +254,8 @@ export default function D20_03(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 384 * scale, height: 262 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" /><span className="pq-cloud" />
         <Town />
         <div className="pq-board">{t.title}</div>
@@ -291,6 +309,7 @@ export default function D20_03(props) {
           <span className="pq-spark s2" style={{ left: '84%', top: '66px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '42px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {ok && (<>

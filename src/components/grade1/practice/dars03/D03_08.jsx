@@ -67,7 +67,7 @@ export default function D03_08(props) {
         .pq0308 .pq-rim{position:relative;z-index:2;height:42px;margin:-16px 14px 0;border-radius:6px 6px 44px 44px;border:2px solid #8a5a2b;border-top:5px solid #7a4a20;background:repeating-linear-gradient(115deg,rgba(122,74,32,.3) 0 7px,transparent 7px 14px),repeating-linear-gradient(65deg,rgba(122,74,32,.3) 0 7px,transparent 7px 14px),linear-gradient(#cf9f62,#96662f);box-shadow:inset 0 5px 7px rgba(0,0,0,.2),0 4px 8px rgba(122,90,43,.22);}
         .pq0308 .pq-ans{position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:32px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 14px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.2);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:2;}
         .pq0308 .pq-scene.win{animation:pqCele .5s ease;}
-        .pq0308 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:24px;}
+        .pq0308 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:24px;}
         .pq0308 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0308 .pq-opt:hover:not(:disabled){border-color:#b6dfa8;transform:translateY(-2px);}
         .pq0308 .pq-opt:active:not(:disabled){transform:scale(.94);}

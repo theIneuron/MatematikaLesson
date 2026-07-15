@@ -6,6 +6,21 @@
 // retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const NUM = 47, TENS_DIGIT = 4, UNITS_DIGIT = 7, TARGET = 7;
 const DATA = { num: NUM, tens: TENS_DIGIT, units: UNITS_DIGIT, options: [7, 4, 11], correct: TARGET, level: '🟡', tag: 'digit_value' };
 
@@ -133,16 +148,18 @@ export default function D21_04(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(380);
 
   return (
-    <div className="pq pq2104">
+    <div className="pq pq2104" ref={fitRef}>
       <style>{`
         .pq2104{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2104 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq2104 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2104 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2104 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2104 .pq-scene{position:relative;width:380px;max-width:100%;height:230px;margin:0 auto;border-radius:20px;background:linear-gradient(#bfe4f5 0%,#d8f0e0 60%,#cfeccb 100%);border:2px solid #bfe0cf;overflow:hidden;}
+        .pq2104 .pq-scene{box-sizing:border-box;position:relative;width:380px;height:230px;border-radius:20px;background:linear-gradient(#bfe4f5 0%,#d8f0e0 60%,#cfeccb 100%);border:2px solid #bfe0cf;overflow:hidden;}
+        .pq2104 .pq-fit{position:relative;margin:0 auto;}
         .pq2104 .pq-sun{position:absolute;left:16px;top:13px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#ffcf3f 70%,#f5b012);box-shadow:0 0 18px 5px rgba(255,207,63,.5);z-index:2;animation:pq2104sun 3.6s ease-in-out infinite;pointer-events:none;}
         .pq2104 .pq-grass{position:absolute;left:0;right:0;bottom:0;height:40px;background:linear-gradient(#8fd06a,#6bb84e);border-top:3px solid #5aa53f;z-index:1;pointer-events:none;}
         .pq2104 .pq-fol{position:absolute;z-index:1;transform-origin:top center;pointer-events:none;}
@@ -180,7 +197,7 @@ export default function D21_04(props) {
         .pq2104 .pq-eq b.res{background:#fff5e6;border-color:#f0a63a;color:#b06b12;}
         .pq2104 .pq-eq i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
 
-        .pq2104 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq2104 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq2104 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2104 .pq-opt:hover:not(:disabled){border-color:#94b8e2;transform:translateY(-2px);}
         .pq2104 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -202,7 +219,8 @@ export default function D21_04(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 380 * scale, height: 230 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-fol f1"><Foliage /></span>
         <span className="pq-fol f2"><Foliage flip /></span>
@@ -228,6 +246,7 @@ export default function D21_04(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '52px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '52%', top: '24px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {/* G'alabada 47 = 4 savat (o'nlik) + 7 olma (birlik). O'nlik va birlik QO'SHILADI. */}

@@ -4,6 +4,21 @@
 // Kontsept: TO'LA KARTON — BU O'NLIK.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const N = 10; // kartondagi tuxumlar (bitta o'nlik)
 const DATA = { target: 10, options: [9, 10, 11], ptype: 'P13', level: '🟢', tag: 'count_dasta' };
 
@@ -81,6 +96,7 @@ export default function D14_01(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(352);
 
   return (
     <div className="pq pq1401">
@@ -92,7 +108,8 @@ export default function D14_01(props) {
         .pq1401 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq1401 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:10px;}
         /* OSHXONA SAHNASI */
-        .pq1401 .pq-scene{position:relative;width:352px;max-width:100%;height:232px;border-radius:20px;background:linear-gradient(#fdf3de 0%,#f6e6c4 58%,#eed6ab 100%);border:2px solid #e2cda0;overflow:hidden;}
+        .pq1401 .pq-scene{box-sizing:border-box;position:relative;width:352px;height:232px;border-radius:20px;background:linear-gradient(#fdf3de 0%,#f6e6c4 58%,#eed6ab 100%);border:2px solid #e2cda0;overflow:hidden;}
+        .pq1401 .pq-fit{position:relative;margin:0 auto;}
         .pq1401 .pq-win{position:absolute;left:16px;top:14px;width:62px;height:48px;border-radius:7px;background:linear-gradient(135deg,#eaf6ff 0 46%,#c9e6fb 46% 54%,#eaf6ff 54%);border:3px solid #d3b176;box-shadow:0 0 16px 3px rgba(255,239,178,.7);animation:pqGlow 3.8s ease-in-out infinite;z-index:1;}
         .pq1401 .pq-win::before,.pq1401 .pq-win::after{content:'';position:absolute;background:#d3b176;}
         .pq1401 .pq-win::before{left:50%;top:2px;bottom:2px;width:3px;transform:translateX(-1.5px);}
@@ -120,7 +137,7 @@ export default function D14_01(props) {
         .pq1401 .pq-qword{font-size:17px;font-weight:800;color:#7a4d17;}
         .pq1401 .pq-res{margin-top:2px;min-height:2px;}
         .pq1401 .pq-chip{display:inline-flex;align-items:center;padding:7px 18px;border-radius:999px;background:#e8f7ee;color:#1a7f43;font-size:16px;font-weight:900;animation:pqPop2 .4s cubic-bezier(.3,1.5,.5,1) both;}
-        .pq1401 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:10px;}
+        .pq1401 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:10px;}
         .pq1401 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1401 .pq-opt:hover:not(:disabled){border-color:#e3b877;transform:translateY(-2px);}
         .pq1401 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -143,8 +160,9 @@ export default function D14_01(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 352 * scale, height: 232 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-win" />
           <span className="pq-sun" />
           <span className="pq-shelf" />
@@ -164,6 +182,7 @@ export default function D14_01(props) {
               </div>
             </div>
           </div>
+        </div>
         </div>
 
         <div className="pq-eqrow">

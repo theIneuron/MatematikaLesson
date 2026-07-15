@@ -6,6 +6,21 @@
 // qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TENS = 3, UNITS = 4, TEN = 10, TARGET = 34;
 const TENS_VAL = TENS * TEN; // 30
 const DATA = { tens: TENS, units: UNITS, target: TARGET, options: [34, 43, 30], level: '🟢', tag: 'read_place' };
@@ -133,16 +148,18 @@ export default function D21_01(props) {
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
   const idle = !ok; // g'alabagacha yengil tebranish (yakka olma bosiladigan nishon EMAS)
+  const [fitRef, scale] = useFitScale(400);
 
   return (
-    <div className="pq pq2101">
+    <div className="pq pq2101" ref={fitRef}>
       <style>{`
         .pq2101{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2101 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq2101 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2101 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2101 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2101 .pq-scene{position:relative;width:400px;max-width:100%;height:238px;margin:0 auto;border-radius:20px;background:linear-gradient(#cdeafd 0%,#dff1fb 46%,#cdeeb6 72%,#b6df97 100%);border:2px solid #bfe0cd;overflow:hidden;}
+        .pq2101 .pq-scene{box-sizing:border-box;position:relative;width:400px;height:238px;border-radius:20px;background:linear-gradient(#cdeafd 0%,#dff1fb 46%,#cdeeb6 72%,#b6df97 100%);border:2px solid #bfe0cd;overflow:hidden;}
+        .pq2101 .pq-fit{position:relative;margin:0 auto;}
         .pq2101 .pq-sun{position:absolute;left:18px;top:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2101sun 3.6s ease-in-out infinite;}
         /* ambient bargli shoxlar (bezak) */
         .pq2101 .pq-branch{position:absolute;z-index:1;pointer-events:none;color:#4fa845;transform-origin:top center;animation:pq2101sway 4.2s ease-in-out infinite;}
@@ -191,7 +208,8 @@ export default function D21_01(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 400 * scale, height: 238 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <svg className="pq-branch l" width="54" height="40" viewBox="0 0 54 40" aria-hidden="true"><path d="M0,6 Q26,2 40,14" fill="none" stroke="#8a5a2c" strokeWidth="3" strokeLinecap="round" /><g fill="#4fa845" stroke="#3c8536" strokeWidth=".6"><path d="M20,4 Q26,0 27,5 Q22,7 20,4 Z" /><path d="M33,8 Q39,4 40,9 Q35,11 33,8 Z" /></g></svg>
         <svg className="pq-branch r" width="54" height="40" viewBox="0 0 54 40" aria-hidden="true"><path d="M54,6 Q28,2 14,14" fill="none" stroke="#8a5a2c" strokeWidth="3" strokeLinecap="round" /><g fill="#4fa845" stroke="#3c8536" strokeWidth=".6"><path d="M34,4 Q28,0 27,5 Q32,7 34,4 Z" /><path d="M21,8 Q15,4 14,9 Q19,11 21,8 Z" /></g></svg>
@@ -228,6 +246,7 @@ export default function D21_01(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '64px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '38px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {ok && (

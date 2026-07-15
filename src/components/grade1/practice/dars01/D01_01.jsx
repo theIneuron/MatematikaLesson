@@ -67,7 +67,7 @@ export default function D01_01(props) {
         .pq01 .pq-stem{width:5px;height:42px;background:linear-gradient(#4bb768,#2f9e57);border-radius:4px;margin-top:-4px;}
         .pq01 .pq-cnt{position:absolute;top:-10px;right:-14px;min-width:24px;height:24px;padding:0 4px;border-radius:50%;background:#2563eb;color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;}
         .pq01 .pq-ans{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:34px;font-weight:900;color:#1a7f43;animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:3;}
-        .pq01 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq01 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq01 .pq-opt{width:70px;height:70px;font-size:28px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq01 .pq-opt:hover:not(:disabled){border-color:#9bd6ac;transform:translateY(-2px);}
         .pq01 .pq-opt:active:not(:disabled){transform:scale(.94);}

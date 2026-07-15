@@ -5,6 +5,21 @@
 // To'g'ri indeks har qatorda o'zgaradi (1,2,3,0). G'alaba: to'rtala natija to'g'ri to'lgach kubok + badge.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const ROWS = [
   { kind: 'add', a: 4, b: 2, ans: 6, opts: [10, 6, 5, 3] },  // idx1
   { kind: 'sub', a: 8, b: 3, ans: 5, opts: [11, 4, 5, 6] },  // idx2
@@ -169,6 +184,7 @@ export default function D30_06(props) {
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
   const slotCls = (i) => 'pq-slot' + (vals[i] != null ? ' has' : '');
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className={"pq pq3006" + (still ? " still" : "")}>
@@ -181,7 +197,8 @@ export default function D30_06(props) {
         .pq3006 .pq-setup{color:#5c6672;font-weight:500;}
         .pq3006 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq3006 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px;border-radius:22px;background:linear-gradient(#eaf6f0,#dcefe6);border:2px solid #c9e3d4;}
-        .pq3006 .pq-scene{position:relative;width:372px;max-width:100%;height:180px;border-radius:18px;background:linear-gradient(#cfe9fb 0%,#e2f3fd 46%,#d6eef5 60%);border:2px solid #bfdfe8;overflow:hidden;}
+        .pq3006 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:180px;border-radius:18px;background:linear-gradient(#cfe9fb 0%,#e2f3fd 46%,#d6eef5 60%);border:2px solid #bfdfe8;overflow:hidden;}
+        .pq3006 .pq-fit{position:relative;margin:0 auto;}
         .pq3006 .pq-sun{position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pq3006Sun 3.6s ease-in-out infinite;z-index:1;}
         .pq3006 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pq3006Cloud linear infinite;z-index:1;}
         .pq3006 .pq-cloud.c1{top:14px;left:-70px;animation-duration:29s;animation-delay:-11s;}
@@ -262,8 +279,9 @@ export default function D30_06(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 180 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" />
           <span className="pq-water" />
@@ -297,6 +315,7 @@ export default function D30_06(props) {
               <span className="pq-wstar w3" style={{ left: '48%', top: '104px' }}><Star fill="#f2b134" /></span>
             </>
           )}
+        </div>
         </div>
 
         <div className="pq-table">

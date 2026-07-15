@@ -153,7 +153,7 @@ export default function D36_10(props) {
         .pq3610 .pq-chip{display:flex;align-items:center;justify-content:center;gap:6px;margin:10px auto 0;font-size:14px;font-weight:800;color:#6b5220;font-variant-numeric:tabular-nums;}
         .pq3610 .pq-chip b{padding:1px 12px;border-radius:999px;background:#fff;border:2px solid #e0cf9a;color:#8a621f;box-shadow:0 1px 3px rgba(80,60,20,.12);}
         .pq3610 .pq-chip b.ok{border-color:#1a7f43;color:#1a7f43;background:#e8f7ee;}
-        .pq3610 .pq-ctrl{display:flex;gap:12px;justify-content:center;margin-top:12px;}
+        .pq3610 .pq-ctrl{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:12px;}
         .pq3610 .pq-btn{min-width:118px;height:52px;padding:0 12px;font-size:17px;font-weight:900;border-radius:14px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;display:flex;align-items:center;justify-content:center;}
         .pq3610 .pq-btn.add{border-color:#8bc79a;color:#1a7f43;}
         .pq3610 .pq-btn.rem{border-color:#e0b4b4;color:#b4552f;}

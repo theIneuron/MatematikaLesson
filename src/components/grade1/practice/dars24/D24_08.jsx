@@ -8,6 +8,21 @@
 // qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida. Javob (50) faqat g'alabada ochiladi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TARGET = 50;
 // Har karta: a op b ifoda (op = "+" yoki U+2212 minus).
 const CARDS = [
@@ -161,9 +176,10 @@ export default function D24_08(props) {
 
   const ok = feedback && feedback.correct;
   const idle = !ok && !still; // sahna savatlari yengil tebranadi (bosiladigan nishon EMAS — dekor)
+  const [fitRef, scale] = useFitScale(380);
 
   return (
-    <div className="pq pq2408">
+    <div className="pq pq2408" ref={fitRef}>
       <style>{`
         .pq2408{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2408 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f8a41;text-transform:uppercase;}
@@ -171,7 +187,8 @@ export default function D24_08(props) {
         .pq2408 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2408 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;}
 
-        .pq2408 .pq-scene{position:relative;width:380px;max-width:100%;height:176px;margin:0 auto;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2408 .pq-scene{box-sizing:border-box;position:relative;width:380px;height:176px;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2408 .pq-fit{position:relative;margin:0 auto;}
         .pq2408 .pq-sun{position:absolute;right:20px;top:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2408sun 3.6s ease-in-out infinite;}
         .pq2408 .pq-tree{position:absolute;bottom:44px;z-index:1;pointer-events:none;transform-origin:50% 100%;}
         .pq2408 .pq-tree.t1{left:6px;animation:pq2408sway 4.2s ease-in-out infinite;}
@@ -223,7 +240,8 @@ export default function D24_08(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 380 * scale, height: 176 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <div className="pq-tree t1"><span className="pq-crown"><i style={{ left: '14px', top: '15px' }} /><i style={{ left: '32px', top: '9px' }} /><i style={{ left: '24px', top: '26px' }} /></span><span className="pq-trunk" /></div>
         <div className="pq-tree t2"><span className="pq-crown"><i style={{ left: '11px', top: '11px' }} /><i style={{ left: '30px', top: '20px' }} /></span><span className="pq-trunk" /></div>
@@ -246,6 +264,7 @@ export default function D24_08(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '44px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '24px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       <div className="pq-cards">

@@ -5,6 +5,21 @@
 // qolgan 8 ta shar bittalab sanaladi. VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 13, B = 5, TARGET = 8, TEN = 10;
 const UNITS = A - TEN;        // 3 — teen birliklari (2-rak); avval shular ketadi
 const FROMTEN = B - UNITS;    // 2 — o'nlikdan olinadigan qolgan qism
@@ -101,6 +116,7 @@ export default function D19_02(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(380);
   const idle = !ok && !still; // g'alabagacha yengil suzish (bosiladigan nishon EMAS)
 
   // Uchib ketish tartibi (SEKIN, bittalab): avval 2-quti birliklari (3), «= 10» bekati, keyin 1-qutidan (2).
@@ -108,14 +124,15 @@ export default function D19_02(props) {
   const flyDelay1 = (i) => 4.6 + (i - (TEN - FROMTEN)) * 0.85;   // o'nlikdan: 4.6, 5.45
 
   return (
-    <div className="pq pq1902">
+    <div className="pq pq1902" ref={fitRef}>
       <style>{`
         .pq1902{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq1902 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq1902 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1902 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1902 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq1902 .pq-scene{position:relative;width:380px;max-width:100%;height:252px;margin:0 auto;border-radius:20px;background:linear-gradient(#dff1fb 0%,#eaf2fb 50%,#f3ecf7 100%);border:2px solid #d3ddec;overflow:hidden;}
+        .pq1902 .pq-fit{position:relative;margin:0 auto;}
+        .pq1902 .pq-scene{box-sizing:border-box;position:relative;width:380px;height:252px;border-radius:20px;background:linear-gradient(#dff1fb 0%,#eaf2fb 50%,#f3ecf7 100%);border:2px solid #d3ddec;overflow:hidden;}
         .pq1902 .pq-sun{position:absolute;left:20px;top:16px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
         .pq1902 .pq-awning{position:absolute;left:0;right:0;top:0;height:26px;z-index:2;background:repeating-linear-gradient(90deg,#4a90d9 0 24px,#e9f1fb 24px 48px);border-bottom:2px solid #2f6bab;}
         .pq1902 .pq-awning::after{content:'';position:absolute;left:0;right:0;top:26px;height:9px;background:repeating-linear-gradient(90deg,#4a90d9 0 24px,#e9f1fb 24px 48px);-webkit-mask:radial-gradient(9px at 12px 0,transparent 98%,#000) repeat-x;mask:radial-gradient(9px at 12px 0,transparent 98%,#000) repeat-x;-webkit-mask-size:24px 9px;mask-size:24px 9px;}
@@ -146,7 +163,7 @@ export default function D19_02(props) {
         .pq1902 .pq-eq i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
         .pq1902 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#5c7fa6;font-variant-numeric:tabular-nums;animation:pqIn .3s .1s both;}
 
-        .pq1902 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq1902 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq1902 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1902 .pq-opt:hover:not(:disabled){border-color:#94b8e2;transform:translateY(-2px);}
         .pq1902 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -168,7 +185,8 @@ export default function D19_02(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 380 * scale, height: 252 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-awning" />
         <span className="pq-sun" />
         <div className="pq-board">{t.title}</div>
@@ -236,6 +254,7 @@ export default function D19_02(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '70px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '52%', top: '44px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {ok && (<>

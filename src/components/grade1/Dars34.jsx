@@ -47,7 +47,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
+const FREE_NAV = true;  // TEST — PUSH oldidan false ga qaytaring! // PRODUCTION — slayd gating yoqilgan (test paytida vaqtincha true qiling)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -1052,7 +1052,7 @@ const CONTENT = {
   s6: {
     eyebrow: { ru: 'Тренировка · 2 / 4', uz: 'Mashq · 2 / 4' },
     title: { ru: 'Какой длины карандаш?', uz: 'Qalam qancha uzun?' },
-    problem: { ru: 'Посмотри на линейку.', uz: "Chizg'ichga qarang." },
+    problem: { ru: 'Линейка размечена в дециметрах.', uz: "Chizg'ich detsimetrlarga bo'lingan." },
     opt0: { ru: '2 дм', uz: '2 dm' },
     opt1: { ru: '3 дм', uz: '3 dm' },
     opt2: { ru: '2 см', uz: '2 sm' },
@@ -1070,7 +1070,7 @@ const CONTENT = {
       uz: "Qalam nechta detsimetrni egallaganini sanang."
     },
     audio: {
-      intro: { ru: 'Посмотри на линейку. Какой длины карандаш? Выбери.', uz: "Chizg'ichga qarang. Qalam qancha uzun? Tanlang." },
+      intro: { ru: 'Линейка размечена в дециметрах. Какой длины карандаш? Выбери.', uz: "Chizg'ich detsimetrlarga bo'lingan. Qalam qancha uzun? Tanlang." },
       on_correct: { ru: 'Верно. Два дециметра.', uz: "To'g'ri. Ikki detsimetr." },
       on_wrong: { ru: 'Не совсем. Посчитай дециметры.', uz: "Unchalik emas. Detsimetrlarni sanang." }
     }
@@ -1310,7 +1310,7 @@ const ICON = {
   fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
   flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
   balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
-  cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
+  cherry: <g><path d="M20 12 Q21.5 20 20 27" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 12 Q24 4 31.5 7.5 Q25.5 13 19 12 Z" fill="#3E9B3A"/><path d="M20.5 11 Q24.5 9 29 11" stroke="#2C7A2E" strokeWidth="0.8" fill="none" strokeLinecap="round"/><circle cx="20" cy="28" r="9" fill="url(#g1chrG)"/><ellipse cx="16.5" cy="24.5" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.6)" transform="rotate(-18 16.5 24.5)"/><circle cx="15.5" cy="22.5" r="1.4" fill="rgba(255,255,255,0.72)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
 
@@ -3262,13 +3262,14 @@ const TopFruitSvg = ({ kind = 'apple' }) => (
   <svg viewBox="0 0 40 40" width="100%" height="100%" aria-hidden="true">
     {kind === 'cherry' ? (
       <g>
-        <ellipse cx="20" cy="33" rx="13" ry="3" fill="rgba(58,53,48,0.15)"/>
-        <circle cx="15" cy="22" r="9" fill="url(#g1chrG)"/>
-        <circle cx="26" cy="20" r="8" fill="url(#g1chrG)"/>
-        <circle cx="14" cy="14" r="1.4" fill="#5A3A1E"/>
-        <circle cx="25" cy="13" r="1.4" fill="#5A3A1E"/>
-        <ellipse cx="12.5" cy="19" rx="2.4" ry="1.5" fill="rgba(255,255,255,0.55)"/>
-        <ellipse cx="23.5" cy="17.5" rx="2.1" ry="1.4" fill="rgba(255,255,255,0.5)"/>
+        {/* gilos — BITTA shar + poyacha + bitta barg (USTDAN ko'rinish). Olma emas: kichikroq, to'qroq qizil, ingichka poyacha. */}
+        <ellipse cx="20" cy="34" rx="11" ry="2.6" fill="rgba(58,53,48,0.15)"/>
+        <path d="M20 15 Q22 8 27 5" stroke="#5A7D25" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+        <path d="M26 5 Q31 1.5 34.5 6 Q30 9.5 26 5 Z" fill="#3E9B3A"/>
+        <path d="M27 6 Q30.5 5.5 33 7" stroke="#2C7A2E" strokeWidth="0.7" fill="none" strokeLinecap="round"/>
+        <circle cx="20" cy="24" r="11" fill="url(#g1chrG)"/>
+        <ellipse cx="16" cy="20" rx="2.8" ry="1.9" fill="rgba(255,255,255,0.55)"/>
+        <circle cx="15" cy="18.5" r="1.3" fill="rgba(255,255,255,0.72)"/>
       </g>
     ) : (
       <g>
@@ -3791,7 +3792,7 @@ const SparkBurst = () => (
 // RulerFig — REAL yog'och chizg'ich (KATTA, frame bo'ylab cho'ziladi): yer soyasi + hajmli gavda + tola + metall uchliklar.
 // anim: 'enter' (bo'limlar chapdan chiziladi + jonli suzadi) | 'celebrate' (tebranadi + uchqun + JAVOB ko'rsatiladi) | 'static'.
 // demo=true: o'lchov karetkasi suzadi + sm bo'limlari birma-bir yonadi. answer: celebrate'da ko'rsatiladigan javob ("2 dm").
-const RulerFig = ({ dm = 1, obj = null, objStart = 0, coarse = false, anim = 'static', demo = false, answer = null }) => {
+const RulerFig = ({ dm = 1, obj = null, objStart = 0, coarse = false, anim = 'static', demo = false, answer = null, unitLabel = null }) => {
   const dmW = coarse ? 32 : 56;
   const pad = 14;
   const W = dm * dmW + pad * 2;
@@ -3843,6 +3844,8 @@ const RulerFig = ({ dm = 1, obj = null, objStart = 0, coarse = false, anim = 'st
         </g>
         {bands}
         <g className="g1-rl-ticks">{ticks}{labels}</g>
+        {/* birlik yorlig'i — chizg'ich qaysi birlikda ekani oshkor (sm/dm chalkashligiga qarshi) */}
+        {unitLabel && <text x={W - 3} y={topY - 4} textAnchor="end" fontSize="12" fontWeight="800" fill="#5B4A34" fontFamily="'JetBrains Mono', monospace">{unitLabel}</text>}
         {/* celebrate: o'lchangan uzunlik yashil yoritiladi (javob shu qismda) */}
         {cele && <rect className="g1-rl-hl" x={spanX0} y={topY} width={spanX1 - spanX0} height={bodyH} rx="5" fill="rgba(74,180,90,0.30)" stroke="#3E9E52" strokeWidth="2"/>}
         {/* metall uchliklar */}
@@ -4129,12 +4132,13 @@ const Screen2 = (props) => {
 const Screen3 = (props) => {
   const c = CONTENT.s3;
   const t = useT();
+  const lang = useLang();
   return (
     <QuestionScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <RulerFig dm={1} anim={solved ? 'celebrate' : 'enter'} answer={t(c.opt0)}/>}
+      figure={(solved) => <RulerFig dm={1} unitLabel={lang === 'ru' ? 'дм' : 'dm'} anim={solved ? 'celebrate' : 'enter'} answer={t(c.opt0)}/>}
       options={[t(c.opt0), t(c.opt1), t(c.opt2)]}
       correctIdx={0}
       optionsCols={3}
@@ -4220,12 +4224,13 @@ const Screen5 = (props) => {
 const Screen6 = (props) => {
   const c = CONTENT.s6;
   const t = useT();
+  const lang = useLang();
   return (
     <QuestionScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <RulerFig dm={4} obj={2} anim={solved ? 'celebrate' : 'enter'} answer={t(c.opt0)}/>}
+      figure={(solved) => <RulerFig dm={4} obj={2} unitLabel={lang === 'ru' ? 'дм' : 'dm'} anim={solved ? 'celebrate' : 'enter'} answer={t(c.opt0)}/>}
       options={[t(c.opt0), t(c.opt1), t(c.opt2)]}
       correctIdx={0}
       optionsCols={3}
@@ -4240,12 +4245,13 @@ const Screen6 = (props) => {
 const Screen7 = (props) => {
   const c = CONTENT.s7;
   const t = useT();
+  const lang = useLang();
   return (
     <QuestionScreen
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={c}
       question={<PQ title={t(c.title)} problem={t(c.problem)}/>}
-      figure={(solved) => <RulerFig dm={10} coarse={true} anim={solved ? 'celebrate' : 'enter'} answer={t(c.opt0)}/>}
+      figure={(solved) => <RulerFig dm={10} coarse={true} unitLabel={lang === 'ru' ? 'дм' : 'dm'} anim={solved ? 'celebrate' : 'enter'} answer={t(c.opt0)}/>}
       options={[t(c.opt0), t(c.opt1), t(c.opt2)]}
       correctIdx={0}
       optionsCols={3}
@@ -4324,7 +4330,7 @@ const ScreenGame = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="h-sub title fade-up">{t(c[round.qk])} <span className="mono small" style={{ color: T.ink3 }}>{ri + 1} / {total}</span></p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(14px, 2.6vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          {round.ruler && <RulerFig dm={round.ruler.dm} obj={round.ruler.obj != null ? round.ruler.obj : null} coarse={round.ruler.dm >= 10} anim={solvedItem ? 'celebrate' : 'enter'} answer={solvedItem ? t(c[round.okeys[round.ans]]) : null}/>}
+          {round.ruler && <RulerFig dm={round.ruler.dm} obj={round.ruler.obj != null ? round.ruler.obj : null} coarse={round.ruler.dm >= 10} unitLabel={lang === 'ru' ? 'дм' : 'dm'} anim={solvedItem ? 'celebrate' : 'enter'} answer={solvedItem ? t(c[round.okeys[round.ans]]) : null}/>}
           {round.add && <AddLenFig a={round.add.a} b={round.add.b} unit={lang === 'ru' ? 'дм' : 'dm'} solved={solvedItem} answer={solvedItem ? t(c[round.okeys[round.ans]]) : null}/>}
           {!solvedItem && (
             <div key={ri} style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(10px, 2.4vw, 16px)' }}>

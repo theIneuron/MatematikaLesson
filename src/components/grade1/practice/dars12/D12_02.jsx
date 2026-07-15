@@ -2,6 +2,21 @@
 // Timsoh og'zi kattaroq son tomonga ochiladi: 7 > 5 (chapga). Веди-до-верного, ozvuchkasiz.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { a: 7, b: 5, target: '>', options: ['>', '<', '='], ptype: 'P4', level: '🟡', tag: 'pick_sign' };
 const T = {
   uz: {
@@ -175,6 +190,7 @@ export default function D12_02(props) {
   const open = picked === '>' || picked === '<';
   const bigLeft = DATA.a > DATA.b; // 7 > 5 — chap karta kattaroq
   const winExpr = `${DATA.a} ${DATA.target} ${DATA.b}`;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1202">
@@ -185,7 +201,8 @@ export default function D12_02(props) {
         .pq1202 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1202 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1202 .pq-stage{display:flex;justify-content:center;padding:10px;border-radius:22px;background:linear-gradient(#eaf6f0,#dcefe6);border:2px solid #c9e3d4;}
-        .pq1202 .pq-scene{position:relative;width:372px;max-width:100%;height:210px;border-radius:18px;background:linear-gradient(#cfe9fb 0%,#e2f3fd 44%,#d6eef5 58%);border:2px solid #bfdfe8;overflow:hidden;}
+        .pq1202 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:210px;border-radius:18px;background:linear-gradient(#cfe9fb 0%,#e2f3fd 44%,#d6eef5 58%);border:2px solid #bfdfe8;overflow:hidden;}
+        .pq1202 .pq-fit{position:relative;margin:0 auto;}
         .pq1202 .pq-sun{position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq1202 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:1;}
         .pq1202 .pq-cloud.c1{top:14px;left:-70px;animation-duration:31s;animation-delay:-12s;}
@@ -229,7 +246,7 @@ export default function D12_02(props) {
         .pq1202 .pq-star{position:absolute;z-index:6;line-height:0;opacity:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
         .pq1202 .pq-star.s2{animation-delay:-.5s;} .pq1202 .pq-star.s3{animation-delay:-1.05s;}
 
-        .pq1202 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:16px;}
+        .pq1202 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:16px;}
         .pq1202 .pq-opt{width:76px;height:70px;font-size:38px;font-weight:900;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;line-height:1;transition:.12s;}
         .pq1202 .pq-opt:hover:not(:disabled){border-color:#8fc4b4;transform:translateY(-2px);}
         .pq1202 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -260,8 +277,9 @@ export default function D12_02(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 210 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" />
           <span className="pq-water" />
@@ -293,6 +311,7 @@ export default function D12_02(props) {
               <span className="pq-star s3" style={{ left: '48%', top: '18px' }}><Star fill="#f2b134" /></span>
             </>
           )}
+        </div>
         </div>
       </div>
 

@@ -208,7 +208,7 @@ export default function D11_10(props) {
         .pq1110 .pq-swap:hover:not(:disabled){filter:brightness(1.05);}
         .pq1110 .pq-swap:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #c06f1e,0 2px 6px rgba(0,0,0,.16);}
         .pq1110 .pq-swap.done{background:linear-gradient(#8bcf9a,#5fae70);box-shadow:0 4px 0 #3f8a51;cursor:default;animation:none;}
-        .pq1110 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:16px;}
+        .pq1110 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:16px;}
         .pq1110 .pq-opt{position:relative;width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1110 .pq-opt:disabled{opacity:.42;cursor:default;}
         .pq1110 .pq-opt:hover:not(:disabled){border-color:#9fc6ea;transform:translateY(-2px);}

@@ -131,7 +131,7 @@ export default function D16_07(props) {
         .pq1607 .pq-chip{display:flex;justify-content:center;align-items:center;margin-top:14px;animation:pqIn .3s ease both;}
         .pq1607 .pq-chip b{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;font-size:19px;font-weight:900;border-radius:12px;background:#e8f7ee;border:2px solid #1a7f43;color:#1a7f43;font-variant-numeric:tabular-nums;}
 
-        .pq1607 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq1607 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq1607 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1607 .pq-opt:hover:not(:disabled){border-color:#e2c79a;transform:translateY(-2px);}
         .pq1607 .pq-opt:active:not(:disabled){transform:scale(.94);}

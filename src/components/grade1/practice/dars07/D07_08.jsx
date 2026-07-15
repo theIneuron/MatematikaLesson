@@ -2,6 +2,21 @@
 // Park sharlari: 5 shar-kartadagi misollardan jami OLTI bo'ladigan barchasini tanlash; g'alabada to'g'ri sharlar uchadi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const PAIRS = [{ a: 4, b: 5 }, { a: 6, b: 3 }, { a: 5, b: 3 }, { a: 7, b: 2 }, { a: 7, b: 3 }];
 const SUM = 9;
 const GOOD = PAIRS.map((p, i) => (p.a + p.b === SUM ? i : -1)).filter((i) => i >= 0); // [0, 1, 3] — soxta: 5+3=8, 7+3=10
@@ -214,16 +229,18 @@ export default function D07_08(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
-    <div className="pq pq0708">
+    <div className="pq pq0708" ref={fitRef}>
       <style>{`
         .pq0708{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0708 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f8a3a;text-transform:uppercase;}
         .pq0708 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0708 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0708 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
-        .pq0708 .pq-scene{position:relative;width:372px;max-width:100%;height:216px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e8f6ff 50%,#d9efcb 74%,#9ccd8a 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0708 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:216px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e8f6ff 50%,#d9efcb 74%,#9ccd8a 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0708 .pq-fit{position:relative;margin:0 auto;}
         .pq0708 .pq-sun{position:absolute;top:10px;right:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;}
         .pq0708 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;}
         .pq0708 .pq-cloud.c1{top:16px;left:-70px;animation-duration:30s;animation-delay:-12s;}
@@ -278,7 +295,8 @@ export default function D07_08(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 372 * scale, height: 216 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-fence"><Fence /></span>
@@ -288,6 +306,7 @@ export default function D07_08(props) {
         <span className="pq-slide"><Slide /></span>
         <span className="pq-kid"><Kid wave={!!ok} /></span>
         <span className="pq-keywrap"><span className={'pq-keybr' + (ok ? ' win' : '')}><Key /></span></span>
+      </div>
       </div>
 
       <div className="pq-cards">

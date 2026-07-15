@@ -4,6 +4,21 @@
 // rezinka bilan bog'langan dasta (breath-bob; g'alabada 1..10 sanoq-badge + uchqunlar).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TEN = 10;
 const ROWS = [
   { have: 6, ans: 4, opts: [2, 3, 4, 5] },
@@ -99,6 +114,7 @@ export default function D13_06(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1306">
@@ -109,7 +125,8 @@ export default function D13_06(props) {
         .pq1306 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1306 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1306 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px 10px 13px;border-radius:22px;background:linear-gradient(#fbe9cf,#f4dcb4);border:2px solid #e9d3a6;}
-        .pq1306 .pq-scene{position:relative;width:372px;max-width:100%;height:172px;border-radius:18px;background:linear-gradient(#fdf1d8 0%,#f7e2be 55%,#efd2a4 100%);border:2px solid #e6cfa0;overflow:hidden;}
+        .pq1306 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:172px;border-radius:18px;background:linear-gradient(#fdf1d8 0%,#f7e2be 55%,#efd2a4 100%);border:2px solid #e6cfa0;overflow:hidden;}
+        .pq1306 .pq-fit{position:relative;margin:0 auto;}
         .pq1306 .pq-beam{position:absolute;top:-20px;right:52px;width:70px;height:170px;background:linear-gradient(180deg,rgba(255,241,196,.7),rgba(255,241,196,0));transform:rotate(16deg);transform-origin:top center;z-index:1;animation:pqBeam 4.5s ease-in-out infinite;pointer-events:none;}
         .pq1306 .pq-window{position:absolute;top:12px;right:14px;width:56px;height:44px;border-radius:6px;background:linear-gradient(135deg,#dff0fb 0 45%,#c2ddf0 45% 55%,#dff0fb 55%);border:2.5px solid #b58a4e;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);z-index:1;}
         .pq1306 .pq-window::after{content:'';position:absolute;left:50%;top:3px;bottom:3px;width:2px;background:#b58a4e;transform:translateX(-1px);}
@@ -142,7 +159,8 @@ export default function D13_06(props) {
         .pq1306 .pq-wstar{position:absolute;z-index:6;line-height:0;opacity:0;animation:pqTwinkle 1.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(242,177,52,.6));}
         .pq1306 .pq-wstar.w2{animation-delay:-.5s;} .pq1306 .pq-wstar.w3{animation-delay:-1.05s;}
         /* qatorlar */
-        .pq1306 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;width:100%;}
+        .pq1306 .pq-rows{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;width:100%;max-width:360px;}
+        @media (min-width:480px){.pq1306 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq1306 .pq-rw{display:flex;gap:7px;align-items:center;justify-content:center;align-content:center;flex-wrap:wrap;padding:5px 8px;border-radius:14px;border:2.5px solid #ecdcbf;background:#fffaf0;transition:.15s;}
         .pq1306 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq1306 .pq-rw.good.win{animation:pqCele .5s ease;}
@@ -161,7 +179,7 @@ export default function D13_06(props) {
         .pq1306 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq1306 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
         .pq1306 .pq-eq{font-size:19px;font-weight:900;color:#8a7a55;font-variant-numeric:tabular-nums;}
-        .pq1306 .pq-sgs{display:flex;align-content:center;gap:5px;margin-left:2px;flex-basis:100%;justify-content:center;}
+        .pq1306 .pq-sgs{display:flex;flex-wrap:wrap;align-content:center;gap:5px;margin-left:2px;flex-basis:100%;justify-content:center;}
         .pq1306 .pq-sg{width:36px;height:40px;border-radius:10px;border:2.5px solid #e0d3b6;background:#fff;font-size:18px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1306 .pq-sg:hover:not(:disabled){border-color:#e0a94e;transform:translateY(-2px);}
         .pq1306 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -184,8 +202,9 @@ export default function D13_06(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 172 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-beam" />
           <span className="pq-window" />
           <span className="pq-sun" />
@@ -227,6 +246,7 @@ export default function D13_06(props) {
               <span className="pq-wstar w3" style={{ left: '48%', top: '30px' }}><Star fill="#f2b134" /></span>
             </>
           )}
+        </div>
         </div>
 
         <div className="pq-rows">

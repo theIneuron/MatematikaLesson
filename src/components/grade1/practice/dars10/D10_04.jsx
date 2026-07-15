@@ -2,6 +2,21 @@
 // Fabrika-konveyer: chapdan 6 quti keladi, robot 2 quti qo'shadi; rasmga mos yozuvni tanla («6 + 2»).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 6, B = 2, SUM = A + B; // 8
 const CORRECT = '6 + 2';
 const OPTIONS = ['6 + 2', '6 − 2', '2 + 6']; // − = U+2212; «2 + 6» — tartib aldamchi
@@ -134,6 +149,7 @@ export default function D10_04(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1004">
@@ -144,7 +160,8 @@ export default function D10_04(props) {
         .pq1004 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1004 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq1004 .pq-stage{display:flex;flex-direction:column;align-items:center;padding:10px 10px 12px;border-radius:22px;background:linear-gradient(#eef1f6,#e2e7ef);border:2px solid #d2d9e4;}
-        .pq1004 .pq-scene{position:relative;width:372px;max-width:100%;height:210px;border-radius:18px;background:linear-gradient(#dbe2ec 0%,#ccd5e2 62%,#c0cad9 100%);border:2px solid #c0cad9;overflow:hidden;}
+        .pq1004 .pq-fit{position:relative;margin:0 auto;}
+        .pq1004 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:210px;border-radius:18px;background:linear-gradient(#dbe2ec 0%,#ccd5e2 62%,#c0cad9 100%);border:2px solid #c0cad9;overflow:hidden;}
         .pq1004 .pq-win{position:absolute;top:14px;border-radius:5px;background:linear-gradient(#eaf4fb,#c7e2f2);border:2.5px solid #9bb3c9;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);}
         .pq1004 .pq-win::before,.pq1004 .pq-win::after{content:'';position:absolute;background:#9bb3c9;}
         .pq1004 .pq-win::before{left:50%;top:0;bottom:0;width:2px;margin-left:-1px;}
@@ -182,7 +199,7 @@ export default function D10_04(props) {
         .pq1004 .pq-plus{position:absolute;left:146px;top:98px;font-size:42px;font-weight:900;color:#5b6b82;z-index:3;text-shadow:0 1px 0 rgba(255,255,255,.6);animation:pqPlus 2.8s ease-in-out infinite;}
         .pq1004 .pq-q{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;background:#fff;border:2px solid #c3cdda;color:#5b6b82;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(91,107,130,.22);animation:pqBreath 2.2s ease-in-out infinite;z-index:5;}
         .pq1004 .pq-chip{position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:5;white-space:nowrap;}
-        .pq1004 .pq-cards{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq1004 .pq-cards{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq1004 .pq-card{display:flex;align-items:center;gap:5px;min-width:92px;height:62px;padding:0 14px;font-size:26px;font-weight:900;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1004 .pq-card:hover:not(:disabled){border-color:#aeb9c9;transform:translateY(-2px);}
         .pq1004 .pq-card:active:not(:disabled){transform:scale(.95);}
@@ -218,8 +235,9 @@ export default function D10_04(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 210 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           {/* Ambient uchqunlar (fon, dekor) */}
           <span className="pq-mote m1" aria-hidden="true" style={{ left: 162, top: 40 }} />
           <span className="pq-mote m2" aria-hidden="true" style={{ left: 210, top: 66 }} />
@@ -264,6 +282,7 @@ export default function D10_04(props) {
 
           {!ok && <span className="pq-q">?</span>}
           {ok && <span className="pq-chip">{A} + {B} = {SUM}</span>}
+        </div>
         </div>
       </div>
 

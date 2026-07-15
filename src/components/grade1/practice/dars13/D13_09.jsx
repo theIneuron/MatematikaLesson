@@ -104,7 +104,7 @@ export default function D13_09(props) {
         .pq1309 .pq-eq b{min-width:34px;height:38px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;border-radius:11px;background:#fff6ea;border:2px solid #e2c79a;color:#a05a1f;font-variant-numeric:tabular-nums;}
         .pq1309 .pq-eq b.ten{background:#e8f7ee;border-color:#1a7f43;color:#1a7f43;}
         .pq1309 .pq-eq i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
-        .pq1309 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq1309 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq1309 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1309 .pq-opt:hover:not(:disabled){border-color:#e2c79a;transform:translateY(-2px);}
         .pq1309 .pq-opt:active:not(:disabled){transform:scale(.94);}

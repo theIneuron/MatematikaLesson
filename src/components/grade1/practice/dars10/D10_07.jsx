@@ -5,6 +5,21 @@
 // ko'z pirpiratadi + antenna puls, chiroqlar miltillaydi, quvurdan bug', «?» breath-pulse.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const PANELS = [
   { expr: '7 + 3', sum: 10 },
   { expr: '5 + 5', sum: 10 },
@@ -111,6 +126,7 @@ export default function D10_07(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1007">
@@ -121,7 +137,8 @@ export default function D10_07(props) {
         .pq1007 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1007 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq1007 .pq-stage{display:flex;flex-direction:column;align-items:center;padding:10px 10px 12px;border-radius:22px;background:linear-gradient(#e8ecf3,#dde3ec);border:2px solid #cdd6e2;}
-        .pq1007 .pq-scene{position:relative;width:372px;max-width:100%;height:210px;border-radius:18px;background:linear-gradient(#cdd7e6 0%,#bdc9db 52%,#aab7cc 100%);border:2px solid #b3bfd0;overflow:hidden;}
+        .pq1007 .pq-fit{position:relative;margin:0 auto;}
+        .pq1007 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:210px;border-radius:18px;background:linear-gradient(#cdd7e6 0%,#bdc9db 52%,#aab7cc 100%);border:2px solid #b3bfd0;overflow:hidden;}
         .pq1007 .pq-window{position:absolute;border-radius:5px;background:linear-gradient(135deg,#dff0fb 0 45%,#c2ddf0 45% 55%,#dff0fb 55%);border:2px solid #9db0c6;box-shadow:inset 0 0 0 1px rgba(255,255,255,.4);z-index:0;}
         .pq1007 .pq-window.w1{left:20px;top:52px;width:48px;height:34px;}
         .pq1007 .pq-window.w2{left:308px;top:52px;width:48px;height:34px;}
@@ -205,8 +222,9 @@ export default function D10_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 210 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           {/* Ambient uchqunlar (fon, dekor) */}
           <span className="pq-mote m1" aria-hidden="true" style={{ left: 120, top: 58 }} />
           <span className="pq-mote m2" aria-hidden="true" style={{ left: 210, top: 50 }} />
@@ -258,6 +276,7 @@ export default function D10_07(props) {
               <span className="pq-wstar w3" style={{ left: '78%', top: '52px' }}><Star fill="#ffd13f" /></span>
             </>
           )}
+        </div>
         </div>
       </div>
 

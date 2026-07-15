@@ -173,7 +173,7 @@ export default function D11_09(props) {
         .pq1109 .pq-board .op{color:#8a94a2;}
         .pq1109 .pq-chip{padding:7px 16px;border-radius:999px;background:#fff;border:2px solid #bfe0c9;box-shadow:0 4px 12px rgba(0,0,0,.14);font-size:21px;font-weight:900;color:#3a4250;animation:pqChip .45s cubic-bezier(.3,1.4,.5,1) both;}
         .pq1109 .pq-chip .op{color:#8a94a2;} .pq1109 .pq-chip .res{color:#1a7f43;}
-        .pq1109 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq1109 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq1109 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1109 .pq-opt:hover:not(:disabled){border-color:#9fc6ea;transform:translateY(-2px);}
         .pq1109 .pq-opt:active:not(:disabled){transform:scale(.94);}

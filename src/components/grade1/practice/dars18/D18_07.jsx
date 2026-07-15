@@ -6,6 +6,21 @@
 // VEDI-DO-VERNOGO: noto'g'ri javobda qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const LEFT_A = 8, LEFT_B = 5, RIGHT_BASE = 9, ANS = 4, TARGET = 13;
 const DATA = { left: [LEFT_A, LEFT_B], right: RIGHT_BASE, ans: ANS, target: TARGET, options: [3, 4, 5], ptype: 'LOGIC', level: '🔴', tag: 'logic_balance' };
 
@@ -100,16 +115,18 @@ export default function D18_07(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(396);
 
   return (
-    <div className="pq pq1807">
+    <div className="pq pq1807" ref={fitRef}>
       <style>{`
         .pq1807{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq1807 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq1807 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq1807 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1807 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq1807 .pq-scene{position:relative;width:396px;max-width:100%;height:262px;margin:0 auto;border-radius:20px;background:linear-gradient(#eaf6ff 0%,#dcefff 52%,#cfe8fb 100%);border:2px solid #bcdcf2;overflow:hidden;}
+        .pq1807 .pq-scene{box-sizing:border-box;position:relative;width:396px;height:262px;border-radius:20px;background:linear-gradient(#eaf6ff 0%,#dcefff 52%,#cfe8fb 100%);border:2px solid #bcdcf2;overflow:hidden;}
+        .pq1807 .pq-fit{position:relative;margin:0 auto;}
         .pq1807 .pq-sun{position:absolute;left:16px;top:14px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
         .pq1807 .pq-awning{position:absolute;left:0;right:0;top:0;height:26px;background:repeating-linear-gradient(90deg,#d9534b 0 22px,#fff5f2 22px 44px);border-bottom:3px solid #a83c35;z-index:2;box-shadow:0 3px 5px rgba(0,0,0,.14);}
         .pq1807 .pq-awning::after{content:'';position:absolute;left:0;right:0;top:26px;height:9px;background:repeating-linear-gradient(90deg,#d9534b 0 22px,#fff5f2 22px 44px);clip-path:polygon(0 0,100% 0,100% 0,91% 100%,82% 0,73% 100%,64% 0,55% 100%,46% 0,37% 100%,28% 0,19% 100%,10% 0,0 100%);opacity:.96;}
@@ -148,7 +165,7 @@ export default function D18_07(props) {
         .pq1807 .pq-eq b.res{background:#e8f7ee;border-color:#1a7f43;color:#1a7f43;}
         .pq1807 .pq-eq i{font-style:normal;font-size:19px;font-weight:900;color:#8a94a2;}
 
-        .pq1807 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq1807 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq1807 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1807 .pq-opt:hover:not(:disabled){border-color:#8fca88;transform:translateY(-2px);}
         .pq1807 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -167,7 +184,8 @@ export default function D18_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 396 * scale, height: 262 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-awning" />
         <div className="pq-board">{t.title}</div>
@@ -219,6 +237,7 @@ export default function D18_07(props) {
           <span className="pq-spark s2" style={{ left: '86%', top: '132px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '96px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {ok && (

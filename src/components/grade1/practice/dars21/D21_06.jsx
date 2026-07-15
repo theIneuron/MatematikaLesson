@@ -8,6 +8,21 @@
 // VEDI-DO-VERNOGO: noto'g'ri javobda qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const SEQ = [10, 20, 30, 40, 50];   // pog'ona: har biri (i+1) savat
 const MISS = 3;                     // tushib qolgan ustun indeksi (qiymati 40)
 const TARGET = 40;
@@ -107,16 +122,18 @@ export default function D21_06(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(326);
 
   return (
-    <div className="pq pq2106">
+    <div className="pq pq2106" ref={fitRef}>
       <style>{`
         .pq2106{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2106 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq2106 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2106 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2106 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2106 .pq-scene{position:relative;width:326px;max-width:100%;height:274px;margin:0 auto;border-radius:20px;background:linear-gradient(#d6efff 0%,#e6f4ea 58%,#d8eecb 100%);border:2px solid #cfe0cd;overflow:hidden;}
+        .pq2106 .pq-scene{box-sizing:border-box;position:relative;width:326px;height:274px;border-radius:20px;background:linear-gradient(#d6efff 0%,#e6f4ea 58%,#d8eecb 100%);border:2px solid #cfe0cd;overflow:hidden;}
+        .pq2106 .pq-fit{position:relative;margin:0 auto;}
         .pq2106 .pq-sun{position:absolute;left:16px;top:14px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2106sun 3.6s ease-in-out infinite;}
         .pq2106 .pq-leaf{position:absolute;z-index:1;color:#5fb15a;opacity:.85;line-height:0;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(60,120,50,.3));animation:pq2106sway 4.4s ease-in-out infinite;}
         .pq2106 .pq-leaf.l2{animation-delay:-2.1s;color:#7bc06f;}
@@ -144,7 +161,7 @@ export default function D21_06(props) {
         .pq2106 .pq-seq{text-align:center;margin-top:7px;font-size:16px;font-weight:800;color:#5c7fa6;letter-spacing:.04em;font-variant-numeric:tabular-nums;animation:pq2106in .3s .1s both;}
         .pq2106 .pq-seq b{color:#1a7f43;}
 
-        .pq2106 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:18px;}
+        .pq2106 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
         .pq2106 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2106 .pq-opt:hover:not(:disabled){border-color:#94b8e2;transform:translateY(-2px);}
         .pq2106 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -164,7 +181,8 @@ export default function D21_06(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 326 * scale, height: 274 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-leaf" style={{ right: '20px', top: '30px' }}>❧</span>
         <span className="pq-leaf l2" style={{ left: '20px', bottom: '34px' }}>❧</span>
@@ -201,6 +219,7 @@ export default function D21_06(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '64px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {ok && (<>

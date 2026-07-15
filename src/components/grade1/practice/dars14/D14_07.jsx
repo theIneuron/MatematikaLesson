@@ -4,6 +4,21 @@
 // G'alaba: 13-vagon bo'sh joyga tushadi (pop), butun poyezd yashil yonadi, chip «11, 12, 13, 14, 15».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const SEQ = [11, 12, null, 14, 15];
 const MISSING = 13;
 const DATA = { seq: SEQ, missing: MISSING, options: [12, 13, 14], ptype: 'LOGIC', level: '🔴', tag: 'logic_sequence' };
@@ -89,6 +104,7 @@ export default function D14_07(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(404);
 
   return (
     <div className="pq pq1407">
@@ -100,7 +116,8 @@ export default function D14_07(props) {
         .pq1407 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
         .pq1407 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;}
         /* TABIAT + TEMIR YO'L SAHNASI */
-        .pq1407 .pq-scene{position:relative;width:404px;max-width:100%;height:216px;border-radius:20px;background:linear-gradient(#bfe6fb 0%,#d9f1fd 48%,#eaf8ff 64%);border:2px solid #b8d9e8;overflow:hidden;}
+        .pq1407 .pq-scene{box-sizing:border-box;position:relative;width:404px;height:216px;border-radius:20px;background:linear-gradient(#bfe6fb 0%,#d9f1fd 48%,#eaf8ff 64%);border:2px solid #b8d9e8;overflow:hidden;}
+        .pq1407 .pq-fit{position:relative;margin:0 auto;}
         .pq1407 .pq-sun{position:absolute;left:18px;top:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 18px 5px rgba(255,214,74,.55);animation:pqSun 3.8s ease-in-out infinite;z-index:1;}
         .pq1407 .pq-cloud{position:absolute;height:13px;background:#fff;border-radius:20px;opacity:.94;z-index:1;}
         .pq1407 .pq-cloud::before,.pq1407 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
@@ -140,7 +157,7 @@ export default function D14_07(props) {
         .pq1407 .pq-star.s2{animation-delay:-.5s;} .pq1407 .pq-star.s3{animation-delay:-1s;}
         .pq1407 .pq-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:999px;background:#e8f7ee;border:2px solid #7cc99a;color:#1a7f43;font-size:18px;font-weight:900;letter-spacing:.03em;font-variant-numeric:tabular-nums;animation:pqIn .3s ease both;}
         /* variantlar */
-        .pq1407 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:2px;}
+        .pq1407 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:2px;}
         .pq1407 .pq-opt{min-width:74px;height:72px;padding:0 6px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1407 .pq-opt:hover:not(:disabled){border-color:#8fb6de;transform:translateY(-2px);}
         .pq1407 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -162,8 +179,9 @@ export default function D14_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 404 * scale, height: 216 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" />
           <div className="pq-hills"><span /><span /></div>
@@ -203,6 +221,7 @@ export default function D14_07(props) {
               <span className="pq-star s3" style={{ left: '82%', top: '48px' }}><Star fill="#ffd13f" /></span>
             </>
           )}
+        </div>
         </div>
 
         {ok && <span className="pq-chip">{t.chip}</span>}

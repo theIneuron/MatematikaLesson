@@ -95,7 +95,8 @@ export default function D12_06(props) {
         .pq1206 .pq-head{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;}
         .pq1206 .pq-board{padding:5px 16px;border-radius:10px;background:linear-gradient(#c19256,#a97b40);border:2.5px solid #8a6234;color:#fdf6e8;font-size:13px;font-weight:800;letter-spacing:.03em;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.18);}
         .pq1206 .pq-croc{filter:drop-shadow(0 2px 2px rgba(0,0,0,.18));animation:pqFloat 3.6s ease-in-out infinite;}
-        .pq1206 .pq-rows{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+        .pq1206 .pq-rows{position:relative;z-index:2;display:grid;grid-template-columns:1fr;gap:9px;width:100%;max-width:360px;}
+        @media (min-width:480px){.pq1206 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq1206 .pq-rw{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:center;align-content:center;padding:8px 9px;border-radius:14px;border:2.5px solid #dbe2ea;background:#fff;transition:.15s;animation:pqFloat 4s ease-in-out infinite;}
         .pq1206 .pq-rw:nth-child(1){animation-delay:0s;} .pq1206 .pq-rw:nth-child(2){animation-delay:-1.3s;}
         .pq1206 .pq-rw:nth-child(3){animation-delay:-2.6s;} .pq1206 .pq-rw:nth-child(4){animation-delay:-3.7s;}

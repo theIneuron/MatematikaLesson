@@ -4,6 +4,21 @@
 // 7-katak «?» yopiq. G'alabada «?»→7, chip «4 + 3 = 7», qadam-sanoq 1..3 (5,6,7 kataklarida).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { start: 4, jump: 3, target: 7, options: [6, 7, 8], ptype: 'P10', level: '🟢', tag: 'numline_warmup' };
 // Katak markazlari (sahna px, 380 kenglik) — indeks = katak raqami 0..10.
 const XS = Array.from({ length: 11 }, (_, i) => 24 + i * 33.2);
@@ -164,17 +179,19 @@ export default function D10_01(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(380);
   const moved = still || robotCell === DATA.target;
 
   return (
-    <div className="pq pq1001">
+    <div className="pq pq1001" ref={fitRef}>
       <style>{`
         .pq1001{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq1001 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#4a7fb0;text-transform:uppercase;}
         .pq1001 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq1001 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1001 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq1001 .pq-scene{position:relative;width:380px;max-width:100%;height:208px;margin:0 auto;border-radius:20px;background:linear-gradient(#dbe4ee 0%,#c7d3e0 58%,#b7c3d2 100%);border:2px solid #a6b4c4;overflow:hidden;}
+        .pq1001 .pq-scene{box-sizing:border-box;position:relative;width:380px;height:208px;border-radius:20px;background:linear-gradient(#dbe4ee 0%,#c7d3e0 58%,#b7c3d2 100%);border:2px solid #a6b4c4;overflow:hidden;}
+        .pq1001 .pq-fit{position:relative;margin:0 auto;}
         .pq1001 .pq-winw{position:absolute;left:14px;top:14px;z-index:1;opacity:.9;filter:drop-shadow(0 1px 1px rgba(0,0,0,.08));}
         .pq1001 .pq-cogw{position:absolute;z-index:0;line-height:0;filter:drop-shadow(0 1px 2px rgba(0,0,0,.12));}
         .pq1001 .pq-cogw.g1{right:14px;top:8px;animation:pqGear 9s linear infinite;}
@@ -207,7 +224,7 @@ export default function D10_01(props) {
         .pq1001 .pq-rblink{opacity:0;animation:pqBlinkR 4s linear infinite;}
         .pq1001 .pq-cnt{position:absolute;min-width:19px;height:19px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:4;}
         .pq1001 .pq-chip{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:23px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:6;white-space:nowrap;}
-        .pq1001 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq1001 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq1001 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1001 .pq-opt:hover:not(:disabled){border-color:#a8c2df;transform:translateY(-2px);}
         .pq1001 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -241,7 +258,8 @@ export default function D10_01(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className={'pq-scene' + (still ? ' still' : '') + (rolling ? ' rolling' : '')}>
+      <div className="pq-fit" style={{ width: 380 * scale, height: 208 * scale }}>
+      <div className={'pq-scene' + (still ? ' still' : '') + (rolling ? ' rolling' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         {/* Ambient uchqunlar (fon, dekor) */}
         <span className="pq-mote m1" aria-hidden="true" style={{ left: 150, top: 34 }} />
         <span className="pq-mote m2" aria-hidden="true" style={{ left: 206, top: 22 }} />
@@ -286,6 +304,7 @@ export default function D10_01(props) {
           <b key={c} className="pq-cnt" style={{ left: XS[c] - 9.5, top: 126, animationDelay: `${i * 0.14}s` }}>{i + 1}</b>
         ))}
         {ok && <span className="pq-chip">{DATA.start} + {DATA.jump} = {DATA.target}</span>}
+      </div>
       </div>
 
       <div className="pq-opts">

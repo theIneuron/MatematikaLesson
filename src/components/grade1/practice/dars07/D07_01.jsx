@@ -2,6 +2,21 @@
 // Park kirish darvozasi yonidagi taxtada 2×5 ramka: 5 qizil + 3 yashil bola. G'alabada darvoza ochiladi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { red: 5, green: 3, target: 8, options: [7, 8, 9], ptype: 'P5', level: '🟢', tag: 'frame_warmup' };
 const T = {
   uz: {
@@ -100,9 +115,10 @@ export default function D07_01(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(388);
 
   return (
-    <div className="pq pq0701">
+    <div className="pq pq0701" ref={fitRef}>
       <style>{`
         .pq0701{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0701 *,.pq0701 *::before,.pq0701 *::after{box-sizing:border-box;}
@@ -110,7 +126,8 @@ export default function D07_01(props) {
         .pq0701 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0701 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0701 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0701 .pq-scene{position:relative;width:388px;height:252px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 58%,#eef9ea 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0701 .pq-scene{box-sizing:border-box;position:relative;width:388px;height:252px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 58%,#eef9ea 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0701 .pq-fit{position:relative;margin:0 auto;}
         .pq0701 .pq-sun{position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);animation:pqSun 3.6s ease-in-out infinite;}
         .pq0701 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;}
         .pq0701 .pq-cloud.c1{top:16px;left:-70px;animation-duration:30s;animation-delay:-12s;}
@@ -154,7 +171,7 @@ export default function D07_01(props) {
         .pq0701 .pq-blink{opacity:0;animation:pqBlink 3.8s linear infinite;animation-delay:var(--bd,0s);}
         .pq0701 .pq-cnt{position:absolute;top:-8px;right:-8px;min-width:19px;height:19px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:3;}
         .pq0701 .pq-chip{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:6;white-space:nowrap;}
-        .pq0701 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq0701 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq0701 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.13s;}
         .pq0701 .pq-opt:hover:not(:disabled){border-color:#9fcaa8;transform:translateY(-2px);}
         .pq0701 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -181,7 +198,8 @@ export default function D07_01(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 388 * scale, height: 252 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-tt t1" /><span className="pq-tt t2" /><span className="pq-tt t3" />
@@ -236,6 +254,7 @@ export default function D07_01(props) {
         </div>
 
         {ok && <span className="pq-chip">{DATA.red} + {DATA.green} = {DATA.target}</span>}
+      </div>
       </div>
 
       <div className="pq-opts">

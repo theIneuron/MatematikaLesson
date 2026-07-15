@@ -7,6 +7,21 @@
 // still/restore: demo o'tkaziladi — darhol tayyor (chiqish = 7 statik).
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { rule: '+3', input: 4, target: 7, options: [6, 7, 8], ptype: 'NEW', level: '🔴', tag: 'function_machine' };
 const ADD = DATA.target - DATA.input;   // 3
 const DEMO = { in: 2, out: 2 + ADD };   // 2 → 5
@@ -110,6 +125,7 @@ export default function D10_10(props) {
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
   const showDemo = !still && !ran;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1010">
@@ -120,7 +136,8 @@ export default function D10_10(props) {
         .pq1010 .pq-setup{color:#5c6672;font-weight:500;}
         .pq1010 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1010 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px 10px 14px;border-radius:22px;background:linear-gradient(#e8ecf3,#dde3ec);border:2px solid #cdd6e2;}
-        .pq1010 .pq-scene{position:relative;width:372px;max-width:100%;height:250px;border-radius:18px;background:linear-gradient(#cdd7e6 0%,#bdc9db 55%,#aab7cc 100%);border:2px solid #b3bfd0;overflow:hidden;}
+        .pq1010 .pq-fit{position:relative;margin:0 auto;}
+        .pq1010 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:250px;border-radius:18px;background:linear-gradient(#cdd7e6 0%,#bdc9db 55%,#aab7cc 100%);border:2px solid #b3bfd0;overflow:hidden;}
 
         /* Fon dekori */
         .pq1010 .pq-gear{position:absolute;line-height:0;z-index:0;filter:drop-shadow(0 1px 1px rgba(0,0,0,.12));}
@@ -219,7 +236,7 @@ export default function D10_10(props) {
         .pq1010 .pq-run:disabled{background:linear-gradient(#aeb9c9,#98a4b6);box-shadow:0 4px 0 #7c889a;cursor:default;}
 
         /* Variantlar */
-        .pq1010 .pq-opts{display:flex;gap:12px;justify-content:center;transition:opacity .25s;}
+        .pq1010 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;transition:opacity .25s;}
         .pq1010 .pq-opts.dim{opacity:.45;}
         .pq1010 .pq-opt{width:70px;height:70px;font-size:29px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1010 .pq-opt:hover:not(:disabled){border-color:#9db0cc;transform:translateY(-2px);}
@@ -259,8 +276,9 @@ export default function D10_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 250 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           {/* Ambient uchqunlar (fon, dekor) */}
           <span className="pq-mote m1" aria-hidden="true" style={{ left: 40, top: 120 }} />
           <span className="pq-mote m2" aria-hidden="true" style={{ left: 22, top: 162 }} />
@@ -323,6 +341,7 @@ export default function D10_10(props) {
               <span className="pq-wstar w3" style={{ left: '82%', top: '52px' }}><Star fill="#ffd13f" /></span>
             </>
           )}
+        </div>
         </div>
 
         <button type="button" className="pq-run" disabled={ran || lock} onClick={() => { setRan(true); setFeedback(null); }}>

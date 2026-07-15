@@ -240,7 +240,7 @@ export default function D30_10(props) {
         .pq3010 .pq-grp{display:flex;flex-direction:column;align-items:center;gap:6px;}
         .pq3010 .pq-cap{font-size:12px;font-weight:800;letter-spacing:.04em;color:#8a94a2;text-transform:uppercase;}
 
-        .pq3010 .pq-ops{display:flex;gap:14px;justify-content:center;}
+        .pq3010 .pq-ops{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;}
         .pq3010 .pq-op{width:64px;height:64px;font-size:34px;font-weight:900;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;display:flex;align-items:center;justify-content:center;}
         .pq3010 .pq-op:hover:not(:disabled){border-color:#94b8e2;transform:translateY(-2px);}
         .pq3010 .pq-op:active:not(:disabled){transform:scale(.94);}
@@ -249,7 +249,7 @@ export default function D30_10(props) {
         .pq3010 .pq-op:disabled{cursor:default;}
         .pq3010 .pq-op.sel:disabled,.pq3010 .pq-op.right:disabled{opacity:1;}
 
-        .pq3010 .pq-opts{display:flex;gap:12px;justify-content:center;}
+        .pq3010 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
         .pq3010 .pq-opt{min-width:70px;height:66px;padding:0 10px;font-size:30px;font-weight:800;line-height:1;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq3010 .pq-opt:hover:not(:disabled){border-color:#8fcf83;transform:translateY(-2px);}
         .pq3010 .pq-opt:active:not(:disabled){transform:scale(.94);}

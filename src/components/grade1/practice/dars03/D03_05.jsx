@@ -66,7 +66,7 @@ export default function D03_05(props) {
         .pq0305 .pq-item{position:relative;font-size:34px;line-height:1;animation:pqDrop .45s cubic-bezier(.3,1.4,.5,1) both;}
         .pq0305 .pq-cnt{position:absolute;top:-8px;right:-8px;min-width:19px;height:19px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;}
         .pq0305 .pq-ans{position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-size:32px;font-weight:900;color:#1a7f43;animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;}
-        .pq0305 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:26px;}
+        .pq0305 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:26px;}
         .pq0305 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0305 .pq-opt:hover:not(:disabled){border-color:#f0c3d3;transform:translateY(-2px);}
         .pq0305 .pq-opt:active:not(:disabled){transform:scale(.94);}

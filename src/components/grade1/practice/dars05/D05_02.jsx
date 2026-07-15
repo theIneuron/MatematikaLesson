@@ -151,7 +151,7 @@ export default function D05_02(props) {
         .pq0502 .pq-num{width:72px;height:84px;border-radius:16px;border:3px solid #d9dde5;background:linear-gradient(#fff,#f4f6fa);display:flex;align-items:center;justify-content:center;font-size:44px;font-weight:900;color:#374151;font-variant-numeric:tabular-nums;}
         .pq0502 .pq-gap{width:62px;height:62px;border-radius:14px;border:2.5px dashed #b9c1cf;background:#fbfcfe;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:900;color:#b9c1cf;animation:pqBreath 2s ease-in-out infinite;}
         .pq0502 .pq-gap.filled{border-style:solid;border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pqCele .5s ease;}
-        .pq0502 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq0502 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq0502 .pq-opt{width:72px;height:72px;font-size:34px;font-weight:900;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq0502 .pq-opt:hover:not(:disabled){border-color:#e3b1ab;transform:translateY(-2px);}
         .pq0502 .pq-opt:active:not(:disabled){transform:scale(.94);}

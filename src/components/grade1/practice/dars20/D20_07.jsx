@@ -11,6 +11,21 @@
 // VEDI-DO-VERNOGO: noto'g'ri javobda qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const M = '−';                       // U+2212 minus (barcha display)
 const TEN = 10;
 
@@ -171,16 +186,18 @@ export default function D20_07(props) {
   //   yakuniy sanoq + natija: delay 3.2s
   const unitDelay = (i) => i * 0.22;
   const tenDelay = (j) => 1.9 + j * 0.22;
+  const [fitRef, scale] = useFitScale(344);
 
   return (
-    <div className="pq pq2007">
+    <div className="pq pq2007" ref={fitRef}>
       <style>{`
         .pq2007{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2007 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
         .pq2007 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2007 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2007 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq2007 .pq-scene{position:relative;width:344px;max-width:100%;height:296px;margin:0 auto;border-radius:20px;background:linear-gradient(#dff1fb 0%,#eaf2fb 46%,#eef2f6 100%);border:2px solid #d3ddec;overflow:hidden;}
+        .pq2007 .pq-scene{box-sizing:border-box;position:relative;width:344px;height:296px;border-radius:20px;background:linear-gradient(#dff1fb 0%,#eaf2fb 46%,#eef2f6 100%);border:2px solid #d3ddec;overflow:hidden;}
+        .pq2007 .pq-fit{position:relative;margin:0 auto;}
         .pq2007 .pq-sun{position:absolute;left:16px;top:14px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
         .pq2007 .pq-cloud{position:absolute;top:22px;right:22px;width:50px;height:15px;border-radius:12px;background:rgba(255,255,255,.85);box-shadow:13px 4px 0 -3px rgba(255,255,255,.8),-13px 3px 0 -4px rgba(255,255,255,.75);z-index:1;animation:pqCloud 6s ease-in-out infinite;}
         /* uzoqdagi ko'cha: uylar + daraxtlar (ambient orqa fon) */
@@ -260,7 +277,8 @@ export default function D20_07(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 344 * scale, height: 296 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" /><span className="pq-cloud" />
         <Town />
         <div className="pq-board">{t.title}</div>
@@ -328,6 +346,7 @@ export default function D20_07(props) {
           <span className="pq-spark s2" style={{ left: '86%', top: '64px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {ok && (<>

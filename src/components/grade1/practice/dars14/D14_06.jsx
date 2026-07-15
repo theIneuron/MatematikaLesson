@@ -6,6 +6,21 @@
 // G'alaba: yakka olmalarda 11..ans sanoq-badge (o'ndan davom sanash) + yashil "10 + N = ans" chip.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TEN = 10;
 const ROWS = [
   { ones: 1, ans: 11, opts: [9, 10, 11, 12] },
@@ -90,6 +105,7 @@ export default function D14_06(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1406">
@@ -101,7 +117,8 @@ export default function D14_06(props) {
         .pq1406 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1406 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px 10px 13px;border-radius:22px;background:linear-gradient(#fbe9cf,#f4dcb4);border:2px solid #e9d3a6;}
         /* BOZOR SAHNASI (tepa lentasi) */
-        .pq1406 .pq-scene{position:relative;width:372px;max-width:100%;height:96px;border-radius:18px;background:linear-gradient(#c9e9fb 0%,#e2f3fd 62%,#f4e6c8 100%);border:2px solid #d8c99c;overflow:hidden;}
+        .pq1406 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:96px;border-radius:18px;background:linear-gradient(#c9e9fb 0%,#e2f3fd 62%,#f4e6c8 100%);border:2px solid #d8c99c;overflow:hidden;}
+        .pq1406 .pq-fit{position:relative;margin:0 auto;}
         .pq1406 .pq-sun{position:absolute;top:12px;left:16px;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6ce,#f9c62f 72%,#f0ab18);box-shadow:0 0 14px 4px rgba(249,198,47,.5);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
         .pq1406 .pq-cloud{position:absolute;height:12px;background:#fff;border-radius:20px;opacity:.94;z-index:1;}
         .pq1406 .pq-cloud::before{content:'';position:absolute;background:#fff;border-radius:50%;width:16px;height:16px;top:-7px;left:7px;}
@@ -115,7 +132,8 @@ export default function D14_06(props) {
         .pq1406 .pq-dapple{position:absolute;right:24px;top:14px;z-index:1;animation:pqBobA 3.4s ease-in-out infinite;}
 
         /* SAVOL-KARTALAR — 2×2 panjara */
-        .pq1406 .pq-rows{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;width:100%;}
+        .pq1406 .pq-rows{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;width:100%;max-width:360px;}
+        @media (min-width:480px){.pq1406 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq1406 .pq-rw{display:flex;gap:7px;align-items:center;align-content:center;justify-content:center;flex-wrap:wrap;padding:7px 8px;border-radius:14px;border:2.5px solid #ecdcbf;background:#fffaf0;transition:.15s;}
         .pq1406 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq1406 .pq-rw.good.win{animation:pqCele .5s ease;}
@@ -143,7 +161,7 @@ export default function D14_06(props) {
         .pq1406 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq1406 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
         .pq1406 .pq-chip{flex-basis:100%;text-align:center;margin-left:2px;padding:5px 11px;border-radius:11px;background:#e8f7ee;border:2px solid #1a7f43;color:#1a7f43;font-size:15px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap;animation:pqPop2 .35s ease both;}
-        .pq1406 .pq-sgs{display:flex;align-content:center;flex-basis:100%;justify-content:center;gap:5px;margin-left:2px;}
+        .pq1406 .pq-sgs{display:flex;flex-wrap:wrap;align-content:center;flex-basis:100%;justify-content:center;gap:5px;margin-left:2px;}
         .pq1406 .pq-sg{width:38px;height:42px;border-radius:10px;border:2.5px solid #e0d3b6;background:#fff;font-size:19px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq1406 .pq-sg:hover:not(:disabled){border-color:#e0a94e;transform:translateY(-2px);}
         .pq1406 .pq-sg:active:not(:disabled){transform:scale(.92);}
@@ -165,13 +183,15 @@ export default function D14_06(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 96 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <span className="pq-cloud c1" />
           <span className="pq-dapple"><Apple w={16} /></span>
           <div className="pq-board">{t.board}</div>
           <span className="pq-awning" />
+        </div>
         </div>
 
         <div className="pq-rows">

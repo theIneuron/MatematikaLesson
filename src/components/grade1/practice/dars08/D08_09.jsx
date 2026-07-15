@@ -3,6 +3,21 @@
 // pauzadan keyin yana 2 tasi yuqori-o'ngga uchadi; 4 qoladi. G'alabada badge faqat qolganlarda, chip «9 − 3 − 2 = 4».
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { start: 9, g1: 3, g2: 2, target: 4, options: [3, 4, 5, 6], ptype: 'P9', level: '🔴', tag: 'word_problem_2step_sub' };
 
 // 9 chumchuq panjara ustida. role: 'stay' | 'L' (1-to'lqin, yuqori-chapga) | 'R' (2-to'lqin, yuqori-o'ngga).
@@ -135,16 +150,18 @@ export default function D08_09(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(360);
 
   return (
-    <div className="pq pq0809">
+    <div className="pq pq0809" ref={fitRef}>
       <style>{`
         .pq0809{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0809 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#b0793f;text-transform:uppercase;}
         .pq0809 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0809 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0809 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0809 .pq-scene{position:relative;width:360px;height:232px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#eef9ea 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0809 .pq-scene{box-sizing:border-box;position:relative;width:360px;height:232px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#eef9ea 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0809 .pq-fit{position:relative;margin:0 auto;}
         .pq0809 .pq-sun{position:absolute;top:10px;right:14px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 4px rgba(249,198,47,.55);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq0809 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:0;}
         .pq0809 .pq-cloud.c1{top:18px;left:-70px;animation-duration:28s;animation-delay:-12s;}
@@ -168,7 +185,7 @@ export default function D08_09(props) {
         .pq0809 .pq-cnt{position:absolute;top:-12px;left:50%;margin-left:-9.5px;min-width:19px;height:19px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:4;}
         .pq0809 .pq-q{position:absolute;left:50%;top:38px;margin-left:-17px;width:34px;height:34px;border-radius:50%;background:#fff;border:2px solid #cfd9ec;color:#3f7fb5;font-size:22px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(63,127,181,.2);animation:pqQ 2.2s ease-in-out infinite;z-index:3;}
         .pq0809 .pq-chip{position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:23px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:5;white-space:nowrap;font-variant-numeric:tabular-nums;}
-        .pq0809 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq0809 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq0809 .pq-opt{width:66px;height:66px;font-size:28px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0809 .pq-opt:hover:not(:disabled){border-color:#d9b97e;transform:translateY(-2px);}
         .pq0809 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -194,7 +211,8 @@ export default function D08_09(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-fit" style={{ width: 360 * scale, height: 232 * scale }}>
+      <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-grass" />
@@ -224,6 +242,7 @@ export default function D08_09(props) {
 
         {!ok && <span className="pq-q">?</span>}
         {ok && <span className="pq-chip">{DATA.start} − {DATA.g1} − {DATA.g2} = {DATA.target}</span>}
+      </div>
       </div>
 
       <div className="pq-opts">

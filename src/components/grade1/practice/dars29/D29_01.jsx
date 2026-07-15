@@ -6,6 +6,21 @@
 // VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const HAD = 8, TOOK = 3, LEFT = 5;             // 8 − 3 = 5 (10 ichida)
 const MINUS = "−";                              // U+2212, ASCII defis EMAS
 const TARGET = LEFT;
@@ -217,6 +232,7 @@ export default function D29_01(props) {
   const idle = !ok && !still; // g'alabagacha yengil tebranish (olmalar dekor, bosilmaydi)
 
   const apples = Array.from({ length: HAD });
+  const [fitRef, scale] = useFitScale(404);
 
   return (
     <div className="pq pq2901">
@@ -228,7 +244,8 @@ export default function D29_01(props) {
         .pq2901 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
         .pq2901 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:16px;}
         /* ===== TABIAT SAHNASI (Dars15 etaloni) ===== */
-        .pq2901 .pq-scene{position:relative;width:404px;max-width:100%;height:342px;margin:0 auto;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq2901 .pq-scene{box-sizing:border-box;position:relative;width:404px;height:342px;border-radius:24px;overflow:hidden;border:2px solid #bfe0d0;background:linear-gradient(#bfe6fb 0%,#d9f1fd 42%,#eaf8ff 62%);box-shadow:inset 0 2px 8px rgba(90,140,180,.14);}
+        .pq2901 .pq-fit{position:relative;margin:0 auto;}
         .pq2901 .pq-sun{position:absolute;top:16px;left:20px;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 42% 40%,#fff6cf,#ffd84a 68%,#f6b81f);box-shadow:0 0 22px 7px rgba(255,214,74,.6);animation:pq2901Sun 4s ease-in-out infinite;z-index:1;}
         .pq2901 .pq-cloud{position:absolute;height:16px;background:#fff;border-radius:20px;box-shadow:0 6px 0 -2px #fff;opacity:.94;z-index:1;}
         .pq2901 .pq-cloud::before,.pq2901 .pq-cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
@@ -315,7 +332,7 @@ export default function D29_01(props) {
         .pq2901 .pq-nl-node.on .pq-nl-dot{background:#3f9a4e;border-color:#2f7d3c;transform:scale(1.5);box-shadow:0 0 14px 4px rgba(63,154,78,.7);}
         .pq2901 .pq-nl-node.on .pq-nl-lbl{color:#166a34;font-size:13.5px;}
         /* variantlar + feedback */
-        .pq2901 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq2901 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq2901 .pq-opt{min-width:84px;height:74px;padding:0 12px;font-size:34px;font-weight:800;line-height:1;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2901 .pq-opt:hover:not(:disabled){border-color:#7cc158;transform:translateY(-2px);}
         .pq2901 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -342,8 +359,9 @@ export default function D29_01(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className="pq-scene">
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 404 * scale, height: 342 * scale }}>
+        <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <Bird cls="b1" /><Bird cls="b2" /><Bird cls="b3" />
           <span className="pq-cloud c1" /><span className="pq-cloud c2" /><span className="pq-cloud c3" />
@@ -391,6 +409,7 @@ export default function D29_01(props) {
 
           {/* Son o'qi: quyoncha 8 da idle; g'alabada orqaga 8→7→6→5 sekin sakraydi */}
           <NumberLineHop from={NL_FROM} to={NL_TO} ticks={TICKS} path={HOP_PATH} active={!!ok} still={still} dir={-1} />
+        </div>
         </div>
 
         <div className="pq-opts">

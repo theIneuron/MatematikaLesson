@@ -2,6 +2,21 @@
 // Jami 3 koptok: chap kaftda 2 ko'rinadi, o'ng MUSHTda 1 yashiringan. G'alabada musht ochiladi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const DATA = { total: 3, shown: 2, target: 1, options: [1, 2, 3], ptype: 'P5', level: '🟢', tag: 'compose_hidden' };
 const T = {
   uz: {
@@ -166,16 +181,18 @@ export default function D05_01(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(300);
 
   return (
-    <div className="pq pq0501">
+    <div className="pq pq0501" ref={fitRef}>
       <style>{`
         .pq0501{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0501 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#d6577a;text-transform:uppercase;}
         .pq0501 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0501 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0501 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0501 .pq-scene{position:relative;width:300px;height:214px;margin:0 auto;border-radius:20px;background:linear-gradient(180deg,#fdf3f5 0%,#fdeff4 55%,#fff4e2 100%);border:2px solid #f0d9df;overflow:hidden;}
+        .pq0501 .pq-fit{position:relative;margin:0 auto;}
+        .pq0501 .pq-scene{box-sizing:border-box;position:relative;width:300px;height:214px;border-radius:20px;background:linear-gradient(180deg,#fdf3f5 0%,#fdeff4 55%,#fff4e2 100%);border:2px solid #f0d9df;overflow:hidden;}
         .pq0501 .pq-stripes{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(217,83,75,.05) 0 22px,rgba(255,255,255,0) 22px 44px);}
         .pq0501 .pq-floor{position:absolute;bottom:0;left:0;right:0;height:24px;background:#f6e4c6;border-top:2px solid #eadbb8;}
         .pq0501 .pq-bunting{position:absolute;top:0;left:0;right:0;}
@@ -192,7 +209,7 @@ export default function D05_01(props) {
         .pq0501 .pq-cnt{position:absolute;top:-8px;right:-8px;min-width:18px;height:18px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:3;}
         .pq0501 .pq-q{position:absolute;left:206px;top:98px;font-size:30px;font-weight:900;color:#c9821a;text-shadow:0 2px 6px rgba(255,255,255,.9);animation:pqBreath 2.2s ease-in-out infinite;z-index:2;}
         .pq0501 .pq-chip{position:absolute;top:26px;left:50%;transform:translateX(-50%);font-size:22px;font-weight:900;color:#1a7f43;background:#fff;padding:2px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:4;white-space:nowrap;font-variant-numeric:tabular-nums;}
-        .pq0501 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq0501 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq0501 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0501 .pq-opt:hover:not(:disabled){border-color:#f0c3d3;transform:translateY(-2px);}
         .pq0501 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -218,7 +235,8 @@ export default function D05_01(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 300 * scale, height: 214 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-stripes" />
         <span className="pq-floor" />
         <span className="pq-spot" />
@@ -239,6 +257,7 @@ export default function D05_01(props) {
             <Ball c={BALL_COLORS[2]} /><b className="pq-cnt">3</b>
           </span>
         )}
+      </div>
       </div>
 
       <div className="pq-opts">

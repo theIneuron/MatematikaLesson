@@ -63,7 +63,7 @@ export default function D01_06(props) {
         .pq06 .pq-ans{position:absolute;top:10px;right:16px;font-size:38px;font-weight:900;color:#1a7f43;animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;}
         .pq06 .pq-chips{display:flex;gap:8px;}
         .pq06 .pq-chip{width:34px;height:34px;border-radius:50%;background:#2563eb;color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;}
-        .pq06 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq06 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq06 .pq-opt{width:70px;height:70px;font-size:28px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq06 .pq-opt:hover:not(:disabled){border-color:#f4d6b4;transform:translateY(-2px);}
         .pq06 .pq-opt:active:not(:disabled){transform:scale(.94);}

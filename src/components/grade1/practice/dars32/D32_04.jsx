@@ -152,7 +152,7 @@ export default function D32_04(props) {
         .pq3204 .pq-fig{line-height:0;animation:pq3204Float 4s ease-in-out infinite;}
         .pq3204 .pq-line{stroke-dasharray:100;animation:pq3204Draw .9s ease-out .3s both;}
         .pq3204 .pq-rw:nth-child(2) .pq-line{animation-delay:.45s;} .pq3204 .pq-rw:nth-child(3) .pq-line{animation-delay:.6s;} .pq3204 .pq-rw:nth-child(4) .pq-line{animation-delay:.75s;}
-        .pq3204 .pq-chips{display:flex;gap:8px;}
+        .pq3204 .pq-chips{display:flex;flex-wrap:wrap;gap:8px;}
         .pq3204 .pq-chip{flex:1;min-width:0;height:42px;border-radius:12px;border:2.5px solid #dfe5ee;background:#fff;font-size:15px;font-weight:800;color:#4a5568;cursor:pointer;transition:.12s;font-family:inherit;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
         .pq3204 .pq-chip:hover:not(:disabled){border-color:#a9c8e4;transform:translateY(-2px);}
         .pq3204 .pq-chip:active:not(:disabled){transform:scale(.94);}

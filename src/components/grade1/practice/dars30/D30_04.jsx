@@ -246,7 +246,7 @@ export default function D30_04(props) {
         .pq3004 .pq-eq b.res{background:#e8f7ee;border-color:#1a7f43;color:#1a7f43;}
         .pq3004 .pq-eq i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
 
-        .pq3004 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq3004 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq3004 .pq-opt{min-width:84px;height:74px;padding:0 12px;font-size:38px;font-weight:800;line-height:1;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq3004 .pq-opt:hover:not(:disabled){border-color:#8fcf83;transform:translateY(-2px);}
         .pq3004 .pq-opt:active:not(:disabled){transform:scale(.94);}

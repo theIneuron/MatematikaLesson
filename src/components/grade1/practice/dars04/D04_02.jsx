@@ -114,7 +114,7 @@ export default function D04_02(props) {
         .pq0402 .pq-fish.fL{animation:pqPatrol ease-in-out infinite alternate-reverse;} .pq0402 .pq-fish.fL span{transform:scaleX(-1);}
         .pq0402 .pq-cnt{position:absolute;top:-9px;right:-9px;min-width:18px;height:18px;padding:0 3px;border-radius:50%;background:#1d4ed8;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:3;}
         .pq0402 .pq-ans{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:44px;font-weight:900;color:#fff;text-shadow:0 2px 10px rgba(13,60,95,.6);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:3;}
-        .pq0402 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:22px;}
+        .pq0402 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:22px;}
         .pq0402 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0402 .pq-opt:hover:not(:disabled){border-color:#a9cfe8;transform:translateY(-2px);}
         .pq0402 .pq-opt:active:not(:disabled){transform:scale(.94);}

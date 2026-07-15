@@ -160,7 +160,8 @@ export default function D06_06(props) {
         .pq0606 .pq-lamp{position:relative;line-height:0;animation:pqBob 2.4s ease-in-out infinite;filter:drop-shadow(0 2px 2px rgba(0,0,0,.2));}
         .pq0606 .pq-lamp.win{animation:pqBob 2.4s ease-in-out infinite,pqCele .55s ease;}
         .pq0606 .pq-cnt{position:absolute;top:-7px;right:-7px;min-width:17px;height:17px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:3;}
-        .pq0606 .pq-rows{position:relative;display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:8px;z-index:2;}
+        .pq0606 .pq-rows{position:relative;display:grid;grid-template-columns:1fr;width:100%;max-width:360px;align-items:start;gap:8px;z-index:2;}
+        @media (min-width:480px){.pq0606 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq0606 .pq-rw{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;align-content:center;padding:7px 9px;border-radius:14px;border:2.5px solid #dbe2ea;background:#fff;transition:.15s;animation:pqFloat 4s ease-in-out infinite;}
         .pq0606 .pq-rw:nth-child(1){animation-delay:0s;}
         .pq0606 .pq-rw:nth-child(2){animation-delay:-1.4s;}
@@ -179,7 +180,7 @@ export default function D06_06(props) {
         .pq0606 .pq-slot{width:44px;height:48px;border-radius:10px;border:2.5px dashed #c3cad6;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#aab3c2;font-variant-numeric:tabular-nums;animation:pqBreath 2.4s ease-in-out infinite;}
         .pq0606 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq0606 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
-        .pq0606 .pq-sgs{display:flex;gap:5px;margin-left:4px;flex-basis:100%;justify-content:center;}
+        .pq0606 .pq-sgs{display:flex;flex-wrap:wrap;gap:5px;margin-left:4px;flex-basis:100%;justify-content:center;}
         .pq0606 .pq-sg{width:38px;height:38px;border-radius:10px;border:2.5px solid #d6dae3;background:#fff;font-size:17px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0606 .pq-sg:hover:not(:disabled){border-color:#e3b878;transform:translateY(-2px);}
         .pq0606 .pq-sg:active:not(:disabled){transform:scale(.92);}

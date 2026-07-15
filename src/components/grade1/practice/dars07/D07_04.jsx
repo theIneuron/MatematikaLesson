@@ -3,6 +3,21 @@
 // Pastda misol-panel [▢] + [▢] va raqam-kartalar [2][3][5]; bola kartani bosib misolni o'zi tuzadi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A = 5, B = 4, SUM = A + B; // 5 + 4 = 9 (rasm tartibi: chap savat birinchi)
 const CARDS = [4, 5, 6, 9]; // aralash tartib — soxta: 6 (yaqin), 9 (yig'indi)
 const DATA = { a: A, b: B, cards: CARDS, ptype: 'P8', level: '🔴', tag: 'build_expression' };
@@ -141,6 +156,7 @@ export default function D07_04(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   const placeCard = (v) => {
     if (lock) return;
@@ -185,14 +201,15 @@ export default function D07_04(props) {
   };
 
   return (
-    <div className="pq pq0704">
+    <div className="pq pq0704" ref={fitRef}>
       <style>{`
         .pq0704{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0704 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#379a5b;text-transform:uppercase;}
         .pq0704 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0704 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0704 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0704 .pq-scene{position:relative;width:372px;height:252px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#ddf0d3 78%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0704 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:252px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#ddf0d3 78%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0704 .pq-fit{position:relative;margin:0 auto;}
         .pq0704 .pq-sun{position:absolute;top:10px;right:14px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 4px rgba(249,198,47,.55);animation:pqSun 3.6s ease-in-out infinite;}
         .pq0704 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;}
         .pq0704 .pq-cloud.c1{top:16px;left:-70px;animation-duration:30s;animation-delay:-12s;}
@@ -216,7 +233,7 @@ export default function D07_04(props) {
         .pq0704 .pq-stagegrp.merge .pq-plusbig{animation:none;opacity:0;transform:scale(.35);}
         .pq0704 .pq-cnt{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 3px;border-radius:50%;background:#2563eb;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;animation:pqPop .3s ease both;z-index:4;}
         .pq0704 .pq-chip{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:24px;font-weight:900;color:#1a7f43;background:#fff;padding:3px 16px;border-radius:14px;box-shadow:0 4px 12px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;z-index:6;white-space:nowrap;}
-        .pq0704 .pq-exp{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;}
+        .pq0704 .pq-exp{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin-top:18px;}
         .pq0704 .pq-slot{width:64px;height:64px;padding:0;border-radius:16px;border:2.5px dashed #9aa3b2;background:#f6f8fb;color:#1d4ed8;font-size:28px;font-weight:800;font-family:inherit;font-variant-numeric:tabular-nums;display:flex;align-items:center;justify-content:center;cursor:default;transition:.13s;}
         .pq0704 .pq-slot.filled{border-style:solid;border-color:#2563eb;background:#e8eefc;cursor:pointer;}
         .pq0704 .pq-slot.filled:hover:not(:disabled){transform:translateY(-2px);}
@@ -248,7 +265,8 @@ export default function D07_04(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 372 * scale, height: 252 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-fence" />
@@ -261,6 +279,7 @@ export default function D07_04(props) {
           <span className="pq-plusbig">+</span>
           {renderBasket(BALLS_R, A, 'r')}
         </div>
+      </div>
       </div>
 
       <div className="pq-exp">

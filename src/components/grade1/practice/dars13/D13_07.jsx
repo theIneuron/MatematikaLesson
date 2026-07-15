@@ -189,7 +189,7 @@ export default function D13_07(props) {
         .pq1307 .pq-tray{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%;}
         .pq1307 .pq-card{display:flex;flex-direction:column;align-items:center;gap:7px;padding:10px 9px 9px;border-radius:16px;background:#fffdf7;border:2px solid #ecdcb8;box-shadow:0 3px 6px rgba(120,80,30,.1);}
         .pq1307 .pq-obj{display:flex;align-items:flex-end;justify-content:center;min-height:56px;line-height:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.16));}
-        .pq1307 .pq-cbtns{display:flex;gap:6px;}
+        .pq1307 .pq-cbtns{display:flex;flex-wrap:wrap;gap:6px;}
         .pq1307 .pq-cbtn{padding:7px 11px;font-size:13px;font-weight:800;border-radius:11px;border:2px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;transition:.12s;}
         .pq1307 .pq-cbtn.onlik{border-color:#a9cbe6;color:#3a72a3;}
         .pq1307 .pq-cbtn.birlik{border-color:#eecf8e;color:#a06a1f;}

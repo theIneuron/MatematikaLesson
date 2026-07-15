@@ -2,6 +2,21 @@
 // To'nkada 5 ta sabzi; kanon-quyon (D04_01) sakrab kirib 2 tasini chetga olib ketadi — 3 qoladi. «5 − 2» tanlanadi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const EXPRS = ['5 − 2', '5 + 2', '5 − 3'];
 const CORRECT_EXPR = '5 − 2';
 const DATA = { start: 5, gone: 2, ptype: 'P8', level: '🟡', tag: 'pick_expression_sub' };
@@ -134,16 +149,18 @@ export default function D08_04(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(360);
 
   return (
-    <div className="pq pq0804">
+    <div className="pq pq0804" ref={fitRef}>
       <style>{`
         .pq0804{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq0804 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#5a9440;text-transform:uppercase;}
         .pq0804 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 14px;}
         .pq0804 .pq-setup{color:#5c6672;font-weight:500;}
         .pq0804 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq0804 .pq-scene{position:relative;width:360px;height:232px;margin:0 auto;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#eef9ea 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0804 .pq-scene{box-sizing:border-box;position:relative;width:360px;height:232px;border-radius:20px;background:linear-gradient(#cfe9fb 0%,#e6f5ff 52%,#eef9ea 100%);border:2px solid #c4dff0;overflow:hidden;}
+        .pq0804 .pq-fit{position:relative;margin:0 auto;}
         .pq0804 .pq-sun{position:absolute;top:10px;right:14px;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 4px rgba(249,198,47,.55);animation:pqSun 3.6s ease-in-out infinite;z-index:1;}
         .pq0804 .pq-cloud{position:absolute;width:52px;height:16px;background:#fff;border-radius:999px;opacity:.9;box-shadow:16px 5px 0 -4px #fff,-15px 6px 0 -5px #fff,4px -6px 0 -3px #fff;animation:pqCloud linear infinite;z-index:0;}
         .pq0804 .pq-cloud.c1{top:16px;left:-70px;animation-duration:28s;animation-delay:-12s;}
@@ -211,7 +228,8 @@ export default function D08_04(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-fit" style={{ width: 360 * scale, height: 232 * scale }}>
+      <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-cloud c1" /><span className="pq-cloud c2" />
         <span className="pq-fence" /><span className="pq-grass" />
@@ -244,6 +262,7 @@ export default function D08_04(props) {
 
         {!ok && <span className="pq-q">?</span>}
         {ok && <span className="pq-chip">5 − 2 = 3</span>}
+      </div>
       </div>
 
       <div className="pq-opts">

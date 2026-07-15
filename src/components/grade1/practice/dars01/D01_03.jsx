@@ -69,7 +69,7 @@ export default function D01_03(props) {
         .pq03 .pq-cell.on{background:radial-gradient(circle at 38% 34%,#d6fbff,#7cf0ff 52%,#39b6e6);opacity:0;animation:pqLampOn .42s ease both,pqLampGlow 1.9s ease-in-out infinite;}
         .pq03 .pq-eyes{display:flex;gap:26px;justify-content:center;margin-top:12px;}
         .pq03 .pq-eyes span{width:16px;height:16px;border-radius:50%;background:#5b57d6;animation:pqBlink2 3s infinite;}
-        .pq03 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq03 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq03 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq03 .pq-opt:hover:not(:disabled){border-color:#b7b1f2;transform:translateY(-2px);}
         .pq03 .pq-opt:active:not(:disabled){transform:scale(.94);}

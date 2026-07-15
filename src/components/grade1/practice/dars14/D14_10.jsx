@@ -5,6 +5,21 @@
 // To'la yashik alohida, yakkalar alohida ko'rinadi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const TEN = 10, NEED = 3, TARGET = 13;
 const DATA = { ten: 10, ones: 3, target: 13, ptype: 'NEW', level: '🔴', tag: 'build_teen' };
 
@@ -100,6 +115,7 @@ export default function D14_10(props) {
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
   const ok = feedback && feedback.correct;
+  const [fitRef, scale] = useFitScale(372);
 
   return (
     <div className="pq pq1410">
@@ -111,7 +127,8 @@ export default function D14_10(props) {
         .pq1410 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
         .pq1410 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:11px;padding:10px 10px 13px;border-radius:22px;background:linear-gradient(#e8f4d9,#d6e9c2);border:2px solid #c4dba8;}
         /* MEVA BOG'I SAHNASI */
-        .pq1410 .pq-scene{position:relative;width:372px;max-width:100%;height:290px;border-radius:18px;background:linear-gradient(#c3e7fb 0%,#daf1fd 40%,#eaf8ff 52%);border:2px solid #b8d9c8;overflow:hidden;}
+        .pq1410 .pq-scene{box-sizing:border-box;position:relative;width:372px;height:290px;border-radius:18px;background:linear-gradient(#c3e7fb 0%,#daf1fd 40%,#eaf8ff 52%);border:2px solid #b8d9c8;overflow:hidden;}
+        .pq1410 .pq-fit{position:relative;margin:0 auto;}
         .pq1410 .pq-sun{position:absolute;top:16px;left:16px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 40% 38%,#fff6ce,#ffd84a 72%,#f6b81f);box-shadow:0 0 16px 4px rgba(255,214,74,.55);z-index:1;animation:pqSun 3.6s ease-in-out infinite;}
         .pq1410 .pq-cloud{position:absolute;height:13px;background:#fff;border-radius:20px;opacity:.94;z-index:1;}
         .pq1410 .pq-cloud::before{content:'';position:absolute;background:#fff;border-radius:50%;width:17px;height:17px;top:-7px;left:7px;}
@@ -183,8 +200,9 @@ export default function D14_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-stage">
-        <div className={'pq-scene' + (still ? ' still' : '')}>
+      <div className="pq-stage" ref={fitRef}>
+        <div className="pq-fit" style={{ width: 372 * scale, height: 290 * scale }}>
+        <div className={'pq-scene' + (still ? ' still' : '')} style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
           <span className="pq-sun" />
           <span className="pq-cloud c1" />
           <span className="pq-grass" />
@@ -267,6 +285,7 @@ export default function D14_10(props) {
               <span className="pq-wstar w3" style={{ left: '48%', top: '30px' }}><Star fill="#f2b134" /></span>
             </>
           )}
+        </div>
         </div>
       </div>
 

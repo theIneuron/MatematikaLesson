@@ -10,6 +10,21 @@
 // studentAnswer = { picked }. onReady faqat birlashtirilib variant tanlanganda.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
 const A_TENS = 3, A_UNITS = 4;      // 34 = 3 savat + 4 olma
 const B_TENS = 2, B_UNITS = 5;      // 25 = 2 savat + 5 olma
 const M_TENS = A_TENS + B_TENS;     // birlashgach 5 savat (o'nliklar)
@@ -174,16 +189,18 @@ export default function D26_10(props) {
   const combine = () => { if (lock || combined) return; setCombined(true); setFeedback(null); };
   const flowDelay = (i) => still ? 0 : i * 0.16;      // savat/olmalar ketma-ket oqib keladi
   const pillDelay = (n) => still ? 0 : 0.2 + n * 0.28; // razryad-sanoq nishonchalari
+  const [fitRef, scale] = useFitScale(388);
 
   return (
-    <div className="pq pq2610">
+    <div className="pq pq2610" ref={fitRef}>
       <style>{`
         .pq2610{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
         .pq2610 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f8a41;text-transform:uppercase;}
         .pq2610 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2610 .pq-setup{color:#5c6672;font-weight:700;font-variant-numeric:tabular-nums;}
         .pq2610 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2610 .pq-scene{position:relative;width:388px;max-width:100%;height:236px;margin:0 auto;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
+        .pq2610 .pq-fit{position:relative;margin:0 auto;}
+        .pq2610 .pq-scene{box-sizing:border-box;position:relative;width:388px;height:236px;border-radius:20px;background:linear-gradient(#bfe6f5 0%,#d7f0dd 56%,#bfe0a4 100%);border:2px solid #b7d8bd;overflow:hidden;}
         .pq2610 .pq-sun{position:absolute;right:18px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2610sun 3.6s ease-in-out infinite;}
         .pq2610 .pq-leaf{position:absolute;z-index:1;color:#5fb15a;opacity:.8;line-height:0;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(60,120,50,.3));animation:pq2610sway 4.4s ease-in-out infinite;}
         .pq2610 .pq-leaf.l2{animation-delay:-2.1s;color:#7bc06f;}
@@ -232,7 +249,7 @@ export default function D26_10(props) {
         .pq2610 .pq-sub{text-align:center;margin-top:6px;font-size:14px;font-weight:800;color:#5a8a4f;font-variant-numeric:tabular-nums;animation:pq2610in .3s .1s both;}
 
         .pq2610 .pq-first{text-align:center;margin-top:14px;font-size:13px;font-weight:800;color:#8a7a5a;}
-        .pq2610 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:16px;}
+        .pq2610 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:16px;}
         .pq2610 .pq-opt{min-width:72px;height:72px;padding:0 8px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2610 .pq-opt:hover:not(:disabled){border-color:#8fcf83;transform:translateY(-2px);}
         .pq2610 .pq-opt:active:not(:disabled){transform:scale(.94);}
@@ -256,7 +273,8 @@ export default function D26_10(props) {
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-scene">
+      <div className="pq-fit" style={{ width: 388 * scale, height: 236 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-leaf" style={{ left: '16px', top: '30px' }}>❧</span>
         <span className="pq-leaf l2" style={{ right: '18px', bottom: '40px' }}>❧</span>
@@ -339,6 +357,7 @@ export default function D26_10(props) {
           <span className="pq-spark s2" style={{ left: '82%', top: '66px' }}>✦</span>
           <span className="pq-spark s3" style={{ left: '50%', top: '40px' }}>✦</span>
         </>)}
+      </div>
       </div>
 
       {/* Birlashtirish tugmasi — birlashguncha ko'rinadi */}

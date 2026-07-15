@@ -107,7 +107,8 @@ export default function D22_05(props) {
         .pq2205 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
 
         /* 2x2 toza kartalar panjarasi — sahna/dekor YO'Q, diqqat faqat sonlarda */
-        .pq2205 .pq-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%;max-width:430px;margin:0 auto;}
+        .pq2205 .pq-grid{display:grid;grid-template-columns:1fr;gap:10px;width:100%;max-width:360px;margin:0 auto;}
+        @media (min-width:480px){.pq2205 .pq-grid{grid-template-columns:1fr 1fr;max-width:520px;}}
         .pq2205 .pq-card{display:flex;flex-direction:column;align-items:center;gap:9px;padding:12px 6px 11px;border-radius:16px;border:2.5px solid #d6dae3;background:#fff;box-shadow:0 2px 6px rgba(60,80,110,.08);transition:.15s;}
         .pq2205 .pq-card.good{border-color:#1a7f43;background:#f2fbf5;}
         .pq2205 .pq-card.good.win{animation:pq2205cele .5s ease;}
@@ -120,7 +121,7 @@ export default function D22_05(props) {
         .pq2205 .pq-slot.set{border-style:solid;border-color:#2563eb;color:#2563eb;}
         .pq2205 .pq-slot.done{border-style:solid;border-color:#1a7f43;color:#1a7f43;background:#e8f7ee;}
 
-        .pq2205 .pq-pick{display:flex;gap:7px;justify-content:center;}
+        .pq2205 .pq-pick{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;}
         .pq2205 .pq-sg{width:46px;height:40px;border-radius:11px;border:2.5px solid #d6dae3;background:#fff;font-size:22px;font-weight:900;color:#374151;cursor:pointer;line-height:1;transition:.12s;display:flex;align-items:center;justify-content:center;}
         .pq2205 .pq-sg:hover:not(:disabled){border-color:#94b8e2;transform:translateY(-2px);}
         .pq2205 .pq-sg:active:not(:disabled){transform:scale(.92);}

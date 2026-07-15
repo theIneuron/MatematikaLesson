@@ -199,7 +199,7 @@ export default function D12_04(props) {
         .pq1204 .pq-croctail{transform-box:fill-box;transform-origin:92% 58%;animation:pqSway 3.4s ease-in-out infinite;}
         .pq1204 .pq-blink{opacity:0;animation:pqBlink 4.2s linear infinite;}
         .pq1204 .pq-fix{margin:14px auto 0;max-width:300px;text-align:center;background:#fff;color:#1a7f43;font-size:15px;font-weight:800;padding:8px 14px;border-radius:12px;box-shadow:0 5px 14px rgba(26,127,67,.22);animation:pqAns .5s cubic-bezier(.3,1.5,.5,1) both;}
-        .pq1204 .pq-opts{display:flex;gap:14px;justify-content:center;margin-top:18px;}
+        .pq1204 .pq-opts{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:18px;}
         .pq1204 .pq-opt{flex:1;max-width:196px;display:flex;align-items:center;justify-content:center;gap:9px;padding:16px 12px;border-radius:16px;border:3px solid #d6dae3;background:#fff;color:#374151;font-size:19px;font-weight:800;cursor:pointer;transition:.13s;}
         .pq1204 .pq-opt .ic{display:flex;}
         .pq1204 .pq-opt.t .ic{color:#1a7f43;} .pq1204 .pq-opt.f .ic{color:#c0392b;}

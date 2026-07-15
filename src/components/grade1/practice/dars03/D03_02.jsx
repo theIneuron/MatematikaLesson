@@ -60,7 +60,7 @@ export default function D03_02(props) {
         .pq0302 .pq-card{position:relative;width:150px;height:190px;border-radius:20px;background:linear-gradient(#fff,#eef4fb);border:3px solid #cfe0f0;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(43,127,196,.16);animation:pqFloat 3.4s ease-in-out infinite;}
         .pq0302 .pq-digit{font-size:104px;font-weight:900;color:#2b7fc4;font-variant-numeric:tabular-nums;line-height:1;}
         .pq0302 .pq-card.win{animation:pqCele .6s ease;}
-        .pq0302 .pq-opts{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+        .pq0302 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;}
         .pq0302 .pq-opt{width:72px;height:72px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq0302 .pq-opt:hover:not(:disabled){border-color:#cfe0f0;transform:translateY(-2px);}
         .pq0302 .pq-opt:active:not(:disabled){transform:scale(.94);}
