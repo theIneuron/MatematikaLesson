@@ -1,14 +1,7 @@
-// Dars28 · Amaliyot 02 — Masala tuzilishi «Yig'indiga masala» (ikki xonali) · 🟡 · tag: sum
-// Bitta-tanlov: sbornik masala (olmalar, o'zbek ismlari). Anvar 34 olma, Zuhra 25 olma o'qidi.
-// Jami nechta? -> 59. «Jami» = ikki to'plam BIRLASHADI => QO'SHAMIZ (+). Bola amalni ma'nodan tanlaydi.
-// QIYINROQ SONLAR: ikki xonali + ikki xonali, razryad bo'yicha, o'tkazishsiz (har razryad yig'indisi < 10):
-//   o'nlikka o'nlik 3+2=5, birlikka birlik 4+5=9 -> 59 (natija <= 99). Bu Dars 26 malakasi.
-// KANON MODEL (Dars 24-27 kabi): bitta O'NLIK = bitta olma SAVATI (10 olma, «10» nishoni);
-//   bitta BIRLIK = bitta yakka olma. 34 = 3 savat + 4 olma; 25 = 2 savat + 5 olma. Savatlar savatlar
-//   bilan, yakka olmalar yakka olmalar bilan birlashadi (razryad bo'yicha).
-// Chalg'ituvchilar: 9 (M1 — qo'shish o'rniga ayirish 34 − 25 = 9), 50 (M2 — faqat o'nliklar 30 + 20 = 50).
-// Javob 59 ekrangacha KO'RSATILMAYDI (answer-leak yo'q) — faqat g'alabada tenglamada paydo bo'ladi.
-// VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
+// Dars28 · Amaliyot 02 — Yig'indiga masala (10 ichida) · 🟢 · tag: sum
+// SODDA (metodist talabi 2026-07-15): bir xonali, 10 ichida, o'nlik/razryad YO'Q.
+// Anvar 4 ta, Zuhra 2 ta olma terdi -> jami 6. Ikki bola olmasini birlashtiramiz -> qo'shamiz.
+// Ma'no: ikki to'plam BIRLASHTIRILSA — QO'SHAMIZ (+). Bola savolni ("jami") tushunadi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 // MOBIL-FIT: qat'iy o'lchamli sahnani mavjud kenglikka sig'diradi — ichki px koordinatalar buzilmaydi.
@@ -26,29 +19,23 @@ const useFitScale = (designW) => {
   return [ref, scale];
 };
 
-const A = 34, aT = 3, aU = 4;            // Anvar: 3 o'nlik + 4 birlik = 34
-const B = 25, bT = 2, bU = 5;            // Zuhra: 2 o'nlik + 5 birlik = 25
-const TARGET = 59;                        // 34 + 25 = 59 (o'tkazishsiz)
-const DATA = { a: A, b: B, target: TARGET, options: [59, 9, 50], answer: TARGET, level: '🟡', tag: 'sum' };
+const A = 4, B = 2, TARGET = 6;
+const DATA = { a: A, b: B, target: TARGET, options: [6, 5, 7], answer: TARGET, level: '🟢', tag: 'sum' };
 
 const T = {
   uz: {
     eyebrow: "Olma bog'i · Masala", title: "Jami nechta?",
-    setup: "Anvar 34 ta, Zuhra 25 ta olma terdi.",
+    setup: "Anvar 4 ta, Zuhra 2 ta olma terdi.",
     ask: "Jami nechta olma?",
-    correct: "Barakalla! Jami — qo'shamiz. 3+2=5 o'nlik, 4+5=9 birlik. 34 + 25 = 59.",
-    hint: "Jami topish — qo'shing: o'nlikka o'nlik, birlikka birlik.",
-    tens: "o'nlik", units: "birlik",
-    nameA: "Anvar", nameB: "Zuhra",
+    correct: "Barakalla! Jami — qo'shamiz. 4 + 2 = 6.",
+    hint: "Jami — hammasini birga sanang. Qo'shamiz.",
   },
   ru: {
     eyebrow: "Яблоневый сад · Задача", title: "Сколько всего?",
-    setup: "Анвар собрал 34 яблока, Зухра — 25.",
+    setup: "Анвар сорвал 4 яблока, Зухра — 2.",
     ask: "Сколько всего яблок?",
-    correct: "Молодец! Всего — складываем. 3+2=5 десятков, 4+5=9 единиц. 34 + 25 = 59.",
-    hint: "Найти всего — сложить: десятки к десяткам, единицы к единицам.",
-    tens: "десятков", units: "единиц",
-    nameA: "Анвар", nameB: "Зухра",
+    correct: "Молодец! Всего — складываем. 4 + 2 = 6.",
+    hint: "Всего — сосчитай все вместе. Складываем.",
   },
 };
 
@@ -56,87 +43,25 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
 let __gid = 0;
-
-// YAKKA OLMA (bitta birlik): yumaloq tana — radial 2-ton, bandak, barg, oq blik. (Dars 21 kanoni)
-const Apple = ({ w = 22 }) => {
+// YAKKA OLMA: yumaloq tana — radial 2-ton, bandak, barg, oq blik. green=yashil variant.
+const Apple = ({ w = 30, green = false }) => {
   const id = 'pq2802a' + (__gid++);
   const h = w * 26 / 24;
+  const c = green
+    ? ['#bfe39a', '#7ec06a', '#4e9440', '#3f8038']
+    : ['#f2a49c', '#df5b52', '#b83b33', '#a5342c'];
   return (
     <svg viewBox="0 0 24 26" width={w} height={h} aria-hidden="true" style={{ display: 'block', overflow: 'visible' }}>
       <defs>
         <radialGradient id={id} cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#f2a49c" /><stop offset="55%" stopColor="#df5b52" /><stop offset="100%" stopColor="#b83b33" />
+          <stop offset="0%" stopColor={c[0]} /><stop offset="55%" stopColor={c[1]} /><stop offset="100%" stopColor={c[2]} />
         </radialGradient>
       </defs>
       <path d="M12,6.5 Q12.6,3.4 14.2,2.4" fill="none" stroke="#7a4a28" strokeWidth="1.6" strokeLinecap="round" />
       <path d="M13,4.6 Q17,2.7 18.7,5.4 Q15.4,7.2 13,4.6 Z" fill="#5aa84f" stroke="#3f8038" strokeWidth=".5" />
-      <path d="M12,7.4 C9.4,4.9 4,5.7 4,11.8 C4,17.6 8,23.2 12,23.2 C16,23.2 20,17.6 20,11.8 C20,5.7 14.6,4.9 12,7.4 Z" fill={`url(#${id})`} stroke="#a5342c" strokeWidth="1.1" strokeLinejoin="round" />
+      <path d="M12,7.4 C9.4,4.9 4,5.7 4,11.8 C4,17.6 8,23.2 12,23.2 C16,23.2 20,17.6 20,11.8 C20,5.7 14.6,4.9 12,7.4 Z" fill={`url(#${id})`} stroke={c[3]} strokeWidth="1.1" strokeLinejoin="round" />
       <ellipse cx="8.6" cy="10.6" rx="2.6" ry="1.7" fill="#fff" opacity=".55" transform="rotate(-30 8.6 10.6)" />
     </svg>
-  );
-};
-
-// SAVAT (bitta o'nlik = 10 olma bir birlikka bog'langan): to'qima savat, ustidan olmalar mo'ralaydi,
-// oldida yashil «10» nishoni. Bola savatdagi olmalarni QAYTA sanamaydi — savat = bitta razryad birligi.
-const Basket = ({ w = 40 }) => {
-  const id = 'pq2802b' + (__gid++);
-  const ap = id + 'ap';
-  const h = w * 54 / 56;
-  return (
-    <svg viewBox="0 0 56 54" width={w} height={h} aria-hidden="true" style={{ display: 'block', overflow: 'visible' }}>
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#e3ab78" /><stop offset="100%" stopColor="#b6743c" />
-        </linearGradient>
-        <radialGradient id={ap} cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stopColor="#f2a49c" /><stop offset="55%" stopColor="#df5b52" /><stop offset="100%" stopColor="#b83b33" />
-        </radialGradient>
-      </defs>
-      <g>
-        <circle cx="16" cy="21" r="8" fill={`url(#${ap})`} stroke="#a5342c" strokeWidth="1" />
-        <circle cx="40" cy="21" r="8" fill={`url(#${ap})`} stroke="#a5342c" strokeWidth="1" />
-        <circle cx="28" cy="16.5" r="9" fill={`url(#${ap})`} stroke="#a5342c" strokeWidth="1" />
-        <path d="M29,7.6 Q33,5.7 34.7,8.4 Q31.4,10.2 29,7.6 Z" fill="#5aa84f" stroke="#3f8038" strokeWidth=".5" />
-        <ellipse cx="13" cy="18.6" rx="2.2" ry="1.4" fill="#fff" opacity=".5" transform="rotate(-30 13 18.6)" />
-        <ellipse cx="25" cy="13.6" rx="2.4" ry="1.5" fill="#fff" opacity=".5" transform="rotate(-30 25 13.6)" />
-      </g>
-      <ellipse cx="28" cy="27" rx="24" ry="5.4" fill="#d59a5f" stroke="#8a5a2c" strokeWidth="1.4" />
-      <path d="M6,27 L50,27 L44,50.4 Q44,52.6 41.4,52.6 L14.6,52.6 Q12,52.6 12,50.4 Z" fill={`url(#${id})`} stroke="#8a5a2c" strokeWidth="1.4" strokeLinejoin="round" />
-      <g stroke="#8a5a2c" strokeWidth="1" opacity=".5" fill="none">
-        <path d="M19,28 L21,51" /><path d="M28,28 L28,51.6" /><path d="M37,28 L35,51" />
-      </g>
-      <g stroke="#95632f" strokeWidth="1.3" fill="none" opacity=".7">
-        <path d="M9,33 Q28,37 47,33" /><path d="M11,41 Q28,45 45,41" /><path d="M12.6,48 Q28,51.4 43.4,48" />
-      </g>
-      <g>
-        <circle cx="28" cy="41" r="8.4" fill="#1a7f43" stroke="#fff" strokeWidth="1.6" />
-        <text x="28" y="44.6" textAnchor="middle" fontSize="10" fontWeight="800" fill="#fff" fontFamily="Manrope, sans-serif">10</text>
-      </g>
-    </svg>
-  );
-};
-
-// Bitta sonni razryad bo'yicha ko'rsatadi: `tens` savat (o'nlik) + `units` yakka olma (birlik).
-const NumberViz = ({ tens, units, idle }) => {
-  const crates = Array.from({ length: tens });
-  const apples = Array.from({ length: units });
-  return (
-    <div className="pq-num">
-      <div className="pq-crates">
-        {crates.map((_, i) => (
-          <span key={'c' + i} className={'pq-obj' + (idle ? ' idle' : '')} style={{ '--bd': `${i * 0.1}s` }}>
-            <Basket w={40} />
-          </span>
-        ))}
-      </div>
-      <div className="pq-apples">
-        {apples.map((_, i) => (
-          <span key={'a' + i} className={'pq-obj' + (idle ? ' idle' : '')} style={{ '--bd': `${(tens + i) * 0.1}s` }}>
-            <Apple w={22} />
-          </span>
-        ))}
-      </div>
-    </div>
   );
 };
 
@@ -147,7 +72,6 @@ export default function D28_02(props) {
   const [picked, setPicked] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
-  // Review yoki qayta ochilishda birlashtirish animatsiyasi qayta ijro etilmaydi — statik yakuniy holat.
   const stillRef = useRef(isReview || !!(initialAnswer && initialAnswer.studentAnswer));
   const still = stillRef.current;
 
@@ -172,103 +96,100 @@ export default function D28_02(props) {
 
   const lock = isReview || checked;
   const ok = feedback && feedback.correct;
-  const idle = !ok && !still; // g'alabagacha yengil tebranish (savat/olma bosiladigan nishon EMAS — dekor)
-  const [fitRef, scale] = useFitScale(380);
+  const idle = !ok && !still;
+  const joinDelay = (i) => still ? 0 : 0.1 + i * 0.1;
+  const [fitRef, scale] = useFitScale(340);
+
+  const applesA = Array.from({ length: A });
+  const applesB = Array.from({ length: B });
+  const applesSum = Array.from({ length: TARGET });
 
   return (
     <div className="pq pq2802" ref={fitRef}>
       <style>{`
         .pq2802{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
-        .pq2802 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c9822f;text-transform:uppercase;}
+        .pq2802 *,.pq2802 *::before,.pq2802 *::after{box-sizing:border-box;}
+        .pq2802 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c14a3c;text-transform:uppercase;}
         .pq2802 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2802 .pq-setup{color:#5c6672;font-weight:500;}
-        .pq2802 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;}
-        .pq2802 .pq-scene{box-sizing:border-box;position:relative;width:380px;min-height:246px;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 52%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2802 .pq-ask{display:block;margin-top:4px;font-size:21px;font-weight:800;}
+        .pq2802 .pq-scene{position:relative;width:340px;height:200px;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 54%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
         .pq2802 .pq-fit{position:relative;margin:0 auto;}
-        .pq2802 .pq-sun{position:absolute;right:20px;top:14px;width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;pointer-events:none;animation:pq2802sun 3.6s ease-in-out infinite;}
-        .pq2802 .pq-hill{position:absolute;left:0;right:0;bottom:0;height:40px;background:linear-gradient(#bfe39a,#a7d47f);border-top:3px solid #8fc267;z-index:1;pointer-events:none;}
-        .pq2802 .pq-hill::before{content:'';position:absolute;left:0;right:0;top:6px;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 10px,transparent 10px 22px);}
-        .pq2802 .pq-title{position:absolute;top:9px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 15px 5px;border-radius:9px;background:linear-gradient(#4c9d55,#3a7f42);border:2.5px solid #2c6633;color:#f0fbef;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.28);pointer-events:none;}
-
-        .pq2802 .pq-arena{position:absolute;left:8px;right:8px;top:42px;bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;z-index:3;}
-        .pq2802 .pq-arena.join{gap:2px;}
-        .pq2802 .pq-group{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .5s ease;}
-        .pq2802 .pq-arena.join .pq-group.ga{transform:translateX(9px);}
-        .pq2802 .pq-arena.join .pq-group.gb{transform:translateX(-9px);}
-        .pq2802 .pq-num{display:flex;flex-direction:column;align-items:center;gap:5px;}
-        .pq2802 .pq-crates{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;max-width:132px;}
-        .pq2802 .pq-apples{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;max-width:132px;}
+        .pq2802 .pq-sun{position:absolute;right:18px;top:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;animation:pq2802sun 3.6s ease-in-out infinite;}
+        .pq2802 .pq-hill{position:absolute;left:0;right:0;bottom:0;height:48px;background:linear-gradient(#bfe39a,#a7d47f);border-top:3px solid #8fc267;z-index:1;}
+        .pq2802 .pq-title{position:absolute;top:9px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 15px 5px;border-radius:9px;background:linear-gradient(#c14a3c,#a2382c);border:2.5px solid #83271d;color:#fdeee9;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.16);}
+        .pq2802 .pq-arena{position:absolute;left:8px;right:8px;top:40px;bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;z-index:3;}
+        .pq2802 .pq-group{display:flex;flex-direction:column;align-items:center;gap:5px;}
+        .pq2802 .pq-apples{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:120px;}
+        .pq2802 .pq-apples.sum{max-width:220px;}
         .pq2802 .pq-obj{line-height:0;}
         .pq2802 .pq-obj.idle{animation:pq2802bob 2.9s ease-in-out infinite;animation-delay:var(--bd,0s);}
-        .pq2802 .pq-gl{margin-top:1px;padding:1px 12px;border-radius:999px;background:#fff;border:2px solid #c9822f;color:#c9822f;font-weight:900;font-size:14px;font-variant-numeric:tabular-nums;box-shadow:0 2px 4px rgba(0,0,0,.16);animation:pq2802pop .38s ease both;}
-        .pq2802 .pq-plus{font-size:26px;font-weight:900;color:#5c6672;flex:0 0 auto;align-self:center;animation:pq2802bob 2.6s ease-in-out infinite;}
-
-        .pq2802 .pq-spark{position:absolute;z-index:5;color:#ffd13f;opacity:0;line-height:0;pointer-events:none;animation:pq2802tw 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
-        .pq2802 .pq-spark.s2{animation-delay:-.6s;} .pq2802 .pq-spark.s3{animation-delay:-1.15s;}
-
+        .pq2802 .pq-obj.join{animation:pq2802join .42s ease both;animation-delay:var(--bd,0s);}
+        .pq2802 .pq-tag{padding:1px 12px;border-radius:999px;background:#fff;border:2px solid #b6743c;color:#a2582a;font-weight:900;font-size:15px;box-shadow:0 2px 4px rgba(0,0,0,.14);}
+        .pq2802 .pq-plus{font-size:30px;font-weight:900;color:#5c6672;align-self:center;}
         .pq2802 .pq-eq{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;animation:pq2802in .3s ease both;}
-        .pq2802 .pq-eq b{min-width:44px;height:38px;padding:0 6px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;border-radius:11px;background:#fdf3e6;border:2px solid #e6c48f;color:#c9822f;font-variant-numeric:tabular-nums;}
+        .pq2802 .pq-eq b{min-width:44px;height:40px;padding:0 8px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;border-radius:12px;background:#fdeee9;border:2px solid #eab5aa;color:#c14a3c;font-variant-numeric:tabular-nums;}
         .pq2802 .pq-eq b.res{background:#e8f7ee;border-color:#1a7f43;color:#1a7f43;}
-        .pq2802 .pq-eq i{font-style:normal;font-size:20px;font-weight:900;color:#8a94a2;}
-        .pq2802 .pq-sub{text-align:center;margin-top:6px;font-size:13px;font-weight:800;color:#5a8a4f;font-variant-numeric:tabular-nums;animation:pq2802in .3s .1s both;}
-
+        .pq2802 .pq-eq i{font-style:normal;font-size:22px;font-weight:900;color:#8a94a2;}
         .pq2802 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
-        .pq2802 .pq-opt{min-width:72px;height:72px;padding:0 8px;font-size:30px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
-        .pq2802 .pq-opt:hover:not(:disabled){border-color:#e6b06a;transform:translateY(-2px);}
+        .pq2802 .pq-opt{min-width:78px;height:74px;padding:0 12px;font-size:32px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
+        .pq2802 .pq-opt:hover:not(:disabled){border-color:#eab5aa;transform:translateY(-2px);}
         .pq2802 .pq-opt:active:not(:disabled){transform:scale(.94);}
         .pq2802 .pq-opt.sel{border-color:#2563eb;background:#e8eefc;}
         .pq2802 .pq-opt.right{border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pq2802cele .5s ease;}
         .pq2802 .pq-opt:disabled{cursor:default;}
         .pq2802 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pq2802in .22s ease both;}
         .pq2802 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq2802 .pq-fb.no{background:#fdecec;color:#c0392b;}
-
         @keyframes pq2802bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
+        @keyframes pq2802join{from{opacity:0;transform:translateY(-8px) scale(.7);}to{opacity:1;transform:translateY(0) scale(1);}}
         @keyframes pq2802sun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-        @keyframes pq2802pop{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
-        @keyframes pq2802tw{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
         @keyframes pq2802cele{0%{transform:scale(1);}30%{transform:scale(1.05);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pq2802in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-fit" style={{ width: 380 * scale, height: 246 * scale }}>
+      <div className="pq-fit" style={{ width: 340 * scale, height: 200 * scale }}>
       <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
         <span className="pq-hill" />
         <div className="pq-title">{t.title}</div>
-
-        {/* g'alabada ikki to'plam bir-biriga yaqinlashadi = BIRLASHTIRISH -> qo'shish */}
-        <div className={'pq-arena' + (ok ? ' join' : '')}>
-          {/* Anvarning 34 olmasi: 3 savat (o'nlik) + 4 yakka olma (birlik). Yorliq boshidanoq ko'rinadi. */}
-          <div className="pq-group ga">
-            <NumberViz tens={aT} units={aU} idle={idle} />
-            <span className="pq-gl">{t.nameA} · {A}</span>
-          </div>
-
-          {/* birlashtirish belgisi — qo'shamiz («+» javobni ochmaydi) */}
-          <span className="pq-plus">{'+'}</span>
-
-          {/* Zuhraning 25 olmasi: 2 savat (o'nlik) + 5 yakka olma (birlik). Yorliq boshidanoq ko'rinadi. */}
-          <div className="pq-group gb">
-            <NumberViz tens={bT} units={bU} idle={idle} />
-            <span className="pq-gl">{t.nameB} · {B}</span>
-          </div>
+        <div className="pq-arena">
+          {ok ? (
+            <div className="pq-group">
+              <div className="pq-apples sum">
+                {applesSum.map((_, i) => (
+                  <span key={'s' + i} className={'pq-obj' + (still ? '' : ' join')} style={{ '--bd': `${joinDelay(i)}s` }}><Apple w={32} /></span>
+                ))}
+              </div>
+              <span className="pq-tag">{TARGET}</span>
+            </div>
+          ) : (<>
+            <div className="pq-group">
+              <div className="pq-apples">
+                {applesA.map((_, i) => (
+                  <span key={'a' + i} className={'pq-obj' + (idle ? ' idle' : '')} style={{ '--bd': `${i * 0.12}s` }}><Apple w={30} /></span>
+                ))}
+              </div>
+              <span className="pq-tag">{A}</span>
+            </div>
+            <span className="pq-plus">+</span>
+            <div className="pq-group">
+              <div className="pq-apples">
+                {applesB.map((_, i) => (
+                  <span key={'b' + i} className={'pq-obj' + (idle ? ' idle' : '')} style={{ '--bd': `${i * 0.12}s` }}><Apple w={30} /></span>
+                ))}
+              </div>
+              <span className="pq-tag">{B}</span>
+            </div>
+          </>)}
         </div>
-
-        {ok && (<>
-          <span className="pq-spark" style={{ left: '16%', top: '54px' }}>✦</span>
-          <span className="pq-spark s2" style={{ left: '82%', top: '68px' }}>✦</span>
-          <span className="pq-spark s3" style={{ left: '50%', top: '42px' }}>✦</span>
-        </>)}
       </div>
       </div>
 
-      {/* G'alaba: jami — qo'shamiz (razryad bo'yicha, o'tkazishsiz) */}
-      {ok && (<>
-        <div className="pq-eq"><b>{A}</b><i>{'+'}</i><b>{B}</b><i>=</i><b className="res">{TARGET}</b></div>
-        <div className="pq-sub">{aT}+{bT}={aT + bT} {t.tens} · {aU}+{bU}={aU + bU} {t.units}</div>
-      </>)}
+      {ok && (
+        <div className="pq-eq"><b>{A}</b><i>+</i><b>{B}</b><i>=</i><b className="res">{TARGET}</b></div>
+      )}
 
       <div className="pq-opts">
         {DATA.options.map((n) => {

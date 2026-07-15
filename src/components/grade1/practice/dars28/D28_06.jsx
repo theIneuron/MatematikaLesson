@@ -1,38 +1,40 @@
-// Dars28 · Amaliyot 06 — Mantiq «Qaysi qism savol?» · 🔴 · tag: logic_question
-// YANGI MANTIQ: masala tuzilishida SAVOL qismini topish. Ikki matnli karta:
-// A = SHART (nima ma'lum — "Bog'da 5 olma va 4 nok bor.", "?" YO'Q),
-// B = SAVOL (nimani topish — "Nechta meva bor?", "?" bilan tugaydi).
-// Bola SAVOL kartasini bosadi. To'g'ri = B (savol). Bu M2 shart-savol chalkashligini mashq qiladi.
-// Sonlar ikki xonali (sbornik: 34 olma va 25 nok). Yig'indi EKRANGA CHIQMAYDI — bu logic
-// topshiriq, javob-sizish yo'q; bola faqat savol qismini tanlaydi.
-// G'alabada to'g'ri karta ustida «?» nishonchasi paydo bo'ladi — savol «?» bilan tugashini mustahkamlaydi.
-// To'g'ri javob — SAVOL kartasi (o'ngda, index 1), chapda EMAS (leftmost-wins tuzog'i yo'q).
-// VEDI-DO-VERNOGO: noto'g'rida qulf yo'q, retry yo'q; setChecked FAQAT to'g'rida.
+// Dars28 · Amaliyot 06 — Yig'indiga masala: qizil va yashil (10 ichida) · 🟡 · tag: sum
+// SODDA (metodist talabi 2026-07-15): bir xonali, 10 ichida, o'nlik/razryad YO'Q.
+// Bog'da 3 qizil va 3 yashil olma bor -> jami nechta olma? Javob 6.
+// Ma'no: ikki guruh (qizil + yashil) BIRGA -> qo'shamiz. "Jami" = hammasi birga.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// Ikki karta: SHART birinchi (A), SAVOL ikkinchi (B). To'g'ri javob — SAVOL.
-const TARGET = "savol";
-const OPTS = ["shart", "savol"];
-const DATA = { target: TARGET, options: OPTS, cond: { apples: 34, pears: 25 }, level: "🔴", tag: "logic_question" };
+const useFitScale = (designW) => {
+  const ref = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const apply = (w) => setScale(w > 0 ? Math.min(1, w / designW) : 1);
+    const ro = new ResizeObserver((es) => apply(es[0].contentRect.width));
+    ro.observe(el); apply(el.clientWidth);
+    return () => ro.disconnect();
+  }, [designW]);
+  return [ref, scale];
+};
+
+const A = 3, B = 3, TARGET = 6;
+const DATA = { a: A, b: B, target: TARGET, options: [6, 5, 7], answer: TARGET, level: '🟡', tag: 'sum' };
 
 const T = {
   uz: {
-    eyebrow: "Olma bog'i · Mantiq", title: "Qaysi — savol?",
-    setup: "Masala ikki qismdan iborat.",
-    ask: "Qaysi qism — savol?",
-    cardShart: "Bog'da 34 olma va 25 nok bor.",
-    cardSavol: "Nechta meva bor?",
-    correct: "Barakalla! Savol — «Nechta meva bor?». U «?» bilan tugaydi.",
-    hint: "Savol nimani topishni so'raydi — «?» bilan tugaydi.",
+    eyebrow: "Olma bog'i · Masala", title: "Jami nechta?",
+    setup: "Bog'da 3 qizil va 3 yashil olma bor.",
+    ask: "Jami nechta olma?",
+    correct: "Barakalla! Qizil va yashil birga — qo'shamiz. 3 + 3 = 6.",
+    hint: "Jami — qizillarni va yashillarni birga sanang.",
   },
   ru: {
-    eyebrow: "Яблоневый сад · Логика", title: "Где вопрос?",
-    setup: "Задача состоит из двух частей.",
-    ask: "Какая часть — вопрос?",
-    cardShart: "В саду 34 яблока и 25 груш.",
-    cardSavol: "Сколько всего фруктов?",
-    correct: "Молодец! Вопрос — «Сколько всего фруктов?». Он с «?».",
-    hint: "Вопрос спрашивает, что найти — заканчивается на «?».",
+    eyebrow: "Яблоневый сад · Задача", title: "Сколько всего?",
+    setup: "В саду 3 красных и 3 зелёных яблока.",
+    ask: "Сколько всего яблок?",
+    correct: "Молодец! Красные и зелёные вместе — складываем. 3 + 3 = 6.",
+    hint: "Всего — сосчитай красные и зелёные вместе.",
   },
 };
 
@@ -40,56 +42,37 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
 let __gid = 0;
-
-// OLMA KANONI (Dars21): yumaloq tana (2-ton radial) + barg + band + oq blik. Dekorativ, bosilmaydi.
-const Apple = ({ w = 18 }) => {
-  const id = "pq2806a" + (__gid++);
+const Apple = ({ w = 30, green = false }) => {
+  const id = 'pq2806a' + (__gid++);
+  const h = w * 26 / 24;
+  const c = green
+    ? ['#bfe39a', '#7ec06a', '#4e9440', '#3f8038']
+    : ['#f2a49c', '#df5b52', '#b83b33', '#a5342c'];
   return (
-    <svg viewBox="0 0 30 34" width={w} height={w * 34 / 30} aria-hidden="true" style={{ display: "block", overflow: "visible" }}>
+    <svg viewBox="0 0 24 26" width={w} height={h} aria-hidden="true" style={{ display: 'block', overflow: 'visible' }}>
       <defs>
-        <radialGradient id={id} cx="38%" cy="30%" r="72%">
-          <stop offset="0%" stopColor="#ff9b7a" />
-          <stop offset="46%" stopColor="#e8443a" />
-          <stop offset="100%" stopColor="#b32a22" />
+        <radialGradient id={id} cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor={c[0]} /><stop offset="55%" stopColor={c[1]} /><stop offset="100%" stopColor={c[2]} />
         </radialGradient>
       </defs>
-      <path d="M15,9 Q15.4,4.4 17.4,3" fill="none" stroke="#7a4a24" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M16.5,6 Q22.5,3.2 24.6,7.4 Q19.4,9.6 16.5,6 Z" fill="#4fa845" stroke="#3c8536" strokeWidth=".7" />
-      <path d="M15,10 C15,10 12.6,7 9,8.2 C4.6,9.6 3.4,14 3.4,18.4 C3.4,25.4 8.4,31 15,31 C21.6,31 26.6,25.4 26.6,18.4 C26.6,14 25.4,9.6 21,8.2 C17.4,7 15,10 15,10 Z" fill={`url(#${id})`} stroke="#a6291f" strokeWidth=".8" />
-      <ellipse cx="10.4" cy="15" rx="2.8" ry="4.4" fill="#fff" opacity=".42" transform="rotate(-18 10.4 15)" />
-    </svg>
-  );
-};
-
-// NOK KANONI (2-ton nok): sarg'ish-yashil tana + band + barg. Dekorativ, bosilmaydi.
-const Pear = ({ w = 16 }) => {
-  const id = "pq2806p" + (__gid++);
-  return (
-    <svg viewBox="0 0 26 34" width={w} height={w * 34 / 26} aria-hidden="true" style={{ display: "block", overflow: "visible" }}>
-      <defs>
-        <radialGradient id={id} cx="42%" cy="60%" r="70%">
-          <stop offset="0%" stopColor="#eaf07a" />
-          <stop offset="55%" stopColor="#b7d144" />
-          <stop offset="100%" stopColor="#7fa22e" />
-        </radialGradient>
-      </defs>
-      <path d="M13,7 Q13.4,3.4 15,2.2" fill="none" stroke="#7a4a24" strokeWidth="1.7" strokeLinecap="round" />
-      <path d="M13.4,5 Q18,2.6 19.6,6 Q15.4,8 13.4,5 Z" fill="#4fa845" stroke="#3c8536" strokeWidth=".6" />
-      <path d="M13,8 C11,8 10.2,10.6 10.6,12.6 C11,14.6 8.4,16 7.2,18.6 C5.6,22 6,27 9.4,29.8 C12.6,32.4 15.4,32 18.2,29.4 C21.4,26.4 21.4,21.6 19.6,18.4 C18.2,15.8 15.6,14.6 15.2,12.6 C14.8,10.6 15,8 13,8 Z" fill={`url(#${id})`} stroke="#7a9a2c" strokeWidth=".8" />
-      <ellipse cx="9.6" cy="22" rx="2.4" ry="3.6" fill="#fff" opacity=".38" transform="rotate(-14 9.6 22)" />
+      <path d="M12,6.5 Q12.6,3.4 14.2,2.4" fill="none" stroke="#7a4a28" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M13,4.6 Q17,2.7 18.7,5.4 Q15.4,7.2 13,4.6 Z" fill="#5aa84f" stroke="#3f8038" strokeWidth=".5" />
+      <path d="M12,7.4 C9.4,4.9 4,5.7 4,11.8 C4,17.6 8,23.2 12,23.2 C16,23.2 20,17.6 20,11.8 C20,5.7 14.6,4.9 12,7.4 Z" fill={`url(#${id})`} stroke={c[3]} strokeWidth="1.1" strokeLinejoin="round" />
+      <ellipse cx="8.6" cy="10.6" rx="2.6" ry="1.7" fill="#fff" opacity=".55" transform="rotate(-30 8.6 10.6)" />
     </svg>
   );
 };
 
 export default function D28_06(props) {
-  const { lang = "uz", mode = "answer", initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = T[lang] || T.uz;
-  const isReview = mode === "review";
+  const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [checked, setChecked] = useState(false);
+  const stillRef = useRef(isReview || !!(initialAnswer && initialAnswer.studentAnswer));
+  const still = stillRef.current;
 
-  // RESTORE: qayta ochilishda tanlov + feedback (doim msg bilan) tiklanadi; setChecked FAQAT to'g'rida.
   useEffect(() => {
     if (initialAnswer && initialAnswer.studentAnswer) {
       if (initialAnswer.studentAnswer.value != null) setPicked(initialAnswer.studentAnswer.value);
@@ -104,95 +87,120 @@ export default function D28_06(props) {
     const correct = picked === TARGET;
     setFeedback({ correct, msg: correct ? t.correct : t.hint }); if (correct) setChecked(true);
     if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: [t.cardShart, t.cardSavol], studentAnswer: { value: picked }, correctAnswer: { value: TARGET }, correct, meta: { ...DATA } });
+    onSubmit?.({ questionText: `${t.setup} ${t.ask}`, options: DATA.options.map(String), studentAnswer: { value: picked }, correctAnswer: { value: TARGET }, correct, meta: { ...DATA } });
   }, [picked, playCorrect, playWrong, onSubmit, t]);
   const checkRef = useRef(check); checkRef.current = check;
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
-  const lock = isReview || checked; const ok = feedback && feedback.correct;
+  const lock = isReview || checked;
+  const ok = feedback && feedback.correct;
+  const idle = !ok && !still;
+  const joinDelay = (i) => still ? 0 : 0.1 + i * 0.1;
+  const [fitRef, scale] = useFitScale(340);
 
-  const cardText = (id) => (id === "savol" ? t.cardSavol : t.cardShart);
+  const applesA = Array.from({ length: A });
+  const applesB = Array.from({ length: B });
 
   return (
-    <div className="pq pq2806">
+    <div className="pq pq2806" ref={fitRef}>
       <style>{`
         .pq2806{max-width:660px;margin:0 auto;padding:4px 2px 8px;font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#1f2430;}
-        .pq2806 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#3f8a41;text-transform:uppercase;}
+        .pq2806 *,.pq2806 *::before,.pq2806 *::after{box-sizing:border-box;}
+        .pq2806 .pq-eye{font-size:12px;font-weight:800;letter-spacing:.04em;color:#c14a3c;text-transform:uppercase;}
         .pq2806 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 12px;}
         .pq2806 .pq-setup{color:#5c6672;font-weight:500;}
-        .pq2806 .pq-ask{display:block;margin-top:4px;font-size:20px;font-weight:800;}
-        .pq2806 .pq-orchard{position:relative;width:440px;max-width:100%;margin:0 auto;padding:38px 12px 16px;border-radius:20px;background:linear-gradient(#cdeafd 0%,#dff1fb 40%,#cfeccb 74%,#b6df97 100%);border:2px solid #bfe0cd;overflow:hidden;}
-        .pq2806 .pq-sun{position:absolute;left:16px;top:12px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 16px 4px rgba(249,198,47,.5);z-index:2;pointer-events:none;animation:pq2806sun 3.6s ease-in-out infinite;}
-        .pq2806 .pq-board{position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:6;padding:3px 14px 4px;border-radius:9px;background:linear-gradient(#3f9b57,#2c7c42);border:2.5px solid #226334;color:#f0fff4;font-size:12px;font-weight:800;letter-spacing:.02em;white-space:nowrap;pointer-events:none;box-shadow:0 3px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.28);}
-        /* dekorativ meva bezaklari — taplarni ushlamaydi, yengil tebranadi */
-        .pq2806 .pq-deco{position:absolute;z-index:2;pointer-events:none;transform-origin:top center;}
-        .pq2806 .pq-deco.d1{left:10px;top:34px;animation:pq2806sway 4.2s ease-in-out infinite;}
-        .pq2806 .pq-deco.d2{right:12px;top:32px;animation:pq2806sway 4.8s ease-in-out .6s infinite;}
-
-        .pq2806 .pq-cards{position:relative;z-index:3;display:flex;gap:12px;justify-content:center;align-items:stretch;}
-        .pq2806 .pq-card{position:relative;flex:1 1 0;min-width:0;max-width:196px;min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:14px 12px;border-radius:16px;border:3px solid #d6dae3;background:rgba(255,255,255,.96);cursor:pointer;box-shadow:0 4px 10px rgba(40,60,40,.14);transition:.12s;}
-        .pq2806 .pq-card:hover:not(:disabled){border-color:#94b8e2;transform:translateY(-2px);}
-        .pq2806 .pq-card:active:not(:disabled){transform:scale(.97);}
-        .pq2806 .pq-card.sel{border-color:#2563eb;background:#eef3fe;}
-        .pq2806 .pq-card.right{border-color:#1a7f43;background:#e8f7ee;animation:pq2806cele .5s ease;}
-        .pq2806 .pq-card.dim{opacity:.42;filter:saturate(.65);}
-        .pq2806 .pq-card:disabled{cursor:default;}
-        .pq2806 .pq-ctext{font-size:16px;font-weight:800;line-height:1.35;color:#28303c;text-align:center;}
-        /* g'alaba: to'g'ri karta ustida «?» nishonchasi (AnsPop) — savol «?» bilan tugaydi */
-        .pq2806 .pq-qbadge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);z-index:7;width:32px;height:32px;border-radius:50%;background:#fff;border:2.5px solid #1a7f43;color:#1a7f43;font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center;pointer-events:none;box-shadow:0 3px 7px rgba(0,0,0,.2);animation:pq2806pop .45s ease both;}
-
-        .pq2806 .pq-spark{position:absolute;z-index:5;color:#ffd13f;opacity:0;line-height:0;pointer-events:none;animation:pq2806tw 1.7s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(255,209,63,.6));}
-        .pq2806 .pq-spark.s2{animation-delay:-.6s;} .pq2806 .pq-spark.s3{animation-delay:-1.15s;}
-
+        .pq2806 .pq-ask{display:block;margin-top:4px;font-size:21px;font-weight:800;}
+        .pq2806 .pq-scene{position:relative;width:340px;height:200px;border-radius:20px;background:linear-gradient(#cfeafc 0%,#e4f4d9 54%,#d3edb6 100%);border:2px solid #bfe0a8;overflow:hidden;}
+        .pq2806 .pq-fit{position:relative;margin:0 auto;}
+        .pq2806 .pq-sun{position:absolute;right:18px;top:14px;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 18px 5px rgba(249,198,47,.5);z-index:1;animation:pq2806sun 3.6s ease-in-out infinite;}
+        .pq2806 .pq-hill{position:absolute;left:0;right:0;bottom:0;height:48px;background:linear-gradient(#bfe39a,#a7d47f);border-top:3px solid #8fc267;z-index:1;}
+        .pq2806 .pq-title{position:absolute;top:9px;left:50%;transform:translateX(-50%);z-index:6;padding:4px 15px 5px;border-radius:9px;background:linear-gradient(#c14a3c,#a2382c);border:2.5px solid #83271d;color:#fdeee9;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 3px 6px rgba(0,0,0,.16);}
+        .pq2806 .pq-arena{position:absolute;left:8px;right:8px;top:40px;bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;z-index:3;}
+        .pq2806 .pq-group{display:flex;flex-direction:column;align-items:center;gap:5px;}
+        .pq2806 .pq-apples{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:120px;}
+        .pq2806 .pq-apples.sum{max-width:220px;}
+        .pq2806 .pq-obj{line-height:0;}
+        .pq2806 .pq-obj.idle{animation:pq2806bob 2.9s ease-in-out infinite;animation-delay:var(--bd,0s);}
+        .pq2806 .pq-obj.join{animation:pq2806join .42s ease both;animation-delay:var(--bd,0s);}
+        .pq2806 .pq-tag{padding:1px 12px;border-radius:999px;background:#fff;border:2px solid #b6743c;color:#a2582a;font-weight:900;font-size:15px;box-shadow:0 2px 4px rgba(0,0,0,.14);}
+        .pq2806 .pq-tag.g{border-color:#4e9440;color:#3f8038;}
+        .pq2806 .pq-plus{font-size:30px;font-weight:900;color:#5c6672;align-self:center;}
+        .pq2806 .pq-eq{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:14px;flex-wrap:wrap;animation:pq2806in .3s ease both;}
+        .pq2806 .pq-eq b{min-width:44px;height:40px;padding:0 8px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;border-radius:12px;background:#fdeee9;border:2px solid #eab5aa;color:#c14a3c;font-variant-numeric:tabular-nums;}
+        .pq2806 .pq-eq b.g{background:#eef7e6;border-color:#7ec06a;color:#3f8038;}
+        .pq2806 .pq-eq b.res{background:#e8f7ee;border-color:#1a7f43;color:#1a7f43;}
+        .pq2806 .pq-eq i{font-style:normal;font-size:22px;font-weight:900;color:#8a94a2;}
+        .pq2806 .pq-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px;}
+        .pq2806 .pq-opt{min-width:78px;height:74px;padding:0 12px;font-size:32px;font-weight:800;border-radius:18px;border:2.5px solid #d6dae3;background:#fff;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
+        .pq2806 .pq-opt:hover:not(:disabled){border-color:#eab5aa;transform:translateY(-2px);}
+        .pq2806 .pq-opt:active:not(:disabled){transform:scale(.94);}
+        .pq2806 .pq-opt.sel{border-color:#2563eb;background:#e8eefc;}
+        .pq2806 .pq-opt.right{border-color:#1a7f43;background:#e8f7ee;color:#1a7f43;animation:pq2806cele .5s ease;}
+        .pq2806 .pq-opt:disabled{cursor:default;}
         .pq2806 .pq-fb{display:flex;align-items:flex-start;gap:10px;margin-top:16px;padding:14px 16px;border-radius:14px;font-size:16px;font-weight:700;line-height:1.45;animation:pq2806in .22s ease both;}
         .pq2806 .pq-fb.ok{background:#e8f7ee;color:#1a7f43;} .pq2806 .pq-fb.no{background:#fdecec;color:#c0392b;}
+        @keyframes pq2806bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
+        @keyframes pq2806join{from{opacity:0;transform:translateY(-8px) scale(.7);}to{opacity:1;transform:translateY(0) scale(1);}}
         @keyframes pq2806sun{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
-        @keyframes pq2806sway{0%,100%{transform:rotate(-3deg);}50%{transform:rotate(3deg);}}
-        @keyframes pq2806pop{from{opacity:0;transform:translateX(-50%) scale(.4);}to{opacity:1;transform:translateX(-50%) scale(1);}}
-        @keyframes pq2806tw{0%,100%{opacity:0;transform:scale(.3) rotate(0);}50%{opacity:1;transform:scale(1.1) rotate(45deg);}}
-        @keyframes pq2806cele{0%{transform:scale(1);}30%{transform:scale(1.04);}60%{transform:scale(.98);}100%{transform:scale(1);}}
+        @keyframes pq2806cele{0%{transform:scale(1);}30%{transform:scale(1.05);}60%{transform:scale(.97);}100%{transform:scale(1);}}
         @keyframes pq2806in{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
       `}</style>
       <span className="pq-eye">{t.eyebrow}</span>
       <p className="pq-body"><span className="pq-setup">{t.setup}</span><b className="pq-ask">{t.ask}</b></p>
 
-      <div className="pq-orchard">
+      <div className="pq-fit" style={{ width: 340 * scale, height: 200 * scale }}>
+      <div className="pq-scene" style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}>
         <span className="pq-sun" />
-        {/* Dekorativ meva (olma/nok) — Dars21 olma kanoni, bosilmaydi, yengil tebranadi */}
-        <span className="pq-deco d1"><Apple w={22} /></span>
-        <span className="pq-deco d2"><Pear w={20} /></span>
-        <div className="pq-board">{t.title}</div>
-
-        {/* Ikki matnli karta: SHART (chapda) va SAVOL (o'ngda). Bola SAVOL kartasini bosadi.
-            Karta bosiladigan nishon; «?» badge/sparklar pointer-events:none. Yig'indi ekranga chiqmaydi. */}
-        <div className="pq-cards">
-          {OPTS.map((id) => {
-            const sel = picked === id;
-            const right = ok && id === TARGET;
-            const dim = ok && id !== TARGET;
-            return (
-              <button
-                key={id}
-                type="button"
-                className={"pq-card" + (right ? " right" : sel ? " sel" : "") + (dim ? " dim" : "")}
-                disabled={lock}
-                onClick={() => { setPicked(id); setFeedback(null); }}
-              >
-                <span className="pq-ctext">{cardText(id)}</span>
-                {right && <span className="pq-qbadge">?</span>}
-              </button>
-            );
-          })}
+        <span className="pq-hill" />
+        <div className="pq-title">{t.title}</div>
+        <div className="pq-arena">
+          {ok ? (
+            <div className="pq-group">
+              <div className="pq-apples sum">
+                {applesA.map((_, i) => (
+                  <span key={'sa' + i} className={'pq-obj' + (still ? '' : ' join')} style={{ '--bd': `${joinDelay(i)}s` }}><Apple w={32} /></span>
+                ))}
+                {applesB.map((_, i) => (
+                  <span key={'sb' + i} className={'pq-obj' + (still ? '' : ' join')} style={{ '--bd': `${joinDelay(A + i)}s` }}><Apple w={32} green /></span>
+                ))}
+              </div>
+              <span className="pq-tag">{TARGET}</span>
+            </div>
+          ) : (<>
+            <div className="pq-group">
+              <div className="pq-apples">
+                {applesA.map((_, i) => (
+                  <span key={'a' + i} className={'pq-obj' + (idle ? ' idle' : '')} style={{ '--bd': `${i * 0.12}s` }}><Apple w={30} /></span>
+                ))}
+              </div>
+              <span className="pq-tag">{A}</span>
+            </div>
+            <span className="pq-plus">+</span>
+            <div className="pq-group">
+              <div className="pq-apples">
+                {applesB.map((_, i) => (
+                  <span key={'b' + i} className={'pq-obj' + (idle ? ' idle' : '')} style={{ '--bd': `${i * 0.12}s` }}><Apple w={30} green /></span>
+                ))}
+              </div>
+              <span className="pq-tag g">{B}</span>
+            </div>
+          </>)}
         </div>
-
-        {ok && (<>
-          <span className="pq-spark" style={{ left: "16%", top: "44px" }}>✦</span>
-          <span className="pq-spark s2" style={{ left: "84%", top: "58px" }}>✦</span>
-          <span className="pq-spark s3" style={{ left: "50%", top: "32px" }}>✦</span>
-        </>)}
+      </div>
       </div>
 
-      {feedback && (<div className={`pq-fb ${feedback.correct ? "ok" : "no"}`}>{feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.msg}</span></div>)}
+      {ok && (
+        <div className="pq-eq"><b>{A}</b><i>+</i><b className="g">{B}</b><i>=</i><b className="res">{TARGET}</b></div>
+      )}
+
+      <div className="pq-opts">
+        {DATA.options.map((n) => {
+          const sel = picked === n; const right = ok && n === TARGET;
+          return <button key={n} type="button" className={'pq-opt' + (right ? ' right' : sel ? ' sel' : '')} disabled={lock} onClick={() => { setPicked(n); setFeedback(null); }}>{n}</button>;
+        })}
+      </div>
+
+      {feedback && (<div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>{feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.msg}</span></div>)}
     </div>
   );
 }

@@ -1,7 +1,9 @@
 // Dars28 amaliyoti — 10 topshiriq (masala tuzilishi. Yig'indiga masala): shart→savol→amal→javob; birlashtirilsa qo'shamiz.
-// Savollar sbornikdan; metodist talabi bilan QIYIN SONLAR — ikki xonali yig'indi masala (o'tishsiz, ≤99, razryad bo'yicha).
-// Xilma-xil: yig'indi masala, amal tanlash, zanjir (D09_06 naqsh), qaysi savol (mantiq), Ha/Yo'q, multi, masala, yechim-tuzish.
-// Ramp: 1🟢 / 3🟡 / 6🔴. Olma bog'i syujeti, savat=o'nlik + yakka olma=birlik (D24-27 modeli).
+// SODDALASHTIRILDI (metodist talabi 2026-07-15): o'quvchi savolni tushunmagani sabab — SONLAR 10 ICHIDA
+// (bir xonali, o'nlik/razryad YO'Q), matn qisqa, murakkab formatlar (zanjir/ko'p-tanlov/mantiq) olib tashlandi.
+// Diqqat — savol MA'NOSIda: "jami → qo'shamiz". Olma bog'i syujeti; yakka olma modeli.
+// Xilma-xil: yig'indi masala (sonli), amal tanlash (+/−), qizil+yashil, to'g'ri-noto'g'ri, shart+savol tuzilishi.
+// Ramp: 3🟢 / 6🟡 / 1🔴.
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D28_01 from './D28_01.jsx';
@@ -17,16 +19,16 @@ import D28_10 from './D28_10.jsx';
 
 // Metodik xarita (o'quvchiga ko'rsatilmaydi): prototip kodi · syujet · qiyinlik
 const ITEMS = [
-  { id: '01', label: '1 · 23+14', C: D28_01 },        // sum · 23+14=37 🟢
-  { id: '02', label: '2 · 34+25', C: D28_02 },        // sum · 34+25=59 (olma) 🟡
-  { id: '03', label: '3 · 42+13', C: D28_03 },        // sum · 42+13=55 (olma) 🟡
-  { id: '04', label: '4 · Amal', C: D28_04 },         // choose_op · 34 va 25 birlashtirilsa → + 🟡
-  { id: '05', label: '5 · Zanjir', C: D28_05 },       // sum_chain · 4 ikki xonali misol (D09_06 naqsh) 🔴
-  { id: '06', label: '6 · Savol', C: D28_06 },        // LOGIC question · qaysi qism savol (yangi) 🔴
-  { id: '07', label: '7 · Ha/Yo\'q', C: D28_07 },     // sum_tf · 34+25=59 to'g'rimi 🔴
-  { id: '08', label: '8 · Javobi 59', C: D28_08 },    // sum_multi · javobi 59 barcha 🔴
-  { id: '09', label: '9 · 32+24', C: D28_09 },        // sum_word · 32+24=56 (olma) 🔴
-  { id: '10', label: '10 · Yechim', C: D28_10 },      // YANGI build_solution · «Yechimni tuzing» 34+25 🔴
+  { id: '01', label: '1 · 3+2', C: D28_01 },              // sum · 3+2=5 🟢
+  { id: '02', label: '2 · 4+2', C: D28_02 },              // sum · Anvar+Zuhra 4+2=6 🟢
+  { id: '03', label: '3 · 5+3', C: D28_03 },              // sum · 5+3=8 🟢
+  { id: '04', label: '4 · Amal', C: D28_04 },             // choose_op · 4 va 3 birlashsa → + 🟡
+  { id: '05', label: '5 · 2+5', C: D28_05 },              // sum · Zuhra+Jasur 2+5=7 🟡
+  { id: '06', label: '6 · Qizil+yashil', C: D28_06 },     // sum · 3 qizil + 3 yashil = 6 🟡
+  { id: '07', label: '7 · To\'g\'rimi', C: D28_07 },      // sum_tf · 5+3=8 to'g'rimi (Ha) 🟡
+  { id: '08', label: '8 · 6+2', C: D28_08 },              // sum · 6+2=8 🟡
+  { id: '09', label: '9 · 5+4', C: D28_09 },              // sum · Anvar+Ra'no 5+4=9 🔴
+  { id: '10', label: '10 · Masala', C: D28_10 },          // sum_structure · shart+savol 6+3=9 🔴
 ];
 
 export default function Dars28Practice() {
