@@ -1065,23 +1065,24 @@ const CONTENT = {
     }
   },
 
-  // sTBL — TUSHUNTIRISH+INTERAKTIV: jadvaldan foydalanish; bola 3×4 kesishgan katakni O'ZI bosadi
+  // sTBL — TUSHUNTIRISH: ko'paytirish jadvalidan qanday foydalanish (3 × 4 misolда)
   sTBL: {
     eyebrow: { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" },
-    lead: { ru: 'Найди по таблице.', uz: "Jadvaldan top." },
-    check_q: { ru: 'Нажми клетку 3 × 4.', uz: "3 × 4 katagini bos." },
+    lead: { ru: 'Как пользоваться таблицей?', uz: "Jadvaldan qanday foydalanamiz?" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Строка 3 и столбец 4 встречаются в клетке 12. Значит 3 × 4 = 12.', uz: "3-satr va 4-ustun 12 katagida kesishadi. Demak 3 × 4 = 12." },
-    wrong: { ru: 'Найди клетку, где встречаются строка 3 и столбец 4.', uz: "3-satr va 4-ustun kesishgan katakni top." },
-    check_ok: { ru: 'Верно! 3 × 4 = 12.', uz: "To'g'ri! 3 × 4 = 12." },
+    info: { ru: '3 × 4: находим строку 3 и столбец 4 — их общая клетка 12.', uz: "3 × 4: 3-satr va 4-ustunni topamiz — ularning umumiy katagi 12." },
     audio: {
       ru: [
-        'Таблица умножения помогает быстро находить ответ. Теперь найди сам.',
-        'Найдём три умножить на четыре. Строка три и столбец четыре подсвечены. Нажми клетку, где они встречаются.'
+        'Чтобы быстро находить ответ, есть таблица умножения. Научимся ей пользоваться.',
+        'Найдём три умножить на четыре. Слева находим строку три.',
+        'Сверху находим столбец четыре.',
+        'Клетка, где строка и столбец встречаются, это двенадцать. Значит три умножить на четыре это двенадцать.'
       ],
       uz: [
-        "Ko'paytirish jadvali javobni tez topishga yordam beradi. Endi o'zingiz toping.",
-        "Uch marta to'rtni topamiz. Uch-satr va to'rt-ustun yoritilgan. Ular kesishgan katakni bosing."
+        "Javobni tez topish uchun ko'paytirish jadvali bor. Undan foydalanishni o'rganamiz.",
+        "Uch marta to'rtni topamiz. Chap tomondan uch-qatorni topamiz.",
+        "Yuqoridan to'rt-ustunni topamiz.",
+        "Satr va ustun uchrashgan katak — o'n ikki. Demak uch marta to'rt — o'n ikki."
       ]
     }
   },
@@ -4823,9 +4824,8 @@ const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,2
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
 const MTBL_CELL = { textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px,2.1vw,14px)', padding: 'clamp(3px,0.9vw,6px) 0', borderRadius: 4, minWidth: 'clamp(20px,4.8vw,30px)', transition: 'all .3s' };
-// hr/hc — yoritiladigan satr/ustun (yo'l-yo'riq); hres — kesishuv yashil. interactive — kataklar bosiladi
-// (onPick(rn,cn)); wrongSet — noto'g'ri bosilgan `rn-cn`; disabled — bosishni bloklaydi.
-const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false, interactive = false, onPick, wrongSet, disabled = false }) => {
+// hr/hc — yoritiladigan satr/ustun (tushuntirish uchun); hres — kesishuv katagini yashil qiladi.
+const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
   const nums = [];
   for (let i = 1; i <= max; i += 1) nums.push(i);
   const hdr = (on) => ({ ...MTBL_CELL, color: '#fff', background: on ? '#C1381A' : T.accent, boxShadow: on ? '0 0 0 2px #FFC7B8' : 'none' });
@@ -4839,14 +4839,9 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false, interactive = false,
             <span style={hdr(rn === hr)}>{rn}</span>
             {nums.map((cn) => {
               const isRes = hres && rn === hr && cn === hc;
-              const isWrong = wrongSet && wrongSet.has(`${rn}-${cn}`);
               const inLine = rn === hr || cn === hc;
-              const bg = isRes ? T.success : isWrong ? '#FBE0DC' : inLine && (hr || hc) ? '#FFE8E1' : ((rn + cn) % 2 ? '#F6F4EF' : '#ECE8DF');
-              const style = { ...MTBL_CELL, color: isRes ? '#fff' : (isWrong ? '#C1381A' : T.ink), background: bg, boxShadow: isRes ? '0 0 0 2px #A7E0BF' : (isWrong ? '0 0 0 1.5px #E0A79A' : 'none') };
-              if (interactive && !isRes) {
-                return <button key={`${rn}x${cn}`} disabled={disabled || isWrong} onClick={() => onPick && onPick(rn, cn)} style={{ ...style, border: 'none', cursor: disabled || isWrong ? 'default' : 'pointer' }}>{rn * cn}</button>;
-              }
-              return <span key={`${rn}x${cn}`} className={isRes ? 'g1-pop-in' : ''} style={style}>{rn * cn}</span>;
+              const bg = isRes ? T.success : inLine && (hr || hc) ? '#FFE8E1' : ((rn + cn) % 2 ? '#F6F4EF' : '#ECE8DF');
+              return <span key={`${rn}x${cn}`} className={isRes ? 'g1-pop-in' : ''} style={{ ...MTBL_CELL, color: isRes ? '#fff' : T.ink, background: bg, boxShadow: isRes ? '0 0 0 2px #A7E0BF' : 'none' }}>{rn * cn}</span>;
             })}
           </React.Fragment>
         ))}
@@ -4954,31 +4949,27 @@ const A10 = (props) => <ArrayStage props={props} cKey="s10"/>;
 const A11 = (props) => <ArrayStage props={props} cKey="s11"/>;
 const ACase = (props) => <ArrayStage props={props} cKey="s13" variant="plant"/>;
 const A14 = (props) => <ArrayStage props={props} cKey="s14" fact variant="plant"/>;
-// sTBL — jadvaldan foydalanish: 3-satr va 4-ustun yoritilgan (yo'l-yo'riq), bola kesishgan katakni O'ZI bosadi.
+// sTBL — ko'paytirish jadvalidan foydalanishni o'rgatadi (3 × 4 misolда, bosqichli yoritish).
 const ScreenTable = (props) => {
   const lang = useLang();
   const t = useT();
-  const sfx = useSfx();
   const c = CONTENT.sTBL;
   const audio = useAudio([
     brgSeg('sTBL', lang),
     ...c.audio[lang].map((text, i) => ({ id: `sTBL_${i}`, text, trigger: 'after_previous', waits_for: null }))
   ]);
-  const canAct = useCanAnswer(audio);
-  const [wrong, setWrong] = useState(() => new Set());
-  const [done, setDone] = useState(false);
+  const seg = audio.currentSegment;
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (seg === 'sTBL_1') setStep((s) => Math.max(s, 1));
+    else if (seg === 'sTBL_2') setStep((s) => Math.max(s, 2));
+    else if (seg === 'sTBL_3') setStep((s) => Math.max(s, 3));
+  }, [seg]);
+  const hr = step >= 1 ? 3 : 0;
+  const hc = step >= 2 ? 4 : 0;
+  const done = step >= 3;
   const revealRef = useRevealScroll(done, 500);
-  const pick = (rn, cn) => {
-    if (!canAct || done || wrong.has(`${rn}-${cn}`)) return;
-    if (rn === 3 && cn === 4) {
-      sfx.playCorrect(); setDone(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.check_ok[lang]); }
-    } else {
-      sfx.playWrong(); setWrong((w) => new Set(w).add(`${rn}-${cn}`));
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.wrong[lang]); }
-    }
-  };
-  const canAdv = useAdvanceGate(done, audio);
+  const canAdv = useAdvanceGate(true, audio);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -4990,14 +4981,11 @@ const ScreenTable = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <p className="mono fade-up delay-1" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(190px, 44vw, 260px)' }}>
-          <MultTable max={6} hr={3} hc={4} hres={done} interactive={!done} onPick={pick} wrongSet={wrong} disabled={!canAct}/>
+          <MultTable max={6} hr={hr} hc={hc} hres={done}/>
           {done && <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(20px,4.4vw,30px)', color: T.success }}>3 × 4 = 12</div>}
         </div>
-        {wrong.size > 0 && !done && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(c.wrong)}/></div>}
-        {done && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(c.check_ok)}/></div>}
-        {done && <InfoNote badge={t(c.info_badge)} text={t(c.info)}/>}
+        {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
     </Stage>
   );
