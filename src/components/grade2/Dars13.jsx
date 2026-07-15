@@ -4743,20 +4743,31 @@ const CropSprout = ({ s = 24 }) => (
   </svg>
 );
 const ARR_CELL = 'clamp(20px,4.8vw,30px)';
-const ArrayViz = ({ r, c, reveal = 0 }) => {
+// Golo-panel nuqtasi (abstrakt counter) — porlaydigan doira.
+const GeoDot = () => (
+  <span aria-hidden="true" style={{ display: 'inline-block', width: 'clamp(15px,3.6vw,22px)', height: 'clamp(15px,3.6vw,22px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #9CF3D0, #35C88A 58%, #1C8F5F)', boxShadow: '0 0 7px 1px rgba(53,200,138,0.55), inset 0 -2px 3px rgba(0,0,0,0.28), inset 0 2px 2px rgba(255,255,255,0.35)' }}/>
+);
+// ArrayViz — variant 'geo' (porlaydigan nuqta massivi, golo-panel — tushuntirish/mashq) yoki
+// 'plant' (haqiqiy o'simlik, tuproq — yakuniy test). reveal 0-3: massiv→qator-struktura→takroriy qo'shish→R×C.
+const ArrayViz = ({ r, c, reveal = 0, variant = 'geo' }) => {
   const t = useT();
   const total = r * c;
+  const plant = variant === 'plant';
+  const rowHi = plant ? 'rgba(255,220,120,0.5)' : 'rgba(90,214,180,0.55)';
+  const rowBg = plant ? 'rgba(255,255,255,0.06)' : 'rgba(90,214,180,0.1)';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)' }}>
-      {/* dala — teng qatorlar (tuproq foni) */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(4px,1.2vw,7px)', padding: 'clamp(8px,2vw,14px)', borderRadius: 14, background: 'linear-gradient(180deg,#6E4A2A,#4E3218)', border: '2px solid #3A2510', boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.4)' }}>
+      {/* massiv — teng qatorlar */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: plant ? 'clamp(4px,1.2vw,7px)' : 'clamp(5px,1.4vw,9px)', padding: 'clamp(9px,2.2vw,15px)', borderRadius: 14, background: plant ? 'linear-gradient(180deg,#6E4A2A,#4E3218)' : 'linear-gradient(180deg,#122234,#0A1420)', border: `2px solid ${plant ? '#3A2510' : '#243C52'}`, boxShadow: plant ? 'inset 0 2px 8px rgba(0,0,0,0.4)' : 'inset 0 2px 10px rgba(0,0,0,0.5), 0 0 0 1px rgba(90,180,220,0.14)' }}>
         {Array.from({ length: r }).map((_, ri) => (
-          <div key={ri} style={{ display: 'flex', gap: 'clamp(3px,1vw,6px)', justifyContent: 'center', padding: '2px clamp(4px,1.4vw,8px)', borderRadius: 8, background: reveal >= 1 ? 'rgba(255,255,255,0.06)' : 'transparent', boxShadow: reveal >= 1 ? 'inset 0 0 0 1.5px rgba(255,220,120,0.5)' : 'none', transition: 'all .3s' }}>
-            {Array.from({ length: c }).map((_, ci) => <span key={ci} style={{ width: ARR_CELL, height: ARR_CELL, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><CropSprout s={20}/></span>)}
+          <div key={ri} style={{ display: 'flex', gap: plant ? 'clamp(3px,1vw,6px)' : 'clamp(6px,1.6vw,11px)', justifyContent: 'center', alignItems: 'center', padding: '2px clamp(5px,1.4vw,9px)', borderRadius: 8, background: reveal >= 1 ? rowBg : 'transparent', boxShadow: reveal >= 1 ? `inset 0 0 0 1.5px ${rowHi}` : 'none', transition: 'all .3s' }}>
+            {Array.from({ length: c }).map((_, ci) => plant
+              ? <span key={ci} style={{ width: ARR_CELL, height: ARR_CELL, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><CropSprout s={20}/></span>
+              : <GeoDot key={ci}/>)}
           </div>
         ))}
       </div>
-      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: '#C08A2E' }}>{t({ ru: `${r} ряда по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
+      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ряда по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
       {reveal >= 2 && (
         <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(3px,1vw,6px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(16px,3.2vw,23px)' }}>
           {Array.from({ length: r }).map((_, i) => (<React.Fragment key={i}>{i > 0 && <span style={{ color: T.ink3 }}>+</span>}<span style={{ color: '#2E9B4E' }}>{c}</span></React.Fragment>))}
@@ -4784,9 +4795,9 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего ростков?', uz: 'Jami nechta ko\'chat?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const ArrayStage = ({ props, cKey, fact = false }) => {
+const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
   const lang = useLang();
   const t = useT();
   const sfx = useSfx();
@@ -4847,7 +4858,7 @@ const ArrayStage = ({ props, cKey, fact = false }) => {
         {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
         {cur.story && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story)}</p>}
         <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 'clamp(14px, 2.6vw, 20px)' }}>
-          <ArrayViz r={r} c={cc} reveal={reveal}/>
+          <ArrayViz r={r} c={cc} reveal={reveal} variant={variant}/>
         </div>
         {!solved && (
           <>
@@ -4874,8 +4885,8 @@ const A8 = (props) => <ArrayStage props={props} cKey="s8"/>;
 const A9 = (props) => <ArrayStage props={props} cKey="s9"/>;
 const A10 = (props) => <ArrayStage props={props} cKey="s10"/>;
 const A11 = (props) => <ArrayStage props={props} cKey="s11"/>;
-const ACase = (props) => <ArrayStage props={props} cKey="s13"/>;
-const A14 = (props) => <ArrayStage props={props} cKey="s14" fact/>;
+const ACase = (props) => <ArrayStage props={props} cKey="s13" variant="plant"/>;
+const A14 = (props) => <ArrayStage props={props} cKey="s14" fact variant="plant"/>;
 
 // ============================================================
 // YUPITER SAHNALARI — Б3 biom. MUHIM (metodist 2026-07-15): Yupiter GAZ sayyorasi — unda qattiq
