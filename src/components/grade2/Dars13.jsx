@@ -4975,16 +4975,7 @@ const HangingPot = ({ w = 32 }) => (
 // PANORAMA OYNA (konteyner) da koinot + Yupiter (faqat oyna ichi qorong'i). Grow-lightlar SHIFTDAN
 // SIMLAR bilan osilgan. Ko'p o'simlik: 3×4 markaziy planter (sanaladigan) + osilgan tuvak/liana +
 // burchak tuvak-o'simliklar. Barcha element jonli/3D (halo/yo'ldosh/tebranish/nur/tuman).
-// Vertikal bog' (green wall) — yon devorда ko'p mayda o'simlik (issiqxona hissi).
-const GreenWall = () => (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'clamp(2px,0.6vw,4px)', padding: 'clamp(3px,0.9vw,5px)', borderRadius: 6, background: 'linear-gradient(180deg,#3A2A1A,#241608)', boxShadow: 'inset 0 0 7px rgba(0,0,0,0.55)', border: '1.5px solid #1E1207' }}>
-    {Array.from({ length: 15 }).map((_, i) => (
-      <span key={i} className="d13-sway" style={{ display: 'inline-flex', transformOrigin: '50% 100%', animationDelay: `${i * 0.2}s`, animationDuration: `${3 + (i % 3) * 0.5}s` }}>
-        <svg viewBox="0 0 14 12" width="clamp(8px,2.2vw,13px)" aria-hidden="true"><path d="M7 12 C 2 10 1 5 3 2 C 6 4 7 7 7 12 Z" fill="#46C86C"/><path d="M7 12 C 12 10 13 5 11 2 C 8 4 7 7 7 12 Z" fill="#37AE58"/></svg>
-      </span>
-    ))}
-  </div>
-);
+// (GreenWall — chap yashil-devor — metodist 2026-07-15 talabi bilan sahnadan olib tashlandi.)
 // Javon + ko'chat-lotoklari (ikki qavat) — devorда.
 const ShelfTrays = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(4px,1.1vw,7px)' }}>
@@ -5037,24 +5028,7 @@ const GardenDrone = ({ w }) => (
     <circle className="d13-led" cx="23" cy="21" r="1.9" fill="#6EF29B"/>
   </svg>
 );
-// Suv baki (gidroponika) — silindr + suv + ko'tariluvchi pufakchalar (d13-bubble).
-const WaterTank = ({ w }) => (
-  <svg viewBox="0 0 28 56" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
-    <defs>
-      <linearGradient id="d13tank" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#AEB8C4"/><stop offset="0.5" stopColor="#E8EEF4"/><stop offset="1" stopColor="#8A94A0"/></linearGradient>
-      <linearGradient id="d13water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#74CBE0"/><stop offset="1" stopColor="#37909F"/></linearGradient>
-    </defs>
-    <rect x="3" y="6" width="22" height="46" rx="9" fill="url(#d13tank)" stroke="#7E8692" strokeWidth="1.4"/>
-    <clipPath id="d13tankc"><rect x="6" y="9" width="16" height="40" rx="7"/></clipPath>
-    <g clipPath="url(#d13tankc)">
-      <rect x="6" y="24" width="16" height="25" fill="url(#d13water)"/>
-      <ellipse cx="14" cy="24" rx="8" ry="2" fill="#96E0EE" opacity="0.85"/>
-      {[0, 1, 2].map((i) => <circle key={i} className="d13-bubble" cx={9 + i * 5} cy="46" r={1.5 - i * 0.25} fill="rgba(255,255,255,0.75)" style={{ animationDelay: `${i * 0.7}s` }}/>)}
-    </g>
-    <rect x="9" y="2" width="10" height="5" rx="2" fill="#8A94A6" stroke="#6A7480" strokeWidth="0.6"/>
-    <rect x="4" y="7" width="4" height="44" rx="2" fill="rgba(255,255,255,0.35)"/>
-  </svg>
-);
+// (WaterTank — «shisha»/suv-baki — metodist 2026-07-15 talabi bilan sahnadan olib tashlandi.)
 // Harorat-namlik datchik-paneli (devor).
 const SensorPanel = ({ w }) => (
   <div style={{ width: w, borderRadius: 5, background: 'linear-gradient(180deg,#2A3342,#141B25)', border: '1.5px solid #0C121A', boxShadow: '0 2px 5px rgba(0,0,0,0.4)', padding: 'clamp(3px,0.9vw,5px)', display: 'flex', flexDirection: 'column', gap: 2, fontFamily: "'JetBrains Mono', monospace" }} aria-hidden="true">
@@ -5068,7 +5042,7 @@ const SensorPanel = ({ w }) => (
 );
 // Kapalak — sahna bo'ylab uchadi (d13-fly), qanotlari qoqadi (d13-wing).
 const Butterfly = () => (
-  <svg viewBox="0 0 20 16" width="clamp(11px,3vw,17px)" style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+  <svg viewBox="0 0 20 16" width="clamp(15px,4vw,23px)" style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
     <g className="d13-wingl" style={{ transformOrigin: '10px 8px' }}><path d="M10 8 C 2 1 -1 8 3 13 C 6 13 10 10 10 8 Z" fill="#FF9E4D" stroke="#E07A2C" strokeWidth="0.5"/></g>
     <g className="d13-wingr" style={{ transformOrigin: '10px 8px' }}><path d="M10 8 C 18 1 21 8 17 13 C 14 13 10 10 10 8 Z" fill="#FFB86B" stroke="#E07A2C" strokeWidth="0.5"/></g>
     <ellipse cx="10" cy="8" rx="1.1" ry="3.6" fill="#3A2A1A"/>
@@ -5115,24 +5089,16 @@ const ShipGreenhouse = ({ arrive = false, celebrate = false, bubbleNode }) => (
         </div>
       </React.Fragment>
     ))}
-    {/* OSILGAN O'SIMLIKLAR — shiftdan qator (tuvak + liana) */}
-    <div className="d13-vine" style={{ position: 'absolute', left: '9%', top: '10%', width: 'clamp(18px,5vw,30px)', transformOrigin: '50% 0%', zIndex: 6 }}><HangingPot w="100%"/></div>
-    <div className="d13-vine d13-vine2" style={{ position: 'absolute', left: '26%', top: '10%', width: 'clamp(14px,3.8vw,22px)', transformOrigin: '50% 0%', zIndex: 6 }}><HangingVine/></div>
-    <div className="d13-vine" style={{ position: 'absolute', right: '25%', top: '10%', width: 'clamp(15px,4vw,23px)', transformOrigin: '50% 0%', zIndex: 6, animationDuration: '5.6s' }}><HangingVine flip/></div>
-    <div className="d13-vine d13-vine2" style={{ position: 'absolute', right: '8%', top: '10%', width: 'clamp(18px,5vw,30px)', transformOrigin: '50% 0%', zIndex: 6 }}><HangingPot w="100%"/></div>
-    {/* YASHIL DEVOR (chap yon) + JAVON-LOTOKLAR (o'ng yon) */}
-    <div style={{ position: 'absolute', left: '0.5%', top: '30%', width: 'clamp(26px,6.6vw,40px)', zIndex: 4 }}><GreenWall/></div>
-    <div style={{ position: 'absolute', right: '0.5%', top: '30%', zIndex: 4 }}><ShelfTrays/></div>
-    {/* BURCHAK TUVAK-O'SIMLIKLAR (floorda, qatlamli) + sug'orish idishi */}
-    <div style={{ position: 'absolute', left: '3%', bottom: '2%', width: 'clamp(30px,8vw,48px)', zIndex: 4 }}><PottedPlant w="100%"/></div>
-    <div style={{ position: 'absolute', left: '15%', bottom: '2%', width: 'clamp(20px,5.4vw,32px)', zIndex: 4 }}><PottedPlant w="100%"/></div>
-    <div style={{ position: 'absolute', right: '3%', bottom: '2%', width: 'clamp(30px,8vw,46px)', zIndex: 4 }}><PottedPlant w="100%"/></div>
-    <div style={{ position: 'absolute', right: '16%', bottom: '3%', width: 'clamp(24px,6vw,36px)', zIndex: 4 }}><WateringCan w="100%"/></div>
-    {/* SUV BAKI (gidroponika) + naycha planterlarga */}
-    <div style={{ position: 'absolute', left: '17%', bottom: '2%', width: 'clamp(22px,5.4vw,34px)', zIndex: 4 }}><WaterTank w="100%"/></div>
-    <svg aria-hidden="true" style={{ position: 'absolute', left: '22%', bottom: '7%', width: '24%', height: '22%', zIndex: 4, overflow: 'visible' }} viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M2 8 C 46 8 54 52 100 50" stroke="#5E96A6" strokeWidth="3.4" fill="none" opacity="0.7" strokeLinecap="round"/></svg>
-    {/* DATCHIK-PANEL (o'ng devor) */}
-    <div style={{ position: 'absolute', right: '0.5%', top: '54%', width: 'clamp(26px,6.4vw,40px)', zIndex: 4 }}><SensorPanel w="100%"/></div>
+    {/* OSILGAN O'SIMLIKLAR — faqat O'NG tomon (kattaroq); chap tomon bo'sh (metodist) */}
+    <div className="d13-vine" style={{ position: 'absolute', right: '23%', top: '10%', width: 'clamp(20px,5.4vw,32px)', transformOrigin: '50% 0%', zIndex: 6, animationDuration: '5.6s' }}><HangingVine flip/></div>
+    <div className="d13-vine d13-vine2" style={{ position: 'absolute', right: '6.5%', top: '10%', width: 'clamp(24px,6.4vw,40px)', transformOrigin: '50% 0%', zIndex: 6 }}><HangingPot w="100%"/></div>
+    {/* JAVON-LOTOKLAR (o'ng yon, kattaroq) */}
+    <div style={{ position: 'absolute', right: '0.5%', top: '25%', transform: 'scale(1.32)', transformOrigin: 'right top', zIndex: 4 }}><ShelfTrays/></div>
+    {/* O'NG BURCHAK TUVAK-O'SIMLIK (kattaroq) + sug'orish idishi (kattaroq) */}
+    <div style={{ position: 'absolute', right: '2%', bottom: '2%', width: 'clamp(40px,10.4vw,64px)', zIndex: 4 }}><PottedPlant w="100%"/></div>
+    <div style={{ position: 'absolute', right: '18%', bottom: '3%', width: 'clamp(32px,8vw,50px)', zIndex: 4 }}><WateringCan w="100%"/></div>
+    {/* DATCHIK-PANEL (o'ng devor, kattaroq) */}
+    <div style={{ position: 'absolute', right: '0.5%', top: '57%', width: 'clamp(34px,8.4vw,54px)', zIndex: 4 }}><SensorPanel w="100%"/></div>
     {/* PODIUM + markaziy 3×4 (SANALADIGAN, ajratilgan) */}
     <div style={{ position: 'absolute', left: '50%', bottom: '3%', transform: 'translateX(-50%)', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(4px,1.2vw,8px)', padding: 'clamp(4px,1vw,7px)', borderRadius: 12, background: 'rgba(255,246,222,0.1)', boxShadow: '0 0 0 2px rgba(255,214,120,0.5), 0 6px 16px rgba(0,0,0,0.3)' }}>
@@ -5141,10 +5107,10 @@ const ShipGreenhouse = ({ arrive = false, celebrate = false, bubbleNode }) => (
       {/* podium plita */}
       <div style={{ marginTop: -1, width: '116%', height: 'clamp(9px,2.4vw,15px)', borderRadius: '4px 4px 7px 7px', background: 'linear-gradient(180deg,#E8ECE2,#ACB4A4)', boxShadow: '0 6px 13px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,214,120,0.45), inset 0 1px 2px rgba(255,255,255,0.6)' }}/>
     </div>
-    {/* BOG'BON-DRON — o'simliklar ustida suzadi */}
-    <div className="d13-hover" style={{ position: 'absolute', left: '71%', top: '43%', width: 'clamp(34px,8.4vw,52px)', zIndex: 6 }}><GardenDrone w="100%"/></div>
-    {/* KAPALAK — sahna bo'ylab uchadi */}
-    <div className="d13-fly" style={{ position: 'absolute', left: '30%', top: '40%', zIndex: 6 }}><Butterfly/></div>
+    {/* BOG'BON-DRON — o'simliklar ustida suzadi (kattaroq) */}
+    <div className="d13-hover" style={{ position: 'absolute', left: '67%', top: '40%', width: 'clamp(46px,11.5vw,72px)', zIndex: 6 }}><GardenDrone w="100%"/></div>
+    {/* KAPALAK — sahna bo'ylab uchadi (kattaroq) */}
+    <div className="d13-fly" style={{ position: 'absolute', left: '27%', top: '39%', zIndex: 6 }}><Butterfly/></div>
     {bubbleNode}
     <div className="d2-scene-bit"><span className="g1-cast-fig"><BitSVG state="present"/></span></div>
   </div>
@@ -5155,7 +5121,7 @@ const YupiterScene = ({ answer = null }) => {
   return (
     <ShipGreenhouse arrive
       bubbleNode={(
-        <div style={{ position: 'absolute', left: '50%', top: '18%', transform: 'translateX(-50%)', zIndex: 7 }}>
+        <div style={{ position: 'absolute', left: '15%', top: '34%', transform: 'translateX(-50%)', zIndex: 7 }}>
           <div className={shown ? 'g1-pop-in' : ''} style={{ minWidth: 'clamp(40px,8vw,54px)', height: 'clamp(36px,7vw,48px)', padding: '0 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(19px,4.2vw,28px)', background: shown ? T.successSoft : '#FFFFFF', color: shown ? T.success : T.ink3, border: `2.5px ${shown ? 'solid' : 'dashed'} ${shown ? T.success : '#A7A6A2'}`, boxShadow: '0 3px 10px rgba(0,0,0,0.35)', animation: shown ? 'none' : 'g1pulse 1.5s ease-in-out infinite' }}>{shown ? 12 : '?'}</div>
         </div>
       )}/>
@@ -5167,7 +5133,7 @@ const YupiterField = ({ label }) => {
   return (
     <ShipGreenhouse celebrate
       bubbleNode={(
-        <div style={{ position: 'absolute', left: '50%', top: '16%', transform: 'translateX(-50%)', zIndex: 7, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <div style={{ position: 'absolute', left: '16%', top: '30%', transform: 'translateX(-50%)', zIndex: 7, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <span style={{ fontSize: 'clamp(9px,1.6vw,12px)', fontWeight: 800, letterSpacing: '.05em', color: '#EAF0FF', textTransform: 'uppercase', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>{t(label)}</span>
           <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 'clamp(52px,11vw,72px)', height: 'clamp(38px,7.4vw,50px)', padding: '0 clamp(10px,2vw,15px)', justifyContent: 'center', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,4.6vw,30px)', background: T.successSoft, color: T.success, border: `2.5px solid ${T.success}`, boxShadow: '0 4px 14px -4px rgba(31,122,77,0.5)' }}>
             12<span style={{ fontSize: 'clamp(17px,3.4vw,23px)' }}>✓</span>
