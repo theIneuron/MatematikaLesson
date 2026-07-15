@@ -892,7 +892,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // v6 FAKT ALOHIDA (bekor): sPANEL sub-1 dagi FactCard SKROLL chiqargani uchun undan olindi.
 // v7 FAKT FINAL SLAYDGA (16 -> 15): alohida fakt-slaydi BEKOR; fakt endi FINAL test s14 ga
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
-const TOTAL_SCREENS = 15;
+const TOTAL_SCREENS = 16;
 const LESSON_META = {
   lessonId: 'mul-2-13-v1',
   lessonTitle: { ru: 'Урок 13. Смысл умножения', uz: "13-dars. Ko'paytirish ma'nosi" }
@@ -905,7 +905,8 @@ const SCREEN_META = [
   { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  ishlab ko'rsatish: 2×5 → 5+5=10
   { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: teng guruh yig'indisi = ko'paytirish + check
   { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  2-misol + ogohlantirish (qo'shma, ko'paytir) + check
-  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 5  mashq-single: 3×3
+  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  ko'paytirish jadvalidan foydalanish (3×4)
+  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq-single: 3×3
   { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq-single: 2×4
   { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq: 3 round
   { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq: 3 round
@@ -1060,6 +1061,28 @@ const CONTENT = {
         "Har qatorda uchta. Uch qo'shuv uch qo'shuv uch qo'shuv uch — o'n ikki.",
         "Qatorlar teng bo'lishi shart. Faqat son bir xil bo'lsa ko'paytiramiz. Bu to'rt marta uch — o'n ikki.",
         "O'zingiz sanang. To'rt qatorda uchtadan. Jami nechta?"
+      ]
+    }
+  },
+
+  // sTBL — TUSHUNTIRISH: ko'paytirish jadvalidan qanday foydalanish (3 × 4 misolда)
+  sTBL: {
+    eyebrow: { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" },
+    lead: { ru: 'Как пользоваться таблицей?', uz: "Jadvaldan qanday foydalanamiz?" },
+    info_badge: { ru: 'Главное', uz: 'Asosiy' },
+    info: { ru: '3 × 4: находим строку 3 и столбец 4 — их общая клетка 12.', uz: "3 × 4: 3-satr va 4-ustunni topamiz — ularning umumiy katagi 12." },
+    audio: {
+      ru: [
+        'Чтобы быстро находить ответ, есть таблица умножения. Научимся ей пользоваться.',
+        'Найдём три умножить на четыре. Слева находим строку три.',
+        'Сверху находим столбец четыре.',
+        'Клетка, где строка и столбец встречаются, это двенадцать. Значит три умножить на четыре это двенадцать.'
+      ],
+      uz: [
+        "Javobni tez topish uchun ko'paytirish jadvali bor. Undan foydalanishni o'rganamiz.",
+        "Uch marta to'rtni topamiz. Chap tomondan uch-qatorni topamiz.",
+        "Yuqoridan to'rt-ustunni topamiz.",
+        "Satr va ustun uchrashgan katak — o'n ikki. Demak uch marta to'rt — o'n ikki."
       ]
     }
   },
@@ -1231,6 +1254,7 @@ const BRIDGES = {
   s2:  { ru: 'Разберём на примере.', uz: "Misolda ko'rib chiqamiz." },
   s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
   s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.' },
+  sTBL: { ru: 'Есть таблица, которая помогает.', uz: 'Yordam beradigan jadval bor.' },
   s5:  { ru: 'Теперь потренируйся сам.', uz: "Endi o'zingiz mashq qiling." },
   s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang." },
   s7:  { ru: 'Переходим к тренировке.', uz: "Trenirovkaga o'tamiz." },
@@ -4799,19 +4823,26 @@ const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
-const MTBL_CELL = { textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px,2.1vw,14px)', padding: 'clamp(3px,0.9vw,6px) 0', borderRadius: 4, minWidth: 'clamp(20px,4.8vw,30px)' };
-const MultTable = ({ max = 6 }) => {
+const MTBL_CELL = { textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px,2.1vw,14px)', padding: 'clamp(3px,0.9vw,6px) 0', borderRadius: 4, minWidth: 'clamp(20px,4.8vw,30px)', transition: 'all .3s' };
+// hr/hc — yoritiladigan satr/ustun (tushuntirish uchun); hres — kesishuv katagini yashil qiladi.
+const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
   const nums = [];
   for (let i = 1; i <= max; i += 1) nums.push(i);
+  const hdr = (on) => ({ ...MTBL_CELL, color: '#fff', background: on ? '#C1381A' : T.accent, boxShadow: on ? '0 0 0 2px #FFC7B8' : 'none' });
   return (
     <div className="fade-up" style={{ display: 'inline-block', padding: 'clamp(6px,1.6vw,10px)', borderRadius: 12, background: '#FFFFFF', border: `2px solid ${T.accent}`, boxShadow: '0 6px 18px -6px rgba(0,0,0,0.3)' }}>
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${max + 1}, 1fr)`, gap: 'clamp(2px,0.6vw,4px)' }}>
         <span style={{ ...MTBL_CELL, color: T.accent }}>×</span>
-        {nums.map((n) => <span key={`h${n}`} style={{ ...MTBL_CELL, color: '#fff', background: T.accent }}>{n}</span>)}
+        {nums.map((n) => <span key={`h${n}`} style={hdr(n === hc)}>{n}</span>)}
         {nums.map((rn) => (
           <React.Fragment key={`r${rn}`}>
-            <span style={{ ...MTBL_CELL, color: '#fff', background: T.accent }}>{rn}</span>
-            {nums.map((cn) => <span key={`${rn}x${cn}`} style={{ ...MTBL_CELL, color: T.ink, background: (rn + cn) % 2 ? '#F6F4EF' : '#ECE8DF' }}>{rn * cn}</span>)}
+            <span style={hdr(rn === hr)}>{rn}</span>
+            {nums.map((cn) => {
+              const isRes = hres && rn === hr && cn === hc;
+              const inLine = rn === hr || cn === hc;
+              const bg = isRes ? T.success : inLine && (hr || hc) ? '#FFE8E1' : ((rn + cn) % 2 ? '#F6F4EF' : '#ECE8DF');
+              return <span key={`${rn}x${cn}`} className={isRes ? 'g1-pop-in' : ''} style={{ ...MTBL_CELL, color: isRes ? '#fff' : T.ink, background: bg, boxShadow: isRes ? '0 0 0 2px #A7E0BF' : 'none' }}>{rn * cn}</span>;
+            })}
           </React.Fragment>
         ))}
       </div>
@@ -4918,6 +4949,47 @@ const A10 = (props) => <ArrayStage props={props} cKey="s10"/>;
 const A11 = (props) => <ArrayStage props={props} cKey="s11"/>;
 const ACase = (props) => <ArrayStage props={props} cKey="s13" variant="plant"/>;
 const A14 = (props) => <ArrayStage props={props} cKey="s14" fact variant="plant"/>;
+// sTBL — ko'paytirish jadvalidan foydalanishni o'rgatadi (3 × 4 misolда, bosqichli yoritish).
+const ScreenTable = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.sTBL;
+  const audio = useAudio([
+    brgSeg('sTBL', lang),
+    ...c.audio[lang].map((text, i) => ({ id: `sTBL_${i}`, text, trigger: 'after_previous', waits_for: null }))
+  ]);
+  const seg = audio.currentSegment;
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (seg === 'sTBL_1') setStep((s) => Math.max(s, 1));
+    else if (seg === 'sTBL_2') setStep((s) => Math.max(s, 2));
+    else if (seg === 'sTBL_3') setStep((s) => Math.max(s, 3));
+  }, [seg]);
+  const hr = step >= 1 ? 3 : 0;
+  const hc = step >= 2 ? 4 : 0;
+  const done = step >= 3;
+  const revealRef = useRevealScroll(done, 500);
+  const canAdv = useAdvanceGate(true, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(190px, 44vw, 260px)' }}>
+          <MultTable max={6} hr={hr} hc={hc} hres={done}/>
+          {done && <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(20px,4.4vw,30px)', color: T.success }}>3 × 4 = 12</div>}
+        </div>
+        {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
+      </div>
+    </Stage>
+  );
+};
 
 // ============================================================
 // YUPITER SAHNALARI — Б3 biom. MUHIM (metodist 2026-07-15): Yupiter GAZ sayyorasi — unda qattiq
@@ -5237,7 +5309,7 @@ export default function RazryadLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, A5, A6, A7, A8, A9, A10, A11, ACase, A14, Screen15];
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, ScreenTable, A5, A6, A7, A8, A9, A10, A11, ACase, A14, Screen15];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
