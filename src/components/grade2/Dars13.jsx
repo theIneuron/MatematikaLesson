@@ -5163,8 +5163,39 @@ const Butterfly = () => (
     <path d="M10 5 L8 2 M10 5 L12 2" stroke="#3A2A1A" strokeWidth="0.6" strokeLinecap="round"/>
   </svg>
 );
+// CrewChar — ekipaj a'zosi SKAFANDRDA (dubulg'a+vizor+kombinezon+ranecha+etik), qo'li silkinadi (d13-wave).
+// Zuhra rangi #8B6FB0. Real/jonli: idle-suzish (g1-cast-fig) + qo'l silkitish.
+const CrewChar = ({ color = '#8B6FB0' }) => (
+  <svg className="g1-char" viewBox="0 0 60 98" aria-hidden="true" style={{ height: '100%', width: 'auto', display: 'block' }}>
+    <ellipse cx="30" cy="95.5" rx="17" ry="3" fill="rgba(0,0,0,0.22)"/>
+    {/* ranecha (hayot-ta'minot) */}
+    <rect x="16" y="36" width="28" height="32" rx="7" fill="#9AA4B0" stroke="#6E7884" strokeWidth="1.4"/>
+    <rect x="19" y="40" width="22" height="6" rx="2" fill="#7E8894"/>
+    {/* oyoqlar + etik */}
+    <rect x="22" y="70" width="7.5" height="20" rx="3.5" fill={color}/><rect x="30.5" y="70" width="7.5" height="20" rx="3.5" fill={color}/>
+    <rect x="20" y="88" width="11" height="7" rx="3" fill="#EDEFF2" stroke="#BFC7CE" strokeWidth="0.8"/><rect x="29" y="88" width="11" height="7" rx="3" fill="#EDEFF2" stroke="#BFC7CE" strokeWidth="0.8"/>
+    {/* tana (kombinezon) */}
+    <rect x="17" y="41" width="26" height="35" rx="11" fill={color}/>
+    <rect x="17" y="41" width="26" height="11" rx="8" fill="rgba(255,255,255,0.22)"/>
+    {/* ko'krak paneli */}
+    <rect x="23" y="50" width="14" height="10" rx="2.5" fill="#222A38"/><circle cx="27" cy="55" r="1.6" fill="#6EF29B"/><circle cx="32" cy="55" r="1.6" fill="#FFC23C"/>
+    {/* chap qo'l (pastda) */}
+    <path d="M19 46 C 12 52 11 61 14 67" stroke={color} strokeWidth="7.5" fill="none" strokeLinecap="round"/><circle cx="14" cy="68" r="4.8" fill="#EDEFF2"/>
+    {/* o'ng qo'l (SILKINADI) */}
+    <g className="d13-wave" style={{ transformOrigin: '41px 46px' }}>
+      <path d="M41 46 C 50 42 53 31 51 22" stroke={color} strokeWidth="7.5" fill="none" strokeLinecap="round"/>
+      <circle cx="51" cy="21" r="4.8" fill="#EDEFF2"/>
+    </g>
+    {/* dubulg'a */}
+    <circle cx="30" cy="25" r="16.5" fill="#E8EEF4" stroke="#A9BCC8" strokeWidth="1.6"/>
+    <path d="M16.5 23 A 14 14 0 0 1 43.5 21 L 43.5 29 A 14 14 0 0 1 16.5 31 Z" fill="#3E8FC4"/>
+    <path d="M16.5 23 A 14 14 0 0 1 43.5 21 L 43.5 24 A 14 14 0 0 1 16.5 26 Z" fill="#7EC8EE"/>
+    <ellipse cx="23" cy="21" rx="4.2" ry="2.6" fill="rgba(255,255,255,0.65)" transform="rotate(-18 23 21)"/>
+    <circle cx="30" cy="25" r="16.5" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="0.8"/>
+  </svg>
+);
 const GROW_LAMPS = [36, 50, 64];
-const ShipGreenhouse = ({ arrive = false, celebrate = false, bubbleNode }) => (
+const ShipGreenhouse = ({ arrive = false, celebrate = false, bubbleNode, charNode }) => (
   <div className="d2-scene" style={{ background: 'linear-gradient(180deg,#E4E9DF 0%,#D2DACC 52%,#BEC6B6 100%)' }}>
     {/* SHIFT (yorug') + panel-lampalar */}
     <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '11%', background: 'linear-gradient(180deg,#EFF1EB,#C6CCC0)', boxShadow: '0 3px 8px rgba(0,0,0,0.16)', zIndex: 6 }}>
@@ -5226,7 +5257,8 @@ const ShipGreenhouse = ({ arrive = false, celebrate = false, bubbleNode }) => (
     {/* KAPALAK — sahna bo'ylab uchadi (kattaroq) */}
     <div className="d13-fly" style={{ position: 'absolute', left: '27%', top: '39%', zIndex: 6 }}><Butterfly/></div>
     {bubbleNode}
-    <div className="d2-scene-bit"><span className="g1-cast-fig"><BitSVG state="present"/></span></div>
+    {/* PERSONAJ — «?»/tablo tagida (chapda, old planда, z-index baland) */}
+    {charNode}
   </div>
 );
 // s0 — YUPITER ORBITASIGA KELISH: illyuminatorda Yupiter ochiladi; issiqxona 3×4 ekin + jami "?".
@@ -5237,6 +5269,11 @@ const YupiterScene = ({ answer = null }) => {
       bubbleNode={(
         <div style={{ position: 'absolute', left: '15%', top: '34%', transform: 'translateX(-50%)', zIndex: 7 }}>
           <div className={shown ? 'g1-pop-in' : ''} style={{ minWidth: 'clamp(40px,8vw,54px)', height: 'clamp(36px,7vw,48px)', padding: '0 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(19px,4.2vw,28px)', background: shown ? T.successSoft : '#FFFFFF', color: shown ? T.success : T.ink3, border: `2.5px ${shown ? 'solid' : 'dashed'} ${shown ? T.success : '#A7A6A2'}`, boxShadow: '0 3px 10px rgba(0,0,0,0.35)', animation: shown ? 'none' : 'g1pulse 1.5s ease-in-out infinite' }}>{shown ? 12 : '?'}</div>
+        </div>
+      )}
+      charNode={(
+        <div className="d2-scene-bit" style={{ right: 'auto', left: '15%', bottom: '2%', height: '50%', zIndex: 7, transform: 'translateX(-50%)' }}>
+          <span className="g1-cast-fig"><BitSVG state="present"/></span>
         </div>
       )}/>
   );
@@ -5252,6 +5289,11 @@ const YupiterField = ({ label }) => {
           <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 'clamp(52px,11vw,72px)', height: 'clamp(38px,7.4vw,50px)', padding: '0 clamp(10px,2vw,15px)', justifyContent: 'center', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,4.6vw,30px)', background: T.successSoft, color: T.success, border: `2.5px solid ${T.success}`, boxShadow: '0 4px 14px -4px rgba(31,122,77,0.5)' }}>
             12<span style={{ fontSize: 'clamp(17px,3.4vw,23px)' }}>✓</span>
           </div>
+        </div>
+      )}
+      charNode={(
+        <div className="d2-scene-bit" style={{ right: 'auto', left: '16%', bottom: '2%', height: '52%', zIndex: 7, transform: 'translateX(-50%)' }}>
+          <span className="g1-cast-fig"><CrewChar color="#8B6FB0"/></span>
         </div>
       )}/>
   );
@@ -5794,8 +5836,10 @@ html, body { margin: 0; padding: 0; }
 .d13-wingr { animation: d13wingr 0.22s ease-in-out infinite; }
 @keyframes d13fly { 0% { transform: translate(0, 0); } 25% { transform: translate(60px, -22px); } 50% { transform: translate(130px, 8px); } 75% { transform: translate(70px, 30px); } 100% { transform: translate(0, 0); } }
 .d13-fly { animation: d13fly 13s ease-in-out infinite; }
+@keyframes d13wave { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(15deg); } }
+.d13-wave { transform-box: fill-box; animation: d13wave 1.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
-  .d13-jhalo, .d13-jband, .d13-sway, .d13-mist, .d13-moon1, .d13-moon2, .d13-vine, .d13-vine2, .d13-glow, .d13-beam, .d13-sheen, .d13-drop, .d13-hover, .d13-rotor, .d13-bubble, .d13-led, .d13-wingl, .d13-wingr, .d13-fly { animation: none; }
+  .d13-jhalo, .d13-jband, .d13-sway, .d13-mist, .d13-moon1, .d13-moon2, .d13-vine, .d13-vine2, .d13-glow, .d13-beam, .d13-sheen, .d13-drop, .d13-hover, .d13-rotor, .d13-bubble, .d13-led, .d13-wingl, .d13-wingr, .d13-fly, .d13-wave { animation: none; }
 }
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
