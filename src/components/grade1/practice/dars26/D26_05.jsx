@@ -78,16 +78,16 @@ export default function D26_05(props) {
         .pq2605 .pq-body{font-size:17px;line-height:1.5;margin:4px 0 10px;}
         .pq2605 .pq-setup{color:#5c6672;font-weight:500;}
         .pq2605 .pq-ask{display:block;margin-top:4px;font-size:19px;font-weight:800;}
-        .pq2605 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px;border-radius:22px;background:linear-gradient(#f2f9ec,#e6f4d9);border:2px solid #cfe6bd;}
+        .pq2605 .pq-stage{display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px 8px;border-radius:22px;background:linear-gradient(#f2f9ec,#e6f4d9);border:2px solid #cfe6bd;}
         /* Kichik STATIK banner (savat/olma yo'q) — mobilда kam joy egallaydi */
         .pq2605 .pq-band{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:46px;border-radius:14px;background:linear-gradient(90deg,#e8f4ff,#eaf7dd);border:2px solid #cfe6bd;overflow:hidden;}
         .pq2605 .pq-band-title{font-size:14px;font-weight:800;letter-spacing:.02em;color:#3a7f42;}
         .pq2605 .pq-band-sun{position:absolute;right:14px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#fff3c0,#f9c62f 70%,#f0ab18);box-shadow:0 0 10px 2px rgba(249,198,47,.4);}
         .pq2605 .pq-band-cloud{position:absolute;left:16px;top:12px;width:30px;height:9px;background:#fff;border-radius:999px;opacity:.75;box-shadow:10px 4px 0 -3px #fff;}
 
-        .pq2605 .pq-rows{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;width:100%;max-width:360px;}
-        @media (min-width:480px){.pq2605 .pq-rows{grid-template-columns:1fr 1fr;max-width:520px;}}
-        .pq2605 .pq-rw{display:flex;flex-wrap:wrap;gap:7px;align-items:center;align-content:center;justify-content:center;padding:8px 9px;border-radius:14px;border:2.5px solid #d7e5cd;background:#fff;transition:.15s;}
+        .pq2605 .pq-rows{display:grid;grid-template-columns:1fr;align-items:start;gap:8px;width:100%;}
+        @media (min-width:480px){.pq2605 .pq-rows{grid-template-columns:1fr 1fr;max-width:560px;}}
+        .pq2605 .pq-rw{display:flex;flex-wrap:wrap;gap:7px;align-items:center;align-content:center;justify-content:center;padding:10px 12px;border-radius:14px;border:2.5px solid #d7e5cd;background:#fff;transition:.15s;}
         .pq2605 .pq-rw.good{border-color:#1a7f43;background:#e8f7ee;}
         .pq2605 .pq-rw.good.win{animation:pq2605cele .5s ease;}
         .pq2605 .pq-rw.bad{border-color:#e08a8a;background:#fdf1f1;animation:pq2605shake .35s ease;}
@@ -101,8 +101,8 @@ export default function D26_05(props) {
         .pq2605 .pq-rw:nth-child(4) .pq-slot{animation-delay:-2.7s;}
         .pq2605 .pq-slot.has{border-style:solid;color:#2563eb;border-color:#9db8ea;background:#f2f6fe;animation:none;}
         .pq2605 .pq-rw.good .pq-slot{border-color:#1a7f43;color:#1a7f43;background:#fff;}
-        .pq2605 .pq-sgs{display:flex;flex-wrap:wrap;align-content:center;flex-basis:100%;gap:6px;margin-top:1px;justify-content:center;}
-        .pq2605 .pq-sg{min-width:40px;height:40px;padding:0 4px;border-radius:10px;border:2.5px solid #d6dae3;background:#fff;font-size:17px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
+        .pq2605 .pq-sgs{display:flex;flex-wrap:nowrap;align-content:center;flex-basis:100%;gap:8px;margin-top:3px;justify-content:stretch;}
+        .pq2605 .pq-sg{flex:1 1 0;min-width:0;height:50px;padding:0 2px;border-radius:11px;border:2.5px solid #d6dae3;background:#fff;font-size:19px;font-weight:900;color:#374151;cursor:pointer;font-variant-numeric:tabular-nums;transition:.12s;}
         .pq2605 .pq-sg:hover:not(:disabled){border-color:#94c47f;transform:translateY(-2px);}
         .pq2605 .pq-sg:active:not(:disabled){transform:scale(.92);}
         .pq2605 .pq-sg.sel{border-color:#2563eb;background:#e8eefc;color:#2563eb;}
