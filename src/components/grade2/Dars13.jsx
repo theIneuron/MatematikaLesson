@@ -5292,8 +5292,8 @@ const YupiterField = ({ label }) => {
         </div>
       )}
       charNode={(
-        <div className="d2-scene-bit" style={{ right: 'auto', left: '16%', bottom: '2%', height: '52%', zIndex: 7, transform: 'translateX(-50%)' }}>
-          <span className="g1-cast-fig"><CrewChar color="#8B6FB0"/></span>
+        <div className="d2-scene-bit" style={{ right: 'auto', left: '16%', bottom: '2%', height: '50%', zIndex: 7, transform: 'translateX(-50%)' }}>
+          <span className="g1-cast-fig"><BitSVG state="happy"/></span>
         </div>
       )}/>
   );
