@@ -1,101 +1,125 @@
-// Dars03 · Amaliyot 06 — Do'kondagi xarid · 🟡 · Nilufar · tag: word_sub
-// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q. Faqat react importi.
+// Do'kondagi xarid (matnli ayirish). To'g'ri javobdan keyin ustun ayirish
+// ko'rsatiladi: 125500 - 25950, natija o'ngdan chapga chiqadi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const TARGET = 99550;
-const DATA = { tag: 'word_sub', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Hayotda', title: 'Qancha qoldi',
-    setup: "Plastik kartada 125 500 so'm bor edi. Do'kondan 25 950 so'mlik xarid qilindi. Kartada necha so'm qoldi?",
-    label: "Qolgan pulni yozing (so'm):",
-    live: 'Sizning javobingiz:',
-    correct: "To'g'ri. 125 500 − 25 950 = 99 550 so'm.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'В жизни', title: 'Сколько осталось',
-    setup: 'На пластиковой карте было 125 500 сум. В магазине сделали покупку на 25 950 сум. Сколько сум осталось на карте?',
-    label: 'Запишите остаток (сум):',
-    live: 'Ваш ответ:',
-    correct: 'Верно. 125 500 − 25 950 = 99 550 сум.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
-const groupSpaces = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+};
+const HFB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useRegister(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+
+const D06_M = '125500', D06_S = ['', '2', '5', '9', '5', '0'], D06_R = '099550';
+const D06_T = {
+  uz: {
+    eyebrow: 'Xarid',
+    setup: "Plastik kartada pul bor edi. Do'kondan xarid qilindi. Kartada necha so'm qoldi?",
+    had: 'Kartada bor edi', spent: 'Xarid', unit: "so'm",
+    label: "Qolgan pulni yozing (so'm):",
+    correct: "To'g'ri. 125 500 - 25 950 = 99 550 so'm.",
+    wrong: "Maslahat: xariddan keyin kartadagi pul ko'payadimi yoki kamayadimi? Qaysi amal shu o'zgarishni beradi?",
+  },
+  ru: {
+    eyebrow: 'Покупка',
+    setup: 'На карте были деньги. Сделали покупку. Сколько сум осталось?',
+    had: 'Было на карте', spent: 'Покупка', unit: 'сум',
+    label: 'Запишите остаток (сум):',
+    correct: 'Верно. 125 500 - 25 950 = 99 550 сум.',
+    wrong: 'Подсказка: после покупки денег на карте станет больше или меньше? Какое действие даёт это изменение?',
+  },
+};
 
 export default function D03_06(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D06_T[lang] || D06_T.uz;
   const isReview = mode === 'review';
   const [val, setVal] = useState('');
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
+  const [shown, setShown] = useState(0);
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.value != null) {
-      setVal(String(initialAnswer.studentAnswer.value));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
+    const sa = initialAnswer?.studentAnswer;
+    if (sa?.value != null) { setVal(String(sa.value)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setShown(6); } }
   }, [initialAnswer]);
   useEffect(() => { onReady?.(val.trim() !== '' && !checked); }, [val, checked, onReady]);
 
   const check = useCallback(() => {
-    const v = parseInt(cleanInt(val) || '-1', 10);
-    const correct = v === TARGET;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.setup, options: [],
-      studentAnswer: { value: v }, correctAnswer: { value: TARGET },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [val, playCorrect, playWrong, onSubmit, t.setup]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
+    const v = parseInt(String(val).replace(/[^0-9]/g, '') || '-1', 10);
+    const correct = v === 99550;
+    setFb({ correct }); setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    if (correct) [0, 1, 2, 3, 4, 5].forEach((k) => timers.current.push(setTimeout(() => setShown(k + 1), 500 + k * 420)));
+    onSubmit?.({ questionText: t.setup, options: [], studentAnswer: { value: v }, correctAnswer: { value: 99550 }, correct, meta: { tag: 'word_sub', level: '🟡' } });
+  }, [val, t, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
 
-  const preview = cleanInt(val) ? groupSpaces(cleanInt(val)) : '—';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const cw = 30;
+  const monoCell = { width: cw, textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800 };
+
   return (
-    <div className="pq pq06">
+    <div style={S.wrap}>
       <style>{`
-        .pq06 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq06 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq06 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 18px; color:#374151; }
-        .pq06 .pq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
-        .pq06 input.pq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq06 input.pq-input:focus { border-color:#5b8def; background:#fff; }
-        .pq06 input.pq-input:disabled { opacity:.85; }
-        .pq06 .pq-live { text-align:center; margin:12px 0 2px; }
-        .pq06 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
-        .pq06 .pq-live-num { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-        .pq06 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq06 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq06 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq06 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq06 .a2 { animation-delay:.08s; }
-        .pq06 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.06);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d3-pop { animation: d3pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d3pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d3-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <label className="pq-label a a3" htmlFor="pq06-in">{t.label}</label>
-      <input id="pq06-in" className="pq-input" value={val} onChange={(e) => setVal(cleanInt(e.target.value))} inputMode="numeric" pattern="[0-9]*" disabled={isReview || checked} placeholder="0" />
-      <div className="pq-live">
-        <div className="pq-live-lbl">{t.live}</div>
-        <div className="pq-live-num" style={{ color: checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#1f2430' }}>{preview}</div>
-      </div>
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', margin: '10px 0 8px' }}>
+        <div style={{ flex: '1 1 150px', padding: '12px 14px', borderRadius: 14, background: '#eaf0fe', border: '2px solid #bfd4fb' }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#2563eb', letterSpacing: '.03em', marginBottom: 4 }}>{t.had.toUpperCase()}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800, color: '#1e40af' }}>125 500 <span style={{ fontSize: 14, fontWeight: 700, color: '#60a5fa' }}>{t.unit}</span></div>
         </div>
-      )}
+        <div style={{ flex: '1 1 150px', padding: '12px 14px', borderRadius: 14, background: '#fdecec', border: '2px solid #f5c2c2' }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#c0392b', letterSpacing: '.03em', marginBottom: 4 }}>{t.spent.toUpperCase()}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800, color: '#a1231b' }}>− 25 950 <span style={{ fontSize: 14, fontWeight: 700, color: '#e08b84' }}>{t.unit}</span></div>
+        </div>
+      </div>
+
+      <div style={{ maxHeight: shown >= 1 ? 150 : 0, opacity: shown >= 1 ? 1 : 0, overflow: 'hidden', transition: 'max-height .6s ease, opacity .5s ease' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 6px' }}>
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>{D06_M.split('').map((c, i) => <span key={i} style={monoCell}>{c}</span>)}</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2 }}>
+              <span style={{ ...monoCell, color: '#6b7280', width: 'auto', marginRight: 'auto' }}>-</span>
+              {D06_S.map((c, i) => <span key={i} style={{ ...monoCell, color: '#64748b' }}>{c}</span>)}
+            </div>
+            <div style={{ height: 3, background: '#1f2430', borderRadius: 2, margin: '5px 0' }} />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+              {D06_R.split('').map((c, i) => {
+                const fromRight = 6 - i;
+                const vis = shown >= fromRight;
+                const lead = i === 0;
+                return <span key={i} className={vis && !lead ? 'd3-pop' : undefined} style={{ ...monoCell, color: '#1a7f43', opacity: (vis && !lead) ? 1 : 0 }}>{c}</span>;
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p style={{ ...S.ask, fontSize: 15, color: '#6b7280', fontWeight: 700 }}>{t.label}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 6))}
+          disabled={isReview || checked} inputMode="numeric" placeholder="0"
+          style={{ width: 180, height: 56, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, color: '#1f2430', fontFamily: 'inherit', background: '#fff', letterSpacing: 2 }} />
+      </div>
+      {fb && <HFB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
     </div>
   );
 }

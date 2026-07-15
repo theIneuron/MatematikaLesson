@@ -1,4 +1,5 @@
 // Dars02 · Amaliyot 04 — Yuzlar xonasigacha yaxlitlash · 🟡 · Madina · tag: round_hundred
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const DATA = { number: 45849, correct: 0, tag: 'round_hundred', level: '🟡' };
@@ -9,7 +10,7 @@ const T = {
     ask: '45 849 ni yuzlar xonasigacha yaxlitlang.',
     opts: ['45 800', '45 900', '46 000', '45 000'],
     correct: "To'g'ri. Yuzlardan keyingi raqam 4 (5 dan kichik), shuning uchun yuzlar o'zgarmaydi: 45 849 ≈ 45 800.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
+    wrongMsg: "Maslahat: yaxlitlash yo'nalishini yuzlardan keyingi raqam hal qiladi. U yuzlarni oshiradimi yoki qoldiradimi?",
   },
   ru: {
     eyebrow: 'Округление', title: 'До сотен',
@@ -17,7 +18,7 @@ const T = {
     ask: 'Округлите 45 849 до разряда сотен.',
     opts: ['45 800', '45 900', '46 000', '45 000'],
     correct: 'Верно. После сотен стоит 4 (меньше 5), поэтому сотни не меняются: 45 849 ≈ 45 800.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
+    wrongMsg: 'Подсказка: направление округления решает цифра после сотен. Она увеличивает сотни или оставляет их?',
   },
 };
 
@@ -75,7 +76,7 @@ export default function D02_04(props) {
         .pq04 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
         .pq04 .pq-num { text-align:center; font-size:40px; font-weight:800; color:#2563eb; letter-spacing:.04em; font-variant-numeric:tabular-nums; margin:6px 0 18px; animation:pqReveal .6s cubic-bezier(.22,1,.36,1) both; animation-delay:.1s; }
         .pq04 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq04 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq04 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
@@ -85,8 +86,7 @@ export default function D02_04(props) {
         @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
         @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
         @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.06);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
+        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }      `}</style>
       <div className="pq-eyebrow a">{t.eyebrow}</div>
       <p className="pq-setup a a2">{t.setup}</p>
       <div className="pq-num">{groupSpaces(DATA.number)}</div>

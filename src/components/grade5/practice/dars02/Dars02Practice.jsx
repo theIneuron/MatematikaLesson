@@ -1,5 +1,5 @@
-// Dars02 amaliyoti — 10 topshiriq (osondan qiyinga). Mavzu: sonlarni taqqoslash va yaxlitlash.
-// Darslik §5 (taqqoslash) va §38 (yaxlitlash) mashqlariga asoslangan. Syujet: rekordlar/geografiya.
+// Dars02 amaliyoti — 10 topshiriq. Mavzu: ko'p xonali sonlarni taqqoslash va yaxlitlash.
+// Syujet: rekordlar / geografiya. Darslik §5 (taqqoslash) va §38 (yaxlitlash).
 // Har topshiriq mustaqil jsx-question fayli; bu yerda PracticeHost bilan prokliklab ko'riladi.
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
@@ -14,19 +14,19 @@ import D02_08 from './D02_08.jsx';
 import D02_09 from './D02_09.jsx';
 import D02_10 from './D02_10.jsx';
 
-// Metodik xarita (o'quvchiga ko'rsatilmaydi): mavzu · qiyinlik · teg · darslik manbasi.
-// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10). Maslahatsiz, aldov variantlar bilan.
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): mavzu · qiyinlik · teg
+// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10).
 const ITEMS = [
-  { id: '01', label: '1 · Turli xonali', C: D02_01 },   // §5.2 compare_digits 🟢 (77417 > 8432)
-  { id: '02', label: "2 · O'nlargacha", C: D02_02 },     // §38 round_ten 🟢 (238→240)
-  { id: '03', label: '3 · Bir xil xonali', C: D02_03 },  // §5.3 compare_same 🟡 (36099 < 36106)
-  { id: '04', label: '4 · Yuzlargacha', C: D02_04 },     // §38 round_hundred 🟡 (45849→45800)
-  { id: '05', label: '5 · Minglargacha', C: D02_05 },    // §38 round_thousand 🟡 (1120738→1121000)
-  { id: '06', label: '6 · Topishmoq', C: D02_06 },       // §5 Mashq 101 clue_compare 🟡 (305)
-  { id: '07', label: '7 · Yirik sonlar', C: D02_07 },    // §5 Mashq 102g compare_big 🔴
-  { id: '08', label: '8 · Aholi', C: D02_08 },           // §38 Mashq 850 round_big_context 🔴
-  { id: '09', label: '9 · Xato top', C: D02_09 },        // §38 Mashq 851 round_error_check 🔴
-  { id: '10', label: '10 · Yulduzchali', C: D02_10 },    // §5 Mashq 103 star_compare 🔴
+  { id: '01', label: '1 · Turli xonali', C: D02_01 },     // turli xonali taqqoslash 🟢 compare_digits
+  { id: '02', label: "2 · O'nlargacha", C: D02_02 },      // o'nlargacha yaxlitlash 🟢 round_ten
+  { id: '03', label: '3 · Bir xil xonali', C: D02_03 },   // bir xil xonali taqqoslash 🟡 compare_same
+  { id: '04', label: '4 · Yuzlargacha', C: D02_04 },      // yuzlargacha yaxlitlash 🟡 round_hundred
+  { id: '05', label: '5 · Minglargacha', C: D02_05 },     // minglargacha yaxlitlash 🟡 round_thousand
+  { id: '06', label: '6 · Topishmoq', C: D02_06 },        // son topishmog'i 🟡 clue_compare
+  { id: '07', label: '7 · Yirik sonlar', C: D02_07 },     // yirik sonlarni taqqoslash 🔴 compare_big
+  { id: '08', label: '8 · Aholi', C: D02_08 },            // milliongacha yaxlitlash 🔴 round_big_context
+  { id: '09', label: '9 · Xato top', C: D02_09 },         // to'g'ri yaxlitlashni topish 🔴 round_error_check
+  { id: '10', label: '10 · Yulduzchali', C: D02_10 },     // yulduzchali taqqoslash 🔴 star_compare
 ];
 
 export default function Dars02Practice() {
@@ -43,6 +43,8 @@ export default function Dars02Practice() {
 
   return (
     <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+      {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
+          <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
       <style>{`
         .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}

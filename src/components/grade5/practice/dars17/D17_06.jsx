@@ -1,0 +1,123 @@
+// Dars17 · Amaliyot 06 — Son o'qida sakrash · 🟡 · tag: add_numberline
+// 0 dan 1/6, keyin 2/6, so'ng yana 2/6 sakraydi → 5/6. O'quvchi tushish nuqtasini (katakcha) tanlaydi.
+// To'g'ri javobda belgi sekin ikki marta sakraydi. jsx-question kontrakti. Faqat react.
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
+const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{renderFr(text)}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d17-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{renderFr(text)}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+const Frac = ({ num, den, size = 20, color = '#1f2430' }) => (
+  <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', ...S.mono, fontWeight: 800, color, lineHeight: 1, verticalAlign: 'middle' }}>
+    <span style={{ fontSize: size, padding: '0 3px 1px' }}>{num}</span>
+    <span style={{ width: '100%', height: 2, background: color }} />
+    <span style={{ fontSize: size, padding: '1px 3px 0' }}>{den}</span>
+  </span>
+);
+const renderFr = (text) => String(text).split(/([\d?]+\/[\d?]+)/g).map((p, i) => {
+  const m = /^([\d?]+)\/([\d?]+)$/.exec(p);
+  return m ? <Frac key={i} num={m[1]} den={m[2]} size={14} color="currentColor" /> : p;
+});
+
+const D06_ANS = 5; // 5/6
+const D06_T = {
+  uz: {
+    eyebrow: "Son o'qida", setup: "Chaqqon chumchuq son o'qi bo'ylab sakrab boradi. 0 dan turib avval 1/6, keyin 2/6, so'ng yana 2/6 masofaga sakraydi.",
+    ask: 'Chumchuq oxirida qayerga tushadi? Katakchani bosing:',
+    correct: "To'g'ri. 1/6 + 2/6 + 2/6 = 5/6. Uch sakrash — bu uch suratni qo'shish, maxraj 6 o'sha.",
+    wrong: "Maslahat: har sakrash suratni qanchaga oshiradi? Maxraj esa o'zgaradimi?",
+    rule: "Son o'qida qo'shish — sakrashlar (suratlar) yig'indisi. Maxraj o'zgarmaydi.",
+  },
+  ru: {
+    eyebrow: 'На оси', setup: 'Шустрый воробей прыгает по числовой оси. От 0 сначала на 1/6, потом на 2/6, затем ещё на 2/6.',
+    ask: 'Куда воробей попадёт в конце? Нажми деление:',
+    correct: 'Верно. 1/6 + 2/6 + 2/6 = 5/6. Три прыжка — это сложение трёх числителей, знаменатель 6 тот же.',
+    wrong: 'Подсказка: на сколько каждый прыжок увеличивает числитель? А знаменатель меняется?',
+    rule: 'Сложение на оси — сумма прыжков (числителей). Знаменатель не меняется.',
+  },
+};
+
+export default function D17_06(props) {
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const t = D06_T[lang] || D06_T.uz;
+  const isReview = mode === 'review';
+  const [sel, setSel] = useState(null);
+  const [fb, setFb] = useState(null);
+  const [checked, setChecked] = useState(false);
+  const [hop, setHop] = useState(0); // 0 → 2/6 → 5/6
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.sel != null) { setSel(sa.sel); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setHop(5); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(sel != null && !checked); }, [sel, checked, onReady]);
+  const check = useCallback(() => {
+    const correct = sel === D06_ANS;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) { timers.current.push(setTimeout(() => setHop(1), 400)); timers.current.push(setTimeout(() => setHop(3), 1200)); timers.current.push(setTimeout(() => setHop(5), 2000)); }
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { sel }, correctAnswer: { value: D06_ANS }, correct, meta: { tag: 'add_numberline', level: '🟡' } });
+  }, [sel, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const W = 320, mL = 24, mR = 296, base = 66, step = (mR - mL) / 6;
+  const xAt = (i) => mL + i * step;
+  const locked = isReview || checked;
+  return (
+    <div style={S.wrap}>
+      <style>{`
+        .d17-pop { animation: d17pop .6s cubic-bezier(.34,1.4,.64,1) both; }
+        @keyframes d17pop { 0% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d17-pop { animation: none !important; } }
+      `}</style>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{renderFr(t.setup)}</p>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '6px 0' }}>
+        <svg width={W} height="92" viewBox={`0 0 ${W} 92`}>
+          {/* asosiy chiziq */}
+          <line x1={mL} y1={base} x2={mR} y2={base} stroke="#94a3b8" strokeWidth="2" />
+          {/* bo'linmalar + yorliq */}
+          {Array.from({ length: 7 }).map((_, i) => (
+            <g key={i}>
+              <line x1={xAt(i)} y1={base - 6} x2={xAt(i)} y2={base + 6} stroke="#94a3b8" strokeWidth="2" />
+              <text x={xAt(i)} y={base + 22} fontSize="9.5" textAnchor="middle" fill="#94a3b8" fontFamily="'JetBrains Mono', monospace">{i}/6</text>
+            </g>
+          ))}
+          {/* to'g'ri javobda sakrash yoylari */}
+          {checked && fb?.correct && hop >= 1 && <path d={`M ${xAt(0)} ${base - 4} Q ${xAt(0.5)} ${base - 26} ${xAt(1)} ${base - 4}`} fill="none" stroke="#2563eb" strokeWidth="2" strokeDasharray="4 3" />}
+          {checked && fb?.correct && hop >= 3 && <path d={`M ${xAt(1)} ${base - 4} Q ${xAt(2)} ${base - 30} ${xAt(3)} ${base - 4}`} fill="none" stroke="#16a34a" strokeWidth="2" strokeDasharray="4 3" />}
+          {checked && fb?.correct && hop >= 5 && <path d={`M ${xAt(3)} ${base - 4} Q ${xAt(4)} ${base - 30} ${xAt(5)} ${base - 4}`} fill="none" stroke="#14b8a6" strokeWidth="2" strokeDasharray="4 3" />}
+          {/* chumchuq belgisi */}
+          <circle cx={xAt(hop)} cy={base - 4} r="7" fill="#f59e0b" stroke="#b45309" strokeWidth="1.5" style={{ transition: 'cx 0.85s cubic-bezier(.34,1.2,.64,1)' }} />
+        </svg>
+      </div>
+      <p style={{ ...S.ask, fontSize: 15.5 }}>{renderFr(t.ask)}</p>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+        {[1, 2, 3, 4, 5, 6].map((i) => {
+          const on = sel === i;
+          let bd = '#cbd5e1', bg = '#fff', col = '#334155';
+          if (on) { bd = '#2563eb'; bg = '#eff6ff'; col = '#1e40af'; }
+          if (checked && on) { const ok = i === D06_ANS; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
+          return <button key={i} type="button" disabled={locked} onClick={() => setSel(i)} style={{ width: 52, height: 52, borderRadius: 12, border: '2px solid ' + bd, background: bg, cursor: locked ? 'default' : 'pointer' }}><Frac num={String(i)} den="6" size={16} color={col} /></button>;
+        })}
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
+    </div>
+  );
+}

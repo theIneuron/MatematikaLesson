@@ -8,7 +8,7 @@ const T = {
   uz: {
     eyebrow: "Qo'shish",
     setup: "977 200 + 127 033 ni ustunda yeching. Diqqat: yig'indi yangi — millionlar razryadiga o'tadi.",
-    carryHint: 'perenos',
+    carryHint: "o'tkazma",
     correct: "To'g'ri. 977 200 + 127 033 = 1 104 233.",
     wrong: "Hali to'g'ri emas. Yana bir bor tekshiring.",
   },
@@ -100,7 +100,7 @@ export default function D03_08(props) {
         .pq08 input.pq-carry:focus { border-style:solid; background:#fff; }
         .pq08 .pq-carrylbl { font-size:11px; color:#c9a23a; font-weight:700; text-align:right; padding-right:6px; }
         .pq08 .pq-line { height:3px; background:#1f2430; border-radius:2px; margin:3px 0; }
-        .pq08 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq08 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq08 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq08 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
@@ -121,7 +121,7 @@ export default function D03_08(props) {
             <div className="pq-carrylbl">{t.carryHint}</div>
             {Array.from({ length: W }).map((_, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'center' }}>
-                {i < W - 1 ? (<input className="pq-carry" value={carry[i]} onChange={(e) => setCarryAt(i, e.target.value)} inputMode="numeric" maxLength={1} disabled={isReview || checked} aria-label={`perenos ${W - i}`} />) : <span style={{ width: 28 }} />}
+                {i < W - 1 ? (<input className="pq-carry" value={carry[i]} onChange={(e) => setCarryAt(i, e.target.value)} inputMode="numeric" maxLength={1} disabled={isReview || checked} aria-label={`o'tkazma ${W - i}`} />) : <span style={{ width: 28 }} />}
               </div>
             ))}
           </div>

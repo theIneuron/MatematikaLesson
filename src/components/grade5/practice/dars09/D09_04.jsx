@@ -1,101 +1,122 @@
-// Dars09 · Amaliyot 04 — Surat nimani bildiradi · 🟡 · Nilufar · tag: surat_meaning
+// Dars09 · Amaliyot 04 — Surat ma'nosi · 🟡 · surat_meaning (variant + diagramma)
+// 5/8 da surat nimani bildiradi? Variant, kasr diagramma bilan.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'surat_meaning', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Kasr', title: "Surat ma'nosi",
-    setup: "Maxraj butun nechaga bo'linganini, surat esa nechtasi olinganini bildiradi.",
-    ask: '5/8 kasrida surat (5) nimani bildiradi?',
-    opts: ['Olingan ulushlar soni', "Butun nechaga bo'lingani", "Butun sonning o'zi", 'Ortib qolgan qism'],
-    correct: "To'g'ri. Surat — olingan ulushlar soni: 8 ulushdan 5 tasi olingan.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Дробь', title: 'Смысл числителя',
-    setup: 'Знаменатель показывает, на сколько частей разделено целое, а числитель — сколько взято.',
-    ask: 'Что обозначает числитель (5) в дроби 5/8?',
-    opts: ['Количество взятых долей', 'На сколько разделено целое', 'Само целое число', 'Остаток'],
-    correct: 'Верно. Числитель — количество взятых долей: из 8 долей взято 5.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d9-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
+  const on = picked === i, show = checked && on;
+  let bg = '#fff', bd = '#d6dae3', col = '#374151';
+  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
+  return {
+    flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
+    textAlign: opts.center ? 'center' : 'left', padding: '13px 14px', borderRadius: 13, border: '2px solid ' + bd,
+    background: bg, color: col, fontSize: opts.fs || 16, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer',
+    marginBottom: opts.half ? 0 : 9, fontFamily: opts.mono ? "'JetBrains Mono', monospace" : 'inherit', minHeight: 48,
+  };
+}
+// kasr belgisi (surat/maxraj chiziqcha bilan)
+const Frac = ({ num, den, size = 26, color = '#1f2430' }) => (
+  <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', ...S.mono, fontWeight: 800, color, lineHeight: 1, verticalAlign: 'middle' }}>
+    <span style={{ fontSize: size, padding: '0 4px 2px' }}>{num}</span>
+    <span style={{ width: '100%', height: 2, background: color }} />
+    <span style={{ fontSize: size, padding: '2px 4px 0' }}>{den}</span>
+  </span>
+);
+
+const D04_NUM = 5, D04_DEN = 8, D04_CORRECT = 2;
+const D04_T = {
+  uz: {
+    eyebrow: "Surat ma'nosi", setup: "5/8 kasri va uning diagrammasi berilgan.",
+    ask: '5/8 kasrida surat (5) nimani bildiradi?',
+    opts: ["Butun nechaga bo'lingani", 'Ortib qolgan qism', "Olingan (bo'yalgan) ulushlar soni", "Butun sonning o'zi"],
+    correct: "To'g'ri. Surat — olingan ulushlar soni. 5/8 da 5 ta ulush olingan.",
+    wrong: "Maslahat: maxraj butun nechaga bo'linganini aytadi. Unda surat butunni emas, nimani sanaydi?",
+    rule: "Surat — olingan ulushlar soni. Maxraj — butun nechaga bo'lingani.",
+  },
+  ru: {
+    eyebrow: 'Смысл числителя', setup: 'Дана дробь 5/8 и её диаграмма.',
+    ask: 'Что означает числитель (5) в дроби 5/8?',
+    opts: ['На сколько разделено целое', 'Оставшаяся часть', 'Число взятых (закрашенных) долей', 'Само целое число'],
+    correct: 'Верно. Числитель — число взятых долей. В 5/8 взято 5 долей.',
+    wrong: 'Подсказка: знаменатель говорит, на сколько разделено целое. А что тогда считает числитель?',
+    rule: 'Числитель — число взятых долей. Знаменатель — на сколько разделено целое.',
+  },
+};
 export default function D09_04(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D04_T[lang] || D04_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
+  const [lit, setLit] = useState(0); // sanoq animatsiyasi
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { if (initialAnswer?.studentAnswer?.idx != null) { setPicked(initialAnswer.studentAnswer.idx); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setLit(D04_NUM); } } }, [initialAnswer]);
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
-  };
-
+    const correct = picked === D04_CORRECT;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) Array.from({ length: D04_NUM }).forEach((_, k) => timers.current.push(setTimeout(() => setLit(k + 1), 400 + k * 350)));
+    onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: 2 }, correct, meta: { tag: 'surat_meaning', level: '🟡' } });
+  }, [picked, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
   return (
-    <div className="pq pq04">
+    <div style={S.wrap}>
       <style>{`
-        .pq04 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq04 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq04 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq04 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq04 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq04 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq04 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq04 .a2 { animation-delay:.08s; }
-        .pq04 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d9-pop { animation: d9pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d9pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d9-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      {/* 8 ulushli polosa, 5 bo'yalgan; to'g'ri javobdan keyin ustki sanoq */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, margin: '8px 0 14px' }}>
+        <div style={{ display: 'flex', gap: 3 }}>
+          {Array.from({ length: D04_DEN }).map((_, i) => {
+            const shaded = i < D04_NUM;
+            const counted = checked && fb?.correct && i < lit;
+            return (
+              <div key={i} style={{ position: 'relative' }}>
+                <span className={counted ? 'd9-pop' : undefined} style={{ display: 'block', width: 26, height: 46, borderRadius: 5, background: shaded ? (counted ? '#7c3aed' : '#8b5cf6') : '#ede9fe', border: '1.5px solid ' + (shaded ? '#6d28d9' : '#ddd6fe'), transition: 'background .2s' }} />
+                {counted && <span className="d9-pop" style={{ position: 'absolute', top: -16, left: '50%', transform: 'translateX(-50%)', ...S.mono, fontSize: 12, fontWeight: 800, color: '#7c3aed' }}>{i + 1}</span>}
+              </div>
+            );
+          })}
         </div>
-      )}
+        <Frac num="5" den="8" size={30} color="#6d28d9" />
+      </div>
+      <p style={S.ask}>{t.ask}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+        {t.opts.map((o, i) => <button key={i} type="button" style={optStyle(picked, i, D04_CORRECT, checked, isReview, { fs: 15 })} disabled={isReview || checked} onClick={() => setPicked(i)}>{o}</button>)}
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

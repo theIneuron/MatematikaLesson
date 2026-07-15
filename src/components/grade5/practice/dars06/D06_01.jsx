@@ -1,101 +1,93 @@
-// Dars06 · Amaliyot 01 — Termometr harorati · 🟢 · Bekzod · tag: read_temp
+// Dars06 · Amaliyot 01 — Termometr · 🟢 · read_temp (javob kiritish)
+// Vertikal termometr -6°C ko'rsatadi. Bola haroratni o'qib yozadi. To'g'ri javobdan
+// keyin suyuqlik darajasi animatsiya bilan to'ldiriladi.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'read_temp', level: '🟢' };
-const T = {
-  uz: {
-    eyebrow: 'Harorat', title: 'Termometr',
-    setup: "Termometr harorati manfiy son bo'lishi mumkin.",
-    ask: "Termometr -4°C ni ko'rsatmoqda. Bu nimani bildiradi?",
-    opts: ['4 daraja sovuq', '4 daraja issiq', '0 daraja', '40 daraja sovuq'],
-    correct: "To'g'ri. -4°C — noldan 4 daraja past, ya'ni 4 daraja sovuq.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Температура', title: 'Термометр',
-    setup: 'Температура на термометре может быть отрицательной.',
-    ask: 'Термометр показывает -4°C. Что это значит?',
-    opts: ['4 градуса мороза', '4 градуса тепла', '0 градусов', '40 градусов мороза'],
-    correct: 'Верно. -4°C — на 4 градуса ниже нуля, то есть 4 градуса мороза.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
 
+const D01_TEMP = -6, D01_LO = -10, D01_HI = 10;
+const D01_T = {
+  uz: {
+    eyebrow: 'Termometr', setup: "Ko'chada sovuq. Har bo'linma 2 gradus. Ustunni sanab, haroratni toping.",
+    ask: "Termometr necha gradus ko'rsatyapti?", label: "Haroratni yozing:",
+    correct: "To'g'ri. Termometr -6°C ni ko'rsatyapti — noldan 6 gradus past.",
+    wrong: "Maslahat: ustun nol chizig'idan pastda tugayapti — harorat musbatmi yoki manfiy? Har bo'linma bir gradusdan ko'proqni bildirishini ham unutmang.",
+  },
+  ru: {
+    eyebrow: 'Термометр', setup: 'На улице холодно. Каждое деление 2 градуса. Сосчитайте столбик.',
+    ask: 'Сколько градусов показывает термометр?', label: 'Запишите температуру (например: -4):',
+    correct: 'Верно. Термометр показывает -6°C — на 6 градусов ниже нуля.',
+    wrong: 'Подсказка: столбик заканчивается ниже нулевой линии — температура положительная или отрицательная? И помните, что одно деление больше одного градуса.',
+  },
+};
 export default function D06_01(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D01_T[lang] || D01_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [val, setVal] = useState('');
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
+  const [glow, setGlow] = useState(false);
+  const timer = useRef(null);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.value != null) { setVal(String(sa.value)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); setGlow(!!initialAnswer.correct); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(/^-?\d+$/.test(val.trim()) && !checked); }, [val, checked, onReady]);
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
-  };
-
+    const correct = parseInt(val, 10) === D01_TEMP;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) timer.current = setTimeout(() => setGlow(true), 300);
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D01_TEMP }, correct, meta: { tag: 'read_temp', level: '🟢' } });
+  }, [val, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  // termometr: 0 tepada (10) → past (-10). ustun balandligi TEMP ga bog'liq
+  const H = 200, range = D01_HI - D01_LO;
+  const zeroY = ((D01_HI - 0) / range) * H;
+  const tempY = ((D01_HI - D01_TEMP) / range) * H;
+  const ticks = [];
+  for (let v = D01_HI; v >= D01_LO; v -= 2) ticks.push(v);
   return (
-    <div className="pq pq01">
-      <style>{`
-        .pq01 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq01 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq01 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq01 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq01 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq01 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq01 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq01 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq01 .a2 { animation-delay:.08s; }
-        .pq01 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
+    <div style={S.wrap}>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}>
+        <svg width="120" height={H + 50} viewBox={`0 0 120 ${H + 50}`}>
+          {/* naycha */}
+          <rect x="50" y="10" width="20" height={H} rx="10" fill="#f1f5f9" stroke="#cbd5e1" strokeWidth="2" />
+          {/* nol chizig'i */}
+          <line x1="30" y1={10 + zeroY} x2="90" y2={10 + zeroY} stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="3 3" />
+          <text x="94" y={14 + zeroY} fontSize="12" fontWeight="800" fill="#64748b" fontFamily="'JetBrains Mono', monospace">0</text>
+          {/* bo'linmalar */}
+          {ticks.map((v) => { const y = 10 + ((D01_HI - v) / range) * H; return v !== 0 ? <g key={v}><line x1="44" y1={y} x2="50" y2={y} stroke="#cbd5e1" strokeWidth="1.5" /></g> : null; })}
+          {/* suyuqlik ustuni — doim -6 da turadi (0 dan tempgacha, pastga) */}
+          <rect x="54" y={10 + zeroY} width="12" height={tempY - zeroY} fill={glow ? '#2563eb' : '#60a5fa'} style={{ transition: 'fill .5s' }} />
+        </svg>
+      </div>
+      <p style={{ ...S.ask, fontSize: 16 }}>{t.ask}</p>
+      <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^-\d]/g, '').slice(0, 3))} disabled={isReview || checked} inputMode="text" placeholder="?"
+          style={{ width: 130, height: 56, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, color: '#1f2430', fontFamily: 'inherit', background: '#fff', letterSpacing: 2 }} />
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
     </div>
   );
 }

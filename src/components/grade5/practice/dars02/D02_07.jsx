@@ -1,5 +1,6 @@
 // Dars02 · Amaliyot 07 — Yirik sonlarni taqqoslash · 🔴 · Sardor · tag: compare_big
 // Darslik §5 / Mashq 102g: 6 877 500 600 va 6 876 999 999. jsx-question kontrakti.
+// onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const LEFT = 6877500600, RIGHT = 6876999999;
@@ -10,14 +11,14 @@ const T = {
     eyebrow: 'Taqqoslash', title: 'Yirik sonlar',
     setup: 'Sardor ikki yirik sonni taqqoslamoqchi. Belgini tanlang:',
     correct: "To'g'ri. Chapdan boshlab teng: 6, 8, 7. Keyingi xonada 7 > 6, demak 6 877 500 600 > 6 876 999 999.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
+    wrong: "Maslahat: sonlarni to'liq o'qimang. Chapdan bir xil nomli xonalarni solishtiring — birinchi farq qaysi sonni katta qiladi?",
     pick: 'Belgini tanlang',
   },
   ru: {
     eyebrow: 'Сравнение', title: 'Большие числа',
     setup: 'Сардор сравнивает два больших числа. Выберите знак:',
     correct: 'Верно. Слева равны: 6, 8, 7. В следующем разряде 7 > 6, значит 6 877 500 600 > 6 876 999 999.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
+    wrong: 'Подсказка: не читайте числа целиком. Сравнивайте одноимённые разряды слева — первое различие и решает, какое число больше.',
     pick: 'Выберите знак',
   },
 };
@@ -74,7 +75,7 @@ export default function D02_07(props) {
         .pq07 .pq-q { font-size:28px; font-weight:800; color:#9aa1ad; min-width:28px; text-align:center; }
         .pq07 .pq-pick { text-align:center; font-size:13px; color:#9aa1ad; font-weight:600; margin-top:14px; }
         .pq07 .pq-rels { display:flex; justify-content:center; gap:14px; margin:8px 0 4px; }
-        .pq07 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq07 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq07 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq07 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
@@ -87,8 +88,7 @@ export default function D02_07(props) {
         .pq07 .pq-n.R { animation:pqSlideR .5s cubic-bezier(.22,1,.36,1) both; }
         @keyframes pqSlideL { from { opacity:0; transform:translateX(-24px);} to { opacity:1; transform:translateX(0);} }
         @keyframes pqSlideR { from { opacity:0; transform:translateX(24px);} to { opacity:1; transform:translateX(0);} }
-        .pq07 .pq-q.on { animation:pqPop .4s cubic-bezier(.34,1.56,.64,1); }
-      `}</style>
+        .pq07 .pq-q.on { animation:pqPop .4s cubic-bezier(.34,1.56,.64,1); }      `}</style>
       <div className="pq-eyebrow a">{t.eyebrow}</div>
       <p className="pq-setup a a2">{t.setup}</p>
       <div className="pq-nums">

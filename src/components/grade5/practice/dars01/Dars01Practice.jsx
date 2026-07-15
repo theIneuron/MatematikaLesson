@@ -24,10 +24,10 @@ const ITEMS = [
   { id: '04', label: "4 · Yig'ish", C: D01_04 },       // xona birliklaridan yig'ish 🟡 place_value_build (Mashq 2)
   { id: '05', label: "5 · So'zdan son", C: D01_05 },   // so'zdan songa 🟡 words_to_number (Mashq 11)
   { id: '06', label: '6 · Nechta ming', C: D01_06 },   // millionda nechta ming 🟡 magnitude_relation (Mashq 13)
-  { id: '07', label: '7 · Topishmoq', C: D01_07 },     // xona shartlaridan son 🔴 clue_number (Mashq 2)
-  { id: '08', label: '8 · Nolli sinf', C: D01_08 },    // nol sinfli sonni o'qish 🔴 read_zero_class (2-misol)
-  { id: '09', label: '9 · Qonuniyat', C: D01_09 },     // ketma-ketlik qonuniyati 🔴 sequence_pattern (Mashq 27)
-  { id: '10', label: '10 · Turli raqam', C: D01_10 },  // nechta turli raqam 🔴 distinct_digits (Mashq 25)
+  { id: '07', label: '7 · Topishmoq', C: D01_07 },        // xona shartlaridan son 🔴 clue_number (Mashq 2)
+  { id: '08', label: '8 · Radiosignal', C: D01_08 },      // nolli sinfni jadvalga yozish 🔴 read_zero_class
+  { id: '09', label: '9 · Kattalashtirgich', C: D01_09 }, // ×10 million→milliard 🔴 scale_by_ten
+  { id: '10', label: '10 · Eng kichik son', C: D01_10 },  // kartadan eng kichik son 🔴 build_smallest
 ];
 
 export default function Dars01Practice() {

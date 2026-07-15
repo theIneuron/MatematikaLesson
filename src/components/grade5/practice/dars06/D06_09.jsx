@@ -1,101 +1,90 @@
-// Dars06 · Amaliyot 09 — Oradagi sonlar · 🔴 · Madina · tag: between_count
+// Dars06 · Amaliyot 09 — Oraliqdagi sonlar · 🔴 · between_count (interaktiv sanash)
+// -4 va 3 orasida nechta butun son. Bola o'qdagi oraliq sonlarni bosib belgilaydi.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'between_count', level: '🔴' };
-const T = {
-  uz: {
-    eyebrow: "Son o'qi", title: 'Nechta son',
-    setup: "Son o'qidagi butun sonlarni sanaymiz.",
-    ask: "-5 bilan -1 orasida (o'zlarini hisobga olmasdan) nechta butun son bor?",
-    opts: ['3', '4', '5', '2'],
-    correct: "To'g'ri. -4, -3, -2 — jami 3 ta butun son.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Числовая прямая', title: 'Сколько чисел',
-    setup: 'Считаем целые числа на прямой.',
-    ask: 'Сколько целых чисел между -5 и -1 (не считая их самих)?',
-    opts: ['3', '4', '5', '2'],
-    correct: 'Верно. -4, -3, -2 — всего 3 целых числа.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
 
+const D09_LO = -6, D09_HI = 5, D09_A = -4, D09_B = 3;
+const D09_BETWEEN = [-3, -2, -1, 0, 1, 2]; // -4 va 3 orasida (o'zlari kirmaydi), nol ham kiradi
+const D09_T = {
+  uz: {
+    eyebrow: 'Oraliq', setup: "-4 va 3 son o'qida berilgan. Ular orasidagi barcha butun sonlarni belgilang (chegaralarni hisobga olmang).",
+    ask: 'Oraliqdagi butun sonlarni bosib belgilang, keyin tekshiring:',
+    correct: "To'g'ri. -4 va 3 orasida: -3, -2, -1, 0, 1, 2 — jami 6 ta son. Nol ham oraliqda.",
+    wrong: "Maslahat: ikki chegara orasidagi har bir butun sonni ko'z oldingizga keltiring. Nol ham shu oraliqqa tushadimi?",
+  },
+  ru: {
+    eyebrow: 'Промежуток', setup: '-4 и 3 даны на оси. Отметьте все целые числа между ними (границы не считаются).',
+    ask: 'Отметьте целые числа промежутка, затем проверьте:',
+    correct: 'Верно. Между -4 и 3: -3, -2, -1, 0, 1, 2 — всего 6 чисел. Ноль тоже входит.',
+    wrong: 'Подсказка: представьте каждое целое число между двумя границами. А ноль тоже попадает в этот промежуток?',
+  },
+};
 export default function D06_09(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D09_T[lang] || D09_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [sel, setSel] = useState(new Set());
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.sel) { setSel(new Set(sa.sel)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(sel.size > 0 && !checked); }, [sel, checked, onReady]);
+  const locked = isReview || checked;
+  const nums = [];
+  for (let v = D09_LO; v <= D09_HI; v++) nums.push(v);
+  const target = new Set(D09_BETWEEN);
+  // to'liq to'g'ri bo'lsagina yashil; qisman to'g'ri bo'lsa belgilangan HAMMA nuqta qizil
+  const correctOverall = sel.size === target.size && [...sel].every((v) => target.has(v));
+  const toggle = (v) => { if (locked || v === D09_A || v === D09_B) return; setSel((s) => { const n = new Set(s); n.has(v) ? n.delete(v) : n.add(v); return n; }); };
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
-  };
-
+    const correct = sel.size === target.size && [...sel].every((v) => target.has(v));
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { sel: [...sel] }, correctAnswer: { sel: D09_BETWEEN }, correct, meta: { tag: 'between_count', level: '🔴' } });
+  }, [sel, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const W = 100 / (nums.length - 1);
   return (
-    <div className="pq pq09">
-      <style>{`
-        .pq09 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq09 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq09 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq09 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq09 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq09 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq09 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq09 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq09 .a2 { animation-delay:.08s; }
-        .pq09 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
+    <div style={S.wrap}>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <p style={S.ask}>{t.ask}</p>
+      <div style={{ position: 'relative', height: 96, margin: '18px 6px 8px' }}>
+        <div style={{ position: 'absolute', left: '3%', right: '3%', top: 44, height: 3, background: '#cbd5e1', borderRadius: 2 }} />
+        {nums.map((v, i) => {
+          const isEnd = v === D09_A || v === D09_B;
+          const on = sel.has(v);
+          let dotBg = '#cbd5e1';
+          if (isEnd) dotBg = '#94a3b8';
+          if (on) dotBg = '#2563eb';
+          if (checked && on) dotBg = correctOverall ? '#1a7f43' : '#c0392b';
+          return (
+            <div key={v} onClick={() => toggle(v)} style={{ position: 'absolute', left: `calc(3% + ${i * W * 0.94}%)`, top: 30, transform: 'translateX(-50%)', textAlign: 'center', cursor: (locked || isEnd) ? 'default' : 'pointer' }}>
+              <div style={{ width: on || (isEnd) ? 18 : 13, height: on || (isEnd) ? 18 : 13, borderRadius: 999, background: dotBg, margin: '0 auto', transition: 'all .2s', border: isEnd ? '3px solid #1f2430' : 'none' }} />
+              <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 800, color: isEnd ? '#1f2430' : (on ? '#1e40af' : '#94a3b8'), ...S.mono }}>{v}</div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', fontWeight: 700 }}>{lang === 'uz' ? 'Qora halqali sonlar — chegaralar (sanalmaydi)' : 'Числа в чёрном кольце — границы (не считаются)'}</div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 // Dars02 · Amaliyot 10 — Yulduzchali sonlar · 🔴 · Sardor · tag: star_compare
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const DATA = { correct: 0, tag: 'star_compare', level: '🔴' };
@@ -9,7 +10,7 @@ const T = {
     ask: 'Qaysi son kattaroq?',
     opts: ['87***', '86***', "Aniqlab bo'lmaydi", 'Ular teng'],
     correct: "To'g'ri. Ikkalasi ham besh xonali; minglar xonasida 7 > 6, shuning uchun yulduzchalar qanday bo'lishidan qat'i nazar 87*** har doim katta.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
+    wrongMsg: "Maslahat: yulduzchalar istalgan raqam bo'lishi mumkin. Yashiringan raqamlarga qaramay, qaysi xona natijani hal qilib qo'yadi?",
   },
   ru: {
     eyebrow: 'Загадка', title: 'Скрытые цифры',
@@ -17,7 +18,7 @@ const T = {
     ask: 'Какое число больше?',
     opts: ['87***', '86***', 'Нельзя определить', 'Они равны'],
     correct: 'Верно. Оба пятизначные; в разряде тысяч 7 > 6, поэтому 87*** всегда больше, какими бы ни были звёздочки.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
+    wrongMsg: 'Подсказка: звёздочки могут быть любыми цифрами. Несмотря на скрытые цифры, какой разряд уже решает исход?',
   },
 };
 
@@ -73,7 +74,7 @@ export default function D02_10(props) {
         .pq10 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
         .pq10 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
         .pq10 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq10 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq10 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq10 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq10 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
@@ -83,8 +84,7 @@ export default function D02_10(props) {
         @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
         @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
         @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.06);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
+        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }      `}</style>
       <div className="pq-eyebrow a">{t.eyebrow}</div>
       <p className="pq-setup a a2">{t.setup}</p>
       <p className="pq-ask a a3">{t.ask}</p>

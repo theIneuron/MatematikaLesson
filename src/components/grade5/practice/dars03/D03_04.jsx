@@ -1,6 +1,6 @@
 // Dars03 · Amaliyot 04 — Ustun shaklida ayirish (qarz) · 🟡 · Madina · tag: column_sub
 // Darslik §8, Mashq 163: ko'p xonali sonlarni ustunda ayirish. jsx-question kontrakti.
-// Mexanika: natija raqamlari VA qarz (zaём) belgilari kletka-kletka kiritiladi. Maslahat yo'q.
+// Mexanika: natija raqamlari VA qarz (zaym) belgilari kletka-kletka kiritiladi. Maslahat yo'q.
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 const A_NUM = 75319, B_NUM = 8642; // 75319 − 8642 = 66677
@@ -102,7 +102,7 @@ export default function D03_04(props) {
         .pq04 input.pq-carry:focus { border-style:solid; background:#fff; }
         .pq04 .pq-carrylbl { font-size:11px; color:#c9a23a; font-weight:700; text-align:right; padding-right:6px; }
         .pq04 .pq-line { height:3px; background:#1f2430; border-radius:2px; margin:3px 0; }
-        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq04 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq04 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }

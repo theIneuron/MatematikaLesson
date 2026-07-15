@@ -9,7 +9,7 @@ const T = {
     ask: "Sardor qaysi sonni o'yladi?",
     opts: ['2 005 000', '2 500 000', '2 050 000', '2 005'],
     correct: "To'g'ri. Millionlar xonasida 2, minglar xonasida 5: 2 005 000.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
+    wrongMsg: "Maslahat: yetti xonali sonni sinflarga bo'ling. 2 qaysi sinfda, 5 qaysi sinfda turishi kerak? Qolgan kataklarga nima yoziladi?",
   },
   ru: {
     eyebrow: 'Загадка', title: 'Загадка числа',
@@ -17,7 +17,7 @@ const T = {
     ask: 'Какое число задумал Сардор?',
     opts: ['2 005 000', '2 500 000', '2 050 000', '2 005'],
     correct: 'Верно. В разряде миллионов 2, в разряде тысяч 5: 2 005 000.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
+    wrongMsg: 'Подсказка: разбейте семизначное число на классы. В каком классе должна стоять 2, в каком — 5? Что пишется в остальных клетках?',
   },
 };
 
@@ -73,7 +73,7 @@ export default function D01_07(props) {
         .pq07 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
         .pq07 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
         .pq07 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq07 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq07 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq07 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq07 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }

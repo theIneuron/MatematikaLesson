@@ -1,157 +1,141 @@
-// Dars04 · Amaliyot 03 — Ustunda ko'paytirish (bir xonaliga) · 🟡 · Sardor · tag: column_mul
-// Darslik §13: ko'p xonali sonni bir xonali songa ko'paytirish. jsx-question kontrakti.
-// Mexanika: natija raqamlari VA perenos kataklari kletka-kletka kiritiladi. Maslahat yo'q.
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-
-const A_NUM = 854, M = 6; // 854 × 6 = 5124
-const DATA = { tag: 'column_mul', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: "Ko'paytirish",
-    setup: "854 × 6 ni ustunda yeching. Har razryadni 6 ga ko'paytiring; o'nlikdan katta bo'lsa, perenosni yuqoridagi katakka yozing va keyingi ko'paytmaga qo'shing.",
-    carryHint: 'perenos',
-    correct: "To'g'ri. 854 × 6 = 5124.",
-    wrong: "Hali to'g'ri emas. Yana bir bor tekshiring.",
-  },
-  ru: {
-    eyebrow: 'Умножение',
-    setup: 'Решите 854 × 6 столбиком. Умножайте каждый разряд на 6; если больше десяти, пишите перенос в верхнюю клетку и прибавляйте к следующему произведению.',
-    carryHint: 'перенос',
-    correct: 'Верно. 854 × 6 = 5124.',
-    wrong: 'Пока неверно. Проверьте ещё раз.',
-  },
-};
+// Dars04 · Amaliyot 03 — O'rin almashtirish · 🟡 · Nilufar · tag: commutative
+// Ko'paytirish o'rin almashtirish qonuni: a × b = b × a. Nuqtalar to'ri (6 qator × 8 ustun).
+// Bola to'rni "gorizontal sanash" yoki "vertikal sanash" tugmasi bilan aylantiradi va
+// ikki holatda ham 48 chiqishini ko'radi. Savol: 6 × 8 nechaga teng.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const lastDigit = (raw) => { const s = String(raw).replace(/[^0-9]/g, ''); return s ? s[s.length - 1] : ''; };
-
-function buildGridMul(a, m) {
-  const da = String(a).split('').map(Number);
-  const W = Math.max(da.length, String(a * m).length);
-  const A = Array(W).fill(null);
-  for (let i = 0; i < da.length; i++) A[W - da.length + i] = da[i];
-  const res = Array(W).fill(0), carryInto = Array(W).fill(0);
-  let c = 0;
-  for (let i = W - 1; i >= 0; i--) {
-    const p = (A[i] || 0) * m + c;
-    res[i] = p % 10; c = Math.floor(p / 10);
-    if (i - 1 >= 0) carryInto[i - 1] = c;
-  }
-  return { W, A, res, carryInto };
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
+function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
+  const on = picked === i, show = checked && on;
+  let bg = '#fff', bd = '#d6dae3', col = '#374151';
+  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
+  return {
+    flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
+    textAlign: opts.center ? 'center' : 'left', padding: '13px 14px', borderRadius: 13, border: '2px solid ' + bd,
+    background: bg, color: col, fontSize: opts.fs || 16, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer',
+    marginBottom: opts.half ? 0 : 9, fontFamily: opts.mono ? "'JetBrains Mono', monospace" : 'inherit', minHeight: 48,
+  };
+}
+
+/* =================== 03 · O'rin almashtirish · 🟡 · array_area (interaktiv) =================== */
+
+const D03_ROWS = 6, D03_COLS = 8, D03_ANS = 48;
+const D03_DATA = { correct: 2, tag: 'commutative', level: '🟡' };
+const D03_T = {
+  uz: {
+    eyebrow: "O'rin almashtirish",
+    setup: "Nilufar nuqtalarni to'r shaklida terdi: 6 qator, har qatorda 8 ta.",
+    flipH: 'Qatorlab sanash', flipV: 'Ustunlab sanash',
+    byRow: '6 qator × 8 = 48', byCol: '8 ustun × 6 = 48',
+    ask: 'Jami nechta nuqta bor?',
+    opts: ['14', '42', '48', '68'],
+    correct: "To'g'ri. 6 × 8 = 48. Qatorlab ham, ustunlab ham sanasa — natija bir xil.",
+    wrong: "Maslahat: qatorlar soni va bir qatordagi nuqtalar — qaysi amal ularni jami nuqtaga bog'laydi? Ikki tugma bir xil natija beradimi?",
+  },
+  ru: {
+    eyebrow: 'Перестановка',
+    setup: 'Нилуфар выложила точки сеткой: 6 рядов, в каждом по 8.',
+    flipH: 'Считать по рядам', flipV: 'Считать по столбцам',
+    byRow: '6 рядов × 8 = 48', byCol: '8 столбцов × 6 = 48',
+    ask: 'Сколько всего точек?',
+    opts: ['14', '42', '48', '68'],
+    correct: 'Верно. 6 × 8 = 48. Хоть по рядам, хоть по столбцам — результат один.',
+    wrong: 'Подсказка: число рядов и число точек в ряду — какое действие связывает их в общее число? Дают ли обе кнопки один результат?',
+  },
+};
 
 export default function D04_03(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D03_T[lang] || D03_T.uz;
   const isReview = mode === 'review';
-  const { W, A, res: answer } = useMemo(() => buildGridMul(A_NUM, M), []);
-
-  const [res, setRes] = useState(() => Array(W).fill(''));
-  const [carry, setCarry] = useState(() => Array(W).fill(''));
-  const [feedback, setFeedback] = useState(null);
+  const [picked, setPicked] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
+  const [mode2, setMode2] = useState('row'); // 'row' | 'col' — sanash yo'nalishi
+  const [lit, setLit] = useState(-1);        // yoritilgan qator/ustun indeksi (animatsiya)
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer) {
-      const sa = initialAnswer.studentAnswer;
-      if (Array.isArray(sa.res)) setRes(sa.res.slice(0, W));
-      if (Array.isArray(sa.carry)) setCarry(sa.carry.slice(0, W));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
+    if (initialAnswer?.studentAnswer?.idx != null) {
+      setPicked(initialAnswer.studentAnswer.idx);
+      if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); }
     }
-  }, [initialAnswer, W]);
-  useEffect(() => { onReady?.(res.every((x) => x !== '') && !checked); }, [res, checked, onReady]);
+  }, [initialAnswer]);
+  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
 
-  const setResAt = (i, v) => { if (isReview || checked) return; setRes((p) => { const n = p.slice(); n[i] = lastDigit(v); return n; }); };
-  const setCarryAt = (i, v) => { if (isReview || checked) return; setCarry((p) => { const n = p.slice(); n[i] = lastDigit(v); return n; }); };
+  // sanash animatsiyasi: mode o'zgarganda ketma-ket yoritadi
+  const runCount = useCallback((m) => {
+    timers.current.forEach(clearTimeout); timers.current = [];
+    setLit(-1);
+    const n = m === 'row' ? D03_ROWS : D03_COLS;
+    for (let k = 0; k < n; k++) timers.current.push(setTimeout(() => setLit(k), 120 + k * 260));
+    timers.current.push(setTimeout(() => setLit(-1), 120 + n * 260 + 400));
+  }, []);
+
+  const flip = (m) => { if (checked) return; setMode2(m); runCount(m); };
 
   const check = useCallback(() => {
-    const correct = res.every((x, i) => Number(x) === answer[i]);
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: `${A_NUM} × ${M}`, options: [],
-      studentAnswer: { res: res.slice(), carry: carry.slice() },
-      correctAnswer: { res: answer.join('') }, correct,
-      meta: { tag: DATA.tag, level: DATA.level, a: A_NUM, m: M },
-    });
-  }, [res, carry, answer, playCorrect, playWrong, onSubmit]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
+    const correct = picked === D03_DATA.correct;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: 2, label: '48' }, correct, meta: { tag: D03_DATA.tag, level: D03_DATA.level } });
+  }, [picked, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
 
-  const cellState = (i) => { if (!checked) return ''; return Number(res[i]) === answer[i] ? 'ok' : 'no'; };
+  const dot = (r, c) => {
+    const active = mode2 === 'row' ? (lit === r) : (lit === c);
+    const anyLit = lit >= 0;
+    return (
+      <span key={r + '-' + c} style={{
+        width: 15, height: 15, borderRadius: 999,
+        background: active ? '#2563eb' : (anyLit ? '#c7d2e8' : '#3b82f6'),
+        transform: active ? 'scale(1.25)' : 'none',
+        transition: 'all .45s ease',
+      }} />
+    );
+  };
+
+  const btnStyle = (on) => ({ flex: 1, padding: '10px 8px', borderRadius: 12, border: '2px solid ' + (on ? '#2563eb' : '#d6dae3'), background: on ? '#eaf0fe' : '#fff', color: on ? '#1e40af' : '#374151', fontSize: 13.5, fontWeight: 800, cursor: checked ? 'default' : 'pointer', fontFamily: 'inherit', minHeight: 44 });
 
   return (
-    <div className="pq pq03">
-      <style>{`
-        .pq03 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq03 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq03 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 18px; color:#374151; }
-        .pq03 .pq-boardwrap { display:flex; justify-content:center; }
-        .pq03 .pq-grid { display:grid; gap:5px; }
-        .pq03 .pq-cell { width:46px; height:52px; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:800; font-variant-numeric:tabular-nums; }
-        .pq03 .pq-sign { color:#6b7280; font-size:26px; }
-        .pq03 input.pq-cin { width:46px; height:52px; box-sizing:border-box; text-align:center; font-size:28px; font-weight:800; border-radius:11px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; color:#1f2430; }
-        .pq03 input.pq-cin:focus { border-color:#5b8def; background:#fff; }
-        .pq03 input.pq-cin.ok { border-color:#1a7f43; background:#e8f7ee; color:#1a7f43; }
-        .pq03 input.pq-cin.no { border-color:#c0392b; background:#fdecec; color:#c0392b; }
-        .pq03 input.pq-carry { width:30px; height:30px; box-sizing:border-box; text-align:center; font-size:16px; font-weight:800; border-radius:8px; border:1.5px dashed #c9a23a; background:#fffdf5; color:#c9a23a; outline:none; }
-        .pq03 input.pq-carry:focus { border-style:solid; background:#fff; }
-        .pq03 .pq-carrylbl { font-size:11px; color:#c9a23a; font-weight:700; text-align:right; padding-right:6px; }
-        .pq03 .pq-line { height:3px; background:#1f2430; border-radius:2px; margin:3px 0; }
-        .pq03 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq03 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq03 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq03 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq03 .a2 { animation-delay:.08s; }
-        .pq03 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.09);} 100%{transform:scale(1);} }
-        .pq03 input.pq-cin.ok { animation:pqPop .5s cubic-bezier(.34,1.56,.64,1) both; }
-        @media (max-width:400px){ .pq03 .pq-cell,.pq03 input.pq-cin{width:40px;height:48px;font-size:24px;} }
-      `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
+    <div style={S.wrap}>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
 
-      <div className="pq-boardwrap a a3">
-        <div>
-          <div className="pq-grid" style={{ gridTemplateColumns: `48px repeat(${W}, 46px)`, alignItems: 'end', marginBottom: 2 }}>
-            <div className="pq-carrylbl">{t.carryHint}</div>
-            {Array.from({ length: W }).map((_, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'center' }}>
-                {i < W - 1 ? (<input className="pq-carry" value={carry[i]} onChange={(e) => setCarryAt(i, e.target.value)} inputMode="numeric" maxLength={1} disabled={isReview || checked} aria-label={`perenos ${W - i}`} />) : <span style={{ width: 30 }} />}
-              </div>
-            ))}
-          </div>
-          <div className="pq-grid" style={{ gridTemplateColumns: `48px repeat(${W}, 46px)` }}>
-            <div />
-            {A.map((d, i) => (<div key={i} className="pq-cell">{d == null ? '' : d}</div>))}
-          </div>
-          <div className="pq-grid" style={{ gridTemplateColumns: `48px repeat(${W}, 46px)`, alignItems: 'center' }}>
-            <div className="pq-cell pq-sign" style={{ justifySelf: 'end', width: 'auto', paddingRight: 4 }}>×</div>
-            {Array.from({ length: W }).map((_, i) => (<div key={i} className="pq-cell">{i === W - 1 ? M : ''}</div>))}
-          </div>
-          <div className="pq-grid" style={{ gridTemplateColumns: `48px repeat(${W}, 46px)` }}>
-            <div />
-            <div style={{ gridColumn: `2 / span ${W}` }}><div className="pq-line" /></div>
-          </div>
-          <div className="pq-grid" style={{ gridTemplateColumns: `48px repeat(${W}, 46px)` }}>
-            <div />
-            {Array.from({ length: W }).map((_, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'center' }}>
-                <input className={`pq-cin ${cellState(i)}`} value={res[i]} onChange={(e) => setResAt(i, e.target.value)} inputMode="numeric" maxLength={1} disabled={isReview || checked} aria-label={`natija ${W - i}`} />
-              </div>
-            ))}
-          </div>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '14px 0 10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${D03_COLS}, 15px)`, gap: 9, padding: 14, borderRadius: 16, background: '#f8fafc', border: '1.5px solid #e5e7eb' }}>
+          {Array.from({ length: D03_ROWS }).map((_, r) => Array.from({ length: D03_COLS }).map((_, c) => dot(r, c)))}
         </div>
       </div>
 
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
-        </div>
-      )}
+      <div style={{ display: 'flex', gap: 8, margin: '4px 0 8px' }}>
+        <button type="button" style={btnStyle(mode2 === 'row')} disabled={checked} onClick={() => flip('row')}>{t.flipH}</button>
+        <button type="button" style={btnStyle(mode2 === 'col')} disabled={checked} onClick={() => flip('col')}>{t.flipV}</button>
+      </div>
+      <p style={S.ask}>{t.ask}</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
+        {t.opts.map((o, i) => <button key={i} type="button" style={optStyle(picked, i, 2, checked, isReview, { half: true, center: true, mono: true })} disabled={isReview || checked} onClick={() => setPicked(i)}>{o}</button>)}
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
     </div>
   );
 }

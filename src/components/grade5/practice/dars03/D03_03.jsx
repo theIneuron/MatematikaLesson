@@ -1,6 +1,6 @@
-// Dars03 · Amaliyot 03 — Ustun shaklida qo'shish (perenos) · 🟡 · Sardor · tag: column_add
+// Dars03 · Amaliyot 03 — Ustun shaklida qo'shish (o'tkazma) · 🟡 · Sardor · tag: column_add
 // Darslik §7, Mashq 137: ko'p xonali sonlarni ustunda qo'shish. jsx-question kontrakti.
-// Mexanika: natija raqamlari VA perenos kataklari kletka-kletka kiritiladi. Maslahat yo'q.
+// Mexanika: natija raqamlari VA o'tkazma kataklari kletka-kletka kiritiladi. Maslahat yo'q.
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 const A_NUM = 70046, B_NUM = 48992; // 70046 + 48992 = 119038
@@ -8,8 +8,8 @@ const DATA = { tag: 'column_add', level: '🟡' };
 const T = {
   uz: {
     eyebrow: "Qo'shish",
-    setup: "70 046 + 48 992 ni ustunda yeching. O'ngdan chapga qo'shing; o'nlikdan o'tsa, perenosni yuqoridagi katakka yozing.",
-    carryHint: 'perenos',
+    setup: "70 046 + 48 992 ni ustunda yeching. O'ngdan chapga qo'shing; o'nlikdan o'tsa, o'tkazmani yuqoridagi katakka yozing.",
+    carryHint: "o'tkazma",
     correct: "To'g'ri. 70 046 + 48 992 = 119 038.",
     wrong: "Hali to'g'ri emas. Yana bir bor tekshiring.",
   },
@@ -101,7 +101,7 @@ export default function D03_03(props) {
         .pq03 input.pq-carry:focus { border-style:solid; background:#fff; }
         .pq03 .pq-carrylbl { font-size:11px; color:#c9a23a; font-weight:700; text-align:right; padding-right:6px; }
         .pq03 .pq-line { height:3px; background:#1f2430; border-radius:2px; margin:3px 0; }
-        .pq03 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq03 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:18px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq03 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq03 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
@@ -122,7 +122,7 @@ export default function D03_03(props) {
             <div className="pq-carrylbl">{t.carryHint}</div>
             {Array.from({ length: W }).map((_, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'center' }}>
-                {i < W - 1 ? (<input className="pq-carry" value={carry[i]} onChange={(e) => setCarryAt(i, e.target.value)} inputMode="numeric" maxLength={1} disabled={isReview || checked} aria-label={`perenos ${W - i}`} />) : <span style={{ width: 30 }} />}
+                {i < W - 1 ? (<input className="pq-carry" value={carry[i]} onChange={(e) => setCarryAt(i, e.target.value)} inputMode="numeric" maxLength={1} disabled={isReview || checked} aria-label={`o'tkazma ${W - i}`} />) : <span style={{ width: 30 }} />}
               </div>
             ))}
           </div>

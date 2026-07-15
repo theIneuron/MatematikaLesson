@@ -1,124 +1,96 @@
-// Dars10 · Amaliyot 08 — Noto'g'ri kasrni son o'qida belgilash · 🔴 · Bekzod · tag: place_improper
-// Darslik §27: 0..2 oralig'ida yarim ulushlar; 3/2 ni belgilash (1 dan o'ngda). Maslahat yo'q.
+// Dars10 · Amaliyot 08 — Noto'g'ri kasrni joylash · 🔴 · place_improper (interaktiv)
+// 3/2 ni yarim ulushli o'qda (0-2) bosib belgilash. Target = 1.5.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const TARGET_K = 3; // 3/2 → k=3 (yarim ulushlar bo'yicha)
-// k: 0→0, 1→1/2, 2→1, 3→3/2, 4→2
-const TICKS = [
-  { k: 0, label: '0', edge: true },
-  { k: 1, label: '1/2', edge: false },
-  { k: 2, label: '1', edge: true },
-  { k: 3, label: '3/2', edge: false },
-  { k: 4, label: '2', edge: true },
-];
-const DATA = { tag: 'place_improper', level: '🔴' };
-const T = {
-  uz: {
-    eyebrow: "Son o'qi", title: 'Nuqtani belgilang',
-    setup: "0 bilan 2 oralig'i yarim (1/2) ulushlarga bo'lingan.",
-    ask: "3/2 kasrini son o'qida belgilang:",
-    correct: "To'g'ri. 3/2 = 1 butun va 1/2, ya'ni 1 dan keyingi birinchi yarim.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Числовая прямая', title: 'Отметьте точку',
-    setup: 'Отрезок от 0 до 2 разделён на половинки (1/2).',
-    ask: 'Отметьте дробь 3/2 на числовой прямой:',
-    correct: 'Верно. 3/2 = 1 целая и 1/2, то есть первая половинка после 1.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d10-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
 
+const D08_TARGET_U = 3; // yarim ulushlar bo'yicha (0, 0.5, 1, 1.5, 2) → indeks 3
+const D08_T = {
+  uz: {
+    eyebrow: 'Joylash', setup: "Son o'qida 0 dan 2 gacha yarim (1/2) ulushlar bilan bo'lingan.",
+    ask: '3/2 turgan joyni bosib belgilang:',
+    correct: "To'g'ri. 3/2 = 1 butun va 1/2, ya'ni 1 dan keyingi birinchi yarim.",
+    wrong: "Maslahat: 3/2 da har ulush qancha? Bu kasr 1 butundan kattami — nuqta 1 dan qay tomonda bo'ladi?",
+    rule: "Noto'g'ri kasr 1 dan o'ngda. 3/2 — 1 dan keyin yana yarim ulush.",
+  },
+  ru: {
+    eyebrow: 'Постановка', setup: 'На оси от 0 до 2 деления по половинам (1/2).',
+    ask: 'Отметьте, где стоит 3/2:',
+    correct: 'Верно. 3/2 = 1 целое и 1/2, то есть первая половина после 1.',
+    wrong: 'Подсказка: какова каждая доля в 3/2? Эта дробь больше 1 целого — с какой стороны от 1 будет точка?',
+    rule: 'Неправильная дробь правее 1. 3/2 — ещё половина после 1.',
+  },
+};
 export default function D10_08(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D08_T[lang] || D08_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [pick, setPick] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.k != null) {
-      setPicked(initialAnswer.studentAnswer.k);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
+  useEffect(() => { if (initialAnswer?.studentAnswer?.u != null) { setPick(initialAnswer.studentAnswer.u); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(pick != null && !checked); }, [pick, checked, onReady]);
   const check = useCallback(() => {
-    const correct = picked === TARGET_K;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: [],
-      studentAnswer: { k: picked }, correctAnswer: { k: TARGET_K, fraction: '3/2' },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t.ask]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
+    const correct = pick === D08_TARGET_U;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { u: pick }, correctAnswer: { u: D08_TARGET_U }, correct, meta: { tag: 'place_improper', level: '🔴' } });
+  }, [pick, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const DEN = 2, HI = 2, N = HI * DEN; // 4 oraliq, 5 nuqta
+  const W = 100 / N;
+  const labelFor = (u) => { if (u % DEN === 0) return String(u / DEN); return `${u}/${DEN}`; };
   return (
-    <div className="pq pq08">
+    <div style={S.wrap}>
       <style>{`
-        .pq08 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq08 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq08 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 6px; color:#374151; }
-        .pq08 .pq-ask { font-size:17px; font-weight:700; margin:0 0 30px; }
-        .pq08 .pq-axiswrap { position:relative; padding:24px 6px 6px; }
-        .pq08 .pq-row { display:flex; justify-content:space-between; align-items:flex-end; position:relative; }
-        .pq08 .pq-line { position:absolute; left:6px; right:6px; top:34px; height:3px; background:#cfd6e4; border-radius:3px; }
-        .pq08 .pq-tick { position:relative; flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; background:none; border:none; padding:0; font-family:inherit; }
-        .pq08 .pq-dot { width:20px; height:20px; border-radius:50%; border:2px solid #cfd6e4; background:#fff; transition:transform .12s; }
-        .pq08 .pq-tick .pq-num { font-size:14px; font-weight:700; color:#6b7280; font-variant-numeric:tabular-nums; }
-        .pq08 .pq-tick.sel .pq-dot { background:#2563eb; border-color:#2563eb; transform:scale(1.25); }
-        .pq08 .pq-tick.sel .pq-num { color:#2563eb; }
-        .pq08 .pq-tick.ok .pq-dot { background:#1a7f43; border-color:#1a7f43; }
-        .pq08 .pq-tick.no .pq-dot { background:#c0392b; border-color:#c0392b; }
-        .pq08 .pq-tick.edge .pq-num { color:#1f2430; font-weight:800; }
-        .pq08 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:24px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq08 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq08 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq08 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq08 .a2 { animation-delay:.08s; }
-        .pq08 .a3 { animation-delay:.16s; }
-        .pq08 .pq-line { transform-origin:left; animation:pqDraw .55s cubic-bezier(.22,1,.36,1) both; }
-        @keyframes pqDraw { from { transform:scaleX(0);} to { transform:scaleX(1);} }
-        @keyframes pqUp { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
-        .pq08 .pq-tick.ok .pq-dot { animation:pqPulse .6s ease both; }
-        @keyframes pqPulse { 0%{transform:scale(1);} 45%{transform:scale(1.55);} 100%{transform:scale(1.25);} }
+        .d10-pop { animation: d10pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d10pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d10-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-
-      <div className="pq-axiswrap">
-        <div className="pq-line" />
-        <div className="pq-row">
-          {TICKS.map((tk) => {
-            let cls = 'pq-tick';
-            if (tk.edge) cls += ' edge';
-            if (picked === tk.k) cls += checked ? (tk.k === TARGET_K ? ' ok' : ' no') : ' sel';
-            return (
-              <button key={tk.k} type="button" className={cls} onClick={() => { if (!isReview && !checked) setPicked(tk.k); }} disabled={isReview || checked}
-                style={{ animation: `pqUp .4s cubic-bezier(.22,1,.36,1) ${(0.12 + tk.k * 0.06).toFixed(2)}s both` }}>
-                <span className="pq-dot" />
-                <span className="pq-num">{tk.label}</span>
-              </button>
-            );
-          })}
-        </div>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <p style={S.ask}>{t.ask}</p>
+      <div style={{ position: 'relative', height: 90, margin: '18px 8px 8px' }}>
+        <div style={{ position: 'absolute', left: '3%', right: '3%', top: 44, height: 3, background: '#bae6fd', borderRadius: 2 }} />
+        {Array.from({ length: N + 1 }).map((_, u) => {
+          const on = pick === u;
+          const isInt = u % DEN === 0;
+          let dot = isInt ? '#64748b' : '#cbd5e1';
+          if (on) dot = '#0ea5e9';
+          if (checked && fb?.correct && u === D08_TARGET_U) dot = '#1a7f43';
+          if (checked && on && u !== D08_TARGET_U) dot = '#c0392b';
+          return (
+            <div key={u} onClick={() => { if (!checked && !isReview) setPick(u); }} style={{ position: 'absolute', left: `calc(3% + ${u * W * 0.94}%)`, top: 28, transform: 'translateX(-50%)', textAlign: 'center', cursor: (checked || isReview) ? 'default' : 'pointer' }}>
+              <div style={{ width: on || (checked && fb?.correct && u === D08_TARGET_U) ? 20 : 13, height: on || (checked && fb?.correct && u === D08_TARGET_U) ? 20 : 13, borderRadius: 999, background: dot, margin: '0 auto', transition: 'all .45s ease', border: '2px solid #fff', boxShadow: '0 1px 3px rgba(0,0,0,.15)' }} />
+              {isInt && <div style={{ marginTop: 8, fontSize: 12, fontWeight: 800, color: '#64748b', ...S.mono }}>{labelFor(u)}</div>}
+            </div>
+          );
+        })}
       </div>
-
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
-        </div>
-      )}
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

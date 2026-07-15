@@ -1,5 +1,6 @@
-// Dars04 amaliyoti — 10 topshiriq (osondan qiyinga). Mavzu: ustun shaklida ko'paytirish.
-// Darslik §13 (ko'paytirish va uning xossalari) mashqlariga asoslangan.
+// Dars04 amaliyoti — 10 topshiriq. Mavzu: ustun shaklida ko'paytirish.
+// Har topshiriq UNIKAL mexanika + unikal animatsiya. Qahramonlar: Bekzod, Madina, Nilufar, Sardor.
+// Har topshiriq mustaqil jsx-question fayli; bu yerda PracticeHost bilan prokliklab ko'riladi.
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D04_01 from './D04_01.jsx';
@@ -13,18 +14,19 @@ import D04_08 from './D04_08.jsx';
 import D04_09 from './D04_09.jsx';
 import D04_10 from './D04_10.jsx';
 
-// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10). Maslahatsiz. Darslik §13.
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): mavzu · qiyinlik · teg
+// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10).
 const ITEMS = [
-  { id: '01', label: "1 · Ko'paytma", C: D04_01 },   // sum_to_product 🟢 (18×5)
-  { id: '02', label: '2 · Hisobla', C: D04_02 },     // simple_product 🟢 (25×4)
-  { id: '03', label: '3 · Столбик ×', C: D04_03 },   // column_mul 🟡 (854×6)
-  { id: '04', label: '4 · Столбик ×', C: D04_04 },   // column_mul 🟡 (125×8)
-  { id: '05', label: "5 · Ko'paytma", C: D04_05 },   // product_input 🟡 (37×59)
-  { id: '06', label: '6 · Sharbat', C: D04_06 },     // word_product 🟡 (24×15)
-  { id: '07', label: '7 · Qulay ×', C: D04_07 },     // qulay_mul 🔴 (25×(4×815))
-  { id: '08', label: '8 · Uch xonali', C: D04_08 },  // column_mul_big 🔴 (872×314)
-  { id: '09', label: '9 · Xato top', C: D04_09 },    // product_check 🔴
-  { id: '10', label: '10 · Ixchamlash', C: D04_10 }, // distributive 🔴 (231×4+35)
+  { id: '01', label: '1 · Savatlar', C: D04_01 },            // sum_to_product 🟢 (4×5)
+  { id: '02', label: "2 · Og'zaki", C: D04_02 },            // simple_product 🟢 (25×4)
+  { id: '03', label: "3 · O'rin almashtirish", C: D04_03 }, // commutative 🟡 (6×8)
+  { id: '04', label: "4 · Yo'qolgan son", C: D04_04 },      // missing_factor 🟡 (125×8)
+  { id: '05', label: '5 · Natijani top', C: D04_05 },       // product_input 🟡 (37×59)
+  { id: '06', label: '6 · Ombor', C: D04_06 },              // word_product 🟡 (24×15)
+  { id: '07', label: '7 · Qulay usul', C: D04_07 },         // qulay_mul 🔴 (25×4×815)
+  { id: '08', label: "8 · Katta ko'paytma", C: D04_08 },    // column_mul_big 🔴 (872×314)
+  { id: '09', label: '9 · Moslash', C: D04_09 },            // match_product 🔴
+  { id: '10', label: '10 · Ixchamlash', C: D04_10 },        // distributive 🔴 (231×4+35)
 ];
 
 export default function Dars04Practice() {
@@ -41,6 +43,8 @@ export default function Dars04Practice() {
 
   return (
     <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+      {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
+          <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
       <style>{`
         .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}

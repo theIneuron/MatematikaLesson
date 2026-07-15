@@ -1,101 +1,106 @@
-// Dars08 · Amaliyot 06 — Daraja atamalari · 🟡 · Nilufar · tag: read_power
+// Dars08 · Amaliyot 06 — Daraja o'qish · 🟡 · Nilufar · tag: read_power
+// 3⁵. Bola qaysi qism asos, qaysi ko'rsatkich ekanini belgilaydi (toggle).
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'read_power', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Daraja', title: 'Atama',
-    setup: "3⁵ ifodasida 3 — daraja asosi, 5 — daraja ko'rsatkichi.",
-    ask: '3⁵ ifodada 5 raqami nima deb ataladi?',
-    opts: ["daraja ko'rsatkichi", 'daraja asosi', "ko'paytuvchi", "yig'indi"],
-    correct: "To'g'ri. 5 — daraja ko'rsatkichi: u asos necha marta ko'paytirilishini bildiradi.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Степень', title: 'Термин',
-    setup: 'В записи 3⁵ число 3 — основание степени, 5 — показатель степени.',
-    ask: 'Как называется число 5 в записи 3⁵?',
-    opts: ['показатель степени', 'основание степени', 'множитель', 'сумма'],
-    correct: 'Верно. 5 — показатель степени: показывает, сколько раз умножается основание.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d8-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+// daraja ko'rsatkichini yuqori indeks qilib chizish
+const Pow = ({ base, exp, size = 30, color = '#1f2430' }) => (
+  <span style={{ ...S.mono, fontWeight: 800, color }}>
+    <span style={{ fontSize: size }}>{base}</span><sup style={{ fontSize: size * 0.6 }}>{exp}</sup>
+  </span>
+);
 
+const D06_BASE = 3, D06_EXP = 5;
+const D06_T = {
+  uz: {
+    eyebrow: "Daraja o'qish", setup: "3⁵ ifodasini diqqat bilan ko'ring.",
+    ask: '3⁵ ifodasida har bir sonni belgilang:',
+    qBase: 'Qaysi son ASOS?', qExp: "Qaysi son KO'RSATKICH?",
+    correct: "To'g'ri. 3 — asos (takrorlanuvchi son), 5 — ko'rsatkich (necha marta ko'paytiriladi).",
+    wrong: "Maslahat: asos — takrorlanuvchi son, ko'rsatkich — u necha marta ko'paytirilishini bildiradi. Yozuvda qaysi son katta, qaysi biri yuqorida kichik turibdi?",
+    rule: "Asos — takrorlanuvchi son. Ko'rsatkich — u necha marta ko'paytirilishini bildiradi.",
+  },
+  ru: {
+    eyebrow: 'Чтение степени', setup: 'Внимательно посмотрите на 3⁵.',
+    ask: 'Отметьте каждое число в 3⁵:',
+    qBase: 'Какое число ОСНОВАНИЕ?', qExp: 'Какое число ПОКАЗАТЕЛЬ?',
+    correct: 'Верно. 3 — основание (повторяющееся число), 5 — показатель (сколько раз умножаем).',
+    wrong: 'Подсказка: основание — повторяющееся число, показатель — сколько раз умножаем. Какое число крупное, а какое маленькое сверху?',
+    rule: 'Основание — повторяющееся число. Показатель — сколько раз его умножают.',
+  },
+};
 export default function D08_06(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D06_T[lang] || D06_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [baseChoice, setBaseChoice] = useState(null); // '3' | '5'
+  const [expChoice, setExpChoice] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa) { if (sa.baseChoice != null) setBaseChoice(sa.baseChoice); if (sa.expChoice != null) setExpChoice(sa.expChoice); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
+  const full = baseChoice != null && expChoice != null;
+  useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
+  const locked = isReview || checked;
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
+    const correct = baseChoice === '3' && expChoice === '5';
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { baseChoice, expChoice }, correctAnswer: { base: '3', exp: '5' }, correct, meta: { tag: 'read_power', level: '🟡' } });
+  }, [baseChoice, expChoice, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const allCorrect = baseChoice === '3' && expChoice === '5';
+  const chipStyle = (val, choice, correctVal) => {
+    const on = choice === val;
+    let bd = '#d6dae3', bg = '#fff', col = '#374151';
+    if (on) { bd = '#2563eb'; bg = '#eaf0fe'; col = '#1e40af'; }
+    if (checked && on) { const ok = allCorrect; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
+    return { flex: 1, padding: '11px 6px', borderRadius: 11, border: '2px solid ' + bd, background: bg, color: col, ...S.mono, fontSize: 19, fontWeight: 800, cursor: locked ? 'default' : 'pointer', minHeight: 46 };
   };
-
   return (
-    <div className="pq pq06">
+    <div style={S.wrap}>
       <style>{`
-        .pq06 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq06 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq06 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 16px; color:#374151; }
-        .pq06 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq06 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq06 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq06 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq06 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq06 .a2 { animation-delay:.08s; }
-        .pq06 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d8-pop { animation: d8pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d8pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d8-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      {/* katta 3⁵ ko'rsatiladi */}
+      <div style={{ textAlign: 'center', margin: '10px 0 16px' }}><Pow base="3" exp="5" size={54} color="#1f2430" /></div>
+      <p style={{ ...S.ask, fontSize: 14.5, margin: '4px 0 7px' }}>{t.qBase}</p>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+        <button type="button" style={chipStyle('3', baseChoice, '3')} disabled={locked} onClick={() => setBaseChoice('3')}>3</button>
+        <button type="button" style={chipStyle('5', baseChoice, '3')} disabled={locked} onClick={() => setBaseChoice('5')}>5</button>
+      </div>
+      <p style={{ ...S.ask, fontSize: 14.5, margin: '4px 0 7px' }}>{t.qExp}</p>
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button type="button" style={chipStyle('3', expChoice, '5')} disabled={locked} onClick={() => setExpChoice('3')}>3</button>
+        <button type="button" style={chipStyle('5', expChoice, '5')} disabled={locked} onClick={() => setExpChoice('5')}>5</button>
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

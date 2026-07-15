@@ -1,5 +1,7 @@
-// Dars06 amaliyoti — 10 topshiriq (osondan qiyinga). Mavzu: manfiy sonlar son o'qida.
-// Manba: 6-sinf «Butun sonlar» + 5-sinf konteksti (harorat, dengiz sathi, bank kartasi).
+// Dars06 amaliyoti — 10 topshiriq. Mavzu: manfiy sonlar son o'qida.
+// Har topshiriq UNIKAL mexanika + animatsiya. Tartib aralashtirilgan.
+// Qahramonlar: Bekzod, Madina, Nilufar, Sardor.
+// Har topshiriq mustaqil jsx-question fayli; bu yerda PracticeHost bilan prokliklab ko'riladi.
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D06_01 from './D06_01.jsx';
@@ -13,18 +15,19 @@ import D06_08 from './D06_08.jsx';
 import D06_09 from './D06_09.jsx';
 import D06_10 from './D06_10.jsx';
 
-// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10). Maslahatsiz.
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): mavzu · qiyinlik · teg
+// Tartib aralashtirilgan (bundle TASKS): oson/o'rta/qiyin navbatma-navbat.
 const ITEMS = [
-  { id: '01', label: '1 · Termometr', C: D06_01 },    // read_temp 🟢
-  { id: '02', label: '2 · Manfiy son', C: D06_02 },   // pick_negative 🟢
-  { id: '03', label: "3 · Son o'qi", C: D06_03 },     // numberline_place 🟡 (interaktiv)
-  { id: '04', label: '4 · Taqqoslash', C: D06_04 },   // compare_neg 🟡 (-5<-3)
-  { id: '05', label: '5 · Isidimi', C: D06_05 },      // temp_change 🟡
-  { id: '06', label: '6 · Karta', C: D06_06 },        // bank_negative 🟡
-  { id: '07', label: '7 · Eng kichik', C: D06_07 },   // min_negative 🔴
-  { id: '08', label: '8 · Chuqurlik', C: D06_08 },    // depth_diff 🔴 (input)
-  { id: '09', label: '9 · Oradagi', C: D06_09 },      // between_count 🔴
-  { id: '10', label: '10 · Qaysi katta', C: D06_10 }, // bias_compare 🔴 (-1>-10)
+  { id: '01', label: '1 · Termometr', C: D06_01 },     // read_temp 🟢
+  { id: '04', label: '2 · Taqqoslash', C: D06_04 },    // compare_neg 🟡
+  { id: '08', label: '3 · Chuqurlik', C: D06_08 },     // depth_diff 🔴
+  { id: '02', label: '4 · Manfiy son', C: D06_02 },    // pick_negative 🟢
+  { id: '06', label: '5 · Lift', C: D06_06 },          // bank_negative 🟡
+  { id: '10', label: '6 · Qaysi katta', C: D06_10 },   // bias_compare 🔴
+  { id: '03', label: "7 · Son o'qi", C: D06_03 },      // numberline_place 🟡
+  { id: '09', label: '8 · Oraliq', C: D06_09 },        // between_count 🔴
+  { id: '05', label: '9 · Harorat', C: D06_05 },       // temp_change 🟡
+  { id: '07', label: '10 · Tartibla', C: D06_07 },     // min_negative 🔴
 ];
 
 export default function Dars06Practice() {
@@ -41,6 +44,8 @@ export default function Dars06Practice() {
 
   return (
     <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+      {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
+          <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
       <style>{`
         .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}

@@ -1,104 +1,131 @@
-// Dars02 · Amaliyot 08 — Aholi sonini yaxlitlash · 🔴 · Bekzod · tag: round_big_context
+// Dars02 · Amaliyot 08 — Aholi sonini milliongacha yaxlitlash · 🔴 · tag: round_big_context
+// To'g'ri javobdan keyin: berilgan son chapdan o'ngga o'chiriladi, so'ng natija
+// o'ngdan chapga yoziladi. Sekin.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { number: 7137577750, correct: 0, tag: 'round_big_context', level: '🔴' };
-const T = {
-  uz: {
-    eyebrow: 'Dunyoda', title: 'Milliongacha',
-    setup: '2014-yilda dunyo aholisi 7 137 577 750 kishiga yetdi.',
-    ask: 'Bu sonni milliongacha yaxlitlang.',
-    opts: ['7 138 000 000', '7 137 000 000', '7 000 000 000', '7 137 578 000'],
-    correct: "To'g'ri. Milliondan keyingi (yuz minglar) raqami 5, shuning uchun millionlarga 1 qo'shiladi: 7 138 000 000.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'В мире', title: 'До миллионов',
-    setup: 'В 2014 году население мира достигло 7 137 577 750 человек.',
-    ask: 'Округлите это число до миллионов.',
-    opts: ['7 138 000 000', '7 137 000 000', '7 000 000 000', '7 137 578 000'],
-    correct: 'Верно. После миллионов (сотни тысяч) стоит 5, поэтому миллионы увеличиваются на 1: 7 138 000 000.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const groupSpaces = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+};
+const HFB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useRegister(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+
+const D08_FROM = '7 137 577 750';
+const D08_TO = '7 138 000 000';
+const D08_ERASE_STEP = 150, D08_WRITE_STEP = 170;
+const D08_T = {
+  uz: {
+    eyebrow: 'Dunyoda',
+    setup: '2014-yilda dunyo aholisi 7 137 577 750 kishiga yetdi.',
+    ask: 'Bu sonni milliongacha yaxlitlang.',
+    opts: ['7 138 000 000', '7 137 000 000', '7 000 000 000', '7 137 578 000'],
+    correct: "To'g'ri. Millionlardan keyingi raqam 5, shuning uchun millionlarga bir qo'shiladi va o'ngdagi hamma xonalar nolga aylanadi.",
+    wrongMsg: "Maslahat: o'ngdagi raqamlar nolga aylanadi. Asosiy savol — millionlar o'sadimi yoki o'zgarishsiz qoladimi?",
+  },
+  ru: {
+    eyebrow: 'В мире',
+    setup: 'В 2014 году население мира достигло 7 137 577 750 человек.',
+    ask: 'Округлите это число до миллионов.',
+    opts: ['7 138 000 000', '7 137 000 000', '7 000 000 000', '7 137 578 000'],
+    correct: 'Верно. После миллионов стоит 5, поэтому миллионы увеличиваются на единицу, а все разряды справа становятся нулями.',
+    wrongMsg: 'Подсказка: цифры справа станут нулями. Главный вопрос — увеличатся ли миллионы или останутся без изменения?',
+  },
+};
 
 export default function D02_08(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D08_T[lang] || D08_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
+  const [erase, setErase] = useState(false);
+  const [write, setWrite] = useState(false);
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
+    const sa = initialAnswer?.studentAnswer;
+    if (sa?.idx != null) {
+      setPicked(sa.idx);
+      if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) { setErase(true); setWrite(true); } }
     }
   }, [initialAnswer]);
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
 
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
+    const correct = picked === 0;
+    setFb({ correct }); setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    if (correct) {
+      timers.current.push(setTimeout(() => setErase(true), 450));
+      timers.current.push(setTimeout(() => setWrite(true), 450 + D08_FROM.length * D08_ERASE_STEP + 500));
+    }
     onSubmit?.({
       questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level, number: DATA.number },
+      studentAnswer: { idx: picked, label: t.opts[picked] },
+      correctAnswer: { idx: 0, label: D08_TO },
+      correct, meta: { tag: 'round_big_context', level: '🔴' },
     });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
+  }, [picked, t, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
 
   const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
+    const on = picked === i, show = checked && on;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
+    if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+    if (show) { const ok = i === 0; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
+    return { flex: '1 1 45%', padding: '12px 8px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 14.5, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer', fontFamily: 'inherit', minHeight: 48 };
   };
 
+  const mono = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 24, fontWeight: 700 };
+  const N = D08_FROM.length;
+
   return (
-    <div className="pq pq08">
-      <style>{`
-        .pq08 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq08 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq08 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq08 .pq-num { text-align:center; font-size:34px; font-weight:800; color:#2563eb; letter-spacing:.04em; font-variant-numeric:tabular-nums; margin:6px 0 18px; animation:pqReveal .6s cubic-bezier(.22,1,.36,1) both; animation-delay:.1s; }
-        .pq08 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq08 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq08 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq08 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq08 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq08 .a2 { animation-delay:.08s; }
-        .pq08 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.06);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <div className="pq-num">{groupSpaces(DATA.number)}</div>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
+    <div style={S.wrap}>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+
+      <div style={{ position: 'relative', height: 46, margin: '16px 0 18px' }}>
+        {/* berilgan son — chapdan o'ngga o'chiriladi */}
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', ...mono }}>
+          {D08_FROM.split('').map((c, i) => (
+            <span key={i} style={{
+              width: c === ' ' ? 9 : 16, textAlign: 'center', color: '#1f2430',
+              opacity: erase ? 0 : 1, transform: erase ? 'translateY(10px)' : 'none',
+              transition: `opacity .45s ease ${i * D08_ERASE_STEP}ms, transform .45s ease ${i * D08_ERASE_STEP}ms`,
+            }}>{c === ' ' ? ' ' : c}</span>
+          ))}
         </div>
-      )}
+        {/* natija — o'ngdan chapga yoziladi */}
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', ...mono }}>
+          {D08_TO.split('').map((c, i) => (
+            <span key={i} style={{
+              width: c === ' ' ? 9 : 16, textAlign: 'center', color: '#1a7f43',
+              opacity: write ? 1 : 0, transform: write ? 'none' : 'translateY(-10px)',
+              transition: `opacity .4s ease ${(N - 1 - i) * D08_WRITE_STEP}ms, transform .4s cubic-bezier(.22,1,.36,1) ${(N - 1 - i) * D08_WRITE_STEP}ms`,
+            }}>{c === ' ' ? ' ' : c}</span>
+          ))}
+        </div>
+      </div>
+
+      <p style={S.ask}>{t.ask}</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
+        {t.opts.map((o, i) => <button key={i} type="button" style={optStyle(i)} disabled={isReview || checked} onClick={() => setPicked(i)}>{o}</button>)}
+      </div>
+      {fb && <HFB ok={fb.correct} text={fb.correct ? t.correct : t.wrongMsg} />}
     </div>
   );
 }

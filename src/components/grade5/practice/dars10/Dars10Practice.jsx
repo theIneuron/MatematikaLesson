@@ -1,5 +1,6 @@
-// Dars10 amaliyoti — 10 topshiriq (osondan qiyinga). Mavzu: kasr son o'qida.
-// Darslik §27 (kasrni son o'qida nuqta sifatida tasvirlash) mashqlariga asoslangan.
+// Dars10 amaliyoti — 10 topshiriq. Mavzu: kasr son o'qida.
+// Har topshiriq UNIKAL mexanika + animatsiya. Qahramonlar: Bekzod, Madina, Nilufar, Sardor, Aziza.
+// Har topshiriq mustaqil jsx-question fayli; bu yerda PracticeHost bilan prokliklab ko'riladi.
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D10_01 from './D10_01.jsx';
@@ -13,18 +14,20 @@ import D10_08 from './D10_08.jsx';
 import D10_09 from './D10_09.jsx';
 import D10_10 from './D10_10.jsx';
 
-// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10). Maslahatsiz.
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): mavzu · qiyinlik · teg
+// Barcha topshiriqlar darslik §27 (kasrni son o'qida nuqta sifatida tasvirlash) mashqlariga asoslangan.
+// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10).
 const ITEMS = [
-  { id: '01', label: "1 · Nuqta", C: D10_01 },        // read_point 🟢 (3/4)
-  { id: '02', label: "2 · Bo'linma", C: D10_02 },     // denom_parts 🟢 (1/5→5)
-  { id: '03', label: '3 · Belgila', C: D10_03 },      // place_fraction 🟡 (3/4 interaktiv)
-  { id: '04', label: '4 · Noto\'g\'ri', C: D10_04 },  // read_improper 🟡 (3/2)
-  { id: '05', label: '5 · Orasida', C: D10_05 },      // between_integers 🟡 (7/4)
-  { id: '06', label: '6 · Ulush', C: D10_06 },        // denom_meaning 🟡 (1/6)
-  { id: '07', label: '7 · Yaqin butun', C: D10_07 },      // equivalent_point 🔴 (2/4=1/2)
-  { id: '08', label: '8 · Belgila', C: D10_08 },      // place_improper 🔴 (3/2 interaktiv)
-  { id: '09', label: "9 · Eng o'ngda", C: D10_09 },    // farthest_right 🔴 (5/8)
-  { id: '10', label: '10 · Nechta', C: D10_10 },      // count_units 🔴 (3)
+  { id: '01', label: "1 · Nuqtani o'qish", C: D10_01 },   // read_point 🟢 (3/4)
+  { id: '02', label: '2 · Maxraj-ulush', C: D10_02 },     // denom_parts 🟢 (3/5→5)
+  { id: '03', label: "3 · Nuqta qo'yish", C: D10_03 },    // place_fraction 🟡 (3/4 interaktiv)
+  { id: '04', label: '4 · Kasrni moslash', C: D10_04 },   // label_axis 🟡 (2/6·3/6·5/6)
+  { id: '05', label: '5 · Qaysi oraliqda', C: D10_05 },   // between_integers 🟡 (7/4)
+  { id: '06', label: "6 · Maxraj ma'nosi", C: D10_06 },   // denom_meaning 🟡 (1/6)
+  { id: '07', label: '7 · Yaqin butun', C: D10_07 },      // nearest_integer 🔴 (5/6→1)
+  { id: '08', label: '8 · Joylash', C: D10_08 },          // place_improper 🔴 (3/2 interaktiv)
+  { id: '09', label: "9 · Eng o'ngda", C: D10_09 },       // farthest_right 🔴 (5/8)
+  { id: '10', label: '10 · Ulushlar soni', C: D10_10 },   // count_units 🔴 (3)
 ];
 
 export default function Dars10Practice() {
@@ -41,6 +44,8 @@ export default function Dars10Practice() {
 
   return (
     <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+      {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
+          <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
       <style>{`
         .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}

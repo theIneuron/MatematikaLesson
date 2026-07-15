@@ -1,101 +1,87 @@
-// Dars05 · Amaliyot 09 — Bo'linuvchini toping · 🔴 · Sardor · tag: clue_dividend
+// Dars05 · Amaliyot 09 — Bo'linuvchini top · 🔴 · tag: clue_dividend
+// Sonni 32 ga bo'lganda 24 va qoldiq 13. Bo'linuvchi = 24 × 32 + 13 = 781.
+// Formula quruvchi: bola natijani kiritadi; to'g'ri javobdan keyin formula chiziladi.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const TARGET = 781;
-const DATA = { tag: 'clue_dividend', level: '🔴' };
-const T = {
-  uz: {
-    eyebrow: 'Topishmoq', title: "Bo'linuvchi",
-    setup: "Shunday sonni toping: uni 32 ga bo'lganda 24 hosil bo'ladi va 13 qoldiq qoladi.",
-    label: 'Sonni yozing:',
-    live: 'Sizning javobingiz:',
-    correct: "To'g'ri. Bo'linuvchi = to'liqsiz bo'linma × bo'luvchi + qoldiq = 32 × 24 + 13 = 781.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Загадка', title: 'Делимое',
-    setup: 'Найдите число: при делении на 32 получается 24 и остаток 13.',
-    label: 'Запишите число:',
-    live: 'Ваш ответ:',
-    correct: 'Верно. Делимое = неполное частное × делитель + остаток = 32 × 24 + 13 = 781.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
-const groupSpaces = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
 
+const D09_Q = 24, D09_DIV = 32, D09_REM = 13, D09_ANS = 781;
+const D09_T = {
+  uz: {
+    eyebrow: "Bo'linuvchi", setup: "Noma'lum sonni 32 ga bo'lganda to'liqsiz bo'linma 24, qoldiq esa 13 chiqdi.",
+    ask: "O'sha sonni (bo'linuvchini) toping.", label: "Bo'linuvchini yozing:",
+    rule: "bo'linuvchi = bo'linma × bo'luvchi + qoldiq",
+    correct: "To'g'ri. 24 × 32 + 13 = 768 + 13 = 781.",
+    wrong: "Maslahat: bo'lishning teskarisi qaysi amal? Qoldiq bo'lmaganda son bo'linma va bo'luvchidan qanday tiklanardi — qoldiq borligi bunga nima qo'shadi?",
+  },
+  ru: {
+    eyebrow: 'Делимое', setup: 'При делении неизвестного числа на 32 неполное частное 24, остаток 13.',
+    ask: 'Найдите это число (делимое).', label: 'Запишите делимое:',
+    rule: 'делимое = частное × делитель + остаток',
+    correct: 'Верно. 24 × 32 + 13 = 768 + 13 = 781.',
+    wrong: 'Подсказка: какое действие обратно делению? Если бы остатка не было, как восстановить число из частного и делителя — и что добавляет наличие остатка?',
+  },
+};
 export default function D05_09(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D09_T[lang] || D09_T.uz;
   const isReview = mode === 'review';
   const [val, setVal] = useState('');
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.value != null) {
-      setVal(String(initialAnswer.studentAnswer.value));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(val.trim() !== '' && !checked); }, [val, checked, onReady]);
-
+  const [rev, setRev] = useState(0);
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.value != null) { setVal(String(sa.value)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setRev(2); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(/^\d+$/.test(val.trim()) && !checked); }, [val, checked, onReady]);
   const check = useCallback(() => {
-    const v = parseInt(cleanInt(val) || '-1', 10);
-    const correct = v === TARGET;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.setup, options: [],
-      studentAnswer: { value: v }, correctAnswer: { value: TARGET },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [val, playCorrect, playWrong, onSubmit, t.setup]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const preview = cleanInt(val) ? groupSpaces(cleanInt(val)) : '—';
+    const correct = parseInt(val, 10) === D09_ANS;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) [[1, 500], [2, 1400]].forEach(([v, ms]) => timers.current.push(setTimeout(() => setRev(v), ms)));
+    onSubmit?.({ questionText: '? : 32 = 24 (rem 13)', options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D09_ANS }, correct, meta: { tag: 'clue_dividend', level: '🔴' } });
+  }, [val, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
   return (
-    <div className="pq pq09">
+    <div style={S.wrap}>
       <style>{`
-        .pq09 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq09 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq09 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 18px; color:#374151; }
-        .pq09 .pq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
-        .pq09 input.pq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq09 input.pq-input:focus { border-color:#5b8def; background:#fff; }
-        .pq09 input.pq-input:disabled { opacity:.85; }
-        .pq09 .pq-live { text-align:center; margin:12px 0 2px; }
-        .pq09 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
-        .pq09 .pq-live-num { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-        .pq09 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq09 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq09 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq09 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq09 .a2 { animation-delay:.08s; }
-        .pq09 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d5-pop { animation: d5pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d5pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d5-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <label className="pq-label a a3" htmlFor="pq09-in">{t.label}</label>
-      <input id="pq09-in" className="pq-input" value={val} onChange={(e) => setVal(cleanInt(e.target.value))} inputMode="numeric" pattern="[0-9]*" disabled={isReview || checked} placeholder="0" />
-      <div className="pq-live">
-        <div className="pq-live-lbl">{t.live}</div>
-        <div className="pq-live-num" style={{ color: checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#1f2430' }}>{preview}</div>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      {/* qoida eslatmasi — faqat to'g'ri javobdan keyin */}
+      {rev >= 1 && <div className="d5-pop" style={{ textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7c3aed', background: '#faf5ff', border: '1.5px solid #e9d5ff', borderRadius: 10, padding: '8px 10px', margin: '4px 0 12px' }}>{t.rule}</div>}
+      {/* formula ochilishi to'g'ri javobdan keyin */}
+      <div style={{ textAlign: 'center', minHeight: 40, ...S.mono, fontSize: 22, fontWeight: 800 }}>
+        {rev >= 1 && <span className="d5-pop" style={{ color: '#2563eb' }}>24 × 32 + 13</span>}
+        {rev >= 2 && <span className="d5-pop" style={{ color: '#1a7f43', marginLeft: 8 }}>= 781</span>}
       </div>
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
-        </div>
-      )}
+      <p style={{ ...S.ask, fontSize: 15, color: '#6b7280', fontWeight: 700, textAlign: 'center' }}>{t.label}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 5))} disabled={isReview || checked} inputMode="numeric" placeholder="0"
+          style={{ width: 160, height: 56, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, color: '#1f2430', fontFamily: 'inherit', background: '#fff', letterSpacing: 2 }} />
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
     </div>
   );
 }

@@ -1,101 +1,97 @@
-// Dars05 · Amaliyot 06 — Mumkin bo'lgan qoldiq · 🟡 · Nilufar · tag: remainder_possible
+// Dars05 · Amaliyot 06 — Burchakda bo'lish · 🟡 · tag: long_div
+// 3080 : 5. Bo'linma raqamlarini katakchalarga yozadi. Qadam-qadam yordam ostida.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'remainder_possible', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Qoldiq', title: 'Mumkinmi',
-    setup: "Qoldiq har doim bo'luvchidan kichik bo'ladi.",
-    ask: "Sonni 8 ga bo'lganda qaysi qoldiq qolishi mumkin emas?",
-    opts: ['12', '5', '7', '2'],
-    correct: "To'g'ri. Qoldiq bo'luvchidan (8) kichik bo'lishi shart, 12 esa 8 dan katta — mumkin emas.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Остаток', title: 'Возможно ли',
-    setup: 'Остаток всегда меньше делителя.',
-    ask: 'Какой остаток не может получиться при делении на 8?',
-    opts: ['12', '5', '7', '2'],
-    correct: 'Верно. Остаток должен быть меньше делителя (8), а 12 больше 8 — невозможно.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
 
+function D06_buildQ(dividend, divisor) {
+  const digs = String(dividend).split('').map(Number);
+  const q = []; let rem = 0;
+  for (let i = 0; i < digs.length; i++) { const cur = rem * 10 + digs[i]; q.push(Math.floor(cur / divisor)); rem = cur % divisor; }
+  return { digs, q, rem };
+}
+const D06_DIVIDEND = 3080, D06_DIVISOR = 5;
+const D06_T = {
+  uz: {
+    eyebrow: "Burchak usuli", setup: "3080 ni 5 ga burchak usulida bo'ling. Bo'linmaning har raqamini katakka yozing. O'ngdan chapga emas — chapdan o'ngga, xonama-xona.",
+    correct: "To'g'ri. 3080 : 5 = 616, qoldiq 0.",
+    wrong: "Maslahat: eng chapdagi raqam bo'luvchi 5 dan kichik bo'lsa, bo'linmaning o'sha birinchi katagida qanday raqam turadi? So'ng uni qaysi raqam bilan birga qarash kerak?",
+  },
+  ru: {
+    eyebrow: 'Уголком', setup: 'Разделите 3080 на 5 уголком. Впишите каждую цифру частного в клетку. Слева направо, разряд за разрядом.',
+    correct: 'Верно. 3080 : 5 = 616, остаток 0.',
+    wrong: 'Подсказка: если самая левая цифра меньше делителя 5, какая цифра встанет в первой клетке частного? С какой цифрой её тогда рассмотреть вместе?',
+  },
+};
 export default function D05_06(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D06_T[lang] || D06_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const { digs, q } = D06_buildQ(D06_DIVIDEND, D06_DIVISOR);
+  // bo'linma = '616' — lekin katak soni bo'linuvchi raqamlariga teng (4), yetakchi 0 bilan: 0616
+  const qStr = q.join(''); // '0616'
+  const N = digs.length;
+  const [qv, setQv] = useState(() => Array(N).fill(''));
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.q) { setQv(sa.q.slice(0, N)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer, N]);
+  // yetakchi nol katagini majburiy qilmaymiz: 0 yoki bo'sh qabul
+  const filled = qv.every((x, i) => qStr[i] === '0' ? true : x !== '');
+  useEffect(() => { onReady?.(filled && !checked); }, [filled, checked, onReady]);
+  const last = (v) => String(v).replace(/[^0-9]/g, '').slice(-1);
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
+    const correct = qv.every((x, i) => (qStr[i] === '0' ? (x === '' || x === '0') : x === qStr[i]));
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: '3080 : 5', options: [], studentAnswer: { q: qv }, correctAnswer: { q: qStr }, correct, meta: { tag: 'long_div', level: '🟡' } });
+  }, [qv, qStr, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const cw = 44;
+  const cin = (i) => {
+    const lead = qStr[i] === '0';
+    const st = checked ? ((lead ? (qv[i] === '' || qv[i] === '0') : qv[i] === qStr[i]) ? 'ok' : 'no') : '';
+    const c = st === 'ok' ? '#1a7f43' : st === 'no' ? '#c0392b' : '#93c5fd';
+    const bg = st === 'ok' ? '#e8f7ee' : st === 'no' ? '#fdecec' : '#eff6ff';
+    return { width: cw, height: 50, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 10, border: '2px solid ' + c, background: bg, color: st ? c : '#1e40af', outline: 'none', ...S.mono, boxSizing: 'border-box' };
   };
-
   return (
-    <div className="pq pq06">
-      <style>{`
-        .pq06 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq06 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq06 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq06 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq06 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq06 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq06 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq06 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq06 .a2 { animation-delay:.08s; }
-        .pq06 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
+    <div style={S.wrap}>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '12px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+          {/* bo'linuvchi | bo'luvchi burchagi */}
+          <div style={{ ...S.mono, fontSize: 28, fontWeight: 800, paddingTop: 4 }}>{D06_DIVIDEND}</div>
+          <div style={{ borderLeft: '3px solid #1f2430', borderBottom: '3px solid #1f2430', paddingLeft: 10, marginLeft: 6, paddingBottom: 6 }}>
+            <div style={{ ...S.mono, fontSize: 28, fontWeight: 800, color: '#c2410c' }}>{D06_DIVISOR}</div>
+          </div>
         </div>
-      )}
+      </div>
+      {/* bo'linma kataklari */}
+      <div style={{ display: 'flex', gap: 5, justifyContent: 'center' }}>
+        <div style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#6b7280', alignSelf: 'center', marginRight: 4 }}>{lang === 'uz' ? "bo'linma:" : 'частное:'}</div>
+        {Array.from({ length: N }).map((_, i) => (
+          <input key={i} value={qv[i]} onChange={(e) => !checked && setQv((p) => { const n = p.slice(); n[i] = last(e.target.value); return n; })} inputMode="numeric" maxLength={1} disabled={isReview || checked} placeholder={qStr[i] === '0' ? '0' : ''} style={cin(i)} />
+        ))}
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
     </div>
   );
 }

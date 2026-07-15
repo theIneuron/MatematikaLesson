@@ -1,101 +1,122 @@
-// Dars05 · Amaliyot 08 — Muzqaymoq · 🔴 · Nilufar · tag: remainder_context
+// Dars05 · Amaliyot 08 — Ikki amal · 🔴 · Bekzod · tag: word_two_step
+// Bekzod 8 daftar, 1000 so'm berdi, 200 qaytdi. Bitta daftar narxi?
+// (1000 - 200) : 8 = 100. Bosqichli yechim + salyut.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const TARGET = 6;
-const DATA = { tag: 'remainder_context', level: '🔴' };
-const T = {
-  uz: {
-    eyebrow: 'Hayotda', title: "To'liq quti",
-    setup: "Sardorda 50 ta olma bor. Har bir qutiga 8 tadan olma joylaydi. Nechta to'liq quti bo'ladi?",
-    label: 'Javobni yozing (quti):',
-    live: 'Sizning javobingiz:',
-    correct: "To'g'ri. 50 : 8 = 6 to'liq quti (yana 2 ta olma ortib qoladi).",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'В жизни', title: 'Полные коробки',
-    setup: 'У Сардора 50 яблок. В каждую коробку он кладёт по 8 яблок. Сколько получится полных коробок?',
-    label: 'Запишите ответ (коробок):',
-    live: 'Ваш ответ:',
-    correct: 'Верно. 50 : 8 = 6 полных коробок (остаётся ещё 2 яблока).',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
-const groupSpaces = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
+  const on = picked === i, show = checked && on;
+  let bg = '#fff', bd = '#d6dae3', col = '#374151';
+  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
+  return {
+    flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
+    textAlign: opts.center ? 'center' : 'left', padding: '13px 14px', borderRadius: 13, border: '2px solid ' + bd,
+    background: bg, color: col, fontSize: opts.fs || 16, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer',
+    marginBottom: opts.half ? 0 : 9, fontFamily: opts.mono ? "'JetBrains Mono', monospace" : 'inherit', minHeight: 48,
+  };
+}
 
+const D08_DATA = { correct: 0, tag: 'word_two_step', level: '🔴' };
+const D08_T = {
+  uz: {
+    eyebrow: 'Ikki amal', setup: "Bekzod 8 ta bir xil daftar sotib oldi. Kassaga 1000 so'm berdi, 200 so'm qaytim oldi.",
+    ask: "Bitta daftar necha so'm?",
+    opts: ["100 so'm", "125 so'm", "150 so'm", "80 so'm"],
+    correct: "To'g'ri. Avval xarajat: 1000 − 200 = 800. Keyin 800 : 8 = 100.",
+    wrong: "Maslahat: 1000 so'mning hammasi daftarga ketmadi — qaytim bor. Daftarlarga aslida qancha pul ketdi, keyin uni nechta daftarga bo'lish kerak? Qaysi ikki amal?",
+    step1: 'Sarflandi', step2: 'Bitta daftar',
+  },
+  ru: {
+    eyebrow: 'Два действия', setup: 'Бекзод купил 8 одинаковых тетрадей. Дал в кассу 1000 сум, получил 200 сдачи.',
+    ask: 'Сколько стоит одна тетрадь?',
+    opts: ['100 сум', '125 сум', '150 сум', '80 сум'],
+    correct: 'Верно. Сначала расход: 1000 − 200 = 800. Затем 800 : 8 = 100.',
+    wrong: 'Подсказка: не все 1000 сум ушли на тетради — есть сдача. Сколько денег на самом деле ушло на тетради и на сколько тетрадей его делить? Какие два действия?',
+    step1: 'Потрачено', step2: 'Одна тетрадь',
+  },
+};
 export default function D05_08(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D08_T[lang] || D08_T.uz;
   const isReview = mode === 'review';
-  const [val, setVal] = useState('');
-  const [feedback, setFeedback] = useState(null);
+  const [picked, setPicked] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.value != null) {
-      setVal(String(initialAnswer.studentAnswer.value));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(val.trim() !== '' && !checked); }, [val, checked, onReady]);
-
+  const [ph, setPh] = useState(0); // 1 sarf · 2 bo'lish · 3 salyut
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { if (initialAnswer?.studentAnswer?.idx != null) { setPicked(initialAnswer.studentAnswer.idx); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setPh(3); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
   const check = useCallback(() => {
-    const v = parseInt(cleanInt(val) || '-1', 10);
-    const correct = v === TARGET;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.setup, options: [],
-      studentAnswer: { value: v }, correctAnswer: { value: TARGET },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [val, playCorrect, playWrong, onSubmit, t.setup]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const preview = cleanInt(val) ? groupSpaces(cleanInt(val)) : '—';
+    const correct = picked === D08_DATA.correct;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) [[1, 500], [2, 1600], [3, 2600]].forEach(([v, ms]) => timers.current.push(setTimeout(() => setPh(v), ms)));
+    onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: 0, label: "100 so'm" }, correct, meta: { tag: D08_DATA.tag, level: D08_DATA.level } });
+  }, [picked, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const conf = ['#f59e0b', '#2563eb', '#10b981', '#ec4899', '#7c3aed'];
   return (
-    <div className="pq pq08">
+    <div style={S.wrap}>
       <style>{`
-        .pq08 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq08 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq08 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 18px; color:#374151; }
-        .pq08 .pq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
-        .pq08 input.pq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq08 input.pq-input:focus { border-color:#5b8def; background:#fff; }
-        .pq08 input.pq-input:disabled { opacity:.85; }
-        .pq08 .pq-live { text-align:center; margin:12px 0 2px; }
-        .pq08 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
-        .pq08 .pq-live-num { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-        .pq08 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq08 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq08 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq08 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq08 .a2 { animation-delay:.08s; }
-        .pq08 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d5-pop { animation: d5pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d5pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        .d5-confetti { animation: d5conf .9s ease-out both; }
+        @keyframes d5conf { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); } }
+        @media (prefers-reduced-motion: reduce) { .d5-pop, .d5-confetti { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <label className="pq-label a a3" htmlFor="pq08-in">{t.label}</label>
-      <input id="pq08-in" className="pq-input" value={val} onChange={(e) => setVal(cleanInt(e.target.value))} inputMode="numeric" pattern="[0-9]*" disabled={isReview || checked} placeholder="0" />
-      <div className="pq-live">
-        <div className="pq-live-lbl">{t.live}</div>
-        <div className="pq-live-num" style={{ color: checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#1f2430' }}>{preview}</div>
-      </div>
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+
+      <p style={S.ask}>{t.ask}</p>
+
+      {/* animatsiya savol bilan variantlar orasida ochiladi — variantlar pastga suriladi */}
+      <div style={{ position: 'relative', maxHeight: ph >= 1 ? 130 : 0, opacity: ph >= 1 ? 1 : 0, overflow: 'hidden', transition: 'max-height .6s cubic-bezier(.33,1,.42,1), opacity .5s ease', marginBottom: ph >= 1 ? 14 : 0 }}>
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', minHeight: 44 }}>
+          {ph >= 1 && (
+            <div className="d5-pop" style={{ padding: '8px 14px', borderRadius: 12, background: '#fff7ed', border: '2px solid #fed7aa', textAlign: 'center' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#c2410c' }}>{t.step1}</div>
+              <div style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: '#9a3412' }}>1000 − 200 = 800</div>
+            </div>
+          )}
+          {ph >= 2 && (
+            <div className="d5-pop" style={{ padding: '8px 14px', borderRadius: 12, background: '#eff6ff', border: '2px solid #bfdbfe', textAlign: 'center' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#2563eb' }}>{t.step2}</div>
+              <div style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: '#1e40af' }}>800 : 8 = 100</div>
+            </div>
+          )}
         </div>
-      )}
+        <div style={{ textAlign: 'center', minHeight: 34, ...S.mono, fontSize: 24, fontWeight: 800, color: '#1a7f43', position: 'relative' }}>
+          {ph >= 3 && <span className="d5-pop">100 so'm</span>}
+          {ph >= 3 && Array.from({ length: 12 }).map((_, i) => {
+            const ang = (i / 12) * Math.PI * 2;
+            return <span key={i} className="d5-confetti" style={{ position: 'absolute', left: '50%', top: '50%', width: 7, height: 7, borderRadius: 2, background: conf[i % conf.length], '--dx': Math.cos(ang) * 60 + 'px', '--dy': Math.sin(ang) * 40 + 'px', animationDelay: (i * 0.02) + 's' }} />;
+          })}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
+        {t.opts.map((o, i) => <button key={i} type="button" style={optStyle(picked, i, 0, checked, isReview, { half: true, center: true, mono: true })} disabled={isReview || checked} onClick={() => setPicked(i)}>{o}</button>)}
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
     </div>
   );
 }

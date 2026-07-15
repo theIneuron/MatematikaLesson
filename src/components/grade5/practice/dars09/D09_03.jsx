@@ -1,112 +1,96 @@
-// Dars09 · Amaliyot 03 — Kasrni bo'yash · 🟡 · Sardor · tag: shade_fraction
-// Darslik §27, Mashq 577: butunni teng bo'laklarga bo'lib, kerakli ulushni bo'yash.
-// jsx-question kontrakti. Maslahat yo'q. Mexanika: polosani 4 ulushga bo'lib, 3 tasini bo'yash (3/4).
+// Dars09 · Amaliyot 03 — Bo'yash · 🟡 · shade_fraction (interaktiv bo'yash)
+// 2/5 ni bo'yash. Polosa 5 ulush, bola 2 tasini bosib bo'yaydi.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DEN = 4, NUM = 3; // 3/4 ni bo'yash
-const DATA = { tag: 'shade_fraction', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Kasr', title: "Kasrni bo'yang",
-    setup: "Polosa 4 ta teng ulushga bo'lingan. Ulushlarni bosib bo'yang.",
-    ask: "Polosaning 3/4 qismini bo'yang:",
-    live: "Bo'yalgan:",
-    correct: "To'g'ri. 4 ulushdan 3 tasi bo'yalgan — bu 3/4.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Дробь', title: 'Закрасьте дробь',
-    setup: 'Полоса разделена на 4 равные доли. Нажимайте на доли, чтобы закрасить.',
-    ask: 'Закрасьте 3/4 полосы:',
-    live: 'Закрашено:',
-    correct: 'Верно. Из 4 долей закрашено 3 — это 3/4.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d9-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+// kasr belgisi (surat/maxraj chiziqcha bilan)
+const Frac = ({ num, den, size = 26, color = '#1f2430' }) => (
+  <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', ...S.mono, fontWeight: 800, color, lineHeight: 1, verticalAlign: 'middle' }}>
+    <span style={{ fontSize: size, padding: '0 4px 2px' }}>{num}</span>
+    <span style={{ width: '100%', height: 2, background: color }} />
+    <span style={{ fontSize: size, padding: '2px 4px 0' }}>{den}</span>
+  </span>
+);
+
+const D03_DEN = 5, D03_NUM = 2;
+const D03_T = {
+  uz: {
+    eyebrow: "Bo'yash", setup: "Yo'lak teng ulushlarga bo'lingan.",
+    ask: "2/5 ni ko'rsatish uchun kerakli ulushlarni bosib bo'yang:",
+    correct: "To'g'ri. 5 ulushdan 2 tasi bo'yalgan — bu 2/5.",
+    wrong: "Maslahat: bo'yaladigan ulushlar sonini kasrning qaysi qismi belgilaydi — yuqoridagimi yoki pastdagimi?",
+    rule: "Kasrni bo'yash: surat qancha bo'lsa, shuncha ulush bo'yaladi (maxrajdan).",
+  },
+  ru: {
+    eyebrow: 'Закрашивание', setup: 'Дорожка разделена на равные доли.',
+    ask: 'Закрасьте нужные доли, чтобы показать 2/5:',
+    correct: 'Верно. Из 5 долей закрашено 2 — это 2/5.',
+    wrong: 'Подсказка: какая часть дроби задаёт, сколько долей закрасить — верхняя или нижняя?',
+    rule: 'Закрашивание дроби: закрашиваем столько долей, сколько в числителе.',
+  },
+};
 export default function D09_03(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D03_T[lang] || D03_T.uz;
   const isReview = mode === 'review';
-  const [shaded, setShaded] = useState(() => Array(DEN).fill(false));
-  const [feedback, setFeedback] = useState(null);
+  const [sel, setSel] = useState(new Set());
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-  const [touched, setTouched] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && Array.isArray(initialAnswer.studentAnswer.shaded)) {
-      setShaded(initialAnswer.studentAnswer.shaded.slice(0, DEN)); setTouched(true);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(touched && !checked); }, [touched, checked, onReady]);
-
-  const toggle = (i) => { if (isReview || checked) return; setTouched(true); setShaded((p) => { const n = p.slice(); n[i] = !n[i]; return n; }); };
-
-  const count = shaded.filter(Boolean).length;
-
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.sel) { setSel(new Set(sa.sel)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(sel.size > 0 && !checked); }, [sel, checked, onReady]);
+  const locked = isReview || checked;
+  const toggle = (i) => { if (locked) return; setSel((s) => { const n = new Set(s); n.has(i) ? n.delete(i) : n.add(i); return n; }); };
   const check = useCallback(() => {
-    const correct = shaded.filter(Boolean).length === NUM;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: [],
-      studentAnswer: { shaded: shaded.slice(), count: shaded.filter(Boolean).length },
-      correctAnswer: { numerator: NUM, denominator: DEN }, correct,
-      meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [shaded, playCorrect, playWrong, onSubmit, t.ask]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const okColor = checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
-
+    const correct = sel.size === D03_NUM;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { sel: [...sel], count: sel.size }, correctAnswer: { count: D03_NUM }, correct, meta: { tag: 'shade_fraction', level: '🟡' } });
+  }, [sel, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
   return (
-    <div className="pq pq03">
+    <div style={S.wrap}>
       <style>{`
-        .pq03 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq03 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq03 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 6px; color:#374151; }
-        .pq03 .pq-ask { font-size:17px; font-weight:700; margin:0 0 18px; }
-        .pq03 .pq-bar { display:flex; width:100%; height:80px; border-radius:12px; overflow:hidden; border:2px solid #cfd6e4; }
-        .pq03 .pq-seg { flex:1; border:none; border-left:2px solid #fff; cursor:pointer; padding:0; transition:background .15s; }
-        .pq03 .pq-seg:first-child { border-left:none; }
-        .pq03 .pq-seg:disabled { cursor:default; }
-        .pq03 .pq-live { text-align:center; margin:16px 0 4px; font-size:24px; font-weight:800; font-variant-numeric:tabular-nums; }
-        .pq03 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq03 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq03 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq03 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq03 .a2 { animation-delay:.08s; }
-        .pq03 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqSeg { from { opacity:0; transform:scaleY(.35);} to { opacity:1; transform:scaleY(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.12);} 100%{transform:scale(1);} }
-        .pq03 .pq-seg { transform-origin:bottom; }
-        .pq03 .pq-live.on { animation:pqPop .5s cubic-bezier(.34,1.56,.64,1); }
+        .d9-pop { animation: d9pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d9pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d9-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-
-      <div className="pq-bar">
-        {shaded.map((on, i) => (
-          <button key={i} type="button" className="pq-seg" onClick={() => toggle(i)} disabled={isReview || checked}
-            style={{ background: on ? okColor : '#eef2f8', animation: `pqSeg .35s cubic-bezier(.22,1,.36,1) ${(0.2 + i * 0.07).toFixed(2)}s both` }} aria-label={`ulush ${i + 1}`} />
-        ))}
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <div style={{ textAlign: 'center', margin: '4px 0 12px' }}><Frac num="2" den="5" size={34} color="#2563eb" /></div>
+      <p style={{ ...S.ask, fontSize: 15.5 }}>{t.ask}</p>
+      <div style={{ display: 'flex', gap: 4, justifyContent: 'center', margin: '8px 0' }}>
+        {Array.from({ length: D03_DEN }).map((_, i) => {
+          const on = sel.has(i);
+          let bg = on ? '#2563eb' : '#eff6ff', bd = on ? '#1d4ed8' : '#bfdbfe';
+          if (checked) { if (on) { const ok = sel.size === D03_NUM; bg = ok ? '#1a7f43' : '#c0392b'; bd = bg; } }
+          return <button key={i} type="button" disabled={locked} onClick={() => toggle(i)} style={{ width: 56, height: 76, border: '2px solid ' + bd, background: bg, cursor: locked ? 'default' : 'pointer', borderRadius: i === 0 ? '12px 0 0 12px' : i === D03_DEN - 1 ? '0 12px 12px 0' : 0, transition: 'background .2s' }} />;
+        })}
       </div>
-
-      <div className={`pq-live ${checked && feedback?.correct ? 'on' : ''}`} style={{ color: okColor }}>{count}/{DEN}</div>
-
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
-        </div>
-      )}
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

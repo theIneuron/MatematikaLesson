@@ -1,101 +1,120 @@
-// Dars10 · Amaliyot 01 — Nuqtadagi kasr · 🟢 · Bekzod · tag: read_point
+// Dars10 · Amaliyot 01 — Nuqtani o'qish · 🟢 · read_point (o'q + variant)
+// 0-1 oralig'i 4 ulush, nuqta 3/4 da. Qaysi kasr? Variant.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'read_point', level: '🟢' };
-const T = {
-  uz: {
-    eyebrow: "Son o'qi", title: 'Qaysi kasr',
-    setup: "Son o'qida 0 bilan 1 oralig'i 4 ta teng qismga bo'lingan. Nuqta uchinchi bo'linmada turibdi.",
-    ask: "Nuqta qaysi kasrni ko'rsatadi?",
-    opts: ['3/4', '4/3', '3/1', '1/4'],
-    correct: "To'g'ri. 4 ta ulushdan 3-si — bu 3/4.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Числовая прямая', title: 'Какая дробь',
-    setup: 'На прямой отрезок от 0 до 1 разделён на 4 равные части. Точка стоит на третьем делении.',
-    ask: 'Какую дробь показывает точка?',
-    opts: ['3/4', '4/3', '3/1', '1/4'],
-    correct: 'Верно. Третья из 4 долей — это 3/4.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d10-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
+  const on = picked === i, show = checked && on;
+  let bg = '#fff', bd = '#d6dae3', col = '#374151';
+  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
+  return {
+    flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
+    textAlign: opts.center ? 'center' : 'left', padding: '13px 14px', borderRadius: 13, border: '2px solid ' + bd,
+    background: bg, color: col, fontSize: opts.fs || 16, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer',
+    marginBottom: opts.half ? 0 : 9, fontFamily: opts.mono ? "'JetBrains Mono', monospace" : 'inherit', minHeight: 48,
+  };
+}
+// son o'qi: lo..hi butun, har birlik den ulushga bo'lingan. marker — {val, den, color, label}
+const NumLine = ({ lo, hi, den, markers = [], showFrac = true, height = 84 }) => {
+  const total = hi - lo; const W = 100 / (total * den);
+  const ticks = [];
+  for (let u = 0; u <= total * den; u++) { const val = lo + u / den; const isInt = u % den === 0; ticks.push({ u, val, isInt }); }
+  return (
+    <div style={{ position: 'relative', height, margin: '10px 8px 4px' }}>
+      <div style={{ position: 'absolute', left: '2%', right: '2%', top: height * 0.5, height: 3, background: '#bae6fd', borderRadius: 2 }} />
+      {ticks.map((tk) => (
+        <div key={tk.u} style={{ position: 'absolute', left: `calc(2% + ${tk.u * W * 0.96}%)`, top: height * 0.5 - (tk.isInt ? 9 : 6), transform: 'translateX(-50%)', textAlign: 'center' }}>
+          <div style={{ width: tk.isInt ? 3 : 2, height: tk.isInt ? 18 : 12, background: tk.isInt ? '#64748b' : '#cbd5e1', margin: '0 auto', borderRadius: 2 }} />
+          {tk.isInt && <div style={{ marginTop: 4, fontSize: 12, fontWeight: 800, color: '#64748b', ...S.mono }}>{tk.val}</div>}
+        </div>
+      ))}
+      {markers.map((m, i) => {
+        const uPos = (m.val - lo) * den;
+        return (
+          <div key={i} style={{ position: 'absolute', left: `calc(2% + ${uPos * W * 0.96}%)`, top: 0, transform: 'translateX(-50%)', textAlign: 'center', transition: 'left .6s cubic-bezier(.34,1.56,.64,1)' }}>
+            {m.label && <div style={{ fontSize: 11, fontWeight: 800, color: m.color || '#2563eb', marginBottom: 2, ...S.mono, whiteSpace: 'nowrap' }}>{m.label}</div>}
+            <div style={{ width: 16, height: 16, borderRadius: 999, background: m.color || '#2563eb', margin: '0 auto', border: '3px solid #fff', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
+const D01_DEN = 4, D01_VAL = 0.75, D01_CORRECT = 0;
+const D01_T = {
+  uz: {
+    eyebrow: "Nuqtani o'qish", setup: "Son o'qida 0 bilan 1 orasi teng ulushlarga bo'lingan. Moviy nuqtaga qarang.",
+    ask: "Moviy nuqta qaysi kasrni ko'rsatadi?",
+    opts: ['3/4', '4/3', '3/1', '1/4'],
+    correct: "To'g'ri. 4 ta teng ulushdan 3-nuqtada — bu 3/4.",
+    wrong: "Maslahat: 0 dan 1 gacha nechta ulush bor (maxraj)? Nuqta nechinchi ulushda (surat)?",
+    rule: "Son o'qidagi kasr: maxraj — ulushlar soni, surat — nuqtagacha bo'lgan ulushlar.",
+  },
+  ru: {
+    eyebrow: 'Чтение точки', setup: 'На оси отрезок от 0 до 1 разделён на равные доли. Смотрите на синюю точку.',
+    ask: 'Какую дробь показывает синяя точка?',
+    opts: ['3/4', '4/3', '3/1', '1/4'],
+    correct: 'Верно. Из 4 равных долей на 3-й точке — это 3/4.',
+    wrong: 'Подсказка: сколько долей от 0 до 1 (знаменатель)? На какой доле точка (числитель)?',
+    rule: 'Дробь на оси: знаменатель — число долей, числитель — доли до точки.',
+  },
+};
 export default function D10_01(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D01_T[lang] || D01_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
+  useEffect(() => { if (initialAnswer?.studentAnswer?.idx != null) { setPicked(initialAnswer.studentAnswer.idx); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
-  };
-
+    const correct = picked === D01_CORRECT;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: 0, label: '3/4' }, correct, meta: { tag: 'read_point', level: '🟢' } });
+  }, [picked, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
   return (
-    <div className="pq pq01">
+    <div style={S.wrap}>
       <style>{`
-        .pq01 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq01 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq01 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq01 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq01 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq01 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq01 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq01 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq01 .a2 { animation-delay:.08s; }
-        .pq01 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d10-pop { animation: d10pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d10pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d10-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <NumLine lo={0} hi={1} den={D01_DEN} markers={[{ val: D01_VAL, color: '#0ea5e9', label: checked && fb?.correct ? '3/4' : '?' }]} />
+      <p style={S.ask}>{t.ask}</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
+        {t.opts.map((o, i) => <button key={i} type="button" style={optStyle(picked, i, 0, checked, isReview, { half: true, center: true, mono: true, fs: 20 })} disabled={isReview || checked} onClick={() => setPicked(i)}>{o}</button>)}
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

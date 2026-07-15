@@ -75,7 +75,7 @@ export default function D03_09(props) {
         .pq09 .pq-live { text-align:center; margin:12px 0 2px; }
         .pq09 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
         .pq09 .pq-live-num { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-        .pq09 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq09 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq09 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq09 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }

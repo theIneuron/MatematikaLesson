@@ -1,4 +1,5 @@
-// Dars02 · Amaliyot 09 — To'g'ri yaxlitlash · 🔴 · Madina · tag: round_error_check
+// Dars02 · Amaliyot 09 — To'g'ri yaxlitlashni topish · 🔴 · Madina · tag: round_error_check
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const DATA = { correct: 0, tag: 'round_error_check', level: '🔴' };
@@ -14,7 +15,7 @@ const T = {
       '5879 ≈ 5000 (minglargacha)',
     ],
     correct: "To'g'ri. 45 849 ≈ 45 800 to'g'ri (keyingi raqam 4). Qolganlari xato: 238 ≈ 240, 1 206 845 ≈ 1 207 000, 5879 ≈ 6000.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
+    wrongMsg: "Maslahat: har bir yozuvni alohida tekshiring. Yaxlitlanayotgan xonadan keyingi raqam natijaga mos kelyaptimi?",
   },
   ru: {
     eyebrow: 'Найди ошибку', title: 'Верное округление',
@@ -27,7 +28,7 @@ const T = {
       '5879 ≈ 5000 (до тысяч)',
     ],
     correct: 'Верно. 45 849 ≈ 45 800 верно (следующая цифра 4). Остальные неверны: 238 ≈ 240, 1 206 845 ≈ 1 207 000, 5879 ≈ 6000.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
+    wrongMsg: 'Подсказка: проверьте каждую запись отдельно. Соответствует ли цифра после округляемого разряда полученному результату?',
   },
 };
 
@@ -83,7 +84,7 @@ export default function D02_09(props) {
         .pq09 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
         .pq09 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
         .pq09 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq09 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq09 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq09 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq09 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
@@ -93,8 +94,7 @@ export default function D02_09(props) {
         @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
         @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
         @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.06);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
+        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }      `}</style>
       <div className="pq-eyebrow a">{t.eyebrow}</div>
       <p className="pq-setup a a2">{t.setup}</p>
       <p className="pq-ask a a3">{t.ask}</p>

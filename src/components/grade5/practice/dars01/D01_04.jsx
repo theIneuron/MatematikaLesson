@@ -13,7 +13,7 @@ const T = {
     words: "6 ta million · 7 ta o'n ming · 2 ta ming",
     live: "Yig'ilgan son:",
     correct: "To'g'ri. 6 ta million, 7 ta o'n ming, 2 ta ming — 6 072 000.",
-    wrong: "Hali to'g'ri emas. Yana bir bor yig'ib ko'ring.",
+    wrong: "Maslahat: yig'ilgan soningizni ovoz chiqarib o'qing. U berilgan so'zlarga to'g'ri kelyaptimi? Har sinf — uchta katak.",
   },
   ru: {
     eyebrow: 'Вокруг нас', title: 'Собери число',
@@ -21,7 +21,7 @@ const T = {
     words: '6 миллионов · 7 десятков тысяч · 2 тысячи',
     live: 'Собранное число:',
     correct: 'Верно. 6 миллионов, 7 десятков тысяч, 2 тысячи — 6 072 000.',
-    wrong: 'Пока неверно. Соберите ещё раз.',
+    wrong: 'Подсказка: прочитайте собранное число вслух. Совпадает ли оно с заданными словами? В каждом классе — три клетки.',
   },
 };
 
@@ -82,7 +82,7 @@ export default function D01_04(props) {
         .pq04 .pq-live { text-align:center; margin:18px 0 4px; }
         .pq04 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
         .pq04 .pq-live-num { font-size:34px; font-weight:800; letter-spacing:.02em; font-variant-numeric:tabular-nums; }
-        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq04 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq04 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }

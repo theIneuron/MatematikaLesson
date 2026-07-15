@@ -1,0 +1,70 @@
+// Dars17 amaliyoti — 10 topshiriq. Mavzu: bir xil maxrajli kasrlarni qo'shish.
+// Dastur: urok 6.1 — frac_5_09. Markaziy xato M1: maxrajlarni ham qo'shish (3/5+1/5=4/10).
+// Daraja 2🟢 / 4🟡 / 4🔴, tartib aralash. Turlar xilma-xil (bo'sh katak, moslash, konstruktor,
+// son o'qi, xatoni top, masala, test kam). Kasrlar ikki qatorli, animatsiyalar sekin.
+// Har topshiriq mustaqil jsx-question fayli; bu yerda PracticeHost bilan prokliklab ko'riladi.
+import React, { useState } from 'react';
+import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
+import D17_01 from './D17_01.jsx';
+import D17_02 from './D17_02.jsx';
+import D17_03 from './D17_03.jsx';
+import D17_04 from './D17_04.jsx';
+import D17_05 from './D17_05.jsx';
+import D17_06 from './D17_06.jsx';
+import D17_07 from './D17_07.jsx';
+import D17_08 from './D17_08.jsx';
+import D17_09 from './D17_09.jsx';
+import D17_10 from './D17_10.jsx';
+
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): tur · daraja · teg
+const ITEMS = [
+  { id: '01', label: "1 · Tasma", C: D17_01 },        // 🟢 bo'sh katak + rasm (2/6+3/6)
+  { id: '02', label: '2 · Moslash', C: D17_02 },      // 🟡 moslash (maxraj 8)
+  { id: '03', label: "3 · Nishonni yig'", C: D17_03 },// 🔴 konstruktor (5/8)
+  { id: '04', label: "4 · Qaysi to'g'ri", C: D17_04 },// 🟡 test/tuzoq (3/8+1/8=1/2, qisqartirish)
+  { id: '05', label: '5 · Butun', C: D17_05 },        // 🔴 rasm, butungacha (3/5+2/5=1)
+  { id: '06', label: "6 · Son o'qi", C: D17_06 },     // 🟡 son o'qida sakrash (1/6+2/6+2/6)
+  { id: '07', label: '7 · Uch kasr', C: D17_07 },     // 🔴 ko'p qadam (1/9+3/9+2/9)
+  { id: '08', label: "8 · Qo'sh", C: D17_08 },        // 🟢 sodda bo'sh katak (1/4+2/4)
+  { id: '09', label: '9 · Xatoni top', C: D17_09 },   // 🟡 xatoni top (2/7+3/7=5/14)
+  { id: '10', label: '10 · Masala', C: D17_10 },      // 🔴 masala + qisqartirish (2/6+2/6=2/3)
+];
+
+export default function Dars17Practice() {
+  usePracticeZoom();
+  const [idx, setIdx] = useState(0);
+  const q = ITEMS[idx] || ITEMS[0];
+
+  const chip = (active) => ({
+    padding: '7px 11px', borderRadius: 999, fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
+    border: '1.5px solid ' + (active ? '#2563eb' : '#d6dae3'),
+    background: active ? '#2563eb' : '#fff', color: active ? '#fff' : '#374151',
+    fontFamily: "'Manrope', system-ui, sans-serif", whiteSpace: 'nowrap',
+  });
+
+  return (
+    <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+      {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
+          <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
+      <style>{`
+        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
+        @media (max-width:639.98px){.pq-fixroot{width:390px;}}
+      `}</style>
+      <div style={{
+        flexShrink: 0, display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center',
+        padding: '56px 12px 10px', borderBottom: '1px solid #eef0f4',
+      }}>
+        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>Dars 17 amaliyoti — 10 topshiriq (bir xil maxrajli kasrlarni qo'shish)</strong>
+        {ITEMS.map((item, i) => (
+          <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+        <PracticeHost key={q.id} Question={q.C} />
+      </div>
+    </div>
+  );
+}

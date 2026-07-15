@@ -10,7 +10,7 @@ const T = {
     ask: "Bu son qanday o'qiladi?",
     opts: ["o'ttiz million olti yuz yigirma ikki ming", "uch yuz million olti yuz yigirma ikki ming", "o'ttiz million olti yuz yigirma ikki"],
     correct: "To'g'ri. 30 622 000 — o'ttiz million olti yuz yigirma ikki ming.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
+    wrongMsg: "Maslahat: sonni sinflarga ajratib o'qing. Bosh sinfda 30 turibdimi yoki 300? Oxirgi sinf nomini aytishni unutmadingizmi?",
   },
   ru: {
     eyebrow: 'Вокруг нас', title: 'Чтение числа',
@@ -18,7 +18,7 @@ const T = {
     ask: 'Как читается это число?',
     opts: ['тридцать миллионов шестьсот двадцать две тысячи', 'триста миллионов шестьсот двадцать две тысячи', 'тридцать миллионов шестьсот двадцать два'],
     correct: 'Верно. 30 622 000 — тридцать миллионов шестьсот двадцать две тысячи.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
+    wrongMsg: 'Подсказка: читайте число по классам. В старшем классе 30 или 300? Не забыли ли назвать имя последнего класса?',
   },
 };
 
@@ -76,7 +76,7 @@ export default function D01_01(props) {
         .pq01 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
         .pq01 .pq-num { text-align:center; font-size:40px; font-weight:800; color:#2563eb; letter-spacing:.04em; font-variant-numeric:tabular-nums; margin:6px 0 18px; }
         .pq01 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq01 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq01 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq01 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq01 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }

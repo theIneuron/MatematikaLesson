@@ -1,5 +1,5 @@
-// Dars11 amaliyoti — 10 topshiriq (osondan qiyinga). Mavzu: kasr — bo'lish natijasi (a:b = a/b).
-// Darslik §31 (Bo'lish va kasrlar) mashqlariga asoslangan. Topshiriqlar animatsiyali.
+// Dars11 amaliyoti — 10 topshiriq. Mavzu: kasr — bo'lish natijasi (a:b = a/b).
+// Har topshiriq mustaqil jsx-question fayli; bu yerda PracticeHost bilan prokliklab ko'riladi.
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D11_01 from './D11_01.jsx';
@@ -13,18 +13,19 @@ import D11_08 from './D11_08.jsx';
 import D11_09 from './D11_09.jsx';
 import D11_10 from './D11_10.jsx';
 
-// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10). Maslahatsiz.
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): mavzu · qiyinlik · teg
+// Tartib aralashtirilgan (bundle TASKS): oson→qiyin galma-gal.
 const ITEMS = [
-  { id: '01', label: '1 · Kasrga', C: D11_01 },        // div_as_fraction 🟢 (4:5→4/5)
-  { id: '02', label: "2 · Bo'linmaga", C: D11_02 },    // fraction_as_div 🟢 (3/7→3:7)
-  { id: '03', label: '3 · Taqsimlash', C: D11_03 },    // sharing 🟡 (5 bola 4 olma)
-  { id: '04', label: '4 · Kunlik non', C: D11_04 },    // per_day 🟡 (18/7 kasr-input)
-  { id: '05', label: '5 · Qiymati', C: D11_05 },       // div_compute 🟡 (12/4=3)
-  { id: '06', label: '6 · Kasr shaklida', C: D11_06 }, // natural_as_fraction 🟡 (4→24/6)
-  { id: '07', label: '7 · Tezlik', C: D11_07 },        // speed_fraction 🔴 (2/35 kasr-input)
-  { id: '08', label: '8 · Kvadrat', C: D11_08 },       // perimeter_side 🔴 (7/4 kasr-input)
-  { id: '09', label: '9 · Tomon', C: D11_09 },         // rectangle_side 🔴 (19/7)
-  { id: '10', label: "10 · Yig'indi", C: D11_10 },     // sum_div_rule 🔴 ((15+9+6):3=10)
+  { id: '01', label: "1 · Bo'lish → kasr", C: D11_01 },     // div_as_fraction 🟢 (4:5→4/5)
+  { id: '04', label: '2 · Kunlik ulush', C: D11_04 },       // per_day 🟡 (18/7 kasr-input)
+  { id: '07', label: '3 · Tezlik kasri', C: D11_07 },       // speed_fraction 🔴 (2/35 kasr-input)
+  { id: '02', label: "4 · Kasr → bo'lish", C: D11_02 },     // fraction_as_div 🟢 (3/7→3:7)
+  { id: '06', label: '5 · Natural son', C: D11_06 },        // natural_as_fraction 🟡 (4→24/6)
+  { id: '09', label: "6 · To'rtburchak tomoni", C: D11_09 },// rectangle_side 🔴 (19/7)
+  { id: '03', label: "7 · Teng bo'lish", C: D11_03 },       // sharing 🟡 (5 bola 4 olma)
+  { id: '10', label: "8 · Yig'indi bo'lish", C: D11_10 },   // sum_div_rule 🔴 ((15+9+6):3=10)
+  { id: '05', label: "9 · Bo'lishni hisobla", C: D11_05 },  // div_compute 🟡 (12/4=3)
+  { id: '08', label: '10 · Perimetr tomoni', C: D11_08 },   // perimeter_side 🔴 (7/4 kasr-input)
 ];
 
 export default function Dars11Practice() {
@@ -41,6 +42,8 @@ export default function Dars11Practice() {
 
   return (
     <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+      {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
+          <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
       <style>{`
         .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}

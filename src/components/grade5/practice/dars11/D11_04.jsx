@@ -1,102 +1,98 @@
-// Dars11 · Amaliyot 04 — Kunlik non (kasr) · 🟡 · Nilufar · tag: per_day
-// Darslik §31, Mashq 676: natijani kasr ko'rinishida (surat/maxraj). jsx-question kontrakti. Animatsiyali.
+// Dars11 · Amaliyot 04 — Kunlik ulush · 🟡 · per_day (kasr kiritish)
+// 18 non 7 kunga. Kasr ko'rinishida: 18/7. Ikki maydonli kiritish.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const N = 18, D = 7; // 18 non / 7 kun = 18/7
-const DATA = { tag: 'per_day', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Hayotda', title: 'Kunlik ulush',
-    setup: "Bir haftada (7 kun) oila 18 ta non yedi. Bir kunda o'rtacha qancha non yeyilgan? Javobni kasr ko'rinishida yozing.",
-    numL: 'Surat', denL: 'Maxraj',
-    correct: "To'g'ri. 18 non 7 kunga: 18 : 7 = 18/7.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'В жизни', title: 'Доля за день',
-    setup: 'За неделю (7 дней) семья съела 18 лепёшек. Сколько в среднем за один день? Запишите ответ дробью.',
-    numL: 'Числитель', denL: 'Знаменатель',
-    correct: 'Верно. 18 лепёшек на 7 дней: 18 : 7 = 18/7.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d11-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+// ikki maydonli kasr kiritish (surat / maxraj)
+function FracInput({ num, den, setNum, setDen, disabled, bd }) {
+  const cell = { width: 78, height: 46, textAlign: 'center', fontSize: 24, fontWeight: 800, borderRadius: 12, border: '2px solid ' + bd, color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' };
+  return (
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+      <input value={num} onChange={(e) => setNum(e.target.value.replace(/[^\d]/g, '').slice(0, 3))} disabled={disabled} inputMode="numeric" placeholder="?" style={cell} />
+      <div style={{ width: 92, height: 3, background: '#1f2430', borderRadius: 2 }} />
+      <input value={den} onChange={(e) => setDen(e.target.value.replace(/[^\d]/g, '').slice(0, 3))} disabled={disabled} inputMode="numeric" placeholder="?" style={cell} />
+    </div>
+  );
+}
 
+const D04_NUM = 18, D04_DEN = 7;
+const D04_T = {
+  uz: {
+    eyebrow: 'Kunlik ulush', setup: "Bir haftada (7 kun) oila 18 ta non yedi.",
+    ask: "Bir kunga o'rtacha qancha non to'g'ri keladi? Kasr shaklida yozing:",
+    correct: "To'g'ri. 18 nonni 7 kunga: 18 : 7 = 18/7.",
+    wrong: "Maslahat: nima bo'linyapti — non-mi yoki kun? Bo'linadigan miqdor suratga, birliklar soni maxrajga tushadi.",
+    rule: "«Bir birlikka qancha» — bo'lishdir: jami : birliklar soni.",
+  },
+  ru: {
+    eyebrow: 'Доля в день', setup: 'За неделю (7 дней) семья съела 18 хлебов.',
+    ask: 'Сколько хлебов в среднем в день? Запишите дробью:',
+    correct: 'Верно. 18 хлебов на 7 дней: 18 : 7 = 18/7.',
+    wrong: 'Подсказка: что делится — хлеб или дни? Делимое — сверху, число единиц — снизу.',
+    rule: '«Сколько на одну единицу» — это деление: всего : число единиц.',
+  },
+};
 export default function D11_04(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D04_T[lang] || D04_T.uz;
   const isReview = mode === 'review';
   const [num, setNum] = useState('');
   const [den, setDen] = useState('');
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer) {
-      const sa = initialAnswer.studentAnswer;
-      if (sa.n != null) setNum(String(sa.n));
-      if (sa.d != null) setDen(String(sa.d));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(num.trim() !== '' && den.trim() !== '' && !checked); }, [num, den, checked, onReady]);
-
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa) { if (sa.num != null) setNum(String(sa.num)); if (sa.den != null) setDen(String(sa.den)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
+  const full = /^\d+$/.test(num) && /^\d+$/.test(den);
+  useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
   const check = useCallback(() => {
-    const n = parseInt(cleanInt(num) || '-1', 10);
-    const d = parseInt(cleanInt(den) || '-1', 10);
-    const correct = n === N && d === D;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.setup, options: [],
-      studentAnswer: { n, d }, correctAnswer: { n: N, d: D },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [num, den, playCorrect, playWrong, onSubmit, t.setup]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const ip = { inputMode: 'numeric', pattern: '[0-9]*', disabled: isReview || checked, placeholder: '0' };
-
+    const correct = parseInt(num, 10) === D04_NUM && parseInt(den, 10) === D04_DEN;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { num: parseInt(num, 10), den: parseInt(den, 10) }, correctAnswer: { num: 18, den: 7 }, correct, meta: { tag: 'per_day', level: '🟡' } });
+  }, [num, den, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
   return (
-    <div className="pq pq04">
+    <div style={S.wrap}>
       <style>{`
-        .pq04 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq04 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq04 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 20px; color:#374151; }
-        .pq04 .pq-frac { display:flex; flex-direction:column; align-items:center; gap:6px; width:110px; margin:0 auto; }
-        .pq04 .pq-fin { width:96px; box-sizing:border-box; font-size:26px; font-weight:800; text-align:center; padding:10px; border-radius:12px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq04 .pq-fin:focus { border-color:#5b8def; background:#fff; }
-        .pq04 .pq-fin:disabled { opacity:.85; }
-        .pq04 .pq-fline { width:104px; height:3px; background:#1f2430; border-radius:2px; }
-        .pq04 .pq-flbl { display:flex; justify-content:center; gap:44px; margin-top:8px; font-size:11px; color:#9aa1ad; font-weight:700; text-transform:uppercase; }
-        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:20px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq04 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq04 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq04 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq04 .a2 { animation-delay:.08s; }
-        .pq04 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.1);} 100%{transform:scale(1);} }
-        .pq04 .pq-frac.on { animation:pqPop .5s cubic-bezier(.34,1.56,.64,1); }
+        .d11-pop { animation: d11pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d11pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d11-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <div className={`pq-frac a a3 ${checked && feedback?.correct ? 'on' : ''}`}>
-        <input className="pq-fin" value={num} onChange={(e) => setNum(cleanInt(e.target.value))} aria-label={t.numL} {...ip} />
-        <div className="pq-fline" />
-        <input className="pq-fin" value={den} onChange={(e) => setDen(cleanInt(e.target.value))} aria-label={t.denL} {...ip} />
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      {/* 18 non ikonkalari + 7 kun */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center', margin: '8px auto', maxWidth: 300 }}>
+        {Array.from({ length: 18 }).map((_, i) => <span key={i} style={{ fontSize: 17 }}>🍞</span>)}
       </div>
-      <div className="pq-flbl"><span>{t.numL}</span><span>{t.denL}</span></div>
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
-        </div>
-      )}
+      <div style={{ textAlign: 'center', fontSize: 13, color: '#94a3b8', fontWeight: 700, marginBottom: 4 }}>{lang === 'uz' ? '18 ta non · 7 kun' : '18 хлебов · 7 дней'}</div>
+      <p style={{ ...S.ask, fontSize: 16 }}>{t.ask}</p>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
+        <FracInput num={num} den={den} setNum={setNum} setDen={setDen} disabled={isReview || checked} bd={bd} />
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

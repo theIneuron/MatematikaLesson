@@ -1,101 +1,102 @@
-// Dars08 · Amaliyot 05 — Xato tenglik · 🟡 · Sardor · tag: find_wrong_power
+// Dars08 · Amaliyot 05 — Xatoni top · 🟡 · Aziza · tag: find_wrong_power
+// To'rt daraja tenglik, bittasida xato (6²=12). To'g'ri javobdan keyin xato ochiladi.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'find_wrong_power', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Xato top', title: "Qaysi noto'g'ri",
-    setup: "Daraja — ko'paytirish, qo'shish emas.",
-    ask: "Qaysi tenglik NOTO'G'RI?",
-    opts: ['6² = 12', '5² = 25', '2³ = 8', '10² = 100'],
-    correct: "To'g'ri. 6² = 6 × 6 = 36, 12 emas — bu darajani ko'paytirish bilan chalkashtirish.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Найди ошибку', title: 'Что неверно',
-    setup: 'Степень — это умножение, а не сложение.',
-    ask: 'Какое равенство НЕВЕРНО?',
-    opts: ['6² = 12', '5² = 25', '2³ = 8', '10² = 100'],
-    correct: 'Верно. 6² = 6 × 6 = 36, а не 12 — это путаница степени с умножением.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d8-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
 
+const D05_ROWS = [
+  { txt: '5² = 25', a: 5, e: 2, real: 25, ok: true },
+  { txt: '6² = 12', a: 6, e: 2, real: 36, ok: false },
+  { txt: '2³ = 8', a: 2, e: 3, real: 8, ok: true },
+  { txt: '10² = 100', a: 10, e: 2, real: 100, ok: true },
+];
+const D05_DATA = { correct: 1 };
+const D05_T = {
+  uz: {
+    eyebrow: 'Xatoni top', setup: "Aziza to'rt daraja hisobladi. Bittasida xato bor.",
+    ask: 'Qaysi qatorda XATO bor?',
+    correct: "To'g'ri. 6² = 6 × 6 = 36, 12 emas. 12 — bu 6+6, daraja emas.",
+    wrong: "Maslahat: har qatorni alohida tekshiring. Daraja — ko'paytirish, qo'shish emas. Biror qatorda ko'paytirish o'rniga qo'shib yuborilmaganmi?",
+    rule: "Daraja — ko'paytirish, qo'shish emas: a² = a × a, a + a emas.",
+  },
+  ru: {
+    eyebrow: 'Найдите ошибку', setup: 'Азиза посчитала четыре степени. В одной ошибка.',
+    ask: 'В какой строке ОШИБКА?',
+    correct: 'Верно. 6² = 6 × 6 = 36, а не 12. 12 — это 6+6, не степень.',
+    wrong: 'Подсказка: проверьте каждую строку отдельно. Степень — умножение, не сложение. Не сложили ли где-то вместо умножения?',
+    rule: 'Степень — умножение, не сложение: a² = a × a, а не a + a.',
+  },
+};
 export default function D08_05(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D05_T[lang] || D05_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
+  const [reveal, setReveal] = useState(false);
+  const timer = useRef(null);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  useEffect(() => { if (initialAnswer?.studentAnswer?.idx != null) { setPicked(initialAnswer.studentAnswer.idx); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); setReveal(!!initialAnswer.correct); } } }, [initialAnswer]);
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
+    const correct = picked === D05_DATA.correct;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) timer.current = setTimeout(() => setReveal(true), 400);
+    onSubmit?.({ questionText: t.ask, options: D05_ROWS.map((r, i) => ({ id: String(i), label: r.txt })), studentAnswer: { idx: picked }, correctAnswer: { idx: 1 }, correct, meta: { tag: 'find_wrong_power', level: '🟡' } });
+  }, [picked, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const rowStyle = (i) => {
+    const on = picked === i, show = checked && on;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
+    if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+    if (show) { const ok = i === D05_DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
+    return { display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 17, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, ...S.mono, minHeight: 48 };
   };
-
   return (
-    <div className="pq pq05">
+    <div style={S.wrap}>
       <style>{`
-        .pq05 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq05 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq05 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 16px; color:#374151; }
-        .pq05 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq05 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq05 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq05 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq05 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq05 .a2 { animation-delay:.08s; }
-        .pq05 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d8-pop { animation: d8pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d8pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        .d8-shake { animation: d8shake .5s ease-in-out 2; }
+        @keyframes d8shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        @media (prefers-reduced-motion: reduce) { .d8-pop, .d8-shake { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <p style={S.ask}>{t.ask}</p>
+      {D05_ROWS.map((r, i) => (
+        <button key={i} type="button" className={reveal && !r.ok ? "d8-shake" : undefined} style={rowStyle(i)} disabled={isReview || checked} onClick={() => setPicked(i)}>
+          <span>{r.txt}</span>
+          {reveal && !r.ok && <span className="d8-pop" style={{ fontSize: 12.5, fontWeight: 800, color: '#c0392b', background: '#fdecec', padding: '3px 8px', borderRadius: 8 }}>{r.a} × {r.a} = {r.real}</span>}
+          {reveal && r.ok && <span className="d8-pop" style={{ fontSize: 15, color: '#1a7f43' }}>✓</span>}
+        </button>
       ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

@@ -1,102 +1,101 @@
-// Dars11 · Amaliyot 10 — Yig'indini bo'lish · 🔴 · Sardor · tag: sum_div_rule
-// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q. Faqat react importi.
+// Dars11 · Amaliyot 10 — Yig'indini bo'lish · 🔴 · sum_div_rule (kiritish + qadam + vau)
+// (15 + 9 + 6) : 3 = 5 + 3 + 2 = 10. Bosqichli.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'sum_div_rule', level: '🔴' };
-const T = {
-  uz: {
-    eyebrow: 'Qulay usul', title: 'Hisobla',
-    setup: "Yig'indini songa bo'lishda har qo'shiluvchini alohida bo'lib, bo'linmalarni qo'shamiz.",
-    ask: "(15 + 9 + 6) : 3 ni qulay usulda hisoblang.",
-    opts: ["10", "30", "90", "5"],
-    correct: "To'g'ri. 15:3 + 9:3 + 6:3 = 5 + 3 + 2 = 10.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Удобный способ', title: 'Вычисли',
-    setup: 'Чтобы разделить сумму на число, делим каждое слагаемое и складываем частные.',
-    ask: 'Вычислите (15 + 9 + 6) : 3 удобным способом.',
-    opts: ['10', '30', '90', '5'],
-    correct: 'Верно. 15:3 + 9:3 + 6:3 = 5 + 3 + 2 = 10.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d11-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
 
+const D10_ANS = 10;
+const D10_T = {
+  uz: {
+    eyebrow: "Yig'indi bo'lish", setup: "Aziza (15 + 9 + 6) : 3 ni hisoblamoqchi.",
+    ask: '(15 + 9 + 6) : 3 nechaga teng?', label: 'Javobni yozing:',
+    correct: "To'g'ri. 15:3 + 9:3 + 6:3 = 5 + 3 + 2 = 10.",
+    wrong: "Maslahat: yig'indini songa bo'lganda har bir qo'shiluvchi bilan nima qilsa bo'ladi? Qavs ichini alohida ko'rib chiq.",
+    rule: "Yig'indini songa bo'lish: har qo'shiluvchini bo'lib, natijalarni qo'shing.",
+  },
+  ru: {
+    eyebrow: 'Деление суммы', setup: 'Азиза хочет вычислить (15 + 9 + 6) : 3.',
+    ask: 'Чему равно (15 + 9 + 6) : 3?', label: 'Запишите ответ:',
+    correct: 'Верно. 15:3 + 9:3 + 6:3 = 5 + 3 + 2 = 10.',
+    wrong: 'Подсказка: при делении суммы на число что можно сделать с каждым слагаемым? Рассмотри скобку по частям.',
+    rule: 'Деление суммы на число: раздели каждое слагаемое, результаты сложи.',
+  },
+};
 export default function D11_10(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D10_T[lang] || D10_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [val, setVal] = useState('');
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
+  const [step, setStep] = useState(0); // 1: 5+3+2  2: =10 salyut
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.value != null) { setVal(String(sa.value)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setStep(2); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(/^\d+$/.test(val.trim()) && !checked); }, [val, checked, onReady]);
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
-  };
-
+    const correct = parseInt(val, 10) === D10_ANS;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) [[1, 500], [2, 1500]].forEach(([v, ms]) => timers.current.push(setTimeout(() => setStep(v), ms)));
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D10_ANS }, correct, meta: { tag: 'sum_div_rule', level: '🔴' } });
+  }, [val, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const conf = ['#f59e0b', '#2563eb', '#10b981', '#ec4899', '#7c3aed'];
   return (
-    <div className="pq pq10">
+    <div style={S.wrap}>
       <style>{`
-        .pq10 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq10 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq10 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq10 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq10 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq10 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq10 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq10 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq10 .a2 { animation-delay:.08s; }
-        .pq10 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d11-pop { animation: d11pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d11pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        .d11-confetti { animation: d11conf .9s ease-out both; }
+        @keyframes d11conf { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); } }
+        @media (prefers-reduced-motion: reduce) { .d11-pop, .d11-confetti { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <div style={{ textAlign: 'center', margin: '12px 0 4px', ...S.mono, fontSize: 24, fontWeight: 800, color: '#2563eb' }}>(15 + 9 + 6) : 3</div>
+      {/* bosqichli yechim */}
+      <div style={{ position: 'relative', minHeight: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        {step >= 1 && <div className="d11-pop" style={{ display: 'flex', gap: 8, ...S.mono, fontSize: 14, fontWeight: 800 }}>
+          <span style={{ color: '#0ea5e9', background: '#f0f9ff', padding: '4px 8px', borderRadius: 8 }}>15:3=5</span>
+          <span style={{ color: '#8b5cf6', background: '#faf5ff', padding: '4px 8px', borderRadius: 8 }}>9:3=3</span>
+          <span style={{ color: '#f97316', background: '#fff7ed', padding: '4px 8px', borderRadius: 8 }}>6:3=2</span>
+        </div>}
+        {step >= 2 && <div className="d11-pop" style={{ ...S.mono, fontSize: 17, fontWeight: 800, color: '#1a7f43', position: 'relative' }}>5 + 3 + 2 = 10
+          <div style={{ position: 'absolute', right: -14, top: -6 }}>{Array.from({ length: 10 }).map((_, i) => { const ang = (i / 10) * Math.PI * 2; return <span key={i} className="d11-confetti" style={{ position: 'absolute', width: 6, height: 6, borderRadius: 2, background: conf[i % conf.length], '--dx': Math.cos(ang) * 34 + 'px', '--dy': Math.sin(ang) * 26 + 'px', animationDelay: (i * 0.02) + 's' }} />; })}</div>
+        </div>}
+      </div>
+      <p style={{ ...S.ask, fontSize: 16, margin: '10px 0 6px' }}>{t.ask}</p>
+      <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 3))} disabled={isReview || checked} inputMode="numeric" placeholder="?"
+          style={{ width: 130, height: 56, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, color: '#1f2430', fontFamily: 'inherit', background: '#fff', letterSpacing: 2 }} />
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

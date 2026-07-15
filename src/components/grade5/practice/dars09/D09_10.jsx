@@ -1,102 +1,103 @@
-// Dars09 · Amaliyot 10 — O'qilmagan betlar · 🔴 · Nilufar · tag: book_remaining
-// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q. Faqat react importi.
+// Dars09 · Amaliyot 10 — Qolgan kitob · 🔴 · book_remaining (kiritish + vau)
+// 320 bet, 3/8 o'qildi. Necha bet O'QILMAGAN? 120 o'qildi, 320-120=200.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const TARGET = 200;
-const DATA = { tag: 'book_remaining', level: '🔴' };
-const T = {
-  uz: {
-    eyebrow: 'Hayotda', title: 'Necha bet qoldi',
-    setup: "Aziza 320 betlik kitobning 3/8 qismini o'qidi. Kitobning necha beti hali O'QILMAGAN?",
-    label: 'Javobni yozing (bet):',
-    live: 'Sizning javobingiz:',
-    correct: "To'g'ri. O'qilgan: 320 : 8 × 3 = 120; qolgan: 320 − 120 = 200 bet.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'В жизни', title: 'Сколько не прочитано',
-    setup: 'Азиза прочитала 3/8 книги в 320 страниц. Сколько страниц ещё НЕ прочитано?',
-    label: 'Запишите ответ (стр.):',
-    live: 'Ваш ответ:',
-    correct: 'Верно. Прочитано: 320 : 8 × 3 = 120; осталось: 320 − 120 = 200 страниц.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
-const groupSpaces = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d9-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+
+const D10_TOTAL = 320, D10_NUM = 3, D10_DEN = 8, D10_READ = 120, D10_ANS = 200;
+const D10_T = {
+  uz: {
+    eyebrow: 'Qolgan kitob', setup: "Aziza 320 betlik kitobning 3/8 qismini o'qidi.",
+    ask: "Kitobning necha beti hali O'QILMAGAN?", label: 'Javobni yozing:',
+    correct: "To'g'ri. O'qilgan: 320 : 8 × 3 = 120; qolgan: 320 − 120 = 200 bet.",
+    wrong: "Maslahat: o'qilmagan betlar — butundan o'qilgan qismni ayirgandagi qoldiq. O'qilgan qism kasr bilan berilgan.",
+    rule: "Qolgan qism = butun − olingan qism. Avval kasr qismini hisoblang.",
+  },
+  ru: {
+    eyebrow: 'Осталось книги', setup: 'Азиза прочитала 3/8 книги в 320 страниц.',
+    ask: 'Сколько страниц ещё НЕ ПРОЧИТАНО?', label: 'Запишите ответ:',
+    correct: 'Верно. Прочитано: 320 : 8 × 3 = 120; осталось: 320 − 120 = 200 страниц.',
+    wrong: 'Подсказка: непрочитанные страницы — это остаток после вычитания прочитанного из целого. Прочитанную часть задаёт дробь.',
+    rule: 'Оставшаяся часть = целое − взятая часть. Сначала посчитай долю.',
+  },
+};
 export default function D09_10(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D10_T[lang] || D10_T.uz;
   const isReview = mode === 'review';
   const [val, setVal] = useState('');
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.value != null) {
-      setVal(String(initialAnswer.studentAnswer.value));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(val.trim() !== '' && !checked); }, [val, checked, onReady]);
-
+  const [ph, setPh] = useState(0); // 1 o'qilgan bo'yaladi · 2 qolgan · 3 salyut
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.value != null) { setVal(String(sa.value)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setPh(3); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(/^\d+$/.test(val.trim()) && !checked); }, [val, checked, onReady]);
   const check = useCallback(() => {
-    const v = parseInt(cleanInt(val) || '-1', 10);
-    const correct = v === TARGET;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.setup, options: [],
-      studentAnswer: { value: v }, correctAnswer: { value: TARGET },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [val, playCorrect, playWrong, onSubmit, t.setup]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const preview = cleanInt(val) ? groupSpaces(cleanInt(val)) : '—';
+    const correct = parseInt(val, 10) === D10_ANS;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) [[1, 700], [2, 2100], [3, 3300]].forEach(([v, ms]) => timers.current.push(setTimeout(() => setPh(v), ms)));
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D10_ANS }, correct, meta: { tag: 'book_remaining', level: '🔴' } });
+  }, [val, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const conf = ['#f59e0b', '#2563eb', '#10b981', '#ec4899', '#7c3aed'];
   return (
-    <div className="pq pq10">
+    <div style={S.wrap}>
       <style>{`
-        .pq10 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq10 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq10 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 14px; color:#374151; }
-        .pq10 .pq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
-        .pq10 input.pq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq10 input.pq-input:focus { border-color:#5b8def; background:#fff; }
-        .pq10 input.pq-input:disabled { opacity:.85; }
-        .pq10 .pq-live { text-align:center; margin:12px 0 2px; }
-        .pq10 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
-        .pq10 .pq-live-num { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-        .pq10 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq10 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq10 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq10 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq10 .a2 { animation-delay:.08s; }
-        .pq10 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d9-pop { animation: d9pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d9pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        .d9-confetti { animation: d9conf .9s ease-out both; }
+        @keyframes d9conf { 0% { opacity: 1; transform: translate(-50%, -50%); } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); } }
+        @media (prefers-reduced-motion: reduce) { .d9-pop, .d9-confetti { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <label className="pq-label a a3" htmlFor="pq10-in">{t.label}</label>
-      <input id="pq10-in" className="pq-input" value={val} onChange={(e) => setVal(cleanInt(e.target.value))} inputMode="numeric" pattern="[0-9]*" disabled={isReview || checked} placeholder="0" />
-      <div className="pq-live">
-        <div className="pq-live-lbl">{t.live}</div>
-        <div className="pq-live-num" style={{ color: checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#1f2430' }}>{preview}</div>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      {/* 8 ulushli polosa: 3 o'qilgan (ph>=1), 5 qolgan (ph>=2 yashil urg'u) */}
+      <div style={{ display: 'flex', gap: 3, justifyContent: 'center', margin: '10px 0', position: 'relative' }}>
+        {Array.from({ length: D10_DEN }).map((_, i) => {
+          const isRead = i < D10_NUM;
+          let bg = '#e5e7eb', bd2 = '#d1d5db';
+          if (isRead && ph >= 1) { bg = '#fbcfe8'; bd2 = '#f472b6'; }
+          if (!isRead && ph >= 2) { bg = '#1a7f43'; bd2 = '#166534'; }
+          return <div key={i} className={(!isRead && ph >= 2) ? 'd9-pop' : undefined} style={{ width: 34, height: 46, borderRadius: 5, background: bg, border: '1.5px solid ' + bd2, transition: 'background .7s ease' }} />;
+        })}
+        {ph >= 3 && <div style={{ position: 'absolute', left: '50%', top: '50%' }}>{Array.from({ length: 12 }).map((_, i) => { const ang = (i / 12) * Math.PI * 2; return <span key={i} className="d9-confetti" style={{ position: 'absolute', width: 7, height: 7, borderRadius: 2, background: conf[i % conf.length], '--dx': Math.cos(ang) * 55 + 'px', '--dy': Math.sin(ang) * 32 + 'px', animationDelay: (i * 0.02) + 's' }} />; })}</div>}
       </div>
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
-        </div>
-      )}
+      {ph >= 2 && <div className="d9-pop" style={{ textAlign: 'center', fontSize: 12.5, color: '#94a3b8', fontWeight: 700, marginBottom: 4 }}>{lang === 'uz' ? "Pushti — o'qilgan · yashil — qolgan" : 'Розовое — прочитано · зелёное — осталось'}</div>}
+      {ph >= 2 && <div className="d9-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 15, fontWeight: 800, color: '#1a7f43', marginBottom: 4 }}>320 − 120 = 200</div>}
+      <p style={{ ...S.ask, fontSize: 16, margin: '6px 0' }}>{t.ask}</p>
+      <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 4))} disabled={isReview || checked} inputMode="numeric" placeholder="?"
+          style={{ width: 150, height: 56, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, color: '#1f2430', fontFamily: 'inherit', background: '#fff', letterSpacing: 2 }} />
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

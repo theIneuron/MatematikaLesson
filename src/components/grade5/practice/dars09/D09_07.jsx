@@ -1,102 +1,114 @@
-// Dars09 · Amaliyot 07 — Soatning qismi · 🔴 · Bekzod · tag: time_fraction
-// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q. Faqat react importi.
+// Dars09 · Amaliyot 07 — Vaqt kasri · 🔴 · time_fraction (soat + kiritish)
+// Soatning 3/4 qismi = necha daqiqa? 60:4=15, 15×3=45. Soat vizuali.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const TARGET = 45;
-const DATA = { tag: 'time_fraction', level: '🔴' };
-const T = {
-  uz: {
-    eyebrow: 'Vaqt', title: 'Necha daqiqa',
-    setup: "Bir soatda 60 daqiqa bor. Soatning 3/4 qismi necha daqiqa?",
-    label: 'Javobni yozing (daqiqa):',
-    live: 'Sizning javobingiz:',
-    correct: "To'g'ri. 60 : 4 = 15; 15 × 3 = 45 daqiqa.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Время', title: 'Сколько минут',
-    setup: 'В часе 60 минут. Сколько минут составляет 3/4 часа?',
-    label: 'Запишите ответ (мин.):',
-    live: 'Ваш ответ:',
-    correct: 'Верно. 60 : 4 = 15; 15 × 3 = 45 минут.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
-const groupSpaces = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d9-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+
+const D07_TOTAL = 60, D07_NUM = 3, D07_DEN = 4, D07_ANS = 45;
+const D07_T = {
+  uz: {
+    eyebrow: 'Vaqt kasri', setup: "Bir soatda 60 daqiqa bor.",
+    ask: 'Soatning 3/4 qismi necha daqiqa?', label: 'Javobni yozing:',
+    correct: "To'g'ri. 60 : 4 = 15; 15 × 3 = 45 daqiqa.",
+    wrong: "Maslahat: bir soat teng ulushlarga bo'linadi — bitta ulush necha daqiqa? Surat nechta ulush kerakligini aytadi.",
+    rule: "Vaqtning kasr qismi: 60 daqiqani maxrajga bo'ling, suratga ko'paytiring.",
+  },
+  ru: {
+    eyebrow: 'Дробь времени', setup: 'В одном часе 60 минут.',
+    ask: 'Сколько минут в 3/4 часа?', label: 'Запишите ответ:',
+    correct: 'Верно. 60 : 4 = 15; 15 × 3 = 45 минут.',
+    wrong: 'Подсказка: час делится на равные доли — сколько минут в одной доле? Числитель говорит, сколько долей нужно.',
+    rule: 'Дробь времени: 60 минут делим на знаменатель, умножаем на числитель.',
+  },
+};
 export default function D09_07(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D07_T[lang] || D07_T.uz;
   const isReview = mode === 'review';
   const [val, setVal] = useState('');
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.value != null) {
-      setVal(String(initialAnswer.studentAnswer.value));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(val.trim() !== '' && !checked); }, [val, checked, onReady]);
-
+  const [fill, setFill] = useState(0); // 0..3 ulush yoritiladi
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.value != null) { setVal(String(sa.value)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setFill(3); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(/^\d+$/.test(val.trim()) && !checked); }, [val, checked, onReady]);
   const check = useCallback(() => {
-    const v = parseInt(cleanInt(val) || '-1', 10);
-    const correct = v === TARGET;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.setup, options: [],
-      studentAnswer: { value: v }, correctAnswer: { value: TARGET },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [val, playCorrect, playWrong, onSubmit, t.setup]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const preview = cleanInt(val) ? groupSpaces(cleanInt(val)) : '—';
+    const correct = parseInt(val, 10) === D07_ANS;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) [0, 1, 2].forEach((k) => timers.current.push(setTimeout(() => setFill(k + 1), 400 + k * 450)));
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D07_ANS }, correct, meta: { tag: 'time_fraction', level: '🔴' } });
+  }, [val, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  // soat: 4 chorak, har biri 90°. fill tasi bo'yaladi
+  const R = 65, C = 75;
+  const quarters = [0, 1, 2, 3].map((k) => {
+    const a0 = k * (Math.PI / 2) - Math.PI / 2;
+    const a1 = (k + 1) * (Math.PI / 2) - Math.PI / 2;
+    const x0 = C + R * Math.cos(a0), y0 = C + R * Math.sin(a0);
+    const x1 = C + R * Math.cos(a1), y1 = C + R * Math.sin(a1);
+    return { d: `M${C},${C} L${x0},${y0} A${R},${R} 0 0 1 ${x1},${y1} Z`, on: k < fill };
+  });
   return (
-    <div className="pq pq07">
+    <div style={S.wrap}>
       <style>{`
-        .pq07 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq07 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq07 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 14px; color:#374151; }
-        .pq07 .pq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
-        .pq07 input.pq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq07 input.pq-input:focus { border-color:#5b8def; background:#fff; }
-        .pq07 input.pq-input:disabled { opacity:.85; }
-        .pq07 .pq-live { text-align:center; margin:12px 0 2px; }
-        .pq07 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
-        .pq07 .pq-live-num { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-        .pq07 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq07 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq07 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq07 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq07 .a2 { animation-delay:.08s; }
-        .pq07 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d9-pop { animation: d9pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d9pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d9-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <label className="pq-label a a3" htmlFor="pq07-in">{t.label}</label>
-      <input id="pq07-in" className="pq-input" value={val} onChange={(e) => setVal(cleanInt(e.target.value))} inputMode="numeric" pattern="[0-9]*" disabled={isReview || checked} placeholder="0" />
-      <div className="pq-live">
-        <div className="pq-live-lbl">{t.live}</div>
-        <div className="pq-live-num" style={{ color: checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#1f2430' }}>{preview}</div>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          {/* to'lgan choraklar (och ko'k urg'u) */}
+          {quarters.map((q, k) => <path key={k} d={q.d} fill={q.on ? '#bfdbfe' : '#f8fafc'} stroke="#fff" strokeWidth="2" style={{ transition: 'fill .4s' }} />)}
+          {/* soat gardishi */}
+          <circle cx="75" cy="75" r="65" fill="none" stroke="#1e3a8a" strokeWidth="4" />
+          {/* daqiqa bo'linmalari */}
+          {Array.from({ length: 12 }).map((_, k) => { const a = k * (Math.PI / 6) - Math.PI / 2; const big = k % 3 === 0; const r1 = big ? 55 : 59; const r2 = 63; return <line key={k} x1={75 + r1 * Math.cos(a)} y1={75 + r1 * Math.sin(a)} x2={75 + r2 * Math.cos(a)} y2={75 + r2 * Math.sin(a)} stroke="#1e3a8a" strokeWidth={big ? 3 : 1.5} strokeLinecap="round" />; })}
+          {/* 12,3,6,9 raqamlari */}
+          {[[75, 26, '12'], [124, 80, '3'], [75, 130, '6'], [26, 80, '9']].map(([x, y, n]) => <text key={n} x={x} y={y} fontSize="15" fontWeight="800" fill="#1e3a8a" textAnchor="middle" fontFamily="'Manrope', sans-serif">{n}</text>)}
+          {/* strelkalar: 3/4 = 45 daqiqa → daqiqa strelkasi 9 da (270°) */}
+          <line x1="75" y1="75" x2="75" y2="42" stroke="#1f2430" strokeWidth="4" strokeLinecap="round" />
+          {fill >= 3 && <line x1="75" y1="75" x2="46" y2="75" stroke="#dc2626" strokeWidth="3.5" strokeLinecap="round" style={{ transition: 'all .5s' }} />}
+          {fill < 3 && <line x1="75" y1="75" x2="100" y2="63" stroke="#dc2626" strokeWidth="3.5" strokeLinecap="round" />}
+          <circle cx="75" cy="75" r="5" fill="#1f2430" />
+        </svg>
       </div>
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
-        </div>
-      )}
+      {fill >= 3 && <div className="d9-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 15, fontWeight: 800, color: '#2563eb', marginBottom: 4 }}>60 : 4 = 15 · 15 × 3 = 45</div>}
+      <p style={{ ...S.ask, fontSize: 16, margin: '6px 0' }}>{t.ask}</p>
+      <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 3))} disabled={isReview || checked} inputMode="numeric" placeholder="?"
+          style={{ width: 140, height: 56, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, color: '#1f2430', fontFamily: 'inherit', background: '#fff', letterSpacing: 2 }} />
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

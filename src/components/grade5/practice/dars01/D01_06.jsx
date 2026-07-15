@@ -9,7 +9,7 @@ const T = {
     ask: 'Bir millionda nechta ming bor?',
     opts: ['1000', '100', '10000', '100000'],
     correct: "To'g'ri. 1 000 000 = 1000 × 1000, demak millionda 1000 ta ming bor.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
+    wrongMsg: "Maslahat: ming × ming nechaga teng? Yoki: millionda nechta nol bor, mingda nechta?",
   },
   ru: {
     eyebrow: 'Вокруг нас', title: 'Сколько тысяч',
@@ -17,7 +17,7 @@ const T = {
     ask: 'Сколько тысяч в одном миллионе?',
     opts: ['1000', '100', '10000', '100000'],
     correct: 'Верно. 1 000 000 = 1000 × 1000, значит в миллионе 1000 тысяч.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
+    wrongMsg: 'Подсказка: чему равно тысяча × тысяча? Или: сколько нулей в миллионе и сколько в тысяче?',
   },
 };
 
@@ -73,7 +73,7 @@ export default function D01_06(props) {
         .pq06 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
         .pq06 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
         .pq06 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq06 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
+        .pq06 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq06 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .pq06 .pq-fb.no { background:#fdecec; color:#c0392b; }
         @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }

@@ -1,104 +1,140 @@
-// Dars02 · Amaliyot 05 — Minglar xonasigacha yaxlitlash · 🟡 · Sardor · tag: round_thousand
+// Dars02 · Amaliyot 05 — Minglargacha yaxlitlash · 🟡 · Sardor · tag: round_thousand
+// To'g'ri javobdan keyin 1 120 738 hisoblagich kabi 1 121 000 ga aylanadi:
+// raqamlar o'ngdan chapga, ketma-ket, sekin dumalaydi.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { number: 1120738, correct: 0, tag: 'round_thousand', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Yaxlitlash', title: 'Minglargacha',
-    setup: 'Sardor 1 120 738 sonini yaxlitlamoqchi.',
-    ask: '1 120 738 ni minglar xonasigacha yaxlitlang.',
-    opts: ['1 121 000', '1 120 000', '1 200 000', '1 121 738'],
-    correct: "To'g'ri. Minglardan keyingi raqam 7 (5 dan katta), shuning uchun minglarga 1 qo'shiladi: 1 120 738 ≈ 1 121 000.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Округление', title: 'До тысяч',
-    setup: 'Сардор округляет число 1 120 738.',
-    ask: 'Округлите 1 120 738 до разряда тысяч.',
-    opts: ['1 121 000', '1 120 000', '1 200 000', '1 121 738'],
-    correct: 'Верно. После тысяч стоит 7 (больше 5), поэтому тысячи увеличиваются на 1: 1 120 738 ≈ 1 121 000.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const groupSpaces = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+};
+const HFB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useRegister(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+
+const D05_DIGITS = ['1', '1', '2', '0', '7', '3', '8'];   // 1 120 738
+// bo'shliq — orqadan uchtadan sanab: 1 | 120 | 738. Indeks 0 va 3 dan keyin.
+const D05_GAPS = [0, 3];
+// o'zgarish tartibi: o'ngdan chapga. [indeks, yangi qiymat]
+const D05_ROLL = [[6, 0], [5, 0], [4, 0], [3, 1]];
+const D05_STEP = 480, D05_DUR = 900, D05_H = 42;
+
+function D05_Digit({ value, target, delay, rolling }) {
+  // 0..9 va yana 0 — oldinga dumalab nolga o'tish uchun
+  const to = rolling ? (target >= value ? target : target + 10) : value;
+  return (
+    <span style={{ display: 'inline-block', width: 24, height: D05_H, overflow: 'hidden', verticalAlign: 'top' }}>
+      <span style={{
+        display: 'block',
+        transform: `translateY(${-to * D05_H}px)`,
+        transition: `transform ${D05_DUR}ms cubic-bezier(.4,0,.2,1) ${delay}ms`,
+      }}>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((d, i) => (
+          <span key={i} style={{ display: 'block', height: D05_H, lineHeight: D05_H + 'px', textAlign: 'center' }}>{d}</span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+const D05_T = {
+  uz: {
+    eyebrow: 'Yaxlitlash',
+    setup: 'Sardor 1 120 738 sonini yaxlitlamoqchi.',
+    ask: '1 120 738 ni minglar xonasigacha yaxlitlang.',
+    opts: ['1 121 000', '1 120 000', '1 200 000', '1 121 738'],
+    correct: "To'g'ri. Minglardan keyingi raqam 7 (5 dan katta), shuning uchun minglarga bir qo'shiladi.",
+    wrongMsg: "Maslahat: yaxlitlangan son oshadimi yoki o'zgarishsiz qoladimi — buni minglardan keyingi raqam belgilaydi. U yetarli kattami?",
+  },
+  ru: {
+    eyebrow: 'Округление',
+    setup: 'Сардор округляет число 1 120 738.',
+    ask: 'Округлите 1 120 738 до разряда тысяч.',
+    opts: ['1 121 000', '1 120 000', '1 200 000', '1 121 738'],
+    correct: 'Верно. После тысяч стоит 7 (больше 5), поэтому тысячи увеличиваются на единицу.',
+    wrongMsg: 'Подсказка: увеличится ли округлённое число или останется прежним — решает цифра после тысяч. Достаточно ли она велика?',
+  },
+};
 
 export default function D02_05(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D05_T[lang] || D05_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
+  const [roll, setRoll] = useState(false);
+  const timer = useRef(null);
+  useEffect(() => () => clearTimeout(timer.current), []);
 
   useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
+    const sa = initialAnswer?.studentAnswer;
+    if (sa?.idx != null) {
+      setPicked(sa.idx);
+      if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); setRoll(!!initialAnswer.correct); }
     }
   }, [initialAnswer]);
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
 
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
+    const correct = picked === 0;
+    setFb({ correct }); setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    if (correct) timer.current = setTimeout(() => setRoll(true), 500);
     onSubmit?.({
       questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level, number: DATA.number },
+      studentAnswer: { idx: picked, label: t.opts[picked] },
+      correctAnswer: { idx: 0, label: '1 121 000' },
+      correct, meta: { tag: 'round_thousand', level: '🟡' },
     });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
+  }, [picked, t, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const rollOf = (i) => D05_ROLL.findIndex(([idx]) => idx === i);
 
   const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
+    const on = picked === i, show = checked && on;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
+    if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+    if (show) { const ok = i === 0; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
+    return { flex: '1 1 45%', padding: '13px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer', fontFamily: 'inherit', minHeight: 48 };
   };
 
   return (
-    <div className="pq pq05">
-      <style>{`
-        .pq05 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq05 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq05 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq05 .pq-num { text-align:center; font-size:40px; font-weight:800; color:#2563eb; letter-spacing:.04em; font-variant-numeric:tabular-nums; margin:6px 0 18px; animation:pqReveal .6s cubic-bezier(.22,1,.36,1) both; animation-delay:.1s; }
-        .pq05 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq05 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq05 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq05 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq05 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq05 .a2 { animation-delay:.08s; }
-        .pq05 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.06);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <div className="pq-num">{groupSpaces(DATA.number)}</div>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
+    <div style={S.wrap}>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '18px 0 20px', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 30, fontWeight: 700, color: '#1f2430' }}>
+        {D05_DIGITS.map((d, i) => {
+          const r = rollOf(i);
+          const changing = roll && r >= 0;
+          return (
+            <React.Fragment key={i}>
+              <span style={{ color: changing ? '#2563eb' : '#1f2430', transition: 'color .5s ease' }}>
+                <D05_Digit value={Number(d)} target={r >= 0 ? D05_ROLL[r][1] : Number(d)} delay={r >= 0 ? r * D05_STEP : 0} rolling={roll && r >= 0} />
+              </span>
+              {D05_GAPS.includes(i) && <span style={{ width: 12, display: 'inline-block' }} />}
+            </React.Fragment>
+          );
+        })}
+      </div>
+
+      <p style={S.ask}>{t.ask}</p>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
+        {t.opts.map((o, i) => <button key={i} type="button" style={optStyle(i)} disabled={isReview || checked} onClick={() => setPicked(i)}>{o}</button>)}
+      </div>
+      {fb && <HFB ok={fb.correct} text={fb.correct ? t.correct : t.wrongMsg} />}
     </div>
   );
 }

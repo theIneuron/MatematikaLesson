@@ -1,102 +1,101 @@
-// Dars09 · Amaliyot 05 — Kitobning qismi · 🟡 · Madina · tag: part_of_book
-// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q. Faqat react importi.
+// Dars09 · Amaliyot 05 — Kitobning qismi · 🟡 · part_of_book (kiritish + qadam)
+// 320 betlik kitobning 3/8 qismi = necha bet? 320:8=40, 40×3=120. Bosqichli reveal.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const TARGET = 120;
-const DATA = { tag: 'part_of_book', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: 'Hayotda', title: 'Necha bet',
-    setup: "Aziza 320 betlik kitobning 3/8 qismini o'qidi. U necha bet o'qidi?",
-    label: 'Javobni yozing (bet):',
-    live: 'Sizning javobingiz:',
-    correct: "To'g'ri. 320 : 8 = 40; 40 × 3 = 120 bet.",
-    wrong: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'В жизни', title: 'Сколько страниц',
-    setup: 'Азиза прочитала 3/8 книги в 320 страниц. Сколько страниц она прочитала?',
-    label: 'Запишите ответ (стр.):',
-    live: 'Ваш ответ:',
-    correct: 'Верно. 320 : 8 = 40; 40 × 3 = 120 страниц.',
-    wrong: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
-const groupSpaces = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d9-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+
+const D05_TOTAL = 320, D05_NUM = 3, D05_DEN = 8, D05_ANS = 120;
+const D05_T = {
+  uz: {
+    eyebrow: 'Kitob qismi', setup: "Aziza 320 betlik kitobning 3/8 qismini o'qidi.",
+    ask: "Aziza necha bet o'qidi?", label: 'Javobni yozing:',
+    correct: "To'g'ri. 320 : 8 = 40 (bitta ulush); 40 × 3 = 120 bet.",
+    wrong: "Maslahat: butunning bitta ulushi qancha? Uni topish uchun qaysi amal kerak? Surat esa nechta ulush olinganini bildiradi.",
+    rule: "Butunning kasr qismi: butunni maxrajga bo'ling, natijani suratga ko'paytiring.",
+  },
+  ru: {
+    eyebrow: 'Часть книги', setup: 'Азиза прочитала 3/8 книги в 320 страниц.',
+    ask: 'Сколько страниц прочитала Азиза?', label: 'Запишите ответ:',
+    correct: 'Верно. 320 : 8 = 40 (одна доля); 40 × 3 = 120 страниц.',
+    wrong: 'Подсказка: сколько в одной доле целого? Каким действием её найти? А числитель показывает, сколько долей взято.',
+    rule: 'Часть целого: целое делим на знаменатель, результат умножаем на числитель.',
+  },
+};
 export default function D09_05(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D05_T[lang] || D05_T.uz;
   const isReview = mode === 'review';
   const [val, setVal] = useState('');
-  const [feedback, setFeedback] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.value != null) {
-      setVal(String(initialAnswer.studentAnswer.value));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(val.trim() !== '' && !checked); }, [val, checked, onReady]);
-
+  const [rev, setRev] = useState(0);
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.value != null) { setVal(String(sa.value)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setRev(2); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(/^\d+$/.test(val.trim()) && !checked); }, [val, checked, onReady]);
   const check = useCallback(() => {
-    const v = parseInt(cleanInt(val) || '-1', 10);
-    const correct = v === TARGET;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.setup, options: [],
-      studentAnswer: { value: v }, correctAnswer: { value: TARGET },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [val, playCorrect, playWrong, onSubmit, t.setup]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const preview = cleanInt(val) ? groupSpaces(cleanInt(val)) : '—';
+    const correct = parseInt(val, 10) === D05_ANS;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) [[1, 500], [2, 1300]].forEach(([v, ms]) => timers.current.push(setTimeout(() => setRev(v), ms)));
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D05_ANS }, correct, meta: { tag: 'part_of_book', level: '🟡' } });
+  }, [val, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
   return (
-    <div className="pq pq05">
+    <div style={S.wrap}>
       <style>{`
-        .pq05 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq05 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq05 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 14px; color:#374151; }
-        .pq05 .pq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
-        .pq05 input.pq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq05 input.pq-input:focus { border-color:#5b8def; background:#fff; }
-        .pq05 input.pq-input:disabled { opacity:.85; }
-        .pq05 .pq-live { text-align:center; margin:12px 0 2px; }
-        .pq05 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
-        .pq05 .pq-live-num { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-        .pq05 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq05 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq05 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq05 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq05 .a2 { animation-delay:.08s; }
-        .pq05 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d9-pop { animation: d9pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d9pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d9-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <label className="pq-label a a3" htmlFor="pq05-in">{t.label}</label>
-      <input id="pq05-in" className="pq-input" value={val} onChange={(e) => setVal(cleanInt(e.target.value))} inputMode="numeric" pattern="[0-9]*" disabled={isReview || checked} placeholder="0" />
-      <div className="pq-live">
-        <div className="pq-live-lbl">{t.live}</div>
-        <div className="pq-live-num" style={{ color: checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#1f2430' }}>{preview}</div>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      {/* 8 ulushli kitob polosasi, 3 bo'yalgan */}
+      <div style={{ display: 'flex', gap: 3, justifyContent: 'center', margin: '8px 0' }}>
+        {Array.from({ length: D05_DEN }).map((_, i) => (
+          <div key={i} style={{ width: 30, height: 40, borderRadius: 4, background: i < D05_NUM ? '#0f766e' : '#ccfbf1', border: '1.5px solid ' + (i < D05_NUM ? '#0f766e' : '#99f6e4'), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>{i < D05_NUM ? '📖' : ''}</div>
+        ))}
       </div>
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
+      <div style={{ textAlign: 'center', fontSize: 13, color: '#6b7280', fontWeight: 700 }}>{lang === 'uz' ? 'Jami 320 bet · 8 ulush' : 'Всего 320 стр. · 8 долей'}</div>
+      {/* bosqichli yechim */}
+      <div style={{ maxHeight: rev > 0 ? 90 : 0, opacity: rev > 0 ? 1 : 0, overflow: 'hidden', transition: 'max-height .5s ease, opacity .4s ease', margin: '4px 0' }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginTop: 8 }}>
+          {rev >= 1 && <span className="d9-pop" style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#2563eb', background: '#eff6ff', padding: '6px 11px', borderRadius: 10, border: '1.5px solid #bfdbfe' }}>320 : 8 = 40</span>}
+          {rev >= 2 && <span className="d9-pop" style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#1a7f43', background: '#e8f7ee', padding: '6px 11px', borderRadius: 10, border: '1.5px solid #a7f3d0' }}>40 × 3 = 120</span>}
         </div>
-      )}
+      </div>
+      <p style={{ ...S.ask, fontSize: 16, margin: '8px 0' }}>{t.ask}</p>
+      <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 4))} disabled={isReview || checked} inputMode="numeric" placeholder="?"
+          style={{ width: 150, height: 56, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, color: '#1f2430', fontFamily: 'inherit', background: '#fff', letterSpacing: 2 }} />
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

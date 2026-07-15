@@ -1,101 +1,100 @@
-// Dars08 · Amaliyot 01 — Kvadrat · 🟢 · Bekzod · tag: square_simple
+// Dars08 · Amaliyot 01 — Kvadrat to'ri · 🟢 · Nilufar · tag: square_simple
+// 5². 5×5 nuqta to'ri. Javob kiritish. To'g'ri javobdan keyin nuqtalar sanaladi.
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'square_simple', level: '🟢' };
-const T = {
-  uz: {
-    eyebrow: 'Daraja', title: 'Kvadrat',
-    setup: "Sonning kvadrati — uni o'ziga ko'paytirish.",
-    ask: '5² nechaga teng?',
-    opts: ['25', '10', '7', '32'],
-    correct: "To'g'ri. 5² = 5 × 5 = 25.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Степень', title: 'Квадрат',
-    setup: 'Квадрат числа — умножение его на само себя.',
-    ask: 'Чему равно 5²?',
-    opts: ['25', '10', '7', '32'],
-    correct: 'Верно. 5² = 5 × 5 = 25.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d8-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
+// daraja ko'rsatkichini yuqori indeks qilib chizish
+const Pow = ({ base, exp, size = 30, color = '#1f2430' }) => (
+  <span style={{ ...S.mono, fontWeight: 800, color }}>
+    <span style={{ fontSize: size }}>{base}</span><sup style={{ fontSize: size * 0.6 }}>{exp}</sup>
+  </span>
+);
 
+const D01_N = 5, D01_ANS = 25;
+const D01_T = {
+  uz: {
+    eyebrow: 'Kvadrat', setup: "Nilufar nuqtalarni kvadrat to'r shaklida terdi: 5 qator, har qatorda 5 ta.",
+    ask: "Bu 5² ga teng. 5² nechaga teng?", label: 'Javobni yozing:',
+    correct: "To'g'ri. 5² = 5 × 5 = 25. To'rdagi barcha nuqtalar 25 ta.",
+    wrong: "Maslahat: 5² — bu qo'shish (5+5) emas, ko'paytirish. Shu ikki amaldan qaysi biri kattaroq natija beradi?",
+    rule: "Sonning kvadrati — uni o'ziga bir marta ko'paytirish: a² = a × a.",
+  },
+  ru: {
+    eyebrow: 'Квадрат', setup: 'Нилуфар выложила точки квадратом: 5 рядов по 5 точек.',
+    ask: 'Это равно 5². Чему равно 5²?', label: 'Запишите ответ:',
+    correct: 'Верно. 5² = 5 × 5 = 25. Всего в сетке 25 точек.',
+    wrong: 'Подсказка: 5² — это не сложение (5+5), а умножение. Какое из этих действий даёт больший результат?',
+    rule: 'Квадрат числа — умножение его на себя: a² = a × a.',
+  },
+};
 export default function D08_01(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D01_T[lang] || D01_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [val, setVal] = useState('');
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
+  const [lit, setLit] = useState(0);
+  const timers = useRef([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.value != null) { setVal(String(sa.value)); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); if (initialAnswer.correct) setLit(25); } } }, [initialAnswer]);
+  useEffect(() => { onReady?.(/^\d+$/.test(val.trim()) && !checked); }, [val, checked, onReady]);
   const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
-  };
-
+    const correct = parseInt(val, 10) === D01_ANS;
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    if (correct) Array.from({ length: 25 }).forEach((_, k) => timers.current.push(setTimeout(() => setLit(k + 1), 300 + k * 55)));
+    onSubmit?.({ questionText: '5²', options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D01_ANS }, correct, meta: { tag: 'square_simple', level: '🟢' } });
+  }, [val, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
   return (
-    <div className="pq pq01">
+    <div style={S.wrap}>
       <style>{`
-        .pq01 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq01 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq01 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 16px; color:#374151; }
-        .pq01 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq01 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq01 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq01 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq01 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq01 .a2 { animation-delay:.08s; }
-        .pq01 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d8-pop { animation: d8pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d8pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d8-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 22px)', gap: 8, padding: 14, borderRadius: 16, background: '#f8fafc', border: '1.5px solid #e5e7eb' }}>
+          {Array.from({ length: 25 }).map((_, k) => (
+            <span key={k} className={lit > k ? 'd8-pop' : undefined} style={{ width: 22, height: 22, borderRadius: 999, background: lit > k ? '#2563eb' : '#c7d2e8', transition: 'background .2s' }} />
+          ))}
         </div>
-      )}
+      </div>
+      {lit >= 25 && <div className="d8-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 18, fontWeight: 800, color: '#2563eb', marginBottom: 6 }}>5 × 5 = 25</div>}
+      <div style={{ textAlign: 'center', margin: '6px 0 2px' }}><Pow base="5" exp="2" size={34} color="#1f2430" /></div>
+      <p style={{ ...S.ask, fontSize: 15, color: '#6b7280', fontWeight: 700, textAlign: 'center', margin: '4px 0 8px' }}>{t.label}</p>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 3))} disabled={isReview || checked} inputMode="numeric" placeholder="?"
+          style={{ width: 130, height: 56, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, color: '#1f2430', fontFamily: 'inherit', background: '#fff', letterSpacing: 2 }} />
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }

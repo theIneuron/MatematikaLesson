@@ -1,101 +1,120 @@
-// Dars10 · Amaliyot 04 — Noto'g'ri kasr nuqtasi · 🟡 · Nilufar · tag: read_improper
+// Dars10 · Amaliyot 04 — Kasrni moslash · 🟡 · label_axis (o'qqa kartalarni joylash)
+// Son o'qi 0-1, 6 bo'lak. 3 nuqta ostida bo'sh katak. Pastda 6 karta (3 to'g'ri).
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
-const DATA = { correct: 0, tag: 'read_improper', level: '🟡' };
-const T = {
-  uz: {
-    eyebrow: "Son o'qi", title: 'Qaysi kasr',
-    setup: "Son o'qida 0 bilan 2 oralig'i yarim ulushlarga bo'lingan. Nuqta 1 dan keyingi birinchi yarim ulushda turibdi.",
-    ask: "Nuqta qaysi kasrni ko'rsatadi?",
-    opts: ['3/2', '2/3', '1/2', '3/4'],
-    correct: "To'g'ri. 3 ta yarim ulush — bu 3/2, ya'ni 1 butun va 1/2.",
-    wrongMsg: "Hali to'g'ri emas. Yana bir bor o'ylab ko'ring.",
-  },
-  ru: {
-    eyebrow: 'Числовая прямая', title: 'Какая дробь',
-    setup: 'На прямой отрезок от 0 до 2 разделён на половинки. Точка стоит на первой половинке после 1.',
-    ask: 'Какую дробь показывает точка?',
-    opts: ['3/2', '2/3', '1/2', '3/4'],
-    correct: 'Верно. Три половинки — это 3/2, то есть 1 целая и 1/2.',
-    wrongMsg: 'Пока неверно. Подумайте ещё раз.',
-  },
-};
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 16, padding: '13px 15px', borderRadius: 14, fontSize: 15, lineHeight: 1.45, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="d10-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#faf5ff', border: '1.5px solid #e9d5ff', color: '#7c3aed' }}>
+    <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+}
 
+const D04_DEN = 6;
+const D04_SLOTS = [2, 3, 5]; // qaysi ulushlarga nuqta qo'yilgan (2/6, 3/6, 5/6)
+const D04_CARDS = ['2/6', '3/6', '5/6', '4/6', '1/6', '6/6']; // 3 to'g'ri + 3 chalg'ituvchi
+const D04_T = {
+  uz: {
+    eyebrow: 'Kasrni moslash', setup: "Son o'qi 0 dan 1 gacha 6 teng ulushga bo'lingan. Uch nuqta belgilangan.",
+    ask: "Har bir nuqta ostidagi bo'sh katakka to'g'ri kasrni joylang:",
+    correct: "To'g'ri. Nuqtalar 2/6, 3/6 va 5/6 da turibdi — 0 dan sanaganda nechinchi ulush.",
+    wrong: "Maslahat: har nuqta uchun 0 dan nechta ulush borligini sanang. Maxraj hamma joyda 6.",
+    rule: "Nuqta kasri = 0 dan nuqtagacha ulushlar / jami ulushlar (6).",
+  },
+  ru: {
+    eyebrow: 'Соотнеси дробь', setup: 'Ось от 0 до 1 разделена на 6 равных долей. Отмечены три точки.',
+    ask: 'Поместите верную дробь в пустую клетку под каждой точкой:',
+    correct: 'Верно. Точки стоят на 2/6, 3/6 и 5/6 — сколько долей от 0.',
+    wrong: 'Подсказка: для каждой точки сосчитайте доли от 0. Знаменатель везде 6.',
+    rule: 'Дробь точки = доли от 0 до точки / всего долей (6).',
+  },
+};
 export default function D10_04(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
+  const t = D04_T[lang] || D04_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [slots, setSlots] = useState([null, null, null]); // {v, ci}
+  const [pick, setPick] = useState(null);
+  const [fb, setFb] = useState(null);
   const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
-  const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
+  useEffect(() => { const sa = initialAnswer?.studentAnswer; if (sa?.slots) { setSlots(sa.slots); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
+  const full = slots.every((v) => v != null);
+  useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
+  const locked = isReview || checked;
+  const usedSet = new Set(slots.filter(Boolean).map((x) => x.ci));
+  const clickSlot = (i) => () => {
+    if (locked) return;
+    if (pick != null) { setSlots((s) => { const n = s.slice(); n[i] = { v: D04_CARDS[pick], ci: pick }; return n; }); setPick(null); }
+    else if (slots[i] != null) { setSlots((s) => { const n = s.slice(); n[i] = null; return n; }); }
   };
-
+  const correctLabel = (i) => `${D04_SLOTS[i]}/${D04_DEN}`;
+  const check = useCallback(() => {
+    const correct = slots.every((x, i) => x && x.v === correctLabel(i));
+    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { slots }, correctAnswer: { labels: D04_SLOTS.map((k) => `${k}/${D04_DEN}`) }, correct, meta: { tag: 'label_axis', level: '🟡' } });
+  }, [slots, t, playCorrect, playWrong, onSubmit]);
+  useReg(check, registerCheck);
+  const W = 100 / D04_DEN;
   return (
-    <div className="pq pq04">
+    <div style={S.wrap}>
       <style>{`
-        .pq04 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq04 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
-        .pq04 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq04 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq04 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .22s ease both; }
-        .pq04 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq04 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq04 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq04 .a2 { animation-delay:.08s; }
-        .pq04 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .d10-pop { animation: d10pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes d10pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .d10-pop { animation: none !important; } }
       `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+      <p style={{ ...S.ask, fontSize: 15.5 }}>{t.ask}</p>
+      {/* son o'qi: 6 ulush, 3 nuqta + ostida bo'sh katak */}
+      <div style={{ position: 'relative', height: 108, margin: '14px 12px 8px' }}>
+        <div style={{ position: 'absolute', left: '2%', right: '2%', top: 30, height: 3, background: '#bae6fd', borderRadius: 2 }} />
+        {Array.from({ length: D04_DEN + 1 }).map((_, u) => {
+          const isInt = u === 0 || u === D04_DEN;
+          const isMarked = D04_SLOTS.includes(u);
+          return (
+            <div key={u} style={{ position: 'absolute', left: `calc(2% + ${u * W * 0.96}%)`, top: 22, transform: 'translateX(-50%)', textAlign: 'center' }}>
+              <div style={{ width: isMarked ? 15 : (isInt ? 4 : 3), height: isMarked ? 15 : (isInt ? 16 : 11), borderRadius: isMarked ? 999 : 2, background: isMarked ? '#0ea5e9' : (isInt ? '#64748b' : '#cbd5e1'), margin: '0 auto', border: isMarked ? '2px solid #fff' : 'none', boxShadow: isMarked ? '0 1px 3px rgba(0,0,0,.2)' : 'none' }} />
+              {isInt && <div style={{ marginTop: 20, fontSize: 12, fontWeight: 800, color: '#64748b', ...S.mono }}>{u === 0 ? '0' : '1'}</div>}
+            </div>
+          );
+        })}
+        {/* bo'sh kataklar nuqtalar ostida */}
+        {D04_SLOTS.map((u, i) => {
+          const v = slots[i] ? slots[i].v : null;
+          let bd = '#7dd3fc', bg = '#f0f9ff', col = '#0369a1';
+          if (checked && v != null) { const ok = !!fb?.correct; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
+          return (
+            <div key={'s' + i} onClick={clickSlot(i)} style={{ position: 'absolute', left: `calc(2% + ${u * W * 0.96}%)`, top: 54, transform: 'translateX(-50%)', width: 48, height: 42, borderRadius: 10, border: '2px ' + (v ? 'solid' : 'dashed') + ' ' + bd, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: locked ? 'default' : 'pointer', ...S.mono, fontSize: 15, fontWeight: 800, color: col }}>{v || ''}</div>
+          );
+        })}
+      </div>
+      {/* kartalar */}
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginTop: 8 }}>
+        {D04_CARDS.map((c, idx) => {
+          if (usedSet.has(idx)) return <span key={idx} style={{ width: 58, height: 46, borderRadius: 11, border: '2px dashed #e5e7eb', background: '#fafafa' }} />;
+          const on = pick === idx;
+          return <button key={idx} type="button" disabled={locked} onClick={() => setPick(on ? null : idx)} style={{ width: 58, height: 46, borderRadius: 11, border: '2px solid ' + (on ? '#0ea5e9' : '#cbd5e1'), background: on ? '#e0f2fe' : '#fff', ...S.mono, fontSize: 17, fontWeight: 800, color: '#1f2430', cursor: locked ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #bae6fd' : 'none' }}>{c}</button>;
+        })}
+      </div>
+      {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
+      {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>
   );
 }
