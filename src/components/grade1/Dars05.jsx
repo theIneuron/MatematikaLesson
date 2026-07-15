@@ -4022,6 +4022,16 @@ html, body { margin: 0; padding: 0; }
 .g1-cast-img { height: 100%; width: auto; display: block; filter: drop-shadow(0 6px 12px rgba(58,53,48,0.22)); }
 .g1-cast-name { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(13px,1.8vw,16px); color: #5A5A60; }
 .g1-cast-sub { color: #A7A6A2; font-weight: 600; }
+/* Mobil (tor ekran): hikoya sahnasi (Ra'no · 5 olma · Anvar) bitta qatorga sig'sin —
+   personaj + olma ramkasi kichrayadi, qator o'ralmaydi (aks holda personajlar chetga
+   chiqib qirqilardi). */
+@media (max-width: 640px) {
+  .g1-scene .g1-cast-row { flex-wrap: nowrap; gap: clamp(4px,2vw,10px); }
+  .g1-scene .g1-cast-fig { height: clamp(88px,24vw,120px); }
+  .g1-scene .g1-cast-name { font-size: clamp(11px,3vw,13px); }
+  .g1-comp-frame .g1-bf { padding: clamp(4px,1vw,6px); gap: clamp(2px,0.8vw,4px); }
+  .g1-comp-frame .g1-bf-cell { width: clamp(16px,4vw,22px); height: clamp(16px,4vw,22px); border-radius: 6px; }
+}
 /* Anvar PLACEHOLDER (rasm hali yo'q): punktir ramka -> "rasm tez orada keladi" signali */
 .g1-anvar-ph { height: 100%; aspect-ratio: 2 / 3; display: flex; align-items: center; justify-content: center; padding: clamp(6px,1.4vw,10px); border: 2px dashed rgba(1,154,203,0.55); border-radius: 16px; background: rgba(205,231,241,0.18); }
 .g1-anvar-coming { opacity: 0.92; }
