@@ -4,6 +4,12 @@
 > 2-sinf darsi shu kontraktga va Dars01 naqshlariga to'liq mos qilib yaratiladi (1-sinf
 > `ETALON_1SINF.md` ning 2-sinf muqobili). "Taxminan o'xshash" emas — **bir xil standart**.
 >
+> **MUHIM (metodist 2026-07-14):** pilot Dars01 chiqarilib, boyitilib **rasmiy etalon qilindi**.
+> Jonli `src/components/grade2/Dars01.jsx` — **kod-haqiqat manbai**. Sessiyada qo'shilgan yangi
+> majburiy naqshlar **§11** da qulflangan (akkordeon-stepper, place-value mat, dual-coding,
+> QOIDA-karta, matematik qoidalar, recall→mashq, summary kema-sahnasi). §11 ziddiyatда §3 ni
+> aniqlashtiradi.
+>
 > Metodika: `2sinf_metodologiya.md`. Hikoya: `SYUJET_2SINF.md`. Dizayn arxitekturasi
 > (o'zgarmaydi): `DIZAYN_STANDART_1SINF.md` (Stage/palitra/keep-visible/ovoz). Bu hujjat —
 > 2-sinfga xos **deltalar** + ikki bo'lim (nazariy+amaliy) kod-kontrakti.
@@ -196,5 +202,55 @@ preview. Har bosqichда metodist tasdig'i; bosqich tashlab o'tilmaydi.
 
 ---
 
+## 11. PILOT DARS01 — QULFLANGAN YANGI STANDART (metodist 2026-07-14)
+
+> Pilot Dars01 boyitilib **rasmiy etalon qilindi** (§200). Jonli `Dars01.jsx` — kod-haqiqat
+> manbai. Quyidagi naqshlar har 2-sinf darsida **majburiy**. Ziddiyatда bu bo'lim §3 ni
+> aniqlashtiradi.
+
+**11.1. Tushuntirish = akkordeon-stepper (progressive disclosure / «svyortka»).** Chuqur konsept
+ekрани bir necha qadamга bo'linadi: faol qadam fokusда to'liq tushuntiriladi, tugagani **tepага
+ixcham ✓-chip** bo'lib yig'iladi (skrollsiz). «Keyingi» tugmasi ovoz tugagach ochiladi. Bir slaydда
+ko'p + aniq tushuntirish, ammo skroll YO'Q. (Dars01 s5: `NumberLine`/`RazryadTable`/step-viz.)
+
+**11.2. Place-value mat (3 qatorli) + izchil rang-kod.** Har razryad ustuni: **yorliq → raqam →
+konkret buyum** ustma-ust (`RazryadTable concrete`). Rang-kod butun dars bo'yi bir xil:
+**o'nlik = `#FF4F28` (sariq), birlik = `#019ACB` (ko'k)**; xato = qizil `#D64545` (sariq EMAS).
+Konkret buyumlar `g1-pop-in` bilan paydo bo'ladi. Mat s3/s4/s5 da bir xil.
+
+**11.3. Dual-coding — ovoz↔vizual sinxron.** `audio.currentSegment` bilan gapga mos razryad/raqam/
+ustun yonadi (opacity/scale), boshqasi so'nadi (ustoz doskада ko'rsatgandek). Konsept ekрани
+segment-ma-segment vizual bilan sinxronlanadi. (Dars01 s5/s7 `emph`.)
+
+**11.4. QOIDA — aniq aksent.** Qoida oddiy qator EMAS: **belgili karta** («QOIDA»/«ПРАВИЛО» pill,
+aksent ramka, iliq fon), matn ичида kalit so'zlar rang-kodli; ovoz «mana qoida» deganда karta
+pulse qiladi. Qoidадан keyin **faol farqlash-check** (yangi songa qo'llash), «Davom» shунга bog'lanadi.
+
+**11.5. Matematik qoidalar tushuntirishга (grade-2 doirasida, `×` yo'q).** Konsept ekранлари
+quyidagilarни qamraydi: **nol — o'rin belgisi** (`30 = 3 o'nlik 0 birlik`, `30≠3`); **yonma-yon ≠
+qo'shish** (`34≠3+4`); **son o'qi** (`34` = 3 o'nlik-sakrash + 4 birlik-qadam); **yozuv↔nom↔razryad**
+uch bog'lanishi. Har biri chuqur ochilishда faol ko'rsatiladi.
+
+**11.6. Struktura — 7 tushuntirish / 6 mashq / final / summary.** Prerekvizit-recall tushuntirishдан
+**mashq blokiga** ko'chdi (razryad-tekshiruv, scored). Demak 15 ekran: **1** hook+mavzu · **2–6**
+chuqur ochilish (kamida biri akkordeon-stepper) · **7** qoida | **8–13** mashq (recall shu yerда) |
+**14** final | **15** summary. (§3 budjeti shунга yangilanди.)
+
+**11.7. Summary — ConnectionsBlock O'RNIGA to'liq-kenglik kema-sahna.** Metodist qarori: summary'да
+**ConnectionsBlock olib tashlandi**. O'rnida: tepада ixcham miltirovchi yulduzlar (twinkle) + can-do +
+**to'liq-kenglik `d2-scene`** kema-devori (`S15Walls`: qovurg'a/parchin/boshqaruv paneli/tutqich/
+panjara-pol) + markazда **warp-porthole** (ichki panelsiz — devor foni bilan bir xil rangда) +
+suzuvchi yuk (chap/o'ng zonalar) + nafas oluvchi nur (pulse). O'tgan/kelgan darsга bog'lanish istalса —
+yengil bitta qатор bilan qайтарилиши mumkin (metodist qaroriga ko'ra), ammo default YO'Q.
+
+**11.8. Mavzu e'loni (kanonik).** s0 da Bit avval mavzuni aytади («Bugungi mavzu: …») + ekранда
+`topic`-chip, keyin missiya-hook (kashfiyot yoyи saqlanadi).
+
+**11.9. RU-registr — jinssiz.** RU'да o'quvchiga murojaatда jins bilinмайдиган shakl kerak
+(erkak/ayol o'tgan zamon fe'l TAQIQ — masalan «ты забыл»/«ты помог» EMAS). Buyruq (`не забудь`)
+yoki jinssiz qayta yozuv. UZ `siz` — o'zgarmaydi.
+
+---
+
 *Etalon o'zgarishi — alohida protsedura (metodist/Fuzayl orqali), navbatdagi darsning yon
-ta'siri sifatida emas. Pilot Dars01 chiqqach, budjet/standart sozlanishi mumkin (metodist).*
+ta'siri sifatida emas. §11 — pilot Dars01 ni etalon qilish qarori (metodist 2026-07-14).*

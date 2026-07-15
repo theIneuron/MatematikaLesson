@@ -1,4 +1,4 @@
-import { grade1Nazariy, grade1Amaliy } from './grade1.js'
+import { grade1Nazariy, grade1Amaliy, grade1Nazorat } from './grade1.js'
 import { grade2Nazariy, grade2Amaliy } from './grade2.js'
 import { grade5Nazariy, grade5Amaliy } from './grade5.js'
 
@@ -13,13 +13,14 @@ export const SUBJECTS = [
 export const SECTIONS = [
   { id: 'nazariy', label: "Nazariy mashg'ulotlar", icon: '📘' },
   { id: 'amaliy', label: "Amaliy mashg'ulotlar", icon: '✏️' },
+  { id: 'nazorat', label: 'Nazorat (ПК va ИК)', icon: '🎯' },
 ]
 
 // Sinf + fan -> bo'lim -> darslar registri. Darslar bo'lgan kombinatsiyalarni
 // shu yerga yozamiz; qolganlari avtomatik "tez orada" bo'lib qoladi.
 // Yangi sinf: lessons/gradeN.js yarating, import qiling, shu yerga bo'lim(lar) bilan ulang.
 const REGISTRY = {
-  '1-sinf': { matematika: { nazariy: grade1Nazariy, amaliy: grade1Amaliy } },
+  '1-sinf': { matematika: { nazariy: grade1Nazariy, amaliy: grade1Amaliy, nazorat: grade1Nazorat } },
   '2-sinf': { matematika: { nazariy: grade2Nazariy, amaliy: grade2Amaliy } },
   '5-sinf': { matematika: { nazariy: grade5Nazariy, amaliy: grade5Amaliy } },
 }

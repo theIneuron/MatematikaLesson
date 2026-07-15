@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 2-SINF · Dars01 — "Десятки и единицы" (num-2-01-v1) · Б1 · spec: ETALON_2SINF.md ░░
+// ░░ 2-SINF · Dars02 — "Чтение и запись двузначных чисел" (num-2-02-v1) · Б1 · spec: ETALON_2SINF.md §11 ░░
 // 2-SINF ETALONI · syujet-qobiq v3: KEMA ICHIDA (yuk bo'limi, mikrogravitatsiya).
 // (SYUJET_2SINF.md Zona A + Dars01_CONTENT.md v3, metodist 2026-07-07.)
 // Infra: grade1 Dars28.jsx dan BAYT-ANIQ (mobil zoom-qatlam + avtoskroll + keep-visible
@@ -899,8 +899,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-2-01-v1',
-  lessonTitle: { ru: 'Урок 1. Десятки и единицы', uz: "1-dars. O'nliklar va birliklar" }
+  lessonId: 'num-2-02-v1',
+  lessonTitle: { ru: 'Урок 2. Чтение и запись чисел', uz: "2-dars. Sonlarni o'qish va yozish" }
 };
 // STRUKTURA (metodist 2026-07-07): 1–7 tushuntirish · 8–13 mashq · 14 final · 15 xulosa.
 // Prerekvizit-recall (s1) tushuntirishdan mashqqa ko'chdi (endi razryad-tekshiruv, scored).
@@ -947,113 +947,119 @@ const CONTENT = {
   // s0 — HOOK (scope: hook): sayyoraga qo'nish, ucholmaydi, o'ntadan yoqilg'i
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Десятки и единицы', uz: "Mavzu: O'nliklar va birliklar" },
-    lead: { ru: 'Корабль застрял в космосе!', uz: "Kema koinotda to'xtab qoldi!" },
-    q: { ru: 'Как быстро подготовить топливо?', uz: "Yoqilg'ini qanday tez tayyorlaymiz?" },
-    opt0: { ru: 'По одной', uz: 'Bittalab' },
-    opt1: { ru: 'По десять в кассету', uz: "O'ntadan kassetaga" },   // yetakchi (correct-key)
+    topic: { ru: 'Тема: Чтение и запись чисел', uz: "Mavzu: Sonlarni o'qish va yozish" },
+    lead: { ru: 'Коды бортов перепутались!', uz: "Bort kodlari chalkashib ketdi!" },
+    q: { ru: 'Как правильно прочитать код?', uz: "Kodni qanday to'g'ri o'qiymiz?" },
+    opt0: { ru: 'Читать цифры подряд', uz: "Raqamlarni ketma-ket o'qiymiz" },
+    opt1: { ru: 'По разрядам: десятки, потом единицы', uz: "Xonalab: o'nliklar, keyin birliklar" },   // yetakchi (correct-key)
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Сегодня тема урока — десятки и единицы. Научимся видеть, сколько в числе десятков и сколько единиц.',
-          'Бит и друзья вылетели с Земли и везут Бита домой. Их корабль застрял в открытом космосе без топлива.',
-          'Двигатель берёт топливо только десятками. А батарейки разлетелись по кораблю.',
-          'Поможем Биту собрать их по десять, и корабль полетит дальше, к дому Бита.'
+          'Сегодня тема урока — чтение и запись чисел. Научимся правильно читать и писать бортовые коды.',
+          'Корабль Бита в полёте, держит курс к дому. Диспетчерская вышка передаёт коды и координаты.',
+          'Их надо верно читать и записывать, иначе корабль собьётся с курса. А коды на табло перепутались.',
+          'Наша миссия — навести порядок в кодах и удержать курс. Летим дальше, к дому Бита.'
         ],
         uz: [
-          "Bugungi dars mavzusi — o'nliklar va birliklar. Sonda nechta o'nlik va nechta birlik borligini ko'rishni o'rganamiz.",
-          "Bit va do'stlar Yerdan uchib, Bitni uyiga olib ketmoqda. Kemasi ochiq koinotda yoqilg'isiz to'xtab qoldi.",
-          "Dvigatel yoqilg'ini faqat o'ntadan oladi. Batareyalar esa kema bo'ylab tarqalib ketdi.",
-          "Bitga ularni o'ntadan yig'ishga yordam beramiz, va kema Bitning uyiga tomon uchadi."
+          "Bugungi dars mavzusi — sonlarni o'qish va yozish. Bort kodlarini to'g'ri o'qish va yozishni o'rganamiz.",
+          "Bitning kemasi uchishda, uyga tomon kurs ushlaydi. Boshqaruv minorasi kodlar va koordinatalarni uzatadi.",
+          "Ularni to'g'ri o'qib va yozib turish kerak, aks holda kema kursdan chetga chiqadi. Displeydagi kodlar esa chalkashib ketgan.",
+          "Missiyamiz — kodlarda tartib o'rnatish va kursni ushlab qolish. Uyga tomon uchishda davom etamiz."
         ]
       },
-      on_correct: { ru: 'Отличная мысль. Соберём по десять, и станет видно.', uz: "Zo'r fikr. O'ntadan yig'amiz, va ko'rinadi." },
-      on_wrong: { ru: 'Так можно, но это долго. На корабле есть способ быстрее.', uz: "Bunday bo'ladi, lekin uzoq. Kemada tezroq yo'l bor." },
-      on_unknown: { ru: 'Ничего. Сейчас увидим способ корабля.', uz: "Hechqisi yo'q. Hozir kemaning yo'lini ko'ramiz." }
+      on_correct: { ru: 'Верно. Слева читаем десятки, справа единицы.', uz: "To'g'ri. Chapdan o'nliklarni, o'ngdan birliklarni o'qiymiz." },
+      on_wrong: { ru: 'Так можно ошибиться. Код читают по разрядам, не по цифрам.', uz: "Bunday adashish mumkin. Kod xonalab o'qiladi, raqamlab emas." },
+      on_unknown: { ru: 'Ничего. Сейчас научимся.', uz: "Hechqisi yo'q. Hozir o'rganamiz." }
     }
   },
 
-  // s1 — PREREKVIZIT-RECALL (ballsiz): 10 birlik = 1 o'nlik
+  // s1 — PREREKVIZIT-RECALL (ballsiz): o'qish uchun — kodda qaysi raqam o'nliklar
   s1: {
     eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz' },
     lead: { ru: 'Проверь себя.', uz: "O'zingizni sinang." },
-    q: { ru: 'Сколько единиц нужно, чтобы получился один десяток?', uz: "Bitta o'nlik hosil bo'lishi uchun nechta birlik kerak?" },
-    opt0: { ru: 'Десять', uz: "O'n" },   // correct (idx 0)
-    opt1: { ru: 'Один', uz: 'Bir' },
-    opt2: { ru: 'Сто', uz: 'Yuz' },
-    wrong_1: { ru: 'Один — это одна батарейка. А в десяток их собирается больше.', uz: "Bir — bitta batareya. O'nlikka esa ko'proq yig'iladi." },
-    wrong_2: { ru: 'Сто — это очень много. Десяток собирается из меньшего числа.', uz: "Yuz — juda ko'p. O'nlik kamroq sondan yig'iladi." },
+    q: { ru: 'В коде 47 какая цифра показывает десятки?', uz: "47 kodida qaysi raqam o'nliklarni ko'rsatadi?" },
+    opt0: { ru: 'Четыре — слева', uz: "To'rt — chapda" },   // correct (idx 0)
+    opt1: { ru: 'Семь — справа', uz: "Yetti — o'ngda" },
+    opt2: { ru: 'Сорок семь', uz: 'Qirq yetti' },
+    wrong_1: { ru: 'Семь стоит справа — это единицы. Десятки слева.', uz: "Yetti o'ngda turibdi — bu birliklar. O'nliklar chapda." },
+    wrong_2: { ru: 'Сорок семь — это всё число. Десятки — только левая цифра.', uz: "Qirq yetti — butun son. O'nliklar — faqat chap raqam." },
     audio: {
-      intro: { ru: 'Вспомним. Десяток собирается из отдельных единиц.', uz: "Eslaymiz. O'nlik alohida birliklardan yig'iladi." },
-      on_correct: { ru: 'Верно. Десять единиц — это один десяток.', uz: "To'g'ri. O'n birlik — bitta o'nlik." },
-      on_wrong: { ru: 'Их ровно десять. Посчитай ещё раз.', uz: "Ular roppa-rosa o'nta. Yana bir sanang." }
+      intro: { ru: 'Вспомним. В двузначном коде десятки стоят слева. Какая цифра показывает десятки?', uz: "Eslaymiz. Ikki xonali kodda o'nliklar chapda turadi. Qaysi raqam o'nliklarni ko'rsatadi?" },
+      on_correct: { ru: 'Верно. Левая цифра четыре — это десятки.', uz: "To'g'ri. Chap raqam to'rt — o'nliklar." },
+      on_wrong: { ru: 'Десятки — это левая цифра. Посмотри слева.', uz: "O'nliklar — chap raqam. Chapga qarang." }
     }
   },
 
-  // s2 — OCHILISH-1 (unitizing): 10 batareya -> 1 kasseta
+  // s2 — OCHILISH-1 (O'QISH, yumaloq/nol): kod 40 -> «qirq»; nol o'qilmaydi, lekin yoziladi
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Уложи батарейки в кассету.', uz: 'Batareyalarni kassetaga joylang.' },
-    done_text: { ru: 'Одна кассета — это один десяток. Теперь считать удобно.', uz: "Bitta kasseta — bu bitta o'nlik. Endi sanash qulay." },
-    audio: {
-      ru: [
-        'Смотри. Считать батарейки по одной долго, и легко ошибиться. Поэтому придумали удобный способ, собирать их по десять. Переноси батарейки в кассету.',
-        'Когда батареек станет ровно десять, кассета закроется, и загорится огонёк.',
-        'Вот. Десять батареек стали одной кассетой. Одну такую кассету мы называем десяток. Запомни это слово. Десяток это десять вместе.'
-      ],
-      uz: [
-        "Qarang. Batareyalarni bittalab sanash uzoq, oson adashiladi. Shuning uchun qulay yo'l o'ylab topilgan, ularni o'ntalab yig'ish. Batareyalarni kassetaga o'tkazing.",
-        "Batareyalar roppa-rosa o'nta bo'lganda kasseta yopiladi, va chiroq yonadi.",
-        "Mana. O'nta batareya bitta kasseta bo'ldi. Bitta shunday kassetani o'nlik deymiz. Shu so'zni yodda tuting. O'nlik bu o'nta birga."
-      ]
-    }
-  },
-
-  // s3 — OCHILISH-2: 24 ni yig'ish
-  s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Собери 24.', uz: "24 ni yig'ing." },
-    src_tens: { ru: 'кассета +', uz: 'kasseta +' },
-    src_ones: { ru: 'батарейка +', uz: 'batareya +' },
+    eyebrow: { ru: 'Читаем код', uz: "Kodni o'qiymiz" },
+    lead: { ru: 'Прочитай круглый код 40.', uz: "Yumaloq kod 40 ni o'qing." },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
-    done_text: { ru: 'Два десятка и четыре единицы — двадцать четыре.', uz: "Ikki o'nlik va to'rt birlik — yigirma to'rt." },
-    audio: {
-      ru: [
-        'Теперь соберём число сами. Возьми две кассеты. В каждой по десять, значит вместе это два десятка, двадцать.',
-        'Добавь четыре отдельные батарейки. Их не хватило, чтобы собрать ещё один десяток, поэтому они остаются единицами.',
-        'Посмотри на табло и сосчитай сам. Сколько всего получилось?'
-      ],
-      uz: [
-        "Endi sonni o'zimiz yig'amiz. Ikkita kasseta oling. Har birida o'ntadan, demak birga bu ikki o'nlik, yigirma.",
-        "To'rtta alohida batareya qo'shing. Ular yana bir o'nlik yig'ishga yetmadi, shuning uchun birlik bo'lib qoladi.",
-        "Displeyga qarang, va o'zingiz sanang. Jami nechta bo'ldi?"
-      ]
-    }
-  },
-
-  // s4 — OCHILISH-3 (razryad kartasi): 34 -> o'nlik|birlik; 34 = 30 + 4
-  s4: {
-    eyebrow: { ru: 'Разбор числа', uz: 'Sonni ochamiz' },
-    lead: { ru: 'Разложим число 34.', uz: "34 ni ochamiz." },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
+    q: { ru: 'Как читается код 40?', uz: "40 kodi qanday o'qiladi?" },
+    opts: [{ ru: 'сорок', uz: 'qirq', ok: true }, { ru: 'четыре', uz: "to'rt" }, { ru: 'сорок ноль', uz: 'qirq nol' }, { ru: 'четырнадцать', uz: "o'n to'rt" }],
+    wrong: { ru: 'Слева четыре десятка, это сорок. А ноль единиц не читается.', uz: "Chapda to'rt o'nlik, bu qirq. Nol birlik esa o'qilmaydi." },
+    name_read: { ru: 'сорок', uz: "qirq" },
     info_badge: { ru: 'Полезно', uz: 'Foydali' },
-    info: { ru: 'Любое двузначное число — это десятки и единицы вместе. Десятки пишут слева, единицы справа. А ноль в единицах держит место: 30 — это 3 десятка и 0 единиц.', uz: "Har ikki xonali son — o'nlik va birlik birga. O'nlik chapga, birlik o'ngga yoziladi. Birlikdagi nol o'rinni saqlaydi: 30 — bu 3 o'nlik va 0 birlik." },
-    // ekranda yozma anchor: 34 = 30 + 4
+    info: { ru: 'Ноль единиц не читается, но пишется: он держит место. Без нуля осталась бы просто четвёрка, а не сорок.', uz: "Nol birlik o'qilmaydi, lekin yoziladi: u o'rinni band qiladi. Nolsiz faqat to'rt qolardi, qirq emas." },
     audio: {
       ru: [
-        'Разберём число тридцать четыре. У каждого числа есть два места, два разряда. Слева десятки, справа единицы.',
-        'Слева три кассеты. Три десятка это тридцать.',
-        'Справа четыре отдельные батарейки. Они не собрались в десяток, это четыре единицы.',
-        'Вместе тридцать и ещё четыре. Тридцать плюс четыре это тридцать четыре. Значит тридцать четыре это тридцать и четыре.'
+        'Прочитаем круглый код сорок. Слева четыре десятка. Как читается этот код?',
+        'Верно, сорок. Ноль единиц не звучит, но пишется. Без нуля осталась бы просто четвёрка.'
       ],
       uz: [
-        "O'ttiz to'rt sonini ochamiz. Har sonda ikki o'rin, ikki xona bor. Chapda o'nliklar, o'ngda birliklar.",
-        "Chapda uch kasseta. Uch o'nlik bu o'ttiz.",
-        "O'ngda to'rtta alohida batareya. Ular o'nlikka yig'ilmagan, bu to'rt birlik.",
-        "Birga o'ttiz va yana to'rt. O'ttiz qo'shuv to'rt bu o'ttiz to'rt. Demak o'ttiz to'rt bu o'ttiz va to'rt."
+        "Yumaloq kod qirqni o'qiymiz. Chapda to'rt o'nlik. Bu kod qanday o'qiladi?",
+        "To'g'ri, qirq. Nol birlik aytilmaydi, lekin yoziladi. Nolsiz faqat to'rt qolardi."
+      ]
+    }
+  },
+
+  // s3 — OCHILISH-2 (YOZISH): nomdan kod terish — «ellik uch» -> 53 (raqam-plita)
+  s3: {
+    eyebrow: { ru: 'Пишем код', uz: "Kodni yozamiz" },
+    lead: { ru: 'Запиши код: пятьдесят три.', uz: "Kodni yozing: ellik uch." },
+    tens_label: { ru: 'десятки', uz: "o'nliklar" },
+    ones_label: { ru: 'единицы', uz: 'birliklar' },
+    wrong: { ru: 'Слушай имя: пятьдесят это десятки, слева. Три это единицы, справа.', uz: "Nomni tinglang: ellik bu o'nliklar, chapda. Uch bu birliklar, o'ngda." },
+    done_text: { ru: 'Верно! Пятьдесят три это пять десятков и три единицы.', uz: "To'g'ri! Ellik uch bu besh o'nlik va uch birlik." },
+    audio: {
+      ru: [
+        'Запиши код по имени. Слушай, пятьдесят три. Пятьдесят это десятки, ставь слева. Три это единицы, ставь справа.',
+        'Верно. Пятьдесят три это пять и три.'
+      ],
+      uz: [
+        "Nom bo'yicha kodni yozing. Tinglang, ellik uch. Ellik bu o'nliklar, chapga qo'ying. Uch bu birliklar, o'ngga qo'ying.",
+        "To'g'ri. Ellik uch bu besh va uch."
+      ]
+    }
+  },
+
+  // s4 — OCHILISH-3 (FAOL O'QISH): bola kod 45 ni o'zi o'qiydi — o'nlik nomi (qirq) + birlik nomi (besh)
+  s4: {
+    eyebrow: { ru: 'Читаем код', uz: "Kodni o'qiymiz" },
+    lead: { ru: 'Прочитай код 45.', uz: "45 kodini o'qing." },
+    tens_label: { ru: 'десятки', uz: "o'nliklar" },
+    ones_label: { ru: 'единицы', uz: 'birliklar' },
+    q_tens: { ru: 'Как читаются десятки?', uz: "O'nliklar qanday o'qiladi?" },
+    q_ones: { ru: 'Как читаются единицы?', uz: "Birliklar qanday o'qiladi?" },
+    tens_opts: [{ ru: 'сорок', uz: 'qirq', ok: true }, { ru: 'пятьдесят', uz: 'ellik' }, { ru: 'тридцать', uz: "o'ttiz" }, { ru: 'четыре', uz: "to'rt" }],
+    ones_opts: [{ ru: 'пять', uz: 'besh', ok: true }, { ru: 'шесть', uz: 'olti' }, { ru: 'четыре', uz: "to'rt" }, { ru: 'пятьдесят', uz: 'ellik' }],
+    tens_wrong: { ru: 'Слева четыре десятка. Четыре десятка это сорок.', uz: "Chapda to'rt o'nlik. To'rt o'nlik bu qirq." },
+    ones_wrong: { ru: 'Справа пять единиц. Это просто пять.', uz: "O'ngda besh birlik. Bu shunchaki besh." },
+    name_read: { ru: 'сорок пять', uz: "qirq besh" },
+    info_badge: { ru: 'Полезно', uz: 'Foydali' },
+    info: { ru: 'Код читают слева направо: сначала имя десятков, потом имя единиц.', uz: "Kod chapdan o'ngga o'qiladi: avval o'nliklar nomi, keyin birliklar nomi." },
+    audio: {
+      ru: [
+        'Прочитаем код сорок пять. Начни с десятков. Слева четыре десятка. Как они читаются?',
+        'Верно, сорок. Теперь единицы. Справа пять. Как читаются единицы?',
+        'Верно, пять. Читаем слева направо, сорок пять.'
+      ],
+      uz: [
+        "Qirq besh kodini o'qiymiz. O'nliklardan boshlang. Chapda to'rt o'nlik. Ular qanday o'qiladi?",
+        "To'g'ri, qirq. Endi birliklar. O'ngda besh. Birliklar qanday o'qiladi?",
+        "To'g'ri, besh. Chapdan o'ngga o'qiymiz, qirq besh."
       ]
     }
   },
@@ -1061,39 +1067,39 @@ const CONTENT = {
   // s5 — OCHILISH-4 (o'rin hal qiladi): 45 va 54, kod terish
   s5: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Одни и те же цифры — а коды разные.', uz: 'Bir xil raqamlar — lekin kodlar har xil.' },
+    lead: { ru: 'Одни цифры — а имена разные.', uz: 'Bir xil raqamlar — lekin nomlar har xil.' },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
-    round1: { ru: 'Код: четыре десятка и пять единиц.', uz: "Kod: to'rt o'nlik va besh birlik." },
-    round2: { ru: 'Код: пять десятков и четыре единицы.', uz: "Kod: besh o'nlik va to'rt birlik." },
-    wrong: { ru: 'Десятки ставим слева, единицы справа. Попробуй ещё.', uz: "O'nliklarni chapga, birliklarni o'ngga qo'ying. Yana urinib ko'ring." },
-    done_text: { ru: 'Место цифры решает. Слева десятки, справа единицы.', uz: "Raqamning o'rni hal qiladi. Chapda o'nliklar, o'ngda birliklar." },
+    round1: { ru: 'Код: сорок семь', uz: "Kod: qirq yetti" },
+    round2: { ru: 'Код: семьдесят четыре', uz: "Kod: yetmish to'rt" },
+    wrong: { ru: 'Имя десятков ставим слева. Попробуй ещё.', uz: "O'nlik nomini chapga qo'ying. Yana urinib ko'ring." },
+    done_text: { ru: 'Место цифры меняет и имя, и число.', uz: "Raqamning o'rni nomni ham, sonni ham o'zgartiradi." },
     audio: {
       ru: [
-        'Этот люк заперт. Его код, четыре десятка и пять единиц. Поставь цифру в разряд десятков, слева, а потом в разряд единиц.',
-        'Открылся. Теперь второй люк, пять десятков и четыре единицы. Цифры те же самые, но их места поменялись.',
-        'Смотри. Оба кода из цифр четыре и пять. Но места разные, поэтому и коды разные. Место цифры решает.'
+        'Этот люк открывает код сорок семь. Сорок это десятки, ставь слева. Семь это единицы, ставь справа. Люк открылся!',
+        'Теперь имя семьдесят четыре. Те же цифры четыре и семь, но их места поменялись.',
+        'Сорок семь и семьдесят четыре это разные числа. Место цифры решает и имя, и число.'
       ],
       uz: [
-        "Bu lyuk qulflangan. Kodi, to'rt o'nlik va besh birlik. Raqamni o'nliklar xonasiga, chapga qo'ying, keyin birliklar xonasiga.",
-        "Ochildi. Endi ikkinchi lyuk, besh o'nlik va to'rt birlik. Raqamlar aynan o'sha, lekin o'rni almashdi.",
-        "Qarang. Ikkala kod ham to'rt va besh raqamlaridan. Lekin o'rni har xil, shuning uchun kodlar ham har xil. Raqamning o'rni hal qiladi."
+        "Bu lyukni qirq yetti kodi ochadi. Qirq bu o'nliklar, chapga qo'ying. Yetti bu birliklar, o'ngga qo'ying. Lyuk ochildi!",
+        "Endi yetmish to'rt nomi. O'sha to'rt va yetti raqamlari, lekin o'rni almashdi.",
+        "Qirq yetti va yetmish to'rt boshqa sonlar. Raqamning o'rni nomni ham, sonni ham hal qiladi."
       ]
     }
   },
 
   // s6 — OCHILISH-5 (son o'qi): 34 qayerda
   s6: {
-    eyebrow: { ru: 'Число на прямой', uz: "Son o'qida" },
-    lead: { ru: 'Где стоит 34?', uz: "34 qayerda turadi?" },
-    q: { ru: 'Как думаешь, где стоит 34? Нажми на линии.', uz: "Sizningcha, 34 qayerda turadi? Chiziqda bosing." },
-    q_audio: { ru: 'Как думаешь, где на этой линии стоит тридцать четыре? Нажми туда, где считаешь.', uz: "Sizningcha, bu chiziqda o'ttiz to'rt qayerda turadi? O'zingiz o'ylagan joyni bosing." },
+    eyebrow: { ru: 'Маршрут', uz: 'Marshrut' },
+    lead: { ru: 'Найди код 34 на маршруте.', uz: "34 kodini marshrutdan toping." },
+    q: { ru: 'Где на маршруте стоит код 34? Нажми.', uz: "34 kodi marshrutda qayerda turadi? Bosing." },
+    q_audio: { ru: 'Прочитай код тридцать четыре и найди его место на маршруте. Нажми туда, где считаешь.', uz: "O'ttiz to'rt kodini o'qing va marshrutdan joyini toping. O'zingiz o'ylagan joyni bosing." },
     done_text: { ru: 'Тридцать четыре стоит между тридцатью и сорока.', uz: "O'ttiz to'rt o'ttiz bilan qirq orasida turadi." },
     info_badge: { ru: 'Полезно', uz: 'Foydali' },
-    info: { ru: 'На числовой прямой числа стоят по порядку: чем правее число, тем оно больше. Один шаг вправо — на один больше, один прыжок — на десять больше.', uz: "Son o'qida sonlar tartib bilan turadi: son qancha o'ngda bo'lsa, shuncha katta. O'ngga bir qadam — bittaga ko'p, bir sakrash — o'ntaga ko'p." },
+    info: { ru: 'Коды на маршруте стоят по порядку: чем правее, тем больше. Десятки — большие прыжки, единицы — маленькие шаги.', uz: "Kodlar marshrutda tartib bilan turadi: qancha o'ngda, shuncha katta. O'nliklar — katta sakrashlar, birliklar — kichik qadamlar." },
     audio: {
       ru: [
-        'Покажем тридцать четыре на числовой прямой. Десятки это большие прыжки, единицы это маленькие шаги.',
+        'Прочитаем код тридцать четыре и найдём его на маршруте. Десятки это большие прыжки, единицы это маленькие шаги.',
         'Три больших прыжка по десять, доходим до тридцати.',
         'И ещё четыре маленьких шага, доходим до тридцати четырёх.'
       ],
@@ -1109,7 +1115,7 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     // ekranda YOZMA qonun (rang-kodli karta):
-    rule: { ru: 'В двузначном числе левая цифра — десятки, правая — единицы.', uz: "Ikki xonali sonda chap raqam — o'nliklar, o'ng raqam — birliklar." },
+    rule: { ru: 'Читаем слева направо: имя десятков, потом имя единиц. Пишем: десяток слева, единицу справа.', uz: "Chapdan o'ngga o'qiymiz: o'nliklar nomi, keyin birliklar nomi. Yozganda: o'nlik chapga, birlik o'ngga." },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
     check_q: { ru: 'Нажми цифру десятков.', uz: "O'nliklar raqamini bosing." },
@@ -1117,23 +1123,23 @@ const CONTENT = {
     check_no: { ru: 'Десятки стоят слева. Нажми левую цифру.', uz: "O'nliklar chapda turadi. Chap raqamni bosing." },
     audio: {
       ru: [
-        'Теперь запомним самое главное правило. Слушай внимательно и запомни.',
-        'В двузначном числе две цифры. Как понять, где десятки, а где единицы? Только по их месту.',
-        'Левая цифра это всегда десятки. Она считает кассеты, целые десятки. Здесь слева четыре, значит четыре десятка.',
-        'Правая цифра это всегда единицы. Она считает отдельные батарейки, по одной. Здесь справа пять, значит пять единиц.',
-        'Вот наше правило. Слева десятки, справа единицы. Запомни его.',
-        'И запомни ещё. Рядом это не сложение. Три и четыре рядом дают тридцать четыре, а не семь.',
-        'Поэтому сорок пять и пятьдесят четыре разные числа. Цифры одни и те же, но места разные. Место цифры решает.',
+        'Теперь запомним главное правило чтения и записи. Слушай внимательно и запомни.',
+        'В коде две цифры. Как понять, где десятки, а где единицы? Только по месту.',
+        'Левая цифра это всегда десятки. Её имя читаем первым. Здесь слева четыре, это сорок.',
+        'Правая цифра это всегда единицы. Её имя читаем вторым. Здесь справа пять, это пять.',
+        'Вот наше правило. Читаем слева направо, пишем десяток слева, единицу справа. Запомни его.',
+        'Читаем по разрядам, а не по цифрам. Сорок пять, а не четыре пять.',
+        'Поэтому сорок семь и семьдесят четыре разные числа. Цифры те же, но места разные.',
         'А теперь сам. Нажми цифру, которая показывает десятки.'
       ],
       uz: [
-        "Endi eng muhim qoidani yodda tutamiz. Diqqat bilan tinglang va yodlab oling.",
-        "Ikki xonali sonda ikkita raqam bor. Qaysi biri o'nlik, qaysi biri birlik, buni faqat o'rniga qarab bilamiz.",
-        "Chap raqam bu har doim o'nliklar. U kassetalarni, butun o'nliklarni sanaydi. Bu yerda chapda to'rt, demak to'rt o'nlik.",
-        "O'ng raqam bu har doim birliklar. U alohida batareyalarni bittalab sanaydi. Bu yerda o'ngda besh, demak besh birlik.",
-        "Mana bizning qoidamiz. Chapda o'nliklar, o'ngda birliklar. Buni yodda tuting.",
-        "Va yana yodda tuting. Yonma-yon bu qo'shish emas. Uch va to'rt yonma-yon o'ttiz to'rt beradi, yetti emas.",
-        "Shuning uchun qirq besh va ellik to'rt boshqa-boshqa sonlar. Raqamlar bir xil, lekin o'rni har xil. Raqamning o'rni hal qiladi.",
+        "Endi o'qish va yozishning asosiy qoidasini yodda tutamiz. Diqqat bilan tinglang va yodlab oling.",
+        "Kodda ikkita raqam bor. Qaysi biri o'nlik, qaysi biri birlik, buni faqat o'rniga qarab bilamiz.",
+        "Chap raqam bu har doim o'nliklar. Uning nomini birinchi o'qiymiz. Bu yerda chapda to'rt, bu qirq.",
+        "O'ng raqam bu har doim birliklar. Uning nomini ikkinchi o'qiymiz. Bu yerda o'ngda besh, bu besh.",
+        "Mana bizning qoidamiz. Chapdan o'ngga o'qiymiz, o'nlikni chapga, birlikni o'ngga yozamiz. Buni yodda tuting.",
+        "Xonalab o'qiymiz, raqamlab emas. Qirq besh, to'rt besh emas.",
+        "Shuning uchun qirq yetti va yetmish to'rt boshqa sonlar. Raqamlar bir xil, lekin o'rni har xil.",
         "Endi o'zingiz. O'nliklarni ko'rsatadigan raqamni bosing."
       ]
     }
@@ -1142,29 +1148,29 @@ const CONTENT = {
   // s8 — MASHQ-1 (scored, build+check): 45 ni yig'ish
   s8: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Собери 45.', uz: "45 ni yig'ing." },
-    src_tens: { ru: 'кассета +', uz: 'kasseta +' },
-    src_ones: { ru: 'батарейка +', uz: 'batareya +' },
+    q: { ru: 'Запиши код по имени.', uz: "Kodni nom bo'yicha yozing." },
+    src_tens: { ru: 'десятки', uz: "o'nliklar" },
+    src_ones: { ru: 'единицы', uz: 'birliklar' },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
     audio: {
-      intro: { ru: 'Собирай числа на пульте из кассет и батареек. После каждого нажимай проверить.', uz: "Pultda sonlarni kasseta va batareyalardan yig'ing. Har biridan keyin tekshirishni bosing." },
-      on_correct: { ru: 'Отлично! Ты собрал каждое число правильно, из десятков и единиц.', uz: "Zo'r! Har sonni o'nlik va birlikdan to'g'ri yig'dingiz." },
-      on_wrong: { ru: 'Проверь. Сначала набери десятки, потом единицы.', uz: "Tekshiring. Avval o'nliklarni, keyin birliklarni yig'ing." }
+      intro: { ru: 'Диспетчер называет коды по имени. Запиши каждый: набери десятки и единицы, потом нажми проверить.', uz: "Dispetcher kodlarni nom bilan aytadi. Har birini yozing: o'nlik va birlikni tering, keyin tekshirishni bosing." },
+      on_correct: { ru: 'Отлично! Ты записал каждый код: десятки слева, единицы справа.', uz: "Zo'r! Har kodni yozdingiz: o'nliklar chapda, birliklar o'ngda." },
+      on_wrong: { ru: 'Проверь. Слушай имя: сначала десятки, потом единицы.', uz: "Tekshiring. Nomni tinglang: avval o'nliklar, keyin birliklar." }
     }
   },
 
   // s9 — MASHQ-2 (scored, tasniflash): kasseta->o'nlik, batareya->birlik
   s9: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Разложи груз по отсекам.', uz: 'Yukni tryumlarga ajrating.' },
-    hold_tens: { ru: 'ДЕСЯТКИ', uz: "O'NLIKLAR" },
-    hold_ones: { ru: 'ЕДИНИЦЫ', uz: 'BIRLIKLAR' },
+    q: { ru: 'Разложи коды по отсекам.', uz: "Kodlarni tryumlarga ajrating." },
+    hold_round: { ru: 'КРУГЛЫЕ · 0 единиц', uz: 'YUMALOQ · 0 birlik' },
+    hold_units: { ru: 'С ЕДИНИЦАМИ', uz: 'BIRLIKLI' },
     audio: {
-      intro: { ru: 'Бортовой сортировщик. Кассеты в одну сторону, отдельные батарейки в другую.', uz: "Bort saralagichi. Kassetalar bir tomonga, alohida batareyalar boshqa tomonga." },
-      on_correct: { ru: 'Верно. Кассеты десятки, батарейки единицы.', uz: "To'g'ri. Kassetalar o'nliklar, batareyalar birliklar." },
-      on_wrong: { ru: 'Кассета это десять батареек, значит десяток. Одна батарейка единица.', uz: "Kasseta o'nta batareya, demak o'nlik. Yolg'iz batareya birlik." }
+      intro: { ru: 'Бортовой сортировщик. Круглые коды заканчиваются на ноль, у них нет единиц. У остальных единицы есть.', uz: "Bort saralagichi. Yumaloq kodlar nol bilan tugaydi, ularda birlik yo'q. Qolganlarida birlik bor." },
+      on_correct: { ru: 'Верно. Круглый код читают без единиц: сорок, семьдесят.', uz: "To'g'ri. Yumaloq kod birliksiz o'qiladi: qirq, yetmish." },
+      on_wrong: { ru: 'Посмотри на единицы: ноль справа значит код круглый.', uz: "Birliklarga qarang: o'ngda nol bo'lsa, kod yumaloq." }
     }
   },
 
@@ -1177,8 +1183,8 @@ const CONTENT = {
     wrong_2: { ru: 'Семь получится, если сложить. А десятки и единицы стоят отдельно.', uz: "Yetti — qo'shsak chiqadi. O'nlik va birlik alohida turadi." },
     wrong_3: { ru: 'Это слишком большое число. У нас только десятки и единицы.', uz: "Bu juda katta son. Bizda faqat o'nlik va birlik." },
     audio: {
-      intro: { ru: 'Бортовой тест. На дисплее двигателя загораются числа. Скажи, какое число ты видишь.', uz: "Bort testi. Dvigatel displeyida sonlar yonadi. Qaysi sonni ko'ryapsiz, ayting." },
-      on_correct: { ru: 'Верно. Пять десятков и две единицы, пятьдесят два.', uz: "To'g'ri. Besh o'nlik va ikki birlik, ellik ikki." },
+      intro: { ru: 'Бортовой тест. На дисплее загораются коды. Прочитай каждый код и выбери имя.', uz: "Bort testi. Displeyda kodlar yonadi. Har kodni o'qing va nomini tanlang." },
+      on_correct: { ru: 'Верно. Читаем слева направо, по разрядам.', uz: "To'g'ri. Chapdan o'ngga, xonalab o'qiymiz." },
       on_wrong: { ru: 'Посмотри разбор. Десятки слева, единицы справа.', uz: "Tushuntirishga qarang. O'nliklar chapda, birliklar o'ngda." }
     }
   },
@@ -1190,35 +1196,35 @@ const CONTENT = {
     opt0: { ru: 'Корабль сорок пять', uz: 'Qirq besh kemasi' },
     opt1: { ru: 'Корабль пятьдесят четыре', uz: "Ellik to'rt kemasi" },   // correct (idx 1)
     audio: {
-      intro: { ru: 'Бортовой тест. Сравниваем баки с топливом. В каком больше? Сначала сравни десятки.', uz: "Bort testi. Yoqilg'i tanklarini solishtiramiz. Qaysida ko'p? Avval o'nliklarni solishtiring." },
-      on_correct: { ru: 'Верно. Пять десятков больше четырёх десятков.', uz: "To'g'ri. Besh o'nlik to'rt o'nlikdan katta." },
-      on_wrong: { ru: 'Сначала сравни десятки. У кого кассет больше, у того топлива больше.', uz: "Avval o'nliklarni solishtiring. Kimda kasseta ko'p, o'shanda yoqilg'i ko'p." }
+      intro: { ru: 'Бортовой тест. Диспетчер называет число. Запиши его код: десятки слева, единицы справа.', uz: "Bort testi. Dispetcher sonni aytadi. Uning kodini yozing: o'nliklar chapda, birliklar o'ngda." },
+      on_correct: { ru: 'Верно. Имя десятков слева, имя единиц справа.', uz: "To'g'ri. O'nlik nomi chapda, birlik nomi o'ngda." },
+      on_wrong: { ru: 'Посмотри разбор. Десятки слева, единицы справа.', uz: "Tushuntirishga qarang. O'nliklar chapda, birliklar o'ngda." }
     }
   },
 
   // s12 — MASALA (kirish/kontekst): yuk xati, ekipajdan Anvar
   s12: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Накладная: 6 кассет и 3 батарейки.', uz: 'Yuk xati: 6 kasseta va 3 batareya.' },
-    manifest_label: { ru: 'накладная', uz: 'yuk xati' },
+    lead: { ru: 'Диспетчер передал код по имени.', uz: "Dispetcher kodni nom bilan uzatdi." },
+    manifest_label: { ru: 'сообщение', uz: 'xabar' },
     audio: {
-      ru: 'Анвар принёс накладную. Шесть кассет по десять это шесть десятков. И три отдельные батарейки это три единицы.',
-      uz: "Anvar yuk xatini keltirdi. Oltita kasseta o'ntadan bu olti o'nlik. Va uchta alohida batareya bu uch birlik."
+      ru: 'Диспетчер передал бортовой код по имени, шестьдесят три. Запиши его цифрами: десятки слева, единицы справа.',
+      uz: "Dispetcher bort kodini nom bilan uzatdi, oltmish uch. Uni raqamlar bilan yozing: o'nliklar chapda, birliklar o'ngda."
     }
   },
 
   // s13 — MASALA (savol, scored MC): jami 63
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    q: { ru: 'Сколько всего?', uz: 'Jami nechta?' },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
     // ASL variantlar: [63(correct), 36, 9, 60]
-    wrong_1: { ru: 'Кассеты это десятки, их шесть. Поставь десятки слева.', uz: "Kassetalar — o'nliklar, ular oltita. O'nliklarni chapga qo'ying." },
-    wrong_2: { ru: 'Девять, если сложить шесть и три. А в кассетах по десять.', uz: "To'qqiz — olti va uchni qo'shsak. Kassetalarda esa o'ntadan." },
-    wrong_3: { ru: 'Не забудь три отдельные батарейки.', uz: 'Uchta alohida batareyani unutmang.' },
+    wrong_1: { ru: 'Шесть десятков ставим слева. Проверь порядок цифр.', uz: "Olti o'nlikni chapga qo'ying. Raqamlar tartibini tekshiring." },
+    wrong_2: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." },
+    wrong_3: { ru: 'Не забудь единицы: три.', uz: "Birliklarni unutmang: uch." },
     audio: {
-      intro: { ru: 'Посчитаем, сколько всего. Кассеты десятки, отдельные батарейки единицы.', uz: "Jami qanchaligini sanaymiz. Kassetalar o'nliklar, alohida batareyalar birliklar." },
+      intro: { ru: 'Запиши код числа шестьдесят три. Десятки слева, единицы справа.', uz: "Oltmish uch sonining kodini yozing. O'nliklar chapda, birliklar o'ngda." },
       on_correct: { ru: 'Верно. Шесть десятков и три единицы, шестьдесят три.', uz: "To'g'ri. Olti o'nlik va uch birlik, oltmish uch." },
-      on_wrong: { ru: 'Посмотри разбор. Кассеты десятки, их шесть.', uz: "Tushuntirishga qarang. Kassetalar o'nliklar, ular oltita." }
+      on_wrong: { ru: 'Посмотри разбор. Десятки слева, единицы справа.', uz: "Tushuntirishga qarang. O'nliklar chapda, birliklar o'ngda." }
     }
   },
 
@@ -1231,12 +1237,12 @@ const CONTENT = {
     wrong_2: { ru: 'Одиннадцать, если сложить. А десятки и единицы пишут рядом.', uz: "O'n bir — qo'shsak. O'nlik va birlik yonma-yon yoziladi." },
     wrong_3: { ru: 'Это слишком большое. Только десятки и единицы.', uz: "Bu juda katta. Faqat o'nlik va birlik." },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Перед стартом ракеты ведут обратный отсчёт: десять, девять, восемь… Старт!', uz: "Raketa uchishidan oldin teskari sanaladi: o'n, to'qqiz, sakkiz… Start!" },
-    fact_audio: { ru: 'Перед стартом ракеты ведут обратный отсчёт. Десять, девять, восемь и в конце старт.', uz: "Raketa uchishidan oldin teskari sanaladi. O'n, to'qqiz, sakkiz va oxirida start." },
+    fact_text: { ru: 'Знаешь? У числа сто уже три разряда: сотни, десятки, единицы. Их научимся читать позже.', uz: "Bilasizmi? Yuz sonida uch xona bor: yuzliklar, o'nliklar, birliklar. Ularni keyinroq o'rganamiz." },
+    fact_audio: { ru: 'У числа сто три разряда. Сотни, десятки и единицы. Это тема следующих уроков.', uz: "Yuz sonida uch xona bor. Yuzliklar, o'nliklar va birliklar. Bu keyingi darslar mavzusi." },
     audio: {
-      intro: { ru: 'Финальный тест. На загрузочном табло загораются числа. Прочитай каждое.', uz: "Yakuniy test. Yuklash tablosida sonlar yonadi. Har birini o'qing." },
-      on_correct: { ru: 'Верно. Четыре десятка и семь единиц, сорок семь.', uz: "To'g'ri. To'rt o'nlik va yetti birlik, qirq yetti." },
-      on_wrong: { ru: 'Посмотри разбор. Кассет четыре, это десятки, слева.', uz: "Tushuntirishga qarang. Kasseta to'rtta, o'nliklar, chapda." }
+      intro: { ru: 'Финальный тест. Прочитай коды и запиши коды по имени.', uz: "Yakuniy test. Kodlarni o'qing va nom bo'yicha kodlarni yozing." },
+      on_correct: { ru: 'Верно. Читаем и пишем по разрядам.', uz: "To'g'ri. Xonalab o'qiymiz va yozamiz." },
+      on_wrong: { ru: 'Посмотри разбор. Десятки слева, единицы справа.', uz: "Tushuntirishga qarang. O'nliklar chapda, birliklar o'ngda." }
     }
   },
 
@@ -1245,16 +1251,16 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Топливо на борту! Теперь ты умеешь видеть в числе десятки и единицы.', uz: "Yoqilg'i bortda! Endi siz sonda o'nlik va birlikni ko'ra olasiz." },
+    cando: { ru: 'Коды на связи! Теперь ты читаешь и пишешь любой бортовой код.', uz: "Kodlar aloqada! Endi siz har qanday bort kodini o'qiysiz va yozasiz." },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Левая цифра — десятки, правая — единицы.', uz: "Chap raqam — o'nliklar, o'ng — birliklar." },
+    rule_recap: { ru: 'Читаем слева направо: десятки, потом единицы.', uz: "Chapdan o'ngga o'qiymiz: o'nliklar, keyin birliklar." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'первый класс: счёт, десять единиц — один десяток', uz: "birinchi sinf: sanash, o'nta birlik — bitta o'nlik" },
+    conn_refs: { ru: 'урок 1: десятки и единицы, разряды', uz: "1-dars: o'nliklar va birliklar, xonalar" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Урок 2: чтение и запись бортовых кодов', uz: "2-dars: bort kodlarini o'qish va yozish" },
+    conn_next: { ru: 'урок 3: разрядный состав числа', uz: "3-dars: sonning razryad tarkibi" },
     audio: {
-      ru: 'Миссия выполнена. Топливо собрано десятками, двигатель заправлен, корабль летит дальше. Запомни правило. Десять единиц это один десяток. Левая цифра десятки, правая единицы. Мы стали ближе к дому Бита. В следующий раз научимся читать и записывать бортовые числа.',
-      uz: "Missiya bajarildi. Yoqilg'i o'nliklarga yig'ildi, dvigatel to'ldi, kema uchdi. Qoidani yodda tuting. O'n birlik bu bitta o'nlik. Chap raqam o'nliklar, o'ng birliklar. Biz Bitning uyiga yaqinlashdik. Keyingi safar bort sonlarini o'qish va yozishni o'rganamiz."
+      ru: 'Миссия выполнена. Коды прочитаны и записаны, курс к дому мы удержали. Запомни правило. Читаем слева направо: имя десятков, потом имя единиц. Пишем десяток слева, единицу справа. Корабль продолжает полёт, мы стали ближе к дому Бита. В следующий раз разберём разрядный состав числа.',
+      uz: "Missiya bajarildi. Kodlar o'qildi va yozildi, uyga kursni ushlab qoldik. Qoidani yodda tuting. Chapdan o'ngga o'qiymiz: o'nliklar nomi, keyin birliklar nomi. O'nlikni chapga, birlikni o'ngga yozamiz. Kema uchishda davom etadi, biz Bitning uyiga yaqinlashdik. Keyingi safar sonning razryad tarkibini ko'ramiz."
     }
   }
 };
@@ -1720,13 +1726,7 @@ const PortholeSpace = ({ warp = false, earth = false }) => (
         <circle cx="64" cy="46" r="16" fill="none" stroke="rgba(175,215,255,0.6)" strokeWidth="1.5"/>
         <ellipse cx="57" cy="39" rx="6" ry="4" fill="rgba(255,255,255,0.22)"/>
       </g>
-    ) : (
-      <g className={warp ? 'd2-planet-recede' : ''}>
-        <circle cx="82" cy="24" r="9" fill="url(#d2planet)"/>
-        <ellipse cx="82" cy="24" rx="14" ry="3.6" fill="none" stroke="#9FB8DC" strokeWidth="1.6" opacity="0.8"/>
-        <circle cx="78" cy="20" r="2.4" fill="rgba(255,255,255,0.2)"/>
-      </g>
-    )}
+    ) : null}{/* sayyora YO'Q — rejaga ko'ra hali yetilmagan; faqat yulduzlar */}
   </g>
 );
 
@@ -1754,7 +1754,7 @@ const CargoHoldBg = ({ earth = false, fill = false }) => (
       <circle cx="60" cy="40" r="47" fill="#1D3159" stroke="#CFC3AA" strokeWidth="7"/>
       <circle cx="60" cy="40" r="47" fill="none" stroke="#2A3550" strokeWidth="2"/>
       <clipPath id="d2porthole"><circle cx="60" cy="40" r="40"/></clipPath>
-      <g clipPath="url(#d2porthole)"><PortholeSpace earth={earth}/></g>
+      <g clipPath="url(#d2porthole)"><PortholeSpace warp/></g>{/* Dars02: doim uchishda — yulduzlar oqadi */}
       {/* gardish parchinlari */}
       <g fill="#8494AE">{Array.from({ length: 8 }).map((_, i) => { const a = (i / 8) * Math.PI * 2; return <circle key={i} cx={60 + Math.cos(a) * 44} cy={40 + Math.sin(a) * 44} r="1.8"/>; })}</g>
       <path d="M40 22 A 40 40 0 0 1 74 14" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="4" strokeLinecap="round"/>
@@ -2020,7 +2020,7 @@ const WarpScene = () => (
         <g transform="translate(60 30)">
           <circle cx="60" cy="45" r="52" fill="#1D3159" stroke="#CFC3AA" strokeWidth="8"/>
           <clipPath id="d2warphole"><circle cx="60" cy="45" r="44"/></clipPath>
-          <g clipPath="url(#d2warphole)"><circle cx="60" cy="45" r="44" fill="url(#d2space)"/><PortholeSpace warp earth/></g>
+          <g clipPath="url(#d2warphole)"><circle cx="60" cy="45" r="44" fill="url(#d2space)"/><PortholeSpace warp/></g>
           <g fill="#8494AE">{Array.from({ length: 8 }).map((_, i) => { const a = (i / 8) * Math.PI * 2; return <circle key={i} cx={60 + Math.cos(a) * 48} cy={45 + Math.sin(a) * 48} r="2"/>; })}</g>
         </g>
       </svg>
@@ -2401,6 +2401,92 @@ const NumberLine = () => {
 };
 
 // s0 — HOOK: sayyoraga qo'nish, yoqilg'i o'ntalab (picked to'liq reset qaytishda)
+// suzuvchi BUYUMLAR (mikrogravitatsiya) — odam ishlatadigan narsalar (sim/buzuq qism EMAS)
+const ItemSvg = ({ type, s }) => {
+  const w = { width: s, height: 'auto', display: 'block', filter: 'drop-shadow(0 3px 5px rgba(18,24,40,0.4))' };
+  if (type === 'mug') return (
+    <svg viewBox="0 0 32 32" style={w}>
+      <path d="M22 12 q6 0 6 5.5 q0 5.5 -6 5.5" fill="none" stroke="#CFC6B2" strokeWidth="3.4"/>
+      <path d="M22 13.4 q4.2 0 4.2 4.1 q0 4.1 -4.2 4.1" fill="none" stroke="#EFE8D8" strokeWidth="1.4"/>
+      <rect x="6" y="9" width="16" height="16" rx="3.4" fill="#EFE8D8"/>
+      <rect x="6.2" y="9" width="4.6" height="16" rx="2.4" fill="#FFFFFF" opacity="0.42"/>
+      <rect x="17.6" y="9" width="4.4" height="16" rx="2.4" fill="#000000" opacity="0.09"/>
+      <path d="M6 12.4 h16 v-0.6 a3 3 0 0 0 -3 -2.8 h-10 a3 3 0 0 0 -3 2.8 z" fill="#7A5636"/>
+      <ellipse cx="14" cy="10.6" rx="7" ry="1.9" fill="#4A3323"/>
+    </svg>
+  );
+  if (type === 'driver') return (
+    <svg viewBox="0 0 32 32" style={w}>
+      <g transform="rotate(42 16 16)">
+        <rect x="12.4" y="4" width="7.2" height="10.5" rx="3.2" fill="#E0533F"/>
+        <rect x="13.2" y="4.4" width="2" height="9.6" rx="1" fill="#FFFFFF" opacity="0.38"/>
+        <rect x="17.5" y="4.4" width="2" height="9.6" rx="1" fill="#000000" opacity="0.14"/>
+        <rect x="14.2" y="14" width="3.6" height="10.5" fill="#CBD2DA"/>
+        <rect x="14.2" y="14" width="1.2" height="10.5" fill="#FFFFFF" opacity="0.55"/>
+        <rect x="14.2" y="24.2" width="3.6" height="2.8" fill="#868F9C"/>
+      </g>
+    </svg>
+  );
+  if (type === 'tablet') return (
+    <svg viewBox="0 0 32 32" style={w}>
+      <rect x="7" y="4" width="18" height="24" rx="3.2" fill="#2E3A57" stroke="#1E2740" strokeWidth="1"/>
+      <rect x="9" y="7" width="14" height="16.6" rx="1.6" fill="#0C1626"/>
+      <rect x="9.7" y="7.7" width="12.6" height="15.2" rx="1" fill="#57B4DE"/>
+      <rect x="9.7" y="7.7" width="12.6" height="6.6" rx="1" fill="#8FD8F4" opacity="0.55"/>
+      <circle cx="16" cy="25.7" r="1.2" fill="#6A7690"/>
+    </svg>
+  );
+  if (type === 'pencil') return (
+    <svg viewBox="0 0 32 32" style={w}>
+      <g transform="rotate(40 16 16)">
+        <rect x="13" y="6" width="6" height="15" fill="#F2C14E"/>
+        <rect x="13" y="6" width="2" height="15" fill="#FFFFFF" opacity="0.3"/>
+        <rect x="16.6" y="6" width="2.4" height="15" fill="#000000" opacity="0.15"/>
+        <path d="M13 21 h6 l-3 5.4 z" fill="#EAD0A6"/>
+        <path d="M14.7 24 h2.6 l-1.3 2.6 z" fill="#2A2A2A"/>
+        <rect x="13" y="6" width="6" height="3" fill="#C7CDD4"/>
+        <rect x="13" y="3.4" width="6" height="3" rx="1.2" fill="#EC6A5B"/>
+      </g>
+    </svg>
+  );
+  return (
+    <svg viewBox="0 0 32 32" style={w}>
+      <path d="M16 10 c-2 -1.6 -4.4 -1.8 -6.4 -0.6 c-2.8 1.7 -3.6 6 -2 9.8 c1.5 3.6 4.6 6.4 8.4 6.4 c3.8 0 6.9 -2.8 8.4 -6.4 c1.6 -3.8 0.8 -8.1 -2 -9.8 c-2 -1.2 -4.4 -1 -6.4 0.6 z" fill="#D0392E"/>
+      <ellipse cx="12" cy="15.5" rx="3.6" ry="5.2" fill="#F0705E" opacity="0.55"/>
+      <path d="M16 10 q0.6 -4 4.6 -4.7" fill="none" stroke="#6B4A2A" strokeWidth="1.9" strokeLinecap="round"/>
+      <path d="M19.6 5.6 q4.4 -1.7 5.8 1.7 q-3.3 2.5 -6.4 0.2 z" fill="#63A83E"/>
+    </svg>
+  );
+};
+const D2_ITEMS = [
+  { type: 'mug', x: 10, y: 26, s: 56, dur: 12, del: 0 }, { type: 'driver', x: 77, y: 30, s: 60, dur: 10, del: 1.2 },
+  { type: 'tablet', x: 56, y: 66, s: 52, dur: 14, del: 0.5 }, { type: 'pencil', x: 16, y: 62, s: 56, dur: 13, del: 1.6 },
+  { type: 'apple', x: 84, y: 55, s: 46, dur: 11, del: 2.2 }, { type: 'apple', x: 42, y: 82, s: 40, dur: 13, del: 0.9 }
+];
+const FloatingItems = () => (
+  <div className="d2-debris" aria-hidden="true">
+    {D2_ITEMS.map((d, i) => (
+      <span key={i} className="d2-debris-el" style={{ left: `${d.x}%`, top: `${d.y}%`, animationDuration: `${d.dur}s`, animationDelay: `${d.del}s` }}>
+        <ItemSvg type={d.type} s={d.s}/>
+      </span>
+    ))}
+  </div>
+);
+
+// s0 sahna (Dars02): UCHISH BOSHQARUV-DEKI — kema interyeri + illyuminator (koinot, Yer YO'Q — uzoqda)
+// + suzuvchi buyumlar + Bit + chalkash bort-kodlari (miltirovchi neon). Proporsiya cqw/cqh (d2-scene).
+const D2_HOOK_CODES = [{ x: 44, y: 8, code: '47', c: '#6EF29B' }, { x: 60, y: 7, code: '63', c: '#FFC23C' }, { x: 75, y: 12, code: '82', c: '#5BD6F2' }];
+const FlightDeckScene = () => (
+  <div className="d2-scene">
+    <CargoHoldBg fill/>
+    <FloatingItems/>
+    {D2_HOOK_CODES.map((d, i) => (
+      <span key={i} style={{ position: 'absolute', left: `${d.x}%`, top: `${d.y}%`, zIndex: 2, padding: '2px 7px', borderRadius: 5, background: 'rgba(8,17,31,0.92)', border: '1px solid #2c3554', fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(13px, 3.4cqw, 20px)', fontWeight: 800, letterSpacing: '0.05em', color: d.c, textShadow: `0 0 8px ${d.c}`, animation: `d2neon 1.6s ease-in-out ${i * 0.4}s infinite` }}>{d.code}</span>
+    ))}
+    <div className="d2-scene-bit"><span className="g1-cast-fig"><BitSVG state="present"/></span></div>
+  </div>
+);
+
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2431,7 +2517,7 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <HookScene gathered={ok}/>
+          <FlightDeckScene/>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}>{t(c.q)}</p>
         {picked === null && (
@@ -2472,7 +2558,17 @@ const Screen1 = (props) => {
       screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
       screenMeta={SCREEN_META[props.screen]} screenContent={withBridgeAudio(c, 's1')}
       question={<div><Bridge text={t(BRIDGES.s1)}/><QTitle title={t(c.lead)} q={t(c.q)}/></div>}
-      figure={(solved) => <PackTenViz merged={solved}/>}
+      figure={() => (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '12px 0', position: 'relative', minHeight: 'clamp(140px, 30vw, 190px)', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', width: 'min(68%, 300px)', height: '82%', background: 'radial-gradient(ellipse at center, rgba(91,214,242,0.28), rgba(255,138,92,0.14) 45%, transparent 72%)', animation: 'g1pulse 3s ease-in-out infinite', pointerEvents: 'none', borderRadius: '50%' }}/>
+          {[[9, 18], [90, 14], [15, 80], [85, 82], [5, 48], [95, 44], [50, 6], [50, 92], [28, 30], [72, 28]].map(([x, y], i) => (
+            <span key={i} style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, color: i % 2 ? '#FFD873' : '#8FE0F4', fontSize: `${9 + (i % 3) * 6}px`, animation: `g1twinkle ${1.5 + (i % 4) * 0.35}s ease-in-out ${i * 0.16}s infinite`, pointerEvents: 'none', textShadow: '0 0 6px currentColor' }}>✦</span>
+          ))}
+          <div style={{ position: 'relative', zIndex: 1, animation: 'd2hover 5.5s ease-in-out infinite' }}>
+            <CodeTablo tens={4} ones={7} tensLabel={t({ ru: 'десятки', uz: "o'nliklar" })} onesLabel={t({ ru: 'единицы', uz: 'birliklar' })}/>
+          </div>
+        </div>
+      )}
       options={[t(c.opt0), t(c.opt1), t(c.opt2)]}
       correctIdx={0}
       optionsCols={3}
@@ -2485,11 +2581,50 @@ const Screen1 = (props) => {
 
 // s2 — OCHILISH-1: tap-to-cassette — 10 batareyani kassetaga
 // batareyalar markazdagi kasseta ATROFIDA halqa bo'lib joylashadi (markaz bo'sh — kasseta uchun)
-const S2_POS = [
-  { x: 8,  y: 10, r: -24 }, { x: 38, y: 6,  r: 18 }, { x: 66, y: 8,  r: -8 }, { x: 86, y: 15, r: 32 },
-  { x: 4,  y: 42, r: 26 },  { x: 88, y: 44, r: -30 },
-  { x: 8,  y: 78, r: 10 },  { x: 38, y: 85, r: 22 }, { x: 66, y: 83, r: -18 }, { x: 86, y: 74, r: 8 }
+// ambient-deka: o'qish ekranlari chetlarini to'ldiruvchi suzuvchi buyumlar (mikrogravitatsiya)
+const D2_DECK = [
+  { type: 'clip', x: 7, y: 28, s: 48, dur: 12, del: 0 }, { type: 'pencil', x: 13, y: 70, s: 44, dur: 13, del: 1.4 },
+  { type: 'mug', x: 90, y: 26, s: 48, dur: 11, del: 0.6 }, { type: 'apple', x: 91, y: 68, s: 38, dur: 12, del: 1.8 }
 ];
+const AmbientDeck = () => (
+  <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden', opacity: 0.6 }}>
+    {D2_DECK.map((f, i) => (
+      <span key={i} style={{ position: 'absolute', left: `${f.x}%`, top: `${f.y}%`, transform: 'translate(-50%,-50%)', animation: `d2hover ${f.dur}s ease-in-out ${f.del}s infinite` }}>
+        <ItemSvg type={f.type} s={f.s}/>
+      </span>
+    ))}
+  </div>
+);
+
+// KATTA KOSMIK ESHIK (airlock) — o'qish sahnasi: yonida kod-tablo turadi (filmlardek). To'g'ri kod -> eshik ochiladi.
+const DOOR_STARS = [[24, 34], [48, 30], [64, 50], [38, 66], [56, 92], [30, 104], [70, 80], [44, 116]];
+const BigDoor = ({ unlocked = false }) => (
+  <svg viewBox="0 0 100 150" style={{ width: 'clamp(80px, 21vw, 124px)', height: 'auto', display: 'block', flexShrink: 0, filter: 'drop-shadow(0 4px 8px rgba(18,24,40,0.4))' }} aria-hidden="true">
+    <rect x="3" y="3" width="94" height="144" rx="9" fill="#28324b" stroke="#161d2e" strokeWidth="3"/>
+    <clipPath id="d2doorclip"><rect x="10" y="22" width="80" height="114" rx="3"/></clipPath>
+    <g clipPath="url(#d2doorclip)">
+      <rect x="10" y="22" width="80" height="114" fill="#0a1120"/>
+      {DOOR_STARS.map(([x, y], i) => <circle key={i} className="d2-star" style={{ animationDelay: `${(i % 5) * 0.5}s` }} cx={x} cy={y} r={i % 3 === 0 ? 1.4 : 0.9} fill="#DCEAF8"/>)}
+    </g>
+    <g style={{ transition: 'transform .7s cubic-bezier(.5,0,.2,1)' }} transform={unlocked ? 'translate(-16 0)' : ''}>
+      <rect x="11" y="22" width="38" height="114" rx="2" fill="url(#d2metal)" stroke="#5a6788" strokeWidth="1.4"/>
+      <rect x="15" y="30" width="30" height="45" rx="2" fill="#3b4568" opacity="0.7"/>
+      <rect x="15" y="83" width="30" height="45" rx="2" fill="#3b4568" opacity="0.7"/>
+      <circle cx="44" cy="79" r="2.2" fill="#6b7899"/>
+    </g>
+    <g style={{ transition: 'transform .7s cubic-bezier(.5,0,.2,1)' }} transform={unlocked ? 'translate(16 0)' : ''}>
+      <rect x="51" y="22" width="38" height="114" rx="2" fill="url(#d2metal)" stroke="#5a6788" strokeWidth="1.4"/>
+      <rect x="55" y="30" width="30" height="45" rx="2" fill="#3b4568" opacity="0.7"/>
+      <rect x="55" y="83" width="30" height="45" rx="2" fill="#3b4568" opacity="0.7"/>
+      <circle cx="56" cy="79" r="2.2" fill="#6b7899"/>
+    </g>
+    <rect x="12" y="12" width="76" height="7" fill="#FFC23C"/>
+    <g stroke="#1E273E" strokeWidth="2.6">{[0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => <path key={i} d={`M${13 + i * 8.5} 12 l4.5 7`}/>)}</g>
+    <circle className={unlocked ? '' : 'd2-neon'} cx="50" cy="141" r="3.4" fill={unlocked ? '#6EF29B' : '#E0533F'} style={{ transition: 'fill .4s' }}/>
+  </svg>
+);
+
+// s2 — OCHILISH-1 (FAOL O'QISH, yumaloq/nol): kod 40 -> «qirq»; nol o'qilmaydi, lekin yoziladi
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2497,104 +2632,17 @@ const Screen2 = (props) => {
   const sfx = useSfx();
   const audio = useAudio([
     brgSeg('s2', lang),
-    { id: 's2_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
-    { id: 's2_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: { type: 'cassette_closed' } },
-    { id: 's2_2', text: c.audio[lang][2], trigger: 'on_event:done', waits_for: null }
+    { id: 's2_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: { type: 'w0' } },
+    { id: 's2_1', text: c.audio[lang][1], trigger: 'on_event:done', waits_for: null }
   ]);
   const canAct = useCanAnswer(audio);
-  const [moved, setMoved] = useState(() => new Set());
-  const [tied, setTied] = useState(false);
-  const revealRef = useRevealScroll(tied, 700);
-  const tap = (i) => {
-    if (!canAct || tied || moved.has(i)) return;
-    const n = new Set(moved); n.add(i);
-    setMoved(n);
-    if (n.size === 10) setTimeout(() => { setTied(true); sfx.playCorrect(); audio.triggerInternal('done'); }, 500);
-  };
-  const canAdv = useAdvanceGate(tied, audio);
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <Bridge text={t(BRIDGES.s2)}/>
-        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 16px)' }}>
-          <div className="d2-field">
-            <CargoHoldBg earth fill/>
-            <FloatingDebris/>
-            {S2_POS.map((p, i) => !moved.has(i) && (
-              <button key={i} className="d2-fbatt" disabled={!canAct} onClick={() => tap(i)}
-                style={{ left: `${p.x}%`, top: `${p.y}%`, ['--r']: `${p.r}deg`, animationDelay: `${0.1 + i * 0.07}s` }} aria-label={`${i + 1}`}>
-                <BatterySvg/>
-              </button>
-            ))}
-            <div className={`d2-casszone ${tied ? 'd2-casszone-tied' : ''}`}>
-              {tied ? (
-                <span className="g1-pop-in d2-bob" style={{ display: 'inline-flex' }}><CassetteSvg lit className="d2-casssvg-big"/></span>
-              ) : (
-                <span className="d2-slotgrid">
-                  {Array.from({ length: 10 }).map((_, k) => (
-                    <span key={k} className={`d2-slot ${k < moved.size ? 'd2-slot-full' : ''}`}>
-                      {k < moved.size && <span className="g1-pop-in" style={{ display: 'inline-flex' }}><BatterySvg className="d2-battsvg-slot"/></span>}
-                    </span>
-                  ))}
-                </span>
-              )}
-              <span className={`d2-count mono ${tied ? 'd2-count-ok' : ''}`}>{moved.size} / 10</span>
-            </div>
-          </div>
-        </div>
-        {tied && (
-          <div ref={revealRef} className="frame-success fade-up">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 2vw, 14px)', flexWrap: 'wrap', marginBottom: 'clamp(8px, 1.6vw, 12px)' }}>
-              <span style={{ display: 'inline-flex', gap: 2, alignItems: 'flex-end', flexWrap: 'wrap', maxWidth: 150, justifyContent: 'center' }}>
-                {Array.from({ length: 10 }).map((_, i) => <BatterySvg key={i} className="d2-battsvg-slot"/>)}
-              </span>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 800, color: T.ink2 }}>=</span>
-              <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                <CassetteSvg lit/>
-                <b style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(12px, 1.9vw, 14px)', color: T.accent }}>{lang === 'ru' ? '1 десяток' : "1 o'nlik"}</b>
-              </span>
-            </div>
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s3 — OCHILISH-2: 24 ni yig'ish
-const Screen3 = (props) => {
-  const lang = useLang();
-  const t = useT();
-  const c = CONTENT.s3;
-  const sfx = useSfx();
-  const audio = useAudio([
-    brgSeg('s3', lang),
-    { id: 's3_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: { type: 'tens_built' } },
-    { id: 's3_1', text: c.audio[lang][1], trigger: 'on_event:tens', waits_for: { type: 'ones_built' } },
-    { id: 's3_2', text: c.audio[lang][2], trigger: 'on_event:done', waits_for: null }
-  ]);
-  const canAct = useCanAnswer(audio);
-  const [tens, setTens] = useState(0);
-  const [ones, setOnes] = useState(0);
-  const done = tens === 2 && ones === 4;
-  const revealRef = useRevealScroll(done, 600);
-  const addTen = () => {
-    if (!canAct || tens >= 2 || done) return;
-    const v = tens + 1; setTens(v);
-    if (v === 2) audio.triggerInternal('tens');
-  };
-  const addOne = () => {
-    if (tens < 2 || ones >= 4 || done) return;
-    const v = ones + 1; setOnes(v);
-    if (v === 4) { sfx.playCorrect(); audio.triggerInternal('done'); }
+  const [done, setDone] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());   // погашенные неверные — веди-до-верного
+  const revealRef = useRevealScroll(done, 500);
+  const pick = (i, ok) => {
+    if (!canAct || done || wrong.has(i)) return;
+    if (ok) { sfx.playCorrect(); setDone(true); audio.triggerInternal('done'); }
+    else { sfx.playWrong && sfx.playWrong(); setWrong(w => new Set(w).add(i)); }
   };
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -2605,26 +2653,86 @@ const Screen3 = (props) => {
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge text={t(BRIDGES.s2)}/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(150px, 32vw, 200px)' }}>
+          <CodeTablo tens={4} ones={0} tensLabel={t(c.tens_label)} onesLabel={t(c.ones_label)} emph={!done ? 'tens' : null} name={done ? t(c.name_read) : null}/>
+          {!done && (
+            <>
+              <p className="mono" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px, 1.9vw, 15px)', textAlign: 'center' }}>{t(c.q)}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: 'min(380px, 96%)' }}>
+                {c.opts.map((o, i) => (
+                  <button key={i} className={`option ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
+                    style={{ padding: 'clamp(9px,1.6vw,12px) clamp(14px,2.4vw,20px)', fontSize: 'clamp(15px,2.2vw,18px)', fontWeight: 700, fontFamily: "'Source Serif 4', serif" }}>{t(o)}</button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+        {wrong.size > 0 && !done && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(c.wrong)}/></div>}
+        {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+
+// s3 — OCHILISH-2 (FAOL YOZISH): nomdan kod terish — Bit «ellik uch» deydi, bola raqam-plita bilan 53 ni yozadi
+const S3_TARGET = [5, 3];
+const Screen3 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.s3;
+  const sfx = useSfx();
+  const audio = useAudio([
+    brgSeg('s3', lang),
+    { id: 's3_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: { type: 'w0' } },
+    { id: 's3_1', text: c.audio[lang][1], trigger: 'on_event:done', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [slots, setSlots] = useState([null, null]);
+  const [wrong, setWrong] = useState(false);
+  const [done, setDone] = useState(false);
+  const nextEmpty = slots[0] === null ? 0 : (slots[1] === null ? 1 : -1);
+  const revealRef = useRevealScroll(done, 500);
+  const place = (d) => {
+    if (!canAct || done || nextEmpty < 0) return;
+    if (wrong) setWrong(false);   // qayta urinishда yordam yo'qoladi
+    const ns = [...slots]; ns[nextEmpty] = d; setSlots(ns);
+    if (ns[0] !== null && ns[1] !== null) {
+      if (ns[0] === S3_TARGET[0] && ns[1] === S3_TARGET[1]) {
+        sfx.playCorrect(); setDone(true); audio.triggerInternal('done');
+      } else {
+        sfx.playWrong && sfx.playWrong(); setWrong(true); setTimeout(() => setSlots([null, null]), 1300);
+      }
+    }
+  };
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const emph = nextEmpty === 0 ? 'tens' : nextEmpty === 1 ? 'ones' : null;
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s3)}/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <RazryadTable tens={tens} ones={ones} tensLabel={t(c.tens_label)} onesLabel={t(c.ones_label)} concrete emph={audio.currentSegment === 's3_0' ? 'tens' : audio.currentSegment === 's3_1' ? 'ones' : null}/>
-          <BigNum v={tens === 0 && ones === 0 ? '?' : tens * 10 + ones} accent={done}/>
-          <div className="d2-srcrow">
-            <button className="g1-tile d2-srcbtn" disabled={!canAct || tens >= 2} onClick={addTen}>
-              <CassetteSvg className="d2-casssvg-btn"/><span>{t(c.src_tens)}</span>
-            </button>
-            <button className={`g1-tile d2-srcbtn ${tens < 2 ? 'd2-src-wait' : ''}`} disabled={tens < 2 || ones >= 4} onClick={addOne}>
-              <BatterySvg className="d2-battsvg-btn"/><span>{t(c.src_ones)}</span>
-            </button>
-          </div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 16px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <CodeTablo tens={slots[0] === null ? '_' : slots[0]} ones={slots[1] === null ? '_' : slots[1]} tensLabel={t(c.tens_label)} onesLabel={t(c.ones_label)} emph={emph}/>
+          {!done && (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 300 }}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map(d => (
+                <button key={d} className="option" disabled={!canAct || done || nextEmpty < 0} onClick={() => place(d)}
+                  style={{ width: 'clamp(38px,8.6vw,48px)', height: 'clamp(42px,8.6vw,50px)', fontSize: 'clamp(19px,4.2vw,25px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{d}</button>
+              ))}
+            </div>
+          )}
         </div>
-        {done && (
-          <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
+        {wrong && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(c.wrong)}/></div>}
+        {done && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(c.done_text)}/></div>}
       </div>
     </Stage>
   );
@@ -2632,20 +2740,53 @@ const Screen3 = (props) => {
 
 // s4 — OCHILISH-3 (razryad kartasi): 34 -> o'nlik|birlik; 34 = 30 + 4
 // REAL-VAQT: ovoz o'zi ketma-ket yangraydi; ustunlar ovozga sinxron yonadi, tenglama o'zi yig'iladi (tugma yo'q).
+// KOD-TABLO (Dars02 o'z mexanikasi): boshqaruv minorasi displeyi — ikki raqam-xona (rang-kod),
+// yorliqlar + pastda nom. Kasseta/batareya YO'Q (o'qish/yozish darsi, place-value emas).
+const CodeTablo = ({ tens, ones, tensLabel, onesLabel, emph = null, name = null }) => {
+  const tHi = emph === 'tens', oHi = emph === 'ones';
+  const CBG = 'linear-gradient(180deg,#0e1526,#1a2340)';
+  const cell = (v, color, glow, hi, dim) => (
+    <div style={{ background: CBG, padding: 'clamp(10px,2.4vw,16px)', textAlign: 'center', lineHeight: 1, fontSize: 'clamp(52px,13vw,84px)', fontWeight: 800, color, textShadow: hi ? `0 0 20px ${glow}` : `0 0 7px ${glow}`, opacity: dim ? 0.4 : 1, transition: 'all .3s', fontFamily: "'JetBrains Mono', monospace" }}>{v}</div>
+  );
+  const lab = (txt, dim) => (
+    <div style={{ background: CBG, padding: '7px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.8vw,13px)', fontWeight: 800, letterSpacing: '.02em', color: '#8fa0c0', textTransform: 'uppercase', whiteSpace: 'nowrap', opacity: dim ? 0.4 : 1, transition: 'all .3s' }}>{txt}</div>
+  );
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)' }}>
+      {/* grid-gap chiziqlari: 2px gap orqali konteyner foni (#2c3554) ko'rinadi -> qator/ustun ajratgichlari ANIQ tekis tushadi */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px', width: 'min(360px,96%)', borderRadius: 16, overflow: 'hidden', border: '2px solid #2c3554', background: '#2c3554', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}>
+        {lab(tensLabel, oHi)}{lab(onesLabel, tHi)}
+        {cell(tens, '#FF9166', 'rgba(255,138,92,.85)', tHi, oHi)}
+        {cell(ones, '#5BD6F2', 'rgba(91,214,242,.85)', oHi, tHi)}
+      </div>
+      {name && <span className="title g1-pop-in" style={{ fontSize: 'clamp(19px,3.6vw,26px)', fontWeight: 700, color: T.ink }}>{name}</span>}
+    </div>
+  );
+};
+
 const Screen4 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s4;
+  const sfx = useSfx();
   const audio = useAudio([
     brgSeg('s4', lang),
-    ...c.audio[lang].map((text, i) => ({ id: `s4_${i}`, text, trigger: 'after_previous', waits_for: null }))
+    { id: 's4_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: { type: 'w0' } },
+    { id: 's4_1', text: c.audio[lang][1], trigger: 'on_event:go1', waits_for: { type: 'w1' } },
+    { id: 's4_2', text: c.audio[lang][2], trigger: 'on_event:go2', waits_for: null }
   ]);
-  const seg = audio.currentSegment;
-  const [reached, setReached] = useState(-1);
-  useEffect(() => { if (seg && /^s4_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const emph = seg === 's4_1' ? 'tens' : seg === 's4_2' ? 'ones' : null;
-  const done = reached >= (c.audio[lang].length - 1);
-  const showEq = reached >= 3;
+  const canAct = useCanAnswer(audio);
+  const [step, setStep] = useState(0);   // 0 o'nlik nomi, 1 birlik nomi, 2 tugadi
+  const [wrong, setWrong] = useState(() => new Set());   // погашенные неверные — веди-до-верного
+  const done = step >= 2;
+  const emph = step === 0 ? 'tens' : step === 1 ? 'ones' : null;
+  const revealRef = useRevealScroll(done, 500);
+  const opts = step === 0 ? c.tens_opts : c.ones_opts;
+  const pick = (i, ok) => {
+    if (!canAct || done || wrong.has(i)) return;
+    if (ok) { sfx.playCorrect(); setWrong(new Set()); const n = step + 1; setStep(n); audio.triggerInternal('go' + n); }
+    else { sfx.playWrong && sfx.playWrong(); setWrong(w => new Set(w).add(i)); }
+  };
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2658,18 +2799,31 @@ const Screen4 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s4)}/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(150px, 32vw, 200px)' }}>
-          <RazryadTable tens={3} ones={4} tensLabel={t(c.tens_label)} onesLabel={t(c.ones_label)} concrete emph={emph}/>
-          {showEq && <span className="mono d2-eq g1-pop-in" style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 800 }}>34 = 30 + 4</span>}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(150px, 32vw, 200px)' }}>
+          <CodeTablo tens={4} ones={5} tensLabel={t(c.tens_label)} onesLabel={t(c.ones_label)} emph={emph} name={done ? t(c.name_read) : null}/>
+          {!done && (
+            <>
+              <p className="mono" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px, 1.9vw, 15px)', textAlign: 'center' }}>{t(step === 0 ? c.q_tens : c.q_ones)}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, width: 'min(380px, 96%)' }}>
+                {opts.map((o, i) => (
+                  <button key={i} className={`option ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
+                    style={{ padding: 'clamp(9px,1.6vw,12px) clamp(14px,2.4vw,20px)', fontSize: 'clamp(15px,2.2vw,18px)', fontWeight: 700, fontFamily: "'Source Serif 4', serif" }}>{t(o)}</button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
-        {done && <InfoNote badge={t(c.info_badge)} text={t(c.info)}/>}
+        {wrong.size > 0 && !done && (
+          <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(step === 0 ? c.tens_wrong : c.ones_wrong)}/></div>
+        )}
+        {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
     </Stage>
   );
 };
 
 // s5 — OCHILISH-4 (o'rin hal qiladi): 45 va 54, kod terish
-const POS_TARGETS = [[4, 5], [5, 4]];
+const POS_TARGETS = [[4, 7], [7, 4]];   // Dars02 reversal: 47 va 74 (o'qish/yozish)
 // s5 — animatsion LYUK: kod to'g'ri terilganda eshiklar ikki tomonga suriladi, ortida koinot + yashil yorug'.
 const HATCH_STARS = [[34, 30], [58, 24], [78, 42], [98, 30], [46, 56], [90, 58], [66, 48], [110, 44]];
 // ICHMA-ICH 2 bosqichli lyuk: OLD (tashqi) gorizontal eshiklar; ular ochilgach ORTIDA
@@ -2743,7 +2897,8 @@ const Screen5 = (props) => {
   const revealRef = useRevealScroll(done, 500);
   const nextEmpty = slots[0] === null ? 0 : (slots[1] === null ? 1 : -1);
   const placeDigit = (d) => {
-    if (!canAct || done || wrong || slots.includes(d)) return;
+    if (!canAct || done || slots.includes(d)) return;
+    if (wrong) setWrong(false);   // qayta urinishда yordam yo'qoladi
     if (slots[0] === null) { setSlots([d, null]); return; }
     if (slots[1] !== null) return;
     const ns = [slots[0], d];
@@ -2758,8 +2913,8 @@ const Screen5 = (props) => {
         setSlots([null, null]); setOpened(false);
       }, 950);
     } else {
-      setWrong(true);
-      setTimeout(() => { setSlots([null, null]); setWrong(false); }, 1200);
+      sfx.playWrong && sfx.playWrong(); setWrong(true);
+      setTimeout(() => setSlots([null, null]), 1200);
     }
   };
   const canAdv = useAdvanceGate(done, audio);
@@ -2792,17 +2947,17 @@ const Screen5 = (props) => {
               <div className="d2-hatchtablo">
                 <span className="mono" style={{ fontSize: 'clamp(9px, 1.3vw, 11px)', fontWeight: 800, letterSpacing: '0.14em', color: T.ink3, textTransform: 'uppercase' }}>{lang === 'uz' ? 'Kod tablosi' : 'Табло кода'}</span>
                 <p className="mono" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px, 1.9vw, 15px)', textAlign: 'center' }}>{t(roundIdx === 0 ? c.round1 : c.round2)}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(220px, 100%)', border: `2px solid ${wrong ? '#D64545' : T.ink3}`, borderRadius: 12, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
-                  <div style={{ padding: '4px 6px', textAlign: 'center', fontSize: 11, fontWeight: 700, color: T.ink2, background: T.bg, borderRight: `1px solid ${T.ink3}`, borderBottom: `1px solid ${T.ink3}` }}>{t(c.tens_label)}</div>
-                  <div style={{ padding: '4px 6px', textAlign: 'center', fontSize: 11, fontWeight: 700, color: T.ink2, background: T.bg, borderBottom: `1px solid ${T.ink3}` }}>{t(c.ones_label)}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#D64545' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
+                  <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderRight: `1px solid ${T.ink3}`, borderBottom: `1px solid ${T.ink3}` }}>{t(c.tens_label)}</div>
+                  <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderBottom: `1px solid ${T.ink3}` }}>{t(c.ones_label)}</div>
                   {[0, 1].map(si => (
-                    <div key={si} style={{ minHeight: 'clamp(46px, 9vw, 62px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(28px, 6vw, 42px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#FF4F28' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (!wrong && nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
+                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#FF4F28' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
                   ))}
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 12 }}>
-                {[4, 5].map(d => (
-                  <button key={d} className="option" disabled={!canAct || slots.includes(d) || wrong} onClick={() => placeDigit(d)}
+                {[4, 7].map(d => (
+                  <button key={d} className="option" disabled={!canAct || slots.includes(d)} onClick={() => placeDigit(d)}
                     style={{ width: 'clamp(56px, 12vw, 70px)', height: 'clamp(56px, 11vw, 70px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(26px, 5.5vw, 34px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace" }}>{d}</button>
                 ))}
               </div>
@@ -2877,11 +3032,13 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
           <path d={`M ${nlx(guess) - 5} ${NL_y - 20} L ${nlx(guess) + 5} ${NL_y - 20} L ${nlx(guess)} ${NL_y - 13} Z`} fill="#F0A81E"/>
         </g>
       )}
-      {/* haqiqiy marker — tushuntirishда o'zi sakraydi */}
+      {/* haqiqiy marker — Dars02: kod-displey chipi (neon), marshrutdagi kod */}
       {!asking && (
         <g style={{ transform: `translateX(${nlx(pos) - nlx(0)}px)`, transition: 'transform 0.7s cubic-bezier(0.34, 1.2, 0.4, 1)' }}>
-          <text x={nlx(0)} y={NL_y - 13} textAnchor="middle" fontSize="15" fontWeight="800" fill={T.ink} fontFamily="'JetBrains Mono', monospace">{pos}</text>
-          <circle cx={nlx(0)} cy={NL_y} r="6" fill={T.ink}/>
+          <rect x={nlx(0) - 16} y={NL_y - 32} width="32" height="21" rx="4" fill="#0e1526" stroke="#2c3554" strokeWidth="1.5"/>
+          <text x={nlx(0)} y={NL_y - 17} textAnchor="middle" fontSize="13" fontWeight="800" fill="#8FE0F4" fontFamily="'JetBrains Mono', monospace" style={{ filter: 'drop-shadow(0 0 4px rgba(143,224,244,0.7))' }}>{pos}</text>
+          <line x1={nlx(0)} y1={NL_y - 11} x2={nlx(0)} y2={NL_y} stroke="#2c3554" strokeWidth="1.5"/>
+          <circle cx={nlx(0)} cy={NL_y} r="5.5" fill="#0e1526" stroke="#5BD6F2" strokeWidth="1.6"/>
         </g>
       )}
     </svg>
@@ -2979,9 +3136,9 @@ const Screen7 = (props) => {
           <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
             {lang === 'ru' ? (
-              <>В двузначном числе <b style={{ color: '#FF4F28' }}>левая</b> цифра — <b style={{ color: '#FF4F28' }}>десятки</b>, <b style={{ color: '#019ACB' }}>правая</b> — <b style={{ color: '#019ACB' }}>единицы</b>.</>
+              <>Читаем слева направо: имя <b style={{ color: '#FF4F28' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             ) : (
-              <>Ikki xonali sonda <b style={{ color: '#FF4F28' }}>chap</b> raqam — <b style={{ color: '#FF4F28' }}>o'nliklar</b>, <b style={{ color: '#019ACB' }}>o'ng</b> raqam — <b style={{ color: '#019ACB' }}>birliklar</b>.</>
+              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#FF4F28' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
             )}
           </p>
         </div>
@@ -3078,8 +3235,7 @@ const Screen8 = (props) => {
   );
   const srcBtn = (kind, label, on, dis) => (
     <button className={`d2-conbtn ${kind === 'cass' ? 'd2-conbtn-cass' : 'd2-conbtn-batt'}`} disabled={dis || solved} onClick={on}>
-      {kind === 'cass' ? <CassetteSvg className="d2-conbtn-ic"/> : <BatterySvg className="d2-conbtn-icb"/>}
-      <span className="d2-conbtn-lbl">{label}</span>
+      <span className="d2-conbtn-lbl" style={{ fontSize: '1.7em', fontWeight: 800, lineHeight: 1 }}>＋</span>
     </button>
   );
   const minusBtn = (kind, on, dis) => (
@@ -3090,15 +3246,13 @@ const Screen8 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <Bridge text={t(BRIDGES.s8)}/>
         <div className="d2-diag-head fade-up">
-          <span className="d2-diag-title mono">{lang === 'uz' ? 'Yig\'ish' : 'Сборка'}</span>
+          <span className="d2-diag-title mono">{lang === 'uz' ? 'Yozish' : 'Запись'}</span>
           <span className="d2-diag-prog mono">{Math.min(round, total)} / {total}</span>
         </div>
-        <h1 key={round} className="title h-sub fade-up" style={{ textAlign: 'center' }}>{lang === 'uz' ? `${targetNum} ni yig'ing` : `Собери ${targetNum}`}</h1>
+        <h1 key={round} className="title h-sub fade-up" style={{ textAlign: 'center' }}>{lang === 'uz' ? `Kodni yozing: ${numName(targetNum, 'uz')}` : `Запиши код: ${numName(targetNum, 'ru')}`}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)', position: 'relative' }}>
           <span key={spark} className="g1-cele-wrap" style={{ position: 'absolute', left: '50%', top: '30%', width: 0, height: 0, pointerEvents: 'none' }}>{spark > 0 && <SparkBurst/>}</span>
-          <div className="d2-console">
-            <CassBattViz tens={tens} ones={ones} dock ans={solved ? targetNum : null}/>
-          </div>
+          <CodeTablo tens={tens} ones={ones} tensLabel={t(c.tens_label)} onesLabel={t(c.ones_label)}/>
           {!solved && (
             <div className="d2-buildrows">
               <div className="d2-buildcol">
@@ -3131,10 +3285,10 @@ const Screen8 = (props) => {
   );
 };
 
-// s9 — MASHQ-2 (scored, tasniflash): kasseta->o'nlik, batareya->birlik
+// s9 — MASHQ-2 (scored, tasniflash): kodlarni YUMALOQ (nol birlik) / BIRLIKLI tryumlarga ajratish
 const SORT_ITEMS = [
-  { id: 'c0', kind: 'cass' }, { id: 'c1', kind: 'cass' }, { id: 'c2', kind: 'cass' }, { id: 'c3', kind: 'cass' },
-  { id: 'b0', kind: 'batt' }, { id: 'b1', kind: 'batt' }, { id: 'b2', kind: 'batt' }, { id: 'b3', kind: 'batt' }
+  { id: 'a', code: 40 }, { id: 'b', code: 45 }, { id: 'c', code: 70 },
+  { id: 'd', code: 63 }, { id: 'e', code: 80 }, { id: 'f', code: 52 }
 ];
 const Screen9 = (props) => {
   const lang = useLang();
@@ -3154,7 +3308,7 @@ const Screen9 = (props) => {
   const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
   const attemptsRef = useRef(props.storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
   const revealRef = useRevealScroll(solved, 500);
-  const binFor = (kind) => (kind === 'cass' ? 'tens' : 'ones');
+  const binFor = (item) => (item.code % 10 === 0 ? 'round' : 'units');
   const finish = () => {
     setSolved(true); sfx.playCorrect();
     const pw = nextPraise(lang); setPraiseWord(pw);
@@ -3172,7 +3326,7 @@ const Screen9 = (props) => {
     if (!canAns || solved || sel === null) return;
     const item = SORT_ITEMS.find(i => i.id === sel);
     attemptsRef.current += 1;
-    if (binFor(item.kind) === bin) {
+    if (binFor(item) === bin) {
       const np = new Set(placed); np.add(sel); setPlaced(np); setSel(null); setShowWrong(false);
       if (np.size === SORT_ITEMS.length) setTimeout(finish, 160);
     } else {
@@ -3190,18 +3344,16 @@ const Screen9 = (props) => {
     </>
   );
   const unplaced = SORT_ITEMS.filter(i => !placed.has(i.id));
-  const tensPlaced = SORT_ITEMS.filter(i => placed.has(i.id) && i.kind === 'cass').length;
-  const onesPlaced = SORT_ITEMS.filter(i => placed.has(i.id) && i.kind === 'batt').length;
-  const Hold = ({ bin, label, count, kind }) => (
+  const codeChip = (code, sm) => (
+    <span className="mono" style={{ fontSize: sm ? 'clamp(15px,2.8vw,20px)' : 'clamp(24px,5vw,32px)', fontWeight: 800, padding: sm ? '3px 8px' : '5px 12px', borderRadius: 8, background: 'linear-gradient(180deg,#0e1526,#1a2340)', border: '1px solid #2c3554', color: '#E4ECF6', lineHeight: 1, display: 'inline-flex' }}>{code}</span>
+  );
+  const binCodes = (r) => SORT_ITEMS.filter(i => placed.has(i.id) && (i.code % 10 === 0) === r).map(i => i.code);
+  const Hold = ({ bin, label, codes }) => (
     <button className={`d2-hold ${solved ? 'd2-hold-ok' : ''} ${wrongBin === bin ? 'd2-hold-wrong' : ''} ${sel !== null ? 'd2-hold-armed' : ''}`}
       disabled={!canAns || solved || sel === null} onClick={() => tapBin(bin)}>
       <span className="d2-hold-label mono">{label}</span>
-      <span className="d2-hold-slot">
-        {Array.from({ length: count }).map((_, k) => (
-          <span key={k} className="d2-hold-chip">{kind === 'cass' ? <CassetteSvg className="d2-casssvg-btn"/> : <BatterySvg className="d2-battsvg-btn"/>}</span>
-        ))}
-      </span>
-      <span className={`d2-hold-count mono ${count > 0 ? 'on' : ''}`}>{count}</span>
+      <span className="d2-hold-slot">{codes.map((code, k) => <span key={k} className="d2-hold-chip">{codeChip(code, true)}</span>)}</span>
+      <span className={`d2-hold-count mono ${codes.length > 0 ? 'on' : ''}`}>{codes.length}</span>
     </button>
   );
   return (
@@ -3213,8 +3365,8 @@ const Screen9 = (props) => {
           {unplaced.length > 0 ? (
             <div className="d2-sortpool">
               {unplaced.map((it) => (
-                <button key={it.id} className={`d2-sortitem d2-float ${sel === it.id ? 'd2-sortitem-sel' : ''}`} disabled={!canAns || solved} onClick={() => tapItem(it.id)}>
-                  {it.kind === 'cass' ? <CassetteSvg/> : <BatterySvg/>}
+                <button key={it.id} className={`d2-sortitem ${sel === it.id ? 'd2-sortitem-sel' : ''}`} disabled={!canAns || solved} onClick={() => tapItem(it.id)} style={{ padding: 4 }}>
+                  {codeChip(it.code)}
                 </button>
               ))}
             </div>
@@ -3223,8 +3375,8 @@ const Screen9 = (props) => {
           )}
         </div>
         <div className="d2-holds fade-up delay-1">
-          <Hold bin="tens" label={t(c.hold_tens)} count={tensPlaced} kind="cass"/>
-          <Hold bin="ones" label={t(c.hold_ones)} count={onesPlaced} kind="batt"/>
+          <Hold bin="round" label={t(c.hold_round)} codes={binCodes(true)}/>
+          <Hold bin="units" label={t(c.hold_units)} codes={binCodes(false)}/>
         </div>
         {solved && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -3350,11 +3502,43 @@ const razryadSub = (tens, ones, order) => {
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
+// s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
+const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
+const MiniCode = ({ code }) => {
+  const t = Math.floor(code / 10), o = code % 10;
+  return (
+    <span style={{ display: 'inline-flex', gap: 3, padding: '7px 16px', borderRadius: 11, background: 'linear-gradient(180deg,#0e1526,#1a2340)', border: '2px solid #2c3554', fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(30px,7vw,46px)', fontWeight: 800, lineHeight: 1 }}>
+      <span style={{ color: '#FF9166', textShadow: '0 0 8px rgba(255,138,92,.6)' }}>{t}</span>
+      <span style={{ color: '#5BD6F2', textShadow: '0 0 8px rgba(91,214,242,.6)' }}>{o}</span>
+    </span>
+  );
+};
+const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
+const READ_WRONG = {
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+};
+const readSub = (code, order) => {
+  const t = Math.floor(code / 10), o = code % 10;
+  const rev = o * 10 + t;
+  const defs = [{ ru: numName(code, 'ru'), uz: numName(code, 'uz') }, { ru: numName(rev, 'ru'), uz: numName(rev, 'uz') }, { ru: concatNm(code, 'ru'), uz: concatNm(code, 'uz') }];
+  const types = ['correct', 'swap', 'concat'];
+  return {
+    figure: <MiniCode code={code}/>,
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
+    correctIdx: order.indexOf(0),
+    wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
+  };
+};
 const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты видишь десятки и единицы в любом числе.', uz: "Zo'r! Har sonda o'nlik va birlikni ko'ryapsiz." };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
 const Screen10 = (props) => (
-  <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE}
-    subs={[razryadSub(5, 2, [1, 2, 0, 3]), razryadSub(3, 7, [2, 0, 3, 1]), razryadSub(6, 1, [0, 3, 1, 2]), razryadSub(4, 8, [3, 1, 2, 0])]}/>
+  <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
+    subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
 );
 
 // s11 — MASHQ-4 (scored MC): taqqoslash 45 va 54
@@ -3372,11 +3556,29 @@ const compareSub = (a, b) => ({
   correctIdx: a > b ? 0 : 1,
   wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том баке топлива больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha tankda yoqilg'i ko'p." }[lg])
 });
-const S11_LABEL = { ru: 'Сравнение', uz: 'Taqqoslash' };
-const S11_DONE = { ru: 'Верно! Больше десятков — больше число.', uz: "To'g'ri! Ko'proq o'nlik — kattaroq son." };
+// s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
+const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
+const WRITE_WRONG = {
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+};
+const writeSub = (code, order) => {
+  const t = Math.floor(code / 10), o = code % 10;
+  const vals = [code, o * 10 + t, t + o];
+  const types = ['correct', 'swap', 'sum'];
+  return {
+    figure: <NameFig code={code}/>,
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
+    correctIdx: order.indexOf(0),
+    wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
+  };
+};
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
 const Screen11 = (props) => (
-  <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={2}
-    subs={[compareSub(45, 54), compareSub(41, 38), compareSub(59, 60), compareSub(72, 27)]}/>
+  <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
+    subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
 );
 
 // s12 — MASALA (kirish/kontekst): yuk xati (keep-visible)
@@ -3428,7 +3630,10 @@ const ScreenCase = (props) => {
         <Bridge text={t(BRIDGES.s12)}/>
         <p className="fade-up" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(13px, 1.9vw, 15px)', margin: 0 }}>{t(cx.lead)}</p>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(10px, 2vw, 14px)' }}>
-          <CargoRackViz withManifest ans={solved ? 63 : null}/>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px,1.4vw,10px)', padding: 'clamp(10px,2vw,16px)', borderRadius: 12, background: '#F4F0E8', border: `1px dashed ${T.ink3}` }}>
+            <span className="mono" style={{ fontSize: 'clamp(10px,1.5vw,12px)', fontWeight: 800, letterSpacing: '.1em', color: T.ink3, textTransform: 'uppercase' }}>{t(cx.manifest_label)}</span>
+            <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink }}>{t({ ru: numName(63, 'ru'), uz: numName(63, 'uz') })}</span>
+          </div>
         </div>
         <h2 className="title fade-up" style={{ textAlign: 'center', fontSize: 'clamp(16px, 2.4vw, 20px)' }}>{t(cq.q)}</h2>
         {!solved ? (
@@ -3448,7 +3653,7 @@ const ScreenCase = (props) => {
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
 const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты видишь десятки и единицы в любом числе.', uz: "Test o'tdi! Har sonda o'nlik va birlikni ko'ryapsiz." };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -3464,7 +3669,8 @@ const Screen14 = (props) => {
           </div>
         </div>
       )}
-      subs={[razryadSub(2, 6, [1, 0, 2, 3]), razryadSub(5, 3, [2, 3, 0, 1]), razryadSub(6, 1, [3, 1, 0, 2]), razryadSub(4, 7, [0, 3, 1, 2])]}/>
+      cols={1}
+      subs={[readSub(58, [1, 0, 2]), writeSub(84, [0, 2, 1]), readSub(36, [2, 1, 0]), writeSub(72, [1, 2, 0])]}/>
   );
 };
 
