@@ -915,7 +915,7 @@ const SCREEN_META = [
   { id: 's7',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 7  QOIDA (hookga qaytadi)
   { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq: 45 ni yig'ish
   { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  tasniflash (tap-to-bin)
-  { id: 's10', type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },  // 10 MC: 5 o'nlik 2 birlik -> 52
+  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 MOSLASH: nom <-> kod (63/45/70/52, 70=nol-birlik)
   { id: 's11', type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },  // 11 taqqoslash 45/54
   { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 12 YUK XATI (s12+s13 birlashgan): jami 63
   { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 13 FINAL panel: 4 savol + FactCard
@@ -944,7 +944,7 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // ============================================================
 
 const CONTENT = {
-  // s0 — HOOK (scope: hook): sayyoraga qo'nish, ucholmaydi, o'ntadan yoqilg'i
+  // s0 — HOOK (scope: hook): sayyoraga qo'nish, ucholmaydi, o'ntadan quvvat
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
     topic: { ru: 'Тема: Чтение и запись чисел', uz: "Mavzu: Sonlarni o'qish va yozish" },
@@ -1174,25 +1174,32 @@ const CONTENT = {
     }
   },
 
-  // s10 — MASHQ-3 (scored MC): 5 o'nlik 2 birlik -> 52
+  // s10 — MASHQ-3 (scored, MOSLASH): kod <-> nom. Chapda KOD (num), o'ngda NOM (form, bilingual).
+  // 70 = yetmish — nol-birlik nuansi. Baholash ALL-OR-NOTHING (MatchStage'da), o'ng ustun mount'da aralashadi.
   s10: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какое число — пять десятков и две единицы?', uz: "Qaysi son — besh o'nlik va ikki birlik?" },
-    // ASL variantlar: [52(correct), 25, 7, 502]
-    wrong_1: { ru: 'Здесь два десятка и пять единиц. Поменяй местами.', uz: "Bu yerda ikki o'nlik va besh birlik. O'rnini almashtiring." },
-    wrong_2: { ru: 'Семь получится, если сложить. А десятки и единицы стоят отдельно.', uz: "Yetti — qo'shsak chiqadi. O'nlik va birlik alohida turadi." },
-    wrong_3: { ru: 'Это слишком большое число. У нас только десятки и единицы.', uz: "Bu juda katta son. Bizda faqat o'nlik va birlik." },
+    q: { ru: 'Соедини каждый код с его именем.', uz: "Har kodni uning nomi bilan tutashtiring." },
+    nums_label: { ru: 'КОДЫ', uz: 'KODLAR' },
+    forms_label: { ru: 'ИМЕНА', uz: 'NOMLAR' },
+    pairs: [
+      { num: 63, form: { ru: 'шестьдесят три', uz: 'oltmish uch' } },
+      { num: 45, form: { ru: 'сорок пять', uz: 'qirq besh' } },
+      { num: 70, form: { ru: 'семьдесят', uz: 'yetmish' } },   // nol-birlik nuansi
+      { num: 52, form: { ru: 'пятьдесят два', uz: 'ellik ikki' } }
+    ],
+    check_label: { ru: 'Проверить', uz: 'Tekshirish' },
+    hint: { ru: 'Раздели каждый код на десятки и единицы, потом прочитай имя.', uz: "Har kodni o'nlik va birlikka ajrating, keyin nomini o'qing." },
     audio: {
-      intro: { ru: 'Бортовой тест. На дисплее загораются коды. Прочитай каждый код и выбери имя.', uz: "Bort testi. Displeyda kodlar yonadi. Har kodni o'qing va nomini tanlang." },
-      on_correct: { ru: 'Верно. Читаем слева направо, по разрядам.', uz: "To'g'ri. Chapdan o'ngga, xonalab o'qiymiz." },
-      on_wrong: { ru: 'Посмотри разбор. Десятки слева, единицы справа.', uz: "Tushuntirishga qarang. O'nliklar chapda, birliklar o'ngda." }
+      intro: { ru: 'Бортовой тест. На дисплее — коды и их имена. Соедини каждый код с его именем. Нажми код слева, потом его имя справа. Помни про ноль: семьдесят это семь десятков и ноль единиц.', uz: "Bort testi. Displeyda — kodlar va ularning nomlari. Har kodni uning nomi bilan tutashtiring. Chapdan kodni bosing, keyin o'ngdan nomini bosing. Nolni unutmang: yetmish bu yetti o'nlik va nol birlik." },
+      on_correct: { ru: 'Верно. Каждый код лёг на своё имя. Читаем по разрядам, десятки, потом единицы.', uz: "To'g'ri. Har kod o'z nomiga tushdi. Xonalab o'qiymiz, o'nliklar, keyin birliklar." },
+      on_wrong: { ru: 'Пока не все пары верные. Читай по разрядам, имя десятков, потом имя единиц.', uz: "Hali hamma juft to'g'ri emas. Xonalab o'qing, o'nlik nomi, keyin birlik nomi." }
     }
   },
 
   // s11 — MASHQ-4 (scored MC): taqqoslash 45 va 54
   s11: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'У какого корабля топлива больше?', uz: "Qaysi kemada yoqilg'i ko'p?" },
+    q: { ru: 'У какого корабля заряда больше?', uz: "Qaysi kemada quvvat ko'p?" },
     opt0: { ru: 'Корабль сорок пять', uz: 'Qirq besh kemasi' },
     opt1: { ru: 'Корабль пятьдесят четыре', uz: "Ellik to'rt kemasi" },   // correct (idx 1)
     audio: {
@@ -1268,26 +1275,26 @@ const CONTENT = {
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
   s1:  { ru: 'Теперь проверим, как ты понял.', uz: 'Endi qanday tushunganingizni tekshiramiz.' },
-  s2:  { ru: 'Готовим топливо. Сначала посмотрим, что такое десяток.', uz: "Yoqilg'ini tayyorlaymiz. Avval o'nlik nima, ko'ramiz." },
+  s2:  { ru: 'Готовим заряд. Сначала посмотрим, что такое десяток.', uz: "Quvvatni tayyorlaymiz. Avval o'nlik nima, ko'ramiz." },
   s3:  { ru: 'Десяток понятен. Теперь соберём из них числа.', uz: "O'nlikni bildik. Endi undan sonlarni yig'amiz." },
   s4:  { ru: 'Собрали. Теперь заглянем внутрь числа.', uz: "Yig'dik. Endi sonning ichiga qaraymiz." },
   s5:  { ru: 'Внимание. Место цифры решает.', uz: "Diqqat. Raqamning o'rni muhim." },
   s6:  { ru: 'Покажем это число на прямой.', uz: "Shu sonni o'qda ko'rsatamiz." },
   s7:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s8:  { ru: 'Правило знаем. Теперь готовь топливо сам.', uz: "Qoidani bilamiz. Endi yoqilg'ini o'zingiz tayyorlang." },
+  s8:  { ru: 'Правило знаем. Теперь готовь заряд сам.', uz: "Qoidani bilamiz. Endi quvvatni o'zingiz tayyorlang." },
   s9:  { ru: 'Разложим груз по отсекам.', uz: 'Yukni tryumlarga ajratamiz.' },
-  s10: { ru: 'Проверим ещё раз.', uz: 'Yana bir tekshiramiz.' },
+  s10: { ru: 'Соединим коды и имена.', uz: 'Kodlar va nomlarni tutashtiramiz.' },
   s11: { ru: 'Два корабля встретились.', uz: 'Ikki kema uchrashdi.' },
   s12: { ru: 'Последний груз. Сколько по накладной?', uz: "Oxirgi yuk. Xatda nechta?" },
   s13: { ru: 'Считаем всё вместе.', uz: 'Hammasini birga sanaymiz.' },
   s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.' },
-  s15: { ru: 'Топливо готово. Взлетаем!', uz: "Yoqilg'i tayyor. Uchamiz!" }
+  s15: { ru: 'Заряд готов. Взлетаем!', uz: "Quvvat tayyor. Uchamiz!" }
 };
 
 // s15 uchish-payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'Топливо собрано десятками, двигатель заправлен. Корабль летит дальше, к дому Бита! Спасибо за помощь.',
-  uz: "Yoqilg'i o'nliklarga yig'ildi, dvigatel to'ldi. Kema Bitning uyiga tomon uchadi! Yordamingiz uchun rahmat."
+  ru: 'Заряд собран десятками, двигатель заряжен. Корабль летит дальше, к дому Бита! Спасибо за помощь.',
+  uz: "Quvvat o'nliklarga yig'ildi, dvigatel zaryadlandi. Kema Bitning uyiga tomon uchadi! Yordamingiz uchun rahmat."
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
@@ -2206,7 +2213,7 @@ const MCScreen = ({ props, cKey, base, correctIndex, order, figure, fact = null,
 // --- v8 «UCHISHGA TAYYORLIK» shkalasi (dars-ichi element — INFRA/Stage TEGILMAYDI).
 // screen indeksidan deterministik: pct = screen / (total - 1); oxirgi slaydda to'la.
 // Kontent zonasidan tashqarida (lesson-root darajasida), o'ng chekkada ixcham vertikal
-// yoqilg'i-shkala + ko'tarilayotgan mini-raketa. Skrollsiz, pointer-events yo'q; nav/audio/
+// quvvat-shkala + ko'tarilayotgan mini-raketa. Skrollsiz, pointer-events yo'q; nav/audio/
 // javoblar bilan urishmaydi (o'ng gutterда). reduced-motion — statik to'ldirish.
 // C — YO'L XARITASI: Yer (past) → Mars → Yupiter → Saturn → Uran → Neptun → Bit uyi (tepa).
 // Dars01 = birinchi bosqich (Yer'dan uchish); raketa Yer'dan Mars tomon shu dars davomida ohista suzadi.
@@ -2400,7 +2407,7 @@ const NumberLine = () => {
   );
 };
 
-// s0 — HOOK: sayyoraga qo'nish, yoqilg'i o'ntalab (picked to'liq reset qaytishda)
+// s0 — HOOK: sayyoraga qo'nish, quvvat o'ntalab (picked to'liq reset qaytishda)
 // suzuvchi BUYUMLAR (mikrogravitatsiya) — odam ishlatadigan narsalar (sim/buzuq qism EMAS)
 const ItemSvg = ({ type, s }) => {
   const w = { width: s, height: 'auto', display: 'block', filter: 'drop-shadow(0 3px 5px rgba(18,24,40,0.4))' };
@@ -3534,12 +3541,147 @@ const readSub = (code, order) => {
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
-const Screen10 = (props) => (
-  <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
-    subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
-);
+// ============================================================
+// MatchStage — «MOSLASH» (juftlarni ulash) savol-turi (Dars03 etalonidan ko'chirilgan, self-contained).
+// Mexanika (tap-birinchi, typing yo'q): chapdan KOD bosiladi (armed) -> o'ngdan NOM bosiladi -> juft
+// ulanadi (juft-rang: ikkala uchi bir xil rang + nuqta). Ulangan chap/o'ngni QAYTA bossa — uzadi.
+// Hamma juft ulanganda «Tekshirish» faollashadi. BAHOLASH — ALL-OR-NOTHING: qisman to'g'ri = HAMMA
+// ulangan juft QIZIL (per-juft yashil EMAS); verdikt pairs.every(...). To'g'ri (hammasi) = yashil +
+// reveal. Xato «Maslahat» (c.hint) javob bermaydi. O'ng ustun mount'da shuffleArr bilan aralashadi.
+// form bilingual bo'lsa t() bilan o'qiladi (Dars02'da nom RU/UZ farq qiladi).
+// ============================================================
+const MATCH_COLORS = ['#019ACB', '#8B5CF6', '#12B5B0', '#EC6C9C'];   // juft-ranglar (qizil/yashil EMAS)
+const MATCH_RED = '#D64524';
+const MatchStage = ({ props, cKey }) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT[cKey];
+  const sfx = useSfx();
+  const meta = SCREEN_META[props.screen];
+  const pairs = c.pairs;
+  const fnode = (f) => (f && typeof f === 'object' ? t(f) : f);   // form string yoki {ru,uz}
+  const wasSolved = props.storedAnswer?.solved === true;
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAns = useCanAnswer(audio);
+  // O'ng ustun tartibi — mount'da BIR MARTA aralashadi (deterministik render). rightOrder[ri]=asl pair indeks.
+  const [rightOrder] = useState(() => shuffleArr(pairs.map((_, i) => i)));
+  const correctMap = React.useCallback(() => { const m = {}; pairs.forEach((_, li) => { m[li] = rightOrder.indexOf(li); }); return m; }, [pairs, rightOrder]);
+  const [links, setLinks] = useState(() => wasSolved ? correctMap() : {});   // leftIdx -> rightSlotIdx
+  const [sel, setSel] = useState(null);        // armed chap element (null = yo'q)
+  const [wrongShown, setWrongShown] = useState(false);
+  const [solved, setSolved] = useState(wasSolved);
+  const [praiseWord, setPraiseWord] = useState('');
+  const firstTryRef = useRef(props.storedAnswer ? (props.storedAnswer.firstTry ?? null) : null);
+  const attemptsRef = useRef(props.storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
+  const revealRef = useRevealScroll(solved, 500);
+  const ownerOf = (ri) => { const k = Object.keys(links).find((li) => links[li] === ri); return k === undefined ? undefined : Number(k); };
+  const allConnected = Object.keys(links).length === pairs.length;
+  const tapLeft = (li) => {
+    if (!canAns || solved) return;
+    setWrongShown(false);
+    if (links[li] !== undefined) { setLinks((p) => { const n = { ...p }; delete n[li]; return n; }); setSel(null); return; }
+    setSel((s) => (s === li ? null : li));
+  };
+  const tapRight = (ri) => {
+    if (!canAns || solved) return;
+    setWrongShown(false);
+    if (sel === null) {
+      const owner = ownerOf(ri);
+      if (owner !== undefined) setLinks((p) => { const n = { ...p }; delete n[owner]; return n; });
+      return;
+    }
+    setLinks((p) => { const n = { ...p }; Object.keys(n).forEach((li) => { if (n[li] === ri) delete n[li]; }); n[sel] = ri; return n; });
+    setSel(null);
+  };
+  const finish = () => {
+    setSolved(true); sfx.playCorrect();
+    const pw = nextPraise(lang); setPraiseWord(pw);
+    if (firstTryRef.current === null) firstTryRef.current = true;
+    if (meta.scored) props.onAnswer({
+      stage: meta.scope, screenIdx: props.screen,
+      question: t(c.q), options: null, correctIndex: null, correctAnswer: 'matched',
+      studentAnswerIndex: null, studentAnswer: 'matched',
+      correct: firstTryRef.current, firstTry: firstTryRef.current, attempts: attemptsRef.current, solved: true
+    });
+    if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(pw); e.pushOneOff(c.audio.on_correct[lang]); } }
+  };
+  const check = () => {
+    if (!canAns || solved || !allConnected) return;
+    attemptsRef.current += 1;
+    const ok = pairs.every((_, li) => rightOrder[links[li]] === li);   // ALL-OR-NOTHING verdikt
+    if (ok) { setTimeout(finish, 120); return; }
+    if (firstTryRef.current === null) firstTryRef.current = false;
+    setWrongShown(true); sfx.playWrong();
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
+  };
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const cellStyle = (col) => (col ? { borderColor: col, boxShadow: `0 0 0 2px ${col}44` } : undefined);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge text={t(BRIDGES[cKey])}/>
+        <h1 className="title h-sub fade-up" style={{ textAlign: 'center' }}>{t(c.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <div className="d2-match">
+            <div className="d2-match-col">
+              <span className="d2-match-head mono">{t(c.nums_label)}</span>
+              {pairs.map((p, li) => {
+                const linked = links[li] !== undefined;
+                const col = solved ? T.success : (wrongShown && linked ? MATCH_RED : (linked ? MATCH_COLORS[li] : null));
+                return (
+                  <button key={li} type="button"
+                    className={`d2-match-cell ${sel === li ? 'd2-match-armed' : ''} ${linked ? 'd2-match-linked' : ''} ${solved ? 'd2-match-ok' : ''}`}
+                    disabled={!canAns || solved} onClick={() => tapLeft(li)} style={cellStyle(col)}>
+                    <span className="d2-match-dot" style={{ background: linked ? col : 'transparent', borderColor: linked ? col : '#C9C4BA' }}/>
+                    <span className="mono d2-match-num">{p.num}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="d2-match-col">
+              <span className="d2-match-head mono">{t(c.forms_label)}</span>
+              {rightOrder.map((origIdx, ri) => {
+                const owner = ownerOf(ri);
+                const linked = owner !== undefined;
+                const col = solved ? T.success : (wrongShown && linked ? MATCH_RED : (linked ? MATCH_COLORS[owner] : null));
+                return (
+                  <button key={ri} type="button"
+                    className={`d2-match-cell ${linked ? 'd2-match-linked' : ''} ${solved ? 'd2-match-ok' : ''}`}
+                    disabled={!canAns || solved} onClick={() => tapRight(ri)} style={cellStyle(col)}>
+                    <span className="d2-match-dot" style={{ background: linked ? col : 'transparent', borderColor: linked ? col : '#C9C4BA' }}/>
+                    <span className="d2-match-form">{fnode(pairs[origIdx].form)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+        {!solved && (
+          <button className="d2-gobtn fade-up" style={{ alignSelf: 'center' }} disabled={!canAns || !allConnected} onClick={check}>
+            {t(c.check_label)}
+          </button>
+        )}
+        {solved && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={praiseWord}/>
+          </div>
+        )}
+        {!solved && wrongShown && (
+          <FeedbackBlock show={true} isCorrect={false} wrongClass="frame-tip">
+            <Reaction state="wrong" praise={t(c.hint)}/>
+          </FeedbackBlock>
+        )}
+      </div>
+    </Stage>
+  );
+};
+const Screen10 = (props) => <MatchStage props={props} cKey="s10"/>;   // s10 — MOSLASH (kod <-> nom)
 
 // s11 — MASHQ-4 (scored MC): taqqoslash 45 va 54
 // taqqoslash savol-generatori: ikki son, qaysi katta (avval o'nlikni solishtir).
@@ -3551,10 +3693,10 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком баке топлива больше?', uz: "Qaysi tankda yoqilg'i ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том баке топлива больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha tankda yoqilg'i ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
@@ -5485,6 +5627,20 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-diag-title { font-weight: 800; font-size: clamp(11px, 1.5vw, 13px); letter-spacing: 0.14em; text-transform: uppercase; color: #017CA3; }
 .d2-diag-prog { font-weight: 800; font-size: clamp(13px, 1.8vw, 15px); color: #5A5A60; }
 .d2-diag-panel-ok { box-shadow: 0 0 0 2px #1F7A4D, 0 8px 22px -6px rgba(31,122,77,0.3) !important; background: #F1FAF4 !important; }
+
+/* === MOSLASH (MatchStage) — ikki ustun juftlash === */
+.d2-match { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(12px, 3vw, 22px); align-items: start; }
+.d2-match-col { display: flex; flex-direction: column; gap: clamp(8px, 1.8vw, 12px); }
+.d2-match-head { text-align: center; font-weight: 800; font-size: clamp(10px, 1.5vw, 12px); letter-spacing: 0.14em; color: #A7A6A2; margin-bottom: 2px; }
+.d2-match-cell { display: flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); width: 100%; min-height: clamp(48px, 10vw, 60px); padding: clamp(8px, 1.8vw, 12px) clamp(10px, 2vw, 14px); background: #FFFFFF; border: 2.5px solid #E4DECF; border-radius: 14px; cursor: pointer; transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s, background 0.2s; box-shadow: 0 4px 12px -6px rgba(58,53,48,0.18); }
+.d2-match-cell:hover:not(:disabled) { transform: translateY(-2px); }
+.d2-match-cell:disabled { cursor: default; }
+.d2-match-armed { border-color: #FF4F28; background: #FFF4F1; box-shadow: 0 0 16px -3px rgba(255,79,40,0.55); }
+.d2-match-ok { cursor: default; }
+.d2-match-dot { flex-shrink: 0; width: clamp(13px, 2.6vw, 16px); height: clamp(13px, 2.6vw, 16px); border-radius: 50%; border: 2px solid #C9C4BA; transition: background 0.2s, border-color 0.2s; }
+.d2-match-num { font-weight: 800; font-size: clamp(20px, 4.6vw, 28px); color: #0E0E10; line-height: 1; }
+.d2-match-form { font-weight: 800; font-size: clamp(15px, 3.4vw, 21px); color: #0E0E10; line-height: 1.1; letter-spacing: 0.01em; font-family: 'Source Serif 4', serif; }
+.d2-match-linked .d2-match-num, .d2-match-linked .d2-match-form { color: inherit; }
 .d2-diag-rows { display: flex; flex-direction: column; gap: clamp(6px, 1.4vw, 10px); }
 .d2-diag-done { display: flex; align-items: center; gap: 10px; background: #E3F0E8; border-radius: 10px; padding: clamp(6px, 1.3vw, 9px) clamp(10px, 2vw, 14px); }
 .d2-diag-check { width: clamp(18px, 3vw, 22px); height: clamp(18px, 3vw, 22px); border-radius: 50%; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 14px); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -5569,7 +5725,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-gobtn:disabled { opacity: 0.4; cursor: not-allowed; filter: saturate(0.4); }
 
 /* === v8 — «UCHISHGA TAYYORLIK» missiya-shkalasi (dars-ichi, INFRA'дан tashqarida) === */
-/* O'ng gutterда ixcham vertikal yoqilg'i-shkala; markazда vertikal (nav/audio/javob bilan urishmaydi).
+/* O'ng gutterда ixcham vertikal quvvat-shkala; markazда vertikal (nav/audio/javob bilan urishmaydi).
    pointer-events yo'q; skroll qo'shmaydi; Stage progress-baridan FARQLI (thematik). */
 .d2-gauge { position: absolute; right: clamp(1px, 0.6vw, 8px); top: 50%; transform: translateY(-50%); z-index: 6; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px; height: clamp(210px, 58vh, 370px); }
 .d2-gauge-label { writing-mode: vertical-rl; text-orientation: mixed; font-size: clamp(9px, 1.4vw, 12px); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: #5A6B88; opacity: 0.85; }

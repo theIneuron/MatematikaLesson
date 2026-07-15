@@ -1,27 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 2-SINF · Dars11 — "Столбik (tuzish)" / "Запись столбиком" (col-setup-2-11-v1) · Б2 MARS · spec: ETALON_2SINF.md §11 ░░
-// MEXANIKA: столбikni O'ZI tuzish — ikkinchi sonni to'g'ri ustunga qo'yish (birlik ostiga birlik).
-// Bir xonali son -> birlik ustuniga (o'nlik katagi bo'sh). To'g'ri qo'yilsa javob ochiladi. Vizual: ColumnCard (slot B-qatori) + AlignStage.
-// 2-SINF ETALONI · syujet-qobiq v3: KEMA ICHIDA (yuk bo'limi, mikrogravitatsiya).
-// (SYUJET_2SINF.md Zona A + Dars01_CONTENT.md v3, metodist 2026-07-07.)
+// ░░ 2-SINF · Dars13 — "Смысл умножения" (mul-2-13-v1) · Б3 (YUPITER) · spec: ETALON_2SINF.md §11 ░░
+// 2-SINF · syujet-qobiq v3: YUPITER (eng katta sayyora, dala/hosil). Program d.15 (SYUJET_2SINF.md Б3).
+// Baza: Dars07.jsx (infra byte-aniq meros). Bu — Б3 blokining BOSHI: Marsdan uchgan kema Yupiterga
+//   YETIB KELADI → s0 da sayyora-tanishtiruvi (Katta Qizil Dog', gorizontal chiziqlar) ochiladi.
 // Infra: grade1 Dars28.jsx dan BAYT-ANIQ (mobil zoom-qatlam + avtoskroll + keep-visible
 // QuestionScreen + AnsPop + useCanAnswer/useAdvanceGate + v5.2 AudioEngine, ayol ovoz g=f).
-// YADRO: o'nlik va birlik — 10 birlik = 1 o'nlik; ikki xonali sonda chap raqam o'nliklar, o'ng — birliklar.
-// DUNYO: koinotdagi yuk kemasining YUK BO'LIMI (ichkarida — port EMAS, tashqarida EMAS).
-//   Metall qovurg'ali devor, tutqichlar, ILLYUMINATOR (ortida koinot + halqali sayyora + yulduzlar),
-//   shift chirog'i, boshqaruv paneli. Rekvizit: BATAREYA (birlik, sanoat elementi),
-//   KASSETA = 10 batareya (o'nlik magazin, to'lganda LED yonadi), yuklash pulti, neon-displey,
-//   LYUK-kod paneli, yuk xati-planshet, magnit-rack. Cast: FAQAT BIT (ichki mezbon, suzadi).
-// FIZIKA — MIKROGRAVITATSIYA: buyumlar SUZADI, sekin aylanadi (6-14s), inersiya bilan;
-//   magnit-qulf ohista tortadi (ease-out). TORTISHISH/TUSHISH ANIMATSIYASI YO'Q. Sekin va tinch
-//   (matematikadan chalg'itmasin). Ambient: suzuvchi chang-zarralar + illyuminator yulduzlari.
-// MEXANIKA (v1 bilan bir xil — o'zgarmaydi): tap-to-cassette (s2), 24 (s3), pult-build 34 (s4),
-//   displey kartasi 34=30+4 (s5), lyuk-kod kontrasti 45/54 (s6), build+check 45 (s8), MC/HaYo'q,
-//   yuk-xati masalasi (s12-s13), final tablo 47 (s14), illyuminator warp-yulduzlari (s15).
-// s1 (1-sinf recall) — endi kosmik: o'nta porlovchi birlik-element suzib bitta blokka birlashadi.
-// Misconception'lar: M1 45<->54 · M2 o'nlik+birlikni QO'SHISH · M3 "502" · M4 kasseta/batareya farqi.
+// YADRO: KO'PAYTIRISH MA'NOSI — teng guruhlar / teng qatorlar yig'indisi. Uzun qo'shish (5+5+5) ning
+//   qisqa yozuvi = ko'paytirish (3 marta 5 = 3 × 5). Jadval EMAS (×2/×3 keyingi darslarda). Kichik sonlar.
+// DUNYO: Yupiter dalasi — teng QATORLARда hosil (ko'chat/meva). Massiv (satr × ustun) leytmotivi.
+//   Cast: Bit (kapitan-diktor, ayol ovoz) + Zuhra (masala).
+// MEXANIKA (metodist 2026-07-15): «TENG QATORLAR MASSIVI» — R qator × C hosil; bola bir qatorni
+//   sanaydi → teng qatorlar → takroriy qo'shish (C+C+C) → «R marta C» = «R × C». ArrayViz (reveal 0-3).
+// Misconception'lar (distraktor = aynan xato): M1 R+C (ko'paytirish o'rniga QO'SHISH) · M2 bitta qator (C) ·
+//   M3 R×C dan bitta kam/ortiq (noto'g'ri sanash).
 //
 // FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
 //
@@ -901,26 +894,26 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'col-setup-2-11-v1',
-  lessonTitle: { ru: 'Урок 11. Запись столбиком', uz: "11-dars. Столбik (tuzish)" }
+  lessonId: 'mul-2-13-v1',
+  lessonTitle: { ru: 'Урок 13. Смысл умножения', uz: "13-dars. Ko'paytirish ma'nosi" }
 };
-// STRUKTURA (metodist 2026-07-14): s0–s6 tushuntirish (7) · s7–sCASE mashq (6) · s14 final · s15 xulosa.
-// MEXANIKA: OmborRaf — kodni ikki razryad-rafiga ajratish (45 = 40 + 5). Nol-o'rin alohida (s4).
+// STRUKTURA: s0 Yupiter-kelish+hook · s1–s4 tushuntirish · s5–s11 mashq · s12/s13 masala · s14 final · s15 xulosa.
+// MEXANIKA: «Teng qatorlar massivi» — R qator × C hosil → C+C+C (takroriy qo'shish) → R × C. ArrayViz.
 const SCREEN_META = [
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: ombor, kod 45 keldi
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  razryad raflari tanishtiruvi
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  ajratish: 45 -> 40 + 5
-  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: razryadli qo'shiluvchilar
-  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  NOL-O'RIN: 30 = 3 o'nlik 0 birlik
-  { id: 's5',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 5  teskari: 60 + 7 -> 67
-  { id: 's6',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 6  recap-tekshiruv (Davom gate)
-  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq: ajrat 72 -> 70 + 2
-  { id: 's8',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },  // 8  MC: yoyilgan shakl 58 = 50 + 8
-  { id: 's9',  type: 'test',        template: 'ErrorSpot', scored: true, scope: 'practice' },  // 9  XATONI TOP: bir xonali son o'nlik ustunida
-  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 align (столбik tuzish, 3 misol)
-  { id: 's11', type: 'test',        template: 'ErrorSpot', scored: true, scope: 'practice' },  // 11 XATONI TOP: razryad ustunlari almashgan
-  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 12 MASALA (align): Anvar 54 + 5
-  { id: 's14',  type: 'test',       template: 'ErrorSpot', scored: true, scope: 'final' },     // 13 FINAL aralash: align + xatoni-top + tanla + FactCard
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  Yupiterga kelish + hook (3×4=12, distraktor 7)
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  NEGA ko'paytirish: teng qatorlar, uzun qo'shish
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  ishlab ko'rsatish: 2×5 → 5+5=10
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: teng guruh yig'indisi = ko'paytirish + check
+  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  2-misol + ogohlantirish (qo'shma, ko'paytir) + check
+  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 5  mashq-single: 3×3
+  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq-single: 2×4
+  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq: 3 round
+  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq: 3 round
+  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq: 3 round
+  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq: 3 round
+  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq: 3 round
+  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 12 MASALA: Zuhra 4×3
+  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 13 FINAL: 3 round + FactCard (Yupiter)
   { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 14 yakun + QOIDA recap
 ];
 
@@ -946,378 +939,315 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // ============================================================
 
 const CONTENT = {
-  // s0 — HOOK (scope: hook): Mars yuk bazasi — ikki yuk, jami qancha
+  // s0 — HOOK (scope: hook): Yupiterga kelish + dala (3 qator × 4 ko'chat = 12; distraktor 7 = 3+4)
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Запись столбиком', uz: "Mavzu: Столбik (tuzish)" },
-    lead: { ru: 'Куда писать число?', uz: "Sonni qayerga yozamiz?" },
-    q: { ru: '52 + 3 — это 55 или 82?', uz: "52 + 3 — bu 55 mi yoki 82 mi?" },
-    opt0: { ru: '82', uz: '82' },
-    opt1: { ru: '55', uz: '55' },   // to'g'ri (idx1 = correct-key)
+    topic: { ru: 'Тема: Смысл умножения', uz: "Mavzu: Ko'paytirish ma'nosi" },
+    lead: { ru: 'Сколько всего ростков?', uz: "Jami qancha ko'chat?" },
+    q: { ru: '3 ряда по 4 ростка. Сколько всего?', uz: "3 qatorda 4 tadan ko'chat. Jami nechta?" },
+    opt0: { ru: '7', uz: '7' },     // distraktor = 3+4 (ko'paytirish o'rniga qo'shish)
+    opt1: { ru: '12', uz: '12' },   // to'g'ri (idx1 = correct-key)
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Сегодня тема урока — как правильно записать числа столбиком. Единицы под единицами, десятки под десятками.',
-          'Корабль Бита на красной планете Марс. На грузовой базе считают ящики.',
-          'В контейнере пятьдесят два ящика, рядом ещё три. Сколько всего?',
-          'Послушай два ответа. Первый — восемьдесят два. Второй — пятьдесят пять. Или ты пока не знаешь. Выбери свой ответ.'
+          'Сегодня тема урока — смысл умножения. Корабль Бита улетел с Марса и вышел на орбиту самой большой планеты — Юпитера.',
+          'На Юпитере нельзя приземлиться, там ничего не растёт. Поэтому урожай растёт в теплице корабля, ровными рядами. В трёх рядах по четыре ростка.',
+          'Сколько всего ростков? Считать по одному долго. Есть ли способ быстрее?',
+          'Послушай два ответа. Первый — семь. Второй — двенадцать. Или ты пока не знаешь. Выбери свой ответ.'
         ],
         uz: [
-          "Bugungi dars mavzusi — sonlarni ustunlab to'g'ri yozish. Birlik ostiga birlik, o'nlik ostiga o'nlik.",
-          "Bitning kemasi qizil sayyora Marsda. Yuk bazasida qutilar sanaladi.",
-          "Konteynerda ellik ikki quti, yonida yana uchta. Jami qancha?",
-          "Ikki javobni tinglang. Birinchi — sakson ikki. Ikkinchi — ellik besh. Yoki hali bilmaysiz. O'z javobingizni tanlang."
+          "Bugungi dars mavzusi — ko'paytirish ma'nosi. Bitning kemasi Marsdan uchib, eng katta sayyora Yupiter orbitasiga yetib keldi.",
+          "Yupiterga qo'nib bo'lmaydi, unda hech narsa o'smaydi. Shuning uchun hosil kema issiqxonasida, teng qatorlarda o'sadi. Uchta qatorda to'rttadan ko'chat bor.",
+          "Jami nechta ko'chat? Bittalab sanash uzoq. Tezroq yo'l bormi?",
+          "Ikki javobni tinglang. Birinchi — yetti. Ikkinchi — o'n ikki. Yoki hali bilmaysiz. O'z javobingizni tanlang."
         ]
       },
-      on_correct: { ru: 'Верно. Пятьдесят два плюс три это пятьдесят пять.', uz: "To'g'ri. Ellik ikki qo'shuv uch — ellik besh." },
-      on_wrong: { ru: 'Три это единицы, поэтому пишем под единицами. Сейчас научимся.', uz: "Uch — bu birlik, shuning uchun birlik ostiga yozamiz. Hozir o'rganamiz." },
-      on_unknown: { ru: 'Ничего. Сейчас научимся ставить числа в столбик.', uz: "Hechqisi yo'q. Hozir sonlarni ustunga to'g'ri qo'yishni o'rganamiz." }
+      on_correct: { ru: 'Верно. Три ряда, в каждом по четыре. Четыре плюс четыре плюс четыре это двенадцать. Это три раза по четыре.', uz: "To'g'ri. Uchta qator, har birida to'rtta. To'rt qo'shuv to'rt qo'shuv to'rt — o'n ikki. Bu uch marta to'rt." },
+      on_wrong: { ru: 'Тут ровные ряды. Быстрый способ их сосчитать — умножение. Сейчас научимся.', uz: "Bu yerda teng qatorlar bor. Ularni tez sanash yo'li — ko'paytirish. Hozir o'rganamiz." },
+      on_unknown: { ru: 'Ничего. Научимся считать ровные ряды — умножать.', uz: "Hechqisi yo'q. Teng qatorlarni sanashni — ko'paytirishni o'rganamiz." }
     }
   },
 
-  // s1 — TUSHUNTIRISH-1: ustunlab — o'nlik ostiga o'nlik, birlik ostiga birlik
+  // s1 — TUSHUNTIRISH-1: NEGA ko'paytirish — teng qatorlar, uzun qo'shish (4+4+4 = 3 marta 4)
   s1: {
-    eyebrow: { ru: 'Почему столбиком?', uz: 'Nega ustunlab?' },
-    lead: { ru: 'Каждый разряд в свой столбик.', uz: "Har razryad o'z ustuniga." },
-    body: { ru: 'Вспомни разряды. Десятки пишем под десятками, единицы под единицами. Тогда каждый столбик считаем отдельно.', uz: "Razryadlarni eslang. O'nlikni o'nlik ostiga, birlikni birlik ostiga yozamiz. Shunda har ustunni alohida sanaymiz." },
+    eyebrow: { ru: 'Почему умножение?', uz: 'Nega ko\'paytirish?' },
+    lead: { ru: 'Почему умножаем?', uz: "Nega ko'paytiramiz?" },
+    body: { ru: 'Считать ровные ряды по одному долго. В каждом ряду одинаково — по 4. Четыре плюс четыре плюс четыре. Одно и то же число сложили 3 раза. Это записывают коротко: 3 раза по 4, то есть 3 умножить на 4.', uz: "Teng qatorlarni bittalab sanash uzoq. Har qatorda bir xil — to'rttadan. To'rt qo'shuv to'rt qo'shuv to'rt. Bir xil son 3 marta qo'shildi. Buni qisqa yozamiz: 3 marta 4, ya'ni 3 ko'paytiruv 4." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Единицы под единицами, десятки под десятками — это главное в столбике.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik — столбikda eng muhimi shu." },
+    info: { ru: 'Умножение — короткий способ сложить одинаковые группы.', uz: "Ko'paytirish — teng guruhlarni qo'shishning qisqa yo'li." },
     audio: {
       ru: [
-        'В столбике у каждого разряда своё место. Вспомни разряды из третьего урока.',
-        'Сорок три это сорок и три. Двадцать пять это двадцать и пять.',
-        'Десятки ставим под десятками, единицы под единицами. Так удобно считать.'
+        'Почему ровные ряды умножают? Посмотри: в каждом ряду одинаковое число — четыре.',
+        'Четыре плюс четыре плюс четыре. Одно и то же число сложили три раза.',
+        'Это записывают коротко — три раза по четыре. Это умножение. Короткий способ длинного сложения.'
       ],
       uz: [
-        "Столбikda har razryadning o'z o'rni bor. Uchinchi darsdagi razryadlarni eslang.",
-        "Qirq uch — bu qirq va uch. Yigirma besh — bu yigirma va besh.",
-        "O'nlikni o'nlik ostiga, birlikni birlik ostiga qo'yamiz. Shunday sanash qulay."
+        "Nega teng qatorlarni ko'paytiramiz? Qarang: har qatorda bir xil son — to'rtta.",
+        "To'rt qo'shuv to'rt qo'shuv to'rt. Bir xil son uch marta qo'shildi.",
+        "Buni qisqa yozamiz — uch marta to'rt. Bu ko'paytirish. Uzun qo'shishning qisqa yo'li."
       ]
     }
   },
 
-  // s2 — TUSHUNTIRISH-2 (ishlab ko'rsatish): 34 + 25 = 59
+  // s2 — TUSHUNTIRISH-2 (ishlab ko'rsatish): 2 qator × 5 = 5+5 = 10
   s2: {
-    eyebrow: { ru: 'Один разряд', uz: 'Bir xonali son' },
-    lead: { ru: 'Прибавим 6 к 43.', uz: "43 ga 6 ni qo'shamiz." },
+    eyebrow: { ru: 'Считаем ряды', uz: 'Qatorlarni sanaymiz' },
+    lead: { ru: '2 ряда по 5 ростков.', uz: "2 qatorda 5 tadan ko'chat." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: '6 — это единицы. Пишем 6 под единицами, под 3. Тогда 43 + 6 = 49.', uz: "6 — bu birlik. 6 ni birlik ostiga, 3 ning tagiga yozamiz. Shunda 43 + 6 = 49." },
+    info: { ru: '2 ряда по 5: 5 + 5 = 10. Это 2 × 5 = 10.', uz: "2 qator, 5 tadan: 5 + 5 = 10. Bu 2 × 5 = 10." },
     audio: {
       ru: [
-        'Прибавим к сорока трём число шесть.',
-        'Шесть это единицы. Ставим шесть под единицами, ровно под тройкой, не под десятками. Три плюс шесть это девять.',
-        'В столбике десятков только четыре, снизу ничего нет. Десятки остаются четыре.',
-        'Получилось сорок девять. Сорок три плюс шесть это сорок девять.'
+        'В теплице корабля два ряда, в каждом по пять ростков. Сосчитаем умножением.',
+        'В каждом ряду одинаково — по пять. Пять плюс пять это десять.',
+        'Пять взяли два раза. Это два умножить на пять, коротко два на пять.',
+        'Всего десять ростков. Два умножить на пять это десять.'
       ],
       uz: [
-        "Qirq uchga oltini qo'shamiz.",
-        "Olti — bu birlik. Oltini birlik ostiga, aynan uchning tagiga qo'yamiz, o'nlik ostiga emas. Uch qo'shuv olti — to'qqiz.",
-        "O'nliklar ustunida faqat to'rt, tagida hech narsa yo'q. O'nliklar to'rt bo'lib qoladi.",
-        "Qirq to'qqiz bo'ldi. Qirq uch qo'shuv olti — qirq to'qqiz."
+        "Kema issiqxonasida ikkita qator, har birida beshtadan ko'chat. Ko'paytirib sanaymiz.",
+        "Har qatorda bir xil — beshtadan. Besh qo'shuv besh — o'n.",
+        "Beshni ikki marta oldik. Bu ikki ko'paytiruv besh, qisqacha ikki marta besh.",
+        "Jami o'nta ko'chat. Ikki marta besh — o'n."
       ]
     }
   },
 
-  // s3 — QOIDA: avval birliklar, keyin o'nliklar
+  // s3 — QOIDA: teng guruhlar yig'indisi = ko'paytirish + check (3 qator × 2 = 6)
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Ставим единицы под единицами, десятки под десятками. Однозначное число пишем под единицами.', uz: "Birlikni birlik ostiga, o'nlikni o'nlik ostiga qo'yamiz. Bir xonali sonni birlik ustuniga yozamiz." },
-    check_q: { ru: '34 + 5 = ?', uz: '34 + 5 = ?' },
-    opts: [{ ru: '39', uz: '39', ok: true }, { ru: '84', uz: '84' }, { ru: '35', uz: '35' }, { ru: '30', uz: '30' }],
-    wrong: { ru: 'Пять это единицы: пишем под 4. Тридцать четыре плюс пять это тридцать девять.', uz: "Besh — bu birlik: 4 ning tagiga yozamiz. O'ttiz to'rt qo'shuv besh — o'ttiz to'qqiz." },
-    check_ok: { ru: 'Верно! 34 + 5 = 39.', uz: "To'g'ri! 34 + 5 = 39." },
+    rule: { ru: 'Умножение — это сложение одинаковых групп. Сколько рядов — столько раз берём. 3 ряда по одному числу — это 3 раза. Число в каждой группе должно быть одинаковым.', uz: "Ko'paytirish — teng guruhlarni qo'shish. Necha qator bo'lsa — shuncha marta olamiz. 3 qator, bir xil son — 3 marta. Har guruhda son bir xil bo'lishi shart." },
+    check_q: { ru: '3 ряда по 2. Сколько всего?', uz: "3 qatorda 2 tadan. Jami nechta?" },
+    opts: [{ ru: '6', uz: '6', ok: true }, { ru: '5', uz: '5' }, { ru: '4', uz: '4' }],
+    wrong: { ru: 'В каждом ряду по два, рядов три. Два плюс два плюс два.', uz: "Har qatorda ikkita, qator uchta. Ikki qo'shuv ikki qo'shuv ikki." },
+    check_ok: { ru: 'Верно! 3 раза по 2 это 6.', uz: "To'g'ri! 3 marta 2 — 6." },
     audio: {
       ru: [
-        'Запишем главное правило записи столбиком. Слушай.',
-        'Единицы всегда под единицами, десятки под десятками.',
-        'Если число однозначное, оно только из единиц. Пишем его под единицами.',
-        'Тогда каждый столбик считаем отдельно, ничего не путаем.',
-        'А теперь сам. Сколько будет тридцать четыре плюс пять?'
+        'Запишем правило умножения. Слушай и запомни.',
+        'Если сложить одинаковые группы, получится умножение.',
+        'Сколько раз берём — столько раз. Три ряда с одинаковым числом это три раза.',
+        'Число в каждой группе должно быть одинаковым. Только тогда умножаем.',
+        'А теперь сам. Три ряда по два. Сколько всего?'
       ],
       uz: [
-        "Столбik yozuvining asosiy qoidasini yozamiz. Tinglang.",
-        "Birlik doim birlik ostiga, o'nlik o'nlik ostiga.",
-        "Agar son bir xonali bo'lsa, u faqat birlikdan iborat. Uni birlik ostiga yozamiz.",
-        "Shunda har ustunni alohida sanaymiz, hech narsani chalkashtirmaymiz.",
-        "Endi o'zingiz. O'ttiz to'rt qo'shuv besh nechchi bo'ladi?"
+        "Ko'paytirish qoidasini yozamiz. Tinglang va yodlang.",
+        "Teng guruhlarni qo'shsak, ko'paytirish bo'ladi.",
+        "Necha marta olsak — shuncha marta. Uch qator, bir xil son — uch marta.",
+        "Har guruhda son bir xil bo'lishi shart. Faqat shunda ko'paytiramiz.",
+        "Endi o'zingiz. Uch qatorda ikkitadan. Jami nechta?"
       ]
     }
   },
 
-  // s4 — TUSHUNTIRISH-3 (yana misol): 52 + 16 = 68
+  // s4 — TUSHUNTIRISH-3 (yana misol + ogohlantirish): 4 qator × 3 = 12
   s4: {
-    eyebrow: { ru: 'И для вычитания', uz: 'Ayirishda ham' },
-    lead: { ru: 'Вычтем 4 из 58.', uz: "58 dan 4 ni ayiramiz." },
-    body: { ru: '4 — это единицы. Пишем 4 под единицами, под 8. 58 − 4 = 54.', uz: "4 — bu birlik. 4 ni birlik ostiga, 8 ning tagiga yozamiz. 58 − 4 = 54." },
-    warn: { ru: 'Не ставь однозначное под десятками!', uz: "Bir xonali sonni o'nlik ostiga qo'yma!" },
-    check_q: { ru: '58 − 4 = ?', uz: '58 − 4 = ?' },
-    opts: [{ ru: '54', uz: '54', ok: true }, { ru: '18', uz: '18' }, { ru: '55', uz: '55' }],
-    wrong: { ru: '4 под единицами: восемь минус четыре это четыре. 58 − 4 = 54.', uz: "4 birlik ostiga: sakkiz ayir to'rt — to'rt. 58 − 4 = 54." },
-    check_ok: { ru: 'Верно! 58 − 4 = 54.', uz: "To'g'ri! 58 − 4 = 54." },
+    eyebrow: { ru: 'Ещё пример', uz: 'Yana misol' },
+    lead: { ru: '4 ряда по 3 ростка.', uz: "4 qatorda 3 tadan ko'chat." },
+    body: { ru: '4 ряда по 3: 3 + 3 + 3 + 3 = 12. Это 4 × 3 = 12.', uz: "4 qator, 3 tadan: 3 + 3 + 3 + 3 = 12. Bu 4 × 3 = 12." },
+    warn: { ru: 'Ряды должны быть РОВНЫМИ! Умножаем, только если в каждом ряду одинаково.', uz: "Qatorlar TENG bo'lishi shart! Faqat har qatorda bir xil son bo'lsa ko'paytiramiz." },
+    check_q: { ru: '4 ряда по 3. Сколько всего?', uz: "4 qatorda 3 tadan. Jami nechta?" },
+    opts: [{ ru: '12', uz: '12', ok: true }, { ru: '7', uz: '7' }, { ru: '9', uz: '9' }],
+    wrong: { ru: 'Четыре раза по три. Три плюс три плюс три плюс три.', uz: "To'rt marta uchta. Uch qo'shuv uch qo'shuv uch qo'shuv uch." },
+    check_ok: { ru: 'Верно! 4 раза по 3 это 12.', uz: "To'g'ri! 4 marta 3 — 12." },
     audio: {
       ru: [
-        'То же и для вычитания. Вычтем из пятидесяти восьми четыре.',
-        'Четыре это единицы. Ставим под единицами, под восьмёркой.',
-        'Восемь минус четыре это четыре. Десятки пять остаются. Получилось пятьдесят четыре.',
-        'Посчитай сам: пятьдесят восемь минус четыре.'
+        'Возьмём ещё пример. Четыре ряда, в каждом по три ростка.',
+        'В каждом ряду по три. Три плюс три плюс три плюс три это двенадцать.',
+        'Ряды должны быть ровными. Умножаем, только если число одинаковое. Это четыре умножить на три это двенадцать.',
+        'Сосчитай сам. Четыре ряда по три. Сколько всего?'
       ],
       uz: [
-        "Ayirishda ham xuddi shunday. Ellik sakkizdan to'rtni ayiramiz.",
-        "To'rt — bu birlik. Birlik ostiga, sakkizning tagiga qo'yamiz.",
-        "Sakkiz ayir to'rt — to'rt. O'nliklar besh joyida qoladi. Ellik to'rt bo'ldi.",
-        "O'zingiz sanang: ellik sakkiz ayir to'rt."
+        "Yana bir misol. To'rtta qatorda uchtadan ko'chat.",
+        "Har qatorda uchta. Uch qo'shuv uch qo'shuv uch qo'shuv uch — o'n ikki.",
+        "Qatorlar teng bo'lishi shart. Faqat son bir xil bo'lsa ko'paytiramiz. Bu to'rt marta uch — o'n ikki.",
+        "O'zingiz sanang. To'rt qatorda uchtadan. Jami nechta?"
       ]
     }
   },
 
-  // s5 — MASHQ (align): 64 + 3 (bir xonali -> birlik ustuniga)
+  // s5 — MASHQ-single (array): 3 qator × 3 = 9
   s5: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь число в столбик и реши.', uz: "Sonni ustunga qo'y va yech." },
-    a: 64, b: 3, op: '+',
-    q: { ru: '64 + 3 = ?', uz: '64 + 3 = ?' },
-    wrong: { ru: 'Однозначное число ставь под единицами.', uz: "Bir xonali sonni birlik ustuniga qo'y." },
-    done_text: { ru: 'Верно! 64 + 3 = 67.', uz: "To'g'ri! 64 + 3 = 67." },
+    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
+    transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: считай ровные ряды умножением.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: teng qatorlarni ko'paytirib sanang." },
+    r: 3, c: 3,
+    wrong: { ru: 'Сложи одинаковые ряды. Три ряда по три.', uz: "Teng qatorlarni qo'sh. Uch qator, uchtadan." },
+    done_text: { ru: 'Верно! 3 раза по 3 это 9.', uz: "To'g'ri! 3 marta 3 — 9." },
     audio: {
-      ru: [
-        'Прибавь к шестидесяти четырём три.',
-        'Три это единицы. Поставь тройку под единицами, под четвёркой.',
-        'Тогда получится шестьдесят семь. Поставь число в столбик.'
-      ],
-      uz: [
-        "Oltmish to'rtga uchni qo'sh.",
-        "Uch — bu birlik. Uchni birlik ostiga, to'rtning tagiga qo'y.",
-        "Shunda oltmish yetti bo'ladi. Sonni ustunga qo'y."
-      ]
+      intro: { ru: 'Объяснение закончили, теперь тренировка. Три ряда по три ростка. Сколько всего? Сосчитай умножением.', uz: "Tushuntirishni tugatdik, endi mashq. Uchta qatorda uchtadan ko'chat. Jami nechta? Ko'paytirib sanang." },
+      on_correct: { ru: 'Верно. Три умножить на три это девять.', uz: "To'g'ri. Uch marta uch — to'qqiz." },
+      on_wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." }
     }
   },
 
-  // s6 — MASHQ (align, ayirish): 78 − 5
+  // s6 — MASHQ-single (array): 2 qator × 4 = 8
   s6: {
     eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang" },
-    lead: { ru: 'Поставь число в столбик и реши.', uz: "Sonni ustunga qo'y va yech." },
-    a: 78, b: 5, op: '−',
-    q: { ru: '78 − 5 = ?', uz: '78 − 5 = ?' },
-    wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh — birlik, birlik ustuniga qo'y." },
-    done_text: { ru: 'Верно! 78 − 5 = 73.', uz: "To'g'ri! 78 − 5 = 73." },
+    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
+    r: 2, c: 4,
+    wrong: { ru: 'Сложи одинаковые ряды. Два ряда по четыре.', uz: "Teng qatorlarni qo'sh. Ikki qator, to'rttadan." },
+    done_text: { ru: 'Верно! 2 раза по 4 это 8.', uz: "To'g'ri! 2 marta 4 — 8." },
     audio: {
-      intro: { ru: 'Проверь себя. Вычти из семидесяти восьми пять. Куда поставить пятёрку?', uz: "O'zingizni sina. Yetmish sakkizdan beshni ayir. Beshni qayerga qo'yasan?" },
-      on_correct: { ru: 'Верно. Семьдесят три.', uz: "To'g'ri. Yetmish uch." },
-      on_wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh — birlik, birlik ustuniga qo'y." }
+      intro: { ru: 'Проверь себя перед практикой. Два ряда по четыре ростка. Сколько всего?', uz: "Mashqdan oldin o'zingizni sinang. Ikkita qatorda to'rttadan ko'chat. Jami nechta?" },
+      on_correct: { ru: 'Верно. Два умножить на четыре это восемь.', uz: "To'g'ri. Ikki marta to'rt — sakkiz." },
+      on_wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." }
     }
   },
 
-  // s7 — MASHQ-1 (align, 3 misol): sonni to'g'ri ustunga qo'y
+  // s7 — MASHQ-1 (scored, 3 round array)
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y." },
-    transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: ставь число в правильный столбик и решай.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: sonni to'g'ri ustunga qo'yib yeching." },
-    rounds: [
-      { a: 52, b: 4, op: '+', q: { ru: '52 + 4 = ?', uz: '52 + 4 = ?' } },
-      { a: 36, b: 21, op: '+', q: { ru: '36 + 21 = ?', uz: '36 + 21 = ?' } },
-      { a: 89, b: 6, op: '−', q: { ru: '89 − 6 = ?', uz: '89 − 6 = ?' } }
-    ],
-    wrong: { ru: 'Единицы под единицами, десятки под десятками.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik." },
+    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
+    rounds: [ { r: 2, c: 3 }, { r: 4, c: 2 }, { r: 3, c: 5 } ],
+    wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Объяснение закончили, теперь тренировка. Ставь число в правильный столбик: единицы под единицами.', uz: "Tushuntirishni tugatdik, endi trenirovka. Sonni to'g'ri ustunga qo'y: birlik ostiga birlik." },
+      intro: { ru: 'Тренировка. Считай ровные ряды умножением: сколько рядов, столько раз.', uz: "Mashq. Teng qatorlarni ko'paytirib sana: necha qator, shuncha marta." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Однозначное — под единицами, двузначное — по разрядам.', uz: "Bir xonali — birlik ustuniga, ikki xonali — razryadlab." }
+      on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
     }
   },
 
-  // s8 — MASHQ-2 (align, 3 misol)
+  // s8 — MASHQ-2 (scored, 3 round array)
   s8: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y." },
-    rounds: [
-      { a: 76, b: 5, op: '−', q: { ru: '76 − 5 = ?', uz: '76 − 5 = ?' } },
-      { a: 45, b: 32, op: '+', q: { ru: '45 + 32 = ?', uz: '45 + 32 = ?' } },
-      { a: 60, b: 7, op: '+', q: { ru: '60 + 7 = ?', uz: '60 + 7 = ?' } }
-    ],
-    wrong: { ru: 'Однозначное число ставь под единицами.', uz: "Bir xonali sonni birlik ustuniga qo'y." },
+    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
+    rounds: [ { r: 5, c: 2 }, { r: 2, c: 5 }, { r: 3, c: 4 } ],
+    wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Ещё примеры. Смотри, сколько цифр в числе, и ставь его правильно.', uz: "Yana misollar. Sonda nechta raqam borligiga qara va to'g'ri qo'y." },
+      intro: { ru: 'Ещё ряды. Сколько рядов, столько раз берём число.', uz: "Yana qatorlar. Necha qator, shuncha marta sonni olamiz." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Единицы под единицами.', uz: "Birlik ostiga birlik." }
+      on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
     }
   },
 
-  // s9 — XATONI TOP (yangi mexanika, 3 misol): TAYYOR yozuvda bir xonali son
-  //       ATAYLAB o'nlik ustuniga tushgan. O'quvchi «xato qayerda?» ni tanlaydi.
+  // s9 — MASHQ-3 (scored, 3 round array)
   s9: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni top' },
-    lead: { ru: 'Запись готова, но в ней ошибка.', uz: "Yozuv tayyor, lekin unda xato bor." },
-    rounds: [
-      { kind: 'spot', a: 52, b: 4, op: '+', bad: { tens: 4, units: null }, q: { ru: '52 + 4', uz: '52 + 4' }, opts: [
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true },
-        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan" },
-        { ru: 'Ошибки нет', uz: "Xato yo'q" }
-      ] },
-      { kind: 'spot', a: 63, b: 5, op: '+', bad: { tens: 5, units: null }, q: { ru: '63 + 5', uz: '63 + 5' }, opts: [
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true },
-        { ru: 'Знак действия неверный', uz: "Amal belgisi noto'g'ri" }
-      ] },
-      { kind: 'spot', a: 87, b: 6, op: '−', bad: { tens: 6, units: null }, q: { ru: '87 − 6', uz: '87 − 6' }, opts: [
-        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan" },
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true }
-      ] }
-    ],
-    wrong: { ru: 'Каждая цифра — в свой столбик: единицы под единицами. Посмотри, где стоит второе число.', uz: "Har raqam o'z ustuniga: birlik ostiga birlik. Ikkinchi son qayerda turibdi, qarang." },
-    done_text: { ru: 'Верно! Теперь стоит правильно.', uz: "To'g'ri! Endi to'g'ri turibdi." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
+    rounds: [ { r: 4, c: 3 }, { r: 2, c: 2 }, { r: 3, c: 6 } ],
+    wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Здесь запись уже готова, но в ней спрятана ошибка. Найди, где число стоит неправильно.', uz: "Bu yerda yozuv tayyor, lekin unda xato yashiringan. Son qayer noto'g'ri turganini toping." },
-      on_correct: { ru: 'Верно, ошибку нашёл.', uz: "To'g'ri, xatoni topdingiz." },
-      on_wrong: { ru: 'Посмотри ещё раз: единицы под единицами.', uz: "Yana qarang: birlik ostiga birlik." }
+      intro: { ru: 'Ряды разные, но правило одно: умножаем одинаковые группы.', uz: "Qatorlar har xil, lekin qoida bitta: teng guruhlarni ko'paytiramiz." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
     }
   },
 
-  // s10 — MASHQ-4 (align, 3 misol)
+  // s10 — MASHQ-4 (scored, 3 round array)
   s10: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y." },
-    rounds: [
-      { a: 84, b: 3, op: '−', q: { ru: '84 − 3 = ?', uz: '84 − 3 = ?' } },
-      { a: 57, b: 22, op: '+', q: { ru: '57 + 22 = ?', uz: '57 + 22 = ?' } },
-      { a: 41, b: 8, op: '+', q: { ru: '41 + 8 = ?', uz: '41 + 8 = ?' } }
-    ],
-    wrong: { ru: 'Проверь: где единицы, а где десятки.', uz: "Tekshir: qaysi birlik, qaysi o'nlik." },
+    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
+    rounds: [ { r: 5, c: 3 }, { r: 4, c: 4 }, { r: 2, c: 6 } ],
+    wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Ещё примеры. Ставь число в правильный столбик.', uz: "Yana misollar. Sonni to'g'ri ustunga qo'y." },
+      intro: { ru: 'Ещё ровные ряды. Считай умножением.', uz: "Yana teng qatorlar. Ko'paytirib sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Единицы под единицами.', uz: "Birlik ostiga birlik." }
+      on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
     }
   },
 
-  // s11 — XATONI TOP (yangi mexanika, 3 misol): boshqa xato-turi — IKKI XONALI
-  //        sonning raqamlari ustunlarini almashtirib yozgan (o'nlik/birlik joyi teskari).
+  // s11 — MASHQ-5 (scored, 3 round array)
   s11: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni top' },
-    lead: { ru: 'Найди, что записано неверно.', uz: "Nima noto'g'ri yozilganini toping." },
-    rounds: [
-      { kind: 'spot', a: 41, b: 23, op: '+', bad: { tens: 3, units: 2 }, q: { ru: '41 + 23', uz: '41 + 23' }, opts: [
-        { ru: 'Цифры второго числа перепутали местами', uz: "Ikkinchi sonning raqamlari o'rni almashgan", ok: true },
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Первое число записали неверно', uz: "Birinchi son noto'g'ri yozilgan" }
-      ] },
-      { kind: 'spot', a: 74, b: 5, op: '+', bad: { tens: 5, units: null }, q: { ru: '74 + 5', uz: '74 + 5' }, opts: [
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true },
-        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan" }
-      ] },
-      { kind: 'spot', a: 68, b: 25, op: '−', bad: { tens: 5, units: 2 }, q: { ru: '68 − 25', uz: '68 − 25' }, opts: [
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Знак действия неверный', uz: "Amal belgisi noto'g'ri" },
-        { ru: 'Десятки и единицы перепутали столбцами', uz: "O'nlik va birlik ustunlari almashgan", ok: true }
-      ] }
-    ],
-    wrong: { ru: 'Разряд к разряду: десятки под десятками, единицы под единицами. Сравни столбики.', uz: "Razryad razryadga: o'nlik ostiga o'nlik, birlik ostiga birlik. Ustunlarni solishtiring." },
-    done_text: { ru: 'Верно! Разряды на своих местах.', uz: "To'g'ri! Razryadlar o'z o'rnida." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
+    rounds: [ { r: 3, c: 3 }, { r: 5, c: 4 }, { r: 4, c: 5 } ],
+    wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'И здесь запись с ошибкой. Иногда путают местами десятки и единицы. Найди ошибку.', uz: "Bu yerda ham xato yozuv. Ba'zan o'nlik bilan birlikning o'rni almashtiriladi. Xatoni toping." },
-      on_correct: { ru: 'Верно, ты внимательный.', uz: "To'g'ri, siz diqqatlisiz." },
-      on_wrong: { ru: 'Сравни столбики: где десятки, где единицы.', uz: "Ustunlarni solishtiring: qayerda o'nlik, qayerda birlik." }
+      intro: { ru: 'Последняя тренировка перед задачей. Считай умножением.', uz: "Masaladan oldingi oxirgi mashq. Ko'paytirib sanang." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
     }
   },
 
-  // s12 — MASALA (kirish/kontekst): Anvar ikki konteyner yuklaydi
+  // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Анвар считает ящики.', uz: "Anvar qutilarni sanaydi." },
-    manifest_label: { ru: 'груз', uz: 'yuk' },
+    lead: { ru: 'Зухра сажает ростки.', uz: "Zuhra ko'chat ekadi." },
+    manifest_label: { ru: 'урожай', uz: 'hosil' },
     audio: {
-      ru: 'В контейнере пятьдесят четыре ящика. Анвар добавил ещё пять. Сколько стало? Поставь пятёрку в правильный столбик.',
-      uz: "Konteynerda ellik to'rt quti bor. Anvar yana beshta qo'shdi. Nechta bo'ldi? Beshni to'g'ri ustunga qo'y."
+      ru: 'Зухра сажает ровные ряды.',
+      uz: "Zuhra teng qatorlar ekadi."
     }
   },
 
-  // s13 — MASALA (savol, align): 54 + 5 = 59
+  // s13 — MASALA (scored, array): Zuhra 3 qator × 5 = 15
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Поставь число и реши.', uz: "Sonni qo'y va yech." },
-    a: 54, b: 5, op: '+',
-    q: { ru: '54 + 5 = ?', uz: '54 + 5 = ?' },
-    wrong: { ru: '5 это единицы: под 4. Пятьдесят четыре плюс пять это пятьдесят девять.', uz: "5 — birlik: 4 ning tagiga. Ellik to'rt qo'shuv besh — ellik to'qqiz." },
-    done_text: { ru: 'Верно! 54 + 5 = 59 ящиков.', uz: "To'g'ri! 54 + 5 = 59 quti." },
+    lead: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering." },
+    story: { ru: 'Зухра посадила ростки: 3 ряда, в каждом по 5. Сколько всего ростков?', uz: "Zuhra ko'chat ekdi: 3 qator, har birida 5 tadan. Jami nechta ko'chat?" },
+    r: 3, c: 5,
+    wrong: { ru: 'Три ряда по пять. Сложи одинаковые группы.', uz: "Uch qator, beshtadan. Teng guruhlarni qo'shing." },
+    done_text: { ru: 'Верно! 3 раза по 5 это 15.', uz: "To'g'ri! 3 marta 5 — 15." },
     audio: {
-      intro: { ru: 'В контейнере пятьдесят четыре ящика, добавили пять. Куда поставить пятёрку?', uz: "Konteynerda ellik to'rt quti, beshta qo'shildi. Beshni qayerga qo'yasan?" },
-      on_correct: { ru: 'Верно. Пятьдесят девять ящиков.', uz: "To'g'ri. Ellik to'qqiz quti." },
-      on_wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh — birlik, birlik ustuniga qo'y." }
+      intro: { ru: 'Помоги Зухре. Она посадила три ряда, в каждом по пять ростков. Сколько всего? Сосчитай умножением.', uz: "Zuhraga yordam bering. U uchta qator ekdi, har birida beshtadan ko'chat. Jami nechta? Ko'paytirib sanang." },
+      on_correct: { ru: 'Верно. У Зухры пятнадцать ростков.', uz: "To'g'ri. Zuhrada o'n besh ko'chat." },
+      on_wrong: { ru: 'Сложи одинаковые группы: три раза по пять.', uz: "Teng guruhlarni qo'shing: uch marta besh." }
     }
   },
 
-  // s14 — FINAL (aralash 3 raund + FactCard): 1) align (sonni qo'y) 2) xatoni top 3) to'g'ri yozuvni tanla
+  // s14 — FINAL (scored, 3 round array + FactCard Yupiter)
   s14: {
     eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Реши и проверь.', uz: "Yeching va tekshiring." },
-    rounds: [
-      { kind: 'align', a: 73, b: 6, op: '+', q: { ru: '73 + 6 = ?', uz: '73 + 6 = ?' } },
-      { kind: 'spot', a: 52, b: 3, op: '+', bad: { tens: 3, units: null }, q: { ru: '52 + 3', uz: '52 + 3' }, opts: [
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true },
-        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan" }
-      ] },
-      { kind: 'choose', a: 36, b: 21, op: '+', bad: { tens: 1, units: 2 }, q: { ru: '36 + 21 = ?', uz: '36 + 21 = ?' } }
-    ],
-    wrong: { ru: 'Единицы под единицами, десятки под десятками. Проверь.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik. Tekshiring." },
+    lead: { ru: 'Финальная проверка.', uz: "Yakuniy tekshiruv." },
+    rounds: [ { r: 2, c: 4 }, { r: 3, c: 4 }, { r: 5, c: 3 } ],
+    wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Единицы всегда пишут под единицами — это первое правило столбика. Даже взрослые не путают разряды!', uz: "Birlikni doim birlik ostiga yozadi — bu столбikning birinchi qoidasi. Kattalar ham razryadlarni chalkashtirmaydi!" },
-    fact_audio: { ru: 'Единицы всегда под единицами, десятки под десятками. Это первое и самое главное правило записи столбиком. Поставишь правильно — посчитаешь без ошибок.', uz: "Birlik doim birlik ostiga, o'nlik o'nlik ostiga. Bu — столбik yozuvining birinchi va eng muhim qoidasi. To'g'ri qo'ysang — xatosiz sanaysan." },
+    fact_text: { ru: 'Юпитер — самая большая планета. На нём веками бушует огромная буря — Большое Красное Пятно.', uz: "Yupiter — eng katta sayyora. Unda asrlar davomida ulkan bo'ron — Katta Qizil Dog' bo'raydi." },
+    fact_audio: { ru: 'Юпитер — самая большая планета Солнечной системы. На нём есть огромная буря, которая бушует уже сотни лет.', uz: "Yupiter — Quyosh sistemasidagi eng katta sayyora. Unda yuzlab yildan beri bo'rayotgan ulkan bo'ron bor." },
     audio: {
-      intro: { ru: 'Финальная проверка. Здесь и поставить число, и найти ошибку, и выбрать верную запись.', uz: "Yakuniy tekshiruv. Bu yerda sonni ham qo'yasiz, xatoni ham topasiz, to'g'ri yozuvni ham tanlaysiz." },
+      intro: { ru: 'Финальная проверка. Считай ровные ряды умножением.', uz: "Yakuniy tekshiruv. Teng qatorlarni ko'paytirib sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Единицы под единицами, десятки под десятками.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik." }
+      on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
     }
   },
 
-  // s15 — YAKUN: uchish + QOIDA recap + bog'lanishlar
+  // s15 — YAKUN: QOIDA recap + bog'lanishlar (Yupiterda qolamiz — blok endi boshlandi)
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты правильно ставишь числа в столбик!', uz: "Endi siz sonlarni ustunga to'g'ri qo'yasiz!" },
+    cando: { ru: 'Теперь ты считаешь ровные ряды умножением!', uz: "Endi siz teng qatorlarni ko'paytirib sanaysiz!" },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Единицы под единицами, десятки под десятками. Однозначное — под единицами. 43 + 6 = 49.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik. Bir xonali — birlik ustuniga. 43 + 6 = 49." },
+    rule_recap: { ru: 'Умножение — это сложение одинаковых групп. 3 раза по 4 = 3 × 4 = 12.', uz: "Ko'paytirish — teng guruhlarni qo'shish. 3 marta 4 = 3 × 4 = 12." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 3: разряды; уроки 7–10: столбик', uz: "3-dars: razryadlar; 7–10-dars: столбик" },
+    conn_refs: { ru: 'урок 7: сложение равных групп', uz: "7-dars: teng guruhlarni qo'shish" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: задачи в два действия', uz: "keyingi: ikki amalli masala" },
+    conn_next: { ru: 'дальше: таблица ×2 и ×3', uz: "keyingi: ×2 va ×3 jadvali" },
     audio: {
-      ru: 'Миссия выполнена. На Марсе мы научились правильно записывать числа столбиком. Запомни главное правило. Единицы всегда под единицами, десятки под десятками. Однозначное число пишем под единицами. Груз посчитан, база довольна. Впереди новые задачи на красной планете.',
-      uz: "Missiya bajarildi. Marsda sonlarni ustunlab to'g'ri yozishni o'rgandik. Asosiy qoidani yodda tuting. Birlik doim birlik ostiga, o'nlik o'nlik ostiga. Bir xonali sonni birlik ustuniga yozamiz. Yuk sanaldi, baza mamnun. Qizil sayyorada yangi masalalar oldinda."
+      ru: 'Миссия выполнена. На орбите Юпитера мы узнали, что такое умножение. Запомни правило. Умножение это сложение одинаковых групп. Сколько групп, столько раз берём число. Урожай в теплице сосчитан. У этой огромной планеты ещё много дел. В следующий раз выучим умножение на два и на три.',
+      uz: "Missiya bajarildi. Yupiter orbitasida ko'paytirish nima ekanini bilib oldik. Qoidani yodda tuting. Ko'paytirish — teng guruhlarni qo'shish. Necha guruh, shuncha marta sonni olamiz. Issiqxonadagi hosil sanaldi. Bu ulkan sayyora atrofida yana ko'p ish bor. Keyingi safar ikkiga va uchga ko'paytirishni o'rganamiz."
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Сначала научимся писать столбиком.', uz: "Avval ustunlab yozishni o'rganamiz." },
+  s1:  { ru: 'Сначала поймём, почему это умножение.', uz: "Avval nega bu ko'paytirish ekanini tushunamiz." },
   s2:  { ru: 'Разберём на примере.', uz: "Misolda ko'rib chiqamiz." },
   s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
   s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.' },
-  s5:  { ru: 'Поставь число правильно.', uz: "Sonni to'g'ri qo'y." },
+  s5:  { ru: 'Теперь потренируйся сам.', uz: "Endi o'zingiz mashq qiling." },
   s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang." },
-  s7:  { ru: 'Объяснение закончили. Переходим к тренировке.', uz: "Tushuntirishni tugatdik. Trenirovkaga o'tamiz." },
-  s8:  { ru: 'Смотри, сколько цифр в числе.', uz: "Sonda nechta raqam borligiga qara." },
-  s9:  { ru: 'Теперь проверим готовые записи.', uz: 'Endi tayyor yozuvlarni tekshiramiz.' },
-  s10: { ru: 'Ставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y." },
-  s11: { ru: 'Найди спрятанную ошибку.', uz: 'Yashiringan xatoni toping.' },
-  s12: { ru: 'Анвар считает ящики.', uz: 'Anvar qutilarni sanaydi.' },
-  s13: { ru: 'Куда поставить число?', uz: 'Sonni qayerga qo\'yamiz?' },
-  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.' },
-  s15: { ru: 'Груз на базе посчитан, база довольна!', uz: "Bazadagi yuk sanaldi, baza mamnun!" }
+  s7:  { ru: 'Переходим к тренировке.', uz: "Trenirovkaga o'tamiz." },
+  s8:  { ru: 'Ещё ровные ряды.', uz: "Yana teng qatorlar." },
+  s9:  { ru: 'Ряды разные, правило одно.', uz: 'Qatorlar har xil, qoida bitta.' },
+  s10: { ru: 'Считай умножением дальше.', uz: "Ko'paytirib sanashda davom et." },
+  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
+  s12: { ru: 'Зухра сажает ростки.', uz: 'Zuhra ko\'chat ekadi.' },
+  s13: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering." },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
+  s15: { ru: 'Урожай в теплице сосчитан!', uz: "Issiqxonadagi hosil sanaldi!" }
 };
 
-// s15 uchish-payoff (xulosadan oldin aytiladi)
+// s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'Груз на Марсе посчитан столбиком, база довольна. Впереди новые задачи на красной планете! Спасибо за помощь.',
-  uz: "Marsdagi yuk ustunlab sanaldi, baza mamnun. Qizil sayyorada yangi masalalar oldinda! Yordamingiz uchun rahmat."
+  ru: 'Урожай в теплице корабля сосчитан умножением. У этой огромной планеты впереди новые задачи! Спасибо за помощь.',
+  uz: "Kema issiqxonasidagi hosil ko'paytirib sanaldi. Bu ulkan sayyora atrofida yangi masalalar oldinda! Yordamingiz uchun rahmat."
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
@@ -2590,7 +2520,7 @@ const StationScene = ({ departing = false }) => (
         <circle className="d2-neon" style={{ animationDelay: '0.8s' }} cx="420" cy="182" r="2.6" fill="#FF5A5A"/>
       </g>
 
-      {/* ==== DOKING KORIDORI + QUVVAT SHLANGI (faqat qo'nganda) ==== */}
+      {/* ==== DOKING KORIDORI + QUVVAT KABELI (faqat qo'nganda) ==== */}
       {!departing && (
         <g>
           <rect x="141" y="118" width="112" height="16" rx="3" fill="url(#stnCyl)" stroke="#5E6B78" strokeWidth="1.5"/>
@@ -2897,7 +2827,7 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <MarsBase answer={picked !== null ? 55 : null}/>
+          <YupiterScene answer={picked !== null ? 12 : null}/>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}>{t(c.q)}</p>
         {picked === null && (
@@ -2936,7 +2866,7 @@ const Screen1 = (props) => {
   return (
     <TeachStage props={props} cKey="s1" body={c.body} info={c.info}
       figure={() => (
-        <RazryadBreak a={43} b={25}/>
+        <ArrayViz r={3} c={4} reveal={3}/>
       )}
     />
   );
@@ -3004,7 +2934,7 @@ const Screen2 = (props) => {
     else if (seg === 's2_2') setStep((s) => Math.max(s, 2));
     else if (seg === 's2_3') setStep((s) => Math.max(s, 3));
   }, [seg]);
-  const emph = seg === 's2_1' ? 'units' : seg === 's2_2' ? 'tens' : null;
+  const reveal = step >= 2 ? 3 : (step >= 1 ? 2 : 1);   // s2_1 → takroriy qo'shish, s2_2 → × va jami
   const done = step >= 3;
   const revealRef = useRevealScroll(done, 500);
   const canAdv = useAdvanceGate(true, audio);
@@ -3019,8 +2949,8 @@ const Screen2 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(180px, 40vw, 240px)' }}>
-          <ColumnOp a={43} b={6} op="+" sum={done ? 49 : null} emph={done ? null : emph}/>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(200px, 46vw, 280px)' }}>
+          <ArrayViz r={2} c={5} reveal={reveal}/>
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3066,7 +2996,7 @@ const Screen3 = (props) => {
           <p style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(15px,2.3vw,19px)', color: T.ink, lineHeight: 1.5 }}>{t(c.rule)}</p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <ColumnOp a={34} b={5} op="+" sum={done ? 39 : null} emph={done ? null : 'units'}/>
+          <ArrayViz r={3} c={2} reveal={done ? 3 : 1}/>
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
@@ -3159,7 +3089,7 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
 };
 
 // ============================================================
-// FuelTank + TankCompare — Dars04 star-vizual: ikki quvvat blok (son + to'lish darajasi:
+// FuelTank + TankCompare — Dars04 star-vizual: ikki quvvat bloki (son + to'lish darajasi:
 // katta son = to'laroq -> taqqoslash intuitsiyasi). O'rtada > < = belgi sloti.
 // Raqamlar rang-kodli: o'nlik #FF4F28 (sariq-qizil), birlik #019ACB (ko'k).
 // ============================================================
@@ -3301,42 +3231,37 @@ const TrackHero = ({ answer = null }) => {
   );
 };
 
-// ColumnOp — Dars11 star-vizual: столбик (a op b). Bir xonali B -> o'nlik katagi bo'sh.
+// ColumnAdd — Dars07 star-vizual: ustunlab qo'shish (столбик). O'nlik ustuni sariq, birlik ko'k.
 // «+» ikki qo'shiluvchi ORASIDA (chap gutterда, ikki qatorga markazlashgan — 5-sinf uslubi).
 // sum null -> yig'indi "?"; sum berilганда yashil. emph 'units'|'tens' -> faol ustunni yoritadi.
 const COL_W = 'clamp(38px,8.4vw,52px)';
 const colCell = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: COL_W, height: COL_W, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(26px,6vw,40px)', lineHeight: 1 };
-// ColumnCard — umumiy столбик maketi. sign '+'|'−' amal belgisi. resTens/resUnits — natija tuguni.
-// bTensNode/bUnitsNode — berilса, ikkinchi son (B) qatoriga slot-tugun qo'yiladi (tuzish mashqi uchun).
-// bt/bu null bo'lса — bo'sh (bir xonali son: o'nlik katagi bo'sh). emphB — B qatorини yoritadi.
-const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits, sign = '+', bTensNode = null, bUnitsNode = null, emphB = false }) => {
+// ColumnCard — umumiy столбик maketi. resTens/resUnits — natija katagi tuguni (raqam yoki drop-slot).
+const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
-  const bBox = { boxShadow: emphB ? `0 0 0 3px ${T.accentSoft}` : 'none', borderRadius: 8, transition: 'box-shadow .3s' };
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
       <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#FF4F28', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
       <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
-      <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>{sign}</span>
+      <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
-      <span style={{ gridColumn: 2, gridRow: 3, display: 'flex', justifyContent: 'center', ...bBox }}>{bTensNode != null ? bTensNode : <span style={{ ...colCell, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt != null ? bt : ''}</span>}</span>
-      <span style={{ gridColumn: 3, gridRow: 3, display: 'flex', justifyContent: 'center', ...bBox }}>{bUnitsNode != null ? bUnitsNode : <span style={{ ...colCell, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{bu != null ? bu : ''}</span>}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
+      <span style={{ ...colCell, gridColumn: 3, gridRow: 3, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{bu}</span>
       <span style={{ gridColumn: '1 / 4', gridRow: 4, height: 3, background: T.ink, borderRadius: 2, margin: '3px 0' }}/>
       <span style={{ gridColumn: 2, gridRow: 5, display: 'flex', justifyContent: 'center' }}>{resTens}</span>
       <span style={{ gridColumn: 3, gridRow: 5, display: 'flex', justifyContent: 'center' }}>{resUnits}</span>
     </div>
   );
 };
-// ColumnOp — статик столбик (tushuntirish uchun): a op b = sum. op '+'|'−'. b<10 -> o'nlik katagi bo'sh.
-const ColumnOp = ({ a, b, op = '+', sum = null, emph = null }) => {
+const ColumnAdd = ({ a, b, sum = null, emph = null }) => {
   const dg = (n) => [Math.floor(n / 10), n % 10];
-  const [at, au] = dg(a);
-  const bt = b < 10 ? null : Math.floor(b / 10), bu = b % 10;
+  const [at, au] = dg(a), [bt, bu] = dg(b);
   const shown = sum != null;
   const [st, su] = shown ? dg(sum) : ['?', '?'];
   const dimT = emph === 'units', dimU = emph === 'tens';
   const res = (d) => <span className={shown ? 'g1-pop-in' : ''} style={{ ...colCell, color: shown ? T.success : T.ink3 }}>{d}</span>;
-  return <ColumnCard at={at} au={au} bt={bt} bu={bu} sign={op} dimT={dimT} dimU={dimU} resTens={res(st)} resUnits={res(su)}/>;
+  return <ColumnCard at={at} au={au} bt={bt} bu={bu} dimT={dimT} dimU={dimU} resTens={res(st)} resUnits={res(su)}/>;
 };
 
 // RazryadBreak — s1 «NEGA ustunlab» tushuntirishi: har sonni razryadga ajratadi (34 = 30 + 4).
@@ -3516,13 +3441,13 @@ const MarsBase = ({ answer = null }) => {
       <div style={{ position: 'absolute', right: '11%', bottom: '28%', transform: 'translateX(50%)', width: 'clamp(58px,14.5vw,90px)', zIndex: 4 }}><LandedRocket w="100%"/></div>
       {/* konteynerlar (o'rtada, yerda) */}
       <div style={{ position: 'absolute', left: '48%', bottom: '17%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 'clamp(5px,1.4vw,10px)', zIndex: 5 }}>
-        <CargoCrate n={52} ca="#FF9166" cb="#FF4F28" br="#C1381A"/>
+        <CargoCrate n={34} ca="#FF9166" cb="#FF4F28" br="#C1381A"/>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(18px,3.6vw,26px)', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>+</span>
-        <CargoCrate n={3} ca="#33B8E3" cb="#019ACB" br="#0B7BA3"/>
+        <CargoCrate n={25} ca="#33B8E3" cb="#019ACB" br="#0B7BA3"/>
       </div>
       {/* jami pufakcha */}
       <div style={{ position: 'absolute', left: '48%', top: '9%', transform: 'translateX(-50%)', zIndex: 6 }}>
-        <div className={shown ? 'g1-pop-in' : ''} style={{ minWidth: 'clamp(40px,8vw,54px)', height: 'clamp(36px,7vw,48px)', padding: '0 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(19px,4.2vw,28px)', background: shown ? T.successSoft : '#F2F5F8', color: shown ? T.success : T.ink3, border: `2.5px ${shown ? 'solid' : 'dashed'} ${shown ? T.success : '#A7A6A2'}`, animation: shown ? 'none' : 'g1pulse 1.5s ease-in-out infinite' }}>{shown ? 55 : '?'}</div>
+        <div className={shown ? 'g1-pop-in' : ''} style={{ minWidth: 'clamp(40px,8vw,54px)', height: 'clamp(36px,7vw,48px)', padding: '0 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(19px,4.2vw,28px)', background: shown ? T.successSoft : '#F2F5F8', color: shown ? T.success : T.ink3, border: `2.5px ${shown ? 'solid' : 'dashed'} ${shown ? T.success : '#A7A6A2'}`, animation: shown ? 'none' : 'g1pulse 1.5s ease-in-out infinite' }}>{shown ? 59 : '?'}</div>
       </div>
       <div className="d2-scene-bit"><span className="g1-cast-fig"><BitSVG state="present"/></span></div>
     </div>
@@ -3544,6 +3469,9 @@ const Screen4 = (props) => {
   const warnActive = seg === 's4_2';
   const [wrong, setWrong] = useState(() => new Set());
   const [done, setDone] = useState(false);
+  const [addShown, setAddShown] = useState(false);
+  useEffect(() => { if (seg === 's4_1' || seg === 's4_2' || seg === 's4_3') setAddShown(true); }, [seg]);
+  const reveal = done ? 3 : (addShown ? 2 : 1);   // takroriy qo'shish tushuntirishda; jami faqat check'dan keyin
   const revealRef = useRevealScroll(done, 500);
   const pick = (i, ok) => {
     if (!canAct || done || wrong.has(i)) return;
@@ -3564,7 +3492,7 @@ const Screen4 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 2vw, 17px)', textAlign: 'center', lineHeight: 1.55 }}>{t(c.body)}</p>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <ColumnOp a={58} b={4} op="−" sum={done ? 54 : null} emph={done ? null : 'units'}/>
+          <ArrayViz r={4} c={3} reveal={reveal}/>
         </div>
         <div className="fade-up" style={{ background: '#FBEEEE', border: '2px solid #D64545', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(214,69,69,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#B23A3A', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
@@ -4584,9 +4512,9 @@ const Screen15 = (props) => {
           <h2 className="title h-title" style={{ margin: 0 }}>{t(c.mission_done)}</h2>
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D' }}>{t(c.cando)}</p>
         </div>
-        {/* Yakun sahnasi: Mars bazasida yuk ustunlab sanaldi — natija (jami 55) + ✓ */}
+        {/* Yakun sahnasi: Yupiter dalasida hosil ko'paytirib sanaldi (3×4=12) + ✓ */}
         <div className="fade-up delay-1">
-          <MarsCargoDone total={55} label={{ ru: 'Груз посчитан', uz: 'Yuk sanaldi' }}/>
+          <YupiterField label={{ ru: 'Урожай сосчитан', uz: 'Hosil sanaldi' }}/>
         </div>
       </div>
     </Stage>
@@ -4600,10 +4528,25 @@ const Screen15 = (props) => {
 const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
 const LBL_O = { ru: 'единицы', uz: 'birliklar' };
 // ============================================================
-// AlignStage — Dars11 amaliyot mexanikasi: o'quvchi IKKINCHI sonni to'g'ri ustunga qo'yadi
-// (birlik ostiga birlik). Plitalar B ning raqamlari; D8_TILE uslubi qayta ishlatiladi.
+// DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
+// katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
+// столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
+const d8Shuffle = (arr, seed) => {
+  const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
+  for (let i = a.length - 1; i > 0; i--) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+};
+const d8BuildTiles = (st, su, seed) => {
+  const need = [st, su];
+  const cand = [(su + 1) % 10, (st + 1) % 10, (su + 3) % 10, (st + 7) % 10, (su + 6) % 10];
+  const dist = [];
+  for (const d of cand) { if (dist.length >= 3) break; if (d !== st && d !== su && !dist.includes(d)) dist.push(d); }
+  while (dist.length < 3) { const d = (dist.length + su + 4) % 10; if (d !== st && d !== su && !dist.includes(d)) dist.push(d); else dist.push((d + 1) % 10); }
+  return d8Shuffle([...need, ...dist], seed).map((d, i) => ({ id: `${seed}-${i}`, d }));
+};
 const D8DropSlot = React.forwardRef(({ digit, color, state, onClear }, ref) => {
   const border = state === 'ok' ? T.success : state === 'wrong' ? '#D64545' : state === 'filled' ? color : '#A7A6A2';
   const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FBEEEE' : '#ffffff';
@@ -4615,11 +4558,7 @@ const D8DropSlot = React.forwardRef(({ digit, color, state, onClear }, ref) => {
     </span>
   );
 });
-// AlignStage — Dars11 «столбik tuzish» mexanikasi: o'quvchi IKKINCHI sonni (B) to'g'ri
-// ustunga qo'yadi (birlik ostiga birlik, o'nlik ostiga o'nlik). Bir xonali B -> birlik ustuniga
-// (o'nlik katagi bo'sh qoladi). To'g'ri joylashsa -> javob avtomatik ochiladi. Amal belgisi cur.op.
-const PLACE_HINT = { ru: 'Поставь число в правильный столбик', uz: "Sonni to'g'ri ustunga qo'y" };
-const AlignStage = ({ props, cKey, fact = false }) => {
+const DropColumnStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
   const sfx = useSfx();
@@ -4634,18 +4573,14 @@ const AlignStage = ({ props, cKey, fact = false }) => {
   const meta = SCREEN_META[props.screen];
   const [ri, setRi] = useState(0);
   const cur = rounds[ri];
-  const a = cur.a, b = cur.b, op = cur.op || '+';
-  const at = Math.floor(a / 10), au = a % 10;
-  const b1 = b < 10;                       // bir xonali B
-  const bt = b1 ? null : Math.floor(b / 10), bu = b % 10;
-  const result = op === '−' ? a - b : a + b;
-  const st = Math.floor(result / 10), su = result % 10;
-  // qo'yiladigan plitalar: bir xonali -> faqat birlik; ikki xonali -> o'nlik + birlik
-  const tiles = React.useMemo(() => (b1 ? [{ id: `${ri}-u`, d: bu }] : [{ id: `${ri}-t`, d: bt }, { id: `${ri}-u`, d: bu }]), [ri, b1, bt, bu]);
-  const tileCount = tiles.length;
+  const a = cur.a, b = cur.b, sum = a + b;
+  const at = Math.floor(a / 10), au = a % 10, bt = Math.floor(b / 10), bu = b % 10;
+  const st = Math.floor(sum / 10), su = sum % 10;
+  const tiles = React.useMemo(() => d8BuildTiles(st, su, ri), [ri, st, su]);
   const [placed, setPlaced] = useState({ tens: null, units: null });
   const [wrongFlash, setWrongFlash] = useState(null);
   const [solved, setSolved] = useState(false);
+  const [reveal, setReveal] = useState(0);
   const attemptsRef = useRef(0);
   const wrongRef = useRef(0);
   const tmrRef = useRef([]);
@@ -4667,11 +4602,11 @@ const AlignStage = ({ props, cKey, fact = false }) => {
 
   const report = (correct) => {
     if (!props.onAnswer) return;
-    props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: t(cur.q || c.lead), options: [], correctIndex: -1, correctAnswer: `${a} ${op} ${b}`, studentAnswerIndex: null, studentAnswer: 'setup', correct, firstTry: correct, attempts: attemptsRef.current, solved: true });
+    props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: t(cur.q || c.lead), options: [], correctIndex: -1, correctAnswer: String(sum), studentAnswerIndex: null, studentAnswer: String(sum), correct, firstTry: correct, attempts: attemptsRef.current, solved: true });
   };
   const nextRound = () => {
     tmrRef.current.forEach(clearTimeout); tmrRef.current = [];
-    setRi((r) => r + 1); setPlaced({ tens: null, units: null }); setWrongFlash(null); setSolved(false);
+    setRi((r) => r + 1); setPlaced({ tens: null, units: null }); setWrongFlash(null); setSolved(false); setReveal(0);
     attemptsRef.current = 0; wrongRef.current = 0; evalRef.current = false;
   };
   const placeTile = (slot, tileId) => {
@@ -4681,26 +4616,32 @@ const AlignStage = ({ props, cKey, fact = false }) => {
   };
   const clearSlot = (slot) => { if (solved) return; setWrongFlash(null); setPlaced((p) => ({ ...p, [slot]: null })); };
 
-  // baholash — barcha plita qo'yilganda (bir xonali=1, ikki xonali=2)
+  // baholash — ikki katak ham to'lganda
   useEffect(() => {
     if (solved || evalRef.current) return;
-    if (usedIds.length < tileCount) return;
-    const okUnits = digitOf('units') === bu;
-    const okTens = b1 ? placed.tens == null : digitOf('tens') === bt;
+    if (placed.tens == null || placed.units == null) return;
+    const dt = tileById(placed.tens).d, du = tileById(placed.units).d;
     attemptsRef.current += 1;
-    if (okUnits && okTens) {
+    if (dt === st && du === su) {
       evalRef.current = true;
       sfx.playCorrect();
       const ft = wrongRef.current === 0;
       setSolved(true);
       if (meta.scored) report(ft);
       if (!audio.muted) { const e = getAudioEngine(); if (e) { if (!isArr && c.audio.on_correct) e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } }
+      setReveal(1);
+      tmrRef.current.push(setTimeout(() => setReveal(2), 1300));
+      tmrRef.current.push(setTimeout(() => setReveal(3), 2600));
     } else {
       wrongRef.current += 1;
       sfx.playWrong();
-      setWrongFlash(!okUnits && !okTens ? 'both' : (!okTens ? 'tens' : 'units'));
+      const wf = (dt !== st && du !== su) ? 'both' : (dt !== st ? 'tens' : 'units');
+      setWrongFlash(wf);
       if (!audio.muted && !isArr && c.audio.on_wrong) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
-      tmrRef.current.push(setTimeout(() => { setWrongFlash(null); setPlaced({ tens: null, units: null }); }, 1000));
+      tmrRef.current.push(setTimeout(() => {
+        setWrongFlash(null);
+        setPlaced((p) => { const np = { ...p }; if (dt !== st) np.tens = null; if (du !== su) np.units = null; return np; });
+      }, 950));
     }
   }, [placed]); // eslint-disable-line
 
@@ -4736,10 +4677,14 @@ const AlignStage = ({ props, cKey, fact = false }) => {
     </>
   );
   const slotState = (slot, digit) => solved ? 'ok' : (wrongFlash === slot || wrongFlash === 'both') ? 'wrong' : (digit != null ? 'filled' : 'empty');
-  const gDig = (d) => <span className="g1-pop-in" style={{ ...colCell, color: T.success }}>{d}</span>;
-  const faint = <span style={{ ...colCell, color: T.ink3 }}>?</span>;
-  const bTensNode = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#FF4F28" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
-  const bUnitsNode = <D8DropSlot ref={unitsRef} digit={digitOf('units')} color="#019ACB" state={slotState('units', digitOf('units'))} onClear={() => clearSlot('units')}/>;
+  const dimT = reveal === 1, dimU = reveal === 2;
+  const stepText = reveal === 1
+    ? { ru: `Единицы: ${au} + ${bu} = ${su}`, uz: `Birliklar: ${au} + ${bu} = ${su}` }
+    : reveal >= 2
+      ? { ru: `Десятки: ${at} + ${bt} = ${st}`, uz: `O'nliklar: ${at} + ${bt} = ${st}` }
+      : null;
+  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#FF4F28" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
+  const resUnits = <D8DropSlot ref={unitsRef} digit={digitOf('units')} color="#019ACB" state={slotState('units', digitOf('units'))} onClear={() => clearSlot('units')}/>;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', touchAction: 'none' }}>
@@ -4748,8 +4693,8 @@ const AlignStage = ({ props, cKey, fact = false }) => {
         {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
         {cur.q && c.lead && <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(14px, 2vw, 16px)', textAlign: 'center' }}>{t(cur.q)}</p>}
         <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px,2vw,14px)', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(150px, 32vw, 200px)' }}>
-          <ColumnCard at={at} au={au} bt={bt} bu={bu} sign={op} emphB={!solved} bTensNode={bTensNode} bUnitsNode={bUnitsNode} resTens={solved ? gDig(st) : faint} resUnits={solved ? gDig(su) : faint}/>
-          {solved && <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,2.8vw,20px)', color: T.success }}>{a} {op} {b} = {result}</div>}
+          <ColumnCard at={at} au={au} bt={bt} bu={bu} dimT={dimT} dimU={dimU} resTens={resTens} resUnits={resUnits}/>
+          {stepText && <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,2.8vw,20px)', color: T.success }}>{t(stepText)}</div>}
           {!solved && (
             <>
               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(6px,1.6vw,11px)', minHeight: 'clamp(48px,10vw,62px)' }}>
@@ -4758,7 +4703,7 @@ const AlignStage = ({ props, cKey, fact = false }) => {
                     style={{ ...D8_TILE, opacity: (drag && drag.tileId === tl.id) ? 0.25 : (canAct ? 1 : 0.5) }}>{tl.d}</span>
                 ))}
               </div>
-              <p className="fade-up" style={{ margin: 0, fontSize: 'clamp(12px,1.9vw,14px)', fontWeight: 700, color: T.ink3, textAlign: 'center' }}>{t(PLACE_HINT)}</p>
+              <p className="fade-up" style={{ margin: 0, fontSize: 'clamp(12px,1.9vw,14px)', fontWeight: 700, color: T.ink3, textAlign: 'center' }}>{t(DROP_HINT)}</p>
             </>
           )}
         </div>
@@ -4773,24 +4718,75 @@ const AlignStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-// ============================================================
-// ErrorSpotStage — YANGI «XATONI TOP» mexanikasi (Dars11 = ETALON).
-// Uch xil raund-turi (round.kind), hammasi bitta tap-birinchi, drag'siz stage'да:
-//   'align'  — o'quvchi B sonini to'g'ri ustunga QO'YADI (plita tanla → ustun bos).
-//   'spot'   — TAYYOR (ataylab xato) столбik ko'rsatiladi; o'quvchi «xato qayerda?» tanlaydi.
-//   'choose' — ikki yozuv (biri to'g'ri, biri xato); o'quvchi to'g'risini tanlaydi.
-// Reveal-after-correct: to'g'ri topilsa xato tuzatiladi + to'g'ri joylashuv YASHIL ochiladi.
-// Noto'g'ri: on_wrong — konsept-turtki, javobni OSHKOR QILMAYDI.
-// FeedbackBlock uslubi (frame-tip/frame-success), revealScroll, RU+UZ audio — AlignStage kabi.
-// SELF-CONTAINED: faqat ColumnCard/colCell/D8_TILE/Stage/Reaction/RoundDots/InfoNote/NextExBtn'ga
-// tayanadi (hammasi shu faylda). Boshqa darsga ko'chirish uchun: ColumnCard oilasi + shu komponent.
-// ============================================================
-const digitsOf = (n) => (n < 10 ? { tens: null, units: n } : { tens: Math.floor(n / 10), units: n % 10 });
-const SPOT_Q = { ru: 'Где ошибка?', uz: 'Xato qayerda?' };
-const CHOOSE_Q = { ru: 'Какая запись верна?', uz: "Qaysi yozuv to'g'ri?" };
-const ALIGN_TAP_HINT = { ru: 'Выбери плитку, потом нужный столбик', uz: "Plitani tanlang, so'ng kerakli ustunni bosing" };
+// (Dars07 «столбik» oilasi DropColumnStage Dars13 da ISHLATILMAYDI — o'lik kod.)
 
-const ErrorSpotStage = ({ props, cKey, fact = false }) => {
+// ============================================================
+// «TENG QATORLAR MASSIVI» — Dars13 mexanikasi (metodist 2026-07-15).
+// R qator × C hosil; bola bir qatorni sanaydi → teng qatorlar → takroriy qo'shish
+// (C+C+C) → «R marta C» = «R × C». ArrayViz reveal 0-3. Mashq: ArrayStage (bitta MC + reveal).
+// ============================================================
+// CropSprout — hosil ko'chati: hajmli (gradient + barg-tomir + kurtak + soya). 3D ko'rinish.
+const CropSprout = ({ s = 24 }) => (
+  <svg viewBox="0 0 26 30" width={s} height={s * 30 / 26} aria-hidden="true" style={{ display: 'block', overflow: 'visible' }}>
+    <defs>
+      <linearGradient id="d13stem" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#2E9B4E"/><stop offset="45" stopColor="#57D383"/><stop offset="1" stopColor="#2E9B4E"/></linearGradient>
+      <radialGradient id="d13leaf" cx="32%" cy="28%" r="82%"><stop offset="0" stopColor="#8FEAA6"/><stop offset="58%" stopColor="#46C86C"/><stop offset="100%" stopColor="#2A8F48"/></radialGradient>
+    </defs>
+    <ellipse cx="13" cy="27.6" rx="7.6" ry="2.2" fill="rgba(0,0,0,0.3)"/>
+    <path d="M13 27.5 V10.5" stroke="url(#d13stem)" strokeWidth="2.4" strokeLinecap="round"/>
+    <path d="M13 19.5 C 4.5 18.5 2.5 12 4.5 6.5 C 11.5 8 13 13 13 19.5 Z" fill="url(#d13leaf)" stroke="#2A8F48" strokeWidth="0.5"/>
+    <path d="M13 17.5 C 21.5 16.5 23.5 10 21.5 4.5 C 14.5 6 13 11 13 17.5 Z" fill="url(#d13leaf)" stroke="#2A8F48" strokeWidth="0.5"/>
+    <path d="M13 18.5 Q9 15.5 6 10" stroke="#2A8F48" strokeWidth="0.7" fill="none" opacity="0.55"/>
+    <path d="M13 16.5 Q17 13.5 20 8" stroke="#2A8F48" strokeWidth="0.7" fill="none" opacity="0.55"/>
+    <circle cx="13" cy="8.6" r="2.4" fill="#9EE87F"/>
+    <circle cx="12.1" cy="7.9" r="0.95" fill="#D6F8BE"/>
+  </svg>
+);
+const ARR_CELL = 'clamp(20px,4.8vw,30px)';
+const ArrayViz = ({ r, c, reveal = 0 }) => {
+  const t = useT();
+  const total = r * c;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)' }}>
+      {/* dala — teng qatorlar (tuproq foni) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(4px,1.2vw,7px)', padding: 'clamp(8px,2vw,14px)', borderRadius: 14, background: 'linear-gradient(180deg,#6E4A2A,#4E3218)', border: '2px solid #3A2510', boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.4)' }}>
+        {Array.from({ length: r }).map((_, ri) => (
+          <div key={ri} style={{ display: 'flex', gap: 'clamp(3px,1vw,6px)', justifyContent: 'center', padding: '2px clamp(4px,1.4vw,8px)', borderRadius: 8, background: reveal >= 1 ? 'rgba(255,255,255,0.06)' : 'transparent', boxShadow: reveal >= 1 ? 'inset 0 0 0 1.5px rgba(255,220,120,0.5)' : 'none', transition: 'all .3s' }}>
+            {Array.from({ length: c }).map((_, ci) => <span key={ci} style={{ width: ARR_CELL, height: ARR_CELL, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><CropSprout s={20}/></span>)}
+          </div>
+        ))}
+      </div>
+      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: '#C08A2E' }}>{t({ ru: `${r} ряда по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
+      {reveal >= 2 && (
+        <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(3px,1vw,6px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(16px,3.2vw,23px)' }}>
+          {Array.from({ length: r }).map((_, i) => (<React.Fragment key={i}>{i > 0 && <span style={{ color: T.ink3 }}>+</span>}<span style={{ color: '#2E9B4E' }}>{c}</span></React.Fragment>))}
+          <span style={{ color: T.ink3 }}>=</span><span style={{ color: reveal >= 3 ? T.success : T.ink3 }}>{reveal >= 3 ? total : '?'}</span>
+        </div>
+      )}
+      {reveal >= 3 && (
+        <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,4.6vw,32px)', color: T.ink }}>{r} × {c}</span>
+          <span style={{ color: T.ink3, fontWeight: 800 }}>=</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5vw,34px)', color: T.success }}>{total}</span>
+        </div>
+      )}
+    </div>
+  );
+};
+// MC opsiyalari (deterministik, distraktor=misconception: R+C qo'shish, qator kam/ortiq).
+const uniqOpts = (correct, cands, seed) => {
+  const out = [correct];
+  for (const v of cands) { if (out.length >= 4) break; if (Number.isInteger(v) && v >= 0 && v <= 100 && !out.includes(v)) out.push(v); }
+  let k = 1;
+  while (out.length < 4) { const v = correct + (k % 2 ? k + 1 : -(k + 1)); if (Number.isInteger(v) && v >= 0 && v <= 100 && !out.includes(v)) out.push(v); k += 1; if (k > 80) break; }
+  const arr = [...out]; let s = (seed + 3) * 9301 + 49297;
+  for (let i = arr.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp; }
+  return arr.map((v) => ({ v, ok: v === correct }));
+};
+const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
+const ARR_Q = { ru: 'Сколько всего ростков?', uz: 'Jami nechta ko\'chat?' };
+const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const ArrayStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
   const sfx = useSfx();
@@ -4803,120 +4799,33 @@ const ErrorSpotStage = ({ props, cKey, fact = false }) => {
   const canAct = useCanAnswer(audio);
   const meta = SCREEN_META[props.screen];
   const [ri, setRi] = useState(0);
-  const [solved, setSolved] = useState(false);
-  const [wrong, setWrong] = useState(() => new Set());          // spot/choose: noto'g'ri tanlangan indekslar
-  const [placed, setPlaced] = useState({ tens: null, units: null }); // align: qo'yilgan plitalar
-  const [sel, setSel] = useState(null);                          // align: tanlangan plita id
-  const [alignFlash, setAlignFlash] = useState(false);          // align: noto'g'ri qo'yish chaqnashi
   const cur = rounds[ri];
-  const kind = cur.kind || 'spot';
+  const r = cur.r, cc = cur.c;
+  const total = r * cc;
+  const opts = arrayOpts(r, cc, ri * 7 + 1);
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
   const isLast = ri === rounds.length - 1;
   const allDone = solved && isLast;
-  const attemptsRef = useRef(0);
-  const wrongRef = useRef(0);
-  const tmrRef = useRef([]);
   const revealRef = useRevealScroll(solved, 400);
-  // 'choose' uchun chap/o'ng tartib — raundga bog'liq, render'da barqaror (Math.random faqat init'da)
-  const [orders] = useState(() => rounds.map(() => (Math.random() < 0.5 ? [0, 1] : [1, 0])));
-
-  useEffect(() => () => tmrRef.current.forEach(clearTimeout), []);
-
-  const result = cur.op === '−' ? cur.a - cur.b : cur.a + cur.b;
-  const good = digitsOf(cur.b);          // B ning TO'G'RI joylashuvi
-  const sumDig = digitsOf(result);
-  const bt = cur.b < 10 ? null : Math.floor(cur.b / 10);
-  const bu = cur.b % 10;
-
-  const report = (correct) => {
-    if (!props.onAnswer) return;
-    props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: t(cur.q || c.lead), options: [], correctIndex: -1, correctAnswer: `${cur.a} ${cur.op} ${cur.b}`, studentAnswerIndex: null, studentAnswer: kind, correct, firstTry: correct, attempts: attemptsRef.current, solved: true });
+  const reveal = solved ? 3 : 0;
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const report = () => {
+    if (!meta.scored || !props.onAnswer) return;
+    const ft = !anyWrongRef.current;
+    props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: t(cur.story || c.lead), options: [], correctIndex: -1, correctAnswer: String(total), studentAnswerIndex: null, studentAnswer: String(total), correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true });
   };
-  const win = () => {
-    sfx.playCorrect();
-    const ft = wrongRef.current === 0;
-    setSolved(true);
-    if (meta.scored) report(ft);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) { if (c.audio.on_correct) e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } }
+  const pick = (v, ok) => {
+    if (!canAct || solved || wrong.has(v)) return;
+    if (ok) {
+      sfx.playCorrect(); setSolved(true); report();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } }
+    } else {
+      sfx.playWrong(); anyWrongRef.current = true; setWrong((w) => new Set(w).add(v));
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
+    }
   };
-  const loseAudio = () => {
-    wrongRef.current += 1;
-    sfx.playWrong();
-    if (!audio.muted && c.audio.on_wrong) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
-  };
-  const nextRound = () => {
-    tmrRef.current.forEach(clearTimeout); tmrRef.current = [];
-    setRi((r) => r + 1); setSolved(false); setWrong(new Set());
-    setPlaced({ tens: null, units: null }); setSel(null); setAlignFlash(false);
-    attemptsRef.current = 0; wrongRef.current = 0;
-  };
-
-  // --- spot/choose: tanlash (MC uslubi)
-  const pick = (i, ok) => {
-    if (!canAct || solved || wrong.has(i)) return;
-    attemptsRef.current += 1;
-    if (ok) win();
-    else { setWrong((w) => new Set(w).add(i)); loseAudio(); }
-  };
-
-  // --- align: tap-to-place
-  const tiles = cur.b < 10 ? [{ id: 'u', d: bu }] : [{ id: 't', d: bt }, { id: 'u', d: bu }];
-  const usedIds = [placed.tens, placed.units].filter((x) => x != null);
-  const trayTiles = tiles.filter((tl) => !usedIds.includes(tl.id));
-  const tileById = (id) => tiles.find((tl) => tl.id === id);
-  const digOf = (slot) => (placed[slot] != null ? tileById(placed[slot]).d : null);
-  const tapTile = (id) => { if (!canAct || solved) return; setAlignFlash(false); setSel((s) => (s === id ? null : id)); };
-  const tapSlot = (slot) => {
-    if (!canAct || solved) return;
-    setAlignFlash(false);
-    if (placed[slot] != null) { setPlaced((p) => ({ ...p, [slot]: null })); return; }   // bo'shatish
-    if (sel == null) return;
-    setPlaced((p) => { const np = { ...p }; if (np.tens === sel) np.tens = null; if (np.units === sel) np.units = null; np[slot] = sel; return np; });
-    setSel(null);
-  };
-  useEffect(() => {
-    if (kind !== 'align' || solved) return;
-    if (usedIds.length < tiles.length) return;
-    const okUnits = digOf('units') === bu;
-    const okTens = cur.b < 10 ? placed.tens == null : digOf('tens') === bt;
-    attemptsRef.current += 1;
-    if (okUnits && okTens) { win(); return; }
-    wrongRef.current += 1;
-    sfx.playWrong();
-    if (!audio.muted && c.audio.on_wrong) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
-    setAlignFlash(true);
-    tmrRef.current.push(setTimeout(() => { setAlignFlash(false); setPlaced({ tens: null, units: null }); setSel(null); }, 1000));
-  }, [placed]); // eslint-disable-line
-
-  // --- umumiy tugunlar
-  const faint = <span style={{ ...colCell, color: T.ink3 }}>?</span>;
-  const greenDig = (d) => <span className="g1-pop-in" style={{ ...colCell, color: T.success }}>{d}</span>;
-  const alignSlotNode = (slot, color) => {
-    const dig = digOf(slot);
-    const st = solved ? 'ok' : alignFlash ? 'wrong' : (dig != null ? 'filled' : 'empty');
-    const border = st === 'ok' ? T.success : st === 'wrong' ? '#D64545' : (sel != null && dig == null ? T.accent : (dig != null ? color : '#A7A6A2'));
-    const bg = st === 'ok' ? T.successSoft : st === 'wrong' ? '#FBEEEE' : '#ffffff';
-    return (
-      <span onClick={() => tapSlot(slot)} className={st === 'ok' ? 'g1-pop-in' : ''}
-        style={{ ...colCell, borderRadius: 10, border: `2.5px ${dig != null ? 'solid' : 'dashed'} ${border}`, background: bg, color: st === 'ok' ? T.success : (dig != null ? color : T.ink3), cursor: (canAct && !solved) ? 'pointer' : 'default', transition: 'all .2s' }}>
-        {dig != null ? dig : ''}
-      </span>
-    );
-  };
-  // столбik yozuvi (spot/choose): B qatori berilgan place bilan; green -> yashil, showSum -> natija
-  const recordCard = ({ place, green, showSum }) => {
-    const tone = green ? T.success : T.ink;
-    const cell = (d) => <span style={{ ...colCell, color: tone }}>{d != null ? d : ''}</span>;
-    const res = (d) => showSum ? <span className="g1-pop-in" style={{ ...colCell, color: T.success }}>{d}</span> : <span style={{ ...colCell, color: T.ink3 }}>?</span>;
-    return (
-      <ColumnCard at={Math.floor(cur.a / 10)} au={cur.a % 10} bt={null} bu={null} sign={cur.op}
-        bTensNode={cell(place.tens)} bUnitsNode={cell(place.units)} resTens={res(sumDig.tens)} resUnits={res(sumDig.units)}/>
-    );
-  };
-  const chooseCards = kind === 'choose'
-    ? orders[ri].map((k) => (k === 0 ? { place: good, ok: true } : { place: cur.bad, ok: false }))
-    : [];
-
-  const showWrong = !solved && (kind === 'align' ? alignFlash : wrong.size > 0);
   const canAdv = useAdvanceGate(allDone, audio);
   const navContent = (
     <>
@@ -4924,80 +4833,33 @@ const ErrorSpotStage = ({ props, cKey, fact = false }) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const eqLine = solved ? (
-    <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,2.8vw,20px)', color: T.success }}>{cur.a} {cur.op} {cur.b} = {result}</div>
-  ) : null;
-
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
-        <h1 className="title h-sub fade-up">{t(c.lead || cur.q)}</h1>
-        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
-        {cur.q && <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(14px, 2vw, 16px)', textAlign: 'center' }}>{t(cur.q)}</p>}
-
-        <div key={`${ri}-${kind}`} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px,2vw,14px)', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(150px, 32vw, 200px)' }}>
-          {kind === 'align' && (
-            <>
-              <ColumnCard at={Math.floor(cur.a / 10)} au={cur.a % 10} bt={null} bu={null} sign={cur.op} emphB={!solved}
-                bTensNode={alignSlotNode('tens', '#FF4F28')} bUnitsNode={alignSlotNode('units', '#019ACB')}
-                resTens={solved ? greenDig(sumDig.tens) : faint} resUnits={solved ? greenDig(sumDig.units) : faint}/>
-              {eqLine}
-              {!solved && (
-                <>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(6px,1.6vw,11px)', minHeight: 'clamp(48px,10vw,62px)' }}>
-                    {trayTiles.map((tl) => (
-                      <span key={tl.id} onClick={() => tapTile(tl.id)}
-                        style={{ ...D8_TILE, cursor: canAct ? 'pointer' : 'default', outline: sel === tl.id ? `3px solid ${T.accent}` : 'none', outlineOffset: 2, opacity: canAct ? 1 : 0.5 }}>{tl.d}</span>
-                    ))}
-                  </div>
-                  <p className="fade-up" style={{ margin: 0, fontSize: 'clamp(12px,1.9vw,14px)', fontWeight: 700, color: T.ink3, textAlign: 'center' }}>{t(ALIGN_TAP_HINT)}</p>
-                </>
-              )}
-            </>
-          )}
-
-          {kind === 'spot' && (
-            <>
-              <div key={solved ? 'ok' : 'bad'} className="g1-pop-in" style={{ display: 'flex' }}>
-                {recordCard({ place: solved ? good : cur.bad, green: solved, showSum: solved })}
-              </div>
-              {eqLine}
-            </>
-          )}
-
-          {kind === 'choose' && (
-            <>
-              <p className="mono" style={{ margin: 0, fontWeight: 800, textAlign: 'center', color: T.ink2, fontSize: 'clamp(13px,2vw,15px)' }}>{t(CHOOSE_Q)}</p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 'clamp(8px,2.2vw,16px)', flexWrap: 'wrap' }}>
-                {chooseCards.map((card, idx) => {
-                  const wp = wrong.has(idx);
-                  const okSolved = solved && card.ok;
-                  const bd = okSolved ? T.success : wp ? '#D64545' : '#DED9CF';
-                  return (
-                    <button key={idx} disabled={!canAct || solved || wp} onClick={() => pick(idx, card.ok)}
-                      style={{ background: 'transparent', border: `3px solid ${bd}`, borderRadius: 16, padding: 6, cursor: (canAct && !solved && !wp) ? 'pointer' : 'default', opacity: solved && !card.ok ? 0.45 : 1, transition: 'all .2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 12, color: T.ink3 }}>{idx === 0 ? 'A' : 'B'}</span>
-                      {recordCard({ place: card.place, green: okSolved, showSum: okSolved })}
-                    </button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </div>
-
-        {kind === 'spot' && !solved && (
-          <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <p className="mono" style={{ margin: 0, fontWeight: 800, textAlign: 'center', color: T.ink2, fontSize: 'clamp(13px,2vw,15px)' }}>{t(SPOT_Q)}</p>
-            {cur.opts.map((o, i) => (
-              <button key={i} className={`option ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
-                style={{ padding: 'clamp(10px,1.7vw,13px) clamp(14px,2.4vw,18px)', fontSize: 'clamp(14px,2.1vw,16px)', fontWeight: 600, fontFamily: "'Source Serif 4', serif", minHeight: 'clamp(46px,7vw,54px)', display: 'flex', alignItems: 'center' }}>{t(o)}</button>
-            ))}
+        {c.transition && ri === 0 && (
+          <div className="fade-up" style={{ background: T.accentSoft, border: `1.5px solid ${T.accent}`, borderRadius: 14, padding: 'clamp(11px,2.2vw,15px) clamp(14px,2.6vw,18px)' }}>
+            <span style={{ display: 'inline-block', background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(10px,1.6vw,12px)', letterSpacing: '.05em', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>{lang === 'uz' ? 'MASHQ' : 'ТРЕНИРОВКА'}</span>
+            <p style={{ margin: 0, fontWeight: 700, color: T.ink, fontSize: 'clamp(14px,2.1vw,17px)', lineHeight: 1.45 }}>{t(c.transition)}</p>
           </div>
         )}
-
-        {showWrong && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.hint || c.wrong)}/></div>}
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {cur.story && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story)}</p>}
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <ArrayViz r={r} c={cc} reveal={reveal}/>
+        </div>
+        {!solved && (
+          <>
+            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(ARR_Q)}</p>
+            <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
+              {opts.map((o, i) => { const w = wrong.has(o.v); return (
+                <button key={i} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => pick(o.v, o.ok)} style={ARR_OPT}>{o.v}</button>
+              ); })}
+            </div>
+          </>
+        )}
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
         {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
         {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
         {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
@@ -5005,16 +4867,315 @@ const ErrorSpotStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
+const A5 = (props) => <ArrayStage props={props} cKey="s5"/>;
+const A6 = (props) => <ArrayStage props={props} cKey="s6"/>;
+const A7 = (props) => <ArrayStage props={props} cKey="s7"/>;
+const A8 = (props) => <ArrayStage props={props} cKey="s8"/>;
+const A9 = (props) => <ArrayStage props={props} cKey="s9"/>;
+const A10 = (props) => <ArrayStage props={props} cKey="s10"/>;
+const A11 = (props) => <ArrayStage props={props} cKey="s11"/>;
+const ACase = (props) => <ArrayStage props={props} cKey="s13"/>;
+const A14 = (props) => <ArrayStage props={props} cKey="s14" fact/>;
 
-const D5 = (props) => <AlignStage props={props} cKey="s5"/>;
-const D6 = (props) => <AlignStage props={props} cKey="s6"/>;
-const D7 = (props) => <AlignStage props={props} cKey="s7"/>;
-const D8 = (props) => <AlignStage props={props} cKey="s8"/>;
-const D9 = (props) => <ErrorSpotStage props={props} cKey="s9"/>;
-const D10 = (props) => <AlignStage props={props} cKey="s10"/>;
-const D11 = (props) => <ErrorSpotStage props={props} cKey="s11"/>;
-const DCase = (props) => <AlignStage props={props} cKey="s13"/>;
-const D14 = (props) => <ErrorSpotStage props={props} cKey="s14" fact/>;
+// ============================================================
+// YUPITER SAHNALARI — Б3 biom. MUHIM (metodist 2026-07-15): Yupiter GAZ sayyorasi — unda qattiq
+// sirt yo'q, HOSIL O'SMAYDI, kema QO'NA OLMAYDI. Shuning uchun ekipaj Yupiter ORBITASIDA uchadi,
+// hosil KEMA ICHIDAGI ISSIQXONADA (teng qator-tublarda) o'sadi; Yupiter ILLYUMINATORdan ko'rinadi.
+// ============================================================
+const YupiterPlanet = ({ w = '100%' }) => (
+  <svg viewBox="0 0 120 120" style={{ width: w, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <defs>
+      <radialGradient id="d13jup" cx="38%" cy="32%" r="86%"><stop offset="0%" stopColor="#F7E8C8"/><stop offset="52%" stopColor="#D9A066"/><stop offset="100%" stopColor="#8A5A2E"/></radialGradient>
+      <radialGradient id="d13term" cx="34%" cy="30%" r="80%"><stop offset="46%" stopColor="rgba(0,0,0,0)"/><stop offset="100%" stopColor="rgba(20,10,4,0.62)"/></radialGradient>
+      <radialGradient id="d13spec" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="rgba(255,250,235,0.9)"/><stop offset="100%" stopColor="rgba(255,250,235,0)"/></radialGradient>
+      <radialGradient id="d13halo" cx="50%" cy="50%" r="50%"><stop offset="62%" stopColor="rgba(230,180,110,0)"/><stop offset="82%" stopColor="rgba(230,180,110,0.28)"/><stop offset="100%" stopColor="rgba(230,180,110,0)"/></radialGradient>
+      <clipPath id="d13jupc"><circle cx="60" cy="60" r="52"/></clipPath>
+    </defs>
+    {/* atmosfera halosi (pulslaydi) */}
+    <circle className="d13-jhalo" cx="60" cy="60" r="60" fill="url(#d13halo)"/>
+    <circle cx="60" cy="60" r="52" fill="url(#d13jup)"/>
+    <g clipPath="url(#d13jupc)">
+      {/* gaz chiziqlari — sekin siljiydi (d13-jband) */}
+      <g className="d13-jband">
+        <rect x="-30" y="26" width="180" height="8" rx="4" fill="#C99060" opacity="0.72"/>
+        <rect x="-30" y="41" width="180" height="12" rx="6" fill="#AE7A44" opacity="0.62"/>
+        <rect x="-30" y="60" width="180" height="9" rx="4" fill="#D6A56E" opacity="0.66"/>
+        <rect x="-30" y="76" width="180" height="11" rx="5" fill="#A87340" opacity="0.56"/>
+        <rect x="-30" y="92" width="180" height="7" rx="3" fill="#C99060" opacity="0.6"/>
+      </g>
+      {/* Katta Qizil Dog' (girdobli) */}
+      <ellipse cx="44" cy="70" rx="14" ry="8" fill="#B84A30"/>
+      <ellipse cx="44" cy="70" rx="9.5" ry="5" fill="#DD6B4A" opacity="0.8"/>
+      <ellipse cx="44" cy="70" rx="5" ry="2.6" fill="#F2A488" opacity="0.7"/>
+      {/* terminator (3D soya) */}
+      <circle cx="60" cy="60" r="52" fill="url(#d13term)"/>
+      {/* specular yorug'lik (yuqori-chap) */}
+      <ellipse cx="42" cy="38" rx="17" ry="12" fill="url(#d13spec)" opacity="0.55" transform="rotate(-24 42 38)"/>
+    </g>
+    {/* rim-light (yorug' chekka yoy) */}
+    <path d="M22 34 A52 52 0 0 1 96 30" fill="none" stroke="rgba(255,246,222,0.55)" strokeWidth="1.6" strokeLinecap="round"/>
+    <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(120,80,40,0.5)" strokeWidth="1"/>
+  </svg>
+);
+const PANO_STARS = [[8, 16], [20, 30], [33, 11], [46, 24], [58, 13], [70, 27], [83, 15], [92, 30], [14, 42], [64, 40], [88, 44], [40, 46]];
+// Osilgan liana — tepa ramkadan tushadi, sekin tebranadi (d13-vine).
+const HangingVine = ({ flip = false }) => (
+  <svg viewBox="0 0 22 74" width="100%" style={{ display: 'block', overflow: 'visible', transform: flip ? 'scaleX(-1)' : 'none' }} aria-hidden="true">
+    <path d="M11 0 Q 6 20 12 38 Q 17 54 8 72" stroke="#3E9B5F" strokeWidth="2.2" fill="none" strokeLinecap="round"/>
+    {[12, 26, 40, 54, 66].map((y, i) => (
+      <path key={i} d={i % 2 ? 'M0 0 C 7 -2 8 5 2 7 C -2 4 -1 0 0 0 Z' : 'M0 0 C -7 -2 -8 5 -2 7 C 2 4 1 0 0 0 Z'} fill={i % 2 ? '#4FB06A' : '#43A65C'} transform={`translate(${i % 2 ? 13 : 9} ${y})`}/>
+    ))}
+  </svg>
+);
+// Bitta ekin-planter (3D raised bed, ENLIK): old yuz + yon + tuproq; 4 realistik o'simlik teng qator
+// (tebranadi) + nam-tuman.
+const PlanterRow = ({ n = 4, celebrate = false, ri = 0 }) => (
+  <div style={{ position: 'relative', display: 'flex', gap: 'clamp(8px,2.2vw,15px)', justifyContent: 'center', padding: '0 clamp(12px,3vw,20px) clamp(9px,2.2vw,13px)', borderRadius: '6px 6px 10px 10px', background: 'linear-gradient(180deg,#9A7648 0%,#7A5230 14%,#5A3A1E 42%,#3A2510 100%)', boxShadow: 'inset 0 -4px 6px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,220,170,0.25), 0 4px 9px rgba(0,0,0,0.5)', border: '1.5px solid #241407', borderTop: '3px solid #B98F58' }}>
+    {/* tuproq yuzasi */}
+    <div style={{ position: 'absolute', left: 4, right: 4, top: 3, height: 'clamp(6px,1.5vw,9px)', borderRadius: 3, background: 'repeating-linear-gradient(92deg,#4A2F16 0 3px,#38230F 3px 6px)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.55)' }}/>
+    {/* nam-tuman zarralari (ko'tariladi) */}
+    {[0, 1, 2, 3].map((m) => <span key={'m' + m} className="d13-mist" aria-hidden="true" style={{ position: 'absolute', left: `${16 + m * 22}%`, top: -1, width: 'clamp(4px,1vw,6px)', height: 'clamp(4px,1vw,6px)', borderRadius: '50%', background: 'rgba(205,240,255,0.55)', animationDelay: `${m * 0.7 + ri * 0.4}s` }}/>)}
+    {Array.from({ length: n }).map((_, ci) => (
+      <span key={ci} className={celebrate ? 'g1-pop-in' : ''} style={{ width: 'clamp(20px,5vw,30px)', marginTop: 'clamp(-15px,-3.4vw,-12px)', zIndex: 1, animationDelay: celebrate ? `${0.2 + (ri * 4 + ci) * 0.05}s` : undefined }}>
+        <span className="d13-sway" style={{ display: 'inline-block', transformOrigin: '50% 100%', animationDelay: `${(ri * 4 + ci) * 0.35}s` }}><ScenePlant s={24}/></span>
+      </span>
+    ))}
+  </div>
+);
+// Tuvakdagi butazor o'simlik (floor burchagi — dekorativ, sanaladigan qatorlardan farqli).
+const PottedPlant = ({ w = 44 }) => (
+  <svg viewBox="0 0 44 50" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <defs>
+      <radialGradient id="d13bush" cx="34%" cy="26%" r="82%"><stop offset="0" stopColor="#86E79E"/><stop offset="58%" stopColor="#3FB264"/><stop offset="100%" stopColor="#258443"/></radialGradient>
+      <linearGradient id="d13pot" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#9A5028"/><stop offset="0.45" stopColor="#C97B45"/><stop offset="1" stopColor="#8A461F"/></linearGradient>
+    </defs>
+    <ellipse cx="22" cy="48" rx="12" ry="2.2" fill="rgba(0,0,0,0.2)"/>
+    <g stroke="#258443" strokeWidth="0.6" fill="url(#d13bush)"><ellipse cx="14" cy="22" rx="9.5" ry="12"/><ellipse cx="30" cy="20" rx="9.5" ry="12.5"/><ellipse cx="22" cy="13" rx="9" ry="11"/></g>
+    <path d="M15 20 Q12 12 9 6" stroke="#258443" strokeWidth="0.8" fill="none" opacity="0.5"/>
+    <path d="M29 19 Q32 11 35 6" stroke="#258443" strokeWidth="0.8" fill="none" opacity="0.5"/>
+    <path d="M12 32 L32 32 L28.5 47 L15.5 47 Z" fill="url(#d13pot)" stroke="#7A3F1B" strokeWidth="1"/>
+    <ellipse cx="22" cy="32" rx="10" ry="2.3" fill="#CE7E42"/>
+    <path d="M12 32 L32 32 L31 36 L13 36 Z" fill="#A85A28" opacity="0.4"/>
+  </svg>
+);
+// Shiftdan osilgan tuvak + osilib tushuvchi o'simlik.
+const HangingPot = ({ w = 32 }) => (
+  <svg viewBox="0 0 34 58" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <defs><linearGradient id="d13pot2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#9A5028"/><stop offset="0.45" stopColor="#C97B45"/><stop offset="1" stopColor="#8A461F"/></linearGradient></defs>
+    <path d="M17 0 L8 22 M17 0 L26 22 M17 0 L17 22" stroke="#6A7480" strokeWidth="1"/>
+    <path d="M8 22 L26 22 L23 33 L11 33 Z" fill="url(#d13pot2)" stroke="#7A3F1B" strokeWidth="1"/>
+    <ellipse cx="17" cy="22" rx="9" ry="2.2" fill="#CE7E42"/>
+    <g fill="#3FB264" stroke="#258443" strokeWidth="0.4"><ellipse cx="17" cy="19" rx="8" ry="4.5"/><ellipse cx="11" cy="20" rx="4" ry="3"/><ellipse cx="23" cy="20" rx="4" ry="3"/></g>
+    <path d="M12 24 Q8 42 13 56" stroke="#3E9B5F" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+    <path d="M22 24 Q26 40 20 52" stroke="#3E9B5F" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+    {[[10, 40], [14, 52], [24, 38], [19, 49]].map(([x, y], i) => <ellipse key={i} cx={x} cy={y} rx="3" ry="1.7" fill="#4FB06A" transform={`rotate(${i % 2 ? 28 : -28} ${x} ${y})`}/>)}
+  </svg>
+);
+// KEMA ISSIQXONA-MODULI (Yupiter orbitasida) — YORUG' interyer: shift + yon devor + pol yorug' metall;
+// PANORAMA OYNA (konteyner) da koinot + Yupiter (faqat oyna ichi qorong'i). Grow-lightlar SHIFTDAN
+// SIMLAR bilan osilgan. Ko'p o'simlik: 3×4 markaziy planter (sanaladigan) + osilgan tuvak/liana +
+// burchak tuvak-o'simliklar. Barcha element jonli/3D (halo/yo'ldosh/tebranish/nur/tuman).
+// Vertikal bog' (green wall) — yon devorда ko'p mayda o'simlik (issiqxona hissi).
+const GreenWall = () => (
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 'clamp(2px,0.6vw,4px)', padding: 'clamp(3px,0.9vw,5px)', borderRadius: 6, background: 'linear-gradient(180deg,#3A2A1A,#241608)', boxShadow: 'inset 0 0 7px rgba(0,0,0,0.55)', border: '1.5px solid #1E1207' }}>
+    {Array.from({ length: 15 }).map((_, i) => (
+      <span key={i} className="d13-sway" style={{ display: 'inline-flex', transformOrigin: '50% 100%', animationDelay: `${i * 0.2}s`, animationDuration: `${3 + (i % 3) * 0.5}s` }}>
+        <svg viewBox="0 0 14 12" width="clamp(8px,2.2vw,13px)" aria-hidden="true"><path d="M7 12 C 2 10 1 5 3 2 C 6 4 7 7 7 12 Z" fill="#46C86C"/><path d="M7 12 C 12 10 13 5 11 2 C 8 4 7 7 7 12 Z" fill="#37AE58"/></svg>
+      </span>
+    ))}
+  </div>
+);
+// Javon + ko'chat-lotoklari (ikki qavat) — devorда.
+const ShelfTrays = () => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(4px,1.1vw,7px)' }}>
+    {[0, 1].map((sh) => (
+      <div key={sh} style={{ position: 'relative', width: 'clamp(30px,7.6vw,46px)', height: 'clamp(13px,3.2vw,19px)', borderRadius: '2px 2px 4px 4px', background: 'linear-gradient(180deg,#8A6A42,#523318)', border: '1px solid #241407', boxShadow: '0 2px 3px rgba(0,0,0,0.4)' }}>
+        <div style={{ position: 'absolute', left: 2, right: 2, top: 2, height: '38%', borderRadius: 2, background: 'repeating-linear-gradient(90deg,#4A2F16 0 3px,#38230F 3px 6px)' }}/>
+        {[0, 1, 2, 3].map((i) => <span key={i} className="d13-sway" style={{ position: 'absolute', bottom: '40%', left: `${10 + i * 22}%`, transformOrigin: '50% 100%', animationDelay: `${(sh * 4 + i) * 0.25}s` }}><svg viewBox="0 0 8 11" width="clamp(5px,1.3vw,8px)" aria-hidden="true"><path d="M4 11 V5" stroke="#2E9B4E" strokeWidth="1" strokeLinecap="round"/><path d="M4 7 C1 6 1 3 2 2 C3.5 3 4 5 4 7 Z" fill="#57D383"/><path d="M4 7 C7 6 7 3 6 2 C4.5 3 4 5 4 7 Z" fill="#46C86C"/></svg></span>)}
+      </div>
+    ))}
+  </div>
+);
+// Sug'orish idishi (floorда rekvizit).
+const WateringCan = ({ w }) => (
+  <svg viewBox="0 0 42 34" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <defs><linearGradient id="d13can" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8FD0E0"/><stop offset="1" stopColor="#4E93A4"/></linearGradient></defs>
+    <path d="M9 15 L31 15 L29 33 L11 33 Z" fill="url(#d13can)" stroke="#37727F" strokeWidth="1.2"/>
+    <path d="M31 17 Q40 15 37 27" stroke="#4E93A4" strokeWidth="3" fill="none" strokeLinecap="round"/>
+    <path d="M9 15 Q6 6 1 4 L0 8 Q5 10 6 16 Z" fill="url(#d13can)" stroke="#37727F" strokeWidth="1"/>
+    <ellipse cx="20" cy="15" rx="11" ry="2.4" fill="#A6E0EC"/>
+    <circle cx="1.5" cy="6" r="2.6" fill="#B0E2EE" stroke="#37727F" strokeWidth="0.6"/>
+  </svg>
+);
+// ScenePlant — realistik yosh o'simlik (poya + 4 barg + tomir + kurtak, gradient). Sahna planterlarida.
+const ScenePlant = ({ s = 20 }) => (
+  <svg viewBox="0 0 28 38" width={s} height={s * 38 / 28} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <defs>
+      <linearGradient id="d13pstem" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#2A8F48"/><stop offset="0.5" stopColor="#5AD383"/><stop offset="1" stopColor="#2A8F48"/></linearGradient>
+      <radialGradient id="d13pleaf" cx="32%" cy="26%" r="84%"><stop offset="0" stopColor="#93EDAA"/><stop offset="56%" stopColor="#46C86C"/><stop offset="100%" stopColor="#25823F"/></radialGradient>
+    </defs>
+    <ellipse cx="14" cy="35.6" rx="8" ry="2.1" fill="rgba(0,0,0,0.26)"/>
+    <path d="M14 35.5 C 13 26 15 18 14 8" stroke="url(#d13pstem)" strokeWidth="2.3" fill="none" strokeLinecap="round"/>
+    <path d="M14 28 C 4 27 1.5 19 4 12 C 12 14 14 20 14 28 Z" fill="url(#d13pleaf)" stroke="#25823F" strokeWidth="0.5"/>
+    <path d="M14 26 C 24 25 26.5 17 24 10 C 16 12 14 18 14 26 Z" fill="url(#d13pleaf)" stroke="#25823F" strokeWidth="0.5"/>
+    <path d="M14 19 C 7 18.5 5.5 13 7 8 C 12.5 9.5 14 14 14 19 Z" fill="url(#d13pleaf)" stroke="#25823F" strokeWidth="0.4"/>
+    <path d="M14 17 C 21 16.5 22.5 11 21 6 C 15.5 7.5 14 12 14 17 Z" fill="url(#d13pleaf)" stroke="#25823F" strokeWidth="0.4"/>
+    <path d="M14 27 Q9 22 5.5 15" stroke="#25823F" strokeWidth="0.6" fill="none" opacity="0.5"/>
+    <path d="M14 25 Q19 20 22.5 13" stroke="#25823F" strokeWidth="0.6" fill="none" opacity="0.5"/>
+    <circle cx="14" cy="6.5" r="2.4" fill="#9EE87F"/><circle cx="13.1" cy="5.8" r="0.9" fill="#DAF8C0"/>
+  </svg>
+);
+// Bog'bon-dron — o'simlik ustida suzadi (parragi aylanadi, skaner nur). d13-hover.
+const GardenDrone = ({ w }) => (
+  <svg viewBox="0 0 46 32" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <defs><linearGradient id="d13drone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#EEF1F5"/><stop offset="1" stopColor="#96A0AC"/></linearGradient></defs>
+    <line x1="9" y1="9" x2="19" y2="15" stroke="#6A7480" strokeWidth="2"/><line x1="37" y1="9" x2="27" y2="15" stroke="#6A7480" strokeWidth="2"/>
+    <ellipse className="d13-rotor" cx="9" cy="8" rx="8.5" ry="1.7" fill="#8A94A6" opacity="0.7" style={{ transformOrigin: '9px 8px' }}/>
+    <ellipse className="d13-rotor" cx="37" cy="8" rx="8.5" ry="1.7" fill="#8A94A6" opacity="0.7" style={{ transformOrigin: '37px 8px', animationDelay: '.1s' }}/>
+    <rect x="15" y="12" width="16" height="10" rx="4.5" fill="url(#d13drone)" stroke="#7E8692" strokeWidth="1"/>
+    <path d="M20 22 L17 31 L29 31 L26 22 Z" fill="rgba(110,242,155,0.22)"/>
+    <circle className="d13-led" cx="23" cy="21" r="1.9" fill="#6EF29B"/>
+  </svg>
+);
+// Suv baki (gidroponika) — silindr + suv + ko'tariluvchi pufakchalar (d13-bubble).
+const WaterTank = ({ w }) => (
+  <svg viewBox="0 0 28 56" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <defs>
+      <linearGradient id="d13tank" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#AEB8C4"/><stop offset="0.5" stopColor="#E8EEF4"/><stop offset="1" stopColor="#8A94A0"/></linearGradient>
+      <linearGradient id="d13water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#74CBE0"/><stop offset="1" stopColor="#37909F"/></linearGradient>
+    </defs>
+    <rect x="3" y="6" width="22" height="46" rx="9" fill="url(#d13tank)" stroke="#7E8692" strokeWidth="1.4"/>
+    <clipPath id="d13tankc"><rect x="6" y="9" width="16" height="40" rx="7"/></clipPath>
+    <g clipPath="url(#d13tankc)">
+      <rect x="6" y="24" width="16" height="25" fill="url(#d13water)"/>
+      <ellipse cx="14" cy="24" rx="8" ry="2" fill="#96E0EE" opacity="0.85"/>
+      {[0, 1, 2].map((i) => <circle key={i} className="d13-bubble" cx={9 + i * 5} cy="46" r={1.5 - i * 0.25} fill="rgba(255,255,255,0.75)" style={{ animationDelay: `${i * 0.7}s` }}/>)}
+    </g>
+    <rect x="9" y="2" width="10" height="5" rx="2" fill="#8A94A6" stroke="#6A7480" strokeWidth="0.6"/>
+    <rect x="4" y="7" width="4" height="44" rx="2" fill="rgba(255,255,255,0.35)"/>
+  </svg>
+);
+// Harorat-namlik datchik-paneli (devor).
+const SensorPanel = ({ w }) => (
+  <div style={{ width: w, borderRadius: 5, background: 'linear-gradient(180deg,#2A3342,#141B25)', border: '1.5px solid #0C121A', boxShadow: '0 2px 5px rgba(0,0,0,0.4)', padding: 'clamp(3px,0.9vw,5px)', display: 'flex', flexDirection: 'column', gap: 2, fontFamily: "'JetBrains Mono', monospace" }} aria-hidden="true">
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <span style={{ fontSize: 'clamp(7px,1.5vw,10px)', color: '#FFC266', fontWeight: 800 }}>24°C</span>
+      <span className="d13-led" style={{ width: 'clamp(3px,0.8vw,5px)', height: 'clamp(3px,0.8vw,5px)', borderRadius: '50%', background: '#6EF29B', boxShadow: '0 0 4px #6EF29B' }}/>
+    </div>
+    <span style={{ fontSize: 'clamp(7px,1.5vw,10px)', color: '#5BD6F2', fontWeight: 800 }}>70%</span>
+    <div style={{ height: 'clamp(2px,0.6vw,3px)', borderRadius: 2, background: 'linear-gradient(90deg,#5BD6F2 70%,#2A3342 70%)' }}/>
+  </div>
+);
+// Kapalak — sahna bo'ylab uchadi (d13-fly), qanotlari qoqadi (d13-wing).
+const Butterfly = () => (
+  <svg viewBox="0 0 20 16" width="clamp(11px,3vw,17px)" style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <g className="d13-wingl" style={{ transformOrigin: '10px 8px' }}><path d="M10 8 C 2 1 -1 8 3 13 C 6 13 10 10 10 8 Z" fill="#FF9E4D" stroke="#E07A2C" strokeWidth="0.5"/></g>
+    <g className="d13-wingr" style={{ transformOrigin: '10px 8px' }}><path d="M10 8 C 18 1 21 8 17 13 C 14 13 10 10 10 8 Z" fill="#FFB86B" stroke="#E07A2C" strokeWidth="0.5"/></g>
+    <ellipse cx="10" cy="8" rx="1.1" ry="3.6" fill="#3A2A1A"/>
+    <path d="M10 5 L8 2 M10 5 L12 2" stroke="#3A2A1A" strokeWidth="0.6" strokeLinecap="round"/>
+  </svg>
+);
+const GROW_LAMPS = [36, 50, 64];
+const ShipGreenhouse = ({ arrive = false, celebrate = false, bubbleNode }) => (
+  <div className="d2-scene" style={{ background: 'linear-gradient(180deg,#E4E9DF 0%,#D2DACC 52%,#BEC6B6 100%)' }}>
+    {/* SHIFT (yorug') + panel-lampalar */}
+    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '11%', background: 'linear-gradient(180deg,#EFF1EB,#C6CCC0)', boxShadow: '0 3px 8px rgba(0,0,0,0.16)', zIndex: 6 }}>
+      <div style={{ position: 'absolute', left: '7%', right: '7%', bottom: 2, height: 'clamp(4px,1vw,7px)', borderRadius: 3, background: 'linear-gradient(180deg,#BCC2B6,#8E948A)' }}/>
+      {[20, 50, 80].map((x) => <div key={x} style={{ position: 'absolute', left: `${x}%`, top: '24%', transform: 'translateX(-50%)', width: 'clamp(20px,5vw,32px)', height: 'clamp(4px,1vw,7px)', borderRadius: 3, background: '#FFE7A8', boxShadow: '0 0 9px 2px rgba(255,215,140,0.75)' }}/>)}
+    </div>
+    {/* yon devorlar (yorug' metall panel) */}
+    <div aria-hidden="true" style={{ position: 'absolute', left: 0, top: '11%', bottom: 0, width: '6%', background: 'linear-gradient(90deg,#DAE0D2,#C2CABC)', boxShadow: 'inset -2px 0 5px rgba(0,0,0,0.1)', zIndex: 1 }}/>
+    <div aria-hidden="true" style={{ position: 'absolute', right: 0, top: '11%', bottom: 0, width: '6%', background: 'linear-gradient(270deg,#DAE0D2,#C2CABC)', boxShadow: 'inset 2px 0 5px rgba(0,0,0,0.1)', zIndex: 1 }}/>
+    {/* PANORAMA OYNA (konteyner) — koinot + Yupiter (faqat shu yer qorong'i) */}
+    <div style={{ position: 'absolute', left: '7%', right: '7%', top: '12%', height: '42%', borderRadius: 10, overflow: 'hidden', boxShadow: '0 5px 14px rgba(0,0,0,0.26)', zIndex: 2, border: 'clamp(5px,1.4vw,8px) solid', borderColor: '#CFD6E0 #9AA2AE #7E8692 #B6BEC8' }}>
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 66% 44%, #1b2a4e 0%, #070b16 84%)' }}/>
+      <div style={{ position: 'absolute', left: '2%', top: '10%', width: '46%', height: '70%', background: 'radial-gradient(ellipse at 40% 40%, rgba(90,120,220,0.16), rgba(150,90,200,0.08) 55%, transparent 74%)', filter: 'blur(4px)' }}/>
+      {PANO_STARS.map(([x, y], i) => <span key={i} className="d2-star" style={{ position: 'absolute', left: `${x}%`, top: `${(y * 1.7) % 90}%`, width: i % 3 ? 1.6 : 2.6, height: i % 3 ? 1.6 : 2.6, borderRadius: '50%', background: '#DCEAF8', animationDelay: `${i * 0.4}s` }}/>)}
+      <div className={arrive ? 'g1-pop-in' : ''} style={{ position: 'absolute', right: '3%', top: '-30%', width: 'clamp(98px,27vw,158px)', zIndex: 1 }}><YupiterPlanet/></div>
+      <span className="d13-moon1" aria-hidden="true" style={{ position: 'absolute', top: '62%', width: 'clamp(9px,2.2vw,14px)', height: 'clamp(9px,2.2vw,14px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #F0EAD8, #8A7A60 78%, #4A4030)', boxShadow: '0 0 6px rgba(230,220,200,0.5)' }}/>
+      <span className="d13-moon2" aria-hidden="true" style={{ position: 'absolute', top: '28%', width: 'clamp(6px,1.6vw,10px)', height: 'clamp(6px,1.6vw,10px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #CFE0F0, #6A7A8A 80%, #3A4450)', boxShadow: '0 0 5px rgba(190,210,235,0.5)' }}/>
+      {[33, 66].map((x) => <div key={x} aria-hidden="true" style={{ position: 'absolute', left: `${x}%`, top: 0, bottom: 0, width: 'clamp(4px,1.1vw,7px)', background: 'linear-gradient(90deg,rgba(46,54,66,0.75),rgba(120,132,150,0.9),rgba(46,54,66,0.75))' }}/>)}
+      <div className="d13-sheen" style={{ position: 'absolute', top: 0, bottom: 0, width: '26%', background: 'linear-gradient(115deg, rgba(255,255,255,0.16), transparent 60%)', transform: 'skewX(-14deg)' }}/>
+      <div style={{ position: 'absolute', left: '4%', top: '8%', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(8px,1.5vw,11px)', letterSpacing: '.08em', color: '#8FE0C0', textShadow: '0 0 6px rgba(140,224,192,0.6)' }}>◍ YUPITER · ORBITA</div>
+    </div>
+    {/* POL (yorug' metall + perspektiva grid) */}
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '42%', background: 'linear-gradient(180deg,#CDD4C8 0%,#B6BEAC 46%,#9AA290 100%)', boxShadow: 'inset 0 6px 12px rgba(0,0,0,0.14)', zIndex: 3 }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 'clamp(4px,1vw,7px)', background: 'linear-gradient(180deg,#DEE3D7,#AEB6A6)' }}/>
+      {[26, 50, 74].map((x) => <div key={x} style={{ position: 'absolute', bottom: 0, left: `${x}%`, width: 1, height: '72%', background: 'rgba(110,118,102,0.28)', transform: `skewX(${(x - 50) * 0.5}deg)`, transformOrigin: 'bottom' }}/>)}
+    </div>
+    {/* GROW-LIGHTLAR — SHIFTDAN SIMLAR bilan osilgan (sim + lampa + glow + nur-konus) */}
+    {GROW_LAMPS.map((x, i) => (
+      <React.Fragment key={i}>
+        <div aria-hidden="true" style={{ position: 'absolute', left: `${x}%`, top: '11%', height: '37%', width: 2, background: 'linear-gradient(180deg,#48505C,#6C7480)', transform: 'translateX(-50%)', zIndex: 4 }}/>
+        <div style={{ position: 'absolute', left: `${x}%`, top: '47%', transform: 'translateX(-50%)', zIndex: 4, width: 'clamp(40px,10vw,60px)', height: 'clamp(8px,2vw,13px)', borderRadius: 4, background: 'linear-gradient(180deg,#E8ECF2,#8E96A2)', boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }}>
+          <div className="d13-glow" style={{ position: 'absolute', inset: '2px 4px', borderRadius: 3, background: 'linear-gradient(180deg,#FFE39A,#FF9E38)' }}/>
+          <div className="d13-beam" aria-hidden="true" style={{ position: 'absolute', left: '50%', top: '100%', transform: 'translateX(-50%)', width: '200%', height: 'clamp(64px,18vw,108px)', background: 'linear-gradient(180deg, rgba(255,196,96,0.42), rgba(255,196,96,0.06) 68%, transparent)', clipPath: 'polygon(40% 0, 60% 0, 100% 100%, 0% 100%)', pointerEvents: 'none' }}/>
+          {/* tomchi-sug'orish */}
+          <span className="d13-drop" aria-hidden="true" style={{ position: 'absolute', left: '50%', top: '120%', transform: 'translateX(-50%)', width: 'clamp(3px,0.8vw,5px)', height: 'clamp(5px,1.2vw,7px)', borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%', background: 'rgba(150,215,235,0.85)', animationDelay: `${i * 0.9}s` }}/>
+        </div>
+      </React.Fragment>
+    ))}
+    {/* OSILGAN O'SIMLIKLAR — shiftdan qator (tuvak + liana) */}
+    <div className="d13-vine" style={{ position: 'absolute', left: '9%', top: '10%', width: 'clamp(18px,5vw,30px)', transformOrigin: '50% 0%', zIndex: 6 }}><HangingPot w="100%"/></div>
+    <div className="d13-vine d13-vine2" style={{ position: 'absolute', left: '26%', top: '10%', width: 'clamp(14px,3.8vw,22px)', transformOrigin: '50% 0%', zIndex: 6 }}><HangingVine/></div>
+    <div className="d13-vine" style={{ position: 'absolute', right: '25%', top: '10%', width: 'clamp(15px,4vw,23px)', transformOrigin: '50% 0%', zIndex: 6, animationDuration: '5.6s' }}><HangingVine flip/></div>
+    <div className="d13-vine d13-vine2" style={{ position: 'absolute', right: '8%', top: '10%', width: 'clamp(18px,5vw,30px)', transformOrigin: '50% 0%', zIndex: 6 }}><HangingPot w="100%"/></div>
+    {/* YASHIL DEVOR (chap yon) + JAVON-LOTOKLAR (o'ng yon) */}
+    <div style={{ position: 'absolute', left: '0.5%', top: '30%', width: 'clamp(26px,6.6vw,40px)', zIndex: 4 }}><GreenWall/></div>
+    <div style={{ position: 'absolute', right: '0.5%', top: '30%', zIndex: 4 }}><ShelfTrays/></div>
+    {/* BURCHAK TUVAK-O'SIMLIKLAR (floorda, qatlamli) + sug'orish idishi */}
+    <div style={{ position: 'absolute', left: '3%', bottom: '2%', width: 'clamp(30px,8vw,48px)', zIndex: 4 }}><PottedPlant w="100%"/></div>
+    <div style={{ position: 'absolute', left: '15%', bottom: '2%', width: 'clamp(20px,5.4vw,32px)', zIndex: 4 }}><PottedPlant w="100%"/></div>
+    <div style={{ position: 'absolute', right: '3%', bottom: '2%', width: 'clamp(30px,8vw,46px)', zIndex: 4 }}><PottedPlant w="100%"/></div>
+    <div style={{ position: 'absolute', right: '16%', bottom: '3%', width: 'clamp(24px,6vw,36px)', zIndex: 4 }}><WateringCan w="100%"/></div>
+    {/* SUV BAKI (gidroponika) + naycha planterlarga */}
+    <div style={{ position: 'absolute', left: '17%', bottom: '2%', width: 'clamp(22px,5.4vw,34px)', zIndex: 4 }}><WaterTank w="100%"/></div>
+    <svg aria-hidden="true" style={{ position: 'absolute', left: '22%', bottom: '7%', width: '24%', height: '22%', zIndex: 4, overflow: 'visible' }} viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M2 8 C 46 8 54 52 100 50" stroke="#5E96A6" strokeWidth="3.4" fill="none" opacity="0.7" strokeLinecap="round"/></svg>
+    {/* DATCHIK-PANEL (o'ng devor) */}
+    <div style={{ position: 'absolute', right: '0.5%', top: '54%', width: 'clamp(26px,6.4vw,40px)', zIndex: 4 }}><SensorPanel w="100%"/></div>
+    {/* PODIUM + markaziy 3×4 (SANALADIGAN, ajratilgan) */}
+    <div style={{ position: 'absolute', left: '50%', bottom: '3%', transform: 'translateX(-50%)', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(4px,1.2vw,8px)', padding: 'clamp(4px,1vw,7px)', borderRadius: 12, background: 'rgba(255,246,222,0.1)', boxShadow: '0 0 0 2px rgba(255,214,120,0.5), 0 6px 16px rgba(0,0,0,0.3)' }}>
+        {[0, 1, 2].map((ri) => <PlanterRow key={ri} n={4} celebrate={celebrate} ri={ri}/>)}
+      </div>
+      {/* podium plita */}
+      <div style={{ marginTop: -1, width: '116%', height: 'clamp(9px,2.4vw,15px)', borderRadius: '4px 4px 7px 7px', background: 'linear-gradient(180deg,#E8ECE2,#ACB4A4)', boxShadow: '0 6px 13px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,214,120,0.45), inset 0 1px 2px rgba(255,255,255,0.6)' }}/>
+    </div>
+    {/* BOG'BON-DRON — o'simliklar ustida suzadi */}
+    <div className="d13-hover" style={{ position: 'absolute', left: '71%', top: '43%', width: 'clamp(34px,8.4vw,52px)', zIndex: 6 }}><GardenDrone w="100%"/></div>
+    {/* KAPALAK — sahna bo'ylab uchadi */}
+    <div className="d13-fly" style={{ position: 'absolute', left: '30%', top: '40%', zIndex: 6 }}><Butterfly/></div>
+    {bubbleNode}
+    <div className="d2-scene-bit"><span className="g1-cast-fig"><BitSVG state="present"/></span></div>
+  </div>
+);
+// s0 — YUPITER ORBITASIGA KELISH: illyuminatorda Yupiter ochiladi; issiqxona 3×4 ekin + jami "?".
+const YupiterScene = ({ answer = null }) => {
+  const shown = answer != null;
+  return (
+    <ShipGreenhouse arrive
+      bubbleNode={(
+        <div style={{ position: 'absolute', left: '50%', top: '18%', transform: 'translateX(-50%)', zIndex: 7 }}>
+          <div className={shown ? 'g1-pop-in' : ''} style={{ minWidth: 'clamp(40px,8vw,54px)', height: 'clamp(36px,7vw,48px)', padding: '0 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(19px,4.2vw,28px)', background: shown ? T.successSoft : '#FFFFFF', color: shown ? T.success : T.ink3, border: `2.5px ${shown ? 'solid' : 'dashed'} ${shown ? T.success : '#A7A6A2'}`, boxShadow: '0 3px 10px rgba(0,0,0,0.35)', animation: shown ? 'none' : 'g1pulse 1.5s ease-in-out infinite' }}>{shown ? 12 : '?'}</div>
+        </div>
+      )}/>
+  );
+};
+// s15 — KEMA ISSIQXONASI (xulosa): hosil ko'paytirib sanaldi + yashil ✓ tablo.
+const YupiterField = ({ label }) => {
+  const t = useT();
+  return (
+    <ShipGreenhouse celebrate
+      bubbleNode={(
+        <div style={{ position: 'absolute', left: '50%', top: '16%', transform: 'translateX(-50%)', zIndex: 7, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span style={{ fontSize: 'clamp(9px,1.6vw,12px)', fontWeight: 800, letterSpacing: '.05em', color: '#EAF0FF', textTransform: 'uppercase', textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>{t(label)}</span>
+          <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 'clamp(52px,11vw,72px)', height: 'clamp(38px,7.4vw,50px)', padding: '0 clamp(10px,2vw,15px)', justifyContent: 'center', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,4.6vw,30px)', background: T.successSoft, color: T.success, border: `2.5px solid ${T.success}`, boxShadow: '0 4px 14px -4px rgba(31,122,77,0.5)' }}>
+            12<span style={{ fontSize: 'clamp(17px,3.4vw,23px)' }}>✓</span>
+          </div>
+        </div>
+      )}/>
+  );
+};
 
 // ============================================================
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
@@ -5068,7 +5229,7 @@ export default function RazryadLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, D5, D6, D7, D8, D9, D10, D11, DCase, D14, Screen15];
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, A5, A6, A7, A8, A9, A10, A11, ACase, A14, Screen15];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -5515,6 +5676,47 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1sparkPop { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, -24px))) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .g1-cele-wrap, .g1-cele-wrap .g1-csp { animation: none; } }
 @keyframes g1twinkle { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: 0.5; transform: scale(0.82) rotate(8deg); } }
+/* --- Dars13 kema-issiqxona jonli/3D animatsiyalari --- */
+@keyframes d13jhalo { 0%, 100% { opacity: .55; transform: scale(1); } 50% { opacity: 1; transform: scale(1.04); } }
+.d13-jhalo { transform-box: fill-box; transform-origin: center; animation: d13jhalo 5s ease-in-out infinite; }
+@keyframes d13jband { 0% { transform: translateX(0); } 100% { transform: translateX(-52px); } }
+.d13-jband { animation: d13jband 26s linear infinite; }
+@keyframes d13sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+.d13-sway { animation: d13sway 3.4s ease-in-out infinite; }
+@keyframes d13mist { 0% { transform: translateY(0) scale(1); opacity: 0; } 20% { opacity: .7; } 100% { transform: translateY(-26px) scale(1.7); opacity: 0; } }
+.d13-mist { animation: d13mist 3.2s ease-out infinite; }
+@keyframes d13moon1 { 0% { left: -6%; } 100% { left: 104%; } }
+.d13-moon1 { animation: d13moon1 34s linear infinite; }
+@keyframes d13moon2 { 0% { left: 104%; } 100% { left: -6%; } }
+.d13-moon2 { animation: d13moon2 46s linear infinite; }
+@keyframes d13vine { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+.d13-vine { animation: d13vine 5s ease-in-out infinite; }
+.d13-vine2 { animation-duration: 6.2s; animation-delay: .6s; }
+@keyframes d13glow { 0%, 100% { box-shadow: 0 8px 22px 4px rgba(255,190,90,0.45); } 50% { box-shadow: 0 11px 30px 7px rgba(255,200,110,0.7); } }
+.d13-glow { animation: d13glow 3s ease-in-out infinite; }
+@keyframes d13beam { 0%, 100% { opacity: .55; } 50% { opacity: .9; } }
+.d13-beam { animation: d13beam 3s ease-in-out infinite; }
+@keyframes d13sheen { 0% { left: -30%; } 60%, 100% { left: 110%; } }
+.d13-sheen { animation: d13sheen 9s ease-in-out infinite; }
+@keyframes d13drop { 0% { transform: translate(-50%, 0); opacity: 0; } 15% { opacity: .85; } 85% { opacity: .85; } 100% { transform: translate(-50%, 40px); opacity: 0; } }
+.d13-drop { animation: d13drop 2.8s ease-in infinite; }
+@keyframes d13hover { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-6px) rotate(1deg); } }
+.d13-hover { animation: d13hover 3.4s ease-in-out infinite; }
+@keyframes d13rotor { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.18); } }
+.d13-rotor { animation: d13rotor 0.14s linear infinite; }
+@keyframes d13bubble { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: .8; } 100% { transform: translateY(-20px); opacity: 0; } }
+.d13-bubble { animation: d13bubble 2.4s ease-in infinite; }
+@keyframes d13led { 0%, 60% { opacity: 1; } 80%, 100% { opacity: 0.25; } }
+.d13-led { animation: d13led 2.2s ease-in-out infinite; }
+@keyframes d13wingl { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(62deg); } }
+@keyframes d13wingr { 0%, 100% { transform: rotateY(0deg); } 50% { transform: rotateY(-62deg); } }
+.d13-wingl { animation: d13wingl 0.22s ease-in-out infinite; }
+.d13-wingr { animation: d13wingr 0.22s ease-in-out infinite; }
+@keyframes d13fly { 0% { transform: translate(0, 0); } 25% { transform: translate(60px, -22px); } 50% { transform: translate(130px, 8px); } 75% { transform: translate(70px, 30px); } 100% { transform: translate(0, 0); } }
+.d13-fly { animation: d13fly 13s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .d13-jhalo, .d13-jband, .d13-sway, .d13-mist, .d13-moon1, .d13-moon2, .d13-vine, .d13-vine2, .d13-glow, .d13-beam, .d13-sheen, .d13-drop, .d13-hover, .d13-rotor, .d13-bubble, .d13-led, .d13-wingl, .d13-wingr, .d13-fly { animation: none; }
+}
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }

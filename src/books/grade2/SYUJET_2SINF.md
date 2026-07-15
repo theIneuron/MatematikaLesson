@@ -90,20 +90,21 @@ bitta bolabop TTS-toza fakt, FactCard uslubида). Quyida har dars uchun: **joy
 
 ### 🚀 Б1 — «OCHIQ KOINOT» · Yer'dan uchish · 100 gacha nomerlash (d.1–7)
 
-Ekipaj Yer'dan endi uchdi va **ochiq koinotда** yoqilg'isiz to'xtab qoldi (birinchi sayyorага —
-Marsга — yetishдан oldin). Dvigatel yoqilg'ini **faqat o'ntadan (kassetada)** oladi. Rekvizit:
+Ekipaj Yer'dan endi uchdi va **ochiq koinotда** quvvatsiz to'xtab qoldi (birinchi sayyorага —
+Marsга — yetishдан oldin). Dvigatel quvvatni **faqat o'ntadan (kassetada)** oladi. Rekvizit:
 batareya (birlik), **kasseta = 10 batareya** (o'nlik), neon-displey, kod-eshik paneli,
-yoqilg'i hisoblagichi, illyuminatordan ochiq koinot + uzoqdagi Yer.
+quvvat hisoblagichi, illyuminatordan ochiq koinot + uzoqdagi Yer.
+(Metafora: kema **elektr/ion** kema — batareya-kassetalar = **quvvat**; «yoqilg'i/tank/yonish» ishlatilmaydi, chunki raketa suyuq yoqilg'ida uchadi, batareyada emas.)
 
 | № | Mavzu | Joy | Kirish holati | Chiqish holati |
 |---|---|---|---|---|
-| 1 | O'nliklar va birliklar | kema ichi (ochiq koinot) | **[ETALON]** Ekipaj Yer'dan uchdi, kema ochiq koinotда yoqilg'isiz to'xtadi; batareyalar tarqalgan, dvigatel faqat o'ntadan oladi — tez yig'ish yo'li? | 10 batareya = 1 kasseta; har son = o'nlik + birlik; yoqilg'i ortildi, kema uchdi — **Bit uyiga bir qadam yaqin** |
+| 1 | O'nliklar va birliklar | kema ichi (ochiq koinot) | **[ETALON]** Ekipaj Yer'dan uchdi, kema ochiq koinotда quvvatsiz to'xtadi; batareyalar tarqalgan, dvigatel faqat o'ntadan oladi — tez yig'ish yo'li? | 10 batareya = 1 kasseta; har son = o'nlik + birlik; quvvat ortildi, kema uchdi — **Bit uyiga bir qadam yaqin** |
 | 2 | Ikki xonali sonni o'qish/yozish | boshqaruv paneli | Bort kodlarини o'qish/yozish (displeyда sonlar) | Ikki xonali kodlar o'qildi va yozildi |
-| 3 | Razryad tarkibi | yoqilg'i ombori | Kodni xonaларга ajratish (`45 = 40 + 5`) | Razryad tarkibi ochildi |
-| 4 | Sonlarни taqqoslash | ikki tank | Qaysi tankда yoqilg'i ko'p? Ikki sonni taqqoslash | Katta/kichik/teng (`> < =`) ikki xonали sonда |
-| 5 | O'nlab sanash | orbita hisoblagichi | 10 lab oldinga-orqаga sanash (yoqilg'i shkalasi) | O'nlab sanash mahkamlandi |
+| 3 | Razryad tarkibi | quvvat ombori | Kodni xonaларга ajratish (`45 = 40 + 5`) | Razryad tarkibi ochildi |
+| 4 | Sonlarни taqqoslash | ikki blok | Qaysi blokда quvvat ko'p? Ikki sonni taqqoslash | Katta/kichik/teng (`> < =`) ikki xonали sonда |
+| 5 | O'nlab sanash | orbita hisoblagichi | 10 lab oldinga-orqаga sanash (quvvat shkalasi) | O'nlab sanash mahkamlandi |
 | 6 | Son o'qi | uchish trassasi | Sonни trassa-shkалага qo'yish, oraliqни topish | Son o'qidа o'rin topildi |
-| 7 | Takrorlash + ПК1 | port markazi | Sayyora 1 yakuni — katta yoqilg'i-tekshiruvi | Nomerlash puxtalandi; keyingi sayyoraга yo'l ochiq |
+| 7 | Takrorlash + ПК1 | port markazi | Sayyora 1 yakuni — katta quvvat-tekshiruvi | Nomerlash puxtalandi; keyingi sayyoraга yo'l ochiq |
 
 ### 🔴 Б2 — MARS · qizil sayyora, yuk bazasi · 100 ичida amallar, столбik (d.8–14)
 > *Fakt (namuna): Marsда Quyosh sistemasidagi eng baland tog' — Olimp bor. Rangi qizil, chunki temir-zang.*
@@ -124,18 +125,24 @@ raflari (xona ostiga xona).
 ### 🟠 Б3 — YUPITER · eng katta, ko'p yo'ldoshli · Ko'paytirish, teng guruhlar (d.15–21)
 > *Fakt (namuna): Yupiter — eng katta sayyora; unда asrlar davom etayotgan ulkan bo'ron — Katta Qizil Dog' bor.*
 
-Hosil **teng qator/guruhlarда** o'sadi — bittalab sanash uzoq. Massiv (satr×ustun)
-leytmotivi.
+> **⚠️ ILMIY TUZATISH (metodist 2026-07-15): Yupiter — GAZ sayyorasi. Unда qattiq sirt YO'Q,
+> hosil O'SMAYDI, kema QO'NA OLMAYDI.** Shuning uchun ekipaj Yupiter **ORBITASIDA** uchadi va hosil
+> **KEMA ICHIDAGI ISSIQXONADA** (teng qator-planterlarда) o'stiradi; Yupiter **panorama oynadan**
+> ko'rinadi. Quyidagi jadvalда «dala/ombor» = **kema issiqxonasi/bort-omborи** (Yupiter sirti EMAS).
+> Dars13 shunга ko'ra qurildi (`ShipGreenhouse`); Dars14+ ham shu ramkаda.
+
+Hosil **teng qator/guruhlarда** (kema issiqxonasi planterlarида) o'sadi — bittalab sanash uzoq.
+Massiv (satr×ustun) leytmotivi.
 
 | № | Mavzu | Joy | Kirish holati | Chiqish holати |
 |---|---|---|---|---|
-| 15 | Ko'paytirish ma'nosi | dala | 3 qатorда 5 tadan ko'chat — jami? `5+5+5` → `3 marta 5` | Ko'paytirish = teng guruhlar yig'indisi |
-| 16 | ×2 va ×3 | issiqxona | 2 lik va 3 lik guruhlar | ×2, ×3 jadvali ochildi |
-| 17 | ×4 va ×5 | issiqxona | 4 lik va 5 lik guruhlar | ×4, ×5 ochildi |
-| 18 | ×6 va ×7 | dala | 6 lik va 7 lik guruhlar | ×6, ×7 ochildi |
-| 19 | ×8 va ×9 | dala | 8 lik va 9 lik guruhlar | ×8, ×9 ochildi |
-| 20 | Mustahkamlash | ombor | Jadvalни qo'llash, o'rin almashish (`3×5=5×3`) | Ko'paytirish jadvali mahkamlandi |
-| 21 | Takrorlash + ПК3 | dala | Sayyora 3 yakuni | Jadval puxtalandi |
+| 15 | Ko'paytirish ma'nosi | kema issiqxonasi (orbita) | 3 qатorда 5 tadan ko'chat — jami? `5+5+5` → `3 marta 5` | Ko'paytirish = teng guruhlar yig'indisi |
+| 16 | ×2 va ×3 | kema issiqxonasi | 2 lik va 3 lik guruhlar | ×2, ×3 jadvali ochildi |
+| 17 | ×4 va ×5 | kema issiqxonasi | 4 lik va 5 lik guruhlar | ×4, ×5 ochildi |
+| 18 | ×6 va ×7 | kema issiqxonasi | 6 lik va 7 lik guruhlar | ×6, ×7 ochildi |
+| 19 | ×8 va ×9 | kema issiqxonasi | 8 lik va 9 lik guruhlar | ×8, ×9 ochildi |
+| 20 | Mustahkamlash | bort-ombori | Jadvalни qo'llash, o'rin almashish (`3×5=5×3`) | Ko'paytirish jadvali mahkamlandi |
+| 21 | Takrorlash + ПК3 | kema issiqxonasi | Sayyora 3 yakuni | Jadval puxtalandi |
 
 ### 🪐 Б4 — SATURN · halqali sayyora, halqalarni teng ulash · Bo'lish (d.22–28)
 > *Fakt (namuna): Saturn halqalari muz va tosh bo'laklaridan; ular teng qismlarга bo'linadi.*

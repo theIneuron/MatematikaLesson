@@ -25,11 +25,49 @@
 | 09 | Dars09 | Qo'shish (o'tishli / carry) | ⚠️ build green, prokliklab-test kutmoqda |
 | 10 | Dars10 | Ayirish (o'tishli / borrow) | ⚠️ build green, prokliklab-test kutmoqda |
 | 11 | Dars11 | Столбik (tuzish / tekislash) | ⚠️ build green, **YANGI mexanika — jonli test SHART** |
+| 12 | Dars12 | Ikki amalli masala | ⚠️ build green, **YANGI mexanika (oraliq-natija zanjiri) — jonli test SHART** |
+| 13 | Dars13 | Ko'paytirish ma'nosi | ⚠️ build green, **Б3 YUPITER boshi + YANGI mexanika (teng qatorlar massivi) — jonli test SHART** |
 
-**Б2 (Mars) arifmetikasi = Dars07–11 QURILDI.** Keyingisi: **Dars12 «Ikki amalli masala»**.
+**Б2 (Mars) = Dars07–12 QURILDI. Б3 (Yupiter) BOSHLANDI = Dars13 QURILDI.** Keyingisi: **Dars14 «×2 va ×3 jadvali»** (Yupiter davom).
+
+**Dars13 (2026-07-15) — Б3 Yupiter blokining boshi; mexanika «TENG QATORLAR MASSIVI» (metodist tanladi):**
+R qator × C hosil → bola bir qatorni sanaydi → teng qatorlar → takroriy qo'shish (C+C+C) → «R marta C»
+= «R × C». Yangi komponentlar: `ArrayViz` (reveal 0-3: array→qatorlar→takroriy qo'shish→R×C),
+`ArrayStage` (bitta MC «jami nechta?» + reveal, distraktor=R+C misconception), `CropSprout` (ko'chat).
+**MUHIM (metodist tuzatishi 2026-07-15): Yupiter GAZ sayyorasi — hosil O'SMAYDI, kema QO'NA OLMAYDI.**
+Shuning uchun ekipaj Yupiter ORBITASIDA, hosil KEMA ICHIDAGI ISSIQXONADA teng qatorlarda o'sadi,
+Yupiter ILLYUMINATORdan ko'rinadi. Sahnalar: `ShipGreenhouse` (metall devor + IllumJup porthole'da
+Yupiter + GrowLamp + soil-trough teng qatorlar), `YupiterScene` (s0), `YupiterField` (s15) — QO'NISH YO'Q.
+Yupiter s0da illyuminatorда ochiladi (Dars12 teaseri yopiladi). Fakt=Yupiter (s14). Kichik sonlar
+(2-5 × 2-6, ≤25). Jadval YO'Q (×2/×3 Dars14da). Ekipaj: Bit + Zuhra (s13). × belgisi audioда YO'Q
+(«marta»/«ko'paytiruv»). err=92/warn=2. **UNCOMMITTED.**
+**⚠️ SYUJET_2SINF.md §3 ning o'zi «Yupiter dala/hosil» deydi — ildiz-xato, SYUJETni ham issiqxona/
+orbita ga tuzatish kerak (hozircha faqat Dars13 tuzatildi).**
+
+**Dars12 (2026-07-15) — mexanika «ORALIQ-NATIJA ZANJIRI» (metodist tanladi):** o'quvchi 1-qadam
+natijasini MC bilan tanlaydi → u ko'rinadigan zanjir orqali 2-qadamga oqadi (amber «oraliq natija»
+chip = 2-amalning birinchi soni) → oxirgi javob. Yangi komponentlar: `ChainViz` (ikki bosqichli
+oqim), `TwoStepStage` (ikki ketma-ket MC), `StepCard`/`ResBox`/`OraliqChip`. Dars07 «столбик»
+oilasi (DropColumnStage/ColumnAdd/ColumnCard/RazryadBreak) Dars12 da O'LIK KOD (tegilmagan).
+Sahnalar: MarsBase s0 = `40 −15 +12 → 37` strip. Barcha masalalar 100 ichida, o'tishsiz (fokus =
+ikki-qadam strukturasi). eslint **err=92** (baseline 86 dan +6, hammasi benign: столбик+MarsCargoDone
+o'lik kod, +1 Screen4 seg-effekt Screen2 naqshi) — warn=2.
+
+**Dars12 = Б2→Б3 CHEGARA nuqtasi** (theory Dars12=oxirgi Mars darsi, Dars13=d.15 Yupiter). Metodist
+(2026-07-15) talabi bo'yicha: butun dars **«uchishga tayyorlanish»** temasiga qayta ramkalandi
+(kema keyingi sayyoraga uchish uchun bazadan **OZIQ-OVQAT** ortadi; math o'zgarmadi). **MUHIM (metodist):
+yoqilg'i/kasseta/batareya EMAS — raketa suyuq yoqilg'ida uchadi, tokda emas; shuning uchun rekvizit =
+oziq-ovqat** (`oziq-ovqat quti / non / meva`; SYUJET rekvizitiga mos). Fe'llar amal-belgiga aniq:
+ortildi/keltirildi=+, sarflandi/yeyildi/tushirildi=−.
+s15 oxirida **`MarsLiftoff`** — Marsdan REAL/jonli 3D ko'tarilish: **raketa to'liq yuqoriga uchib chiqadi
+va uzoqlashib kichrayib yo'qoladi** (`d12rise`, ease-in accel, forwards), **Mars sirti pastga siljib
+kichrayadi = uzoqlashadi** (`d12recede`, `.d12-ground` guruh). Olov gulxani+vibratsiya (loop), start
+tutuni+chang bir-martalik portlash (forwards), yulduz-parallaks, uzoqda NOMSIZ keyingi-sayyora teaser
+(to'liq Yupiter reveal Dars13da). CSS: `d12rise/d12recede/d12shake/d12flame/d12smoke/d12spark/d12haze/
+d12stardrift` (+reduced-motion). MarsCargoDone endi o'lik kod.
 
 **Har birida ochiq ish (push oldidan):**
-- `FREE_NAV = true` → `false` ga qaytarish (Dars07–11 hammasida `const FREE_NAV = true;`, ~65-satr).
+- `FREE_NAV = true` → `false` ga qaytarish (Dars07–13 hammasida `const FREE_NAV = true;`, ~65-satr).
 - Barcha yangi darslarni **prokliklab-test** qilish (ovoz + interaktiv + mobil).
 - UZ atamalari **draft** — o'zbek metodist-matematik validatsiyasi kerak (masalan «bir dilda», «qarz», son-nomlari).
 
@@ -139,8 +177,9 @@ to'g'ri = `T.success` (yashil).
 ## 5. KEYINGI ISHLAR
 
 **Ketma-ket (theory-fayl raqami, program ПК/ИК dan ajratilgan):**
-- **Dars12 «Ikki amalli masala»** — 2 qadamli matnli masala (Mars davom).
-- Dars13 Ko'paytirish ma'nosi (Б3 Yupiter boshlanadi — yangi sahna + teng guruhlar mexanikasi).
+- ~~Dars12 «Ikki amalli masala»~~ — QURILDI (2026-07-15, oraliq-natija zanjiri).
+- ~~Dars13 «Ko'paytirish ma'nosi»~~ — QURILDI (2026-07-15, teng qatorlar massivi, Б3 Yupiter boshi).
+- **Dars14 «×2 va ×3 jadvali»** (Yupiter davom — teng guruh mexanikasi rivoji, jadval boshlanadi).
 - … `SYUJET_2SINF.md` §3 bo'yicha.
 
 **Har dars uchun:** avval MEXANIKANI tanla (metodist), keyin qur (Dars03–11 shunday — mexanika

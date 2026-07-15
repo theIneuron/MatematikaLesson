@@ -70,6 +70,18 @@ export const grade2Nazariy = [
     desc: "Столбikni to'g'ri tuzish: birlik ostiga birlik, o'nlik ostiga o'nlik; bir xonali son — birlik ustuniga (43 + 6).",
     Component: lazy(() => import('../components/grade2/Dars11.jsx')),
   },
+  {
+    slug: 'dars12-ikki-amalli-masala',
+    title: "Dars 12. Ikki amalli masala",
+    desc: "Ikki amalli masala: masalani bir amalda yechib bo'lmaydi — avval oraliq natija, keyin oxirgi javob (40 − 15 + 12 = 37).",
+    Component: lazy(() => import('../components/grade2/Dars12.jsx')),
+  },
+  {
+    slug: 'dars13-kopaytirish-manosi',
+    title: "Dars 13. Ko'paytirish ma'nosi",
+    desc: "Ko'paytirish — teng guruhlarni qo'shishning qisqa yo'li: teng qatorlar (R qator × C) → C+C+C = R × C (Yupiter dalasi).",
+    Component: lazy(() => import('../components/grade2/Dars13.jsx')),
+  },
 ]
 
 // 2-sinf AMALIY mashqlari (jsx-question, PracticeHost preview orqali).

@@ -944,12 +944,12 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // ============================================================
 
 const CONTENT = {
-  // s0 — HOOK (scope: hook): sayyoraga qo'nish, ucholmaydi, o'ntadan yoqilg'i
+  // s0 — HOOK (scope: hook): sayyoraga qo'nish, ucholmaydi, o'ntadan quvvat
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
     topic: { ru: 'Тема: Десятки и единицы', uz: "Mavzu: O'nliklar va birliklar" },
     lead: { ru: 'Корабль застрял в космосе!', uz: "Kema koinotda to'xtab qoldi!" },
-    q: { ru: 'Как быстро подготовить топливо?', uz: "Yoqilg'ini qanday tez tayyorlaymiz?" },
+    q: { ru: 'Как быстро подготовить заряд?', uz: "Quvvatni qanday tez tayyorlaymiz?" },
     opt0: { ru: 'По одной', uz: 'Bittalab' },
     opt1: { ru: 'По десять в кассету', uz: "O'ntadan kassetaga" },   // yetakchi (correct-key)
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
@@ -957,14 +957,14 @@ const CONTENT = {
       intro: {
         ru: [
           'Сегодня тема урока — десятки и единицы. Научимся видеть, сколько в числе десятков и сколько единиц.',
-          'Бит и друзья вылетели с Земли и везут Бита домой. Их корабль застрял в открытом космосе без топлива.',
-          'Двигатель берёт топливо только десятками. А батарейки разлетелись по кораблю.',
+          'Бит и друзья вылетели с Земли и везут Бита домой. Их корабль застрял в открытом космосе без заряда.',
+          'Двигатель берёт заряд только десятками. А батарейки разлетелись по кораблю.',
           'Поможем Биту собрать их по десять, и корабль полетит дальше, к дому Бита.'
         ],
         uz: [
           "Bugungi dars mavzusi — o'nliklar va birliklar. Sonda nechta o'nlik va nechta birlik borligini ko'rishni o'rganamiz.",
-          "Bit va do'stlar Yerdan uchib, Bitni uyiga olib ketmoqda. Kemasi ochiq koinotda yoqilg'isiz to'xtab qoldi.",
-          "Dvigatel yoqilg'ini faqat o'ntadan oladi. Batareyalar esa kema bo'ylab tarqalib ketdi.",
+          "Bit va do'stlar Yerdan uchib, Bitni uyiga olib ketmoqda. Kemasi ochiq koinotda quvvatsiz to'xtab qoldi.",
+          "Dvigatel quvvatni faqat o'ntadan oladi. Batareyalar esa kema bo'ylab tarqalib ketdi.",
           "Bitga ularni o'ntadan yig'ishga yordam beramiz, va kema Bitning uyiga tomon uchadi."
         ]
       },
@@ -1186,13 +1186,13 @@ const CONTENT = {
   // s11 — MASHQ-4 (scored MC): taqqoslash 45 va 54
   s11: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'У какого корабля топлива больше?', uz: "Qaysi kemada yoqilg'i ko'p?" },
+    q: { ru: 'У какого корабля заряда больше?', uz: "Qaysi kemada quvvat ko'p?" },
     opt0: { ru: 'Корабль сорок пять', uz: 'Qirq besh kemasi' },
     opt1: { ru: 'Корабль пятьдесят четыре', uz: "Ellik to'rt kemasi" },   // correct (idx 1)
     audio: {
-      intro: { ru: 'Бортовой тест. Сравниваем баки с топливом. В каком больше? Сначала сравни десятки.', uz: "Bort testi. Yoqilg'i tanklarini solishtiramiz. Qaysida ko'p? Avval o'nliklarni solishtiring." },
+      intro: { ru: 'Бортовой тест. Сравниваем энергоблоки с зарядом. В каком больше? Сначала сравни десятки.', uz: "Bort testi. Quvvat bloklarini solishtiramiz. Qaysida ko'p? Avval o'nliklarni solishtiring." },
       on_correct: { ru: 'Верно. Пять десятков больше четырёх десятков.', uz: "To'g'ri. Besh o'nlik to'rt o'nlikdan katta." },
-      on_wrong: { ru: 'Сначала сравни десятки. У кого кассет больше, у того топлива больше.', uz: "Avval o'nliklarni solishtiring. Kimda kasseta ko'p, o'shanda yoqilg'i ko'p." }
+      on_wrong: { ru: 'Сначала сравни десятки. У кого кассет больше, у того заряда больше.', uz: "Avval o'nliklarni solishtiring. Kimda kasseta ko'p, o'shanda quvvat ko'p." }
     }
   },
 
@@ -1245,7 +1245,7 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Топливо на борту! Теперь ты умеешь видеть в числе десятки и единицы.', uz: "Yoqilg'i bortda! Endi siz sonda o'nlik va birlikni ko'ra olasiz." },
+    cando: { ru: 'Заряд на борту! Теперь ты умеешь видеть в числе десятки и единицы.', uz: "Quvvat bortda! Endi siz sonda o'nlik va birlikni ko'ra olasiz." },
     // QOIDA recap (ko'rinadigan):
     rule_recap: { ru: 'Левая цифра — десятки, правая — единицы.', uz: "Chap raqam — o'nliklar, o'ng — birliklar." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
@@ -1253,8 +1253,8 @@ const CONTENT = {
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'Урок 2: чтение и запись бортовых кодов', uz: "2-dars: bort kodlarini o'qish va yozish" },
     audio: {
-      ru: 'Миссия выполнена. Топливо собрано десятками, двигатель заправлен, корабль летит дальше. Запомни правило. Десять единиц это один десяток. Левая цифра десятки, правая единицы. Мы стали ближе к дому Бита. В следующий раз научимся читать и записывать бортовые числа.',
-      uz: "Missiya bajarildi. Yoqilg'i o'nliklarga yig'ildi, dvigatel to'ldi, kema uchdi. Qoidani yodda tuting. O'n birlik bu bitta o'nlik. Chap raqam o'nliklar, o'ng birliklar. Biz Bitning uyiga yaqinlashdik. Keyingi safar bort sonlarini o'qish va yozishni o'rganamiz."
+      ru: 'Миссия выполнена. Заряд собран десятками, двигатель заряжен, корабль летит дальше. Запомни правило. Десять единиц это один десяток. Левая цифра десятки, правая единицы. Мы стали ближе к дому Бита. В следующий раз научимся читать и записывать бортовые числа.',
+      uz: "Missiya bajarildi. Quvvat o'nliklarga yig'ildi, dvigatel zaryadlandi, kema uchdi. Qoidani yodda tuting. O'n birlik bu bitta o'nlik. Chap raqam o'nliklar, o'ng birliklar. Biz Bitning uyiga yaqinlashdik. Keyingi safar bort sonlarini o'qish va yozishni o'rganamiz."
     }
   }
 };
@@ -1262,26 +1262,26 @@ const CONTENT = {
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
   s1:  { ru: 'Теперь проверим, как ты понял.', uz: 'Endi qanday tushunganingizni tekshiramiz.' },
-  s2:  { ru: 'Готовим топливо. Сначала посмотрим, что такое десяток.', uz: "Yoqilg'ini tayyorlaymiz. Avval o'nlik nima, ko'ramiz." },
+  s2:  { ru: 'Готовим заряд. Сначала посмотрим, что такое десяток.', uz: "Quvvatni tayyorlaymiz. Avval o'nlik nima, ko'ramiz." },
   s3:  { ru: 'Десяток понятен. Теперь соберём из них числа.', uz: "O'nlikni bildik. Endi undan sonlarni yig'amiz." },
   s4:  { ru: 'Собрали. Теперь заглянем внутрь числа.', uz: "Yig'dik. Endi sonning ichiga qaraymiz." },
   s5:  { ru: 'Внимание. Место цифры решает.', uz: "Diqqat. Raqamning o'rni muhim." },
   s6:  { ru: 'Покажем это число на прямой.', uz: "Shu sonni o'qda ko'rsatamiz." },
   s7:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s8:  { ru: 'Правило знаем. Теперь готовь топливо сам.', uz: "Qoidani bilamiz. Endi yoqilg'ini o'zingiz tayyorlang." },
+  s8:  { ru: 'Правило знаем. Теперь готовь заряд сам.', uz: "Qoidani bilamiz. Endi quvvatni o'zingiz tayyorlang." },
   s9:  { ru: 'Разложим груз по отсекам.', uz: 'Yukni tryumlarga ajratamiz.' },
   s10: { ru: 'Проверим ещё раз.', uz: 'Yana bir tekshiramiz.' },
   s11: { ru: 'Два корабля встретились.', uz: 'Ikki kema uchrashdi.' },
   s12: { ru: 'Последний груз. Сколько по накладной?', uz: "Oxirgi yuk. Xatda nechta?" },
   s13: { ru: 'Считаем всё вместе.', uz: 'Hammasini birga sanaymiz.' },
   s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.' },
-  s15: { ru: 'Топливо готово. Взлетаем!', uz: "Yoqilg'i tayyor. Uchamiz!" }
+  s15: { ru: 'Заряд готов. Взлетаем!', uz: "Quvvat tayyor. Uchamiz!" }
 };
 
 // s15 uchish-payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'Топливо собрано десятками, двигатель заправлен. Корабль летит дальше, к дому Бита! Спасибо за помощь.',
-  uz: "Yoqilg'i o'nliklarga yig'ildi, dvigatel to'ldi. Kema Bitning uyiga tomon uchadi! Yordamingiz uchun rahmat."
+  ru: 'Заряд собран десятками, двигатель заряжен. Корабль летит дальше, к дому Бита! Спасибо за помощь.',
+  uz: "Quvvat o'nliklarga yig'ildi, dvigatel zaryadlandi. Kema Bitning uyiga tomon uchadi! Yordamingiz uchun rahmat."
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
@@ -2206,7 +2206,7 @@ const MCScreen = ({ props, cKey, base, correctIndex, order, figure, fact = null,
 // --- v8 «UCHISHGA TAYYORLIK» shkalasi (dars-ichi element — INFRA/Stage TEGILMAYDI).
 // screen indeksidan deterministik: pct = screen / (total - 1); oxirgi slaydda to'la.
 // Kontent zonasidan tashqarida (lesson-root darajasida), o'ng chekkada ixcham vertikal
-// yoqilg'i-shkala + ko'tarilayotgan mini-raketa. Skrollsiz, pointer-events yo'q; nav/audio/
+// quvvat-shkala + ko'tarilayotgan mini-raketa. Skrollsiz, pointer-events yo'q; nav/audio/
 // javoblar bilan urishmaydi (o'ng gutterда). reduced-motion — statik to'ldirish.
 // C — YO'L XARITASI: Yer (past) → Mars → Yupiter → Saturn → Uran → Neptun → Bit uyi (tepa).
 // Dars01 = birinchi bosqich (Yer'dan uchish); raketa Yer'dan Mars tomon shu dars davomida ohista suzadi.
@@ -2400,7 +2400,7 @@ const NumberLine = () => {
   );
 };
 
-// s0 — HOOK: sayyoraga qo'nish, yoqilg'i o'ntalab (picked to'liq reset qaytishda)
+// s0 — HOOK: sayyoraga qo'nish, quvvat o'ntalab (picked to'liq reset qaytishda)
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3367,10 +3367,10 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком баке топлива больше?', uz: "Qaysi tankda yoqilg'i ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том баке топлива больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha tankda yoqilg'i ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
 });
 const S11_LABEL = { ru: 'Сравнение', uz: 'Taqqoslash' };
 const S11_DONE = { ru: 'Верно! Больше десятков — больше число.', uz: "To'g'ri! Ko'proq o'nlik — kattaroq son." };
@@ -5363,7 +5363,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-gobtn:disabled { opacity: 0.4; cursor: not-allowed; filter: saturate(0.4); }
 
 /* === v8 — «UCHISHGA TAYYORLIK» missiya-shkalasi (dars-ichi, INFRA'дан tashqarida) === */
-/* O'ng gutterда ixcham vertikal yoqilg'i-shkala; markazда vertikal (nav/audio/javob bilan urishmaydi).
+/* O'ng gutterда ixcham vertikal quvvat-shkala; markazда vertikal (nav/audio/javob bilan urishmaydi).
    pointer-events yo'q; skroll qo'shmaydi; Stage progress-baridan FARQLI (thematik). */
 .d2-gauge { position: absolute; right: clamp(1px, 0.6vw, 8px); top: 50%; transform: translateY(-50%); z-index: 6; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px; height: clamp(210px, 58vh, 370px); }
 .d2-gauge-label { writing-mode: vertical-rl; text-orientation: mixed; font-size: clamp(9px, 1.4vw, 12px); letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: #5A6B88; opacity: 0.85; }
