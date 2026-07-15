@@ -4797,6 +4797,29 @@ const uniqOpts = (correct, cands, seed) => {
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
 const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+// KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
+// har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
+const MTBL_CELL = { textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px,2.1vw,14px)', padding: 'clamp(3px,0.9vw,6px) 0', borderRadius: 4, minWidth: 'clamp(20px,4.8vw,30px)' };
+const MultTable = ({ max = 6 }) => {
+  const nums = [];
+  for (let i = 1; i <= max; i += 1) nums.push(i);
+  return (
+    <div className="fade-up" style={{ display: 'inline-block', padding: 'clamp(6px,1.6vw,10px)', borderRadius: 12, background: '#FFFFFF', border: `2px solid ${T.accent}`, boxShadow: '0 6px 18px -6px rgba(0,0,0,0.3)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${max + 1}, 1fr)`, gap: 'clamp(2px,0.6vw,4px)' }}>
+        <span style={{ ...MTBL_CELL, color: T.accent }}>×</span>
+        {nums.map((n) => <span key={`h${n}`} style={{ ...MTBL_CELL, color: '#fff', background: T.accent }}>{n}</span>)}
+        {nums.map((rn) => (
+          <React.Fragment key={`r${rn}`}>
+            <span style={{ ...MTBL_CELL, color: '#fff', background: T.accent }}>{rn}</span>
+            {nums.map((cn) => <span key={`${rn}x${cn}`} style={{ ...MTBL_CELL, color: T.ink, background: (rn + cn) % 2 ? '#F6F4EF' : '#ECE8DF' }}>{rn * cn}</span>)}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+};
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
 const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
   const lang = useLang();
   const t = useT();
@@ -4817,6 +4840,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
   const [solved, setSolved] = useState(false);
   const [wrong, setWrong] = useState(() => new Set());
   const anyWrongRef = useRef(false);
+  const [showTable, setShowTable] = useState(false);
   const isLast = ri === rounds.length - 1;
   const allDone = solved && isLast;
   const revealRef = useRevealScroll(solved, 400);
@@ -4870,6 +4894,13 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
             </div>
           </>
         )}
+        {/* KO'PAYTIRISH JADVALI yordamchisi — o'quvchi hali jadvalni bilmaydi, ochib ishlata oladi */}
+        <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
+          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
+          </button>
+          {showTable && <MultTable max={6}/>}
+        </div>
         {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
         {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
         {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
