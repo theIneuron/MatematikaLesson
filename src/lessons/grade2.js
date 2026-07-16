@@ -112,6 +112,78 @@ export const grade2Nazariy = [
     desc: "Butun jadvalni mustahkamlash + ko'paytiruvchilar o'rin almashishi (a×b = b×a): massivni bursak jami o'zgarmaydi; «teng?» Ha/Yo'q + aralash jadval.",
     Component: lazy(() => import('../components/grade2/Dars18.jsx')),
   },
+  {
+    slug: 'dars19-bolish-manosi',
+    title: "Dars 19. Bo'lish ma'nosi",
+    desc: "Bo'lish = teng ulashish (12 kristalni 3 hamrohga → har biriga 4) va guruhlash (nechta guruh); ×↔÷ oilasi: 3×4=12 → 12÷3=4, 12÷4=3. Saturn koni biomi.",
+    Component: lazy(() => import('../components/grade2/Dars19.jsx')),
+  },
+  {
+    slug: 'dars20-kopaytirish-bolish-boglanishi',
+    title: "Dars 20. Ko'paytirish va bo'lish bog'lanishi",
+    desc: "×↔÷ oilasi: bitta massiv (3×4=12) bitta ko'paytirish va ikki bo'lish beradi (12÷3=4, 12÷4=3); oiladagi yo'q a'zoni topish + moslash. Saturn saralash biomi.",
+    Component: lazy(() => import('../components/grade2/Dars20.jsx')),
+  },
+  {
+    slug: 'dars21-2-va-3-ga-bolish',
+    title: "Dars 21. 2 ga va 3 ga bo'lish",
+    desc: "÷2 va ÷3 jadvali: son o'qida orqaga sakrash (12−2−2−…=0), ÷-jadval qatorini to'ldirish, ×↔÷ oila orqali topish — aralash. Saturn kon-relslari biomi.",
+    Component: lazy(() => import('../components/grade2/Dars21.jsx')),
+  },
+  {
+    slug: 'dars22-4-va-5-ga-bolish',
+    title: "Dars 22. 4 ga va 5 ga bo'lish",
+    desc: "÷4 va ÷5 jadvali: son o'qida orqaga 4/5 talik sakrash, ÷-jadval qatorini to'ldirish, ×↔÷ oila orqali topish — aralash. Saturn kon-relslari biomi.",
+    Component: lazy(() => import('../components/grade2/Dars22.jsx')),
+  },
+  {
+    slug: 'dars23-6-7-8-9-ga-bolish',
+    title: "Dars 23. 6, 7, 8 va 9 ga bo'lish",
+    desc: "Bo'lish jadvalining finali (÷6–9): son o'qida orqaga sakrash, ÷-jadval qatorini to'ldirish, ×↔÷ oila orqali topish — aralash. Saturn kon-relslari biomi.",
+    Component: lazy(() => import('../components/grade2/Dars23.jsx')),
+  },
+  {
+    slug: 'dars24-bolishga-masalalar',
+    title: "Dars 24. Bo'lishga masalalar",
+    desc: "Hayotiy masalalar: teng ulashish/guruhlash → bo'lish; «qaysi amal? ×/÷» tanlash + hisob. Syujet+viz va amal-tanlash aralash. Saturn lager biomi.",
+    Component: lazy(() => import('../components/grade2/Dars24.jsx')),
+  },
+  {
+    slug: 'dars25-takroriy-ayirish',
+    title: "Dars 25. Takroriy ayirish orqali bo'lish",
+    desc: "Bo'lish mustahkamlash (Б4 Saturn yakuni): son o'qida orqaga sakrash + ayirish tenglamasi (18 − 3 − 3 … = 0); javob = sakrash soni. Ayirishga ko'prik. Anvar va Zuhra.",
+    Component: lazy(() => import('../components/grade2/Dars25.jsx')),
+  },
+  {
+    slug: 'dars26-nur-togri-chiziq-kesma',
+    title: "Dars 26. Nur, to'g'ri chiziq, kesma",
+    desc: "Geometriya boshi (Б5 Uran): chiziq turlarini uch soni bo'yicha farqlash — to'g'ri chiziq (0 uch), nur (1 uch), kesma (2 uch); hayotiy langar (temir yo'l/fonar/stol).",
+    Component: lazy(() => import('../components/grade2/Dars26.jsx')),
+  },
+  {
+    slug: 'dars27-kopburchaklar',
+    title: "Dars 27. Ko'pburchaklar",
+    desc: "Ko'pburchaklarni tomon soni bo'yicha tanish (Б5 Uran): uchburchak (3), to'rtburchak (4), beshburchak (5), oltiburchak (6); tomon=burchak soni; doira/ochiq chiziq — ko'pburchak emas. Nom-tanish + tomon-sanash + shakl→nom drag-moslash aralash.",
+    Component: lazy(() => import('../components/grade2/Dars27.jsx')),
+  },
+  {
+    slug: 'dars28-uzunlik-sm-dm-m',
+    title: "Dars 28. Uzunlik: sm, dm, m",
+    desc: "Uzunlik o'lchash (Б5 Uran ustaxonasi): chizg'ich bilan santimetr o'qish (0 ga to'g'irlab), 1 dm = 10 sm, 1 m = 100 sm, qaysi buyumga qaysi birlik. Chizg'ich-o'qish + birlik-tanlash + o'girish aralash.",
+    Component: lazy(() => import('../components/grade2/Dars28.jsx')),
+  },
+  {
+    slug: 'dars29-perimetr',
+    title: "Dars 29. Perimetr",
+    desc: "Perimetr — shakl chetini bo'ylab barcha tomonlar yig'indisi (Б5 Uran, geoboard): panjarada birlik-kesmalarni sanash yoki raqamlangan tomonlarni qo'shish. Yuza YO'Q — faqat chet. Geoboard-sanash + tomonlar-yig'indisi aralash.",
+    Component: lazy(() => import('../components/grade2/Dars29.jsx')),
+  },
+  {
+    slug: 'dars30-shakl-yasash',
+    title: "Dars 30. Shakl yasash",
+    desc: "Berilgan o'lchamga qarab shakl yasash (Б5 Uran maketa): eni va bo'yini kataklab sozlab to'rtburchak qurish yoki o'lchamga mos shaklni tanlash. Stepper-yasash + o'lchamга-mos-tanlash aralash.",
+    Component: lazy(() => import('../components/grade2/Dars30.jsx')),
+  },
 ]
 
 // 2-sinf AMALIY mashqlari (jsx-question, PracticeHost preview orqali).
