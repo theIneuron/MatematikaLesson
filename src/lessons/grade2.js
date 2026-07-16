@@ -94,6 +94,12 @@ export const grade2Nazariy = [
     desc: "4 ga to'rttadan, 5 ga beshtadan skip-sanash: 4,8,12,16… va 5,10,15,20… (oxiri 0/5); teng qatorlar massivi + jadvalning bo'sh katagini to'ldirish.",
     Component: lazy(() => import('../components/grade2/Dars15.jsx')),
   },
+  {
+    slug: 'dars16-6-va-7-ga-kopaytirish',
+    title: "Dars 16. 6 va 7 ga ko'paytirish jadvali",
+    desc: "6 ga oltitadan, 7 ga yettitadan skip-sanash: 6,12,18,24… va 7,14,21,28…; teng qatorlar massivi + jadvalning bo'sh katagini to'ldirish.",
+    Component: lazy(() => import('../components/grade2/Dars16.jsx')),
+  },
 ]
 
 // 2-sinf AMALIY mashqlari (jsx-question, PracticeHost preview orqali).
