@@ -82,6 +82,12 @@ export const grade2Nazariy = [
     desc: "Ko'paytirish — teng guruhlarni qo'shishning qisqa yo'li: teng qatorlar (R qator × C) → C+C+C = R × C (Yupiter dalasi).",
     Component: lazy(() => import('../components/grade2/Dars13.jsx')),
   },
+  {
+    slug: 'dars14-2-va-3-ga-kopaytirish',
+    title: "Dars 14. 2 va 3 ga ko'paytirish jadvali",
+    desc: "2 ga ikkitadan, 3 ga uchtadan skip-sanash: 2,4,6,8… va 3,6,9,12…; teng qatorlar massivi + jadvalning bo'sh katagini to'ldirish.",
+    Component: lazy(() => import('../components/grade2/Dars14.jsx')),
+  },
 ]
 
 // 2-sinf AMALIY mashqlari (jsx-question, PracticeHost preview orqali).
