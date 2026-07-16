@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -69,9 +69,9 @@ export default function D08_10(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D10_ANS }, correct, meta: { tag: 'cube_context', level: '🔴' } });
   }, [val, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
-  const conf = ['#f59e0b', '#2563eb', '#10b981', '#ec4899', '#7c3aed'];
-  const cubeC = ph >= 1 ? '#2563eb' : '#94a3b8';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
+  const conf = ['#f59e0b', '#fe5b1a', '#10b981', '#ec4899', '#7c3aed'];
+  const cubeC = ph >= 1 ? '#fe5b1a' : '#94a3b8';
   return (
     <div style={S.wrap}>
       <style>{`
@@ -87,14 +87,14 @@ export default function D08_10(props) {
       <div style={{ display: 'flex', justifyContent: 'center', margin: '6px 0', position: 'relative' }}>
         <svg width="150" height="150" viewBox="0 0 150 150">
           {/* yuqori yuza */}
-          <polygon points="45,40 105,40 125,58 65,58" fill={ph >= 1 ? '#93c5fd' : '#e2e8f0'} stroke={cubeC} strokeWidth="2" style={{ transition: 'fill .5s' }} />
+          <polygon points="45,40 105,40 125,58 65,58" fill={ph >= 1 ? '#ffb488' : '#e2e8f0'} stroke={cubeC} strokeWidth="2" style={{ transition: 'fill .5s' }} />
           {/* old yuza */}
-          <polygon points="45,40 65,58 65,118 45,100" fill={ph >= 1 ? '#60a5fa' : '#cbd5e1'} stroke={cubeC} strokeWidth="2" style={{ transition: 'fill .5s' }} />
+          <polygon points="45,40 65,58 65,118 45,100" fill={ph >= 1 ? '#ff8a52' : '#cbd5e1'} stroke={cubeC} strokeWidth="2" style={{ transition: 'fill .5s' }} />
           {/* o'ng yuza */}
-          <polygon points="65,58 125,58 125,118 65,118" fill={ph >= 1 ? '#3b82f6' : '#d1d5db'} stroke={cubeC} strokeWidth="2" style={{ transition: 'fill .5s' }} />
+          <polygon points="65,58 125,58 125,118 65,118" fill={ph >= 1 ? '#fb7233' : '#d1d5db'} stroke={cubeC} strokeWidth="2" style={{ transition: 'fill .5s' }} />
           {/* qirra yozuvi */}
-          <text x="95" y="138" fontSize="13" fontWeight="800" fill="#1e40af" textAnchor="middle" fontFamily="'JetBrains Mono', monospace">5 sm</text>
-          <text x="30" y="75" fontSize="13" fontWeight="800" fill="#1e40af" textAnchor="middle" fontFamily="'JetBrains Mono', monospace">5</text>
+          <text x="95" y="138" fontSize="13" fontWeight="800" fill="#b83d0e" textAnchor="middle" fontFamily="'JetBrains Mono', monospace">5 sm</text>
+          <text x="30" y="75" fontSize="13" fontWeight="800" fill="#b83d0e" textAnchor="middle" fontFamily="'JetBrains Mono', monospace">5</text>
         </svg>
         {ph >= 2 && <div style={{ position: 'absolute', left: '50%', top: '40%' }}>{Array.from({ length: 12 }).map((_, i) => { const ang = (i / 12) * Math.PI * 2; return <span key={i} className="d8-confetti" style={{ position: 'absolute', width: 7, height: 7, borderRadius: 2, background: conf[i % conf.length], '--dx': Math.cos(ang) * 60 + 'px', '--dy': Math.sin(ang) * 40 + 'px', animationDelay: (i * 0.02) + 's' }} />; })}</div>}
       </div>

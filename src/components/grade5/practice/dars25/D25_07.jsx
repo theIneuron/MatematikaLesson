@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -92,7 +92,7 @@ export default function D25_07(props) {
         {D07_OPTS.map((o, i) => {
           const on = pick === i;
           let bd = '#e2e8f0', bg = '#fff';
-          if (on) { bd = '#2563eb'; bg = '#eaf0fe'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; }
           if (checked && on) { const ok = i === D07_CORRECT; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; }
           return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPick(i)} style={{ padding: '10px 14px', borderRadius: 16, border: '2px solid ' + bd, background: bg, cursor: (isReview || checked) ? 'default' : 'pointer' }}><Can frac={parseFloat(o.v.replace(',', '.'))} name={o.name[lang] || o.name.uz} val={o.v} color={colors[i]} /></button>;
         })}

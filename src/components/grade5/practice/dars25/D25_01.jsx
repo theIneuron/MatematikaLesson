@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -37,7 +37,7 @@ const renderFr = (text) => String(text).split(/([\d?]+\/[\d?]+)/g).map((p, i) =>
   const m = /^([\d?]+)\/([\d?]+)$/.exec(p);
   return m ? <Frac key={i} num={m[1]} den={m[2]} size={14} color="currentColor" /> : p;
 });
-function TenStrip({ k, color = '#60a5fa' }) {
+function TenStrip({ k, color = '#ff8a52' }) {
   const w = 200, h = 34, cw = w / 10;
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block', maxWidth: '100%' }}>
@@ -97,7 +97,7 @@ export default function D25_01(props) {
         {D01_OPTS.map((o, i) => {
           const on = pick === i;
           let bd = '#d6dae3', bg = '#fff';
-          if (on) { bd = '#2563eb'; bg = '#eaf0fe'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; }
           if (checked && on) { const ok = i === D01_CORRECT; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; }
           return (
             <button key={i} type="button" disabled={isReview || checked} onClick={() => setPick(i)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, border: '2px solid ' + bd, background: bg, cursor: (isReview || checked) ? 'default' : 'pointer' }}>

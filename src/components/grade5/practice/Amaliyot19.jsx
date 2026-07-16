@@ -37,7 +37,7 @@ const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
 const WholeBar = ({ fill, d }) => (
   <div style={{ display: 'flex', width: 120, height: 34, borderRadius: 8, overflow: 'hidden', border: '2px solid #cfd6e4' }}>
     {Array.from({ length: d }).map((_, i) => (
-      <div key={i} style={{ flex: 1, borderLeft: i === 0 ? 'none' : '2px solid #fff', background: i < fill ? '#2563eb' : '#eef2f8' }} />
+      <div key={i} style={{ flex: 1, borderLeft: i === 0 ? 'none' : '2px solid #fff', background: i < fill ? '#fe5b1a' : '#eef2f8' }} />
     ))}
   </div>
 );
@@ -95,7 +95,7 @@ export default function Amaliyot19(props) {
         .aq19 .aq-big { font-size:22px; font-weight:800; }
         .aq19 .aq-fracin { display:flex; flex-direction:column; align-items:center; gap:4px; }
         .aq19 input.aq-in { width:66px; box-sizing:border-box; font-size:22px; font-weight:800; text-align:center; padding:9px 6px; border-radius:12px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .aq19 input.aq-in:focus { border-color:#5b8def; background:#fff; }
+        .aq19 input.aq-in:focus { border-color:#fb7a45; background:#fff; }
         .aq19 input.aq-in:disabled { opacity:.85; }
         .aq19 .aq-den { font-size:22px; font-weight:800; width:66px; text-align:center; }
         .aq19 .aq-bardiv { width:66px; height:3px; background:#1f2430; border-radius:2px; }

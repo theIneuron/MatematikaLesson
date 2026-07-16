@@ -60,7 +60,7 @@ export default function D29_04(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D04_ANS }, correct, meta: { tag: 'div_dec_dec', level: '🟡' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const revealed = checked && fb?.correct;
   const Num = ({ children }) => <span style={{ ...S.mono, fontSize: 22, fontWeight: 800, color: '#1f2430' }}>{children}</span>;
   const Big = ({ children }) => <span style={{ ...S.mono, fontSize: 24, fontWeight: 800, color: '#0f766e' }}>{children}</span>;

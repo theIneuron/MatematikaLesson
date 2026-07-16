@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 15.5, fontWeight: 700, margin: '14px 0 8px', textAlign: 'center' },
 };
@@ -64,7 +64,7 @@ export default function D26_08(props) {
   const locked = isReview || checked;
   // slotlar: 0 (4dan oldin), 1 (4|1), 2 (1|5). Chekka slotlar (3) mantiqsiz — 3 ta ichki/oldingi slot
   const slots = [0, 1, 2];
-  const commaColor = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const commaColor = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`

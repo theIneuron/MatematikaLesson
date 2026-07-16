@@ -40,7 +40,7 @@ const Bar = ({ n, d }) => (
       <div key={i} style={{
         flex: 1,
         borderLeft: i === 0 ? 'none' : '2px solid #fff',
-        background: i < n ? '#2563eb' : '#eef2f8',
+        background: i < n ? '#fe5b1a' : '#eef2f8',
       }} />
     ))}
   </div>
@@ -94,7 +94,7 @@ export default function Amaliyot15(props) {
     const active = picked === r;
     const showState = checked && active;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#2563eb'; bd = '#2563eb'; col = '#fff'; }
+    if (active) { bg = '#fe5b1a'; bd = '#fe5b1a'; col = '#fff'; }
     if (showState) { const ok = r === REL; bg = ok ? '#1a7f43' : '#c0392b'; bd = bg; col = '#fff'; }
     return {
       width: 64, height: 64, borderRadius: 16, fontSize: 30, fontWeight: 800, cursor: (isReview || checked) ? 'default' : 'pointer',
@@ -124,11 +124,11 @@ export default function Amaliyot15(props) {
       <p className="aq-body">{t.body}</p>
 
       <div className="aq-row">
-        <div className="aq-fraclbl"><Frac n={LEFT.n} d={LEFT.d} color="#2563eb" /></div>
+        <div className="aq-fraclbl"><Frac n={LEFT.n} d={LEFT.d} color="#fe5b1a" /></div>
         <div className="aq-barwrap"><Bar n={LEFT.n} d={LEFT.d} /></div>
       </div>
       <div className="aq-row">
-        <div className="aq-fraclbl"><Frac n={RIGHT.n} d={RIGHT.d} color="#2563eb" /></div>
+        <div className="aq-fraclbl"><Frac n={RIGHT.n} d={RIGHT.d} color="#fe5b1a" /></div>
         <div className="aq-barwrap"><Bar n={RIGHT.n} d={RIGHT.d} /></div>
       </div>
 

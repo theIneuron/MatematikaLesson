@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -99,9 +99,9 @@ export default function D21_09(props) {
   useReg(check, registerCheck);
   const slotStyle = (k) => {
     const filled = vals[k] != null;
-    let bd = active === k ? '#2563eb' : filled ? '#94a3b8' : '#cbd5e1';
+    let bd = active === k ? '#fe5b1a' : filled ? '#94a3b8' : '#cbd5e1';
     if (checked && filled) bd = fb?.correct ? '#1a7f43' : '#c0392b'; // to'liq to'g'ri bo'lmasa — barcha to'ldirilgan katak qizil
-    return { width: 46, height: 44, borderRadius: 10, border: '2px solid ' + bd, background: active === k && !checked ? '#eff6ff' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: locked ? 'default' : 'pointer', boxShadow: active === k && !checked ? '0 0 0 4px #dbeafe' : 'none' };
+    return { width: 46, height: 44, borderRadius: 10, border: '2px solid ' + bd, background: active === k && !checked ? '#fff4ee' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: locked ? 'default' : 'pointer', boxShadow: active === k && !checked ? '0 0 0 4px #ffe7d8' : 'none' };
   };
   const slotTxt = (k) => (vals[k] != null ? <span style={{ ...S.mono, fontSize: 22, fontWeight: 800, color: '#1f2430' }}>{vals[k]}</span> : <span style={{ fontSize: 20, color: '#c0c7d2', fontWeight: 800 }}>?</span>);
   return (

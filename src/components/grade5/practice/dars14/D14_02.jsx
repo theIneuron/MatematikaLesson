@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -26,7 +26,7 @@ function useReg(check, registerCheck) {
   const ref = useRef(check); ref.current = check;
   useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
-const Bar = ({ den, shaded, width = 260, color = '#2563eb', light = '#e0ecff', label }) => (
+const Bar = ({ den, shaded, width = 260, color = '#fe5b1a', light = '#e0ecff', label }) => (
   <div>
     {label && <div style={{ fontSize: 13, fontWeight: 800, color, marginBottom: 4, ...S.mono }}>{label}</div>}
     <div style={{ display: 'flex', width, height: 38, border: '2px solid ' + color, borderRadius: 8, overflow: 'hidden' }}>
@@ -42,8 +42,8 @@ function SignPicker({ value, onPick, disabled, correct, checked, tint }) {
     <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
       {signs.map((s) => {
         const on = value === s;
-        let bd = tint ? '#bfdbfe' : '#d6dae3', bg = tint ? '#eff6ff' : '#fff', col = tint ? '#2563eb' : '#374151';
-        if (on) { bd = '#2563eb'; bg = '#dbeafe'; col = '#1e40af'; }
+        let bd = tint ? '#ffd6bd' : '#d6dae3', bg = tint ? '#fff4ee' : '#fff', col = tint ? '#fe5b1a' : '#374151';
+        if (on) { bd = '#fe5b1a'; bg = '#ffe7d8'; col = '#b83d0e'; }
         if (checked && on) { const ok = s === correct; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
         return <button key={s} type="button" disabled={disabled} onClick={() => onPick(s)} style={{ width: 64, height: 60, borderRadius: 14, border: '2px solid ' + bd, background: bg, color: col, ...S.mono, fontSize: 30, fontWeight: 800, cursor: disabled ? 'default' : 'pointer' }}>{s}</button>;
       })}
@@ -93,7 +93,7 @@ export default function D14_02(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, margin: '12px 0' }}>
-        <Bar den={2} shaded={1} width={280} color="#2563eb" label="1/2" />
+        <Bar den={2} shaded={1} width={280} color="#fe5b1a" label="1/2" />
         <Bar den={3} shaded={1} width={280} color="#14b8a6" light="#d5f5f0" label="1/3" />
       </div>
       <p style={{ ...S.ask, textAlign: 'center' }}>{t.ask}</p>

@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -65,9 +65,9 @@ export default function D05_07(props) {
   const cin = (i) => {
     const lead = qStr[i] === '0';
     const st = checked ? ((lead ? (qv[i] === '' || qv[i] === '0') : qv[i] === qStr[i]) ? 'ok' : 'no') : '';
-    const c = st === 'ok' ? '#1a7f43' : st === 'no' ? '#c0392b' : '#93c5fd';
-    const bg = st === 'ok' ? '#e8f7ee' : st === 'no' ? '#fdecec' : '#eff6ff';
-    return { width: cw, height: 50, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 10, border: '2px solid ' + c, background: bg, color: st ? c : '#1e40af', outline: 'none', ...S.mono, boxSizing: 'border-box' };
+    const c = st === 'ok' ? '#1a7f43' : st === 'no' ? '#c0392b' : '#ffb488';
+    const bg = st === 'ok' ? '#e8f7ee' : st === 'no' ? '#fdecec' : '#fff4ee';
+    return { width: cw, height: 50, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 10, border: '2px solid ' + c, background: bg, color: st ? c : '#b83d0e', outline: 'none', ...S.mono, boxSizing: 'border-box' };
   };
   return (
     <div style={S.wrap}>

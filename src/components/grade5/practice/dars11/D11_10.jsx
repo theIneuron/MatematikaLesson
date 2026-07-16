@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -63,8 +63,8 @@ export default function D11_10(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D10_ANS }, correct, meta: { tag: 'sum_div_rule', level: '🔴' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
-  const conf = ['#f59e0b', '#2563eb', '#10b981', '#ec4899', '#7c3aed'];
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
+  const conf = ['#f59e0b', '#fe5b1a', '#10b981', '#ec4899', '#7c3aed'];
   return (
     <div style={S.wrap}>
       <style>{`
@@ -76,7 +76,7 @@ export default function D11_10(props) {
       `}</style>
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
-      <div style={{ textAlign: 'center', margin: '12px 0 4px', ...S.mono, fontSize: 24, fontWeight: 800, color: '#2563eb' }}>(15 + 9 + 6) : 3</div>
+      <div style={{ textAlign: 'center', margin: '12px 0 4px', ...S.mono, fontSize: 24, fontWeight: 800, color: '#fe5b1a' }}>(15 + 9 + 6) : 3</div>
       {/* bosqichli yechim */}
       <div style={{ position: 'relative', minHeight: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
         {step >= 1 && <div className="d11-pop" style={{ display: 'flex', gap: 8, ...S.mono, fontSize: 14, fontWeight: 800 }}>

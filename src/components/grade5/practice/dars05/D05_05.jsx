@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -59,7 +59,7 @@ export default function D05_05(props) {
     onSubmit?.({ questionText: '50 : 8', options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D05_DATA.ans }, correct, meta: { tag: 'remainder_context', level: '🟡' } });
   }, [val, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`
@@ -72,7 +72,7 @@ export default function D05_05(props) {
       <div style={{ maxHeight: step > 0 ? 130 : 0, opacity: step > 0 ? 1 : 0, overflow: 'hidden', transition: 'max-height .6s ease, opacity .5s ease' }}>
         <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', padding: '12px 0 6px' }}>
           {Array.from({ length: 6 }).map((_, b) => (
-            <div key={b} className={step > b ? 'd5-pop' : undefined} style={{ width: 46, padding: 4, borderRadius: 9, background: step > b ? '#dbeafe' : '#f1f5f9', border: '2px solid ' + (step > b ? '#2563eb' : '#e5e7eb'), opacity: step > b ? 1 : 0.4, transition: 'all .45s' }}>
+            <div key={b} className={step > b ? 'd5-pop' : undefined} style={{ width: 46, padding: 4, borderRadius: 9, background: step > b ? '#ffe7d8' : '#f1f5f9', border: '2px solid ' + (step > b ? '#fe5b1a' : '#e5e7eb'), opacity: step > b ? 1 : 0.4, transition: 'all .45s' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 {Array.from({ length: 8 }).map((_, k) => <span key={k} style={{ width: 8, height: 8, borderRadius: 999, background: step > b ? '#dc2626' : '#cbd5e1' }} />)}
               </div>
@@ -86,7 +86,7 @@ export default function D05_05(props) {
             </div>
           )}
         </div>
-        {step >= 7 && <div className="d5-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 16, fontWeight: 800, color: '#2563eb' }}>50 : 8 = 6 ({t.left} 2)</div>}
+        {step >= 7 && <div className="d5-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 16, fontWeight: 800, color: '#fe5b1a' }}>50 : 8 = 6 ({t.left} 2)</div>}
       </div>
       <p style={{ ...S.ask, fontSize: 16 }}>{t.ask}</p>
       <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>

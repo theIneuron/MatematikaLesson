@@ -37,8 +37,8 @@ export default function Dars01Practice() {
 
   const chip = (active) => ({
     padding: '7px 11px', borderRadius: 999, fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
-    border: '1.5px solid ' + (active ? '#2563eb' : '#d6dae3'),
-    background: active ? '#2563eb' : '#fff', color: active ? '#fff' : '#374151',
+    border: '1.5px solid ' + (active ? '#fe5b1a' : '#d6dae3'),
+    background: active ? '#fe5b1a' : '#fff', color: active ? '#fff' : '#374151',
     fontFamily: "'Manrope', system-ui, sans-serif", whiteSpace: 'nowrap',
   });
 

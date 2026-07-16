@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -64,7 +64,7 @@ export default function D09_05(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D05_ANS }, correct, meta: { tag: 'part_of_book', level: '🟡' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`
@@ -84,7 +84,7 @@ export default function D09_05(props) {
       {/* bosqichli yechim */}
       <div style={{ maxHeight: rev > 0 ? 90 : 0, opacity: rev > 0 ? 1 : 0, overflow: 'hidden', transition: 'max-height .5s ease, opacity .4s ease', margin: '4px 0' }}>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginTop: 8 }}>
-          {rev >= 1 && <span className="d9-pop" style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#2563eb', background: '#eff6ff', padding: '6px 11px', borderRadius: 10, border: '1.5px solid #bfdbfe' }}>320 : 8 = 40</span>}
+          {rev >= 1 && <span className="d9-pop" style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#fe5b1a', background: '#fff4ee', padding: '6px 11px', borderRadius: 10, border: '1.5px solid #ffd6bd' }}>320 : 8 = 40</span>}
           {rev >= 2 && <span className="d9-pop" style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#1a7f43', background: '#e8f7ee', padding: '6px 11px', borderRadius: 10, border: '1.5px solid #a7f3d0' }}>40 × 3 = 120</span>}
         </div>
       </div>

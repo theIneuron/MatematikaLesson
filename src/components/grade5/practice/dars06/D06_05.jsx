@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -56,7 +56,7 @@ export default function D06_05(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D05_ANS }, correct, meta: { tag: 'temp_change', level: '🟡' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const nums = [-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4];
   const NR = nums.length - 1;
   return (
@@ -68,7 +68,7 @@ export default function D06_05(props) {
         <div style={{ position: 'absolute', left: 0, right: 0, top: 46, height: 3, background: '#cbd5e1', borderRadius: 2 }} />
         {nums.map((v, i) => {
           const hl = v === D05_FROM || v === D05_TO;
-          const c = v === D05_TO ? '#f59e0b' : v === D05_FROM ? '#2563eb' : '#94a3b8';
+          const c = v === D05_TO ? '#f59e0b' : v === D05_FROM ? '#fe5b1a' : '#94a3b8';
           return (
             <div key={v} style={{ position: 'absolute', left: (i / (nums.length - 1) * 100) + '%', top: 34, transform: 'translateX(-50%)', textAlign: 'center' }}>
               <div style={{ width: hl ? 13 : 9, height: hl ? 13 : 9, borderRadius: 999, background: hl ? c : '#cbd5e1', margin: '0 auto' }} />

@@ -86,7 +86,7 @@ export default function Amaliyot07(props) {
         .aq07 .aq-obj { font-size:15px; font-weight:700; flex:1; min-width:120px; }
         .aq07 .aq-bins { display:flex; gap:8px; }
         .aq07 .aq-bin { min-width:54px; padding:9px 12px; border-radius:999px; border:2px solid #d6dae3; background:#fff; font-size:15px; font-weight:800; color:#374151; cursor:pointer; }
-        .aq07 .aq-bin.sel { border-color:#2563eb; background:#2563eb; color:#fff; }
+        .aq07 .aq-bin.sel { border-color:#fe5b1a; background:#fe5b1a; color:#fff; }
         .aq07 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
         .aq07 .aq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .aq07 .aq-fb.no { background:#fdecec; color:#c0392b; }

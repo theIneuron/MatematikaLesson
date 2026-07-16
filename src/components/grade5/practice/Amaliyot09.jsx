@@ -91,7 +91,7 @@ export default function Amaliyot09(props) {
         .aq09 .aq-svg text { font-family:'Manrope',system-ui,sans-serif; font-size:13px; font-weight:700; fill:#374151; }
         .aq09 .aq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin:14px 0 6px; }
         .aq09 input.aq-input { width:100%; box-sizing:border-box; font-size:22px; font-weight:700; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .aq09 input.aq-input:focus { border-color:#5b8def; background:#fff; }
+        .aq09 input.aq-input:focus { border-color:#fb7a45; background:#fff; }
         .aq09 .aq-hint { font-size:13px; color:#9aa1ad; margin-top:6px; }
         .aq09 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
         .aq09 .aq-fb.ok { background:#e8f7ee; color:#1a7f43; }
@@ -106,7 +106,7 @@ export default function Amaliyot09(props) {
         {/* birlik kataklar — to'g'ri javobdan keyin qatorlab to'ladi */}
         {cells.map((cell) => (
           <rect key={cell.i} x={ox + cell.c * u} y={oy + cell.r * u} width={u} height={u}
-            fill="#5b8def" fillOpacity="0.55" stroke="#2f6fe0" strokeWidth="1"
+            fill="#fb7a45" fillOpacity="0.55" stroke="#2f6fe0" strokeWidth="1"
             style={{ opacity: fill ? 1 : 0, transition: 'opacity .3s ease', transitionDelay: fill ? `${cell.i * 0.03}s` : '0s' }} />
         ))}
         {fill && (

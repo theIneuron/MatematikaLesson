@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -50,7 +50,7 @@ function Bar({ stage, w = 288, h = 38 }) {
       {Array.from({ length: 8 }).map((_, i) => {
         const st = D07_REMOVE[i]; // undefined = qoladi
         const gone = st != null && stage > st; // stage 0=hech, 1=1-qadam ketdi, 2=hammasi
-        const col = st === 0 ? '#93c5fd' : st === 1 ? '#c4b5fd' : '#86efac';
+        const col = st === 0 ? '#ffb488' : st === 1 ? '#c4b5fd' : '#86efac';
         return <rect key={'s' + i} x={i * cw + 1} y="1" width={cw - 2} height={h - 2} rx="3" fill={col} stroke="#94a3b8" strokeWidth="0.8"
           style={{ transform: gone ? 'translateY(-16px)' : 'none', opacity: gone ? 0 : 1, transition: 'transform .5s ease, opacity .5s ease' }} />;
       })}
@@ -99,7 +99,7 @@ export default function D18_07(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { v1: parseInt(v1, 10), v2: parseInt(v2, 10) }, correctAnswer: { v1: D07_S1, v2: D07_S2 }, correct, meta: { tag: 'sub_two_step', level: '🔴' } });
   }, [v1, v2, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const cell = (border) => ({ width: 46, height: 40, textAlign: 'center', fontSize: 21, fontWeight: 800, borderRadius: 10, border: '2px solid ' + border, color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' });
   const StepRow = ({ from, minus, val, setVal, okv, label }) => (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>

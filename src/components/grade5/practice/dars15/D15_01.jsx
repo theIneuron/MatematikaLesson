@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -28,7 +28,7 @@ function useReg(check, registerCheck) {
   useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
 // gorizontal bar: den ulush, shaded bo'yalgan
-const Bar = ({ den, shaded, width = 280, color = '#2563eb', light = '#e0ecff', label }) => (
+const Bar = ({ den, shaded, width = 280, color = '#fe5b1a', light = '#e0ecff', label }) => (
   <div>
     {label && <div style={{ fontSize: 13, fontWeight: 800, color, marginBottom: 4, ...S.mono }}>{label}</div>}
     <div style={{ display: 'flex', width, height: 36, border: '2px solid ' + color, borderRadius: 8, overflow: 'hidden' }}>
@@ -87,7 +87,7 @@ export default function D15_01(props) {
   const btn = (val, label, color) => {
     const on = pick === val;
     let bd = '#d6dae3', bg = '#fff', col = '#374151';
-    if (on) { bd = color; bg = color === '#1a7f43' ? '#e8f7ee' : '#eaf0fe'; col = color; }
+    if (on) { bd = color; bg = color === '#1a7f43' ? '#e8f7ee' : '#fff0e8'; col = color; }
     if (checked && on) { const ok = val === D01_CORRECT; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
     return <button type="button" disabled={isReview || checked} onClick={() => setPick(val)} style={{ flex: 1, padding: '14px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 16, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer', minHeight: 52 }}>{label}</button>;
   };
@@ -101,11 +101,11 @@ export default function D15_01(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, margin: '12px 0' }}>
-        <Bar den={2} shaded={fillA} width={290} color="#2563eb" label="1/2" />
+        <Bar den={2} shaded={fillA} width={290} color="#fe5b1a" label="1/2" />
         <Bar den={6} shaded={fillB} width={290} color="#14b8a6" light="#d5f5f0" label="3/6" />
       </div>
       <p style={{ ...S.ask, fontSize: 16 }}>{t.ask}</p>
-      <div style={{ display: 'flex', gap: 10 }}>{btn('ha', t.yes, '#1a7f43')}{btn('yoq', t.no, '#2563eb')}</div>
+      <div style={{ display: 'flex', gap: 10 }}>{btn('ha', t.yes, '#1a7f43')}{btn('yoq', t.no, '#fe5b1a')}</div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
       {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>

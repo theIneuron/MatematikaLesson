@@ -59,7 +59,7 @@ export default function D02_07(props) {
   const relBtn = (r) => {
     const active = picked === r; const show = checked && active;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#2563eb'; bd = '#2563eb'; col = '#fff'; }
+    if (active) { bg = '#fe5b1a'; bd = '#fe5b1a'; col = '#fff'; }
     if (show) { const ok = r === REL; bg = ok ? '#1a7f43' : '#c0392b'; bd = bg; col = '#fff'; }
     return { width: 64, height: 64, borderRadius: 16, fontSize: 30, fontWeight: 800, cursor: (isReview || checked) ? 'default' : 'pointer', border: '2px solid ' + bd, background: bg, color: col, fontFamily: 'inherit' };
   };
@@ -68,10 +68,10 @@ export default function D02_07(props) {
     <div className="pq pq07">
       <style>{`
         .pq07 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq07 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
+        .pq07 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#fe5b1a; text-transform:uppercase; }
         .pq07 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 16px; color:#374151; }
         .pq07 .pq-nums { display:flex; flex-direction:column; align-items:center; gap:8px; margin:6px 0 8px; }
-        .pq07 .pq-n { font-size:26px; font-weight:800; color:#2563eb; font-variant-numeric:tabular-nums; }
+        .pq07 .pq-n { font-size:26px; font-weight:800; color:#fe5b1a; font-variant-numeric:tabular-nums; }
         .pq07 .pq-q { font-size:28px; font-weight:800; color:#9aa1ad; min-width:28px; text-align:center; }
         .pq07 .pq-pick { text-align:center; font-size:13px; color:#9aa1ad; font-weight:600; margin-top:14px; }
         .pq07 .pq-rels { display:flex; justify-content:center; gap:14px; margin:8px 0 4px; }

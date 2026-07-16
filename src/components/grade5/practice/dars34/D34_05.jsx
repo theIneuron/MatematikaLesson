@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { display: 'inline-block', fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#1d4ed8', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '3px 10px', borderRadius: 999, textTransform: 'uppercase' },
+  eyebrow: { display: 'inline-block', fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#e24e12', background: '#fff4ee', border: '1px solid #ffd6bd', padding: '3px 10px', borderRadius: 999, textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 15.5, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -19,7 +19,7 @@ const FB = ({ ok, text }) => (
   </div>
 );
 const RuleChip = ({ text }) => (
-  <div className="d34-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#eff6ff', border: '1.5px solid #bfdbfe', color: '#1d4ed8' }}>
+  <div className="d34-pop" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 13.5, fontWeight: 700, background: '#fff4ee', border: '1.5px solid #ffd6bd', color: '#e24e12' }}>
     <span style={{ fontSize: 15 }}>💡</span><span>{text}</span>
   </div>
 );
@@ -28,7 +28,7 @@ function useReg(check, registerCheck) {
   useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
 // Beshburchak (uy shakli) — chegara bo'ylab yurish izohi (faqat to'g'ri javobdan keyin)
-function PentaReveal({ accent = '#1d4ed8' }) {
+function PentaReveal({ accent = '#e24e12' }) {
   return (
     <div className="d34-pop" style={{ margin: '6px auto 2px', width: 220, maxWidth: '100%' }}>
       <style>{`
@@ -43,7 +43,7 @@ function PentaReveal({ accent = '#1d4ed8' }) {
         @media (prefers-reduced-motion: reduce){.d34p-s{stroke-dashoffset:0!important;animation:none!important}.d34p-l{opacity:1!important;animation:none!important}.d34p-dot{animation:none!important}}
       `}</style>
       <svg width="220" height="200" viewBox="0 0 220 200" style={{ display: 'block', margin: '0 auto', maxWidth: '100%' }}>
-        <polygon points="40,150 180,150 180,80 110,34 40,80" fill="#eff6ff" stroke="#e5e7eb" strokeWidth="1" />
+        <polygon points="40,150 180,150 180,80 110,34 40,80" fill="#fff4ee" stroke="#e5e7eb" strokeWidth="1" />
         <line className="d34p-s" pathLength="1" x1="40" y1="150" x2="180" y2="150" stroke={accent} strokeWidth="5" strokeLinecap="round" />
         <line className="d34p-s d34p-s2" pathLength="1" x1="180" y1="150" x2="180" y2="80" stroke={accent} strokeWidth="5" strokeLinecap="round" />
         <line className="d34p-s d34p-s3" pathLength="1" x1="180" y1="80" x2="110" y2="34" stroke={accent} strokeWidth="5" strokeLinecap="round" />
@@ -96,7 +96,7 @@ export default function D34_05(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: num() }, correctAnswer: { value: D05_ANS }, correct, meta: { tag: 'peri_assemble', level: '🟡' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#1d4ed8';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#e24e12';
   const revealed = checked && fb?.correct;
   return (
     <div style={S.wrap}>
@@ -110,9 +110,9 @@ export default function D34_05(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       {revealed && (
-        <div className="d34-pop" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, margin: '6px 0 10px', padding: '10px 8px', borderRadius: 14, background: '#eff6ff', border: '1.5px solid #bfdbfe' }}>
+        <div className="d34-pop" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, margin: '6px 0 10px', padding: '10px 8px', borderRadius: 14, background: '#fff4ee', border: '1.5px solid #ffd6bd' }}>
           <PentaReveal />
-          <div style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#1d4ed8' }}>4 + 2 + 3 + 3 + 4 = 16 m</div>
+          <div style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#e24e12' }}>4 + 2 + 3 + 3 + 4 = 16 m</div>
         </div>
       )}
       <p className={revealed ? 'd34-drop' : ''} style={{ ...S.ask, textAlign: 'center' }}>{t.ask}</p>

@@ -58,7 +58,7 @@ export default function D01_01(props) {
   const optStyle = (i) => {
     const active = picked === i; const show = checked && active;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+    if (active) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
     if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
     let anim;
     if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
@@ -72,9 +72,9 @@ export default function D01_01(props) {
     <div className="pq pq01">
       <style>{`
         .pq01 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq01 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
+        .pq01 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#fe5b1a; text-transform:uppercase; }
         .pq01 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 12px; color:#374151; }
-        .pq01 .pq-num { text-align:center; font-size:40px; font-weight:800; color:#2563eb; letter-spacing:.04em; font-variant-numeric:tabular-nums; margin:6px 0 18px; }
+        .pq01 .pq-num { text-align:center; font-size:40px; font-weight:800; color:#fe5b1a; letter-spacing:.04em; font-variant-numeric:tabular-nums; margin:6px 0 18px; }
         .pq01 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
         .pq01 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:14px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:pqIn .45s ease both; }
         .pq01 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }

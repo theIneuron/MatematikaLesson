@@ -65,7 +65,7 @@ export default function D29_07(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { a: parseInt(a, 10), b: parseInt(b, 10), r: parseInt(r, 10) }, correctAnswer: { a: D07_A, b: D07_B, r: D07_R }, correct, meta: { tag: 'div_equiv', level: '🔴' } });
   }, [a, b, r, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = (v, ans) => checked ? (parseInt(v, 10) === ans ? '#1a7f43' : '#c0392b') : (v.trim() ? '#2563eb' : '#cbd5e1');
+  const bd = (v, ans) => checked ? (parseInt(v, 10) === ans ? '#1a7f43' : '#c0392b') : (v.trim() ? '#fe5b1a' : '#cbd5e1');
   const box = (v, set, ans) => (
     <input value={v} onChange={(e) => set(e.target.value.replace(/[^\d]/g, '').slice(0, 2))} disabled={isReview || checked} inputMode="numeric" placeholder="0" style={{ width: 56, height: 48, textAlign: 'center', fontSize: 24, fontWeight: 800, borderRadius: 12, border: '2px solid ' + bd(v, ans), color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' }} />
   );

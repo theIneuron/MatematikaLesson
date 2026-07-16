@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -42,7 +42,7 @@ const Mixed = ({ w, n, d, size = 18, color = '#1f2430' }) => (
     <span style={{ ...S.mono, fontWeight: 800, fontSize: size + 5, color }}>{w}</span><Frac num={n} den={d} size={size - 1} color={color} />
   </span>
 );
-function Bar({ parts, shaded, color = '#93c5fd', w = 70, h = 26 }) {
+function Bar({ parts, shaded, color = '#ffb488', w = 70, h = 26 }) {
   const cw = w / parts;
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
@@ -54,7 +54,7 @@ function Bar({ parts, shaded, color = '#93c5fd', w = 70, h = 26 }) {
   );
 }
 const PicViz = ({ id }) => {
-  if (id === 'p1') return <Bar parts={5} shaded={3} color="#93c5fd" />;
+  if (id === 'p1') return <Bar parts={5} shaded={3} color="#ffb488" />;
   if (id === 'p2') return <div style={{ display: 'flex', gap: 5 }}><Bar parts={6} shaded={6} color="#a855f7" /><Bar parts={6} shaded={1} color="#a855f7" /></div>;
   return <div style={{ display: 'flex', gap: 5 }}><Bar parts={3} shaded={3} color="#f59e0b" /><Bar parts={3} shaded={3} color="#f59e0b" /><Bar parts={3} shaded={1} color="#fcd34d" /></div>;
 };
@@ -127,7 +127,7 @@ export default function D21_04(props) {
           const used = usedChip(c.id);
           if (used) return null;
           const on = sel === c.id;
-          return <button key={c.id} type="button" disabled={locked} onClick={() => setSel(on ? null : c.id)} style={{ minWidth: 58, height: 44, borderRadius: 11, border: '2px solid ' + (on ? '#2563eb' : '#cbd5e1'), background: on ? '#eff6ff' : '#fff', cursor: locked ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #dbeafe' : 'none' }}>{chipViz(c, '#1f2430')}</button>;
+          return <button key={c.id} type="button" disabled={locked} onClick={() => setSel(on ? null : c.id)} style={{ minWidth: 58, height: 44, borderRadius: 11, border: '2px solid ' + (on ? '#fe5b1a' : '#cbd5e1'), background: on ? '#fff4ee' : '#fff', cursor: locked ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #ffe7d8' : 'none' }}>{chipViz(c, '#1f2430')}</button>;
         })}
         {full && <span style={{ fontSize: 12.5, color: '#94a3b8', fontWeight: 700, alignSelf: 'center' }}>{lang === 'uz' ? 'Barcha sonlar joylandi' : 'Все числа размещены'}</span>}
       </div>
@@ -137,7 +137,7 @@ export default function D21_04(props) {
           const cid = place[p.id];
           const c = cid ? chipById(cid) : null;
           const ok = checked && cid ? (fb?.correct === true) : null; // to'liq to'g'ri bo'lmasa — barcha moslangan slot qizil
-          const slotBd = ok === true ? '#1a7f43' : ok === false ? '#c0392b' : (sel ? '#2563eb' : '#d6dae3');
+          const slotBd = ok === true ? '#1a7f43' : ok === false ? '#c0392b' : (sel ? '#fe5b1a' : '#d6dae3');
           const slotBg = ok === true ? '#e8f7ee' : ok === false ? '#fdecec' : (sel ? '#f5f9ff' : '#fbfcfe');
           return (
             <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 14, border: '1.5px solid #eef0f4', background: '#fff' }}>

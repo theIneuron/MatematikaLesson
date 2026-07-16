@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -87,11 +87,11 @@ export default function D24_04(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { num, den }, correctAnswer: D04, correct, meta: { tag: 'decimal_to_frac', level: '🟢' } });
   }, [num, den, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const numBd = checked ? (num === D04.num ? '#1a7f43' : '#c0392b') : (num != null ? '#2563eb' : '#cbd5e1');
+  const numBd = checked ? (num === D04.num ? '#1a7f43' : '#c0392b') : (num != null ? '#fe5b1a' : '#cbd5e1');
   const denBtn = (d) => {
     const on = den === d;
     let bd = '#cbd5e1', bg = '#fff', col = '#1f2430';
-    if (on) { bd = '#2563eb'; bg = '#eaf0fe'; }
+    if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; }
     if (checked && on) { const ok = d === D04.den; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
     return <button key={d} type="button" disabled={locked} onClick={() => setDen(d)} style={{ width: 60, height: 46, borderRadius: 11, border: '2px solid ' + bd, background: bg, color: col, ...S.mono, fontSize: 22, fontWeight: 800, cursor: locked ? 'default' : 'pointer' }}>{d}</button>;
   };
@@ -106,7 +106,7 @@ export default function D24_04(props) {
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <p style={{ ...S.ask, fontSize: 15.5, textAlign: 'center' }}>{renderFr(t.ask)}</p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, margin: '10px 0' }}>
-        <span style={{ ...S.mono, fontSize: 34, fontWeight: 800, color: '#2563eb' }}>0,9</span>
+        <span style={{ ...S.mono, fontSize: 34, fontWeight: 800, color: '#fe5b1a' }}>0,9</span>
         <span style={{ fontSize: 24, fontWeight: 800, color: '#94a3b8' }}>=</span>
         <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
           <span style={{ fontSize: 11.5, color: '#6b7280', fontWeight: 700 }}>{t.nlab}</span>

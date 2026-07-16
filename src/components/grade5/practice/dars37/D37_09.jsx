@@ -87,8 +87,8 @@ export default function D37_09(props) {
     onSubmit?.({ questionText: t.labelA + ' / ' + t.labelV, options: [], studentAnswer: { area: parseInt(va, 10), vol: parseInt(vv, 10) }, correctAnswer: { area: D09_AREA, vol: D09_VOL }, correct, meta: { tag: 'vol_vs_area', level: '🔴' } });
   }, [va, vv, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bA = checked ? (parseInt(va, 10) === D09_AREA ? '#1a7f43' : '#c0392b') : '#2563eb';
-  const bV = checked ? (parseInt(vv, 10) === D09_VOL ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bA = checked ? (parseInt(va, 10) === D09_AREA ? '#1a7f43' : '#c0392b') : '#fe5b1a';
+  const bV = checked ? (parseInt(vv, 10) === D09_VOL ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const field = (label, val, setter, bd) => (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
       <span style={{ fontSize: 13.5, fontWeight: 700, color: '#374151' }}>{label}</span>

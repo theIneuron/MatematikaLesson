@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -64,7 +64,7 @@ export default function D04_04(props) {
     onSubmit?.({ questionText: '125 × ? = 1000', options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D04_ANS }, correct, meta: { tag: 'missing_factor', level: '🟡' } });
   }, [val, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const chars = ['1', '0', '0', '0'];
   return (
     <div style={S.wrap}>
@@ -81,7 +81,7 @@ export default function D04_04(props) {
         <span style={{ fontSize: 26, fontWeight: 800, color: '#6b7280' }}>×</span>
         {/* bo'sh katak */}
         <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 2))} disabled={isReview || checked} inputMode="numeric" placeholder="☐"
-          style={{ width: 52, height: 54, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 11, border: '2px solid ' + (checked ? bd : '#93c5fd'), color: '#1e40af', fontFamily: "'JetBrains Mono', monospace", background: checked ? '#fff' : '#eff6ff' }} />
+          style={{ width: 52, height: 54, textAlign: 'center', fontSize: 26, fontWeight: 800, borderRadius: 11, border: '2px solid ' + (checked ? bd : '#ffb488'), color: '#b83d0e', fontFamily: "'JetBrains Mono', monospace", background: checked ? '#fff' : '#fff4ee' }} />
         <span style={{ fontSize: 26, fontWeight: 800, color: '#6b7280' }}>=</span>
         {/* o'ng tomon: 10×10×10, to'g'ri javobdan keyin 1000 bo'ladi */}
         {glow === 0

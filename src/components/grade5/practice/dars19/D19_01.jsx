@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -39,7 +39,7 @@ const renderFr = (text) => String(text).split(/([\d?]+\/[\d?]+)/g).map((p, i) =>
 });
 
 // blok-bo'yalgan bar: shaded/parts qismi bo'yalgan, parts-1 bo'luvchi chiziq.
-function Bar({ parts, shaded, color = '#93c5fd', w = 214, h = 32, newLines = [] }) {
+function Bar({ parts, shaded, color = '#ffb488', w = 214, h = 32, newLines = [] }) {
   const cw = w / parts, nl = new Set(newLines);
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
@@ -91,7 +91,7 @@ export default function D19_01(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D01_ANS }, correct, meta: { tag: 'add_reslice_fill', level: '🟢' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const row = (label, node) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
       <span style={{ width: 74, textAlign: 'right', ...S.mono, fontWeight: 800, color: '#64748b', fontSize: 13 }}>{label}</span>{node}
@@ -108,8 +108,8 @@ export default function D19_01(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '10px 0 6px' }}>
-        {row('1/2 =', <Bar parts={2} shaded={1} color="#93c5fd" />)}
-        {reveal && row('', <Bar parts={4} shaded={2} color="#93c5fd" newLines={[1, 3]} />)}
+        {row('1/2 =', <Bar parts={2} shaded={1} color="#ffb488" />)}
+        {reveal && row('', <Bar parts={4} shaded={2} color="#ffb488" newLines={[1, 3]} />)}
         {row('+ 1/4', <Bar parts={4} shaded={1} color="#86efac" />)}
         {reveal && row('= 3/4', <Bar parts={4} shaded={3} color="#7dd3fc" />)}
       </div>

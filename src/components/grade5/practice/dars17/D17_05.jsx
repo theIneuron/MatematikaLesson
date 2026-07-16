@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -82,7 +82,7 @@ export default function D17_05(props) {
   useReg(check, registerCheck);
   const done = checked && fb?.correct && fill >= 5;
   const cw = 300 / 5;
-  const bdCol = (v, ok) => checked ? (v === ok ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bdCol = (v, ok) => checked ? (v === ok ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const cell = (val, set, ok, max) => (
     <input value={val} onChange={(e) => set(e.target.value.replace(/[^\d]/g, '').slice(0, max))} disabled={isReview || checked} inputMode="numeric" placeholder="?" style={{ width: 54, height: 44, textAlign: 'center', fontSize: 23, fontWeight: 800, borderRadius: 11, border: '2px solid ' + bdCol(parseInt(val, 10), ok), color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' }} />
   );
@@ -101,7 +101,7 @@ export default function D17_05(props) {
         <svg width="300" height="40" viewBox="0 0 300 40" className={done ? 'd17-glow' : undefined}>
           {Array.from({ length: 5 }).map((_, i) => (
             <rect key={i} x={i * cw + 1.5} y="2" width={cw - 3} height="36" rx="4"
-              fill={i < fill ? (done ? '#fcd34d' : '#93c5fd') : '#eef2f7'} stroke="#cbd5e1" strokeWidth="1"
+              fill={i < fill ? (done ? '#fcd34d' : '#ffb488') : '#eef2f7'} stroke="#cbd5e1" strokeWidth="1"
               style={{ transition: 'fill .6s ease' }} />
           ))}
         </svg>

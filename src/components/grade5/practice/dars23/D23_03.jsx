@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -82,7 +82,7 @@ export default function D23_03(props) {
   }, [w, n, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;
-  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const box = (val, set, ok) => (<input value={val} onChange={(e) => set(e.target.value.replace(/[^\d]/g, '').slice(0, 1))} disabled={locked} inputMode="numeric" placeholder="?" style={{ width: 46, height: 40, textAlign: 'center', fontSize: 22, fontWeight: 800, borderRadius: 10, border: '2px solid ' + bdOf(val, ok), color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' }} />);
   return (
     <div style={S.wrap}>
@@ -95,8 +95,8 @@ export default function D23_03(props) {
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, margin: '10px 0' }}>
         {broken
-          ? <span className="d23-pop" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mixed w={4} n={11} d={9} size={22} color="#7c3aed" /><span style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: '#94a3b8' }}>−</span><Mixed w={2} n={7} d={9} size={22} color="#2563eb" /></span>
-          : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mixed w={5} n={2} d={9} size={22} color="#7c3aed" /><span style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: '#94a3b8' }}>−</span><Mixed w={2} n={7} d={9} size={22} color="#2563eb" /></span>}
+          ? <span className="d23-pop" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mixed w={4} n={11} d={9} size={22} color="#7c3aed" /><span style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: '#94a3b8' }}>−</span><Mixed w={2} n={7} d={9} size={22} color="#fe5b1a" /></span>
+          : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Mixed w={5} n={2} d={9} size={22} color="#7c3aed" /><span style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: '#94a3b8' }}>−</span><Mixed w={2} n={7} d={9} size={22} color="#fe5b1a" /></span>}
       </div>
       {!broken && <div style={{ textAlign: 'center', margin: '4px 0' }}><button type="button" disabled={locked} onClick={() => setBroken(true)} style={{ padding: '8px 14px', borderRadius: 13, border: '1.5px dashed #c4b5fd', background: '#faf5ff', color: '#7c3aed', fontFamily: "'Manrope', system-ui, sans-serif", fontSize: 13, fontWeight: 800, cursor: locked ? 'default' : 'pointer' }}>{t.btn}</button></div>}
       {broken && <div style={{ textAlign: 'center', fontSize: 12.5, color: '#7c3aed', fontWeight: 700, marginBottom: 4 }}>5 2/9 = 4 11/9 ✓</div>}

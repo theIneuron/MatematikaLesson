@@ -76,7 +76,7 @@ export default function D29_10(props) {
         {D10_OPTS.map((o, i) => {
           const on = pick === i;
           let bd = '#d6dae3', bg = '#fff', col = '#374151';
-          if (on) { bd = '#2563eb'; bg = '#eaf0fe'; col = '#1f2430'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; col = '#1f2430'; }
           if (checked && on) { const ok = i === D10_CORRECT; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
           return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPick(i)} style={{ minWidth: 84, height: 62, borderRadius: 14, border: '2px solid ' + bd, background: bg, color: col, ...S.mono, fontSize: 26, fontWeight: 800, cursor: (isReview || checked) ? 'default' : 'pointer' }}>{o}</button>;
         })}

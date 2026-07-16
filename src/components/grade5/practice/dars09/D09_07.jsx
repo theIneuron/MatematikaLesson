@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -64,7 +64,7 @@ export default function D09_07(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D07_ANS }, correct, meta: { tag: 'time_fraction', level: '🔴' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   // soat: 4 chorak, har biri 90°. fill tasi bo'yaladi
   const R = 65, C = 75;
   const quarters = [0, 1, 2, 3].map((k) => {
@@ -86,7 +86,7 @@ export default function D09_07(props) {
       <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
         <svg width="150" height="150" viewBox="0 0 150 150">
           {/* to'lgan choraklar (och ko'k urg'u) */}
-          {quarters.map((q, k) => <path key={k} d={q.d} fill={q.on ? '#bfdbfe' : '#f8fafc'} stroke="#fff" strokeWidth="2" style={{ transition: 'fill .4s' }} />)}
+          {quarters.map((q, k) => <path key={k} d={q.d} fill={q.on ? '#ffd6bd' : '#f8fafc'} stroke="#fff" strokeWidth="2" style={{ transition: 'fill .4s' }} />)}
           {/* soat gardishi */}
           <circle cx="75" cy="75" r="65" fill="none" stroke="#1e3a8a" strokeWidth="4" />
           {/* daqiqa bo'linmalari */}
@@ -100,7 +100,7 @@ export default function D09_07(props) {
           <circle cx="75" cy="75" r="5" fill="#1f2430" />
         </svg>
       </div>
-      {fill >= 3 && <div className="d9-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 15, fontWeight: 800, color: '#2563eb', marginBottom: 4 }}>60 : 4 = 15 · 15 × 3 = 45</div>}
+      {fill >= 3 && <div className="d9-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 15, fontWeight: 800, color: '#fe5b1a', marginBottom: 4 }}>60 : 4 = 15 · 15 × 3 = 45</div>}
       <p style={{ ...S.ask, fontSize: 16, margin: '6px 0' }}>{t.ask}</p>
       <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>
       <div style={{ display: 'flex', justifyContent: 'center' }}>

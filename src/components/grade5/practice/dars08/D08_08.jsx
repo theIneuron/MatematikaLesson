@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -69,7 +69,7 @@ export default function D08_08(props) {
     onSubmit?.({ questionText: '9²', options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D08_ANS }, correct, meta: { tag: 'square_big', level: '🔴' } });
   }, [val, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   // 9 qator × 10 ustun. oxirgi ustun (indeks 9) ph>=1 da o'chadi
   return (
     <div style={S.wrap}>
@@ -86,14 +86,14 @@ export default function D08_08(props) {
             {Array.from({ length: 90 }).map((_, k) => {
               const colIdx = k % 10;
               const isLast = colIdx === 9; // oxirgi ustun — ayiriladigan 9 ta
-              let bg = '#93c5fd';
+              let bg = '#ffb488';
               if (isLast) bg = ph >= 1 ? '#fecaca' : '#c7d2e8';
               return <span key={k} style={{ width: 15, height: 15, borderRadius: 3, background: bg, opacity: (isLast && ph >= 2) ? 0.25 : 1, transition: 'all .5s ease', transform: (isLast && ph >= 1) ? 'scale(.85)' : 'none' }} />;
             })}
           </div>
           {/* izoh yorliqlari */}
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, ...S.mono, fontSize: 12, fontWeight: 800 }}>
-            <span style={{ color: '#2563eb' }}>{lang === 'uz' ? '9 × 10 = 90' : '9 × 10 = 90'}</span>
+            <span style={{ color: '#fe5b1a' }}>{lang === 'uz' ? '9 × 10 = 90' : '9 × 10 = 90'}</span>
             {ph >= 1 && <span className="d8-pop" style={{ color: '#c0392b' }}>− 9</span>}
           </div>
         </div>

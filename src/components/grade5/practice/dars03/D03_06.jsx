@@ -6,7 +6,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
 };
@@ -67,7 +67,7 @@ export default function D03_06(props) {
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useRegister(check, registerCheck);
 
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const cw = 30;
   const monoCell = { width: cw, textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800 };
 
@@ -82,9 +82,9 @@ export default function D03_06(props) {
       <p style={S.setup}>{t.setup}</p>
 
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', margin: '10px 0 8px' }}>
-        <div style={{ flex: '1 1 150px', padding: '12px 14px', borderRadius: 14, background: '#eaf0fe', border: '2px solid #bfd4fb' }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: '#2563eb', letterSpacing: '.03em', marginBottom: 4 }}>{t.had.toUpperCase()}</div>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800, color: '#1e40af' }}>125 500 <span style={{ fontSize: 14, fontWeight: 700, color: '#60a5fa' }}>{t.unit}</span></div>
+        <div style={{ flex: '1 1 150px', padding: '12px 14px', borderRadius: 14, background: '#fff0e8', border: '2px solid #bfd4fb' }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#fe5b1a', letterSpacing: '.03em', marginBottom: 4 }}>{t.had.toUpperCase()}</div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 26, fontWeight: 800, color: '#b83d0e' }}>125 500 <span style={{ fontSize: 14, fontWeight: 700, color: '#ff8a52' }}>{t.unit}</span></div>
         </div>
         <div style={{ flex: '1 1 150px', padding: '12px 14px', borderRadius: 14, background: '#fdecec', border: '2px solid #f5c2c2' }}>
           <div style={{ fontSize: 12, fontWeight: 800, color: '#c0392b', letterSpacing: '.03em', marginBottom: 4 }}>{t.spent.toUpperCase()}</div>

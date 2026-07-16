@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -76,7 +76,7 @@ export default function D17_04(props) {
   const optStyle = (i) => {
     const on = picked === i, show = checked && on;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+    if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
     if (show) { const ok = i === D04_CORRECT; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
     return { flex: '1 1 42%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', minHeight: 56 };
   };
@@ -92,9 +92,9 @@ export default function D17_04(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <div className="d17-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, margin: '14px 0 8px' }}>
-        <Frac num="3" den="8" size={34} color="#2563eb" />
+        <Frac num="3" den="8" size={34} color="#fe5b1a" />
         <span style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: '#94a3b8' }}>+</span>
-        <Frac num="1" den="8" size={34} color="#2563eb" />
+        <Frac num="1" den="8" size={34} color="#fe5b1a" />
         <span style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: '#94a3b8' }}>=</span>
         <span style={{ ...S.mono, fontSize: 30, fontWeight: 800, color: '#f97316' }}>?</span>
       </div>

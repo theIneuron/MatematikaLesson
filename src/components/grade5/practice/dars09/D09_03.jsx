@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -79,12 +79,12 @@ export default function D09_03(props) {
       `}</style>
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
-      <div style={{ textAlign: 'center', margin: '4px 0 12px' }}><Frac num="2" den="5" size={34} color="#2563eb" /></div>
+      <div style={{ textAlign: 'center', margin: '4px 0 12px' }}><Frac num="2" den="5" size={34} color="#fe5b1a" /></div>
       <p style={{ ...S.ask, fontSize: 15.5 }}>{t.ask}</p>
       <div style={{ display: 'flex', gap: 4, justifyContent: 'center', margin: '8px 0' }}>
         {Array.from({ length: D03_DEN }).map((_, i) => {
           const on = sel.has(i);
-          let bg = on ? '#2563eb' : '#eff6ff', bd = on ? '#1d4ed8' : '#bfdbfe';
+          let bg = on ? '#fe5b1a' : '#fff4ee', bd = on ? '#e24e12' : '#ffd6bd';
           if (checked) { if (on) { const ok = sel.size === D03_NUM; bg = ok ? '#1a7f43' : '#c0392b'; bd = bg; } }
           return <button key={i} type="button" disabled={locked} onClick={() => toggle(i)} style={{ width: 56, height: 76, border: '2px solid ' + bd, background: bg, cursor: locked ? 'default' : 'pointer', borderRadius: i === 0 ? '12px 0 0 12px' : i === D03_DEN - 1 ? '0 12px 12px 0' : 0, transition: 'background .2s' }} />;
         })}

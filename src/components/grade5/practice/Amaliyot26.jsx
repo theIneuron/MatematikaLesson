@@ -116,7 +116,7 @@ export default function Amaliyot26(props) {
         .aq26 .aq-op { color:#1f2430; }
         .aq26 .aq-sign { color:#6b7280; font-size:26px; }
         .aq26 input.aq-cin { width:46px; height:52px; box-sizing:border-box; text-align:center; font-size:28px; font-weight:800; border-radius:11px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; color:#1f2430; }
-        .aq26 input.aq-cin:focus { border-color:#5b8def; background:#fff; }
+        .aq26 input.aq-cin:focus { border-color:#fb7a45; background:#fff; }
         .aq26 input.aq-cin.ok { border-color:#1a7f43; background:#e8f7ee; color:#1a7f43; }
         .aq26 input.aq-cin.no { border-color:#c0392b; background:#fdecec; color:#c0392b; }
         .aq26 input.aq-carry { width:30px; height:30px; box-sizing:border-box; text-align:center; font-size:16px; font-weight:800; border-radius:8px; border:1.5px dashed #c9a23a; background:#fffdf5; color:#c9a23a; outline:none; }

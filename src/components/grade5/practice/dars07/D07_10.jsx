@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -30,7 +30,7 @@ function useReg(check, registerCheck) {
 function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
   const on = picked === i, show = checked && on;
   let bg = '#fff', bd = '#d6dae3', col = '#374151';
-  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
   if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
   return {
     flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
@@ -79,7 +79,7 @@ export default function D07_10(props) {
     onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: 0, label: '-9' }, correct, meta: { tag: 'opposite_double', level: '🔴' } });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const conf = ['#f59e0b', '#2563eb', '#10b981', '#ec4899', '#7c3aed'];
+  const conf = ['#f59e0b', '#fe5b1a', '#10b981', '#ec4899', '#7c3aed'];
   const nums = []; for (let v = -11; v <= 11; v++) nums.push(v);
   // token pozitsiyasi: ph 0/boshida -9, ph1 9, ph2+ -9
   const tokenV = ph >= 2 ? -9 : ph >= 1 ? 9 : -9;
@@ -102,7 +102,7 @@ export default function D07_10(props) {
           <div style={{ position: 'absolute', left: '50%', top: 28, bottom: 8, width: 2, background: '#94a3b8', transform: 'translateX(-50%)' }} />
           {nums.map((v, i) => {
             const hl = v === -9 || v === 9;
-            const c = v === -9 ? '#c0392b' : v === 9 ? '#2563eb' : (v === 0 ? '#64748b' : '#cbd5e1');
+            const c = v === -9 ? '#c0392b' : v === 9 ? '#fe5b1a' : (v === 0 ? '#64748b' : '#cbd5e1');
             return (
               <div key={v} style={{ position: 'absolute', left: `calc(2% + ${i / (nums.length - 1) * 96}%)`, top: 32, transform: 'translateX(-50%)', textAlign: 'center' }}>
                 <div style={{ width: hl ? 13 : 6, height: hl ? 13 : 6, borderRadius: 999, background: hl ? c : '#cbd5e1', margin: '0 auto' }} />

@@ -9,7 +9,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -100,7 +100,7 @@ export default function D24_05(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { t: vals.t != null ? parseInt(vals.t, 10) : null, h: vals.h != null ? parseInt(vals.h, 10) : null }, correctAnswer: D05, correct, meta: { tag: 'place_zero', level: '🔴' } });
   }, [vals, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bdOf = (k, ok) => checked ? (parseInt(vals[k], 10) === ok ? '#1a7f43' : '#c0392b') : (vals[k] != null ? '#2563eb' : '#cbd5e1');
+  const bdOf = (k, ok) => checked ? (parseInt(vals[k], 10) === ok ? '#1a7f43' : '#c0392b') : (vals[k] != null ? '#fe5b1a' : '#cbd5e1');
   const slot = (k, ok, lbl) => (
     <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
       <button type="button" onClick={() => clearSlot(k)} disabled={locked} style={{ width: 50, height: 50, borderRadius: 11, border: '2px solid ' + bdOf(k, ok), background: '#fff', color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", fontSize: 25, fontWeight: 800, cursor: locked || vals[k] == null ? 'default' : 'pointer' }}>{vals[k] != null ? vals[k] : '?'}</button>
@@ -116,7 +116,7 @@ export default function D24_05(props) {
       `}</style>
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{renderFr(t.setup)}</p>
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 2px' }}><Frac num={7} den={100} size={22} color="#2563eb" /></div>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 2px' }}><Frac num={7} den={100} size={22} color="#fe5b1a" /></div>
       <p style={{ ...S.ask, fontSize: 16, textAlign: 'center' }}>{renderFr(t.ask)}</p>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 8 }}>
         <span style={{ ...S.mono, fontSize: 28, fontWeight: 800, color: '#1f2430', marginTop: 10 }}>0,</span>
@@ -128,7 +128,7 @@ export default function D24_05(props) {
       </div>
       {show && (
         <div className="d24-pop" style={{ display: 'flex', gap: 22, justifyContent: 'center', marginTop: 12 }}>
-          <div style={{ textAlign: 'center' }}><MiniGrid n={7} color="#60a5fa" /><div style={{ marginTop: 4 }}><Frac num={7} den={100} size={16} color="#2563eb" /></div></div>
+          <div style={{ textAlign: 'center' }}><MiniGrid n={7} color="#ff8a52" /><div style={{ marginTop: 4 }}><Frac num={7} den={100} size={16} color="#fe5b1a" /></div></div>
           <div style={{ textAlign: 'center' }}><MiniGrid n={70} color="#fca5a5" /><div style={{ marginTop: 4 }}><Frac num={7} den={10} size={16} color="#c0392b" /></div></div>
         </div>
       )}

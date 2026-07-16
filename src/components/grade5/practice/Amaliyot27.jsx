@@ -109,7 +109,7 @@ export default function Amaliyot27(props) {
         .aq27 .aq-tag { font-size:12px; font-weight:700; letter-spacing:.02em; color:#6b7280; text-transform:uppercase; }
         .aq27 .aq-body { font-size:16px; line-height:1.5; margin:6px 0 16px; }
         .aq27 .aq-head { display:flex; align-items:center; justify-content:center; gap:12px; font-size:26px; font-weight:800; margin:2px 0 16px; font-variant-numeric:tabular-nums; }
-        .aq27 .aq-head .dv { color:#2563eb; }
+        .aq27 .aq-head .dv { color:#fe5b1a; }
         .aq27 .aq-steps { display:flex; flex-direction:column; gap:8px; }
         .aq27 .aq-step { display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:9px 11px; border-radius:12px; border:1.5px solid #eef0f4; background:#fafbfc; }
         .aq27 .aq-step.ok { border-color:#bfe6cd; background:#f2fbf5; }
@@ -119,7 +119,7 @@ export default function Amaliyot27(props) {
         .aq27 .aq-mini { display:flex; flex-direction:column; align-items:center; gap:2px; }
         .aq27 .aq-mini span { font-size:10px; color:#9aa1ad; font-weight:700; text-transform:uppercase; }
         .aq27 input.aq-si { width:44px; height:44px; box-sizing:border-box; text-align:center; font-size:22px; font-weight:800; border-radius:10px; border:2px solid #d6dae3; background:#fff; outline:none; font-variant-numeric:tabular-nums; }
-        .aq27 input.aq-si:focus { border-color:#5b8def; }
+        .aq27 input.aq-si:focus { border-color:#fb7a45; }
         .aq27 .aq-bring { font-size:12px; color:#c9a23a; font-weight:700; margin-left:auto; }
         .aq27 .aq-quot { text-align:center; margin:16px 0 4px; }
         .aq27 .aq-quot-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }

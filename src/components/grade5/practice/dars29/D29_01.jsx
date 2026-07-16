@@ -114,7 +114,7 @@ export default function D29_01(props) {
         {opts.map((o, i) => {
           const on = pick === i;
           let bd = '#d6dae3', bg = '#fff', col = '#374151';
-          if (on) { bd = '#2563eb'; bg = '#eaf0fe'; col = '#1f2430'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; col = '#1f2430'; }
           if (checked && on) { const ok = i === D01_CORRECT; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
           return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPick(i)} style={{ display: 'block', width: '100%', textAlign: 'left', padding: '13px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer', fontFamily: 'inherit' }}>{o}</button>;
         })}

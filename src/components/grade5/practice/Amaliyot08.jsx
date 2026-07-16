@@ -98,11 +98,11 @@ export default function Amaliyot08(props) {
         .aq08 .aq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin:14px 0 6px; }
         .aq08 .aq-frac { display:flex; flex-direction:column; align-items:center; width:84px; }
         .aq08 .aq-frac input { width:72px; font-size:22px; font-weight:700; text-align:center; padding:9px 6px; border-radius:11px; border:2px solid #d6dae3; background:#f8fafc; outline:none; }
-        .aq08 .aq-frac input:focus { border-color:#5b8def; background:#fff; }
+        .aq08 .aq-frac input:focus { border-color:#fb7a45; background:#fff; }
         .aq08 .aq-bar { width:60px; height:2px; background:#1f2430; margin:4px 0; }
         .aq08 .aq-cmp { display:flex; gap:10px; }
         .aq08 .aq-cbtn { width:56px; height:52px; font-size:22px; font-weight:800; border-radius:13px; border:2px solid #d6dae3; background:#fff; color:#374151; cursor:pointer; }
-        .aq08 .aq-cbtn.sel { border-color:#2563eb; background:#2563eb; color:#fff; }
+        .aq08 .aq-cbtn.sel { border-color:#fe5b1a; background:#fe5b1a; color:#fff; }
         .aq08 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
         .aq08 .aq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .aq08 .aq-fb.no { background:#fdecec; color:#c0392b; }
@@ -114,7 +114,7 @@ export default function Amaliyot08(props) {
       <svg className="aq-svg" viewBox={`0 0 ${W} ${H + 24}`} role="img" aria-label="5/8">
         {Array.from({ length: PARTS }, (_, i) => (
           <rect key={i} x={i * sw} y="2" width={sw} height={H - 4}
-            fill={i < SHADED ? '#5b8def' : '#fff'} stroke="#1f2430" strokeWidth="1.5" />
+            fill={i < SHADED ? '#fb7a45' : '#fff'} stroke="#1f2430" strokeWidth="1.5" />
         ))}
         {/* ½ belgisi: 4/8 chegarasi — to'g'ri javobdan keyin chiqadi */}
         <g style={{ opacity: shown ? 1 : 0, transition: 'opacity .45s ease' }}>

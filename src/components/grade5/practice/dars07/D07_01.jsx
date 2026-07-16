@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -64,7 +64,7 @@ export default function D07_01(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D01_ANS }, correct, meta: { tag: 'opposite', level: '🟢' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const nums = []; for (let v = -8; v <= 8; v++) nums.push(v);
   return (
     <div style={S.wrap}>
@@ -84,7 +84,7 @@ export default function D07_01(props) {
         <div style={{ position: 'absolute', left: '50%', top: 30, bottom: 8, width: 2, background: '#94a3b8', transform: 'translateX(-50%)' }} />
         {nums.map((v, i) => {
           const hl = v === D01_N || (flip && v === D01_ANS);
-          const c = v === D01_ANS && flip ? '#c2410c' : v === D01_N ? '#2563eb' : (v === 0 ? '#64748b' : '#cbd5e1');
+          const c = v === D01_ANS && flip ? '#c2410c' : v === D01_N ? '#fe5b1a' : (v === 0 ? '#64748b' : '#cbd5e1');
           return (
             <div key={v} style={{ position: 'absolute', left: `calc(2% + ${i / (nums.length - 1) * 96}%)`, top: 34, transform: 'translateX(-50%)', textAlign: 'center' }}>
               <div style={{ width: hl ? 15 : 8, height: hl ? 15 : 8, borderRadius: 999, background: c, margin: '0 auto', transition: 'all .3s' }} />

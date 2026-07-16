@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -30,7 +30,7 @@ function useReg(check, registerCheck) {
 function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
   const on = picked === i, show = checked && on;
   let bg = '#fff', bd = '#d6dae3', col = '#374151';
-  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
   if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
   return {
     flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
@@ -105,7 +105,7 @@ export default function D07_03(props) {
       <p style={S.ask}>{t.ask}</p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, margin: '8px 0 14px' }}>
         <span style={{ ...S.mono, fontSize: 32, fontWeight: 800, color: '#c0392b' }}>{D03_L}</span>
-        <span style={{ ...S.mono, fontSize: 28, fontWeight: 800, color: pick != null ? '#2563eb' : '#cbd5e1', minWidth: 40, textAlign: 'center' }}>{pick != null ? SIGNS[pick] : '?'}</span>
+        <span style={{ ...S.mono, fontSize: 28, fontWeight: 800, color: pick != null ? '#fe5b1a' : '#cbd5e1', minWidth: 40, textAlign: 'center' }}>{pick != null ? SIGNS[pick] : '?'}</span>
         <span style={{ ...S.mono, fontSize: 32, fontWeight: 800, color: '#1a7f43' }}>{D03_R}</span>
       </div>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>

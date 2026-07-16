@@ -33,7 +33,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
 
-const Bar = ({ n, d, color = '#2563eb' }) => (
+const Bar = ({ n, d, color = '#fe5b1a' }) => (
   <div style={{ display: 'flex', width: '100%', height: 34, borderRadius: 8, overflow: 'hidden', border: '2px solid #cfd6e4' }}>
     {Array.from({ length: d }).map((_, i) => (
       <div key={i} style={{ flex: 1, borderLeft: i === 0 ? 'none' : '2px solid #fff', background: i < n ? color : '#eef2f8' }} />
@@ -99,7 +99,7 @@ export default function Amaliyot18(props) {
         .aq18 .aq-eq { font-size:26px; font-weight:800; color:#6b7280; }
         .aq18 .aq-fracin { display:flex; flex-direction:column; align-items:center; gap:4px; }
         .aq18 input.aq-in { width:70px; box-sizing:border-box; font-size:22px; font-weight:800; text-align:center; padding:9px 6px; border-radius:12px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .aq18 input.aq-in:focus { border-color:#5b8def; background:#fff; }
+        .aq18 input.aq-in:focus { border-color:#fb7a45; background:#fff; }
         .aq18 input.aq-in:disabled { opacity:.85; }
         .aq18 .aq-bardiv { width:74px; height:3px; background:#1f2430; border-radius:2px; }
         .aq18 .aq-inlbl { font-size:11px; color:#9aa1ad; font-weight:700; text-transform:uppercase; }

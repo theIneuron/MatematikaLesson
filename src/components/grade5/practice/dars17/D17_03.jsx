@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -39,7 +39,7 @@ const renderFr = (text) => String(text).split(/([\d?]+\/[\d?]+)/g).map((p, i) =>
 });
 
 // mini tasma: 8 katakdan k tasi bo'yalgan
-function MiniBar({ k, color = '#93c5fd', w = 96, h = 18 }) {
+function MiniBar({ k, color = '#ffb488', w = 96, h = 18 }) {
   const cw = w / 8;
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
@@ -111,9 +111,9 @@ export default function D17_03(props) {
         {D03_TILES.map((k) => {
           const on = sel.includes(k);
           let bd = '#cbd5e1', bg = '#fff';
-          if (on) { bd = '#2563eb'; bg = '#eff6ff'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff4ee'; }
           if (checked && on) { const ok = !!fb?.correct; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; }
-          return <button key={k} type="button" disabled={locked} onClick={() => toggle(k)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, padding: '10px 12px', borderRadius: 13, border: '2px solid ' + bd, background: bg, cursor: locked ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #dbeafe' : 'none' }}><Frac num={String(k)} den="8" size={19} /><MiniBar k={k} /></button>;
+          return <button key={k} type="button" disabled={locked} onClick={() => toggle(k)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, padding: '10px 12px', borderRadius: 13, border: '2px solid ' + bd, background: bg, cursor: locked ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #ffe7d8' : 'none' }}><Frac num={String(k)} den="8" size={19} /><MiniBar k={k} /></button>;
         })}
       </div>
       <div style={{ textAlign: 'center', fontSize: 12.5, color: '#94a3b8', fontWeight: 700 }}>{sel.length}/2 {lang === 'uz' ? 'tanlandi' : 'выбрано'}</div>

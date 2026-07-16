@@ -92,12 +92,12 @@ export default function Amaliyot12(props) {
         .aq12 .aq-den { padding:8px 14px; font-size:14px; font-weight:700; border-radius:10px; cursor:pointer;
           border:2px solid #d6dae3; background:#fff; color:#374151; transition:border-color .12s, background .12s; }
         .aq12 .aq-den:hover:not(:disabled) { border-color:#9bb6f0; }
-        .aq12 .aq-den.sel { border-color:#2563eb; background:#e8eefc; color:#1f2430; }
+        .aq12 .aq-den.sel { border-color:#fe5b1a; background:#e8eefc; color:#1f2430; }
         .aq12 .aq-den:disabled { cursor:default; }
         .aq12 .aq-bar { display:flex; border:2px solid #cdd4df; border-radius:12px; overflow:hidden; height:72px; margin-top:14px; }
         .aq12 .aq-cell { flex:1; border:none; cursor:pointer; background:#f8fafc; transition:background .12s; }
         .aq12 .aq-cell + .aq-cell { border-left:1.5px solid #cdd4df; }
-        .aq12 .aq-cell.on { background:#5b8def; }
+        .aq12 .aq-cell.on { background:#fb7a45; }
         .aq12 .aq-cell:disabled { cursor:default; }
         .aq12 .aq-count { margin-top:12px; font-size:15px; color:#374151; }
         .aq12 .aq-count b { font-variant-numeric:tabular-nums; }

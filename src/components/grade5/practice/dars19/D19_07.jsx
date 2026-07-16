@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -92,7 +92,7 @@ export default function D19_07(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { sum: parseInt(sum, 10), a: parseInt(a, 10), b: parseInt(b, 10) }, correctAnswer: D07, correct, meta: { tag: 'add_story_reduce', level: '🔴' } });
   }, [sum, a, b, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const cellStyle = (border) => ({ width: 50, height: 42, textAlign: 'center', fontSize: 22, fontWeight: 800, borderRadius: 10, border: '2px solid ' + border, color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' });
   return (
     <div style={S.wrap}>
@@ -104,7 +104,7 @@ export default function D19_07(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '8px 0 4px', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 42, ...S.mono, fontWeight: 800, color: '#2563eb', fontSize: 13 }}>1/6</span><Bar parts={6} shaded={1} color="#93c5fd" /></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 42, ...S.mono, fontWeight: 800, color: '#fe5b1a', fontSize: 13 }}>1/6</span><Bar parts={6} shaded={1} color="#ffb488" /></div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 42, ...S.mono, fontWeight: 800, color: '#16a34a', fontSize: 13 }}>1/3</span><Bar parts={3} shaded={1} color="#86efac" /></div>
         {reveal && <span className="d19-pop" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, ...S.mono, fontSize: 16, fontWeight: 800, color: '#0f766e' }}><Frac num="3" den="6" size={18} color="#0f766e" /><span>=</span><Frac num="1" den="2" size={18} color="#0f766e" /></span>}
       </div>

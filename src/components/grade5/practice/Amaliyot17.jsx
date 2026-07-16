@@ -74,12 +74,12 @@ export default function Amaliyot17(props) {
         .aq17 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
         .aq17 .aq-tag { font-size:12px; font-weight:700; letter-spacing:.02em; color:#6b7280; text-transform:uppercase; }
         .aq17 .aq-body { font-size:17px; line-height:1.5; margin:6px 0 16px; }
-        .aq17 .aq-expand { text-align:center; font-size:30px; font-weight:800; color:#2563eb; letter-spacing:.03em; margin:8px 0 6px; font-variant-numeric:tabular-nums; }
+        .aq17 .aq-expand { text-align:center; font-size:30px; font-weight:800; color:#fe5b1a; letter-spacing:.03em; margin:8px 0 6px; font-variant-numeric:tabular-nums; }
         .aq17 .aq-cubes { display:flex; justify-content:center; gap:10px; margin:10px 0 20px; }
-        .aq17 .aq-cube { width:52px; height:52px; border-radius:12px; background:#eaf0fe; border:2px solid #bcd0fb; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; color:#2563eb; }
+        .aq17 .aq-cube { width:52px; height:52px; border-radius:12px; background:#fff0e8; border:2px solid #bcd0fb; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; color:#fe5b1a; }
         .aq17 .aq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
         .aq17 input.aq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .aq17 input.aq-input:focus { border-color:#5b8def; background:#fff; }
+        .aq17 input.aq-input:focus { border-color:#fb7a45; background:#fff; }
         .aq17 input.aq-input:disabled { opacity:.85; }
         .aq17 .aq-hint { font-size:13px; color:#9aa1ad; margin-top:8px; }
         .aq17 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }

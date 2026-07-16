@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -72,7 +72,7 @@ export default function D14_09(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { a: parseInt(a, 10), b: parseInt(b, 10) }, correctAnswer: { a: 9, b: 10 }, correct, meta: { tag: 'common_units_axis', level: '🔴' } });
   }, [a, b, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = (v, ok) => checked ? (v === ok ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = (v, ok) => checked ? (v === ok ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const cell = (val, set, ok) => (
     <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
       <input value={val} onChange={(e) => set(e.target.value.replace(/[^\d]/g, '').slice(0, 2))} disabled={isReview || checked} inputMode="numeric" placeholder="?" style={{ width: 54, height: 40, textAlign: 'center', fontSize: 22, fontWeight: 800, borderRadius: 10, border: '2px solid ' + bd(parseInt(val, 10), ok), color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' }} />
@@ -93,7 +93,7 @@ export default function D14_09(props) {
       <p style={S.setup}>{t.setup}</p>
       <p style={{ ...S.ask, fontSize: 15.5 }}>{t.ask}</p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, margin: '12px 0 8px' }}>
-        <Frac num="3" den="4" size={24} color="#2563eb" />
+        <Frac num="3" den="4" size={24} color="#fe5b1a" />
         <span style={{ ...S.mono, fontSize: 18, fontWeight: 800, color: '#94a3b8' }}>=</span>
         {cell(a, setA, D09_A)}
         <span style={{ ...S.mono, fontSize: 18, fontWeight: 800, color: '#cbd5e1', margin: '0 2px' }}>|</span>
@@ -106,7 +106,7 @@ export default function D14_09(props) {
         <div style={{ position: 'relative', height: 66, margin: '10px 10px 0' }}>
           <div style={{ position: 'absolute', left: '3%', right: '3%', top: 34, height: 3, background: '#bae6fd', borderRadius: 2 }} />
           {[0, 12].map((u) => <div key={u} style={{ position: 'absolute', left: `calc(3% + ${u * W * 0.94}%)`, top: 26, transform: 'translateX(-50%)', textAlign: 'center' }}><div style={{ width: 3, height: 16, background: '#64748b', margin: '0 auto' }} /><div style={{ ...S.mono, fontSize: 11, fontWeight: 800, color: '#64748b', marginTop: 3 }}>{u === 0 ? '0' : '1'}</div></div>)}
-          {[{ u: 9, c: '#2563eb', l: '3/4' }, { u: 10, c: '#14b8a6', l: '5/6' }].map((m) => (
+          {[{ u: 9, c: '#fe5b1a', l: '3/4' }, { u: 10, c: '#14b8a6', l: '5/6' }].map((m) => (
             <div key={m.l} style={{ position: 'absolute', left: `calc(3% + ${m.u * W * 0.94}%)`, top: 6, transform: 'translateX(-50%)', textAlign: 'center' }}>
               <div style={{ ...S.mono, fontSize: 11, fontWeight: 800, color: m.c, marginBottom: 2 }}>{m.l}</div>
               <div style={{ width: 15, height: 15, borderRadius: 999, background: m.c, margin: '0 auto', border: '2.5px solid #fff', boxShadow: '0 1px 3px rgba(0,0,0,.2)' }} />

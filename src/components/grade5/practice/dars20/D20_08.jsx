@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -100,11 +100,11 @@ export default function D20_08(props) {
         {D08_OPTS.map((o, i) => {
           const on = picked.has(i);
           let bd = '#d6dae3', bg = '#fff';
-          if (on) { bd = '#2563eb'; bg = '#eaf0fe'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; }
           if (checked && on) { const ok = fb?.correct; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; }
           return (
             <button key={i} type="button" disabled={locked} onClick={() => toggle(i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, minHeight: 60, borderRadius: 13, border: '2px solid ' + bd, background: bg, cursor: locked ? 'default' : 'pointer', position: 'relative' }}>
-              <span style={{ position: 'absolute', top: 6, left: 8, width: 16, height: 16, borderRadius: 5, border: '2px solid ' + (on ? '#2563eb' : '#cbd5e1'), background: on ? '#2563eb' : '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{on ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> : null}</span>
+              <span style={{ position: 'absolute', top: 6, left: 8, width: 16, height: 16, borderRadius: 5, border: '2px solid ' + (on ? '#fe5b1a' : '#cbd5e1'), background: on ? '#fe5b1a' : '#fff', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{on ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> : null}</span>
               <FracStr s={o.a} size={19} /><span style={{ ...S.mono, fontSize: 18, fontWeight: 800, color: '#64748b' }}>−</span><FracStr s={o.b} size={19} />
             </button>
           );

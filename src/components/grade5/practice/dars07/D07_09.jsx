@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -68,7 +68,7 @@ export default function D07_09(props) {
   const cardStyle = (i) => {
     const on = picked === i;
     let bg = '#fff', bd = '#d6dae3', col = '#1f2430';
-    if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1e40af'; }
+    if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#b83d0e'; }
     if (checked && on) { const ok = i === D09_COLD; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
     return { flex: 1, padding: '12px 6px', borderRadius: 14, border: '2px solid ' + bd, background: bg, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', textAlign: 'center', minHeight: 120, position: 'relative', overflow: 'hidden' };
   };
@@ -90,7 +90,7 @@ export default function D07_09(props) {
         {D09_CITIES.map((c, i) => {
           // mini termometr: harorat past bo'lsa ko'kroq/pastroq
           const frac = (c.temp + 20) / 40; // -20..20 → 0..1
-          const fillC = c.temp < 0 ? '#2563eb' : '#f59e0b';
+          const fillC = c.temp < 0 ? '#fe5b1a' : '#f59e0b';
           const coldWin = checked && fb?.correct && i === D09_COLD;
             return (
             <button key={i} type="button" className={coldWin ? 'd7-shake' : undefined} style={cardStyle(i)} disabled={isReview || checked} onClick={() => setPicked(i)}>
@@ -99,7 +99,7 @@ export default function D07_09(props) {
               <div style={{ position: 'relative', width: 14, height: 56, background: '#f1f5f9', borderRadius: 8, margin: '0 auto 8px', border: '1.5px solid #cbd5e1', overflow: 'hidden' }}>
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: Math.max(6, frac * 56) + '%', background: fillC }} />
               </div>
-              <div style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: c.temp < 0 ? '#2563eb' : '#c2410c' }}>{c.temp}°</div>
+              <div style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: c.temp < 0 ? '#fe5b1a' : '#c2410c' }}>{c.temp}°</div>
             </button>
           ); })}
       </div>

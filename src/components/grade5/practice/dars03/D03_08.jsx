@@ -86,14 +86,14 @@ export default function D03_08(props) {
     <div className="pq pq08">
       <style>{`
         .pq08 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq08 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
+        .pq08 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#fe5b1a; text-transform:uppercase; }
         .pq08 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 18px; color:#374151; }
         .pq08 .pq-boardwrap { display:flex; justify-content:center; }
         .pq08 .pq-grid { display:grid; gap:5px; }
         .pq08 .pq-cell { width:44px; height:50px; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; }
         .pq08 .pq-sign { color:#6b7280; font-size:24px; }
         .pq08 input.pq-cin { width:44px; height:50px; box-sizing:border-box; text-align:center; font-size:26px; font-weight:800; border-radius:11px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; color:#1f2430; }
-        .pq08 input.pq-cin:focus { border-color:#5b8def; background:#fff; }
+        .pq08 input.pq-cin:focus { border-color:#fb7a45; background:#fff; }
         .pq08 input.pq-cin.ok { border-color:#1a7f43; background:#e8f7ee; color:#1a7f43; }
         .pq08 input.pq-cin.no { border-color:#c0392b; background:#fdecec; color:#c0392b; }
         .pq08 input.pq-carry { width:28px; height:28px; box-sizing:border-box; text-align:center; font-size:15px; font-weight:800; border-radius:8px; border:1.5px dashed #c9a23a; background:#fffdf5; color:#c9a23a; outline:none; }

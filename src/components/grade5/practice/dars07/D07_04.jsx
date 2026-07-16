@@ -9,7 +9,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -66,7 +66,7 @@ export default function D07_04(props) {
   const cardStyle = (which) => {
     const on = pick === which;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1e40af'; }
+    if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#b83d0e'; }
     if (checked && on) { const ok = which === D04_HIGHER; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
     return { flex: 1, padding: '15px 10px', borderRadius: 14, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15, fontWeight: 800, cursor: (isReview || checked) ? 'default' : 'pointer', minHeight: 54 };
   };
@@ -82,7 +82,7 @@ export default function D07_04(props) {
       {/* vertikal shkala: sath 0, ikki g'avvos */}
       <div style={{ display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
         <div style={{ width: 220, borderRadius: 14, overflow: 'hidden', border: '2px solid #e5e7eb' }}>
-          <div style={{ background: '#dbeafe', borderBottom: '2px dashed #60a5fa', padding: '5px 10px', textAlign: 'center', fontSize: 11, fontWeight: 800, color: '#1e40af' }}>~ 0 m ~</div>
+          <div style={{ background: '#ffe7d8', borderBottom: '2px dashed #ff8a52', padding: '5px 10px', textAlign: 'center', fontSize: 11, fontWeight: 800, color: '#b83d0e' }}>~ 0 m ~</div>
           <div style={{ background: '#cffafe', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 20 }}>🤿</span><span style={{ fontSize: 13, fontWeight: 700, color: '#0e7490' }}>Sardor</span><span style={{ ...S.mono, fontSize: 17, fontWeight: 800, color: '#0e7490' }}>-11</span>
           </div>

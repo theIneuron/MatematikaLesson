@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -77,7 +77,7 @@ export default function D08_03(props) {
       {/* quruvchi minora: har ko'paytuvchi — bitta blok */}
       <div style={{ display: 'flex', flexDirection: 'column-reverse', alignItems: 'center', gap: 6, margin: '10px 0', minHeight: 120, justifyContent: 'flex-start' }}>
         {Array.from({ length: count }).map((_, k) => (
-          <div key={k} className="d8-pop" style={{ width: 90 + k * 8, height: 26, borderRadius: 8, background: ['#3b82f6', '#8b5cf6', '#14b8a6', '#f97316', '#e11d48'][k % 5], display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', ...S.mono, fontSize: 14, fontWeight: 800, boxShadow: '0 2px 0 rgba(0,0,0,.12)' }}>3</div>
+          <div key={k} className="d8-pop" style={{ width: 90 + k * 8, height: 26, borderRadius: 8, background: ['#fb7233', '#8b5cf6', '#14b8a6', '#f97316', '#e11d48'][k % 5], display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', ...S.mono, fontSize: 14, fontWeight: 800, boxShadow: '0 2px 0 rgba(0,0,0,.12)' }}>3</div>
         ))}
       </div>
       {/* ifoda (javob ko'rsatilmaydi — bola o'zi hisoblaydi) */}
@@ -87,7 +87,7 @@ export default function D08_03(props) {
       </div>
       {/* tugmalar */}
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-        <button type="button" disabled={locked} onClick={() => setCount((c) => Math.min(c + 1, 6))} style={{ padding: '12px 22px', borderRadius: 13, border: '2px solid #2563eb', background: '#2563eb', color: '#fff', ...S.mono, fontSize: 18, fontWeight: 800, cursor: locked ? 'default' : 'pointer', minHeight: 50 }}>{t.mult}</button>
+        <button type="button" disabled={locked} onClick={() => setCount((c) => Math.min(c + 1, 6))} style={{ padding: '12px 22px', borderRadius: 13, border: '2px solid #fe5b1a', background: '#fe5b1a', color: '#fff', ...S.mono, fontSize: 18, fontWeight: 800, cursor: locked ? 'default' : 'pointer', minHeight: 50 }}>{t.mult}</button>
         <button type="button" disabled={locked || count <= 1} onClick={() => setCount((c) => Math.max(1, c - 1))} style={{ padding: '12px 18px', borderRadius: 13, border: '2px solid #d6dae3', background: '#fff', color: count <= 1 ? '#cbd5e1' : '#374151', fontSize: 14, fontWeight: 800, cursor: (locked || count <= 1) ? 'default' : 'pointer', minHeight: 50 }}>{t.undo}</button>
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}

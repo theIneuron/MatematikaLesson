@@ -79,7 +79,7 @@ export default function Amaliyot16(props) {
     const active = picked === v;
     const showState = checked && active;
     let bg = '#fff', bd = '#cfd6e4', col = '#1f2430';
-    if (active) { bg = '#2563eb'; bd = '#2563eb'; col = '#fff'; }
+    if (active) { bg = '#fe5b1a'; bd = '#fe5b1a'; col = '#fff'; }
     if (showState) { const ok = v === ANS; bg = ok ? '#1a7f43' : '#c0392b'; bd = bg; col = '#fff'; }
     return { padding: '10px 14px', borderRadius: 12, fontSize: 18, fontWeight: 800, border: '2px solid ' + bd, background: bg, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', fontVariantNumeric: 'tabular-nums', fontFamily: 'inherit' };
   };
@@ -94,8 +94,8 @@ export default function Amaliyot16(props) {
         .aq16 .aq-tick { position:absolute; top:-8px; width:2px; height:20px; background:#9aa1ad; }
         .aq16 .aq-mid { position:absolute; top:-8px; left:50%; width:2px; height:20px; background:#c9a23a; transform:translateX(-50%); }
         .aq16 .aq-midlbl { position:absolute; top:-30px; left:50%; transform:translateX(-50%); font-size:11px; color:#c9a23a; font-weight:700; white-space:nowrap; }
-        .aq16 .aq-dot { position:absolute; top:50%; width:16px; height:16px; border-radius:50%; background:#2563eb; border:3px solid #fff; box-shadow:0 0 0 1px #2563eb; transform:translate(-50%,-50%); }
-        .aq16 .aq-dotlbl { position:absolute; top:-30px; transform:translateX(-50%); font-size:13px; font-weight:800; color:#2563eb; white-space:nowrap; }
+        .aq16 .aq-dot { position:absolute; top:50%; width:16px; height:16px; border-radius:50%; background:#fe5b1a; border:3px solid #fff; box-shadow:0 0 0 1px #fe5b1a; transform:translate(-50%,-50%); }
+        .aq16 .aq-dotlbl { position:absolute; top:-30px; transform:translateX(-50%); font-size:13px; font-weight:800; color:#fe5b1a; white-space:nowrap; }
         .aq16 .aq-ends { display:flex; justify-content:space-between; margin-top:16px; }
         .aq16 .aq-hint { font-size:13px; color:#9aa1ad; margin-top:14px; text-align:center; }
         .aq16 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }

@@ -26,7 +26,7 @@ function useRegister(check, registerCheck) {
 
 const PQ_CSS = `
   .pq { max-width: 640px; margin: 0 auto; padding: 4px 2px 8px; }
-  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #2563eb; text-transform: uppercase; }
+  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #fe5b1a; text-transform: uppercase; }
   .pq-setup { font-size: 16px; line-height: 1.5; margin: 6px 0 12px; color: #374151; }
   .pq-ask { font-size: 17px; font-weight: 700; margin: 14px 0 12px; }
   .pq-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -36,7 +36,7 @@ const PQ_CSS = `
   .pq-fb.no { background: #fdecec; color: #c0392b; }
   .pq-fb svg { flex: 0 0 auto; margin-top: 1px; }
   @keyframes pqIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #ffb488; outline-offset: 2px; }
   .d10-div { transform: scaleY(0); transform-origin: top; animation: d10div .5s cubic-bezier(.22,1,.36,1) both; }
   @keyframes d10div { to { transform: scaleY(1); } }
   .d10-cell { opacity: 0; transform: scaleX(.4); transform-origin: left; animation: d10fill .5s cubic-bezier(.22,1,.36,1) both; }
@@ -100,7 +100,7 @@ export default function D12_10(props) {
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useRegister(check, registerCheck);
 
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const N = 9;
   const SPLIT_MS = 90;                 // bo'linish qadami
   const SPLIT_END = (N - 1) * SPLIT_MS + 500;
@@ -113,11 +113,11 @@ export default function D12_10(props) {
       <p className="pq-setup">{t.setup}</p>
 
       <div style={{ margin: '18px 0 8px' }}>
-        <div style={{ position: 'relative', height: 46, border: '2px solid #1f2430', borderRadius: 8, background: '#dbeafe', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', height: 46, border: '2px solid #1f2430', borderRadius: 8, background: '#ffe7d8', overflow: 'hidden' }}>
           {/* bo'yaladigan bo'laklar: 3/9 … 7/9 (indeks 2..6) */}
           {reveal && [2, 3, 4, 5, 6].map((c, j) => (
             <div key={c} className="d10-cell"
-              style={{ position: 'absolute', top: 0, bottom: 0, left: (c / N * 100) + '%', width: (100 / N) + '%', background: '#2563eb', animationDelay: (SPLIT_END + j * FILL_MS) + 'ms' }} />
+              style={{ position: 'absolute', top: 0, bottom: 0, left: (c / N * 100) + '%', width: (100 / N) + '%', background: '#fe5b1a', animationDelay: (SPLIT_END + j * FILL_MS) + 'ms' }} />
           ))}
           {/* ajratgich chiziqlar: chapdan o'ngga paydo bo'ladi */}
           {reveal && Array.from({ length: N - 1 }).map((_, i) => (

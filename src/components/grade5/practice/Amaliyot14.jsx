@@ -104,11 +104,11 @@ export default function Amaliyot14(props) {
         .aq14 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
         .aq14 .aq-tag { font-size:12px; font-weight:700; letter-spacing:.02em; color:#6b7280; text-transform:uppercase; }
         .aq14 .aq-body { font-size:17px; line-height:1.5; margin:6px 0 4px; }
-        .aq14 .aq-words { font-size:19px; font-weight:800; color:#2563eb; margin:2px 0 16px; line-height:1.4; }
+        .aq14 .aq-words { font-size:19px; font-weight:800; color:#fe5b1a; margin:2px 0 16px; line-height:1.4; }
         .aq14 .aq-cells { display:flex; justify-content:center; gap:6px; flex-wrap:nowrap; }
         .aq14 .aq-cls-gap { width:14px; }
         .aq14 .aq-cell { display:flex; flex-direction:column; align-items:center; gap:5px; }
-        .aq14 .aq-step { width:44px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1.5px solid #d6dae3; background:#f8fafc; color:#2563eb; cursor:pointer; }
+        .aq14 .aq-step { width:44px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:10px; border:1.5px solid #d6dae3; background:#f8fafc; color:#fe5b1a; cursor:pointer; }
         .aq14 .aq-step:active { background:#e8eefc; }
         .aq14 .aq-step:disabled { opacity:.5; cursor:default; }
         .aq14 .aq-digit { width:44px; height:52px; display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:800; border-radius:12px; border:2px solid #d6dae3; background:#fff; font-variant-numeric:tabular-nums; }

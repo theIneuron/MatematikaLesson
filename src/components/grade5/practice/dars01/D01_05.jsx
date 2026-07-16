@@ -66,12 +66,12 @@ export default function D01_05(props) {
     <div className="pq pq05">
       <style>{`
         .pq05 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq05 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#2563eb; text-transform:uppercase; }
+        .pq05 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#fe5b1a; text-transform:uppercase; }
         .pq05 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 6px; color:#374151; }
-        .pq05 .pq-words { font-size:22px; font-weight:800; color:#2563eb; margin:2px 0 18px; }
+        .pq05 .pq-words { font-size:22px; font-weight:800; color:#fe5b1a; margin:2px 0 18px; }
         .pq05 .pq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
         .pq05 input.pq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq05 input.pq-input:focus { border-color:#5b8def; background:#fff; }
+        .pq05 input.pq-input:focus { border-color:#fb7a45; background:#fff; }
         .pq05 input.pq-input:disabled { opacity:.85; }
         .pq05 .pq-live { text-align:center; margin:12px 0 2px; }
         .pq05 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }

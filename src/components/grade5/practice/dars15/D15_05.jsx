@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -39,7 +39,7 @@ const Frac = ({ num, den, size = 24, color = '#1f2430' }) => (
 // 3/4 doira. "Har bo'lakni ikkiga bo'l" → 8 bo'lak, bo'yalgan 6/8. Keyin surat kiritish.
 
 const D05_ANS = 6;
-const Pie5 = ({ den, shaded, size = 130, fill = '#93c5fd', light = '#eff6ff' }) => {
+const Pie5 = ({ den, shaded, size = 130, fill = '#ffb488', light = '#fff4ee' }) => {
   const R = size / 2, C = R;
   const seg = [];
   for (let k = 0; k < den; k++) {
@@ -86,7 +86,7 @@ export default function D15_05(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { split, value: parseInt(val, 10) }, correctAnswer: { value: D05_ANS }, correct, meta: { tag: 'split_pie', level: '🟡' } });
   }, [split, val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const den = split ? 8 : 4, shaded = split ? 6 : 3;
   return (
     <div style={S.wrap}>
@@ -104,7 +104,7 @@ export default function D15_05(props) {
       </div>
       <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
-        <Frac num="3" den="4" size={26} color="#2563eb" />
+        <Frac num="3" den="4" size={26} color="#fe5b1a" />
         <span style={{ ...S.mono, fontSize: 22, fontWeight: 800, color: '#94a3b8' }}>=</span>
         <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 2))} disabled={isReview || checked} inputMode="numeric" placeholder="?" style={{ width: 58, height: 44, textAlign: 'center', fontSize: 24, fontWeight: 800, borderRadius: 11, border: '2px solid ' + bd, color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' }} />

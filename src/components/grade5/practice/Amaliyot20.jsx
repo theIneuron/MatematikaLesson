@@ -79,7 +79,7 @@ export default function Amaliyot20(props) {
     const active = picked === r;
     const showState = checked && active;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#2563eb'; bd = '#2563eb'; col = '#fff'; }
+    if (active) { bg = '#fe5b1a'; bd = '#fe5b1a'; col = '#fff'; }
     if (showState) { const ok = r === REL; bg = ok ? '#1a7f43' : '#c0392b'; bd = bg; col = '#fff'; }
     return { width: 64, height: 64, borderRadius: 16, fontSize: 30, fontWeight: 800, cursor: (isReview || checked) ? 'default' : 'pointer', border: '2px solid ' + bd, background: bg, color: col, fontFamily: 'inherit' };
   };
@@ -91,7 +91,7 @@ export default function Amaliyot20(props) {
         .aq20 .aq-tag { font-size:12px; font-weight:700; letter-spacing:.02em; color:#6b7280; text-transform:uppercase; }
         .aq20 .aq-body { font-size:17px; line-height:1.5; margin:6px 0 16px; }
         .aq20 .aq-nums { display:flex; justify-content:center; gap:26px; margin:6px 0 14px; }
-        .aq20 .aq-num { font-size:36px; font-weight:800; color:#2563eb; font-variant-numeric:tabular-nums; }
+        .aq20 .aq-num { font-size:36px; font-weight:800; color:#fe5b1a; font-variant-numeric:tabular-nums; }
         .aq20 .aq-tbl { max-width:320px; margin:0 auto; border-collapse:collapse; width:100%; }
         .aq20 .aq-tbl th { font-size:11px; color:#9aa1ad; font-weight:700; text-transform:uppercase; padding:4px 6px; }
         .aq20 .aq-tbl td { text-align:center; font-size:22px; font-weight:800; padding:6px; border:1px solid #eef0f4; font-variant-numeric:tabular-nums; }

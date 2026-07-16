@@ -102,14 +102,14 @@ export default function Amaliyot05(props) {
         .aq05 th { color:#6b7280; font-weight:700; font-size:13px; }
         .aq05 th:first-child, .aq05 td:first-child { text-align:left; font-weight:600; }
         .aq05 td input { width:90px; font-size:16px; font-weight:700; text-align:right; padding:8px 10px; border-radius:10px; border:2px solid #d6dae3; background:#fff; outline:none; }
-        .aq05 td input:focus { border-color:#5b8def; }
+        .aq05 td input:focus { border-color:#fb7a45; }
         .aq05 input.ok { border-color:#36b37e; animation: okPulse .55s ease both; }
         .aq05 input.no { border-color:#ef9a9a; }
         @keyframes okPulse { 0%{ background:#fff; } 45%{ background:#d6f5e3; } 100%{ background:#eafaf1; } }
         .aq05 .aq-final { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; }
         .aq05 .aq-final label { font-size:14px; font-weight:600; color:#374151; }
         .aq05 .aq-final input { width:120px; font-size:18px; font-weight:700; text-align:right; padding:11px 12px; border-radius:12px; border:2px solid #d6dae3; background:#f8fafc; outline:none; }
-        .aq05 .aq-final input:focus { border-color:#5b8def; background:#fff; }
+        .aq05 .aq-final input:focus { border-color:#fb7a45; background:#fff; }
         .aq05 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
         .aq05 .aq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .aq05 .aq-fb.no { background:#fdecec; color:#c0392b; }

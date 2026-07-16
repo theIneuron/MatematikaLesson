@@ -26,7 +26,7 @@ function useRegister(check, registerCheck) {
 
 const PQ_CSS = `
   .pq { max-width: 640px; margin: 0 auto; padding: 4px 2px 8px; }
-  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #2563eb; text-transform: uppercase; }
+  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #fe5b1a; text-transform: uppercase; }
   .pq-setup { font-size: 16px; line-height: 1.5; margin: 6px 0 12px; color: #374151; }
   .pq-ask { font-size: 17px; font-weight: 700; margin: 14px 0 12px; }
   .pq-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -35,7 +35,7 @@ const PQ_CSS = `
   .pq-fb.no { background: #fdecec; color: #c0392b; }
   .pq-fb svg { flex: 0 0 auto; margin-top: 1px; }
   @keyframes pqIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #ffb488; outline-offset: 2px; }
   .d2-div { transform: scaleY(0); transform-origin: top; animation: d13div .26s cubic-bezier(.22,1,.36,1) both; }
   .d2-fill { opacity: 0; transform: scaleX(.3); transform-origin: left; animation: d2fill .3s cubic-bezier(.22,1,.36,1) both; }
   @keyframes d2fill { to { opacity: 1; transform: scaleX(1); } }
@@ -128,7 +128,7 @@ export default function D13_02(props) {
   const signStyle = (i) => {
     const active = picked === i, show = checked && active;
     let bg = '#fff', bd = '#d6dae3', col = '#1f2430';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; }
+    if (active) { bg = '#fff0e8'; bd = '#fe5b1a'; }
     if (show) { const ok = i === D13_02_DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
     return { flex: 1, minHeight: 60, fontSize: 26, fontWeight: 800, borderRadius: 14, border: '2px solid ' + bd, background: bg, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', fontFamily: 'inherit' };
   };
@@ -141,7 +141,7 @@ export default function D13_02(props) {
 
       {/* bo'sh joy: to'g'ri javobdan keyin ochiladi va quyidagilarni pastga suradi */}
       <div style={{ maxHeight: open ? 130 : 0, opacity: open ? 1 : 0, overflow: 'hidden', transition: 'max-height .95s cubic-bezier(.33,1,.42,1), opacity .7s ease .2s' }}>
-        <div className="pq-row" style={{ marginTop: 4 }}><Frac a={3} b={5} size={15} /><D13_02_Strip n={5} k={3} color="#2563eb" run={run} /></div>
+        <div className="pq-row" style={{ marginTop: 4 }}><Frac a={3} b={5} size={15} /><D13_02_Strip n={5} k={3} color="#fe5b1a" run={run} /></div>
         <div className="pq-row"><Frac a={3} b={8} size={15} /><D13_02_Strip n={8} k={3} color="#7c3aed" run={run} /></div>
       </div>
 

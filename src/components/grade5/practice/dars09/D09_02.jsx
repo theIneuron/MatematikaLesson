@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -78,7 +78,7 @@ export default function D09_02(props) {
   const chipStyle = (val, choice, correctVal) => {
     const on = choice === val;
     let bd = '#d6dae3', bg = '#fff', col = '#374151';
-    if (on) { bd = '#2563eb'; bg = '#eaf0fe'; col = '#1e40af'; }
+    if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; col = '#b83d0e'; }
     if (checked && on) { const ok = suratCh === '3' && maxrajCh === '4'; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
     return { flex: 1, padding: '11px 6px', borderRadius: 11, border: '2px solid ' + bd, background: bg, color: col, ...S.mono, fontSize: 19, fontWeight: 800, cursor: locked ? 'default' : 'pointer', minHeight: 46 };
   };
@@ -96,7 +96,7 @@ export default function D09_02(props) {
       {/* kasr — to'g'ri javobdan keyin surat/maxraj yorliqlari yon tomondan chiqadi */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, margin: '12px 0 18px', minHeight: 80 }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 20, opacity: reveal ? 1 : 0, transform: reveal ? 'none' : 'translateX(-10px)', transition: 'all .5s ease' }}>
-          {reveal && <span className="d9-pop" style={{ fontSize: 13, fontWeight: 800, color: '#2563eb', background: '#eff6ff', padding: '4px 10px', borderRadius: 999, border: '1.5px solid #bfdbfe' }}>{suratLbl} →</span>}
+          {reveal && <span className="d9-pop" style={{ fontSize: 13, fontWeight: 800, color: '#fe5b1a', background: '#fff4ee', padding: '4px 10px', borderRadius: 999, border: '1.5px solid #ffd6bd' }}>{suratLbl} →</span>}
           {reveal && <span className="d9-pop" style={{ fontSize: 13, fontWeight: 800, color: '#c2410c', background: '#fff7ed', padding: '4px 10px', borderRadius: 999, border: '1.5px solid #fed7aa' }}>{maxrajLbl} →</span>}
         </div>
         <Frac num="3" den="4" size={48} color={reveal ? '#1f2430' : '#1f2430'} />

@@ -26,7 +26,7 @@ function useRegister(check, registerCheck) {
 
 const PQ_CSS = `
   .pq { max-width: 640px; margin: 0 auto; padding: 4px 2px 8px; }
-  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #2563eb; text-transform: uppercase; }
+  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #fe5b1a; text-transform: uppercase; }
   .pq-setup { font-size: 16px; line-height: 1.5; margin: 6px 0 12px; color: #374151; }
   .pq-ask { font-size: 17px; font-weight: 700; margin: 14px 0 12px; }
   .pq-fb { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; padding: 13px 15px; border-radius: 14px; font-size: 15px; line-height: 1.45; font-weight: 600; animation: pqIn .5s ease both; }
@@ -34,7 +34,7 @@ const PQ_CSS = `
   .pq-fb.no { background: #fdecec; color: #c0392b; }
   .pq-fb svg { flex: 0 0 auto; margin-top: 1px; }
   @keyframes pqIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #ffb488; outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .pq *, .pq { animation: none !important; transition: none !important; } }
 `;
 
@@ -113,7 +113,7 @@ export default function D13_09(props) {
   const cardStyle = (i) => {
     const on = picked === i;
     let bd = '#cbd5e1', bg = '#fff';
-    if (on) { bd = '#2563eb'; bg = '#eaf0fe'; }
+    if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; }
     if (checked) {
       if (on) { const ok = i === correctIdx; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; }
       else { bd = '#e5e7eb'; bg = '#fff'; }

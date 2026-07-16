@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -50,7 +50,7 @@ export default function D04_02(props) {
     onSubmit?.({ questionText: '25 × 4', options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D02_ANS }, correct, meta: { tag: 'simple_product', level: '🟢' } });
   }, [val, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`
@@ -65,8 +65,8 @@ export default function D04_02(props) {
           <div style={{ position: 'absolute', left: 0, right: 0, top: 44, height: 3, background: '#e2e8f0', borderRadius: 2 }} />
           {[0, 25, 50, 75, 100].map((v, i) => (
             <div key={v} style={{ position: 'absolute', left: v + '%', top: 38, transform: 'translateX(-50%)', textAlign: 'center' }}>
-              <div style={{ width: 10, height: 10, borderRadius: 999, background: (step >= i - 1 && i > 0) || i === 0 ? '#2563eb' : '#cbd5e1', transition: 'background .4s' }} />
-              <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: (step >= i - 1) || i === 0 ? '#1e40af' : '#94a3b8', ...S.mono, transition: 'color .4s' }}>{v}</div>
+              <div style={{ width: 10, height: 10, borderRadius: 999, background: (step >= i - 1 && i > 0) || i === 0 ? '#fe5b1a' : '#cbd5e1', transition: 'background .4s' }} />
+              <div style={{ marginTop: 6, fontSize: 12, fontWeight: 800, color: (step >= i - 1) || i === 0 ? '#b83d0e' : '#94a3b8', ...S.mono, transition: 'color .4s' }}>{v}</div>
             </div>
           ))}
           <div style={{ position: 'absolute', left: (step >= 0 ? D02_STEPS[step] : 0) + '%', top: 14, transform: 'translateX(-50%)', transition: 'left .9s cubic-bezier(.34,1.56,.64,1)' }}>

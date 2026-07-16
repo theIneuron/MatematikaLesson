@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -101,7 +101,7 @@ export default function D19_05(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, margin: '10px 0 6px', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 34, ...S.mono, fontWeight: 800, color: '#2563eb', fontSize: 13 }}>1/2</span><Bar den={2} pick={pick} color="#93c5fd" />{pick && pick % 2 !== 0 && <span style={{ fontSize: 12, fontWeight: 800, color: '#c0392b' }}>✗</span>}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 34, ...S.mono, fontWeight: 800, color: '#fe5b1a', fontSize: 13 }}>1/2</span><Bar den={2} pick={pick} color="#ffb488" />{pick && pick % 2 !== 0 && <span style={{ fontSize: 12, fontWeight: 800, color: '#c0392b' }}>✗</span>}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 34, ...S.mono, fontWeight: 800, color: '#16a34a', fontSize: 13 }}>1/3</span><Bar den={3} pick={pick} color="#86efac" />{pick && pick % 3 !== 0 && <span style={{ fontSize: 12, fontWeight: 800, color: '#c0392b' }}>✗</span>}</div>
       </div>
       {checked && fb?.correct && <div className="d19-pop" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, ...S.mono, fontSize: 16, fontWeight: 800, color: '#0f766e' }}><Frac num="3" den="6" size={18} color="#0f766e" /><span>+</span><Frac num="2" den="6" size={18} color="#0f766e" /><span>=</span><Frac num="5" den="6" size={18} color="#0f766e" /></div>}
@@ -110,7 +110,7 @@ export default function D19_05(props) {
         {D05_PICKS.map((p) => {
           const on = pick === p;
           let bd = '#d6dae3', bg = '#fff', col = '#374151';
-          if (on) { bd = '#2563eb'; bg = '#eaf0fe'; col = '#1e40af'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; col = '#b83d0e'; }
           if (checked && on) { const ok = p === D05_CORRECT; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
           return <button key={p} type="button" disabled={locked} onClick={() => setPick(p)} style={{ width: 52, height: 52, borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, ...S.mono, fontSize: 21, fontWeight: 800, cursor: locked ? 'default' : 'pointer' }}>{p}</button>;
         })}

@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 16, fontWeight: 700, margin: '12px 0', textAlign: 'center' },
 };
@@ -63,7 +63,7 @@ export default function D26_03(props) {
   const btn = (val, label) => {
     const on = pick === val;
     let bd = '#d6dae3', bg = '#fff', col = '#374151';
-    if (on) { bd = '#2563eb'; bg = '#eaf0fe'; col = '#1f2430'; }
+    if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; col = '#1f2430'; }
     if (checked && on) { const ok = val === D03_ANS; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
     return <button type="button" disabled={isReview || checked} onClick={() => setPick(val)} style={{ flex: 1, height: 56, borderRadius: 14, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer', fontFamily: 'inherit' }}>{label}</button>;
   };
@@ -78,7 +78,7 @@ export default function D26_03(props) {
       <p style={S.setup}>{t.setup}</p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, margin: '12px 0 4px', padding: '12px', borderRadius: 14, background: '#f8fafc', border: '1.5px solid #e2e8f0' }}>
         <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: '#1f2430' }}>0,5 + 0,5 =</span>
-        <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: '#2563eb' }}>1,0</span>
+        <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: '#fe5b1a' }}>1,0</span>
       </div>
       <p style={S.ask}>{t.ask}</p>
       <div style={{ display: 'flex', gap: 12 }}>{btn(true, t.yes)}{btn(false, t.no)}</div>

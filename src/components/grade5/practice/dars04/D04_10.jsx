@@ -6,7 +6,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -23,7 +23,7 @@ function useReg(check, registerCheck) {
 function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
   const on = picked === i, show = checked && on;
   let bg = '#fff', bd = '#d6dae3', col = '#374151';
-  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
   if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
   return {
     flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
@@ -59,7 +59,7 @@ export default function D04_10(props) {
     onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: 2, label: '959' }, correct, meta: { tag: D10_DATA.tag, level: D10_DATA.level } });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const conf = ['#f59e0b', '#2563eb', '#10b981', '#ec4899', '#7c3aed', '#ef4444'];
+  const conf = ['#f59e0b', '#fe5b1a', '#10b981', '#ec4899', '#7c3aed', '#ef4444'];
   return (
     <div style={S.wrap}>
       <style>{`
@@ -88,8 +88,8 @@ export default function D04_10(props) {
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: ph >= 2 ? 0 : 8, height: 64, position: 'relative' }}>
           {ph >= 1 && [0, 1, 2, 3].map((i) => (
             <div key={i} className="d4-fly" style={{
-              ...S.mono, fontSize: 22, fontWeight: 800, color: '#1e40af',
-              padding: '10px 12px', borderRadius: 11, background: '#eaf0fe', border: '2px solid #bfd4fb',
+              ...S.mono, fontSize: 22, fontWeight: 800, color: '#b83d0e',
+              padding: '10px 12px', borderRadius: 11, background: '#fff0e8', border: '2px solid #bfd4fb',
               position: ph >= 2 ? 'absolute' : 'relative', left: ph >= 2 ? '50%' : 'auto',
               transform: ph >= 2 ? `translateX(-50%) translateY(${i * -3}px) rotate(${(i - 1.5) * 3}deg)` : 'none',
               animationDelay: (i * 0.15) + 's', transition: 'all .6s cubic-bezier(.34,1.56,.64,1)', zIndex: i,
@@ -97,7 +97,7 @@ export default function D04_10(props) {
           ))}
         </div>
         <div style={{ textAlign: 'center', minHeight: 30, ...S.mono, fontSize: 22, fontWeight: 800 }}>
-          {ph >= 2 && <span className="d4-pop" style={{ color: '#2563eb' }}>231 × 4 = 924</span>}
+          {ph >= 2 && <span className="d4-pop" style={{ color: '#fe5b1a' }}>231 × 4 = 924</span>}
         </div>
         <div style={{ textAlign: 'center', minHeight: 30, ...S.mono, fontSize: 24, fontWeight: 800, position: 'relative' }}>
           {ph >= 3 && <span className="d4-pop" style={{ color: '#c2410c' }}>924 + 35 = </span>}

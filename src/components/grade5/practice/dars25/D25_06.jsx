@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -78,12 +78,12 @@ export default function D25_06(props) {
           const order = seq.indexOf(it.id);
           const on = order >= 0;
           let bd = '#d6dae3', bg = '#fff', col = '#1f2430';
-          if (on) { bd = '#2563eb'; bg = '#eaf0fe'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; }
           if (checked && on) { const ok = fb?.correct; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
           return (
             <button key={it.id} type="button" disabled={locked || on} onClick={() => tap(it.id)} style={{ position: 'relative', width: 88, height: 72, borderRadius: 16, border: '2px solid ' + bd, background: bg, cursor: (locked || on) ? 'default' : 'pointer', ...S.mono, fontSize: 28, fontWeight: 800, color: col }}>
               {it.v}
-              {on && <span style={{ position: 'absolute', top: -10, left: -10, width: 26, height: 26, borderRadius: '50%', background: '#2563eb', color: '#fff', fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Manrope', sans-serif" }}>{order + 1}</span>}
+              {on && <span style={{ position: 'absolute', top: -10, left: -10, width: 26, height: 26, borderRadius: '50%', background: '#fe5b1a', color: '#fff', fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Manrope', sans-serif" }}>{order + 1}</span>}
             </button>
           );
         })}

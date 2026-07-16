@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -73,15 +73,15 @@ export default function D22_06(props) {
   }, [pos, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const whole = Math.floor(pos / D06_DEN), rem = pos % D06_DEN;
-  const bcol = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bcol = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`
         .d22-pop { animation: d22pop .6s cubic-bezier(.34,1.4,.64,1) both; }
         @keyframes d22pop { 0% { opacity: 0; transform: scale(.6); } 100% { opacity: 1; transform: none; } }
         .d22rng { -webkit-appearance: none; appearance: none; height: 10px; border-radius: 6px; outline: none; }
-        .d22rng::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #2563eb; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; }
-        .d22rng::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #2563eb; border: 3px solid #fff; cursor: pointer; }
+        .d22rng::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fe5b1a; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer; }
+        .d22rng::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fe5b1a; border: 3px solid #fff; cursor: pointer; }
         @media (prefers-reduced-motion: reduce) { .d22-pop { animation: none !important; } }
       `}</style>
       <div style={S.eyebrow}>{t.eyebrow}</div>
@@ -99,7 +99,7 @@ export default function D22_06(props) {
         </div>
       </div>
       <div style={{ padding: '0 14px' }}>
-        <input className="d22rng" type="range" min={0} max={D06_MAX} step={1} value={pos} disabled={isReview || checked} onChange={(e) => { setPos(parseInt(e.target.value, 10)); setMoved(true); }} style={{ width: '100%', background: `linear-gradient(#93c5fd,#93c5fd) 0/${(pos / D06_MAX) * 100}% 100% no-repeat #e5e9f0` }} />
+        <input className="d22rng" type="range" min={0} max={D06_MAX} step={1} value={pos} disabled={isReview || checked} onChange={(e) => { setPos(parseInt(e.target.value, 10)); setMoved(true); }} style={{ width: '100%', background: `linear-gradient(#ffb488,#ffb488) 0/${(pos / D06_MAX) * 100}% 100% no-repeat #e5e9f0` }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', ...S.mono, fontSize: 11, fontWeight: 800, color: '#94a3b8', marginTop: 2 }}><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span></div>
       </div>
       <p style={{ ...S.ask, fontSize: 15.5, textAlign: 'center' }}>{renderFr(t.ask)}</p>

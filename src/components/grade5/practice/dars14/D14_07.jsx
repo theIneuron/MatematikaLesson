@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -79,9 +79,9 @@ export default function D14_07(props) {
           const pos = seq.indexOf(f);
           const used = pos >= 0;
           return (
-            <button key={f} type="button" disabled={locked || used} onClick={() => tap(f)} style={{ position: 'relative', ...S.mono, fontSize: 20, fontWeight: 800, width: 74, height: 58, borderRadius: 12, border: '2px solid ' + (used ? '#e5e7eb' : '#93c5fd'), background: used ? '#fafafa' : '#eff6ff', color: used ? '#cbd5e1' : '#1e40af', cursor: (locked || used) ? 'default' : 'pointer' }}>
+            <button key={f} type="button" disabled={locked || used} onClick={() => tap(f)} style={{ position: 'relative', ...S.mono, fontSize: 20, fontWeight: 800, width: 74, height: 58, borderRadius: 12, border: '2px solid ' + (used ? '#e5e7eb' : '#ffb488'), background: used ? '#fafafa' : '#fff4ee', color: used ? '#cbd5e1' : '#b83d0e', cursor: (locked || used) ? 'default' : 'pointer' }}>
               {f}
-              {used && <span style={{ position: 'absolute', top: -8, right: -8, width: 22, height: 22, borderRadius: 999, background: '#2563eb', color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pos + 1}</span>}
+              {used && <span style={{ position: 'absolute', top: -8, right: -8, width: 22, height: 22, borderRadius: 999, background: '#fe5b1a', color: '#fff', fontSize: 12, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{pos + 1}</span>}
             </button>
           );
         })}
@@ -90,7 +90,7 @@ export default function D14_07(props) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 44, margin: '4px 0' }}>
         {seq.length === 0 ? <span style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 700 }}>{lang === 'uz' ? 'kichik → katta' : 'меньше → больше'}</span> :
           seq.map((f, i) => {
-            const c = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+            const c = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
             return <React.Fragment key={f}><span style={{ ...S.mono, fontSize: 18, fontWeight: 800, color: c }}>{f}</span>{i < seq.length - 1 && <span style={{ color: '#cbd5e1', fontWeight: 800 }}>&lt;</span>}</React.Fragment>;
           })}
       </div>

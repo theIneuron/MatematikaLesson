@@ -69,7 +69,7 @@ export default function Amaliyot22(props) {
   const checkRef = useRef(check); checkRef.current = check;
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
-  const okColor = checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const okColor = checked ? (feedback?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
 
   return (
     <div className="aq aq22">

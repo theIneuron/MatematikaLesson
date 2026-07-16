@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -99,7 +99,7 @@ export default function D17_06(props) {
             </g>
           ))}
           {/* to'g'ri javobda sakrash yoylari */}
-          {checked && fb?.correct && hop >= 1 && <path d={`M ${xAt(0)} ${base - 4} Q ${xAt(0.5)} ${base - 26} ${xAt(1)} ${base - 4}`} fill="none" stroke="#2563eb" strokeWidth="2" strokeDasharray="4 3" />}
+          {checked && fb?.correct && hop >= 1 && <path d={`M ${xAt(0)} ${base - 4} Q ${xAt(0.5)} ${base - 26} ${xAt(1)} ${base - 4}`} fill="none" stroke="#fe5b1a" strokeWidth="2" strokeDasharray="4 3" />}
           {checked && fb?.correct && hop >= 3 && <path d={`M ${xAt(1)} ${base - 4} Q ${xAt(2)} ${base - 30} ${xAt(3)} ${base - 4}`} fill="none" stroke="#16a34a" strokeWidth="2" strokeDasharray="4 3" />}
           {checked && fb?.correct && hop >= 5 && <path d={`M ${xAt(3)} ${base - 4} Q ${xAt(4)} ${base - 30} ${xAt(5)} ${base - 4}`} fill="none" stroke="#14b8a6" strokeWidth="2" strokeDasharray="4 3" />}
           {/* chumchuq belgisi */}
@@ -111,7 +111,7 @@ export default function D17_06(props) {
         {[1, 2, 3, 4, 5, 6].map((i) => {
           const on = sel === i;
           let bd = '#cbd5e1', bg = '#fff', col = '#334155';
-          if (on) { bd = '#2563eb'; bg = '#eff6ff'; col = '#1e40af'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff4ee'; col = '#b83d0e'; }
           if (checked && on) { const ok = i === D06_ANS; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
           return <button key={i} type="button" disabled={locked} onClick={() => setSel(i)} style={{ width: 52, height: 52, borderRadius: 12, border: '2px solid ' + bd, background: bg, cursor: locked ? 'default' : 'pointer' }}><Frac num={String(i)} den="6" size={16} color={col} /></button>;
         })}

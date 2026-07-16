@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -69,7 +69,7 @@ export default function D08_01(props) {
     onSubmit?.({ questionText: '5²', options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D01_ANS }, correct, meta: { tag: 'square_simple', level: '🟢' } });
   }, [val, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`
@@ -82,11 +82,11 @@ export default function D08_01(props) {
       <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 22px)', gap: 8, padding: 14, borderRadius: 16, background: '#f8fafc', border: '1.5px solid #e5e7eb' }}>
           {Array.from({ length: 25 }).map((_, k) => (
-            <span key={k} className={lit > k ? 'd8-pop' : undefined} style={{ width: 22, height: 22, borderRadius: 999, background: lit > k ? '#2563eb' : '#c7d2e8', transition: 'background .2s' }} />
+            <span key={k} className={lit > k ? 'd8-pop' : undefined} style={{ width: 22, height: 22, borderRadius: 999, background: lit > k ? '#fe5b1a' : '#c7d2e8', transition: 'background .2s' }} />
           ))}
         </div>
       </div>
-      {lit >= 25 && <div className="d8-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 18, fontWeight: 800, color: '#2563eb', marginBottom: 6 }}>5 × 5 = 25</div>}
+      {lit >= 25 && <div className="d8-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 18, fontWeight: 800, color: '#fe5b1a', marginBottom: 6 }}>5 × 5 = 25</div>}
       <div style={{ textAlign: 'center', margin: '6px 0 2px' }}><Pow base="5" exp="2" size={34} color="#1f2430" /></div>
       <p style={{ ...S.ask, fontSize: 15, color: '#6b7280', fontWeight: 700, textAlign: 'center', margin: '4px 0 8px' }}>{t.label}</p>
       <div style={{ display: 'flex', justifyContent: 'center' }}>

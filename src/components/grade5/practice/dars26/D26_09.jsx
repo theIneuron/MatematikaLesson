@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 15.5, fontWeight: 700, margin: '14px 0 10px', textAlign: 'center' },
 };
@@ -66,7 +66,7 @@ export default function D26_09(props) {
   }, [pick, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;
-  const lineCol = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const lineCol = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`
@@ -79,7 +79,7 @@ export default function D26_09(props) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '10px 0 2px', padding: '12px', borderRadius: 14, background: '#f8fafc', border: '1.5px solid #e2e8f0' }}>
         <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: '#1f2430' }}>3,6</span>
         <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: '#94a3b8', margin: '0 8px' }}>+</span>
-        <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: pick != null ? '#2563eb' : '#94a3b8' }}>{pick != null ? fmt(D09_VALUES[pick]) : '?'}</span>
+        <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: pick != null ? '#fe5b1a' : '#94a3b8' }}>{pick != null ? fmt(D09_VALUES[pick]) : '?'}</span>
         <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: '#94a3b8', margin: '0 8px' }}>=</span>
         <span style={{ fontFamily: MONO, fontSize: 30, fontWeight: 800, color: '#1f2430' }}>5</span>
       </div>
@@ -91,7 +91,7 @@ export default function D26_09(props) {
             const on = pick === i;
             const major = Number.isInteger(v);
             const okMark = checked && on;
-            const dotCol = okMark ? lineCol : (on ? '#2563eb' : '#94a3b8');
+            const dotCol = okMark ? lineCol : (on ? '#fe5b1a' : '#94a3b8');
             return (
               <button key={i} type="button" disabled={locked} onClick={() => setPick(i)} style={{ position: 'relative', width: 26, height: 60, border: 'none', background: 'transparent', cursor: locked ? 'default' : 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 {on && <span className="d26-pop" style={{ position: 'absolute', top: -24, fontFamily: MONO, fontSize: 13, fontWeight: 800, color: lineCol, whiteSpace: 'nowrap' }}>{fmt(v)}</span>}

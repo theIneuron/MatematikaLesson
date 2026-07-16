@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -90,8 +90,8 @@ export default function D21_08(props) {
           {bands.map((b) => {
             const x0 = xAt(b * 5), x1 = xAt((b + 1) * 5);
             const on = band === b, ok = checked && on ? b === D08_ANS : null;
-            const fill = ok === true ? '#dcfce7' : ok === false ? '#fee2e2' : on ? '#dbeafe' : 'transparent';
-            const stroke = ok === true ? '#1a7f43' : ok === false ? '#c0392b' : on ? '#2563eb' : 'transparent';
+            const fill = ok === true ? '#dcfce7' : ok === false ? '#fee2e2' : on ? '#ffe7d8' : 'transparent';
+            const stroke = ok === true ? '#1a7f43' : ok === false ? '#c0392b' : on ? '#fe5b1a' : 'transparent';
             return <rect key={b} x={x0} y={base - 22} width={x1 - x0} height={44} rx="8" fill={fill} stroke={stroke} strokeWidth="2" style={{ cursor: locked ? 'default' : 'pointer' }} onClick={() => !locked && setBand(b)} />;
           })}
           <line x1={mL} y1={base} x2={mR} y2={base} stroke="#94a3b8" strokeWidth="2" />

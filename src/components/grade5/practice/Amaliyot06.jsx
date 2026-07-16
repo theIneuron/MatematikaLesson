@@ -104,7 +104,7 @@ export default function Amaliyot06(props) {
         .aq06 .aq-fbar { align-self:stretch; height:2px; background:#1f2430; margin:2px 0; }
         .aq06 .aq-bins { display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end; }
         .aq06 .aq-bin { padding:9px 13px; border-radius:999px; border:2px solid #d6dae3; background:#fff; font-size:13px; font-weight:700; color:#374151; cursor:pointer; }
-        .aq06 .aq-bin.sel { border-color:#2563eb; background:#2563eb; color:#fff; }
+        .aq06 .aq-bin.sel { border-color:#fe5b1a; background:#fe5b1a; color:#fff; }
         .aq06 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
         .aq06 .aq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .aq06 .aq-fb.no { background:#fdecec; color:#c0392b; }

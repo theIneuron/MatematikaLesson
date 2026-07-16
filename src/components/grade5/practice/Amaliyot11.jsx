@@ -87,7 +87,7 @@ export default function Amaliyot11(props) {
         .aq11 .aq-body { font-size:16px; line-height:1.5; margin:6px 0 18px; }
         .aq11 .aq-nl { padding:2px 6px; }
         .aq11 .aq-marks { display:flex; margin-bottom:2px; }
-        .aq11 .aq-mark { flex:1; text-align:center; height:20px; color:#2563eb; font-size:15px; }
+        .aq11 .aq-mark { flex:1; text-align:center; height:20px; color:#fe5b1a; font-size:15px; }
         .aq11 .aq-axis { position:relative; height:2px; background:#cdd4df; margin:0 4px; }
         .aq11 .aq-zero { position:absolute; left:50%; top:-5px; width:2px; height:12px; background:#9aa1ad; transform:translateX(-50%); }
         .aq11 .aq-ticks { display:flex; margin-top:6px; gap:3px; }
@@ -95,7 +95,7 @@ export default function Amaliyot11(props) {
           border:2px solid transparent; background:#f4f6f9; color:#5c6b78; cursor:pointer; font-variant-numeric:tabular-nums;
           transition:background .12s, border-color .12s; }
         .aq11 .aq-tick:hover:not(:disabled) { background:#e8eefc; }
-        .aq11 .aq-tick.sel { border-color:#2563eb; background:#e8eefc; color:#1f2430; }
+        .aq11 .aq-tick.sel { border-color:#fe5b1a; background:#e8eefc; color:#1f2430; }
         .aq11 .aq-tick.zero { color:#1f2430; font-weight:800; }
         .aq11 .aq-tick.right { border-color:#1a7f43; background:#e8f7ee; color:#1a7f43; }
         .aq11 .aq-tick:disabled { cursor:default; }

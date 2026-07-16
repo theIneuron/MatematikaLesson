@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -104,7 +104,7 @@ export default function D04_05(props) {
         <div style={{ ...grid, margin: '3px 0' }}><div style={{ gridColumn: '2 / span 4', height: 3, background: '#1f2430', borderRadius: 2 }} /></div>
         {/* p1 = 333 → ustun 3,4,5 */}
         <div style={{ ...grid, marginBottom: 4 }}>
-          <div style={{ gridColumn: 1, fontSize: 10.5, fontWeight: 800, color: '#2563eb', textAlign: 'right', ...S.mono }}>{t.r1}</div>
+          <div style={{ gridColumn: 1, fontSize: 10.5, fontWeight: 800, color: '#fe5b1a', textAlign: 'right', ...S.mono }}>{t.r1}</div>
           {[0, 1, 2].map((i) => box(p1[i], okP1, i, setP1, p1, 'p1' + i, 3 + i))}
         </div>
         {/* p2 = 185 → bir xona chapga: ustun 2,3,4 */}

@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 15.5, fontWeight: 700, margin: '14px 0 12px', textAlign: 'center' },
 };
@@ -26,7 +26,7 @@ function useReg(check, registerCheck) {
   const ref = useRef(check); ref.current = check;
   useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
-function OpStack({ rows, accent = '#2563eb', cw = 22, fs = 30 }) {
+function OpStack({ rows, accent = '#fe5b1a', cw = 22, fs = 30 }) {
   const R = rows.map((r) => { const p = String(r.n).split(','); return { i: p[0] || '', f: p[1] || '', op: r.op || '' }; });
   const maxI = Math.max(...R.map((p) => p.i.length), 1);
   const maxF = Math.max(...R.map((p) => p.f.length), 1);
@@ -81,7 +81,7 @@ export default function D26_02(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: val.replace('.', ',') }, correctAnswer: { value: '3,8' }, correct, meta: { tag: 'dec_add_tenths', level: '🟢' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`

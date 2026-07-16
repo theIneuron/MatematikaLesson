@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -57,7 +57,7 @@ export default function D06_01(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D01_TEMP }, correct, meta: { tag: 'read_temp', level: '🟢' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   // termometr: 0 tepada (10) → past (-10). ustun balandligi TEMP ga bog'liq
   const H = 200, range = D01_HI - D01_LO;
   const zeroY = ((D01_HI - 0) / range) * H;
@@ -78,7 +78,7 @@ export default function D06_01(props) {
           {/* bo'linmalar */}
           {ticks.map((v) => { const y = 10 + ((D01_HI - v) / range) * H; return v !== 0 ? <g key={v}><line x1="44" y1={y} x2="50" y2={y} stroke="#cbd5e1" strokeWidth="1.5" /></g> : null; })}
           {/* suyuqlik ustuni — doim -6 da turadi (0 dan tempgacha, pastga) */}
-          <rect x="54" y={10 + zeroY} width="12" height={tempY - zeroY} fill={glow ? '#2563eb' : '#60a5fa'} style={{ transition: 'fill .5s' }} />
+          <rect x="54" y={10 + zeroY} width="12" height={tempY - zeroY} fill={glow ? '#fe5b1a' : '#ff8a52'} style={{ transition: 'fill .5s' }} />
         </svg>
       </div>
       <p style={{ ...S.ask, fontSize: 16 }}>{t.ask}</p>

@@ -79,8 +79,8 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
 
   const chip = (active) => ({
     padding: '6px 12px', borderRadius: 999, fontSize: 13, fontWeight: 700, cursor: 'pointer',
-    border: '1.5px solid ' + (active ? '#2563eb' : '#d6dae3'),
-    background: active ? '#2563eb' : '#fff', color: active ? '#fff' : '#374151',
+    border: '1.5px solid ' + (active ? '#fe5b1a' : '#d6dae3'),
+    background: active ? '#fe5b1a' : '#fff', color: active ? '#fff' : '#374151',
     fontFamily: "'Manrope', system-ui, sans-serif",
   });
   const btnBase = { padding: '14px 22px', fontSize: 17, fontWeight: 700, borderRadius: 14, fontFamily: "'Manrope', system-ui, sans-serif" };
@@ -123,7 +123,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
         )}
         {!result ? (
           <button type="button" disabled={!ready} onClick={runCheck}
-            style={{ ...btnBase, minWidth: 200, border: 'none', cursor: ready ? 'pointer' : 'not-allowed', color: '#fff', background: ready ? '#2563eb' : '#c2c8d2' }}>
+            style={{ ...btnBase, minWidth: 200, border: 'none', cursor: ready ? 'pointer' : 'not-allowed', color: '#fff', background: ready ? '#fe5b1a' : '#c2c8d2' }}>
             {ui.check}
           </button>
         ) : (

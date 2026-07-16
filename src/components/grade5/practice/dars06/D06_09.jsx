@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -73,12 +73,12 @@ export default function D06_09(props) {
           const on = sel.has(v);
           let dotBg = '#cbd5e1';
           if (isEnd) dotBg = '#94a3b8';
-          if (on) dotBg = '#2563eb';
+          if (on) dotBg = '#fe5b1a';
           if (checked && on) dotBg = correctOverall ? '#1a7f43' : '#c0392b';
           return (
             <div key={v} onClick={() => toggle(v)} style={{ position: 'absolute', left: `calc(3% + ${i * W * 0.94}%)`, top: 30, transform: 'translateX(-50%)', textAlign: 'center', cursor: (locked || isEnd) ? 'default' : 'pointer' }}>
               <div style={{ width: on || (isEnd) ? 18 : 13, height: on || (isEnd) ? 18 : 13, borderRadius: 999, background: dotBg, margin: '0 auto', transition: 'all .2s', border: isEnd ? '3px solid #1f2430' : 'none' }} />
-              <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 800, color: isEnd ? '#1f2430' : (on ? '#1e40af' : '#94a3b8'), ...S.mono }}>{v}</div>
+              <div style={{ marginTop: 8, fontSize: 11.5, fontWeight: 800, color: isEnd ? '#1f2430' : (on ? '#b83d0e' : '#94a3b8'), ...S.mono }}>{v}</div>
             </div>
           );
         })}

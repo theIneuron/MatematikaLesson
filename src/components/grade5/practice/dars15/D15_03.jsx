@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -73,7 +73,7 @@ export default function D15_03(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { split, value: parseInt(val, 10) }, correctAnswer: { value: D03_ANS }, correct, meta: { tag: 'split_bar', level: '🟢' } });
   }, [split, val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const den = split ? 6 : 3, shaded = split ? 4 : 2;
   return (
     <div style={S.wrap}>
@@ -86,9 +86,9 @@ export default function D15_03(props) {
       <p style={S.setup}>{t.setup}</p>
       {/* lenta: bo'lishdan oldin 3 ulush, keyin 6 */}
       <div style={{ display: 'flex', justifyContent: 'center', margin: '14px 0 8px' }}>
-        <div style={{ display: 'flex', width: 300, height: 46, border: '2px solid #2563eb', borderRadius: 8, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', width: 300, height: 46, border: '2px solid #fe5b1a', borderRadius: 8, overflow: 'hidden' }}>
           {Array.from({ length: den }).map((_, i) => (
-            <div key={i} style={{ flex: 1, borderRight: i < den - 1 ? '1.5px solid #2563eb' : 'none', background: i < shaded ? '#93c5fd' : '#eff6ff', transition: 'background .5s ease, flex .5s ease' }} />
+            <div key={i} style={{ flex: 1, borderRight: i < den - 1 ? '1.5px solid #fe5b1a' : 'none', background: i < shaded ? '#ffb488' : '#fff4ee', transition: 'background .5s ease, flex .5s ease' }} />
           ))}
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function D15_03(props) {
       </div>
       <p style={{ fontSize: 13.5, color: '#6b7280', fontWeight: 700, margin: '0 0 8px', textAlign: 'center' }}>{t.label}</p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
-        <Frac num="2" den="3" size={26} color="#2563eb" />
+        <Frac num="2" den="3" size={26} color="#fe5b1a" />
         <span style={{ ...S.mono, fontSize: 22, fontWeight: 800, color: '#94a3b8' }}>=</span>
         <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <input value={val} onChange={(e) => setVal(e.target.value.replace(/[^\d]/g, '').slice(0, 2))} disabled={isReview || checked} inputMode="numeric" placeholder="?" style={{ width: 58, height: 44, textAlign: 'center', fontSize: 24, fontWeight: 800, borderRadius: 11, border: '2px solid ' + bd, color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' }} />

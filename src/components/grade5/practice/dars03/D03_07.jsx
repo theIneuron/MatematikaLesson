@@ -6,7 +6,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
 };
@@ -70,13 +70,13 @@ export default function D03_07(props) {
   const optStyle = (i) => {
     const on = picked === i, show = checked && on;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+    if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
     if (show) { const ok = i === 2; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
     return { flex: '1 1 45%', padding: '13px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 16, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer', fontFamily: "'JetBrains Mono', monospace", minHeight: 48 };
   };
 
   const pairActive = (i) => (step >= 1 && (i === 0 || i === 3)) || (step >= 2 && (i === 1 || i === 4));
-  const pairColor = (i) => (i === 0 || i === 3) ? '#2563eb' : '#7c3aed';
+  const pairColor = (i) => (i === 0 || i === 3) ? '#fe5b1a' : '#7c3aed';
 
   return (
     <div style={S.wrap}>
@@ -91,17 +91,17 @@ export default function D03_07(props) {
       <div style={{ display: 'flex', justifyContent: 'center', gap: 8, alignItems: 'center', margin: '20px 0 8px', flexWrap: 'wrap' }}>
         {D07_NUMS.map((n, i) => {
           const act = pairActive(i);
-          const tints = ['#2563eb', '#7c3aed', '#0f766e', '#c2410c', '#be185d'];
-          const soft = ['#eaf0fe', '#f3e8ff', '#d1faf0', '#ffedd5', '#fce7f3'];
+          const tints = ['#fe5b1a', '#7c3aed', '#0f766e', '#c2410c', '#be185d'];
+          const soft = ['#fff0e8', '#f3e8ff', '#d1faf0', '#ffedd5', '#fce7f3'];
           return (
             <React.Fragment key={i}>
               <span style={{
                 fontFamily: "'JetBrains Mono', monospace", fontSize: 34, fontWeight: 800,
                 padding: '10px 15px', borderRadius: 14,
-                background: act ? (pairColor(i) === '#2563eb' ? '#dbeafe' : '#ede9fe') : soft[i],
+                background: act ? (pairColor(i) === '#fe5b1a' ? '#ffe7d8' : '#ede9fe') : soft[i],
                 color: act ? pairColor(i) : tints[i],
                 border: '2.5px solid ' + (act ? pairColor(i) : tints[i]),
-                boxShadow: act ? '0 4px 12px ' + (pairColor(i) === '#2563eb' ? 'rgba(37,99,235,.25)' : 'rgba(124,58,237,.25)') : 'none',
+                boxShadow: act ? '0 4px 12px ' + (pairColor(i) === '#fe5b1a' ? 'rgba(37,99,235,.25)' : 'rgba(124,58,237,.25)') : 'none',
                 transform: act ? 'scale(1.08)' : 'none',
                 transition: 'all .5s cubic-bezier(.34,1.56,.64,1)',
               }}>{n}</span>
@@ -112,7 +112,7 @@ export default function D03_07(props) {
       </div>
 
       <div style={{ textAlign: 'center', minHeight: 30, fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 800 }}>
-        {step >= 1 && <span className="d3-pop" style={{ color: '#2563eb', marginRight: 14 }}>54+46 = 100</span>}
+        {step >= 1 && <span className="d3-pop" style={{ color: '#fe5b1a', marginRight: 14 }}>54+46 = 100</span>}
         {step >= 2 && <span className="d3-pop" style={{ color: '#7c3aed' }}>39+61 = 100</span>}
       </div>
       <div style={{ textAlign: 'center', minHeight: 30, fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 800, color: '#1a7f43' }}>

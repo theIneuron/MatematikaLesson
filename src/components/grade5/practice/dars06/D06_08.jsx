@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -58,7 +58,7 @@ export default function D06_08(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D08_ANS }, correct, meta: { tag: 'depth_diff', level: '🔴' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`
@@ -72,12 +72,12 @@ export default function D06_08(props) {
       <div style={{ display: 'flex', justifyContent: 'center', margin: '6px 0' }}>
         <div style={{ width: 180, borderRadius: 16, overflow: 'hidden', border: '2px solid #e5e7eb' }}>
           {/* havo */}
-          <div style={{ background: '#eff6ff', padding: '12px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ background: '#fff4ee', padding: '12px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 24 }}>🦅</span>
-            <span style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#2563eb' }}>{t.bird}</span>
+            <span style={{ ...S.mono, fontSize: 15, fontWeight: 800, color: '#fe5b1a' }}>{t.bird}</span>
           </div>
           {/* sath */}
-          <div style={{ background: '#dbeafe', borderTop: '2px dashed #60a5fa', borderBottom: '2px dashed #60a5fa', padding: '4px 10px', textAlign: 'center', fontSize: 11, fontWeight: 800, color: '#1e40af' }}>~ {t.sea} ~</div>
+          <div style={{ background: '#ffe7d8', borderTop: '2px dashed #ff8a52', borderBottom: '2px dashed #ff8a52', padding: '4px 10px', textAlign: 'center', fontSize: 11, fontWeight: 800, color: '#b83d0e' }}>~ {t.sea} ~</div>
           {/* suv */}
           <div style={{ background: '#cffafe', padding: '12px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: 24 }}>🚢</span>

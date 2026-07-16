@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -91,10 +91,10 @@ export default function D15_04(props) {
             const on = pickL === l;
             const done = map[l];
             let bd = '#cbd5e1', bg = '#fff';
-            if (on) { bd = '#2563eb'; bg = '#eff6ff'; }
-            if (done) { bd = '#93c5fd'; bg = '#f0f6ff'; }
+            if (on) { bd = '#fe5b1a'; bg = '#fff4ee'; }
+            if (done) { bd = '#ffb488'; bg = '#fff5ef'; }
             if (checked && done) { bd = fb?.correct ? '#1a7f43' : '#c0392b'; bg = fb?.correct ? '#e8f7ee' : '#fdecec'; }
-            return <button key={l} type="button" disabled={locked} onClick={() => !done && setPickL(on ? null : l)} style={{ ...S.mono, fontSize: 20, fontWeight: 800, width: 88, height: 54, borderRadius: 12, border: '2px solid ' + bd, background: bg, color: '#1f2430', cursor: locked || done ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #dbeafe' : 'none' }}>{l}{done ? ' →' : ''}</button>;
+            return <button key={l} type="button" disabled={locked} onClick={() => !done && setPickL(on ? null : l)} style={{ ...S.mono, fontSize: 20, fontWeight: 800, width: 88, height: 54, borderRadius: 12, border: '2px solid ' + bd, background: bg, color: '#1f2430', cursor: locked || done ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #ffe7d8' : 'none' }}>{l}{done ? ' →' : ''}</button>;
           })}
         </div>
         {/* o'ng ustun */}

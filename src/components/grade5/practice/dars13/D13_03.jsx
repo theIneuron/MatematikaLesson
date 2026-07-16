@@ -14,7 +14,7 @@ const Frac = ({ a, b, size = 20, tone = '#1f2430' }) => (
   </span>
 );
 
-const Bar = ({ n, k, color = '#2563eb', height = 40, onCell = null, disabled = false }) => (
+const Bar = ({ n, k, color = '#fe5b1a', height = 40, onCell = null, disabled = false }) => (
   <div style={{ display: 'flex', width: '100%', border: '2px solid #1f2430', borderRadius: 8, overflow: 'hidden', height, background: '#fff' }}>
     {Array.from({ length: n }).map((_, i) => {
       const on = i < k;
@@ -39,7 +39,7 @@ function useRegister(check, registerCheck) {
 
 const PQ_CSS = `
   .pq { max-width: 640px; margin: 0 auto; padding: 4px 2px 8px; }
-  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #2563eb; text-transform: uppercase; }
+  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #fe5b1a; text-transform: uppercase; }
   .pq-setup { font-size: 16px; line-height: 1.5; margin: 6px 0 12px; color: #374151; }
   .pq-ask { font-size: 17px; font-weight: 700; margin: 14px 0 12px; }
   .pq-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
@@ -48,7 +48,7 @@ const PQ_CSS = `
   .pq-fb.no { background: #fdecec; color: #c0392b; }
   .pq-fb svg { flex: 0 0 auto; margin-top: 1px; }
   @keyframes pqIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #ffb488; outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .pq *, .pq { animation: none !important; transition: none !important; } }
 `;
 
@@ -110,7 +110,7 @@ export default function D13_03(props) {
   const optStyle = (i) => {
     const active = picked === i, show = checked && active;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+    if (active) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
     if (show) { const ok = i === D13_03_DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
     return { display: 'block', width: '100%', textAlign: 'left', padding: '14px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15, lineHeight: 1.4, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 9, fontFamily: 'inherit', minHeight: 50 };
   };

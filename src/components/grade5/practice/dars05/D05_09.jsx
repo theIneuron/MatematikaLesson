@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -59,7 +59,7 @@ export default function D05_09(props) {
     onSubmit?.({ questionText: '? : 32 = 24 (rem 13)', options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D09_ANS }, correct, meta: { tag: 'clue_dividend', level: '🔴' } });
   }, [val, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   return (
     <div style={S.wrap}>
       <style>{`
@@ -73,7 +73,7 @@ export default function D05_09(props) {
       {rev >= 1 && <div className="d5-pop" style={{ textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#7c3aed', background: '#faf5ff', border: '1.5px solid #e9d5ff', borderRadius: 10, padding: '8px 10px', margin: '4px 0 12px' }}>{t.rule}</div>}
       {/* formula ochilishi to'g'ri javobdan keyin */}
       <div style={{ textAlign: 'center', minHeight: 40, ...S.mono, fontSize: 22, fontWeight: 800 }}>
-        {rev >= 1 && <span className="d5-pop" style={{ color: '#2563eb' }}>24 × 32 + 13</span>}
+        {rev >= 1 && <span className="d5-pop" style={{ color: '#fe5b1a' }}>24 × 32 + 13</span>}
         {rev >= 2 && <span className="d5-pop" style={{ color: '#1a7f43', marginLeft: 8 }}>= 781</span>}
       </div>
       <p style={{ ...S.ask, fontSize: 15, color: '#6b7280', fontWeight: 700, textAlign: 'center' }}>{t.label}</p>

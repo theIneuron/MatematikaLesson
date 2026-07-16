@@ -26,7 +26,7 @@ function useRegister(check, registerCheck) {
 
 const PQ_CSS = `
   .pq { max-width: 640px; margin: 0 auto; padding: 4px 2px 8px; }
-  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #2563eb; text-transform: uppercase; }
+  .pq-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #fe5b1a; text-transform: uppercase; }
   .pq-setup { font-size: 16px; line-height: 1.5; margin: 6px 0 12px; color: #374151; }
   .pq-ask { font-size: 17px; font-weight: 700; margin: 14px 0 12px; }
   .pq-fb { display: flex; align-items: flex-start; gap: 10px; margin-top: 16px; padding: 13px 15px; border-radius: 14px; font-size: 15px; line-height: 1.45; font-weight: 600; animation: pqIn .5s ease both; }
@@ -34,7 +34,7 @@ const PQ_CSS = `
   .pq-fb.no { background: #fdecec; color: #c0392b; }
   .pq-fb svg { flex: 0 0 auto; margin-top: 1px; }
   @keyframes pqIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+  .pq button:focus-visible, .pq input:focus-visible, .pq [role=button]:focus-visible { outline: 3px solid #ffb488; outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { .pq *, .pq { animation: none !important; transition: none !important; } }
 `;
 
@@ -149,11 +149,11 @@ export default function D13_06(props) {
 
   const cardBox = (v, dragging, sel) => ({
     width: 68, height: 84, borderRadius: 14, background: D13_06_TINT[v] || '#f1f5f9',
-    border: '2px solid ' + (sel ? '#2563eb' : '#cbd5e1'),
+    border: '2px solid ' + (sel ? '#fe5b1a' : '#cbd5e1'),
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     cursor: locked ? 'default' : 'grab', userSelect: 'none', touchAction: 'none',
     transform: dragging ? `translate(${drag.dx}px, ${drag.dy}px) scale(1.06)` : 'none',
-    boxShadow: dragging ? '0 12px 24px rgba(31,36,48,.2)' : sel ? '0 0 0 4px #dbeafe' : 'none',
+    boxShadow: dragging ? '0 12px 24px rgba(31,36,48,.2)' : sel ? '0 0 0 4px #ffe7d8' : 'none',
     zIndex: dragging ? 20 : 1, position: 'relative',
     transition: dragging ? 'none' : 'transform .16s, box-shadow .16s, border-color .16s',
   });

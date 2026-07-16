@@ -96,7 +96,7 @@ export default function Amaliyot01(props) {
         .aq01 .aq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
         .aq01 .aq-hint { font-size:13px; color:#9aa1ad; margin-top:4px; }
         .aq01 input.aq-input { width:100%; box-sizing:border-box; font-size:22px; font-weight:700; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .aq01 input.aq-input:focus { border-color:#5b8def; background:#fff; }
+        .aq01 input.aq-input:focus { border-color:#fb7a45; background:#fff; }
         .aq01 input.aq-input:disabled { opacity:.85; }
         .aq01 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
         .aq01 .aq-fb.ok { background:#e8f7ee; color:#1a7f43; }

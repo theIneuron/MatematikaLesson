@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -29,7 +29,7 @@ function useReg(check, registerCheck) {
 function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
   const on = picked === i, show = checked && on;
   let bg = '#fff', bd = '#d6dae3', col = '#374151';
-  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
   if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
   return {
     flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
@@ -63,8 +63,8 @@ const NumLine = ({ lo, hi, den, markers = [], showFrac = true, height = 84 }) =>
         const uPos = (m.val - lo) * den;
         return (
           <div key={i} style={{ position: 'absolute', left: `calc(2% + ${uPos * W * 0.96}%)`, top: 0, transform: 'translateX(-50%)', textAlign: 'center', transition: 'left .6s cubic-bezier(.34,1.56,.64,1)' }}>
-            {m.label && <div style={{ fontSize: 11, fontWeight: 800, color: m.color || '#2563eb', marginBottom: 2, ...S.mono, whiteSpace: 'nowrap' }}>{m.label}</div>}
-            <div style={{ width: 16, height: 16, borderRadius: 999, background: m.color || '#2563eb', margin: '0 auto', border: '3px solid #fff', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
+            {m.label && <div style={{ fontSize: 11, fontWeight: 800, color: m.color || '#fe5b1a', marginBottom: 2, ...S.mono, whiteSpace: 'nowrap' }}>{m.label}</div>}
+            <div style={{ width: 16, height: 16, borderRadius: 999, background: m.color || '#fe5b1a', margin: '0 auto', border: '3px solid #fff', boxShadow: '0 1px 4px rgba(0,0,0,.2)' }} />
           </div>
         );
       })}
@@ -119,7 +119,7 @@ export default function D10_05(props) {
       `}</style>
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
-      <div style={{ textAlign: 'center', margin: '6px 0 2px' }}><Frac num="7" den="4" size={34} color="#2563eb" /></div>
+      <div style={{ textAlign: 'center', margin: '6px 0 2px' }}><Frac num="7" den="4" size={34} color="#fe5b1a" /></div>
       {/* o'q to'g'ri javobdan keyin */}
       <div style={{ maxHeight: show ? 90 : 0, opacity: show ? 1 : 0, overflow: 'hidden', transition: 'max-height .8s ease, opacity .7s ease' }}>
         <NumLine lo={0} hi={3} den={4} markers={[{ val: 1.75, color: '#0ea5e9', label: '7/4' }]} height={72} />

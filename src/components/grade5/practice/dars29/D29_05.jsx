@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { display: 'inline-block', fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#1d4ed8', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '3px 10px', borderRadius: 999, textTransform: 'uppercase' },
+  eyebrow: { display: 'inline-block', fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#e24e12', background: '#fff4ee', border: '1px solid #ffd6bd', padding: '3px 10px', borderRadius: 999, textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -89,10 +89,10 @@ export default function D29_05(props) {
           {left.map((l) => {
             const on = pickL === l, done = map[l];
             let bd = '#cbd5e1', bg = '#fff';
-            if (on) { bd = '#2563eb'; bg = '#eff6ff'; }
-            if (done) { bd = '#93c5fd'; bg = '#f0f6ff'; }
+            if (on) { bd = '#fe5b1a'; bg = '#fff4ee'; }
+            if (done) { bd = '#ffb488'; bg = '#fff5ef'; }
             if (checked && done) { bd = correctOverall ? '#1a7f43' : '#c0392b'; bg = correctOverall ? '#e8f7ee' : '#fdecec'; }
-            return <button key={l} type="button" disabled={locked} onClick={() => !done && setPickL(on ? null : l)} style={{ width: 118, height: 50, borderRadius: 12, border: '2px solid ' + bd, background: bg, cursor: locked || done ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #dbeafe' : 'none', ...S.mono, fontSize: 19, fontWeight: 800, color: '#1f2430', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>{D05_L[l]}{done ? <span style={{ fontSize: 15, color: '#94a3b8' }}>→</span> : null}</button>;
+            return <button key={l} type="button" disabled={locked} onClick={() => !done && setPickL(on ? null : l)} style={{ width: 118, height: 50, borderRadius: 12, border: '2px solid ' + bd, background: bg, cursor: locked || done ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #ffe7d8' : 'none', ...S.mono, fontSize: 19, fontWeight: 800, color: '#1f2430', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>{D05_L[l]}{done ? <span style={{ fontSize: 15, color: '#94a3b8' }}>→</span> : null}</button>;
           })}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>

@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -70,7 +70,7 @@ function Bar({ n, shaded, w = 300, h = 46, pop }) {
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className={pop ? 'd16-pop' : undefined} style={{ display: 'block' }}>
       {Array.from({ length: n }).map((_, i) => (
         <rect key={i} x={i * cw} y="1" width={cw} height={h - 2} rx="3"
-          fill={i < shaded ? '#93c5fd' : '#eef2f7'} stroke="#fff" strokeWidth="2" />
+          fill={i < shaded ? '#ffb488' : '#eef2f7'} stroke="#fff" strokeWidth="2" />
       ))}
       <rect x="1" y="1" width={w - 2} height={h - 2} rx="6" fill="none" stroke="#cbd5e1" strokeWidth="2" />
     </svg>
@@ -107,7 +107,7 @@ export default function D16_04(props) {
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, margin: '10px 0 4px' }}>
         <Bar n={D04_TOTAL} shaded={D04_SHADED} />
-        <Frac num="8" den="12" size={19} color="#2563eb" />
+        <Frac num="8" den="12" size={19} color="#fe5b1a" />
         {reveal && (
           <>
             <span style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: '#14b8a6' }}>↓ ÷4</span>
@@ -121,7 +121,7 @@ export default function D16_04(props) {
         {D04_OPTS.map((n) => {
           const on = pick === n;
           let bd = '#d6dae3', bg = '#fff', col = '#374151';
-          if (on) { bd = '#2563eb'; bg = '#eaf0fe'; col = '#1e40af'; }
+          if (on) { bd = '#fe5b1a'; bg = '#fff0e8'; col = '#b83d0e'; }
           if (checked && on) { const ok = n === D04_CORRECT; bd = ok ? '#1a7f43' : '#c0392b'; bg = ok ? '#e8f7ee' : '#fdecec'; col = ok ? '#1a7f43' : '#c0392b'; }
           return <button key={n} type="button" disabled={isReview || checked} onClick={() => setPick(n)} style={{ minWidth: 72, height: 56, borderRadius: 14, border: '2px solid ' + bd, background: bg, color: col, fontFamily: "'Manrope', system-ui, sans-serif", fontSize: 15, fontWeight: 800, cursor: (isReview || checked) ? 'default' : 'pointer' }}>{lang === 'uz' ? `${n} ${t.unit}` : `${t.unit} ${n}`}</button>;
         })}

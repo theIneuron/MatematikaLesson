@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -90,7 +90,7 @@ export default function D14_04(props) {
       <p style={S.setup}>{t.setup}</p>
       <p style={{ ...S.ask, fontSize: 15.5 }}>{t.ask}</p>
       <div style={{ display: 'flex', gap: 10, margin: '10px 0 12px' }}>
-        {col('big', t.big, '#2563eb', '#f0f6ff')}
+        {col('big', t.big, '#fe5b1a', '#fff5ef')}
         {col('small', t.small, '#14b8a6', '#f0fdfa')}
       </div>
       <div style={{ fontSize: 12.5, fontWeight: 800, color: '#94a3b8', marginBottom: 6 }}>{t.pool}</div>
@@ -98,7 +98,7 @@ export default function D14_04(props) {
         {pool.map((it) => (
           <div key={it.f} style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
             <span style={{ ...S.mono, fontSize: 17, fontWeight: 800, color: '#1f2430', padding: '6px 8px', background: '#f8fafc', borderRadius: 8, border: '1.5px solid #e5e7eb' }}>{it.f}</span>
-            <button type="button" onClick={() => send(it.f, 'big')} disabled={locked} style={{ width: 26, height: 30, borderRadius: 7, border: '1.5px solid #93c5fd', background: '#eff6ff', color: '#2563eb', fontWeight: 800, cursor: locked ? 'default' : 'pointer' }}>↑</button>
+            <button type="button" onClick={() => send(it.f, 'big')} disabled={locked} style={{ width: 26, height: 30, borderRadius: 7, border: '1.5px solid #ffb488', background: '#fff4ee', color: '#fe5b1a', fontWeight: 800, cursor: locked ? 'default' : 'pointer' }}>↑</button>
             <button type="button" onClick={() => send(it.f, 'small')} disabled={locked} style={{ width: 26, height: 30, borderRadius: 7, border: '1.5px solid #5eead4', background: '#f0fdfa', color: '#14b8a6', fontWeight: 800, cursor: locked ? 'default' : 'pointer' }}>↓</button>
           </div>
         ))}

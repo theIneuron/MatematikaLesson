@@ -110,18 +110,18 @@ export default function Amaliyot10(props) {
         .aq10 .aq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin:14px 0 6px; }
         .aq10 .aq-hint { font-size:13px; color:#9aa1ad; margin-top:4px; }
         .aq10 input.aq-k { width:100%; box-sizing:border-box; font-size:22px; font-weight:700; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; }
-        .aq10 input.aq-k:focus { border-color:#5b8def; background:#fff; }
+        .aq10 input.aq-k:focus { border-color:#fb7a45; background:#fff; }
         .aq10 .aq-ing { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 12px; padding:10px 12px; margin:8px 0; border:1.5px solid #eef0f4; border-radius:13px; background:#f8fafc; }
         .aq10 .scale { flex-basis:100%; position:relative; display:flex; align-items:center; height:14px; border-radius:7px; background:#eef2f7; overflow:hidden; }
         .aq10 .scale .seg { height:100%; }
-        .aq10 .scale .seg.base { background:#5b8def; }
+        .aq10 .scale .seg.base { background:#fb7a45; }
         .aq10 .scale .seg.grow { background:#36b37e; transition: width .6s ease; }
         .aq10 .scale .tag { position:absolute; right:8px; font-size:11px; font-weight:800; color:#1a7f43; transition: opacity .3s ease; }
         .aq10 .aq-ing .lab { font-size:15px; font-weight:700; }
         .aq10 .aq-ing .sub { font-size:13px; color:#9aa1ad; font-weight:500; }
         .aq10 .aq-ing .box { display:flex; align-items:center; gap:6px; }
         .aq10 .aq-ing input { width:84px; font-size:18px; font-weight:700; text-align:right; padding:9px 10px; border-radius:11px; border:2px solid #d6dae3; background:#fff; outline:none; }
-        .aq10 .aq-ing input:focus { border-color:#5b8def; }
+        .aq10 .aq-ing input:focus { border-color:#fb7a45; }
         .aq10 .aq-ing .unit { font-size:14px; font-weight:700; color:#6b7280; min-width:22px; }
         .aq10 .aq-note { display:flex; gap:8px; margin-top:14px; padding:11px 13px; border-radius:12px; background:#fff7e6; border:1px solid #ffe0a3; font-size:13px; line-height:1.45; color:#7a5a12; }
         .aq10 input.aq-name { width:100%; box-sizing:border-box; font-size:15px; padding:10px 12px; margin-top:8px; border-radius:11px; border:2px solid #eef0f4; background:#fff; outline:none; }

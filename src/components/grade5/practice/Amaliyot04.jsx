@@ -99,7 +99,7 @@ export default function Amaliyot04(props) {
         .aq04 .aq-eq { font-size:18px; font-weight:800; color:#9aa1ad; }
         .aq04 .aq-frac { display:flex; flex-direction:column; align-items:center; }
         .aq04 .aq-frac input { width:48px; font-size:18px; font-weight:700; text-align:center; padding:6px 4px; border-radius:9px; border:2px solid #d6dae3; background:#fff; outline:none; }
-        .aq04 .aq-frac input:focus { border-color:#5b8def; }
+        .aq04 .aq-frac input:focus { border-color:#fb7a45; }
         .aq04 .aq-bar { width:40px; height:2px; background:#1f2430; margin:3px 0; }
         .aq04 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
         .aq04 .aq-fb.ok { background:#e8f7ee; color:#1a7f43; }

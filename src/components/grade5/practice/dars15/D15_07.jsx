@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -83,7 +83,7 @@ export default function D15_07(props) {
         {D07_ROWS.map((r, i) => {
           const on = picked === i;
           let bd = '#e2e8f0', bg = '#fff', col = '#334155';
-          if (on) { bd = '#93c5fd'; bg = '#f0f6ff'; col = '#1e40af'; }
+          if (on) { bd = '#ffb488'; bg = '#fff5ef'; col = '#b83d0e'; }
           if (checked && on) { const ok = i === D07_CORRECT; bd = ok ? '#86efac' : '#fca5a5'; bg = ok ? '#f0fdf4' : '#fef2f2'; col = ok ? '#15803d' : '#b91c1c'; }
           return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ ...S.mono, fontSize: 20, fontWeight: 800, padding: '14px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', textAlign: 'center', minHeight: 52 }}>{r.txt}</button>;
         })}

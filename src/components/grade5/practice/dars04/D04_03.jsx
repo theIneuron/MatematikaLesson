@@ -9,7 +9,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -26,7 +26,7 @@ function useReg(check, registerCheck) {
 function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
   const on = picked === i, show = checked && on;
   let bg = '#fff', bd = '#d6dae3', col = '#374151';
-  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
   if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
   return {
     flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
@@ -107,14 +107,14 @@ export default function D04_03(props) {
     return (
       <span key={r + '-' + c} style={{
         width: 15, height: 15, borderRadius: 999,
-        background: active ? '#2563eb' : (anyLit ? '#c7d2e8' : '#3b82f6'),
+        background: active ? '#fe5b1a' : (anyLit ? '#c7d2e8' : '#fb7233'),
         transform: active ? 'scale(1.25)' : 'none',
         transition: 'all .45s ease',
       }} />
     );
   };
 
-  const btnStyle = (on) => ({ flex: 1, padding: '10px 8px', borderRadius: 12, border: '2px solid ' + (on ? '#2563eb' : '#d6dae3'), background: on ? '#eaf0fe' : '#fff', color: on ? '#1e40af' : '#374151', fontSize: 13.5, fontWeight: 800, cursor: checked ? 'default' : 'pointer', fontFamily: 'inherit', minHeight: 44 });
+  const btnStyle = (on) => ({ flex: 1, padding: '10px 8px', borderRadius: 12, border: '2px solid ' + (on ? '#fe5b1a' : '#d6dae3'), background: on ? '#fff0e8' : '#fff', color: on ? '#b83d0e' : '#374151', fontSize: 13.5, fontWeight: 800, cursor: checked ? 'default' : 'pointer', fontFamily: 'inherit', minHeight: 44 });
 
   return (
     <div style={S.wrap}>

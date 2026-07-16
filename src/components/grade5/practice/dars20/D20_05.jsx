@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -39,7 +39,7 @@ const renderFr = (text) => String(text).split(/([\d?]+\/[\d?]+)/g).map((p, i) =>
 });
 
 // sixths bar: shaded bo'yalgan; gap (tafovut) katagi alohida rangda (reveal da porlaydi)
-function GapBar({ shaded, gap = [], glow = false, w = 246, h = 34, color = '#93c5fd' }) {
+function GapBar({ shaded, gap = [], glow = false, w = 246, h = 34, color = '#ffb488' }) {
   const n = 6, cw = w / n, gp = new Set(gap);
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ display: 'block' }}>
@@ -48,7 +48,7 @@ function GapBar({ shaded, gap = [], glow = false, w = 246, h = 34, color = '#93c
       ))}
       {Array.from({ length: shaded }).map((_, i) => {
         const isGap = gp.has(i);
-        return <rect key={'s' + i} x={i * cw + 1} y="1" width={cw - 2} height={h - 2} rx="3" fill={isGap ? '#fcd34d' : color} stroke={isGap ? '#f59e0b' : '#60a5fa'} strokeWidth={isGap ? 1.5 : 1}
+        return <rect key={'s' + i} x={i * cw + 1} y="1" width={cw - 2} height={h - 2} rx="3" fill={isGap ? '#fcd34d' : color} stroke={isGap ? '#f59e0b' : '#ff8a52'} strokeWidth={isGap ? 1.5 : 1}
           style={isGap && glow ? { animation: 'd20glow 1s ease .2s' } : undefined} />;
       })}
     </svg>
@@ -92,7 +92,7 @@ export default function D20_05(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D05_ANS }, correct, meta: { tag: 'sub_gap', level: '🔴' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const showGap = checked && fb?.correct;
   return (
     <div style={S.wrap}>
@@ -105,7 +105,7 @@ export default function D20_05(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '10px 0 6px', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 52, ...S.mono, fontWeight: 800, color: '#2563eb', fontSize: 14 }}>2/3</span><GapBar shaded={4} gap={showGap ? [3] : []} glow={glow} color="#93c5fd" /></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 52, ...S.mono, fontWeight: 800, color: '#fe5b1a', fontSize: 14 }}>2/3</span><GapBar shaded={4} gap={showGap ? [3] : []} glow={glow} color="#ffb488" /></div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 52, ...S.mono, fontWeight: 800, color: '#16a34a', fontSize: 14 }}>1/2</span><GapBar shaded={3} color="#86efac" /></div>
       </div>
       <p style={{ ...S.ask, fontSize: 15.5 }}>{renderFr(t.ask)}</p>

@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -70,8 +70,8 @@ export default function D11_05(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: parseInt(val, 10) }, correctAnswer: { value: D05_ANS }, correct, meta: { tag: 'div_compute', level: '🟡' } });
   }, [val, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#2563eb';
-  const conf = ['#f59e0b', '#2563eb', '#10b981', '#ec4899', '#7c3aed'];
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#fe5b1a';
+  const conf = ['#f59e0b', '#fe5b1a', '#10b981', '#ec4899', '#7c3aed'];
   return (
     <div style={S.wrap}>
       <style>{`
@@ -84,7 +84,7 @@ export default function D11_05(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, margin: '14px 0 6px', minHeight: 60, position: 'relative' }}>
-        <Frac num="12" den="4" size={32} color="#2563eb" />
+        <Frac num="12" den="4" size={32} color="#fe5b1a" />
         {ph >= 1 && <span className="d11-pop" style={{ ...S.mono, fontSize: 22, fontWeight: 800, color: '#94a3b8' }}>= 12 : 4</span>}
         {ph >= 2 && <span className="d11-pop" style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: '#1a7f43' }}>= 3</span>}
         {ph >= 2 && <div style={{ position: 'absolute', right: 20, top: 10 }}>{Array.from({ length: 10 }).map((_, i) => { const ang = (i / 10) * Math.PI * 2; return <span key={i} className="d11-confetti" style={{ position: 'absolute', width: 6, height: 6, borderRadius: 2, background: conf[i % conf.length], '--dx': Math.cos(ang) * 36 + 'px', '--dy': Math.sin(ang) * 28 + 'px', animationDelay: (i * 0.02) + 's' }} />; })}</div>}

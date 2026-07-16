@@ -87,7 +87,7 @@ export default function Amaliyot24(props) {
         const y = yBase - r * dy;
         layers.push(
           <rect key={`${L}-${r}-${c}`} x={x} y={y - cube} width={cube - 2} height={cube - 2} rx="3"
-            fill="#2563eb" fillOpacity={0.18 + L * 0.14} stroke="#2563eb" strokeWidth="1.5" />
+            fill="#fe5b1a" fillOpacity={0.18 + L * 0.14} stroke="#fe5b1a" strokeWidth="1.5" />
         );
       }
     }
@@ -102,10 +102,10 @@ export default function Amaliyot24(props) {
         .aq24 .aq-figwrap { display:flex; justify-content:center; margin:6px 0 8px; }
         .aq24 .aq-slider { display:block; width:80%; max-width:280px; margin:4px auto 2px; }
         .aq24 .aq-layers { text-align:center; font-size:13px; color:#6b7280; font-weight:700; margin-bottom:12px; }
-        .aq24 .aq-formula { text-align:center; font-size:16px; font-weight:800; color:#2563eb; margin:2px 0 16px; }
+        .aq24 .aq-formula { text-align:center; font-size:16px; font-weight:800; color:#fe5b1a; margin:2px 0 16px; }
         .aq24 .aq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
         .aq24 input.aq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .aq24 input.aq-input:focus { border-color:#5b8def; background:#fff; }
+        .aq24 input.aq-input:focus { border-color:#fb7a45; background:#fff; }
         .aq24 input.aq-input:disabled { opacity:.85; }
         .aq24 .aq-hint { font-size:13px; color:#9aa1ad; margin-top:8px; }
         .aq24 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }

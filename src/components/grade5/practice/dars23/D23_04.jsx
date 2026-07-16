@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -78,7 +78,7 @@ export default function D23_04(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { w: parseInt(w, 10), n: parseInt(n, 10) }, correctAnswer: D04, correct, meta: { tag: 'sub_mixed_simple', level: '🟢' } });
   }, [w, n, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const box = (val, set, ok) => (<input value={val} onChange={(e) => set(e.target.value.replace(/[^\d]/g, '').slice(0, 1))} disabled={isReview || checked} inputMode="numeric" placeholder="?" style={{ width: 48, height: 42, textAlign: 'center', fontSize: 23, fontWeight: 800, borderRadius: 10, border: '2px solid ' + bdOf(val, ok), color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' }} />);
   return (
     <div style={S.wrap}>
@@ -90,7 +90,7 @@ export default function D23_04(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{renderFr(t.setup)}</p>
       <div className="d23-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, margin: '16px 0 10px', flexWrap: 'wrap' }}>
-        <Mixed w={5} n={5} d={6} size={24} color="#2563eb" /><span style={{ ...S.mono, fontSize: 24, fontWeight: 800, color: '#94a3b8' }}>−</span><Mixed w={2} n={1} d={6} size={24} color="#2563eb" /><span style={{ ...S.mono, fontSize: 24, fontWeight: 800, color: '#94a3b8' }}>=</span>
+        <Mixed w={5} n={5} d={6} size={24} color="#fe5b1a" /><span style={{ ...S.mono, fontSize: 24, fontWeight: 800, color: '#94a3b8' }}>−</span><Mixed w={2} n={1} d={6} size={24} color="#fe5b1a" /><span style={{ ...S.mono, fontSize: 24, fontWeight: 800, color: '#94a3b8' }}>=</span>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>{box(w, setW, D04.w)}<div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>{box(n, setN, D04.n)}<div style={{ width: 44, height: 2.5, background: '#1f2430' }} /><div style={{ ...S.mono, fontSize: 21, fontWeight: 800, color: '#64748b' }}>6</div></div></div>
       </div>
       <p style={{ fontSize: 12, color: '#94a3b8', fontWeight: 700, textAlign: 'center', marginBottom: 4 }}>{t.l1} · {t.l2}</p>

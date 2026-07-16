@@ -8,7 +8,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
 };
@@ -81,7 +81,7 @@ export default function D02_02(props) {
   const optStyle = (i) => {
     const on = picked === i, show = checked && on;
     let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+    if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
     if (show) { const ok = i === 0; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
     return { flex: '1 1 45%', padding: '13px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 16, fontWeight: 700, cursor: (isReview || checked) ? 'default' : 'pointer', fontFamily: 'inherit', minHeight: 48 };
   };
@@ -111,8 +111,8 @@ export default function D02_02(props) {
 
           {/* 238 — siljiydigan nuqta */}
           <div style={{ position: 'absolute', left: at, top: 53, transform: 'translateX(-50%)', transition: 'left 1.4s cubic-bezier(.33,1,.42,1)', textAlign: 'center' }}>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#2563eb', marginTop: -34, marginBottom: 6 }}>238</div>
-            <div style={dot('#2563eb')} />
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#fe5b1a', marginTop: -34, marginBottom: 6 }}>238</div>
+            <div style={dot('#fe5b1a')} />
           </div>
         </div>
       </div>

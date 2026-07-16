@@ -80,11 +80,11 @@ export default function Amaliyot03(props) {
         .aq03 .aq-body { font-size:20px; font-weight:700; line-height:1.5; margin:6px 0 16px; font-variant-numeric:tabular-nums; }
         .aq03 .aq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin:14px 0 6px; }
         .aq03 input.aq-input { width:100%; box-sizing:border-box; font-size:22px; font-weight:700; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .aq03 input.aq-input:focus { border-color:#5b8def; background:#fff; }
+        .aq03 input.aq-input:focus { border-color:#fb7a45; background:#fff; }
         .aq03 .aq-opt { display:flex; align-items:center; gap:10px; width:100%; text-align:left; box-sizing:border-box; padding:13px 15px; margin:8px 0; border-radius:14px; border:2px solid #d6dae3; background:#fff; font-size:15px; font-weight:600; color:#374151; cursor:pointer; }
-        .aq03 .aq-opt.sel { border-color:#2563eb; background:#eef4ff; color:#1e40af; }
+        .aq03 .aq-opt.sel { border-color:#fe5b1a; background:#eef4ff; color:#b83d0e; }
         .aq03 .aq-dot { width:18px; height:18px; border-radius:50%; border:2px solid #c2c8d2; flex:0 0 auto; }
-        .aq03 .aq-opt.sel .aq-dot { border-color:#2563eb; background:#2563eb; box-shadow:inset 0 0 0 3px #fff; }
+        .aq03 .aq-opt.sel .aq-dot { border-color:#fe5b1a; background:#fe5b1a; box-shadow:inset 0 0 0 3px #fff; }
         .aq03 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
         .aq03 .aq-fb.ok { background:#e8f7ee; color:#1a7f43; }
         .aq03 .aq-fb.no { background:#fdecec; color:#c0392b; }

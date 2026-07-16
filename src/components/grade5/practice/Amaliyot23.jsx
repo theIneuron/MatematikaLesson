@@ -78,10 +78,10 @@ export default function Amaliyot23(props) {
         .aq23 .aq-tag { font-size:12px; font-weight:700; letter-spacing:.02em; color:#6b7280; text-transform:uppercase; }
         .aq23 .aq-body { font-size:17px; line-height:1.5; margin:6px 0 12px; }
         .aq23 .aq-figwrap { display:flex; justify-content:center; margin:8px 0 14px; }
-        .aq23 .aq-formula { text-align:center; font-size:18px; font-weight:800; color:#2563eb; margin:2px 0 16px; }
+        .aq23 .aq-formula { text-align:center; font-size:18px; font-weight:800; color:#fe5b1a; margin:2px 0 16px; }
         .aq23 .aq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
         .aq23 input.aq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .aq23 input.aq-input:focus { border-color:#5b8def; background:#fff; }
+        .aq23 input.aq-input:focus { border-color:#fb7a45; background:#fff; }
         .aq23 input.aq-input:disabled { opacity:.85; }
         .aq23 .aq-hint { font-size:13px; color:#9aa1ad; margin-top:8px; }
         .aq23 .aq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:13px 15px; border-radius:14px; font-size:15px; line-height:1.45; font-weight:600; animation:aqIn .22s ease both; }
@@ -98,12 +98,12 @@ export default function Amaliyot23(props) {
           {/* to'rtburchak (uchburchakning ikki barobari) — punktir */}
           <rect x="20" y="18" width="180" height="104" fill="#eef2f8" stroke="#cfd6e4" strokeWidth="2" strokeDasharray="5 5" />
           {/* uchburchak — yarmi to'ldirilgan */}
-          <polygon points="20,122 200,122 20,18" fill="#2563eb" fillOpacity="0.18" stroke="#2563eb" strokeWidth="2.5" />
+          <polygon points="20,122 200,122 20,18" fill="#fe5b1a" fillOpacity="0.18" stroke="#fe5b1a" strokeWidth="2.5" />
           {/* balandlik */}
           <line x1="20" y1="18" x2="20" y2="122" stroke="#c9a23a" strokeWidth="3" />
           <text x="8" y="74" fill="#c9a23a" fontSize="12" fontWeight="700" transform="rotate(-90 8 74)" textAnchor="middle">{t.height}</text>
           {/* asos */}
-          <text x="110" y="140" fill="#2563eb" fontSize="12" fontWeight="700" textAnchor="middle">{t.base}</text>
+          <text x="110" y="140" fill="#fe5b1a" fontSize="12" fontWeight="700" textAnchor="middle">{t.base}</text>
         </svg>
       </div>
       <div className="aq-formula">{t.formula}</div>

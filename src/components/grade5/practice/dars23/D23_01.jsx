@@ -7,7 +7,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -80,7 +80,7 @@ export default function D23_01(props) {
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { w: parseInt(w, 10), n: parseInt(n, 10) }, correctAnswer: D01, correct, meta: { tag: 'add_mixed_simple', level: '🟢' } });
   }, [w, n, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
-  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#2563eb';
+  const bdOf = (v, ok) => checked ? (parseInt(v, 10) === ok ? '#1a7f43' : '#c0392b') : '#fe5b1a';
   const box = (val, set, ok) => (<input value={val} onChange={(e) => set(e.target.value.replace(/[^\d]/g, '').slice(0, 1))} disabled={isReview || checked} inputMode="numeric" placeholder="?" style={{ width: 46, height: 40, textAlign: 'center', fontSize: 22, fontWeight: 800, borderRadius: 10, border: '2px solid ' + bdOf(val, ok), color: '#1f2430', fontFamily: "'JetBrains Mono', monospace", background: '#fff' }} />);
   return (
     <div style={S.wrap}>
@@ -97,11 +97,11 @@ export default function D23_01(props) {
         <span style={{ fontSize: 11, fontWeight: 800, color: '#94a3b8', textAlign: 'center' }}>{t.l1}</span>
         <span style={{ fontSize: 11, fontWeight: 800, color: '#94a3b8', textAlign: 'center' }}>{t.l2}</span>
         <span />
-        <span style={{ ...S.mono, fontSize: 24, fontWeight: 800, textAlign: 'center', color: '#2563eb' }}>4</span>
-        <span style={{ textAlign: 'center' }}><Frac num="2" den="7" size={20} color="#2563eb" /></span>
+        <span style={{ ...S.mono, fontSize: 24, fontWeight: 800, textAlign: 'center', color: '#fe5b1a' }}>4</span>
+        <span style={{ textAlign: 'center' }}><Frac num="2" den="7" size={20} color="#fe5b1a" /></span>
         <span style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: '#94a3b8', textAlign: 'center' }}>+</span>
-        <span style={{ ...S.mono, fontSize: 24, fontWeight: 800, textAlign: 'center', color: '#2563eb' }}>3</span>
-        <span style={{ textAlign: 'center' }}><Frac num="3" den="7" size={20} color="#2563eb" /></span>
+        <span style={{ ...S.mono, fontSize: 24, fontWeight: 800, textAlign: 'center', color: '#fe5b1a' }}>3</span>
+        <span style={{ textAlign: 'center' }}><Frac num="3" den="7" size={20} color="#fe5b1a" /></span>
         <span style={{ gridColumn: '1 / span 3', height: 2, background: '#cbd5e1', margin: '2px 0' }} />
         <span style={{ ...S.mono, fontSize: 18, fontWeight: 800, color: '#94a3b8', textAlign: 'center' }}>=</span>
         <span style={{ textAlign: 'center' }}>{box(w, setW, D01.w)}</span>

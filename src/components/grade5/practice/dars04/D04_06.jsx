@@ -6,7 +6,7 @@ const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -23,7 +23,7 @@ function useReg(check, registerCheck) {
 function optStyle(picked, i, correctIdx, checked, isReview, opts = {}) {
   const on = picked === i, show = checked && on;
   let bg = '#fff', bd = '#d6dae3', col = '#374151';
-  if (on) { bg = '#eaf0fe'; bd = '#2563eb'; col = '#1f2430'; }
+  if (on) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
   if (show) { const ok = i === correctIdx; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
   return {
     flex: opts.half ? '1 1 45%' : undefined, display: opts.half ? undefined : 'block', width: opts.half ? undefined : '100%',
@@ -69,12 +69,12 @@ export default function D04_06(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center', margin: '8px 0' }}>
-        <div style={{ flex: '1 1 130px', padding: '10px 12px', borderRadius: 13, background: '#eaf0fe', border: '2px solid #bfd4fb', textAlign: 'center' }}>
-          <div style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: '#1e40af' }}>24</div>
-          <div style={{ fontSize: 11.5, fontWeight: 700, color: '#60a5fa' }}>{t.perBox}</div>
+        <div style={{ flex: '1 1 130px', padding: '10px 12px', borderRadius: 13, background: '#fff0e8', border: '2px solid #bfd4fb', textAlign: 'center' }}>
+          <div style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: '#b83d0e' }}>24</div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, color: '#ff8a52' }}>{t.perBox}</div>
         </div>
-        <div style={{ flex: '1 1 130px', padding: '10px 12px', borderRadius: 13, background: '#eaf0fe', border: '2px solid #bfd4fb', textAlign: 'center' }}>
-          <div style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: '#1e40af' }}>{t.boxes}</div>
+        <div style={{ flex: '1 1 130px', padding: '10px 12px', borderRadius: 13, background: '#fff0e8', border: '2px solid #bfd4fb', textAlign: 'center' }}>
+          <div style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: '#b83d0e' }}>{t.boxes}</div>
         </div>
       </div>
       <div style={{ maxHeight: fill > 0 ? 44 : 0, opacity: fill > 0 ? 1 : 0, overflow: 'hidden', transition: 'max-height .5s ease, opacity .4s ease' }}>

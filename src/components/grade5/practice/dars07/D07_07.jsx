@@ -8,7 +8,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 
 const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#2563eb', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
   ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace" },
@@ -85,7 +85,7 @@ export default function D07_07(props) {
       <div style={{ display: 'flex', gap: 6, justifyContent: 'center', alignItems: 'center', margin: '10px 0 4px', flexWrap: 'wrap' }}>
         {slots.map((cell, i) => {
           const v = cell ? cell.v : null;
-          let bd = '#93c5fd', bg = '#eff6ff', col = '#1e40af';
+          let bd = '#ffb488', bg = '#fff4ee', col = '#b83d0e';
           if (checked && v != null) { const okAll = fb?.correct; bd = okAll ? '#1a7f43' : '#c0392b'; bg = okAll ? '#e8f7ee' : '#fdecec'; col = okAll ? '#1a7f43' : '#c0392b'; }
           return (
             <React.Fragment key={i}>
@@ -100,7 +100,7 @@ export default function D07_07(props) {
         {D07_NUMS.map((n, idx) => {
           if (usedSet.has(idx)) return <span key={idx} style={{ width: 58, height: 54, borderRadius: 12, border: '2px dashed #e5e7eb', background: '#fafafa' }} />;
           const on = pick === idx;
-          return <button key={idx} type="button" disabled={locked} onClick={() => setPick(on ? null : idx)} style={{ width: 58, height: 54, borderRadius: 12, border: '2px solid ' + (on ? '#2563eb' : '#cbd5e1'), background: on ? '#eaf0fe' : '#fff', ...S.mono, fontSize: 20, fontWeight: 800, color: '#1f2430', cursor: locked ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #dbeafe' : 'none' }}>{n}</button>;
+          return <button key={idx} type="button" disabled={locked} onClick={() => setPick(on ? null : idx)} style={{ width: 58, height: 54, borderRadius: 12, border: '2px solid ' + (on ? '#fe5b1a' : '#cbd5e1'), background: on ? '#fff0e8' : '#fff', ...S.mono, fontSize: 20, fontWeight: 800, color: '#1f2430', cursor: locked ? 'default' : 'pointer', boxShadow: on ? '0 0 0 4px #ffe7d8' : 'none' }}>{n}</button>;
         })}
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
