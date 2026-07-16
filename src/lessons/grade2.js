@@ -106,6 +106,12 @@ export const grade2Nazariy = [
     desc: "8 ga sakkiztadan, 9 ga to'qqiztadan skip-sanash: 8,16,24,32… va 9,18,27,36… (×9 raqamlari yig'indisi 9); to'liq 1–9 jadval-yordamchisi.",
     Component: lazy(() => import('../components/grade2/Dars17.jsx')),
   },
+  {
+    slug: 'dars18-mustahkamlash-orin-almashish',
+    title: "Dars 18. Mustahkamlash. O'rin almashish",
+    desc: "Butun jadvalni mustahkamlash + ko'paytiruvchilar o'rin almashishi (a×b = b×a): massivni bursak jami o'zgarmaydi; «teng?» Ha/Yo'q + aralash jadval.",
+    Component: lazy(() => import('../components/grade2/Dars18.jsx')),
+  },
 ]
 
 // 2-sinf AMALIY mashqlari (jsx-question, PracticeHost preview orqali).
