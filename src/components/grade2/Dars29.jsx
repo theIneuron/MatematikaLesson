@@ -971,7 +971,7 @@ const CONTENT = {
   s1: {
     eyebrow: { ru: 'Периметр', uz: 'Perimetr' },
     lead: { ru: 'Периметр — длина края.', uz: "Perimetr — chetning uzunligi." },
-    body: { ru: 'Периметр — это длина всего края фигуры. Пройди по краю и сложи все стороны. У этого прямоугольника: три плюс два плюс три плюс два — получается десять.', uz: "Perimetr — shaklning butun chetining uzunligi. Chet bo'ylab yur va barcha tomonlarni qo'sh. Bu to'rtburchakda: uch qo'shuv ikki qo'shuv uch qo'shuv ikki — o'n bo'ladi." },
+    body: { ru: 'Периметр — это длина всего края фигуры. Пройди по краю и сложи все стороны. У этого прямоугольника: три плюс два плюс три плюс два — получается десять.', uz: "Perimetr — shaklning butun chetining uzunligi. Chet bo'ylab yuring va barcha tomonlarni qo'shing. Bu to'rtburchakda: uch qo'shuv ikki qo'shuv uch qo'shuv ikki — o'n bo'ladi." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
     info: { ru: 'Периметр — это сумма всех сторон фигуры.', uz: "Perimetr — shaklning barcha tomonlari yig'indisi." },
     audio: {
@@ -991,9 +991,9 @@ const CONTENT = {
   // s2 — TUSHUNTIRISH-2: GEOBOARD — chetni aylanib birlik-kesmalarni sana
   s2: {
     eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Считай единицы по краю.', uz: "Chet bo'ylab birliklarni sana." },
+    lead: { ru: 'Считай единицы по краю.', uz: "Chet bo'ylab birliklarni sanang." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Обойди фигуру по краю и посчитай каждый единичный отрезок. Их сумма — периметр.', uz: "Shaklni chet bo'ylab aylanib chiq va har birlik-kesmani sana. Ularning yig'indisi — perimetr." },
+    info: { ru: 'Обойди фигуру по краю и посчитай каждый единичный отрезок. Их сумма — периметр.', uz: "Shaklni chet bo'ylab aylanib chiqing va har birlik-kesmani sanang. Ularning yig'indisi — perimetr." },
     audio: {
       ru: [
         'На решётке периметр удобно считать по единицам.',
@@ -1016,7 +1016,7 @@ const CONTENT = {
     rule: { ru: 'Периметр = сумма всех сторон. У прямоугольника: a + b + a + b.', uz: "Perimetr = barcha tomonlar yig'indisi. To'rtburchakda: a + b + a + b." },
     check_q: { ru: 'Периметр этого прямоугольника?', uz: "Bu to'rtburchakning perimetri?" },
     opts: [{ ru: '8', uz: '8' }, { ru: '10', uz: '10', ok: true }, { ru: '12', uz: '12' }],
-    wrong: { ru: 'Сложи все четыре стороны: 3 + 2 + 3 + 2.', uz: "To'rtala tomonni qo'sh: 3 + 2 + 3 + 2." },
+    wrong: { ru: 'Сложи все четыре стороны: 3 + 2 + 3 + 2.', uz: "To'rtala tomonni qo'shing: 3 + 2 + 3 + 2." },
     check_ok: { ru: 'Верно! 3 + 2 + 3 + 2 = 10.', uz: "To'g'ri! 3 + 2 + 3 + 2 = 10." },
     audio: {
       ru: [
@@ -1036,13 +1036,13 @@ const CONTENT = {
 
   // s4 — TUSHUNTIRISH-3: RAQAMLANGAN TOMONLAR — qo'shib perimetr + check (tri 2,3,4 → 9)
   s4: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'sh" },
-    lead: { ru: 'Стороны подписаны — сложи их.', uz: "Tomonlar raqamlangan — ularni qo'sh." },
-    body: { ru: 'Если длины сторон подписаны, просто сложи их все. У этого треугольника: два плюс три плюс четыре — получается девять.', uz: "Agar tomonlar uzunligi raqamlangan bo'lsa, ularning hammasini qo'sh. Bu uchburchakda: ikki qo'shuv uch qo'shuv to'rt — to'qqiz bo'ladi." },
+    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
+    lead: { ru: 'Стороны подписаны — сложи их.', uz: "Tomonlar raqamlangan — ularni qo'shing." },
+    body: { ru: 'Если длины сторон подписаны, просто сложи их все. У этого треугольника: два плюс три плюс четыре — получается девять.', uz: "Agar tomonlar uzunligi raqamlangan bo'lsa, ularning hammasini qo'shing. Bu uchburchakda: ikki qo'shuv uch qo'shuv to'rt — to'qqiz bo'ladi." },
     warn: { ru: 'Периметр — это край фигуры, а не то, что внутри.', uz: "Perimetr — shaklning cheti, ichidagi narsa emas." },
     check_q: { ru: 'Периметр этого треугольника?', uz: "Bu uchburchakning perimetri?" },
     opts: [{ ru: '8', uz: '8' }, { ru: '9', uz: '9', ok: true }, { ru: '10', uz: '10' }],
-    wrong: { ru: 'Сложи все три стороны: 2 + 3 + 4.', uz: "Uchala tomonni qo'sh: 2 + 3 + 4." },
+    wrong: { ru: 'Сложи все три стороны: 2 + 3 + 4.', uz: "Uchala tomonni qo'shing: 2 + 3 + 4." },
     check_ok: { ru: 'Верно! 2 + 3 + 4 = 9.', uz: "To'g'ri! 2 + 3 + 4 = 9." },
     audio: {
       ru: [
@@ -1065,7 +1065,7 @@ const CONTENT = {
     eyebrow: { ru: 'Ключ', uz: 'Kalit' },
     lead: { ru: 'Периметр — сумма сторон', uz: "Perimetr — tomonlar yig'indisi" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Обойди край и сложи все стороны — это периметр. Внутренность (площадь) не считаем.', uz: "Chetni aylanib, barcha tomonlarni qo'sh — bu perimetr. Ichini (yuzani) sanamaymiz." },
+    info: { ru: 'Обойди край и сложи все стороны — это периметр. Внутренность (площадь) не считаем.', uz: "Chetni aylanib, barcha tomonlarni qo'shing — bu perimetr. Ichini (yuzani) sanamaymiz." },
     audio: {
       ru: [
         'Запомни ключ: периметр — это сумма всех сторон.',
@@ -1086,12 +1086,12 @@ const CONTENT = {
     lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
     transition: { ru: 'Объяснение закончили. Теперь считай периметр сам.', uz: "Tushuntirishni tugatdik. Endi perimetrni o'zingiz sanang." },
     mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]],
-    wrong: { ru: 'Обойди край и посчитай единичные отрезки.', uz: "Chetni aylanib, birlik-kesmalarni sana." },
+    wrong: { ru: 'Обойди край и посчитай единичные отрезки.', uz: "Chetni aylanib, birlik-kesmalarni sanang." },
     done_text: { ru: 'Верно! По краю десять единиц.', uz: "To'g'ri! Chet bo'ylab o'n birlik." },
     audio: {
-      intro: { ru: 'Тренировка. Обойди фигуру по краю и посчитай единицы.', uz: "Mashq. Shaklni chet bo'ylab aylanib, birliklarni sana." },
+      intro: { ru: 'Тренировка. Обойди фигуру по краю и посчитай единицы.', uz: "Mashq. Shaklni chet bo'ylab aylanib, birliklarni sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай каждый отрезок края, не пропуская.', uz: "Chetning har kesmasini o'tkazib yubormay sana." }
+      on_wrong: { ru: 'Считай каждый отрезок края, не пропуская.', uz: "Chetning har kesmasini o'tkazib yubormay sanang." }
     }
   },
 
@@ -1100,10 +1100,10 @@ const CONTENT = {
     eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
     lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
     rounds: [ { mode: 'geo', verts: [[0, 0], [2, 0], [2, 3], [0, 3]] }, { mode: 'geo', verts: [[0, 0], [4, 0], [4, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 1], [1, 1], [1, 2], [0, 2]] } ],
-    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylan." },
+    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylaning." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Считай периметр по единицам края.', uz: "Perimetrni chet birliklari bo'yicha sana." },
+      intro: { ru: 'Считай периметр по единицам края.', uz: "Perimetrni chet birliklari bo'yicha sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Не забудь все стороны фигуры.', uz: "Shaklning barcha tomonlarini unutma." }
     }
@@ -1111,15 +1111,15 @@ const CONTENT = {
 
   // s7 — MASHQ RAQAMLANGAN TOMONLAR (3 round: yig'indi)
   s7: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'sh" },
+    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
     lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
     rounds: [ { mode: 'sum', shape: 'tri', sides: [3, 4, 5] }, { mode: 'sum', shape: 'rect', sides: [3, 3] }, { mode: 'sum', shape: 'tri', sides: [4, 5, 6] } ],
-    wrong: { ru: 'Сложи все подписанные стороны.', uz: "Barcha raqamlangan tomonlarni qo'sh." },
+    wrong: { ru: 'Сложи все подписанные стороны.', uz: "Barcha raqamlangan tomonlarni qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Стороны подписаны — сложи их все.', uz: "Tomonlar raqamlangan — hammasini qo'sh." },
+      intro: { ru: 'Стороны подписаны — сложи их все.', uz: "Tomonlar raqamlangan — hammasini qo'shing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'У прямоугольника сложи четыре стороны, у треугольника — три.', uz: "To'rtburchakda to'rt tomonni, uchburchakda uch tomonni qo'sh." }
+      on_wrong: { ru: 'У прямоугольника сложи четыре стороны, у треугольника — три.', uz: "To'rtburchakda to'rt tomonni, uchburchakda uch tomonni qo'shing." }
     }
   },
 
@@ -1128,26 +1128,26 @@ const CONTENT = {
     eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
     lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
     rounds: [ { mode: 'geo', verts: [[0, 0], [3, 0], [3, 3], [0, 3]] }, { mode: 'geo', verts: [[0, 0], [2, 0], [2, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [2, 0], [2, 1], [1, 1], [1, 3], [0, 3]] } ],
-    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylan." },
+    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylaning." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова считай периметр по краю.', uz: "Yana perimetrni chet bo'ylab sana." },
+      intro: { ru: 'Снова считай периметр по краю.', uz: "Yana perimetrni chet bo'ylab sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай только край фигуры.', uz: "Faqat shakl chetini sana." }
+      on_wrong: { ru: 'Считай только край фигуры.', uz: "Faqat shakl chetini sanang." }
     }
   },
 
   // s9 — MASHQ RAQAMLANGAN TOMONLAR (3 round)
   s9: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'sh" },
+    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
     lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
     rounds: [ { mode: 'sum', shape: 'rect', sides: [4, 3] }, { mode: 'sum', shape: 'tri', sides: [5, 5, 5] }, { mode: 'sum', shape: 'rect', sides: [6, 2] } ],
-    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'sh." },
+    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова сложи все подписанные стороны.', uz: "Yana barcha raqamlangan tomonlarni qo'sh." },
+      intro: { ru: 'Снова сложи все подписанные стороны.', uz: "Yana barcha raqamlangan tomonlarni qo'shing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не пропусти ни одной стороны.', uz: "Birorta tomonni o'tkazib yuborma." }
+      on_wrong: { ru: 'Не пропусти ни одной стороны.', uz: "Birorta tomonni o'tkazib yubormang." }
     }
   },
 
@@ -1156,24 +1156,24 @@ const CONTENT = {
     eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
     lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
     rounds: [ { mode: 'geo', verts: [[0, 0], [4, 0], [4, 1], [0, 1]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [2, 2], [2, 1], [0, 1]] } ],
-    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylan." },
+    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylaning." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова считай периметр на решётке.', uz: "Yana panjarada perimetrni sana." },
+      intro: { ru: 'Снова считай периметр на решётке.', uz: "Yana panjarada perimetrni sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай каждый отрезок края.', uz: "Chetning har kesmasini sana." }
+      on_wrong: { ru: 'Считай каждый отрезок края.', uz: "Chetning har kesmasini sanang." }
     }
   },
 
   // s11 — MASHQ RAQAMLANGAN TOMONLAR (3 round)
   s11: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'sh" },
+    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
     lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
     rounds: [ { mode: 'sum', shape: 'tri', sides: [6, 4, 5] }, { mode: 'sum', shape: 'rect', sides: [5, 4] }, { mode: 'sum', shape: 'tri', sides: [3, 3, 6] } ],
-    wrong: { ru: 'Сложи все стороны.', uz: "Barcha tomonlarni qo'sh." },
+    wrong: { ru: 'Сложи все стороны.', uz: "Barcha tomonlarni qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Сложи стороны.', uz: "Masaladan oldingi oxirgi mashq. Tomonlarni qo'sh." },
+      intro: { ru: 'Последняя тренировка перед задачей. Сложи стороны.', uz: "Masaladan oldingi oxirgi mashq. Tomonlarni qo'shing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'У треугольника три стороны, у прямоугольника четыре.', uz: "Uchburchakda uch tomon, to'rtburchakda to'rt tomon." }
     }
@@ -1196,12 +1196,12 @@ const CONTENT = {
     lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
     mode: 'geo', verts: [[0, 0], [4, 0], [4, 2], [0, 2]],
     story: { ru: 'Экипаж обклеивает лентой край панели. Сколько единиц ленты нужно на весь край?', uz: "Ekipaj panel chetiga lenta yopishtiradi. Butun chetga necha birlik lenta kerak?" },
-    wrong: { ru: 'Обойди край панели по единицам.', uz: "Panel chetini birlik-birlik aylan." },
+    wrong: { ru: 'Обойди край панели по единицам.', uz: "Panel chetini birlik-birlik aylaning." },
     done_text: { ru: 'Верно! По краю двенадцать единиц.', uz: "To'g'ri! Chet bo'ylab o'n ikki birlik." },
     audio: {
-      intro: { ru: 'Экипаж обклеивает край панели. Обойди край и посчитай единицы.', uz: "Ekipaj panel chetini bezaydi. Chetni aylanib, birliklarni sana." },
+      intro: { ru: 'Экипаж обклеивает край панели. Обойди край и посчитай единицы.', uz: "Ekipaj panel chetini bezaydi. Chetni aylanib, birliklarni sanang." },
       on_correct: { ru: 'Верно. По краю двенадцать единиц.', uz: "To'g'ri. Chet bo'ylab o'n ikki birlik." },
-      on_wrong: { ru: 'Считай каждый отрезок края, не пропуская.', uz: "Chetning har kesmasini o'tkazib yubormay sana." }
+      on_wrong: { ru: 'Считай каждый отрезок края, не пропуская.', uz: "Chetning har kesmasini o'tkazib yubormay sanang." }
     }
   },
 
@@ -1210,15 +1210,15 @@ const CONTENT = {
     eyebrow: { ru: 'Финал', uz: 'Final' },
     lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
     rounds: [ { mode: 'sum', shape: 'tri', sides: [3, 4, 5] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]] }, { mode: 'sum', shape: 'rect', sides: [5, 3] } ],
-    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'sh." },
+    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
     fact_text: { ru: 'Уран огромный: поперёк он примерно в четыре раза больше Земли.', uz: "Uran juda katta: ko'ndalangiga u Yerdan taxminan to'rt baravar katta." },
     fact_audio: { ru: 'Уран очень большой: в поперечнике он примерно в четыре раза больше нашей Земли.', uz: "Uran juda katta: ko'ndalangiga u bizning Yerimizdan taxminan to'rt baravar katta." },
     audio: {
-      intro: { ru: 'Финальная проверка. Считай периметр — сумму сторон.', uz: "Yakuniy tekshiruv. Perimetrni — tomonlar yig'indisini sana." },
+      intro: { ru: 'Финальная проверка. Считай периметр — сумму сторон.', uz: "Yakuniy tekshiruv. Perimetrni — tomonlar yig'indisini sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сложи все стороны, обойди весь край.', uz: "Barcha tomonlarni qo'sh, butun chetni aylan." }
+      on_wrong: { ru: 'Сложи все стороны, обойди весь край.', uz: "Barcha tomonlarni qo'shing, butun chetni aylaning." }
     }
   },
 
@@ -1229,7 +1229,7 @@ const CONTENT = {
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
     cando: { ru: 'Теперь ты считаешь периметр — сумму сторон!', uz: "Endi siz perimetrni — tomonlar yig'indisini sanaysiz!" },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Периметр = сумма всех сторон. Обойди край, сложи стороны.', uz: "Perimetr = barcha tomonlar yig'indisi. Chetni aylan, tomonlarni qo'sh." },
+    rule_recap: { ru: 'Периметр = сумма всех сторон. Обойди край, сложи стороны.', uz: "Perimetr = barcha tomonlar yig'indisi. Chetni aylaning, tomonlarni qo'shing." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'многоугольник и длина', uz: "ko'pburchak va uzunlik" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
@@ -2303,14 +2303,14 @@ const JourneyPlanet = ({ i, cur, style }) => {
 const ReadinessMeter = ({ screen, total, lang }) => {
   const pct = total > 1 ? Math.max(0, Math.min(100, (screen / (total - 1)) * 100)) : 0;
   const label = (READY_LABEL[lang] || READY_LABEL.ru);
-  const rocketBottom = ((3 + pct / 100) / 6) * 100;   // Б4: Saturn(50%) → Uran(66.6%) oralig'ida
+  const rocketBottom = ((4 + pct / 100) / 6) * 100;   // Б5: Uran(66.6%) → Neptun(83.3%) oralig`ida
   return (
     <div className="d2-gauge" aria-hidden="true">
       <span className="d2-gauge-label mono">{label}</span>
       <span className="d2-jroute">
         <span className="d2-jhome">🏠</span>
         {JOURNEY_DOTS.map((_, i) => (
-          <JourneyPlanet key={i} i={i} cur={i === 3} style={{ bottom: `${(i / 6) * 100}%` }}/>
+          <JourneyPlanet key={i} i={i} cur={i === 4} style={{ bottom: `${(i / 6) * 100}%` }}/>
         ))}
         <span className="d2-gauge-rocket" style={{ bottom: `${rocketBottom}%` }}><RocketSvg flame/></span>
       </span>
@@ -5762,7 +5762,7 @@ const MatchStage = ({ props, cKey }) => {
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
 const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisobla:' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();

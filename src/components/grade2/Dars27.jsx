@@ -991,7 +991,7 @@ const CONTENT = {
   // s2 — TUSHUNTIRISH-2: NOMLASH — tomon sonini sana → nom (uch/to'rt/besh burchak)
   s2: {
     eyebrow: { ru: 'Как назвать', uz: 'Nomlash' },
-    lead: { ru: 'Считай стороны — узнаёшь имя.', uz: "Tomonlarni sana — nomini bilasan." },
+    lead: { ru: 'Считай стороны — узнаёшь имя.', uz: "Tomonlarni sanang — nomini bilasiz." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
     info: { ru: 'Имя — по числу сторон: три стороны — треугольник, четыре — четырёхугольник, пять — пятиугольник.', uz: "Nom — tomonlar soniga qarab: uchta tomon — uchburchak, to'rtta — to'rtburchak, beshta — beshburchak." },
     audio: {
@@ -1013,10 +1013,10 @@ const CONTENT = {
   // s3 — QOIDA: tomon sonini sana → nom + check COUNT (beshburchak → 5 tomon)
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Считай стороны: 3 стороны — треугольник, 4 — четырёхугольник, 5 — пятиугольник. Сторон столько же, сколько углов.', uz: "Tomonlarni sana: 3 tomon — uchburchak, 4 — to'rtburchak, 5 — beshburchak. Tomon soni burchak soniga teng." },
+    rule: { ru: 'Считай стороны: 3 стороны — треугольник, 4 — четырёхугольник, 5 — пятиугольник. Сторон столько же, сколько углов.', uz: "Tomonlarni sanang: 3 tomon — uchburchak, 4 — to'rtburchak, 5 — beshburchak. Tomon soni burchak soniga teng." },
     check_q: { ru: 'Сколько сторон у этой фигуры?', uz: "Bu shaklning nechta tomoni bor?" },
     opts: [{ ru: '4', uz: '4' }, { ru: '5', uz: '5', ok: true }, { ru: '6', uz: '6' }],
-    wrong: { ru: 'Посчитай стороны ещё раз — по кругу.', uz: "Tomonlarni yana sana — aylana bo'ylab." },
+    wrong: { ru: 'Посчитай стороны ещё раз — по кругу.', uz: "Tomonlarni yana sanang — aylana bo'ylab." },
     check_ok: { ru: 'Верно! Пять сторон — пятиугольник.', uz: "To'g'ri! Beshta tomon — beshburchak." },
     audio: {
       ru: [
@@ -1065,7 +1065,7 @@ const CONTENT = {
     eyebrow: { ru: 'Ключ', uz: 'Kalit' },
     lead: { ru: 'По числу сторон', uz: "Tomonlar soni bo'yicha" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Треугольник — 3 стороны, четырёхугольник — 4, пятиугольник — 5, шестиугольник — 6. Считай стороны!', uz: "Uchburchak — 3 tomon, to'rtburchak — 4, beshburchak — 5, oltiburchak — 6. Tomonlarni sana!" },
+    info: { ru: 'Треугольник — 3 стороны, четырёхугольник — 4, пятиугольник — 5, шестиугольник — 6. Считай стороны!', uz: "Uchburchak — 3 tomon, to'rtburchak — 4, beshburchak — 5, oltiburchak — 6. Tomonlarni sanang!" },
     audio: {
       ru: [
         'Запомни ключ: имя фигуры — по числу сторон.',
@@ -1086,26 +1086,26 @@ const CONTENT = {
     lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
     transition: { ru: 'Объяснение закончили. Теперь узнавай многоугольники по числу сторон.', uz: "Tushuntirishni tugatdik. Endi ko'pburchaklarni tomonlar soniga qarab taning." },
     sides: 3,
-    wrong: { ru: 'Посчитай стороны фигуры.', uz: "Shaklning tomonlarini sana." },
+    wrong: { ru: 'Посчитай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
     done_text: { ru: 'Верно! Три стороны — треугольник.', uz: "To'g'ri! Uchta tomon — uchburchak." },
     audio: {
       intro: { ru: 'Тренировка. Посчитай стороны и назови фигуру.', uz: "Mashq. Tomonlarni sanab shaklni ayting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай стороны: сколько их?', uz: "Tomonlarni sana: nechta?" }
+      on_wrong: { ru: 'Считай стороны: сколько их?', uz: "Tomonlarni sanang: nechta?" }
     }
   },
 
   // s6 — MASHQ tomon-sanash (3 round)
   s6: {
-    eyebrow: { ru: 'Считай стороны', uz: 'Tomonlarni sana' },
+    eyebrow: { ru: 'Считай стороны', uz: 'Tomonlarni sanang' },
     lead: { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" },
     rounds: [ { sides: 4, ask: 'count' }, { sides: 3, ask: 'count' }, { sides: 5, ask: 'count' } ],
-    wrong: { ru: 'Считай стороны по кругу.', uz: "Tomonlarni aylana bo'ylab sana." },
+    wrong: { ru: 'Считай стороны по кругу.', uz: "Tomonlarni aylana bo'ylab sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Считай стороны фигуры — по кругу.', uz: "Shaklning tomonlarini — aylana bo'ylab sana." },
+      intro: { ru: 'Считай стороны фигуры — по кругу.', uz: "Shaklning tomonlarini — aylana bo'ylab sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не пропускай стороны, считай по кругу.', uz: "Tomonlarni o'tkazib yuborma, aylana bo'ylab sana." }
+      on_wrong: { ru: 'Не пропускай стороны, считай по кругу.', uz: "Tomonlarni o'tkazib yubormang, aylana bo'ylab sanang." }
     }
   },
 
@@ -1128,7 +1128,7 @@ const CONTENT = {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
     rounds: [ { sides: 3 }, { sides: 5 }, { sides: 4 } ],
-    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sana." },
+    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
       intro: { ru: 'Считай стороны и называй фигуру.', uz: "Tomonlarni sanab shaklni ayting." },
@@ -1147,7 +1147,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Реши: это многоугольник или нет.', uz: "Hal qiling: bu ko'pburchakmi yoki yo'q." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь: стороны прямые? Фигура замкнута?', uz: "Tekshir: tomonlari to'g'rimi? Shakl yopiqmi?" }
+      on_wrong: { ru: 'Проверь: стороны прямые? Фигура замкнута?', uz: "Tekshiring: tomonlari to'g'rimi? Shakl yopiqmi?" }
     }
   },
 
@@ -1170,12 +1170,12 @@ const CONTENT = {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
     rounds: [ { sides: 6 }, { sides: 3 }, { sides: 5 } ],
-    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sana." },
+    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
       intro: { ru: 'Последняя тренировка перед задачей. Назови фигуру.', uz: "Masaladan oldingi oxirgi mashq. Shaklni ayting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай стороны по кругу.', uz: "Tomonlarni aylana bo'ylab sana." }
+      on_wrong: { ru: 'Считай стороны по кругу.', uz: "Tomonlarni aylana bo'ylab sanang." }
     }
   },
 
@@ -1196,12 +1196,12 @@ const CONTENT = {
     lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
     sides: 5, ask: 'count',
     story: { ru: 'Экипаж собрал для станции пятиугольный щит. Сколько у него сторон?', uz: "Ekipaj stansiya uchun beshburchak qalqon yig'di. Uning nechta tomoni bor?" },
-    wrong: { ru: 'Посчитай стороны щита по кругу.', uz: "Qalqonning tomonlarini aylana bo'ylab sana." },
+    wrong: { ru: 'Посчитай стороны щита по кругу.', uz: "Qalqonning tomonlarini aylana bo'ylab sanang." },
     done_text: { ru: 'Верно! Пять сторон — пятиугольник.', uz: "To'g'ri! Beshta tomon — beshburchak." },
     audio: {
       intro: { ru: 'Экипаж собрал пятиугольный щит. Сколько у него сторон?', uz: "Ekipaj beshburchak qalqon yig'di. Uning nechta tomoni bor?" },
       on_correct: { ru: 'Верно. Пять сторон — пятиугольник.', uz: "To'g'ri. Beshta tomon — beshburchak." },
-      on_wrong: { ru: 'Считай стороны по кругу, не пропуская.', uz: "Tomonlarni aylana bo'ylab, o'tkazib yubormay sana." }
+      on_wrong: { ru: 'Считай стороны по кругу, не пропуская.', uz: "Tomonlarni aylana bo'ylab, o'tkazib yubormay sanang." }
     }
   },
 
@@ -1210,7 +1210,7 @@ const CONTENT = {
     eyebrow: { ru: 'Финал', uz: 'Final' },
     lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
     rounds: [ { sides: 3 }, { sides: 4 }, { sides: 6 } ],
-    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sana." },
+    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
     fact_text: { ru: 'Уран вращается на боку — лёжа, как будто катится. Другие планеты крутятся стоя.', uz: "Uran yonboshlab aylanadi — yotgan holda, xuddi dumalayotgandek. Boshqa sayyoralar tik aylanadi." },
@@ -1229,7 +1229,7 @@ const CONTENT = {
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
     cando: { ru: 'Теперь ты узнаёшь многоугольники по числу сторон!', uz: "Endi siz ko'pburchaklarni tomonlar soniga qarab tanisiz!" },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Считай стороны: 3 — треугольник, 4 — четырёхугольник, 5 — пятиугольник, 6 — шестиугольник.', uz: "Tomonlarni sana: 3 — uchburchak, 4 — to'rtburchak, 5 — beshburchak, 6 — oltiburchak." },
+    rule_recap: { ru: 'Считай стороны: 3 — треугольник, 4 — четырёхугольник, 5 — пятиугольник, 6 — шестиугольник.', uz: "Tomonlarni sanang: 3 — uchburchak, 4 — to'rtburchak, 5 — beshburchak, 6 — oltiburchak." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'линия и отрезок', uz: "chiziq va kesma" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
@@ -2303,14 +2303,14 @@ const JourneyPlanet = ({ i, cur, style }) => {
 const ReadinessMeter = ({ screen, total, lang }) => {
   const pct = total > 1 ? Math.max(0, Math.min(100, (screen / (total - 1)) * 100)) : 0;
   const label = (READY_LABEL[lang] || READY_LABEL.ru);
-  const rocketBottom = ((3 + pct / 100) / 6) * 100;   // Б4: Saturn(50%) → Uran(66.6%) oralig'ida
+  const rocketBottom = ((4 + pct / 100) / 6) * 100;   // Б5: Uran(66.6%) → Neptun(83.3%) oralig`ida
   return (
     <div className="d2-gauge" aria-hidden="true">
       <span className="d2-gauge-label mono">{label}</span>
       <span className="d2-jroute">
         <span className="d2-jhome">🏠</span>
         {JOURNEY_DOTS.map((_, i) => (
-          <JourneyPlanet key={i} i={i} cur={i === 3} style={{ bottom: `${(i / 6) * 100}%` }}/>
+          <JourneyPlanet key={i} i={i} cur={i === 4} style={{ bottom: `${(i / 6) * 100}%` }}/>
         ))}
         <span className="d2-gauge-rocket" style={{ bottom: `${rocketBottom}%` }}><RocketSvg flame/></span>
       </span>
@@ -5762,7 +5762,7 @@ const MatchStage = ({ props, cKey }) => {
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
 const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisobla:' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();

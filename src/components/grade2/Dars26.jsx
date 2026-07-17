@@ -1011,7 +1011,7 @@ const CONTENT = {
   // s3 — QOIDA: bo'lish = teng ulashish, ÷ belgi kiritiladi + check MC (8÷2=4)
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Считай концы (зелёные точки): 0 концов — прямая, 1 конец — луч, 2 конца — отрезок.', uz: "Uchlarni sana (yashil nuqtalar): 0 uch — to'g'ri chiziq, 1 uch — nur, 2 uch — kesma." },
+    rule: { ru: 'Считай концы (зелёные точки): 0 концов — прямая, 1 конец — луч, 2 конца — отрезок.', uz: "Uchlarni sanang (yashil nuqtalar): 0 uch — to'g'ri chiziq, 1 uch — nur, 2 uch — kesma." },
     check_q: { ru: 'У этой линии нет концов, стрелки в обе стороны. Что это?', uz: "Bu chiziqning uchi yo'q, strelka ikki tomonga. Bu nima?" },
     opts: [{ ru: 'Прямая', uz: "To'g'ri chiziq", ok: true }, { ru: 'Луч', uz: 'Nur' }, { ru: 'Отрезок', uz: 'Kesma' }],
     wrong: { ru: 'Нет концов и стрелки в обе стороны — это прямая.', uz: "Uchi yo'q, strelka ikki tomonga — bu to'g'ri chiziq." },
@@ -1063,7 +1063,7 @@ const CONTENT = {
     eyebrow: { ru: 'Ключ', uz: 'Kalit' },
     lead: { ru: 'Три линии — по концам', uz: "Uch chiziq — uchlari bilan" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай зелёные точки!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Yashil nuqtalarni sana!" },
+    info: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай зелёные точки!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Yashil nuqtalarni sanang!" },
     audio: {
       ru: [
         'Запомни ключ: смотри на концы линии — зелёные точки.',
@@ -1089,19 +1089,19 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Тренировка. Посмотри на концы и назови линию.', uz: "Mashq. Uchlarga qarab chiziqni ayting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы: сколько зелёных точек?', uz: "Uchlarni sana: nechta yashil nuqta?" }
+      on_wrong: { ru: 'Считай концы: сколько зелёных точек?', uz: "Uchlarni sanang: nechta yashil nuqta?" }
     }
   },
 
   // s6 — MASHQ uch-sanash (3 round)
   s6: {
-    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sana' },
+    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sanang' },
     lead: { ru: 'Сколько концов?', uz: "Nechta uchi bor?" },
     rounds: [ { type: 'segment', ask: 'count' }, { type: 'line', ask: 'count' }, { type: 'ray', ask: 'count' } ],
-    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sana." },
+    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Считай концы линии — зелёные точки.', uz: "Chiziqning uchlarini — yashil nuqtalarni sana." },
+      intro: { ru: 'Считай концы линии — зелёные точки.', uz: "Chiziqning uchlarini — yashil nuqtalarni sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'У прямой ноль, у луча один, у отрезка два.', uz: "To'g'ri chiziqda nol, nurda bir, kesmada ikki." }
     }
@@ -1117,7 +1117,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Посмотри на предмет и назови линию: прямая, луч или отрезок.', uz: "Buyumga qarab chiziqni ayting: to'g'ri chiziq, nur yoki kesma." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы: у линии горизонта их нет, у луча один, у карандаша два.', uz: "Uchlarni sana: ufq chizig'i uchsiz, nur bitta, qalam ikkita." }
+      on_wrong: { ru: 'Считай концы: у линии горизонта их нет, у луча один, у карандаша два.', uz: "Uchlarni sanang: ufq chizig'i uchsiz, nur bitta, qalam ikkita." }
     }
   },
 
@@ -1126,7 +1126,7 @@ const CONTENT = {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
     rounds: [ { type: 'segment' }, { type: 'ray' }, { type: 'line' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sana." },
+    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
       intro: { ru: 'Смотри на концы и называй линию.', uz: "Uchlarga qarab chiziqni ayting." },
@@ -1137,15 +1137,15 @@ const CONTENT = {
 
   // s9 — MASHQ uch-sanash (3 round)
   s9: {
-    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sana' },
+    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sanang' },
     lead: { ru: 'Сколько концов?', uz: "Nechta uchi bor?" },
     rounds: [ { type: 'line', ask: 'count' }, { type: 'ray', ask: 'count' }, { type: 'segment', ask: 'count' } ],
-    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sana." },
+    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова считай концы линии.', uz: "Yana chiziqning uchlarini sana." },
+      intro: { ru: 'Снова считай концы линии.', uz: "Yana chiziqning uchlarini sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри только на концы линии.', uz: "Faqat chiziqning uchlariga qara." }
+      on_wrong: { ru: 'Смотри только на концы линии.', uz: "Faqat chiziqning uchlariga qarang." }
     }
   },
 
@@ -1159,7 +1159,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Снова назови линию по предмету.', uz: "Yana buyumga qarab chiziqni ayting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы предмета.', uz: "Buyumning uchlarini sana." }
+      on_wrong: { ru: 'Считай концы предмета.', uz: "Buyumning uchlarini sanang." }
     }
   },
 
@@ -1168,7 +1168,7 @@ const CONTENT = {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
     rounds: [ { type: 'ray' }, { type: 'line' }, { type: 'segment' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sana." },
+    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
       intro: { ru: 'Последняя тренировка перед задачей. Назови линию.', uz: "Masaladan oldingi oxirgi mashq. Chiziqni ayting." },
@@ -1208,7 +1208,7 @@ const CONTENT = {
     eyebrow: { ru: 'Финал', uz: 'Final' },
     lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
     rounds: [ { type: 'line' }, { type: 'ray' }, { type: 'segment' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sana." },
+    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
     fact_text: { ru: 'Уран вращается «на боку» — лёжа, как будто катится. Другие планеты крутятся стоя.', uz: "Uran «yonboshlab» aylanadi — yotgan holda, xuddi dumalayotgandek. Boshqa sayyoralar tik aylanadi." },
@@ -1227,7 +1227,7 @@ const CONTENT = {
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
     cando: { ru: 'Теперь ты различаешь прямую, луч и отрезок!', uz: "Endi siz to'g'ri chiziq, nur va kesmani ajratasiz!" },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай концы!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Uchlarni sana!" },
+    rule_recap: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай концы!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Uchlarni sanang!" },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'точка и линия', uz: "nuqta va chiziq" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
@@ -2301,14 +2301,14 @@ const JourneyPlanet = ({ i, cur, style }) => {
 const ReadinessMeter = ({ screen, total, lang }) => {
   const pct = total > 1 ? Math.max(0, Math.min(100, (screen / (total - 1)) * 100)) : 0;
   const label = (READY_LABEL[lang] || READY_LABEL.ru);
-  const rocketBottom = ((3 + pct / 100) / 6) * 100;   // Б4: Saturn(50%) → Uran(66.6%) oralig'ida
+  const rocketBottom = ((4 + pct / 100) / 6) * 100;   // Б5: Uran(66.6%) → Neptun(83.3%) oralig`ida
   return (
     <div className="d2-gauge" aria-hidden="true">
       <span className="d2-gauge-label mono">{label}</span>
       <span className="d2-jroute">
         <span className="d2-jhome">🏠</span>
         {JOURNEY_DOTS.map((_, i) => (
-          <JourneyPlanet key={i} i={i} cur={i === 3} style={{ bottom: `${(i / 6) * 100}%` }}/>
+          <JourneyPlanet key={i} i={i} cur={i === 4} style={{ bottom: `${(i / 6) * 100}%` }}/>
         ))}
         <span className="d2-gauge-rocket" style={{ bottom: `${rocketBottom}%` }}><RocketSvg flame/></span>
       </span>
@@ -5760,7 +5760,7 @@ const MatchStage = ({ props, cKey }) => {
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
 const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisobla:' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();

@@ -184,6 +184,48 @@ export const grade2Nazariy = [
     desc: "Berilgan o'lchamga qarab shakl yasash (Б5 Uran maketa): eni va bo'yini kataklab sozlab to'rtburchak qurish yoki o'lchamga mos shaklni tanlash. Stepper-yasash + o'lchamга-mos-tanlash aralash.",
     Component: lazy(() => import('../components/grade2/Dars30.jsx')),
   },
+  {
+    slug: 'dars31-takrorlash-geometriya',
+    title: "Dars 31. Takrorlash: butun geometriya",
+    desc: "Б5 yakuni (Uran ustaxonasi): chiziq turlari, ko'pburchaklar, sm/dm/m va perimetrni bir joyga bog'lash. Yangi «zanjir» mexanikasi — bitta shakl uch qadamda: nomi → chizg'ich bilan o'lchov → perimetr. Yuza YO'Q.",
+    Component: lazy(() => import('../components/grade2/Dars31.jsx')),
+  },
+  {
+    slug: 'dars32-sonli-harfli-ifoda',
+    title: "Dars 32. Sonli va harfli ifodalar",
+    desc: "Б6 boshi (Neptun stansiyasi): sonli ifoda (3+5) va harfli ifoda (a+5). Harf — ichiga son qo'yiladigan «oyna»: a=2 bo'lsa a+5 = 7. Bitta ifoda, har xil son → har xil qiymat. Oynaga son qo'yish + sonli/harfli ajratish + so'zga mos ifodani tanlash.",
+    Component: lazy(() => import('../components/grade2/Dars32.jsx')),
+  },
+  {
+    slug: 'dars33-tenglamalar',
+    title: "Dars 33. Tenglamalar",
+    desc: "Б6 (Neptun stansiyasi): noma'lumni topish. x+4=9 — x «yashirin son». Tenglama = ikki teng tomon (tarozi). Noma'lumni topish uchun natijadan ma'lumni ol (teskari amal), keyin qo'yib tekshir. Tarozi + yashirin oyna + qo'yib-tekshirish mashqlari.",
+    Component: lazy(() => import('../components/grade2/Dars33.jsx')),
+  },
+  {
+    slug: 'dars34-ulushlar',
+    title: "Dars 34. Ulushlar (доли)",
+    desc: "Б6 (Neptun stansiyasi): ulush — butunning teng qismlaridan biri. Butunni N ta teng qismga bo'l, bittasini bo'ya → «bir Ndan». Faqat birlik ulush; teng qism sharti; ko'proq qism → kichikroq ulush (bir ikkidan > bir to'rtdan). Nomlash + shakl tanlash + solishtirish.",
+    Component: lazy(() => import('../components/grade2/Dars34.jsx')),
+  },
+  {
+    slug: 'dars35-vaqt-soat',
+    title: "Dars 35. Vaqt (soat va daqiqa)",
+    desc: "Б6 (Neptun stansiyasi): soatga qarab vaqtni o'qish. Kalta strelka — soat, uzun — daqiqa (har raqam = 5 daqiqa). Butun soat, yarim (30), chorak (15), 5-daqiqalik. Analog↔raqamli moslash. Ulush ko'prigi: yarim soat = siferblat yarmi.",
+    Component: lazy(() => import('../components/grade2/Dars35.jsx')),
+  },
+  {
+    slug: 'dars36-kalendar',
+    title: "Dars 36. Kalendar (kun, hafta, oy)",
+    desc: "Б6 (Neptun stansiyasi, bort jurnali): hafta kunlari (7, tartib bilan), oylar (12), sana↔hafta kuni. Kecha/bugun/erta. Kalendar-katakni o'qish. Hafta = 7 kun, oy ≈ 30 kun, yil = 12 oy.",
+    Component: lazy(() => import('../components/grade2/Dars36.jsx')),
+  },
+  {
+    slug: 'dars37-pul',
+    title: "Dars 37. Pul (tanga bilan hisob)",
+    desc: "Б6 (Neptun stansiyasi, almashuv): pulni qiymat bo'yicha sanash. Har tangada qiymat bor (dona emas). Nominal 100/200/500 so'm tanga + 1000 so'm banknota. Summani yig'ish, qaysi to'plamda ko'p. Ko'p tanga ≠ ko'p pul.",
+    Component: lazy(() => import('../components/grade2/Dars37.jsx')),
+  },
 ]
 
 // 2-sinf AMALIY mashqlari (jsx-question, PracticeHost preview orqali).

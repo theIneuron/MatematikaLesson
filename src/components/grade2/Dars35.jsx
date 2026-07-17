@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 2-SINF · Dars18 — "Закрепление · перестановка множителей" (mul-2-18-v1) · Б3 (YUPITER) · ETALON §11 ░░
-// 2-SINF · syujet-qobiq v3: YUPITER orbitasi, KEMA ISSIQXONASI/OMBORI. Program d.20 (SYUJET_2SINF.md Б3 yakuni).
-// Baza: Dars17.jsx (×8/×9 jadvali — issiqxona sahnasi + geo/plant ArrayViz + TableFill + jadval-yordamchi max=9).
+// ░░ 2-SINF · Dars35 — "Время: часы и минуты" (vaqt-2-35-v1) · Б6 (NEPTUN) · ETALON §11 ░░
+// 2-SINF · syujet-qobiq v3: NEPTUN orbitasi, STANSIYA DEKASI. Program d.38 (SYUJET_2SINF.md Б6).
+// Baza: Dars34.jsx (Б6 ulush — Neptun biom + siz-registr). Ulush (ShareFig), tenglama, ifoda va geometriya
+//   komponentlari shu darsda O'LIK KOD — render'ga chiqmaydi (klon an'anasi).
 // Infra: grade1 Dars28.jsx dan BAYT-ANIQ (mobil zoom-qatlam + avtoskroll + keep-visible
 // QuestionScreen + AnsPop + useCanAnswer/useAdvanceGate + v5.2 AudioEngine, ayol ovoz g=f).
-// YADRO: MUSTAHKAMLASH + O'RIN ALMASHISH (kommutativlik) — a×b = b×a. Massivni BURSAK (qator↔ustun) jami
-//   O'ZGARMAYDI. Butun jadvalni (×2..×9) qo'llash. Yangi mexanika: CommuteViz (massiv burilishi) + «teng?» Ha/Yo'q.
-// DUNYO: Yupiter orbitasi, kema issiqxonasi/ombori — yig'ilgan hosil qutilarga terilganda o'rin almashadi.
-//   Cast: Bit (kapitan-diktor, ayol ovoz). Jadval-yordamchi (MultTable) max=9 — to'liq Pifagor jadvali.
-// MEXANIKA: «MASSIV+SKIP-SANASH» + «JADVALNI TO'LDIRISH» (meros) + «O'RIN ALMASHISH» (CommuteViz burilish, Ha/Yo'q teng?).
-// Misconception'lar: M1 3×5 ≠ 5×3 deb o'ylash · M2 skip-sanashда o'tkazib yuborish · M3 jadval bo'sh joyini noto'g'ri.
+// YADRO: VAQT — soatga qarab o'qish. Kalta strelka = SOAT, uzun = DAQIQA (har raqam = 5 daqiqa). Butun soat / yarim (30,
+//   uzun 6 da) / chorak (15, uzun 3 da) / 5-daqiqalik. Ulush ko'prigi (d.37): yarim soat = siferblat yarmi, chorak = chorak.
+// DUNYO: Neptun orbitasi, STANSIYA DEKASI — ekipaj soatga qarab vaqtni tekshiradi. Cast: Bit + ekipaj (s13 masala).
+// MEXANIKA (metodist 2026-07-17: ARALASH): ClockFace (siferblat + kalta soat / uzun daqiqa strelkasi) + ReadClockStage
+//   (vaqtni o'qi → MC h:mm) · MatchClockStage (analog↔raqamli; toDigital = soat→yozuv, toClock = yozuv→soat tanlash).
+// Misconception'lar: M1 strelkalarni almashtirish (uzunni soat deb) · M2 daqiqa strelkasi 3 da → «3 daqiqa» (15 emas) ·
+//   M3 yarimда soat yaxlitlash (3:30→4:30) · M4 noto'g'ri yozuv. Distraktor = aynan shu.
+// UZ ⚠️: vaqt-o'qish shakli DRAFT («soat to'rt, o'ttiz daqiqa»; idiomatik «uch yarim» qo'llanmadi) — validatsiya kerak.
 //
 // FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
 //
@@ -891,28 +894,32 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'len-2-28-v1',
-  lessonTitle: { ru: 'Урок 28. Длина: см, дм, м', uz: "28-dars. Uzunlik: sm, dm, m" }
+  lessonId: 'vaqt-2-35-v1',
+  lessonTitle: { ru: 'Урок 35. Время', uz: "35-dars. Vaqt" }
 };
-// STRUKTURA (Б5 URAN YO'LDOSHI ustaxonasi, o'lchash; Uran gaz/muz gigant — yo'ldoshda stansiya): s0 hook (katta modul → qaysi birlik) · s1 santimetr (chizg'ich, 0 ga to'g'irlab) · s2 dm/m (1 dm=10 sm, 1 m=100 sm) · s3 QOIDA (o'girish) + check convert · s4 qaysi birlik qachon (qalam/parta/modul) + check unit · sTBL birliklar zinapoyasi · s5–s11 mashq (chizg'ich-o'qish + birlik-tanlash + o'girish aralash) · s13 masala (detalni o'lcha) · s14 final · s15 xulosa (→ perimetr).
-// MEXANIKA: LenStage (round.mode: 'ruler' chizg'ichda nechta sm o'qish / 'unit' qaysi birlik sm/dm/m / 'convert' dm→sm, m→dm o'girish, MC). Distraktor = qo'shni son / birlik yoki o'girmagan qiymat.
+// STRUKTURA (Б6 NEPTUN, vaqt): s0 hook (3:00, «12:15»mi? — strelka almashtirish) · s1 ClockFace teach (ikki strelka, 3:00) ·
+// s2 yarim soat (uzun 6 da, 3:30) · s3 QOIDA (kalta→soat, uzun→daqiqa) + check (6:00) · s4 CHORAK + warn (3 da=15) + check
+// (2:15) · sTBL KALIT (3:00/4:30/2:15) · s5/s7/s9/s10 ReadClockStage · s6 MatchClockStage(toDigital) · s8/s11
+// MatchClockStage(toClock) · s13 masala (7:30) · s14 final (Read ×3 + Fakt Neptun) · s15 xulosa (→ d.39).
+// MEXANIKA (ARALASH): ClockFace (kalta soat / uzun daqiqa) + ReadClockStage (o'qi→h:mm) + MatchClockStage (toDigital/toClock).
+// Distraktor = misconception (M1 strelka almashish, M2 daqiqa×5, M3 soat yaxlitlash, M4 noto'g'ri yozuv).
 const SCREEN_META = [
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: katta modul → qaysi birlik? metr (distr sm)
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  santimetr: chizg'ich, 0 ga to'g'irlab oxirini o'qi
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  dm/m: 1 dm=10 sm, 1 m=100 sm
-  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: o'girish + check CONVERT (1 dm→10 sm)
-  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  qaysi birlik qachon + check UNIT (xona→m)
-  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  kalit: sm<dm<m zinapoyasi (1 dm=10 sm, 1 m=100 sm)
-  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq CHIZG'ICH-O'QISH single
-  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq CHIZG'ICH-O'QISH: 3 round
-  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq BIRLIK-TANLASH: 3 round
-  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq O'GIRISH: 3 round
-  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq CHIZG'ICH-O'QISH: 3 round
-  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq BIRLIK-TANLASH: 3 round
-  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 12 mashq O'GIRISH: 3 round
-  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 13 MASALA: detalni chizg'ichda o'lcha — nechta sm
-  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 14 FINAL: 3 round chizg'ich-o'qish + FactCard Uran
-  { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 15 yakun + QOIDA recap (→ perimetr)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: a+5, a=2 → 7 (distr 25)
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  sonli ifoda (3+5 tanish)
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  harfli ifoda (SlotExpr step-reveal a+4)
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: harf o'rniga son + check (a+3, a=4→7)
+  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  bitta ifoda har xil qiymat + warn + check (b+2, b=4→6)
+  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  KALIT: almashtirish jadvali (a+3)
+  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq EVAL single (a+5, a=3→8)
+  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq EVAL: 3 round (+)
+  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq CLASSIFY: 3 round (sonli/harfli)
+  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq EVAL: 3 round (− kiritiladi)
+  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq PICKEXPR: 3 round (so'z→ifoda)
+  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq EVAL: 3 round (+/− aralash)
+  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 12 mashq CLASSIFY: 3 round
+  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 13 MASALA: stansiya kodi (k+4, k=5→9)
+  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 14 FINAL: EVAL 3 round + FactCard Neptun
+  { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 15 yakun + QOIDA recap (→ tenglama d.36)
 ];
 
 // shuffleMC — variantlarni QAT'IY order bo'yicha joylashtiradi va wrong_N/hint_N
@@ -937,337 +944,413 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // ============================================================
 
 const CONTENT = {
-  // s0 — HOOK (scope: hook): katta modul → qaysi birlik? metr (distraktor santimetr)
+  // s0 — HOOK: soat 3:00 (kalta strelka 3 da, uzun 12 da). Kimdir «12:15» deb o'qidi (strelkalarni almashtirdi). To'g'rimi? Yo'q.
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Длина — см, дм, м', uz: "Mavzu: Uzunlik — sm, dm, m" },
-    lead: { ru: 'Чем измерять?', uz: "Nima bilan o'lchaymiz?" },
-    q: { ru: 'Экипаж хочет измерить большой модуль станции. Чем его удобно измерять — сантиметрами или метрами?', uz: "Ekipaj katta stansiya modulini o'lchamoqchi. Uni qulay o'lchash uchun santimetr bilanmi yoki metr bilanmi?" },
-    opt0: { ru: 'Сантиметрами', uz: 'Santimetr bilan' },   // distraktor
-    opt1: { ru: 'Метрами', uz: 'Metr bilan' },              // to'g'ri
+    topic: { ru: 'Тема: Время', uz: "Mavzu: Vaqt" },
+    lead: { ru: 'Сколько на часах?', uz: "Soat nechada?" },
+    q: { ru: 'Короткая стрелка на трёх, длинная на двенадцати. Кто-то прочитал это как двенадцать пятнадцать. Это верно?', uz: "Kalta strelka uchda, uzun o'n ikkida. Kimdir buni o'n ikki o'n besh deb o'qidi. Bu to'g'rimi?" },
+    opt0: { ru: 'Да', uz: 'Ha' },
+    opt1: { ru: 'Нет', uz: "Yo'q" },
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Мы в мастерской на спутнике Урана. Экипаж измеряет детали, чтобы построить станцию.',
-          'Нужно измерить большой модуль станции. Он очень длинный.',
-          'Бит спрашивает: чем удобнее измерять такой большой модуль? Выбери ответ.',
-          'Послушай два ответа. Первый — сантиметрами. Второй — метрами. Или ты пока не знаешь. Выбери свой ответ.'
+          'Мы на станции у Нептуна. Экипаж сверяет время по часам.',
+          'На часах короткая стрелка стоит на трёх, а длинная — на двенадцати.',
+          'Кто-то прочитал это как двенадцать часов пятнадцать минут. Он перепутал стрелки.',
+          'Как думаешь, это верно? Послушай ответы: да или нет. Или ты пока не знаешь.'
         ],
         uz: [
-          "Uran yo'ldoshidagi ustaxonadamiz. Ekipaj stansiya qurish uchun detallarni o'lchayapti.",
-          "Katta stansiya modulini o'lchash kerak. U juda uzun.",
-          "Bit so'raydi: bunday katta modulni nima bilan o'lchash qulay? Javobni tanlang.",
-          "Ikki javobni tinglang. Birinchi — santimetr bilan. Ikkinchi — metr bilan. Yoki hali bilmaysiz. O'z javobingizni tanlang."
+          "Neptun yonidagi stansiyadamiz. Ekipaj soatga qarab vaqtni tekshiryapti.",
+          "Soatda kalta strelka uchda turibdi, uzun strelka esa o'n ikkida.",
+          "Kimdir buni soat o'n ikki, o'n besh daqiqa deb o'qidi. U strelkalarni chalkashtirdi.",
+          "Sizningcha, bu to'g'rimi? Javoblarni tinglang: ha yoki yo'q. Yoki hali bilmaysiz."
         ]
       },
-      on_correct: { ru: 'Верно. Большие предметы измеряют метрами, а маленькие — сантиметрами. Сейчас разберём все единицы.', uz: "To'g'ri. Katta narsalarni metr bilan, kichiklarini santimetr bilan o'lchaymiz. Hozir barcha birliklarni ko'ramiz." },
-      on_wrong: { ru: 'Сантиметр — маленькая единица, модуль ими мерить долго. Большое измеряют метрами. Сейчас разберём.', uz: "Santimetr — kichik birlik, modulni u bilan o'lchash uzoq. Kattani metr bilan o'lchaymiz. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Разберём сантиметр, дециметр и метр.', uz: "Hechqisi yo'q. Santimetr, detsimetr va metrni ko'ramiz." }
+      on_correct: { ru: 'Верно. Короткая стрелка — это часы: сейчас три. А длинная — минуты.', uz: "To'g'ri. Kalta strelka — bu soat: hozir uch. Uzun strelka esa — daqiqa." },
+      on_wrong: { ru: 'Он перепутал стрелки. Короткая показывает часы, длинная — минуты. Сейчас разберём.', uz: "U strelkalarni chalkashtirdi. Kalta strelka soatni, uzun daqiqani ko'rsatadi. Hozir ko'ramiz." },
+      on_unknown: { ru: 'Ничего. Сегодня научимся читать время по часам.', uz: "Hechqisi yo'q. Bugun soatga qarab vaqtni o'qishni o'rganamiz." }
     }
   },
 
-  // s1 — TUSHUNTIRISH-1: SANTIMETR — kichik birlik, chizg'ich bilan (0 ga to'g'irlab, oxirini o'qi)
+  // s1 — TUSHUNTIRISH-1: ClockFace, ikki strelka. Kalta=soat (soat strelkasi), uzun=daqiqa. Butun soat 3:00. 4 seg step.
   s1: {
-    eyebrow: { ru: 'Сантиметр', uz: 'Santimetr' },
-    lead: { ru: 'Сантиметр — маленькая мера.', uz: "Santimetr — kichik o'lchov." },
-    body: { ru: 'Длину измеряют линейкой. Начало предмета ставят на ноль, а потом смотрят, у какого числа его конец. Здесь конец у пятёрки — значит, длина пять сантиметров.', uz: "Uzunlikni chizg'ich bilan o'lchaymiz. Buyumning boshini nolga qo'yamiz, so'ng oxiri qaysi songa to'g'ri kelishiga qaraymiz. Bu yerda oxiri beshda — demak uzunligi besh santimetr." },
+    eyebrow: { ru: 'Часы', uz: 'Soat' },
+    lead: { ru: 'Две стрелки', uz: "Ikki strelka" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Ставь начало на 0 и читай число у конца. Сантиметр (см) — для маленьких предметов.', uz: "Boshni 0 ga qo'y va oxiridagi sonni o'qing. Santimetr (sm) — kichik narsalar uchun." },
+    info: { ru: 'Короткая стрелка показывает часы, длинная — минуты. Когда длинная на двенадцати — минут ноль, целый час.', uz: "Kalta strelka soatni, uzun strelka daqiqani ko'rsatadi. Uzun o'n ikkida bo'lsa — daqiqa nol, butun soat." },
     audio: {
       ru: [
-        'Длину измеряют линейкой.',
-        'Начало предмета ставят на ноль, а конец показывает число.',
-        'Здесь конец у пятёрки. Значит, длина пять сантиметров.'
+        'Посмотри на часы. У них две стрелки.',
+        'Короткая стрелка показывает часы. Сейчас она на трёх — значит, три часа.',
+        'Длинная стрелка показывает минуты. Сейчас она на двенадцати — значит, минут ноль.',
+        'Читаем вместе: три часа ровно.'
       ],
       uz: [
-        "Uzunlikni chizg'ich bilan o'lchaymiz.",
-        "Buyumning boshi nolda turadi, oxiri esa sonni ko'rsatadi.",
-        "Bu yerda oxiri beshda. Demak, uzunligi besh santimetr."
+        "Soatga qarang. Uning ikkita strelkasi bor.",
+        "Kalta strelka soatni ko'rsatadi. Hozir u uchda — demak, soat uch.",
+        "Uzun strelka daqiqani ko'rsatadi. Hozir u o'n ikkida — demak, daqiqa nol.",
+        "Birga o'qiymiz: roppa-rosa soat uch."
       ]
     }
   },
 
-  // s2 — TUSHUNTIRISH-2: DETSIMETR va METR — katta birliklar (1 dm = 10 sm, 1 m = 100 sm)
+  // s2 — TUSHUNTIRISH-2: yarim soat. Uzun strelka 6 da = 30 daqiqa = yarim soat (ulush ko'prigi). 4 seg.
   s2: {
-    eyebrow: { ru: 'Дециметр и метр', uz: 'Detsimetr va metr' },
-    lead: { ru: 'Единицы побольше: дм и м.', uz: "Kattaroq birliklar: dm va m." },
+    eyebrow: { ru: 'Полчаса', uz: 'Yarim soat' },
+    lead: { ru: 'Длинная на шести — полчаса', uz: "Uzun oltida — yarim soat" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: '1 дециметр = 10 сантиметров. 1 метр = 100 сантиметров.', uz: "1 detsimetr = 10 santimetr. 1 metr = 100 santimetr." },
+    info: { ru: 'Длинная стрелка на шести — это тридцать минут, ровно полциферблата. Это половина часа.', uz: "Uzun strelka oltida — bu o'ttiz daqiqa, siferblatning roppa-rosa yarmi. Bu — yarim soat." },
     audio: {
       ru: [
-        'Для длинных предметов есть единицы побольше.',
-        'Дециметр — это десять сантиметров в ряд.',
-        'Один дециметр равен десяти сантиметрам.',
-        'А один метр равен ста сантиметрам. Метром меряют комнату или модуль.'
+        'Теперь длинная стрелка прошла полкруга и стоит на шести.',
+        'Полкруга — это тридцать минут. Ровно половина часа.',
+        'Короткая стрелка ушла немного дальше трёх — часы всё ещё три.',
+        'Читаем: три часа тридцать минут. Это полчаса, как половина из прошлого урока.'
       ],
       uz: [
-        "Uzun narsalar uchun kattaroq birliklar bor.",
-        "Detsimetr — bu qatordagi o'nta santimetr.",
-        "Bir detsimetr o'n santimetrga teng.",
-        "Bir metr esa yuz santimetrga teng. Metr bilan xona yoki modul o'lchanadi."
+        "Endi uzun strelka doiraning yarmini bosib o'tdi va oltida turibdi.",
+        "Doiraning yarmi — bu o'ttiz daqiqa. Soatning roppa-rosa yarmi.",
+        "Kalta strelka uchdan sal narigа o'tdi — soat hali ham uch.",
+        "O'qiymiz: soat uch, o'ttiz daqiqa. Bu — yarim soat, o'tgan darsdagi yarim kabi."
       ]
     }
   },
 
-  // s3 — QOIDA: 1 dm=10 sm, 1 m=100 sm + check CONVERT (1 dm → 10 sm)
+  // s3 — QOIDA: kalta→qaysi soat, uzun→daqiqa (raqam×5) + check (soat 6:00).
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: '1 дм = 10 см. 1 м = 10 дм = 100 см. Маленькое — в см, большое — в м.', uz: "1 dm = 10 sm. 1 m = 10 dm = 100 sm. Kichik narsa — sm da, katta — m da." },
-    check_q: { ru: '1 дм — сколько это см?', uz: "1 dm — necha sm?" },
-    opts: [{ ru: '1', uz: '1' }, { ru: '10', uz: '10', ok: true }, { ru: '100', uz: '100' }],
-    wrong: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'nta santimetr bor." },
-    check_ok: { ru: 'Верно! 1 дм = 10 см.', uz: "To'g'ri! 1 dm = 10 sm." },
+    rule: { ru: 'Сначала посмотри на короткую стрелку — какой час. Потом на длинную — сколько минут.', uz: "Avval kalta strelkaga qarang — qaysi soat. Keyin uzun strelkaga — necha daqiqa." },
+    fig: { h: 6, m: 0 },
+    check_q: { ru: 'Короткая на шести, длинная на двенадцати. Сколько времени?', uz: "Kalta oltida, uzun o'n ikkida. Soat nechada?" },
+    opts: [{ ru: '6:00', uz: '6:00', ok: true }, { ru: '12:30', uz: '12:30' }, { ru: '6:12', uz: '6:12' }],
+    wrong: { ru: 'Короткая стрелка — часы: она на шести. Длинная на двенадцати — минут ноль. Значит, шесть часов.', uz: "Kalta strelka — soat: u oltida. Uzun o'n ikkida — daqiqa nol. Demak, soat olti." },
+    check_ok: { ru: 'Верно! Шесть часов ровно.', uz: "To'g'ri! Roppa-rosa soat olti." },
     audio: {
       ru: [
-        'Запишем правило. Слушай и запомни.',
-        'Один дециметр равен десяти сантиметрам.',
-        'Один метр равен ста сантиметрам.',
-        'Проверь. Один дециметр — это сколько сантиметров?'
+        'Запомним правило. Слушай.',
+        'Сначала короткая стрелка — какой час.',
+        'Потом длинная стрелка — сколько минут.',
+        'Проверь. Короткая на шести, длинная на двенадцати. Сколько времени?'
       ],
       uz: [
-        "Qoidani yozamiz. Tinglang va yodlang.",
-        "Bir detsimetr o'n santimetrga teng.",
-        "Bir metr yuz santimetrga teng.",
-        "Tekshir. Bir detsimetr — bu necha santimetr?"
+        "Qoidani eslab qolamiz. Tinglang.",
+        "Avval kalta strelka — qaysi soat.",
+        "Keyin uzun strelka — necha daqiqa.",
+        "Tekshiring. Kalta oltida, uzun o'n ikkida. Soat nechada?"
       ]
     }
   },
 
-  // s4 — TUSHUNTIRISH-3: QAYSI BIRLIK QACHON — qalam(sm)/parta(dm)/xona-modul(m) + check unit
+  // s4 — TUSHUNTIRISH-3 (CHORAK + WARN): uzun 3 da = 15 daqiqa (chorak). warn: 3 da → «3 daqiqa» EMAS, 15. check (2:15).
   s4: {
-    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
-    lead: { ru: 'Для каждого — своя единица.', uz: "Har narsaga — o'z birligi." },
-    body: { ru: 'Карандаш меряют в сантиметрах, парту — в дециметрах, а комнату или модуль — в метрах. Чем больше предмет, тем крупнее единица.', uz: "Qalamni santimetrda, partani detsimetrda, xona yoki modulni esa metrda o'lchaymiz. Narsa qancha katta bo'lsa, birlik shuncha yirik." },
-    warn: { ru: 'Маленькое — в сантиметрах, большое — в метрах.', uz: "Kichik narsani — santimetrda, katta narsani — metrda." },
-    check_q: { ru: 'Комнату чем измеряем?', uz: "Xonani nima bilan o'lchaymiz?" },
-    opts: [{ ru: 'см', uz: 'sm' }, { ru: 'м', uz: 'm', ok: true }],
-    wrong: { ru: 'Комната большая — её меряют в метрах.', uz: "Xona katta — uni metrda o'lchaymiz." },
-    check_ok: { ru: 'Верно! Комнату — в метрах.', uz: "To'g'ri! Xonani — metrda." },
+    eyebrow: { ru: 'Четверть', uz: 'Chorak' },
+    lead: { ru: 'Длинная на трёх — пятнадцать минут', uz: "Uzun uchda — o'n besh daqiqa" },
+    fig: { h: 2, m: 15 },
+    warn: { ru: 'Длинная стрелка на трёх — это не три минуты, а пятнадцать. Каждый номер — это по пять минут.', uz: "Uzun strelka uchda — bu uch daqiqa emas, o'n besh. Har bir raqam — besh daqiqadan." },
+    check_q: { ru: 'Короткая на двух, длинная на трёх. Сколько времени?', uz: "Kalta ikkida, uzun uchda. Soat nechada?" },
+    opts: [{ ru: '2:15', uz: '2:15', ok: true }, { ru: '2:03', uz: '2:03' }, { ru: '3:15', uz: '3:15' }],
+    wrong: { ru: 'Длинная на трёх — это пятнадцать минут, не три. Часы — по короткой: два. Значит, два пятнадцать.', uz: "Uzun uchda — bu o'n besh daqiqa, uch emas. Soat — kalta bo'yicha: ikki. Demak, ikki o'n besh." },
+    check_ok: { ru: 'Верно! Два часа пятнадцать минут — четверть.', uz: "To'g'ri! Soat ikki, o'n besh daqiqa — chorak." },
     audio: {
       ru: [
-        'У каждого предмета своя удобная единица.',
-        'Карандаш меряют в сантиметрах, парту — в дециметрах.',
-        'А комнату или модуль — в метрах. Чем больше предмет, тем крупнее единица.',
-        'Проверь. Комнату чем измеряем?'
+        'Длинная стрелка встала на три. Но это не три минуты.',
+        'Каждый номер на часах — это пять минут. Три номера — пятнадцать минут.',
+        'Пятнадцать минут — это четверть часа.',
+        'Проверь. Короткая на двух, длинная на трёх. Сколько времени?'
       ],
       uz: [
-        "Har buyumning o'ziga qulay birligi bor.",
-        "Qalamni santimetrda, partani detsimetrda o'lchaymiz.",
-        "Xona yoki modulni esa metrda. Narsa qancha katta, birlik shuncha yirik.",
-        "Tekshir. Xonani nima bilan o'lchaymiz?"
+        "Uzun strelka uchга keldi. Ammo bu uch daqiqa emas.",
+        "Soatdagi har bir raqam — besh daqiqa. Uch raqam — o'n besh daqiqa.",
+        "O'n besh daqiqa — bu chorak soat.",
+        "Tekshiring. Kalta ikkida, uzun uchda. Soat nechada?"
       ]
     }
   },
 
-  // sTBL — TUSHUNTIRISH: KALIT (sm < dm < m; 1 dm=10 sm, 1 m=100 sm)
+  // sTBL — KALIT: soat · soat(raqam) · daqiqa · yozuv. 3 qator (3:00, 4:30, 2:15). done sTBL_2 (3 seg).
   sTBL: {
     eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Единицы длины', uz: "Uzunlik birliklari" },
+    lead: { ru: 'Читаем часы', uz: "Soatni o'qiymiz" },
+    caption: { ru: 'Часы · время', uz: "Soat · vaqt" },
+    rows: [{ h: 3, m: 0 }, { h: 4, m: 30 }, { h: 2, m: 15 }],
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Сантиметр меньше дециметра, дециметр меньше метра. 1 дм = 10 см, 1 м = 100 см.', uz: "Santimetr detsimetrdan kichik, detsimetr metrdan kichik. 1 dm = 10 sm, 1 m = 100 sm." },
+    info: { ru: 'Сначала короткая стрелка — час. Потом длинная — минуты. Каждый номер — пять минут.', uz: "Avval kalta strelka — soat. Keyin uzun — daqiqa. Har raqam — besh daqiqa." },
     audio: {
       ru: [
-        'Запомни ключ: единицы растут от маленькой к большой.',
-        'Сантиметр меньше дециметра, а дециметр меньше метра.',
-        'В дециметре десять сантиметров, а в метре сто сантиметров.'
+        'Соберём ключ. Читаем по короткой, потом по длинной стрелке.',
+        'Три часа ровно. Четыре часа тридцать минут — полчаса.',
+        'Два часа пятнадцать минут — четверть. Каждый номер — пять минут.'
       ],
       uz: [
-        "Kalitni yodla: birliklar kichikdan kattaga o'sadi.",
-        "Santimetr detsimetrdan kichik, detsimetr esa metrdan kichik.",
-        "Detsimetrda o'nta santimetr, metrda esa yuzta santimetr bor."
+        "Kalitni yig'amiz. Avval kalta, keyin uzun strelka bo'yicha o'qiymiz.",
+        "Roppa-rosa soat uch. Soat to'rt, o'ttiz daqiqa — yarim soat.",
+        "Soat ikki, o'n besh daqiqa — chorak. Har raqam — besh daqiqa."
       ]
     }
   },
 
-  // s5 — MASHQ single CHIZG'ICH-O'QISH (4 sm)
+  // s5 — MASHQ ReadClockStage: butun soatlar. distraktor = strelkalar almashgan (M1).
   s5: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-    transition: { ru: 'Объяснение закончили. Теперь измеряй сам по линейке.', uz: "Tushuntirishni tugatdik. Endi chizg'ich bilan o'zingiz o'lchang." },
-    mode: 'ruler', cm: 4,
-    wrong: { ru: 'Начало на нуле — смотри, у какого числа конец.', uz: "Boshi nolda — oxiri qaysi songa to'g'ri kelishiga qarang." },
-    done_text: { ru: 'Верно! Конец у четвёрки.', uz: "To'g'ri! Oxiri to'rtda." },
+    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    mode: 'read',
+    rounds: [
+      { h: 5, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '5:00', uz: '5:00', ok: true }, { ru: '12:25', uz: '12:25', wrong: { ru: 'Ты перепутал стрелки. Короткая на пяти — это часы. Длинная на двенадцати — минут ноль. Пять часов.', uz: "Strelkalarni chalkashtirdingiz. Kalta beshda — bu soat. Uzun o'n ikkida — daqiqa nol. Soat besh." } }, { ru: '5:12', uz: '5:12', wrong: { ru: 'Длинная на двенадцати — это ноль минут, не двенадцать. Пять часов ровно.', uz: "Uzun o'n ikkida — bu nol daqiqa, o'n ikki emas. Roppa-rosa soat besh." } }],
+        correct_text: { ru: 'Верно. Пять часов ровно.', uz: "To'g'ri. Roppa-rosa soat besh." } },
+      { h: 9, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '9:00', uz: '9:00', ok: true }, { ru: '12:45', uz: '12:45', wrong: { ru: 'Короткая стрелка — часы, она на девяти. Длинная на двенадцати — минут ноль. Девять часов.', uz: "Kalta strelka — soat, u to'qqizda. Uzun o'n ikkida — daqiqa nol. Soat to'qqiz." } }, { ru: '9:12', uz: '9:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Девять часов ровно.', uz: "Uzun o'n ikkida — nol daqiqa. Roppa-rosa soat to'qqiz." } }],
+        correct_text: { ru: 'Верно. Девять часов ровно.', uz: "To'g'ri. Roppa-rosa soat to'qqiz." } },
+      { h: 7, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '7:00', uz: '7:00', ok: true }, { ru: '12:35', uz: '12:35', wrong: { ru: 'Не путай стрелки. Короткая на семи — часы. Семь часов.', uz: "Strelkalarni chalkashtirmang. Kalta yettida — soat. Soat yetti." } }, { ru: '7:12', uz: '7:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Семь часов ровно.', uz: "Uzun o'n ikkida — nol daqiqa. Roppa-rosa soat yetti." } }],
+        correct_text: { ru: 'Верно. Семь часов ровно.', uz: "To'g'ri. Roppa-rosa soat yetti." } }
+    ],
     audio: {
-      intro: { ru: 'Тренировка. Начало на нуле — прочитай число у конца.', uz: "Mashq. Boshi nolda — oxiridagi sonni o'qing." },
+      intro: { ru: 'Прочитай время: сначала короткая стрелка, потом длинная.', uz: "Vaqtni o'qing: avval kalta strelka, keyin uzun." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри, у какого числа конец предмета.', uz: "Buyum oxiri qaysi songa to'g'ri kelishiga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s6 — MASHQ CHIZG'ICH-O'QISH (3 round)
+  // s6 — MASHQ MatchClockStage toDigital: analog → raqamli yozuvni tanla. distraktor = noto'g'ri daqiqa (M4).
   s6: {
-    eyebrow: { ru: 'Измеряй', uz: "O'lchang" },
-    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-    rounds: [ { mode: 'ruler', cm: 6 }, { mode: 'ruler', cm: 3 }, { mode: 'ruler', cm: 8 } ],
-    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
+    label: { ru: 'Какая запись подходит?', uz: "Qaysi yozuv mos keladi?" },
+    mode: 'toDigital',
+    rounds: [
+      { h: 6, m: 30, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang." },
+        opts: [{ ru: '6:30', uz: '6:30', ok: true }, { ru: '6:06', uz: '6:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Шесть тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. Olti o'ttiz." } }, { ru: '7:30', uz: '7:30', wrong: { ru: 'Короткая ещё у шести, не у семи. Шесть тридцать.', uz: "Kalta hali oltida, yettida emas. Olti o'ttiz." } }],
+        correct_text: { ru: 'Верно. Шесть тридцать — полчаса.', uz: "To'g'ri. Olti o'ttiz — yarim soat." } },
+      { h: 10, m: 0, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang." },
+        opts: [{ ru: '10:00', uz: '10:00', ok: true }, { ru: '12:50', uz: '12:50', wrong: { ru: 'Стрелки перепутаны. Короткая на десяти — часы. Десять часов.', uz: "Strelkalar chalkash. Kalta o'nda — soat. Soat o'n." } }, { ru: '10:12', uz: '10:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Десять часов.', uz: "Uzun o'n ikkida — nol daqiqa. Soat o'n." } }],
+        correct_text: { ru: 'Верно. Десять часов ровно.', uz: "To'g'ri. Roppa-rosa soat o'n." } },
+      { h: 8, m: 15, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang." },
+        opts: [{ ru: '8:15', uz: '8:15', ok: true }, { ru: '8:03', uz: '8:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут, не три. Восемь пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa, uch emas. Sakkiz o'n besh." } }, { ru: '3:15', uz: '3:15', wrong: { ru: 'Часы — по короткой стрелке: восемь. Восемь пятнадцать.', uz: "Soat — kalta strelka bo'yicha: sakkiz. Sakkiz o'n besh." } }],
+        correct_text: { ru: 'Верно. Восемь пятнадцать — четверть.', uz: "To'g'ri. Sakkiz o'n besh — chorak." } }
+    ],
     audio: {
-      intro: { ru: 'Измеряй по линейке. Читай число у конца предмета.', uz: "Chizg'ich bilan o'lchang. Buyum oxiridagi sonni o'qing." },
+      intro: { ru: 'Посмотри на часы и выбери верную запись времени.', uz: "Soatga qarang va to'g'ri vaqt yozuvini tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри только на конец предмета.', uz: "Faqat buyumning oxiriga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s7 — MASHQ BIRLIK-TANLASH (3 round: qalam/modul/parta)
+  // s7 — MASHQ ReadClockStage: yarim soat. distraktor = daqiqa=6 (M2) yoki soat yaxlitlangan (M3).
   s7: {
-    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
-    lead: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
-    rounds: [ { mode: 'unit', obj: 'pencil', unit: 'sm' }, { mode: 'unit', obj: 'module', unit: 'm' }, { mode: 'unit', obj: 'desk', unit: 'dm' } ],
-    wrong: { ru: 'Маленькое — в см, большое — в м.', uz: "Kichik narsa — sm da, katta — m da." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    mode: 'read',
+    rounds: [
+      { h: 4, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '4:30', uz: '4:30', ok: true }, { ru: '4:06', uz: '4:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Четыре тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. To'rt o'ttiz." } }, { ru: '5:30', uz: '5:30', wrong: { ru: 'Короткая ещё не дошла до пяти, она у четырёх. Четыре тридцать.', uz: "Kalta hali beshga yetmagan, u to'rtda. To'rt o'ttiz." } }],
+        correct_text: { ru: 'Верно. Четыре тридцать — полчаса.', uz: "To'g'ri. To'rt o'ttiz — yarim soat." } },
+      { h: 8, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '8:30', uz: '8:30', ok: true }, { ru: '9:30', uz: '9:30', wrong: { ru: 'Короткая между восемью и девятью, но час ещё восемь. Восемь тридцать.', uz: "Kalta sakkiz bilan to'qqiz orasida, ammo soat hali sakkiz. Sakkiz o'ttiz." } }, { ru: '8:06', uz: '8:06', wrong: { ru: 'Длинная на шести — тридцать минут. Восемь тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. Sakkiz o'ttiz." } }],
+        correct_text: { ru: 'Верно. Восемь тридцать.', uz: "To'g'ri. Sakkiz o'ttiz." } },
+      { h: 11, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '11:30', uz: '11:30', ok: true }, { ru: '12:30', uz: '12:30', wrong: { ru: 'Короткая ещё у одиннадцати, не у двенадцати. Одиннадцать тридцать.', uz: "Kalta hali o'n birda, o'n ikkida emas. O'n bir o'ttiz." } }, { ru: '11:06', uz: '11:06', wrong: { ru: 'Длинная на шести — тридцать минут. Одиннадцать тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. O'n bir o'ttiz." } }],
+        correct_text: { ru: 'Верно. Одиннадцать тридцать.', uz: "To'g'ri. O'n bir o'ttiz." } }
+    ],
     audio: {
-      intro: { ru: 'Посмотри на предмет и выбери удобную единицу.', uz: "Buyumga qarab qulay birlikni tanlang." },
+      intro: { ru: 'Половина часа: длинная стрелка на шести. Прочитай время.', uz: "Yarim soat: uzun strelka oltida. Vaqtni o'qing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Карандаш — в сантиметрах, модуль — в метрах.', uz: "Qalam — santimetrda, modul — metrda." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s8 — MASHQ O'GIRISH (3 round: dm→sm, m→dm)
+  // s8 — MASHQ MatchClockStage toClock: raqamli yozuv → mos soatni tanla (mini ClockFace choices).
   s8: {
-    eyebrow: { ru: 'Переведи', uz: "O'gir" },
-    lead: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" },
-    rounds: [ { mode: 'convert', from: 'dm', to: 'sm', val: 1 }, { mode: 'convert', from: 'dm', to: 'sm', val: 2 }, { mode: 'convert', from: 'm', to: 'dm', val: 1 } ],
-    wrong: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'nta santimetr bor." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
+    label: { ru: 'Выбери часы', uz: "Soatni tanlang" },
+    mode: 'toClock',
+    rounds: [
+      { name: { ru: '3:00', uz: '3:00' }, q: { ru: 'Где показано три часа?', uz: "Qayerda soat uch ko'rsatilgan?" },
+        choices: [{ h: 3, m: 0, ok: true }, { h: 12, m: 15 }, { h: 3, m: 30 }],
+        wrong: { ru: 'Три часа: короткая на трёх, длинная на двенадцати.', uz: "Soat uch: kalta uchda, uzun o'n ikkida." },
+        correct_text: { ru: 'Верно. Три часа ровно.', uz: "To'g'ri. Roppa-rosa soat uch." } },
+      { name: { ru: '6:30', uz: '6:30' }, q: { ru: 'Где показано шесть тридцать?', uz: "Qayerda olti o'ttiz ko'rsatilgan?" },
+        choices: [{ h: 6, m: 30, ok: true }, { h: 6, m: 0 }, { h: 7, m: 30 }],
+        wrong: { ru: 'Шесть тридцать: короткая между шестью и семью, длинная на шести.', uz: "Olti o'ttiz: kalta olti bilan yetti orasida, uzun oltida." },
+        correct_text: { ru: 'Верно. Шесть тридцать.', uz: "To'g'ri. Olti o'ttiz." } },
+      { name: { ru: '9:15', uz: '9:15' }, q: { ru: 'Где показано девять пятнадцать?', uz: "Qayerda to'qqiz o'n besh ko'rsatilgan?" },
+        choices: [{ h: 9, m: 15, ok: true }, { h: 9, m: 0 }, { h: 3, m: 45 }],
+        wrong: { ru: 'Девять пятнадцать: короткая на девяти, длинная на трёх.', uz: "To'qqiz o'n besh: kalta to'qqizda, uzun uchda." },
+        correct_text: { ru: 'Верно. Девять пятнадцать.', uz: "To'g'ri. To'qqiz o'n besh." } }
+    ],
     audio: {
-      intro: { ru: 'Считай по десять: в дециметре десять сантиметров.', uz: "O'ntadan sanang: detsimetrda o'nta santimetr bor." },
+      intro: { ru: 'Выбери часы, которые показывают это время.', uz: "Shu vaqtni ko'rsatayotgan soatni tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Один дециметр — это десять сантиметров.', uz: "Bir detsimetr — bu o'nta santimetr." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s9 — MASHQ CHIZG'ICH-O'QISH (3 round)
+  // s9 — MASHQ ReadClockStage: chorak. distraktor = daqiqa=3 (M2), 9→«9».
   s9: {
-    eyebrow: { ru: 'Измеряй', uz: "O'lchang" },
-    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-    rounds: [ { mode: 'ruler', cm: 5 }, { mode: 'ruler', cm: 7 }, { mode: 'ruler', cm: 2 } ],
-    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    mode: 'read',
+    rounds: [
+      { h: 2, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '2:15', uz: '2:15', ok: true }, { ru: '2:03', uz: '2:03', wrong: { ru: 'Длинная на трёх — это пятнадцать минут, не три. Каждый номер — пять минут. Два пятнадцать.', uz: "Uzun uchda — bu o'n besh daqiqa, uch emas. Har raqam — besh daqiqa. Ikki o'n besh." } }, { ru: '3:15', uz: '3:15', wrong: { ru: 'Часы — по короткой: два. Два пятнадцать.', uz: "Soat — kalta bo'yicha: ikki. Ikki o'n besh." } }],
+        correct_text: { ru: 'Верно. Два пятнадцать — четверть.', uz: "To'g'ri. Ikki o'n besh — chorak." } },
+      { h: 7, m: 45, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '7:45', uz: '7:45', ok: true }, { ru: '7:09', uz: '7:09', wrong: { ru: 'Длинная на девяти — это сорок пять минут, не девять. Девять номеров по пять. Семь сорок пять.', uz: "Uzun to'qqizda — bu qirq besh daqiqa, to'qqiz emas. To'qqiz raqam beshdan. Yetti qirq besh." } }, { ru: '8:45', uz: '8:45', wrong: { ru: 'Короткая ещё у семи. Семь сорок пять.', uz: "Kalta hali yettida. Yetti qirq besh." } }],
+        correct_text: { ru: 'Верно. Семь сорок пять.', uz: "To'g'ri. Yetti qirq besh." } },
+      { h: 4, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '4:15', uz: '4:15', ok: true }, { ru: '4:03', uz: '4:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут. Четыре пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa. To'rt o'n besh." } }, { ru: '3:15', uz: '3:15', wrong: { ru: 'Часы — по короткой: четыре. Четыре пятнадцать.', uz: "Soat — kalta bo'yicha: to'rt. To'rt o'n besh." } }],
+        correct_text: { ru: 'Верно. Четыре пятнадцать.', uz: "To'g'ri. To'rt o'n besh." } }
+    ],
     audio: {
-      intro: { ru: 'Снова измеряй по линейке.', uz: "Yana chizg'ich bilan o'lchang." },
+      intro: { ru: 'Четверть часа. Помни: каждый номер — это пять минут.', uz: "Chorak soat. Yodda tuting: har raqam — besh daqiqa." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Читай число у конца предмета.', uz: "Buyum oxiridagi sonni o'qing." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s10 — MASHQ BIRLIK-TANLASH (3 round)
+  // s10 — MASHQ ReadClockStage: 5-daqiqalik. distraktor = raqamni ×5 qilmaslik (M2).
   s10: {
-    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
-    lead: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
-    rounds: [ { mode: 'unit', obj: 'desk', unit: 'dm' }, { mode: 'unit', obj: 'pencil', unit: 'sm' }, { mode: 'unit', obj: 'module', unit: 'm' } ],
-    wrong: { ru: 'Маленькое — в см, большое — в м.', uz: "Kichik narsa — sm da, katta — m da." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Тренировка · 6', uz: 'Mashq · 6' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    mode: 'read',
+    rounds: [
+      { h: 3, m: 20, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '3:20', uz: '3:20', ok: true }, { ru: '3:04', uz: '3:04', wrong: { ru: 'Длинная на четырёх — это двадцать минут: четыре номера по пять. Три двадцать.', uz: "Uzun to'rtda — bu yigirma daqiqa: to'rt raqam beshdan. Uch yigirma." } }, { ru: '4:20', uz: '4:20', wrong: { ru: 'Часы — по короткой: три. Три двадцать.', uz: "Soat — kalta bo'yicha: uch. Uch yigirma." } }],
+        correct_text: { ru: 'Верно. Три двадцать.', uz: "To'g'ri. Uch yigirma." } },
+      { h: 7, m: 5, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '7:05', uz: '7:05', ok: true }, { ru: '7:01', uz: '7:01', wrong: { ru: 'Длинная на одном — это пять минут: один номер по пять. Семь ноль пять.', uz: "Uzun birda — bu besh daqiqa: bitta raqam beshdan. Yetti nol besh." } }, { ru: '1:35', uz: '1:35', wrong: { ru: 'Стрелки перепутаны. Часы — по короткой: семь. Семь ноль пять.', uz: "Strelkalar chalkash. Soat — kalta bo'yicha: yetti. Yetti nol besh." } }],
+        correct_text: { ru: 'Верно. Семь ноль пять.', uz: "To'g'ri. Yetti nol besh." } },
+      { h: 10, m: 25, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '10:25', uz: '10:25', ok: true }, { ru: '10:05', uz: '10:05', wrong: { ru: 'Длинная на пяти — это двадцать пять минут: пять номеров по пять. Десять двадцать пять.', uz: "Uzun beshda — bu yigirma besh daqiqa: besh raqam beshdan. O'n yigirma besh." } }, { ru: '5:50', uz: '5:50', wrong: { ru: 'Часы — по короткой: десять. Десять двадцать пять.', uz: "Soat — kalta bo'yicha: o'n. O'n yigirma besh." } }],
+        correct_text: { ru: 'Верно. Десять двадцать пять.', uz: "To'g'ri. O'n yigirma besh." } }
+    ],
     audio: {
-      intro: { ru: 'Снова выбери удобную единицу для предмета.', uz: "Yana buyum uchun qulay birlikni tanlang." },
+      intro: { ru: 'Каждый номер — пять минут. Посчитай минуты по длинной стрелке.', uz: "Har raqam — besh daqiqa. Uzun strelka bo'yicha daqiqani sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Чем больше предмет, тем крупнее единица.', uz: "Narsa qancha katta, birlik shuncha yirik." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s11 — MASHQ O'GIRISH (3 round)
+  // s11 — MASHQ MatchClockStage toClock aralash.
   s11: {
-    eyebrow: { ru: 'Переведи', uz: "O'gir" },
-    lead: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" },
-    rounds: [ { mode: 'convert', from: 'm', to: 'dm', val: 1 }, { mode: 'convert', from: 'dm', to: 'sm', val: 3 }, { mode: 'convert', from: 'dm', to: 'sm', val: 1 } ],
-    wrong: { ru: 'Считай по десять.', uz: "O'ntadan sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Тренировка · 7', uz: 'Mashq · 7' },
+    label: { ru: 'Выбери часы', uz: "Soatni tanlang" },
+    mode: 'toClock',
+    rounds: [
+      { name: { ru: '5:30', uz: '5:30' }, q: { ru: 'Где показано пять тридцать?', uz: "Qayerda besh o'ttiz ko'rsatilgan?" },
+        choices: [{ h: 5, m: 30, ok: true }, { h: 5, m: 0 }, { h: 6, m: 30 }],
+        wrong: { ru: 'Пять тридцать: короткая между пятью и шестью, длинная на шести.', uz: "Besh o'ttiz: kalta besh bilan olti orasida, uzun oltida." },
+        correct_text: { ru: 'Верно. Пять тридцать.', uz: "To'g'ri. Besh o'ttiz." } },
+      { name: { ru: '8:00', uz: '8:00' }, q: { ru: 'Где показано восемь часов?', uz: "Qayerda soat sakkiz ko'rsatilgan?" },
+        choices: [{ h: 8, m: 0, ok: true }, { h: 12, m: 40 }, { h: 8, m: 15 }],
+        wrong: { ru: 'Восемь часов: короткая на восьми, длинная на двенадцати.', uz: "Soat sakkiz: kalta sakkizda, uzun o'n ikkida." },
+        correct_text: { ru: 'Верно. Восемь часов.', uz: "To'g'ri. Soat sakkiz." } },
+      { name: { ru: '2:45', uz: '2:45' }, q: { ru: 'Где показано два сорок пять?', uz: "Qayerda ikki qirq besh ko'rsatilgan?" },
+        choices: [{ h: 2, m: 45, ok: true }, { h: 9, m: 10 }, { h: 2, m: 15 }],
+        wrong: { ru: 'Два сорок пять: короткая почти у трёх, длинная на девяти.', uz: "Ikki qirq besh: kalta deyarli uchda, uzun to'qqizda." },
+        correct_text: { ru: 'Верно. Два сорок пять.', uz: "To'g'ri. Ikki qirq besh." } }
+    ],
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Считай по десять.', uz: "Masaladan oldingi oxirgi mashq. O'ntadan sanang." },
+      intro: { ru: 'Выбери часы, которые показывают это время.', uz: "Shu vaqtni ko'rsatayotgan soatni tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'В метре десять дециметров, в дециметре десять сантиметров.', uz: "Metrda o'nta detsimetr, detsimetrda o'nta santimetr bor." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
+  // s12 — MASALA konteksti (ishlatilmaydi, klon an'anasi bo'yicha saqlanadi)
   s12: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Экипаж измеряет деталь.', uz: "Ekipaj detalni o'lchamoqda." },
-    manifest_label: { ru: 'деталь', uz: 'detal' },
-    audio: {
-      ru: 'Экипаж измеряет деталь станции линейкой.',
-      uz: "Ekipaj stansiya detalini chizg'ich bilan o'lchamoqda."
-    }
+    lead: { ru: 'Бит сверяет расписание.', uz: "Bit jadvalni tekshiradi." },
+    audio: { ru: 'Бит смотрит на часы станции.', uz: "Bit stansiya soatiga qaraydi." }
   },
 
-  // s13 — MASALA (scored, LenStage ruler): detalni chizg'ichda o'lcha → nechta sm?
+  // s13 — MASALA (ReadClockStage single): stansiya voqeasi 7:30 (yarim).
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
-    mode: 'ruler', cm: 6,
-    story: { ru: 'Экипаж измеряет деталь линейкой. Сколько в ней сантиметров?', uz: "Ekipaj detalni chizg'ich bilan o'lchamoqda. Unda nechta santimetr bor?" },
-    wrong: { ru: 'Начало на нуле — смотри число у конца детали.', uz: "Boshi nolda — detal oxiridagi songa qarang." },
-    done_text: { ru: 'Верно! Деталь шесть сантиметров.', uz: "To'g'ri! Detal olti santimetr." },
+    label: { ru: 'Расписание станции', uz: "Stansiya jadvali" },
+    story: { ru: 'По расписанию связь с Землёй в семь тридцать. Бит смотрит на часы станции. Какое время они показывают?', uz: "Jadvalga ko'ra Yer bilan aloqa yetti o'ttizda. Bit stansiya soatiga qaraydi. Ular qanday vaqtni ko'rsatyapti?" },
+    mode: 'read',
+    h: 7, m: 30,
+    q: { ru: 'Сколько времени на часах?', uz: "Soatda vaqt nechada?" },
+    opts: [
+      { ru: '7:30', uz: '7:30', ok: true },
+      { ru: '8:30', uz: '8:30', wrong: { ru: 'Короткая ещё у семи, не у восьми. Семь тридцать.', uz: "Kalta hali yettida, sakkizda emas. Yetti o'ttiz." } },
+      { ru: '7:06', uz: '7:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Семь тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. Yetti o'ttiz." } }
+    ],
+    correct_text: { ru: 'Верно. Семь тридцать — время связи с Землёй.', uz: "To'g'ri. Yetti o'ttiz — Yer bilan aloqa vaqti." },
     audio: {
-      intro: { ru: 'Экипаж измеряет деталь. Начало на нуле — сколько сантиметров у конца?', uz: "Ekipaj detalni o'lchayapti. Boshi nolda — oxirida necha santimetr?" },
-      on_correct: { ru: 'Верно. Деталь шесть сантиметров.', uz: "To'g'ri. Detal olti santimetr." },
-      on_wrong: { ru: 'Смотри, у какого числа конец детали.', uz: "Detal oxiri qaysi songa to'g'ri kelishiga qarang." }
+      intro: { ru: 'Связь с Землёй по расписанию. Прочитай время на часах станции.', uz: "Jadval bo'yicha Yer bilan aloqa. Stansiya soatidagi vaqtni o'qing." },
+      on_correct: { ru: 'Верно. Семь тридцать.', uz: "To'g'ri. Yetti o'ttiz." },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s14 — FINAL (scored, 3 round chizg'ich-o'qish + FactCard Uran)
+  // s14 — FINAL (ReadClockStage ×3 + FactCard Neptun): 6:00, 9:30, 4:15.
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-    rounds: [ { mode: 'ruler', cm: 4 }, { mode: 'ruler', cm: 9 }, { mode: 'ruler', cm: 6 } ],
-    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Уран огромный: поперёк он примерно в четыре раза больше Земли.', uz: "Uran juda katta: ko'ndalangiga u Yerdan taxminan to'rt baravar katta." },
-    fact_audio: { ru: 'Уран очень большой: в поперечнике он примерно в четыре раза больше нашей Земли.', uz: "Uran juda katta: ko'ndalangiga u bizning Yerimizdan taxminan to'rt baravar katta." },
+    eyebrow: { ru: 'Итог · проверка', uz: 'Yakun · tekshiruv' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    mode: 'read',
+    rounds: [
+      { h: 6, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '6:00', uz: '6:00', ok: true }, { ru: '12:30', uz: '12:30', wrong: { ru: 'Стрелки перепутаны. Короткая на шести — часы. Шесть часов.', uz: "Strelkalar chalkash. Kalta oltida — soat. Soat olti." } }, { ru: '6:12', uz: '6:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Шесть часов.', uz: "Uzun o'n ikkida — nol daqiqa. Soat olti." } }],
+        correct_text: { ru: 'Верно. Шесть часов ровно.', uz: "To'g'ri. Roppa-rosa soat olti." } },
+      { h: 9, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '9:30', uz: '9:30', ok: true }, { ru: '10:30', uz: '10:30', wrong: { ru: 'Короткая ещё у девяти. Девять тридцать.', uz: "Kalta hali to'qqizda. To'qqiz o'ttiz." } }, { ru: '9:06', uz: '9:06', wrong: { ru: 'Длинная на шести — тридцать минут. Девять тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. To'qqiz o'ttiz." } }],
+        correct_text: { ru: 'Верно. Девять тридцать — полчаса.', uz: "To'g'ri. To'qqiz o'ttiz — yarim soat." } },
+      { h: 4, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
+        opts: [{ ru: '4:15', uz: '4:15', ok: true }, { ru: '4:03', uz: '4:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут. Четыре пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa. To'rt o'n besh." } }, { ru: '3:15', uz: '3:15', wrong: { ru: 'Часы — по короткой: четыре. Четыре пятнадцать.', uz: "Soat — kalta bo'yicha: to'rt. To'rt o'n besh." } }],
+        correct_text: { ru: 'Верно. Четыре пятнадцать — четверть.', uz: "To'g'ri. To'rt o'n besh — chorak." } }
+    ],
+    fact_badge: { ru: 'Нептун', uz: 'Neptun' },
+    fact_text: { ru: 'Сутки на Нептуне — всего шестнадцать часов: планета крутится быстрее Земли.', uz: "Neptunda bir sutka — atigi o'n olti soat: sayyora Yerdan tezroq aylanadi." },
+    fact_audio: { ru: 'Сутки на Нептуне длятся всего шестнадцать часов. Планета крутится быстрее Земли.', uz: "Neptunda bir sutka atigi o'n olti soat davom etadi. Sayyora Yerdan tezroq aylanadi." },
     audio: {
-      intro: { ru: 'Финальная проверка. Читай число у конца предмета.', uz: "Yakuniy tekshiruv. Buyum oxiridagi sonni o'qing." },
+      intro: { ru: 'Последняя проверка. Сначала короткая стрелка, потом длинная.', uz: "Oxirgi tekshiruv. Avval kalta strelka, keyin uzun." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Начало на нуле — смотри конец.', uz: "Boshi nolda — oxiriga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
     }
   },
 
-  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: perimetr)
+  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi d.39)
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты измеряешь в см, дм и м!', uz: "Endi siz sm, dm va m bilan o'lchaysiz!" },
-    // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: '1 дм = 10 см, 1 м = 100 см. Маленькое — в см, большое — в м.', uz: "1 dm = 10 sm, 1 m = 100 sm. Kichik narsa — sm da, katta — m da." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'отрезок (длина)', uz: "kesma (uzunlik)" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: периметр', uz: "keyingi: perimetr" },
+    cando: { ru: 'Теперь ты умеешь читать время по часам!', uz: "Endi siz soatga qarab vaqtni o'qiy olasiz!" },
+    rule_recap: { ru: 'Короткая стрелка — часы, длинная — минуты. Каждый номер — пять минут. Половина часа — на шести, четверть — на трёх.', uz: "Kalta strelka — soat, uzun — daqiqa. Har raqam — besh daqiqa. Yarim soat — oltida, chorak — uchda." },
     audio: {
-      ru: 'Миссия выполнена. Мы научились измерять длину линейкой и выбирать единицу. В дециметре десять сантиметров, а в метре сто сантиметров. В мастерской на спутнике Урана экипаж измерил детали станции. Дальше научимся считать периметр.',
-      uz: "Missiya bajarildi. Uzunlikni chizg'ich bilan o'lchashni va birlik tanlashni o'rgandik. Detsimetrda o'nta santimetr, metrda esa yuzta santimetr bor. Uran yo'ldoshidagi ustaxonada ekipaj stansiya detallarini o'lchadi. Keyin perimetrni hisoblashni o'rganamiz."
+      ru: 'Миссия выполнена. Мы научились читать время по часам. Короткая стрелка показывает часы, длинная — минуты, а каждый номер — это пять минут. Половина часа — длинная на шести, четверть — на трёх. Дальше мы продолжим путь домой.',
+      uz: "Missiya bajarildi. Soatga qarab vaqtni o'qishni o'rgandik. Kalta strelka soatni, uzun daqiqani ko'rsatadi, har bir raqam esa — besh daqiqa. Yarim soat — uzun oltida, chorak — uchda. Keyin uyga yo'lni davom ettiramiz."
     }
   }
 };
 
-// v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
+// v8 missiya-zanjiri — slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Начнём с сантиметра.', uz: "Santimetrdan boshlaymiz." },
-  s2:  { ru: 'Единицы побольше.', uz: "Kattaroq birliklar." },
+  s1:  { ru: 'Две стрелки.', uz: "Ikki strelka." },
+  s2:  { ru: 'А теперь полчаса.', uz: "Endi yarim soat." },
   s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'Какая единица для чего?', uz: "Qaysi birlik nimaga?" },
-  sTBL: { ru: 'Запомним единицы.', uz: 'Birliklarni yodlaymiz.' },
-  s5:  { ru: 'Теперь измеряй сам.', uz: "Endi o'zingiz o'lchang." },
-  s6:  { ru: 'Измеряй по линейке.', uz: "Chizg'ich bilan o'lchang." },
-  s7:  { ru: 'Выбери единицу.', uz: "Birlikni tanlang." },
-  s8:  { ru: 'Переведи в сантиметры.', uz: "Santimetrga o'giring." },
-  s9:  { ru: 'Снова измеряй.', uz: "Yana o'lchang." },
-  s10: { ru: 'Снова выбери единицу.', uz: "Yana birlikni tanlang." },
-  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Экипаж измеряет деталь.', uz: "Ekipaj detalni o'lchaydi." },
-  s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
+  s4:  { ru: 'Четверть часа.', uz: "Chorak soat." },
+  sTBL: { ru: 'Ключ последней планеты.', uz: "Oxirgi sayyora kaliti." },
+  s5:  { ru: 'Теперь сам.', uz: "Endi o'zingiz." },
+  s6:  { ru: 'Выбери запись.', uz: "Yozuvni tanlang." },
+  s7:  { ru: 'Полчаса.', uz: "Yarim soat." },
+  s8:  { ru: 'Выбери часы.', uz: "Soatni tanlang." },
+  s9:  { ru: 'Четверть.', uz: "Chorak." },
+  s10: { ru: 'Каждый номер — пять минут.', uz: "Har raqam — besh daqiqa." },
+  s11: { ru: 'Снова выбери часы.', uz: "Yana soatni tanlang." },
+  s12: { ru: 'Бит сверяет расписание.', uz: "Bit jadvalni tekshiradi." },
+  s13: { ru: 'Помоги Биту.', uz: "Bitga yordam bering." },
   s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Детали станции измерены!', uz: "Stansiya detallari o'lchandi!" }
+  s15: { ru: 'Путь домой продолжается!', uz: "Uyga yo'l davom etadi!" }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'В мастерской на спутнике Урана экипаж измерил детали станции линейкой — в сантиметрах, дециметрах и метрах. Всё измерено! Спасибо за помощь.',
-  uz: "Uran yo'ldoshidagi ustaxonada ekipaj stansiya detallarini chizg'ich bilan — santimetr, detsimetr va metrda o'lchadi. Hammasi o'lchandi! Yordamingiz uchun rahmat."
+  ru: 'На станции у Нептуна экипаж сверил время по часам. Путь домой продолжается! Спасибо за помощь.',
+  uz: "Neptun yonidagi stansiyada ekipaj soatga qarab vaqtni tekshirdi. Uyga yo'l davom etadi! Yordamingiz uchun rahmat."
 };
 
-// «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
 const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
 
 // ============================================================
@@ -2303,14 +2386,14 @@ const JourneyPlanet = ({ i, cur, style }) => {
 const ReadinessMeter = ({ screen, total, lang }) => {
   const pct = total > 1 ? Math.max(0, Math.min(100, (screen / (total - 1)) * 100)) : 0;
   const label = (READY_LABEL[lang] || READY_LABEL.ru);
-  const rocketBottom = ((4 + pct / 100) / 6) * 100;   // Б5: Uran(66.6%) → Neptun(83.3%) oralig`ida
+  const rocketBottom = ((5 + pct / 100) / 6) * 100;   // Б6: Neptun(83.3%) → Uy(100%) oralig`ida
   return (
     <div className="d2-gauge" aria-hidden="true">
       <span className="d2-gauge-label mono">{label}</span>
       <span className="d2-jroute">
         <span className="d2-jhome">🏠</span>
         {JOURNEY_DOTS.map((_, i) => (
-          <JourneyPlanet key={i} i={i} cur={i === 4} style={{ bottom: `${(i / 6) * 100}%` }}/>
+          <JourneyPlanet key={i} i={i} cur={i === 5} style={{ bottom: `${(i / 6) * 100}%` }}/>
         ))}
         <span className="d2-gauge-rocket" style={{ bottom: `${rocketBottom}%` }}><RocketSvg flame/></span>
       </span>
@@ -2844,7 +2927,14 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <UranScene shown={picked !== null}/>
+          <NeptunBase
+            bubbleNode={(
+              <div className="fade-up" style={{ position: 'absolute', right: '6%', top: '49%', zIndex: 7 }}>
+                {/* stansiya golografik soati — O'NG-PAST dekada (Neptun sayyorasidan pastda), SHAFFOF fon, haqiqiy soniya tiklaydi (3:00; «12:15») */}
+                <ClockFace h={3} m={0} w="clamp(64px,15vw,88px)" tick/>
+              </div>
+            )}
+            charNode={<SaturnCrew present/>}/>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}>{t(c.q)}</p>
         {picked === null && (
@@ -2877,15 +2967,49 @@ const Screen0 = (props) => {
 };
 
 // s1 — TUSHUNTIRISH-1: razryad raflari (kasseta=o'nlik / batareya=birlik)
+// s1 — TUSHUNTIRISH-1: TAROZI (BalanceScale). x+4=9 muvozanat → 4 ni ol → x=5. Audio-driven step-reveal (4 seg).
 const Screen1 = (props) => {
+  const lang = useLang();
   const t = useT();
   const c = CONTENT.s1;
+  const audio = useAudio([
+    brgSeg('s1', lang),
+    ...c.audio[lang].map((text, i) => ({ id: `s1_${i}`, text, trigger: 'after_previous', waits_for: null }))
+  ]);
+  const seg = audio.currentSegment;
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (seg === 's1_1') setStep((s) => Math.max(s, 1));
+    else if (seg === 's1_2') setStep((s) => Math.max(s, 2));
+    else if (seg === 's1_3') setStep((s) => Math.max(s, 3));
+  }, [seg]);
+  const revealSol = step >= 2;   // s1_2 → o'ngda to'qqiz ayirish to'rt = besh, x=5
+  const done = step >= 3;
+  const revealRef = useRevealScroll(done, 500);
+  const canAdv = useAdvanceGate(true, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
   return (
-    <TeachStage props={props} cKey="s1" body={c.body} info={c.info}
-      figure={() => (
-        <div style={{ width: '100%', maxWidth: 340, margin: '0 auto', overflowX: 'auto' }}><Ruler objCm={5} maxCm={10} reveal/></div>
-      )}
-    />
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(210px, 48vw, 290px)' }}>
+          {/* ikki strelka: kalta=soat (accent), uzun=daqiqa (blue); 3:00 */}
+          <ClockFace h={3} m={0}/>
+          <div style={{ display: 'flex', gap: 'clamp(10px,3vw,22px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {step >= 1 && <span className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(13px,2.1vw,16px)' }}>{t({ ru: 'короткая — часы', uz: 'kalta — soat' })}</span>}
+            {revealSol && <span className="g1-pop-in" style={{ fontWeight: 800, color: T.blue, fontSize: 'clamp(13px,2.1vw,16px)' }}>{t({ ru: 'длинная — минуты', uz: 'uzun — daqiqa' })}</span>}
+          </div>
+          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(18px,3.2vw,24px)', fontFamily: "'JetBrains Mono',monospace" }}>3:00</div>}
+        </div>
+        {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
+      </div>
+    </Stage>
   );
 };
 
@@ -2967,7 +3091,10 @@ const Screen2 = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(200px, 46vw, 280px)' }}>
-          <ConvertViz from={t(UNIT_ABBR.dm)} to={t(UNIT_ABBR.sm)} val={1} ratio={10} reveal={reveal >= 2}/>
+          {/* yarim soat: uzun strelka 6 da = 30 daqiqa = siferblat yarmi (3:30) */}
+          <ClockFace h={3} m={30}/>
+          {reveal >= 1 && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(15px,2.6vw,20px)' }}>{t({ ru: 'полчаса — тридцать минут', uz: "yarim soat — o'ttiz daqiqa" })}</div>}
+          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(18px,3.2vw,24px)', fontFamily: "'JetBrains Mono',monospace" }}>3:30</div>}
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3013,13 +3140,13 @@ const Screen3 = (props) => {
           <p style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(15px,2.3vw,19px)', color: T.ink, lineHeight: 1.5 }}>{t(c.rule)}</p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <ConvertViz from={t(UNIT_ABBR.dm)} to={t(UNIT_ABBR.sm)} val={1} ratio={10} reveal={done}/>
+          <ClockFace h={c.fig.h} m={c.fig.m}/>
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
           {c.opts.map((o, i) => (
             <button key={i} className={`option ${done && o.ok ? 'option-correct' : ''} ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || done || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
-              style={{ padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{t(o)}</button>
+              style={{ ...FRAC_OPT }}>{t(o)}</button>
           ))}
         </div>
         {wrong.size > 0 && !done && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(c.wrong)}/></div>}
@@ -3250,7 +3377,7 @@ const TrackHero = ({ answer = null }) => {
 
 // ColumnAdd — Dars07 star-vizual: ustunlab qo'shish (столбик). O'nlik ustuni sariq, birlik ko'k.
 // «+» ikki qo'shiluvchi ORASIDA (chap gutterда, ikki qatorga markazlashgan — 5-sinf uslubi).
-// sum null -> yig'indi "?"; sum berilганда yashil. emph 'units'|'tens' -> faol ustunni yoritadi.
+// sum null -> yig'indi "?"; sum berilgaнда yashil. emph 'units'|'tens' -> faol ustunni yoritadi.
 const COL_W = 'clamp(38px,8.4vw,52px)';
 const colCell = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: COL_W, height: COL_W, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(26px,6vw,40px)', lineHeight: 1 };
 // ColumnCard — umumiy столбик maketi. resTens/resUnits — natija katagi tuguni (raqam yoki drop-slot).
@@ -3486,9 +3613,8 @@ const Screen4 = (props) => {
   const warnActive = seg === 's4_2';
   const [wrong, setWrong] = useState(() => new Set());
   const [done, setDone] = useState(false);
-  const [addShown, setAddShown] = useState(false);
-  useEffect(() => { if (seg === 's4_1' || seg === 's4_2' || seg === 's4_3') setAddShown(true); }, [seg]);
-  const reveal = done ? 3 : (addShown ? 2 : 1);   // takroriy qo'shish tushuntirishda; jami faqat check'dan keyin
+  const [substShown, setSubstShown] = useState(false);
+  useEffect(() => { if (seg === 's4_1' || seg === 's4_2' || seg === 's4_3') setSubstShown(true); }, [seg]);   // qo'yib-tekshir namunasi audio bilan ochiladi
   const revealRef = useRevealScroll(done, 500);
   const pick = (i, ok) => {
     if (!canAct || done || wrong.has(i)) return;
@@ -3507,16 +3633,19 @@ const Screen4 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 2vw, 17px)', textAlign: 'center', lineHeight: 1.55 }}>{t(c.body)}</p>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ minHeight: 'clamp(60px,15vw,96px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ObjIcon kind="module"/></div>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 'clamp(16px,3vw,24px)', minHeight: 'clamp(150px,32vw,200px)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px,1.4vw,10px)' }}>
+            {/* CHORAK: uzun strelka 3 da = 15 daqiqa (2:15) */}
+            <ClockFace h={c.fig.h} m={c.fig.m}/>
+            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(14px,2.4vw,18px)' }}>{t({ ru: 'на трёх — пятнадцать минут', uz: "uchda — o'n besh daqiqa" })}</div>}
+          </div>
         </div>
         <div className="fade-up" style={{ background: '#FBEEEE', border: '2px solid #D64545', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(214,69,69,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#B23A3A', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
           {c.opts.map((o, i) => (
             <button key={i} className={`option ${done && o.ok ? 'option-correct' : ''} ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || done || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
-              style={{ padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{t(o)}</button>
+              style={{ ...FRAC_OPT }}>{t(o)}</button>
           ))}
         </div>
         {wrong.size > 0 && !done && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(c.wrong)}/></div>}
@@ -4531,7 +4660,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <UranField label={{ ru: 'Линии различены', uz: 'Chiziqlar ajratildi' }}/>
+          <NeptunField label={{ ru: 'Шестая планета пройдена', uz: "Oltinchi sayyora bosib o'tildi" }}/>
         </div>
       </div>
     </Stage>
@@ -5848,12 +5977,282 @@ const OpChoiceStage = ({ props, cKey, fact = false }) => {
   );
 };
 // ============================================================
-// Dars28 MEXANIKA — UZUNLIK O'LCHASH (sm, dm, m):
-//  Ruler — chizg'ich + detal (0 dan objCm gacha); reveal'da o'qish qavsi.
-//  ObjIcon — o'lchanadigan buyum (pencil→sm, desk→dm, module→m).
-//  ConvertViz — val ta katta birlik, har biri ratio ta kichik birlikka bo'lingan (dm→sm, m→dm).
-//  LenStage — round.mode: 'ruler' (nechta sm o'qish) / 'unit' (qaysi birlik) / 'convert' (o'girish). MC.
+// Dars29 MEXANIKA — PERIMETR (shakl chetini bo'ylab tomonlar yig'indisi; yuza YO'Q):
+//  GeoFig — geoboard (mixli panjara) + rektilinear shakl; birlik-kesmalarni chetidan sanaymiz.
+//  SumFig — tomonlari raqamlangan shakl (uchburchak/to'rtburchak); tomonlarni qo'shamiz.
+//  PerimStage — round.mode: 'geo' (geoboardда necha birlik) / 'sum' (raqamlangan tomonlar yig'indisi). MC son.
 // ============================================================
+const GEO_CELL = 30;
+const geoPerim = (verts) => verts.reduce((s, v, i) => { const n = verts[(i + 1) % verts.length]; return s + Math.abs(n[0] - v[0]) + Math.abs(n[1] - v[1]); }, 0);
+const perimShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
+const perimOpts = (correct, seed) => perimShuffle([correct, Math.max(1, correct - 2), correct + 2], seed * 7 + 3);
+// GeoFig — geoboard: pegler + rektilinear shakl chetiga birlik-nuqtalar (sanash uchun). reveal → perimetr yorlig'i.
+const GeoFig = ({ verts, reveal = false, filled = false, showPerim = true, ok = false }) => {
+  const xs = verts.map((v) => v[0]), ys = verts.map((v) => v[1]);
+  const maxX = Math.max(...xs), maxY = Math.max(...ys);
+  const pad = 16;
+  const gW = Math.max(maxX, 1), gH = Math.max(maxY, 1);
+  const W = pad * 2 + gW * GEO_CELL, H = pad * 2 + gH * GEO_CELL;
+  const px = (g) => pad + g * GEO_CELL, py = (g) => pad + g * GEO_CELL;
+  const path = verts.map((v, i) => `${i ? 'L' : 'M'}${px(v[0])} ${py(v[1])}`).join(' ') + ' Z';
+  const cx = px((Math.min(...xs) + maxX) / 2), cy = py((Math.min(...ys) + maxY) / 2);
+  const stroke = ok || reveal ? '#1F7A4D' : '#2E7C88';
+  const units = [];
+  verts.forEach((v, i) => { const n = verts[(i + 1) % verts.length]; const dx = Math.sign(n[0] - v[0]), dy = Math.sign(n[1] - v[1]); const len = Math.abs(n[0] - v[0]) + Math.abs(n[1] - v[1]); for (let k = 0; k < len; k += 1) units.push([px(v[0] + dx * (k + 0.5)), py(v[1] + dy * (k + 0.5))]); });
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: Math.min(240, W * 1.8), height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+      {/* peglar (tekis) */}
+      {Array.from({ length: gH + 1 }).map((_, gy) => Array.from({ length: gW + 1 }).map((_, gx) => <circle key={`${gx}-${gy}`} cx={px(gx)} cy={py(gy)} r="2.4" fill="#7A8894"/>))}
+      {/* ichki to'ldirish (faqat yasash darsida) */}
+      {filled && <path d={path} fill="rgba(127,216,222,0.18)"/>}
+      {/* CHET — tekis kontur */}
+      <path className={reveal ? 'g1-pop-in' : ''} d={path} fill="none" stroke={stroke} strokeWidth="4" strokeLinejoin="round"/>
+      {/* birlik-nuqtalar (sanaladigan) */}
+      {reveal && units.map(([ux, uy], i) => <circle key={i} cx={ux} cy={uy} r="3.4" fill="#1F7A4D" stroke="#fff" strokeWidth="1.4"/>)}
+      {/* perimetr yorlig'i */}
+      {reveal && showPerim && <><rect x={cx - 20} y={cy - 11} width="40" height="22" rx="7" fill="#1F7A4D"/><text x={cx} y={cy + 5} textAnchor="middle" fontSize="13" fontWeight="800" fontFamily="'JetBrains Mono',monospace" fill="#fff">{geoPerim(verts)}</text></>}
+    </svg>
+  );
+};
+// SumFig — tomonlari raqamlangan shakl (rect: [a,b] → a,b,a,b; tri: [a,b,c]). reveal → yashil kontur.
+// Dars31: rect O'LCHAMGA PROPORSIONAL chiziladi (3×3 kvadrat kvadrat bo'lib ko'rinadi, 4×2 keng bo'ladi).
+// labels=false — raqamsiz (ZANJIR 1-qadami: javob sizib chiqmasin). hi=i — i-tomon ajratiladi (o'lchanayotgani).
+const SumFig = ({ shape, sides, reveal = false, labels = true, hi = null }) => {
+  const stroke = reveal ? '#1F7A4D' : '#2E7C88';
+  const box = { width: '100%', height: 'auto', display: 'block', overflow: 'visible' };
+  const lbl = (x, y, v) => <text x={x} y={y} textAnchor="middle" fontSize="15" fontWeight="800" fontFamily="'JetBrains Mono',monospace" fill="#2E7C88">{v}</text>;
+  const hiLine = (x1, y1, x2, y2) => <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={T.accent} strokeWidth="6" strokeLinecap="round"/>;
+  if (shape === 'rect') {
+    const [a, b] = sides;
+    const S = 22, P = 30;
+    const W = a * S, H = b * S;
+    const VW = W + P * 2, VH = H + P * 2;
+    const x0 = P, y0 = P, x1 = P + W, y1 = P + H;
+    return (
+      <svg viewBox={`0 0 ${VW} ${VH}`} style={{ ...box, maxWidth: Math.min(240, VW * 1.4) }} aria-hidden="true">
+        <rect x={x0} y={y0} width={W} height={H} fill="rgba(127,216,222,0.12)" stroke={stroke} strokeWidth="4"/>
+        {hi === 0 && hiLine(x0, y0, x1, y0)}
+        {hi === 1 && hiLine(x0, y0, x0, y1)}
+        {labels && <>{lbl((x0 + x1) / 2, y0 - 9, a)}{lbl((x0 + x1) / 2, y1 + 21, a)}{lbl(x0 - 15, (y0 + y1) / 2 + 5, b)}{lbl(x1 + 15, (y0 + y1) / 2 + 5, b)}</>}
+      </svg>
+    );
+  }
+  const [a, b, c] = sides;
+  return (
+    <svg viewBox="0 0 210 140" style={{ ...box, maxWidth: 240 }} aria-hidden="true">
+      <polygon points="105,22 180,116 30,116" fill="rgba(127,216,222,0.12)" stroke={stroke} strokeWidth="4" strokeLinejoin="round"/>
+      {hi === 0 && hiLine(105, 22, 30, 116)}
+      {hi === 1 && hiLine(105, 22, 180, 116)}
+      {hi === 2 && hiLine(30, 116, 180, 116)}
+      {labels && <>{lbl(58, 62, a)}{lbl(152, 62, b)}{lbl(105, 134, c)}</>}
+    </svg>
+  );
+};
+const sumPerim = (sides, shape) => shape === 'rect' ? 2 * (sides[0] + sides[1]) : sides[0] + sides[1] + sides[2];
+const PERIM_Q = { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" };
+// PerimStage — round.mode: 'geo' {verts} / 'sum' {shape,sides}. MC son. Distraktor = qo'shni son.
+const PerimStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const mode = cur.mode;
+  const correct = mode === 'geo' ? geoPerim(cur.verts) : sumPerim(cur.sides, cur.shape);
+  const optVals = perimOpts(correct, ri + (mode === 'geo' ? 1 : 4));
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `perim:${mode}`, options: [], correctIndex: -1, correctAnswer: String(correct), studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (ok, key) => {
+    if (!canAct || solved || wrong.has(key)) return;
+    if (ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((w) => new Set(w).add(key)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  const figure = mode === 'geo' ? <GeoFig verts={cur.verts} reveal={solved}/> : <SumFig shape={cur.shape} sides={cur.sides} reveal={solved}/>;
+  const eqn = solved && mode === 'sum' ? `${cur.shape === 'rect' ? `${cur.sides[0]} + ${cur.sides[1]} + ${cur.sides[0]} + ${cur.sides[1]}` : cur.sides.join(' + ')} = ${correct}` : null;
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        {c.transition && ri === 0 && (
+          <div className="fade-up" style={{ background: T.accentSoft, border: `1.5px solid ${T.accent}`, borderRadius: 14, padding: 'clamp(11px,2.2vw,15px) clamp(14px,2.6vw,18px)' }}>
+            <span style={{ display: 'inline-block', background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(10px,1.6vw,12px)', letterSpacing: '.05em', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>{lang === 'uz' ? 'MASHQ' : 'ТРЕНИРОВКА'}</span>
+            <p style={{ margin: 0, fontWeight: 700, color: T.ink, fontSize: 'clamp(14px,2.1vw,17px)', lineHeight: 1.45 }}>{t(c.transition)}</p>
+          </div>
+        )}
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px,32vw,210px)', justifyContent: 'center' }}>
+          {figure}
+          {eqn && <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(14px,2.4vw,19px)', color: T.success }}>{eqn}</div>}
+        </div>
+        {!solved && (
+          <>
+            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(PERIM_Q)}</p>
+            <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
+              {optVals.map((v) => { const w = wrong.has('o' + v); return <button key={v} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(v === correct, 'o' + v)} style={{ ...ARR_OPT }}>{v}</button>; })}
+            </div>
+          </>
+        )}
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// ============================================================
+// Dars30 MEXANIKA — YASASH (berilgan o'lchamda shakl qurish):
+//  BuildStage — eni/bo'yi stepperlari bilan to'rtburchak yasab, «Tekshir» bosiladi (geoboard jonli preview).
+//  PickStage — berilgan o'lchamga (spec) mos shaklni 3 tadan tanlash (GeoFig previewlar).
+// ============================================================
+const BUILD_SPEC = { ru: 'Построй прямоугольник:', uz: "To'rtburchak yasang:" };
+const B_ENI = { ru: 'ширина', uz: 'eni' };
+const B_BOYI = { ru: 'высота', uz: "bo'yi" };
+const CHECK_BTN = { ru: 'Проверить', uz: 'Tekshiring' };
+const rectVerts = (w, h) => [[0, 0], [w, 0], [w, h], [0, h]];
+const STEP_BTN = { width: 'clamp(36px,8vw,44px)', height: 'clamp(36px,8vw,44px)', borderRadius: 10, border: `2px solid ${T.accent}`, background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(20px,3.4vw,26px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', lineHeight: 1 };
+const Stepper = ({ label, value, onDec, onInc, disabled }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'clamp(8px,2vw,14px)', background: '#fff', border: '2px solid #C9D3DE', borderRadius: 12, padding: 'clamp(7px,1.4vw,10px) clamp(12px,2.4vw,16px)' }}>
+    <span style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,17px)', color: T.ink }}>{label}</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
+      <button onClick={onDec} disabled={disabled} style={{ ...STEP_BTN, opacity: disabled ? 0.5 : 1 }}>−</button>
+      <span className="mono" style={{ minWidth: 26, textAlign: 'center', fontWeight: 800, fontSize: 'clamp(18px,3vw,24px)', color: T.accent }}>{value}</span>
+      <button onClick={onInc} disabled={disabled} style={{ ...STEP_BTN, opacity: disabled ? 0.5 : 1 }}>+</button>
+    </div>
+  </div>
+);
+const RectBuildStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const tw = cur.w, th = cur.h;
+  const [w, setW] = useState(1);
+  const [h, setH] = useState(1);
+  const [checked, setChecked] = useState(false);
+  const [solved, setSolved] = useState(false);
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  useEffect(() => { setW(1); setH(1); setChecked(false); setSolved(false); anyWrongRef.current = false; }, [ri]);
+  const match = w === tw && h === th;
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `build:${tw}x${th}`, options: [], correctIndex: -1, correctAnswer: `${tw}x${th}`, studentAnswerIndex: null, studentAnswer: `${w}x${h}`, correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const onCheck = () => {
+    if (!canAct || solved) return;
+    if (match) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setChecked(true); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const adj = (setter, cur1, d) => { if (!canAct || solved) return; setChecked(false); setter(Math.max(1, Math.min(6, cur1 + d))); };
+  const nextRound = () => { setRi((x) => x + 1); };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        {c.transition && ri === 0 && (
+          <div className="fade-up" style={{ background: T.accentSoft, border: `1.5px solid ${T.accent}`, borderRadius: 14, padding: 'clamp(11px,2.2vw,15px) clamp(14px,2.6vw,18px)' }}>
+            <span style={{ display: 'inline-block', background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(10px,1.6vw,12px)', letterSpacing: '.05em', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>{lang === 'uz' ? 'MASHQ' : 'ТРЕНИРОВКА'}</span>
+            <p style={{ margin: 0, fontWeight: 700, color: T.ink, fontSize: 'clamp(14px,2.1vw,17px)', lineHeight: 1.45 }}>{t(c.transition)}</p>
+          </div>
+        )}
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
+        <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', padding: '6px 16px', borderRadius: 999, fontFamily: "'JetBrains Mono',monospace" }}>{t(BUILD_SPEC)} {t(B_ENI)} {tw}, {t(B_BOYI)} {th}</div>
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(130px,28vw,180px)', justifyContent: 'center' }}>
+          <GeoFig verts={rectVerts(w, h)} filled showPerim={false} ok={solved}/>
+        </div>
+        {!solved && (
+          <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(7px,1.6vw,10px)' }}>
+            <Stepper label={t(B_ENI)} value={w} onDec={() => adj(setW, w, -1)} onInc={() => adj(setW, w, 1)} disabled={!canAct}/>
+            <Stepper label={t(B_BOYI)} value={h} onDec={() => adj(setH, h, -1)} onInc={() => adj(setH, h, 1)} disabled={!canAct}/>
+            <button onClick={onCheck} disabled={!canAct} style={{ marginTop: 2, padding: 'clamp(11px,2.2vw,15px)', borderRadius: 12, border: 'none', background: canAct ? T.accent : '#C9D3DE', color: '#fff', fontWeight: 800, fontSize: 'clamp(15px,2.4vw,18px)', cursor: canAct ? 'pointer' : 'default' }}>{t(CHECK_BTN)}</button>
+          </div>
+        )}
+        {checked && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+const PICK_Q = { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?" };
+const PickStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const correct = cur.opts.findIndex((o) => o[0] === cur.w && o[1] === cur.h);
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `pick:${cur.w}x${cur.h}`, options: [], correctIndex: correct, correctAnswer: `${cur.w}x${cur.h}`, studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (i) => {
+    if (!canAct || solved || wrong.has(i)) return;
+    if (i === correct) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((s) => new Set(s).add(i)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', padding: '6px 16px', borderRadius: 999, fontFamily: "'JetBrains Mono',monospace" }}>{t(B_ENI)} {cur.w}, {t(B_BOYI)} {cur.h}</div>
+        <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(PICK_Q)}</p>
+        <div key={ri} className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.6vw,10px)' }}>
+          {cur.opts.map((o, i) => { const w = wrong.has(i); const isOk = solved && i === correct; return (
+            <button key={i} disabled={!canAct || solved || w} onClick={() => hit(i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(8px,1.8vw,12px)', minHeight: 'clamp(90px,22vw,130px)', borderRadius: 14, background: isOk ? T.successSoft : '#fff', border: `2.5px solid ${isOk ? T.success : w ? '#D64545' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default' }}>
+              <GeoFig verts={rectVerts(o[0], o[1])} filled showPerim={false} ok={isOk}/>
+            </button>
+          ); })}
+        </div>
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// ============================================================
+// --- Geometriya mexanikalari (LEN/POLY/PERIM/CHAIN) — Dars32 da hammasi O'LIK KOD (klon an'anasi) ---
 const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm' }, dm: { ru: 'дм', uz: 'dm' }, m: { ru: 'м', uz: 'm' } };
 const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr' }, dm: { ru: 'дециметр', uz: 'detsimetr' }, m: { ru: 'метр', uz: 'metr' } };
 const LEN_RATIO = { 'dm>sm': 10, 'm>dm': 10, 'm>sm': 100 };
@@ -6015,7 +6414,7 @@ const LenStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-// --- POLY (Dars27) mexanikasi shu darsda O'LIK, quyida qoladi (klon an'anasi) ---
+// --- POLY (Dars27) mexanikasi — Dars31 da JONLI (s7: name/ispoly/count) ---
 const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak" }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak' } };
 // PolyFig — muntazam ko'pburchak (tomonlar to'g'ri kesma, burchaklar=yashil nuqta); sides=0 → doira (ko'pburchak EMAS), sides=-1 → ochiq siniq chiziq (yopilmagan).
 const PolyVert = ({ x, y, big }) => (
@@ -6285,16 +6684,585 @@ const PolyMatchStage = ({ props, cKey }) => {
     </Stage>
   );
 };
-// Dars28 wrapper'lari — uzunlik (LenStage: 'ruler' chizg'ich-o'qish / 'unit' birlik-tanlash / 'convert' o'girish). Aralash.
-const A5 = (props) => <LenStage props={props} cKey="s5"/>;
-const A6 = (props) => <LenStage props={props} cKey="s6"/>;
-const A7 = (props) => <LenStage props={props} cKey="s7"/>;
-const A8 = (props) => <LenStage props={props} cKey="s8"/>;
-const A9 = (props) => <LenStage props={props} cKey="s9"/>;
-const A10 = (props) => <LenStage props={props} cKey="s10"/>;
-const A11 = (props) => <LenStage props={props} cKey="s11"/>;
-const ACase = (props) => <LenStage props={props} cKey="s13"/>;
-const A14 = (props) => <LenStage props={props} cKey="s14" fact/>;
+// ============================================================
+// Dars26 MEXANIKA — CHIZIQ TURLARI (Van Hiele 0→1): nur/to'g'ri chiziq/kesma UCH SONI bo'yicha.
+//  LineFig — abstrakt figura (to'g'ri chiziq: 2 strelka, 0 uch; nur: 1 uch + 1 strelka; kesma: 2 uch).
+//  RealObj — hayotiy langar (ufq chizig'i=chiziq, fonar nuri=nur, qalam=kesma).
+//  LineTypeStage — figurani ko'rsatib «qaysi tur?» (ask:'type') yoki «nechta uchi?» (ask:'count') MC.
+// ============================================================
+const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq" }, ray: { ru: 'Луч', uz: 'Nur' }, segment: { ru: 'Отрезок', uz: 'Kesma' } };
+const LT_ENDS = { line: 0, ray: 1, segment: 2 };
+// Uchlarni porlaydigan yashil doira, strelka — accent. Chiziq — Uran moviy.
+const LineEnd = ({ x, y, big }) => (
+  <g>
+    <circle cx={x} cy={y} r={big ? 7.4 : 6} fill="url(#d26end)" stroke="#fff" strokeWidth="1.5"/>
+    <circle cx={x - 2} cy={y - 2.2} r={big ? 2.3 : 1.8} fill="rgba(255,255,255,0.8)"/>
+  </g>
+);
+const LineFig = ({ type, hi = false }) => {
+  const y = 32;
+  const x1 = type === 'line' ? 18 : 46;
+  const x2 = type === 'segment' ? 174 : 202;
+  return (
+    <svg viewBox="0 0 220 72" style={{ width: '100%', maxWidth: 320, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+      <defs>
+        <linearGradient id="d26rod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#9ECDF8"/><stop offset="0.34" stopColor="#3E7FD6"/><stop offset="1" stopColor="#1B4079"/></linearGradient>
+        <linearGradient id="d26cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8FC2F3"/><stop offset="1" stopColor="#1E4785"/></linearGradient>
+        <radialGradient id="d26end" cx="0.35" cy="0.3"><stop offset="0" stopColor="#8FF0BC"/><stop offset="0.5" stopColor="#2E9A62"/><stop offset="1" stopColor="#14603A"/></radialGradient>
+      </defs>
+      {/* CHIZIQ — 3D silindr-sterjen */}
+      <rect x={x1} y={y - 5} width={x2 - x1} height="10" rx="5" fill="url(#d26rod)"/>
+      <rect x={x1 + 3} y={y - 3.4} width={Math.max(0, x2 - x1 - 6)} height="2.8" rx="1.4" fill="rgba(255,255,255,0.55)"/>
+      {/* STRELKALAR — 3D konus (cheksizlik) */}
+      {type !== 'segment' && <g><path d={`M${x2} ${y - 10} L${x2 + 15} ${y} L${x2} ${y + 10} Z`} fill="url(#d26cone)"/><path d={`M${x2} ${y - 10} L${x2 + 15} ${y} L${x2} ${y} Z`} fill="rgba(255,255,255,0.28)"/></g>}
+      {type === 'line' && <g><path d={`M${x1} ${y - 10} L${x1 - 15} ${y} L${x1} ${y + 10} Z`} fill="url(#d26cone)"/><path d={`M${x1} ${y - 10} L${x1 - 15} ${y} L${x1} ${y} Z`} fill="rgba(255,255,255,0.28)"/></g>}
+      {/* UCHLAR — 3D shar (sanaladigan) */}
+      {(type === 'ray' || type === 'segment') && <LineEnd x={46} y={y} big={hi}/>}
+      {type === 'segment' && <LineEnd x={174} y={y} big={hi}/>}
+    </svg>
+  );
+};
+// Hayotiy langar: horizon=ufq chizig'i (chiziq), beam=fonar nuri (nur), edge=qalam (kesma).
+const RealObj = ({ kind }) => {
+  if (kind === 'horizon') return ( // UFQ CHIZIG'I — yo'ldosh ufqi: butun kadr bo'ylab, ikki chetdan tashqariga chiqadi; uchi YO'Q (to'g'ri chiziq)
+    <svg viewBox="0 0 220 68" style={{ width: '100%', maxWidth: 320, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+      <defs>
+        <linearGradient id="d26sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#081620"/><stop offset="1" stopColor="#1C4553"/></linearGradient>
+        <linearGradient id="d26ice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#63808E"/><stop offset="0.5" stopColor="#3C4E5A"/><stop offset="1" stopColor="#232F38"/></linearGradient>
+        <linearGradient id="d26hz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFFFFF"/><stop offset="0.45" stopColor="#8FE6EC"/><stop offset="1" stopColor="#2E7C88"/></linearGradient>
+        {/* haqiqiy bloom — chiziq atrofida yorug'lik yoyiladi (kuchli aksent) */}
+        <filter id="d26hzbloom" x="-6%" y="-400%" width="112%" height="900%">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      {/* osmon */}
+      <rect x="0" y="0" width="220" height="37" fill="url(#d26sky)"/>
+      {[[18, 10], [46, 20], [78, 8], [112, 16], [150, 9], [184, 19], [206, 13], [64, 27], [132, 25], [96, 30]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i % 3 ? 0.9 : 1.5} fill="#DCEFF2" opacity="0.9"/>)}
+      {/* muzli tekislik */}
+      <rect x="0" y="37" width="220" height="31" fill="url(#d26ice)"/>
+      {/* ufq atrofidagi nur — uch qatlam, ko'zni shu joyga tortadi */}
+      <rect x="0" y="22" width="220" height="30" fill="rgba(127,216,222,0.16)"/>
+      <rect x="0" y="28" width="220" height="19" fill="rgba(127,216,222,0.26)"/>
+      <rect x="0" y="32" width="220" height="11" fill="rgba(184,242,250,0.34)"/>
+      {/* UFQ CHIZIG'I — KUCHLI AKSENT: bloom + porlash; butun kenglik bo'ylab, ikki chetdan tashqariga (uchi ko'rinmaydi) */}
+      <g filter="url(#d26hzbloom)">
+        <g className="d19-cryglow">
+          <rect x="0" y="32.6" width="220" height="8.4" fill="url(#d26hz)"/>
+          <rect x="0" y="33.4" width="220" height="3.2" fill="#FFFFFF"/>
+        </g>
+      </g>
+    </svg>
+  );
+  if (kind === 'beam') return ( // FONAR — real qo'l fonari; nur bir tomonga kengayib, uchsiz ketadi (nur)
+    <svg viewBox="0 0 220 68" style={{ width: '100%', maxWidth: 320, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+      <defs>
+        <linearGradient id="d26fbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#78848F"/><stop offset="0.33" stopColor="#454F5A"/><stop offset="0.72" stopColor="#2A333C"/><stop offset="1" stopColor="#161D24"/></linearGradient>
+        <linearGradient id="d26fhead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#A6B2BE"/><stop offset="0.42" stopColor="#5E6A76"/><stop offset="1" stopColor="#232B34"/></linearGradient>
+        <radialGradient id="d26flens" cx="0.42" cy="0.35"><stop offset="0" stopColor="#FFFDF0"/><stop offset="0.5" stopColor="#FFD86B"/><stop offset="1" stopColor="#B8871F"/></radialGradient>
+        <linearGradient id="d26fcone" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="rgba(255,226,146,0.9)"/><stop offset="1" stopColor="rgba(255,226,146,0.04)"/></linearGradient>
+      </defs>
+      <path d="M66 34 L216 6 L216 62 Z" fill="url(#d26fcone)"/>
+      <path d="M66 34 L216 17 L216 51 Z" fill="rgba(255,244,202,0.4)"/>
+      <rect x="4" y="26" width="34" height="17" rx="4" fill="url(#d26fbody)"/>
+      {[10, 15, 20, 25, 30].map((x) => <line key={x} x1={x} y1="27" x2={x} y2="42" stroke="rgba(255,255,255,0.16)" strokeWidth="1.6"/>)}
+      <rect x="36" y="24" width="16" height="21" rx="3" fill="url(#d26fhead)"/>
+      <path d="M52 20 L64 25 L64 44 L52 49 Z" fill="url(#d26fhead)"/>
+      <ellipse cx="64" cy="34.5" rx="3.6" ry="9.6" fill="url(#d26flens)"/>
+      <ellipse cx="63" cy="31" rx="1.4" ry="3" fill="rgba(255,255,255,0.85)"/>
+      <rect x="16" y="22" width="9" height="5" rx="2" fill="#C4402E"/>
+      <circle cx="66" cy="34" r="6" fill="#1F7A4D" stroke="#fff" strokeWidth="1.6"/>
+    </svg>
+  );
+  return ( // QALAM — ikki uchi bor, uzunligi o'lchanadi (kesma)
+    <svg viewBox="0 0 220 68" style={{ width: '100%', maxWidth: 320, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+      <defs>
+        <linearGradient id="d26pbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFE79E"/><stop offset="0.34" stopColor="#F2C84B"/><stop offset="1" stopColor="#B0821B"/></linearGradient>
+        <linearGradient id="d26pwood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F5DCB0"/><stop offset="0.4" stopColor="#DBA96A"/><stop offset="1" stopColor="#956A34"/></linearGradient>
+        <linearGradient id="d26pfer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#EDF2F7"/><stop offset="0.4" stopColor="#A8B4C0"/><stop offset="1" stopColor="#626D78"/></linearGradient>
+      </defs>
+      <path d="M44 34 L64 24 L64 44 Z" fill="url(#d26pwood)"/>
+      <path d="M44 34 L52.5 29.7 L52.5 38.3 Z" fill="#37373D"/>
+      <rect x="64" y="24" width="98" height="20" fill="url(#d26pbody)"/>
+      <rect x="64" y="26.4" width="98" height="4" fill="rgba(255,255,255,0.45)"/>
+      <rect x="64" y="39.4" width="98" height="3" fill="rgba(90,60,10,0.22)"/>
+      <rect x="162" y="23" width="14" height="22" fill="url(#d26pfer)"/>
+      {[165.5, 169, 172.5].map((x) => <line key={x} x1={x} y1="23" x2={x} y2="45" stroke="rgba(70,80,92,0.45)" strokeWidth="1"/>)}
+      <rect x="176" y="25" width="12" height="18" rx="4.5" fill="#E88AA0"/>
+      <circle cx="44" cy="34" r="6" fill="#1F7A4D" stroke="#fff" strokeWidth="1.6"/>
+      <circle cx="188" cy="34" r="6" fill="#1F7A4D" stroke="#fff" strokeWidth="1.6"/>
+    </svg>
+  );
+};
+const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?" };
+const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?" };
+const LT_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(14px,2.3vw,17px)', fontWeight: 800, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
+const ltShuffle3 = (seed) => { const a = ['line', 'ray', 'segment']; let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+const LineTypeStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const type = cur.type, ask = cur.ask || 'type', kind = cur.kind;
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `linetype:${type}:${ask}`, options: [], correctIndex: -1, correctAnswer: ask === 'count' ? String(LT_ENDS[type]) : type, studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (ok, key) => {
+    if (!canAct || solved || wrong.has(key)) return;
+    if (ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((w) => new Set(w).add(key)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  const order = ltShuffle3(ri * 3 + 1);
+  const countOpts = [0, 1, 2, 3];
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        {c.transition && ri === 0 && (
+          <div className="fade-up" style={{ background: T.accentSoft, border: `1.5px solid ${T.accent}`, borderRadius: 14, padding: 'clamp(11px,2.2vw,15px) clamp(14px,2.6vw,18px)' }}>
+            <span style={{ display: 'inline-block', background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(10px,1.6vw,12px)', letterSpacing: '.05em', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>{lang === 'uz' ? 'MASHQ' : 'ТРЕНИРОВКА'}</span>
+            <p style={{ margin: 0, fontWeight: 700, color: T.ink, fontSize: 'clamp(14px,2.1vw,17px)', lineHeight: 1.45 }}>{t(c.transition)}</p>
+          </div>
+        )}
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(120px,26vw,170px)', justifyContent: 'center' }}>
+          {kind ? <RealObj kind={kind}/> : <LineFig type={type} hi={solved}/>}
+          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{t(LINE_TYPES[type])} · {LT_ENDS[type]} {lang === 'uz' ? 'uch' : 'конца'}</div>}
+        </div>
+        {!solved && (
+          <>
+            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(ask === 'count' ? LT_COUNT_Q : LT_TYPE_Q)}</p>
+            {ask === 'count' ? (
+              <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
+                {countOpts.map((v) => { const w = wrong.has('c' + v); return <button key={v} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(v === LT_ENDS[type], 'c' + v)} style={{ ...ARR_OPT }}>{v}</button>; })}
+              </div>
+            ) : (
+              <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'clamp(6px,1.4vw,9px)' }}>
+                {order.map((ty) => { const w = wrong.has(ty); return <button key={ty} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(ty === type, ty)} style={LT_OPT}>{t(LINE_TYPES[ty])}</button>; })}
+              </div>
+            )}
+          </>
+        )}
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// ============================================================
+// Dars32 MEXANIKA — SONLI/HARFLI IFODA (harf = son uchun OYNA):
+//  SlotExpr — ifoda `[oyna] op n`; oyna bo'sh (dashed, harf) yoki to'la (glow, son); reveal → `= qiymat`.
+//  ExprText — oddiy ifoda matni (`a + 5` / `4 + 3`); harf accent rangda, son — ink. op=null → yopishtirilgan (a5).
+//  EvalStage — harf o'rniga son qo'yib qiymatni tanla (MC son). round: {letter, op:'+'|'−', val, n}.
+//  ClassifyStage — sonli yoki harfli? round: {left, op, right} (harf bo'lsa harfli).
+//  PickExprStage — so'zga mos ifodani tanla; distraktor = teskari amal + yopishtirish (a3). round: {letter, op, n}.
+// ============================================================
+const OP_GLYPH = { '+': '+', '−': '−' };
+const exprShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+const isLetterTok = (s) => /[a-z]/i.test(String(s));
+const SLOT_TILE = { fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 };
+const SUBCHIP = { alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(15px,2.6vw,20px)', padding: '5px 16px', borderRadius: 999, fontFamily: "'JetBrains Mono',monospace" };
+const KEY_CAP = { fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', color: T.ink2, textAlign: 'center', lineHeight: 1.3 };
+// SlotExpr — harf/son oynasi + amal + son; reveal → tenglik va qiymat.
+const SlotExpr = ({ letter = 'a', op = '+', n = 5, val = null, reveal = false }) => {
+  const has = val != null;
+  const result = op === '+' ? val + n : val - n;
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(7px,1.8vw,13px)', flexWrap: 'wrap' }}>
+      <span key={has ? 'v' : 'e'} className={has ? 'g1-pop-in' : ''} style={{ ...SLOT_TILE, width: 'clamp(46px,11vw,64px)', height: 'clamp(46px,11vw,64px)', borderRadius: 14, fontSize: 'clamp(23px,5vw,34px)', border: `3px ${has ? 'solid' : 'dashed'} ${has ? T.accent : '#B9C2CE'}`, background: has ? T.accentSoft : '#fff', color: has ? T.accent : T.ink3, boxShadow: has ? `0 0 0 4px ${T.accentSoft}` : 'none', transition: 'all .35s' }}>{has ? val : letter}</span>
+      <span style={{ ...SLOT_TILE, fontSize: 'clamp(21px,4.4vw,29px)', color: T.ink2 }}>{OP_GLYPH[op]}</span>
+      <span style={{ ...SLOT_TILE, fontSize: 'clamp(25px,5vw,34px)', color: T.ink }}>{n}</span>
+      {reveal && (
+        <>
+          <span style={{ ...SLOT_TILE, fontSize: 'clamp(21px,4.4vw,29px)', color: T.ink2 }}>=</span>
+          <span className="g1-pop-in" style={{ ...SLOT_TILE, fontSize: 'clamp(26px,5.4vw,36px)', color: T.success }}>{result}</span>
+        </>
+      )}
+    </div>
+  );
+};
+// ExprText — matn ko'rinishidagi ifoda (klassifikatsiya/tanlash variantlari uchun).
+const ExprText = ({ left, op, right, size = 'mid' }) => {
+  const fs = size === 'big' ? 'clamp(26px,6vw,40px)' : 'clamp(19px,4.2vw,28px)';
+  const tok = (s) => <span style={{ color: isLetterTok(s) ? T.accent : T.ink }}>{s}</span>;
+  return (
+    <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: fs, whiteSpace: 'nowrap' }}>
+      {tok(left)}{op ? <span style={{ color: T.ink2, margin: '0 0.32em' }}>{OP_GLYPH[op]}</span> : null}{tok(right)}
+    </span>
+  );
+};
+
+const SUB_Q = { ru: 'Чему равно значение?', uz: "Qiymati nechaga teng?" };
+const evalVal = (r) => (r.op === '+' ? r.val + r.n : r.val - r.n);
+const evalOpts = (r, seed) => {
+  const c = evalVal(r);
+  const concat = Number(`${r.val}${r.n}`);
+  const wrongOp = r.op === '+' ? Math.abs(r.val - r.n) : r.val + r.n;
+  const pool = [c];
+  if (concat !== c && concat <= 30) pool.push(concat);
+  if (wrongOp !== c && !pool.includes(wrongOp)) pool.push(wrongOp);
+  let d = c + 1;
+  while (pool.length < 3) { if (d > 0 && d !== c && !pool.includes(d)) pool.push(d); d = d > c ? c - 1 : d - 1; if (d <= 0) d = c + 2; }
+  return exprShuffle(pool.slice(0, 3), seed);
+};
+// EvalStage — harf o'rniga son qo'yib qiymatni tanla. Chip `harf = son` doim ko'rinadi; solved → oynaga son + `= qiymat`.
+const EvalStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const correct = evalVal(cur);
+  const optVals = evalOpts(cur, ri + (cur.op === '+' ? 1 : 5));
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `eval:${cur.letter}${cur.op}${cur.n}@${cur.val}`, options: [], correctIndex: -1, correctAnswer: String(correct), studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (ok, key) => {
+    if (!canAct || solved || wrong.has(key)) return;
+    if (ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((w) => new Set(w).add(key)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        {c.transition && ri === 0 && (
+          <div className="fade-up" style={{ background: T.accentSoft, border: `1.5px solid ${T.accent}`, borderRadius: 14, padding: 'clamp(11px,2.2vw,15px) clamp(14px,2.6vw,18px)' }}>
+            <span style={{ display: 'inline-block', background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(10px,1.6vw,12px)', letterSpacing: '.05em', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>{lang === 'uz' ? 'MASHQ' : 'ТРЕНИРОВКА'}</span>
+            <p style={{ margin: 0, fontWeight: 700, color: T.ink, fontSize: 'clamp(14px,2.1vw,17px)', lineHeight: 1.45 }}>{t(c.transition)}</p>
+          </div>
+        )}
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
+        <div className="fade-up" style={SUBCHIP}>{cur.letter} = {cur.val}</div>
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(18px, 3.4vw, 28px)', minHeight: 'clamp(140px,30vw,190px)', justifyContent: 'center' }}>
+          <SlotExpr letter={cur.letter} op={cur.op} n={cur.n} val={solved ? cur.val : null} reveal={solved}/>
+        </div>
+        {!solved && (
+          <>
+            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(SUB_Q)}</p>
+            <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
+              {optVals.map((v) => { const w = wrong.has('o' + v); return <button key={v} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(v === correct, 'o' + v)} style={{ ...ARR_OPT }}>{v}</button>; })}
+            </div>
+          </>
+        )}
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+const CLASS_Q = { ru: 'Числовое или буквенное?', uz: "Sonli yoki harfli?" };
+const CLASS_OPTS = [{ v: 'sonli', label: { ru: 'Числовое', uz: 'Sonli' } }, { v: 'harfli', label: { ru: 'Буквенное', uz: 'Harfli' } }];
+// ClassifyStage — ifoda sonli yoki harfli? (harf bo'lsa harfli).
+const ClassifyStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const isLetterExpr = isLetterTok(cur.left) || isLetterTok(cur.right);
+  const correct = isLetterExpr ? 'harfli' : 'sonli';
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `classify:${cur.left}${cur.op}${cur.right}`, options: [], correctIndex: -1, correctAnswer: correct, studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (v, key) => {
+    if (!canAct || solved || wrong.has(key)) return;
+    if (v === correct) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((w) => new Set(w).add(key)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(20px, 4vw, 32px)', minHeight: 'clamp(120px,26vw,170px)', justifyContent: 'center' }}>
+          <ExprText left={cur.left} op={cur.op} right={cur.right} size="big"/>
+          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{t(isLetterExpr ? CLASS_OPTS[1].label : CLASS_OPTS[0].label)}</div>}
+        </div>
+        {!solved && (
+          <>
+            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(CLASS_Q)}</p>
+            <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(6px,1.4vw,9px)' }}>
+              {CLASS_OPTS.map((o) => { const w = wrong.has(o.v); return <button key={o.v} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(o.v, o.v)} style={POLY_OPT}>{t(o.label)}</button>; })}
+            </div>
+          </>
+        )}
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+const PICK_PROMPT = {
+  '+': { ru: (l, n) => `Прибавить к ${l} число ${n}`, uz: (l, n) => `${l} ga ${n} sonini qo'shish` },
+  '−': { ru: (l, n) => `Вычесть из ${l} число ${n}`, uz: (l, n) => `${l} dan ${n} sonini ayirish` }
+};
+const PICK_Q2 = { ru: 'Какое выражение подходит?', uz: "Qaysi ifoda mos keladi?" };
+// PickExprStage — so'zga mos ifodani tanla. Variantlar: to'g'ri (letter op n), teskari amal, yopishtirilgan (letter n).
+const PickExprStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const other = cur.op === '+' ? '−' : '+';
+  const opts = exprShuffle([
+    { left: cur.letter, op: cur.op, right: cur.n, ok: true },
+    { left: cur.letter, op: other, right: cur.n, ok: false },
+    { left: cur.letter, op: null, right: cur.n, ok: false }
+  ], ri * 3 + 1);
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `pickexpr:${cur.letter}${cur.op}${cur.n}`, options: [], correctIndex: -1, correctAnswer: `${cur.letter}${cur.op}${cur.n}`, studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (o, i) => {
+    if (!canAct || solved || wrong.has(i)) return;
+    if (o.ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((w) => new Set(w).add(i)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  const prompt = PICK_PROMPT[cur.op][lang](cur.letter, cur.n);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(18px, 3.4vw, 26px)', minHeight: 'clamp(90px,20vw,130px)' }}>
+          <p style={{ margin: 0, fontWeight: 800, color: T.ink, fontSize: 'clamp(16px,2.8vw,22px)', textAlign: 'center', lineHeight: 1.4 }}>{prompt}</p>
+        </div>
+        {!solved && (
+          <>
+            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(PICK_Q2)}</p>
+            <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
+              {opts.map((o, i) => { const w = wrong.has(i); const ok = solved && o.ok; return (
+                <button key={i} disabled={!canAct || solved || w} onClick={() => hit(o, i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(12px,2.4vw,18px)', minHeight: 'clamp(56px,12vw,74px)', borderRadius: 14, background: ok ? T.successSoft : '#fff', border: `2.5px solid ${ok ? T.success : w ? '#D64545' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default' }}>
+                  <ExprText left={o.left} op={o.op} right={o.right}/>
+                </button>
+              ); })}
+            </div>
+          </>
+        )}
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// ============================================================
+// DARS35 VAQT MEXANIKASI (YANGI) — soatga qarab o'qish + analog↔raqamli moslash.
+// ClockFace: siferblat + kalta (soat, accent) va uzun (daqiqa, blue) strelka. ReadClockStage: soat→raqamli MC.
+// MatchToClockStage: raqamli yozuv → mos soatni (mini ClockFace) tanlash.
+// ============================================================
+const FRAC_OPT = { padding: 'clamp(10px,1.9vw,14px)', fontSize: 'clamp(15px,2.4vw,19px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(48px,7.5vw,60px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.2 };
+const clkHand = (cx, cy, len, deg) => { const a = (deg - 90) * Math.PI / 180; return [cx + len * Math.cos(a), cy + len * Math.sin(a)]; };
+// ClockFace — analog soat. h(1..12), m(0..55, 5-karrali). Kalta=soat (accent, yo'g'on), uzun=daqiqa (blue, ingichka).
+const ClockFace = ({ h = 3, m = 0, w = null, tick = false }) => {
+  const hourAng = (h % 12) * 30 + m * 0.5;
+  const minAng = m * 6;
+  const [hx, hy] = clkHand(50, 50, 25, hourAng);
+  const [mx, my] = clkHand(50, 50, 37, minAng);
+  // tick=true → hook golografik varianti (SHAFFOF fon, och ranglar); aks holda oq siferblat (mashq-ekranlari).
+  const holo = tick;
+  const faceFill = holo ? 'none' : '#fff';
+  const rim = holo ? 'rgba(150,200,255,0.8)' : T.ink2;
+  const tickMaj = holo ? 'rgba(205,228,255,0.92)' : T.ink;
+  const tickMin = holo ? 'rgba(160,195,240,0.6)' : T.ink3;
+  const numCol = holo ? 'rgba(210,232,255,0.95)' : T.ink2;
+  const minHand = holo ? '#8FC0F5' : T.blue;
+  const hourHand = holo ? '#FFB27A' : T.accent;
+  const centerCol = holo ? '#DCEAFF' : T.ink;
+  return (
+    <svg viewBox="0 0 100 100" style={{ width: w || 'clamp(122px,30vw,178px)', height: 'auto', display: 'block', filter: holo ? 'drop-shadow(0 0 6px rgba(120,175,245,0.55))' : 'drop-shadow(0 3px 8px rgba(58,53,48,0.25))' }} aria-hidden="true">
+      <circle cx="50" cy="50" r="47" fill={faceFill} stroke={rim} strokeWidth={holo ? 2 : 3}/>
+      {Array.from({ length: 12 }).map((_, i) => { const a = i * 30; const [x1, y1] = clkHand(50, 50, 46, a); const [x2, y2] = clkHand(50, 50, i % 3 === 0 ? 38 : 42, a); return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={i % 3 === 0 ? tickMaj : tickMin} strokeWidth={i % 3 === 0 ? 2.4 : 1.4} strokeLinecap="round"/>; })}
+      {[[12, 0], [3, 90], [6, 180], [9, 270]].map(([n, a], i) => { const [nx, ny] = clkHand(50, 50, 32, a); return <text key={i} x={nx} y={ny + 4} textAnchor="middle" fontSize="11" fontWeight="800" fontFamily="'JetBrains Mono',monospace" fill={numCol}>{n}</text>; })}
+      <line x1="50" y1="50" x2={mx} y2={my} stroke={minHand} strokeWidth="2.6" strokeLinecap="round"/>
+      <line x1="50" y1="50" x2={hx} y2={hy} stroke={hourHand} strokeWidth="4.4" strokeLinecap="round"/>
+      {/* soniya strelkasi — HAQIQIY vaqt (60s/aylanish, 1s/tik): view-box transform-box (fill-box qo'l-uzilish gotcha'sidan qochish) */}
+      {tick && <line x1="50" y1="55" x2="50" y2="15" stroke="#FF5A48" strokeWidth="1.2" strokeLinecap="round" style={{ transformBox: 'view-box', transformOrigin: '50px 50px', animation: 'd35tick 60s steps(60) infinite' }}/>}
+      <circle cx="50" cy="50" r="3.4" fill={centerCol}/>
+    </svg>
+  );
+};
+// ReadClockStage — ClockFace ko'rsatiladi, raqamli yozuvni tanla (read + toDigital bir xil mexanika). Per-option wrong.
+const ReadClockStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const correctIdx = cur.opts.findIndex((o) => o.ok);
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const [lastWrong, setLastWrong] = useState(null);
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); setLastWrong(null); anyWrongRef.current = false; };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `clock:${cur.h}:${cur.m}`, options: cur.opts.map((o) => o[lang]), correctIndex: correctIdx, correctAnswer: cur.opts[correctIdx][lang], studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (o, i) => {
+    if (!canAct || solved || wrong.has(i)) return;
+    if (o.ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setLastWrong(i); setWrong((w) => new Set(w).add(i)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  const wrongTip = (lastWrong != null && cur.opts[lastWrong] && cur.opts[lastWrong].wrong) ? cur.opts[lastWrong].wrong : (cur.wrong || c.wrong);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.label || c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(160px,34vw,210px)', justifyContent: 'center' }}>
+          <ClockFace h={cur.h} m={cur.m}/>
+        </div>
+        <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(cur.q)}</p>
+        {!solved && (
+          <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
+            {cur.opts.map((o, i) => { const w = wrong.has(i); return <button key={i} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(o, i)} style={{ ...FRAC_OPT }}>{t(o)}</button>; })}
+          </div>
+        )}
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(wrongTip)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.correct_text || c.correct_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// MatchToClockStage — raqamli yozuv (cur.name) berilgan, mos ClockFace ni tanla (cur.choices: [{h,m,ok?}]). Distraktor = noto'g'ri strelka.
+const MatchToClockStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `matchclock:${cKey}:${ri}`, options: [], correctIndex: cur.choices.findIndex((h) => h.ok), correctAnswer: t(cur.name), studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (h, i) => {
+    if (!canAct || solved || wrong.has(i)) return;
+    if (h.ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((w) => new Set(w).add(i)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.label)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        <div className="fade-up delay-1" style={{ display: 'flex', justifyContent: 'center' }}>
+          <span style={{ ...SUBCHIP, fontSize: 'clamp(18px,3.2vw,24px)' }}>{t(cur.name)}</span>
+        </div>
+        <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(cur.q)}</p>
+        <div key={ri} className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.6vw,10px)' }}>
+          {cur.choices.map((h, i) => { const w = wrong.has(i); const ok = solved && h.ok; return (
+            <button key={i} disabled={!canAct || solved || w} onClick={() => hit(h, i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(8px,1.8vw,13px)', minHeight: 'clamp(96px,22vw,132px)', borderRadius: 14, background: ok ? T.successSoft : '#fff', border: `2.5px solid ${ok ? T.success : w ? '#D64545' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default', boxShadow: `0 3px 10px -4px rgba(${T.shadowBase},0.35)` }}>
+              <ClockFace h={h.h} m={h.m} w="clamp(74px,18vw,108px)"/>
+            </button>
+          ); })}
+        </div>
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.correct_text || c.correct_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// Dars35 wrapper'lari — ARALASH: ReadClockStage s5/s6/s7/s9/s10/s13/s14 · MatchToClockStage s8/s11.
+const A5 = (props) => <ReadClockStage props={props} cKey="s5"/>;
+const A6 = (props) => <ReadClockStage props={props} cKey="s6"/>;
+const A7 = (props) => <ReadClockStage props={props} cKey="s7"/>;
+const A8 = (props) => <MatchToClockStage props={props} cKey="s8"/>;
+const A9 = (props) => <ReadClockStage props={props} cKey="s9"/>;
+const A10 = (props) => <ReadClockStage props={props} cKey="s10"/>;
+const A11 = (props) => <MatchToClockStage props={props} cKey="s11"/>;
+const ACase = (props) => <ReadClockStage props={props} cKey="s13"/>;
+const A14 = (props) => <ReadClockStage props={props} cKey="s14" fact/>;
+
+
 
 // ============================================================
 // TABLE-FILL MEXANIKASI — skip-sanash qatori (2,4,6,8,10,12 …); bir katak bo'sh, o'quvchi to'ldiradi.
@@ -6532,14 +7500,13 @@ const ScreenTable = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(190px, 44vw, 260px)', overflowX: 'auto' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px,2.2vw,15px)', width: '100%' }}>
-            {[{ u: 'sm', bars: 1, rel: { ru: 'самая маленькая', uz: 'eng kichik' } }, { u: 'dm', bars: 2, rel: { ru: '1 дм = 10 см', uz: '1 dm = 10 sm' } }, { u: 'm', bars: 3, rel: { ru: '1 м = 100 см', uz: '1 m = 100 sm' } }].map((row) => (
-              <div key={row.u} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
-                <span style={{ minWidth: 'clamp(78px,20vw,120px)', fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', color: '#2FA0C8' }}>{t(UNIT_FULL[row.u])} <span style={{ color: T.ink3, fontFamily: "'JetBrains Mono',monospace" }}>({t(UNIT_ABBR[row.u])})</span></span>
-                <div style={{ flex: 1, minWidth: 0, height: 'clamp(14px,3.4vw,22px)', display: 'flex', gap: 3, alignItems: 'center' }}>
-                  <div style={{ width: `${row.bars * 26}%`, minWidth: 18, height: '100%', borderRadius: 5, background: 'linear-gradient(180deg,#7FD8DE,#3E9AA8)', border: '1.5px solid #2E7C88' }}/>
-                </div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,15px)', color: T.success, minWidth: 'clamp(84px,22vw,130px)', textAlign: 'right' }}>{t(row.rel)}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px,2.6vw,18px)', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+            {/* KALIT — har qatorda soat + raqamli vaqt yozuvi */}
+            <span style={KEY_CAP}>{t(c.caption)}</span>
+            {c.rows.map((r, i) => (
+              <div key={i} className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(14px,4vw,30px)', justifyContent: 'center', width: '100%' }}>
+                <ClockFace h={r.h} m={r.m} w="clamp(96px,26vw,140px)"/>
+                <span style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(18px,3.4vw,26px)', fontFamily: "'JetBrains Mono',monospace", minWidth: 'clamp(70px,18vw,100px)' }}>{`${r.h}:${String(r.m).padStart(2, '0')}`}</span>
               </div>
             ))}
           </div>
@@ -7201,231 +8168,121 @@ const SaturnField = ({ label }) => {
 };
 
 // ============================================================
-// URAN SAHNALARI — Б5 biom (SYUJET §Б5: Uran, yonboshlab aylanuvchi, «maydon/stansiya qurish»).
-// Uran — moviy-yashil gaz sayyorasi, halqalari deyarli VERTIKAL (real: Uran yonboshlab aylanadi).
-// Sahna: koinot + Uran osmonda + qurilish-panjara maydoni (geoboard/stansiya poydevori) + ekipaj.
+// NEPTUN SAHNALARI — Б6 biom (SYUJET §Б6: Neptun, eng uzoq · «stansiya, kodlar»). Neptun — gaz-muz giganti,
+// QATTIQ SIRT YO'Q, QO'NISH YO'Q (Yupiter/Saturn kabi). Shuning uchun sahna = ORBITAL STANSIYA DEKASI:
+// katta deraza ortida Neptun ko'rinadi, ekipaj deka ustida, kod-terminal (harfli ifoda = «kod», Б6 tematik).
 // ============================================================
-const UranPlanet = ({ w = '100%' }) => (
-  <svg viewBox="0 0 140 150" style={{ width: w, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+const NEPTUN_STARS = [[8, 12], [22, 7], [34, 20], [46, 9], [58, 16], [70, 6], [82, 14], [92, 22], [14, 30], [64, 28], [40, 34], [88, 36], [26, 40], [76, 44]];
+const NeptunPlanet = ({ w = '100%' }) => (
+  <svg viewBox="0 0 140 140" style={{ width: w, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
     <defs>
-      <radialGradient id="d26ur" cx="38%" cy="34%" r="86%"><stop offset="0%" stopColor="#CFF3F2"/><stop offset="52%" stopColor="#8FD8DE"/><stop offset="100%" stopColor="#3E8FA6"/></radialGradient>
-      <radialGradient id="d26urT" cx="34%" cy="30%" r="80%"><stop offset="50%" stopColor="rgba(0,0,0,0)"/><stop offset="100%" stopColor="rgba(10,40,55,0.6)"/></radialGradient>
-      <radialGradient id="d26urH" cx="50%" cy="50%" r="50%"><stop offset="60%" stopColor="rgba(150,225,230,0)"/><stop offset="83%" stopColor="rgba(150,225,230,0.28)"/><stop offset="100%" stopColor="rgba(150,225,230,0)"/></radialGradient>
-      <linearGradient id="d26urR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="rgba(170,220,225,0)"/><stop offset="0.14" stopColor="rgba(190,230,235,0.75)"/><stop offset="0.5" stopColor="rgba(220,245,248,0.4)"/><stop offset="0.86" stopColor="rgba(190,230,235,0.75)"/><stop offset="1" stopColor="rgba(170,220,225,0)"/></linearGradient>
-      <clipPath id="d26urc"><circle cx="70" cy="75" r="34"/></clipPath>
+      <radialGradient id="d32nep" cx="38%" cy="33%" r="86%"><stop offset="0%" stopColor="#AFD2F5"/><stop offset="46%" stopColor="#4C7ED6"/><stop offset="100%" stopColor="#16346F"/></radialGradient>
+      <radialGradient id="d32nepT" cx="34%" cy="30%" r="80%"><stop offset="50%" stopColor="rgba(0,0,0,0)"/><stop offset="100%" stopColor="rgba(6,20,50,0.62)"/></radialGradient>
+      <radialGradient id="d32nepH" cx="50%" cy="50%" r="50%"><stop offset="60%" stopColor="rgba(120,170,240,0)"/><stop offset="83%" stopColor="rgba(120,170,240,0.28)"/><stop offset="100%" stopColor="rgba(120,170,240,0)"/></radialGradient>
+      <radialGradient id="d32nepS" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="rgba(250,252,255,0.9)"/><stop offset="100%" stopColor="rgba(250,252,255,0)"/></radialGradient>
+      <clipPath id="d32nepc"><circle cx="70" cy="70" r="46"/></clipPath>
     </defs>
-    <ellipse className="d19-sathalo" cx="70" cy="75" rx="44" ry="46" fill="url(#d26urH)"/>
-    {/* VERTIKAL halqa (Uran yonboshlab aylanadi) — orqa yoy */}
-    <g transform="rotate(8 70 75)">
-      <ellipse cx="70" cy="75" rx="20" ry="60" fill="none" stroke="url(#d26urR)" strokeWidth="6"/>
-    </g>
-    <circle cx="70" cy="75" r="34" fill="url(#d26ur)"/>
-    <g clipPath="url(#d26urc)">
+    <circle className="d19-sathalo" cx="70" cy="70" r="56" fill="url(#d32nepH)"/>
+    <circle cx="70" cy="70" r="46" fill="url(#d32nep)"/>
+    <g clipPath="url(#d32nepc)">
+      {/* gaz kamarlari (sekin siljiydi) */}
       <g className="d19-satband">
-        <ellipse cx="70" cy="66" rx="40" ry="4" fill="#B6E8EC" opacity="0.5"/>
-        <ellipse cx="70" cy="80" rx="42" ry="5" fill="#6FC2CC" opacity="0.45"/>
-        <ellipse cx="70" cy="92" rx="38" ry="3.5" fill="#A6DDE2" opacity="0.5"/>
+        <ellipse cx="70" cy="52" rx="52" ry="5" fill="#BFDBFA" opacity="0.42"/>
+        <ellipse cx="70" cy="68" rx="54" ry="6" fill="#6FA0E4" opacity="0.4"/>
+        <ellipse cx="70" cy="86" rx="50" ry="5" fill="#2E5AA8" opacity="0.42"/>
       </g>
-      <circle cx="70" cy="75" r="34" fill="url(#d26urT)"/>
-      <ellipse cx="56" cy="56" rx="13" ry="9" fill="rgba(255,255,255,0.5)" transform="rotate(-22 56 56)"/>
+      {/* katta qora dog' (Neptunning «Buyuk qora dog'i») */}
+      <ellipse cx="54" cy="78" rx="13" ry="8" fill="#12285C" opacity="0.72"/>
+      <ellipse cx="52" cy="76" rx="7" ry="4" fill="#0C1B44" opacity="0.6"/>
+      {/* terminator (soya) */}
+      <circle cx="70" cy="70" r="46" fill="url(#d32nepT)"/>
     </g>
-    <path d="M40 52 A34 34 0 0 1 100 50" fill="none" stroke="rgba(230,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round"/>
-    <circle cx="70" cy="75" r="34" fill="none" stroke="rgba(60,130,150,0.5)" strokeWidth="1"/>
-    {/* OLD halqa yoyi (pastki, vertikal) */}
-    <g transform="rotate(8 70 75)" clipPath="url(#d26urc)"><ellipse cx="70" cy="75" rx="20" ry="60" fill="none" stroke="url(#d26urR)" strokeWidth="6"/></g>
+    {/* yorug' porlash */}
+    <ellipse cx="54" cy="52" rx="16" ry="11" fill="url(#d32nepS)" opacity="0.7"/>
+    <circle cx="70" cy="70" r="46" fill="none" stroke="rgba(150,190,245,0.5)" strokeWidth="1.4"/>
   </svg>
 );
-const URAN_STARS = [[8, 14], [22, 30], [36, 12], [52, 26], [66, 14], [80, 28], [90, 18], [14, 44], [72, 40], [40, 48], [28, 20], [60, 34]];
-// Muzli qoya — hajmli fasetlar + yorug'lik (yo'ldosh sirti rekviziti).
-const IceRock = ({ flip = false }) => (
-  <svg viewBox="0 0 64 48" width="100%" style={{ display: 'block', overflow: 'visible', transform: flip ? 'scaleX(-1)' : 'none' }} aria-hidden="true">
-    <defs><linearGradient id="d26ice" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stopColor="#DCF2F5"/><stop offset="0.5" stopColor="#9FCED6"/><stop offset="1" stopColor="#5A8892"/></linearGradient></defs>
-    <ellipse cx="32" cy="45" rx="24" ry="3" fill="rgba(0,0,0,0.28)"/>
-    <path d="M6 46 L20 16 L34 30 L44 8 L58 46 Z" fill="url(#d26ice)" stroke="#4A7680" strokeWidth="0.8"/>
-    <path d="M20 16 L34 30 L27 46 L14 46 Z" fill="#BEE4EA" opacity="0.7"/>
-    <path d="M44 8 L58 46 L46 46 L40 26 Z" fill="#7FB4BE" opacity="0.6"/>
-    <path d="M20 16 L23 24 M44 8 L41 20" stroke="#fff" strokeWidth="1" strokeLinecap="round" opacity="0.7"/>
-  </svg>
-);
-// Geodeziya tripodi (teodolit) — chiziq/burchak o'lchaydi, skaner nur (geometriya rekviziti).
-const SurveyTripod = ({ w }) => (
-  <svg viewBox="0 0 50 64" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
-    <line x1="25" y1="30" x2="10" y2="60" stroke="#8A94A6" strokeWidth="2.4"/><line x1="25" y1="30" x2="40" y2="60" stroke="#8A94A6" strokeWidth="2.4"/><line x1="25" y1="30" x2="25" y2="60" stroke="#6E7884" strokeWidth="2.4"/>
-    <rect x="17" y="18" width="16" height="12" rx="3" fill="url(#d26tri)"/>
-    <defs><linearGradient id="d26tri" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#EEF3F7"/><stop offset="1" stopColor="#96A0AC"/></linearGradient></defs>
-    <circle cx="33" cy="24" r="3.4" fill="#1B2430"/><circle cx="33" cy="24" r="1.4" fill="#7FD8DE"/>
-    {/* skaner nur (chiziq chizadi) */}
-    <line className="d13-led" x1="36" y1="24" x2="50" y2="22" stroke="#7FD8DE" strokeWidth="1.4"/>
-    <circle className="d13-led" cx="25" cy="16" r="1.8" fill="#6EF29B"/>
-  </svg>
-);
-// Yarim qurilgan stansiya moduli (gumbaz + panel + antenna).
-const StationModule = ({ w }) => (
-  <svg viewBox="0 0 70 54" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
-    <defs><linearGradient id="d26mod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#C6D2DC"/><stop offset="1" stopColor="#6E7C88"/></linearGradient></defs>
-    <path d="M8 50 A27 27 0 0 1 62 50 Z" fill="url(#d26mod)" stroke="#4A545E" strokeWidth="1.4"/>
-    <path d="M35 24 A26 26 0 0 1 61 49" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.4"/>
-    <rect x="26" y="36" width="18" height="14" rx="2" fill="#1B2A38"/><rect x="29" y="39" width="5" height="8" fill="#7FD8DE" opacity="0.8"/><rect x="36" y="39" width="5" height="8" fill="#5AA6B0" opacity="0.6"/>
-    <g stroke="#5A6470" strokeWidth="1">{[18, 35, 52].map((x) => <line key={x} x1={x} y1="50" x2={x - (x - 35) * 0.12} y2="26"/>)}</g>
-    <line x1="52" y1="26" x2="58" y2="10" stroke="#8A94A6" strokeWidth="1.6"/><circle className="d13-led" cx="58.5" cy="9" r="2" fill="#6EF29B"/>
-  </svg>
-);
-// Geodeziya-droni — sirt ustida suzadi, skaner nur (parragi aylanadi).
-const UranDrone = ({ w }) => (
-  <svg viewBox="0 0 46 34" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
-    <defs><linearGradient id="d26dr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#EAF4F6"/><stop offset="1" stopColor="#8FA6AE"/></linearGradient></defs>
-    <line x1="9" y1="9" x2="19" y2="15" stroke="#6A7480" strokeWidth="2"/><line x1="37" y1="9" x2="27" y2="15" stroke="#6A7480" strokeWidth="2"/>
-    <ellipse className="d13-rotor" cx="9" cy="8" rx="8.5" ry="1.7" fill="#8AA4AC" opacity="0.7" style={{ transformOrigin: '9px 8px' }}/>
-    <ellipse className="d13-rotor" cx="37" cy="8" rx="8.5" ry="1.7" fill="#8AA4AC" opacity="0.7" style={{ transformOrigin: '37px 8px', animationDelay: '.1s' }}/>
-    <rect x="15" y="12" width="16" height="10" rx="4.5" fill="url(#d26dr)" stroke="#7E8692" strokeWidth="1"/>
-    <path d="M20 22 L17 31 L29 31 L26 22 Z" fill="rgba(127,216,222,0.26)"/>
-    <circle className="d13-led" cx="23" cy="21" r="1.9" fill="#7FD8DE"/>
-  </svg>
-);
-// Mayoq — qurilish maydoni chekkasi (chiroq pulslaydi).
-const Beacon = ({ delay = 0 }) => (
-  <svg viewBox="0 0 14 40" width="100%" style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
-    <rect x="5.5" y="10" width="3" height="28" rx="1.5" fill="#5A6470"/>
-    <ellipse cx="7" cy="39" rx="6" ry="1.6" fill="rgba(0,0,0,0.3)"/>
-    <circle className="d13-led" cx="7" cy="7" r="4" fill="#FFB84D" style={{ animationDelay: `${delay}s` }}/>
-    <circle cx="7" cy="7" r="6.5" fill="none" stroke="rgba(255,184,77,0.35)" strokeWidth="1"/>
-  </svg>
-);
-// UranStation — Uran yo'ldoshidagi KATTA baza (Mars CargoBase miqyosida, muz-palitra):
-// yon modul + gumbaz + shlyuz + quyosh paneli qanoti + antenna tarelkasi + platforma/oyoqlar + illyuminatorlar.
-const UranStation = ({ w }) => (
-  <svg viewBox="0 0 150 104" style={{ width: w, height: 'auto', display: 'block', filter: 'drop-shadow(0 7px 9px rgba(0,0,0,0.45))' }} aria-hidden="true">
+// Kod-terminal — stansiya konsoli (harfli «kod» ko'rsatadi; tematik bezak, interaktiv EMAS).
+const CodeTerminal = ({ w }) => (
+  <svg viewBox="0 0 120 96" style={{ width: w, height: 'auto', display: 'block', filter: 'drop-shadow(0 7px 9px rgba(0,0,0,0.45))' }} aria-hidden="true">
     <defs>
-      <linearGradient id="d26stDome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F2F8FA"/><stop offset="0.5" stopColor="#C6DCE4"/><stop offset="1" stopColor="#8CA6B2"/></linearGradient>
-      <linearGradient id="d26stPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2E7C88"/><stop offset="1" stopColor="#123A46"/></linearGradient>
-      <linearGradient id="d26stMod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#DDE8ED"/><stop offset="1" stopColor="#8A9BA6"/></linearGradient>
+      <linearGradient id="d32tBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#DDE7F2"/><stop offset="1" stopColor="#8494A8"/></linearGradient>
+      <linearGradient id="d32tScr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#0E2140"/><stop offset="1" stopColor="#0A1830"/></linearGradient>
     </defs>
-    {/* quyosh paneli qanoti (o'ngda) */}
-    <line x1="116" y1="84" x2="116" y2="62" stroke="#7E8B99" strokeWidth="3.4"/>
-    <rect x="104" y="40" width="44" height="24" rx="2" fill="url(#d26stPanel)" stroke="#5A6B84" strokeWidth="1.6"/>
-    {[115, 126, 137].map((x) => <line key={x} x1={x} y1="40" x2={x} y2="64" stroke="#5FAEBC" strokeWidth="0.9"/>)}
-    <line x1="104" y1="52" x2="148" y2="52" stroke="#5FAEBC" strokeWidth="0.9"/>
-    {/* antenna tarelkasi (chap tepa) */}
-    <line x1="30" y1="58" x2="22" y2="42" stroke="#7E8B99" strokeWidth="2.6"/>
-    <ellipse cx="17" cy="35" rx="13" ry="8.5" transform="rotate(-26 17 35)" fill="#E8F2F5" stroke="#7C93A0" strokeWidth="1.6"/>
-    <line x1="17" y1="35" x2="24" y2="31" stroke="#7C93A0" strokeWidth="1.6"/>
-    <circle className="d13-led" cx="25" cy="30" r="2" fill="#6EF29B"/>
-    {/* yon modul (chapda, gumbazga ulanadi) */}
-    <rect x="2" y="68" width="28" height="18" rx="6" fill="url(#d26stMod)" stroke="#6E8593" strokeWidth="1.6"/>
-    <rect x="4" y="71" width="24" height="4" rx="2" fill="rgba(255,255,255,0.5)"/>
-    {/* gumbaz */}
-    <path d="M20 86 A50 50 0 0 1 120 86 Z" fill="url(#d26stDome)" stroke="#6E8593" strokeWidth="2.2"/>
-    {/* gumbaz panel choklari */}
-    <path d="M70 38 L70 86 M50 43 L44 86 M90 43 L96 86 M34 58 L24 86 M106 58 L116 86" stroke="#A9BFC9" strokeWidth="1.5" fill="none" opacity="0.8"/>
-    <path d="M44 54 A38 38 0 0 1 78 42" stroke="#FFFFFF" strokeWidth="3.2" opacity="0.5" fill="none" strokeLinecap="round"/>
-    {/* asos platformasi + oyoqlar */}
-    <rect x="14" y="84" width="112" height="10" rx="3.5" fill="#6E8593"/>
-    <rect x="22" y="94" width="11" height="8" fill="#5A6E7A"/>
-    <rect x="108" y="94" width="11" height="8" fill="#5A6E7A"/>
-    {/* shlyuz-eshik (yorug') */}
-    <path d="M56 86 L56 56 A14 14 0 0 1 84 56 L84 86 Z" fill="#0E2028" stroke="#7FD8DE" strokeWidth="2.6"/>
-    <path d="M60 86 L60 58 A10 10 0 0 1 80 58 L80 86 Z" fill="#12414E" opacity="0.85"/>
-    <circle className="d13-led" cx="77" cy="73" r="2.6" fill="#7FD8DE"/>
-    {/* illyuminatorlar (yorug') */}
-    <circle cx="40" cy="70" r="4.6" fill="#0E2028" stroke="#7FD8DE" strokeWidth="1.6"/>
-    <circle cx="40" cy="70" r="2.2" fill="#7FD8DE" opacity="0.85"/>
-    <circle cx="100" cy="70" r="4.6" fill="#0E2028" stroke="#7FD8DE" strokeWidth="1.6"/>
-    <circle cx="100" cy="70" r="2.2" fill="#7FD8DE" opacity="0.7"/>
-    {/* tepa mayoq */}
-    <line x1="70" y1="38" x2="70" y2="26" stroke="#7E8B99" strokeWidth="2"/>
-    <circle className="d13-led" cx="70" cy="24" r="2.6" fill="#FFB84D"/>
+    {/* oyoq/tayanch */}
+    <rect x="46" y="80" width="28" height="12" rx="3" fill="#5A6B84"/>
+    <rect x="34" y="90" width="52" height="6" rx="3" fill="#455571"/>
+    {/* korpus */}
+    <rect x="14" y="14" width="92" height="66" rx="10" fill="url(#d32tBody)" stroke="#6E8098" strokeWidth="2.2"/>
+    {/* ekran */}
+    <rect x="22" y="22" width="76" height="42" rx="6" fill="url(#d32tScr)" stroke="#3E5A86" strokeWidth="1.6"/>
+    {/* ekranda «kod»: harf + amal + son (monospace-ko'rinish) */}
+    <text x="60" y="49" textAnchor="middle" fontSize="20" fontWeight="800" fontFamily="'JetBrains Mono',monospace" fill="#7FD8DE">a + 5</text>
+    {/* status chiroqlari */}
+    <circle className="d13-led" cx="30" cy="72" r="2.6" fill="#6EF29B"/>
+    <circle cx="40" cy="72" r="2.6" fill="#FFB84D"/>
+    <rect x="66" y="69" width="30" height="6" rx="3" fill="#3E5A86"/>
   </svg>
 );
-// Muzli TOG' TIZMASI — orqa fon: ufq ortidan ko'tariladigan haqiqiy muz-tog'lar
-// (uzoq tumanli qatlam + asosiy tizma + qor cho'qqilari + soya yoqlari). Sirt ortida turadi.
-const IceRidge = () => (
-  <svg viewBox="0 0 400 130" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }} aria-hidden="true">
-    <defs>
-      <linearGradient id="d26rdgFar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#54798A"/><stop offset="1" stopColor="#25404C"/></linearGradient>
-      <linearGradient id="d26rdgNear" x1="0" y1="0" x2="0.25" y2="1"><stop offset="0" stopColor="#CDE9F2"/><stop offset="0.4" stopColor="#84B6C6"/><stop offset="1" stopColor="#3A5E6E"/></linearGradient>
-      <linearGradient id="d26rdgSnow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFFFFF"/><stop offset="1" stopColor="#D6EDF5"/></linearGradient>
-    </defs>
-    {/* uzoq qatlam (tumanli, chuqurlik beradi) */}
-    <path d="M0 130 L0 84 L44 44 L86 80 L132 36 L188 88 L238 48 L296 92 L348 52 L400 96 L400 130 Z" fill="url(#d26rdgFar)" opacity="0.5"/>
-    {/* asosiy tizma */}
-    <path d="M0 130 L0 110 L34 88 L78 26 L124 78 L168 18 L222 84 L268 40 L322 88 L370 58 L400 92 L400 130 Z" fill="url(#d26rdgNear)"/>
-    {/* soya yoqlari (yorug'lik o'ngdan — Uran tomondan) */}
-    <path d="M78 26 L124 78 L106 78 Z" fill="rgba(18,46,60,0.38)"/>
-    <path d="M168 18 L222 84 L202 84 Z" fill="rgba(18,46,60,0.34)"/>
-    <path d="M268 40 L322 88 L306 88 Z" fill="rgba(18,46,60,0.32)"/>
-    {/* qor cho'qqilari */}
-    <path d="M78 26 L97 48 L88 51 L78 42 L67 51 L59 48 Z" fill="url(#d26rdgSnow)"/>
-    <path d="M168 18 L191 46 L180 50 L168 39 L155 50 L145 46 Z" fill="url(#d26rdgSnow)"/>
-    <path d="M268 40 L286 62 L278 65 L268 57 L257 65 L249 62 Z" fill="url(#d26rdgSnow)"/>
-    {/* cho'qqi porlashi */}
-    <path d="M168 18 L155 50 L145 46 Z" fill="rgba(255,255,255,0.45)"/>
-    <path d="M78 26 L67 51 L59 48 Z" fill="rgba(255,255,255,0.4)"/>
-  </svg>
-);
-// Uran sahnasi konteyner — koinot + Uran + uzoq yo'ldoshlar + shafaq + yo'ldosh sirti + qurilish + ekipaj.
-const UranBase = ({ celebrate = false, bubbleNode, charNode }) => (
-  <div className="d2-scene" style={{ background: 'linear-gradient(180deg,#08131A 0%,#0F2530 48%,#243A42 100%)' }}>
-    {/* KOINOT (yuqori 58%) */}
-    <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '58%', background: 'radial-gradient(ellipse at 66% 42%, #123642 0%, #060F14 88%)' }}/>
-    {/* shafaq/tumanlik nuri (sekin pulslaydi) */}
-    <div className="d19-sathalo" aria-hidden="true" style={{ position: 'absolute', left: '-10%', top: '6%', width: '70%', height: '40%', background: 'radial-gradient(ellipse at 40% 50%, rgba(90,200,210,0.16), rgba(120,90,200,0.08) 55%, transparent 75%)', filter: 'blur(6px)', zIndex: 1 }}/>
-    {URAN_STARS.map(([x, y], i) => <span key={i} className="d2-star" aria-hidden="true" style={{ position: 'absolute', left: `${x}%`, top: `${(y * 1.1) % 52}%`, width: i % 3 ? 1.6 : 2.6, height: i % 3 ? 1.6 : 2.6, borderRadius: '50%', background: '#DCEFF2', animationDelay: `${i * 0.4}s`, zIndex: 1 }}/>)}
-    {/* URAN (osmonda, kattaroq) + halosi */}
-    <div className={celebrate ? '' : 'g1-pop-in'} style={{ position: 'absolute', right: '3%', top: '0%', width: 'clamp(96px,26vw,164px)', zIndex: 2 }}><UranPlanet/></div>
-    {/* uzoq yo'ldoshlar (suzadi) */}
-    <span className="d13-moon1" aria-hidden="true" style={{ position: 'absolute', top: '16%', width: 'clamp(7px,1.8vw,11px)', height: 'clamp(7px,1.8vw,11px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #E4EEF0, #7A8E96 78%, #3A4650)', boxShadow: '0 0 6px rgba(210,230,235,0.5)', zIndex: 1 }}/>
-    <span className="d13-moon2" aria-hidden="true" style={{ position: 'absolute', top: '30%', width: 'clamp(5px,1.3vw,8px)', height: 'clamp(5px,1.3vw,8px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #CFE4E8, #6A828A 80%, #3A4650)', boxShadow: '0 0 5px rgba(190,220,225,0.5)', zIndex: 1 }}/>
-    <div style={{ position: 'absolute', left: '4%', top: '5%', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(8px,1.5vw,11px)', letterSpacing: '.08em', color: '#7FD8DE', textShadow: '0 0 6px rgba(127,216,222,0.6)', zIndex: 3 }}>◍ URAN · YO'LDOSH</div>
-    {/* MUZLI TOG' TIZMASI — orqa fon (ufq ortidan ko'tariladi; sirt uni pastdan yopadi) */}
-    <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, bottom: '40%', height: '30%', zIndex: 1 }}><IceRidge/></div>
-    {/* tog' etagidagi tuman (chuqurlik) */}
-    <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, bottom: '42%', height: '7%', background: 'linear-gradient(180deg, transparent, rgba(150,200,215,0.2))', filter: 'blur(4px)', zIndex: 2 }}/>
-    {/* URAN YO'LDOSHI SIRTI (pastki 44%) */}
-    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '44%', background: 'linear-gradient(180deg,#3E4E58 0%,#2A373F 46%,#1A242B 100%)', boxShadow: 'inset 0 6px 14px rgba(0,0,0,0.4)', zIndex: 3 }}>
-      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 'clamp(4px,1vw,7px)', background: 'linear-gradient(180deg,#9FC6D0,#4A6470)', boxShadow: '0 0 10px rgba(159,198,208,0.6)' }}/>
-      {[[16, 60, 30], [84, 72, 34], [52, 86, 22], [34, 90, 18]].map(([x, y, r], i) => <span key={i} aria-hidden="true" style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: `${r}px`, height: `${r * 0.45}px`, transform: 'translate(-50%,-50%)', borderRadius: '50%', background: 'radial-gradient(ellipse at 50% 35%, rgba(0,0,0,0.3), transparent 70%)', boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.14)' }}/>)}
-      {/* qurilish-panjara (stansiya poydevori) */}
-      <div style={{ position: 'absolute', inset: '22% 24% 20% 20%', display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(3,1fr)', placeItems: 'center', opacity: 0.85, zIndex: 1 }}>
-        {Array.from({ length: 18 }).map((_, i) => <span key={i} style={{ width: 'clamp(3px,0.9vw,5px)', height: 'clamp(3px,0.9vw,5px)', borderRadius: '50%', background: '#7FD8DE', boxShadow: '0 0 4px rgba(127,216,222,0.7)' }}/>)}
+// Neptun sahnasi konteyner — koinot + deraza (Neptun + yulduzlar) + stansiya dekasi + kod-terminal + ekipaj.
+const NeptunBase = ({ celebrate = false, bubbleNode, charNode }) => (
+  <div className="d2-scene" style={{ background: 'linear-gradient(180deg,#050D1E 0%,#0A1A38 52%,#132A4E 100%)' }}>
+    {/* KOINOT (yuqori) */}
+    <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: 0, height: '60%', background: 'radial-gradient(ellipse at 68% 40%, #12305E 0%, #050D1E 88%)' }}/>
+    {/* tumanlik nuri (sekin pulslaydi) */}
+    <div className="d19-sathalo" aria-hidden="true" style={{ position: 'absolute', left: '-8%', top: '4%', width: '68%', height: '42%', background: 'radial-gradient(ellipse at 40% 50%, rgba(80,130,220,0.18), rgba(120,90,210,0.08) 55%, transparent 75%)', filter: 'blur(6px)', zIndex: 1 }}/>
+    {NEPTUN_STARS.map(([x, y], i) => <span key={i} className="d2-star" aria-hidden="true" style={{ position: 'absolute', left: `${x}%`, top: `${(y * 1.1) % 54}%`, width: i % 3 ? 1.6 : 2.6, height: i % 3 ? 1.6 : 2.6, borderRadius: '50%', background: '#DCEAFF', animationDelay: `${i * 0.4}s`, zIndex: 1 }}/>)}
+    {/* NEPTUN (derazadan, o'ngda) */}
+    <div className={celebrate ? '' : 'g1-pop-in'} style={{ position: 'absolute', right: '4%', top: '2%', width: 'clamp(92px,25vw,158px)', zIndex: 2 }}><NeptunPlanet/></div>
+    {/* uzoq yo'ldosh Triton (suzadi) */}
+    <span className="d13-moon1" aria-hidden="true" style={{ position: 'absolute', top: '18%', width: 'clamp(6px,1.6vw,10px)', height: 'clamp(6px,1.6vw,10px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #E4EEFF, #7A8EB6 78%, #3A4660)', boxShadow: '0 0 6px rgba(200,220,255,0.5)', zIndex: 1 }}/>
+    <div style={{ position: 'absolute', left: '4%', top: '5%', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(8px,1.5vw,11px)', letterSpacing: '.08em', color: '#7FB0F2', textShadow: '0 0 6px rgba(127,176,242,0.6)', zIndex: 3 }}>◍ NEPTUN · STANSIYA</div>
+    {/* DERAZA RAMKASI (illyuminator yoyi — ichkarida koinot ko'rinadi) */}
+    <div aria-hidden="true" style={{ position: 'absolute', left: '2%', right: '2%', top: '2%', height: '58%', borderRadius: '18px', border: '3px solid rgba(120,160,220,0.35)', boxShadow: 'inset 0 0 40px rgba(10,26,56,0.7)', zIndex: 2, pointerEvents: 'none' }}/>
+    {/* STANSIYA DEKASI (pastki 42%) — metall pol, SIRT EMAS (Neptun gaz giganti) */}
+    <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '42%', background: 'linear-gradient(180deg,#2A3A54 0%,#1C2A42 46%,#111C30 100%)', boxShadow: 'inset 0 6px 14px rgba(0,0,0,0.42)', zIndex: 3 }}>
+      {/* deka chizig'i (yorug' chiziq) */}
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 'clamp(4px,1vw,7px)', background: 'linear-gradient(180deg,#7FB0F2,#3A5A8E)', boxShadow: '0 0 10px rgba(127,176,242,0.6)' }}/>
+      {/* pol panel choklari (perspektiva) */}
+      <div aria-hidden="true" style={{ position: 'absolute', inset: '18% 8% 6% 8%', display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gridTemplateRows: 'repeat(3,1fr)', opacity: 0.5, zIndex: 0 }}>
+        {Array.from({ length: 21 }).map((_, i) => <span key={i} style={{ border: '1px solid rgba(120,160,220,0.22)' }}/>)}
       </div>
     </div>
-    {/* FOREGROUND ELEMENTLAR */}
-    {/* muzli qoyalar (ikki chekka) */}
-    <div style={{ position: 'absolute', left: '1%', bottom: '2%', width: 'clamp(30px,8vw,50px)', zIndex: 4 }}><IceRock/></div>
-    <div style={{ position: 'absolute', right: '34%', bottom: '1%', width: 'clamp(20px,5.5vw,34px)', zIndex: 4 }}><IceRock flip/></div>
-    {/* stansiya moduli (o'ng) */}
-    <div style={{ position: 'absolute', right: '1%', bottom: '2%', width: 'clamp(120px,31vw,190px)', zIndex: 4 }}><UranStation w="100%"/></div>
-    {/* geodeziya tripodi (chap-markaz — chiziq o'lchaydi) */}
-    <div style={{ position: 'absolute', left: '18%', bottom: '3%', width: 'clamp(34px,9vw,52px)', zIndex: 5 }}><SurveyTripod w="100%"/></div>
-    {/* mayoqlar */}
-    <div style={{ position: 'absolute', left: '38%', bottom: '20%', width: 'clamp(10px,2.4vw,15px)', zIndex: 4 }}><Beacon/></div>
-    <div style={{ position: 'absolute', left: '58%', bottom: '17%', width: 'clamp(9px,2.2vw,13px)', zIndex: 4 }}><Beacon delay={0.6}/></div>
-    {/* geodeziya droni (suzadi) */}
-    <div className="d13-hover" style={{ position: 'absolute', left: '70%', top: '42%', width: 'clamp(40px,10vw,60px)', zIndex: 6 }}><UranDrone w="100%"/></div>
-    {/* muz zarralari (mikro-gravitatsiya, ko'tariladi) */}
-    {[0, 1, 2, 3, 4].map((m) => <span key={'p' + m} className="d13-mist" aria-hidden="true" style={{ position: 'absolute', left: `${16 + m * 17}%`, bottom: '7%', width: 'clamp(3px,0.9vw,5px)', height: 'clamp(3px,0.9vw,5px)', borderRadius: '50%', background: 'rgba(180,230,240,0.6)', zIndex: 5, animationDelay: `${m * 0.7}s` }}/>)}
+    {/* kod-terminal (chapda deka ustida) */}
+    <div style={{ position: 'absolute', left: '3%', bottom: '3%', width: 'clamp(84px,22vw,138px)', zIndex: 5 }}><CodeTerminal w="100%"/></div>
+    {/* suzuvchi zarralar (mikro-gravitatsiya) */}
+    {[0, 1, 2, 3, 4].map((m) => <span key={'p' + m} className="d13-mist" aria-hidden="true" style={{ position: 'absolute', left: `${20 + m * 16}%`, bottom: '9%', width: 'clamp(3px,0.9vw,5px)', height: 'clamp(3px,0.9vw,5px)', borderRadius: '50%', background: 'rgba(150,190,245,0.6)', zIndex: 4, animationDelay: `${m * 0.7}s` }}/>)}
     {bubbleNode}
     {charNode}
   </div>
 );
-// s0 — URAN MAYDONIGA KELISH
-const UranScene = ({ shown = false }) => (
-  <UranBase
+// StationModule — kichik stansiya moduli (o'lik ObjIcon/Dars28 koddan chaqiriladi; klon an'anasi bo'yicha saqlanadi).
+const StationModule = ({ w }) => (
+  <svg viewBox="0 0 70 54" width={w} style={{ display: 'block', overflow: 'visible' }} aria-hidden="true">
+    <defs><linearGradient id="d32mod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#C6D2DC"/><stop offset="1" stopColor="#6E7C88"/></linearGradient></defs>
+    <path d="M8 50 A27 27 0 0 1 62 50 Z" fill="url(#d32mod)" stroke="#4A545E" strokeWidth="1.4"/>
+    <rect x="26" y="36" width="18" height="14" rx="2" fill="#1B2A38"/><rect x="29" y="39" width="5" height="8" fill="#7FB0F2" opacity="0.8"/><rect x="36" y="39" width="5" height="8" fill="#5A7EB0" opacity="0.6"/>
+    <line x1="52" y1="26" x2="58" y2="10" stroke="#8A94A6" strokeWidth="1.6"/><circle className="d13-led" cx="58.5" cy="9" r="2" fill="#6EF29B"/>
+  </svg>
+);
+// s0 — NEPTUN STANSIYASIGA KELISH: Bit kod-terminalni ko'rsatadi (a+5), javob pufagi.
+const NeptunScene = ({ shown = false }) => (
+  <NeptunBase
     bubbleNode={(
-      <div style={{ position: 'absolute', left: '62%', top: '28%', transform: 'translateX(-50%)', zIndex: 7 }}>
-        <div className={shown ? 'g1-pop-in' : ''} style={{ minWidth: 'clamp(38px,8vw,52px)', height: 'clamp(34px,7vw,46px)', padding: '0 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(18px,4vw,26px)', background: shown ? T.successSoft : '#FFFFFF', color: shown ? T.success : T.ink3, border: `2.5px ${shown ? 'solid' : 'dashed'} ${shown ? T.success : '#A7A6A2'}`, boxShadow: '0 3px 10px rgba(0,0,0,0.35)', animation: shown ? 'none' : 'g1pulse 1.5s ease-in-out infinite' }}>{shown ? '✓' : '?'}</div>
+      <div style={{ position: 'absolute', left: '58%', top: '30%', transform: 'translateX(-50%)', zIndex: 7 }}>
+        <div className={shown ? 'g1-pop-in' : ''} style={{ minWidth: 'clamp(38px,8vw,52px)', height: 'clamp(34px,7vw,46px)', padding: '0 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(18px,4vw,26px)', background: shown ? T.successSoft : '#FFFFFF', color: shown ? T.success : T.ink3, border: `2.5px ${shown ? 'solid' : 'dashed'} ${shown ? T.success : '#A7A6A2'}`, boxShadow: '0 3px 10px rgba(0,0,0,0.35)', animation: shown ? 'none' : 'g1pulse 1.5s ease-in-out infinite' }}>{shown ? 5 : '?'}</div>
       </div>
     )}
     charNode={<SaturnCrew present/>}/>
 );
-// s15 — URAN MAYDONI (xulosa)
-const UranField = ({ label }) => {
+// s15 — NEPTUN STANSIYASI (xulosa): kod yechildi, shlyuz ochildi.
+const NeptunField = ({ label }) => {
   const t = useT();
   return (
-    <UranBase celebrate
+    <NeptunBase celebrate
       bubbleNode={(
-        <div style={{ position: 'absolute', left: '62%', top: '24%', transform: 'translateX(-50%)', zIndex: 7, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <span style={{ fontSize: 'clamp(9px,1.6vw,12px)', fontWeight: 800, letterSpacing: '.05em', color: '#EAF6F8', textTransform: 'uppercase', textShadow: '0 1px 3px rgba(0,0,0,0.7)', whiteSpace: 'nowrap' }}>{t(label)}</span>
+        <div style={{ position: 'absolute', left: '58%', top: '26%', transform: 'translateX(-50%)', zIndex: 7, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span style={{ fontSize: 'clamp(9px,1.6vw,12px)', fontWeight: 800, letterSpacing: '.05em', color: '#EAF2FF', textTransform: 'uppercase', textShadow: '0 1px 3px rgba(0,0,0,0.7)', whiteSpace: 'nowrap' }}>{t(label)}</span>
           <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 'clamp(44px,10vw,60px)', height: 'clamp(36px,7vw,48px)', padding: '0 clamp(10px,2vw,15px)', justifyContent: 'center', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(20px,4.4vw,28px)', background: T.successSoft, color: T.success, border: `2.5px solid ${T.success}`, boxShadow: '0 4px 14px -4px rgba(31,122,77,0.5)' }}>✓</div>
         </div>
       )}
@@ -7530,6 +8387,7 @@ export default function RazryadLesson({
 }
 
 const STYLES = `
+@keyframes d35tick { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
 /* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
@@ -8729,7 +9587,7 @@ html, body { margin: 0; padding: 0; }
 .g1-nl { width: 100%; display: flex; justify-content: center; }
 .g1-nl-line { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: clamp(2px, 1vw, 8px); padding: clamp(58px, 13vw, 76px) clamp(14px, 3.4vw, 26px) clamp(6px, 1.6vw, 12px); background: #FBF9F4; border-radius: 16px; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.06); position: relative; }
 .g1-nl-line::before { content: ""; position: absolute; left: calc(clamp(14px, 3.4vw, 26px) + clamp(10px, 2.2vw, 14px)); right: calc(clamp(14px, 3.4vw, 26px) + clamp(10px, 2.2vw, 14px)); top: calc(clamp(58px, 13vw, 76px) + clamp(10px, 2.2vw, 14px)); height: 3px; background: #D8D2C6; border-radius: 2px; }
-/* quyon-sakrovchi: o'lchanган pozitsiyaga gorizontal siljiydi; ichki span yoy chizib sakraydi + qo'nishda sapchiydi */
+/* quyon-sakrovchi: o'lchangaн pozitsiyaga gorizontal siljiydi; ichki span yoy chizib sakraydi + qo'nishda sapchiydi */
 .g1-nl-rabbit { position: absolute; z-index: 4; pointer-events: none; transform: translate(-50%, -100%); transition: left 1.2s cubic-bezier(0.34, 1.06, 0.66, 1), top 1.2s cubic-bezier(0.34, 1.06, 0.66, 1); }
 .g1-nl-rabbit-hop { display: block; width: clamp(36px, 8.5vw, 50px); transform-origin: center bottom; animation: g1rabbithop 1.25s cubic-bezier(0.4, 0, 0.5, 1); }
 .g1-nl-rabbit-hop svg { width: 100%; height: auto; display: block; transform: scaleX(1.3); transform-origin: center bottom; filter: drop-shadow(0 4px 5px rgba(58,53,48,0.2)); }
