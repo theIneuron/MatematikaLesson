@@ -35,7 +35,7 @@ const T = {
   ink2: '#5A5A60',
   ink3: '#A7A6A2',
   paper: '#FFFFFF',
-  accent: '#FF4F28',
+  accent: '#fe5b1a',
   accentSoft: '#FFE8E1',
   success: '#1F7A4D',
   successSoft: '#E3F0E8',
@@ -891,28 +891,28 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'perim-2-29-v1',
-  lessonTitle: { ru: 'Урок 29. Периметр', uz: "29-dars. Perimetr" }
+  lessonId: 'build-2-30-v1',
+  lessonTitle: { ru: 'Урок 29. Построение фигур', uz: "29-dars. Shakl yasash" }
 };
-// STRUKTURA (Б5 URAN YO'LDOSHI yig'ish-panjarasi, perimetr; yuza YO'Q): s0 hook (panel chetiga lenta → perimetr, distr yuza) · s1 perimetr nima (chetni bo'ylab tomonlar yig'indisi) · s2 geoboardда birlik-sanash · s3 QOIDA (perimetr=tomonlar yig'indisi) + check sum · s4 raqamlangan tomonlar yig'indisi + check + warn(yuza EMAS) · sTBL misollar (tri/rect) · s5–s11 mashq (geoboard-sanash + raqamlangan-yig'indi aralash) · s13 masala (panel chetiga lenta) · s14 final · s15 xulosa (→ shakl yasash).
-// MEXANIKA: PerimStage (round.mode: 'geo' geoboardда chetdagi birlik-kesmalarni sanash / 'sum' raqamlangan tomonlar yig'indisi, MC son). Distraktor = qo'shni son (±2). Yuza (ichi) YO'Q — faqat chet.
+// STRUKTURA (Б5 URAN YO'LDOSHI maket xonasi, yasash): s0 hook (eni 4 bo'yi 2 → uzun tomoni? distr bo'yi) · s1 yasash (eni/bo'yiga qarab to'rtburchak) · s2 qadam-baqadam (avval eni, keyin bo'yi) · s3 QOIDA (o'lchamga qarab yasa) + check (uzun tomoni) · s4 yasagan shakl perimetri + check + warn(kataklarni aniq sana) · sTBL misollar (spec→shakl) · s5–s11 mashq (BuildStage stepper-yasash + PickStage o'lchamga mos tanlash aralash) · s13 masala (panelni yasa) · s14 final · s15 xulosa (→ takrorlash).
+// MEXANIKA: BuildStage (eni/bo'yi stepper SM da to'rtburchak yasab «Tekshir» bosiladi, geoboard jonli preview; 1 stepper qadam = 1 sm = 2 katak) + PickStage (berilgan sm-o'lchamga mos to'rtburchakni 3 tadan tanlash, kataklarni sanab). O'lcham ma'lumoti KATAKда (juft), ko'rsatuv/audio SM da (2 katak = 1 sm). Distraktor = o'lcham almashtirilgan (eni↔bo'yi) yoki ±.
 const SCREEN_META = [
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: panel chetiga lenta → perimetr 10 (distr 6=yuza)
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  perimetr nima: chetni bo'ylab tomonlar yig'indisi
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  geoboardда chet birliklarini sana
-  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: perimetr=tomonlar yig'indisi + check SUM (rect 3×2→10)
-  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  raqamlangan tomonlar yig'indisi + check (tri 2,3,4→9) + warn yuza EMAS
-  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  kalit: misollar (tri 3+4+5=12, rect 4+2+4+2=12)
-  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq GEOBOARD single (rect 3×2→10)
-  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq GEOBOARD: 3 round
-  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq RAQAMLANGAN-YIG'INDI: 3 round
-  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq GEOBOARD: 3 round
-  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq RAQAMLANGAN-YIG'INDI: 3 round
-  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq GEOBOARD: 3 round
-  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 12 mashq RAQAMLANGAN-YIG'INDI: 3 round
-  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 13 MASALA: panel chetiga lenta — perimetr (geo)
-  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 14 FINAL: 3 round (sum+geo aralash) + FactCard Uran
-  { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 15 yakun + QOIDA recap (→ shakl yasash)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: eni 4 bo'yi 2 → uzun tomoni? 4 (distr 2)
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  yasash: eni/bo'yiga qarab to'rtburchak
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  qadam-baqadam: avval eni, keyin bo'yi
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: o'lchamga qarab yasa + check (uzun tomoni→4)
+  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  yasagan shakl perimetri + check (rect 3×1→8) + warn kataklarni aniq
+  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  kalit: misollar (spec sm→shakl 2×1, 2×2, 1×1 sm)
+  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq YASASH single (build 4×2 katak = 2×1 sm)
+  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq YASASH: 3 round
+  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq TANLASH (spec→shakl): 3 round
+  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq YASASH: 3 round
+  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq TANLASH: 3 round
+  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq YASASH: 3 round
+  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 12 mashq TANLASH: 3 round
+  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 13 MASALA: panelni o'lcham bo'yicha yasa (build 4×2)
+  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 14 FINAL: 3 round yasash + FactCard Uran
+  { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 15 yakun + QOIDA recap (→ takrorlash)
 ];
 
 // shuffleMC — variantlarni QAT'IY order bo'yicha joylashtiradi va wrong_N/hint_N
@@ -937,334 +937,336 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // ============================================================
 
 const CONTENT = {
-  // s0 — HOOK (scope: hook): to'rtburchak panel chetiga lenta → perimetr 10 (distraktor 6)
+  // s0 — HOOK (scope: hook): eni 2 sm (4 katak) bo'yi 1 sm (2 katak) → uzun tomoni? 2 sm (distraktor 1)
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Периметр', uz: "Mavzu: Perimetr" },
-    lead: { ru: 'Сколько нужно на край?', uz: "Chetiga necha birlik kerak?" },
-    q: { ru: 'Экипаж обклеивает лентой край прямоугольной панели: ширина три единицы, высота две. Сколько единиц ленты нужно на весь край?', uz: "Ekipaj to'rtburchak panelning chetiga lenta yopishtiradi: eni uch birlik, bo'yi ikki birlik. Butun chetga necha birlik lenta kerak?" },
-    opt0: { ru: '6', uz: '6' },     // distraktor (yuza / faqat ikki tomon)
-    opt1: { ru: '10', uz: '10' },   // to'g'ri (3+2+3+2)
+    topic: { ru: 'Тема: Построение фигур', uz: "Mavzu: Shakl yasash" },
+    lead: { ru: 'Какая сторона длиннее?', uz: "Qaysi tomoni uzun?" },
+    q: { ru: 'Ширина 2 см, высота 1 см. Сколько сантиметров у длинной стороны?', uz: "Eni 2 sm, bo'yi 1 sm. Uzun tomoni necha santimetr?" },
+    opt0: { ru: '1', uz: '1' },     // distraktor (bo'yi)
+    opt1: { ru: '2', uz: '2' },     // to'g'ri (eni)
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Мы у сборочной решётки на спутнике Урана. Экипаж обклеивает лентой края панелей.',
-          'У прямоугольной панели ширина три единицы, а высота две единицы.',
-          'Лента идёт по всему краю — по всем четырём сторонам. Сколько единиц ленты нужно?',
-          'Послушай два ответа. Первый — шесть. Второй — десять. Или ты пока не знаешь. Выбери свой ответ.'
+          'Мы в макетной на спутнике Урана. Экипаж строит фигуры по заданным размерам.',
+          'Нужно построить прямоугольник: ширина четыре клетки, высота две клетки. Каждые две клетки, это один сантиметр, значит ширина два сантиметра, высота один сантиметр.',
+          'Ширина больше высоты. Сколько сантиметров у длинной стороны?',
+          'Послушай два ответа. Первый, один. Второй, два. Или ты пока не знаешь. Выбери свой ответ.'
         ],
         uz: [
-          "Uran yo'ldoshidagi yig'ish panjarasi oldidamiz. Ekipaj panellar chetiga lenta yopishtiryapti.",
-          "To'rtburchak panelning eni uch birlik, bo'yi esa ikki birlik.",
-          "Lenta butun chet bo'ylab — to'rtala tomon bo'ylab ketadi. Necha birlik lenta kerak?",
-          "Ikki javobni tinglang. Birinchi — olti. Ikkinchi — o'n. Yoki hali bilmaysiz. O'z javobingizni tanlang."
+          "Uran yo'ldoshidagi maket xonasidamiz. Ekipaj berilgan o'lchamlarga qarab shakllar yasayapti.",
+          "To'rtburchak yasash kerak: eni to'rt katak, bo'yi ikki katak. Har ikki katak bir santimetr, demak eni ikki santimetr, bo'yi bir santimetr.",
+          "Eni bo'yidan katta. Uzun tomoni necha santimetr?",
+          "Ikki javobni tinglang. Birinchi, bir. Ikkinchi, ikki. Yoki hali bilmaysiz. O'z javobingizni tanlang."
         ]
       },
-      on_correct: { ru: 'Верно. Лента идёт по всем сторонам: три плюс два плюс три плюс два — десять. Это периметр. Сейчас разберём.', uz: "To'g'ri. Lenta barcha tomonlar bo'ylab: uch qo'shuv ikki qo'shuv uch qo'shuv ikki — o'n. Bu perimetr. Hozir ko'ramiz." },
-      on_wrong: { ru: 'Лента идёт по всем четырём сторонам, а не по двум. Три плюс два плюс три плюс два — десять. Сейчас разберём.', uz: "Lenta faqat ikki emas, to'rtala tomon bo'ylab ketadi. Uch qo'shuv ikki qo'shuv uch qo'shuv ikki — o'n. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Разберём, как считать край — периметр.', uz: "Hechqisi yo'q. Chetni — perimetrni qanday sanashni ko'ramiz." }
+      on_correct: { ru: 'Верно. Ширина два сантиметра, это длинная сторона. Сейчас научимся строить фигуры по размеру.', uz: "To'g'ri. Eni ikki santimetr, bu uzun tomon. Hozir o'lchamga qarab shakl yasashni o'rganamiz." },
+      on_wrong: { ru: 'Высота один сантиметр, короткая сторона, а ширина два сантиметра, длинная. Сейчас разберём.', uz: "Bo'yi bir santimetr, kalta tomon, eni ikki santimetr esa, uzun. Hozir ko'ramiz." },
+      on_unknown: { ru: 'Ничего. Научимся строить фигуры по заданным размерам.', uz: "Hechqisi yo'q. Berilgan o'lchamga qarab shakl yasashni o'rganamiz." }
     }
   },
 
-  // s1 — TUSHUNTIRISH-1: PERIMETR — shakl chetini bo'ylab barcha tomonlarni qo'shish
+  // s1 — TUSHUNTIRISH-1: YASASH — berilgan eni va bo'yiga qarab to'rtburchak
   s1: {
-    eyebrow: { ru: 'Периметр', uz: 'Perimetr' },
-    lead: { ru: 'Периметр — длина края.', uz: "Perimetr — chetning uzunligi." },
-    body: { ru: 'Периметр — это длина всего края фигуры. Пройди по краю и сложи все стороны. У этого прямоугольника: три плюс два плюс три плюс два — получается десять.', uz: "Perimetr — shaklning butun chetining uzunligi. Chet bo'ylab yuring va barcha tomonlarni qo'shing. Bu to'rtburchakda: uch qo'shuv ikki qo'shuv uch qo'shuv ikki — o'n bo'ladi." },
+    eyebrow: { ru: 'Построение', uz: 'Yasash' },
+    lead: { ru: 'Строй по размеру.', uz: "O'lchamga qarab yasang." },
+    body: { ru: 'Чтобы построить прямоугольник, отсчитай ширину и высоту по клеткам, а потом замкни фигуру. Каждые две клетки, один сантиметр. Здесь ширина два сантиметра, высота один сантиметр.', uz: "To'rtburchak yasash uchun enini kataklab, bo'yini kataklab sanang, so'ng shaklni yoping. Har ikki katak bir santimetr. Bu yerda eni ikki santimetr, bo'yi bir santimetr." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Периметр — это сумма всех сторон фигуры.', uz: "Perimetr — shaklning barcha tomonlari yig'indisi." },
+    info: { ru: 'Отсчитай ширину и высоту по клеткам — получится нужный прямоугольник. Каждые две клетки, один сантиметр.', uz: "Eni va bo'yini kataklab sanang — kerakli to'rtburchak chiqadi. Har ikki katak bir santimetr." },
     audio: {
       ru: [
-        'Периметр — это длина всего края фигуры.',
-        'Пройди по краю и сложи все стороны.',
-        'Три плюс два плюс три плюс два — получается десять.'
+        'Чтобы построить прямоугольник, нужны ширина и высота.',
+        'Отсчитай ширину по клеткам, а потом высоту по клеткам.',
+        'Каждые две клетки, это один сантиметр.',
+        'Замкни фигуру, получится нужный прямоугольник.'
       ],
       uz: [
-        "Perimetr — shaklning butun chetining uzunligi.",
-        "Chet bo'ylab yur va barcha tomonlarni qo'sh.",
-        "Uch qo'shuv ikki qo'shuv uch qo'shuv ikki — o'n bo'ladi."
+        "To'rtburchak yasash uchun eni va bo'yi kerak.",
+        "Enini kataklab sana, so'ng bo'yini kataklab sana.",
+        "Har ikki katak bir santimetr.",
+        "Shaklni yoping, kerakli to'rtburchak chiqadi."
       ]
     }
   },
 
-  // s2 — TUSHUNTIRISH-2: GEOBOARD — chetni aylanib birlik-kesmalarni sana
+  // s2 — TUSHUNTIRISH-2: QADAM-BAQADAM — avval eni, keyin bo'yi (geoboard)
   s2: {
-    eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Считай единицы по краю.', uz: "Chet bo'ylab birliklarni sanang." },
+    eyebrow: { ru: 'Шаг за шагом', uz: 'Qadam-baqadam' },
+    lead: { ru: 'Сначала ширина, потом высота.', uz: "Avval eni, keyin bo'yi." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Обойди фигуру по краю и посчитай каждый единичный отрезок. Их сумма — периметр.', uz: "Shaklni chet bo'ylab aylanib chiqing va har birlik-kesmani sanang. Ularning yig'indisi — perimetr." },
+    info: { ru: 'Сначала отложи ширину, потом высоту — фигура строится по клеткам. Каждые две клетки, один сантиметр.', uz: "Avval enini, keyin bo'yini qo'y — shakl kataklab yasaladi. Har ikki katak bir santimetr." },
     audio: {
       ru: [
-        'На решётке периметр удобно считать по единицам.',
-        'Обойди фигуру по краю, не считая внутри.',
-        'Считай каждый единичный отрезок края.',
-        'Сложи их все — это и есть периметр фигуры.'
+        'Строим прямоугольник шаг за шагом. Каждые две клетки, один сантиметр.',
+        'Сначала отсчитай ширину, два сантиметра, это четыре клетки в ряд.',
+        'Потом отсчитай высоту, один сантиметр, это две клетки вверх.',
+        'Замкни фигуру, прямоугольник готов.'
       ],
       uz: [
-        "Panjarada perimetrni birliklar bo'yicha sanash qulay.",
-        "Shaklni chet bo'ylab aylan, ichini sanamay.",
-        "Chetning har birlik-kesmasini sana.",
-        "Ularning hammasini qo'sh — bu shaklning perimetri."
+        "To'rtburchakni qadam-baqadam yasaymiz. Har ikki katak bir santimetr.",
+        "Avval enini sana, ikki santimetr, ya'ni to'rt katak qatorda.",
+        "Keyin bo'yini sana, bir santimetr, ya'ni ikki katak yuqoriga.",
+        "Shaklni yoping, to'rtburchak tayyor."
       ]
     }
   },
 
-  // s3 — QOIDA: perimetr = tomonlar yig'indisi + check SUM (rect 3×2 → 10)
+  // s3 — QOIDA: eni va bo'yi bo'yicha yasa + check (rect 4×2 katak = 2×1 sm, uzun tomoni → 2 sm)
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Периметр = сумма всех сторон. У прямоугольника: a + b + a + b.', uz: "Perimetr = barcha tomonlar yig'indisi. To'rtburchakda: a + b + a + b." },
-    check_q: { ru: 'Периметр этого прямоугольника?', uz: "Bu to'rtburchakning perimetri?" },
-    opts: [{ ru: '8', uz: '8' }, { ru: '10', uz: '10', ok: true }, { ru: '12', uz: '12' }],
-    wrong: { ru: 'Сложи все четыре стороны: 3 + 2 + 3 + 2.', uz: "To'rtala tomonni qo'shing: 3 + 2 + 3 + 2." },
-    check_ok: { ru: 'Верно! 3 + 2 + 3 + 2 = 10.', uz: "To'g'ri! 3 + 2 + 3 + 2 = 10." },
+    rule: { ru: 'Отсчитай ширину и высоту по клеткам, потом замкни. Каждые две клетки, один сантиметр.', uz: "Enini va bo'yini kataklab sanang, so'ng yoping. Har ikki katak bir santimetr." },
+    check_q: { ru: 'Сколько сантиметров у длинной стороны?', uz: "Uzun tomoni necha santimetr?" },
+    opts: [{ ru: '1', uz: '1' }, { ru: '2', uz: '2', ok: true }, { ru: '3', uz: '3' }],
+    wrong: { ru: 'Длинная сторона — это ширина. Каждые две клетки, один сантиметр, ширина два сантиметра.', uz: "Uzun tomon — bu eni. Har ikki katak bir santimetr, eni ikki santimetr." },
+    check_ok: { ru: 'Верно! Ширина два сантиметра, четыре клетки.', uz: "To'g'ri! Eni ikki santimetr, to'rt katak." },
     audio: {
       ru: [
         'Запишем правило. Слушай и запомни.',
-        'Периметр — это сумма всех сторон фигуры.',
-        'У прямоугольника две ширины и две высоты: сложи их все.',
-        'Проверь. Чему равен периметр этого прямоугольника?'
+        'Отсчитай ширину по клеткам, потом высоту.',
+        'Замкни фигуру. Каждые две клетки, это один сантиметр.',
+        'Проверь. Сколько сантиметров у длинной стороны?'
       ],
       uz: [
         "Qoidani yozamiz. Tinglang va yodlang.",
-        "Perimetr — shaklning barcha tomonlari yig'indisi.",
-        "To'rtburchakda ikki eni va ikki bo'yi bor: hammasini qo'sh.",
-        "Tekshir. Bu to'rtburchakning perimetri nechaga teng?"
+        "Enini kataklab sana, keyin bo'yini.",
+        "Shaklni yoping. Har ikki katak bir santimetr.",
+        "Tekshir. Uzun tomoni necha santimetr?"
       ]
     }
   },
 
-  // s4 — TUSHUNTIRISH-3: RAQAMLANGAN TOMONLAR — qo'shib perimetr + check (tri 2,3,4 → 9)
+  // s4 — TUSHUNTIRISH-3: YASAGAN SHAKL PERIMETRI + check (rect 4×2 katak = 2×1 sm → perimetr 6 sm)
   s4: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
-    lead: { ru: 'Стороны подписаны — сложи их.', uz: "Tomonlar raqamlangan — ularni qo'shing." },
-    body: { ru: 'Если длины сторон подписаны, просто сложи их все. У этого треугольника: два плюс три плюс четыре — получается девять.', uz: "Agar tomonlar uzunligi raqamlangan bo'lsa, ularning hammasini qo'shing. Bu uchburchakda: ikki qo'shuv uch qo'shuv to'rt — to'qqiz bo'ladi." },
-    warn: { ru: 'Периметр — это край фигуры, а не то, что внутри.', uz: "Perimetr — shaklning cheti, ichidagi narsa emas." },
-    check_q: { ru: 'Периметр этого треугольника?', uz: "Bu uchburchakning perimetri?" },
-    opts: [{ ru: '8', uz: '8' }, { ru: '9', uz: '9', ok: true }, { ru: '10', uz: '10' }],
-    wrong: { ru: 'Сложи все три стороны: 2 + 3 + 4.', uz: "Uchala tomonni qo'shing: 2 + 3 + 4." },
-    check_ok: { ru: 'Верно! 2 + 3 + 4 = 9.', uz: "To'g'ri! 2 + 3 + 4 = 9." },
+    eyebrow: { ru: 'Периметр постройки', uz: 'Yasama perimetri' },
+    lead: { ru: 'У построенной фигуры есть периметр.', uz: "Yasagan shaklning perimetri bor." },
+    body: { ru: 'Когда фигура построена, можно найти её периметр — сложить все стороны. Каждые две клетки, один сантиметр. У прямоугольника ширина два сантиметра, высота один сантиметр: два плюс один плюс два плюс один — получается шесть сантиметров.', uz: "Shakl yasalgach, uning perimetrini topish mumkin — barcha tomonlarni qo'shing. Har ikki katak bir santimetr. To'rtburchakning eni ikki santimetr, bo'yi bir santimetr: ikki qo'shuv bir qo'shuv ikki qo'shuv bir — olti santimetr bo'ladi." },
+    warn: { ru: 'Считай клетки ширины и высоты точно — иначе фигура выйдет другой.', uz: "Eni va bo'yi kataklarini aniq sanang — aks holda boshqa shakl chiqadi." },
+    check_q: { ru: 'Периметр этого прямоугольника в сантиметрах?', uz: "Bu to'rtburchakning perimetri necha santimetr?" },
+    opts: [{ ru: '4', uz: '4' }, { ru: '6', uz: '6', ok: true }, { ru: '8', uz: '8' }],
+    wrong: { ru: 'Сложи все четыре стороны: 2 + 1 + 2 + 1 = 6 см.', uz: "To'rtala tomonni qo'shing: 2 + 1 + 2 + 1 = 6 sm." },
+    check_ok: { ru: 'Верно! 2 + 1 + 2 + 1 = 6 см.', uz: "To'g'ri! 2 + 1 + 2 + 1 = 6 sm." },
     audio: {
       ru: [
-        'Когда стороны подписаны, просто сложи их все.',
-        'У этого треугольника стороны два, три и четыре.',
-        'Два плюс три плюс четыре — получается девять.',
-        'Проверь. Чему равен периметр этого треугольника?'
+        'Когда фигура построена, у неё есть периметр. Каждые две клетки, это один сантиметр.',
+        'Сложи все стороны прямоугольника.',
+        'Два плюс один плюс два плюс один, получается шесть сантиметров.',
+        'Проверь. Чему равен периметр этого прямоугольника в сантиметрах?'
       ],
       uz: [
-        "Tomonlar raqamlangan bo'lsa, ularning hammasini qo'sh.",
-        "Bu uchburchakning tomonlari ikki, uch va to'rt.",
-        "Ikki qo'shuv uch qo'shuv to'rt — to'qqiz bo'ladi.",
-        "Tekshir. Bu uchburchakning perimetri nechaga teng?"
+        "Shakl yasalgach, uning perimetri bo'ladi. Har ikki katak bir santimetr.",
+        "To'rtburchakning barcha tomonlarini qo'sh.",
+        "Ikki qo'shuv bir qo'shuv ikki qo'shuv bir, olti santimetr bo'ladi.",
+        "Tekshir. Bu to'rtburchakning perimetri necha santimetr?"
       ]
     }
   },
 
-  // sTBL — TUSHUNTIRISH: KALIT (perimetr = tomonlar yig'indisi; misollar)
+  // sTBL — TUSHUNTIRISH: KALIT (bir spec = bir to'rtburchak; misollar)
   sTBL: {
     eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Периметр — сумма сторон', uz: "Perimetr — tomonlar yig'indisi" },
+    lead: { ru: 'Размер задаёт фигуру', uz: "O'lcham shaklni beradi" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Обойди край и сложи все стороны — это периметр. Внутренность (площадь) не считаем.', uz: "Chetni aylanib, barcha tomonlarni qo'shing — bu perimetr. Ichini (yuzani) sanamaymiz." },
+    info: { ru: 'Ширина и высота задают один прямоугольник. Каждые две клетки, один сантиметр.', uz: "Eni va bo'yi bitta to'rtburchakni beradi. Har ikki katak bir santimetr." },
     audio: {
       ru: [
-        'Запомни ключ: периметр — это сумма всех сторон.',
-        'У треугольника сложи три стороны, у прямоугольника — четыре.',
-        'Считаем только край, а не то, что внутри фигуры.'
+        'Запомни ключ: ширина и высота задают одну фигуру. Каждые две клетки, это один сантиметр.',
+        'Ширина два сантиметра, высота один сантиметр, это широкий прямоугольник.',
+        'Ширина два сантиметра, высота два сантиметра, все стороны равны.'
       ],
       uz: [
-        "Kalitni yodla: perimetr — barcha tomonlar yig'indisi.",
-        "Uchburchakda uch tomonni, to'rtburchakda to'rttasini qo'sh.",
-        "Faqat chetni sanaymiz, shakl ichidagini emas."
+        "Kalitni yodlang: eni va bo'yi bitta shaklni beradi. Har ikki katak bir santimetr.",
+        "Eni ikki santimetr, bo'yi bir santimetr, bu keng to'rtburchak.",
+        "Eni ikki santimetr, bo'yi ikki santimetr, barcha tomonlar teng."
       ]
     }
   },
 
-  // s5 — MASHQ single GEOBOARD (rect 3×2 → 10)
+  // s5 — MASHQ single YASASH (build 4×2 katak = 2×1 sm)
   s5: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    transition: { ru: 'Объяснение закончили. Теперь считай периметр сам.', uz: "Tushuntirishni tugatdik. Endi perimetrni o'zingiz sanang." },
-    mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]],
-    wrong: { ru: 'Обойди край и посчитай единичные отрезки.', uz: "Chetni aylanib, birlik-kesmalarni sanang." },
-    done_text: { ru: 'Верно! По краю десять единиц.', uz: "To'g'ri! Chet bo'ylab o'n birlik." },
+    lead: { ru: 'Построй прямоугольник.', uz: "To'rtburchak yasang." },
+    transition: { ru: 'Объяснение закончили. Теперь строй сам: настрой ширину и высоту в сантиметрах.', uz: "Tushuntirishni tugatdik. Endi o'zingiz yasang: eni va bo'yini santimetrda sozlang." },
+    w: 4, h: 2,
+    wrong: { ru: 'Настрой ширину и высоту точно по размеру.', uz: "Eni va bo'yini o'lcham bo'yicha aniq sozlang." },
+    done_text: { ru: 'Верно! Прямоугольник построен.', uz: "To'g'ri! To'rtburchak yasaldi." },
     audio: {
-      intro: { ru: 'Тренировка. Обойди фигуру по краю и посчитай единицы.', uz: "Mashq. Shaklni chet bo'ylab aylanib, birliklarni sanang." },
+      intro: { ru: 'Тренировка. Настрой ширину и высоту в сантиметрах, потом нажми проверить. Каждые две клетки, один сантиметр.', uz: "Mashq. Eni va bo'yini santimetrda sozlang, so'ng tekshirni bosing. Har ikki katak bir santimetr." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай каждый отрезок края, не пропуская.', uz: "Chetning har kesmasini o'tkazib yubormay sanang." }
+      on_wrong: { ru: 'Проверь ширину и высоту по заданию.', uz: "Topshiriq bo'yicha eni va bo'yini tekshiring." }
     }
   },
 
-  // s6 — MASHQ GEOBOARD (3 round)
+  // s6 — MASHQ YASASH (3 round)
   s6: {
-    eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    rounds: [ { mode: 'geo', verts: [[0, 0], [2, 0], [2, 3], [0, 3]] }, { mode: 'geo', verts: [[0, 0], [4, 0], [4, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 1], [1, 1], [1, 2], [0, 2]] } ],
-    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylaning." },
+    eyebrow: { ru: 'Строй', uz: 'Yasang' },
+    lead: { ru: 'Построй прямоугольник.', uz: "To'rtburchak yasang." },
+    rounds: [ { w: 4, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 4 } ],
+    wrong: { ru: 'Настрой ширину и высоту точно.', uz: "Eni va bo'yini aniq sozlang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Считай периметр по единицам края.', uz: "Perimetrni chet birliklari bo'yicha sanang." },
+      intro: { ru: 'Настрой ширину и высоту в сантиметрах по заданию и проверь.', uz: "Eni va bo'yini santimetrda topshiriq bo'yicha sozlab tekshiring." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не забудь все стороны фигуры.', uz: "Shaklning barcha tomonlarini unutma." }
+      on_wrong: { ru: 'Смотри на размер в задании.', uz: "Topshiriqdagi o'lchamga qarang." }
     }
   },
 
-  // s7 — MASHQ RAQAMLANGAN TOMONLAR (3 round: yig'indi)
+  // s7 — MASHQ TANLASH (spec → mos shakl, 3 round)
   s7: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    rounds: [ { mode: 'sum', shape: 'tri', sides: [3, 4, 5] }, { mode: 'sum', shape: 'rect', sides: [3, 3] }, { mode: 'sum', shape: 'tri', sides: [4, 5, 6] } ],
-    wrong: { ru: 'Сложи все подписанные стороны.', uz: "Barcha raqamlangan tomonlarni qo'shing." },
+    eyebrow: { ru: 'Выбери фигуру', uz: 'Shaklni tanlang' },
+    lead: { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?" },
+    rounds: [ { w: 4, h: 2, opts: [[4, 2], [2, 4], [2, 2]] }, { w: 2, h: 4, opts: [[2, 4], [4, 2], [4, 4]] }, { w: 4, h: 4, opts: [[4, 4], [4, 2], [2, 4]] } ],
+    wrong: { ru: 'Сравни ширину и высоту с размером.', uz: "Eni va bo'yini o'lcham bilan solishtiring." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Стороны подписаны — сложи их все.', uz: "Tomonlar raqamlangan — hammasini qo'shing." },
+      intro: { ru: 'Выбери фигуру, которая подходит под размер в сантиметрах. Каждые две клетки, один сантиметр.', uz: "Santimetrdagi o'lchamga mos keladigan shaklni tanlang. Har ikki katak bir santimetr." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'У прямоугольника сложи четыре стороны, у треугольника — три.', uz: "To'rtburchakda to'rt tomonni, uchburchakda uch tomonni qo'shing." }
+      on_wrong: { ru: 'Проверь: ширина и высота должны совпасть.', uz: "Tekshiring: eni va bo'yi mos kelishi kerak." }
     }
   },
 
-  // s8 — MASHQ GEOBOARD (3 round)
+  // s8 — MASHQ YASASH (3 round)
   s8: {
-    eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    rounds: [ { mode: 'geo', verts: [[0, 0], [3, 0], [3, 3], [0, 3]] }, { mode: 'geo', verts: [[0, 0], [2, 0], [2, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [2, 0], [2, 1], [1, 1], [1, 3], [0, 3]] } ],
-    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylaning." },
+    eyebrow: { ru: 'Строй', uz: 'Yasang' },
+    lead: { ru: 'Построй прямоугольник.', uz: "To'rtburchak yasang." },
+    rounds: [ { w: 6, h: 2 }, { w: 2, h: 4 }, { w: 4, h: 4 } ],
+    wrong: { ru: 'Настрой ширину и высоту точно.', uz: "Eni va bo'yini aniq sozlang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова считай периметр по краю.', uz: "Yana perimetrni chet bo'ylab sanang." },
+      intro: { ru: 'Снова строй прямоугольник по размеру в сантиметрах.', uz: "Yana santimetrdagi o'lcham bo'yicha to'rtburchak yasang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай только край фигуры.', uz: "Faqat shakl chetini sanang." }
+      on_wrong: { ru: 'Ширина и высота должны совпасть с заданием.', uz: "Eni va bo'yi topshiriqga mos kelishi kerak." }
     }
   },
 
-  // s9 — MASHQ RAQAMLANGAN TOMONLAR (3 round)
+  // s9 — MASHQ TANLASH (spec → mos shakl, 3 round)
   s9: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    rounds: [ { mode: 'sum', shape: 'rect', sides: [4, 3] }, { mode: 'sum', shape: 'tri', sides: [5, 5, 5] }, { mode: 'sum', shape: 'rect', sides: [6, 2] } ],
-    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'shing." },
+    eyebrow: { ru: 'Выбери фигуру', uz: 'Shaklni tanlang' },
+    lead: { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?" },
+    rounds: [ { w: 2, h: 2, opts: [[2, 2], [4, 2], [2, 4]] }, { w: 6, h: 2, opts: [[6, 2], [4, 2], [6, 4]] }, { w: 4, h: 4, opts: [[4, 4], [4, 2], [2, 4]] } ],
+    wrong: { ru: 'Сравни ширину и высоту с размером.', uz: "Eni va bo'yini o'lcham bilan solishtiring." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова сложи все подписанные стороны.', uz: "Yana barcha raqamlangan tomonlarni qo'shing." },
+      intro: { ru: 'Снова выбери подходящую фигуру по размеру в сантиметрах.', uz: "Yana santimetrdagi o'lchamga mos shaklni tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не пропусти ни одной стороны.', uz: "Birorta tomonni o'tkazib yubormang." }
+      on_wrong: { ru: 'Ширина и высота должны совпасть.', uz: "Eni va bo'yi mos kelishi kerak." }
     }
   },
 
-  // s10 — MASHQ GEOBOARD (3 round)
+  // s10 — MASHQ YASASH (3 round)
   s10: {
-    eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    rounds: [ { mode: 'geo', verts: [[0, 0], [4, 0], [4, 1], [0, 1]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [2, 2], [2, 1], [0, 1]] } ],
-    wrong: { ru: 'Обойди край по единицам.', uz: "Chetni birlik-birlik aylaning." },
+    eyebrow: { ru: 'Строй', uz: 'Yasang' },
+    lead: { ru: 'Построй прямоугольник.', uz: "To'rtburchak yasang." },
+    rounds: [ { w: 2, h: 6 }, { w: 4, h: 4 }, { w: 4, h: 2 } ],
+    wrong: { ru: 'Настрой ширину и высоту точно.', uz: "Eni va bo'yini aniq sozlang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова считай периметр на решётке.', uz: "Yana panjarada perimetrni sanang." },
+      intro: { ru: 'Снова строй прямоугольник по размеру в сантиметрах.', uz: "Yana santimetrdagi o'lcham bo'yicha to'rtburchak yasang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай каждый отрезок края.', uz: "Chetning har kesmasini sanang." }
+      on_wrong: { ru: 'Проверь ширину и высоту.', uz: "Eni va bo'yini tekshiring." }
     }
   },
 
-  // s11 — MASHQ RAQAMLANGAN TOMONLAR (3 round)
+  // s11 — MASHQ TANLASH (spec → mos shakl, 3 round)
   s11: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    rounds: [ { mode: 'sum', shape: 'tri', sides: [6, 4, 5] }, { mode: 'sum', shape: 'rect', sides: [5, 4] }, { mode: 'sum', shape: 'tri', sides: [3, 3, 6] } ],
-    wrong: { ru: 'Сложи все стороны.', uz: "Barcha tomonlarni qo'shing." },
+    eyebrow: { ru: 'Выбери фигуру', uz: 'Shaklni tanlang' },
+    lead: { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?" },
+    rounds: [ { w: 4, h: 2, opts: [[4, 2], [2, 4], [4, 4]] }, { w: 2, h: 4, opts: [[2, 4], [4, 2], [2, 2]] }, { w: 6, h: 4, opts: [[6, 4], [4, 6], [6, 2]] } ],
+    wrong: { ru: 'Сравни ширину и высоту с размером.', uz: "Eni va bo'yini o'lcham bilan solishtiring." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Сложи стороны.', uz: "Masaladan oldingi oxirgi mashq. Tomonlarni qo'shing." },
+      intro: { ru: 'Последняя тренировка перед задачей. Выбери фигуру по размеру в сантиметрах.', uz: "Masaladan oldingi oxirgi mashq. Santimetrdagi o'lchamga mos shaklni tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'У треугольника три стороны, у прямоугольника четыре.', uz: "Uchburchakda uch tomon, to'rtburchakda to'rt tomon." }
+      on_wrong: { ru: 'Не перепутай ширину и высоту.', uz: "Eni va bo'yini adashtirmang." }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Экипаж обклеивает панель.', uz: "Ekipaj panelni bezaydi." },
+    lead: { ru: 'Экипаж строит панель.', uz: "Ekipaj panel yasaydi." },
     manifest_label: { ru: 'панель', uz: 'panel' },
     audio: {
-      ru: 'Экипаж обклеивает лентой край панели станции.',
-      uz: "Ekipaj stansiya paneli chetiga lenta yopishtiradi."
+      ru: 'Экипаж строит панель станции по заданному размеру.',
+      uz: "Ekipaj berilgan o'lchamga qarab stansiya panelini yasaydi."
     }
   },
 
-  // s13 — MASALA (scored, PerimStage geo): panel chetiga lenta → perimetr necha birlik?
+  // s13 — MASALA (scored, BuildStage): panelни o'lcham bo'yicha yasa (eni 4, bo'yi 2)
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
-    mode: 'geo', verts: [[0, 0], [4, 0], [4, 2], [0, 2]],
-    story: { ru: 'Экипаж обклеивает лентой край панели. Сколько единиц ленты нужно на весь край?', uz: "Ekipaj panel chetiga lenta yopishtiradi. Butun chetga necha birlik lenta kerak?" },
-    wrong: { ru: 'Обойди край панели по единицам.', uz: "Panel chetini birlik-birlik aylaning." },
-    done_text: { ru: 'Верно! По краю двенадцать единиц.', uz: "To'g'ri! Chet bo'ylab o'n ikki birlik." },
+    w: 4, h: 2,
+    story: { ru: 'Нужна панель: ширина 2 см, высота 1 см.', uz: "Panel kerak: eni 2 sm, bo'yi 1 sm." },
+    wrong: { ru: 'Настрой ширину и высоту точно по заданию.', uz: "Eni va bo'yini topshiriq bo'yicha aniq sozlang." },
+    done_text: { ru: 'Верно! Панель построена.', uz: "To'g'ri! Panel yasaldi." },
     audio: {
-      intro: { ru: 'Экипаж обклеивает край панели. Обойди край и посчитай единицы.', uz: "Ekipaj panel chetini bezaydi. Chetni aylanib, birliklarni sanang." },
-      on_correct: { ru: 'Верно. По краю двенадцать единиц.', uz: "To'g'ri. Chet bo'ylab o'n ikki birlik." },
-      on_wrong: { ru: 'Считай каждый отрезок края, не пропуская.', uz: "Chetning har kesmasini o'tkazib yubormay sanang." }
+      intro: { ru: 'Экипажу нужна панель: ширина два сантиметра, высота один сантиметр. Каждые две клетки, один сантиметр. Настрой размер и проверь.', uz: "Ekipajga panel kerak: eni ikki santimetr, bo'yi bir santimetr. Har ikki katak bir santimetr. O'lchamni sozlab tekshiring." },
+      on_correct: { ru: 'Верно. Панель готова.', uz: "To'g'ri. Panel tayyor." },
+      on_wrong: { ru: 'Проверь ширину и высоту по заданию.', uz: "Eni va bo'yini topshiriq bo'yicha tekshiring." }
     }
   },
 
-  // s14 — FINAL (scored, 3 round tomonlar-yig'indisi + FactCard Uran)
+  // s14 — FINAL (scored, 3 round yasash + FactCard Uran)
   s14: {
     eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    rounds: [ { mode: 'sum', shape: 'tri', sides: [3, 4, 5] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]] }, { mode: 'sum', shape: 'rect', sides: [5, 3] } ],
-    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'shing." },
+    lead: { ru: 'Построй прямоугольник.', uz: "To'rtburchak yasang." },
+    rounds: [ { w: 4, h: 2 }, { w: 2, h: 4 }, { w: 6, h: 2 } ],
+    wrong: { ru: 'Настрой ширину и высоту точно.', uz: "Eni va bo'yini aniq sozlang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
     fact_text: { ru: 'Уран огромный: поперёк он примерно в четыре раза больше Земли.', uz: "Uran juda katta: ko'ndalangiga u Yerdan taxminan to'rt baravar katta." },
     fact_audio: { ru: 'Уран очень большой: в поперечнике он примерно в четыре раза больше нашей Земли.', uz: "Uran juda katta: ko'ndalangiga u bizning Yerimizdan taxminan to'rt baravar katta." },
     audio: {
-      intro: { ru: 'Финальная проверка. Считай периметр — сумму сторон.', uz: "Yakuniy tekshiruv. Perimetrni — tomonlar yig'indisini sanang." },
+      intro: { ru: 'Финальная проверка. Строй прямоугольник по заданному размеру в сантиметрах.', uz: "Yakuniy tekshiruv. Berilgan santimetrdagi o'lcham bo'yicha to'rtburchak yasang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сложи все стороны, обойди весь край.', uz: "Barcha tomonlarni qo'shing, butun chetni aylaning." }
+      on_wrong: { ru: 'Ширина и высота должны совпасть с заданием.', uz: "Eni va bo'yi topshiriqga mos kelishi kerak." }
     }
   },
 
-  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: shakl yasash)
+  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: takrorlash)
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты считаешь периметр — сумму сторон!', uz: "Endi siz perimetrni — tomonlar yig'indisini sanaysiz!" },
+    cando: { ru: 'Теперь ты строишь фигуры по заданному размеру!', uz: "Endi siz berilgan o'lchamga qarab shakl yasaysiz!" },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Периметр = сумма всех сторон. Обойди край, сложи стороны.', uz: "Perimetr = barcha tomonlar yig'indisi. Chetni aylaning, tomonlarni qo'shing." },
+    rule_recap: { ru: 'Отсчитай ширину и высоту по клеткам — построишь нужный прямоугольник. Каждые две клетки, один сантиметр.', uz: "Eni va bo'yini kataklab sanang — kerakli to'rtburchak yasaladi. Har ikki katak bir santimetr." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'многоугольник и длина', uz: "ko'pburchak va uzunlik" },
+    conn_refs: { ru: 'длина и периметр', uz: "uzunlik va perimetr" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: построение фигур', uz: "keyingi: shakl yasash" },
+    conn_next: { ru: 'дальше: повторение', uz: "keyingi: takrorlash" },
     audio: {
-      ru: 'Миссия выполнена. Мы научились считать периметр — сумму всех сторон. Можно обойти край по единицам или сложить подписанные стороны. У сборочной решётки на спутнике Урана экипаж обклеил края панелей. Дальше научимся строить фигуры по заданным сторонам.',
-      uz: "Missiya bajarildi. Perimetrni — barcha tomonlar yig'indisini sanashni o'rgandik. Chetni birlik bo'yicha aylanish yoki raqamlangan tomonlarni qo'shish mumkin. Uran yo'ldoshidagi yig'ish panjarasi oldida ekipaj panellar chetini bezadi. Keyin berilgan tomonlarga qarab shakl yasashni o'rganamiz."
+      ru: 'Миссия выполнена. Мы научились строить фигуры по заданному размеру в сантиметрах. Каждые две клетки, это один сантиметр. Отсчитай ширину и высоту по клеткам, и прямоугольник готов. В макетной на спутнике Урана экипаж построил панели станции. Дальше повторим всю геометрию.',
+      uz: "Missiya bajarildi. Berilgan santimetrdagi o'lchamga qarab shakl yasashni o'rgandik. Har ikki katak bir santimetr. Eni va bo'yini kataklab sanang, to'rtburchak tayyor. Uran yo'ldoshidagi maket xonasida ekipaj stansiya panellarini yasadi. Keyin butun geometriyani takrorlaymiz."
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Что такое периметр?', uz: "Perimetr nima?" },
-  s2:  { ru: 'Считаем на решётке.', uz: "Panjarada sanaymiz." },
+  s1:  { ru: 'Как строить фигуру?', uz: "Shaklni qanday yasaymiz?" },
+  s2:  { ru: 'Шаг за шагом.', uz: "Qadam-baqadam." },
   s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'Складываем стороны.', uz: "Tomonlarni qo'shamiz." },
-  sTBL: { ru: 'Запомним правило.', uz: 'Qoidani yodlaymiz.' },
-  s5:  { ru: 'Теперь считай сам.', uz: "Endi o'zingiz sanang." },
-  s6:  { ru: 'Считай на решётке.', uz: "Panjarada sanang." },
-  s7:  { ru: 'Сложи стороны.', uz: "Tomonlarni qo'shing." },
-  s8:  { ru: 'Снова на решётке.', uz: "Yana panjarada." },
-  s9:  { ru: 'Сложи стороны.', uz: "Tomonlarni qo'shing." },
-  s10: { ru: 'Снова на решётке.', uz: "Yana panjarada." },
+  s4:  { ru: 'И периметр постройки.', uz: "Yasama perimetri ham." },
+  sTBL: { ru: 'Размер задаёт фигуру.', uz: "O'lcham shaklni beradi." },
+  s5:  { ru: 'Теперь строй сам.', uz: "Endi o'zingiz yasang." },
+  s6:  { ru: 'Строй по размеру.', uz: "O'lcham bo'yicha yasang." },
+  s7:  { ru: 'Выбери фигуру.', uz: "Shaklni tanlang." },
+  s8:  { ru: 'Снова строй.', uz: "Yana yasang." },
+  s9:  { ru: 'Выбери фигуру.', uz: "Shaklni tanlang." },
+  s10: { ru: 'Снова строй.', uz: "Yana yasang." },
   s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Экипаж обклеивает панель.', uz: "Ekipaj panelni bezaydi." },
+  s12: { ru: 'Экипаж строит панель.', uz: "Ekipaj panel yasaydi." },
   s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
   s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Края панелей обклеены!', uz: "Panellar cheti bezaldi!" }
+  s15: { ru: 'Панели построены!', uz: "Panellar yasaldi!" }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'У сборочной решётки на спутнике Урана экипаж обклеил лентой края панелей — по периметру. Всё готово! Спасибо за помощь.',
-  uz: "Uran yo'ldoshidagi yig'ish panjarasi oldida ekipaj panellar chetini — perimetr bo'ylab lenta bilan bezadi. Hammasi tayyor! Yordamingiz uchun rahmat."
+  ru: 'В макетной на спутнике Урана экипаж построил панели станции по заданным размерам. Всё готово! Спасибо за помощь.',
+  uz: "Uran yo'ldoshidagi maket xonasida ekipaj stansiya panellarini berilgan o'lchamlarga qarab yasadi. Hammasi tayyor! Yordamingiz uchun rahmat."
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
@@ -1351,7 +1353,7 @@ const ICON = {
   star: <g><path d="M20 3 L24.9 14.7 L37.5 15.8 L28 24.2 L30.9 36.5 L20 29.8 L9.1 36.5 L12 24.2 L2.5 15.8 L15.1 14.7 Z" fill="url(#g1starG)" stroke="#E0992A" strokeWidth="0.8" strokeLinejoin="round"/><path d="M20 9 L22.4 15.4 L20 20 L17.6 15.4 Z" fill="rgba(255,255,255,0.38)"/></g>,
   fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
   flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
-  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
+  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#fe5b1a"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#fe5b1a"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
   cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
@@ -1412,7 +1414,7 @@ const BitSVG = ({ state = 'present', className = '' }) => (
     {/* antenna */}
     <g className="g1-bit-ant">
       <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round"/>
-      <circle cx="60" cy="11" r="6" fill="#FF4F28"/>
+      <circle cx="60" cy="11" r="6" fill="#fe5b1a"/>
       <circle cx="58" cy="9" r="2" fill="#FFB9A6"/>
     </g>
     {/* oyoqchalar */}
@@ -1538,7 +1540,7 @@ const D2Defs = () => (
       <linearGradient id="d2rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#E7DCC6"/><stop offset="45%" stopColor="#F1E9D9"/><stop offset="55%" stopColor="#F6F0E2"/><stop offset="100%" stopColor="#E7DCC6"/></linearGradient>
       <radialGradient id="d2space" cx="50%" cy="45%" r="70%"><stop offset="0%" stopColor="#2E4B7C"/><stop offset="100%" stopColor="#16294C"/></radialGradient>
       <linearGradient id="d2rocket" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#AFC2D0"/><stop offset="45%" stopColor="#F4F8FB"/><stop offset="100%" stopColor="#9EB2C0"/></linearGradient>
-      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28"/></linearGradient>
+      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a"/></linearGradient>
       <linearGradient id="d2planet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5C7CB0"/><stop offset="100%" stopColor="#2C3E68"/></linearGradient>
       <linearGradient id="d2ship" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8CA0B8"/><stop offset="45%" stopColor="#C6D6E4"/><stop offset="100%" stopColor="#5E718C"/></linearGradient>
     </defs>
@@ -2363,7 +2365,7 @@ const NumberLine = () => {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 'min(320px, 96%)', height: 'auto' }} aria-hidden="true">
       <line x1={x(0)} y1={y} x2={x(max)} y2={y} stroke={T.ink3} strokeWidth="2"/>
-      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round"/>
+      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round"/>
       <line x1={x(30)} y1={y} x2={x(34)} y2={y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round"/>
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -2883,7 +2885,7 @@ const Screen1 = (props) => {
   return (
     <TeachStage props={props} cKey="s1" body={c.body} info={c.info}
       figure={() => (
-        <div style={{ margin: '0 auto' }}><GeoFig verts={[[0, 0], [3, 0], [3, 2], [0, 2]]} reveal/></div>
+        <div style={{ margin: '0 auto' }}><GeoFig verts={[[0, 0], [4, 0], [4, 2], [0, 2]]} filled showPerim={false} ok/></div>
       )}
     />
   );
@@ -2967,7 +2969,7 @@ const Screen2 = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(200px, 46vw, 280px)' }}>
-          <GeoFig verts={[[0, 0], [4, 0], [4, 2], [0, 2]]} reveal={reveal >= 2}/>
+          <GeoFig verts={[[0, 0], [4, 0], [4, 2], [0, 2]]} filled showPerim={false} ok={reveal >= 2}/>
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3008,12 +3010,12 @@ const Screen3 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -12, left: 16, background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(11px,1.7vw,13px)', letterSpacing: '.04em', padding: '3px 12px', borderRadius: 999 }}>{lang === 'uz' ? 'QOIDA' : 'ПРАВИЛО'}</span>
           <p style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(15px,2.3vw,19px)', color: T.ink, lineHeight: 1.5 }}>{t(c.rule)}</p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <SumFig shape="rect" sides={[3, 2]} reveal={done}/>
+          <GeoFig verts={[[0, 0], [4, 0], [4, 2], [0, 2]]} filled showPerim={false} ok={done}/>
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
@@ -3062,7 +3064,7 @@ const CodeTablo = ({ tens, ones, tensLabel, onesLabel, emph = null, name = null 
 // emph — dual-coding (audio aytayotgan razryadni yoritadi). showEq — 45 = 40 + 5.
 // ============================================================
 const OmborKasseta = () => (
-  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#FF4F28)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
+  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#fe5b1a)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
     {[0, 1, 2, 3, 4].map(i => <div key={i} style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.55)' }}/>)}
   </div>
 );
@@ -3090,13 +3092,13 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px,2.2vw,14px)', width: 'min(400px,98%)' }}>
-      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#FF4F28', '#FFE8E1', oHi, tHi, 'ten')}
+      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#fe5b1a', '#FFE8E1', oHi, tHi, 'ten')}
       {shelf(Array.from({ length: ones }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><BatterySvg className="d2-battsvg-btn"/></span>), onesCap, ones, onesLabel, '#019ACB', '#E1F3FB', tHi, oHi, 'one')}
       {showEq && (
         <div className="fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px,1.6vw,10px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,5vw,32px)', marginTop: 2 }}>
           <span style={{ color: T.ink }}>{total}</span>
           <span style={{ color: T.ink3 }}>=</span>
-          <span style={{ color: '#FF4F28' }}>{tens * 10}</span>
+          <span style={{ color: '#fe5b1a' }}>{tens * 10}</span>
           <span style={{ color: T.ink3 }}>+</span>
           <span style={{ color: '#019ACB' }}>{ones}</span>
         </div>
@@ -3108,7 +3110,7 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
 // ============================================================
 // FuelTank + TankCompare — Dars04 star-vizual: ikki quvvat bloki (son + to'lish darajasi:
 // katta son = to'laroq -> taqqoslash intuitsiyasi). O'rtada > < = belgi sloti.
-// Raqamlar rang-kodli: o'nlik #FF4F28 (sariq-qizil), birlik #019ACB (ko'k).
+// Raqamlar rang-kodli: o'nlik #fe5b1a (sariq-qizil), birlik #019ACB (ko'k).
 // ============================================================
 const FuelTank = ({ code, emph = false, dim = false, emphDigit = null }) => {
   const tens = Math.floor(code / 10), ones = code % 10;
@@ -3206,8 +3208,8 @@ const NumTrack = ({ value, answer = null, max = 100, emphTens = false }) => {
         {Array.from({ length: max + 1 }).map((_, n) => (n % 10 !== 0 ? <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -4, width: n % 5 === 0 ? 2 : 1.3, height: n % 5 === 0 ? 16 : 12, background: n % 5 === 0 ? '#8A98A6' : '#AEABA3', borderRadius: 1 }}/> : null))}
         {tens.map((n) => (
           <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -9, transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: 3, height: 23, background: emphTens ? '#FF4F28' : '#5E6B78', borderRadius: 2 }}/>
-            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#FF4F28' : T.ink2 }}>{n}</span>
+            <div style={{ width: 3, height: 23, background: emphTens ? '#fe5b1a' : '#5E6B78', borderRadius: 2 }}/>
+            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#fe5b1a' : T.ink2 }}>{n}</span>
           </div>
         ))}
         <div style={{ position: 'absolute', left: `${pct}%`, top: '50%', transform: 'translate(-50%,-50%)', width: 'clamp(14px,3vw,18px)', height: 'clamp(14px,3vw,18px)', borderRadius: '50%', background: shown ? T.success : T.accent, border: '3px solid #fff', boxShadow: `0 0 0 3px ${shown ? T.successSoft : T.accentSoft}`, zIndex: 2 }}/>
@@ -3250,7 +3252,7 @@ const TrackHero = ({ answer = null }) => {
 
 // ColumnAdd — Dars07 star-vizual: ustunlab qo'shish (столбик). O'nlik ustuni sariq, birlik ko'k.
 // «+» ikki qo'shiluvchi ORASIDA (chap gutterда, ikki qatorga markazlashgan — 5-sinf uslubi).
-// sum null -> yig'indi "?"; sum berilганда yashil. emph 'units'|'tens' -> faol ustunni yoritadi.
+// sum null -> yig'indi "?"; sum berilgaнда yashil. emph 'units'|'tens' -> faol ustunni yoritadi.
 const COL_W = 'clamp(38px,8.4vw,52px)';
 const colCell = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: COL_W, height: COL_W, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(26px,6vw,40px)', lineHeight: 1 };
 // ColumnCard — umumiy столбик maketi. resTens/resUnits — natija katagi tuguni (raqam yoki drop-slot).
@@ -3258,12 +3260,12 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#FF4F28', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
       <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 3, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{bu}</span>
       <span style={{ gridColumn: '1 / 4', gridRow: 4, height: 3, background: T.ink, borderRadius: 2, margin: '3px 0' }}/>
       <span style={{ gridColumn: 2, gridRow: 5, display: 'flex', justifyContent: 'center' }}>{resTens}</span>
@@ -3294,7 +3296,7 @@ const RazryadBreak = ({ a, b }) => {
       <div key={i} className="fade-up" style={{ ...RB_ROW, animationDelay: `${0.15 + i * 0.25}s` }}>
         <span style={{ fontSize: 'clamp(28px,6vw,40px)', color: T.ink, minWidth: 'clamp(44px,10vw,60px)', textAlign: 'right' }}>{n}</span>
         <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink3 }}>=</span>
-        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #FF4F28', color: '#FF4F28' }}>{tens}</span>
+        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #fe5b1a', color: '#fe5b1a' }}>{tens}</span>
         <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink2 }}>+</span>
         <span style={{ ...RB_CHIP, background: '#E9F7FC', border: '2px solid #019ACB', color: '#019ACB' }}>{units}</span>
       </div>
@@ -3305,7 +3307,7 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#FF4F28' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
         <span style={{ color: T.ink3 }}>, </span>
         <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
       </p>
@@ -3390,7 +3392,7 @@ const CargoBase = ({ w }) => (
     <circle cx="103" cy="68" r="3.2" fill="#FF6A3D" opacity="0.7"/>
     {/* bayroq (chapda) */}
     <line x1="26" y1="86" x2="26" y2="60" stroke="#C3CDDC" strokeWidth="2.6"/>
-    <path d="M26 60 L26 73 L44 66.5 Z" fill="#FF4F28"/>
+    <path d="M26 60 L26 73 L44 66.5 Z" fill="#fe5b1a"/>
   </svg>
 );
 // Mars osmoni/sirti elementlari — real-hayotiy sahnasi uchun.
@@ -3458,7 +3460,7 @@ const MarsBase = ({ answer = null }) => {
       <div style={{ position: 'absolute', right: '11%', bottom: '28%', transform: 'translateX(50%)', width: 'clamp(58px,14.5vw,90px)', zIndex: 4 }}><LandedRocket w="100%"/></div>
       {/* konteynerlar (o'rtada, yerda) */}
       <div style={{ position: 'absolute', left: '48%', bottom: '17%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 'clamp(5px,1.4vw,10px)', zIndex: 5 }}>
-        <CargoCrate n={34} ca="#FF9166" cb="#FF4F28" br="#C1381A"/>
+        <CargoCrate n={34} ca="#FF9166" cb="#fe5b1a" br="#C1381A"/>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(18px,3.6vw,26px)', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>+</span>
         <CargoCrate n={25} ca="#33B8E3" cb="#019ACB" br="#0B7BA3"/>
       </div>
@@ -3509,9 +3511,9 @@ const Screen4 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 2vw, 17px)', textAlign: 'center', lineHeight: 1.55 }}>{t(c.body)}</p>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <SumFig shape="tri" sides={[2, 3, 4]} reveal={done}/>
+          <GeoFig verts={[[0, 0], [4, 0], [4, 2], [0, 2]]} filled showPerim={false} reveal={done} ok={done}/>
         </div>
-        <div className="fade-up" style={{ background: '#FBEEEE', border: '2px solid #D64545', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(214,69,69,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#B23A3A', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
+        <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
           {c.opts.map((o, i) => (
@@ -3570,7 +3572,7 @@ const HatchDoor = ({ outerOpen, innerOpen, wrong }) => {
           </g>
         </g>
         <rect x="66" y="90" width="28" height="12" rx="6" fill="#EDE4D2" stroke="#C9BDA4" strokeWidth="1.5"/>
-        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#D64545'} style={{ transition: 'fill 0.3s' }}/>
+        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#fe5b1a'} style={{ transition: 'fill 0.3s' }}/>
       </svg>
     </div>
   );
@@ -3651,11 +3653,11 @@ const Screen5 = (props) => {
               <div className="d2-hatchtablo">
                 <span className="mono" style={{ fontSize: 'clamp(9px, 1.3vw, 11px)', fontWeight: 800, letterSpacing: '0.14em', color: T.ink3, textTransform: 'uppercase' }}>{lang === 'uz' ? 'Kod tablosi' : 'Табло кода'}</span>
                 <p className="mono" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px, 1.9vw, 15px)', textAlign: 'center' }}>{t(roundIdx === 0 ? c.round1 : c.round2)}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#D64545' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#fe5b1a' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderRight: `1px solid ${T.ink3}`, borderBottom: `1px solid ${T.ink3}` }}>{t(c.tens_label)}</div>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderBottom: `1px solid ${T.ink3}` }}>{t(c.ones_label)}</div>
                   {[0, 1].map(si => (
-                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#FF4F28' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
+                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#fe5b1a' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
                   ))}
                 </div>
               </div>
@@ -3711,7 +3713,7 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
         </g>
       )}
       <line x1={nlx(0)} y1={NL_y} x2={nlx(NL_max)} y2={NL_y} stroke={T.ink3} strokeWidth="2"/>
-      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
+      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {!asking && pos > 30 && <line x1={nlx(30)} y1={NL_y} x2={nlx(pos)} y2={NL_y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -3721,8 +3723,8 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
       ))}
       {!asking && [[0, 10], [10, 20], [20, 30]].map(([a, b], i) => (
         <g key={i} style={{ opacity: phase >= 1 ? 1 : 0, transition: `opacity 0.4s ${i * 0.35}s` }}>
-          <path d={arc(a, b, 30)} fill="none" stroke="#FF4F28" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
-          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#FF4F28" fontFamily="'JetBrains Mono', monospace">+10</text>
+          <path d={arc(a, b, 30)} fill="none" stroke="#fe5b1a" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
+          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#fe5b1a" fontFamily="'JetBrains Mono', monospace">+10</text>
         </g>
       ))}
       {!asking && [30, 31, 32, 33].map((a, i) => (
@@ -3836,13 +3838,13 @@ const Screen7 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
             {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#FF4F28' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             ) : (
-              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#FF4F28' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
             )}
           </p>
         </div>
@@ -3862,7 +3864,7 @@ const Screen7 = (props) => {
             {S7_CHECK.map((d, pos) => (
               <button key={pos} className="option" disabled={!canAct || checkOk} onClick={() => tapDigit(pos)}
                 style={{ width: 'clamp(54px, 12vw, 68px)', height: 'clamp(60px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(32px, 7vw, 44px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-                         color: checkOk ? (pos === 0 ? '#FF4F28' : '#019ACB') : T.ink,
+                         color: checkOk ? (pos === 0 ? '#fe5b1a' : '#019ACB') : T.ink,
                          borderColor: checkOk && pos === 0 ? T.success : undefined }}>{d}</button>
             ))}
           </div>
@@ -4417,7 +4419,7 @@ const HeroShip = () => (
       <radialGradient id="hsGlass" cx="38%" cy="30%" r="75%"><stop offset="0%" stopColor="#EAFCFF"/><stop offset="45%" stopColor="#5FC0DE"/><stop offset="100%" stopColor="#245C74"/></radialGradient>
       <linearGradient id="hsFin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#B9C7D4"/><stop offset="100%" stopColor="#66727F"/></linearGradient>
       <linearGradient id="hsNoz" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3A4652"/><stop offset="55%" stopColor="#8A97A4"/><stop offset="100%" stopColor="#4A5662"/></linearGradient>
-      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28" stopOpacity="0"/></linearGradient>
+      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a" stopOpacity="0"/></linearGradient>
     </defs>
     {/* ikkala dvigatel alangasi (ikki turbina) */}
     <g style={{ animation: 'g1pulse 0.32s ease-in-out infinite', transformBox: 'fill-box', transformOrigin: 'left center' }}>
@@ -4565,8 +4567,8 @@ const d8BuildTiles = (st, su, seed) => {
   return d8Shuffle([...need, ...dist], seed).map((d, i) => ({ id: `${seed}-${i}`, d }));
 };
 const D8DropSlot = React.forwardRef(({ digit, color, state, onClear }, ref) => {
-  const border = state === 'ok' ? T.success : state === 'wrong' ? '#D64545' : state === 'filled' ? color : '#A7A6A2';
-  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FBEEEE' : '#ffffff';
+  const border = state === 'ok' ? T.success : state === 'wrong' ? '#fe5b1a' : state === 'filled' ? color : '#A7A6A2';
+  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FFF1EA' : '#ffffff';
   const clickable = digit != null && state !== 'ok';
   return (
     <span ref={ref} onClick={clickable ? onClear : undefined} className={state === 'ok' ? 'g1-pop-in' : ''}
@@ -4700,7 +4702,7 @@ const DropColumnStage = ({ props, cKey, fact = false }) => {
     : reveal >= 2
       ? { ru: `Десятки: ${at} + ${bt} = ${st}`, uz: `O'nliklar: ${at} + ${bt} = ${st}` }
       : null;
-  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#FF4F28" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
+  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#fe5b1a" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
   const resUnits = <D8DropSlot ref={unitsRef} digit={digitOf('units')} color="#019ACB" state={slotState('units', digitOf('units'))} onClear={() => clearSlot('units')}/>;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -4784,7 +4786,7 @@ const ArrayViz = ({ r, c, reveal = 0, variant = 'geo' }) => {
           </div>
         ))}
       </div>
-      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ряда по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
+      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ${r === 1 ? 'ряд' : r < 5 ? 'ряда' : 'рядов'} по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
       {reveal >= 2 && (
         <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(3px,1vw,6px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(16px,3.2vw,23px)' }}>
           {Array.from({ length: r }).map((_, i) => (<React.Fragment key={i}>{i > 0 && <span style={{ color: T.ink3 }}>+</span>}<span style={{ color: '#2E9B4E' }}>{c}</span></React.Fragment>))}
@@ -5097,7 +5099,7 @@ const DealStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5180,7 +5182,7 @@ const ArrayRevStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5269,7 +5271,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi — o'quvchi hali jadvalni bilmaydi, ochib ishlata oladi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5465,7 +5467,7 @@ const DivTableFillStage = ({ props, cKey }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5567,7 +5569,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5695,7 +5697,7 @@ const MatchStage = ({ props, cKey }) => {
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink, cursor: 'grab' };
   const rightStyle = (pos) => { const fam = order[pos]; return matched.has(fam)
     ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, color: T.success, cursor: 'default' }
-    : wrongPos === pos ? { ...MCELL, background: '#FBEEEE', border: '2.5px solid #D64545', color: '#B23A3A' }
+    : wrongPos === pos ? { ...MCELL, background: '#FFF1EA', border: '2.5px solid #fe5b1a', color: '#fe5b1a' }
     : drag && drag.hover === pos ? { ...MCELL, background: T.accentSoft, border: `2.5px dashed ${T.accent}`, color: T.ink }
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink }; };
   // PIKSEL geometriya (viewBox = konteyner o'lchami → doiralar dumaloq, sim tabiiy)
@@ -5858,28 +5860,26 @@ const geoPerim = (verts) => verts.reduce((s, v, i) => { const n = verts[(i + 1) 
 const perimShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 const perimOpts = (correct, seed) => perimShuffle([correct, Math.max(1, correct - 2), correct + 2], seed * 7 + 3);
 // GeoFig — geoboard: pegler + rektilinear shakl chetiga birlik-nuqtalar (sanash uchun). reveal → perimetr yorlig'i.
-const GeoFig = ({ verts, reveal = false, filled = false, showPerim = true, ok = false }) => {
+const GeoFig = ({ verts, reveal = false, filled = false, showPerim = true, ok = false, grid = true }) => {
   const xs = verts.map((v) => v[0]), ys = verts.map((v) => v[1]);
   const maxX = Math.max(...xs), maxY = Math.max(...ys);
-  const pad = 16;
+  const M = 2;   // atrofdagi bo'sh katak-margin — graf-qog'oz BUTUN tileни to'ldiradi, figura markazda snap
   const gW = Math.max(maxX, 1), gH = Math.max(maxY, 1);
-  const W = pad * 2 + gW * GEO_CELL, H = pad * 2 + gH * GEO_CELL;
-  const px = (g) => pad + g * GEO_CELL, py = (g) => pad + g * GEO_CELL;
+  const W = (gW + 2 * M) * GEO_CELL, H = (gH + 2 * M) * GEO_CELL;
+  const px = (g) => (g + M) * GEO_CELL, py = (g) => (g + M) * GEO_CELL;
   const path = verts.map((v, i) => `${i ? 'L' : 'M'}${px(v[0])} ${py(v[1])}`).join(' ') + ' Z';
   const cx = px((Math.min(...xs) + maxX) / 2), cy = py((Math.min(...ys) + maxY) / 2);
-  const stroke = ok || reveal ? '#1F7A4D' : '#2E7C88';
-  const units = [];
-  verts.forEach((v, i) => { const n = verts[(i + 1) % verts.length]; const dx = Math.sign(n[0] - v[0]), dy = Math.sign(n[1] - v[1]); const len = Math.abs(n[0] - v[0]) + Math.abs(n[1] - v[1]); for (let k = 0; k < len; k += 1) units.push([px(v[0] + dx * (k + 0.5)), py(v[1] + dy * (k + 0.5))]); });
+  const stroke = ok || reveal ? '#1F7A4D' : '#6D5CE7';
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: Math.min(240, W * 1.8), height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
-      {/* peglar (tekis) */}
-      {Array.from({ length: gH + 1 }).map((_, gy) => Array.from({ length: gW + 1 }).map((_, gx) => <circle key={`${gx}-${gy}`} cx={px(gx)} cy={py(gy)} r="2.4" fill="#7A8894"/>))}
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', maxWidth: Math.min(300, W * 1.4), height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+      {/* katak-daftar foni — figura kataklariga moslashgan graf-qog'oz (o'quvchi kataklarni SANAYDI) */}
+      {grid && Array.from({ length: gW + 2 * M + 1 }).map((_, i) => <line key={`gv${i}`} x1={i * GEO_CELL} y1={0} x2={i * GEO_CELL} y2={H} stroke={i % 2 === 0 ? '#B4A8EA' : '#E7E2F7'} strokeWidth={i % 2 === 0 ? '1.5' : '1'}/>)}
+      {grid && Array.from({ length: gH + 2 * M + 1 }).map((_, i) => <line key={`gh${i}`} x1={0} y1={i * GEO_CELL} x2={W} y2={i * GEO_CELL} stroke={i % 2 === 0 ? '#B4A8EA' : '#E7E2F7'} strokeWidth={i % 2 === 0 ? '1.5' : '1'}/>)}
+      {/* nuqta YO'Q — sanash graf-qog'oz kataklari orqali */}
       {/* ichki to'ldirish (faqat yasash darsida) */}
-      {filled && <path d={path} fill="rgba(127,216,222,0.18)"/>}
+      {filled && <path d={path} fill="rgba(109,92,231,0.18)"/>}
       {/* CHET — tekis kontur */}
       <path className={reveal ? 'g1-pop-in' : ''} d={path} fill="none" stroke={stroke} strokeWidth="4" strokeLinejoin="round"/>
-      {/* birlik-nuqtalar (sanaladigan) */}
-      {reveal && units.map(([ux, uy], i) => <circle key={i} cx={ux} cy={uy} r="3.4" fill="#1F7A4D" stroke="#fff" strokeWidth="1.4"/>)}
       {/* perimetr yorlig'i */}
       {reveal && showPerim && <><rect x={cx - 20} y={cy - 11} width="40" height="22" rx="7" fill="#1F7A4D"/><text x={cx} y={cy + 5} textAnchor="middle" fontSize="13" fontWeight="800" fontFamily="'JetBrains Mono',monospace" fill="#fff">{geoPerim(verts)}</text></>}
     </svg>
@@ -5887,14 +5887,14 @@ const GeoFig = ({ verts, reveal = false, filled = false, showPerim = true, ok = 
 };
 // SumFig — tomonlari raqamlangan shakl (rect: [a,b] → a,b,a,b; tri: [a,b,c]). reveal → yig'indi.
 const SumFig = ({ shape, sides, reveal = false }) => {
-  const stroke = reveal ? '#1F7A4D' : '#2E7C88';
+  const stroke = reveal ? '#1F7A4D' : '#6D5CE7';
   const box = { width: '100%', maxWidth: 240, height: 'auto', display: 'block', overflow: 'visible' };
-  const lbl = (x, y, v) => <text x={x} y={y} textAnchor="middle" fontSize="15" fontWeight="800" fontFamily="'JetBrains Mono',monospace" fill="#2E7C88">{v}</text>;
+  const lbl = (x, y, v) => <text x={x} y={y} textAnchor="middle" fontSize="15" fontWeight="800" fontFamily="'JetBrains Mono',monospace" fill="#6D5CE7">{v}</text>;
   if (shape === 'rect') {
     const [a, b] = sides;
     return (
       <svg viewBox="0 0 210 140" style={box} aria-hidden="true">
-        <rect x="45" y="34" width="120" height="72" fill="rgba(127,216,222,0.12)" stroke={stroke} strokeWidth="4"/>
+        <rect x="45" y="34" width="120" height="72" fill="rgba(109,92,231,0.12)" stroke={stroke} strokeWidth="4"/>
         {lbl(105, 26, a)}{lbl(105, 124, a)}{lbl(30, 74, b)}{lbl(180, 74, b)}
       </svg>
     );
@@ -5902,7 +5902,7 @@ const SumFig = ({ shape, sides, reveal = false }) => {
   const [a, b, c] = sides;
   return (
     <svg viewBox="0 0 210 140" style={box} aria-hidden="true">
-      <polygon points="105,22 180,116 30,116" fill="rgba(127,216,222,0.12)" stroke={stroke} strokeWidth="4" strokeLinejoin="round"/>
+      <polygon points="105,22 180,116 30,116" fill="rgba(109,92,231,0.12)" stroke={stroke} strokeWidth="4" strokeLinejoin="round"/>
       {lbl(58, 62, a)}{lbl(152, 62, b)}{lbl(105, 134, c)}
     </svg>
   );
@@ -5975,6 +5975,145 @@ const PerimStage = ({ props, cKey, fact = false }) => {
   );
 };
 // ============================================================
+// Dars30 MEXANIKA — YASASH (berilgan o'lchamda shakl qurish):
+//  BuildStage — eni/bo'yi stepperlari bilan to'rtburchak yasab, «Tekshir» bosiladi (geoboard jonli preview).
+//  PickStage — berilgan o'lchamga (spec) mos shaklni 3 tadan tanlash (GeoFig previewlar).
+// ============================================================
+const BUILD_SPEC = { ru: 'Построй прямоугольник:', uz: "To'rtburchak yasang:" };
+const B_ENI = { ru: 'ширина', uz: 'eni' };
+const B_BOYI = { ru: 'высота', uz: "bo'yi" };
+// 1 katak = 0,5 sm; har 2 katak = 1 sm. Rounds ma'lumoti KATAKда (juft), ko'rsatuv/audio SM da.
+const SM = { ru: 'см', uz: 'sm' };
+const CHECK_BTN = { ru: 'Проверить', uz: 'Tekshiring' };
+const rectVerts = (w, h) => [[0, 0], [w, 0], [w, h], [0, h]];
+const STEP_BTN = { width: 'clamp(36px,8vw,44px)', height: 'clamp(36px,8vw,44px)', borderRadius: 10, border: `2px solid ${T.accent}`, background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(20px,3.4vw,26px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', lineHeight: 1 };
+const Stepper = ({ label, value, onDec, onInc, disabled }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'clamp(8px,2vw,14px)', background: '#fff', border: '2px solid #C9D3DE', borderRadius: 12, padding: 'clamp(7px,1.4vw,10px) clamp(12px,2.4vw,16px)' }}>
+    <span style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,17px)', color: T.ink }}>{label}</span>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
+      <button onClick={onDec} disabled={disabled} style={{ ...STEP_BTN, opacity: disabled ? 0.5 : 1 }}>−</button>
+      <span className="mono" style={{ minWidth: 26, textAlign: 'center', fontWeight: 800, fontSize: 'clamp(18px,3vw,24px)', color: T.accent }}>{value}</span>
+      <button onClick={onInc} disabled={disabled} style={{ ...STEP_BTN, opacity: disabled ? 0.5 : 1 }}>+</button>
+    </div>
+  </div>
+);
+const RectBuildStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const tw = cur.w, th = cur.h;          // KATAKда (juft)
+  const twCm = tw / 2, thCm = th / 2;    // ko'rsatuv SANTIMETRда (2 katak = 1 sm)
+  const [w, setW] = useState(1);         // stepper qiymati SANTIMETRда
+  const [h, setH] = useState(1);
+  const [checked, setChecked] = useState(false);
+  const [solved, setSolved] = useState(false);
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  useEffect(() => { setW(1); setH(1); setChecked(false); setSolved(false); anyWrongRef.current = false; }, [ri]);
+  const match = w * 2 === tw && h * 2 === th;   // stepper sm × 2 = katak
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `build:${tw}x${th}`, options: [], correctIndex: -1, correctAnswer: `${tw}x${th}`, studentAnswerIndex: null, studentAnswer: `${w}x${h}`, correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const onCheck = () => {
+    if (!canAct || solved) return;
+    if (match) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setChecked(true); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const adj = (setter, cur1, d) => { if (!canAct || solved) return; setChecked(false); setter(Math.max(1, Math.min(3, cur1 + d))); };
+  const nextRound = () => { setRi((x) => x + 1); };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        {c.transition && ri === 0 && (
+          <div className="fade-up" style={{ background: T.accentSoft, border: `1.5px solid ${T.accent}`, borderRadius: 14, padding: 'clamp(11px,2.2vw,15px) clamp(14px,2.6vw,18px)' }}>
+            <span style={{ display: 'inline-block', background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(10px,1.6vw,12px)', letterSpacing: '.05em', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>{lang === 'uz' ? 'MASHQ' : 'ТРЕНИРОВКА'}</span>
+            <p style={{ margin: 0, fontWeight: 700, color: T.ink, fontSize: 'clamp(14px,2.1vw,17px)', lineHeight: 1.45 }}>{t(c.transition)}</p>
+          </div>
+        )}
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
+        <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', padding: '6px 16px', borderRadius: 999, fontFamily: "'JetBrains Mono',monospace" }}>{t(BUILD_SPEC)} {t(B_ENI)} {twCm} {t(SM)}, {t(B_BOYI)} {thCm} {t(SM)}</div>
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(130px,28vw,180px)', justifyContent: 'center' }}>
+          <GeoFig verts={rectVerts(w * 2, h * 2)} filled showPerim={false} ok={solved}/>
+        </div>
+        {!solved && (
+          <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(7px,1.6vw,10px)' }}>
+            <Stepper label={`${t(B_ENI)}, ${t(SM)}`} value={w} onDec={() => adj(setW, w, -1)} onInc={() => adj(setW, w, 1)} disabled={!canAct}/>
+            <Stepper label={`${t(B_BOYI)}, ${t(SM)}`} value={h} onDec={() => adj(setH, h, -1)} onInc={() => adj(setH, h, 1)} disabled={!canAct}/>
+            <button onClick={onCheck} disabled={!canAct} style={{ marginTop: 2, padding: 'clamp(11px,2.2vw,15px)', borderRadius: 12, border: 'none', background: canAct ? T.accent : '#C9D3DE', color: '#fff', fontWeight: 800, fontSize: 'clamp(15px,2.4vw,18px)', cursor: canAct ? 'pointer' : 'default' }}>{t(CHECK_BTN)}</button>
+          </div>
+        )}
+        {checked && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+const PICK_Q = { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?" };
+const PickStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const correct = cur.opts.findIndex((o) => o[0] === cur.w && o[1] === cur.h);
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `pick:${cur.w}x${cur.h}`, options: [], correctIndex: correct, correctAnswer: `${cur.w}x${cur.h}`, studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (i) => {
+    if (!canAct || solved || wrong.has(i)) return;
+    if (i === correct) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((s) => new Set(s).add(i)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', padding: '6px 16px', borderRadius: 999, fontFamily: "'JetBrains Mono',monospace" }}>{t(B_ENI)} {cur.w / 2} {t(SM)}, {t(B_BOYI)} {cur.h / 2} {t(SM)}</div>
+        <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(PICK_Q)}</p>
+        <div key={ri} className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.6vw,10px)' }}>
+          {cur.opts.map((o, i) => { const w = wrong.has(i); const isOk = solved && i === correct; return (
+            <button key={i} disabled={!canAct || solved || w} onClick={() => hit(i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(8px,1.8vw,12px)', minHeight: 'clamp(90px,22vw,130px)', borderRadius: 14, background: isOk ? T.successSoft : '#fff', border: `2.5px solid ${isOk ? T.success : w ? '#fe5b1a' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default' }}>
+              <GeoFig verts={rectVerts(o[0], o[1])} filled grid showPerim={false} ok={isOk}/>
+            </button>
+          ); })}
+        </div>
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// ============================================================
 // --- LEN (Dars28) mexanikasi shu darsda O'LIK, quyida qoladi (klon an'anasi) ---
 const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm' }, dm: { ru: 'дм', uz: 'dm' }, m: { ru: 'м', uz: 'm' } };
 const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr' }, dm: { ru: 'дециметр', uz: 'detsimetr' }, m: { ru: 'метр', uz: 'metr' } };
@@ -5999,7 +6138,7 @@ const Ruler = ({ objCm, maxCm = 10, reveal = false }) => {
         <linearGradient id="d28rul" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F6EBCB"/><stop offset="1" stopColor="#E4D3A2"/></linearGradient>
       </defs>
       {/* DETAL (o'lchanayotgan buyum) */}
-      <rect x={x(0)} y="14" width={objCm * RUL_STEP} height="22" rx="6" fill="url(#d28rod)" stroke="#2E7C88" strokeWidth="1.5"/>
+      <rect x={x(0)} y="14" width={objCm * RUL_STEP} height="22" rx="6" fill="url(#d28rod)" stroke="#6D5CE7" strokeWidth="1.5"/>
       <rect x={x(0) + 3} y="17" width={Math.max(0, objCm * RUL_STEP - 6)} height="5" rx="2.5" fill="rgba(255,255,255,0.45)"/>
       {/* O'QISH qavsi (reveal) */}
       {reveal && (
@@ -6049,10 +6188,10 @@ const ConvertViz = ({ from, to, val, ratio, reveal = false }) => {
       <div style={{ display: 'flex', gap: 'clamp(6px,1.8vw,12px)', flexWrap: 'wrap', justifyContent: 'center' }}>
         {Array.from({ length: val }).map((_, b) => (
           <div key={b} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-            <div style={{ display: 'flex', border: '2px solid #2E7C88', borderRadius: 6, overflow: 'hidden' }}>
+            <div style={{ display: 'flex', border: '2px solid #6D5CE7', borderRadius: 6, overflow: 'hidden' }}>
               {Array.from({ length: ratio }).map((_, cc) => <span key={cc} style={{ width: 'clamp(9px,2.3vw,15px)', height: 'clamp(18px,4.4vw,28px)', background: cc % 2 ? '#CFEDF1' : '#7FD8DE', borderRight: cc < ratio - 1 ? '1px solid #6FB8C2' : 'none' }}/>)}
             </div>
-            <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,14px)', color: '#2E7C88' }}>1 {from}</span>
+            <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,14px)', color: '#6D5CE7' }}>1 {from}</span>
           </div>
         ))}
       </div>
@@ -6160,7 +6299,7 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
   if (sides === 0) return ( // doira — hajmli disk (tomoni/burchagi yo'q)
     <svg viewBox="0 0 120 124" style={box} aria-hidden="true"><PolyDefs/>
       <circle cx={cx} cy={cy + D} r={r} fill="url(#d27side)"/>
-      <circle cx={cx} cy={cy} r={r} fill="url(#d27top)" stroke="#2E7C88" strokeWidth="3"/>
+      <circle cx={cx} cy={cy} r={r} fill="url(#d27top)" stroke="#6D5CE7" strokeWidth="3"/>
       <ellipse cx={cx - 13} cy={cy - 16} rx={r * 0.5} ry={r * 0.28} transform={`rotate(-32 ${cx - 13} ${cy - 16})`} fill="url(#d27gloss)" opacity="0.6"/>
     </svg>
   );
@@ -6183,7 +6322,7 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
       {/* yon yuz (qalinlik) */}
       <path d={d} transform={`translate(0 ${D})`} fill="url(#d27side)"/>
       {/* ustki yuz */}
-      <path className={hi ? 'g1-pop-in' : ''} d={d} fill="url(#d27top)" stroke="#2E7C88" strokeWidth="3" strokeLinejoin="round"/>
+      <path className={hi ? 'g1-pop-in' : ''} d={d} fill="url(#d27top)" stroke="#6D5CE7" strokeWidth="3" strokeLinejoin="round"/>
       {/* qirra yorug'i */}
       <path d={d} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinejoin="round" transform="translate(0 -1.3)"/>
       {/* BURCHAKLAR — 3D shar (sanaladigan) */}
@@ -6349,7 +6488,7 @@ const PolyMatchStage = ({ props, cKey }) => {
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', cursor: 'grab' };
   const rightStyle = (pos) => { const fam = order[pos]; return matched.has(fam)
     ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, color: T.success, cursor: 'default', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
-    : wrongPos === pos ? { ...MCELL, background: '#FBEEEE', border: '2.5px solid #D64545', color: '#B23A3A', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
+    : wrongPos === pos ? { ...MCELL, background: '#FFF1EA', border: '2.5px solid #fe5b1a', color: '#fe5b1a', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
     : drag && drag.hover === pos ? { ...MCELL, background: T.accentSoft, border: `2.5px dashed ${T.accent}`, color: T.ink, fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink, fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }; };
   const LX = box.w * 0.415, RX = box.w * 0.585;
@@ -6407,16 +6546,16 @@ const PolyMatchStage = ({ props, cKey }) => {
     </Stage>
   );
 };
-// Dars29 wrapper'lari — perimetr (PerimStage: 'geo' geoboardда birlik-sanash / 'sum' raqamlangan tomonlar yig'indisi). Aralash.
-const A5 = (props) => <PerimStage props={props} cKey="s5"/>;
-const A6 = (props) => <PerimStage props={props} cKey="s6"/>;
-const A7 = (props) => <PerimStage props={props} cKey="s7"/>;
-const A8 = (props) => <PerimStage props={props} cKey="s8"/>;
-const A9 = (props) => <PerimStage props={props} cKey="s9"/>;
-const A10 = (props) => <PerimStage props={props} cKey="s10"/>;
-const A11 = (props) => <PerimStage props={props} cKey="s11"/>;
-const ACase = (props) => <PerimStage props={props} cKey="s13"/>;
-const A14 = (props) => <PerimStage props={props} cKey="s14" fact/>;
+// Dars30 wrapper'lari — yasash (BuildStage: eni/bo'yi stepper + Tekshir / PickStage: o'lchamga mos shakl tanlash). Aralash.
+const A5 = (props) => <RectBuildStage props={props} cKey="s5"/>;
+const A6 = (props) => <RectBuildStage props={props} cKey="s6"/>;
+const A7 = (props) => <PickStage props={props} cKey="s7"/>;
+const A8 = (props) => <RectBuildStage props={props} cKey="s8"/>;
+const A9 = (props) => <PickStage props={props} cKey="s9"/>;
+const A10 = (props) => <RectBuildStage props={props} cKey="s10"/>;
+const A11 = (props) => <PickStage props={props} cKey="s11"/>;
+const ACase = (props) => <RectBuildStage props={props} cKey="s13"/>;
+const A14 = (props) => <RectBuildStage props={props} cKey="s14" fact/>;
 
 // ============================================================
 // TABLE-FILL MEXANIKASI — skip-sanash qatori (2,4,6,8,10,12 …); bir katak bo'sh, o'quvchi to'ldiradi.
@@ -6521,7 +6660,7 @@ const TableFillStage = ({ props, cKey }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9} hr={by} hc={blank}/>}
@@ -6614,7 +6753,7 @@ const CommuteStage = ({ props, cKey }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -6654,11 +6793,11 @@ const ScreenTable = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(190px, 44vw, 260px)', overflowX: 'auto' }}>
-          <div style={{ display: 'flex', gap: 'clamp(10px,3vw,22px)', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {[{ shape: 'tri', sides: [3, 4, 5], eq: '3 + 4 + 5 = 12' }, { shape: 'rect', sides: [4, 2], eq: '4 + 2 + 4 + 2 = 12' }].map((ex, i) => (
+          <div style={{ display: 'flex', gap: 'clamp(10px,3vw,26px)', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {[{ w: 4, h: 2, spec: { ru: 'ш 2 см, в 1 см', uz: 'eni 2 sm, bo\'yi 1 sm' } }, { w: 4, h: 4, spec: { ru: 'ш 2 см, в 2 см', uz: 'eni 2 sm, bo\'yi 2 sm' } }, { w: 2, h: 2, spec: { ru: 'ш 1 см, в 1 см', uz: 'eni 1 sm, bo\'yi 1 sm' } }].map((ex, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 'clamp(120px,32vw,190px)' }}><SumFig shape={ex.shape} sides={ex.sides} reveal/></div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,15px)', color: T.success }}>{ex.eq}</span>
+                <div style={{ width: 'clamp(80px,22vw,130px)' }}><GeoFig verts={rectVerts(ex.w, ex.h)} filled showPerim={false} ok/></div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,15px)', color: '#2FA0C8' }}>{t(ex.spec)}</span>
               </div>
             ))}
           </div>
@@ -7397,7 +7536,7 @@ const UranDrone = ({ w }) => (
     <ellipse className="d13-rotor" cx="9" cy="8" rx="8.5" ry="1.7" fill="#8AA4AC" opacity="0.7" style={{ transformOrigin: '9px 8px' }}/>
     <ellipse className="d13-rotor" cx="37" cy="8" rx="8.5" ry="1.7" fill="#8AA4AC" opacity="0.7" style={{ transformOrigin: '37px 8px', animationDelay: '.1s' }}/>
     <rect x="15" y="12" width="16" height="10" rx="4.5" fill="url(#d26dr)" stroke="#7E8692" strokeWidth="1"/>
-    <path d="M20 22 L17 31 L29 31 L26 22 Z" fill="rgba(127,216,222,0.26)"/>
+    <path d="M20 22 L17 31 L29 31 L26 22 Z" fill="rgba(109,92,231,0.26)"/>
     <circle className="d13-led" cx="23" cy="21" r="1.9" fill="#7FD8DE"/>
   </svg>
 );
@@ -7416,7 +7555,7 @@ const UranStation = ({ w }) => (
   <svg viewBox="0 0 150 104" style={{ width: w, height: 'auto', display: 'block', filter: 'drop-shadow(0 7px 9px rgba(0,0,0,0.45))' }} aria-hidden="true">
     <defs>
       <linearGradient id="d26stDome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F2F8FA"/><stop offset="0.5" stopColor="#C6DCE4"/><stop offset="1" stopColor="#8CA6B2"/></linearGradient>
-      <linearGradient id="d26stPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2E7C88"/><stop offset="1" stopColor="#123A46"/></linearGradient>
+      <linearGradient id="d26stPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6D5CE7"/><stop offset="1" stopColor="#123A46"/></linearGradient>
       <linearGradient id="d26stMod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#DDE8ED"/><stop offset="1" stopColor="#8A9BA6"/></linearGradient>
     </defs>
     {/* quyosh paneli qanoti (o'ngda) */}
@@ -7494,7 +7633,7 @@ const UranBase = ({ celebrate = false, bubbleNode, charNode }) => (
     {/* uzoq yo'ldoshlar (suzadi) */}
     <span className="d13-moon1" aria-hidden="true" style={{ position: 'absolute', top: '16%', width: 'clamp(7px,1.8vw,11px)', height: 'clamp(7px,1.8vw,11px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #E4EEF0, #7A8E96 78%, #3A4650)', boxShadow: '0 0 6px rgba(210,230,235,0.5)', zIndex: 1 }}/>
     <span className="d13-moon2" aria-hidden="true" style={{ position: 'absolute', top: '30%', width: 'clamp(5px,1.3vw,8px)', height: 'clamp(5px,1.3vw,8px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #CFE4E8, #6A828A 80%, #3A4650)', boxShadow: '0 0 5px rgba(190,220,225,0.5)', zIndex: 1 }}/>
-    <div style={{ position: 'absolute', left: '4%', top: '5%', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(8px,1.5vw,11px)', letterSpacing: '.08em', color: '#7FD8DE', textShadow: '0 0 6px rgba(127,216,222,0.6)', zIndex: 3 }}>◍ URAN · YO'LDOSH</div>
+    <div style={{ position: 'absolute', left: '4%', top: '5%', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(8px,1.5vw,11px)', letterSpacing: '.08em', color: '#7FD8DE', textShadow: '0 0 6px rgba(109,92,231,0.6)', zIndex: 3 }}>◍ URAN · YO'LDOSH</div>
     {/* MUZLI TOG' TIZMASI — orqa fon (ufq ortidan ko'tariladi; sirt uni pastdan yopadi) */}
     <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, bottom: '40%', height: '30%', zIndex: 1 }}><IceRidge/></div>
     {/* tog' etagidagi tuman (chuqurlik) */}
@@ -7505,7 +7644,7 @@ const UranBase = ({ celebrate = false, bubbleNode, charNode }) => (
       {[[16, 60, 30], [84, 72, 34], [52, 86, 22], [34, 90, 18]].map(([x, y, r], i) => <span key={i} aria-hidden="true" style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: `${r}px`, height: `${r * 0.45}px`, transform: 'translate(-50%,-50%)', borderRadius: '50%', background: 'radial-gradient(ellipse at 50% 35%, rgba(0,0,0,0.3), transparent 70%)', boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.14)' }}/>)}
       {/* qurilish-panjara (stansiya poydevori) */}
       <div style={{ position: 'absolute', inset: '22% 24% 20% 20%', display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(3,1fr)', placeItems: 'center', opacity: 0.85, zIndex: 1 }}>
-        {Array.from({ length: 18 }).map((_, i) => <span key={i} style={{ width: 'clamp(3px,0.9vw,5px)', height: 'clamp(3px,0.9vw,5px)', borderRadius: '50%', background: '#7FD8DE', boxShadow: '0 0 4px rgba(127,216,222,0.7)' }}/>)}
+        {Array.from({ length: 18 }).map((_, i) => <span key={i} style={{ width: 'clamp(3px,0.9vw,5px)', height: 'clamp(3px,0.9vw,5px)', borderRadius: '50%', background: '#7FD8DE', boxShadow: '0 0 4px rgba(109,92,231,0.7)' }}/>)}
       </div>
     </div>
     {/* FOREGROUND ELEMENTLAR */}
@@ -7634,7 +7773,7 @@ export default function RazryadLesson({
             {['ru', 'uz'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
-                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                         background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
                 {l.toUpperCase()}
               </button>
             ))}
@@ -7716,8 +7855,8 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 18px -4px rgba(58, 53, 48, 0.32);
 }
 .btn:hover:not(:disabled) {
-  background: #FF4F28;
-  box-shadow: 0 10px 24px -4px rgba(255, 79, 40, 0.45);
+  background: #fe5b1a;
+  box-shadow: 0 10px 24px -4px rgba(254, 91, 26, 0.45);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
@@ -7727,29 +7866,29 @@ html, body { margin: 0; padding: 0; }
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;
-  color: #FF4F28;
+  color: #fe5b1a;
   letter-spacing: 0.01em;
   border-radius: 12px;
   border: none;
-  box-shadow: 0 8px 22px -4px rgba(255, 79, 40, 0.35), 0 0 0 1px rgba(255, 79, 40, 0.12);
+  box-shadow: 0 8px 22px -4px rgba(254, 91, 26, 0.35), 0 0 0 1px rgba(254, 91, 26, 0.12);
 }
 .btn-white-accent:hover:not(:disabled) {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55);
+  box-shadow: 0 12px 28px -6px rgba(254, 91, 26, 0.55);
 }
 .btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
 /* btn-ready — "Davom" bosish kerak bo'lgan paytdagi holat: to'q rang + puls (g1) */
 .btn-white-accent.btn-ready {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.5), 0 0 0 1px rgba(255, 79, 40, 0.25);
+  box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.5), 0 0 0 1px rgba(254, 91, 26, 0.25);
   animation: btnReadyPulse 1.5s ease-in-out infinite;
 }
 .btn-white-accent.btn-ready:hover:not(:disabled) { background: #E8431F; color: #FFFFFF; }
 @keyframes btnReadyPulse {
-  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.45), 0 0 0 0 rgba(255, 79, 40, 0.5); }
-  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(255, 79, 40, 0.6),  0 0 0 9px rgba(255, 79, 40, 0); }
+  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.45), 0 0 0 0 rgba(254, 91, 26, 0.5); }
+  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(254, 91, 26, 0.6),  0 0 0 9px rgba(254, 91, 26, 0); }
 }
 @media (prefers-reduced-motion: reduce) { .btn-white-accent.btn-ready { animation: none; } }
 
@@ -7858,8 +7997,8 @@ html, body { margin: 0; padding: 0; }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #FF4F28;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.55);
+  background: #fe5b1a;
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.55);
 }
 
 /* === PROGRESS v15 (с orange glow) === */
@@ -7873,10 +8012,10 @@ html, body { margin: 0; padding: 0; }
 }
 .progress-bar {
   height: 100%;
-  background: #FF4F28;
+  background: #fe5b1a;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 99px;
-  box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 10px rgba(254, 91, 26, 0.55), 0 0 3px rgba(254, 91, 26, 0.40);
 }
 
 /* === SLIDER v15 === */
@@ -7904,10 +8043,10 @@ html, body { margin: 0; padding: 0; }
   top: 50%;
   transform: translateY(-50%);
   height: 4px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 99px;
   pointer-events: none;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.50), 0 0 2px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.50), 0 0 2px rgba(254, 91, 26, 0.40);
   transition: width 0.15s ease-out;
 }
 .slider-input {
@@ -7927,21 +8066,21 @@ html, body { margin: 0; padding: 0; }
   appearance: none;
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   transition: transform 0.1s;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-moz-range-thumb {
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.12); }
 .slider-input:disabled { cursor: not-allowed; }
@@ -7963,7 +8102,7 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14);
 }
 .answer-input:focus {
-  box-shadow: 0 10px 22px -6px rgba(255, 79, 40, 0.30), 0 0 0 1px rgba(255, 79, 40, 0.20);
+  box-shadow: 0 10px 22px -6px rgba(254, 91, 26, 0.30), 0 0 0 1px rgba(254, 91, 26, 0.20);
 }
 .answer-input.correct {
   background: #E3F0E8;
@@ -7972,8 +8111,8 @@ html, body { margin: 0; padding: 0; }
 }
 .answer-input.wrong {
   background: #FFE8E1;
-  color: #FF4F28;
-  box-shadow: 0 8px 20px -6px rgba(255, 79, 40, 0.36);
+  color: #fe5b1a;
+  box-shadow: 0 8px 20px -6px rgba(254, 91, 26, 0.36);
 }
 
 /* === FRAMES v15 === */
@@ -7987,10 +8126,10 @@ html, body { margin: 0; padding: 0; }
 }
 .frame-soft {
   background: #FFE8E1;
-  border-left: 4px solid #FF4F28;
+  border-left: 4px solid #fe5b1a;
   border-radius: 12px;
   padding: clamp(14px, 2.5vw, 14px);
-  box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
+  box-shadow: 0 6px 16px -6px rgba(254, 91, 26, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
@@ -8011,7 +8150,7 @@ html, body { margin: 0; padding: 0; }
 
 /* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
+.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(254, 91, 26, 0.10), rgba(254, 91, 26, 0.02)); }
 .amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
 .amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
 .amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
@@ -8111,7 +8250,7 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
+@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(254,91,26,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(254,91,26,0.5); } }
 
 /* CountDemo — jonli sanash */
 .g1-demo { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.4vw, 16px); }
@@ -8121,7 +8260,7 @@ html, body { margin: 0; padding: 0; }
 .g1-demo-cell.pulse { animation: g1pop 0.45s ease-out, g1pulse 1.7s ease-in-out 0.5s infinite; }
 .g1-demo-cell svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-demo-tag { position: absolute; top: -8px; right: -6px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
-.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #FF4F28; line-height: 1; }
+.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #fe5b1a; line-height: 1; }
 .g1-demo-num.big { font-size: clamp(52px, 13vw, 86px); }
 
 /* TenFrame — bo'sh kataklar */
@@ -8139,12 +8278,12 @@ html, body { margin: 0; padding: 0; }
 .g1-cell-num { position: absolute; top: 3px; right: 6px; font-weight: 800; font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; }
 
 /* CountTrack / MissingTrack — son qatori */
-.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #FF4F28; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
+.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #fe5b1a; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
 .g1-track-label.back { color: #019ACB; }
 .g1-track { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
 .g1-track-tile { width: clamp(52px, 11.5vw, 72px); height: clamp(56px, 13vw, 80px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
 .g1-track-tile span { font-weight: 800; font-size: clamp(28px, 6.5vw, 42px); color: #0E0E10; }
-.g1-track-tile.active { background: #FF4F28; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-track-tile.active { background: #fe5b1a; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-track-tile.active span { color: #FFFFFF; }
 .g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
 .g1-track-tile.gap span { color: #D8A93A; }
@@ -8155,7 +8294,7 @@ html, body { margin: 0; padding: 0; }
 .g1-countfig-ans { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #1F7A4D; }
 /* BigNumberCue (keyingi/oldingi savol uchun tayanch son) */
 .g1-cue { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vw, 22px); }
-.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #fe5b1a; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
 .g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
 .g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
@@ -8196,7 +8335,7 @@ html, body { margin: 0; padding: 0; }
 .g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-onboard-txt { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px,1.7vw,15px); color: #017BA3; }
 .g1-onboard-arrow { color: #A7A6A2; font-weight: 800; font-size: clamp(15px,2vw,18px); }
-.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #FF4F28; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
+.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #fe5b1a; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
 /* mehmon: o'ngdan kirib keladi (1x), keyin yengil tebranadi */
 .g1-guest { animation: g1guestEnter 0.85s cubic-bezier(0.34,1.5,0.6,1) both, g1guestBob 2.6s ease-in-out 0.9s infinite; }
 .g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom left; }
@@ -8244,7 +8383,7 @@ html, body { margin: 0; padding: 0; }
 .g1-spark3 { left: 16%; top: 52%; animation: g1spark 0.9s ease-out 0.6s infinite; }
 @keyframes g1spark { 0% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: scale(0.5); } }
 .g1-conf { position: absolute; top: -8%; width: 8px; height: 12px; border-radius: 2px; pointer-events: none; }
-.g1-conf1 { left: 16%; background: #FF4F28; animation: g1conf 1.1s ease-in 0s infinite; }
+.g1-conf1 { left: 16%; background: #fe5b1a; animation: g1conf 1.1s ease-in 0s infinite; }
 .g1-conf2 { left: 34%; background: #019ACB; animation: g1conf 1.3s ease-in 0.2s infinite; }
 .g1-conf3 { left: 50%; background: #FFC23C; animation: g1conf 1.0s ease-in 0.45s infinite; }
 .g1-conf4 { left: 64%; background: #1F7A4D; animation: g1conf 1.25s ease-in 0.1s infinite; }
@@ -8344,13 +8483,13 @@ html, body { margin: 0; padding: 0; }
 .g1-rating-stars { display: flex; gap: clamp(6px,1.6vw,12px); }
 .g1-rating-star { width: clamp(50px,11vw,72px); height: clamp(50px,11vw,72px); display: inline-flex; }
 .g1-rating-star svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,194,60,0.55)); }
-.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #FF4F28; }
+.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #fe5b1a; }
 
 /* === GameDrill (drag+tap o'yin bloki) === */
 .g1-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px,1.7vw,12px); padding: clamp(7px,1.7vw,11px); min-height: clamp(48px,10vw,68px); background: #FBF9F4; border-radius: 14px; }
 .g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(8px,1.8vw,12px); min-width: clamp(58px,13vw,78px); min-height: clamp(58px,13vw,78px); transition: transform 0.15s, box-shadow 0.15s; }
 .g1-token:active { cursor: grabbing; transform: scale(1.05); }
-.g1-token-sel { box-shadow: 0 0 0 3px #FF4F28, 0 8px 20px -6px rgba(255,79,40,0.4); }
+.g1-token-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 8px 20px -6px rgba(254,91,26,0.4); }
 /* noto'g'ri sudralganda: token yumshoq sakrab qaytadi (jazo emas) */
 .g1-bounceback { animation: g1bounceback 0.5s ease; }
 @keyframes g1bounceback { 0% { transform: translateY(0) scale(1); } 28% { transform: translateY(-9px) scale(1.1); } 55% { transform: translateY(0) scale(0.97); } 78% { transform: translateY(-3px) scale(1.02); } 100% { transform: translateY(0) scale(1); } }
@@ -8434,7 +8573,7 @@ html, body { margin: 0; padding: 0; }
 
 .g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) clamp(8px, 1.6vw, 12px); border-radius: 12px; transition: background 0.3s ease; }
 .g1-numrow-on { background: #FFE8E1; }
-.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #fe5b1a; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
 .g1-numrow-on .g1-digit { transform: scale(1.18); }
 
 /* tap-pair (s5) */
@@ -8449,7 +8588,7 @@ html, body { margin: 0; padding: 0; }
 .g1-tiles { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; margin-top: 4px; }
 .g1-tile { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(13px, 2.6vw, 21px) clamp(21px, 4vw, 31px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(32px, 7vw, 46px); color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.18); transition: transform 0.18s, background 0.18s, box-shadow 0.18s, color 0.18s; }
 .g1-tile:hover:not(:disabled) { transform: translateY(-2px); }
-.g1-tile-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(255,79,40,0.5); }
+.g1-tile-sel { background: #fe5b1a; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(254,91,26,0.5); }
 .g1-tile-ok { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 10px 24px -6px rgba(31,122,77,0.4); }
 .g1-tile-used { opacity: 0.3; cursor: default; }
 .g1-tile:disabled { cursor: default; }
@@ -8457,7 +8596,7 @@ html, body { margin: 0; padding: 0; }
 /* ===== Dars02 — RAQAMLI UYLAR (digit / house / street) ===== */
 .g1-digit { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #3A3530; display: inline-flex; align-items: center; justify-content: center; }
 .g1-digit-ink { color: #3A3530; }
-.g1-digit-accent { color: #FF4F28; }
+.g1-digit-accent { color: #fe5b1a; }
 .g1-digit-success { color: #1F7A4D; }
 .g1-digit-sm { font-size: clamp(26px, 5.2vw, 38px); }
 .g1-digit-mid { font-size: clamp(40px, 8vw, 60px); }
@@ -8484,8 +8623,8 @@ html, body { margin: 0; padding: 0; }
 .g1-tf-cell { width: clamp(26px, 5.2vw, 38px); height: clamp(26px, 5.2vw, 38px); border-radius: 9px; border: 2px solid #E6E1D6; background: #F6F4EF; display: flex; align-items: center; justify-content: center; }
 .g1-tf-base .g1-tf-cell { border-color: #FFD2C6; }
 .g1-tf-dot { width: 56%; height: 56%; border-radius: 50%; background: transparent; }
-.g1-tf-cell.on { background: #FFE8E1; border-color: #FF4F28; }
-.g1-tf-cell.on .g1-tf-dot { background: #FF4F28; }
+.g1-tf-cell.on { background: #FFE8E1; border-color: #fe5b1a; }
+.g1-tf-cell.on .g1-tf-dot { background: #fe5b1a; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on { background: #E3F2FB; border-color: #019ACB; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on .g1-tf-dot { background: #019ACB; }
 @keyframes g1tfPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
@@ -8497,29 +8636,29 @@ html, body { margin: 0; padding: 0; }
   background-color: #FBFEFF;
   background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
   background-size: clamp(15px, 3.6vw, 24px) clamp(15px, 3.6vw, 24px); }
-.g1-kcell.active { border-color: #FF4F28; box-shadow: 0 0 0 2px #FFD3C7; }
+.g1-kcell.active { border-color: #fe5b1a; box-shadow: 0 0 0 2px #FFD3C7; }
 .g1-kcell-write { flex: 0 0 auto; width: clamp(70px, 13vw, 94px); }
 .g1-kcell .g1-write { width: 100%; height: 100%; }
 .g1-write { width: clamp(80px, 17vw, 116px); height: auto; }
 .g1-write-ghost { fill: none; stroke: #F2DDD3; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
-.g1-write-ink { fill: none; stroke: #FF4F28; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.g1-write-ink { fill: none; stroke: #fe5b1a; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
 .g1-digit-pick { display: flex; justify-content: center; gap: clamp(8px, 2vw, 14px); }
 .g1-pickbtn { width: clamp(40px, 8vw, 52px); height: clamp(40px, 8vw, 52px); border-radius: 12px; border: 2px solid #E6E1D6; background: #FFFFFF; font-family: 'Fraunces', Georgia, serif; font-size: clamp(18px, 3.4vw, 24px); font-weight: 600; color: #5A5A60; cursor: pointer; transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.15s ease; box-shadow: 0 3px 8px -4px rgba(58, 53, 48, 0.3); }
 .g1-pickbtn:hover:not(.active) { transform: translateY(-2px); }
-.g1-pickbtn.active { border-color: #FF4F28; color: #FF4F28; background: #FFF3EF; }
+.g1-pickbtn.active { border-color: #fe5b1a; color: #fe5b1a; background: #FFF3EF; }
 
 /* FingerHand — barmoqlar vizualizatori (s2) */
 .g1-fhand { width: clamp(72px, 15vw, 104px); height: auto; }
 .g1-hand-group, .g1-handbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .g1-handbtn { border: 2.5px dashed #FFB9A8; border-radius: 16px; background: #FFF6F3; padding: clamp(6px, 1.4vw, 10px); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
-.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(255, 79, 40, 0.5); }
+.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(254, 91, 26, 0.5); }
 .g1-handbtn:disabled { cursor: default; border-style: solid; border-color: #1F7A4D; background: #E3F0E8; }
-.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #FF4F28; }
+.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #fe5b1a; }
 .g1-handbtn:disabled .g1-hand-cap { color: #1F7A4D; }
 
 /* Ten-frame drag o'yin (sd): drop zona + nuqta tokenlar */
 .g1-tfdrop { padding: clamp(8px, 2vw, 14px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; transition: border-color 0.2s ease, background 0.2s ease; }
-.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FF4F28; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
+.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #fe5b1a; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
 /* ten-frame PREDMET rejimi (sd o'yini): kataklar neytral, ichida buyum, tushganda pop */
 .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
@@ -8528,8 +8667,8 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1tfDrop { 0% { transform: translateY(-75%); opacity: 0; } 65% { transform: translateY(7%); } 100% { transform: translateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g1-tf-item { animation: none; } }
 /* keyingi to'ldiriladigan katak — pulslab "qayerga qo'yish"ni ko'rsatadi */
-.g1-tf-next { border-color: #FF4F28; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
-@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 79, 40, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(255, 79, 40, 0); } }
+.g1-tf-next { border-color: #fe5b1a; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
+@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(254, 91, 26, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(254, 91, 26, 0); } }
 .g1-dropzone-wait { border-color: #FF8A6E; background: #FFF4F0; }
 .g1-drophint { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(13px, 1.8vw, 15px); color: #C23B1E; font-weight: 600; }
 .g1-drophint-arrow { font-size: clamp(18px, 3vw, 24px); animation: g1hintBounce 1s ease-in-out infinite; }
@@ -8553,7 +8692,7 @@ html, body { margin: 0; padding: 0; }
 .g1-newhouse-note { font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; font-weight: 600; }
 .g1-count-line { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .g1-count-label { font-size: clamp(13px, 1.7vw, 15px); color: #8A8780; }
-.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #FF4F28; }
+.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #fe5b1a; }
 
 /* ESHIK (raqam plitasi bilan) */
 .g1-door { position: relative; display: inline-flex; flex-direction: column; align-items: center; width: clamp(54px, 11.5vw, 76px); height: clamp(78px, 16.5vw, 106px); background: repeating-linear-gradient(90deg, rgba(122,78,34,0) 0, rgba(122,78,34,0.12) 5px, rgba(255,255,255,0.05) 9px, rgba(122,78,34,0) 13px), linear-gradient(180deg, #C2864F, #9A6738); border: 2px solid #7A4E22; border-radius: 11px 11px 4px 4px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 4px 10px -5px rgba(58,53,48,0.35); overflow: hidden; }
@@ -8562,7 +8701,7 @@ html, body { margin: 0; padding: 0; }
 .g1-door-knob { position: absolute; right: clamp(7px, 1.6vw, 10px); top: 56%; width: 7px; height: 7px; border-radius: 50%; background: #FFD86B; box-shadow: 0 0 0 1px #B8862E; z-index: 2; }
 .g1-doorbtn { background: transparent; border: none; padding: 5px; cursor: pointer; border-radius: 12px; transition: transform 0.15s ease; }
 .g1-doorbtn:hover:not(:disabled) { transform: translateY(-3px); }
-.g1-doorbtn.active .g1-door { border-color: #FF4F28; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
+.g1-doorbtn.active .g1-door { border-color: #fe5b1a; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
 .g1-doorbtn.seen .g1-door { border-color: #1F7A4D; }
 .g1-doorbtn.used { opacity: 0.4; }
 .g1-doorbtn.placed { opacity: 0.45; }
@@ -8600,7 +8739,7 @@ html, body { margin: 0; padding: 0; }
 
 /* s5 — shakl belgisi */
 .g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(90px, 18vw, 130px); justify-content: center; }
-.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #FF4F28; }
+.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #fe5b1a; }
 
 /* s2 — joylash katakchalari */
 .g1-tapgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 1.6vw, 12px); }
@@ -8624,7 +8763,7 @@ html, body { margin: 0; padding: 0; }
 .g1-street-house.in { opacity: 1; transform: none; }
 .g1-street-house .g1-house-svg { width: 15cqw; }   /* 6 uy (5 raqamli + 1 bo'sh) sig'ishi uchun ozroq tor */
 .g1-street-new { margin-left: 2.5cqw; }            /* yangi bo'sh uy — ko'cha oxirida ajralib turadi */
-.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(255,79,40,0.8)); }
+.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(254,91,26,0.8)); }
 .g1-street-anvar, .g1-street-rano, .g1-street-zuhra { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
 .g1-street-anvar.in, .g1-street-rano.in, .g1-street-zuhra.in { opacity: 1; }
 /* personajlar OLD PLANDA, kichik (eshik bo'yida) — real proporsiya + chuqurlik */
@@ -8693,9 +8832,9 @@ html, body { margin: 0; padding: 0; }
 /* --- birlashtirish qatori (pufakchali savatlar) --- */
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
-.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
-.g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
+.g1-cg-sent .g1-cg-sign { font-style: normal; color: #fe5b1a; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }
 
 /* birlashganda pufakcha suzib kiradi */
@@ -8724,7 +8863,7 @@ html, body { margin: 0; padding: 0; }
 
 /* --- s5 sudrab-birlashtirish: drop-zona = tepadan savat (punktir -> javobda yashil) + tray --- */
 .g1-cg-drop { position: relative; transition: outline 0.2s, background 0.2s; }
-.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(255,79,40,0.5); outline-offset: 3px; }
+.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(254,91,26,0.5); outline-offset: 3px; }
 .g1-s5-drop .bt { width: 100%; }
 .g1-s5-drop.full { outline: 2px solid #1F7A4D; }
 .g1-combine-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
@@ -8745,7 +8884,7 @@ html, body { margin: 0; padding: 0; }
 /* --- s6 son-yozuv varianti --- */
 .g1-sent { display: inline-flex; align-items: center; gap: clamp(4px, 1.2vw, 8px); font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #0E0E10; }
 .g1-sent .g1-sent-op { font-style: normal; font-weight: 800; }
-.g1-sent .g1-sent-plus { color: #FF4F28; }
+.g1-sent .g1-sent-plus { color: #fe5b1a; }
 .g1-sent .g1-sent-minus { color: #5A5A60; }
 
 /* --- s8 fakt kartasi (ko'k) --- */
@@ -8827,7 +8966,7 @@ html, body { margin: 0; padding: 0; }
 
 /* nishon satri (sg) */
 .g1-target-row { display: flex; align-items: center; gap: 10px; }
-.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 
 /* katta ifoda (s3 qoida): 7 − 2 = 5 */
 .g1-sent-lg { font-size: clamp(28px, 6vw, 44px); gap: clamp(8px, 2vw, 14px); }
@@ -8848,7 +8987,7 @@ html, body { margin: 0; padding: 0; }
 .g1-nl { width: 100%; display: flex; justify-content: center; }
 .g1-nl-line { width: 100%; display: flex; align-items: flex-start; justify-content: space-between; gap: clamp(2px, 1vw, 8px); padding: clamp(58px, 13vw, 76px) clamp(14px, 3.4vw, 26px) clamp(6px, 1.6vw, 12px); background: #FBF9F4; border-radius: 16px; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.06); position: relative; }
 .g1-nl-line::before { content: ""; position: absolute; left: calc(clamp(14px, 3.4vw, 26px) + clamp(10px, 2.2vw, 14px)); right: calc(clamp(14px, 3.4vw, 26px) + clamp(10px, 2.2vw, 14px)); top: calc(clamp(58px, 13vw, 76px) + clamp(10px, 2.2vw, 14px)); height: 3px; background: #D8D2C6; border-radius: 2px; }
-/* quyon-sakrovchi: o'lchanган pozitsiyaga gorizontal siljiydi; ichki span yoy chizib sakraydi + qo'nishda sapchiydi */
+/* quyon-sakrovchi: o'lchangaн pozitsiyaga gorizontal siljiydi; ichki span yoy chizib sakraydi + qo'nishda sapchiydi */
 .g1-nl-rabbit { position: absolute; z-index: 4; pointer-events: none; transform: translate(-50%, -100%); transition: left 1.2s cubic-bezier(0.34, 1.06, 0.66, 1), top 1.2s cubic-bezier(0.34, 1.06, 0.66, 1); }
 .g1-nl-rabbit-hop { display: block; width: clamp(36px, 8.5vw, 50px); transform-origin: center bottom; animation: g1rabbithop 1.25s cubic-bezier(0.4, 0, 0.5, 1); }
 .g1-nl-rabbit-hop svg { width: 100%; height: auto; display: block; transform: scaleX(1.3); transform-origin: center bottom; filter: drop-shadow(0 4px 5px rgba(58,53,48,0.2)); }
@@ -8870,7 +9009,7 @@ html, body { margin: 0; padding: 0; }
 .g1-nl-tick { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: transparent; border: none; padding: 0 clamp(2px, 0.8vw, 6px); cursor: default; }
 button.g1-nl-tick { cursor: pointer; }
 .g1-nl-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.16); transition: transform 0.2s ease, background 0.2s ease; }
-.g1-nl-dot.marker { background: #FF4F28; box-shadow: 0 2px 8px rgba(255,79,40,0.4); transform: scale(1.15); }
+.g1-nl-dot.marker { background: #fe5b1a; box-shadow: 0 2px 8px rgba(254,91,26,0.4); transform: scale(1.15); }
 .g1-nl-tick.inpath .g1-nl-dot { background: #FFD3C7; }
 button.g1-nl-tick.picked .g1-nl-dot { background: #FFE8E1; box-shadow: inset 0 0 0 2px #FF8A6E; }
 button.g1-nl-tick.ok .g1-nl-dot { background: #1F7A4D; box-shadow: 0 2px 8px rgba(31,122,77,0.4); transform: scale(1.15); }
@@ -8879,17 +9018,17 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-nl-legend { display: flex; gap: clamp(16px, 4vw, 32px); }
 .g1-nl-leg { display: inline-flex; align-items: center; gap: 6px; font-size: clamp(13px, 1.8vw, 15px); font-weight: 700; color: #0E0E10; }
 .g1-nl-arrow { font-size: clamp(18px, 3.4vw, 24px); font-weight: 800; }
-.g1-nl-arrow-fwd { color: #FF4F28; }
+.g1-nl-arrow-fwd { color: #fe5b1a; }
 .g1-nl-arrow-back { color: #5A5A60; }
 .g1-mrow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 2vw, 14px); }
-.g1-numopt-sel { box-shadow: 0 0 0 3px #FF4F28, 0 4px 12px rgba(255,79,40,0.25) !important; }
+.g1-numopt-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 4px 12px rgba(254,91,26,0.25) !important; }
 .g1-mexp { background: #FFFFFF; border: none; border-radius: 14px; padding: clamp(8px, 1.8vw, 14px) clamp(12px, 2.6vw, 20px); cursor: pointer; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.1); transition: transform 0.15s ease, box-shadow 0.2s ease; }
 .g1-mexp:not(:disabled):hover { transform: translateY(-2px); }
 .g1-mexp:disabled { cursor: default; }
 .g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
 
 /* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
-.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
+.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #fe5b1a; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
 .d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
 .d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
 .d4-croc-anim { animation: d4crocopen 0.5s cubic-bezier(0.34,1.5,0.64,1) both, d4crocbreathe 2.8s ease-in-out 0.55s infinite; transform-origin: center; }
@@ -9172,7 +9311,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-panel.on { opacity: 1; transform: none; }
 .d2-panel-num { display: inline-flex; gap: 2px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(36px, 7.5vw, 54px); line-height: 1; color: #0E0E10; }
 .d2-panel-num span { transition: color 0.3s ease; }
-.d2-digit-tens { color: #FF4F28; }
+.d2-digit-tens { color: #fe5b1a; }
 .d2-digit-ones { color: #019ACB; }
 .d2-lamp { width: clamp(12px, 2.6vw, 17px); height: clamp(12px, 2.6vw, 17px); border-radius: 50%; background: #C8CDD4; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15); }
 .d2-lamp-still-g { background: #6EF29B; box-shadow: 0 0 8px rgba(110,242,155,0.7); }
@@ -9317,7 +9456,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-sortitem .d2-casssvg { width: clamp(30px, 6.5vw, 46px); }
 .d2-sortitem .d2-battsvg { width: clamp(15px, 3.2vw, 21px); }
 .d2-sortitem:hover:not(:disabled) { transform: translateY(-2px); }
-.d2-sortitem-sel { border-color: #FF4F28; box-shadow: 0 0 14px -2px rgba(255,79,40,0.5); }
+.d2-sortitem-sel { border-color: #fe5b1a; box-shadow: 0 0 14px -2px rgba(254,91,26,0.5); }
 .d2-sortitem:disabled { cursor: default; }
 .d2-sortdone { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #6EF29B; }
 .d2-holds { display: flex; gap: clamp(10px, 2.4vw, 18px); justify-content: center; align-items: stretch; }

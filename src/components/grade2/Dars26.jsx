@@ -35,7 +35,7 @@ const T = {
   ink2: '#5A5A60',
   ink3: '#A7A6A2',
   paper: '#FFFFFF',
-  accent: '#FF4F28',
+  accent: '#fe5b1a',
   accentSoft: '#FFE8E1',
   success: '#1F7A4D',
   successSoft: '#E3F0E8',
@@ -891,28 +891,28 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'geo-2-26-v1',
-  lessonTitle: { ru: 'Урок 26. Луч, прямая, отрезок', uz: "26-dars. Nur, to'g'ri chiziq, kesma" }
+  lessonId: 'geo-2-27-v1',
+  lessonTitle: { ru: 'Урок 26. Многоугольники', uz: "26-dars. Ko'pburchaklar" }
 };
-// STRUKTURA (Б5 URAN YO'LDOSHI, geometriya boshi; Uran gaz/muz gigant — QO'NIB bo'lmaydi, yo'ldoshda stansiya, osmonda Uran): s0 hook (uch soni bilan tur) · s1 to'g'ri chiziq (∞ ikki tomon) · s2 nur (1 boshi) · s3 QOIDA (uch soni: 0/1/2 → chiziq/nur/kesma) + check · s4 kesma (2 uchi) + check · sTBL uch tur kaliti · s5–s11 mashq (tur-tanish + saralash aralash) · s13 masala · s14 final · s15 xulosa (→ ko'pburchaklar).
-// MEXANIKA (YANGI, Van Hiele 0→1): LineTypeStage (chiziq/nur/kesma figurasini UCH SONI bo'yicha tanish, MC + hayotiy langar: ufq/fonar/qalam) + LineSortStage (obyektlarni turiga drag-saralash). Distraktor = boshqa tur.
+// STRUKTURA (Б5 URAN YO'LDOSHI, geometriya; Uran gaz/muz gigant — QO'NIB bo'lmaydi, yo'ldoshda stansiya, osmonda Uran): s0 hook (uchburchak nomi) · s1 ko'pburchak nima (yopiq+to'g'ri tomon) · s2 nomlash (tomon soni→nom) · s3 QOIDA (tomon soni=burchak soni) + check tomon-sanash · s4 ko'pburchak EMAS (doira/ochiq chiziq) + check · sTBL uch/to'rt/besh/oltiburchak kaliti · s5–s11 mashq (nom-tanish + tomon-sanash + ko'pburchakmi + DRAG-moslash aralash) · s13 masala · s14 final · s15 xulosa (→ uzunlik o'lchash).
+// MEXANIKA (Van Hiele 0→1): PolyTypeStage (ko'pburchakni ask bo'yicha: 'name' nom / 'count' tomon-sanash / 'ispoly' ko'pburchakmi, MC) + PolyMatchStage (shaklni nomiga elastik-sim DRAG-moslash, Dars20 meros). Distraktor = qo'shni tomon soni.
 const SCREEN_META = [
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: 12÷2=? (distraktor 10=12−2)
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  son o'qida orqaga 2-talik sakrash: 12→0 = 6 sakrash
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  ÷2 jadval-qatori: 2,4,6…→1,2,3…
-  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: ÷2 = 2 ta guruh / ×2 teskari + check
-  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  ÷3 jadval-qatori (3,6,9…→1,2,3…) + check
-  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  ÷2 va ÷3 to'liq jadvali
-  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq JADVAL-TO'LDIRISH ÷2 single
-  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq SON O'QI orqaga sakrash single
-  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq OILA-TOP: 3 round
-  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq JADVAL-TO'LDIRISH: 3 round
-  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq SON O'QI: 3 round
-  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq OILA-TOP: 3 round
-  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 12 mashq JADVAL-TO'LDIRISH: 3 round
-  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 13 MASALA: son o'qi orqaga sakrash
-  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 14 FINAL: 3 round oila-top + FactCard
-  { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 15 yakun + QOIDA recap (→ ÷4/÷5)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: uchburchak nomi? (distraktor to'rtburchak)
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  ko'pburchak nima: yopiq + to'g'ri tomon (tomon=kesma, burchak=uch)
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  nomlash: tomon sonini sana → nom
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: tomon soni=burchak soni + check TOMON-SANASH
+  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  ko'pburchak EMAS: doira/ochiq chiziq + check ISPOLY
+  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  kalit: uch/to'rt/besh/oltiburchak (tomon soni)
+  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq NOM-TANISH single
+  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq TOMON-SANASH: 3 round
+  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq DRAG-MOSLASH (shakl→nom): 3 juft
+  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq NOM-TANISH: 3 round
+  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq KO'PBURCHAKMI (ispoly): 3 round
+  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq DRAG-MOSLASH (shakl→nom): 3 juft
+  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 12 mashq NOM-TANISH: 3 round
+  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 13 MASALA: beshburchak qalqon — nechta tomon
+  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 14 FINAL: 3 round nom-tanish + FactCard Uran
+  { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 15 yakun + QOIDA recap (→ uzunlik o'lchash)
 ];
 
 // shuffleMC — variantlarni QAT'IY order bo'yicha joylashtiradi va wrong_N/hint_N
@@ -937,332 +937,334 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // ============================================================
 
 const CONTENT = {
-  // s0 — HOOK (scope: hook): 12 kristal 2 talik vagonlarga → nechta vagon? 12÷2=6. Distraktor 10 (=12−2)
+  // s0 — HOOK (scope: hook): uchburchak (3 tomon, 3 burchak) → nomi? Distraktor to'rtburchak
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Луч, прямая, отрезок', uz: "Mavzu: Nur, to'g'ri chiziq, kesma" },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    q: { ru: 'Луч фонарика идёт в одну сторону и имеет один конец — начало. Как называется такая линия?', uz: "Fonar nuri bir tomonga ketadi va bitta uchi — boshi bor. Bunday chiziq qanday ataladi?" },
-    opt0: { ru: 'Прямая', uz: "To'g'ri chiziq" },   // distraktor
-    opt1: { ru: 'Луч', uz: 'Nur' },                 // to'g'ri
+    topic: { ru: 'Тема: Многоугольники', uz: "Mavzu: Ko'pburchaklar" },
+    lead: { ru: 'Что это за фигура?', uz: "Bu qanday shakl?" },
+    q: { ru: 'Три стороны и три угла — что за фигура?', uz: "Uchta tomon, uchta burchak — qanday shakl?" },
+    opt0: { ru: 'Четырёхугольник', uz: "To'rtburchak" },   // distraktor
+    opt1: { ru: 'Треугольник', uz: 'Uchburchak' },          // to'g'ri
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Мы прилетели к спутнику Урана. На твёрдой поверхности экипаж строит станцию, а в небе виден сам Уран.',
-          'У фонарика луч идёт в одну сторону и имеет один конец — начало.',
-          'Бит спрашивает: как называется такая линия — с одним концом? Выбери название.',
-          'Послушай два ответа. Первый — прямая. Второй — луч. Или ты пока не знаешь. Выбери свой ответ.'
+          'Мы на спутнике Урана. Экипаж строит станцию и чертит фигуры из прямых палочек.',
+          'Три прямые палочки соединили, получилась замкнутая фигура. У неё три стороны и три угла.',
+          'Бит спрашивает: как называется фигура с тремя сторонами? Выбери название.',
+          'Послушай два ответа. Первый, четырёхугольник. Второй, треугольник. Или ты пока не знаешь. Выбери свой ответ.'
         ],
         uz: [
-          "Uran yo'ldoshiga uchib keldik. Qattiq sirtda ekipaj stansiya quryapti, osmonda esa Uranning o'zi ko'rinadi.",
-          "Fonar nuri bir tomonga ketadi va bitta uchi — boshi bor.",
-          "Bit so'raydi: bitta uchi bor bunday chiziq qanday ataladi? Nomini tanla.",
-          "Ikki javobni tinglang. Birinchi — to'g'ri chiziq. Ikkinchi — nur. Yoki hali bilmaysiz. O'z javobingizni tanlang."
+          "Uran yo'ldoshidamiz. Ekipaj stansiya quryapti va to'g'ri tayoqchalardan shakllar chizyapti.",
+          "Uchta to'g'ri tayoqchani uladik, yopiq shakl chiqdi. Uning uchta tomoni va uchta burchagi bor.",
+          "Bit so'raydi: uchta tomoni bor shakl qanday ataladi? Nomini tanlang.",
+          "Ikki javobni tinglang. Birinchi, to'rtburchak. Ikkinchi, uchburchak. Yoki hali bilmaysiz. O'z javobingizni tanlang."
         ]
       },
-      on_correct: { ru: 'Верно. Луч имеет одно начало и идёт в одну сторону без конца. Сейчас разберём все линии.', uz: "To'g'ri. Nurning bitta boshi bor va bir tomonga uchsiz ketadi. Hozir barcha chiziqlarni ko'ramiz." },
-      on_wrong: { ru: 'У прямой нет концов, а у луча один конец — начало. Это луч. Сейчас разберём.', uz: "To'g'ri chiziqning uchi yo'q, nurning bitta uchi — boshi bor. Bu nur. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Разберём прямую, луч и отрезок.', uz: "Hechqisi yo'q. To'g'ri chiziq, nur va kesmani ko'ramiz." }
+      on_correct: { ru: 'Верно. У треугольника три стороны и три угла. Сейчас разберём разные многоугольники.', uz: "To'g'ri. Uchburchakning uchta tomoni va uchta burchagi bor. Hozir turli ko'pburchaklarni ko'ramiz." },
+      on_wrong: { ru: 'У четырёхугольника четыре стороны, а тут три. Это треугольник. Сейчас разберём.', uz: "To'rtburchakning to'rtta tomoni bor, bu yerda uchta. Bu uchburchak. Hozir ko'ramiz." },
+      on_unknown: { ru: 'Ничего. Разберём треугольник, четырёхугольник и другие фигуры.', uz: "Hechqisi yo'q. Uchburchak, to'rtburchak va boshqa shakllarni ko'ramiz." }
     }
   },
 
-  // s1 — TUSHUNTIRISH-1: TO'G'RI CHIZIQ — ikki tomonga cheksiz, uchi yo'q (ufq chizig'i)
+  // s1 — TUSHUNTIRISH-1: KO'PBURCHAK — yopiq shakl, to'g'ri tomonlardan (tomon=kesma, burchak=uch)
   s1: {
-    eyebrow: { ru: 'Прямая', uz: "To'g'ri chiziq" },
-    lead: { ru: 'Прямая — без концов.', uz: "To'g'ri chiziq — uchsiz." },
-    body: { ru: 'Прямая линия идёт в обе стороны без конца — у неё нет концов. Стрелки на рисунке показывают: она тянется дальше и дальше. Как линия горизонта: она уходит в обе стороны, и концов её не видно.', uz: "To'g'ri chiziq ikki tomonga uchsiz ketadi — uning uchi yo'q. Rasmdagi strelkalar ko'rsatadi: u yana-da uzoqqa cho'ziladi. Ufq chizig'i kabi: u ikki tomonga ketadi, uchlari ko'rinmaydi." },
+    eyebrow: { ru: 'Многоугольник', uz: "Ko'pburchak" },
+    lead: { ru: 'Многоугольник — замкнутая фигура.', uz: "Ko'pburchak — yopiq shakl." },
+    body: { ru: 'Многоугольник — это замкнутая фигура из прямых сторон. Стороны — это отрезки. Место, где две стороны встречаются, — угол, его называют вершиной. Как рамка панели, которую собирает экипаж.', uz: "Ko'pburchak — to'g'ri tomonlardan tuzilgan yopiq shakl. Tomonlar — kesmalar. Ikki tomon uchrashgan joy — burchak, uni uch deb ham ataymiz. Ekipaj yig'ayotgan panel ramkasi kabi." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'У прямой нет концов — она бесконечна в обе стороны.', uz: "To'g'ri chiziqning uchi yo'q — ikki tomonga cheksiz." },
+    info: { ru: 'У многоугольника стороны прямые, а сама фигура замкнута.', uz: "Ko'pburchakning tomonlari to'g'ri, shaklning o'zi yopiq." },
     audio: {
       ru: [
-        'Прямая линия идёт в обе стороны без конца.',
-        'У неё нет концов. Стрелки показывают, что она тянется дальше и дальше.',
-        'Как линия горизонта: она уходит в обе стороны, и концов её не видно. Это прямая.'
+        'Многоугольник, это замкнутая фигура из прямых сторон.',
+        'Стороны, это отрезки. Место, где две стороны встречаются,, это угол, или вершина.',
+        'Как рамка панели, которую собирает экипаж.'
       ],
       uz: [
-        "To'g'ri chiziq ikki tomonga uchsiz ketadi.",
-        "Uning uchi yo'q. Strelkalar u yana-da uzoqqa cho'zilishini ko'rsatadi.",
-        "Ufq chizig'i kabi: u ikki tomonga ketadi, uchlari ko'rinmaydi. Bu to'g'ri chiziq."
+        "Ko'pburchak, to'g'ri tomonlardan tuzilgan yopiq shakl.",
+        "Tomonlar, kesmalar. Ikki tomon uchrashgan joy, burchak, yoki uch.",
+        "Ekipaj yig'ayotgan panel ramkasi kabi."
       ]
     }
   },
 
-  // s2 — TUSHUNTIRISH-2: NUR — bitta boshi, bir tomonga cheksiz (fonar/quyosh nuri)
+  // s2 — TUSHUNTIRISH-2: NOMLASH — tomon sonini sana → nom (uch/to'rt/besh burchak)
   s2: {
-    eyebrow: { ru: 'Луч', uz: 'Nur' },
-    lead: { ru: 'Луч — один конец.', uz: "Nur — bitta uch." },
+    eyebrow: { ru: 'Как назвать', uz: 'Nomlash' },
+    lead: { ru: 'Считай стороны — узнаёшь имя.', uz: "Tomonlarni sanang — nomini bilasiz." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'У луча одно начало и одна стрелка: он идёт в одну сторону без конца.', uz: "Nurning bitta boshi va bitta strelkasi bor: u bir tomonga uchsiz ketadi." },
+    info: { ru: '3 стороны — треугольник, 4 — четырёхугольник, 5 — пятиугольник.', uz: "3 tomon — uchburchak, 4 — to'rtburchak, 5 — beshburchak." },
     audio: {
       ru: [
-        'Луч имеет одно начало — один конец. Это зелёная точка.',
-        'В другую сторону он идёт без конца, туда показывает стрелка.',
-        'Как луч фонарика или солнца: начинается в одной точке и летит вперёд.'
+        'Имя многоугольника прячется в числе его сторон.',
+        'Посчитай стороны фигуры.',
+        'Три стороны, треугольник, четыре стороны, четырёхугольник, пять, пятиугольник.',
+        'Слово многоугольник значит много углов. Сколько углов, столько и сторон.'
       ],
       uz: [
-        "Nurning bitta boshi — bitta uchi bor. Bu yashil nuqta.",
-        "Boshqa tomonga u uchsiz ketadi, u yoqqa strelka ko'rsatadi.",
-        "Fonar yoki quyosh nuri kabi: bitta nuqtadan boshlanib, oldinga uchadi."
+        "Ko'pburchak nomi uning tomonlari sonida yashiringan.",
+        "Shaklning tomonlarini sanang.",
+        "Uchta tomon, uchburchak, to'rtta tomon, to'rtburchak, beshta, beshburchak.",
+        "Ko'pburchak so'zi ko'p burchak degani. Nechta burchak, shuncha tomon."
       ]
     }
   },
 
-  // s3 — QOIDA: bo'lish = teng ulashish, ÷ belgi kiritiladi + check MC (8÷2=4)
+  // s3 — QOIDA: tomon sonini sana → nom + check COUNT (beshburchak → 5 tomon)
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Считай концы (зелёные точки): 0 концов — прямая, 1 конец — луч, 2 конца — отрезок.', uz: "Uchlarni sanang (yashil nuqtalar): 0 uch — to'g'ri chiziq, 1 uch — nur, 2 uch — kesma." },
-    check_q: { ru: 'У этой линии нет концов, стрелки в обе стороны. Что это?', uz: "Bu chiziqning uchi yo'q, strelka ikki tomonga. Bu nima?" },
-    opts: [{ ru: 'Прямая', uz: "To'g'ri chiziq", ok: true }, { ru: 'Луч', uz: 'Nur' }, { ru: 'Отрезок', uz: 'Kesma' }],
-    wrong: { ru: 'Нет концов и стрелки в обе стороны — это прямая.', uz: "Uchi yo'q, strelka ikki tomonga — bu to'g'ri chiziq." },
-    check_ok: { ru: 'Верно! Нет концов — это прямая.', uz: "To'g'ri! Uchi yo'q — bu to'g'ri chiziq." },
+    rule: { ru: 'Считай стороны: 3 — треугольник, 4 — четырёхугольник, 5 — пятиугольник.', uz: "Tomonlarni sanang: 3 — uchburchak, 4 — to'rtburchak, 5 — beshburchak." },
+    check_q: { ru: 'Сколько сторон у этой фигуры?', uz: "Bu shaklning nechta tomoni bor?" },
+    opts: [{ ru: '4', uz: '4' }, { ru: '5', uz: '5', ok: true }, { ru: '6', uz: '6' }],
+    wrong: { ru: 'Посчитай стороны ещё раз — по кругу.', uz: "Tomonlarni yana sanang — aylana bo'ylab." },
+    check_ok: { ru: 'Верно! Пять сторон — пятиугольник.', uz: "To'g'ri! Beshta tomon — beshburchak." },
     audio: {
       ru: [
-        'Запишем главное. Слушай и запомни.',
-        'Считай концы линии — зелёные точки.',
-        'Ноль концов — прямая, один конец — луч, два конца — отрезок.',
-        'Проверь. У этой линии нет концов, а стрелки в обе стороны. Что это?'
+        'Запишем правило. Слушай и запомни.',
+        'Считай стороны фигуры, по кругу, не пропуская.',
+        'Три стороны, треугольник, четыре, четырёхугольник, пять, пятиугольник.',
+        'Проверь. Сколько сторон у этой фигуры?'
       ],
       uz: [
-        "Asosiyni yozamiz. Tinglang va yodlang.",
-        "Chiziqning uchlarini sana — yashil nuqtalar.",
-        "Nol uch — to'g'ri chiziq, bir uch — nur, ikki uch — kesma.",
-        "Tekshir. Bu chiziqning uchi yo'q, strelka ikki tomonga. Bu nima?"
+        "Qoidani yozamiz. Tinglang va yodlang.",
+        "Shaklning tomonlarini sana, aylana bo'ylab, o'tkazib yubormay.",
+        "Uchta tomon, uchburchak, to'rtta, to'rtburchak, beshta, beshburchak.",
+        "Tekshir. Bu shaklning nechta tomoni bor?"
       ]
     }
   },
 
-  // s4 — TUSHUNTIRISH-3: KESMA — ikki uchi bor, ikki nuqta orasi (qalam) + check
+  // s4 — TUSHUNTIRISH-3: KO'PBURCHAK EMAS — doira (tomonsiz) / ochiq chiziq (yopilmagan) + check ispoly
   s4: {
-    eyebrow: { ru: 'Отрезок', uz: 'Kesma' },
-    lead: { ru: 'Отрезок — два конца.', uz: "Kesma — ikki uch." },
-    body: { ru: 'Отрезок — это часть линии между двумя точками. У него два конца и нет стрелок. Как карандаш: он где-то начинается и где-то заканчивается.', uz: "Kesma — chiziqning ikki nuqta orasidagi qismi. Uning ikki uchi bor va strelkasi yo'q. Qalam kabi: u bir joyda boshlanadi va bir joyda tugaydi." },
-    warn: { ru: 'Отрезок можно измерить линейкой — у него есть длина. Прямую и луч — нельзя.', uz: "Kesmani chizg'ich bilan o'lchash mumkin — uning uzunligi bor. To'g'ri chiziq va nurni — bo'lmaydi." },
-    check_q: { ru: 'У этой линии два конца и нет стрелок. Что это?', uz: "Bu chiziqning ikki uchi bor, strelkasi yo'q. Bu nima?" },
-    opts: [{ ru: 'Отрезок', uz: 'Kesma', ok: true }, { ru: 'Луч', uz: 'Nur' }, { ru: 'Прямая', uz: "To'g'ri chiziq" }],
-    wrong: { ru: 'Два конца, нет стрелок — это отрезок.', uz: "Ikki uch, strelka yo'q — bu kesma." },
-    check_ok: { ru: 'Верно! Два конца — это отрезок.', uz: "To'g'ri! Ikki uch — bu kesma." },
+    eyebrow: { ru: 'Не многоугольник', uz: "Ko'pburchak emas" },
+    lead: { ru: 'Не всякая фигура — многоугольник.', uz: "Har qanday shakl ko'pburchak emas." },
+    body: { ru: 'У круга нет прямых сторон и нет углов — это не многоугольник. И если линия не замкнута, оборвана, — тоже не многоугольник.', uz: "Doiraning to'g'ri tomonlari va burchagi yo'q — bu ko'pburchak emas. Chiziq yopilmagan, uzilib qolgan bo'lsa — u ham ko'pburchak emas." },
+    warn: { ru: 'Круг — не многоугольник: у него нет сторон и углов.', uz: "Doira — ko'pburchak emas: uning tomoni va burchagi yo'q." },
+    check_q: { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" },
+    opts: [{ ru: 'Да', uz: 'Ha' }, { ru: 'Нет', uz: "Yo'q", ok: true }],
+    wrong: { ru: 'У круга нет прямых сторон — это не многоугольник.', uz: "Doiraning to'g'ri tomoni yo'q — bu ko'pburchak emas." },
+    check_ok: { ru: 'Верно! У круга нет сторон — это не многоугольник.', uz: "To'g'ri! Doiraning tomoni yo'q — bu ko'pburchak emas." },
     audio: {
       ru: [
-        'Отрезок — это часть линии между двумя точками.',
-        'У него два конца и нет стрелок. Как карандаш: он начинается и заканчивается.',
-        'Отрезок можно измерить линейкой — у него есть длина.',
-        'Проверь. У этой линии два конца и нет стрелок. Что это?'
+        'Не всякая фигура, многоугольник.',
+        'У круга нет прямых сторон и нет углов.',
+        'Круг, не многоугольник. И оборванная, незамкнутая линия, тоже.',
+        'Проверь. Это многоугольник?'
       ],
       uz: [
-        "Kesma — chiziqning ikki nuqta orasidagi qismi.",
-        "Uning ikki uchi bor va strelkasi yo'q. Qalam kabi: u boshlanadi va tugaydi.",
-        "Kesmani chizg'ich bilan o'lchash mumkin — uning uzunligi bor.",
-        "Tekshir. Bu chiziqning ikki uchi bor, strelkasi yo'q. Bu nima?"
+        "Har qanday shakl ko'pburchak emas.",
+        "Doiraning to'g'ri tomonlari va burchagi yo'q.",
+        "Doira, ko'pburchak emas. Uzilib qolgan, yopilmagan chiziq ham.",
+        "Tekshir. Bu ko'pburchakmi?"
       ]
     }
   },
 
-  // sTBL — TUSHUNTIRISH: UCH TUR KALITI (nur/to'g'ri chiziq/kesma — uch soni bilan)
+  // sTBL — TUSHUNTIRISH: KALIT (uch/to'rt/besh/oltiburchak — tomon soni bilan)
   sTBL: {
     eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Три линии — по концам', uz: "Uch chiziq — uchlari bilan" },
+    lead: { ru: 'По числу сторон', uz: "Tomonlar soni bo'yicha" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай зелёные точки!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Yashil nuqtalarni sanang!" },
+    info: { ru: 'Треугольник — 3, четырёхугольник — 4, пятиугольник — 5, шестиугольник — 6.', uz: "Uchburchak — 3, to'rtburchak — 4, beshburchak — 5, oltiburchak — 6." },
     audio: {
       ru: [
-        'Запомни ключ: смотри на концы линии — зелёные точки.',
-        'У прямой концов нет, у луча один конец, у отрезка два конца.',
-        'Считаешь концы — сразу узнаёшь линию.'
+        'Запомни ключ: имя фигуры, по числу сторон.',
+        'Три стороны, треугольник, четыре, четырёхугольник, пять, пятиугольник, шесть, шестиугольник.',
+        'Посчитал стороны, сразу назвал фигуру.'
       ],
       uz: [
-        "Kalitni yodla: chiziqning uchlariga qara — yashil nuqtalar.",
-        "To'g'ri chiziqning uchi yo'q, nurning bitta uchi, kesmaning ikki uchi.",
-        "Uchlarni sanasang — chiziqni darrov bilasan."
+        "Kalitni yodlang: shakl nomi, tomonlar soniga qarab.",
+        "Uchta tomon, uchburchak, to'rtta, to'rtburchak, beshta, beshburchak, oltita, oltiburchak.",
+        "Tomonlarni sanasangiz, shaklni darrov nomlaysiz."
       ]
     }
   },
 
-  // s5 — MASHQ single tur-tanish (nur)
+  // s5 — MASHQ single nom-tanish (uchburchak)
   s5: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    transition: { ru: 'Объяснение закончили. Теперь узнавай линии по концам.', uz: "Tushuntirishni tugatdik. Endi chiziqlarni uchlari bo'yicha taning." },
-    type: 'ray',
-    wrong: { ru: 'Один конец и одна стрелка — это луч.', uz: "Bitta uch va bitta strelka — bu nur." },
-    done_text: { ru: 'Верно! Один конец — это луч.', uz: "To'g'ri! Bitta uch — bu nur." },
+    lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
+    transition: { ru: 'Объяснение закончили. Теперь узнавай многоугольники по числу сторон.', uz: "Tushuntirishni tugatdik. Endi ko'pburchaklarni tomonlar soniga qarab taning." },
+    sides: 3,
+    wrong: { ru: 'Посчитай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
+    done_text: { ru: 'Верно! Три стороны — треугольник.', uz: "To'g'ri! Uchta tomon — uchburchak." },
     audio: {
-      intro: { ru: 'Тренировка. Посмотри на концы и назови линию.', uz: "Mashq. Uchlarga qarab chiziqni ayting." },
+      intro: { ru: 'Тренировка. Посчитай стороны и назови фигуру.', uz: "Mashq. Tomonlarni sanab shaklni ayting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы: сколько зелёных точек?', uz: "Uchlarni sanang: nechta yashil nuqta?" }
+      on_wrong: { ru: 'Считай стороны: сколько их?', uz: "Tomonlarni sanang: nechta?" }
     }
   },
 
-  // s6 — MASHQ uch-sanash (3 round)
+  // s6 — MASHQ tomon-sanash (3 round)
   s6: {
-    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sanang' },
-    lead: { ru: 'Сколько концов?', uz: "Nechta uchi bor?" },
-    rounds: [ { type: 'segment', ask: 'count' }, { type: 'line', ask: 'count' }, { type: 'ray', ask: 'count' } ],
-    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sanang." },
+    eyebrow: { ru: 'Считай стороны', uz: 'Tomonlarni sanang' },
+    lead: { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" },
+    rounds: [ { sides: 4, ask: 'count' }, { sides: 3, ask: 'count' }, { sides: 5, ask: 'count' } ],
+    wrong: { ru: 'Считай стороны по кругу.', uz: "Tomonlarni aylana bo'ylab sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Считай концы линии — зелёные точки.', uz: "Chiziqning uchlarini — yashil nuqtalarni sanang." },
+      intro: { ru: 'Считай стороны фигуры, по кругу.', uz: "Shaklning tomonlarini, aylana bo'ylab sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'У прямой ноль, у луча один, у отрезка два.', uz: "To'g'ri chiziqda nol, nurda bir, kesmada ikki." }
+      on_wrong: { ru: 'Не пропускай стороны, считай по кругу.', uz: "Tomonlarni o'tkazib yubormang, aylana bo'ylab sanang." }
     }
   },
 
-  // s7 — MASHQ HAYOTIY langar (tur-tanish, 3 round: ufq/fonar/qalam)
+  // s7 — MASHQ DRAG-MOSLASH (shakl → nom, 3 juft: uch/to'rt/beshburchak)
   s7: {
-    eyebrow: { ru: 'В жизни', uz: 'Hayotda' },
-    lead: { ru: 'На что это похоже?', uz: "Bu nimaga o'xshaydi?" },
-    rounds: [ { type: 'line', kind: 'horizon' }, { type: 'ray', kind: 'beam' }, { type: 'segment', kind: 'edge' } ],
-    wrong: { ru: 'Линия горизонта — в обе стороны, луч фонаря — в одну, карандаш — с двумя концами.', uz: "Ufq chizig'i — ikki tomonga, fonar nuri — bir tomonga, qalam — ikki uchli." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Соедини', uz: 'Moslash' },
+    lead: { ru: 'Соедини фигуру с названием.', uz: "Shaklni nomiga ulang." },
+    pairs: [ { sides: 3 }, { sides: 4 }, { sides: 5 } ],
+    wrong: { ru: 'Посчитай стороны фигуры и найди её имя.', uz: "Shaklning tomonlarini sanab, nomini toping." },
+    done_text: { ru: 'Отлично! Все фигуры названы.', uz: "Ajoyib! Barcha shakllar nomlandi." },
     audio: {
-      intro: { ru: 'Посмотри на предмет и назови линию: прямая, луч или отрезок.', uz: "Buyumga qarab chiziqni ayting: to'g'ri chiziq, nur yoki kesma." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы: у линии горизонта их нет, у луча один, у карандаша два.', uz: "Uchlarni sanang: ufq chizig'i uchsiz, nur bitta, qalam ikkita." }
+      intro: { ru: 'Протяни ниточку от каждой фигуры к её названию. Считай стороны.', uz: "Har shakldan uning nomiga simni torting. Tomonlarni sanang." },
+      on_correct: { ru: 'Верно, все совпали.', uz: "To'g'ri, hammasi mos keldi." },
+      on_wrong: { ru: 'Посчитай стороны ещё раз.', uz: "Tomonlarni yana sanang." }
     }
   },
 
-  // s8 — MASHQ tur-tanish (3 round abstrakt)
+  // s8 — MASHQ nom-tanish (3 round abstrakt)
   s8: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    rounds: [ { type: 'segment' }, { type: 'ray' }, { type: 'line' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
+    lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
+    rounds: [ { sides: 3 }, { sides: 5 }, { sides: 4 } ],
+    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Смотри на концы и называй линию.', uz: "Uchlarga qarab chiziqni ayting." },
+      intro: { ru: 'Считай стороны и называй фигуру.', uz: "Tomonlarni sanab shaklni ayting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Ноль — прямая, один — луч, два — отрезок.', uz: "Nol — to'g'ri chiziq, bir — nur, ikki — kesma." }
+      on_wrong: { ru: 'Три, треугольник, четыре, четырёхугольник, пять, пятиугольник.', uz: "Uch, uchburchak, to'rt, to'rtburchak, besh, beshburchak." }
     }
   },
 
-  // s9 — MASHQ uch-sanash (3 round)
+  // s9 — MASHQ KO'PBURCHAKMI (3 round: to'rtburchak / doira / ochiq chiziq)
   s9: {
-    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sanang' },
-    lead: { ru: 'Сколько концов?', uz: "Nechta uchi bor?" },
-    rounds: [ { type: 'line', ask: 'count' }, { type: 'ray', ask: 'count' }, { type: 'segment', ask: 'count' } ],
-    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sanang." },
+    eyebrow: { ru: 'Многоугольник?', uz: "Ko'pburchakmi?" },
+    lead: { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" },
+    rounds: [ { sides: 4, ask: 'ispoly' }, { sides: 0, ask: 'ispoly' }, { sides: -1, ask: 'ispoly' } ],
+    wrong: { ru: 'У многоугольника прямые стороны и он замкнут.', uz: "Ko'pburchakning tomonlari to'g'ri va u yopiq." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова считай концы линии.', uz: "Yana chiziqning uchlarini sanang." },
+      intro: { ru: 'Реши: это многоугольник или нет.', uz: "Hal qiling: bu ko'pburchakmi yoki yo'q." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри только на концы линии.', uz: "Faqat chiziqning uchlariga qarang." }
+      on_wrong: { ru: 'Проверь: стороны прямые? Фигура замкнута?', uz: "Tekshiring: tomonlari to'g'rimi? Shakl yopiqmi?" }
     }
   },
 
-  // s10 — MASHQ HAYOTIY langar (tur-tanish, 3 round)
+  // s10 — MASHQ DRAG-MOSLASH (shakl → nom, 3 juft: to'rt/besh/oltiburchak)
   s10: {
-    eyebrow: { ru: 'В жизни', uz: 'Hayotda' },
-    lead: { ru: 'На что это похоже?', uz: "Bu nimaga o'xshaydi?" },
-    rounds: [ { type: 'ray', kind: 'beam' }, { type: 'segment', kind: 'edge' }, { type: 'line', kind: 'horizon' } ],
-    wrong: { ru: 'Луч — один конец, карандаш — два, линия горизонта — без концов.', uz: "Nur — bitta uch, qalam — ikkita, ufq chizig'i — uchsiz." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Соедини', uz: 'Moslash' },
+    lead: { ru: 'Соедини фигуру с названием.', uz: "Shaklni nomiga ulang." },
+    pairs: [ { sides: 4 }, { sides: 5 }, { sides: 6 } ],
+    wrong: { ru: 'Посчитай стороны фигуры и найди её имя.', uz: "Shaklning tomonlarini sanab, nomini toping." },
+    done_text: { ru: 'Отлично! Все фигуры названы.', uz: "Ajoyib! Barcha shakllar nomlandi." },
     audio: {
-      intro: { ru: 'Снова назови линию по предмету.', uz: "Yana buyumga qarab chiziqni ayting." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы предмета.', uz: "Buyumning uchlarini sanang." }
+      intro: { ru: 'Снова соедини фигуры с их названиями.', uz: "Yana shakllarni ularning nomlariga ulang." },
+      on_correct: { ru: 'Верно, все совпали.', uz: "To'g'ri, hammasi mos keldi." },
+      on_wrong: { ru: 'Посчитай стороны ещё раз.', uz: "Tomonlarni yana sanang." }
     }
   },
 
-  // s11 — MASHQ tur-tanish (3 round abstrakt)
+  // s11 — MASHQ nom-tanish (3 round abstrakt)
   s11: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    rounds: [ { type: 'ray' }, { type: 'line' }, { type: 'segment' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
+    lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
+    rounds: [ { sides: 6 }, { sides: 3 }, { sides: 5 } ],
+    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Назови линию.', uz: "Masaladan oldingi oxirgi mashq. Chiziqni ayting." },
+      intro: { ru: 'Последняя тренировка перед задачей. Назови фигуру.', uz: "Masaladan oldingi oxirgi mashq. Shaklni ayting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Ноль — прямая, один — луч, два — отрезок.', uz: "Nol — to'g'ri chiziq, bir — nur, ikki — kesma." }
+      on_wrong: { ru: 'Считай стороны по кругу.', uz: "Tomonlarni aylana bo'ylab sanang." }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Зухра делит кристаллы.', uz: "Zuhra kristallarni ulashadi." },
-    manifest_label: { ru: 'добыча', uz: "o'lja" },
+    lead: { ru: 'Экипаж собирает щит.', uz: "Ekipaj qalqon yig'moqda." },
+    manifest_label: { ru: 'панель', uz: 'panel' },
     audio: {
-      ru: 'Зухра делит добычу поровну.',
-      uz: "Zuhra o'ljani teng ulashadi."
+      ru: 'Экипаж собирает щит станции из панелей.',
+      uz: "Ekipaj stansiya qalqonini panellardan yig'moqda."
     }
   },
 
-  // s13 — MASALA (scored, LineTypeStage hayotiy): qalam = kesma
+  // s13 — MASALA (scored, PolyTypeStage count): beshburchak qalqon → nechta tomon?
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
-    type: 'segment', kind: 'edge',
-    story: { ru: 'Экипаж измеряет карандаш для чертежа. Какая это линия?', uz: "Ekipaj chizma uchun qalamni o'lchayapti. Bu qanday chiziq?" },
-    wrong: { ru: 'У карандаша два конца — начало и конец.', uz: "Qalamning ikki uchi bor — boshi va oxiri." },
-    done_text: { ru: 'Верно! Карандаш — отрезок, у него два конца.', uz: "To'g'ri! Qalam — kesma, uning ikki uchi bor." },
+    sides: 5, ask: 'count',
+    story: { ru: 'Экипаж собрал пятиугольный щит. Сколько сторон?', uz: "Ekipaj beshburchak qalqon yig'di. Nechta tomoni bor?" },
+    wrong: { ru: 'Посчитай стороны щита по кругу.', uz: "Qalqonning tomonlarini aylana bo'ylab sanang." },
+    done_text: { ru: 'Верно! Пять сторон — пятиугольник.', uz: "To'g'ri! Beshta tomon — beshburchak." },
     audio: {
-      intro: { ru: 'Экипаж измеряет карандаш для чертежа. Какая это линия — прямая, луч или отрезок?', uz: "Ekipaj chizma uchun qalamni o'lchayapti. Bu qanday chiziq — to'g'ri chiziq, nur yoki kesma?" },
-      on_correct: { ru: 'Верно. Отрезок можно измерить — у него два конца.', uz: "To'g'ri. Kesmani o'lchash mumkin — uning ikki uchi bor." },
-      on_wrong: { ru: 'У карандаша два конца — это отрезок.', uz: "Qalamning ikki uchi bor — bu kesma." }
+      intro: { ru: 'Экипаж собрал пятиугольный щит. Сколько у него сторон?', uz: "Ekipaj beshburchak qalqon yig'di. Uning nechta tomoni bor?" },
+      on_correct: { ru: 'Верно. Пять сторон, пятиугольник.', uz: "To'g'ri. Beshta tomon, beshburchak." },
+      on_wrong: { ru: 'Считай стороны по кругу, не пропуская.', uz: "Tomonlarni aylana bo'ylab, o'tkazib yubormay sanang." }
     }
   },
 
-  // s14 — FINAL (scored, 3 round tur-tanish + FactCard Uran)
+  // s14 — FINAL (scored, 3 round nom-tanish + FactCard Uran)
   s14: {
     eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    rounds: [ { type: 'line' }, { type: 'ray' }, { type: 'segment' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
+    lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
+    rounds: [ { sides: 3 }, { sides: 4 }, { sides: 6 } ],
+    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Уран вращается «на боку» — лёжа, как будто катится. Другие планеты крутятся стоя.', uz: "Uran «yonboshlab» aylanadi — yotgan holda, xuddi dumalayotgandek. Boshqa sayyoralar tik aylanadi." },
-    fact_audio: { ru: 'Уран — необычная планета: она вращается на боку, лёжа, как будто катится по орбите.', uz: "Uran — g'ayrioddiy sayyora: u yonboshlab, yotgan holda aylanadi, xuddi orbitada dumalab ketayotgandek." },
+    fact_text: { ru: 'Уран вращается на боку — лёжа, как будто катится. Другие планеты крутятся стоя.', uz: "Uran yonboshlab aylanadi — yotgan holda, xuddi dumalayotgandek. Boshqa sayyoralar tik aylanadi." },
+    fact_audio: { ru: 'Уран, необычная планета: она вращается на боку, лёжа, как будто катится по орбите.', uz: "Uran, g'ayrioddiy sayyora: u yonboshlab, yotgan holda aylanadi, xuddi orbitada dumalab ketayotgandek." },
     audio: {
-      intro: { ru: 'Финальная проверка. Смотри на концы и называй линию.', uz: "Yakuniy tekshiruv. Uchlarga qarab chiziqni ayting." },
+      intro: { ru: 'Финальная проверка. Считай стороны и называй фигуру.', uz: "Yakuniy tekshiruv. Tomonlarni sanab shaklni ayting." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Ноль концов — прямая, один — луч, два — отрезок.', uz: "Nol uch — to'g'ri chiziq, bir — nur, ikki — kesma." }
+      on_wrong: { ru: 'Три, треугольник, четыре, четырёхугольник, шесть, шестиугольник.', uz: "Uch, uchburchak, to'rt, to'rtburchak, olti, oltiburchak." }
     }
   },
 
-  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: ko'pburchaklar)
+  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: uzunlik o'lchash)
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты различаешь прямую, луч и отрезок!', uz: "Endi siz to'g'ri chiziq, nur va kesmani ajratasiz!" },
+    cando: { ru: 'Теперь ты узнаёшь многоугольники по числу сторон!', uz: "Endi siz ko'pburchaklarni tomonlar soniga qarab tanisiz!" },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай концы!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Uchlarni sanang!" },
+    rule_recap: { ru: 'Считай стороны: 3 — треугольник, 4 — четырёхугольник, 5 — пятиугольник, 6 — шестиугольник.', uz: "Tomonlarni sanang: 3 — uchburchak, 4 — to'rtburchak, 5 — beshburchak, 6 — oltiburchak." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'точка и линия', uz: "nuqta va chiziq" },
+    conn_refs: { ru: 'линия и отрезок', uz: "chiziq va kesma" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: многоугольники', uz: "keyingi: ko'pburchaklar" },
+    conn_next: { ru: 'дальше: измерение длины', uz: "keyingi: uzunlik o'lchash" },
     audio: {
-      ru: 'Миссия выполнена. Мы научились различать линии по концам. У прямой концов нет, у луча один конец, у отрезка два конца. На спутнике Урана экипаж начертил линии для станции. Дальше научимся узнавать многоугольники.',
-      uz: "Missiya bajarildi. Chiziqlarni uchlari bo'yicha ajratishni o'rgandik. To'g'ri chiziqning uchi yo'q, nurning bitta uchi, kesmaning ikki uchi bor. Uran yo'ldoshida ekipaj stansiya uchun chiziqlar chizdi. Keyin ko'pburchaklarni tanishni o'rganamiz."
+      ru: 'Миссия выполнена. Мы научились узнавать многоугольники по числу сторон. Три стороны, треугольник, четыре, четырёхугольник, пять, пятиугольник, шесть, шестиугольник. На спутнике Урана экипаж собрал панели станции. Дальше научимся измерять длину в сантиметрах и метрах.',
+      uz: "Missiya bajarildi. Ko'pburchaklarni tomonlar soniga qarab tanishni o'rgandik. Uchta tomon, uchburchak, to'rtta, to'rtburchak, beshta, beshburchak, oltita, oltiburchak. Uran yo'ldoshida ekipaj stansiya panellarini yig'di. Keyin uzunlikni santimetr va metrda o'lchashni o'rganamiz."
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Начнём с прямой линии.', uz: "To'g'ri chiziqdan boshlaymiz." },
-  s2:  { ru: 'Теперь луч.', uz: "Endi nur." },
-  s3:  { ru: 'Как различить линии?', uz: "Chiziqlarni qanday ajratamiz?" },
-  s4:  { ru: 'И наконец отрезок.', uz: "Va nihoyat kesma." },
-  sTBL: { ru: 'Запомним ключ по концам.', uz: 'Uchlar kalitini yodlaymiz.' },
-  s5:  { ru: 'Теперь узнавай линии сам.', uz: "Endi chiziqlarni o'zingiz taning." },
-  s6:  { ru: 'Считай концы.', uz: "Uchlarni sanang." },
-  s7:  { ru: 'Найди линию в жизни.', uz: "Hayotda chiziqni toping." },
-  s8:  { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-  s9:  { ru: 'Снова считай концы.', uz: "Yana uchlarni sanang." },
-  s10: { ru: 'Ещё раз — в жизни.', uz: "Yana — hayotda." },
+  s1:  { ru: 'Что такое многоугольник?', uz: "Ko'pburchak nima?" },
+  s2:  { ru: 'Как назвать фигуру?', uz: "Shaklni qanday nomlaymiz?" },
+  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
+  s4:  { ru: 'А что не многоугольник?', uz: "Nima ko'pburchak emas?" },
+  sTBL: { ru: 'Запомним ключ по сторонам.', uz: 'Tomonlar kalitini yodlaymiz.' },
+  s5:  { ru: 'Теперь узнавай фигуры сам.', uz: "Endi shakllarni o'zingiz taning." },
+  s6:  { ru: 'Считай стороны.', uz: "Tomonlarni sanang." },
+  s7:  { ru: 'Соедини фигуры с именами.', uz: "Shakllarni nomlariga ulang." },
+  s8:  { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
+  s9:  { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" },
+  s10: { ru: 'Ещё раз соедини.', uz: "Yana ulang." },
   s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Экипаж чертит линии.', uz: "Ekipaj chiziqlar chizadi." },
+  s12: { ru: 'Экипаж собирает щит.', uz: "Ekipaj qalqon yig'adi." },
   s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
   s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Кристаллы разъехались по вагонеткам!', uz: "Kristallar vagonchalarga taqsimlandi!" }
+  s15: { ru: 'Панели собраны в щит станции!', uz: "Panellardan stansiya qalqoni yig'ildi!" }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'На спутнике Урана экипаж начертил прямые, лучи и отрезки для станции. Линии различены! Спасибо за помощь.',
-  uz: "Uran yo'ldoshida ekipaj stansiya uchun to'g'ri chiziq, nur va kesmalar chizdi. Chiziqlar ajratildi! Yordamingiz uchun rahmat."
+  ru: 'На спутнике Урана экипаж собрал из панелей треугольники, четырёхугольники и пятиугольники для станции. Фигуры узнаны! Спасибо за помощь.',
+  uz: "Uran yo'ldoshida ekipaj stansiya uchun panellardan uchburchak, to'rtburchak va beshburchaklar yig'di. Shakllar tanildi! Yordamingiz uchun rahmat."
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
@@ -1349,7 +1351,7 @@ const ICON = {
   star: <g><path d="M20 3 L24.9 14.7 L37.5 15.8 L28 24.2 L30.9 36.5 L20 29.8 L9.1 36.5 L12 24.2 L2.5 15.8 L15.1 14.7 Z" fill="url(#g1starG)" stroke="#E0992A" strokeWidth="0.8" strokeLinejoin="round"/><path d="M20 9 L22.4 15.4 L20 20 L17.6 15.4 Z" fill="rgba(255,255,255,0.38)"/></g>,
   fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
   flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
-  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
+  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#fe5b1a"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#fe5b1a"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
   cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
@@ -1410,7 +1412,7 @@ const BitSVG = ({ state = 'present', className = '' }) => (
     {/* antenna */}
     <g className="g1-bit-ant">
       <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round"/>
-      <circle cx="60" cy="11" r="6" fill="#FF4F28"/>
+      <circle cx="60" cy="11" r="6" fill="#fe5b1a"/>
       <circle cx="58" cy="9" r="2" fill="#FFB9A6"/>
     </g>
     {/* oyoqchalar */}
@@ -1536,7 +1538,7 @@ const D2Defs = () => (
       <linearGradient id="d2rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#E7DCC6"/><stop offset="45%" stopColor="#F1E9D9"/><stop offset="55%" stopColor="#F6F0E2"/><stop offset="100%" stopColor="#E7DCC6"/></linearGradient>
       <radialGradient id="d2space" cx="50%" cy="45%" r="70%"><stop offset="0%" stopColor="#2E4B7C"/><stop offset="100%" stopColor="#16294C"/></radialGradient>
       <linearGradient id="d2rocket" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#AFC2D0"/><stop offset="45%" stopColor="#F4F8FB"/><stop offset="100%" stopColor="#9EB2C0"/></linearGradient>
-      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28"/></linearGradient>
+      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a"/></linearGradient>
       <linearGradient id="d2planet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5C7CB0"/><stop offset="100%" stopColor="#2C3E68"/></linearGradient>
       <linearGradient id="d2ship" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8CA0B8"/><stop offset="45%" stopColor="#C6D6E4"/><stop offset="100%" stopColor="#5E718C"/></linearGradient>
     </defs>
@@ -2361,7 +2363,7 @@ const NumberLine = () => {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 'min(320px, 96%)', height: 'auto' }} aria-hidden="true">
       <line x1={x(0)} y1={y} x2={x(max)} y2={y} stroke={T.ink3} strokeWidth="2"/>
-      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round"/>
+      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round"/>
       <line x1={x(30)} y1={y} x2={x(34)} y2={y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round"/>
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -2881,7 +2883,7 @@ const Screen1 = (props) => {
   return (
     <TeachStage props={props} cKey="s1" body={c.body} info={c.info}
       figure={() => (
-        <LineFig type="line"/>
+        <div style={{ width: 'clamp(120px,32vw,180px)', margin: '0 auto' }}><PolyFig sides={5} hi max={180}/></div>
       )}
     />
   );
@@ -2965,7 +2967,7 @@ const Screen2 = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(200px, 46vw, 280px)' }}>
-          <LineFig type="ray" hi={reveal >= 2}/>
+          <div style={{ width: 'clamp(120px,32vw,180px)' }}><PolyFig sides={4} hi={reveal >= 2} max={180}/></div>
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3006,12 +3008,12 @@ const Screen3 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -12, left: 16, background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(11px,1.7vw,13px)', letterSpacing: '.04em', padding: '3px 12px', borderRadius: 999 }}>{lang === 'uz' ? 'QOIDA' : 'ПРАВИЛО'}</span>
           <p style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(15px,2.3vw,19px)', color: T.ink, lineHeight: 1.5 }}>{t(c.rule)}</p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <LineFig type="line" hi={done}/>
+          <div style={{ width: 'clamp(110px,28vw,160px)' }}><PolyFig sides={5} hi={done} max={160}/></div>
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
@@ -3060,7 +3062,7 @@ const CodeTablo = ({ tens, ones, tensLabel, onesLabel, emph = null, name = null 
 // emph — dual-coding (audio aytayotgan razryadni yoritadi). showEq — 45 = 40 + 5.
 // ============================================================
 const OmborKasseta = () => (
-  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#FF4F28)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
+  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#fe5b1a)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
     {[0, 1, 2, 3, 4].map(i => <div key={i} style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.55)' }}/>)}
   </div>
 );
@@ -3088,13 +3090,13 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px,2.2vw,14px)', width: 'min(400px,98%)' }}>
-      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#FF4F28', '#FFE8E1', oHi, tHi, 'ten')}
+      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#fe5b1a', '#FFE8E1', oHi, tHi, 'ten')}
       {shelf(Array.from({ length: ones }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><BatterySvg className="d2-battsvg-btn"/></span>), onesCap, ones, onesLabel, '#019ACB', '#E1F3FB', tHi, oHi, 'one')}
       {showEq && (
         <div className="fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px,1.6vw,10px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,5vw,32px)', marginTop: 2 }}>
           <span style={{ color: T.ink }}>{total}</span>
           <span style={{ color: T.ink3 }}>=</span>
-          <span style={{ color: '#FF4F28' }}>{tens * 10}</span>
+          <span style={{ color: '#fe5b1a' }}>{tens * 10}</span>
           <span style={{ color: T.ink3 }}>+</span>
           <span style={{ color: '#019ACB' }}>{ones}</span>
         </div>
@@ -3106,7 +3108,7 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
 // ============================================================
 // FuelTank + TankCompare — Dars04 star-vizual: ikki quvvat bloki (son + to'lish darajasi:
 // katta son = to'laroq -> taqqoslash intuitsiyasi). O'rtada > < = belgi sloti.
-// Raqamlar rang-kodli: o'nlik #FF4F28 (sariq-qizil), birlik #019ACB (ko'k).
+// Raqamlar rang-kodli: o'nlik #fe5b1a (sariq-qizil), birlik #019ACB (ko'k).
 // ============================================================
 const FuelTank = ({ code, emph = false, dim = false, emphDigit = null }) => {
   const tens = Math.floor(code / 10), ones = code % 10;
@@ -3204,8 +3206,8 @@ const NumTrack = ({ value, answer = null, max = 100, emphTens = false }) => {
         {Array.from({ length: max + 1 }).map((_, n) => (n % 10 !== 0 ? <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -4, width: n % 5 === 0 ? 2 : 1.3, height: n % 5 === 0 ? 16 : 12, background: n % 5 === 0 ? '#8A98A6' : '#AEABA3', borderRadius: 1 }}/> : null))}
         {tens.map((n) => (
           <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -9, transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: 3, height: 23, background: emphTens ? '#FF4F28' : '#5E6B78', borderRadius: 2 }}/>
-            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#FF4F28' : T.ink2 }}>{n}</span>
+            <div style={{ width: 3, height: 23, background: emphTens ? '#fe5b1a' : '#5E6B78', borderRadius: 2 }}/>
+            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#fe5b1a' : T.ink2 }}>{n}</span>
           </div>
         ))}
         <div style={{ position: 'absolute', left: `${pct}%`, top: '50%', transform: 'translate(-50%,-50%)', width: 'clamp(14px,3vw,18px)', height: 'clamp(14px,3vw,18px)', borderRadius: '50%', background: shown ? T.success : T.accent, border: '3px solid #fff', boxShadow: `0 0 0 3px ${shown ? T.successSoft : T.accentSoft}`, zIndex: 2 }}/>
@@ -3256,12 +3258,12 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#FF4F28', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
       <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 3, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{bu}</span>
       <span style={{ gridColumn: '1 / 4', gridRow: 4, height: 3, background: T.ink, borderRadius: 2, margin: '3px 0' }}/>
       <span style={{ gridColumn: 2, gridRow: 5, display: 'flex', justifyContent: 'center' }}>{resTens}</span>
@@ -3292,7 +3294,7 @@ const RazryadBreak = ({ a, b }) => {
       <div key={i} className="fade-up" style={{ ...RB_ROW, animationDelay: `${0.15 + i * 0.25}s` }}>
         <span style={{ fontSize: 'clamp(28px,6vw,40px)', color: T.ink, minWidth: 'clamp(44px,10vw,60px)', textAlign: 'right' }}>{n}</span>
         <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink3 }}>=</span>
-        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #FF4F28', color: '#FF4F28' }}>{tens}</span>
+        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #fe5b1a', color: '#fe5b1a' }}>{tens}</span>
         <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink2 }}>+</span>
         <span style={{ ...RB_CHIP, background: '#E9F7FC', border: '2px solid #019ACB', color: '#019ACB' }}>{units}</span>
       </div>
@@ -3303,7 +3305,7 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#FF4F28' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
         <span style={{ color: T.ink3 }}>, </span>
         <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
       </p>
@@ -3388,7 +3390,7 @@ const CargoBase = ({ w }) => (
     <circle cx="103" cy="68" r="3.2" fill="#FF6A3D" opacity="0.7"/>
     {/* bayroq (chapda) */}
     <line x1="26" y1="86" x2="26" y2="60" stroke="#C3CDDC" strokeWidth="2.6"/>
-    <path d="M26 60 L26 73 L44 66.5 Z" fill="#FF4F28"/>
+    <path d="M26 60 L26 73 L44 66.5 Z" fill="#fe5b1a"/>
   </svg>
 );
 // Mars osmoni/sirti elementlari — real-hayotiy sahnasi uchun.
@@ -3456,7 +3458,7 @@ const MarsBase = ({ answer = null }) => {
       <div style={{ position: 'absolute', right: '11%', bottom: '28%', transform: 'translateX(50%)', width: 'clamp(58px,14.5vw,90px)', zIndex: 4 }}><LandedRocket w="100%"/></div>
       {/* konteynerlar (o'rtada, yerda) */}
       <div style={{ position: 'absolute', left: '48%', bottom: '17%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 'clamp(5px,1.4vw,10px)', zIndex: 5 }}>
-        <CargoCrate n={34} ca="#FF9166" cb="#FF4F28" br="#C1381A"/>
+        <CargoCrate n={34} ca="#FF9166" cb="#fe5b1a" br="#C1381A"/>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(18px,3.6vw,26px)', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>+</span>
         <CargoCrate n={25} ca="#33B8E3" cb="#019ACB" br="#0B7BA3"/>
       </div>
@@ -3507,9 +3509,9 @@ const Screen4 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 2vw, 17px)', textAlign: 'center', lineHeight: 1.55 }}>{t(c.body)}</p>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <LineFig type="segment" hi={done}/>
+          <div style={{ width: 'clamp(96px,26vw,140px)' }}><PolyFig sides={0} max={140}/></div>
         </div>
-        <div className="fade-up" style={{ background: '#FBEEEE', border: '2px solid #D64545', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(214,69,69,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#B23A3A', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
+        <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
           {c.opts.map((o, i) => (
@@ -3568,7 +3570,7 @@ const HatchDoor = ({ outerOpen, innerOpen, wrong }) => {
           </g>
         </g>
         <rect x="66" y="90" width="28" height="12" rx="6" fill="#EDE4D2" stroke="#C9BDA4" strokeWidth="1.5"/>
-        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#D64545'} style={{ transition: 'fill 0.3s' }}/>
+        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#fe5b1a'} style={{ transition: 'fill 0.3s' }}/>
       </svg>
     </div>
   );
@@ -3649,11 +3651,11 @@ const Screen5 = (props) => {
               <div className="d2-hatchtablo">
                 <span className="mono" style={{ fontSize: 'clamp(9px, 1.3vw, 11px)', fontWeight: 800, letterSpacing: '0.14em', color: T.ink3, textTransform: 'uppercase' }}>{lang === 'uz' ? 'Kod tablosi' : 'Табло кода'}</span>
                 <p className="mono" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px, 1.9vw, 15px)', textAlign: 'center' }}>{t(roundIdx === 0 ? c.round1 : c.round2)}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#D64545' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#fe5b1a' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderRight: `1px solid ${T.ink3}`, borderBottom: `1px solid ${T.ink3}` }}>{t(c.tens_label)}</div>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderBottom: `1px solid ${T.ink3}` }}>{t(c.ones_label)}</div>
                   {[0, 1].map(si => (
-                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#FF4F28' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
+                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#fe5b1a' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
                   ))}
                 </div>
               </div>
@@ -3709,7 +3711,7 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
         </g>
       )}
       <line x1={nlx(0)} y1={NL_y} x2={nlx(NL_max)} y2={NL_y} stroke={T.ink3} strokeWidth="2"/>
-      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
+      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {!asking && pos > 30 && <line x1={nlx(30)} y1={NL_y} x2={nlx(pos)} y2={NL_y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -3719,8 +3721,8 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
       ))}
       {!asking && [[0, 10], [10, 20], [20, 30]].map(([a, b], i) => (
         <g key={i} style={{ opacity: phase >= 1 ? 1 : 0, transition: `opacity 0.4s ${i * 0.35}s` }}>
-          <path d={arc(a, b, 30)} fill="none" stroke="#FF4F28" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
-          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#FF4F28" fontFamily="'JetBrains Mono', monospace">+10</text>
+          <path d={arc(a, b, 30)} fill="none" stroke="#fe5b1a" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
+          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#fe5b1a" fontFamily="'JetBrains Mono', monospace">+10</text>
         </g>
       ))}
       {!asking && [30, 31, 32, 33].map((a, i) => (
@@ -3834,13 +3836,13 @@ const Screen7 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
             {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#FF4F28' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             ) : (
-              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#FF4F28' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
             )}
           </p>
         </div>
@@ -3860,7 +3862,7 @@ const Screen7 = (props) => {
             {S7_CHECK.map((d, pos) => (
               <button key={pos} className="option" disabled={!canAct || checkOk} onClick={() => tapDigit(pos)}
                 style={{ width: 'clamp(54px, 12vw, 68px)', height: 'clamp(60px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(32px, 7vw, 44px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-                         color: checkOk ? (pos === 0 ? '#FF4F28' : '#019ACB') : T.ink,
+                         color: checkOk ? (pos === 0 ? '#fe5b1a' : '#019ACB') : T.ink,
                          borderColor: checkOk && pos === 0 ? T.success : undefined }}>{d}</button>
             ))}
           </div>
@@ -4415,7 +4417,7 @@ const HeroShip = () => (
       <radialGradient id="hsGlass" cx="38%" cy="30%" r="75%"><stop offset="0%" stopColor="#EAFCFF"/><stop offset="45%" stopColor="#5FC0DE"/><stop offset="100%" stopColor="#245C74"/></radialGradient>
       <linearGradient id="hsFin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#B9C7D4"/><stop offset="100%" stopColor="#66727F"/></linearGradient>
       <linearGradient id="hsNoz" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3A4652"/><stop offset="55%" stopColor="#8A97A4"/><stop offset="100%" stopColor="#4A5662"/></linearGradient>
-      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28" stopOpacity="0"/></linearGradient>
+      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a" stopOpacity="0"/></linearGradient>
     </defs>
     {/* ikkala dvigatel alangasi (ikki turbina) */}
     <g style={{ animation: 'g1pulse 0.32s ease-in-out infinite', transformBox: 'fill-box', transformOrigin: 'left center' }}>
@@ -4563,8 +4565,8 @@ const d8BuildTiles = (st, su, seed) => {
   return d8Shuffle([...need, ...dist], seed).map((d, i) => ({ id: `${seed}-${i}`, d }));
 };
 const D8DropSlot = React.forwardRef(({ digit, color, state, onClear }, ref) => {
-  const border = state === 'ok' ? T.success : state === 'wrong' ? '#D64545' : state === 'filled' ? color : '#A7A6A2';
-  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FBEEEE' : '#ffffff';
+  const border = state === 'ok' ? T.success : state === 'wrong' ? '#fe5b1a' : state === 'filled' ? color : '#A7A6A2';
+  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FFF1EA' : '#ffffff';
   const clickable = digit != null && state !== 'ok';
   return (
     <span ref={ref} onClick={clickable ? onClear : undefined} className={state === 'ok' ? 'g1-pop-in' : ''}
@@ -4698,7 +4700,7 @@ const DropColumnStage = ({ props, cKey, fact = false }) => {
     : reveal >= 2
       ? { ru: `Десятки: ${at} + ${bt} = ${st}`, uz: `O'nliklar: ${at} + ${bt} = ${st}` }
       : null;
-  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#FF4F28" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
+  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#fe5b1a" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
   const resUnits = <D8DropSlot ref={unitsRef} digit={digitOf('units')} color="#019ACB" state={slotState('units', digitOf('units'))} onClear={() => clearSlot('units')}/>;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -4782,7 +4784,7 @@ const ArrayViz = ({ r, c, reveal = 0, variant = 'geo' }) => {
           </div>
         ))}
       </div>
-      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ряда по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
+      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ${r === 1 ? 'ряд' : r < 5 ? 'ряда' : 'рядов'} по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
       {reveal >= 2 && (
         <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(3px,1vw,6px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(16px,3.2vw,23px)' }}>
           {Array.from({ length: r }).map((_, i) => (<React.Fragment key={i}>{i > 0 && <span style={{ color: T.ink3 }}>+</span>}<span style={{ color: '#2E9B4E' }}>{c}</span></React.Fragment>))}
@@ -5095,7 +5097,7 @@ const DealStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5178,7 +5180,7 @@ const ArrayRevStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5267,7 +5269,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi — o'quvchi hali jadvalni bilmaydi, ochib ishlata oladi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5463,7 +5465,7 @@ const DivTableFillStage = ({ props, cKey }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5565,7 +5567,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5693,7 +5695,7 @@ const MatchStage = ({ props, cKey }) => {
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink, cursor: 'grab' };
   const rightStyle = (pos) => { const fam = order[pos]; return matched.has(fam)
     ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, color: T.success, cursor: 'default' }
-    : wrongPos === pos ? { ...MCELL, background: '#FBEEEE', border: '2.5px solid #D64545', color: '#B23A3A' }
+    : wrongPos === pos ? { ...MCELL, background: '#FFF1EA', border: '2.5px solid #fe5b1a', color: '#fe5b1a' }
     : drag && drag.hover === pos ? { ...MCELL, background: T.accentSoft, border: `2.5px dashed ${T.accent}`, color: T.ink }
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink }; };
   // PIKSEL geometriya (viewBox = konteyner o'lchami → doiralar dumaloq, sim tabiiy)
@@ -5847,119 +5849,74 @@ const OpChoiceStage = ({ props, cKey, fact = false }) => {
 };
 // ============================================================
 // Dars26 MEXANIKA — CHIZIQ TURLARI (Van Hiele 0→1): nur/to'g'ri chiziq/kesma UCH SONI bo'yicha.
-//  LineFig — abstrakt figura (to'g'ri chiziq: 2 strelka, 0 uch; nur: 1 uch + 1 strelka; kesma: 2 uch).
-//  RealObj — hayotiy langar (ufq chizig'i=chiziq, fonar nuri=nur, qalam=kesma).
-//  LineTypeStage — figurani ko'rsatib «qaysi tur?» (ask:'type') yoki «nechta uchi?» (ask:'count') MC.
+//  PolyFig — muntazam ko'pburchak (sides>=3: tomonlar+yashil uch-nuqta; sides=0: doira; sides=-1: ochiq siniq chiziq).
+//  PolyTypeStage — ko'pburchakni ko'rsatib «qaysi tur?» (name) / «nechta tomon?» (count) / «ko'pburchakmi?» (ispoly) MC.
+//  PolyMatchStage — shaklni nomiga elastik-sim bilan DRAG-moslash (Dars20 meros); MatchDoor lyuk ochiladi.
 // ============================================================
-const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq" }, ray: { ru: 'Луч', uz: 'Nur' }, segment: { ru: 'Отрезок', uz: 'Kesma' } };
-const LT_ENDS = { line: 0, ray: 1, segment: 2 };
-// Uchlarni porlaydigan yashil doira, strelka — accent. Chiziq — Uran moviy.
-const LineEnd = ({ x, y, big }) => (
+const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak" }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak' } };
+// PolyFig — muntazam ko'pburchak (tomonlar to'g'ri kesma, burchaklar=yashil nuqta); sides=0 → doira (ko'pburchak EMAS), sides=-1 → ochiq siniq chiziq (yopilmagan).
+const PolyVert = ({ x, y, big }) => (
   <g>
-    <circle cx={x} cy={y} r={big ? 7.4 : 6} fill="url(#d26end)" stroke="#fff" strokeWidth="1.5"/>
-    <circle cx={x - 2} cy={y - 2.2} r={big ? 2.3 : 1.8} fill="rgba(255,255,255,0.8)"/>
+    <circle cx={x} cy={y} r={big ? 6.8 : 5.4} fill="url(#d27vert)" stroke="#fff" strokeWidth="1.4"/>
+    <circle cx={x - 1.8} cy={y - 1.9} r={big ? 2.1 : 1.6} fill="rgba(255,255,255,0.8)"/>
   </g>
 );
-const LineFig = ({ type, hi = false }) => {
-  const y = 32;
-  const x1 = type === 'line' ? 18 : 46;
-  const x2 = type === 'segment' ? 174 : 202;
+const PolyDefs = () => (
+  <defs>
+    <linearGradient id="d27top" x1="0.15" y1="0" x2="0.75" y2="1"><stop offset="0" stopColor="#F2FCFE"/><stop offset="0.45" stopColor="#B9E4EE"/><stop offset="1" stopColor="#6FB2C2"/></linearGradient>
+    <linearGradient id="d27side" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#3E7C8C"/><stop offset="1" stopColor="#183A46"/></linearGradient>
+    <radialGradient id="d27vert" cx="0.35" cy="0.3"><stop offset="0" stopColor="#8FF0BC"/><stop offset="0.5" stopColor="#2E9A62"/><stop offset="1" stopColor="#14603A"/></radialGradient>
+    <linearGradient id="d27gloss" x1="0" y1="0" x2="0.6" y2="1"><stop offset="0" stopColor="rgba(255,255,255,0.8)"/><stop offset="1" stopColor="rgba(255,255,255,0)"/></linearGradient>
+  </defs>
+);
+const PolyFig = ({ sides, hi = false, max = 176 }) => {
+  const cx = 60, cy = 56, r = 44, D = 8;
+  const box = { width: '100%', maxWidth: max, height: 'auto', display: 'block', overflow: 'visible' };
+  if (sides === 0) return ( // doira — hajmli disk (tomoni/burchagi yo'q)
+    <svg viewBox="0 0 120 124" style={box} aria-hidden="true"><PolyDefs/>
+      <circle cx={cx} cy={cy + D} r={r} fill="url(#d27side)"/>
+      <circle cx={cx} cy={cy} r={r} fill="url(#d27top)" stroke="#2E7C88" strokeWidth="3"/>
+      <ellipse cx={cx - 13} cy={cy - 16} rx={r * 0.5} ry={r * 0.28} transform={`rotate(-32 ${cx - 13} ${cy - 16})`} fill="url(#d27gloss)" opacity="0.6"/>
+    </svg>
+  );
+  if (sides === -1) { // ochiq siniq chiziq — 3D sterjen, yopilmagan
+    const pts = [[14, 84], [42, 26], [74, 78], [106, 30]];
+    const pl = pts.map((p) => p.join(',')).join(' ');
+    return (
+      <svg viewBox="0 0 120 124" style={box} aria-hidden="true"><PolyDefs/>
+        <polyline points={pts.map((p) => [p[0], p[1] + D].join(',')).join(' ')} fill="none" stroke="url(#d27side)" strokeWidth="9" strokeLinejoin="round" strokeLinecap="round"/>
+        <polyline points={pl} fill="none" stroke="#5FA8BC" strokeWidth="9" strokeLinejoin="round" strokeLinecap="round"/>
+        <polyline points={pl} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round"/>
+        {pts.map(([x, y], i) => <PolyVert key={i} x={x} y={y} big={hi}/>)}
+      </svg>
+    );
+  }
+  const verts = Array.from({ length: sides }, (_, i) => { const a = -Math.PI / 2 + (i * 2 * Math.PI) / sides; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; });
+  const d = verts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ') + ' Z';
   return (
-    <svg viewBox="0 0 220 72" style={{ width: '100%', maxWidth: 320, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
-      <defs>
-        <linearGradient id="d26rod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#9ECDF8"/><stop offset="0.34" stopColor="#3E7FD6"/><stop offset="1" stopColor="#1B4079"/></linearGradient>
-        <linearGradient id="d26cone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#8FC2F3"/><stop offset="1" stopColor="#1E4785"/></linearGradient>
-        <radialGradient id="d26end" cx="0.35" cy="0.3"><stop offset="0" stopColor="#8FF0BC"/><stop offset="0.5" stopColor="#2E9A62"/><stop offset="1" stopColor="#14603A"/></radialGradient>
-      </defs>
-      {/* CHIZIQ — 3D silindr-sterjen */}
-      <rect x={x1} y={y - 5} width={x2 - x1} height="10" rx="5" fill="url(#d26rod)"/>
-      <rect x={x1 + 3} y={y - 3.4} width={Math.max(0, x2 - x1 - 6)} height="2.8" rx="1.4" fill="rgba(255,255,255,0.55)"/>
-      {/* STRELKALAR — 3D konus (cheksizlik) */}
-      {type !== 'segment' && <g><path d={`M${x2} ${y - 10} L${x2 + 15} ${y} L${x2} ${y + 10} Z`} fill="url(#d26cone)"/><path d={`M${x2} ${y - 10} L${x2 + 15} ${y} L${x2} ${y} Z`} fill="rgba(255,255,255,0.28)"/></g>}
-      {type === 'line' && <g><path d={`M${x1} ${y - 10} L${x1 - 15} ${y} L${x1} ${y + 10} Z`} fill="url(#d26cone)"/><path d={`M${x1} ${y - 10} L${x1 - 15} ${y} L${x1} ${y} Z`} fill="rgba(255,255,255,0.28)"/></g>}
-      {/* UCHLAR — 3D shar (sanaladigan) */}
-      {(type === 'ray' || type === 'segment') && <LineEnd x={46} y={y} big={hi}/>}
-      {type === 'segment' && <LineEnd x={174} y={y} big={hi}/>}
+    <svg viewBox="0 0 120 124" style={box} aria-hidden="true"><PolyDefs/>
+      {/* yon yuz (qalinlik) */}
+      <path d={d} transform={`translate(0 ${D})`} fill="url(#d27side)"/>
+      {/* ustki yuz */}
+      <path className={hi ? 'g1-pop-in' : ''} d={d} fill="url(#d27top)" stroke="#2E7C88" strokeWidth="3" strokeLinejoin="round"/>
+      {/* qirra yorug'i */}
+      <path d={d} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinejoin="round" transform="translate(0 -1.3)"/>
+      {/* BURCHAKLAR — 3D shar (sanaladigan) */}
+      {verts.map(([x, y], i) => <PolyVert key={i} x={x} y={y} big={hi}/>)}
     </svg>
   );
 };
-// Hayotiy langar: horizon=ufq chizig'i (chiziq), beam=fonar nuri (nur), edge=qalam (kesma).
-const RealObj = ({ kind }) => {
-  if (kind === 'horizon') return ( // UFQ CHIZIG'I — yo'ldosh ufqi: butun kadr bo'ylab, ikki chetdan tashqariga chiqadi; uchi YO'Q (to'g'ri chiziq)
-    <svg viewBox="0 0 220 68" style={{ width: '100%', maxWidth: 320, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
-      <defs>
-        <linearGradient id="d26sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#081620"/><stop offset="1" stopColor="#1C4553"/></linearGradient>
-        <linearGradient id="d26ice" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#63808E"/><stop offset="0.5" stopColor="#3C4E5A"/><stop offset="1" stopColor="#232F38"/></linearGradient>
-        <linearGradient id="d26hz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFFFFF"/><stop offset="0.45" stopColor="#8FE6EC"/><stop offset="1" stopColor="#2E7C88"/></linearGradient>
-        {/* haqiqiy bloom — chiziq atrofida yorug'lik yoyiladi (kuchli aksent) */}
-        <filter id="d26hzbloom" x="-6%" y="-400%" width="112%" height="900%">
-          <feGaussianBlur stdDeviation="4" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      {/* osmon */}
-      <rect x="0" y="0" width="220" height="37" fill="url(#d26sky)"/>
-      {[[18, 10], [46, 20], [78, 8], [112, 16], [150, 9], [184, 19], [206, 13], [64, 27], [132, 25], [96, 30]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i % 3 ? 0.9 : 1.5} fill="#DCEFF2" opacity="0.9"/>)}
-      {/* muzli tekislik */}
-      <rect x="0" y="37" width="220" height="31" fill="url(#d26ice)"/>
-      {/* ufq atrofidagi nur — uch qatlam, ko'zni shu joyga tortadi */}
-      <rect x="0" y="22" width="220" height="30" fill="rgba(127,216,222,0.16)"/>
-      <rect x="0" y="28" width="220" height="19" fill="rgba(127,216,222,0.26)"/>
-      <rect x="0" y="32" width="220" height="11" fill="rgba(184,242,250,0.34)"/>
-      {/* UFQ CHIZIG'I — KUCHLI AKSENT: bloom + porlash; butun kenglik bo'ylab, ikki chetdan tashqariga (uchi ko'rinmaydi) */}
-      <g filter="url(#d26hzbloom)">
-        <g className="d19-cryglow">
-          <rect x="0" y="32.6" width="220" height="8.4" fill="url(#d26hz)"/>
-          <rect x="0" y="33.4" width="220" height="3.2" fill="#FFFFFF"/>
-        </g>
-      </g>
-    </svg>
-  );
-  if (kind === 'beam') return ( // FONAR — real qo'l fonari; nur bir tomonga kengayib, uchsiz ketadi (nur)
-    <svg viewBox="0 0 220 68" style={{ width: '100%', maxWidth: 320, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
-      <defs>
-        <linearGradient id="d26fbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#78848F"/><stop offset="0.33" stopColor="#454F5A"/><stop offset="0.72" stopColor="#2A333C"/><stop offset="1" stopColor="#161D24"/></linearGradient>
-        <linearGradient id="d26fhead" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#A6B2BE"/><stop offset="0.42" stopColor="#5E6A76"/><stop offset="1" stopColor="#232B34"/></linearGradient>
-        <radialGradient id="d26flens" cx="0.42" cy="0.35"><stop offset="0" stopColor="#FFFDF0"/><stop offset="0.5" stopColor="#FFD86B"/><stop offset="1" stopColor="#B8871F"/></radialGradient>
-        <linearGradient id="d26fcone" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="rgba(255,226,146,0.9)"/><stop offset="1" stopColor="rgba(255,226,146,0.04)"/></linearGradient>
-      </defs>
-      <path d="M66 34 L216 6 L216 62 Z" fill="url(#d26fcone)"/>
-      <path d="M66 34 L216 17 L216 51 Z" fill="rgba(255,244,202,0.4)"/>
-      <rect x="4" y="26" width="34" height="17" rx="4" fill="url(#d26fbody)"/>
-      {[10, 15, 20, 25, 30].map((x) => <line key={x} x1={x} y1="27" x2={x} y2="42" stroke="rgba(255,255,255,0.16)" strokeWidth="1.6"/>)}
-      <rect x="36" y="24" width="16" height="21" rx="3" fill="url(#d26fhead)"/>
-      <path d="M52 20 L64 25 L64 44 L52 49 Z" fill="url(#d26fhead)"/>
-      <ellipse cx="64" cy="34.5" rx="3.6" ry="9.6" fill="url(#d26flens)"/>
-      <ellipse cx="63" cy="31" rx="1.4" ry="3" fill="rgba(255,255,255,0.85)"/>
-      <rect x="16" y="22" width="9" height="5" rx="2" fill="#C4402E"/>
-      <circle cx="66" cy="34" r="6" fill="#1F7A4D" stroke="#fff" strokeWidth="1.6"/>
-    </svg>
-  );
-  return ( // QALAM — ikki uchi bor, uzunligi o'lchanadi (kesma)
-    <svg viewBox="0 0 220 68" style={{ width: '100%', maxWidth: 320, height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
-      <defs>
-        <linearGradient id="d26pbody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#FFE79E"/><stop offset="0.34" stopColor="#F2C84B"/><stop offset="1" stopColor="#B0821B"/></linearGradient>
-        <linearGradient id="d26pwood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F5DCB0"/><stop offset="0.4" stopColor="#DBA96A"/><stop offset="1" stopColor="#956A34"/></linearGradient>
-        <linearGradient id="d26pfer" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#EDF2F7"/><stop offset="0.4" stopColor="#A8B4C0"/><stop offset="1" stopColor="#626D78"/></linearGradient>
-      </defs>
-      <path d="M44 34 L64 24 L64 44 Z" fill="url(#d26pwood)"/>
-      <path d="M44 34 L52.5 29.7 L52.5 38.3 Z" fill="#37373D"/>
-      <rect x="64" y="24" width="98" height="20" fill="url(#d26pbody)"/>
-      <rect x="64" y="26.4" width="98" height="4" fill="rgba(255,255,255,0.45)"/>
-      <rect x="64" y="39.4" width="98" height="3" fill="rgba(90,60,10,0.22)"/>
-      <rect x="162" y="23" width="14" height="22" fill="url(#d26pfer)"/>
-      {[165.5, 169, 172.5].map((x) => <line key={x} x1={x} y1="23" x2={x} y2="45" stroke="rgba(70,80,92,0.45)" strokeWidth="1"/>)}
-      <rect x="176" y="25" width="12" height="18" rx="4.5" fill="#E88AA0"/>
-      <circle cx="44" cy="34" r="6" fill="#1F7A4D" stroke="#fff" strokeWidth="1.6"/>
-      <circle cx="188" cy="34" r="6" fill="#1F7A4D" stroke="#fff" strokeWidth="1.6"/>
-    </svg>
-  );
-};
-const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?" };
-const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?" };
-const LT_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(14px,2.3vw,17px)', fontWeight: 800, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
-const ltShuffle3 = (seed) => { const a = ['line', 'ray', 'segment']; let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
-const LineTypeStage = ({ props, cKey, fact = false }) => {
+const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" };
+const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" };
+const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" };
+const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak" } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas" } }];
+const POLY_OPT = { padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(12px,1.9vw,15px)', fontWeight: 800, lineHeight: 1.15, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
+const NAME_POOL = { 3: [3, 4, 5], 4: [4, 3, 5], 5: [5, 4, 6], 6: [6, 5, 4] };
+const TOMON = { ru: 'стор.', uz: 'tomon' };
+// deterministik aralashtirish (render'da xavfsiz — Math.random yo'q)
+const polyShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
+// PolyTypeStage — ko'pburchakni ko'rsatib «qaysi tur?» (ask:'name') / «nechta tomon?» (ask:'count') / «ko'pburchakmi?» (ask:'ispoly') MC. round: {sides, ask?}.
+const PolyTypeStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
   const sfx = useSfx();
@@ -5970,7 +5927,8 @@ const LineTypeStage = ({ props, cKey, fact = false }) => {
   const meta = SCREEN_META[props.screen];
   const [ri, setRi] = useState(0);
   const cur = rounds[ri];
-  const type = cur.type, ask = cur.ask || 'type', kind = cur.kind;
+  const sides = cur.sides, ask = cur.ask || 'name';
+  const isPoly = sides >= 3;
   const [solved, setSolved] = useState(false);
   const [wrong, setWrong] = useState(() => new Set());
   const anyWrongRef = useRef(false);
@@ -5978,7 +5936,7 @@ const LineTypeStage = ({ props, cKey, fact = false }) => {
   const allDone = solved && isLast;
   const revealRef = useRevealScroll(solved, 400);
   const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
-  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `linetype:${type}:${ask}`, options: [], correctIndex: -1, correctAnswer: ask === 'count' ? String(LT_ENDS[type]) : type, studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; const ca = ask === 'count' ? String(sides) : ask === 'ispoly' ? (isPoly ? 'poly' : 'no') : `poly${sides}`; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `poly:${sides}:${ask}`, options: [], correctIndex: -1, correctAnswer: ca, studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
   const hit = (ok, key) => {
     if (!canAct || solved || wrong.has(key)) return;
     if (ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
@@ -5986,8 +5944,9 @@ const LineTypeStage = ({ props, cKey, fact = false }) => {
   };
   const canAdv = useAdvanceGate(allDone, audio);
   const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
-  const order = ltShuffle3(ri * 3 + 1);
-  const countOpts = [0, 1, 2, 3];
+  const nameOrder = polyShuffle(NAME_POOL[isPoly ? sides : 4], ri * 3 + 1);
+  const countOpts = [3, 4, 5, 6];
+  const questionText = ask === 'count' ? POLY_COUNT_Q : ask === 'ispoly' ? POLY_ISPOLY_Q : POLY_NAME_Q;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
@@ -6001,20 +5960,24 @@ const LineTypeStage = ({ props, cKey, fact = false }) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
         {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
-        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(120px,26vw,170px)', justifyContent: 'center' }}>
-          {kind ? <RealObj kind={kind}/> : <LineFig type={type} hi={solved}/>}
-          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{t(LINE_TYPES[type])} · {LT_ENDS[type]} {lang === 'uz' ? 'uch' : 'конца'}</div>}
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px,32vw,210px)', justifyContent: 'center' }}>
+          <div style={{ width: 'clamp(94px,26vw,150px)' }}><PolyFig sides={sides} hi={solved} max={150}/></div>
+          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas" })}</div>}
         </div>
         {!solved && (
           <>
-            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(ask === 'count' ? LT_COUNT_Q : LT_TYPE_Q)}</p>
+            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(questionText)}</p>
             {ask === 'count' ? (
               <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
-                {countOpts.map((v) => { const w = wrong.has('c' + v); return <button key={v} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(v === LT_ENDS[type], 'c' + v)} style={{ ...ARR_OPT }}>{v}</button>; })}
+                {countOpts.map((v) => { const w = wrong.has('c' + v); return <button key={v} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(v === sides, 'c' + v)} style={{ ...ARR_OPT }}>{v}</button>; })}
+              </div>
+            ) : ask === 'ispoly' ? (
+              <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(6px,1.4vw,9px)' }}>
+                {POLY_YESNO.map((o) => { const w = wrong.has('p' + o.v); return <button key={String(o.v)} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(o.v === isPoly, 'p' + o.v)} style={POLY_OPT}>{t(o.label)}</button>; })}
               </div>
             ) : (
               <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'clamp(6px,1.4vw,9px)' }}>
-                {order.map((ty) => { const w = wrong.has(ty); return <button key={ty} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(ty === type, ty)} style={LT_OPT}>{t(LINE_TYPES[ty])}</button>; })}
+                {nameOrder.map((s) => { const w = wrong.has('n' + s); return <button key={s} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(s === sides, 'n' + s)} style={POLY_OPT}>{t(POLY_NAMES[s])}</button>; })}
               </div>
             )}
           </>
@@ -6027,16 +5990,160 @@ const LineTypeStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-// Dars26 wrapper'lari — chiziq turlari (LineTypeStage: figura/hayotiy langar, «tur?»/«nechta uch?» aralash).
-const A5 = (props) => <LineTypeStage props={props} cKey="s5"/>;
-const A6 = (props) => <LineTypeStage props={props} cKey="s6"/>;
-const A7 = (props) => <LineTypeStage props={props} cKey="s7"/>;
-const A8 = (props) => <LineTypeStage props={props} cKey="s8"/>;
-const A9 = (props) => <LineTypeStage props={props} cKey="s9"/>;
-const A10 = (props) => <LineTypeStage props={props} cKey="s10"/>;
-const A11 = (props) => <LineTypeStage props={props} cKey="s11"/>;
-const ACase = (props) => <LineTypeStage props={props} cKey="s13"/>;
-const A14 = (props) => <LineTypeStage props={props} cKey="s14" fact/>;
+// PolyMatchStage — shaklni uning NOMIga elastik-sim bilan sudrab MOSLASH (drag). MatchDoor lyuk ochiladi. c.pairs=[{sides},...] (turli tomon soni).
+const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi" };
+// SwipeHand — shaklni nomiga sudrash ishorasi (bolaga vizual ko'rsatma)
+const SwipeHand = () => (
+  <svg viewBox="0 0 44 54" style={{ width: 'clamp(30px,7vw,40px)', height: 'auto', display: 'block', filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.35))' }} aria-hidden="true">
+    <path d="M17 25 V9 a4 4 0 0 1 8 0 V23 h3 a4 4 0 0 1 4 4 v1 h3 a3.6 3.6 0 0 1 3.6 3.6 v8 a12 12 0 0 1 -12 12 h-4 a12 12 0 0 1 -9.4 -4.6 L4 33 a4.2 4.2 0 0 1 6.6 -5.2 L17 33 Z" fill="#fff" stroke="#2b2b2b" strokeWidth="2.2" strokeLinejoin="round"/>
+  </svg>
+);
+const PolyMatchStage = ({ props, cKey }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const fams = c.pairs;
+  const n = fams.length;
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const order = React.useMemo(() => shuffleArr(fams.map((_, i) => i)), [cKey]); // o'ng ustun: right[pos] = shakl indeksi
+  const [matched, setMatched] = useState(() => new Set());
+  const [wrongPos, setWrongPos] = useState(null);
+  const [drag, setDrag] = useState(null);
+  const dragRef = useRef(null);
+  const boxRef = useRef(null);
+  const rightRefs = useRef([]);
+  const anyWrongRef = useRef(false);
+  const reportedRef = useRef(false);
+  const tmr = useRef(null);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  useEffect(() => () => clearTimeout(tmr.current), []);
+  useEffect(() => {
+    const el = boxRef.current; if (!el) return;
+    const measure = () => { const r = el.getBoundingClientRect(); setBox({ w: r.width, h: r.height }); };
+    measure();
+    if (typeof ResizeObserver !== 'undefined') { const ro = new ResizeObserver(measure); ro.observe(el); return () => ro.disconnect(); }
+    window.addEventListener('resize', measure); return () => window.removeEventListener('resize', measure);
+  }, []);
+  const solved = matched.size === n;
+  const revealRef = useRevealScroll(solved, 400);
+  useEffect(() => {
+    if (solved && !reportedRef.current) {
+      reportedRef.current = true;
+      if (meta.scored && props.onAnswer) { const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: 0, question: 'polymatch', options: [], correctIndex: -1, correctAnswer: 'match', studentAnswerIndex: null, studentAnswer: 'match', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+    }
+  }, [solved]); // eslint-disable-line
+  const toPx = (cx, cy) => { const r = boxRef.current.getBoundingClientRect(); return { px: cx - r.left, py: cy - r.top }; };
+  const rightAt = (cx, cy) => { for (let pos = 0; pos < n; pos += 1) { const el = rightRefs.current[pos]; if (!el) continue; const r = el.getBoundingClientRect(); if (cx >= r.left - 8 && cx <= r.right + 8 && cy >= r.top - 8 && cy <= r.bottom + 8) return pos; } return -1; };
+  const onDown = (i, e) => {
+    if (!canAct || matched.has(i)) return;
+    e.preventDefault();
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    setWrongPos(null);
+    dragRef.current = { from: i, ...toPx(e.clientX, e.clientY), hover: -1 };
+    setDrag({ ...dragRef.current });
+  };
+  const onMove = (e) => {
+    if (!dragRef.current) return;
+    const hv = rightAt(e.clientX, e.clientY);
+    dragRef.current = { ...dragRef.current, ...toPx(e.clientX, e.clientY), hover: matched.has(order[hv]) ? -1 : hv };
+    setDrag({ ...dragRef.current });
+  };
+  const onUp = (e) => {
+    const dr = dragRef.current; if (!dr) return;
+    const pos = rightAt(e.clientX, e.clientY);
+    if (pos >= 0) {
+      const fam = order[pos];
+      if (!matched.has(fam) && fam === dr.from) { sfx.playCorrect(); setMatched((m) => new Set(m).add(fam)); }
+      else if (!matched.has(fam)) { sfx.playWrong(); anyWrongRef.current = true; setWrongPos(pos); if (!audio.muted) { const en = getAudioEngine(); if (en) en.pushOneOff(c.audio.on_wrong[lang]); } clearTimeout(tmr.current); tmr.current = setTimeout(() => setWrongPos(null), 700); }
+    }
+    dragRef.current = null; setDrag(null);
+  };
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  const leftStyle = (i) => matched.has(i)
+    ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, cursor: 'default' }
+    : drag && drag.from === i ? { ...MCELL, background: T.accentSoft, border: `2.5px solid ${T.accent}`, cursor: 'grabbing' }
+    : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', cursor: 'grab' };
+  const rightStyle = (pos) => { const fam = order[pos]; return matched.has(fam)
+    ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, color: T.success, cursor: 'default', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
+    : wrongPos === pos ? { ...MCELL, background: '#FFF1EA', border: '2.5px solid #fe5b1a', color: '#fe5b1a', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
+    : drag && drag.hover === pos ? { ...MCELL, background: T.accentSoft, border: `2.5px dashed ${T.accent}`, color: T.ink, fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
+    : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink, fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }; };
+  const LX = box.w * 0.415, RX = box.w * 0.585;
+  const yOf = (k) => ((k + 0.5) / n) * box.h;
+  const wires = [...matched].map((fam) => { const pos = order.indexOf(fam); return { fam, y1: yOf(fam), y2: yOf(pos), color: MATCH_COLORS[fam % MATCH_COLORS.length] }; });
+  const dY = drag ? yOf(drag.from) : 0;
+  const dCol = drag ? MATCH_COLORS[drag.from % MATCH_COLORS.length] : '#000';
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', touchAction: drag ? 'none' : 'auto' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="fade-up delay-1"><MatchDoor open={matched.size} total={n}/></div>
+        <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <div ref={boxRef} style={{ position: 'relative' }}>
+            <svg viewBox={`0 0 ${box.w || 1} ${box.h || 1}`} aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 3, overflow: 'visible' }}>
+              {box.w > 0 && (
+                <>
+                  {fams.map((_, i) => !matched.has(i) && !(drag && drag.from === i) && <circle key={`ln${i}`} cx={LX} cy={yOf(i)} r="4.5" fill={MATCH_COLORS[i % MATCH_COLORS.length]} opacity="0.9"/>)}
+                  {order.map((fam, pos) => !matched.has(fam) && <circle key={`rn${pos}`} cx={RX} cy={yOf(pos)} r="4.5" fill="#EEF3F8" stroke="#9FB0C0" strokeWidth="2"/>)}
+                  {wires.map((w) => (
+                    <g key={w.fam}>
+                      <path className="d20-wire" d={`M${LX} ${w.y1} C ${(LX + RX) / 2} ${w.y1}, ${(LX + RX) / 2} ${w.y2}, ${RX} ${w.y2}`} fill="none" stroke={w.color} strokeWidth="3.5" strokeLinecap="round" pathLength="1"/>
+                      <circle cx={LX} cy={w.y1} r="5" fill={w.color}/>
+                      <circle cx={RX} cy={w.y2} r="5" fill={w.color}/>
+                    </g>
+                  ))}
+                  {drag && (
+                    <g>
+                      <path d={`M${LX} ${dY} C ${(LX + drag.px) / 2} ${dY}, ${(LX + drag.px) / 2} ${drag.py}, ${drag.px} ${drag.py}`} fill="none" stroke={dCol} strokeWidth="3.5" strokeLinecap="round" strokeDasharray="7 5"/>
+                      <circle cx={LX} cy={dY} r="5" fill={dCol}/>
+                      <circle cx={drag.px} cy={drag.py} r="6" fill={dCol} opacity="0.9"/>
+                    </g>
+                  )}
+                </>
+              )}
+            </svg>
+            <div style={{ display: 'grid', gridTemplateColumns: '5fr 2fr 5fr', gridTemplateRows: `repeat(${n}, 1fr)`, columnGap: 0, rowGap: 0, height: `calc(${n} * clamp(58px, 13vw, 74px))`, touchAction: 'none' }}>
+              {fams.map((f, i) => (
+                <button key={`l${i}`} disabled={!canAct || matched.has(i)} onPointerDown={(e) => onDown(i, e)} onPointerMove={onMove} onPointerUp={onUp} style={{ ...leftStyle(i), gridColumn: 1, gridRow: i + 1, alignSelf: 'center', height: 'clamp(50px,10vw,64px)', touchAction: 'none' }}>
+                  <span style={{ width: 'clamp(38px,9vw,52px)', display: 'inline-flex' }}><PolyFig sides={f.sides} max={52}/></span>
+                  {matched.has(i) && <span style={{ marginLeft: 4, color: T.success }}>✓</span>}
+                </button>
+              ))}
+              {order.map((fam, pos) => { const f = fams[fam]; return (
+                <div key={`r${pos}`} ref={(el) => { rightRefs.current[pos] = el; }} style={{ ...rightStyle(pos), gridColumn: 3, gridRow: pos + 1, alignSelf: 'center', height: 'clamp(50px,10vw,64px)' }}>{t(POLY_NAMES[f.sides])}{matched.has(fam) && <span style={{ marginLeft: 4 }}>✓</span>}</div>
+              ); })}
+            </div>
+            {/* SWIPE-HINT qo'l — birinchi juft moslanmaguncha va sudramaguncha */}
+            {canAct && matched.size === 0 && !drag && (
+              <div aria-hidden="true" className="d27-swipe" style={{ position: 'absolute', top: 'clamp(18px,3.8vw,24px)', left: '31%', zIndex: 5, pointerEvents: 'none' }}>
+                <SwipeHand/>
+              </div>
+            )}
+          </div>
+        </div>
+        {!solved && <p className="fade-up" style={{ margin: 0, fontSize: 'clamp(12px,1.9vw,14px)', fontWeight: 700, color: T.ink3, textAlign: 'center' }}>{t(PMATCH_HINT)}</p>}
+        {wrongPos !== null && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(c.done_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// Dars27 wrapper'lari — ko'pburchaklar (PolyTypeStage: nom/tomon-sanash/ko'pburchakmi + PolyMatchStage: drag-moslash). Aralash.
+const A5 = (props) => <PolyTypeStage props={props} cKey="s5"/>;
+const A6 = (props) => <PolyTypeStage props={props} cKey="s6"/>;
+const A7 = (props) => <PolyMatchStage props={props} cKey="s7"/>;
+const A8 = (props) => <PolyTypeStage props={props} cKey="s8"/>;
+const A9 = (props) => <PolyTypeStage props={props} cKey="s9"/>;
+const A10 = (props) => <PolyMatchStage props={props} cKey="s10"/>;
+const A11 = (props) => <PolyTypeStage props={props} cKey="s11"/>;
+const ACase = (props) => <PolyTypeStage props={props} cKey="s13"/>;
+const A14 = (props) => <PolyTypeStage props={props} cKey="s14" fact/>;
 
 // ============================================================
 // TABLE-FILL MEXANIKASI — skip-sanash qatori (2,4,6,8,10,12 …); bir katak bo'sh, o'quvchi to'ldiradi.
@@ -6141,7 +6248,7 @@ const TableFillStage = ({ props, cKey }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9} hr={by} hc={blank}/>}
@@ -6234,7 +6341,7 @@ const CommuteStage = ({ props, cKey }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -6274,12 +6381,12 @@ const ScreenTable = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(190px, 44vw, 260px)', overflowX: 'auto' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px,2.2vw,15px)', width: '100%' }}>
-            {['line', 'ray', 'segment'].map((ty) => (
-              <div key={ty} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
-                <span style={{ minWidth: 'clamp(74px,20vw,120px)', fontWeight: 800, fontSize: 'clamp(13px,2.2vw,17px)', color: '#2FA0C8' }}>{t(LINE_TYPES[ty])}</span>
-                <div style={{ flex: 1, minWidth: 0 }}><LineFig type={ty}/></div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(13px,2.2vw,17px)', color: T.success, minWidth: 'clamp(28px,6vw,40px)', textAlign: 'center' }}>{LT_ENDS[ty]} {t({ ru: 'к.', uz: 'uch' })}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(7px,1.8vw,12px)', width: '100%' }}>
+            {[3, 4, 5, 6].map((s) => (
+              <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
+                <span style={{ minWidth: 'clamp(88px,23vw,150px)', fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', color: '#2FA0C8' }}>{t(POLY_NAMES[s])}</span>
+                <div style={{ width: 'clamp(38px,10vw,56px)', flexShrink: 0 }}><PolyFig sides={s} max={56}/></div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', color: T.success, minWidth: 'clamp(52px,14vw,84px)', textAlign: 'center' }}>{s} {t({ ru: 'стор.', uz: 'tomon' })}</span>
               </div>
             ))}
           </div>
@@ -7255,7 +7362,7 @@ export default function RazryadLesson({
             {['ru', 'uz'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
-                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                         background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
                 {l.toUpperCase()}
               </button>
             ))}
@@ -7337,8 +7444,8 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 18px -4px rgba(58, 53, 48, 0.32);
 }
 .btn:hover:not(:disabled) {
-  background: #FF4F28;
-  box-shadow: 0 10px 24px -4px rgba(255, 79, 40, 0.45);
+  background: #fe5b1a;
+  box-shadow: 0 10px 24px -4px rgba(254, 91, 26, 0.45);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
@@ -7348,29 +7455,29 @@ html, body { margin: 0; padding: 0; }
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;
-  color: #FF4F28;
+  color: #fe5b1a;
   letter-spacing: 0.01em;
   border-radius: 12px;
   border: none;
-  box-shadow: 0 8px 22px -4px rgba(255, 79, 40, 0.35), 0 0 0 1px rgba(255, 79, 40, 0.12);
+  box-shadow: 0 8px 22px -4px rgba(254, 91, 26, 0.35), 0 0 0 1px rgba(254, 91, 26, 0.12);
 }
 .btn-white-accent:hover:not(:disabled) {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55);
+  box-shadow: 0 12px 28px -6px rgba(254, 91, 26, 0.55);
 }
 .btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
 /* btn-ready — "Davom" bosish kerak bo'lgan paytdagi holat: to'q rang + puls (g1) */
 .btn-white-accent.btn-ready {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.5), 0 0 0 1px rgba(255, 79, 40, 0.25);
+  box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.5), 0 0 0 1px rgba(254, 91, 26, 0.25);
   animation: btnReadyPulse 1.5s ease-in-out infinite;
 }
 .btn-white-accent.btn-ready:hover:not(:disabled) { background: #E8431F; color: #FFFFFF; }
 @keyframes btnReadyPulse {
-  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.45), 0 0 0 0 rgba(255, 79, 40, 0.5); }
-  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(255, 79, 40, 0.6),  0 0 0 9px rgba(255, 79, 40, 0); }
+  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.45), 0 0 0 0 rgba(254, 91, 26, 0.5); }
+  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(254, 91, 26, 0.6),  0 0 0 9px rgba(254, 91, 26, 0); }
 }
 @media (prefers-reduced-motion: reduce) { .btn-white-accent.btn-ready { animation: none; } }
 
@@ -7479,8 +7586,8 @@ html, body { margin: 0; padding: 0; }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #FF4F28;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.55);
+  background: #fe5b1a;
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.55);
 }
 
 /* === PROGRESS v15 (с orange glow) === */
@@ -7494,10 +7601,10 @@ html, body { margin: 0; padding: 0; }
 }
 .progress-bar {
   height: 100%;
-  background: #FF4F28;
+  background: #fe5b1a;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 99px;
-  box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 10px rgba(254, 91, 26, 0.55), 0 0 3px rgba(254, 91, 26, 0.40);
 }
 
 /* === SLIDER v15 === */
@@ -7525,10 +7632,10 @@ html, body { margin: 0; padding: 0; }
   top: 50%;
   transform: translateY(-50%);
   height: 4px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 99px;
   pointer-events: none;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.50), 0 0 2px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.50), 0 0 2px rgba(254, 91, 26, 0.40);
   transition: width 0.15s ease-out;
 }
 .slider-input {
@@ -7548,21 +7655,21 @@ html, body { margin: 0; padding: 0; }
   appearance: none;
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   transition: transform 0.1s;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-moz-range-thumb {
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.12); }
 .slider-input:disabled { cursor: not-allowed; }
@@ -7584,7 +7691,7 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14);
 }
 .answer-input:focus {
-  box-shadow: 0 10px 22px -6px rgba(255, 79, 40, 0.30), 0 0 0 1px rgba(255, 79, 40, 0.20);
+  box-shadow: 0 10px 22px -6px rgba(254, 91, 26, 0.30), 0 0 0 1px rgba(254, 91, 26, 0.20);
 }
 .answer-input.correct {
   background: #E3F0E8;
@@ -7593,8 +7700,8 @@ html, body { margin: 0; padding: 0; }
 }
 .answer-input.wrong {
   background: #FFE8E1;
-  color: #FF4F28;
-  box-shadow: 0 8px 20px -6px rgba(255, 79, 40, 0.36);
+  color: #fe5b1a;
+  box-shadow: 0 8px 20px -6px rgba(254, 91, 26, 0.36);
 }
 
 /* === FRAMES v15 === */
@@ -7608,10 +7715,10 @@ html, body { margin: 0; padding: 0; }
 }
 .frame-soft {
   background: #FFE8E1;
-  border-left: 4px solid #FF4F28;
+  border-left: 4px solid #fe5b1a;
   border-radius: 12px;
   padding: clamp(14px, 2.5vw, 14px);
-  box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
+  box-shadow: 0 6px 16px -6px rgba(254, 91, 26, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
@@ -7632,7 +7739,7 @@ html, body { margin: 0; padding: 0; }
 
 /* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
+.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(254, 91, 26, 0.10), rgba(254, 91, 26, 0.02)); }
 .amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
 .amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
 .amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
@@ -7732,7 +7839,7 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
+@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(254,91,26,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(254,91,26,0.5); } }
 
 /* CountDemo — jonli sanash */
 .g1-demo { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.4vw, 16px); }
@@ -7742,7 +7849,7 @@ html, body { margin: 0; padding: 0; }
 .g1-demo-cell.pulse { animation: g1pop 0.45s ease-out, g1pulse 1.7s ease-in-out 0.5s infinite; }
 .g1-demo-cell svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-demo-tag { position: absolute; top: -8px; right: -6px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
-.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #FF4F28; line-height: 1; }
+.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #fe5b1a; line-height: 1; }
 .g1-demo-num.big { font-size: clamp(52px, 13vw, 86px); }
 
 /* TenFrame — bo'sh kataklar */
@@ -7760,12 +7867,12 @@ html, body { margin: 0; padding: 0; }
 .g1-cell-num { position: absolute; top: 3px; right: 6px; font-weight: 800; font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; }
 
 /* CountTrack / MissingTrack — son qatori */
-.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #FF4F28; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
+.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #fe5b1a; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
 .g1-track-label.back { color: #019ACB; }
 .g1-track { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
 .g1-track-tile { width: clamp(52px, 11.5vw, 72px); height: clamp(56px, 13vw, 80px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
 .g1-track-tile span { font-weight: 800; font-size: clamp(28px, 6.5vw, 42px); color: #0E0E10; }
-.g1-track-tile.active { background: #FF4F28; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-track-tile.active { background: #fe5b1a; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-track-tile.active span { color: #FFFFFF; }
 .g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
 .g1-track-tile.gap span { color: #D8A93A; }
@@ -7776,7 +7883,7 @@ html, body { margin: 0; padding: 0; }
 .g1-countfig-ans { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #1F7A4D; }
 /* BigNumberCue (keyingi/oldingi savol uchun tayanch son) */
 .g1-cue { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vw, 22px); }
-.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #fe5b1a; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
 .g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
 .g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
@@ -7817,7 +7924,7 @@ html, body { margin: 0; padding: 0; }
 .g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-onboard-txt { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px,1.7vw,15px); color: #017BA3; }
 .g1-onboard-arrow { color: #A7A6A2; font-weight: 800; font-size: clamp(15px,2vw,18px); }
-.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #FF4F28; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
+.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #fe5b1a; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
 /* mehmon: o'ngdan kirib keladi (1x), keyin yengil tebranadi */
 .g1-guest { animation: g1guestEnter 0.85s cubic-bezier(0.34,1.5,0.6,1) both, g1guestBob 2.6s ease-in-out 0.9s infinite; }
 .g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom left; }
@@ -7865,7 +7972,7 @@ html, body { margin: 0; padding: 0; }
 .g1-spark3 { left: 16%; top: 52%; animation: g1spark 0.9s ease-out 0.6s infinite; }
 @keyframes g1spark { 0% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: scale(0.5); } }
 .g1-conf { position: absolute; top: -8%; width: 8px; height: 12px; border-radius: 2px; pointer-events: none; }
-.g1-conf1 { left: 16%; background: #FF4F28; animation: g1conf 1.1s ease-in 0s infinite; }
+.g1-conf1 { left: 16%; background: #fe5b1a; animation: g1conf 1.1s ease-in 0s infinite; }
 .g1-conf2 { left: 34%; background: #019ACB; animation: g1conf 1.3s ease-in 0.2s infinite; }
 .g1-conf3 { left: 50%; background: #FFC23C; animation: g1conf 1.0s ease-in 0.45s infinite; }
 .g1-conf4 { left: 64%; background: #1F7A4D; animation: g1conf 1.25s ease-in 0.1s infinite; }
@@ -7965,13 +8072,13 @@ html, body { margin: 0; padding: 0; }
 .g1-rating-stars { display: flex; gap: clamp(6px,1.6vw,12px); }
 .g1-rating-star { width: clamp(50px,11vw,72px); height: clamp(50px,11vw,72px); display: inline-flex; }
 .g1-rating-star svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,194,60,0.55)); }
-.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #FF4F28; }
+.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #fe5b1a; }
 
 /* === GameDrill (drag+tap o'yin bloki) === */
 .g1-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px,1.7vw,12px); padding: clamp(7px,1.7vw,11px); min-height: clamp(48px,10vw,68px); background: #FBF9F4; border-radius: 14px; }
 .g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(8px,1.8vw,12px); min-width: clamp(58px,13vw,78px); min-height: clamp(58px,13vw,78px); transition: transform 0.15s, box-shadow 0.15s; }
 .g1-token:active { cursor: grabbing; transform: scale(1.05); }
-.g1-token-sel { box-shadow: 0 0 0 3px #FF4F28, 0 8px 20px -6px rgba(255,79,40,0.4); }
+.g1-token-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 8px 20px -6px rgba(254,91,26,0.4); }
 /* noto'g'ri sudralganda: token yumshoq sakrab qaytadi (jazo emas) */
 .g1-bounceback { animation: g1bounceback 0.5s ease; }
 @keyframes g1bounceback { 0% { transform: translateY(0) scale(1); } 28% { transform: translateY(-9px) scale(1.1); } 55% { transform: translateY(0) scale(0.97); } 78% { transform: translateY(-3px) scale(1.02); } 100% { transform: translateY(0) scale(1); } }
@@ -8055,7 +8162,7 @@ html, body { margin: 0; padding: 0; }
 
 .g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) clamp(8px, 1.6vw, 12px); border-radius: 12px; transition: background 0.3s ease; }
 .g1-numrow-on { background: #FFE8E1; }
-.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #fe5b1a; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
 .g1-numrow-on .g1-digit { transform: scale(1.18); }
 
 /* tap-pair (s5) */
@@ -8070,7 +8177,7 @@ html, body { margin: 0; padding: 0; }
 .g1-tiles { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; margin-top: 4px; }
 .g1-tile { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(13px, 2.6vw, 21px) clamp(21px, 4vw, 31px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(32px, 7vw, 46px); color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.18); transition: transform 0.18s, background 0.18s, box-shadow 0.18s, color 0.18s; }
 .g1-tile:hover:not(:disabled) { transform: translateY(-2px); }
-.g1-tile-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(255,79,40,0.5); }
+.g1-tile-sel { background: #fe5b1a; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(254,91,26,0.5); }
 .g1-tile-ok { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 10px 24px -6px rgba(31,122,77,0.4); }
 .g1-tile-used { opacity: 0.3; cursor: default; }
 .g1-tile:disabled { cursor: default; }
@@ -8078,7 +8185,7 @@ html, body { margin: 0; padding: 0; }
 /* ===== Dars02 — RAQAMLI UYLAR (digit / house / street) ===== */
 .g1-digit { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #3A3530; display: inline-flex; align-items: center; justify-content: center; }
 .g1-digit-ink { color: #3A3530; }
-.g1-digit-accent { color: #FF4F28; }
+.g1-digit-accent { color: #fe5b1a; }
 .g1-digit-success { color: #1F7A4D; }
 .g1-digit-sm { font-size: clamp(26px, 5.2vw, 38px); }
 .g1-digit-mid { font-size: clamp(40px, 8vw, 60px); }
@@ -8105,8 +8212,8 @@ html, body { margin: 0; padding: 0; }
 .g1-tf-cell { width: clamp(26px, 5.2vw, 38px); height: clamp(26px, 5.2vw, 38px); border-radius: 9px; border: 2px solid #E6E1D6; background: #F6F4EF; display: flex; align-items: center; justify-content: center; }
 .g1-tf-base .g1-tf-cell { border-color: #FFD2C6; }
 .g1-tf-dot { width: 56%; height: 56%; border-radius: 50%; background: transparent; }
-.g1-tf-cell.on { background: #FFE8E1; border-color: #FF4F28; }
-.g1-tf-cell.on .g1-tf-dot { background: #FF4F28; }
+.g1-tf-cell.on { background: #FFE8E1; border-color: #fe5b1a; }
+.g1-tf-cell.on .g1-tf-dot { background: #fe5b1a; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on { background: #E3F2FB; border-color: #019ACB; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on .g1-tf-dot { background: #019ACB; }
 @keyframes g1tfPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
@@ -8118,29 +8225,29 @@ html, body { margin: 0; padding: 0; }
   background-color: #FBFEFF;
   background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
   background-size: clamp(15px, 3.6vw, 24px) clamp(15px, 3.6vw, 24px); }
-.g1-kcell.active { border-color: #FF4F28; box-shadow: 0 0 0 2px #FFD3C7; }
+.g1-kcell.active { border-color: #fe5b1a; box-shadow: 0 0 0 2px #FFD3C7; }
 .g1-kcell-write { flex: 0 0 auto; width: clamp(70px, 13vw, 94px); }
 .g1-kcell .g1-write { width: 100%; height: 100%; }
 .g1-write { width: clamp(80px, 17vw, 116px); height: auto; }
 .g1-write-ghost { fill: none; stroke: #F2DDD3; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
-.g1-write-ink { fill: none; stroke: #FF4F28; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.g1-write-ink { fill: none; stroke: #fe5b1a; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
 .g1-digit-pick { display: flex; justify-content: center; gap: clamp(8px, 2vw, 14px); }
 .g1-pickbtn { width: clamp(40px, 8vw, 52px); height: clamp(40px, 8vw, 52px); border-radius: 12px; border: 2px solid #E6E1D6; background: #FFFFFF; font-family: 'Fraunces', Georgia, serif; font-size: clamp(18px, 3.4vw, 24px); font-weight: 600; color: #5A5A60; cursor: pointer; transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.15s ease; box-shadow: 0 3px 8px -4px rgba(58, 53, 48, 0.3); }
 .g1-pickbtn:hover:not(.active) { transform: translateY(-2px); }
-.g1-pickbtn.active { border-color: #FF4F28; color: #FF4F28; background: #FFF3EF; }
+.g1-pickbtn.active { border-color: #fe5b1a; color: #fe5b1a; background: #FFF3EF; }
 
 /* FingerHand — barmoqlar vizualizatori (s2) */
 .g1-fhand { width: clamp(72px, 15vw, 104px); height: auto; }
 .g1-hand-group, .g1-handbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .g1-handbtn { border: 2.5px dashed #FFB9A8; border-radius: 16px; background: #FFF6F3; padding: clamp(6px, 1.4vw, 10px); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
-.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(255, 79, 40, 0.5); }
+.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(254, 91, 26, 0.5); }
 .g1-handbtn:disabled { cursor: default; border-style: solid; border-color: #1F7A4D; background: #E3F0E8; }
-.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #FF4F28; }
+.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #fe5b1a; }
 .g1-handbtn:disabled .g1-hand-cap { color: #1F7A4D; }
 
 /* Ten-frame drag o'yin (sd): drop zona + nuqta tokenlar */
 .g1-tfdrop { padding: clamp(8px, 2vw, 14px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; transition: border-color 0.2s ease, background 0.2s ease; }
-.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FF4F28; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
+.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #fe5b1a; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
 /* ten-frame PREDMET rejimi (sd o'yini): kataklar neytral, ichida buyum, tushganda pop */
 .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
@@ -8149,8 +8256,8 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1tfDrop { 0% { transform: translateY(-75%); opacity: 0; } 65% { transform: translateY(7%); } 100% { transform: translateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g1-tf-item { animation: none; } }
 /* keyingi to'ldiriladigan katak — pulslab "qayerga qo'yish"ni ko'rsatadi */
-.g1-tf-next { border-color: #FF4F28; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
-@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 79, 40, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(255, 79, 40, 0); } }
+.g1-tf-next { border-color: #fe5b1a; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
+@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(254, 91, 26, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(254, 91, 26, 0); } }
 .g1-dropzone-wait { border-color: #FF8A6E; background: #FFF4F0; }
 .g1-drophint { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(13px, 1.8vw, 15px); color: #C23B1E; font-weight: 600; }
 .g1-drophint-arrow { font-size: clamp(18px, 3vw, 24px); animation: g1hintBounce 1s ease-in-out infinite; }
@@ -8174,7 +8281,7 @@ html, body { margin: 0; padding: 0; }
 .g1-newhouse-note { font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; font-weight: 600; }
 .g1-count-line { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .g1-count-label { font-size: clamp(13px, 1.7vw, 15px); color: #8A8780; }
-.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #FF4F28; }
+.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #fe5b1a; }
 
 /* ESHIK (raqam plitasi bilan) */
 .g1-door { position: relative; display: inline-flex; flex-direction: column; align-items: center; width: clamp(54px, 11.5vw, 76px); height: clamp(78px, 16.5vw, 106px); background: repeating-linear-gradient(90deg, rgba(122,78,34,0) 0, rgba(122,78,34,0.12) 5px, rgba(255,255,255,0.05) 9px, rgba(122,78,34,0) 13px), linear-gradient(180deg, #C2864F, #9A6738); border: 2px solid #7A4E22; border-radius: 11px 11px 4px 4px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 4px 10px -5px rgba(58,53,48,0.35); overflow: hidden; }
@@ -8183,7 +8290,7 @@ html, body { margin: 0; padding: 0; }
 .g1-door-knob { position: absolute; right: clamp(7px, 1.6vw, 10px); top: 56%; width: 7px; height: 7px; border-radius: 50%; background: #FFD86B; box-shadow: 0 0 0 1px #B8862E; z-index: 2; }
 .g1-doorbtn { background: transparent; border: none; padding: 5px; cursor: pointer; border-radius: 12px; transition: transform 0.15s ease; }
 .g1-doorbtn:hover:not(:disabled) { transform: translateY(-3px); }
-.g1-doorbtn.active .g1-door { border-color: #FF4F28; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
+.g1-doorbtn.active .g1-door { border-color: #fe5b1a; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
 .g1-doorbtn.seen .g1-door { border-color: #1F7A4D; }
 .g1-doorbtn.used { opacity: 0.4; }
 .g1-doorbtn.placed { opacity: 0.45; }
@@ -8221,7 +8328,7 @@ html, body { margin: 0; padding: 0; }
 
 /* s5 — shakl belgisi */
 .g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(90px, 18vw, 130px); justify-content: center; }
-.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #FF4F28; }
+.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #fe5b1a; }
 
 /* s2 — joylash katakchalari */
 .g1-tapgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 1.6vw, 12px); }
@@ -8245,7 +8352,7 @@ html, body { margin: 0; padding: 0; }
 .g1-street-house.in { opacity: 1; transform: none; }
 .g1-street-house .g1-house-svg { width: 15cqw; }   /* 6 uy (5 raqamli + 1 bo'sh) sig'ishi uchun ozroq tor */
 .g1-street-new { margin-left: 2.5cqw; }            /* yangi bo'sh uy — ko'cha oxirida ajralib turadi */
-.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(255,79,40,0.8)); }
+.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(254,91,26,0.8)); }
 .g1-street-anvar, .g1-street-rano, .g1-street-zuhra { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
 .g1-street-anvar.in, .g1-street-rano.in, .g1-street-zuhra.in { opacity: 1; }
 /* personajlar OLD PLANDA, kichik (eshik bo'yida) — real proporsiya + chuqurlik */
@@ -8314,9 +8421,9 @@ html, body { margin: 0; padding: 0; }
 /* --- birlashtirish qatori (pufakchali savatlar) --- */
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
-.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
-.g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
+.g1-cg-sent .g1-cg-sign { font-style: normal; color: #fe5b1a; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }
 
 /* birlashganda pufakcha suzib kiradi */
@@ -8345,7 +8452,7 @@ html, body { margin: 0; padding: 0; }
 
 /* --- s5 sudrab-birlashtirish: drop-zona = tepadan savat (punktir -> javobda yashil) + tray --- */
 .g1-cg-drop { position: relative; transition: outline 0.2s, background 0.2s; }
-.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(255,79,40,0.5); outline-offset: 3px; }
+.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(254,91,26,0.5); outline-offset: 3px; }
 .g1-s5-drop .bt { width: 100%; }
 .g1-s5-drop.full { outline: 2px solid #1F7A4D; }
 .g1-combine-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
@@ -8366,7 +8473,7 @@ html, body { margin: 0; padding: 0; }
 /* --- s6 son-yozuv varianti --- */
 .g1-sent { display: inline-flex; align-items: center; gap: clamp(4px, 1.2vw, 8px); font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #0E0E10; }
 .g1-sent .g1-sent-op { font-style: normal; font-weight: 800; }
-.g1-sent .g1-sent-plus { color: #FF4F28; }
+.g1-sent .g1-sent-plus { color: #fe5b1a; }
 .g1-sent .g1-sent-minus { color: #5A5A60; }
 
 /* --- s8 fakt kartasi (ko'k) --- */
@@ -8448,7 +8555,7 @@ html, body { margin: 0; padding: 0; }
 
 /* nishon satri (sg) */
 .g1-target-row { display: flex; align-items: center; gap: 10px; }
-.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 
 /* katta ifoda (s3 qoida): 7 − 2 = 5 */
 .g1-sent-lg { font-size: clamp(28px, 6vw, 44px); gap: clamp(8px, 2vw, 14px); }
@@ -8491,7 +8598,7 @@ html, body { margin: 0; padding: 0; }
 .g1-nl-tick { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: transparent; border: none; padding: 0 clamp(2px, 0.8vw, 6px); cursor: default; }
 button.g1-nl-tick { cursor: pointer; }
 .g1-nl-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.16); transition: transform 0.2s ease, background 0.2s ease; }
-.g1-nl-dot.marker { background: #FF4F28; box-shadow: 0 2px 8px rgba(255,79,40,0.4); transform: scale(1.15); }
+.g1-nl-dot.marker { background: #fe5b1a; box-shadow: 0 2px 8px rgba(254,91,26,0.4); transform: scale(1.15); }
 .g1-nl-tick.inpath .g1-nl-dot { background: #FFD3C7; }
 button.g1-nl-tick.picked .g1-nl-dot { background: #FFE8E1; box-shadow: inset 0 0 0 2px #FF8A6E; }
 button.g1-nl-tick.ok .g1-nl-dot { background: #1F7A4D; box-shadow: 0 2px 8px rgba(31,122,77,0.4); transform: scale(1.15); }
@@ -8500,17 +8607,17 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-nl-legend { display: flex; gap: clamp(16px, 4vw, 32px); }
 .g1-nl-leg { display: inline-flex; align-items: center; gap: 6px; font-size: clamp(13px, 1.8vw, 15px); font-weight: 700; color: #0E0E10; }
 .g1-nl-arrow { font-size: clamp(18px, 3.4vw, 24px); font-weight: 800; }
-.g1-nl-arrow-fwd { color: #FF4F28; }
+.g1-nl-arrow-fwd { color: #fe5b1a; }
 .g1-nl-arrow-back { color: #5A5A60; }
 .g1-mrow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 2vw, 14px); }
-.g1-numopt-sel { box-shadow: 0 0 0 3px #FF4F28, 0 4px 12px rgba(255,79,40,0.25) !important; }
+.g1-numopt-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 4px 12px rgba(254,91,26,0.25) !important; }
 .g1-mexp { background: #FFFFFF; border: none; border-radius: 14px; padding: clamp(8px, 1.8vw, 14px) clamp(12px, 2.6vw, 20px); cursor: pointer; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.1); transition: transform 0.15s ease, box-shadow 0.2s ease; }
 .g1-mexp:not(:disabled):hover { transform: translateY(-2px); }
 .g1-mexp:disabled { cursor: default; }
 .g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
 
 /* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
-.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
+.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #fe5b1a; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
 .d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
 .d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
 .d4-croc-anim { animation: d4crocopen 0.5s cubic-bezier(0.34,1.5,0.64,1) both, d4crocbreathe 2.8s ease-in-out 0.55s infinite; transform-origin: center; }
@@ -8793,7 +8900,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-panel.on { opacity: 1; transform: none; }
 .d2-panel-num { display: inline-flex; gap: 2px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(36px, 7.5vw, 54px); line-height: 1; color: #0E0E10; }
 .d2-panel-num span { transition: color 0.3s ease; }
-.d2-digit-tens { color: #FF4F28; }
+.d2-digit-tens { color: #fe5b1a; }
 .d2-digit-ones { color: #019ACB; }
 .d2-lamp { width: clamp(12px, 2.6vw, 17px); height: clamp(12px, 2.6vw, 17px); border-radius: 50%; background: #C8CDD4; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15); }
 .d2-lamp-still-g { background: #6EF29B; box-shadow: 0 0 8px rgba(110,242,155,0.7); }
@@ -8938,7 +9045,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-sortitem .d2-casssvg { width: clamp(30px, 6.5vw, 46px); }
 .d2-sortitem .d2-battsvg { width: clamp(15px, 3.2vw, 21px); }
 .d2-sortitem:hover:not(:disabled) { transform: translateY(-2px); }
-.d2-sortitem-sel { border-color: #FF4F28; box-shadow: 0 0 14px -2px rgba(255,79,40,0.5); }
+.d2-sortitem-sel { border-color: #fe5b1a; box-shadow: 0 0 14px -2px rgba(254,91,26,0.5); }
 .d2-sortitem:disabled { cursor: default; }
 .d2-sortdone { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #6EF29B; }
 .d2-holds { display: flex; gap: clamp(10px, 2.4vw, 18px); justify-content: center; align-items: stretch; }
@@ -9019,6 +9126,10 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-tablo-scan::after { content: ''; position: absolute; left: 0; right: 0; height: 18%; background: linear-gradient(rgba(143,224,244,0), rgba(143,224,244,0.1), rgba(143,224,244,0)); animation: d2scan 4.5s linear infinite; }
 @keyframes d2scan { 0% { top: -20%; } 100% { top: 120%; } }
 @media (prefers-reduced-motion: reduce) { .d2-tablo-lamp, .d2-tablo-scan::after { animation: none; } }
+/* SWIPE-HINT: shaklni nomiga sudrash ishorasi (qo'l chapdan o'ngga) */
+@keyframes d27swipe { 0%,8% { transform: translateX(0) scale(1); opacity: 0; } 16% { transform: translateX(0) scale(1); opacity: .95; } 28% { transform: translateX(0) scale(.8); opacity: .95; } 72% { transform: translateX(var(--sw,110px)) scale(.8); opacity: .95; } 84% { transform: translateX(var(--sw,110px)) scale(1); opacity: 0; } 100% { opacity: 0; } }
+.d27-swipe { --sw: clamp(74px,30vw,130px); animation: d27swipe 2.4s ease-in-out infinite; will-change: transform, opacity; }
+@media (prefers-reduced-motion: reduce) { .d27-swipe { animation: none; opacity: .85; transform: none; } }
 /* FactCard s14 javob zonasida — ixcham (bir qator), skrollsiz */
 .d2-fact-final { margin-top: clamp(8px, 1.8vw, 12px); padding: clamp(8px, 1.6vw, 12px) clamp(10px, 2vw, 14px); }
 .d2-fact-final .g1-factcard-txt { font-size: clamp(13px, 1.8vw, 15px); line-height: 1.36; }

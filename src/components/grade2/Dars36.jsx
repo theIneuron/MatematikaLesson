@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
-// ░░ 2-SINF · Dars36 — "Календарь: день, неделя, месяц" (kalendar-2-36-v1) · Б6 (NEPTUN) · ETALON §11 ░░
-// 2-SINF · syujet-qobiq v3: NEPTUN orbitasi, STANSIYA DEKASI (bort jurnali). Program d.39 (SYUJET_2SINF.md Б6).
-// Baza: Dars35.jsx (Б6 vaqt — Neptun biom + siz-registr). Soat (ClockFace), ulush, tenglama, ifoda va geometriya
-//   komponentlari shu darsda O'LIK KOD — render'ga chiqmaydi (klon an'anasi).
+// ░░ 2-SINF · Dars36 — "Задачи на величины (время, деньги, длина)" (masala-2-36-v1) · Б6 (NEPTUN) · ETALON §11 ░░
+// 2-SINF · syujet-qobiq v3: NEPTUN orbitasi, STANSIYA DEKASI. Program d.41 (SYUJET_2SINF.md Б6). Б6 SINTEZ darsi.
+// Baza: Dars37.jsx (Б6 pul — Neptun biom + siz-registr). CoinSet meros. Boshqa Б6 komponentlar O'LIK KOD (klon an'anasi).
 // Infra: grade1 Dars28.jsx dan BAYT-ANIQ (mobil zoom-qatlam + avtoskroll + keep-visible
 // QuestionScreen + AnsPop + useCanAnswer/useAdvanceGate + v5.2 AudioEngine, ayol ovoz g=f).
-// YADRO: KALENDAR — hafta kunlari (7, tartib bilan), oylar (12), sana↔hafta kuni. Hafta boshi = DUSHANBA. Vaqt ko'prigi
-//   (d.38): kun/hafta/oy — vaqt birliklari. Kalendar MAVHUM oy: 1-sana=Chorshanba (startDow=2), 30 kun; kun(N)=(N+1)%7.
-// DUNYO: Neptun orbitasi, STANSIYA DEKASI — Bit bort jurnalini kalendar bo'yicha to'ldiradi. Cast: Bit + ekipaj (s13).
-// MEXANIKA (metodist 2026-07-17: ARALASH): WeekStrip (7 kun) + CalendarFig (oy jadvali) + WeekDayStage (keyin/oldin/
-//   kecha-bugun-erta) · CalendarReadStage (sana→hafta kuni) · MonthStage (oylar). Barchasi CalMCStage (matn-MC + figure).
-// Misconception'lar: M1 kun tartibi buzilishi · M2 sana↔hafta kuni chalkashligi · M3 hafta=7 vs oy · M4 oy tartibi. Distraktor=shu.
-// UZ ⚠️: hafta kunlari/oylar/qisqartma DRAFT; hafta boshi Dushanba — o'zbek metodist validatsiyasi kerak.
+// YADRO: KATTALIK-MASALA — matnli masala → AMAL (+/−) → javob. Usul: nima BERILGAN → nima SO'RALGAN → ko'paydimi/kamaydimi →
+//   amal → javob (BIRLIK bilan). So'z-signal: qo'shildi/keldi/jami → +; kesildi/sarfladi/qoldi → −. Kattaliklar: pul/vaqt/uzunlik.
+// DUNYO: Neptun orbitasi, STANSIYA DEKASI — ekipaj kattalik masalalarini yechadi. Cast: Bit + ekipaj (s13).
+// MEXANIKA (metodist 2026-07-17: ARALASH): usul-teach + har xil kattalik mashqi. YANGI MiniClock (butun soat) + LenBar (sm) +
+//   CoinSet (meros). `MasalaStage` — masala matni + vizual (kind: money/time/length/num) → javob MC (s6/s9 = amal-tanlash +/−).
+// Misconception'lar: M1 noto'g'ri amal (kesilgan bo'lsa qo'shish) · M2 birlikni chalkashtirish (sm↔so'm) · M3 bergan sonni javob deb · M4 hisob xato.
+// UZ ⚠️: masala/bergan/so'ralgan/amal DRAFT; sonlar (pul yuzlik) grade-2 dan kengroq (Dars37 bilan bir xil) — validatsiya kerak.
 //
 // FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
 //
@@ -37,7 +36,7 @@ const T = {
   ink2: '#5A5A60',
   ink3: '#A7A6A2',
   paper: '#FFFFFF',
-  accent: '#FF4F28',
+  accent: '#fe5b1a',
   accentSoft: '#FFE8E1',
   success: '#1F7A4D',
   successSoft: '#E3F0E8',
@@ -893,15 +892,15 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'kalendar-2-36-v1',
-  lessonTitle: { ru: 'Урок 36. Календарь', uz: "36-dars. Kalendar" }
+  lessonId: 'masala-2-36-v1',
+  lessonTitle: { ru: 'Урок 36. Задачи на величины', uz: "36-dars. Kattaliklarga masala" }
 };
-// STRUKTURA (Б6 NEPTUN, kalendar): s0 hook (chorshanbadan keyin dushanba? — kun tartibi) · s1 WeekStrip teach (7 kun) ·
-// s2 kecha/bugun/erta · s3 QOIDA (kunlar tartib bilan) + check (jumadan keyin?) · s4 OYLAR (12) + warn (hafta=7≠oy) +
-// check (yilda nechta oy?) · sTBL KALIT (WeekStrip) · s5/s7/s11 WeekDayStage · s6/s8/s10 CalendarReadStage · s9 MonthStage ·
-// s13 masala (15-sana → chorshanba) · s14 final (aralash ×3 + Fakt Neptun) · s15 xulosa (→ pul d.40).
-// MEXANIKA (ARALASH): WeekStrip + CalendarFig + CalMCStage (matn-MC engine, figure prop) → WeekDayStage/CalendarReadStage/MonthStage.
-// Distraktor = misconception (M1 kun tartibi, M2 sana↔kun, M3 hafta=7 vs oy, M4 oy tartibi).
+// STRUKTURA (Б6 NEPTUN, kattalik-masala): s0 hook (8 sm−3, kimdir qo'shdi=11? Yo'q) · s1 bergan/so'ralgan · s2 amal-signali
+// (ko'paydi→+, kamaydi→−) · s3 QOIDA + check (500+200=700) · s4 BIRLIK + warn + check (9 sm−4=5 sm) · sTBL so'z-signal KALIT ·
+// s5/s7/s10 MasalaStage (javob) · s6/s9 MasalaStage amal-tanlash (+/−) · s8 vaqt · s11 aralash · s13 masala (1000−600=400) ·
+// s14 final (aralash ×3 + Fakt Neptun) · s15 xulosa (→ d.42).
+// MEXANIKA (ARALASH): MiniClock/LenBar/CoinSet + MasalaStage (matn-MC, kind bo'yicha vizual). s6/s9 opts = qo'shish/ayirish.
+// Distraktor = misconception (M1 noto'g'ri amal, M2 birlik chalkashligi, M3 bergan son, M4 hisob xato).
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: a+5, a=2 → 7 (distr 25)
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  sonli ifoda (3+5 tanish)
@@ -943,393 +942,383 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // ============================================================
 
 const CONTENT = {
-  // s0 — HOOK: «Chorshanbadan keyin Dushanba keladi»mi? (kun tartibi buzilgan). To'g'ri = Yo'q (Payshanba).
+  // s0 — HOOK: uzunlik. Bor 8 sm, 3 sm kesildi; kimdir QO'SHDI (11). To'g'rimi? Yo'q (5) — amal noto'g'ri.
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Календарь', uz: "Mavzu: Kalendar" },
-    lead: { ru: 'Верный ли порядок?', uz: "Tartib to'g'rimi?" },
-    q: { ru: 'Кто-то сказал: после среды идёт понедельник. Это верно?', uz: "Kimdir aytdi: chorshanbadan keyin dushanba keladi. Bu to'g'rimi?" },
+    topic: { ru: 'Тема: Задачи', uz: "Mavzu: Masalalar" },
+    lead: { ru: 'Верное ли действие?', uz: "Amal to'g'rimi?" },
+    q: { ru: 'Лента 8 см, отрезали 3. Кто-то сложил и сказал 11. Верно?', uz: "Tasma 8 sm edi, 3 sm kesildi. Kimdir qo'shib 11 dedi. To'g'rimi?" },
     opt0: { ru: 'Да', uz: 'Ha' },
     opt1: { ru: 'Нет', uz: "Yo'q" },
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Мы на станции у Нептуна. Бит заполняет бортовой журнал по календарю.',
-          'Дни недели всегда идут по порядку, один за другим.',
-          'Кто-то сказал: после среды идёт понедельник. Но он перепутал порядок дней.',
+          'Мы на станции у Нептуна. Экипаж решает задачи про величины.',
+          'Была лента восемь сантиметров. От неё отрезали три сантиметра.',
+          'Кто-то сложил восемь и три и сказал: одиннадцать. Но если отрезали, надо вычитать, а не складывать.',
           'Как думаешь, это верно? Послушай ответы: да или нет. Или ты пока не знаешь.'
         ],
         uz: [
-          "Neptun yonidagi stansiyadamiz. Bit kalendar bo'yicha bort jurnalini to'ldiryapti.",
-          "Hafta kunlari doim tartib bilan, birin-ketin keladi.",
-          "Kimdir aytdi: chorshanbadan keyin dushanba keladi. Ammo u kun tartibini chalkashtirdi.",
+          "Neptun yonidagi stansiyadamiz. Ekipaj kattaliklar haqidagi masalalarni yechyapti.",
+          "Tasma sakkiz santimetr edi. Undan uch santimetr kesildi.",
+          "Kimdir sakkiz bilan uchni qo'shib, o'n bir dedi. Ammo kesilgan bo'lsa, qo'shish emas, ayirish kerak.",
           "Sizningcha, bu to'g'rimi? Javoblarni tinglang: ha yoki yo'q. Yoki hali bilmaysiz."
         ]
       },
-      on_correct: { ru: 'Верно. После среды идёт четверг, а не понедельник.', uz: "To'g'ri. Chorshanbadan keyin payshanba keladi, dushanba emas." },
-      on_wrong: { ru: 'Дни идут по порядку: после среды — четверг. Сейчас разберём.', uz: "Kunlar tartib bilan keladi: chorshanbadan keyin — payshanba. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Сегодня разберём дни недели и календарь.', uz: "Hechqisi yo'q. Bugun hafta kunlari va kalendarni o'rganamiz." }
+      on_correct: { ru: 'Верно. Отрезали, значит вычитаем: восемь минус три, пять.', uz: "To'g'ri. Kesildi, demak ayiramiz: sakkiz ayirish uch, besh." },
+      on_wrong: { ru: 'Если отрезали, надо вычитать. Восемь минус три, пять. Сейчас разберём.', uz: "Kesilgan bo'lsa, ayirish kerak. Sakkiz ayirish uch, besh. Hozir ko'ramiz." },
+      on_unknown: { ru: 'Ничего. Сегодня научимся выбирать действие в задаче.', uz: "Hechqisi yo'q. Bugun masalada amalni tanlashni o'rganamiz." }
     }
   },
 
-  // s1 — TUSHUNTIRISH-1: WeekStrip — 7 kun tartibi. Hafta = 7 kun. 4 seg step-reveal.
+  // s1 — TUSHUNTIRISH-1: masala qadamlari — nima BERILGAN, nima SO'RALGAN (pul misoli). 4 seg.
   s1: {
-    eyebrow: { ru: 'Неделя', uz: 'Hafta' },
-    lead: { ru: 'Семь дней недели', uz: "Haftaning yetti kuni" },
+    eyebrow: { ru: 'Шаги задачи', uz: 'Masala qadamlari' },
+    lead: { ru: 'Что дано и что спросили', uz: "Nima berilgan, nima so'ralgan" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'В неделе семь дней. Они всегда идут по порядку, от понедельника до воскресенья.', uz: "Haftada yetti kun bor. Ular doim tartib bilan, dushanbadan yakshanbagacha keladi." },
+    info: { ru: 'Сначала найди, что дано, потом — что спросили.', uz: "Avval berilganni, keyin so'ralganni toping." },
     audio: {
       ru: [
-        'Посмотри на неделю. В ней семь дней.',
-        'Первый день — понедельник. За ним вторник, среда, четверг.',
-        'Потом пятница, суббота и воскресенье.',
-        'Дни всегда идут по порядку. После воскресенья снова понедельник.'
+        'В каждой задаче есть то, что дано, и то, что спросили.',
+        'Например: было пятьсот сумов, добавили двести. Дано, пятьсот и двести.',
+        'Спросили: сколько стало всего.',
+        'Сначала находим дано и вопрос, потом решаем.'
       ],
       uz: [
-        "Haftaga qarang. Unda yetti kun bor.",
-        "Birinchi kun — dushanba. Undan keyin seshanba, chorshanba, payshanba.",
-        "Keyin juma, shanba va yakshanba.",
-        "Kunlar doim tartib bilan keladi. Yakshanbadan keyin yana dushanba."
+        "Har masalada berilgan narsa va so'ralgan narsa bor.",
+        "Masalan: besh yuz so'm bor edi, ikki yuz qo'shildi. Berilgan, besh yuz va ikki yuz.",
+        "So'ralgan: jami qancha bo'ldi.",
+        "Avval berilgan va savolni topamiz, keyin yechamiz."
       ]
     }
   },
 
-  // s2 — TUSHUNTIRISH-2: kecha / bugun / erta (WeekStrip da). 4 seg.
+  // s2 — TUSHUNTIRISH-2: amal-signali — ko'paysa → qo'shish, kamaysa → ayirish. 4 seg.
   s2: {
-    eyebrow: { ru: 'Вчера · сегодня · завтра', uz: 'Kecha · bugun · erta' },
-    lead: { ru: 'Вчера, сегодня, завтра', uz: "Kecha, bugun, erta" },
+    eyebrow: { ru: 'Какое действие', uz: 'Qaysi amal' },
+    lead: { ru: 'Больше или меньше', uz: "Ko'paydimi, kamaydimi" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Сегодня — этот день. Вчера — день до него, завтра — день после него.', uz: "Bugun — shu kun. Kecha — undan oldingi kun, erta — undan keyingi kun." },
+    info: { ru: 'Стало больше — складывай. Стало меньше — вычитай.', uz: "Ko'paydi — qo'shing. Kamaydi — ayiring." },
     audio: {
       ru: [
-        'Допустим, сегодня среда.',
-        'Вчера был день до среды — вторник.',
-        'Завтра будет день после среды — четверг.',
-        'Вчера, сегодня, завтра — это три дня подряд.'
+        'Как узнать, какое действие в задаче?',
+        'Если добавили, прибавили, пришло, стало больше. Это сложение.',
+        'Если отрезали, потратили, ушло, стало меньше. Это вычитание.',
+        'Смотри на слова задачи: больше или меньше.'
       ],
       uz: [
-        "Aytaylik, bugun chorshanba.",
-        "Kecha chorshanbadan oldingi kun — seshanba edi.",
-        "Erta chorshanbadan keyingi kun — payshanba bo'ladi.",
-        "Kecha, bugun, erta — bu ketma-ket uch kun."
+        "Masalada qaysi amal ekanini qanday bilamiz?",
+        "Agar qo'shildi, keldi, ko'paydi. Bu qo'shish.",
+        "Agar kesildi, sarflandi, ketdi, kamaydi. Bu ayirish.",
+        "Masala so'zlariga qarang: ko'paydimi yoki kamaydimi."
       ]
     }
   },
 
-  // s3 — QOIDA: kunlar tartib bilan; oxirgisidan keyin — yana birinchisi + check (jumadan keyin? → shanba).
+  // s3 — QOIDA: berilgan+so'ralganni top, amalni tanla, hisobla + check (500+200 → 700).
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Дни недели идут по порядку. После последнего дня недели снова начинается первый.', uz: "Hafta kunlari tartib bilan keladi. Haftaning oxirgi kunidan keyin yana birinchisi boshlanadi." },
-    check_q: { ru: 'Какой день идёт после пятницы?', uz: "Jumadan keyin qaysi kun keladi?" },
-    opts: [{ ru: 'суббота', uz: 'shanba', ok: true }, { ru: 'четверг', uz: 'payshanba' }, { ru: 'понедельник', uz: 'dushanba' }],
-    wrong: { ru: 'Иди по порядку: пятница, потом суббота. Четверг был до пятницы.', uz: "Tartib bilan boring: juma, keyin shanba. Payshanba jumadan oldin edi." },
-    check_ok: { ru: 'Верно! После пятницы идёт суббота.', uz: "To'g'ri! Jumadan keyin shanba keladi." },
+    rule: { ru: 'Больше или меньше — выбери действие и посчитай.', uz: "Ko'paydi yoki kamaydi — amalni tanlang va hisoblang." },
+    kind: 'money', coins: [500, 200],
+    check_q: { ru: 'Было пятьсот сумов, добавили двести. Сколько стало?', uz: "Besh yuz so'm bor edi, ikki yuz qo'shildi. Qancha bo'ldi?" },
+    opts: [{ ru: '700 сум', uz: "700 so'm", ok: true }, { ru: '300 сум', uz: "300 so'm" }, { ru: '520 сум', uz: "520 so'm" }],
+    wrong: { ru: 'Добавили — значит стало больше, складываем: пятьсот плюс двести — семьсот.', uz: "Qo'shildi — demak ko'paydi, qo'shamiz: besh yuz qo'shuv ikki yuz — yetti yuz." },
+    check_ok: { ru: 'Верно! Добавили — сложили: семьсот сумов.', uz: "To'g'ri! Qo'shildi — qo'shdik: yetti yuz so'm." },
     audio: {
       ru: [
         'Запомним правило. Слушай.',
-        'Дни недели всегда идут по порядку.',
-        'После последнего дня, воскресенья, снова начинается понедельник.',
-        'Проверь. Какой день идёт после пятницы?'
+        'Найди, что дано и что спросили.',
+        'Реши, стало больше или меньше, и выбери действие.',
+        'Проверь. Было пятьсот сумов, добавили двести. Сколько стало?'
       ],
       uz: [
         "Qoidani eslab qolamiz. Tinglang.",
-        "Hafta kunlari doim tartib bilan keladi.",
-        "Oxirgi kun, yakshanbadan keyin, yana dushanba boshlanadi.",
-        "Tekshiring. Jumadan keyin qaysi kun keladi?"
+        "Nima berilgan va so'ralganini top.",
+        "Ko'paydimi yoki kamaydimi, hal qiling va amalni tanla.",
+        "Tekshiring. Besh yuz so'm bor edi, ikki yuz qo'shildi. Qancha bo'ldi?"
       ]
     }
   },
 
-  // s4 — TUSHUNTIRISH-3 (OYLAR + WARN): yilda 12 oy, oyda ~30 kun. warn: hafta=7 kun, oy ≠ 7. check (yilda nechta oy? → 12).
+  // s4 — TUSHUNTIRISH-3 (BIRLIK + WARN): javobda birlik muhim (so'm/soat/sm). warn: birliklarni aralashtirma. check (uzunlik).
   s4: {
-    eyebrow: { ru: 'Месяцы', uz: 'Oylar' },
-    lead: { ru: 'В году двенадцать месяцев', uz: "Yilda o'n ikki oy" },
-    warn: { ru: 'Не путай: в неделе семь дней, а в месяце около тридцати. Это разные единицы времени.', uz: "Chalkashtirmang: haftada yetti kun, oyda esa taxminan o'ttiz kun. Bular har xil vaqt birliklari." },
-    check_q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?" },
-    opts: [{ ru: '12', uz: '12', ok: true }, { ru: '7', uz: '7' }, { ru: '30', uz: '30' }],
-    wrong: { ru: 'Семь — это дни недели, тридцать — дни месяца. А месяцев в году двенадцать.', uz: "Yetti — bu hafta kunlari, o'ttiz — oy kunlari. Yilda esa o'n ikki oy bor." },
-    check_ok: { ru: 'Верно! В году двенадцать месяцев.', uz: "To'g'ri! Yilda o'n ikki oy bor." },
+    eyebrow: { ru: 'Единицы', uz: 'Birliklar' },
+    lead: { ru: 'Не забывай единицу', uz: "Birlikni unutmang" },
+    kind: 'length', bar: 9, cut: 0,
+    warn: { ru: 'В ответе всегда пиши единицу: сумы, часы или сантиметры. Не смешивай их.', uz: "Javobda doim birlikni yozing: so'm, soat yoki santimetr. Ularni aralashtirmang." },
+    check_q: { ru: 'Лента девять сантиметров, отрезали четыре. Сколько осталось?', uz: "Tasma to'qqiz santimetr, to'rt santimetr kesildi. Qancha qoldi?" },
+    opts: [{ ru: '5 см', uz: '5 sm', ok: true }, { ru: '13 см', uz: '13 sm' }, { ru: '5 сум', uz: "5 so'm" }],
+    wrong: { ru: 'Отрезали — вычитаем: девять минус четыре — пять. И это сантиметры, а не сумы.', uz: "Kesildi — ayiramiz: to'qqiz ayirish to'rt — besh. Va bu santimetr, so'm emas." },
+    check_ok: { ru: 'Верно! Пять сантиметров.', uz: "To'g'ri! Besh santimetr." },
     audio: {
       ru: [
-        'В году двенадцать месяцев: январь, февраль, март и так далее.',
-        'В одном месяце около тридцати дней.',
-        'Не путай: неделя — это семь дней, а месяц — около тридцати.',
-        'Проверь. Сколько месяцев в году?'
+        'В ответе задачи всегда есть единица.',
+        'Деньги, в сумах, время, в часах, длина, в сантиметрах.',
+        'Не смешивай единицы: сантиметры это не сумы.',
+        'Проверь. Лента девять сантиметров, отрезали четыре. Сколько осталось?'
       ],
       uz: [
-        "Yilda o'n ikki oy bor: yanvar, fevral, mart va hokazo.",
-        "Bitta oyda taxminan o'ttiz kun bor.",
-        "Chalkashtirmang: hafta — bu yetti kun, oy esa — taxminan o'ttiz.",
-        "Tekshiring. Yilda nechta oy bor?"
+        "Masala javobida doim birlik bo'ladi.",
+        "Pul, so'mda, vaqt, soatda, uzunlik, santimetrda.",
+        "Birliklarni aralashtirmang: santimetr bu so'm emas.",
+        "Tekshiring. Tasma to'qqiz santimetr, to'rt santimetr kesildi. Qancha qoldi?"
       ]
     }
   },
 
-  // sTBL — KALIT: hafta kunlari (to'liq+qisqa) + hafta=7 · oy~30 · yil=12 oy. done sTBL_2 (3 seg).
+  // sTBL — KALIT: so'z-signal → amal (qo'shildi/keldi → +; kesildi/sarfladi/ketdi → −). done sTBL_2 (3 seg).
   sTBL: {
     eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Дни, недели, месяцы', uz: "Kunlar, haftalar, oylar" },
-    caption: { ru: 'Семь дней недели', uz: "Haftaning yetti kuni" },
+    lead: { ru: 'Слова-подсказки', uz: "Ishora-so'zlar" },
+    caption: { ru: 'Слова задачи · действие', uz: "Masala so'zi · amal" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Неделя — семь дней. В месяце около тридцати дней. В году двенадцать месяцев.', uz: "Hafta — yetti kun. Oyda taxminan o'ttiz kun. Yilda o'n ikki oy." },
+    info: { ru: 'Добавили, пришло, всего — сложение. Отрезали, потратили, осталось — вычитание.', uz: "Qo'shildi, keldi, jami — qo'shish. Kesildi, sarflandi, qoldi — ayirish." },
     audio: {
       ru: [
-        'Соберём ключ. Семь дней недели идут по порядку.',
-        'От понедельника до воскресенья — это одна неделя, семь дней.',
-        'В месяце около тридцати дней, а в году двенадцать месяцев.'
+        'Соберём ключ. Слова задачи подсказывают действие.',
+        'Добавили, пришло, стало всего, это сложение.',
+        'Отрезали, потратили, осталось, это вычитание.'
       ],
       uz: [
-        "Kalitni yig'amiz. Haftaning yetti kuni tartib bilan keladi.",
-        "Dushanbadan yakshanbagacha — bu bitta hafta, yetti kun.",
-        "Oyda taxminan o'ttiz kun, yilda esa o'n ikki oy bor."
+        "Kalitni yig'amiz. Masala so'zlari amalni bildiradi.",
+        "Qo'shildi, keldi, jami bo'ldi, bu qo'shish.",
+        "Kesildi, sarflandi, qoldi, bu ayirish."
       ]
     }
   },
 
-  // s5 — MASHQ WeekDayStage: keyin/oldin qaysi kun. distraktor = tartib buzilishi (M1).
+  // s5 — MASHQ MasalaStage (money, qo'shish). distraktor = noto'g'ri amal (M1), bergan son (M3).
   s5: {
     eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
-    label: { ru: 'Какой день?', uz: "Qaysi kun?" },
+    label: { ru: 'Реши задачу', uz: "Masalani yeching" },
     rounds: [
-      { q: { ru: 'Какой день идёт после вторника?', uz: "Seshanbadan keyin qaysi kun keladi?" },
-        opts: [{ ru: 'среда', uz: 'chorshanba', ok: true }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Понедельник был до вторника. По порядку после вторника — среда.', uz: "Dushanba seshanbadan oldin edi. Tartib bilan seshanbadan keyin — chorshanba." } }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Четверг идёт через день. Сразу после вторника — среда.', uz: "Payshanba bir kundan keyin keladi. Seshanbadan darrov keyin — chorshanba." } }],
-        correct_text: { ru: 'Верно. После вторника — среда.', uz: "To'g'ri. Seshanbadan keyin — chorshanba." } },
-      { q: { ru: 'Какой день идёт до субботы?', uz: "Shanbadan oldin qaysi kun keladi?" },
-        opts: [{ ru: 'пятница', uz: 'juma', ok: true }, { ru: 'воскресенье', uz: 'yakshanba', wrong: { ru: 'Воскресенье идёт после субботы, а не до неё. До субботы — пятница.', uz: "Yakshanba shanbadan keyin keladi, oldin emas. Shanbadan oldin — juma." } }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Четверг стоит раньше. Сразу до субботы — пятница.', uz: "Payshanba oldinroq turadi. Shanbadan darrov oldin — juma." } }],
-        correct_text: { ru: 'Верно. До субботы — пятница.', uz: "To'g'ri. Shanbadan oldin — juma." } },
-      { q: { ru: 'Какой день идёт после воскресенья?', uz: "Yakshanbadan keyin qaysi kun keladi?" },
-        opts: [{ ru: 'понедельник', uz: 'dushanba', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Суббота была до воскресенья. После последнего дня снова понедельник.', uz: "Shanba yakshanbadan oldin edi. Oxirgi kundan keyin yana dushanba." } }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'После воскресенья начинается новая неделя — с понедельника.', uz: "Yakshanbadan keyin yangi hafta boshlanadi — dushanbadan." } }],
-        correct_text: { ru: 'Верно. После воскресенья снова понедельник.', uz: "To'g'ri. Yakshanbadan keyin yana dushanba." } }
+      { kind: 'money', coins: [300, 200], q: { ru: 'Было триста сумов, добавили двести. Сколько стало?', uz: "Uch yuz so'm bor edi, ikki yuz qo'shildi. Qancha bo'ldi?" },
+        opts: [{ ru: '500 сум', uz: "500 so'm", ok: true }, { ru: '100 сум', uz: "100 so'm", wrong: { ru: 'Добавили — стало больше, надо складывать: триста плюс двести — пятьсот.', uz: "Qo'shildi — ko'paydi, qo'shish kerak: uch yuz qo'shuv ikki yuz — besh yuz." } }, { ru: '300 сум', uz: "300 so'm", wrong: { ru: 'Триста — это только начало. Добавь двести: получится пятьсот.', uz: "Uch yuz — bu faqat boshi. Ikki yuz qo'shing: besh yuz bo'ladi." } }],
+        correct_text: { ru: 'Верно. Триста плюс двести — пятьсот сумов.', uz: "To'g'ri. Uch yuz qo'shuv ikki yuz — besh yuz so'm." } },
+      { kind: 'money', coins: [500, 100], q: { ru: 'Было пятьсот сумов, пришло сто. Сколько стало?', uz: "Besh yuz so'm bor edi, yuz keldi. Qancha bo'ldi?" },
+        opts: [{ ru: '600 сум', uz: "600 so'm", ok: true }, { ru: '400 сум', uz: "400 so'm", wrong: { ru: 'Пришло — стало больше. Пятьсот плюс сто — шестьсот.', uz: "Keldi — ko'paydi. Besh yuz qo'shuv yuz — olti yuz." } }, { ru: '510 сум', uz: "510 so'm", wrong: { ru: 'Считай по сотням: пятьсот плюс сто — шестьсот.', uz: "Yuzliklab sanang: besh yuz qo'shuv yuz — olti yuz." } }],
+        correct_text: { ru: 'Верно. Пятьсот плюс сто — шестьсот сумов.', uz: "To'g'ri. Besh yuz qo'shuv yuz — olti yuz so'm." } }
     ],
     audio: {
-      intro: { ru: 'Иди по порядку дней недели и выбери верный день.', uz: "Hafta kunlari tartibi bo'yicha boring va to'g'ri kunni tanlang." },
+      intro: { ru: 'Прочитай задачу, выбери действие и посчитай.', uz: "Masalani o'qing, amalni tanlang va hisoblang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
-  // s6 — MASHQ CalendarReadStage: sana → hafta kuni (mavhum oy, 1=Ch). distraktor = qo'shni kun / sanani kun deb (M2).
+  // s6 — MASHQ MasalaStage (amal-tanlash): qaysi amal? opts = qo'shish/ayirish. distraktor = teskari amal (M1).
   s6: {
     eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
-    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?" },
+    label: { ru: 'Какое действие?', uz: "Qaysi amal?" },
     rounds: [
-      { mark: 8, q: { ru: 'На какой день недели приходится восьмое число?', uz: "Sakkizinchi sana haftaning qaysi kuniga to'g'ri keladi?" },
-        opts: [{ ru: 'среда', uz: 'chorshanba', ok: true }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Посмотри по столбцу: восьмое стоит под средой, не под четвергом.', uz: "Ustunga qarang: sakkizinchi chorshanba tagida turadi, payshanba emas." } }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Восьмое — под средой. Вторник левее.', uz: "Sakkizinchi — chorshanba tagida. Seshanba chaproqda." } }],
-        correct_text: { ru: 'Верно. Восьмое — среда.', uz: "To'g'ri. Sakkizinchi — chorshanba." } },
-      { mark: 6, q: { ru: 'На какой день недели приходится шестое число?', uz: "Oltinchi sana haftaning qaysi kuniga to'g'ri keladi?" },
-        opts: [{ ru: 'понедельник', uz: 'dushanba', ok: true }, { ru: 'воскресенье', uz: 'yakshanba', wrong: { ru: 'Шестое стоит в столбце понедельника, первого столбца.', uz: "Oltinchi dushanba ustunida, birinchi ustunda turadi." } }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Шестое — под понедельником. Вторник правее.', uz: "Oltinchi — dushanba tagida. Seshanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Шестое — понедельник.', uz: "To'g'ri. Oltinchi — dushanba." } },
-      { mark: 10, q: { ru: 'На какой день недели приходится десятое число?', uz: "O'ninchi sana haftaning qaysi kuniga to'g'ri keladi?" },
-        opts: [{ ru: 'пятница', uz: 'juma', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Десятое стоит под пятницей, не под субботой.', uz: "O'ninchi juma tagida turadi, shanba emas." } }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Десятое — под пятницей. Четверг левее.', uz: "O'ninchi — juma tagida. Payshanba chaproqda." } }],
-        correct_text: { ru: 'Верно. Десятое — пятница.', uz: "To'g'ri. O'ninchi — juma." } }
+      { kind: 'length', bar: 7, cut: 3, q: { ru: 'Было семь см, отрезали три. Какое действие?', uz: "Yetti sm bor edi, uch kesildi. Qaysi amal?" },
+        opts: [{ ru: 'вычитание', uz: 'ayirish', ok: true }, { ru: 'сложение', uz: "qo'shish", wrong: { ru: 'Отрезали — стало меньше. Меньше — это вычитание.', uz: "Kesildi — kamaydi. Kamaydi — bu ayirish." } }],
+        correct_text: { ru: 'Верно. Отрезали — вычитание.', uz: "To'g'ri. Kesildi — ayirish." } },
+      { kind: 'money', coins: [400, 200], q: { ru: 'Было четыреста сумов, добавили двести. Какое действие?', uz: "To'rt yuz so'm edi, ikki yuz qo'shildi. Qaysi amal?" },
+        opts: [{ ru: 'сложение', uz: "qo'shish", ok: true }, { ru: 'вычитание', uz: 'ayirish', wrong: { ru: 'Добавили — стало больше. Больше — это сложение.', uz: "Qo'shildi — ko'paydi. Ko'paydi — bu qo'shish." } }],
+        correct_text: { ru: 'Верно. Добавили — сложение.', uz: "To'g'ri. Qo'shildi — qo'shish." } },
+      { kind: 'num', q: { ru: 'В отряде было девять человек, трое ушли. Какое действие?', uz: "Otryadda to'qqiz kishi edi, uchtasi ketdi. Qaysi amal?" },
+        opts: [{ ru: 'вычитание', uz: 'ayirish', ok: true }, { ru: 'сложение', uz: "qo'shish", wrong: { ru: 'Ушли — стало меньше. Меньше — это вычитание.', uz: "Ketdi — kamaydi. Kamaydi — bu ayirish." } }],
+        correct_text: { ru: 'Верно. Ушли — вычитание.', uz: "To'g'ri. Ketdi — ayirish." } }
     ],
     audio: {
-      intro: { ru: 'Найди число в календаре и посмотри, в каком оно столбце дня.', uz: "Kalendardan sanani toping va u qaysi kun ustunida ekanini qarang." },
+      intro: { ru: 'Стало больше или меньше? Выбери действие.', uz: "Ko'paydimi yoki kamaydimi? Amalni tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
-  // s7 — MASHQ WeekDayStage: kecha/bugun/erta. distraktor = teskari (kecha↔erta).
+  // s7 — MASHQ MasalaStage (length, ayirish). distraktor = qo'shish (M1), birlik (M2).
   s7: {
     eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
-    label: { ru: 'Вчера и завтра', uz: "Kecha va erta" },
+    label: { ru: 'Реши задачу', uz: "Masalani yeching" },
     rounds: [
-      { q: { ru: 'Сегодня четверг. Какой день был вчера?', uz: "Bugun payshanba. Kecha qaysi kun edi?" },
-        opts: [{ ru: 'среда', uz: 'chorshanba', ok: true }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Пятница будет завтра, а не вчера. Вчера — день до четверга, среда.', uz: "Juma erta bo'ladi, kecha emas. Kecha — payshanbadan oldingi kun, chorshanba." } }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Вторник был раньше. Вчера — это день сразу до четверга, среда.', uz: "Seshanba oldinroq edi. Kecha — payshanbadan darrov oldingi kun, chorshanba." } }],
-        correct_text: { ru: 'Верно. Вчера была среда.', uz: "To'g'ri. Kecha chorshanba edi." } },
-      { q: { ru: 'Сегодня воскресенье. Какой день будет завтра?', uz: "Bugun yakshanba. Erta qaysi kun bo'ladi?" },
-        opts: [{ ru: 'понедельник', uz: 'dushanba', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Суббота была вчера. Завтра после воскресенья — понедельник.', uz: "Shanba kecha edi. Yakshanbadan keyin erta — dushanba." } }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Пятница была раньше. Завтра — новая неделя, понедельник.', uz: "Juma oldinroq edi. Erta — yangi hafta, dushanba." } }],
-        correct_text: { ru: 'Верно. Завтра будет понедельник.', uz: "To'g'ri. Erta dushanba bo'ladi." } },
-      { q: { ru: 'Сегодня среда. Какой день будет завтра?', uz: "Bugun chorshanba. Erta qaysi kun bo'ladi?" },
-        opts: [{ ru: 'четверг', uz: 'payshanba', ok: true }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Вторник был вчера. Завтра — день после среды, четверг.', uz: "Seshanba kecha edi. Erta — chorshanbadan keyingi kun, payshanba." } }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Пятница будет через день. Сразу завтра — четверг.', uz: "Juma bir kundan keyin bo'ladi. Darrov erta — payshanba." } }],
-        correct_text: { ru: 'Верно. Завтра будет четверг.', uz: "To'g'ri. Erta payshanba bo'ladi." } }
+      { kind: 'length', bar: 8, cut: 3, q: { ru: 'Лента восемь см, отрезали три. Сколько осталось?', uz: "Tasma sakkiz sm, uch kesildi. Qancha qoldi?" },
+        opts: [{ ru: '5 см', uz: '5 sm', ok: true }, { ru: '11 см', uz: '11 sm', wrong: { ru: 'Отрезали — вычитаем, а не складываем: восемь минус три — пять.', uz: "Kesildi — ayiramiz, qo'shmaymiz: sakkiz ayirish uch — besh." } }, { ru: '5 сум', uz: "5 so'm", wrong: { ru: 'Число пять верное, но это сантиметры, а не сумы.', uz: "Besh soni to'g'ri, ammo bu santimetr, so'm emas." } }],
+        correct_text: { ru: 'Верно. Восемь минус три — пять сантиметров.', uz: "To'g'ri. Sakkiz ayirish uch — besh santimetr." } },
+      { kind: 'length', bar: 10, cut: 6, q: { ru: 'Провод десять см, отрезали шесть. Сколько осталось?', uz: "Sim o'n sm, olti kesildi. Qancha qoldi?" },
+        opts: [{ ru: '4 см', uz: '4 sm', ok: true }, { ru: '16 см', uz: '16 sm', wrong: { ru: 'Отрезали — вычитаем: десять минус шесть — четыре.', uz: "Kesildi — ayiramiz: o'n ayirish olti — to'rt." } }, { ru: '6 см', uz: '6 sm', wrong: { ru: 'Шесть — это сколько отрезали. Осталось десять минус шесть — четыре.', uz: "Olti — bu qancha kesilgani. Qolgani o'n ayirish olti — to'rt." } }],
+        correct_text: { ru: 'Верно. Десять минус шесть — четыре сантиметра.', uz: "To'g'ri. O'n ayirish olti — to'rt santimetr." } }
     ],
     audio: {
-      intro: { ru: 'Вчера — день до сегодня, завтра — день после. Выбери верный день.', uz: "Kecha — bugungacha bo'lgan kun, erta — keyingi kun. To'g'ri kunni tanlang." },
+      intro: { ru: 'Отрезали, значит стало меньше. Выбери ответ с единицей.', uz: "Kesildi, demak kamaydi. Birlik bilan javobni tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
-  // s8 — MASHQ CalendarReadStage: boshqa sanalar. distraktor = qo'shni kun.
+  // s8 — MASHQ MasalaStage (time, butun soat). distraktor = noto'g'ri amal, birlik.
   s8: {
     eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
-    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?" },
+    label: { ru: 'Задача о времени', uz: "Vaqt masalasi" },
     rounds: [
-      { mark: 3, q: { ru: 'На какой день приходится третье число?', uz: "Uchinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'пятница', uz: 'juma', ok: true }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Третье стоит под пятницей. Четверг — второе число.', uz: "Uchinchi juma tagida turadi. Payshanba — ikkinchi sana." } }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Третье — под пятницей. Суббота правее.', uz: "Uchinchi — juma tagida. Shanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Третье — пятница.', uz: "To'g'ri. Uchinchi — juma." } },
-      { mark: 14, q: { ru: 'На какой день приходится четырнадцатое число?', uz: "O'n to'rtinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'вторник', uz: 'seshanba', ok: true }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Четырнадцатое под вторником. Понедельник — тринадцатое.', uz: "O'n to'rtinchi seshanba tagida. Dushanba — o'n uchinchi." } }, { ru: 'среда', uz: 'chorshanba', wrong: { ru: 'Четырнадцатое — под вторником. Среда правее.', uz: "O'n to'rtinchi — seshanba tagida. Chorshanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Четырнадцатое — вторник.', uz: "To'g'ri. O'n to'rtinchi — seshanba." } },
-      { mark: 12, q: { ru: 'На какой день приходится двенадцатое число?', uz: "O'n ikkinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'воскресенье', uz: 'yakshanba', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Двенадцатое под воскресеньем, последним столбцом. Суббота — одиннадцатое.', uz: "O'n ikkinchi yakshanba, oxirgi ustun tagida. Shanba — o'n birinchi." } }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Двенадцатое — воскресенье. Понедельник — начало недели.', uz: "O'n ikkinchi — yakshanba. Dushanba — hafta boshi." } }],
-        correct_text: { ru: 'Верно. Двенадцатое — воскресенье.', uz: "To'g'ri. O'n ikkinchi — yakshanba." } }
+      { kind: 'time', clock: 3, q: { ru: 'Сейчас три часа. Через два часа сколько будет?', uz: "Hozir soat uch. Ikki soatdan keyin nechada bo'ladi?" },
+        opts: [{ ru: '5 часов', uz: '5 soat', ok: true }, { ru: '1 час', uz: '1 soat', wrong: { ru: 'Через — значит позже, прибавляем: три плюс два — пять часов.', uz: "Keyin — demak keyinroq, qo'shamiz: uchga ikkini qo'shamiz — besh soat." } }, { ru: '5 см', uz: '5 sm', wrong: { ru: 'Число пять верное, но время в часах, а не в сантиметрах.', uz: "Besh soni to'g'ri, ammo vaqt soatda, santimetrda emas." } }],
+        correct_text: { ru: 'Верно. Три плюс два — пять часов.', uz: "To'g'ri. Uchga ikkini qo'shamiz — besh soat." } },
+      { kind: 'time', clock: 8, q: { ru: 'Сейчас восемь часов. Два часа назад сколько было?', uz: "Hozir soat sakkiz. Ikki soat oldin nechada edi?" },
+        opts: [{ ru: '6 часов', uz: '6 soat', ok: true }, { ru: '10 часов', uz: '10 soat', wrong: { ru: 'Назад — значит раньше, вычитаем: восемь минус два — шесть часов.', uz: "Oldin — demak avvalroq, ayiramiz: sakkiz ayirish ikki — olti soat." } }, { ru: '2 часа', uz: '2 soat', wrong: { ru: 'Два — это сколько прошло. Было восемь минус два — шесть часов.', uz: "Ikki — bu qancha o'tgani. Sakkiz ayirish ikki — olti soat edi." } }],
+        correct_text: { ru: 'Верно. Восемь минус два — шесть часов.', uz: "To'g'ri. Sakkiz ayirish ikki — olti soat." } }
     ],
     audio: {
-      intro: { ru: 'Снова найди число и посмотри его столбец дня.', uz: "Yana sanani toping va uning kun ustunini qarang." },
+      intro: { ru: 'Через, прибавляй, назад, вычитай. Ответ в часах.', uz: "Keyin, qo'shing, oldin, ayiring. Javob soatda." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
-  // s9 — MASHQ MonthStage: oylar. distraktor = 7/30 chalkashligi (M3), oy tartibi (M4).
+  // s9 — MASHQ MasalaStage (amal-tanlash aralash).
   s9: {
     eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    label: { ru: 'Месяцы года', uz: "Yil oylari" },
+    label: { ru: 'Какое действие?', uz: "Qaysi amal?" },
     rounds: [
-      { q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?" },
-        opts: [{ ru: '12', uz: '12', ok: true }, { ru: '7', uz: '7', wrong: { ru: 'Семь — это дни недели, а не месяцы. В году двенадцать месяцев.', uz: "Yetti — bu hafta kunlari, oylar emas. Yilda o'n ikki oy." } }, { ru: '30', uz: '30', wrong: { ru: 'Около тридцати — это дни в месяце. А месяцев в году двенадцать.', uz: "Taxminan o'ttiz — bu oydagi kunlar. Yilda esa o'n ikki oy." } }],
-        correct_text: { ru: 'Верно. В году двенадцать месяцев.', uz: "To'g'ri. Yilda o'n ikki oy." } },
-      { q: { ru: 'Какой месяц идёт после мая?', uz: "Maydan keyin qaysi oy keladi?" },
-        opts: [{ ru: 'июнь', uz: 'iyun', ok: true }, { ru: 'апрель', uz: 'aprel', wrong: { ru: 'Апрель был до мая. После мая идёт июнь.', uz: "Aprel maydan oldin edi. Maydan keyin iyun keladi." } }, { ru: 'июль', uz: 'iyul', wrong: { ru: 'Июль идёт через месяц. Сразу после мая — июнь.', uz: "Iyul bir oydan keyin keladi. Maydan darrov keyin — iyun." } }],
-        correct_text: { ru: 'Верно. После мая идёт июнь.', uz: "To'g'ri. Maydan keyin iyun keladi." } },
-      { q: { ru: 'Какой месяц первый в году?', uz: "Yilning birinchi oyi qaysi?" },
-        opts: [{ ru: 'январь', uz: 'yanvar', ok: true }, { ru: 'декабрь', uz: 'dekabr', wrong: { ru: 'Декабрь — последний месяц года. Первый — январь.', uz: "Dekabr — yilning oxirgi oyi. Birinchisi — yanvar." } }, { ru: 'март', uz: 'mart', wrong: { ru: 'Март — третий месяц. Год начинается с января.', uz: "Mart — uchinchi oy. Yil yanvardan boshlanadi." } }],
-        correct_text: { ru: 'Верно. Год начинается с января.', uz: "To'g'ri. Yil yanvardan boshlanadi." } }
+      { kind: 'money', coins: [800], q: { ru: 'Было восемьсот сумов, потратили триста. Какое действие?', uz: "Sakkiz yuz so'm edi, uch yuz sarflandi. Qaysi amal?" },
+        opts: [{ ru: 'вычитание', uz: 'ayirish', ok: true }, { ru: 'сложение', uz: "qo'shish", wrong: { ru: 'Потратили — стало меньше. Это вычитание.', uz: "Sarflandi — kamaydi. Bu ayirish." } }],
+        correct_text: { ru: 'Верно. Потратили — вычитание.', uz: "To'g'ri. Sarflandi — ayirish." } },
+      { kind: 'num', q: { ru: 'На складе было шесть ящиков, привезли ещё четыре. Какое действие?', uz: "Omborda olti quti edi, yana to'rttasi keltirildi. Qaysi amal?" },
+        opts: [{ ru: 'сложение', uz: "qo'shish", ok: true }, { ru: 'вычитание', uz: 'ayirish', wrong: { ru: 'Привезли ещё — стало больше. Это сложение.', uz: "Yana keltirildi — ko'paydi. Bu qo'shish." } }],
+        correct_text: { ru: 'Верно. Привезли — сложение.', uz: "To'g'ri. Keltirildi — qo'shish." } },
+      { kind: 'time', clock: 6, q: { ru: 'Работа шла с шести часов, прошло три часа. Какое действие, чтобы узнать время?', uz: "Ish soat oltidan boshlandi, uch soat o'tdi. Vaqtni bilish uchun qaysi amal?" },
+        opts: [{ ru: 'сложение', uz: "qo'shish", ok: true }, { ru: 'вычитание', uz: 'ayirish', wrong: { ru: 'Прошло время — стало позже, прибавляем. Это сложение.', uz: "Vaqt o'tdi — keyinroq bo'ldi, qo'shamiz. Bu qo'shish." } }],
+        correct_text: { ru: 'Верно. Время прошло — сложение.', uz: "To'g'ri. Vaqt o'tdi — qo'shish." } }
     ],
     audio: {
-      intro: { ru: 'Вспомни: месяцев в году двенадцать, они идут по порядку.', uz: "Eslang: yilda o'n ikki oy, ular tartib bilan keladi." },
+      intro: { ru: 'Стало больше или меньше? Выбери действие.', uz: "Ko'paydimi yoki kamaydimi? Amalni tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
-  // s10 — MASHQ CalendarReadStage aralash.
+  // s10 — MASHQ MasalaStage (money, ayirish). distraktor = qo'shish (M1), sarflangan son (M3).
   s10: {
     eyebrow: { ru: 'Тренировка · 6', uz: 'Mashq · 6' },
-    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?" },
+    label: { ru: 'Реши задачу', uz: "Masalani yeching" },
     rounds: [
-      { mark: 7, q: { ru: 'На какой день приходится седьмое число?', uz: "Yettinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'вторник', uz: 'seshanba', ok: true }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Седьмое под вторником. Понедельник — шестое.', uz: "Yettinchi seshanba tagida. Dushanba — oltinchi." } }, { ru: 'среда', uz: 'chorshanba', wrong: { ru: 'Седьмое — под вторником. Среда правее.', uz: "Yettinchi — seshanba tagida. Chorshanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Седьмое — вторник.', uz: "To'g'ri. Yettinchi — seshanba." } },
-      { mark: 11, q: { ru: 'На какой день приходится одиннадцатое число?', uz: "O'n birinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'суббота', uz: 'shanba', ok: true }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Одиннадцатое под субботой. Пятница — десятое.', uz: "O'n birinchi shanba tagida. Juma — o'ninchi." } }, { ru: 'воскресенье', uz: 'yakshanba', wrong: { ru: 'Одиннадцатое — под субботой. Воскресенье правее.', uz: "O'n birinchi — shanba tagida. Yakshanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Одиннадцатое — суббота.', uz: "To'g'ri. O'n birinchi — shanba." } },
-      { mark: 5, q: { ru: 'На какой день приходится пятое число?', uz: "Beshinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'воскресенье', uz: 'yakshanba', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Пятое под воскресеньем, последним столбцом. Суббота — четвёртое.', uz: "Beshinchi yakshanba, oxirgi ustun tagida. Shanba — to'rtinchi." } }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Пятое — под воскресеньем. Пятница левее.', uz: "Beshinchi — yakshanba tagida. Juma chaproqda." } }],
-        correct_text: { ru: 'Верно. Пятое — воскресенье.', uz: "To'g'ri. Beshinchi — yakshanba." } }
+      { kind: 'money', coins: [800], q: { ru: 'Было восемьсот сумов, потратили триста. Сколько осталось?', uz: "Sakkiz yuz so'm edi, uch yuz sarflandi. Qancha qoldi?" },
+        opts: [{ ru: '500 сум', uz: "500 so'm", ok: true }, { ru: '1100 сум', uz: "1100 so'm", wrong: { ru: 'Потратили — вычитаем, а не складываем: восемьсот минус триста — пятьсот.', uz: "Sarflandi — ayiramiz, qo'shmaymiz: sakkiz yuz ayirish uch yuz — besh yuz." } }, { ru: '300 сум', uz: "300 so'm", wrong: { ru: 'Триста — это сколько потратили. Осталось восемьсот минус триста — пятьсот.', uz: "Uch yuz — bu sarflangani. Qolgani sakkiz yuz ayirish uch yuz — besh yuz." } }],
+        correct_text: { ru: 'Верно. Восемьсот минус триста — пятьсот сумов.', uz: "To'g'ri. Sakkiz yuz ayirish uch yuz — besh yuz so'm." } },
+      { kind: 'money', coins: [1000], q: { ru: 'Было тысяча сумов, потратили четыреста. Сколько осталось?', uz: "Ming so'm edi, to'rt yuz sarflandi. Qancha qoldi?" },
+        opts: [{ ru: '600 сум', uz: "600 so'm", ok: true }, { ru: '1400 сум', uz: "1400 so'm", wrong: { ru: 'Потратили — вычитаем: тысяча минус четыреста — шестьсот.', uz: "Sarflandi — ayiramiz: ming ayirish to'rt yuz — olti yuz." } }, { ru: '400 сум', uz: "400 so'm", wrong: { ru: 'Четыреста потратили. Осталось тысяча минус четыреста — шестьсот.', uz: "To'rt yuz sarflandi. Qolgani ming ayirish to'rt yuz — olti yuz." } }],
+        correct_text: { ru: 'Верно. Тысяча минус четыреста — шестьсот сумов.', uz: "To'g'ri. Ming ayirish to'rt yuz — olti yuz so'm." } }
     ],
     audio: {
-      intro: { ru: 'Читай календарь по столбцам дней недели.', uz: "Kalendarni hafta kunlari ustunlari bo'yicha o'qing." },
+      intro: { ru: 'Потратили, стало меньше. Вычитай и не забудь единицу.', uz: "Sarflandi, kamaydi. Ayir va birlikni unutmang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
-  // s11 — MASHQ WeekDayStage aralash (tartib).
+  // s11 — MASHQ MasalaStage aralash (vaqt/uzunlik/pul).
   s11: {
     eyebrow: { ru: 'Тренировка · 7', uz: 'Mashq · 7' },
-    label: { ru: 'Какой день?', uz: "Qaysi kun?" },
+    label: { ru: 'Реши задачу', uz: "Masalani yeching" },
     rounds: [
-      { q: { ru: 'Какой день идёт после четверга?', uz: "Payshanbadan keyin qaysi kun keladi?" },
-        opts: [{ ru: 'пятница', uz: 'juma', ok: true }, { ru: 'среда', uz: 'chorshanba', wrong: { ru: 'Среда была до четверга. После четверга — пятница.', uz: "Chorshanba payshanbadan oldin edi. Payshanbadan keyin — juma." } }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Суббота идёт через день. Сразу после четверга — пятница.', uz: "Shanba bir kundan keyin keladi. Payshanbadan darrov keyin — juma." } }],
-        correct_text: { ru: 'Верно. После четверга — пятница.', uz: "To'g'ri. Payshanbadan keyin — juma." } },
-      { q: { ru: 'Какой день идёт до понедельника?', uz: "Dushanbadan oldin qaysi kun keladi?" },
-        opts: [{ ru: 'воскресенье', uz: 'yakshanba', ok: true }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Вторник идёт после понедельника, а не до. До понедельника — воскресенье.', uz: "Seshanba dushanbadan keyin keladi, oldin emas. Dushanbadan oldin — yakshanba." } }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Суббота была раньше. Сразу до понедельника — воскресенье.', uz: "Shanba oldinroq edi. Dushanbadan darrov oldin — yakshanba." } }],
-        correct_text: { ru: 'Верно. До понедельника — воскресенье.', uz: "To'g'ri. Dushanbadan oldin — yakshanba." } },
-      { q: { ru: 'Сколько дней в неделе?', uz: "Haftada nechta kun bor?" },
-        opts: [{ ru: '7', uz: '7', ok: true }, { ru: '12', uz: '12', wrong: { ru: 'Двенадцать — это месяцы в году. В неделе семь дней.', uz: "O'n ikki — bu yildagi oylar. Haftada yetti kun." } }, { ru: '5', uz: '5', wrong: { ru: 'Дней в неделе семь, вместе с субботой и воскресеньем.', uz: "Haftada yetti kun, shanba va yakshanba bilan birga." } }],
-        correct_text: { ru: 'Верно. В неделе семь дней.', uz: "To'g'ri. Haftada yetti kun." } }
+      { kind: 'length', bar: 6, cut: 0, q: { ru: 'Одна лента шесть см, другая четыре см. Какова общая длина?', uz: "Bir tasma olti sm, ikkinchisi to'rt sm. Umumiy uzunlik qancha?" },
+        opts: [{ ru: '10 см', uz: '10 sm', ok: true }, { ru: '2 см', uz: '2 sm', wrong: { ru: 'Общая длина — это вместе, складываем: шесть плюс четыре — десять.', uz: "Umumiy uzunlik — birga, qo'shamiz: oltiga to'rtni qo'shamiz — o'n." } }, { ru: '10 сум', uz: "10 so'm", wrong: { ru: 'Десять верно, но это сантиметры, не сумы.', uz: "O'n to'g'ri, ammo bu santimetr, so'm emas." } }],
+        correct_text: { ru: 'Верно. Шесть плюс четыре — десять сантиметров.', uz: "To'g'ri. Oltiga to'rtni qo'shamiz — o'n santimetr." } },
+      { kind: 'time', clock: 4, q: { ru: 'Сейчас четыре часа. Через три часа сколько будет?', uz: "Hozir soat to'rt. Uch soatdan keyin nechada bo'ladi?" },
+        opts: [{ ru: '7 часов', uz: '7 soat', ok: true }, { ru: '1 час', uz: '1 soat', wrong: { ru: 'Через — прибавляем: четыре плюс три — семь часов.', uz: "Keyin — qo'shamiz: to'rtga uchni qo'shamiz — yetti soat." } }, { ru: '7 см', uz: '7 sm', wrong: { ru: 'Время в часах, а не в сантиметрах.', uz: "Vaqt soatda, santimetrda emas." } }],
+        correct_text: { ru: 'Верно. Четыре плюс три — семь часов.', uz: "To'g'ri. To'rtga uchni qo'shamiz — yetti soat." } },
+      { kind: 'money', coins: [500, 200], q: { ru: 'Было пятьсот сумов, потратили двести. Сколько осталось?', uz: "Besh yuz so'm edi, ikki yuz sarflandi. Qancha qoldi?" },
+        opts: [{ ru: '300 сум', uz: "300 so'm", ok: true }, { ru: '700 сум', uz: "700 so'm", wrong: { ru: 'Потратили — вычитаем: пятьсот минус двести — триста.', uz: "Sarflandi — ayiramiz: besh yuz ayirish ikki yuz — uch yuz." } }, { ru: '200 сум', uz: "200 so'm", wrong: { ru: 'Двести потратили. Осталось пятьсот минус двести — триста.', uz: "Ikki yuz sarflandi. Qolgani besh yuz ayirish ikki yuz — uch yuz." } }],
+        correct_text: { ru: 'Верно. Пятьсот минус двести — триста сумов.', uz: "To'g'ri. Besh yuz ayirish ikki yuz — uch yuz so'm." } }
     ],
     audio: {
-      intro: { ru: 'Помни порядок дней недели. Выбери верный ответ.', uz: "Hafta kunlari tartibini yodda tuting. To'g'ri javobni tanlang." },
+      intro: { ru: 'Читай слова задачи, выбирай действие, пиши единицу.', uz: "Masala so'zlarini o'qing, amalni tanlang, birlikni yozing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
   // s12 — MASALA konteksti (ishlatilmaydi, klon an'anasi bo'yicha saqlanadi)
   s12: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Бит заполняет журнал.', uz: "Bit jurnalni to'ldiradi." },
-    audio: { ru: 'Бит отмечает день в бортовом журнале.', uz: "Bit bort jurnalida kunni belgilaydi." }
+    lead: { ru: 'Бит на станции.', uz: "Bit stansiyada." },
+    audio: { ru: 'Бит решает задачу станции.', uz: "Bit stansiya masalasini yechadi." }
   },
 
-  // s13 — MASALA (CalendarReadStage single): jurnalda voqea 15-sanada — qaysi kun?
+  // s13 — MASALA (MasalaStage single, money ayirish): Bit sarfladi.
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    label: { ru: 'День в журнале', uz: "Jurnaldagi kun" },
-    story: { ru: 'Бит отметил в журнале важное событие на пятнадцатое число. Посмотри в календарь: какой это день недели?', uz: "Bit jurnalda muhim voqeani o'n beshinchi sanaga belgiladi. Kalendarga qarang: bu haftaning qaysi kuni?" },
-    mark: 15,
-    q: { ru: 'На какой день недели приходится пятнадцатое число?', uz: "O'n beshinchi sana haftaning qaysi kuniga to'g'ri keladi?" },
+    label: { ru: 'Расчёт Бита', uz: "Bit hisobi" },
+    story: { ru: 'У Бита было 1000 сумов, отдал 600. Сколько осталось?', uz: "Bitda 1000 so'm edi, 600 berdi. Qancha qoldi?" },
+    kind: 'money', coins: [1000],
+    q: { ru: 'Сколько осталось у Бита?', uz: "Bitda qancha qoldi?" },
     opts: [
-      { ru: 'среда', uz: 'chorshanba', ok: true },
-      { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Пятнадцатое стоит под средой. Четверг — шестнадцатое.', uz: "O'n beshinchi chorshanba tagida turadi. Payshanba — o'n oltinchi." } },
-      { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Пятнадцатое — под средой. Вторник левее.', uz: "O'n beshinchi — chorshanba tagida. Seshanba chaproqda." } }
+      { ru: '400 сум', uz: "400 so'm", ok: true },
+      { ru: '1600 сум', uz: "1600 so'm", wrong: { ru: 'Отдал — стало меньше, вычитаем: тысяча минус шестьсот — четыреста.', uz: "Berdi — kamaydi, ayiramiz: ming ayirish olti yuz — to'rt yuz." } },
+      { ru: '600 сум', uz: "600 so'm", wrong: { ru: 'Шестьсот он отдал. Осталось тысяча минус шестьсот — четыреста.', uz: "Olti yuzni berdi. Qolgani ming ayirish olti yuz — to'rt yuz." } }
     ],
-    correct_text: { ru: 'Верно. Пятнадцатое — среда. Событие в среду.', uz: "To'g'ri. O'n beshinchi — chorshanba. Voqea chorshanba kuni." },
+    correct_text: { ru: 'Верно. Тысяча минус шестьсот — четыреста сумов.', uz: "To'g'ri. Ming ayirish olti yuz — to'rt yuz so'm." },
     audio: {
-      intro: { ru: 'Событие назначено на пятнадцатое число. Посмотри в календарь: какой это день недели?', uz: "Voqea o'n beshinchi sanaga belgilangan. Kalendarga qarang: bu haftaning qaysi kuni?" },
-      on_correct: { ru: 'Верно. Пятнадцатое — среда.', uz: "To'g'ri. O'n beshinchi — chorshanba." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'У Бита было тысяча сумов, он отдал шестьсот. Сколько осталось?', uz: "Bitda ming so'm edi, olti yuz berdi. Qancha qoldi?" },
+      on_correct: { ru: 'Верно. Осталось четыреста сумов.', uz: "To'g'ri. To'rt yuz so'm qoldi." },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
-  // s14 — FINAL (aralash Week/Calendar ×3 + FactCard Neptun).
+  // s14 — FINAL (aralash ×3 + FactCard Neptun).
   s14: {
     eyebrow: { ru: 'Итог · проверка', uz: 'Yakun · tekshiruv' },
-    label: { ru: 'Календарь', uz: "Kalendar" },
+    label: { ru: 'Реши задачу', uz: "Masalani yeching" },
     rounds: [
-      { kind: 'week', q: { ru: 'Какой день идёт после среды?', uz: "Chorshanbadan keyin qaysi kun keladi?" },
-        opts: [{ ru: 'четверг', uz: 'payshanba', ok: true }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Вторник был до среды. После среды — четверг.', uz: "Seshanba chorshanbadan oldin edi. Chorshanbadan keyin — payshanba." } }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Понедельник — начало недели. После среды — четверг.', uz: "Dushanba — hafta boshi. Chorshanbadan keyin — payshanba." } }],
-        correct_text: { ru: 'Верно. После среды — четверг.', uz: "To'g'ri. Chorshanbadan keyin — payshanba." } },
-      { kind: 'cal', mark: 9, q: { ru: 'На какой день приходится девятое число?', uz: "To'qqizinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'четверг', uz: 'payshanba', ok: true }, { ru: 'среда', uz: 'chorshanba', wrong: { ru: 'Девятое под четвергом. Среда — восьмое.', uz: "To'qqizinchi payshanba tagida. Chorshanba — sakkizinchi." } }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Девятое — под четвергом. Пятница правее.', uz: "To'qqizinchi — payshanba tagida. Juma o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Девятое — четверг.', uz: "To'g'ri. To'qqizinchi — payshanba." } },
-      { kind: 'week', q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?" },
-        opts: [{ ru: '12', uz: '12', ok: true }, { ru: '7', uz: '7', wrong: { ru: 'Семь — дни недели. Месяцев в году двенадцать.', uz: "Yetti — hafta kunlari. Yilda o'n ikki oy." } }, { ru: '30', uz: '30', wrong: { ru: 'Тридцать — дни месяца. Месяцев двенадцать.', uz: "O'ttiz — oy kunlari. Oylar o'n ikkita." } }],
-        correct_text: { ru: 'Верно. В году двенадцать месяцев.', uz: "To'g'ri. Yilda o'n ikki oy." } }
+      { kind: 'money', coins: [500, 500], q: { ru: 'Было пятьсот сумов, добавили пятьсот. Сколько стало?', uz: "Besh yuz so'm edi, besh yuz qo'shildi. Qancha bo'ldi?" },
+        opts: [{ ru: '1000 сум', uz: "1000 so'm", ok: true }, { ru: '0 сум', uz: "0 so'm", wrong: { ru: 'Добавили — складываем: пятьсот плюс пятьсот — тысяча.', uz: "Qo'shildi — qo'shamiz: besh yuz qo'shuv besh yuz — ming." } }, { ru: '500 сум', uz: "500 so'm", wrong: { ru: 'Пятьсот — только начало. Плюс пятьсот — тысяча.', uz: "Besh yuz — faqat boshi. Besh yuz qo'shsak — ming." } }],
+        correct_text: { ru: 'Верно. Тысяча сумов.', uz: "To'g'ri. Ming so'm." } },
+      { kind: 'length', bar: 9, cut: 5, q: { ru: 'Лента девять см, отрезали пять. Сколько осталось?', uz: "Tasma to'qqiz sm, besh kesildi. Qancha qoldi?" },
+        opts: [{ ru: '4 см', uz: '4 sm', ok: true }, { ru: '14 см', uz: '14 sm', wrong: { ru: 'Отрезали — вычитаем: девять минус пять — четыре.', uz: "Kesildi — ayiramiz: to'qqiz ayirish besh — to'rt." } }, { ru: '4 сум', uz: "4 so'm", wrong: { ru: 'Четыре верно, но это сантиметры.', uz: "To'rt to'g'ri, ammo bu santimetr." } }],
+        correct_text: { ru: 'Верно. Четыре сантиметра.', uz: "To'g'ri. To'rt santimetr." } },
+      { kind: 'time', clock: 7, q: { ru: 'Сейчас семь часов. Два часа назад сколько было?', uz: "Hozir soat yetti. Ikki soat oldin nechada edi?" },
+        opts: [{ ru: '5 часов', uz: '5 soat', ok: true }, { ru: '9 часов', uz: '9 soat', wrong: { ru: 'Назад — вычитаем: семь минус два — пять часов.', uz: "Oldin — ayiramiz: yetti ayirish ikki — besh soat." } }, { ru: '2 часа', uz: '2 soat', wrong: { ru: 'Два — сколько прошло. Было семь минус два — пять часов.', uz: "Ikki — qancha o'tgani. Yetti ayirish ikki — besh soat edi." } }],
+        correct_text: { ru: 'Верно. Пять часов.', uz: "To'g'ri. Besh soat." } }
     ],
     fact_badge: { ru: 'Нептун', uz: 'Neptun' },
-    fact_text: { ru: 'Нептун открыли не в телескоп, а по расчётам: учёные вычислили, где он должен быть.', uz: "Neptun teleskopda emas, hisob-kitob orqali topilgan: olimlar u qayerda bo'lishini hisoblab chiqishgan." },
-    fact_audio: { ru: 'Нептун нашли не глазами, а по расчётам. Учёные вычислили, где он должен быть, и не ошиблись.', uz: "Neptun ko'z bilan emas, hisob-kitob orqali topilgan. Olimlar u qayerda bo'lishini hisoblab, xato qilishmagan." },
+    fact_text: { ru: 'У Нептуна четырнадцать спутников — маленьких лун, что кружат вокруг него.', uz: "Neptunning o'n to'rtta yo'ldoshi bor — uning atrofida aylanadigan kichik oylar." },
+    fact_audio: { ru: 'У Нептуна целых четырнадцать спутников. Это маленькие луны вокруг планеты.', uz: "Neptunning o'n to'rtta yo'ldoshi bor. Bular sayyora atrofidagi kichik oylar." },
     audio: {
-      intro: { ru: 'Последняя проверка. Дни недели, календарь и месяцы.', uz: "Oxirgi tekshiruv. Hafta kunlari, kalendar va oylar." },
+      intro: { ru: 'Последняя проверка. Выбирай действие и пиши единицу.', uz: "Oxirgi tekshiruv. Amalni tanlang va birlikni yozing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
     }
   },
 
-  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi d.40 pul)
+  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi d.42)
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты умеешь читать календарь!', uz: "Endi siz kalendarni o'qiy olasiz!" },
-    rule_recap: { ru: 'В неделе семь дней по порядку. В месяце около тридцати дней, в году двенадцать месяцев.', uz: "Haftada yetti kun tartib bilan. Oyda taxminan o'ttiz kun, yilda o'n ikki oy." },
+    cando: { ru: 'Теперь ты умеешь решать задачи про величины!', uz: "Endi siz kattaliklar haqidagi masalalarni yecha olasiz!" },
+    rule_recap: { ru: 'Найди дано и вопрос. Стало больше — сложение, меньше — вычитание. В ответе пиши единицу.', uz: "Berilgan va savolni toping. Ko'paydi — qo'shish, kamaydi — ayirish. Javobda birlikni yozing." },
     audio: {
-      ru: 'Миссия выполнена. Мы научились читать календарь. В неделе семь дней, они идут по порядку. В месяце около тридцати дней, а в году двенадцать месяцев. Дальше мы узнаем про деньги.',
-      uz: "Missiya bajarildi. Kalendarni o'qishni o'rgandik. Haftada yetti kun, ular tartib bilan keladi. Oyda taxminan o'ttiz kun, yilda esa o'n ikki oy. Keyingi safar pul haqida bilib olamiz."
+      ru: 'Миссия выполнена. Мы научились решать задачи про величины. Найди, что дано и что спросили. Если стало больше, складывай, если меньше, вычитай. И всегда пиши единицу: сумы, часы или сантиметры. Дальше нас ждёт новая задача.',
+      uz: "Missiya bajarildi. Kattaliklar haqidagi masalalarni yechishni o'rgandik. Nima berilgan va so'ralganini toping. Ko'paysa, qo'shing, kamaysa, ayiring. Va doim birlikni yozing: so'm, soat yoki santimetr. Keyin bizni yangi masala kutmoqda."
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Семь дней недели.', uz: "Haftaning yetti kuni." },
-  s2:  { ru: 'Вчера, сегодня, завтра.', uz: "Kecha, bugun, erta." },
+  s1:  { ru: 'Что дано и что спросили.', uz: "Nima berilgan, nima so'ralgan." },
+  s2:  { ru: 'Больше или меньше.', uz: "Ko'paydimi, kamaydimi." },
   s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'А теперь месяцы.', uz: "Endi oylar." },
+  s4:  { ru: 'Не забывай единицу.', uz: "Birlikni unutmang." },
   sTBL: { ru: 'Ключ последней планеты.', uz: "Oxirgi sayyora kaliti." },
   s5:  { ru: 'Теперь сам.', uz: "Endi o'zingiz." },
-  s6:  { ru: 'Читаем календарь.', uz: "Kalendarni o'qiymiz." },
-  s7:  { ru: 'Вчера и завтра.', uz: "Kecha va erta." },
-  s8:  { ru: 'Снова календарь.', uz: "Yana kalendar." },
-  s9:  { ru: 'Месяцы года.', uz: "Yil oylari." },
-  s10: { ru: 'Ещё раз календарь.', uz: "Yana bir kalendar." },
-  s11: { ru: 'Порядок дней.', uz: "Kunlar tartibi." },
-  s12: { ru: 'Бит заполняет журнал.', uz: "Bit jurnalni to'ldiradi." },
+  s6:  { ru: 'Какое действие?', uz: "Qaysi amal?" },
+  s7:  { ru: 'Задача о длине.', uz: "Uzunlik masalasi." },
+  s8:  { ru: 'Задача о времени.', uz: "Vaqt masalasi." },
+  s9:  { ru: 'Снова выбери действие.', uz: "Yana amalni tanlang." },
+  s10: { ru: 'Потратили — вычитаем.', uz: "Sarflandi — ayiramiz." },
+  s11: { ru: 'Разные задачи.', uz: "Har xil masalalar." },
+  s12: { ru: 'Бит на станции.', uz: "Bit stansiyada." },
   s13: { ru: 'Помоги Биту.', uz: "Bitga yordam bering." },
   s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Путь домой почти пройден!', uz: "Uyga yo'l deyarli bosib o'tildi!" }
+  s15: { ru: 'Почти дома!', uz: "Deyarli uydamiz!" }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'На станции у Нептуна Бит отметил день в бортовом журнале. Путь домой почти пройден! Спасибо за помощь.',
-  uz: "Neptun yonidagi stansiyada Bit bort jurnalida kunni belgiladi. Uyga yo'l deyarli bosib o'tildi! Yordamingiz uchun rahmat."
+  ru: 'На станции у Нептуна экипаж решил все задачи. Совсем скоро дом! Спасибо за помощь.',
+  uz: "Neptun yonidagi stansiyada ekipaj barcha masalalarni yechdi. Uy juda yaqin! Yordamingiz uchun rahmat."
 };
 
 const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
@@ -1415,7 +1404,7 @@ const ICON = {
   star: <g><path d="M20 3 L24.9 14.7 L37.5 15.8 L28 24.2 L30.9 36.5 L20 29.8 L9.1 36.5 L12 24.2 L2.5 15.8 L15.1 14.7 Z" fill="url(#g1starG)" stroke="#E0992A" strokeWidth="0.8" strokeLinejoin="round"/><path d="M20 9 L22.4 15.4 L20 20 L17.6 15.4 Z" fill="rgba(255,255,255,0.38)"/></g>,
   fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
   flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
-  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
+  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#fe5b1a"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#fe5b1a"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
   cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
@@ -1476,7 +1465,7 @@ const BitSVG = ({ state = 'present', className = '' }) => (
     {/* antenna */}
     <g className="g1-bit-ant">
       <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round"/>
-      <circle cx="60" cy="11" r="6" fill="#FF4F28"/>
+      <circle cx="60" cy="11" r="6" fill="#fe5b1a"/>
       <circle cx="58" cy="9" r="2" fill="#FFB9A6"/>
     </g>
     {/* oyoqchalar */}
@@ -1602,7 +1591,7 @@ const D2Defs = () => (
       <linearGradient id="d2rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#E7DCC6"/><stop offset="45%" stopColor="#F1E9D9"/><stop offset="55%" stopColor="#F6F0E2"/><stop offset="100%" stopColor="#E7DCC6"/></linearGradient>
       <radialGradient id="d2space" cx="50%" cy="45%" r="70%"><stop offset="0%" stopColor="#2E4B7C"/><stop offset="100%" stopColor="#16294C"/></radialGradient>
       <linearGradient id="d2rocket" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#AFC2D0"/><stop offset="45%" stopColor="#F4F8FB"/><stop offset="100%" stopColor="#9EB2C0"/></linearGradient>
-      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28"/></linearGradient>
+      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a"/></linearGradient>
       <linearGradient id="d2planet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5C7CB0"/><stop offset="100%" stopColor="#2C3E68"/></linearGradient>
       <linearGradient id="d2ship" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8CA0B8"/><stop offset="45%" stopColor="#C6D6E4"/><stop offset="100%" stopColor="#5E718C"/></linearGradient>
     </defs>
@@ -2427,7 +2416,7 @@ const NumberLine = () => {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 'min(320px, 96%)', height: 'auto' }} aria-hidden="true">
       <line x1={x(0)} y1={y} x2={x(max)} y2={y} stroke={T.ink3} strokeWidth="2"/>
-      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round"/>
+      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round"/>
       <line x1={x(30)} y1={y} x2={x(34)} y2={y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round"/>
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -2910,9 +2899,9 @@ const Screen0 = (props) => {
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <NeptunBase
             bubbleNode={(
-              <div className="fade-up" style={{ position: 'absolute', right: '4%', top: '34%', zIndex: 7, background: 'rgba(18,42,80,0.42)', border: '1.5px solid rgba(127,176,242,0.34)', borderRadius: 14, padding: 'clamp(6px,1.5vw,10px)', boxShadow: '0 7px 20px -8px rgba(0,0,0,0.6)', width: 'clamp(156px,42vw,206px)' }}>
-                {/* Bit ko'rsatayotgan hafta kunlari — IKKI QATOR (wrap), chorshanba ajratilgan (o'ng-past, personajlarni to'smaydi; M1) */}
-                <WeekStrip hi={[2]} wrap/>
+              <div className="fade-up" style={{ position: 'absolute', right: '4%', top: '40%', zIndex: 7, background: 'rgba(18,42,80,0.42)', border: '1.5px solid rgba(127,176,242,0.34)', borderRadius: 14, padding: 'clamp(7px,1.8vw,11px)', boxShadow: '0 7px 20px -8px rgba(0,0,0,0.6)', width: 'clamp(150px,40vw,210px)' }}>
+                {/* Bit ko'rsatayotgan tasma: 8 sm, 3 kesildi (kimdir qo'shdi=11? — M1 noto'g'ri amal) */}
+                <LenBar cm={8} cut={3} w="100%"/>
               </div>
             )}
             charNode={<SaturnCrew present/>}/>
@@ -2980,10 +2969,10 @@ const Screen1 = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(210px, 48vw, 290px)' }}>
-          {/* hafta kunlari — 7 kun tartib bilan (Du..Ya) */}
-          <WeekStrip/>
-          {revealSol && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(15px,2.6vw,20px)' }}>{t({ ru: 'от понедельника до воскресенья', uz: "dushanbadan yakshanbagacha" })}</div>}
-          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(16px,2.8vw,21px)' }}>{t({ ru: 'неделя — семь дней', uz: 'hafta — yetti kun' })}</div>}
+          {/* masala misoli: bor 500, qo'shildi 200 — BERILGAN son-tangalar */}
+          <CoinSet coins={[500, 200]}/>
+          {revealSol && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(14px,2.4vw,18px)', textAlign: 'center' }}>{t({ ru: 'дано: пятьсот и двести', uz: "berilgan: besh yuz va ikki yuz" })}</div>}
+          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(14px,2.4vw,18px)', textAlign: 'center' }}>{t({ ru: 'спросили: сколько всего', uz: "so'ralgan: jami qancha" })}</div>}
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3069,9 +3058,17 @@ const Screen2 = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(200px, 46vw, 280px)' }}>
-          {/* kecha (seshanba) · bugun (chorshanba) · erta (payshanba) */}
-          <WeekStrip hi={reveal >= 1 ? [1, 2, 3] : [2]} caps={done ? { 1: { ru: 'вчера', uz: 'kecha' }, 2: { ru: 'сегодня', uz: 'bugun' }, 3: { ru: 'завтра', uz: 'erta' } } : { 2: { ru: 'сегодня', uz: 'bugun' } }}/>
-          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(15px,2.6vw,20px)', textAlign: 'center' }}>{t({ ru: 'три дня подряд', uz: "ketma-ket uch kun" })}</div>}
+          {/* amal-signali: ko'paydi → qo'shish (+), kamaydi → ayirish (−) */}
+          <div style={{ display: 'flex', gap: 'clamp(14px,4vw,32px)', alignItems: 'stretch', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(10px,2.4vw,16px)', borderRadius: 14, background: T.accentSoft, minWidth: 'clamp(110px,30vw,150px)' }}>
+              <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(30px,7vw,46px)', color: T.accent }}>+</span>
+              <span style={{ fontWeight: 700, color: T.ink2, fontSize: 'clamp(12px,2vw,15px)', textAlign: 'center' }}>{t({ ru: 'больше: добавили, пришло', uz: "ko'paydi: qo'shildi, keldi" })}</span>
+            </div>
+            {reveal >= 1 && <div className="g1-pop-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(10px,2.4vw,16px)', borderRadius: 14, background: '#E1F0FB', minWidth: 'clamp(110px,30vw,150px)' }}>
+              <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(30px,7vw,46px)', color: T.blue }}>−</span>
+              <span style={{ fontWeight: 700, color: T.ink2, fontSize: 'clamp(12px,2vw,15px)', textAlign: 'center' }}>{t({ ru: 'меньше: отрезали, потратили', uz: "kamaydi: kesildi, sarflandi" })}</span>
+            </div>}
+          </div>
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3112,12 +3109,12 @@ const Screen3 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -12, left: 16, background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(11px,1.7vw,13px)', letterSpacing: '.04em', padding: '3px 12px', borderRadius: 999 }}>{lang === 'uz' ? 'QOIDA' : 'ПРАВИЛО'}</span>
           <p style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(15px,2.3vw,19px)', color: T.ink, lineHeight: 1.5 }}>{t(c.rule)}</p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <WeekStrip/>
+          <CoinSet coins={c.coins}/>
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
@@ -3166,7 +3163,7 @@ const CodeTablo = ({ tens, ones, tensLabel, onesLabel, emph = null, name = null 
 // emph — dual-coding (audio aytayotgan razryadni yoritadi). showEq — 45 = 40 + 5.
 // ============================================================
 const OmborKasseta = () => (
-  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#FF4F28)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
+  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#fe5b1a)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
     {[0, 1, 2, 3, 4].map(i => <div key={i} style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.55)' }}/>)}
   </div>
 );
@@ -3194,13 +3191,13 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px,2.2vw,14px)', width: 'min(400px,98%)' }}>
-      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#FF4F28', '#FFE8E1', oHi, tHi, 'ten')}
+      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#fe5b1a', '#FFE8E1', oHi, tHi, 'ten')}
       {shelf(Array.from({ length: ones }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><BatterySvg className="d2-battsvg-btn"/></span>), onesCap, ones, onesLabel, '#019ACB', '#E1F3FB', tHi, oHi, 'one')}
       {showEq && (
         <div className="fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px,1.6vw,10px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,5vw,32px)', marginTop: 2 }}>
           <span style={{ color: T.ink }}>{total}</span>
           <span style={{ color: T.ink3 }}>=</span>
-          <span style={{ color: '#FF4F28' }}>{tens * 10}</span>
+          <span style={{ color: '#fe5b1a' }}>{tens * 10}</span>
           <span style={{ color: T.ink3 }}>+</span>
           <span style={{ color: '#019ACB' }}>{ones}</span>
         </div>
@@ -3212,7 +3209,7 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
 // ============================================================
 // FuelTank + TankCompare — Dars04 star-vizual: ikki quvvat bloki (son + to'lish darajasi:
 // katta son = to'laroq -> taqqoslash intuitsiyasi). O'rtada > < = belgi sloti.
-// Raqamlar rang-kodli: o'nlik #FF4F28 (sariq-qizil), birlik #019ACB (ko'k).
+// Raqamlar rang-kodli: o'nlik #fe5b1a (sariq-qizil), birlik #019ACB (ko'k).
 // ============================================================
 const FuelTank = ({ code, emph = false, dim = false, emphDigit = null }) => {
   const tens = Math.floor(code / 10), ones = code % 10;
@@ -3310,8 +3307,8 @@ const NumTrack = ({ value, answer = null, max = 100, emphTens = false }) => {
         {Array.from({ length: max + 1 }).map((_, n) => (n % 10 !== 0 ? <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -4, width: n % 5 === 0 ? 2 : 1.3, height: n % 5 === 0 ? 16 : 12, background: n % 5 === 0 ? '#8A98A6' : '#AEABA3', borderRadius: 1 }}/> : null))}
         {tens.map((n) => (
           <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -9, transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: 3, height: 23, background: emphTens ? '#FF4F28' : '#5E6B78', borderRadius: 2 }}/>
-            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#FF4F28' : T.ink2 }}>{n}</span>
+            <div style={{ width: 3, height: 23, background: emphTens ? '#fe5b1a' : '#5E6B78', borderRadius: 2 }}/>
+            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#fe5b1a' : T.ink2 }}>{n}</span>
           </div>
         ))}
         <div style={{ position: 'absolute', left: `${pct}%`, top: '50%', transform: 'translate(-50%,-50%)', width: 'clamp(14px,3vw,18px)', height: 'clamp(14px,3vw,18px)', borderRadius: '50%', background: shown ? T.success : T.accent, border: '3px solid #fff', boxShadow: `0 0 0 3px ${shown ? T.successSoft : T.accentSoft}`, zIndex: 2 }}/>
@@ -3362,12 +3359,12 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#FF4F28', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
       <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 3, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{bu}</span>
       <span style={{ gridColumn: '1 / 4', gridRow: 4, height: 3, background: T.ink, borderRadius: 2, margin: '3px 0' }}/>
       <span style={{ gridColumn: 2, gridRow: 5, display: 'flex', justifyContent: 'center' }}>{resTens}</span>
@@ -3398,7 +3395,7 @@ const RazryadBreak = ({ a, b }) => {
       <div key={i} className="fade-up" style={{ ...RB_ROW, animationDelay: `${0.15 + i * 0.25}s` }}>
         <span style={{ fontSize: 'clamp(28px,6vw,40px)', color: T.ink, minWidth: 'clamp(44px,10vw,60px)', textAlign: 'right' }}>{n}</span>
         <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink3 }}>=</span>
-        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #FF4F28', color: '#FF4F28' }}>{tens}</span>
+        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #fe5b1a', color: '#fe5b1a' }}>{tens}</span>
         <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink2 }}>+</span>
         <span style={{ ...RB_CHIP, background: '#E9F7FC', border: '2px solid #019ACB', color: '#019ACB' }}>{units}</span>
       </div>
@@ -3409,7 +3406,7 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#FF4F28' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
         <span style={{ color: T.ink3 }}>, </span>
         <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
       </p>
@@ -3494,7 +3491,7 @@ const CargoBase = ({ w }) => (
     <circle cx="103" cy="68" r="3.2" fill="#FF6A3D" opacity="0.7"/>
     {/* bayroq (chapda) */}
     <line x1="26" y1="86" x2="26" y2="60" stroke="#C3CDDC" strokeWidth="2.6"/>
-    <path d="M26 60 L26 73 L44 66.5 Z" fill="#FF4F28"/>
+    <path d="M26 60 L26 73 L44 66.5 Z" fill="#fe5b1a"/>
   </svg>
 );
 // Mars osmoni/sirti elementlari — real-hayotiy sahnasi uchun.
@@ -3562,7 +3559,7 @@ const MarsBase = ({ answer = null }) => {
       <div style={{ position: 'absolute', right: '11%', bottom: '28%', transform: 'translateX(50%)', width: 'clamp(58px,14.5vw,90px)', zIndex: 4 }}><LandedRocket w="100%"/></div>
       {/* konteynerlar (o'rtada, yerda) */}
       <div style={{ position: 'absolute', left: '48%', bottom: '17%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 'clamp(5px,1.4vw,10px)', zIndex: 5 }}>
-        <CargoCrate n={34} ca="#FF9166" cb="#FF4F28" br="#C1381A"/>
+        <CargoCrate n={34} ca="#FF9166" cb="#fe5b1a" br="#C1381A"/>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(18px,3.6vw,26px)', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>+</span>
         <CargoCrate n={25} ca="#33B8E3" cb="#019ACB" br="#0B7BA3"/>
       </div>
@@ -3611,22 +3608,18 @@ const Screen4 = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 'clamp(16px,3vw,24px)', minHeight: 'clamp(150px,32vw,200px)' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', width: '100%' }}>
-            {/* 12 oy — yanvardan dekabrgacha */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 'clamp(4px,1.2vw,7px)', width: '100%', maxWidth: 380 }}>
-              {MONTHS.map((mo, i) => (
-                <div key={i} className={substShown ? 'g1-pop-in' : ''} style={{ textAlign: 'center', padding: 'clamp(5px,1.3vw,8px) 2px', borderRadius: 8, fontSize: 'clamp(9px,1.6vw,12px)', fontWeight: 800, fontFamily: "'JetBrains Mono',monospace", background: T.accentSoft, color: T.accent, animationDelay: substShown ? `${i * 0.04}s` : undefined }}>{mo.ab[lang]}</div>
-              ))}
-            </div>
-            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(14px,2.4vw,18px)' }}>{t({ ru: 'двенадцать месяцев', uz: "o'n ikki oy" })}</div>}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px,1.4vw,10px)' }}>
+            {/* BIRLIK: uzunlik masalasi — javob santimetrda (so'm emas) */}
+            <LenBar cm={c.bar} cut={c.cut || 0}/>
+            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(13px,2.2vw,17px)', textAlign: 'center' }}>{t({ ru: 'ответ — в сантиметрах', uz: "javob — santimetrda" })}</div>}
           </div>
         </div>
-        <div className="fade-up" style={{ background: '#FBEEEE', border: '2px solid #D64545', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(214,69,69,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#B23A3A', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
+        <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
           {c.opts.map((o, i) => (
             <button key={i} className={`option ${done && o.ok ? 'option-correct' : ''} ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || done || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
-              style={{ ...FRAC_OPT }}>{t(o)}</button>
+              style={{ ...WORD_OPT }}>{t(o)}</button>
           ))}
         </div>
         {wrong.size > 0 && !done && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(c.wrong)}/></div>}
@@ -3680,7 +3673,7 @@ const HatchDoor = ({ outerOpen, innerOpen, wrong }) => {
           </g>
         </g>
         <rect x="66" y="90" width="28" height="12" rx="6" fill="#EDE4D2" stroke="#C9BDA4" strokeWidth="1.5"/>
-        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#D64545'} style={{ transition: 'fill 0.3s' }}/>
+        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#fe5b1a'} style={{ transition: 'fill 0.3s' }}/>
       </svg>
     </div>
   );
@@ -3761,11 +3754,11 @@ const Screen5 = (props) => {
               <div className="d2-hatchtablo">
                 <span className="mono" style={{ fontSize: 'clamp(9px, 1.3vw, 11px)', fontWeight: 800, letterSpacing: '0.14em', color: T.ink3, textTransform: 'uppercase' }}>{lang === 'uz' ? 'Kod tablosi' : 'Табло кода'}</span>
                 <p className="mono" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px, 1.9vw, 15px)', textAlign: 'center' }}>{t(roundIdx === 0 ? c.round1 : c.round2)}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#D64545' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#fe5b1a' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderRight: `1px solid ${T.ink3}`, borderBottom: `1px solid ${T.ink3}` }}>{t(c.tens_label)}</div>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderBottom: `1px solid ${T.ink3}` }}>{t(c.ones_label)}</div>
                   {[0, 1].map(si => (
-                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#FF4F28' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
+                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#fe5b1a' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
                   ))}
                 </div>
               </div>
@@ -3821,7 +3814,7 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
         </g>
       )}
       <line x1={nlx(0)} y1={NL_y} x2={nlx(NL_max)} y2={NL_y} stroke={T.ink3} strokeWidth="2"/>
-      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
+      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {!asking && pos > 30 && <line x1={nlx(30)} y1={NL_y} x2={nlx(pos)} y2={NL_y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -3831,8 +3824,8 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
       ))}
       {!asking && [[0, 10], [10, 20], [20, 30]].map(([a, b], i) => (
         <g key={i} style={{ opacity: phase >= 1 ? 1 : 0, transition: `opacity 0.4s ${i * 0.35}s` }}>
-          <path d={arc(a, b, 30)} fill="none" stroke="#FF4F28" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
-          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#FF4F28" fontFamily="'JetBrains Mono', monospace">+10</text>
+          <path d={arc(a, b, 30)} fill="none" stroke="#fe5b1a" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
+          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#fe5b1a" fontFamily="'JetBrains Mono', monospace">+10</text>
         </g>
       ))}
       {!asking && [30, 31, 32, 33].map((a, i) => (
@@ -3946,13 +3939,13 @@ const Screen7 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
             {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#FF4F28' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             ) : (
-              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#FF4F28' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
             )}
           </p>
         </div>
@@ -3972,7 +3965,7 @@ const Screen7 = (props) => {
             {S7_CHECK.map((d, pos) => (
               <button key={pos} className="option" disabled={!canAct || checkOk} onClick={() => tapDigit(pos)}
                 style={{ width: 'clamp(54px, 12vw, 68px)', height: 'clamp(60px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(32px, 7vw, 44px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-                         color: checkOk ? (pos === 0 ? '#FF4F28' : '#019ACB') : T.ink,
+                         color: checkOk ? (pos === 0 ? '#fe5b1a' : '#019ACB') : T.ink,
                          borderColor: checkOk && pos === 0 ? T.success : undefined }}>{d}</button>
             ))}
           </div>
@@ -4527,7 +4520,7 @@ const HeroShip = () => (
       <radialGradient id="hsGlass" cx="38%" cy="30%" r="75%"><stop offset="0%" stopColor="#EAFCFF"/><stop offset="45%" stopColor="#5FC0DE"/><stop offset="100%" stopColor="#245C74"/></radialGradient>
       <linearGradient id="hsFin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#B9C7D4"/><stop offset="100%" stopColor="#66727F"/></linearGradient>
       <linearGradient id="hsNoz" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3A4652"/><stop offset="55%" stopColor="#8A97A4"/><stop offset="100%" stopColor="#4A5662"/></linearGradient>
-      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28" stopOpacity="0"/></linearGradient>
+      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a" stopOpacity="0"/></linearGradient>
     </defs>
     {/* ikkala dvigatel alangasi (ikki turbina) */}
     <g style={{ animation: 'g1pulse 0.32s ease-in-out infinite', transformBox: 'fill-box', transformOrigin: 'left center' }}>
@@ -4641,7 +4634,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <NeptunField label={{ ru: 'Шестая планета пройдена', uz: "Oltinchi sayyora bosib o'tildi" }}/>
+          <NeptunField label={{ ru: 'Задачи решены', uz: "Masalalar yechildi" }}/>
         </div>
       </div>
     </Stage>
@@ -4675,8 +4668,8 @@ const d8BuildTiles = (st, su, seed) => {
   return d8Shuffle([...need, ...dist], seed).map((d, i) => ({ id: `${seed}-${i}`, d }));
 };
 const D8DropSlot = React.forwardRef(({ digit, color, state, onClear }, ref) => {
-  const border = state === 'ok' ? T.success : state === 'wrong' ? '#D64545' : state === 'filled' ? color : '#A7A6A2';
-  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FBEEEE' : '#ffffff';
+  const border = state === 'ok' ? T.success : state === 'wrong' ? '#fe5b1a' : state === 'filled' ? color : '#A7A6A2';
+  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FFF1EA' : '#ffffff';
   const clickable = digit != null && state !== 'ok';
   return (
     <span ref={ref} onClick={clickable ? onClear : undefined} className={state === 'ok' ? 'g1-pop-in' : ''}
@@ -4810,7 +4803,7 @@ const DropColumnStage = ({ props, cKey, fact = false }) => {
     : reveal >= 2
       ? { ru: `Десятки: ${at} + ${bt} = ${st}`, uz: `O'nliklar: ${at} + ${bt} = ${st}` }
       : null;
-  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#FF4F28" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
+  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#fe5b1a" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
   const resUnits = <D8DropSlot ref={unitsRef} digit={digitOf('units')} color="#019ACB" state={slotState('units', digitOf('units'))} onClear={() => clearSlot('units')}/>;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -4894,7 +4887,7 @@ const ArrayViz = ({ r, c, reveal = 0, variant = 'geo' }) => {
           </div>
         ))}
       </div>
-      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ряда по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
+      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ${r === 1 ? 'ряд' : r < 5 ? 'ряда' : 'рядов'} по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
       {reveal >= 2 && (
         <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(3px,1vw,6px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(16px,3.2vw,23px)' }}>
           {Array.from({ length: r }).map((_, i) => (<React.Fragment key={i}>{i > 0 && <span style={{ color: T.ink3 }}>+</span>}<span style={{ color: '#2E9B4E' }}>{c}</span></React.Fragment>))}
@@ -5207,7 +5200,7 @@ const DealStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5290,7 +5283,7 @@ const ArrayRevStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5379,7 +5372,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi — o'quvchi hali jadvalni bilmaydi, ochib ishlata oladi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5575,7 +5568,7 @@ const DivTableFillStage = ({ props, cKey }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5677,7 +5670,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5805,7 +5798,7 @@ const MatchStage = ({ props, cKey }) => {
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink, cursor: 'grab' };
   const rightStyle = (pos) => { const fam = order[pos]; return matched.has(fam)
     ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, color: T.success, cursor: 'default' }
-    : wrongPos === pos ? { ...MCELL, background: '#FBEEEE', border: '2.5px solid #D64545', color: '#B23A3A' }
+    : wrongPos === pos ? { ...MCELL, background: '#FFF1EA', border: '2.5px solid #fe5b1a', color: '#fe5b1a' }
     : drag && drag.hover === pos ? { ...MCELL, background: T.accentSoft, border: `2.5px dashed ${T.accent}`, color: T.ink }
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink }; };
   // PIKSEL geometriya (viewBox = konteyner o'lchami → doiralar dumaloq, sim tabiiy)
@@ -6219,7 +6212,7 @@ const PickStage = ({ props, cKey, fact = false }) => {
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(PICK_Q)}</p>
         <div key={ri} className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.6vw,10px)' }}>
           {cur.opts.map((o, i) => { const w = wrong.has(i); const isOk = solved && i === correct; return (
-            <button key={i} disabled={!canAct || solved || w} onClick={() => hit(i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(8px,1.8vw,12px)', minHeight: 'clamp(90px,22vw,130px)', borderRadius: 14, background: isOk ? T.successSoft : '#fff', border: `2.5px solid ${isOk ? T.success : w ? '#D64545' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default' }}>
+            <button key={i} disabled={!canAct || solved || w} onClick={() => hit(i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(8px,1.8vw,12px)', minHeight: 'clamp(90px,22vw,130px)', borderRadius: 14, background: isOk ? T.successSoft : '#fff', border: `2.5px solid ${isOk ? T.success : w ? '#fe5b1a' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default' }}>
               <GeoFig verts={rectVerts(o[0], o[1])} filled showPerim={false} ok={isOk}/>
             </button>
           ); })}
@@ -6607,7 +6600,7 @@ const PolyMatchStage = ({ props, cKey }) => {
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', cursor: 'grab' };
   const rightStyle = (pos) => { const fam = order[pos]; return matched.has(fam)
     ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, color: T.success, cursor: 'default', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
-    : wrongPos === pos ? { ...MCELL, background: '#FBEEEE', border: '2.5px solid #D64545', color: '#B23A3A', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
+    : wrongPos === pos ? { ...MCELL, background: '#FFF1EA', border: '2.5px solid #fe5b1a', color: '#fe5b1a', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
     : drag && drag.hover === pos ? { ...MCELL, background: T.accentSoft, border: `2.5px dashed ${T.accent}`, color: T.ink, fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink, fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }; };
   const LX = box.w * 0.415, RX = box.w * 0.585;
@@ -7075,7 +7068,7 @@ const PickExprStage = ({ props, cKey, fact = false }) => {
             <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(PICK_Q2)}</p>
             <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
               {opts.map((o, i) => { const w = wrong.has(i); const ok = solved && o.ok; return (
-                <button key={i} disabled={!canAct || solved || w} onClick={() => hit(o, i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(12px,2.4vw,18px)', minHeight: 'clamp(56px,12vw,74px)', borderRadius: 14, background: ok ? T.successSoft : '#fff', border: `2.5px solid ${ok ? T.success : w ? '#D64545' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default' }}>
+                <button key={i} disabled={!canAct || solved || w} onClick={() => hit(o, i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(12px,2.4vw,18px)', minHeight: 'clamp(56px,12vw,74px)', borderRadius: 14, background: ok ? T.successSoft : '#fff', border: `2.5px solid ${ok ? T.success : w ? '#fe5b1a' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default' }}>
                   <ExprText left={o.left} op={o.op} right={o.right}/>
                 </button>
               ); })}
@@ -7091,72 +7084,76 @@ const PickExprStage = ({ props, cKey, fact = false }) => {
   );
 };
 // ============================================================
-// DARS36 KALENDAR MEXANIKASI (YANGI) — hafta kunlari + kalendar-katak + oylar.
-// WeekStrip: 7 kun qatori (Du..Ya), ajratish. CalendarFig: mavhum oy (1-sana=Chorshanba, 30 kun), sana ajratiladi.
-// CalMCStage: matn-MC engine (rounds), figure prop (null bo'lsa freym yo'q). WeekDay/CalendarRead/MonthStage = shu engine.
+// DARS38 MASALA MEXANIKASI (YANGI) — kattalik-masala: matn → amal → javob (birlik bilan).
+// CoinFig/CoinSet (pul, meros) + MiniClock (butun soat) + LenBar (sm uzunlik). MasalaStage: masala + vizual (kind) → MC.
 // ============================================================
-const FRAC_OPT = { padding: 'clamp(10px,1.9vw,14px)', fontSize: 'clamp(17px,3vw,24px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(48px,7.5vw,60px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.2 };
-const WORD_OPT = { padding: 'clamp(8px,1.6vw,12px) clamp(6px,1.4vw,10px)', fontSize: 'clamp(12px,1.9vw,15px)', fontWeight: 700, fontFamily: "'Source Serif 4', serif", minHeight: 'clamp(50px,8vw,64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.15 };
-// Hafta kunlari (0=Dushanba … 6=Yakshanba) — to'liq + qisqartma. UZ/RU DRAFT.
-const WEEKDAYS = [
-  { ru: 'понедельник', uz: 'dushanba', ab: { ru: 'Пн', uz: 'Du' } },
-  { ru: 'вторник', uz: 'seshanba', ab: { ru: 'Вт', uz: 'Se' } },
-  { ru: 'среда', uz: 'chorshanba', ab: { ru: 'Ср', uz: 'Ch' } },
-  { ru: 'четверг', uz: 'payshanba', ab: { ru: 'Чт', uz: 'Pa' } },
-  { ru: 'пятница', uz: 'juma', ab: { ru: 'Пт', uz: 'Ju' } },
-  { ru: 'суббота', uz: 'shanba', ab: { ru: 'Сб', uz: 'Sh' } },
-  { ru: 'воскресенье', uz: 'yakshanba', ab: { ru: 'Вс', uz: 'Ya' } }
-];
-const MONTHS = [
-  { ru: 'январь', uz: 'yanvar', ab: { ru: 'янв', uz: 'yan' } }, { ru: 'февраль', uz: 'fevral', ab: { ru: 'фев', uz: 'fev' } },
-  { ru: 'март', uz: 'mart', ab: { ru: 'мар', uz: 'mar' } }, { ru: 'апрель', uz: 'aprel', ab: { ru: 'апр', uz: 'apr' } },
-  { ru: 'май', uz: 'may', ab: { ru: 'май', uz: 'may' } }, { ru: 'июнь', uz: 'iyun', ab: { ru: 'июн', uz: 'iyn' } },
-  { ru: 'июль', uz: 'iyul', ab: { ru: 'июл', uz: 'iyl' } }, { ru: 'август', uz: 'avgust', ab: { ru: 'авг', uz: 'avg' } },
-  { ru: 'сентябрь', uz: 'sentabr', ab: { ru: 'сен', uz: 'sen' } }, { ru: 'октябрь', uz: 'oktabr', ab: { ru: 'окт', uz: 'okt' } },
-  { ru: 'ноябрь', uz: 'noyabr', ab: { ru: 'ноя', uz: 'noy' } }, { ru: 'декабрь', uz: 'dekabr', ab: { ru: 'дек', uz: 'dek' } }
-];
-const CAL_START = 2;   // 1-sana = Chorshanba (index 2)
-const CAL_DAYS = 30;
-// WeekStrip — 7 kun chiplari; hi = ajratilgan indekslar; caps = {idx: {ru,uz}} yorliqlar (kecha/bugun/erta uchun).
-const WeekStrip = ({ hi = [], caps = null, wrap = false }) => {
+const FRAC_OPT = { padding: 'clamp(10px,1.9vw,14px)', fontSize: 'clamp(15px,2.4vw,19px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(48px,7.5vw,60px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.2 };
+const WORD_OPT = { padding: 'clamp(9px,1.7vw,13px) clamp(6px,1.4vw,10px)', fontSize: 'clamp(14px,2.2vw,18px)', fontWeight: 700, fontFamily: "'Source Serif 4', serif", minHeight: 'clamp(50px,8vw,64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.15 };
+const CUR = { ru: 'сум', uz: "so'm" };
+const COIN_TONE = {
+  100: { face: '#E8B98A', edge: '#B87A44', ink: '#6E3E1A' },
+  200: { face: '#D6DBE2', edge: '#9BA6B4', ink: '#3E4756' },
+  500: { face: '#F0D67E', edge: '#C79E38', ink: '#6E5312' }
+};
+const CoinFig = ({ value, s = 'clamp(44px,10vw,60px)' }) => {
   const lang = useLang();
+  if (value >= 1000) {
+    return (
+      <div style={{ width: `calc(${s} * 1.7)`, height: s, borderRadius: 8, background: 'linear-gradient(145deg,#8AD6A2,#3E9B5F)', border: '2px solid #2C7A47', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: `0 3px 8px -3px rgba(${T.shadowBase},0.5)`, flexShrink: 0 }}>
+        <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(15px,3vw,21px)', color: '#173D26', lineHeight: 1 }}>{value}</span>
+        <span style={{ fontSize: 'clamp(8px,1.4vw,10px)', fontWeight: 800, color: '#215536' }}>{CUR[lang]}</span>
+      </div>
+    );
+  }
+  const c = COIN_TONE[value] || COIN_TONE[100];
   return (
-    <div style={{ display: 'flex', gap: 'clamp(3px,1vw,7px)', justifyContent: 'center', width: '100%', flexWrap: wrap ? 'wrap' : 'nowrap', overflowX: wrap ? 'visible' : 'auto', padding: '2px 0' }}>
-      {WEEKDAYS.map((d, i) => {
-        const on = hi.includes(i);
-        return (
-          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flexShrink: 0 }}>
-            {caps && caps[i] && <span style={{ fontSize: 'clamp(9px,1.6vw,12px)', fontWeight: 800, color: T.accent, whiteSpace: 'nowrap' }}>{caps[i][lang]}</span>}
-            <div className={on ? 'g1-pop-in' : ''} style={{ minWidth: 'clamp(32px,8.4vw,48px)', padding: 'clamp(7px,1.6vw,11px) clamp(3px,1vw,6px)', borderRadius: 10, textAlign: 'center', fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', fontFamily: "'JetBrains Mono',monospace", background: on ? T.accentSoft : '#fff', color: on ? T.accent : T.ink2, border: `2px solid ${on ? T.accent : '#E3DED4'}`, boxShadow: `0 2px 6px -3px rgba(${T.shadowBase},0.3)` }}>{d.ab[lang]}</div>
-          </div>
-        );
+    <div style={{ width: s, height: s, borderRadius: '50%', background: `radial-gradient(circle at 36% 30%, #ffffff55, ${c.face} 55%, ${c.edge})`, border: `2.5px solid ${c.edge}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', boxShadow: `0 3px 7px -3px rgba(${T.shadowBase},0.5)`, flexShrink: 0 }}>
+      <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(13px,2.6vw,18px)', color: c.ink, lineHeight: 1 }}>{value}</span>
+      <span style={{ fontSize: 'clamp(7px,1.3vw,9px)', fontWeight: 800, color: c.ink }}>{CUR[lang]}</span>
+    </div>
+  );
+};
+const CoinSet = ({ coins = [], s }) => (
+  <div style={{ display: 'flex', gap: 'clamp(5px,1.4vw,9px)', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+    {coins.map((v, i) => <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.06}s`, display: 'inline-flex' }}><CoinFig value={v} s={s}/></span>)}
+  </div>
+);
+// MiniClock — ixcham siferblat, butun soat (daqiqa strelkasi 12 da). Vaqt masalalari uchun.
+const mcHand = (cx, cy, len, deg) => { const a = (deg - 90) * Math.PI / 180; return [cx + len * Math.cos(a), cy + len * Math.sin(a)]; };
+const MiniClock = ({ h = 3, w = 'clamp(74px,17vw,100px)' }) => {
+  const [hx, hy] = mcHand(50, 50, 25, (h % 12) * 30);
+  const [mx, my] = mcHand(50, 50, 37, 0);
+  return (
+    <svg viewBox="0 0 100 100" style={{ width: w, height: 'auto', display: 'block', filter: `drop-shadow(0 3px 8px rgba(${T.shadowBase},0.25))` }} aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="#fff" stroke={T.ink2} strokeWidth="2.6"/>
+      {Array.from({ length: 12 }).map((_, i) => { const a = i * 30; const [x1, y1] = mcHand(50, 50, 45, a); const [x2, y2] = mcHand(50, 50, i % 3 === 0 ? 39 : 42, a); return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={i % 3 === 0 ? T.ink : T.ink3} strokeWidth={i % 3 === 0 ? 2 : 1.2} strokeLinecap="round"/>; })}
+      <line x1="50" y1="50" x2={mx} y2={my} stroke={T.blue} strokeWidth="2.6" strokeLinecap="round"/>
+      <line x1="50" y1="50" x2={hx} y2={hy} stroke={T.accent} strokeWidth="4.2" strokeLinecap="round"/>
+      <circle cx="50" cy="50" r="3.2" fill={T.ink}/>
+    </svg>
+  );
+};
+// LenBar — sm-uzunlik chizig'i (birlik-kataklar); cut>0 → oxirgi cut katak kesilgan (qizil, xira). Uzunlik masalalari.
+const LenBar = ({ cm = 8, cut = 0, w = 'clamp(160px,44vw,250px)' }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px,1.2vw,8px)', width: w }}>
+    <div style={{ display: 'flex', width: '100%' }}>
+      {Array.from({ length: cm }).map((_, i) => {
+        const isCut = i >= cm - cut;
+        return <div key={i} style={{ flex: 1, height: 'clamp(18px,4.4vw,26px)', background: isCut ? '#F1DEDA' : T.accentSoft, borderTop: `2px solid ${isCut ? '#fe5b1a' : T.accent}`, borderBottom: `2px solid ${isCut ? '#fe5b1a' : T.accent}`, borderLeft: i === 0 ? `2px solid ${T.accent}` : '1px solid #ffffff', borderRight: i === cm - 1 ? `2px solid ${isCut ? '#fe5b1a' : T.accent}` : 'none', borderTopLeftRadius: i === 0 ? 6 : 0, borderBottomLeftRadius: i === 0 ? 6 : 0, borderTopRightRadius: i === cm - 1 ? 6 : 0, borderBottomRightRadius: i === cm - 1 ? 6 : 0, opacity: isCut ? 0.55 : 1 }}/>;
       })}
     </div>
-  );
+    <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(12px,2vw,15px)', color: T.ink2 }}>{cm} sm{cut > 0 ? ` − ${cut}` : ''}</span>
+  </div>
+);
+// MasalaFig — masala vizualini kind bo'yicha tanlaydi (money/time/length/num).
+const MasalaFig = (cur) => {
+  if (cur.kind === 'money') return <CoinSet coins={cur.coins}/>;
+  if (cur.kind === 'time') return <MiniClock h={cur.clock}/>;
+  if (cur.kind === 'length') return <LenBar cm={cur.bar} cut={cur.cut || 0}/>;
+  return null;   // num — vizualsiz
 };
-const weekdayOf = (date) => (date + 1) % 7;   // (CAL_START + date - 1) % 7
-// CalendarFig — mavhum oy jadvali (7 ustun hafta kuni + sanalar); mark sana ajratiladi (ustuni ko'rinadi).
-const CalendarFig = ({ mark = null, w = null }) => {
-  const lang = useLang();
-  const cells = [];
-  for (let i = 0; i < CAL_START; i += 1) cells.push(null);
-  for (let d = 1; d <= CAL_DAYS; d += 1) cells.push(d);
-  return (
-    <div style={{ width: w || 'min(330px,100%)', background: '#fff', borderRadius: 14, padding: 'clamp(8px,2vw,14px)', boxShadow: `0 4px 14px -5px rgba(${T.shadowBase},0.4)`, border: '2px solid #E7E1D6' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 'clamp(2px,0.6vw,4px)' }}>
-        {WEEKDAYS.map((dw, i) => <div key={'h' + i} style={{ textAlign: 'center', fontWeight: 800, fontSize: 'clamp(8px,1.5vw,11px)', color: mark != null && weekdayOf(mark) === i ? T.accent : T.ink2, padding: '2px 0' }}>{dw.ab[lang]}</div>)}
-        {cells.map((c, i) => c == null ? <div key={i}/> : (
-          <div key={i} className={c === mark ? 'g1-pop-in' : ''} style={{ textAlign: 'center', padding: 'clamp(4px,1.1vw,7px) 0', borderRadius: 7, fontWeight: c === mark ? 800 : 600, fontSize: 'clamp(10px,1.9vw,14px)', fontFamily: "'JetBrains Mono',monospace", background: c === mark ? T.accent : 'transparent', color: c === mark ? '#fff' : T.ink, boxShadow: c === mark ? `0 0 0 3px ${T.accentSoft}` : 'none' }}>{c}</div>
-        ))}
-      </div>
-    </div>
-  );
-};
-const WeekFig = () => <WeekStrip/>;
-const CalFig = (cur) => <CalendarFig mark={cur.mark}/>;
-const MixFig = (cur) => (cur.kind === 'cal' ? <CalendarFig mark={cur.mark}/> : <WeekStrip/>);
-// CalMCStage — kalendar matn-MC engine (veди-до-верного). rounds || [c]; figure(cur) yoki null; per-option wrong hint.
-const CalMCStage = ({ props, cKey, figure = null, fact = false }) => {
+// MasalaStage — kattalik-masala matn-MC engine (veди-до-верного). rounds || [c]; MasalaFig(cur); per-option wrong hint.
+const MasalaStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
   const sfx = useSfx();
@@ -7167,7 +7164,8 @@ const CalMCStage = ({ props, cKey, figure = null, fact = false }) => {
   const meta = SCREEN_META[props.screen];
   const [ri, setRi] = useState(0);
   const cur = rounds[ri];
-  const correctIdx = cur.opts.findIndex((o) => o.ok);
+  const opts = React.useMemo(() => shuffleArr(cur.opts.slice()), [cKey, ri]);
+  const correctIdx = opts.findIndex((o) => o.ok);
   const [solved, setSolved] = useState(false);
   const [wrong, setWrong] = useState(() => new Set());
   const [lastWrong, setLastWrong] = useState(null);
@@ -7176,7 +7174,7 @@ const CalMCStage = ({ props, cKey, figure = null, fact = false }) => {
   const allDone = solved && isLast;
   const revealRef = useRevealScroll(solved, 400);
   const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); setLastWrong(null); anyWrongRef.current = false; };
-  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `kalendar:${cKey}:${ri}`, options: cur.opts.map((o) => o[lang]), correctIndex: correctIdx, correctAnswer: cur.opts[correctIdx][lang], studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `masala:${cKey}:${ri}`, options: opts.map((o) => o[lang]), correctIndex: correctIdx, correctAnswer: opts[correctIdx][lang], studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
   const hit = (o, i) => {
     if (!canAct || solved || wrong.has(i)) return;
     if (o.ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
@@ -7184,8 +7182,8 @@ const CalMCStage = ({ props, cKey, figure = null, fact = false }) => {
   };
   const canAdv = useAdvanceGate(allDone, audio);
   const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
-  const wrongTip = (lastWrong != null && cur.opts[lastWrong] && cur.opts[lastWrong].wrong) ? cur.opts[lastWrong].wrong : (cur.wrong || c.wrong);
-  const figNode = figure ? figure(cur) : null;
+  const wrongTip = (lastWrong != null && opts[lastWrong] && opts[lastWrong].wrong) ? opts[lastWrong].wrong : (cur.wrong || c.wrong);
+  const figNode = MasalaFig(cur);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
@@ -7194,14 +7192,14 @@ const CalMCStage = ({ props, cKey, figure = null, fact = false }) => {
         {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
         {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
         {figNode && (
-          <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(120px,26vw,180px)' }}>
+          <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(110px,24vw,160px)' }}>
             {figNode}
           </div>
         )}
-        <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center', lineHeight: 1.4 }}>{t(cur.q)}</p>
+        <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,16px)', textAlign: 'center', lineHeight: 1.45 }}>{t(cur.q)}</p>
         {!solved && (
-          <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
-            {cur.opts.map((o, i) => { const w = wrong.has(i); return <button key={i} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(o, i)} style={{ ...WORD_OPT }}>{t(o)}</button>; })}
+          <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: opts.length === 2 ? '1fr 1fr' : 'repeat(3, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
+            {opts.map((o, i) => { const w = wrong.has(i); return <button key={i} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(o, i)} style={{ ...WORD_OPT }}>{t(o)}</button>; })}
           </div>
         )}
         {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(wrongTip)}/></div>}
@@ -7212,16 +7210,18 @@ const CalMCStage = ({ props, cKey, figure = null, fact = false }) => {
     </Stage>
   );
 };
-// Dars36 wrapper'lari — ARALASH: WeekDayStage s5/s7/s11 · CalendarReadStage s6/s8/s10 · MonthStage s9 · aralash s14.
-const A5 = (props) => <CalMCStage props={props} cKey="s5" figure={WeekFig}/>;
-const A6 = (props) => <CalMCStage props={props} cKey="s6" figure={CalFig}/>;
-const A7 = (props) => <CalMCStage props={props} cKey="s7" figure={WeekFig}/>;
-const A8 = (props) => <CalMCStage props={props} cKey="s8" figure={CalFig}/>;
-const A9 = (props) => <CalMCStage props={props} cKey="s9"/>;
-const A10 = (props) => <CalMCStage props={props} cKey="s10" figure={CalFig}/>;
-const A11 = (props) => <CalMCStage props={props} cKey="s11" figure={WeekFig}/>;
-const ACase = (props) => <CalMCStage props={props} cKey="s13" figure={CalFig}/>;
-const A14 = (props) => <CalMCStage props={props} cKey="s14" figure={MixFig} fact/>;
+// Dars38 wrapper'lari — ARALASH: barcha mashq MasalaStage (s6/s9 = amal-tanlash; qolgani javob). Vizual kind bo'yicha.
+const A5 = (props) => <MasalaStage props={props} cKey="s5"/>;
+const A6 = (props) => <MasalaStage props={props} cKey="s6"/>;
+const A7 = (props) => <MasalaStage props={props} cKey="s7"/>;
+const A8 = (props) => <MasalaStage props={props} cKey="s8"/>;
+const A9 = (props) => <MasalaStage props={props} cKey="s9"/>;
+const A10 = (props) => <MasalaStage props={props} cKey="s10"/>;
+const A11 = (props) => <MasalaStage props={props} cKey="s11"/>;
+const ACase = (props) => <MasalaStage props={props} cKey="s13"/>;
+const A14 = (props) => <MasalaStage props={props} cKey="s14" fact/>;
+
+
 
 
 
@@ -7329,7 +7329,7 @@ const TableFillStage = ({ props, cKey }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9} hr={by} hc={blank}/>}
@@ -7422,7 +7422,7 @@ const CommuteStage = ({ props, cKey }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -7463,13 +7463,17 @@ const ScreenTable = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(190px, 44vw, 260px)', overflowX: 'auto' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px,2.6vw,18px)', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-            {/* KALIT — haftaning yetti kuni tartib bilan + birlik-eslatma */}
+            {/* KALIT — so'z-signal → amal: ko'paydi=+, kamaydi=− */}
             <span style={KEY_CAP}>{t(c.caption)}</span>
-            <WeekStrip/>
-            <div style={{ display: 'flex', gap: 'clamp(8px,2.4vw,18px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,14px)', color: T.ink2 }}>
-              <span>{t({ ru: 'неделя = 7 дней', uz: 'hafta = 7 kun' })}</span>
-              <span>{t({ ru: 'месяц ≈ 30 дней', uz: "oy ≈ 30 kun" })}</span>
-              <span>{t({ ru: 'год = 12 месяцев', uz: 'yil = 12 oy' })}</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(8px,2.2vw,14px)', width: '100%', maxWidth: 440 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(9px,2vw,14px)', borderRadius: 12, background: T.accentSoft }}>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(26px,6vw,38px)', color: T.accent }}>+</span>
+                <span style={{ fontWeight: 700, color: T.ink2, fontSize: 'clamp(11px,1.9vw,14px)', textAlign: 'center', lineHeight: 1.3 }}>{t({ ru: 'добавили · пришло · всего', uz: "qo'shildi · keldi · jami" })}</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 'clamp(9px,2vw,14px)', borderRadius: 12, background: '#E1F0FB' }}>
+                <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(26px,6vw,38px)', color: T.blue }}>−</span>
+                <span style={{ fontWeight: 700, color: T.ink2, fontSize: 'clamp(11px,1.9vw,14px)', textAlign: 'center', lineHeight: 1.3 }}>{t({ ru: 'отрезали · потратили · осталось', uz: "kesildi · sarfladi · qoldi" })}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -8334,7 +8338,7 @@ export default function RazryadLesson({
             {['ru', 'uz'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
-                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                         background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
                 {l.toUpperCase()}
               </button>
             ))}
@@ -8416,8 +8420,8 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 18px -4px rgba(58, 53, 48, 0.32);
 }
 .btn:hover:not(:disabled) {
-  background: #FF4F28;
-  box-shadow: 0 10px 24px -4px rgba(255, 79, 40, 0.45);
+  background: #fe5b1a;
+  box-shadow: 0 10px 24px -4px rgba(254, 91, 26, 0.45);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
@@ -8427,29 +8431,29 @@ html, body { margin: 0; padding: 0; }
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;
-  color: #FF4F28;
+  color: #fe5b1a;
   letter-spacing: 0.01em;
   border-radius: 12px;
   border: none;
-  box-shadow: 0 8px 22px -4px rgba(255, 79, 40, 0.35), 0 0 0 1px rgba(255, 79, 40, 0.12);
+  box-shadow: 0 8px 22px -4px rgba(254, 91, 26, 0.35), 0 0 0 1px rgba(254, 91, 26, 0.12);
 }
 .btn-white-accent:hover:not(:disabled) {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55);
+  box-shadow: 0 12px 28px -6px rgba(254, 91, 26, 0.55);
 }
 .btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
 /* btn-ready — "Davom" bosish kerak bo'lgan paytdagi holat: to'q rang + puls (g1) */
 .btn-white-accent.btn-ready {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.5), 0 0 0 1px rgba(255, 79, 40, 0.25);
+  box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.5), 0 0 0 1px rgba(254, 91, 26, 0.25);
   animation: btnReadyPulse 1.5s ease-in-out infinite;
 }
 .btn-white-accent.btn-ready:hover:not(:disabled) { background: #E8431F; color: #FFFFFF; }
 @keyframes btnReadyPulse {
-  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.45), 0 0 0 0 rgba(255, 79, 40, 0.5); }
-  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(255, 79, 40, 0.6),  0 0 0 9px rgba(255, 79, 40, 0); }
+  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.45), 0 0 0 0 rgba(254, 91, 26, 0.5); }
+  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(254, 91, 26, 0.6),  0 0 0 9px rgba(254, 91, 26, 0); }
 }
 @media (prefers-reduced-motion: reduce) { .btn-white-accent.btn-ready { animation: none; } }
 
@@ -8558,8 +8562,8 @@ html, body { margin: 0; padding: 0; }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #FF4F28;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.55);
+  background: #fe5b1a;
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.55);
 }
 
 /* === PROGRESS v15 (с orange glow) === */
@@ -8573,10 +8577,10 @@ html, body { margin: 0; padding: 0; }
 }
 .progress-bar {
   height: 100%;
-  background: #FF4F28;
+  background: #fe5b1a;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 99px;
-  box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 10px rgba(254, 91, 26, 0.55), 0 0 3px rgba(254, 91, 26, 0.40);
 }
 
 /* === SLIDER v15 === */
@@ -8604,10 +8608,10 @@ html, body { margin: 0; padding: 0; }
   top: 50%;
   transform: translateY(-50%);
   height: 4px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 99px;
   pointer-events: none;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.50), 0 0 2px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.50), 0 0 2px rgba(254, 91, 26, 0.40);
   transition: width 0.15s ease-out;
 }
 .slider-input {
@@ -8627,21 +8631,21 @@ html, body { margin: 0; padding: 0; }
   appearance: none;
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   transition: transform 0.1s;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-moz-range-thumb {
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.12); }
 .slider-input:disabled { cursor: not-allowed; }
@@ -8663,7 +8667,7 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14);
 }
 .answer-input:focus {
-  box-shadow: 0 10px 22px -6px rgba(255, 79, 40, 0.30), 0 0 0 1px rgba(255, 79, 40, 0.20);
+  box-shadow: 0 10px 22px -6px rgba(254, 91, 26, 0.30), 0 0 0 1px rgba(254, 91, 26, 0.20);
 }
 .answer-input.correct {
   background: #E3F0E8;
@@ -8672,8 +8676,8 @@ html, body { margin: 0; padding: 0; }
 }
 .answer-input.wrong {
   background: #FFE8E1;
-  color: #FF4F28;
-  box-shadow: 0 8px 20px -6px rgba(255, 79, 40, 0.36);
+  color: #fe5b1a;
+  box-shadow: 0 8px 20px -6px rgba(254, 91, 26, 0.36);
 }
 
 /* === FRAMES v15 === */
@@ -8687,10 +8691,10 @@ html, body { margin: 0; padding: 0; }
 }
 .frame-soft {
   background: #FFE8E1;
-  border-left: 4px solid #FF4F28;
+  border-left: 4px solid #fe5b1a;
   border-radius: 12px;
   padding: clamp(14px, 2.5vw, 14px);
-  box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
+  box-shadow: 0 6px 16px -6px rgba(254, 91, 26, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
@@ -8711,7 +8715,7 @@ html, body { margin: 0; padding: 0; }
 
 /* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
+.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(254, 91, 26, 0.10), rgba(254, 91, 26, 0.02)); }
 .amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
 .amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
 .amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
@@ -8811,7 +8815,7 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
+@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(254,91,26,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(254,91,26,0.5); } }
 
 /* CountDemo — jonli sanash */
 .g1-demo { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.4vw, 16px); }
@@ -8821,7 +8825,7 @@ html, body { margin: 0; padding: 0; }
 .g1-demo-cell.pulse { animation: g1pop 0.45s ease-out, g1pulse 1.7s ease-in-out 0.5s infinite; }
 .g1-demo-cell svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-demo-tag { position: absolute; top: -8px; right: -6px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
-.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #FF4F28; line-height: 1; }
+.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #fe5b1a; line-height: 1; }
 .g1-demo-num.big { font-size: clamp(52px, 13vw, 86px); }
 
 /* TenFrame — bo'sh kataklar */
@@ -8839,12 +8843,12 @@ html, body { margin: 0; padding: 0; }
 .g1-cell-num { position: absolute; top: 3px; right: 6px; font-weight: 800; font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; }
 
 /* CountTrack / MissingTrack — son qatori */
-.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #FF4F28; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
+.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #fe5b1a; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
 .g1-track-label.back { color: #019ACB; }
 .g1-track { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
 .g1-track-tile { width: clamp(52px, 11.5vw, 72px); height: clamp(56px, 13vw, 80px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
 .g1-track-tile span { font-weight: 800; font-size: clamp(28px, 6.5vw, 42px); color: #0E0E10; }
-.g1-track-tile.active { background: #FF4F28; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-track-tile.active { background: #fe5b1a; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-track-tile.active span { color: #FFFFFF; }
 .g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
 .g1-track-tile.gap span { color: #D8A93A; }
@@ -8855,7 +8859,7 @@ html, body { margin: 0; padding: 0; }
 .g1-countfig-ans { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #1F7A4D; }
 /* BigNumberCue (keyingi/oldingi savol uchun tayanch son) */
 .g1-cue { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vw, 22px); }
-.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #fe5b1a; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
 .g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
 .g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
@@ -8896,7 +8900,7 @@ html, body { margin: 0; padding: 0; }
 .g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-onboard-txt { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px,1.7vw,15px); color: #017BA3; }
 .g1-onboard-arrow { color: #A7A6A2; font-weight: 800; font-size: clamp(15px,2vw,18px); }
-.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #FF4F28; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
+.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #fe5b1a; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
 /* mehmon: o'ngdan kirib keladi (1x), keyin yengil tebranadi */
 .g1-guest { animation: g1guestEnter 0.85s cubic-bezier(0.34,1.5,0.6,1) both, g1guestBob 2.6s ease-in-out 0.9s infinite; }
 .g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom left; }
@@ -8944,7 +8948,7 @@ html, body { margin: 0; padding: 0; }
 .g1-spark3 { left: 16%; top: 52%; animation: g1spark 0.9s ease-out 0.6s infinite; }
 @keyframes g1spark { 0% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: scale(0.5); } }
 .g1-conf { position: absolute; top: -8%; width: 8px; height: 12px; border-radius: 2px; pointer-events: none; }
-.g1-conf1 { left: 16%; background: #FF4F28; animation: g1conf 1.1s ease-in 0s infinite; }
+.g1-conf1 { left: 16%; background: #fe5b1a; animation: g1conf 1.1s ease-in 0s infinite; }
 .g1-conf2 { left: 34%; background: #019ACB; animation: g1conf 1.3s ease-in 0.2s infinite; }
 .g1-conf3 { left: 50%; background: #FFC23C; animation: g1conf 1.0s ease-in 0.45s infinite; }
 .g1-conf4 { left: 64%; background: #1F7A4D; animation: g1conf 1.25s ease-in 0.1s infinite; }
@@ -9044,13 +9048,13 @@ html, body { margin: 0; padding: 0; }
 .g1-rating-stars { display: flex; gap: clamp(6px,1.6vw,12px); }
 .g1-rating-star { width: clamp(50px,11vw,72px); height: clamp(50px,11vw,72px); display: inline-flex; }
 .g1-rating-star svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,194,60,0.55)); }
-.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #FF4F28; }
+.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #fe5b1a; }
 
 /* === GameDrill (drag+tap o'yin bloki) === */
 .g1-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px,1.7vw,12px); padding: clamp(7px,1.7vw,11px); min-height: clamp(48px,10vw,68px); background: #FBF9F4; border-radius: 14px; }
 .g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(8px,1.8vw,12px); min-width: clamp(58px,13vw,78px); min-height: clamp(58px,13vw,78px); transition: transform 0.15s, box-shadow 0.15s; }
 .g1-token:active { cursor: grabbing; transform: scale(1.05); }
-.g1-token-sel { box-shadow: 0 0 0 3px #FF4F28, 0 8px 20px -6px rgba(255,79,40,0.4); }
+.g1-token-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 8px 20px -6px rgba(254,91,26,0.4); }
 /* noto'g'ri sudralganda: token yumshoq sakrab qaytadi (jazo emas) */
 .g1-bounceback { animation: g1bounceback 0.5s ease; }
 @keyframes g1bounceback { 0% { transform: translateY(0) scale(1); } 28% { transform: translateY(-9px) scale(1.1); } 55% { transform: translateY(0) scale(0.97); } 78% { transform: translateY(-3px) scale(1.02); } 100% { transform: translateY(0) scale(1); } }
@@ -9134,7 +9138,7 @@ html, body { margin: 0; padding: 0; }
 
 .g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) clamp(8px, 1.6vw, 12px); border-radius: 12px; transition: background 0.3s ease; }
 .g1-numrow-on { background: #FFE8E1; }
-.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #fe5b1a; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
 .g1-numrow-on .g1-digit { transform: scale(1.18); }
 
 /* tap-pair (s5) */
@@ -9149,7 +9153,7 @@ html, body { margin: 0; padding: 0; }
 .g1-tiles { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; margin-top: 4px; }
 .g1-tile { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(13px, 2.6vw, 21px) clamp(21px, 4vw, 31px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(32px, 7vw, 46px); color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.18); transition: transform 0.18s, background 0.18s, box-shadow 0.18s, color 0.18s; }
 .g1-tile:hover:not(:disabled) { transform: translateY(-2px); }
-.g1-tile-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(255,79,40,0.5); }
+.g1-tile-sel { background: #fe5b1a; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(254,91,26,0.5); }
 .g1-tile-ok { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 10px 24px -6px rgba(31,122,77,0.4); }
 .g1-tile-used { opacity: 0.3; cursor: default; }
 .g1-tile:disabled { cursor: default; }
@@ -9157,7 +9161,7 @@ html, body { margin: 0; padding: 0; }
 /* ===== Dars02 — RAQAMLI UYLAR (digit / house / street) ===== */
 .g1-digit { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #3A3530; display: inline-flex; align-items: center; justify-content: center; }
 .g1-digit-ink { color: #3A3530; }
-.g1-digit-accent { color: #FF4F28; }
+.g1-digit-accent { color: #fe5b1a; }
 .g1-digit-success { color: #1F7A4D; }
 .g1-digit-sm { font-size: clamp(26px, 5.2vw, 38px); }
 .g1-digit-mid { font-size: clamp(40px, 8vw, 60px); }
@@ -9184,8 +9188,8 @@ html, body { margin: 0; padding: 0; }
 .g1-tf-cell { width: clamp(26px, 5.2vw, 38px); height: clamp(26px, 5.2vw, 38px); border-radius: 9px; border: 2px solid #E6E1D6; background: #F6F4EF; display: flex; align-items: center; justify-content: center; }
 .g1-tf-base .g1-tf-cell { border-color: #FFD2C6; }
 .g1-tf-dot { width: 56%; height: 56%; border-radius: 50%; background: transparent; }
-.g1-tf-cell.on { background: #FFE8E1; border-color: #FF4F28; }
-.g1-tf-cell.on .g1-tf-dot { background: #FF4F28; }
+.g1-tf-cell.on { background: #FFE8E1; border-color: #fe5b1a; }
+.g1-tf-cell.on .g1-tf-dot { background: #fe5b1a; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on { background: #E3F2FB; border-color: #019ACB; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on .g1-tf-dot { background: #019ACB; }
 @keyframes g1tfPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
@@ -9197,29 +9201,29 @@ html, body { margin: 0; padding: 0; }
   background-color: #FBFEFF;
   background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
   background-size: clamp(15px, 3.6vw, 24px) clamp(15px, 3.6vw, 24px); }
-.g1-kcell.active { border-color: #FF4F28; box-shadow: 0 0 0 2px #FFD3C7; }
+.g1-kcell.active { border-color: #fe5b1a; box-shadow: 0 0 0 2px #FFD3C7; }
 .g1-kcell-write { flex: 0 0 auto; width: clamp(70px, 13vw, 94px); }
 .g1-kcell .g1-write { width: 100%; height: 100%; }
 .g1-write { width: clamp(80px, 17vw, 116px); height: auto; }
 .g1-write-ghost { fill: none; stroke: #F2DDD3; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
-.g1-write-ink { fill: none; stroke: #FF4F28; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.g1-write-ink { fill: none; stroke: #fe5b1a; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
 .g1-digit-pick { display: flex; justify-content: center; gap: clamp(8px, 2vw, 14px); }
 .g1-pickbtn { width: clamp(40px, 8vw, 52px); height: clamp(40px, 8vw, 52px); border-radius: 12px; border: 2px solid #E6E1D6; background: #FFFFFF; font-family: 'Fraunces', Georgia, serif; font-size: clamp(18px, 3.4vw, 24px); font-weight: 600; color: #5A5A60; cursor: pointer; transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.15s ease; box-shadow: 0 3px 8px -4px rgba(58, 53, 48, 0.3); }
 .g1-pickbtn:hover:not(.active) { transform: translateY(-2px); }
-.g1-pickbtn.active { border-color: #FF4F28; color: #FF4F28; background: #FFF3EF; }
+.g1-pickbtn.active { border-color: #fe5b1a; color: #fe5b1a; background: #FFF3EF; }
 
 /* FingerHand — barmoqlar vizualizatori (s2) */
 .g1-fhand { width: clamp(72px, 15vw, 104px); height: auto; }
 .g1-hand-group, .g1-handbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .g1-handbtn { border: 2.5px dashed #FFB9A8; border-radius: 16px; background: #FFF6F3; padding: clamp(6px, 1.4vw, 10px); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
-.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(255, 79, 40, 0.5); }
+.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(254, 91, 26, 0.5); }
 .g1-handbtn:disabled { cursor: default; border-style: solid; border-color: #1F7A4D; background: #E3F0E8; }
-.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #FF4F28; }
+.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #fe5b1a; }
 .g1-handbtn:disabled .g1-hand-cap { color: #1F7A4D; }
 
 /* Ten-frame drag o'yin (sd): drop zona + nuqta tokenlar */
 .g1-tfdrop { padding: clamp(8px, 2vw, 14px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; transition: border-color 0.2s ease, background 0.2s ease; }
-.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FF4F28; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
+.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #fe5b1a; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
 /* ten-frame PREDMET rejimi (sd o'yini): kataklar neytral, ichida buyum, tushganda pop */
 .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
@@ -9228,8 +9232,8 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1tfDrop { 0% { transform: translateY(-75%); opacity: 0; } 65% { transform: translateY(7%); } 100% { transform: translateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g1-tf-item { animation: none; } }
 /* keyingi to'ldiriladigan katak — pulslab "qayerga qo'yish"ni ko'rsatadi */
-.g1-tf-next { border-color: #FF4F28; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
-@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 79, 40, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(255, 79, 40, 0); } }
+.g1-tf-next { border-color: #fe5b1a; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
+@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(254, 91, 26, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(254, 91, 26, 0); } }
 .g1-dropzone-wait { border-color: #FF8A6E; background: #FFF4F0; }
 .g1-drophint { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(13px, 1.8vw, 15px); color: #C23B1E; font-weight: 600; }
 .g1-drophint-arrow { font-size: clamp(18px, 3vw, 24px); animation: g1hintBounce 1s ease-in-out infinite; }
@@ -9253,7 +9257,7 @@ html, body { margin: 0; padding: 0; }
 .g1-newhouse-note { font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; font-weight: 600; }
 .g1-count-line { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .g1-count-label { font-size: clamp(13px, 1.7vw, 15px); color: #8A8780; }
-.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #FF4F28; }
+.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #fe5b1a; }
 
 /* ESHIK (raqam plitasi bilan) */
 .g1-door { position: relative; display: inline-flex; flex-direction: column; align-items: center; width: clamp(54px, 11.5vw, 76px); height: clamp(78px, 16.5vw, 106px); background: repeating-linear-gradient(90deg, rgba(122,78,34,0) 0, rgba(122,78,34,0.12) 5px, rgba(255,255,255,0.05) 9px, rgba(122,78,34,0) 13px), linear-gradient(180deg, #C2864F, #9A6738); border: 2px solid #7A4E22; border-radius: 11px 11px 4px 4px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 4px 10px -5px rgba(58,53,48,0.35); overflow: hidden; }
@@ -9262,7 +9266,7 @@ html, body { margin: 0; padding: 0; }
 .g1-door-knob { position: absolute; right: clamp(7px, 1.6vw, 10px); top: 56%; width: 7px; height: 7px; border-radius: 50%; background: #FFD86B; box-shadow: 0 0 0 1px #B8862E; z-index: 2; }
 .g1-doorbtn { background: transparent; border: none; padding: 5px; cursor: pointer; border-radius: 12px; transition: transform 0.15s ease; }
 .g1-doorbtn:hover:not(:disabled) { transform: translateY(-3px); }
-.g1-doorbtn.active .g1-door { border-color: #FF4F28; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
+.g1-doorbtn.active .g1-door { border-color: #fe5b1a; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
 .g1-doorbtn.seen .g1-door { border-color: #1F7A4D; }
 .g1-doorbtn.used { opacity: 0.4; }
 .g1-doorbtn.placed { opacity: 0.45; }
@@ -9300,7 +9304,7 @@ html, body { margin: 0; padding: 0; }
 
 /* s5 — shakl belgisi */
 .g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(90px, 18vw, 130px); justify-content: center; }
-.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #FF4F28; }
+.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #fe5b1a; }
 
 /* s2 — joylash katakchalari */
 .g1-tapgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 1.6vw, 12px); }
@@ -9324,7 +9328,7 @@ html, body { margin: 0; padding: 0; }
 .g1-street-house.in { opacity: 1; transform: none; }
 .g1-street-house .g1-house-svg { width: 15cqw; }   /* 6 uy (5 raqamli + 1 bo'sh) sig'ishi uchun ozroq tor */
 .g1-street-new { margin-left: 2.5cqw; }            /* yangi bo'sh uy — ko'cha oxirida ajralib turadi */
-.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(255,79,40,0.8)); }
+.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(254,91,26,0.8)); }
 .g1-street-anvar, .g1-street-rano, .g1-street-zuhra { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
 .g1-street-anvar.in, .g1-street-rano.in, .g1-street-zuhra.in { opacity: 1; }
 /* personajlar OLD PLANDA, kichik (eshik bo'yida) — real proporsiya + chuqurlik */
@@ -9393,9 +9397,9 @@ html, body { margin: 0; padding: 0; }
 /* --- birlashtirish qatori (pufakchali savatlar) --- */
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
-.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
-.g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
+.g1-cg-sent .g1-cg-sign { font-style: normal; color: #fe5b1a; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }
 
 /* birlashganda pufakcha suzib kiradi */
@@ -9424,7 +9428,7 @@ html, body { margin: 0; padding: 0; }
 
 /* --- s5 sudrab-birlashtirish: drop-zona = tepadan savat (punktir -> javobda yashil) + tray --- */
 .g1-cg-drop { position: relative; transition: outline 0.2s, background 0.2s; }
-.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(255,79,40,0.5); outline-offset: 3px; }
+.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(254,91,26,0.5); outline-offset: 3px; }
 .g1-s5-drop .bt { width: 100%; }
 .g1-s5-drop.full { outline: 2px solid #1F7A4D; }
 .g1-combine-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
@@ -9445,7 +9449,7 @@ html, body { margin: 0; padding: 0; }
 /* --- s6 son-yozuv varianti --- */
 .g1-sent { display: inline-flex; align-items: center; gap: clamp(4px, 1.2vw, 8px); font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #0E0E10; }
 .g1-sent .g1-sent-op { font-style: normal; font-weight: 800; }
-.g1-sent .g1-sent-plus { color: #FF4F28; }
+.g1-sent .g1-sent-plus { color: #fe5b1a; }
 .g1-sent .g1-sent-minus { color: #5A5A60; }
 
 /* --- s8 fakt kartasi (ko'k) --- */
@@ -9527,7 +9531,7 @@ html, body { margin: 0; padding: 0; }
 
 /* nishon satri (sg) */
 .g1-target-row { display: flex; align-items: center; gap: 10px; }
-.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 
 /* katta ifoda (s3 qoida): 7 − 2 = 5 */
 .g1-sent-lg { font-size: clamp(28px, 6vw, 44px); gap: clamp(8px, 2vw, 14px); }
@@ -9570,7 +9574,7 @@ html, body { margin: 0; padding: 0; }
 .g1-nl-tick { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: transparent; border: none; padding: 0 clamp(2px, 0.8vw, 6px); cursor: default; }
 button.g1-nl-tick { cursor: pointer; }
 .g1-nl-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.16); transition: transform 0.2s ease, background 0.2s ease; }
-.g1-nl-dot.marker { background: #FF4F28; box-shadow: 0 2px 8px rgba(255,79,40,0.4); transform: scale(1.15); }
+.g1-nl-dot.marker { background: #fe5b1a; box-shadow: 0 2px 8px rgba(254,91,26,0.4); transform: scale(1.15); }
 .g1-nl-tick.inpath .g1-nl-dot { background: #FFD3C7; }
 button.g1-nl-tick.picked .g1-nl-dot { background: #FFE8E1; box-shadow: inset 0 0 0 2px #FF8A6E; }
 button.g1-nl-tick.ok .g1-nl-dot { background: #1F7A4D; box-shadow: 0 2px 8px rgba(31,122,77,0.4); transform: scale(1.15); }
@@ -9579,17 +9583,17 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-nl-legend { display: flex; gap: clamp(16px, 4vw, 32px); }
 .g1-nl-leg { display: inline-flex; align-items: center; gap: 6px; font-size: clamp(13px, 1.8vw, 15px); font-weight: 700; color: #0E0E10; }
 .g1-nl-arrow { font-size: clamp(18px, 3.4vw, 24px); font-weight: 800; }
-.g1-nl-arrow-fwd { color: #FF4F28; }
+.g1-nl-arrow-fwd { color: #fe5b1a; }
 .g1-nl-arrow-back { color: #5A5A60; }
 .g1-mrow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 2vw, 14px); }
-.g1-numopt-sel { box-shadow: 0 0 0 3px #FF4F28, 0 4px 12px rgba(255,79,40,0.25) !important; }
+.g1-numopt-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 4px 12px rgba(254,91,26,0.25) !important; }
 .g1-mexp { background: #FFFFFF; border: none; border-radius: 14px; padding: clamp(8px, 1.8vw, 14px) clamp(12px, 2.6vw, 20px); cursor: pointer; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.1); transition: transform 0.15s ease, box-shadow 0.2s ease; }
 .g1-mexp:not(:disabled):hover { transform: translateY(-2px); }
 .g1-mexp:disabled { cursor: default; }
 .g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
 
 /* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
-.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
+.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #fe5b1a; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
 .d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
 .d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
 .d4-croc-anim { animation: d4crocopen 0.5s cubic-bezier(0.34,1.5,0.64,1) both, d4crocbreathe 2.8s ease-in-out 0.55s infinite; transform-origin: center; }
@@ -9872,7 +9876,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-panel.on { opacity: 1; transform: none; }
 .d2-panel-num { display: inline-flex; gap: 2px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(36px, 7.5vw, 54px); line-height: 1; color: #0E0E10; }
 .d2-panel-num span { transition: color 0.3s ease; }
-.d2-digit-tens { color: #FF4F28; }
+.d2-digit-tens { color: #fe5b1a; }
 .d2-digit-ones { color: #019ACB; }
 .d2-lamp { width: clamp(12px, 2.6vw, 17px); height: clamp(12px, 2.6vw, 17px); border-radius: 50%; background: #C8CDD4; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15); }
 .d2-lamp-still-g { background: #6EF29B; box-shadow: 0 0 8px rgba(110,242,155,0.7); }
@@ -10017,7 +10021,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-sortitem .d2-casssvg { width: clamp(30px, 6.5vw, 46px); }
 .d2-sortitem .d2-battsvg { width: clamp(15px, 3.2vw, 21px); }
 .d2-sortitem:hover:not(:disabled) { transform: translateY(-2px); }
-.d2-sortitem-sel { border-color: #FF4F28; box-shadow: 0 0 14px -2px rgba(255,79,40,0.5); }
+.d2-sortitem-sel { border-color: #fe5b1a; box-shadow: 0 0 14px -2px rgba(254,91,26,0.5); }
 .d2-sortitem:disabled { cursor: default; }
 .d2-sortdone { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #6EF29B; }
 .d2-holds { display: flex; gap: clamp(10px, 2.4vw, 18px); justify-content: center; align-items: stretch; }

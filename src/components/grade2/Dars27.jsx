@@ -35,7 +35,7 @@ const T = {
   ink2: '#5A5A60',
   ink3: '#A7A6A2',
   paper: '#FFFFFF',
-  accent: '#FF4F28',
+  accent: '#fe5b1a',
   accentSoft: '#FFE8E1',
   success: '#1F7A4D',
   successSoft: '#E3F0E8',
@@ -891,28 +891,28 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'geo-2-27-v1',
-  lessonTitle: { ru: 'Урок 27. Многоугольники', uz: "27-dars. Ko'pburchaklar" }
+  lessonId: 'len-2-28-v1',
+  lessonTitle: { ru: 'Урок 27. Длина: см, дм, м', uz: "27-dars. Uzunlik: sm, dm, m" }
 };
-// STRUKTURA (Б5 URAN YO'LDOSHI, geometriya; Uran gaz/muz gigant — QO'NIB bo'lmaydi, yo'ldoshda stansiya, osmonda Uran): s0 hook (uchburchak nomi) · s1 ko'pburchak nima (yopiq+to'g'ri tomon) · s2 nomlash (tomon soni→nom) · s3 QOIDA (tomon soni=burchak soni) + check tomon-sanash · s4 ko'pburchak EMAS (doira/ochiq chiziq) + check · sTBL uch/to'rt/besh/oltiburchak kaliti · s5–s11 mashq (nom-tanish + tomon-sanash + ko'pburchakmi + DRAG-moslash aralash) · s13 masala · s14 final · s15 xulosa (→ uzunlik o'lchash).
-// MEXANIKA (Van Hiele 0→1): PolyTypeStage (ko'pburchakni ask bo'yicha: 'name' nom / 'count' tomon-sanash / 'ispoly' ko'pburchakmi, MC) + PolyMatchStage (shaklni nomiga elastik-sim DRAG-moslash, Dars20 meros). Distraktor = qo'shni tomon soni.
+// STRUKTURA (Б5 URAN YO'LDOSHI ustaxonasi, o'lchash; Uran gaz/muz gigant — yo'ldoshda stansiya): s0 hook (katta modul → qaysi birlik) · s1 santimetr (chizg'ich, 0 ga to'g'irlab) · s2 dm/m (1 dm=10 sm, 1 m=100 sm) · s3 QOIDA (o'girish) + check convert · s4 qaysi birlik qachon (qalam/parta/modul) + check unit · sTBL birliklar zinapoyasi · s5–s11 mashq (chizg'ich-o'qish + birlik-tanlash + o'girish aralash) · s13 masala (detalni o'lcha) · s14 final · s15 xulosa (→ perimetr).
+// MEXANIKA: LenStage (round.mode: 'ruler' chizg'ichda nechta sm o'qish / 'unit' qaysi birlik sm/dm/m / 'convert' dm→sm, m→dm o'girish, MC). Distraktor = qo'shni son / birlik yoki o'girmagan qiymat.
 const SCREEN_META = [
-  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: uchburchak nomi? (distraktor to'rtburchak)
-  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  ko'pburchak nima: yopiq + to'g'ri tomon (tomon=kesma, burchak=uch)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  nomlash: tomon sonini sana → nom
-  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: tomon soni=burchak soni + check TOMON-SANASH
-  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  ko'pburchak EMAS: doira/ochiq chiziq + check ISPOLY
-  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  kalit: uch/to'rt/besh/oltiburchak (tomon soni)
-  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq NOM-TANISH single
-  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq TOMON-SANASH: 3 round
-  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq DRAG-MOSLASH (shakl→nom): 3 juft
-  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq NOM-TANISH: 3 round
-  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq KO'PBURCHAKMI (ispoly): 3 round
-  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq DRAG-MOSLASH (shakl→nom): 3 juft
-  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 12 mashq NOM-TANISH: 3 round
-  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 13 MASALA: beshburchak qalqon — nechta tomon
-  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 14 FINAL: 3 round nom-tanish + FactCard Uran
-  { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 15 yakun + QOIDA recap (→ uzunlik o'lchash)
+  { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: katta modul → qaysi birlik? metr (distr sm)
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  santimetr: chizg'ich, 0 ga to'g'irlab oxirini o'qi
+  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  dm/m: 1 dm=10 sm, 1 m=100 sm
+  { id: 's3',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 3  QOIDA: o'girish + check CONVERT (1 dm→10 sm)
+  { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  qaysi birlik qachon + check UNIT (xona→m)
+  { id: 'sTBL', type: 'exploration', template: 'custom',  scored: false, scope: null },        // 5  kalit: sm<dm<m zinapoyasi (1 dm=10 sm, 1 m=100 sm)
+  { id: 's5',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 6  mashq CHIZG'ICH-O'QISH single
+  { id: 's6',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 7  mashq CHIZG'ICH-O'QISH: 3 round
+  { id: 's7',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq BIRLIK-TANLASH: 3 round
+  { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  mashq O'GIRISH: 3 round
+  { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 10 mashq CHIZG'ICH-O'QISH: 3 round
+  { id: 's10', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 11 mashq BIRLIK-TANLASH: 3 round
+  { id: 's11', type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 12 mashq O'GIRISH: 3 round
+  { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 13 MASALA: detalni chizg'ichda o'lcha — nechta sm
+  { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 14 FINAL: 3 round chizg'ich-o'qish + FactCard Uran
+  { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 15 yakun + QOIDA recap (→ perimetr)
 ];
 
 // shuffleMC — variantlarni QAT'IY order bo'yicha joylashtiradi va wrong_N/hint_N
@@ -937,334 +937,334 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // ============================================================
 
 const CONTENT = {
-  // s0 — HOOK (scope: hook): uchburchak (3 tomon, 3 burchak) → nomi? Distraktor to'rtburchak
+  // s0 — HOOK (scope: hook): katta modul → qaysi birlik? metr (distraktor santimetr)
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Многоугольники', uz: "Mavzu: Ko'pburchaklar" },
-    lead: { ru: 'Что это за фигура?', uz: "Bu qanday shakl?" },
-    q: { ru: 'Экипаж соединил три прямые палочки — вышла замкнутая фигура: три стороны и три угла. Как называется такая фигура?', uz: "Ekipaj uchta to'g'ri tayoqchani uladi — yopiq shakl chiqdi: uchta tomon va uchta burchak. Bunday shakl qanday ataladi?" },
-    opt0: { ru: 'Четырёхугольник', uz: "To'rtburchak" },   // distraktor
-    opt1: { ru: 'Треугольник', uz: 'Uchburchak' },          // to'g'ri
+    topic: { ru: 'Тема: Длина — см, дм, м', uz: "Mavzu: Uzunlik — sm, dm, m" },
+    lead: { ru: 'Чем измерять?', uz: "Nima bilan o'lchaymiz?" },
+    q: { ru: 'Чем измерять большой модуль?', uz: "Katta modulni nima bilan o'lchaymiz?" },
+    opt0: { ru: 'Сантиметрами', uz: 'Santimetr bilan' },   // distraktor
+    opt1: { ru: 'Метрами', uz: 'Metr bilan' },              // to'g'ri
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Мы на спутнике Урана. Экипаж строит станцию и чертит фигуры из прямых палочек.',
-          'Три прямые палочки соединили — получилась замкнутая фигура. У неё три стороны и три угла.',
-          'Бит спрашивает: как называется фигура с тремя сторонами? Выбери название.',
-          'Послушай два ответа. Первый — четырёхугольник. Второй — треугольник. Или ты пока не знаешь. Выбери свой ответ.'
+          'Мы в мастерской на спутнике Урана. Экипаж измеряет детали, чтобы построить станцию.',
+          'Нужно измерить большой модуль станции. Он очень длинный.',
+          'Бит спрашивает: чем удобнее измерять такой большой модуль? Выбери ответ.',
+          'Послушай два ответа. Первый, сантиметрами. Второй, метрами. Или ты пока не знаешь. Выбери свой ответ.'
         ],
         uz: [
-          "Uran yo'ldoshidamiz. Ekipaj stansiya quryapti va to'g'ri tayoqchalardan shakllar chizyapti.",
-          "Uchta to'g'ri tayoqchani uladik — yopiq shakl chiqdi. Uning uchta tomoni va uchta burchagi bor.",
-          "Bit so'raydi: uchta tomoni bor shakl qanday ataladi? Nomini tanlang.",
-          "Ikki javobni tinglang. Birinchi — to'rtburchak. Ikkinchi — uchburchak. Yoki hali bilmaysiz. O'z javobingizni tanlang."
+          "Uran yo'ldoshidagi ustaxonadamiz. Ekipaj stansiya qurish uchun detallarni o'lchayapti.",
+          "Katta stansiya modulini o'lchash kerak. U juda uzun.",
+          "Bit so'raydi: bunday katta modulni nima bilan o'lchash qulay? Javobni tanlang.",
+          "Ikki javobni tinglang. Birinchi, santimetr bilan. Ikkinchi, metr bilan. Yoki hali bilmaysiz. O'z javobingizni tanlang."
         ]
       },
-      on_correct: { ru: 'Верно. У треугольника три стороны и три угла. Сейчас разберём разные многоугольники.', uz: "To'g'ri. Uchburchakning uchta tomoni va uchta burchagi bor. Hozir turli ko'pburchaklarni ko'ramiz." },
-      on_wrong: { ru: 'У четырёхугольника четыре стороны, а тут три. Это треугольник. Сейчас разберём.', uz: "To'rtburchakning to'rtta tomoni bor, bu yerda uchta. Bu uchburchak. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Разберём треугольник, четырёхугольник и другие фигуры.', uz: "Hechqisi yo'q. Uchburchak, to'rtburchak va boshqa shakllarni ko'ramiz." }
+      on_correct: { ru: 'Верно. Большие предметы измеряют метрами, а маленькие, сантиметрами. Сейчас разберём все единицы.', uz: "To'g'ri. Katta narsalarni metr bilan, kichiklarini santimetr bilan o'lchaymiz. Hozir barcha birliklarni ko'ramiz." },
+      on_wrong: { ru: 'Сантиметр, маленькая единица, модуль ими мерить долго. Большое измеряют метрами. Сейчас разберём.', uz: "Santimetr, kichik birlik, modulni u bilan o'lchash uzoq. Kattani metr bilan o'lchaymiz. Hozir ko'ramiz." },
+      on_unknown: { ru: 'Ничего. Разберём сантиметр, дециметр и метр.', uz: "Hechqisi yo'q. Santimetr, detsimetr va metrni ko'ramiz." }
     }
   },
 
-  // s1 — TUSHUNTIRISH-1: KO'PBURCHAK — yopiq shakl, to'g'ri tomonlardan (tomon=kesma, burchak=uch)
+  // s1 — TUSHUNTIRISH-1: SANTIMETR — kichik birlik, chizg'ich bilan (0 ga to'g'irlab, oxirini o'qi)
   s1: {
-    eyebrow: { ru: 'Многоугольник', uz: "Ko'pburchak" },
-    lead: { ru: 'Многоугольник — замкнутая фигура.', uz: "Ko'pburchak — yopiq shakl." },
-    body: { ru: 'Многоугольник — это замкнутая фигура из прямых сторон. Стороны — это отрезки. Место, где две стороны встречаются, — угол, его называют вершиной. Как рамка панели, которую собирает экипаж.', uz: "Ko'pburchak — to'g'ri tomonlardan tuzilgan yopiq shakl. Tomonlar — kesmalar. Ikki tomon uchrashgan joy — burchak, uni uch deb ham ataymiz. Ekipaj yig'ayotgan panel ramkasi kabi." },
+    eyebrow: { ru: 'Сантиметр', uz: 'Santimetr' },
+    lead: { ru: 'Сантиметр — маленькая мера.', uz: "Santimetr — kichik o'lchov." },
+    body: { ru: 'Длину измеряют линейкой. Начало предмета ставят на ноль, а потом смотрят, у какого числа его конец. Здесь конец у пятёрки — значит, длина пять сантиметров.', uz: "Uzunlikni chizg'ich bilan o'lchaymiz. Buyumning boshini nolga qo'yamiz, so'ng oxiri qaysi songa to'g'ri kelishiga qaraymiz. Bu yerda oxiri beshda — demak uzunligi besh santimetr." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'У многоугольника стороны прямые, а сама фигура замкнута.', uz: "Ko'pburchakning tomonlari to'g'ri, shaklning o'zi yopiq." },
+    info: { ru: 'Начало на 0, читай число у конца.', uz: "Boshni 0 ga qo'ying, oxiridagi sonni o'qing." },
     audio: {
       ru: [
-        'Многоугольник — это замкнутая фигура из прямых сторон.',
-        'Стороны — это отрезки. Место, где две стороны встречаются, — это угол, или вершина.',
-        'Как рамка панели, которую собирает экипаж.'
+        'Длину измеряют линейкой.',
+        'Начало предмета ставят на ноль, а конец показывает число.',
+        'Здесь конец у пятёрки. Значит, длина пять сантиметров.'
       ],
       uz: [
-        "Ko'pburchak — to'g'ri tomonlardan tuzilgan yopiq shakl.",
-        "Tomonlar — kesmalar. Ikki tomon uchrashgan joy — burchak, yoki uch.",
-        "Ekipaj yig'ayotgan panel ramkasi kabi."
+        "Uzunlikni chizg'ich bilan o'lchaymiz.",
+        "Buyumning boshi nolda turadi, oxiri esa sonni ko'rsatadi.",
+        "Bu yerda oxiri beshda. Demak, uzunligi besh santimetr."
       ]
     }
   },
 
-  // s2 — TUSHUNTIRISH-2: NOMLASH — tomon sonini sana → nom (uch/to'rt/besh burchak)
+  // s2 — TUSHUNTIRISH-2: DETSIMETR va METR — katta birliklar (1 dm = 10 sm, 1 m = 100 sm)
   s2: {
-    eyebrow: { ru: 'Как назвать', uz: 'Nomlash' },
-    lead: { ru: 'Считай стороны — узнаёшь имя.', uz: "Tomonlarni sanang — nomini bilasiz." },
+    eyebrow: { ru: 'Дециметр и метр', uz: 'Detsimetr va metr' },
+    lead: { ru: 'Единицы побольше: дм и м.', uz: "Kattaroq birliklar: dm va m." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Имя — по числу сторон: три стороны — треугольник, четыре — четырёхугольник, пять — пятиугольник.', uz: "Nom — tomonlar soniga qarab: uchta tomon — uchburchak, to'rtta — to'rtburchak, beshta — beshburchak." },
+    info: { ru: '1 дециметр = 10 сантиметров. 1 метр = 100 сантиметров.', uz: "1 detsimetr = 10 santimetr. 1 metr = 100 santimetr." },
     audio: {
       ru: [
-        'Имя многоугольника прячется в числе его сторон.',
-        'Посчитай стороны фигуры.',
-        'Три стороны — треугольник, четыре стороны — четырёхугольник, пять — пятиугольник.',
-        'Слово многоугольник значит много углов. Сколько углов — столько и сторон.'
+        'Для длинных предметов есть единицы побольше.',
+        'Дециметр, это десять сантиметров в ряд.',
+        'Один дециметр равен десяти сантиметрам.',
+        'А один метр равен ста сантиметрам. Метром меряют комнату или модуль.'
       ],
       uz: [
-        "Ko'pburchak nomi uning tomonlari sonida yashiringan.",
-        "Shaklning tomonlarini sanang.",
-        "Uchta tomon — uchburchak, to'rtta tomon — to'rtburchak, beshta — beshburchak.",
-        "Ko'pburchak so'zi ko'p burchak degani. Nechta burchak — shuncha tomon."
+        "Uzun narsalar uchun kattaroq birliklar bor.",
+        "Detsimetr, bu qatordagi o'nta santimetr.",
+        "Bir detsimetr o'n santimetrga teng.",
+        "Bir metr esa yuz santimetrga teng. Metr bilan xona yoki modul o'lchanadi."
       ]
     }
   },
 
-  // s3 — QOIDA: tomon sonini sana → nom + check COUNT (beshburchak → 5 tomon)
+  // s3 — QOIDA: 1 dm=10 sm, 1 m=100 sm + check CONVERT (1 dm → 10 sm)
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Считай стороны: 3 стороны — треугольник, 4 — четырёхугольник, 5 — пятиугольник. Сторон столько же, сколько углов.', uz: "Tomonlarni sanang: 3 tomon — uchburchak, 4 — to'rtburchak, 5 — beshburchak. Tomon soni burchak soniga teng." },
-    check_q: { ru: 'Сколько сторон у этой фигуры?', uz: "Bu shaklning nechta tomoni bor?" },
-    opts: [{ ru: '4', uz: '4' }, { ru: '5', uz: '5', ok: true }, { ru: '6', uz: '6' }],
-    wrong: { ru: 'Посчитай стороны ещё раз — по кругу.', uz: "Tomonlarni yana sanang — aylana bo'ylab." },
-    check_ok: { ru: 'Верно! Пять сторон — пятиугольник.', uz: "To'g'ri! Beshta tomon — beshburchak." },
+    rule: { ru: '1 дм = 10 см, 1 м = 100 см.', uz: "1 dm = 10 sm, 1 m = 100 sm." },
+    check_q: { ru: '1 дм — сколько это см?', uz: "1 dm — necha sm?" },
+    opts: [{ ru: '1', uz: '1' }, { ru: '10', uz: '10', ok: true }, { ru: '100', uz: '100' }],
+    wrong: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'nta santimetr bor." },
+    check_ok: { ru: 'Верно! 1 дм = 10 см.', uz: "To'g'ri! 1 dm = 10 sm." },
     audio: {
       ru: [
         'Запишем правило. Слушай и запомни.',
-        'Считай стороны фигуры — по кругу, не пропуская.',
-        'Три стороны — треугольник, четыре — четырёхугольник, пять — пятиугольник.',
-        'Проверь. Сколько сторон у этой фигуры?'
+        'Один дециметр равен десяти сантиметрам.',
+        'Один метр равен ста сантиметрам.',
+        'Проверь. Один дециметр, это сколько сантиметров?'
       ],
       uz: [
         "Qoidani yozamiz. Tinglang va yodlang.",
-        "Shaklning tomonlarini sana — aylana bo'ylab, o'tkazib yubormay.",
-        "Uchta tomon — uchburchak, to'rtta — to'rtburchak, beshta — beshburchak.",
-        "Tekshir. Bu shaklning nechta tomoni bor?"
+        "Bir detsimetr o'n santimetrga teng.",
+        "Bir metr yuz santimetrga teng.",
+        "Tekshir. Bir detsimetr, bu necha santimetr?"
       ]
     }
   },
 
-  // s4 — TUSHUNTIRISH-3: KO'PBURCHAK EMAS — doira (tomonsiz) / ochiq chiziq (yopilmagan) + check ispoly
+  // s4 — TUSHUNTIRISH-3: QAYSI BIRLIK QACHON — qalam(sm)/parta(dm)/xona-modul(m) + check unit
   s4: {
-    eyebrow: { ru: 'Не многоугольник', uz: "Ko'pburchak emas" },
-    lead: { ru: 'Не всякая фигура — многоугольник.', uz: "Har qanday shakl ko'pburchak emas." },
-    body: { ru: 'У круга нет прямых сторон и нет углов — это не многоугольник. И если линия не замкнута, оборвана, — тоже не многоугольник.', uz: "Doiraning to'g'ri tomonlari va burchagi yo'q — bu ko'pburchak emas. Chiziq yopilmagan, uzilib qolgan bo'lsa — u ham ko'pburchak emas." },
-    warn: { ru: 'Круг — не многоугольник: у него нет сторон и углов.', uz: "Doira — ko'pburchak emas: uning tomoni va burchagi yo'q." },
-    check_q: { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" },
-    opts: [{ ru: 'Да', uz: 'Ha' }, { ru: 'Нет', uz: "Yo'q", ok: true }],
-    wrong: { ru: 'У круга нет прямых сторон — это не многоугольник.', uz: "Doiraning to'g'ri tomoni yo'q — bu ko'pburchak emas." },
-    check_ok: { ru: 'Верно! У круга нет сторон — это не многоугольник.', uz: "To'g'ri! Doiraning tomoni yo'q — bu ko'pburchak emas." },
+    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
+    lead: { ru: 'Для каждого — своя единица.', uz: "Har narsaga — o'z birligi." },
+    body: { ru: 'Карандаш меряют в сантиметрах, парту — в дециметрах, а комнату или модуль — в метрах. Чем больше предмет, тем крупнее единица.', uz: "Qalamni santimetrda, partani detsimetrda, xona yoki modulni esa metrda o'lchaymiz. Narsa qancha katta bo'lsa, birlik shuncha yirik." },
+    warn: { ru: 'Маленькое — в сантиметрах, большое — в метрах.', uz: "Kichik narsani — santimetrda, katta narsani — metrda." },
+    check_q: { ru: 'Комнату чем измеряем?', uz: "Xonani nima bilan o'lchaymiz?" },
+    opts: [{ ru: 'см', uz: 'sm' }, { ru: 'м', uz: 'm', ok: true }],
+    wrong: { ru: 'Комната большая — её меряют в метрах.', uz: "Xona katta — uni metrda o'lchaymiz." },
+    check_ok: { ru: 'Верно! Комнату — в метрах.', uz: "To'g'ri! Xonani — metrda." },
     audio: {
       ru: [
-        'Не всякая фигура — многоугольник.',
-        'У круга нет прямых сторон и нет углов.',
-        'Круг — не многоугольник. И оборванная, незамкнутая линия — тоже.',
-        'Проверь. Это многоугольник?'
+        'У каждого предмета своя удобная единица.',
+        'Карандаш меряют в сантиметрах, парту, в дециметрах.',
+        'А комнату или модуль, в метрах. Чем больше предмет, тем крупнее единица.',
+        'Проверь. Комнату чем измеряем?'
       ],
       uz: [
-        "Har qanday shakl ko'pburchak emas.",
-        "Doiraning to'g'ri tomonlari va burchagi yo'q.",
-        "Doira — ko'pburchak emas. Uzilib qolgan, yopilmagan chiziq ham.",
-        "Tekshir. Bu ko'pburchakmi?"
+        "Har buyumning o'ziga qulay birligi bor.",
+        "Qalamni santimetrda, partani detsimetrda o'lchaymiz.",
+        "Xona yoki modulni esa metrda. Narsa qancha katta, birlik shuncha yirik.",
+        "Tekshir. Xonani nima bilan o'lchaymiz?"
       ]
     }
   },
 
-  // sTBL — TUSHUNTIRISH: KALIT (uch/to'rt/besh/oltiburchak — tomon soni bilan)
+  // sTBL — TUSHUNTIRISH: KALIT (sm < dm < m; 1 dm=10 sm, 1 m=100 sm)
   sTBL: {
     eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'По числу сторон', uz: "Tomonlar soni bo'yicha" },
+    lead: { ru: 'Единицы длины', uz: "Uzunlik birliklari" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Треугольник — 3 стороны, четырёхугольник — 4, пятиугольник — 5, шестиугольник — 6. Считай стороны!', uz: "Uchburchak — 3 tomon, to'rtburchak — 4, beshburchak — 5, oltiburchak — 6. Tomonlarni sanang!" },
+    info: { ru: 'см < дм < м. 1 дм = 10 см, 1 м = 100 см.', uz: "sm < dm < m. 1 dm = 10 sm, 1 m = 100 sm." },
     audio: {
       ru: [
-        'Запомни ключ: имя фигуры — по числу сторон.',
-        'Три стороны — треугольник, четыре — четырёхугольник, пять — пятиугольник, шесть — шестиугольник.',
-        'Посчитал стороны — сразу назвал фигуру.'
+        'Запомни ключ: единицы растут от маленькой к большой.',
+        'Сантиметр меньше дециметра, а дециметр меньше метра.',
+        'В дециметре десять сантиметров, а в метре сто сантиметров.'
       ],
       uz: [
-        "Kalitni yodla: shakl nomi — tomonlar soniga qarab.",
-        "Uchta tomon — uchburchak, to'rtta — to'rtburchak, beshta — beshburchak, oltita — oltiburchak.",
-        "Tomonlarni sanasangiz — shaklni darrov nomlaysiz."
+        "Kalitni yodlang: birliklar kichikdan kattaga o'sadi.",
+        "Santimetr detsimetrdan kichik, detsimetr esa metrdan kichik.",
+        "Detsimetrda o'nta santimetr, metrda esa yuzta santimetr bor."
       ]
     }
   },
 
-  // s5 — MASHQ single nom-tanish (uchburchak)
+  // s5 — MASHQ single CHIZG'ICH-O'QISH (4 sm)
   s5: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
-    transition: { ru: 'Объяснение закончили. Теперь узнавай многоугольники по числу сторон.', uz: "Tushuntirishni tugatdik. Endi ko'pburchaklarni tomonlar soniga qarab taning." },
-    sides: 3,
-    wrong: { ru: 'Посчитай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
-    done_text: { ru: 'Верно! Три стороны — треугольник.', uz: "To'g'ri! Uchta tomon — uchburchak." },
+    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
+    transition: { ru: 'Объяснение закончили. Теперь измеряй сам по линейке.', uz: "Tushuntirishni tugatdik. Endi chizg'ich bilan o'zingiz o'lchang." },
+    mode: 'ruler', cm: 4,
+    wrong: { ru: 'Начало на нуле — смотри, у какого числа конец.', uz: "Boshi nolda — oxiri qaysi songa to'g'ri kelishiga qarang." },
+    done_text: { ru: 'Верно! Конец у четвёрки.', uz: "To'g'ri! Oxiri to'rtda." },
     audio: {
-      intro: { ru: 'Тренировка. Посчитай стороны и назови фигуру.', uz: "Mashq. Tomonlarni sanab shaklni ayting." },
+      intro: { ru: 'Тренировка. Начало на нуле, прочитай число у конца.', uz: "Mashq. Boshi nolda, oxiridagi sonni o'qing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай стороны: сколько их?', uz: "Tomonlarni sanang: nechta?" }
+      on_wrong: { ru: 'Смотри, у какого числа конец предмета.', uz: "Buyum oxiri qaysi songa to'g'ri kelishiga qarang." }
     }
   },
 
-  // s6 — MASHQ tomon-sanash (3 round)
+  // s6 — MASHQ CHIZG'ICH-O'QISH (3 round)
   s6: {
-    eyebrow: { ru: 'Считай стороны', uz: 'Tomonlarni sanang' },
-    lead: { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" },
-    rounds: [ { sides: 4, ask: 'count' }, { sides: 3, ask: 'count' }, { sides: 5, ask: 'count' } ],
-    wrong: { ru: 'Считай стороны по кругу.', uz: "Tomonlarni aylana bo'ylab sanang." },
+    eyebrow: { ru: 'Измеряй', uz: "O'lchang" },
+    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
+    rounds: [ { mode: 'ruler', cm: 6 }, { mode: 'ruler', cm: 3 }, { mode: 'ruler', cm: 8 } ],
+    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Считай стороны фигуры — по кругу.', uz: "Shaklning tomonlarini — aylana bo'ylab sanang." },
+      intro: { ru: 'Измеряй по линейке. Читай число у конца предмета.', uz: "Chizg'ich bilan o'lchang. Buyum oxiridagi sonni o'qing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не пропускай стороны, считай по кругу.', uz: "Tomonlarni o'tkazib yubormang, aylana bo'ylab sanang." }
+      on_wrong: { ru: 'Смотри только на конец предмета.', uz: "Faqat buyumning oxiriga qarang." }
     }
   },
 
-  // s7 — MASHQ DRAG-MOSLASH (shakl → nom, 3 juft: uch/to'rt/beshburchak)
+  // s7 — MASHQ BIRLIK-TANLASH (3 round: qalam/modul/parta)
   s7: {
-    eyebrow: { ru: 'Соедини', uz: 'Moslash' },
-    lead: { ru: 'Соедини фигуру с названием.', uz: "Shaklni nomiga ulang." },
-    pairs: [ { sides: 3 }, { sides: 4 }, { sides: 5 } ],
-    wrong: { ru: 'Посчитай стороны фигуры и найди её имя.', uz: "Shaklning tomonlarini sanab, nomini toping." },
-    done_text: { ru: 'Отлично! Все фигуры названы.', uz: "Ajoyib! Barcha shakllar nomlandi." },
+    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
+    lead: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
+    rounds: [ { mode: 'unit', obj: 'pencil', unit: 'sm' }, { mode: 'unit', obj: 'module', unit: 'm' }, { mode: 'unit', obj: 'desk', unit: 'dm' } ],
+    wrong: { ru: 'Маленькое — в см, большое — в м.', uz: "Kichik narsa — sm da, katta — m da." },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Протяни ниточку от каждой фигуры к её названию. Считай стороны.', uz: "Har shakldan uning nomiga simni torting. Tomonlarni sanang." },
-      on_correct: { ru: 'Верно, все совпали.', uz: "To'g'ri, hammasi mos keldi." },
-      on_wrong: { ru: 'Посчитай стороны ещё раз.', uz: "Tomonlarni yana sanang." }
+      intro: { ru: 'Посмотри на предмет и выбери удобную единицу.', uz: "Buyumga qarab qulay birlikni tanlang." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Карандаш, в сантиметрах, модуль, в метрах.', uz: "Qalam, santimetrda, modul, metrda." }
     }
   },
 
-  // s8 — MASHQ nom-tanish (3 round abstrakt)
+  // s8 — MASHQ O'GIRISH (3 round: dm→sm, m→dm)
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
-    rounds: [ { sides: 3 }, { sides: 5 }, { sides: 4 } ],
-    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
+    eyebrow: { ru: 'Переведи', uz: "O'gir" },
+    lead: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" },
+    rounds: [ { mode: 'convert', from: 'dm', to: 'sm', val: 1 }, { mode: 'convert', from: 'dm', to: 'sm', val: 2 }, { mode: 'convert', from: 'm', to: 'dm', val: 1 } ],
+    wrong: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'nta santimetr bor." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Считай стороны и называй фигуру.', uz: "Tomonlarni sanab shaklni ayting." },
+      intro: { ru: 'Считай по десять: в дециметре десять сантиметров.', uz: "O'ntadan sanang: detsimetrda o'nta santimetr bor." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Три — треугольник, четыре — четырёхугольник, пять — пятиугольник.', uz: "Uch — uchburchak, to'rt — to'rtburchak, besh — beshburchak." }
+      on_wrong: { ru: 'Один дециметр, это десять сантиметров.', uz: "Bir detsimetr, bu o'nta santimetr." }
     }
   },
 
-  // s9 — MASHQ KO'PBURCHAKMI (3 round: to'rtburchak / doira / ochiq chiziq)
+  // s9 — MASHQ CHIZG'ICH-O'QISH (3 round)
   s9: {
-    eyebrow: { ru: 'Многоугольник?', uz: "Ko'pburchakmi?" },
-    lead: { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" },
-    rounds: [ { sides: 4, ask: 'ispoly' }, { sides: 0, ask: 'ispoly' }, { sides: -1, ask: 'ispoly' } ],
-    wrong: { ru: 'У многоугольника прямые стороны и он замкнут.', uz: "Ko'pburchakning tomonlari to'g'ri va u yopiq." },
+    eyebrow: { ru: 'Измеряй', uz: "O'lchang" },
+    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
+    rounds: [ { mode: 'ruler', cm: 5 }, { mode: 'ruler', cm: 7 }, { mode: 'ruler', cm: 2 } ],
+    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Реши: это многоугольник или нет.', uz: "Hal qiling: bu ko'pburchakmi yoki yo'q." },
+      intro: { ru: 'Снова измеряй по линейке.', uz: "Yana chizg'ich bilan o'lchang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь: стороны прямые? Фигура замкнута?', uz: "Tekshiring: tomonlari to'g'rimi? Shakl yopiqmi?" }
+      on_wrong: { ru: 'Читай число у конца предмета.', uz: "Buyum oxiridagi sonni o'qing." }
     }
   },
 
-  // s10 — MASHQ DRAG-MOSLASH (shakl → nom, 3 juft: to'rt/besh/oltiburchak)
+  // s10 — MASHQ BIRLIK-TANLASH (3 round)
   s10: {
-    eyebrow: { ru: 'Соедини', uz: 'Moslash' },
-    lead: { ru: 'Соедини фигуру с названием.', uz: "Shaklni nomiga ulang." },
-    pairs: [ { sides: 4 }, { sides: 5 }, { sides: 6 } ],
-    wrong: { ru: 'Посчитай стороны фигуры и найди её имя.', uz: "Shaklning tomonlarini sanab, nomini toping." },
-    done_text: { ru: 'Отлично! Все фигуры названы.', uz: "Ajoyib! Barcha shakllar nomlandi." },
+    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
+    lead: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
+    rounds: [ { mode: 'unit', obj: 'desk', unit: 'dm' }, { mode: 'unit', obj: 'pencil', unit: 'sm' }, { mode: 'unit', obj: 'module', unit: 'm' } ],
+    wrong: { ru: 'Маленькое — в см, большое — в м.', uz: "Kichik narsa — sm da, katta — m da." },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Снова соедини фигуры с их названиями.', uz: "Yana shakllarni ularning nomlariga ulang." },
-      on_correct: { ru: 'Верно, все совпали.', uz: "To'g'ri, hammasi mos keldi." },
-      on_wrong: { ru: 'Посчитай стороны ещё раз.', uz: "Tomonlarni yana sanang." }
+      intro: { ru: 'Снова выбери удобную единицу для предмета.', uz: "Yana buyum uchun qulay birlikni tanlang." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Чем больше предмет, тем крупнее единица.', uz: "Narsa qancha katta, birlik shuncha yirik." }
     }
   },
 
-  // s11 — MASHQ nom-tanish (3 round abstrakt)
+  // s11 — MASHQ O'GIRISH (3 round)
   s11: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
-    rounds: [ { sides: 6 }, { sides: 3 }, { sides: 5 } ],
-    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
+    eyebrow: { ru: 'Переведи', uz: "O'gir" },
+    lead: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" },
+    rounds: [ { mode: 'convert', from: 'm', to: 'dm', val: 1 }, { mode: 'convert', from: 'dm', to: 'sm', val: 3 }, { mode: 'convert', from: 'dm', to: 'sm', val: 1 } ],
+    wrong: { ru: 'Считай по десять.', uz: "O'ntadan sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Назови фигуру.', uz: "Masaladan oldingi oxirgi mashq. Shaklni ayting." },
+      intro: { ru: 'Последняя тренировка перед задачей. Считай по десять.', uz: "Masaladan oldingi oxirgi mashq. O'ntadan sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай стороны по кругу.', uz: "Tomonlarni aylana bo'ylab sanang." }
+      on_wrong: { ru: 'В метре десять дециметров, в дециметре десять сантиметров.', uz: "Metrda o'nta detsimetr, detsimetrda o'nta santimetr bor." }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Экипаж собирает щит.', uz: "Ekipaj qalqon yig'moqda." },
-    manifest_label: { ru: 'панель', uz: 'panel' },
+    lead: { ru: 'Экипаж измеряет деталь.', uz: "Ekipaj detalni o'lchamoqda." },
+    manifest_label: { ru: 'деталь', uz: 'detal' },
     audio: {
-      ru: 'Экипаж собирает щит станции из панелей.',
-      uz: "Ekipaj stansiya qalqonini panellardan yig'moqda."
+      ru: 'Экипаж измеряет деталь станции линейкой.',
+      uz: "Ekipaj stansiya detalini chizg'ich bilan o'lchamoqda."
     }
   },
 
-  // s13 — MASALA (scored, PolyTypeStage count): beshburchak qalqon → nechta tomon?
+  // s13 — MASALA (scored, LenStage ruler): detalni chizg'ichda o'lcha → nechta sm?
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
-    sides: 5, ask: 'count',
-    story: { ru: 'Экипаж собрал для станции пятиугольный щит. Сколько у него сторон?', uz: "Ekipaj stansiya uchun beshburchak qalqon yig'di. Uning nechta tomoni bor?" },
-    wrong: { ru: 'Посчитай стороны щита по кругу.', uz: "Qalqonning tomonlarini aylana bo'ylab sanang." },
-    done_text: { ru: 'Верно! Пять сторон — пятиугольник.', uz: "To'g'ri! Beshta tomon — beshburchak." },
+    mode: 'ruler', cm: 6,
+    story: { ru: 'Сколько сантиметров в детали?', uz: "Detalda nechta santimetr?" },
+    wrong: { ru: 'Начало на нуле — смотри число у конца детали.', uz: "Boshi nolda — detal oxiridagi songa qarang." },
+    done_text: { ru: 'Верно! Деталь шесть сантиметров.', uz: "To'g'ri! Detal olti santimetr." },
     audio: {
-      intro: { ru: 'Экипаж собрал пятиугольный щит. Сколько у него сторон?', uz: "Ekipaj beshburchak qalqon yig'di. Uning nechta tomoni bor?" },
-      on_correct: { ru: 'Верно. Пять сторон — пятиугольник.', uz: "To'g'ri. Beshta tomon — beshburchak." },
-      on_wrong: { ru: 'Считай стороны по кругу, не пропуская.', uz: "Tomonlarni aylana bo'ylab, o'tkazib yubormay sanang." }
+      intro: { ru: 'Экипаж измеряет деталь. Начало на нуле, сколько сантиметров у конца?', uz: "Ekipaj detalni o'lchayapti. Boshi nolda, oxirida necha santimetr?" },
+      on_correct: { ru: 'Верно. Деталь шесть сантиметров.', uz: "To'g'ri. Detal olti santimetr." },
+      on_wrong: { ru: 'Смотри, у какого числа конец детали.', uz: "Detal oxiri qaysi songa to'g'ri kelishiga qarang." }
     }
   },
 
-  // s14 — FINAL (scored, 3 round nom-tanish + FactCard Uran)
+  // s14 — FINAL (scored, 3 round chizg'ich-o'qish + FactCard Uran)
   s14: {
     eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
-    rounds: [ { sides: 3 }, { sides: 4 }, { sides: 6 } ],
-    wrong: { ru: 'Считай стороны фигуры.', uz: "Shaklning tomonlarini sanang." },
+    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
+    rounds: [ { mode: 'ruler', cm: 4 }, { mode: 'ruler', cm: 9 }, { mode: 'ruler', cm: 6 } ],
+    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Уран вращается на боку — лёжа, как будто катится. Другие планеты крутятся стоя.', uz: "Uran yonboshlab aylanadi — yotgan holda, xuddi dumalayotgandek. Boshqa sayyoralar tik aylanadi." },
-    fact_audio: { ru: 'Уран — необычная планета: она вращается на боку, лёжа, как будто катится по орбите.', uz: "Uran — g'ayrioddiy sayyora: u yonboshlab, yotgan holda aylanadi, xuddi orbitada dumalab ketayotgandek." },
+    fact_text: { ru: 'Уран огромный: поперёк он примерно в четыре раза больше Земли.', uz: "Uran juda katta: ko'ndalangiga u Yerdan taxminan to'rt baravar katta." },
+    fact_audio: { ru: 'Уран очень большой: в поперечнике он примерно в четыре раза больше нашей Земли.', uz: "Uran juda katta: ko'ndalangiga u bizning Yerimizdan taxminan to'rt baravar katta." },
     audio: {
-      intro: { ru: 'Финальная проверка. Считай стороны и называй фигуру.', uz: "Yakuniy tekshiruv. Tomonlarni sanab shaklni ayting." },
+      intro: { ru: 'Финальная проверка. Читай число у конца предмета.', uz: "Yakuniy tekshiruv. Buyum oxiridagi sonni o'qing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Три — треугольник, четыре — четырёхугольник, шесть — шестиугольник.', uz: "Uch — uchburchak, to'rt — to'rtburchak, olti — oltiburchak." }
+      on_wrong: { ru: 'Начало на нуле, смотри конец.', uz: "Boshi nolda, oxiriga qarang." }
     }
   },
 
-  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: uzunlik o'lchash)
+  // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: perimetr)
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты узнаёшь многоугольники по числу сторон!', uz: "Endi siz ko'pburchaklarni tomonlar soniga qarab tanisiz!" },
+    cando: { ru: 'Теперь ты измеряешь в см, дм и м!', uz: "Endi siz sm, dm va m bilan o'lchaysiz!" },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Считай стороны: 3 — треугольник, 4 — четырёхугольник, 5 — пятиугольник, 6 — шестиугольник.', uz: "Tomonlarni sanang: 3 — uchburchak, 4 — to'rtburchak, 5 — beshburchak, 6 — oltiburchak." },
+    rule_recap: { ru: '1 дм = 10 см, 1 м = 100 см. Маленькое — в см, большое — в м.', uz: "1 dm = 10 sm, 1 m = 100 sm. Kichik narsa — sm da, katta — m da." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'линия и отрезок', uz: "chiziq va kesma" },
+    conn_refs: { ru: 'отрезок (длина)', uz: "kesma (uzunlik)" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: измерение длины', uz: "keyingi: uzunlik o'lchash" },
+    conn_next: { ru: 'дальше: периметр', uz: "keyingi: perimetr" },
     audio: {
-      ru: 'Миссия выполнена. Мы научились узнавать многоугольники по числу сторон. Три стороны — треугольник, четыре — четырёхугольник, пять — пятиугольник, шесть — шестиугольник. На спутнике Урана экипаж собрал панели станции. Дальше научимся измерять длину в сантиметрах и метрах.',
-      uz: "Missiya bajarildi. Ko'pburchaklarni tomonlar soniga qarab tanishni o'rgandik. Uchta tomon — uchburchak, to'rtta — to'rtburchak, beshta — beshburchak, oltita — oltiburchak. Uran yo'ldoshida ekipaj stansiya panellarini yig'di. Keyin uzunlikni santimetr va metrda o'lchashni o'rganamiz."
+      ru: 'Миссия выполнена. Мы научились измерять длину линейкой и выбирать единицу. В дециметре десять сантиметров, а в метре сто сантиметров. В мастерской на спутнике Урана экипаж измерил детали станции. Дальше научимся считать периметр.',
+      uz: "Missiya bajarildi. Uzunlikni chizg'ich bilan o'lchashni va birlik tanlashni o'rgandik. Detsimetrda o'nta santimetr, metrda esa yuzta santimetr bor. Uran yo'ldoshidagi ustaxonada ekipaj stansiya detallarini o'lchadi. Keyin perimetrni hisoblashni o'rganamiz."
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Что такое многоугольник?', uz: "Ko'pburchak nima?" },
-  s2:  { ru: 'Как назвать фигуру?', uz: "Shaklni qanday nomlaymiz?" },
+  s1:  { ru: 'Начнём с сантиметра.', uz: "Santimetrdan boshlaymiz." },
+  s2:  { ru: 'Единицы побольше.', uz: "Kattaroq birliklar." },
   s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'А что не многоугольник?', uz: "Nima ko'pburchak emas?" },
-  sTBL: { ru: 'Запомним ключ по сторонам.', uz: 'Tomonlar kalitini yodlaymiz.' },
-  s5:  { ru: 'Теперь узнавай фигуры сам.', uz: "Endi shakllarni o'zingiz taning." },
-  s6:  { ru: 'Считай стороны.', uz: "Tomonlarni sanang." },
-  s7:  { ru: 'Соедини фигуры с именами.', uz: "Shakllarni nomlariga ulang." },
-  s8:  { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" },
-  s9:  { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" },
-  s10: { ru: 'Ещё раз соедини.', uz: "Yana ulang." },
+  s4:  { ru: 'Какая единица для чего?', uz: "Qaysi birlik nimaga?" },
+  sTBL: { ru: 'Запомним единицы.', uz: 'Birliklarni yodlaymiz.' },
+  s5:  { ru: 'Теперь измеряй сам.', uz: "Endi o'zingiz o'lchang." },
+  s6:  { ru: 'Измеряй по линейке.', uz: "Chizg'ich bilan o'lchang." },
+  s7:  { ru: 'Выбери единицу.', uz: "Birlikni tanlang." },
+  s8:  { ru: 'Переведи в сантиметры.', uz: "Santimetrga o'giring." },
+  s9:  { ru: 'Снова измеряй.', uz: "Yana o'lchang." },
+  s10: { ru: 'Снова выбери единицу.', uz: "Yana birlikni tanlang." },
   s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Экипаж собирает щит.', uz: "Ekipaj qalqon yig'adi." },
+  s12: { ru: 'Экипаж измеряет деталь.', uz: "Ekipaj detalni o'lchaydi." },
   s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
   s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Панели собраны в щит станции!', uz: "Panellardan stansiya qalqoni yig'ildi!" }
+  s15: { ru: 'Детали станции измерены!', uz: "Stansiya detallari o'lchandi!" }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'На спутнике Урана экипаж собрал из панелей треугольники, четырёхугольники и пятиугольники для станции. Фигуры узнаны! Спасибо за помощь.',
-  uz: "Uran yo'ldoshida ekipaj stansiya uchun panellardan uchburchak, to'rtburchak va beshburchaklar yig'di. Shakllar tanildi! Yordamingiz uchun rahmat."
+  ru: 'В мастерской на спутнике Урана экипаж измерил детали станции линейкой — в сантиметрах, дециметрах и метрах. Всё измерено! Спасибо за помощь.',
+  uz: "Uran yo'ldoshidagi ustaxonada ekipaj stansiya detallarini chizg'ich bilan — santimetr, detsimetr va metrda o'lchadi. Hammasi o'lchandi! Yordamingiz uchun rahmat."
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
@@ -1351,7 +1351,7 @@ const ICON = {
   star: <g><path d="M20 3 L24.9 14.7 L37.5 15.8 L28 24.2 L30.9 36.5 L20 29.8 L9.1 36.5 L12 24.2 L2.5 15.8 L15.1 14.7 Z" fill="url(#g1starG)" stroke="#E0992A" strokeWidth="0.8" strokeLinejoin="round"/><path d="M20 9 L22.4 15.4 L20 20 L17.6 15.4 Z" fill="rgba(255,255,255,0.38)"/></g>,
   fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
   flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
-  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
+  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#fe5b1a"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#fe5b1a"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
   cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
@@ -1412,7 +1412,7 @@ const BitSVG = ({ state = 'present', className = '' }) => (
     {/* antenna */}
     <g className="g1-bit-ant">
       <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round"/>
-      <circle cx="60" cy="11" r="6" fill="#FF4F28"/>
+      <circle cx="60" cy="11" r="6" fill="#fe5b1a"/>
       <circle cx="58" cy="9" r="2" fill="#FFB9A6"/>
     </g>
     {/* oyoqchalar */}
@@ -1538,7 +1538,7 @@ const D2Defs = () => (
       <linearGradient id="d2rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#E7DCC6"/><stop offset="45%" stopColor="#F1E9D9"/><stop offset="55%" stopColor="#F6F0E2"/><stop offset="100%" stopColor="#E7DCC6"/></linearGradient>
       <radialGradient id="d2space" cx="50%" cy="45%" r="70%"><stop offset="0%" stopColor="#2E4B7C"/><stop offset="100%" stopColor="#16294C"/></radialGradient>
       <linearGradient id="d2rocket" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#AFC2D0"/><stop offset="45%" stopColor="#F4F8FB"/><stop offset="100%" stopColor="#9EB2C0"/></linearGradient>
-      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28"/></linearGradient>
+      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a"/></linearGradient>
       <linearGradient id="d2planet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5C7CB0"/><stop offset="100%" stopColor="#2C3E68"/></linearGradient>
       <linearGradient id="d2ship" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8CA0B8"/><stop offset="45%" stopColor="#C6D6E4"/><stop offset="100%" stopColor="#5E718C"/></linearGradient>
     </defs>
@@ -2363,7 +2363,7 @@ const NumberLine = () => {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 'min(320px, 96%)', height: 'auto' }} aria-hidden="true">
       <line x1={x(0)} y1={y} x2={x(max)} y2={y} stroke={T.ink3} strokeWidth="2"/>
-      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round"/>
+      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round"/>
       <line x1={x(30)} y1={y} x2={x(34)} y2={y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round"/>
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -2883,7 +2883,7 @@ const Screen1 = (props) => {
   return (
     <TeachStage props={props} cKey="s1" body={c.body} info={c.info}
       figure={() => (
-        <div style={{ width: 'clamp(120px,32vw,180px)', margin: '0 auto' }}><PolyFig sides={5} hi max={180}/></div>
+        <div style={{ width: '100%', maxWidth: 340, margin: '0 auto', overflowX: 'auto' }}><Ruler objCm={5} maxCm={10} reveal/></div>
       )}
     />
   );
@@ -2967,7 +2967,7 @@ const Screen2 = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(200px, 46vw, 280px)' }}>
-          <div style={{ width: 'clamp(120px,32vw,180px)' }}><PolyFig sides={4} hi={reveal >= 2} max={180}/></div>
+          <ConvertViz from={t(UNIT_ABBR.dm)} to={t(UNIT_ABBR.sm)} val={1} ratio={10} reveal={reveal >= 2}/>
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3008,12 +3008,12 @@ const Screen3 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -12, left: 16, background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(11px,1.7vw,13px)', letterSpacing: '.04em', padding: '3px 12px', borderRadius: 999 }}>{lang === 'uz' ? 'QOIDA' : 'ПРАВИЛО'}</span>
           <p style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(15px,2.3vw,19px)', color: T.ink, lineHeight: 1.5 }}>{t(c.rule)}</p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: 'clamp(110px,28vw,160px)' }}><PolyFig sides={5} hi={done} max={160}/></div>
+          <ConvertViz from={t(UNIT_ABBR.dm)} to={t(UNIT_ABBR.sm)} val={1} ratio={10} reveal={done}/>
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
@@ -3062,7 +3062,7 @@ const CodeTablo = ({ tens, ones, tensLabel, onesLabel, emph = null, name = null 
 // emph — dual-coding (audio aytayotgan razryadni yoritadi). showEq — 45 = 40 + 5.
 // ============================================================
 const OmborKasseta = () => (
-  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#FF4F28)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
+  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#fe5b1a)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
     {[0, 1, 2, 3, 4].map(i => <div key={i} style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.55)' }}/>)}
   </div>
 );
@@ -3090,13 +3090,13 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px,2.2vw,14px)', width: 'min(400px,98%)' }}>
-      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#FF4F28', '#FFE8E1', oHi, tHi, 'ten')}
+      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#fe5b1a', '#FFE8E1', oHi, tHi, 'ten')}
       {shelf(Array.from({ length: ones }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><BatterySvg className="d2-battsvg-btn"/></span>), onesCap, ones, onesLabel, '#019ACB', '#E1F3FB', tHi, oHi, 'one')}
       {showEq && (
         <div className="fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px,1.6vw,10px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,5vw,32px)', marginTop: 2 }}>
           <span style={{ color: T.ink }}>{total}</span>
           <span style={{ color: T.ink3 }}>=</span>
-          <span style={{ color: '#FF4F28' }}>{tens * 10}</span>
+          <span style={{ color: '#fe5b1a' }}>{tens * 10}</span>
           <span style={{ color: T.ink3 }}>+</span>
           <span style={{ color: '#019ACB' }}>{ones}</span>
         </div>
@@ -3108,7 +3108,7 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
 // ============================================================
 // FuelTank + TankCompare — Dars04 star-vizual: ikki quvvat bloki (son + to'lish darajasi:
 // katta son = to'laroq -> taqqoslash intuitsiyasi). O'rtada > < = belgi sloti.
-// Raqamlar rang-kodli: o'nlik #FF4F28 (sariq-qizil), birlik #019ACB (ko'k).
+// Raqamlar rang-kodli: o'nlik #fe5b1a (sariq-qizil), birlik #019ACB (ko'k).
 // ============================================================
 const FuelTank = ({ code, emph = false, dim = false, emphDigit = null }) => {
   const tens = Math.floor(code / 10), ones = code % 10;
@@ -3206,8 +3206,8 @@ const NumTrack = ({ value, answer = null, max = 100, emphTens = false }) => {
         {Array.from({ length: max + 1 }).map((_, n) => (n % 10 !== 0 ? <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -4, width: n % 5 === 0 ? 2 : 1.3, height: n % 5 === 0 ? 16 : 12, background: n % 5 === 0 ? '#8A98A6' : '#AEABA3', borderRadius: 1 }}/> : null))}
         {tens.map((n) => (
           <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -9, transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: 3, height: 23, background: emphTens ? '#FF4F28' : '#5E6B78', borderRadius: 2 }}/>
-            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#FF4F28' : T.ink2 }}>{n}</span>
+            <div style={{ width: 3, height: 23, background: emphTens ? '#fe5b1a' : '#5E6B78', borderRadius: 2 }}/>
+            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#fe5b1a' : T.ink2 }}>{n}</span>
           </div>
         ))}
         <div style={{ position: 'absolute', left: `${pct}%`, top: '50%', transform: 'translate(-50%,-50%)', width: 'clamp(14px,3vw,18px)', height: 'clamp(14px,3vw,18px)', borderRadius: '50%', background: shown ? T.success : T.accent, border: '3px solid #fff', boxShadow: `0 0 0 3px ${shown ? T.successSoft : T.accentSoft}`, zIndex: 2 }}/>
@@ -3258,12 +3258,12 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#FF4F28', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
       <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
+      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 3, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{bu}</span>
       <span style={{ gridColumn: '1 / 4', gridRow: 4, height: 3, background: T.ink, borderRadius: 2, margin: '3px 0' }}/>
       <span style={{ gridColumn: 2, gridRow: 5, display: 'flex', justifyContent: 'center' }}>{resTens}</span>
@@ -3294,7 +3294,7 @@ const RazryadBreak = ({ a, b }) => {
       <div key={i} className="fade-up" style={{ ...RB_ROW, animationDelay: `${0.15 + i * 0.25}s` }}>
         <span style={{ fontSize: 'clamp(28px,6vw,40px)', color: T.ink, minWidth: 'clamp(44px,10vw,60px)', textAlign: 'right' }}>{n}</span>
         <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink3 }}>=</span>
-        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #FF4F28', color: '#FF4F28' }}>{tens}</span>
+        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #fe5b1a', color: '#fe5b1a' }}>{tens}</span>
         <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink2 }}>+</span>
         <span style={{ ...RB_CHIP, background: '#E9F7FC', border: '2px solid #019ACB', color: '#019ACB' }}>{units}</span>
       </div>
@@ -3305,7 +3305,7 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#FF4F28' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
         <span style={{ color: T.ink3 }}>, </span>
         <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
       </p>
@@ -3390,7 +3390,7 @@ const CargoBase = ({ w }) => (
     <circle cx="103" cy="68" r="3.2" fill="#FF6A3D" opacity="0.7"/>
     {/* bayroq (chapda) */}
     <line x1="26" y1="86" x2="26" y2="60" stroke="#C3CDDC" strokeWidth="2.6"/>
-    <path d="M26 60 L26 73 L44 66.5 Z" fill="#FF4F28"/>
+    <path d="M26 60 L26 73 L44 66.5 Z" fill="#fe5b1a"/>
   </svg>
 );
 // Mars osmoni/sirti elementlari — real-hayotiy sahnasi uchun.
@@ -3458,7 +3458,7 @@ const MarsBase = ({ answer = null }) => {
       <div style={{ position: 'absolute', right: '11%', bottom: '28%', transform: 'translateX(50%)', width: 'clamp(58px,14.5vw,90px)', zIndex: 4 }}><LandedRocket w="100%"/></div>
       {/* konteynerlar (o'rtada, yerda) */}
       <div style={{ position: 'absolute', left: '48%', bottom: '17%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 'clamp(5px,1.4vw,10px)', zIndex: 5 }}>
-        <CargoCrate n={34} ca="#FF9166" cb="#FF4F28" br="#C1381A"/>
+        <CargoCrate n={34} ca="#FF9166" cb="#fe5b1a" br="#C1381A"/>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(18px,3.6vw,26px)', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>+</span>
         <CargoCrate n={25} ca="#33B8E3" cb="#019ACB" br="#0B7BA3"/>
       </div>
@@ -3509,9 +3509,9 @@ const Screen4 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 2vw, 17px)', textAlign: 'center', lineHeight: 1.55 }}>{t(c.body)}</p>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: 'clamp(96px,26vw,140px)' }}><PolyFig sides={0} max={140}/></div>
+          <div style={{ minHeight: 'clamp(60px,15vw,96px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ObjIcon kind="module"/></div>
         </div>
-        <div className="fade-up" style={{ background: '#FBEEEE', border: '2px solid #D64545', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(214,69,69,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#B23A3A', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
+        <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
           {c.opts.map((o, i) => (
@@ -3570,7 +3570,7 @@ const HatchDoor = ({ outerOpen, innerOpen, wrong }) => {
           </g>
         </g>
         <rect x="66" y="90" width="28" height="12" rx="6" fill="#EDE4D2" stroke="#C9BDA4" strokeWidth="1.5"/>
-        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#D64545'} style={{ transition: 'fill 0.3s' }}/>
+        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#fe5b1a'} style={{ transition: 'fill 0.3s' }}/>
       </svg>
     </div>
   );
@@ -3651,11 +3651,11 @@ const Screen5 = (props) => {
               <div className="d2-hatchtablo">
                 <span className="mono" style={{ fontSize: 'clamp(9px, 1.3vw, 11px)', fontWeight: 800, letterSpacing: '0.14em', color: T.ink3, textTransform: 'uppercase' }}>{lang === 'uz' ? 'Kod tablosi' : 'Табло кода'}</span>
                 <p className="mono" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px, 1.9vw, 15px)', textAlign: 'center' }}>{t(roundIdx === 0 ? c.round1 : c.round2)}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#D64545' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#fe5b1a' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderRight: `1px solid ${T.ink3}`, borderBottom: `1px solid ${T.ink3}` }}>{t(c.tens_label)}</div>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderBottom: `1px solid ${T.ink3}` }}>{t(c.ones_label)}</div>
                   {[0, 1].map(si => (
-                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#FF4F28' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
+                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#fe5b1a' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
                   ))}
                 </div>
               </div>
@@ -3711,7 +3711,7 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
         </g>
       )}
       <line x1={nlx(0)} y1={NL_y} x2={nlx(NL_max)} y2={NL_y} stroke={T.ink3} strokeWidth="2"/>
-      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
+      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {!asking && pos > 30 && <line x1={nlx(30)} y1={NL_y} x2={nlx(pos)} y2={NL_y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -3721,8 +3721,8 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
       ))}
       {!asking && [[0, 10], [10, 20], [20, 30]].map(([a, b], i) => (
         <g key={i} style={{ opacity: phase >= 1 ? 1 : 0, transition: `opacity 0.4s ${i * 0.35}s` }}>
-          <path d={arc(a, b, 30)} fill="none" stroke="#FF4F28" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
-          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#FF4F28" fontFamily="'JetBrains Mono', monospace">+10</text>
+          <path d={arc(a, b, 30)} fill="none" stroke="#fe5b1a" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
+          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#fe5b1a" fontFamily="'JetBrains Mono', monospace">+10</text>
         </g>
       ))}
       {!asking && [30, 31, 32, 33].map((a, i) => (
@@ -3836,13 +3836,13 @@ const Screen7 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
             {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#FF4F28' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             ) : (
-              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#FF4F28' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
             )}
           </p>
         </div>
@@ -3862,7 +3862,7 @@ const Screen7 = (props) => {
             {S7_CHECK.map((d, pos) => (
               <button key={pos} className="option" disabled={!canAct || checkOk} onClick={() => tapDigit(pos)}
                 style={{ width: 'clamp(54px, 12vw, 68px)', height: 'clamp(60px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(32px, 7vw, 44px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-                         color: checkOk ? (pos === 0 ? '#FF4F28' : '#019ACB') : T.ink,
+                         color: checkOk ? (pos === 0 ? '#fe5b1a' : '#019ACB') : T.ink,
                          borderColor: checkOk && pos === 0 ? T.success : undefined }}>{d}</button>
             ))}
           </div>
@@ -4417,7 +4417,7 @@ const HeroShip = () => (
       <radialGradient id="hsGlass" cx="38%" cy="30%" r="75%"><stop offset="0%" stopColor="#EAFCFF"/><stop offset="45%" stopColor="#5FC0DE"/><stop offset="100%" stopColor="#245C74"/></radialGradient>
       <linearGradient id="hsFin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#B9C7D4"/><stop offset="100%" stopColor="#66727F"/></linearGradient>
       <linearGradient id="hsNoz" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3A4652"/><stop offset="55%" stopColor="#8A97A4"/><stop offset="100%" stopColor="#4A5662"/></linearGradient>
-      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28" stopOpacity="0"/></linearGradient>
+      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a" stopOpacity="0"/></linearGradient>
     </defs>
     {/* ikkala dvigatel alangasi (ikki turbina) */}
     <g style={{ animation: 'g1pulse 0.32s ease-in-out infinite', transformBox: 'fill-box', transformOrigin: 'left center' }}>
@@ -4565,8 +4565,8 @@ const d8BuildTiles = (st, su, seed) => {
   return d8Shuffle([...need, ...dist], seed).map((d, i) => ({ id: `${seed}-${i}`, d }));
 };
 const D8DropSlot = React.forwardRef(({ digit, color, state, onClear }, ref) => {
-  const border = state === 'ok' ? T.success : state === 'wrong' ? '#D64545' : state === 'filled' ? color : '#A7A6A2';
-  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FBEEEE' : '#ffffff';
+  const border = state === 'ok' ? T.success : state === 'wrong' ? '#fe5b1a' : state === 'filled' ? color : '#A7A6A2';
+  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FFF1EA' : '#ffffff';
   const clickable = digit != null && state !== 'ok';
   return (
     <span ref={ref} onClick={clickable ? onClear : undefined} className={state === 'ok' ? 'g1-pop-in' : ''}
@@ -4700,7 +4700,7 @@ const DropColumnStage = ({ props, cKey, fact = false }) => {
     : reveal >= 2
       ? { ru: `Десятки: ${at} + ${bt} = ${st}`, uz: `O'nliklar: ${at} + ${bt} = ${st}` }
       : null;
-  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#FF4F28" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
+  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#fe5b1a" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
   const resUnits = <D8DropSlot ref={unitsRef} digit={digitOf('units')} color="#019ACB" state={slotState('units', digitOf('units'))} onClear={() => clearSlot('units')}/>;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -4784,7 +4784,7 @@ const ArrayViz = ({ r, c, reveal = 0, variant = 'geo' }) => {
           </div>
         ))}
       </div>
-      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ряда по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
+      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ${r === 1 ? 'ряд' : r < 5 ? 'ряда' : 'рядов'} по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
       {reveal >= 2 && (
         <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(3px,1vw,6px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(16px,3.2vw,23px)' }}>
           {Array.from({ length: r }).map((_, i) => (<React.Fragment key={i}>{i > 0 && <span style={{ color: T.ink3 }}>+</span>}<span style={{ color: '#2E9B4E' }}>{c}</span></React.Fragment>))}
@@ -5097,7 +5097,7 @@ const DealStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5180,7 +5180,7 @@ const ArrayRevStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5269,7 +5269,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi — o'quvchi hali jadvalni bilmaydi, ochib ishlata oladi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5465,7 +5465,7 @@ const DivTableFillStage = ({ props, cKey }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5567,7 +5567,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -5695,7 +5695,7 @@ const MatchStage = ({ props, cKey }) => {
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink, cursor: 'grab' };
   const rightStyle = (pos) => { const fam = order[pos]; return matched.has(fam)
     ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, color: T.success, cursor: 'default' }
-    : wrongPos === pos ? { ...MCELL, background: '#FBEEEE', border: '2.5px solid #D64545', color: '#B23A3A' }
+    : wrongPos === pos ? { ...MCELL, background: '#FFF1EA', border: '2.5px solid #fe5b1a', color: '#fe5b1a' }
     : drag && drag.hover === pos ? { ...MCELL, background: T.accentSoft, border: `2.5px dashed ${T.accent}`, color: T.ink }
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink }; };
   // PIKSEL geometriya (viewBox = konteyner o'lchami → doiralar dumaloq, sim tabiiy)
@@ -5848,11 +5848,174 @@ const OpChoiceStage = ({ props, cKey, fact = false }) => {
   );
 };
 // ============================================================
-// Dars26 MEXANIKA — CHIZIQ TURLARI (Van Hiele 0→1): nur/to'g'ri chiziq/kesma UCH SONI bo'yicha.
-//  PolyFig — muntazam ko'pburchak (sides>=3: tomonlar+yashil uch-nuqta; sides=0: doira; sides=-1: ochiq siniq chiziq).
-//  PolyTypeStage — ko'pburchakni ko'rsatib «qaysi tur?» (name) / «nechta tomon?» (count) / «ko'pburchakmi?» (ispoly) MC.
-//  PolyMatchStage — shaklni nomiga elastik-sim bilan DRAG-moslash (Dars20 meros); MatchDoor lyuk ochiladi.
+// Dars28 MEXANIKA — UZUNLIK O'LCHASH (sm, dm, m):
+//  Ruler — chizg'ich + detal (0 dan objCm gacha); reveal'da o'qish qavsi.
+//  ObjIcon — o'lchanadigan buyum (pencil→sm, desk→dm, module→m).
+//  ConvertViz — val ta katta birlik, har biri ratio ta kichik birlikka bo'lingan (dm→sm, m→dm).
+//  LenStage — round.mode: 'ruler' (nechta sm o'qish) / 'unit' (qaysi birlik) / 'convert' (o'girish). MC.
 // ============================================================
+const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm' }, dm: { ru: 'дм', uz: 'dm' }, m: { ru: 'м', uz: 'm' } };
+const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr' }, dm: { ru: 'дециметр', uz: 'detsimetr' }, m: { ru: 'метр', uz: 'metr' } };
+const LEN_RATIO = { 'dm>sm': 10, 'm>dm': 10, 'm>sm': 100 };
+const RUL_STEP = 26, RUL_PAD = 16;
+const LEN_Q = {
+  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
+  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
+  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" }
+};
+const lenShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
+const rulerOpts = (cm, seed) => lenShuffle(cm - 1 < 1 ? [cm, cm + 1, cm + 2] : [cm - 1, cm, cm + 1], seed * 7 + 3);
+const convertOpts = (val, ratio, seed) => lenShuffle([val * ratio, val, val * ratio * 10], seed * 7 + 5);
+// Chizg'ich + o'lchanayotgan detal (0 dan objCm gacha). reveal → o'qish qavsi + yorliq.
+const Ruler = ({ objCm, maxCm = 10, reveal = false }) => {
+  const W = RUL_PAD * 2 + maxCm * RUL_STEP;
+  const x = (cm) => RUL_PAD + cm * RUL_STEP;
+  return (
+    <svg viewBox={`0 0 ${W} 104`} style={{ width: '100%', maxWidth: Math.min(360, W), height: 'auto', display: 'block', overflow: 'visible' }} aria-hidden="true">
+      <defs>
+        <linearGradient id="d28rod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#7FD8DE"/><stop offset="1" stopColor="#3E9AA8"/></linearGradient>
+        <linearGradient id="d28rul" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F6EBCB"/><stop offset="1" stopColor="#E4D3A2"/></linearGradient>
+      </defs>
+      {/* DETAL (o'lchanayotgan buyum) */}
+      <rect x={x(0)} y="14" width={objCm * RUL_STEP} height="22" rx="6" fill="url(#d28rod)" stroke="#6D5CE7" strokeWidth="1.5"/>
+      <rect x={x(0) + 3} y="17" width={Math.max(0, objCm * RUL_STEP - 6)} height="5" rx="2.5" fill="rgba(255,255,255,0.45)"/>
+      {/* O'QISH qavsi (reveal) */}
+      {reveal && (
+        <g className="g1-pop-in">
+          <line x1={x(0)} y1="43" x2={x(objCm)} y2="43" stroke="#1F7A4D" strokeWidth="3"/>
+          <line x1={x(objCm)} y1="12" x2={x(objCm)} y2="47" stroke="#1F7A4D" strokeWidth="2" strokeDasharray="3 3"/>
+          <rect x={x(objCm / 2) - 22} y="0" width="44" height="16" rx="8" fill="#1F7A4D"/>
+          <text x={x(objCm / 2)} y="12" textAnchor="middle" fontSize="10.5" fontWeight="800" fontFamily="'JetBrains Mono',monospace" fill="#fff">{objCm} sm</text>
+        </g>
+      )}
+      {/* CHIZG'ICH tanasi */}
+      <rect x={x(0) - 6} y="52" width={maxCm * RUL_STEP + 12} height="36" rx="5" fill="url(#d28rul)" stroke="#C9B77E" strokeWidth="1.6"/>
+      {Array.from({ length: maxCm }).map((_, i) => <line key={'h' + i} x1={x(i + 0.5)} y1="52" x2={x(i + 0.5)} y2="60" stroke="#A89768" strokeWidth="1"/>)}
+      {Array.from({ length: maxCm + 1 }).map((_, i) => (
+        <g key={i}>
+          <line x1={x(i)} y1="52" x2={x(i)} y2="66" stroke="#8A7A4A" strokeWidth={i === 0 || i === maxCm ? 2.2 : 1.4}/>
+          <text x={x(i)} y="82" textAnchor="middle" fontSize="10" fontFamily="'JetBrains Mono',monospace" fontWeight="700" fill="#6E5E34">{i}</text>
+        </g>
+      ))}
+    </svg>
+  );
+};
+// O'lchanadigan buyum: pencil(sm) / desk(dm) / module(m).
+const ObjIcon = ({ kind }) => {
+  if (kind === 'pencil') return (
+    <svg viewBox="0 0 180 56" style={{ width: '100%', maxWidth: 230, height: 'auto', display: 'block' }} aria-hidden="true">
+      <polygon points="10,28 30,19 30,37" fill="#E0A85A"/><polygon points="10,28 22,23 22,33" fill="#6E4A2A"/>
+      <rect x="30" y="19" width="118" height="18" fill="#F2C84B" stroke="#C79A2E" strokeWidth="1.5"/>
+      <rect x="34" y="22" width="110" height="4" rx="2" fill="rgba(255,255,255,0.5)"/>
+      <rect x="148" y="19" width="14" height="18" fill="#E88AA0"/><rect x="162" y="21" width="7" height="14" rx="2" fill="#B0B7C0"/>
+    </svg>
+  );
+  if (kind === 'desk') return (
+    <svg viewBox="0 0 120 88" style={{ width: '100%', maxWidth: 140, height: 'auto', display: 'block' }} aria-hidden="true">
+      <defs><linearGradient id="d28wood2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#C99A5A"/><stop offset="1" stopColor="#9A6E3A"/></linearGradient></defs>
+      <rect x="12" y="28" width="96" height="13" rx="3" fill="url(#d28wood2)" stroke="#7A5426" strokeWidth="1.2"/>
+      <rect x="20" y="41" width="9" height="40" rx="2" fill="#9A6E3A"/><rect x="91" y="41" width="9" height="40" rx="2" fill="#9A6E3A"/>
+    </svg>
+  );
+  return (<div style={{ width: 'clamp(70px,18vw,112px)', margin: '0 auto' }}><StationModule w="100%"/></div>);
+};
+// val ta katta birlik (from), har biri ratio ta kichik birlikka (to) bo'lingan. reveal → jami tenglik.
+const ConvertViz = ({ from, to, val, ratio, reveal = false }) => {
+  const total = val * ratio;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', width: '100%' }}>
+      <div style={{ display: 'flex', gap: 'clamp(6px,1.8vw,12px)', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {Array.from({ length: val }).map((_, b) => (
+          <div key={b} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+            <div style={{ display: 'flex', border: '2px solid #6D5CE7', borderRadius: 6, overflow: 'hidden' }}>
+              {Array.from({ length: ratio }).map((_, cc) => <span key={cc} style={{ width: 'clamp(9px,2.3vw,15px)', height: 'clamp(18px,4.4vw,28px)', background: cc % 2 ? '#CFEDF1' : '#7FD8DE', borderRight: cc < ratio - 1 ? '1px solid #6FB8C2' : 'none' }}/>)}
+            </div>
+            <span style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,14px)', color: '#6D5CE7' }}>1 {from}</span>
+          </div>
+        ))}
+      </div>
+      {reveal && <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(15px,2.6vw,20px)', color: T.success }}>{val} {from} = {total} {to}</div>}
+    </div>
+  );
+};
+// LenStage — round.mode: 'ruler' {cm,maxCm?} / 'unit' {obj,unit} / 'convert' {from,to,val}. MC (sonlar yoki birlik).
+const LenStage = ({ props, cKey, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const cur = rounds[ri];
+  const mode = cur.mode;
+  const isUnit = mode === 'unit';
+  const [solved, setSolved] = useState(false);
+  const [wrong, setWrong] = useState(() => new Set());
+  const anyWrongRef = useRef(false);
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const revealRef = useRevealScroll(solved, 400);
+  const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
+  const ratio = mode === 'convert' ? LEN_RATIO[`${cur.from}>${cur.to}`] : 0;
+  const correct = mode === 'ruler' ? cur.cm : mode === 'unit' ? cur.unit : cur.val * ratio;
+  const optVals = mode === 'ruler' ? rulerOpts(cur.cm, ri) : mode === 'unit' ? ['sm', 'dm', 'm'] : convertOpts(cur.val, ratio, ri);
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `len:${mode}`, options: [], correctIndex: -1, correctAnswer: String(correct), studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const hit = (ok, key) => {
+    if (!canAct || solved || wrong.has(key)) return;
+    if (ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
+    else { sfx.playWrong(); anyWrongRef.current = true; setWrong((w) => new Set(w).add(key)); if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); } }
+  };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
+  const figure = mode === 'ruler'
+    ? <div style={{ width: '100%', overflowX: 'auto' }}><Ruler objCm={cur.cm} maxCm={cur.maxCm || 10} reveal={solved}/></div>
+    : mode === 'unit'
+      ? <div style={{ minHeight: 'clamp(56px,14vw,90px)', display: 'flex', alignItems: 'center' }}><ObjIcon kind={cur.obj}/></div>
+      : <ConvertViz from={t(UNIT_ABBR[cur.from])} to={t(UNIT_ABBR[cur.to])} val={cur.val} ratio={ratio} reveal={solved}/>;
+  const caption = solved && isUnit ? t(UNIT_FULL[cur.unit]) : null;
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        {c.transition && ri === 0 && (
+          <div className="fade-up" style={{ background: T.accentSoft, border: `1.5px solid ${T.accent}`, borderRadius: 14, padding: 'clamp(11px,2.2vw,15px) clamp(14px,2.6vw,18px)' }}>
+            <span style={{ display: 'inline-block', background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(10px,1.6vw,12px)', letterSpacing: '.05em', padding: '3px 10px', borderRadius: 999, marginBottom: 6 }}>{lang === 'uz' ? 'MASHQ' : 'ТРЕНИРОВКА'}</span>
+            <p style={{ margin: 0, fontWeight: 700, color: T.ink, fontSize: 'clamp(14px,2.1vw,17px)', lineHeight: 1.45 }}>{t(c.transition)}</p>
+          </div>
+        )}
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
+        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px,32vw,210px)', justifyContent: 'center' }}>
+          {figure}
+          {caption && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{caption}</div>}
+        </div>
+        {!solved && (
+          <>
+            <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(LEN_Q[mode])}</p>
+            {isUnit ? (
+              <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'clamp(6px,1.4vw,9px)' }}>
+                {optVals.map((u) => { const w = wrong.has('u' + u); return <button key={u} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(u === correct, 'u' + u)} style={POLY_OPT}>{t(UNIT_FULL[u])}</button>; })}
+              </div>
+            ) : (
+              <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.4vw,9px)' }}>
+                {optVals.map((v) => { const w = wrong.has('o' + v); return <button key={v} className={`option ${w ? 'option-picked-wrong' : ''}`} disabled={!canAct || w} onClick={() => hit(v === correct, 'o' + v)} style={{ ...ARR_OPT }}>{v}</button>; })}
+              </div>
+            )}
+          </>
+        )}
+        {wrong.size > 0 && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
+        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+// --- POLY (Dars27) mexanikasi shu darsda O'LIK, quyida qoladi (klon an'anasi) ---
 const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak" }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak' } };
 // PolyFig — muntazam ko'pburchak (tomonlar to'g'ri kesma, burchaklar=yashil nuqta); sides=0 → doira (ko'pburchak EMAS), sides=-1 → ochiq siniq chiziq (yopilmagan).
 const PolyVert = ({ x, y, big }) => (
@@ -5875,7 +6038,7 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
   if (sides === 0) return ( // doira — hajmli disk (tomoni/burchagi yo'q)
     <svg viewBox="0 0 120 124" style={box} aria-hidden="true"><PolyDefs/>
       <circle cx={cx} cy={cy + D} r={r} fill="url(#d27side)"/>
-      <circle cx={cx} cy={cy} r={r} fill="url(#d27top)" stroke="#2E7C88" strokeWidth="3"/>
+      <circle cx={cx} cy={cy} r={r} fill="url(#d27top)" stroke="#6D5CE7" strokeWidth="3"/>
       <ellipse cx={cx - 13} cy={cy - 16} rx={r * 0.5} ry={r * 0.28} transform={`rotate(-32 ${cx - 13} ${cy - 16})`} fill="url(#d27gloss)" opacity="0.6"/>
     </svg>
   );
@@ -5898,7 +6061,7 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
       {/* yon yuz (qalinlik) */}
       <path d={d} transform={`translate(0 ${D})`} fill="url(#d27side)"/>
       {/* ustki yuz */}
-      <path className={hi ? 'g1-pop-in' : ''} d={d} fill="url(#d27top)" stroke="#2E7C88" strokeWidth="3" strokeLinejoin="round"/>
+      <path className={hi ? 'g1-pop-in' : ''} d={d} fill="url(#d27top)" stroke="#6D5CE7" strokeWidth="3" strokeLinejoin="round"/>
       {/* qirra yorug'i */}
       <path d={d} fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinejoin="round" transform="translate(0 -1.3)"/>
       {/* BURCHAKLAR — 3D shar (sanaladigan) */}
@@ -6064,7 +6227,7 @@ const PolyMatchStage = ({ props, cKey }) => {
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', cursor: 'grab' };
   const rightStyle = (pos) => { const fam = order[pos]; return matched.has(fam)
     ? { ...MCELL, background: T.successSoft, border: `2px solid ${T.success}`, color: T.success, cursor: 'default', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
-    : wrongPos === pos ? { ...MCELL, background: '#FBEEEE', border: '2.5px solid #D64545', color: '#B23A3A', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
+    : wrongPos === pos ? { ...MCELL, background: '#FFF1EA', border: '2.5px solid #fe5b1a', color: '#fe5b1a', fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
     : drag && drag.hover === pos ? { ...MCELL, background: T.accentSoft, border: `2.5px dashed ${T.accent}`, color: T.ink, fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }
     : { ...MCELL, background: '#fff', border: '2px solid #C9D3DE', color: T.ink, fontFamily: 'inherit', fontSize: 'clamp(11px,2vw,15px)', lineHeight: 1.12 }; };
   const LX = box.w * 0.415, RX = box.w * 0.585;
@@ -6122,16 +6285,16 @@ const PolyMatchStage = ({ props, cKey }) => {
     </Stage>
   );
 };
-// Dars27 wrapper'lari — ko'pburchaklar (PolyTypeStage: nom/tomon-sanash/ko'pburchakmi + PolyMatchStage: drag-moslash). Aralash.
-const A5 = (props) => <PolyTypeStage props={props} cKey="s5"/>;
-const A6 = (props) => <PolyTypeStage props={props} cKey="s6"/>;
-const A7 = (props) => <PolyMatchStage props={props} cKey="s7"/>;
-const A8 = (props) => <PolyTypeStage props={props} cKey="s8"/>;
-const A9 = (props) => <PolyTypeStage props={props} cKey="s9"/>;
-const A10 = (props) => <PolyMatchStage props={props} cKey="s10"/>;
-const A11 = (props) => <PolyTypeStage props={props} cKey="s11"/>;
-const ACase = (props) => <PolyTypeStage props={props} cKey="s13"/>;
-const A14 = (props) => <PolyTypeStage props={props} cKey="s14" fact/>;
+// Dars28 wrapper'lari — uzunlik (LenStage: 'ruler' chizg'ich-o'qish / 'unit' birlik-tanlash / 'convert' o'girish). Aralash.
+const A5 = (props) => <LenStage props={props} cKey="s5"/>;
+const A6 = (props) => <LenStage props={props} cKey="s6"/>;
+const A7 = (props) => <LenStage props={props} cKey="s7"/>;
+const A8 = (props) => <LenStage props={props} cKey="s8"/>;
+const A9 = (props) => <LenStage props={props} cKey="s9"/>;
+const A10 = (props) => <LenStage props={props} cKey="s10"/>;
+const A11 = (props) => <LenStage props={props} cKey="s11"/>;
+const ACase = (props) => <LenStage props={props} cKey="s13"/>;
+const A14 = (props) => <LenStage props={props} cKey="s14" fact/>;
 
 // ============================================================
 // TABLE-FILL MEXANIKASI — skip-sanash qatori (2,4,6,8,10,12 …); bir katak bo'sh, o'quvchi to'ldiradi.
@@ -6236,7 +6399,7 @@ const TableFillStage = ({ props, cKey }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9} hr={by} hc={blank}/>}
@@ -6329,7 +6492,7 @@ const CommuteStage = ({ props, cKey }) => {
           </>
         )}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={9}/>}
@@ -6369,12 +6532,14 @@ const ScreenTable = (props) => {
         <Bridge/>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(190px, 44vw, 260px)', overflowX: 'auto' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(7px,1.8vw,12px)', width: '100%' }}>
-            {[3, 4, 5, 6].map((s) => (
-              <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
-                <span style={{ minWidth: 'clamp(88px,23vw,150px)', fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', color: '#2FA0C8' }}>{t(POLY_NAMES[s])}</span>
-                <div style={{ width: 'clamp(38px,10vw,56px)', flexShrink: 0 }}><PolyFig sides={s} max={56}/></div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', color: T.success, minWidth: 'clamp(52px,14vw,84px)', textAlign: 'center' }}>{s} {t({ ru: 'стор.', uz: 'tomon' })}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px,2.2vw,15px)', width: '100%' }}>
+            {[{ u: 'sm', bars: 1, rel: { ru: 'самая маленькая', uz: 'eng kichik' } }, { u: 'dm', bars: 2, rel: { ru: '1 дм = 10 см', uz: '1 dm = 10 sm' } }, { u: 'm', bars: 3, rel: { ru: '1 м = 100 см', uz: '1 m = 100 sm' } }].map((row) => (
+              <div key={row.u} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
+                <span style={{ minWidth: 'clamp(78px,20vw,120px)', fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', color: '#2FA0C8' }}>{t(UNIT_FULL[row.u])} <span style={{ color: T.ink3, fontFamily: "'JetBrains Mono',monospace" }}>({t(UNIT_ABBR[row.u])})</span></span>
+                <div style={{ flex: 1, minWidth: 0, height: 'clamp(14px,3.4vw,22px)', display: 'flex', gap: 3, alignItems: 'center' }}>
+                  <div style={{ width: `${row.bars * 26}%`, minWidth: 18, height: '100%', borderRadius: 5, background: 'linear-gradient(180deg,#7FD8DE,#3E9AA8)', border: '1.5px solid #6D5CE7' }}/>
+                </div>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,15px)', color: T.success, minWidth: 'clamp(84px,22vw,130px)', textAlign: 'right' }}>{t(row.rel)}</span>
               </div>
             ))}
           </div>
@@ -7113,7 +7278,7 @@ const UranDrone = ({ w }) => (
     <ellipse className="d13-rotor" cx="9" cy="8" rx="8.5" ry="1.7" fill="#8AA4AC" opacity="0.7" style={{ transformOrigin: '9px 8px' }}/>
     <ellipse className="d13-rotor" cx="37" cy="8" rx="8.5" ry="1.7" fill="#8AA4AC" opacity="0.7" style={{ transformOrigin: '37px 8px', animationDelay: '.1s' }}/>
     <rect x="15" y="12" width="16" height="10" rx="4.5" fill="url(#d26dr)" stroke="#7E8692" strokeWidth="1"/>
-    <path d="M20 22 L17 31 L29 31 L26 22 Z" fill="rgba(127,216,222,0.26)"/>
+    <path d="M20 22 L17 31 L29 31 L26 22 Z" fill="rgba(109,92,231,0.26)"/>
     <circle className="d13-led" cx="23" cy="21" r="1.9" fill="#7FD8DE"/>
   </svg>
 );
@@ -7132,7 +7297,7 @@ const UranStation = ({ w }) => (
   <svg viewBox="0 0 150 104" style={{ width: w, height: 'auto', display: 'block', filter: 'drop-shadow(0 7px 9px rgba(0,0,0,0.45))' }} aria-hidden="true">
     <defs>
       <linearGradient id="d26stDome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#F2F8FA"/><stop offset="0.5" stopColor="#C6DCE4"/><stop offset="1" stopColor="#8CA6B2"/></linearGradient>
-      <linearGradient id="d26stPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2E7C88"/><stop offset="1" stopColor="#123A46"/></linearGradient>
+      <linearGradient id="d26stPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6D5CE7"/><stop offset="1" stopColor="#123A46"/></linearGradient>
       <linearGradient id="d26stMod" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#DDE8ED"/><stop offset="1" stopColor="#8A9BA6"/></linearGradient>
     </defs>
     {/* quyosh paneli qanoti (o'ngda) */}
@@ -7210,7 +7375,7 @@ const UranBase = ({ celebrate = false, bubbleNode, charNode }) => (
     {/* uzoq yo'ldoshlar (suzadi) */}
     <span className="d13-moon1" aria-hidden="true" style={{ position: 'absolute', top: '16%', width: 'clamp(7px,1.8vw,11px)', height: 'clamp(7px,1.8vw,11px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #E4EEF0, #7A8E96 78%, #3A4650)', boxShadow: '0 0 6px rgba(210,230,235,0.5)', zIndex: 1 }}/>
     <span className="d13-moon2" aria-hidden="true" style={{ position: 'absolute', top: '30%', width: 'clamp(5px,1.3vw,8px)', height: 'clamp(5px,1.3vw,8px)', borderRadius: '50%', background: 'radial-gradient(circle at 34% 30%, #CFE4E8, #6A828A 80%, #3A4650)', boxShadow: '0 0 5px rgba(190,220,225,0.5)', zIndex: 1 }}/>
-    <div style={{ position: 'absolute', left: '4%', top: '5%', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(8px,1.5vw,11px)', letterSpacing: '.08em', color: '#7FD8DE', textShadow: '0 0 6px rgba(127,216,222,0.6)', zIndex: 3 }}>◍ URAN · YO'LDOSH</div>
+    <div style={{ position: 'absolute', left: '4%', top: '5%', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(8px,1.5vw,11px)', letterSpacing: '.08em', color: '#7FD8DE', textShadow: '0 0 6px rgba(109,92,231,0.6)', zIndex: 3 }}>◍ URAN · YO'LDOSH</div>
     {/* MUZLI TOG' TIZMASI — orqa fon (ufq ortidan ko'tariladi; sirt uni pastdan yopadi) */}
     <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, bottom: '40%', height: '30%', zIndex: 1 }}><IceRidge/></div>
     {/* tog' etagidagi tuman (chuqurlik) */}
@@ -7221,7 +7386,7 @@ const UranBase = ({ celebrate = false, bubbleNode, charNode }) => (
       {[[16, 60, 30], [84, 72, 34], [52, 86, 22], [34, 90, 18]].map(([x, y, r], i) => <span key={i} aria-hidden="true" style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: `${r}px`, height: `${r * 0.45}px`, transform: 'translate(-50%,-50%)', borderRadius: '50%', background: 'radial-gradient(ellipse at 50% 35%, rgba(0,0,0,0.3), transparent 70%)', boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.14)' }}/>)}
       {/* qurilish-panjara (stansiya poydevori) */}
       <div style={{ position: 'absolute', inset: '22% 24% 20% 20%', display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gridTemplateRows: 'repeat(3,1fr)', placeItems: 'center', opacity: 0.85, zIndex: 1 }}>
-        {Array.from({ length: 18 }).map((_, i) => <span key={i} style={{ width: 'clamp(3px,0.9vw,5px)', height: 'clamp(3px,0.9vw,5px)', borderRadius: '50%', background: '#7FD8DE', boxShadow: '0 0 4px rgba(127,216,222,0.7)' }}/>)}
+        {Array.from({ length: 18 }).map((_, i) => <span key={i} style={{ width: 'clamp(3px,0.9vw,5px)', height: 'clamp(3px,0.9vw,5px)', borderRadius: '50%', background: '#7FD8DE', boxShadow: '0 0 4px rgba(109,92,231,0.7)' }}/>)}
       </div>
     </div>
     {/* FOREGROUND ELEMENTLAR */}
@@ -7350,7 +7515,7 @@ export default function RazryadLesson({
             {['ru', 'uz'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
-                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                         background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
                 {l.toUpperCase()}
               </button>
             ))}
@@ -7432,8 +7597,8 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 18px -4px rgba(58, 53, 48, 0.32);
 }
 .btn:hover:not(:disabled) {
-  background: #FF4F28;
-  box-shadow: 0 10px 24px -4px rgba(255, 79, 40, 0.45);
+  background: #fe5b1a;
+  box-shadow: 0 10px 24px -4px rgba(254, 91, 26, 0.45);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
@@ -7443,29 +7608,29 @@ html, body { margin: 0; padding: 0; }
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;
-  color: #FF4F28;
+  color: #fe5b1a;
   letter-spacing: 0.01em;
   border-radius: 12px;
   border: none;
-  box-shadow: 0 8px 22px -4px rgba(255, 79, 40, 0.35), 0 0 0 1px rgba(255, 79, 40, 0.12);
+  box-shadow: 0 8px 22px -4px rgba(254, 91, 26, 0.35), 0 0 0 1px rgba(254, 91, 26, 0.12);
 }
 .btn-white-accent:hover:not(:disabled) {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55);
+  box-shadow: 0 12px 28px -6px rgba(254, 91, 26, 0.55);
 }
 .btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
 /* btn-ready — "Davom" bosish kerak bo'lgan paytdagi holat: to'q rang + puls (g1) */
 .btn-white-accent.btn-ready {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.5), 0 0 0 1px rgba(255, 79, 40, 0.25);
+  box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.5), 0 0 0 1px rgba(254, 91, 26, 0.25);
   animation: btnReadyPulse 1.5s ease-in-out infinite;
 }
 .btn-white-accent.btn-ready:hover:not(:disabled) { background: #E8431F; color: #FFFFFF; }
 @keyframes btnReadyPulse {
-  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.45), 0 0 0 0 rgba(255, 79, 40, 0.5); }
-  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(255, 79, 40, 0.6),  0 0 0 9px rgba(255, 79, 40, 0); }
+  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.45), 0 0 0 0 rgba(254, 91, 26, 0.5); }
+  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(254, 91, 26, 0.6),  0 0 0 9px rgba(254, 91, 26, 0); }
 }
 @media (prefers-reduced-motion: reduce) { .btn-white-accent.btn-ready { animation: none; } }
 
@@ -7574,8 +7739,8 @@ html, body { margin: 0; padding: 0; }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #FF4F28;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.55);
+  background: #fe5b1a;
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.55);
 }
 
 /* === PROGRESS v15 (с orange glow) === */
@@ -7589,10 +7754,10 @@ html, body { margin: 0; padding: 0; }
 }
 .progress-bar {
   height: 100%;
-  background: #FF4F28;
+  background: #fe5b1a;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 99px;
-  box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 10px rgba(254, 91, 26, 0.55), 0 0 3px rgba(254, 91, 26, 0.40);
 }
 
 /* === SLIDER v15 === */
@@ -7620,10 +7785,10 @@ html, body { margin: 0; padding: 0; }
   top: 50%;
   transform: translateY(-50%);
   height: 4px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 99px;
   pointer-events: none;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.50), 0 0 2px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.50), 0 0 2px rgba(254, 91, 26, 0.40);
   transition: width 0.15s ease-out;
 }
 .slider-input {
@@ -7643,21 +7808,21 @@ html, body { margin: 0; padding: 0; }
   appearance: none;
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   transition: transform 0.1s;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-moz-range-thumb {
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.12); }
 .slider-input:disabled { cursor: not-allowed; }
@@ -7679,7 +7844,7 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14);
 }
 .answer-input:focus {
-  box-shadow: 0 10px 22px -6px rgba(255, 79, 40, 0.30), 0 0 0 1px rgba(255, 79, 40, 0.20);
+  box-shadow: 0 10px 22px -6px rgba(254, 91, 26, 0.30), 0 0 0 1px rgba(254, 91, 26, 0.20);
 }
 .answer-input.correct {
   background: #E3F0E8;
@@ -7688,8 +7853,8 @@ html, body { margin: 0; padding: 0; }
 }
 .answer-input.wrong {
   background: #FFE8E1;
-  color: #FF4F28;
-  box-shadow: 0 8px 20px -6px rgba(255, 79, 40, 0.36);
+  color: #fe5b1a;
+  box-shadow: 0 8px 20px -6px rgba(254, 91, 26, 0.36);
 }
 
 /* === FRAMES v15 === */
@@ -7703,10 +7868,10 @@ html, body { margin: 0; padding: 0; }
 }
 .frame-soft {
   background: #FFE8E1;
-  border-left: 4px solid #FF4F28;
+  border-left: 4px solid #fe5b1a;
   border-radius: 12px;
   padding: clamp(14px, 2.5vw, 14px);
-  box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
+  box-shadow: 0 6px 16px -6px rgba(254, 91, 26, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
@@ -7727,7 +7892,7 @@ html, body { margin: 0; padding: 0; }
 
 /* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
+.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(254, 91, 26, 0.10), rgba(254, 91, 26, 0.02)); }
 .amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
 .amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
 .amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
@@ -7827,7 +7992,7 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
+@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(254,91,26,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(254,91,26,0.5); } }
 
 /* CountDemo — jonli sanash */
 .g1-demo { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.4vw, 16px); }
@@ -7837,7 +8002,7 @@ html, body { margin: 0; padding: 0; }
 .g1-demo-cell.pulse { animation: g1pop 0.45s ease-out, g1pulse 1.7s ease-in-out 0.5s infinite; }
 .g1-demo-cell svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-demo-tag { position: absolute; top: -8px; right: -6px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
-.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #FF4F28; line-height: 1; }
+.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #fe5b1a; line-height: 1; }
 .g1-demo-num.big { font-size: clamp(52px, 13vw, 86px); }
 
 /* TenFrame — bo'sh kataklar */
@@ -7855,12 +8020,12 @@ html, body { margin: 0; padding: 0; }
 .g1-cell-num { position: absolute; top: 3px; right: 6px; font-weight: 800; font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; }
 
 /* CountTrack / MissingTrack — son qatori */
-.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #FF4F28; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
+.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #fe5b1a; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
 .g1-track-label.back { color: #019ACB; }
 .g1-track { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
 .g1-track-tile { width: clamp(52px, 11.5vw, 72px); height: clamp(56px, 13vw, 80px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
 .g1-track-tile span { font-weight: 800; font-size: clamp(28px, 6.5vw, 42px); color: #0E0E10; }
-.g1-track-tile.active { background: #FF4F28; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-track-tile.active { background: #fe5b1a; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-track-tile.active span { color: #FFFFFF; }
 .g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
 .g1-track-tile.gap span { color: #D8A93A; }
@@ -7871,7 +8036,7 @@ html, body { margin: 0; padding: 0; }
 .g1-countfig-ans { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #1F7A4D; }
 /* BigNumberCue (keyingi/oldingi savol uchun tayanch son) */
 .g1-cue { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vw, 22px); }
-.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #fe5b1a; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
 .g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
 .g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
@@ -7912,7 +8077,7 @@ html, body { margin: 0; padding: 0; }
 .g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-onboard-txt { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px,1.7vw,15px); color: #017BA3; }
 .g1-onboard-arrow { color: #A7A6A2; font-weight: 800; font-size: clamp(15px,2vw,18px); }
-.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #FF4F28; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
+.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #fe5b1a; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
 /* mehmon: o'ngdan kirib keladi (1x), keyin yengil tebranadi */
 .g1-guest { animation: g1guestEnter 0.85s cubic-bezier(0.34,1.5,0.6,1) both, g1guestBob 2.6s ease-in-out 0.9s infinite; }
 .g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom left; }
@@ -7960,7 +8125,7 @@ html, body { margin: 0; padding: 0; }
 .g1-spark3 { left: 16%; top: 52%; animation: g1spark 0.9s ease-out 0.6s infinite; }
 @keyframes g1spark { 0% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: scale(0.5); } }
 .g1-conf { position: absolute; top: -8%; width: 8px; height: 12px; border-radius: 2px; pointer-events: none; }
-.g1-conf1 { left: 16%; background: #FF4F28; animation: g1conf 1.1s ease-in 0s infinite; }
+.g1-conf1 { left: 16%; background: #fe5b1a; animation: g1conf 1.1s ease-in 0s infinite; }
 .g1-conf2 { left: 34%; background: #019ACB; animation: g1conf 1.3s ease-in 0.2s infinite; }
 .g1-conf3 { left: 50%; background: #FFC23C; animation: g1conf 1.0s ease-in 0.45s infinite; }
 .g1-conf4 { left: 64%; background: #1F7A4D; animation: g1conf 1.25s ease-in 0.1s infinite; }
@@ -8060,13 +8225,13 @@ html, body { margin: 0; padding: 0; }
 .g1-rating-stars { display: flex; gap: clamp(6px,1.6vw,12px); }
 .g1-rating-star { width: clamp(50px,11vw,72px); height: clamp(50px,11vw,72px); display: inline-flex; }
 .g1-rating-star svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,194,60,0.55)); }
-.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #FF4F28; }
+.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #fe5b1a; }
 
 /* === GameDrill (drag+tap o'yin bloki) === */
 .g1-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px,1.7vw,12px); padding: clamp(7px,1.7vw,11px); min-height: clamp(48px,10vw,68px); background: #FBF9F4; border-radius: 14px; }
 .g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(8px,1.8vw,12px); min-width: clamp(58px,13vw,78px); min-height: clamp(58px,13vw,78px); transition: transform 0.15s, box-shadow 0.15s; }
 .g1-token:active { cursor: grabbing; transform: scale(1.05); }
-.g1-token-sel { box-shadow: 0 0 0 3px #FF4F28, 0 8px 20px -6px rgba(255,79,40,0.4); }
+.g1-token-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 8px 20px -6px rgba(254,91,26,0.4); }
 /* noto'g'ri sudralganda: token yumshoq sakrab qaytadi (jazo emas) */
 .g1-bounceback { animation: g1bounceback 0.5s ease; }
 @keyframes g1bounceback { 0% { transform: translateY(0) scale(1); } 28% { transform: translateY(-9px) scale(1.1); } 55% { transform: translateY(0) scale(0.97); } 78% { transform: translateY(-3px) scale(1.02); } 100% { transform: translateY(0) scale(1); } }
@@ -8150,7 +8315,7 @@ html, body { margin: 0; padding: 0; }
 
 .g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) clamp(8px, 1.6vw, 12px); border-radius: 12px; transition: background 0.3s ease; }
 .g1-numrow-on { background: #FFE8E1; }
-.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #fe5b1a; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
 .g1-numrow-on .g1-digit { transform: scale(1.18); }
 
 /* tap-pair (s5) */
@@ -8165,7 +8330,7 @@ html, body { margin: 0; padding: 0; }
 .g1-tiles { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; margin-top: 4px; }
 .g1-tile { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(13px, 2.6vw, 21px) clamp(21px, 4vw, 31px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(32px, 7vw, 46px); color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.18); transition: transform 0.18s, background 0.18s, box-shadow 0.18s, color 0.18s; }
 .g1-tile:hover:not(:disabled) { transform: translateY(-2px); }
-.g1-tile-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(255,79,40,0.5); }
+.g1-tile-sel { background: #fe5b1a; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(254,91,26,0.5); }
 .g1-tile-ok { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 10px 24px -6px rgba(31,122,77,0.4); }
 .g1-tile-used { opacity: 0.3; cursor: default; }
 .g1-tile:disabled { cursor: default; }
@@ -8173,7 +8338,7 @@ html, body { margin: 0; padding: 0; }
 /* ===== Dars02 — RAQAMLI UYLAR (digit / house / street) ===== */
 .g1-digit { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #3A3530; display: inline-flex; align-items: center; justify-content: center; }
 .g1-digit-ink { color: #3A3530; }
-.g1-digit-accent { color: #FF4F28; }
+.g1-digit-accent { color: #fe5b1a; }
 .g1-digit-success { color: #1F7A4D; }
 .g1-digit-sm { font-size: clamp(26px, 5.2vw, 38px); }
 .g1-digit-mid { font-size: clamp(40px, 8vw, 60px); }
@@ -8200,8 +8365,8 @@ html, body { margin: 0; padding: 0; }
 .g1-tf-cell { width: clamp(26px, 5.2vw, 38px); height: clamp(26px, 5.2vw, 38px); border-radius: 9px; border: 2px solid #E6E1D6; background: #F6F4EF; display: flex; align-items: center; justify-content: center; }
 .g1-tf-base .g1-tf-cell { border-color: #FFD2C6; }
 .g1-tf-dot { width: 56%; height: 56%; border-radius: 50%; background: transparent; }
-.g1-tf-cell.on { background: #FFE8E1; border-color: #FF4F28; }
-.g1-tf-cell.on .g1-tf-dot { background: #FF4F28; }
+.g1-tf-cell.on { background: #FFE8E1; border-color: #fe5b1a; }
+.g1-tf-cell.on .g1-tf-dot { background: #fe5b1a; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on { background: #E3F2FB; border-color: #019ACB; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on .g1-tf-dot { background: #019ACB; }
 @keyframes g1tfPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
@@ -8213,29 +8378,29 @@ html, body { margin: 0; padding: 0; }
   background-color: #FBFEFF;
   background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
   background-size: clamp(15px, 3.6vw, 24px) clamp(15px, 3.6vw, 24px); }
-.g1-kcell.active { border-color: #FF4F28; box-shadow: 0 0 0 2px #FFD3C7; }
+.g1-kcell.active { border-color: #fe5b1a; box-shadow: 0 0 0 2px #FFD3C7; }
 .g1-kcell-write { flex: 0 0 auto; width: clamp(70px, 13vw, 94px); }
 .g1-kcell .g1-write { width: 100%; height: 100%; }
 .g1-write { width: clamp(80px, 17vw, 116px); height: auto; }
 .g1-write-ghost { fill: none; stroke: #F2DDD3; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
-.g1-write-ink { fill: none; stroke: #FF4F28; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.g1-write-ink { fill: none; stroke: #fe5b1a; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
 .g1-digit-pick { display: flex; justify-content: center; gap: clamp(8px, 2vw, 14px); }
 .g1-pickbtn { width: clamp(40px, 8vw, 52px); height: clamp(40px, 8vw, 52px); border-radius: 12px; border: 2px solid #E6E1D6; background: #FFFFFF; font-family: 'Fraunces', Georgia, serif; font-size: clamp(18px, 3.4vw, 24px); font-weight: 600; color: #5A5A60; cursor: pointer; transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.15s ease; box-shadow: 0 3px 8px -4px rgba(58, 53, 48, 0.3); }
 .g1-pickbtn:hover:not(.active) { transform: translateY(-2px); }
-.g1-pickbtn.active { border-color: #FF4F28; color: #FF4F28; background: #FFF3EF; }
+.g1-pickbtn.active { border-color: #fe5b1a; color: #fe5b1a; background: #FFF3EF; }
 
 /* FingerHand — barmoqlar vizualizatori (s2) */
 .g1-fhand { width: clamp(72px, 15vw, 104px); height: auto; }
 .g1-hand-group, .g1-handbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .g1-handbtn { border: 2.5px dashed #FFB9A8; border-radius: 16px; background: #FFF6F3; padding: clamp(6px, 1.4vw, 10px); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
-.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(255, 79, 40, 0.5); }
+.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(254, 91, 26, 0.5); }
 .g1-handbtn:disabled { cursor: default; border-style: solid; border-color: #1F7A4D; background: #E3F0E8; }
-.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #FF4F28; }
+.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #fe5b1a; }
 .g1-handbtn:disabled .g1-hand-cap { color: #1F7A4D; }
 
 /* Ten-frame drag o'yin (sd): drop zona + nuqta tokenlar */
 .g1-tfdrop { padding: clamp(8px, 2vw, 14px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; transition: border-color 0.2s ease, background 0.2s ease; }
-.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FF4F28; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
+.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #fe5b1a; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
 /* ten-frame PREDMET rejimi (sd o'yini): kataklar neytral, ichida buyum, tushganda pop */
 .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
@@ -8244,8 +8409,8 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1tfDrop { 0% { transform: translateY(-75%); opacity: 0; } 65% { transform: translateY(7%); } 100% { transform: translateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g1-tf-item { animation: none; } }
 /* keyingi to'ldiriladigan katak — pulslab "qayerga qo'yish"ni ko'rsatadi */
-.g1-tf-next { border-color: #FF4F28; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
-@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 79, 40, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(255, 79, 40, 0); } }
+.g1-tf-next { border-color: #fe5b1a; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
+@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(254, 91, 26, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(254, 91, 26, 0); } }
 .g1-dropzone-wait { border-color: #FF8A6E; background: #FFF4F0; }
 .g1-drophint { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(13px, 1.8vw, 15px); color: #C23B1E; font-weight: 600; }
 .g1-drophint-arrow { font-size: clamp(18px, 3vw, 24px); animation: g1hintBounce 1s ease-in-out infinite; }
@@ -8269,7 +8434,7 @@ html, body { margin: 0; padding: 0; }
 .g1-newhouse-note { font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; font-weight: 600; }
 .g1-count-line { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .g1-count-label { font-size: clamp(13px, 1.7vw, 15px); color: #8A8780; }
-.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #FF4F28; }
+.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #fe5b1a; }
 
 /* ESHIK (raqam plitasi bilan) */
 .g1-door { position: relative; display: inline-flex; flex-direction: column; align-items: center; width: clamp(54px, 11.5vw, 76px); height: clamp(78px, 16.5vw, 106px); background: repeating-linear-gradient(90deg, rgba(122,78,34,0) 0, rgba(122,78,34,0.12) 5px, rgba(255,255,255,0.05) 9px, rgba(122,78,34,0) 13px), linear-gradient(180deg, #C2864F, #9A6738); border: 2px solid #7A4E22; border-radius: 11px 11px 4px 4px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 4px 10px -5px rgba(58,53,48,0.35); overflow: hidden; }
@@ -8278,7 +8443,7 @@ html, body { margin: 0; padding: 0; }
 .g1-door-knob { position: absolute; right: clamp(7px, 1.6vw, 10px); top: 56%; width: 7px; height: 7px; border-radius: 50%; background: #FFD86B; box-shadow: 0 0 0 1px #B8862E; z-index: 2; }
 .g1-doorbtn { background: transparent; border: none; padding: 5px; cursor: pointer; border-radius: 12px; transition: transform 0.15s ease; }
 .g1-doorbtn:hover:not(:disabled) { transform: translateY(-3px); }
-.g1-doorbtn.active .g1-door { border-color: #FF4F28; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
+.g1-doorbtn.active .g1-door { border-color: #fe5b1a; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
 .g1-doorbtn.seen .g1-door { border-color: #1F7A4D; }
 .g1-doorbtn.used { opacity: 0.4; }
 .g1-doorbtn.placed { opacity: 0.45; }
@@ -8316,7 +8481,7 @@ html, body { margin: 0; padding: 0; }
 
 /* s5 — shakl belgisi */
 .g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(90px, 18vw, 130px); justify-content: center; }
-.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #FF4F28; }
+.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #fe5b1a; }
 
 /* s2 — joylash katakchalari */
 .g1-tapgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 1.6vw, 12px); }
@@ -8340,7 +8505,7 @@ html, body { margin: 0; padding: 0; }
 .g1-street-house.in { opacity: 1; transform: none; }
 .g1-street-house .g1-house-svg { width: 15cqw; }   /* 6 uy (5 raqamli + 1 bo'sh) sig'ishi uchun ozroq tor */
 .g1-street-new { margin-left: 2.5cqw; }            /* yangi bo'sh uy — ko'cha oxirida ajralib turadi */
-.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(255,79,40,0.8)); }
+.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(254,91,26,0.8)); }
 .g1-street-anvar, .g1-street-rano, .g1-street-zuhra { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
 .g1-street-anvar.in, .g1-street-rano.in, .g1-street-zuhra.in { opacity: 1; }
 /* personajlar OLD PLANDA, kichik (eshik bo'yida) — real proporsiya + chuqurlik */
@@ -8409,9 +8574,9 @@ html, body { margin: 0; padding: 0; }
 /* --- birlashtirish qatori (pufakchali savatlar) --- */
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
-.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
-.g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
+.g1-cg-sent .g1-cg-sign { font-style: normal; color: #fe5b1a; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }
 
 /* birlashganda pufakcha suzib kiradi */
@@ -8440,7 +8605,7 @@ html, body { margin: 0; padding: 0; }
 
 /* --- s5 sudrab-birlashtirish: drop-zona = tepadan savat (punktir -> javobda yashil) + tray --- */
 .g1-cg-drop { position: relative; transition: outline 0.2s, background 0.2s; }
-.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(255,79,40,0.5); outline-offset: 3px; }
+.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(254,91,26,0.5); outline-offset: 3px; }
 .g1-s5-drop .bt { width: 100%; }
 .g1-s5-drop.full { outline: 2px solid #1F7A4D; }
 .g1-combine-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
@@ -8461,7 +8626,7 @@ html, body { margin: 0; padding: 0; }
 /* --- s6 son-yozuv varianti --- */
 .g1-sent { display: inline-flex; align-items: center; gap: clamp(4px, 1.2vw, 8px); font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #0E0E10; }
 .g1-sent .g1-sent-op { font-style: normal; font-weight: 800; }
-.g1-sent .g1-sent-plus { color: #FF4F28; }
+.g1-sent .g1-sent-plus { color: #fe5b1a; }
 .g1-sent .g1-sent-minus { color: #5A5A60; }
 
 /* --- s8 fakt kartasi (ko'k) --- */
@@ -8543,7 +8708,7 @@ html, body { margin: 0; padding: 0; }
 
 /* nishon satri (sg) */
 .g1-target-row { display: flex; align-items: center; gap: 10px; }
-.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 
 /* katta ifoda (s3 qoida): 7 − 2 = 5 */
 .g1-sent-lg { font-size: clamp(28px, 6vw, 44px); gap: clamp(8px, 2vw, 14px); }
@@ -8586,7 +8751,7 @@ html, body { margin: 0; padding: 0; }
 .g1-nl-tick { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: transparent; border: none; padding: 0 clamp(2px, 0.8vw, 6px); cursor: default; }
 button.g1-nl-tick { cursor: pointer; }
 .g1-nl-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.16); transition: transform 0.2s ease, background 0.2s ease; }
-.g1-nl-dot.marker { background: #FF4F28; box-shadow: 0 2px 8px rgba(255,79,40,0.4); transform: scale(1.15); }
+.g1-nl-dot.marker { background: #fe5b1a; box-shadow: 0 2px 8px rgba(254,91,26,0.4); transform: scale(1.15); }
 .g1-nl-tick.inpath .g1-nl-dot { background: #FFD3C7; }
 button.g1-nl-tick.picked .g1-nl-dot { background: #FFE8E1; box-shadow: inset 0 0 0 2px #FF8A6E; }
 button.g1-nl-tick.ok .g1-nl-dot { background: #1F7A4D; box-shadow: 0 2px 8px rgba(31,122,77,0.4); transform: scale(1.15); }
@@ -8595,17 +8760,17 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-nl-legend { display: flex; gap: clamp(16px, 4vw, 32px); }
 .g1-nl-leg { display: inline-flex; align-items: center; gap: 6px; font-size: clamp(13px, 1.8vw, 15px); font-weight: 700; color: #0E0E10; }
 .g1-nl-arrow { font-size: clamp(18px, 3.4vw, 24px); font-weight: 800; }
-.g1-nl-arrow-fwd { color: #FF4F28; }
+.g1-nl-arrow-fwd { color: #fe5b1a; }
 .g1-nl-arrow-back { color: #5A5A60; }
 .g1-mrow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 2vw, 14px); }
-.g1-numopt-sel { box-shadow: 0 0 0 3px #FF4F28, 0 4px 12px rgba(255,79,40,0.25) !important; }
+.g1-numopt-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 4px 12px rgba(254,91,26,0.25) !important; }
 .g1-mexp { background: #FFFFFF; border: none; border-radius: 14px; padding: clamp(8px, 1.8vw, 14px) clamp(12px, 2.6vw, 20px); cursor: pointer; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.1); transition: transform 0.15s ease, box-shadow 0.2s ease; }
 .g1-mexp:not(:disabled):hover { transform: translateY(-2px); }
 .g1-mexp:disabled { cursor: default; }
 .g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
 
 /* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
-.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
+.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #fe5b1a; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
 .d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
 .d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
 .d4-croc-anim { animation: d4crocopen 0.5s cubic-bezier(0.34,1.5,0.64,1) both, d4crocbreathe 2.8s ease-in-out 0.55s infinite; transform-origin: center; }
@@ -8888,7 +9053,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-panel.on { opacity: 1; transform: none; }
 .d2-panel-num { display: inline-flex; gap: 2px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(36px, 7.5vw, 54px); line-height: 1; color: #0E0E10; }
 .d2-panel-num span { transition: color 0.3s ease; }
-.d2-digit-tens { color: #FF4F28; }
+.d2-digit-tens { color: #fe5b1a; }
 .d2-digit-ones { color: #019ACB; }
 .d2-lamp { width: clamp(12px, 2.6vw, 17px); height: clamp(12px, 2.6vw, 17px); border-radius: 50%; background: #C8CDD4; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15); }
 .d2-lamp-still-g { background: #6EF29B; box-shadow: 0 0 8px rgba(110,242,155,0.7); }
@@ -9033,7 +9198,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-sortitem .d2-casssvg { width: clamp(30px, 6.5vw, 46px); }
 .d2-sortitem .d2-battsvg { width: clamp(15px, 3.2vw, 21px); }
 .d2-sortitem:hover:not(:disabled) { transform: translateY(-2px); }
-.d2-sortitem-sel { border-color: #FF4F28; box-shadow: 0 0 14px -2px rgba(255,79,40,0.5); }
+.d2-sortitem-sel { border-color: #fe5b1a; box-shadow: 0 0 14px -2px rgba(254,91,26,0.5); }
 .d2-sortitem:disabled { cursor: default; }
 .d2-sortdone { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #6EF29B; }
 .d2-holds { display: flex; gap: clamp(10px, 2.4vw, 18px); justify-content: center; align-items: stretch; }

@@ -4,12 +4,51 @@
 > Lokal xotira (`C:\Users\...\.claude\...\MEMORY.md`) YANGI mashinaga o'tmaydi — shuning uchun butun
 > kontekst shu yerda jamlangan. Yangilash: har dars tugagach shu faylni ham yangilab bor.
 >
-> Oxirgi yangilanish: **2026-07-17** — **Dars37 QURILDI (Б6 «Pul», UNCOMMITTED)** + Dars36 (kalendar) + Dars35 (vaqt) +
-> Dars34 (ulush) + Dars33 (tenglama) + Dars32 + Dars31 + Dars26–30 registr→siz. Б5 URAN = Dars26–31; **Б6 NEPTUN: Dars32–37**.
+> **2026-07-18 (10) — Б6 (Dars30–38) QA-FIX (metodist: «to'g'irla faqat blokirovka qilma»):** (1) **SHUFFLE QAYTARILDI** — Б6 uchun qurilgan custom MC-stage'lar (MoneyMCStage/MasalaStage/DataStage/ReadClockStage/CalMCStage/EqStage/FracMCStage/LogicStage) `cur.opts` ni CONTENT-tartibда renderlab, `shuffleMC` ni chaqirmasdi → to'g'ri javob **doim qat'iy pozitsiyada** (Dars33/34/35/36/38 = 0-index chapда; Dars31 = 2-o'rin). Har jonli stage'ga `const opts = React.useMemo(() => shuffleArr(cur.opts.slice()), [cKey, ri])` (Dars37 = `items`) qo'shildi — endi har raundда tasodifiy. Dars30 EvalStage allaqachon `exprShuffle` qilardi (tegilmadi). (2) **Yo'nalish-matn:** «O'ngdagi tushuntirishga qarang / разбор справа» → «Pastdagi… / ниже» (tip aslida PASTда, 9×9). (3) **lessonId to'g'irlandi** — eski raqam (expr-2-**32**…) → fayl raqami (expr-2-**30**…); LMS-loggingга tushadi, audio'ga TA'SIR QILMAYDI (audio matn bo'yicha keriladi, lessonId emas). Header title-raqami ham. (4) Dars30 s3 audio sen-slip (qo'y/hisobla→qo'ying/hisoblang); Dars31 «diqqat bo'ling»→«diqqatli bo'ling»; **Dars37 s0 hook javob-leak** (audio javobni oldindan aytardi) olib tashlandi; Dars32 EqualCheckStage tugma savolга moslandi («Ha, teng»/«Yo'q, teng emas»). Build-green, audio-digit=0, audio-registr=0. **TEGILMADI (metodist qarori):** `FREE_NAV=true` (blokirovka), UZ validatsiya-draftlari (x=iks, bir Ndan↔Ndan bir, vaqt-o'qish), stale SCREEN_META/scene kommentlari (kosmetik). **⚠️ FAYL ICHIDAGI SARLAVHA hali eski raqamда** (Dars30.jsx komment=«Dars32»); lessonId+title tuzatildi, banner-komment qisman.
+>
+> Oxirgi yangilanish: **2026-07-18 (2)** — **Б1/Б2 TAKRORLASH QO'SHILDI: Dars06R + Dars12R (UNCOMMITTED).**
+> Endi jami **45 nazariy dars**. SYUJET rejasidagi d.7 (Б1 yakuni) va d.14 (Б2 yakuni) takrorlash darslari oldin qurilmagan edi — endi qo'shildi.
+> **Dars06R** = «Takrorlash: Sayyora 1 (nomerlash)» — o'nlik/birlik, taqqoslash, o'nlab, son o'qi. Dars06 dan keyin.
+> **Dars12R** = «Takrorlash: Sayyora 2 (100 ichida amallar)» — qo'shish/ayirish o'tishsiz/o'tishli, ustun, ikki amal. Dars12 dan keyin.
+> **YANGI MixStage kind'lar:** `place`(PlaceVal o'nlik ustun+birlik kub) · `compare`(CompareRow katta/kichik/teng) · `calc`(SumText a op b) · `numline`(NumLineMini son o'qi). stages_rev.js.
+> **TIRE-NOM KONVENSIYASI:** takrorlash/nazorat darslari sarlavhada « — » (tire), kontent darslari « . » (nuqta). Barcha 8 takrorlash tire oldi: Dars 6/12/18/25/31/41/42/43.
+> Fayl nomlari suriлmadi (Dars06R/Dars12R «R» suffiks); registr tartibi to'g'ri. Dars06R/Dars12R: BARE=0, KIRILL=0, audio-digit=0 (kirill gotcha: «ичida»→«ichida», «столбik»→«ustun»).
+>
+> **2026-07-18 (3) — TAKROR FAYLLARI «R» SUFFIKSGA:** metodist so'rovi bilan BARCHA 8 takrorlash darsi uch qatlamda bir xil qilindi:
+> fayl `DarsNNR.jsx` · slug `darsNNr-takrorlash-sayyoraK` · sarlavha `Dars N — Takrorlash (Sayyora K)` · LESSON_META `N-dars — Takrorlash (Sayyora K)` / `Урок N — Повторение (планета K)`.
+> Dars18/25/31/41/42/43 → **Dars18R/25R/31R/41R/42R/43R** (git mv tracked, mv untracked); grade2.js import+slug yangilandi. Sayyora: Б1=1 … Б6=6 (41/42/43 hammasi Sayyora 6, Dars raqami ajratadi).
+> Dars42=ПК6 / Dars43=ИК farqi endi sarlavhada emas — `desc` maydonida. Build-green.
+>
+> **2026-07-18 (4) — TAKRORLASH VIZUAL SIGNALI (metodist so'rovi, Option A):** barcha 8 takror darsda:
+> (1) Har ekran eyebrow'ida doimiy **«↻ TAKRORLASH»** badge (Stage komponentiga qo'shildi, T.accent pill).
+> (2) Teach-sahnalar info-note badge'i **«Eslaymiz» / «Вспомним правило»** ga (info_badge, 24 joy) — eski qoidani eslatuvchi QOIDA-karta.
+> **QO'SHIMCHA TOPILDI:** Dars18R/Dars25R da eski **siz-registr buzilishi** (BARE 23+21) — regext'dan oldin qurilgani uchun. Tuzatildi. Dars31R toza edi. Endi 8/8: BARE=0, KIRILL=0, badge+QOIDA.
+>
+> **2026-07-18 (5) — BUTUN GRADE2 SIZ-REGISTRGA (metodist so'rovi):** ~22 fayl (Dars03–24 + Dars18R/25R) yalang'och imperativ → siz (`regfix_siz_full.mjs`): top→toping, qara→qarang, tanla→tanlang, ayir→ayiring, qo'sh→qo'shing, tekshir→tekshiring, solishtir→solishtiring, sina→sinang, hisobla→hisoblang, sana→sanang, davom ettir→davom ettiring + sen-shakllar (bilasan→bilasiz, bilsang→bilsangiz…). **⚠️ FALSE-POSITIVE:** (1) Dars36 `sana`=sana-oti «sakkizinchi sana»=дата (mustasno, BARE=12 OK); (2) `yasang`=to'g'ri siz.
+> **TUZATISH (metodist 2-bosqich):** «son ayir son» = NOTO'G'RI o'zbekcha → «sondan sonni ayiring» (dan/ni + siz). «A ayir B»→«Adan Bni ayiring» (`transform_ayir.mjs`, so'z: «to'qqizdan beshni ayiring», raqam: «9 dan 5 ni ayiring»). Endi «ayir» operator yo'q.
+> **2026-07-18 (9) — WRONG/WARN RANG → #fe5b1a + inkor-buyruq siz:** metodist: xato/ogohlantirish (warn) qutilari qizil edi → brend `#fe5b1a`. `#D64545`→`#fe5b1a` (border/wrong), `#B23A3A`→`#fe5b1a` (matn), `#FBEEEE`→`#FFF1EA` (fon), `rgba(214,69,69)`→`rgba(254,91,26)` (soya) — barcha 45 fayl. Yo'l-yo'lakay: inkor-buyruq (sen) tuzatildi — **qo'shma→qo'shmang, unutma→unutmang, aralashtirma→aralashtirmang** (uz-scoped). **⚠️ «ayirma»=OT (разность/ifoda «Bu ayirma ortiqcha») — inkor-buyruq EMAS, tegilmadi.** Build-green.
+> **2026-07-18 (8) — SWIPE-HINT QO'L + Dars14-17 turtki:** (1) drag (surish) bilan javob beriladigan savollarga **qo'l-jest animatsiyasi** (`SwipeHand` SVG + `d20swipe`/`d27swipe` keyframe): qo'l chapdagi katakni o'ngga surishni ko'rsatadi, birinchi interaksiyagacha ko'rinadi (`canAct && matched.size===0 && !drag`), loop, prefers-reduced-motion bilan to'xtaydi. Ikki mexanika: (a) **DRAG-match** (qo'l gorizontal chapdan o'ngga) — **Dars20 (MatchStage ÷↔×), Dars27 (PolyMatchStage shakl→nom)**; (b) **DROP-slot** (qo'l vertikal pastdan yuqoriga, `DropColumnStage`: raqam-kartani ustun-katakka tashlash) — **Dars07/08/09/10**. Qolган MatchStage'lar tap-based (surish emas — qo'l qo'shilmadi). (2) Dars14-17 s7 audio `on_wrong` bir ko'paytuvchi skip-sanashiga qotgan edi (raundlar ikki ko'paytuvchi) → generik «Guruhlab sanang, kerakli songa yetguncha». Build-green.
+> **2026-07-18 (7) — PEDAGOGIK AUDIT (o'quvchi nigohi) + FIX:** 7 subagent, umumiy B+/4.3. Matematika BARCHA darsda XATOSIZ. Tuzatildi: **QOIDA-frame rangi `#FF4F28`→`#fe5b1a` (brend, 45 fayl)**; #1 Dars25R soxta-model yarashtirildi («bir marta ayirish ≠ bo'lish; bir xil sonni ko'p marta nolgacha = bo'lish»); #3 scope — Dars03 s11 (nishonli qo'shish→o'nlik-kompozitsiya), Dars06R s9 (+5→−10 orqaga); #4 «erta»→«ertaga» (Dars36, 12ta). **⚠️ SIZ-SWEEP CHALA EDI:** audit audio massivlarда ~130 qo'shimcha yalang'och buyruq topdi (esla/sakra/tarqat/o'yla/yodla/yoz/bo'l/qilma/yop/izla/sol/hal qil/yur/aylan)→siz (`fix_bare2.mjs`). Dars12R «yoqilg'i»→«quvvat». **OCHIQ (native metodist):** xona↔razryad, «x»=iks, «uch» uch ma'noda. **METODIST TALABI — BAJARILDI (2026-07-18):** darslarда matn KAMROQ + audio BATAFSIL. BUTUN grade2 (45 dars) blokма-blok qisqartirildi (12 parallel subagent/blok, tight spek: faqat ko'rinadigan info/rule/q/story/lead/hint/check_q → ≤1 qisqa qator; audio/opts/wrong/logic TEGILMADI). Namuna: info «Har ikki xonali son — o'nlik va birlik birga. O'nlik chapga…» → «O'nliklar — chapda, birliklar — o'ngda.» Vizual matnда belgi (x + 4 = 9) OK, lekin AUDIO massivga tushmadi (audio-symbol=0). Ba'zi subagentlar answer-leak (Dars35 s13) va sen-qoldiq (Dars28 qo'y→qo'ying) ni ham tuzatdi. Build-green, BARE=0 (Dars36 sana-oti tashqari), KIRILL=0.
+> **2026-07-18 (6) — UI/UX AUDIT+FIX (7 parallel subagent, umumiy baho A−/4.7):** #2 SVG `transform-box:fill-box`→`view-box` (`.d13-wave` hook-to'lqin pivot bug, Dars13–25 = 13 fayl; Dars26+ oldin tuzatilgan); #3 audio bloklarда uzun-tire `—`→`,` (1114 ta/325 blok, TTS toza; visual info/rule tegilmadi); #5 NumLineMini pct clamp + RU `ряд/ряда/рядов` ko'plik. **TEGILMADI:** #1 `FREE_NAV=true` (push oldiga qoldirildi, metodist so'rovi); #4 per-distraktor turtki — Б4 allaqachon per-savol konsept-turtkiga ega (11/dars `wrong`+`on_wrong`), per-variant donaligi (~140 so'z-hint) metodist qaroriga qoldirildi. audio-symbol=0, build-green.
+> **⚠️ ARRAY-SCOPING GOTCHA:** uz-scoped regex `uz:\s*(["'])` FAQAT `uz: "..."` ni oladi, `uz: [...]` AUDIO MASSIVni EMAS. 13 ayir + 15 sen massivda qolgan edi → GLOBAL fix (ayir/sen RU/CSS'da yo'q, xavfsiz) bilan tuzatildi. Kelajakda uz-fix massivni ham qamrasin.
+> **Yakuniy grade2:** BARE=0 (Dars36 sana-oti tashqari), real-sen=0, son-ayir-son=0. grade3/grade1/grade5 toza. Build-green. Batafsil memory `grade2-siz-registr-sweep`.
+> **OLDINDAN MAVJUD (siz emas, alohida):** Dars09/10/11 da «столбik/Столбik» (kirill — ustun usuli atamasi) qolgan; Dars12R'da «ustun» ga o'zgartirilgan → NOMUVOFIQLIK. Metodist qarori kerak: столбик→ustun butun kursda birxillashtiriladimi.
+>
+> [ESKI 2026-07-18 (1)]: **BUTUN 2-SINF NAZARIY (Dars01–43) TUGADI: Dars41–43 QURILDI (Б6 yakuni, UNCOMMITTED).**
+> Dars41 = d.44 «Takrorlash» (Б6 aralash); Dars42 = d.45 «Amaliy nazorat (ПК6)»; Dars43 = d.46 «Yakuniy nazorat (ИК)» — butun kurs + **Yerga qo'nish (missiya yakuni)**.
+> **YANGI mexanika `MixStage`**: kind bo'yicha ixcham vizual (`EqText`/`ClockMini`/`CoinRow`/`PieMini`/`Shape`/`Pictogram`; kind=eq/time/money/ulush/pattern/data/cal/word). Klon: Dars40→41→42→43.
+> **Slot-mavzu qoidasi:** klon teach-ekranlar caption/slot hardcoded (s1 ulush parts=4 «bir to'rtdan», s2 vaqt h=3 «soat uch», s4 data «bitta rasm») → Dars42/43 da s0–s4 slotlarni SAQLADI (qiymat/framing o'zgardi), s5–s14 erkin.
+> Dars41 Screen3 `rule` QOIDA-box bo'sh bo'lardi → **shartli qilindi** (`c.rule &&`). Dars41–43: **BARE=0, KIRILL=0, audio-digit=0** (SEN=1=«yasang» false-positive). Kirill gotcha: klon-CONTENT yashirin lotin+kirill (ma'lumotlar**ни**/Naqsh**да**/uy**га**/Kvadrat**да**) — `regext.mjs` KIRILL skani MAJBURIY.
+> **ПК6/ИК kodi:** RU sarlavhada kirill OK; UZ display-sarlavhada BO'LMASIN (→«Amaliy nazorat»/«Yakuniy nazorat»).
+> [ESKI 2026-07-17]: Dars37 «Pul» + Dars32–36 Б6. Б5 URAN = Dars26–31; **Б6 NEPTUN: Dars32–43 (TO'LIQ)**.
 > Keyingi: **Dars38 = Б6 d.41 «Kattaликларга masala» (vaqt/pul/uzunlik)** (SYUJET §Б6) — mexanika metodist bilan kelishiladi.
-> Dars27–37 prokliklanmagan. **Roadmap (ReadinessMeter) barcha darsda blokiga MOS** (tekshirildi 2026-07-17).
-> **AUDIT-FIX (2026-07-17):** Dars34–37 s0 hook'i biom-sahna+Bit ni yo'qotgan edi (faqat mavzu-shakl) → `NeptunBase`+`SaturnCrew`
-> qaytarildi (mavzu-vizual sahna ichida oq display-panel sifatida). Endi barcha Dars32–37 hook = Neptun sahnasi + Bit (etalon izchilligi).
+> Dars27–40 prokliklanmagan. **Roadmap (ReadinessMeter) barcha darsda blokiga MOS** (tekshirildi 2026-07-17).
+> **PUSH (b6ab7ee, 2026-07-17):** Dars26–37. **UNCOMMITTED:** Dars38–40 + Dars32/38 registr-fix + grade2.js.
+> **⚠️ REGISTR SABOQ (2026-07-17):** qa33 asosiy skan YALANG'OCH BUYRUQNI ushlamaydi (top/tanla/qo'sh/sana/hisobla) — faqat -san/-sang.
+> Kengaytirilgan `regext.mjs` bilan Dars32/38/39 da yalang'och buyruq topildi va siz'ga tuzatildi. **Har dars: `regext.mjs` MAJBURIY.**
+> (Dars36 «sana»=DATE oti — false-positive, tegilmadi.) Butun Б6 endi registr-toza (BARE=0).
+> **HOOK-FIX (2026-07-17):** Dars34–37 hook = `NeptunBase`+`SaturnCrew`+shaffof-panel (o'ng-past deka); Dars35 soat golografik
+> (shaffof fon, haqiqiy soniya 60s, `d35tick` keyframe, o'ng-past); Dars36 hafta 2-qator (`WeekStrip wrap`).
 
 ---
 
@@ -45,7 +84,16 @@
 | 34 | Dars34 | Ulush (доли: butunning qismi) | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (BO'LAK-BO'YASH: YANGI ShareFig doira/lenta/to'rtburchak + FracMCStage/PickShapeStage/EqualCheckStage; birlik ulush bir Ndan) |
 | 35 | Dars35 | Vaqt (soat va daqiqa) | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (ARALASH: YANGI ClockFace + ReadClockStage/MatchToClockStage; butun/yarim/chorak/5-daq; analog↔raqamli) |
 | 36 | Dars36 | Kalendar (kun, hafta, oy) | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (ARALASH: YANGI WeekStrip/CalendarFig + CalMCStage→WeekDay/CalendarRead/MonthStage; hafta 7 kun, oy 12; sana↔kun) |
-| 37 | Dars37 | Pul (tanga bilan hisob) | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (ARALASH: YANGI CoinFig/CoinSet + MoneyMCStage/GatherStage; real UZ 100/200/500/1000 so'm; dona≠qiymat) |
+| 37 | Dars37 | Pul (tanga bilan hisob) | Б6 NEPTUN | ✅ PUSHED (b6ab7ee), prokliklanmagan (ARALASH: CoinFig/CoinSet + MoneyMCStage/GatherStage; real UZ 100/200/500/1000 so'm; dona≠qiymat) |
+| 38 | Dars38 | Kattaliklarga masala (vaqt/pul/uzunlik) | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (ARALASH sintez: YANGI MasalaStage + MiniClock + LenBar + CoinSet; matn→amal→javob, birlik; s6/s9 amal-tanlash) |
+| 39 | Dars39 | Mantiq (naqsh, ortiqcha, xulosa) | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (ARALASH: YANGI Shape/PatternRow + LogicStage mode pattern/odd/deduct; rangli shakl + sonli naqsh) |
+| 40 | Dars40 | Ma'lumotlar bilan ishlash | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (ARALASH: YANGI Pictogram/DataTable + DataStage mode picto/table; 1 rasm=1 birlik, sanash/solishtirish/jami/farq) |
+| 41 | Dars41 | Takrorlash (Б6 aralash) | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (YANGI MixStage: kind eq/time/money/ulush/pattern/data/cal/word; EqText/ClockMini/CoinRow/PieMini minilari; s5–s14 aralash mashq) |
+| 42 | Dars42 | Amaliy nazorat (ПК6) | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (Dars41 klon; nazorat framing; s0–s4 slot-mos, s5–s14 boshqa qiymatlar) |
+| 43 | Dars43 | Yakuniy nazorat (ИК) · **KURS YAKUNI** | Б6 NEPTUN | ⚠️ **UNCOMMITTED**, build-green, prokliklanmagan (Dars42 klon; BUTUN yil: +/− (Б1-2), × ÷ word-masala (Б3-4), perimetr (Б5), Б6; **Yerga qo'nish** fact/yakun) |
+
+> **✅ 2-SINF NAZARIY TO'LIQ: Dars01–43 (program d.1–46). Б6 NEPTUN = Dars32–43.** Barcha dars build-green.
+> **Keyingi bosqich:** metodist Dars26–43 ni prokliklab-test qiladi va bitta feedback-promt yuboradi. Push oldidan `FREE_NAV=false`.
 
 **Б3 TO'LIQ = Dars13–18. Dars19–24 (bo'lish: ma'no + ×↔÷ + ÷2/3 + ÷4/5 + ÷6–9 + masalalar) qurildi** (program d.22–27),
 build-green, UNCOMMITTED. **Metodist qarori (2026-07-16): Б4 ga +1 kontent dars — Dars25 «takroriy ayirish»** (program d.28
@@ -226,8 +274,50 @@ LangContext, CSS, sticky-nav, веди-до-верного) — Dars01 etalonida
 
 ## 6. KEYINGI ISHLAR + KOMANDALAR
 
-**Keyingi: Dars38 = Б6 d.41 «Kattaликларга masala» (vaqt/pul/uzunlik)** (SYUJET §Б6). **Mexanika metodist bilan
-kelishiladi** (§3). Klon-baza Dars37. Keyin d.42–44 (program_map), d.45 takrorlash+ПК6, d.46 yakuniy nazorat (Yer'ga qo'nish, ИК).
+**Keyingi: Dars41 = Б6 d.44 «Takrorlash» (Sayyora 6 takrori — butun Б6/yil materiali)** (SYUJET §Б6). Klon-baza Dars40.
+Keyin d.45 takrorlash+ПК6, d.46 yakuniy nazorat (Yer'ga qo'nish, ИК). **Б6 kontent darslari (d.35–43 = Dars32–40) TUGADI.**
+
+### Б6 NEPTUN — NIMA QURILDI (Dars40 «Ma'lumot», UNCOMMITTED)
+
+**Dars40 = Б6 «Ma'lumotlar bilan ishlash: piktogramma, jadval»** (program d.43) — QURILDI, build-green, **UNCOMMITTED**, prokliklanmagan.
+- **Metodist qarori (2026-07-17):** ARALASH — piktogramma (teach + qoida: 1 rasm=1 birlik) + jadval o'qish + solishtirish.
+- **YANGI komponentlar:** `Shape` (ikonka-birlik; Dars39 dan) · `Pictogram` ({data:[{label,n,k,c}]}) — kategoriya-qatorlar (label + n ikonka) ·
+  `DataTable` ({data:[{label,n}]}) — nom|son jadval (React.Fragment grid) · `DataStage` (matn-MC engine, `cur.mode`: picto→Pictogram, table→DataTable).
+- **Ekran routing:** s0 hook (kema 3, «to'rtta?»Yo'q) · s1 piktogramma teach · s2 2-qator solishtirish · s3 QOIDA+picto-check · s4 jadval+warn ·
+  sTBL picto+jadval eslatma · s5/s7/s9/s11 picto · s6/s8/s10 table · s13 masala (kristall 7) · s14 aralash+fakt.
+- **Ko'lam:** kategoriyaga ≤ 10, jami ≤ 20. **Distraktor=misconception:** M1 noto'g'ri sanash (1:1 emas) · M2 uzunlik bo'yicha solishtir · M3 jadval qatori chalkash · M4 hisob.
+- **⚠️ REGISTR/KIRILL:** siz-forms toza (BARE=0), ammo CONTENT'da 11 kirill (Jadval**да**/jadval**ни**/Panel**да**/teleskop**да**) bor edi → `regext.mjs` ushladi, split-fix. **Kirill д/н har klonда oson kiradi — regext+kirill skan majburiy.**
+- **CONTENT manbasi:** `Dars40_CONTENT.md`. FREE_NAV=true (~59-satr). Klon: PatternRow/LogicStage O'LIK KOD (Shape jonli).
+
+### Б6 NEPTUN — NIMA QURILDI (Dars39 «Mantiq», UNCOMMITTED)
+
+**Dars39 = Б6 «Mantiq: naqsh, ortiqcha, xulosa»** (program d.42) — QURILDI, build-green, **UNCOMMITTED**, prokliklanmagan.
+- **Metodist qarori (2026-07-17):** mexanika = **ARALASH** — naqsh (teach + qoida) + ortiqchani top + sodda xulosa.
+- **YANGI komponentlar:** `Shape` ({k:circle/tri/square/star, c:or/bl/gr/pu} yoki {k:num,v}) — rangli shakl/son (SH_COL palitra) ·
+  `PatternRow` ({seq, showQ}) — naqsh + «?» katak · `DeductPair` (katta/kichik ikki shakl) · `LogicStage` (MC engine, `cur.mode`:
+  pattern=PatternRow+shakl-choices · odd=group-choices ortiqcha=ok · deduct=fig pair/matn + text-opts).
+- **Ekran routing:** s0 hook (◯▲◯▲◯ «keyingisi doira?»Yo'q) · s1 naqsh teach · s2 ortiqcha teach · s3 QOIDA+pattern-check · s4 xulosa+warn ·
+  sTBL 3 tur (naqsh/ortiqcha/xulosa ikonka) · s5/s7 pattern · s6/s9 odd · s8/s11 deduct · s10 sonli naqsh (+2) · s13 masala (pult naqshi) · s14 aralash+fakt.
+- **Distraktor=misconception:** M1 oxirgi elementni ko'chirish (qoida emas) · M2 ahamiyatsiz belgi bo'yicha ortiqcha · M3 munosabatni teskari.
+- **⚠️ REGISTR:** CONTENT'da 18 yalang'och buyruq + 2 sen + 1 kirill bor edi → `regext.mjs` bilan topildi, `regfix` bilan siz'ga (top→toping…). audio-digit=0.
+- **CONTENT manbasi:** `Dars39_CONTENT.md`. Ko'lam: sonli naqsh ≤ 15. FREE_NAV=true (~59-satr). Klon-baza: MiniClock/LenBar/CoinSet O'LIK KOD.
+
+### Б6 NEPTUN — NIMA QURILDI (Dars38 «Kattaликларга masala», UNCOMMITTED)
+
+**Dars38 = Б6 «Kattaликларga masala: vaqt, pul, uzunlik»** (program d.41, Б6 SINTEZ) — QURILDI, build-green, **UNCOMMITTED**, prokliklanmagan.
+- **Metodist qarori (2026-07-17):** mexanika = **ARALASH** — masala yechish usuli (bergan → so'ralgan → amal → javob) + har xil kattalik mashqi.
+- **YANGI komponentlar:** `MiniClock` ({h}) — ixcham butun-soat siferblat (vaqt masalasi) · `LenBar` ({cm,cut}) — sm-uzunlik birlik-katak
+  chizig'i (cut → kesilgan qizil qism) · `CoinSet` (Dars37 meros) · `MasalaStage` — matn-MC engine, `MasalaFig(cur)` kind bo'yicha
+  (money→CoinSet, time→MiniClock, length→LenBar, num→vizualsiz). s6/s9 opts = qo'shish/ayirish (amal-tanlash). `CUR`={ru:сум,uz:so'm}.
+- **Ekran routing:** s0 hook (LenBar 8−3, «11?»Yo'q) · s1 bergan/so'ralgan (CoinSet 500+200) · s2 amal-signali (+/− panel) · s3 QOIDA+check
+  (money) · s4 BIRLIK+warn+check (LenBar 9) · sTBL so'z-signal jadval (+: qo'shildi/keldi/jami; −: kesildi/sarfladi/qoldi) ·
+  s5/s7/s10 MasalaStage javob · s6/s9 amal-tanlash · s8 vaqt · s11 aralash · s13 masala (1000−600=400) · s14 final+fakt.
+- **Ko'lam:** pul 100–2000 (100-karrali), uzunlik ≤ 20 sm, vaqt butun soat 1–12, son ≤ 100. **Distraktor=misconception:** M1 noto'g'ri amal
+  (kesilgan→qo'shish) · M2 birlik chalkashligi (sm↔so'm option) · M3 bergan son · M4 hisob xato.
+- **⚠️ GOTCHA (kirill):** CONTENT'da 5 ta Lotin+kirill ifloslanishi bor edi (Otryad**да**, santimetr**да**, tushuntirish**га**, Un**да**)
+  → node-split bilan tuzatildi. **Har dars uz-kirill skan majburiy** (klon-yozuvda kirill д/г/а oson kirib qoladi).
+- **⚠️ UZ (validatsiya):** masala/bergan/so'ralgan/amal/birlik DRAFT; pul sonlari yuzlik (Dars37 kabi). Xaydarov solishtirilmadi.
+- **CONTENT manbasi:** `Dars38_CONTENT.md`. QA lokal: audio-digit=0, kirill=0 (tuzatildi), sen=0. FREE_NAV=true (~59-satr).
 
 ### Б6 NEPTUN — NIMA QURILDI (Dars37 «Pul», UNCOMMITTED)
 

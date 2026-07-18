@@ -38,7 +38,7 @@ const T = {
   ink2: '#5A5A60',
   ink3: '#A7A6A2',
   paper: '#FFFFFF',
-  accent: '#FF4F28',
+  accent: '#fe5b1a',
   accentSoft: '#FFE8E1',
   success: '#1F7A4D',
   successSoft: '#E3F0E8',
@@ -952,21 +952,21 @@ const CONTENT = {
     audio: {
       intro: {
         ru: [
-          'Сегодня тема урока — смысл умножения. Корабль Бита улетел с Марса и вышел на орбиту самой большой планеты — Юпитера.',
+          'Сегодня тема урока, смысл умножения. Корабль Бита улетел с Марса и вышел на орбиту самой большой планеты, Юпитера.',
           'На Юпитере нельзя приземлиться, там ничего не растёт. Поэтому урожай растёт в теплице корабля, ровными рядами. В трёх рядах по четыре ростка.',
           'Сколько всего ростков? Считать по одному долго. Есть ли способ быстрее?',
-          'Послушай два ответа. Первый — семь. Второй — двенадцать. Или ты пока не знаешь. Выбери свой ответ.'
+          'Послушай два ответа. Первый, семь. Второй, двенадцать. Или ты пока не знаешь. Выбери свой ответ.'
         ],
         uz: [
-          "Bugungi dars mavzusi — ko'paytirish ma'nosi. Bitning kemasi Marsdan uchib, eng katta sayyora Yupiter orbitasiga yetib keldi.",
+          "Bugungi dars mavzusi, ko'paytirish ma'nosi. Bitning kemasi Marsdan uchib, eng katta sayyora Yupiter orbitasiga yetib keldi.",
           "Yupiterga qo'nib bo'lmaydi, unda hech narsa o'smaydi. Shuning uchun hosil kema issiqxonasida, teng qatorlarda o'sadi. Uchta qatorda to'rttadan ko'chat bor.",
           "Jami nechta ko'chat? Bittalab sanash uzoq. Tezroq yo'l bormi?",
-          "Ikki javobni tinglang. Birinchi — yetti. Ikkinchi — o'n ikki. Yoki hali bilmaysiz. O'z javobingizni tanlang."
+          "Ikki javobni tinglang. Birinchi, yetti. Ikkinchi, o'n ikki. Yoki hali bilmaysiz. O'z javobingizni tanlang."
         ]
       },
-      on_correct: { ru: 'Верно. Три ряда, в каждом по четыре. Четыре плюс четыре плюс четыре это двенадцать. Это три раза по четыре.', uz: "To'g'ri. Uchta qator, har birida to'rtta. To'rt qo'shuv to'rt qo'shuv to'rt — o'n ikki. Bu uch marta to'rt." },
-      on_wrong: { ru: 'Тут ровные ряды. Быстрый способ их сосчитать — умножение. Сейчас научимся.', uz: "Bu yerda teng qatorlar bor. Ularni tez sanash yo'li — ko'paytirish. Hozir o'rganamiz." },
-      on_unknown: { ru: 'Ничего. Научимся считать ровные ряды — умножать.', uz: "Hechqisi yo'q. Teng qatorlarni sanashni — ko'paytirishni o'rganamiz." }
+      on_correct: { ru: 'Верно. Три ряда, в каждом по четыре. Четыре плюс четыре плюс четыре это двенадцать. Это три раза по четыре.', uz: "To'g'ri. Uchta qator, har birida to'rtta. To'rt qo'shuv to'rt qo'shuv to'rt, o'n ikki. Bu uch marta to'rt." },
+      on_wrong: { ru: 'Тут ровные ряды. Быстрый способ их сосчитать, умножение. Сейчас научимся.', uz: "Bu yerda teng qatorlar bor. Ularni tez sanash yo'li, ko'paytirish. Hozir o'rganamiz." },
+      on_unknown: { ru: 'Ничего. Научимся считать ровные ряды, умножать.', uz: "Hechqisi yo'q. Teng qatorlarni sanashni, ko'paytirishni o'rganamiz." }
     }
   },
 
@@ -979,14 +979,14 @@ const CONTENT = {
     info: { ru: 'Умножение — короткий способ сложить одинаковые группы.', uz: "Ko'paytirish — teng guruhlarni qo'shishning qisqa yo'li." },
     audio: {
       ru: [
-        'Почему ровные ряды умножают? Посмотри: в каждом ряду одинаковое число — четыре.',
+        'Почему ровные ряды умножают? Посмотри: в каждом ряду одинаковое число, четыре.',
         'Четыре плюс четыре плюс четыре. Одно и то же число сложили три раза.',
-        'Это записывают коротко — три раза по четыре. Это умножение. Короткий способ длинного сложения.'
+        'Это записывают коротко, три раза по четыре. Это умножение. Короткий способ длинного сложения.'
       ],
       uz: [
-        "Nega teng qatorlarni ko'paytiramiz? Qarang: har qatorda bir xil son — to'rtta.",
+        "Nega teng qatorlarni ko'paytiramiz? Qarang: har qatorda bir xil son, to'rtta.",
         "To'rt qo'shuv to'rt qo'shuv to'rt. Bir xil son uch marta qo'shildi.",
-        "Buni qisqa yozamiz — uch marta to'rt. Bu ko'paytirish. Uzun qo'shishning qisqa yo'li."
+        "Buni qisqa yozamiz, uch marta to'rt. Bu ko'paytirish. Uzun qo'shishning qisqa yo'li."
       ]
     }
   },
@@ -996,19 +996,19 @@ const CONTENT = {
     eyebrow: { ru: 'Считаем ряды', uz: 'Qatorlarni sanaymiz' },
     lead: { ru: '2 ряда по 5 ростков.', uz: "2 qatorda 5 tadan ko'chat." },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: '2 ряда по 5: 5 + 5 = 10. Это 2 × 5 = 10.', uz: "2 qator, 5 tadan: 5 + 5 = 10. Bu 2 × 5 = 10." },
+    info: { ru: '5 + 5 = 10, то есть 2 × 5 = 10.', uz: "5 + 5 = 10, ya'ni 2 × 5 = 10." },
     audio: {
       ru: [
         'В теплице корабля два ряда, в каждом по пять ростков. Сосчитаем умножением.',
-        'В каждом ряду одинаково — по пять. Пять плюс пять это десять.',
+        'В каждом ряду одинаково, по пять. Пять плюс пять это десять.',
         'Пять взяли два раза. Это два умножить на пять, коротко два на пять.',
         'Всего десять ростков. Два умножить на пять это десять.'
       ],
       uz: [
         "Kema issiqxonasida ikkita qator, har birida beshtadan ko'chat. Ko'paytirib sanaymiz.",
-        "Har qatorda bir xil — beshtadan. Besh qo'shuv besh — o'n.",
+        "Har qatorda bir xil, beshtadan. Beshga beshni qo'shamiz, o'n.",
         "Beshni ikki marta oldik. Bu ikki ko'paytiruv besh, qisqacha ikki marta besh.",
-        "Jami o'nta ko'chat. Ikki marta besh — o'n."
+        "Jami o'nta ko'chat. Ikki marta besh, o'n."
       ]
     }
   },
@@ -1016,7 +1016,7 @@ const CONTENT = {
   // s3 — QOIDA: teng guruhlar yig'indisi = ko'paytirish + check (3 qator × 2 = 6)
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Умножение — это сложение одинаковых групп. Сколько рядов — столько раз берём. 3 ряда по одному числу — это 3 раза. Число в каждой группе должно быть одинаковым.', uz: "Ko'paytirish — teng guruhlarni qo'shish. Necha qator bo'lsa — shuncha marta olamiz. 3 qator, bir xil son — 3 marta. Har guruhda son bir xil bo'lishi shart." },
+    rule: { ru: 'Умножение — сложение одинаковых групп. Число в каждой группе одинаковое.', uz: "Ko'paytirish — teng guruhlarni qo'shish. Har guruhda son bir xil bo'lishi shart." },
     check_q: { ru: '3 ряда по 2. Сколько всего?', uz: "3 qatorda 2 tadan. Jami nechta?" },
     opts: [{ ru: '6', uz: '6', ok: true }, { ru: '5', uz: '5' }, { ru: '4', uz: '4' }],
     wrong: { ru: 'В каждом ряду по два, рядов три. Два плюс два плюс два.', uz: "Har qatorda ikkita, qator uchta. Ikki qo'shuv ikki qo'shuv ikki." },
@@ -1025,14 +1025,14 @@ const CONTENT = {
       ru: [
         'Запишем правило умножения. Слушай и запомни.',
         'Если сложить одинаковые группы, получится умножение.',
-        'Сколько раз берём — столько раз. Три ряда с одинаковым числом это три раза.',
+        'Сколько раз берём, столько раз. Три ряда с одинаковым числом это три раза.',
         'Число в каждой группе должно быть одинаковым. Только тогда умножаем.',
         'А теперь сам. Три ряда по два. Сколько всего?'
       ],
       uz: [
         "Ko'paytirish qoidasini yozamiz. Tinglang va yodlang.",
         "Teng guruhlarni qo'shsak, ko'paytirish bo'ladi.",
-        "Necha marta olsak — shuncha marta. Uch qator, bir xil son — uch marta.",
+        "Necha marta olsak, shuncha marta. Uch qator, bir xil son, uch marta.",
         "Har guruhda son bir xil bo'lishi shart. Faqat shunda ko'paytiramiz.",
         "Endi o'zingiz. Uch qatorda ikkitadan. Jami nechta?"
       ]
@@ -1058,8 +1058,8 @@ const CONTENT = {
       ],
       uz: [
         "Yana bir misol. To'rtta qatorda uchtadan ko'chat.",
-        "Har qatorda uchta. Uch qo'shuv uch qo'shuv uch qo'shuv uch — o'n ikki.",
-        "Qatorlar teng bo'lishi shart. Faqat son bir xil bo'lsa ko'paytiramiz. Bu to'rt marta uch — o'n ikki.",
+        "Har qatorda uchta. Uch qo'shuv uch qo'shuv uch qo'shuv uch, o'n ikki.",
+        "Qatorlar teng bo'lishi shart. Faqat son bir xil bo'lsa ko'paytiramiz. Bu to'rt marta uch, o'n ikki.",
         "O'zingiz sanang. To'rt qatorda uchtadan. Jami nechta?"
       ]
     }
@@ -1070,7 +1070,7 @@ const CONTENT = {
     eyebrow: { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" },
     lead: { ru: 'Как пользоваться таблицей?', uz: "Jadvaldan qanday foydalanamiz?" },
     info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: '3 × 4: находим строку 3 и столбец 4 — их общая клетка 12.', uz: "3 × 4: 3-satr va 4-ustunni topamiz — ularning umumiy katagi 12." },
+    info: { ru: '3 × 4: строка 3 и столбец 4 встречаются в клетке 12.', uz: "3 × 4: 3-satr va 4-ustun kesishgan katak — 12." },
     audio: {
       ru: [
         'Чтобы быстро находить ответ, есть таблица умножения. Научимся ей пользоваться.',
@@ -1082,7 +1082,7 @@ const CONTENT = {
         "Javobni tez topish uchun ko'paytirish jadvali bor. Undan foydalanishni o'rganamiz.",
         "Uch marta to'rtni topamiz. Chap tomondan uch-qatorni topamiz.",
         "Yuqoridan to'rt-ustunni topamiz.",
-        "Satr va ustun uchrashgan katak — o'n ikki. Demak uch marta to'rt — o'n ikki."
+        "Satr va ustun uchrashgan katak, o'n ikki. Demak uch marta to'rt, o'n ikki."
       ]
     }
   },
@@ -1093,26 +1093,34 @@ const CONTENT = {
     lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
     transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: считай ровные ряды умножением.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: teng qatorlarni ko'paytirib sanang." },
     r: 3, c: 3,
-    wrong: { ru: 'Сложи одинаковые ряды. Три ряда по три.', uz: "Teng qatorlarni qo'sh. Uch qator, uchtadan." },
+    wrong: { ru: 'Сложи одинаковые ряды. Три ряда по три.', uz: "Teng qatorlarni qo'shing. Uch qator, uchtadan." },
     done_text: { ru: 'Верно! 3 раза по 3 это 9.', uz: "To'g'ri! 3 marta 3 — 9." },
     audio: {
       intro: { ru: 'Объяснение закончили, теперь тренировка. Три ряда по три ростка. Сколько всего? Сосчитай умножением.', uz: "Tushuntirishni tugatdik, endi mashq. Uchta qatorda uchtadan ko'chat. Jami nechta? Ko'paytirib sanang." },
-      on_correct: { ru: 'Верно. Три умножить на три это девять.', uz: "To'g'ri. Uch marta uch — to'qqiz." },
+      on_correct: { ru: 'Верно. Три умножить на три это девять.', uz: "To'g'ri. Uch marta uch, to'qqiz." },
       on_wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." }
     }
   },
 
-  // s6 — MASHQ-single (array): 2 qator × 4 = 8
+  // s6 — MASHQ (MOSLASH): takroriy qo'shish ↔ ko'paytirish (ma'no darsining o'zagi). 4 juft, all-or-nothing.
+  //   chap = qo'shish-DISPLAY, o'ng = ko'paytirish-DISPLAY. Juft = teng ifodalar (indeks bo'yicha).
   s6: {
-    eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang" },
-    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
-    r: 2, c: 4,
-    wrong: { ru: 'Сложи одинаковые ряды. Два ряда по четыре.', uz: "Teng qatorlarni qo'sh. Ikki qator, to'rttadan." },
-    done_text: { ru: 'Верно! 2 раза по 4 это 8.', uz: "To'g'ri! 2 marta 4 — 8." },
+    eyebrow: { ru: 'Соедини', uz: 'Ulang' },
+    lead: { ru: 'Соедини сложение и умножение.', uz: "Qo'shishni ko'paytirishga ulang." },
+    pairs: [
+      { num: '2 + 2 + 2',     form: '3 × 2' },
+      { num: '4 + 4',         form: '2 × 4' },
+      { num: '5 + 5 + 5',     form: '3 × 5' },
+      { num: '3 + 3 + 3 + 3', form: '4 × 3' }
+    ],
+    numsLabel: { ru: 'СЛОЖЕНИЕ', uz: "QO'SHISH" },
+    formsLabel: { ru: 'УМНОЖЕНИЕ', uz: "KO'PAYTIRISH" },
+    wrong: { ru: 'Сосчитай, сколько раз повторяется число в сложении.', uz: "Qo'shishda son necha marta takrorlanishini sanang." },
+    done_text: { ru: 'Верно! Сложение одинаковых групп это умножение.', uz: "To'g'ri! Teng guruhlarni qo'shish — ko'paytirish." },
     audio: {
-      intro: { ru: 'Проверь себя перед практикой. Два ряда по четыре ростка. Сколько всего?', uz: "Mashqdan oldin o'zingizni sinang. Ikkita qatorda to'rttadan ko'chat. Jami nechta?" },
-      on_correct: { ru: 'Верно. Два умножить на четыре это восемь.', uz: "To'g'ri. Ikki marta to'rt — sakkiz." },
-      on_wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." }
+      intro: { ru: 'Соедини каждое сложение с умножением. Два плюс два плюс два это три раза по два. Нажми сложение, потом умножение. Когда соединишь все, нажми проверить.', uz: "Har bir qo'shishni ko'paytirishga ulang. Ikki qo'shuv ikki qo'shuv ikki bu uch marta ikki. Qo'shishni bosing, keyin ko'paytirishni bosing. Hammasini ulagach, tekshirishni bosing." },
+      on_correct: { ru: 'Верно. Сложение одинаковых чисел это умножение.', uz: "To'g'ri. Teng sonlarni qo'shish, ko'paytirish." },
+      on_wrong: { ru: 'Сосчитай, сколько раз повторяется число. Столько раз умножаем.', uz: "Son necha marta takrorlanishini sanang. Shuncha marta ko'paytiramiz." }
     }
   },
 
@@ -1124,23 +1132,28 @@ const CONTENT = {
     wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Тренировка. Считай ровные ряды умножением: сколько рядов, столько раз.', uz: "Mashq. Teng qatorlarni ko'paytirib sana: necha qator, shuncha marta." },
+      intro: { ru: 'Тренировка. Считай ровные ряды умножением: сколько рядов, столько раз.', uz: "Mashq. Teng qatorlarni ko'paytirib sanang: necha qator, shuncha marta." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
     }
   },
 
-  // s8 — MASHQ-2 (scored, 3 round array)
+  // s8 — MASHQ (ORTIQCHASINI TOP, 3 round): 4 ifodadan 3 tasi nishonga TENG, biri EMAS (a*b).
+  //   Bola teng-bo'lmaganini tanlaydi. To'g'ri -> ortiqcha QIZIL, qolgani YASHIL. «Maslahat» javob bermaydi.
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
-    rounds: [ { r: 5, c: 2 }, { r: 2, c: 5 }, { r: 3, c: 4 } ],
-    wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    eyebrow: { ru: 'Лишнее', uz: 'Ortiqcha' },
+    lead: { ru: 'Найди лишнее выражение.', uz: "Ortiqcha ifodani toping." },
+    rounds: [
+      { target: 6,  exprs: [{ a: 3, b: 2 }, { a: 2, b: 3 }, { a: 6, b: 1 }, { a: 4, b: 2 }], q: { ru: 'Что НЕ равно 6?', uz: "Qaysi biri 6 ga TENG EMAS?" } },
+      { target: 8,  exprs: [{ a: 2, b: 4 }, { a: 4, b: 2 }, { a: 8, b: 1 }, { a: 3, b: 3 }], q: { ru: 'Что НЕ равно 8?', uz: "Qaysi biri 8 ga TENG EMAS?" } },
+      { target: 12, exprs: [{ a: 3, b: 4 }, { a: 4, b: 3 }, { a: 6, b: 2 }, { a: 5, b: 2 }], q: { ru: 'Что НЕ равно 12?', uz: "Qaysi biri 12 ga TENG EMAS?" } }
+    ],
+    wrong: { ru: 'Посчитай каждое умножение и сравни с числом.', uz: "Har bir ko'paytirishni sanab, son bilan solishtiring." },
+    done_text: { ru: 'Верно! Одно выражение лишнее.', uz: "To'g'ri! Bitta ifoda ortiqcha." },
     audio: {
-      intro: { ru: 'Ещё ряды. Сколько рядов, столько раз берём число.', uz: "Yana qatorlar. Necha qator, shuncha marta sonni olamiz." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
+      intro: { ru: 'Три записи дают одно и то же число, а одна другое. Посчитай каждую и найди лишнюю.', uz: "Uchta yozuv bir xil son beradi, biri boshqa. Har birini sanab, ortiqchasini toping." },
+      on_correct: { ru: 'Верно. Это выражение не равно числу.', uz: "To'g'ri. Bu ifoda songa teng emas." },
+      on_wrong: { ru: 'Посчитай каждую запись и сравни с числом.', uz: "Har yozuvni sanab, son bilan solishtiring." }
     }
   },
 
@@ -1158,17 +1171,22 @@ const CONTENT = {
     }
   },
 
-  // s10 — MASHQ-4 (scored, 3 round array)
+  // s10 — MASHQ (XATONI TOP / skip-sanash, 3 round): skip-qatorda bitta buzuq mahsulot bor.
+  //   Bola buzuqni bosadi -> QIZIL + to'g'ri son ochiladi. Xato bosish -> «Maslahat» (javob bermaydi).
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Сосчитай умножением.', uz: "Ko'paytirib sanang." },
-    rounds: [ { r: 5, c: 3 }, { r: 4, c: 4 }, { r: 2, c: 6 } ],
-    wrong: { ru: 'Считай ровные ряды. Сложи одинаковые группы.', uz: "Teng qatorlarni sanang. Teng guruhlarni qo'shing." },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
+    lead: { ru: 'Где ошибка в счёте?', uz: "Sanashda xato qayerda?" },
+    rounds: [
+      { seq: [2, 4, 8, 8], badIdx: 2, right: 6, q: { ru: 'Считаем на 2. Найди лишнее число.', uz: "Ikkiga sanaymiz. Ortiqcha sonni toping." }, fix: { ru: '2, 4, 6, 8 — прибавляем по 2.', uz: "2, 4, 6, 8 — ikkitadan qo'shamiz." } },
+      { seq: [3, 6, 12, 12], badIdx: 2, right: 9, q: { ru: 'Считаем на 3. Найди лишнее число.', uz: "Uchga sanaymiz. Ortiqcha sonni toping." }, fix: { ru: '3, 6, 9, 12 — прибавляем по 3.', uz: "3, 6, 9, 12 — uchtadan qo'shamiz." } },
+      { seq: [4, 8, 16, 16], badIdx: 2, right: 12, q: { ru: 'Считаем на 4. Найди лишнее число.', uz: "To'rtga sanaymiz. Ortiqcha sonni toping." }, fix: { ru: '4, 8, 12, 16 — прибавляем по 4.', uz: "4, 8, 12, 16 — to'rttadan qo'shamiz." } }
+    ],
+    wrong: { ru: 'Считай по порядку и найди, где скачок неверный.', uz: "Tartib bilan sanang, qayerda sakrash noto'g'ri ekanini toping." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Ещё ровные ряды. Считай умножением.', uz: "Yana teng qatorlar. Ko'paytirib sanang." },
+      intro: { ru: 'Один шаг в счёте неверный. Считай по порядку и нажми на число, которое не подходит.', uz: "Sanashdagi bir qadam noto'g'ri. Tartib bilan sanang va mos kelmaydigan sonni bosing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сложи одинаковые группы.', uz: "Teng guruhlarni qo'shing." }
+      on_wrong: { ru: 'Считай по порядку: прибавляй одно и то же число.', uz: "Tartib bilan sanang: bir xil sonni qo'shib bor." }
     }
   },
 
@@ -1201,7 +1219,7 @@ const CONTENT = {
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering." },
-    story: { ru: 'Зухра посадила ростки: 3 ряда, в каждом по 5. Сколько всего ростков?', uz: "Zuhra ko'chat ekdi: 3 qator, har birida 5 tadan. Jami nechta ko'chat?" },
+    story: { ru: 'Зухра посадила: 3 ряда по 5. Сколько всего?', uz: "Zuhra ekdi: 3 qator, 5 tadan. Jami nechta?" },
     r: 3, c: 5,
     wrong: { ru: 'Три ряда по пять. Сложи одинаковые группы.', uz: "Uch qator, beshtadan. Teng guruhlarni qo'shing." },
     done_text: { ru: 'Верно! 3 раза по 5 это 15.', uz: "To'g'ri! 3 marta 5 — 15." },
@@ -1221,7 +1239,7 @@ const CONTENT = {
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
     fact_text: { ru: 'Юпитер — самая большая планета. На нём веками бушует огромная буря — Большое Красное Пятно.', uz: "Yupiter — eng katta sayyora. Unda asrlar davomida ulkan bo'ron — Katta Qizil Dog' bo'raydi." },
-    fact_audio: { ru: 'Юпитер — самая большая планета Солнечной системы. На нём есть огромная буря, которая бушует уже сотни лет.', uz: "Yupiter — Quyosh sistemasidagi eng katta sayyora. Unda yuzlab yildan beri bo'rayotgan ulkan bo'ron bor." },
+    fact_audio: { ru: 'Юпитер, самая большая планета Солнечной системы. На нём есть огромная буря, которая бушует уже сотни лет.', uz: "Yupiter, Quyosh sistemasidagi eng katta sayyora. Unda yuzlab yildan beri bo'rayotgan ulkan bo'ron bor." },
     audio: {
       intro: { ru: 'Финальная проверка. Считай ровные ряды умножением.', uz: "Yakuniy tekshiruv. Teng qatorlarni ko'paytirib sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
@@ -1243,7 +1261,7 @@ const CONTENT = {
     conn_next: { ru: 'дальше: таблица ×2 и ×3', uz: "keyingi: ×2 va ×3 jadvali" },
     audio: {
       ru: 'Миссия выполнена. На орбите Юпитера мы узнали, что такое умножение. Запомни правило. Умножение это сложение одинаковых групп. Сколько групп, столько раз берём число. Урожай в теплице сосчитан. У этой огромной планеты ещё много дел. В следующий раз выучим умножение на два и на три.',
-      uz: "Missiya bajarildi. Yupiter orbitasida ko'paytirish nima ekanini bilib oldik. Qoidani yodda tuting. Ko'paytirish — teng guruhlarni qo'shish. Necha guruh, shuncha marta sonni olamiz. Issiqxonadagi hosil sanaldi. Bu ulkan sayyora atrofida yana ko'p ish bor. Keyingi safar ikkiga va uchga ko'paytirishni o'rganamiz."
+      uz: "Missiya bajarildi. Yupiter orbitasida ko'paytirish nima ekanini bilib oldik. Qoidani yodda tuting. Ko'paytirish, teng guruhlarni qo'shish. Necha guruh, shuncha marta sonni olamiz. Issiqxonadagi hosil sanaldi. Bu ulkan sayyora atrofida yana ko'p ish bor. Keyingi safar ikkiga va uchga ko'paytirishni o'rganamiz."
     }
   }
 };
@@ -1256,11 +1274,11 @@ const BRIDGES = {
   s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.' },
   sTBL: { ru: 'Есть таблица, которая помогает.', uz: 'Yordam beradigan jadval bor.' },
   s5:  { ru: 'Теперь потренируйся сам.', uz: "Endi o'zingiz mashq qiling." },
-  s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang." },
+  s6:  { ru: 'Соедини сложение и умножение.', uz: "Qo'shish va ko'paytirishni ulang." },
   s7:  { ru: 'Переходим к тренировке.', uz: "Trenirovkaga o'tamiz." },
-  s8:  { ru: 'Ещё ровные ряды.', uz: "Yana teng qatorlar." },
+  s8:  { ru: 'Найди лишнее выражение.', uz: "Ortiqcha ifodani toping." },
   s9:  { ru: 'Ряды разные, правило одно.', uz: 'Qatorlar har xil, qoida bitta.' },
-  s10: { ru: 'Считай умножением дальше.', uz: "Ko'paytirib sanashda davom et." },
+  s10: { ru: 'Найди ошибку в счёте.', uz: "Sanashdagi xatoni toping." },
   s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
   s12: { ru: 'Зухра сажает ростки.', uz: 'Zuhra ko\'chat ekadi.' },
   s13: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering." },
@@ -1358,7 +1376,7 @@ const ICON = {
   star: <g><path d="M20 3 L24.9 14.7 L37.5 15.8 L28 24.2 L30.9 36.5 L20 29.8 L9.1 36.5 L12 24.2 L2.5 15.8 L15.1 14.7 Z" fill="url(#g1starG)" stroke="#E0992A" strokeWidth="0.8" strokeLinejoin="round"/><path d="M20 9 L22.4 15.4 L20 20 L17.6 15.4 Z" fill="rgba(255,255,255,0.38)"/></g>,
   fish: <g><path d="M26 20 L39 9 L39 31 Z" fill="url(#g1fishG)"/><ellipse cx="16" cy="20" rx="15" ry="12" fill="url(#g1fishG)"/><path d="M11 11 Q16 6 21 11" stroke="#0179A0" strokeWidth="1.8" fill="none" strokeLinecap="round"/><ellipse cx="12" cy="14.5" rx="5" ry="2.7" fill="rgba(255,255,255,0.4)"/><circle cx="8.5" cy="18" r="2.4" fill="#FFFFFF"/><circle cx="8" cy="18" r="1.2" fill="#0E0E10"/></g>,
   flower: <g><g fill="url(#g1flwG)"><ellipse cx="20" cy="10" rx="5.5" ry="8"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(72 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(144 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(216 20 20)"/><ellipse cx="20" cy="10" rx="5.5" ry="8" transform="rotate(288 20 20)"/></g><circle cx="20" cy="20" r="6" fill="#FFC23C" stroke="#E8A92A" strokeWidth="0.8"/><circle cx="17.6" cy="17.6" r="1.8" fill="rgba(255,255,255,0.45)"/></g>,
-  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#FF4F28"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#FF4F28"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
+  balloon: <g><path d="M20 27 L20 36" stroke="#A7A6A2" strokeWidth="1.4" fill="none"/><ellipse cx="20" cy="15" rx="10" ry="12" fill="#fe5b1a"/><path d="M17.6 26 L22.4 26 L20 29 Z" fill="#fe5b1a"/><ellipse cx="16" cy="11" rx="2.4" ry="3.4" fill="rgba(255,255,255,0.4)"/></g>,
   cherry: <g><path d="M20 9 Q27 13 28 25" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M20 9 Q14 14 12 24" stroke="#3E7D2A" strokeWidth="2" fill="none" strokeLinecap="round"/><path d="M19 9 Q24 3 31 6 Q26 10 19 9 Z" fill="#3E9B3A"/><circle cx="12" cy="29" r="8" fill="url(#g1chrG)"/><circle cx="27" cy="27" r="8" fill="url(#g1chrG)"/><ellipse cx="9.5" cy="26" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 9.5 26)"/><ellipse cx="24.5" cy="24" rx="2.3" ry="3.3" fill="rgba(255,255,255,0.6)" transform="rotate(-18 24.5 24)"/></g>
 };
 const KIND_ORDER = ['apple', 'star', 'fish', 'flower', 'balloon'];
@@ -1419,7 +1437,7 @@ const BitSVG = ({ state = 'present', className = '' }) => (
     {/* antenna */}
     <g className="g1-bit-ant">
       <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round"/>
-      <circle cx="60" cy="11" r="6" fill="#FF4F28"/>
+      <circle cx="60" cy="11" r="6" fill="#fe5b1a"/>
       <circle cx="58" cy="9" r="2" fill="#FFB9A6"/>
     </g>
     {/* oyoqchalar */}
@@ -1545,7 +1563,7 @@ const D2Defs = () => (
       <linearGradient id="d2rib" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#E7DCC6"/><stop offset="45%" stopColor="#F1E9D9"/><stop offset="55%" stopColor="#F6F0E2"/><stop offset="100%" stopColor="#E7DCC6"/></linearGradient>
       <radialGradient id="d2space" cx="50%" cy="45%" r="70%"><stop offset="0%" stopColor="#2E4B7C"/><stop offset="100%" stopColor="#16294C"/></radialGradient>
       <linearGradient id="d2rocket" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#AFC2D0"/><stop offset="45%" stopColor="#F4F8FB"/><stop offset="100%" stopColor="#9EB2C0"/></linearGradient>
-      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28"/></linearGradient>
+      <linearGradient id="d2flameG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FFE08A"/><stop offset="55%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a"/></linearGradient>
       <linearGradient id="d2planet" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5C7CB0"/><stop offset="100%" stopColor="#2C3E68"/></linearGradient>
       <linearGradient id="d2ship" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#8CA0B8"/><stop offset="45%" stopColor="#C6D6E4"/><stop offset="100%" stopColor="#5E718C"/></linearGradient>
     </defs>
@@ -2310,14 +2328,14 @@ const JourneyPlanet = ({ i, cur, style }) => {
 const ReadinessMeter = ({ screen, total, lang }) => {
   const pct = total > 1 ? Math.max(0, Math.min(100, (screen / (total - 1)) * 100)) : 0;
   const label = (READY_LABEL[lang] || READY_LABEL.ru);
-  const rocketBottom = (pct / 100) * (100 / 6);   // Yer(0%) → Mars(~16.7%) oralig'ida
+  const rocketBottom = ((2 + pct / 100) / 6) * 100;   // Б3: Yupiter(33.3%) → Saturn(50%) oralig'ida
   return (
     <div className="d2-gauge" aria-hidden="true">
       <span className="d2-gauge-label mono">{label}</span>
       <span className="d2-jroute">
         <span className="d2-jhome">🏠</span>
         {JOURNEY_DOTS.map((_, i) => (
-          <JourneyPlanet key={i} i={i} cur={i === 0} style={{ bottom: `${(i / 6) * 100}%` }}/>
+          <JourneyPlanet key={i} i={i} cur={i === 2} style={{ bottom: `${(i / 6) * 100}%` }}/>
         ))}
         <span className="d2-gauge-rocket" style={{ bottom: `${rocketBottom}%` }}><RocketSvg flame/></span>
       </span>
@@ -2370,7 +2388,7 @@ const NumberLine = () => {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 'min(320px, 96%)', height: 'auto' }} aria-hidden="true">
       <line x1={x(0)} y1={y} x2={x(max)} y2={y} stroke={T.ink3} strokeWidth="2"/>
-      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round"/>
+      <line x1={x(0)} y1={y} x2={x(30)} y2={y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round"/>
       <line x1={x(30)} y1={y} x2={x(34)} y2={y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round"/>
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -3015,7 +3033,7 @@ const Screen3 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '8px 0 0', padding: 'clamp(15px, 2.8vw, 20px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.02)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -12, left: 16, background: T.accent, color: '#fff', fontWeight: 800, fontSize: 'clamp(11px,1.7vw,13px)', letterSpacing: '.04em', padding: '3px 12px', borderRadius: 999 }}>{lang === 'uz' ? 'QOIDA' : 'ПРАВИЛО'}</span>
           <p style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(15px,2.3vw,19px)', color: T.ink, lineHeight: 1.5 }}>{t(c.rule)}</p>
         </div>
@@ -3069,7 +3087,7 @@ const CodeTablo = ({ tens, ones, tensLabel, onesLabel, emph = null, name = null 
 // emph — dual-coding (audio aytayotgan razryadni yoritadi). showEq — 45 = 40 + 5.
 // ============================================================
 const OmborKasseta = () => (
-  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#FF4F28)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
+  <div style={{ width: 'clamp(20px,4.6vw,26px)', height: 'clamp(42px,9vw,54px)', borderRadius: 4, background: 'linear-gradient(180deg,#FF7A55,#fe5b1a)', border: '1.5px solid #C1381A', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 2, padding: '4px 3px', boxShadow: '0 2px 5px rgba(193,56,26,0.4)', flexShrink: 0 }}>
     {[0, 1, 2, 3, 4].map(i => <div key={i} style={{ height: 2, borderRadius: 1, background: 'rgba(255,255,255,0.55)' }}/>)}
   </div>
 );
@@ -3097,13 +3115,13 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
   );
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px,2.2vw,14px)', width: 'min(400px,98%)' }}>
-      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#FF4F28', '#FFE8E1', oHi, tHi, 'ten')}
+      {shelf(Array.from({ length: tens }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><CassetteSvg className="d2-casssvg-btn"/></span>), tensCap, tens, tensLabel, '#fe5b1a', '#FFE8E1', oHi, tHi, 'ten')}
       {shelf(Array.from({ length: ones }).map((_, i) => <span key={i} className="g1-pop-in" style={{ display: 'inline-flex' }}><BatterySvg className="d2-battsvg-btn"/></span>), onesCap, ones, onesLabel, '#019ACB', '#E1F3FB', tHi, oHi, 'one')}
       {showEq && (
         <div className="fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px,1.6vw,10px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(22px,5vw,32px)', marginTop: 2 }}>
           <span style={{ color: T.ink }}>{total}</span>
           <span style={{ color: T.ink3 }}>=</span>
-          <span style={{ color: '#FF4F28' }}>{tens * 10}</span>
+          <span style={{ color: '#fe5b1a' }}>{tens * 10}</span>
           <span style={{ color: T.ink3 }}>+</span>
           <span style={{ color: '#019ACB' }}>{ones}</span>
         </div>
@@ -3115,7 +3133,7 @@ const OmborRaf = ({ tens = 0, ones = 0, tensLabel, onesLabel, tensCap = null, on
 // ============================================================
 // FuelTank + TankCompare — Dars04 star-vizual: ikki quvvat bloki (son + to'lish darajasi:
 // katta son = to'laroq -> taqqoslash intuitsiyasi). O'rtada > < = belgi sloti.
-// Raqamlar rang-kodli: o'nlik #FF4F28 (sariq-qizil), birlik #019ACB (ko'k).
+// Raqamlar rang-kodli: o'nlik #fe5b1a (sariq-qizil), birlik #019ACB (ko'k).
 // ============================================================
 const FuelTank = ({ code, emph = false, dim = false, emphDigit = null }) => {
   const tens = Math.floor(code / 10), ones = code % 10;
@@ -3213,8 +3231,8 @@ const NumTrack = ({ value, answer = null, max = 100, emphTens = false }) => {
         {Array.from({ length: max + 1 }).map((_, n) => (n % 10 !== 0 ? <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -4, width: n % 5 === 0 ? 2 : 1.3, height: n % 5 === 0 ? 16 : 12, background: n % 5 === 0 ? '#8A98A6' : '#AEABA3', borderRadius: 1 }}/> : null))}
         {tens.map((n) => (
           <div key={n} style={{ position: 'absolute', left: `${(n / max) * 100}%`, top: -9, transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: 3, height: 23, background: emphTens ? '#FF4F28' : '#5E6B78', borderRadius: 2 }}/>
-            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#FF4F28' : T.ink2 }}>{n}</span>
+            <div style={{ width: 3, height: 23, background: emphTens ? '#fe5b1a' : '#5E6B78', borderRadius: 2 }}/>
+            <span style={{ marginTop: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(11px,2.2vw,14px)', fontWeight: 800, color: emphTens ? '#fe5b1a' : T.ink2 }}>{n}</span>
           </div>
         ))}
         <div style={{ position: 'absolute', left: `${pct}%`, top: '50%', transform: 'translate(-50%,-50%)', width: 'clamp(14px,3vw,18px)', height: 'clamp(14px,3vw,18px)', borderRadius: '50%', background: shown ? T.success : T.accent, border: '3px solid #fff', boxShadow: `0 0 0 3px ${shown ? T.successSoft : T.accentSoft}`, zIndex: 2 }}/>
@@ -3251,71 +3269,6 @@ const TrackHero = ({ answer = null }) => {
         </div>
       </div>
       <div className="d2-scene-bit"><span className="g1-cast-fig"><BitSVG state="present"/></span></div>
-    </div>
-  );
-};
-
-// ColumnAdd — Dars07 star-vizual: ustunlab qo'shish (столбик). O'nlik ustuni sariq, birlik ko'k.
-// «+» ikki qo'shiluvchi ORASIDA (chap gutterда, ikki qatorga markazlashgan — 5-sinf uslubi).
-// sum null -> yig'indi "?"; sum berilганда yashil. emph 'units'|'tens' -> faol ustunni yoritadi.
-const COL_W = 'clamp(38px,8.4vw,52px)';
-const colCell = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: COL_W, height: COL_W, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(26px,6vw,40px)', lineHeight: 1 };
-// ColumnCard — umumiy столбик maketi. resTens/resUnits — natija katagi tuguni (raqam yoki drop-slot).
-const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
-  const t = useT();
-  return (
-    <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#FF4F28', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
-      <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
-      <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
-      <span style={{ ...colCell, gridColumn: 2, gridRow: 3, color: '#FF4F28', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{bt}</span>
-      <span style={{ ...colCell, gridColumn: 3, gridRow: 3, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{bu}</span>
-      <span style={{ gridColumn: '1 / 4', gridRow: 4, height: 3, background: T.ink, borderRadius: 2, margin: '3px 0' }}/>
-      <span style={{ gridColumn: 2, gridRow: 5, display: 'flex', justifyContent: 'center' }}>{resTens}</span>
-      <span style={{ gridColumn: 3, gridRow: 5, display: 'flex', justifyContent: 'center' }}>{resUnits}</span>
-    </div>
-  );
-};
-const ColumnAdd = ({ a, b, sum = null, emph = null }) => {
-  const dg = (n) => [Math.floor(n / 10), n % 10];
-  const [at, au] = dg(a), [bt, bu] = dg(b);
-  const shown = sum != null;
-  const [st, su] = shown ? dg(sum) : ['?', '?'];
-  const dimT = emph === 'units', dimU = emph === 'tens';
-  const res = (d) => <span className={shown ? 'g1-pop-in' : ''} style={{ ...colCell, color: shown ? T.success : T.ink3 }}>{d}</span>;
-  return <ColumnCard at={at} au={au} bt={bt} bu={bu} dimT={dimT} dimU={dimU} resTens={res(st)} resUnits={res(su)}/>;
-};
-
-// RazryadBreak — s1 «NEGA ustunlab» tushuntirishi: har sonni razryadga ajratadi (34 = 30 + 4).
-// O'nlik sariq, birlik ko'k — bola o'z ko'zi bilan ko'radi: o'nlik o'nlik bilan, birlik birlik bilan
-// bir ustunga tushadi. Dars03 «razryad tarkibi» ga bog'lanadi.
-const RB_ROW = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(5px,1.4vw,10px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 };
-const RB_CHIP = { borderRadius: 10, padding: 'clamp(4px,1vw,7px) clamp(9px,2vw,14px)', fontSize: 'clamp(22px,4.6vw,30px)', lineHeight: 1 };
-const RazryadBreak = ({ a, b }) => {
-  const t = useT();
-  const row = (n, i) => {
-    const tens = Math.floor(n / 10) * 10, units = n % 10;
-    return (
-      <div key={i} className="fade-up" style={{ ...RB_ROW, animationDelay: `${0.15 + i * 0.25}s` }}>
-        <span style={{ fontSize: 'clamp(28px,6vw,40px)', color: T.ink, minWidth: 'clamp(44px,10vw,60px)', textAlign: 'right' }}>{n}</span>
-        <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink3 }}>=</span>
-        <span style={{ ...RB_CHIP, background: '#FFF1EC', border: '2px solid #FF4F28', color: '#FF4F28' }}>{tens}</span>
-        <span style={{ fontSize: 'clamp(19px,3.6vw,26px)', color: T.ink2 }}>+</span>
-        <span style={{ ...RB_CHIP, background: '#E9F7FC', border: '2px solid #019ACB', color: '#019ACB' }}>{units}</span>
-      </div>
-    );
-  };
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(9px,2.2vw,14px)' }}>
-      {row(a, 0)}
-      {row(b, 1)}
-      <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#FF4F28' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
-        <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
-      </p>
     </div>
   );
 };
@@ -3397,7 +3350,7 @@ const CargoBase = ({ w }) => (
     <circle cx="103" cy="68" r="3.2" fill="#FF6A3D" opacity="0.7"/>
     {/* bayroq (chapda) */}
     <line x1="26" y1="86" x2="26" y2="60" stroke="#C3CDDC" strokeWidth="2.6"/>
-    <path d="M26 60 L26 73 L44 66.5 Z" fill="#FF4F28"/>
+    <path d="M26 60 L26 73 L44 66.5 Z" fill="#fe5b1a"/>
   </svg>
 );
 // Mars osmoni/sirti elementlari — real-hayotiy sahnasi uchun.
@@ -3465,7 +3418,7 @@ const MarsBase = ({ answer = null }) => {
       <div style={{ position: 'absolute', right: '11%', bottom: '28%', transform: 'translateX(50%)', width: 'clamp(58px,14.5vw,90px)', zIndex: 4 }}><LandedRocket w="100%"/></div>
       {/* konteynerlar (o'rtada, yerda) */}
       <div style={{ position: 'absolute', left: '48%', bottom: '17%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 'clamp(5px,1.4vw,10px)', zIndex: 5 }}>
-        <CargoCrate n={34} ca="#FF9166" cb="#FF4F28" br="#C1381A"/>
+        <CargoCrate n={34} ca="#FF9166" cb="#fe5b1a" br="#C1381A"/>
         <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(18px,3.6vw,26px)', color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>+</span>
         <CargoCrate n={25} ca="#33B8E3" cb="#019ACB" br="#0B7BA3"/>
       </div>
@@ -3518,7 +3471,7 @@ const Screen4 = (props) => {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <ArrayViz r={4} c={3} reveal={reveal}/>
         </div>
-        <div className="fade-up" style={{ background: '#FBEEEE', border: '2px solid #D64545', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(214,69,69,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#B23A3A', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
+        <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
           {c.opts.map((o, i) => (
@@ -3577,7 +3530,7 @@ const HatchDoor = ({ outerOpen, innerOpen, wrong }) => {
           </g>
         </g>
         <rect x="66" y="90" width="28" height="12" rx="6" fill="#EDE4D2" stroke="#C9BDA4" strokeWidth="1.5"/>
-        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#D64545'} style={{ transition: 'fill 0.3s' }}/>
+        <circle cx="80" cy="96" r="3.4" fill={outerOpen ? '#1F7A4D' : '#fe5b1a'} style={{ transition: 'fill 0.3s' }}/>
       </svg>
     </div>
   );
@@ -3658,11 +3611,11 @@ const Screen5 = (props) => {
               <div className="d2-hatchtablo">
                 <span className="mono" style={{ fontSize: 'clamp(9px, 1.3vw, 11px)', fontWeight: 800, letterSpacing: '0.14em', color: T.ink3, textTransform: 'uppercase' }}>{lang === 'uz' ? 'Kod tablosi' : 'Табло кода'}</span>
                 <p className="mono" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px, 1.9vw, 15px)', textAlign: 'center' }}>{t(roundIdx === 0 ? c.round1 : c.round2)}</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#D64545' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: 'min(340px, 96%)', border: `2px solid ${wrong ? '#fe5b1a' : T.ink3}`, borderRadius: 14, overflow: 'hidden', fontFamily: "'JetBrains Mono', monospace", transition: 'border-color 0.2s' }}>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderRight: `1px solid ${T.ink3}`, borderBottom: `1px solid ${T.ink3}` }}>{t(c.tens_label)}</div>
                   <div style={{ padding: '6px 4px', textAlign: 'center', fontSize: 'clamp(10px,1.7vw,13px)', fontWeight: 700, whiteSpace: 'nowrap', color: T.ink2, background: T.bg, borderBottom: `1px solid ${T.ink3}` }}>{t(c.ones_label)}</div>
                   {[0, 1].map(si => (
-                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#FF4F28' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
+                    <div key={si} style={{ minHeight: 'clamp(56px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(40px, 10vw, 60px)', fontWeight: 800, color: slots[si] === null ? T.ink3 : (si === 0 ? '#fe5b1a' : '#019ACB'), borderRight: si === 0 ? `1px solid ${T.ink3}` : 'none', background: (nextEmpty === si) ? T.accentSoft : 'transparent' }}>{slots[si] ?? ''}</div>
                   ))}
                 </div>
               </div>
@@ -3718,7 +3671,7 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
         </g>
       )}
       <line x1={nlx(0)} y1={NL_y} x2={nlx(NL_max)} y2={NL_y} stroke={T.ink3} strokeWidth="2"/>
-      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#FF4F28" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
+      {!asking && <line x1={nlx(0)} y1={NL_y} x2={nlx(Math.min(pos, 30))} y2={NL_y} stroke="#fe5b1a" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {!asking && pos > 30 && <line x1={nlx(30)} y1={NL_y} x2={nlx(pos)} y2={NL_y} stroke="#019ACB" strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
       {[0, 10, 20, 30, 40].map((v) => (
         <g key={v}>
@@ -3728,8 +3681,8 @@ const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
       ))}
       {!asking && [[0, 10], [10, 20], [20, 30]].map(([a, b], i) => (
         <g key={i} style={{ opacity: phase >= 1 ? 1 : 0, transition: `opacity 0.4s ${i * 0.35}s` }}>
-          <path d={arc(a, b, 30)} fill="none" stroke="#FF4F28" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
-          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#FF4F28" fontFamily="'JetBrains Mono', monospace">+10</text>
+          <path d={arc(a, b, 30)} fill="none" stroke="#fe5b1a" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
+          <text x={(nlx(a) + nlx(b)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill="#fe5b1a" fontFamily="'JetBrains Mono', monospace">+10</text>
         </g>
       ))}
       {!asking && [30, 31, 32, 33].map((a, i) => (
@@ -3843,13 +3796,13 @@ const Screen7 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
-        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(255,79,40,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
+        <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
           <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
             {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#FF4F28' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             ) : (
-              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#FF4F28' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+              <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
             )}
           </p>
         </div>
@@ -3869,7 +3822,7 @@ const Screen7 = (props) => {
             {S7_CHECK.map((d, pos) => (
               <button key={pos} className="option" disabled={!canAct || checkOk} onClick={() => tapDigit(pos)}
                 style={{ width: 'clamp(54px, 12vw, 68px)', height: 'clamp(60px, 12vw, 76px)', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, fontSize: 'clamp(32px, 7vw, 44px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-                         color: checkOk ? (pos === 0 ? '#FF4F28' : '#019ACB') : T.ink,
+                         color: checkOk ? (pos === 0 ? '#fe5b1a' : '#019ACB') : T.ink,
                          borderColor: checkOk && pos === 0 ? T.success : undefined }}>{d}</button>
             ))}
           </div>
@@ -4424,7 +4377,7 @@ const HeroShip = () => (
       <radialGradient id="hsGlass" cx="38%" cy="30%" r="75%"><stop offset="0%" stopColor="#EAFCFF"/><stop offset="45%" stopColor="#5FC0DE"/><stop offset="100%" stopColor="#245C74"/></radialGradient>
       <linearGradient id="hsFin" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#B9C7D4"/><stop offset="100%" stopColor="#66727F"/></linearGradient>
       <linearGradient id="hsNoz" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#3A4652"/><stop offset="55%" stopColor="#8A97A4"/><stop offset="100%" stopColor="#4A5662"/></linearGradient>
-      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28" stopOpacity="0"/></linearGradient>
+      <linearGradient id="hsFlame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFF3C0"/><stop offset="45%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#fe5b1a" stopOpacity="0"/></linearGradient>
     </defs>
     {/* ikkala dvigatel alangasi (ikki turbina) */}
     <g style={{ animation: 'g1pulse 0.32s ease-in-out infinite', transformBox: 'fill-box', transformOrigin: 'left center' }}>
@@ -4551,198 +4504,6 @@ const Screen15 = (props) => {
 // ============================================================
 const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
 const LBL_O = { ru: 'единицы', uz: 'birliklar' };
-// ============================================================
-// DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
-// katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
-// столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
-// ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
-const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
-const d8Shuffle = (arr, seed) => {
-  const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
-  for (let i = a.length - 1; i > 0; i--) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; }
-  return a;
-};
-const d8BuildTiles = (st, su, seed) => {
-  const need = [st, su];
-  const cand = [(su + 1) % 10, (st + 1) % 10, (su + 3) % 10, (st + 7) % 10, (su + 6) % 10];
-  const dist = [];
-  for (const d of cand) { if (dist.length >= 3) break; if (d !== st && d !== su && !dist.includes(d)) dist.push(d); }
-  while (dist.length < 3) { const d = (dist.length + su + 4) % 10; if (d !== st && d !== su && !dist.includes(d)) dist.push(d); else dist.push((d + 1) % 10); }
-  return d8Shuffle([...need, ...dist], seed).map((d, i) => ({ id: `${seed}-${i}`, d }));
-};
-const D8DropSlot = React.forwardRef(({ digit, color, state, onClear }, ref) => {
-  const border = state === 'ok' ? T.success : state === 'wrong' ? '#D64545' : state === 'filled' ? color : '#A7A6A2';
-  const bg = state === 'ok' ? T.successSoft : state === 'wrong' ? '#FBEEEE' : '#ffffff';
-  const clickable = digit != null && state !== 'ok';
-  return (
-    <span ref={ref} onClick={clickable ? onClear : undefined} className={state === 'ok' ? 'g1-pop-in' : ''}
-      style={{ ...colCell, borderRadius: 10, border: `2.5px ${digit != null ? 'solid' : 'dashed'} ${border}`, background: bg, color: state === 'ok' ? T.success : (digit != null ? color : T.ink3), cursor: clickable ? 'pointer' : 'default', transition: 'all .2s' }}>
-      {digit != null ? digit : ''}
-    </span>
-  );
-});
-const DropColumnStage = ({ props, cKey, fact = false }) => {
-  const lang = useLang();
-  const t = useT();
-  const sfx = useSfx();
-  const c = CONTENT[cKey];
-  const rounds = c.rounds || [c];
-  const isArr = Array.isArray(c.audio[lang]);
-  const audio = useAudio(isArr
-    ? [brgSeg(cKey, lang), ...c.audio[lang].map((text, i) => ({ id: `${cKey}_${i}`, text, trigger: 'after_previous', waits_for: null }))]
-    : [brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]
-  );
-  const canAct = useCanAnswer(audio);
-  const meta = SCREEN_META[props.screen];
-  const [ri, setRi] = useState(0);
-  const cur = rounds[ri];
-  const a = cur.a, b = cur.b, sum = a + b;
-  const at = Math.floor(a / 10), au = a % 10, bt = Math.floor(b / 10), bu = b % 10;
-  const st = Math.floor(sum / 10), su = sum % 10;
-  const tiles = React.useMemo(() => d8BuildTiles(st, su, ri), [ri, st, su]);
-  const [placed, setPlaced] = useState({ tens: null, units: null });
-  const [wrongFlash, setWrongFlash] = useState(null);
-  const [solved, setSolved] = useState(false);
-  const [reveal, setReveal] = useState(0);
-  const attemptsRef = useRef(0);
-  const wrongRef = useRef(0);
-  const tmrRef = useRef([]);
-  const tensRef = useRef(null);
-  const unitsRef = useRef(null);
-  const [drag, setDrag] = useState(null);
-  const dragRef = useRef(null);
-  const isLast = ri === rounds.length - 1;
-  const allDone = solved && isLast;
-  const revealRef = useRevealScroll(solved, 400);
-  const evalRef = useRef(false);
-
-  useEffect(() => () => tmrRef.current.forEach(clearTimeout), []);
-
-  const tileById = (id) => tiles.find((tl) => tl.id === id);
-  const usedIds = [placed.tens, placed.units].filter((x) => x != null);
-  const trayTiles = tiles.filter((tl) => !usedIds.includes(tl.id));
-  const digitOf = (slot) => (placed[slot] != null ? tileById(placed[slot]).d : null);
-
-  const report = (correct) => {
-    if (!props.onAnswer) return;
-    props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: t(cur.q || c.lead), options: [], correctIndex: -1, correctAnswer: String(sum), studentAnswerIndex: null, studentAnswer: String(sum), correct, firstTry: correct, attempts: attemptsRef.current, solved: true });
-  };
-  const nextRound = () => {
-    tmrRef.current.forEach(clearTimeout); tmrRef.current = [];
-    setRi((r) => r + 1); setPlaced({ tens: null, units: null }); setWrongFlash(null); setSolved(false); setReveal(0);
-    attemptsRef.current = 0; wrongRef.current = 0; evalRef.current = false;
-  };
-  const placeTile = (slot, tileId) => {
-    if (solved) return;
-    setWrongFlash(null);
-    setPlaced((p) => { const np = { ...p }; if (np.tens === tileId) np.tens = null; if (np.units === tileId) np.units = null; np[slot] = tileId; return np; });
-  };
-  const clearSlot = (slot) => { if (solved) return; setWrongFlash(null); setPlaced((p) => ({ ...p, [slot]: null })); };
-
-  // baholash — ikki katak ham to'lganda
-  useEffect(() => {
-    if (solved || evalRef.current) return;
-    if (placed.tens == null || placed.units == null) return;
-    const dt = tileById(placed.tens).d, du = tileById(placed.units).d;
-    attemptsRef.current += 1;
-    if (dt === st && du === su) {
-      evalRef.current = true;
-      sfx.playCorrect();
-      const ft = wrongRef.current === 0;
-      setSolved(true);
-      if (meta.scored) report(ft);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) { if (!isArr && c.audio.on_correct) e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } }
-      setReveal(1);
-      tmrRef.current.push(setTimeout(() => setReveal(2), 1300));
-      tmrRef.current.push(setTimeout(() => setReveal(3), 2600));
-    } else {
-      wrongRef.current += 1;
-      sfx.playWrong();
-      const wf = (dt !== st && du !== su) ? 'both' : (dt !== st ? 'tens' : 'units');
-      setWrongFlash(wf);
-      if (!audio.muted && !isArr && c.audio.on_wrong) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
-      tmrRef.current.push(setTimeout(() => {
-        setWrongFlash(null);
-        setPlaced((p) => { const np = { ...p }; if (dt !== st) np.tens = null; if (du !== su) np.units = null; return np; });
-      }, 950));
-    }
-  }, [placed]); // eslint-disable-line
-
-  // pointer drag/tap
-  const hit = (ref, x, y) => { const el = ref.current; if (!el) return false; const r = el.getBoundingClientRect(); return x >= r.left - 10 && x <= r.right + 10 && y >= r.top - 10 && y <= r.bottom + 10; };
-  const slotAt = (x, y) => (hit(tensRef, x, y) ? 'tens' : hit(unitsRef, x, y) ? 'units' : null);
-  const onDown = (tileId, d, e) => {
-    if (!canAct || solved) return;
-    e.preventDefault();
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
-    dragRef.current = { tileId, d, x: e.clientX, y: e.clientY, downX: e.clientX, downY: e.clientY, moved: false };
-    setDrag({ ...dragRef.current });
-  };
-  const onMove = (e) => {
-    if (!dragRef.current) return;
-    const moved = dragRef.current.moved || Math.hypot(e.clientX - dragRef.current.downX, e.clientY - dragRef.current.downY) > 6;
-    dragRef.current = { ...dragRef.current, x: e.clientX, y: e.clientY, moved };
-    setDrag({ ...dragRef.current });
-  };
-  const onUp = (e) => {
-    const dr = dragRef.current; if (!dr) { return; }
-    let slot = slotAt(e.clientX, e.clientY);
-    if (!slot && !dr.moved) slot = placed.units == null ? 'units' : (placed.tens == null ? 'tens' : null);
-    if (slot) placeTile(slot, dr.tileId);
-    dragRef.current = null; setDrag(null);
-  };
-
-  const canAdv = useAdvanceGate(allDone, audio);
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  const slotState = (slot, digit) => solved ? 'ok' : (wrongFlash === slot || wrongFlash === 'both') ? 'wrong' : (digit != null ? 'filled' : 'empty');
-  const dimT = reveal === 1, dimU = reveal === 2;
-  const stepText = reveal === 1
-    ? { ru: `Единицы: ${au} + ${bu} = ${su}`, uz: `Birliklar: ${au} + ${bu} = ${su}` }
-    : reveal >= 2
-      ? { ru: `Десятки: ${at} + ${bt} = ${st}`, uz: `O'nliklar: ${at} + ${bt} = ${st}` }
-      : null;
-  const resTens = <D8DropSlot ref={tensRef} digit={digitOf('tens')} color="#FF4F28" state={slotState('tens', digitOf('tens'))} onClear={() => clearSlot('tens')}/>;
-  const resUnits = <D8DropSlot ref={unitsRef} digit={digitOf('units')} color="#019ACB" state={slotState('units', digitOf('units'))} onClear={() => clearSlot('units')}/>;
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', touchAction: 'none' }}>
-        <Bridge/>
-        <h1 className="title h-sub fade-up">{t(c.lead || cur.q)}</h1>
-        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
-        {cur.q && c.lead && <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(14px, 2vw, 16px)', textAlign: 'center' }}>{t(cur.q)}</p>}
-        <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px,2vw,14px)', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(150px, 32vw, 200px)' }}>
-          <ColumnCard at={at} au={au} bt={bt} bu={bu} dimT={dimT} dimU={dimU} resTens={resTens} resUnits={resUnits}/>
-          {stepText && <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,2.8vw,20px)', color: T.success }}>{t(stepText)}</div>}
-          {!solved && (
-            <>
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(6px,1.6vw,11px)', minHeight: 'clamp(48px,10vw,62px)' }}>
-                {trayTiles.map((tl) => (
-                  <span key={tl.id} onPointerDown={(e) => onDown(tl.id, tl.d, e)} onPointerMove={onMove} onPointerUp={onUp}
-                    style={{ ...D8_TILE, opacity: (drag && drag.tileId === tl.id) ? 0.25 : (canAct ? 1 : 0.5) }}>{tl.d}</span>
-                ))}
-              </div>
-              <p className="fade-up" style={{ margin: 0, fontSize: 'clamp(12px,1.9vw,14px)', fontWeight: 700, color: T.ink3, textAlign: 'center' }}>{t(DROP_HINT)}</p>
-            </>
-          )}
-        </div>
-        {wrongFlash && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(cur.wrong || c.wrong)}/></div>}
-        {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={t(cur.done_text || c.done_text)}/></div>}
-        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
-        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
-      </div>
-      {drag && (
-        <div style={{ position: 'fixed', left: drag.x, top: drag.y, transform: 'translate(-50%,-50%)', zIndex: 9999, pointerEvents: 'none', ...D8_TILE, cursor: 'grabbing', boxShadow: '0 8px 18px -4px rgba(0,0,0,0.45)' }}>{drag.d}</div>
-      )}
-    </Stage>
-  );
-};
-// (Dars07 «столбik» oilasi DropColumnStage Dars13 da ISHLATILMAYDI — o'lik kod.)
 
 // ============================================================
 // «TENG QATORLAR MASSIVI» — Dars13 mexanikasi (metodist 2026-07-15).
@@ -4791,7 +4552,7 @@ const ArrayViz = ({ r, c, reveal = 0, variant = 'geo' }) => {
           </div>
         ))}
       </div>
-      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ряда по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
+      {reveal >= 1 && <p className="fade-up" style={{ margin: 0, fontWeight: 800, fontSize: 'clamp(13px,2vw,16px)', color: plant ? '#C08A2E' : '#2FB584' }}>{t({ ru: `${r} ${r === 1 ? 'ряд' : r < 5 ? 'ряда' : 'рядов'} по ${c}`, uz: `${r} qator, ${c} tadan` })}</p>}
       {reveal >= 2 && (
         <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(3px,1vw,6px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(16px,3.2vw,23px)' }}>
           {Array.from({ length: r }).map((_, i) => (<React.Fragment key={i}>{i > 0 && <span style={{ color: T.ink3 }}>+</span>}<span style={{ color: '#2E9B4E' }}>{c}</span></React.Fragment>))}
@@ -4927,7 +4688,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
         )}
         {/* KO'PAYTIRISH JADVALI yordamchisi — o'quvchi hali jadvalni bilmaydi, ochib ishlata oladi */}
         <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
-          <button onClick={() => setShowTable((s) => !s)} className="btn-ghost" style={{ padding: 'clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px)', fontSize: 'clamp(12px,1.7vw,14px)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 7 }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
           </button>
           {showTable && <MultTable max={6}/>}
@@ -4940,12 +4701,303 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
     </Stage>
   );
 };
+// ── BodyStage — umumiy o'ramchi test-turlari uchun (Match/OddOne/SeqError). renderBody(ctx) chizadi.
+//   Struktura ArrayStage bilan bir xil (jadval-yordamchi, RoundDots, audio, hisobot), lekin body pluggable.
+const BodyStage = ({ props, cKey, renderBody, fact = false }) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT[cKey];
+  const rounds = c.rounds || [c];
+  const audio = useAudio([
+    brgSeg(cKey, lang),
+    { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const meta = SCREEN_META[props.screen];
+  const [ri, setRi] = useState(0);
+  const [solved, setSolved] = useState(false);
+  const [showTable, setShowTable] = useState(false);
+  const cur = rounds[ri];
+  const isLast = ri === rounds.length - 1;
+  const allDone = solved && isLast;
+  const attemptsRef = useRef(0);
+  const revealRef = useRevealScroll(solved, 400);
+  const pushOne = (seg) => { if (audio.muted || !seg) return; const e = getAudioEngine(); if (e) e.pushOneOff(seg[lang]); };
+  const report = (correct, answerText) => {
+    if (!props.onAnswer) return;
+    props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: t(cur.q || c.lead), options: [], correctIndex: -1, correctAnswer: answerText || '', studentAnswerIndex: null, studentAnswer: answerText || '', correct, firstTry: correct, attempts: attemptsRef.current, solved: true });
+  };
+  const onSolved = (firstTry, answerText) => {
+    setSolved(true);
+    if (meta.scored) report(firstTry, answerText);
+    pushOne(c.audio.on_correct);
+    if (isLast && fact && c.fact_audio) pushOne(c.fact_audio);
+  };
+  const onWrongTry = () => { attemptsRef.current += 1; pushOne(c.audio.on_wrong); };
+  const nextRound = () => { setRi((r) => r + 1); setSolved(false); attemptsRef.current = 0; };
+  const canAdv = useAdvanceGate(allDone, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const ctx = { round: cur, ri, canAct, onSolved, onWrongTry, revealRef, wrongText: t(cur.wrong || c.wrong), doneText: t(cur.done_text || c.done_text), hint: c.hint ? t(c.hint) : null };
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <Bridge/>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
+        {renderBody(ctx)}
+        {/* KO'PAYTIRISH JADVALI yordamchisi — dars imzosi (o'quvchi hali jadvalni bilmaydi) */}
+        <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px,1.6vw,11px)' }}>
+          <button onClick={() => setShowTable((s) => !s)} style={{ padding: 'clamp(8px,1.7vw,12px) clamp(16px,3vw,22px)', fontSize: 'clamp(13px,1.9vw,15px)', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8, color: T.accent, background: '#FFF3EC', border: '2px solid #fe5b1a', borderRadius: 999, cursor: 'pointer', transition: 'all .2s', boxShadow: showTable ? 'none' : '0 3px 12px -4px rgba(254,91,26,0.45)' }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, color: T.accent }}>×</span>{showTable ? t(TBL_HIDE) : t(TBL_SHOW)}
+          </button>
+          {showTable && <MultTable max={6}/>}
+        </div>
+        {solved && !isLast && <NextExBtn onClick={nextRound} label={t(NEXT_EX)}/>}
+        {allDone && fact && <div className="fade-up" style={{ marginTop: 4 }}><InfoNote badge={t(c.fact_badge)} text={t(c.fact_text)}/></div>}
+      </div>
+    </Stage>
+  );
+};
+
+// ── MultOddOneBody — «ORTIQCHASINI TOP» (odd-one-out): 4 ifodadan 3 tasi nishonga TENG, biri EMAS.
+//   round = { target, exprs:[{a,b}×4], q }. isOdd = a*b !== target. To'g'ri -> ortiqcha QIZIL (haqiqiy
+//   natijasi), qolgani YASHIL (=nishon). Xato -> «Maslahat». Ifoda `a × b` — DISPLAY.
+const ODD_ORDER = [[0, 1, 2, 3], [2, 3, 0, 1], [3, 2, 1, 0]];
+const TARGET_LABEL = { ru: 'РАВНО', uz: 'TENG' };
+const MultOddOneBody = ({ round, ri, canAct, onSolved, onWrongTry, revealRef, wrongText, doneText }) => {
+  const t = useT();
+  const sfx = useSfx();
+  const target = round.target;
+  const order = ODD_ORDER[ri % ODD_ORDER.length];
+  const exprs = order.map((i) => round.exprs[i]);
+  const [picked, setPicked] = useState(null);
+  const [solved, setSolved] = useState(false);
+  const wrongRef = useRef(0);
+  const tmr = useRef(null);
+  useEffect(() => () => clearTimeout(tmr.current), []);
+  const isOdd = (e) => e.a * e.b !== target;
+  const tap = (i) => {
+    if (!canAct || solved) return;
+    const e = exprs[i];
+    setPicked(i);
+    if (isOdd(e)) { sfx.playCorrect(); setSolved(true); onSolved(wrongRef.current === 0, String(e.a * e.b)); }
+    else { sfx.playWrong(); wrongRef.current += 1; onWrongTry(); tmr.current = setTimeout(() => setPicked(null), 900); }
+  };
+  const cellBtn = (e, i) => {
+    const odd = isOdd(e);
+    const revealRed = solved && odd;
+    const revealGreen = solved && !odd;
+    const flash = picked === i && !solved;
+    const bd = revealRed || flash ? '#fe5b1a' : revealGreen ? T.success : (canAct ? '#B9C4D2' : '#CBD3DE');
+    const bg = revealRed || flash ? '#FFF1EA' : revealGreen ? T.successSoft : '#ffffff';
+    const col = revealRed || flash ? '#fe5b1a' : revealGreen ? T.success : T.ink;
+    return (
+      <button key={i} onClick={() => tap(i)} disabled={!canAct || solved}
+        style={{ boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, flexWrap: 'wrap', minHeight: 'clamp(52px,9vw,66px)', borderRadius: 12, border: `2.5px solid ${bd}`, background: bg, color: col, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(16px,2.6vw,22px)', lineHeight: 1, cursor: solved ? 'default' : 'pointer', transition: 'all .2s' }}>
+        <span>{e.a} × {e.b}</span>
+        {solved && <span className="g1-pop-in">= {e.a * e.b}</span>}
+      </button>
+    );
+  };
+  return (
+    <>
+      <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(14px, 2vw, 16px)', textAlign: 'center' }}>{t(round.q)}</p>
+      <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px,2.4vw,16px)', padding: 'clamp(14px,2.6vw,20px)', minHeight: 'clamp(150px,32vw,200px)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
+          <span style={{ fontSize: 'clamp(11px,1.7vw,13px)', fontWeight: 800, color: T.ink3, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t(TARGET_LABEL)}</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(30px,7vw,46px)', lineHeight: 1, color: T.accent }}>{target}</span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(8px,1.8vw,12px)', width: '100%' }}>
+          {exprs.map((e, i) => cellBtn(e, i))}
+        </div>
+      </div>
+      {picked != null && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={wrongText}/></div>}
+      {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={doneText}/></div>}
+    </>
+  );
+};
+
+// ── SeqErrorChip + SeqErrorSpotBody — «XATONI TOP» (skip-sanash): skip-qatorda bitta buzuq mahsulot.
+//   round = { seq:[...], badIdx, right, q, fix }. Bola buzuqni bosadi -> QIZIL + to'g'ri son ochiladi.
+//   Xato bosish -> «Maslahat» (javob bermaydi).
+const SeqErrorChip = ({ n, correct, state, onTap, disabled }) => {
+  const red = state === 'flash' || state === 'err';
+  return (
+    <button onClick={onTap} disabled={disabled}
+      style={{ minWidth: 'clamp(42px,9.5vw,62px)', height: 'clamp(46px,10vw,64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(20px,4.6vw,30px)', padding: '0 6px', cursor: disabled ? 'default' : 'pointer', transition: 'all .2s',
+        background: red ? '#FFF1EA' : 'linear-gradient(180deg,#122234,#0A1420)',
+        color: state === 'err' ? T.success : (state === 'flash' ? '#fe5b1a' : '#DFF6EC'),
+        border: red ? '2.5px solid #fe5b1a' : '2px solid #243C52' }}>
+      {state === 'err' ? <span className="g1-pop-in">{correct}</span> : n}
+    </button>
+  );
+};
+const SeqErrorSpotBody = ({ round, canAct, onSolved, onWrongTry, revealRef, wrongText, doneText }) => {
+  const t = useT();
+  const sfx = useSfx();
+  const { seq, badIdx, right } = round;
+  const [picked, setPicked] = useState(null);
+  const [solved, setSolved] = useState(false);
+  const wrongRef = useRef(0);
+  const tmr = useRef(null);
+  useEffect(() => () => clearTimeout(tmr.current), []);
+  const tap = (i) => {
+    if (!canAct || solved) return;
+    if (i === badIdx) { sfx.playCorrect(); setSolved(true); onSolved(wrongRef.current === 0, String(right)); }
+    else { sfx.playWrong(); wrongRef.current += 1; setPicked(i); onWrongTry(); tmr.current = setTimeout(() => setPicked(null), 900); }
+  };
+  return (
+    <>
+      <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(14px, 2vw, 16px)', textAlign: 'center' }}>{t(round.q)}</p>
+      <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px,2vw,14px)', padding: 'clamp(14px,2.6vw,20px)', minHeight: 'clamp(150px,32vw,200px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(4px,1.2vw,9px)', flexWrap: 'wrap' }}>
+          {seq.map((n, i) => (
+            <React.Fragment key={i}>
+              {i > 0 && <span style={{ color: T.ink3, fontWeight: 700, fontSize: 'clamp(15px,2.6vw,20px)' }}>›</span>}
+              <SeqErrorChip n={n} correct={right} state={solved && i === badIdx ? 'err' : (picked === i ? 'flash' : 'idle')} onTap={() => tap(i)} disabled={!canAct || solved}/>
+            </React.Fragment>
+          ))}
+        </div>
+        {solved && <div className="g1-pop-in" style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(14px,2.5vw,18px)', color: T.success, textAlign: 'center' }}>{t(round.fix)}</div>}
+      </div>
+      {picked != null && !solved && <div className="frame-tip fade-up"><Reaction state="wrong" praise={wrongText}/></div>}
+      {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={doneText}/></div>}
+    </>
+  );
+};
+
+// ── MatchBody — «MOSLASH» (juftlarni ulash): round = { pairs:[{num,form}], numsLabel?, formsLabel? }.
+//   D13'da chap = TAKRORIY QO'SHISH (num, DISPLAY), o'ng = KO'PAYTIRISH (form, DISPLAY). O'ng ustun
+//   mount'da aralashadi. Tap-birinchi (chap -> o'ng). ALL-OR-NOTHING: qisman to'g'ri = HAMMA ulangan QIZIL.
+const MATCH_COLORS = ['#019ACB', '#8B5CF6', '#12B5B0', '#EC6C9C'];
+const MATCH_RED = '#D64524';
+const MATCH_NUMS = { ru: 'ОТВЕТ', uz: 'JAVOB' };
+const MATCH_FORMS = { ru: 'ЗАПИСЬ', uz: 'YOZUV' };
+const MATCH_CHECK = { ru: 'Проверить', uz: 'Tekshirish' };
+const MatchBody = ({ round, canAct, onSolved, onWrongTry, revealRef, wrongText, doneText, hint }) => {
+  const t = useT();
+  const sfx = useSfx();
+  const pairs = round.pairs;
+  const [rightOrder] = useState(() => shuffleArr(pairs.map((_, i) => i)));
+  const [links, setLinks] = useState({});      // leftIdx -> rightSlotIdx
+  const [sel, setSel] = useState(null);         // armed chap element
+  const [wrongShown, setWrongShown] = useState(false);
+  const [solved, setSolved] = useState(false);
+  const wrongRef = useRef(0);
+  const ownerOf = (ri) => { const k = Object.keys(links).find((li) => links[li] === ri); return k === undefined ? undefined : Number(k); };
+  const allConnected = Object.keys(links).length === pairs.length;
+  const tapLeft = (li) => {
+    if (!canAct || solved) return;
+    setWrongShown(false);
+    if (links[li] !== undefined) { setLinks((p) => { const n = { ...p }; delete n[li]; return n; }); setSel(null); return; }
+    setSel((s) => (s === li ? null : li));
+  };
+  const tapRight = (ri) => {
+    if (!canAct || solved) return;
+    setWrongShown(false);
+    if (sel === null) { const owner = ownerOf(ri); if (owner !== undefined) setLinks((p) => { const n = { ...p }; delete n[owner]; return n; }); return; }
+    setLinks((p) => { const n = { ...p }; Object.keys(n).forEach((li) => { if (n[li] === ri) delete n[li]; }); n[sel] = ri; return n; });
+    setSel(null);
+  };
+  const check = () => {
+    if (!canAct || solved || !allConnected) return;
+    const ok = pairs.every((_, li) => rightOrder[links[li]] === li);   // ALL-OR-NOTHING verdikt
+    if (ok) { sfx.playCorrect(); setSolved(true); onSolved(wrongRef.current === 0, 'matched'); return; }
+    wrongRef.current += 1; setWrongShown(true); sfx.playWrong(); onWrongTry();
+  };
+  const cellStyle = (col) => (col ? { borderColor: col, boxShadow: `0 0 0 2px ${col}44` } : undefined);
+
+  // TAP-TAP QO'L ISHORASI: qo'l 1-katakni bosadi -> o'ng ustunga borib bosadi (gesture-demo).
+  const wrapRef = useRef(null);
+  const flRef = useRef(null);
+  const frRef = useRef(null);
+  const [tapHint, setTapHint] = useState(null);
+  const hintIdle = canAct && !solved && Object.keys(links).length === 0 && sel === null;
+  useEffect(() => {
+    if (!hintIdle) { setTapHint(null); return undefined; }
+    let side = 0;
+    const place = () => {
+      const wrap = wrapRef.current, el = side === 0 ? flRef.current : frRef.current;
+      if (wrap && el) { const wr = wrap.getBoundingClientRect(), r = el.getBoundingClientRect(); setTapHint({ x: r.left + r.width / 2 - wr.left, y: r.top + r.height / 2 - wr.top }); }
+      side = 1 - side;
+    };
+    const t0 = setTimeout(place, 300);
+    const id = setInterval(place, 1300);
+    return () => { clearTimeout(t0); clearInterval(id); };
+  }, [hintIdle]);
+  return (
+    <>
+      <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.4vw, 18px)' }}>
+        <div className="d2-match" ref={wrapRef} style={{ position: 'relative' }}>
+            {tapHint && (
+              <div aria-hidden="true" style={{ position: 'absolute', left: tapHint.x, top: tapHint.y, transform: 'translate(-26%, -10%)', transition: 'left 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1)', zIndex: 5, pointerEvents: 'none' }}>
+                <div className="d7-taphand"><svg viewBox="0 0 44 54" style={{ width: 'clamp(30px,7vw,40px)', height: 'auto', display: 'block', filter: 'drop-shadow(0 3px 5px rgba(0,0,0,0.35))' }} aria-hidden="true"><path d="M17 25 V9 a4 4 0 0 1 8 0 V23 h3 a4 4 0 0 1 4 4 v1 h3 a3.6 3.6 0 0 1 3.6 3.6 v8 a12 12 0 0 1 -12 12 h-4 a12 12 0 0 1 -9.4 -4.6 L4 33 a4.2 4.2 0 0 1 6.6 -5.2 L17 33 Z" fill="#fff" stroke="#2b2b2b" strokeWidth="2.2" strokeLinejoin="round"/></svg></div>
+              </div>
+            )}
+          <div className="d2-match-col">
+            <span className="d2-match-head mono">{t(round.numsLabel || MATCH_NUMS)}</span>
+            {pairs.map((p, li) => {
+              const linked = links[li] !== undefined;
+              const col = solved ? T.success : (wrongShown && linked ? MATCH_RED : (linked ? MATCH_COLORS[li] : null));
+              return (
+                <button key={li} type="button" ref={li === 0 ? flRef : undefined}
+                  className={`d2-match-cell ${sel === li ? 'd2-match-armed' : ''} ${linked ? 'd2-match-linked' : ''} ${solved ? 'd2-match-ok' : ''}`}
+                  disabled={!canAct || solved} onClick={() => tapLeft(li)} style={cellStyle(col)}>
+                  <span className="d2-match-dot" style={{ background: linked ? col : 'transparent', borderColor: linked ? col : '#C9C4BA' }}/>
+                  <span className="mono d2-match-form">{p.num}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="d2-match-col">
+            <span className="d2-match-head mono">{t(round.formsLabel || MATCH_FORMS)}</span>
+            {rightOrder.map((origIdx, ri) => {
+              const owner = ownerOf(ri);
+              const linked = owner !== undefined;
+              const col = solved ? T.success : (wrongShown && linked ? MATCH_RED : (linked ? MATCH_COLORS[owner] : null));
+              return (
+                <button key={ri} type="button" ref={ri === 0 ? frRef : undefined}
+                  className={`d2-match-cell ${linked ? 'd2-match-linked' : ''} ${solved ? 'd2-match-ok' : ''}`}
+                  disabled={!canAct || solved} onClick={() => tapRight(ri)} style={cellStyle(col)}>
+                  <span className="d2-match-dot" style={{ background: linked ? col : 'transparent', borderColor: linked ? col : '#C9C4BA' }}/>
+                  <span className="mono d2-match-form">{pairs[origIdx].form}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      {!solved && (
+        <button className="d2-gobtn fade-up" style={{ alignSelf: 'center' }} disabled={!canAct || !allConnected} onClick={check}>{t(MATCH_CHECK)}</button>
+      )}
+      {!solved && wrongShown && <div className="frame-tip fade-up"><Reaction state="wrong" praise={hint || wrongText}/></div>}
+      {solved && <div ref={revealRef} className="frame-success fade-up"><Reaction state="correct" praise={doneText}/></div>}
+    </>
+  );
+};
+
+// Standalone o'ramchilar (D13: A6=Match, A8=OddOne, A10=SeqError; qolgani ArrayStage).
+const OddOneStage = ({ props, cKey }) => (
+  <BodyStage props={props} cKey={cKey} renderBody={(ctx) => <MultOddOneBody key={ctx.ri} {...ctx}/>}/>
+);
+const SeqErrorSpotStage = ({ props, cKey }) => (
+  <BodyStage props={props} cKey={cKey} renderBody={(ctx) => <SeqErrorSpotBody key={ctx.ri} {...ctx}/>}/>
+);
+const MatchStage = ({ props, cKey }) => (
+  <BodyStage props={props} cKey={cKey} renderBody={(ctx) => <MatchBody key={ctx.ri} {...ctx}/>}/>
+);
+
 const A5 = (props) => <ArrayStage props={props} cKey="s5"/>;
-const A6 = (props) => <ArrayStage props={props} cKey="s6"/>;
+const A6 = (props) => <MatchStage props={props} cKey="s6"/>;
 const A7 = (props) => <ArrayStage props={props} cKey="s7"/>;
-const A8 = (props) => <ArrayStage props={props} cKey="s8"/>;
+const A8 = (props) => <OddOneStage props={props} cKey="s8"/>;
 const A9 = (props) => <ArrayStage props={props} cKey="s9"/>;
-const A10 = (props) => <ArrayStage props={props} cKey="s10"/>;
+const A10 = (props) => <SeqErrorSpotStage props={props} cKey="s10"/>;
 const A11 = (props) => <ArrayStage props={props} cKey="s11"/>;
 const ACase = (props) => <ArrayStage props={props} cKey="s13" variant="plant"/>;
 const A14 = (props) => <ArrayStage props={props} cKey="s14" fact variant="plant"/>;
@@ -5381,7 +5433,7 @@ export default function RazryadLesson({
             {['ru', 'uz'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
-                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
+                         background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
                 {l.toUpperCase()}
               </button>
             ))}
@@ -5463,8 +5515,8 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 18px -4px rgba(58, 53, 48, 0.32);
 }
 .btn:hover:not(:disabled) {
-  background: #FF4F28;
-  box-shadow: 0 10px 24px -4px rgba(255, 79, 40, 0.45);
+  background: #fe5b1a;
+  box-shadow: 0 10px 24px -4px rgba(254, 91, 26, 0.45);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
@@ -5474,29 +5526,29 @@ html, body { margin: 0; padding: 0; }
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;
-  color: #FF4F28;
+  color: #fe5b1a;
   letter-spacing: 0.01em;
   border-radius: 12px;
   border: none;
-  box-shadow: 0 8px 22px -4px rgba(255, 79, 40, 0.35), 0 0 0 1px rgba(255, 79, 40, 0.12);
+  box-shadow: 0 8px 22px -4px rgba(254, 91, 26, 0.35), 0 0 0 1px rgba(254, 91, 26, 0.12);
 }
 .btn-white-accent:hover:not(:disabled) {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55);
+  box-shadow: 0 12px 28px -6px rgba(254, 91, 26, 0.55);
 }
 .btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
 /* btn-ready — "Davom" bosish kerak bo'lgan paytdagi holat: to'q rang + puls (g1) */
 .btn-white-accent.btn-ready {
-  background: #FF4F28;
+  background: #fe5b1a;
   color: #FFFFFF;
-  box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.5), 0 0 0 1px rgba(255, 79, 40, 0.25);
+  box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.5), 0 0 0 1px rgba(254, 91, 26, 0.25);
   animation: btnReadyPulse 1.5s ease-in-out infinite;
 }
 .btn-white-accent.btn-ready:hover:not(:disabled) { background: #E8431F; color: #FFFFFF; }
 @keyframes btnReadyPulse {
-  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(255, 79, 40, 0.45), 0 0 0 0 rgba(255, 79, 40, 0.5); }
-  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(255, 79, 40, 0.6),  0 0 0 9px rgba(255, 79, 40, 0); }
+  0%, 100% { transform: scale(1);     box-shadow: 0 10px 26px -5px rgba(254, 91, 26, 0.45), 0 0 0 0 rgba(254, 91, 26, 0.5); }
+  50%      { transform: scale(1.045); box-shadow: 0 14px 30px -6px rgba(254, 91, 26, 0.6),  0 0 0 9px rgba(254, 91, 26, 0); }
 }
 @media (prefers-reduced-motion: reduce) { .btn-white-accent.btn-ready { animation: none; } }
 
@@ -5605,8 +5657,8 @@ html, body { margin: 0; padding: 0; }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #FF4F28;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.55);
+  background: #fe5b1a;
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.55);
 }
 
 /* === PROGRESS v15 (с orange glow) === */
@@ -5620,10 +5672,10 @@ html, body { margin: 0; padding: 0; }
 }
 .progress-bar {
   height: 100%;
-  background: #FF4F28;
+  background: #fe5b1a;
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 99px;
-  box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 10px rgba(254, 91, 26, 0.55), 0 0 3px rgba(254, 91, 26, 0.40);
 }
 
 /* === SLIDER v15 === */
@@ -5651,10 +5703,10 @@ html, body { margin: 0; padding: 0; }
   top: 50%;
   transform: translateY(-50%);
   height: 4px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 99px;
   pointer-events: none;
-  box-shadow: 0 0 8px rgba(255, 79, 40, 0.50), 0 0 2px rgba(255, 79, 40, 0.40);
+  box-shadow: 0 0 8px rgba(254, 91, 26, 0.50), 0 0 2px rgba(254, 91, 26, 0.40);
   transition: width 0.15s ease-out;
 }
 .slider-input {
@@ -5674,21 +5726,21 @@ html, body { margin: 0; padding: 0; }
   appearance: none;
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   transition: transform 0.1s;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-moz-range-thumb {
   width: 24px;
   height: 24px;
-  background: #FF4F28;
+  background: #fe5b1a;
   border-radius: 50%;
   cursor: grab;
   border: none;
-  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55);
+  box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(254, 91, 26, 0.55);
 }
 .slider-input::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.12); }
 .slider-input:disabled { cursor: not-allowed; }
@@ -5710,7 +5762,7 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14);
 }
 .answer-input:focus {
-  box-shadow: 0 10px 22px -6px rgba(255, 79, 40, 0.30), 0 0 0 1px rgba(255, 79, 40, 0.20);
+  box-shadow: 0 10px 22px -6px rgba(254, 91, 26, 0.30), 0 0 0 1px rgba(254, 91, 26, 0.20);
 }
 .answer-input.correct {
   background: #E3F0E8;
@@ -5719,8 +5771,8 @@ html, body { margin: 0; padding: 0; }
 }
 .answer-input.wrong {
   background: #FFE8E1;
-  color: #FF4F28;
-  box-shadow: 0 8px 20px -6px rgba(255, 79, 40, 0.36);
+  color: #fe5b1a;
+  box-shadow: 0 8px 20px -6px rgba(254, 91, 26, 0.36);
 }
 
 /* === FRAMES v15 === */
@@ -5734,10 +5786,10 @@ html, body { margin: 0; padding: 0; }
 }
 .frame-soft {
   background: #FFE8E1;
-  border-left: 4px solid #FF4F28;
+  border-left: 4px solid #fe5b1a;
   border-radius: 12px;
   padding: clamp(14px, 2.5vw, 14px);
-  box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22);
+  box-shadow: 0 6px 16px -6px rgba(254, 91, 26, 0.22);
 }
 .frame-success {
   background: #E3F0E8;
@@ -5758,7 +5810,7 @@ html, body { margin: 0; padding: 0; }
 
 /* MATH: ambient — мягкие плавающие круги на разрежённых экранах (декор). */
 .amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
+.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(254, 91, 26, 0.10), rgba(254, 91, 26, 0.02)); }
 .amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
 .amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
 .amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
@@ -5837,14 +5889,14 @@ html, body { margin: 0; padding: 0; }
 @keyframes d13fly { 0% { transform: translate(0, 0); } 25% { transform: translate(60px, -22px); } 50% { transform: translate(130px, 8px); } 75% { transform: translate(70px, 30px); } 100% { transform: translate(0, 0); } }
 .d13-fly { animation: d13fly 13s ease-in-out infinite; }
 @keyframes d13wave { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(15deg); } }
-.d13-wave { transform-box: fill-box; animation: d13wave 1.2s ease-in-out infinite; }
+.d13-wave { transform-box: view-box; animation: d13wave 1.2s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) {
   .d13-jhalo, .d13-jband, .d13-sway, .d13-mist, .d13-moon1, .d13-moon2, .d13-vine, .d13-vine2, .d13-glow, .d13-beam, .d13-sheen, .d13-drop, .d13-hover, .d13-rotor, .d13-bubble, .d13-led, .d13-wingl, .d13-wingr, .d13-fly, .d13-wave { animation: none; }
 }
 @keyframes g1pop { 0% { opacity: 0; transform: scale(0.4); } 60% { transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes g1drop { 0% { opacity: 0; transform: translateY(-30px); } 72% { transform: translateY(3px); } 100% { opacity: 1; transform: translateY(0); } }
 @keyframes g1pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(255,79,40,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(255,79,40,0.5); } }
+@keyframes g1gap { 0%, 100% { transform: scale(1); box-shadow: 0 6px 16px -6px rgba(254,91,26,0.30); } 50% { transform: scale(1.06); box-shadow: 0 10px 22px -6px rgba(254,91,26,0.5); } }
 
 /* CountDemo — jonli sanash */
 .g1-demo { display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.4vw, 16px); }
@@ -5854,7 +5906,7 @@ html, body { margin: 0; padding: 0; }
 .g1-demo-cell.pulse { animation: g1pop 0.45s ease-out, g1pulse 1.7s ease-in-out 0.5s infinite; }
 .g1-demo-cell svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 7px rgba(58,53,48,0.18)); }
 .g1-demo-tag { position: absolute; top: -8px; right: -6px; background: #1F7A4D; color: #fff; font-weight: 800; font-size: clamp(11px, 1.6vw, 13px); min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
-.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #FF4F28; line-height: 1; }
+.g1-demo-num { font-weight: 800; font-size: clamp(40px, 9vw, 62px); color: #fe5b1a; line-height: 1; }
 .g1-demo-num.big { font-size: clamp(52px, 13vw, 86px); }
 
 /* TenFrame — bo'sh kataklar */
@@ -5872,12 +5924,12 @@ html, body { margin: 0; padding: 0; }
 .g1-cell-num { position: absolute; top: 3px; right: 6px; font-weight: 800; font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; }
 
 /* CountTrack / MissingTrack — son qatori */
-.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #FF4F28; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
+.g1-track-label { font-weight: 800; font-size: clamp(14px, 2vw, 17px); color: #fe5b1a; letter-spacing: 0.02em; min-height: 1.3em; transition: color 0.25s; }
 .g1-track-label.back { color: #019ACB; }
 .g1-track { display: flex; gap: clamp(7px, 1.8vw, 12px); justify-content: center; }
 .g1-track-tile { width: clamp(52px, 11.5vw, 72px); height: clamp(56px, 13vw, 80px); background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.16); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), background 0.25s, color 0.25s, box-shadow 0.25s; }
 .g1-track-tile span { font-weight: 800; font-size: clamp(28px, 6.5vw, 42px); color: #0E0E10; }
-.g1-track-tile.active { background: #FF4F28; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-track-tile.active { background: #fe5b1a; transform: translateY(-7px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-track-tile.active span { color: #FFFFFF; }
 .g1-track-tile.gap { background: #FBF3D6; box-shadow: inset 0 0 0 2px #D8A93A; animation: g1gap 1.4s ease-in-out infinite; }
 .g1-track-tile.gap span { color: #D8A93A; }
@@ -5888,7 +5940,7 @@ html, body { margin: 0; padding: 0; }
 .g1-countfig-ans { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #1F7A4D; }
 /* BigNumberCue (keyingi/oldingi savol uchun tayanch son) */
 .g1-cue { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 3vw, 22px); }
-.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #FF4F28; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(255,79,40,0.5); }
+.g1-cue-num { width: clamp(82px, 20vw, 124px); height: clamp(82px, 20vw, 124px); background: #fe5b1a; color: #FFFFFF; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: clamp(44px, 10vw, 68px); box-shadow: 0 12px 26px -6px rgba(254,91,26,0.5); }
 .g1-cue-arrow { font-size: clamp(44px, 11vw, 70px); font-weight: 800; color: #A7A6A2; }
 .g1-cue-num.g1-cue-ans { background: #1F7A4D; box-shadow: 0 12px 26px -6px rgba(31,122,77,0.5); }
 .g1-pop-in { animation: g1pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
@@ -5929,7 +5981,7 @@ html, body { margin: 0; padding: 0; }
 .g1-onboard-ic { flex-shrink: 0; animation: g1twinkle 1.8s ease-in-out infinite; }
 .g1-onboard-txt { font-family: 'Manrope', sans-serif; font-weight: 600; font-size: clamp(13px,1.7vw,15px); color: #017BA3; }
 .g1-onboard-arrow { color: #A7A6A2; font-weight: 800; font-size: clamp(15px,2vw,18px); }
-.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #FF4F28; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
+.g1-onboard-pill { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,1.5vw,13px); color: #FFFFFF; background: #fe5b1a; border-radius: 99px; padding: clamp(5px,1vw,7px) clamp(12px,2.2vw,16px); }
 /* mehmon: o'ngdan kirib keladi (1x), keyin yengil tebranadi */
 .g1-guest { animation: g1guestEnter 0.85s cubic-bezier(0.34,1.5,0.6,1) both, g1guestBob 2.6s ease-in-out 0.9s infinite; }
 .g1-guest-hand { animation: g1wave 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom left; }
@@ -5977,7 +6029,7 @@ html, body { margin: 0; padding: 0; }
 .g1-spark3 { left: 16%; top: 52%; animation: g1spark 0.9s ease-out 0.6s infinite; }
 @keyframes g1spark { 0% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1.15); } 100% { opacity: 0; transform: scale(0.5); } }
 .g1-conf { position: absolute; top: -8%; width: 8px; height: 12px; border-radius: 2px; pointer-events: none; }
-.g1-conf1 { left: 16%; background: #FF4F28; animation: g1conf 1.1s ease-in 0s infinite; }
+.g1-conf1 { left: 16%; background: #fe5b1a; animation: g1conf 1.1s ease-in 0s infinite; }
 .g1-conf2 { left: 34%; background: #019ACB; animation: g1conf 1.3s ease-in 0.2s infinite; }
 .g1-conf3 { left: 50%; background: #FFC23C; animation: g1conf 1.0s ease-in 0.45s infinite; }
 .g1-conf4 { left: 64%; background: #1F7A4D; animation: g1conf 1.25s ease-in 0.1s infinite; }
@@ -6077,13 +6129,13 @@ html, body { margin: 0; padding: 0; }
 .g1-rating-stars { display: flex; gap: clamp(6px,1.6vw,12px); }
 .g1-rating-star { width: clamp(50px,11vw,72px); height: clamp(50px,11vw,72px); display: inline-flex; }
 .g1-rating-star svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 8px rgba(255,194,60,0.55)); }
-.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #FF4F28; }
+.g1-rating-praise { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: clamp(22px,5vw,32px); color: #fe5b1a; }
 
 /* === GameDrill (drag+tap o'yin bloki) === */
 .g1-tray { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(6px,1.7vw,12px); padding: clamp(7px,1.7vw,11px); min-height: clamp(48px,10vw,68px); background: #FBF9F4; border-radius: 14px; }
 .g1-token { background: #FFFFFF; border-radius: 12px; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.2); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; display: flex; align-items: center; justify-content: center; padding: clamp(8px,1.8vw,12px); min-width: clamp(58px,13vw,78px); min-height: clamp(58px,13vw,78px); transition: transform 0.15s, box-shadow 0.15s; }
 .g1-token:active { cursor: grabbing; transform: scale(1.05); }
-.g1-token-sel { box-shadow: 0 0 0 3px #FF4F28, 0 8px 20px -6px rgba(255,79,40,0.4); }
+.g1-token-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 8px 20px -6px rgba(254,91,26,0.4); }
 /* noto'g'ri sudralganda: token yumshoq sakrab qaytadi (jazo emas) */
 .g1-bounceback { animation: g1bounceback 0.5s ease; }
 @keyframes g1bounceback { 0% { transform: translateY(0) scale(1); } 28% { transform: translateY(-9px) scale(1.1); } 55% { transform: translateY(0) scale(0.97); } 78% { transform: translateY(-3px) scale(1.02); } 100% { transform: translateY(0) scale(1); } }
@@ -6167,7 +6219,7 @@ html, body { margin: 0; padding: 0; }
 
 .g1-numrow { display: flex; align-items: center; gap: clamp(12px, 3vw, 20px); padding: clamp(5px, 1.3vw, 9px) clamp(8px, 1.6vw, 12px); border-radius: 12px; transition: background 0.3s ease; }
 .g1-numrow-on { background: #FFE8E1; }
-.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #FF4F28; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
+.g1-digit { font-weight: 800; font-size: clamp(36px, 8vw, 58px); color: #fe5b1a; min-width: 1.2em; text-align: center; transition: transform 0.3s cubic-bezier(0.34,1.4,0.64,1); }
 .g1-numrow-on .g1-digit { transform: scale(1.18); }
 
 /* tap-pair (s5) */
@@ -6182,7 +6234,7 @@ html, body { margin: 0; padding: 0; }
 .g1-tiles { display: flex; gap: clamp(8px, 2vw, 14px); justify-content: center; flex-wrap: wrap; margin-top: 4px; }
 .g1-tile { background: #FFFFFF; border: none; border-radius: 14px; cursor: pointer; padding: clamp(13px, 2.6vw, 21px) clamp(21px, 4vw, 31px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(32px, 7vw, 46px); color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58,53,48,0.18); transition: transform 0.18s, background 0.18s, box-shadow 0.18s, color 0.18s; }
 .g1-tile:hover:not(:disabled) { transform: translateY(-2px); }
-.g1-tile-sel { background: #FF4F28; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(255,79,40,0.5); }
+.g1-tile-sel { background: #fe5b1a; color: #FFFFFF; box-shadow: 0 10px 24px -6px rgba(254,91,26,0.5); }
 .g1-tile-ok { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 10px 24px -6px rgba(31,122,77,0.4); }
 .g1-tile-used { opacity: 0.3; cursor: default; }
 .g1-tile:disabled { cursor: default; }
@@ -6190,7 +6242,7 @@ html, body { margin: 0; padding: 0; }
 /* ===== Dars02 — RAQAMLI UYLAR (digit / house / street) ===== */
 .g1-digit { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #3A3530; display: inline-flex; align-items: center; justify-content: center; }
 .g1-digit-ink { color: #3A3530; }
-.g1-digit-accent { color: #FF4F28; }
+.g1-digit-accent { color: #fe5b1a; }
 .g1-digit-success { color: #1F7A4D; }
 .g1-digit-sm { font-size: clamp(26px, 5.2vw, 38px); }
 .g1-digit-mid { font-size: clamp(40px, 8vw, 60px); }
@@ -6217,8 +6269,8 @@ html, body { margin: 0; padding: 0; }
 .g1-tf-cell { width: clamp(26px, 5.2vw, 38px); height: clamp(26px, 5.2vw, 38px); border-radius: 9px; border: 2px solid #E6E1D6; background: #F6F4EF; display: flex; align-items: center; justify-content: center; }
 .g1-tf-base .g1-tf-cell { border-color: #FFD2C6; }
 .g1-tf-dot { width: 56%; height: 56%; border-radius: 50%; background: transparent; }
-.g1-tf-cell.on { background: #FFE8E1; border-color: #FF4F28; }
-.g1-tf-cell.on .g1-tf-dot { background: #FF4F28; }
+.g1-tf-cell.on { background: #FFE8E1; border-color: #fe5b1a; }
+.g1-tf-cell.on .g1-tf-dot { background: #fe5b1a; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on { background: #E3F2FB; border-color: #019ACB; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell.on .g1-tf-dot { background: #019ACB; }
 @keyframes g1tfPop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); } 100% { transform: scale(1); opacity: 1; } }
@@ -6230,29 +6282,29 @@ html, body { margin: 0; padding: 0; }
   background-color: #FBFEFF;
   background-image: linear-gradient(#D7EEF6 1.2px, transparent 1.2px), linear-gradient(90deg, #D7EEF6 1.2px, transparent 1.2px);
   background-size: clamp(15px, 3.6vw, 24px) clamp(15px, 3.6vw, 24px); }
-.g1-kcell.active { border-color: #FF4F28; box-shadow: 0 0 0 2px #FFD3C7; }
+.g1-kcell.active { border-color: #fe5b1a; box-shadow: 0 0 0 2px #FFD3C7; }
 .g1-kcell-write { flex: 0 0 auto; width: clamp(70px, 13vw, 94px); }
 .g1-kcell .g1-write { width: 100%; height: 100%; }
 .g1-write { width: clamp(80px, 17vw, 116px); height: auto; }
 .g1-write-ghost { fill: none; stroke: #F2DDD3; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
-.g1-write-ink { fill: none; stroke: #FF4F28; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.g1-write-ink { fill: none; stroke: #fe5b1a; stroke-width: 8.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 100; stroke-dashoffset: 100; }
 .g1-digit-pick { display: flex; justify-content: center; gap: clamp(8px, 2vw, 14px); }
 .g1-pickbtn { width: clamp(40px, 8vw, 52px); height: clamp(40px, 8vw, 52px); border-radius: 12px; border: 2px solid #E6E1D6; background: #FFFFFF; font-family: 'Fraunces', Georgia, serif; font-size: clamp(18px, 3.4vw, 24px); font-weight: 600; color: #5A5A60; cursor: pointer; transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.15s ease; box-shadow: 0 3px 8px -4px rgba(58, 53, 48, 0.3); }
 .g1-pickbtn:hover:not(.active) { transform: translateY(-2px); }
-.g1-pickbtn.active { border-color: #FF4F28; color: #FF4F28; background: #FFF3EF; }
+.g1-pickbtn.active { border-color: #fe5b1a; color: #fe5b1a; background: #FFF3EF; }
 
 /* FingerHand — barmoqlar vizualizatori (s2) */
 .g1-fhand { width: clamp(72px, 15vw, 104px); height: auto; }
 .g1-hand-group, .g1-handbtn { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .g1-handbtn { border: 2.5px dashed #FFB9A8; border-radius: 16px; background: #FFF6F3; padding: clamp(6px, 1.4vw, 10px); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
-.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(255, 79, 40, 0.5); }
+.g1-handbtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px -8px rgba(254, 91, 26, 0.5); }
 .g1-handbtn:disabled { cursor: default; border-style: solid; border-color: #1F7A4D; background: #E3F0E8; }
-.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #FF4F28; }
+.g1-hand-cap { font-size: clamp(17px, 3vw, 22px); font-weight: 700; color: #fe5b1a; }
 .g1-handbtn:disabled .g1-hand-cap { color: #1F7A4D; }
 
 /* Ten-frame drag o'yin (sd): drop zona + nuqta tokenlar */
 .g1-tfdrop { padding: clamp(8px, 2vw, 14px); border-radius: 18px; border: 2.5px dashed #BFD9E6; background: #F7FBFD; transition: border-color 0.2s ease, background 0.2s ease; }
-.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FF4F28; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
+.g1-token-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #fe5b1a; display: block; box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.15); }
 /* ten-frame PREDMET rejimi (sd o'yini): kataklar neytral, ichida buyum, tushganda pop */
 .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
 .g1-tf-row:not(.g1-tf-base) .g1-tf-cell-obj.on { background: #FFFDF9; border-color: #E0DACE; }
@@ -6261,8 +6313,8 @@ html, body { margin: 0; padding: 0; }
 @keyframes g1tfDrop { 0% { transform: translateY(-75%); opacity: 0; } 65% { transform: translateY(7%); } 100% { transform: translateY(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g1-tf-item { animation: none; } }
 /* keyingi to'ldiriladigan katak — pulslab "qayerga qo'yish"ni ko'rsatadi */
-.g1-tf-next { border-color: #FF4F28; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
-@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 79, 40, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(255, 79, 40, 0); } }
+.g1-tf-next { border-color: #fe5b1a; border-style: dashed; animation: g1tfPulse 1.1s ease-in-out infinite; }
+@keyframes g1tfPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(254, 91, 26, 0.45); } 60% { box-shadow: 0 0 0 6px rgba(254, 91, 26, 0); } }
 .g1-dropzone-wait { border-color: #FF8A6E; background: #FFF4F0; }
 .g1-drophint { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: clamp(13px, 1.8vw, 15px); color: #C23B1E; font-weight: 600; }
 .g1-drophint-arrow { font-size: clamp(18px, 3vw, 24px); animation: g1hintBounce 1s ease-in-out infinite; }
@@ -6286,7 +6338,7 @@ html, body { margin: 0; padding: 0; }
 .g1-newhouse-note { font-size: clamp(12px, 1.7vw, 15px); color: #1F7A4D; font-weight: 600; }
 .g1-count-line { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .g1-count-label { font-size: clamp(13px, 1.7vw, 15px); color: #8A8780; }
-.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #FF4F28; }
+.g1-count-val { font-size: clamp(16px, 2.2vw, 20px); font-weight: 800; color: #fe5b1a; }
 
 /* ESHIK (raqam plitasi bilan) */
 .g1-door { position: relative; display: inline-flex; flex-direction: column; align-items: center; width: clamp(54px, 11.5vw, 76px); height: clamp(78px, 16.5vw, 106px); background: repeating-linear-gradient(90deg, rgba(122,78,34,0) 0, rgba(122,78,34,0.12) 5px, rgba(255,255,255,0.05) 9px, rgba(122,78,34,0) 13px), linear-gradient(180deg, #C2864F, #9A6738); border: 2px solid #7A4E22; border-radius: 11px 11px 4px 4px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 4px 10px -5px rgba(58,53,48,0.35); overflow: hidden; }
@@ -6295,7 +6347,7 @@ html, body { margin: 0; padding: 0; }
 .g1-door-knob { position: absolute; right: clamp(7px, 1.6vw, 10px); top: 56%; width: 7px; height: 7px; border-radius: 50%; background: #FFD86B; box-shadow: 0 0 0 1px #B8862E; z-index: 2; }
 .g1-doorbtn { background: transparent; border: none; padding: 5px; cursor: pointer; border-radius: 12px; transition: transform 0.15s ease; }
 .g1-doorbtn:hover:not(:disabled) { transform: translateY(-3px); }
-.g1-doorbtn.active .g1-door { border-color: #FF4F28; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
+.g1-doorbtn.active .g1-door { border-color: #fe5b1a; box-shadow: 0 0 0 3px #FFD3C7, inset 0 2px 0 rgba(255,255,255,0.18); }
 .g1-doorbtn.seen .g1-door { border-color: #1F7A4D; }
 .g1-doorbtn.used { opacity: 0.4; }
 .g1-doorbtn.placed { opacity: 0.45; }
@@ -6333,7 +6385,7 @@ html, body { margin: 0; padding: 0; }
 
 /* s5 — shakl belgisi */
 .g1-feature { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: clamp(90px, 18vw, 130px); justify-content: center; }
-.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #FF4F28; }
+.g1-feature-txt { font-size: clamp(14px, 1.9vw, 17px); font-weight: 600; color: #fe5b1a; }
 
 /* s2 — joylash katakchalari */
 .g1-tapgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(8px, 1.6vw, 12px); }
@@ -6357,7 +6409,7 @@ html, body { margin: 0; padding: 0; }
 .g1-street-house.in { opacity: 1; transform: none; }
 .g1-street-house .g1-house-svg { width: 15cqw; }   /* 6 uy (5 raqamli + 1 bo'sh) sig'ishi uchun ozroq tor */
 .g1-street-new { margin-left: 2.5cqw; }            /* yangi bo'sh uy — ko'cha oxirida ajralib turadi */
-.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(255,79,40,0.8)); }
+.g1-street-target .g1-house-svg { filter: drop-shadow(0 0 7px rgba(254,91,26,0.8)); }
 .g1-street-anvar, .g1-street-rano, .g1-street-zuhra { position: absolute; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.5s ease; z-index: 3; }
 .g1-street-anvar.in, .g1-street-rano.in, .g1-street-zuhra.in { opacity: 1; }
 /* personajlar OLD PLANDA, kichik (eshik bo'yida) — real proporsiya + chuqurlik */
@@ -6426,9 +6478,9 @@ html, body { margin: 0; padding: 0; }
 /* --- birlashtirish qatori (pufakchali savatlar) --- */
 .g1-cg { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
 .g1-cg-joined { flex-direction: column; gap: clamp(8px, 1.8vw, 14px); }
-.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-cg-op { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 .g1-cg-sent { display: flex; align-items: center; gap: clamp(5px, 1.4vw, 10px); font-weight: 800; font-size: clamp(22px, 4.6vw, 34px); color: #0E0E10; }
-.g1-cg-sent .g1-cg-sign { font-style: normal; color: #FF4F28; }
+.g1-cg-sent .g1-cg-sign { font-style: normal; color: #fe5b1a; }
 .g1-cg-sent .g1-cg-tot { color: #1F7A4D; }
 
 /* birlashganda pufakcha suzib kiradi */
@@ -6457,7 +6509,7 @@ html, body { margin: 0; padding: 0; }
 
 /* --- s5 sudrab-birlashtirish: drop-zona = tepadan savat (punktir -> javobda yashil) + tray --- */
 .g1-cg-drop { position: relative; transition: outline 0.2s, background 0.2s; }
-.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(255,79,40,0.5); outline-offset: 3px; }
+.g1-s5-drop { width: clamp(118px, 30vw, 168px); aspect-ratio: 1 / 0.9; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; outline: 2px dashed rgba(254,91,26,0.5); outline-offset: 3px; }
 .g1-s5-drop .bt { width: 100%; }
 .g1-s5-drop.full { outline: 2px solid #1F7A4D; }
 .g1-combine-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: clamp(8px, 2vw, 18px); }
@@ -6478,7 +6530,7 @@ html, body { margin: 0; padding: 0; }
 /* --- s6 son-yozuv varianti --- */
 .g1-sent { display: inline-flex; align-items: center; gap: clamp(4px, 1.2vw, 8px); font-weight: 800; font-size: clamp(20px, 4vw, 30px); color: #0E0E10; }
 .g1-sent .g1-sent-op { font-style: normal; font-weight: 800; }
-.g1-sent .g1-sent-plus { color: #FF4F28; }
+.g1-sent .g1-sent-plus { color: #fe5b1a; }
 .g1-sent .g1-sent-minus { color: #5A5A60; }
 
 /* --- s8 fakt kartasi (ko'k) --- */
@@ -6560,7 +6612,7 @@ html, body { margin: 0; padding: 0; }
 
 /* nishon satri (sg) */
 .g1-target-row { display: flex; align-items: center; gap: 10px; }
-.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #FF4F28; line-height: 1; }
+.g1-target-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: clamp(26px, 5.5vw, 40px); color: #fe5b1a; line-height: 1; }
 
 /* katta ifoda (s3 qoida): 7 − 2 = 5 */
 .g1-sent-lg { font-size: clamp(28px, 6vw, 44px); gap: clamp(8px, 2vw, 14px); }
@@ -6603,7 +6655,7 @@ html, body { margin: 0; padding: 0; }
 .g1-nl-tick { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: transparent; border: none; padding: 0 clamp(2px, 0.8vw, 6px); cursor: default; }
 button.g1-nl-tick { cursor: pointer; }
 .g1-nl-dot { width: clamp(20px, 4.4vw, 28px); height: clamp(20px, 4.4vw, 28px); border-radius: 50%; background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.16); transition: transform 0.2s ease, background 0.2s ease; }
-.g1-nl-dot.marker { background: #FF4F28; box-shadow: 0 2px 8px rgba(255,79,40,0.4); transform: scale(1.15); }
+.g1-nl-dot.marker { background: #fe5b1a; box-shadow: 0 2px 8px rgba(254,91,26,0.4); transform: scale(1.15); }
 .g1-nl-tick.inpath .g1-nl-dot { background: #FFD3C7; }
 button.g1-nl-tick.picked .g1-nl-dot { background: #FFE8E1; box-shadow: inset 0 0 0 2px #FF8A6E; }
 button.g1-nl-tick.ok .g1-nl-dot { background: #1F7A4D; box-shadow: 0 2px 8px rgba(31,122,77,0.4); transform: scale(1.15); }
@@ -6612,17 +6664,17 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-nl-legend { display: flex; gap: clamp(16px, 4vw, 32px); }
 .g1-nl-leg { display: inline-flex; align-items: center; gap: 6px; font-size: clamp(13px, 1.8vw, 15px); font-weight: 700; color: #0E0E10; }
 .g1-nl-arrow { font-size: clamp(18px, 3.4vw, 24px); font-weight: 800; }
-.g1-nl-arrow-fwd { color: #FF4F28; }
+.g1-nl-arrow-fwd { color: #fe5b1a; }
 .g1-nl-arrow-back { color: #5A5A60; }
 .g1-mrow { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 2vw, 14px); }
-.g1-numopt-sel { box-shadow: 0 0 0 3px #FF4F28, 0 4px 12px rgba(255,79,40,0.25) !important; }
+.g1-numopt-sel { box-shadow: 0 0 0 3px #fe5b1a, 0 4px 12px rgba(254,91,26,0.25) !important; }
 .g1-mexp { background: #FFFFFF; border: none; border-radius: 14px; padding: clamp(8px, 1.8vw, 14px) clamp(12px, 2.6vw, 20px); cursor: pointer; box-shadow: inset 0 0 0 2px rgba(58,53,48,0.1); transition: transform 0.15s ease, box-shadow 0.2s ease; }
 .g1-mexp:not(:disabled):hover { transform: translateY(-2px); }
 .g1-mexp:disabled { cursor: default; }
 .g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
 
 /* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
-.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
+.d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #fe5b1a; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
 .d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
 .d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
 .d4-croc-anim { animation: d4crocopen 0.5s cubic-bezier(0.34,1.5,0.64,1) both, d4crocbreathe 2.8s ease-in-out 0.55s infinite; transform-origin: center; }
@@ -6905,7 +6957,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-panel.on { opacity: 1; transform: none; }
 .d2-panel-num { display: inline-flex; gap: 2px; font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(36px, 7.5vw, 54px); line-height: 1; color: #0E0E10; }
 .d2-panel-num span { transition: color 0.3s ease; }
-.d2-digit-tens { color: #FF4F28; }
+.d2-digit-tens { color: #fe5b1a; }
 .d2-digit-ones { color: #019ACB; }
 .d2-lamp { width: clamp(12px, 2.6vw, 17px); height: clamp(12px, 2.6vw, 17px); border-radius: 50%; background: #C8CDD4; box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15); }
 .d2-lamp-still-g { background: #6EF29B; box-shadow: 0 0 8px rgba(110,242,155,0.7); }
@@ -7050,7 +7102,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-sortitem .d2-casssvg { width: clamp(30px, 6.5vw, 46px); }
 .d2-sortitem .d2-battsvg { width: clamp(15px, 3.2vw, 21px); }
 .d2-sortitem:hover:not(:disabled) { transform: translateY(-2px); }
-.d2-sortitem-sel { border-color: #FF4F28; box-shadow: 0 0 14px -2px rgba(255,79,40,0.5); }
+.d2-sortitem-sel { border-color: #fe5b1a; box-shadow: 0 0 14px -2px rgba(254,91,26,0.5); }
 .d2-sortitem:disabled { cursor: default; }
 .d2-sortdone { font-weight: 800; font-size: clamp(30px, 7vw, 46px); color: #6EF29B; }
 .d2-holds { display: flex; gap: clamp(10px, 2.4vw, 18px); justify-content: center; align-items: stretch; }
@@ -7157,6 +7209,22 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-gobtn { border: none; border-radius: 99px; cursor: pointer; padding: clamp(11px, 2.2vw, 15px) clamp(26px, 5vw, 40px); font-family: 'Manrope', sans-serif; font-weight: 800; font-size: clamp(15px, 2.2vw, 18px); letter-spacing: 0.04em; color: #0B2A1A; background: linear-gradient(#8FF7B6, #5BE08E); box-shadow: inset 0 -2px 4px rgba(0,0,0,0.15), inset 0 2px 3px rgba(255,255,255,0.5), 0 8px 20px -6px rgba(110,242,155,0.65); transition: transform 0.15s, box-shadow 0.2s; }
 .d2-gobtn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 26px -6px rgba(110,242,155,0.8); }
 .d2-gobtn:disabled { opacity: 0.4; cursor: not-allowed; filter: saturate(0.4); }
+/* MOSLASH (Match) — ikki ustun ulash (D13: qo'shish ↔ ko'paytirish) */
+.d2-match { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(12px, 3vw, 22px); align-items: start; }
+.d2-match-col { display: flex; flex-direction: column; gap: clamp(8px, 1.8vw, 12px); }
+.d2-match-head { text-align: center; font-weight: 800; font-size: clamp(10px, 1.5vw, 12px); letter-spacing: 0.14em; color: #A7A6A2; margin-bottom: 2px; }
+.d2-match-cell { display: flex; align-items: center; gap: clamp(6px, 1.4vw, 10px); width: 100%; min-height: clamp(48px, 10vw, 60px); padding: clamp(8px, 1.8vw, 12px) clamp(10px, 2vw, 14px); background: #FFFFFF; border: 2.5px solid #E4DECF; border-radius: 14px; cursor: pointer; transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s, background 0.2s; box-shadow: 0 4px 12px -6px rgba(58,53,48,0.18); }
+.d2-match-cell:hover:not(:disabled) { transform: translateY(-2px); }
+.d2-match-cell:disabled { cursor: default; }
+.d2-match-armed { border-color: #fe5b1a; background: #FFF4F1; box-shadow: 0 0 16px -3px rgba(254,91,26,0.55); }
+.d2-match-ok { cursor: default; }
+.d2-match-dot { flex-shrink: 0; width: clamp(13px, 2.6vw, 16px); height: clamp(13px, 2.6vw, 16px); border-radius: 50%; border: 2px solid #C9C4BA; transition: background 0.2s, border-color 0.2s; }
+.d2-match-num { font-weight: 800; font-size: clamp(20px, 4.6vw, 28px); color: #0E0E10; line-height: 1; }
+.d2-match-form { font-weight: 800; font-size: clamp(15px, 3.4vw, 21px); color: #0E0E10; line-height: 1; letter-spacing: 0.02em; }
+.d2-match-linked .d2-match-num, .d2-match-linked .d2-match-form { color: inherit; }
+@keyframes d7-taphand { 0%, 40%, 100% { transform: scale(1); } 58% { transform: scale(0.78); } 72% { transform: scale(1); } }
+.d7-taphand { animation: d7-taphand 1.3s ease-in-out infinite; transform-origin: 32% 12%; }
+@media (prefers-reduced-motion: reduce) { .d7-taphand { animation: none; } }
 
 /* === v8 — «UCHISHGA TAYYORLIK» missiya-shkalasi (dars-ichi, INFRA'дан tashqarida) === */
 /* O'ng gutterда ixcham vertikal quvvat-shkala; markazда vertikal (nav/audio/javob bilan urishmaydi).

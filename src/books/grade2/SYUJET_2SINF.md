@@ -157,7 +157,13 @@ Topilgan kristall-o'ljani **ekipajга teng ulashish** kerak. ×↔÷ oilasi aso
 | 25 | ÷4 va ÷5 | kon | 4 ga, 5 ga bo'lish | ÷4, ÷5 ochildi |
 | 26 | ÷6–9 | kon | 6–9 ga bo'lish | ÷6–9 ochildi |
 | 27 | Masalalar | lager | Bo'lishга hayotiy masalalar | Bo'lish masalалари yechildi |
-| 28 | Takrorlash + ПК4 | lager | Sayyora 4 yakuni | Bo'lish puxtalandi |
+| 28 | Mustahkamlash · **takroriy ayirish** | lager | Bo'lishning yana bir usuli: `12 − 3 − 3 − 3 − 3 = 0` — «3 tadan necha marta ayirdik?» (ayirishга ko'prik, Б2 Mars) + butun ÷ blok takrori | Takroriy ayirish = ÷ tushunildi; bo'lish puxtalandi *(ПК4 — alohida nazorat, kontent darsга kirmaydi)* |
+
+> **Metodist qarori (2026-07-16, internet-tadqiqot asosida):** Б4 ga +1 kontent dars qo'shildi (d.28 = fayl **Dars25**).
+> Sabab: repeated subtraction (takroriy ayirish) — grade-2 bo'lish uchun manbalar bir ovozdan tavsiya qilgan strategiya;
+> bizda hozir faqat vizual son o'qi bor edi, ayirish TENGLAMASI oshkora emas. Bu dars son o'qidagi orqaga sakrashning
+> yoniga `12−3−3−3−3=0` tenglamasini chiqarib, bolaninг Б2 Mars ayirish ko'nikmasiga bog'laydi. ПК4 nazorat — alohida
+> (kontent darsга kirmaydi). Geometriya (Б5) endi fayl **Dars26** dan boshlanadi.
 
 ### 🔵 Б5 — URAN · yonboshlab aylanuvchi, stansiya qurish · Geometriya, perimetr (d.29–34)
 > *Fakt (namuna): Uran boshqa sayyoralar kabi tik emas — yonboshlab, dumalab aylanadi.*
