@@ -1,12 +1,24 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import './Home.css'
 
 // Drill-down navigatsiya: Fan -> Sinf -> Bo'lim (nazariy/amaliy) -> Darslar.
 function Home({ grades }) {
-  const [subjectId, setSubjectId] = useState(null)
-  const [gradeId, setGradeId] = useState(null)
-  const [sectionId, setSectionId] = useState(null)
+  // Boshlang'ich holatni URL query'dan o'qiymiz — shunda darsdan "orqaga" bosilganda
+  // yoki sahifa yangilanganda foydalanuvchi o'zi turgan bo'limga qaytadi.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [subjectId, setSubjectId] = useState(searchParams.get('subject'))
+  const [gradeId, setGradeId] = useState(searchParams.get('grade'))
+  const [sectionId, setSectionId] = useState(searchParams.get('section'))
+
+  // Holat o'zgarsa URL'ni yangilaymiz (replace — tarixni to'ldirib yubormaslik uchun).
+  useEffect(() => {
+    const next = {}
+    if (subjectId) next.subject = subjectId
+    if (gradeId) next.grade = gradeId
+    if (sectionId) next.section = sectionId
+    setSearchParams(next, { replace: true })
+  }, [subjectId, gradeId, sectionId, setSearchParams])
 
   // Fanlar meta (barcha sinflarda bir xil ro'yxat).
   const subjectMeta = grades[0].subjects.map((s) => ({
