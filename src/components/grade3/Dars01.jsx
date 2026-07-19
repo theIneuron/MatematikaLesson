@@ -975,16 +975,16 @@ const CONTENT = {
     unit_eq: { ru: '10 десятков = 1 сотня', uz: "10 o'nlik = 1 yuzlik" },
     audio: {
       ru: [
-        'Вспомним прошлый год. В двузначном числе слева десятки, справа единицы. В числе семьдесят два семь десятков и две единицы.',
-        'Считать десятками быстро. Но в городе Бита десятков очень много. Соберём их дальше.',
+        'Начнём с того, что вам уже знакомо с первого класса. В двузначном числе слева десятки, справа единицы. В числе семьдесят два семь десятков и две единицы. Молодцы, это вы помните.',
+        'Считать десятками быстро. Но в городе Бита десятков очень много. Давайте соберём их дальше.',
         'Собираем десять десятков вместе. Каждый десяток это одна лента.',
-        'Десять десятков стали одной сотней. Одну такую панель мы называем сотня. Сотня это сто вместе.'
+        'Смотрите, что получилось! Десять десятков стали одной сотней. Одну такую панель мы называем сотня. Сотня это сто вместе.'
       ],
       uz: [
-        "O'tgan yilni eslaymiz. Ikki xonali sonda chapda o'nlik, o'ngda birlik. Yetmish ikkida yetti o'nlik va ikki birlik bor.",
-        "O'nlab sanash tez. Lekin Bit shahrida o'nliklar juda ko'p. Ularni yana yig'amiz.",
+        "Avval sizga 1-sinfdan ma'lum narsadan boshlaymiz. Ikki xonali sonda chapda o'nlik, o'ngda birlik. Yetmish ikkida yetti o'nlik va ikki birlik bor. Barakalla, buni siz bilasiz.",
+        "O'nlab sanash tez. Lekin Bit shahrida o'nliklar juda ko'p. Keling, ularni yana yig'amiz.",
         "O'nta o'nlikni birga to'playmiz. Har o'nlik bitta lenta.",
-        "O'nta o'nlik bitta yuzlik bo'ldi. Bitta panelni yuzlik deymiz. Yuzlik bu yuzta birga."
+        "Qarang, nima bo'ldi! O'nta o'nlik bitta yuzlik bo'ldi. Bitta panelni yuzlik deymiz. Yuzlik bu yuzta birga."
       ]
     }
   },
@@ -1053,18 +1053,18 @@ const CONTENT = {
     ],
     audio: {
       ru: [
-        'Разберём число триста сорок пять двумя основными способами.',
+        'У числа есть несколько способов раскрыть его. Давайте разберём триста сорок пять двумя основными способами.',
         'Первый способ — разрядная таблица. Ставим каждую цифру на своё место. Сотни три, десятки четыре, единицы пять.',
         'Второй способ — разрядные слагаемые. Пишем значение каждого разряда. Триста, сорок и пять.',
-        'Бонус. Число можно прочитать словами. Триста сорок пять.',
-        'Показали по-разному, а число одно — триста сорок пять.'
+        'Отлично! Теперь вы знаете два способа. А в качестве бонуса открою вам ещё один секрет — это число можно прочитать словами. Триста сорок пять.',
+        'Показали по-разному, а число одно — триста сорок пять. Молодцы!'
       ],
       uz: [
-        "Uch yuz qirq besh sonini ikki asosiy usulda ochamiz.",
+        "Bir sonni ochishning bir necha yo'li bor. Keling, uch yuz qirq beshni ikki asosiy usulda ochamiz.",
         "Birinchi usul — razryad jadvali. Har raqamni o'z o'rniga qo'yamiz. Yuzlik uch, o'nlik to'rt, birlik besh.",
         "Ikkinchi usul — yoyilma yig'indi. Har xonaning qiymatini yozamiz. Uch yuz, qirq va besh.",
-        "Bonus. Sonni so'z bilan ham o'qiymiz. Uch yuz qirq besh.",
-        "Ko'rsatish har xil, lekin son bitta — uch yuz qirq besh."
+        "Zo'r! Endi siz ikki usulni o'rganib oldingiz. Bonus tariqasida esa yana bir sirni aytaman — bu sonni so'z bilan ham o'qish mumkin. Uch yuz qirq besh.",
+        "Ko'rsatish har xil, lekin son bitta — uch yuz qirq besh. Barakalla!"
       ]
     }
   },
@@ -1079,14 +1079,16 @@ const CONTENT = {
     done_text: { ru: 'Место цифры решает. Слева сотни, справа единицы.', uz: "Raqamning o'rni hal qiladi. Chapda yuzlik, o'ngda birlik." },
     audio: {
       ru: [
-        'Возьмём три цифры, три, четыре и пять. Из них можно собрать разные числа. Сейчас триста сорок пять.',
-        'Переставим цифры. Теперь четыреста тридцать пять, а теперь пятьсот сорок три. Цифры те же самые, но их места поменялись.',
-        'Смотри на цифру пять. В единицах она значит пять. А в сотнях та же пятёрка значит пятьсот. Место цифры решает.'
+        'Возьмём три цифры — три, четыре и пять. Из них можно собрать разные числа. Сейчас триста сорок пять.',
+        'А теперь самое интересное! Меняем карточки местами. Смотрите — четыреста тридцать пять.',
+        'Меняем ещё раз — пятьсот сорок три. Цифры те же самые, но их места поменялись.',
+        'Посмотрите на пятёрку. В единицах она значит пять. А в сотнях та же пятёрка значит пятьсот. Место цифры решает!'
       ],
       uz: [
-        "Uchta raqam olamiz, uch, to'rt va besh. Ulardan har xil son yig'ish mumkin. Hozir uch yuz qirq besh.",
-        "Raqamlarni almashtiramiz. Endi to'rt yuz o'ttiz besh, endi besh yuz qirq uch. Raqamlar aynan o'sha, lekin o'rni almashdi.",
-        "Besh raqamiga qarang. Birlikda u besh degani. Yuzlikda esa o'sha beshlik besh yuz degani. Raqamning o'rni hal qiladi."
+        "Uchta raqam olamiz — uch, to'rt va besh. Ulardan har xil son yig'ish mumkin. Hozir uch yuz qirq besh.",
+        "Endi eng qizig'i! Kartalarni almashtiramiz. Qarang — to'rt yuz o'ttiz besh.",
+        "Yana almashtiramiz — besh yuz qirq uch. Raqamlar aynan o'sha, lekin o'rni almashdi.",
+        "Besh raqamiga qarang. Birlikda u besh degani. Yuzlikda esa o'sha beshlik besh yuz degani. Raqamning o'rni hal qiladi!"
       ]
     }
   },
@@ -1126,7 +1128,7 @@ const CONTENT = {
     check_no: { ru: 'Сотни стоят слева. Нажми левую цифру.', uz: "Yuzliklar chapda turadi. Chap raqamni bosing." },
     audio: {
       ru: [
-        'Теперь запомним самое главное правило. Слушай внимательно и запомни.',
+        'Отлично, теперь вы всё поняли! Пришло время запомнить это как правило — оно нам будет нужно всегда. Слушайте внимательно.',
         'В трёхзначном числе три цифры. Как понять, где сотни, где десятки, а где единицы? Только по их месту.',
         'Левая цифра это всегда сотни. Она считает панели, целые сотни. Здесь слева три, значит три сотни.',
         'Средняя цифра это десятки, а правая это единицы. Здесь четыре десятка и пять единиц.',
@@ -1135,7 +1137,7 @@ const CONTENT = {
         'А теперь сам. Нажми цифру, которая показывает сотни.'
       ],
       uz: [
-        "Endi eng muhim qoidani yodda tutamiz. Diqqat bilan tinglang va yodlab oling.",
+        "Zo'r, endi hammasini tushundingiz! Endi buni qoida qilib eslab qolamiz — bu bizga doim kerak bo'ladi. Diqqat bilan tinglang.",
         "Uch xonali sonda uchta raqam bor. Qaysi biri yuzlik, qaysi biri o'nlik, qaysi biri birlik, buni faqat o'rniga qarab bilamiz.",
         "Chap raqam bu har doim yuzliklar. U panellarni, butun yuzliklarni sanaydi. Bu yerda chapda uch, demak uch yuzlik.",
         "O'rtadagi raqam bu o'nliklar, o'ngdagi raqam bu birliklar. Bu yerda to'rt o'nlik va besh birlik.",
@@ -2496,31 +2498,16 @@ const Screen3 = (props) => {
     { id: 's3_2', text: c.audio[lang][2], trigger: 'on_event:done', waits_for: null }
   ]);
   const canAct = useCanAnswer(audio);
-  const [phase, setPhase] = useState(props.storedAnswer ? 'do' : 'demo'); // demo: Bit o'zi yig'adi -> do: bola yig'adi
   const [h, setH] = useState(0);
   const [tn, setTn] = useState(0);
   const [o, setO] = useState(0);
-  const demoing = phase === 'demo';
-  const done = phase === 'do' && h === 2 && tn === 4 && o === 5;
+  const done = h === 2 && tn === 4 && o === 5;
   const revealRef = useRevealScroll(done, 600);
-  // Kino-namoyish: 245 o'zi bosqichma-bosqich yig'iladi, keyin nolga qaytib bolaga navbat.
-  useEffect(() => {
-    if (phase !== 'demo') return;
-    const tm = [];
-    tm.push(setTimeout(() => setH(1), 800));
-    tm.push(setTimeout(() => setH(2), 1400));
-    tm.push(setTimeout(() => setTn(2), 2100));
-    tm.push(setTimeout(() => setTn(4), 2700));
-    tm.push(setTimeout(() => setO(3), 3400));
-    tm.push(setTimeout(() => setO(5), 4000));
-    tm.push(setTimeout(() => { setH(0); setTn(0); setO(0); setPhase('do'); }, 5700));
-    return () => tm.forEach(clearTimeout);
-  }, [phase]);
-  const bump = (setter, val, max) => { if (!canAct || done || demoing || val >= max) return; setter(val + 1); };
+  const bump = (setter, val, max) => { if (!canAct || done || val >= max) return; setter(val + 1); };
   const addH = () => bump(setH, h, 2);
   const addT = () => { if (h < 2) return; bump(setTn, tn, 4); };
   const addO = () => {
-    if (demoing || h < 2 || tn < 4 || o >= 5 || done) return;
+    if (h < 2 || tn < 4 || o >= 5 || done) return;
     const v = o + 1; setO(v);
     if (v === 5) { sfx.playCorrect(); audio.triggerInternal('done'); }
   };
@@ -2539,13 +2526,10 @@ const Screen3 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <RazryadTable h={h} t={tn} o={o} labels={labels} concrete emph={h < 2 ? 'h' : tn < 4 ? 't' : 'o'}/>
           <BigNum v={h === 0 && tn === 0 && o === 0 ? '?' : h * 100 + tn * 10 + o} accent={done}/>
-          <p style={{ textAlign: 'center', margin: 0, fontWeight: 700, color: demoing ? T.accent : T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>
-            {demoing ? (lang === 'ru' ? 'Смотри, как собирается 245…' : "Bit yig'ib ko'rsatmoqda…") : (lang === 'ru' ? 'Теперь собери сам' : "Endi o'zingiz yig'ing")}
-          </p>
           <div className="lm-srcrow">
-            <button className="g1-tile lm-srcbtn" disabled={!canAct || demoing || h >= 2} onClick={addH}><Panel className="lm-src-ico"/><span>{t(c.src_hundreds)}</span></button>
-            <button className={`g1-tile lm-srcbtn ${h < 2 ? 'lm-src-wait' : ''}`} disabled={demoing || h < 2 || tn >= 4} onClick={addT}><Lenta className="lm-src-ico"/><span>{t(c.src_tens)}</span></button>
-            <button className={`g1-tile lm-srcbtn ${(h < 2 || tn < 4) ? 'lm-src-wait' : ''}`} disabled={demoing || h < 2 || tn < 4 || o >= 5} onClick={addO}><Chiroq className="lm-src-ico"/><span>{t(c.src_ones)}</span></button>
+            <button className="g1-tile lm-srcbtn" disabled={!canAct || h >= 2} onClick={addH}><Panel className="lm-src-ico"/><span>{t(c.src_hundreds)}</span></button>
+            <button className={`g1-tile lm-srcbtn ${h < 2 ? 'lm-src-wait' : ''}`} disabled={h < 2 || tn >= 4} onClick={addT}><Lenta className="lm-src-ico"/><span>{t(c.src_tens)}</span></button>
+            <button className={`g1-tile lm-srcbtn ${(h < 2 || tn < 4) ? 'lm-src-wait' : ''}`} disabled={h < 2 || tn < 4 || o >= 5} onClick={addO}><Chiroq className="lm-src-ico"/><span>{t(c.src_ones)}</span></button>
           </div>
         </div>
         {done && (
@@ -2700,7 +2684,7 @@ const Screen5 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <div className="lm-digrow">
             {[digs.h, digs.t, digs.o].map((d, i) => (
-              <span key={i} className={`lm-digcard mono ${d === 5 ? 'lm-digcard-hot' : ''}`}>{d}</span>
+              <span key={`${num}-${i}`} className={`lm-digcard lm-cardflip mono ${d === 5 ? 'lm-digcard-hot' : ''}`} style={{ animationDelay: `${i * 0.12}s` }}>{d}</span>
             ))}
           </div>
           <RazryadTable h={digs.h} t={digs.t} o={digs.o} labels={labels} digits/>
@@ -5403,7 +5387,10 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-ctrl-btn:disabled { opacity: 0.35; cursor: default; }
 .lm-eq { color: #3A3530; }
 
-.lm-digrow { display: flex; gap: clamp(6px, 1.6vw, 12px); }
+.lm-digrow { display: flex; gap: clamp(6px, 1.6vw, 12px); perspective: 500px; }
+.lm-cardflip { animation: lm-cardflip-a 0.55s cubic-bezier(0.3, 0.9, 0.4, 1) both; transform-origin: center; backface-visibility: hidden; }
+@keyframes lm-cardflip-a { 0% { transform: rotateY(-90deg); opacity: 0; } 55% { opacity: 1; } 100% { transform: rotateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .lm-cardflip { animation: none; } }
 .lm-digcard { width: clamp(38px, 8vw, 54px); height: clamp(48px, 10vw, 68px); display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #FBF7F0; font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.08); }
 .lm-digcard-hot { background: #FFF3E9; color: #ff4f28; box-shadow: 0 4px 14px -6px rgba(255,79,40,0.5); }
 
