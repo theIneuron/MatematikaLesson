@@ -941,7 +941,6 @@ const CONTENT = {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
     topic: { ru: 'Тема: Сотни, десятки и единицы', uz: "Mavzu: Yuzliklar, o'nliklar va birliklar" },
     lead: { ru: 'Корабль сел на планету Бита — Лумо!', uz: "Kema Bitning sayyorasi — Lumoga qo'ndi!" },
-    mission: { ru: 'Миссия: научиться считать огни города сотнями — тогда Бит покажет нам весь город!', uz: "Missiya: shahar chiroqlarini yuzlab sanashni o'rganish — shunda Bit bizga butun shaharni ko'rsatadi!" },
     q: { ru: 'Как быстро сосчитать сотни огней города?', uz: "Shaharning yuzlab chirog'ini qanday tez sanaymiz?" },
     opt0: { ru: 'По одному', uz: 'Bittalab' },
     opt1: { ru: 'Собирать по сто', uz: "Yuzlab yig'ib" },
@@ -3325,6 +3324,45 @@ const FrameFx = () => (
   <span className="lm-fx" aria-hidden="true"><i/><i/><i/><i/><i/></span>
 );
 
+// --- MINI-SHAHARCHA (final savol vizuali): ixcham Lumo ko'chasi — pastel uylar, porlovchi
+// derazalar, uchar kristall va halqali sayyora. Dekorativ, uzun panel-to'plami o'rniga.
+const MINI_HOUSES = [
+  [10, 30, 34, '#F2B49A', '#DF8A6C', 'pitch'], [50, 24, 44, '#F5D592', '#E0AE5A', 'dome'],
+  [80, 34, 26, '#BEA9E0', '#9A7CC6', 'pitch'], [120, 26, 40, '#A6D8C2', '#7CB69E', 'flat'],
+  [152, 30, 30, '#F6BCC6', '#E489A2', 'dome'], [188, 26, 42, '#AECDEC', '#83A9D2', 'pitch'], [220, 30, 32, '#F3CB9E', '#DCA265', 'flat']
+];
+const MiniCity = () => (
+  <svg viewBox="0 0 260 92" style={{ width: 'min(300px, 88%)', height: 'auto', display: 'block' }} aria-hidden="true">
+    <g>
+      <circle cx="30" cy="16" r="8" fill="#C79AD6"/>
+      <ellipse cx="30" cy="16" rx="13.5" ry="3" fill="none" stroke="#E6C8F0" strokeWidth="1.6" opacity="0.85"/>
+    </g>
+    <circle cx="228" cy="14" r="9" fill="#FFE39A" opacity="0.55"/>
+    <circle cx="228" cy="14" r="5.5" fill="url(#lmSun)"/>
+    <g className="lm-float"><path d="M120 14 L125 21 L120 28 L115 21 Z" fill="#7FE0D8" opacity="0.9"/></g>
+    {MINI_HOUSES.map(([x, w, h, body, roof, type], i) => {
+      const ty = 84 - h;
+      return (
+        <g key={i}>
+          {type === 'pitch' && <path d={`M${x - 2} ${ty + 1} L${x + w / 2 - 4} ${ty - 8} Q${x + w / 2} ${ty - 12} ${x + w / 2 + 4} ${ty - 8} L${x + w + 2} ${ty + 1} Z`} fill={roof}/>}
+          {type === 'dome' && <path d={`M${x} ${ty + 1} A ${w / 2} ${w / 2.4} 0 0 1 ${x + w} ${ty + 1} Z`} fill={roof}/>}
+          {type === 'flat' && <rect x={x - 2} y={ty - 5} width={w + 4} height="7" rx="3" fill={roof}/>}
+          <rect x={x} y={ty} width={w} height={84 - ty} rx="5" fill={body}/>
+          {[0, 1].map((r) => [0, 1].map((cc) => {
+            const wy = ty + 8 + r * 12;
+            if (wy > 78) return null;
+            return <rect key={`${r}-${cc}`} className={(i + r + cc) % 3 === 0 ? 'lm-cwin' : ''} x={x + 5 + cc * (w - 14)} y={wy} width="5" height="6" rx="1.4" fill="url(#lmGlow)"/>;
+          }))}
+        </g>
+      );
+    })}
+    <rect x="0" y="84" width="260" height="8" rx="3" fill="#DAC090"/>
+    {[[70, '#8FE0D0'], [140, '#F0A0C8'], [206, '#8FD8F0']].map(([x, c], i) => (
+      <circle key={i} className="lm-glow" style={{ animationDelay: `${i * 0.6}s` }} cx={x} cy="88" r="2" fill={c}/>
+    ))}
+  </svg>
+);
+
 // --- RAQAM-PLITA (klaviatursiz javob TERISH — grade3 yangiligi: TANISH emas, ISHLAB CHIQARISH).
 // value — string; max — xona soni. Grade2 praktika NumPad naqshi, T-palitraga moslangan.
 const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(36px, 8.5vw, 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
@@ -3396,15 +3434,17 @@ const ScreenCase = (props) => {
         <h1 className="title h-sub fade-up delay-1" style={{ margin: 0 }}>{t(s13.q)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(10px, 2vw, 16px)' }}>
           <FrameFx/>
-          {/* HISOB-KARTA — Anvar keltirgan hisobot (panellar o'rniga toza qog'oz-karta, razryad-ranglar) */}
+          {/* HISOB-KARTA — Anvar keltirgan hisobot (3 USTUN yonma-yon, razryad-ranglar) */}
           <div className="lm-report">
             <span className="lm-report-head mono">{t(s12.manifest_label)}</span>
-            {[[3, lang === 'ru' ? 'сотни' : 'yuzlik', '#C0392B', '#FBE9E7'], [4, lang === 'ru' ? 'десятки' : "o'nlik", '#1F7A4D', '#E3F0E8'], [6, lang === 'ru' ? 'единицы' : 'birlik', '#019ACB', '#E3F2F8']].map(([n, lbl, col, bg], i) => (
-              <div key={lbl} className="lm-report-row lm-reveal" style={{ animationDelay: `${0.25 + i * 0.3}s` }}>
-                <span className="lm-report-n mono" style={{ color: col, background: bg }}>{n}</span>
-                <span className="lm-report-lbl">{lbl}</span>
-              </div>
-            ))}
+            <div className="lm-report-cols">
+              {[[3, lang === 'ru' ? 'сотни' : 'yuzlik', '#C0392B', '#FBE9E7'], [4, lang === 'ru' ? 'десятки' : "o'nlik", '#1F7A4D', '#E3F0E8'], [6, lang === 'ru' ? 'единицы' : 'birlik', '#019ACB', '#E3F2F8']].map(([n, lbl, col, bg], i) => (
+                <div key={lbl} className="lm-report-col lm-reveal" style={{ animationDelay: `${0.25 + i * 0.3}s` }}>
+                  <span className="lm-report-n mono" style={{ color: col, background: bg }}>{n}</span>
+                  <span className="lm-report-lbl">{lbl}</span>
+                </div>
+              ))}
+            </div>
           </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
           <NumPad value={val} setValue={setVal} disabled={!canAct || solved} max={3}/>
@@ -3488,7 +3528,7 @@ const Screen14 = (props) => {
             <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
             {it.kind === 'num' ? (
               <>
-                {it.hto && <div className="lm-figwrap" style={{ display: 'flex', justifyContent: 'center' }}><PlaceViz hundreds={it.hto[0]} tens={it.hto[1]} ones={it.hto[2]} small/></div>}
+                {it.hto && <div style={{ display: 'flex', justifyContent: 'center' }}><MiniCity/></div>}
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
                 </div>
@@ -5510,9 +5550,10 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 /* Hisob-karta (sCASE) — qog'oz-hisobot ko'rinishi */
 .lm-report { display: flex; flex-direction: column; gap: clamp(5px, 1.2vw, 8px); background: #FFFDF8; border: 1.5px solid #E4D9C4; border-top: 6px solid #FF4F28; border-radius: 12px; padding: clamp(10px, 2vw, 16px) clamp(16px, 3.4vw, 26px); box-shadow: 0 6px 16px -8px rgba(58,53,48,0.25); }
 .lm-report-head { text-transform: uppercase; letter-spacing: 2px; font-size: clamp(10px, 1.4vw, 12px); font-weight: 800; color: #A7A6A2; text-align: center; }
-.lm-report-row { display: flex; align-items: center; gap: clamp(8px, 1.8vw, 12px); }
-.lm-report-n { width: clamp(30px, 6.5vw, 40px); height: clamp(30px, 6.5vw, 40px); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: clamp(16px, 3vw, 21px); font-weight: 800; }
-.lm-report-lbl { font-weight: 700; color: #5A5A60; font-size: clamp(13px, 1.8vw, 15px); }
+.lm-report-cols { display: flex; gap: clamp(14px, 3.4vw, 28px); justify-content: center; }
+.lm-report-col { display: flex; flex-direction: column; align-items: center; gap: clamp(4px, 1vw, 7px); }
+.lm-report-n { width: clamp(36px, 8vw, 48px); height: clamp(36px, 8vw, 48px); border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font-size: clamp(19px, 3.6vw, 25px); font-weight: 800; }
+.lm-report-lbl { font-weight: 700; color: #5A5A60; font-size: clamp(11px, 1.6vw, 14px); }
 .lm-digrow { display: flex; gap: clamp(6px, 1.6vw, 12px); perspective: 500px; }
 .lm-cardflip { animation: lm-cardflip-a 0.55s cubic-bezier(0.3, 0.9, 0.4, 1) both; transform-origin: center; backface-visibility: hidden; }
 @keyframes lm-cardflip-a { 0% { transform: rotateY(-90deg); opacity: 0; } 55% { opacity: 1; } 100% { transform: rotateY(0); opacity: 1; } }
