@@ -1211,28 +1211,34 @@ const CONTENT = {
       {
         q: { ru: 'Какое число — 3 сотни, 0 десятков и 5 единиц?', uz: "Qaysi son — 3 yuzlik, 0 o'nlik, 5 birlik?" },
         hto: [3, 0, 5], ci: 1,
-        opts: [{ ru: '35', uz: '35' }, { ru: '305', uz: '305' }, { ru: '350', uz: '350' }],
+        opts: [{ ru: '35', uz: '35' }, { ru: '305', uz: '305' }, { ru: '350', uz: '350' }, { ru: '503', uz: '503' }, { ru: '530', uz: '530' }],
         hints: {
           0: { ru: 'Разряд десятков пустой, ноль держит его место: 305, а не 35.', uz: "O'nlik xonasi bo'sh, nol o'rinni saqlaydi: 305, 35 emas." },
-          2: { ru: 'Ноль в середине, в десятках, а не в конце: 305.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 305." }
+          2: { ru: 'Ноль в середине, в десятках, а не в конце: 305.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 305." },
+          3: { ru: 'Сотен три, значит слева тройка: 305.', uz: "Yuzlik uchta, demak chapda uch: 305." },
+          4: { ru: 'Сотен три и пять единиц, а не пять сотен: 305.', uz: "Yuzlik uchta va besh birlik, besh yuzlik emas: 305." }
         }
       },
       {
         q: { ru: 'Какое число — 7 сотен, 0 десятков и 2 единицы?', uz: "Qaysi son — 7 yuzlik, 0 o'nlik, 2 birlik?" },
         hto: [7, 0, 2], ci: 0,
-        opts: [{ ru: '702', uz: '702' }, { ru: '720', uz: '720' }, { ru: '72', uz: '72' }],
+        opts: [{ ru: '702', uz: '702' }, { ru: '720', uz: '720' }, { ru: '72', uz: '72' }, { ru: '207', uz: '207' }, { ru: '270', uz: '270' }],
         hints: {
           1: { ru: 'Ноль в десятках, не в единицах: 702.', uz: "Nol o'nlikda, birlikda emas: 702." },
-          2: { ru: 'Это трёхзначное число, сотни есть: 702.', uz: "Bu uch xonali son, yuzlik bor: 702." }
+          2: { ru: 'Это трёхзначное число, сотни есть: 702.', uz: "Bu uch xonali son, yuzlik bor: 702." },
+          3: { ru: 'Сотен семь, значит слева семёрка: 702.', uz: "Yuzlik yettita, demak chapda yetti: 702." },
+          4: { ru: 'Семь сотен, а не две: слева семёрка, 702.', uz: "Yetti yuzlik, ikki emas: chapda yetti, 702." }
         }
       },
       {
         q: { ru: 'Какое число — 5 сотен, 4 десятка и 0 единиц?', uz: "Qaysi son — 5 yuzlik, 4 o'nlik, 0 birlik?" },
         hto: [5, 4, 0], ci: 1,
-        opts: [{ ru: '504', uz: '504' }, { ru: '540', uz: '540' }, { ru: '54', uz: '54' }],
+        opts: [{ ru: '504', uz: '504' }, { ru: '540', uz: '540' }, { ru: '54', uz: '54' }, { ru: '450', uz: '450' }, { ru: '405', uz: '405' }],
         hints: {
           0: { ru: 'Ноль в конце, в единицах, а не в середине: 540.', uz: "Nol oxirida, birlikda, o'rtada emas: 540." },
-          2: { ru: 'Сотни есть, пять сотен: 540.', uz: "Yuzlik bor, besh yuzlik: 540." }
+          2: { ru: 'Сотни есть, пять сотен: 540.', uz: "Yuzlik bor, besh yuzlik: 540." },
+          3: { ru: 'Сотен пять, значит слева пятёрка: 540.', uz: "Yuzlik beshta, demak chapda besh: 540." },
+          4: { ru: 'Десятков четыре, они в середине: 540.', uz: "O'nlik to'rtta, ular o'rtada: 540." }
         }
       }
     ],
