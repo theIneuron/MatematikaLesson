@@ -1295,7 +1295,7 @@ const CONTENT = {
     // Masalalar ziyoly.uz «Xona birliklari» turlariga moslangan; 5-savol — son-jumboq (mantiq).
     items: [
       {
-        kind: 'num', ans: 645, hto: [6, 4, 5],
+        kind: 'num', ans: 645,
         q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'sh: 600 + 40 + 5. Javobni ter." },
         hint: { ru: 'По местам: шесть сотен, четыре десятка, пять единиц.', uz: "O'z o'rniga: olti yuzlik, to'rt o'nlik, besh birlik." }
       },
@@ -2330,11 +2330,6 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        {/* MISSIYA-KARTA — dars maqsadi boshida e'lon qilinadi, yakunda javob topiladi */}
-        <div className="lm-mission fade-up delay-1">
-          <span className="lm-mission-ico" aria-hidden="true">🚀</span>
-          <span>{t(c.mission)}</span>
-        </div>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <HookScene gathered={ok}/>
         </div>
@@ -3528,7 +3523,7 @@ const Screen14 = (props) => {
             <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
             {it.kind === 'num' ? (
               <>
-                {it.hto && <div style={{ display: 'flex', justifyContent: 'center' }}><MiniCity/></div>}
+                <div style={{ display: 'flex', justifyContent: 'center' }}><MiniCity/></div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
                 </div>
