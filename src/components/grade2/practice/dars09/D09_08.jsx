@@ -183,3 +183,9 @@ function D09_08Impl(props) {
 export default function D09_08(props) {
   return (<><style>{FX_CSS}</style><D09_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D09_08.audio = {
+  uz: { intro: "Stolbik. 3 qancha qo'shish 25 teng 62. Birlik raqami yashiringan o'tish bor. Yashirin birlik raqamini toping va tering. 3 qancha qo'shish 25 teng 62.", on_correct: "To'g'ri. 37 qo'shish 25 teng 62 7 qo'shish 5 teng 12, 2 yozamiz, 1 ko'chadi; 3 qo'shish 2 qo'shish 1 teng 6.", on_wrong: "Maslahat. Birlik javobi 2, lekin o'tish bo'lgan. Qancha qo'shish 5 nechchi bo'lsa oxiri 2 chiqadi?" },
+  ru: { intro: "Столбик. 3 сколько плюс 25 равно 62. Цифра единиц скрыта есть переход. Найди и набери скрытую цифру единиц. 3 сколько плюс 25 равно 62.", on_correct: "Верно. 37 плюс 25 равно 62 7 плюс 5 равно 12, пишем 2, 1 переносим; 3 плюс 2 плюс 1 равно 6.", on_wrong: "Подсказка. Цифра единиц ответа 2, но был переход. При каком сколько плюс 5 в конце получается 2?" },
+};

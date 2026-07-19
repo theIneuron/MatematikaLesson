@@ -182,3 +182,9 @@ function D01_01Impl(props) {
 export default function D01_01(props) {
   return (<><style>{FX_CSS}</style><D01_01Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D01_01.audio = {
+  uz: { intro: "Mataga kassetalar o'nlik va batareyalar birlik qo'yiladi. 3 o'nlik va 6 birlik qo'ying. Qanday son hosil bo'ladi?", on_correct: "To'g'ri! 3 o'nlik va 6 birlik teng 36. O'nlik oldinda, birlik keyin.", on_wrong: "Maslahat. 3 ta kasseta, 30, 6 ta batareya, 6. 30 qo'shish 6 teng 36." },
+  ru: { intro: "На мат кладут кассеты десятки и батарейки единицы. Положи 3 десятка и 6 единиц. Какое число получится?", on_correct: "Верно! 3 десятка и 6 единиц равно 36. Десятки впереди, единицы потом.", on_wrong: "Подсказка. 3 кассеты, 30, 6 батареек, 6. 30 плюс 6 равно 36." },
+};

@@ -137,3 +137,9 @@ function D19_08Impl(props) {
 export default function D19_08(props) {
   return (<><style>{FX_CSS}</style><D19_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D19_08.audio = {
+  uz: { intro: "Jasur 18 ta kristalni 3 sandiqqa teng joyladi. Har sandiqda nechta kristal bor?", on_correct: "To'g'ri. 18 bo'lish 3 teng 6. Har sandiqda 6 tadan.", on_wrong: "Maslahat. 18 ni 3 ga teng ulang. 18 bo'lish 3 teng 6. 18 ayirish 3 teng 15 emas." },
+  ru: { intro: "Джасур разложил 18 кристаллов в 3 сундука поровну. Сколько кристаллов в каждом сундуке?", on_correct: "Верно. 18 делить на 3 равно 6. В каждом сундуке по 6.", on_wrong: "Подсказка. Раздели 18 на 3 поровну. 18 делить на 3 равно 6. 18 минус 3 равно 15, неверно." },
+};

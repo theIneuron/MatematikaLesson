@@ -125,3 +125,9 @@ function D08_07Impl(props) {
 export default function D08_07(props) {
   return (<><style>{FX_CSS}</style><D08_07Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D08_07.audio = {
+  uz: { intro: "Uch son bir oila. 59, 24, 35. Qaysi tengliklar TO'G'RI? Hammasini belgilang.", on_correct: "To'g'ri. 59 ayirish 24 teng 35 va 35 qo'shish 24 teng 59, bir oila.", on_wrong: "Maslahat. Kattadan kichikni ayiramiz; ikki qismni qo'shsak butun chiqadi. Har tenglikni tekshiring." },
+  ru: { intro: "Три числа, одна семья. 59, 24, 35. Какие равенства ВЕРНЫ? Отметь все.", on_correct: "Верно. 59 минус 24 равно 35 и 35 плюс 24 равно 59, одна семья.", on_wrong: "Подсказка. Из большего вычитают меньшее; две части в сумме дают целое. Проверь каждое." },
+};

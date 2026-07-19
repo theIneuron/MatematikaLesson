@@ -122,3 +122,9 @@ function D02_07Impl(props) {
 export default function D02_07(props) {
   return (<><style>{FX_CSS}</style><D02_07Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D02_07.audio = {
+  uz: { intro: "To'rt yozuvda kod va uning nomi. Bittasi noto'g'ri o'qilgan. Qaysi yozuvda kod NOTO'G'RI o'qilgan?", on_correct: "To'g'ri. 45 teng qirq besh, besh qirq emas. O'nlik oldinda o'qiladi.", on_wrong: "Maslahat. Har kodni o'qing, avval o'nlik, keyin birlik. Qaysi nom mos kelmaydi?" },
+  ru: { intro: "Четыре записи. Код и его название. Одно прочитано неверно. В какой записи код прочитан НЕВЕРНО?", on_correct: "Верно. 45 равно сорок пять, а не пять сорок. Десятки читаются впереди.", on_wrong: "Подсказка. Прочитай каждый код, сначала десятки, потом единицы. Какое название не совпадает?" },
+};

@@ -141,3 +141,9 @@ function D20_08Impl(props) {
 export default function D20_08(props) {
   return (<><style>{FX_CSS}</style><D20_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D20_08.audio = {
+  uz: { intro: "Yordam. Qaysi son 5 ga ko'paytirilsa 15 bo'ladi? Bo'sh katakni to'ldiring.", on_correct: "To'g'ri. 3 ko'paytirish 5 teng 15, demak 15 bo'lish 3 teng 5. Bir oila!", on_wrong: "Maslahat. 3 ko'paytirish 5 teng 15. Shundan 15 bo'lish 3 teng 5." },
+  ru: { intro: "Подсказка. Какое число умножить на 5, чтобы вышло 15? Заполни пустую клетку.", on_correct: "Верно. 3 умножить на 5 равно 15, значит 15 делить на 3 равно 5. Одна семья!", on_wrong: "Подсказка. 3 умножить на 5 равно 15. Отсюда 15 делить на 3 равно 5." },
+};

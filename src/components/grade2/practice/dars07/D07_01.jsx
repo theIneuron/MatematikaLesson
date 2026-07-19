@@ -174,3 +174,9 @@ function D07_01Impl(props) {
 export default function D07_01(props) {
   return (<><style>{FX_CSS}</style><D07_01Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D07_01.audio = {
+  uz: { intro: "Yuqorida 34 turibdi. 25 ni ostiga to'g'ri joylang. Raqamni bosing, keyin ustunga qo'ying. Birlik ostiga birlik, o'nlik ostiga o'nlik.", on_correct: "To'g'ri. 2, o'nlik ustuniga, 5, birlik ustuniga. Ustunlar to'g'ri.", on_wrong: "Maslahat. Birlik ostiga birlik, o'nlik ostiga o'nlik. 25 da qaysi raqam birlik?" },
+  ru: { intro: "Сверху стоит 34. Поставь 25 под ним правильно. Нажми цифру, затем поставь в столбик. Единицы под единицы, десятки под десятки.", on_correct: "Верно. 2, в столбец десятков, 5, в столбец единиц. Столбцы верны.", on_wrong: "Подсказка. Единицы под единицы, десятки под десятки. Какая цифра в 25, единицы?" },
+};

@@ -143,3 +143,9 @@ function D05_05Impl(props) {
 export default function D05_05(props) {
   return (<><style>{FX_CSS}</style><D05_05Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D05_05.audio = {
+  uz: { intro: "Markazda 50. Chapda oldingi, o'ngda keyingi o'nlik. Variantni bosing, keyin katakni. Oldingi va keyingi o'nlikni qo'ying.", on_correct: "To'g'ri. Va hokazo 40, 50, 60 va hokazo Oldingi o'nlik 40, keyingi 60.", on_wrong: "Maslahat. O'nlab sanang. 50 dan 10 orqada, oldingi; 10 oldinda, keyingi." },
+  ru: { intro: "В центре 50. Слева предыдущий, справа следующий десяток. Нажми вариант, затем клетку. Поставь предыдущий и следующий десяток.", on_correct: "Верно. И так далее 40, 50, 60 и так далее Предыдущий десяток 40, следующий 60.", on_wrong: "Подсказка. Считай десятками. На 10 назад, предыдущий; на 10 вперёд, следующий." },
+};

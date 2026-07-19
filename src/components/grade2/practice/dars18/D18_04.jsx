@@ -133,3 +133,9 @@ function D18_04Impl(props) {
 export default function D18_04(props) {
   return (<><style>{FX_CSS}</style><D18_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D18_04.audio = {
+  uz: { intro: "Har ko'paytmaning o'rin almashgan juftini toping. Kartani bosing, keyin mos ifodaning bo'sh joyini bosing.", on_correct: "To'g'ri. 3 ko'paytirish 8 teng 8 ko'paytirish 3, 2 ko'paytirish 9 teng 9 ko'paytirish 2, 4 ko'paytirish 5 teng 5 ko'paytirish 4, 6 ko'paytirish 3 teng 3 ko'paytirish 6.", on_wrong: "Maslahat. O'sha ikki sonni o'rin almashtiring. 3 ko'paytirish 8 ning juftimi, 8 ko'paytirish 3." },
+  ru: { intro: "Найди для каждого произведения его переставленную пару. Нажми карточку, затем пустое место нужного выражения.", on_correct: "Верно. 3 умножить на 8 равно 8 умножить на 3, 2 умножить на 9 равно 9 умножить на 2, 4 умножить на 5 равно 5 умножить на 4, 6 умножить на 3 равно 3 умножить на 6.", on_wrong: "Подсказка. Поменяй те же два числа местами. Пара к 3 умножить на 8, это 8 умножить на 3." },
+};

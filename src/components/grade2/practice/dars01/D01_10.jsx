@@ -122,3 +122,9 @@ function D01_10Impl(props) {
 export default function D01_10(props) {
   return (<><style>{FX_CSS}</style><D01_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D01_10.audio = {
+  uz: { intro: "To'rt yozuv. Bittasida son noto'g'ri. Qaysi qatorda son NOTO'G'RI?", on_correct: "To'g'ri. 5 o'nlik 1 birlik teng 51, 15 emas. O'nlik oldinda.", on_wrong: "Maslahat. Har bir yozuvda chap raqam, o'nliklar, o'ng raqam, birliklar. Qaysi yozuvda son mos kelmaydi?" },
+  ru: { intro: "Четыре записи. В одной число неверное. В какой строке число НЕВЕРНОЕ?", on_correct: "Верно. 5 десятков 1 единица равно 51, а не 15. Десятки впереди.", on_wrong: "Подсказка. В каждой записи левая цифра, десятки, правая, единицы. Где число не совпадает?" },
+};

@@ -180,7 +180,8 @@
       "Bash(node -e \"const fs=require\\('fs'\\);const s=fs.readFileSync\\('src/components/grade2/Dars29.jsx','utf8'\\);let n=0;s.split\\(/\\\\r?\\\\n/\\).forEach\\(\\(l,i\\)=>{const m=l.match\\(/uz:\\\\s*\\\\\"\\(\\(?:[^\\\\\"\\\\\\\\\\\\\\\\]|\\\\\\\\\\\\\\\\.\\)*\\)\\\\\"/\\);if\\(m&&/[Ѐ-ӿ]/.test\\(m[1]\\)\\){n++;if\\(n<=4\\)console.log\\('L'+\\(i+1\\)+': '+m[1].slice\\(0,50\\)\\)}}\\);console.log\\('kirill-uz satr:',n\\)\")",
       "Bash(grep -hoE \"verts=\\\\{\\\\[\\\\[0, 0\\\\], \\\\[[0-9]+, 0\\\\], \\\\[[0-9]+, [0-9]+\\\\]\" src/components/grade2/Dars29.jsx)",
       "Bash(grep -hoE \"\\\\{ w: [0-9]+, h: [0-9]+ \\\\}|w: [0-9]+, h: [0-9]+\" src/components/grade2/Dars29.jsx)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(npx --yes esbuild src/components/grade2/practice/dars05/D05_03.jsx src/components/grade2/practice/dars01/D01_04.jsx src/components/grade2/practice/PracticeHost.jsx --bundle --external:react --external:*.jsx --format=esm --outfile=/dev/null)"
     ],
     "additionalDirectories": [
       "C:\\Users\\USER\\AppData\\Local\\Temp\\claude\\c--Users-USER-MatematikaLesson\\118720a3-10f8-4a7d-b5b3-6910c9a441f2\\scratchpad\\d2parts",

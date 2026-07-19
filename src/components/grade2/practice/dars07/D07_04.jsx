@@ -174,3 +174,9 @@ function D07_04Impl(props) {
 export default function D07_04(props) {
   return (<><style>{FX_CSS}</style><D07_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D07_04.audio = {
+  uz: { intro: "Stolbik 42 qo'shish 36. Javobni raqam-plitkalardan yig'ing. Raqamni bosing, keyin javob katagiga qo'ying. Birlik va o'nlik.", on_correct: "To'g'ri. 2 qo'shish 6 teng 8, 4 qo'shish 3 teng 7. Javob 78.", on_wrong: "Maslahat. Birliklarni qo'shing 2 qo'shish 6, keyin o'nliklarni 4 qo'shish 3. Har raqamni o'z katagiga qo'ying." },
+  ru: { intro: "Столбик 42 плюс 36. Собери ответ из плиток-цифр. Нажми цифру, затем поставь в клетку ответа. Единицы и десятки.", on_correct: "Верно. 2 плюс 6 равно 8, 4 плюс 3 равно 7. Ответ 78.", on_wrong: "Подсказка. Сложи единицы 2 плюс 6, затем десятки 4 плюс 3. Каждую цифру в свою клетку." },
+};

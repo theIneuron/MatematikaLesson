@@ -29,3 +29,4 @@ src/books/**/*.pdf
 
 # Source snapshot archives (not pushed to GitHub).
 *.rar
+*.zip

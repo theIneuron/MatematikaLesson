@@ -142,3 +142,9 @@ function D17_02Impl(props) {
 export default function D17_02(props) {
   return (<><style>{FX_CSS}</style><D17_02Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D17_02.audio = {
+  uz: { intro: "Har antennada 8 kanal. Bit 5 ta antennani yoqdi. 8 ko'paytirish 5 nechaga teng?", on_correct: "To'g'ri. 8 ko'paytirish 5 teng 8 qo'shish 8 qo'shish 8 qo'shish 8 qo'shish 8 teng 40.", on_wrong: "Maslahat. 8 ni 5 marta oling. 8, 16, 24, 32, 40. 8 qo'shish 5 teng 13, bu qo'shish." },
+  ru: { intro: "В каждой антенне 8 каналов. Бит включил 5 антенн. Чему равно 8 умножить на 5?", on_correct: "Верно. 8 умножить на 5 равно 8 плюс 8 плюс 8 плюс 8 плюс 8 равно 40.", on_wrong: "Подсказка. Возьми 8 пять раз. 8, 16, 24, 32, 40. 8 плюс 5 равно 13, это сложение." },
+};

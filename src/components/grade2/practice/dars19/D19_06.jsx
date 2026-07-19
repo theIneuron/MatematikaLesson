@@ -156,3 +156,9 @@ function D19_06Impl(props) {
 export default function D19_06(props) {
   return (<><style>{FX_CSS}</style><D19_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D19_06.audio = {
+  uz: { intro: "15 ta kristal bor. Ularni 5 sandiqqa teng ulash kerak. Kristallarni bosib ulang. Har sandiqqa nechtadan tegadi?", on_correct: "To'g'ri. 15 bo'lish 5 teng 3. Har sandiqda 3 tadan.", on_wrong: "Maslahat. Hammaga teng ulang. 15 bo'lish 5 teng 3." },
+  ru: { intro: "15 кристаллов. Их надо разложить в 5 сундуков поровну. Раздай кристаллы. Сколько в каждый сундук?", on_correct: "Верно. 15 делить на 5 равно 3. В каждом сундуке по 3.", on_wrong: "Подсказка. Раздай всем поровну. 15 делить на 5 равно 3." },
+};

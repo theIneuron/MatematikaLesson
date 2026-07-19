@@ -144,3 +144,9 @@ function D04_04Impl(props) {
 export default function D04_04(props) {
   return (<><style>{FX_CSS}</style><D04_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D04_04.audio = {
+  uz: { intro: "Ikki raqam. 7 va 3. Ikki katak. O'NLIK va BIRLIK. Shu raqamlardan ENG KATTA kodni yasang.", on_correct: "To'g'ri. 73 eng katta. Katta raqam 7, o'nlikka qo'yiladi.", on_wrong: "Maslahat. Son katta bo'lishi uchun kattaroq raqam qaysi xonaga tushsin, o'nlikkami yoki birlikka?" },
+  ru: { intro: "Две цифры. 7 и 3. Две клетки. ДЕСЯТКИ и ЕДИНИЦЫ. Собери из этих цифр НАИБОЛЬШИЙ код.", on_correct: "Верно. 73, наибольшее. Большая цифра 7, в десятки.", on_wrong: "Подсказка. Чтобы число было больше, в какой разряд поставить большую цифру, десятки или единицы?" },
+};

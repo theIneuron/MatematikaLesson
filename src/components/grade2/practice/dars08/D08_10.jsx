@@ -102,3 +102,9 @@ function D08_10Impl(props) {
 export default function D08_10(props) {
   return (<><style>{FX_CSS}</style><D08_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D08_10.audio = {
+  uz: { intro: "O'tishsiz qarzsiz ayirishda har yuqori raqam pastdan katta yoki teng. Qaysi ayirishni QARZSIZ o'tishsiz yechish mumkin?", on_correct: "To'g'ri. 58 ayirish 23. 8 katta yoki teng 3 va 5 katta yoki teng 2, qarz kerak emas.", on_wrong: "Maslahat. Har ustunda yuqori raqam pastdan kichik bo'lmasin. Birlik raqamlarini solishtiring." },
+  ru: { intro: "В вычитании без перехода каждая верхняя цифра больше нижней или равна. Какое вычитание можно решить БЕЗ ЗАЙМА без перехода?", on_correct: "Верно. 58 минус 23. 8 больше или равно 3 и 5 больше или равно 2, заём не нужен.", on_wrong: "Подсказка. В каждом столбце верхняя цифра не меньше нижней. Сравни цифры единиц." },
+};

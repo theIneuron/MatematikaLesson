@@ -175,3 +175,9 @@ function D10_08Impl(props) {
 export default function D10_08(props) {
   return (<><style>{FX_CSS}</style><D10_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D10_08.audio = {
+  uz: { intro: "Stolbik. 6 qancha ayirish 28 teng 35. Kamayuvchining birlik raqami yashiringan qarz bor. Yashirin birlik raqamini toping va tering. 6 qancha ayirish 28 teng 35.", on_correct: "To'g'ri. 63 ayirish 28 teng 35 birlik 3 kichik 8, qarz. 13 ayirish 8 teng 5; 5 ayirish 2 teng 3.", on_wrong: "Maslahat. Birlik ayirmasi 5, lekin qarz olingan. Qancha ga 10 qo'shib, 8 ni ayirsangiz 5 chiqsin." },
+  ru: { intro: "Столбик. 6 сколько минус 28 равно 35. Цифра единиц уменьшаемого скрыта есть заём. Найди и набери скрытую цифру единиц. 6 сколько минус 28 равно 35.", on_correct: "Верно. 63 минус 28 равно 35 единицы 3 меньше 8, заём. 13 минус 8 равно 5; 5 минус 2 равно 3.", on_wrong: "Подсказка. Разность единиц 5, но был заём. Прибавь к сколько десять и вычти 8, должно выйти 5." },
+};

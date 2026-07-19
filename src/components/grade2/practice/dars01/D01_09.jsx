@@ -130,3 +130,9 @@ function D01_09Impl(props) {
 export default function D01_09(props) {
   return (<><style>{FX_CSS}</style><D01_09Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D01_09.audio = {
+  uz: { intro: "0 dan 100 gacha son o'qi, o'nliklar belgilangan. 40 sonini son o'qidagi to'g'ri joyiga qo'ying.", on_correct: "To'g'ri. 40, to'rtinchi o'nlik. 0,10,20,30,40.", on_wrong: "Maslahat. 40 teng 4 o'nlik. Noldan 4 ta o'nlik sanang. 10,20,30,40." },
+  ru: { intro: "Ось от 0 до 100, десятки отмечены. Поставь число 40 на нужное место оси.", on_correct: "Верно. 40, четвёртый десяток. 0,10,20,30,40.", on_wrong: "Подсказка. 40 равно 4 десятка. Отсчитай 4 десятка. 10,20,30,40." },
+};

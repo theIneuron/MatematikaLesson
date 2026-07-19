@@ -132,3 +132,9 @@ function D20_04Impl(props) {
 export default function D20_04(props) {
   return (<><style>{FX_CSS}</style><D20_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D20_04.audio = {
+  uz: { intro: "Har ko'paytmaning bo'lish juftini toping bitta oiladan. Kartani bosing, keyin mos ifodaning bo'sh joyini bosing.", on_correct: "To'g'ri. 2 ko'paytirish 5, 10 bo'lish 5, 3 ko'paytirish 4, 12 bo'lish 3, 4 ko'paytirish 5, 20 bo'lish 4, 2 ko'paytirish 6, 12 bo'lish 6.", on_wrong: "Maslahat. Har ko'paytma bo'lishni tekshiradi. 3 ko'paytirish 4 teng 12, 12 bo'lish 3." },
+  ru: { intro: "Найди для каждого произведения его деление из той же семьи. Нажми карточку, затем пустое место нужного выражения.", on_correct: "Верно. 2 умножить на 5, 10 делить на 5, 3 умножить на 4, 12 делить на 3, 4 умножить на 5, 20 делить на 4, 2 умножить на 6, 12 делить на 6.", on_wrong: "Подсказка. Каждое произведение проверяет деление. 3 умножить на 4 равно 12, 12 делить на 3." },
+};

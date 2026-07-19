@@ -129,3 +129,9 @@ function D02_10Impl(props) {
 export default function D02_10(props) {
   return (<><style>{FX_CSS}</style><D02_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D02_10.audio = {
+  uz: { intro: "Dispetcher 54 kodini qirq besh deb o'qidi. Dispetcher to'g'ri o'qidimi? 54, qirq beshmi?", on_correct: "To'g'ri! 54 teng ellik to'rt, qirq besh emas. Qirq besh teng 45.", on_wrong: "Maslahat. 54 da o'nlik 5 ellik, birlik 4 to'rt. Demak ellik to'rt." },
+  ru: { intro: "Диспетчер прочитал код 54 как сорок пять. Диспетчер прочитал верно? 54, это сорок пять?", on_correct: "Верно! 54 равно пятьдесят четыре, а не сорок пять. Сорок пять равно 45.", on_wrong: "Подсказка. В 54 десятки 5 пятьдесят, единицы 4 четыре. Значит пятьдесят четыре." },
+};

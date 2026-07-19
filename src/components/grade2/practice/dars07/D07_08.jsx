@@ -121,3 +121,9 @@ function D07_08Impl(props) {
 export default function D07_08(props) {
   return (<><style>{FX_CSS}</style><D07_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D07_08.audio = {
+  uz: { intro: "Ustun natijalari. Birliklar teng 8, o'nliklar teng 5. Ustun natijalaridan to'liq javobni yig'ing.", on_correct: "To'g'ri. 5 o'nlik va 8 birlik teng 58.", on_wrong: "Maslahat. O'nliklar oldinda, birliklar keyin. 5 o'nlik va 8 birlikni birlashtiring." },
+  ru: { intro: "Результаты столбцов. Единицы равно 8, десятки равно 5. Собери полный ответ из результатов столбцов.", on_correct: "Верно. 5 десятков и 8 единиц равно 58.", on_wrong: "Подсказка. Десятки впереди, единицы потом. Соедини 5 десятков и 8 единиц." },
+};

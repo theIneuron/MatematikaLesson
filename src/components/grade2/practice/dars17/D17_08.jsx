@@ -132,3 +132,9 @@ function D17_08Impl(props) {
 export default function D17_08(props) {
   return (<><style>{FX_CSS}</style><D17_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D17_08.audio = {
+  uz: { intro: "Har son bitta jadvaldan. Sonni to'g'ri savatga joylang. Sonni bosing, keyin savatni bosing.", on_correct: "To'g'ri. 24 teng 8 ko'paytirish 3, 40 teng 8 ko'paytirish 5, ko'paytirish 8 jadvali. 27 teng 9 ko'paytirish 3, 45 teng 9 ko'paytirish 5, ko'paytirish 9 jadvali.", on_wrong: "Maslahat. 8 li sanoqda bormi 8,16,24,32,40 yoki 9 li 9,18,27,36,45?" },
+  ru: { intro: "Каждое число из одной таблицы. Помести число в нужную корзину. Нажми число, затем корзину.", on_correct: "Верно. 24 равно 8 умножить на 3, 40 равно 8 умножить на 5, таблица умножить на 8. 27 равно 9 умножить на 3, 45 равно 9 умножить на 5, таблица умножить на 9.", on_wrong: "Подсказка. Встречается в счёте по 8 8,16,24,32,40 или по 9 9,18,27,36,45?" },
+};

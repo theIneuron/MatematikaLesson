@@ -121,3 +121,9 @@ function D04_01Impl(props) {
 export default function D04_01(props) {
   return (<><style>{FX_CSS}</style><D04_01Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D04_01.audio = {
+  uz: { intro: "Ikki kodni taqqoslaymiz. 45 va 54. Kodlar orasiga to'g'ri belgini qo'ying.", on_correct: "To'g'ri. 45 kichik 54. O'nliklar. 4 kichik 5, shuning uchun 45 kichik.", on_wrong: "Maslahat. Avval o'nlikka qarang. 45 da 4 o'nlik, 54 da 5 o'nlik. Belgi kattaga qaraydi." },
+  ru: { intro: "Сравниваем два кода. 45 и 54. Поставь правильный знак между кодами.", on_correct: "Верно. 45 меньше 54. Десятки. 4 меньше 5, значит 45 меньше.", on_wrong: "Подсказка. Сначала смотри на десятки. В 45, 4 десятка, в 54, 5. Знак смотрит на большее." },
+};

@@ -143,3 +143,9 @@ function D16_04Impl(props) {
 export default function D16_04(props) {
   return (<><style>{FX_CSS}</style><D16_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D16_04.audio = {
+  uz: { intro: "Bit 7 tadan sanayapti, lekin bir son tushib qolgan. Bo'sh katakka qaysi son tushadi?", on_correct: "To'g'ri. 14 dan keyin yana 7. 14 qo'shish 7 teng 21.", on_wrong: "Maslahat. Har qadamda 7 qo'shiladi. 14 qo'shish 7 teng?" },
+  ru: { intro: "Бит считает по 7, но одно число пропущено. Какое число встанет в пустую клетку?", on_correct: "Верно. После 14 ещё 7. 14 плюс 7 равно 21.", on_wrong: "Подсказка. На каждом шаге прибавляем 7. 14 плюс 7 равно?" },
+};

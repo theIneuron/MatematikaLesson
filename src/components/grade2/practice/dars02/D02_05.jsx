@@ -132,3 +132,9 @@ function D02_05Impl(props) {
 export default function D02_05(props) {
   return (<><style>{FX_CSS}</style><D02_05Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D02_05.audio = {
+  uz: { intro: "Har kodni uning nomi bilan tutashtiring. Kod kartasini bosing, keyin mos nomning bo'sh joyini bosing.", on_correct: "To'g'ri. O'ttiz to'rt teng 34, qirq teng 40, yigirma besh teng 25, ellik uch teng 53.", on_wrong: "Maslahat. Avval o'nlikni, keyin birlikni o'qing. O'ttiz to'rt teng 34, 43 emas." },
+  ru: { intro: "Соедини каждый код с его названием. Нажми карточку кода, затем пустое место нужного названия.", on_correct: "Верно. Тридцать четыре равно 34, сорок равно 40, двадцать пять равно 25, пятьдесят три равно 53.", on_wrong: "Подсказка. Сначала десятки, потом единицы. Тридцать четыре равно 34, не 43." },
+};

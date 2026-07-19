@@ -133,3 +133,9 @@ function D19_05Impl(props) {
 export default function D19_05(props) {
   return (<><style>{FX_CSS}</style><D19_05Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D19_05.audio = {
+  uz: { intro: "Jasur kristallarni 3 sandiqqa ulaydi. Kristallar teng ulanganmi?", on_correct: "To'g'ri. Bir sandiqda 5, boshqasida 4, teng emas. Teng ulashda hammasi bir xil.", on_wrong: "Maslahat. Sandiqlarni solishtiring. 4, 4, 5, bittasida ortiqcha." },
+  ru: { intro: "Джасур раскладывает кристаллы в 3 сундука. Кристаллы разложены поровну?", on_correct: "Верно. В одном 5, в других 4, не поровну. При равном делении везде одинаково.", on_wrong: "Подсказка. Сравни сундуки. 4, 4, 5, в одном лишний." },
+};

@@ -134,3 +134,9 @@ function D06_10Impl(props) {
 export default function D06_10(props) {
   return (<><style>{FX_CSS}</style><D06_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D06_10.audio = {
+  uz: { intro: "Trassa 0 dan 80 gacha. 0 dan 80 gacha trassani teng ikkiga bo'ladigan belgini bosing.", on_correct: "To'g'ri. 40, o'rtasi. 0, 40 va 40, 80 teng har biri 40.", on_wrong: "Maslahat. Teng ikki bo'lak, o'rta nuqta 0 va 80 dan teng uzoqlikda." },
+  ru: { intro: "Трасса от 0 до 80. Нажми отметку, которая делит трассу от 0 до 80 ровно пополам.", on_correct: "Верно. 40, середина. 0, 40 и 40, 80 равны по 40.", on_wrong: "Подсказка. Две равные части, середина одинаково далеко от 0 и 80." },
+};

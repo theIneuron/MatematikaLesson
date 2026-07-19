@@ -133,3 +133,9 @@ function D16_08Impl(props) {
 export default function D16_08(props) {
   return (<><style>{FX_CSS}</style><D16_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D16_08.audio = {
+  uz: { intro: "Har son bitta jadvaldan. Sonni to'g'ri savatga joylang. Sonni bosing, keyin savatni bosing.", on_correct: "To'g'ri. 24 teng 6 ko'paytirish 4, 36 teng 6 ko'paytirish 6, ko'paytirish 6 jadvali. 35 teng 7 ko'paytirish 5, 42 teng 7 ko'paytirish 6, ko'paytirish 7 jadvali.", on_wrong: "Maslahat. 6 li sanoqda bormi 6,12,18,24,30,36 yoki 7 li 7,14,21,28,35,42?" },
+  ru: { intro: "Каждое число из одной таблицы. Помести число в нужную корзину. Нажми число, затем корзину.", on_correct: "Верно. 24 равно 6 умножить на 4, 36 равно 6 умножить на 6, таблица умножить на 6. 35 равно 7 умножить на 5, 42 равно 7 умножить на 6, таблица умножить на 7.", on_wrong: "Подсказка. Встречается в счёте по 6 6,12,18,24,30,36 или по 7 7,14,21,28,35,42?" },
+};

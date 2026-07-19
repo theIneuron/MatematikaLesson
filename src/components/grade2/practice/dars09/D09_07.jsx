@@ -124,3 +124,9 @@ function D09_07Impl(props) {
 export default function D09_07(props) {
   return (<><style>{FX_CSS}</style><D09_07Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D09_07.audio = {
+  uz: { intro: "Mars bazasida ikki konteyner yuk bor. Bir konteynerda 38 quti, boshqasida 27 quti. Jami nechta quti?", on_correct: "To'g'ri. 38 qo'shish 27 teng 65 8 qo'shish 7 teng 15, 5 yozamiz, 1 ko'chadi; 3 qo'shish 2 qo'shish 1 teng 6.", on_wrong: "Maslahat. Jami, qo'shish. Birliklar 8 qo'shish 7 o'ndan oshadi, ko'chgan o'nlikni unutmang." },
+  ru: { intro: "На базе Марса два контейнера с грузом. В одном контейнере 38 ящиков, в другом 27. Сколько всего ящиков?", on_correct: "Верно. 38 плюс 27 равно 65 8 плюс 7 равно 15, пишем 5, 1 переносим; 3 плюс 2 плюс 1 равно 6.", on_wrong: "Подсказка. Всего, сложение. Единицы 8 плюс 7 больше десяти, не забудь перенос." },
+};

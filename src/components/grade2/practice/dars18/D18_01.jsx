@@ -135,3 +135,9 @@ function D18_01Impl(props) {
 export default function D18_01(props) {
   return (<><style>{FX_CSS}</style><D18_01Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D18_01.audio = {
+  uz: { intro: "Omborda qutilar 3 qatorda, har qatorda 5 tadan. Massivni aylantirsak, 5 qatorda 3 tadan. 3 ko'paytirish 5 va 5 ko'paytirish 3 bir xil natija beradimi?", on_correct: "To'g'ri. Ikkalasi ham 15 ta quti. Aylantirsak ham soni o'zgarmaydi.", on_wrong: "Maslahat. Qutilarni sanang, aylantirdik, xolos. 3 ko'paytirish 5 teng 15 va 5 ko'paytirish 3 teng 15." },
+  ru: { intro: "В складе ящики. 3 ряда по 5. Если повернуть, 5 рядов по 3. 3 умножить на 5 и 5 умножить на 3 дают одинаковый результат?", on_correct: "Верно. И там, и там 15 ящиков. При повороте число не меняется.", on_wrong: "Подсказка. Посчитай ящики, мы лишь повернули. 3 умножить на 5 равно 15 и 5 умножить на 3 равно 15." },
+};

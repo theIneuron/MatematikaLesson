@@ -147,3 +147,9 @@ function D08_03Impl(props) {
 export default function D08_03(props) {
   return (<><style>{FX_CSS}</style><D08_03Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D08_03.audio = {
+  uz: { intro: "Ekranda ayirish yozuvi. Bu ayirish to'g'ri bajarilganmi? 59 ayirish 24 teng 35?", on_correct: "To'g'ri! 9 ayirish 4 teng 5, 5 ayirish 2 teng 3. Demak 59 ayirish 24 teng 35.", on_wrong: "Maslahat. Birliklarni ayiring 9 ayirish 4, keyin o'nliklarni 5 ayirish 2. Natija mos keladimi?" },
+  ru: { intro: "На экране запись вычитания. Это вычитание выполнено верно? 59 минус 24 равно 35?", on_correct: "Верно! 9 минус 4 равно 5, 5 минус 2 равно 3. Значит 59 минус 24 равно 35.", on_wrong: "Подсказка. Вычти единицы 9 минус 4, затем десятки 5 минус 2. Совпадает результат?" },
+};

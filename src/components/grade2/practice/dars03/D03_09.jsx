@@ -135,3 +135,9 @@ function D03_09Impl(props) {
 export default function D03_09(props) {
   return (<><style>{FX_CSS}</style><D03_09Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D03_09.audio = {
+  uz: { intro: "Butun 67. Bir qismi 60. Yetishmagan qismni toping. Uchburchakdagi yetishmagan razryad qismini tanlang.", on_correct: "To'g'ri. 67 teng 60 qo'shish 7. Yetishmagan qism, 7 birliklar.", on_wrong: "Maslahat. 60 ga qancha qo'shsak 67 bo'ladi? Birlik raqamiga qarang." },
+  ru: { intro: "Целое 67. Одна часть 60. Найди недостающую часть. Выбери недостающую разрядную часть в треугольнике.", on_correct: "Верно. 67 равно 60 плюс 7. Недостающая часть, 7 единицы.", on_wrong: "Подсказка. Сколько прибавить к 60, чтобы вышло 67? Смотри на единицы." },
+};

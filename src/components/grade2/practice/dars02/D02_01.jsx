@@ -135,3 +135,9 @@ function D02_01Impl(props) {
 export default function D02_01(props) {
   return (<><style>{FX_CSS}</style><D02_01Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D02_01.audio = {
+  uz: { intro: "Kema displeyida 45 kodi yonyapti. 45 kodi qanday o'qiladi?", on_correct: "To'g'ri. 45 teng 4 o'nlik va 5 birlik, qirq besh.", on_wrong: "Maslahat. Chap raqam 4, o'nliklar, o'ng 5, birliklar. Avval o'nlikni o'qiymiz." },
+  ru: { intro: "На дисплее корабля светится код 45. Как читается код 45?", on_correct: "Верно. 45 равно 4 десятка и 5 единиц, сорок пять.", on_wrong: "Подсказка. Левая цифра 4, десятки, правая 5, единицы. Сначала читаем десятки." },
+};

@@ -121,3 +121,9 @@ function D07_10Impl(props) {
 export default function D07_10(props) {
   return (<><style>{FX_CSS}</style><D07_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D07_10.audio = {
+  uz: { intro: "Har stolbik misolni o'z javobiga ulang. Javob kartasini bosing, keyin mos misolning bo'sh joyini bosing.", on_correct: "To'g'ri. 34 qo'shish 25 teng 59, 41 qo'shish 16 teng 57, 23 qo'shish 52 teng 75, 60 qo'shish 30 teng 90.", on_wrong: "Maslahat. Har misolni ustunlab qo'shing, birlik qo'shish birlik, o'nlik qo'shish o'nlik." },
+  ru: { intro: "Соедини каждый пример-столбик с его ответом. Нажми карточку ответа, затем пустое место нужного примера.", on_correct: "Верно. 34 плюс 25 равно 59, 41 плюс 16 равно 57, 23 плюс 52 равно 75, 60 плюс 30 равно 90.", on_wrong: "Подсказка. Складывай каждый пример столбиком, единицы плюс единицы, десятки плюс десятки." },
+};

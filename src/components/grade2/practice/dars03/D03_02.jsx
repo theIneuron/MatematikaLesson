@@ -141,3 +141,9 @@ function D03_02Impl(props) {
 export default function D03_02(props) {
   return (<><style>{FX_CSS}</style><D03_02Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D03_02.audio = {
+  uz: { intro: "Kodni razryad qo'shiluvchilariga yoyamiz. 72 teng qancha qo'shish qancha. Ikki katakni plitkalardan to'ldiring.", on_correct: "To'g'ri. 72 teng 70 qo'shish 2. 70, o'nliklar, 2, birliklar.", on_wrong: "Maslahat. 72 ning o'nligi 70, birligi 2. 70 qo'shish 2 teng 72." },
+  ru: { intro: "Раскладываем код на разрядные слагаемые. 72 равно сколько плюс сколько. Заполни клетки плитками.", on_correct: "Верно. 72 равно 70 плюс 2. 70, десятки, 2, единицы.", on_wrong: "Подсказка. Десятки 72, это 70, единицы, 2. 70 плюс 2 равно 72." },
+};

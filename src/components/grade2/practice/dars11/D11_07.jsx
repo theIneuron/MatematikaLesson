@@ -175,3 +175,9 @@ const D11_07Impl = (props) => <PlaceTask {...props} cfg={CFG_07} />;
 export default function D11_07(props) {
   return (<><style>{FX_CSS}</style><D11_07Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D11_07.audio = {
+  uz: { intro: "Yuqorida 58. 58 ayirish 24 ni ustunlab tuzamiz. 24 ni to'g'ri joylang. 2 va 4 ni mos ustunga qo'ying.", on_correct: "To'g'ri. 2, o'nlik ustuni, 4, birlik ustuni.", on_wrong: "Maslahat. Ayirishda ham birlik ostiga birlik, o'nlik ostiga o'nlik. 24 sonida qaysi raqam birlik, qaysi biri o'nlik ekanini aniqlang." },
+  ru: { intro: "Сверху 58. Записываем 58 минус 24 столбиком. Размести 24. 2 и 4 в нужный столбец.", on_correct: "Верно. 2, десятки, 4, единицы.", on_wrong: "Подсказка. В вычитании тоже единицы под единицы, десятки под десятки. Определи, какая цифра в 24, единицы, какая, десятки." },
+};

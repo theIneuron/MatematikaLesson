@@ -142,3 +142,9 @@ function D09_03Impl(props) {
 export default function D09_03(props) {
   return (<><style>{FX_CSS}</style><D09_03Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D09_03.audio = {
+  uz: { intro: "Birliklar yig'indisi. 9 qo'shish 4 teng 13. Raqamni bosing, keyin to'g'ri quti ostiga qo'ying.", on_correct: "To'g'ri. 13 teng 1 o'nlik qo'shish 3 birlik. Birlikka 3 yoziladi, 1 o'nlik ko'chadi.", on_wrong: "Maslahat. 13 ni o'nlik va birlikka ajrating. Birlik xonasiga faqat bitta raqam sig'adi." },
+  ru: { intro: "Сумма единиц. 9 плюс 4 равно 13. Нажми число, затем поставь под нужную коробку.", on_correct: "Верно. 13 равно 1 десяток плюс 3 единицы. В единицы пишем 3, 1 десяток переходит.", on_wrong: "Подсказка. Раздели 13 на десятки и единицы. В разряд единиц влезает только одна цифра." },
+};

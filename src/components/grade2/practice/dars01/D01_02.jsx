@@ -181,3 +181,9 @@ function D01_02Impl(props) {
 export default function D01_02(props) {
   return (<><style>{FX_CSS}</style><D01_02Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D01_02.audio = {
+  uz: { intro: "Kemada 4 ta kasseta o'nlik va 2 ta batareya birlik. 4 o'nlik va 2 birlik nechani beradi?", on_correct: "To'g'ri. 4 o'nlik teng 40, 2 birlik teng 2. 40 qo'shish 2 teng 42.", on_wrong: "Maslahat. O'nlik oldinda. 4 o'nlik 2 birlik teng 42, 24 emas." },
+  ru: { intro: "На корабле 4 кассеты десятки и 2 батарейки единицы. Что дают 4 десятка и 2 единицы?", on_correct: "Верно. 4 десятка равно 40, 2 единицы равно 2. 40 плюс 2 равно 42.", on_wrong: "Подсказка. Десятки впереди. 4 десятка 2 единицы равно 42, а не 24." },
+};

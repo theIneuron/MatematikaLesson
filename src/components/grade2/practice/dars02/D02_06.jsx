@@ -127,3 +127,9 @@ function D02_06Impl(props) {
 export default function D02_06(props) {
   return (<><style>{FX_CSS}</style><D02_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D02_06.audio = {
+  uz: { intro: "Ikki kemaning quvvat kodi ko'rinyapti. Qaysi kemada quvvat KO'P? Kattasini bosing.", on_correct: "To'g'ri. 54 katta 45. Avval o'nlikni solishtiramiz. 5 o'nlik katta 4 o'nlik.", on_wrong: "Maslahat. Avval O'NLIKni solishtiring. 54 da 5 o'nlik, 45 da 4 o'nlik, 5 o'nlik ko'p." },
+  ru: { intro: "Виден код заряда двух кораблей. У какого корабля заряда БОЛЬШЕ? Нажми на большее.", on_correct: "Верно. 54 больше 45. Сначала сравниваем десятки. 5 десятков больше 4 десятков.", on_wrong: "Подсказка. Сначала сравни ДЕСЯТКИ. В 54, 5 десятков, в 45, 4. Пять больше." },
+};

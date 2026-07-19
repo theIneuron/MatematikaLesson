@@ -132,3 +132,9 @@ function D19_04Impl(props) {
 export default function D19_04(props) {
   return (<><style>{FX_CSS}</style><D19_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D19_04.audio = {
+  uz: { intro: "Bit bo'linmalarni hisobladi. Har birini javobiga ulang. Kartani bosing, keyin mos ifodaning bo'sh joyini bosing.", on_correct: "To'g'ri. 10 bo'lish 2 teng 5, 12 bo'lish 3 teng 4, 8 bo'lish 4 teng 2, 9 bo'lish 3 teng 3.", on_wrong: "Maslahat. Har birini teng ulang. 10 ni 2 ga, 5, 8 ni 4 ga, 2." },
+  ru: { intro: "Бит посчитал частные. Соедини каждое с ответом. Нажми карточку, затем пустое место нужного выражения.", on_correct: "Верно. 10 делить на 2 равно 5, 12 делить на 3 равно 4, 8 делить на 4 равно 2, 9 делить на 3 равно 3.", on_wrong: "Подсказка. Раздели каждое поровну. 10 на 2, 5, 8 на 4, 2." },
+};

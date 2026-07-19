@@ -138,3 +138,9 @@ function D06_06Impl(props) {
 export default function D06_06(props) {
   return (<><style>{FX_CSS}</style><D06_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D06_06.audio = {
+  uz: { intro: "Kema avval 30 da edi, endi 70 da. Kema qaysi tomonga va qancha harakatlandi?", on_correct: "To'g'ri. 30 dan 70 ga, oldinga 40 birlik 70 ayirish 30 teng 40.", on_wrong: "Maslahat. 70, 30 dan katta, demak oldinga. Qancha? 70 ayirish 30." },
+  ru: { intro: "Корабль был на 30, теперь на 70. В какую сторону и на сколько сдвинулся корабль?", on_correct: "Верно. С 30 на 70, вперёд на 40 70 минус 30 равно 40.", on_wrong: "Подсказка. 70 больше 30, значит вперёд. На сколько? 70 минус 30." },
+};

@@ -140,3 +140,9 @@ function D03_06Impl(props) {
 export default function D03_06(props) {
   return (<><style>{FX_CSS}</style><D03_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D03_06.audio = {
+  uz: { intro: "Razryadlardan to'liq tenglama tuzamiz. 40 va 9 dan kodni yig'ing. Qancha qo'shish qancha teng qancha.", on_correct: "To'g'ri. 40 qo'shish 9 teng 49. O'nliklar 40, birliklar 9.", on_wrong: "Maslahat. 40 o'nliklar qo'shish 9 birliklar teng 49. 90, o'rin almashgan." },
+  ru: { intro: "Строим полное равенство из разрядов. Собери код из 40 и 9. Сколько плюс сколько равно сколько.", on_correct: "Верно. 40 плюс 9 равно 49. Десятки 40, единицы 9.", on_wrong: "Подсказка. 40 десятки плюс 9 единицы равно 49. 90, перестановка." },
+};

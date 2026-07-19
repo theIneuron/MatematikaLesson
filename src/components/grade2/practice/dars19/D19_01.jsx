@@ -156,3 +156,9 @@ function D19_01Impl(props) {
 export default function D19_01(props) {
   return (<><style>{FX_CSS}</style><D19_01Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D19_01.audio = {
+  uz: { intro: "Anvar 12 ta kristal topdi. Ularni 3 do'stga teng ulash kerak. Kristallarni birma-bir bosib ulang. Har do'stga nechtadan tegadi?", on_correct: "To'g'ri. 12 ni 3 ga teng ulasak, har biriga 4 tadan. 12 bo'lish 3 teng 4.", on_wrong: "Maslahat. Hammaga teng ulang. 12 bo'lish 3 teng 4. 12 ayirish 3 teng 9 emas, bu ayirish." },
+  ru: { intro: "Анвар нашёл 12 кристаллов. Их надо поделить между 3 друзьями поровну. Раздай кристаллы, нажимая по одному. Сколько достанется каждому?", on_correct: "Верно. 12 на 3 поровну, по 4 каждому. 12 делить на 3 равно 4.", on_wrong: "Подсказка. Раздай всем поровну. 12 делить на 3 равно 4. 12 минус 3 равно 9, это вычитание." },
+};

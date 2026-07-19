@@ -131,3 +131,9 @@ function D02_08Impl(props) {
 export default function D02_08(props) {
   return (<><style>{FX_CSS}</style><D02_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D02_08.audio = {
+  uz: { intro: "Marshrutning 30 dan 40 gacha bo'lagi. Har belgi, bitta son. 34 kodini marshrutdagi to'g'ri joyiga qo'ying.", on_correct: "To'g'ri. 34, 30 dan keyin 4-belgi. 30 va 40 orasida.", on_wrong: "Maslahat. 30 dan boshlab 4 ta oldinga sanang. 31, 32, 33, 34." },
+  ru: { intro: "Участок маршрута от 30 до 40. Каждая метка, одно число. Поставь код 34 на нужное место маршрута.", on_correct: "Верно. 34, четвёртая метка после 30. Между 30 и 40.", on_wrong: "Подсказка. Отсчитай от 30 четыре вперёд. 31, 32, 33, 34." },
+};

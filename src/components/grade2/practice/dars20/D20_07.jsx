@@ -123,3 +123,9 @@ function D20_07Impl(props) {
 export default function D20_07(props) {
   return (<><style>{FX_CSS}</style><D20_07Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D20_07.audio = {
+  uz: { intro: "Bu 3, 4, 12 oilasi. Bittasi oilaga tegishli emas. Qaysi a'zo ORTIQCHA oilaga begona?", on_correct: "To'g'ri. 12 bo'lish 5 bu oiladan emas, 5 soni oilada yo'q.", on_wrong: "Maslahat. Oila faqat 3, 4, 12 dan. 12 bo'lish 5 da 5 qayerdan keldi?" },
+  ru: { intro: "Это семья 3, 4, 12. Один не из этой семьи. Какой член ЛИШНИЙ чужой в семье?", on_correct: "Верно. 12 делить на 5 не из этой семьи, числа 5 в семье нет.", on_wrong: "Подсказка. Семья только из 3, 4, 12. Откуда 5 в 12 делить на 5?" },
+};

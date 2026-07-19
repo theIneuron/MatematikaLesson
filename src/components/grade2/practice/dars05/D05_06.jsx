@@ -122,3 +122,9 @@ function D05_06Impl(props) {
 export default function D05_06(props) {
   return (<><style>{FX_CSS}</style><D05_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D05_06.audio = {
+  uz: { intro: "Aylana bo'ylab yaxlit o'nliklar. Strelka markazda. Dialni 30 ga burang mos o'nlikni bosing.", on_correct: "To'g'ri. Strelka 30 ga qaradi.", on_wrong: "Maslahat. 30, uchinchi o'nlik. 0, 10, 20, 30 deb sanang." },
+  ru: { intro: "По кругу круглые десятки. Стрелка в центре. Поверни циферблат на 30 нажми нужный десяток.", on_correct: "Верно. Стрелка указала на 30.", on_wrong: "Подсказка. 30, третий десяток. Считай 0, 10, 20, 30." },
+};

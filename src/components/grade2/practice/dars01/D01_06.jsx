@@ -174,3 +174,9 @@ function D01_06Impl(props) {
 export default function D01_06(props) {
   return (<><style>{FX_CSS}</style><D01_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D01_06.audio = {
+  uz: { intro: "Ekranda 3 kasseta, 6 batareya va 63 yozuvi. 3 kasseta va 6 batareya, bu 63mi?", on_correct: "To'g'ri! Bu 63 emas, 36. O'nlik oldinda. 3 o'nlik 6 birlik teng 36.", on_wrong: "Maslahat. O'nlik kasseta birinchi raqam. 3 o'nlik 6 birlik teng 36, 63 emas." },
+  ru: { intro: "На экране 3 кассеты, 6 батареек и надпись 63. 3 кассеты и 6 батареек, это 63?", on_correct: "Верно! Это не 63, а 36. Десятки впереди. 3 десятка 6 единиц равно 36.", on_wrong: "Подсказка. Десятки кассета, первая цифра. 3 десятка 6 единиц равно 36, не 63." },
+};

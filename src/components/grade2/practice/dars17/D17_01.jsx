@@ -157,3 +157,9 @@ function D17_01Impl(props) {
 export default function D17_01(props) {
   return (<><style>{FX_CSS}</style><D17_01Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D17_01.audio = {
+  uz: { intro: "Aloqa modulida 3 ta blok, har birida 8 ta antenna. Bloklarni birma-bir bosing, jami nechta antennaligini toping.", on_correct: "To'g'ri. 8 tadan 3 marta. 8, 16, 24. Bu 8 ko'paytirish 3 teng 24.", on_wrong: "Maslahat. Har blokda 8 ta. Sanang. 8, 16, 24. 8 qo'shish 3 teng 11 emas, bu qo'shish." },
+  ru: { intro: "В модуле связи 3 блока, в каждом по 8 антенн. Нажимай блоки по одному и найди, сколько всего антенн.", on_correct: "Верно. По 8 три раза. 8, 16, 24. Это 8 умножить на 3 равно 24.", on_wrong: "Подсказка. В каждом блоке по 8. Считай. 8, 16, 24. 8 плюс 3 равно 11, это сложение." },
+};

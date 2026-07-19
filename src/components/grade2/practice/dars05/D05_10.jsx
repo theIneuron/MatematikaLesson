@@ -137,3 +137,9 @@ function D05_10Impl(props) {
 export default function D05_10(props) {
   return (<><style>{FX_CSS}</style><D05_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D05_10.audio = {
+  uz: { intro: "Besh kasseta; har birida 10 batareya. 5 ta kasseta, har birida 10 batareya. Jami nechta batareya?", on_correct: "To'g'ri. 10, 20, 30, 40, 50. Besh dasta, 50 batareya.", on_wrong: "Maslahat. Har kasseta 10 ta. O'nlab sanang. 10, 20, 30, 40, 50." },
+  ru: { intro: "Пять кассет; в каждой 10 батареек. 5 кассет, в каждой 10 батареек. Сколько всего батареек?", on_correct: "Верно. 10, 20, 30, 40, 50. Пять пачек, 50 батареек.", on_wrong: "Подсказка. В каждой кассете 10. Считай десятками. 10, 20, 30, 40, 50." },
+};

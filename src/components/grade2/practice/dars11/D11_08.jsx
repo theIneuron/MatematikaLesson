@@ -122,3 +122,9 @@ function D11_08Impl(props) {
 export default function D11_08(props) {
   return (<><style>{FX_CSS}</style><D11_08Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D11_08.audio = {
+  uz: { intro: "34 qo'shish 25 uchun ikki tuzilma. Qaysi tuzilma TO'G'RI? Birlik ostiga birlik, o'nlik ostiga o'nlik", on_correct: "To'g'ri. 2, o'nlik 3 ostida, 5, birlik 4 ostida.", on_wrong: "Maslahat. 25 da qaysi raqam birlik? Har raqam o'z ustuni ostida turganini tekshiring." },
+  ru: { intro: "Две записи для 34 плюс 25. Какая запись ВЕРНА? Единицы под единицы, десятки под десятки", on_correct: "Верно. 2, десятки под 3, 5, единицы под 4.", on_wrong: "Подсказка. Какая цифра в 25, единицы? Проверь, стоит ли каждая цифра под своим разрядом." },
+};

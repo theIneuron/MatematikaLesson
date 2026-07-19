@@ -126,3 +126,9 @@ function D05_02Impl(props) {
 export default function D05_02(props) {
   return (<><style>{FX_CSS}</style><D05_02Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D05_02.audio = {
+  uz: { intro: "O'nlab ketma-ketlik. Bittasi tushib qolgan. Qatordagi bo'sh joyga qaysi o'nlik tushadi?", on_correct: "To'g'ri. 10, 20, 30, 40, 50, bo'sh joyda 30.", on_wrong: "Maslahat. 20 dan keyin o'nlab sanang. 20 ga 10 qo'shsak nechchi bo'ladi?" },
+  ru: { intro: "Ряд десятками. Один пропущен. Какой десяток стоит в пустом месте?", on_correct: "Верно. 10, 20, 30, 40, 50, в пропуске 30.", on_wrong: "Подсказка. Считай десятками после 20. Сколько будет 20 плюс 10?" },
+};

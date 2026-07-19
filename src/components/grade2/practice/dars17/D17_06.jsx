@@ -133,3 +133,9 @@ function D17_06Impl(props) {
 export default function D17_06(props) {
   return (<><style>{FX_CSS}</style><D17_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D17_06.audio = {
+  uz: { intro: "Sir. Ko'paytirish 9 da javobning raqamlari yig'indisi doim 9 bo'ladi. 9 ko'paytirish 4 nechaga teng? Raqamlar yig'indisi 9 bo'lganini toping.", on_correct: "To'g'ri. 9 ko'paytirish 4 teng 36, va 3 qo'shish 6 teng 9. Sir ishladi!", on_wrong: "Maslahat. 9, 18, 27, 36 deb sanang. Raqamlari yig'indisi 9 bo'lsin. 3 qo'shish 6 teng 9." },
+  ru: { intro: "Секрет. У умножить на 9 сумма цифр ответа всегда равна 9. Чему равно 9 умножить на 4? Найди, где сумма цифр равна 9.", on_correct: "Верно. 9 умножить на 4 равно 36, и 3 плюс 6 равно 9. Секрет сработал!", on_wrong: "Подсказка. Считай 9, 18, 27, 36. Сумма цифр должна быть 9. 3 плюс 6 равно 9." },
+};

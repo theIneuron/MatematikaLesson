@@ -137,3 +137,9 @@ function D19_03Impl(props) {
 export default function D19_03(props) {
   return (<><style>{FX_CSS}</style><D19_03Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D19_03.audio = {
+  uz: { intro: "12 kristal teng ulandi, har biriga 4 tadan tegdi. Nechta sandiqqa ulangan? Bo'sh katakni to'ldiring.", on_correct: "To'g'ri. 12 bo'lish 3 teng 4. 3 sandiqqa ulasak, har biriga 4 tadan.", on_wrong: "Maslahat. Har biriga 4 tadan tegishi uchun nechta sandiq kerak? 12 bo'lish 3 teng 4." },
+  ru: { intro: "12 кристаллов раздали поровну, каждому по 4. На сколько сундуков поделили? Заполни клетку.", on_correct: "Верно. 12 делить на 3 равно 4. На 3 сундука, по 4 каждому.", on_wrong: "Подсказка. Сколько сундуков, чтобы в каждом было по 4? 12 делить на 3 равно 4." },
+};

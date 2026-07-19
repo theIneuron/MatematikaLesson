@@ -121,3 +121,9 @@ function D10_06Impl(props) {
 export default function D10_06(props) {
   return (<><style>{FX_CSS}</style><D10_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D10_06.audio = {
+  uz: { intro: "52 ayirish 27 teng 25. Tekshirish. Ayirma qo'shish ayriluvchi teng kamayuvchi. 25 qo'shish 27 nechchi bo'lsa, ayirish to'g'ri bo'ladi?", on_correct: "To'g'ri. 25 qo'shish 27 teng 52 teng kamayuvchi. Demak 52 ayirish 27 teng 25 to'g'ri.", on_wrong: "Maslahat. Ayirmaga ayriluvchini qo'shing. Natija yuqoridagi kamayuvchiga teng bo'lishi kerak." },
+  ru: { intro: "52 минус 27 равно 25. Проверка. Разность плюс вычитаемое равно уменьшаемое. Каким должно быть 25 плюс 27, чтобы вычитание было верным?", on_correct: "Верно. 25 плюс 27 равно 52 равно уменьшаемое. Значит 52 минус 27 равно 25 верно.", on_wrong: "Подсказка. Прибавь к разности вычитаемое. Результат должен равняться уменьшаемому, что сверху." },
+};

@@ -126,3 +126,9 @@ function D16_07Impl(props) {
 export default function D16_07(props) {
   return (<><style>{FX_CSS}</style><D16_07Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D16_07.audio = {
+  uz: { intro: "Bit shunday yozdi. Bu yozuv to'g'rimi?", on_correct: "To'g'ri! 7 ko'paytirish 5 teng 35, 30 emas. Sanang. 7, 14, 21, 28, 35.", on_wrong: "Maslahat. 7 ni 5 marta sanang. 7, 14, 21, 28, 35. 30 chiqmaydi." },
+  ru: { intro: "Бит записал так. Эта запись верна?", on_correct: "Верно! 7 умножить на 5 равно 35, а не 30. Считай. 7, 14, 21, 28, 35.", on_wrong: "Подсказка. Считай 7 пять раз. 7, 14, 21, 28, 35. 30 не выходит." },
+};

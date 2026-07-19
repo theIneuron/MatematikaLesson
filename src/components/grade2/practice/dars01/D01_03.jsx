@@ -136,3 +136,9 @@ function D01_03Impl(props) {
 export default function D01_03(props) {
   return (<><style>{FX_CSS}</style><D01_03Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D01_03.audio = {
+  uz: { intro: "36 sonining razryad tarkibi. 36 teng qancha o'nlik 6 birlik. Bo'sh katakni to'ldiring.", on_correct: "To'g'ri. 36 da 3 o'nlik va 6 birlik bor. 30 qo'shish 6 teng 36.", on_wrong: "Maslahat. 36 ning birinchi raqami, o'nlik. Nechta o'nlik bor?" },
+  ru: { intro: "Разрядный состав числа 36. 36 равно сколько десятков 6 единиц. Заполни клетку.", on_correct: "Верно. В 36 три десятка и 6 единиц. 30 плюс 6 равно 36.", on_wrong: "Подсказка. Первая цифра 36, десятки. Сколько десятков?" },
+};

@@ -142,3 +142,9 @@ function D06_04Impl(props) {
 export default function D06_04(props) {
   return (<><style>{FX_CSS}</style><D06_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D06_04.audio = {
+  uz: { intro: "A kema 20 da, B kema 60 da turibdi. A dan B gacha qancha masofa bor?", on_correct: "To'g'ri. 60 ayirish 20 teng 40 birlik masofa.", on_wrong: "Maslahat. Masofa, ikki son AYIRMASI. 60 dan 20 ni ayiring." },
+  ru: { intro: "Корабль A на 20, корабль B на 60. Сколько единиц расстояния от A до B?", on_correct: "Верно. 60 минус 20 равно 40 единиц расстояния.", on_wrong: "Подсказка. Расстояние, это РАЗНОСТЬ двух чисел. Вычти 20 из 60." },
+};

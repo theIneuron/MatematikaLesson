@@ -143,3 +143,9 @@ function D18_09Impl(props) {
 export default function D18_09(props) {
   return (<><style>{FX_CSS}</style><D18_09Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D18_09.audio = {
+  uz: { intro: "Anvar 4 qatorda 7 tadan quti terdi. Zuhra 7 qatorda 4 tadan terdi. Kimda ko'proq quti bor?", on_correct: "To'g'ri. Anvar. 4 ko'paytirish 7 teng 28. Zuhra. 7 ko'paytirish 4 teng 28. Ikkalasida teng!", on_wrong: "Maslahat. 4 ko'paytirish 7 va 7 ko'paytirish 4 ni sanang. O'rin almashish, natija bir xil." },
+  ru: { intro: "Анвар сложил 4 ряда по 7 ящиков. Зухра, 7 рядов по 4. У кого больше ящиков?", on_correct: "Верно. Анвар. 4 умножить на 7 равно 28. Зухра. 7 умножить на 4 равно 28. Поровну!", on_wrong: "Подсказка. Посчитай 4 умножить на 7 и 7 умножить на 4. Перестановка, итог одинаков." },
+};

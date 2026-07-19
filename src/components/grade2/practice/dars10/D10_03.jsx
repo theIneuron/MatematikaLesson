@@ -123,3 +123,9 @@ function D10_03Impl(props) {
 export default function D10_03(props) {
   return (<><style>{FX_CSS}</style><D10_03Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D10_03.audio = {
+  uz: { intro: "52 ayirish 27. Birlikka qarz berish uchun o'nlikdan 1 o'nlik olindi. O'nlik 5 edi. Bitta o'nlik qarz berilgach, u nechchi bo'ldi?", on_correct: "To'g'ri. 5 ayirish 1 teng 4. Endi o'nliklar. 4 ayirish 2 teng 2.", on_wrong: "Maslahat. Qarz berilgan o'nlik kamayadi. 5 dan bittasini oling." },
+  ru: { intro: "52 минус 27. Чтобы занять единицам, из десятков взяли 1 десяток. Десятков было 5. После займа одного десятка сколько стало?", on_correct: "Верно. 5 минус 1 равно 4. Теперь десятки. 4 минус 2 равно 2.", on_wrong: "Подсказка. Отданный десяток уменьшается. Убери из 5 один." },
+};

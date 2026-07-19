@@ -142,3 +142,9 @@ function D11_04Impl(props) {
 export default function D11_04(props) {
   return (<><style>{FX_CSS}</style><D11_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D11_04.audio = {
+  uz: { intro: "64 qo'shish 3 ni ustunlab tuzdik. 3, bir xonali son, u birlik ustunida. 3 ning yonidagi bo'sh O'NLIK katagiga? Nima qo'yiladi?", on_correct: "To'g'ri. 3, bir xonali son, o'nligi yo'q, o'nlik katak bo'sh qoladi.", on_wrong: "Maslahat. 3 sonining o'nligi bormi? Bo'lmasa, o'nlik katakka nima qo'yamiz?" },
+  ru: { intro: "Записали 64 плюс 3 столбиком. 3, однозначное число, в столбце единиц. Что ставится в пустую ячейку ДЕСЯТКОВ? Рядом с 3?", on_correct: "Верно. У 3 нет десятков, ячейка десятков остаётся пустой.", on_wrong: "Подсказка. Есть ли у числа 3 десятки? Если нет, что ставим в ячейку десятков?" },
+};

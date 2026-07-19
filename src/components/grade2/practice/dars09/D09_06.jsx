@@ -130,3 +130,9 @@ function D09_06Impl(props) {
 export default function D09_06(props) {
   return (<><style>{FX_CSS}</style><D09_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D09_06.audio = {
+  uz: { intro: "37 qo'shish 25 uchun ikki tayyor yechim. Qaysi yechim TO'G'RI? Ko'chgan o'nlik hisobga olinganmi?", on_correct: "To'g'ri. 7 qo'shish 5 teng 12, 2 yozamiz, 1 ko'chadi; 3 qo'shish 2 qo'shish 1 teng 6. Javob 62.", on_wrong: "Maslahat. Birliklar 7 qo'shish 5 o'ndan oshadi. Ko'chgan 1 o'nliklarga qo'shilganini tekshiring." },
+  ru: { intro: "Два готовых решения для 37 плюс 25. Какое решение ВЕРНО? Учтён ли перенесённый десяток?", on_correct: "Верно. 7 плюс 5 равно 12, пишем 2, 1 переносим; 3 плюс 2 плюс 1 равно 6. Ответ 62.", on_wrong: "Подсказка. Единицы 7 плюс 5 больше десяти. Проверь, прибавлена ли 1 к десяткам." },
+};

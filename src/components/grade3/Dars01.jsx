@@ -891,7 +891,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // v6 FAKT ALOHIDA (bekor): sPANEL sub-1 dagi FactCard SKROLL chiqargani uchun undan olindi.
 // v7 FAKT FINAL SLAYDGA (16 -> 15): alohida fakt-slaydi BEKOR; fakt endi FINAL test s14 ga
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
-const TOTAL_SCREENS = 15;
+const TOTAL_SCREENS = 14;
 const LESSON_META = {
   lessonId: 'num-3-01-v1',
   lessonTitle: { ru: 'Урок 1. Сотни, десятки и единицы', uz: "1-dars. Yuzliklar, o'nliklar va birliklar" }
@@ -900,9 +900,8 @@ const LESSON_META = {
 // yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',   scored: false, scope: 'hook' },      // 0  hook: Lumoga qo'nish
-  { id: 's1',  type: 'test',        template: 'MCScreen', scored: false, scope: null },        // 1  recall 34 (ballsiz)
-  { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  unitizing 10 o'nlik -> 1 yuzlik
-  { id: 's3',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 3  245 ni yig'ish
+  { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 1  recall 72 + unitizing (birlashgan, ketma-ket)
+  { id: 's3',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  245 ni yig'ish
   { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  razryad kartasi 345=300+40+5
   { id: 's5',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 5  o'rin hal qiladi 345/435/543
   { id: 's6',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 6  son o'qi 0-1000
@@ -966,20 +965,27 @@ const CONTENT = {
     }
   },
 
-  // s1 — RECALL (ballsiz): 34 = 3 o'nlik 4 birlik
+  // s1 — RECALL (72) + UNITIZING (10 o'nlik -> 1 yuzlik) birlashgan, ketma-ket ochiladi.
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz' },
-    lead: { ru: 'Проверь себя.', uz: "O'zingizni sinang." },
-    q: { ru: 'Сколько в числе 34 десятков и единиц?', uz: "34 sonida nechta o'nlik va birlik bor?" },
-    opt0: { ru: '3 десятка и 4 единицы', uz: "3 o'nlik va 4 birlik" },
-    opt1: { ru: '4 десятка и 3 единицы', uz: "4 o'nlik va 3 birlik" },
-    opt2: { ru: '34 десятка', uz: "34 o'nlik" },
-    wrong_1: { ru: 'Цифры поменяны местами. Слева десятки, значит 3 десятка, справа 4 единицы.', uz: "Raqamlar o'rni almashgan. Chapda o'nlik, demak 3 o'nlik, o'ngda 4 birlik." },
-    wrong_2: { ru: 'Всё число не может быть десятками. Слева десятки, справа единицы.', uz: "Butun son o'nlik bo'lolmaydi. Chapda o'nlik, o'ngda birlik." },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
+    lead: { ru: 'От десятков — к сотне.', uz: "O'nlikdan yuzlikka." },
+    tens_label: { ru: 'десятки', uz: "o'nliklar" },
+    ones_label: { ru: 'единицы', uz: 'birliklar' },
+    recall_eq: { ru: '72 = 7 десятков и 2 единицы', uz: "72 = 7 o'nlik va 2 birlik" },
+    unit_eq: { ru: '10 десятков = 1 сотня', uz: "10 o'nlik = 1 yuzlik" },
     audio: {
-      intro: { ru: 'Вспомним прошлый год. В двузначном числе слева десятки, справа единицы.', uz: "O'tgan yilni eslaymiz. Ikki xonali sonda chapda o'nlik, o'ngda birlik." },
-      on_correct: { ru: 'Верно. Три десятка и четыре единицы.', uz: "To'g'ri. Uch o'nlik va to'rt birlik." },
-      on_wrong: { ru: 'Посмотри ещё раз. Левая цифра — десятки.', uz: "Yana bir qarang. Chap raqam — o'nliklar." }
+      ru: [
+        'Вспомним прошлый год. В двузначном числе слева десятки, справа единицы. В числе семьдесят два семь десятков и две единицы.',
+        'Считать десятками быстро. Но в городе Бита десятков очень много. Соберём их дальше.',
+        'Собираем десять десятков вместе. Каждый десяток это одна лента.',
+        'Десять десятков стали одной сотней. Одну такую панель мы называем сотня. Сотня это сто вместе.'
+      ],
+      uz: [
+        "O'tgan yilni eslaymiz. Ikki xonali sonda chapda o'nlik, o'ngda birlik. Yetmish ikkida yetti o'nlik va ikki birlik bor.",
+        "O'nlab sanash tez. Lekin Bit shahrida o'nliklar juda ko'p. Ularni yana yig'amiz.",
+        "O'nta o'nlikni birga to'playmiz. Har o'nlik bitta lenta.",
+        "O'nta o'nlik bitta yuzlik bo'ldi. Bitta panelni yuzlik deymiz. Yuzlik bu yuzta birga."
+      ]
     }
   },
 
@@ -1029,25 +1035,36 @@ const CONTENT = {
 
   // s4 — RAZRYAD KARTASI: 345 = 300 + 40 + 5
   s4: {
-    eyebrow: { ru: 'Разбор числа', uz: 'Sonni ochamiz' },
-    lead: { ru: 'Разложим число 345.', uz: "345 ni ochamiz." },
+    eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
+    lead: { ru: 'Разберём 345 двумя способами.', uz: "345 ni ikki usulda ochamiz." },
     hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
-    info_badge: { ru: 'Полезно', uz: 'Foydali' },
-    info: { ru: 'Любое трёхзначное число — это сотни, десятки и единицы вместе. Сотни пишут слева, потом десятки, потом единицы. А ноль держит место: 305 — это 3 сотни, 0 десятков и 5 единиц.', uz: "Har uch xonali son — yuzlik, o'nlik va birlik birga. Yuzlik chapga, keyin o'nlik, keyin birlik yoziladi. Nol o'rinni saqlaydi: 305 — bu 3 yuzlik, 0 o'nlik va 5 birlik." },
+    m1_label: { ru: 'Способ 1 — разрядная таблица', uz: "1-usul — razryad jadvali" },
+    m1_text: { ru: 'Ставим каждую цифру на своё место.', uz: "Har raqamni o'z xonasiga qo'yamiz." },
+    m2_label: { ru: 'Способ 2 — разрядные слагаемые', uz: "2-usul — yoyilma yig'indi" },
+    m2_text: { ru: 'Пишем значение каждого разряда.', uz: "Har xonaning qiymatini yozamiz." },
+    m3_label: { ru: 'Бонус — чтение числа', uz: "Bonus — o'qilishi" },
+    m3_text: { ru: 'Число можно прочитать словами.', uz: "Sonni so'z bilan ham o'qiymiz." },
+    m3_parts: [
+      { num: '300', ru: 'триста', uz: 'uch yuz' },
+      { num: '40', ru: 'сорок', uz: 'qirq' },
+      { num: '5', ru: 'пять', uz: 'besh' }
+    ],
     audio: {
       ru: [
-        'Разберём число триста сорок пять. У каждого трёхзначного числа есть три места, три разряда. Слева сотни, потом десятки, потом единицы.',
-        'Слева три панели. Три сотни это триста.',
-        'В середине четыре ленты. Четыре десятка это сорок. А справа пять огоньков, это пять единиц.',
-        'Вместе триста, сорок и ещё пять. Триста плюс сорок плюс пять это триста сорок пять.'
+        'Разберём число триста сорок пять двумя основными способами.',
+        'Первый способ — разрядная таблица. Ставим каждую цифру на своё место. Сотни три, десятки четыре, единицы пять.',
+        'Второй способ — разрядные слагаемые. Пишем значение каждого разряда. Триста, сорок и пять.',
+        'Бонус. Число можно прочитать словами. Триста сорок пять.',
+        'Показали по-разному, а число одно — триста сорок пять.'
       ],
       uz: [
-        "Uch yuz qirq besh sonini ochamiz. Har uch xonali sonda uch o'rin, uch xona bor. Chapda yuzlik, keyin o'nlik, keyin birlik.",
-        "Chapda uch panel. Uch yuzlik bu uch yuz.",
-        "O'rtada to'rt lenta. To'rt o'nlik bu qirq. O'ngda esa besh chiroq, bu besh birlik.",
-        "Birga uch yuz, qirq va yana besh. Uch yuz qo'shuv qirq qo'shuv besh bu uch yuz qirq besh."
+        "Uch yuz qirq besh sonini ikki asosiy usulda ochamiz.",
+        "Birinchi usul — razryad jadvali. Har raqamni o'z o'rniga qo'yamiz. Yuzlik uch, o'nlik to'rt, birlik besh.",
+        "Ikkinchi usul — yoyilma yig'indi. Har xonaning qiymatini yozamiz. Uch yuz, qirq va besh.",
+        "Bonus. Sonni so'z bilan ham o'qiymiz. Uch yuz qirq besh.",
+        "Ko'rsatish har xil, lekin son bitta — uch yuz qirq besh."
       ]
     }
   },
@@ -1078,21 +1095,21 @@ const CONTENT = {
   s6: {
     eyebrow: { ru: 'Число на прямой', uz: "Son o'qida" },
     lead: { ru: 'Где стоит 470?', uz: "470 qayerda turadi?" },
-    q: { ru: 'Как думаешь, где стоит 470? Нажми на линии.', uz: "Sizningcha, 470 qayerda turadi? Chiziqda bosing." },
-    q_audio: { ru: 'Как думаешь, где на этой линии стоит четыреста семьдесят? Нажми туда, где считаешь.', uz: "Sizningcha, bu chiziqda to'rt yuz yetmish qayerda turadi? O'zingiz o'ylagan joyni bosing." },
+    q: { ru: 'Линия от 300 до 800. Где стоит 470? Нажми.', uz: "Chiziq 300 dan 800 gacha. 470 qayerda? Bosing." },
+    q_audio: { ru: 'Эта линия идёт от трёхсот до восьмисот. Как думаешь, где на ней стоит четыреста семьдесят? Нажми туда, где считаешь.', uz: "Bu chiziq uch yuzdan sakkiz yuzgacha. Sizningcha, unda to'rt yuz yetmish qayerda turadi? O'zingiz o'ylagan joyni bosing." },
     done_text: { ru: 'Четыреста семьдесят стоит между четырьмястами и пятьюстами.', uz: "To'rt yuz yetmish to'rt yuz bilan besh yuz orasida turadi." },
     info_badge: { ru: 'Полезно', uz: 'Foydali' },
-    info: { ru: 'На числовой прямой числа стоят по порядку: чем правее, тем больше. Большие метки — это сотни: сто, двести, триста. Между ними стоят десятки.', uz: "Son o'qida sonlar tartib bilan turadi: qancha o'ngda bo'lsa, shuncha katta. Katta belgilar — yuzliklar: yuz, ikki yuz, uch yuz. Ular orasida o'nliklar turadi." },
+    info: { ru: 'На числовой прямой числа стоят по порядку: чем правее, тем больше. Большие метки — это сотни. Между ними стоят десятки.', uz: "Son o'qida sonlar tartib bilan turadi: qancha o'ngda bo'lsa, shuncha katta. Katta belgilar — yuzliklar. Ular orasida o'nliklar turadi." },
     audio: {
       ru: [
-        'Покажем четыреста семьдесят на числовой прямой. Сотни это большие метки, десятки стоят между ними.',
-        'Четыре большие метки по сто, доходим до четырёхсот.',
-        'И ещё семь десятков вперёд, доходим до четырёхсот семидесяти. Это чуть дальше середины между четырьмястами и пятьюстами.'
+        'Покажем четыреста семьдесят. Линия идёт от трёхсот до восьмисот.',
+        'Один большой шаг по сто — доходим до четырёхсот.',
+        'Потом семь маленьких шагов по десять — доходим до четырёхсот семидесяти. Это между четырьмястами и пятьюстами.'
       ],
       uz: [
-        "To'rt yuz yetmishni son o'qida ko'rsatamiz. Yuzliklar bu katta belgilar, o'nliklar ular orasida turadi.",
-        "To'rtta katta belgi yuzdan, to'rt yuzgacha yetamiz.",
-        "Va yana yetti o'nlik oldinga, to'rt yuz yetmishgacha yetamiz. Bu to'rt yuz bilan besh yuz o'rtasidan sal narida."
+        "To'rt yuz yetmishni ko'rsatamiz. Chiziq uch yuzdan sakkiz yuzgacha.",
+        "Bir katta qadam yuzga — to'rt yuzga yetamiz.",
+        "Keyin yetti kichik qadam o'ndan — to'rt yuz yetmishga yetamiz. Bu to'rt yuz bilan besh yuz orasida."
       ]
     }
   },
@@ -1142,7 +1159,7 @@ const CONTENT = {
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
     audio: {
       intro: { ru: 'Собирай число из панелей, лент и огоньков. Сначала сотни, потом десятки, потом единицы. После нажми проверить.', uz: "Sonni panel, lenta va chiroqlardan yig'ing. Avval yuzlik, keyin o'nlik, keyin birlik. So'ng tekshirishni bosing." },
-      on_correct: { ru: 'Отлично. Три сотни, шесть десятков и две единицы, триста шестьдесят два.', uz: "Zo'r. Uch yuzlik, olti o'nlik va ikki birlik, uch yuz oltmish ikki." },
+      on_correct: { ru: 'Отлично. Собрано верно.', uz: "Zo'r. To'g'ri yig'dingiz." },
       on_wrong: { ru: 'Проверь. Сначала набери сотни, потом десятки, потом единицы.', uz: "Tekshiring. Avval yuzlik, keyin o'nlik, keyin birlikni yig'ing." }
     }
   },
@@ -1156,7 +1173,7 @@ const CONTENT = {
     hold_ones: { ru: 'ЕДИНИЦЫ', uz: 'BIRLIKLAR' },
     audio: {
       intro: { ru: 'Сортировщик города. Каждую цифру поставь в свой разряд. Слева сотни, в середине десятки, справа единицы.', uz: "Shahar saralagichi. Har raqamni o'z xonasiga qo'ying. Chapda yuzlik, o'rtada o'nlik, o'ngda birlik." },
-      on_correct: { ru: 'Верно. Пять сотен, два десятка, восемь единиц.', uz: "To'g'ri. Besh yuzlik, ikki o'nlik, sakkiz birlik." },
+      on_correct: { ru: 'Верно. Каждая цифра в своём разряде.', uz: "To'g'ri. Har raqam o'z xonasida." },
       on_wrong: { ru: 'Читай слева направо: первая цифра сотни, последняя единицы.', uz: "Chapdan o'ngga o'qing: birinchi raqam yuzlik, oxirgisi birlik." }
     }
   },
@@ -1164,32 +1181,69 @@ const CONTENT = {
   // s10 — MC nol-o'rin 305
   s10: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какое число — 3 сотни, 0 десятков и 5 единиц?', uz: "Qaysi son — 3 yuzlik, 0 o'nlik va 5 birlik?" },
-    opt0: { ru: '305', uz: '305' },
-    opt1: { ru: '35', uz: '35' },
-    opt2: { ru: '350', uz: '350' },
-    opt3: { ru: '30 и 5', uz: '30 va 5' },
-    wrong_1: { ru: 'Здесь пустой разряд десятков. Ноль держит его место: получается 305, а не 35.', uz: "Bu yerda o'nlik xonasi bo'sh. Nol uning o'rnini saqlaydi: 305 chiqadi, 35 emas." },
-    wrong_2: { ru: 'Ноль стоит в десятках, в середине, а не в конце. Получается 305.', uz: "Nol o'nlikda, o'rtada turadi, oxirida emas. 305 chiqadi." },
-    wrong_3: { ru: 'Это одно число, не два. Три сотни и пять единиц вместе дают 305.', uz: "Bu bitta son, ikkita emas. Uch yuzlik va besh birlik birga 305 beradi." },
+    items: [
+      {
+        q: { ru: 'Какое число — 3 сотни, 0 десятков и 5 единиц?', uz: "Qaysi son — 3 yuzlik, 0 o'nlik, 5 birlik?" },
+        hto: [3, 0, 5], ci: 1,
+        opts: [{ ru: '35', uz: '35' }, { ru: '305', uz: '305' }, { ru: '350', uz: '350' }],
+        hints: {
+          0: { ru: 'Разряд десятков пустой, ноль держит его место: 305, а не 35.', uz: "O'nlik xonasi bo'sh, nol o'rinni saqlaydi: 305, 35 emas." },
+          2: { ru: 'Ноль в середине, в десятках, а не в конце: 305.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 305." }
+        }
+      },
+      {
+        q: { ru: 'Какое число — 7 сотен, 0 десятков и 2 единицы?', uz: "Qaysi son — 7 yuzlik, 0 o'nlik, 2 birlik?" },
+        hto: [7, 0, 2], ci: 0,
+        opts: [{ ru: '702', uz: '702' }, { ru: '720', uz: '720' }, { ru: '72', uz: '72' }],
+        hints: {
+          1: { ru: 'Ноль в десятках, не в единицах: 702.', uz: "Nol o'nlikda, birlikda emas: 702." },
+          2: { ru: 'Это трёхзначное число, сотни есть: 702.', uz: "Bu uch xonali son, yuzlik bor: 702." }
+        }
+      },
+      {
+        q: { ru: 'Какое число — 5 сотен, 4 десятка и 0 единиц?', uz: "Qaysi son — 5 yuzlik, 4 o'nlik, 0 birlik?" },
+        hto: [5, 4, 0], ci: 1,
+        opts: [{ ru: '504', uz: '504' }, { ru: '540', uz: '540' }, { ru: '54', uz: '54' }],
+        hints: {
+          0: { ru: 'Ноль в конце, в единицах, а не в середине: 540.', uz: "Nol oxirida, birlikda, o'rtada emas: 540." },
+          2: { ru: 'Сотни есть, пять сотен: 540.', uz: "Yuzlik bor, besh yuzlik: 540." }
+        }
+      }
+    ],
     audio: {
-      intro: { ru: 'В городе один разряд пустой, десятков нет. Скажи, какое число загорелось на табло.', uz: "Shaharda bitta xona bo'sh, o'nlik yo'q. Displeyda qaysi son yondi, ayting." },
-      on_correct: { ru: 'Верно. Три сотни, ноль десятков и пять единиц, триста пять.', uz: "To'g'ri. Uch yuzlik, nol o'nlik va besh birlik, uch yuz besh." },
-      on_wrong: { ru: 'Посмотри разбор. Ноль держит пустое место десятков.', uz: "Tushuntirishga qarang. Nol o'nlik bo'sh o'rnini saqlaydi." }
+      intro: { ru: 'В городе бывает пустой разряд. Ноль держит его место. Три задания подряд.', uz: "Shaharda ba'zan bo'sh xona bo'ladi. Nol uning o'rnini saqlaydi. Uchta topshiriq ketma-ket." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Ноль держит пустое место. Попробуй ещё.', uz: "Nol bo'sh o'rinni saqlaydi. Yana urinib ko'ring." }
     }
   },
 
   // s11 — MC taqqoslash 345/354
   s11: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'В каком районе города огней больше?', uz: "Shaharning qaysi tumanida chiroq ko'p?" },
-    opt0: { ru: 'Район 345', uz: '345 tumani' },
-    opt1: { ru: 'Район 354', uz: '354 tumani' },
-    wrong_0: { ru: 'Не смотри сначала на единицы. Сотни равны, сравни десятки: пять больше четырёх, значит 354 больше.', uz: "Avval birlikka qaramang. Yuzliklar teng, o'nlikni solishtiring: besh to'rtdan katta, demak 354 katta." },
+    items: [
+      {
+        q: { ru: 'Что больше: 345 или 354?', uz: "Qaysi katta: 345 yoki 354?" },
+        pair: [345, 354], ci: 1,
+        opts: [{ ru: '345', uz: '345' }, { ru: '354', uz: '354' }],
+        hints: { 0: { ru: 'Сотни равны, сравни десятки: пять больше четырёх, значит 354.', uz: "Yuzliklar teng, o'nlikni solishtiring: besh to'rtdan katta, demak 354." } }
+      },
+      {
+        q: { ru: 'Что больше: 482 или 428?', uz: "Qaysi katta: 482 yoki 428?" },
+        pair: [482, 428], ci: 0,
+        opts: [{ ru: '482', uz: '482' }, { ru: '428', uz: '428' }],
+        hints: { 1: { ru: 'Сотни равны, десятки: восемь больше двух, значит 482.', uz: "Yuzliklar teng, o'nlik: sakkiz ikkidan katta, demak 482." } }
+      },
+      {
+        q: { ru: 'Что больше: 600 или 599?', uz: "Qaysi katta: 600 yoki 599?" },
+        pair: [600, 599], ci: 0,
+        opts: [{ ru: '600', uz: '600' }, { ru: '599', uz: '599' }],
+        hints: { 1: { ru: 'Сравни сотни: шесть больше пяти, значит 600.', uz: "Yuzlikni solishtiring: olti beshdan katta, demak 600." } }
+      }
+    ],
     audio: {
-      intro: { ru: 'Сравним два района. В каком больше? Сотни одинаковые, значит смотри на десятки.', uz: "Ikki tumanni solishtiramiz. Qaysida ko'p? Yuzliklar bir xil, demak o'nlikka qarang." },
-      on_correct: { ru: 'Верно. Сотни равны, а пять десятков больше четырёх десятков.', uz: "To'g'ri. Yuzliklar teng, besh o'nlik to'rt o'nlikdan katta." },
-      on_wrong: { ru: 'Сначала сравни десятки: пять больше четырёх.', uz: "Avval o'nlikni solishtiring: besh to'rtdan katta." }
+      intro: { ru: 'Сравним числа. Смотри сначала на сотни, потом на десятки. Три задания подряд.', uz: "Sonlarni solishtiramiz. Avval yuzlikka, keyin o'nlikka qarang. Uchta topshiriq ketma-ket." },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
+      on_wrong: { ru: 'Сравни разряды слева направо. Попробуй ещё.', uz: "Xonalarni chapdan o'ngga solishtiring. Yana urinib ko'ring." }
     }
   },
 
@@ -1225,25 +1279,22 @@ const CONTENT = {
   // s14 — FINAL panel (4 savol) + FactCard
   s14: {
     eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Городской компьютер проверит тебя. Четыре задания.', uz: "Shahar kompyuteri sizni tekshiradi. To'rtta topshiriq." },
+    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
+    // Aralash panel: kind 'num' — raqam-plita bilan JAVOB TERILADI (produksiya); kind 'mc' — konsept/tanish.
+    // Masalalar ziyoly.uz «Xona birliklari» turlariga moslangan; 5-savol — son-jumboq (mantiq).
     items: [
       {
-        q: { ru: 'Прочитай число 407.', uz: "407 sonini o'qing." },
-        opt0: { ru: 'Четыреста семь', uz: "To'rt yuz yetti" },
-        opt1: { ru: 'Сорок семь', uz: 'Qirq yetti' },
-        opt2: { ru: 'Четыреста семьдесят', uz: "To'rt yuz yetmish" },
-        wrong_1: { ru: 'Ноль в десятках нельзя выбрасывать. Это четыреста семь, не сорок семь.', uz: "O'nlikdagi nolni tashlab bo'lmaydi. Bu to'rt yuz yetti, qirq yetti emas." },
-        wrong_2: { ru: 'Ноль стоит в десятках, значит десятков нет. Единиц семь: четыреста семь.', uz: "Nol o'nlikda, demak o'nlik yo'q. Birlik yetti: to'rt yuz yetti." }
+        kind: 'num', ans: 645,
+        q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'sh: 600 + 40 + 5. Javobni ter." },
+        hint: { ru: 'По местам: шесть сотен, четыре десятка, пять единиц.', uz: "O'z o'rniga: olti yuzlik, to'rt o'nlik, besh birlik." }
       },
       {
-        q: { ru: 'Запиши число двести тридцать.', uz: "Ikki yuz o'ttiz sonini yozing." },
-        opt0: { ru: '230', uz: '230' },
-        opt1: { ru: '203', uz: '203' },
-        opt2: { ru: '23', uz: '23' },
-        wrong_1: { ru: 'Две сотни, три десятка, ноль единиц. Ноль в конце: 230.', uz: "Ikki yuzlik, uch o'nlik, nol birlik. Nol oxirida: 230." },
-        wrong_2: { ru: 'Это трёхзначное число: две сотни, значит три цифры. 230.', uz: "Bu uch xonali son: ikki yuzlik, demak uch raqam. 230." }
+        kind: 'num', ans: 230,
+        q: { ru: 'Запиши цифрами число двести тридцать.', uz: "Ikki yuz o'ttiz sonini raqamlab ter." },
+        hint: { ru: 'Две сотни, три десятка, единиц нет — ноль в конце.', uz: "Ikki yuzlik, uch o'nlik, birlik yo'q — oxirida nol." }
       },
       {
+        kind: 'mc',
         q: { ru: 'Сколько сотен в числе 682?', uz: "682 sonida nechta yuzlik bor?" },
         opt0: { ru: '6 сотен', uz: '6 yuzlik' },
         opt1: { ru: '8 сотен', uz: '8 yuzlik' },
@@ -1252,12 +1303,18 @@ const CONTENT = {
         wrong_2: { ru: 'Два стоит в единицах. Сотни это левая цифра: шесть.', uz: "Ikki birlikda turadi. Yuzlik bu chap raqam: olti." }
       },
       {
+        kind: 'mc',
         q: { ru: 'Что больше: 519 или 591?', uz: "Qaysi biri katta: 519 yoki 591?" },
         opt0: { ru: '591', uz: '591' },
         opt1: { ru: '519', uz: '519' },
         opt2: { ru: 'Они равны', uz: 'Ular teng' },
         wrong_1: { ru: 'Сотни равны, значит сравни десятки. Девять десятков больше одного: 591 больше.', uz: "Yuzliklar teng, demak o'nlikni solishtiring. To'qqiz o'nlik birdan katta: 591 katta." },
         wrong_2: { ru: 'Цифры одни и те же, но места разные, значит числа не равны. 591 больше.', uz: "Raqamlar bir xil, lekin o'rni har xil, demak sonlar teng emas. 591 katta." }
+      },
+      {
+        kind: 'num', ans: 522,
+        q: { ru: 'Загадка. Я трёхзначное число. Сотен 5, единиц 2, а десятков на 3 меньше, чем сотен. Кто я?', uz: "Jumboq. Men uch xonali sonman. Yuzligim 5, birligim 2, o'nligim yuzligimdan 3 kam. Men kimman?" },
+        hint: { ru: 'Начни с сотен: пять. Десятков на три меньше пяти. Единиц два.', uz: "Yuzlikdan boshla: besh. O'nlik beshdan uch kam. Birlik ikki." }
       }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
@@ -2295,22 +2352,66 @@ const Screen0 = (props) => {
 };
 
 // s1 — RECALL (ballsiz): 34 = 3 o'nlik 4 birlik
+// Recall (72 = 7 o'nlik 2 birlik) -> Unitizing (10 o'nlik -> 1 yuzlik), audio bilan ketma-ket ochiladi.
 const Screen1 = (props) => {
-  const c = CONTENT.s1;
+  const lang = useLang();
   const t = useT();
+  const c = CONTENT.s1;
+  const audio = useAudio([
+    brgSeg('s1', lang),
+    ...c.audio[lang].map((text, i) => ({ id: `s1_${i}`, text, trigger: 'after_previous', waits_for: null }))
+  ]);
+  const seg = audio.currentSegment;
+  const [reached, setReached] = useState(0);
+  useEffect(() => { if (seg && /^s1_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
+  const done = reached >= c.audio[lang].length - 1;
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const Lbl = ({ x }) => <span className="mono" style={{ fontWeight: 800, color: T.ink2, fontSize: 'clamp(11px, 1.5vw, 13px)' }}>{x}</span>;
   return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={withBridgeAudio(c, 's1')}
-      question={<div><Bridge/><QTitle title={t(c.lead)} q={t(c.q)}/></div>}
-      figure={() => <div className="lm-figwrap"><PlaceViz tens={3} ones={4} small/></div>}
-      options={[t(c.opt0), t(c.opt1), t(c.opt2)]}
-      correctIdx={0}
-      optionsCols={3}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 20px)', minHeight: 'clamp(180px, 38vw, 240px)' }}>
+          {reached < 2 ? (
+            // 1-BOSQICH — RECALL 72
+            <>
+              <div style={{ display: 'flex', gap: 'clamp(18px, 5vw, 40px)', alignItems: 'flex-end', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {Array.from({ length: 7 }).map((_, i) => <span key={i} className="lm-drop" style={{ animationDelay: `${i * 0.06}s`, display: 'inline-flex' }}><Lenta className="lm-mat-lenta"/></span>)}
+                  </div>
+                  <Lbl x={t(c.tens_label)}/>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {Array.from({ length: 2 }).map((_, i) => <span key={i} className="lm-drop" style={{ animationDelay: `${(7 + i) * 0.06}s`, display: 'inline-flex' }}><Chiroq/></span>)}
+                  </div>
+                  <Lbl x={t(c.ones_label)}/>
+                </div>
+              </div>
+              <span className="mono lm-eq lm-reveal" style={{ fontSize: 'clamp(15px, 2.8vw, 22px)', fontWeight: 800 }}>{t(c.recall_eq)}</span>
+            </>
+          ) : reached < 3 ? (
+            // 2-BOSQICH — 10 o'nlikni yig'ish
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, auto)', gap: 'clamp(4px, 1vw, 7px)', justifyItems: 'center' }}>
+              {Array.from({ length: 10 }).map((_, i) => <span key={i} className="lm-drop" style={{ animationDelay: `${i * 0.09}s`, display: 'inline-flex' }}><Lenta className="lm-mat-lenta"/></span>)}
+            </div>
+          ) : (
+            // 3-BOSQICH — 1 yuzlik panel
+            <>
+              <span className="lm-reveal lm-bob" style={{ display: 'inline-flex' }}><Panel className="lm-panel-big"/></span>
+              <span className="mono lm-eq lm-reveal" style={{ fontSize: 'clamp(16px, 3vw, 24px)', fontWeight: 800, color: T.success }}>{t(c.unit_eq)}</span>
+            </>
+          )}
+        </div>
+      </div>
+    </Stage>
   );
 };
 
@@ -2363,7 +2464,7 @@ const Screen2 = (props) => {
             ))}
             <div className={`lm-panelzone ${tied ? 'lm-panelzone-tied' : ''}`}>
               {tied ? (
-                <span className="g1-pop-in lm-bob" style={{ display: 'inline-flex' }}><Panel className="lm-panel-big"/></span>
+                <span className="lm-reveal lm-bob" style={{ display: 'inline-flex' }}><Panel className="lm-panel-big"/></span>
               ) : (
                 <span className="lm-slotgrid">
                   {Array.from({ length: 10 }).map((_, k) => (
@@ -2410,16 +2511,31 @@ const Screen3 = (props) => {
     { id: 's3_2', text: c.audio[lang][2], trigger: 'on_event:done', waits_for: null }
   ]);
   const canAct = useCanAnswer(audio);
+  const [phase, setPhase] = useState(props.storedAnswer ? 'do' : 'demo'); // demo: Bit o'zi yig'adi -> do: bola yig'adi
   const [h, setH] = useState(0);
   const [tn, setTn] = useState(0);
   const [o, setO] = useState(0);
-  const done = h === 2 && tn === 4 && o === 5;
+  const demoing = phase === 'demo';
+  const done = phase === 'do' && h === 2 && tn === 4 && o === 5;
   const revealRef = useRevealScroll(done, 600);
-  const bump = (setter, val, max) => { if (!canAct || done || val >= max) return; setter(val + 1); };
+  // Kino-namoyish: 245 o'zi bosqichma-bosqich yig'iladi, keyin nolga qaytib bolaga navbat.
+  useEffect(() => {
+    if (phase !== 'demo') return;
+    const tm = [];
+    tm.push(setTimeout(() => setH(1), 800));
+    tm.push(setTimeout(() => setH(2), 1400));
+    tm.push(setTimeout(() => setTn(2), 2100));
+    tm.push(setTimeout(() => setTn(4), 2700));
+    tm.push(setTimeout(() => setO(3), 3400));
+    tm.push(setTimeout(() => setO(5), 4000));
+    tm.push(setTimeout(() => { setH(0); setTn(0); setO(0); setPhase('do'); }, 5700));
+    return () => tm.forEach(clearTimeout);
+  }, [phase]);
+  const bump = (setter, val, max) => { if (!canAct || done || demoing || val >= max) return; setter(val + 1); };
   const addH = () => bump(setH, h, 2);
   const addT = () => { if (h < 2) return; bump(setTn, tn, 4); };
   const addO = () => {
-    if (h < 2 || tn < 4 || o >= 5 || done) return;
+    if (demoing || h < 2 || tn < 4 || o >= 5 || done) return;
     const v = o + 1; setO(v);
     if (v === 5) { sfx.playCorrect(); audio.triggerInternal('done'); }
   };
@@ -2438,10 +2554,13 @@ const Screen3 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <RazryadTable h={h} t={tn} o={o} labels={labels} concrete emph={h < 2 ? 'h' : tn < 4 ? 't' : 'o'}/>
           <BigNum v={h === 0 && tn === 0 && o === 0 ? '?' : h * 100 + tn * 10 + o} accent={done}/>
+          <p style={{ textAlign: 'center', margin: 0, fontWeight: 700, color: demoing ? T.accent : T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>
+            {demoing ? (lang === 'ru' ? 'Смотри, как собирается 245…' : "Bit yig'ib ko'rsatmoqda…") : (lang === 'ru' ? 'Теперь собери сам' : "Endi o'zingiz yig'ing")}
+          </p>
           <div className="lm-srcrow">
-            <button className="g1-tile lm-srcbtn" disabled={!canAct || h >= 2} onClick={addH}><Panel className="lm-src-ico"/><span>{t(c.src_hundreds)}</span></button>
-            <button className={`g1-tile lm-srcbtn ${h < 2 ? 'lm-src-wait' : ''}`} disabled={h < 2 || tn >= 4} onClick={addT}><Lenta className="lm-src-ico"/><span>{t(c.src_tens)}</span></button>
-            <button className={`g1-tile lm-srcbtn ${(h < 2 || tn < 4) ? 'lm-src-wait' : ''}`} disabled={h < 2 || tn < 4 || o >= 5} onClick={addO}><Chiroq className="lm-src-ico"/><span>{t(c.src_ones)}</span></button>
+            <button className="g1-tile lm-srcbtn" disabled={!canAct || demoing || h >= 2} onClick={addH}><Panel className="lm-src-ico"/><span>{t(c.src_hundreds)}</span></button>
+            <button className={`g1-tile lm-srcbtn ${h < 2 ? 'lm-src-wait' : ''}`} disabled={demoing || h < 2 || tn >= 4} onClick={addT}><Lenta className="lm-src-ico"/><span>{t(c.src_tens)}</span></button>
+            <button className={`g1-tile lm-srcbtn ${(h < 2 || tn < 4) ? 'lm-src-wait' : ''}`} disabled={demoing || h < 2 || tn < 4 || o >= 5} onClick={addO}><Chiroq className="lm-src-ico"/><span>{t(c.src_ones)}</span></button>
           </div>
         </div>
         {done && (
@@ -2455,6 +2574,59 @@ const Screen3 = (props) => {
 };
 
 // s4 — RAZRYAD KARTASI: 345 = 300 + 40 + 5 (real-vaqt, ovozga sinxron)
+// Ishlangan misollar — yoyilma shaklni bir nechta sonда ko'rsatadi (grade3: «qanday ishlaydi» ko'p misol bilan).
+// 703 — nol o'nlikda, 640 — nol birlikda (nol-o'rin misollari).
+const EX_MORE = [[528, 500, 20, 8], [703, 700, 0, 3], [640, 600, 40, 0]];
+const WorkedExamples = ({ lang }) => (
+  <div className="frame-tip fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(5px, 1.2vw, 8px)', padding: 'clamp(8px, 1.6vw, 12px)' }}>
+    <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(11px, 1.5vw, 13px)' }}>{lang === 'ru' ? 'Ещё примеры — как это работает' : "Yana misollar — qanday ishlaydi"}</span>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(8px, 2.2vw, 18px)', justifyContent: 'center' }}>
+      {EX_MORE.map(([n, h, tn, o]) => (
+        <span key={n} className="mono g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(13px, 2.2vw, 17px)', color: T.ink, whiteSpace: 'nowrap' }}>
+          {n} = <span style={{ color: '#C0392B' }}>{h}</span> + <span style={{ color: '#1F7A4D' }}>{tn}</span> + <span style={{ color: T.blue }}>{o}</span>
+        </span>
+      ))}
+    </div>
+  </div>
+);
+// M1 harakati: 345 tepada, raqam dublikatlari yuzlik/o'nlik/birlik ustunlariga bittalab tushadi.
+const M1Drop = ({ labels }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
+    <span className="mono lm-reveal" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink2 }}>345</span>
+    <div style={{ display: 'flex', gap: 'clamp(8px, 2.4vw, 18px)' }}>
+      {[['3', 'h', '#C0392B'], ['4', 't', '#1F7A4D'], ['5', 'o', T.blue]].map(([d, k, col], i) => (
+        <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span className="mono lm-drop" style={{ animationDelay: `${0.4 + i * 0.6}s`, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: col, border: `2.5px solid ${col}`, borderRadius: 10, minWidth: 'clamp(32px, 8vw, 44px)', textAlign: 'center', padding: '3px 0', background: T.paper }}>{d}</span>
+          <span className="mono" style={{ fontSize: 'clamp(10px, 1.4vw, 12px)', color: T.ink2, fontWeight: 700 }}>{labels[k]}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+// M2 harakati: 345 bo'linib 300, keyin 40, keyin 5 tushadi; oralariga + qo'yiladi.
+const M2Drop = () => (
+  <div className="mono" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(4px, 1.2vw, 8px)', fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800 }}>
+    <span className="lm-drop" style={{ animationDelay: '0.4s', color: '#C0392B' }}>300</span>
+    <span className="lm-fadein" style={{ animationDelay: '0.8s' }}>+</span>
+    <span className="lm-drop" style={{ animationDelay: '1.0s', color: '#1F7A4D' }}>40</span>
+    <span className="lm-fadein" style={{ animationDelay: '1.4s' }}>+</span>
+    <span className="lm-drop" style={{ animationDelay: '1.6s', color: T.blue }}>5</span>
+  </div>
+);
+// BONUS harakati: son qismlari (300/40/5) tepada, ostiga so'zi bittalab tushadi (so'z <-> son bog'lanadi).
+const M3Drop = ({ parts, lang }) => {
+  const cols = ['#C0392B', '#1F7A4D', T.blue];
+  return (
+    <div style={{ display: 'flex', gap: 'clamp(12px, 3.5vw, 30px)', alignItems: 'flex-start', justifyContent: 'center' }}>
+      {parts.map((p, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span className="mono" style={{ fontSize: 'clamp(16px, 3.2vw, 22px)', fontWeight: 800, color: cols[i] }}>{p.num}</span>
+          <span className="lm-drop" style={{ animationDelay: `${0.4 + i * 0.5}s`, fontSize: 'clamp(12px, 1.8vw, 15px)', fontWeight: 700, color: T.ink }}>{p[lang]}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
 const Screen4 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2466,9 +2638,10 @@ const Screen4 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s4_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const emph = seg === 's4_1' ? 'h' : seg === 's4_2' ? 't' : null;
   const done = reached >= (c.audio[lang].length - 1);
-  const showEq = reached >= 3;
+  const showM1 = reached >= 1;
+  const showM2 = reached >= 2;
+  const showM3 = reached >= 3;
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -2477,15 +2650,35 @@ const Screen4 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
+  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(160px, 34vw, 220px)' }}>
-          <RazryadTable h={3} t={4} o={5} labels={labels} concrete digits emph={emph}/>
-          {showEq && <span className="mono lm-eq g1-pop-in" style={{ fontSize: 'clamp(18px, 3.4vw, 26px)', fontWeight: 800 }}>345 = 300 + 40 + 5</span>}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 20px)', minHeight: 'clamp(170px, 36vw, 230px)' }}>
+          {!showM1 && <span className="mono" style={{ fontSize: 'clamp(30px, 7vw, 44px)', fontWeight: 800, color: T.ink }}>345</span>}
+          {showM1 && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+              <MLabel x={t(c.m1_label)}/>
+              <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{t(c.m1_text)}</span>
+              <M1Drop labels={labels}/>
+            </div>
+          )}
+          {showM2 && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
+              <MLabel x={t(c.m2_label)}/>
+              <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{t(c.m2_text)}</span>
+              <M2Drop/>
+            </div>
+          )}
+          {showM3 && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%', background: T.accentSoft, borderRadius: 12, padding: 'clamp(8px, 1.8vw, 14px)' }}>
+              <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>★ {t(c.m3_label)}</span>
+              <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{t(c.m3_text)}</span>
+              <M3Drop parts={c.m3_parts} lang={lang}/>
+            </div>
+          )}
         </div>
-        {done && <InfoNote badge={t(c.info_badge)} text={t(c.info)}/>}
       </div>
     </Stage>
   );
@@ -2525,7 +2718,7 @@ const Screen5 = (props) => {
               <span key={i} className={`lm-digcard mono ${d === 5 ? 'lm-digcard-hot' : ''}`}>{d}</span>
             ))}
           </div>
-          <RazryadTable h={digs.h} t={digs.t} o={digs.o} labels={labels} concrete/>
+          <RazryadTable h={digs.h} t={digs.t} o={digs.o} labels={labels} digits/>
           <BigNum v={num} accent={done}/>
         </div>
         {done && (
@@ -2538,33 +2731,90 @@ const Screen5 = (props) => {
   );
 };
 
-// s6 — SON O'QI 0..1000, 470 ni joylash
+// s6 — SON O'QI (grade2 naqshi aynan): bola 470 ni taxmin qilib bosadi, KEYIN marker o'zi sakraydi
+// (4 katta +100 arka -> 400, 7 kichik +10 qadam -> 470), ovoz bilan sinxron.
+const NL_MIN = 300, NL_MAXV = 800, NL_W = 340, NL_pad = 26, NL_y = 66;
+const nlx = (v) => NL_pad + ((v - NL_MIN) / (NL_MAXV - NL_MIN)) * (NL_W - 2 * NL_pad);
+const NumberLineAnim = ({ phase, guess = null, onGuess = null }) => {
+  const ref = useRef(null);
+  const pos = phase >= 2 ? 470 : phase >= 1 ? 400 : NL_MIN;
+  const asking = guess === null && !!onGuess;
+  const arc = (a, b, h) => { const mid = (nlx(a) + nlx(b)) / 2; return `M ${nlx(a)} ${NL_y} Q ${mid} ${NL_y - h} ${nlx(b)} ${NL_y}`; };
+  const handleClick = (e) => {
+    if (!asking) return;
+    const rect = ref.current.getBoundingClientRect();
+    const svgX = ((e.clientX - rect.left) / rect.width) * NL_W;
+    let v = Math.round((NL_MIN + ((svgX - NL_pad) / (NL_W - 2 * NL_pad)) * (NL_MAXV - NL_MIN)) / 10) * 10;
+    v = Math.max(NL_MIN, Math.min(NL_MAXV, v));
+    onGuess(v);
+  };
+  return (
+    <svg ref={ref} onClick={handleClick} viewBox={`0 0 ${NL_W} 104`} style={{ width: 'min(360px, 98%)', height: 'auto', cursor: asking ? 'pointer' : 'default' }} aria-hidden={!asking}>
+      {asking && <rect x="0" y={NL_y - 26} width={NL_W} height="52" fill="transparent"/>}
+      {asking && (
+        <g className="d2-nlcue-slide" style={{ pointerEvents: 'none' }} aria-hidden="true">
+          <circle className="d2-nlcue-ring" cx={nlx(NL_MIN)} cy={NL_y} r="7" fill="none" stroke="#F0A81E" strokeWidth="2"/>
+          <text className="d2-nlcue-hand" x={nlx(NL_MIN)} y={NL_y + 30} textAnchor="middle" fontSize="19">👆</text>
+        </g>
+      )}
+      <line x1={nlx(NL_MIN)} y1={NL_y} x2={nlx(NL_MAXV)} y2={NL_y} stroke={T.ink3} strokeWidth="2"/>
+      {!asking && <line x1={nlx(NL_MIN)} y1={NL_y} x2={nlx(Math.min(pos, 400))} y2={NL_y} stroke={T.accent} strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
+      {!asking && pos > 400 && <line x1={nlx(400)} y1={NL_y} x2={nlx(pos)} y2={NL_y} stroke={T.blue} strokeWidth="4" strokeLinecap="round" style={{ transition: 'all 0.6s' }}/>}
+      {[300, 400, 500, 600, 700, 800].map((v) => (
+        <g key={v}>
+          <line x1={nlx(v)} y1={NL_y - 6} x2={nlx(v)} y2={NL_y + 6} stroke={T.ink2} strokeWidth="2.2"/>
+          <text x={nlx(v)} y={NL_y + 20} textAnchor="middle" fontSize="11" fill={T.ink2} fontFamily="'JetBrains Mono', monospace">{v}</text>
+        </g>
+      ))}
+      {!asking && (
+        <g style={{ opacity: phase >= 1 ? 1 : 0, transition: 'opacity 0.4s' }}>
+          <path d={arc(300, 400, 30)} fill="none" stroke={T.accent} strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3.5"/>
+          <text x={(nlx(300) + nlx(400)) / 2} y={NL_y - 34} textAnchor="middle" fontSize="10" fontWeight="800" fill={T.accent} fontFamily="'JetBrains Mono', monospace">+100</text>
+        </g>
+      )}
+      {!asking && [400, 410, 420, 430, 440, 450, 460].map((a, i) => (
+        <path key={i} d={arc(a, a + 10, 12)} fill="none" stroke={T.blue} strokeWidth="2.2" strokeLinecap="round"
+          style={{ opacity: phase >= 2 ? 1 : 0, transition: `opacity 0.25s ${i * 0.14}s` }}/>
+      ))}
+      {guess !== null && (
+        <g>
+          <line x1={nlx(guess)} y1={NL_y - 20} x2={nlx(guess)} y2={NL_y + 6} stroke="#F0A81E" strokeWidth="2.5" strokeLinecap="round"/>
+          <path d={`M ${nlx(guess) - 5} ${NL_y - 20} L ${nlx(guess) + 5} ${NL_y - 20} L ${nlx(guess)} ${NL_y - 13} Z`} fill="#F0A81E"/>
+        </g>
+      )}
+      {!asking && (
+        <g style={{ transform: `translateX(${nlx(pos) - nlx(NL_MIN)}px)`, transition: 'transform 0.7s cubic-bezier(0.34, 1.2, 0.4, 1)' }}>
+          <text x={nlx(NL_MIN)} y={NL_y - 13} textAnchor="middle" fontSize="14" fontWeight="800" fill={T.ink} fontFamily="'JetBrains Mono', monospace">{pos}</text>
+          <circle cx={nlx(NL_MIN)} cy={NL_y} r="6" fill={T.ink}/>
+          <text className="d2-nlcue-hand" x={nlx(NL_MIN)} y={NL_y + 34} textAnchor="middle" fontSize="20">👆</text>
+        </g>
+      )}
+    </svg>
+  );
+};
 const Screen6 = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s6;
   const sfx = useSfx();
   const audio = useAudio([
-    brgSeg('s6', lang),
-    { id: 's6_q', text: c.q_audio[lang], trigger: 'after_previous', waits_for: { type: 'guessed' } },
-    ...c.audio[lang].map((text, i) => ({ id: `s6_${i}`, text, trigger: i === 0 ? 'on_event:guessed' : 'after_previous', waits_for: null }))
+    { id: 's6_q', text: c.q_audio[lang], trigger: 'on_mount', waits_for: { type: 'guessed' } },
+    ...c.audio[lang].map((text, i) => ({ id: `s6_${i}`, text, trigger: i === 0 ? 'on_event:go' : 'after_previous', waits_for: null }))
   ]);
-  const canAct = useCanAnswer(audio);
-  const trackRef = useRef(null);
+  const canAns = useCanAnswer(audio);
+  const seg = audio.currentSegment;
   const [guess, setGuess] = useState(null);
-  const placed = guess !== null;
-  const good = placed && Math.abs(guess - 470) <= 45;
-  const revealRef = useRevealScroll(good, 600);
-  const onTrack = (e) => {
-    if (!canAct || good) return;
-    const el = trackRef.current; if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const v = Math.round(Math.max(0, Math.min(1, x)) * 1000);
-    setGuess(v);
-    if (Math.abs(v - 470) <= 45) { sfx.playCorrect(); audio.triggerInternal('guessed'); }
+  const [reached, setReached] = useState(-1);
+  useEffect(() => { if (seg && /^s6_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
+  const phase = reached >= 2 ? 2 : reached >= 1 ? 1 : 0;
+  const done = reached >= 2;
+  const revealRef = useRevealScroll(done, 500);
+  const onGuess = (v) => {
+    if (guess !== null || !canAns) return;
+    setGuess(v); sfx.playCorrect();
+    audio.triggerInternal('go');
   };
-  const canAdv = useAdvanceGate(good, audio);
+  const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -2573,30 +2823,20 @@ const Screen6 = (props) => {
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, margin: 0 }}>{t(c.q)}</p>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(18px, 3vw, 30px) clamp(12px, 2vw, 18px)' }}>
-          <div ref={trackRef} className="lm-nl" onClick={onTrack} role="slider" aria-label="0-1000">
-            <div className="lm-nl-line"/>
-            {[0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000].map((v) => (
-              <div key={v} className="lm-nl-tick" style={{ left: `${v / 10}%` }}>
-                {v % 500 === 0 && <span className="lm-nl-lbl mono">{v}</span>}
-              </div>
-            ))}
-            {good && <div className="lm-nl-mark lm-nl-target" style={{ left: '47%' }}><span className="lm-nl-flag mono">470</span></div>}
-            {placed && !good && <div className="lm-nl-mark lm-nl-guess" style={{ left: `${guess / 10}%` }}><span className="lm-nl-flag mono">{guess}</span></div>}
-          </div>
+        {guess === null && (
+          <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 1.9vw, 16px)', margin: 0 }}>{t(c.q)}</p>
+        )}
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(140px, 30vw, 190px)' }}>
+          <NumberLineAnim phase={phase} guess={guess} onGuess={onGuess}/>
         </div>
-        {good && (
+        {done && (
           <div ref={revealRef} className="frame-success fade-up">
             <Reaction state="correct" praise={t(c.done_text)}/>
           </div>
         )}
-        {placed && !good && (
-          <div className="frame-tip fade-up"><Reaction state="wrong" praise={t(c.q)}/></div>
-        )}
-        {good && <InfoNote badge={t(c.info_badge)} text={t(c.info)}/>}
+        {done && <InfoNote badge={t(c.info_badge)} text={t(c.info)}/>}
       </div>
     </Stage>
   );
@@ -2650,7 +2890,8 @@ const Screen7 = (props) => {
   );
 };
 
-// s8 — MASHQ build 362 (scored, o'zi Tekshir bosadi)
+// s8 — MASHQ build (3 raund: 362, 530, 407). Har raundda berilgan sonni yig'adi.
+const S8_TARGETS = [362, 530, 407];
 const Screen8 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2661,32 +2902,41 @@ const Screen8 = (props) => {
     { id: 's8_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
   ]);
   const canAct = useCanAnswer(audio);
+  const [round, setRound] = useState(props.storedAnswer ? S8_TARGETS.length : 0);
   const [h, setH] = useState(0);
   const [tn, setTn] = useState(0);
   const [o, setO] = useState(0);
-  const [checked, setChecked] = useState(props.storedAnswer !== undefined);
-  const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
-  const correct = h === 3 && tn === 6 && o === 2;
+  const [checked, setChecked] = useState(false);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const done = round >= S8_TARGETS.length;
+  const target = S8_TARGETS[Math.min(round, S8_TARGETS.length - 1)];
+  const built = h * 100 + tn * 10 + o;
+  const correct = built === target;
   const revealRef = useRevealScroll(checked, 500);
-  const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : null);
-  const bump = (setter, val, max) => { if (!canAct || solved || val >= max) return; setter(val + 1); };
-  const drop = (setter, val) => { if (!canAct || solved || val <= 0) return; setter(val - 1); };
+  const bump = (setter, val, max) => { if (!canAct || checked || done || val >= max) return; setter(val + 1); };
+  const drop = (setter, val) => { if (!canAct || checked || done || val <= 0) return; setter(val - 1); };
   const check = () => {
-    if (!canAct || solved) return;
+    if (!canAct || checked || done) return;
     setChecked(true);
     const isOk = correct;
-    if (firstRef.current === null) firstRef.current = isOk;
+    if (!isOk) firstAllRef.current = false;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { setSolved(true); sfx.playCorrect(); }
-    props.onAnswer({
-      stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-      correctAnswer: '362', studentAnswer: String(h * 100 + tn * 10 + o), correct: isOk,
-      firstTry: firstRef.current, attempts: 1, solved: isOk
-    });
-    if (!isOk) setTimeout(() => setChecked(false), 1600);
+    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setH(0); setTn(0); setO(0); setRound((r) => r + 1); }, 950); }
+    else { setTimeout(() => setChecked(false), 1600); }
   };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
+        correctAnswer: String(S8_TARGETS.length), studentAnswer: String(S8_TARGETS.length), correct: true,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
-  const canAdv = useAdvanceGate(solved, audio);
+  const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -2695,30 +2945,39 @@ const Screen8 = (props) => {
   );
   const Ctrl = ({ val, add, sub, ico }) => (
     <div className="lm-ctrl">
-      <button className="lm-ctrl-btn" disabled={!canAct || solved || val <= 0} onClick={sub}>−</button>
+      <button className="lm-ctrl-btn" disabled={!canAct || checked || done || val <= 0} onClick={sub}>−</button>
       <span className="lm-ctrl-ico">{ico}</span>
-      <button className="lm-ctrl-btn" disabled={!canAct || solved} onClick={add}>+</button>
+      <button className="lm-ctrl-btn" disabled={!canAct || checked || done} onClick={add}>+</button>
     </div>
   );
+  const buildLabel = lang === 'ru' ? 'Собери число' : "Sonni yig'ing";
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.q)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <RazryadTable h={h} t={tn} o={o} labels={labels} concrete/>
-          <BigNum v={h * 100 + tn * 10 + o} accent={solved}/>
-          <div className="lm-srcrow">
-            <Ctrl val={h} add={() => bump(setH, h, 9)} sub={() => drop(setH, h)} ico={<Panel className="lm-src-ico"/>}/>
-            <Ctrl val={tn} add={() => bump(setTn, tn, 9)} sub={() => drop(setTn, tn)} ico={<Lenta className="lm-src-ico"/>}/>
-            <Ctrl val={o} add={() => bump(setO, o, 9)} sub={() => drop(setO, o)} ico={<Chiroq className="lm-src-ico"/>}/>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-            <button className="btn-white-accent" disabled={!canAct || solved} onClick={check}>{t(c.check_label)}</button>
-          </div>
-        </div>
-        {checked && (
-          <div ref={revealRef} className={correct ? 'frame-success fade-up' : 'frame-tip fade-up'}>
-            <Reaction state={correct ? 'correct' : 'wrong'} praise={(correct ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        {!done && (
+          <>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S8_TARGETS.length}</div>
+            <h1 className="title h-sub fade-up">{buildLabel}: <span className="mono" style={{ color: T.accent }}>{target}</span></h1>
+            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              <RazryadTable h={h} t={tn} o={o} labels={labels} concrete/>
+              <BigNum v={built} accent={checked && correct}/>
+              <div className="lm-srcrow">
+                <Ctrl val={h} add={() => bump(setH, h, 9)} sub={() => drop(setH, h)} ico={<Panel className="lm-src-ico"/>}/>
+                <Ctrl val={tn} add={() => bump(setTn, tn, 9)} sub={() => drop(setTn, tn)} ico={<Lenta className="lm-src-ico"/>}/>
+                <Ctrl val={o} add={() => bump(setO, o, 9)} sub={() => drop(setO, o)} ico={<Chiroq className="lm-src-ico"/>}/>
+              </div>
+              <button className="btn-white-accent" disabled={!canAct || checked} onClick={check}>{t(c.check_label)}</button>
+            </div>
+            {checked && (
+              <div ref={revealRef} className={correct ? 'frame-success fade-up' : 'frame-tip fade-up'}>
+                <Reaction state={correct ? 'correct' : 'wrong'} praise={(correct ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
+              </div>
+            )}
+          </>
+        )}
+        {done && (
+          <div className="frame-success fade-up">
+            <Reaction state="correct" praise={`${S8_TARGETS.length} / ${S8_TARGETS.length}`}/>
           </div>
         )}
       </div>
@@ -2726,8 +2985,9 @@ const Screen8 = (props) => {
   );
 };
 
-// s9 — TASNIFLASH 528: raqamlarni xonalarga (scored)
-const S9_DIGITS = [5, 2, 8];   // 528 -> h=5, t=2, o=8
+// s9 — TASNIFLASH (3 raund: 528, 703, 461). Har raundda son raqamlarini xonalarga ajratadi.
+const S9_NUMS = [528, 703, 461];
+const s9digits = (n) => [Math.floor(n / 100), Math.floor((n % 100) / 10), n % 10];
 const Screen9 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2738,61 +2998,81 @@ const Screen9 = (props) => {
     { id: 's9_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
   ]);
   const canAct = useCanAnswer(audio);
-  const [sel, setSel] = useState(null);          // tanlangan raqam indeksi
+  const [round, setRound] = useState(props.storedAnswer ? S9_NUMS.length : 0);
+  const [sel, setSel] = useState(null);
   const [bins, setBins] = useState({ h: null, t: null, o: null });
-  const [checked, setChecked] = useState(props.storedAnswer !== undefined);
-  const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
-  const placedCount = ['h', 't', 'o'].filter(k => bins[k] !== null).length;
-  const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : null);
+  const [checked, setChecked] = useState(false);
+  const [roundOk, setRoundOk] = useState(false);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const done = round >= S9_NUMS.length;
+  const num = S9_NUMS[Math.min(round, S9_NUMS.length - 1)];
+  const digits = s9digits(num);
   const revealRef = useRevealScroll(checked, 500);
   const usedIdx = new Set(Object.values(bins).filter(v => v !== null));
   const placeInto = (k) => {
-    if (!canAct || solved || sel === null || bins[k] !== null) return;
+    if (!canAct || checked || done || sel === null || bins[k] !== null) return;
     const nb = { ...bins, [k]: sel }; setSel(null); setBins(nb);
     if (['h', 't', 'o'].every(kk => nb[kk] !== null)) evaluate(nb);
   };
   const evaluate = (nb) => {
-    const isOk = nb.h === 0 && nb.t === 1 && nb.o === 2;   // indekslar: S9_DIGITS[0]=5->h, [1]=2->t, [2]=8->o
-    setChecked(true);
-    if (firstRef.current === null) firstRef.current = isOk;
+    const isOk = nb.h === 0 && nb.t === 1 && nb.o === 2;   // raqamlar xona tartibida: indeks 0=yuzlik, 1=o'nlik, 2=birlik
+    setChecked(true); setRoundOk(isOk);
+    if (!isOk) firstAllRef.current = false;
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { setSolved(true); sfx.playCorrect(); }
-    props.onAnswer({
-      stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-      correctAnswer: '5|2|8', studentAnswer: `${S9_DIGITS[nb.h]}|${S9_DIGITS[nb.t]}|${S9_DIGITS[nb.o]}`, correct: isOk,
-      firstTry: firstRef.current, attempts: 1, solved: isOk
-    });
-    if (!isOk) setTimeout(() => { setChecked(false); setBins({ h: null, t: null, o: null }); }, 1700);
+    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setBins({ h: null, t: null, o: null }); setSel(null); setRound((r) => r + 1); }, 1100); }
+    else { setTimeout(() => { setChecked(false); setBins({ h: null, t: null, o: null }); setSel(null); }, 1700); }
   };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
+        correctAnswer: String(S9_NUMS.length), studentAnswer: String(S9_NUMS.length), correct: true,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
   const labels = { h: t(c.hold_hundreds), t: t(c.hold_tens), o: t(c.hold_ones) };
-  const canAdv = useAdvanceGate(solved, audio);
+  const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
+  const sortLabel = lang === 'ru' ? 'Разложи цифры числа' : "Raqamlarni xonalarga ajrating";
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.q)}</h1>
-        <div className="lm-digtray fade-up delay-1">
-          {S9_DIGITS.map((d, i) => !usedIdx.has(i) && (
-            <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || solved} onClick={() => setSel(i)}>{d}</button>
-          ))}
-          {usedIdx.size === 3 && <span className="lm-digtray-empty mono">528</span>}
-        </div>
-        <div className="lm-bins fade-up delay-1">
-          {['h', 't', 'o'].map((k) => (
-            <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`} disabled={!canAct || solved || bins[k] !== null || sel === null} onClick={() => placeInto(k)}>
-              <span className="lm-bin-head mono">{labels[k]}</span>
-              <span className="lm-bin-slot mono">{bins[k] !== null ? S9_DIGITS[bins[k]] : ''}</span>
-            </button>
-          ))}
-        </div>
-        {checked && (
-          <div ref={revealRef} className={solved ? 'frame-success fade-up' : 'frame-tip fade-up'}>
-            <Reaction state={solved ? 'correct' : 'wrong'} praise={(solved ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        {!done && (
+          <>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S9_NUMS.length}</div>
+            <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
+            <div className="lm-digtray fade-up delay-1">
+              {digits.map((d, i) => !usedIdx.has(i) && (
+                <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || checked} onClick={() => setSel(i)}>{d}</button>
+              ))}
+              {usedIdx.size === 3 && <span className="lm-digtray-empty mono">{num}</span>}
+            </div>
+            <div className="lm-bins fade-up delay-1">
+              {['h', 't', 'o'].map((k) => (
+                <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`} disabled={!canAct || checked || bins[k] !== null || sel === null} onClick={() => placeInto(k)}>
+                  <span className="lm-bin-head mono">{labels[k]}</span>
+                  <span className="lm-bin-slot mono">{bins[k] !== null ? digits[bins[k]] : ''}</span>
+                </button>
+              ))}
+            </div>
+            {checked && (
+              <div ref={revealRef} className={roundOk ? 'frame-success fade-up' : 'frame-tip fade-up'}>
+                <Reaction state={roundOk ? 'correct' : 'wrong'} praise={(roundOk ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
+              </div>
+            )}
+          </>
+        )}
+        {done && (
+          <div className="frame-success fade-up">
+            <Reaction state="correct" praise={`${S9_NUMS.length} / ${S9_NUMS.length}`}/>
           </div>
         )}
       </div>
@@ -2801,77 +3081,187 @@ const Screen9 = (props) => {
 };
 
 // s10 — MC nol-o'rin 305
-const Screen10 = (props) => {
-  const c = CONTENT.s10;
+// MC KO'P-RAUNDLI TEST (3 savol ketma-ket, веди-до-verного: to'g'ri javobgacha keyingi raundга o'tmaydi).
+// renderFig — har raund uchun vizual. Grade3 yangiligi: har mashq testi 3 ketma-ket savol.
+const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
+  const lang = useLang();
   const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={withBridgeAudio(c, 's10')}
-      question={<div><Bridge/><QTitle q={t(c.q)}/></div>}
-      figure={() => <div className="lm-figwrap"><RazryadTable h={3} t={0} o={5} labels={{ h: 'H', t: 'O', o: 'B' }} concrete emph="t"/></div>}
-      options={[t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)]}
-      correctIdx={0}
-      optionsCols={2}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+  const sfx = useSfx();
+  const c = CONTENT[ck];
+  const items = c.items;
+  const audio = useAudio([
+    brgSeg(ck, lang),
+    { id: `${ck}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [hintMsg, setHintMsg] = useState(null);
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const it = items[idx];
+  const done = idx >= items.length;
+  const revealRef = useRevealScroll(done, 400);
+  const pick = (i) => {
+    if (!canAct || done || wrongSet.has(i)) return;
+    if (i === it.ci) {
+      sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      if (wrongSet.size === 0) setScore((s) => s + 1);
+      setTimeout(() => { setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 900);
+    } else {
+      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      firstAllRef.current = false;
+      setHintMsg((it.hints && it.hints[i]) || null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(((it.hints && it.hints[i]) || c.audio.on_wrong)[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(items[0].q),
+        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
   );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        {!done && it && (
+          <>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <h1 className="title h-sub fade-up">{t(it.q)}</h1>
+            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              {renderFig(it)}
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(100px, 1fr))`, gap: 10, width: '100%' }}>
+                {it.opts.map((o, i) => (
+                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                    style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)' }}>{t(o)}</button>
+                ))}
+              </div>
+              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
+            </div>
+          </>
+        )}
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+const Screen10 = (props) => {
+  const lang = useLang();
+  const labels = { h: lang === 'ru' ? 'сотни' : 'yuzlik', t: lang === 'ru' ? 'десятки' : "o'nlik", o: lang === 'ru' ? 'единицы' : 'birlik' };
+  return <MCRoundScreen props={props} ck="s10" cols={3} renderFig={(it) => <div className="lm-figwrap"><RazryadTable h={it.hto[0]} t={it.hto[1]} o={it.hto[2]} labels={labels} concrete emph="t"/></div>}/>;
 };
 
-// s11 — MC taqqoslash 345 va 354
-const Screen11 = (props) => {
-  const c = CONTENT.s11;
-  const t = useT();
-  return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={withBridgeAudio(c, 's11')}
-      question={<div><Bridge/><QTitle q={t(c.q)}/></div>}
-      figure={() => (
-        <div className="lm-cmprow">
-          <div className="lm-cmpcell"><BigNum v={345}/></div>
-          <span className="lm-cmpvs mono">?</span>
-          <div className="lm-cmpcell"><BigNum v={354}/></div>
-        </div>
-      )}
-      options={[t(c.opt0), t(c.opt1)]}
-      correctIdx={1}
-      optionsCols={2}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
-  );
-};
+// s11 — MC taqqoslash (3 raund: 345/354, 482/428, 600/599)
+const Screen11 = (props) => (
+  <MCRoundScreen props={props} ck="s11" cols={2} renderFig={(it) => (
+    <div className="lm-cmprow">
+      <div className="lm-cmpcell"><BigNum v={it.pair[0]}/></div>
+      <span className="lm-cmpvs mono">?</span>
+      <div className="lm-cmpcell"><BigNum v={it.pair[1]}/></div>
+    </div>
+  )}/>
+);
 
 // sCASE — shahar hisobi (s12 setup + s13 savol): jami 346
+// --- RAQAM-PLITA (klaviatursiz javob TERISH — grade3 yangiligi: TANISH emas, ISHLAB CHIQARISH).
+// value — string; max — xona soni. Grade2 praktika NumPad naqshi, T-palitraga moslangan.
+const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(36px, 8.5vw, 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
+const NumPad = ({ value, setValue, disabled, max = 3 }) => {
+  const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
+  const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div className="mono" style={{ minWidth: 124, height: 46, borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+          <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
+        ))}
+        <span/>
+        <button type="button" disabled={disabled} onClick={() => push('0')} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>0</button>
+        <button type="button" disabled={disabled} onClick={back} style={{ ...npKey, fontSize: 18, color: T.accent, cursor: disabled ? 'default' : 'pointer' }}>⌫</button>
+      </div>
+    </div>
+  );
+};
+
+// sCASE — MASALA: shahar hisobi. YANGILIK — javob MC-tanish emas, raqam-plita bilan TERILADI (346).
+// Veди-до-verного: to'g'ri terilmaguncha "Davom" ochilmaydi; xato-hint faqat METODNI aytadi (sonni emas).
+const CASE_ANS = 346;
 const ScreenCase = (props) => {
   const lang = useLang();
   const t = useT();
   const s12 = CONTENT.s12;
   const s13 = CONTENT.s13;
-  const sc = {
-    ...s13,
-    audio: {
-      ...s13.audio,
-      intro: { ru: `${s12.audio.ru} ${s13.audio.intro.ru}`, uz: `${s12.audio.uz} ${s13.audio.intro.uz}` }
-    }
+  const sfx = useSfx();
+  const audio = useAudio([
+    brgSeg('s12', lang),
+    { id: 'sCASE_manifest', text: s12.audio[lang], trigger: 'after_previous', waits_for: null },
+    { id: 'sCASE_intro', text: s13.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [val, setVal] = useState(props.storedAnswer ? String(props.storedAnswer.studentAnswer) : '');
+  const [checked, setChecked] = useState(props.storedAnswer !== undefined);
+  const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
+  const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : null);
+  const revealRef = useRevealScroll(checked, 500);
+  const correct = parseInt(val, 10) === CASE_ANS;
+  const check = () => {
+    if (!canAct || solved || val === '') return;
+    setChecked(true);
+    const isOk = correct;
+    if (firstRef.current === null) firstRef.current = isOk;
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? s13.audio.on_correct : s13.audio.on_wrong)[lang]); }
+    if (isOk) { setSolved(true); sfx.playCorrect(); }
+    props.onAnswer({
+      stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(s13.q),
+      correctAnswer: String(CASE_ANS), studentAnswer: val, correct: isOk,
+      firstTry: firstRef.current, attempts: 1, solved: isOk
+    });
+    if (!isOk) setTimeout(() => { setChecked(false); setVal(''); }, 1600);
   };
+  const canAdv = useAdvanceGate(solved, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  const askLine = lang === 'ru' ? 'Набери ответ, нажимая цифры:' : 'Raqamlarni bosib javobni tering:';
   return (
-    <QuestionScreen
-      screen={props.screen} idx={props.screen} totalScreens={TOTAL_SCREENS}
-      screenMeta={SCREEN_META[props.screen]} screenContent={withBridgeAudio(sc, 's12')}
-      question={<div><Bridge/><QTitle title={t(s12.lead)} q={t(s13.q)}/></div>}
-      figure={() => <div className="lm-figwrap"><PlaceViz hundreds={3} tens={4} ones={6}/></div>}
-      options={[t(s13.opt0), t(s13.opt1), t(s13.opt2), t(s13.opt3)]}
-      correctIdx={0}
-      optionsCols={2}
-      mascot={false}
-      storedAnswer={props.storedAnswer} onAnswer={props.onAnswer}
-      onNext={props.onNext} onPrev={props.onPrev}
-    />
+    <Stage eyebrow={s12.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
+        <p className="fade-up" style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(s12.lead)}</p>
+        <h1 className="title h-sub fade-up delay-1" style={{ margin: 0 }}>{t(s13.q)}</h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(10px, 2vw, 16px)' }}>
+          <div className="lm-figwrap"><PlaceViz hundreds={3} tens={4} ones={6} small/></div>
+          <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
+          <NumPad value={val} setValue={setVal} disabled={!canAct || solved} max={3}/>
+          <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+        </div>
+        {checked && (
+          <div ref={revealRef} className={correct ? 'frame-success fade-up' : 'frame-tip fade-up'}>
+            <Reaction state={correct ? 'correct' : 'wrong'} praise={(correct ? s13.audio.on_correct : s13.audio.on_wrong)[lang]}/>
+          </div>
+        )}
+      </div>
+    </Stage>
   );
 };
 
@@ -2888,10 +3278,13 @@ const Screen14 = (props) => {
   const canAct = useCanAnswer(audio);
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
   const [picked, setPicked] = useState(null);
+  const [val, setVal] = useState('');
+  const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
+  const PASS = Math.ceil(items.length * 0.7); // 5 dan 4
   const pick = (i) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
@@ -2900,6 +3293,14 @@ const Screen14 = (props) => {
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx(n => n + 1); }, 1500);
   };
+  const checkNum = () => {
+    if (!canAct || numLock || val === '' || idx >= items.length) return;
+    setNumLock(true);
+    const isOk = parseInt(val, 10) === it.ans;
+    if (isOk) setScore(s => s + 1);
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
+    setTimeout(() => { setVal(''); setNumLock(false); setIdx(n => n + 1); }, 1700);
+  };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
@@ -2907,13 +3308,14 @@ const Screen14 = (props) => {
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.intro_line),
-        correctAnswer: '4', studentAnswer: finalScore, correct: finalScore >= 3,
-        firstTry: finalScore >= 3, attempts: 1, solved: finalScore >= 3
+        correctAnswer: String(items.length), studentAnswer: finalScore, correct: finalScore >= PASS,
+        firstTry: finalScore >= PASS, attempts: 1, solved: finalScore >= PASS
       });
     }
   }, [idx]);
   const done = idx >= items.length;
   const canAdv = useAdvanceGate(done, audio);
+  const numWrong = numLock && it && it.kind === 'num' && parseInt(val, 10) !== it.ans;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -2928,16 +3330,30 @@ const Screen14 = (props) => {
           <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
             <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
             <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
-              {[it.opt0, it.opt1, it.opt2].map((o, i) => (
-                <button key={i} className={`option ${picked === i ? (i === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
-                  style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)' }}>
-                  {t(o)}
-                </button>
-              ))}
-            </div>
-            {picked !== null && picked !== 0 && (
-              <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${picked}`] || it.wrong_1)}</p>
+            {it.kind === 'num' ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                </div>
+                {numWrong && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+              </>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
+                  {[it.opt0, it.opt1, it.opt2].map((o, i) => (
+                    <button key={i} className={`option ${picked === i ? (i === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
+                      style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)' }}>
+                      {t(o)}
+                    </button>
+                  ))}
+                </div>
+                {picked !== null && picked !== 0 && (
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${picked}`] || it.wrong_1)}</p>
+                )}
+              </>
             )}
           </div>
         )}
@@ -2974,20 +3390,24 @@ const Screen15 = (props) => {
   );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <div className="frame fade-up" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <HookScene gathered/>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.4vw, 16px)', position: 'relative' }}>
+        {/* 3 miltirovchi yulduz (grade2 yakun naqshi) */}
+        <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="g1-pop-in" style={{ animationDelay: `${0.1 + i * 0.18}s`, display: 'inline-flex' }}>
+              <svg viewBox="0 0 40 40" style={{ width: 'clamp(26px, 6vw, 34px)', height: 'auto', animation: `g1twinkle ${1.8 + i * 0.3}s ease-in-out ${0.7 + i * 0.25}s infinite` }} aria-hidden="true">
+                <path d="M20 3 L25.2 14.6 L38 16 L28.5 24.6 L31.2 37 L20 30.4 L8.8 37 L11.5 24.6 L2 16 L14.8 14.6 Z" fill="#FFC23C"/>
+              </svg>
+            </span>
+          ))}
         </div>
-        <h1 className="title h-sub fade-up delay-1" style={{ textAlign: 'center' }}>{t(c.mission_done)}</h1>
-        <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, margin: 0 }}>{t(c.cando)}</p>
-        <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Правило' : 'Qoida'}</span>
-          <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
+        <Confetti/>
+        <div className="frame-success fade-up">
+          <h2 className="title h-title" style={{ margin: 0, textAlign: 'center' }}>{t(c.mission_done)}</h2>
+          <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
-        <div className="lm-conn fade-up delay-1">
-          <div className="lm-conn-row"><span className="lm-conn-lbl mono">{t(c.conn_label_refs)}</span><span>{t(c.conn_refs)}</span></div>
-          <div className="lm-conn-row"><span className="lm-conn-lbl mono">{t(c.conn_label_next)}</span><span>{t(c.conn_next)}</span></div>
-        </div>
+        {/* to'liq kenglikdagi bayram sahnasi (Lumo + ekipaj quvonadi) */}
+        <div className="fade-up delay-1"><HookScene gathered/></div>
       </div>
     </Stage>
   );
@@ -3045,7 +3465,7 @@ export default function TensUnitsLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, ScreenCase, Screen14, Screen15];
+  const screens = [Screen0, Screen1, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, ScreenCase, Screen14, Screen15];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -4876,7 +5296,23 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @keyframes lm-float-a { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-6px) rotate(8deg); } }
 .lm-fly { animation: lm-fly-a 7s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
 @keyframes lm-fly-a { 0% { transform: translate(0, 0); } 25% { transform: translate(10px, -4px); } 50% { transform: translate(20px, 2px); } 75% { transform: translate(10px, -3px); } 100% { transform: translate(0, 0); } }
-@media (prefers-reduced-motion: reduce) { .lm-cstar, .lm-cwin, .lm-glow, .lm-float, .lm-fly { animation: none; } }
+/* Video-uslub silliq ochilish (sekin fade + siljish, ovozga sinxron bosqichma-bosqich) */
+.lm-reveal { animation: lm-reveal-a 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.lm-write { display: inline-block; animation: lm-reveal-a 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@keyframes lm-reveal-a { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
+.lm-d1 { animation-delay: 0.28s; } .lm-d2 { animation-delay: 0.56s; } .lm-d3 { animation-delay: 0.84s; }
+/* raqam yuqoridan sakrab tushadi (video-harakat) */
+.lm-drop { display: inline-block; animation: lm-drop-a 0.62s cubic-bezier(0.34, 1.5, 0.5, 1) both; }
+@keyframes lm-drop-a { 0% { opacity: 0; transform: translateY(-32px) scale(0.8); } 60% { opacity: 1; } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+.lm-fadein { display: inline-block; animation: lm-fadein-a 0.4s ease both; }
+@keyframes lm-fadein-a { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
+.lm-nl-cue { position: absolute; top: 50%; transform: translateX(-50%); z-index: 3; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+.lm-nl-ring { width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid #F0A81E; margin-bottom: 4px; animation: lm-nl-ring-a 1.4s ease-out infinite; }
+@keyframes lm-nl-ring-a { 0% { transform: scale(0.7); opacity: 0.9; } 70% { transform: scale(1.5); opacity: 0; } 100% { opacity: 0; } }
+.lm-nl-finger { font-size: clamp(20px, 5vw, 28px); line-height: 1; animation: lm-nl-finger-a 1.3s ease-in-out infinite; }
+@keyframes lm-nl-finger-a { 0%, 100% { transform: translateY(3px); } 50% { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .lm-cstar, .lm-cwin, .lm-glow, .lm-float, .lm-fly, .lm-nl-ring, .lm-nl-finger { animation: none; } }
 
 .lm-field { position: relative; width: 100%; aspect-ratio: 400 / 250; border-radius: 12px; overflow: hidden; }
 .lm-flenta { position: absolute; width: clamp(60px, 13vw, 88px); border: none; background: transparent; padding: 0; cursor: pointer; transform: rotate(var(--r, 0deg)); animation: lm-fl-in 0.5s both; z-index: 2; transition: transform 0.15s; }

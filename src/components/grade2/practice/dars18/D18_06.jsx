@@ -123,3 +123,9 @@ function D18_06Impl(props) {
 export default function D18_06(props) {
   return (<><style>{FX_CSS}</style><D18_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D18_06.audio = {
+  uz: { intro: "O'rin almashishda juftlar teng bo'lishi kerak. Bittasida xato bor. Qaysi qatorda o'rin almashish NOTO'G'RI?", on_correct: "To'g'ri. 6 ko'paytirish 3 teng 18, 20 emas. 3 ko'paytirish 6 va 6 ko'paytirish 3, ikkalasi 18.", on_wrong: "Maslahat. Har juftni tekshiring. 3 ko'paytirish 6 va 6 ko'paytirish 3 teng bo'lishi kerak." },
+  ru: { intro: "При перестановке пары должны быть равны. В одной ошибка. В какой строке перестановка НЕВЕРНА?", on_correct: "Верно. 6 умножить на 3 равно 18, а не 20. 3 умножить на 6 и 6 умножить на 3, оба 18.", on_wrong: "Подсказка. Проверь каждую пару. 3 умножить на 6 и 6 умножить на 3 должны быть равны." },
+};

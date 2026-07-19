@@ -162,3 +162,9 @@ function D07_03Impl(props) {
 export default function D07_03(props) {
   return (<><style>{FX_CSS}</style><D07_03Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D07_03.audio = {
+  uz: { intro: "Stolbik 52 qo'shish 16. Birlik javobi 8 yozilgan. O'nliklar ustunini qo'shing. 5 qo'shish 1 teng?", on_correct: "To'g'ri. 5 qo'shish 1 teng 6 o'nlik ya'ni 60. Javob 68.", on_wrong: "Maslahat. Faqat o'nliklar ustunini qo'shing, 5 va 1. Birlikni aralashtirmang." },
+  ru: { intro: "Столбик 52 плюс 16. Ответ единиц 8 записан. Сложи столбец десятков. 5 плюс 1 равно?", on_correct: "Верно. 5 плюс 1 равно 6 десятков то есть 60. Ответ 68.", on_wrong: "Подсказка. Складывай только столбец десятков, 5 и 1. Не смешивай с единицами." },
+};

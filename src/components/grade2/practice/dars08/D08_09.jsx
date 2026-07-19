@@ -164,3 +164,9 @@ function D08_09Impl(props) {
 export default function D08_09(props) {
   return (<><style>{FX_CSS}</style><D08_09Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D08_09.audio = {
+  uz: { intro: "Stolbik. 5 qancha ayirish 24 teng 33. Birlik raqami yashiringan. Yashirin birlik raqamini toping. Variantlar, ifoda ko'rinishida.", on_correct: "To'g'ri. Birliklar. 7 ayirish 4 teng 3, demak yashirin raqam 7. 4 qo'shish 3 teng 7", on_wrong: "Maslahat. Birliklar ustuniga qarang, qancha ayirish 4 teng 3. Qaysi ifoda mos qiymat beradi?" },
+  ru: { intro: "Столбик. 5 сколько минус 24 равно 33. Цифра единиц скрыта. Найди скрытую цифру единиц. Варианты, в виде выражений.", on_correct: "Верно. Единицы. 7 минус 4 равно 3, значит скрытая цифра 7. 4 плюс 3 равно 7", on_wrong: "Подсказка. Смотри на столбец единиц, сколько минус 4 равно 3. Какое выражение даёт нужное значение?" },
+};

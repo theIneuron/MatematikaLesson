@@ -128,3 +128,9 @@ function D04_05Impl(props) {
 export default function D04_05(props) {
   return (<><style>{FX_CSS}</style><D04_05Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D04_05.audio = {
+  uz: { intro: "Uch kod. 27, 54, 40. Ular orasiga belgi qo'yiladi. Pastdagi belgini bosing, keyin uni bo'sh joyga qo'ying.", on_correct: "To'g'ri. 27 kichik 54 va 54 katta 40.", on_wrong: "Maslahat. Har juftni alohida, chapdan o'ngga solishtiring. Belgi kattaga qaraydi." },
+  ru: { intro: "Три кода. 27, 54, 40. Между ними ставят знаки. Нажми знак внизу, затем поставь его в пустое место.", on_correct: "Верно. 27 меньше 54 и 54 больше 40.", on_wrong: "Подсказка. Сравнивай каждую пару отдельно, слева направо. Знак смотрит на большее." },
+};

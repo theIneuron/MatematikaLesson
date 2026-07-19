@@ -138,3 +138,9 @@ function D02_02Impl(props) {
 export default function D02_02(props) {
   return (<><style>{FX_CSS}</style><D02_02Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D02_02.audio = {
+  uz: { intro: "Dispetcher kodni ovoz bilan uzatdi. Ellik uch. Dispetcher aytgan kodni raqamlar bilan yozing. Ellik uch.", on_correct: "To'g'ri. Ellik teng 5 o'nlik teng 50, uch teng 3 birlik. 50 qo'shish 3 teng 53.", on_wrong: "Maslahat. Ellik, 5 o'nlik 50, uch, 3 birlik. Ularni yopishtirmang. 503 emas, 53." },
+  ru: { intro: "Диспетчер передал код голосом. Пятьдесят три. Запиши код цифрами. Пятьдесят три.", on_correct: "Верно. Пятьдесят равно 5 десятков равно 50, три равно 3 единицы. 50 плюс 3 равно 53.", on_wrong: "Подсказка. Пятьдесят, 5 десятков 50, три, 3 единицы. Не склеивай. Не 503, а 53." },
+};

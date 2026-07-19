@@ -1,0 +1,134 @@
+// Dars 12 · Amaliyot 05 — mustaqil jsx-question (per-task split).
+// Kontrakt: onReady / registerCheck / onSubmit. O'z "Tekshirish" tugmasi yo'q — PracticeHost beradi.
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+
+/* ============================== CORE ============================== */
+const C = {
+  acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
+  ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
+  stage: 'radial-gradient(ellipse at 58% 24%, #7a4231 0%, #431f15 60%, #260f09 100%)', stageBd: '#2A3A5A', sink: '#EAF0F8', sink2: '#AEBAD0', stile: '#16223c',
+  gold: '#FFC23C', goldSoft: '#FFD873', leaf: '#7CE0A3', leaf2: '#3Fb572',
+};
+const STARS = [[8,18,0],[22,9,1.1],[37,26,.5],[52,12,1.7],[68,20,.8],[81,10,2.1],[91,30,1.3],[14,40,1.9],[46,44,.6],[63,38,1.4],[77,46,2.3],[30,54,1],[88,52,.4],[6,62,1.6]];
+const Stage = ({ children, style }) => (
+  <div style={{ position:'relative', overflow:'hidden', background:C.stage, border:'1px solid '+C.stageBd, borderRadius:16, padding:'12px 10px', margin:'10px 0', ...style }}>
+    <div aria-hidden="true" style={{ position:'absolute', inset:0, pointerEvents:'none' }}>
+      {STARS.map((s,i)=><span key={i} className="px-star" style={{ position:'absolute', left:s[0]+'%', top:s[1]+'%', width:i%4===0?3:2, height:i%4===0?3:2, borderRadius:'50%', background:'#dbe7ff', animationDelay:s[2]+'s' }} />)}
+    </div>
+    <div style={{ position:'relative' }}>{children}</div>
+  </div>
+);
+const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>);
+const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>);
+const S = {
+  wrap: { maxWidth:640, margin:'0 auto', padding:'4px 2px 8px' },
+  eyebrow: { fontSize:12, fontWeight:800, letterSpacing:'.04em', color:C.acc, textTransform:'uppercase' },
+  setup: { fontSize:16, lineHeight:1.5, margin:'6px 0 12px', color:'#374151' },
+  ask: { fontSize:17, fontWeight:700, margin:'14px 0 12px', color:C.ink },
+  mono: { fontFamily:"'JetBrains Mono', ui-monospace, monospace" },
+};
+const FB = ({ ok, text }) => (
+  <div style={{ display:'flex', alignItems:'flex-start', gap:10, marginTop:16, padding:'13px 15px', borderRadius:14, fontSize:15, lineHeight:1.45, fontWeight:600, background: ok?C.okSoft:C.noSoft, color: ok?C.ok:C.no }}>
+    {ok ? <IconOk/> : <IconNo/>}<span>{text}</span>
+  </div>
+);
+const RuleChip = ({ text }) => (
+  <div className="px-pop" style={{ display:'flex', alignItems:'center', gap:8, marginTop:10, padding:'10px 13px', borderRadius:12, fontSize:13.5, fontWeight:700, background:'#FFF6E9', border:'1.5px solid #FFDFA6', color:'#B45309' }}>
+    <span style={{ fontSize:15 }}>💡</span><span>{text}</span>
+  </div>
+);
+function useReg(check, registerCheck) { const ref = useRef(check); ref.current = check; useEffect(()=>{ registerCheck?.(()=>ref.current()); }, [registerCheck]); }
+// Order: tap step cards in the correct sequence (1,2). Signature type for two-step lesson.
+function makeOrder(cfg) {
+  function Comp(props) {
+    const { lang='uz', mode='answer', initialAnswer=null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props||{};
+    const t = Comp.T[lang]||Comp.T.uz; const isReview = mode==='review';
+    const [order,setOrder]=useState([]),[fb,setFb]=useState(null),[checked,setChecked]=useState(false);
+    useEffect(()=>{ const sa=initialAnswer?.studentAnswer; if(sa?.order){ setOrder(sa.order); if(typeof initialAnswer.correct==='boolean'){ setFb({correct:initialAnswer.correct}); setChecked(true); } } },[initialAnswer]);
+    const n = t.cards.length;
+    useEffect(()=>{ onReady?.(order.length===n && !checked); },[order,checked,onReady,n]);
+    const tap = (i)=>{ if(isReview||checked) return; setOrder((o)=> o.includes(i)? o.filter((x)=>x!==i) : (o.length<n? [...o,i] : o)); };
+    const check = useCallback(()=>{ const correct = order.length===n && order.every((ci,pos)=>t.cards[ci].pos===pos); setFb({correct}); setChecked(true); correct?playCorrect?.():playWrong?.();
+      onSubmit?.({ questionText:t.ask, options:t.cards.map((c,i)=>({id:String(i),label:c.txt})), studentAnswer:{order}, correctAnswer:{order:t.cards.map((c,i)=>[i,c.pos]).sort((a,b)=>a[1]-b[1]).map((x)=>x[0])}, correct, meta:{tag:cfg.tag,level:cfg.level} }); },[order,t,playCorrect,playWrong,onSubmit]);
+    useReg(check,registerCheck);
+    const cardStyle = (i)=>{ const rank=order.indexOf(i); const on=rank>=0; let bd=on?C.acc:C.line, bg=on?C.accSoft:C.paper, col=C.ink;
+      if(checked){ const okp=t.cards[i].pos===rank; bd=okp?C.ok:C.no; bg=okp?C.okSoft:C.noSoft; col=okp?C.ok:C.no; }
+      return { display:'flex', alignItems:'center', gap:12, width:'100%', padding:'15px 15px', borderRadius:13, border:'2px solid '+bd, background:bg, color:col, ...S.mono, fontSize:20, fontWeight:800, cursor:(isReview||checked)?'default':'pointer', marginBottom:10, minHeight:56 }; };
+    return (
+      <div style={S.wrap}>
+        <div style={S.eyebrow}>{t.eyebrow}</div>
+        <p style={S.setup}>{t.setup}</p>
+        {cfg.stage && <Stage>{cfg.stage(t,{})}</Stage>}
+        <p style={S.ask}>{t.ask}</p>
+        {t.cards.map((c,i)=>{ const rank=order.indexOf(i); return (
+          <button key={i} type="button" style={cardStyle(i)} disabled={isReview||checked} onClick={()=>tap(i)}>
+            <span style={{ width:30, height:30, borderRadius:'50%', flex:'0 0 auto', background: rank>=0?C.acc:'#e5e7eb', color: rank>=0?'#fff':'#9ca3af', display:'inline-flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:800 }}>{rank>=0?rank+1:'?'}</span>
+            <span>{c.txt}</span>
+          </button>
+        ); })}
+        {fb && <FB ok={fb.correct} text={fb.correct?t.correct:t.wrong} />}
+        {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
+      </div>
+    );
+  }
+  return Comp;
+}
+/* ============================== MARS SCENE ============================== */
+const Kema = ({ w = 130 }) => (
+  <svg width={w} viewBox="0 0 130 66" aria-hidden="true">
+    <defs>
+      <linearGradient id="pxhull" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E9EEF6"/><stop offset="100%" stopColor="#AEBCD2"/></linearGradient>
+      <linearGradient id="pxflame" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FFE08A"/><stop offset="60%" stopColor="#FF9A3C"/><stop offset="100%" stopColor="#FF4F28"/></linearGradient>
+    </defs>
+    <ellipse cx="65" cy="58" rx="46" ry="6" fill="rgba(0,0,0,.25)"/>
+    <g className="px-float">
+      <path d="M30 33 Q65 6 100 33 L100 40 Q65 52 30 40 Z" fill="url(#pxhull)" stroke="#8697b0" strokeWidth="1.2"/>
+      <circle cx="65" cy="30" r="7" fill="#22335c" stroke="#7fd0ff" strokeWidth="1.6"/>
+      <path d="M30 36 L18 44 L30 40 Z" fill="#c0392b"/><path d="M100 36 L112 44 L100 40 Z" fill="#c0392b"/>
+      <path d="M52 46 Q65 58 78 46 Z" fill="url(#pxflame)"/>
+    </g>
+  </svg>
+);
+const CargoCap = ({ text }) => (<div style={{ textAlign:'center', marginTop:6, fontSize:13.5, fontWeight:700, color:C.goldSoft }}>{text}</div>);
+const marsMC = (t)=>(<div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:4 }}><Kema/><CargoCap text={t.scene} /></div>);
+/* ===== 05 · steporder · order · steporder · TARTIBLASH ===== */
+const D05 = makeOrder({ tag:'steporder', level:'🟡', stage:marsMC });
+
+D05.T = {
+  uz: { eyebrow:'Amallar tartibi', setup:'Kemada 45 quti bor edi, 20 tasi ortildi, keyin 30 tasi sarflandi.', scene:'Mars bazasi · qadamlar', ask:"Amallarni to'g'ri tartibda bosing (1, keyin 2):",
+    cards:[{ txt:'65 − 30 = 35', pos:1 }, { txt:'45 + 20 = 65', pos:0 }],
+    correct:"To'g'ri. Avval 45 + 20 = 65 (oraliq), keyin 65 − 30 = 35.", wrong:'Voqea tartibi: avval ortildi, keyin sarflandi. Qaysi amal birinchi?', rule:'1) 45 + 20 = 65   2) 65 − 30 = 35.' },
+  ru: { eyebrow:'Порядок действий', setup:'На корабле было 45 ящиков, 20 загрузили, затем 30 израсходовали.', scene:'База Марс · шаги', ask:'Нажми действия в верном порядке (1, затем 2):',
+    cards:[{ txt:'65 − 30 = 35', pos:1 }, { txt:'45 + 20 = 65', pos:0 }],
+    correct:'Верно. Сначала 45 + 20 = 65, затем 65 − 30 = 35.', wrong:'Порядок событий: сначала загрузили, потом израсходовали. Что первое?', rule:'1) 45 + 20 = 65   2) 65 − 30 = 35.' },
+};
+
+const FX_CSS = `
+        .tabs { display:flex; gap:6px; overflow-x:auto; padding:8px 10px; border-bottom:1px solid #eef0f4; }
+        .tabs::-webkit-scrollbar { display:none; }
+        .tab { flex:0 0 auto; padding:7px 11px; border-radius:999px; font-size:12.5px; font-weight:700; white-space:nowrap; cursor:pointer; border:1.5px solid #e5e7eb; background:#fff; color:#6b7280; min-height:34px; }
+        .tab.on { border-color:#0E0E10; background:#0E0E10; color:#fff; }
+        .tab.ok { border-color:#1F7A4D; color:#1F7A4D; }
+        .tab.on.ok { background:#1F7A4D; border-color:#1F7A4D; color:#fff; }
+        .px-pop { animation: pxpop .4s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes pxpop { 0% { opacity:0; transform:scale(.3); } 100% { opacity:1; transform:scale(1); } }
+        .px-star { opacity:.35; animation: pxtw 3.2s ease-in-out infinite; }
+        @keyframes pxtw { 0%,100% { opacity:.18; transform:scale(1); } 50% { opacity:.95; transform:scale(1.6); } }
+        .px-drop { animation: pxdrop .5s cubic-bezier(.34,1.56,.64,1) both; }
+        @keyframes pxdrop { 0% { opacity:0; transform:translateY(-6px) scale(.4); } 100% { opacity:1; transform:scale(1); } }
+        .px-float { animation: pxfloat 3s ease-in-out infinite; }
+        @keyframes pxfloat { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-4px); } }
+        .px-pulse { animation: pxpulse 1.5s ease-in-out infinite; }
+        @keyframes pxpulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.08); } }
+        @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+      `;
+
+export default function D12_05(props) {
+  return (<><style>{FX_CSS}</style><D05 {...props} /></>);
+}
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D12_05.audio = {
+  uz: { intro: "Kemada 45 quti bor edi, 20 tasi ortildi, keyin 30 tasi sarflandi. Amallarni to'g'ri tartibda bosing 1, keyin 2.", on_correct: "To'g'ri. Avval 45 qo'shish 20 teng 65 oraliq, keyin 65 ayirish 30 teng 35.", on_wrong: "Voqea tartibi. Avval ortildi, keyin sarflandi. Qaysi amal birinchi?" },
+  ru: { intro: "На корабле было 45 ящиков, 20 загрузили, затем 30 израсходовали. Нажми действия в верном порядке 1, затем 2.", on_correct: "Верно. Сначала 45 плюс 20 равно 65, затем 65 минус 30 равно 35.", on_wrong: "Порядок событий. Сначала загрузили, потом израсходовали. Что первое?" },
+};

@@ -182,3 +182,9 @@ function D09_05Impl(props) {
 export default function D09_05(props) {
   return (<><style>{FX_CSS}</style><D09_05Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D09_05.audio = {
+  uz: { intro: "Stolbik 48 qo'shish 16. Tepada ko'chuvchi 1 ko'rinadi. Birliklar 8 qo'shish 6, ko'chgan o'nlikni unutmang. Javobni tering.", on_correct: "To'g'ri. 8 qo'shish 6 teng 14, 4 yozamiz, 1 ko'chadi. 4 qo'shish 1 qo'shish 1 teng 6. Javob 64.", on_wrong: "Maslahat. Birliklardan boshlang. So'ng o'nliklarga ko'chgan 1 ni ham qo'shing." },
+  ru: { intro: "Столбик 48 плюс 16. Сверху виден перенос 1. Единицы 8 плюс 6, не забудь перенесённый десяток. Набери ответ.", on_correct: "Верно. 8 плюс 6 равно 14, пишем 4, 1 переносим. 4 плюс 1 плюс 1 равно 6. Ответ 64.", on_wrong: "Подсказка. Начни с единиц. Потом прибавь к десяткам перенесённую 1." },
+};

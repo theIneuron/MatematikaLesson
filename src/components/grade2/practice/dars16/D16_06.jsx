@@ -134,3 +134,9 @@ function D16_06Impl(props) {
 export default function D16_06(props) {
   return (<><style>{FX_CSS}</style><D16_06Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D16_06.audio = {
+  uz: { intro: "Har lotokda 7 ta ko'chat. Lotoklarni birma-bir qo'shing, 28 ta ko'chat kerak. Qo'shish 7 tugmasini bosib, 28 ga yeting. Nechta lotok kerak?", on_correct: "To'g'ri. 7 ni 4 marta oldingiz. 7, 14, 21, 28, bu 7 ko'paytirish 4 teng 28.", on_wrong: "Maslahat. Har bosishda 7 qo'shiladi. 7, 14, 21, 28, qaysida 28 bo'ladi?" },
+  ru: { intro: "В каждом лотке по 7 саженцев. Добавляй лотки по одному, нужно 28. Нажимай плюс 7, дойди до 28. Сколько лотков нужно?", on_correct: "Верно. Ты взял 7 четыре раза. 7, 14, 21, 28, это 7 умножить на 4 равно 28.", on_wrong: "Подсказка. Каждое нажатие добавляет 7. 7, 14, 21, 28, где будет 28?" },
+};

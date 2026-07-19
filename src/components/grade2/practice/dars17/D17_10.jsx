@@ -144,3 +144,9 @@ function D17_10Impl(props) {
 export default function D17_10(props) {
   return (<><style>{FX_CSS}</style><D17_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D17_10.audio = {
+  uz: { intro: "To'liq jadval cho'qqisi. 9 ta blok, har birida 9 ta antenna. 9 ko'paytirish 9 nechaga teng? Raqamlarni bosib javobni tering.", on_correct: "To'g'ri. 9 ko'paytirish 9 teng 81. 8 qo'shish 1 teng 9, to'qqiz sirri.", on_wrong: "Maslahat. 9 ni 9 marta sanang, 9,18,27,36,45,54,63,72,81." },
+  ru: { intro: "Вершина таблицы. 9 блоков, в каждом по 9 антенн. Чему равно 9 умножить на 9? Набери ответ, нажимая цифры.", on_correct: "Верно. 9 умножить на 9 равно 81. 8 плюс 1 равно 9, секрет девятки.", on_wrong: "Подсказка. Считай 9 девять раз, 9,18,27,36,45,54,63,72,81." },
+};

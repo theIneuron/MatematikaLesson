@@ -122,3 +122,9 @@ function D05_09Impl(props) {
 export default function D05_09(props) {
   return (<><style>{FX_CSS}</style><D05_09Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D05_09.audio = {
+  uz: { intro: "Ustunda 10 segment, har biri 10 quvvat. Segmentlarni bosib, o'nlab to'ldiring. 40 quvvatga yeting.", on_correct: "To'g'ri. 10 qo'shish 10 qo'shish 10 qo'shish 10 teng 40. To'rt segment.", on_wrong: "Maslahat. Har segment 10 quvvat. 40 uchun nechta segment kerak?" },
+  ru: { intro: "В столбе 10 сегментов, каждый по 10 заряда. Нажимай сегменты, заполняй десятками. Дойди до 40 заряда.", on_correct: "Верно. 10 плюс 10 плюс 10 плюс 10 равно 40. Четыре сегмента.", on_wrong: "Подсказка. Каждый сегмент, 10 заряда. Сколько сегментов для 40?" },
+};

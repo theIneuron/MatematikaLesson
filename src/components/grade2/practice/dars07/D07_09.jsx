@@ -164,3 +164,9 @@ function D07_09Impl(props) {
 export default function D07_09(props) {
   return (<><style>{FX_CSS}</style><D07_09Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D07_09.audio = {
+  uz: { intro: "Stolbik. 32 qo'shish qancha teng 57. Ikkinchi son yashiringan. Yashirin qo'shiluvchini toping. 32 qo'shish qancha teng 57.", on_correct: "To'g'ri. 32 qo'shish 25 teng 57 birlik 2 qo'shish 5 teng 7, o'nlik 3 qo'shish 2 teng 5.", on_wrong: "Maslahat. Har ustunni ayiring. Birlik. 7 ayirish 2 teng? O'nlik. 5 ayirish 3 teng?" },
+  ru: { intro: "Столбик. 32 плюс сколько равно 57. Второе число скрыто. Найди скрытое слагаемое. 32 плюс сколько равно 57.", on_correct: "Верно. 32 плюс 25 равно 57 единицы 2 плюс 5 равно 7, десятки 3 плюс 2 равно 5.", on_wrong: "Подсказка. Вычти по столбцам. Единицы. 7 минус 2 равно? Десятки. 5 минус 3 равно?" },
+};

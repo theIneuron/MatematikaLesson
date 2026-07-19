@@ -121,3 +121,9 @@ function D08_04Impl(props) {
 export default function D08_04(props) {
   return (<><style>{FX_CSS}</style><D08_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D08_04.audio = {
+  uz: { intro: "Qo'shish to'g'ri. 35 qo'shish 24 teng 59. Unda 59 ayirish 24 nechchi bo'ladi?", on_correct: "To'g'ri. Ayirish, qo'shishning teskarisi. 35 qo'shish 24 teng 59, demak 59 ayirish 24 teng 35.", on_wrong: "Maslahat. 35 qo'shish 24 teng 59 bo'lsa, 59 dan 24 ni olsak nima qoladi?" },
+  ru: { intro: "Сложение верно. 35 плюс 24 равно 59. Тогда чему равно 59 минус 24?", on_correct: "Верно. Вычитание, обратное сложению. 35 плюс 24 равно 59, значит 59 минус 24 равно 35.", on_wrong: "Подсказка. Если 35 плюс 24 равно 59, что останется, если из 59 убрать 24?" },
+};

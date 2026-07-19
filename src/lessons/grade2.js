@@ -346,6 +346,30 @@ export const grade2Amaliy = [
     Component: lazy(() => import('../components/grade2/practice/dars11/Dars11Practice.jsx')),
   },
   {
+    slug: 'dars12-amaliyot',
+    title: "Dars 12 amaliyoti — Ikki amalli masala (10 topshiriq)",
+    desc: "Ikki amalli masala — 10 ta interaktiv topshiriq, osondan qiyinga.",
+    Component: lazy(() => import('../components/grade2/practice/dars12/Dars12Practice.jsx')),
+  },
+  {
+    slug: 'dars13-amaliyot',
+    title: "Dars 13 amaliyoti — Ko'paytirish ma'nosi (10 topshiriq)",
+    desc: "Ko'paytirish ma'nosi — 10 ta interaktiv topshiriq, osondan qiyinga.",
+    Component: lazy(() => import('../components/grade2/practice/dars13/Dars13Practice.jsx')),
+  },
+  {
+    slug: 'dars14-amaliyot',
+    title: "Dars 14 amaliyoti — 2 va 3 ga ko'paytirish (10 topshiriq)",
+    desc: "2 va 3 ga ko'paytirish — 10 ta interaktiv topshiriq, osondan qiyinga.",
+    Component: lazy(() => import('../components/grade2/practice/dars14/Dars14Practice.jsx')),
+  },
+  {
+    slug: 'dars15-amaliyot',
+    title: "Dars 15 amaliyoti — 4 va 5 ga ko'paytirish (10 topshiriq)",
+    desc: "4 va 5 ga ko'paytirish — 10 ta interaktiv topshiriq, osondan qiyinga.",
+    Component: lazy(() => import('../components/grade2/practice/dars15/Dars15Practice.jsx')),
+  },
+  {
     slug: 'dars16-amaliyot',
     title: "Dars 16 amaliyoti — ×6 va ×7 jadvali (10 topshiriq)",
     desc: "×6 va ×7 jadvali — 10 ta interaktiv topshiriq, osondan qiyinga.",

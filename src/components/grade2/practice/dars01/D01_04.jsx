@@ -189,3 +189,9 @@ function D01_04Impl(props) {
 export default function D01_04(props) {
   return (<><style>{FX_CSS}</style><D01_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D01_04.audio = {
+  uz: { intro: "Elementlar aralashib ketgan. Har elementni turiga qarab joylang. Kasseta, O'nlik, batareya, Birlik.", on_correct: "To'g'ri. Kassetalar, o'nlik, batareyalar, birlik. Har xil razryad!", on_wrong: "Maslahat. Kasseta magazin, o'nlik 10, yakka batareya, birlik 1." },
+  ru: { intro: "Элементы перемешались. Помести каждый элемент по виду. Кассета, Десятки, батарейка, Единицы.", on_correct: "Верно. Кассеты, десятки, батарейки, единицы. Разные разряды!", on_wrong: "Подсказка. Кассета магазин, десяток 10, одиночная батарейка, единица 1." },
+};

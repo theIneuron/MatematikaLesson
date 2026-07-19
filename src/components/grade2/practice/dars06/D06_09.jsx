@@ -134,3 +134,9 @@ function D06_09Impl(props) {
 export default function D06_09(props) {
   return (<><style>{FX_CSS}</style><D06_09Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D06_09.audio = {
+  uz: { intro: "Uchta ishora berilgan. Sonni trassadan toping. Men 50 dan KATTA, 70 dan KICHIK, yaxlit o'nlikman. Meni bosing.", on_correct: "To'g'ri. 60, 50 dan katta, 70 dan kichik, yaxlit o'nlik.", on_wrong: "Maslahat. 50 dan katta VA 70 dan kichik yaxlit o'nlik, bittasi bor." },
+  ru: { intro: "Даны три подсказки. Найди число на трассе. Я больше 50, меньше 70 и круглый десяток. Нажми меня.", on_correct: "Верно. 60, больше 50, меньше 70, круглый десяток.", on_wrong: "Подсказка. Круглый десяток больше 50 И меньше 70, он один." },
+};

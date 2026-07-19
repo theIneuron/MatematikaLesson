@@ -124,3 +124,9 @@ function D02_03Impl(props) {
 export default function D02_03(props) {
   return (<><style>{FX_CSS}</style><D02_03Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D02_03.audio = {
+  uz: { intro: "Ekranda 47 kodi. Har raqam bosiladi. 47 kodida qaysi raqam O'NLIKLARni ko'rsatadi? Shu raqamni bosing.", on_correct: "To'g'ri. 47 da chapdagi 4, o'nliklar 40. O'ng 7, birliklar.", on_wrong: "Maslahat. O'nlik har doim CHAPDA turadi. 47 teng 4 o'nlik 7 birlik." },
+  ru: { intro: "На экране код 47. Каждая цифра нажимается. Какая цифра в коде 47 показывает ДЕСЯТКИ? Нажми её.", on_correct: "Верно. В 47 левая цифра 4, десятки 40. Правая 7, единицы.", on_wrong: "Подсказка. Десятки всегда СЛЕВА. 47 равно 4 десятка 7 единиц." },
+};

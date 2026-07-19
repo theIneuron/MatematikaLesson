@@ -118,3 +118,9 @@ function D09_09Impl(props) {
 export default function D09_09(props) {
   return (<><style>{FX_CSS}</style><D09_09Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D09_09.audio = {
+  uz: { intro: "Nishon soni, 62. Qaysi ifoda 62 GA TENG EMAS? O'shani belgilang.", on_correct: "To'g'ri. 38 qo'shish 27 teng 65, u 62 ga teng emas. Qolganlari 62 ga teng.", on_wrong: "Maslahat. Har ifodani o'tish bilan qo'shib, natijasini 62 bilan solishtiring." },
+  ru: { intro: "Целевое число, 62. Какое выражение НЕ РАВНО 62? Отметь его.", on_correct: "Верно. 38 плюс 27 равно 65, оно не равно 62. Остальные равны 62.", on_wrong: "Подсказка. Сложи каждое с переходом и сравни результат с 62." },
+};

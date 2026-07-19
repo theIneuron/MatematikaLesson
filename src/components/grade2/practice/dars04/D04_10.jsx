@@ -117,3 +117,9 @@ function D04_10Impl(props) {
 export default function D04_10(props) {
   return (<><style>{FX_CSS}</style><D04_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D04_10.audio = {
+  uz: { intro: "Taqqoslash noto'g'ri yozilgan. 60 katta 60. Belgini bosib to'g'ri holatga keltiring. 60 va 60.", on_correct: "To'g'ri. 60 teng 60. Sonlar teng, teng belgisi.", on_wrong: "Maslahat. Ikkala son ham 60. Ular teng bo'lsa, qaysi belgi mos keladi?" },
+  ru: { intro: "Сравнение записано неверно. 60 больше 60. Нажимай на знак, чтобы исправить. 60 и 60.", on_correct: "Верно. 60 равно 60. Числа равны, знак равенства.", on_wrong: "Подсказка. Оба числа 60. Если числа равны, какой знак подходит?" },
+};

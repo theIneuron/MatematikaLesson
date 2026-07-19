@@ -142,3 +142,9 @@ function D17_04Impl(props) {
 export default function D17_04(props) {
   return (<><style>{FX_CSS}</style><D17_04Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D17_04.audio = {
+  uz: { intro: "Bit 9 tadan sanayapti, lekin bir son tushib qolgan. Bo'sh katakka qaysi son tushadi?", on_correct: "To'g'ri. 18 dan keyin yana 9. 18 qo'shish 9 teng 27.", on_wrong: "Maslahat. Har qadamda 9 qo'shiladi. 18 qo'shish 9 teng?" },
+  ru: { intro: "Бит считает по 9, но одно число пропущено. Какое число встанет в пустую клетку?", on_correct: "Верно. После 18 ещё 9. 18 плюс 9 равно 27.", on_wrong: "Подсказка. На каждом шаге прибавляем 9. 18 плюс 9 равно?" },
+};

@@ -121,3 +121,9 @@ function D09_02Impl(props) {
 export default function D09_02(props) {
   return (<><style>{FX_CSS}</style><D09_02Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D09_02.audio = {
+  uz: { intro: "Birliklar ustuni. 8 qo'shish 6 teng 14. 14 hosil bo'ldi. O'nliklar ustuniga nechta o'nlik ko'chadi?", on_correct: "To'g'ri. 14 teng 1 o'nlik va 4 birlik. Demak 1 o'nlik ko'chadi.", on_wrong: "Maslahat. 14 nechta to'liq o'nlikdan iborat? O'shancha o'nlik ko'chadi." },
+  ru: { intro: "Столбец единиц. 8 плюс 6 равно 14. Получилось 14. Сколько десятков переходит к десяткам?", on_correct: "Верно. 14 равно 1 десяток и 4 единицы. Значит переходит 1 десяток.", on_wrong: "Подсказка. Сколько полных десятков в 14? Столько и переходит." },
+};

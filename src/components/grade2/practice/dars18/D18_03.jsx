@@ -142,3 +142,9 @@ function D18_03Impl(props) {
 export default function D18_03(props) {
   return (<><style>{FX_CSS}</style><D18_03Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D18_03.audio = {
+  uz: { intro: "Bu ikki ifoda teng. Bo'sh katakni to'ldiring. Bo'sh katakka to'g'ri sonni qo'ying.", on_correct: "To'g'ri. 7 ko'paytirish 2 teng 2 ko'paytirish 7. O'rin almashdi, natija, 14.", on_wrong: "Maslahat. O'sha sonlarni o'rin almashtiring. 7 ko'paytirish 2 teng 2 ko'paytirish 7." },
+  ru: { intro: "Эти два выражения равны. Заполни пустую клетку. Поставь в пустую клетку верное число.", on_correct: "Верно. 7 умножить на 2 равно 2 умножить на 7. Поменяли местами, итог, 14.", on_wrong: "Подсказка. Поменяй те же числа местами. 7 умножить на 2 равно 2 умножить на 7." },
+};

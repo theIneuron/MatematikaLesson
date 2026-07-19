@@ -131,3 +131,9 @@ function D18_10Impl(props) {
 export default function D18_10(props) {
   return (<><style>{FX_CSS}</style><D18_10Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D18_10.audio = {
+  uz: { intro: "6 ta ifodani teng natijali savatga joylang. Ifodani bosing, keyin natijasi bilan savatni bosing.", on_correct: "To'g'ri. 4 ko'paytirish 2 teng 2 ko'paytirish 4 teng 8, 2 ko'paytirish 6 teng 6 ko'paytirish 2 teng 12, 3 ko'paytirish 5 teng 5 ko'paytirish 3 teng 15. Har juft teng!", on_wrong: "Maslahat. Har ifodani hisoblang. 2 ko'paytirish 6 va 6 ko'paytirish 2, ikkalasi 12." },
+  ru: { intro: "Помести 6 выражений в корзину с равным результатом. Нажми выражение, затем корзину с его результатом.", on_correct: "Верно. 4 умножить на 2 равно 2 умножить на 4 равно 8, 2 умножить на 6 равно 6 умножить на 2 равно 12, 3 умножить на 5 равно 5 умножить на 3 равно 15. Каждая пара равна!", on_wrong: "Подсказка. Посчитай каждое. 2 умножить на 6 и 6 умножить на 2, оба 12." },
+};

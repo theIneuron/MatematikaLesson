@@ -132,3 +132,9 @@ function D18_02Impl(props) {
 export default function D18_02(props) {
   return (<><style>{FX_CSS}</style><D18_02Impl {...props} /></>);
 }
+
+/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
+D18_02.audio = {
+  uz: { intro: "Anvar ikki qutini teng dedi. 4 ko'paytirish 6 teng 6 ko'paytirish qancha. Bo'sh katakka qaysi son tushadi?", on_correct: "To'g'ri. 4 ko'paytirish 6 teng 6 ko'paytirish 4. Ko'paytuvchilar o'rin almashdi, natija o'sha, 24.", on_wrong: "Maslahat. O'rin almashishda o'sha sonlar qoladi. 4 ko'paytirish 6 teng 6 ko'paytirish 4." },
+  ru: { intro: "Анвар сказал, что два ящика равны. 4 умножить на 6 равно 6 умножить на сколько. Какое число встанет в пустую клетку?", on_correct: "Верно. 4 умножить на 6 равно 6 умножить на 4. Множители поменялись местами, итог тот же, 24.", on_wrong: "Подсказка. При перестановке остаются те же числа. 4 умножить на 6 равно 6 умножить на 4." },
+};
