@@ -891,7 +891,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // v6 FAKT ALOHIDA (bekor): sPANEL sub-1 dagi FactCard SKROLL chiqargani uchun undan olindi.
 // v7 FAKT FINAL SLAYDGA (16 -> 15): alohida fakt-slaydi BEKOR; fakt endi FINAL test s14 ga
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
-const TOTAL_SCREENS = 14;
+const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-01-v1',
   lessonTitle: { ru: 'Урок 1. Сотни, десятки и единицы', uz: "1-dars. Yuzliklar, o'nliklar va birliklar" }
@@ -904,8 +904,9 @@ const SCREEN_META = [
   { id: 's3',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 2  245 ni yig'ish
   { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 4  razryad kartasi 345=300+40+5
   { id: 's5',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 5  o'rin hal qiladi 345/435/543
-  { id: 's6',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 6  son o'qi 0-1000
-  { id: 's7',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 7  QOIDA (hookga qaytadi)
+  { id: 's6',  type: 'exploration', template: 'custom',   scored: false, scope: null },        // 6  son o'qi 300-800
+  { id: 'sming', type: 'exploration', template: 'custom', scored: false, scope: null },        // 7  KASHFIYOT: 10 yuzlik = 1000
+  { id: 's7',  type: 'rule',        template: 'custom',   scored: false, scope: null },        // 8  QOIDA (hookga qaytadi)
   { id: 's8',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 8  mashq: 362 ni yig'ish
   { id: 's9',  type: 'test',        template: 'custom',   scored: true,  scope: 'practice' },  // 9  tasniflash (528 tap-to-bin)
   { id: 's10', type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },  // 10 MC nol-o'rin 305
@@ -1112,6 +1113,29 @@ const CONTENT = {
         "To'rt yuz yetmishni ko'rsatamiz. Chiziq uch yuzdan sakkiz yuzgacha.",
         "Bir katta qadam yuzga — to'rt yuzga yetamiz.",
         "Keyin yetti kichik qadam o'ndan — to'rt yuz yetmishga yetamiz. Bu to'rt yuz bilan besh yuz orasida."
+      ]
+    }
+  },
+
+  // sMING — KASHFIYOT: 10 yuzlik = 1000 (keyingi darsga ko'prik)
+  sming: {
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
+    lead: { ru: 'А если собрать десять сотен?', uz: "Agar o'nta yuzlikni yig'sak-chi?" },
+    ming_eq: { ru: '10 сотен = 1000', uz: '10 yuzlik = 1000' },
+    ming_word: { ru: 'ТЫСЯЧА', uz: 'MING' },
+    done_text: { ru: 'Тысяча — это десять сотен вместе. Самое большое число нашего урока!', uz: "Ming — bu o'nta yuzlik birga. Darsimizning eng katta soni!" },
+    audio: {
+      ru: [
+        'Помните? Десять десятков дали нам сотню. А теперь интересный вопрос. Что будет, если собрать десять сотен?',
+        'Собираем панели. Одна, две, три... десять панелей по сто огней.',
+        'Смотрите, что получилось! Десять сотен — это тысяча. Целая тысяча огней!',
+        'Тысяча — это новое большое число. В следующий раз мы научимся читать и записывать такие числа. Вот это будет приключение!'
+      ],
+      uz: [
+        "Esingizdami? O'nta o'nlik bizga yuzlikni berdi. Endi qiziq savol. Agar o'nta yuzlikni yig'sak, nima bo'ladi?",
+        "Panellarni yig'amiz. Bir, ikki, uch... o'nta panel yuzdan chiroq.",
+        "Qarang, nima chiqdi! O'nta yuzlik — bu ming. Butun boshli ming chiroq!",
+        "Ming — bu yangi katta son. Keyingi safar shunday sonlarni o'qish va yozishni o'rganamiz. Bu haqiqiy sarguzasht bo'ladi!"
       ]
     }
   },
@@ -1334,12 +1358,13 @@ const CONTENT = {
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Сначала вспомним прошлый год.', uz: "Avval o'tgan yilni eslaymiz." },
+  s1:  { ru: 'Начнём с того, что вам знакомо с первого класса.', uz: "Sizga birinchi sinfdan tanish narsadan boshlaymiz." },
   s2:  { ru: 'Огней много. Посмотрим, как собрать сотню.', uz: "Chiroq ko'p. Yuzlikni qanday yig'ishni ko'ramiz." },
   s3:  { ru: 'Сотню поняли. Теперь соберём из них число.', uz: "Yuzlikni bildik. Endi undan son yig'amiz." },
   s4:  { ru: 'Собрали. Теперь заглянем внутрь числа.', uz: "Yig'dik. Endi sonning ichiga qaraymiz." },
   s5:  { ru: 'Внимание. Место цифры решает.', uz: "Diqqat. Raqamning o'rni muhim." },
   s6:  { ru: 'Покажем это число на прямой.', uz: "Shu sonni o'qda ko'rsatamiz." },
+  sming: { ru: 'А теперь маленькое чудо.', uz: "Endi esa kichik mo'jiza." },
   s7:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
   s8:  { ru: 'Правило знаем. Теперь собирай число сам.', uz: "Qoidani bilamiz. Endi sonni o'zingiz yig'ing." },
   s9:  { ru: 'Разложи цифры по разрядам.', uz: 'Raqamlarni xonalarga ajrating.' },
@@ -2641,7 +2666,7 @@ const Screen4 = (props) => {
             </div>
           )}
           {showM3 && (
-            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%', background: T.accentSoft, borderRadius: 12, padding: 'clamp(8px, 1.8vw, 14px)' }}>
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%', background: '#FFF6DC', border: '1.5px solid #E8CB7A', borderRadius: 12, padding: 'clamp(8px, 1.8vw, 14px)' }}>
               <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>★ {t(c.m3_label)}</span>
               <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{t(c.m3_text)}</span>
               <M3Drop parts={c.m3_parts} lang={lang}/>
@@ -2684,7 +2709,7 @@ const Screen5 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <div className="lm-digrow">
             {[digs.h, digs.t, digs.o].map((d, i) => (
-              <span key={`${num}-${i}`} className={`lm-digcard lm-cardflip mono ${d === 5 ? 'lm-digcard-hot' : ''}`} style={{ animationDelay: `${i * 0.12}s` }}>{d}</span>
+              <span key={`${num}-${i}`} className={`lm-digcard lm-cardflip mono lm-dig-${d}`} style={{ animationDelay: `${i * 0.12}s` }}>{d}</span>
             ))}
           </div>
           <RazryadTable h={digs.h} t={digs.t} o={digs.o} labels={labels} digits/>
@@ -2806,6 +2831,62 @@ const Screen6 = (props) => {
           </div>
         )}
         {done && <InfoNote badge={t(c.info_badge)} text={t(c.info)}/>}
+      </div>
+    </Stage>
+  );
+};
+
+// sMING — KASHFIYOT: 10 yuzlik = 1000 (keyingi darsga ko'prik). Panellar ovoz bilan yig'iladi.
+const ScreenMing = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.sming;
+  const audio = useAudio([
+    brgSeg('sming', lang),
+    ...c.audio[lang].map((text, i) => ({ id: `sming_${i}`, text, trigger: 'after_previous', waits_for: null }))
+  ]);
+  const seg = audio.currentSegment;
+  const [reached, setReached] = useState(-1);
+  useEffect(() => { if (seg && /^sming_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(6))); }, [seg]);
+  const stacking = reached >= 1;
+  const revealed = reached >= 2;
+  const done = reached >= (c.audio[lang].length - 1);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 20px)', minHeight: 'clamp(180px, 38vw, 240px)' }}>
+          {!revealed && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, auto)', gap: 'clamp(4px, 1vw, 8px)' }}>
+              {Array.from({ length: 10 }).map((_, i) => (
+                <span key={i} className={stacking ? 'lm-drop' : ''} style={{ display: 'inline-flex', opacity: stacking ? 1 : 0.15, animationDelay: `${i * 0.32}s` }}>
+                  <Panel className="lm-mat-panel"/>
+                </span>
+              ))}
+            </div>
+          )}
+          {revealed && (
+            <>
+              <div className="lm-reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, auto)', gap: 'clamp(3px, 0.8vw, 6px)' }}>
+                {Array.from({ length: 10 }).map((_, i) => <span key={i} style={{ display: 'inline-flex' }}><Panel className="lm-mat-panel"/></span>)}
+              </div>
+              <span className="mono lm-eq lm-write lm-d1" style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, color: T.success }}>{t(c.ming_eq)}</span>
+              <span className="lm-write lm-d2" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: T.accent, letterSpacing: 3 }}>{t(c.ming_word)}</span>
+            </>
+          )}
+        </div>
+        {done && (
+          <div className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.done_text)}/>
+          </div>
+        )}
       </div>
     </Stage>
   );
@@ -3513,7 +3594,7 @@ export default function TensUnitsLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, ScreenCase, Screen14, Screen15];
+  const screens = [Screen0, Screen1, Screen3, Screen4, Screen5, Screen6, ScreenMing, Screen7, Screen8, Screen9, Screen10, Screen11, ScreenCase, Screen14, Screen15];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -5393,6 +5474,10 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @media (prefers-reduced-motion: reduce) { .lm-cardflip { animation: none; } }
 .lm-digcard { width: clamp(38px, 8vw, 54px); height: clamp(48px, 10vw, 68px); display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #FBF7F0; font-size: clamp(24px, 5vw, 36px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.08); }
 .lm-digcard-hot { background: #FFF3E9; color: #ff4f28; box-shadow: 0 4px 14px -6px rgba(255,79,40,0.5); }
+/* Raqam o'z rangini olib yuradi — o'rin almashganda kuzatish oson (3 qizil, 4 yashil, 5 ko'k) */
+.lm-dig-3 { background: #FBE9E7; color: #C0392B; box-shadow: 0 4px 12px -6px rgba(192,57,43,0.45); }
+.lm-dig-4 { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 4px 12px -6px rgba(31,122,77,0.45); }
+.lm-dig-5 { background: #E3F2F8; color: #019ACB; box-shadow: 0 4px 12px -6px rgba(1,154,203,0.45); }
 
 .lm-nl { position: relative; height: 64px; margin: 0 10px; cursor: pointer; }
 .lm-nl-line { position: absolute; left: 0; right: 0; top: 28px; height: 4px; border-radius: 2px; background: linear-gradient(90deg, #F2A65A, #ff4f28); }
