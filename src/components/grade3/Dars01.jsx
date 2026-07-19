@@ -1198,7 +1198,7 @@ const CONTENT = {
     hold_tens: { ru: 'ДЕСЯТКИ', uz: "O'NLIKLAR" },
     hold_ones: { ru: 'ЕДИНИЦЫ', uz: 'BIRLIKLAR' },
     audio: {
-      intro: { ru: 'Сортировщик города. Каждую цифру поставь в свой разряд. Слева сотни, в середине десятки, справа единицы.', uz: "Shahar saralagichi. Har raqamni o'z xonasiga qo'ying. Chapda yuzlik, o'rtada o'nlik, o'ngda birlik." },
+      intro: { ru: 'Сортировщик города. Каждую цифру поставь в свой разряд. Слева сотни, в середине десятки, справа единицы. Но будь внимателен, среди карточек есть лишние цифры. Бери только нужные.', uz: "Shahar saralagichi. Har raqamni o'z xonasiga qo'ying. Chapda yuzlik, o'rtada o'nlik, o'ngda birlik. Lekin ehtiyot bo'ling, kartochkalar orasida ortiqcha raqamlar ham bor. Faqat keraklilarini oling." },
       on_correct: { ru: 'Верно. Каждая цифра в своём разряде.', uz: "To'g'ri. Har raqam o'z xonasida." },
       on_wrong: { ru: 'Читай слева направо: первая цифра сотни, последняя единицы.', uz: "Chapdan o'ngga o'qing: birinchi raqam yuzlik, oxirgisi birlik." }
     }
@@ -3044,8 +3044,10 @@ const Screen8 = (props) => {
 
 // s9 — TASNIFLASH (3 raund: 528, 703, 461). Har raundda son raqamlarini xonalarga ajratadi.
 const S9_NUMS = [528, 703, 461, 350];
-// Tray ko'rsatish tartibi ATAYIN aralash (son tartibida emas — oson bo'lmasin). Indeks: 0=yuzlik,1=o'nlik,2=birlik.
-const S9_ORDERS = [[1, 2, 0], [2, 0, 1], [1, 0, 2], [0, 2, 1]];
+// Har raundda 2 ta CHALG'ITUVCHI raqam (songa kirmaydi; asl raqamlar bilan takrorlanmaydi).
+const S9_DECOYS = [[4, 9], [5, 8], [9, 2], [7, 2]];
+// Tray tartibi ATAYIN aralash (son tartibida emas). Indeks: 0=yuzlik,1=o'nlik,2=birlik, 3-4=chalg'ituvchi.
+const S9_ORDERS = [[1, 3, 2, 0, 4], [2, 0, 4, 1, 3], [3, 1, 0, 4, 2], [0, 4, 2, 1, 3]];
 const s9digits = (n) => [Math.floor(n / 100), Math.floor((n % 100) / 10), n % 10];
 const Screen9 = (props) => {
   const lang = useLang();
@@ -3066,7 +3068,7 @@ const Screen9 = (props) => {
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
   const done = round >= S9_NUMS.length;
   const num = S9_NUMS[Math.min(round, S9_NUMS.length - 1)];
-  const digits = s9digits(num);
+  const digits = [...s9digits(num), ...S9_DECOYS[Math.min(round, S9_DECOYS.length - 1)]];
   const revealRef = useRevealScroll(checked, 500);
   const usedIdx = new Set(Object.values(bins).filter(v => v !== null));
   const placeInto = (k) => {
