@@ -1221,29 +1221,14 @@ const CONTENT = {
   s11: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     items: [
-      {
-        q: { ru: 'Что больше: 345 или 354?', uz: "Qaysi katta: 345 yoki 354?" },
-        pair: [345, 354], ci: 1,
-        opts: [{ ru: '345', uz: '345' }, { ru: '354', uz: '354' }],
-        hints: { 0: { ru: 'Сотни равны, сравни десятки: пять больше четырёх, значит 354.', uz: "Yuzliklar teng, o'nlikni solishtiring: besh to'rtdan katta, demak 354." } }
-      },
-      {
-        q: { ru: 'Что больше: 482 или 428?', uz: "Qaysi katta: 482 yoki 428?" },
-        pair: [482, 428], ci: 0,
-        opts: [{ ru: '482', uz: '482' }, { ru: '428', uz: '428' }],
-        hints: { 1: { ru: 'Сотни равны, десятки: восемь больше двух, значит 482.', uz: "Yuzliklar teng, o'nlik: sakkiz ikkidan katta, demak 482." } }
-      },
-      {
-        q: { ru: 'Что больше: 600 или 599?', uz: "Qaysi katta: 600 yoki 599?" },
-        pair: [600, 599], ci: 0,
-        opts: [{ ru: '600', uz: '600' }, { ru: '599', uz: '599' }],
-        hints: { 1: { ru: 'Сравни сотни: шесть больше пяти, значит 600.', uz: "Yuzlikni solishtiring: olti beshdan katta, demak 600." } }
-      }
+      { pair: [345, 354], sign: '<', hint: { ru: 'Сотни равны, десятки: 5 больше 4. Значит 345 меньше 354, знак меньше.', uz: "Yuzliklar teng, o'nlik: 5, 4 dan katta. Demak 345 kichik 354 dan, kichik belgisi." } },
+      { pair: [482, 428], sign: '>', hint: { ru: 'Сотни равны, десятки: 8 больше 2. Значит 482 больше 428, знак больше.', uz: "Yuzliklar teng, o'nlik: 8, 2 dan katta. Demak 482 katta 428 dan, katta belgisi." } },
+      { pair: [600, 599], sign: '>', hint: { ru: 'Сотни: 6 больше 5. Значит 600 больше 599, знак больше.', uz: "Yuzlik: 6, 5 dan katta. Demak 600 katta 599 dan, katta belgisi." } }
     ],
     audio: {
-      intro: { ru: 'Сравним числа. Смотри сначала на сотни, потом на десятки. Три задания подряд.', uz: "Sonlarni solishtiramiz. Avval yuzlikka, keyin o'nlikka qarang. Uchta topshiriq ketma-ket." },
+      intro: { ru: 'Ставь знак между числами. Открытый рот знака смотрит на большее число. Три задания.', uz: "Sonlar orasiga belgi qo'ying. Belgining ochiq og'zi katta songa qaraydi. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сравни разряды слева направо. Попробуй ещё.', uz: "Xonalarni chapdan o'ngga solishtiring. Yana urinib ko'ring." }
+      on_wrong: { ru: 'Сравни разряды слева направо. Знак открывается к большему.', uz: "Xonalarni chapdan o'ngga solishtiring. Belgi kattaga ochiladi." }
     }
   },
 
@@ -3169,15 +3154,94 @@ const Screen10 = (props) => {
 };
 
 // s11 — MC taqqoslash (3 raund: 345/354, 482/428, 600/599)
-const Screen11 = (props) => (
-  <MCRoundScreen props={props} ck="s11" cols={2} renderFig={(it) => (
-    <div className="lm-cmprow">
-      <div className="lm-cmpcell"><BigNum v={it.pair[0]}/></div>
-      <span className="lm-cmpvs mono">?</span>
-      <div className="lm-cmpcell"><BigNum v={it.pair[1]}/></div>
-    </div>
-  )}/>
-);
+// s11 — TAQQOSLASH: bola < > = belgisini tanlaydi, to'g'ri belgi animatsiya bilan slotga tushadi,
+// katta son yorishadi (belgining ochiq og'zi kattaga qaraydi). 3 raund, веди-до-verного.
+const CMP_SIGNS = ['<', '=', '>'];
+const Screen11 = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const sfx = useSfx();
+  const c = CONTENT.s11;
+  const items = c.items;
+  const audio = useAudio([
+    brgSeg('s11', lang),
+    { id: 's11_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
+  ]);
+  const canAct = useCanAnswer(audio);
+  const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
+  const [picked, setPicked] = useState(null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
+  const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const it = items[idx];
+  const done = idx >= items.length;
+  const solvedRound = !!it && picked === it.sign;
+  const bigger = it ? (it.pair[0] > it.pair[1] ? 0 : 1) : -1;
+  const revealRef = useRevealScroll(done, 400);
+  const pick = (s) => {
+    if (!canAct || done || solvedRound || wrongSet.has(s)) return;
+    if (s === it.sign) {
+      setPicked(s); sfx.playCorrect();
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
+      if (wrongSet.size === 0) setScore((x) => x + 1);
+      setTimeout(() => { setPicked(null); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1400);
+    } else {
+      const n = new Set(wrongSet); n.add(s); setWrongSet(n);
+      firstAllRef.current = false;
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((it.hint || c.audio.on_wrong)[lang]); }
+    }
+  };
+  useEffect(() => {
+    if (done && !recorded) {
+      setRecorded(true);
+      props.onAnswer({
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'compare',
+        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        firstTry: firstAllRef.current, attempts: 1, solved: true
+      });
+    }
+  }, [done]);
+  const canAdv = useAdvanceGate(done, audio);
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        {!done && it && (
+          <>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <h1 className="title h-sub fade-up">{lang === 'ru' ? 'Поставь знак' : "Belgini qo'ying"}</h1>
+            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+              <div className="lm-cmprow">
+                <div className={`lm-cmpcell ${solvedRound && bigger === 0 ? 'lm-cmp-big' : ''}`}><BigNum v={it.pair[0]}/></div>
+                <span className="lm-cmpslot mono">{picked ? <span key={idx} className="lm-sign-in">{picked}</span> : '?'}</span>
+                <div className={`lm-cmpcell ${solvedRound && bigger === 1 ? 'lm-cmp-big' : ''}`}><BigNum v={it.pair[1]}/></div>
+              </div>
+              <div className="lm-signrow">
+                {CMP_SIGNS.map((s) => (
+                  <button key={s} className={`lm-signbtn mono ${wrongSet.has(s) ? 'lm-signbtn-wrong' : ''} ${picked === s ? 'lm-signbtn-ok' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(s)} onClick={() => pick(s)}>{s}</button>
+                ))}
+              </div>
+              {wrongSet.size > 0 && !solvedRound && (
+                <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>
+              )}
+            </div>
+          </>
+        )}
+        {done && (
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
 
 // sCASE — shahar hisobi (s12 setup + s13 savol): jami 346
 // --- RAQAM-PLITA (klaviatursiz javob TERISH — grade3 yangiligi: TANISH emas, ISHLAB CHIQARISH).
@@ -5368,6 +5432,18 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-cmprow { display: flex; align-items: center; justify-content: center; gap: clamp(12px, 3vw, 24px); }
 .lm-cmpcell { padding: clamp(8px, 2vw, 14px) clamp(14px, 3vw, 22px); border-radius: 14px; background: #FBF7F0; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); }
 .lm-cmpvs { font-size: clamp(20px, 4vw, 28px); font-weight: 800; color: #8A8378; }
+.lm-cmpslot { font-size: clamp(30px, 8vw, 46px); font-weight: 800; color: #A7A6A2; min-width: clamp(38px, 10vw, 58px); text-align: center; line-height: 1; }
+.lm-sign-in { display: inline-block; color: #FF4F28; animation: lm-sign-a 0.6s cubic-bezier(0.34, 1.6, 0.5, 1) both; }
+@keyframes lm-sign-a { 0% { opacity: 0; transform: scale(0.2) rotate(-14deg); } 60% { opacity: 1; } 100% { opacity: 1; transform: scale(1) rotate(0); } }
+.lm-cmp-big { animation: lm-cmp-big-a 0.7s ease both; border-radius: 14px; }
+@keyframes lm-cmp-big-a { 0% { transform: scale(1); } 45% { transform: scale(1.14); box-shadow: 0 0 0 3px rgba(31,122,77,0.4), inset 0 0 0 1px rgba(58,53,48,0.07); } 100% { transform: scale(1.07); box-shadow: 0 0 0 2px rgba(31,122,77,0.35), inset 0 0 0 1px rgba(58,53,48,0.07); } }
+.lm-signrow { display: flex; gap: clamp(10px, 3vw, 20px); justify-content: center; }
+.lm-signbtn { width: clamp(52px, 14vw, 68px); height: clamp(52px, 14vw, 68px); border-radius: 16px; border: 2.5px solid #A7A6A2; background: #FFFFFF; font-size: clamp(26px, 7vw, 34px); font-weight: 800; color: #0E0E10; cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+.lm-signbtn:hover:not(:disabled) { border-color: #FF4F28; transform: translateY(-2px); }
+.lm-signbtn:disabled { cursor: default; }
+.lm-signbtn-ok { border-color: #1F7A4D; background: #E3F0E8; color: #1F7A4D; }
+.lm-signbtn-wrong { border-color: #C0392B; background: #FBE9E7; opacity: 0.55; }
+@media (prefers-reduced-motion: reduce) { .lm-sign-in, .lm-cmp-big { animation: none; } }
 
 .lm-conn { display: flex; flex-direction: column; gap: 8px; }
 .lm-conn-row { display: flex; gap: 10px; align-items: baseline; font-size: clamp(13px, 1.8vw, 15px); color: #5A554E; }
