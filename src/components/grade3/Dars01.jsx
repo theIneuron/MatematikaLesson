@@ -941,6 +941,7 @@ const CONTENT = {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
     topic: { ru: 'Тема: Сотни, десятки и единицы', uz: "Mavzu: Yuzliklar, o'nliklar va birliklar" },
     lead: { ru: 'Корабль сел на планету Бита — Лумо!', uz: "Kema Bitning sayyorasi — Lumoga qo'ndi!" },
+    mission: { ru: 'Миссия: научиться считать огни города сотнями — тогда Бит покажет нам весь город!', uz: "Missiya: shahar chiroqlarini yuzlab sanashni o'rganish — shunda Bit bizga butun shaharni ko'rsatadi!" },
     q: { ru: 'Как быстро сосчитать сотни огней города?', uz: "Shaharning yuzlab chirog'ini qanday tez sanaymiz?" },
     opt0: { ru: 'По одному', uz: 'Bittalab' },
     opt1: { ru: 'Собирать по сто', uz: "Yuzlab yig'ib" },
@@ -951,13 +952,13 @@ const CONTENT = {
           'Сегодня тема урока — сотни, десятки и единицы. Научимся видеть, сколько в числе сотен, десятков и единиц.',
           'В прошлый раз мы довезли Бита домой. Наш корабль сел на планету Бита, она называется Лумо. Теперь мы у Бита в гостях.',
           'Бит показывает свой город. Огней здесь очень много, сотни. Считать их по одному долго.',
-          'Поможем Биту найти быстрый способ, и он покажет нам весь город.'
+          'Вот наша миссия. Научимся считать огни сотнями, и тогда Бит покажет нам весь свой город. Вперёд!'
         ],
         uz: [
           "Bugungi dars mavzusi — yuzliklar, o'nliklar va birliklar. Sonda nechta yuzlik, o'nlik va birlik borligini ko'rishni o'rganamiz.",
           "O'tgan safar biz Bitni uyiga yetkazdik. Kemamiz Bitning sayyorasiga qo'ndi, uning nomi Lumo. Endi biz Bitning mehmonimiz.",
           "Bit o'z shahrini ko'rsatmoqda. Bu yerda chiroqlar juda ko'p, yuzlab. Ularni bittalab sanash uzoq.",
-          "Bitga tez yo'l topishga yordam beramiz, va u bizga butun shaharni ko'rsatadi."
+          "Mana bizning missiyamiz. Chiroqlarni yuzlab sanashni o'rganamiz, shunda Bit bizga butun shahrini ko'rsatadi. Olg'a!"
         ]
       },
       on_correct: { ru: 'Верная мысль. Соберём по сто, и станет видно.', uz: "To'g'ri fikr. Yuzlab yig'amiz, va ko'rinadi." },
@@ -1295,7 +1296,7 @@ const CONTENT = {
     // Masalalar ziyoly.uz «Xona birliklari» turlariga moslangan; 5-savol — son-jumboq (mantiq).
     items: [
       {
-        kind: 'num', ans: 645,
+        kind: 'num', ans: 645, hto: [6, 4, 5],
         q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'sh: 600 + 40 + 5. Javobni ter." },
         hint: { ru: 'По местам: шесть сотен, четыре десятка, пять единиц.', uz: "O'z o'rniga: olti yuzlik, to'rt o'nlik, besh birlik." }
       },
@@ -1342,8 +1343,8 @@ const CONTENT = {
   s15: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Город открыт!', uz: 'Shahar ochildi!' },
-    cando: { ru: 'Теперь ты умеешь видеть в числе сотни, десятки и единицы.', uz: "Endi siz sonda yuzlik, o'nlik va birlikni ko'ra olasiz." },
+    mission_done: { ru: 'Миссия выполнена — город открыт!', uz: 'Missiya bajarildi — shahar ochildi!' },
+    cando: { ru: 'Мы научились считать огни сотнями. Теперь ты видишь в числе сотни, десятки и единицы.', uz: "Chiroqlarni yuzlab sanashni o'rgandik. Endi siz sonda yuzlik, o'nlik va birlikni ko'rasiz." },
     rule_recap: { ru: 'Слева сотни, потом десятки, справа единицы. Ноль держит место.', uz: "Chapda yuzlik, keyin o'nlik, o'ngda birlik. Nol o'rinni saqlaydi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'второй класс: десятки и единицы, десять единиц — один десяток', uz: "ikkinchi sinf: o'nlik va birlik, o'nta birlik — bitta o'nlik" },
@@ -1378,8 +1379,8 @@ const BRIDGES = {
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
-  ru: 'Мы собрали сотни из десятков, и Бит показал нам весь свой город. Спасибо за помощь!',
-  uz: "Biz o'nliklardan yuzlik yig'dik, va Bit bizga butun shaharni ko'rsatdi. Yordamingiz uchun rahmat!"
+  ru: 'Миссия выполнена! Мы научились считать огни сотнями, и Бит показал нам весь свой город. Спасибо за помощь!',
+  uz: "Missiya bajarildi! Biz chiroqlarni yuzlab sanashni o'rgandik, va Bit bizga butun shaharni ko'rsatdi. Yordamingiz uchun rahmat!"
 };
 
 // Lumo yo'l-xaritasi yozuvi (lang-lookup)
@@ -2330,6 +2331,11 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {/* MISSIYA-KARTA — dars maqsadi boshida e'lon qilinadi, yakunda javob topiladi */}
+        <div className="lm-mission fade-up delay-1">
+          <span className="lm-mission-ico" aria-hidden="true">🚀</span>
+          <span>{t(c.mission)}</span>
+        </div>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
           <HookScene gathered={ok}/>
         </div>
@@ -3008,7 +3014,8 @@ const Screen8 = (props) => {
           <>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S8_TARGETS.length}</div>
             <h1 className="title h-sub fade-up">{buildLabel}: <span className="mono" style={{ color: T.accent }}>{target}</span></h1>
-            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              <FrameFx/>
               <RazryadTable h={h} t={tn} o={o} labels={labels} concrete/>
               <BigNum v={built} accent={checked && correct}/>
               <div className="lm-srcrow">
@@ -3036,7 +3043,9 @@ const Screen8 = (props) => {
 };
 
 // s9 — TASNIFLASH (3 raund: 528, 703, 461). Har raundda son raqamlarini xonalarga ajratadi.
-const S9_NUMS = [528, 703, 461];
+const S9_NUMS = [528, 703, 461, 350];
+// Tray ko'rsatish tartibi ATAYIN aralash (son tartibida emas — oson bo'lmasin). Indeks: 0=yuzlik,1=o'nlik,2=birlik.
+const S9_ORDERS = [[1, 2, 0], [2, 0, 1], [1, 0, 2], [0, 2, 1]];
 const s9digits = (n) => [Math.floor(n / 100), Math.floor((n % 100) / 10), n % 10];
 const Screen9 = (props) => {
   const lang = useLang();
@@ -3100,7 +3109,7 @@ const Screen9 = (props) => {
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S9_NUMS.length}</div>
             <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
             <div className="lm-digtray fade-up delay-1">
-              {digits.map((d, i) => !usedIdx.has(i) && (
+              {S9_ORDERS[Math.min(round, S9_ORDERS.length - 1)].map((i) => [digits[i], i]).map(([d, i]) => !usedIdx.has(i) && (
                 <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || checked} onClick={() => setSel(i)}>{d}</button>
               ))}
               {usedIdx.size === 3 && <span className="lm-digtray-empty mono">{num}</span>}
@@ -3191,7 +3200,8 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
           <>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
             <h1 className="title h-sub fade-up">{t(it.q)}</h1>
-            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+              <FrameFx/>
               {renderFig(it)}
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(100px, 1fr))`, gap: 10, width: '100%' }}>
                 {it.opts.map((o, i) => (
@@ -3281,7 +3291,8 @@ const Screen11 = (props) => {
           <>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
             <h1 className="title h-sub fade-up">{lang === 'ru' ? 'Поставь знак' : "Belgini qo'ying"}</h1>
-            <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+              <FrameFx/>
               <div className="lm-cmprow">
                 <div className={`lm-cmpcell ${solvedRound && bigger === 0 ? 'lm-cmp-big' : ''}`}><BigNum v={it.pair[0]}/></div>
                 <span className="lm-cmpslot mono">{picked ? <span key={idx} className="lm-sign-in">{picked}</span> : '?'}</span>
@@ -3309,6 +3320,11 @@ const Screen11 = (props) => {
 };
 
 // sCASE — shahar hisobi (s12 setup + s13 savol): jami 346
+// --- Savol-frame fon-effekti: ko'tarilib porlaydigan shahar chiroq-uchqunlari (dars mavzusiga mos).
+const FrameFx = () => (
+  <span className="lm-fx" aria-hidden="true"><i/><i/><i/><i/><i/></span>
+);
+
 // --- RAQAM-PLITA (klaviatursiz javob TERISH — grade3 yangiligi: TANISH emas, ISHLAB CHIQARISH).
 // value — string; max — xona soni. Grade2 praktika NumPad naqshi, T-palitraga moslangan.
 const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(36px, 8.5vw, 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
@@ -3378,8 +3394,18 @@ const ScreenCase = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="fade-up" style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(s12.lead)}</p>
         <h1 className="title h-sub fade-up delay-1" style={{ margin: 0 }}>{t(s13.q)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(10px, 2vw, 16px)' }}>
-          <div className="lm-figwrap"><PlaceViz hundreds={3} tens={4} ones={6} small/></div>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(10px, 2vw, 16px)' }}>
+          <FrameFx/>
+          {/* HISOB-KARTA — Anvar keltirgan hisobot (panellar o'rniga toza qog'oz-karta, razryad-ranglar) */}
+          <div className="lm-report">
+            <span className="lm-report-head mono">{t(s12.manifest_label)}</span>
+            {[[3, lang === 'ru' ? 'сотни' : 'yuzlik', '#C0392B', '#FBE9E7'], [4, lang === 'ru' ? 'десятки' : "o'nlik", '#1F7A4D', '#E3F0E8'], [6, lang === 'ru' ? 'единицы' : 'birlik', '#019ACB', '#E3F2F8']].map(([n, lbl, col, bg], i) => (
+              <div key={lbl} className="lm-report-row lm-reveal" style={{ animationDelay: `${0.25 + i * 0.3}s` }}>
+                <span className="lm-report-n mono" style={{ color: col, background: bg }}>{n}</span>
+                <span className="lm-report-lbl">{lbl}</span>
+              </div>
+            ))}
+          </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
           <NumPad value={val} setValue={setVal} disabled={!canAct || solved} max={3}/>
           <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
@@ -3456,11 +3482,13 @@ const Screen14 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="fade-up" style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.intro_line)}</p>
         {!done && it && (
-          <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+          <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
+            <FrameFx/>
             <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
             <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
             {it.kind === 'num' ? (
               <>
+                {it.hto && <div className="lm-figwrap" style={{ display: 'flex', justifyContent: 'center' }}><PlaceViz hundreds={it.hto[0]} tens={it.hto[1]} ones={it.hto[2]} small/></div>}
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
                 </div>
@@ -3509,12 +3537,10 @@ const Screen15 = (props) => {
     { id: 's15_pay', text: S15_PAYOFF[lang], trigger: 'on_mount', waits_for: null },
     { id: 's15_sum', text: c.audio[lang], trigger: 'after_previous', waits_for: null }
   ]);
-  const canAdv = useAdvanceGate(true, audio);
-  const finishLabel = lang === 'ru' ? 'Завершить' : 'Yakunlash';
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <button className="btn-white-accent" disabled={!canAdv} onClick={props.finishLesson}>{finishLabel}</button>
+      <NavNext disabled={false} onClick={props.finishLesson} label={lang === 'uz' ? 'Tugatish' : 'Завершить'}/>
     </>
   );
   return (
@@ -5468,6 +5494,25 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-ctrl-btn:disabled { opacity: 0.35; cursor: default; }
 .lm-eq { color: #3A3530; }
 
+/* Missiya-karta (s0/s15) — dars maqsadi */
+.lm-mission { display: flex; align-items: center; gap: clamp(8px, 1.8vw, 12px); background: #FFF6DC; border: 1.5px solid #E8CB7A; border-radius: 12px; padding: clamp(8px, 1.8vw, 12px) clamp(12px, 2.4vw, 18px); font-weight: 700; color: #5A5A60; font-size: clamp(12px, 1.7vw, 15px); }
+.lm-mission-ico { font-size: clamp(18px, 3vw, 24px); line-height: 1; }
+/* Savol-slayd fon-animatsiyasi: shahar chiroq-uchqunlari frame ichida ko'tarilib porlaydi */
+.lm-fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; z-index: 0; }
+.lm-fx i { position: absolute; bottom: -8px; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 38% 32%, #FFF6D2, #FFC63F 60%, rgba(255,138,30,0)); opacity: 0; animation: lm-fx-rise 7s linear infinite; }
+.lm-fx i:nth-child(1) { left: 8%; animation-delay: 0s; }
+.lm-fx i:nth-child(2) { left: 24%; animation-delay: 2.4s; animation-duration: 8.5s; }
+.lm-fx i:nth-child(3) { left: 55%; animation-delay: 1.2s; animation-duration: 7.6s; }
+.lm-fx i:nth-child(4) { left: 76%; animation-delay: 3.6s; }
+.lm-fx i:nth-child(5) { left: 91%; animation-delay: 0.8s; animation-duration: 9s; }
+@keyframes lm-fx-rise { 0% { transform: translateY(0) scale(0.7); opacity: 0; } 12% { opacity: 0.55; } 55% { opacity: 0.4; } 100% { transform: translateY(-160px) scale(1.1); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .lm-fx i { animation: none; } }
+/* Hisob-karta (sCASE) — qog'oz-hisobot ko'rinishi */
+.lm-report { display: flex; flex-direction: column; gap: clamp(5px, 1.2vw, 8px); background: #FFFDF8; border: 1.5px solid #E4D9C4; border-top: 6px solid #FF4F28; border-radius: 12px; padding: clamp(10px, 2vw, 16px) clamp(16px, 3.4vw, 26px); box-shadow: 0 6px 16px -8px rgba(58,53,48,0.25); }
+.lm-report-head { text-transform: uppercase; letter-spacing: 2px; font-size: clamp(10px, 1.4vw, 12px); font-weight: 800; color: #A7A6A2; text-align: center; }
+.lm-report-row { display: flex; align-items: center; gap: clamp(8px, 1.8vw, 12px); }
+.lm-report-n { width: clamp(30px, 6.5vw, 40px); height: clamp(30px, 6.5vw, 40px); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: clamp(16px, 3vw, 21px); font-weight: 800; }
+.lm-report-lbl { font-weight: 700; color: #5A5A60; font-size: clamp(13px, 1.8vw, 15px); }
 .lm-digrow { display: flex; gap: clamp(6px, 1.6vw, 12px); perspective: 500px; }
 .lm-cardflip { animation: lm-cardflip-a 0.55s cubic-bezier(0.3, 0.9, 0.4, 1) both; transform-origin: center; backface-visibility: hidden; }
 @keyframes lm-cardflip-a { 0% { transform: rotateY(-90deg); opacity: 0; } 55% { opacity: 1; } 100% { transform: rotateY(0); opacity: 1; } }
