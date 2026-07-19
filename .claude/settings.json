@@ -181,7 +181,9 @@
       "Bash(grep -hoE \"verts=\\\\{\\\\[\\\\[0, 0\\\\], \\\\[[0-9]+, 0\\\\], \\\\[[0-9]+, [0-9]+\\\\]\" src/components/grade2/Dars29.jsx)",
       "Bash(grep -hoE \"\\\\{ w: [0-9]+, h: [0-9]+ \\\\}|w: [0-9]+, h: [0-9]+\" src/components/grade2/Dars29.jsx)",
       "Bash(git commit *)",
-      "Bash(npx --yes esbuild src/components/grade2/practice/dars05/D05_03.jsx src/components/grade2/practice/dars01/D01_04.jsx src/components/grade2/practice/PracticeHost.jsx --bundle --external:react --external:*.jsx --format=esm --outfile=/dev/null)"
+      "Bash(sed -n '/^  s11: {/,/^  },/p' src/components/grade3/Dars01.jsx)",
+      "Bash(sed -n '/^const Screen11 = /,/^\\);$/p' src/components/grade3/Dars01.jsx)",
+      "Bash(perl -0pi -e \"s/const TOTAL_SCREENS = 14;/const TOTAL_SCREENS = 15;/; s/\\(\\\\{ id: 's6',  type: 'exploration', template: 'custom',   scored: false, scope: null \\\\},        \\\\/\\\\/ 6  son o'qi 0-1000\\\\n\\)/\\\\$1  { id: 'sming', type: 'exploration', template: 'custom', scored: false, scope: null },       \\\\/\\\\/ 7  KASHFIYOT: 10 yuzlik = 1000\\\\n/; s/const screens = \\\\[Screen0, Screen1, Screen3, Screen4, Screen5, Screen6, Screen7,/const screens = [Screen0, Screen1, Screen3, Screen4, Screen5, Screen6, ScreenMing, Screen7,/\" src/components/grade3/Dars01.jsx)"
     ],
     "additionalDirectories": [
       "C:\\Users\\USER\\AppData\\Local\\Temp\\claude\\c--Users-USER-MatematikaLesson\\118720a3-10f8-4a7d-b5b3-6910c9a441f2\\scratchpad\\d2parts",

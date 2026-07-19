@@ -126,7 +126,7 @@ const FX_CSS = `.d01-pop { animation: d01pop .5s cubic-bezier(.34,1.56,.64,1) bo
 const D01_TENS = 3, D01_ONES = 6, D01_NUM = 36;
 const D01_T = {
   uz: {
-    eyebrow: 'Sonni yig‘ing', setup: "Mataga kassetalar (o'nlik) va batareyalar (birlik) qo'yiladi.",
+    eyebrow: 'Sonni yig‘ing', setup: "Stolga kassetalar (o'nlik) va batareyalar (birlik) qo'yiladi.",
     ask: '3 o‘nlik va 6 birlik qo‘ying. Qanday son hosil bo‘ladi?',
     ten: "O'nlik", one: "Birlik", formed: 'Hosil bo‘lgan son:',
     correct: "To'g'ri! 3 o'nlik va 6 birlik = 36. O'nlik oldinda, birlik keyin.",
@@ -134,7 +134,7 @@ const D01_T = {
     rule: "Son = o'nliklar × 10 + birliklar. 3 o'nlik 6 birlik = 36.",
   },
   ru: {
-    eyebrow: 'Собери число', setup: 'На мат кладут кассеты (десятки) и батарейки (единицы).',
+    eyebrow: 'Собери число', setup: 'На стол кладут кассеты (десятки) и батарейки (единицы).',
     ask: 'Положи 3 десятка и 6 единиц. Какое число получится?',
     ten: 'Десятки', one: 'Единицы', formed: 'Полученное число:',
     correct: 'Верно! 3 десятка и 6 единиц = 36. Десятки впереди, единицы потом.',
@@ -185,6 +185,6 @@ export default function D01_01(props) {
 
 /* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
 D01_01.audio = {
-  uz: { intro: "Mataga kassetalar o'nlik va batareyalar birlik qo'yiladi. 3 o'nlik va 6 birlik qo'ying. Qanday son hosil bo'ladi?", on_correct: "To'g'ri! 3 o'nlik va 6 birlik teng 36. O'nlik oldinda, birlik keyin.", on_wrong: "Maslahat. 3 ta kasseta, 30, 6 ta batareya, 6. 30 qo'shish 6 teng 36." },
-  ru: { intro: "На мат кладут кассеты десятки и батарейки единицы. Положи 3 десятка и 6 единиц. Какое число получится?", on_correct: "Верно! 3 десятка и 6 единиц равно 36. Десятки впереди, единицы потом.", on_wrong: "Подсказка. 3 кассеты, 30, 6 батареек, 6. 30 плюс 6 равно 36." },
+  uz: { intro: "Stolga kassetalar o'nlik va batareyalar birlik qo'yiladi. 3 o'nlik va 6 birlik qo'ying. Qanday son hosil bo'ladi?", on_correct: "To'g'ri! 3 o'nlik va 6 birlik teng 36. O'nlik oldinda, birlik keyin.", on_wrong: "Maslahat. 3 ta kasseta, 30, 6 ta batareya, 6. 30 qo'shish 6 teng 36." },
+  ru: { intro: "На стол кладут кассеты десятки и батарейки единицы. Положи 3 десятка и 6 единиц. Какое число получится?", on_correct: "Верно! 3 десятка и 6 единиц равно 36. Десятки впереди, единицы потом.", on_wrong: "Подсказка. 3 кассеты, 30, 6 батареек, 6. 30 плюс 6 равно 36." },
 };
