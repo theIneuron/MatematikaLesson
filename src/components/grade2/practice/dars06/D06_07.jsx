@@ -73,7 +73,7 @@ const LineBase = ({ max = 100, children, h = 74 }) => (
 const StaticTicks = ({ max, labels, h = 74 }) => TICKS(max).map((v) => (
   <div key={v} style={{ position: 'absolute', left: (v / max * 100) + '%', top: h * 0.5 - 5, transform: 'translateX(-50%)' }}>
     <div style={{ width: labels.includes(v) ? 4 : 3, height: labels.includes(v) ? 12 : 8, background: labels.includes(v) ? C.ten : '#93a6cc', margin: '0 auto', borderRadius: 2 }} />
-    {labels.includes(v) && <div style={{ ...S.mono, fontSize: 11, fontWeight: 800, color: C.ten, marginTop: 3, textAlign: 'center' }}>{v}</div>}
+    {labels.includes(v) && <div style={{ ...S.mono, fontSize: 16, fontWeight: 800, color: C.ten, marginTop: 3, textAlign: 'center' }}>{v}</div>}
   </div>
 ));
 

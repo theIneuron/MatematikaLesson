@@ -122,7 +122,7 @@ function D06_05Impl(props) {
       <Stage>
         <LineBase max={100} h={82}>
           {/* 20 va 60 chegaralar */}
-          {[20, 60].map((v) => <div key={v} style={{ position: 'absolute', left: (v) + '%', top: 82 * 0.5 - 16, transform: 'translateX(-50%)', textAlign: 'center' }}><div style={{ width: 4, height: 16, background: C.ten, margin: '0 auto', borderRadius: 2 }} /><div style={{ ...S.mono, fontSize: 12, fontWeight: 800, color: C.ten }}>{v}</div></div>)}
+          {[20, 60].map((v) => <div key={v} style={{ position: 'absolute', left: (v) + '%', top: 82 * 0.5 - 16, transform: 'translateX(-50%)', textAlign: 'center' }}><div style={{ width: 4, height: 16, background: C.ten, margin: '0 auto', borderRadius: 2 }} /><div style={{ ...S.mono, fontSize: 16, fontWeight: 800, color: C.ten }}>{v}</div></div>)}
           <ClickTicks max={100} labels={[]} picked={picked} correctVal={D05_CORRECT} checked={checked} disabled={isReview || checked} onPick={setPicked} h={82} />
         </LineBase>
       </Stage>

@@ -114,7 +114,7 @@ function D02_08Impl(props) {
               return (
                 <button key={n} type="button" disabled={locked} onClick={() => setPicked(n)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, border: 'none', background: 'transparent', cursor: locked ? 'default' : 'pointer', width: 24 }}>
                   <span style={{ width: on ? 18 : (isEnd ? 12 : 9), height: on ? 18 : (isEnd ? 12 : 9), borderRadius: '50%', background: bg, border: '2px solid ' + bd, transition: 'all .12s' }} />
-                  <span style={{ ...S.mono, fontSize: 10, fontWeight: 800, color: isT ? C.ok : (isEnd ? C.sink : C.sink2) }}>{n}</span>
+                  <span style={{ ...S.mono, fontSize: 16, fontWeight: 800, color: isT ? C.ok : (isEnd ? C.sink : C.sink2) }}>{n}</span>
                 </button>
               );
             })}

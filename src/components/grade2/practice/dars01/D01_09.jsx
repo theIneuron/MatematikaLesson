@@ -113,7 +113,7 @@ function D01_09Impl(props) {
               return (
                 <button key={n} type="button" disabled={locked} onClick={() => setPicked(n)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, border: 'none', background: 'transparent', cursor: locked ? 'default' : 'pointer', width: 26 }}>
                   <span style={{ width: on ? 18 : 12, height: on ? 18 : 12, borderRadius: '50%', background: bg, border: '2px solid ' + bd, transition: 'all .12s' }} />
-                  <span style={{ ...S.mono, fontSize: 11, fontWeight: 800, color: isT ? C.ok : C.sink2 }}>{n}</span>
+                  <span style={{ ...S.mono, fontSize: 16, fontWeight: 800, color: isT ? C.ok : C.sink2 }}>{n}</span>
                 </button>
               );
             })}

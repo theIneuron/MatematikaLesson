@@ -120,7 +120,7 @@ function D06_08Impl(props) {
             return (
               <button key={v} type="button" disabled={locked} onClick={() => tap(v)} style={{ position: 'absolute', left: v + '%', top: 80 * 0.5 - 15, transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, border: 'none', background: 'transparent', cursor: locked ? 'default' : 'pointer' }}>
                 <span style={{ width: on ? 18 : 12, height: on ? 18 : 12, borderRadius: '50%', border: '2px solid ' + bd, background: bg }} />
-                <span style={{ ...S.mono, fontSize: 10, fontWeight: 800, color: (v === 30 || v === 60) ? C.sink2 : C.sink2 }}>{v}</span>
+                <span style={{ ...S.mono, fontSize: 16, fontWeight: 800, color: (v === 30 || v === 60) ? C.sink2 : C.sink2 }}>{v}</span>
               </button>
             );
           })}
