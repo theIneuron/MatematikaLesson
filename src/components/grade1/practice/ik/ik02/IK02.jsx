@@ -2,7 +2,7 @@
 // Reja: PK_IK_REJA_1SINF.md §3 — kurs oxiri, barcha bloklardan aralash stansiyalar + sertifikat.
 // Savollar butun kurs bo'ylab (Б1–Б11) aralashtirib olingan.
 import React from 'react';
-import PKHost from '../PKHost.jsx';
+import PKHost from '../../pk/PKHost.jsx';
 
 import D03_01 from '../../dars03/D03_01.jsx'; // Б1 sanoq 6–10
 import D06_01 from '../../dars06/D06_01.jsx'; // Б1 son tarkibi

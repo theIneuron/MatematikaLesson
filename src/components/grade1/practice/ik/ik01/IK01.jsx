@@ -2,7 +2,7 @@
 // Reja: PK_IK_REJA_1SINF.md §3 — o'rganilgan tugunlarni bir aylanaga «yig'ish», kurs o'rtasida.
 // Savollar bir nechta blokdan (Dars04–19) aralashtirib olingan.
 import React from 'react';
-import PKHost from '../PKHost.jsx';
+import PKHost from '../../pk/PKHost.jsx';
 
 import D05_01 from '../../dars05/D05_01.jsx'; // Б1 son tarkibi 2–5
 import D06_01 from '../../dars06/D06_01.jsx'; // Б1 son tarkibi 6–10

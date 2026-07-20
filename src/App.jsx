@@ -3,6 +3,8 @@ import Home from './components/shared/Home.jsx'
 import LessonPage from './components/shared/LessonPage.jsx'
 import Trenajyor from './components/trenajyor/Trenajyor.jsx'
 import Lesson3D from './lab/dars01_3d/app.jsx'
+import ManimPage from './lab/manim_dars01/ManimPage.jsx'
+import Grade3ManimLesson from './lab/grade3_dars01_manim/Dars01.jsx'
 import { grades, findLesson, findLessonAnySection } from './lessons/index.js'
 import './App.css'
 
@@ -48,6 +50,10 @@ function App() {
       <Route path="/trenajyor" element={<Trenajyor lang="uz" />} />
       {/* LAB (tajriba): Grade2 Dars01 3D-prototip — izolyatsiya, etalonga tegmaydi */}
       <Route path="/lab/dars01-3d" element={<Lesson3D />} />
+      {/* LAB: Grade2 Dars01 Manim tushuntirish-klipi (video) */}
+      <Route path="/lab/dars01-manim" element={<ManimPage />} />
+      {/* LAB: Grade3 Dars01 DUBLIKAT + Manim video-recap QOIDA'dan keyin (integratsiya) */}
+      <Route path="/lab/grade3-dars01-manim" element={<Grade3ManimLesson />} />
       <Route path="/:gradeId/:subjectId/:sectionId/:slug" element={<LessonRoute />} />
       <Route path="/dars/:slug" element={<LegacyDarsRedirect />} />
       <Route path="/:gradeId/:subjectId/:slug" element={<LegacySectionlessRedirect />} />

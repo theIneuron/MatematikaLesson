@@ -142,6 +142,30 @@ function Home({ grades }) {
         </Link>
       )}
 
+      {/* Alohida bo'lim: LAB — Grade2 Dars01 Manim klip (video) */}
+      {!subjectId && (
+        <Link to="/lab/dars01-manim" className="trz-banner" style={{ background: 'linear-gradient(120deg, #1a1030, #3a1550)' }}>
+          <span className="trz-banner__icon">🎬</span>
+          <span className="trz-banner__text">
+            <span className="trz-banner__title">LAB · Dars01 — Manim klip</span>
+            <span className="trz-banner__meta">2-sinf · O'nliklar va birliklar · tushuntirish videosi</span>
+          </span>
+          <span className="trz-banner__cta">Ko'rish →</span>
+        </Link>
+      )}
+
+      {/* Alohida bo'lim: LAB — Grade3 Dars01 + Manim integratsiya (dublikat) */}
+      {!subjectId && (
+        <Link to="/lab/grade3-dars01-manim" className="trz-banner" style={{ background: 'linear-gradient(120deg, #06231a, #0d5c3a)' }}>
+          <span className="trz-banner__icon">🧪</span>
+          <span className="trz-banner__text">
+            <span className="trz-banner__title">LAB · 3-sinf Dars01 + Manim</span>
+            <span className="trz-banner__meta">Yuzliklar/o'nliklar/birliklar · QOIDA'dan keyin video-recap (dublikat)</span>
+          </span>
+          <span className="trz-banner__cta">Ochish →</span>
+        </Link>
+      )}
+
       {/* 2-bosqich: Sinf */}
       {subjectId && !gradeId && (
         <main className="home__grid home__grid--tight">

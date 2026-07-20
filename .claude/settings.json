@@ -201,7 +201,14 @@
       "Bash(python \"C:/Users/USER/AppData/Local/Temp/claude/c--Users-USER-MatematikaLesson/a03fdbf9-03aa-4fe3-a803-12d65ce19e9a/scratchpad/orbit3d.py\")",
       "PowerShell($py = \\(Get-Command python -ErrorAction SilentlyContinue\\).Source; if\\(-not $py\\){ $py = \\(Get-Command python3 -ErrorAction SilentlyContinue\\).Source }; Write-Output \"python: $py\"; & $py --version 2>&1; & $py -c \"import sympy; print\\('sympy', sympy.__version__\\)\" 2>&1)",
       "Bash(\"/c/Users/USER/AppData/Local/Programs/Python/Python312/python.exe\" \"C:/Users/USER/AppData/Local/Temp/claude/c--Users-USER-MatematikaLesson/a03fdbf9-03aa-4fe3-a803-12d65ce19e9a/scratchpad/orbit3d_big.py\")",
-      "Bash(\"/c/Users/USER/AppData/Local/Programs/Python/Python312/python.exe\" \"C:/Users/USER/AppData/Local/Temp/claude/c--Users-USER-MatematikaLesson/a03fdbf9-03aa-4fe3-a803-12d65ce19e9a/scratchpad/blocks3d.py\")"
+      "Bash(\"/c/Users/USER/AppData/Local/Programs/Python/Python312/python.exe\" \"C:/Users/USER/AppData/Local/Temp/claude/c--Users-USER-MatematikaLesson/a03fdbf9-03aa-4fe3-a803-12d65ce19e9a/scratchpad/blocks3d.py\")",
+      "PowerShell(winget install --id Gyan.FFmpeg -e --source winget --accept-package-agreements --accept-source-agreements --scope user 2>&1)",
+      "PowerShell(winget install --id Microsoft.VCRedist.2015+.x64 -e --accept-package-agreements --accept-source-agreements 2>&1)",
+      "Bash(sed -i \"s/await page.locator\\('button.option', { hasText: 'По одному' }\\).first\\(\\).click\\(\\);/await page.locator\\('button.option', { hasText: 'По одному' }\\).first\\(\\).click\\({ force: true }\\);/\" _shot_tmp.mjs)",
+      "Bash(sed -i \"s/await src.nth\\(0\\).click\\(\\);/await src.nth\\(0\\).click\\({ force: true }\\);/\" _shot_tmp.mjs)",
+      "Bash(sed -i \"s/await src.nth\\(1\\).click\\(\\);/await src.nth\\(1\\).click\\({ force: true }\\);/\" _shot_tmp.mjs)",
+      "Bash(sed -i \"s/await src.nth\\(2\\).click\\(\\);/await src.nth\\(2\\).click\\({ force: true }\\);/\" _shot_tmp.mjs)",
+      "Bash(sed -i \"s/await plus\\(0\\).click\\(\\);/await plus\\(0\\).click\\({ force: true }\\);/\" _shot_tmp.mjs)"
     ],
     "additionalDirectories": [
       "C:\\Users\\USER\\AppData\\Local\\Temp\\claude\\c--Users-USER-MatematikaLesson\\118720a3-10f8-4a7d-b5b3-6910c9a441f2\\scratchpad\\d2parts",

@@ -30,3 +30,12 @@ src/books/**/*.pdf
 # Source snapshot archives (not pushed to GitHub).
 *.rar
 *.zip
+
+# Manim lab render chiqishi (izolyatsiya)
+src/lab/manim_dars01/media/
+
+src/lab/grade3_dars01_manim/media/
+
+# Python kesh (Manim lab)
+__pycache__/
+*.pyc
