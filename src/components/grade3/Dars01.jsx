@@ -3081,30 +3081,58 @@ const DEMO_NUM = 275;
 const DEMO_DIG = [2, 7, 5];        // 0=yuzlik, 1=o'nlik, 2=birlik
 const DEMO_BK = ['h', 't', 'o'];
 const TapBinDemo = ({ labels, lang, onDone }) => {
-  const [step, setStep] = useState(0);   // faol ustun; DEMO_DIG.length = tugadi
+  const [step, setStep] = useState(0);       // faol ustun
+  const [sub, setSub] = useState('tap');     // 'tap' (qo'l bosadi) -> 'fly' (elastik uchadi) -> 'placed'
+  const [fly, setFly] = useState(null);
+  const wrapRef = useRef(null);
   useEffect(() => {
-    if (step >= DEMO_DIG.length) { onDone && onDone(); return; }
-    const id = setTimeout(() => setStep((s) => s + 1), 3000);   // sekin — bola kuzatib ulgursin
-    return () => clearTimeout(id);
-  }, [step]);   // eslint-disable-line react-hooks/exhaustive-deps
+    if (step >= DEMO_DIG.length) { onDone && onDone(); return undefined; }
+    let tm;
+    if (sub === 'tap') {
+      tm = setTimeout(() => setSub('fly'), 1200);          // qo'l bosishini kuzatadi
+    } else if (sub === 'fly') {
+      const root = wrapRef.current;
+      const chip = root && root.querySelector(`.lm-demo-col[data-i="${step}"] .lm-demo-chip`);
+      const slot = root && root.querySelector(`.lm-demo-col[data-i="${step}"] .lm-bin-slot`);
+      if (root && chip && slot) {
+        const w = root.getBoundingClientRect(), c = chip.getBoundingClientRect(), s = slot.getBoundingClientRect();
+        setFly({ digit: DEMO_DIG[step], x: c.left - w.left, y: c.top - w.top, w: c.width, h: c.height,
+                 dx: (s.left + s.width / 2) - (c.left + c.width / 2), dy: (s.top + s.height / 2) - (c.top + c.height / 2) });
+      }
+      tm = setTimeout(() => setSub('placed'), 760);        // elastik uchish davomiyligi
+    } else {   // placed
+      setFly(null);
+      tm = setTimeout(() => { setStep((s) => s + 1); setSub('tap'); }, 700);
+    }
+    return () => clearTimeout(tm);
+  }, [step, sub]);   // eslint-disable-line react-hooks/exhaustive-deps
   const done = step >= DEMO_DIG.length;
+  const placedN = (i) => i < step || (i === step && sub === 'placed');
   const cap = done
-    ? (lang === 'ru' ? 'Готово — вот так!' : "Bo'ldi — mana shunday!")
+    ? (lang === 'ru' ? 'Готово — так и делаем!' : "Bo'ldi — shunday qilamiz!")
     : `${DEMO_DIG[step]} — ${labels[DEMO_BK[step]]}`;
   return (
-    <div className="lm-demo-wrap fade-up">
+    <div className="lm-demo-wrap fade-up" ref={wrapRef}>
+      <div className="lm-demo-goal mono">{lang === 'ru' ? 'Собираем число' : "Sonni yig'amiz"}</div>
+      <div className="lm-demo-num mono">
+        {DEMO_DIG.map((d, i) => (
+          <span key={i} className={`lm-demo-num-d ${placedN(i) ? 'lm-demo-num-done' : (i === step ? 'lm-demo-num-on' : '')}`}>{d}</span>
+        ))}
+      </div>
       <div className={`lm-demo-cap mono ${done ? 'lm-demo-cap-done' : ''}`}>{cap}</div>
       <div className="lm-demo-grid">
         {DEMO_DIG.map((d, i) => {
-          const placed = i < step;
-          const active = i === step;
+          const placed = placedN(i);
+          const showChip = i > step || (i === step && sub !== 'placed');
+          const gone = i === step && sub === 'fly';
+          const active = i === step && sub === 'tap';
           return (
-            <div key={i} className="lm-demo-col">
+            <div key={i} className="lm-demo-col" data-i={i}>
               <div className="lm-demo-chipzone">
-                {!placed && <span className={`lm-digchip mono lm-demo-chip ${active ? 'lm-demo-chip-on' : ''}`}>{d}</span>}
+                {showChip && <span className={`lm-digchip mono lm-demo-chip ${active ? 'lm-demo-chip-on' : ''} ${gone ? 'lm-demo-chip-gone' : ''}`}>{d}</span>}
                 {active && <span className="lm-demo-hand" aria-hidden="true">👆</span>}
               </div>
-              <div className={`lm-bin lm-demo-bin ${placed ? 'lm-bin-full' : ''} ${active ? 'lm-bin-open' : ''}`}>
+              <div className={`lm-bin lm-demo-bin ${placed ? 'lm-bin-full' : ''} ${(i === step && sub !== 'tap') ? 'lm-bin-open' : ''}`}>
                 <span className="lm-bin-head mono">{labels[DEMO_BK[i]]}</span>
                 <span className="lm-bin-slot mono">{placed ? <span className="lm-demo-drop">{d}</span> : ''}</span>
               </div>
@@ -3112,6 +3140,7 @@ const TapBinDemo = ({ labels, lang, onDone }) => {
           );
         })}
       </div>
+      {fly && <span className="lm-fly mono" style={{ left: fly.x, top: fly.y, width: fly.w, height: fly.h, '--fx': `${fly.dx}px`, '--fy': `${fly.dy}px` }}>{fly.digit}</span>}
     </div>
   );
 };
@@ -3137,15 +3166,36 @@ const Screen9 = (props) => {
   const [phase, setPhase] = useState(props.storedAnswer ? 'play' : 'demo');
   const [demoDone, setDemoDone] = useState(false);
   const [replayKey, setReplayKey] = useState(0);
+  const wrapRef = useRef(null);
+  const [selRect, setSelRect] = useState(null);   // tanlangan chip o'rni (uchish uchun)
+  const [fly, setFly] = useState(null);           // uchayotgan raqam
+  const [flyingIdx, setFlyingIdx] = useState(null);
   const done = round >= S9_NUMS.length;
   const num = S9_NUMS[Math.min(round, S9_NUMS.length - 1)];
   const digits = [...s9digits(num), ...S9_DECOYS[Math.min(round, S9_DECOYS.length - 1)]];
   const revealRef = useRevealScroll(checked, 500);
   const usedIdx = new Set(Object.values(bins).filter(v => v !== null));
-  const placeInto = (k) => {
-    if (!canAct || checked || done || sel === null || bins[k] !== null) return;
-    const nb = { ...bins, [k]: sel }; setSel(null); setBins(nb);
-    if (['h', 't', 'o'].every(kk => nb[kk] !== null)) evaluate(nb);
+  const placeInto = (k, e) => {
+    if (!canAct || checked || done || sel === null || bins[k] !== null || flyingIdx !== null) return;
+    const wrap = wrapRef.current && wrapRef.current.getBoundingClientRect();
+    const slotEl = e && e.currentTarget.querySelector('.lm-bin-slot');
+    const from = selRect;
+    const selNow = sel;
+    if (wrap && slotEl && from) {
+      const s = slotEl.getBoundingClientRect();
+      setFlyingIdx(selNow); setSel(null);
+      setFly({ digit: digits[selNow], x: from.left - wrap.left, y: from.top - wrap.top, w: from.width, h: from.height,
+               dx: (s.left + s.width / 2) - (from.left + from.width / 2), dy: (s.top + s.height / 2) - (from.top + from.height / 2) });
+      setTimeout(() => {
+        setFly(null); setFlyingIdx(null);
+        const nb = { ...bins, [k]: selNow };
+        setBins(nb);
+        if (['h', 't', 'o'].every(kk => nb[kk] !== null)) evaluate(nb);
+      }, 760);
+    } else {   // o'lchab bo'lmasa — darrov joylash
+      const nb = { ...bins, [k]: selNow }; setSel(null); setBins(nb);
+      if (['h', 't', 'o'].every(kk => nb[kk] !== null)) evaluate(nb);
+    }
   };
   const evaluate = (nb) => {
     const isOk = nb.h === 0 && nb.t === 1 && nb.o === 2;   // raqamlar xona tartibida: indeks 0=yuzlik, 1=o'nlik, 2=birlik
@@ -3176,7 +3226,7 @@ const Screen9 = (props) => {
   const sortLabel = lang === 'ru' ? 'Разложи цифры числа' : "Raqamlarni xonalarga ajrating";
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+      <div ref={wrapRef} style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         {!done && phase === 'demo' && (
           <>
             <div className="lm-demo-banner mono fade-up">👀 {lang === 'ru' ? 'Смотри — покажу на примере' : "Qara — misolda ko'rsataman"}: {DEMO_NUM}</div>
@@ -3193,14 +3243,14 @@ const Screen9 = (props) => {
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S9_NUMS.length}</div>
             <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
             <div className="lm-digtray fade-up delay-1">
-              {S9_ORDERS[Math.min(round, S9_ORDERS.length - 1)].map((i) => [digits[i], i]).map(([d, i]) => !usedIdx.has(i) && (
-                <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || checked} onClick={() => setSel(i)}>{d}</button>
+              {S9_ORDERS[Math.min(round, S9_ORDERS.length - 1)].map((i) => [digits[i], i]).map(([d, i]) => !usedIdx.has(i) && flyingIdx !== i && (
+                <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || checked || flyingIdx !== null} onClick={(e) => { setSel(i); setSelRect(e.currentTarget.getBoundingClientRect()); }}>{d}</button>
               ))}
               {usedIdx.size === 3 && <span className="lm-digtray-empty mono">{num}</span>}
             </div>
             <div className="lm-bins fade-up delay-1">
               {['h', 't', 'o'].map((k) => (
-                <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`} disabled={!canAct || checked || bins[k] !== null || sel === null} onClick={() => placeInto(k)}>
+                <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`} disabled={!canAct || checked || bins[k] !== null || sel === null || flyingIdx !== null} onClick={(e) => placeInto(k, e)}>
                   <span className="lm-bin-head mono">{labels[k]}</span>
                   <span className="lm-bin-slot mono">{bins[k] !== null ? digits[bins[k]] : ''}</span>
                 </button>
@@ -3218,6 +3268,7 @@ const Screen9 = (props) => {
             <Reaction state="correct" praise={`${S9_NUMS.length} / ${S9_NUMS.length}`}/>
           </div>
         )}
+        {fly && <span className="lm-fly mono" style={{ left: fly.x, top: fly.y, width: fly.w, height: fly.h, '--fx': `${fly.dx}px`, '--fy': `${fly.dy}px` }}>{fly.digit}</span>}
       </div>
     </Stage>
   );
@@ -5774,7 +5825,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 /* Slayd 10 DEMO (qo'l ko'rsatadi) — o'yin fazasidan ATAYIN farqli (ko'k «Ko'rsataman» vs to'q «Sening navbating»). */
 .lm-demo-banner { align-self: center; background: #EAF6FB; color: #017BA3; border: 1.5px solid rgba(1,154,203,0.4); border-radius: 99px; padding: clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px); font-weight: 800; font-size: clamp(12px,1.8vw,15px); }
 .lm-play-banner { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.45); border-radius: 99px; padding: clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px); font-weight: 800; font-size: clamp(12px,1.8vw,15px); }
-.lm-demo-wrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); padding: clamp(10px,2vw,16px); border-radius: 18px; background: #F4FAFD; border: 1.5px dashed rgba(1,154,203,0.35); }
+.lm-demo-wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); padding: clamp(10px,2vw,16px); border-radius: 18px; background: #F4FAFD; border: 1.5px dashed rgba(1,154,203,0.35); }
 .lm-demo-cap { font-size: clamp(15px,3vw,20px); font-weight: 800; color: #017BA3; min-height: 1.4em; }
 .lm-demo-cap-done { color: #1F7A4D; }
 .lm-demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px,2vw,14px); width: 100%; max-width: 360px; }
@@ -5790,6 +5841,17 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-demo-replay:disabled { opacity: 0.4; cursor: default; }
 .lm-demo-replay:not(:disabled):active { transform: scale(0.95); }
 @media (prefers-reduced-motion: reduce) { .lm-demo-hand, .lm-demo-drop { animation: none; } }
+/* Uchuvchi raqam — elastik «oborib qo'yish» (demo va mashqlarda). Absolute -> zoom-qatlamга chidamli. */
+.lm-fly { position: absolute; z-index: 40; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #FFF3E9; color: #FF4F28; font-weight: 800; font-size: clamp(22px,4.6vw,32px); box-shadow: 0 8px 20px -6px rgba(255,79,40,0.6); pointer-events: none; animation: dm-fly 0.76s cubic-bezier(0.52, -0.28, 0.3, 1.35) forwards; }
+@keyframes dm-fly { to { transform: translate(var(--fx, 0), var(--fy, 0)); } }
+/* DEMO «275» aksenti — bola shu son yig'ilayotganini ko'radi; joylangan raqam yashil, joriysi to'q sariq. */
+.lm-demo-goal { font-size: clamp(11px,1.6vw,13px); font-weight: 800; color: #017BA3; text-transform: uppercase; letter-spacing: 0.4px; }
+.lm-demo-num { display: flex; gap: clamp(4px,1.2vw,8px); }
+.lm-demo-num-d { font-size: clamp(30px,7vw,44px); font-weight: 800; color: #C4BEB4; border-radius: 10px; padding: 0 clamp(4px,1.2vw,8px); transition: color 0.3s, background 0.3s, transform 0.3s; }
+.lm-demo-num-on { color: #FF4F28; background: #FFF3E9; transform: scale(1.08); animation: lm-cons-pop 0.4s ease; }
+.lm-demo-num-done { color: #1F7A4D; }
+.lm-demo-chip-gone { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .lm-fly { animation: none; } }
 .lm-bin-full { background: #F1EDE5; }
 .lm-bin-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
 .lm-bin-slot { width: clamp(36px, 8vw, 50px); height: clamp(40px, 9vw, 56px); display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.06); }
