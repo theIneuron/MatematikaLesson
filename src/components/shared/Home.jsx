@@ -130,6 +130,18 @@ function Home({ grades }) {
         </Link>
       )}
 
+      {/* Alohida bo'lim: LAB — Grade2 Dars01 3D-prototip (tajriba) */}
+      {!subjectId && (
+        <Link to="/lab/dars01-3d" className="trz-banner" style={{ background: 'linear-gradient(120deg, #10142a, #1b2550)' }}>
+          <span className="trz-banner__icon">🪐</span>
+          <span className="trz-banner__text">
+            <span className="trz-banner__title">LAB · Dars01 — 3D prototip</span>
+            <span className="trz-banner__meta">2-sinf · O'nliklar va birliklar · three.js tajriba</span>
+          </span>
+          <span className="trz-banner__cta">Ochish →</span>
+        </Link>
+      )}
+
       {/* 2-bosqich: Sinf */}
       {subjectId && !gradeId && (
         <main className="home__grid home__grid--tight">

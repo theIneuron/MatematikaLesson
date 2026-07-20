@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import Home from './components/shared/Home.jsx'
 import LessonPage from './components/shared/LessonPage.jsx'
 import Trenajyor from './components/trenajyor/Trenajyor.jsx'
+import Lesson3D from './lab/dars01_3d/app.jsx'
 import { grades, findLesson, findLessonAnySection } from './lessons/index.js'
 import './App.css'
 
@@ -45,6 +46,8 @@ function App() {
     <Routes>
       <Route path="/" element={<Home grades={grades} />} />
       <Route path="/trenajyor" element={<Trenajyor lang="uz" />} />
+      {/* LAB (tajriba): Grade2 Dars01 3D-prototip — izolyatsiya, etalonga tegmaydi */}
+      <Route path="/lab/dars01-3d" element={<Lesson3D />} />
       <Route path="/:gradeId/:subjectId/:sectionId/:slug" element={<LessonRoute />} />
       <Route path="/dars/:slug" element={<LegacyDarsRedirect />} />
       <Route path="/:gradeId/:subjectId/:slug" element={<LegacySectionlessRedirect />} />

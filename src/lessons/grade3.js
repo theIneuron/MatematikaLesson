@@ -11,6 +11,54 @@ export const grade3Nazariy = [
     desc: "O'nta o'nlik — bitta yuzlik; uch xonali son = yuzlik + o'nlik + birlik (345 = 3 yuzlik 4 o'nlik 5 birlik); nol o'rinni saqlaydi (305).",
     Component: lazy(() => import('../components/grade3/Dars01.jsx')),
   },
+  {
+    slug: 'dars02-oqish-yozish',
+    title: "Dars 2. Sonlarni o'qish va yozish",
+    desc: "Son nomi va raqamli yozuv o'rtasidagi ko'prik (uch yuz besh = 305); har xona o'z nomi; nol o'rinni yozuvda saqlaydi.",
+    Component: lazy(() => import('../components/grade3/Dars02.jsx')),
+  },
+  {
+    slug: 'dars03-razryad-qoshiluvchilari',
+    title: "Dars 3. Razryad qo'shiluvchilari",
+    desc: "Sonni razryad qo'shiluvchilariga ajratish va yig'ish (345 = 300 + 40 + 5); bo'sh xona qo'shiluvchi bermaydi.",
+    Component: lazy(() => import('../components/grade3/Dars03.jsx')),
+  },
+  {
+    slug: 'dars04-taqqoslash',
+    title: "Dars 4. Uch xonali sonlarni taqqoslash",
+    desc: "Sonlarni xonama-xona, chapdan o'ngga taqqoslash (> < =); belgi kattaga ochiladi.",
+    Component: lazy(() => import('../components/grade3/Dars04.jsx')),
+  },
+  {
+    slug: 'dars05-yaxlitlash',
+    title: "Dars 5. Sonlarni yaxlitlash",
+    desc: "O'nlik va yuzlikkacha yaxlitlash; o'ngdagi raqam besh yoki katta — yuqoriga, kichik — pastga; yumaloq son nol bilan tugaydi.",
+    Component: lazy(() => import('../components/grade3/Dars05.jsx')),
+  },
+  {
+    slug: 'dars06-son-oqi',
+    title: "Dars 6. Son o'qida son",
+    desc: "Sonni son o'qida joylash va belgi bo'yicha o'qish; katta belgi — yuzlik, kichik — o'nlik.",
+    Component: lazy(() => import('../components/grade3/Dars06.jsx')),
+  },
+  {
+    slug: 'dars07-yozma-qoshish-ayirish',
+    title: "Dars 7. Yozma qo'shish va ayirish",
+    desc: "10000 gacha sonlarni ustunda qo'shish va ayirish; xona xona ostida, o'ngdan chapga; o'tkazish va qarz.",
+    Component: lazy(() => import('../components/grade3/Dars07.jsx')),
+  },
+  {
+    slug: 'dars08-rim-raqamlari',
+    title: "Dars 8. Rim raqamlari",
+    desc: "Sanoq sistemalari; Rim belgilari (I V X L C); kichik belgi o'ngda qo'shiladi, chapda ayiriladi (IX = 9).",
+    Component: lazy(() => import('../components/grade3/Dars08.jsx')),
+  },
+  {
+    slug: 'dars10-kopaytirish-jadvali',
+    title: "Dars 10. Ko'paytirish jadvali",
+    desc: "Ko'paytirish — teng guruhlarning qisqa yozuvi; massiv (satr × ustun); ko'paytuvchilarni o'rin almashtirish mumkin.",
+    Component: lazy(() => import('../components/grade3/Dars10.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — hali yo'q (keyin qo'shiladi).
