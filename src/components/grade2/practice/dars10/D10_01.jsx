@@ -121,7 +121,7 @@ function D10_01Impl(props) {
       <p style={S.setup}>{t.setup}</p>
       <Stage>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
-          {Array.from({ length: 5 }).map((_, i) => <button key={'c' + i} type="button" disabled={locked || opened.includes(i)} onClick={() => tap(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: (locked || opened.includes(i)) ? 'default' : 'pointer' }}><Cassette s={40} dim={opened.includes(i)} /></button>)}
+          {Array.from({ length: 5 }).map((_, i) => <button key={'c' + i} type="button" disabled={locked} onClick={() => tap(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: locked ? 'default' : 'pointer' }}><Cassette s={40} dim={opened.includes(i)} /></button>)}
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', minHeight: 34 }}>
           {Array.from({ length: battCount }).map((_, i) => <span key={i} className={i >= 2 ? 'd10-pop' : ''}><Battery s={30} /></span>)}

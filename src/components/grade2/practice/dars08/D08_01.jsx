@@ -107,8 +107,8 @@ function D08_01Impl(props) {
   useEffect(() => { onReady?.(touched && !checked); }, [touched, checked, onReady]);
   const locked = isReview || checked;
   const left = (5 - remC.length) * 10 + (9 - remB.length);
-  const tapC = (i) => { if (locked || remC.includes(i)) return; setRemC((r) => [...r, i]); };
-  const tapB = (i) => { if (locked || remB.includes(i)) return; setRemB((r) => [...r, i]); };
+  const tapC = (i) => { if (locked) return; setRemC((r) => r.includes(i) ? r.filter((x) => x !== i) : [...r, i]); };
+  const tapB = (i) => { if (locked) return; setRemB((r) => r.includes(i) ? r.filter((x) => x !== i) : [...r, i]); };
   const check = useCallback(() => {
     const correct = remC.length === 2 && remB.length === 4;
     setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
@@ -122,10 +122,10 @@ function D08_01Impl(props) {
       <p style={S.setup}>{t.setup}</p>
       <Stage>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 6 }}>
-          {Array.from({ length: 5 }).map((_, i) => <button key={'c' + i} type="button" disabled={locked || remC.includes(i)} onClick={() => tapC(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: (locked || remC.includes(i)) ? 'default' : 'pointer' }}><Cassette s={38} dim={remC.includes(i)} /></button>)}
+          {Array.from({ length: 5 }).map((_, i) => <button key={'c' + i} type="button" disabled={locked} onClick={() => tapC(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: locked ? 'default' : 'pointer' }}><Cassette s={38} dim={remC.includes(i)} /></button>)}
         </div>
         <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {Array.from({ length: 9 }).map((_, i) => <button key={'b' + i} type="button" disabled={locked || remB.includes(i)} onClick={() => tapB(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: (locked || remB.includes(i)) ? 'default' : 'pointer' }}><Battery s={30} dim={remB.includes(i)} /></button>)}
+          {Array.from({ length: 9 }).map((_, i) => <button key={'b' + i} type="button" disabled={locked} onClick={() => tapB(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: locked ? 'default' : 'pointer' }}><Battery s={30} dim={remB.includes(i)} /></button>)}
         </div>
         <div style={{ textAlign: 'center', marginTop: 10, fontSize: 13, fontWeight: 700, color: C.sink2 }}>{t.left}: <span style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: leftCol }}>{left}</span></div>
       </Stage>

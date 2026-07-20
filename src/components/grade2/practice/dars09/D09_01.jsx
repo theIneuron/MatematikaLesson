@@ -121,7 +121,7 @@ function D09_01Impl(props) {
       <Stage>
         <div style={{ display: 'flex', gap: 18, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, maxWidth: 320, justifyContent: 'center' }}>
-            {Array.from({ length: 12 }).map((_, i) => <button key={i} type="button" disabled={locked || moved.includes(i)} onClick={() => tap(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: (locked || moved.includes(i)) ? 'default' : 'pointer' }}><Battery s={34} dim={moved.includes(i)} /></button>)}
+            {Array.from({ length: 12 }).map((_, i) => <button key={i} type="button" disabled={locked} onClick={() => tap(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: locked ? 'default' : 'pointer' }}><Battery s={34} dim={moved.includes(i)} /></button>)}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 74 }}>
             <Cassette s={54} lit={bundled} dim={!bundled} />
