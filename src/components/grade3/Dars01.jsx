@@ -1126,14 +1126,14 @@ const CONTENT = {
     done_text: { ru: 'Тысяча — это десять сотен вместе. Самое большое число нашего урока!', uz: "Ming — bu o'nta yuzlik birga. Darsimizning eng katta soni!" },
     audio: {
       ru: [
-        'Помните? Десять десятков дали нам сотню. А теперь интересный вопрос. Что будет, если собрать десять сотен?',
-        'Собираем панели. Одна, две, три... десять панелей по сто огней.',
+        'Помните? Десять десятков дали нам сотню. А теперь интересный вопрос. Что будет, если собрать десять сотен? Подумай немного.',
+        'Давайте посчитаем вместе. Один, два, три и так до десяти — десять панелей, в каждой по сто огней.',
         'Смотрите, что получилось! Десять сотен — это тысяча. Целая тысяча огней!',
         'Тысяча — это новое большое число. В следующий раз мы научимся читать и записывать такие числа. Вот это будет приключение!'
       ],
       uz: [
-        "Esingizdami? O'nta o'nlik bizga yuzlikni berdi. Endi qiziq savol. Agar o'nta yuzlikni yig'sak, nima bo'ladi?",
-        "Panellarni yig'amiz. Bir, ikki, uch... o'nta panel yuzdan chiroq.",
+        "Esingizdami? O'nta o'nlik bizga yuzlikni berdi. Endi qiziq savol. Agar o'nta yuzlikni yig'sak, nima bo'ladi? Bir oz o'ylab ko'ring.",
+        "Keling, birga sanab chiqamiz. Bir, ikki, uch va shunday o'ngacha — o'nta panel, har birida yuzdan chiroq.",
         "Qarang, nima chiqdi! O'nta yuzlik — bu ming. Butun boshli ming chiroq!",
         "Ming — bu yangi katta son. Keyingi safar shunday sonlarni o'qish va yozishni o'rganamiz. Bu haqiqiy sarguzasht bo'ladi!"
       ]
@@ -2564,7 +2564,8 @@ const Screen3 = (props) => {
     brgSeg('s3', lang),
     { id: 's3_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
     { id: 's3_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null },
-    { id: 's3_2', text: c.audio[lang][2], trigger: 'on_event:done', waits_for: null }
+    { id: 's3_2', text: c.audio[lang][2], trigger: 'on_event:done', waits_for: null },
+    { id: 's3_ans', text: c.done_text[lang], trigger: 'after_previous', waits_for: null }   // JAVOBni ovozlash (245 = ...)
   ]);
   const canAct = useCanAnswer(audio);
   const [h, setH] = useState(0);
@@ -2833,7 +2834,8 @@ const Screen6 = (props) => {
   const sfx = useSfx();
   const audio = useAudio([
     { id: 's6_q', text: c.q_audio[lang], trigger: 'on_mount', waits_for: { type: 'guessed' } },
-    ...c.audio[lang].map((text, i) => ({ id: `s6_${i}`, text, trigger: i === 0 ? 'on_event:go' : 'after_previous', waits_for: null }))
+    ...c.audio[lang].map((text, i) => ({ id: `s6_${i}`, text, trigger: i === 0 ? 'on_event:go' : 'after_previous', waits_for: null })),
+    { id: 's6_info', text: c.info[lang], trigger: 'after_previous', waits_for: null }   // «Foydali»ni oxirida ovozlash
   ]);
   const canAns = useCanAnswer(audio);
   const seg = audio.currentSegment;
@@ -2877,18 +2879,53 @@ const Screen6 = (props) => {
 };
 
 // sMING — KASHFIYOT: 10 yuzlik = 1000 (keyingi darsga ko'prik). Panellar ovoz bilan yig'iladi.
+// Countdown soat — 5s o'ylash vaqti (savol berilgach).
+const CountdownClock = ({ n, total = 5, lang }) => {
+  const R = 34, C = 2 * Math.PI * R;
+  const frac = Math.max(0, n) / total;
+  return (
+    <div className="lm-clock fade-up">
+      <svg viewBox="0 0 80 80" style={{ width: 'clamp(78px, 20vw, 96px)', height: 'auto' }} aria-hidden="true">
+        <circle cx="40" cy="40" r={R} fill="none" stroke="#E6E1D6" strokeWidth="7"/>
+        <circle cx="40" cy="40" r={R} fill="none" stroke="#FF4F28" strokeWidth="7" strokeLinecap="round"
+          strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
+        <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
+      </svg>
+      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+    </div>
+  );
+};
 const ScreenMing = (props) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.sming;
   const audio = useAudio([
     brgSeg('sming', lang),
-    ...c.audio[lang].map((text, i) => ({ id: `sming_${i}`, text, trigger: 'after_previous', waits_for: null }))
+    { id: 'sming_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 'sming_1', text: c.audio[lang][1], trigger: 'on_event:go', waits_for: null },
+    { id: 'sming_2', text: c.audio[lang][2], trigger: 'after_previous', waits_for: null },
+    { id: 'sming_3', text: c.audio[lang][3], trigger: 'after_previous', waits_for: null }
   ]);
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^sming_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(6))); }, [seg]);
-  const stacking = reached >= 1;
+  // 5s SOAT: savol boshlangach o'ylash vaqti; tugagach 'go' -> sanoq.
+  const [clock, setClock] = useState(null);   // null=hali emas, 5..0, -1=tugadi
+  useEffect(() => { if (clock === null && reached >= 0) setClock(5); }, [reached, clock]);
+  useEffect(() => {
+    if (clock === null || clock < 0) return undefined;
+    if (clock === 0) { audio.triggerInternal('go'); const id = setTimeout(() => setClock(-1), 300); return () => clearTimeout(id); }
+    const id = setTimeout(() => setClock((v) => v - 1), 1000);
+    return () => clearTimeout(id);
+  }, [clock]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const clockRunning = clock !== null && clock >= 0;
+  // Panellar sanoq bilan BITTALAB (sanoq boshlangach, ~0.46s oralab).
+  const [panelN, setPanelN] = useState(0);
+  useEffect(() => {
+    if (reached < 1 || panelN >= 10) return undefined;
+    const id = setTimeout(() => setPanelN((v) => v + 1), 460);
+    return () => clearTimeout(id);
+  }, [reached, panelN]);
   const revealed = reached >= 2;
   const done = reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
@@ -2903,10 +2940,11 @@ const ScreenMing = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 20px)', minHeight: 'clamp(180px, 38vw, 240px)' }}>
-          {!revealed && (
+          {clockRunning && <CountdownClock n={clock} lang={lang}/>}
+          {!clockRunning && reached >= 1 && !revealed && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, auto)', gap: 'clamp(4px, 1vw, 8px)' }}>
               {Array.from({ length: 10 }).map((_, i) => (
-                <span key={i} className={stacking ? 'lm-drop' : ''} style={{ display: 'inline-flex', opacity: stacking ? 1 : 0.15, animationDelay: `${i * 0.32}s` }}>
+                <span key={i} className={i < panelN ? 'lm-dock' : ''} style={{ display: 'inline-flex', opacity: i < panelN ? 1 : 0.12, transition: 'opacity 0.3s' }}>
                   <Panel className="lm-mat-panel"/>
                 </span>
               ))}
@@ -2938,9 +2976,11 @@ const Screen7 = (props) => {
   const t = useT();
   const c = CONTENT.s7;
   const sfx = useSfx();
+  // SAVOL avval (aksent) -> javob bergach QOIDA + tushuntirish (s7_0..s7_5) ochiladi.
   const audio = useAudio([
     brgSeg('s7', lang),
-    ...c.audio[lang].map((text, i) => ({ id: `s7_${i}`, text, trigger: 'after_previous', waits_for: null }))
+    { id: 's7_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
+    ...c.audio[lang].slice(0, 6).map((text, i) => ({ id: `s7_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
   ]);
   const canAct = useCanAnswer(audio);
   const [tapped, setTapped] = useState(null);
@@ -2949,9 +2989,10 @@ const Screen7 = (props) => {
   const onCell = (k) => {
     if (!canAct || ok) return;
     setTapped(k);
-    if (k === 'h') sfx.playCorrect();
+    if (k === 'h') { sfx.playCorrect(); audio.triggerInternal('answered'); }
   };
-  const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
+  const maskLabels = { h: '?', t: '?', o: '?' };
+  const realLabels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const canAdv = useAdvanceGate(ok, audio);
   const navContent = (
     <>
@@ -2962,13 +3003,17 @@ const Screen7 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <div className="d2-rulecard fade-up">
-          <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
-          <p className="d2-rulecard-txt">{t(c.rule)}</p>
-        </div>
+        {!ok ? (
+          <div className="lm-q-accent fade-up">{t(c.check_q)}</div>
+        ) : (
+          <div className="d2-rulecard fade-up">
+            <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
+            <p className="d2-rulecard-txt">{t(c.rule)}</p>
+          </div>
+        )}
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <RazryadTable h={3} t={4} o={5} labels={labels} digits onCell={onCell} cellSel={ok ? 'h' : null}/>
-          <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{ok ? t(c.check_ok) : (tapped ? t(c.check_no) : t(c.check_q))}</p>
+          <RazryadTable h={3} t={4} o={5} labels={ok ? realLabels : maskLabels} digits onCell={onCell} cellSel={ok ? 'h' : null}/>
+          {tapped && !ok && <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.check_no)}</p>}
         </div>
         {ok && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -5852,6 +5897,11 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-demo-num-done { color: #1F7A4D; }
 .lm-demo-chip-gone { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .lm-fly { animation: none; } }
+/* 5s o'ylash soati (slayd 7). */
+.lm-clock { display: flex; flex-direction: column; align-items: center; gap: clamp(6px,1.4vw,10px); }
+.lm-clock-cap { font-size: clamp(13px,1.9vw,16px); font-weight: 800; color: #017BA3; }
+/* Aksent savol (slayd 8 QOIDA — javob oldindan berilmasin). */
+.lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
 .lm-bin-full { background: #F1EDE5; }
 .lm-bin-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
 .lm-bin-slot { width: clamp(36px, 8vw, 50px); height: clamp(40px, 9vw, 56px); display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.06); }
