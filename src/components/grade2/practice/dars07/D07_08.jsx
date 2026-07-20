@@ -85,6 +85,7 @@ const D08_T = {
 function D07_08Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D08_T[lang] || D08_T.uz;
+  const order = React.useMemo(() => { const a = D08_CHIPS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -110,7 +111,7 @@ function D07_08Impl(props) {
       </Stage>
       <p style={{ ...S.ask, fontSize: 20 }}>{t.ask}</p>
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-        {D08_CHIPS.map((n, i) => { const on = picked === i; let tone = null; if (checked && on) tone = i === D08_CORRECT ? 'ok' : 'no'; return <Chip key={i} on={on && !checked} tone={tone} disabled={isReview || checked} onClick={() => setPicked(i)} w={68}>{n}</Chip>; })}
+        {order.map((i) => { const on = picked === i; let tone = null; if (checked && on) tone = i === D08_CORRECT ? 'ok' : 'no'; return <Chip key={i} on={on && !checked} tone={tone} disabled={isReview || checked} onClick={() => setPicked(i)} w={68}>{D08_CHIPS[i]}</Chip>; })}
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
       {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}

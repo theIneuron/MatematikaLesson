@@ -94,6 +94,7 @@ const D10_T = {
 function D05_10Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D10_T[lang] || D10_T.uz;
+  const order = React.useMemo(() => { const a = D10_CHIPS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -122,10 +123,10 @@ function D05_10Impl(props) {
       </Stage>
       <p style={{ ...S.ask, fontSize: 19 }}>{t.ask}</p>
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-        {D10_CHIPS.map((n, i) => {
+        {order.map((i) => {
           const on = picked === i; let tone = null;
           if (checked && on) tone = i === D10_CORRECT ? 'ok' : 'no';
-          return <Chip key={i} on={on && !checked} tone={tone} disabled={isReview || checked} onClick={() => setPicked(i)} w={64}>{n}</Chip>;
+          return <Chip key={i} on={on && !checked} tone={tone} disabled={isReview || checked} onClick={() => setPicked(i)} w={64}>{D10_CHIPS[i]}</Chip>;
         })}
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}

@@ -84,6 +84,7 @@ const D06_T = {
 function D11_06Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D06_T[lang] || D06_T.uz;
+  const order = React.useMemo(() => { const a = D06_SETUPS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null); const [fb, setFb] = useState(null); const [checked, setChecked] = useState(false);
   useEffect(() => { if (initialAnswer?.studentAnswer?.idx != null) { setPicked(initialAnswer.studentAnswer.idx); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
@@ -100,13 +101,14 @@ function D11_06Impl(props) {
       <p style={S.setup}>{t.setup}</p>
       <Stage>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {D06_SETUPS.map((st, i) => {
+          {order.map((i, pos) => {
+            const st = D06_SETUPS[i];
             const on = picked === i, show = checked && on; let bd = C.stageBd, glow = 'none';
             if (on && !checked) { bd = C.acc; glow = '0 0 0 4px rgba(255,79,40,.25)'; }
             if (show) { const okv = i === D06_CORRECT; bd = okv ? C.ok : C.no; glow = '0 0 0 4px ' + (okv ? 'rgba(31,122,77,.3)' : 'rgba(192,57,43,.3)'); }
             return (
               <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ border: '2.5px solid ' + bd, borderRadius: 14, background: 'rgba(255,255,255,0.04)', padding: '10px 12px', cursor: (isReview || checked) ? 'default' : 'pointer', boxShadow: glow }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: C.sink2, marginBottom: 4 }}>{'ABC'[i]}</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: C.sink2, marginBottom: 4 }}>{'ABC'[pos]}</div>
                 <MiniCol top={['5', '2']} add={st.add} addCols={st.cols} sign="+" />
               </button>
             );

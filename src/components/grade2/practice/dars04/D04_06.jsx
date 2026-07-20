@@ -88,6 +88,7 @@ const D06_T = {
 function D04_06Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D06_T[lang] || D06_T.uz;
+  const order = React.useMemo(() => { const a = D06_CHIPS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -114,7 +115,7 @@ function D04_06Impl(props) {
       </Stage>
       <p style={{ ...S.ask, fontSize: 21 }}>{t.ask}</p>
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-        {D06_CHIPS.map((n, i) => {
+        {order.map((i) => { const n = D06_CHIPS[i];
           const on = picked === i; let tone = null;
           if (checked && on) tone = i === D06_CORRECT ? 'ok' : 'no';
           return <Chip key={i} on={on && !checked} tone={tone} disabled={isReview || checked} onClick={() => setPicked(i)} w={64}>{n}</Chip>;

@@ -79,6 +79,7 @@ const D07_T = {
 function D20_07Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D07_T[lang] || D07_T.uz;
+  const order = React.useMemo(() => { const a = D07_ROWS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -107,13 +108,13 @@ function D20_07Impl(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       <p style={S.ask}>{t.ask}</p>
-      {D07_ROWS.map((r, i) => (
+      {order.map((i) => { const r = D07_ROWS[i]; return (
         <button key={i} type="button" style={rowStyle(i)} disabled={isReview || checked} onClick={() => setPicked(i)}>
           <span>{r.txt}</span>
           {reveal && !r.ok && <span className="d20-pop" style={{ fontSize: 13, fontWeight: 800, color: C.no, background: C.noSoft, padding: '4px 9px', borderRadius: 8 }}>begona</span>}
           {reveal && r.ok && <span className="d20-pop" style={{ fontSize: 16, color: C.ok }}>✓</span>}
         </button>
-      ))}
+      ); })}
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
       {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>

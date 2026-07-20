@@ -80,6 +80,7 @@ const D08_T = {
 function D04_08Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D08_T[lang] || D08_T.uz;
+  const order = React.useMemo(() => { const a = D08_CODES.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -104,7 +105,7 @@ function D04_08Impl(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       <Stage>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>{D08_CODES.map((_, i) => cell(i))}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>{order.map((i) => cell(i))}</div>
       </Stage>
       <p style={S.ask}>{t.ask}</p>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}

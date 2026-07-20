@@ -103,6 +103,7 @@ const D09_T = {
 function D20_09Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D09_T[lang] || D09_T.uz;
+  const order = React.useMemo(() => { const a = t.opts.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -126,7 +127,7 @@ function D20_09Impl(props) {
       </Stage>
       <p style={S.ask}>{t.ask}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
-        {t.opts.map((o, i) => <button key={i} type="button" style={optStyle(picked, i, D09_CORRECT, checked, isReview, { half: true, center: true, mono: true, fs: 22 })} disabled={isReview || checked} onClick={() => setPicked(i)}>{o}</button>)}
+        {order.map((i) => <button key={i} type="button" style={optStyle(picked, i, D09_CORRECT, checked, isReview, { half: true, center: true, mono: true, fs: 22 })} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>)}
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
       {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}

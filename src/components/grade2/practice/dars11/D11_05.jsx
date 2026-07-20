@@ -67,6 +67,7 @@ const D05_T = {
 function D11_05Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D05_T[lang] || D05_T.uz;
+  const order = React.useMemo(() => { const a = D05_OPTS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null); const [fb, setFb] = useState(null); const [checked, setChecked] = useState(false);
   useEffect(() => { if (initialAnswer?.studentAnswer?.idx != null) { setPicked(initialAnswer.studentAnswer.idx); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
@@ -92,12 +93,12 @@ function D11_05Impl(props) {
       </Stage>
       <p style={{ ...S.ask, fontSize: 19 }}>{t.ask}</p>
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-        {D05_OPTS.map((o, i) => {
+        {order.map((i) => {
           const on = picked === i, show = checked && on;
           let bd = C.line, bg = C.paper, col = C.ink;
           if (on && !checked) { bd = C.acc; bg = C.accSoft; }
           if (show) { const okv = i === D05_CORRECT; bd = okv ? C.ok : C.no; bg = okv ? C.okSoft : C.noSoft; col = okv ? C.ok : C.no; }
-          return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ minWidth: 108, height: 58, borderRadius: 13, border: '2px solid ' + bd, background: bg, ...S.mono, fontSize: 24, fontWeight: 800, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', boxShadow: (on && !checked) ? '0 0 0 4px #FFE0D6' : 'none' }}>{o}</button>;
+          return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ minWidth: 108, height: 58, borderRadius: 13, border: '2px solid ' + bd, background: bg, ...S.mono, fontSize: 24, fontWeight: 800, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', boxShadow: (on && !checked) ? '0 0 0 4px #FFE0D6' : 'none' }}>{D05_OPTS[i]}</button>;
         })}
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}

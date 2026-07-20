@@ -80,6 +80,7 @@ const D01_T = {
 function D04_01Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D01_T[lang] || D01_T.uz;
+  const order = React.useMemo(() => { const a = D01_SIGNS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -111,7 +112,7 @@ function D04_01Impl(props) {
         </div>
       </Stage>
       <p style={S.ask}>{t.ask}</p>
-      <div style={{ display: 'flex', gap: 14, justifyContent: 'center' }}>{D01_SIGNS.map((_, i) => signBtn(i))}</div>
+      <div style={{ display: 'flex', gap: 14, justifyContent: 'center' }}>{order.map((i) => signBtn(i))}</div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
       {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}
     </div>

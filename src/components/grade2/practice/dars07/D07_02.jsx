@@ -116,6 +116,7 @@ const D02_T = {
 function D07_02Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D02_T[lang] || D02_T.uz;
+  const order = React.useMemo(() => { const a = D02_OPTS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -147,7 +148,8 @@ function D07_02Impl(props) {
       </Stage>
       <p style={{ ...S.ask, fontSize: 19 }}>{t.ask}</p>
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-        {D02_OPTS.map((o, i) => {
+        {order.map((i) => {
+          const o = D02_OPTS[i];
           const on = picked === i, show = checked && on;
           let bd = C.line, bg = C.paper, col = C.ink;
           if (on && !checked) { bd = C.acc; bg = C.accSoft; }

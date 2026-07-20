@@ -100,6 +100,7 @@ function D06_06Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D06_T[lang] || D06_T.uz;
   const opts = lang === 'uz' ? D06_OPTS : D06_OPTS_RU;
+  const order = React.useMemo(() => { const a = opts.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -127,7 +128,7 @@ function D06_06Impl(props) {
       </Stage>
       <p style={{ ...S.ask, fontSize: 21 }}>{t.ask}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
-        {opts.map((o, i) => { const on = picked === i, show = checked && on; let bd = C.line, bg = C.paper, col = C.ink; if (on && !checked) { bd = C.acc; bg = C.accSoft; } if (show) { const ok = i === D06_CORRECT; bd = ok ? C.ok : C.no; bg = ok ? C.okSoft : C.noSoft; col = ok ? C.ok : C.no; } return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ flex: '1 1 45%', minHeight: 58, borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 17, fontWeight: 800, fontFamily: 'inherit', cursor: (isReview || checked) ? 'default' : 'pointer' }}>{o}</button>; })}
+        {order.map((i) => { const o = opts[i]; const on = picked === i, show = checked && on; let bd = C.line, bg = C.paper, col = C.ink; if (on && !checked) { bd = C.acc; bg = C.accSoft; } if (show) { const ok = i === D06_CORRECT; bd = ok ? C.ok : C.no; bg = ok ? C.okSoft : C.noSoft; col = ok ? C.ok : C.no; } return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ flex: '1 1 45%', minHeight: 58, borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 17, fontWeight: 800, fontFamily: 'inherit', cursor: (isReview || checked) ? 'default' : 'pointer' }}>{o}</button>; })}
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
       {checked && fb?.correct && t.rule && <RuleChip text={t.rule} />}

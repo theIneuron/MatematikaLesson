@@ -82,6 +82,7 @@ const D09_T = {
 function D09_09Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D09_T[lang] || D09_T.uz;
+  const order = React.useMemo(() => { const a = D09_OPTS.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -101,12 +102,12 @@ function D09_09Impl(props) {
       <Stage><div style={{ textAlign: 'center' }}><span style={{ fontSize: 13, fontWeight: 800, color: C.sink2, letterSpacing: '.06em' }}>NISHON</span><div style={{ ...S.mono, fontSize: 46, fontWeight: 800, color: C.ten }}>62</div></div></Stage>
       <p style={{ ...S.ask, fontSize: 20 }}>{t.ask}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {D09_OPTS.map((o, i) => {
+        {order.map((i) => {
           const on = picked === i, show = checked && on;
           let bd = C.line, bg = C.paper, col = C.ink;
           if (on && !checked) { bd = C.acc; bg = C.accSoft; }
           if (show) { const okv = i === D09_CORRECT; bd = okv ? C.ok : C.no; bg = okv ? C.okSoft : C.noSoft; col = okv ? C.ok : C.no; }
-          return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ minHeight: 60, borderRadius: 13, border: '2px solid ' + bd, background: bg, ...S.mono, fontSize: 26, fontWeight: 800, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', boxShadow: (on && !checked) ? '0 0 0 4px #FFE0D6' : 'none' }}>{o.e}</button>;
+          return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ minHeight: 60, borderRadius: 13, border: '2px solid ' + bd, background: bg, ...S.mono, fontSize: 26, fontWeight: 800, color: col, cursor: (isReview || checked) ? 'default' : 'pointer', boxShadow: (on && !checked) ? '0 0 0 4px #FFE0D6' : 'none' }}>{D09_OPTS[i].e}</button>;
         })}
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}

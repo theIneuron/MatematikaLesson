@@ -100,6 +100,7 @@ const D04_T = {
 function D11_04Impl(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D04_T[lang] || D04_T.uz; const opts = D04_OPTS[lang] || D04_OPTS.uz;
+  const order = React.useMemo(() => { const a = opts.map((_, i) => i); for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); const tmp = a[k]; a[k] = a[j]; a[j] = tmp; } return a; }, []);
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null); const [fb, setFb] = useState(null); const [checked, setChecked] = useState(false);
   useEffect(() => { if (initialAnswer?.studentAnswer?.idx != null) { setPicked(initialAnswer.studentAnswer.idx); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
@@ -126,11 +127,11 @@ function D11_04Impl(props) {
       </Stage>
       <p style={{ ...S.ask, fontSize: 20 }}>{t.ask}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {opts.map((o, i) => {
+        {order.map((i) => {
           const on = picked === i, show = checked && on; let bd = C.line, bg = C.paper, col = C.ink;
           if (on && !checked) { bd = C.acc; bg = C.accSoft; }
           if (show) { const okv = i === D04_CORRECT; bd = okv ? C.ok : C.no; bg = okv ? C.okSoft : C.noSoft; col = okv ? C.ok : C.no; }
-          return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ minHeight: 56, borderRadius: 13, border: '2px solid ' + bd, background: bg, fontSize: 18, fontWeight: 800, fontFamily: 'inherit', color: col, cursor: (isReview || checked) ? 'default' : 'pointer', padding: '0 16px' }}>{o}</button>;
+          return <button key={i} type="button" disabled={isReview || checked} onClick={() => setPicked(i)} style={{ minHeight: 56, borderRadius: 13, border: '2px solid ' + bd, background: bg, fontSize: 18, fontWeight: 800, fontFamily: 'inherit', color: col, cursor: (isReview || checked) ? 'default' : 'pointer', padding: '0 16px' }}>{opts[i]}</button>;
         })}
       </div>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
