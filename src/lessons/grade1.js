@@ -480,7 +480,7 @@ export const grade1Nazorat = [
     slug: 'ik1-spiral-doira',
     title: 'ИК-1 — Spiral doira (Б1–Б4)',
     desc: 'Свёртка: 10 stansiya — состав + десяток + переход bir aylanaga yig\'iladi. Kurs o\'rtasi. ≥70%.',
-    Component: lazy(() => import('../components/grade1/practice/pk/ik01/IK01.jsx')),
+    Component: lazy(() => import('../components/grade1/practice/ik/ik01/IK01.jsx')),
   },
   {
     slug: 'pk5-blok8-nazorat',
@@ -522,6 +522,6 @@ export const grade1Nazorat = [
     slug: 'ik2-yakuniy-kvest',
     title: 'ИК-2 — Yakuniy kvest (butun kurs)',
     desc: 'Свёртка: 10 stansiya — Б1–Б11 aralash sintezi (применение + логика). Kurs oxiri. ≥70%.',
-    Component: lazy(() => import('../components/grade1/practice/pk/ik02/IK02.jsx')),
+    Component: lazy(() => import('../components/grade1/practice/ik/ik02/IK02.jsx')),
   },
 ]
