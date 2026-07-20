@@ -2775,7 +2775,7 @@ const Screen3 = (props) => {
             {digits.map((d, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <span className="mono" style={{ fontSize: 'clamp(30px, 7vw, 44px)', fontWeight: 800, color: cols[i], border: `2.5px solid ${cols[i]}`, borderRadius: 12, minWidth: 'clamp(40px, 10vw, 56px)', textAlign: 'center', padding: '2px 0', background: T.paper }}>{d}</span>
-                {reached >= i + 1 && <span className="lm-drop" style={{ fontSize: 'clamp(12px, 1.9vw, 15px)', fontWeight: 700, color: T.ink }}>{t(parts[i])}</span>}
+                {reached >= i + 1 && <span className="lm-edrop" style={{ fontSize: 'clamp(12px, 1.9vw, 15px)', fontWeight: 700, color: T.ink }}>{t(parts[i])}</span>}
               </div>
             ))}
           </div>
@@ -2823,7 +2823,7 @@ const Screen4 = (props) => {
             {slots.map(([d, k], i) => (
               <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink, border: `2.5px solid ${showSlots ? T.success : T.ink3}`, borderRadius: 10, minWidth: 'clamp(36px, 9vw, 48px)', textAlign: 'center', padding: '3px 0', background: T.paper }}>
-                  {showSlots ? <span className="lm-drop" style={{ animationDelay: `${i * 0.22}s`, display: 'inline-block' }}>{d}</span> : '?'}
+                  {showSlots ? <span className="lm-edrop" style={{ animationDelay: `${i * 0.5}s`, display: 'inline-block' }}>{d}</span> : '?'}
                 </span>
                 <span className="mono" style={{ fontSize: 'clamp(10px, 1.4vw, 12px)', color: T.ink2, fontWeight: 700 }}>{labels[k]}</span>
               </div>
@@ -5436,4 +5436,8 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
 /* Aksent savol (QOIDA — javob oldindan berilmasin). */
 .lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
+/* Sekin ELASTIK reveal (kashfiyot raqam/qismlari — bita-bita). */
+.lm-edrop { display: inline-block; animation: lm-edrop-a 0.72s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
+@keyframes lm-edrop-a { 0% { opacity: 0; transform: translateY(-16px) scale(0.72); } 62% { transform: translateY(3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lm-edrop { animation: none; } }
 `;
