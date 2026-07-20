@@ -70,7 +70,7 @@ const ClickTicks = ({ max, labels, picked, correctVal, checked, disabled, onPick
   return (
     <button key={v} type="button" disabled={disabled} onClick={() => onPick(v)} style={{ position: 'absolute', left: (v / max * 100) + '%', top: h * 0.5 - 15, transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, border: 'none', background: 'transparent', cursor: disabled ? 'default' : 'pointer' }}>
       <span style={{ width: on ? 20 : 13, height: on ? 20 : 13, borderRadius: '50%', border: '2px solid ' + bd, background: bg, transition: 'all .12s' }} />
-      <span style={{ ...S.mono, fontSize: 10, fontWeight: 800, color: labels.includes(v) ? C.ten : C.sink2 }}>{labels.includes(v) ? v : ''}</span>
+      <span style={{ ...S.mono, fontSize: labels.includes(v) ? 16 : 10, fontWeight: 800, color: labels.includes(v) ? C.ten : C.sink2 }}>{labels.includes(v) ? v : ''}</span>
     </button>
   );
 });
