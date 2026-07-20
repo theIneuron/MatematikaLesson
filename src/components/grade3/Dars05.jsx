@@ -882,7 +882,7 @@ const LESSON_META = {
   lessonId: 'num-3-05',
   lessonTitle: { ru: 'Урок 5. Округление чисел', uz: "5-dars. Sonlarni yaxlitlash" }
 };
-// STRUKTURA: 1–7 tushuntirish · 8–13 mashq · 14 final · 15 xulosa. Grade2 Dars01 etaloni yoyi,
+// STRUKTURA: 1–7 tushuntirish · 8–11 mashq · 12 final · 13 xulosa. Grade2 Dars01 etaloni yoyi,
 // yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'MCScreen', scored: false, scope: 'hook' },
@@ -914,7 +914,7 @@ const shuffleMC = (c, options, correctIdx, order) => {
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
 // ============================================================
-// CONTENT — 3-sinf Dars01 «Yuzliklar, o'nliklar, birliklar» (num-3-01-v1). RU + UZ to'liq.
+// CONTENT — 3-sinf Dars05 «Sonlarni yaxlitlash» (num-3-05). RU + UZ to'liq.
 // Audio TTS-toza: sonlar so'z bilan, «» va matematik belgilar yo'q, bir segment = bir fikr.
 // Rekvizit: chiroq (birlik) · lenta = 10 chiroq (o'nlik) · panel = 10 lenta (yuzlik). Lumo shahri.
 // ============================================================
@@ -2383,7 +2383,11 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const t = useT();
   const sfx = useSfx();
   const c = CONTENT[ck];
-  const items = c.items;
+  // Variantlar har mount'da aralashadi (to'g'ri javob doim 1-o'rinda qolmasin).
+  const items = React.useMemo(() => c.items.map((it) => {
+    const order = shuffleArr(it.opts.map((_, i) => i));
+    return { ...it, opts: order.map((i) => it.opts[i]), hints: it.hints ? order.map((i) => it.hints[i]) : it.hints, ci: order.indexOf(it.ci) };
+  }), []);
   const audio = useAudio([
     brgSeg(ck, lang),
     { id: `${ck}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -2417,7 +2421,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: ck,
-        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -2779,7 +2783,7 @@ const Screen9 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
-        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -2824,6 +2828,11 @@ const Screen10 = (props) => {
   const t = useT();
   const c = CONTENT.s10;
   const sfx = useSfx();
+  // Variantlar har mount'da aralashadi (to'g'ri javob doim 1-o'rinda qolmasin).
+  const order = React.useMemo(() => shuffleArr([0, 1, 2]), []);
+  const opts = order.map((k) => c.opts[k]);
+  const ci = order.indexOf(c.ci);
+  const hints = order.map((k) => c.hints[k]);
   const audio = useAudio([
     brgSeg('s10', lang),
     { id: 's10_setup', text: c.setup_audio[lang], trigger: 'after_previous', waits_for: null },
@@ -2832,20 +2841,20 @@ const Screen10 = (props) => {
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(props.storedAnswer ? props.storedAnswer.studentAnswerIndex : null);
   const [wrongSet, setWrongSet] = useState(() => new Set());
-  const solved = picked === c.ci;
+  const solved = picked === ci || props.storedAnswer?.correct === true;
   const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : null);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const revealRef = useRevealScroll(solved, 500);
   const pick = (i) => {
     if (!canAct || solved || wrongSet.has(i)) return;
-    if (i === c.ci) {
+    if (i === ci) {
       setPicked(i); sfx.playCorrect();
       if (firstRef.current === null) firstRef.current = wrongSet.size === 0;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstRef.current = false;
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((c.hints[i] || c.audio.on_wrong)[lang]); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((hints[i] || c.audio.on_wrong)[lang]); }
     }
   };
   useEffect(() => {
@@ -2853,7 +2862,7 @@ const Screen10 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        studentAnswerIndex: c.ci, correctAnswer: String(c.opts[c.ci][lang]), studentAnswer: String(c.opts[c.ci][lang]), correct: true,
+        studentAnswerIndex: ci, correctAnswer: String(c.opts[c.ci][lang]), studentAnswer: String(c.opts[c.ci][lang]), correct: firstRef.current === null ? true : firstRef.current,
         firstTry: firstRef.current === null ? true : firstRef.current, attempts: 1, solved: true
       });
     }
@@ -2865,7 +2874,7 @@ const Screen10 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const hintMsg = wrongSet.size > 0 ? [...wrongSet].map((i) => c.hints[i]).filter(Boolean).slice(-1)[0] : null;
+  const hintMsg = wrongSet.size > 0 ? [...wrongSet].map((i) => hints[i]).filter(Boolean).slice(-1)[0] : null;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
@@ -2876,8 +2885,8 @@ const Screen10 = (props) => {
           <span className="mono" style={{ fontSize: 'clamp(30px, 6.5vw, 44px)', fontWeight: 800, color: T.ink }}>{c.num}</span>
           <RoundLine n={c.num} base={c.base} snap={solved}/>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, width: '100%' }}>
-            {c.opts.map((o, i) => (
-              <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solved && i === c.ci ? 'option-correct' : ''}`} disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
+            {opts.map((o, i) => (
+              <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solved && i === ci ? 'option-correct' : ''}`} disabled={!canAct || solved || wrongSet.has(i)} onClick={() => pick(i)}
                 style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.6vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
             ))}
           </div>
@@ -2899,6 +2908,7 @@ const Screen11 = (props) => {
   const t = useT();
   const c = CONTENT.s11;
   const items = c.items;
+  const orders = React.useMemo(() => items.map((it) => it.kind === 'num' ? null : shuffleArr([0, 1, 2])), []);
   const audio = useAudio([
     brgSeg('s11', lang),
     { id: 's11_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -2916,7 +2926,7 @@ const Screen11 = (props) => {
   const pick = (i) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
-    const isOk = i === 0;
+    const isOk = orders[idx][i] === 0;
     if (isOk) setScore((s) => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
@@ -2973,15 +2983,15 @@ const Screen11 = (props) => {
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
-                  {[it.opt0, it.opt1, it.opt2].map((o, i) => (
-                    <button key={i} className={`option ${picked === i ? (i === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
+                  {orders[idx].map((k, i) => (
+                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
                       style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.4vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
-                      {t(o)}
+                      {t(it[`opt${k}`])}
                     </button>
                   ))}
                 </div>
-                {picked !== null && picked !== 0 && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${picked}`] || it.wrong_1)}</p>
+                {picked !== null && orders[idx][picked] !== 0 && (
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1)}</p>
                 )}
               </>
             )}

@@ -1760,7 +1760,7 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
                 {n === 0
                   ? <span className="lm-mat-zero mono">0</span>
                   : Array.from({ length: n }).map((_, i) => (
-                      <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.05}s` }}>
+                      <span key={i} className="lm-dock" style={{ animationDelay: `${i * 0.08}s` }}>
                         {k === 'h' ? <Panel className="lm-mat-panel"/> : k === 't' ? <Lenta className="lm-mat-lenta"/> : <Chiroq className="lm-mat-chiroq"/>}
                       </span>
                     ))}
@@ -1777,6 +1777,37 @@ const RazryadTable = ({ h = 0, t = 0, o = 0, labels, emph = null, concrete = fal
     </div>
   );
 };
+
+// --- ENERGIYA KONSOLI (sanoq): har razryad uchun BITTA belgi + ×son badge + qiymat + stepper.
+// Blok yig'ish o'rniga (metodist tanlovi «energiya konsoli»). Base-10 mantiqi saqlanadi: yuzlik ×N = N·100.
+const CONS_META = [
+  { k: 'h', pv: 100, Ico: Panel,  cls: 'lm-cons-ico-h' },
+  { k: 't', pv: 10,  Ico: Lenta,  cls: 'lm-cons-ico-t' },
+  { k: 'o', pv: 1,   Ico: Chiroq, cls: 'lm-cons-ico-o' },
+];
+const RazryadConsole = ({ vals, labels, onStep = null, disabled = false }) => (
+  <div className="lm-console">
+    {CONS_META.map(({ k, pv, Ico, cls }) => {
+      const n = vals[k];
+      return (
+        <div key={k} className={`lm-cons ${n > 0 ? 'lm-cons-lit' : ''}`}>
+          <div className="lm-cons-head mono">{labels[k]}</div>
+          <div className="lm-cons-screen">
+            <Ico className={`lm-cons-ico ${cls}`}/>
+            <span key={n} className={`lm-cons-x mono ${n > 0 ? '' : 'lm-cons-x-dim'}`}>×{n}</span>
+          </div>
+          <div className="lm-cons-val mono">{n * pv}</div>
+          {onStep && (
+            <div className="lm-cons-steps">
+              <button className="lm-cons-btn" disabled={disabled || n <= 0} onClick={() => onStep(k, -1)} aria-label="kamaytir">−</button>
+              <button className="lm-cons-btn lm-cons-btn-up" disabled={disabled || n >= 9} onClick={() => onStep(k, 1)} aria-label="ko'paytir">+</button>
+            </div>
+          )}
+        </div>
+      );
+    })}
+  </div>
+);
 
 // --- LUMO SHAHRI FONI: grade1 SceneBg naqshi — yorug' iliq osmon + pol + soya + pastel
 // do'stona uylar (yumaloq tom, iliq deraza) + o'simlik. Personajlar polda turadi. (viewBox 400x230)
@@ -2317,11 +2348,18 @@ const Screen0 = (props) => {
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
   const ok = picked === 1;
+  const revealed = picked !== null;
   const fbKey = (i) => (i === 1 ? 'on_correct' : (i === 0 ? 'on_wrong' : 'on_unknown'));
   const pick = (i) => {
     if (picked !== null || !canAct) return;
     setPicked(i);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[fbKey(i)][lang]); }
+    if (!audio.muted) {
+      const e = getAudioEngine();
+      if (e) {
+        e.pushOneOff(c.audio[fbKey(i)][lang]);
+        if (i !== 1) e.pushOneOff(c.audio.on_correct[lang]);   // noto'g'ri/bilmayman -> to'g'ri javob emotsiya bilan ochiladi
+      }
+    }
   };
   const canAdv = useAdvanceGate(picked !== null, audio);
   const navContent = (
@@ -2337,31 +2375,31 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <HookScene gathered={ok}/>
+          <HookScene gathered={revealed}/>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}>{t(c.q)}</p>
-        {picked === null && (
-          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            {opts.map((o, i) => (
-              <button key={i} className="option" disabled={!canAct} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(12px, 2vw, 16px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {opts.map((o, i) => {
+            const cls = revealed
+              ? (i === 1 ? 'option option-correct' : (picked === i ? 'option option-picked-wrong' : 'option'))
+              : 'option';
+            return (
+              <button key={i} className={cls} disabled={!canAct || revealed} onClick={() => pick(i)}
+                style={{ position: 'relative', padding: 'clamp(10px, 1.5vw, 12px) clamp(12px, 2vw, 16px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                {revealed && i === 1 && <span className="mono" style={{ position: 'absolute', top: 4, right: 7, color: '#1F7A4D', fontWeight: 800 }}>✓</span>}
                 {t(o)}
               </button>
-            ))}
-          </div>
-        )}
-        {picked !== null && (
-          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className={`option ${ok ? 'option-correct' : 'option-picked-wrong'}`} disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)', width: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span className="mono small">{ok ? '✓' : '↺'}</span>
-              <span>{t(opts[picked])}</span>
-            </button>
-          </div>
-        )}
-        {picked !== null && (
+            );
+          })}
+        </div>
+        {revealed && (
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
+            {!ok && (
+              <p className="fade-up" style={{ margin: 'clamp(6px, 1.4vw, 10px) 0 0', textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
+                {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
+              </p>
+            )}
           </FeedbackBlock>
         )}
       </div>
@@ -2533,15 +2571,16 @@ const Screen3 = (props) => {
   const [tn, setTn] = useState(0);
   const [o, setO] = useState(0);
   const done = h === 2 && tn === 4 && o === 5;
+  const firedRef = useRef(false);
   const revealRef = useRevealScroll(done, 600);
-  const bump = (setter, val, max) => { if (!canAct || done || val >= max) return; setter(val + 1); };
-  const addH = () => bump(setH, h, 2);
-  const addT = () => { if (h < 2) return; bump(setTn, tn, 4); };
-  const addO = () => {
-    if (h < 2 || tn < 4 || o >= 5 || done) return;
-    const v = o + 1; setO(v);
-    if (v === 5) { sfx.playCorrect(); audio.triggerInternal('done'); }
+  const step = (k, d) => {
+    if (!canAct || done) return;
+    const clamp = (v) => Math.max(0, Math.min(9, v + d));
+    if (k === 'h') setH(clamp); else if (k === 't') setTn(clamp); else setO(clamp);
   };
+  useEffect(() => {
+    if (done && !firedRef.current) { firedRef.current = true; sfx.playCorrect(); audio.triggerInternal('done'); }
+  }, [done]);   // eslint-disable-line react-hooks/exhaustive-deps
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -2555,13 +2594,8 @@ const Screen3 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <RazryadTable h={h} t={tn} o={o} labels={labels} concrete emph={h < 2 ? 'h' : tn < 4 ? 't' : 'o'}/>
+          <RazryadConsole vals={{ h, t: tn, o }} labels={labels} onStep={step} disabled={done}/>
           <BigNum v={h === 0 && tn === 0 && o === 0 ? '?' : h * 100 + tn * 10 + o} accent={done}/>
-          <div className="lm-srcrow">
-            <button className="g1-tile lm-srcbtn" disabled={!canAct || h >= 2} onClick={addH}><Panel className="lm-src-ico"/><span>{t(c.src_hundreds)}</span></button>
-            <button className={`g1-tile lm-srcbtn ${h < 2 ? 'lm-src-wait' : ''}`} disabled={h < 2 || tn >= 4} onClick={addT}><Lenta className="lm-src-ico"/><span>{t(c.src_tens)}</span></button>
-            <button className={`g1-tile lm-srcbtn ${(h < 2 || tn < 4) ? 'lm-src-wait' : ''}`} disabled={h < 2 || tn < 4 || o >= 5} onClick={addO}><Chiroq className="lm-src-ico"/><span>{t(c.src_ones)}</span></button>
-          </div>
         </div>
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
@@ -2970,8 +3004,11 @@ const Screen8 = (props) => {
   const built = h * 100 + tn * 10 + o;
   const correct = built === target;
   const revealRef = useRevealScroll(checked, 500);
-  const bump = (setter, val, max) => { if (!canAct || checked || done || val >= max) return; setter(val + 1); };
-  const drop = (setter, val) => { if (!canAct || checked || done || val <= 0) return; setter(val - 1); };
+  const step = (k, d) => {
+    if (!canAct || checked || done) return;
+    const clamp = (v) => Math.max(0, Math.min(9, v + d));
+    if (k === 'h') setH(clamp); else if (k === 't') setTn(clamp); else setO(clamp);
+  };
   const check = () => {
     if (!canAct || checked || done) return;
     setChecked(true);
@@ -2986,7 +3023,7 @@ const Screen8 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(S8_TARGETS.length), studentAnswer: String(S8_TARGETS.length), correct: true,
+        correctAnswer: String(S8_TARGETS.length), studentAnswer: String(S8_TARGETS.length), correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -2999,13 +3036,6 @@ const Screen8 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const Ctrl = ({ val, add, sub, ico }) => (
-    <div className="lm-ctrl">
-      <button className="lm-ctrl-btn" disabled={!canAct || checked || done || val <= 0} onClick={sub}>−</button>
-      <span className="lm-ctrl-ico">{ico}</span>
-      <button className="lm-ctrl-btn" disabled={!canAct || checked || done} onClick={add}>+</button>
-    </div>
-  );
   const buildLabel = lang === 'ru' ? 'Собери число' : "Sonni yig'ing";
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -3016,13 +3046,8 @@ const Screen8 = (props) => {
             <h1 className="title h-sub fade-up">{buildLabel}: <span className="mono" style={{ color: T.accent }}>{target}</span></h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
-              <RazryadTable h={h} t={tn} o={o} labels={labels} concrete/>
+              <RazryadConsole vals={{ h, t: tn, o }} labels={labels} onStep={step} disabled={checked}/>
               <BigNum v={built} accent={checked && correct}/>
-              <div className="lm-srcrow">
-                <Ctrl val={h} add={() => bump(setH, h, 9)} sub={() => drop(setH, h)} ico={<Panel className="lm-src-ico"/>}/>
-                <Ctrl val={tn} add={() => bump(setTn, tn, 9)} sub={() => drop(setTn, tn)} ico={<Lenta className="lm-src-ico"/>}/>
-                <Ctrl val={o} add={() => bump(setO, o, 9)} sub={() => drop(setO, o)} ico={<Chiroq className="lm-src-ico"/>}/>
-              </div>
               <button className="btn-white-accent" disabled={!canAct || checked} onClick={check}>{t(c.check_label)}</button>
             </div>
             {checked && (
@@ -3089,7 +3114,7 @@ const Screen9 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(S9_NUMS.length), studentAnswer: String(S9_NUMS.length), correct: true,
+        correctAnswer: String(S9_NUMS.length), studentAnswer: String(S9_NUMS.length), correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -3110,6 +3135,12 @@ const Screen9 = (props) => {
           <>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S9_NUMS.length}</div>
             <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
+            <div className={`lm-onhint fade-up ${sel === null ? '' : 'lm-onhint-2'}`}>
+              <span className="lm-onhint-step">{sel === null ? '1' : '2'}</span>
+              <span>{sel === null
+                ? (lang === 'ru' ? 'Нажми на цифру' : 'Raqamni bosing')
+                : (lang === 'ru' ? 'Теперь нажми на нужную ячейку' : 'Endi kerakli qutiga bosing')}</span>
+            </div>
             <div className="lm-digtray fade-up delay-1">
               {S9_ORDERS[Math.min(round, S9_ORDERS.length - 1)].map((i) => [digits[i], i]).map(([d, i]) => !usedIdx.has(i) && (
                 <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || checked} onClick={() => setSel(i)}>{d}</button>
@@ -3120,7 +3151,7 @@ const Screen9 = (props) => {
               {['h', 't', 'o'].map((k) => (
                 <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`} disabled={!canAct || checked || bins[k] !== null || sel === null} onClick={() => placeInto(k)}>
                   <span className="lm-bin-head mono">{labels[k]}</span>
-                  <span className="lm-bin-slot mono">{bins[k] !== null ? digits[bins[k]] : ''}</span>
+                  <span className="lm-bin-slot mono">{bins[k] !== null ? digits[bins[k]] : (sel !== null ? <span className="lm-bin-cue">↧</span> : '')}</span>
                 </button>
               ))}
             </div>
@@ -3149,7 +3180,11 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
   const t = useT();
   const sfx = useSfx();
   const c = CONTENT[ck];
-  const items = c.items;
+  // Variantlar har mount'da aralashadi (to'g'ri javob doim 1-o'rinda qolmasin).
+  const items = React.useMemo(() => c.items.map((it) => {
+    const order = shuffleArr(it.opts.map((_, i) => i));
+    return { ...it, opts: order.map((i) => it.opts[i]), hints: it.hints ? order.map((i) => it.hints[i]) : it.hints, ci: order.indexOf(it.ci) };
+  }), []);
   const audio = useAudio([
     brgSeg(ck, lang),
     { id: `${ck}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -3183,7 +3218,7 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(items[0].q),
-        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -3274,7 +3309,7 @@ const Screen11 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'compare',
-        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -3532,6 +3567,7 @@ const Screen14 = (props) => {
   const t = useT();
   const c = CONTENT.s14;
   const items = c.items;
+  const orders = React.useMemo(() => items.map((it) => it.kind === 'num' ? null : shuffleArr([0, 1, 2])), []);
   const audio = useAudio([
     brgSeg('s14', lang),
     { id: 's14_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -3549,7 +3585,7 @@ const Screen14 = (props) => {
   const pick = (i) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
-    const isOk = i === 0;
+    const isOk = orders[idx][i] === 0;
     if (isOk) setScore(s => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx(n => n + 1); }, 1500);
@@ -3606,15 +3642,15 @@ const Screen14 = (props) => {
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
-                  {[it.opt0, it.opt1, it.opt2].map((o, i) => (
-                    <button key={i} className={`option ${picked === i ? (i === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
+                  {orders[idx].map((k, i) => (
+                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
                       style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)' }}>
-                      {t(o)}
+                      {t(it[`opt${k}`])}
                     </button>
                   ))}
                 </div>
-                {picked !== null && picked !== 0 && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${picked}`] || it.wrong_1)}</p>
+                {picked !== null && orders[idx][picked] !== 0 && (
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1)}</p>
                 )}
               </>
             )}
@@ -5532,7 +5568,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-mat-emph { background: #FFF3E9; box-shadow: 0 4px 14px -6px rgba(255,79,40,0.45), inset 0 0 0 1.5px rgba(255,79,40,0.5); }
 .lm-mat-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; }
 .lm-mat-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 40px; justify-content: flex-end; }
-.lm-mat-stack { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.lm-mat-stack { display: flex; flex-flow: row wrap; align-items: center; justify-content: center; gap: clamp(3px, 0.8vw, 5px); max-width: 100%; }
 .lm-mat-zero { font-family: 'JetBrains Mono', monospace; font-size: clamp(18px, 3.4vw, 24px); font-weight: 800; color: #C4BEB4; }
 .lm-mat-digit { font-family: 'JetBrains Mono', monospace; font-size: clamp(22px, 4.4vw, 32px); font-weight: 800; color: #3A3530; }
 .lm-mat-digit-btn { border: none; background: #FFFFFF; border-radius: 10px; padding: 4px 12px; cursor: pointer; box-shadow: 0 2px 8px -4px rgba(58,53,48,0.3); transition: transform 0.12s, box-shadow 0.2s; }
@@ -5541,6 +5577,27 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-mat-panel { width: clamp(40px, 9vw, 56px); }
 .lm-mat-lenta { width: clamp(52px, 11vw, 72px); }
 .lm-mat-chiroq { width: clamp(13px, 2.6vw, 17px); }
+/* ENERGIYA KONSOLI (slayd 3/9): razryad = belgi + ×son + qiymat + stepper. */
+.lm-console { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2vw, 14px); width: 100%; max-width: 440px; }
+.lm-cons { display: flex; flex-direction: column; align-items: center; gap: clamp(5px, 1.2vw, 8px); padding: clamp(9px, 2vw, 14px) 4px; border-radius: 16px; background: #FBF7F0; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.28s, background 0.28s; }
+.lm-cons-lit { background: #FFF6E9; box-shadow: 0 5px 16px -9px rgba(255,154,46,0.75), inset 0 0 0 1.5px rgba(255,154,46,0.5); }
+.lm-cons-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
+.lm-cons-screen { display: flex; align-items: center; justify-content: center; gap: clamp(4px, 1.2vw, 8px); min-height: clamp(38px, 8.5vw, 50px); }
+.lm-cons-ico { height: auto; transition: opacity 0.25s, filter 0.25s; }
+.lm-cons-ico-h { width: clamp(30px, 7vw, 44px); }
+.lm-cons-ico-t { width: clamp(38px, 8.5vw, 54px); }
+.lm-cons-ico-o { width: clamp(18px, 4vw, 26px); }
+.lm-cons:not(.lm-cons-lit) .lm-cons-ico { opacity: 0.26; }
+.lm-cons-lit .lm-cons-ico { filter: drop-shadow(0 0 5px rgba(255,154,46,0.55)); }
+.lm-cons-x { font-size: clamp(18px, 3.8vw, 26px); font-weight: 800; color: #3A3530; display: inline-block; animation: lm-cons-pop 0.3s ease; }
+.lm-cons-x-dim { color: #C4BEB4; }
+.lm-cons-val { font-family: 'JetBrains Mono', monospace; font-size: clamp(15px, 3vw, 20px); font-weight: 800; color: #FF4F28; }
+.lm-cons-steps { display: flex; gap: clamp(5px, 1.3vw, 8px); margin-top: 2px; }
+.lm-cons-btn { width: clamp(30px, 7vw, 40px); height: clamp(30px, 7vw, 40px); border-radius: 11px; border: none; background: #FFFFFF; box-shadow: 0 2px 8px -3px rgba(58,53,48,0.38); font-size: clamp(18px, 3.6vw, 23px); font-weight: 800; color: #5A5A60; cursor: pointer; transition: transform 0.12s, background 0.15s, opacity 0.15s; }
+.lm-cons-btn-up { background: #FF4F28; color: #FFFFFF; }
+.lm-cons-btn:disabled { opacity: 0.38; cursor: default; }
+.lm-cons-btn:not(:disabled):active { transform: scale(0.92); }
+@keyframes lm-cons-pop { 0% { transform: scale(0.65); } 55% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
 .lm-scene { position: relative; width: 100%; aspect-ratio: 400 / 210; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -5570,7 +5627,11 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @keyframes lm-drop-a { 0% { opacity: 0; transform: translateY(-32px) scale(0.8); } 60% { opacity: 1; } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 .lm-fadein { display: inline-block; animation: lm-fadein-a 0.4s ease both; }
 @keyframes lm-fadein-a { 0% { opacity: 0; transform: scale(0.6); } 100% { opacity: 1; transform: scale(1); } }
-@media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein { animation: none; } }
+/* QUVVAT XUJAYRASI qo'nishi: pastdagi manba tugmadan uchib chiqib, ustuniga yumshoq qo'nadi va bir marta yorishadi (sakrash yo'q, tartibli grid). */
+.lm-dock { display: inline-flex; animation: lm-dock-a 0.52s cubic-bezier(0.3, 0.9, 0.35, 1) both, lm-dock-glow 0.75s ease 0.12s both; }
+@keyframes lm-dock-a { 0% { opacity: 0; transform: translateY(16px) scale(0.84); } 66% { opacity: 1; transform: translateY(-2px) scale(1.05); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes lm-dock-glow { 0% { filter: drop-shadow(0 0 0 rgba(255,154,46,0)); } 52% { filter: drop-shadow(0 0 7px rgba(255,154,46,0.85)); } 100% { filter: drop-shadow(0 0 0 rgba(255,154,46,0)); } }
+@media (prefers-reduced-motion: reduce) { .lm-reveal, .lm-write, .lm-drop, .lm-fadein, .lm-dock, .lm-cons-x { animation: none; } }
 .lm-nl-cue { position: absolute; top: 50%; transform: translateX(-50%); z-index: 3; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
 .lm-nl-ring { width: 16px; height: 16px; border-radius: 50%; border: 2.5px solid #F0A81E; margin-bottom: 4px; animation: lm-nl-ring-a 1.4s ease-out infinite; }
 @keyframes lm-nl-ring-a { 0% { transform: scale(0.7); opacity: 0.9; } 70% { transform: scale(1.5); opacity: 0; } 100% { opacity: 0; } }
@@ -5650,7 +5711,15 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-digchip-sel { background: #FFF3E9; color: #ff4f28; transform: translateY(-3px); box-shadow: 0 6px 16px -5px rgba(255,79,40,0.55); }
 .lm-bins { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2vw, 14px); }
 .lm-bin { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: clamp(10px, 2vw, 16px) 6px; border: none; border-radius: 14px; background: #FBF7F0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.2s; }
-.lm-bin-open { box-shadow: 0 4px 14px -6px rgba(255,79,40,0.4), inset 0 0 0 1.5px rgba(255,79,40,0.4); }
+.lm-bin-open { box-shadow: 0 4px 14px -6px rgba(255,79,40,0.4), inset 0 0 0 1.5px rgba(255,79,40,0.4); animation: lm-bin-pulse 1.1s ease-in-out infinite; }
+@keyframes lm-bin-pulse { 0%, 100% { box-shadow: 0 4px 14px -6px rgba(255,79,40,0.4), inset 0 0 0 1.5px rgba(255,79,40,0.4); } 50% { box-shadow: 0 7px 18px -6px rgba(255,79,40,0.6), inset 0 0 0 2px rgba(255,79,40,0.65); } }
+/* tap-to-bin mexanika ko'rsatmasi: 1) raqamni tanla -> 2) qutiga bos; bo'sh qutida «bu yerga» strelkasi. */
+.lm-onhint { display: inline-flex; align-items: center; gap: 8px; align-self: center; background: #EAF6FB; border: 1px solid rgba(1,154,203,0.3); border-radius: 99px; padding: clamp(6px,1.2vw,9px) clamp(12px,2.2vw,18px); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(12px,1.7vw,14px); color: #017BA3; transition: background 0.25s, color 0.25s, border-color 0.25s; }
+.lm-onhint-2 { background: #FFF3E9; border-color: rgba(255,79,40,0.35); color: #C0392B; }
+.lm-onhint-step { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; border-radius: 50%; background: #017BA3; color: #FFF; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 800; }
+.lm-onhint-2 .lm-onhint-step { background: #FF4F28; }
+.lm-bin-cue { color: #FF4F28; font-size: clamp(20px,4vw,26px); font-weight: 800; animation: lm-cue-bounce 0.9s ease-in-out infinite; }
+@keyframes lm-cue-bounce { 0%, 100% { transform: translateY(-2px); opacity: 0.55; } 50% { transform: translateY(2px); opacity: 1; } }
 .lm-bin-full { background: #F1EDE5; }
 .lm-bin-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
 .lm-bin-slot { width: clamp(36px, 8vw, 50px); height: clamp(40px, 9vw, 56px); display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.06); }

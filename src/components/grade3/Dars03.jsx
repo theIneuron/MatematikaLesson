@@ -883,8 +883,8 @@ const LESSON_META = {
   lessonId: 'num-3-03',
   lessonTitle: { ru: 'Урок 3. Разрядные слагаемые', uz: "3-dars. Razryad qo'shiluvchilari" }
 };
-// STRUKTURA: 1–7 tushuntirish · 8–13 mashq · 14 final · 15 xulosa. Grade2 Dars01 etaloni yoyi,
-// yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
+// STRUKTURA (14 ekran): s0 hook · s1–s5 kashfiyot · s6 qoida · s7–s10 mashq · s11 masala · s12 final · s13 xulosa.
+// Grade2 Dars01 etaloni yoyi, yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'MCScreen', scored: false, scope: 'hook' },
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },
@@ -916,9 +916,9 @@ const shuffleMC = (c, options, correctIdx, order) => {
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
 // ============================================================
-// CONTENT — 3-sinf Dars01 «Yuzliklar, o'nliklar, birliklar» (num-3-01-v1). RU + UZ to'liq.
+// CONTENT — 3-sinf Dars03 «Razryad qo'shiluvchilari» (num-3-03). RU + UZ to'liq.
 // Audio TTS-toza: sonlar so'z bilan, «» va matematik belgilar yo'q, bir segment = bir fikr.
-// Rekvizit: chiroq (birlik) · lenta = 10 chiroq (o'nlik) · panel = 10 lenta (yuzlik). Lumo shahri.
+// Rekvizit: razryad paneli · yoyilma (300 + 40 + 5). Lumo shahri, Bit sayyorasi.
 // ============================================================
 
 const CONTENT = {
@@ -2464,7 +2464,12 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const t = useT();
   const sfx = useSfx();
   const c = CONTENT[ck];
-  const items = c.items;
+  // Variantlar har mount'da aralashadi (to'g'ri javob doim 1-o'rinda qolmasin).
+  // opts/hints yangi tartibga ko'chadi, ci yangi indeksni ko'rsatadi; grading buzilmaydi.
+  const items = React.useMemo(() => c.items.map((it) => {
+    const order = shuffleArr(it.opts.map((_, i) => i));
+    return { ...it, opts: order.map((i) => it.opts[i]), hints: it.hints ? order.map((i) => it.hints[i]) : it.hints, ci: order.indexOf(it.ci) };
+  }), []);
   const audio = useAudio([
     brgSeg(ck, lang),
     { id: `${ck}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -2498,7 +2503,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: ck,
-        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -2943,7 +2948,7 @@ const Screen8 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(items.length), studentAnswer: String(items.length), correct: true,
+        correctAnswer: String(items.length), studentAnswer: String(items.length), correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -3038,7 +3043,7 @@ const Screen10 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
-        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -3155,6 +3160,8 @@ const Screen12 = (props) => {
   const t = useT();
   const c = CONTENT.s12;
   const items = c.items;
+  // Final MC variantlari har mount'da aralashadi. orders[idx][pos] = ASL indeks; to'g'ri = ASL 0.
+  const orders = React.useMemo(() => items.map((it) => it.kind === 'num' ? null : shuffleArr([0, 1, 2])), []);
   const audio = useAudio([
     brgSeg('s12', lang),
     { id: 's12_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -3172,7 +3179,7 @@ const Screen12 = (props) => {
   const pick = (i) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
-    const isOk = i === 0;
+    const isOk = orders[idx][i] === 0;
     if (isOk) setScore((s) => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
@@ -3229,15 +3236,15 @@ const Screen12 = (props) => {
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
-                  {[it.opt0, it.opt1, it.opt2].map((o, i) => (
-                    <button key={i} className={`option ${picked === i ? (i === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
+                  {orders[idx].map((k, i) => (
+                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
                       style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>
-                      {t(o)}
+                      {t(it[`opt${k}`])}
                     </button>
                   ))}
                 </div>
-                {picked !== null && picked !== 0 && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${picked}`] || it.wrong_1)}</p>
+                {picked !== null && orders[idx][picked] !== 0 && (
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1)}</p>
                 )}
               </>
             )}

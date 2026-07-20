@@ -865,10 +865,10 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 };
 
 // ============================================================
-// --- 2-SINF DARS: num_2_01 — O'nliklar va birliklar (Б1, 100 gacha) ---
-// 7-8 yosh: ovoz yetakchi kanal, typing YO'Q (tap), concrete-avval (batareya/kasseta ->
-// pult-bloklar -> displey kartasi), bar model YO'Q. Manba: 2sinf_metodologiya.md +
-// ETALON_2SINF.md + Dars01_CONTENT.md v2 (Yulduz porti). Barcha sonlar 100 ichida (Б1).
+// --- 3-SINF DARS: num-3-07 — Yozma qo'shish va ayirish (ustunda) ---
+// Ovoz yetakchi kanal. Ustunda qo'shish/ayirish, uch pog'onali razryad
+// (birlik/o'nlik/yuzlik), minglikkacha sonlar. Syujet: Bit sayyorasi Lumo
+// (SYUJET_3SINF.md Б1 d.1).
 // ============================================================
 
 // v5 IXCHAMLASH (18 -> 15): test tomoni ixchamlashdi (tushuntirish s2-s6 + qoida s7 TEGILMADI).
@@ -882,8 +882,8 @@ const LESSON_META = {
   lessonId: 'num-3-07',
   lessonTitle: { ru: 'Урок 7. Письменное сложение и вычитание', uz: "7-dars. Yozma qo'shish va ayirish" }
 };
-// STRUKTURA: 1–7 tushuntirish · 8–13 mashq · 14 final · 15 xulosa. Grade2 Dars01 etaloni yoyi,
-// yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
+// STRUKTURA (12 ekran): 1 hook · 2–6 tushuntirish · 7–10 mashq · 11 final · 12 xulosa.
+// Grade2 Dars01 etaloni yoyi, yuzlik qo'shilgan (uch pog'onali razryad).
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'MCScreen', scored: false, scope: 'hook' },
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },
@@ -2558,7 +2558,7 @@ const ColumnPractice = ({ props, ck }) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(items.length), studentAnswer: String(items.length), correct: true,
+        correctAnswer: String(items.length), studentAnswer: String(items.length), correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -2642,7 +2642,7 @@ const Screen8 = (props) => {
       setRecorded(true);
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
-        correctAnswer: String(items.length), studentAnswer: score, correct: true,
+        correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -2747,6 +2747,7 @@ const Screen10 = (props) => {
   const t = useT();
   const c = CONTENT.s10;
   const items = c.items;
+  const orders = React.useMemo(() => items.map((it) => it.kind === 'num' ? null : shuffleArr([0, 1, 2])), []);
   const audio = useAudio([
     brgSeg('s10', lang),
     { id: 's10_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -2764,7 +2765,7 @@ const Screen10 = (props) => {
   const pick = (i) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
-    const isOk = i === 0;
+    const isOk = orders[idx][i] === 0;
     if (isOk) setScore((s) => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
@@ -2821,15 +2822,15 @@ const Screen10 = (props) => {
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
-                  {[it.opt0, it.opt1, it.opt2].map((o, i) => (
-                    <button key={i} className={`option ${picked === i ? (i === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
+                  {orders[idx].map((k, i) => (
+                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
                       style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.4vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
-                      {t(o)}
+                      {t(it[`opt${k}`])}
                     </button>
                   ))}
                 </div>
-                {picked !== null && picked !== 0 && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${picked}`] || it.wrong_1)}</p>
+                {picked !== null && orders[idx][picked] !== 0 && (
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1)}</p>
                 )}
               </>
             )}
