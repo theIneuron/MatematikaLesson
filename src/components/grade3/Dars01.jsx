@@ -3074,6 +3074,48 @@ const S9_DECOYS = [[4, 9], [5, 8], [9, 2], [7, 2]];
 // Tray tartibi ATAYIN aralash (son tartibida emas). Indeks: 0=yuzlik,1=o'nlik,2=birlik, 3-4=chalg'ituvchi.
 const S9_ORDERS = [[1, 3, 2, 0, 4], [2, 0, 4, 1, 3], [3, 1, 0, 4, 2], [0, 4, 2, 1, 3]];
 const s9digits = (n) => [Math.floor(n / 100), Math.floor((n % 100) / 10), n % 10];
+
+// DEMO: qo'l (👆) bitta misolni (275) ko'rsatib joylaydi — raqamni bosadi, keyin to'g'ri qutiga bosadi.
+// Bola AVVAL kuzatadi, keyin o'zi qiladi. Passiv, avtomatik ketma-ket (har xona ~1.9s).
+const DEMO_NUM = 275;
+const DEMO_DIG = [2, 7, 5];        // 0=yuzlik, 1=o'nlik, 2=birlik
+const DEMO_BK = ['h', 't', 'o'];
+const TapBinDemo = ({ labels, lang, onDone }) => {
+  const [step, setStep] = useState(0);   // faol ustun; DEMO_DIG.length = tugadi
+  useEffect(() => {
+    if (step >= DEMO_DIG.length) { onDone && onDone(); return; }
+    const id = setTimeout(() => setStep((s) => s + 1), 3000);   // sekin — bola kuzatib ulgursin
+    return () => clearTimeout(id);
+  }, [step]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const done = step >= DEMO_DIG.length;
+  const cap = done
+    ? (lang === 'ru' ? 'Готово — вот так!' : "Bo'ldi — mana shunday!")
+    : `${DEMO_DIG[step]} — ${labels[DEMO_BK[step]]}`;
+  return (
+    <div className="lm-demo-wrap fade-up">
+      <div className={`lm-demo-cap mono ${done ? 'lm-demo-cap-done' : ''}`}>{cap}</div>
+      <div className="lm-demo-grid">
+        {DEMO_DIG.map((d, i) => {
+          const placed = i < step;
+          const active = i === step;
+          return (
+            <div key={i} className="lm-demo-col">
+              <div className="lm-demo-chipzone">
+                {!placed && <span className={`lm-digchip mono lm-demo-chip ${active ? 'lm-demo-chip-on' : ''}`}>{d}</span>}
+                {active && <span className="lm-demo-hand" aria-hidden="true">👆</span>}
+              </div>
+              <div className={`lm-bin lm-demo-bin ${placed ? 'lm-bin-full' : ''} ${active ? 'lm-bin-open' : ''}`}>
+                <span className="lm-bin-head mono">{labels[DEMO_BK[i]]}</span>
+                <span className="lm-bin-slot mono">{placed ? <span className="lm-demo-drop">{d}</span> : ''}</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const Screen9 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3091,6 +3133,10 @@ const Screen9 = (props) => {
   const [roundOk, setRoundOk] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  // Avval DEMO (qo'l ko'rsatadi), keyin o'quvchi o'zi. storedAnswer bo'lsa (qайта kirish) demo o'tkazib yuboriladi.
+  const [phase, setPhase] = useState(props.storedAnswer ? 'play' : 'demo');
+  const [demoDone, setDemoDone] = useState(false);
+  const [replayKey, setReplayKey] = useState(0);
   const done = round >= S9_NUMS.length;
   const num = S9_NUMS[Math.min(round, S9_NUMS.length - 1)];
   const digits = [...s9digits(num), ...S9_DECOYS[Math.min(round, S9_DECOYS.length - 1)]];
@@ -3131,16 +3177,21 @@ const Screen9 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && (
+        {!done && phase === 'demo' && (
           <>
+            <div className="lm-demo-banner mono fade-up">👀 {lang === 'ru' ? 'Смотри — покажу на примере' : "Qara — misolda ko'rsataman"}: {DEMO_NUM}</div>
+            <TapBinDemo key={replayKey} labels={labels} lang={lang} onDone={() => setDemoDone(true)}/>
+            <div className="fade-up" style={{ display: 'flex', gap: 'clamp(8px, 2vw, 12px)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 4 }}>
+              <button className="lm-demo-replay" disabled={!demoDone} onClick={() => { setDemoDone(false); setReplayKey((k) => k + 1); }}>↺ {lang === 'ru' ? 'Ещё раз' : "Yana ko'r"}</button>
+              <button className="btn-white-accent" disabled={!demoDone} onClick={() => setPhase('play')}>{lang === 'ru' ? 'Теперь я сам! →' : "Endi o'zim! →"}</button>
+            </div>
+          </>
+        )}
+        {!done && phase === 'play' && (
+          <>
+            <div className="lm-play-banner mono fade-up">✋ {lang === 'ru' ? 'Твоя очередь!' : 'Endi sening navbating!'}</div>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S9_NUMS.length}</div>
             <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
-            <div className={`lm-onhint fade-up ${sel === null ? '' : 'lm-onhint-2'}`}>
-              <span className="lm-onhint-step">{sel === null ? '1' : '2'}</span>
-              <span>{sel === null
-                ? (lang === 'ru' ? 'Нажми на цифру' : 'Raqamni bosing')
-                : (lang === 'ru' ? 'Теперь нажми на нужную ячейку' : 'Endi kerakli qutiga bosing')}</span>
-            </div>
             <div className="lm-digtray fade-up delay-1">
               {S9_ORDERS[Math.min(round, S9_ORDERS.length - 1)].map((i) => [digits[i], i]).map(([d, i]) => !usedIdx.has(i) && (
                 <button key={i} className={`lm-digchip mono ${sel === i ? 'lm-digchip-sel' : ''}`} disabled={!canAct || checked} onClick={() => setSel(i)}>{d}</button>
@@ -3151,7 +3202,7 @@ const Screen9 = (props) => {
               {['h', 't', 'o'].map((k) => (
                 <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`} disabled={!canAct || checked || bins[k] !== null || sel === null} onClick={() => placeInto(k)}>
                   <span className="lm-bin-head mono">{labels[k]}</span>
-                  <span className="lm-bin-slot mono">{bins[k] !== null ? digits[bins[k]] : (sel !== null ? <span className="lm-bin-cue">↧</span> : '')}</span>
+                  <span className="lm-bin-slot mono">{bins[k] !== null ? digits[bins[k]] : ''}</span>
                 </button>
               ))}
             </div>
@@ -5720,6 +5771,25 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-onhint-2 .lm-onhint-step { background: #FF4F28; }
 .lm-bin-cue { color: #FF4F28; font-size: clamp(20px,4vw,26px); font-weight: 800; animation: lm-cue-bounce 0.9s ease-in-out infinite; }
 @keyframes lm-cue-bounce { 0%, 100% { transform: translateY(-2px); opacity: 0.55; } 50% { transform: translateY(2px); opacity: 1; } }
+/* Slayd 10 DEMO (qo'l ko'rsatadi) — o'yin fazasidan ATAYIN farqli (ko'k «Ko'rsataman» vs to'q «Sening navbating»). */
+.lm-demo-banner { align-self: center; background: #EAF6FB; color: #017BA3; border: 1.5px solid rgba(1,154,203,0.4); border-radius: 99px; padding: clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px); font-weight: 800; font-size: clamp(12px,1.8vw,15px); }
+.lm-play-banner { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.45); border-radius: 99px; padding: clamp(7px,1.4vw,10px) clamp(14px,2.6vw,20px); font-weight: 800; font-size: clamp(12px,1.8vw,15px); }
+.lm-demo-wrap { display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); padding: clamp(10px,2vw,16px); border-radius: 18px; background: #F4FAFD; border: 1.5px dashed rgba(1,154,203,0.35); }
+.lm-demo-cap { font-size: clamp(15px,3vw,20px); font-weight: 800; color: #017BA3; min-height: 1.4em; }
+.lm-demo-cap-done { color: #1F7A4D; }
+.lm-demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px,2vw,14px); width: 100%; max-width: 360px; }
+.lm-demo-col { position: relative; display: flex; flex-direction: column; align-items: center; gap: clamp(8px,2vw,14px); }
+.lm-demo-chipzone { position: relative; min-height: clamp(46px,10vw,60px); display: flex; align-items: center; justify-content: center; }
+.lm-demo-chip { pointer-events: none; }
+.lm-demo-chip-on { background: #FFF3E9; color: #FF4F28; transform: translateY(-3px); box-shadow: 0 6px 16px -5px rgba(255,79,40,0.55); }
+.lm-demo-hand { position: absolute; left: 54%; font-size: clamp(22px,5vw,30px); pointer-events: none; z-index: 3; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.28)); animation: dm-hand 2.8s ease-in-out both; }
+@keyframes dm-hand { 0% { top: 16%; opacity: 0; } 8% { opacity: 1; } 14% { top: 20%; } 22% { top: 8%; } 30% { top: 20%; } 60% { top: 72%; } 68% { top: 60%; } 76% { top: 74%; } 100% { top: 72%; opacity: 1; } }
+.lm-demo-drop { display: inline-block; animation: dm-drop 0.42s cubic-bezier(0.3,0.9,0.35,1) both; }
+@keyframes dm-drop { 0% { transform: translateY(-16px); opacity: 0; } 62% { transform: translateY(2px); } 100% { transform: translateY(0); opacity: 1; } }
+.lm-demo-replay { background: #FFFFFF; border: 1.5px solid #D8CFBF; border-radius: 99px; padding: clamp(8px,1.6vw,11px) clamp(14px,2.6vw,18px); font-family: 'Manrope', sans-serif; font-weight: 700; font-size: clamp(12px,1.6vw,14px); color: #5A5A60; cursor: pointer; transition: transform 0.12s; }
+.lm-demo-replay:disabled { opacity: 0.4; cursor: default; }
+.lm-demo-replay:not(:disabled):active { transform: scale(0.95); }
+@media (prefers-reduced-motion: reduce) { .lm-demo-hand, .lm-demo-drop { animation: none; } }
 .lm-bin-full { background: #F1EDE5; }
 .lm-bin-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
 .lm-bin-slot { width: clamp(36px, 8vw, 50px); height: clamp(40px, 9vw, 56px); display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.06); }
