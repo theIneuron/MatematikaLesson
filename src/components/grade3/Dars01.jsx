@@ -1054,17 +1054,25 @@ const CONTENT = {
     ],
     audio: {
       ru: [
-        'У числа есть несколько способов раскрыть его. Давайте разберём триста сорок пять двумя основными способами.',
-        'Первый способ — разрядная таблица. Ставим каждую цифру на своё место. Сотни три, десятки четыре, единицы пять.',
-        'Второй способ — разрядные слагаемые. Пишем значение каждого разряда. Триста, сорок и пять.',
-        'Отлично! Теперь вы знаете два способа. А в качестве бонуса открою вам ещё один секрет — это число можно прочитать словами. Триста сорок пять.',
+        'У числа есть несколько способов раскрыть его. Давайте разберём триста сорок пять двумя способами. Не спеша.',
+        'Первый способ — разрядная таблица. Ставим каждую цифру на своё место.',
+        'Сотни — три. Десятки — четыре. Единицы — пять.',
+        'Второй способ — разрядные слагаемые. Пишем значение каждого разряда.',
+        'Триста. И сорок. И ещё пять.',
+        'Отлично! Теперь вы знаете два способа.',
+        'А в качестве бонуса открою ещё один секрет — это число можно прочитать словами.',
+        'Триста. Сорок. Пять.',
         'Показали по-разному, а число одно — триста сорок пять. Молодцы!'
       ],
       uz: [
-        "Bir sonni ochishning bir necha yo'li bor. Keling, uch yuz qirq beshni ikki asosiy usulda ochamiz.",
-        "Birinchi usul — razryad jadvali. Har raqamni o'z o'rniga qo'yamiz. Yuzlik uch, o'nlik to'rt, birlik besh.",
-        "Ikkinchi usul — yoyilma yig'indi. Har xonaning qiymatini yozamiz. Uch yuz, qirq va besh.",
-        "Zo'r! Endi siz ikki usulni o'rganib oldingiz. Bonus tariqasida esa yana bir sirni aytaman — bu sonni so'z bilan ham o'qish mumkin. Uch yuz qirq besh.",
+        "Bir sonni ochishning bir necha yo'li bor. Keling, uch yuz qirq beshni ikki usulda ochamiz. Shoshilmasdan.",
+        "Birinchi usul — razryad jadvali. Har raqamni o'z o'rniga qo'yamiz.",
+        "Yuzlik — uch. O'nlik — to'rt. Birlik — besh.",
+        "Ikkinchi usul — yoyilma yig'indi. Har xonaning qiymatini yozamiz.",
+        "Uch yuz. Va qirq. Va yana besh.",
+        "Zo'r! Endi siz ikki usulni o'rganib oldingiz.",
+        "Bonus tariqasida yana bir sirni aytaman — bu sonni so'z bilan ham o'qish mumkin.",
+        "Uch yuz. Qirq. Besh.",
         "Ko'rsatish har xil, lekin son bitta — uch yuz qirq besh. Barakalla!"
       ]
     }
@@ -2631,7 +2639,7 @@ const M1Drop = ({ labels }) => (
     <div style={{ display: 'flex', gap: 'clamp(8px, 2.4vw, 18px)' }}>
       {[['3', 'h', '#C0392B'], ['4', 't', '#1F7A4D'], ['5', 'o', T.blue]].map(([d, k, col], i) => (
         <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <span className="mono lm-drop" style={{ animationDelay: `${0.4 + i * 0.6}s`, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: col, border: `2.5px solid ${col}`, borderRadius: 10, minWidth: 'clamp(32px, 8vw, 44px)', textAlign: 'center', padding: '3px 0', background: T.paper }}>{d}</span>
+          <span className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: col, border: `2.5px solid ${col}`, borderRadius: 10, minWidth: 'clamp(32px, 8vw, 44px)', textAlign: 'center', padding: '3px 0', background: T.paper }}>{d}</span>
           <span className="mono" style={{ fontSize: 'clamp(10px, 1.4vw, 12px)', color: T.ink2, fontWeight: 700 }}>{labels[k]}</span>
         </div>
       ))}
@@ -2641,11 +2649,11 @@ const M1Drop = ({ labels }) => (
 // M2 harakati: 345 bo'linib 300, keyin 40, keyin 5 tushadi; oralariga + qo'yiladi.
 const M2Drop = () => (
   <div className="mono" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(4px, 1.2vw, 8px)', fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800 }}>
-    <span className="lm-drop" style={{ animationDelay: '0.4s', color: '#C0392B' }}>300</span>
-    <span className="lm-fadein" style={{ animationDelay: '0.8s' }}>+</span>
-    <span className="lm-drop" style={{ animationDelay: '1.0s', color: '#1F7A4D' }}>40</span>
-    <span className="lm-fadein" style={{ animationDelay: '1.4s' }}>+</span>
-    <span className="lm-drop" style={{ animationDelay: '1.6s', color: T.blue }}>5</span>
+    <span className="lm-edrop" style={{ animationDelay: '0.1s', color: '#C0392B' }}>300</span>
+    <span className="lm-fadein" style={{ animationDelay: '0.75s' }}>+</span>
+    <span className="lm-edrop" style={{ animationDelay: '0.95s', color: '#1F7A4D' }}>40</span>
+    <span className="lm-fadein" style={{ animationDelay: '1.6s' }}>+</span>
+    <span className="lm-edrop" style={{ animationDelay: '1.8s', color: T.blue }}>5</span>
   </div>
 );
 // BONUS harakati: son qismlari (300/40/5) tepada, ostiga so'zi bittalab tushadi (so'z <-> son bog'lanadi).
@@ -2656,7 +2664,7 @@ const M3Drop = ({ parts, lang }) => {
       {parts.map((p, i) => (
         <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <span className="mono" style={{ fontSize: 'clamp(16px, 3.2vw, 22px)', fontWeight: 800, color: cols[i] }}>{p.num}</span>
-          <span className="lm-drop" style={{ animationDelay: `${0.4 + i * 0.5}s`, fontSize: 'clamp(12px, 1.8vw, 15px)', fontWeight: 700, color: T.ink }}>{p[lang]}</span>
+          <span className="lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(12px, 1.8vw, 15px)', fontWeight: 700, color: T.ink }}>{p[lang]}</span>
         </div>
       ))}
     </div>
@@ -2674,9 +2682,12 @@ const Screen4 = (props) => {
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s4_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
   const done = reached >= (c.audio[lang].length - 1);
-  const showM1 = reached >= 1;
-  const showM2 = reached >= 2;
-  const showM3 = reached >= 3;
+  const showM1 = reached >= 1;     // 1-usul yorlig'i
+  const showM1d = reached >= 2;    // 1-usul raqamlari (aytilganda)
+  const showM2 = reached >= 3;     // 2-usul yorlig'i
+  const showM2d = reached >= 4;    // 2-usul qismlari
+  const showM3 = reached >= 6;     // bonus yorlig'i
+  const showM3w = reached >= 7;    // bonus so'zlari
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -2696,21 +2707,21 @@ const Screen4 = (props) => {
             <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
               <MLabel x={t(c.m1_label)}/>
               <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{t(c.m1_text)}</span>
-              <M1Drop labels={labels}/>
+              {showM1d && <M1Drop labels={labels}/>}
             </div>
           )}
           {showM2 && (
             <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
               <MLabel x={t(c.m2_label)}/>
               <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{t(c.m2_text)}</span>
-              <M2Drop/>
+              {showM2d && <M2Drop/>}
             </div>
           )}
           {showM3 && (
             <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%', background: '#FFF6DC', border: '1.5px solid #E8CB7A', borderRadius: 12, padding: 'clamp(8px, 1.8vw, 14px)' }}>
               <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>★ {t(c.m3_label)}</span>
               <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{t(c.m3_text)}</span>
-              <M3Drop parts={c.m3_parts} lang={lang}/>
+              {showM3w && <M3Drop parts={c.m3_parts} lang={lang}/>}
             </div>
           )}
         </div>
@@ -2721,6 +2732,20 @@ const Screen4 = (props) => {
 
 // s5 — O'RIN HAL QILADI: 345 / 435 / 543
 const S5_NUMS = [345, 435, 543];
+// Raqamlar (3/4/5) barqaror kartalar — son o'zgarganda o'z slotiga ELASTIK siljiydi (joy almashadi).
+const S5_COLS = { 3: '#C0392B', 4: '#1F7A4D', 5: '#019ACB' };
+const S5DigRow = ({ num }) => {
+  const order = [Math.floor(num / 100), Math.floor((num % 100) / 10), num % 10];
+  return (
+    <div className="lm-swaprow">
+      {[3, 4, 5].map((d) => (
+        <span key={d} className="lm-swapcard" style={{ left: `${order.indexOf(d) * (100 / 3)}%` }}>
+          <b className="mono" style={{ color: S5_COLS[d] }}>{d}</b>
+        </span>
+      ))}
+    </div>
+  );
+};
 const Screen5 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2748,11 +2773,7 @@ const Screen5 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-          <div className="lm-digrow">
-            {[digs.h, digs.t, digs.o].map((d, i) => (
-              <span key={`${num}-${i}`} className={`lm-digcard lm-cardflip mono lm-dig-${d}`} style={{ animationDelay: `${i * 0.12}s` }}>{d}</span>
-            ))}
-          </div>
+          <S5DigRow num={num}/>
           <RazryadTable h={digs.h} t={digs.t} o={digs.o} labels={labels} digits/>
           <BigNum v={num} accent={done}/>
         </div>
@@ -5902,6 +5923,15 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-clock-cap { font-size: clamp(13px,1.9vw,16px); font-weight: 800; color: #017BA3; }
 /* Aksent savol (slayd 8 QOIDA — javob oldindan berilmasin). */
 .lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
+/* Sekin ELASTIK reveal (slayd 4 usullar/bonus — bita-bita, shoshilmasdan). */
+.lm-edrop { display: inline-block; animation: lm-edrop-a 0.72s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
+@keyframes lm-edrop-a { 0% { opacity: 0; transform: translateY(-16px) scale(0.72); } 62% { transform: translateY(3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lm-edrop { animation: none; } }
+/* Slayd 5: raqam kartalari joy almashishi — ELASTIK siljish (transition: left). */
+.lm-swaprow { position: relative; width: min(280px, 84%); height: clamp(54px, 12vw, 70px); }
+.lm-swapcard { position: absolute; top: 0; width: 33.333%; height: 100%; display: flex; align-items: center; justify-content: center; transition: left 0.64s cubic-bezier(0.5, -0.16, 0.32, 1.38); }
+.lm-swapcard > b { display: flex; align-items: center; justify-content: center; min-width: clamp(42px, 10vw, 58px); height: 100%; border-radius: 12px; background: #FFFFFF; box-shadow: 0 4px 12px -5px rgba(58,53,48,0.32); font-size: clamp(30px, 7vw, 44px); font-weight: 800; }
+@media (prefers-reduced-motion: reduce) { .lm-swapcard { transition: none; } }
 .lm-bin-full { background: #F1EDE5; }
 .lm-bin-head { font-size: clamp(9px, 1.5vw, 11px); font-weight: 800; color: #8A8378; text-transform: uppercase; letter-spacing: 0.4px; }
 .lm-bin-slot { width: clamp(36px, 8vw, 50px); height: clamp(40px, 9vw, 56px); display: flex; align-items: center; justify-content: center; border-radius: 10px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.06); }
