@@ -128,6 +128,11 @@ function D08_01Impl(props) {
           {Array.from({ length: 9 }).map((_, i) => <button key={'b' + i} type="button" disabled={locked} onClick={() => tapB(i)} style={{ border: 'none', background: 'transparent', padding: 0, cursor: locked ? 'default' : 'pointer' }}><Battery s={30} dim={remB.includes(i)} /></button>)}
         </div>
         <div style={{ textAlign: 'center', marginTop: 10, fontSize: 13, fontWeight: 700, color: C.sink2 }}>{t.left}: <span style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: leftCol }}>{left}</span></div>
+        {touched && !locked && (
+          <div style={{ textAlign: 'center', marginTop: 10 }}>
+            <button type="button" onClick={() => { setRemC([]); setRemB([]); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 999, border: '1.5px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.12)', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>↺ {lang === 'uz' ? 'Tozalash' : 'Очистить'}</button>
+          </div>
+        )}
       </Stage>
       <p style={{ ...S.ask, fontSize: 19 }}>{t.ask}</p>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}

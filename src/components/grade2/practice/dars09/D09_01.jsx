@@ -129,6 +129,11 @@ function D09_01Impl(props) {
           </div>
         </div>
         <div style={{ textAlign: 'center', marginTop: 10, fontSize: 13, fontWeight: 700, color: C.sink2 }}>{t.left}: <span style={{ ...S.mono, fontSize: 26, fontWeight: 800, color: leftCol }}>{12 - moved.length}</span></div>
+        {moved.length > 0 && !locked && (
+          <div style={{ textAlign: 'center', marginTop: 10 }}>
+            <button type="button" onClick={() => { setMoved([]); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 999, border: '1.5px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.12)', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>↺ {lang === 'uz' ? 'Tozalash' : 'Очистить'}</button>
+          </div>
+        )}
       </Stage>
       <p style={{ ...S.ask, fontSize: 19 }}>{t.ask}</p>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}

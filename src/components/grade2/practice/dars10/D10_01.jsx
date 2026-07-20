@@ -127,6 +127,11 @@ function D10_01Impl(props) {
           {Array.from({ length: battCount }).map((_, i) => <span key={i} className={i >= 2 ? 'd10-pop' : ''}><Battery s={30} /></span>)}
         </div>
         <div style={{ textAlign: 'center', marginTop: 10, fontSize: 13, fontWeight: 700, color: C.sink2 }}>{t.cass}: <span style={{ ...S.mono, fontSize: 20, fontWeight: 800, color: C.sink }}>{cassCount}</span> &nbsp;·&nbsp; {t.batt}: <span style={{ ...S.mono, fontSize: 24, fontWeight: 800, color: battCol }}>{battCount}</span></div>
+        {opened.length > 0 && !locked && (
+          <div style={{ textAlign: 'center', marginTop: 10 }}>
+            <button type="button" onClick={() => { setOpened([]); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 16px', borderRadius: 999, border: '1.5px solid rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.12)', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>↺ {lang === 'uz' ? 'Tozalash' : 'Очистить'}</button>
+          </div>
+        )}
       </Stage>
       <p style={{ ...S.ask, fontSize: 19 }}>{t.ask}</p>
       {fb && <FB ok={fb.correct} text={fb.correct ? t.correct : t.wrong} />}
