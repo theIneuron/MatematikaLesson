@@ -60,7 +60,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;   // TEST/EDIT — blokirovka o'chiq (erkin navigatsiya). PUSH oldidan false ga qaytaring!
+const FREE_NAV = false;   // BLOKIROVKA YOQILGAN: 'Davom' faqat slayd ovozi to'liq tugagach ochiladi (audio.done). true = erkin navigatsiya (test).
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -169,6 +169,7 @@ const useLang = () => useContext(LangContext);
 
 // Yulduz-kopilka: to'g'ri javoblar soni (test ekranlari) — yuqorida to'planib boradi.
 const ProgressContext = createContext({ stars: 0, total: 0 });
+const NavUnlockContext = createContext(false);
 
 const useT = () => {
   const lang = useLang();
@@ -238,6 +239,7 @@ class AudioEngine {
     this.currentLang = 'ru';
     this.gender = 'f';
     this.autoplayBlocked = false;
+    this.done = false;
     this.audioEl = null;
   }
 
@@ -296,8 +298,8 @@ class AudioEngine {
     if (p && typeof p.then === 'function') {
       p.then(() => {
         this.autoplayBlocked = false;
-        this.isPlaying = true;
-        if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id });
+        this.isPlaying = true; this.done = false;
+        if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id, done: false });
       }).catch(() => {
         // автоплей заблокирован браузером — ждём первого жеста
         this.autoplayBlocked = true;
@@ -322,8 +324,8 @@ class AudioEngine {
     u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
     u.rate = 0.95; u.pitch = 1.0;
     u.onstart = () => {
-      this.isPlaying = true;
-      if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id });
+      this.isPlaying = true; this.done = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id, done: false });
     };
     u.onend = () => {
       this.isPlaying = false;
@@ -349,7 +351,8 @@ class AudioEngine {
   handleSegmentEnd(segment) {
     if (segment && segment.waits_for) {
       this.waitingFor = segment.waits_for;
-      if (this.onStateChange) this.onStateChange({ isPlaying: false, waitingFor: segment.waits_for });
+      const _fin = !!(segment.waits_for && segment.waits_for.target === 'next'); if (_fin) this.done = true;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, waitingFor: segment.waits_for, done: _fin ? true : this.done });
     } else {
       this.currentIdx++;
       this.playNext();
@@ -357,12 +360,13 @@ class AudioEngine {
   }
 
   playNext() {
-    if (this.currentIdx >= this.queue.length) return;
+    if (this.currentIdx >= this.queue.length) { this.isPlaying = false; this.done = true; if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null, done: true }); return; }
     this.playSegment(this.queue[this.currentIdx]);
   }
 
   start() {
     this.currentIdx = 0;
+    this.done = false;
     this.waitingFor = null;
     this.playNext();
   }
@@ -391,6 +395,8 @@ class AudioEngine {
     if (!text) return;
     this.queue.push({ id: `oneoff_${Date.now()}`, text, trigger: 'manual', waits_for: null, g: gender });
     this.currentIdx = this.queue.length - 1;
+    this.done = false;
+    if (this.onStateChange) this.onStateChange({ done: false });
     this.playNext();
   }
 
@@ -422,7 +428,7 @@ const getAudioEngine = () => {
 
 function useAudio(segments) {
   const lang = useLang();
-  const [state, setState] = useState({ isPlaying: false, currentSegment: null, waitingFor: null, muted: false });
+  const [state, setState] = useState({ isPlaying: false, currentSegment: null, waitingFor: null, muted: false, done: !(segments && segments.length) });
   const engineRef = useRef(null);
 
   // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
@@ -512,31 +518,26 @@ const makeAutoSegments = (screenContent, lang) => {
 // useCanAnswer — javob tanlash faqat ovoz tugagandan keyin (bola avval tinglaydi).
 // Ovoz yangrayotganda yoki hali boshlanmaganda -> false. Mute -> true. 12s himoya (bloklanmasin).
 function useCanAnswer(audio) {
-  const [hasPlayed, setHasPlayed] = useState(false);
-  useEffect(() => {
-    if (audio.isPlaying && !hasPlayed) { const id = setTimeout(() => setHasPlayed(true), 0); return () => clearTimeout(id); }
-    return undefined;
-  }, [audio.isPlaying, hasPlayed]);
-  useEffect(() => { const id = setTimeout(() => setHasPlayed(true), 12000); return () => clearTimeout(id); }, []);
-  return FREE_NAV || audio.muted || (hasPlayed && !audio.isPlaying);
+  const navUnlocked = useContext(NavUnlockContext);
+  const [safety, setSafety] = useState(false);
+  useEffect(() => { const id = setTimeout(() => setSafety(true), 60000); return () => clearTimeout(id); }, []);
+  return FREE_NAV || navUnlocked || audio.muted || audio.done || safety;
 }
 
 // useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
 // (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 6s himoya.
 function useAdvanceGate(solved, audio) {
-  const [fbStarted, setFbStarted] = useState(false);
-  useEffect(() => {
-    if (solved && audio.isPlaying && !fbStarted) { const id = setTimeout(() => setFbStarted(true), 0); return () => clearTimeout(id); }
-    return undefined;
-  }, [solved, audio.isPlaying, fbStarted]);
+  const navUnlocked = useContext(NavUnlockContext);
+  const [safety, setSafety] = useState(false);
   useEffect(() => {
     if (!solved) return undefined;
-    const id = setTimeout(() => setFbStarted(true), 6000);
+    const id = setTimeout(() => setSafety(true), 60000);
     return () => clearTimeout(id);
   }, [solved]);
+  if (navUnlocked) return true;
   if (!solved) return false;
   if (audio.muted) return true;
-  return fbStarted && !audio.isPlaying;
+  return audio.done || safety;
 }
 
 // ============================================================
@@ -2189,7 +2190,8 @@ const MCScreen = ({ props, cKey, base, correctIndex, order, figure, fact = null,
   const c0 = CONTENT[cKey];
   const t = useT();
   const brg = BRIDGES[cKey];
-  const { options, correctIdx, content } = shuffleMC(c0, base, correctIndex, order);
+  const shufOrder = React.useMemo(() => shuffleArr((base || []).map((_, i) => i)), []);
+  const { options, correctIdx, content } = shuffleMC(c0, base, correctIndex, shufOrder);
   const sc = brg ? withBridgeAudio(content, cKey) : content;   // ko'prik audio-intro boshiga
   const q = titleNode || (
     <div>
@@ -3409,6 +3411,11 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
   const c = CONTENT[cKey];
   const sfx = useSfx();
   const total = subs.length;
+  const shufSubs = React.useMemo(() => subs.map((sb) => {
+    if (!Array.isArray(sb.options) || typeof sb.correctIdx !== 'number') return sb;
+    const perm = shuffleArr(sb.options.map((_, i) => i));
+    return { ...sb, options: perm.map((oi, ni) => (React.isValidElement(sb.options[oi]) ? React.cloneElement(sb.options[oi], { key: ni }) : sb.options[oi])), correctIdx: perm.indexOf(sb.correctIdx), wrongText: typeof sb.wrongText === 'function' ? (i, lg) => sb.wrongText(perm[i], lg) : sb.wrongText };
+  }), []);
   const wasSolved = props.storedAnswer?.solved === true;
   const audio = useAudio([brgSeg(cKey, lang), { id: `${cKey}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }]);
   const canAns = useCanAnswer(audio);
@@ -3425,7 +3432,7 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
   const factRef = useRevealScroll(solved && !!fact, 900);
   const pick = (i) => {
     if (!canAns || solved || curr >= total || wrong.has(i)) return;
-    const sub = subs[curr];
+    const sub = shufSubs[curr];
     attemptsRef.current += 1;
     if (i === sub.correctIdx) {
       sfx.playCorrect(); setWrong(new Set()); setSpark((s) => s + 1);
@@ -3446,7 +3453,7 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
   };
   const canAdv = useAdvanceGate(solved, audio);
   const navContent = (<><NavBack onPrev={props.onPrev} label={<BackLabel/>}/><NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/></>);
-  const sub = curr < total ? subs[curr] : null;
+  const sub = curr < total ? shufSubs[curr] : null;
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
@@ -3762,7 +3769,8 @@ const ScreenCase = (props) => {
     { id: 'case_q', text: cq.audio.intro[lang], trigger: 'after_previous', waits_for: null }
   ]);
   const canAns = useCanAnswer(audio);
-  const { options, correctIdx, content } = shuffleMC(cq, SCASE_BASE, 0, [0, 3, 1, 2]);
+  const scOrder = React.useMemo(() => shuffleArr([0, 1, 2, 3]), []);
+  const { options, correctIdx, content } = shuffleMC(cq, SCASE_BASE, 0, scOrder);
   const wasSolved = props.storedAnswer?.solved === true || props.storedAnswer?.correct === true;
   const [solved, setSolved] = useState(wasSolved);
   const [picked, setPicked] = useState(wasSolved ? correctIdx : null);
@@ -3946,6 +3954,8 @@ export default function TensUnitsLesson({
   });
 
   const [current, setCurrent] = useState(0);
+  const [maxReached, setMaxReached] = useState(0);
+  useEffect(() => { setMaxReached((m) => Math.max(m, current)); }, [current]);
   const [answers, setAnswers] = useState([]);
   const [heroMood, setHeroMood] = useState('pointing');   // personaj holati (butun urok bo'ylab bitta overlay)
   const heroCtx = React.useMemo(() => ({ setMood: setHeroMood }), []);
@@ -3955,7 +3965,7 @@ export default function TensUnitsLesson({
     setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
   }, []);
 
-  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
+  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setMaxReached(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
 
   const finishLesson = useCallback(() => {
   const scored = SCREEN_META.filter(s => s.scored);
@@ -4015,7 +4025,7 @@ export default function TensUnitsLesson({
             ))}
           </div>
         )}
-        <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+        <NavUnlockContext.Provider value={current < maxReached}><CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/></NavUnlockContext.Provider>
       </div>
       </HeroContext.Provider>
       </ProgressContext.Provider>

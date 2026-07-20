@@ -55,7 +55,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;   // TEST/EDIT — blokirovka o'chiq (erkin navigatsiya). PUSH oldidan false ga qaytaring!
+const FREE_NAV = false;   // BLOKIROVKA YOQILGAN: 'Davom' faqat slayd ovozi to'liq tugagach ochiladi (audio.done). true = erkin navigatsiya (test).
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -164,6 +164,7 @@ const useLang = () => useContext(LangContext);
 
 // Yulduz-kopilka: to'g'ri javoblar soni (test ekranlari) — yuqorida to'planib boradi.
 const ProgressContext = createContext({ stars: 0, total: 0 });
+const NavUnlockContext = createContext(false);
 
 const useT = () => {
   const lang = useLang();
@@ -233,6 +234,7 @@ class AudioEngine {
     this.currentLang = 'ru';
     this.gender = 'f';
     this.autoplayBlocked = false;
+    this.done = false;
     this.audioEl = null;
   }
 
@@ -291,8 +293,8 @@ class AudioEngine {
     if (p && typeof p.then === 'function') {
       p.then(() => {
         this.autoplayBlocked = false;
-        this.isPlaying = true;
-        if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id });
+        this.isPlaying = true; this.done = false;
+        if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id, done: false });
       }).catch(() => {
         // автоплей заблокирован браузером — ждём первого жеста
         this.autoplayBlocked = true;
@@ -317,8 +319,8 @@ class AudioEngine {
     u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
     u.rate = 0.95; u.pitch = 1.0;
     u.onstart = () => {
-      this.isPlaying = true;
-      if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id });
+      this.isPlaying = true; this.done = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id, done: false });
     };
     u.onend = () => {
       this.isPlaying = false;
@@ -344,7 +346,8 @@ class AudioEngine {
   handleSegmentEnd(segment) {
     if (segment && segment.waits_for) {
       this.waitingFor = segment.waits_for;
-      if (this.onStateChange) this.onStateChange({ isPlaying: false, waitingFor: segment.waits_for });
+      const _fin = !!(segment.waits_for && segment.waits_for.target === 'next'); if (_fin) this.done = true;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, waitingFor: segment.waits_for, done: _fin ? true : this.done });
     } else {
       this.currentIdx++;
       this.playNext();
@@ -352,12 +355,13 @@ class AudioEngine {
   }
 
   playNext() {
-    if (this.currentIdx >= this.queue.length) return;
+    if (this.currentIdx >= this.queue.length) { this.isPlaying = false; this.done = true; if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null, done: true }); return; }
     this.playSegment(this.queue[this.currentIdx]);
   }
 
   start() {
     this.currentIdx = 0;
+    this.done = false;
     this.waitingFor = null;
     this.playNext();
   }
@@ -386,6 +390,8 @@ class AudioEngine {
     if (!text) return;
     this.queue.push({ id: `oneoff_${Date.now()}`, text, trigger: 'manual', waits_for: null, g: gender });
     this.currentIdx = this.queue.length - 1;
+    this.done = false;
+    if (this.onStateChange) this.onStateChange({ done: false });
     this.playNext();
   }
 
@@ -417,7 +423,7 @@ const getAudioEngine = () => {
 
 function useAudio(segments) {
   const lang = useLang();
-  const [state, setState] = useState({ isPlaying: false, currentSegment: null, waitingFor: null, muted: false });
+  const [state, setState] = useState({ isPlaying: false, currentSegment: null, waitingFor: null, muted: false, done: !(segments && segments.length) });
   const engineRef = useRef(null);
 
   // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
@@ -507,31 +513,26 @@ const makeAutoSegments = (screenContent, lang) => {
 // useCanAnswer — javob tanlash faqat ovoz tugagandan keyin (bola avval tinglaydi).
 // Ovoz yangrayotganda yoki hali boshlanmaganda -> false. Mute -> true. 12s himoya (bloklanmasin).
 function useCanAnswer(audio) {
-  const [hasPlayed, setHasPlayed] = useState(false);
-  useEffect(() => {
-    if (audio.isPlaying && !hasPlayed) { const id = setTimeout(() => setHasPlayed(true), 0); return () => clearTimeout(id); }
-    return undefined;
-  }, [audio.isPlaying, hasPlayed]);
-  useEffect(() => { const id = setTimeout(() => setHasPlayed(true), 12000); return () => clearTimeout(id); }, []);
-  return FREE_NAV || audio.muted || (hasPlayed && !audio.isPlaying);
+  const navUnlocked = useContext(NavUnlockContext);
+  const [safety, setSafety] = useState(false);
+  useEffect(() => { const id = setTimeout(() => setSafety(true), 60000); return () => clearTimeout(id); }, []);
+  return FREE_NAV || navUnlocked || audio.muted || audio.done || safety;
 }
 
 // useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
 // (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 6s himoya.
 function useAdvanceGate(solved, audio) {
-  const [fbStarted, setFbStarted] = useState(false);
-  useEffect(() => {
-    if (solved && audio.isPlaying && !fbStarted) { const id = setTimeout(() => setFbStarted(true), 0); return () => clearTimeout(id); }
-    return undefined;
-  }, [solved, audio.isPlaying, fbStarted]);
+  const navUnlocked = useContext(NavUnlockContext);
+  const [safety, setSafety] = useState(false);
   useEffect(() => {
     if (!solved) return undefined;
-    const id = setTimeout(() => setFbStarted(true), 6000);
+    const id = setTimeout(() => setSafety(true), 60000);
     return () => clearTimeout(id);
   }, [solved]);
+  if (navUnlocked) return true;
   if (!solved) return false;
   if (audio.muted) return true;
-  return fbStarted && !audio.isPlaying;
+  return audio.done || safety;
 }
 
 // ============================================================
@@ -2739,14 +2740,15 @@ const MCStage = ({ props, cKey, figure = null, fact = false }) => {
   const [wrong, setWrong] = useState(() => new Set());
   const [solved, setSolved] = useState(false);
   const cur = rounds[ri];
-  const correctIdx = cur.opts.findIndex((o) => o.ok);
+  const opts = React.useMemo(() => shuffleArr(cur.opts.map((_, i) => i)).map((k) => cur.opts[k]), [ri, cKey]);
+  const correctIdx = opts.findIndex((o) => o.ok);
   const isLast = ri === rounds.length - 1;
   const allDone = solved && isLast;
   const attemptsRef = useRef(0);
   const revealRef = useRevealScroll(solved, 400);
   const report = (correct) => {
     if (!props.onAnswer) return;
-    props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: t(cur.q || c.lead), options: cur.opts.map((o) => o[lang]), correctIndex: correctIdx, correctAnswer: cur.opts[correctIdx][lang], studentAnswerIndex: null, studentAnswer: null, correct, firstTry: correct, attempts: attemptsRef.current, solved: true });
+    props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: t(cur.q || c.lead), options: opts.map((o) => o[lang]), correctIndex: correctIdx, correctAnswer: opts[correctIdx][lang], studentAnswerIndex: null, studentAnswer: null, correct, firstTry: correct, attempts: attemptsRef.current, solved: true });
   };
   const nextRound = () => { setRi((r) => r + 1); setWrong(new Set()); setSolved(false); attemptsRef.current = 0; };
   const pick = (i, ok) => {
@@ -2786,12 +2788,12 @@ const MCStage = ({ props, cKey, figure = null, fact = false }) => {
         {rounds.length > 1 && <RoundDots ri={ri} total={rounds.length}/>}
         {figure && (
           <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 'clamp(14px, 2.6vw, 20px)', minHeight: 'clamp(150px, 32vw, 200px)' }}>
-            {figure(cur, audio, { solved, sign: solved && correctIdx >= 0 ? t(cur.opts[correctIdx]) : null })}
+            {figure(cur, audio, { solved, sign: solved && correctIdx >= 0 ? t(opts[correctIdx]) : null })}
           </div>
         )}
         {hasSep && <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(14px, 2vw, 16px)', textAlign: 'center' }}>{t(cur.q)}</p>}
-        <div key={`o${ri}`} className="fade-up" style={{ display: 'grid', gridTemplateColumns: cur.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
-          {cur.opts.map((o, i) => { const lab = t(o); const isSign = lab.length <= 2; return (
+        <div key={`o${ri}`} className="fade-up" style={{ display: 'grid', gridTemplateColumns: opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
+          {opts.map((o, i) => { const lab = t(o); const isSign = lab.length <= 2; return (
             <button key={i} className={`option ${solved && o.ok ? 'option-correct' : ''} ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || solved || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
               style={{ padding: 'clamp(10px,1.7vw,13px) clamp(12px,2.2vw,18px)', fontSize: isSign ? 'clamp(22px,4.4vw,32px)' : 'clamp(14px,2.1vw,17px)', fontWeight: isSign ? 800 : 700, fontFamily: isSign ? "'JetBrains Mono', monospace" : "'Source Serif 4', serif", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{lab}</button>
           ); })}
@@ -7212,6 +7214,7 @@ const MatchToClockStage = ({ props, cKey, fact = false }) => {
   const meta = SCREEN_META[props.screen];
   const [ri, setRi] = useState(0);
   const cur = rounds[ri];
+  const choices = React.useMemo(() => shuffleArr(cur.choices.slice()), [cKey, ri]);
   const [solved, setSolved] = useState(false);
   const [wrong, setWrong] = useState(() => new Set());
   const anyWrongRef = useRef(false);
@@ -7219,7 +7222,7 @@ const MatchToClockStage = ({ props, cKey, fact = false }) => {
   const allDone = solved && isLast;
   const revealRef = useRevealScroll(solved, 400);
   const nextRound = () => { setRi((x) => x + 1); setSolved(false); setWrong(new Set()); anyWrongRef.current = false; };
-  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `matchclock:${cKey}:${ri}`, options: [], correctIndex: cur.choices.findIndex((h) => h.ok), correctAnswer: t(cur.name), studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
+  const report = () => { if (!meta.scored || !props.onAnswer) return; const ft = !anyWrongRef.current; props.onAnswer({ stage: meta.scope, screenIdx: props.screen, subIndex: ri, question: `matchclock:${cKey}:${ri}`, options: [], correctIndex: choices.findIndex((h) => h.ok), correctAnswer: t(cur.name), studentAnswerIndex: null, studentAnswer: '', correct: ft, firstTry: ft, attempts: anyWrongRef.current ? 2 : 1, solved: true }); };
   const hit = (h, i) => {
     if (!canAct || solved || wrong.has(i)) return;
     if (h.ok) { sfx.playCorrect(); setSolved(true); report(); if (!audio.muted) { const e = getAudioEngine(); if (e) { e.pushOneOff(c.audio.on_correct[lang]); if (isLast && fact && c.fact_audio) e.pushOneOff(c.fact_audio[lang]); } } }
@@ -7238,7 +7241,7 @@ const MatchToClockStage = ({ props, cKey, fact = false }) => {
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(cur.q)}</p>
         <div key={ri} className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(6px,1.6vw,10px)' }}>
-          {cur.choices.map((h, i) => { const w = wrong.has(i); const ok = solved && h.ok; return (
+          {choices.map((h, i) => { const w = wrong.has(i); const ok = solved && h.ok; return (
             <button key={i} disabled={!canAct || solved || w} onClick={() => hit(h, i)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(8px,1.8vw,13px)', minHeight: 'clamp(96px,22vw,132px)', borderRadius: 14, background: ok ? T.successSoft : '#fff', border: `2.5px solid ${ok ? T.success : w ? '#fe5b1a' : '#C9D3DE'}`, cursor: canAct && !solved && !w ? 'pointer' : 'default', boxShadow: `0 3px 10px -4px rgba(${T.shadowBase},0.35)` }}>
               <ClockFace h={h.h} m={h.m} w="clamp(74px,18vw,108px)"/>
             </button>
@@ -8310,6 +8313,8 @@ export default function RazryadLesson({
   });
 
   const [current, setCurrent] = useState(0);
+  const [maxReached, setMaxReached] = useState(0);
+  useEffect(() => { setMaxReached((m) => Math.max(m, current)); }, [current]);
   const [answers, setAnswers] = useState([]);
   const [heroMood, setHeroMood] = useState('pointing');   // personaj holati (butun urok bo'ylab bitta overlay)
   const heroCtx = React.useMemo(() => ({ setMood: setHeroMood }), []);
@@ -8319,7 +8324,7 @@ export default function RazryadLesson({
     setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
   }, []);
 
-  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
+  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setMaxReached(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
 
   const finishLesson = useCallback(() => {
   const scored = SCREEN_META.filter(s => s.scored);
@@ -8379,7 +8384,7 @@ export default function RazryadLesson({
             ))}
           </div>
         )}
-        <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+        <NavUnlockContext.Provider value={current < maxReached}><CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/></NavUnlockContext.Provider>
       </div>
       </HeroContext.Provider>
       </ProgressContext.Provider>
