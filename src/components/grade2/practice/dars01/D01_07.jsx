@@ -130,9 +130,3 @@ function D01_07Impl(props) {
 export default function D01_07(props) {
   return (<><style>{FX_CSS}</style><D01_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D01_07.audio = {
-  uz: { intro: "Har razryad tarkibini o'z soniga ulang. Kartani bosing, keyin mos yozuvning bo'sh joyini bosing.", on_correct: "To'g'ri. 2o'nlik5birlik teng 25, 5o'nlik2birlik teng 52, 3o'nlik4birlik teng 34, 4o'nlik0birlik teng 40.", on_wrong: "Maslahat. O'nlik, birinchi raqam. 5 o'nlik 2 birlik teng 52, 25 emas." },
-  ru: { intro: "Соедини разрядный состав с его числом. Нажми карточку, затем пустое место нужной записи.", on_correct: "Верно. 2дес5ед равно 25, 5дес2ед равно 52, 3дес4ед равно 34, 4дес0ед равно 40.", on_wrong: "Подсказка. Десятки, первая цифра. 5 десятков 2 единицы равно 52, не 25." },
-};

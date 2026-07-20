@@ -116,9 +116,3 @@ function D09_10Impl(props) {
 export default function D09_10(props) {
   return (<><style>{FX_CSS}</style><D09_10Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D09_10.audio = {
-  uz: { intro: "Birliklar. 9 qo'shish 7 teng 16. Bitta o'nlik ko'chdi. Ko'chuvchi 1 qaysi ustunga qo'shiladi?", on_correct: "To'g'ri. Ko'chuvchi 1, bu bitta o'nlik, u o'nliklar ustuniga qo'shiladi.", on_wrong: "Maslahat. Ko'chuvchi 1, bu 1 ta o'nlik. U qaysi razryadga tegishli?" },
-  ru: { intro: "Единицы. 9 плюс 7 равно 16. Один десяток перешёл. В какой столбец прибавляется перенос 1?", on_correct: "Верно. Перенос 1, это один десяток, он прибавляется к столбцу десятков.", on_wrong: "Подсказка. Перенос 1, это 1 десяток. К какому разряду он относится?" },
-};

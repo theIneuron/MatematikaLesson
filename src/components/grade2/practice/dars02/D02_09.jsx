@@ -143,9 +143,3 @@ function D02_09Impl(props) {
 export default function D02_09(props) {
   return (<><style>{FX_CSS}</style><D02_09Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D02_09.audio = {
-  uz: { intro: "Kodlar aralashib ketdi. Ikki tryum. 40-lar va 50-lar. Har kodni o'nligiga qarab to'g'ri tryumga joylang.", on_correct: "To'g'ri. 42, 47, o'nligi 4 40-lar. 51, 58, o'nligi 5 50-lar.", on_wrong: "Maslahat. O'nlik, birinchi raqam. 42 da o'nlik 4, 51 da o'nlik 5." },
-  ru: { intro: "Коды перемешались. Два отсека. 40-е и 50-е. Помести каждый код по десятку в нужный отсек.", on_correct: "Верно. 42, 47, десяток 4 40-е. 51, 58, десяток 5 50-е.", on_wrong: "Подсказка. Десяток, первая цифра. В 42 десяток 4, в 51 десяток 5." },
-};

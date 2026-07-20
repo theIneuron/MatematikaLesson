@@ -102,9 +102,3 @@ const FX_CSS = `
 export default function D12_09(props) {
   return (<><style>{FX_CSS}</style><D09 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D12_09.audio = {
-  uz: { intro: "To'rt xil masala yechilgan, bittasi noto'g'ri hisoblangan. Noto'g'ri hisoblangan qatorni toping.", on_correct: "To'g'ri. 25 qo'shish 25 ayirish 10 teng 40 bo'lishi kerak, 30 emas.", on_wrong: "Har birini ikki amalda tekshiring. Avval chapdan, keyin natijaga." },
-  ru: { intro: "Решены четыре задачи, одна посчитана неверно. Найди строку с неверным ответом.", on_correct: "Верно. Должно быть 25 плюс 25 минус 10 равно 40, а не 30.", on_wrong: "Проверь каждую в два действия. Сначала слева, потом к результату." },
-};

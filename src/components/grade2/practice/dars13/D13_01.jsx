@@ -125,9 +125,3 @@ const FX_CSS = `
 export default function D13_01(props) {
   return (<><style>{FX_CSS}</style><D01 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_01.audio = {
-  uz: { intro: "Kema issiqxonasida 3 qatorda 4 tadan ko'chat. Jami nechta ko'chat? 3 marta 4", on_correct: "To'g'ri. 3 marta 4 teng 3 ko'paytirish 4 teng 12. Teng qatorlarni qo'shdik.", on_wrong: "Qo'shmang, ko'paytiring. 4 qo'shish 4 qo'shish 4, nechta bo'ladi? Har qatorda 4 tadan." },
-  ru: { intro: "В теплице корабля 3 ряда по 4 ростка. Сколько всего ростков? 3 раза по 4", on_correct: "Верно. 3 раза по 4 равно 3 умножить на 4 равно 12. Сложили равные ряды.", on_wrong: "Не складывай, а умножай. 4 плюс 4 плюс 4, сколько? В каждом ряду по 4." },
-};

@@ -139,9 +139,3 @@ function D17_03Impl(props) {
 export default function D17_03(props) {
   return (<><style>{FX_CSS}</style><D17_03Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D17_03.audio = {
-  uz: { intro: "Ikkita antenna jami 16 kanal ushlaydi, har birida 8 tadan. Bo'sh katakka to'g'ri sonni qo'ying.", on_correct: "To'g'ri. 8 ko'paytirish 2 teng 16. 8 ni 2 marta olsak 16 bo'ladi.", on_wrong: "Maslahat. 8, 16 deb sanang. Nechta 8 kerak bo'ldi?" },
-  ru: { intro: "Две антенны держат 16 каналов, по 8 в каждой. Поставь в пустую клетку верное число.", on_correct: "Верно. 8 умножить на 2 равно 16. Если взять 8 два раза, будет 16.", on_wrong: "Подсказка. Считай 8, 16. Сколько раз взяли 8?" },
-};

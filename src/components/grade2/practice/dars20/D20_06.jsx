@@ -136,9 +136,3 @@ function D20_06Impl(props) {
 export default function D20_06(props) {
   return (<><style>{FX_CSS}</style><D20_06Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D20_06.audio = {
-  uz: { intro: "3 va 4 dan 12 hosil bo'ldi. Shu oilaning 4 a'zosini yig'ing. Oilaga tegishli 4 kartani belgilang bosib tanlang.", on_correct: "To'g'ri. Oila. 3 ko'paytirish 4, 4 ko'paytirish 3, 12 bo'lish 3, 12 bo'lish 4. Bir massiv, bitta oila.", on_wrong: "Maslahat. Oila 3, 4 va 12 dan tuziladi. 12 bo'lish 5 va 3 ko'paytirish 5, boshqa oiladan." },
-  ru: { intro: "Из 3 и 4 получилось 12. Собери 4 члена этой семьи. Отметь 4 карточки этой семьи нажми, чтобы выбрать.", on_correct: "Верно. Семья. 3 умножить на 4, 4 умножить на 3, 12 делить на 3, 12 делить на 4. Один массив, одна семья.", on_wrong: "Подсказка. Семья из 3, 4 и 12. 12 делить на 5 и 3 умножить на 5, из другой семьи." },
-};

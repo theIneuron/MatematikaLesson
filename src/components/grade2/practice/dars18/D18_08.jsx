@@ -144,9 +144,3 @@ function D18_08Impl(props) {
 export default function D18_08(props) {
   return (<><style>{FX_CSS}</style><D18_08Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D18_08.audio = {
-  uz: { intro: "3 ko'paytirish 4 teng 12 ni bilamiz. O'rin almashishdan foydalaning. Bo'sh katakni to'ldiring. 4 ko'paytirish 3 teng qancha", on_correct: "To'g'ri. 4 ko'paytirish 3 teng 3 ko'paytirish 4 teng 12. O'rin almashish yordam berdi.", on_wrong: "Maslahat. 3 ko'paytirish 4 teng 12 ni bilsangiz, 4 ko'paytirish 3 ham 12. O'rin almashdi, xolos." },
-  ru: { intro: "Мы знаем 3 умножить на 4 равно 12. Используй перестановку. Заполни пустую клетку. 4 умножить на 3 равно сколько", on_correct: "Верно. 4 умножить на 3 равно 3 умножить на 4 равно 12. Перестановка помогла.", on_wrong: "Подсказка. Если знаешь 3 умножить на 4 равно 12, то 4 умножить на 3 тоже 12. Просто поменяли местами." },
-};

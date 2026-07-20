@@ -164,9 +164,3 @@ function D08_05Impl(props) {
 export default function D08_05(props) {
   return (<><style>{FX_CSS}</style><D08_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D08_05.audio = {
-  uz: { intro: "Stolbik. 59 ayirish qancha teng 35. Ayriluvchi yashiringan. Yashirin ayriluvchini toping. 59 ayirish qancha teng 35.", on_correct: "To'g'ri. 59 ayirish 24 teng 35 birlik 9 ayirish 4 teng 5, o'nlik 5 ayirish 2 teng 3.", on_wrong: "Maslahat. Kamayuvchidan ayirmani ayiring. 59 ayirish 35 teng? Har ustunni alohida hisoblang." },
-  ru: { intro: "Столбик. 59 минус сколько равно 35. Вычитаемое скрыто. Найди скрытое вычитаемое. 59 минус сколько равно 35.", on_correct: "Верно. 59 минус 24 равно 35 единицы 9 минус 4 равно 5, десятки 5 минус 2 равно 3.", on_wrong: "Подсказка. Из уменьшаемого вычти разность. 59 минус 35 равно? Считай по столбцам." },
-};

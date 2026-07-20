@@ -140,9 +140,3 @@ function D06_01Impl(props) {
 export default function D06_01(props) {
   return (<><style>{FX_CSS}</style><D06_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D06_01.audio = {
-  uz: { intro: "Trassa 0 dan 100 gacha, o'nliklar belgilangan. Kema qaysi sonda turibdi?", on_correct: "To'g'ri. Kema 40 belgisida, to'rtinchi o'nlik.", on_wrong: "Maslahat. Kema qaysi o'nlik belgisida? 0, 10, 20, 30 deb sanang." },
-  ru: { intro: "Трасса от 0 до 100, десятки отмечены. На каком числе стоит корабль?", on_correct: "Верно. Корабль на отметке 40, четвёртый десяток.", on_wrong: "Подсказка. На какой отметке десятков корабль? Считай 0, 10, 20, 30." },
-};

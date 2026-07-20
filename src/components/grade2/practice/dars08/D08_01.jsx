@@ -139,9 +139,3 @@ function D08_01Impl(props) {
 export default function D08_01(props) {
   return (<><style>{FX_CSS}</style><D08_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D08_01.audio = {
-  uz: { intro: "Bazada 59 quvvat. 5 kasseta va 9 batareya. 59 dan 24 ni olib tashlang. 2 kasseta va 4 batareyani bosing.", on_correct: "To'g'ri. 5 ayirish 2 teng 3 kasseta, 9 ayirish 4 teng 5 batareya. Qoldi 35.", on_wrong: "Maslahat. 24 teng 2 o'nlik kasseta va 4 birlik batareya. Aynan shuncha olib tashlang." },
-  ru: { intro: "На базе 59 заряда. 5 кассет и 9 батареек. Убери из 59 число 24. Нажми 2 кассеты и 4 батарейки.", on_correct: "Верно. 5 минус 2 равно 3 кассеты, 9 минус 4 равно 5 батареек. Осталось 35.", on_wrong: "Подсказка. 24 равно 2 десятка кассеты и 4 единицы батарейки. Убери ровно столько." },
-};

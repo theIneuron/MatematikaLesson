@@ -105,9 +105,3 @@ const FX_CSS = `
 export default function D15_02(props) {
   return (<><style>{FX_CSS}</style><D02 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D15_02.audio = {
-  uz: { intro: "5 ga ko'paytmaning oxiri doim 0 yoki 5 bo'ladi. Qaysi sonlar 5 ga ko'paytma bo'la oladi? 2 tasini belgilang.", on_correct: "To'g'ri. 15 teng 5 ko'paytirish 3, 20 teng 5 ko'paytirish 4, oxiri 5 va 0. 18, 22 mos emas.", on_wrong: "Oxirgi raqamga qarang. 5 ga ko'paytmaning oxiri 0 yoki 5." },
-  ru: { intro: "Произведение на 5 всегда оканчивается на 0 или 5. Какие числа могут быть произведением на 5? Отметь 2.", on_correct: "Верно. 15 равно 5 умножить на 3, 20 равно 5 умножить на 4, на 5 и 0. 18, 22, нет.", on_wrong: "Смотри на последнюю цифру. У умножить на 5 она 0 или 5." },
-};

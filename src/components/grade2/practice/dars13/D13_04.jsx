@@ -123,9 +123,3 @@ const FX_CSS = `
 export default function D13_04(props) {
   return (<><style>{FX_CSS}</style><D04 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_04.audio = {
-  uz: { intro: "2 qator, har birida 5 tadan ko'chat. Jami nechta ko'chat? Javobni raqamlardan yasang.", on_correct: "To'g'ri. 2 ko'paytirish 5 teng 5 qo'shish 5 teng 10.", on_wrong: "5 ni ikki marta oling. 5 qo'shish 5. Raqamlardan javob sonini yasang." },
-  ru: { intro: "2 ряда, по 5 ростков в каждом. Сколько всего ростков? Составь ответ из цифр.", on_correct: "Верно. 2 умножить на 5 равно 5 плюс 5 равно 10.", on_wrong: "Возьми 5 два раза. 5 плюс 5. Составь число-ответ из цифр." },
-};

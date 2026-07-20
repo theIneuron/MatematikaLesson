@@ -136,9 +136,3 @@ function D02_04Impl(props) {
 export default function D02_04(props) {
   return (<><style>{FX_CSS}</style><D02_04Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D02_04.audio = {
-  uz: { intro: "Kodni razryadlarga yoyamiz. 45 teng 40 qo'shish? 45 teng 40 qo'shish qancha. Bo'sh katakka qaysi son tushadi?", on_correct: "To'g'ri. 45 teng 40 qo'shish 5. 40, o'nliklar, 5, birliklar.", on_wrong: "Maslahat. 45 ning birlik raqami nechta? 40 ga qancha qo'shsak 45 bo'ladi?" },
-  ru: { intro: "Раскладываем код по разрядам. 45 равно 40 плюс? 45 равно 40 плюс сколько. Какое число в пустой клетке?", on_correct: "Верно. 45 равно 40 плюс 5. 40, десятки, 5, единицы.", on_wrong: "Подсказка. Сколько единиц в 45? Сколько прибавить к 40, чтобы вышло 45?" },
-};

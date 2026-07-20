@@ -131,9 +131,3 @@ function D05_03Impl(props) {
 export default function D05_03(props) {
   return (<><style>{FX_CSS}</style><D05_03Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D05_03.audio = {
-  uz: { intro: "Olti kasseta-dasta, har biri 10 lik. Har dastani bosib, o'nlab sanang. Hammasini sanang.", on_correct: "To'g'ri! 10, 20, 30, 40, 50, 60. Olti dasta, 60.", on_wrong: "Maslahat. Har dasta 10 ta. Birlab emas, o'nlab sanang. 10, 20, 30 va hokazo" },
-  ru: { intro: "Шесть кассет-пачек, каждая по 10. Нажимай каждую пачку и считай десятками. Сосчитай все.", on_correct: "Верно! 10, 20, 30, 40, 50, 60. Шесть пачек, 60.", on_wrong: "Подсказка. В каждой пачке 10. Считай не по одному, а десятками. 10, 20, 30 и так далее" },
-};

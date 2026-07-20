@@ -117,9 +117,3 @@ const FX_CSS = `
 export default function D14_05(props) {
   return (<><style>{FX_CSS}</style><D05 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D14_05.audio = {
-  uz: { intro: "Ko'paytuvchilardan biri yashirin. Qancha ko'paytirish 3 teng 18. Bo'sh katakka mos sonni tanlang. Qancha ko'paytirish 3 teng 18.", on_correct: "To'g'ri. 6 ko'paytirish 3 teng 18.", on_wrong: "3 tadan sanang. 3, 6, 9, 12, 15, va hokazo 18 gacha nechta qadam?" },
-  ru: { intro: "Один из множителей скрыт. Сколько умножить на 3 равно 18. Выбери число для пустой клетки. Сколько умножить на 3 равно 18.", on_correct: "Верно. 6 умножить на 3 равно 18.", on_wrong: "Считай по 3. 3, 6, 9, 12, 15, и так далее Сколько шагов до 18?" },
-};

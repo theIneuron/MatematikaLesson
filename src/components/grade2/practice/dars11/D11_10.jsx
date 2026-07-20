@@ -139,9 +139,3 @@ function D11_10Impl(props) {
 export default function D11_10(props) {
   return (<><style>{FX_CSS}</style><D11_10Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D11_10.audio = {
-  uz: { intro: "34 qo'shish 25 to'g'ri tuzilgan. BIRLIK ustunida qaysi raqamlar turadi? Hammasini belgilang.", on_correct: "To'g'ri. Birlik ustunida 4 va 5 turadi o'nlikda 3 va 2.", on_wrong: "Maslahat. Birlik ustuni, o'ng ustun. 34 ning birligi va 25 ning birligi qaysi?" },
-  ru: { intro: "34 плюс 25 записано верно. Какие цифры стоят в столбце ЕДИНИЦ? Отметь все.", on_correct: "Верно. В единицах стоят 4 и 5 в десятках 3 и 2.", on_wrong: "Подсказка. Столбец единиц, правый. Единицы 34 и единицы 25, какие?" },
-};

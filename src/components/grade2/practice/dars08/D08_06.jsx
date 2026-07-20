@@ -124,9 +124,3 @@ function D08_06Impl(props) {
 export default function D08_06(props) {
   return (<><style>{FX_CSS}</style><D08_06Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D08_06.audio = {
-  uz: { intro: "Mars bazasida 68 quti bor edi. 68 qutidan 25 tasi kemaga jo'natildi. Nechta quti qoldi?", on_correct: "To'g'ri. 68 ayirish 25 teng 43 8 ayirish 5 teng 3, 6 ayirish 2 teng 4.", on_wrong: "Maslahat. Qoldi, ayirish. 68 dan 25 ni ayiring. Birlik va o'nlik alohida." },
-  ru: { intro: "На базе Марса было 68 ящиков. Из 68 ящиков 25 отправили на корабль. Сколько осталось?", on_correct: "Верно. 68 минус 25 равно 43 8 минус 5 равно 3, 6 минус 2 равно 4.", on_wrong: "Подсказка. Осталось, это вычитание. Из 68 вычти 25 по разрядам." },
-};

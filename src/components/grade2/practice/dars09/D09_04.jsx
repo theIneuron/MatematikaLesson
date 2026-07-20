@@ -117,9 +117,3 @@ function D09_04Impl(props) {
 export default function D09_04(props) {
   return (<><style>{FX_CSS}</style><D09_04Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D09_04.audio = {
-  uz: { intro: "Har ifodada birliklarni qo'shing. O'n ga yetsa, o'tishli. Har ifodani to'g'ri ustunga belgilang.", on_correct: "To'g'ri. Birliklar 10 ga yetsa, o'tishli, aks holda, o'tishsiz.", on_wrong: "Maslahat. Faqat birliklarni qo'shib ko'ring. Yig'indi 10 dan katta yoki tengmi?" },
-  ru: { intro: "В каждом выражении сложи единицы. Дошли до десяти, с переходом. Отметь каждое выражение в нужный столбец.", on_correct: "Верно. Единицы дошли до 10, с переходом, иначе, без.", on_wrong: "Подсказка. Сложи только единицы. Сумма 10 или больше?" },
-};

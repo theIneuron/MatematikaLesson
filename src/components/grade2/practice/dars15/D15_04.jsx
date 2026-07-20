@@ -108,9 +108,3 @@ const FX_CSS = `
 export default function D15_04(props) {
   return (<><style>{FX_CSS}</style><D04 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D15_04.audio = {
-  uz: { intro: "Panellar 5 tadan qo'shiladi. 5, 10, 15, 20. Ko'paytmalarni kichikdan kattaga tartiblang.", on_correct: "To'g'ri. 5 tadan. 5, 10, 15, 20.", on_wrong: "5 tadan sanang. Har son avvalgidan 5 ko'p. Eng kichigidan boshlang." },
-  ru: { intro: "Панели прибавляются по 5. 5, 10, 15, 20. Расставь произведения от меньшего к большему.", on_correct: "Верно. По 5. 5, 10, 15, 20.", on_wrong: "Считай по 5. Каждое на 5 больше. Начни с наименьшего." },
-};

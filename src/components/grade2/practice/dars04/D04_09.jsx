@@ -142,9 +142,3 @@ function D04_09Impl(props) {
 export default function D04_09(props) {
   return (<><style>{FX_CSS}</style><D04_09Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D04_09.audio = {
-  uz: { intro: "Son o'qida 60 belgilangan. To'rt kod belgisi bor. 60 ga ENG YAQIN kodni tanlang.", on_correct: "To'g'ri. 54, 60 dan 6 uzoq. 67 esa 7 uzoq. 54 yaqinroq.", on_wrong: "Maslahat. Har kod 60 dan qancha uzoqligini sanang. Masofa kichik bo'lgani, yaqinroq." },
-  ru: { intro: "На оси отмечено 60. Есть четыре кода-метки. Выбери код, ближайший к 60.", on_correct: "Верно. 54, на 6 от 60. А 67, на 7. 54 ближе.", on_wrong: "Подсказка. Посчитай расстояние каждого до 60. У кого меньше, тот ближе." },
-};

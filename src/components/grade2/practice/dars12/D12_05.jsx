@@ -126,9 +126,3 @@ const FX_CSS = `
 export default function D12_05(props) {
   return (<><style>{FX_CSS}</style><D05 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D12_05.audio = {
-  uz: { intro: "Kemada 45 quti bor edi, 20 tasi ortildi, keyin 30 tasi sarflandi. Amallarni to'g'ri tartibda bosing 1, keyin 2.", on_correct: "To'g'ri. Avval 45 qo'shish 20 teng 65 oraliq, keyin 65 ayirish 30 teng 35.", on_wrong: "Voqea tartibi. Avval ortildi, keyin sarflandi. Qaysi amal birinchi?" },
-  ru: { intro: "На корабле было 45 ящиков, 20 загрузили, затем 30 израсходовали. Нажми действия в верном порядке 1, затем 2.", on_correct: "Верно. Сначала 45 плюс 20 равно 65, затем 65 минус 30 равно 35.", on_wrong: "Порядок событий. Сначала загрузили, потом израсходовали. Что первое?" },
-};

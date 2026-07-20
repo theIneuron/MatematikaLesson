@@ -135,9 +135,3 @@ function D05_08Impl(props) {
 export default function D05_08(props) {
   return (<><style>{FX_CSS}</style><D05_08Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D05_08.audio = {
-  uz: { intro: "O'nlab zinapoya. Uchta pog'ona tushib qolgan. Uchta bo'sh pog'onani to'g'ri o'nliklar bilan to'ldiring.", on_correct: "To'g'ri. 10, 20, 30, 40, 50, 60, 70, 80, 90, 100.", on_wrong: "Maslahat. O'nlab sanang. Har pog'ona oldingidan 10 ga katta." },
-  ru: { intro: "Лестница десятками. Три ступени пропали. Заполни три пустые ступени правильными десятками.", on_correct: "Верно. 10, 20, 30, 40, 50, 60, 70, 80, 90, 100.", on_wrong: "Подсказка. Считай десятками. Каждая ступень на 10 больше предыдущей." },
-};

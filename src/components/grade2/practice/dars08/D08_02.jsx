@@ -132,9 +132,3 @@ function D08_02Impl(props) {
 export default function D08_02(props) {
   return (<><style>{FX_CSS}</style><D08_02Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D08_02.audio = {
-  uz: { intro: "Ayirishning uch qismi. Kamayuvchi ayirish ayriluvchi teng ayirma. Yorliqni bosing, keyin mos son ostiga qo'ying.", on_correct: "To'g'ri. 59, kamayuvchi, 24, ayriluvchi, 35, ayirma.", on_wrong: "Maslahat. Yuqoridagi birinchi son, kamayuvchi, olinadigan, ayriluvchi, natija, ayirma." },
-  ru: { intro: "Три части вычитания. Уменьшаемое минус вычитаемое равно разность. Нажми метку, затем поставь под нужное число.", on_correct: "Верно. 59, уменьшаемое, 24, вычитаемое, 35, разность.", on_wrong: "Подсказка. Первое число, уменьшаемое, которое вычитают, вычитаемое, результат, разность." },
-};

@@ -137,9 +137,3 @@ function D20_09Impl(props) {
 export default function D20_09(props) {
   return (<><style>{FX_CSS}</style><D20_09Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D20_09.audio = {
-  uz: { intro: "Zuhra 20 ta kristalni qutilarga terdi, har qutida 5 tadan. Nechta quti kerak bo'ldi?", on_correct: "To'g'ri. 20 bo'lish 5 teng 4. 4 ko'paytirish 5 teng 20, bir oila.", on_wrong: "Maslahat. 20 da nechta 5 bor? 4 ko'paytirish 5 teng 20, demak 20 bo'lish 5 teng 4." },
-  ru: { intro: "Зухра разложила 20 кристаллов по коробкам, по 5 в каждой. Сколько коробок понадобилось?", on_correct: "Верно. 20 делить на 5 равно 4. 4 умножить на 5 равно 20, одна семья.", on_wrong: "Подсказка. Сколько пятёрок в 20? 4 умножить на 5 равно 20, значит 20 делить на 5 равно 4." },
-};

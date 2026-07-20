@@ -122,9 +122,3 @@ function D05_01Impl(props) {
 export default function D05_01(props) {
   return (<><style>{FX_CSS}</style><D05_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D05_01.audio = {
-  uz: { intro: "Raketa 0 da. Har bosishda o'nta oldinga sakraydi. Raketani o'nlab sakratib, aynan 70 ga yetkazing.", on_correct: "To'g'ri! 10, 20, 30, 40, 50, 60, 70, yetti sakrash, 70.", on_wrong: "Maslahat. Har sakrash qo'shish 10. 70 ga yetish uchun 0 dan necha marta sakrash kerak?" },
-  ru: { intro: "Ракета на 0. Каждое нажатие, прыжок на десять вперёд. Прыгай десятками и попади ровно на 70.", on_correct: "Верно! 10, 20, 30, 40, 50, 60, 70, семь прыжков, 70.", on_wrong: "Подсказка. Каждый прыжок плюс 10. Сколько прыжков от 0 до 70?" },
-};

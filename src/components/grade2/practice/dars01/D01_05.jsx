@@ -177,9 +177,3 @@ function D01_05Impl(props) {
 export default function D01_05(props) {
   return (<><style>{FX_CSS}</style><D01_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D01_05.audio = {
-  uz: { intro: "Qo'shish kasseta 10 qo'shadi, qo'shish batareya 1 qo'shadi. Tugmalarni bosib, 58 sonini yasang.", on_correct: "To'g'ri. 5 kasseta 50 va 8 batareya 8. 50 qo'shish 8 teng 58.", on_wrong: "Maslahat. 58 uchun 5 o'nlik va 8 birlik kerak. 50 qo'shish 8 teng 58." },
-  ru: { intro: "Плюс кассета добавляет 10, плюс батарейка добавляет 1. Нажимай кнопки и собери число 58.", on_correct: "Верно. 5 кассет 50 и 8 батареек 8. 50 плюс 8 равно 58.", on_wrong: "Подсказка. Для 58 нужно 5 десятков и 8 единиц. 50 плюс 8 равно 58." },
-};

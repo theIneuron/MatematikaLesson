@@ -127,9 +127,3 @@ const FX_CSS = `
 export default function D12_02(props) {
   return (<><style>{FX_CSS}</style><D02 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D12_02.audio = {
-  uz: { intro: "Kemada 50 zaxira bor edi. 20 tasi tushirildi, keyin 13 tasi ortildi. Qaysi amal BIRINCHI bajariladi?", on_correct: "To'g'ri. Birinchi o'zgarish, 20 tushirildi. 50 ayirish 20.", on_wrong: "Voqealar tartibiga qarang. Birinchi nima sodir bo'ldi?" },
-  ru: { intro: "На корабле было 50 запасов. 20 выгрузили, затем 13 загрузили. Какое действие выполняется ПЕРВЫМ?", on_correct: "Верно. Первое изменение, выгрузили 20. 50 минус 20.", on_wrong: "Смотри на порядок событий. Что произошло первым?" },
-};

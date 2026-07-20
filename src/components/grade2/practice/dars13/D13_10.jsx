@@ -125,9 +125,3 @@ const FX_CSS = `
 export default function D13_10(props) {
   return (<><style>{FX_CSS}</style><D10 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_10.audio = {
-  uz: { intro: "Massivda 4 qator, har birida 3 tadan ko'chat. Qaysi ifoda JAMI ni to'g'ri beradi?", on_correct: "To'g'ri. 4 ko'paytirish 3 teng 12. To'rt qator, har birida 3 tadan.", on_wrong: "Necha qator? Har qatorda nechta? Qator sonini bittadagi songa ko'paytiring." },
-  ru: { intro: "В массиве 4 ряда по 3 ростка. Какое выражение верно даёт ВСЕГО?", on_correct: "Верно. 4 умножить на 3 равно 12. Четыре ряда по 3.", on_wrong: "Сколько рядов? Сколько в ряду? Умножь число рядов на число в ряду." },
-};

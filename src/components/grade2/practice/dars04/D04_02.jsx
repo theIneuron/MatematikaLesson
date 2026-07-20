@@ -121,9 +121,3 @@ function D04_02Impl(props) {
 export default function D04_02(props) {
   return (<><style>{FX_CSS}</style><D04_02Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D04_02.audio = {
-  uz: { intro: "Marshrut 0 dan 100 gacha, o'nliklarga bo'lingan. 56 kodi qaysi ikki o'nlik ORASIDA? To'g'ri bo'lakni bosing.", on_correct: "To'g'ri. 56, 50 va 60 orasida 5 o'nlik va biroz.", on_wrong: "Maslahat. 56 ning o'nlik raqamiga qarang. U qaysi ikki o'nlik orasiga tushadi?" },
-  ru: { intro: "Маршрут от 0 до 100, разбит на десятки. 56 находится МЕЖДУ какими десятками? Нажми нужный отрезок.", on_correct: "Верно. 56, между 50 и 60 5 десятков и немного.", on_wrong: "Подсказка. Посмотри на цифру десятков в 56. Между какими десятками оно?" },
-};

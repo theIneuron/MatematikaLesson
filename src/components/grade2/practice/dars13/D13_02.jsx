@@ -110,9 +110,3 @@ const FX_CSS = `
 export default function D13_02(props) {
   return (<><style>{FX_CSS}</style><D02 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_02.audio = {
-  uz: { intro: "4 uch marta qo'shilyapti. 4 qo'shish 4 qo'shish 4 ni ko'paytirish bilan qanday yozamiz?", on_correct: "To'g'ri. 4 uch marta olindi. 3 ko'paytirish 4. Necha qator, shuncha marta.", on_wrong: "4 nechchi marta qo'shildi? Shuncha marta 4, ko'paytma." },
-  ru: { intro: "4 складывается три раза. Как записать 4 плюс 4 плюс 4 умножением?", on_correct: "Верно. 4 взяли три раза. 3 умножить на 4.", on_wrong: "Сколько раз сложили 4? Столько раз по 4, умножение." },
-};

@@ -139,9 +139,3 @@ function D03_07Impl(props) {
 export default function D03_07(props) {
   return (<><style>{FX_CSS}</style><D03_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D03_07.audio = {
-  uz: { intro: "Nishon kod, 83. Kerakli razryad qismlarini tanlang. Qaysi qismlarni birga olsak, 83 hosil bo'ladi? Tanlang.", on_correct: "To'g'ri. 80 qo'shish 3 teng 83. O'nliklar 80, birliklar 3.", on_wrong: "Maslahat. 83 teng 80 o'nliklar qo'shish 3 birliklar. Yig'indini 83 ga yetkazing." },
-  ru: { intro: "Целевой код, 83. Выбери нужные разрядные части. Какие части вместе дают 83? Отметь их.", on_correct: "Верно. 80 плюс 3 равно 83. Десятки 80, единицы 3.", on_wrong: "Подсказка. 83 равно 80 десятки плюс 3 единицы. Доведи сумму до 83." },
-};

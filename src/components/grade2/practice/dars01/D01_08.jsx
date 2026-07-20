@@ -186,9 +186,3 @@ function D01_08Impl(props) {
 export default function D01_08(props) {
   return (<><style>{FX_CSS}</style><D01_08Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D01_08.audio = {
-  uz: { intro: "6 ta kasseta o'nlik va 5 ta batareya birlik. 6 o'nlik va 5 birlik, bu qaysi son? Raqamlarni bosib tering.", on_correct: "To'g'ri. 6 o'nlik teng 60, 5 birlik teng 5. 60 qo'shish 5 teng 65.", on_wrong: "Maslahat. O'nlik birinchi raqam. 6 o'nlik 5 birlik teng 65, 56 emas." },
-  ru: { intro: "6 кассет десятки и 5 батареек единицы. 6 десятков и 5 единиц, какое число? Набери, нажимая цифры.", on_correct: "Верно. 6 десятков равно 60, 5 единиц равно 5. 60 плюс 5 равно 65.", on_wrong: "Подсказка. Десятки, первая цифра. 6 десятков 5 единиц равно 65, не 56." },
-};

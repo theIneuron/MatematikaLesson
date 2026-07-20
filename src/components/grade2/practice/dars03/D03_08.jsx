@@ -135,9 +135,3 @@ function D03_08Impl(props) {
 export default function D03_08(props) {
   return (<><style>{FX_CSS}</style><D03_08Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D03_08.audio = {
-  uz: { intro: "Ikki sterjen. O'NLIK va BIRLIK. Bosib donacha qo'shiladi. Abakda 30 kodini yig'ing.", on_correct: "To'g'ri. 30 teng 3 o'nlik va 0 birlik. Birlik sterjeni bo'sh!", on_wrong: "Maslahat. 30 da 3 o'nlik bor, birlik esa YO'Q 0. Birlik sterjenini bo'sh qoldiring." },
-  ru: { intro: "Два стержня. ДЕСЯТКИ и ЕДИНИЦЫ. Нажми, добавится бусина. Собери на абаке код 30.", on_correct: "Верно. 30 равно 3 десятка и 0 единиц. Стержень единиц пуст!", on_wrong: "Подсказка. В 30 три десятка, а единиц НЕТ 0. Оставь стержень единиц пустым." },
-};

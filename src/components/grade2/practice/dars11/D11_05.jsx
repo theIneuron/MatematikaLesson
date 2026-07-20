@@ -109,9 +109,3 @@ function D11_05Impl(props) {
 export default function D11_05(props) {
   return (<><style>{FX_CSS}</style><D11_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D11_05.audio = {
-  uz: { intro: "64 teng 6 o'nlik va 4 birlik. 6 o'nlik, bu 60. 64 sonini o'nlar va birlar yig'indisi ko'rinishida qaysi qator to'g'ri ifodalaydi?", on_correct: "To'g'ri. 64 teng 60 qo'shish 4 6 o'nlik teng 60, 4 birlik teng 4.", on_wrong: "Maslahat. 6, o'nlik raqami, u nechani bildiradi? 4, birlik. Ikkalasini qo'shing." },
-  ru: { intro: "64 равно 6 десятков и 4 единицы. 6 десятков, это 60. Какая строка верно выражает 64 как сумму десятков и единиц?", on_correct: "Верно. 64 равно 60 плюс 4 6 десятков равно 60, 4 единицы равно 4.", on_wrong: "Подсказка. 6, цифра десятков, сколько это? 4, единицы. Сложи их." },
-};

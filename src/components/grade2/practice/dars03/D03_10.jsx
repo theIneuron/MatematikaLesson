@@ -131,9 +131,3 @@ function D03_10Impl(props) {
 export default function D03_10(props) {
   return (<><style>{FX_CSS}</style><D03_10Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D03_10.audio = {
-  uz: { intro: "Kodlar aralashib ketdi. Kodlarni KICHIGIDAN kattasiga qarab, ketma-ket bosing.", on_correct: "To'g'ri. 27 kichik 40 kichik 45 kichik 54. Avval o'nlikka, keyin birlikka qaraymiz.", on_wrong: "Maslahat. Avval o'nlikni solishtiring. 27 2 o'nlik eng kichik, 54 5 o'nlik eng katta." },
-  ru: { intro: "Коды перемешались. Нажимай коды по порядку от МЕНЬШЕГО к большему.", on_correct: "Верно. 27 меньше 40 меньше 45 меньше 54. Сначала десятки, потом единицы.", on_wrong: "Подсказка. Сначала сравни десятки. 27 2 дес, меньший, 54 5 дес, больший." },
-};

@@ -140,9 +140,3 @@ function D09_01Impl(props) {
 export default function D09_01(props) {
   return (<><style>{FX_CSS}</style><D09_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D09_01.audio = {
-  uz: { intro: "Birliklar to'plandi. 7 qo'shish 5 teng 12 batareya. 12 batareyadan 10 tasini bosib bitta kassetaga o'tkazing.", on_correct: "To'g'ri. 10 batareya teng 1 kasseta o'nlik ko'chdi, 2 batareya qoldi.", on_wrong: "Maslahat. Aynan 10 batareyani bosing, ular bitta o'nlikka kasseta birlashadi." },
-  ru: { intro: "Единицы собрались. 7 плюс 5 равно 12 батареек. Нажми 10 из 12 батареек, перенеси их в одну кассету.", on_correct: "Верно. 10 батареек равно 1 кассета десяток перешла, осталось 2 батарейки.", on_wrong: "Подсказка. Нажми ровно 10 батареек, они объединятся в один десяток кассету." },
-};

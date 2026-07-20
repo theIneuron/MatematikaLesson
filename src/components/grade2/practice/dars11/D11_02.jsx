@@ -175,9 +175,3 @@ const D11_02Impl = (props) => <PlaceTask {...props} cfg={CFG_02} />;
 export default function D11_02(props) {
   return (<><style>{FX_CSS}</style><D11_02Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D11_02.audio = {
-  uz: { intro: "Yuqorida 43. Bir xonali 5 ni joylaymiz. 5 ni to'g'ri katakka qo'ying. O'nlik katagi bo'sh qoladi.", on_correct: "To'g'ri. Bir xonali son birlik ustuniga tushadi, o'nlik katagi bo'sh.", on_wrong: "Maslahat. 5, bu bir xonali son, ya'ni birlik. U qaysi ustunga tushadi?" },
-  ru: { intro: "Сверху 43. Разместим однозначное 5. Поставь 5 в нужную ячейку. Ячейка десятков остаётся пустой.", on_correct: "Верно. Однозначное число идёт в единицы, ячейка десятков пуста.", on_wrong: "Подсказка. 5, однозначное число, то есть единицы. В какой столбец оно идёт?" },
-};

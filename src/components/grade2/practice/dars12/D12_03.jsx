@@ -134,9 +134,3 @@ const FX_CSS = `
 export default function D12_03(props) {
   return (<><style>{FX_CSS}</style><D03 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D12_03.audio = {
-  uz: { intro: "Kemada 48 quti bor edi. 18 tasi sarflandi, keyin 20 tasi ortildi. 1-amalni bajaring. 48 ayirish 18 teng? Oraliq natija", on_correct: "To'g'ri. 48 ayirish 18 teng 30, bu oraliq natija. Keyin 30 qo'shish 20 teng 50.", on_wrong: "48 dan 18 ni ayiring. Faqat birinchi o'zgarishni bajaring." },
-  ru: { intro: "На корабле было 48 ящиков. 18 израсходовали, затем 20 загрузили. Выполни 1-е действие. 48 минус 18 равно? Промежуточный результат", on_correct: "Верно. 48 минус 18 равно 30, промежуточный результат. Затем 30 плюс 20 равно 50.", on_wrong: "Вычти из 48 число 18. Выполни только первое изменение." },
-};

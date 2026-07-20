@@ -142,9 +142,3 @@ function D16_10Impl(props) {
 export default function D16_10(props) {
   return (<><style>{FX_CSS}</style><D16_10Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D16_10.audio = {
-  uz: { intro: "Eng katta lotok. 6 ta qator, har qatorda 7 ta ko'chat. 6 ko'paytirish 7 nechaga teng? Raqamlarni bosib javobni tering.", on_correct: "To'g'ri. 6 ko'paytirish 7 teng 42. 7 ni 6 marta. 7,14,21,28,35,42", on_wrong: "Maslahat. 7 ni 6 marta sanang, 7,14,21,28,35,42." },
-  ru: { intro: "Самый большой лоток. 6 рядов, в каждом по 7 саженцев. Чему равно 6 умножить на 7? Набери ответ, нажимая цифры.", on_correct: "Верно. 6 умножить на 7 равно 42. 7 шесть раз. 7,14,21,28,35,42", on_wrong: "Подсказка. Посчитай 7 шесть раз, 7,14,21,28,35,42." },
-};

@@ -146,9 +146,3 @@ function D06_07Impl(props) {
 export default function D06_07(props) {
   return (<><style>{FX_CSS}</style><D06_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D06_07.audio = {
-  uz: { intro: "Kema 0 dan 60 gacha 3 ta TENG sakrashda yetdi. Har bir sakrash necha birlik? 0, 60, 3 teng sakrash", on_correct: "To'g'ri. 60 ni 3 ga bo'lsak, har sakrash 20.", on_wrong: "Maslahat. 60 ni 3 teng bo'lakka bo'ling. Har bo'lak necha birlik?" },
-  ru: { intro: "Корабль дошёл от 0 до 60 за 3 РАВНЫХ прыжка. Сколько единиц каждый прыжок? 0, 60, 3 равных прыжка", on_correct: "Верно. 60 делим на 3, каждый прыжок 20.", on_wrong: "Подсказка. Раздели 60 на 3 равные части. Сколько в каждой?" },
-};

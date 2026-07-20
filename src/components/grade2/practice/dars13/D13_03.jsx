@@ -110,9 +110,3 @@ const FX_CSS = `
 export default function D13_03(props) {
   return (<><style>{FX_CSS}</style><D03 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_03.audio = {
-  uz: { intro: "3 ko'paytirish 5, 5 ni uch marta olamiz. 3 ko'paytirish 5 ni qo'shish bilan qanday yoziladi?", on_correct: "To'g'ri. 3 ko'paytirish 5 teng 5 uch marta teng 5 qo'shish 5 qo'shish 5.", on_wrong: "3 ko'paytirish 5, 5 ni nechchi marta olamiz? Shuncha marta 5 ni qo'shing." },
-  ru: { intro: "3 умножить на 5, берём 5 три раза. Как записать 3 умножить на 5 сложением?", on_correct: "Верно. 3 умножить на 5 равно 5 три раза равно 5 плюс 5 плюс 5.", on_wrong: "3 умножить на 5, сколько раз берём 5? Столько раз и сложи." },
-};

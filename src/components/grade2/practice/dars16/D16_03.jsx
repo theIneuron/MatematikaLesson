@@ -140,9 +140,3 @@ function D16_03Impl(props) {
 export default function D16_03(props) {
   return (<><style>{FX_CSS}</style><D16_03Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D16_03.audio = {
-  uz: { intro: "Issiqxonada jami 18 ta ko'chat, har lotokda 6 tadan. Bo'sh katakka to'g'ri sonni qo'ying.", on_correct: "To'g'ri. 6 ko'paytirish 3 teng 18. 6 ni 3 marta olsak 18 bo'ladi.", on_wrong: "Maslahat. 6, 12, 18 deb sanang. Nechta 6 kerak bo'ldi?" },
-  ru: { intro: "В теплице всего 18 саженцев, в каждом лотке по 6. Поставь в пустую клетку верное число.", on_correct: "Верно. 6 умножить на 3 равно 18. Если взять 6 три раза, будет 18.", on_wrong: "Подсказка. Считай 6, 12, 18. Сколько раз взяли 6?" },
-};

@@ -135,9 +135,3 @@ function D16_05Impl(props) {
 export default function D16_05(props) {
   return (<><style>{FX_CSS}</style><D16_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D16_05.audio = {
-  uz: { intro: "Bit ko'paytmalarni hisobladi. Har birini javobiga ulang. Kartani bosing, keyin mos ifodaning bo'sh joyini bosing.", on_correct: "To'g'ri. 6 ko'paytirish 2 teng 12, 7 ko'paytirish 2 teng 14, 6 ko'paytirish 5 teng 30, 7 ko'paytirish 4 teng 28.", on_wrong: "Maslahat. Har birini alohida sanang. 6 ko'paytirish 5, 6,12,18,24,30. 7 ko'paytirish 4, 7,14,21,28." },
-  ru: { intro: "Бит посчитал произведения. Соедини каждое с ответом. Нажми карточку, затем пустое место нужного выражения.", on_correct: "Верно. 6 умножить на 2 равно 12, 7 умножить на 2 равно 14, 6 умножить на 5 равно 30, 7 умножить на 4 равно 28.", on_wrong: "Подсказка. Считай каждое отдельно. 6 умножить на 5, 6,12,18,24,30. 7 умножить на 4, 7,14,21,28." },
-};

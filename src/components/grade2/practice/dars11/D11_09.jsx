@@ -175,9 +175,3 @@ const D11_09Impl = (props) => <PlaceTask {...props} cfg={CFG_09} />;
 export default function D11_09(props) {
   return (<><style>{FX_CSS}</style><D11_09Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D11_09.audio = {
-  uz: { intro: "Anvar 54 ta batareya, yana 5 ta batareya yozmoqchi. 54 va 5 ni ustunlab tuzing. 5 ni to'g'ri katakka qo'ying.", on_correct: "To'g'ri. 5, bir xonali birlik, 4 ning ostiga birlik ustuniga tushadi.", on_wrong: "Maslahat. 5, bir xonali son. U 54 ning qaysi raqami ostiga tushadi?" },
-  ru: { intro: "Анвар записывает 54 батарейки и ещё 5 батареек. Составь 54 и 5 столбиком. Поставь 5 в нужную ячейку.", on_correct: "Верно. 5, однозначное единицы, идёт под 4 в единицы.", on_wrong: "Подсказка. 5, однозначное число. Под какую цифру 54 оно идёт?" },
-};

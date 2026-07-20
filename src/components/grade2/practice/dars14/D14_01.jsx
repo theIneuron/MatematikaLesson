@@ -125,9 +125,3 @@ const FX_CSS = `
 export default function D14_01(props) {
   return (<><style>{FX_CSS}</style><D01 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D14_01.audio = {
-  uz: { intro: "4 guruh, har birida 2 tadan yo'ldosh. 2 tadan sanaymiz. 2, 4, 6, va hokazo Jami nechta yo'ldosh? 4 marta 2", on_correct: "To'g'ri. 2, 4, 6, 8, 4 marta 2 teng 4 ko'paytirish 2 teng 8.", on_wrong: "2 tadan sanang. 2, 4, 6, va hokazo To'rtinchi qadam qayerda? Qo'shmang, sanang." },
-  ru: { intro: "4 группы по 2 спутника. Считаем по 2. 2, 4, 6, и так далее Сколько всего спутников? 4 раза по 2", on_correct: "Верно. 2, 4, 6, 8, 4 раза по 2 равно 4 умножить на 2 равно 8.", on_wrong: "Считай по 2. 2, 4, 6, и так далее Где четвёртый шаг?" },
-};

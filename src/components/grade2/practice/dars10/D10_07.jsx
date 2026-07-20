@@ -124,9 +124,3 @@ function D10_07Impl(props) {
 export default function D10_07(props) {
   return (<><style>{FX_CSS}</style><D10_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D10_07.audio = {
-  uz: { intro: "Mars bazasida 45 batareya bor edi. 45 batareyadan 18 tasi ishlatildi. Nechta batareya qoldi?", on_correct: "To'g'ri. 45 ayirish 18 teng 27 birlik 5 kichik 8, qarz. 15 ayirish 8 teng 7; 3 ayirish 1 teng 2.", on_wrong: "Maslahat. Qoldi, ayirish. Birlik 5 dan 8 ni ayirib bo'lmaydi, qarz oling." },
-  ru: { intro: "На базе Марса было 45 батареек. Из 45 батареек израсходовали 18. Сколько осталось?", on_correct: "Верно. 45 минус 18 равно 27 единицы 5 меньше 8, заём. 15 минус 8 равно 7; 3 минус 1 равно 2.", on_wrong: "Подсказка. Осталось, вычитание. Из 5 нельзя вычесть 8, займи десяток." },
-};

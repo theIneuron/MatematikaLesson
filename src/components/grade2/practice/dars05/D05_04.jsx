@@ -135,9 +135,3 @@ function D05_04Impl(props) {
 export default function D05_04(props) {
   return (<><style>{FX_CSS}</style><D05_04Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D05_04.audio = {
-  uz: { intro: "Orqaga o'nlab sanaymiz, har qadam 10 ga kamayadi. Plitkani bosing, keyin bo'sh joyni bosing. Ikkalasini to'ldiring.", on_correct: "To'g'ri. 90, 80, 70, 60, 50, orqaga o'nlab.", on_wrong: "Maslahat. Orqaga o'nlab, har safar 10 ga kamayadi. 80 dan keyin?" },
-  ru: { intro: "Считаем назад десятками, каждый шаг минус 10. Нажми плитку, затем пустое место. Заполни обе.", on_correct: "Верно. 90, 80, 70, 60, 50, назад десятками.", on_wrong: "Подсказка. Назад десятками, каждый раз минус 10. Что после 80?" },
-};

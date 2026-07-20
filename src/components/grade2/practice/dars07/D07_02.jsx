@@ -164,9 +164,3 @@ function D07_02Impl(props) {
 export default function D07_02(props) {
   return (<><style>{FX_CSS}</style><D07_02Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D07_02.audio = {
-  uz: { intro: "Stolbik. 34 qo'shish 2 qancha teng 59. Birlik raqami yashiringan. Yashirin birlik raqamini toping. Variantlar, ifoda ko'rinishida.", on_correct: "To'g'ri. Birliklar. 4 qo'shish 5 teng 9, demak yashirin raqam 5. 2 qo'shish 3 teng 5", on_wrong: "Maslahat. Birliklar ustuniga qarang, 4 qo'shish qancha teng 9. Qaysi ifoda mos qiymat beradi?" },
-  ru: { intro: "Столбик. 34 плюс 2 сколько равно 59. Цифра единиц скрыта. Найди скрытую цифру единиц. Варианты, в виде выражений.", on_correct: "Верно. Единицы. 4 плюс 5 равно 9, значит скрытая цифра 5. 2 плюс 3 равно 5", on_wrong: "Подсказка. Смотри на столбец единиц, 4 плюс сколько равно 9. Какое выражение даёт нужное значение?" },
-};

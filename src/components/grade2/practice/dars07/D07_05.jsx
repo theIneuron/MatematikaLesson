@@ -163,9 +163,3 @@ function D07_05Impl(props) {
 export default function D07_05(props) {
   return (<><style>{FX_CSS}</style><D07_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D07_05.audio = {
-  uz: { intro: "Stolbik. 3 qancha qo'shish 24 teng 59. Bir raqam yashiringan. Birinchi sonning yetishmagan birlik raqamini toping. 3 qancha qo'shish 24 teng 59.", on_correct: "To'g'ri. 35 qo'shish 24 teng 59 birlik 5 qo'shish 4 teng 9.", on_wrong: "Maslahat. Birliklar ustuniga qarang. Qancha qo'shish 4 teng 9 bo'lishi uchun qancha nechchi?" },
-  ru: { intro: "Столбик. 3 сколько плюс 24 равно 59. Одна цифра скрыта. Найди недостающую цифру единиц первого числа. 3 сколько плюс 24 равно 59.", on_correct: "Верно. 35 плюс 24 равно 59 единицы 5 плюс 4 равно 9.", on_wrong: "Подсказка. Смотри на столбец единиц. Чтобы сколько плюс 4 равно 9, чему равно сколько?" },
-};

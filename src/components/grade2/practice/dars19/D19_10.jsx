@@ -140,9 +140,3 @@ function D19_10Impl(props) {
 export default function D19_10(props) {
   return (<><style>{FX_CSS}</style><D19_10Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D19_10.audio = {
-  uz: { intro: "20 ta kristal, 4 ta halqa-idish. Teng ulang. Har idishga nechtadan tegadi? Raqamni bosib tering.", on_correct: "To'g'ri. 20 bo'lish 4 teng 5. Har idishda 5 tadan.", on_wrong: "Maslahat. 20 ni 4 ga teng ulang. 5 tadan to'g'ri keladi." },
-  ru: { intro: "20 кристаллов, 4 кольца-сосуда. Раздели поровну. Сколько в каждый сосуд? Набери, нажимая цифру.", on_correct: "Верно. 20 делить на 4 равно 5. В каждом сосуде по 5.", on_wrong: "Подсказка. Раздели 20 на 4 поровну. Выходит по 5." },
-};

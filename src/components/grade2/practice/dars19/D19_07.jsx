@@ -139,9 +139,3 @@ function D19_07Impl(props) {
 export default function D19_07(props) {
   return (<><style>{FX_CSS}</style><D19_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D19_07.audio = {
-  uz: { intro: "Bit sirni aytdi. 3 ko'paytirish 4 teng 12. Unda 12 bo'lish 3 teng qancha? Bo'sh katakni to'ldiring.", on_correct: "To'g'ri. 3 ko'paytirish 4 teng 12, demak 12 bo'lish 3 teng 4. Ko'paytirish va bo'lish, bir oila.", on_wrong: "Maslahat. 3 ni nechaga ko'paytirsak 12 bo'ladi? O'sha son, 12 bo'lish 3." },
-  ru: { intro: "Бит открыл секрет. 3 умножить на 4 равно 12. Тогда 12 делить на 3 равно сколько? Заполни клетку.", on_correct: "Верно. 3 умножить на 4 равно 12, значит 12 делить на 3 равно 4. Умножение и деление, одна семья.", on_wrong: "Подсказка. На что умножить 3, чтобы вышло 12? Это число, 12 делить на 3." },
-};

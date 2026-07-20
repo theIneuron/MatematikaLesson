@@ -141,9 +141,3 @@ function D06_03Impl(props) {
 export default function D06_03(props) {
   return (<><style>{FX_CSS}</style><D06_03Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D06_03.audio = {
-  uz: { intro: "Kema 40 va 50 belgilar ORASIDA, aynan o'rtasida. Kema 40 va 50 ning aynan o'rtasida. Bu qaysi son?", on_correct: "To'g'ri. 40 va 50 o'rtasi, 45.", on_wrong: "Maslahat. 40 dan besh birlik oldinga sanang, ikki o'nlikning o'rtasini toping." },
-  ru: { intro: "Корабль МЕЖДУ 40 и 50, ровно посередине. Корабль ровно между 40 и 50. Какое это число?", on_correct: "Верно. Середина 40 и 50, это 45.", on_wrong: "Подсказка. Отсчитай пять единиц от 40, найди середину двух десятков." },
-};

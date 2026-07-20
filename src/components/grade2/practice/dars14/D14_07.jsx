@@ -105,9 +105,3 @@ const FX_CSS = `
 export default function D14_07(props) {
   return (<><style>{FX_CSS}</style><D07 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D14_07.audio = {
-  uz: { intro: "Ba'zi ifodalar bir xil javob beradi. Javobi 12 ga teng 2 ta ifodani belgilang.", on_correct: "To'g'ri. 6 ko'paytirish 2 teng 12 va 4 ko'paytirish 3 teng 12. Boshqalari 10 va 9.", on_wrong: "Har birini hisoblang. 5 ko'paytirish 2 teng 10, 3 ko'paytirish 3 teng 9, 12 emas." },
-  ru: { intro: "Некоторые выражения дают одинаковый ответ. Отметь 2 выражения, равные 12.", on_correct: "Верно. 6 умножить на 2 равно 12 и 4 умножить на 3 равно 12. Остальные 10 и 9.", on_wrong: "Посчитай каждое. 5 умножить на 2 равно 10, 3 умножить на 3 равно 9, не 12." },
-};

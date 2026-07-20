@@ -151,9 +151,3 @@ function D04_07Impl(props) {
 export default function D04_07(props) {
   return (<><style>{FX_CSS}</style><D04_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D04_07.audio = {
-  uz: { intro: "Tarozi pallalarida ikki kodning quvvat yuki. Qaysi kodda quvvat KO'P? Og'irroq pastga engashgan pallani bosing.", on_correct: "To'g'ri. 45 og'irroq. 4 o'nlik katta 3 o'nlik.", on_wrong: "Maslahat. Avval o'nlikka qarang. Qaysi kodda o'nlik ko'p, o'sha og'irroq." },
-  ru: { intro: "На чашах весов заряд двух кодов. У какого кода заряда БОЛЬШЕ? Нажми на тяжёлую опущенную чашу.", on_correct: "Верно. 45 тяжелее. 4 десятка больше 3 десятка.", on_wrong: "Подсказка. Сначала десятки. У какого кода десятков больше, тот и тяжелее." },
-};

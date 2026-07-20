@@ -135,9 +135,3 @@ const FX_CSS = `
 export default function D13_09(props) {
   return (<><style>{FX_CSS}</style><D09 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_09.audio = {
-  uz: { intro: "Massivda 3 qator bor, jami 12 ta. Har qatorda nechta? Yashirin ko'paytuvchini tanlang. 3 ko'paytirish qancha teng 12.", on_correct: "To'g'ri. 3 ko'paytirish 4 teng 12. Har qatorda 4 tadan.", on_wrong: "Bir qatordagi ko'chatlarni sanang. 3 ni nechaga ko'paytirsak 12 bo'ladi?" },
-  ru: { intro: "В массиве 3 ряда, всего 12. Сколько в каждом ряду? Выбери скрытый множитель. 3 умножить на сколько равно 12.", on_correct: "Верно. 3 умножить на 4 равно 12. В каждом ряду по 4.", on_wrong: "Посчитай ростки в одном ряду. На что умножить 3, чтобы вышло 12?" },
-};

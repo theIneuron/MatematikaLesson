@@ -123,9 +123,3 @@ function D11_06Impl(props) {
 export default function D11_06(props) {
   return (<><style>{FX_CSS}</style><D11_06Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D11_06.audio = {
-  uz: { intro: "52 qo'shish 3 uchun uch tuzilma. 52 qo'shish 3 qaysi ustun TO'G'RI tuzilgan?", on_correct: "To'g'ri. 3, birlik, u 2 ning ostiga birlik ustuniga qo'yiladi.", on_wrong: "Maslahat. 3, bir xonali son. U qaysi ustunga tushadi? O'nlik katagi qanday bo'ladi?" },
-  ru: { intro: "Три записи для 52 плюс 3. Какая запись 52 плюс 3 ВЕРНА?", on_correct: "Верно. 3, единицы, ставится под 2 в единицы.", on_wrong: "Подсказка. 3, однозначное число. В какой столбец оно идёт? Какой станет ячейка десятков?" },
-};

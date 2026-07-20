@@ -145,9 +145,3 @@ function D20_01Impl(props) {
 export default function D20_01(props) {
   return (<><style>{FX_CSS}</style><D20_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D20_01.audio = {
-  uz: { intro: "Kristallar 3 qatorda, har qatorda 4 tadan. 3 ko'paytirish 4 teng 12. Unda 12 bo'lish 4 teng qancha?", on_correct: "To'g'ri. 3 ko'paytirish 4 teng 12, demak 12 bo'lish 4 teng 3. Bir oila!", on_wrong: "Maslahat. 12 ni 4 ga bo'ling, ayirmang. 12 bo'lish 4 teng 3, 12 ayirish 4 teng 8 emas." },
-  ru: { intro: "Кристаллы в 3 рядах по 4. 3 умножить на 4 равно 12. Тогда 12 делить на 4 равно сколько?", on_correct: "Верно. 3 умножить на 4 равно 12, значит 12 делить на 4 равно 3. Одна семья!", on_wrong: "Подсказка. Раздели 12 на 4, а не вычитай. 12 делить на 4 равно 3, а не 12 минус 4 равно 8." },
-};

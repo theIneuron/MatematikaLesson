@@ -141,9 +141,3 @@ function D03_04Impl(props) {
 export default function D03_04(props) {
   return (<><style>{FX_CSS}</style><D03_04Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D03_04.audio = {
-  uz: { intro: "Vertikal shkala 0 dan 100 gacha. Surgichni suring. Yoqilg'i darajasini 38 ga surib qo'ying.", on_correct: "To'g'ri. 38 teng 3 o'nlik va 8 birlik. 30 dan 8 ta yuqori.", on_wrong: "Maslahat. 38, 30 va 40 orasida, 30 dan 8 ta yuqorida. Aniq 38 ga surib qo'ying." },
-  ru: { intro: "Вертикальная шкала 0, 100. Тяни ползунок. Установи уровень топлива на 38.", on_correct: "Верно. 38 равно 3 десятка и 8 единиц. На 8 выше 30.", on_wrong: "Подсказка. 38, между 30 и 40, на 8 выше 30. Поставь ровно на 38." },
-};

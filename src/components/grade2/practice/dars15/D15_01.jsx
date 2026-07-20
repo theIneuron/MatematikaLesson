@@ -116,9 +116,3 @@ const FX_CSS = `
 export default function D15_01(props) {
   return (<><style>{FX_CSS}</style><D01 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D15_01.audio = {
-  uz: { intro: "Ko'paytirish 4, bu ko'paytirish 2 ning ikki barobari. 5 ko'paytirish 2 teng 10. 5 ko'paytirish 2 teng 10 bo'lsa, 5 ko'paytirish 4 nechchi?", on_correct: "To'g'ri. 5 ko'paytirish 4 teng 5 ko'paytirish 2 ning ikki barobari. 10 qo'shish 10 teng 20.", on_wrong: "Ko'paytirish 4, ko'paytirish 2 ning ikki barobari. 10 ni ikkilang 10 qo'shish 10." },
-  ru: { intro: "Умножить на 4, это вдвое больше умножить на 2. 5 умножить на 2 равно 10. Если 5 умножить на 2 равно 10, то 5 умножить на 4 сколько?", on_correct: "Верно. 5 умножить на 4 вдвое больше 5 умножить на 2. 10 плюс 10 равно 20.", on_wrong: "Умножить на 4, вдвое больше умножить на 2. Удвой 10 10 плюс 10." },
-};

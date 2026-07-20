@@ -140,9 +140,3 @@ function D20_02Impl(props) {
 export default function D20_02(props) {
   return (<><style>{FX_CSS}</style><D20_02Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D20_02.audio = {
-  uz: { intro: "Kristal oilasida bir a'zo yashiringan. Bo'sh katakni to'ldiring.", on_correct: "To'g'ri. 3 ko'paytirish 4 teng 12. 3 ni 4 ga ko'paytirsak 12 bo'ladi.", on_wrong: "Maslahat. Qaysi son 4 ga ko'paytirilsa 12 bo'ladi? 3 ko'paytirish 4 teng 12." },
-  ru: { intro: "В семье кристаллов спрятан один член. Заполни пустую клетку.", on_correct: "Верно. 3 умножить на 4 равно 12. Если 3 умножить на 4, будет 12.", on_wrong: "Подсказка. Какое число умножить на 4, чтобы вышло 12? 3 умножить на 4 равно 12." },
-};

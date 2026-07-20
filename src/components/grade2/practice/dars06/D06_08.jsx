@@ -136,9 +136,3 @@ function D06_08Impl(props) {
 export default function D06_08(props) {
   return (<><style>{FX_CSS}</style><D06_08Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D06_08.audio = {
-  uz: { intro: "O'nlik belgilarni bosib, bo'lak hosil qilinadi. Trassada 30 dan 60 gacha bo'lakni belgilang boshi va oxirini bosing.", on_correct: "To'g'ri. 30 dan 60 gacha bo'lak, 3 ta o'nlik uzunlikda.", on_wrong: "Maslahat. Bo'lakning boshi 30, oxiri 60. Shu ikki belgini bosing." },
-  ru: { intro: "Нажимая отметки десятков, создаём отрезок. Отметь на трассе отрезок от 30 до 60 нажми начало и конец.", on_correct: "Верно. Отрезок от 30 до 60, длиной 3 десятка.", on_wrong: "Подсказка. Начало отрезка 30, конец 60. Нажми эти две отметки." },
-};

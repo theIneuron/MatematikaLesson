@@ -116,9 +116,3 @@ function D04_08Impl(props) {
 export default function D04_08(props) {
   return (<><style>{FX_CSS}</style><D04_08Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D04_08.audio = {
-  uz: { intro: "To'rt kod suzib turibdi. Eng KATTA kodni toping.", on_correct: "To'g'ri. 84 eng katta. 8 o'nlik, hammasidan ko'p.", on_wrong: "Maslahat. Avval o'nlikka qarang. Qaysi kodda o'nlik eng ko'p?" },
-  ru: { intro: "Четыре кода плавают. Найди самый БОЛЬШОЙ код.", on_correct: "Верно. 84, наибольший. 8 десятков больше всех.", on_wrong: "Подсказка. Сначала десятки. У какого кода десятков больше всего?" },
-};

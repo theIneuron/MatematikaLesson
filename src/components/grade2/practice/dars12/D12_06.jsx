@@ -128,9 +128,3 @@ const FX_CSS = `
 export default function D12_06(props) {
   return (<><style>{FX_CSS}</style><D06 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D12_06.audio = {
-  uz: { intro: "Zanjirdagi ikkinchi qo'shiluvchi yashiringan. Yashirin sonni toping. 50 ayirish 20 qo'shish qancha teng 40.", on_correct: "To'g'ri. 50 ayirish 20 teng 30; 30 qo'shish 10 teng 40.", on_wrong: "Avval 50 ayirish 20 teng 30 ni toping. 30 ga qancha qo'shsak 40 bo'ladi?" },
-  ru: { intro: "Второе слагаемое в цепочке скрыто. Найди скрытое число. 50 минус 20 плюс сколько равно 40.", on_correct: "Верно. 50 минус 20 равно 30; 30 плюс 10 равно 40.", on_wrong: "Сначала найди 50 минус 20 равно 30. Сколько прибавить к 30, чтобы вышло 40?" },
-};

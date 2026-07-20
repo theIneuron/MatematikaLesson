@@ -102,9 +102,3 @@ const FX_CSS = `
 export default function D13_07(props) {
   return (<><style>{FX_CSS}</style><D07 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_07.audio = {
-  uz: { intro: "To'rt ko'paytirish qo'shishga aylantirilgan, bittasi noto'g'ri. Noto'g'ri aylantirilgan qatorni toping.", on_correct: "To'g'ri. 4 ko'paytirish 2 teng 2 qo'shish 2 qo'shish 2 qo'shish 2 to'rt marta, uch marta emas.", on_wrong: "Har birida son necha marta qo'shilgan? Ko'paytuvchiga qarang." },
-  ru: { intro: "Четыре умножения превращены в сложение, одно неверно. Найди неверно превращённую строку.", on_correct: "Верно. 4 умножить на 2 равно 2 плюс 2 плюс 2 плюс 2 четыре раза, а не три.", on_wrong: "Сколько раз складывается число? Смотри на множитель." },
-};

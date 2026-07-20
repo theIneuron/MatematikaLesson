@@ -142,9 +142,3 @@ function D03_05Impl(props) {
 export default function D03_05(props) {
   return (<><style>{FX_CSS}</style><D03_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D03_05.audio = {
-  uz: { intro: "Chapda kodlar, o'ngda razryad yozuvlari. Bir-biriga teng sonlarni juftlang.", on_correct: "To'g'ri. 45 teng 40 qo'shish 5, 28 teng 20 qo'shish 8.", on_wrong: "Maslahat. Har kodni razryadga yoying. 45 teng 40 qo'shish 5, 28 teng 20 qo'shish 8." },
-  ru: { intro: "Слева коды, справа записи разрядов. Соедини равные между собой числа.", on_correct: "Верно. 45 равно 40 плюс 5, 28 равно 20 плюс 8.", on_wrong: "Подсказка. Разложи каждый код. 45 равно 40 плюс 5, 28 равно 20 плюс 8." },
-};

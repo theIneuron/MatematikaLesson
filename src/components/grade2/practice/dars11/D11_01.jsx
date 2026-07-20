@@ -175,9 +175,3 @@ const D11_01Impl = (props) => <PlaceTask {...props} cfg={CFG_01} />;
 export default function D11_01(props) {
   return (<><style>{FX_CSS}</style><D11_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D11_01.audio = {
-  uz: { intro: "Yuqorida 34 turibdi. Pastga 25 ni joylaymiz. 25 ni to'g'ri joylang. 2 va 5 ni mos ustunga qo'ying.", on_correct: "To'g'ri. 2, o'nlik ustuni, 5, birlik ustuni.", on_wrong: "Maslahat. Birlik ostiga birlik, o'nlik ostiga o'nlik. 25 sonida qaysi raqam birlik, qaysi biri o'nlik ekanini aniqlang." },
-  ru: { intro: "Сверху 34. Снизу разместим 25. Размести 25 верно. 2 и 5 в нужный столбец.", on_correct: "Верно. 2, десятки, 5, единицы.", on_wrong: "Подсказка. Единицы под единицы, десятки под десятки. Определи, какая цифра в 25, единицы, какая, десятки." },
-};

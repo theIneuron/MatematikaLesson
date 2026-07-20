@@ -129,9 +129,3 @@ function D04_03Impl(props) {
 export default function D04_03(props) {
   return (<><style>{FX_CSS}</style><D04_03Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D04_03.audio = {
-  uz: { intro: "O'nliklar teng. Birlik hal qiladi. 5 qancha katta 58 to'g'ri bo'lishi uchun bo'sh katakka qaysi raqam mos?", on_correct: "To'g'ri. 59 katta 58. O'nliklar teng 5, birlik 9 katta 8.", on_wrong: "Maslahat. O'nliklar teng 5 teng 5, birlik hal qiladi. Qaysi raqam 5 qancha ni 58 dan katta qiladi?" },
-  ru: { intro: "Десятки равны. Решают единицы. Какая цифра в пустой клетке сделает 5 сколько больше 58 верным?", on_correct: "Верно. 59 больше 58. Десятки равны 5, единицы 9 больше 8.", on_wrong: "Подсказка. Десятки равны 5 равно 5, решают единицы. Какая цифра сделает 5 сколько больше 58?" },
-};

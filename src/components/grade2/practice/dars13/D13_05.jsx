@@ -105,9 +105,3 @@ const FX_CSS = `
 export default function D13_05(props) {
   return (<><style>{FX_CSS}</style><D05 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_05.audio = {
-  uz: { intro: "Ko'paytirish faqat qatorlar TENG bo'lsa mumkin. Qaysi qatorlar teng ko'paytirsa bo'ladi? Belgilang.", on_correct: "To'g'ri. 3 qo'shish 3 qo'shish 3 va 5 qo'shish 5, qatorlar teng, ko'paytirsa bo'ladi.", on_wrong: "Har qatorda son BIR XIL bo'lsa, teng. 2 qo'shish 4 qo'shish 2 da sonlar har xil." },
-  ru: { intro: "Умножать можно, только если ряды РАВНЫ. Где ряды равны можно умножить? Отметь.", on_correct: "Верно. 3 плюс 3 плюс 3 и 5 плюс 5, ряды равны, можно умножить.", on_wrong: "Ряды равны, если число ОДИНАКОВО. В 2 плюс 4 плюс 2 числа разные." },
-};

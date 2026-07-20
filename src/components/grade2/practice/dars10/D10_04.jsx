@@ -116,9 +116,3 @@ function D10_04Impl(props) {
 export default function D10_04(props) {
   return (<><style>{FX_CSS}</style><D10_04Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D10_04.audio = {
-  uz: { intro: "Har ayirishda birliklarga qarang. Yuqori birlik pastdan kichik bo'lsa, qarz kerak. Har ayirishni to'g'ri ustunga belgilang.", on_correct: "To'g'ri. Yuqori birlik pastdan kichik bo'lsa, qarz kerak.", on_wrong: "Maslahat. Faqat birlik raqamlarini solishtiring. Yuqoridagi kichikmi?" },
-  ru: { intro: "Смотри на единицы. Если верхняя единица меньше нижней, нужен заём. Отметь каждое вычитание в нужный столбец.", on_correct: "Верно. Если верхняя единица меньше нижней, нужен заём.", on_wrong: "Подсказка. Сравни только цифры единиц. Верхняя меньше?" },
-};

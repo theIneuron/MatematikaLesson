@@ -136,9 +136,3 @@ function D06_05Impl(props) {
 export default function D06_05(props) {
   return (<><style>{FX_CSS}</style><D06_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D06_05.audio = {
-  uz: { intro: "Trassada 20 va 60 belgilangan. 20 va 60 ning aynan o'rtasidagi belgini bosing.", on_correct: "To'g'ri. 20 va 60 o'rtasi, 40 ikki tomondan 20 birlik.", on_wrong: "Maslahat. O'rta ikki tomondan teng uzoqlikda. 20 dan 20, 60 dan 20." },
-  ru: { intro: "На трассе отмечены 20 и 60. Нажми отметку ровно посередине между 20 и 60.", on_correct: "Верно. Середина 20 и 60, это 40 по 20 с каждой стороны.", on_wrong: "Подсказка. Середина одинаково далеко с обеих сторон. По 20 от 20 и от 60." },
-};

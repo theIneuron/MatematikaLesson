@@ -102,9 +102,3 @@ const FX_CSS = `
 export default function D15_07(props) {
   return (<><style>{FX_CSS}</style><D07 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D15_07.audio = {
-  uz: { intro: "To'rttadan uchtasi 5 ga ko'paytirish, biri ortiqcha. 5 ga ko'paytirish EMAS bo'lganini ortiqchasini toping.", on_correct: "To'g'ri. 3 ko'paytirish 4 da 5 yo'q, u ortiqcha. Qolganlarida 5 bor.", on_wrong: "Qaysi ifodada 5 ga ko'paytirish yo'q? Ko'paytuvchilarga qarang." },
-  ru: { intro: "Три из четырёх, умножение на 5, одно лишнее. Найди лишнее НЕ умножение на 5.", on_correct: "Верно. В 3 умножить на 4 нет пятёрки, оно лишнее. В остальных есть 5.", on_wrong: "В каком выражении нет умножения на 5? Смотри на множители." },
-};

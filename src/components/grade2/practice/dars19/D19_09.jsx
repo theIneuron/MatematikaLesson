@@ -122,9 +122,3 @@ function D19_09Impl(props) {
 export default function D19_09(props) {
   return (<><style>{FX_CSS}</style><D19_09Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D19_09.audio = {
-  uz: { intro: "Uch xil ulash. Bittasi teng emas. Qaysi ulash TENG EMAS?", on_correct: "To'g'ri. 10 ni 3 ga teng ulab bo'lmaydi 4, 3, 3, bittasi ortiqcha.", on_wrong: "Maslahat. Har ulashda guruhlar teng bo'lsin. 4, 3, 3, teng emas." },
-  ru: { intro: "Три раздачи. Одна не поровну. Какая раздача НЕ ПОРОВНУ?", on_correct: "Верно. 10 на 3 поровну не делится 4, 3, 3, один лишний.", on_wrong: "Подсказка. В равной раздаче группы одинаковы. 4, 3, 3, не поровну." },
-};

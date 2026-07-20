@@ -128,9 +128,3 @@ const FX_CSS = `
 export default function D15_06(props) {
   return (<><style>{FX_CSS}</style><D06 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D15_06.audio = {
-  uz: { intro: "4 ga ko'paytirish qatori. Har katak avvalgidan 4 ko'p. Bo'sh katakka mos sonni tanlang 3 marta 4.", on_correct: "To'g'ri. 4, 8, 12, 16, 20, bo'sh katak 12.", on_wrong: "Avvalgi katakka 4 qo'shing. 8 dan keyin nechchi?" },
-  ru: { intro: "Строка умножить на 4. Каждая клетка на 4 больше. Выбери число для пустой клетки 3 раза по 4.", on_correct: "Верно. 4, 8, 12, 16, 20, пустая клетка 12.", on_wrong: "Прибавь 4 к предыдущей. Что после 8?" },
-};

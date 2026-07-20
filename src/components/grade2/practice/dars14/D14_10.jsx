@@ -105,9 +105,3 @@ const FX_CSS = `
 export default function D14_10(props) {
   return (<><style>{FX_CSS}</style><D10 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D14_10.audio = {
-  uz: { intro: "Har ko'paytirishni javobiga ulang. Chapdagini bosing, so'ng o'ngdan mos javobni tanlang.", on_correct: "To'g'ri. 7 ko'paytirish 2 teng 14; 6 ko'paytirish 3 teng 18; 4 ko'paytirish 2 teng 8.", on_wrong: "Har birini sanang. 2 tadan yoki 3 tadan. Mos javobni toping." },
-  ru: { intro: "Соедини каждое умножение с ответом. Нажми слева, затем выбери ответ справа.", on_correct: "Верно. 7 умножить на 2 равно 14; 6 умножить на 3 равно 18; 4 умножить на 2 равно 8.", on_wrong: "Посчитай каждое. По 2 или по 3. Найди ответ." },
-};

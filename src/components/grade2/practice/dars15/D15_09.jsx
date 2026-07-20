@@ -123,9 +123,3 @@ const FX_CSS = `
 export default function D15_09(props) {
   return (<><style>{FX_CSS}</style><D09 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D15_09.audio = {
-  uz: { intro: "Ko'paytuvchilardan biri yashirin. Yashirin ko'paytuvchini toping. Qancha ko'paytirish 4 teng 24.", on_correct: "To'g'ri. 6 ko'paytirish 4 teng 24.", on_wrong: "4 tadan sanang. 4, 8, 12, 16, 20, va hokazo 24 gacha nechta qadam?" },
-  ru: { intro: "Один из множителей скрыт. Найди скрытый множитель. Сколько умножить на 4 равно 24.", on_correct: "Верно. 6 умножить на 4 равно 24.", on_wrong: "Считай по 4. 4, 8, 12, 16, 20, и так далее Сколько шагов до 24?" },
-};

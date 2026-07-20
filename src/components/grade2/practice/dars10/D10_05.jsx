@@ -182,9 +182,3 @@ function D10_05Impl(props) {
 export default function D10_05(props) {
   return (<><style>{FX_CSS}</style><D10_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D10_05.audio = {
-  uz: { intro: "Stolbik 52 ayirish 27. O'nlik 5 chizilgan 4 bo'lgan, birlik 2 ustida 12 ko'rinadi. Birlik 12 ayirish 7, o'nlik qarzdan keyin 4 ayirish 2. Javobni tering.", on_correct: "To'g'ri. 12 ayirish 7 teng 5, 4 ayirish 2 teng 2. Javob 25.", on_wrong: "Maslahat. Birlik 12 ayirish 7 ni yeching. So'ng o'nliklarni. Qarzdan keyin 4 ayirish 2." },
-  ru: { intro: "Столбик 52 минус 27. Десяток 5 зачёркнут стало 4, над 2 видно 12. Единицы 12 минус 7, десятки после займа 4 минус 2. Набери ответ.", on_correct: "Верно. 12 минус 7 равно 5, 4 минус 2 равно 2. Ответ 25.", on_wrong: "Подсказка. Реши единицы 12 минус 7. Потом десятки. После займа 4 минус 2." },
-};

@@ -123,9 +123,3 @@ function D20_03Impl(props) {
 export default function D20_03(props) {
   return (<><style>{FX_CSS}</style><D20_03Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D20_03.audio = {
-  uz: { intro: "Zuhra shunday dedi. Zuhra to'g'ri aytdimi?", on_correct: "To'g'ri! 3 ko'paytirish 4 teng 12 bo'lgani uchun 12 bo'lish 3 teng 4. Ular bir oila.", on_wrong: "Maslahat. Ko'paytirish va bo'lish bir-birini tekshiradi. 3 ko'paytirish 4 teng 12, 12 bo'lish 3 teng 4." },
-  ru: { intro: "Зухра сказала так. Зухра права?", on_correct: "Верно! Так как 3 умножить на 4 равно 12, то 12 делить на 3 равно 4. Они одна семья.", on_wrong: "Подсказка. Умножение и деление проверяют друг друга. 3 умножить на 4 равно 12, 12 делить на 3 равно 4." },
-};

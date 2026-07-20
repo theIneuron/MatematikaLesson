@@ -125,9 +125,3 @@ const FX_CSS = `
 export default function D13_08(props) {
   return (<><style>{FX_CSS}</style><D08 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D13_08.audio = {
-  uz: { intro: "Zuhra 3 qatorga, har biriga 5 tadan ko'chat ekdi. Zuhra jami nechta ko'chat ekdi?", on_correct: "To'g'ri. 3 ko'paytirish 5 teng 15. Uch qator, har birida 5 tadan.", on_wrong: "Har qatorda 5 tadan, 3 qator. 5 ni uch marta oling." },
-  ru: { intro: "Зухра посадила 3 ряда по 5 ростков. Сколько всего ростков посадила Зухра?", on_correct: "Верно. 3 умножить на 5 равно 15. Три ряда по 5.", on_wrong: "В каждом ряду по 5, рядов 3. Возьми 5 три раза." },
-};

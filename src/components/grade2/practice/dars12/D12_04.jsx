@@ -127,9 +127,3 @@ const FX_CSS = `
 export default function D12_04(props) {
   return (<><style>{FX_CSS}</style><D04 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D12_04.audio = {
-  uz: { intro: "Kemada 30 quti bor edi. 25 tasi ortildi, keyin 15 tasi tushirildi. Qaysi ifoda masalaga mos keladi?", on_correct: "To'g'ri. Ortildi, qo'shish qo'shish 25, tushirildi, ayirish ayirish 15. 30 qo'shish 25 ayirish 15.", on_wrong: "Har o'zgarishni belgiga aylantiring. Ortildi, qo'shish, tushirildi, ayirish." },
-  ru: { intro: "На корабле было 30 ящиков. 25 загрузили, затем 15 выгрузили. Какое выражение подходит к задаче?", on_correct: "Верно. Загрузили, плюс плюс 25, выгрузили, минус минус 15. 30 плюс 25 минус 15.", on_wrong: "Переведи каждое изменение в знак. Загрузили, плюс, выгрузили, минус." },
-};

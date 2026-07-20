@@ -135,9 +135,3 @@ function D20_05Impl(props) {
 export default function D20_05(props) {
   return (<><style>{FX_CSS}</style><D20_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D20_05.audio = {
-  uz: { intro: "Kristal oilasi. 2 ko'paytirish 5 teng 10, 10 bo'lish 2 teng 5. Oilaning bo'sh a'zosini toping. 10 bo'lish 5 teng qancha", on_correct: "To'g'ri. 10 bo'lish 5 teng 2. Oila to'ldi. 2 ko'paytirish 5 teng 10, 10 bo'lish 2 teng 5, 10 bo'lish 5 teng 2.", on_wrong: "Maslahat. 10 ni 5 ga bo'ling. 2 ko'paytirish 5 teng 10 bo'lgani uchun 10 bo'lish 5 teng 2." },
-  ru: { intro: "Семья кристаллов. 2 умножить на 5 равно 10, 10 делить на 2 равно 5. Найди пропущенного члена. 10 делить на 5 равно сколько", on_correct: "Верно. 10 делить на 5 равно 2. Семья готова. 2 умножить на 5 равно 10, 10 делить на 2 равно 5, 10 делить на 5 равно 2.", on_wrong: "Подсказка. Раздели 10 на 5. Так как 2 умножить на 5 равно 10, то 10 делить на 5 равно 2." },
-};

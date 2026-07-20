@@ -140,9 +140,3 @@ function D16_09Impl(props) {
 export default function D16_09(props) {
   return (<><style>{FX_CSS}</style><D16_09Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D16_09.audio = {
-  uz: { intro: "Madina issiqxonaga lotoklar tayyorladi. Har lotokda 7 ta ko'chat, jami 6 ta lotok. Hammasi bo'lib nechta ko'chat bor?", on_correct: "To'g'ri. 7 ta ko'chatdan 6 lotok. 7 ko'paytirish 6 teng 42.", on_wrong: "Maslahat. 7 ni 6 marta oling. 7,14,21,28,35,42. 7 qo'shish 6 teng 13, bu qo'shish." },
-  ru: { intro: "Мадина приготовила лотки в теплицу. В каждом 7 саженцев, всего 6 лотков. Сколько всего саженцев?", on_correct: "Верно. По 7 саженцев в 6 лотках. 7 умножить на 6 равно 42.", on_wrong: "Подсказка. Возьми 7 шесть раз. 7,14,21,28,35,42. 7 плюс 6 равно 13, это сложение." },
-};

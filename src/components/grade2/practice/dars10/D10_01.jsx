@@ -138,9 +138,3 @@ function D10_01Impl(props) {
 export default function D10_01(props) {
   return (<><style>{FX_CSS}</style><D10_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D10_01.audio = {
-  uz: { intro: "52 teng 5 kasseta qo'shish 2 batareya. Birlikdan 7 ni ayirish kerak, ammo faqat 2 batareya bor. Birlik yetmadi. Bitta kassetani bosib oching, u 10 batareyaga aylanadi.", on_correct: "To'g'ri. Bitta o'nlik kasseta ochildi. 10 qo'shish 2 teng 12 batareya. Endi 12 ayirish 7 mumkin.", on_wrong: "Maslahat. Faqat BITTA kassetani oching. U 10 batareyaga bo'linadi va birlik yetadi." },
-  ru: { intro: "52 равно 5 кассет плюс 2 батарейки. Нужно вычесть 7 единиц, но батареек только 2. Единиц не хватает. Нажми одну кассету, она станет 10 батарейками.", on_correct: "Верно. Один десяток кассета открыт. 10 плюс 2 равно 12 батареек. Теперь можно 12 минус 7.", on_wrong: "Подсказка. Открой только ОДНУ кассету. Она разложится на 10 батареек, и единиц хватит." },
-};

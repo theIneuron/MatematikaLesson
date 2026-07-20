@@ -121,9 +121,3 @@ function D10_02Impl(props) {
 export default function D10_02(props) {
   return (<><style>{FX_CSS}</style><D10_02Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D10_02.audio = {
-  uz: { intro: "52 ayirish 27. Birlik 2 dan 7 ni ayirib bo'lmaydi. O'nlikdan qarz olindi. Qarz oldik, birlik 12 bo'ldi. 12 ayirish 7 nechchi?", on_correct: "To'g'ri. 12 ayirish 7 teng 5. Bu birlik ustunidagi ayirma.", on_wrong: "Maslahat. Qarzdan keyin birlik 12. O'n ikkidan yettini ayiring, natija bittalik son." },
-  ru: { intro: "52 минус 27. Из 2 нельзя вычесть 7. Заняли десяток. Заняли десяток, единиц стало 12. Сколько 12 минус 7?", on_correct: "Верно. 12 минус 7 равно 5. Это разность в столбце единиц.", on_wrong: "Подсказка. После займа единиц 12. Вычти семь из двенадцати, результат, однозначное число." },
-};

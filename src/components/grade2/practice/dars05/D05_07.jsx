@@ -133,9 +133,3 @@ function D05_07Impl(props) {
 export default function D05_07(props) {
   return (<><style>{FX_CSS}</style><D05_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D05_07.audio = {
-  uz: { intro: "Displeyda yaxlit o'nlik kod. 80 kodida nechta o'nlik dasta bor?", on_correct: "To'g'ri. 80 teng 8 o'nlik 8 dasta. Har dasta, 10.", on_wrong: "Maslahat. 80 teng 8 ta o'ntalik. Nechta dasta 80 ni beradi?" },
-  ru: { intro: "На дисплее круглый код десятков. Сколько десятков пачек в коде 80?", on_correct: "Верно. 80 равно 8 десятков 8 пачек. Каждая пачка, 10.", on_wrong: "Подсказка. 80 равно 8 десятков. Сколько пачек дают 80?" },
-};

@@ -134,9 +134,3 @@ function D06_02Impl(props) {
 export default function D06_02(props) {
   return (<><style>{FX_CSS}</style><D06_02Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D06_02.audio = {
-  uz: { intro: "Trassada faqat 0 va 100 yozilgan. Qolgan belgilar bo'sh. 60 qaysi belgida turadi? To'g'ri belgini bosing.", on_correct: "To'g'ri. 60, oltinchi o'nlik belgisi 0 dan 6 ta o'nlik.", on_wrong: "Maslahat. 0 dan boshlab o'nlab sanang. 10, 20, 30, 40, 50, 60." },
-  ru: { intro: "На трассе подписаны только 0 и 100. Остальные пусты. На какой отметке стоит 60? Нажми нужную.", on_correct: "Верно. 60, шестая отметка десятков 6 десятков от 0.", on_wrong: "Подсказка. Считай от 0 десятками. 10, 20, 30, 40, 50, 60." },
-};

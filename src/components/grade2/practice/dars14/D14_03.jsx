@@ -129,9 +129,3 @@ const FX_CSS = `
 export default function D14_03(props) {
   return (<><style>{FX_CSS}</style><D03 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D14_03.audio = {
-  uz: { intro: "2 ga ko'paytirish jadvali qatori. Har katak avvalgidan 2 ko'p. Bo'sh katakni to'ping 3 marta 2.", on_correct: "To'g'ri. 2, 4, 6, 8, 10, bo'sh katak 6 3 ko'paytirish 2.", on_wrong: "Avvalgi katakka 2 qo'shing. 4 dan keyin nechchi? Ketma-ketlikka qarang." },
-  ru: { intro: "Строка таблицы умножить на 2. Каждая клетка на 2 больше. Заполни пустую клетку 3 раза по 2.", on_correct: "Верно. 2, 4, 6, 8, 10, пустая клетка 6 3 умножить на 2.", on_wrong: "Прибавь 2 к предыдущей. Что после 4? Смотри на ряд." },
-};

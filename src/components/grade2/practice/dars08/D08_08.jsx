@@ -174,9 +174,3 @@ function D08_08Impl(props) {
 export default function D08_08(props) {
   return (<><style>{FX_CSS}</style><D08_08Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D08_08.audio = {
-  uz: { intro: "Stolbik 76 ayirish 32. Ikkala ustun ayiriladi. Ustunlab ayiring. Avval birliklar, keyin o'nliklar. Javobni tering.", on_correct: "To'g'ri. 6 ayirish 2 teng 4, 7 ayirish 3 teng 4. Javob 44.", on_wrong: "Maslahat. Birliklarni ayiring 6 ayirish 2, keyin o'nliklarni 7 ayirish 3. Har raqamni o'rniga yozing." },
-  ru: { intro: "Столбик 76 минус 32. Вычитают оба столбца. Вычти столбиком. Сначала единицы, потом десятки. Набери ответ.", on_correct: "Верно. 6 минус 2 равно 4, 7 минус 3 равно 4. Ответ 44.", on_wrong: "Подсказка. Вычти единицы 6 минус 2, затем десятки 7 минус 3. Каждую цифру на место." },
-};

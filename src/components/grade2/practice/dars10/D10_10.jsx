@@ -116,9 +116,3 @@ function D10_10Impl(props) {
 export default function D10_10(props) {
   return (<><style>{FX_CSS}</style><D10_10Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D10_10.audio = {
-  uz: { intro: "52 ayirish 27. Birlik 2 dan 7 ni ayirib bo'lmaydi. Birlik yetmasa, bitta o'nlikni qayerdan qarz olamiz?", on_correct: "To'g'ri. Qo'shni o'nliklar ustunidan 1 o'nlik qarz olinadi.", on_wrong: "Maslahat. Qarz yonidagi katta razryaddan olinadi. Birlikning qo'shnisi qaysi ustun?" },
-  ru: { intro: "52 минус 27. Из 2 нельзя вычесть 7. Если единиц не хватает, откуда занимаем один десяток?", on_correct: "Верно. Один десяток занимаем из соседнего столбца десятков.", on_wrong: "Подсказка. Заём берут из соседнего старшего разряда. Какой сосед у единиц?" },
-};

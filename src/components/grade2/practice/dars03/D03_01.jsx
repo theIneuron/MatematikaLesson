@@ -128,9 +128,3 @@ function D03_01Impl(props) {
 export default function D03_01(props) {
   return (<><style>{FX_CSS}</style><D03_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D03_01.audio = {
-  uz: { intro: "Bir necha yozuv bir xil kodni bildirishi mumkin. Qaysi yozuvlar 56 ga teng? 2 tasini belgilang.", on_correct: "To'g'ri. 56 teng 50 qo'shish 6 teng 5 o'nlik 6 birlik. Ikkalasi ham to'g'ri.", on_wrong: "Maslahat. 56 teng 5 o'nlik va 6 birlik. 60 qo'shish 5 va 65, o'rin almashgan, 5 qo'shish 6, qo'shish." },
-  ru: { intro: "Несколько записей могут означать один код. Какие записи равны 56? Отметьте 2.", on_correct: "Верно. 56 равно 50 плюс 6 равно 5 десятков 6 единиц. Обе верны.", on_wrong: "Подсказка. 56 равно 5 десятков и 6 единиц. 60 плюс 5 и 65, перестановка, 5 плюс 6, сложение." },
-};

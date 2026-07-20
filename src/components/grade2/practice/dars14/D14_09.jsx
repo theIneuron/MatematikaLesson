@@ -102,9 +102,3 @@ const FX_CSS = `
 export default function D14_09(props) {
   return (<><style>{FX_CSS}</style><D09 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D14_09.audio = {
-  uz: { intro: "To'rt ko'paytirish yozilgan, bittasi noto'g'ri. Noto'g'ri javobni toping.", on_correct: "To'g'ri. 3 ko'paytirish 5 teng 15 bo'lishi kerak, 14 emas.", on_wrong: "Har birini tekshiring. 3 tadan besh marta sanang. 3, 6, 9, 12, va hokazo" },
-  ru: { intro: "Записаны четыре умножения, одно неверно. Найди неверный ответ.", on_correct: "Верно. Должно быть 3 умножить на 5 равно 15, а не 14.", on_wrong: "Проверь каждое. Считай по 3 пять раз. 3, 6, 9, 12, и так далее" },
-};

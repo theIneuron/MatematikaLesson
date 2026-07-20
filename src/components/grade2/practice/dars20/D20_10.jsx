@@ -146,9 +146,3 @@ function D20_10Impl(props) {
 export default function D20_10(props) {
   return (<><style>{FX_CSS}</style><D20_10Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D20_10.audio = {
-  uz: { intro: "Yordam. 4 ko'paytirish 6 teng 24 ni eslang. 24 bo'lish 4 teng qancha? Raqamni bosib javobni tering.", on_correct: "To'g'ri. 24 bo'lish 4 teng 6, chunki 4 ko'paytirish 6 teng 24. Bir oila.", on_wrong: "Maslahat. 4 ko'paytirish 6 teng 24 bo'lgani uchun 24 bo'lish 4 teng 6." },
-  ru: { intro: "Подсказка. Вспомни 4 умножить на 6 равно 24. 24 делить на 4 равно сколько? Набери ответ, нажимая цифру.", on_correct: "Верно. 24 делить на 4 равно 6, потому что 4 умножить на 6 равно 24. Одна семья.", on_wrong: "Подсказка. Так как 4 умножить на 6 равно 24, то 24 делить на 4 равно 6." },
-};

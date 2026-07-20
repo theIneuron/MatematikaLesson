@@ -146,9 +146,3 @@ function D07_07Impl(props) {
 export default function D07_07(props) {
   return (<><style>{FX_CSS}</style><D07_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D07_07.audio = {
-  uz: { intro: "43 qo'shish 5 ni stolbik qilamiz. 5, bir xonali son. Qaysi stolbik TO'G'RI tuzilgan? Birlik ostiga birlik", on_correct: "To'g'ri. 5, birlik, shuning uchun 3 ning ostiga birlik ustuniga yoziladi.", on_wrong: "Maslahat. 5, birlik raqami. U birlik ustuniga, ya'ni 3 ning ostiga tushishi kerak." },
-  ru: { intro: "43 плюс 5 записываем столбиком. 5, однозначное число. Какой столбик записан ВЕРНО? Единицы под единицы", on_correct: "Верно. 5, единицы, поэтому пишется под 3 в столбец единиц.", on_wrong: "Подсказка. 5, цифра единиц. Она должна попасть в столбец единиц, под 3." },
-};

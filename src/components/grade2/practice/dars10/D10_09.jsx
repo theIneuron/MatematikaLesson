@@ -118,9 +118,3 @@ function D10_09Impl(props) {
 export default function D10_09(props) {
   return (<><style>{FX_CSS}</style><D10_09Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D10_09.audio = {
-  uz: { intro: "Nishon soni, 25. Qaysi ifoda 25 GA TENG EMAS? O'shani belgilang.", on_correct: "To'g'ri. 73 ayirish 46 teng 27, u 25 ga teng emas. Qolganlari 25 ga teng.", on_wrong: "Maslahat. Har ifodani qarz bilan ayirib, natijasini 25 bilan solishtiring." },
-  ru: { intro: "Целевое число, 25. Какое выражение НЕ РАВНО 25? Отметь его.", on_correct: "Верно. 73 минус 46 равно 27, оно не равно 25. Остальные равны 25.", on_wrong: "Подсказка. Вычти каждое с займом и сравни результат с 25." },
-};

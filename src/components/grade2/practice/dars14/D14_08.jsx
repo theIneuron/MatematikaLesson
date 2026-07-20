@@ -125,9 +125,3 @@ const FX_CSS = `
 export default function D14_08(props) {
   return (<><style>{FX_CSS}</style><D08 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D14_08.audio = {
-  uz: { intro: "Zuhra 4 qatorga, har biriga 3 tadan ko'chat ekdi. Zuhra jami nechta ko'chat ekdi?", on_correct: "To'g'ri. 4 ko'paytirish 3 teng 12. To'rt qator, har birida 3 tadan.", on_wrong: "3 tadan sanang. 3, 6, 9, 12. To'rt qadam." },
-  ru: { intro: "Зухра посадила 4 ряда по 3 ростка. Сколько всего ростков посадила Зухра?", on_correct: "Верно. 4 умножить на 3 равно 12. Четыре ряда по 3.", on_wrong: "Считай по 3. 3, 6, 9, 12. Четыре шага." },
-};

@@ -139,9 +139,3 @@ function D16_02Impl(props) {
 export default function D16_02(props) {
   return (<><style>{FX_CSS}</style><D16_02Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D16_02.audio = {
-  uz: { intro: "Bit har lotokka 6 tadan urug' ekdi, 4 ta lotok. 6 ko'paytirish 4 nechaga teng?", on_correct: "To'g'ri. 6 ko'paytirish 4 teng 6 qo'shish 6 qo'shish 6 qo'shish 6 teng 24.", on_wrong: "Maslahat. 6 ni 4 marta oling. 6, 12, 18, 24. 6 qo'shish 4 teng 10, bu qo'shish." },
-  ru: { intro: "Бит посадил по 6 семян в лоток, 4 лотка. Чему равно 6 умножить на 4?", on_correct: "Верно. 6 умножить на 4 равно 6 плюс 6 плюс 6 плюс 6 равно 24.", on_wrong: "Подсказка. Возьми 6 четыре раза. 6, 12, 18, 24. 6 плюс 4 равно 10, это сложение." },
-};

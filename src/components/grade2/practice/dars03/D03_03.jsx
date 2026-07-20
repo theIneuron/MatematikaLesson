@@ -140,9 +140,3 @@ function D03_03Impl(props) {
 export default function D03_03(props) {
   return (<><style>{FX_CSS}</style><D03_03Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D03_03.audio = {
-  uz: { intro: "Kod 47. Ikki yorliq. O'nlik va birlik. Yorliqni bosing, keyin uni to'g'ri raqam ostiga qo'ying.", on_correct: "To'g'ri. 47 da chapdagi 4, o'nlik, o'ngdagi 7, birlik.", on_wrong: "Maslahat. O'nlik har doim CHAPDA 4, birlik O'NGDA 7." },
-  ru: { intro: "Код 47. Две метки. Десятки и единицы. Нажми метку, затем поставь её под нужную цифру.", on_correct: "Верно. В 47 левая 4, десятки, правая 7, единицы.", on_wrong: "Подсказка. Десятки всегда СЛЕВА 4, единицы СПРАВА 7." },
-};

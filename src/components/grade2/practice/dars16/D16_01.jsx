@@ -155,9 +155,3 @@ function D16_01Impl(props) {
 export default function D16_01(props) {
   return (<><style>{FX_CSS}</style><D16_01Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D16_01.audio = {
-  uz: { intro: "Issiqxonada 3 ta lotok, har birida 6 ta ko'chat. Lotoklarni birma-bir bosing, jami nechta ko'chatligini toping.", on_correct: "To'g'ri. 6 tadan 3 marta. 6, 12, 18. Bu 6 ko'paytirish 3 teng 18.", on_wrong: "Maslahat. Har lotokda 6 tadan. Sanang. 6, 12, 18. 6 qo'shish 3 teng 9 emas, bu qo'shish." },
-  ru: { intro: "В теплице 3 лотка, в каждом по 6 саженцев. Нажимай лотки по одному и найди, сколько всего саженцев.", on_correct: "Верно. По 6 три раза. 6, 12, 18. Это 6 умножить на 3 равно 18.", on_wrong: "Подсказка. В каждом лотке по 6. Считай. 6, 12, 18. 6 плюс 3 равно 9, это сложение." },
-};

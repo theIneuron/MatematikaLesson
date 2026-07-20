@@ -99,9 +99,3 @@ function D11_03Impl(props) {
 export default function D11_03(props) {
   return (<><style>{FX_CSS}</style><D11_03Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D11_03.audio = {
-  uz: { intro: "52 qo'shish 3 ni ustunlab tuzamiz. 3 raqami qaysi ustunga yoziladi?", on_correct: "To'g'ri. 3, bir xonali son birlik, u birlik ustuniga yoziladi.", on_wrong: "Maslahat. 3 nechta xonali son? Bir xonali, bu birlik." },
-  ru: { intro: "Записываем 52 плюс 3 столбиком. В какой столбец пишется цифра 3?", on_correct: "Верно. 3, однозначное число единицы, пишется в столбец единиц.", on_wrong: "Подсказка. Сколько цифр в 3? Однозначное, это единицы." },
-};

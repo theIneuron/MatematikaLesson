@@ -129,9 +129,3 @@ function D04_06Impl(props) {
 export default function D04_06(props) {
   return (<><style>{FX_CSS}</style><D04_06Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D04_06.audio = {
-  uz: { intro: "Kod 27 dan katta, 40 dan kichik bo'lishi kerak. 27 kichik qancha kichik 40. Bo'sh katakka mos kodni tanlang.", on_correct: "To'g'ri. 35, 27 dan katta va 40 dan kichik.", on_wrong: "Maslahat. Tanlangan kod 27 dan katta VA 40 dan kichik bo'lishi kerak. Ikkala shartni ham tekshiring." },
-  ru: { intro: "Код должен быть больше 27 и меньше 40. 27 меньше сколько меньше 40. Выбери подходящий код.", on_correct: "Верно. 35, больше 27 и меньше 40.", on_wrong: "Подсказка. Код должен быть больше 27 И меньше 40. Проверь оба условия." },
-};

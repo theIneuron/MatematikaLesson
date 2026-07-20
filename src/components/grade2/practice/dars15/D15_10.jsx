@@ -102,9 +102,3 @@ const FX_CSS = `
 export default function D15_10(props) {
   return (<><style>{FX_CSS}</style><D10 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D15_10.audio = {
-  uz: { intro: "To'rt ko'paytirish yozilgan, bittasi noto'g'ri hisoblangan. Noto'g'ri javobni toping.", on_correct: "To'g'ri. 6 ko'paytirish 5 teng 30 bo'lishi kerak. 32 ning oxiri 0 yoki 5 emas.", on_wrong: "Ko'paytirish 5 javobining oxiri doim 0 yoki 5. Qaysi qatorda bunday emas?" },
-  ru: { intro: "Записаны четыре умножения, одно посчитано неверно. Найди неверный ответ.", on_correct: "Верно. Должно быть 6 умножить на 5 равно 30. 32 не оканчивается на 0 или 5.", on_wrong: "У умножить на 5 конец всегда 0 или 5. Где не так?" },
-};

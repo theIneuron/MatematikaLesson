@@ -152,9 +152,3 @@ function D07_06Impl(props) {
 export default function D07_06(props) {
   return (<><style>{FX_CSS}</style><D07_06Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D07_06.audio = {
-  uz: { intro: "Tayyor stolbik. 45 qo'shish 32 teng 78. Bitta ustun natijasi noto'g'ri. Yechimda xato bor. Noto'g'ri javob katagini bosing.", on_correct: "To'g'ri. Birliklar ustuni xato. 5 qo'shish 2 teng 7, 8 emas. To'g'ri javob, 77.", on_wrong: "Maslahat. Har ustunni alohida tekshiring. 5 qo'shish 2 nechchi? 4 qo'shish 3 nechchi?" },
-  ru: { intro: "Готовый столбик. 45 плюс 32 равно 78. Один столбец неверный. В решении ошибка. Нажми на неверную клетку ответа.", on_correct: "Верно. Столбец единиц неверный. 5 плюс 2 равно 7, а не 8. Верный ответ, 77.", on_wrong: "Подсказка. Проверь каждый столбец отдельно. Сколько 5 плюс 2? Сколько 4 плюс 3?" },
-};

@@ -121,9 +121,3 @@ const FX_CSS = `
 export default function D15_05(props) {
   return (<><style>{FX_CSS}</style><D05 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D15_05.audio = {
-  uz: { intro: "6 guruh, har birida 5 tadan panel. 6 ko'paytirish 5 teng? Javobni raqamlardan yasang.", on_correct: "To'g'ri. 6 ko'paytirish 5 teng 30. 5 tadan olti marta.", on_wrong: "5 tadan sanang. 5, 10, 15, 20, 25, va hokazo Olti qadam. Oxiri 0 yoki 5." },
-  ru: { intro: "6 групп по 5 панелей. 6 умножить на 5 равно? Составь ответ из цифр.", on_correct: "Верно. 6 умножить на 5 равно 30. По 5 шесть раз.", on_wrong: "Считай по 5. 5, 10, 15, 20, 25, и так далее Шесть шагов." },
-};

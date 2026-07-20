@@ -127,9 +127,3 @@ const FX_CSS = `
 export default function D12_01(props) {
   return (<><style>{FX_CSS}</style><D01 {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D12_01.audio = {
-  uz: { intro: "Kemada 40 quti bor edi. 15 tasi sarflandi, keyin 12 tasi ortildi. Kemada endi nechta quti bor?", on_correct: "To'g'ri. 40 ayirish 15 teng 25, keyin 25 qo'shish 12 teng 37.", on_wrong: "Ikki o'zgarish bor. Avval ayiring, keyin qo'shing. Oxirigacha bajaring." },
-  ru: { intro: "На корабле было 40 ящиков. 15 израсходовали, затем 12 загрузили. Сколько ящиков теперь на корабле?", on_correct: "Верно. 40 минус 15 равно 25, затем 25 плюс 12 равно 37.", on_wrong: "Два изменения. Сначала вычти, потом прибавь. Доведи до конца." },
-};

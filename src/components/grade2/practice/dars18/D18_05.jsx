@@ -150,9 +150,3 @@ function D18_05Impl(props) {
 export default function D18_05(props) {
   return (<><style>{FX_CSS}</style><D18_05Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D18_05.audio = {
-  uz: { intro: "Ombordagi 6 ko'paytirish 2 quti massivini aylantiring. Aylantirgach, qutilar soni o'zgaradimi?", on_correct: "To'g'ri. 6 ko'paytirish 2 teng 12 va 2 ko'paytirish 6 teng 12. Aylantirdik, soni o'zgarmadi.", on_wrong: "Maslahat. Aylantirishda faqat ko'rinish o'zgaradi. Qutilar soni o'sha, 12." },
-  ru: { intro: "Поверни массив ящиков 6 умножить на 2 на складе. После поворота число ящиков изменится?", on_correct: "Верно. 6 умножить на 2 равно 12 и 2 умножить на 6 равно 12. Повернули, число не изменилось.", on_wrong: "Подсказка. При повороте меняется только вид. Ящиков столько же, 12." },
-};

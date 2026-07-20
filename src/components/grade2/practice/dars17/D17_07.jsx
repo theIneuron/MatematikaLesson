@@ -125,9 +125,3 @@ function D17_07Impl(props) {
 export default function D17_07(props) {
   return (<><style>{FX_CSS}</style><D17_07Impl {...props} /></>);
 }
-
-/* v-audio (auto) — TTS-toza narratsiya (ovoz). UZ = draft, uz-metodist validatsiyasi kerak. */
-D17_07.audio = {
-  uz: { intro: "Bit shunday yozdi. Bu yozuv to'g'rimi?", on_correct: "To'g'ri! 9 ko'paytirish 6 teng 54. Tekshiring. 5 qo'shish 4 teng 9 to'qqiz sirri.", on_wrong: "Maslahat. 9 ni 6 marta sanang. 9,18,27,36,45,54. Raqamlar yig'indisi 5 qo'shish 4 teng 9." },
-  ru: { intro: "Бит записал так. Эта запись верна?", on_correct: "Верно! 9 умножить на 6 равно 54. Проверь. 5 плюс 4 равно 9 секрет девятки.", on_wrong: "Подсказка. Считай 9 шесть раз. 9,18,27,36,45,54. Сумма цифр 5 плюс 4 равно 9." },
-};
