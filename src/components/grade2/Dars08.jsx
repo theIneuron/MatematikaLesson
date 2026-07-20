@@ -521,9 +521,14 @@ const makeAutoSegments = (screenContent, lang) => {
 // Ovoz yangrayotganda yoki hali boshlanmaganda -> false. Mute -> true. 12s himoya (bloklanmasin).
 function useCanAnswer(audio) {
   const navUnlocked = useContext(NavUnlockContext);
-  const [safety, setSafety] = useState(false);
-  useEffect(() => { const id = setTimeout(() => setSafety(true), 60000); return () => clearTimeout(id); }, []);
-  return FREE_NAV || navUnlocked || audio.muted || audio.done || safety;
+  const startedRef = useRef(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (audio.isPlaying) startedRef.current = true;
+    else if (startedRef.current) setReady(true);
+  }, [audio.isPlaying]);
+  useEffect(() => { const id = setTimeout(() => setReady(true), 8000); return () => clearTimeout(id); }, []);
+  return FREE_NAV || navUnlocked || audio.muted || audio.done || ready;
 }
 
 // useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
