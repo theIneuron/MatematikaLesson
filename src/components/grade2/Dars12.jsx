@@ -4904,7 +4904,7 @@ const step2Opts = (a, op1, b, op2, c, seed) => {
   return uniqOpts(total, [mid, usedOrig, wrongOp, total + 10], seed);   // mid = oraliqda to'xtash
 };
 const STEP1_Q = { ru: 'Первое действие. Найди промежуточный ответ:', uz: '1-amal. Oraliq natijani toping:' };
-const STEP2_Q = { ru: 'Второе действие. Возьми промежуточный ответ:', uz: '2-amal. Oraliq natija bilan hisobla:' };
+const STEP2_Q = { ru: 'Второе действие. Возьми промежуточный ответ:', uz: '2-amal. Oraliq natija bilan hisoblang:' };
 const STEP1_OK = { ru: 'Промежуточный ответ найден. Теперь второе действие.', uz: "Oraliq natija topildi. Endi ikkinchi amal." };
 const TwoStepStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();

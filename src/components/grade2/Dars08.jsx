@@ -1233,7 +1233,7 @@ const CONTENT = {
     wrong: { ru: 'Этот разряд посчитан верно. Ищи ошибку в другом.', uz: "Bu xona to'g'ri sanalgan. Xatoni boshqasidan izlang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Компьютер решил столбик, но в одном разряде ошибся. Найди неверную клетку и нажми на неё.', uz: "Kompyuter ustunni yechdi, lekin bitta xonada xato qildi. Noto'g'ri katakni topib, uni bos." },
+      intro: { ru: 'Компьютер решил столбик, но в одном разряде ошибся. Найди неверную клетку и нажми на неё.', uz: "Kompyuter ustunni yechdi, lekin bitta xonada xato qildi. Noto'g'ri katakni topib, uni bosing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Этот разряд верный. Проверь другой.', uz: "Bu xona to'g'ri. Boshqasini tekshiring." }
     }

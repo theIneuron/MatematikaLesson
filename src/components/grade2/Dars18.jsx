@@ -1161,7 +1161,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Вся таблица вперемешку. Считай ряды умножением.', uz: "Butun jadval aralash. Qatorlarni ko'paytirib sanang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сколько рядов, столько раз бери число.', uz: "Necha qator, shuncha marta sonni ol." }
+      on_wrong: { ru: 'Сколько рядов, столько раз бери число.', uz: "Necha qator, shuncha marta sonni oling." }
     }
   },
 

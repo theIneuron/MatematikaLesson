@@ -1094,7 +1094,7 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     rule: { ru: 'Пишем разряд под разрядом. Считаем справа налево. При сложении лишний десяток переносим влево, при вычитании занимаем десяток у соседа.', uz: "Xonani xona ostiga yozamiz. O'ngdan chapga hisoblaymiz. Qo'shishda ortiqcha o'nlikni chapga o'tkazamiz, ayirishda qo'shnidan o'nlik qarz olamiz." },
     a: 346, b: 128, op: '+', result: 474,
-    check_q: { ru: 'Сложи столбиком: чему равно 346 плюс 128?', uz: "Ustunda qo'sh: 346 qo'shuv 128 nechaga teng?" },
+    check_q: { ru: 'Сложи столбиком: чему равно 346 плюс 128?', uz: "Ustunda qo'shing: 346 qo'shuv 128 nechaga teng?" },
     check_opts: ['474', '464'],
     check_ci: 0,
     check_ok: { ru: 'Верно! Шесть плюс восемь четырнадцать, перенос — получается 474.', uz: "To'g'ri! Olti qo'shuv sakkiz o'n to'rt, o'tkazish — 474 chiqadi." },
@@ -1118,16 +1118,16 @@ const CONTENT = {
   // s6 — MASHQ qo'shish (NumPad), 3 raund
   s6: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Сложи столбиком.', uz: "Ustunda qo'sh." },
+    q: { ru: 'Сложи столбиком.', uz: "Ustunda qo'shing." },
     op: '+',
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
     items: [
-      { a: 2345, b: 1432, ans: 3777, hint: { ru: 'Складывай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona qo'sh." } },
+      { a: 2345, b: 1432, ans: 3777, hint: { ru: 'Складывай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona qo'shing." } },
       { a: 3456, b: 2178, ans: 5634, hint: { ru: 'Не забудь переносы: шесть плюс восемь четырнадцать.', uz: "O'tkazishni unutma: olti qo'shuv sakkiz o'n to'rt." } },
       { a: 4508, b: 2394, ans: 6902, hint: { ru: 'Восемь плюс четыре двенадцать — перенос десятка.', uz: "Sakkiz qo'shuv to'rt o'n ikki — o'nlik o'tkaziladi." } }
     ],
     audio: {
-      intro: { ru: 'Складывай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda qo'sh. Javobni terib, tekshirishni bos. Uchta topshiriq." },
+      intro: { ru: 'Складывай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda qo'shing. Javobni terib, tekshirishni bosing. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishlarni unutma." }
     }
@@ -1136,18 +1136,18 @@ const CONTENT = {
   // s7 — MASHQ ayirish (NumPad), 3 raund
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Вычти столбиком.', uz: "Ustunda ayir." },
+    q: { ru: 'Вычти столбиком.', uz: "Ustunda ayiring." },
     op: '-',
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
     items: [
-      { a: 4785, b: 2341, ans: 2444, hint: { ru: 'Вычитай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona ayir." } },
-      { a: 5342, b: 1867, ans: 3475, hint: { ru: 'Где не хватает, занимай десяток у соседа.', uz: "Yetmagan joyda qo'shnidan o'nlik qarz ol." } },
+      { a: 4785, b: 2341, ans: 2444, hint: { ru: 'Вычитай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona ayiring." } },
+      { a: 5342, b: 1867, ans: 3475, hint: { ru: 'Где не хватает, занимай десяток у соседа.', uz: "Yetmagan joyda qo'shnidan o'nlik qarz oling." } },
       { a: 6003, b: 2748, ans: 3255, hint: { ru: 'Занимай через нули по очереди, справа налево.', uz: "Nollar orqali navbatma-navbat qarz ol, o'ngdan chapga." } }
     ],
     audio: {
-      intro: { ru: 'Вычитай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda ayir. Javobni terib, tekshirishni bos. Uchta topshiriq." },
+      intro: { ru: 'Вычитай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda ayiring. Javobni terib, tekshirishni bosing. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай справа налево. Где не хватает — занимай.', uz: "O'ngdan chapga hisobla. Yetmasa — qarz ol." }
+      on_wrong: { ru: 'Считай справа налево. Где не хватает — занимай.', uz: "O'ngdan chapga hisoblang. Yetmasa — qarz oling." }
     }
   },
 
@@ -1175,7 +1175,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Даю три примера. Один посчитан неверно. Найди неверный пример.', uz: "Uchta misol beraman. Bittasi noto'g'ri hisoblangan. Noto'g'ri misolni toping." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Пересчитай столбиком, справа налево. Посмотри ещё.', uz: "Ustunda o'ngdan chapga qayta hisobla. Yana qara." }
+      on_wrong: { ru: 'Пересчитай столбиком, справа налево. Посмотри ещё.', uz: "Ustunda o'ngdan chapga qayta hisoblang. Yana qarang." }
     }
   },
 
@@ -1184,10 +1184,10 @@ const CONTENT = {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Джасур собрал модули: 2640 днём и 1785 вечером.', uz: 'Jasur modul yig\'di: kunduzi 2640, kechqurun 1785.' },
     a: 2640, b: 1785, op: '+', ans: 4425,
-    q: { ru: 'Сколько всего модулей? Сложи столбиком.', uz: "Jami nechta modul? Ustunda qo'sh." },
+    q: { ru: 'Сколько всего модулей? Сложи столбиком.', uz: "Jami nechta modul? Ustunda qo'shing." },
     setup_audio: { ru: 'Джасур собирал модули для города. Днём собрал две тысячи шестьсот сорок, вечером ещё тысячу семьсот восемьдесят пять.', uz: "Jasur shahar uchun modul yig'di. Kunduzi ikki ming olti yuz qirqta, kechqurun yana bir ming yetti yuz sakson beshta." },
     audio: {
-      intro: { ru: 'Сложи столбиком, сколько всего модулей, и набери ответ.', uz: "Jami nechta modul ekanini ustunda qo'sh va javobni ter." },
+      intro: { ru: 'Сложи столбиком, сколько всего модулей, и набери ответ.', uz: "Jami nechta modul ekanini ustunda qo'sh va javobni tering." },
       on_correct: { ru: 'Верно. Две тысячи шестьсот сорок плюс тысяча семьсот восемьдесят пять это четыре тысячи четыреста двадцать пять.', uz: "To'g'ri. Ikki ming olti yuz qirq qo'shuv bir ming yetti yuz sakson besh bu to'rt ming to'rt yuz yigirma besh." },
       on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishni unutma." }
     }
@@ -1200,14 +1200,14 @@ const CONTENT = {
     items: [
       {
         kind: 'num', ans: 5685,
-        q: { ru: 'Сложи столбиком: 3254 + 2431.', uz: "Ustunda qo'sh: 3254 + 2431." },
+        q: { ru: 'Сложи столбиком: 3254 + 2431.', uz: "Ustunda qo'shing: 3254 + 2431." },
 
         topic: { ru: 'сложение столбиком', uz: "ustunda qo'shish" },
         hint: { ru: 'Справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona." }
       },
       {
         kind: 'num', ans: 3200,
-        q: { ru: 'Вычти столбиком: 5600 − 2400.', uz: "Ustunda ayir: 5600 − 2400." },
+        q: { ru: 'Вычти столбиком: 5600 − 2400.', uz: "Ustunda ayiring: 5600 − 2400." },
 
         topic: { ru: 'вычитание столбиком', uz: "ustunda ayirish" },
         hint: { ru: 'Из шести сотен отними четыре — две сотни. Тысячи: пять минус два.', uz: "Olti yuzlikdan to'rtni ayir — ikki yuzlik. Minglik: besh ayir ikki." }
@@ -1221,11 +1221,11 @@ const CONTENT = {
         opt1: { ru: '3677', uz: '3677' },
         opt2: { ru: '3877', uz: '3877' },
         wrong_1: { ru: 'В сотнях три плюс четыре это семь: 3777.', uz: "Yuzlikda uch qo'shuv to'rt bu yetti: 3777." },
-        wrong_2: { ru: 'Пересчитай сотни: три плюс четыре семь, а не восемь.', uz: "Yuzlikni qayta sana: uch qo'shuv to'rt yetti, sakkiz emas." }
+        wrong_2: { ru: 'Пересчитай сотни: три плюс четыре семь, а не восемь.', uz: "Yuzlikni qayta sanang: uch qo'shuv to'rt yetti, sakkiz emas." }
       },
       {
         kind: 'num', ans: 7005,
-        q: { ru: 'Сложи столбиком: 4067 + 2938.', uz: "Ustunda qo'sh: 4067 + 2938." },
+        q: { ru: 'Сложи столбиком: 4067 + 2938.', uz: "Ustunda qo'shing: 4067 + 2938." },
 
         topic: { ru: 'сложение с переходом', uz: "o'tkazib qo'shish" },
         hint: { ru: 'Семь плюс восемь пятнадцать, дальше переносы до тысяч.', uz: "Yetti qo'shuv sakkiz o'n besh, keyin o'tkazishlar minglikkacha." }
@@ -1235,7 +1235,7 @@ const CONTENT = {
         q: { ru: 'Загадка. Я между 3000 и 4000. Если ко мне прибавить 2000, будет 5500. Кто я?', uz: "Jumboq. Men 3000 bilan 4000 orasidaman. Menga 2000 qo'shsa, 5500 chiqadi. Men kimman?" },
 
         topic: { ru: 'обратная задача', uz: "teskari masala" },
-        hint: { ru: 'От пяти тысяч пятисот отними две тысячи.', uz: "Besh ming besh yuzdan ikki mingni ayir." }
+        hint: { ru: 'От пяти тысяч пятисот отними две тысячи.', uz: "Besh ming besh yuzdan ikki mingni ayiring." }
       }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },

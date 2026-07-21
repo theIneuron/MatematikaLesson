@@ -5789,7 +5789,7 @@ const MatchStage = ({ props, cKey }) => {
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
 const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisobla:' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();

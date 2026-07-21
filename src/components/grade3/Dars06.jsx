@@ -1135,9 +1135,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Смотри, где стоит метка, и выбери, между какими сотнями число. Три задания.', uz: "Belgi qayerda turganiga qara va son qaysi yuzliklar orasida ekanini tanla. Uchta topshiriq." },
+      intro: { ru: 'Смотри, где стоит метка, и выбери, между какими сотнями число. Три задания.', uz: "Belgi qayerda turganiga qara va son qaysi yuzliklar orasida ekanini tanlang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру сотен числа. Попробуй ещё.', uz: "Sonning yuzlik raqamiga qara. Yana urinib ko'ring." }
+      on_wrong: { ru: 'Смотри на цифру сотен числа. Попробуй ещё.', uz: "Sonning yuzlik raqamiga qarang. Yana urinib ko'ring." }
     }
   },
 
@@ -1172,9 +1172,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Метка стоит на шкале. Прочитай, какое это число. Три задания.', uz: "Belgi shkalada turibdi. Bu qaysi son ekanini o'qi. Uchta topshiriq." },
+      intro: { ru: 'Метка стоит на шкале. Прочитай, какое это число. Три задания.', uz: "Belgi shkalada turibdi. Bu qaysi son ekanini o'qing. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай сотни и десятки, которые прошла метка.', uz: "Belgi o'tgan yuzlik va o'nliklarni sana." }
+      on_wrong: { ru: 'Считай сотни и десятки, которые прошла метка.', uz: "Belgi o'tgan yuzlik va o'nliklarni sanang." }
     }
   },
 
@@ -1212,7 +1212,7 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Три метки на шкале: A, B и C. Выбери, на какой стоит число. Три задания.', uz: "Shkalada uchta belgi: A, B va C. Son qaysi belgida turganini tanla. Uchta topshiriq." },
+      intro: { ru: 'Три метки на шкале: A, B и C. Выбери, на какой стоит число. Три задания.', uz: "Shkalada uchta belgi: A, B va C. Son qaysi belgida turganini tanlang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Сравни число с каждой меткой. Попробуй ещё.', uz: "Sonni har belgi bilan solishtir. Yana urinib ko'ring." }
     }
@@ -1231,9 +1231,9 @@ const CONTENT = {
     },
     setup_audio: { ru: 'Зухра нашла модуль на большой шкале города. Метка стоит между пятьюстами и шестьюстами.', uz: "Zuhra shaharning katta shkalasida modulni topdi. Belgi besh yuz bilan olti yuz orasida turibdi." },
     audio: {
-      intro: { ru: 'Прочитай, какое число показывает метка модуля. Выбери верный ответ.', uz: "Modul belgisi qaysi sonni ko'rsatishini o'qi. To'g'ri javobni tanla." },
+      intro: { ru: 'Прочитай, какое число показывает метка модуля. Выбери верный ответ.', uz: "Modul belgisi qaysi sonni ko'rsatishini o'qing. To'g'ri javobni tanlang." },
       on_correct: { ru: 'Верно. Пятьсот и семь десятков — пятьсот семьдесят.', uz: "To'g'ri. Besh yuz va yetti o'nlik — besh yuz yetmish." },
-      on_wrong: { ru: 'Считай сотни и десятки метки: пятьсот и семьдесят.', uz: "Belgining yuzlik va o'nligini sana: besh yuz va yetmish." }
+      on_wrong: { ru: 'Считай сотни и десятки метки: пятьсот и семьдесят.', uz: "Belgining yuzlik va o'nligini sanang: besh yuz va yetmish." }
     }
   },
 

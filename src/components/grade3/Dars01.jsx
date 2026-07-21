@@ -1365,14 +1365,14 @@ const CONTENT = {
     items: [
       {
         kind: 'num', ans: 645,
-        q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'sh: 600 + 40 + 5. Javobni ter." },
+        q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'shing: 600 + 40 + 5. Javobni tering." },
 
         topic: { ru: 'разрядные слагаемые', uz: "razryad qo'shiluvchilari" },
         hint: { ru: 'По местам: шесть сотен, четыре десятка, пять единиц.', uz: "O'z o'rniga: olti yuzlik, to'rt o'nlik, besh birlik." }
       },
       {
         kind: 'num', ans: 230,
-        q: { ru: 'Запиши цифрами число двести тридцать.', uz: "Ikki yuz o'ttiz sonini raqamlab ter." },
+        q: { ru: 'Запиши цифрами число двести тридцать.', uz: "Ikki yuz o'ttiz sonini raqamlab tering." },
 
         topic: { ru: 'запись числа цифрами', uz: "sonni raqamlab yozish" },
         hint: { ru: 'Две сотни, три десятка, единиц нет — ноль в конце.', uz: "Ikki yuzlik, uch o'nlik, birlik yo'q — oxirida nol." }

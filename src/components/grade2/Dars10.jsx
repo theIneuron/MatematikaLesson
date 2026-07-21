@@ -1119,7 +1119,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Проверь себя перед практикой. Вычти из восьмидесяти четырёх тридцать девять.', uz: "Mashqdan oldin o'zingizni sinang. Sakson to'rtdan o'ttiz to'qqizni ayiramiz." },
       on_correct: { ru: 'Верно. Сорок пять.', uz: "To'g'ri. Qirq besh." },
-      on_wrong: { ru: 'Не хватает единиц, занимай десяток.', uz: "Birlik yetmasa, o'nlikdan qarz ol." }
+      on_wrong: { ru: 'Не хватает единиц, занимай десяток.', uz: "Birlik yetmasa, o'nlikdan qarz oling." }
     }
   },
 
@@ -1136,9 +1136,9 @@ const CONTENT = {
     wrong: { ru: 'Единиц не хватает — занимаем один десяток у соседа.', uz: "Birlik yetmasa — qo'shnidan bitta o'nlik qarz olamiz." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Объяснение закончили, теперь тренировка. Вычитай столбиком, если единиц не хватает, занимай десяток.', uz: "Tushuntirishni tugatdik, endi trenirovka. Ustunlab ayiring, birlik yetmasa, o'nlikdan qarz ol." },
+      intro: { ru: 'Объяснение закончили, теперь тренировка. Вычитай столбиком, если единиц не хватает, занимай десяток.', uz: "Tushuntirishni tugatdik, endi trenirovka. Ustunlab ayiring, birlik yetmasa, o'nlikdan qarz oling." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не хватает единиц, занимай десяток.', uz: "Birlik yetmasa, o'nlikdan qarz ol." }
+      on_wrong: { ru: 'Не хватает единиц, занимай десяток.', uz: "Birlik yetmasa, o'nlikdan qarz oling." }
     }
   },
 
@@ -1244,7 +1244,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'В контейнере было семьдесят три ящика, сорок шесть увезли. Вычти столбиком.', uz: "Konteynerda yetmish uch quti bor edi, qirq oltitasi olib ketildi. Ustunlab ayiring." },
       on_correct: { ru: 'Верно. Осталось двадцать семь ящиков.', uz: "To'g'ri. Yigirma yetti quti qoldi." },
-      on_wrong: { ru: 'Не хватает единиц, занимай десяток.', uz: "Birlik yetmasa, o'nlikdan qarz ol." }
+      on_wrong: { ru: 'Не хватает единиц, занимай десяток.', uz: "Birlik yetmasa, o'nlikdan qarz oling." }
     }
   },
 
@@ -1265,7 +1265,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Финальная проверка. Три разных задания: вычти, найди заём и найди ошибку.', uz: "Yakuniy tekshiruv. Uch xil topshiriq: ayiring, qarzni toping va xatoni toping." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не хватает единиц, занимай десяток.', uz: "Birlik yetmasa, o'nlikdan qarz ol." }
+      on_wrong: { ru: 'Не хватает единиц, занимай десяток.', uz: "Birlik yetmasa, o'nlikdan qarz oling." }
     }
   },
 

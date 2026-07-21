@@ -981,7 +981,7 @@ const CONTENT = {
     topic: { ru: 'Тема: округление чисел', uz: 'Mavzu: sonlarni yaxlitlash' },
     lead: { ru: 'Шкала города: тут 47 огней.', uz: 'Shahar shkalasi: bu yerda 47 chiroq.' },
     num_display: { ru: '47', uz: '47' },
-    q: { ru: 'Округли до десятков: ближе к 40 или к 50?', uz: "O'nlikkacha yaxlitla: 40 ga yaqinmi yoki 50 ga?" },
+    q: { ru: 'Округли до десятков: ближе к 40 или к 50?', uz: "O'nlikkacha yaxlitlang: 40 ga yaqinmi yoki 50 ga?" },
     opt0: { ru: '40', uz: '40' },
     opt1: { ru: '50', uz: '50' },
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
@@ -1108,7 +1108,7 @@ const CONTENT = {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     rule: { ru: 'Смотрим на цифру справа от разряда округления. Пять или больше — округляем вверх, меньше пяти — вниз.', uz: "Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga yaxlitlaymiz." },
     n: 63, base: 10, rounded: 60,
-    check_q: { ru: 'Округли 63 до десятков. Нажми верный ответ.', uz: "63 ni o'nlikkacha yaxlitla. To'g'ri javobni bosing." },
+    check_q: { ru: 'Округли 63 до десятков. Нажми верный ответ.', uz: "63 ni o'nlikkacha yaxlitlang. To'g'ri javobni bosing." },
     check_opts: ['60', '70'],
     check_ci: 0,
     check_ok: { ru: 'Верно! Цифра справа три, это меньше пяти — округляем вниз, к 60.', uz: "To'g'ri! O'ngdagi raqam uch, beshdan kichik — pastga, 60 ga." },
@@ -1132,7 +1132,7 @@ const CONTENT = {
   // s7 — MASHQ o'nlikkacha (MC), 3 raund
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Округли до десятков.', uz: "O'nlikkacha yaxlitla." },
+    q: { ru: 'Округли до десятков.', uz: "O'nlikkacha yaxlitlang." },
     base: 10,
     items: [
       {
@@ -1161,16 +1161,16 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Округляй числа до десятков. Смотри на цифру единиц. Три задания.', uz: "Sonlarni o'nlikkacha yaxlitla. Birlik raqamiga qara. Uchta topshiriq." },
+      intro: { ru: 'Округляй числа до десятков. Смотри на цифру единиц. Три задания.', uz: "Sonlarni o'nlikkacha yaxlitlang. Birlik raqamiga qarang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру единиц: пять и больше вверх, меньше вниз.', uz: "Birlik raqamiga qara: besh va katta yuqoriga, kichik pastga." }
+      on_wrong: { ru: 'Смотри на цифру единиц: пять и больше вверх, меньше вниз.', uz: "Birlik raqamiga qarang: besh va katta yuqoriga, kichik pastga." }
     }
   },
 
   // s8 — MASHQ yuzlikkacha (MC), 3 raund
   s8: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Округли до сотен.', uz: 'Yuzlikkacha yaxlitla.' },
+    q: { ru: 'Округли до сотен.', uz: 'Yuzlikkacha yaxlitlang.' },
     base: 100,
     items: [
       {
@@ -1199,9 +1199,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Округляй числа до сотен. Смотри на цифру десятков. Три задания.', uz: "Sonlarni yuzlikkacha yaxlitla. O'nlik raqamiga qara. Uchta topshiriq." },
+      intro: { ru: 'Округляй числа до сотен. Смотри на цифру десятков. Три задания.', uz: "Sonlarni yuzlikkacha yaxlitlang. O'nlik raqamiga qarang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру десятков: пять и больше вверх, меньше вниз.', uz: "O'nlik raqamiga qara: besh va katta yuqoriga, kichik pastga." }
+      on_wrong: { ru: 'Смотри на цифру десятков: пять и больше вверх, меньше вниз.', uz: "O'nlik raqamiga qarang: besh va katta yuqoriga, kichik pastga." }
     }
   },
 
@@ -1238,7 +1238,7 @@ const CONTENT = {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Анвар считает модули: их 623. Сколько это примерно?', uz: 'Anvar modullarni sanayapti: ular 623 ta. Bu taxminan qancha?' },
     num: 623, base: 100, ci: 0,
-    q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitla.' },
+    q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitlang.' },
     opts: [{ ru: '600', uz: '600' }, { ru: '700', uz: '700' }, { ru: '620', uz: '620' }],
     hints: {
       1: { ru: 'Цифра десятков два, меньше пяти — округляем вниз, к 600.', uz: "O'nlik raqami ikki, beshdan kichik — pastga, 600 ga." },
@@ -1246,9 +1246,9 @@ const CONTENT = {
     },
     setup_audio: { ru: 'Анвар сосчитал модули района. Их шестьсот двадцать три. Для отчёта нужно примерное круглое число.', uz: "Anvar tuman modullarini sanadi. Ular olti yuz yigirma uchta. Hisob uchun taxminiy yumaloq son kerak." },
     audio: {
-      intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitla. To'g'ri javobni tanlang." },
+      intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitlang. To'g'ri javobni tanlang." },
       on_correct: { ru: 'Верно. Десятков два, меньше пяти — округляем к шестистам.', uz: "To'g'ri. O'nlik ikki, beshdan kichik — olti yuzga yaxlitlaymiz." },
-      on_wrong: { ru: 'Смотри на десятки: 2, это меньше пяти. Округляем вниз.', uz: "O'nlikka qara: 2, bu beshdan kichik. Pastga yaxlitlaymiz." }
+      on_wrong: { ru: 'Смотри на десятки: 2, это меньше пяти. Округляем вниз.', uz: "O'nlikka qarang: 2, bu beshdan kichik. Pastga yaxlitlaymiz." }
     }
   },
 
@@ -1259,7 +1259,7 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitla." }, topic: { ru: 'округление до десятков', uz: "o'nlikkacha yaxlitlash" },
+        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitlang." }, topic: { ru: 'округление до десятков', uz: "o'nlikkacha yaxlitlash" },
         opt0: { ru: '60', uz: '60' },
         opt1: { ru: '50', uz: '50' },
         opt2: { ru: '58', uz: '58' },
@@ -1268,7 +1268,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitla.' }, topic: { ru: 'округление до сотен', uz: 'yuzlikkacha yaxlitlash' },
+        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitlang.' }, topic: { ru: 'округление до сотен', uz: 'yuzlikkacha yaxlitlash' },
         opt0: { ru: '400', uz: '400' },
         opt1: { ru: '500', uz: '500' },
         opt2: { ru: '410', uz: '410' },
@@ -1282,7 +1282,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitla." }, topic: { ru: 'округление вверх', uz: 'yuqoriga yaxlitlash' },
+        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitlang." }, topic: { ru: 'округление вверх', uz: 'yuqoriga yaxlitlash' },
         opt0: { ru: '90', uz: '90' },
         opt1: { ru: '100', uz: '100' },
         opt2: { ru: '80', uz: '80' },
@@ -1311,7 +1311,7 @@ const CONTENT = {
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Шкала города освоена!', uz: 'Shahar shkalasi egallandi!' },
     cando: { ru: 'Теперь ты округляешь числа до десятков и до сотен.', uz: "Endi siz sonlarni o'nlikkacha va yuzlikkacha yaxlitlaysiz." },
-    rule_recap: { ru: 'Смотри на цифру справа от разряда: пять и больше — вверх, меньше пяти — вниз. Круглое число оканчивается на ноль.', uz: "Xonaning o'ngidagi raqamga qara: besh va katta — yuqoriga, beshdan kichik — pastga. Yumaloq son nol bilan tugaydi." },
+    rule_recap: { ru: 'Смотри на цифру справа от разряда: пять и больше — вверх, меньше пяти — вниз. Круглое число оканчивается на ноль.', uz: "Xonaning o'ngidagi raqamga qarang: besh va katta — yuqoriga, beshdan kichik — pastga. Yumaloq son nol bilan tugaydi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'четвёртый урок: сравнение чисел', uz: "to'rtinchi dars: sonlarni taqqoslash" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },

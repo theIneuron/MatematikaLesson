@@ -1078,7 +1078,7 @@ const CONTENT = {
   // s5 — TUSHUNTIRISH-4 (MC): qaysi son (52, 25 emas)
   s5: {
     eyebrow: { ru: 'Какое число?', uz: 'Qaysi son?' },
-    lead: { ru: 'Прочитай число на трассе.', uz: "Trassada sonni o'qi." },
+    lead: { ru: 'Прочитай число на трассе.', uz: "Trassada sonni o'qing." },
     q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
     opts: [{ ru: '52', uz: '52', ok: true }, { ru: '25', uz: '25' }, { ru: '50', uz: '50' }, { ru: '42', uz: '42' }],
     wrong: { ru: 'Между 50 и 60, значит пятьдесят с шагами. Два шага — пятьдесят два.', uz: "50 bilan 60 orasida, demak ellik va qadamlar. Ikki qadam — ellik ikki." },
@@ -1101,7 +1101,7 @@ const CONTENT = {
   s6: {
     eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang" },
     lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
-    q: { ru: 'Прочитай число.', uz: "Sonni o'qi." },
+    q: { ru: 'Прочитай число.', uz: "Sonni o'qing." },
     opts: [{ ru: '48', uz: '48', ok: true }, { ru: '84', uz: '84' }, { ru: '40', uz: '40' }, { ru: '38', uz: '38' }],
     wrong: { ru: 'Между 40 и 50, значит сорок с шагами. Восемь шагов — сорок восемь.', uz: "40 bilan 50 orasida, demak qirq va qadamlar. Sakkiz qadam — qirq sakkiz." },
     done_text: { ru: 'Верно! Это 48.', uz: "To'g'ri! Bu 48." },
@@ -1125,7 +1125,7 @@ const CONTENT = {
     wrong: { ru: 'Сначала между какими десятками, потом шаги. Не путай цифры местами.', uz: "Avval qaysi o'nliklar orasida, keyin qadamlar. Raqamlar o'rnini chalkashtirma." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Объяснение мы закончили, теперь тренировка. Читай, на каком числе стоит корабль.', uz: "Tushuntirishni tugatdik, endi trenirovka. Kema qaysi sonda turibdi, o'qi." },
+      intro: { ru: 'Объяснение мы закончили, теперь тренировка. Читай, на каком числе стоит корабль.', uz: "Tushuntirishni tugatdik, endi trenirovka. Kema qaysi sonda turibdi, o'qing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar." }
     }
@@ -1180,7 +1180,7 @@ const CONTENT = {
     wrong: { ru: 'Между какими десятками корабль? Потом считай маленькие шаги.', uz: "Kema qaysi o'nliklar orasida? Keyin kichik qadamlarni sanang." },
     done_text: { ru: 'Верно!', uz: "To'g'ri!" },
     audio: {
-      intro: { ru: 'Ещё числа на трассе. Читай каждое: сначала десятки, потом шаги.', uz: "Trassada yana sonlar. Har birini o'qi: avval o'nliklar, keyin qadamlar." },
+      intro: { ru: 'Ещё числа на трассе. Читай каждое: сначала десятки, потом шаги.', uz: "Trassada yana sonlar. Har birini o'qing: avval o'nliklar, keyin qadamlar." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Не путай цифры местами.', uz: "Raqamlar o'rnini chalkashtirma." }
     }
@@ -1220,7 +1220,7 @@ const CONTENT = {
   s13: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
-    q: { ru: 'Прочитай число на трассе.', uz: "Trassada sonni o'qi." },
+    q: { ru: 'Прочитай число на трассе.', uz: "Trassada sonni o'qing." },
     opts: [{ ru: '64', uz: '64', ok: true }, { ru: '46', uz: '46' }, { ru: '60', uz: '60' }, { ru: '70', uz: '70' }],
     wrong: { ru: 'Между 60 и 70, четыре шага — шестьдесят четыре.', uz: "60 bilan 70 orasida, to'rt qadam — oltmish to'rt." },
     done_text: { ru: 'Верно! Это 64.', uz: "To'g'ri! Bu 64." },
@@ -1282,7 +1282,7 @@ const BRIDGES = {
   s7:  { ru: 'Объяснение закончили. Переходим к тренировке.', uz: "Tushuntirishni tugatdik. Trenirovkaga o'tamiz." },
   s8:  { ru: 'Здесь цифры легко перепутать.', uz: "Bu yerda raqamlarni chalkashtirish oson." },
   s9:  { ru: 'Теперь ставь корабль сам.', uz: "Endi kemani o'zingiz qo'ying." },
-  s10: { ru: 'Читай ещё числа на трассе.', uz: "Trassada yana sonlarni o'qi." },
+  s10: { ru: 'Читай ещё числа на трассе.', uz: "Trassada yana sonlarni o'qing." },
   s11: { ru: 'Ещё раз поставь корабль на трассу.', uz: "Kemani yana trassaga qo'ying." },
   s12: { ru: 'Анвар смотрит на трассу.', uz: 'Anvar trassaga qaraydi.' },
   s13: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },

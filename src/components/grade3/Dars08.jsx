@@ -1000,7 +1000,7 @@ const CONTENT = {
         ]
       },
       on_correct: { ru: 'Верно. Маленький знак слева отнимается: пять минус один это четыре.', uz: "To'g'ri. Kichik belgi chapda ayiriladi: besh ayir bir bu to'rt." },
-      on_wrong: { ru: 'Смотри на порядок. Маленький знак слева отнимается, не прибавляется.', uz: "Tartibga qara. Kichik belgi chapda ayiriladi, qo'shilmaydi." }
+      on_wrong: { ru: 'Смотри на порядок. Маленький знак слева отнимается, не прибавляется.', uz: "Tartibga qarang. Kichik belgi chapda ayiriladi, qo'shilmaydi." }
     }
   },
 
@@ -1151,9 +1151,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Читай числа, записанные римскими знаками. Три задания.', uz: "Rim belgilari bilan yozilgan sonlarni o'qi. Uchta topshiriq." },
+      intro: { ru: 'Читай числа, записанные римскими знаками. Три задания.', uz: "Rim belgilari bilan yozilgan sonlarni o'qing. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри, где меньший знак: слева отнимаем, справа прибавляем.', uz: "Kichik belgi qayerda ekaniga qara: chapda ayiramiz, o'ngda qo'shamiz." }
+      on_wrong: { ru: 'Смотри, где меньший знак: слева отнимаем, справа прибавляем.', uz: "Kichik belgi qayerda ekaniga qarang: chapda ayiramiz, o'ngda qo'shamiz." }
     }
   },
 
@@ -1188,7 +1188,7 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Выбери верную запись числа римскими знаками. Три задания.', uz: "Sonning Rim belgilaridagi to'g'ri yozuvini tanla. Uchta topshiriq." },
+      intro: { ru: 'Выбери верную запись числа римскими знаками. Три задания.', uz: "Sonning Rim belgilaridagi to'g'ri yozuvini tanlang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Помни: один знак не больше трёх раз, четыре и девять пишут через вычитание.', uz: "Yodda tut: bitta belgi uch martadan ko'p emas, to'rt va to'qqiz ayirish orqali yoziladi." }
     }
@@ -1235,9 +1235,9 @@ const CONTENT = {
     },
     setup_audio: { ru: 'Год делят на месяцы, и каждый месяц можно записать римским числом по порядку. Бит показал на стене знаки: пятёрка и три единицы.', uz: "Yil oylarga bo'linadi, va har oyni tartib bo'yicha Rim soni bilan yozish mumkin. Bit devorda belgilarni ko'rsatdi: beshlik va uch birlik." },
     audio: {
-      intro: { ru: 'Прочитай, какой это месяц по счёту. Выбери верный ответ.', uz: "Bu nechanchi oy ekanini o'qi. To'g'ri javobni tanla." },
+      intro: { ru: 'Прочитай, какой это месяц по счёту. Выбери верный ответ.', uz: "Bu nechanchi oy ekanini o'qing. To'g'ri javobni tanlang." },
       on_correct: { ru: 'Верно. Пять и три это восемь — восьмой месяц.', uz: "To'g'ri. Besh va uch bu sakkiz — sakkizinchi oy." },
-      on_wrong: { ru: 'Считай знаки: пятёрка и три единицы это восемь.', uz: "Belgilarni sana: beshlik va uch birlik bu sakkiz." }
+      on_wrong: { ru: 'Считай знаки: пятёрка и три единицы это восемь.', uz: "Belgilarni sanang: beshlik va uch birlik bu sakkiz." }
     }
   },
 
