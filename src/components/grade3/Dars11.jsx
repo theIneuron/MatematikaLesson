@@ -958,6 +958,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars11 «×÷ 10 va 100 ga» (num-3-11). RU + UZ to'liq.
@@ -1256,19 +1267,19 @@ const CONTENT = {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
     intro_line: { ru: 'Пять заданий садового счёта.', uz: "Bog' hisobidan beshta topshiriq." },
     items: [
-      { kind: 'mc', q: { ru: 'Сколько будет 9 × 10?', uz: "9 × 10 nechta bo'ladi?" },
+      { kind: 'mc', q: { ru: 'Сколько будет 9 × 10?', uz: "9 × 10 nechta bo'ladi?" }, topic: { ru: 'умножение на 10', uz: "10 ga ko'paytirish" },
         opt0: { ru: '90', uz: '90' }, opt1: { ru: '19', uz: '19' }, opt2: { ru: '900', uz: '900' },
         wrong_1: { ru: 'Это сложение. При умножении на десять добавляется ноль: 90.', uz: "Bu qo'shish. O'nga ko'paytirganda nol qo'shiladi: 90." },
         wrong_2: { ru: 'Два нуля — это на сто. На десять один ноль: 90.', uz: "Ikkita nol — bu yuzga. O'nga bitta nol: 90." } },
-      { kind: 'mc', q: { ru: 'Сколько будет 6 × 100?', uz: "6 × 100 nechta bo'ladi?" },
+      { kind: 'mc', q: { ru: 'Сколько будет 6 × 100?', uz: "6 × 100 nechta bo'ladi?" }, topic: { ru: 'умножение на 100', uz: "100 ga ko'paytirish" },
         opt0: { ru: '600', uz: '600' }, opt1: { ru: '60', uz: '60' }, opt2: { ru: '106', uz: '106' },
         wrong_1: { ru: 'Один ноль — это на десять. На сто два нуля: 600.', uz: "Bitta nol — bu o'nga. Yuzga ikkita nol: 600." },
         wrong_2: { ru: 'Это сложение ста. Нужно умножение: 600.', uz: "Bu yuz qo'shish. Ko'paytirish kerak: 600." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 70 ÷ 10', uz: "Javobni tering: 70 ÷ 10" }, ans: 7,
+      { kind: 'num', q: { ru: 'Набери ответ: 70 ÷ 10', uz: "Javobni tering: 70 ÷ 10" }, topic: { ru: 'деление на 10', uz: "10 ga bo'lish" }, ans: 7,
         hint: { ru: 'Убираем один ноль: остаётся 7.', uz: "Bitta nolni olamiz: 7 qoladi." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 800 ÷ 100', uz: "Javobni tering: 800 ÷ 100" }, ans: 8,
+      { kind: 'num', q: { ru: 'Набери ответ: 800 ÷ 100', uz: "Javobni tering: 800 ÷ 100" }, topic: { ru: 'деление на 100', uz: "100 ga bo'lish" }, ans: 8,
         hint: { ru: 'На сто убираем два нуля: остаётся 8.', uz: "Yuzga bo'lsak ikkita nolni olamiz: 8 qoladi." } },
-      { kind: 'num', q: { ru: 'Я стало 500 после умножения на 100. Какое я число?', uz: "100 ga ko'paytirilgach 500 bo'ldim. Men qaysi sonman?" }, ans: 5,
+      { kind: 'num', q: { ru: 'Я стало 500 после умножения на 100. Какое я число?', uz: "100 ga ko'paytirilgach 500 bo'ldim. Men qaysi sonman?" }, topic: { ru: 'обратная задача', uz: 'teskari masala' }, ans: 5,
         hint: { ru: 'Обратный ход: 500 разделить на 100 будет 5.', uz: "Teskari yo'l: 500 ni 100 ga bo'lsak, 5 bo'ladi." } }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi' },
@@ -2987,6 +2998,7 @@ const Screen12 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -2994,7 +3006,7 @@ const Screen12 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -3002,14 +3014,14 @@ const Screen12 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3067,7 +3079,7 @@ const Screen12 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>

@@ -955,6 +955,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars06 «Son o'qida son» (num-3-06). RU + UZ to'liq.
@@ -1233,7 +1244,7 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Между какими сотнями стоит 630?', uz: '630 qaysi yuzliklar orasida?' },
+        q: { ru: 'Между какими сотнями стоит 630?', uz: '630 qaysi yuzliklar orasida?' }, topic: { ru: 'место между сотнями', uz: "yuzliklar orasidagi o'rin" },
         opt0: { ru: '600 и 700', uz: '600 va 700' },
         opt1: { ru: '500 и 600', uz: '500 va 600' },
         opt2: { ru: '700 и 800', uz: '700 va 800' },
@@ -1242,12 +1253,12 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 500,
-        q: { ru: 'Какая круглая сотня стоит сразу после 460?', uz: "460 dan keyingi yumaloq yuzlik qaysi son?" },
+        q: { ru: 'Какая круглая сотня стоит сразу после 460?', uz: "460 dan keyingi yumaloq yuzlik qaysi son?" }, topic: { ru: 'следующая круглая сотня', uz: 'keyingi yumaloq yuzlik' },
         hint: { ru: 'Следующая метка сотен после четырёхсот шестидесяти это пятьсот.', uz: "To'rt yuz oltmishdan keyingi yuzlik belgisi bu besh yuz." }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число показывает метка на 250?', uz: '250 dagi belgi qaysi sonni ko\'rsatadi?' },
+        q: { ru: 'Какое число показывает метка на 250?', uz: '250 dagi belgi qaysi sonni ko\'rsatadi?' }, topic: { ru: 'чтение метки', uz: "belgini o'qish" },
         opt0: { ru: '250', uz: '250' },
         opt1: { ru: '200', uz: '200' },
         opt2: { ru: '350', uz: '350' },
@@ -1256,12 +1267,12 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 700,
-        q: { ru: 'Какая круглая сотня стоит прямо перед 730?', uz: "730 dan oldingi yumaloq yuzlik qaysi son?" },
+        q: { ru: 'Какая круглая сотня стоит прямо перед 730?', uz: "730 dan oldingi yumaloq yuzlik qaysi son?" }, topic: { ru: 'предыдущая круглая сотня', uz: 'oldingi yumaloq yuzlik' },
         hint: { ru: 'Метка сотен слева от семисот тридцати это семьсот.', uz: "Yetti yuz o'ttizning chapidagi yuzlik belgisi bu yetti yuz." }
       },
       {
         kind: 'num', ans: 280,
-        q: { ru: 'Загадка. Я стою между 200 и 300, оканчиваюсь на ноль, а десятков у меня восемь. Кто я?', uz: "Jumboq. Men 200 bilan 300 orasidaman, nol bilan tugayman, o'nligim sakkiz. Men kimman?" },
+        q: { ru: 'Загадка. Я стою между 200 и 300, оканчиваюсь на ноль, а десятков у меня восемь. Кто я?', uz: "Jumboq. Men 200 bilan 300 orasidaman, nol bilan tugayman, o'nligim sakkiz. Men kimman?" }, topic: { ru: 'число по приметам', uz: "belgilari bo'yicha son" },
         hint: { ru: 'Двести и восемь десятков, единиц нет — двести восемьдесят.', uz: "Ikki yuz va sakkiz o'nlik, birlik yo'q — ikki yuz sakson." }
       }
     ],
@@ -2910,6 +2921,7 @@ const Screen10 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -2917,7 +2929,7 @@ const Screen10 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -2925,14 +2937,14 @@ const Screen10 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -2990,7 +3002,7 @@ const Screen10 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>

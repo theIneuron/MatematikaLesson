@@ -956,6 +956,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars10 «Ko'paytirish jadvali» (num-3-10). RU + UZ to'liq.
@@ -1226,7 +1237,7 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Сколько будет 8 умножить на 7?', uz: '8 ni 7 ga ko\'paytirsa nechta?' },
+        q: { ru: 'Сколько будет 8 умножить на 7?', uz: '8 ni 7 ga ko\'paytirsa nechta?' }, topic: { ru: 'таблица умножения', uz: "ko'paytirish jadvali" },
         opt0: { ru: '56', uz: '56' },
         opt1: { ru: '54', uz: '54' },
         opt2: { ru: '15', uz: '15' },
@@ -1235,7 +1246,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Сколько будет 4 умножить на 9?', uz: '4 ni 9 ga ko\'paytirsa nechta?' },
+        q: { ru: 'Сколько будет 4 умножить на 9?', uz: '4 ni 9 ga ko\'paytirsa nechta?' }, topic: { ru: 'таблица умножения', uz: "ko'paytirish jadvali" },
         opt0: { ru: '36', uz: '36' },
         opt1: { ru: '32', uz: '32' },
         opt2: { ru: '13', uz: '13' },
@@ -1244,12 +1255,12 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 48,
-        q: { ru: 'Набери ответ: 6 × 8.', uz: "Javobni ter: 6 × 8." },
+        q: { ru: 'Набери ответ: 6 × 8.', uz: "Javobni ter: 6 × 8." }, topic: { ru: 'таблица умножения', uz: "ko'paytirish jadvali" },
         hint: { ru: 'Шесть на восемь это сорок восемь.', uz: "Olti ko'paytiruv sakkiz bu qirq sakkiz." }
       },
       {
         kind: 'mc',
-        q: { ru: 'Что верно про 3 × 4 и 4 × 3?', uz: "3 × 4 va 4 × 3 haqida qaysi to'g'ri?" },
+        q: { ru: 'Что верно про 3 × 4 и 4 × 3?', uz: "3 × 4 va 4 × 3 haqida qaysi to'g'ri?" }, topic: { ru: 'перестановка множителей', uz: "ko'paytuvchilar o'rni" },
         opt0: { ru: 'Равны, 12', uz: 'Teng, 12' },
         opt1: { ru: 'Разные', uz: 'Har xil' },
         opt2: { ru: 'Равны 7', uz: 'Teng 7' },
@@ -1258,7 +1269,7 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 9,
-        q: { ru: 'Загадка. Если меня умножить на 7, будет 63. Кто я?', uz: "Jumboq. Meni 7 ga ko'paytirsa, 63 chiqadi. Men kimman?" },
+        q: { ru: 'Загадка. Если меня умножить на 7, будет 63. Кто я?', uz: "Jumboq. Meni 7 ga ko'paytirsa, 63 chiqadi. Men kimman?" }, topic: { ru: 'обратная задача', uz: 'teskari masala' },
         hint: { ru: 'Какое число в таблице на семь даёт шестьдесят три? Это девять.', uz: "Yettiga ko'paytirilganda oltmish uch beradigan son qaysi? Bu to'qqiz." }
       }
     ],
@@ -2977,6 +2988,7 @@ const Screen10 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -2984,7 +2996,7 @@ const Screen10 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -2992,14 +3004,14 @@ const Screen10 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3057,7 +3069,7 @@ const Screen10 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>

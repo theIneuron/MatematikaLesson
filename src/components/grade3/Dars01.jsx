@@ -972,6 +972,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars01 «Yuzliklar, o'nliklar, birliklar» (num-3-01-v1). RU + UZ to'liq.
@@ -1355,16 +1366,22 @@ const CONTENT = {
       {
         kind: 'num', ans: 645,
         q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'sh: 600 + 40 + 5. Javobni ter." },
+
+        topic: { ru: 'разрядные слагаемые', uz: "razryad qo'shiluvchilari" },
         hint: { ru: 'По местам: шесть сотен, четыре десятка, пять единиц.', uz: "O'z o'rniga: olti yuzlik, to'rt o'nlik, besh birlik." }
       },
       {
         kind: 'num', ans: 230,
         q: { ru: 'Запиши цифрами число двести тридцать.', uz: "Ikki yuz o'ttiz sonini raqamlab ter." },
+
+        topic: { ru: 'запись числа цифрами', uz: "sonni raqamlab yozish" },
         hint: { ru: 'Две сотни, три десятка, единиц нет — ноль в конце.', uz: "Ikki yuzlik, uch o'nlik, birlik yo'q — oxirida nol." }
       },
       {
         kind: 'mc',
         q: { ru: 'Сколько сотен в числе 682?', uz: "682 sonida nechta yuzlik bor?" },
+
+        topic: { ru: 'разряд сотен', uz: "yuzliklar xonasi" },
         opt0: { ru: '6 сотен', uz: '6 yuzlik' },
         opt1: { ru: '8 сотен', uz: '8 yuzlik' },
         opt2: { ru: '2 сотни', uz: '2 yuzlik' },
@@ -1374,6 +1391,8 @@ const CONTENT = {
       {
         kind: 'mc',
         q: { ru: 'Что больше: 519 или 591?', uz: "Qaysi biri katta: 519 yoki 591?" },
+
+        topic: { ru: 'сравнение чисел', uz: "sonlarni taqqoslash" },
         opt0: { ru: '591', uz: '591' },
         opt1: { ru: '519', uz: '519' },
         opt2: { ru: 'Они равны', uz: 'Ular teng' },
@@ -1383,6 +1402,8 @@ const CONTENT = {
       {
         kind: 'num', ans: 522,
         q: { ru: 'Загадка. Я трёхзначное число. Сотен 5, единиц 2, а десятков на 3 меньше, чем сотен. Кто я?', uz: "Jumboq. Men uch xonali sonman. Yuzligim 5, birligim 2, o'nligim yuzligimdan 3 kam. Men kimman?" },
+
+        topic: { ru: 'загадка про разряды', uz: "xonalar topishmog'i" },
         hint: { ru: 'Начни с сотен: пять. Десятков на три меньше пяти. Единиц два.', uz: "Yuzlikdan boshla: besh. O'nlik beshdan uch kam. Birlik ikki." }
       }
     ],
@@ -3822,6 +3843,7 @@ const Screen14 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7); // 5 dan 4
@@ -3829,7 +3851,7 @@ const Screen14 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore(s => s + 1);
+    if (isOk) setScore(s => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx(n => n + 1); }, 1500);
   };
@@ -3837,14 +3859,14 @@ const Screen14 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore(s => s + 1);
+    if (isOk) setScore(s => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx(n => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3903,7 +3925,7 @@ const Screen14 = (props) => {
         {done && (
           <div ref={factRef}>
             <div className="frame-success fade-up">
-              <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
+              <Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/>
             </div>
             <div className="d2-factcard fade-up" style={{ marginTop: 12 }}>
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>

@@ -958,6 +958,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars03 «Razryad qo'shiluvchilari» (num-3-03). RU + UZ to'liq.
@@ -1332,11 +1343,15 @@ const CONTENT = {
       {
         kind: 'num', ans: 493,
         q: { ru: 'Собери число: 400 + 90 + 3.', uz: "Sonni yig'ing: 400 + 90 + 3." },
+
+        topic: { ru: 'сборка числа', uz: "sonni yig'ish" },
         hint: { ru: 'Четыре сотни, девять десятков, три единицы.', uz: "To'rt yuzlik, to'qqiz o'nlik, uch birlik." }
       },
       {
         kind: 'mc',
         q: { ru: 'Какое разложение у числа 648?', uz: "648 sonining yoyilmasi qanday?" },
+
+        topic: { ru: 'разложение числа', uz: "sonni yoyish" },
         opt0: { ru: '600 + 40 + 8', uz: '600 + 40 + 8' },
         opt1: { ru: '6 + 4 + 8', uz: '6 + 4 + 8' },
         opt2: { ru: '600 + 4 + 8', uz: '600 + 4 + 8' },
@@ -1346,11 +1361,15 @@ const CONTENT = {
       {
         kind: 'num', ans: 760,
         q: { ru: 'Собери число: 700 + 60.', uz: "Sonni yig'ing: 700 + 60." },
+
+        topic: { ru: 'число без единиц', uz: "birliksiz son" },
         hint: { ru: 'Семь сотен, шесть десятков, единиц нет — ноль в конце.', uz: "Yetti yuzlik, olti o'nlik, birlik yo'q — oxirida nol." }
       },
       {
         kind: 'mc',
         q: { ru: 'Какое разложение у числа 805?', uz: "805 sonining yoyilmasi qanday?" },
+
+        topic: { ru: 'ноль в разряде', uz: "xonadagi nol" },
         opt0: { ru: '800 + 5', uz: '800 + 5' },
         opt1: { ru: '800 + 50', uz: '800 + 50' },
         opt2: { ru: '80 + 5', uz: '80 + 5' },
@@ -1360,6 +1379,8 @@ const CONTENT = {
       {
         kind: 'num', ans: 530,
         q: { ru: 'Загадка. Сотен у меня пять, десятков три, единиц нет. Кто я?', uz: "Jumboq. Yuzligim besh, o'nligim uch, birligim yo'q. Men kimman?" },
+
+        topic: { ru: 'загадка про разряды', uz: "xonalar topishmog'i" },
         hint: { ru: 'Пятьсот плюс тридцать. Единиц нет — в конце ноль.', uz: "Besh yuz va o'ttiz. Birlik yo'q — oxirida nol." }
       }
     ],
@@ -3235,6 +3256,7 @@ const Screen12 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -3242,7 +3264,7 @@ const Screen12 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -3250,14 +3272,14 @@ const Screen12 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3315,7 +3337,7 @@ const Screen12 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>

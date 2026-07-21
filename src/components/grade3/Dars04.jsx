@@ -957,6 +957,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars04 «Uch xonali sonlarni taqqoslash» (num-3-04). RU + UZ to'liq.
@@ -1221,7 +1232,7 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Какое число больше: 618 или 681?', uz: 'Qaysi son katta: 618 yoki 681?' },
+        q: { ru: 'Какое число больше: 618 или 681?', uz: 'Qaysi son katta: 618 yoki 681?' }, topic: { ru: 'сравнение по десяткам', uz: "o'nliklar bo'yicha taqqoslash" },
         opt0: { ru: '681', uz: '681' },
         opt1: { ru: '618', uz: '618' },
         opt2: { ru: 'Поровну', uz: 'Teng' },
@@ -1230,7 +1241,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Какой знак верен: 507 ... 570?', uz: "Qaysi belgi to'g'ri: 507 ... 570?" },
+        q: { ru: 'Какой знак верен: 507 ... 570?', uz: "Qaysi belgi to'g'ri: 507 ... 570?" }, topic: { ru: 'выбор знака', uz: 'belgini tanlash' },
         opt0: { ru: 'меньше', uz: 'kichik' },
         opt1: { ru: 'больше', uz: 'katta' },
         opt2: { ru: 'равно', uz: 'teng' },
@@ -1239,12 +1250,12 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 800,
-        q: { ru: 'Какое число больше: 800 или 799? Запиши большее.', uz: '800 yoki 799 — qaysi katta? Kattasini yozing.' },
+        q: { ru: 'Какое число больше: 800 или 799? Запиши большее.', uz: '800 yoki 799 — qaysi katta? Kattasini yozing.' }, topic: { ru: 'переход через сотню', uz: "yuzlikdan o'tish" },
         hint: { ru: 'Сотни: 8 больше 7. Значит больше восемьсот.', uz: "Yuzlik: 8, 7 dan katta. Demak sakkiz yuz katta." }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какая запись верна?', uz: "Qaysi yozuv to'g'ri?" },
+        q: { ru: 'Какая запись верна?', uz: "Qaysi yozuv to'g'ri?" }, topic: { ru: 'верная запись', uz: "to'g'ri yozuv" },
         opt0: { ru: '640 > 604', uz: '640 > 604' },
         opt1: { ru: '640 < 604', uz: '640 < 604' },
         opt2: { ru: '640 = 604', uz: '640 = 604' },
@@ -1253,7 +1264,7 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 350,
-        q: { ru: 'Загадка. Я трёхзначное число, больше 349 и меньше 351. Кто я?', uz: "Jumboq. Men uch xonali sonman, 349 dan katta va 351 dan kichik. Men kimman?" },
+        q: { ru: 'Загадка. Я трёхзначное число, больше 349 и меньше 351. Кто я?', uz: "Jumboq. Men uch xonali sonman, 349 dan katta va 351 dan kichik. Men kimman?" }, topic: { ru: 'число между двумя', uz: 'ikki son orasidagi son' },
         hint: { ru: 'Между 349 и 351 стоит только одно число.', uz: "349 bilan 351 orasida faqat bitta son turadi." }
       }
     ],
@@ -2987,6 +2998,7 @@ const Screen11 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -2994,7 +3006,7 @@ const Screen11 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -3002,14 +3014,14 @@ const Screen11 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3067,7 +3079,7 @@ const Screen11 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>

@@ -956,6 +956,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars05 «Sonlarni yaxlitlash» (num-3-05). RU + UZ to'liq.
@@ -1248,7 +1259,7 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitla." },
+        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitla." }, topic: { ru: 'округление до десятков', uz: "o'nlikkacha yaxlitlash" },
         opt0: { ru: '60', uz: '60' },
         opt1: { ru: '50', uz: '50' },
         opt2: { ru: '58', uz: '58' },
@@ -1257,7 +1268,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitla.' },
+        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitla.' }, topic: { ru: 'округление до сотен', uz: 'yuzlikkacha yaxlitlash' },
         opt0: { ru: '400', uz: '400' },
         opt1: { ru: '500', uz: '500' },
         opt2: { ru: '410', uz: '410' },
@@ -1266,12 +1277,12 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 280,
-        q: { ru: 'Округли 275 до десятков и запиши.', uz: "275 ni o'nlikkacha yaxlitlab yozing." },
+        q: { ru: 'Округли 275 до десятков и запиши.', uz: "275 ni o'nlikkacha yaxlitlab yozing." }, topic: { ru: 'округление до десятков', uz: "o'nlikkacha yaxlitlash" },
         hint: { ru: 'Единиц пять — округляем вверх, к 280.', uz: "Birlik besh — yuqoriga, 280 ga." }
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitla." },
+        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitla." }, topic: { ru: 'округление вверх', uz: 'yuqoriga yaxlitlash' },
         opt0: { ru: '90', uz: '90' },
         opt1: { ru: '100', uz: '100' },
         opt2: { ru: '80', uz: '80' },
@@ -1280,7 +1291,7 @@ const CONTENT = {
       },
       {
         kind: 'num', ans: 58,
-        q: { ru: 'Загадка. Если округлить меня до десятков, будет 60. Единиц у меня восемь. Кто я?', uz: "Jumboq. Meni o'nlikkacha yaxlitlasa 60 chiqadi. Birligim sakkiz. Men kimman?" },
+        q: { ru: 'Загадка. Если округлить меня до десятков, будет 60. Единиц у меня восемь. Кто я?', uz: "Jumboq. Meni o'nlikkacha yaxlitlasa 60 chiqadi. Birligim sakkiz. Men kimman?" }, topic: { ru: 'обратная задача', uz: 'teskari masala' },
         hint: { ru: 'Единиц восемь, округляется вверх к 60. Значит число пятьдесят восемь.', uz: "Birlik sakkiz, yuqoriga 60 ga yaxlitlanadi. Demak son ellik sakkiz." }
       }
     ],
@@ -2981,6 +2992,7 @@ const Screen11 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -2988,7 +3000,7 @@ const Screen11 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -2996,14 +3008,14 @@ const Screen11 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3061,7 +3073,7 @@ const Screen11 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>

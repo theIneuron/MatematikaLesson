@@ -955,6 +955,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars08 «Rim raqamlari» (num-3-08). RU + UZ to'liq.
@@ -1237,7 +1248,7 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками XIII?', uz: 'XIII belgilari qaysi sonni yozadi?' },
+        q: { ru: 'Какое число записано знаками XIII?', uz: 'XIII belgilari qaysi sonni yozadi?' }, topic: { ru: 'чтение римских знаков', uz: "rim belgilarini o'qish" },
         opt0: { ru: '13', uz: '13' },
         opt1: { ru: '15', uz: '15' },
         opt2: { ru: '8', uz: '8' },
@@ -1246,7 +1257,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Как записать 12 римскими цифрами?', uz: '12 ni Rim raqamlarida qanday yozamiz?' },
+        q: { ru: 'Как записать 12 римскими цифрами?', uz: '12 ni Rim raqamlarida qanday yozamiz?' }, topic: { ru: 'запись римскими цифрами', uz: 'rim raqamida yozish' },
         opt0: { ru: 'XII', uz: 'XII' },
         opt1: { ru: 'IIX', uz: 'IIX' },
         opt2: { ru: 'XXII', uz: 'XXII' },
@@ -1255,7 +1266,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками IX?', uz: 'IX belgilari qaysi sonni yozadi?' },
+        q: { ru: 'Какое число записано знаками IX?', uz: 'IX belgilari qaysi sonni yozadi?' }, topic: { ru: 'вычитание в римской записи', uz: 'rim yozuvida ayirish' },
         opt0: { ru: '9', uz: '9' },
         opt1: { ru: '11', uz: '11' },
         opt2: { ru: '6', uz: '6' },
@@ -1264,7 +1275,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Как записать 90 римскими цифрами?', uz: '90 ni Rim raqamlarida qanday yozamiz?' },
+        q: { ru: 'Как записать 90 римскими цифрами?', uz: '90 ni Rim raqamlarida qanday yozamiz?' }, topic: { ru: 'запись римскими цифрами', uz: 'rim raqamida yozish' },
         opt0: { ru: 'XC', uz: 'XC' },
         opt1: { ru: 'CX', uz: 'CX' },
         opt2: { ru: 'LXL', uz: 'LXL' },
@@ -1273,7 +1284,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками XXIV?', uz: 'XXIV belgilari qaysi sonni yozadi?' },
+        q: { ru: 'Какое число записано знаками XXIV?', uz: 'XXIV belgilari qaysi sonni yozadi?' }, topic: { ru: 'чтение римских знаков', uz: "rim belgilarini o'qish" },
         opt0: { ru: '24', uz: '24' },
         opt1: { ru: '26', uz: '26' },
         opt2: { ru: '16', uz: '16' },
@@ -2915,6 +2926,7 @@ const Screen10 = (props) => {
   const [picked, setPicked] = useState(null);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -2922,14 +2934,14 @@ const Screen10 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -2971,7 +2983,7 @@ const Screen10 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>

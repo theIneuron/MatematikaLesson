@@ -958,6 +958,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars13 «Yig'indini bo'lish» (num-3-13). RU + UZ to'liq.
@@ -1255,19 +1266,19 @@ const CONTENT = {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
     intro_line: { ru: 'Пять заданий на деление суммы.', uz: "Yig'indini bo'lishga beshta topshiriq." },
     items: [
-      { kind: 'mc', q: { ru: 'Какое разложение подходит для 72 ÷ 6?', uz: "72 ÷ 6 uchun qaysi ajratish mos keladi?" },
+      { kind: 'mc', q: { ru: 'Какое разложение подходит для 72 ÷ 6?', uz: "72 ÷ 6 uchun qaysi ajratish mos keladi?" }, topic: { ru: 'удобное разложение', uz: 'qulay ajratish' },
         opt0: { ru: '60 + 12', uz: '60 + 12' }, opt1: { ru: '70 + 2', uz: '70 + 2' }, opt2: { ru: '7 + 2', uz: '7 + 2' },
         wrong_1: { ru: 'Семьдесят на шесть без остатка не делится. Здесь десятки и единицы не подходят.', uz: "Yetmishni oltiga qoldiqsiz bo'lib bo'lmaydi. Bu yerda o'nlik va birlik yaramaydi." },
         wrong_2: { ru: 'Семь плюс два — девять. Число должно остаться семьдесят два.', uz: "Yetti qo'shuv ikki — to'qqiz. Son yetmish ikkiligicha qolishi kerak." } },
-      { kind: 'mc', q: { ru: 'Чему равно (80 + 4) ÷ 4?', uz: "(80 + 4) ÷ 4 nimaga teng?" },
+      { kind: 'mc', q: { ru: 'Чему равно (80 + 4) ÷ 4?', uz: "(80 + 4) ÷ 4 nimaga teng?" }, topic: { ru: 'деление суммы', uz: "yig'indini bo'lish" },
         opt0: { ru: '80 ÷ 4 + 4 ÷ 4', uz: '80 ÷ 4 + 4 ÷ 4' }, opt1: { ru: '80 ÷ 4 + 4', uz: '80 ÷ 4 + 4' }, opt2: { ru: '80 + 4 ÷ 4', uz: '80 + 4 ÷ 4' },
         wrong_1: { ru: 'Вторая часть тоже делится на четыре, а не остаётся как есть.', uz: "Ikkinchi bo'lak ham to'rtga bo'linadi, o'z holicha qolmaydi." },
         wrong_2: { ru: 'Первая часть тоже делится на четыре. Обе части.', uz: "Birinchi bo'lak ham to'rtga bo'linadi. Ikkala bo'lak." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 69 ÷ 3', uz: "Javobni tering: 69 ÷ 3" }, ans: 23,
+      { kind: 'num', q: { ru: 'Набери ответ: 69 ÷ 3', uz: "Javobni tering: 69 ÷ 3" }, topic: { ru: 'деление по частям', uz: "bo'laklab bo'lish" }, ans: 23,
         hint: { ru: 'Шестьдесят на три — двадцать. Девять на три — три.', uz: "Oltmishni uchga — yigirma. To'qqizni uchga — uch." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 96 ÷ 3', uz: "Javobni tering: 96 ÷ 3" }, ans: 32,
+      { kind: 'num', q: { ru: 'Набери ответ: 96 ÷ 3', uz: "Javobni tering: 96 ÷ 3" }, topic: { ru: 'деление по частям', uz: "bo'laklab bo'lish" }, ans: 32,
         hint: { ru: 'Девяносто на три — тридцать. Шесть на три — два.', uz: "To'qsonni uchga — o'ttiz. Oltini uchga — ikki." } },
-      { kind: 'num', q: { ru: 'Плодов 66, корзин 6. Сколько в каждой?', uz: "Meva 66 ta, savat 6 ta. Har birida nechtadan?" }, ans: 11,
+      { kind: 'num', q: { ru: 'Плодов 66, корзин 6. Сколько в каждой?', uz: "Meva 66 ta, savat 6 ta. Har birida nechtadan?" }, topic: { ru: 'задача на деление', uz: "bo'lishga masala" }, ans: 11,
         hint: { ru: 'Шестьдесят на шесть — десять. Шесть на шесть — один. Сложи.', uz: "Oltmishni oltiga — o'n. Oltini oltiga — bir. Qo'shing." } }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
@@ -2990,6 +3001,7 @@ const Screen12 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -2997,7 +3009,7 @@ const Screen12 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -3005,14 +3017,14 @@ const Screen12 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3070,7 +3082,7 @@ const Screen12 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>

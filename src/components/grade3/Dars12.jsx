@@ -958,6 +958,17 @@ const scorePraiseAudio = (score, total, lang) => {
     ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
     : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
+// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
+const withTopics = (base, topics, lang) => {
+  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
+  if (!uniq.length) return base;
+  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
+  base = base
+    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
+    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
+  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
+  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars12 «Yig'indini ko'paytirish» (num-3-12). RU + UZ to'liq.
@@ -1254,19 +1265,19 @@ const CONTENT = {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
     intro_line: { ru: 'Пять заданий на умножение суммы.', uz: "Yig'indini ko'paytirishga beshta topshiriq." },
     items: [
-      { kind: 'mc', q: { ru: 'Как верно разделить 26?', uz: "26 ni qanday to'g'ri ajratamiz?" },
+      { kind: 'mc', q: { ru: 'Как верно разделить 26?', uz: "26 ni qanday to'g'ri ajratamiz?" }, topic: { ru: 'разложение числа на части', uz: "sonni bo'laklarga ajratish" },
         opt0: { ru: '20 + 6', uz: '20 + 6' }, opt1: { ru: '2 + 6', uz: '2 + 6' }, opt2: { ru: '26 + 6', uz: '26 + 6' },
         wrong_1: { ru: 'Два плюс шесть — восемь. Первая цифра означает двадцать.', uz: "Ikki qo'shuv olti — sakkiz. Birinchi raqam yigirmani bildiradi." },
         wrong_2: { ru: 'Число нельзя увеличивать. Двадцать шесть надо разделить на десятки и единицы.', uz: "Sonni kattalashtirib bo'lmaydi. Yigirma oltini o'nlik va birlikka ajratish kerak." } },
-      { kind: 'mc', q: { ru: 'Чему равно (30 + 2) × 5?', uz: "(30 + 2) × 5 nimaga teng?" },
+      { kind: 'mc', q: { ru: 'Чему равно (30 + 2) × 5?', uz: "(30 + 2) × 5 nimaga teng?" }, topic: { ru: 'умножение суммы', uz: "yig'indini ko'paytirish" },
         opt0: { ru: '30 × 5 + 2 × 5', uz: '30 × 5 + 2 × 5' }, opt1: { ru: '30 × 5 + 2', uz: '30 × 5 + 2' }, opt2: { ru: '30 + 2 × 5', uz: '30 + 2 × 5' },
         wrong_1: { ru: 'Вторая часть тоже умножается на пять, а не остаётся как есть.', uz: "Ikkinchi bo'lak ham beshga ko'paytiriladi, o'z holicha qolmaydi." },
         wrong_2: { ru: 'Первая часть тоже умножается на пять. Обе части.', uz: "Birinchi bo'lak ham beshga ko'paytiriladi. Ikkala bo'lak." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 22 × 4', uz: "Javobni tering: 22 × 4" }, ans: 88,
+      { kind: 'num', q: { ru: 'Набери ответ: 22 × 4', uz: "Javobni tering: 22 × 4" }, topic: { ru: 'умножение по частям', uz: "bo'laklab ko'paytirish" }, ans: 88,
         hint: { ru: 'Двадцать на четыре — восемьдесят. Два на четыре — восемь.', uz: "Yigirmani to'rtga — sakson. Ikkini to'rtga — sakkiz." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 43 × 2', uz: "Javobni tering: 43 × 2" }, ans: 86,
+      { kind: 'num', q: { ru: 'Набери ответ: 43 × 2', uz: "Javobni tering: 43 × 2" }, topic: { ru: 'умножение по частям', uz: "bo'laklab ko'paytirish" }, ans: 86,
         hint: { ru: 'Сорок на два — восемьдесят. Три на два — шесть.', uz: "Qirqni ikkiga — sakson. Uchni ikkiga — olti." } },
-      { kind: 'num', q: { ru: 'На полке 15 растений, полок 3. Сколько всего?', uz: "Tokchada 15 ta o'simlik, tokcha 3 ta. Jami nechta?" }, ans: 45,
+      { kind: 'num', q: { ru: 'На полке 15 растений, полок 3. Сколько всего?', uz: "Tokchada 15 ta o'simlik, tokcha 3 ta. Jami nechta?" }, topic: { ru: 'задача на умножение', uz: "ko'paytirishga masala" }, ans: 45,
         hint: { ru: 'Десять на три — тридцать. Пять на три — пятнадцать. Сложи.', uz: "O'nni uchga — o'ttiz. Beshni uchga — o'n besh. Qo'shing." } }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
@@ -2968,6 +2979,7 @@ const Screen12 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
+  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -2975,7 +2987,7 @@ const Screen12 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -2983,14 +2995,14 @@ const Screen12 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1);
+    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3048,7 +3060,7 @@ const Screen12 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
