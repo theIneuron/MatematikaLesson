@@ -2768,13 +2768,17 @@ const Screen8 = (props) => {
   const done = round >= items.length;
   const it = items[Math.min(round, items.length - 1)];
   const correct = parseInt(val, 10) === it.ans;
+  const missRef = useRef(false);       // shu raundda xato bo'ldimi
+  const firstOkRef = useRef(0);        // BIRINCHI urinishda to'g'ri bajarilgan raundlar
   const revealRef = useRevealScroll(checked, 500);
+  const doneRef = useRevealScroll(done, 650);   // yakun kartasiga avtoskroll
   const check = () => {
     if (!canAct || checked || done || val === '') return;
     setChecked(true);
     const isOk = correct;
     setRoundOk(isOk);
-    if (!isOk) firstAllRef.current = false;
+    if (!isOk) { firstAllRef.current = false; missRef.current = true; }
+    else { if (!missRef.current) firstOkRef.current += 1; missRef.current = false; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setVal(''); setRound((r) => r + 1); }, 1000); }
     else { setTimeout(() => { setChecked(false); setVal(''); }, 1700); }
@@ -2782,10 +2786,10 @@ const Screen8 = (props) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(items.length), items.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(firstOkRef.current, items.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(items.length), studentAnswer: String(items.length), correct: firstAllRef.current,
+        correctAnswer: String(items.length), studentAnswer: firstOkRef.current, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -2800,27 +2804,29 @@ const Screen8 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && (
+        {/* Tugagach ham mashq ko'rinib turadi (ekran bo'shab qolmasin), faqat bosib bo'lmaydi. */}
+        {true && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(round + 1, items.length)} / {items.length}</div>
             <h1 className="title h-sub fade-up">{t(c.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <span className="mono" style={{ fontSize: 'clamp(28px, 6.5vw, 42px)', fontWeight: 800, color: T.ink, letterSpacing: 1 }}>{it.expr}</span>
-              <NumPad value={val} setValue={setVal} disabled={!canAct || checked} max={3}/>
-              <button className="btn-white-accent" disabled={!canAct || checked || val === ''} onClick={check}>{t(c.check_label)}</button>
+              <NumPad value={val} setValue={setVal} disabled={!canAct || checked || done} max={3}/>
+              <button className="btn-white-accent" disabled={!canAct || checked || done || val === ''} onClick={check}>{t(c.check_label)}</button>
             </div>
-            {checked && (
-              <div ref={revealRef} className={roundOk ? 'frame-success fade-up' : 'frame-tip fade-up'}>
+            {checked && !done && (
+              <div ref={revealRef} className={roundOk ? 'frame-success lm-riseup' : 'frame-tip lm-riseup'}>
                 <Reaction state={roundOk ? 'correct' : 'wrong'} praise={(roundOk ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
                 {!roundOk && <p style={{ margin: '8px 0 0', color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
               </div>
             )}
           </>
         )}
+        {/* Yakun: oxirgi javobdan keyin PASTDAN ko'tarilib chiqadi, ichida matn bor. */}
         {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={`${items.length} / ${items.length}`}/>
+          <div ref={doneRef} className="frame-success lm-riseup">
+            <Reaction state="correct" praise={scorePraise(firstOkRef.current, items.length, lang)}/>
           </div>
         )}
       </div>
@@ -2930,7 +2936,7 @@ const Screen11 = (props) => {
   const [checked, setChecked] = useState(props.storedAnswer !== undefined);
   const [solved, setSolved] = useState(props.storedAnswer?.correct === true);
   const firstRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : null);
-  const revealRef = useRevealScroll(checked, 500);
+  const revealRef = useRevealScroll(checked, 500, 'center');   // izoh aniq ko'rinsin
   const correct = parseInt(val, 10) === c.ans;
   const check = () => {
     if (!canAct || solved || val === '') return;
@@ -2944,7 +2950,7 @@ const Screen11 = (props) => {
       correctAnswer: String(c.ans), studentAnswer: val, correct: isOk,
       firstTry: firstRef.current, attempts: 1, solved: isOk
     });
-    if (!isOk) setTimeout(() => { setChecked(false); setVal(''); }, 1600);
+    if (!isOk) setTimeout(() => { setChecked(false); setVal(''); }, 3200);   // izohni o'qishga vaqt
   };
   const canAdv = useAdvanceGate(solved, audio);
   const navContent = (
@@ -2966,11 +2972,13 @@ const Screen11 = (props) => {
             <span className="mono" style={{ fontSize: 'clamp(20px, 4.2vw, 28px)', fontWeight: 800, color: T.ink }}>{t(c.exp_display)}</span>
           </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
-          <NumPad value={val} setValue={setVal} disabled={!canAct || solved} max={4}/>
-          <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshirish'}</button>
+          {/* To'g'ri javobdan keyin klaviatura YIG'ILADI — izoh tepaga suriladi va Bit gapiradi. */}
+          {!solved && <NumPad value={val} setValue={setVal} disabled={!canAct} max={4}/>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshirish'}</button>}
+          {solved && <span className="mono lm-riseup" style={{ fontSize: 'clamp(26px, 6vw, 38px)', fontWeight: 800, color: T.success }}>{c.ans}</span>}
         </div>
         {checked && (
-          <div ref={revealRef} className={correct ? 'frame-success fade-up' : 'frame-tip fade-up'}>
+          <div ref={revealRef} className={correct ? 'frame-success lm-riseup' : 'frame-tip lm-riseup'}>
             <Reaction state={correct ? 'correct' : 'wrong'} praise={(correct ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
           </div>
         )}
