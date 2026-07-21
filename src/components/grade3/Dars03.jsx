@@ -337,9 +337,17 @@ class AudioEngine {
     }
   }
 
-  playNext() {
+  playNext(forced = false) {
     if (this.currentIdx >= this.queue.length) return;
-    this.playSegment(this.queue[this.currentIdx]);
+    const seg = this.queue[this.currentIdx];
+    // on_event segmenti O'Z hodisasini KUTADI — avtomatik o'tib ketmasin.
+    // (Aks holda savol-oldin-qoida buziladi: bola javob bermasdan tushuntirish yangraydi.)
+    if (!forced && seg && typeof seg.trigger === 'string' && seg.trigger.indexOf('on_event:') === 0) {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
+      return;
+    }
+    this.playSegment(seg);
   }
 
   start() {
@@ -364,7 +372,7 @@ class AudioEngine {
     if (nextIdx !== -1) {
       this.currentIdx = nextIdx;
       this.waitingFor = null;
-      this.playNext();
+      this.playNext(true);
     }
   }
 
@@ -372,13 +380,13 @@ class AudioEngine {
     if (!text) return;
     this.queue.push({ id: `oneoff_${Date.now()}`, text, trigger: 'manual', waits_for: null, g: gender });
     this.currentIdx = this.queue.length - 1;
-    this.playNext();
+    this.playNext(true);
   }
 
   replay() {
     if (this.currentIdx > 0) this.currentIdx--;
     this.waitingFor = null;
-    this.playNext();
+    this.playNext(true);
   }
 
   stop() {
@@ -914,6 +922,14 @@ const shuffleMC = (c, options, correctIdx, order) => {
 
 // Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
+
+// Ball + EMOTSIONAL baho: quruq "3 / 3" o'rniga bolaga murojaat.
+const scorePraise = (score, total, lang) => {
+  const s = `${score} / ${total}`;
+  if (score >= total) return lang === 'ru' ? `Великолепно! ${s}. Ни одной ошибки!` : `Ajoyib! ${s}. Bitta ham xato yo'q!`;
+  if (score * 2 >= total) return lang === 'ru' ? `Хорошая работа! ${s}. Почти всё с первого раза.` : `Zo'r ish! ${s}. Deyarli hammasi birinchi urinishda.`;
+  return lang === 'ru' ? `Вы дошли до конца! ${s}. Главное — вы всё разобрали.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars03 «Razryad qo'shiluvchilari» (num-3-03). RU + UZ to'liq.
@@ -2478,6 +2494,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [hintMsg, setHintMsg] = useState(null);
+  const [okIdx, setOkIdx] = useState(null);   // to'g'ri tanlangan variant YASHIL bo'lib turadi
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
@@ -2487,10 +2504,11 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const pick = (i) => {
     if (!canAct || done || wrongSet.has(i)) return;
     if (i === it.ci) {
+      setOkIdx(i);
       sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 900);
+      setTimeout(() => { setOkIdx(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1100);
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
@@ -2527,7 +2545,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
               {renderFig(it)}
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
                 {it.opts.map((o, i) => (
-                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>{t(o)}</button>
                 ))}
               </div>
@@ -2537,7 +2555,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
         )}
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
+            <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
           </div>
         )}
       </div>
@@ -3091,7 +3109,7 @@ const Screen10 = (props) => {
         )}
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
+            <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
           </div>
         )}
       </div>
@@ -3265,7 +3283,7 @@ const Screen12 = (props) => {
         )}
         {done && (
           <div ref={factRef} className="frame-success fade-up">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={scorePraise(score, items.length, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
