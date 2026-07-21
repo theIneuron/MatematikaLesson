@@ -1054,13 +1054,13 @@ const CONTENT = {
         'Отлично, теперь запомним правило римских цифр.',
         'Если меньший знак стоит справа от большего, их значения складывают.',
         'Если меньший знак стоит слева, его значение отнимают от большего.',
-        'И один и тот же знак не пишут больше трёх раз подряд. А теперь сам. Какое число записано знаками, где единица стоит перед десятком?'
+        'И один и тот же знак не пишут больше трёх раз подряд.'
       ],
       uz: [
         "Zo'r, endi Rim raqamlari qoidasini eslab qolamiz.",
         "Agar kichik belgi kattadan o'ngda tursa, ularning qiymatlari qo'shiladi.",
         "Agar kichik belgi chapda tursa, uning qiymati kattadan ayiriladi.",
-        "Va bitta belgi uch martadan ko'p yozilmaydi. Endi o'zingiz. Birlik o'nlikdan oldin turgan belgilar qaysi sonni yozadi?"
+        "Va bitta belgi uch martadan ko'p yozilmaydi."
       ]
     }
   },
@@ -2419,11 +2419,18 @@ const Screen0 = (props) => {
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
   const ok = picked === 0;
+  const revealed = picked !== null;
   const fbKey = (i) => (i === 0 ? 'on_correct' : 'on_wrong');
   const pick = (i) => {
     if (picked !== null || !canAct) return;
     setPicked(i);
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[fbKey(i)][lang]); }
+    if (!audio.muted) {
+      const e = getAudioEngine();
+      if (e) {
+        e.pushOneOff(c.audio[fbKey(i)][lang]);
+        if (i !== 0) e.pushOneOff(c.audio.on_correct[lang]);   // noto'g'ri -> to'g'ri javob emotsiya bilan ochiladi
+      }
+    }
   };
   const canAdv = useAdvanceGate(picked !== null, audio);
   const navContent = (
@@ -2439,34 +2446,34 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <LessonScene gathered={ok}/>
+          <LessonScene gathered={revealed}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(18px, 3.6vw, 30px)', background: '#F0EBE1' }}>
           <RomanBig r={c.roman}/>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}>{t(c.q)}</p>
-        {picked === null && (
-          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            {opts.map((o, i) => (
-              <button key={i} className="option" disabled={!canAct} onClick={() => pick(i)}
-                style={{ padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(16px, 2.4vw, 22px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
+        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+          {opts.map((o, i) => {
+            const cls = revealed
+              ? (i === 0 ? 'option option-correct' : (picked === i ? 'option option-picked-wrong' : 'option'))
+              : 'option';
+            return (
+              <button key={i} className={cls} disabled={!canAct || revealed} onClick={() => pick(i)}
+                style={{ position: 'relative', padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(16px, 2.4vw, 22px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
+                {revealed && i === 0 && <span className="mono" style={{ position: 'absolute', top: 4, right: 7, color: '#1F7A4D', fontWeight: 800 }}>✓</span>}
                 {t(o)}
               </button>
-            ))}
-          </div>
-        )}
-        {picked !== null && (
-          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className={`option ${ok ? 'option-correct' : 'option-picked-wrong'}`} disabled
-              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.4vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', width: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
-              <span className="mono small">{ok ? '✓' : '↺'}</span>
-              <span>{t(opts[picked])}</span>
-            </button>
-          </div>
-        )}
-        {picked !== null && (
+            );
+          })}
+        </div>
+        {revealed && (
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
+            {!ok && (
+              <p className="fade-up" style={{ margin: 'clamp(6px, 1.4vw, 10px) 0 0', textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
+                {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt0)}</b>. {t(c.audio.on_correct)}
+              </p>
+            )}
           </FeedbackBlock>
         )}
       </div>
@@ -2616,9 +2623,11 @@ const Screen5 = (props) => {
   const t = useT();
   const c = CONTENT.s5;
   const sfx = useSfx();
+  // SAVOL avval (aksent) -> javob bergach QOIDA + tushuntirish ochiladi.
   const audio = useAudio([
     brgSeg('s5', lang),
-    ...c.audio[lang].map((text, i) => ({ id: `s5_${i}`, text, trigger: 'after_previous', waits_for: null }))
+    { id: 's5_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
+    ...c.audio[lang].map((text, i) => ({ id: `s5_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
   ]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
@@ -2627,7 +2636,7 @@ const Screen5 = (props) => {
   const pick = (i) => {
     if (!canAct || ok) return;
     setPicked(i);
-    if (i === c.check_ci) sfx.playCorrect();
+    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
   };
   const canAdv = useAdvanceGate(ok, audio);
   const navContent = (
@@ -2639,13 +2648,17 @@ const Screen5 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <div className="d2-rulecard fade-up">
-          <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
-          <p className="d2-rulecard-txt">{t(c.rule)}</p>
-        </div>
+        {!ok ? (
+          <div className="lm-q-accent fade-up">{t(c.check_q)}</div>
+        ) : (
+          <div className="d2-rulecard fade-up">
+            <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
+            <p className="d2-rulecard-txt">{t(c.rule)}</p>
+          </div>
+        )}
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <RomanBig r={c.check_roman}/>
-          <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{ok ? t(c.check_ok) : (picked !== null ? t(c.check_no) : t(c.check_q))}</p>
+          {picked !== null && !ok && <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.check_no)}</p>}
           <div style={{ display: 'flex', gap: 10 }}>
             {c.check_opts.map((o, i) => (
               <button key={i} className={`option ${ok && i === c.check_ci ? 'option-correct' : ''} ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct || ok} onClick={() => pick(i)}
@@ -4981,4 +4994,6 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-rulecard { display: flex; flex-direction: column; gap: 8px; background: #FFF3E9; border-radius: 16px; padding: clamp(12px, 2.4vw, 18px); box-shadow: 0 6px 20px -10px rgba(255,79,40,0.4); }
 .d2-rulecard-badge { align-self: flex-start; background: #ff4f28; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
+/* Aksent savol (QOIDA — javob oldindan berilmasin). */
+.lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
 `;
