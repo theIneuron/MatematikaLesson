@@ -2604,7 +2604,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success lm-riseup">
             <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
           </div>
         )}
@@ -3160,7 +3160,7 @@ const Screen10 = (props) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success fade-up">
+          <div ref={revealRef} className="frame-success lm-riseup">
             <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
           </div>
         )}
@@ -3336,7 +3336,7 @@ const Screen12 = (props) => {
           </div>
         )}
         {done && (
-          <div ref={factRef} className="frame-success fade-up">
+          <div ref={factRef} className="frame-success lm-riseup">
             <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
@@ -5414,6 +5414,9 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
 /* Aksent savol (QOIDA — javob oldindan berilmasin). */
 .lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
+/* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
+@keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.lm-riseup { animation: lm-riseup-a 0.62s cubic-bezier(0.22, 1.1, 0.36, 1) both; }
 /* Sekin ELASTIK reveal (kashfiyot razryad qiymatlari — bita-bita). */
 .lm-edrop { display: inline-block; animation: lm-edrop-a 0.72s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
 @keyframes lm-edrop-a { 0% { opacity: 0; transform: translateY(-16px) scale(0.72); } 62% { transform: translateY(3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
