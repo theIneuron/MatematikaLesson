@@ -944,6 +944,19 @@ const scorePraise = (score, total, lang) => {
   if (score * 2 >= total) return lang === 'ru' ? `Хорошая работа! ${s}. Почти всё с первого раза.` : `Zo'r ish! ${s}. Deyarli hammasi birinchi urinishda.`;
   return lang === 'ru' ? `Задание пройдено! ${s}. Главное — теперь всё понятно.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
 };
+// Yakuniy natijaning OVOZLI varianti. Ovozda raqam va belgi bo'lmaydi (TTS-toza),
+// shuning uchun "3 / 3" o'rniga so'z bilan aytiladi.
+const scorePraiseAudio = (score, total, lang) => {
+  if (score >= total) return lang === 'ru'
+    ? 'Отлично. Все задания выполнены верно, ни одной ошибки.'
+    : "Ajoyib. Barcha topshiriqlar to'g'ri bajarildi, bitta ham xato yo'q.";
+  if (score * 2 >= total) return lang === 'ru'
+    ? 'Хорошая работа. Почти всё получилось с первого раза.'
+    : "Zo'r ish. Deyarli hammasi birinchi urinishda chiqdi.";
+  return lang === 'ru'
+    ? 'Задание пройдено. Главное, что теперь всё понятно.'
+    : "Topshiriq bajarildi. Eng muhimi, endi hammasi tushunarli.";
+};
 
 // ============================================================
 // CONTENT — 3-sinf Dars01 «Yuzliklar, o'nliklar, birliklar» (num-3-01-v1). RU + UZ to'liq.
@@ -3112,6 +3125,7 @@ const Screen8 = (props) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(S8_TARGETS.length), S8_TARGETS.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
         correctAnswer: String(S8_TARGETS.length), studentAnswer: String(S8_TARGETS.length), correct: firstAllRef.current,
@@ -3304,6 +3318,7 @@ const Screen9 = (props) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(S9_NUMS.length), S9_NUMS.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
         correctAnswer: String(S9_NUMS.length), studentAnswer: String(S9_NUMS.length), correct: firstAllRef.current,
@@ -3416,6 +3431,7 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(items[0].q),
         correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
@@ -3507,6 +3523,7 @@ const Screen11 = (props) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'compare',
         correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
@@ -3806,6 +3823,7 @@ const Screen14 = (props) => {
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
