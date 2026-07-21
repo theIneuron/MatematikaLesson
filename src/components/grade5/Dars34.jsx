@@ -957,7 +957,7 @@ const CONTENT = {
     opt2: { ru: '8', uz: "8" },
     opt3: { ru: '10', uz: "10" },
     correct_text: { ru: 'Верно: две ширины — это 6, значит на две длины осталось 16 − 6 = 10, и одна длина — это 5.', uz: "To'g'ri: ikki en — bu 6, demak ikki bo'yga 16 − 6 = 10 qoldi, bitta bo'y esa 5." },
-    wrong_1: { ru: 'Вы вычли только одну ширину, а их две. Вычти из периметра обе ширины.', uz: "Siz faqat bitta enni ayirdingiz, ular ikkita. Perimetrdan ikkala enni ayiring." },
+    wrong_1: { ru: 'Ты вычел только одну ширину, а их две. Вычти из периметра обе ширины.', uz: "Siz faqat bitta enni ayirdingiz, ular ikkita. Perimetrdan ikkala enni ayiring." },
     wrong_2: { ru: 'Это половина периметра. Но в неё входит и ширина, её ещё нужно вычесть.', uz: "Bu perimetrning yarmi. Lekin unda en ham bor, uni yana ayirish kerak." },
     wrong_3: { ru: 'Это сумма двух длин. Одну длину нужно поделить пополам.', uz: "Bu ikki bo'y yig'indisi. Bitta bo'yni yarmiga bo'lish kerak." },
     audio: {

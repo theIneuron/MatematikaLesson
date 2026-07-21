@@ -928,7 +928,7 @@ const scorePraise = (score, total, lang) => {
   const s = `${score} / ${total}`;
   if (score >= total) return lang === 'ru' ? `Великолепно! ${s}. Ни одной ошибки!` : `Ajoyib! ${s}. Bitta ham xato yo'q!`;
   if (score * 2 >= total) return lang === 'ru' ? `Хорошая работа! ${s}. Почти всё с первого раза.` : `Zo'r ish! ${s}. Deyarli hammasi birinchi urinishda.`;
-  return lang === 'ru' ? `Вы дошли до конца! ${s}. Главное — вы всё разобрали.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
+  return lang === 'ru' ? `Задание пройдено! ${s}. Главное — теперь всё понятно.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
 };
 
 // ============================================================
@@ -1242,7 +1242,7 @@ const CONTENT = {
       { kind: 'num', q: { ru: 'Плодов 66, корзин 6. Сколько в каждой?', uz: "Meva 66 ta, savat 6 ta. Har birida nechtadan?" }, ans: 11,
         hint: { ru: 'Шестьдесят на шесть — десять. Шесть на шесть — один. Сложи.', uz: "Oltmishni oltiga — o'n. Oltini oltiga — bir. Qo'shing." } }
     ],
-    fact_badge: { ru: 'Знаете ли вы?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
     fact_text: { ru: 'Листья на ветке растут через равные промежутки по кругу. Так каждому листу достаётся равная доля света. Природа тоже делит поровну.', uz: "Novdadagi barglar aylana bo'ylab teng oraliqda o'sadi. Shunda har bir bargga nurning teng ulushi tegadi. Tabiat ham teng bo'ladi." },
     fact_audio: { ru: 'Листья на ветке растут через равные промежутки по кругу. Так каждому листу достаётся равная доля света. Природа тоже делит поровну.', uz: "Novdadagi barglar aylana bo'ylab teng oraliqda o'sadi. Shunda har bir bargga nurning teng ulushi tegadi. Tabiat ham teng bo'ladi." },
     audio: {
@@ -1256,13 +1256,13 @@ const CONTENT = {
   s13: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     mission_done: { ru: 'Урожай разложен!', uz: 'Hosil taqsimlandi!' },
-    cando: { ru: 'Теперь вы делите числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ham bo'lasiz." },
+    cando: { ru: 'Теперь ты делишь числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ham bo'lasiz." },
     rule_recap: { ru: 'Разложи число на части, которые делятся без остатка, раздели каждую и сложи результаты.', uz: "Sonni qoldiqsiz bo'linadigan bo'laklarga ajrating, har birini bo'ling va natijalarni qo'shing." },
     conn_label_refs: { ru: 'Опирались на', uz: 'Tayandik' },
     conn_refs: { ru: 'умножение суммы и таблицу', uz: "yig'indini ko'paytirish va jadval" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi dars' },
     conn_next: { ru: 'порядок действий', uz: 'amallar tartibi' },
-    audio: { ru: 'Урожай разложен. Теперь вы умеете делить числа, которых нет в таблице. Разложите число на части, которые делятся без остатка, разделите каждую и сложите результаты. В следующем уроке разберём, в каком порядке выполняют действия.', uz: "Hosil taqsimlandi. Endi siz jadvalda yo'q sonlarni ham bo'la olasiz. Sonni qoldiqsiz bo'linadigan bo'laklarga ajrating, har birini bo'ling va natijalarni qo'shing. Keyingi darsda amallar qanday tartibda bajarilishini ko'rib chiqamiz." }
+    audio: { ru: 'Урожай разложен. Теперь ты умеешь делить числа, которых нет в таблице. Разложи число на части, которые делятся без остатка, раздели каждую и сложи результаты. В следующем уроке разберём, в каком порядке выполняют действия.', uz: "Hosil taqsimlandi. Endi siz jadvalda yo'q sonlarni ham bo'la olasiz. Sonni qoldiqsiz bo'linadigan bo'laklarga ajrating, har birini bo'ling va natijalarni qo'shing. Keyingi darsda amallar qanday tartibda bajarilishini ko'rib chiqamiz." }
   }
 };
 

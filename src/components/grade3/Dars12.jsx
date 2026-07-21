@@ -928,7 +928,7 @@ const scorePraise = (score, total, lang) => {
   const s = `${score} / ${total}`;
   if (score >= total) return lang === 'ru' ? `Великолепно! ${s}. Ни одной ошибки!` : `Ajoyib! ${s}. Bitta ham xato yo'q!`;
   if (score * 2 >= total) return lang === 'ru' ? `Хорошая работа! ${s}. Почти всё с первого раза.` : `Zo'r ish! ${s}. Deyarli hammasi birinchi urinishda.`;
-  return lang === 'ru' ? `Вы дошли до конца! ${s}. Главное — вы всё разобрали.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
+  return lang === 'ru' ? `Задание пройдено! ${s}. Главное — теперь всё понятно.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
 };
 
 // ============================================================
@@ -1241,7 +1241,7 @@ const CONTENT = {
       { kind: 'num', q: { ru: 'На полке 15 растений, полок 3. Сколько всего?', uz: "Tokchada 15 ta o'simlik, tokcha 3 ta. Jami nechta?" }, ans: 45,
         hint: { ru: 'Десять на три — тридцать. Пять на три — пятнадцать. Сложи.', uz: "O'nni uchga — o'ttiz. Beshni uchga — o'n besh. Qo'shing." } }
     ],
-    fact_badge: { ru: 'Знаете ли вы?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
     fact_text: { ru: 'Растения Бита светятся сами — это биолюминесценция. На Земле так светятся некоторые грибы, светлячки и морские жители.', uz: "Bitning o'simliklari o'zi nur sochadi — bu bioluminessensiya. Yerda ba'zi qo'ziqorinlar, o't chiroqlar va dengiz jonivorlari shunday nur sochadi." },
     fact_audio: { ru: 'Растения Бита светятся сами. Это называется биолюминесценция. На Земле так светятся некоторые грибы, светлячки и морские жители.', uz: "Bitning o'simliklari o'zi nur sochadi. Bu bioluminessensiya deb ataladi. Yerda ba'zi qo'ziqorinlar, o't chiroqlar va dengiz jonivorlari shunday nur sochadi." },
     audio: {
@@ -1255,13 +1255,13 @@ const CONTENT = {
   s13: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     mission_done: { ru: 'Полки посчитаны!', uz: 'Tokchalar sanaldi!' },
-    cando: { ru: 'Теперь вы умножаете числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ham ko'paytirasiz." },
+    cando: { ru: 'Теперь ты умножаешь числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ham ko'paytirasiz." },
     rule_recap: { ru: 'Раздели число на десятки и единицы, умножь каждую часть и сложи результаты.', uz: "Sonni o'nlik va birlikka ajrating, har bir bo'lakni ko'paytiring va natijalarni qo'shing." },
     conn_label_refs: { ru: 'Опирались на', uz: 'Tayandik' },
     conn_refs: { ru: 'таблицу умножения и умножение на 10', uz: "ko'paytirish jadvali va 10 ga ko'paytirish" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi dars' },
     conn_next: { ru: 'делим сумму на части', uz: "yig'indini bo'laklarga bo'lamiz" },
-    audio: { ru: 'Полки посчитаны. Теперь вы умеете умножать числа, которых нет в таблице. Разделите число на десятки и единицы, умножьте каждую часть и сложите результаты. В следующем уроке мы так же разделим на части деление.', uz: "Tokchalar sanaldi. Endi siz jadvalda yo'q sonlarni ham ko'paytira olasiz. Sonni o'nlik va birlikka ajrating, har bir bo'lakni ko'paytiring va natijalarni qo'shing. Keyingi darsda bo'lishni ham xuddi shunday bo'laklarga ajratamiz." }
+    audio: { ru: 'Полки посчитаны. Теперь ты умеешь умножать числа, которых нет в таблице. Раздели число на десятки и единицы, умножь каждую часть и сложи результаты. В следующем уроке мы так же разделим на части деление.', uz: "Tokchalar sanaldi. Endi siz jadvalda yo'q sonlarni ham ko'paytira olasiz. Sonni o'nlik va birlikka ajrating, har bir bo'lakni ko'paytiring va natijalarni qo'shing. Keyingi darsda bo'lishni ham xuddi shunday bo'laklarga ajratamiz." }
   }
 };
 

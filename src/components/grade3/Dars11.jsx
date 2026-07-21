@@ -928,7 +928,7 @@ const scorePraise = (score, total, lang) => {
   const s = `${score} / ${total}`;
   if (score >= total) return lang === 'ru' ? `Великолепно! ${s}. Ни одной ошибки!` : `Ajoyib! ${s}. Bitta ham xato yo'q!`;
   if (score * 2 >= total) return lang === 'ru' ? `Хорошая работа! ${s}. Почти всё с первого раза.` : `Zo'r ish! ${s}. Deyarli hammasi birinchi urinishda.`;
-  return lang === 'ru' ? `Вы дошли до конца! ${s}. Главное — вы всё разобрали.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
+  return lang === 'ru' ? `Задание пройдено! ${s}. Главное — теперь всё понятно.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
 };
 
 // ============================================================
@@ -1243,7 +1243,7 @@ const CONTENT = {
       { kind: 'num', q: { ru: 'Я стало 500 после умножения на 100. Какое я число?', uz: "100 ga ko'paytirilgach 500 bo'ldim. Men qaysi sonman?" }, ans: 5,
         hint: { ru: 'Обратный ход: 500 разделить на 100 будет 5.', uz: "Teskari yo'l: 500 ni 100 ga bo'lsak, 5 bo'ladi." } }
     ],
-    fact_badge: { ru: 'Знаете ли вы', uz: 'Bilasizmi' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi' },
     fact_text: { ru: 'Растения Бита светятся сами — это биолюминесценция. На Земле так же светятся светлячки, некоторые грибы и морские существа.', uz: "Bitning o'simliklari o'zi nur sochadi — bu bioluminessensiya. Yerda ham shunday qilib o'tchivinlar, ba'zi qo'ziqorinlar va dengiz jonivorlari yaltiraydi." },
     fact_audio: { ru: 'Растения Бита светятся сами. Это называется биолюминесценция. На Земле так же светятся светлячки, некоторые грибы и морские существа.', uz: "Bitning o'simliklari o'zi nur sochadi. Bu bioluminessensiya deyiladi. Yerda ham shunday qilib o'tchivinlar, ba'zi qo'ziqorinlar va dengiz jonivorlari yaltiraydi." },
     audio: {
@@ -1257,14 +1257,14 @@ const CONTENT = {
   s13: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     mission_done: { ru: 'Сад посчитан!', uz: "Bog' sanaldi!" },
-    cando: { ru: 'Теперь вы умножаете и делите на 10 и на 100.', uz: "Endi siz 10 va 100 ga ko'paytirasiz va bo'lasiz." },
+    cando: { ru: 'Теперь ты умножаешь и делишь на 10 и на 100.', uz: "Endi siz 10 va 100 ga ko'paytirasiz va bo'lasiz." },
     rule_recap: { ru: 'На 10 — один ноль, на 100 — два. При делении нули уходят.', uz: "10 ga — bitta nol, 100 ga — ikkita. Bo'lganda nollar ketadi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'таблицу умножения', uz: "ko'paytirish jadvaliga" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'умножение суммы: (20 + 3) × 4', uz: "yig'indini ko'paytirish: (20 + 3) × 4" },
     audio: {
-      ru: 'Сад света посчитан. Вы научились умножать и делить на десять и на сто. Запомните. На десять — один ноль, на сто — два нуля. При делении нули уходят. В следующий раз научимся умножать сумму по частям.',
+      ru: 'Сад света посчитан. Теперь ты умеешь умножать и делить на десять и на сто. Запомни. На десять один ноль, на сто два нуля. При делении нули уходят. В следующий раз научимся умножать сумму по частям.',
       uz: "Nur bog'i sanaldi. Siz o'nga va yuzga ko'paytirish va bo'lishni o'rgandingiz. Yodda tuting. O'nga — bitta nol, yuzga — ikkita nol. Bo'lganda nollar ketadi. Keyingi safar yig'indini bo'lib ko'paytirishni o'rganamiz."
     }
   }
