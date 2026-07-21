@@ -1089,7 +1089,7 @@ const CONTENT = {
   // s4 — RAZRYAD KARTASI: 345 = 300 + 40 + 5
   s4: {
     eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
-    lead: { ru: 'Табло показало 345. Разберём его двумя способами.', uz: "Tablo 345 ni ko'rsatdi. Uni ikki usulda ochamiz." },
+    lead: { ru: 'Разберём 345 двумя способами.', uz: "345 ni ikki usulda ochamiz." },
     hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
@@ -1106,7 +1106,7 @@ const CONTENT = {
     ],
     audio: {
       ru: [
-        'На табло города горит триста сорок пять. Раскрыть это число можно по-разному. Разберём двумя способами, не спеша.',
+        'У числа есть несколько способов раскрыть его. Давайте разберём триста сорок пять двумя способами. Не спеша.',
         'Первый способ — разрядная таблица. Ставим каждую цифру на своё место.',
         'Сотни — три. Десятки — четыре. Единицы — пять.',
         'Второй способ — разрядные слагаемые. Пишем значение каждого разряда.',
@@ -1114,10 +1114,10 @@ const CONTENT = {
         'Отлично! Теперь ты знаешь два способа.',
         'А в качестве бонуса открою ещё один секрет — это число можно прочитать словами.',
         'Триста. Сорок. Пять.',
-        'Показали по-разному, а число на табло одно — триста сорок пять. Молодец!'
+        'Показали по-разному, а число одно — триста сорок пять. Молодцы!'
       ],
       uz: [
-        "Shahar tablosida uch yuz qirq besh yonib turibdi. Bu sonni har xil ochish mumkin. Ikki usulda ochamiz, shoshilmasdan.",
+        "Bir sonni ochishning bir necha yo'li bor. Keling, uch yuz qirq beshni ikki usulda ochamiz. Shoshilmasdan.",
         "Birinchi usul — razryad jadvali. Har raqamni o'z o'rniga qo'yamiz.",
         "Yuzlik — uch. O'nlik — to'rt. Birlik — besh.",
         "Ikkinchi usul — yoyilma yig'indi. Har xonaning qiymatini yozamiz.",
@@ -1125,7 +1125,7 @@ const CONTENT = {
         "Zo'r! Endi siz ikki usulni o'rganib oldingiz.",
         "Bonus tariqasida yana bir sirni aytaman — bu sonni so'z bilan ham o'qish mumkin.",
         "Uch yuz. Qirq. Besh.",
-        "Ko'rsatish har xil, lekin tablodagi son bitta — uch yuz qirq besh. Barakalla!"
+        "Ko'rsatish har xil, lekin son bitta — uch yuz qirq besh. Barakalla!"
       ]
     }
   },
