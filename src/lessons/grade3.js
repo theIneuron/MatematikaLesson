@@ -59,6 +59,12 @@ export const grade3Nazariy = [
     desc: "Ko'paytirish — teng guruhlarning qisqa yozuvi; massiv (satr × ustun); ko'paytuvchilarni o'rin almashtirish mumkin.",
     Component: lazy(() => import('../components/grade3/Dars10.jsx')),
   },
+  {
+    slug: 'dars11-10-100-ga-kopaytirish-bolish',
+    title: "Dars 11. 10 va 100 ga ko'paytirish va bo'lish",
+    desc: "10 ga ko'paytirsak o'ngga bitta nol qo'shiladi, 100 ga — ikkita; bo'lganda nollar qaytadi. Razryad siljishi.",
+    Component: lazy(() => import('../components/grade3/Dars11.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — hali yo'q (keyin qo'shiladi).
