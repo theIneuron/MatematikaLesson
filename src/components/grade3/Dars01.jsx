@@ -3218,6 +3218,8 @@ const TapBinDemo = ({ labels, lang, onDone }) => {
           return (
             <div key={i} className="lm-demo-col" data-i={i}>
               <div className="lm-demo-chipzone">
+                {/* Doimiy punktir katak: raqam uchayotgan lahzada ham o'rin BO'SH KO'RINMAYDI. */}
+                <span className="lm-demo-slot" aria-hidden="true"/>
                 {showChip && <span className={`lm-digchip mono lm-demo-chip ${active ? 'lm-demo-chip-on' : ''} ${gone ? 'lm-demo-chip-gone' : ''}`}>{d}</span>}
                 {/* Raqam qutiga uchgach o'rni BO'SH QOLMAYDI — xira nusxa turadi (qator markazdan siljimasin). */}
                 {placed && <span className="lm-digchip mono lm-demo-ghost">{d}</span>}
@@ -5950,6 +5952,8 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-demo-num-done { color: #1F7A4D; }
 .lm-demo-chip-gone { opacity: 0; }
 .lm-demo-ghost { pointer-events: none; background: #EAF5EE; color: #1F7A4D; opacity: 0.62; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.25); }
+.lm-demo-slot { position: absolute; width: clamp(42px,9vw,56px); height: clamp(42px,9vw,56px); border-radius: 12px; border: 1.5px dashed rgba(1,123,163,0.28); pointer-events: none; }
+.lm-demo-chipzone > .lm-digchip { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) { .lm-fly { animation: none; } }
 /* 5s o'ylash soati (slayd 7). */
 .lm-clock { display: flex; flex-direction: column; align-items: center; gap: clamp(6px,1.4vw,10px); }
