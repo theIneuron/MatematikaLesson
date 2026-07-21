@@ -65,6 +65,12 @@ export const grade3Nazariy = [
     desc: "10 ga ko'paytirsak o'ngga bitta nol qo'shiladi, 100 ga — ikkita; bo'lganda nollar qaytadi. Razryad siljishi.",
     Component: lazy(() => import('../components/grade3/Dars11.jsx')),
   },
+  {
+    slug: 'dars12-yigindini-kopaytirish',
+    title: "Dars 12. Yig'indini ko'paytirish",
+    desc: "Jadvalda yo'q sonni ko'paytirish: sonni o'nlik va birlikka ajratib, har bo'lakni alohida ko'paytiramiz va qo'shamiz.",
+    Component: lazy(() => import('../components/grade3/Dars12.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — hali yo'q (keyin qo'shiladi).
