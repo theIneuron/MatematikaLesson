@@ -71,6 +71,12 @@ export const grade3Nazariy = [
     desc: "Jadvalda yo'q sonni ko'paytirish: sonni o'nlik va birlikka ajratib, har bo'lakni alohida ko'paytiramiz va qo'shamiz.",
     Component: lazy(() => import('../components/grade3/Dars12.jsx')),
   },
+  {
+    slug: 'dars13-yigindini-bolish',
+    title: "Dars 13. Yig'indini bo'lish",
+    desc: "Jadvalda yo'q sonni bo'lish: sonni qoldiqsiz bo'linadigan bo'laklarga ajratib, har birini bo'lamiz va qo'shamiz.",
+    Component: lazy(() => import('../components/grade3/Dars13.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — hali yo'q (keyin qo'shiladi).
