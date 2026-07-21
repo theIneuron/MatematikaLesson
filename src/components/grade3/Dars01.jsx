@@ -1028,7 +1028,8 @@ const CONTENT = {
   // s3 — BUILD 245 (yuzlik + o'nlik + birlik)
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Собери 245.', uz: "245 ni yig'ing." },    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
+    lead: { ru: 'Собери 245.', uz: "245 ni yig'ing." },
+    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
     done_text: { ru: 'Две сотни, четыре десятка и пять единиц — двести сорок пять.', uz: "Ikki yuzlik, to'rt o'nlik va besh birlik — ikki yuz qirq besh." },
@@ -1202,7 +1203,8 @@ const CONTENT = {
   // s8 — MASHQ build 362
   s8: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Собери 362.', uz: "362 ni yig'ing." },    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
+    q: { ru: 'Собери 362.', uz: "362 ni yig'ing." },
+    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
@@ -3221,8 +3223,9 @@ const TapBinDemo = ({ labels, lang, onDone }) => {
                 {/* Doimiy punktir katak: raqam uchayotgan lahzada ham o'rin BO'SH KO'RINMAYDI. */}
                 <span className="lm-demo-slot" aria-hidden="true"/>
                 {showChip && <span className={`lm-digchip mono lm-demo-chip ${active ? 'lm-demo-chip-on' : ''} ${gone ? 'lm-demo-chip-gone' : ''}`}>{d}</span>}
-                {/* Raqam qutiga uchgach o'rni BO'SH QOLMAYDI — xira nusxa turadi (qator markazdan siljimasin). */}
-                {placed && <span className="lm-digchip mono lm-demo-ghost">{d}</span>}
+                {/* Raqam qutiga uchgach o'rni BO'SH QOLMAYDI — xira BO'SH katak turadi.
+                    Raqamning o'zi ko'rsatilmaydi: u endi pastdagi qutida (ikki joyda turmasin). */}
+                {placed && <span className="lm-digchip mono lm-demo-ghost" aria-hidden="true"/>}
                 {active && <span className="lm-demo-hand" aria-hidden="true">👆</span>}
               </div>
               <div className={`lm-bin lm-demo-bin ${placed ? 'lm-bin-full' : ''} ${(i === step && sub !== 'tap') ? 'lm-bin-open' : ''}`}>
