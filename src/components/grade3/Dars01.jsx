@@ -939,23 +939,38 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 
 // Ball + EMOTSIONAL baho: quruq "3 / 3" o'rniga bolaga murojaat.
 const scorePraise = (score, total, lang) => {
+  const wrong = Math.max(0, total - score);
   const s = `${score} / ${total}`;
-  if (score >= total) return lang === 'ru' ? `Великолепно! ${s}. Ни одной ошибки!` : `Ajoyib! ${s}. Bitta ham xato yo'q!`;
-  if (score * 2 >= total) return lang === 'ru' ? `Хорошая работа! ${s}. Почти всё с первого раза.` : `Zo'r ish! ${s}. Deyarli hammasi birinchi urinishda.`;
-  return lang === 'ru' ? `Задание пройдено! ${s}. Главное — теперь всё понятно.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
+  if (wrong === 0) return lang === 'ru'
+    ? `Великолепно! ${s}. Всё с первого раза, ни одной ошибки.`
+    : `Ajoyib! ${s}. Hammasi birinchi urinishda, bitta ham xato yo'q.`;
+  if (wrong === 1) return lang === 'ru'
+    ? `Хороший результат! ${s}. Ошибка была только в одном задании.`
+    : `Yaxshi natija! ${s}. Xato faqat bitta topshiriqda bo'ldi.`;
+  if (score * 2 >= total) return lang === 'ru'
+    ? `Хорошо! ${s}. Часть заданий далась не сразу, но верный ответ найден.`
+    : `Yaxshi! ${s}. Ba'zi topshiriqlar darrov chiqmadi, lekin to'g'ri javob topildi.`;
+  return lang === 'ru'
+    ? `${s}. Эту тему стоит повторить ещё раз, тогда будет легче.`
+    : `${s}. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.`;
 };
 // Yakuniy natijaning OVOZLI varianti. Ovozda raqam va belgi bo'lmaydi (TTS-toza),
 // shuning uchun "3 / 3" o'rniga so'z bilan aytiladi.
 const scorePraiseAudio = (score, total, lang) => {
-  if (score >= total) return lang === 'ru'
-    ? 'Отлично. Все задания выполнены верно, ни одной ошибки.'
-    : "Ajoyib. Barcha topshiriqlar to'g'ri bajarildi, bitta ham xato yo'q.";
+  const wrong = Math.max(0, total - score);
+  const W = { ru: ['ноль', 'одном', 'двух', 'трёх', 'четырёх', 'пяти'], uz: ['nol', 'bitta', 'ikkita', 'uchta', "to'rtta", 'beshta'] };
+  if (wrong === 0) return lang === 'ru'
+    ? 'Великолепно. Все задания с первого раза, ни одной ошибки.'
+    : "Ajoyib. Barcha topshiriqlar birinchi urinishda, bitta ham xato yo'q.";
+  if (wrong === 1) return lang === 'ru'
+    ? 'Хороший результат. Ошибка была только в одном задании.'
+    : "Yaxshi natija. Xato faqat bitta topshiriqda bo'ldi.";
   if (score * 2 >= total) return lang === 'ru'
-    ? 'Хорошая работа. Почти всё получилось с первого раза.'
-    : "Zo'r ish. Deyarli hammasi birinchi urinishda chiqdi.";
+    ? `Хорошо. Не сразу получилось в ${W.ru[Math.min(wrong, 5)]} заданиях, но верный ответ найден.`
+    : `Yaxshi. ${W.uz[Math.min(wrong, 5)]} topshiriqda darrov chiqmadi, lekin to'g'ri javob topildi.`;
   return lang === 'ru'
-    ? 'Задание пройдено. Главное, что теперь всё понятно.'
-    : "Topshiriq bajarildi. Eng muhimi, endi hammasi tushunarli.";
+    ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
+    : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
 
 // ============================================================
@@ -3103,6 +3118,8 @@ const Screen8 = (props) => {
   const [checked, setChecked] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const missRef = useRef(false);       // shu raundda xato bo'ldimi
+  const firstOkRef = useRef(0);        // BIRINCHI urinishda to'g'ri bajarilgan raundlar
   const done = round >= S8_TARGETS.length;
   const target = S8_TARGETS[Math.min(round, S8_TARGETS.length - 1)];
   const built = h * 100 + tn * 10 + o;
@@ -3117,7 +3134,8 @@ const Screen8 = (props) => {
     if (!canAct || checked || done) return;
     setChecked(true);
     const isOk = correct;
-    if (!isOk) firstAllRef.current = false;
+    if (!isOk) { firstAllRef.current = false; missRef.current = true; }
+    else { if (!missRef.current) firstOkRef.current += 1; missRef.current = false; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setH(0); setTn(0); setO(0); setRound((r) => r + 1); }, 950); }
     else { setTimeout(() => setChecked(false), 1600); }
@@ -3125,10 +3143,10 @@ const Screen8 = (props) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(S8_TARGETS.length), S8_TARGETS.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(firstOkRef.current, S8_TARGETS.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(S8_TARGETS.length), studentAnswer: String(S8_TARGETS.length), correct: firstAllRef.current,
+        correctAnswer: String(S8_TARGETS.length), studentAnswer: firstOkRef.current, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -3272,6 +3290,8 @@ const Screen9 = (props) => {
   const [roundOk, setRoundOk] = useState(false);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
+  const missRef = useRef(false);       // shu raundda xato bo'ldimi
+  const firstOkRef = useRef(0);        // BIRINCHI urinishda to'g'ri bajarilgan raundlar
   // Avval DEMO (qo'l ko'rsatadi), keyin o'quvchi o'zi. storedAnswer bo'lsa (qайта kirish) demo o'tkazib yuboriladi.
   const [phase, setPhase] = useState(props.storedAnswer ? 'play' : 'demo');
   const [demoDone, setDemoDone] = useState(false);
@@ -3310,7 +3330,8 @@ const Screen9 = (props) => {
   const evaluate = (nb) => {
     const isOk = nb.h === 0 && nb.t === 1 && nb.o === 2;   // raqamlar xona tartibida: indeks 0=yuzlik, 1=o'nlik, 2=birlik
     setChecked(true); setRoundOk(isOk);
-    if (!isOk) firstAllRef.current = false;
+    if (!isOk) { firstAllRef.current = false; missRef.current = true; }
+    else { if (!missRef.current) firstOkRef.current += 1; missRef.current = false; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setBins({ h: null, t: null, o: null }); setSel(null); setRound((r) => r + 1); }, 1100); }
     else { setTimeout(() => { setChecked(false); setBins({ h: null, t: null, o: null }); setSel(null); }, 1700); }
@@ -3318,10 +3339,10 @@ const Screen9 = (props) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(S9_NUMS.length), S9_NUMS.length, lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(firstOkRef.current, S9_NUMS.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
-        correctAnswer: String(S9_NUMS.length), studentAnswer: String(S9_NUMS.length), correct: firstAllRef.current,
+        correctAnswer: String(S9_NUMS.length), studentAnswer: firstOkRef.current, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
     }
@@ -3376,7 +3397,7 @@ const Screen9 = (props) => {
         )}
         {done && (
           <div className="frame-success fade-up">
-            <Reaction state="correct" praise={scorePraise(S9_NUMS.length, S9_NUMS.length, lang)}/>
+            <Reaction state="correct" praise={scorePraise(firstOkRef.current, S9_NUMS.length, lang)}/>
           </div>
         )}
         {fly && <span className="lm-fly mono" style={{ left: fly.x, top: fly.y, width: fly.w, height: fly.h, '--fx': `${fly.dx}px`, '--fy': `${fly.dy}px` }}>{fly.digit}</span>}
@@ -3478,7 +3499,7 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
 const Screen10 = (props) => {
   const lang = useLang();
   const labels = { h: lang === 'ru' ? 'сотни' : 'yuzlik', t: lang === 'ru' ? 'десятки' : "o'nlik", o: lang === 'ru' ? 'единицы' : 'birlik' };
-  return <MCRoundScreen props={props} ck="s10" cols={2} renderFig={(it) => <div className="lm-figwrap"><RazryadTable h={it.hto[0]} t={it.hto[1]} o={it.hto[2]} labels={labels} concrete emph="t"/></div>}/>;
+  return <MCRoundScreen props={props} ck="s10" cols={2} renderFig={(it) => <div className="lm-figwrap"><RazryadTable h={it.hto[0]} t={it.hto[1]} o={it.hto[2]} labels={labels} concrete/></div>}/>;
 };
 
 // s11 — MC taqqoslash (3 raund: 345/354, 482/428, 600/599)
@@ -3620,14 +3641,14 @@ const MiniCity = () => (
 
 // --- RAQAM-PLITA (klaviatursiz javob TERISH — grade3 yangiligi: TANISH emas, ISHLAB CHIQARISH).
 // value — string; max — xona soni. Grade2 praktika NumPad naqshi, T-palitraga moslangan.
-const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(36px, 8.5vw, 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
+const npKey = { width: 'clamp(48px, 12.5vw, 62px)', height: 'clamp(46px, 11.5vw, 58px)', borderRadius: 13, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(21px, 5.4vw, 27px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
 const NumPad = ({ value, setValue, disabled, max = 3 }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-      <div className="mono" style={{ minWidth: 124, height: 46, borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <div className="mono" style={{ minWidth: 156, height: 58, borderRadius: 14, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 8 }}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
           <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
         ))}
@@ -4107,7 +4128,10 @@ html, body { margin: 0; padding: 0; }
 
 .btn-white-accent {
   font-family: 'Manrope', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: clamp(16px, 2.7vw, 19px);
+  padding: clamp(11px, 2.4vw, 15px) clamp(24px, 5.5vw, 36px);
+  min-height: clamp(48px, 8.5vw, 56px);
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;

@@ -922,23 +922,38 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 
 // Ball + EMOTSIONAL baho: quruq "3 / 3" o'rniga bolaga murojaat.
 const scorePraise = (score, total, lang) => {
+  const wrong = Math.max(0, total - score);
   const s = `${score} / ${total}`;
-  if (score >= total) return lang === 'ru' ? `Великолепно! ${s}. Ни одной ошибки!` : `Ajoyib! ${s}. Bitta ham xato yo'q!`;
-  if (score * 2 >= total) return lang === 'ru' ? `Хорошая работа! ${s}. Почти всё с первого раза.` : `Zo'r ish! ${s}. Deyarli hammasi birinchi urinishda.`;
-  return lang === 'ru' ? `Задание пройдено! ${s}. Главное — теперь всё понятно.` : `Oxirigacha yetdingiz! ${s}. Eng muhimi — hammasini tushunib oldingiz.`;
+  if (wrong === 0) return lang === 'ru'
+    ? `Великолепно! ${s}. Всё с первого раза, ни одной ошибки.`
+    : `Ajoyib! ${s}. Hammasi birinchi urinishda, bitta ham xato yo'q.`;
+  if (wrong === 1) return lang === 'ru'
+    ? `Хороший результат! ${s}. Ошибка была только в одном задании.`
+    : `Yaxshi natija! ${s}. Xato faqat bitta topshiriqda bo'ldi.`;
+  if (score * 2 >= total) return lang === 'ru'
+    ? `Хорошо! ${s}. Часть заданий далась не сразу, но верный ответ найден.`
+    : `Yaxshi! ${s}. Ba'zi topshiriqlar darrov chiqmadi, lekin to'g'ri javob topildi.`;
+  return lang === 'ru'
+    ? `${s}. Эту тему стоит повторить ещё раз, тогда будет легче.`
+    : `${s}. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.`;
 };
 // Yakuniy natijaning OVOZLI varianti. Ovozda raqam va belgi bo'lmaydi (TTS-toza),
 // shuning uchun "3 / 3" o'rniga so'z bilan aytiladi.
 const scorePraiseAudio = (score, total, lang) => {
-  if (score >= total) return lang === 'ru'
-    ? 'Отлично. Все задания выполнены верно, ни одной ошибки.'
-    : "Ajoyib. Barcha topshiriqlar to'g'ri bajarildi, bitta ham xato yo'q.";
+  const wrong = Math.max(0, total - score);
+  const W = { ru: ['ноль', 'одном', 'двух', 'трёх', 'четырёх', 'пяти'], uz: ['nol', 'bitta', 'ikkita', 'uchta', "to'rtta", 'beshta'] };
+  if (wrong === 0) return lang === 'ru'
+    ? 'Великолепно. Все задания с первого раза, ни одной ошибки.'
+    : "Ajoyib. Barcha topshiriqlar birinchi urinishda, bitta ham xato yo'q.";
+  if (wrong === 1) return lang === 'ru'
+    ? 'Хороший результат. Ошибка была только в одном задании.'
+    : "Yaxshi natija. Xato faqat bitta topshiriqda bo'ldi.";
   if (score * 2 >= total) return lang === 'ru'
-    ? 'Хорошая работа. Почти всё получилось с первого раза.'
-    : "Zo'r ish. Deyarli hammasi birinchi urinishda chiqdi.";
+    ? `Хорошо. Не сразу получилось в ${W.ru[Math.min(wrong, 5)]} заданиях, но верный ответ найден.`
+    : `Yaxshi. ${W.uz[Math.min(wrong, 5)]} topshiriqda darrov chiqmadi, lekin to'g'ri javob topildi.`;
   return lang === 'ru'
-    ? 'Задание пройдено. Главное, что теперь всё понятно.'
-    : "Topshiriq bajarildi. Eng muhimi, endi hammasi tushunarli.";
+    ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
+    : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
 };
 
 // ============================================================
@@ -3185,7 +3200,10 @@ html, body { margin: 0; padding: 0; }
 
 .btn-white-accent {
   font-family: 'Manrope', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: clamp(16px, 2.7vw, 19px);
+  padding: clamp(11px, 2.4vw, 15px) clamp(24px, 5.5vw, 36px);
+  min-height: clamp(48px, 8.5vw, 56px);
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;
