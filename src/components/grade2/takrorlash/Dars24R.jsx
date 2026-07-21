@@ -1265,7 +1265,7 @@ const BRIDGES = {
   s3:  { ru: 'Запомним правило.', uz: "Qoidani yodlaymiz." },
   s4:  { ru: 'Не перепутай: считаем прыжки.', uz: "Adashma: sakrashlarni sanaymiz." },
   sTBL: { ru: 'Быстрее — по таблице.', uz: "Tezroq — jadval bilan." },
-  s5:  { ru: 'Теперь порешай сам.', uz: "Endi o'zing yech." },
+  s5:  { ru: 'Теперь порешай сам.', uz: "Endi o'zingiz yeching." },
   s6:  { ru: 'Прыжки по 4.', uz: "4 talik sakrashlar." },
   s7:  { ru: 'Найди через умножение.', uz: "Ko'paytirish orqali toping." },
   s8:  { ru: 'Прыжки по 6.', uz: "6 talik sakrashlar." },

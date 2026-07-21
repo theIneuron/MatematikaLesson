@@ -3219,6 +3219,8 @@ const TapBinDemo = ({ labels, lang, onDone }) => {
             <div key={i} className="lm-demo-col" data-i={i}>
               <div className="lm-demo-chipzone">
                 {showChip && <span className={`lm-digchip mono lm-demo-chip ${active ? 'lm-demo-chip-on' : ''} ${gone ? 'lm-demo-chip-gone' : ''}`}>{d}</span>}
+                {/* Raqam qutiga uchgach o'rni BO'SH QOLMAYDI — xira nusxa turadi (qator markazdan siljimasin). */}
+                {placed && <span className="lm-digchip mono lm-demo-ghost">{d}</span>}
                 {active && <span className="lm-demo-hand" aria-hidden="true">👆</span>}
               </div>
               <div className={`lm-bin lm-demo-bin ${placed ? 'lm-bin-full' : ''} ${(i === step && sub !== 'tap') ? 'lm-bin-open' : ''}`}>
@@ -3328,7 +3330,7 @@ const Screen9 = (props) => {
         )}
         {!done && phase === 'play' && (
           <>
-            <div className="lm-play-banner mono fade-up">✋ {lang === 'ru' ? 'Твоя очередь!' : 'Endi sening navbating!'}</div>
+            <div className="lm-play-banner mono fade-up">✋ {lang === 'ru' ? 'Твоя очередь!' : 'Endi sizning navbatingiz!'}</div>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{round + 1} / {S9_NUMS.length}</div>
             <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
             <div className="lm-digtray fade-up delay-1">
@@ -3354,7 +3356,7 @@ const Screen9 = (props) => {
         )}
         {done && (
           <div className="frame-success fade-up">
-            <Reaction state="correct" praise={`${S9_NUMS.length} / ${S9_NUMS.length}`}/>
+            <Reaction state="correct" praise={scorePraise(S9_NUMS.length, S9_NUMS.length, lang)}/>
           </div>
         )}
         {fly && <span className="lm-fly mono" style={{ left: fly.x, top: fly.y, width: fly.w, height: fly.h, '--fx': `${fly.dx}px`, '--fy': `${fly.dy}px` }}>{fly.digit}</span>}
@@ -5924,7 +5926,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-demo-wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: clamp(8px,1.8vw,12px); padding: clamp(10px,2vw,16px); border-radius: 18px; background: #F4FAFD; border: 1.5px dashed rgba(1,154,203,0.35); }
 .lm-demo-cap { font-size: clamp(15px,3vw,20px); font-weight: 800; color: #017BA3; min-height: 1.4em; }
 .lm-demo-cap-done { color: #1F7A4D; }
-.lm-demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px,2vw,14px); width: 100%; max-width: 360px; }
+.lm-demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px,2vw,14px); width: 100%; max-width: 440px; margin: 0 auto; justify-items: center; }
 .lm-demo-col { position: relative; display: flex; flex-direction: column; align-items: center; gap: clamp(8px,2vw,14px); }
 .lm-demo-chipzone { position: relative; min-height: clamp(46px,10vw,60px); display: flex; align-items: center; justify-content: center; }
 .lm-demo-chip { pointer-events: none; }
@@ -5947,6 +5949,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-demo-num-on { color: #FF4F28; background: #FFF3E9; transform: scale(1.08); animation: lm-cons-pop 0.4s ease; }
 .lm-demo-num-done { color: #1F7A4D; }
 .lm-demo-chip-gone { opacity: 0; }
+.lm-demo-ghost { pointer-events: none; background: #EAF5EE; color: #1F7A4D; opacity: 0.62; box-shadow: inset 0 0 0 1.5px rgba(31,122,77,0.25); }
 @media (prefers-reduced-motion: reduce) { .lm-fly { animation: none; } }
 /* 5s o'ylash soati (slayd 7). */
 .lm-clock { display: flex; flex-direction: column; align-items: center; gap: clamp(6px,1.4vw,10px); }
