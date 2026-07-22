@@ -885,7 +885,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // v6 FAKT ALOHIDA (bekor): sPANEL sub-1 dagi FactCard SKROLL chiqargani uchun undan olindi.
 // v7 FAKT FINAL SLAYDGA (16 -> 15): alohida fakt-slaydi BEKOR; fakt endi FINAL test s14 ga
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
-const TOTAL_SCREENS = 12;
+const TOTAL_SCREENS = 13;
 const LESSON_META = {
   lessonId: 'num-3-06',
   lessonTitle: { ru: 'Урок 6. Число на числовой прямой', uz: "6-dars. Son o'qida son" }
@@ -898,6 +898,7 @@ const SCREEN_META = [
   { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's3',  type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },
+  { id: 'stway', type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },
   { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
   { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
@@ -1078,6 +1079,48 @@ const CONTENT = {
   },
 
   // s5 — QOIDA
+  stway: {
+    eyebrow: { ru: 'Два способа', uz: "Ikki usul" },
+    lead: { ru: 'Одно число — два пути найти его на прямой.', uz: "Bitta son — uni o'qda topishning ikki yo'li." },
+    expr: { ru: '470', uz: '470' },
+    m1_label: { ru: 'Способ 1 — большой и малый шаг', uz: "1-usul — katta va kichik qadam" },
+    m1_steps: ['300', '+ 100', '+ 70', '470'],
+    m2_label: { ru: 'Способ 2 — опорная точка', uz: "2-usul — tayanch nuqta" },
+    m2_steps: [{ ru: 'между 400 и 500', uz: "400 va 500 orasi" }, { ru: 'правее 450', uz: "450 dan o'ngroq" }, '470'],
+    check_q: { ru: 'Можно ли найти 470 и через опорные точки?', uz: "470 ni tayanch nuqtalar orqali ham topsa bo'ladimi?" },
+    check_opts: ['Да, можно', 'Нет, только шагами'],
+    check_opts_uz: ["Ha, mumkin", "Yo'q, faqat qadam bilan"],
+    check_ci: 0,
+    check_ok: { ru: 'Верно. Через опорные точки тоже выходит 470.', uz: "To'g'ri. Tayanch nuqtalar orqali ham 470 chiqadi." },
+    check_no: { ru: 'Посмотри: 450 — тоже опора, а до 470 совсем близко. Попробуй ещё.', uz: "Qarang: 450 ham tayanch nuqta, undan 470 juda yaqin. Yana urinib ko'ring." },
+    bonus_kind: 'note',
+    bonus_label: { ru: 'Бонус — даже без делений', uz: "Bonus — hatto belgisiz ham" },
+    bonus_text: { ru: 'Пусть на прямой отмечены только 0 и 1000. Половина — 500, четверть — 250. Тогда 470 стоит чуть левее середины. Даже без делений видно примерное место числа.', uz: "Faraz qiling, o'qda faqat 0 va 1000 belgilangan. Yarmi — 500, choragi — 250. U holda 470 o'rtadan sal chapda turadi. Belgilar bo'lmasa ham sonning taxminiy o'rni ko'rinadi." },
+    audio: {
+      ru: [
+        'Одно и то же число можно найти на прямой двумя путями. Найдём четыреста семьдесят.',
+        'Первый способ. Начинаем с трёхсот. Сначала один большой шаг на сотню, приходим к четырёмстам. Потом семь маленьких шагов по десять, доходим до четырёхсот семидесяти.'
+      ],
+      uz: [
+        "Bitta sonni o'qda ikki yo'l bilan topsa bo'ladi. To'rt yuz yetmishni topamiz.",
+        "Birinchi usul. Uch yuzdan boshlaymiz. Avval bitta katta yuzlik qadam, to'rt yuzga kelamiz. Keyin yettita kichik o'nlik qadam, to'rt yuz yetmishga yetamiz."
+      ]
+    },
+    audio2: {
+      ru: [
+        'Верно. Есть и второй путь, через опорную точку. Четыреста семьдесят стоит между четырьмястами и пятьюстами.',
+        'Ровно посередине стоит четыреста пятьдесят. Четыреста семьдесят чуть правее, совсем рядом с серединой.',
+        'А теперь заметка. Пусть на прямой отмечены только ноль и тысяча, без других делений.',
+        'Середина это пятьсот, четверть это двести пятьдесят. По ним можно назвать, где примерно стоит число, даже без делений.'
+      ],
+      uz: [
+        "To'g'ri. Ikkinchi yo'l ham bor, tayanch nuqta orqali. To'rt yuz yetmish, to'rt yuz bilan besh yuz orasida turadi.",
+        "Aynan o'rtada to'rt yuz ellik turadi. To'rt yuz yetmish esa sal o'ngroqda, o'rtaga juda yaqin.",
+        "Endi eslatma. Faraz qiling, o'qda faqat nol va ming belgilangan, boshqa belgilar yo'q.",
+        "O'rtasi besh yuz, choragi ikki yuz ellik. Ular orqali son taxminan qayerda turishini aytsa bo'ladi, belgilar bo'lmasa ham."
+      ]
+    }
+  },
   s5: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     rule: { ru: 'Большие метки — круглые сотни, между ними маленькие метки десятков. Число ищем шагами: сотни большими шагами, десятки маленькими.', uz: "Katta belgilar — yumaloq yuzliklar, ular orasida o'nlik belgilari. Sonni qadamlab topamiz: yuzlik katta qadam, o'nlik kichik qadam." },
@@ -1306,6 +1349,7 @@ const CONTENT = {
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
+  stway: { ru: 'Соберём оба способа вместе.', uz: "Ikki usulni birga yig'amiz." },
   s1:  { ru: 'Вспомним про порядок.', uz: 'Tartibni eslaymiz.' },
   s2:  { ru: 'Разберём метки шкалы.', uz: 'Shkala belgilarini ko\'ramiz.' },
   s3:  { ru: 'Найдём число на прямой.', uz: "Sonni o'qda topamiz." },
@@ -3063,6 +3107,133 @@ const Screen11 = (props) => {
 // ============================================================
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
+
+// Yuza modeli (bonus): balandlik 4, eni 20+30 — ikki bo'lakka kesiladi (80 va 120).
+const AreaModel = ({ show }) => (
+  <svg viewBox="0 0 260 90" style={{ width: 'min(300px, 92%)', height: 'auto' }} aria-hidden="true">
+    <rect x="20" y="20" width="140" height="50" fill="#FBE9E7" stroke="#C0392B" strokeWidth="1.6"/>
+    <rect x="160" y="20" width="80" height="50" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="1.6"/>
+    {show && <line x1="160" y1="14" x2="160" y2="76" stroke="#8A8178" strokeWidth="1.4" strokeDasharray="3 3" className="lm-fadein"/>}
+    <text x="90" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">{show ? '80' : ''}</text>
+    <text x="200" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">{show ? '120' : ''}</text>
+    <text x="90" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">20</text>
+    <text x="200" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">30</text>
+    <text x="9" y="49" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace" transform="rotate(-90 9 45)">4</text>
+  </svg>
+);
+// O'rin almashtirish bonusi (Dars10): a×b = b×a — ikki massiv yonma-yon.
+const SwapViz = ({ a, b }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
+    {[[a, b], [b, a]].map(([r, cc], k) => (
+      <React.Fragment key={k}>
+        {k === 1 && <span className="mono" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D' }}>=</span>}
+        <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cc}, 1fr)`, gap: 2, padding: 4, background: '#152342', borderRadius: 8 }}>
+          {Array.from({ length: r * cc }).map((_, i) => <span key={i} style={{ width: 'clamp(6px, 1.8vw, 9px)', height: 'clamp(6px, 1.8vw, 9px)', borderRadius: '50%', background: '#FFC23C' }}/>)}
+        </div>
+      </React.Fragment>
+    ))}
+  </div>
+);
+// Bonus vizuali — CONTENT.stway.bonus_kind bo'yicha (area / swap / none). Aksi holda faqat matn.
+const BonusViz = ({ c, show, lang }) => {
+  if (c.bonus_kind === 'area') return <AreaModel show={show}/>;
+  if (c.bonus_kind === 'swap' && c.bonus_ab) return <SwapViz a={c.bonus_ab[0]} b={c.bonus_ab[1]}/>;
+  return null;
+};
+const TwWayCol = ({ label, steps, upto, accent, lang }) => (
+  <div className="lm-tw-col">
+    <span className={`lm-tw-head mono ${accent ? 'lm-tw-head-a' : ''}`}>{label}</span>
+    {steps.map((s, i) => (upto > i
+      ? <span key={i} className={`mono lm-tw-step lm-edrop ${i === steps.length - 1 ? 'lm-tw-ans' : ''}`}>{typeof s === 'string' ? s : (s[lang] || s.ru)}</span>
+      : null))}
+  </div>
+);
+// stway — IKKI USUL + bashorat-darvoza + yuza-model bonus (kitob 21-bet uslubi).
+const TwoWayScreen = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.stway;
+  const sfx = useSfx();
+  const audio = useAudio([
+    brgSeg('stway', lang),
+    { id: 'tw_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
+    { id: 'tw_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null },
+    { id: 'tw_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
+    ...c.audio2[lang].map((text, i) => ({ id: `tw2_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
+  ]);
+  const seg = audio.currentSegment;
+  const [m1, setM1] = useState(0);      // 1-usul bosqichi
+  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi
+  useEffect(() => {
+    if (!seg) return;
+    let m;
+    const m1m = seg.match(/^tw_(\d+)$/); if (m1m) { const n = +m1m[1] + 1; setM1((v) => Math.max(v, n)); }
+    const m2m = seg.match(/^tw2_(\d+)$/); if (m2m) { const n = +m2m[1]; setR2((v) => Math.max(v, n)); }
+  }, [seg]);
+  const canAct = useCanAnswer(audio);
+  const [picked, setPicked] = useState(null);
+  const ok = picked === c.check_ci;
+  const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
+  const m1Done = all || m1 >= 2;
+  const askNow = m1Done && !ok;
+  const revealRef = useRevealScroll(ok, 500);
+  const pick = (i) => {
+    if (!canAct || ok || !m1Done) return;
+    setPicked(i);
+    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
+  };
+  const showBonus = ok && (all || r2 >= 2);
+  const done = ok && (all || r2 >= c.audio2[lang].length - 1);
+  const canAdv = useAdvanceGate(done, audio);
+  const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+          <FrameFx/>
+          <span className="mono" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
+          <div className="lm-tw-grid">
+            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false} lang={lang}/>
+            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent lang={lang}/>}
+          </div>
+        </div>
+        {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
+        {askNow && (
+          <div className="lm-q-accent fade-up">
+            {t(c.check_q)}
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 'clamp(8px, 1.6vw, 12px)' }}>
+              {opts.map((o, i) => (
+                <button key={i} className={`option ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(14px, 2.6vw, 20px)', fontSize: 'clamp(14px, 2.2vw, 17px)', fontWeight: 800 }}>{o}</button>
+              ))}
+            </div>
+            {picked !== null && !ok && <p style={{ margin: '8px 0 0', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center' }}>{t(c.check_no)}</p>}
+          </div>
+        )}
+        {showBonus && (
+          <div ref={revealRef} className="lm-tw-bonus lm-riseup">
+            <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
+            <BonusViz c={c} show={r2 >= 3 || all} lang={lang}/>
+            <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+          </div>
+        )}
+        {done && (
+          <div className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.check_ok)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
 export default function NumberLineLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
@@ -3112,7 +3283,7 @@ export default function NumberLineLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11];
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, TwoWayScreen, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -5079,6 +5250,16 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
 /* Aksent savol (QOIDA — javob oldindan berilmasin). */
 .lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
+/* Ikki-usul ekrani (kitob 1-usul/2-usul) */
+.lm-tw-grid { display: flex; flex-wrap: wrap; gap: clamp(10px, 2.5vw, 18px); justify-content: center; width: 100%; }
+.lm-tw-col { display: flex; flex-direction: column; align-items: center; gap: 6px; background: #FBF7F1; border: 1.5px solid #EFE4D6; border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(12px,2.4vw,18px); min-width: clamp(130px, 40vw, 180px); }
+.lm-tw-head { font-size: clamp(11px, 1.6vw, 13px); font-weight: 800; color: #8A8178; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; }
+.lm-tw-head-a { color: #ff4f28; }
+.lm-tw-step { font-size: clamp(16px, 3.2vw, 22px); font-weight: 800; color: #3A3530; }
+.lm-tw-ans { color: #1F7A4D; background: #EAF5EE; border-radius: 8px; padding: 1px 10px; }
+.lm-tw-bonus { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #FFF6DC; border-radius: 16px; padding: clamp(12px,2.4vw,16px); }
+.lm-tw-bonus-badge { align-self: center; color: #B8860B; font-size: clamp(11px,1.6vw,13px); font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
+.lm-tw-bonus-txt { margin: 0; text-align: center; color: #3A3530; font-weight: 600; font-size: clamp(13px,1.8vw,15px); line-height: 1.4; }
 /* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
 @keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .lm-riseup { animation: lm-riseup-a 0.62s cubic-bezier(0.22, 1.1, 0.36, 1) both; }

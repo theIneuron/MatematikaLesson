@@ -1148,6 +1148,7 @@ const CONTENT = {
     check_ci: 0,
     check_ok: { ru: 'Верно. Второй путь тоже приводит к двумстам.', uz: "To'g'ri. Ikkinchi yo'l ham ikki yuzga olib keladi." },
     check_no: { ru: 'Посмотри: то же число можно раскрыть иначе. Попробуй ещё.', uz: "Qarang: o'sha sonni boshqacha ochsa bo'ladi. Yana urinib ko'ring." },
+    bonus_kind: 'area',
     bonus_label: { ru: 'Бонус — почему так можно', uz: 'Bonus — nega bunday mumkin' },
     bonus_text: { ru: 'Прямоугольник высотой 4 и шириной 20 и 30. Режем его на две части: 80 и 120. Вместе — весь прямоугольник, 200.', uz: "Balandligi 4, eni 20 va 30 bo'lgan to'rtburchak. Uni ikki bo'lakka kesamiz: 80 va 120. Birga — butun to'rtburchak, 200." },
     audio: {
@@ -2716,11 +2717,30 @@ const AreaModel = ({ show }) => (
     <text x="9" y="49" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace" transform="rotate(-90 9 45)">4</text>
   </svg>
 );
-const TwWayCol = ({ label, steps, upto, accent }) => (
+// O'rin almashtirish bonusi (Dars10): a×b = b×a — ikki massiv yonma-yon.
+const SwapViz = ({ a, b }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
+    {[[a, b], [b, a]].map(([r, cc], k) => (
+      <React.Fragment key={k}>
+        {k === 1 && <span className="mono" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D' }}>=</span>}
+        <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cc}, 1fr)`, gap: 2, padding: 4, background: '#152342', borderRadius: 8 }}>
+          {Array.from({ length: r * cc }).map((_, i) => <span key={i} style={{ width: 'clamp(6px, 1.8vw, 9px)', height: 'clamp(6px, 1.8vw, 9px)', borderRadius: '50%', background: '#FFC23C' }}/>)}
+        </div>
+      </React.Fragment>
+    ))}
+  </div>
+);
+// Bonus vizuali — CONTENT.stway.bonus_kind bo'yicha (area / swap / none). Aksi holda faqat matn.
+const BonusViz = ({ c, show, lang }) => {
+  if (c.bonus_kind === 'area') return <AreaModel show={show}/>;
+  if (c.bonus_kind === 'swap' && c.bonus_ab) return <SwapViz a={c.bonus_ab[0]} b={c.bonus_ab[1]}/>;
+  return null;
+};
+const TwWayCol = ({ label, steps, upto, accent, lang }) => (
   <div className="lm-tw-col">
     <span className={`lm-tw-head mono ${accent ? 'lm-tw-head-a' : ''}`}>{label}</span>
     {steps.map((s, i) => (upto > i
-      ? <span key={i} className={`mono lm-tw-step lm-edrop ${i === steps.length - 1 ? 'lm-tw-ans' : ''}`}>{s}</span>
+      ? <span key={i} className={`mono lm-tw-step lm-edrop ${i === steps.length - 1 ? 'lm-tw-ans' : ''}`}>{typeof s === 'string' ? s : (s[lang] || s.ru)}</span>
       : null))}
   </div>
 );
@@ -2743,8 +2763,8 @@ const TwoWayScreen = (props) => {
   useEffect(() => {
     if (!seg) return;
     let m;
-    if ((m = seg.match(/^tw_(\d+)$/))) setM1((v) => Math.max(v, +m[1] + 1));
-    if ((m = seg.match(/^tw2_(\d+)$/))) setR2((v) => Math.max(v, +m[1]));
+    const m1m = seg.match(/^tw_(\d+)$/); if (m1m) { const n = +m1m[1] + 1; setM1((v) => Math.max(v, n)); }
+    const m2m = seg.match(/^tw2_(\d+)$/); if (m2m) { const n = +m2m[1]; setR2((v) => Math.max(v, n)); }
   }, [seg]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
@@ -2776,8 +2796,8 @@ const TwoWayScreen = (props) => {
           <FrameFx/>
           <span className="mono" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
           <div className="lm-tw-grid">
-            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false}/>
-            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent/>}
+            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false} lang={lang}/>
+            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent lang={lang}/>}
           </div>
         </div>
         {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
@@ -2796,7 +2816,7 @@ const TwoWayScreen = (props) => {
         {showBonus && (
           <div ref={revealRef} className="lm-tw-bonus lm-riseup">
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
-            <AreaModel show={r2 >= 3 || all}/>
+            <BonusViz c={c} show={r2 >= 3 || all} lang={lang}/>
             <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
           </div>
         )}
