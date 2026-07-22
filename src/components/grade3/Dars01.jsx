@@ -2055,6 +2055,9 @@ const CREATURES = [{ x: 100, y: 62, s: 1.0, tint: '#B4E4F0', d: 0 }, { x: 246, y
 const GROUND_FLOWERS = [[38, '#8FE0D0'], [116, '#F0A0C8'], [300, '#8FD8F0'], [352, '#C6A6F0'], [388, '#FFD98A']];
 const LumoCityBg = ({ fill = false }) => (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio={fill ? 'xMidYMid slice' : 'xMidYMax meet'} aria-hidden="true">
+    <defs>
+      <radialGradient id="lumocitybgvig" cx="50%" cy="43%" r="72%"><stop offset="0%" stopColor="#000" stopOpacity="0"/><stop offset="76%" stopColor="#000" stopOpacity="0"/><stop offset="100%" stopColor="#2A2018" stopOpacity="0.28"/></radialGradient>
+    </defs>
     <rect x="0" y="0" width="400" height="230" fill="url(#lmSky)"/>
     {/* iliq quyosh (yuqori-o'ng) */}
     <circle cx="336" cy="38" r="42" fill="#FFE39A" opacity="0.4"/>
@@ -2117,6 +2120,8 @@ const LumoCityBg = ({ fill = false }) => (
         <circle className="lm-glow" style={{ animationDelay: `${i * 0.5}s` }} cx={x} cy={PLAT_Y + 8} r="1.7" fill="#FFF4D0"/>
       </g>
     ))}
+      {/* REALIZM: vinetka — chekka qorong'ilashuvi (chuqurlik + markazga fokus) */}
+    <rect x="0" y="0" width="400" height="230" fill="url(#lumocitybgvig)" style={{ pointerEvents: 'none' }}/>
   </svg>
 );
 
@@ -5876,7 +5881,9 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-scene { position: relative; width: 100%; aspect-ratio: 400 / 210; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
-.lm-crew { display: inline-flex; align-items: flex-end; }
+.lm-crew { display: inline-flex; align-items: flex-end; position: relative; }
+/* REALIZM: personaj ostidagi yumshoq yer-soyasi (figurani yerga bog'laydi) */
+.lm-crew::after { content: ''; position: absolute; bottom: -2%; left: 50%; transform: translateX(-50%); width: 82%; height: clamp(6px, 1.6vw, 11px); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(40,30,20,0.32) 0%, rgba(40,30,20,0.11) 55%, transparent 78%); z-index: -1; pointer-events: none; }
 .lm-crew-kid { height: clamp(72px, 17vw, 122px); }
 .lm-crew-kid .g1-char { height: 100%; width: auto; display: block; }
 .lm-crew-host { width: clamp(42px, 10vw, 66px); margin: 0 clamp(2px, 1vw, 8px); }
