@@ -2320,10 +2320,26 @@ const AncientHallBg = () => (
       <linearGradient id="h8slab" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E4D3AC"/><stop offset="100%" stopColor="#C6AE7E"/></linearGradient>
       <radialGradient id="h8sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#EE9A5A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
       <radialGradient id="h8moss" cx="50%" cy="35%" r="70%"><stop offset="0%" stopColor="#BFF0C8"/><stop offset="100%" stopColor="#7FD0A0" stopOpacity="0"/></radialGradient>
+      {/* REALIZM qo'shimchalari: yumshoq soya, buyum-soyasi, vinetka, tosh AO */}
+      <radialGradient id="h8shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#4A3A22" stopOpacity="0.42"/><stop offset="70%" stopColor="#4A3A22" stopOpacity="0.18"/><stop offset="100%" stopColor="#4A3A22" stopOpacity="0"/></radialGradient>
+      <radialGradient id="h8vig" cx="50%" cy="42%" r="72%"><stop offset="0%" stopColor="#000000" stopOpacity="0"/><stop offset="78%" stopColor="#000000" stopOpacity="0"/><stop offset="100%" stopColor="#3A2A18" stopOpacity="0.30"/></radialGradient>
+      <linearGradient id="h8ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6B5636" stopOpacity="0.4"/><stop offset="100%" stopColor="#6B5636" stopOpacity="0"/></linearGradient>
+      <linearGradient id="h8beam" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stopColor="#FFE9B8" stopOpacity="0.5"/><stop offset="100%" stopColor="#FFE9B8" stopOpacity="0"/></linearGradient>
       <clipPath id="h8arch"><path d="M124 96 L124 70 Q124 40 200 40 Q276 40 276 70 L276 96 Z"/></clipPath>
     </defs>
     {/* --- DEVOR + shift lintel (interyer) --- */}
     <rect x="0" y="0" width="400" height="180" fill="url(#h8wall)"/>
+    {/* tosh tekstura: nurab ketgan dog'lar, yoriqlar, tosh choklari */}
+    <g opacity="0.5" fill="#B49A6E">
+      <ellipse cx="60" cy="70" rx="20" ry="26"/><ellipse cx="350" cy="60" rx="16" ry="22"/><ellipse cx="200" cy="150" rx="30" ry="14"/>
+    </g>
+    <g stroke="#9A855C" strokeWidth="0.5" opacity="0.35" fill="none">
+      <path d="M18 40 q4 20 -3 46 q-2 14 4 30"/><path d="M384 30 q-5 26 2 50 q3 16 -4 34"/>
+      <path d="M70 120 l7 10 l-3 9"/><path d="M330 128 l-6 8 l4 10"/>
+    </g>
+    <g stroke="#B7A176" strokeWidth="0.6" opacity="0.4">{[36, 72, 108, 144].map((y, i) => <line key={i} x1="0" y1={y} x2="400" y2={y}/>)}</g>
+    {/* ravoqdan tushayotgan quyosh nuri (yorug'lik ustuni) */}
+    <path d="M175 40 L150 176 L250 176 L225 40 Z" fill="url(#h8beam)" opacity="0.7"/>
     <rect x="0" y="0" width="400" height="20" fill="#C2AC7E"/><rect x="0" y="19" width="400" height="3" fill="#9A855C"/>
     <g fill="#B09A6E">{[40, 96, 152, 248, 304, 360].map((x, i) => <rect key={i} x={x} y="6" width="30" height="8" rx="1.5"/>)}</g>
     {/* osma moss-fonar (3) */}
@@ -2354,6 +2370,10 @@ const AncientHallBg = () => (
         <rect x={x} y="36" width="42" height="140" fill="url(#h8col)" stroke="#8A7550" strokeWidth="1"/>
         <g stroke="#9A855C" strokeWidth="1.2" opacity="0.55">{[10, 21, 32].map((dx, k) => <line key={k} x1={x + dx} y1="40" x2={x + dx} y2="172"/>)}</g>
         <rect x={x - 4} y="168" width="50" height="10" rx="2" fill="url(#h8col)" stroke="#8A7550" strokeWidth="1"/>
+        {/* ustun ichki soyasi (silindrik hajm) + asos AO */}
+        <rect x={x + 30} y="36" width="12" height="140" fill="#8A7550" opacity="0.28"/>
+        <rect x={x} y="36" width="7" height="140" fill="#FFF3D8" opacity="0.25"/>
+        <rect x={x - 4} y="176" width="50" height="10" fill="url(#h8shadow)" opacity="0.7"/>
         <circle className="lm-glow" cx={x + 21} cy="30" r="3" fill="#BFF0C8"/>
       </g>
     ))}
@@ -2361,8 +2381,14 @@ const AncientHallBg = () => (
     <path d="M356 172 Q346 150 356 130 Q366 110 356 90 Q348 74 356 60" fill="none" stroke="#6FBF8E" strokeWidth="2.4"/>
     <g fill="#8FD8A8">{[[352, 150], [360, 118], [350, 96], [358, 72]].map(([cx, cy], k) => <circle key={k} cx={cx} cy={cy} r="2.6"/>)}</g>
     {/* --- MARKAZIY STELA: rim <-> zamonaviy (XII = 12) --- */}
+    {/* polдаги yumshoq soya (yorug'lik chapdan -> soya o'ngga cho'ziladi) */}
+    <ellipse cx="206" cy="178" rx="78" ry="12" fill="url(#h8shadow)"/>
     <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
+    <path d="M250 158 l8 18 h-8 Z" fill="#8A7550" opacity="0.5"/>
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#h8slab)" stroke="#8A7550" strokeWidth="2"/>
+    {/* stela ichki AO (yuqori chekka soyasi) + o'ng qirra 3D */}
+    <rect x="116" y="94" width="168" height="10" rx="5" fill="url(#h8ao)"/>
+    <path d="M284 96 l5 4 v58 l-5 4 Z" fill="#8A7550" opacity="0.45"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
     <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">RIM RAQAMI</text>
@@ -2370,6 +2396,7 @@ const AncientHallBg = () => (
     <text x="205" y="140" textAnchor="middle" fontSize="20" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">=</text>
     <text x="248" y="142" textAnchor="middle" fontSize="24" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">12</text>
     {/* --- CHAP artefakt: quyosh soati --- */}
+    <ellipse cx="88" cy="180" rx="30" ry="8" fill="url(#h8shadow)"/>
     <g transform="translate(88 158)">
       <rect x="-22" y="6" width="44" height="14" rx="3" fill="#B49A6E" stroke="#8A7550" strokeWidth="1"/>
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#h8slab)" stroke="#8A7550" strokeWidth="1.2"/>
@@ -2393,8 +2420,11 @@ const AncientHallBg = () => (
     <g fill="none" stroke="#8A7550" strokeWidth="0.8" opacity="0.3">{[160, 200, 240].map((cx, k) => <path key={k} d={`M${cx} 186 l8 5 l-8 5 l-8 -5 Z`}/>)}</g>
     {/* --- OLD PLAN: yiqilgan ustun bo'lagi (chap) + moss --- */}
     <g transform="translate(58 176)"><rect x="-2" y="-12" width="34" height="11" rx="3" fill="url(#h8col)" stroke="#8A7550" strokeWidth="1" transform="rotate(-6)"/><circle className="lm-glow" cx="0" cy="-8" r="2.6" fill="#BFF0C8"/></g>
-    {/* havoda porlovchi sporalar */}
+    {/* havoda porlovchi sporalar + chang zarralari (yorug'lik nurida) */}
     <g><circle className="lm-glow" cx="96" cy="70" r="1.5" fill="#DFF0C8"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="320" cy="150" r="1.4" fill="#CFEFD8"/></g>
+    <g fill="#FFE9B8" opacity="0.55">{[[188, 70], [205, 95], [196, 120], [212, 60], [180, 105]].map(([cx, cy], k) => <circle key={k} className="lm-glow" style={{ animationDelay: `${k * 0.5}s` }} cx={cx} cy={cy} r="0.9"/>)}</g>
+    {/* --- VINETKA: chekka qorong'ilashuvi (chuqurlik + fokus markazga) --- */}
+    <rect x="0" y="0" width="400" height="230" fill="url(#h8vig)" pointerEvents="none"/>
   </svg>
 );
 
@@ -5083,7 +5113,9 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-scene { position: relative; width: 100%; aspect-ratio: 400 / 210; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
-.lm-crew { display: inline-flex; align-items: flex-end; }
+.lm-crew { display: inline-flex; align-items: flex-end; position: relative; }
+/* REALIZM: personaj ostidagi yumshoq yer-soyasi (figurani yerga bog'laydi) */
+.lm-crew::after { content: ''; position: absolute; bottom: -2%; left: 50%; transform: translateX(-50%); width: 82%; height: clamp(6px, 1.6vw, 11px); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(58,42,24,0.34) 0%, rgba(58,42,24,0.12) 55%, transparent 78%); z-index: -1; pointer-events: none; }
 .lm-crew-kid { height: clamp(72px, 17vw, 122px); }
 .lm-crew-kid .g1-char { height: 100%; width: auto; display: block; }
 .lm-crew-host { width: clamp(42px, 10vw, 66px); margin: 0 clamp(2px, 1vw, 8px); }
