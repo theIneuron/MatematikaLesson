@@ -2304,6 +2304,8 @@ const SkywayBg = () => (
       <linearGradient id="shPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#20344C"/><stop offset="100%" stopColor="#0E1B2C"/></linearGradient>
       <radialGradient id="shLamp" cx="50%" cy="20%" r="80%"><stop offset="0%" stopColor="#FFF0C4"/><stop offset="100%" stopColor="#FFE39A" stopOpacity="0"/></radialGradient>
       <clipPath id="shWinClip"><rect x="46" y="32" width="308" height="62" rx="4"/></clipPath>
+      <radialGradient id="d06shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#4A3A22" stopOpacity="0.40"/><stop offset="70%" stopColor="#4A3A22" stopOpacity="0.16"/><stop offset="100%" stopColor="#4A3A22" stopOpacity="0"/></radialGradient>
+      <linearGradient id="d06ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6B5636" stopOpacity="0.38"/><stop offset="100%" stopColor="#6B5636" stopOpacity="0"/></linearGradient>
     </defs>
     <rect x="0" y="0" width="400" height="180" fill="url(#shWall)"/>
     <rect x="0" y="0" width="400" height="22" fill="#D2B892"/><rect x="0" y="21" width="400" height="3" fill="#B4976F"/>
@@ -2331,11 +2333,20 @@ const SkywayBg = () => (
     <g fill="none" stroke="#C9B79A" strokeWidth="3"><rect x="42" y="28" width="316" height="70" rx="7"/></g>
     <g stroke="#C9B79A" strokeWidth="2.4" opacity="0.9"><path d="M148 32 V94"/><path d="M256 32 V94"/><path d="M46 63 H354"/></g>
     <rect x="42" y="95" width="316" height="5" rx="2" fill="#B4976F"/>
+    {/* d06 REALIZM: freym fasi — markaziy panel bo'rtib chiqishi (yuqori-chap yorug', past-o'ng soya) */}
+    <path d="M43.5 29.5 H356.5" stroke="#FFFFFF" strokeWidth="1.2" opacity="0.20"/>
+    <path d="M43.5 29.5 V96.5" stroke="#FFFFFF" strokeWidth="1" opacity="0.12"/>
+    <path d="M43.5 96.5 H356.5" stroke="#000000" strokeWidth="1.2" opacity="0.16"/>
+    <path d="M356.5 29.5 V96.5" stroke="#000000" strokeWidth="1" opacity="0.16"/>
 
     <text x="200" y="108" textAnchor="middle" fontSize="8" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">SON O'QI</text>
     {/* raqamlar rels ustida (ekipaj yopmasin) */}
     {[['300', 40], ['400', 104], ['500', 168], ['600', 232], ['700', 296], ['800', 360]].map(([n, x], i) => (
       <text key={`sl${i}`} x={x} y="124" textAnchor="middle" fontSize="8" fontWeight="700" fill="#5E86A2" fontFamily="'JetBrains Mono', monospace">{n}</text>
+    ))}
+    {/* d06 REALIZM: shkala tayanchlari ostida yumshoq yer-soyasi (rels devordan ko'tariladi) */}
+    {[40, 104, 168, 232, 296, 360].map((x, i) => (
+      <ellipse key={`d06sh${i}`} cx={x} cy="154" rx="5" ry="1.7" fill="url(#d06shadow)" opacity="0.42"/>
     ))}
     <line x1="40" y1="140" x2="360" y2="140" stroke="#8FA6B8" strokeWidth="3" strokeLinecap="round"/>
     <line x1="40" y1="140" x2="360" y2="140" stroke="#CFE8FF" strokeWidth="1" opacity="0.6"/>
@@ -2343,8 +2354,16 @@ const SkywayBg = () => (
       <g key={`s${i}`}><rect x={x - 1.5} y="140" width="3" height="12" fill="#9A855C"/><circle cx={x} cy="140" r="4" fill="#E4D3AC" stroke="#8A7550" strokeWidth="1"/></g>
     ))}
     {/* vagon 500 da */}
+    {/* d06 REALIZM: vagon rels ustida — kontakt soyasi */}
+    <ellipse cx="168" cy="140.5" rx="18" ry="2" fill="url(#d06shadow)" opacity="0.34"/>
     <g transform="translate(168 122)"><rect x="-20" y="0" width="40" height="15" rx="6" fill="url(#shPanel)" stroke="#3E6E90" strokeWidth="1.2"/><rect x="-15" y="3" width="30" height="6" rx="3" fill="#8FE0F4" opacity="0.5"/><circle cx="-10" cy="15" r="2.4" fill="#5E86A2"/><circle cx="10" cy="15" r="2.4" fill="#5E86A2"/><path d="M0 -2 V-8" stroke="#9FB3BF" strokeWidth="2"/><circle className="lm-glow" cx="0" cy="-9" r="2.6" fill="#FF6A4A"/></g>
     <rect x="0" y="176" width="400" height="54" fill="url(#shFloor)"/>
+    {/* d06 REALIZM: pol-devor tutashuvida chuqurlik + yumshoq dog'lar (tekstura) */}
+    <rect x="0" y="176" width="400" height="15" fill="url(#d06ao)" opacity="0.34"/>
+    <g opacity="0.14" fill="#8A6F49"><ellipse cx="140" cy="206" rx="28" ry="6"/><ellipse cx="298" cy="219" rx="32" ry="7"/></g>
+    {/* d06 REALIZM: o'simliklar tagida yer-soyasi */}
+    <ellipse cx="16" cy="178" rx="13" ry="3.6" fill="url(#d06shadow)" opacity="0.44"/>
+    <ellipse cx="392" cy="178" rx="10" ry="3.2" fill="url(#d06shadow)" opacity="0.4"/>
     <line x1="0" y1="176" x2="400" y2="176" stroke="#9A8058" strokeWidth="2"/>
     <g stroke="#A98C64" strokeWidth="1" opacity="0.4"><path d="M20 230 L176 178"/><path d="M120 230 L192 178"/><path d="M280 230 L208 178"/><path d="M380 230 L224 178"/></g>
     <g stroke="#A98C64" strokeWidth="0.8" opacity="0.28"><path d="M0 196 H400"/><path d="M0 212 H400"/></g>

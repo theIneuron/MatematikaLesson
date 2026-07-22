@@ -2280,6 +2280,9 @@ const MeasureTowerBg = () => (
       <linearGradient id="shPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#20344C"/><stop offset="100%" stopColor="#0E1B2C"/></linearGradient>
       <radialGradient id="shLamp" cx="50%" cy="20%" r="80%"><stop offset="0%" stopColor="#FFF0C4"/><stop offset="100%" stopColor="#FFE39A" stopOpacity="0"/></radialGradient>
       <clipPath id="shWinClip"><rect x="46" y="32" width="308" height="62" rx="4"/></clipPath>
+      {/* REALIZM: yer-soyasi + AO gradientlari (issiq sahna → jigarrang) */}
+      <radialGradient id="d05shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#4A3A22" stopOpacity="0.40"/><stop offset="70%" stopColor="#4A3A22" stopOpacity="0.16"/><stop offset="100%" stopColor="#4A3A22" stopOpacity="0"/></radialGradient>
+      <linearGradient id="d05ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6B5636" stopOpacity="0.38"/><stop offset="100%" stopColor="#6B5636" stopOpacity="0"/></linearGradient>
     </defs>
     <rect x="0" y="0" width="400" height="180" fill="url(#shWall)"/>
     <rect x="0" y="0" width="400" height="22" fill="#D2B892"/><rect x="0" y="21" width="400" height="3" fill="#B4976F"/>
@@ -2328,6 +2331,44 @@ const MeasureTowerBg = () => (
     <g transform="translate(18 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/><path d="M-1 -14 q-8 -3 -11 -10 q9 1 12 8Z" fill="#8FD8B8"/></g>
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>
+    {/* ===== REALIZM QATLAMI (d05) — faqat qo'shimcha chuqurlik, mavjud tegilmadi ===== */}
+    {/* devor teksturasi — bo'sh yon cho'ntaklar (dog' + nozik yoriq) */}
+    <g fill="#B79A70">
+      <ellipse cx="66" cy="150" rx="13" ry="19" opacity="0.14"/>
+      <ellipse cx="80" cy="120" rx="6" ry="8" opacity="0.10"/>
+      <ellipse cx="332" cy="146" rx="12" ry="17" opacity="0.13"/>
+    </g>
+    <g stroke="#A98C64" fill="none" opacity="0.26">
+      <path d="M58 106 q-3 14 1 26 q-4 12 2 24" strokeWidth="0.6"/>
+      <path d="M340 108 q3 16 -1 30 q3 10 -1 22" strokeWidth="0.5"/>
+    </g>
+    {/* strukturalar YUQORI chekkasi — AO chuqurlik */}
+    <rect x="100" y="104" width="200" height="5" rx="4" fill="url(#d05ao)" opacity="0.42"/>
+    <rect x="21" y="118" width="18" height="6" rx="2" fill="url(#d05ao)" opacity="0.34"/>
+    <rect x="361" y="120" width="22" height="6" rx="2" fill="url(#d05ao)" opacity="0.34"/>
+    {/* HAJM shading — chap yorug', o'ng quyuq (yorug'lik yuqori-chapdan) */}
+    <g>
+      <rect x="296" y="116" width="6" height="36" rx="2" fill="#000" opacity="0.16"/>
+      <rect x="98" y="116" width="4" height="36" rx="2" fill="#FFF" opacity="0.10"/>
+      <rect x="35" y="122" width="4" height="50" rx="2" fill="#000" opacity="0.16"/>
+      <rect x="21" y="122" width="3" height="50" rx="2" fill="#FFF" opacity="0.12"/>
+      <rect x="379" y="124" width="4" height="46" rx="2" fill="#000" opacity="0.16"/>
+      <rect x="361" y="124" width="3" height="46" rx="2" fill="#FFF" opacity="0.12"/>
+    </g>
+    {/* pol teksturasi — yengil yeyilgan dog'lar */}
+    <g fill="#A98C64">
+      <ellipse cx="120" cy="200" rx="24" ry="6" opacity="0.12"/>
+      <ellipse cx="290" cy="212" rx="30" ry="7" opacity="0.10"/>
+      <ellipse cx="210" cy="223" rx="34" ry="7" opacity="0.09"/>
+    </g>
+    {/* YER-SOYALARI — strukturalarni polga bog'laydi (eng katta ta'sir) */}
+    <g>
+      <ellipse cx="202" cy="181" rx="70" ry="6.5" fill="url(#d05shadow)"/>
+      <ellipse cx="31" cy="180" rx="15" ry="4.5" fill="url(#d05shadow)"/>
+      <ellipse cx="373" cy="179" rx="16" ry="4.5" fill="url(#d05shadow)"/>
+      <ellipse cx="20" cy="180" rx="9" ry="3" fill="url(#d05shadow)"/>
+      <ellipse cx="390" cy="179" rx="7" ry="2.6" fill="url(#d05shadow)"/>
+    </g>
       {/* REALIZM: vinetka — chekka qorong'ilashuvi (chuqurlik + markazga fokus) */}
     <rect x="0" y="0" width="400" height="230" fill="url(#measuretowerbgvig)" style={{ pointerEvents: 'none' }}/>
   </svg>

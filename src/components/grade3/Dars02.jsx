@@ -2457,6 +2457,8 @@ const AxborotMinorasiBg = () => (
       <radialGradient id="a2sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#F0985A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
       <linearGradient id="a2panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#20344C"/><stop offset="100%" stopColor="#0E1B2C"/></linearGradient>
       <radialGradient id="a2lamp" cx="50%" cy="20%" r="80%"><stop offset="0%" stopColor="#FFF0C4"/><stop offset="100%" stopColor="#FFE39A" stopOpacity="0"/></radialGradient>
+      <radialGradient id="d02shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#3A2C18" stopOpacity="0.40"/><stop offset="70%" stopColor="#3A2C18" stopOpacity="0.16"/><stop offset="100%" stopColor="#3A2C18" stopOpacity="0"/></radialGradient>
+      <linearGradient id="d02ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#5A4428" stopOpacity="0.32"/><stop offset="100%" stopColor="#5A4428" stopOpacity="0"/></linearGradient>
     </defs>
     {/* --- WALL + shift (interyer) --- */}
     <rect x="0" y="0" width="400" height="180" fill="url(#a2wall)"/>
@@ -2527,11 +2529,28 @@ const AxborotMinorasiBg = () => (
     <line x1="0" y1="176" x2="400" y2="176" stroke="#9A8058" strokeWidth="2"/>
     <g stroke="#A98C64" strokeWidth="1" opacity="0.45"><path d="M20 230 L176 178"/><path d="M120 230 L192 178"/><path d="M280 230 L208 178"/><path d="M380 230 L224 178"/></g>
     <g stroke="#A98C64" strokeWidth="0.8" opacity="0.3"><path d="M0 196 H400"/><path d="M0 212 H400"/></g>
+    {/* REALIZM(d02): pol-devor AO + buyum yer-soyalari (chuqurlik) */}
+    <rect x="0" y="176" width="400" height="13" fill="url(#d02ao)"/>
+    <ellipse cx="200" cy="178" rx="72" ry="8" fill="url(#d02shadow)"/>
+    <ellipse cx="47" cy="178" rx="52" ry="7" fill="url(#d02shadow)"/>
+    <ellipse cx="351" cy="172" rx="44" ry="5.5" fill="url(#d02shadow)"/>
     {/* --- OLD PLAN ramka proplari (chuqurlik) --- */}
     <g transform="translate(18 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/><path d="M-1 -14 q-8 -3 -11 -10 q9 1 12 8Z" fill="#8FD8B8"/><path d="M1 -10 q7 -3 10 -9 q-8 1 -11 7Z" fill="#7CB69E" opacity="0.85"/></g>
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     {/* havoda porlovchi sporalar (iliqlik) */}
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>
+    {/* REALIZM(d02): hajm shading (yon strukturalarga 3D) */}
+    <rect x="106" y="109" width="4" height="36" fill="#FFF" opacity="0.16"/>
+    <rect x="290" y="109" width="4" height="36" fill="#000" opacity="0.20"/>
+    <polygon points="154,148 159,148 147,176 142,176" fill="#FFF" opacity="0.14"/>
+    <polygon points="246,148 241,148 253,176 258,176" fill="#000" opacity="0.18"/>
+    <rect x="310" y="107" width="4" height="60" fill="#FFF" opacity="0.14"/>
+    <rect x="389" y="107" width="3" height="60" fill="#000" opacity="0.18"/>
+    <rect x="10" y="129" width="3" height="24" fill="#FFF" opacity="0.16"/>
+    <rect x="75" y="129" width="3" height="24" fill="#000" opacity="0.20"/>
+    {/* REALIZM(d02): devor teksturasi (nozik dog'/yoriq) */}
+    <g opacity="0.36" fill="#C6A97E"><ellipse cx="20" cy="70" rx="8" ry="12"/><ellipse cx="376" cy="60" rx="7" ry="10"/></g>
+    <g stroke="#B89A6E" strokeWidth="0.6" opacity="0.3" fill="none"><path d="M12 42 q3 14 -2 26"/><path d="M384 42 q-3 12 1 22"/></g>
       {/* REALIZM: vinetka — chekka qorong'ilashuvi (chuqurlik + markazga fokus) */}
     <rect x="0" y="0" width="400" height="230" fill="url(#axborotminorasibgvig)" style={{ pointerEvents: 'none' }}/>
   </svg>

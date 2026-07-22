@@ -2416,9 +2416,15 @@ const RazryadPlazaBg = () => (
       <linearGradient id="shPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#20344C"/><stop offset="100%" stopColor="#0E1B2C"/></linearGradient>
       <radialGradient id="shLamp" cx="50%" cy="20%" r="80%"><stop offset="0%" stopColor="#FFF0C4"/><stop offset="100%" stopColor="#FFE39A" stopOpacity="0"/></radialGradient>
       <clipPath id="shWinClip"><rect x="46" y="32" width="308" height="62" rx="4"/></clipPath>
+      <radialGradient id="d03shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#3B2E1A" stopOpacity="0.38"/><stop offset="70%" stopColor="#3B2E1A" stopOpacity="0.15"/><stop offset="100%" stopColor="#3B2E1A" stopOpacity="0"/></radialGradient>
+      <linearGradient id="d03ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4A3A22" stopOpacity="0.34"/><stop offset="100%" stopColor="#4A3A22" stopOpacity="0"/></linearGradient>
+      <radialGradient id="d03warm" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#FFDCA0" stopOpacity="0.14"/><stop offset="100%" stopColor="#FFDCA0" stopOpacity="0"/></radialGradient>
     </defs>
     <rect x="0" y="0" width="400" height="180" fill="url(#shWall)"/>
     <rect x="0" y="0" width="400" height="22" fill="#D2B892"/><rect x="0" y="21" width="400" height="3" fill="#B4976F"/>
+    {/* d03 REALIZM: yon devor teksturasi (nozik dog' + yoriq) */}
+    <g opacity="0.4" fill="#CBB088"><ellipse cx="19" cy="58" rx="8" ry="13"/><ellipse cx="24" cy="104" rx="6" ry="9"/><ellipse cx="381" cy="66" rx="7" ry="11"/><ellipse cx="377" cy="112" rx="5" ry="8"/></g>
+    <g stroke="#B99C72" strokeWidth="0.5" opacity="0.4" fill="none"><path d="M15 30 q5 30 -1 58"/><path d="M386 34 q-4 26 1 50"/></g>
     <g stroke="#C7AC82" strokeWidth="1" opacity="0.5"><path d="M60 24 V96"/><path d="M340 24 V96"/></g>
     {[90, 200, 310].map((cx, i) => (
       <g key={`lamp${i}`}>
@@ -2467,10 +2473,28 @@ const RazryadPlazaBg = () => (
       <rect x="30" y="26" width="24" height="10" rx="2" fill="none" stroke="#8FA6B8" strokeWidth="1" strokeDasharray="2 2"/><text x="42" y="34" textAnchor="middle" fontSize="6" fill="#8FA6B8" fontFamily="'JetBrains Mono', monospace">0 o</text>
       <text x="26" y="52" textAnchor="middle" fontSize="6" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">BIRLIK</text>
     </g>
+    {/* d03 REALIZM: markaziy tablo hajmi (chap yorug', o'ng soya) */}
+    <rect x="100" y="108" width="6" height="40" rx="2" fill="#FFFFFF" opacity="0.10"/>
+    <rect x="294" y="108" width="8" height="40" rx="2" fill="#000000" opacity="0.15"/>
+    {/* d03 REALIZM: tagkursi hajmi + yuqori AO */}
+    <polygon points="200,156 250,156 260,176 200,176" fill="#000000" opacity="0.16"/>
+    <path d="M150 156 L140 176 L147 176 L156 156 Z" fill="#FFFFFF" opacity="0.12"/>
+    <rect x="150" y="156" width="100" height="6" fill="url(#d03ao)"/>
+    {/* d03 REALIZM: yon tagliklar hajmi (chap yorug', o'ng soya) */}
+    <rect x="8" y="120" width="4" height="52" rx="1" fill="#FFFFFF" opacity="0.10"/>
+    <rect x="63" y="122" width="5" height="50" rx="1" fill="#000000" opacity="0.12"/>
+    <rect x="326" y="120" width="4" height="52" rx="1" fill="#FFFFFF" opacity="0.10"/>
+    <rect x="383" y="122" width="5" height="50" rx="1" fill="#000000" opacity="0.12"/>
     <rect x="0" y="176" width="400" height="54" fill="url(#shFloor)"/>
     <line x1="0" y1="176" x2="400" y2="176" stroke="#9A8058" strokeWidth="2"/>
     <g stroke="#A98C64" strokeWidth="1" opacity="0.4"><path d="M20 230 L176 178"/><path d="M120 230 L192 178"/><path d="M280 230 L208 178"/><path d="M380 230 L224 178"/></g>
     <g stroke="#A98C64" strokeWidth="0.8" opacity="0.28"><path d="M0 196 H400"/><path d="M0 212 H400"/></g>
+    {/* d03 REALIZM: pol yorug'lik hovuzi + yer-soyalari + tekstura */}
+    <ellipse cx="200" cy="197" rx="150" ry="19" fill="url(#d03warm)"/>
+    <ellipse cx="202" cy="180" rx="72" ry="8" fill="url(#d03shadow)"/>
+    <ellipse cx="40" cy="178" rx="37" ry="6.5" fill="url(#d03shadow)"/>
+    <ellipse cx="358" cy="178" rx="38" ry="6.5" fill="url(#d03shadow)"/>
+    <g opacity="0.15" fill="#A98C64"><ellipse cx="96" cy="201" rx="15" ry="3.6"/><ellipse cx="300" cy="207" rx="18" ry="4"/><ellipse cx="210" cy="217" rx="22" ry="4.4"/></g>
     <g transform="translate(18 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/><path d="M-1 -14 q-8 -3 -11 -10 q9 1 12 8Z" fill="#8FD8B8"/></g>
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>

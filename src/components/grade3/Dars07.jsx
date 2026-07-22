@@ -2265,6 +2265,8 @@ const CountingHallBg = () => (
       <radialGradient id="shSun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#F0985A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
       <linearGradient id="shPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#20344C"/><stop offset="100%" stopColor="#0E1B2C"/></linearGradient>
       <radialGradient id="shLamp" cx="50%" cy="20%" r="80%"><stop offset="0%" stopColor="#FFF0C4"/><stop offset="100%" stopColor="#FFE39A" stopOpacity="0"/></radialGradient>
+      <radialGradient id="d07shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#4A3A22" stopOpacity="0.40"/><stop offset="70%" stopColor="#4A3A22" stopOpacity="0.16"/><stop offset="100%" stopColor="#4A3A22" stopOpacity="0"/></radialGradient>
+      <linearGradient id="d07ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6B5636" stopOpacity="0.38"/><stop offset="100%" stopColor="#6B5636" stopOpacity="0"/></linearGradient>
       <clipPath id="shWinClip"><rect x="46" y="32" width="308" height="62" rx="4"/></clipPath>
     </defs>
     <rect x="0" y="0" width="400" height="180" fill="url(#shWall)"/>
@@ -2314,6 +2316,43 @@ const CountingHallBg = () => (
     <g transform="translate(18 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/><path d="M-1 -14 q-8 -3 -11 -10 q9 1 12 8Z" fill="#8FD8B8"/></g>
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>
+    {/* d07 REALIZM: chuqurlik qatlamlari (yer-soya, hajm, tekstura, yoruglik) faqat qoshildi */}
+    <g style={{ pointerEvents: 'none' }}>
+      {/* deraza tokchasi tagida AO (devor chuqurchasi), pano yonlarida */}
+      <rect x="42" y="100" width="78" height="16" fill="url(#d07ao)" opacity="0.55"/>
+      <rect x="280" y="100" width="78" height="16" fill="url(#d07ao)" opacity="0.55"/>
+      {/* devor teksturasi: xira doglar + soch-tolasi yoriqlar */}
+      <g opacity="0.3" fill="#BE9F70">
+        <ellipse cx="18" cy="52" rx="9" ry="13"/>
+        <ellipse cx="80" cy="140" rx="8" ry="12"/>
+        <ellipse cx="380" cy="58" rx="8" ry="12"/>
+        <ellipse cx="305" cy="146" rx="8" ry="11"/>
+      </g>
+      <g stroke="#9C815A" strokeWidth="0.6" opacity="0.3" fill="none">
+        <path d="M14 26 q3 18 -1 34 q-2 12 2 24"/>
+        <path d="M388 30 q-3 16 1 30 q2 10 -2 22"/>
+      </g>
+      {/* deraza/quyosh tomonidan yumshoq iliq yorug */}
+      <ellipse cx="345" cy="140" rx="34" ry="38" fill="#FFE0B0" opacity="0.06"/>
+      {/* pol teksturasi: xira doglar */}
+      <g opacity="0.3" fill="#A98C64">
+        <ellipse cx="95" cy="200" rx="16" ry="4"/>
+        <ellipse cx="312" cy="206" rx="18" ry="4.5"/>
+      </g>
+      {/* YER-SOYALARI (erkin turgan strukturalar tagida, yorug chapdan -> soya ongga) */}
+      <ellipse cx="205" cy="179" rx="66" ry="8" fill="url(#d07shadow)"/>
+      <ellipse cx="38" cy="177" rx="25" ry="6.5" fill="url(#d07shadow)"/>
+      <ellipse cx="371" cy="177" rx="26" ry="6.5" fill="url(#d07shadow)"/>
+      {/* HAJM shading: pano (chap yorug, ong quyuq) */}
+      <rect x="122" y="105" width="6" height="58" rx="2" fill="#FFF" opacity="0.13"/>
+      <rect x="272" y="105" width="6" height="58" rx="2" fill="#000" opacity="0.17"/>
+      {/* HAJM shading: abak (chap yorug, ong quyuq) */}
+      <rect x="21" y="118" width="2.6" height="54" rx="1" fill="#FFF" opacity="0.15"/>
+      <rect x="47.5" y="118" width="2.6" height="54" rx="1" fill="#000" opacity="0.18"/>
+      {/* HAJM shading: daftar (chap yorug, ong quyuq) */}
+      <rect x="353" y="118" width="2.6" height="54" rx="1" fill="#FFF" opacity="0.14"/>
+      <rect x="381.4" y="118" width="2.6" height="54" rx="1" fill="#000" opacity="0.17"/>
+    </g>
       {/* REALIZM: vinetka — chekka qorong'ilashuvi (chuqurlik + markazga fokus) */}
     <rect x="0" y="0" width="400" height="230" fill="url(#countinghallbgvig)" style={{ pointerEvents: 'none' }}/>
   </svg>

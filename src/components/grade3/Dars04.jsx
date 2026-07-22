@@ -2300,6 +2300,8 @@ const TwoDistrictBridgeBg = () => (
       <linearGradient id="shPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#20344C"/><stop offset="100%" stopColor="#0E1B2C"/></linearGradient>
       <radialGradient id="shLamp" cx="50%" cy="20%" r="80%"><stop offset="0%" stopColor="#FFF0C4"/><stop offset="100%" stopColor="#FFE39A" stopOpacity="0"/></radialGradient>
       <clipPath id="shWinClip"><rect x="46" y="32" width="308" height="62" rx="4"/></clipPath>
+      <radialGradient id="d04shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#4A3A22" stopOpacity="0.40"/><stop offset="70%" stopColor="#4A3A22" stopOpacity="0.16"/><stop offset="100%" stopColor="#4A3A22" stopOpacity="0"/></radialGradient>
+      <linearGradient id="d04ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6B5636" stopOpacity="0.38"/><stop offset="100%" stopColor="#6B5636" stopOpacity="0"/></linearGradient>
     </defs>
     <rect x="0" y="0" width="400" height="180" fill="url(#shWall)"/>
     <rect x="0" y="0" width="400" height="22" fill="#D2B892"/><rect x="0" y="21" width="400" height="3" fill="#B4976F"/>
@@ -2324,6 +2326,12 @@ const TwoDistrictBridgeBg = () => (
       </g>
       <g className="lm-float"><ellipse cx="212" cy="52" rx="11" ry="4" fill="#5A6B88"/><ellipse cx="212" cy="49.6" rx="8" ry="2.6" fill="#8FA6C0"/><circle className="lm-glow" cx="206" cy="53" r="1.3" fill="#FFD0C2"/></g>
     </g>
+    {/* d04 REALIZM: deraza ichki chuqurlik (yuqori+chap AO) + oyna sirti aksi */}
+    <g clipPath="url(#shWinClip)">
+      <rect x="46" y="32" width="308" height="7" fill="#0D1928" opacity="0.34"/>
+      <rect x="46" y="32" width="6" height="62" fill="#0D1928" opacity="0.28"/>
+      <polygon points="66,32 104,32 66,94 28,94" fill="#FFFFFF" opacity="0.05"/>
+    </g>
     <g fill="none" stroke="#C9B79A" strokeWidth="3"><rect x="42" y="28" width="316" height="70" rx="7"/></g>
     <g stroke="#C9B79A" strokeWidth="2.4" opacity="0.9"><path d="M148 32 V94"/><path d="M256 32 V94"/><path d="M46 63 H354"/></g>
     <rect x="42" y="95" width="316" height="5" rx="2" fill="#B4976F"/>
@@ -2339,7 +2347,29 @@ const TwoDistrictBridgeBg = () => (
     <g transform="translate(60 106)"><rect x="-14" y="0" width="28" height="70" rx="4" fill="#A6D8C2"/><path d="M-14 0 l14 -12 l14 12 Z" fill="#7CB69E"/><g fill="#FFE39A" opacity="0.8">{[0, 1, 2].map((r) => [0, 1].map((c) => <rect key={`${r}${c}`} x={-9 + c * 10} y={22 + r * 16} width="6" height="8" rx="1"/>))}</g><rect x="-13" y="4" width="26" height="13" rx="2" fill="#2E4A3E"/><text x="0" y="14" textAnchor="middle" fontSize="9" fontWeight="800" fill="#BFF0D4" fontFamily="'JetBrains Mono', monospace">546</text></g>
     {/* o'ng tuman: past minora (465) */}
     <g transform="translate(340 118)"><rect x="-13" y="0" width="26" height="58" rx="4" fill="#F2CB9E"/><path d="M-13 0 l13 -11 l13 11 Z" fill="#DCA265"/><g fill="#FFE39A" opacity="0.8">{[0, 1].map((r) => [0, 1].map((c) => <rect key={`${r}${c}`} x={-8 + c * 9} y={22 + r * 16} width="6" height="8" rx="1"/>))}</g><rect x="-12" y="4" width="24" height="13" rx="2" fill="#6B4526"/><text x="0" y="14" textAnchor="middle" fontSize="9" fontWeight="800" fill="#FFD9B0" fontFamily="'JetBrains Mono', monospace">465</text></g>
+    {/* d04 REALIZM: hajm-shading (o'ng yon quyuq, chap yon yorug') + AO */}
+    <g>
+      <rect x="107" y="106" width="186" height="2.5" rx="1.2" fill="#FFF" opacity="0.12"/>
+      <rect x="106" y="145" width="188" height="4" fill="#000" opacity="0.12"/>
+      <polygon points="250,156 246,156 254,176 260,176" fill="#000" opacity="0.16"/>
+      <polygon points="150,156 154,156 146,176 140,176" fill="#FFF" opacity="0.14"/>
+      <rect x="67" y="124" width="6" height="50" rx="2" fill="#000" opacity="0.18"/>
+      <rect x="47" y="124" width="4" height="50" rx="2" fill="#FFF" opacity="0.16"/>
+      <rect x="47" y="123" width="26" height="5" fill="url(#d04ao)"/>
+      <rect x="347" y="136" width="5" height="38" rx="2" fill="#000" opacity="0.18"/>
+      <rect x="328" y="136" width="4" height="38" rx="2" fill="#FFF" opacity="0.16"/>
+      <rect x="328" y="135" width="24" height="5" fill="url(#d04ao)"/>
+    </g>
     <rect x="0" y="176" width="400" height="54" fill="url(#shFloor)"/>
+    {/* d04 REALIZM: pol teksturasi + deraza yorug'lik dog'i + buyum yer-soyalari */}
+    <g opacity="0.32" fill="#9A8058"><ellipse cx="78" cy="206" rx="24" ry="5"/><ellipse cx="304" cy="214" rx="28" ry="6"/><ellipse cx="196" cy="198" rx="18" ry="4"/></g>
+    <ellipse cx="210" cy="188" rx="150" ry="16" fill="#FFE39A" opacity="0.06"/>
+    <ellipse cx="300" cy="182" rx="90" ry="24" fill="#FFE1A0" opacity="0.05"/>
+    <ellipse cx="202" cy="181" rx="64" ry="6.5" fill="url(#d04shadow)"/>
+    <ellipse cx="62" cy="179" rx="24" ry="6" fill="url(#d04shadow)"/>
+    <ellipse cx="342" cy="179" rx="22" ry="5.5" fill="url(#d04shadow)"/>
+    <ellipse cx="18" cy="178" rx="12" ry="3.5" fill="url(#d04shadow)"/>
+    <ellipse cx="392" cy="178" rx="9" ry="3" fill="url(#d04shadow)"/>
     <line x1="0" y1="176" x2="400" y2="176" stroke="#9A8058" strokeWidth="2"/>
     <g stroke="#A98C64" strokeWidth="1" opacity="0.4"><path d="M20 230 L176 178"/><path d="M120 230 L192 178"/><path d="M280 230 L208 178"/><path d="M380 230 L224 178"/></g>
     <g stroke="#A98C64" strokeWidth="0.8" opacity="0.28"><path d="M0 196 H400"/><path d="M0 212 H400"/></g>
