@@ -978,29 +978,29 @@ const CONTENT = {
   // s0 — HOOK: shahar shkalasi, 47 chiroq taxminan qancha (o'nlikkacha)
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: округление чисел', uz: 'Mavzu: sonlarni yaxlitlash' },
+    topic: { ru: 'Тема: круглые числа', uz: 'Mavzu: yumaloq sonlar' },
     lead: { ru: 'Шкала города: тут 47 огней.', uz: 'Shahar shkalasi: bu yerda 47 chiroq.' },
     num_display: { ru: '47', uz: '47' },
-    q: { ru: 'Округли до десятков: ближе к 40 или к 50?', uz: "O'nlikkacha yaxlitlang: 40 ga yaqinmi yoki 50 ga?" },
+    q: { ru: 'К какому круглому ближе: 40 или 50?', uz: "Qaysi yumaloq songa yaqinroq: 40 mi yoki 50 mi?" },
     opt0: { ru: '40', uz: '40' },
     opt1: { ru: '50', uz: '50' },
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Тема урока — округление чисел. Научимся заменять число ближайшим круглым.',
+          'Тема урока — круглые числа. Научимся находить ближайшее круглое число.',
           'В прошлой области мы сравнивали районы. Теперь Бит показывает шкалу города.',
           'На шкале сорок семь огней. Круглые метки это сорок и пятьдесят.',
           'Как думаешь, к какому круглому числу ближе сорок семь? Выбери вариант.'
         ],
         uz: [
-          "Dars mavzusi — sonlarni yaxlitlash. Sonni eng yaqin yumaloq son bilan almashtirishni o'rganamiz.",
+          "Dars mavzusi — yumaloq sonlar. Eng yaqin yumaloq sonni topishni o'rganamiz.",
           "O'tgan hududda tumanlarni taqqosladik. Endi Bit shahar shkalasini ko'rsatadi.",
           "Shkalada qirq yetti chiroq. Yumaloq belgilar bu qirq va ellik.",
           "Sizningcha, qirq yetti qaysi yumaloq songa yaqinroq? Variantni tanlang."
         ]
       },
-      on_correct: { ru: 'Верно. Сорок семь ближе к пятидесяти. Округляем до пятидесяти.', uz: "To'g'ri. Qirq yetti ellikka yaqinroq. Ellikkacha yaxlitlaymiz." },
+      on_correct: { ru: 'Верно. Сорок семь ближе к пятидесяти.', uz: "To'g'ri. Qirq yetti ellikka yaqinroq." },
       on_wrong: { ru: 'Посмотри на шкалу. Сорок семь ближе к пятидесяти, чем к сорока.', uz: "Shkalaga qarang. Qirq yetti qirqqa emas, ellikka yaqinroq." }
     }
   },
@@ -1013,12 +1013,12 @@ const CONTENT = {
       ru: [
         'На числовой шкале числа стоят по порядку. Чем правее, тем больше.',
         'Круглые числа это главные метки. Десятки: десять, двадцать, тридцать. Сотни: сто, двести, триста.',
-        'Любое число стоит между двумя круглыми метками. Округлить значит выбрать ближайшую метку.'
+        'Любое число стоит между двумя круглыми метками. Ближайшая метка и есть его круглое число.'
       ],
       uz: [
         "Son shkalasida sonlar tartib bilan turadi. Qancha o'ngda bo'lsa, shuncha katta.",
         "Yumaloq sonlar bu asosiy belgilar. O'nliklar: o'n, yigirma, o'ttiz. Yuzliklar: yuz, ikki yuz, uch yuz.",
-        "Har qanday son ikki yumaloq belgi orasida turadi. Yaxlitlash bu eng yaqin belgini tanlash."
+        "Har qanday son ikki yumaloq belgi orasida turadi. Eng yaqin belgi uning yumaloq soni bo'ladi."
       ]
     }
   },
@@ -1046,19 +1046,19 @@ const CONTENT = {
   // s3 — O'NLIKKACHA yaxlitlash: 47 -> 50
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Округляем до десятков.', uz: "O'nlikkacha yaxlitlaymiz." },
+    lead: { ru: 'Ближайший круглый десяток.', uz: "Eng yaqin yumaloq o'nlik." },
     n: 47, base: 10, rounded: 50,
     done_text: { ru: 'Сорок семь ближе к пятидесяти. Округлили до пятидесяти.', uz: "Qirq yetti ellikka yaqin. Ellikkacha yaxlitladik." },
     audio: {
       ru: [
-        'Округлим сорок семь до десятков. Оно стоит между сорока и пятьюдесятью.',
+        'Возьмём сорок семь. Оно стоит между сорока и пятьюдесятью.',
         'Смотрим, к какой метке ближе. Сорок семь ближе к пятидесяти.',
         'Прыгаем к ближайшей метке. Сорок семь округлили до пятидесяти. А сорок три было бы ближе к сорока.'
       ],
       uz: [
-        "Qirq yettini o'nlikkacha yaxlitlaymiz. U qirq bilan ellik orasida turadi.",
+        "Qirq yettini olamiz. U qirq bilan ellik orasida turadi.",
         "Qaysi belgiga yaqinligiga qaraymiz. Qirq yetti ellikka yaqinroq.",
-        "Eng yaqin belgiga sakraymiz. Qirq yettini ellikkacha yaxlitladik. Qirq uch esa qirqqa yaqin bo'lardi."
+        "Eng yaqin belgiga sakraymiz. Qirq yetti ellikka yaqin. Qirq uch esa qirqqa yaqin bo'lardi."
       ]
     }
   },
@@ -1066,19 +1066,19 @@ const CONTENT = {
   // s4 — CHEGARA qoida: 45 -> 50 (birlik 5 yuqoriga); raqam qoidasi
   s4: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Ровно пять — округляем вверх.', uz: "Roppa-rosa besh — yuqoriga yaxlitlaymiz." },
+    lead: { ru: 'Ровно посередине — берём большее.', uz: "Aynan o'rtada — kattasini olamiz." },
     n: 45, base: 10, rounded: 50,
-    done_text: { ru: 'Если цифра справа пять или больше — округляем вверх. Если меньше пяти — вниз.', uz: "O'ngdagi raqam besh yoki katta bo'lsa — yuqoriga. Beshdan kichik bo'lsa — pastga." },
+    done_text: { ru: 'Если число ровно посередине, договорились брать большую метку.', uz: "Agar son aynan o'rtada bo'lsa, kattasini olishga kelishamiz." },
     audio: {
       ru: [
-        'А если число ровно посередине? Сорок пять стоит точно между сорока и пятьюдесятью.',
-        'Есть правило. Смотрим на цифру справа от разряда. Если она пять или больше, округляем вверх.',
-        'Пятёрка это пять, значит вверх. Сорок пять округляем до пятидесяти. А если цифра меньше пяти, округляем вниз.'
+        'А если число ровно посередине? Сорок пять стоит точно между сорока и пятьюдесятью, до обеих меток пять шагов.',
+        'Тогда договоримся так. Ровно посередине берём большую метку.',
+        'Значит сорок пять ближе считаем к пятидесяти. Это удобное правило для середины.'
       ],
       uz: [
-        "Agar son roppa-rosa o'rtada bo'lsa-chi? Qirq besh qirq bilan ellik orasida aynan o'rtada.",
-        "Qoida bor. Xonaning o'ng tomonidagi raqamga qaraymiz. Agar u besh yoki katta bo'lsa, yuqoriga yaxlitlaymiz.",
-        "Beshlik bu besh, demak yuqoriga. Qirq beshni ellikkacha yaxlitlaymiz. Agar raqam beshdan kichik bo'lsa, pastga yaxlitlaymiz."
+        "Agar son aynan o'rtada bo'lsa-chi? Qirq besh qirq bilan ellik orasida aynan o'rtada, ikkala belgigacha ham besh qadam.",
+        "Unda shunday kelishamiz. Aynan o'rtada bo'lsa, kattasini olamiz.",
+        "Demak qirq beshni ellikka yaqin deb olamiz. Bu o'rta uchun qulay qoida."
       ]
     }
   },
@@ -1086,19 +1086,19 @@ const CONTENT = {
   // s5 — YUZLIKKACHA yaxlitlash: 347 -> 300, 380 -> 400
   s5: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Округляем до сотен.', uz: 'Yuzlikkacha yaxlitlaymiz.' },
+    lead: { ru: 'Ближайшая круглая сотня.', uz: 'Eng yaqin yumaloq yuzlik.' },
     n: 347, base: 100, rounded: 300,
-    done_text: { ru: 'До сотен смотрим на десятки. У 347 десятков четыре, это меньше пяти — вниз, к тремстам.', uz: "Yuzlikkacha o'nlikka qaraymiz. 347 da o'nlik to'rt, bu beshdan kichik — pastga, uch yuzga." },
+    done_text: { ru: 'От 347 до 300 сорок семь шагов, а до 400 больше пятидесяти. Ближе триста.', uz: "347 dan 300 gacha qirq yetti qadam, 400 gacha elliкdan ko'p. Uch yuz yaqinroq." },
     audio: {
       ru: [
-        'Теперь округлим до сотен. Возьмём триста сорок семь. Оно между тремястами и четырьмястами.',
-        'До сотен смотрим на цифру десятков. У триста сорок семь в десятках четыре.',
-        'Четыре меньше пяти, значит вниз. Триста сорок семь округляем до трёхсот. А триста восемьдесят округлилось бы до четырёхсот.'
+        'Теперь возьмём круглые сотни. Триста сорок семь стоит между тремястами и четырьмястами.',
+        'Смотрим, до какой сотни ближе. До трёхсот сорок семь шагов, а до четырёхсот пятьдесят три.',
+        'Значит триста сорок семь ближе к тремстам. А триста восемьдесят было бы ближе к четырёмстам.'
       ],
       uz: [
-        "Endi yuzlikkacha yaxlitlaymiz. Uch yuz qirq yettini olamiz. U uch yuz bilan to'rt yuz orasida.",
-        "Yuzlikkacha o'nlik raqamiga qaraymiz. Uch yuz qirq yettida o'nlik to'rt.",
-        "To'rt beshdan kichik, demak pastga. Uch yuz qirq yettini uch yuzgacha yaxlitlaymiz. Uch yuz sakson esa to'rt yuzgacha yaxlitlanardi."
+        "Endi yumaloq yuzliklarni olamiz. Uch yuz qirq yetti uch yuz bilan to'rt yuz orasida turadi.",
+        "Qaysi yuzlikka yaqinroq ekanini ko'ramiz. Uch yuzgacha qirq yetti qadam, to'rt yuzgacha ellik uch qadam.",
+        "Demak uch yuz qirq yetti uch yuzga yaqinroq. Uch yuz sakson esa to'rt yuzga yaqinroq bo'lardi."
       ]
     }
   },
@@ -1106,25 +1106,25 @@ const CONTENT = {
   // s6 — QOIDA
   s6: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Смотрим на цифру справа от разряда округления. Пять или больше — округляем вверх, меньше пяти — вниз.', uz: "Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga yaxlitlaymiz." },
+    rule: { ru: 'Число заменяем ближайшей круглой меткой. Если оно ровно посередине — берём большую метку.', uz: "Sonni eng yaqin yumaloq belgi bilan almashtiramiz. Agar u aynan o'rtada bo'lsa — kattasini olamiz." },
     n: 63, base: 10, rounded: 60,
-    check_q: { ru: 'Округли 63 до десятков. Нажми верный ответ.', uz: "63 ni o'nlikkacha yaxlitlang. To'g'ri javobni bosing." },
+    check_q: { ru: 'К какому круглому числу ближе 63?', uz: "63 qaysi yumaloq songa yaqinroq?" },
     check_opts: ['60', '70'],
     check_ci: 0,
-    check_ok: { ru: 'Верно! Цифра справа три, это меньше пяти — округляем вниз, к 60.', uz: "To'g'ri! O'ngdagi raqam uch, beshdan kichik — pastga, 60 ga." },
-    check_no: { ru: 'Цифра единиц три, меньше пяти — округляем вниз, к 60.', uz: "Birlik raqami uch, beshdan kichik — pastga, 60 ga." },
+    check_ok: { ru: 'Верно! От 63 до 60 три шага, а до 70 семь. Ближе 60.', uz: "To'g'ri! 63 dan 60 gacha uch qadam, 70 gacha yetti. 60 yaqinroq." },
+    check_no: { ru: 'Посчитай шаги: от 63 до 60 три, до 70 семь. Ближе 60.', uz: "Qadamlarni sanang: 63 dan 60 gacha uch, 70 gacha yetti. 60 yaqinroq." },
     audio: {
       ru: [
-        'Отлично, теперь запомним правило округления.',
-        'Смотрим на цифру справа от того разряда, до которого округляем.',
-        'Если эта цифра пять или больше, округляем вверх, к следующей метке.',
-        'Если меньше пяти, округляем вниз, к своей метке.'
+        'Отлично, теперь запомним, как найти ближайшее круглое число.',
+        'Смотрим, между какими двумя круглыми метками стоит число.',
+        'Считаем, до какой метки ближе, и берём её.',
+        'А если число ровно посередине, договорились брать большую метку.'
       ],
       uz: [
-        "Zo'r, endi yaxlitlash qoidasini eslab qolamiz.",
-        "Qaysi xonagacha yaxlitlasak, o'shaning o'ng tomonidagi raqamga qaraymiz.",
-        "Agar bu raqam besh yoki katta bo'lsa, yuqoriga, keyingi belgiga yaxlitlaymiz.",
-        "Beshdan kichik bo'lsa, pastga, o'z belgisiga yaxlitlaymiz."
+        "Zo'r, endi eng yaqin yumaloq sonni qanday topishni eslab qolamiz.",
+        "Son qaysi ikki yumaloq belgi orasida turganini ko'ramiz.",
+        "Qaysi belgiga yaqinroq ekanini sanaymiz va o'shani olamiz.",
+        "Agar son aynan o'rtada bo'lsa, kattasini olishga kelishganmiz."
       ]
     }
   },
@@ -1139,7 +1139,7 @@ const CONTENT = {
         num: 68, ci: 0,
         opts: [{ ru: '70', uz: '70' }, { ru: '60', uz: '60' }, { ru: '68', uz: '68' }],
         hints: {
-          1: { ru: 'Цифра единиц восемь, это больше пяти — округляем вверх, к 70.', uz: "Birlik raqami sakkiz, beshdan katta — yuqoriga, 70 ga." },
+          1: { ru: 'От 68 до 70 два шага, а до 60 восемь. Ближе 70.', uz: "68 dan 70 gacha ikki qadam, 60 gacha sakkiz. 70 yaqinroq." },
           2: { ru: 'Ответ должен быть круглым, оканчиваться на ноль.', uz: "Javob yumaloq bo'lishi kerak, nol bilan tugashi kerak." }
         }
       },
@@ -1147,7 +1147,7 @@ const CONTENT = {
         num: 34, ci: 0,
         opts: [{ ru: '30', uz: '30' }, { ru: '40', uz: '40' }, { ru: '34', uz: '34' }],
         hints: {
-          1: { ru: 'Цифра единиц четыре, меньше пяти — округляем вниз, к 30.', uz: "Birlik raqami to'rt, beshdan kichik — pastga, 30 ga." },
+          1: { ru: 'От 34 до 30 четыре шага, а до 40 шесть. Ближе 30.', uz: "34 dan 30 gacha to'rt qadam, 40 gacha olti. 30 yaqinroq." },
           2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
         }
       },
@@ -1155,15 +1155,15 @@ const CONTENT = {
         num: 55, ci: 0,
         opts: [{ ru: '60', uz: '60' }, { ru: '50', uz: '50' }, { ru: '55', uz: '55' }],
         hints: {
-          1: { ru: 'Цифра единиц пять — округляем вверх, к 60.', uz: "Birlik raqami besh — yuqoriga, 60 ga." },
+          1: { ru: '55 ровно посередине. По договорённости берём большее, 60.', uz: "55 aynan o'rtada. Kelishuvga ko'ra kattasini olamiz, 60." },
           2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Округляй числа до десятков. Смотри на цифру единиц. Три задания.', uz: "Sonlarni o'nlikkacha yaxlitlang. Birlik raqamiga qarang. Uchta topshiriq." },
+      intro: { ru: 'Найди ближайший круглый десяток. Считай, до какой метки ближе. Три задания.', uz: "Eng yaqin yumaloq o'nlikni toping. Qaysi belgiga yaqinroq ekanini sanang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру единиц: пять и больше вверх, меньше вниз.', uz: "Birlik raqamiga qarang: besh va katta yuqoriga, kichik pastga." }
+      on_wrong: { ru: 'Посчитай, до какой круглой метки ближе.', uz: "Qaysi yumaloq belgiga yaqinroq ekanini sanang." }
     }
   },
 
@@ -1177,7 +1177,7 @@ const CONTENT = {
         num: 347, ci: 0,
         opts: [{ ru: '300', uz: '300' }, { ru: '400', uz: '400' }, { ru: '350', uz: '350' }],
         hints: {
-          1: { ru: 'Цифра десятков четыре, меньше пяти — округляем вниз, к 300.', uz: "O'nlik raqami to'rt, beshdan kichik — pastga, 300 ga." },
+          1: { ru: 'От 347 до 300 сорок семь, а до 400 пятьдесят три. Ближе 300.', uz: "347 dan 300 gacha qirq yetti, 400 gacha ellik uch. 300 yaqinroq." },
           2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
         }
       },
@@ -1185,7 +1185,7 @@ const CONTENT = {
         num: 682, ci: 0,
         opts: [{ ru: '700', uz: '700' }, { ru: '600', uz: '600' }, { ru: '680', uz: '680' }],
         hints: {
-          1: { ru: 'Цифра десятков восемь, больше пяти — округляем вверх, к 700.', uz: "O'nlik raqami sakkiz, beshdan katta — yuqoriga, 700 ga." },
+          1: { ru: 'От 682 до 700 восемнадцать, а до 600 восемьдесят два. Ближе 700.', uz: "682 dan 700 gacha o'n sakkiz, 600 gacha sakson ikki. 700 yaqinroq." },
           2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
         }
       },
@@ -1193,43 +1193,43 @@ const CONTENT = {
         num: 450, ci: 0,
         opts: [{ ru: '500', uz: '500' }, { ru: '400', uz: '400' }, { ru: '450', uz: '450' }],
         hints: {
-          1: { ru: 'Цифра десятков пять — округляем вверх, к 500.', uz: "O'nlik raqami besh — yuqoriga, 500 ga." },
+          1: { ru: '450 ровно посередине. По договорённости берём большее, 500.', uz: "450 aynan o'rtada. Kelishuvga ko'ra kattasini olamiz, 500." },
           2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Округляй числа до сотен. Смотри на цифру десятков. Три задания.', uz: "Sonlarni yuzlikkacha yaxlitlang. O'nlik raqamiga qarang. Uchta topshiriq." },
+      intro: { ru: 'Найди ближайшую круглую сотню. Считай, до какой метки ближе. Три задания.', uz: "Eng yaqin yumaloq yuzlikni toping. Qaysi belgiga yaqinroq ekanini sanang. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру десятков: пять и больше вверх, меньше вниз.', uz: "O'nlik raqamiga qarang: besh va katta yuqoriga, kichik pastga." }
+      on_wrong: { ru: 'Посмотри, до какой круглой сотни ближе.', uz: "Qaysi yumaloq yuzlikka yaqinroq ekanini ko'ring." }
     }
   },
 
   // s9 — MASHQ xatoni top (yaxlitlash), 3 raund
   s9: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Найди неверное округление.', uz: "Noto'g'ri yaxlitlashni toping." },
+    q: { ru: 'Найди неверное круглое число.', uz: "Noto'g'ri topilgan yumaloq sonni toping." },
     items: [
       {
         stmts: ['76 → 80', '45 → 40', '23 → 20'],
         wrong: 1,
-        hint: { ru: 'У сорока пяти цифра единиц пять — округляем вверх, к 50, а не к 40.', uz: "Qirq beshda birlik raqami besh — yuqoriga, 50 ga, 40 ga emas." }
+        hint: { ru: 'Сорок пять ровно посередине, берём большее — 50, а не 40.', uz: "Qirq besh aynan o'rtada, kattasini olamiz — 50, 40 emas." }
       },
       {
         stmts: ['350 → 400', '240 → 300', '618 → 600'],
         wrong: 1,
-        hint: { ru: 'У двухсот сорока десятков четыре, меньше пяти — вниз, к 200, а не к 300.', uz: "Ikki yuz qirqda o'nlik to'rt, beshdan kichik — pastga, 200 ga, 300 ga emas." }
+        hint: { ru: 'От 240 до 200 сорок, а до 300 шестьдесят. Ближе 200, а не 300.', uz: "240 dan 200 gacha qirq, 300 gacha oltmish. 200 yaqinroq, 300 emas." }
       },
       {
         stmts: ['92 → 90', '87 → 80', '31 → 30'],
         wrong: 1,
-        hint: { ru: 'У восьмидесяти семи единиц семь, больше пяти — вверх, к 90, а не к 80.', uz: "Sakson yettida birlik yetti, beshdan katta — yuqoriga, 90 ga, 80 ga emas." }
+        hint: { ru: 'От 87 до 90 три, а до 80 семь. Ближе 90, а не 80.', uz: "87 dan 90 gacha uch, 80 gacha yetti. 90 yaqinroq, 80 emas." }
       }
     ],
     audio: {
-      intro: { ru: 'Даю три округления. Одно неверное. Найди неверное.', uz: "Uchta yaxlitlash beraman. Bittasi noto'g'ri. Noto'g'risini toping." },
+      intro: { ru: 'Даю три круглых числа. Одно найдено неверно. Найди его.', uz: "Uchta yumaloq son beraman. Bittasi noto'g'ri topilgan. Uni toping." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь цифру справа: пять и больше вверх, меньше вниз.', uz: "O'ngdagi raqamni tekshir: besh va katta yuqoriga, kichik pastga." }
+      on_wrong: { ru: 'Проверь, до какой круглой метки ближе.', uz: "Qaysi yumaloq belgiga yaqinroq ekanini tekshiring." }
     }
   },
 
@@ -1241,14 +1241,14 @@ const CONTENT = {
     q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitlang.' },
     opts: [{ ru: '600', uz: '600' }, { ru: '700', uz: '700' }, { ru: '620', uz: '620' }],
     hints: {
-      1: { ru: 'Цифра десятков два, меньше пяти — округляем вниз, к 600.', uz: "O'nlik raqami ikki, beshdan kichik — pastga, 600 ga." },
+      1: { ru: 'От 623 до 600 двадцать три, а до 700 семьдесят семь. Ближе 600.', uz: "623 dan 600 gacha yigirma uch, 700 gacha yetmish yetti. 600 yaqinroq." },
       2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
     },
     setup_audio: { ru: 'Анвар сосчитал модули района. Их шестьсот двадцать три. Для отчёта нужно примерное круглое число.', uz: "Anvar tuman modullarini sanadi. Ular olti yuz yigirma uchta. Hisob uchun taxminiy yumaloq son kerak." },
     audio: {
       intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitlang. To'g'ri javobni tanlang." },
-      on_correct: { ru: 'Верно. Десятков два, меньше пяти — округляем к шестистам.', uz: "To'g'ri. O'nlik ikki, beshdan kichik — olti yuzga yaxlitlaymiz." },
-      on_wrong: { ru: 'Смотри на десятки: 2, это меньше пяти. Округляем вниз.', uz: "O'nlikka qarang: 2, bu beshdan kichik. Pastga yaxlitlaymiz." }
+      on_correct: { ru: 'Верно. 623 ближе к шестистам.', uz: "To'g'ri. 623 olti yuzga yaqinroq." },
+      on_wrong: { ru: 'Посчитай шаги: до 600 ближе, чем до 700.', uz: "Qadamlarni sanang: 600 gacha 700 gacha bo'lgandan yaqinroq." }
     }
   },
 
@@ -1263,7 +1263,7 @@ const CONTENT = {
         opt0: { ru: '60', uz: '60' },
         opt1: { ru: '50', uz: '50' },
         opt2: { ru: '58', uz: '58' },
-        wrong_1: { ru: 'Единиц восемь, больше пяти — вверх, к 60.', uz: "Birlik sakkiz, beshdan katta — yuqoriga, 60 ga." },
+        wrong_1: { ru: 'От 58 до 60 два, а до 50 восемь. Ближе 60.', uz: "58 dan 60 gacha ikki, 50 gacha sakkiz. 60 yaqinroq." },
         wrong_2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
       },
       {
@@ -1272,13 +1272,13 @@ const CONTENT = {
         opt0: { ru: '400', uz: '400' },
         opt1: { ru: '500', uz: '500' },
         opt2: { ru: '410', uz: '410' },
-        wrong_1: { ru: 'Десятков один, меньше пяти — вниз, к 400.', uz: "O'nlik bir, beshdan kichik — pastga, 400 ga." },
+        wrong_1: { ru: 'От 412 до 400 двенадцать. Ближе 400.', uz: "412 dan 400 gacha o'n ikki. 400 yaqinroq." },
         wrong_2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
       },
       {
         kind: 'num', ans: 280,
         q: { ru: 'Округли 275 до десятков и запиши.', uz: "275 ni o'nlikkacha yaxlitlab yozing." }, topic: { ru: 'округление до десятков', uz: "o'nlikkacha yaxlitlash" },
-        hint: { ru: 'Единиц пять — округляем вверх, к 280.', uz: "Birlik besh — yuqoriga, 280 ga." }
+        hint: { ru: '275 ровно посередине между 270 и 280, берём большее — 280.', uz: "275 aynan 270 va 280 orasida o'rtada, kattasini olamiz — 280." }
       },
       {
         kind: 'mc',
@@ -1286,13 +1286,13 @@ const CONTENT = {
         opt0: { ru: '90', uz: '90' },
         opt1: { ru: '100', uz: '100' },
         opt2: { ru: '80', uz: '80' },
-        wrong_1: { ru: 'Единиц четыре, меньше пяти — вниз, к 90.', uz: "Birlik to'rt, beshdan kichik — pastga, 90 ga." },
-        wrong_2: { ru: 'Смотрим на единицы: четыре. Округляем вниз, к 90.', uz: "Birlikka qaraymiz: to'rt. Pastga, 90 ga." }
+        wrong_1: { ru: 'От 94 до 90 четыре, а до 100 шесть. Ближе 90.', uz: "94 dan 90 gacha to'rt, 100 gacha olti. 90 yaqinroq." },
+        wrong_2: { ru: 'До 90 четыре шага, до 100 шесть. Ближе 90.', uz: "90 gacha to'rt qadam, 100 gacha olti. 90 yaqinroq." }
       },
       {
         kind: 'num', ans: 58,
         q: { ru: 'Загадка. Если округлить меня до десятков, будет 60. Единиц у меня восемь. Кто я?', uz: "Jumboq. Meni o'nlikkacha yaxlitlasa 60 chiqadi. Birligim sakkiz. Men kimman?" }, topic: { ru: 'обратная задача', uz: 'teskari masala' },
-        hint: { ru: 'Единиц восемь, округляется вверх к 60. Значит число пятьдесят восемь.', uz: "Birlik sakkiz, yuqoriga 60 ga yaxlitlanadi. Demak son ellik sakkiz." }
+        hint: { ru: 'Число между 55 и 60, ближе к 60, и единиц восемь. Значит пятьдесят восемь.', uz: "Son 55 va 60 orasida, 60 ga yaqin, birligi sakkiz. Demak ellik sakkiz." }
       }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
@@ -1310,15 +1310,15 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Шкала города освоена!', uz: 'Shahar shkalasi egallandi!' },
-    cando: { ru: 'Теперь ты округляешь числа до десятков и до сотен.', uz: "Endi siz sonlarni o'nlikkacha va yuzlikkacha yaxlitlaysiz." },
-    rule_recap: { ru: 'Смотри на цифру справа от разряда: пять и больше — вверх, меньше пяти — вниз. Круглое число оканчивается на ноль.', uz: "Xonaning o'ngidagi raqamga qarang: besh va katta — yuqoriga, beshdan kichik — pastga. Yumaloq son nol bilan tugaydi." },
+    cando: { ru: 'Теперь ты находишь ближайшее круглое число до десятков и до сотен.', uz: "Endi siz eng yaqin yumaloq sonni o'nlikkacha va yuzlikkacha topasiz." },
+    rule_recap: { ru: 'Число заменяем ближайшей круглой меткой. Если оно ровно посередине — берём большую. Круглое число оканчивается на ноль.', uz: "Sonni eng yaqin yumaloq belgi bilan almashtiramiz. Aynan o'rtada bo'lsa — kattasini olamiz. Yumaloq son nol bilan tugaydi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'четвёртый урок: сравнение чисел', uz: "to'rtinchi dars: sonlarni taqqoslash" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'Урок 6: число на числовой прямой', uz: "6-dars: son o'qida son" },
     audio: {
-      ru: 'Шкала города освоена. Мы научились округлять числа до десятков и до сотен. Запомни правило. Смотрим на цифру справа от разряда округления. Если пять или больше, округляем вверх. Если меньше пяти, вниз. А круглое число всегда оканчивается на ноль. В следующий раз научимся находить место числа на числовой прямой.',
-      uz: "Shahar shkalasi egallandi. Biz sonlarni o'nlikkacha va yuzlikkacha yaxlitlashni o'rgandik. Qoidani yodda tuting. Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Agar besh yoki katta bo'lsa, yuqoriga. Beshdan kichik bo'lsa, pastga. Yumaloq son esa doim nol bilan tugaydi. Keyingi safar sonning son o'qidagi o'rnini topishni o'rganamiz."
+      ru: 'Шкала города освоена. Мы научились находить ближайшее круглое число до десятков и до сотен. Запомни. Выбираем ближайшую метку, а ровно посередине берём большую. Круглое число всегда оканчивается на ноль. В следующий раз научимся находить место числа на числовой прямой.',
+      uz: "Shahar shkalasi egallandi. Biz o'nlikkacha va yuzlikkacha eng yaqin yumaloq sonni topishni o'rgandik. Yodda tuting. Eng yaqin belgini olamiz, aynan o'rtada bo'lsa kattasini. Yumaloq son doim nol bilan tugaydi. Keyingi safar sonning son o'qidagi o'rnini topishni o'rganamiz."
     }
   }
 };
