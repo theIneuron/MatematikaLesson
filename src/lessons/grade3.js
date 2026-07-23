@@ -117,4 +117,10 @@ export const grade3Amaliy = [
     desc: "O'qni o'qish (katta belgi — yuzlik, kichigi — o'nlik), oraliqlar, yo'nalish, harakat, A/B/C nuqtalar — darslik 50-bet mashqi bilan.",
     Component: lazy(() => import('../components/grade3/practice/dars06/Dars06Practice.jsx')),
   },
+  {
+    slug: 'dars07-amaliyot',
+    title: "Dars 7 amaliyoti — Yozma qo'shish va ayirish (10 topshiriq)",
+    desc: "Ustun shakli: to'g'ri yozuv, o'tkazish va qarz (bir va ikki marta), xatoni topish, ikki qadamli masala — darslik misollarida.",
+    Component: lazy(() => import('../components/grade3/practice/dars07/Dars07Practice.jsx')),
+  },
 ]
