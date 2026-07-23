@@ -123,4 +123,10 @@ export const grade3Amaliy = [
     desc: "Ustun shakli: to'g'ri yozuv, o'tkazish va qarz (bir va ikki marta), xatoni topish, ikki qadamli masala — darslik misollarida.",
     Component: lazy(() => import('../components/grade3/practice/dars07/Dars07Practice.jsx')),
   },
+  {
+    slug: 'dars08-amaliyot',
+    title: "Dars 8 amaliyoti — Rim raqamlari (10 topshiriq)",
+    desc: "I V X L C belgilari: o'qish, belgi-kartalardan yasash (XXIII, IX), chapda-ayirish tuzoqlari, oylar rim raqamida — darslik 88-89-betlari asosida.",
+    Component: lazy(() => import('../components/grade3/practice/dars08/Dars08Practice.jsx')),
+  },
 ]
