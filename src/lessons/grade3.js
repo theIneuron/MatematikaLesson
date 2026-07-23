@@ -87,4 +87,10 @@ export const grade3Amaliy = [
     desc: "Razryadlar: sonni yig'ish va o'qish, nol razryad, raqam qiymati, son o'qi, minglik blok — 10 ta interaktiv topshiriq, osondan qiyinga.",
     Component: lazy(() => import('../components/grade3/practice/dars01/Dars01Practice.jsx')),
   },
+  {
+    slug: 'dars02-amaliyot',
+    title: "Dars 2 amaliyoti — Sonlarni o'qish va yozish (10 topshiriq)",
+    desc: "So'z va raqam yozuvi orasidagi ko'prik: o'qish, yozish, nol bilan yozish, xatoni topish, raqamlardan son yasash — darslik misollarida.",
+    Component: lazy(() => import('../components/grade3/practice/dars02/Dars02Practice.jsx')),
+  },
 ]
