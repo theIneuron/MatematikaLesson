@@ -3513,14 +3513,21 @@ const BonusViz = ({ c, show, lang }) => {
   if (c.bonus_kind === 'swap' && c.bonus_ab) return <SwapViz a={c.bonus_ab[0]} b={c.bonus_ab[1]}/>;
   return null;
 };
-const TwWayCol = ({ label, steps, upto, accent, lang }) => (
-  <div className="lm-tw-col">
-    <span className={`lm-tw-head mono ${accent ? 'lm-tw-head-a' : ''}`}>{label}</span>
-    {steps.map((s, i) => (upto > i
-      ? <span key={i} className={`mono lm-tw-step lm-edrop ${i === steps.length - 1 ? 'lm-tw-ans' : ''}`}>{typeof s === 'string' ? s : (s[lang] || s.ru)}</span>
-      : null))}
-  </div>
-);
+const TwWayCol = ({ label, steps, upto, accent, lang, compact }) => {
+  const txt = (s) => (typeof s === 'string' ? s : (s[lang] || s.ru));
+  const last = steps.length - 1;
+  return (
+    <div className="lm-tw-col">
+      <span className={`lm-tw-head mono ${accent ? 'lm-tw-head-a' : ''}`}>{label}</span>
+      <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+        {steps.slice(0, last).map((s, i) => (upto > i
+          ? <span key={i} className="mono lm-tw-step lm-edrop">{txt(s)}</span>
+          : null))}
+      </div>
+      {upto > last && <span className="mono lm-tw-step lm-edrop lm-tw-ans">{txt(steps[last])}</span>}
+    </div>
+  );
+};
 // stway — IKKI USUL + bashorat-darvoza + yuza-model bonus (kitob 21-bet uslubi).
 const TwoWayScreen = (props) => {
   const lang = useLang();
@@ -3557,6 +3564,19 @@ const TwoWayScreen = (props) => {
   };
   const showBonus = ok && (all || r2 >= 2);
   const done = ok && (all || r2 >= c.audio2[lang].length - 1);
+  // Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yig'iladi (Dars02 naqshi) — ekran skrolsiz sig'adi.
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    if (!showBonus) return undefined;
+    const id = setTimeout(() => setCompact(true), all ? 2600 : 0);
+    return () => clearTimeout(id);
+  }, [showBonus, all]);
+  const [bonusCompact, setBonusCompact] = useState(false);
+  useEffect(() => {
+    if (!done) return undefined;
+    const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
+    return () => clearTimeout(id);
+  }, [done, all]);
   const canAdv = useAdvanceGate(done, audio);
   const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
   const navContent = (
@@ -3573,8 +3593,8 @@ const TwoWayScreen = (props) => {
           <FrameFx/>
           <span className="mono" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
           <div className="lm-tw-grid">
-            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false} lang={lang}/>
-            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent lang={lang}/>}
+            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false} lang={lang} compact={compact}/>
+            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent lang={lang} compact={compact}/>}
           </div>
         </div>
         {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
@@ -3593,8 +3613,10 @@ const TwoWayScreen = (props) => {
         {showBonus && (
           <div ref={revealRef} className="lm-tw-bonus lm-riseup">
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
-            <BonusViz c={c} show={r2 >= 3 || all} lang={lang}/>
-            <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+            <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
+              <BonusViz c={c} show={r2 >= 3 || all} lang={lang}/>
+              <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+            </div>
           </div>
         )}
         {done && (
@@ -5635,6 +5657,10 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-tw-bonus { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #FFF6DC; border-radius: 16px; padding: clamp(12px,2.4vw,16px); }
 .lm-tw-bonus-badge { align-self: center; color: #B8860B; font-size: clamp(11px,1.6vw,13px); font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
 .lm-tw-bonus-txt { margin: 0; text-align: center; color: #3A3530; font-weight: 600; font-size: clamp(13px,1.8vw,15px); line-height: 1.4; }
+/* Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yuqoriga yig'iladi (Dars02 naqshi). */
+.tw-collapse { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-height: 340px; opacity: 1; overflow: hidden; transition: max-height 1.1s ease, opacity 0.9s ease; }
+.tw-collapsed { max-height: 0; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .tw-collapse { transition: none; } }
 /* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
 @keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .lm-riseup { animation: lm-riseup-a 0.62s cubic-bezier(0.22, 1.1, 0.36, 1) both; }
