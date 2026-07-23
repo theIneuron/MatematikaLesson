@@ -77,6 +77,42 @@ export const grade3Nazariy = [
     desc: "Jadvalda yo'q sonni bo'lish: sonni qoldiqsiz bo'linadigan bo'laklarga ajratib, har birini bo'lamiz va qo'shamiz.",
     Component: lazy(() => import('../components/grade3/Dars13.jsx')),
   },
+  {
+    slug: 'dars14-amallar-tartibi',
+    title: 'Dars 14. Amallar tartibi',
+    desc: "Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish: 5 + 3 × 2 = 11 (16 emas); tartib natijani o'zgartiradi.",
+    Component: lazy(() => import('../components/grade3/Dars14.jsx')),
+  },
+  {
+    slug: 'dars15-komponentlar-boglanishi',
+    title: "Dars 15. Komponentlar bog'lanishi",
+    desc: "Bitta massivdan to'rt tenglik oilasi (3×4=12, 12:3=4…); komponent nomlari; noma'lum ko'paytuvchi bo'lish orqali topiladi.",
+    Component: lazy(() => import('../components/grade3/Dars15.jsx')),
+  },
+  {
+    slug: 'dars16-masalalar',
+    title: "Dars 16. Ko'paytirish va bo'lishga masalalar",
+    desc: "Masala yechish yo'li: nima ma'lum, nima so'ralyapti, qaysi amal, yechim, birlik bilan javob; teng guruhlar amalni tanlatadi.",
+    Component: lazy(() => import('../components/grade3/Dars16.jsx')),
+  },
+  {
+    slug: 'dars17-boluvchi-karrali',
+    title: 'Dars 17. Bo\'luvchilar va karrali sonlar',
+    desc: "Bo'luvchi — son qoldiqsiz bo'linadigan son (12: 1,2,3,4,6,12); karrali — jadval qatori (5, 10, 15…), cheksiz davom etadi.",
+    Component: lazy(() => import('../components/grade3/Dars17.jsx')),
+  },
+  {
+    slug: 'dars19-ikki-xonali-kopaytirish',
+    title: "Dars 19. Ikki xonali sonni ko'paytirish",
+    desc: "Ustaxona hududi: 23×4 = 20×4 + 3×4 — o'nlik va birlik alohida ko'paytiriladi va qo'shiladi (yig'indini ko'paytirish davomi).",
+    Component: lazy(() => import('../components/grade3/Dars19.jsx')),
+  },
+  {
+    slug: 'dars20-ikki-xonali-bolish',
+    title: "Dars 20. Ikki xonali sonni bo'lish",
+    desc: "96:4 = (80+16):4 — sonni QULAY bo'laklarga yoyamiz (har bo'lak bo'linsin!), alohida bo'lamiz va qo'shamiz; ko'paytirish bilan tekshiramiz.",
+    Component: lazy(() => import('../components/grade3/Dars20.jsx')),
+  },
 ]
 
 // 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
