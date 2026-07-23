@@ -79,5 +79,12 @@ export const grade3Nazariy = [
   },
 ]
 
-// 3-sinf AMALIY darslari — hali yo'q (keyin qo'shiladi).
-export const grade3Amaliy = []
+// 3-sinf AMALIY darslari — har dars = 10 topshiriqli bank (grade2 darsNN/ naqshi).
+export const grade3Amaliy = [
+  {
+    slug: 'dars01-amaliyot',
+    title: "Dars 1 amaliyoti — Yuzliklar, o'nliklar va birliklar (10 topshiriq)",
+    desc: "Razryadlar: sonni yig'ish va o'qish, nol razryad, raqam qiymati, son o'qi, minglik blok — 10 ta interaktiv topshiriq, osondan qiyinga.",
+    Component: lazy(() => import('../components/grade3/practice/dars01/Dars01Practice.jsx')),
+  },
+]
