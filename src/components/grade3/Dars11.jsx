@@ -1364,7 +1364,7 @@ const BRIDGES = {
   s6:  { ru: 'Соберём всё в правило.', uz: "Hammasini qoidaga yig'amiz." },
   s7:  { ru: 'Теперь потренируемся.', uz: "Endi mashq qilamiz." },
   s8:  { ru: 'Теперь обратный ход.', uz: "Endi teskari yo'l." },
-  s9:  { ru: 'Будь внимателен.', uz: "Diqqatli bo'ling." },
+  s9:  { ru: 'Посмотри внимательно.', uz: "Diqqatli bo'ling." },
   s10: { ru: 'Смешаем всё вместе.', uz: "Hammasini aralashtiramiz." },
   s11: { ru: 'Задача из сада.', uz: "Bog'dan masala." },
   s12: { ru: 'Проверим себя.', uz: "O'zimizni sinab ko'ramiz." }
@@ -2610,12 +2610,15 @@ const Screen0 = (props) => {
         {revealed && (
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
-            {!ok && (
-              <p className="fade-up" style={{ margin: 'clamp(6px, 1.4vw, 10px) 0 0', textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
-                {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
-              </p>
-            )}
           </FeedbackBlock>
+        )}
+        {/* TO'G'RI JAVOB izohi — ALOHIDA ramkada (reaksiya bilan aralashmasin) */}
+        {revealed && !ok && (
+          <div className="frame-success lm-riseup">
+            <p style={{ margin: 0, textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
+              {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
+            </p>
+          </div>
         )}
       </div>
     </Stage>

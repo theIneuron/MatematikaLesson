@@ -1005,7 +1005,7 @@ const CONTENT = {
         ]
       },
       on_correct: { ru: 'Верная мысль. Триста пять это три сотни, ноль десятков и пять единиц.', uz: "To'g'ri fikr. Uch yuz besh bu uch yuzlik, nol o'nlik va besh birlik." },
-      on_wrong: { ru: 'Будь внимателен. Ноль держит пустое место. Проверим вместе.', uz: "Diqqat qiling. Nol bo'sh o'rinni saqlaydi. Birga tekshiramiz." },
+      on_wrong: { ru: 'Посмотри внимательно. Ноль держит пустое место. Проверим вместе.', uz: "Diqqat qiling. Nol bo'sh o'rinni saqlaydi. Birga tekshiramiz." },
       on_unknown: { ru: 'Ничего. Сейчас разберём вместе.', uz: "Hechqisi yo'q. Hozir birga o'rganamiz." }
     }
   },
@@ -2784,12 +2784,15 @@ const Screen0 = (props) => {
         {revealed && (
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
-            {!ok && (
-              <p className="fade-up" style={{ margin: 'clamp(6px, 1.4vw, 10px) 0 0', textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
-                {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
-              </p>
-            )}
           </FeedbackBlock>
+        )}
+        {/* TO'G'RI JAVOB izohi — ALOHIDA ramkada (reaksiya bilan aralashmasin) */}
+        {revealed && !ok && (
+          <div className="frame-success lm-riseup">
+            <p style={{ margin: 0, textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
+              {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
+            </p>
+          </div>
         )}
       </div>
     </Stage>
