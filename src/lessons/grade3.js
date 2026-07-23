@@ -111,4 +111,10 @@ export const grade3Amaliy = [
     desc: "Yumaloq o'nlik va yuzlikni tanlash: chiziqda topish, o'rtadagi son (45, 350), ikki qadam, taxminiy hisob — darslik sonlarida.",
     Component: lazy(() => import('../components/grade3/practice/dars05/Dars05Practice.jsx')),
   },
+  {
+    slug: 'dars06-amaliyot',
+    title: "Dars 6 amaliyoti — Son o'qida son (10 topshiriq)",
+    desc: "O'qni o'qish (katta belgi — yuzlik, kichigi — o'nlik), oraliqlar, yo'nalish, harakat, A/B/C nuqtalar — darslik 50-bet mashqi bilan.",
+    Component: lazy(() => import('../components/grade3/practice/dars06/Dars06Practice.jsx')),
+  },
 ]
