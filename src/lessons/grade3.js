@@ -93,4 +93,10 @@ export const grade3Amaliy = [
     desc: "So'z va raqam yozuvi orasidagi ko'prik: o'qish, yozish, nol bilan yozish, xatoni topish, raqamlardan son yasash — darslik misollarida.",
     Component: lazy(() => import('../components/grade3/practice/dars02/Dars02Practice.jsx')),
   },
+  {
+    slug: 'dars03-amaliyot',
+    title: "Dars 3 amaliyoti — Razryad qo'shiluvchilari (10 topshiriq)",
+    desc: "Yoyilma va yig'ish: 427 = 400+20+7, nol razryad qo'shiluvchi bermaydi, plitalardan yig'ish, xatoni topish — darslik misollarida.",
+    Component: lazy(() => import('../components/grade3/practice/dars03/Dars03Practice.jsx')),
+  },
 ]
