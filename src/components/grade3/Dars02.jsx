@@ -3773,6 +3773,13 @@ const TwoWayScreen = (props) => {
   const showM2w = all || r2 >= 2;    // qism-so'zlari + to'liq o'qilish
   const showBonus  = ok && (all || r2 >= 4);
   const showBonusD = all || r2 >= 5; // teskari yo'l raqamlari
+  // Bonus chiqqanda usul-detallari yig'iladi; mute'da demo ko'rinib ulgursin deb kechikadi.
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    if (!showBonus) return undefined;
+    const id = setTimeout(() => setCompact(true), all ? 2600 : 0);
+    return () => clearTimeout(id);
+  }, [showBonus, all]);
   const done = ok && (all || r2 >= c.audio2[lang].length - 1);
   const revealRef = useRevealScroll(showBonus, 500);
   const canAdv = useAdvanceGate(done, audio);
@@ -3795,16 +3802,20 @@ const TwoWayScreen = (props) => {
           {showM1 && (
             <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
               <MLabel x={t(c.m1_label)}/>
-              <MText x={t(c.m1_text)}/>
-              {showM1d && <TwM1Drop words={c.m1_words} labels={labels} lang={lang}/>}
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m1_text)}/>
+                {showM1d && <TwM1Drop words={c.m1_words} labels={labels} lang={lang}/>}
+              </div>
               {showM1w && <TwFullWord text={t(c.full_word)}/>}
             </div>
           )}
           {ok && (
             <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
               <MLabel x={t(c.m2_label)}/>
-              <MText x={t(c.m2_text)}/>
-              {showM2d && <TwM2Drop parts={c.m2_parts} lang={lang} showWords={showM2w}/>}
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m2_text)}/>
+                {showM2d && <TwM2Drop parts={c.m2_parts} lang={lang} showWords={showM2w}/>}
+              </div>
               {showM2w && <TwFullWord text={t(c.full_word)}/>}
             </div>
           )}
@@ -5872,6 +5883,10 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-tw-bonus { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #FFF6DC; border-radius: 16px; padding: clamp(12px,2.4vw,16px); }
 .lm-tw-bonus-badge { align-self: center; color: #B8860B; font-size: clamp(11px,1.6vw,13px); font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
 .lm-tw-bonus-txt { margin: 0; text-align: center; color: #3A3530; font-weight: 600; font-size: clamp(13px,1.8vw,15px); line-height: 1.4; }
+/* Bonus chiqqanda usul-detallari SEKIN yuqoriga yig'iladi (yorliq + yashil pilyula qoladi). */
+.tw-collapse { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-height: 340px; opacity: 1; overflow: hidden; transition: max-height 1.1s ease, opacity 0.9s ease; }
+.tw-collapsed { max-height: 0; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .tw-collapse { transition: none; } }
 /* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
 @keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .lm-riseup { animation: lm-riseup-a 0.62s cubic-bezier(0.22, 1.1, 0.36, 1) both; }
