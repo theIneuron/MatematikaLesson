@@ -2455,8 +2455,10 @@ const NumPad = ({ value, setValue, disabled, max = 3 }) => {
 const NumLine = ({ lo, hi, marker = null, anim = 2, cands = null, hideVal = false }) => {
   const W = 340, pad = 28, y = 54;
   const xp = (v) => pad + ((v - lo) / (hi - lo)) * (W - 2 * pad);
-  const hundreds = []; for (let v = lo; v <= hi; v += 100) hundreds.push(v);
-  const tens = []; for (let v = lo; v <= hi; v += 10) { if (v % 100 !== 0) tens.push(v); }
+  // Tiklar HAQIQIY yumaloq sonlarga tushishi kerak, `lo` dan emas.
+  // (lo=680 bo'lganda avval 680/780 «yuzlik» deb belgilanardi, 700/800 esa tiksiz qolardi.)
+  const hundreds = []; for (let v = Math.ceil(lo / 100) * 100; v <= hi; v += 100) hundreds.push(v);
+  const tens = []; for (let v = Math.ceil(lo / 10) * 10; v <= hi; v += 10) { if (v % 100 !== 0) tens.push(v); }
   const floorH = marker != null ? Math.floor(marker / 100) * 100 : lo;
   const pos = marker == null ? lo : (anim >= 2 ? marker : anim >= 1 ? floorH : lo);
   return (
@@ -2466,7 +2468,7 @@ const NumLine = ({ lo, hi, marker = null, anim = 2, cands = null, hideVal = fals
       {hundreds.map((v) => (
         <g key={v}>
           <line x1={xp(v)} y1={y - 8} x2={xp(v)} y2={y + 8} stroke={T.ink2} strokeWidth="2.4"/>
-          <text x={xp(v)} y={y + 22} textAnchor="middle" fontSize="11" fontWeight="800" fill={T.ink2} fontFamily="'JetBrains Mono', monospace">{v}</text>
+          <text x={xp(v)} y={y + 23} textAnchor="middle" fontSize="13" fontWeight="800" fill={T.ink2} fontFamily="'JetBrains Mono', monospace">{v}</text>
         </g>
       ))}
       {cands && cands.map((cc) => (
