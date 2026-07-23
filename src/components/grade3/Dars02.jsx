@@ -41,7 +41,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;   // TEST/EDIT — blokirovka o'chiq (erkin navigatsiya). PUSH oldidan false ga qaytaring!
+const FREE_NAV = false;  // RELIZ: navigatsiya blokirovkasi YONIQ (bola ovozni eshitib, javob bergach o'tadi)
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -2808,7 +2808,7 @@ const Screen1 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s1_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const done = reached >= (c.audio[lang].length - 1);
+  const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -2843,7 +2843,7 @@ const Screen2 = (props) => {
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s2_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
   const showT = reached >= 2;
-  const done = reached >= (c.audio[lang].length - 1);
+  const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2889,7 +2889,7 @@ const Screen3 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s3_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const done = reached >= (c.audio[lang].length - 1);
+  const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const digits = ['2', '6', '8'];
   const parts = [c.part_h, c.part_t, c.part_o];
   const cols = ['#C0392B', '#1F7A4D', T.blue];
@@ -2937,7 +2937,7 @@ const Screen4 = (props) => {
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s4_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
   const showSlots = reached >= 1;
-  const done = reached >= (c.audio[lang].length - 1);
+  const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const slots = [['2', 'h'], ['6', 't'], ['8', 'o']];
   const canAdv = useAdvanceGate(done, audio);
@@ -2990,7 +2990,7 @@ const Screen5 = (props) => {
   const emptyOn = reached >= 1;
   const showZero = reached >= 2;
   const showEx = reached >= 3;
-  const done = reached >= (c.audio[lang].length - 1);
+  const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -3050,7 +3050,7 @@ const Screen6 = (props) => {
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s6_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
   const showMing = reached >= 2;
-  const done = reached >= (c.audio[lang].length - 1);
+  const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
