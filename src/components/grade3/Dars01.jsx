@@ -54,7 +54,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;  // RELIZ: navigatsiya blokirovkasi YONIQ (bola ovozni eshitib, javob bergach o'tadi)
+const FREE_NAV = true;   // TEKSHIRUV: blokirovka O'CHIQ (erkin navigatsiya). RELIZ oldidan false ga qaytaring!
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
