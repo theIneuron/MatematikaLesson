@@ -99,4 +99,10 @@ export const grade3Amaliy = [
     desc: "Yoyilma va yig'ish: 427 = 400+20+7, nol razryad qo'shiluvchi bermaydi, plitalardan yig'ish, xatoni topish — darslik misollarida.",
     Component: lazy(() => import('../components/grade3/practice/dars03/Dars03Practice.jsx')),
   },
+  {
+    slug: 'dars04-amaliyot',
+    title: "Dars 4 amaliyoti — Uch xonali sonlarni taqqoslash (10 topshiriq)",
+    desc: "Belgi qo'yish (> < =), tuzoq-juftlar (600/599, 519/591), saralash, minoralar masalasi, eng katta son yasash — darslik misollarida.",
+    Component: lazy(() => import('../components/grade3/practice/dars04/Dars04Practice.jsx')),
+  },
 ]
