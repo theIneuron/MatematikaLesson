@@ -1054,16 +1054,32 @@ const CONTENT = {
       { num: '70', ru: 'семьдесят', uz: 'yetmish' }, { num: '80', ru: 'восемьдесят', uz: 'sakson' },
       { num: '90', ru: 'девяносто', uz: "to'qson" }
     ],
+    // NAQSH kashfiyoti + interaktiv topish (metodist: bo'sh joy ko'p, ketma-ket va faol bo'lsin)
+    pattern_note: { ru: 'Сотни устроены одинаково: цифра и слово «сот». А у десятков имена свои — их держим в памяти.', uz: "Yuzliklar bir xil tuzilgan: raqam va «yuz» so'zi. O'nliklarning esa nomi o'ziga xos — ularni yodda saqlaymiz." },
+    find_head: { ru: 'Найди карточку', uz: 'Kartani toping' },
+    find_items: [
+      { ask: '700', ru: 'семьсот', uz: 'yetti yuz' },
+      { ask: '40', ru: 'сорок', uz: 'qirq' },
+      { ask: '500', ru: 'пятьсот', uz: 'besh yuz' }
+    ],
+    find_ok: { ru: 'Верно!', uz: "To'g'ri!" },
+    find_no: { ru: 'Посмотри ещё раз на имя.', uz: "Nomga yana bir bor qarang." },
     audio: {
       ru: [
-        'Выучим имена разрядов. Сначала сотни.',
-        'Сто, двести, триста и так по порядку до девятисот.',
-        'Теперь десятки. Десять, двадцать, тридцать, сорок и так до девяноста. С этими именами прочитаем любое число.'
+        'В башне каждый код называют словом. Но для каждого числа своё имя не выучишь, их слишком много.',
+        'Смотри на сотни. Сто, двести, триста, четыреста, пятьсот, шестьсот, семьсот, восемьсот, девятьсот.',
+        'Заметил? Все они устроены одинаково: цифра и слово сот. Отдельно запоминать не нужно.',
+        'А теперь десятки. Десять, двадцать, тридцать, сорок, пятьдесят, шестьдесят, семьдесят, восемьдесят, девяносто.',
+        'Вот у них имена свои, каждое особенное. Их держим в памяти.',
+        'Теперь проверь себя. Бит называет число словом, а ты находи нужную карточку.'
       ],
       uz: [
-        "Xona nomlarini o'rganamiz. Avval yuzliklar.",
-        "Yuz, ikki yuz, uch yuz va shu tartibda to'qqiz yuzgacha.",
-        "Endi o'nliklar. O'n, yigirma, o'ttiz, qirq va shu tartibda to'qsongacha. Bu nomlar bilan har qanday sonni o'qiymiz."
+        "Minorada har kodni so'z bilan aytishadi. Lekin har son uchun alohida nom yodlab bo'lmaydi, ular juda ko'p.",
+        "Yuzliklarga qarang. Yuz, ikki yuz, uch yuz, to'rt yuz, besh yuz, olti yuz, yetti yuz, sakkiz yuz, to'qqiz yuz.",
+        "Payqadingizmi? Hammasi bir xil tuzilgan: raqam va yuz so'zi. Alohida yodlash shart emas.",
+        "Endi o'nliklar. O'n, yigirma, o'ttiz, qirq, ellik, oltmish, yetmish, sakson, to'qson.",
+        "Mana bularning nomi o'ziga xos, har biri alohida. Ularni yodda saqlaymiz.",
+        "Endi o'zingizni sinang. Bit sonni so'z bilan aytadi, siz kerakli kartani toping."
       ]
     }
   },
@@ -1082,16 +1098,22 @@ const CONTENT = {
     done_text: { ru: 'Двести шестьдесят восемь. Каждый разряд назвали своим именем.', uz: "Ikki yuz oltmish sakkiz. Har xonani o'z nomida o'qidik." },
     audio: {
       ru: [
-        'Читаем число слева направо. Вот число, двести шестьдесят восемь.',
+        'Имена разрядов мы знаем. Но как из трёх цифр получить одну фразу? Вот число, двести шестьдесят восемь.',
+        'Читаем слева направо, от самого крупного к самому мелкому. Сначала сотни, они больше всех.',
         'Левая цифра два это две сотни, двести.',
         'Средняя цифра шесть это шесть десятков, шестьдесят.',
-        'Правая цифра восемь это восемь единиц. Вместе, двести шестьдесят восемь.'
+        'Правая цифра восемь это восемь единиц, просто восемь.',
+        'Теперь соединяем по порядку. Двести, шестьдесят, восемь. Получилась одна фраза, двести шестьдесят восемь.',
+        'Порядок менять нельзя. Если начать справа, выйдет совсем другое число.'
       ],
       uz: [
-        "Sonni chapdan o'ngga o'qiymiz. Mana son, ikki yuz oltmish sakkiz.",
+        "Xona nomlarini bilamiz. Lekin uchta raqamdan qanday qilib bitta ibora chiqadi? Mana son, ikki yuz oltmish sakkiz.",
+        "Chapdan o'ngga o'qiymiz, eng kattadan eng kichigiga. Avval yuzliklar, ular eng katta.",
         "Chap raqam ikki bu ikki yuzlik, ikki yuz.",
         "O'rtadagi raqam olti bu olti o'nlik, oltmish.",
-        "O'ng raqam sakkiz bu sakkiz birlik. Birga, ikki yuz oltmish sakkiz."
+        "O'ng raqam sakkiz bu sakkiz birlik, shunchaki sakkiz.",
+        "Endi tartib bilan birlashtiramiz. Ikki yuz, oltmish, sakkiz. Bitta ibora chiqdi, ikki yuz oltmish sakkiz.",
+        "Tartibni o'zgartirib bo'lmaydi. O'ngdan boshlansa, butunlay boshqa son chiqadi."
       ]
     }
   },
@@ -1134,16 +1156,22 @@ const CONTENT = {
     done_text: { ru: 'Ноль нельзя выбрасывать — иначе получится другое число.', uz: "Nolni tashlab bo'lmaydi, aks holda boshqa son chiqadi." },
     audio: {
       ru: [
-        'Иногда один разряд пустой. Вот число, триста пять.',
-        'Сотни три есть, единицы пять есть. А десятки не назвали, значит десятки пустые.',
-        'Пустое место держит ноль. Записываем триста пять как три, ноль, пять.',
-        'Ноль выбрасывать нельзя. Иначе вместо триста пять получится другое число.'
+        'Иногда один разряд пустой. Слушай внимательно, вот число, триста пять.',
+        'Сотни три есть, единицы пять есть. А десятки не назвали ни разу, значит десятков нет.',
+        'И тут ловушка. Если записать только то, что услышали, выйдет три и пять, то есть тридцать пять.',
+        'А тридцать пять и триста пять это разные числа. Одно в десять раз больше другого.',
+        'Поэтому пустое место держит ноль. Он как пустое кресло, само оно ничего не значит, но место занято.',
+        'Записываем триста пять как три, ноль, пять. Ноль стоит там, где десятков нет.',
+        'Ноль выбрасывать нельзя. Он показывает, что разряд не потерялся, он просто пустой.'
       ],
       uz: [
-        "Ba'zan bir xona bo'sh bo'ladi. Mana son, uch yuz besh.",
-        "Yuzlik uch bor, birlik besh bor. O'nlik esa aytilmadi, demak o'nlik bo'sh.",
-        "Bo'sh o'rinni nol saqlaydi. Uch yuz beshni uch, nol, besh deb yozamiz.",
-        "Nolni tashlab bo'lmaydi. Aks holda uch yuz besh o'rniga boshqa son chiqadi."
+        "Ba'zan bir xona bo'sh bo'ladi. Diqqat bilan tinglang, mana son, uch yuz besh.",
+        "Yuzlik uch bor, birlik besh bor. O'nlik esa bir marta ham aytilmadi, demak o'nlik yo'q.",
+        "Mana shu yerda tuzoq bor. Faqat eshitilganini yozsak, uch va besh chiqadi, ya'ni o'ttiz besh.",
+        "O'ttiz besh va uch yuz besh esa har xil sonlar. Biri ikkinchisidan o'n barobar katta.",
+        "Shuning uchun bo'sh o'rinni nol saqlaydi. U bo'sh kursi kabi, o'zi hech narsani bildirmaydi, lekin o'rin band.",
+        "Uch yuz beshni uch, nol, besh deb yozamiz. Nol o'nlik yo'q joyda turadi.",
+        "Nolni tashlab bo'lmaydi. U xona yo'qolmaganini, shunchaki bo'shligini ko'rsatadi."
       ]
     }
   },
@@ -1328,32 +1356,29 @@ const CONTENT = {
     items: [
       {
         word: { ru: 'триста пять', uz: 'uch yuz besh' }, ans: 305,
-        opts: [{ ru: '35', uz: '35' }, { ru: '305', uz: '305' }, { ru: '350', uz: '350' }, { ru: '3005', uz: '3005' }, { ru: '503', uz: '503' }], ci: 1,
+        opts: [{ ru: '35', uz: '35' }, { ru: '305', uz: '305' }, { ru: '350', uz: '350' }, { ru: '3005', uz: '3005' }], ci: 1,
         hints: {
           0: { ru: 'Десятки пусты, ноль держит место: 305, а не 35.', uz: "O'nlik bo'sh, nol o'rinni saqlaydi: 305, 35 emas." },
           2: { ru: 'Ноль в середине, в десятках, а не в конце: 305.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 305." },
-          3: { ru: 'Части не приставляй в ряд. Триста это уже три сотни: 305.', uz: "Qismlarni yonma-yon ulamang. Uch yuz allaqachon uch yuzlik: 305." },
-          4: { ru: 'Слева сотни, значит тройка: 305, а не 503.', uz: "Chapda yuzlik, demak uch: 305, 503 emas." }
+          3: { ru: 'Части не приставляй в ряд. Триста это уже три сотни: 305.', uz: "Qismlarni yonma-yon ulamang. Uch yuz allaqachon uch yuzlik: 305." }
         }
       },
       {
         word: { ru: 'семьсот двадцать', uz: 'yetti yuz yigirma' }, ans: 720,
-        opts: [{ ru: '72', uz: '72' }, { ru: '720', uz: '720' }, { ru: '702', uz: '702' }, { ru: '7020', uz: '7020' }, { ru: '270', uz: '270' }], ci: 1,
+        opts: [{ ru: '72', uz: '72' }, { ru: '720', uz: '720' }, { ru: '702', uz: '702' }, { ru: '7020', uz: '7020' }], ci: 1,
         hints: {
           0: { ru: 'Это трёхзначное число, сотни есть: 720.', uz: "Bu uch xonali son, yuzlik bor: 720." },
           2: { ru: 'Единицы пусты, ноль в конце, а не в середине: 720.', uz: "Birlik bo'sh, nol oxirida, o'rtada emas: 720." },
-          3: { ru: 'Части не приставляй в ряд. Семьсот это семь сотен: 720.', uz: "Qismlarni ulamang. Yetti yuz bu yetti yuzlik: 720." },
-          4: { ru: 'Слева сотни, значит семёрка: 720, а не 270.', uz: "Chapda yuzlik, demak yetti: 720, 270 emas." }
+          3: { ru: 'Части не приставляй в ряд. Семьсот это семь сотен: 720.', uz: "Qismlarni ulamang. Yetti yuz bu yetti yuzlik: 720." }
         }
       },
       {
         word: { ru: 'пятьсот шесть', uz: 'besh yuz olti' }, ans: 506,
-        opts: [{ ru: '56', uz: '56' }, { ru: '506', uz: '506' }, { ru: '560', uz: '560' }, { ru: '5006', uz: '5006' }, { ru: '650', uz: '650' }], ci: 1,
+        opts: [{ ru: '56', uz: '56' }, { ru: '506', uz: '506' }, { ru: '560', uz: '560' }, { ru: '5006', uz: '5006' }], ci: 1,
         hints: {
           0: { ru: 'Десятки пусты, ноль держит место: 506, а не 56.', uz: "O'nlik bo'sh, nol o'rinni saqlaydi: 506, 56 emas." },
           2: { ru: 'Ноль в середине, в десятках, а не в конце: 506.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 506." },
-          3: { ru: 'Части не приставляй в ряд: 506.', uz: "Qismlarni yonma-yon ulamang: 506." },
-          4: { ru: 'Слева сотни, значит пятёрка: 506, а не 650.', uz: "Chapda yuzlik, demak besh: 506, 650 emas." }
+          3: { ru: 'Части не приставляй в ряд: 506.', uz: "Qismlarni yonma-yon ulamang: 506." }
         }
       }
     ],
@@ -2701,7 +2726,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
             <h1 className="title h-sub fade-up">{heading(it)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
-              {renderFig(it)}
+              {renderFig(it, okIdx !== null)}
               <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
                 {it.opts.map((o, i) => (
                   <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
@@ -2845,8 +2870,30 @@ const Screen2 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s2_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const showT = reached >= 2;
-  const done = audio.muted || reached >= (c.audio[lang].length - 1);
+  const sfx = useSfx();
+  const all = audio.muted;                       // ovoz o'chiq -> hammasi darrov
+  const showH = all || reached >= 1;             // yuzliklar bittalab
+  const showPat = all || reached >= 2;           // naqsh eslatmasi
+  const showT = all || reached >= 3;             // o'nliklar
+  const showFind = all || reached >= 5;          // interaktiv topish
+  // TOPISH: Bit sonni so'z bilan aytadi, bola kartani bosadi
+  const [fi, setFi] = useState(0);
+  const [wrongK, setWrongK] = useState(null);
+  const findDone = fi >= c.find_items.length;
+  const cur = c.find_items[Math.min(fi, c.find_items.length - 1)];
+  const canAct = useCanAnswer(audio);
+  const pickCard = (numStr) => {
+    if (!showFind || findDone || !canAct) return;
+    if (numStr === cur.ask) {
+      sfx.playCorrect(); setWrongK(null);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(t(c.find_ok)); }
+      setTimeout(() => setFi((v) => v + 1), 700);
+    } else {
+      setWrongK(numStr);
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(t(c.find_no)); }
+    }
+  };
+  const done = findDone;                         // gate = bola topshiriqni bajarsin
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2854,16 +2901,23 @@ const Screen2 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const Row = ({ head, data }) => (
+  const Row = ({ head, data, seq }) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
       <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(11px, 1.5vw, 13px)' }}>{head}</span>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(5px, 1.4vw, 9px)', justifyContent: 'center' }}>
-        {data.map((d, i) => (
-          <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.05}s`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, minWidth: 'clamp(46px, 12vw, 62px)', padding: '6px 4px', background: T.paper, borderRadius: 10, boxShadow: '0 3px 10px -4px rgba(58, 53, 48, 0.22)' }}>
-            <b className="mono" style={{ fontSize: 'clamp(14px, 2.4vw, 18px)', color: T.ink }}>{d.num}</b>
-            <span style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', color: T.ink2, fontWeight: 600, textAlign: 'center' }}>{d[lang]}</span>
-          </span>
-        ))}
+        {data.map((d, i) => {
+          const hit = showFind && !findDone && d.num === cur.ask;
+          const bad = wrongK === d.num;
+          return (
+            <button key={i} type="button" disabled={!showFind || findDone}
+              onClick={() => pickCard(d.num)}
+              className={`lm-namecard g1-pop-in ${bad ? 'lm-namecard-bad' : ''} ${findDone ? 'lm-namecard-done' : ''}`}
+              style={{ animationDelay: `${(seq ? i * 0.34 : i * 0.05)}s`, cursor: showFind && !findDone ? 'pointer' : 'default' }}>
+              <b className="mono" style={{ fontSize: 'clamp(14px, 2.4vw, 18px)', color: hit && findDone ? T.success : T.ink }}>{d.num}</b>
+              <span style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', color: T.ink2, fontWeight: 600, textAlign: 'center' }}>{d[lang]}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -2871,10 +2925,25 @@ const Screen2 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        {/* TOPISH savoli — kartalar ustida, aksentda */}
+        {showFind && !findDone && (
+          <div className="lm-q-accent fade-up">
+            {t(c.find_head)}: <b>{t(cur)}</b>
+            <span className="mono" style={{ display: 'block', marginTop: 4, fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{fi + 1} / {c.find_items.length}</span>
+          </div>
+        )}
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.6vw, 18px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-          <Row head={t(c.hundreds_head)} data={c.hundreds}/>
-          {showT && <div className="lm-reveal" style={{ width: '100%' }}><Row head={t(c.tens_head)} data={c.tens}/></div>}
+          {showH && <Row head={t(c.hundreds_head)} data={c.hundreds} seq={!all}/>}
+          {showPat && (
+            <p className="lm-reveal" style={{ margin: 0, textAlign: 'center', color: T.accent, fontWeight: 700, fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(c.pattern_note)}</p>
+          )}
+          {showT && <div className="lm-reveal" style={{ width: '100%' }}><Row head={t(c.tens_head)} data={c.tens} seq={!all}/></div>}
         </div>
+        {findDone && (
+          <div className="frame-success lm-riseup">
+            <Reaction state="correct" praise={`${c.find_items.length} / ${c.find_items.length}`}/>
+          </div>
+        )}
       </div>
     </Stage>
   );
@@ -2912,7 +2981,7 @@ const Screen3 = (props) => {
             {digits.map((d, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                 <span className="mono" style={{ fontSize: 'clamp(30px, 7vw, 44px)', fontWeight: 800, color: cols[i], border: `2.5px solid ${cols[i]}`, borderRadius: 12, minWidth: 'clamp(40px, 10vw, 56px)', textAlign: 'center', padding: '2px 0', background: T.paper }}>{d}</span>
-                {reached >= i + 1 && <span className="lm-edrop" style={{ fontSize: 'clamp(12px, 1.9vw, 15px)', fontWeight: 700, color: T.ink }}>{t(parts[i])}</span>}
+                {reached >= i + 2 && <span className="lm-edrop" style={{ fontSize: 'clamp(12px, 1.9vw, 15px)', fontWeight: 700, color: T.ink }}>{t(parts[i])}</span>}
               </div>
             ))}
           </div>
@@ -2991,8 +3060,8 @@ const Screen5 = (props) => {
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s5_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
   const emptyOn = reached >= 1;
-  const showZero = reached >= 2;
-  const showEx = reached >= 3;
+  const showZero = reached >= 5;
+  const showEx = reached >= 6;
   const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -3251,12 +3320,22 @@ const Screen10 = (props) => {
   const lang = useLang();
   const t = useT();
   const heading = () => (lang === 'ru' ? 'Какое это число?' : 'Bu qaysi son?');
-  const renderFig = (it) => (
-    <div className="lm-figwrap">
+  // To'g'ri javobdan keyin — VIZUAL: son xonalarga yoyiladi, NOL ajratib ko'rsatiladi.
+  const renderFig = (it, solved) => (
+    <div className="lm-figwrap" style={{ flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
       <span className="title" style={{ fontSize: 'clamp(22px, 5vw, 34px)', fontWeight: 700, color: T.accent, textAlign: 'center' }}>{t(it.word)}</span>
+      {solved && (
+        <div className="lm-riseup" style={{ display: 'flex', gap: 'clamp(6px, 1.6vw, 10px)' }}>
+          {String(it.ans).split('').map((d, i) => (
+            <span key={i} className="mono lm-edrop" style={{ animationDelay: `${i * 0.18}s`, fontSize: 'clamp(24px, 5.4vw, 34px)', fontWeight: 800,
+              color: d === '0' ? T.accent : T.success, background: d === '0' ? '#FFF3E9' : '#EAF5EE',
+              borderRadius: 10, minWidth: 'clamp(30px, 8vw, 42px)', textAlign: 'center', padding: '2px 0' }}>{d}</span>
+          ))}
+        </div>
+      )}
     </div>
   );
-  return <MCRoundD2 props={props} ck="s10" cols={3} heading={heading} renderFig={renderFig}/>;
+  return <MCRoundD2 props={props} ck="s10" cols={2} heading={heading} renderFig={renderFig}/>;
 };
 
 // s11 — MASHQ xatoni top (noto'g'ri juftni top), 3 raund
@@ -5717,6 +5796,11 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
 /* Aksent savol (QOIDA — javob oldindan berilmasin). */
 .lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
+/* s2 son-nomi kartasi (bosiladigan) */
+.lm-namecard { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: clamp(46px, 12vw, 62px); padding: 6px 4px; background: #FFFFFF; border: none; border-radius: 10px; box-shadow: 0 3px 10px -4px rgba(58,53,48,0.22); transition: transform 0.12s, box-shadow 0.2s; }
+.lm-namecard:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 6px 16px -5px rgba(58,53,48,0.3); }
+.lm-namecard-bad { background: #FBE9E7; box-shadow: inset 0 0 0 1.5px rgba(192,57,43,0.45); }
+.lm-namecard-done { opacity: 0.9; }
 /* Ikki-usul ekrani (kitob 1-usul/2-usul) */
 .lm-tw-grid { display: flex; flex-wrap: wrap; gap: clamp(10px, 2.5vw, 18px); justify-content: center; width: 100%; }
 .lm-tw-col { display: flex; flex-direction: column; align-items: center; gap: 6px; background: #FBF7F1; border: 1.5px solid #EFE4D6; border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(12px,2.4vw,18px); min-width: clamp(130px, 40vw, 180px); }
