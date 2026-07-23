@@ -1088,43 +1088,62 @@ const CONTENT = {
   stway: {
     eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
     lead: { ru: 'Одно число — два пути к ответу.', uz: "Bitta son — javobga ikki yo'l." },
-    expr: { ru: '3 × 4', uz: '3 × 4' },
+    expr: '3 × 4',
     m1_label: { ru: 'Способ 1 — равные ряды', uz: '1-usul — teng qatorlar' },
-    m1_steps: [{ ru: '3 ряда × 4', uz: '3 qator × 4' }, '12'],
-    m2_label: { ru: 'Способ 2 — через удвоение', uz: '2-usul — ikkilantirish' },
-    m2_steps: ['3 × 2 = 6', '6 × 2 = 12'],
+    m1_text: { ru: 'Выкладываем ряды и считаем по четыре.', uz: "Qatorlarni teramiz va to'rttalab sanaymiz." },
+    m1_rows: 3,
+    m1_cols: 4,
+    m1_counts: ['4', '8', '12'],
+    full_exp: '3 × 4 = 12',
     check_q: { ru: 'Можно ли из известного факта получить новый?', uz: "Bilgan faktdan yangi faktni chiqarsa bo'ladimi?" },
     check_opts: ['Да, можно', 'Нет, нельзя'],
     check_opts_uz: ['Ha, mumkin', "Yo'q, bo'lmaydi"],
     check_ci: 0,
     check_ok: { ru: 'Верно. Из знакомого факта вывели новый.', uz: "To'g'ri. Tanish faktdan yangisini chiqardik." },
     check_no: { ru: 'Посмотри: знакомый факт помогает найти новый. Попробуй ещё.', uz: "Qarang: tanish fakt yangisini topishga yordam beradi. Yana urinib ko'ring." },
-    bonus_kind: 'swap',
-    bonus_ab: [3, 4],
+    m2_label: { ru: 'Способ 2 — через удвоение', uz: '2-usul — ikkilantirish' },
+    m2_text: { ru: 'Начинаем со знакомого факта и удваиваем.', uz: 'Tanish faktdan boshlaymiz va ikkilantiramiz.' },
+    m2_steps: [
+      { expr: '3 × 2 = 6', rows: 3, cols: 2, dbl: false },
+      { expr: '6 × 2 = 12', rows: 3, cols: 2, dbl: true }
+    ],
+    m2_recap: '12',
     bonus_label: { ru: 'Бонус — почему так можно', uz: 'Bonus — nega bunday mumkin' },
-    bonus_text: { ru: 'Три ряда по четыре — двенадцать. Повернём массив: четыре ряда по три — снова двенадцать. Значит 3 × 4 и 4 × 3 равны, и учить нужно только половину таблицы.', uz: "Uch qator, har birida to'rtta — o'n ikki. Massivni buramiz: to'rt qator, har birida uchta — yana o'n ikki. Demak 3 × 4 va 4 × 3 teng, jadvalning faqat yarmini yodlash yetadi." },
+    bonus_text: { ru: 'Повернём массив: три ряда по четыре станут четырьмя рядами по три. Точек столько же — значит, учить нужно только половину таблицы.', uz: "Massivni buramiz: uch qator to'rttadan to'rt qator uchtadan bo'ladi. Nuqtalar soni o'sha — demak, jadvalning faqat yarmini yodlash yetadi." },
+    bonus_ab: [3, 4],
+    bonus_recap: '3 × 4 = 4 × 3',
     audio: {
       ru: [
-        'Одно и то же число можно найти двумя путями. Возьмём три умножить на четыре.',
-        'Первый способ. Считаем ряды. Три ряда, в каждом по четыре. Всего двенадцать.'
+        'Одно и то же число можно найти двумя путями. Возьмём три умножить на четыре. Не спеша.',
+        'Первый способ, равные ряды. Выложим три ряда, в каждом по четыре точки.',
+        'Ряды ложатся один за другим. Считаем по четыре. Четыре. Восемь. Двенадцать.',
+        'Всего двенадцать точек. Три умножить на четыре будет двенадцать. Нашли!'
       ],
       uz: [
-        "Bitta sonni ikki yo'l bilan topsa bo'ladi. Uchni to'rtga ko'paytiramiz.",
-        "Birinchi usul. Qatorlarni sanaymiz. Uch qator, har birida to'rtta. Hammasi o'n ikki."
+        "Bitta sonni ikki yo'l bilan topsa bo'ladi. Uchni to'rtga ko'paytiramiz. Shoshilmasdan.",
+        "Birinchi usul, teng qatorlar. Uch qator teramiz, har birida to'rtta nuqta.",
+        "Qatorlar birma-bir tushadi. To'rttalab sanaymiz. To'rt. Sakkiz. O'n ikki.",
+        "Hammasi o'n ikkita nuqta. Uchni to'rtga ko'paytirsak, o'n ikki bo'ladi. Topdik!"
       ]
     },
     audio2: {
       ru: [
-        'Верно. Есть и второй путь, через знакомый факт. Три умножить на два будет шесть. Потом шесть умножить на два будет двенадцать.',
-        'Смотри, ответ снова двенадцать. Знакомый факт помог найти новый.',
-        'А теперь секрет. Три умножить на четыре даёт столько же, сколько четыре умножить на три.',
-        'Значит, можно выучить только половину таблицы. Если знаешь три на четыре, то знаешь и четыре на три.'
+        'Верно! Второй способ, через знакомый факт. Начнём с меньшего.',
+        'Три умножить на два будет шесть. Вот маленький массив, три ряда по две точки.',
+        'Теперь удвоим его. Шесть умножить на два будет двенадцать.',
+        'Ответ снова двенадцать. Знакомый факт помог найти новый. Два пути, один ответ.',
+        'А в качестве бонуса покажу секрет. Вот наш массив, три ряда по четыре точки.',
+        'Повернём его. Теперь четыре ряда по три точки. А точек столько же, двенадцать.',
+        'Запомни. Три умножить на четыре равно четыре умножить на три. Учить можно половину таблицы. Молодец!'
       ],
       uz: [
-        "To'g'ri. Ikkinchi yo'l ham bor, tanish fakt orqali. Uchni ikkiga ko'paytirsak, olti bo'ladi. Keyin oltini ikkiga ko'paytirsak, o'n ikki bo'ladi.",
-        "Qarang, javob yana o'n ikki. Tanish fakt yangisini topishga yordam berdi.",
-        "Endi sir. Uchni to'rtga ko'paytirish, to'rtni uchga ko'paytirish bilan bir xil.",
-        "Demak, jadvalning faqat yarmini yodlash yetadi. Uchni to'rtga ko'paytirishni bilsangiz, to'rtni uchga ko'paytirishni ham bilasiz."
+        "To'g'ri! Ikkinchi usul, tanish fakt orqali. Kichigidan boshlaymiz.",
+        "Uchni ikkiga ko'paytirsak, olti bo'ladi. Mana kichkina massiv, uch qator ikkitadan nuqta.",
+        "Endi uni ikkilantiramiz. Oltini ikkiga ko'paytirsak, o'n ikki bo'ladi.",
+        "Javob yana o'n ikki. Tanish fakt yangisini topishga yordam berdi. Ikki yo'l, bitta javob.",
+        "Bonus tariqasida sirni ko'rsataman. Mana massivimiz, uch qator to'rttadan nuqta.",
+        "Uni buramiz. Endi to'rt qator uchtadan nuqta. Nuqtalar soni esa o'sha, o'n ikki.",
+        "Yodda tuting. Uchni to'rtga ko'paytirish to'rtni uchga ko'paytirish bilan teng. Jadvalning yarmini yodlash yetadi. Barakalla!"
       ]
     }
   },
@@ -1347,7 +1366,7 @@ const CONTENT = {
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  stway: { ru: 'Соберём оба способа вместе.', uz: "Ikki usulni birga yig'amiz." },
+  stway: { ru: 'Найдём один ответ двумя путями.', uz: "Bitta javobni ikki yo'l bilan topamiz." },
   s1:  { ru: 'Вспомним про равные группы.', uz: 'Teng guruhlarni eslaymiz.' },
   s2:  { ru: 'Ряды и столбцы — массив.', uz: 'Qator va ustun — massiv.' },
   s3:  { ru: 'Умножение и сложение.', uz: "Ko'paytirish va qo'shish." },
@@ -3182,54 +3201,71 @@ const Screen11 = (props) => {
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
 
-// Yuza modeli (bonus): balandlik 4, eni 20+30 — ikki bo'lakka kesiladi (80 va 120).
-const AreaModel = ({ show }) => (
-  <svg viewBox="0 0 260 90" style={{ width: 'min(300px, 92%)', height: 'auto' }} aria-hidden="true">
-    <rect x="20" y="20" width="140" height="50" fill="#FBE9E7" stroke="#C0392B" strokeWidth="1.6"/>
-    <rect x="160" y="20" width="80" height="50" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="1.6"/>
-    {show && <line x1="160" y1="14" x2="160" y2="76" stroke="#8A8178" strokeWidth="1.4" strokeDasharray="3 3" className="lm-fadein"/>}
-    <text x="90" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">{show ? '80' : ''}</text>
-    <text x="200" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">{show ? '120' : ''}</text>
-    <text x="90" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">20</text>
-    <text x="200" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">30</text>
-    <text x="9" y="49" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace" transform="rotate(-90 9 45)">4</text>
-  </svg>
+// stway nuqta-massivi palitrasi: to'q panel + sariq nuqta; ikkilangan qism yashilroq nuqta.
+const TW_DARK = '#152342';
+const TW_DOT = '#FFC23C';
+const TW_DOT2 = '#8FE388';
+// Kichik massiv-panel: rows × cols nuqta, butun panel bitta bo'lib tushadi (lm-edrop).
+const TwMiniArr = ({ rows, cols, delay = 0, dot = TW_DOT }) => (
+  <span className="lm-edrop" style={{ animationDelay: `${delay}s`, display: 'inline-grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 3, padding: 5, background: TW_DARK, borderRadius: 8 }}>
+    {Array.from({ length: rows * cols }).map((_, i) => <span key={i} style={{ width: 'clamp(7px, 1.9vw, 10px)', height: 'clamp(7px, 1.9vw, 10px)', borderRadius: '50%', background: dot }}/>)}
+  </span>
 );
-// O'rin almashtirish bonusi (Dars10): a×b = b×a — ikki massiv yonma-yon.
-const SwapViz = ({ a, b }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
-    {[[a, b], [b, a]].map(([r, cc], k) => (
-      <React.Fragment key={k}>
-        {k === 1 && <span className="mono" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D' }}>=</span>}
-        <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cc}, 1fr)`, gap: 2, padding: 4, background: '#152342', borderRadius: 8 }}>
-          {Array.from({ length: r * cc }).map((_, i) => <span key={i} style={{ width: 'clamp(6px, 1.8vw, 9px)', height: 'clamp(6px, 1.8vw, 9px)', borderRadius: '50%', background: '#FFC23C' }}/>)}
+// 1-usul (teng qatorlar): 3×4 massiv QATORMA-QATOR tushadi (0.85s qadam), yonida yig'ma sanoq 4, 8, 12.
+const TwRowsDrop = ({ rows, cols, counts }) => (
+  <div style={{ display: 'flex', alignItems: 'stretch', gap: 'clamp(10px, 2.4vw, 16px)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: 6, background: TW_DARK, borderRadius: 10 }}>
+      {Array.from({ length: rows }).map((_, r) => (
+        <div key={r} className="lm-edrop" style={{ animationDelay: `${0.1 + r * 0.85}s`, display: 'flex', gap: 4 }}>
+          {Array.from({ length: cols }).map((_, i) => <span key={i} style={{ width: 'clamp(10px, 2.6vw, 14px)', height: 'clamp(10px, 2.6vw, 14px)', borderRadius: '50%', background: TW_DOT }}/>)}
         </div>
-      </React.Fragment>
-    ))}
+      ))}
+    </div>
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '6px 0' }}>
+      {counts.map((n, r) => (
+        <span key={r} className="mono lm-edrop" style={{ animationDelay: `${0.5 + r * 0.85}s`, fontSize: 'clamp(14px, 2.6vw, 19px)', fontWeight: 800, color: r === counts.length - 1 ? '#1F7A4D' : T.ink2 }}>{n}</span>
+      ))}
+    </div>
   </div>
 );
-// Bonus vizuali — CONTENT.stway.bonus_kind bo'yicha (area / swap / none). Aksi holda faqat matn.
-const BonusViz = ({ c, show, lang }) => {
-  if (c.bonus_kind === 'area') return <AreaModel show={show}/>;
-  if (c.bonus_kind === 'swap' && c.bonus_ab) return <SwapViz a={c.bonus_ab[0]} b={c.bonus_ab[1]}/>;
-  return null;
-};
-const TwWayCol = ({ label, steps, upto, accent, lang, compact }) => {
-  const txt = (s) => (typeof s === 'string' ? s : (s[lang] || s.ru));
-  const last = steps.length - 1;
-  return (
-    <div className="lm-tw-col">
-      <span className={`lm-tw-head mono ${accent ? 'lm-tw-head-a' : ''}`}>{label}</span>
-      <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-        {steps.slice(0, last).map((s, i) => (upto > i
-          ? <span key={i} className="mono lm-tw-step lm-edrop">{txt(s)}</span>
-          : null))}
+// Yakuniy natija — yashil pilyulada (yig'ilgandan keyin ham qoladi).
+const TwFullWord = ({ text }) => (
+  <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '4px 14px', textAlign: 'center' }}>{text}</span>
+);
+// 2-usul (ikkilantirish): «3 × 2 = 6» kichik massiv bilan, keyin massiv IKKILANADI -> «6 × 2 = 12».
+const TwDblDrop = ({ steps, show2 }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)' }}>
+    {steps.map((s, k) => ((k === 0 || show2) && (
+      <div key={k} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)' }}>
+        <span style={{ display: 'flex', gap: 4 }}>
+          <TwMiniArr rows={s.rows} cols={s.cols} delay={0.1}/>
+          {s.dbl && <TwMiniArr rows={s.rows} cols={s.cols} delay={0.6} dot={TW_DOT2}/>}
+        </span>
+        <span className="mono lm-edrop" style={{ animationDelay: s.dbl ? '1.1s' : '0.5s', fontSize: 'clamp(16px, 3.2vw, 22px)', fontWeight: 800, color: T.ink }}>{s.expr}</span>
       </div>
-      {upto > last && <span className="mono lm-tw-step lm-edrop lm-tw-ans">{txt(steps[last])}</span>}
-    </div>
-  );
-};
-// stway — IKKI USUL + bashorat-darvoza + yuza-model bonus (kitob 21-bet uslubi).
+    )))}
+  </div>
+);
+// Bonus (o'rin almashish): avval 3×4 massiv, keyin burilgan 4×3 massiv lm-edrop bilan tushadi.
+const TwSwapDrop = ({ a, b, show2 }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 2vw, 16px)', flexWrap: 'wrap' }}>
+    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      <TwMiniArr rows={a} cols={b} delay={0.1}/>
+      <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: 800, color: T.ink2 }}>{a} × {b}</span>
+    </span>
+    {show2 && (
+      <>
+        <span className="mono lm-fadein" style={{ animationDelay: '0.5s', fontSize: 'clamp(18px, 3.4vw, 24px)', fontWeight: 800, color: '#1F7A4D' }}>=</span>
+        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <TwMiniArr rows={b} cols={a} delay={0.7}/>
+          <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: 800, color: T.ink2 }}>{b} × {a}</span>
+        </span>
+      </>
+    )}
+  </div>
+);
+// stway — IKKI USUL, Dars03 etalon skeleti: har usul ANIMATSION namoyish bilan, ovozga sinxron.
+// Oqim: 1-usul (teng qatorlar, massiv qatorma-qator) -> BASHORAT (Ha/Yo'q) -> 2-usul (ikkilantirish) -> ★ bonus (3×4 = 4×3).
 const TwoWayScreen = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3237,33 +3273,36 @@ const TwoWayScreen = (props) => {
   const sfx = useSfx();
   const audio = useAudio([
     brgSeg('stway', lang),
-    { id: 'tw_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
-    { id: 'tw_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null },
+    ...c.audio[lang].map((text, i) => ({ id: `tw_${i}`, text, trigger: 'after_previous', waits_for: null })),
     { id: 'tw_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
     ...c.audio2[lang].map((text, i) => ({ id: `tw2_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
   ]);
   const seg = audio.currentSegment;
-  const [m1, setM1] = useState(0);      // 1-usul bosqichi
-  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi
+  const [r1, setR1] = useState(-1);     // 1-usul bosqichi (tw_N)
+  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi (tw2_N)
   useEffect(() => {
     if (!seg) return;
-    let m;
-    const m1m = seg.match(/^tw_(\d+)$/); if (m1m) { const n = +m1m[1] + 1; setM1((v) => Math.max(v, n)); }
-    const m2m = seg.match(/^tw2_(\d+)$/); if (m2m) { const n = +m2m[1]; setR2((v) => Math.max(v, n)); }
+    const a = seg.match(/^tw_(\d+)$/); if (a) setR1((v) => Math.max(v, +a[1]));
+    const b = seg.match(/^tw2_(\d+)$/); if (b) setR2((v) => Math.max(v, +b[1]));
   }, [seg]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
   const ok = picked === c.check_ci;
   const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
-  const m1Done = all || m1 >= 2;
+  const m1Done = all || r1 >= c.audio[lang].length - 1;
   const askNow = m1Done && !ok;
-  const revealRef = useRevealScroll(ok, 500);
   const pick = (i) => {
     if (!canAct || ok || !m1Done) return;
     setPicked(i);
     if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
   };
-  const showBonus = ok && (all || r2 >= 2);
+  const showM1  = all || r1 >= 1;    // 1-usul yorlig'i
+  const showM1d = all || r1 >= 2;    // massiv qatorma-qator + sanoq (aytilganda)
+  const showM1w = all || r1 >= 3;    // natija-pilyula 3 × 4 = 12
+  const showM2d = all || r2 >= 1;    // ikkilantirish 1-bosqichi (3 × 2 = 6)
+  const showM2w = all || r2 >= 2;    // 2-bosqichi (6 × 2 = 12) + natija-pilyula
+  const showBonus  = ok && (all || r2 >= 4);
+  const showBonus2 = all || r2 >= 5; // burilgan 4×3 massiv
   const done = ok && (all || r2 >= c.audio2[lang].length - 1);
   // Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yig'iladi (Dars02 naqshi) — ekran skrolsiz sig'adi.
   const [compact, setCompact] = useState(false);
@@ -3278,8 +3317,11 @@ const TwoWayScreen = (props) => {
     const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
     return () => clearTimeout(id);
   }, [done, all]);
+  const revealRef = useRevealScroll(showBonus, 500);
   const canAdv = useAdvanceGate(done, audio);
   const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
+  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
+  const MText = ({ x }) => <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{x}</span>;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3290,13 +3332,29 @@ const TwoWayScreen = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
           <FrameFx/>
-          <span className="mono" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
-          <div className="lm-tw-grid">
-            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false} lang={lang} compact={compact}/>
-            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent lang={lang} compact={compact}/>}
-          </div>
+          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink }}>{c.expr}</span>
+          {showM1 && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
+              <MLabel x={t(c.m1_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m1_text)}/>
+                {showM1d && <TwRowsDrop rows={c.m1_rows} cols={c.m1_cols} counts={c.m1_counts}/>}
+              </div>
+              {showM1w && <TwFullWord text={c.full_exp}/>}
+            </div>
+          )}
+          {ok && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
+              <MLabel x={t(c.m2_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m2_text)}/>
+                {showM2d && <TwDblDrop steps={c.m2_steps} show2={showM2w}/>}
+              </div>
+              {showM2w && <TwFullWord text={c.m2_recap}/>}
+            </div>
+          )}
         </div>
         {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
         {askNow && (
@@ -3315,9 +3373,10 @@ const TwoWayScreen = (props) => {
           <div ref={revealRef} className="lm-tw-bonus lm-riseup">
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
             <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
-              <BonusViz c={c} show={r2 >= 3 || all} lang={lang}/>
               <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+              <TwSwapDrop a={c.bonus_ab[0]} b={c.bonus_ab[1]} show2={showBonus2}/>
             </div>
+            {bonusCompact && <TwFullWord text={c.bonus_recap}/>}
           </div>
         )}
         {done && (
@@ -5365,4 +5424,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 /* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
 @keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .lm-riseup { animation: lm-riseup-a 0.62s cubic-bezier(0.22, 1.1, 0.36, 1) both; }
+.lm-edrop { display: inline-block; animation: lm-edrop-a 0.72s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
+@keyframes lm-edrop-a { 0% { opacity: 0; transform: translateY(-16px) scale(0.72); } 62% { transform: translateY(3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lm-edrop { animation: none; } }
 `;

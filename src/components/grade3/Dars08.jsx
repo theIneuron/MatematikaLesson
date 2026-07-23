@@ -1101,40 +1101,71 @@ const CONTENT = {
     lead: { ru: 'Место меньшего знака решает: прибавить или отнять.', uz: "Kichik belgining o'rni hal qiladi: qo'shish yoki ayirish." },
     expr: { ru: 'XII и IX', uz: 'XII va IX' },
     m1_label: { ru: 'Правило 1 — меньший справа, прибавляем', uz: "1-qoida — kichik o'ngda, qo'shamiz" },
-    m1_steps: ['XII', '10 + 1 + 1', '12'],
+    m1_text: { ru: 'Разберём XII по знакам.', uz: 'XII ni belgilarga ajratamiz.' },
+    m1_vals: [
+      { s: 'X', v: '10' },
+      { s: 'I', v: '1' },
+      { s: 'I', v: '1' }
+    ],
+    m1_tag: { ru: 'меньшие СПРАВА → прибавляем', uz: "kichiklar O'NGDA → qo'shamiz" },
+    m1_parts: ['10', '1', '1'],
+    m1_op: '+',
+    m1_sum: '12',
+    m1_result: 'XII = 12',
     m2_label: { ru: 'Правило 2 — меньший слева, вычитаем', uz: "2-qoida — kichik chapda, ayiramiz" },
-    m2_steps: ['IX', '10 − 1', '9'],
+    m2_text: { ru: 'Разберём IX по знакам.', uz: 'IX ni belgilarga ajratamiz.' },
+    m2_vals: [
+      { s: 'I', v: '1' },
+      { s: 'X', v: '10' }
+    ],
+    m2_tag: { ru: 'меньший СЛЕВА → вычитаем', uz: 'kichik CHAPDA → ayiramiz' },
+    m2_parts: ['10', '1'],
+    m2_op: '−',
+    m2_sum: '9',
+    m2_result: 'IX = 9',
     check_q: { ru: 'Меняет ли ответ место меньшего знака?', uz: "Kichik belgining o'rni javobni o'zgartiradimi?" },
     check_opts: ['Да, меняет', 'Нет, не меняет'],
     check_opts_uz: ["Ha, o'zgartiradi", "Yo'q, o'zgartirmaydi"],
     check_ci: 0,
     check_ok: { ru: 'Верно. Справа прибавляют, слева вычитают.', uz: "To'g'ri. O'ng tomonda qo'shiladi, chap tomonda ayiriladi." },
     check_no: { ru: 'Сравни. IX это девять, а XI это одиннадцать. Знаки те же, а место другое, и число другое. Попробуй ещё.', uz: "Solishtiring. IX to'qqizga teng, XI esa o'n birga. Belgilar bir xil, o'rni boshqa, son ham boshqa. Yana urinib ko'ring." },
-    bonus_kind: 'note',
     bonus_label: { ru: 'Заметка — где они нужны сегодня', uz: "Eslatma — ular bugun qayerda kerak" },
     bonus_text: { ru: 'Римские цифры и сегодня можно увидеть на циферблате часов, например VI или XII, и в номерах месяцев. Но для больших чисел удобнее цифры аль-Хорезми, от нуля до девяти, — те, которыми мы пишем каждый день.', uz: "Rim raqamlarini bugun ham soat siferblatida, masalan VI yoki XII, va oy raqamlarida ko'rish mumkin. Lekin katta sonlar uchun al-Xorazmiy raqamlari, noldan to'qqizgacha, ancha qulay — biz har kuni shu raqamlar bilan yozamiz." },
+    bonus_months_label: { ru: 'месяцы', uz: 'oylar' },
+    bonus_months: ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'],
+    bonus_recap: { ru: 'VI · XII — на часах', uz: 'VI · XII — soatda' },
     audio: {
       ru: [
-        'Римские цифры читаются по двум правилам. С какой стороны от большего знака стоит меньший, то и решает ответ. Возьмём два примера. Первый это икс, один, один. Второй это один, икс.',
-        'Первое правило. Если меньший знак стоит справа от большего, его прибавляют. Икс равен десяти. За ним стоят один и ещё один. Прибавим к десяти один, потом ещё один, и получится двенадцать.'
+        'Римские цифры читаются по двум правилам. Место меньшего знака решает всё. Возьмём два примера. Первый это икс, один, один. Второй это один, икс.',
+        'Первое правило. Если меньший знак стоит справа от большего, его прибавляют. Разберём первый пример по знакам.',
+        'Смотри. Икс это десять. За ним стоит один, и ещё один. Оба меньших знака стоят справа от икса. Значит, прибавляем.',
+        'Прибавим к десяти один, потом ещё один. Получилось двенадцать. Икс, один, один читается как двенадцать. Прочитали!'
       ],
       uz: [
-        "Rim raqamlarini ikki qoida bilan o'qiymiz. Kichik belgi katta belgidan qaysi tomonda turgani javobni belgilaydi. Ikkita misol olamiz. Birinchisi iks, bir, bir. Ikkinchisi bir, iks.",
-        "Birinchi qoida. Kichik belgi kattadan o'ngda tursa, qo'shiladi. Iks o'nga teng. Undan keyin bir va yana bir turibdi. O'nga birni, so'ng yana birni qo'shsak, o'n ikki hosil bo'ladi."
+        "Rim raqamlari ikki qoida bilan o'qiladi. Kichik belgining o'rni hammasini hal qiladi. Ikkita misol olamiz. Birinchisi iks, bir, bir. Ikkinchisi bir, iks.",
+        "Birinchi qoida. Kichik belgi kattadan o'ngda tursa, u qo'shiladi. Birinchi misolni belgilarga ajratamiz.",
+        "Qarang. Iks bu o'n. Undan keyin bir va yana bir turibdi. Ikkala kichik belgi iksdan o'ngda. Demak, qo'shamiz.",
+        "O'nga birni, so'ng yana birni qo'shamiz. O'n ikki chiqdi. Iks, bir, bir o'n ikki deb o'qiladi. O'qidik!"
       ]
     },
     audio2: {
       ru: [
-        'Верно. Место меньшего знака и правда меняет ответ. Эти два правила, сложение и вычитание, и есть суть римской системы. Теперь посмотрим второе правило.',
-        'Второе правило. Если меньший знак стоит слева от большего, его вычитают. На этот раз один стоит слева от икса. Вычтем из десяти один, останется девять.',
-        'Теперь любопытная заметка. Римские цифры используют и сегодня. Их можно встретить на циферблате часов и в номерах месяцев.',
-        'Но для больших чисел римские цифры неудобны. Большие числа проще записать цифрами аль-Хорезми. Это цифры от нуля до девяти, те самые, которыми мы пишем каждый день.'
+        'Верно! Место меньшего знака и правда меняет ответ. Теперь второе правило.',
+        'Второе правило. Если меньший знак стоит слева от большего, его вычитают. Разберём второй пример по знакам.',
+        'Смотри. Один это один. Икс это десять. На этот раз меньший знак стоит слева от икса. Значит, вычитаем.',
+        'Вычтем из десяти один. Осталось девять. Один, икс читается как девять.',
+        'А теперь любопытная заметка. Римские цифры живут и сегодня. Посмотри на циферблат часов. Наверху стоит двенадцать, внизу шесть, и оба числа записаны римскими знаками.',
+        'Римскими знаками записывают и номера месяцев, с первого по двенадцатый. Но для больших чисел удобнее цифры аль-Хорезми, от нуля до девяти. Ими мы пишем каждый день.',
+        'Запомни. Меньший знак справа прибавляют, меньший знак слева вычитают. Молодец!'
       ],
       uz: [
-        "To'g'ri. Kichik belgining o'rni javobni haqiqatan o'zgartiradi. Mana shu ikki qoida, qo'shish va ayirish, rim sistemasining mag'zi. Endi ikkinchi qoidani ko'ramiz.",
-        "Ikkinchi qoida. Kichik belgi kattadan chapda tursa, ayiriladi. Bu safar bir iksning chap tomonida turibdi. O'ndan birni ayirsak, to'qqiz qoladi.",
-        "Endi qiziq eslatma. Rim raqamlari bugungi kunda ham ishlatiladi. Ularni soat siferblatida va oylarning raqamlarida ko'rishingiz mumkin.",
-        "Ammo katta sonlar uchun rim raqamlari noqulay. Katta sonlarni al-Xorazmiy raqamlari bilan yozgan osonroq. Bular noldan to'qqizgacha bo'lgan raqamlar, biz har kuni ishlatadigan raqamlar."
+        "To'g'ri! Kichik belgining o'rni javobni haqiqatan o'zgartiradi. Endi ikkinchi qoida.",
+        "Ikkinchi qoida. Kichik belgi kattadan chapda tursa, u ayiriladi. Ikkinchi misolni belgilarga ajratamiz.",
+        "Qarang. Bir bu bir. Iks bu o'n. Bu safar kichik belgi iksdan chapda turibdi. Demak, ayiramiz.",
+        "O'ndan birni ayiramiz. To'qqiz qoldi. Bir, iks to'qqiz deb o'qiladi.",
+        "Endi qiziq eslatma. Rim raqamlari bugun ham yashaydi. Soat siferblatiga qarang. Tepada o'n ikki, pastda olti turibdi, ikkalasi rim belgilari bilan yozilgan.",
+        "Rim belgilari bilan oy raqamlari ham yoziladi, birinchidan o'n ikkinchigacha. Lekin katta sonlar uchun al-Xorazmiy raqamlari qulayroq, noldan to'qqizgacha. Biz har kuni ular bilan yozamiz.",
+        "Yodda tuting. O'ngdagi kichik belgi qo'shiladi, chapdagi kichik belgi ayiriladi. Barakalla!"
       ]
     }
   },
@@ -1365,7 +1396,7 @@ const CONTENT = {
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  stway: { ru: 'Соберём оба способа вместе.', uz: "Ikki usulni birga yig'amiz." },
+  stway: { ru: 'Соберём оба правила вместе.', uz: "Ikki qoidani birga yig'amiz." },
   s1:  { ru: 'Вспомним про место цифры.', uz: 'Raqam o\'rni haqida eslaymiz.' },
   s2:  { ru: 'Выучим знаки.', uz: 'Belgilarni o\'rganamiz.' },
   s3:  { ru: 'Первое правило — сложение.', uz: 'Birinchi qoida — qo\'shish.' },
@@ -3122,54 +3153,70 @@ const Screen11 = (props) => {
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
 
-// Yuza modeli (bonus): balandlik 4, eni 20+30 — ikki bo'lakka kesiladi (80 va 120).
-const AreaModel = ({ show }) => (
-  <svg viewBox="0 0 260 90" style={{ width: 'min(300px, 92%)', height: 'auto' }} aria-hidden="true">
-    <rect x="20" y="20" width="140" height="50" fill="#FBE9E7" stroke="#C0392B" strokeWidth="1.6"/>
-    <rect x="160" y="20" width="80" height="50" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="1.6"/>
-    {show && <line x1="160" y1="14" x2="160" y2="76" stroke="#8A8178" strokeWidth="1.4" strokeDasharray="3 3" className="lm-fadein"/>}
-    <text x="90" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">{show ? '80' : ''}</text>
-    <text x="200" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">{show ? '120' : ''}</text>
-    <text x="90" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">20</text>
-    <text x="200" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">30</text>
-    <text x="9" y="49" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace" transform="rotate(-90 9 45)">4</text>
-  </svg>
-);
-// O'rin almashtirish bonusi (Dars10): a×b = b×a — ikki massiv yonma-yon.
-const SwapViz = ({ a, b }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
-    {[[a, b], [b, a]].map(([r, cc], k) => (
-      <React.Fragment key={k}>
-        {k === 1 && <span className="mono" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D' }}>=</span>}
-        <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cc}, 1fr)`, gap: 2, padding: 4, background: '#152342', borderRadius: 8 }}>
-          {Array.from({ length: r * cc }).map((_, i) => <span key={i} style={{ width: 'clamp(6px, 1.8vw, 9px)', height: 'clamp(6px, 1.8vw, 9px)', borderRadius: '50%', background: '#FFC23C' }}/>)}
+// stway kartalari rangi — belgi pozitsiyasi bo'yicha (Dars03 TW_COLS naqshi).
+const TW_COLS = ['#C0392B', '#1F7A4D', '#019ACB'];
+// Rim belgisi kartalari tushadi (X, I, I), har karta ostiga QIYMATI tushadi (10, 1, 1),
+// oxirida o'rin-belgisi (kichik O'NGDA / CHAPDA) chiqadi.
+const TwRomDrop = ({ vals, tag }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+    <div style={{ display: 'flex', gap: 'clamp(10px, 2.6vw, 20px)', justifyContent: 'center' }}>
+      {vals.map((w, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: TW_COLS[i], border: `2.5px solid ${TW_COLS[i]}`, borderRadius: 10, minWidth: 'clamp(34px, 8vw, 46px)', textAlign: 'center', padding: '3px 6px', background: T.paper }}>{w.s}</span>
+          <span className="mono lm-edrop" style={{ animationDelay: `${0.5 + i * 0.85}s`, fontSize: 'clamp(14px, 2.4vw, 19px)', fontWeight: 800, color: TW_COLS[i] }}>{w.v}</span>
         </div>
-      </React.Fragment>
-    ))}
+      ))}
+    </div>
+    <span className="mono lm-edrop" style={{ animationDelay: `${0.4 + vals.length * 0.85}s`, fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 700, color: T.accent, border: `1.5px dashed ${T.accent}`, borderRadius: 8, padding: '2px 10px' }}>{tag}</span>
   </div>
 );
-// Bonus vizuali — CONTENT.stway.bonus_kind bo'yicha (area / swap / none). Aksi holda faqat matn.
-const BonusViz = ({ c, show, lang }) => {
-  if (c.bonus_kind === 'area') return <AreaModel show={show}/>;
-  if (c.bonus_kind === 'swap' && c.bonus_ab) return <SwapViz a={c.bonus_ab[0]} b={c.bonus_ab[1]}/>;
-  return null;
-};
-const TwWayCol = ({ label, steps, upto, accent, lang, compact }) => {
-  const txt = (s) => (typeof s === 'string' ? s : (s[lang] || s.ru));
-  const last = steps.length - 1;
-  return (
-    <div className="lm-tw-col">
-      <span className={`lm-tw-head mono ${accent ? 'lm-tw-head-a' : ''}`}>{label}</span>
-      <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-        {steps.slice(0, last).map((s, i) => (upto > i
-          ? <span key={i} className="mono lm-tw-step lm-edrop">{txt(s)}</span>
-          : null))}
-      </div>
-      {upto > last && <span className="mono lm-tw-step lm-edrop lm-tw-ans">{txt(steps[last])}</span>}
+// Yakuniy natija — yashil pilyulada (XII = 12); yig'ilgandan keyin ham qoladi.
+const TwFullWord = ({ text }) => (
+  <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '4px 14px', textAlign: 'center' }}>{text}</span>
+);
+// Amal qatori: 10 + 1 + 1 (yoki 10 − 1) navbat bilan tushadi, keyin = natija.
+const TwOpRow = ({ parts, op, sum, showSum }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(4px, 1.2vw, 8px)' }}>
+    {parts.map((p, i) => (
+      <React.Fragment key={i}>
+        {i > 0 && <span className="mono lm-fadein" style={{ animationDelay: `${i * 0.85 - 0.2}s`, fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: T.ink2 }}>{op}</span>}
+        <span className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: TW_COLS[i] }}>{p}</span>
+      </React.Fragment>
+    ))}
+    {showSum && (
+      <>
+        <span className="mono lm-fadein" style={{ fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: T.ink2 }}>=</span>
+        <span className="mono lm-edrop" style={{ animationDelay: '0.35s', fontSize: 'clamp(20px, 4.2vw, 30px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '2px 12px' }}>{sum}</span>
+      </>
+    )}
+  </div>
+);
+// Bonus: sodda soat siferblati — XII tepada, VI pastda (rim belgilar bugun ham yashaydi).
+const TwClockFace = () => (
+  <svg viewBox="0 0 120 120" style={{ width: 'min(150px, 44%)', height: 'auto' }} aria-hidden="true" className="lm-fadein">
+    <circle cx="60" cy="60" r="54" fill="#FFFDF7" stroke="#8A8178" strokeWidth="2.5"/>
+    <text x="60" y="24" textAnchor="middle" fontSize="14" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">XII</text>
+    <text x="60" y="110" textAnchor="middle" fontSize="14" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">VI</text>
+    <text x="104" y="65" textAnchor="middle" fontSize="11" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">III</text>
+    <text x="16" y="65" textAnchor="middle" fontSize="11" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">IX</text>
+    <line x1="60" y1="60" x2="60" y2="34" stroke="#3A3530" strokeWidth="3.2" strokeLinecap="round"/>
+    <line x1="60" y1="60" x2="80" y2="66" stroke="#3A3530" strokeWidth="2.2" strokeLinecap="round"/>
+    <circle cx="60" cy="60" r="3.2" fill="#3A3530"/>
+  </svg>
+);
+// Bonus: oy raqamlari qatori (I..XII) — IX va XII (darsdagi ikki misol) aksentda.
+const TwMonthRow = ({ months, label }) => (
+  <div className="lm-riseup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+    <span className="mono" style={{ fontSize: 'clamp(10px, 1.4vw, 12px)', color: T.ink2, fontWeight: 700 }}>{label}</span>
+    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
+      {months.map((m, i) => (
+        <span key={i} className="mono lm-edrop" style={{ animationDelay: `${i * 0.08}s`, fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 800, color: m === 'XII' || m === 'IX' ? T.accent : T.ink2, border: `1.2px solid ${T.ink3}`, borderRadius: 6, padding: '1px 5px', background: T.paper }}>{m}</span>
+      ))}
     </div>
-  );
-};
-// stway — IKKI USUL + bashorat-darvoza + yuza-model bonus (kitob 21-bet uslubi).
+  </div>
+);
+// stway — IKKI QOIDA, Dars03 skeleti: har qoida ANIMATSION namoyish bilan, ovozga sinxron.
+// Oqim: 1-qoida (XII, qo'shish) -> BASHORAT (Ha/Yo'q) -> 2-qoida (IX, ayirish) -> ★ bonus (soat + oylar).
 const TwoWayScreen = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3177,33 +3224,36 @@ const TwoWayScreen = (props) => {
   const sfx = useSfx();
   const audio = useAudio([
     brgSeg('stway', lang),
-    { id: 'tw_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
-    { id: 'tw_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null },
+    ...c.audio[lang].map((text, i) => ({ id: `tw_${i}`, text, trigger: 'after_previous', waits_for: null })),
     { id: 'tw_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
     ...c.audio2[lang].map((text, i) => ({ id: `tw2_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
   ]);
   const seg = audio.currentSegment;
-  const [m1, setM1] = useState(0);      // 1-usul bosqichi
-  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi
+  const [r1, setR1] = useState(-1);     // 1-qoida bosqichi (tw_N)
+  const [r2, setR2] = useState(-1);     // 2-qoida/bonus bosqichi (tw2_N)
   useEffect(() => {
     if (!seg) return;
-    let m;
-    const m1m = seg.match(/^tw_(\d+)$/); if (m1m) { const n = +m1m[1] + 1; setM1((v) => Math.max(v, n)); }
-    const m2m = seg.match(/^tw2_(\d+)$/); if (m2m) { const n = +m2m[1]; setR2((v) => Math.max(v, n)); }
+    const a = seg.match(/^tw_(\d+)$/); if (a) setR1((v) => Math.max(v, +a[1]));
+    const b = seg.match(/^tw2_(\d+)$/); if (b) setR2((v) => Math.max(v, +b[1]));
   }, [seg]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
   const ok = picked === c.check_ci;
   const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
-  const m1Done = all || m1 >= 2;
+  const m1Done = all || r1 >= c.audio[lang].length - 1;
   const askNow = m1Done && !ok;
-  const revealRef = useRevealScroll(ok, 500);
   const pick = (i) => {
     if (!canAct || ok || !m1Done) return;
     setPicked(i);
     if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
   };
-  const showBonus = ok && (all || r2 >= 2);
+  const showM1  = all || r1 >= 1;    // 1-qoida yorlig'i + matni
+  const showM1d = all || r1 >= 2;    // XII kartalari + qiymatlar + o'ngda-belgisi
+  const showM1w = all || r1 >= 3;    // qo'shish qatori + XII = 12 pilyulasi
+  const showM2d = all || r2 >= 2;    // IX kartalari + chapda-belgisi
+  const showM2w = all || r2 >= 3;    // ayirish qatori + IX = 9 pilyulasi
+  const showBonus  = ok && (all || r2 >= 4);   // soat siferblati
+  const showBonus2 = all || r2 >= 5;           // oy raqamlari qatori
   const done = ok && (all || r2 >= c.audio2[lang].length - 1);
   // Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yig'iladi (Dars02 naqshi) — ekran skrolsiz sig'adi.
   const [compact, setCompact] = useState(false);
@@ -3218,8 +3268,11 @@ const TwoWayScreen = (props) => {
     const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
     return () => clearTimeout(id);
   }, [done, all]);
+  const revealRef = useRevealScroll(showBonus, 500);
   const canAdv = useAdvanceGate(done, audio);
   const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
+  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
+  const MText = ({ x }) => <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{x}</span>;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3230,15 +3283,33 @@ const TwoWayScreen = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
           <FrameFx/>
-          <span className="mono" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
-          <div className="lm-tw-grid">
-            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false} lang={lang} compact={compact}/>
-            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent lang={lang} compact={compact}/>}
-          </div>
+          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
+          {showM1 && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
+              <MLabel x={t(c.m1_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m1_text)}/>
+                {showM1d && <TwRomDrop vals={c.m1_vals} tag={t(c.m1_tag)}/>}
+                {showM1w && <TwOpRow parts={c.m1_parts} op={c.m1_op} sum={c.m1_sum} showSum/>}
+              </div>
+              {showM1w && <TwFullWord text={c.m1_result}/>}
+            </div>
+          )}
+          {ok && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
+              <MLabel x={t(c.m2_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m2_text)}/>
+                {showM2d && <TwRomDrop vals={c.m2_vals} tag={t(c.m2_tag)}/>}
+                {showM2w && <TwOpRow parts={c.m2_parts} op={c.m2_op} sum={c.m2_sum} showSum/>}
+              </div>
+              {showM2w && <TwFullWord text={c.m2_result}/>}
+            </div>
+          )}
         </div>
-        {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
+        {/* Bashorat-darvoza: 1-qoidadan keyin savol; javob bergach 2-qoida ochiladi. */}
         {askNow && (
           <div className="lm-q-accent fade-up">
             {t(c.check_q)}
@@ -3255,9 +3326,11 @@ const TwoWayScreen = (props) => {
           <div ref={revealRef} className="lm-tw-bonus lm-riseup">
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
             <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
-              <BonusViz c={c} show={r2 >= 3 || all} lang={lang}/>
               <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+              <TwClockFace/>
+              {showBonus2 && <TwMonthRow months={c.bonus_months} label={t(c.bonus_months_label)}/>}
             </div>
+            {bonusCompact && <TwFullWord text={t(c.bonus_recap)}/>}
           </div>
         )}
         {done && (
@@ -5302,6 +5375,9 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .tw-collapse { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-height: 340px; opacity: 1; overflow: hidden; transition: max-height 1.1s ease, opacity 0.9s ease; }
 .tw-collapsed { max-height: 0; opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .tw-collapse { transition: none; } }
+.lm-edrop { display: inline-block; animation: lm-edrop-a 0.72s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
+@keyframes lm-edrop-a { 0% { opacity: 0; transform: translateY(-16px) scale(0.72); } 62% { transform: translateY(3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lm-edrop { animation: none; } }
 /* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
 @keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .lm-riseup { animation: lm-riseup-a 0.62s cubic-bezier(0.22, 1.1, 0.36, 1) both; }

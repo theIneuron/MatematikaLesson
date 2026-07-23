@@ -1138,42 +1138,68 @@ const CONTENT = {
   stway: {
     eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
     lead: { ru: 'Одна сумма — два пути к ответу.', uz: "Bitta yig'indi — javobga ikki yo'l." },
-    expr: { ru: '(90 + 60) : 3', uz: '(90 + 60) : 3' },
+    expr: '(90 + 60) : 3',
     m1_label: { ru: 'Способ 1 — сначала сумма', uz: "1-usul — avval yig'indi" },
-    m1_steps: ['(90 + 60) : 3', '150 : 3', '50'],
-    m2_label: { ru: 'Способ 2 — по частям', uz: "2-usul — bo'laklab" },
-    m2_steps: ['90 : 3 + 60 : 3', '30 + 20', '50'],
-    check_q: { ru: 'Мы получили 50. Можно ли прийти к тому же ответу другим путём?', uz: "50 ni topdik. Xuddi shu javobga boshqa yo'l bilan kelsa bo'ladimi?" },
+    m1_text: { ru: 'Сначала считаем сумму в скобках, потом делим.', uz: "Avval qavs ichidagi yig'indini hisoblaymiz, keyin bo'lamiz." },
+    m1_rows: [
+      { pre: '(', acc: '90 + 60', post: ') : 3' },
+      { t: '150 : 3' }
+    ],
+    m1_recap: '(90 + 60) : 3 = 50',
+    check_q: { ru: 'Мы получили пятьдесят. Можно ли прийти к тому же ответу другим путём?', uz: "Ellikni topdik. Xuddi shu javobga boshqa yo'l bilan ham kelsa bo'ladimi?" },
     check_opts: ['Да, можно', 'Нет, только так'],
     check_opts_uz: ['Ha, mumkin', "Yo'q, faqat shunday"],
     check_ci: 0,
-    check_ok: { ru: 'Верно. Второй путь тоже приводит к пятидесяти.', uz: "To'g'ri. Ikkinchi yo'l ham ellikka olib keladi." },
-    check_no: { ru: 'Посмотри: ту же сумму можно разделить иначе. Попробуй ещё.', uz: "Qarang: o'sha yig'indini boshqacha bo'lsa bo'ladi. Yana urinib ko'ring." },
-    bonus_kind: 'note',
+    check_ok: { ru: 'Верно. Оба пути приводят к пятидесяти.', uz: "To'g'ri. Ikkala yo'l ham ellikka olib keladi." },
+    check_no: { ru: 'Посмотри: ту же сумму можно разделить по частям. Попробуй ещё.', uz: "Qarang: o'sha yig'indini bo'laklab ham bo'lish mumkin. Yana urinib ko'ring." },
+    m2_label: { ru: 'Способ 2 — по частям', uz: "2-usul — bo'laklab" },
+    m2_text: { ru: 'Делим каждое слагаемое отдельно, потом складываем.', uz: "Har bir qo'shiluvchini alohida bo'lamiz, keyin qo'shamiz." },
+    m2_parts: [
+      { e: '90 : 3', v: '30' },
+      { e: '60 : 3', v: '20' }
+    ],
+    m2_recap: '90 : 3 + 60 : 3 = 50',
     bonus_label: { ru: 'Бонус — удобные части', uz: "Bonus — qulay bo'laklar" },
-    bonus_text: { ru: 'Возьми 42 и раздели на 3. Привычные 40 и 2 не годятся: 2 на 3 не делится. Разбей иначе — на 30 и 12. Каждая часть делится: 30 даёт 10, а 12 даёт 4. Вместе 14. Главное — каждая часть должна делиться.', uz: "42 ni 3 ga bo'ling. Odatdagi 40 va 2 to'g'ri kelmaydi: 2 ni 3 ga bo'lib bo'lmaydi. Boshqa bo'laklarga ajrating — 30 va 12. Har bo'lak bo'linadi: 30 dan 10, 12 dan esa 4. Birga 14. Eng muhimi — har bo'lak bo'linishi shart." },
+    bonus_text: { ru: 'Каждая часть должна делиться без остатка.', uz: "Har bir bo'lak qoldiqsiz bo'linishi shart." },
+    bonus_head: '42 : 3',
+    bonus_bad: '40 + 2',
+    bonus_bad_why: { ru: 'не годится', uz: 'mos emas' },
+    bonus_good: '30 + 12',
+    bonus_sub: '10 + 4',
+    bonus_ans: '14',
+    bonus_recap: '42 : 3 = 14',
     audio: {
       ru: [
         'Одну и ту же сумму можно разделить двумя путями. Девяносто плюс шестьдесят, и всё это делим на три.',
-        'Первый способ. Сначала считаем сумму в скобках. Девяносто плюс шестьдесят будет сто пятьдесят. Теперь сто пятьдесят делим на три, выходит пятьдесят.'
+        'Первый способ. Сначала считаем сумму в скобках, потом делим её на три.',
+        'Девяносто плюс шестьдесят будет сто пятьдесят. Осталось сто пятьдесят разделить на три.',
+        'Сто пятьдесят делим на три, выходит пятьдесят. Первый путь пройден!'
       ],
       uz: [
         "Bitta yig'indini ikki yo'l bilan bo'lish mumkin. To'qson qo'shuv oltmish, hammasini uchga bo'lamiz.",
-        "Birinchi usul. Avval qavs ichidagi yig'indini hisoblaymiz. To'qson qo'shuv oltmish teng bir yuz ellik. Endi bir yuz ellikni uchga bo'lsak, ellik chiqadi."
+        "Birinchi usul. Avval qavs ichidagi yig'indini hisoblaymiz, keyin uchga bo'lamiz.",
+        "To'qson qo'shuv oltmish bir yuz ellik bo'ladi. Endi bir yuz ellikni uchga bo'lamiz.",
+        "Bir yuz ellikni uchga bo'lsak, ellik chiqadi. Birinchi yo'l tayyor!"
       ]
     },
     audio2: {
       ru: [
-        'Верно. Есть и второй путь, по частям. Делим каждое слагаемое отдельно. Девяносто делим на три, будет тридцать. Шестьдесят делим на три, будет двадцать.',
-        'Тридцать плюс двадцать снова пятьдесят. Ответ один и тот же.',
-        'А теперь важное замечание. Возьмём сорок два разделить на три. Привычные сорок и два тут не годятся, ведь два на три не делится.',
-        'Разделим иначе, на тридцать и двенадцать. Тридцать делим на три, будет десять. Двенадцать делим на три, будет четыре. Вместе четырнадцать. Значит, каждая часть должна делиться.'
+        'Верно! Второй способ, по частям. Делим каждое слагаемое отдельно.',
+        'Девяносто делим на три, будет тридцать. Шестьдесят делим на три, будет двадцать.',
+        'Складываем. Тридцать плюс двадцать снова пятьдесят. Ответ тот же!',
+        'Сумму целиком или по частям, ответ один. Выбирай путь, который удобнее.',
+        'А в качестве бонуса покажу удобные части. Возьмём сорок два разделить на три. Привычные сорок и два не годятся, ведь два на три не делится.',
+        'Разобьём иначе, на тридцать и двенадцать. Тридцать делим на три, будет десять. Двенадцать делим на три, будет четыре. Вместе четырнадцать.',
+        'Запомни. Каждая часть должна делиться без остатка. Молодец!'
       ],
       uz: [
-        "To'g'ri. Ikkinchi yo'l ham bor, bo'laklab. Har bir qo'shiluvchini alohida bo'lamiz. To'qsonni uchga bo'lsak, o'ttiz. Oltmishni uchga bo'lsak, yigirma.",
-        "O'ttiz qo'shuv yigirma yana ellik. Javob bir xil.",
-        "Endi muhim eslatma. Qirq ikkini uchga bo'lamiz. Odatdagi qirq va ikki bu yerda to'g'ri kelmaydi, chunki ikkini uchga bo'lib bo'lmaydi.",
-        "Boshqacha bo'lamiz, o'ttiz va o'n ikkiga. O'ttizni uchga bo'lsak, o'n. O'n ikkini uchga bo'lsak, to'rt. Birga o'n to'rt. Demak, har bo'lak bo'linishi shart."
+        "To'g'ri! Ikkinchi usul, bo'laklab. Har bir qo'shiluvchini alohida bo'lamiz.",
+        "To'qsonni uchga bo'lsak, o'ttiz bo'ladi. Oltmishni uchga bo'lsak, yigirma bo'ladi.",
+        "Qo'shamiz. O'ttiz qo'shuv yigirma yana ellik. Javob xuddi o'sha!",
+        "Yig'indini butunligicha yoki bo'laklab, javob bitta. Sizga qulay yo'lni tanlang.",
+        "Bonus tariqasida qulay bo'laklarni ko'rsataman. Qirq ikkini uchga bo'lamiz. Odatdagi qirq va ikki mos emas, chunki ikkini uchga bo'lib bo'lmaydi.",
+        "Boshqacha ajratamiz, o'ttiz va o'n ikkiga. O'ttizni uchga bo'lsak, o'n. O'n ikkini uchga bo'lsak, to'rt. Birga o'n to'rt.",
+        "Yodda tuting. Har bir bo'lak qoldiqsiz bo'linishi kerak. Barakalla!"
       ]
     }
   },
@@ -1350,7 +1376,7 @@ const CONTENT = {
 
 // Ekranlararo ko'priklar
 const BRIDGES = {
-  stway: { ru: 'Соберём оба способа вместе.', uz: "Ikki usulni birga yig'amiz." },
+  stway: { ru: 'Один пример, два пути.', uz: "Bitta misol, ikki yo'l." },
   s1: { ru: 'Посмотрим на урожай внимательнее.', uz: "Hosilga diqqat bilan qaraymiz." },
   s2: { ru: 'Начнём с большой кучки.', uz: "Katta uyumdan boshlaymiz." },
   s3: { ru: 'Теперь маленькая кучка.', uz: "Endi kichik uyum." },
@@ -3202,54 +3228,60 @@ const Screen13 = (props) => {
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
 
-// Yuza modeli (bonus): balandlik 4, eni 20+30 — ikki bo'lakka kesiladi (80 va 120).
-const AreaModel = ({ show }) => (
-  <svg viewBox="0 0 260 90" style={{ width: 'min(300px, 92%)', height: 'auto' }} aria-hidden="true">
-    <rect x="20" y="20" width="140" height="50" fill="#FBE9E7" stroke="#C0392B" strokeWidth="1.6"/>
-    <rect x="160" y="20" width="80" height="50" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="1.6"/>
-    {show && <line x1="160" y1="14" x2="160" y2="76" stroke="#8A8178" strokeWidth="1.4" strokeDasharray="3 3" className="lm-fadein"/>}
-    <text x="90" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">{show ? '80' : ''}</text>
-    <text x="200" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">{show ? '120' : ''}</text>
-    <text x="90" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">20</text>
-    <text x="200" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">30</text>
-    <text x="9" y="49" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace" transform="rotate(-90 9 45)">4</text>
-  </svg>
-);
-// O'rin almashtirish bonusi (Dars10): a×b = b×a — ikki massiv yonma-yon.
-const SwapViz = ({ a, b }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
-    {[[a, b], [b, a]].map(([r, cc], k) => (
-      <React.Fragment key={k}>
-        {k === 1 && <span className="mono" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D' }}>=</span>}
-        <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cc}, 1fr)`, gap: 2, padding: 4, background: '#152342', borderRadius: 8 }}>
-          {Array.from({ length: r * cc }).map((_, i) => <span key={i} style={{ width: 'clamp(6px, 1.8vw, 9px)', height: 'clamp(6px, 1.8vw, 9px)', borderRadius: '50%', background: '#FFC23C' }}/>)}
-        </div>
-      </React.Fragment>
+// stway ranglari — 1-qo'shiluvchi (90) va 2-qo'shiluvchi (60) uchun.
+const TW_COLS = ['#C0392B', '#1F7A4D'];
+// 1-usul (avval yig'indi): bosqich qatorlari birma-bir tushadi; qavs ichi 1-bosqichda aksentda.
+const TwM1Drop = ({ rows }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px, 1vw, 8px)' }}>
+    {rows.map((r, i) => (
+      <span key={i} className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(18px, 3.6vw, 26px)', fontWeight: 800, color: T.ink }}>
+        {r.acc ? <>{r.pre}<span style={{ color: T.accent, background: '#FFF3E9', borderRadius: 6, padding: '0 4px' }}>{r.acc}</span>{r.post}</> : r.t}
+      </span>
     ))}
   </div>
 );
-// Bonus vizuali — CONTENT.stway.bonus_kind bo'yicha (area / swap / none). Aksi holda faqat matn.
-const BonusViz = ({ c, show, lang }) => {
-  if (c.bonus_kind === 'area') return <AreaModel show={show}/>;
-  if (c.bonus_kind === 'swap' && c.bonus_ab) return <SwapViz a={c.bonus_ab[0]} b={c.bonus_ab[1]}/>;
-  return null;
-};
-const TwWayCol = ({ label, steps, upto, accent, lang, compact }) => {
-  const txt = (s) => (typeof s === 'string' ? s : (s[lang] || s.ru));
-  const last = steps.length - 1;
-  return (
-    <div className="lm-tw-col">
-      <span className={`lm-tw-head mono ${accent ? 'lm-tw-head-a' : ''}`}>{label}</span>
-      <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-        {steps.slice(0, last).map((s, i) => (upto > i
-          ? <span key={i} className="mono lm-tw-step lm-edrop">{txt(s)}</span>
-          : null))}
-      </div>
-      {upto > last && <span className="mono lm-tw-step lm-edrop lm-tw-ans">{txt(steps[last])}</span>}
+// Yakuniy natija — yashil pilyulada (yig'ilgandan keyin ham qoladi).
+const TwFullWord = ({ text }) => (
+  <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '4px 14px', textAlign: 'center' }}>{text}</span>
+);
+// 2-usul (bo'laklab): 90:3 va 60:3 alohida tushadi, ostiga 30 va 20; keyin 30 + 20 qatori.
+const TwM2Drop = ({ parts, showSum }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)' }}>
+    <div style={{ display: 'flex', gap: 'clamp(14px, 3.4vw, 26px)', justifyContent: 'center' }}>
+      {parts.map((p, i) => (
+        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: TW_COLS[i], border: `2.5px solid ${TW_COLS[i]}`, borderRadius: 10, padding: '2px 10px', background: T.paper }}>{p.e}</span>
+          <span className="mono lm-edrop" style={{ animationDelay: `${0.5 + i * 0.85}s`, fontSize: 'clamp(15px, 2.8vw, 21px)', fontWeight: 800, color: TW_COLS[i] }}>{p.v}</span>
+        </div>
+      ))}
     </div>
-  );
-};
-// stway — IKKI USUL + bashorat-darvoza + yuza-model bonus (kitob 21-bet uslubi).
+    {showSum && (
+      <span className="mono lm-edrop" style={{ animationDelay: '0.1s', fontSize: 'clamp(17px, 3.4vw, 25px)', fontWeight: 800 }}>
+        <span style={{ color: TW_COLS[0] }}>{parts[0].v}</span>
+        <span style={{ color: T.ink2 }}> + </span>
+        <span style={{ color: TW_COLS[1] }}>{parts[1].v}</span>
+      </span>
+    )}
+  </div>
+);
+// Bonus (qulay bo'laklar): mos kelmagan ajratish — qizil xira, ustidan chizilgan + sabab-yorliq.
+const TwBonusBad = ({ head, bad, why }) => (
+  <div className="lm-riseup" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px, 1.6vw, 12px)', flexWrap: 'wrap' }}>
+    <span className="mono" style={{ fontSize: 'clamp(18px, 3.6vw, 25px)', fontWeight: 800, color: T.ink }}>{head}</span>
+    <span className="mono lm-edrop" style={{ animationDelay: '0.4s', fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#C0392B', opacity: 0.55, textDecoration: 'line-through' }}>{bad}</span>
+    <span className="mono lm-edrop" style={{ animationDelay: '0.9s', fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 700, color: '#C0392B', border: '1.5px dashed #C0392B', borderRadius: 8, padding: '2px 8px' }}>✗ {why}</span>
+  </div>
+);
+// Bonus zanjiri: mos bo'laklar 30 + 12 yashil, ostida 10 + 4, natija pilyulada.
+const TwBonusGood = ({ good, sub, ans }) => (
+  <div className="lm-riseup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+    <span className="mono lm-edrop" style={{ animationDelay: '0.1s', fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: '#1F7A4D' }}>{good}</span>
+    <span className="mono lm-edrop" style={{ animationDelay: '0.95s', fontSize: 'clamp(15px, 2.8vw, 21px)', fontWeight: 800, color: T.ink2 }}>{sub}</span>
+    <span className="mono lm-edrop" style={{ animationDelay: '1.8s', fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '2px 12px' }}>{ans}</span>
+  </div>
+);
+// stway — IKKI USUL, Dars03 etalon skeleti: har usul ANIMATSION namoyish bilan, ovozga sinxron.
+// Oqim: 1-usul (avval yig'indi) -> BASHORAT (Ha/Yo'q) -> 2-usul (bo'laklab) -> ★ bonus (qulay bo'laklar).
 const TwoWayScreen = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3257,33 +3289,36 @@ const TwoWayScreen = (props) => {
   const sfx = useSfx();
   const audio = useAudio([
     brgSeg('stway', lang),
-    { id: 'tw_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
-    { id: 'tw_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null },
+    ...c.audio[lang].map((text, i) => ({ id: `tw_${i}`, text, trigger: 'after_previous', waits_for: null })),
     { id: 'tw_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
     ...c.audio2[lang].map((text, i) => ({ id: `tw2_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
   ]);
   const seg = audio.currentSegment;
-  const [m1, setM1] = useState(0);      // 1-usul bosqichi
-  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi
+  const [r1, setR1] = useState(-1);     // 1-usul bosqichi (tw_N)
+  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi (tw2_N)
   useEffect(() => {
     if (!seg) return;
-    let m;
-    const m1m = seg.match(/^tw_(\d+)$/); if (m1m) { const n = +m1m[1] + 1; setM1((v) => Math.max(v, n)); }
-    const m2m = seg.match(/^tw2_(\d+)$/); if (m2m) { const n = +m2m[1]; setR2((v) => Math.max(v, n)); }
+    const a = seg.match(/^tw_(\d+)$/); if (a) setR1((v) => Math.max(v, +a[1]));
+    const b = seg.match(/^tw2_(\d+)$/); if (b) setR2((v) => Math.max(v, +b[1]));
   }, [seg]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
   const ok = picked === c.check_ci;
   const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
-  const m1Done = all || m1 >= 2;
+  const m1Done = all || r1 >= c.audio[lang].length - 1;
   const askNow = m1Done && !ok;
-  const revealRef = useRevealScroll(ok, 500);
   const pick = (i) => {
     if (!canAct || ok || !m1Done) return;
     setPicked(i);
     if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
   };
-  const showBonus = ok && (all || r2 >= 2);
+  const showM1  = all || r1 >= 1;    // 1-usul yorlig'i
+  const showM1d = all || r1 >= 2;    // bosqich qatorlari tushadi
+  const showM1w = all || r1 >= 3;    // natija-pilyula
+  const showM2d = all || r2 >= 1;    // bo'laklar tushadi
+  const showM2w = all || r2 >= 2;    // 30 + 20 va natija-pilyula
+  const showBonus  = ok && (all || r2 >= 4);
+  const showBonus2 = all || r2 >= 5; // mos bo'laklar zanjiri (30 + 12)
   const done = ok && (all || r2 >= c.audio2[lang].length - 1);
   // Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yig'iladi (Dars02 naqshi) — ekran skrolsiz sig'adi.
   const [compact, setCompact] = useState(false);
@@ -3298,8 +3333,11 @@ const TwoWayScreen = (props) => {
     const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
     return () => clearTimeout(id);
   }, [done, all]);
+  const revealRef = useRevealScroll(showBonus, 500);
   const canAdv = useAdvanceGate(done, audio);
   const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
+  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
+  const MText = ({ x }) => <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{x}</span>;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3310,13 +3348,29 @@ const TwoWayScreen = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
           <FrameFx/>
-          <span className="mono" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
-          <div className="lm-tw-grid">
-            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false} lang={lang} compact={compact}/>
-            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent lang={lang} compact={compact}/>}
-          </div>
+          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink }}>{c.expr}</span>
+          {showM1 && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
+              <MLabel x={t(c.m1_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m1_text)}/>
+                {showM1d && <TwM1Drop rows={c.m1_rows}/>}
+              </div>
+              {showM1w && <TwFullWord text={c.m1_recap}/>}
+            </div>
+          )}
+          {ok && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
+              <MLabel x={t(c.m2_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m2_text)}/>
+                {showM2d && <TwM2Drop parts={c.m2_parts} showSum={showM2w}/>}
+              </div>
+              {showM2w && <TwFullWord text={c.m2_recap}/>}
+            </div>
+          )}
         </div>
         {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
         {askNow && (
@@ -3335,9 +3389,11 @@ const TwoWayScreen = (props) => {
           <div ref={revealRef} className="lm-tw-bonus lm-riseup">
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
             <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
-              <BonusViz c={c} show={r2 >= 3 || all} lang={lang}/>
               <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+              <TwBonusBad head={c.bonus_head} bad={c.bonus_bad} why={t(c.bonus_bad_why)}/>
+              {showBonus2 && <TwBonusGood good={c.bonus_good} sub={c.bonus_sub} ans={c.bonus_ans}/>}
             </div>
+            {bonusCompact && <TwFullWord text={c.bonus_recap}/>}
           </div>
         )}
         {done && (

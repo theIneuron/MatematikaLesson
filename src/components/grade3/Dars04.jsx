@@ -1105,46 +1105,72 @@ const CONTENT = {
     }
   },
 
-  // s6 — QOIDA
+  // stway — IKKI USUL (348 va 342): m1 xonama-xona (ustma-ust), m2 yoyilma orqali; bonus — raqamlar soni.
   stway: {
     eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
     lead: { ru: 'Одно сравнение — два пути к ответу.', uz: "Bitta taqqoslash — javobga ikki yo'l." },
     expr: { ru: '348 и 342', uz: '348 va 342' },
     m1_label: { ru: 'Способ 1 — по разрядам', uz: "1-usul — xonama-xona" },
-    m1_steps: ['3 = 3', '4 = 4', '8 > 2'],
-    m2_label: { ru: 'Способ 2 — через разложение', uz: "2-usul — yoyilma orqali" },
-    m2_steps: ['300+40+8', '300+40+2', '8 > 2'],
+    m1_text: { ru: 'Пишем числа друг под другом и сравниваем цифры слева направо.', uz: "Sonlarni ustma-ust yozamiz va raqamlarni chapdan o'ngga solishtiramiz." },
+    m1_pairs: [
+      { a: '3', b: '3' },
+      { a: '4', b: '4' },
+      { a: '8', b: '2' }
+    ],
+    m1_verdict: '348 > 342',
     check_q: { ru: 'Можно ли сравнить и через разложение?', uz: "Yoyilma orqali ham taqqoslasa bo'ladimi?" },
     check_opts: ['Да, можно', 'Нет, только по разрядам'],
     check_opts_uz: ['Ha, mumkin', "Yo'q, faqat xonama-xona"],
     check_ci: 0,
-    check_ok: { ru: 'Верно. Разложение приводит к тому же ответу.', uz: "To'g'ri. Yoyilma ham xuddi shu javobga olib keladi." },
+    check_ok: { ru: 'Верно. Оба способа приводят к одному ответу.', uz: "To'g'ri. Ikkala usul ham bitta javobga olib keladi." },
     check_no: { ru: 'Посмотри: разложение показывает те же разряды. Попробуй ещё.', uz: "Qarang: yoyilma ham o'sha xonalarni ko'rsatadi. Yana urinib ko'ring." },
-    bonus_kind: 'note',
+    m2_label: { ru: 'Способ 2 — через разложение', uz: "2-usul — yoyilma orqali" },
+    m2_text: { ru: 'Раскладываем оба числа — одинаковые части гаснут.', uz: "Ikkala sonni yoyamiz — bir xil bo'laklar xiralashadi." },
+    m2_rows: [
+      { num: '348', parts: ['300', '40', '8'] },
+      { num: '342', parts: ['300', '40', '2'] }
+    ],
+    m2_verdict: '348 > 342',
     bonus_label: { ru: 'Бонус — сколько цифр', uz: 'Bonus — raqamlar soni' },
-    bonus_text: { ru: 'Трёхзначное число всегда больше двузначного: 100 > 99, ведь цифр у него больше. Но если у чисел одинаковое число цифр, это правило не работает — тогда сравниваем по разрядам.', uz: "Uch xonali son doim ikki xonalidan katta: 100 > 99, chunki raqami ko'p. Lekin sonlarda raqam soni bir xil bo'lsa, bu qoida ishlamaydi — u holda xonama-xona taqqoslaymiz." },
+    bonus_text: { ru: 'Трёхзначное число всегда больше двузначного. Но если цифр поровну — правило не работает, сравниваем по разрядам.', uz: "Uch xonali son doim ikki xonalidan katta. Lekin raqamlar soni teng bo'lsa — qoida ishlamaydi, xonama-xona taqqoslaymiz." },
+    bonus_cards: [
+      { num: '100', tag: { ru: '3 цифры', uz: '3 raqam' } },
+      { num: '99', tag: { ru: '2 цифры', uz: '2 raqam' } }
+    ],
+    bonus_verdict: '100 > 99',
+    bonus_recap: '100 > 99',
     audio: {
       ru: [
         'Одно сравнение можно сделать двумя путями. Сравним триста сорок восемь и триста сорок два.',
-        'Первый способ идёт по разрядам. Сотни равны, три и три. Десятки тоже равны, четыре и четыре. А единицы разные. Восемь больше двух. Значит, триста сорок восемь больше.'
+        'Первый способ идёт по разрядам. Пишем числа друг под другом и сравниваем цифры слева направо.',
+        'Сотни равны, три и три. Десятки тоже равны, четыре и четыре. Равные пары нам не помогают, они гаснут.',
+        'А единицы разные. Восемь больше двух. Значит, триста сорок восемь больше. Первый способ готов!'
       ],
       uz: [
         "Bitta taqqoslashni ikki yo'l bilan qilsa bo'ladi. Uch yuz qirq sakkiz va uch yuz qirq ikkini taqqoslaymiz.",
-        "Birinchi usul xonama-xona boradi. Yuzliklar teng, uch va uch. O'nliklar ham teng, to'rt va to'rt. Birliklar esa boshqacha. Sakkiz ikkidan katta. Demak, uch yuz qirq sakkiz katta."
+        "Birinchi usul xonama-xona boradi. Sonlarni ustma-ust yozamiz va raqamlarni chapdan o'ngga solishtiramiz.",
+        "Yuzliklar teng, uch va uch. O'nliklar ham teng, to'rt va to'rt. Teng juftlar yordam bermaydi, ular xiralashadi.",
+        "Birliklar esa har xil. Sakkiz ikkidan katta. Demak, uch yuz qirq sakkiz katta. Birinchi usul tayyor!"
       ]
     },
     audio2: {
       ru: [
-        'Верно. Есть и второй путь, через разложение. Триста сорок восемь раскрываем как триста плюс сорок плюс восемь. Триста сорок два раскрываем как триста плюс сорок плюс два.',
-        'Первые части совпадают. Триста и сорок одинаковы у обоих чисел. Разница только в единицах, восемь больше двух. Снова триста сорок восемь больше.',
-        'А теперь короткая заметка. Иногда цифры даже считать не нужно. Трёхзначное число всегда больше двузначного. Сто больше девяноста девяти, ведь цифр у него больше.',
-        'Но здесь есть одна тонкость. Если у чисел одинаковое число цифр, это правило не работает. Тогда снова сравниваем по разрядам, как в начале.'
+        'Верно! Второй способ идёт через разложение. Разложим оба числа на разрядные слагаемые.',
+        'Триста сорок восемь это триста плюс сорок плюс восемь.',
+        'А триста сорок два это триста плюс сорок плюс два.',
+        'Одинаковые части гаснут. Триста и триста, сорок и сорок. Осталась разница. Восемь больше двух, и снова триста сорок восемь больше!',
+        'А в качестве бонуса покажу совсем быстрый случай. Сравним сто и девяносто девять.',
+        'В числе сто три цифры. В числе девяносто девять только две. Трёхзначное число всегда больше двузначного. Значит, сто больше.',
+        'Но помни. Если цифр поровну, это правило не работает. Тогда сравниваем по разрядам, как в начале. Молодец!'
       ],
       uz: [
-        "To'g'ri. Ikkinchi yo'l ham bor, yoyilma orqali. Uch yuz qirq sakkizni yoyamiz, uch yuz qo'shuv qirq qo'shuv sakkiz. Uch yuz qirq ikkini yoyamiz, uch yuz qo'shuv qirq qo'shuv ikki.",
-        "Birinchi bo'laklar bir xil. Uch yuz va qirq ikkala sonda ham teng. Farq faqat birlikda, sakkiz ikkidan katta. Yana uch yuz qirq sakkiz katta.",
-        "Endi qisqa eslatma. Ba'zan raqamlarni sanash ham shart emas. Uch xonali son doim ikki xonalidan katta. Bir yuz to'qson to'qqizdan katta, chunki raqami ko'p.",
-        "Lekin bu yerda bir nozik joy bor. Sonlarda raqam soni bir xil bo'lsa, bu qoida ishlamaydi. U holda yana xonama-xona taqqoslaymiz, boshidagidek."
+        "To'g'ri! Ikkinchi usul yoyilma orqali boradi. Ikkala sonni xona qo'shiluvchilariga yoyamiz.",
+        "Uch yuz qirq sakkiz bu uch yuz qo'shuv qirq qo'shuv sakkiz.",
+        "Uch yuz qirq ikki esa uch yuz qo'shuv qirq qo'shuv ikki.",
+        "Bir xil bo'laklar xiralashadi. Uch yuz va uch yuz, qirq va qirq. Farq qoldi. Sakkiz ikkidan katta, yana uch yuz qirq sakkiz katta!",
+        "Bonus tariqasida juda tez holatni ko'rsataman. Bir yuz va to'qson to'qqizni taqqoslaymiz.",
+        "Bir yuz sonida uchta raqam bor. To'qson to'qqizda esa faqat ikkita. Uch xonali son doim ikki xonalidan katta. Demak, bir yuz katta.",
+        "Lekin yodda tuting. Raqamlar soni teng bo'lsa, bu qoida ishlamaydi. U holda xonama-xona taqqoslaymiz, boshidagidek. Barakalla!"
       ]
     }
   },
@@ -1341,7 +1367,7 @@ const CONTENT = {
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  stway: { ru: 'Соберём оба способа вместе.', uz: "Ikki usulni birga yig'amiz." },
+  stway: { ru: 'К ответу ведут две дороги.', uz: "Javobga ikki yo'l olib boradi." },
   s1:  { ru: 'Вспомним про разряды.', uz: 'Xonalarni eslaymiz.' },
   s2:  { ru: 'Начнём сравнивать с сотен.', uz: 'Yuzlikdan taqqoslay boshlaymiz.' },
   s3:  { ru: 'А если сотни равны?', uz: 'Yuzliklar teng bo\'lsa-chi?' },
@@ -3221,54 +3247,73 @@ const Screen12 = (props) => {
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
 
-// Yuza modeli (bonus): balandlik 4, eni 20+30 — ikki bo'lakka kesiladi (80 va 120).
-const AreaModel = ({ show }) => (
-  <svg viewBox="0 0 260 90" style={{ width: 'min(300px, 92%)', height: 'auto' }} aria-hidden="true">
-    <rect x="20" y="20" width="140" height="50" fill="#FBE9E7" stroke="#C0392B" strokeWidth="1.6"/>
-    <rect x="160" y="20" width="80" height="50" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="1.6"/>
-    {show && <line x1="160" y1="14" x2="160" y2="76" stroke="#8A8178" strokeWidth="1.4" strokeDasharray="3 3" className="lm-fadein"/>}
-    <text x="90" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">{show ? '80' : ''}</text>
-    <text x="200" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">{show ? '120' : ''}</text>
-    <text x="90" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">20</text>
-    <text x="200" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">30</text>
-    <text x="9" y="49" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace" transform="rotate(-90 9 45)">4</text>
-  </svg>
-);
-// O'rin almashtirish bonusi (Dars10): a×b = b×a — ikki massiv yonma-yon.
-const SwapViz = ({ a, b }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 16px)' }}>
-    {[[a, b], [b, a]].map(([r, cc], k) => (
-      <React.Fragment key={k}>
-        {k === 1 && <span className="mono" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D' }}>=</span>}
-        <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cc}, 1fr)`, gap: 2, padding: 4, background: '#152342', borderRadius: 8 }}>
-          {Array.from({ length: r * cc }).map((_, i) => <span key={i} style={{ width: 'clamp(6px, 1.8vw, 9px)', height: 'clamp(6px, 1.8vw, 9px)', borderRadius: '50%', background: '#FFC23C' }}/>)}
+// stway aksent ranglari: teng juftlar xira, farq — qizil aksent, hukm — yashil pilyula.
+const TW_ACC = '#C0392B';
+const TW_OK = '#1F7A4D';
+// 1-usul: ikkala son ustma-ust tushadi; teng ustunlar xiralashadi, farq ustuni aksent oladi.
+const TwDigitStack = ({ pairs, dim, accent }) => (
+  <div style={{ display: 'flex', gap: 'clamp(12px, 3vw, 22px)', justifyContent: 'center' }}>
+    {pairs.map((p, i) => {
+      const eq = p.a === p.b;
+      const faded = dim && eq;
+      const hot = accent && !eq;
+      const box = {
+        fontSize: 'clamp(20px, 4.6vw, 30px)', fontWeight: 800,
+        color: faded ? T.ink3 : (hot ? TW_ACC : T.ink),
+        border: `2.5px solid ${hot ? TW_ACC : (faded ? '#DDD8D0' : T.ink3)}`,
+        borderRadius: 10, minWidth: 'clamp(34px, 8vw, 46px)', textAlign: 'center',
+        padding: '2px 0', background: hot ? '#FBE9E7' : T.paper,
+        transition: 'color 0.9s ease, border-color 0.9s ease, background 0.9s ease'
+      };
+      return (
+        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, opacity: faded ? 0.45 : 1, transition: 'opacity 0.9s ease' }}>
+          <span className="mono lm-drop" style={{ ...box, animationDelay: `${0.1 + i * 0.5}s` }}>{p.a}</span>
+          <span className="mono lm-drop" style={{ ...box, animationDelay: `${0.35 + i * 0.5}s` }}>{p.b}</span>
+          <span className="mono" style={{ minHeight: 'clamp(17px, 2.8vw, 21px)', fontSize: 'clamp(11px, 1.7vw, 14px)', fontWeight: 800, color: hot ? TW_ACC : T.ink2 }}>
+            {(eq ? dim : accent) ? <span className="lm-fadein" style={{ animationDelay: `${(eq ? i : 0) * 0.55}s` }}>{`${p.a} ${eq ? '=' : '>'} ${p.b}`}</span> : null}
+          </span>
         </div>
-      </React.Fragment>
+      );
+    })}
+  </div>
+);
+// Yakuniy hukm — yashil pilyulada (bosqichlar yig'ilgandan keyin ham qoladi).
+const TwFullWord = ({ text }) => (
+  <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: TW_OK, background: '#EAF5EE', borderRadius: 10, padding: '4px 14px', textAlign: 'center' }}>{text}</span>
+);
+// 2-usul: ikkala yoyilma navbat bilan tushadi; teng bo'laklar xiralashadi, farq aksent oladi.
+const TwYoyRows = ({ rows, upto, dim, accent }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px, 1vw, 8px)' }}>
+    {rows.slice(0, upto).map((row, ri) => (
+      <div key={ri} className="lm-reveal" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(4px, 1.2vw, 8px)' }}>
+        <span className="mono" style={{ fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: T.ink }}>{row.num}</span>
+        <span className="mono" style={{ fontSize: 'clamp(15px, 2.8vw, 21px)', fontWeight: 800, color: T.ink2 }}>=</span>
+        {row.parts.map((p, i) => {
+          const eq = rows[0].parts[i] === rows[1].parts[i];
+          const faded = dim && eq;
+          const hot = accent && !eq;
+          return (
+            <React.Fragment key={i}>
+              {i > 0 && <span className="mono lm-fadein" style={{ animationDelay: `${i * 0.75 - 0.2}s`, fontSize: 'clamp(15px, 2.8vw, 21px)', fontWeight: 800, color: faded ? T.ink3 : T.ink2, opacity: faded ? 0.45 : 1, transition: 'opacity 0.9s ease' }}>+</span>}
+              <span className="mono lm-drop" style={{ animationDelay: `${0.1 + i * 0.75}s`, fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: faded ? T.ink3 : (hot ? TW_ACC : T.ink), opacity: faded ? 0.45 : 1, background: hot ? '#FBE9E7' : 'transparent', borderRadius: 8, padding: hot ? '0 6px' : '0', transition: 'opacity 0.9s ease, color 0.9s ease, background 0.9s ease' }}>{p}</span>
+            </React.Fragment>
+          );
+        })}
+      </div>
     ))}
   </div>
 );
-// Bonus vizuali — CONTENT.stway.bonus_kind bo'yicha (area / swap / none). Aksi holda faqat matn.
-const BonusViz = ({ c, show, lang }) => {
-  if (c.bonus_kind === 'area') return <AreaModel show={show}/>;
-  if (c.bonus_kind === 'swap' && c.bonus_ab) return <SwapViz a={c.bonus_ab[0]} b={c.bonus_ab[1]}/>;
-  return null;
-};
-const TwWayCol = ({ label, steps, upto, accent, lang, compact }) => {
-  const txt = (s) => (typeof s === 'string' ? s : (s[lang] || s.ru));
-  const last = steps.length - 1;
-  return (
-    <div className="lm-tw-col">
-      <span className={`lm-tw-head mono ${accent ? 'lm-tw-head-a' : ''}`}>{label}</span>
-      <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-        {steps.slice(0, last).map((s, i) => (upto > i
-          ? <span key={i} className="mono lm-tw-step lm-edrop">{txt(s)}</span>
-          : null))}
-      </div>
-      {upto > last && <span className="mono lm-tw-step lm-edrop lm-tw-ans">{txt(steps[last])}</span>}
-    </div>
-  );
-};
-// stway — IKKI USUL + bashorat-darvoza + yuza-model bonus (kitob 21-bet uslubi).
+// Bonus kartasi: son + karta ustida «raqamlar soni» belgisi (belgi keyinroq tushadi).
+const TwCountCard = ({ num, tag, showTag, delay }) => (
+  <div className="lm-drop" style={{ animationDelay: `${delay}s`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+    <span style={{ minHeight: 'clamp(18px, 2.8vw, 22px)' }}>
+      {showTag ? <span className="mono lm-drop" style={{ display: 'inline-block', fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 700, color: T.accent, border: `1.5px dashed ${T.accent}`, borderRadius: 8, padding: '1px 8px' }}>{tag}</span> : null}
+    </span>
+    <span className="mono" style={{ fontSize: 'clamp(20px, 4.2vw, 28px)', fontWeight: 800, color: T.ink, border: `2.5px solid ${T.ink3}`, borderRadius: 10, padding: '2px 12px', background: T.paper }}>{num}</span>
+  </div>
+);
+// stway — IKKI USUL, Dars03 skeletida: har usul ANIMATSION namoyish bilan, ovozga sinxron.
+// Oqim: 1-usul (xonama-xona) -> BASHORAT (Ha/Yo'q) -> 2-usul (yoyilma) -> ★ bonus (raqamlar soni).
 const TwoWayScreen = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3276,33 +3321,37 @@ const TwoWayScreen = (props) => {
   const sfx = useSfx();
   const audio = useAudio([
     brgSeg('stway', lang),
-    { id: 'tw_0', text: c.audio[lang][0], trigger: 'after_previous', waits_for: null },
-    { id: 'tw_1', text: c.audio[lang][1], trigger: 'after_previous', waits_for: null },
+    ...c.audio[lang].map((text, i) => ({ id: `tw_${i}`, text, trigger: 'after_previous', waits_for: null })),
     { id: 'tw_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
     ...c.audio2[lang].map((text, i) => ({ id: `tw2_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
   ]);
   const seg = audio.currentSegment;
-  const [m1, setM1] = useState(0);      // 1-usul bosqichi
-  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi
+  const [r1, setR1] = useState(-1);     // 1-usul bosqichi (tw_N)
+  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi (tw2_N)
   useEffect(() => {
     if (!seg) return;
-    let m;
-    const m1m = seg.match(/^tw_(\d+)$/); if (m1m) { const n = +m1m[1] + 1; setM1((v) => Math.max(v, n)); }
-    const m2m = seg.match(/^tw2_(\d+)$/); if (m2m) { const n = +m2m[1]; setR2((v) => Math.max(v, n)); }
+    const a = seg.match(/^tw_(\d+)$/); if (a) setR1((v) => Math.max(v, +a[1]));
+    const b = seg.match(/^tw2_(\d+)$/); if (b) setR2((v) => Math.max(v, +b[1]));
   }, [seg]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
   const ok = picked === c.check_ci;
   const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
-  const m1Done = all || m1 >= 2;
+  const m1Done = all || r1 >= c.audio[lang].length - 1;
   const askNow = m1Done && !ok;
-  const revealRef = useRevealScroll(ok, 500);
   const pick = (i) => {
     if (!canAct || ok || !m1Done) return;
     setPicked(i);
     if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
   };
-  const showBonus = ok && (all || r2 >= 2);
+  const showM1  = all || r1 >= 1;    // 1-usul yorlig'i + ustma-ust sonlar tushadi
+  const m1Dim   = all || r1 >= 2;    // teng juftlar xiralashadi (3=3, 4=4)
+  const showM1w = all || r1 >= 3;    // farq aksenti (8>2) + hukm-pilyula
+  const showM2a = all || r2 >= 1;    // birinchi yoyilma (348)
+  const showM2b = all || r2 >= 2;    // ikkinchi yoyilma (342)
+  const showM2w = all || r2 >= 3;    // teng bo'laklar xira + farq aksent + hukm
+  const showBonus  = ok && (all || r2 >= 4);
+  const showBonus2 = all || r2 >= 5; // «raqamlar soni» belgilari + 100 > 99
   const done = ok && (all || r2 >= c.audio2[lang].length - 1);
   // Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yig'iladi (Dars02 naqshi) — ekran skrolsiz sig'adi.
   const [compact, setCompact] = useState(false);
@@ -3317,8 +3366,11 @@ const TwoWayScreen = (props) => {
     const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
     return () => clearTimeout(id);
   }, [done, all]);
+  const revealRef = useRevealScroll(showBonus, 500);
   const canAdv = useAdvanceGate(done, audio);
   const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
+  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
+  const MText = ({ x }) => <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{x}</span>;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3329,13 +3381,29 @@ const TwoWayScreen = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
           <FrameFx/>
-          <span className="mono" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
-          <div className="lm-tw-grid">
-            <TwWayCol label={t(c.m1_label)} steps={c.m1_steps} upto={all ? 9 : m1} accent={false} lang={lang} compact={compact}/>
-            {ok && <TwWayCol label={t(c.m2_label)} steps={c.m2_steps} upto={all ? 9 : Math.max(0, r2 + 2)} accent lang={lang} compact={compact}/>}
-          </div>
+          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
+          {showM1 && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
+              <MLabel x={t(c.m1_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m1_text)}/>
+                <TwDigitStack pairs={c.m1_pairs} dim={m1Dim} accent={showM1w}/>
+              </div>
+              {showM1w && <TwFullWord text={c.m1_verdict}/>}
+            </div>
+          )}
+          {ok && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
+              <MLabel x={t(c.m2_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m2_text)}/>
+                {showM2a && <TwYoyRows rows={c.m2_rows} upto={showM2b ? 2 : 1} dim={showM2w} accent={showM2w}/>}
+              </div>
+              {showM2w && <TwFullWord text={c.m2_verdict}/>}
+            </div>
+          )}
         </div>
         {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
         {askNow && (
@@ -3354,9 +3422,15 @@ const TwoWayScreen = (props) => {
           <div ref={revealRef} className="lm-tw-bonus lm-riseup">
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
             <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
-              <BonusViz c={c} show={r2 >= 3 || all} lang={lang}/>
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 'clamp(10px, 2.4vw, 18px)' }}>
+                <TwCountCard num={c.bonus_cards[0].num} tag={t(c.bonus_cards[0].tag)} showTag={showBonus2} delay={0.1}/>
+                {showBonus2 && <span className="mono lm-fadein" style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 800, color: TW_OK, paddingBottom: 6 }}>{'>'}</span>}
+                <TwCountCard num={c.bonus_cards[1].num} tag={t(c.bonus_cards[1].tag)} showTag={showBonus2} delay={0.5}/>
+              </div>
               <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+              {showBonus2 && <TwFullWord text={c.bonus_verdict}/>}
             </div>
+            {bonusCompact && <TwFullWord text={c.bonus_recap}/>}
           </div>
         )}
         {done && (
