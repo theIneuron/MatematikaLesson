@@ -129,4 +129,10 @@ export const grade3Amaliy = [
     desc: "I V X L C belgilari: o'qish, belgi-kartalardan yasash (XXIII, IX), chapda-ayirish tuzoqlari, oylar rim raqamida — darslik 88-89-betlari asosida.",
     Component: lazy(() => import('../components/grade3/practice/dars08/Dars08Practice.jsx')),
   },
+  {
+    slug: 'dars10-amaliyot',
+    title: "Dars 10 amaliyoti — Ko'paytirish jadvali (10 topshiriq)",
+    desc: "5-sinf ko'paytirish formatlarida: savatlar, og'zaki, o'rin almashtirish, yo'qolgan son, qulay usul, teskari jadval — darslik uzum masalasi bilan.",
+    Component: lazy(() => import('../components/grade3/practice/dars10/Dars10Practice.jsx')),
+  },
 ]
