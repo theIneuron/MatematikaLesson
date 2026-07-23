@@ -105,4 +105,10 @@ export const grade3Amaliy = [
     desc: "Belgi qo'yish (> < =), tuzoq-juftlar (600/599, 519/591), saralash, minoralar masalasi, eng katta son yasash — darslik misollarida.",
     Component: lazy(() => import('../components/grade3/practice/dars04/Dars04Practice.jsx')),
   },
+  {
+    slug: 'dars05-amaliyot',
+    title: "Dars 5 amaliyoti — Eng yaqin yumaloq son (10 topshiriq)",
+    desc: "Yumaloq o'nlik va yuzlikni tanlash: chiziqda topish, o'rtadagi son (45, 350), ikki qadam, taxminiy hisob — darslik sonlarida.",
+    Component: lazy(() => import('../components/grade3/practice/dars05/Dars05Practice.jsx')),
+  },
 ]
