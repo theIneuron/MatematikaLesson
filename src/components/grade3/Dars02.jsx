@@ -3781,6 +3781,13 @@ const TwoWayScreen = (props) => {
     return () => clearTimeout(id);
   }, [showBonus, all]);
   const done = ok && (all || r2 >= c.audio2[lang].length - 1);
+  // Yakun chiqqanda bonus ham yig'iladi (badge + natija-pilyula qoladi); mute'da kechroq.
+  const [bonusCompact, setBonusCompact] = useState(false);
+  useEffect(() => {
+    if (!done) return undefined;
+    const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
+    return () => clearTimeout(id);
+  }, [done, all]);
   const revealRef = useRevealScroll(showBonus, 500);
   const canAdv = useAdvanceGate(done, audio);
   const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
@@ -3836,8 +3843,11 @@ const TwoWayScreen = (props) => {
         {showBonus && (
           <div ref={revealRef} className="lm-tw-bonus lm-riseup">
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
-            <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
-            <TwBonusRev c={c} showDigits={showBonusD} labels={labels} lang={lang}/>
+            <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
+              <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+              <TwBonusRev c={c} showDigits={showBonusD} labels={labels} lang={lang}/>
+            </div>
+            {bonusCompact && <TwFullWord text={`${c.bonus_word[lang]} = ${c.bonus_num}`}/>}
           </div>
         )}
         {done && (
