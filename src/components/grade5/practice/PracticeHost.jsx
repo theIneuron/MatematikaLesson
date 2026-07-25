@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // PracticeHost — LOKAL PREVIEW uchun platforma host'ini taqlid qiluvchi qobiq.
 // Maqsad: jsx-question kontraktidagi props'ni (onReady, registerCheck, onSubmit,
 // playCorrect/playWrong) berib, native "Tekshirish" tugmasini chiqarish — shunda
@@ -5,7 +6,7 @@
 // Ichida UZ/RU almashtirgich bor. Ozvuchka yo'q (faqat to'g'ri/noto'g'ri beep cue).
 // Faqat react importi; ikonkalar — inline SVG.
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 // usePracticeZoom — amaliyot sahifasi uchun mobil yagona masshtab qatlami
 // (MOBIL_DESKTOP_MOSLASH.md, etalon kenglik 390px). <640px: root 390px kenglikda
@@ -45,7 +46,7 @@ function beep(ok) {
     g.gain.value = 0.06;
     o.start();
     o.stop(ctx.currentTime + 0.12);
-  } catch (e) { /* preview-only */ }
+  } catch { /* preview-only */ }
 }
 
 const UI = {
@@ -59,6 +60,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
   const [result, setResult] = useState(null);
   const [qKey, setQKey] = useState(0);
   const checkFnRef = useRef(null);
+  const previousLangRef = useRef(lang);
   const ui = UI[lang] || UI.uz;
 
   const onReady = useCallback((v) => setReady(!!v), []);
@@ -72,8 +74,14 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
     setQKey((k) => k + 1);
   }, []);
 
-  // til almashganda savolni tozalab qayta yuklash
-  useEffect(() => { reset(); }, [lang, reset]);
+  // Faqat til haqiqatan o'zgarganda savolni qayta yuklaymiz. Dastlabki mountda
+  // reset qilish tez tanlangan javobdan keyin `ready` holatini bekor qilar edi.
+  useEffect(() => {
+    if (previousLangRef.current !== lang) {
+      previousLangRef.current = lang;
+      reset();
+    }
+  }, [lang, reset]);
 
   const runCheck = () => { checkFnRef.current && checkFnRef.current(); };
 

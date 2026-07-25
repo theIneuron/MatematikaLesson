@@ -2,6 +2,7 @@ import { grade1Nazariy, grade1Amaliy, grade1Nazorat } from './grade1.js'
 import { grade2Nazariy, grade2Amaliy, grade2Takrorlash, grade2Nazorat } from './grade2.js'
 import { grade3Nazariy, grade3Amaliy } from './grade3.js'
 import { grade5Nazariy, grade5Amaliy } from './grade5.js'
+import { grade6Nazariy, grade6Amaliy } from './grade6.js'
 
 // Fanlar ro'yxati. Yangi fan qo'shish: shu yerga obyekt qo'shing.
 // `id` URL bo'lagi bo'ladi (/<sinf>/<fan>/<bo'lim>/<slug>), `accent` qobiq rangi.
@@ -26,6 +27,7 @@ const REGISTRY = {
   '2-sinf': { matematika: { nazariy: grade2Nazariy, amaliy: grade2Amaliy, takrorlash: grade2Takrorlash, nazorat: grade2Nazorat } },
   '3-sinf': { matematika: { nazariy: grade3Nazariy, amaliy: grade3Amaliy } },
   '5-sinf': { matematika: { nazariy: grade5Nazariy, amaliy: grade5Amaliy } },
+  '6-sinf': { matematika: { nazariy: grade6Nazariy, amaliy: grade6Amaliy } },
 }
 
 // 1..11 sinflar. Har sinfda barcha fanlar, har fanda barcha bo'limlar bor;
