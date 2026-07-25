@@ -2,6 +2,7 @@
 // Sonlar darslik poolidan: 427 (4-bet). Eng yaqin yumaloq yuzlik — 400 (27 < 50).
 // jsx-question kontrakti: onReady / registerCheck / onSubmit. O'z "Tekshirish" tugmasi yo'q — PracticeHost beradi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import LessonNumPad from '../../LessonNumPad';
 
 /* ============================== SHARED (Lumo — Bit shahri) ============================== */
 const C = {
@@ -50,25 +51,7 @@ function useReg(check, registerCheck) {
   const ref = useRef(check); ref.current = check;
   useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
-function NumPad({ value, setValue, disabled, max = 3, tone = 'idle' }) {
-  const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
-  const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
-  const keyStyle = { width: 62, height: 56, borderRadius: 13, border: '2px solid ' + C.line, background: C.paper, ...S.mono, fontSize: 24, fontWeight: 800, color: C.ink, cursor: disabled ? 'default' : 'pointer' };
-  const dBd = tone === 'ok' ? C.ok : tone === 'no' ? C.no : C.acc;
-  const dBg = tone === 'ok' ? C.okSoft : tone === 'no' ? C.noSoft : C.paper;
-  const dCol = tone === 'ok' ? C.ok : tone === 'no' ? C.no : C.ink;
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-      <div style={{ width: 170, height: 62, borderRadius: 14, border: '2px solid ' + dBd, background: dBg, display: 'flex', alignItems: 'center', justifyContent: 'center', ...S.mono, fontSize: 30, fontWeight: 800, color: dCol, letterSpacing: 3 }}>{value || '–'}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 62px)', gap: 8 }}>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (<button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={keyStyle}>{d}</button>))}
-        <span />
-        <button type="button" disabled={disabled} onClick={() => push('0')} style={keyStyle}>0</button>
-        <button type="button" disabled={disabled} onClick={back} style={{ ...keyStyle, fontSize: 20, color: C.no }}>⌫</button>
-      </div>
-    </div>
-  );
-}
+const NumPad = LessonNumPad;
 
 const FX_CSS = `.g3d3-pop { animation: g3d3pop .5s cubic-bezier(.34,1.56,.64,1) both; }
 @keyframes g3d3pop { 0% { opacity: 0; transform: scale(.5); } 100% { opacity: 1; transform: none; } }

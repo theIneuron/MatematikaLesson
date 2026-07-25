@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import LessonNumPad from '../LessonNumPad';
 
 const COLORS = {
   accent: '#FF4F28',
@@ -523,34 +524,34 @@ function Choice({ spec, text, answer, setAnswer, locked, status }) {
 
 function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
   const accepted = Array.isArray(spec.correct) ? spec.correct : [spec.correct];
-  const tapNumeric = accepted
+  const numericAccepted = accepted
     .flatMap(inputAnswerVariants)
-    .some((value) => /^-?\d+(?:[.,]\d+)?$/.test(String(value).replace(/\s+/g, '')));
-  const push = (value) => {
-    if (locked) return;
-    const current = String(answer ?? '');
-    if (current.length >= 10) return;
-    if ((value === ',' || value === '.') && /[.,]/.test(current)) return;
-    setAnswer(current + value);
-  };
-  const erase = () => !locked && setAnswer(String(answer ?? '').slice(0, -1));
+    .map((value) => String(value).replace(/\s+/g, ''))
+    .filter((value) => /^\d+$/.test(value));
+  const tapNumeric = numericAccepted.length > 0;
+  const maxDigits = Math.max(
+    1,
+    String(answer ?? '').length,
+    ...numericAccepted.map((value) => value.length),
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-      <label style={{ width: 'min(100%, 360px)' }}>
-        <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>{text.ask}</span>
-        <input value={answer} disabled={locked} readOnly={tapNumeric} inputMode={tapNumeric ? 'none' : (spec.inputMode || 'numeric')} placeholder={text.placeholder || '?'}
-          onChange={(event) => setAnswer(event.target.value)}
-          style={{ width: '100%', boxSizing: 'border-box', padding: '15px', border: `2px solid ${status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.accent}`, borderRadius: 15, outline: 'none', textAlign: 'center', background: status === 'correct' ? COLORS.okSoft : status === 'wrong' ? COLORS.noSoft : '#fff', color: status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.ink, fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 25, fontWeight: 900 }} />
-      </label>
-      {tapNumeric && !locked && (
-        <div aria-label="Raqamlar" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(45px, 54px))', justifyContent: 'center', gap: 7, width: '100%' }}>
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => (
-            <button key={digit} type="button" onClick={() => push(String(digit))} style={{ ...STYLE.option, width: '100%', minHeight: 50, padding: 6, fontSize: 21 }}>{digit}</button>
-          ))}
-          <button type="button" aria-label="Vergul" onClick={() => push(',')} style={{ ...STYLE.option, width: '100%', minHeight: 50, padding: 6, fontSize: 21 }}>,</button>
-          <button type="button" aria-label="Oxirgi raqamni o'chirish" onClick={erase} style={{ ...STYLE.option, width: '100%', minHeight: 50, padding: 6, color: COLORS.no, fontSize: 20 }}>⌫</button>
-        </div>
+      {tapNumeric ? (
+        <LessonNumPad
+          value={answer}
+          setValue={setAnswer}
+          disabled={locked}
+          max={maxDigits}
+          tone={status === 'correct' ? 'ok' : status === 'wrong' ? 'no' : 'idle'}
+        />
+      ) : (
+        <label style={{ width: 'min(100%, 360px)' }}>
+          <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>{text.ask}</span>
+          <input value={answer} disabled={locked} inputMode={spec.inputMode || 'text'} placeholder={text.placeholder || '?'}
+            onChange={(event) => setAnswer(event.target.value)}
+            style={{ width: '100%', boxSizing: 'border-box', padding: '15px', border: `2px solid ${status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.accent}`, borderRadius: 15, outline: 'none', textAlign: 'center', background: status === 'correct' ? COLORS.okSoft : status === 'wrong' ? COLORS.noSoft : '#fff', color: status === 'correct' ? COLORS.ok : status === 'wrong' ? COLORS.no : COLORS.ink, fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 25, fontWeight: 900 }} />
+        </label>
       )}
     </div>
   );
