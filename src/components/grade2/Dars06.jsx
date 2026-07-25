@@ -264,6 +264,10 @@ class AudioEngine {
 
   playSegment(segment) {
     if (!segment) return;
+    // PAUZA-QO'RIQCHI: pauza paytida zanjir yangi segment BOSHLAMAYDI
+    // (handleSegmentEnd/playNext/triggerEvent/pushOneOff — hammasi shu yerdan o'tadi).
+    // resume() joriy segmentni o'zi qayta ishga tushiradi.
+    if (this.paused) return;
     const base = ttsConfig.ttsApiBase;
     // Нет текста → пропускаем (логика очереди сохраняется).
     if (!segment.text) {
@@ -298,6 +302,8 @@ class AudioEngine {
     if (p && typeof p.then === 'function') {
       p.then(() => {
         this.autoplayBlocked = false;
+        // poyga: play() va'dasi hal bo'lgunga qadar pauza bosilgan bo'lsa — darrov to'xtatamiz
+        if (this.paused) { try { el.pause(); } catch (e) {} return; }
         this.isPlaying = true; this.done = false;
         if (this.onStateChange) this.onStateChange({ isPlaying: true, currentSegment: segment.id, done: false });
       }).catch(() => {
@@ -338,7 +344,8 @@ class AudioEngine {
       this.handleSegmentEnd(segment);
     };
     this.previewUtterance = u;
-    setTimeout(() => { try { synth.speak(u); } catch (e) { this.handleSegmentEnd(segment); } }, 60);
+    // paused-tekshiruv taymer ICHIDA ham: 60ms oynada pauza bosilsa, kechikkan speak otilmaydi
+    setTimeout(() => { if (this.paused) return; try { synth.speak(u); } catch (e) { this.handleSegmentEnd(segment); } }, 60);
   }
 
   // Возобновление после блокировки автоплея (по первому жесту).
@@ -367,6 +374,8 @@ class AudioEngine {
   start() {
     this.currentIdx = 0;
     this.done = false;
+    this.paused = false;
+    if (typeof document !== 'undefined') document.body.classList.remove('lesson-paused');
     this.waitingFor = null;
     this.playNext();
   }
@@ -406,6 +415,50 @@ class AudioEngine {
     this.playNext();
   }
 
+  // PAUZA/DAVOM — ovozni to'xtatadi/davom ettiradi, LEKIN navigatsiyani ochmaydi
+  // (audioEl.pause() joriy pozitsiyani saqlaydi -> play() o'sha yerdan davom etadi).
+  pause() {
+    this.paused = true;
+    this.resumeReplay = false;
+    // HTTP audio (produksiya): DARROV pauza, pozitsiya saqlanadi -> play() o'sha yerdan.
+    if (this.audioEl && !this.audioEl.paused) { try { this.audioEl.pause(); } catch (e) {} }
+    // Web Speech (preview): pause() Chrome'da kechikadi. onend'ni uzib, cancel() bilan
+    // DARROV to'xtatamiz (aks holda cancel keyingi segmentga o'tkazib yuborardi);
+    // resume joriy segmentni boshidan qayta o'qiydi.
+    if (typeof window !== 'undefined' && window.speechSynthesis && window.speechSynthesis.speaking) {
+      if (this.previewUtterance) this.previewUtterance.onend = null;
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+      this.resumeReplay = true;
+    }
+    if (typeof document !== 'undefined') document.body.classList.add('lesson-paused');
+    this.isPlaying = false;
+    if (this.onStateChange) this.onStateChange({ isPlaying: false, paused: true });
+  }
+
+  resume() {
+    this.paused = false;
+    if (typeof document !== 'undefined') document.body.classList.remove('lesson-paused');
+    // HTTP: o'sha joydan davom (segment o'rtasida pauza qilingan bo'lsa).
+    const el = this.audioEl;
+    if (!this.resumeReplay && el && el.src && !el.ended && el.paused && el.currentTime > 0) {
+      const pr = el.play();
+      if (pr && typeof pr.then === 'function') pr.then(() => {}).catch(() => {});
+      this.isPlaying = true;
+      if (this.onStateChange) this.onStateChange({ isPlaying: true, paused: false });
+      return;
+    }
+    // Preview (segment boshidan qayta) YOKI pauza-qo'riqchi to'xtatgan zanjir:
+    // navbat tugamagan va event kutilmayotgan bo'lsa — joriy segmentni ishga tushiramiz.
+    this.resumeReplay = false;
+    const seg = this.queue[this.currentIdx];
+    if (seg && !this.done && !this.waitingFor) {
+      if (this.onStateChange) this.onStateChange({ paused: false });
+      this.playSegment(seg);
+      return;
+    }
+    if (this.onStateChange) this.onStateChange({ paused: false });
+  }
+
   stop() {
     if (this.audioEl) {
       try { this.audioEl.pause(); this.audioEl.onended = null; this.audioEl.onerror = null; } catch (e) {}
@@ -415,6 +468,8 @@ class AudioEngine {
       try { window.speechSynthesis.cancel(); } catch (e) {}
     }
     this.isPlaying = false;
+    this.paused = false;
+    if (typeof document !== 'undefined') document.body.classList.remove('lesson-paused');
     if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
   }
 }
@@ -428,7 +483,7 @@ const getAudioEngine = () => {
 
 function useAudio(segments) {
   const lang = useLang();
-  const [state, setState] = useState({ isPlaying: false, currentSegment: null, waitingFor: null, muted: false, done: !(segments && segments.length) });
+  const [state, setState] = useState({ isPlaying: false, currentSegment: null, waitingFor: null, muted: false, paused: false, done: !(segments && segments.length) });
   const engineRef = useRef(null);
 
   // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
@@ -479,15 +534,15 @@ function useAudio(segments) {
   const replay = useCallback(() => {
     if (engineRef.current) engineRef.current.replay();
   }, []);
-  const toggleMute = useCallback(() => {
-    setState(prev => {
-      const newMuted = !prev.muted;
-      if (newMuted && engineRef.current) engineRef.current.stop();
-      return { ...prev, muted: newMuted };
-    });
+  // Yon-ta'sir reducer'da EMAS: engine yagona manba, holatni onStateChange yangilaydi
+  // (StrictMode'da ikki marta chaqirilish/lag bo'lmaydi).
+  const togglePause = useCallback(() => {
+    const e = engineRef.current;
+    if (!e) return;
+    if (e.paused) e.resume(); else e.pause();
   }, []);
 
-  return { ...state, triggerEvent, triggerInternal, replay, toggleMute };
+  return { ...state, triggerEvent, triggerInternal, replay, togglePause };
 }
 
 // Хелпер: построить audio-segments для экрана из CONTENT
@@ -515,22 +570,17 @@ const makeAutoSegments = (screenContent, lang) => {
   return arr.map((text, i) => ({ id: `aud_${i}`, text, trigger: i === 0 ? 'on_mount' : 'after_previous', waits_for: null }));
 };
 
-// useCanAnswer — javob tanlash faqat ovoz tugagandan keyin (bola avval tinglaydi).
-// Ovoz yangrayotganda yoki hali boshlanmaganda -> false. Mute -> true. 12s himoya (bloklanmasin).
+// useCanAnswer — javob tanlash faqat ovoz TO'LIQ tugagach (bola oxirigacha tinglaydi).
+// Pauza holatida done bo'lmaydi -> javob berib bo'lmaydi. 60s himoya (ovoz uzilib qolsa bloklanmasin).
 function useCanAnswer(audio) {
   const navUnlocked = useContext(NavUnlockContext);
-  const startedRef = useRef(false);
-  const [ready, setReady] = useState(false);
-  useEffect(() => {
-    if (audio.isPlaying) startedRef.current = true;
-    else if (startedRef.current) setReady(true);
-  }, [audio.isPlaying]);
-  useEffect(() => { const id = setTimeout(() => setReady(true), 8000); return () => clearTimeout(id); }, []);
-  return FREE_NAV || navUnlocked || audio.muted || audio.done || ready;
+  const [safety, setSafety] = useState(false);
+  useEffect(() => { const id = setTimeout(() => setSafety(true), 60000); return () => clearTimeout(id); }, []);
+  return FREE_NAV || navUnlocked || audio.done || safety;
 }
 
 // useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
-// (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 6s himoya.
+// (o'quvchi tushuntirishni oxirigacha eshitsin). Pauza -> nav OCHILMAYDI. 60s himoya.
 function useAdvanceGate(solved, audio) {
   const navUnlocked = useContext(NavUnlockContext);
   const [safety, setSafety] = useState(false);
@@ -541,7 +591,6 @@ function useAdvanceGate(solved, audio) {
   }, [solved]);
   if (navUnlocked) return true;
   if (!solved) return false;
-  if (audio.muted) return true;
   return audio.done || safety;
 }
 
@@ -582,36 +631,27 @@ const mt = (str) => {
 };
 
 const AudioIndicator = ({ audioState }) => {
-  const { isPlaying, muted, replay, toggleMute } = audioState;
+  const { isPlaying, paused, replay, togglePause } = audioState;
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <button onClick={toggleMute} title={muted ? 'Sound on' : 'Sound off'}
-        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: muted ? T.ink3 : (isPlaying ? T.accent : T.ink2) }}>
-        {muted ? (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
-        ) : isPlaying ? (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      <button onClick={togglePause} title={paused ? 'Davom ettirish' : 'Pauza'}
+        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: paused ? T.ink2 : (isPlaying ? T.accent : T.ink2) }}>
+        {paused ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <polygon points="6 4 20 12 6 20 6 4"/>
           </svg>
         ) : (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
           </svg>
         )}
       </button>
-      {!muted && (
-        <button onClick={replay} title="Replay"
-          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-          </svg>
-        </button>
-      )}
+      <button onClick={replay} title="Qayta tinglash"
+        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        </svg>
+      </button>
     </div>
   );
 };
@@ -3012,6 +3052,7 @@ const Screen3 = (props) => {
   const t = useT();
   const sfx = useSfx();
   const c = CONTENT.s3;
+  const opts = React.useMemo(() => shuffleArr(c.opts.slice()), []);
   const audio = useAudio([
     brgSeg('s3', lang),
     ...c.audio[lang].map((text, i) => ({ id: `s3_${i}`, text, trigger: 'after_previous', waits_for: null }))
@@ -3047,7 +3088,7 @@ const Screen3 = (props) => {
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, width: '100%' }}>
-          {c.opts.map((o, i) => (
+          {opts.map((o, i) => (
             <button key={i} className={`option ${done && o.ok ? 'option-correct' : ''} ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || done || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
               style={{ padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{t(o)}</button>
           ))}
@@ -3431,7 +3472,7 @@ const FinalMixed = (props) => {
   const [solved, setSolved] = useState(false);
   const attemptsRef = useRef(0);
   const cur = rounds[ri];
-  const opts = React.useMemo(() => (cur.opts ? shuffleArr(cur.opts.slice()) : cur.opts), [cKey, ri]);
+  const opts = React.useMemo(() => (cur.opts ? shuffleArr(cur.opts.slice()) : cur.opts), [ri]);
   const isPlace = cur.kind === 'place';
   const isLast = ri === rounds.length - 1;
   const allDone = solved && isLast;
@@ -3542,6 +3583,7 @@ const Screen4 = (props) => {
   const t = useT();
   const sfx = useSfx();
   const c = CONTENT.s4;
+  const opts = React.useMemo(() => shuffleArr(c.opts.slice()), []);
   const audio = useAudio([
     brgSeg('s4', lang),
     ...c.audio[lang].map((text, i) => ({ id: `s4_${i}`, text, trigger: 'after_previous', waits_for: null }))
@@ -3576,7 +3618,7 @@ const Screen4 = (props) => {
         <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, width: '100%' }}>
-          {c.opts.map((o, i) => (
+          {opts.map((o, i) => (
             <button key={i} className={`option ${done && o.ok ? 'option-correct' : ''} ${wrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || done || wrong.has(i)} onClick={() => pick(i, !!o.ok)}
               style={{ padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{t(o)}</button>
           ))}
@@ -4702,6 +4744,11 @@ export default function RazryadLesson({
 const STYLES = `
 html, body { margin: 0; padding: 0; }
 .lesson-root, .lesson-root * { box-sizing: border-box; }
+/* PAUZA: ovoz to'xtaganda butun darsdagi UZLUKSIZ CSS-animatsiyalar muzlaydi
+   (o'quvchi kadrni tinch ko'radi). Qadam-progressi allaqachon ovozga bog'liq.
+   .fade-up bir martalik reveal (opacity:0->1) — muzlatilmaydi, aks holda pauzada
+   paydo bo'lgan feedback ko'rinmay qolardi. */
+body.lesson-paused *:not(.fade-up), body.lesson-paused *::before, body.lesson-paused *::after { animation-play-state: paused !important; }
 /* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
    viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
    body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.

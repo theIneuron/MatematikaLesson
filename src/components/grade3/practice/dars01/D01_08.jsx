@@ -9,9 +9,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
@@ -24,8 +24,8 @@ const Stage = ({ children, style }) => (
 );
 const Neon = ({ text, size = 40 }) => (
   <div style={{ display: 'flex', justifyContent: 'center' }}>
-    <div style={{ padding: '8px 20px', borderRadius: 14, background: '#152342', border: '1.5px solid ' + C.ribbonBd, boxShadow: 'inset 0 0 18px rgba(255,184,77,.22)' }}>
-      <span style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 800, letterSpacing: 6, color: C.glow, textShadow: '0 0 12px rgba(255,184,77,.8)' }}>{text}</span>
+    <div style={{ padding: '8px 20px', borderRadius: 14, background: '#FFFFFF', border: '1.5px solid ' + C.ribbonBd, boxShadow: 'inset 0 0 18px rgba(20,90,134,.12)' }}>
+      <span style={{ fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 800, letterSpacing: 6, color: C.glow, textShadow: '0 0 12px rgba(20,90,134,.18)' }}>{text}</span>
     </div>
   </div>
 );
@@ -97,7 +97,7 @@ function D01_08Impl(props) {
   useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
   const check = useCallback(() => {
     const correct = bins.h === D08_ANS.h && bins.t === D08_ANS.t && bins.o === D08_ANS.o;
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { ...bins }, correctAnswer: { ...D08_ANS }, correct, meta: { tag: 'pv_bins', level: '🔴' } });
   }, [bins, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
@@ -133,7 +133,7 @@ function D01_08Impl(props) {
             <button key={k} type="button" onClick={() => placeTo(k)} disabled={locked && bins[k] == null}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '10px 12px', borderRadius: 12, border: '2px dashed ' + (sel != null && !locked ? C.glow : C.stageBd), background: C.stile, minWidth: 92, cursor: locked ? 'default' : 'pointer', boxShadow: binRing(k) }}>
               <span style={{ fontSize: 12, fontWeight: 800, color: C.sink2, textTransform: 'uppercase', letterSpacing: '.04em' }}>{t.bins[k]}</span>
-              <span style={{ width: 50, height: 50, borderRadius: 11, background: bins[k] != null ? '#152342' : 'rgba(255,255,255,.05)', border: '1.5px solid ' + C.ribbonBd, display: 'flex', alignItems: 'center', justifyContent: 'center', ...S.mono, fontSize: 26, fontWeight: 800, color: C.glow, textShadow: bins[k] != null ? '0 0 10px rgba(255,184,77,.8)' : 'none' }}>
+              <span style={{ width: 50, height: 50, borderRadius: 11, background: bins[k] != null ? '#FFFFFF' : 'rgba(255,255,255,.05)', border: '1.5px solid ' + C.ribbonBd, display: 'flex', alignItems: 'center', justifyContent: 'center', ...S.mono, fontSize: 26, fontWeight: 800, color: C.glow, textShadow: bins[k] != null ? '0 0 10px rgba(20,90,134,.18)' : 'none' }}>
                 {bins[k] != null ? bins[k] : ''}
               </span>
             </button>

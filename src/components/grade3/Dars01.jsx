@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
+import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3QuestionCoach, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
+import { grade3AudioLabels } from './grade3MethodUtils.js';
 
 // ============================================================================
 // ░░ 3-SINF · Dars01 — "Yuzliklar, o'nliklar, birliklar" (num-3-01-v1) · Б1 · GRADE3 ETALON NOMZODI ░░
@@ -15,7 +17,7 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // s1 (1-sinf recall) — endi kosmik: o'nta porlovchi birlik-element suzib bitta blokka birlashadi.
 // Misconception'lar: M1 45<->54 · M2 o'nlik+birlikni QO'SHISH · M3 "502" · M4 kasseta/batareya farqi.
 //
-// FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
+// FREE_NAV=true — 1-darsda navigatsiya blokirovkasi doimiy o'chirilgan.
 //
 // ETALON KIT bloklari (grade1 Dars28 merosi):
 //   1) INFRA — T, ttsConfig/configureLesson, buildTtsUrl, useSfx/playChime, LangContext/useT,
@@ -54,7 +56,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;   // TEKSHIRUV: blokirovka O'CHIQ (erkin navigatsiya). RELIZ oldidan false ga qaytaring!
+const FREE_NAV = true;   // ERKIN NAVIGATSIYA: audio/javob tugashini kutmasdan davom etish mumkin.
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -579,9 +581,11 @@ const mt = (str) => {
 
 const AudioIndicator = ({ audioState }) => {
   const { isPlaying, muted, replay, toggleMute } = audioState;
+  const lang = useLang();
+  const labels = grade3AudioLabels(lang, muted);
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <button onClick={toggleMute} title={muted ? 'Sound on' : 'Sound off'}
+      <button onClick={toggleMute} title={labels.sound} aria-label={labels.sound}
         style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: muted ? T.ink3 : (isPlaying ? T.accent : T.ink2) }}>
         {muted ? (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -601,7 +605,7 @@ const AudioIndicator = ({ audioState }) => {
         )}
       </button>
       {!muted && (
-        <button onClick={replay} title="Replay"
+        <button onClick={replay} title={labels.replay} aria-label={labels.replay}
           style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -689,20 +693,23 @@ const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
   const t = useT();
+  const lang = useLang();
   const isMobile = useIsMobile();
-  const padH = isMobile ? 12 : 100;
+  const padH = isMobile ? 12 : 56;
+  const screenMeta = SCREEN_META[screen];
+  const screenType = screenMeta?.type || 'custom';
+  const isExplanation = screenType === 'exploration' || screenType === 'rule';
   return (
-    <div className="stage">
+    <div className={`stage stage-${screenType}`}>
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
-        <div className="progress-track">
-          <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
-        </div>
+        <Grade3Progress current={screen} total={totalScreens} lang={lang}/>
         <div className="chrome">
           <div className="chrome-left eyebrow">
             <span className="dot"/>
             <span>{t(eyebrow)}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <Grade3ScreenType screenMeta={screenMeta} lang={lang}/>
             {audioState && <AudioIndicator audioState={audioState}/>}
             <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
@@ -711,6 +718,8 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
         </div>
       </div>
       <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
+        {!isExplanation && <SlideGuide screen={screen}/>}
+        {!isExplanation && screenType !== 'summary' && <Grade3QuestionCoach lang={lang} mode={screenMeta?.scope === 'final' ? 'final' : screenType === 'case' ? 'case' : 'pick'}/>}
         {children}
       </div>
       {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
@@ -744,6 +753,26 @@ const NextLabel = () => {
 const BackLabel = () => {
   const lang = useLang();
   return lang === 'uz' ? 'Orqaga' : 'Назад';
+};
+
+const SlideGuide = ({ screen }) => {
+  const t = useT();
+  const guide = SCREEN_GUIDES[screen];
+  if (!guide) return null;
+  return (
+    <div className={`ux-slide-guide ux-slide-guide-${guide.tone || 'watch'}`} role="note">
+      <span className="ux-slide-guide-icon" aria-hidden="true">{guide.icon}</span>
+      <span className="ux-slide-guide-label">{t(guide.label)}</span>
+      <span className="ux-slide-guide-flow">
+        {guide.steps.map((step, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span className="ux-slide-guide-arrow" aria-hidden="true">→</span>}
+            <span className="ux-slide-guide-step"><b>{i + 1}</b><span>{t(step)}</span></span>
+          </React.Fragment>
+        ))}
+      </span>
+    </div>
+  );
 };
 
 // ============================================================
@@ -922,6 +951,25 @@ const SCREEN_META = [
   { id: 'sCASE', type: 'case',      template: 'custom',   scored: true,  scope: 'practice' },  // 12 shahar hisobi (s12+s13): jami 346
   { id: 's14',  type: 'test',       template: 'custom',   scored: true,  scope: 'final' },     // 13 FINAL panel: 4 savol + FactCard
   { id: 's15',  type: 'summary',    template: 'custom',   scored: false, scope: 'final' }      // 14 yakun + QOIDA recap
+];
+
+// Har slaydda o'quvchi keyingi harakatni bir qarashda anglaydi.
+const SCREEN_GUIDES = [
+  { tone: 'do', icon: '🎯', label: { ru: 'Огни города', uz: 'Shahar chiroqlari' }, steps: [{ ru: 'Посмотри', uz: 'Kuzating' }, { ru: 'Найди быстрый способ', uz: 'Tez usulni toping' }] },
+  { tone: 'watch', icon: '👀', label: { ru: 'Вспоминаем', uz: 'Eslaymiz' }, steps: [{ ru: 'Собери десятки', uz: "O'nliklarni yig'ing" }, { ru: 'Открой сотню', uz: 'Yuzlikni oching' }] },
+  { tone: 'watch', icon: '🧱', label: { ru: 'Собираем число', uz: "Sonni yig'amiz" }, steps: [{ ru: 'Сотни', uz: 'Yuzlik' }, { ru: 'Десятки', uz: "O'nlik" }, { ru: 'Единицы', uz: 'Birlik' }] },
+  { tone: 'watch', icon: '🔁', label: { ru: 'Два способа', uz: 'Ikki usul' }, steps: [{ ru: 'Разряды', uz: 'Xonalar' }, { ru: 'Сумма частей', uz: "Qo'shiluvchilar" }] },
+  { tone: 'watch', icon: '🏠', label: { ru: 'Место цифры', uz: "Raqamning o'rni" }, steps: [{ ru: 'Переставь', uz: "O'rnini almashtiring" }, { ru: 'Сравни', uz: 'Solishtiring' }] },
+  { tone: 'do', icon: '📍', label: { ru: 'Числовая прямая', uz: "Son o'qi" }, steps: [{ ru: 'Найди 470', uz: '470 ni toping' }, { ru: 'Нажми точку', uz: 'Nuqtani bosing' }] },
+  { tone: 'watch', icon: '🚀', label: { ru: 'Открываем тысячу', uz: 'Mingni ochamiz' }, steps: [{ ru: 'Собери 10 сотен', uz: '10 yuzlikni yig‘ing' }, { ru: 'Получи 1000', uz: '1000 ni hosil qiling' }] },
+  { tone: 'do', icon: '💡', label: { ru: 'Закрепи правило', uz: 'Qoidani mustahkamlang' }, steps: [{ ru: 'Посмотри на число', uz: 'Songa qarang' }, { ru: 'Нажми сотни', uz: 'Yuzlikni bosing' }] },
+  { tone: 'do', icon: '🧩', label: { ru: 'Собери 362', uz: "362 ni yig'ing" }, steps: [{ ru: 'Выбери части', uz: 'Qismlarni tanlang' }, { ru: 'Проверь число', uz: 'Sonni tekshiring' }] },
+  { tone: 'do', icon: '📦', label: { ru: 'Разложи 528', uz: '528 ni ajrating' }, steps: [{ ru: 'Возьми цифру', uz: 'Raqamni oling' }, { ru: 'Положи в разряд', uz: 'Xonasiga qo‘ying' }] },
+  { tone: 'do', icon: '0️⃣', label: { ru: 'Пустой разряд', uz: "Bo'sh xona" }, steps: [{ ru: 'Найди ноль', uz: 'Nolni toping' }, { ru: 'Выбери число', uz: 'Sonni tanlang' }] },
+  { tone: 'do', icon: '⚖️', label: { ru: 'Сравниваем', uz: 'Solishtiramiz' }, steps: [{ ru: 'Сначала сотни', uz: 'Avval yuzlik' }, { ru: 'Потом десятки', uz: "Keyin o'nlik" }] },
+  { tone: 'do', icon: '🏙️', label: { ru: 'Задача города', uz: 'Shahar masalasi' }, steps: [{ ru: 'Собери данные', uz: "Ma'lumotni yig'ing" }, { ru: 'Найди итог', uz: 'Javobni toping' }] },
+  { tone: 'test', icon: '⭐', label: { ru: 'Финальная проверка', uz: 'Yakuniy tekshiruv' }, steps: [{ ru: '5 коротких задач', uz: '5 qisqa topshiriq' }, { ru: 'Работай сам', uz: 'Mustaqil bajaring' }] },
+  { tone: 'finish', icon: '🏆', label: { ru: 'Миссия выполнена', uz: 'Missiya bajarildi' }, steps: [{ ru: 'Повтори правило', uz: 'Qoidani takrorlang' }, { ru: 'Заверши урок', uz: 'Darsni tugating' }] },
 ];
 
 // shuffleMC/shuffleArr — grade2 etalon helperlari (MC variant tartibi). Saqlanadi.
@@ -3431,8 +3479,8 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
             <h1 className="title h-sub fade-up">{t(it.q)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
-              {renderFig(it)}
-              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(100px, 1fr))`, gap: 10, width: '100%' }}>
+              <div className="grade3-question-figure">{renderFig(it)}</div>
+              <div className="grade3-answer-grid" style={{ '--answer-cols': cols }}>
                 {it.opts.map((o, i) => (
                   <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(15px, 2.2vw, 19px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{t(o)}</button>
@@ -3596,20 +3644,21 @@ const MiniCity = () => (
 
 // --- RAQAM-PLITA (klaviatursiz javob TERISH — grade3 yangiligi: TANISH emas, ISHLAB CHIQARISH).
 // value — string; max — xona soni. Grade2 praktika NumPad naqshi, T-palitraga moslangan.
-const npKey = { width: 'clamp(48px, 12.5vw, 62px)', height: 'clamp(46px, 11.5vw, 58px)', borderRadius: 13, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(21px, 5.4vw, 27px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
+const npKey = { width: 'clamp(50px, 9vw, 54px)', height: 'clamp(42px, 7vw, 44px)', borderRadius: 13, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(21px, 4vw, 25px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
 const NumPad = ({ value, setValue, disabled, max = 3 }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-      <div className="mono" style={{ minWidth: 156, height: 58, borderRadius: 14, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 8 }}>
+    <div className="d2-numpad" role="group" aria-label="Raqamli telefon klaviaturasi">
+      <span className="d2-numpad-speaker" aria-hidden="true"/>
+      <div className="mono d2-numpad-display" style={{ minWidth: 'clamp(170px, 36vw, 212px)', height: 'clamp(50px, 9vw, 54px)', borderRadius: 15, border: `3px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(28px, 5vw, 34px)', fontWeight: 800, color: T.ink, letterSpacing: 5, padding: '0 14px' }}>{value || '—'}</div>
+      <div className="d2-numpad-grid">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
-          <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
+          <button key={d} className="d2-numpad-key" type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
         ))}
-        <span/>
-        <button type="button" disabled={disabled} onClick={() => push('0')} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>0</button>
-        <button type="button" disabled={disabled} onClick={back} style={{ ...npKey, fontSize: 18, color: T.accent, cursor: disabled ? 'default' : 'pointer' }}>⌫</button>
+        <span className="d2-numpad-spacer"/>
+        <button className="d2-numpad-key" type="button" disabled={disabled} onClick={() => push('0')} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>0</button>
+        <button className="d2-numpad-key d2-numpad-back" type="button" aria-label="Oxirgi raqamni o'chirish" disabled={disabled} onClick={back} style={{ ...npKey, fontSize: 22, color: T.accent, cursor: disabled ? 'default' : 'pointer' }}>⌫</button>
       </div>
     </div>
   );
@@ -3985,6 +4034,7 @@ export default function TensUnitsLesson({
       <ProgressContext.Provider value={{ stars: starsEarned, total: starTotal }}>
       <HeroContext.Provider value={heroCtx}>
       <style>{STYLES}</style>
+      <style>{GRADE3_ETALON_STYLES}</style>
       <div className="lesson-root">
         <GradientDefs/>
         <D2Defs/>
@@ -4201,6 +4251,55 @@ html, body { margin: 0; padding: 0; }
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+}
+.stage-exploration .stage-content,
+.stage-rule .stage-content,
+.stage-hook .stage-content { scrollbar-width: none; }
+.stage-exploration .stage-content::-webkit-scrollbar,
+.stage-rule .stage-content::-webkit-scrollbar,
+.stage-hook .stage-content::-webkit-scrollbar { display: none; }
+.stage-content > div:not(.ux-slide-guide) {
+  animation: uxSlideIn 0.58s cubic-bezier(0.22,0.8,0.3,1) both;
+  transform-origin: top center;
+}
+@keyframes uxSlideIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.ux-slide-guide {
+  width: min(100%, 920px);
+  margin: 0 auto clamp(7px,1.2vw,11px);
+  padding: 7px 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(1,154,203,0.18);
+  border-radius: 13px;
+  background: rgba(232,247,252,0.84);
+  box-shadow: 0 7px 20px -18px rgba(58,53,48,0.45);
+}
+.ux-slide-guide-do { background: rgba(255,243,233,0.82); border-color: rgba(255,79,40,0.2); }
+.ux-slide-guide-test { background: rgba(251,243,214,0.86); border-color: rgba(216,169,58,0.28); }
+.ux-slide-guide-finish { background: rgba(227,240,232,0.88); border-color: rgba(31,122,77,0.22); }
+.ux-slide-guide-icon { display: inline-flex; align-items: center; justify-content: center; width: 29px; height: 29px; flex: 0 0 auto; border-radius: 9px; background: #fff; box-shadow: 0 5px 12px -8px rgba(58,53,48,0.45); font-size: 16px; }
+.ux-slide-guide-label { color: #017BA3; font-size: 11px; font-weight: 850; letter-spacing: 0.045em; text-transform: uppercase; white-space: nowrap; }
+.ux-slide-guide-do .ux-slide-guide-label { color: #C0392B; }
+.ux-slide-guide-test .ux-slide-guide-label { color: #8A681B; }
+.ux-slide-guide-finish .ux-slide-guide-label { color: #1F7A4D; }
+.ux-slide-guide-flow { display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; margin-left: auto; }
+.ux-slide-guide-step { display: inline-flex; align-items: center; gap: 5px; color: #5A5A60; font-size: clamp(10px,1.4vw,12px); font-weight: 700; white-space: nowrap; }
+.ux-slide-guide-step b { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; flex: 0 0 auto; border-radius: 50%; background: #019ACB; color: white; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+.ux-slide-guide-do .ux-slide-guide-step b { background: #FF4F28; }
+.ux-slide-guide-test .ux-slide-guide-step b { background: #D8A93A; }
+.ux-slide-guide-finish .ux-slide-guide-step b { background: #1F7A4D; }
+.ux-slide-guide-arrow { color: #A7A6A2; font-weight: 900; }
+@media (max-width: 640px) {
+  .ux-slide-guide { gap: 7px; padding: 6px 8px; }
+  .ux-slide-guide-label { display: none; }
+  .ux-slide-guide-flow { gap: 4px; justify-content: flex-start; margin-left: 0; }
+  .ux-slide-guide-step { font-size: 10px; }
+  .ux-slide-guide-step b { width: 17px; height: 17px; }
 }
 .stage-nav {
   flex-shrink: 0;
@@ -5681,6 +5780,32 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 /* === v5 — sCASE (yuk xati: kontekst + savol bitta ekranда) === */
 .d2-case-ctx { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 600; font-size: clamp(14px, 2vw, 17px); line-height: 1.3; color: #0E0E10; }
 
+/* === Dars02 dan olingan telefon NumPad: ko'rinish + hover/active/disabled holatlari === */
+.d2-numpad {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  width: min(228px, 100%);
+  padding: 18px 10px 11px;
+  border-radius: 25px;
+  background: linear-gradient(155deg,#E9EDF1,#D9DEE4);
+  border: 1px solid rgba(63,74,88,0.16);
+  box-shadow: 0 18px 34px -24px rgba(38,49,62,0.65), inset 0 1px rgba(255,255,255,0.9);
+}
+.d2-numpad-speaker { position: absolute; top: 8px; width: 42px; height: 4px; border-radius: 99px; background: #A9B1BA; }
+.d2-numpad-display { width: 100%; min-width: 0 !important; box-shadow: inset 0 2px 8px rgba(58,53,48,0.08); }
+.d2-numpad-grid { display: grid; grid-template-columns: repeat(3, auto); gap: 6px; }
+.d2-numpad-key {
+  transition: transform 0.16s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  box-shadow: 0 5px 11px -7px rgba(38,49,62,0.55), inset 0 1px rgba(255,255,255,0.9);
+}
+.d2-numpad-key:hover:not(:disabled) { transform: translateY(-2px); border-color: #019ACB !important; box-shadow: 0 10px 18px -10px rgba(1,154,203,0.5); }
+.d2-numpad-key:active:not(:disabled) { transform: scale(0.95); }
+.d2-numpad-back { background: #FFF3E9 !important; border-color: rgba(255,79,40,0.34) !important; }
+.d2-numpad-spacer { width: clamp(50px, 9vw, 54px); height: clamp(42px, 7vw, 44px); }
+
 /* === v7/v10 — s14 FINAL: haqiqiy devor-TABLO (bezel + boltlar + porlovchi sarlavha + skanline) === */
 .d2-tablo { position: relative; width: 100%; max-width: clamp(280px, 74vw, 460px); margin: 0 auto; background: linear-gradient(#F3EBDA, #E8DEC9); border-radius: 16px; box-shadow: inset 0 0 0 3px #D9CCB2, inset 0 2px 6px rgba(255,255,255,0.5), 0 10px 26px -10px rgba(58,53,48,0.3); padding: clamp(10px, 2.2vw, 16px); }
 .d2-tablo-bolt { position: absolute; width: clamp(6px, 1.3vw, 9px); height: clamp(6px, 1.3vw, 9px); border-radius: 50%; background: radial-gradient(circle at 35% 35%, #AEBEC9, #55697C); box-shadow: inset 0 -1px 1px rgba(0,0,0,0.5); }
@@ -6066,3 +6191,12 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-rulecard-badge { align-self: flex-start; background: #ff4f28; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
 `;
+
+export function Grade3CityEtalonScene({ complete = false }) {
+  return (
+    <div className="g1-lesson grade3-reused-scene">
+      <style>{STYLES}</style>
+      <HookScene gathered={complete}/>
+    </div>
+  );
+}

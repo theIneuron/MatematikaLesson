@@ -8,9 +8,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
@@ -91,7 +91,7 @@ function D08_04Impl(props) {
   const made = slots.map((id) => (id == null ? '' : D04_CARDS[id].ch)).join('');
   const check = useCallback(() => {
     const correct = made === D04_ANS;
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value: made }, correctAnswer: { value: D04_ANS }, correct, meta: { tag: 'rome_build', level: '🟡' } });
   }, [made, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
@@ -101,10 +101,10 @@ function D08_04Impl(props) {
   const popSlot = (i) => { if (locked) return; setSlots((sl) => { const n = [...sl]; n[i] = null; return n; }); };
   const cardStyle = { width: 54, height: 58, borderRadius: 13, border: '2px solid ' + C.line, background: C.paper, color: C.ink, ...S.mono, fontSize: 26, fontWeight: 800, cursor: locked ? 'default' : 'pointer' };
   const slotStyle = (i) => ({
-    width: 52, height: 66, borderRadius: 12, background: slots[i] != null ? '#152342' : 'rgba(255,255,255,.05)',
+    width: 52, height: 66, borderRadius: 12, background: slots[i] != null ? '#FFFFFF' : 'rgba(255,255,255,.05)',
     border: slots[i] != null ? '1.5px solid ' + C.ribbonBd : '2px dashed ' + C.stageBd,
     display: 'flex', alignItems: 'center', justifyContent: 'center', ...S.mono, fontSize: 30, fontWeight: 800,
-    color: C.glow, textShadow: slots[i] != null ? '0 0 12px rgba(255,184,77,.8)' : 'none',
+    color: C.glow, textShadow: slots[i] != null ? '0 0 12px rgba(20,90,134,.18)' : 'none',
     cursor: (locked || slots[i] == null) ? 'default' : 'pointer',
     boxShadow: checked ? '0 0 0 2.5px ' + (fb?.correct ? C.ok : C.no) : 'none',
   });
@@ -114,7 +114,7 @@ function D08_04Impl(props) {
       <p style={S.setup}>{t.setup}</p>
       <Stage>
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
-          <span style={{ ...S.mono, fontSize: 34, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(255,184,77,.8)' }}>23</span>
+          <span style={{ ...S.mono, fontSize: 34, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(20,90,134,.18)' }}>23</span>
         </div>
         <div style={{ textAlign: 'center', marginBottom: 6, color: C.sink2, fontSize: 13, fontWeight: 700 }}>{t.slots}</div>
         <div style={{ display: 'flex', gap: 7, justifyContent: 'center' }}>

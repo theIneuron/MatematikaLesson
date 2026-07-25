@@ -8,9 +8,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
@@ -25,14 +25,14 @@ const Stage = ({ children, style }) => (
 const GlowDefs = () => (
   <defs>
     <radialGradient id="g3d1Glow" cx="50%" cy="42%" r="62%">
-      <stop offset="0%" stopColor="#FFE9B8" /><stop offset="55%" stopColor="#FFB84D" /><stop offset="100%" stopColor="#E67E22" />
+      <stop offset="0%" stopColor="#FFE9B8" /><stop offset="55%" stopColor="#145A86" /><stop offset="100%" stopColor="#0E4A70" />
     </radialGradient>
   </defs>
 );
 const Panel = ({ s = 56, delay = 0 }) => (
   <svg className="g3d1-drop" width={s} height={s} viewBox="0 0 96 96" aria-hidden="true" style={{ display: 'inline-block', verticalAlign: 'middle', animationDelay: delay + 's' }}>
     <GlowDefs />
-    <rect x="1" y="1" width="94" height="94" rx="9" fill="#152342" stroke={C.ribbonBd} strokeWidth="1.4" />
+    <rect x="1" y="1" width="94" height="94" rx="9" fill="#FFFFFF" stroke={C.ribbonBd} strokeWidth="1.4" />
     {Array.from({ length: 100 }).map((_, i) => {
       const col = i % 10; const row = Math.floor(i / 10);
       return <circle key={i} cx={9.5 + col * 8.5} cy={9.5 + row * 8.5} r="2.6" fill="url(#g3d1Glow)" />;
@@ -104,12 +104,12 @@ function D01_10Impl(props) {
   useEffect(() => { onReady?.(n > 0 && !checked); }, [n, checked, onReady]);
   const check = useCallback(() => {
     const correct = n === D10_ANS;
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { panels: n, value: n * 100 }, correctAnswer: { panels: D10_ANS, value: 1000 }, correct, meta: { tag: 'thousand', level: '🔴' } });
   }, [n, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;
-  const btn = (bg, dis) => ({ width: 46, height: 46, borderRadius: 12, border: 'none', background: dis ? '#3a2140' : bg, color: '#160a1c', fontSize: 24, fontWeight: 800, cursor: (locked || dis) ? 'default' : 'pointer' });
+  const btn = (bg, dis) => ({ width: 46, height: 46, borderRadius: 12, border: 'none', background: dis ? '#D9E6F0' : bg, color: '#243447', fontSize: 24, fontWeight: 800, cursor: (locked || dis) ? 'default' : 'pointer' });
   return (
     <div style={S.wrap}>
       <div style={S.eyebrow}>{t.eyebrow}</div>
@@ -124,7 +124,7 @@ function D01_10Impl(props) {
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 12, fontWeight: 800, color: C.sink2, textTransform: 'uppercase' }}>{t.count} <span style={S.mono}>{n}</span></div>
             <div style={{ fontSize: 12, fontWeight: 800, color: C.sink2, textTransform: 'uppercase', marginTop: 4 }}>{t.formed}</div>
-            <div className="g3d1-float" style={{ ...S.mono, fontSize: 38, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(255,184,77,.8)' }}>{n * 100}</div>
+            <div className="g3d1-float" style={{ ...S.mono, fontSize: 38, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(20,90,134,.18)' }}>{n * 100}</div>
           </div>
           <button type="button" disabled={locked || n >= 12} onClick={() => setN((v) => Math.min(12, v + 1))} style={btn(C.glow, n >= 12)}>+</button>
         </div>

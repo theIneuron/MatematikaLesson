@@ -8,9 +8,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
@@ -100,13 +100,13 @@ function D01_07Impl(props) {
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
   const check = useCallback(() => {
     const correct = picked === D07_CORRECT;
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: D07_CORRECT, label: t.opts[D07_CORRECT] }, correct, meta: { tag: D07_TAG, level: D07_LEVEL } });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const digitStyle = (hot) => ({
     fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 44, fontWeight: 800, letterSpacing: 6,
-    color: hot ? '#FF7A5E' : C.glow, textShadow: hot ? '0 0 16px rgba(255,122,94,.95)' : '0 0 12px rgba(255,184,77,.8)',
+    color: hot ? '#FF7A5E' : C.glow, textShadow: hot ? '0 0 16px rgba(255,122,94,.95)' : '0 0 12px rgba(20,90,134,.18)',
   });
   return (
     <div style={S.wrap}>
@@ -114,7 +114,7 @@ function D01_07Impl(props) {
       <p style={S.setup}>{t.setup}</p>
       <Stage>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={{ padding: '10px 22px', borderRadius: 14, background: '#152342', border: '1.5px solid ' + C.ribbonBd, boxShadow: 'inset 0 0 18px rgba(255,184,77,.22)' }}>
+          <div style={{ padding: '10px 22px', borderRadius: 14, background: '#FFFFFF', border: '1.5px solid ' + C.ribbonBd, boxShadow: 'inset 0 0 18px rgba(20,90,134,.12)' }}>
             <span style={digitStyle(false)}>8</span>
             <span className="g3d1-pulse" style={digitStyle(true)}>5</span>
             <span style={digitStyle(false)}>4</span>

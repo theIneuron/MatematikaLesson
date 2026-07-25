@@ -8,9 +8,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
@@ -86,7 +86,7 @@ function D01_05Impl(props) {
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
   const check = useCallback(() => {
     const correct = picked === D05_CORRECT;
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     const segLbl = (i) => D05_TICKS[i] + '–' + D05_TICKS[i + 1];
     onSubmit?.({ questionText: t.ask, options: D05_TICKS.slice(0, -1).map((_, i) => ({ id: String(i), label: segLbl(i) })), studentAnswer: { idx: picked, label: picked != null ? segLbl(picked) : null }, correctAnswer: { idx: D05_CORRECT, label: segLbl(D05_CORRECT) }, correct, meta: { tag: 'numline_between', level: '🟡' } });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
@@ -111,7 +111,7 @@ function D01_05Impl(props) {
       <p style={S.setup}>{t.setup}</p>
       <Stage>
         <div style={{ textAlign: 'center', marginBottom: 4, color: C.sink2, fontSize: 13, fontWeight: 700 }}>{t.target}</div>
-        <div className="g3d1-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 36, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(255,184,77,.8)', marginBottom: 6 }}>{D05_TARGET}</div>
+        <div className="g3d1-pop" style={{ textAlign: 'center', ...S.mono, fontSize: 36, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(20,90,134,.18)', marginBottom: 6 }}>{D05_TARGET}</div>
         <svg viewBox="0 0 560 110" style={{ width: '100%', display: 'block' }} role="group" aria-label="son o'qi">
           {/* bosiladigan oraliqlar */}
           {D05_TICKS.slice(0, -1).map((_, i) => (

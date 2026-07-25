@@ -7,9 +7,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
@@ -25,14 +25,14 @@ const Towers = ({ hA = 375, hB = 320, la = 'Toshkent', lb = 'Eyfel' }) => {
   const H = 120;
   const bar = (h, lbl, col) => (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 800, color: C.glow, textShadow: '0 0 10px rgba(255,184,77,.7)' }}>{h} m</span>
-      <div className="g3d4-grow" style={{ width: 44, height: Math.round(H * h / 400), borderRadius: '8px 8px 3px 3px', background: 'linear-gradient(180deg,' + col + ', #1B2A4A)', border: '1.5px solid ' + C.ribbonBd }} />
+      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 800, color: C.glow, textShadow: '0 0 10px rgba(20,90,134,.16)' }}>{h} m</span>
+      <div className="g3d4-grow" style={{ width: 44, height: Math.round(H * h / 400), borderRadius: '8px 8px 3px 3px', background: 'linear-gradient(180deg,' + col + ', #FFFFFF)', border: '1.5px solid ' + C.ribbonBd }} />
       <span style={{ fontSize: 12, fontWeight: 800, color: C.sink2, textTransform: 'uppercase' }}>{lbl}</span>
     </div>
   );
   return (
     <div style={{ display: 'flex', gap: 34, justifyContent: 'center', alignItems: 'flex-end' }}>
-      {bar(hA, la, '#FFB84D')}
+      {bar(hA, la, '#145A86')}
       {bar(hB, lb, '#7fd0ff')}
     </div>
   );
@@ -114,7 +114,7 @@ function D04_03Impl(props) {
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
   const check = useCallback(() => {
     const correct = picked === D03_CORRECT;
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     onSubmit?.({ questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: D03_CORRECT, label: t.opts[D03_CORRECT] }, correct, meta: { tag: D03_TAG, level: D03_LEVEL } });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);

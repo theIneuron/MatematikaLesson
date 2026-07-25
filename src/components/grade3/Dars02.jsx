@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
+import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3QuestionCoach, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
 
 // ============================================================================
 // DD 3-SINF | Dars02 — "Sonlarni o'qish va yozish (1000 gacha)" (num-3-02) | B1 | so'z<->raqam
@@ -12,7 +13,7 @@ import React, { useState, useEffect, useRef, useCallback, createContext, useCont
 // Misconception: M1 nol tushishi (305->35), M2 konkatenatsiya (410->4010), M3 xona tartibi,
 //   M4 yuzlikni tushirib qoldirish. LessonScene: ma'lumot minorasi.
 //
-// FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
+// FREE_NAV=true — faqat ishlab chiqish paytida slaydlarni blokirovkasiz ochish uchun.
 // ============================================================
 
 // ============================================================
@@ -39,9 +40,9 @@ const T = {
 let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
-// Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
-// javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;   // TEKSHIRUV: blokirovka O'CHIQ (erkin navigatsiya). RELIZ oldidan false ga qaytaring!
+// Slaydlararo o'tish blokirovkasi. Tekshiruv tugagach reliz uchun false qaytariladi;
+// false bo'lganda "Davom" javob/ovoz tugagach ochiladi.
+const FREE_NAV = true;
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -565,10 +566,15 @@ const mt = (str) => {
 };
 
 const AudioIndicator = ({ audioState }) => {
+  const lang = useLang();
   const { isPlaying, muted, replay, toggleMute } = audioState;
+  const soundLabel = muted
+    ? (lang === 'uz' ? 'Ovozni yoqish' : 'Включить звук')
+    : (lang === 'uz' ? 'Ovozni o‘chirish' : 'Выключить звук');
+  const replayLabel = lang === 'uz' ? 'Ovozni qayta eshitish' : 'Повторить озвучку';
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <button onClick={toggleMute} title={muted ? 'Sound on' : 'Sound off'}
+      <button onClick={toggleMute} title={soundLabel} aria-label={soundLabel}
         style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: muted ? T.ink3 : (isPlaying ? T.accent : T.ink2) }}>
         {muted ? (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -588,7 +594,7 @@ const AudioIndicator = ({ audioState }) => {
         )}
       </button>
       {!muted && (
-        <button onClick={replay} title="Replay"
+        <button onClick={replay} title={replayLabel} aria-label={replayLabel}
           style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -676,20 +682,22 @@ const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
   const t = useT();
+  const lang = useLang();
   const isMobile = useIsMobile();
-  const padH = isMobile ? 12 : 100;
+  const padH = isMobile ? 12 : 56;
+  const screenType = SCREEN_META[screen]?.type || 'custom';
+  const isExplanation = screenType === 'exploration' || screenType === 'rule';
   return (
-    <div className="stage">
+    <div className={`stage stage-${screenType}`}>
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
-        <div className="progress-track">
-          <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
-        </div>
+        <Grade3Progress current={screen} total={totalScreens} lang={lang}/>
         <div className="chrome">
           <div className="chrome-left eyebrow">
             <span className="dot"/>
             <span>{t(eyebrow)}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <Grade3ScreenType screenMeta={SCREEN_META[screen]} lang={lang}/>
             {audioState && <AudioIndicator audioState={audioState}/>}
             <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
@@ -698,6 +706,8 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
         </div>
       </div>
       <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
+        {!isExplanation && <SlideGuide screen={screen}/>}
+        {!isExplanation && screenType !== 'summary' && <Grade3QuestionCoach lang={lang} mode={SCREEN_META[screen]?.scope === 'final' ? 'final' : screenType === 'case' ? 'case' : 'pick'}/>}
         {children}
       </div>
       {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
@@ -731,6 +741,29 @@ const NextLabel = () => {
 const BackLabel = () => {
   const lang = useLang();
   return lang === 'uz' ? 'Orqaga' : 'Назад';
+};
+
+const SlideGuide = ({ screen }) => {
+  const t = useT();
+  const guide = SCREEN_GUIDES[screen];
+  if (!guide) return null;
+  return (
+    <div className={`ux-slide-guide ux-slide-guide-${guide.tone || 'watch'}`} role="note">
+      <span className="ux-slide-guide-icon" aria-hidden="true">{guide.icon}</span>
+      <span className="ux-slide-guide-label">{t(guide.label)}</span>
+      <span className="ux-slide-guide-flow">
+        {guide.steps.map((step, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span className="ux-slide-guide-arrow" aria-hidden="true">→</span>}
+            <span className="ux-slide-guide-step">
+              <b>{i + 1}</b>
+              <span>{t(step)}</span>
+            </span>
+          </React.Fragment>
+        ))}
+      </span>
+    </div>
+  );
 };
 
 // ============================================================
@@ -912,6 +945,27 @@ const SCREEN_META = [
   { id: 's14', type: 'summary',     template: 'custom',   scored: false, scope: 'final' }
 ];
 
+// Har slaydda o'quvchi keyingi harakatni ko'z bilan darhol anglasin.
+// Matn qisqa, harakat esa 2–3 bosqichli: tinglash/ko'rish → bajarish → tekshirish.
+const SCREEN_GUIDES = [
+  { tone: 'do', icon: '🎯', label: { ru: 'Первый код', uz: 'Birinchi kod' }, steps: [{ ru: 'Послушай', uz: 'Tinglang' }, { ru: 'Выбери запись', uz: 'Yozuvni tanlang' }] },
+  { tone: 'watch', icon: '👀', label: { ru: 'Вспоминаем', uz: 'Eslaymiz' }, steps: [{ ru: 'Смотри на разряды', uz: 'Xonalarga qarang' }, { ru: 'Читай слева', uz: 'Chapdan o‘qing' }] },
+  { tone: 'do', icon: '🪪', label: { ru: 'Тренажёр карточек', uz: 'Kartochka trenajyori' }, steps: [{ ru: 'Сначала пример', uz: 'Avval namuna' }, { ru: 'Потом 3 раунда', uz: 'Keyin 3 bosqich' }] },
+  { tone: 'watch', icon: '➡️', label: { ru: 'Цифры в слова', uz: 'Raqamdan so‘zga' }, steps: [{ ru: 'Сотни', uz: 'Yuzlik' }, { ru: 'Десятки', uz: 'O‘nlik' }, { ru: 'Единицы', uz: 'Birlik' }] },
+  { tone: 'watch', icon: '⬅️', label: { ru: 'Слова в цифры', uz: 'So‘zdan raqamga' }, steps: [{ ru: 'Услышь части', uz: 'Qismlarni ajrating' }, { ru: 'Поставь по местам', uz: 'Xonasiga qo‘ying' }] },
+  { tone: 'watch', icon: '0️⃣', label: { ru: 'Пустой разряд', uz: 'Bo‘sh xona' }, steps: [{ ru: 'Найди пропуск', uz: 'Bo‘sh joyni toping' }, { ru: 'Сохрани ноль', uz: 'Nolni saqlang' }] },
+  { tone: 'watch', icon: '🚀', label: { ru: 'Граница урока', uz: 'Dars chegarasi' }, steps: [{ ru: 'Начни с 999', uz: '999 dan boshlang' }, { ru: 'Добавь один', uz: 'Bir qo‘shing' }] },
+  { tone: 'do', icon: '🔁', label: { ru: 'Два пути', uz: 'Ikki yo‘l' }, steps: [{ ru: 'Смотри способ 1', uz: '1-usulni ko‘ring' }, { ru: 'Открой способ 2', uz: '2-usulni oching' }] },
+  { tone: 'do', icon: '💡', label: { ru: 'Открой правило', uz: 'Qoidani oching' }, steps: [{ ru: 'Найди пустой разряд', uz: 'Bo‘sh xonani toping' }, { ru: 'Нажми на него', uz: 'Ustiga bosing' }] },
+  { tone: 'do', icon: '📖', label: { ru: 'Читаем сами', uz: 'O‘zimiz o‘qiymiz' }, steps: [{ ru: 'Разбери разряды', uz: 'Xonalarga ajrating' }, { ru: 'Выбери название', uz: 'Nomini tanlang' }] },
+  { tone: 'do', icon: '⌨️', label: { ru: 'Записываем сами', uz: 'O‘zimiz yozamiz' }, steps: [{ ru: 'Прочитай слова', uz: 'So‘zlarni o‘qing' }, { ru: 'Набери цифры', uz: 'Raqamlarni tering' }] },
+  { tone: 'do', icon: '🧩', label: { ru: 'Нулевая ловушка', uz: 'Nol tuzog‘i' }, steps: [{ ru: 'Найди пустое место', uz: 'Bo‘sh joyni toping' }, { ru: 'Выбери запись', uz: 'Yozuvni tanlang' }] },
+  { tone: 'do', icon: '🔎', label: { ru: 'Ищем ошибку', uz: 'Xatoni topamiz' }, steps: [{ ru: 'Сверь слово', uz: 'So‘zni solishtiring' }, { ru: 'Сверь цифры', uz: 'Raqamni solishtiring' }] },
+  { tone: 'do', icon: '🏙️', label: { ru: 'Код башни', uz: 'Minora kodi' }, steps: [{ ru: 'Услышь код', uz: 'Kodni tinglang' }, { ru: 'Набери и проверь', uz: 'Tering va tekshiring' }] },
+  { tone: 'test', icon: '⭐', label: { ru: 'Финальная проверка', uz: 'Yakuniy tekshiruv' }, steps: [{ ru: '5 коротких задач', uz: '5 qisqa topshiriq' }, { ru: 'Работай сам', uz: 'Mustaqil bajaring' }] },
+  { tone: 'finish', icon: '🏆', label: { ru: 'Миссия выполнена', uz: 'Missiya bajarildi' }, steps: [{ ru: 'Повтори правило', uz: 'Qoidani takrorlang' }, { ru: 'Заверши урок', uz: 'Darsni tugating' }] },
+];
+
 // shuffleMC/shuffleArr — grade2 etalon helperlari (MC variant tartibi). Saqlanadi.
 // shuffleMC — variantlarni QAT'IY order bo'yicha joylashtiradi va wrong_N/hint_N
 // kalitlarni YANGI indekslarga ko'chiradi (wrong_N kontentda ASL indeks bilan yoziladi,
@@ -1004,7 +1058,10 @@ const CONTENT = {
           "Sizningcha, uch yuz besh qaysi son bilan yoziladi? O'ylab, bittasini tanlang."
         ]
       },
-      on_correct: { ru: 'Верная мысль. Триста пять это три сотни, ноль десятков и пять единиц.', uz: "To'g'ri fikr. Uch yuz besh bu uch yuzlik, nol o'nlik va besh birlik." },
+      on_correct: {
+        ru: 'Это число 305, потому что в нём 3 сотни, 0 десятков и 5 единиц. Ответ: триста пять.',
+        uz: "Bu 305 soni, chunki unda 3 yuzlik, 0 o'nlik va 5 birlik bor. Javob: uch yuz besh."
+      },
       on_wrong: { ru: 'Посмотри внимательно. Ноль держит пустое место. Проверим вместе.', uz: "Diqqat qiling. Nol bo'sh o'rinni saqlaydi. Birga tekshiramiz." },
       on_unknown: { ru: 'Ничего. Сейчас разберём вместе.', uz: "Hechqisi yo'q. Hozir birga o'rganamiz." }
     }
@@ -1054,32 +1111,41 @@ const CONTENT = {
       { num: '70', ru: 'семьдесят', uz: 'yetmish' }, { num: '80', ru: 'восемьдесят', uz: 'sakson' },
       { num: '90', ru: 'девяносто', uz: "to'qson" }
     ],
-    // NAQSH kashfiyoti + interaktiv topish (metodist: bo'sh joy ko'p, ketma-ket va faol bo'lsin)
-    pattern_note: { ru: 'Сотни устроены одинаково: цифра и слово «сот». А у десятков имена свои — их держим в памяти.', uz: "Yuzliklar bir xil tuzilgan: raqam va «yuz» so'zi. O'nliklarning esa nomi o'ziga xos — ularni yodda saqlaymiz." },
-    find_head: { ru: 'Найди карточку', uz: 'Kartani toping' },
+    // Katta jadval o'rniga: farqlanadigan kartalar + ko'rsatiladigan birinchi mashq + 3 raund.
+    pattern_note: { ru: 'Сотни — трёхзначные карточки с двумя нулями. Десятки — двузначные карточки. Цвет и значок помогают не перепутать.', uz: "Yuzlik kartasi uch xonali va ikki nol bilan tugaydi. O'nlik kartasi ikki xonali. Rang va belgi ularni adashtirmaslikka yordam beradi." },
+    trainer_title: { ru: 'Учимся прямо в тренажёре', uz: "Trenajyorning o'zida o'rganamiz" },
+    trainer_intro: { ru: 'Карточки отличаются не только цветом: у сотен три цифры и знак ×100, у десятков две цифры и знак ×10.', uz: "Kartalar faqat rang bilan emas: yuzlikda uchta raqam va ×100 belgisi, o'nlikda ikkita raqam va ×10 belgisi bor." },
+    demo_badge: { ru: 'Показываю первый раз', uz: "Birinchi safar ko'rsataman" },
+    demo_h_label: { ru: 'карточка сотен', uz: 'yuzlik kartasi' },
+    demo_t_label: { ru: 'карточка десятков', uz: "o'nlik kartasi" },
+    demo_tip: { ru: 'Сначала смотри на количество цифр и значок, затем сверяй название.', uz: "Avval raqamlar soni va belgiga qarang, keyin nomini solishtiring." },
+    start_label: { ru: 'Понятно — начинаю →', uz: 'Tushundim — boshlayman →' },
+    find_head: { ru: 'Найди карточку с этим названием', uz: 'Shu nomdagi kartani toping' },
     find_items: [
-      { ask: '700', ru: 'семьсот', uz: 'yetti yuz' },
-      { ask: '40', ru: 'сорок', uz: 'qirq' },
-      { ask: '500', ru: 'пятьсот', uz: 'besh yuz' }
+      { ask: '700', ru: 'семьсот', uz: 'yetti yuz', options: ['700', '70', '500', '900'], guided: true },
+      { ask: '40', ru: 'сорок', uz: 'qirq', options: ['400', '40', '90', '20'] },
+      { ask: '500', ru: 'пятьсот', uz: 'besh yuz', options: ['50', '300', '500', '700'] }
     ],
+    guided_hint: { ru: 'Это показ: нужная карточка мягко светится. Нажми её и посмотри, что произойдёт.', uz: "Bu namuna: kerakli karta yengil yaltiraydi. Uni bosib, nima bo'lishini ko'ring." },
+    round_hint: { ru: 'Теперь без подсветки. Сначала определи: сотни или десятки?', uz: "Endi yoritishsiz. Avval aniqlang: yuzlikmi yoki o'nlik?" },
+    success_h: { ru: 'Верно: это карточка сотен — три цифры и два нуля.', uz: "To'g'ri: bu yuzlik kartasi — uchta raqam va ikkita nol." },
+    success_t: { ru: 'Верно: это карточка десятков — две цифры и один ноль.', uz: "To'g'ri: bu o'nlik kartasi — ikkita raqam va bitta nol." },
     find_ok: { ru: 'Верно!', uz: "To'g'ri!" },
-    find_no: { ru: 'Посмотри ещё раз на имя.', uz: "Nomga yana bir bor qarang." },
+    find_no: { ru: 'Пока не совпало. Проверь количество цифр, значок и название.', uz: "Hozircha mos kelmadi. Raqamlar soni, belgi va nomni yana tekshiring." },
     audio: {
       ru: [
-        'В башне каждый код называют словом. Но для каждого числа своё имя не выучишь, их слишком много.',
-        'Смотри на сотни. Сто, двести, триста, четыреста, пятьсот, шестьсот, семьсот, восемьсот, девятьсот.',
-        'Заметил? Все они устроены одинаково: цифра и слово сот. Отдельно запоминать не нужно.',
-        'А теперь десятки. Десять, двадцать, тридцать, сорок, пятьдесят, шестьдесят, семьдесят, восемьдесят, девяносто.',
-        'Вот у них имена свои, каждое особенное. Их держим в памяти.',
-        'Теперь проверь себя. Бит называет число словом, а ты находи нужную карточку.'
+        'В башне каждый код называют словом. Научимся различать названия прямо в тренажёре.',
+        'Смотри на карточку сотен. В ней три цифры, два нуля и знак умножить на сто. Например, семь сотен это семьсот.',
+        'Карточка десятков другая. В ней две цифры, один ноль и знак умножить на десять. Например, четыре десятка это сорок.',
+        'Цвет помогает быстро заметить тип, но всегда проверяй количество цифр, значок и название.',
+        'Первый раунд я покажу. Правильная карточка будет мягко светиться. Потом выполнишь ещё два раунда самостоятельно.'
       ],
       uz: [
-        "Minorada har kodni so'z bilan aytishadi. Lekin har son uchun alohida nom yodlab bo'lmaydi, ular juda ko'p.",
-        "Yuzliklarga qarang. Yuz, ikki yuz, uch yuz, to'rt yuz, besh yuz, olti yuz, yetti yuz, sakkiz yuz, to'qqiz yuz.",
-        "Payqadingizmi? Hammasi bir xil tuzilgan: raqam va yuz so'zi. Alohida yodlash shart emas.",
-        "Endi o'nliklar. O'n, yigirma, o'ttiz, qirq, ellik, oltmish, yetmish, sakson, to'qson.",
-        "Mana bularning nomi o'ziga xos, har biri alohida. Ularni yodda saqlaymiz.",
-        "Endi o'zingizni sinang. Bit sonni so'z bilan aytadi, siz kerakli kartani toping."
+        "Minorada har kodni so'z bilan aytishadi. Son nomlarini trenajyorning o'zida farqlashni o'rganamiz.",
+        "Yuzlik kartasiga qarang. Unda uchta raqam, ikkita nol va yuzga ko'paytirish belgisi bor. Masalan, yetti yuzlik bu yetti yuz.",
+        "O'nlik kartasi boshqacha. Unda ikkita raqam, bitta nol va o'nga ko'paytirish belgisi bor. Masalan, to'rt o'nlik bu qirq.",
+        "Rang karta turini tez ko'rsatadi, lekin doim raqamlar soni, belgi va nomni ham tekshiring.",
+        "Birinchi bosqichni men ko'rsataman. To'g'ri karta yengil yaltiraydi. Keyingi ikki bosqichni mustaqil bajarasiz."
       ]
     }
   },
@@ -1095,7 +1161,7 @@ const CONTENT = {
     part_h: { ru: 'двести', uz: 'ikki yuz' },
     part_t: { ru: 'шестьдесят', uz: 'oltmish' },
     part_o: { ru: 'восемь', uz: 'sakkiz' },
-    done_text: { ru: 'Двести шестьдесят восемь. Каждый разряд назвали своим именем.', uz: "Ikki yuz oltmish sakkiz. Har xonani o'z nomida o'qidik." },
+    done_text: { ru: 'Двести шестьдесят восемь. Каждый разряд назвали своим именем.', uz: "Ikki yuz oltmish sakkiz. Har bir xonani o'z nomi bilan o'qidik." },
     audio: {
       ru: [
         'Имена разрядов мы знаем. Но как из трёх цифр получить одну фразу? Вот число, двести шестьдесят восемь.',
@@ -1126,15 +1192,15 @@ const CONTENT = {
     hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
-    done_text: { ru: 'Каждая часть — в свой разряд. Получилось 268.', uz: "Har qism o'z xonasiga. 268 chiqdi." },
+    done_text: { ru: 'Сначала определим сотни, затем десятки и единицы. Получаем 268.', uz: "Avval yuzlikni, keyin o'nlik va birlikni aniqlaymiz. 268 ni hosil qilamiz." },
     audio: {
       ru: [
-        'Теперь наоборот. Имя превратим в цифры. Имя, двести шестьдесят восемь.',
+        'Теперь наоборот. Имя превратим в цифры. Сначала определим сотни, затем десятки и единицы. Имя, двести шестьдесят восемь.',
         'Двести ставим в разряд сотен, это два. Шестьдесят в разряд десятков, это шесть. Восемь в разряд единиц.',
         'Части не приставляем друг к другу. Каждая стоит в своём разряде. Получилось двести шестьдесят восемь.'
       ],
       uz: [
-        "Endi teskari. Nomni raqamga o'giramiz. Nom, ikki yuz oltmish sakkiz.",
+        "Endi teskari. Nomni raqamga o'giramiz. Avval yuzlikni, keyin o'nlik va birlikni aniqlaymiz. Nom, ikki yuz oltmish sakkiz.",
         "Ikki yuzni yuzlik xonasiga qo'yamiz, bu ikki. Oltmishni o'nlik xonasiga, bu olti. Sakkizni birlik xonasiga.",
         "Qismlarni yonma-yon ulamaymiz. Har biri o'z xonasida turadi. Chiqdi ikki yuz oltmish sakkiz."
       ]
@@ -1144,34 +1210,35 @@ const CONTENT = {
   // s5 — NOL O'RIN yozuvda (KASHFIYOT): «uch yuz besh» -> 305; misollar 250, 406, 700
   s5: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Пустой разряд держит ноль.', uz: "Bo'sh xonani nol saqlaydi." },
+    lead: { ru: 'Ноль сохраняет место пустого разряда.', uz: "Nol bo'sh xonaning o'rnini saqlaydi." },
     word_name: { ru: 'триста пять', uz: 'uch yuz besh' },
     empty_label: { ru: 'десятки пусты', uz: "o'nlik bo'sh" },
     result: { ru: '305', uz: '305' },
+    zero_rule: { ru: 'Если разряд пустой, то его место занимает ноль. Ноль пишем, но при чтении не называем.', uz: "Agar xona bo'sh bo'lsa, uning o'rnini nol egallaydi. Nolni yozamiz, lekin o'qishda aytmaymiz." },
     examples: [
       { word: { ru: 'двести пятьдесят', uz: 'ikki yuz ellik' }, num: '250', empty: { ru: 'единицы пусты', uz: "birlik bo'sh" } },
       { word: { ru: 'четыреста шесть', uz: "to'rt yuz olti" }, num: '406', empty: { ru: 'десятки пусты', uz: "o'nlik bo'sh" } },
       { word: { ru: 'семьсот', uz: 'yetti yuz' }, num: '700', empty: { ru: 'десятки и единицы пусты', uz: "o'nlik va birlik bo'sh" } }
     ],
-    done_text: { ru: 'Ноль нельзя выбрасывать — иначе получится другое число.', uz: "Nolni tashlab bo'lmaydi, aks holda boshqa son chiqadi." },
+    done_text: { ru: 'Итак, получаем число 305. Ноль сохраняем в записи, но не произносим при чтении.', uz: "Xulosa qilib, 305 sonini hosil qilamiz. Nolni yozuvda saqlaymiz, lekin o'qishda aytmaymiz." },
     audio: {
       ru: [
         'Иногда один разряд пустой. Слушай внимательно, вот число, триста пять.',
-        'Сотни три есть, единицы пять есть. А десятки не назвали ни разу, значит десятков нет.',
+        'Сотни три есть, единицы пять есть. Десятки не названы, поэтому на их месте пишем ноль.',
         'И тут ловушка. Если записать только то, что услышали, выйдет три и пять, то есть тридцать пять.',
         'А тридцать пять и триста пять это разные числа. Одно в десять раз больше другого.',
-        'Поэтому пустое место держит ноль. Он как пустое кресло, само оно ничего не значит, но место занято.',
-        'Записываем триста пять как три, ноль, пять. Ноль стоит там, где десятков нет.',
-        'Ноль выбрасывать нельзя. Он показывает, что разряд не потерялся, он просто пустой.'
+        'Если разряд пустой, то его место занимает ноль. Он как пустое кресло, сам ничего не значит, но место занято.',
+        'Записываем триста пять как три, ноль, пять. Итак, получаем число триста пять.',
+        'Ноль выбрасывать нельзя. В записи он сохраняет пустой разряд, а при чтении мы его не называем.'
       ],
       uz: [
         "Ba'zan bir xona bo'sh bo'ladi. Diqqat bilan tinglang, mana son, uch yuz besh.",
-        "Yuzlik uch bor, birlik besh bor. O'nlik esa bir marta ham aytilmadi, demak o'nlik yo'q.",
+        "Yuzlik uch bor, birlik besh bor. O'nlik aytilmadi, shuning uchun uning o'rniga nol yozamiz.",
         "Mana shu yerda tuzoq bor. Faqat eshitilganini yozsak, uch va besh chiqadi, ya'ni o'ttiz besh.",
         "O'ttiz besh va uch yuz besh esa har xil sonlar. Biri ikkinchisidan o'n barobar katta.",
-        "Shuning uchun bo'sh o'rinni nol saqlaydi. U bo'sh kursi kabi, o'zi hech narsani bildirmaydi, lekin o'rin band.",
-        "Uch yuz beshni uch, nol, besh deb yozamiz. Nol o'nlik yo'q joyda turadi.",
-        "Nolni tashlab bo'lmaydi. U xona yo'qolmaganini, shunchaki bo'shligini ko'rsatadi."
+        "Agar xona bo'sh bo'lsa, uning o'rnini nol egallaydi. U bo'sh kursi kabi, o'zi hech narsani bildirmaydi, lekin o'rin band.",
+        "Uch yuz beshni uch, nol, besh deb yozamiz. Xulosa qilib, uch yuz besh sonini hosil qilamiz.",
+        "Nolni tashlab bo'lmaydi. Yozuvda u bo'sh xonani saqlaydi, lekin sonni o'qiganda nol deb aytmaymiz."
       ]
     }
   },
@@ -1183,7 +1250,7 @@ const CONTENT = {
     near_word: { ru: 'девятьсот девяносто девять', uz: "to'qqiz yuz to'qson to'qqiz" },
     ming_eq: { ru: '999 + 1 = 1000', uz: '999 + 1 = 1000' },
     ming_word: { ru: 'ТЫСЯЧА', uz: 'MING' },
-    done_text: { ru: 'Тысяча — самое большое число нашего урока. Это уже четыре цифры.', uz: "Ming darsimizning eng katta soni. Bu allaqachon to'rt raqam." },
+    done_text: { ru: 'Тысяча — самое большое число нашего урока. Это уже четырёхзначное число.', uz: "Ming darsimizning eng katta soni. Bu to'rt xonali son." },
     audio: {
       ru: [
         'Мы читали и записывали числа. Самое большое трёхзначное число это девятьсот девяносто девять.',
@@ -1273,27 +1340,27 @@ const CONTENT = {
   },
   s7: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Число читаем слева направо. Каждый разряд — своим именем. Пустой разряд держит ноль.', uz: "Sonni chapdan o'ngga o'qiymiz. Har xonani o'z nomida. Bo'sh xonani nol saqlaydi." },
+    rule: { ru: 'Читаем слева направо. Каждый разряд называем своим именем. Ноль сохраняем в записи, но не произносим.', uz: "Chapdan o'ngga o'qiymiz. Har bir xonani o'z nomi bilan aytamiz. Nolni yozuvda saqlaymiz, lekin o'qimaymiz." },
     num: { ru: '305', uz: '305' },
     hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
     tens_label: { ru: 'десятки', uz: "o'nliklar" },
     ones_label: { ru: 'единицы', uz: 'birliklar' },
     check_q: { ru: 'В числе триста пять — нажми пустой разряд.', uz: "Uch yuz beshda bo'sh xonani bosing." },
-    check_ok: { ru: 'Верно! Десятки пусты — там ноль.', uz: "To'g'ri! O'nlik bo'sh, u yerda nol." },
+    check_ok: { ru: 'Верно! Проверим: цифры стоят в правильных разрядах. Ответ: триста пять.', uz: "To'g'ri! Tekshiramiz: raqamlar o'z xonalarida turibdi. Javob: uch yuz besh." },
     check_no: { ru: 'Пустой разряд — десятки, в середине. Нажми среднюю цифру.', uz: "Bo'sh xona o'nlik, o'rtada. O'rtadagi raqamni bosing." },
     audio: {
       ru: [
         'Отлично, теперь всё понятно. Запомним это как правило, оно нам всегда пригодится.',
         'Число читаем слева направо. Каждый разряд называем своим именем, сотни, десятки, единицы.',
         'Цифры рядом не складываются. Три, ноль и пять рядом дают триста пять, а не восемь.',
-        'Если разряд не назвали, значит он пустой. Пустое место держит ноль, и ноль из записи не выбрасываем.',
+        'Если разряд пустой, то его место занимает ноль. В записи ноль сохраняем, но при чтении не произносим.',
         'А теперь сам. В числе триста пять нажми тот разряд, который пустой.'
       ],
       uz: [
         "Zo'r, endi hammasini tushundingiz. Buni qoida qilib eslab qolamiz, u bizga doim kerak bo'ladi.",
-        "Sonni chapdan o'ngga o'qiymiz. Har xonani o'z nomida aytamiz, yuzlik, o'nlik, birlik.",
+        "Sonni chapdan o'ngga o'qiymiz. Har bir xonani o'z nomi bilan aytamiz: yuzlik, o'nlik, birlik.",
         "Yonma-yon raqamlar qo'shilmaydi. Uch, nol va besh yonma-yon uch yuz besh beradi, sakkiz emas.",
-        "Agar xona aytilmasa, demak u bo'sh. Bo'sh o'rinni nol saqlaydi, va nolni yozuvdan tashlamaymiz.",
+        "Agar xona aytilmasa, demak u bo'sh. Yozuvda uning o'rnini nol saqlaydi, lekin o'qishda nolni aytmaymiz.",
         "Endi o'zingiz. Uch yuz beshda qaysi xona bo'sh, o'shani bosing."
       ]
     }
@@ -1374,8 +1441,8 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Теперь записываешь число. Послушай имя и набери цифры, нажимая кнопки. После нажми проверить.', uz: "Endi son yozasiz. Nomni eshiting va raqamlarni bosib tering. So'ng tekshirishni bosing." },
-      on_correct: { ru: 'Отлично. Записано верно.', uz: "Zo'r. To'g'ri yozdingiz." },
+      intro: { ru: 'Теперь записываешь число. Сначала определи сотни, затем десятки и единицы. Набери цифры и нажми проверить.', uz: "Endi son yozasiz. Avval yuzlikni, keyin o'nlik va birlikni aniqlang. Raqamlarni terib, tekshirishni bosing." },
+      on_correct: { ru: 'Отлично. Проверим: цифры стоят в правильных разрядах.', uz: "Zo'r. Tekshiramiz: raqamlar o'z xonalarida turibdi." },
       on_wrong: { ru: 'Каждая часть в свой разряд. Не названный разряд — ноль. Попробуй ещё.', uz: "Har qism o'z xonasiga. Aytilmagan xona nol. Yana urinib ko'ring." }
     }
   },
@@ -1530,7 +1597,7 @@ const CONTENT = {
     audio: {
       intro: { ru: 'Финальная проверка. Городской компьютер показывает числа, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri sonlar ko'rsatadi, har biriga javob bering." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      on_wrong: { ru: 'Посмотри объяснение ниже и попробуй ещё раз.', uz: "Quyidagi tushuntirishga qarang va yana urinib ko'ring." }
     }
   },
 
@@ -1539,15 +1606,15 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Башня данных открыта — коды прочитаны!', uz: "Ma'lumot minorasi ochildi — kodlar o'qildi!" },
-    cando: { ru: 'Теперь ты читаешь число словом и записываешь его цифрами.', uz: "Endi siz sonni so'z bilan o'qiysiz va raqam bilan yozasiz." },
-    rule_recap: { ru: 'Читай каждый разряд своим именем. Не названный разряд — ноль, держи его в записи.', uz: "Har xonani o'z nomida o'qing. Aytilmagan xona nol, uni yozuvda saqlang." },
+    cando: { ru: 'Итак, ты читаешь число словом и записываешь его цифрами.', uz: "Xulosa qilib, endi siz sonni so'z bilan o'qiysiz va raqam bilan yozasiz." },
+    rule_recap: { ru: 'Читай каждый разряд своим именем. Ноль сохраняй в записи, но при чтении не называй.', uz: "Har bir xonani o'z nomi bilan o'qing. Nolni yozuvda saqlang, lekin o'qishda aytmang." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'первый урок: сотни, десятки и единицы', uz: "birinchi dars: yuzlik, o'nlik va birlik" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'Урок 3: разложение числа на разрядные слагаемые', uz: "3-dars: sonni razryad qo'shiluvchilariga yoyish" },
     audio: {
-      ru: 'Башня данных открыта. Мы научились читать число словом и записывать его цифрами. Запомни правило. Каждый разряд читаем своим именем. А если разряд не назвали, значит он пустой, и там ноль, который нельзя выбрасывать. В следующий раз научимся раскладывать число на разрядные слагаемые.',
-      uz: "Ma'lumot minorasi ochildi. Biz sonni so'z bilan o'qishni va raqam bilan yozishni o'rgandik. Qoidani yodda tuting. Har xonani o'z nomida o'qiymiz. Agar xona aytilmasa, demak u bo'sh, u yerda nol turadi va uni tashlab bo'lmaydi. Keyingi safar sonni razryad qo'shiluvchilariga yoyishni o'rganamiz."
+      ru: 'Башня данных открыта. Мы научились читать число словом и записывать его цифрами. Запомни правило. Каждый разряд читаем своим именем. Если разряд пустой, то его место занимает ноль, но при чтении ноль не произносим. Следовательно, слово и цифры обозначают одно и то же число. В следующий раз научимся раскладывать число на разрядные слагаемые.',
+      uz: "Ma'lumot minorasi ochildi. Biz sonni so'z bilan o'qishni va raqam bilan yozishni o'rgandik. Qoidani yodda tuting. Har bir xonani o'z nomi bilan o'qiymiz. Agar xona bo'sh bo'lsa, uning o'rnini nol egallaydi, lekin o'qishda nolni aytmaymiz. Demak, so'z va raqamlar aynan bitta sonni bildiradi. Keyingi safar sonni razryad qo'shiluvchilariga yoyishni o'rganamiz."
     }
   }
 };
@@ -2611,15 +2678,120 @@ const AxborotMinorasiBg = () => (
   </svg>
 );
 
-const LessonScene = ({ gathered = false }) => {
+// Bosh va yakun sahnalari uchun tashqi ko'rinish: dars aynan Ma'lumotlar
+// minorasida o'tayotganini bir qarashda anglatadigan markaziy siluet.
+const AxborotMinorasiExteriorBg = ({ gathered = false, split = false }) => (
+  <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="d2TowerSky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#29234A"/>
+        <stop offset="46%" stopColor="#665179"/>
+        <stop offset="100%" stopColor="#E5A36F"/>
+      </linearGradient>
+      <linearGradient id="d2TowerBody" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#EAF7FC"/>
+        <stop offset="48%" stopColor="#8FC9DA"/>
+        <stop offset="100%" stopColor="#427897"/>
+      </linearGradient>
+      <linearGradient id="d2TowerWing" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#355E7D"/>
+        <stop offset="100%" stopColor="#18344F"/>
+      </linearGradient>
+      <radialGradient id="d2TowerGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stopColor="#8CEBFF" stopOpacity="0.82"/>
+        <stop offset="100%" stopColor="#48C9ED" stopOpacity="0"/>
+      </radialGradient>
+      <linearGradient id="d2TowerGround" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#D5B68B"/>
+        <stop offset="100%" stopColor="#9E7C5C"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="400" height="230" fill="url(#d2TowerSky)"/>
+    <circle cx="338" cy="34" r="28" fill="#FFCE7A" opacity="0.2"/>
+    <circle cx="338" cy="34" r="13" fill="#FFD994"/>
+    <g opacity="0.8">
+      {[[30,26,1.4],[74,46,1.1],[121,25,1.2],[278,31,1.1],[306,61,1.5],[370,70,1]].map(([x,y,r], i) => (
+        <circle key={i} className="lm-cstar" style={{ animationDelay: `${i * 0.45}s` }} cx={x} cy={y} r={r} fill="#FFF2CF"/>
+      ))}
+    </g>
+    <g opacity="0.38" fill="#352F50">
+      <rect x="0" y="111" width="38" height="83" rx="8"/>
+      <rect x="42" y="92" width="34" height="102" rx="9"/>
+      <rect x="80" y="124" width="28" height="70" rx="7"/>
+      <rect x="292" y="116" width="31" height="78" rx="7"/>
+      <rect x="328" y="86" width="38" height="108" rx="9"/>
+      <rect x="370" y="124" width="30" height="70" rx="7"/>
+    </g>
+    <g fill="#FFDF8C" opacity="0.75">
+      {[14,28,53,65,338,352,380,392].map((x, i) => <rect key={i} x={x} y={135 + (i % 3) * 16} width="5" height="8" rx="2"/>)}
+    </g>
+
+    <g transform={split ? 'translate(-54 20) scale(.82)' : undefined}>
+    <ellipse cx="200" cy="122" rx="98" ry="92" fill="url(#d2TowerGlow)" opacity={gathered ? 0.9 : 0.58}/>
+    <g className={gathered ? 'd2-tower-celebrate' : 'd2-tower-breathe'}>
+      <ellipse cx="200" cy="199" rx="92" ry="10" fill="rgba(19,35,51,0.34)"/>
+      {/* Keng, qavatli data-markaz: uchli burun va qanotlar yo'q. */}
+      <rect x="116" y="108" width="42" height="82" rx="9" fill="url(#d2TowerWing)" stroke="#7CC9DF" strokeWidth="1.5"/>
+      <rect x="242" y="108" width="42" height="82" rx="9" fill="url(#d2TowerWing)" stroke="#7CC9DF" strokeWidth="1.5"/>
+      <rect x="144" y="64" width="112" height="126" rx="15" fill="url(#d2TowerBody)" stroke="#D8F4FC" strokeWidth="2"/>
+      <rect x="154" y="75" width="92" height="105" rx="10" fill="#173B59" opacity="0.9"/>
+      <path d="M144 80 Q144 64 160 64 H174 V190 H144 Z" fill="#FFFFFF" opacity="0.16"/>
+      <path d="M256 80 Q256 64 240 64 H229 V190 H256 Z" fill="#102F4A" opacity="0.24"/>
+      <rect x="162" y="46" width="76" height="22" rx="8" fill="#A6DEEB" stroke="#E5FBFF" strokeWidth="2"/>
+      <rect x="176" y="38" width="48" height="11" rx="5" fill="#315E7A"/>
+      <line x1="200" y1="38" x2="200" y2="20" stroke="#DFFFFF" strokeWidth="2"/>
+      <circle className="lm-glow" cx="200" cy="19" r="4.5" fill={gathered ? '#B9FFD3' : '#72E8FF'}/>
+      <ellipse cx="200" cy="28" rx="29" ry="7" fill="none" stroke="#87E9FA" strokeWidth="2" opacity="0.76"/>
+      <ellipse cx="200" cy="28" rx="45" ry="11" fill="none" stroke="#87E9FA" strokeWidth="1" opacity="0.3"/>
+
+      {[['2',165],['6',189],['8',213]].map(([n,x], i) => (
+        <g key={n} className="lm-cwin" style={{ animationDelay: `${i * 0.5}s` }}>
+          <rect x={x} y="82" width="22" height="19" rx="5" fill={gathered ? '#B6F8D0' : '#73DCF2'}/>
+          <text x={x + 11} y="96" textAnchor="middle" fontSize="11" fontWeight="900" fill="#15344B" fontFamily="'JetBrains Mono', monospace">{n}</text>
+        </g>
+      ))}
+      <rect x="173" y="109" width="54" height="18" rx="7" fill="#FFCB55"/>
+      <text x="200" y="122" textAnchor="middle" fontSize="9" fontWeight="900" fill="#503A13" letterSpacing="1.7" fontFamily="'JetBrains Mono', monospace">DATA</text>
+      {[0,1,2].map((row) => (
+        <g key={row} className="lm-cwin" style={{ animationDelay: `${row * 0.45}s` }}>
+          {[0,1,2,3].map((col) => (
+            <rect key={col} x={163 + col * 20} y={137 + row * 13} width="13" height="7" rx="2.5" fill={gathered ? '#B6F8D0' : '#6ED3EA'} opacity={0.72 + col * 0.05}/>
+          ))}
+        </g>
+      ))}
+      {[0,1,2].map((row) => (
+        <React.Fragment key={row}>
+          <rect x="125" y={120 + row * 19} width="24" height="9" rx="3" fill="#6ED3EA" opacity="0.72"/>
+          <rect x="251" y={120 + row * 19} width="24" height="9" rx="3" fill="#6ED3EA" opacity="0.72"/>
+        </React.Fragment>
+      ))}
+      <rect x="185" y="170" width="30" height="20" rx="7" fill="#102D46"/>
+      <path d="M190 190 V180 Q200 171 210 180 V190 Z" fill={gathered ? '#B6F8D0' : '#8BE5F5'}/>
+    </g>
+    </g>
+
+    <rect x="0" y="192" width="400" height="38" fill="url(#d2TowerGround)"/>
+    <path d="M151 230 L249 230 L218 192 H182 Z" fill="#DCC39A"/>
+    <path d="M174 230 L226 230 L210 192 H190 Z" fill="#F1DDB9" opacity="0.65"/>
+    <line x1="0" y1="192" x2="400" y2="192" stroke="#8B6E54" strokeWidth="2"/>
+    {gathered && (
+      <g className="d2-tower-rays" stroke="#B6F8D0" strokeWidth="2" strokeLinecap="round">
+        <path d="M145 58 l-12 -9"/><path d="M255 58 l12 -9"/><path d="M152 86 l-16 0"/><path d="M248 86 l16 0"/>
+      </g>
+    )}
+  </svg>
+);
+
+const LessonScene = ({ gathered = false, split = false }) => {
   const kid = ({ key, El, hook }, i) => (
     <span key={key} className="lm-crew lm-crew-kid g1-pop-in" style={{ animationDelay: `${0.25 + i * 0.12}s` }}>
       <El {...(gathered ? { mood: 'happy', pose: 'happy' } : hook)}/>
     </span>
   );
   return (
-    <div className="lm-scene">
-      <AxborotMinorasiBg/>
+    <div className={`lm-scene lm-scene-establishing${split ? ' d2-scene-split' : ''}`}>
+      <AxborotMinorasiExteriorBg gathered={gathered} split={split}/>
       <div className="lm-scene-cast">
         {LUMO_CAST.slice(0, 2).map(kid)}
         <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
@@ -2668,21 +2840,91 @@ const MiniCity = () => (
 );
 
 // --- RAQAM-PLITA (klaviatursiz javob TERISH — grade3 yangiligi).
-const npKey = { width: 'clamp(48px, 12.5vw, 62px)', height: 'clamp(46px, 11.5vw, 58px)', borderRadius: 13, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(21px, 5.4vw, 27px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
+const npKey = { width: 'clamp(50px, 9vw, 54px)', height: 'clamp(42px, 7vw, 44px)', borderRadius: 13, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(21px, 4vw, 25px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
 const NumPad = ({ value, setValue, disabled, max = 3 }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-      <div className="mono" style={{ minWidth: 156, height: 58, borderRadius: 14, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 8 }}>
+    <div className="d2-numpad" role="group" aria-label="Raqamli telefon klaviaturasi">
+      <span className="d2-numpad-speaker" aria-hidden="true"/>
+      <div className="mono d2-numpad-display" style={{ minWidth: 'clamp(170px, 36vw, 212px)', height: 'clamp(50px, 9vw, 54px)', borderRadius: 15, border: `3px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'clamp(28px, 5vw, 34px)', fontWeight: 800, color: T.ink, letterSpacing: 5, padding: '0 14px' }}>{value || '—'}</div>
+      <div className="d2-numpad-grid">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
-          <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
+          <button key={d} className="d2-numpad-key" type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
         ))}
-        <span/>
-        <button type="button" disabled={disabled} onClick={() => push('0')} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>0</button>
-        <button type="button" disabled={disabled} onClick={back} style={{ ...npKey, fontSize: 18, color: T.accent, cursor: disabled ? 'default' : 'pointer' }}>⌫</button>
+        <span className="d2-numpad-spacer"/>
+        <button className="d2-numpad-key" type="button" disabled={disabled} onClick={() => push('0')} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>0</button>
+        <button className="d2-numpad-key d2-numpad-back" type="button" aria-label="Oxirgi raqamni o'chirish" disabled={disabled} onClick={back} style={{ ...npKey, fontSize: 22, color: T.accent, cursor: disabled ? 'default' : 'pointer' }}>⌫</button>
       </div>
+    </div>
+  );
+};
+
+// Numpad yonidagi kataklar avval bo'sh turadi. To'g'ri javobdan keyingina
+// raqamlar telefon tomondan uchib kelib, o'z kataklariga joylashadi.
+const D2TransferSlots = ({ value, expected, lang = 'ru', state = 'idle', max = 3, compact = false }) => {
+  const typed = String(value || '').slice(0, max).split('');
+  const answer = String(expected ?? '').padStart(max, '0').slice(-max).split('');
+  const visible = state === 'correct' ? typed : state === 'wrong' ? typed : [];
+  const placeLabels = lang === 'uz' ? ['yuzlik', "o'nlik", 'birlik'] : ['сотни', 'десятки', 'единицы'];
+  return (
+    <div className={`d2-transfer-slots ${compact ? 'is-compact' : ''} is-${state}`} aria-live="polite">
+      <div className="d2-live-number-slots">
+        {Array.from({ length: max }).map((_, i) => {
+          const digit = visible[i] || '';
+          const matches = state === 'wrong' && digit === answer[i];
+          const differs = state === 'wrong' && !matches;
+          return (
+            <div key={`${i}-${digit || state}`} className={`d2-slot-unit ${matches ? 'is-match' : ''} ${differs ? 'is-error' : ''}`}>
+              <span
+                className={state === 'correct' ? 'filled d2-digit-land' : matches ? 'd2-slot-match' : differs ? 'd2-slot-wrong' : ''}
+                style={{ '--digit-delay': `${i * 0.3}s` }}
+              >
+                {digit || (differs ? '—' : '')}
+              </span>
+              {state === 'wrong' && (
+                <>
+                  <small>{placeLabels[i]}</small>
+                  <em className={matches ? 'is-ok' : 'is-error-mark'}>{matches ? '✓' : '×'}</em>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const D2QuestionCoach = ({ lang, mode = 'pick', first = false }) => {
+  const copy = mode === 'type'
+    ? {
+        ru: ['Прочитай слова', 'Набери число на клавиатуре как на телефоне.'],
+        uz: ["So'zni o'qing", "Sonni telefon klaviaturasidagidek tering."],
+      }
+    : mode === 'verify'
+      ? {
+          ru: ['Проверь каждую пару', 'Для каждой строки выбери: слово и число совпадают или здесь ошибка.'],
+          uz: ['Har bir juftni tekshiring', "Har bir qatorda so'z va son mos yoki xato ekanini belgilang."],
+        }
+    : mode === 'compare'
+      ? {
+          ru: ['Сравни обе части', 'Прочитай слово и число, затем найди пару с ошибкой.'],
+          uz: ['Ikki tomonni solishtiring', "So'z va sonni o'qib, xato juftni toping."],
+        }
+      : {
+          ru: ['Посмотри на пример', 'Сначала прочитай условие, затем выбери карточку ответа.'],
+          uz: ["Misolga qarang", "Avval shartni o'qing, keyin javob kartasini tanlang."],
+        };
+  return (
+    <div className={`d2-question-coach${first ? ' is-first' : ''}`}>
+      <span aria-hidden="true">{mode === 'type' ? '⌨️' : mode === 'verify' ? '🟢' : mode === 'compare' ? '🔎' : '👀'}</span>
+      <div>
+        {first && <em className="mono">{lang === 'uz' ? '1-topshiriq' : 'Задание 1'}</em>}
+        <b>{copy[lang][0]}</b>
+        <p>{copy[lang][1]}</p>
+      </div>
+      <span className="d2-question-coach-flow" aria-hidden="true">1 → 2</span>
     </div>
   );
 };
@@ -2711,7 +2953,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = items[idx];
+  const it = items[Math.min(idx, items.length - 1)];
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
   const pick = (i) => {
@@ -2721,7 +2963,15 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
       sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setOkIdx(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1100);
+      const lastRound = idx === items.length - 1;
+      setTimeout(() => {
+        if (!lastRound) {
+          setOkIdx(null);
+          setWrongSet(new Set());
+          setHintMsg(null);
+        }
+        setIdx((n) => n + 1);
+      }, 1100);
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
@@ -2750,17 +3000,20 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && it && (
+        {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, items.length)} / {items.length}</div>
             <h1 className="title h-sub fade-up">{heading(it)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
-              {renderFig(it, okIdx !== null)}
-              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
+              <D2QuestionCoach lang={lang} first={idx === 0}/>
+              <div className="d2-question-figure">{renderFig(it, okIdx !== null || done)}</div>
+              <div className="d2-answer-grid" style={{ '--answer-cols': it.opts.length === 4 ? 2 : cols }}>
                 {it.opts.map((o, i) => (
-                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
-                    style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{t(o)}</button>
+                  <button key={i} className={`option d2-answer-card ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={done || !canAct || wrongSet.has(i)} onClick={() => pick(i)}>
+                    <span className="d2-answer-letter mono">{String.fromCharCode(65 + i)}</span>
+                    <span>{t(o)}</span>
+                  </button>
                 ))}
               </div>
               {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
@@ -2768,7 +3021,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success lm-riseup">
+          <div ref={revealRef} className="frame-success lm-riseup d2-bottom-feedback">
             <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
           </div>
         )}
@@ -2791,17 +3044,16 @@ const Screen0 = (props) => {
   const revealed = picked !== null;
   const fbKey = (i) => (i === 1 ? 'on_correct' : 'on_wrong');
   const pick = (i) => {
-    if (picked !== null || !canAct) return;
+    if (ok || !canAct) return;
     setPicked(i);
     if (!audio.muted) {
       const e = getAudioEngine();
       if (e) {
         e.pushOneOff(c.audio[fbKey(i)][lang]);
-        if (i !== 1) e.pushOneOff(c.audio.on_correct[lang]);   // noto'g'ri -> to'g'ri javob emotsiya bilan ochiladi
       }
     }
   };
-  const canAdv = useAdvanceGate(picked !== null, audio);
+  const canAdv = useAdvanceGate(ok, audio);
   const navContent = (
     <>
       {props.screen > 0 && <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>}
@@ -2814,23 +3066,21 @@ const Screen0 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <LessonScene gathered={revealed}/>
+        <div className="frame d2-scene-frame fade-up delay-1" style={{ position: 'relative', padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
+          <LessonScene gathered={ok}/>
         </div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-          <span className="mono" style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', color: T.ink2, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>{lang === 'ru' ? 'код' : 'kod'}</span>
-          <span className="title" style={{ fontSize: 'clamp(22px, 5vw, 34px)', fontWeight: 700, color: T.ink }}>{t(c.code_word)}</span>
+        <div className="d2-hook-question fade-up delay-1" role="heading" aria-level="2">
+          <span className="mono" aria-hidden="true">?</span>
+          <b className="title">{t(c.q)}</b>
         </div>
-        <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}>{t(c.q)}</p>
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+        <div className="d2-hook-options fade-up delay-1">
           {opts.map((o, i) => {
-            const cls = revealed
-              ? (i === 1 ? 'option option-correct' : (picked === i ? 'option option-picked-wrong' : 'option'))
-              : 'option';
+            const cls = ok
+              ? (i === 1 ? 'option option-correct' : 'option')
+              : (picked === i ? 'option option-picked-wrong' : 'option');
             return (
-              <button key={i} className={cls} disabled={!canAct || revealed} onClick={() => pick(i)}
-                style={{ position: 'relative', padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(15px, 2.2vw, 20px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
-                {revealed && i === 1 && <span className="mono" style={{ position: 'absolute', top: 4, right: 7, color: '#1F7A4D', fontWeight: 800 }}>✓</span>}
+              <button key={i} className={cls} disabled={!canAct || ok} onClick={() => pick(i)}>
+                {ok && i === 1 && <span className="mono">✓</span>}
                 {t(o)}
               </button>
             );
@@ -2840,14 +3090,6 @@ const Screen0 = (props) => {
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
           </FeedbackBlock>
-        )}
-        {/* TO'G'RI JAVOB izohi — ALOHIDA ramkada (reaksiya bilan aralashmasin) */}
-        {revealed && !ok && (
-          <div className="frame-success lm-riseup">
-            <p style={{ margin: 0, textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
-              {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
-            </p>
-          </div>
         )}
       </div>
     </Stage>
@@ -2866,6 +3108,7 @@ const Screen1 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s1_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
+  const all = audio.muted;
   const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const canAdv = useAdvanceGate(done, audio);
@@ -2879,16 +3122,68 @@ const Screen1 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(170px, 36vw, 230px)' }}>
+        <div className="frame d2-focus-frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(18px, 3vw, 28px)' }}>
           <RazryadTable h={3} t={4} o={5} labels={labels} digits/>
-          {reached >= 3 && <span className="mono lm-eq lm-reveal" style={{ fontSize: 'clamp(18px, 3.4vw, 26px)', fontWeight: 800, color: T.success }}>{t(c.name_full)}</span>}
+          {(all || reached >= 2) && (
+            <div className="d2-place-equation lm-reveal" aria-label="345 = 300 + 40 + 5">
+              <span className="mono d2-place-source">345</span>
+              <span className="d2-place-arrow" aria-hidden="true">→</span>
+              {[
+                ['300', '#C0392B'],
+                ['40', '#1F7A4D'],
+                ['5', T.blue],
+              ].map(([part, color], i) => (
+                <React.Fragment key={part}>
+                  {i > 0 && <b className="mono">+</b>}
+                  <span className="mono d2-place-part" style={{ '--part-color': color, '--part-delay': `${i * 0.22}s` }}>{part}</span>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+          {(all || reached >= 3) && <span className="mono lm-eq lm-reveal" style={{ fontSize: 'clamp(18px, 3.4vw, 26px)', fontWeight: 800, color: T.success }}>{t(c.name_full)}</span>}
         </div>
       </div>
     </Stage>
   );
 };
 
-// s2 — SON NOMLARI XARITASI
+const D2TrainerCard = ({ entry, lang, c, guided = false, wrong = false, correct = false, disabled = false, onClick, demo = false, delay = 0 }) => {
+  const isHundred = entry.num.length === 3;
+  const CardTag = demo ? 'div' : 'button';
+  const actionProps = demo ? {} : { type: 'button', disabled, onClick };
+  return (
+    <CardTag
+      {...actionProps}
+      className={[
+        'd2-trainer-card',
+        isHundred ? 'd2-trainer-card-h' : 'd2-trainer-card-t',
+        guided ? 'd2-trainer-card-guided' : '',
+        wrong ? 'd2-trainer-card-wrong' : '',
+        correct ? 'd2-trainer-card-correct' : '',
+        demo ? 'd2-trainer-card-demo' : '',
+      ].filter(Boolean).join(' ')}
+      style={{ '--card-delay': `${delay}s` }}
+      aria-label={`${entry.num}, ${entry[lang]}`}
+    >
+      <span className="d2-trainer-kind mono">
+        {isHundred ? c.demo_h_label[lang] : c.demo_t_label[lang]}
+        <b>{isHundred ? '×100' : '×10'}</b>
+      </span>
+      <span className="d2-trainer-formula mono">
+        <i>{entry.num[0]}</i>
+        <span>×</span>
+        <i>{isHundred ? '100' : '10'}</i>
+        <span>=</span>
+        <strong>{entry.num}</strong>
+      </span>
+      <span className="d2-trainer-word title">{entry[lang]}</span>
+      {guided && <span className="d2-trainer-hand" aria-hidden="true">👆</span>}
+      {correct && <span className="d2-trainer-check" aria-hidden="true">✓</span>}
+    </CardTag>
+  );
+};
+
+// s2 — KARTOCHKA TRENЯJYORI: trener avval ko'rsatadi, keyin o'quvchi 3 raund bajaradi.
 const Screen2 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2897,33 +3192,53 @@ const Screen2 = (props) => {
     brgSeg('s2', lang),
     ...c.audio[lang].map((text, i) => ({ id: `s2_${i}`, text, trigger: 'after_previous', waits_for: null }))
   ]);
-  const seg = audio.currentSegment;
-  const [reached, setReached] = useState(-1);
-  useEffect(() => { if (seg && /^s2_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
   const sfx = useSfx();
-  const all = audio.muted;                       // ovoz o'chiq -> hammasi darrov
-  const showH = all || reached >= 1;             // yuzliklar bittalab
-  const showPat = all || reached >= 2;           // naqsh eslatmasi
-  const showT = all || reached >= 3;             // o'nliklar
-  const showFind = all || reached >= 5;          // interaktiv topish
-  // TOPISH: Bit sonni so'z bilan aytadi, bola kartani bosadi
+  const canAct = useCanAnswer(audio);
+  const [phase, setPhase] = useState('demo');
+  const [demoStep, setDemoStep] = useState(0);
   const [fi, setFi] = useState(0);
   const [wrongK, setWrongK] = useState(null);
+  const [correctK, setCorrectK] = useState(null);
   const findDone = fi >= c.find_items.length;
   const cur = c.find_items[Math.min(fi, c.find_items.length - 1)];
-  const canAct = useCanAnswer(audio);
+  const allCards = React.useMemo(() => [...c.hundreds, ...c.tens], [c.hundreds, c.tens]);
+  const cardByNumber = useCallback((num) => allCards.find((entry) => entry.num === String(num)), [allCards]);
+  const candidates = cur.options.map(cardByNumber).filter(Boolean);
+  const guided = phase === 'play' && fi === 0 && !wrongK && !correctK;
+
+  useEffect(() => {
+    if (phase !== 'demo') return undefined;
+    setDemoStep(0);
+    const timers = [
+      setTimeout(() => setDemoStep(1), 650),
+      setTimeout(() => setDemoStep(2), 1750),
+      setTimeout(() => setDemoStep(3), 2950),
+      setTimeout(() => setDemoStep(4), 4100),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [phase]);
+
   const pickCard = (numStr) => {
-    if (!showFind || findDone || !canAct) return;
+    if (phase !== 'play' || findDone || !canAct || correctK) return;
     if (numStr === cur.ask) {
-      sfx.playCorrect(); setWrongK(null);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(t(c.find_ok)); }
-      setTimeout(() => setFi((v) => v + 1), 700);
+      sfx.playCorrect();
+      setWrongK(null);
+      setCorrectK(numStr);
+      if (!audio.muted) {
+        const e = getAudioEngine();
+        if (e) e.pushOneOff((numStr.length === 3 ? c.success_h : c.success_t)[lang]);
+      }
+      setTimeout(() => {
+        setCorrectK(null);
+        setFi((v) => v + 1);
+      }, 1150);
     } else {
+      sfx.playWrong();
       setWrongK(numStr);
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(t(c.find_no)); }
     }
   };
-  const done = findDone;                         // gate = bola topshiriqni bajarsin
+  const done = phase === 'play' && findDone;
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2931,47 +3246,110 @@ const Screen2 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const Row = ({ head, data, seq }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
-      <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(11px, 1.5vw, 13px)' }}>{head}</span>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(5px, 1.4vw, 9px)', justifyContent: 'center' }}>
-        {data.map((d, i) => {
-          const hit = showFind && !findDone && d.num === cur.ask;
-          const bad = wrongK === d.num;
-          return (
-            <button key={i} type="button" disabled={!showFind || findDone}
-              onClick={() => pickCard(d.num)}
-              className={`lm-namecard g1-pop-in ${bad ? 'lm-namecard-bad' : ''} ${findDone ? 'lm-namecard-done' : ''}`}
-              style={{ animationDelay: `${(seq ? i * 0.34 : i * 0.05)}s`, cursor: showFind && !findDone ? 'pointer' : 'default' }}>
-              <b className="mono" style={{ fontSize: 'clamp(14px, 2.4vw, 18px)', color: hit && findDone ? T.success : T.ink }}>{d.num}</b>
-              <span style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', color: T.ink2, fontWeight: 600, textAlign: 'center' }}>{d[lang]}</span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
+
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        {/* TOPISH savoli — kartalar ustida, aksentda */}
-        {showFind && !findDone && (
-          <div className="lm-q-accent fade-up">
-            {t(c.find_head)}: <b>{t(cur)}</b>
-            <span className="mono" style={{ display: 'block', marginTop: 4, fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{fi + 1} / {c.find_items.length}</span>
+      <div className="d2-trainer-screen">
+        <div className="d2-trainer-heading fade-up">
+          <div>
+            <span className="d2-trainer-kicker mono">{t(c.trainer_title)}</span>
+            <h1 className="title h-sub">{phase === 'demo' ? t(c.lead) : t(c.find_head)}</h1>
+          </div>
+          {phase === 'play' && !findDone && (
+            <div className="d2-trainer-round mono">
+              <span>{fi + 1}</span>
+              <div>{c.find_items.map((_, i) => <i key={i} className={i < fi ? 'done' : i === fi ? 'on' : ''}/>)}</div>
+              <b>{c.find_items.length}</b>
+            </div>
+          )}
+        </div>
+
+        {phase === 'demo' && (
+          <div className="d2-trainer-shell d2-trainer-demo fade-up delay-1">
+            <div className="d2-trainer-demo-top">
+              <span className="d2-trainer-demo-badge mono">👀 {t(c.demo_badge)}</span>
+              <p>{t(c.trainer_intro)}</p>
+            </div>
+            <div className="d2-trainer-demo-cards">
+              {demoStep >= 1 && (
+                <div className="d2-demo-slow-reveal">
+                  <D2TrainerCard entry={cardByNumber('700')} lang={lang} c={c} demo delay={0}/>
+                </div>
+              )}
+              {demoStep >= 2 && <span className="d2-trainer-vs mono d2-demo-slow-reveal" aria-hidden="true">≠</span>}
+              {demoStep >= 2 && (
+                <div className="d2-demo-slow-reveal">
+                  <D2TrainerCard entry={cardByNumber('40')} lang={lang} c={c} demo delay={0}/>
+                </div>
+              )}
+            </div>
+            {demoStep >= 3 && <div className="d2-trainer-tip d2-demo-slow-reveal">
+              <span aria-hidden="true">💡</span>
+              <div>
+                <b>{t(c.pattern_note)}</b>
+                <p>{t(c.demo_tip)}</p>
+              </div>
+            </div>}
+            {demoStep >= 4 && <button className={`btn-white-accent d2-trainer-start d2-demo-slow-reveal${canAct ? ' btn-ready' : ''}`} disabled={!canAct} onClick={() => setPhase('play')}>
+              {t(c.start_label)}
+            </button>}
           </div>
         )}
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.6vw, 18px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-          {showH && <Row head={t(c.hundreds_head)} data={c.hundreds} seq={!all}/>}
-          {showPat && (
-            <p className="lm-reveal" style={{ margin: 0, textAlign: 'center', color: T.accent, fontWeight: 700, fontSize: 'clamp(12px, 1.7vw, 14px)' }}>{t(c.pattern_note)}</p>
-          )}
-          {showT && <div className="lm-reveal" style={{ width: '100%' }}><Row head={t(c.tens_head)} data={c.tens} seq={!all}/></div>}
-        </div>
+
+        {phase === 'play' && !findDone && (
+          <>
+            <div className="d2-trainer-prompt fade-up">
+              <span className="d2-trainer-sound" aria-hidden="true">◖)))</span>
+              <div>
+                <span>{t(c.find_head)}</span>
+                <strong className="title">{t(cur)}</strong>
+              </div>
+            </div>
+            <div className="d2-trainer-coach fade-up">
+              <span className={`d2-trainer-coach-badge mono ${guided ? 'guided' : ''}`}>
+                {guided ? `👀 ${t(c.demo_badge)}` : `✋ ${lang === 'uz' ? 'Sizning navbatingiz' : 'Твоя очередь'}`}
+              </span>
+              <p>{guided ? t(c.guided_hint) : t(c.round_hint)}</p>
+            </div>
+            <div className="d2-trainer-grid">
+              {candidates.map((entry, i) => (
+                <D2TrainerCard
+                  key={`${fi}-${entry.num}`}
+                  entry={entry}
+                  lang={lang}
+                  c={c}
+                  guided={guided && entry.num === cur.ask}
+                  wrong={wrongK === entry.num}
+                  correct={correctK === entry.num}
+                  disabled={!canAct || Boolean(correctK)}
+                  onClick={() => pickCard(entry.num)}
+                  delay={i * 0.08}
+                />
+              ))}
+            </div>
+            {wrongK && !correctK && (
+              <div className="d2-trainer-feedback d2-trainer-feedback-wrong lm-riseup">
+                <span aria-hidden="true">↺</span>
+                <p>{t(c.find_no)}</p>
+              </div>
+            )}
+            {correctK && (
+              <div className="d2-trainer-feedback d2-trainer-feedback-ok lm-riseup" aria-live="polite">
+                <span aria-hidden="true">✓</span>
+                <p>{t(correctK.length === 3 ? c.success_h : c.success_t)}</p>
+              </div>
+            )}
+          </>
+        )}
+
         {findDone && (
-          <div className="frame-success lm-riseup">
-            <Reaction state="correct" praise={`${c.find_items.length} / ${c.find_items.length}`}/>
+          <div className="d2-trainer-complete lm-riseup">
+            <span className="d2-trainer-complete-icon" aria-hidden="true">🏆</span>
+            <div>
+              <b className="title">{lang === 'uz' ? 'Kartalarni farqladingiz!' : 'Ты различил карточки!'}</b>
+              <p>{lang === 'uz' ? "Yuzlik va o'nlik nomlarini ko'rinishidan ham taniysiz." : 'Теперь сотни и десятки узнаются и по виду.'}</p>
+            </div>
+            <span className="mono">{c.find_items.length} / {c.find_items.length}</span>
           </div>
         )}
       </div>
@@ -3006,21 +3384,23 @@ const Screen3 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(170px, 36vw, 230px)' }}>
-          <div style={{ display: 'flex', gap: 'clamp(10px, 3vw, 22px)', alignItems: 'flex-start', justifyContent: 'center' }}>
+        <div className="frame d2-focus-frame d2-digit-focus fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(20px, 3.4vw, 32px)' }}>
+          <div className="d2-read-direction mono">
+            <span>{lang === 'uz' ? 'katta xona' : 'крупный разряд'}</span>
+            <i aria-hidden="true"><b/></i>
+            <span>{lang === 'uz' ? 'kichik xona' : 'мелкий разряд'}</span>
+          </div>
+          <div className="d2-read-cards">
             {digits.map((d, i) => (
-              <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                <span className="mono" style={{ fontSize: 'clamp(30px, 7vw, 44px)', fontWeight: 800, color: cols[i], border: `2.5px solid ${cols[i]}`, borderRadius: 12, minWidth: 'clamp(40px, 10vw, 56px)', textAlign: 'center', padding: '2px 0', background: T.paper }}>{d}</span>
-                {reached >= i + 2 && <span className="lm-edrop" style={{ fontSize: 'clamp(12px, 1.9vw, 15px)', fontWeight: 700, color: T.ink }}>{t(parts[i])}</span>}
+              <div key={i} className={`d2-read-card ${(audio.muted || reached >= i + 2) ? 'active' : ''}`} style={{ '--read-color': cols[i], '--read-delay': `${i * 0.18}s` }}>
+                <span className="mono d2-read-place">{i === 0 ? `×100` : i === 1 ? `×10` : `×1`}</span>
+                <span className="mono d2-read-digit">{d}</span>
+                {(audio.muted || reached >= i + 2) && <span className="lm-edrop" style={{ fontSize: 'clamp(13px, 2vw, 17px)', fontWeight: 800, color: T.ink }}>{t(parts[i])}</span>}
               </div>
             ))}
           </div>
+          {done && <div className="d2-merge-result lm-riseup"><span aria-hidden="true">🔗</span><b className="title">{t(c.done_text).split('.')[0]}</b></div>}
         </div>
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
       </div>
     </Stage>
   );
@@ -3038,7 +3418,7 @@ const Screen4 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s4_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const showSlots = reached >= 1;
+  const showSlots = audio.muted || reached >= 1;
   const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
   const slots = [['2', 'h'], ['6', 't'], ['8', 'o']];
@@ -3053,12 +3433,25 @@ const Screen4 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(170px, 36vw, 230px)' }}>
-          <span className="title" style={{ fontSize: 'clamp(18px, 3.6vw, 26px)', fontWeight: 700, color: T.accent, textAlign: 'center' }}>{t(c.word_name)}</span>
+        <div className="frame d2-focus-frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(14px, 2.6vw, 20px)', padding: 'clamp(20px, 3.4vw, 32px)' }}>
+          <span className="title" style={{ fontSize: 'clamp(22px, 4.2vw, 34px)', fontWeight: 700, color: T.accent, textAlign: 'center' }}>{t(c.word_name)}</span>
+          <div className="d2-word-chunks">
+            {[
+              { ru: 'двести', uz: 'ikki yuz', d: '2', k: '×100' },
+              { ru: 'шестьдесят', uz: 'oltmish', d: '6', k: '×10' },
+              { ru: 'восемь', uz: 'sakkiz', d: '8', k: '×1' },
+            ].map((part, i) => (
+              <span key={part.d} className={showSlots ? 'mapped' : ''} style={{ '--chunk-delay': `${i * 0.24}s` }}>
+                <b className="title">{part[lang]}</b>
+                <i aria-hidden="true">↓</i>
+                <small className="mono">{part.k}</small>
+              </span>
+            ))}
+          </div>
           <div style={{ display: 'flex', gap: 'clamp(8px, 2.4vw, 18px)' }}>
             {slots.map(([d, k], i) => (
               <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink, border: `2.5px solid ${showSlots ? T.success : T.ink3}`, borderRadius: 10, minWidth: 'clamp(36px, 9vw, 48px)', textAlign: 'center', padding: '3px 0', background: T.paper }}>
+                <span className="mono" style={{ fontSize: 'clamp(32px, 7vw, 48px)', fontWeight: 800, color: T.ink, border: `3px solid ${showSlots ? T.success : T.ink3}`, borderRadius: 13, minWidth: 'clamp(48px, 11vw, 66px)', textAlign: 'center', padding: '5px 0', background: T.paper }}>
                   {showSlots ? <span className="lm-edrop" style={{ animationDelay: `${i * 0.5}s`, display: 'inline-block' }}>{d}</span> : '?'}
                 </span>
                 <span className="mono" style={{ fontSize: 'clamp(10px, 1.4vw, 12px)', color: T.ink2, fontWeight: 700 }}>{labels[k]}</span>
@@ -3067,15 +3460,60 @@ const Screen4 = (props) => {
           </div>
           {done && <BigNum v={268} accent/>}
         </div>
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
       </div>
     </Stage>
   );
 };
+
+const D2DigitSlot = ({ digit, highlighted = false, compact = false }) => (
+  <span
+    className="mono"
+    style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: compact ? 'clamp(17px, 3.4vw, 23px)' : 'clamp(24px, 5.5vw, 34px)',
+      fontWeight: 800,
+      color: highlighted ? T.accent : T.ink,
+      border: `2.5px solid ${highlighted ? T.accent : T.ink3}`,
+      borderRadius: compact ? 8 : 10,
+      minWidth: compact ? 'clamp(28px, 6.5vw, 36px)' : 'clamp(36px, 9vw, 48px)',
+      minHeight: compact ? 'clamp(34px, 7vw, 42px)' : 'clamp(42px, 10vw, 54px)',
+      background: highlighted ? T.accentSoft : T.paper,
+    }}
+  >
+    {digit}
+  </span>
+);
+
+const D2ZeroNumber = ({ value }) => (
+  <span style={{ display: 'inline-flex', gap: 3 }} aria-label={String(value)}>
+    {String(value).split('').map((digit, i) => (
+      <D2DigitSlot key={`${value}-${i}`} digit={digit} highlighted={digit === '0'} compact/>
+    ))}
+  </span>
+);
+
+const D2Odometer = ({ advanced, lang }) => (
+  <div className={`d2-odometer ${advanced ? 'advanced' : ''}`}>
+    <div className="d2-odometer-carry" aria-hidden="true">
+      {[0, 1, 2].map((i) => <span key={i} style={{ '--carry-delay': `${i * 0.14}s` }}>↖</span>)}
+    </div>
+    <div className="d2-odometer-row" aria-label={advanced ? '1000' : '999'}>
+      {(advanced ? ['1', '0', '0', '0'] : ['9', '9', '9']).map((digit, i) => (
+        <span key={`${advanced}-${i}`} className="mono" style={{ '--wheel-delay': `${i * 0.11}s` }}>{digit}</span>
+      ))}
+    </div>
+    <div className="d2-odometer-operation mono">
+      <span>{advanced ? '999 + 1' : '999'}</span>
+      <b>{advanced ? '=' : '+'}</b>
+      <strong>{advanced ? '1000' : '1'}</strong>
+    </div>
+    <p>{advanced
+      ? (lang === 'uz' ? "Har uchta 9 nolga aylandi, oldinda yangi 1 ochildi." : 'Все три девятки стали нулями, а впереди появилась новая единица.')
+      : (lang === 'uz' ? "Birlikka yana 1 qo'shilsa, xonalar navbat bilan almashadi." : 'Если к единицам прибавить 1, разряды сменятся по цепочке.')}</p>
+  </div>
+);
 
 // s5 — NOL O'RIN yozuvda: 305 + misollar
 const Screen5 = (props) => {
@@ -3089,9 +3527,9 @@ const Screen5 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s5_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const emptyOn = reached >= 1;
-  const showZero = reached >= 5;
-  const showEx = reached >= 6;
+  const emptyOn = audio.muted || reached >= 1;
+  const showZero = audio.muted || reached >= 5;
+  const showEx = audio.muted || reached >= 6;
   const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -3100,40 +3538,46 @@ const Screen5 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const Slot = ({ d, col = T.ink, hi = false }) => (
-    <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: col, border: `2.5px solid ${hi ? T.accent : T.ink3}`, borderRadius: 10, minWidth: 'clamp(36px, 9vw, 48px)', textAlign: 'center', padding: '3px 0', background: T.paper }}>{d}</span>
-  );
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
+        <div className="frame d2-focus-frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(18px, 3vw, 28px)' }}>
           <span className="title" style={{ fontSize: 'clamp(18px, 3.6vw, 26px)', fontWeight: 700, color: T.accent }}>{t(c.word_name)}</span>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
             <div style={{ display: 'flex', gap: 'clamp(8px, 2.4vw, 18px)', alignItems: 'center' }}>
-              <Slot d="3"/>
-              <Slot d={showZero ? '0' : (emptyOn ? '·' : '')} col={showZero ? T.accent : T.ink3} hi={emptyOn && !showZero}/>
-              <Slot d="5"/>
+              <D2DigitSlot digit="3"/>
+              <D2DigitSlot digit={showZero ? '0' : (emptyOn ? '·' : '')} highlighted={emptyOn}/>
+              <D2DigitSlot digit="5"/>
             </div>
             {emptyOn && !showZero && <span className="mono lm-reveal" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.empty_label)}</span>}
           </div>
-          {showZero && <BigNum v={305} accent/>}
+          {showZero && (
+            <div className="d2-zero-rule lm-reveal">
+              <span className="d2-zero-rule-badge mono">0</span>
+              <span>{t(c.zero_rule)}</span>
+            </div>
+          )}
+          {showZero && (
+            <div className="d2-zero-contrast lm-riseup">
+              <span className="d2-zero-wrong mono"><b>35</b><small>{lang === 'uz' ? "o'nlik son" : 'десятки'}</small></span>
+              <b aria-hidden="true">≠</b>
+              <span className="d2-zero-right mono"><b>3<em>0</em>5</b><small>{lang === 'uz' ? 'uch yuz besh' : 'триста пять'}</small></span>
+            </div>
+          )}
           {showEx && (
-            <div className="frame-tip lm-reveal" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(5px, 1.2vw, 8px)', padding: 'clamp(8px, 1.6vw, 12px)', width: '100%' }}>
+            <div className="frame-tip d2-zero-examples lm-reveal">
               {c.examples.map((ex, i) => (
-                <div key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.14}s`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-                  <span className="title" style={{ fontSize: 'clamp(13px, 2vw, 16px)', fontWeight: 600, color: T.ink2 }}>{t(ex.word)}</span>
-                  <span className="mono" style={{ fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: T.accent }}>{ex.num}</span>
+                <div key={i} className="d2-zero-example g1-pop-in" style={{ animationDelay: `${i * 0.14}s` }}>
+                  <span className="title d2-zero-example-word">{t(ex.word)}</span>
+                  <span className="d2-zero-example-arrow" aria-hidden="true">→</span>
+                  <D2ZeroNumber value={ex.num}/>
+                  <span className="mono d2-zero-example-label">{t(ex.empty)}</span>
                 </div>
               ))}
             </div>
           )}
         </div>
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
       </div>
     </Stage>
   );
@@ -3151,7 +3595,7 @@ const Screen6 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s6_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const showMing = reached >= 2;
+  const showMing = audio.muted || reached >= 2;
   const done = audio.muted || reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -3164,25 +3608,10 @@ const Screen6 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(170px, 36vw, 230px)' }}>
-          {!showMing && (
-            <>
-              <span className="mono lm-reveal" style={{ fontSize: 'clamp(30px, 7vw, 44px)', fontWeight: 800, color: T.ink }}>999</span>
-              <span className="title lm-reveal lm-d1" style={{ fontSize: 'clamp(14px, 2.4vw, 18px)', color: T.ink2, textAlign: 'center' }}>{t(c.near_word)}</span>
-            </>
-          )}
-          {showMing && (
-            <>
-              <span className="mono lm-eq lm-write" style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, color: T.success }}>{t(c.ming_eq)}</span>
-              <span className="lm-write lm-d1" style={{ fontSize: 'clamp(20px, 4vw, 30px)', fontWeight: 800, color: T.accent, letterSpacing: 3 }}>{t(c.ming_word)}</span>
-            </>
-          )}
+        <div className="frame d2-focus-frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.2vw, 16px)', padding: 'clamp(22px, 3.8vw, 34px)' }}>
+          <D2Odometer advanced={showMing} lang={lang}/>
+          {showMing && <span className="lm-write lm-d1 d2-thousand-word">{t(c.ming_word)}</span>}
         </div>
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
       </div>
     </Stage>
   );
@@ -3203,7 +3632,6 @@ const Screen7 = (props) => {
   const canAct = useCanAnswer(audio);
   const [tapped, setTapped] = useState(null);
   const ok = tapped === 't';
-  const revealRef = useRevealScroll(ok, 500);
   const onCell = (k) => {
     if (!canAct || ok) return;
     setTapped(k);
@@ -3221,23 +3649,26 @@ const Screen7 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        {!ok ? (
-          <div className="lm-q-accent fade-up">{t(c.check_q)}</div>
-        ) : (
-          <div className="d2-rulecard fade-up">
-            <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
-            <p className="d2-rulecard-txt">{t(c.rule)}</p>
-          </div>
-        )}
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
+        <div className="frame d2-focus-frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(18px, 3vw, 28px)' }}>
+          <div className="d2-guided-question">{t(c.check_q)}</div>
+          {ok && (
+            <div className="d2-rulecard d2-rulecard-inline lm-riseup">
+              <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
+              <p className="d2-rulecard-txt">{t(c.rule)}</p>
+            </div>
+          )}
           <RazryadTable h={3} t={0} o={5} labels={ok ? realLabels : maskLabels} digits onCell={onCell} cellSel={ok ? 't' : null}/>
+          {ok && (
+            <div className="d2-rule-flow lm-riseup">
+              <span className="mono">305</span>
+              <i aria-hidden="true">→</i>
+              <span className="mono">3 · <b>0</b> · 5</span>
+              <i aria-hidden="true">→</i>
+              <strong className="title">{lang === 'uz' ? 'uch yuz besh' : 'триста пять'}</strong>
+            </div>
+          )}
           {tapped && !ok && <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.check_no)}</p>}
         </div>
-        {ok && (
-          <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.check_ok)}/>
-          </div>
-        )}
       </div>
     </Stage>
   );
@@ -3253,7 +3684,7 @@ const Screen8 = (props) => {
       <span className="mono" style={{ fontSize: 'clamp(34px, 8vw, 52px)', fontWeight: 800, color: T.ink, letterSpacing: 2 }}>{it.num}</span>
     </div>
   );
-  return <MCRoundD2 props={props} ck="s8" cols={1} heading={heading} renderFig={renderFig}/>;
+  return <MCRoundD2 props={props} ck="s8" cols={2} heading={heading} renderFig={renderFig}/>;
 };
 
 // s9 — MASHQ yozish (SO'Z -> RAQAM, NumPad), 3 raund
@@ -3289,7 +3720,17 @@ const Screen9 = (props) => {
     if (!isOk) { firstAllRef.current = false; missRef.current = true; }
     else { if (!missRef.current) firstOkRef.current += 1; missRef.current = false; }
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    if (isOk) { sfx.playCorrect(); setTimeout(() => { setChecked(false); setVal(''); setRound((r) => r + 1); }, 1000); }
+    if (isOk) {
+      sfx.playCorrect();
+      const lastRound = round === items.length - 1;
+      setTimeout(() => {
+        if (!lastRound) {
+          setChecked(false);
+          setVal('');
+        }
+        setRound((r) => r + 1);
+      }, 2100);
+    }
     else { setTimeout(() => { setChecked(false); setVal(''); }, 1700); }
   };
   useEffect(() => {
@@ -3315,24 +3756,32 @@ const Screen9 = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         {/* Tugagach ham mashq ko'rinib turadi (ekran bo'shab qolmasin), faqat bosib bo'lmaydi. */}
-        {true && (
-          <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(round + 1, items.length)} / {items.length}</div>
-            <h1 className="title h-sub fade-up">{t(c.q)}</h1>
-            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-              <FrameFx/>
+        <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(round + 1, items.length)} / {items.length}</div>
+        <h1 className="title h-sub fade-up">{t(c.q)}</h1>
+        <div className="frame d2-focus-frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(16px, 2.8vw, 24px)' }}>
+          <FrameFx/>
+          <D2QuestionCoach lang={lang} mode="type" first={round === 0}/>
+          <div className="d2-type-work">
+            <div className="d2-type-prompt">
+              <span className="mono d2-type-step">1</span>
               <span className="title" style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 700, color: T.accent, textAlign: 'center' }}>{t(it.word)}</span>
-              <p style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
+              <p>{askLine}</p>
+              <D2TransferSlots value={val} expected={it.ans} lang={lang} state={checked ? (roundOk ? 'correct' : 'wrong') : 'idle'} max={3} compact/>
+            </div>
+            <div className="d2-type-device">
+              <span className="mono d2-type-step">2</span>
               <NumPad value={val} setValue={setVal} disabled={!canAct || checked || done} max={3}/>
               <button className="btn-white-accent" disabled={!canAct || checked || done || val === ''} onClick={check}>{t(c.check_label)}</button>
             </div>
-            {checked && !done && (
-              <div ref={revealRef} className={roundOk ? 'frame-success lm-riseup' : 'frame-tip lm-riseup'}>
-                <Reaction state={roundOk ? 'correct' : 'wrong'} praise={(roundOk ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
-                {!roundOk && <p style={{ margin: '8px 0 0', color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
-              </div>
-            )}
-          </>
+          </div>
+        </div>
+        {checked && !done && (
+          <div ref={revealRef} className={roundOk ? 'frame-success lm-riseup' : 'frame-tip lm-riseup'}>
+            <Reaction state={roundOk ? 'correct' : 'wrong'} praise={(roundOk ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
+            {!roundOk && <p style={{ margin: '8px 0 0', color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>
+              {lang === 'ru' ? 'Проверь красный разряд и набери число ещё раз.' : 'Qizil bilan belgilangan xonani tekshirib, sonni qayta tering.'}
+            </p>}
+          </div>
         )}
         {/* Yakun: oxirgi javobdan keyin PASTDAN ko'tarilib chiqadi, ichida matn bor. */}
         {done && (
@@ -3358,7 +3807,7 @@ const Screen10 = (props) => {
         <div className="lm-riseup" style={{ display: 'flex', gap: 'clamp(6px, 1.6vw, 10px)' }}>
           {String(it.ans).split('').map((d, i) => (
             <span key={i} className="mono lm-edrop" style={{ animationDelay: `${i * 0.18}s`, fontSize: 'clamp(24px, 5.4vw, 34px)', fontWeight: 800,
-              color: d === '0' ? T.accent : T.success, background: d === '0' ? '#FFF3E9' : '#EAF5EE',
+              color: T.success, background: '#EAF5EE', border: '1px solid rgba(31,122,77,.18)',
               borderRadius: 10, minWidth: 'clamp(30px, 8vw, 42px)', textAlign: 'center', padding: '2px 0' }}>{d}</span>
           ))}
         </div>
@@ -3368,7 +3817,7 @@ const Screen10 = (props) => {
   return <MCRoundD2 props={props} ck="s10" cols={2} heading={heading} renderFig={renderFig}/>;
 };
 
-// s11 — MASHQ xatoni top (noto'g'ri juftni top), 3 raund
+// s11 — yangi tur: har bir juftni "mos/xato" deb tasniflash, keyin tekshirish.
 const Screen11 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3381,24 +3830,45 @@ const Screen11 = (props) => {
   ]);
   const canAct = useCanAnswer(audio);
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
-  const [solvedRound, setSolvedRound] = useState(false);
+  const initialPair = items[items.length - 1];
+  const [marks, setMarks] = useState(() => props.storedAnswer
+    ? initialPair.pairs.map((_, i) => i !== initialPair.wrong)
+    : Array(items[0].pairs.length).fill(null));
+  const [roundState, setRoundState] = useState(props.storedAnswer ? 'correct' : 'idle');
+  const [roundMissed, setRoundMissed] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
-  const it = items[idx];
+  const it = items[Math.min(idx, items.length - 1)];
   const done = idx >= items.length;
   const revealRef = useRevealScroll(done, 400);
-  const pick = (i) => {
-    if (!canAct || done || solvedRound || wrongSet.has(i)) return;
-    if (i === it.wrong) {
-      setSolvedRound(true); sfx.playCorrect();
+  const mark = (i, value) => {
+    if (!canAct || done || roundState === 'correct') return;
+    setMarks((prev) => prev.map((v, k) => (k === i ? value : v)));
+    if (roundState === 'wrong') setRoundState('idle');
+  };
+  const check = () => {
+    if (!canAct || done || roundState === 'correct' || marks.some((v) => v === null)) return;
+    const isOk = marks.every((value, i) => value === (i !== it.wrong));
+    if (isOk) {
+      setRoundState('correct');
+      sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
-      if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setSolvedRound(false); setWrongSet(new Set()); setIdx((n) => n + 1); }, 1300);
+      if (!roundMissed) setScore((s) => s + 1);
+      const lastRound = idx === items.length - 1;
+      setTimeout(() => {
+        if (!lastRound) {
+          setMarks(Array(items[idx + 1].pairs.length).fill(null));
+          setRoundState('idle');
+          setRoundMissed(false);
+        }
+        setIdx((n) => n + 1);
+      }, 1500);
     } else {
-      const n = new Set(wrongSet); n.add(i); setWrongSet(n);
+      setRoundState('wrong');
+      setRoundMissed(true);
       firstAllRef.current = false;
+      sfx.playWrong();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
     }
   };
@@ -3407,7 +3877,7 @@ const Screen11 = (props) => {
       setRecorded(true);
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
       props.onAnswer({
-        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
+        stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'classify-pairs',
         correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
         firstTry: firstAllRef.current, attempts: 1, solved: true
       });
@@ -3423,26 +3893,50 @@ const Screen11 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        {!done && it && (
+        {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
-            <h1 className="title h-sub fade-up">{t(c.q)}</h1>
-            <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{Math.min(idx + 1, items.length)} / {items.length}</div>
+            <h1 className="title h-sub fade-up">
+              {lang === 'uz' ? "Har bir juft: mosmi yoki xatomi?" : 'Каждая пара: верно или ошибка?'}
+            </h1>
+            <div className="frame d2-error-frame d2-verify-frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
+              <D2QuestionCoach lang={lang} mode="verify" first={idx === 0}/>
+              <div className="d2-detective-banner">
+                <span aria-hidden="true">🟢</span>
+                <div>
+                  <b>{lang === 'uz' ? 'Tekshiruv pulti' : 'Пульт проверки'}</b>
+                  <small>{lang === 'uz' ? "Har qatorga yashil yoki qizil belgi qo'ying." : 'Поставь каждой строке зелёный или красный знак.'}</small>
+                </div>
+                <i className="d2-scan-beam" aria-hidden="true"/>
+              </div>
               {it.pairs.map((p, i) => (
-                <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${solvedRound && i === it.wrong ? 'option-correct' : ''}`} disabled={!canAct || solvedRound || wrongSet.has(i)} onClick={() => pick(i)}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: 'clamp(10px, 1.6vw, 14px) clamp(14px, 2.4vw, 20px)', minHeight: 'clamp(48px, 7vw, 58px)' }}>
-                  <span className="title" style={{ fontSize: 'clamp(14px, 2.3vw, 18px)', fontWeight: 700 }}>{t(p.word)}</span>
-                  <span className="mono" style={{ fontSize: 'clamp(16px, 2.8vw, 22px)', fontWeight: 800, color: T.ink3 }}>=</span>
-                  <span className="mono" style={{ fontSize: 'clamp(18px, 3.4vw, 24px)', fontWeight: 800, color: T.accent }}>{p.num}</span>
-                </button>
+                <div key={i} className={`d2-verify-row ${roundState === 'wrong' && marks[i] !== (i !== it.wrong) ? 'has-error' : ''} ${roundState === 'correct' ? 'is-checked' : ''}`}>
+                  <span className="d2-answer-letter mono">{i + 1}</span>
+                  <span className="title d2-verify-word">{t(p.word)}</span>
+                  <span className="mono d2-verify-eq">=</span>
+                  <span className="mono d2-verify-num">{p.num}</span>
+                  <div className="d2-verify-actions">
+                    <button type="button" className={marks[i] === true ? 'is-on is-yes' : ''} disabled={done || !canAct || roundState === 'correct'} onClick={() => mark(i, true)}>
+                      <b>✓</b><span>{lang === 'uz' ? 'Mos' : 'Верно'}</span>
+                    </button>
+                    <button type="button" className={marks[i] === false ? 'is-on is-no' : ''} disabled={done || !canAct || roundState === 'correct'} onClick={() => mark(i, false)}>
+                      <b>×</b><span>{lang === 'uz' ? 'Xato' : 'Ошибка'}</span>
+                    </button>
+                  </div>
+                </div>
               ))}
-              {wrongSet.size > 0 && !solvedRound && <p className="fade-up" style={{ margin: 0, color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it.hint)}</p>}
+              {!done && (
+                <button className={`btn-white-accent d2-verify-check ${marks.every((v) => v !== null) ? 'btn-ready' : ''}`} disabled={!canAct || marks.some((v) => v === null) || roundState === 'correct'} onClick={check}>
+                  {lang === 'uz' ? 'Belgilarni tekshir' : 'Проверить знаки'}
+                </button>
+              )}
+              {roundState === 'wrong' && <p className="fade-up d2-verify-hint">{t(it.hint)}</p>}
             </div>
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success lm-riseup">
+          <div ref={revealRef} className="frame-success lm-riseup d2-bottom-feedback">
             <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
           </div>
         )}
@@ -3496,20 +3990,28 @@ const Screen12 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <p className="fade-up" style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.lead)}</p>
         <h1 className="title h-sub fade-up delay-1" style={{ margin: 0 }}>{t(c.q)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(10px, 2vw, 16px)' }}>
+        <div className="frame d2-focus-frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(14px, 2.4vw, 22px)' }}>
           <FrameFx/>
-          <div className="lm-report">
-            <span className="lm-report-head mono">{t(c.manifest_label)}</span>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 6 }}>
-              <span className="g1-cast-fig" style={{ width: 'clamp(40px, 12vw, 54px)' }}><AnvarSVG pose="door"/></span>
-              <span className="title" style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 700, color: T.accent }}>{t(c.code_word)}</span>
+          <D2QuestionCoach lang={lang} mode="type" first/>
+          <div className="d2-type-work">
+            <div className="d2-type-prompt">
+              <span className="mono d2-type-step">1</span>
+              <div className="lm-report">
+                <span className="lm-report-head mono">{t(c.manifest_label)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 6 }}>
+                  <span className="g1-cast-fig" style={{ width: 'clamp(40px, 12vw, 54px)' }}><AnvarSVG pose="door"/></span>
+                  <span className="title" style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 700, color: T.accent }}>{t(c.code_word)}</span>
+                </div>
+              </div>
+              <p>{askLine}</p>
+              <D2TransferSlots value={val} expected={c.ans} lang={lang} state={checked ? (correct ? 'correct' : 'wrong') : 'idle'} max={3} compact/>
+            </div>
+            <div className="d2-type-device">
+              <span className="mono d2-type-step">2</span>
+              <NumPad value={val} setValue={setVal} disabled={!canAct || checked || solved} max={3}/>
+              <button className="btn-white-accent" disabled={!canAct || checked || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
             </div>
           </div>
-          <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
-          {/* To'g'ri javobdan keyin klaviatura YIG'ILADI — izoh tepaga suriladi va Bit gapiradi. */}
-          {!solved && <NumPad value={val} setValue={setVal} disabled={!canAct} max={3}/>}
-          {!solved && <button className="btn-white-accent" disabled={!canAct || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
-          {solved && <span className="mono lm-riseup" style={{ fontSize: 'clamp(26px, 6vw, 38px)', fontWeight: 800, color: T.success }}>{c.ans}</span>}
         </div>
         {checked && (
           <div ref={revealRef} className={correct ? 'frame-success lm-riseup' : 'frame-tip lm-riseup'}>
@@ -3537,6 +4039,7 @@ const Screen13 = (props) => {
   const [picked, setPicked] = useState(null);
   const [val, setVal] = useState('');
   const [numLock, setNumLock] = useState(false);
+  const [currentMissed, setCurrentMissed] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
@@ -3547,17 +4050,41 @@ const Screen13 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
+    if (isOk && !currentMissed) setScore((s) => s + 1);
+    if (!isOk && !currentMissed && it.topic) missRef.current.push(t(it.topic));
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
-    setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
+    if (isOk) {
+      setTimeout(() => {
+        setPicked(null);
+        setCurrentMissed(false);
+        setIdx((n) => n + 1);
+      }, 1500);
+    } else {
+      setCurrentMissed(true);
+      setTimeout(() => setPicked(null), 1500);
+    }
   };
   const checkNum = () => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
-    setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
+    if (isOk && !currentMissed) setScore((s) => s + 1);
+    if (!isOk && !currentMissed && it.topic) missRef.current.push(t(it.topic));
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
+    if (isOk) {
+      setTimeout(() => {
+        setVal('');
+        setNumLock(false);
+        setCurrentMissed(false);
+        setIdx((n) => n + 1);
+      }, 2100);
+    } else {
+      setCurrentMissed(true);
+      setTimeout(() => {
+        setVal('');
+        setNumLock(false);
+      }, 1800);
+    }
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
@@ -3588,26 +4115,35 @@ const Screen13 = (props) => {
         {!done && it && (
           <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
             <FrameFx/>
+            <D2QuestionCoach lang={lang} mode={it.kind === 'num' ? 'type' : 'pick'} first={idx === 0}/>
             <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{idx + 1} / {items.length}</div>
             <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
             {it.kind === 'num' ? (
               <>
-                <div style={{ display: 'flex', justifyContent: 'center' }}><MiniCity/></div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
+                <div className="d2-type-work d2-final-type-work">
+                  <div className="d2-type-prompt">
+                    <span className="mono d2-type-step">1</span>
+                    <MiniCity/>
+                    <p>{lang === 'ru' ? 'Рассмотри город и прочитай условие.' : "Shaharchani ko'rib, shartni o'qing."}</p>
+                    <D2TransferSlots value={val} expected={it.ans} lang={lang} state={numLock ? (numWrong ? 'wrong' : 'correct') : 'idle'} max={3} compact/>
+                  </div>
+                  <div className="d2-type-device">
+                    <span className="mono d2-type-step">2</span>
+                    <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3}/>
+                    <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
-                </div>
-                {numWrong && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(it.hint)}</p>}
+                {numWrong && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>
+                  {lang === 'ru' ? 'Проверь красный разряд и попробуй ещё раз.' : 'Qizil bilan belgilangan xonani tekshirib, yana urinib ko‘ring.'}
+                </p>}
               </>
             ) : (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
                   {orders[idx].map((k, i) => (
-                    <button key={i} className={`option ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}
-                      style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(13px, 1.7vw, 15px)', minHeight: 'clamp(46px, 6.5vw, 56px)' }}>
-                      {t(it[`opt${k}`])}
+                    <button key={i} className={`option d2-answer-card ${picked === i ? (orders[idx][i] === 0 ? 'option-correct' : 'option-picked-wrong') : ''}`} disabled={!canAct || picked !== null} onClick={() => pick(i)}>
+                      <span className="d2-answer-letter mono">{String.fromCharCode(65 + i)}</span>
+                      <span>{t(it[`opt${k}`])}</span>
                     </button>
                   ))}
                 </div>
@@ -3619,13 +4155,17 @@ const Screen13 = (props) => {
           </div>
         )}
         {done && (
-          <div ref={factRef} className="frame-success lm-riseup">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
-            <div className="d2-factcard">
+          <>
+            <div ref={factRef} className="frame-success lm-riseup d2-final-result">
+              <Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/>
+            </div>
+            <div className="frame d2-final-fact-frame lm-riseup">
+              <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
     </Stage>
@@ -3664,15 +4204,7 @@ const Screen14 = (props) => {
           <h2 className="title h-title" style={{ margin: 0, textAlign: 'center' }}>{t(c.mission_done)}</h2>
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
-        <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
-          <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
-        </div>
-        <div className="fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.ink2 }}>{t(c.conn_label_refs)}: {t(c.conn_refs)}</span>
-          <span className="mono" style={{ fontSize: 'clamp(11px, 1.5vw, 13px)', color: T.accent, fontWeight: 700 }}>{t(c.conn_label_next)}: {t(c.conn_next)}</span>
-        </div>
-        <div className="fade-up delay-1"><LessonScene gathered/></div>
+        <div className="d2-final-scene fade-up delay-1"><LessonScene gathered/></div>
       </div>
     </Stage>
   );
@@ -3733,6 +4265,19 @@ const TwBonusRev = ({ c, showDigits, labels, lang }) => (
     )}
   </div>
 );
+
+const TwMethodLabel = ({ children }) => (
+  <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>
+    {children}
+  </span>
+);
+
+const TwMethodText = ({ children }) => (
+  <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>
+    {children}
+  </span>
+);
+
 // stway — IKKI USUL, Dars01 s4 darajasida: har usul ANIMATSION namoyish bilan, ovozga sinxron.
 // Oqim: 1-usul (xonalab, so'zlar tushadi) -> BASHORAT (Ha/Yo'q) -> 2-usul (yoyilma -> so'z) -> ★ bonus (teskari yo'l).
 const TwoWayScreen = (props) => {
@@ -3759,9 +4304,22 @@ const TwoWayScreen = (props) => {
   const ok = picked === c.check_ci;
   const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
   const m1Done = all || r1 >= c.audio[lang].length - 1;
-  const askNow = m1Done && !ok;
+  const [questionReady, setQuestionReady] = useState(false);
+  useEffect(() => {
+    if (questionReady) return undefined;
+    if (seg === 'tw_q') {
+      const id = setTimeout(() => setQuestionReady(true), 350);
+      return () => clearTimeout(id);
+    }
+    if (all && m1Done) {
+      const id = setTimeout(() => setQuestionReady(true), 900);
+      return () => clearTimeout(id);
+    }
+    return undefined;
+  }, [seg, all, m1Done, questionReady]);
+  const askNow = questionReady && !ok;
   const pick = (i) => {
-    if (!canAct || ok || !m1Done) return;
+    if (!canAct || ok || !questionReady) return;
     setPicked(i);
     if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
   };
@@ -3788,11 +4346,8 @@ const TwoWayScreen = (props) => {
     const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
     return () => clearTimeout(id);
   }, [done, all]);
-  const revealRef = useRevealScroll(showBonus, 500);
   const canAdv = useAdvanceGate(done, audio);
   const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
-  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
-  const MText = ({ x }) => <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{x}</span>;
   const navContent = (
     <>
       <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
@@ -3803,45 +4358,43 @@ const TwoWayScreen = (props) => {
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
+        <div className="frame d2-focus-frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(20px, 3.4vw, 30px)' }}>
           <FrameFx/>
-          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink }}>{c.expr}</span>
+          <span className="mono" style={{ fontSize: 'clamp(38px, 8vw, 56px)', fontWeight: 800, color: T.ink, letterSpacing: 3 }}>{c.expr}</span>
           {showM1 && (
             <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
-              <MLabel x={t(c.m1_label)}/>
-              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-                <MText x={t(c.m1_text)}/>
+              <TwMethodLabel>{t(c.m1_label)}</TwMethodLabel>
+              <div className={`tw-collapse ${compact || questionReady ? 'tw-collapsed' : ''}`}>
+                <TwMethodText>{t(c.m1_text)}</TwMethodText>
                 {showM1d && <TwM1Drop words={c.m1_words} labels={labels} lang={lang}/>}
               </div>
               {showM1w && <TwFullWord text={t(c.full_word)}/>}
             </div>
           )}
+          {askNow && (
+            <div className="lm-q-accent d2-tw-question fade-up">
+              {t(c.check_q)}
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 'clamp(8px, 1.6vw, 12px)' }}>
+                {opts.map((o, i) => (
+                  <button key={i} className={`option ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct} onClick={() => pick(i)}
+                    style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(14px, 2.6vw, 20px)', fontSize: 'clamp(14px, 2.2vw, 17px)', fontWeight: 800 }}>{o}</button>
+                ))}
+              </div>
+              {picked !== null && !ok && <p style={{ margin: '8px 0 0', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center' }}>{t(c.check_no)}</p>}
+            </div>
+          )}
           {ok && (
             <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
-              <MLabel x={t(c.m2_label)}/>
+              <TwMethodLabel>{t(c.m2_label)}</TwMethodLabel>
               <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-                <MText x={t(c.m2_text)}/>
+                <TwMethodText>{t(c.m2_text)}</TwMethodText>
                 {showM2d && <TwM2Drop parts={c.m2_parts} lang={lang} showWords={showM2w}/>}
               </div>
               {showM2w && <TwFullWord text={t(c.full_word)}/>}
             </div>
           )}
-        </div>
-        {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
-        {askNow && (
-          <div className="lm-q-accent fade-up">
-            {t(c.check_q)}
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 'clamp(8px, 1.6vw, 12px)' }}>
-              {opts.map((o, i) => (
-                <button key={i} className={`option ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct} onClick={() => pick(i)}
-                  style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(14px, 2.6vw, 20px)', fontSize: 'clamp(14px, 2.2vw, 17px)', fontWeight: 800 }}>{o}</button>
-              ))}
-            </div>
-            {picked !== null && !ok && <p style={{ margin: '8px 0 0', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center' }}>{t(c.check_no)}</p>}
-          </div>
-        )}
-        {showBonus && (
-          <div ref={revealRef} className="lm-tw-bonus lm-riseup">
+          {showBonus && (
+          <div className="lm-tw-bonus lm-riseup">
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
             <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
               <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
@@ -3849,12 +4402,8 @@ const TwoWayScreen = (props) => {
             </div>
             {bonusCompact && <TwFullWord text={`${c.bonus_word[lang]} = ${c.bonus_num}`}/>}
           </div>
-        )}
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.check_ok)}/>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </Stage>
   );
@@ -3927,6 +4476,7 @@ export default function ReadWriteLesson({
       <ProgressContext.Provider value={{ stars: starsEarned, total: starTotal }}>
       <HeroContext.Provider value={heroCtx}>
       <style>{STYLES}</style>
+      <style>{GRADE3_ETALON_STYLES}</style>
       <div className="lesson-root">
         <GradientDefs/>
         <D2Defs/>
@@ -3963,7 +4513,10 @@ html, body { margin: 0; padding: 0; }
 .lesson-root {
   font-family: 'Manrope', system-ui, sans-serif;
   color: #0E0E10;
-  background: #F6F4EF;
+  background:
+    radial-gradient(circle at 14% 10%, rgba(1,154,203,0.075), transparent 28%),
+    radial-gradient(circle at 88% 78%, rgba(255,79,40,0.075), transparent 30%),
+    linear-gradient(155deg, #F8F7F3 0%, #F4F1EA 100%);
   position: fixed;
   inset: 0;
   overflow: hidden;
@@ -3999,8 +4552,8 @@ html, body { margin: 0; padding: 0; }
 .frac .n, .frac .d { padding: 0 0.12em; }
 .frac .bar { height: 0.08em; background: currentColor; width: 100%; margin: 0.08em 0; border-radius: 2px; }
 
-@keyframes fade-in-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-.fade-up { animation: fade-in-up 0.4s ease-out forwards; opacity: 0; }
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(16px) scale(0.985); } 70% { transform: translateY(-1px) scale(1.002); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.fade-up { animation: fade-in-up 0.52s cubic-bezier(0.22, 0.8, 0.3, 1) forwards; opacity: 0; }
 .delay-1 { animation-delay: 0.12s; } .delay-2 { animation-delay: 0.24s; }
 .delay-3 { animation-delay: 0.36s; } .delay-4 { animation-delay: 0.48s; }
 
@@ -4045,7 +4598,10 @@ html, body { margin: 0; padding: 0; }
   background: #FF4F28;
   color: #FFFFFF;
   box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55);
+  transform: translateY(-2px);
 }
+.btn-white-accent:active:not(:disabled) { transform: translateY(0) scale(0.975); }
+.btn-white-accent:focus-visible, .btn-ghost:focus-visible, .option:focus-visible { outline: 3px solid rgba(1,154,203,0.42); outline-offset: 3px; }
 .btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
 /* btn-ready — "Davom" bosish kerak bo'lgan paytdagi holat: to'q rang + puls (g1) */
 .btn-white-accent.btn-ready {
@@ -4081,7 +4637,7 @@ html, body { margin: 0; padding: 0; }
 
 /* === ОПЦИИ v15 (без рамок, на тенях) === */
 .option {
-  background: #FFFFFF;
+  background: linear-gradient(145deg, #FFFFFF 0%, #FCFBF8 100%);
   cursor: pointer;
   transition: all 0.2s;
   font-family: 'Manrope', sans-serif;
@@ -4089,14 +4645,17 @@ html, body { margin: 0; padding: 0; }
   text-align: left;
   border-radius: 12px;
   width: 100%;
-  border: none;
+  border: 1px solid rgba(167,166,162,0.17);
   color: #0E0E10;
   box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14);
 }
 .option:hover:not(:disabled) {
-  background: #FDFBF7;
-  box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22);
+  background: #FFFFFF;
+  border-color: rgba(1,154,203,0.28);
+  box-shadow: 0 14px 28px -10px rgba(58,53,48,0.3), 0 0 0 3px rgba(1,154,203,0.06);
+  transform: translateY(-3px);
 }
+.option:active:not(:disabled) { transform: translateY(0) scale(0.985); }
 .option:disabled { cursor: default; }
 .option-correct {
   background: #E3F0E8 !important;
@@ -4126,10 +4685,11 @@ html, body { margin: 0; padding: 0; }
 .frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
 
 /* === STAGE v15 (sticky stage-header) === */
-.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
+.stage { max-width: 1040px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; position: relative; z-index: 1; }
 .stage-header {
   flex-shrink: 0;
-  background: #F6F4EF;
+  background: rgba(248,247,243,0.88);
+  backdrop-filter: blur(12px);
   padding-top: clamp(11px, 2vw, 11px);
   padding-bottom: clamp(8px, 1.5vw, 12px);
 }
@@ -4143,15 +4703,67 @@ html, body { margin: 0; padding: 0; }
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,79,40,0.42) transparent;
 }
+.stage-content::-webkit-scrollbar { width: 6px; }
+.stage-content::-webkit-scrollbar-thumb { background: rgba(255,79,40,0.38); border-radius: 99px; }
+.stage-exploration .stage-content,
+.stage-rule .stage-content { overflow-y: hidden; scrollbar-width: none; }
+.stage-hook .stage-content { overflow-y: hidden; scrollbar-width: none; }
+.stage-exploration .stage-content::-webkit-scrollbar,
+.stage-rule .stage-content::-webkit-scrollbar,
+.stage-hook .stage-content::-webkit-scrollbar { display: none; }
+.stage-content > div:not(.ux-slide-guide) { animation: uxSlideIn 0.58s cubic-bezier(0.22,0.8,0.3,1) both; transform-origin: top center; }
+@keyframes uxSlideIn { from { opacity: 0; transform: translateY(18px) scale(0.988); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .stage-nav {
   flex-shrink: 0;
-  background: #F6F4EF;
+  background: rgba(248,247,243,0.9);
+  backdrop-filter: blur(14px);
   border-top: 1px solid rgba(167, 166, 162, 0.25);
   padding-top: clamp(11px, 2vw, 11px);
   padding-bottom: clamp(11px, 2vw, 11px);
   display: flex;
   gap: 12px;
+}
+
+/* Har slaydning ixcham vizual yo'riqnomasi: o'quvchi nima qilishini matn o'qimasdan ham anglaydi. */
+.ux-slide-guide {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  margin: 0 0 clamp(9px,1.6vw,13px);
+  padding: 7px 10px;
+  border: 1px solid rgba(1,154,203,0.17);
+  border-radius: 14px;
+  background: rgba(234,246,251,0.72);
+  box-shadow: 0 8px 22px -18px rgba(1,123,163,0.42);
+  animation: uxGuideIn 0.48s cubic-bezier(0.22,0.8,0.3,1) both;
+}
+.ux-slide-guide-do { background: rgba(255,243,233,0.82); border-color: rgba(255,79,40,0.2); }
+.ux-slide-guide-test { background: rgba(251,243,214,0.86); border-color: rgba(216,169,58,0.28); }
+.ux-slide-guide-finish { background: rgba(227,240,232,0.88); border-color: rgba(31,122,77,0.22); }
+.ux-slide-guide-icon { display: inline-flex; align-items: center; justify-content: center; width: 29px; height: 29px; flex: 0 0 auto; border-radius: 9px; background: #FFFFFF; box-shadow: 0 5px 12px -8px rgba(58,53,48,0.45); font-size: 16px; }
+.ux-slide-guide-label { color: #017BA3; font-size: 11px; font-weight: 850; letter-spacing: 0.045em; text-transform: uppercase; white-space: nowrap; }
+.ux-slide-guide-do .ux-slide-guide-label { color: #C0392B; }
+.ux-slide-guide-test .ux-slide-guide-label { color: #8A681B; }
+.ux-slide-guide-finish .ux-slide-guide-label { color: #1F7A4D; }
+.ux-slide-guide-flow { display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; margin-left: auto; }
+.ux-slide-guide-step { display: inline-flex; align-items: center; gap: 5px; color: #5A5A60; font-size: clamp(10px,1.4vw,12px); font-weight: 700; white-space: nowrap; }
+.ux-slide-guide-step b { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; flex: 0 0 auto; border-radius: 50%; background: #019ACB; color: white; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+.ux-slide-guide-do .ux-slide-guide-step b { background: #FF4F28; }
+.ux-slide-guide-test .ux-slide-guide-step b { background: #D8A93A; }
+.ux-slide-guide-finish .ux-slide-guide-step b { background: #1F7A4D; }
+.ux-slide-guide-arrow { color: #A7A6A2; font-weight: 900; }
+@keyframes uxGuideIn { from { opacity: 0; transform: translateY(-9px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 520px) {
+  .ux-slide-guide { gap: 7px; padding: 6px 8px; }
+  .ux-slide-guide-label { display: none; }
+  .ux-slide-guide-flow { gap: 4px; justify-content: flex-start; margin-left: 0; }
+  .ux-slide-guide-step { font-size: 10px; }
+  .ux-slide-guide-step b { width: 17px; height: 17px; }
 }
 
 .chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
@@ -4185,7 +4797,11 @@ html, body { margin: 0; padding: 0; }
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 99px;
   box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40);
+  position: relative;
+  overflow: hidden;
 }
+.progress-bar::after { content: ''; position: absolute; inset: 0; width: 42%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent); animation: uxProgressShine 2.8s ease-in-out infinite; }
+@keyframes uxProgressShine { 0%, 28% { transform: translateX(-130%); opacity: 0; } 45% { opacity: 1; } 72%, 100% { transform: translateX(310%); opacity: 0; } }
 
 /* === SLIDER v15 === */
 .track-wrap {
@@ -4286,12 +4902,491 @@ html, body { margin: 0; padding: 0; }
 
 /* === FRAMES v15 === */
 .frame {
-  background: #FFFFFF;
-  border-radius: 16px;
+  width: min(780px, 100%);
+  align-self: center;
+  background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(253,251,247,0.98));
+  border-radius: 20px;
   padding: clamp(20px, 4.2vw, 24px);
-  border: none;
-  box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14);
+  border: 1px solid rgba(255,255,255,0.92);
+  box-shadow: 0 18px 42px -24px rgba(58,53,48,0.34), 0 2px 8px rgba(58,53,48,0.05);
   overflow: hidden;
+}
+.d2-focus-frame {
+  width: min(780px, 100%);
+  align-self: center;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(1,154,203,0.055), transparent 46%),
+    linear-gradient(145deg, rgba(255,255,255,0.99), rgba(253,251,247,0.98));
+}
+.d2-scene-frame {
+  width: min(780px, 100%);
+  align-self: center;
+}
+.d2-scene-frame .lm-scene-establishing {
+  width: min(600px,100%);
+  aspect-ratio: 400 / 180;
+}
+.d2-hook-frame {
+  padding: clamp(10px, 1.7vw, 14px);
+  overflow: hidden;
+}
+.d2-hook-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(210px, 0.65fr);
+  align-items: center;
+  gap: clamp(14px, 2.4vw, 22px);
+}
+.d2-hook-task {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.d2-hook-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-self: center;
+  gap: 4px;
+  width: min(780px, 100%);
+  padding: 10px;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #FFF6F1, #FFFDFC);
+  border: 1px solid rgba(255,79,40,0.18);
+}
+.d2-hook-code .mono {
+  color: #A24632;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.d2-hook-code strong {
+  color: #292724;
+  font-size: clamp(21px, 3.2vw, 29px);
+  line-height: 1.04;
+  text-align: center;
+}
+.d2-hook-task > p {
+  margin: 0;
+  color: #5A5A60;
+  font-size: clamp(13px, 1.6vw, 16px);
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+}
+.d2-hook-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: center;
+  gap: 8px;
+  width: min(780px, 100%);
+}
+.d2-hook-options .option {
+  position: relative;
+  min-height: 48px;
+  padding: 8px 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(15px, 1.8vw, 18px);
+  font-weight: 850;
+}
+.d2-hook-options .option > .mono {
+  position: absolute;
+  top: 4px;
+  right: 7px;
+  color: #1F7A4D;
+  font-size: 12px;
+}
+.d2-hook-question {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: min(780px,100%);
+  align-self: center;
+  padding: 10px 14px;
+  border-radius: 15px;
+  background: linear-gradient(135deg,#FFF4EC,#FFF9F5);
+  border: 1px solid rgba(255,79,40,.24);
+  color: #9F321E;
+  box-shadow: 0 9px 22px -18px rgba(255,79,40,.55);
+  text-align: center;
+}
+.d2-hook-question > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 25px;
+  height: 25px;
+  border-radius: 9px;
+  background: #FF4F28;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 900;
+  animation: d2QuestionPulse 1.8s ease-in-out infinite;
+}
+.d2-hook-question b { font-size: clamp(16px,2.2vw,19px); line-height: 1.2; }
+@keyframes d2QuestionPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+.d2-focus-frame .lm-mat { max-width: 560px; }
+.d2-focus-frame .lm-mat-col { padding: clamp(9px, 1.8vw, 14px) 6px; }
+.d2-focus-frame .lm-mat-digit { font-size: clamp(28px, 5vw, 40px); }
+.d2-numpad {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  width: min(228px, 100%);
+  padding: 18px 10px 11px;
+  border-radius: 25px;
+  background: linear-gradient(155deg,#E9EDF1,#D9DEE4);
+  border: 1px solid rgba(63,74,88,0.16);
+  box-shadow: 0 18px 34px -24px rgba(38,49,62,0.65), inset 0 1px rgba(255,255,255,0.9);
+}
+.d2-numpad-speaker { position: absolute; top: 8px; width: 42px; height: 4px; border-radius: 99px; background: #A9B1BA; }
+.d2-numpad-display { width: 100%; min-width: 0 !important; box-shadow: inset 0 2px 8px rgba(58,53,48,0.08); }
+.d2-numpad-grid { display: grid; grid-template-columns: repeat(3, auto); gap: 6px; }
+.d2-numpad-key {
+  transition: transform 0.16s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  box-shadow: 0 5px 11px -7px rgba(38,49,62,0.55), inset 0 1px rgba(255,255,255,0.9);
+}
+.d2-numpad-key:hover:not(:disabled) { transform: translateY(-2px); border-color: #019ACB !important; box-shadow: 0 10px 18px -10px rgba(1,154,203,0.5); }
+.d2-numpad-key:active:not(:disabled) { transform: scale(0.95); }
+.d2-numpad-back { background: #FFF3E9 !important; border-color: rgba(255,79,40,0.34) !important; }
+.d2-numpad-spacer { width: clamp(50px, 9vw, 54px); height: clamp(42px, 7vw, 44px); }
+.d2-type-work {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(18px, 3vw, 30px);
+  width: min(620px, 100%);
+}
+.d2-type-prompt,
+.d2-type-device {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.d2-type-prompt {
+  min-height: 170px;
+  justify-content: center;
+  padding: 18px 14px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #FFF7F2, #FFFDFC);
+  border: 1px dashed rgba(255,79,40,0.28);
+}
+.d2-type-prompt > p {
+  margin: 0;
+  color: #5A5A60;
+  font-size: clamp(12px,1.55vw,14px);
+  font-weight: 650;
+  line-height: 1.35;
+  text-align: center;
+}
+.d2-type-step {
+  position: absolute;
+  top: 8px;
+  left: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  border-radius: 9px;
+  background: #FF4F28;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 850;
+  box-shadow: 0 6px 12px -8px rgba(255,79,40,0.8);
+}
+.d2-type-device > .d2-type-step { left: -8px; z-index: 2; }
+.d2-type-device > .btn-white-accent { min-width: 154px; min-height: 44px; }
+.d2-final-type-work {
+  margin-inline: auto;
+}
+.d2-transfer-slots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(230px, 100%);
+  padding: 8px 10px;
+}
+.d2-live-number-slots { display: flex; align-items: flex-start; justify-content: center; gap: 6px; }
+.d2-slot-unit {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  justify-items: center;
+  align-items: center;
+  gap: 2px;
+  min-width: 42px;
+}
+.d2-slot-unit > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 40px;
+  border-radius: 11px;
+  background: #F2F5F7;
+  border: 1.5px dashed #B8C4CB;
+  color: transparent;
+  font: 850 23px 'JetBrains Mono',monospace;
+  box-shadow: inset 0 3px 7px rgba(23,46,69,.04);
+}
+.d2-slot-unit > span.filled { color: #0E0E10; background: #EAF6FB; border: 2px solid #019ACB; }
+.d2-transfer-slots.is-compact .d2-slot-unit > span { width: 36px; height: 39px; font-size: 21px; }
+.d2-slot-unit small {
+  color: #6B747A;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.d2-slot-unit em {
+  min-height: 17px;
+  padding: 1px 5px;
+  border-radius: 7px;
+  font: normal 850 12px 'JetBrains Mono',monospace;
+  line-height: 1.35;
+}
+.d2-slot-unit em.is-ok { background: #E3F0E8; color: #1F7A4D; }
+.d2-slot-unit em.is-error-mark { background: #FFE8E1; color: #C0392B; animation: d2FixPop .45s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes d2FixPop { from { opacity: 0; transform: translateY(-5px) scale(.85); } to { opacity: 1; transform: none; } }
+.d2-digit-land {
+  transform-origin: center;
+  animation: d2DigitLand 1.05s cubic-bezier(.18,.74,.22,1.12) var(--digit-delay) both;
+}
+@keyframes d2DigitLand {
+  0% { opacity: 0; transform: translate(205px,-42px) scale(1.35) rotate(7deg); filter: blur(2px); }
+  68% { opacity: 1; transform: translate(-3px,2px) scale(1.08) rotate(-2deg); filter: blur(0); }
+  84% { transform: translate(2px,-2px) scale(.96); }
+  100% { opacity: 1; transform: none; }
+}
+.d2-slot-wrong {
+  color: #FF4F28 !important;
+  background: #FFF0EB !important;
+  border: 2px solid #FF4F28 !important;
+  animation: d2SlotWrong .55s cubic-bezier(.36,.07,.19,.97) both;
+}
+.d2-slot-match {
+  color: #1F7A4D !important;
+  background: #E3F0E8 !important;
+  border: 2px solid #1F7A4D !important;
+  animation: d2MatchPop .4s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes d2MatchPop { from { transform: scale(.82); opacity: .35; } to { transform: none; opacity: 1; } }
+@keyframes d2SlotWrong {
+  0%,100% { transform: translateX(0); }
+  20%,60% { transform: translateX(-7px) rotate(-2deg); }
+  40%,80% { transform: translateX(7px) rotate(2deg); }
+}
+.d2-place-equation { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; padding: 8px 12px; border-radius: 15px; background: #F5F9FA; border: 1px dashed rgba(1,154,203,.22); }
+.d2-place-source { padding: 5px 9px; border-radius: 10px; background: #15344B; color: #FFFFFF; font-size: clamp(18px,3vw,24px); font-weight: 850; }
+.d2-place-arrow { color: #019ACB; font-size: 20px; font-weight: 850; }
+.d2-place-part { padding: 5px 9px; border-radius: 10px; background: color-mix(in srgb, var(--part-color) 10%, white); color: var(--part-color); border: 1px solid color-mix(in srgb, var(--part-color) 28%, white); font-size: clamp(16px,2.6vw,21px); font-weight: 850; animation: d2PartLand .46s cubic-bezier(.2,.8,.2,1) var(--part-delay) both; }
+@keyframes d2PartLand { from { transform: translateY(-14px) scale(.86); opacity: 0; } to { transform: none; opacity: 1; } }
+.d2-read-direction { display: flex; align-items: center; gap: 8px; width: min(400px,90%); color: #63747D; font-size: 10px; font-weight: 750; }
+.d2-read-direction i { position: relative; flex: 1; height: 4px; border-radius: 99px; background: #D8E8ED; overflow: hidden; }
+.d2-read-direction i::after { content: ''; position: absolute; inset: 0; width: 42%; background: linear-gradient(90deg,transparent,#019ACB,transparent); animation: d2ReadSweep 2.1s ease-in-out infinite; }
+.d2-read-direction i b { position: absolute; right: 0; top: -4px; width: 10px; height: 10px; border-top: 2px solid #019ACB; border-right: 2px solid #019ACB; transform: rotate(45deg); }
+@keyframes d2ReadSweep { from { transform: translateX(-110%); } to { transform: translateX(250%); } }
+.d2-read-cards { display: flex; gap: clamp(16px,4vw,34px); align-items: flex-start; justify-content: center; }
+.d2-read-card { display: flex; flex-direction: column; align-items: center; gap: 7px; opacity: .55; transform: translateY(4px); transition: opacity .3s, transform .3s; }
+.d2-read-card.active { opacity: 1; transform: none; }
+.d2-read-place { padding: 3px 7px; border-radius: 8px; background: color-mix(in srgb,var(--read-color) 10%,white); color: var(--read-color); font-size: 10px; font-weight: 850; }
+.d2-read-digit { min-width: clamp(58px,13vw,78px); padding: 5px 0; border: 3px solid var(--read-color); border-radius: 16px; background: #FFFFFF; color: var(--read-color); box-shadow: 0 10px 22px -14px var(--read-color); font-size: clamp(42px,9vw,64px); font-weight: 850; text-align: center; animation: d2PartLand .46s cubic-bezier(.2,.8,.2,1) var(--read-delay) both; }
+.d2-merge-result { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 8px 12px; border-radius: 14px; background: #EAF5EE; color: #1F7A4D; text-align: center; }
+.d2-merge-result b { font-size: clamp(14px,2.1vw,18px); }
+.d2-word-chunks { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; width: min(560px,100%); }
+.d2-word-chunks > span { display: grid; grid-template-rows: auto 16px auto; justify-items: center; gap: 2px; padding: 7px; border-radius: 13px; background: #FFF8F4; border: 1px solid rgba(255,79,40,.17); }
+.d2-word-chunks b { color: #9C3B26; font-size: clamp(12px,1.75vw,15px); text-align: center; }
+.d2-word-chunks i { color: #D6A093; font-style: normal; line-height: 1; }
+.d2-word-chunks small { color: #7E6E68; font-size: 9px; font-weight: 850; }
+.d2-word-chunks > span.mapped { animation: d2ChunkMap .5s cubic-bezier(.2,.8,.2,1) var(--chunk-delay) both; }
+@keyframes d2ChunkMap { from { transform: translateY(-10px); opacity: .25; } to { transform: none; opacity: 1; } }
+.d2-zero-contrast { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; width: min(420px,100%); }
+.d2-zero-contrast > span { display: flex; flex-direction: column; align-items: center; padding: 7px 12px; border-radius: 13px; font-size: clamp(20px,3.8vw,28px); font-weight: 850; }
+.d2-zero-contrast > span > b { display: flex; align-items: center; justify-content: center; font: inherit; }
+.d2-zero-contrast small { margin-top: 2px; font: 700 9px Inter,sans-serif; }
+.d2-zero-wrong { background: #F5F2EE; color: #8B8179; text-decoration: line-through; }
+.d2-zero-right { background: #EAF5EE; color: #1F7A4D; }
+.d2-zero-right em { display: inline-flex; align-items: center; justify-content: center; margin-inline: 2px; width: 30px; height: 30px; border-radius: 9px; background: #FF4F28; color: #FFFFFF; font-style: normal; text-decoration: none; animation: d2ZeroGlow 1.5s ease-in-out infinite; }
+@keyframes d2ZeroGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,79,40,.25); } 50% { box-shadow: 0 0 0 7px rgba(255,79,40,0); } }
+.d2-zero-examples { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; width: 100%; padding: 8px !important; }
+.d2-zero-examples .d2-zero-example { display: flex; flex-direction: column; justify-content: center; gap: 3px; min-width: 0; padding: 7px 4px; border-radius: 11px; background: rgba(255,255,255,.5); text-align: center; }
+.d2-zero-examples .d2-zero-example-word { width: 100%; font-size: clamp(10px,1.35vw,12px); text-align: center; }
+.d2-zero-examples .d2-zero-example-arrow { transform: rotate(90deg); line-height: .8; }
+.d2-zero-examples .d2-zero-example-label { width: 100%; font-size: 8px; line-height: 1.2; text-align: center; }
+.d2-odometer { display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(470px,100%); padding: 14px; border-radius: 20px; background: linear-gradient(145deg,#142F43,#0C1F30); color: #FFFFFF; box-shadow: 0 18px 30px -22px rgba(12,31,48,.8); }
+.d2-odometer-carry { display: flex; justify-content: flex-end; gap: 24px; width: 220px; height: 18px; color: #8BE5F5; }
+.d2-odometer-carry span { opacity: 0; }
+.d2-odometer.advanced .d2-odometer-carry span { animation: d2Carry .65s ease-out var(--carry-delay) both; }
+@keyframes d2Carry { from { transform: translate(12px,8px); opacity: 0; } to { transform: none; opacity: 1; } }
+.d2-odometer-row { display: flex; gap: 7px; }
+.d2-odometer-row > span { display: inline-flex; align-items: center; justify-content: center; width: clamp(48px,8vw,60px); height: clamp(58px,9vw,68px); border-radius: 13px; background: linear-gradient(#FFFFFF,#E4EDF2); color: #102D46; border: 3px solid #9BB4C3; font-size: clamp(34px,6vw,44px); font-weight: 850; box-shadow: inset 0 -6px 10px rgba(24,51,71,.12); }
+.d2-odometer.advanced .d2-odometer-row > span { animation: d2Wheel .58s cubic-bezier(.2,.8,.2,1) var(--wheel-delay) both; }
+@keyframes d2Wheel { from { transform: rotateX(80deg) translateY(-12px); opacity: .2; } to { transform: none; opacity: 1; } }
+.d2-odometer-operation { display: flex; align-items: center; gap: 9px; color: #C4D7E1; font-size: clamp(14px,2.3vw,18px); }
+.d2-odometer-operation strong { color: #8BE5F5; }
+.d2-odometer p { margin: 0 !important; color: #D8E7ED; font-size: clamp(10px,1.35vw,12px); font-weight: 620; line-height: 1.35; text-align: center; }
+.d2-thousand-word { color: #FF4F28; font-size: clamp(26px,5vw,38px); font-weight: 850; letter-spacing: 3px; }
+.d2-rule-flow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; width: 100%; padding: 8px 10px; border-radius: 14px; background: #F3F8F9; border: 1px dashed rgba(1,154,203,.22); }
+.d2-rule-flow > span { color: #15344B; font-size: clamp(15px,2.4vw,19px); font-weight: 850; }
+.d2-rule-flow span b { color: #FF4F28; }
+.d2-rule-flow i { color: #019ACB; font-style: normal; font-weight: 850; }
+.d2-rule-flow strong { color: #1F7A4D; font-size: clamp(13px,1.8vw,16px); }
+.d2-detective-banner { position: relative; display: flex; align-items: center; gap: 9px; padding: 8px 12px; border-radius: 14px; overflow: hidden; background: #172E42; color: #FFFFFF; }
+.d2-detective-banner > span { font-size: 22px; }
+.d2-detective-banner > div { display: flex; flex-direction: column; min-width: 0; }
+.d2-detective-banner b { font-size: 12px; }
+.d2-detective-banner small { color: #C6D7E2; font-size: 10px; }
+.d2-scan-beam { position: absolute; top: 0; bottom: 0; width: 28%; background: linear-gradient(90deg,transparent,rgba(139,229,245,.18),transparent); animation: d2Scan 2.8s ease-in-out infinite; }
+@keyframes d2Scan { from { transform: translateX(-180%); } to { transform: translateX(480%); } }
+.d2-tw-question { width: 100%; margin-top: 2px; }
+.d2-bottom-feedback { width: min(780px,100%); align-self: center; }
+.d2-verify-row {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto minmax(130px,1fr) auto auto minmax(172px,auto);
+  align-items: center;
+  gap: 9px;
+  min-height: 58px;
+  padding: 8px 10px;
+  border-radius: 15px;
+  background: linear-gradient(145deg,#FFFFFF,#FBFAF6);
+  border: 1px solid rgba(167,166,162,.2);
+  box-shadow: 0 8px 20px -16px rgba(31,44,56,.52);
+  transition: border-color .24s, background .24s, transform .24s, box-shadow .24s;
+  animation: d2VerifyEnter .48s cubic-bezier(.2,.8,.2,1) both;
+}
+.d2-verify-row:nth-of-type(2) { animation-delay: .08s; }
+.d2-verify-row:nth-of-type(3) { animation-delay: .16s; }
+.d2-verify-row:nth-of-type(4) { animation-delay: .24s; }
+@keyframes d2VerifyEnter { from { opacity: 0; transform: translateX(-20px) scale(.98); } to { opacity: 1; transform: none; } }
+.d2-verify-row.has-error { border-color: rgba(255,79,40,.65); background: #FFF1EC; animation: d2SlotWrong .55s cubic-bezier(.36,.07,.19,.97) both; }
+.d2-verify-row.is-checked { border-color: rgba(31,122,77,.3); }
+.d2-verify-word { font-size: clamp(13px,2vw,17px); font-weight: 700; }
+.d2-verify-eq { color: #9AA5AB; font-weight: 850; }
+.d2-verify-num { color: #D74625; font-size: clamp(18px,3vw,23px); font-weight: 850; }
+.d2-verify-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.d2-verify-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 38px;
+  padding: 6px 9px;
+  border: 1px solid rgba(167,166,162,.24);
+  border-radius: 10px;
+  background: #F5F6F5;
+  color: #65727A;
+  font-family: 'Manrope',sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform .18s, background .2s, color .2s, box-shadow .2s;
+}
+.d2-verify-actions button:hover:not(:disabled) { transform: translateY(-2px); }
+.d2-verify-actions button b { font: 900 17px 'JetBrains Mono',monospace; }
+.d2-verify-actions button.is-on.is-yes { background: #DDF1E5; color: #1F7A4D; border-color: rgba(31,122,77,.36); box-shadow: 0 7px 16px -10px rgba(31,122,77,.8); }
+.d2-verify-actions button.is-on.is-no { background: #FFE8E1; color: #C0392B; border-color: rgba(255,79,40,.38); box-shadow: 0 7px 16px -10px rgba(255,79,40,.8); }
+.d2-verify-actions button:disabled { cursor: default; }
+.d2-verify-check { align-self: center; min-height: 43px; padding-block: 9px; font-size: 14px; }
+.d2-verify-hint { margin: 0 !important; color: #8B3521; text-align: center; font-size: clamp(12px,1.6vw,14px); font-weight: 650; }
+.d2-final-scene { width: min(780px,100%); align-self: center; }
+.d2-final-scene .lm-scene-establishing { width: 100%; }
+.d2-guided-question { width: 100%; padding: 10px 14px; border-radius: 14px; background: linear-gradient(135deg,#FFF7F1,#FFEAE0); border: 1px solid rgba(255,79,40,0.22); color: #B63820; font-family: 'Source Serif 4',serif; font-size: clamp(17px,2.7vw,22px); font-weight: 700; line-height: 1.25; text-align: center; }
+.d2-rulecard-inline { width: 100%; }
+
+.d2-question-coach {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 15px;
+  background: linear-gradient(135deg,#F0F8FB,#E7F5FA);
+  border: 1px solid rgba(1,154,203,0.14);
+}
+.d2-question-coach > span:first-child { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 11px; background: #FFFFFF; font-size: 18px; }
+.d2-question-coach em { display: block; color: #FF4F28; font-size: 9px; font-style: normal; font-weight: 850; letter-spacing: 0.04em; text-transform: uppercase; }
+.d2-question-coach b { display: block; color: #15344B; font-size: clamp(11px,1.55vw,13px); }
+.d2-question-coach p { margin-top: 2px !important; color: #5A5A60; font-size: clamp(10px,1.35vw,12px); line-height: 1.3; font-weight: 620; }
+.d2-question-coach-flow { padding: 5px 8px; border-radius: 9px; background: #15344B !important; color: #FFFFFF; font: 800 10px 'JetBrains Mono',monospace; white-space: nowrap; }
+.d2-question-figure { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 76px; padding: 8px 12px; border-radius: 16px; background: linear-gradient(135deg,#FFF9F4,#F4F9FB); border: 1px dashed rgba(1,154,203,0.2); }
+.d2-answer-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(var(--answer-cols,2),minmax(0,1fr)); gap: 11px; width: 100%; }
+.d2-answer-card {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 9px;
+  min-height: clamp(58px,7vw,68px);
+  padding: clamp(10px,1.6vw,13px) !important;
+  font-size: clamp(12px,1.65vw,15px) !important;
+  text-align: left !important;
+  line-height: 1.3;
+}
+.d2-answer-card > span:last-child { flex: 1; text-align: center; }
+.d2-answer-letter { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 9px; background: #EDF3F6; color: #536673; font-size: 11px; font-weight: 850; }
+.option-correct .d2-answer-letter { background: #1F7A4D; color: #FFFFFF; }
+.option-picked-wrong .d2-answer-letter { background: #D8A93A; color: #FFFFFF; }
+.d2-compare-card .title { flex: 1; text-align: left; }
+@media (max-width: 639.98px) {
+  .d2-focus-frame, .d2-scene-frame { width: 100%; }
+  .d2-hook-grid { grid-template-columns: 1fr; gap: 10px; }
+  .d2-hook-grid .lm-scene-establishing { width: min(300px, 100%); }
+  .d2-hook-task { gap: 8px; }
+  .d2-hook-code { padding: 8px; }
+  .d2-hook-code strong { font-size: 22px; }
+  .d2-hook-options { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; }
+  .d2-hook-options .option { min-height: 46px; padding: 7px 5px; font-size: 15px; }
+  .d2-hook-question { padding: 9px 10px; gap: 7px; }
+  .d2-hook-question b { font-size: 15px; }
+  .d2-type-work { grid-template-columns: 1fr; gap: 11px; }
+  .d2-type-prompt { width: 100%; min-height: 104px; padding: 12px 40px; gap: 5px; }
+  .d2-type-device { gap: 8px; }
+  .d2-type-device > .d2-type-step { left: calc(50% - 124px); }
+  .d2-place-equation { gap: 5px; padding: 7px; }
+  .d2-place-part { padding: 4px 6px; }
+  .d2-read-cards { gap: 9px; }
+  .d2-read-digit { min-width: 62px; font-size: 40px; }
+  .d2-word-chunks { gap: 5px; }
+  .d2-word-chunks > span { padding: 6px 3px; }
+  .d2-zero-contrast { gap: 6px; }
+  .d2-zero-contrast > span { padding: 6px 8px; }
+  .d2-odometer { padding: 11px 8px; }
+  .d2-odometer-row { gap: 5px; }
+  .d2-odometer-row > span { width: 49px; height: 56px; }
+  .d2-transfer-slots { width: min(210px,100%); }
+  .d2-slot-unit { min-width: 39px; }
+  .d2-slot-unit small { font-size: 8px; }
+  .d2-digit-land { animation-name: d2DigitLandMobile; }
+  .d2-verify-row { grid-template-columns: auto minmax(0,1fr) auto auto; gap: 6px; padding: 8px; }
+  .d2-verify-actions { grid-column: 2 / -1; width: 100%; }
+  .d2-verify-actions button { min-height: 34px; padding: 5px 7px; }
+  .d2-verify-word { font-size: 13px; }
+  .d2-verify-num { font-size: 19px; }
+  .d2-final-scene { width: 100%; }
+  .d2-question-coach { grid-template-columns: auto minmax(0,1fr); }
+  .d2-question-coach-flow { display: none; }
+  .d2-answer-grid { gap: 8px; }
+  .d2-answer-card { min-height: 64px; padding: 8px !important; gap: 5px; }
+  .d2-answer-letter { width: 24px; height: 24px; border-radius: 8px; }
+}
+@keyframes d2DigitLandMobile {
+  0% { opacity: 0; transform: translate(0,190px) scale(1.35) rotate(7deg); filter: blur(2px); }
+  68% { opacity: 1; transform: translate(-2px,-3px) scale(1.08) rotate(-2deg); filter: blur(0); }
+  84% { transform: translate(2px,2px) scale(.96); }
+  100% { opacity: 1; transform: none; }
 }
 .frame-soft {
   background: #FFE8E1;
@@ -5726,8 +6821,32 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-mat-chiroq { width: clamp(13px, 2.6vw, 17px); }
 
 .lm-scene { position: relative; width: 100%; aspect-ratio: 400 / 210; border-radius: 14px; overflow: hidden; }
+.lm-scene-establishing {
+  width: min(650px, 100%);
+  aspect-ratio: 400 / 190;
+  margin-inline: auto;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.28);
+}
+.d2-final-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(390px, 1.1fr);
+  align-items: center;
+  gap: clamp(16px, 2.6vw, 24px);
+}
+.d2-final-copy { display: flex; flex-direction: column; gap: clamp(14px, 2.4vw, 20px); }
+@media (max-width: 760px) {
+  .d2-final-grid { grid-template-columns: 1fr; }
+}
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
+.d2-scene-split .lm-scene-cast {
+  left: 44%;
+  right: -3%;
+  bottom: 3%;
+  padding: 0;
+  transform: scale(.72);
+  transform-origin: center bottom;
+}
 .lm-crew { display: inline-flex; align-items: flex-end; position: relative; }
 /* REALIZM: personaj ostidagi yumshoq yer-soyasi (figurani yerga bog'laydi) */
 .lm-crew::after { content: ''; position: absolute; bottom: -2%; left: 50%; transform: translateX(-50%); width: 82%; height: clamp(6px, 1.6vw, 11px); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(40,30,20,0.32) 0%, rgba(40,30,20,0.11) 55%, transparent 78%); z-index: -1; pointer-events: none; }
@@ -5777,6 +6896,15 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-count-ok { color: #6EF29B; }
 .lm-bob { animation: lm-bob-a 2.4s ease-in-out infinite; }
 @keyframes lm-bob-a { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.d2-tower-breathe { animation: d2TowerBreathe 3.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+.d2-tower-celebrate { animation: d2TowerCelebrate 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+.d2-tower-rays { animation: d2TowerRays 1.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes d2TowerBreathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes d2TowerCelebrate { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.012); } }
+@keyframes d2TowerRays { 0%,100% { opacity: 0.35; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) {
+  .d2-tower-breathe, .d2-tower-celebrate, .d2-tower-rays { animation: none; }
+}
 
 .lm-srcrow { display: flex; gap: clamp(8px, 2vw, 14px); flex-wrap: wrap; justify-content: center; }
 .lm-srcbtn { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: clamp(8px, 1.6vw, 12px) clamp(10px, 2vw, 16px); font-weight: 700; font-size: clamp(12px, 1.7vw, 14px); }
@@ -5870,12 +6998,135 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @media (max-width: 639.98px) { .lm-meter-label { display: none; } }
 
 /* FaktCard + Qoida-card (grade3 lokal, d2- nomlari bilan mos) */
+/* === Dars02 · 3-slayd: izoh ichidagi zamonaviy kartochka-trenajyor === */
+.d2-trainer-screen { flex: 1; display: flex; flex-direction: column; gap: clamp(9px,1.6vw,13px); width: 100%; }
+.d2-trainer-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.d2-trainer-heading h1 { margin-top: 3px; }
+.d2-trainer-kicker { color: #FF4F28; font-size: clamp(10px,1.3vw,12px); font-weight: 850; letter-spacing: 0.08em; text-transform: uppercase; }
+.d2-trainer-round { display: flex; align-items: center; gap: 7px; color: #5A5A60; font-size: 12px; font-weight: 800; }
+.d2-trainer-round > span, .d2-trainer-round > b { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 9px; background: #FFFFFF; box-shadow: 0 6px 16px -10px rgba(58,53,48,0.5); }
+.d2-trainer-round > span { background: #FF4F28; color: #FFFFFF; }
+.d2-trainer-round > div { display: flex; gap: 4px; }
+.d2-trainer-round i { width: 18px; height: 5px; border-radius: 99px; background: #D9D5CE; transition: background 0.3s, transform 0.3s; }
+.d2-trainer-round i.done { background: #1F7A4D; }
+.d2-trainer-round i.on { background: #FF4F28; transform: scaleX(1.16); }
+
+.d2-trainer-shell { width: min(780px,100%); align-self: center; border-radius: 24px; padding: clamp(14px,2.6vw,22px); background: linear-gradient(145deg,rgba(255,255,255,0.97),rgba(247,251,253,0.96)); border: 1px solid rgba(1,154,203,0.14); box-shadow: 0 22px 48px -30px rgba(23,46,69,0.42), inset 0 1px rgba(255,255,255,0.9); }
+.d2-trainer-demo { display: flex; flex-direction: column; gap: clamp(12px,2vw,17px); }
+.d2-trainer-demo-top { display: flex; align-items: center; gap: 12px; }
+.d2-trainer-demo-top p { flex: 1; color: #5A5A60; font-size: clamp(12px,1.6vw,14px); line-height: 1.45; font-weight: 620; }
+.d2-trainer-demo-badge { flex: 0 0 auto; padding: 7px 11px; border-radius: 99px; background: #EAF6FB; color: #017BA3; font-size: 11px; font-weight: 850; }
+.d2-trainer-demo-cards { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: clamp(8px,2vw,16px); min-height: clamp(104px,14vw,132px); }
+.d2-trainer-demo-cards > div { min-width: 0; }
+.d2-demo-slow-reveal { animation: d2DemoSlowReveal .78s cubic-bezier(.2,.76,.25,1) both; }
+@keyframes d2DemoSlowReveal {
+  from { opacity: 0; transform: translateY(14px) scale(.96); filter: blur(2px); }
+  to { opacity: 1; transform: none; filter: blur(0); }
+}
+.d2-trainer-vs { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #F6F4EF; color: #A7A6A2; font-size: 20px; font-weight: 900; }
+.d2-trainer-tip { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 15px; background: #FBF3D6; border: 1px solid rgba(216,169,58,0.24); }
+.d2-trainer-tip > span { font-size: 20px; }
+.d2-trainer-tip b { display: block; color: #6E5519; font-size: clamp(11px,1.5vw,13px); line-height: 1.4; }
+.d2-trainer-tip p { margin-top: 3px; color: #7D6B42; font-size: clamp(10px,1.35vw,12px); line-height: 1.4; }
+.d2-trainer-start { align-self: center; }
+
+.d2-trainer-prompt { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 10px 16px; border-radius: 18px; background: linear-gradient(135deg,#14203C,#1D315B); color: #FFFFFF; box-shadow: 0 16px 34px -20px rgba(20,32,60,0.75); }
+.d2-trainer-prompt > div { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.d2-trainer-prompt span { color: #BFD8F2; font-size: clamp(11px,1.5vw,13px); font-weight: 700; }
+.d2-trainer-prompt strong { color: #FFFFFF; font-size: clamp(20px,3.5vw,28px); font-weight: 700; }
+.d2-trainer-sound { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 11px; background: rgba(91,214,242,0.16); color: #7FE5F8 !important; font-family: 'JetBrains Mono',monospace; animation: d2TrainerSound 1.6s ease-in-out infinite; }
+.d2-trainer-coach { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 36px; }
+.d2-trainer-coach-badge { flex: 0 0 auto; padding: 5px 9px; border-radius: 99px; background: #FFF3E9; color: #C0392B; font-size: 10px; font-weight: 850; }
+.d2-trainer-coach-badge.guided { background: #EAF6FB; color: #017BA3; }
+.d2-trainer-coach p { color: #5A5A60; font-size: clamp(11px,1.45vw,13px); font-weight: 650; line-height: 1.35; }
+.d2-trainer-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: clamp(9px,1.8vw,14px); }
+
+.d2-trainer-card { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-width: 0; min-height: clamp(104px,14vw,132px); padding: clamp(10px,1.8vw,15px); overflow: hidden; border-radius: 19px; text-align: left; border: 1.5px solid transparent; box-shadow: 0 13px 28px -19px rgba(58,53,48,0.48); animation: d2TrainerCardIn 0.5s cubic-bezier(0.22,0.8,0.3,1) var(--card-delay,0s) both; transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+button.d2-trainer-card { width: 100%; font-family: 'Manrope',sans-serif; cursor: pointer; }
+.d2-trainer-card::before { content: ''; position: absolute; width: 120px; height: 120px; right: -52px; top: -58px; border-radius: 50%; opacity: 0.16; pointer-events: none; }
+.d2-trainer-card-h { background: linear-gradient(145deg,#FFF6EF,#FFE8D8); color: #7F2D19; border-color: rgba(255,111,61,0.2); }
+.d2-trainer-card-h::before { background: #FF6F3D; }
+.d2-trainer-card-t { background: linear-gradient(145deg,#EFFBFD,#DDF4F8); color: #075D73; border-color: rgba(1,154,203,0.2); }
+.d2-trainer-card-t::before { background: #019ACB; }
+button.d2-trainer-card:hover:not(:disabled) { transform: translateY(-4px) scale(1.01); box-shadow: 0 19px 34px -19px rgba(58,53,48,0.52); }
+button.d2-trainer-card:active:not(:disabled) { transform: translateY(0) scale(0.985); }
+button.d2-trainer-card:focus-visible { outline: 3px solid rgba(1,154,203,0.38); outline-offset: 3px; }
+button.d2-trainer-card:disabled { cursor: default; }
+.d2-trainer-kind { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 8px; color: currentColor; font-size: clamp(9px,1.2vw,11px); font-weight: 850; letter-spacing: 0.035em; text-transform: uppercase; }
+.d2-trainer-kind b { padding: 2px 6px; border-radius: 7px; background: rgba(255,255,255,0.72); font-size: 10px; }
+.d2-trainer-formula { position: relative; z-index: 1; display: flex; align-items: baseline; gap: clamp(3px,0.8vw,7px); color: currentColor; }
+.d2-trainer-formula i { font-style: normal; font-size: clamp(14px,2vw,18px); font-weight: 750; opacity: 0.75; }
+.d2-trainer-formula span { font-size: 12px; opacity: 0.55; }
+.d2-trainer-formula strong { margin-left: auto; color: #0E0E10; font-size: clamp(24px,4.2vw,36px); line-height: 1; font-weight: 900; letter-spacing: -0.055em; }
+.d2-trainer-word { position: relative; z-index: 1; color: currentColor; font-size: clamp(14px,2.1vw,18px); font-weight: 700; }
+.d2-trainer-card-guided { border-color: #019ACB; animation: d2TrainerCardIn 0.5s cubic-bezier(0.22,0.8,0.3,1) var(--card-delay,0s) both, d2TrainerGuided 1.6s ease-in-out 0.65s infinite; }
+.d2-trainer-hand { position: absolute; right: 12px; bottom: 9px; z-index: 3; font-size: clamp(20px,3.4vw,28px); filter: drop-shadow(0 3px 3px rgba(0,0,0,0.2)); animation: d2TrainerHand 1.35s ease-in-out infinite; }
+.d2-trainer-card-wrong { border-color: #D8A93A; animation: d2TrainerWrong 0.42s ease both; }
+.d2-trainer-card-correct { border-color: #1F7A4D; background: linear-gradient(145deg,#F0F9F3,#DDF1E5); box-shadow: 0 0 0 4px rgba(31,122,77,0.1),0 18px 34px -18px rgba(31,122,77,0.48); animation: d2TrainerCorrect 0.62s cubic-bezier(0.2,0.9,0.3,1.25) both; }
+.d2-trainer-check { position: absolute; right: 10px; top: 10px; z-index: 4; display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: #1F7A4D; color: #FFFFFF; font-size: 17px; font-weight: 900; box-shadow: 0 7px 15px -8px rgba(31,122,77,0.7); }
+.d2-trainer-card-demo { pointer-events: none; }
+.d2-trainer-feedback { display: flex; align-items: center; justify-content: center; gap: 9px; padding: 9px 12px; border-radius: 14px; font-size: clamp(11px,1.5vw,13px); font-weight: 700; }
+.d2-trainer-feedback > span { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; flex: 0 0 auto; border-radius: 50%; color: #FFFFFF; font-weight: 900; }
+.d2-trainer-feedback-wrong { color: #7D641E; background: #FBF3D6; }
+.d2-trainer-feedback-wrong > span { background: #D8A93A; }
+.d2-trainer-feedback-ok { color: #1F7A4D; background: #E3F0E8; }
+.d2-trainer-feedback-ok > span { background: #1F7A4D; }
+.d2-trainer-complete { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 13px; padding: clamp(14px,2.4vw,19px); border-radius: 20px; color: #174F35; background: linear-gradient(135deg,#E8F6ED,#D9EEE1); border: 1px solid rgba(31,122,77,0.2); box-shadow: 0 18px 38px -24px rgba(31,122,77,0.48); }
+.d2-trainer-complete-icon { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 15px; background: rgba(255,255,255,0.75); font-size: 26px; }
+.d2-trainer-complete b { display: block; font-size: clamp(17px,2.8vw,22px); }
+.d2-trainer-complete p { margin-top: 3px; color: #3F6C55; font-size: clamp(11px,1.5vw,13px); }
+.d2-trainer-complete > .mono { padding: 6px 9px; border-radius: 10px; background: #1F7A4D; color: #FFFFFF; font-size: 12px; font-weight: 850; }
+
+@keyframes d2TrainerCardIn { from { opacity: 0; transform: translateY(14px) scale(0.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes d2TrainerGuided { 0%,100% { box-shadow: 0 0 0 0 rgba(1,154,203,0.24),0 13px 28px -19px rgba(58,53,48,0.48); } 50% { box-shadow: 0 0 0 7px rgba(1,154,203,0),0 19px 36px -18px rgba(1,154,203,0.52); transform: translateY(-3px); } }
+@keyframes d2TrainerHand { 0%,100% { transform: translateY(3px) rotate(-7deg); } 50% { transform: translateY(-5px) rotate(2deg); } }
+@keyframes d2TrainerWrong { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-7px); } 55% { transform: translateX(6px); } 80% { transform: translateX(-3px); } }
+@keyframes d2TrainerCorrect { 0% { transform: scale(0.97); } 45% { transform: scale(1.045); } 100% { transform: scale(1); } }
+@keyframes d2TrainerSound { 0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(91,214,242,0.26); } 50% { transform: scale(1.06); box-shadow: 0 0 0 7px rgba(91,214,242,0); } }
+
+@media (max-width: 520px) {
+  .d2-trainer-heading { align-items: flex-end; }
+  .d2-trainer-demo-top { align-items: flex-start; flex-direction: column; gap: 7px; }
+  .d2-trainer-demo-cards { gap: 6px; }
+  .d2-trainer-vs { width: 25px; height: 25px; font-size: 15px; }
+  .d2-trainer-card { min-height: 110px; padding: 9px; border-radius: 16px; }
+  .d2-trainer-formula { gap: 3px; }
+  .d2-trainer-formula strong { font-size: 25px; }
+  .d2-trainer-kind { font-size: 8.5px; }
+  .d2-trainer-kind b { font-size: 8px; padding: 2px 4px; }
+  .d2-trainer-word { font-size: 13px; }
+  .d2-trainer-coach { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .d2-trainer-prompt { padding: 8px 11px; }
+  .d2-trainer-prompt > div { gap: 5px; }
+  .d2-trainer-prompt strong { font-size: 21px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d2-trainer-card, .d2-trainer-card-guided, .d2-trainer-hand, .d2-trainer-card-wrong, .d2-trainer-card-correct, .d2-trainer-sound { animation: none; }
+}
+
+.d2-final-result { width: min(780px,100%); align-self: center; }
+.d2-final-fact-frame {
+  width: min(780px,100%);
+  align-self: center;
+  padding: clamp(11px,2vw,16px);
+  animation-delay: .22s;
+}
 .d2-factcard { display: flex; flex-direction: column; gap: 6px; background: #14203C; border-radius: 14px; padding: clamp(12px, 2.4vw, 18px); }
 .d2-factcard-badge { align-self: flex-start; background: rgba(255,184,77,0.2); color: #FFC23C; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
 .d2-factcard-txt { margin: 0; color: #EAF0F8; font-size: clamp(14px, 1.9vw, 16px); line-height: 1.5; }
 .d2-rulecard { display: flex; flex-direction: column; gap: 8px; background: #FFF3E9; border-radius: 16px; padding: clamp(12px, 2.4vw, 18px); box-shadow: 0 6px 20px -10px rgba(255,79,40,0.4); }
 .d2-rulecard-badge { align-self: flex-start; background: #ff4f28; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
+.d2-zero-rule { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; color: #3A3530; font-size: clamp(13px, 1.9vw, 16px); font-weight: 750; text-align: left; }
+.d2-zero-rule-badge { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 30px; height: 30px; border-radius: 9px; background: #FFE8E1; border: 2px solid #FF4F28; color: #FF4F28; font-size: 18px; font-weight: 900; }
+.d2-zero-example { display: grid; grid-template-columns: minmax(110px, 1fr) auto auto minmax(110px, 1fr); align-items: center; gap: 8px; padding: 6px 8px; border-radius: 10px; background: rgba(255,255,255,0.72); }
+.d2-zero-example-word { color: #3A3530; font-size: clamp(13px, 2vw, 16px); font-weight: 650; text-align: right; }
+.d2-zero-example-arrow { color: #A7A6A2; font-size: 18px; font-weight: 800; }
+.d2-zero-example-label { color: #FF4F28; font-size: clamp(10px, 1.4vw, 12px); font-weight: 800; text-align: left; }
+@media (max-width: 520px) {
+  .d2-zero-example { grid-template-columns: minmax(90px, 1fr) auto auto; gap: 6px; }
+  .d2-zero-example-label { grid-column: 1 / -1; text-align: center; margin-top: -2px; }
+}
 /* Aksent savol (QOIDA — javob oldindan berilmasin). */
 .lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
 /* s2 son-nomi kartasi (bosiladigan) */
@@ -5905,3 +7156,12 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @keyframes lm-edrop-a { 0% { opacity: 0; transform: translateY(-16px) scale(0.72); } 62% { transform: translateY(3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .lm-edrop { animation: none; } }
 `;
+
+export function Grade3TowerEtalonScene({ complete = false }) {
+  return (
+    <div className="g1-lesson grade3-reused-scene">
+      <style>{STYLES}</style>
+      <LessonScene gathered={complete}/>
+    </div>
+  );
+}

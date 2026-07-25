@@ -8,9 +8,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12" /></svg>);
@@ -79,7 +79,7 @@ function D02_03Impl(props) {
   useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
   const check = useCallback(() => {
     const correct = D03_NUMS.every((_, li) => map[li] === li); // to'g'ri juft: chap i <-> o'ng i (asl indeks)
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { map }, correctAnswer: { map: Object.fromEntries(D03_NUMS.map((_, i) => [i, i])) }, correct, meta: { tag: D03_TAG, level: D03_LEVEL } });
   }, [map, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
@@ -99,7 +99,7 @@ function D02_03Impl(props) {
   const leftStyle = (li) => ({
     minWidth: 96, padding: '12px 14px', borderRadius: 13, fontWeight: 800, ...S.mono, fontSize: 24,
     border: '2px solid ' + (sel === li ? C.acc : map[li] != null ? C.ribbonBd : C.line),
-    background: sel === li ? C.accSoft : map[li] != null ? '#152342' : C.paper,
+    background: sel === li ? C.accSoft : map[li] != null ? '#FFFFFF' : C.paper,
     color: map[li] != null ? C.glow : C.ink, cursor: locked ? 'default' : 'pointer', boxShadow: ring(li),
   });
   const rightStyle = (ri) => ({

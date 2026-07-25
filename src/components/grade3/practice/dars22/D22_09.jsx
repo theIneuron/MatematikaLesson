@@ -1,0 +1,5 @@
+// Dars 22 · Amaliyot 09 — mustaqil jsx-question komponenti.
+import { createPracticeQuestion } from '../QuestionFactory.jsx';
+import { GRADE3_THEORY_DERIVED_BANKS } from '../theoryDerivedBanks.js';
+
+export default createPracticeQuestion(GRADE3_THEORY_DERIVED_BANKS[22].items[8]);

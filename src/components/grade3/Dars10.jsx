@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
+import { Grade3MethodGuide } from './Grade3MethodGuide.jsx';
+import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3QuestionCoach, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
+import { grade3AudioLabels, isGrade3Explanation } from './grade3MethodUtils.js';
 
 // ============================================================================
 // DD 3-SINF | Dars10 — "Ko'paytirish jadvali" (num-3-10) | B2 «Nur bog'lari» boshi | massiv
@@ -565,10 +568,12 @@ const mt = (str) => {
 };
 
 const AudioIndicator = ({ audioState }) => {
+  const lang = useLang();
   const { isPlaying, muted, replay, toggleMute } = audioState;
+  const labels = grade3AudioLabels(lang, muted);
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <button onClick={toggleMute} title={muted ? 'Sound on' : 'Sound off'}
+      <button onClick={toggleMute} title={labels.sound} aria-label={labels.sound}
         style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: muted ? T.ink3 : (isPlaying ? T.accent : T.ink2) }}>
         {muted ? (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -588,7 +593,7 @@ const AudioIndicator = ({ audioState }) => {
         )}
       </button>
       {!muted && (
-        <button onClick={replay} title="Replay"
+        <button onClick={replay} title={labels.replay} aria-label={labels.replay}
           style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -676,20 +681,22 @@ const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
   const t = useT();
+  const lang = useLang();
   const isMobile = useIsMobile();
-  const padH = isMobile ? 12 : 100;
+  const padH = isMobile ? 12 : 56;
+  const screenMeta = SCREEN_META[screen];
+  const isExplanation = isGrade3Explanation(screenMeta);
   return (
-    <div className="stage">
+    <div className={`stage stage-${screenMeta?.type || 'custom'}`}>
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
-        <div className="progress-track">
-          <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
-        </div>
+        <Grade3Progress current={screen} total={totalScreens} lang={lang}/>
         <div className="chrome">
           <div className="chrome-left eyebrow">
             <span className="dot"/>
             <span>{t(eyebrow)}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <Grade3ScreenType screenMeta={screenMeta} lang={lang}/>
             {audioState && <AudioIndicator audioState={audioState}/>}
             <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
@@ -698,6 +705,8 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
         </div>
       </div>
       <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
+        {!isExplanation && <Grade3MethodGuide lessonId={LESSON_META.lessonId} screenMeta={screenMeta} lang={lang}/>}
+        {!isExplanation && screenMeta?.type !== 'summary' && <Grade3QuestionCoach lang={lang} mode={screenMeta?.scope === 'final' ? 'final' : screenMeta?.type === 'case' ? 'case' : 'pick'}/>}
         {children}
       </div>
       {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
@@ -2533,8 +2542,8 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
             <h1 className="title h-sub fade-up">{heading(it)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
               <FrameFx/>
-              {renderFig(it)}
-              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
+              <div className="grade3-question-figure">{renderFig(it)}</div>
+              <div className="grade3-answer-grid" style={{ '--answer-cols': cols }}>
                 {it.opts.map((o, i) => (
                   <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(17px, 2.8vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
@@ -3456,6 +3465,7 @@ export default function MultTableLesson({
       <ProgressContext.Provider value={{ stars: starsEarned, total: starTotal }}>
       <HeroContext.Provider value={heroCtx}>
       <style>{STYLES}</style>
+      <style>{GRADE3_ETALON_STYLES}</style>
       <div className="lesson-root">
         <GradientDefs/>
         <D2Defs/>
@@ -5428,3 +5438,12 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 @keyframes lm-edrop-a { 0% { opacity: 0; transform: translateY(-16px) scale(0.72); } 62% { transform: translateY(3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .lm-edrop { animation: none; } }
 `;
+
+export function Grade3GardenEtalonScene({ complete = false }) {
+  return (
+    <div className="g1-lesson grade3-reused-scene">
+      <style>{STYLES}</style>
+      <LessonScene gathered={complete}/>
+    </div>
+  );
+}

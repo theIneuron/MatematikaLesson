@@ -6,12 +6,10 @@
 // Ichida UZ/RU almashtirgich bor. Narratsiya (ovoz) yo'q — javobda faqat qisqa beep-signal.
 // Grade1/Grade2/Grade5 practice/PracticeHost bilan bir xil kontrakt.
 
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 const IconOk = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const IconRetry = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>);
-
 // preview "to'g'ri/noto'g'ri" signal — qisqa beep (ovoz/narratsiya emas)
 function beep(ok) {
   try {
@@ -23,27 +21,33 @@ function beep(ok) {
     g.gain.value = 0.06;
     o.start();
     o.stop(ctx.currentTime + 0.12);
-  } catch (e) { /* preview-only */ }
+  } catch { /* preview-only */ }
 }
 
 const UI = {
-  uz: { check: 'Tekshirish', retry: 'Qayta urinish', correct: "Barakalla!", wrong: 'Maslahat' },
-  ru: { check: 'Проверить', retry: 'Заново', correct: 'Молодец!', wrong: 'Подсказка' },
+  uz: { check: 'Tekshirish', retry: 'Qayta urinish', change: "Javobni o'zgartiring", correct: "Barakalla!", wrong: 'Maslahat' },
+  ru: { check: 'Проверить', retry: 'Заново', change: 'Измени ответ', correct: 'Молодец!', wrong: 'Подсказка' },
 };
 
-export default function PracticeHost({ Question, lang: langProp = 'uz', title }) {
+export default function PracticeHost({ Question, lang: langProp = 'uz', title, onResult, source }) {
   const [lang, setLang] = useState(langProp);
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState(null);
   const [qKey, setQKey] = useState(0);
   const checkFnRef = useRef(null);
+  const scrollRef = useRef(null);
   const ui = UI[lang] || UI.uz;
 
   const onReady = useCallback((v) => setReady(!!v), []);
   const registerCheck = useCallback((fn) => { checkFnRef.current = fn; }, []);
   const onSubmit = useCallback((res) => {
-    setResult(res || { correct: false });
-  }, []);
+    const next = {
+      ...(res || { correct: false }),
+      meta: { ...(res?.meta || {}), source: res?.meta?.source || source },
+    };
+    setResult(next);
+    onResult?.(next);
+  }, [onResult, source]);
   const playCorrect = useCallback(() => beep(true), []);
   const playWrong = useCallback(() => beep(false), []);
 
@@ -52,8 +56,20 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
     setQKey((k) => k + 1);
   }, []);
 
-  // til almashganda mashqni tozalab qayta yuklash
-  useEffect(() => { reset(); }, [lang, reset]);
+  const changeLang = (nextLang) => {
+    if (nextLang === lang) return;
+    setLang(nextLang);
+    reset();
+  };
+
+  useEffect(() => {
+    if (!result || !scrollRef.current) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    requestAnimationFrame(() => scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: reduce ? 'auto' : 'smooth',
+    }));
+  }, [result]);
 
   const runCheck = () => { checkFnRef.current && checkFnRef.current(); };
 
@@ -66,17 +82,17 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
   const btnBase = { padding: '15px 24px', fontSize: 18, fontWeight: 800, borderRadius: 16, fontFamily: "'Manrope', system-ui, sans-serif" };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '78vh', maxWidth: 700, margin: '0 auto', width: '100%' }}>
+    <div style={{ display: 'flex', flex: 1, flexDirection: 'column', height: '100%', minHeight: 0, maxWidth: 700, margin: '0 auto', width: '100%' }}>
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
         borderBottom: '1px solid #eef0f4', fontFamily: "'Manrope', system-ui, sans-serif",
       }}>
         <strong style={{ fontSize: 13, color: '#6b7280', flex: 1 }}>{title || ''}</strong>
-        <button type="button" style={chip(lang === 'uz')} onClick={() => setLang('uz')}>UZ</button>
-        <button type="button" style={chip(lang === 'ru')} onClick={() => setLang('ru')}>RU</button>
+        <button type="button" style={chip(lang === 'uz')} onClick={() => changeLang('uz')}>UZ</button>
+        <button type="button" style={chip(lang === 'ru')} onClick={() => changeLang('ru')}>RU</button>
       </div>
 
-      <div style={{ flex: 1, padding: '14px 12px 96px' }}>
+      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'contain', padding: '14px 12px 24px' }}>
         <Question
           key={qKey + '-' + lang}
           lang={lang}
@@ -92,7 +108,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
       </div>
 
       <div style={{
-        position: 'sticky', bottom: 0, padding: '12px', background: 'linear-gradient(rgba(255,255,255,0),#fff 28%)',
+        flexShrink: 0, padding: '11px 12px', borderTop: '1px solid #EEF0F4', background: '#fff',
         display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center',
       }}>
         {result && (
@@ -101,15 +117,19 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
             {result.correct ? ui.correct : ui.wrong}
           </div>
         )}
-        {!result ? (
+        {result?.correct ? null : ready ? (
           <button type="button" disabled={!ready} onClick={runCheck}
             style={{ ...btnBase, minWidth: 210, border: 'none', cursor: ready ? 'pointer' : 'not-allowed', color: '#fff', background: ready ? '#2563eb' : '#c2c8d2' }}>
             {ui.check}
           </button>
+        ) : result ? (
+          <span style={{ padding: '10px 12px', color: '#6B7280', fontSize: 14, fontWeight: 800 }}>
+            {ui.change}
+          </span>
         ) : (
-          <button type="button" onClick={reset}
-            style={{ ...btnBase, fontSize: 16, display: 'inline-flex', alignItems: 'center', gap: 8, border: '1.5px solid #d6dae3', background: '#fff', color: '#374151', cursor: 'pointer' }}>
-            <IconRetry /> {ui.retry}
+          <button type="button" disabled
+            style={{ ...btnBase, minWidth: 210, border: 'none', color: '#fff', background: '#c2c8d2', cursor: 'not-allowed' }}>
+            {ui.check}
           </button>
         )}
       </div>

@@ -1,0 +1,101 @@
+/* eslint-disable react-refresh/only-export-components */
+import { Grade3LessonShell } from './Dars21.jsx';
+
+const T = (uz, ru) => ({ uz, ru });
+const S = (type, title, text, visual, ask, options, correct, hint) => ({
+  type, title: T(...title), text: T(...text), visual, ask: T(...ask),
+  options: options.map(([uz, ru = uz]) => T(uz, ru)), correct, hint: T(...hint),
+});
+
+export const SCREENS = [
+  S('hook', ["Kristall ko'prik loyihasi", "Проект кристального моста"],
+    ["Bit ustaxonasi yangi ko'prik uchun detallar tayyorlaydi. Hisob xatosi qurilishni to'xtatishi mumkin.", "Мастерская Бита готовит детали для нового моста. Ошибка в расчёте может остановить строительство."],
+    '6 tayanch · har biriga 24 detal', ["Masalada nimalar ma'lum?", "Что известно в задаче?"],
+    [["6 ta tayanch va 24 tadan detal", "6 опор и по 24 детали"], ["Jami detallar soni", "Общее число деталей"], ["Ko'prik uzunligi", "Длина моста"]], 0,
+    ["Shartda berilgan ikki miqdorni ajrating.", "Выдели две величины, данные в условии."]),
+  S('exploration', ["Savolni aniqlaymiz", "Определяем вопрос"],
+    ["Masala barcha tayanchlar uchun jami nechta detal kerakligini so'raydi.", "Задача спрашивает, сколько всего деталей нужно для всех опор."],
+    '6 guruh × 24 tadan = jami ?', ["Nimani topish kerak?", "Что нужно найти?"],
+    [["Jami detallarni", "Общее число деталей"], ["Bitta detal massasini", "Массу одной детали"], ["Tayanchlar rangini", "Цвет опор"]], 0,
+    ["Savoldagi «jami» miqdorga qarang.", "Посмотри на общую величину в вопросе."]),
+  S('exploration', ["Miqdorlar bog'lanishi", "Связь величин"],
+    ["6 ta teng guruhning har birida 24 tadan detal bor. Jami miqdor guruhlar soni bilan har guruhdagi miqdorning ko'paytmasi.", "Есть 6 равных групп по 24 детали. Общее количество — произведение числа групп и количества в группе."],
+    'guruhlar soni × har guruhdagi miqdor', ["Qaysi amal vaziyatga mos?", "Какое действие подходит?"],
+    [["Ko'paytirish", "Умножение"], ["Ayirish", "Вычитание"], ["Bo'lish", "Деление"]], 0,
+    ["Teng guruhlar jami miqdorni ko'paytirish bilan beradi.", "Для равных групп общее количество находят умножением."]),
+  S('exploration', ["Yechimni hisoblaymiz", "Вычисляем решение"],
+    ["24 × 6 ni razryadlarga ajratib hisoblaymiz: 20 × 6 + 4 × 6.", "Вычисляем 24 × 6 по разрядам: 20 × 6 + 4 × 6."],
+    '120 + 24 = 144', ["Jami nechta detal?", "Сколько всего деталей?"],
+    [['134'], ['144'], ['154']], 1,
+    ["120 va 24 ni qo'shing.", "Сложи 120 и 24."]),
+  S('rule', ["Masala yechish yo'li", "Путь решения задачи"],
+    ["Ma'lumni ajratamiz, savolni aniqlaymiz, miqdorlar bog'lanishini model qilamiz, amalni tanlaymiz, hisoblaymiz va javobni tekshiramiz.", "Выделяем данные, определяем вопрос, моделируем связь величин, выбираем действие, вычисляем и проверяем ответ."],
+    'ma’lum → savol → bog‘lanish → amal → tekshiruv', ["Amal nimaga qarab tanlanadi?", "По чему выбирают действие?"],
+    [["Miqdorlar bog'lanishiga", "По связи величин"], ["Bitta kalit so'zga", "По одному ключевому слову"], ["Sonlarning rangiga", "По цвету чисел"]], 0,
+    ["Vaziyatdagi miqdorlar qanday bog'langanini tushuning.", "Пойми, как связаны величины в ситуации."]),
+  S('test', ["Teng taqsimlash", "Равное распределение"],
+    ["156 ta mahkamlagich 6 ta brigadaga teng taqsimlanadi.", "156 креплений поровну распределяют между 6 бригадами."],
+    '156 detal → 6 teng guruh', ["Har brigadadagi miqdorni qaysi amal topadi?", "Какое действие найдёт количество у каждой бригады?"],
+    [['156 : 6'], ['156 × 6'], ['156 + 6']], 0,
+    ["Jami miqdor guruhlar soniga bo'linadi.", "Общее количество делят на число групп."]),
+  S('test', ["Har guruhdagi miqdor", "Количество в группе"],
+    ["156 : 6 ni qulay qismlarda hisoblaymiz: 120 : 6 + 36 : 6.", "Вычисляем 156 : 6 удобными частями: 120 : 6 + 36 : 6."],
+    '20 + 6 = ?', ["Har brigadaga nechta?", "Сколько получит каждая бригада?"],
+    [['24'], ['26'], ['28']], 1,
+    ["Ikki bo'linmani qo'shing.", "Сложи два частных."]),
+  S('test', ["Guruhlar sonini topish", "Находим число групп"],
+    ["168 ta modul 24 tadan konteynerlarga joylanadi. Bu safar har konteynerdagi miqdor ma'lum, konteynerlar soni noma'lum.", "168 модулей раскладывают по 24 в контейнер. Теперь известно количество в контейнере, неизвестно число контейнеров."],
+    '168 : 24 = ?', ["Nechta konteyner kerak?", "Сколько нужно контейнеров?"],
+    [['6'], ['7'], ['8']], 1,
+    ["24 × 7 = 168 tengligini tekshiring.", "Проверь равенство 24 × 7 = 168."]),
+  S('exploration', ["Ikki qadamli vaziyat", "Ситуация в два действия"],
+    ["5 ta tokchaning har birida 32 tadan detal bor edi. Usta ulardan 47 tasini ishlatdi.", "На 5 полках было по 32 детали. Мастер использовал 47 из них."],
+    '5 × 32 − 47', ["Birinchi qadam nimani topadi?", "Что находит первый шаг?"],
+    [["Tokchalardagi jami detallarni", "Общее число деталей на полках"], ["Qolgan detallarni", "Оставшиеся детали"], ["Ishlatilgan tokchalarni", "Использованные полки"]], 0,
+    ["Ayirishdan oldin qancha detal bo'lganini bilish kerak.", "До вычитания нужно узнать, сколько деталей было."]),
+  S('test', ["Birinchi qadam", "Первый шаг"],
+    ["5 × 32 = 5 × 30 + 5 × 2.", "5 × 32 = 5 × 30 + 5 × 2."],
+    '150 + 10 = ?', ["Dastlab nechta detal bor edi?", "Сколько деталей было сначала?"],
+    [['150'], ['160'], ['170']], 1,
+    ["150 ga 10 ni qo'shing.", "Прибавь 10 к 150."]),
+  S('test', ["Ikkinchi qadam", "Второй шаг"],
+    ["Dastlab 160 ta detal bor edi, 47 tasi ishlatildi.", "Сначала было 160 деталей, 47 использовали."],
+    '160 − 47 = ?', ["Nechta detal qoldi?", "Сколько деталей осталось?"],
+    [['103'], ['113'], ['123']], 1,
+    ["160 − 40 − 7 ni hisoblang.", "Вычисли 160 − 40 − 7."]),
+  S('test', ["Birlik bilan javob", "Ответ с единицей"],
+    ["Masala predmetlar sonini so'radi. Yalang'och 113 soni javobni to'liq ifodalamaydi.", "Задача спрашивала количество предметов. Одно число 113 не является полным ответом."],
+    'Javob: 113 ...', ["Qaysi javob to'liq?", "Какой ответ полный?"],
+    [["113 ta detal qoldi", "Осталось 113 деталей"], ["113 metr qoldi", "Осталось 113 метров"], ["113 ta tokcha qoldi", "Осталось 113 полок"]], 0,
+    ["Savolda qaysi predmet sanalganiga qarang.", "Посмотри, какие предметы считали в вопросе."]),
+  S('test', ["Xatoni toping", "Найди ошибку"],
+    ["Anvar: «4 ta qutida 18 tadan bolt, yana 6 ta bolt bor. 4 + 18 + 6 = 28», dedi.", "Анвар сказал: «В 4 коробках по 18 болтов и ещё 6 болтов. 4 + 18 + 6 = 28»."],
+    '4 guruh · 18 tadan · yana 6', ["Anvarning xatosi qayerda?", "В чём ошибка Анвара?"],
+    [["Teng guruhlarni qo'shib yuborgan", "Сложил данные равных групп"], ["6 ni ayirmagan", "Не вычел 6"], ["Birlik yozmagan", "Не написал единицу"]], 0,
+    ["Avval 4 × 18 bilan qutilardagi jami miqdorni topish kerak.", "Сначала нужно найти количество в коробках: 4 × 18."]),
+  S('case', ["Qurilish rejasi", "План строительства"],
+    ["8 ta panelning har biriga 26 tadan kristall kerak. Omborda 250 ta kristall bor.", "Для каждой из 8 панелей нужно по 26 кристаллов. На складе 250 кристаллов."],
+    '250 − 8 × 26', ["Panellar yig'ilgach nechta kristall qoladi?", "Сколько кристаллов останется после сборки?"],
+    [['32'], ['42'], ['52']], 1,
+    ["Avval 8 × 26 = 208, keyin 250 − 208.", "Сначала 8 × 26 = 208, затем 250 − 208."]),
+  S('test', ["Yakuniy diagnostika", "Итоговая диагностика"],
+    ["216 ta murvat 9 ta qurilmaga teng sarflanadi. Keyin har qurilmaga yana 3 tadan qo'shiladi.", "216 болтов поровну расходуют на 9 устройств. Затем на каждое устройство добавляют ещё по 3."],
+    '216 : 9 + 3', ["Har qurilmaga jami nechta murvat?", "Сколько болтов всего на каждое устройство?"],
+    [['24'], ['27'], ['30']], 1,
+    ["216 : 9 = 24, so'ng 3 ni qo'shing.", "216 : 9 = 24, затем прибавь 3."]),
+  S('summary', ["Qurilish hisobi tasdiqlandi", "Расчёт строительства подтверждён"],
+    ["Siz ma'lum va so'ralganni ajratdingiz, miqdorlar bog'lanishidan amal tanladingiz, ikki qadamli yechimni tekshirdingiz va birlik bilan javob yozdingiz.", "Ты выделил данные и вопрос, выбрал действие по связи величин, проверил решение в два шага и записал ответ с единицей."],
+    'model → amal → hisob → tekshiruv → javob', ["Masalada eng muhim qaror nima?", "Какое решение в задаче самое важное?"],
+    [["Miqdorlar qanday bog'langanini aniqlash", "Определить связь величин"], ["Eng katta sonni tanlash", "Выбрать самое большое число"], ["Barcha sonlarni qo'shish", "Сложить все числа"]], 0,
+    ["Amal vaziyat modelidan kelib chiqadi.", "Действие следует из модели ситуации."]),
+];
+
+export default function Dars25() {
+  return (
+    <Grade3LessonShell
+      screens={SCREENS}
+      titleUz="25-dars. Qurilishga oid masalalar"
+      titleRu="Урок 25. Задачи о строительстве"
+    />
+  );
+}

@@ -8,9 +8,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
@@ -101,7 +101,7 @@ function D02_09Impl(props) {
   useEffect(() => { onReady?.(value.length > 0 && !checked); }, [value, checked, onReady]);
   const check = useCallback(() => {
     const correct = value === D09_ANS;
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     onSubmit?.({ questionText: t.ask, options: [], studentAnswer: { value }, correctAnswer: { value: D09_ANS }, correct, meta: { tag: 'digits_min', level: '🔴' } });
   }, [value, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
@@ -113,7 +113,7 @@ function D02_09Impl(props) {
       <Stage>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
           {['9', '0', '4'].map((d) => (
-            <div key={d} style={{ width: 58, height: 66, borderRadius: 12, background: '#152342', border: '1.5px solid ' + C.ribbonBd, display: 'flex', alignItems: 'center', justifyContent: 'center', ...S.mono, fontSize: 32, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(255,184,77,.8)' }}>{d}</div>
+            <div key={d} style={{ width: 58, height: 66, borderRadius: 12, background: '#FFFFFF', border: '1.5px solid ' + C.ribbonBd, display: 'flex', alignItems: 'center', justifyContent: 'center', ...S.mono, fontSize: 32, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(20,90,134,.18)' }}>{d}</div>
           ))}
         </div>
       </Stage>

@@ -1,0 +1,101 @@
+/* eslint-disable react-refresh/only-export-components */
+import { Grade3LessonShell } from './Dars21.jsx';
+
+const T = (uz, ru) => ({ uz, ru });
+const S = (type, title, text, visual, ask, options, correct, hint) => ({
+  type, title: T(...title), text: T(...text), visual, ask: T(...ask),
+  options: options.map(([uz, ru = uz]) => T(uz, ru)), correct, hint: T(...hint),
+});
+
+export const SCREENS = [
+  S('hook', ["Ikki likopchadagi kasr", "Дроби на двух тарелках"],
+    ["Bir xil patirlarning biridan 3/8, ikkinchisidan 5/8 qoldi. Bo'laklar bir xil kattalikda, lekin ularning soni har xil.", "От одинаковых лепёшек осталось 3/8 и 5/8. Части одинакового размера, но их количество различается."],
+    '3/8  ?  5/8', ["Qaysi likopchada ko'proq patir qoldi?", "На какой тарелке осталось больше?"],
+    [['3/8'], ['5/8'], ["Teng", "Поровну"]], 1,
+    ["Sakkizdan bo'laklar bir xil; 5 ta bo'lak 3 tadan ko'p.", "Восьмые доли одинаковы; 5 частей больше 3."]),
+  S('exploration', ["Bir xil maxraj", "Одинаковые знаменатели"],
+    ["Maxrajlar bir xil bo'lsa, bo'laklarning kattaligi teng. Shuning uchun suratlarni taqqoslash yetarli.", "Если знаменатели одинаковы, размеры частей равны. Поэтому достаточно сравнить числители."],
+    '3/8 < 5/8, chunki 3 < 5', ["4/7 □ 6/7 uchun belgi qaysi?", "Какой знак поставить: 4/7 □ 6/7?"],
+    [['>'], ['<'], ['=']], 1,
+    ["Yettidan bo'laklar bir xil; 4 ni 6 bilan solishtiring.", "Седьмые доли одинаковы; сравни 4 и 6."]),
+  S('exploration', ["Bir xil surat", "Одинаковые числители"],
+    ["Suratlar bir xil bo'lsa, bir xil sondagi bo'laklar olingan. Maxraji kichik kasrning har bir bo'lagi kattaroq.", "Если числители одинаковы, взято одинаковое число частей. У дроби с меньшим знаменателем каждая часть больше."],
+    '3/4 > 3/8', ["2/5 □ 2/9 uchun belgi qaysi?", "Какой знак поставить: 2/5 □ 2/9?"],
+    [['>'], ['<'], ['=']], 0,
+    ["Beshdan bo'lak to'qqizdan bo'lakdan kattaroq.", "Пятая доля больше девятой."]),
+  S('exploration', ["Butun chegarasi", "Граница целого"],
+    ["To'g'ri kasr bir butundan kichik, noto'g'ri kasr esa bir butunga teng yoki undan katta. Bu ba'zan hisoblamasdan taqqoslashga yordam beradi.", "Правильная дробь меньше единицы, неправильная равна единице или больше. Это иногда позволяет сравнить без вычислений."],
+    '7/9 < 1 < 10/9', ["Qaysi kasr katta: 7/9 yoki 10/9?", "Какая дробь больше: 7/9 или 10/9?"],
+    [['7/9'], ['10/9'], ["Teng", "Равны"]], 1,
+    ["Birinchisi butundan kichik, ikkinchisi katta.", "Первая меньше единицы, вторая больше."]),
+  S('exploration', ["Model bilan tekshirish", "Проверка моделью"],
+    ["Kasrlarni taqqoslash qoidasi noaniq bo'lsa, bir xil butunlarni teng bo'laklarga ajratib, bo'yalgan qismlarni ko'ramiz.", "Если правило сравнения неочевидно, делим одинаковые целые на равные части и сравниваем закрашенные области."],
+    '2/3 = ■■□     3/4 = ■■■□', ["Qaysi biri 1 ga yaqinroq?", "Какая дробь ближе к 1?"],
+    [['2/3'], ['3/4'], ["Teng", "Равны"]], 1,
+    ["3/4 da butungacha faqat 1/4 yetishmaydi.", "До целого у 3/4 не хватает только 1/4."]),
+  S('rule', ["Strategiyani tanlang", "Выбери стратегию"],
+    ["Bir xil maxrajda suratlarni; bir xil suratda maxrajlarni teskari tartibda taqqoslaymiz. Turli holatda model, son o'qi yoki butungacha masofadan foydalanamiz.", "При одинаковых знаменателях сравниваем числители; при одинаковых числителях — знаменатели в обратном порядке. В остальных случаях используем модель, числовой луч или расстояние до целого."],
+    'maxraj bir xil → surat; surat bir xil → bo‘lak kattaligi', ["5/12 va 9/12 uchun qaysi strategiya?", "Какая стратегия для 5/12 и 9/12?"],
+    [["Suratlarni taqqoslash", "Сравнить числители"], ["Maxrajlarni teskari taqqoslash", "Сравнить знаменатели в обратном порядке"], ["Butun qismlarni topish", "Найти целые части"]], 0,
+    ["Maxrajlar aynan bir xil.", "Знаменатели одинаковы."]),
+  S('test', ["Bir xil maxrajli kasrlar", "Дроби с одинаковым знаменателем"],
+    ["O'n bir teng bo'lakdan 8 tasi va 6 tasi olingan.", "Взяты 8 и 6 частей из одиннадцати равных."],
+    '8/11 □ 6/11', ["Belgini tanlang.", "Выбери знак."],
+    [['>'], ['<'], ['=']], 0,
+    ["8 ta bir xil bo'lak 6 tadan ko'p.", "8 одинаковых частей больше 6."]),
+  S('test', ["Bir xil suratli kasrlar", "Дроби с одинаковым числителем"],
+    ["Har ikki kasrda 4 ta bo'lak olingan, ammo bo'laklarning kattaligi turlicha.", "В обеих дробях взято по 4 части, но размер частей различается."],
+    '4/5 □ 4/7', ["Belgini tanlang.", "Выбери знак."],
+    [['>'], ['<'], ['=']], 0,
+    ["Beshdan bo'lak yettidan bo'lakdan kattaroq.", "Пятая доля больше седьмой."]),
+  S('test', ["Butunga yaqinlik", "Близость к целому"],
+    ["5/6 gacha butundan 1/6, 7/8 gacha esa 1/8 yetishmaydi. Kichikroq yetishmovchilik kasrni 1 ga yaqinroq qiladi.", "До целого дроби 5/6 не хватает 1/6, а 7/8 — 1/8. Меньшая недостающая часть означает большую близость к 1."],
+    '5/6 □ 7/8', ["Qaysi kasr katta?", "Какая дробь больше?"],
+    [['5/6'], ['7/8'], ["Teng", "Равны"]], 1,
+    ["1/8, 1/6 dan kichik; demak 7/8 ga kamroq yetishmaydi.", "1/8 меньше 1/6, значит 7/8 ближе к целому."]),
+  S('exploration', ["Aralash sonlar", "Смешанные числа"],
+    ["Aralash sonlarda avval butun qismlar taqqoslanadi. Butun qismlar har xil bo'lsa, kasr qismini tekshirish shart emas.", "У смешанных чисел сначала сравнивают целые части. Если они различаются, дробные части сравнивать не нужно."],
+    '2 1/5 > 1 4/5', ["Qaysi son katta?", "Какое число больше?"],
+    [['2 1/5'], ['1 4/5'], ["Teng", "Равны"]], 0,
+    ["2 ta butun 1 ta butundan katta.", "2 целых больше 1 целого."]),
+  S('test', ["Butun qismlar teng", "Целые части равны"],
+    ["Butun qismlar ikkalasida ham 3. Endi kasr qismlarini taqqoslaymiz.", "Целые части обеих чисел равны 3. Теперь сравниваем дробные части."],
+    '3 2/7 □ 3 5/7', ["To'g'ri belgi qaysi?", "Какой знак верный?"],
+    [['>'], ['<'], ['=']], 1,
+    ["Maxrajlar teng; 2 surat 5 dan kichik.", "Знаменатели равны; числитель 2 меньше 5."]),
+  S('test', ["Tartiblang", "Расположи по порядку"],
+    ["Kasrlarni kichikdan kattaga tartiblaymiz. Maxrajlar bir xil.", "Расположим дроби по возрастанию. Знаменатели одинаковы."],
+    '7/10 · 2/10 · 9/10', ["To'g'ri tartib qaysi?", "Какой порядок верный?"],
+    [['2/10 < 7/10 < 9/10'], ['9/10 < 7/10 < 2/10'], ['7/10 < 2/10 < 9/10']], 0,
+    ["Suratlarni 2, 7, 9 tartibida joylang.", "Расположи числители в порядке 2, 7, 9."]),
+  S('test', ["Xatoni toping", "Найди ошибку"],
+    ["Anvar 3/8 > 5/8 dedi, chunki 3 raqami yozuvda chaproqda turibdi.", "Анвар сказал, что 3/8 > 5/8, потому что цифра 3 записана левее."],
+    '3/8 > 5/8 ✗', ["Xato qaysi?", "В чём ошибка?"],
+    [["Bir xil maxrajda suratlar noto'g'ri solishtirilgan", "При равных знаменателях неверно сравнены числители"], ["Maxrajlar har xil", "Знаменатели разные"], ["Ikkala kasr bir butundan katta", "Обе дроби больше единицы"]], 0,
+    ["3 ta sakkizdan bo'lak 5 ta sakkizdan bo'lakdan kichik.", "3 восьмых меньше 5 восьмых."]),
+  S('case', ["Ziyofatdagi qoldiq", "Остаток на празднике"],
+    ["Bir xil patirlarning biridan 5/6, ikkinchisidan 3/4 qoldi. Modellarda 5/6 butunga yaqinroq.", "От одинаковых лепёшек осталось 5/6 и 3/4. На моделях 5/6 ближе к целому."],
+    '5/6  ?  3/4', ["Qaysi patir ko'proq qolgan?", "Какой лепёшки осталось больше?"],
+    [['5/6'], ['3/4'], ["Teng", "Поровну"]], 0,
+    ["5/6 gacha 1/6, 3/4 gacha 1/4 yetishmaydi; 1/6 kichik.", "До 5/6 не хватает 1/6, до 3/4 — 1/4; 1/6 меньше."]),
+  S('test', ["Yakuniy diagnostika", "Итоговая диагностика"],
+    ["Har bir juftlik uchun mos strategiyani tanlab, yangi aralash sonlarni taqqoslang.", "Выбери подходящую стратегию и сравни новые смешанные числа."],
+    '4 3/8 □ 4 1/2', ["To'g'ri javob qaysi?", "Какой ответ верный?"],
+    [["4 3/8 < 4 1/2", "4 3/8 < 4 1/2"], ["4 3/8 > 4 1/2", "4 3/8 > 4 1/2"], ["Teng", "Равны"]], 0,
+    ["Butunlar teng. 3/8 ni 4/8 ga teng bo'lgan 1/2 bilan solishtiring.", "Целые равны. Сравни 3/8 с 1/2, равной 4/8."]),
+  S('summary', ["Kasrlar tartiblandi", "Дроби упорядочены"],
+    ["Siz kasrlarning ko'rinishiga qarab strategiya tanladingiz: bir xil maxraj, bir xil surat, butun chegarasi, model, son o'qi va aralash sonning butun qismi.", "Ты выбрал стратегию по виду дробей: одинаковые знаменатели, одинаковые числители, граница целого, модель, числовой луч и целая часть смешанного числа."],
+    'ko‘rinish → strategiya → taqqoslash → tekshiruv', ["Avval nima aniqlanadi?", "Что определяют сначала?"],
+    [["Kasrlarning qaysi qismlari bir xil", "Какие части дробей одинаковы"], ["Eng katta yozilgan raqam", "Самая большая записанная цифра"], ["Kasr chizig'ining uzunligi", "Длина дробной черты"]], 0,
+    ["Mos qoida kasrlarning tuzilishiga qarab tanlanadi.", "Подходящее правило выбирают по строению дробей."]),
+];
+
+export default function Dars32() {
+  return (
+    <Grade3LessonShell
+      screens={SCREENS}
+      titleUz="32-dars. Kasrlarni taqqoslash"
+      titleRu="Урок 32. Сравнение дробей"
+    />
+  );
+}

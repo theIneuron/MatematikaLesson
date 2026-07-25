@@ -9,9 +9,9 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 const C = {
   acc: '#FF4F28', accSoft: '#FFE8E1', ok: '#1F7A4D', okSoft: '#E3F0E8', no: '#c0392b', noSoft: '#fdecec',
   ink: '#0E0E10', ink2: '#5A5A60', ink3: '#A7A6A2', card: '#F6F4EF', line: '#E4DECF', paper: '#fff',
-  stage: 'radial-gradient(ellipse at 60% 24%, #4a2342 0%, #261335 58%, #130b23 100%)',
-  stageBd: '#4A2A48', sink: '#F3E9F2', sink2: '#C9A9C6', stile: '#2a1530',
-  glow: '#FFB84D', glowDk: '#E67E22', ribbon: '#1B2A4A', ribbonBd: '#3A4E78',
+  stage: 'linear-gradient(145deg, #F7FBFF 0%, #EEF6FF 55%, #FFF8E8 100%)',
+  stageBd: '#C7DDF2', sink: '#243447', sink2: '#557087', stile: '#E3F0FB',
+  glow: '#145A86', glowDk: '#0E4A70', ribbon: '#FFFFFF', ribbonBd: '#B9D0E3',
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
@@ -92,7 +92,7 @@ function D03_08Impl(props) {
   const sum = selSet.reduce((a, b) => a + b, 0);
   const check = useCallback(() => {
     const correct = selSet.length === D08_NEED.length && D08_NEED.every((v) => selSet.includes(v));
-    setFb({ correct }); setChecked(true); correct ? playCorrect?.() : playWrong?.();
+    setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
     onSubmit?.({ questionText: t.ask, options: D08_POOL.map(String), studentAnswer: { plates: selSet, sum }, correctAnswer: { plates: D08_NEED, sum: D08_TARGET }, correct, meta: { tag: 'build_plates', level: '🔴' } });
   }, [selSet, sum, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
@@ -113,7 +113,7 @@ function D03_08Impl(props) {
         <div style={{ display: 'flex', gap: 18, justifyContent: 'center', alignItems: 'center' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 12, fontWeight: 800, color: C.sink2, textTransform: 'uppercase' }}>{t.target}</div>
-            <div style={{ ...S.mono, fontSize: 38, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(255,184,77,.8)' }}>{D08_TARGET}</div>
+            <div style={{ ...S.mono, fontSize: 38, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(20,90,134,.18)' }}>{D08_TARGET}</div>
           </div>
           <div style={{ ...S.mono, fontSize: 26, color: C.sink2 }}>←</div>
           <div style={{ textAlign: 'center' }}>
