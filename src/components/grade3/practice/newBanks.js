@@ -38,8 +38,8 @@ const cq = (id, label, level, tag, type, emoji, correct, uz, ru, inputMode) => q
   inputMode,
 );
 
-export const DARS11_BANK = {
-  title: "Dars 11 · 10 va 100 ga ko'paytirish va bo'lish",
+export const DARS10_BANK = {
+  title: "Dars 10 · 10 va 100 ga ko'paytirish va bo'lish",
   items: [
     q('01', "O'n marta katta", '🟢', 'd11-times-ten', 'choice', '🔟', 1,
       { e: "Tanish qoida", s: "34 soni o'n marta kattalashtiriladi.", a: "34 × 10 nechaga teng?", o: ['34', '340', '3 400'], y: "Har bir raqam bir xona chapga siljidi: 34 × 10 = 340.", n: "10 ga ko'paytirganda razryadlar bir xona chapga siljiydi.", r: "10 ga ko'paytirish — razryadlarni bir xona chapga siljitish.", v: '34 × 10 = ?' },
@@ -74,8 +74,8 @@ export const DARS11_BANK = {
   ],
 };
 
-export const DARS12_BANK = {
-  title: "Dars 12 · Yig'indini ko'paytirish",
+export const DARS11_BANK = {
+  title: "Dars 11 · Yig'indini ko'paytirish",
   items: [
     q('01', "Qulay yoyilma", '🟢', 'd12-split', 'choice', '🧱', 0,
       { e: "Tanish va eslash", s: "14 soni 1 o'nlik va 4 birlikdan tuzilgan.", a: "14 × 3 ni hisoblash uchun qaysi yoyilma qulay?", o: ['(10 + 4) × 3', '(7 + 7) × 2', '10 + 4 × 3'], y: "14 = 10 + 4, ikkala qism ham 3 ga ko'payadi.", n: "14 ni o'nlik va birlikka ajrating.", r: "(a + b) × c = a × c + b × c.", v: '14 = 10 + 4' },
@@ -110,8 +110,8 @@ export const DARS12_BANK = {
   ],
 };
 
-export const DARS13_BANK = {
-  title: "Dars 13 · Yig'indini bo'lish",
+export const DARS12_BANK = {
+  title: "Dars 12 · Yig'indini bo'lish",
   items: [
     q('01', "Bo'linadigan yoyilma", '🟢', 'd13-split', 'choice', '✂️', 0,
       { e: "Tanish qoida", s: "84 ni 4 ga bo'lish uchun qismlarning har biri 4 ga bo'linishi kerak.", a: "Qaysi yoyilma eng qulay?", o: ['(80 + 4) : 4', '(70 + 14) : 4', '(50 + 34) : 4'], y: "80 ham, 4 ham 4 ga qoldiqsiz bo'linadi.", n: "Har bir qism 4 ga qoldiqsiz bo'linadigan variantni toping.", r: "(a + b) : c = a : c + b : c, agar qismlar c ga bo'linsa.", v: '84 : 4' },
@@ -146,8 +146,8 @@ export const DARS13_BANK = {
   ],
 };
 
-export const DARS14_BANK = {
-  title: "Dars 14 · Amallar tartibi",
+export const DARS13_BANK = {
+  title: "Dars 13 · Amallar tartibi",
   items: [
     cq('01', 'Avval qaysi amal?', '🟢', 'd14-priority', 'choice', '🥇', 1,
       ["5 + 3 × 2 ifodada ikki xil amal bor.", "To'g'ri natijani tanlang.", ['16', '11', '13'], "Avval 3 × 2 = 6, keyin 5 + 6 = 11.", "Ko'paytirish qo'shishdan oldin bajariladi.", '5 + 3 × 2', "Avval ko'paytirish va bo'lish."],
@@ -182,8 +182,8 @@ export const DARS14_BANK = {
   ],
 };
 
-export const DARS15_BANK = {
-  title: "Dars 15 · Komponentlar bog'lanishi",
+export const DARS14_BANK = {
+  title: "Dars 14 · Komponentlar bog'lanishi",
   items: [
     cq('01', 'Komponent nomi', '🟢', 'd15-product-name', 'choice', '🏷️', 2,
       ["7 × 6 = 42 tengligida 7 va 6 ko'paytuvchilar.", "42 nima deb ataladi?", ["Bo'linma", "Yig'indi", "Ko'paytma"], "42 — ko'paytma.", "Ko'paytirish amalining natijasi nomini eslang.", '7 × 6 = 42', "Ko'paytuvchi × ko'paytuvchi = ko'paytma."],
@@ -218,8 +218,8 @@ export const DARS15_BANK = {
   ],
 };
 
-export const DARS16_BANK = {
-  title: "Dars 16 · Ko'paytirish va bo'lishga masalalar",
+export const DARS15_BANK = {
+  title: "Dars 15 · Ko'paytirish va bo'lishga masalalar",
   items: [
     cq('01', 'Amalni tanlang', '🟢', 'd16-operation', 'choice', '🧭', 1,
       ["5 ta savat bor. Har bir savatda 7 tadan olma bor.", "Barcha savatlardagi olmalar sonini topish uchun qaysi amalni tanlaysiz?", ['7 + 5', '5 × 7', '7 : 5'], "5 × 7 = 35. Beshta teng guruhning har birida 7 tadan olma bor.", "Nechta savat borligini va har birida nechta olma borligini aniqlang.", '5 ta savat · har birida 7 ta', "Teng guruhlardagi jami miqdor guruhlar sonini har bir guruhdagi miqdorga ko'paytirib topiladi."],
@@ -254,8 +254,8 @@ export const DARS16_BANK = {
   ],
 };
 
-export const DARS17_BANK = {
-  title: "Dars 17 · Bo'luvchilar va karrali sonlar",
+export const DARS16_BANK = {
+  title: "Dars 16 · Bo'luvchilar va karrali sonlar",
   items: [
     cq('01', "Bo'luvchini tanlang", '🟢', 'd17-divisor', 'choice', '🔑', 1,
       ["Bo'luvchi sonni qoldiqsiz bo'ladi.", "Qaysi son 18 ning bo'luvchisi?", ['4', '6', '7'], "18 : 6 = 3, qoldiq yo'q.", "Har variantga 18 ni bo'lib ko'ring.", '18 : ? = butun son', "6 — 18 ning bo'luvchisi."],
@@ -290,8 +290,8 @@ export const DARS17_BANK = {
   ],
 };
 
-export const DARS19_BANK = {
-  title: "Dars 19 · Ikki xonali sonni ko'paytirish",
+export const DARS17_BANK = {
+  title: "Dars 17 · Ikki xonali sonni ko'paytirish",
   items: [
     cq('01', 'Yoyilmani tanlang', '🟢', 'd19-split', 'choice', '🧱', 0,
       ["23 × 4 da 23 ni o'nlik va birlikka ajratamiz.", "To'g'ri yozuvni tanlang.", ['20 × 4 + 3 × 4', '20 × 3 + 4', '23 + 4'], "20 ham, 3 ham 4 ga ko'payadi.", "23 = 20 + 3 ekanini ishlating.", '23 × 4', "(20 + 3) × 4 = 20 × 4 + 3 × 4."],
@@ -326,8 +326,8 @@ export const DARS19_BANK = {
   ],
 };
 
-export const DARS20_BANK = {
-  title: "Dars 20 · Ikki xonali sonni bo'lish",
+export const DARS18_BANK = {
+  title: "Dars 18 · Ikki xonali sonni bo'lish",
   items: [
     cq('01', 'Qulay yoyilma', '🟢', 'd20-split', 'choice', '✂️', 0,
       ["96 : 4 uchun ikkala qism 4 ga bo'linishi kerak.", "Qulay yoyilmani tanlang.", ['(80 + 16) : 4', '(90 + 6) : 4', '(70 + 26) : 4'], "80 va 16 qoldiqsiz bo'linadi.", "Har bir qismni 4 ga bo'lib ko'ring.", '96 : 4', "Qismlar qulay bo'linishi shart."],
@@ -362,8 +362,8 @@ export const DARS20_BANK = {
   ],
 };
 
-export const DARS21_BANK = {
-  title: "Dars 21 · Qoldiqli bo'lish",
+export const DARS19_BANK = {
+  title: "Dars 19 · Qoldiqli bo'lish",
   items: [
     cq('01', 'Qoldiqni toping', '🟢', 'd21-remainder', 'choice', '📦', 1,
       ["17 ta detal 5 tadan guruhlanadi.", "Qoldiq nechta?", ['1', '2', '3'], "5 × 3 = 15, 17 − 15 = 2.", "17 dan oshmaydigan 5 karralisini toping.", '17 : 5', "17 : 5 = 3, qoldiq 2."],

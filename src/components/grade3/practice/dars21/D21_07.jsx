@@ -1,5 +1,5 @@
 // Dars 21 · Amaliyot 07 — mustaqil jsx-question komponenti.
 import { createPracticeQuestion } from '../QuestionFactory.jsx';
-import { DARS21_BANK } from '../newBanks.js';
+import { GRADE3_THEORY_DERIVED_BANKS } from '../theoryDerivedBanks.js';
 
-export default createPracticeQuestion(DARS21_BANK.items[6]);
+export default createPracticeQuestion(GRADE3_THEORY_DERIVED_BANKS[21].items[6]);

@@ -3,16 +3,17 @@ import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3ScreenType } from './Grade3
 import { grade3AudioLabels } from './grade3MethodUtils.js';
 
 // ============================================================================
-// DD 3-SINF | Dars10 — "Ko'paytirish jadvali" (num-3-10) | B2 «Nur bog'lari» boshi | massiv
-// Syujet: Bit sayyorasi LUMO, Nur bog'lari (SYUJET_3SINF.md B2 d.10). Nurli o'simliklar tekis
-//   qatorlarda (satr x ustun = massiv). Bit — mezbon-gid. FactCard: bioluminessensiya (B2 fakti).
-// Infra: grade3 Dars01.jsx (etalon nomzodi) dan BAYT-ANIQ ko'chirildi. Sahna hozircha Lumo shahri
-//   (HookScene) qayta ishlatildi; kelajakda bog' sahnasi qilinishi mumkin. ArrayViz = Chiroq massivi.
-// YADRO: ko'paytirish = teng guruhlarning qisqa yozuvi; massiv satr x ustun; a x b = b x a.
-// MEXANIKA: recall guruh (s1), massiv (s2), takroriy qo'shish (s3), o'rin almashinuvi (s4),
-//   QOIDA (s5), massiv->ko'paytma MC (s6), jadval eslash MC (s7), xatoni top (s8), bog' masala (s9),
-//   final panel (s10), yakun (s11).
-// Misconception: M1 ko'paytirish=qo'shish (3x4=7), M2 massiv sanash xato, M3 kommutativlik, M4 jadval xato.
+// DD 3-SINF | Dars13 — "Amallar tartibi" (num-3-13) | B2 «Nur bog'lari» | aralash yo'riq
+// Syujet: Bit sayyorasi LUMO, Nur bog'lari (SYUJET_3SINF.md B2 d.14) — bog' pultida ARALASH
+//   yo'riqnoma (5 + 3 × 2); noto'g'ri tartib = chiroqlar noto'g'ri yonadi. Bit — mezbon-gid.
+// Infra: Dars13.jsx dan BAYT-ANIQ ko'chirildi (AudioEngine, useAudio, bazaviy komponentlar, CSS).
+// YADRO: qavs eng kuchli; keyin ko'paytirish/bo'lish; oxirida qo'shish/ayirish; tartib NATIJANI
+//   o'zgartiradi (5+3×2=11, (5+3)×2=16). Stway: (4+2)×3=18 vs 4+2×3=10 — «ikki yo'l bir javob» EMAS.
+// MEXANIKA: hook MC (s0), kashfiyot-zanjirlar (s1-s5), stway ikki-yozuv + bashorat + zinapoya-bonus,
+//   QOIDA savol-avval (s6), birinchi-amal MC (s7), NumPad (s8), xatoni top (s9), aralash MC (s10),
+//   Anvar masala (s11), final 5 savol + FactCard (s12), yakun (s13).
+// Misconception: M1 chapdan-o'ngga (5+3×2=16), M2 qavsni e'tiborsiz qoldirish ((7−2)×3=1),
+//   M3 +− ni avval bajarish (12:2+4=2), M4 amalni chala bajarish (faqat bitta bo'lak).
 //
 // FREE_NAV=true (blokirovka o'chiq — push oldidan false ga qaytariladi).
 // ============================================================
@@ -894,10 +895,10 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-13',
-  lessonTitle: { ru: 'Урок 13. Деление суммы', uz: "13-dars. Yig'indini bo'lish" }
+  lessonTitle: { ru: 'Урок 13. Порядок действий', uz: '13-dars. Amallar tartibi' }
 };
-// STRUKTURA (14 ekran): s0 hook · s1–s5 kashfiyot · s6 qoida · s7–s10 mashq · s11 masala · s12 final · s13 xulosa.
-// Syujet: Nur bog'lari (SYUJET_3SINF.md Б2 d.13) — hosil taqsimi, (60+9)÷3 bo'lib bo'lish.
+// STRUKTURA (15 ekran): s0 hook · s1–s5 kashfiyot · stway · s6 qoida · s7–s10 mashq · s11 masala · s12 final · s13 xulosa.
+// Syujet: Nur bog'lari (SYUJET_3SINF.md Б2 d.14) — aralash yo'riq: qavs, ×÷ avval, keyin +−.
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'MCScreen', scored: false, scope: 'hook' },
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },
@@ -977,426 +978,423 @@ const withTopics = (base, topics, lang) => {
 };
 
 // ============================================================
-// CONTENT — 3-sinf Dars13 «Yig'indini bo'lish» (num-3-13). RU + UZ to'liq.
-// Audio TTS-toza: sonlar so'z bilan, «» va matematik belgilar yo'q, bir segment = bir fikr.
-// Rekvizit: hosil uyumi + savatlar (60 lik o'nlik qutilar + 9 yakka meva). Nur bog'lari (Б2 d.13).
+// CONTENT — 3-sinf Dars13 «Amallar tartibi» (num-3-13). RU + UZ to'liq.
+// Audio TTS-toza: sonlar so'z bilan, «» va matematik belgilar yo'q, uzun tire yo'q, bir segment = bir fikr.
+// Rekvizit: bog' pulti (aralash yo'riqnoma displeyi) + chiroqlar (5 alohida + 3×2 guruh). Nur bog'lari (Б2 d.14).
 // ============================================================
 const CONTENT = {
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: делим сумму', uz: "Mavzu: yig'indini bo'lish" },
-    lead: { ru: 'Урожай собран. Его надо разложить поровну.', uz: "Hosil yig'ildi. Uni teng taqsimlash kerak." },
-    q: { ru: '69 плодов и 3 корзины. Сколько в каждой?', uz: "69 ta meva va 3 ta savat. Har birida nechtadan?" },
-    count: 69,
-    baskets: 3,
-    grid_cap: { ru: 'Плодов 69, корзин 3. В таблице умножения числа 69 нет.', uz: "Meva 69 ta, savat 3 ta. Ko'paytirish jadvalida 69 yo'q." },
-    opt0: { ru: '66', uz: '66' },
-    opt1: { ru: '23', uz: '23' },
-    opt2: { ru: '21', uz: '21' },
+    topic: { ru: 'Тема: порядок действий', uz: 'Mavzu: amallar tartibi' },
+    lead: { ru: 'На пульте сада смешанная инструкция.', uz: "Bog' pultida aralash yo'riqnoma." },
+    q: { ru: 'Инструкция: 5 + 3 × 2. Сколько ламп зажжётся?', uz: "Yo'riqnoma: 5 + 3 × 2. Nechta chiroq yonadi?" },
+    expr: '5 + 3 × 2',
+    grid_cap: { ru: 'В записи сразу два действия: сложение и умножение.', uz: "Yozuvda birdaniga ikkita amal bor: qo'shish va ko'paytirish." },
+    opt0: { ru: '16', uz: '16' },
+    opt1: { ru: '11', uz: '11' },
+    opt2: { ru: '13', uz: '13' },
     audio: {
       intro: {
         ru: [
-          'Сегодня тема урока — делим сумму. Научимся делить то, чего нет в таблице.',
-          'В прошлом уроке мы умножали сумму по частям. Сегодня пойдём обратным путём.',
-          'Бит собрал урожай. Всего шестьдесят девять плодов, а корзин три.',
-          'Разложить надо поровну. Как думаете, сколько плодов будет в каждой корзине?'
+          'В прошлом уроке мы делили сумму по частям. Сегодня новая тема, порядок действий.',
+          'Бит подвёл друзей к пульту светового сада. На пульте записана смешанная инструкция.',
+          'В записи пять плюс три умножить на два. Тут сразу два действия, сложение и умножение.',
+          'Пульт зажжёт ровно столько ламп, сколько выйдет по инструкции. Как думаешь, сколько ламп зажжётся?'
         ],
         uz: [
-          "Bugungi dars mavzusi — yig'indini bo'lish. Jadvalda yo'q sonni bo'lishni o'rganamiz.",
-          "O'tgan darsda yig'indini bo'laklab ko'paytirdik. Bugun teskari yo'ldan boramiz.",
-          "Bit hosilni yig'di. Jami oltmish to'qqizta meva, savat esa uchta.",
-          "Teng taqsimlash kerak. Sizningcha, har bir savatda nechta meva bo'ladi?"
+          "O'tgan darsda yig'indini bo'laklab bo'ldik. Bugun yangi mavzu, amallar tartibi.",
+          "Bit do'stlarni nurli bog' pultiga olib keldi. Pultda aralash yo'riqnoma yozilgan.",
+          "Yozuvda besh qo'shuv uch karra ikki turibdi. Bunda birdaniga ikkita amal bor, qo'shish va ko'paytirish.",
+          "Pult yo'riqnoma bo'yicha chiqqan songa teng chiroq yoqadi. Sizningcha, nechta chiroq yonadi?"
         ]
       },
-      on_correct: { ru: 'Верная мысль. Шестьдесят девять на три — это двадцать три.', uz: "To'g'ri fikr. Oltmish to'qqizni uchga bo'lsak — bu yigirma uch." },
-      on_wrong: { ru: 'Разделить на три — это не отнять три. Проверим вместе.', uz: "Uchga bo'lish — bu uch ayirish emas. Birgalikda tekshiramiz." }
+      on_correct: { ru: 'Верная мысль. Сначала умножение, три умножить на два будет шесть. Пять плюс шесть, всего одиннадцать ламп.', uz: "To'g'ri fikr. Avval ko'paytirish, uch karra ikki olti bo'ladi. Besh qo'shuv olti, jami o'n bitta chiroq." },
+      on_wrong: { ru: 'Шестнадцать выходит, если считать слева направо. Но у смешанной записи свой порядок. Проверим вместе.', uz: "Chapdan o'ngga hisoblasak o'n olti chiqadi. Lekin aralash yozuvning o'z tartibi bor. Birgalikda tekshiramiz." },
+      on_wrong2: { ru: 'Тринадцать выходит, если умножить не ту пару чисел. Проверим вместе.', uz: "Boshqa juft sonni ko'paytirsak o'n uch chiqadi. Birgalikda tekshiramiz." }
     }
   },
 
-  // s1 — KASHFIYOT 1: hosilni ikki uyumga ajratamiz
+  // s1 — KASHFIYOT 1: 5 + 3 × 2 ma'nosi (ko'paytirish = guruh)
   s1: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Разложим урожай на две кучки.', uz: "Hosilni ikki uyumga ajratamiz." },
+    lead: { ru: 'Что прячется в записи 5 + 3 × 2?', uz: '5 + 3 × 2 yozuvida nima yashiringan?' },
     steps: [
-      { expr: '69 = 60 + 9', at: 2, tag: { ru: 'обе части делятся на 3', uz: "ikkala bo'lak ham 3 ga bo'linadi" } }
+      { expr: '3 × 2 = 6', at: 2, tag: { ru: 'умножение = группа', uz: "ko'paytirish = guruh" } },
+      { expr: '5 + 6 = 11', at: 3, tag: { ru: 'потом сложение', uz: "keyin qo'shish" } }
     ],
-    done_text: { ru: 'Шестьдесят девять — это шестьдесят и ещё девять. Оба числа делятся на три.', uz: "Oltmish to'qqiz — bu oltmish va yana to'qqiz. Ikkala son ham uchga bo'linadi." },
+    done_text: { ru: 'Умножение — это целая группа ламп. Сначала считаем группу, потом складываем. Ламп одиннадцать.', uz: "Ko'paytirish — bu butun bir guruh chiroq. Avval guruhni sanaymiz, keyin qo'shamiz. Chiroq o'n bitta." },
     audio: {
       ru: [
-        'Шестьдесят девять в таблице искать бесполезно. Но урожай можно разложить.',
-        'Шестьдесят плодов уже лежат в десятках, а девять лежат отдельно.',
-        'Значит, шестьдесят девять — это шестьдесят плюс девять.',
-        'И вот что важно. Обе части делятся на три без остатка. Именно поэтому такое разложение нам подходит.'
+        'Посмотрим, что пульт имеет в виду. Пять отдельных ламп и ещё три ряда ламп по две.',
+        'Три умножить на два, это не просто два числа рядом. Это целая группа ламп.',
+        'Сначала считаем группу. Три умножить на два будет шесть.',
+        'Теперь прибавляем отдельные лампы. Пять плюс шесть будет одиннадцать. Ламп одиннадцать.'
       ],
       uz: [
-        "Oltmish to'qqizni jadvaldan qidirish foydasiz. Lekin hosilni ajratsa bo'ladi.",
-        "Oltmishta meva allaqachon o'nliklarda yotibdi, to'qqiztasi esa alohida yotibdi.",
-        "Demak, oltmish to'qqiz — bu oltmish qo'shuv to'qqiz.",
-        "Va mana bu muhim. Ikkala bo'lak ham uchga qoldiqsiz bo'linadi. Aynan shuning uchun bu ajratish bizga mos keladi."
+        "Pult nimani nazarda tutganini ko'ramiz. Beshta alohida chiroq va yana ikkitadan uch qator chiroq.",
+        "Uch karra ikki shunchaki yonma-yon turgan ikki son emas. Bu butun bir guruh chiroq.",
+        "Avval guruhni sanaymiz. Uch karra ikki olti bo'ladi.",
+        "Endi alohida chiroqlarni qo'shamiz. Besh qo'shuv olti o'n bir bo'ladi. Chiroq o'n bitta."
       ]
     }
   },
 
-  // s2 — KASHFIYOT 2: katta bo'lakni bo'lamiz
+  // s2 — KASHFIYOT 2: chapdan-o'ngga yo'l XATO (asosiy misconception)
   s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Делим большую часть.', uz: "Katta bo'lakni bo'lamiz." },
+    lead: { ru: 'А если считать слева направо?', uz: "Chapdan o'ngga hisoblasak-chi?" },
     steps: [
-      { expr: '6 ÷ 3 = 2', at: 1, tag: { ru: 'таблица', uz: 'jadval' } },
-      { expr: '60 ÷ 3 = 20', at: 2, tag: { ru: '2 десятка', uz: "2 ta o'nlik" } }
+      { expr: '5 + 3 = 8', at: 0, tag: { ru: 'сложили раньше времени', uz: "qo'shish erta bajarildi" } },
+      { expr: '8 × 2 = 16', at: 1, tag: { ru: 'ламп не хватит!', uz: 'chiroq yetmaydi!' } }
     ],
-    done_text: { ru: 'Из шестидесяти плодов в каждую корзину попадает двадцать.', uz: "Oltmishta mevadan har bir savatga yigirmatadan tushadi." },
+    done_text: { ru: 'Слева направо выходит шестнадцать, а верных ламп одиннадцать. Неверный порядок даёт неверный ответ.', uz: "Chapdan o'ngga hisoblasak o'n olti chiqadi, to'g'ri chiroqlar esa o'n bitta. Noto'g'ri tartib noto'g'ri javob beradi." },
     audio: {
       ru: [
-        'Сначала большая часть. Шестьдесят плодов делим на три корзины.',
-        'Шесть разделить на три — два. Это мы знаем из таблицы.',
-        'Но делили мы не единицы, а десятки. Значит, в каждой корзине два десятка, то есть двадцать.',
-        'Шестьдесят разделить на три — двадцать.'
+        'Проверим путь слева направо. Пять плюс три будет восемь.',
+        'Дальше восемь умножить на два. Выходит шестнадцать.',
+        'Но группа ламп даёт одиннадцать, а тут насчитали шестнадцать. Лампы зажглись бы неверно.',
+        'Вот в чём сила порядка. Действия те же, а ответ другой. Порядок меняет результат.'
       ],
       uz: [
-        "Avval katta bo'lak. Oltmishta mevani uchta savatga bo'lamiz.",
-        "Oltini uchga bo'lsak — ikki. Buni jadvaldan bilamiz.",
-        "Lekin biz birliklarni emas, o'nliklarni bo'ldik. Demak, har savatda ikkita o'nlik, ya'ni yigirma.",
-        "Oltmishni uchga bo'lsak — yigirma."
+        "Chapdan o'ngga yo'lni tekshiramiz. Besh qo'shuv uch sakkiz bo'ladi.",
+        "Keyin sakkiz karra ikki. O'n olti chiqadi.",
+        "Lekin chiroqlar guruhi o'n bir beradi, bu yerda esa o'n olti sanaldi. Chiroqlar noto'g'ri yongan bo'lardi.",
+        "Tartibning kuchi mana shunda. Amallar o'sha, javob esa boshqa. Tartib natijani o'zgartiradi."
       ]
     }
   },
 
-  // s3 — KASHFIYOT 3: kichik bo'lakni bo'lamiz
+  // s3 — KASHFIYOT 3: qavs kuchi
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Делим маленькую часть.', uz: "Kichik bo'lakni bo'lamiz." },
+    lead: { ru: 'Что изменят скобки?', uz: "Qavs nimani o'zgartiradi?" },
     steps: [
-      { expr: '9 ÷ 3 = 3', at: 2, tag: { ru: 'таблица', uz: 'jadval' } }
+      { expr: '(5 + 3) × 2', at: 0, tag: { ru: 'та же запись, но в скобках', uz: "o'sha yozuv, endi qavsda" } },
+      { expr: '5 + 3 = 8', at: 1, tag: { ru: 'скобки первыми', uz: 'qavs ichi birinchi' } },
+      { expr: '8 × 2 = 16', at: 2, tag: { ru: 'ответ по скобкам', uz: "qavs bo'yicha javob" } }
     ],
-    done_text: { ru: 'Отдельные плоды дали каждой корзине ещё по три.', uz: "Alohida yotgan mevalar har savatga yana uchtadan berdi." },
+    done_text: { ru: 'Скобки — самая сильная команда. (5 + 3) × 2 = 16, и это верный ответ.', uz: "Qavs — eng kuchli buyruq. (5 + 3) × 2 = 16, va bu to'g'ri javob." },
     audio: {
       ru: [
-        'Теперь маленькая часть. Отдельно лежат девять плодов.',
-        'Корзин три, значит девять разделить на три.',
-        'Девять разделить на три — три. Это чистая таблица.'
+        'Иногда сложить нужно именно первым. Для этого есть скобки. Запишем пять плюс три в скобках и умножим на два.',
+        'Скобки командуют. Сначала выполни меня. Пять плюс три будет восемь.',
+        'Теперь умножаем. Восемь умножить на два будет шестнадцать.',
+        'Без скобок было одиннадцать, со скобками шестнадцать. Скобки самая сильная команда в записи.'
       ],
       uz: [
-        "Endi kichik bo'lak. Alohida to'qqizta meva yotibdi.",
-        "Savat uchta, demak to'qqizni uchga bo'lamiz.",
-        "To'qqizni uchga bo'lsak — uch. Bu sof jadval."
+        "Ba'zan aynan qo'shishni birinchi bajarish kerak. Buning uchun qavs bor. Besh qo'shuv uchni qavsga olib, ikkiga ko'paytiramiz.",
+        "Qavs buyruq beradi. Avval meni bajaring. Besh qo'shuv uch sakkiz bo'ladi.",
+        "Endi ko'paytiramiz. Sakkiz karra ikki o'n olti bo'ladi.",
+        "Qavssiz o'n bir edi, qavs bilan o'n olti. Qavs yozuvdagi eng kuchli buyruq."
       ]
     }
   },
 
-  // s4 — KASHFIYOT 4: ikki natijani yig'amiz
+  // s4 — KASHFIYOT 4: bo'lish ham ×-day kuchli
   s4: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Складываем то, что попало в одну корзину.', uz: "Bitta savatga tushganini qo'shamiz." },
+    lead: { ru: 'Деление такое же сильное, как умножение.', uz: "Bo'lish ham ko'paytirishdek kuchli." },
     steps: [
-      { expr: '20 + 3 = 23', at: 2, tag: { ru: 'ответ', uz: 'javob' } }
+      { expr: '18 − 12 : 3', at: 0, tag: { ru: 'новая инструкция', uz: "yangi yo'riqnoma" } },
+      { expr: '12 : 3 = 4', at: 2, tag: { ru: 'сначала деление', uz: "avval bo'lish" } },
+      { expr: '18 − 4 = 14', at: 3, tag: { ru: 'потом вычитание', uz: 'keyin ayirish' } }
     ],
-    done_text: { ru: 'Шестьдесят девять разделить на три — двадцать три. Урожай делили дважды, а корзина одна.', uz: "Oltmish to'qqizni uchga bo'lsak — yigirma uch. Hosilni ikki marta bo'ldik, savat esa bitta." },
+    done_text: { ru: 'Сначала деление, потом вычитание: 18 − 12 : 3 = 14.', uz: "Avval bo'lish, keyin ayirish: 18 − 12 : 3 = 14." },
     audio: {
       ru: [
-        'Мы делили дважды. Сначала десятки, потом отдельные плоды.',
-        'В одну корзину попало двадцать из большой части и три из маленькой.',
-        'Двадцать плюс три — двадцать три.',
-        'Значит, шестьдесят девять разделить на три — двадцать три. В самом начале это был верный ответ.'
+        'На пульте новая инструкция. В ней вычитание и деление вперемешку.',
+        'Деление такое же сильное, как умножение. Его выполняют раньше сложения и вычитания.',
+        'Сначала деление. Двенадцать разделить на три будет четыре.',
+        'Теперь вычитание. Восемнадцать минус четыре будет четырнадцать.'
       ],
       uz: [
-        "Biz ikki marta bo'ldik. Avval o'nliklarni, keyin alohida mevalarni.",
-        "Bitta savatga katta bo'lakdan yigirmata, kichik bo'lakdan uchta tushdi.",
-        "Yigirma qo'shuv uch — yigirma uch.",
-        "Demak, oltmish to'qqizni uchga bo'lsak — yigirma uch. Eng boshida ham to'g'ri javob shu edi."
+        "Pultda yangi yo'riqnoma. Unda ayirish va bo'lish aralash kelgan.",
+        "Bo'lish ham ko'paytirishdek kuchli. U qo'shish va ayirishdan oldin bajariladi.",
+        "Avval bo'lish. O'n ikkini uchga bo'lsak to'rt bo'ladi.",
+        "Endi ayirish. O'n sakkiz ayiruv to'rt o'n to'rt bo'ladi."
       ]
     }
   },
 
-  // s5 — KASHFIYOT 5: butun zanjir tez, ikkinchi misol
+  // s5 — KASHFIYOT 5: uch amal bitta yozuvda (to'liq zanjir)
   s5: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Тот же путь, другое число.', uz: "O'sha yo'l, boshqa son." },
+    lead: { ru: 'Три действия в одной записи.', uz: 'Bitta yozuvda uchta amal.' },
     steps: [
-      { expr: '84 = 80 + 4', at: 1, tag: { ru: 'разделили', uz: 'ajratdik' } },
-      { expr: '80 ÷ 4 = 20', at: 2, tag: { ru: 'большая часть', uz: "katta bo'lak" } },
-      { expr: '4 ÷ 4 = 1', at: 3, tag: { ru: 'маленькая часть', uz: "kichik bo'lak" } },
-      { expr: '20 + 1 = 21', at: 4, tag: { ru: 'собрали', uz: "yig'dik" } }
+      { expr: '20 : 4 + 2 × 3', at: 0, tag: { ru: 'три действия', uz: 'uchta amal' } },
+      { expr: '20 : 4 = 5', at: 1, tag: { ru: 'деление', uz: "bo'lish" } },
+      { expr: '2 × 3 = 6', at: 2, tag: { ru: 'умножение', uz: "ko'paytirish" } },
+      { expr: '5 + 6 = 11', at: 3, tag: { ru: 'сложение последним', uz: "qo'shish oxirida" } }
     ],
-    done_text: { ru: 'Четыре шага те же, что и при умножении: разделить, разделить, разделить, сложить.', uz: "To'rtta qadam ko'paytirishdagidek: ajratish, bo'lish, bo'lish, qo'shish." },
+    done_text: { ru: 'Сильные действия — деление и умножение — выполнены первыми. Сложение — последним.', uz: "Kuchli amallar, bo'lish va ko'paytirish, birinchi bajarildi. Qo'shish esa oxirida." },
     audio: {
       ru: [
-        'Пройдём тот же путь ещё раз, быстрее. Восемьдесят четыре разделить на четыре.',
-        'Первый шаг. Раскладываем. Восемьдесят четыре — это восемьдесят плюс четыре. Обе части делятся на четыре.',
-        'Второй шаг. Большая часть. Восемь разделить на четыре — два, а делили десятки, значит двадцать.',
-        'Третий шаг. Маленькая часть. Четыре разделить на четыре — один.',
-        'Четвёртый шаг. Складываем. Двадцать плюс один — двадцать один.',
-        'Шаги те же, что и при умножении. Разделить, потом посчитать обе части, потом сложить.'
+        'Теперь длинная инструкция, сразу три действия. Двадцать разделить на четыре, плюс два умножить на три.',
+        'Сначала сильные действия. Двадцать разделить на четыре будет пять.',
+        'Дальше умножение. Два умножить на три будет шесть.',
+        'Осталось сложение. Пять плюс шесть будет одиннадцать. Порядок держит всё под контролем.'
       ],
       uz: [
-        "O'sha yo'ldan yana bir marta, tezroq o'tamiz. Sakson to'rtni to'rtga bo'lamiz.",
-        "Birinchi qadam. Ajratamiz. Sakson to'rt — bu sakson qo'shuv to'rt. Ikkala bo'lak ham to'rtga bo'linadi.",
-        "Ikkinchi qadam. Katta bo'lak. Sakkizni to'rtga bo'lsak — ikki, biz o'nliklarni bo'ldik, demak yigirma.",
-        "Uchinchi qadam. Kichik bo'lak. To'rtni to'rtga bo'lsak — bir.",
-        "To'rtinchi qadam. Qo'shamiz. Yigirma qo'shuv bir — yigirma bir.",
-        "Qadamlar ko'paytirishdagi kabi. Ajratish, keyin ikkala bo'lakni hisoblash, keyin qo'shish."
+        "Endi uzun yo'riqnoma, birdaniga uchta amal. Yigirmani to'rtga bo'lamiz, qo'shuv ikki karra uch.",
+        "Avval kuchli amallar. Yigirmani to'rtga bo'lsak besh bo'ladi.",
+        "Keyin ko'paytirish. Ikki karra uch olti bo'ladi.",
+        "Qo'shish oxirida. Besh qo'shuv olti o'n bir bo'ladi. Tartib hammasini nazoratda tutadi."
       ]
     }
   },
 
-  // s6 — QOIDA (savol avval)
+  // stway — IKKI YOZUV: qavs bilan 18, qavssiz 10. Bu darsda stway «ikki yo'l bir javob» EMAS:
+  // bashorat-darvoza «qavsni olib tashlasak natija o'zgaradimi?» (Ha!) — tartib NATIJANI o'zgartiradi.
   stway: {
-    eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
-    lead: { ru: 'Одна сумма — два пути к ответу.', uz: "Bitta yig'indi — javobga ikki yo'l." },
-    expr: '(90 + 60) : 3',
-    m1_label: { ru: 'Способ 1 — сначала сумма', uz: "1-usul — avval yig'indi" },
-    m1_text: { ru: 'Сначала считаем сумму в скобках, потом делим.', uz: "Avval qavs ichidagi yig'indini hisoblaymiz, keyin bo'lamiz." },
+    eyebrow: { ru: 'Два пути', uz: "Ikki yo'l" },
+    lead: { ru: 'Одна запись — со скобками и без.', uz: 'Bitta yozuv — qavs bilan va qavssiz.' },
+    expr: '(4 + 2) × 3',
+    m1_label: { ru: 'Способ 1 — со скобками', uz: '1-usul — qavs bilan' },
+    m1_text: { ru: 'Сначала скобки, потом умножение.', uz: "Avval qavs ichi, keyin ko'paytirish." },
     m1_rows: [
-      { pre: '(', acc: '90 + 60', post: ') : 3' },
-      { t: '150 : 3' }
+      { pre: '(', acc: '4 + 2', post: ') × 3' },
+      { t: '6 × 3' }
     ],
-    m1_recap: '(90 + 60) : 3 = 50',
-    check_q: { ru: 'Мы получили пятьдесят. Можно ли прийти к тому же ответу другим путём?', uz: "Ellikni topdik. Xuddi shu javobga boshqa yo'l bilan ham kelsa bo'ladimi?" },
-    check_opts: ['Да, можно', 'Нет, только так'],
-    check_opts_uz: ['Ha, mumkin', "Yo'q, faqat shunday"],
+    m1_recap: '(4 + 2) × 3 = 18',
+    check_q: { ru: 'Получилось восемнадцать. А если убрать скобки, ответ изменится?', uz: "O'n sakkiz chiqdi. Qavsni olib tashlasak, natija o'zgaradimi?" },
+    check_opts: ['Да, изменится', 'Нет, останется'],
+    check_opts_uz: ["Ha, o'zgaradi", "Yo'q, o'sha qoladi"],
     check_ci: 0,
-    check_ok: { ru: 'Верно. Оба пути приводят к пятидесяти.', uz: "To'g'ri. Ikkala yo'l ham ellikka olib keladi." },
-    check_no: { ru: 'Посмотри: ту же сумму можно разделить по частям. Попробуй ещё.', uz: "Qarang: o'sha yig'indini bo'laklab ham bo'lish mumkin. Yana urinib ko'ring." },
-    m2_label: { ru: 'Способ 2 — по частям', uz: "2-usul — bo'laklab" },
-    m2_text: { ru: 'Делим каждое слагаемое отдельно, потом складываем.', uz: "Har bir qo'shiluvchini alohida bo'lamiz, keyin qo'shamiz." },
-    m2_parts: [
-      { e: '90 : 3', v: '30' },
-      { e: '60 : 3', v: '20' }
+    check_ok: { ru: 'Верно! Без скобок первым идёт умножение, и ответ становится другим.', uz: "To'g'ri! Qavssiz birinchi ko'paytirish bajariladi va javob boshqacha chiqadi." },
+    check_no: { ru: 'Проверь: без скобок первым выполняют умножение, а не сложение. Посчитаем вместе.', uz: "Tekshiring: qavssiz avval ko'paytirish bajariladi, qo'shish emas. Birga hisoblaymiz." },
+    m2_label: { ru: 'Способ 2 — без скобок', uz: '2-usul — qavssiz' },
+    m2_text: { ru: 'Без скобок первым идёт умножение.', uz: "Qavssiz avval ko'paytirish bajariladi." },
+    m2_rows: [
+      { pre: '4 + ', acc: '2 × 3', post: '' },
+      { t: '4 + 6' }
     ],
-    m2_recap: '90 : 3 + 60 : 3 = 50',
-    bonus_label: { ru: 'Бонус — удобные части', uz: "Bonus — qulay bo'laklar" },
-    bonus_text: { ru: 'Каждая часть должна делиться без остатка.', uz: "Har bir bo'lak qoldiqsiz bo'linishi shart." },
-    bonus_head: '42 : 3',
-    bonus_bad: '40 + 2',
-    bonus_bad_why: { ru: 'не годится', uz: 'mos emas' },
-    bonus_good: '30 + 12',
-    bonus_sub: '10 + 4',
-    bonus_ans: '14',
-    bonus_recap: '42 : 3 = 14',
+    m2_recap: '4 + 2 × 3 = 10',
+    bonus_label: { ru: 'Лесенка порядка', uz: 'Tartib zinapoyasi' },
+    bonus_text: { ru: 'Три ступеньки — сверху вниз.', uz: "Uch pog'ona — yuqoridan pastga." },
+    bonus_recap: '( ) → × : → + −',
     audio: {
       ru: [
-        'Одну и ту же сумму можно разделить двумя путями. Девяносто плюс шестьдесят, и всё это делим на три.',
-        'Первый способ. Сначала считаем сумму в скобках, потом делим её на три.',
-        'Девяносто плюс шестьдесят будет сто пятьдесят. Осталось сто пятьдесят разделить на три.',
-        'Сто пятьдесят делим на три, выходит пятьдесят. Первый путь пройден!'
+        'Возьмём запись со скобками. В скобках четыре плюс два, и всё это умножаем на три.',
+        'Первый путь. Скобки командуют первыми.',
+        'Четыре плюс два будет шесть. Теперь шесть умножаем на три.',
+        'Шесть умножить на три будет восемнадцать. Со скобками ответ восемнадцать. Первый путь пройден!'
       ],
       uz: [
-        "Bitta yig'indini ikki yo'l bilan bo'lish mumkin. To'qson qo'shuv oltmish, hammasini uchga bo'lamiz.",
-        "Birinchi usul. Avval qavs ichidagi yig'indini hisoblaymiz, keyin uchga bo'lamiz.",
-        "To'qson qo'shuv oltmish bir yuz ellik bo'ladi. Endi bir yuz ellikni uchga bo'lamiz.",
-        "Bir yuz ellikni uchga bo'lsak, ellik chiqadi. Birinchi yo'l tayyor!"
+        "Qavsli yozuvni olamiz. Qavs ichida to'rt qo'shuv ikki, hammasini uchga ko'paytiramiz.",
+        "Birinchi yo'l. Qavs birinchi bajariladi.",
+        "To'rt qo'shuv ikki olti bo'ladi. Endi oltini uchga ko'paytiramiz.",
+        "Olti karra uch o'n sakkiz bo'ladi. Qavs bilan javob o'n sakkiz. Birinchi yo'l tayyor!"
       ]
     },
     audio2: {
       ru: [
-        'Верно! Второй способ, по частям. Делим каждое слагаемое отдельно.',
-        'Девяносто делим на три, будет тридцать. Шестьдесят делим на три, будет двадцать.',
-        'Складываем. Тридцать плюс двадцать снова пятьдесят. Ответ тот же!',
-        'Сумму целиком или по частям, ответ один. Выбирай путь, который удобнее.',
-        'А в качестве бонуса покажу удобные части. Возьмём сорок два разделить на три. Привычные сорок и два не годятся, ведь два на три не делится.',
-        'Разобьём иначе, на тридцать и двенадцать. Тридцать делим на три, будет десять. Двенадцать делим на три, будет четыре. Вместе четырнадцать.',
-        'Запомни. Каждая часть должна делиться без остатка. Молодец!'
+        'Верно! Теперь уберём скобки и проверим.',
+        'Без скобок командует порядок. Первым идёт умножение, два умножить на три будет шесть.',
+        'Теперь сложение. Четыре плюс шесть будет десять.',
+        'Со скобками восемнадцать, без скобок десять. Одна запись, а ответы разные. Порядок меняет результат!',
+        'А в качестве бонуса покажу лесенку порядка. На верхней ступеньке стоят скобки, они всегда первые.',
+        'На средней ступеньке умножение и деление, они равны по силе. На нижней ступеньке сложение и вычитание.',
+        'Запомни лесенку. Сначала скобки, потом умножение и деление, в конце сложение и вычитание. Молодец!'
       ],
       uz: [
-        "To'g'ri! Ikkinchi usul, bo'laklab. Har bir qo'shiluvchini alohida bo'lamiz.",
-        "To'qsonni uchga bo'lsak, o'ttiz bo'ladi. Oltmishni uchga bo'lsak, yigirma bo'ladi.",
-        "Qo'shamiz. O'ttiz qo'shuv yigirma yana ellik. Javob xuddi o'sha!",
-        "Yig'indini butunligicha yoki bo'laklab, javob bitta. Sizga qulay yo'lni tanlang.",
-        "Bonus tariqasida qulay bo'laklarni ko'rsataman. Qirq ikkini uchga bo'lamiz. Odatdagi qirq va ikki mos emas, chunki ikkini uchga bo'lib bo'lmaydi.",
-        "Boshqacha ajratamiz, o'ttiz va o'n ikkiga. O'ttizni uchga bo'lsak, o'n. O'n ikkini uchga bo'lsak, to'rt. Birga o'n to'rt.",
-        "Yodda tuting. Har bir bo'lak qoldiqsiz bo'linishi kerak. Barakalla!"
+        "To'g'ri! Endi qavsni olib tashlab tekshiramiz.",
+        "Qavssiz tartib buyuradi. Birinchi ko'paytirish bajariladi, ikki karra uch olti bo'ladi.",
+        "Endi qo'shish. To'rt qo'shuv olti o'n bo'ladi.",
+        "Qavs bilan o'n sakkiz, qavssiz o'n. Yozuv bitta, javoblar esa har xil. Tartib natijani o'zgartiradi!",
+        "Bonus tariqasida tartib zinapoyasini ko'rsataman. Eng yuqori pog'onada qavs turadi, u doim birinchi.",
+        "O'rta pog'onada ko'paytirish va bo'lish, ular kuch jihatidan teng. Pastki pog'onada qo'shish va ayirish.",
+        "Zinapoyani yodda tuting. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish. Barakalla!"
       ]
     }
   },
   s6: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Чтобы разделить сумму, делим каждую часть отдельно и складываем результаты. Каждая часть должна делиться без остатка.', uz: "Yig'indini bo'lish uchun har bir bo'lakni alohida bo'lamiz va natijalarni qo'shamiz. Har bir bo'lak qoldiqsiz bo'linishi kerak." },
-    check_expr: { ru: '(60 + 9) ÷ 3', uz: '(60 + 9) ÷ 3' },
-    check_q: { ru: 'Чему равно (60 + 9) ÷ 3? Нажми верную запись.', uz: "(60 + 9) ÷ 3 nimaga teng? To'g'ri yozuvni bosing." },
-    check_opts: ['60 ÷ 3 + 9 ÷ 3', '60 ÷ 3 + 9', '60 + 9 ÷ 3'],
+    rule: { ru: 'Сначала скобки. Потом умножение и деление. В конце сложение и вычитание. Равные по силе действия выполняем слева направо.', uz: "Avval qavs ichi. Keyin ko'paytirish va bo'lish. Oxirida qo'shish va ayirish. Teng kuchli amallar chapdan o'ngga bajariladi." },
+    check_expr: { ru: '16 − 6 : 2', uz: '16 − 6 : 2' },
+    check_q: { ru: 'Какое действие в этой записи выполняют первым?', uz: 'Bu yozuvda qaysi amal birinchi bajariladi?' },
+    check_opts: ['6 : 2', '16 − 6', '16 : 2'],
     check_ci: 0,
-    check_ok: { ru: 'Верно. На три делятся обе части.', uz: "To'g'ri. Uchga ikkala bo'lak ham bo'linadi." },
-    check_no: { ru: 'Проверь: по корзинам раскладывают весь урожай, а не половину урожая.', uz: "Tekshiring: savatlarga butun hosil taqsimlanadi, yarim hosil emas." },
+    check_ok: { ru: 'Верно. Деление сильнее вычитания, его выполняют первым.', uz: "To'g'ri. Bo'lish ayirishdan kuchli, u birinchi bajariladi." },
+    check_no: { ru: 'Проверь: деление стоит на лесенке выше вычитания, его выполняют первым.', uz: "Tekshiring: bo'lish zinapoyada ayirishdan yuqorida turadi, u birinchi bajariladi." },
     audio: {
       ru: [
-        'Правило. Чтобы разделить сумму, делим каждую часть отдельно и складываем результаты.',
-        'Корзин было три. Значит, на три делится и шестьдесят, и девять. Обе части.',
-        'Если разделить только одну часть, вторая кучка так и останется неразложенной.',
-        'И ещё одно важное условие. Каждая часть должна делиться без остатка. Иначе такое разложение нам не подходит.'
+        'Правило. Сначала выполняют скобки. Потом умножение и деление. В конце сложение и вычитание.',
+        'В нашей записи скобок нет. Значит, первым идёт деление. Шесть разделить на два будет три.',
+        'Потом вычитание. Шестнадцать минус три будет тринадцать.',
+        'И ещё одно. Если действия равны по силе, их выполняют слева направо. Это правило командует любой записью.'
       ],
       uz: [
-        "Qoida. Yig'indini bo'lish uchun har bir bo'lakni alohida bo'lamiz va natijalarni qo'shamiz.",
-        "Savat uchta edi. Demak, uchga oltmish ham, to'qqiz ham bo'linadi. Ikkala bo'lak.",
-        "Faqat bitta bo'lak bo'linsa, ikkinchi uyum taqsimlanmay qolaveradi.",
-        "Va yana bitta muhim shart. Har bir bo'lak qoldiqsiz bo'linishi kerak. Aks holda bunday ajratish bizga mos kelmaydi."
+        "Qoida. Avval qavs ichi bajariladi. Keyin ko'paytirish va bo'lish. Oxirida qo'shish va ayirish.",
+        "Bizning yozuvda qavs yo'q. Demak, birinchi bo'lish bajariladi. Oltini ikkiga bo'lsak uch bo'ladi.",
+        "Keyin ayirish. O'n olti ayiruv uch o'n uch bo'ladi.",
+        "Va yana bittasi. Amallar kuch jihatidan teng bo'lsa, ular chapdan o'ngga bajariladi. Bu qoida har qanday yozuvga buyruq beradi."
       ]
     }
   },
 
-  // s7 — MASHQ: QULAY bo'lakni tanla (hisoblash emas — mezon)
+  // s7 — MASHQ: birinchi amalni TANLA (hisoblash emas — mezon)
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Amaliyot' },
-    q: { ru: 'Выбери удобное разложение', uz: "Qulay ajratishni tanlang" },
+    q: { ru: 'Что выполняют первым?', uz: 'Qaysi amal birinchi bajariladi?' },
     items: [
-      { expr: '48 ÷ 2', opts: [{ ru: '40 + 8', uz: '40 + 8' }, { ru: '45 + 3', uz: '45 + 3' }, { ru: '4 + 8', uz: '4 + 8' }], ci: 0,
+      { expr: '7 + 2 × 5', opts: [{ ru: '2 × 5', uz: '2 × 5' }, { ru: '7 + 2', uz: '7 + 2' }, { ru: '7 × 5', uz: '7 × 5' }], ci: 0,
         hints: [null,
-          { ru: 'Сорок пять на два без остатка не делится. Обе части должны делиться.', uz: "Qirq beshni ikkiga qoldiqsiz bo'lib bo'lmaydi. Ikkala bo'lak ham bo'linishi kerak." },
-          { ru: 'Четыре плюс восемь — двенадцать, а не сорок восемь. Число должно остаться прежним.', uz: "To'rt qo'shuv sakkiz — o'n ikki, qirq sakkiz emas. Son o'zgarmasligi kerak." }] },
-      { expr: '96 ÷ 3', opts: [{ ru: '90 + 6', uz: '90 + 6' }, { ru: '95 + 1', uz: '95 + 1' }, { ru: '9 + 6', uz: '9 + 6' }], ci: 0,
+          { ru: 'Это счёт слева направо. Умножение сильнее сложения, его выполняют первым.', uz: "Bu chapdan o'ngga sanash. Ko'paytirish qo'shishdan kuchli, u birinchi bajariladi." },
+          { ru: 'Семь и пять в записи не соседи. Умножаются два и пять.', uz: "Yetti bilan besh yozuvda qo'shni emas. Ikki bilan besh ko'paytiriladi." }] },
+      { expr: '(9 − 3) × 2', opts: [{ ru: '9 − 3', uz: '9 − 3' }, { ru: '3 × 2', uz: '3 × 2' }, { ru: '9 × 2', uz: '9 × 2' }], ci: 0,
         hints: [null,
-          { ru: 'Девяносто пять на три не делится. Ищи части, которые делятся обе.', uz: "To'qson beshni uchga bo'lib bo'lmaydi. Ikkalasi ham bo'linadigan bo'lak qidiring." },
-          { ru: 'Девять плюс шесть — пятнадцать. Нам нужно девяносто шесть.', uz: "To'qqiz qo'shuv olti — o'n besh. Bizga to'qson olti kerak." }] },
-      { expr: '72 ÷ 6', opts: [{ ru: '60 + 12', uz: '60 + 12' }, { ru: '70 + 2', uz: '70 + 2' }, { ru: '7 + 2', uz: '7 + 2' }], ci: 0,
+          { ru: 'Скобки сильнее умножения. Сначала выполняют то, что внутри скобок.', uz: "Qavs ko'paytirishdan kuchli. Avval qavs ichidagisi bajariladi." },
+          { ru: 'Девять умножить на два в записи нет. Первыми выполняют скобки.', uz: "To'qqiz karra ikki yozuvda yo'q. Birinchi qavs bajariladi." }] },
+      { expr: '24 : 6 − 2', opts: [{ ru: '24 : 6', uz: '24 : 6' }, { ru: '6 − 2', uz: '6 − 2' }, { ru: '24 − 2', uz: '24 − 2' }], ci: 0,
         hints: [null,
-          { ru: 'Семьдесят на шесть не делится. Здесь привычные десятки и единицы не подходят — бери шестьдесят и двенадцать.', uz: "Yetmishni oltiga bo'lib bo'lmaydi. Bu yerda odatdagi o'nlik va birlik yaramaydi — oltmish va o'n ikkini oling." },
-          { ru: 'Семь плюс два — девять. Число должно остаться семьдесят два.', uz: "Yetti qo'shuv ikki — to'qqiz. Son yetmish ikkiligicha qolishi kerak." }] }
+          { ru: 'Шесть здесь занято делением. Вычитание ждёт своей очереди.', uz: "Bu yerda olti bo'lishda band. Ayirish o'z navbatini kutadi." },
+          { ru: 'Вычитание здесь самое слабое действие, оно идёт последним.', uz: 'Ayirish bu yozuvdagi eng kuchsiz amal, u oxirida bajariladi.' }] }
     ],
     audio: {
-      intro: { ru: 'Здесь считать не надо. Выбери разложение, в котором обе части делятся без остатка.', uz: "Bu yerda hisoblash shart emas. Ikkala bo'lak ham qoldiqsiz bo'linadigan ajratishni tanlang." },
+      intro: { ru: 'Считать не нужно. Просто выбери действие, которое выполняют первым.', uz: 'Hisoblash shart emas. Faqat birinchi bajariladigan amalni tanlang.' },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: 'Unchalik emas. Maslahatga qarang.' }
     }
   },
 
   // s8 — MASHQ: hisobla (NumPad)
   s8: {
     eyebrow: { ru: 'Практика', uz: 'Amaliyot' },
-    q: { ru: 'Раздели на части и посчитай', uz: "Bo'laklarga ajratib hisoblang" },
+    q: { ru: 'Посчитай по порядку', uz: "Tartib bo'yicha hisoblang" },
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
     items: [
-      { expr: '69 ÷ 3', ans: 23, hint: { ru: 'Шестьдесят на три — двадцать. Девять на три — три. Сложи.', uz: "Oltmishni uchga — yigirma. To'qqizni uchga — uch. Qo'shing." } },
-      { expr: '84 ÷ 4', ans: 21, hint: { ru: 'Восемьдесят на четыре — двадцать. Четыре на четыре — один. Сложи.', uz: "Saksonni to'rtga — yigirma. To'rtni to'rtga — bir. Qo'shing." } },
-      { expr: '48 ÷ 2', ans: 24, hint: { ru: 'Сорок на два — двадцать. Восемь на два — четыре. Сложи.', uz: "Qirqni ikkiga — yigirma. Sakkizni ikkiga — to'rt. Qo'shing." } }
+      { expr: '5 + 3 × 2', ans: 11, hint: { ru: 'Сначала три умножить на два, будет шесть. Потом пять плюс шесть.', uz: "Avval uch karra ikki, olti bo'ladi. Keyin besh qo'shuv olti." } },
+      { expr: '18 − 12 : 3', ans: 14, hint: { ru: 'Сначала двенадцать разделить на три, будет четыре. Потом восемнадцать минус четыре.', uz: "Avval o'n ikkini uchga bo'ling, to'rt bo'ladi. Keyin o'n sakkiz ayiruv to'rt." } },
+      { expr: '(10 − 4) × 2', ans: 12, hint: { ru: 'Сначала скобки. Десять минус четыре будет шесть. Потом шесть умножить на два.', uz: "Avval qavs ichi. O'n ayiruv to'rt olti bo'ladi. Keyin olti karra ikki." } }
     ],
     audio: {
-      intro: { ru: 'Разложи число на удобные части, раздели обе части и сложи. Набери ответ цифрами.', uz: "Sonni qulay bo'laklarga ajrating, ikkala bo'lakni bo'ling va qo'shing. Javobni raqamlab tering." },
+      intro: { ru: 'Выполни действия в верном порядке и набери ответ цифрами.', uz: "Amallarni to'g'ri tartibda bajaring va javobni raqamlab tering." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Пока нет. Посмотри подсказку.', uz: "Hozircha yo'q. Maslahatga qarang." }
     }
   },
 
-  // s9 — MASHQ: xato yozuvni top
+  // s9 — MASHQ: noto'g'ri tartibda hisoblangan yozuvni top
   s9: {
     eyebrow: { ru: 'Практика', uz: 'Amaliyot' },
-    q: { ru: 'Найди неверную запись', uz: "Xato yozuvni toping" },
+    q: { ru: 'Найди неверную запись', uz: 'Xato yozuvni toping' },
     items: [
-      { rows: ['69 ÷ 3 = 20 + 3', '48 ÷ 2 = 20 + 4', '84 ÷ 4 = 20 + 4'], wrong: 2,
-        hint: { ru: 'В третьей строке маленькую часть не разделили. Четыре на четыре — один, а не четыре.', uz: "Uchinchi qatorda kichik bo'lak bo'linmagan. To'rtni to'rtga — bir, to'rt emas." } },
-      { rows: ['60 ÷ 3 = 2', '60 ÷ 3 = 20', '6 ÷ 3 = 2'], wrong: 0,
-        hint: { ru: 'Шестьдесят — это десятки. Два десятка — это двадцать, а не два.', uz: "Oltmish — bu o'nliklar. Ikkita o'nlik — bu yigirma, ikki emas." } },
-      { rows: ['96 ÷ 3 = 30 + 2', '55 ÷ 5 = 10 + 1', '88 ÷ 4 = 20 + 8'], wrong: 2,
-        hint: { ru: 'В третьей строке единицы не разделили. Восемь на четыре — два, а не восемь.', uz: "Uchinchi qatorda birliklar bo'linmagan. Sakkizni to'rtga — ikki, sakkiz emas." } }
+      { rows: ['5 + 3 × 2 = 11', '10 − 2 × 4 = 2', '6 + 4 × 2 = 20'], wrong: 2,
+        hint: { ru: 'В третьей строке сложили раньше умножения. Сначала четыре умножить на два, будет восемь. Шесть плюс восемь будет четырнадцать.', uz: "Uchinchi qatorda qo'shish ko'paytirishdan oldin bajarilgan. Avval to'rt karra ikki, sakkiz bo'ladi. Olti qo'shuv sakkiz o'n to'rt bo'ladi." } },
+      { rows: ['(7 − 2) × 3 = 1', '(5 + 3) × 2 = 16', '(9 − 4) × 2 = 10'], wrong: 0,
+        hint: { ru: 'В первой строке скобки пропустили. Сначала семь минус два, будет пять. Пять умножить на три будет пятнадцать.', uz: "Birinchi qatorda qavs unutilgan. Avval yetti ayiruv ikki, besh bo'ladi. Besh karra uch o'n besh bo'ladi." } },
+      { rows: ['16 : 4 + 4 = 8', '12 : 2 + 4 = 2', '20 : 4 + 1 = 6'], wrong: 1,
+        hint: { ru: 'Во второй строке сложили раньше деления. Сначала двенадцать разделить на два, будет шесть. Шесть плюс четыре будет десять.', uz: "Ikkinchi qatorda qo'shish bo'lishdan oldin bajarilgan. Avval o'n ikkini ikkiga bo'ling, olti bo'ladi. Olti qo'shuv to'rt o'n bo'ladi." } }
     ],
     audio: {
-      intro: { ru: 'В каждой тройке одна запись неверная. Найди её и нажми.', uz: "Har uchlikda bitta yozuv xato. Uni topib bosing." },
+      intro: { ru: 'В каждой тройке одна запись посчитана в неверном порядке. Найди её и нажми.', uz: "Har uchlikda bitta yozuv noto'g'ri tartibda hisoblangan. Uni topib bosing." },
       on_correct: { ru: 'Верно, это она.', uz: "To'g'ri, o'sha." },
       on_wrong: { ru: 'Эта запись верная. Ищи дальше.', uz: "Bu yozuv to'g'ri. Yana qidiring." }
     }
   },
 
-  // s10 — MASHQ: aralash (oxirgi raund — noqulay o'nlik)
+  // s10 — MASHQ: aralash hisob (oxirgi raund — uch amal)
   s10: {
     eyebrow: { ru: 'Практика', uz: 'Amaliyot' },
     q: { ru: 'Посчитай', uz: 'Hisoblang' },
     items: [
-      { expr: '46 ÷ 2', opts: [{ ru: '23', uz: '23' }, { ru: '20', uz: '20' }, { ru: '44', uz: '44' }], ci: 0,
+      { expr: '14 − 8 : 2', opts: [{ ru: '10', uz: '10' }, { ru: '3', uz: '3' }, { ru: '4', uz: '4' }], ci: 0,
         hints: [null,
-          { ru: 'Двадцать — это только большая часть. Единицы тоже надо разделить и прибавить.', uz: "Yigirma — bu faqat katta bo'lak. Birliklarni ham bo'lib qo'shish kerak." },
-          { ru: 'Это вычитание, а не деление. Сорок шесть раскладывают по двум корзинам.', uz: "Bu ayirish, bo'lish emas. Qirq oltita ikkita savatga taqsimlanadi." }] },
-      { expr: '63 ÷ 3', opts: [{ ru: '21', uz: '21' }, { ru: '20', uz: '20' }, { ru: '60', uz: '60' }], ci: 0,
+          { ru: 'Три выходит при счёте слева направо. Сначала восемь разделить на два, потом вычитание.', uz: "Chapdan o'ngga hisoblasak uch chiqadi. Avval sakkizni ikkiga bo'ling, keyin ayiring." },
+          { ru: 'Четыре это только деление. Его результат ещё надо вычесть из четырнадцати.', uz: "To'rt faqat bo'lish natijasi. Uni yana o'n to'rtdan ayirish kerak." }] },
+      { expr: '(6 + 6) : 3', opts: [{ ru: '4', uz: '4' }, { ru: '8', uz: '8' }, { ru: '12', uz: '12' }], ci: 0,
         hints: [null,
-          { ru: 'Двадцать — это только десятки. Три на три дают ещё один.', uz: "Yigirma — bu faqat o'nliklar. Uchni uchga bo'lsak yana bir chiqadi." },
-          { ru: 'Это шестьдесят три минус три. А нам надо разложить по трём корзинам.', uz: "Bu oltmish uchdan uch ayirish. Bizga esa uchta savatga taqsimlash kerak." }] },
-      { expr: '78 ÷ 6', opts: [{ ru: '13', uz: '13' }, { ru: '28', uz: '28' }, { ru: '12', uz: '12' }], ci: 0,
+          { ru: 'Восемь выходит без скобок. Скобки выполняют первыми, сначала сумма.', uz: "Sakkiz qavssiz chiqadi. Qavs birinchi bajariladi, avval yig'indi." },
+          { ru: 'Двенадцать это только скобки. Сумму ещё надо разделить на три.', uz: "O'n ikki faqat qavs ichi. Yig'indini yana uchga bo'lish kerak." }] },
+      { expr: '20 : 4 + 2 × 3', opts: [{ ru: '11', uz: '11' }, { ru: '21', uz: '21' }, { ru: '7', uz: '7' }], ci: 0,
         hints: [null,
-          { ru: 'Здесь семьдесят на шесть не делится. Бери шестьдесят и восемнадцать. Восемнадцать на шесть — три, а не восемнадцать.', uz: "Bu yerda yetmishni oltiga bo'lib bo'lmaydi. Oltmish va o'n sakkizni oling. O'n sakkizni oltiga — uch, o'n sakkiz emas." },
-          { ru: 'Это ответ для семидесяти двух. У нас семьдесят восемь, на шесть больше.', uz: "Bu yetmish ikki uchun javob. Bizda yetmish sakkiz, oltita ko'p." }] }
+          { ru: 'Двадцать один выходит при счёте слева направо. Сильные действия выполняют первыми.', uz: "Chapdan o'ngga hisoblasak yigirma bir chiqadi. Kuchli amallar birinchi bajariladi." },
+          { ru: 'Семь выходит, если забыть умножение. Два умножить на три тоже считается.', uz: "Ko'paytirish unutilsa yetti chiqadi. Ikki karra uch ham hisoblanadi." }] }
     ],
     audio: {
-      intro: { ru: 'Разложи число на удобные части в уме, раздели обе части и выбери ответ.', uz: "Sonni xayolan qulay bo'laklarga ajrating, ikkala bo'lakni bo'ling va javobni tanlang." },
+      intro: { ru: 'Вспомни лесенку порядка, выполни действия и выбери ответ.', uz: 'Tartib zinapoyasini eslang, amallarni bajaring va javobni tanlang.' },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: 'Unchalik emas. Maslahatga qarang.' }
     }
   },
 
   // s11 — MASALA
   s11: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Зухра раскладывает урожай по ящикам.', uz: "Zuhra hosilni qutilarga joylamoqda." },
-    q: { ru: 'Собрано 88 плодов, ящиков 4. Сколько плодов в каждом ящике?', uz: "88 ta meva yig'ilgan, quti 4 ta. Har qutida nechta meva bo'ladi?" },
-    ans: 22,
-    manifest_label: { ru: 'Ящики', uz: 'Qutilar' },
-    exp_display: { ru: '88 ÷ 4', uz: '88 ÷ 4' },
-    setup_audio: { ru: 'Зухра отвечает за склад. Собрано восемьдесят восемь плодов, а ящиков четыре.', uz: "Zuhra ombor uchun javob beradi. Sakson sakkizta meva yig'ilgan, quti esa to'rtta." },
+    lead: { ru: 'Анвар включает лампы в саду.', uz: "Anvar bog'da chiroqlarni yoqmoqda." },
+    q: { ru: 'На панели 4 ряда по 5 ламп и ещё 6 отдельных ламп. Сколько всего ламп?', uz: 'Panelda har birida 5 tadan 4 qator chiroq va yana 6 ta alohida chiroq bor. Jami nechta chiroq?' },
+    ans: 26,
+    exp_display: { ru: '6 + 4 × 5', uz: '6 + 4 × 5' },
+    setup_audio: { ru: 'Анвар отвечает за вечерний свет. На панели четыре ряда ламп по пять, и ещё шесть отдельных ламп.', uz: "Anvar kechki yorug'lik uchun javob beradi. Panelda beshtadan to'rt qator chiroq, yana oltita alohida chiroq bor." },
     audio: {
-      intro: { ru: 'Разложи восемьдесят восемь на восемьдесят и восемь. Раздели обе части на четыре и сложи. Набери ответ цифрами.', uz: "Sakson sakkizni sakson va sakkizga ajrating. Ikkala bo'lakni to'rtga bo'ling va qo'shing. Javobni raqamlab tering." },
-      on_correct: { ru: 'Верно. Восемьдесят на четыре — двадцать, восемь на четыре — два, вместе двадцать два.', uz: "To'g'ri. Saksonni to'rtga — yigirma, sakkizni to'rtga — ikki, birgalikda yigirma ikki." },
-      on_wrong: { ru: 'Пока нет. Восемьдесят на четыре — двадцать. Восемь на четыре — два. Сложи их.', uz: "Hozircha yo'q. Saksonni to'rtga — yigirma. Sakkizni to'rtga — ikki. Ularni qo'shing." }
+      intro: { ru: 'Сначала умножение, четыре ряда по пять. Потом прибавь отдельные лампы. Набери ответ цифрами.', uz: "Avval ko'paytirish, beshtadan to'rt qator. Keyin alohida chiroqlarni qo'shing. Javobni raqamlab tering." },
+      on_correct: { ru: 'Верно. Четыре умножить на пять будет двадцать, шесть плюс двадцать будет двадцать шесть.', uz: "To'g'ri. To'rt karra besh yigirma bo'ladi, olti qo'shuv yigirma yigirma olti bo'ladi." },
+      on_wrong: { ru: 'Пока нет. Четыре умножить на пять будет двадцать. Прибавь к двадцати шесть.', uz: "Hozircha yo'q. To'rt karra besh yigirma bo'ladi. Yigirmaga oltini qo'shing." }
     }
   },
 
   // s12 — FINAL
   s12: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    intro_line: { ru: 'Пять заданий на деление суммы.', uz: "Yig'indini bo'lishga beshta topshiriq." },
+    intro_line: { ru: 'Пять заданий на порядок действий.', uz: 'Amallar tartibiga beshta topshiriq.' },
     items: [
-      { kind: 'mc', q: { ru: 'Какое разложение подходит для 72 ÷ 6?', uz: "72 ÷ 6 uchun qaysi ajratish mos keladi?" }, topic: { ru: 'удобное разложение', uz: 'qulay ajratish' },
-        opt0: { ru: '60 + 12', uz: '60 + 12' }, opt1: { ru: '70 + 2', uz: '70 + 2' }, opt2: { ru: '7 + 2', uz: '7 + 2' },
-        wrong_1: { ru: 'Семьдесят на шесть без остатка не делится. Здесь десятки и единицы не подходят.', uz: "Yetmishni oltiga qoldiqsiz bo'lib bo'lmaydi. Bu yerda o'nlik va birlik yaramaydi." },
-        wrong_2: { ru: 'Семь плюс два — девять. Число должно остаться семьдесят два.', uz: "Yetti qo'shuv ikki — to'qqiz. Son yetmish ikkiligicha qolishi kerak." } },
-      { kind: 'mc', q: { ru: 'Чему равно (80 + 4) ÷ 4?', uz: "(80 + 4) ÷ 4 nimaga teng?" }, topic: { ru: 'деление суммы', uz: "yig'indini bo'lish" },
-        opt0: { ru: '80 ÷ 4 + 4 ÷ 4', uz: '80 ÷ 4 + 4 ÷ 4' }, opt1: { ru: '80 ÷ 4 + 4', uz: '80 ÷ 4 + 4' }, opt2: { ru: '80 + 4 ÷ 4', uz: '80 + 4 ÷ 4' },
-        wrong_1: { ru: 'Вторая часть тоже делится на четыре, а не остаётся как есть.', uz: "Ikkinchi bo'lak ham to'rtga bo'linadi, o'z holicha qolmaydi." },
-        wrong_2: { ru: 'Первая часть тоже делится на четыре. Обе части.', uz: "Birinchi bo'lak ham to'rtga bo'linadi. Ikkala bo'lak." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 69 ÷ 3', uz: "Javobni tering: 69 ÷ 3" }, topic: { ru: 'деление по частям', uz: "bo'laklab bo'lish" }, ans: 23,
-        hint: { ru: 'Шестьдесят на три — двадцать. Девять на три — три.', uz: "Oltmishni uchga — yigirma. To'qqizni uchga — uch." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 96 ÷ 3', uz: "Javobni tering: 96 ÷ 3" }, topic: { ru: 'деление по частям', uz: "bo'laklab bo'lish" }, ans: 32,
-        hint: { ru: 'Девяносто на три — тридцать. Шесть на три — два.', uz: "To'qsonni uchga — o'ttiz. Oltini uchga — ikki." } },
-      { kind: 'num', q: { ru: 'Плодов 66, корзин 6. Сколько в каждой?', uz: "Meva 66 ta, savat 6 ta. Har birida nechtadan?" }, topic: { ru: 'задача на деление', uz: "bo'lishga masala" }, ans: 11,
-        hint: { ru: 'Шестьдесят на шесть — десять. Шесть на шесть — один. Сложи.', uz: "Oltmishni oltiga — o'n. Oltini oltiga — bir. Qo'shing." } }
+      { kind: 'mc', q: { ru: 'Что выполняют первым в записи 8 + 6 : 2?', uz: '8 + 6 : 2 yozuvida qaysi amal birinchi bajariladi?' }, topic: { ru: 'порядок действий', uz: 'amallar tartibi' },
+        opt0: { ru: '6 : 2', uz: '6 : 2' }, opt1: { ru: '8 + 6', uz: '8 + 6' }, opt2: { ru: '8 : 2', uz: '8 : 2' },
+        wrong_1: { ru: 'Это счёт слева направо. Деление сильнее сложения.', uz: "Bu chapdan o'ngga sanash. Bo'lish qo'shishdan kuchli." },
+        wrong_2: { ru: 'Восемь на два в записи не делят. Делят шесть.', uz: "Yozuvda sakkiz ikkiga bo'linmaydi. Olti bo'linadi." } },
+      { kind: 'mc', q: { ru: 'Чему равно (3 + 5) × 2?', uz: '(3 + 5) × 2 nimaga teng?' }, topic: { ru: 'скобки', uz: 'qavs' },
+        opt0: { ru: '16', uz: '16' }, opt1: { ru: '13', uz: '13' }, opt2: { ru: '10', uz: '10' },
+        wrong_1: { ru: 'Тринадцать выходит без скобок. Скобки выполняют первыми.', uz: "O'n uch qavssiz chiqadi. Qavs birinchi bajariladi." },
+        wrong_2: { ru: 'Десять выходит, если сложить всё подряд. В записи есть умножение.', uz: "Hammasini qo'shsak o'n chiqadi. Yozuvda ko'paytirish bor." } },
+      { kind: 'num', q: { ru: 'Набери ответ: 9 + 2 × 4', uz: 'Javobni tering: 9 + 2 × 4' }, topic: { ru: 'умножение раньше сложения', uz: "ko'paytirish qo'shishdan oldin" }, ans: 17,
+        hint: { ru: 'Сначала два умножить на четыре, будет восемь. Потом девять плюс восемь.', uz: "Avval ikki karra to'rt, sakkiz bo'ladi. Keyin to'qqiz qo'shuv sakkiz." } },
+      { kind: 'num', q: { ru: 'Набери ответ: 18 − 12 : 3', uz: 'Javobni tering: 18 − 12 : 3' }, topic: { ru: 'деление раньше вычитания', uz: "bo'lish ayirishdan oldin" }, ans: 14,
+        hint: { ru: 'Сначала двенадцать разделить на три, будет четыре. Потом восемнадцать минус четыре.', uz: "Avval o'n ikkini uchga bo'ling, to'rt bo'ladi. Keyin o'n sakkiz ayiruv to'rt." } },
+      { kind: 'num', q: { ru: 'На панели 3 ряда по 6 ламп и ещё 5 отдельных. Сколько всего ламп?', uz: 'Panelda oltitadan 3 qator chiroq va yana 5 ta alohida chiroq bor. Jami nechta?' }, topic: { ru: 'задача на порядок', uz: 'tartibga masala' }, ans: 23,
+        hint: { ru: 'Сначала три умножить на шесть, будет восемнадцать. Потом прибавь пять.', uz: "Avval uch karra olti, o'n sakkiz bo'ladi. Keyin beshni qo'shing." } }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Листья на ветке растут через равные промежутки по кругу. Так каждому листу достаётся равная доля света. Природа тоже делит поровну.', uz: "Novdadagi barglar aylana bo'ylab teng oraliqda o'sadi. Shunda har bir bargga nurning teng ulushi tegadi. Tabiat ham teng bo'ladi." },
-    fact_audio: { ru: 'Листья на ветке растут через равные промежутки по кругу. Так каждому листу достаётся равная доля света. Природа тоже делит поровну.', uz: "Novdadagi barglar aylana bo'ylab teng oraliqda o'sadi. Shunda har bir bargga nurning teng ulushi tegadi. Tabiat ham teng bo'ladi." },
+    fact_text: { ru: 'Глубоко в океане живёт рыба-удильщик. Над её головой светится маленький фонарик. Свет приманивает добычу прямо к её рту.', uz: "Okeanning chuqur joyida fonarli baliq yashaydi. Uning boshi ustida kichkina chiroqcha porlaydi. Yorug'lik o'ljani to'g'ri uning og'ziga chaqiradi." },
+    fact_audio: { ru: 'Глубоко в океане живёт рыба-удильщик. Над её головой светится маленький фонарик. Свет приманивает добычу прямо к её рту.', uz: "Okeanning chuqur joyida fonarli baliq yashaydi. Uning boshi ustida kichkina chiroqcha porlaydi. Yorug'lik o'ljani to'g'ri uning og'ziga chaqiradi." },
     audio: {
-      intro: { ru: 'Пять заданий. Разложи число на удобные части, раздели обе части и сложи.', uz: "Beshta topshiriq. Sonni qulay bo'laklarga ajrating, ikkala bo'lakni bo'ling va qo'shing." },
+      intro: { ru: 'Пять заданий. Вспомни лесенку и выполняй действия по порядку.', uz: 'Beshta topshiriq. Zinapoyani eslang va amallarni tartib bilan bajaring.' },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем.', uz: "Unchalik emas." }
+      on_wrong: { ru: 'Не совсем.', uz: 'Unchalik emas.' }
     }
   },
 
   // s13 — YAKUN
   s13: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Урожай разложен!', uz: 'Hosil taqsimlandi!' },
-    cando: { ru: 'Теперь ты делишь числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ham bo'lasiz." },
-    rule_recap: { ru: 'Разложи число на части, которые делятся без остатка, раздели каждую и сложи результаты.', uz: "Sonni qoldiqsiz bo'linadigan bo'laklarga ajrating, har birini bo'ling va natijalarni qo'shing." },
+    mission_done: { ru: 'Инструкция прочитана!', uz: "Yo'riqnoma o'qildi!" },
+    cando: { ru: 'Теперь ты выполняешь действия в верном порядке.', uz: "Endi siz amallarni to'g'ri tartibda bajarasiz." },
+    rule_recap: { ru: 'Сначала скобки, потом умножение и деление, в конце сложение и вычитание.', uz: "Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish." },
     conn_label_refs: { ru: 'Опирались на', uz: 'Tayandik' },
-    conn_refs: { ru: 'умножение суммы и таблицу', uz: "yig'indini ko'paytirish va jadval" },
+    conn_refs: { ru: 'умножение и деление суммы', uz: "yig'indini ko'paytirish va bo'lish" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi dars' },
-    conn_next: { ru: 'порядок действий', uz: 'amallar tartibi' },
-    audio: { ru: 'Урожай разложен. Теперь ты умеешь делить числа, которых нет в таблице. Разложи число на части, которые делятся без остатка, раздели каждую и сложи результаты. В следующем уроке разберём, в каком порядке выполняют действия.', uz: "Hosil taqsimlandi. Endi siz jadvalda yo'q sonlarni ham bo'la olasiz. Sonni qoldiqsiz bo'linadigan bo'laklarga ajrating, har birini bo'ling va natijalarni qo'shing. Keyingi darsda amallar qanday tartibda bajarilishini ko'rib chiqamiz." }
+    conn_next: { ru: 'связь умножения и деления', uz: "ko'paytirish bilan bo'lish bog'lanishi" },
+    audio: { ru: 'Инструкция прочитана, лампы зажглись верно. Теперь ты выполняешь действия в верном порядке. Сначала скобки, потом умножение и деление, в конце сложение и вычитание. В следующем уроке узнаем, как умножение и деление связаны между собой.', uz: "Yo'riqnoma o'qildi, chiroqlar to'g'ri yondi. Endi siz amallarni to'g'ri tartibda bajarasiz. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish. Keyingi darsda ko'paytirish va bo'lish qanday bog'langanini bilib olamiz." }
   }
 };
 
 // Ekranlararo ko'priklar
 const BRIDGES = {
-  stway: { ru: 'Один пример, два пути.', uz: "Bitta misol, ikki yo'l." },
-  s1: { ru: 'Посмотрим на урожай внимательнее.', uz: "Hosilga diqqat bilan qaraymiz." },
-  s2: { ru: 'Начнём с большой кучки.', uz: "Katta uyumdan boshlaymiz." },
-  s3: { ru: 'Теперь маленькая кучка.', uz: "Endi kichik uyum." },
-  s4: { ru: 'Осталось собрать корзину.', uz: "Savatni yig'ish qoldi." },
-  s5: { ru: 'Проверим этот путь на другом числе.', uz: "Bu yo'lni boshqa sonda sinab ko'ramiz." },
-  s6: { ru: 'Запишем найденное правило.', uz: "Topilgan qoidani yozamiz." },
-  s7: { ru: 'Сначала научимся выбирать части.', uz: "Avval bo'lak tanlashni o'rganamiz." },
-  s8: { ru: 'Теперь считаем до конца.', uz: "Endi oxirigacha hisoblaymiz." },
-  s9: { ru: 'Проверим внимательность.', uz: "Diqqatni tekshiramiz." },
-  s10: { ru: 'Смешанные примеры.', uz: "Aralash misollar." },
-  s11: { ru: 'Задача со склада Зухры.', uz: "Zuhra omboridan masala." },
-  s12: { ru: 'Пять заданий на проверку.', uz: "Tekshiruv uchun beshta topshiriq." }
+  stway: { ru: 'Одна запись, два пути.', uz: "Bitta yozuv, ikki yo'l." },
+  s1: { ru: 'Посмотрим на инструкцию внимательнее.', uz: "Yo'riqnomaga diqqat bilan qaraymiz." },
+  s2: { ru: 'А теперь неверный путь.', uz: "Endi esa noto'g'ri yo'l." },
+  s3: { ru: 'Время скобок.', uz: 'Endi qavs navbati.' },
+  s4: { ru: 'Теперь деление.', uz: "Endi bo'lish." },
+  s5: { ru: 'Соберём всё вместе.', uz: "Hammasini birga yig'amiz." },
+  s6: { ru: 'Запишем найденное правило.', uz: 'Topilgan qoidani yozamiz.' },
+  s7: { ru: 'Сначала научимся выбирать первое действие.', uz: "Avval birinchi amalni tanlashni o'rganamiz." },
+  s8: { ru: 'Теперь считаем до конца.', uz: 'Endi oxirigacha hisoblaymiz.' },
+  s9: { ru: 'Проверим внимательность.', uz: 'Diqqatni tekshiramiz.' },
+  s10: { ru: 'Смешанные примеры.', uz: 'Aralash misollar.' },
+  s11: { ru: 'Задача с панели Анвара.', uz: 'Anvar panelidan masala.' },
+  s12: { ru: 'Пять заданий на проверку.', uz: 'Tekshiruv uchun beshta topshiriq.' }
 };
 
-const S13_PAYOFF = { ru: 'Урожай сада разложен поровну. Регион светится ярче.', uz: "Bog' hosili teng taqsimlandi. Hudud yorqinroq nur sochmoqda." };
+const S13_PAYOFF = { ru: 'Пульт сада понят. Лампы зажигаются верно.', uz: "Bog' pulti tushunildi. Chiroqlar to'g'ri yonmoqda." };
 
 
 // Lumo yo'l-xaritasi yozuvi (lang-lookup)
@@ -2314,7 +2312,7 @@ const ReadinessMeter = ({ screen, total, lang }) => {
 };
 
 // ============================================================
-// EKRANLAR — Dars10 «Ko'paytirish jadvali» (Б2 «Nur bog'lari»)
+// EKRANLAR — Dars13 «Amallar tartibi» (Б2 «Nur bog'lari», aralash yo'riq)
 // ============================================================
 
 // --- Savol-frame fon effekti.
@@ -2345,38 +2343,32 @@ const GardenTerraceBg = ({ split = false }) => (
     {/* --- BOG' DEVORI (past, panjarali) --- */}
     <rect x="0" y="120" width="400" height="12" fill="url(#g0wall)"/><rect x="0" y="118" width="400" height="4" rx="2" fill="#EAD9B8"/>
     <g stroke="#B49A6E" strokeWidth="1.2" opacity="0.6">{[40, 90, 140, 260, 310, 360].map((x, i) => <line key={i} x1={x} y1="122" x2={x} y2="130"/>)}</g>
-    {/* --- MARKAZIY ASBOB (Dars13): HOSIL TAQSIMI — uyum va uchta savat --- */}
-    {/* hosil uyumi (chapda) */}
-    <rect x="88" y="152" width="88" height="12" rx="4" fill="url(#g0bed)"/><rect x="88" y="152" width="88" height="4" rx="2" fill="#B78E64"/>
-    {[0, 1, 2].map((r) => Array.from({ length: 7 }).map((_, i) => {
-      const x = 96 + i * 12 + (r % 2 ? 6 : 0);
-      const cy = 144 - r * 11;
-      const alt = (r + i) % 2 === 1;
-      return (
-        <g key={`h${r}-${i}`}>
-          <circle cx={x} cy={cy} r="4.2" fill={alt ? '#8FE8C0' : '#FFA6D0'} stroke={alt ? '#5FC898' : '#E87FB0'} strokeWidth="0.9"/>
-          <circle className="lm-glow" style={{ animationDelay: `${(r * 7 + i) * 0.07}s` }} cx={x} cy={cy} r="1.9" fill="#FFF4D0"/>
-        </g>
-      );
-    }))}
-    {split && <text x="132" y="176" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A7A5E" fontFamily="'JetBrains Mono', monospace">60 + 9</text>}
-    {/* strelka: uyumdan savatlarga */}
-    <path d="M186 138 h22" stroke="#B08A5E" strokeWidth="2" fill="none"/>
-    <path d="M208 138 l-6 -3.6 v7.2 Z" fill="#B08A5E"/>
-    {/* uchta savat (o'ngda) */}
-    {[0, 1, 2].map((i) => {
-      const x = 220 + i * 34;
-      return (
-        <g key={`bk${i}`}>
-          <path d={`M${x} 132 h26 l-3 17 a2.4 2.4 0 0 1 -2.4 2.1 h-15.2 a2.4 2.4 0 0 1 -2.4 -2.1 Z`} fill="#D9A868" stroke="#B0824A" strokeWidth="1.1"/>
-          <rect x={x - 1.5} y="129" width="29" height="4" rx="2" fill="#E8BC80" stroke="#B0824A" strokeWidth="1"/>
-          {split && <circle className="lm-glow" style={{ animationDelay: `${i * 0.2}s` }} cx={x + 13} cy="127" r="2.6" fill="#FFE7A8"/>}
-        </g>
-      );
-    })}
-    {/* tenglama banneri (pergoladan osilgan): javobgacha savol, javobdan keyin yoyilma */}
+    {/* --- MARKAZIY ASBOB (Dars13): ARALASH YO'RIQ PULTI — displey + 5 alohida chiroq + 3×2 guruh --- */}
+    {/* pult (chapda): stend + qora displey, yo'riqnoma yozuvi + tugmalar */}
+    <rect x="96" y="160" width="10" height="16" fill="#8A7050"/>
+    <rect x="76" y="126" width="50" height="36" rx="5" fill="#152342" stroke="#3A4E78" strokeWidth="1.6"/>
+    <text x="101" y="141" textAnchor="middle" fontSize="8.5" fontWeight="800" fill="#FFD86E" fontFamily="'JetBrains Mono', monospace">5+3×2</text>
+    {[86, 96, 106, 116].map((x, i) => <circle key={`pb${i}`} cx={x} cy="152" r="2.6" fill={i % 2 ? '#8FD8F0' : '#F0A0C8'}/>)}
+    {/* sim: pultdan chiroqlarga */}
+    <path d="M126 146 Q160 154 186 150" stroke="#B08A5E" strokeWidth="1.6" fill="none"/>
+    {/* 5 ALOHIDA chiroq-ustuncha (o'rtada) — split'da yonadi */}
+    {[0, 1, 2, 3, 4].map((i) => (
+      <g key={`sl${i}`}>
+        <line x1={194 + i * 13} y1="162" x2={194 + i * 13} y2="150" stroke="#8A7050" strokeWidth="1.6"/>
+        <circle cx={194 + i * 13} cy="146" r="4" fill={split ? '#FFD86E' : '#5A6A8C'} stroke="#3A4E78" strokeWidth="0.8"/>
+        {split && <circle className="lm-glow" style={{ animationDelay: `${i * 0.12}s` }} cx={194 + i * 13} cy="146" r="1.8" fill="#FFF4D0"/>}
+      </g>
+    ))}
+    {split && <text x="220" y="174" textAnchor="middle" fontSize="8" fontWeight="800" fill="#8A7A5E" fontFamily="'JetBrains Mono', monospace">5</text>}
+    {/* 3×2 GURUH-blok (o'ngda) — ko'paytirish = yaxlit guruh */}
+    <rect x="266" y="126" width="44" height="36" rx="6" fill="#1B2A4A" stroke="#3A4E78" strokeWidth="1.4"/>
+    {[0, 1, 2].map((r) => [0, 1].map((cc) => (
+      <circle key={`gl${r}-${cc}`} cx={280 + cc * 16} cy={134 + r * 10} r="3.4" fill={split ? '#FFD86E' : '#5A6A8C'} stroke="#3A4E78" strokeWidth="0.8"/>
+    )))}
+    {split && <text x="288" y="174" textAnchor="middle" fontSize="8" fontWeight="800" fill="#8A7A5E" fontFamily="'JetBrains Mono', monospace">3 × 2</text>}
+    {/* tenglama banneri (pergoladan osilgan): javobgacha savol, javobdan keyin natija */}
     <path d="M150 52 h100 v14 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 Z" fill="#E8B4C4" stroke="#D08FA6" strokeWidth="1"/>
-    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">{split ? '(60 + 9) ÷ 3' : '69 ÷ 3 = ?'}</text>
+    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">{split ? '5 + 3 × 2 = 11' : '5 + 3 × 2 = ?'}</text>
     {/* --- PERGOLA (ramka: 2 ustun + ustki to'sinlar + osma uzumcha) --- */}
     {[26, 356].map((x, i) => (
       <g key={`col${i}`}>
@@ -2585,7 +2577,8 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   );
 };
 
-// s0 — HOOK: nur bog'i, 10 qator x 40 lampa (etalon hook-reveal)
+// s0 — HOOK: bog' pultida aralash yo'riqnoma 5 + 3 × 2 (etalon hook-reveal).
+// Har noto'g'ri variantga O'Z izohi: 16 = chapdan-o'ngga, 13 = noto'g'ri juftlikni ko'paytirish.
 const Screen0 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2597,7 +2590,7 @@ const Screen0 = (props) => {
   const [picked, setPicked] = useState(null);
   const ok = picked === 1;
   const revealed = picked !== null;
-  const fbKey = (i) => (i === 1 ? 'on_correct' : 'on_wrong');
+  const fbKey = (i) => (i === 1 ? 'on_correct' : (i === 2 ? 'on_wrong2' : 'on_wrong'));
   const pick = (i) => {
     if (picked !== null || !canAct) return;
     setPicked(i);
@@ -2626,7 +2619,7 @@ const Screen0 = (props) => {
           <LessonScene gathered={revealed}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px, 1.5vw, 11px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-          <HeapViz count={c.count} baskets={c.baskets}/>
+          <PultViz expr={c.expr}/>
           <span style={{ color: T.ink2, fontWeight: 700, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(c.grid_cap)}</span>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 1.9vw, 17px)', margin: 0 }}>{t(c.q)}</p>
@@ -2698,7 +2691,7 @@ const ChainBoard = ({ props, ck }) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
           <FrameFx/>
-          <ShelfSplit ck={ck} reached={all ? 99 : reached}/>
+          <MixSplit ck={ck} reached={all ? 99 : reached}/>
           {c.steps.map((s, i) => (shown.includes(s)
             ? <ChainStep key={i} expr={s.expr} tag={t(s.tag)} last={i === c.steps.length - 1 && c.steps.length > 1}/>
             : null))}
@@ -2713,45 +2706,47 @@ const ChainBoard = ({ props, ck }) => {
   );
 };
 
-// Hosil-vizual: s1 da 69 ta meva 6 ta o'nlik quti + 9 yakkaga AJRALADI (kashfiyot mag'zi).
-const TenBox = () => (
-  <span className="lm-tenbox">{Array.from({ length: 10 }).map((_, i) => <span key={i} className="lm-lamp-t"><Chiroq/></span>)}</span>
-);
-const ShelfSplit = ({ ck, reached }) => {
+// s1-vizual: 5 + 3 × 2 MA'NOSI — 5 ta alohida chiroq VA 3 qator × 2 talik yaxlit GURUH-blok.
+// split (2-segmentdan) — ostiga 5 va 3 × 2 yorliqlari tushadi (guruh = bitta son bo'lib sanaladi).
+const MixSplit = ({ ck, reached }) => {
   if (ck !== 's1') return null;
   const split = reached >= 1;
   return (
-    <div className={`lm-shelf ${split ? 'lm-shelf-split' : ''}`}>
-      <div className="lm-shelf-part lm-shelf-big">
-        <div className="lm-tenrow">{Array.from({ length: 6 }).map((_, i) => <TenBox key={i}/>)}</div>
-        {split && <span className="mono lm-shelf-num lm-edrop">60</span>}
+    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 'clamp(12px, 3vw, 24px)', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 'clamp(4px, 1vw, 7px)', padding: 'clamp(6px, 1.4vw, 9px)' }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.08}s`, width: 'clamp(17px, 4.2vw, 25px)', display: 'inline-flex' }}><Chiroq/></span>
+          ))}
+        </div>
+        {split && <span className="mono lm-edrop" style={{ fontWeight: 800, fontSize: 'clamp(15px, 2.8vw, 21px)', color: T.ink }}>5</span>}
       </div>
-      {split && <span className="mono lm-shelf-plus lm-edrop">+</span>}
-      <div className="lm-shelf-part lm-shelf-small">
-        <div className="lm-shelf-grid">{Array.from({ length: 9 }).map((_, i) => <span key={i} className="lm-lamp-s"><Chiroq/></span>)}</div>
-        {split && <span className="mono lm-shelf-num lm-edrop">9</span>}
+      {split && <span className="mono lm-edrop" style={{ fontWeight: 800, fontSize: 'clamp(18px, 3.6vw, 26px)', color: T.ink2, alignSelf: 'center' }}>+</span>}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+        <div style={{ display: 'inline-grid', gridTemplateColumns: 'repeat(2, auto)', gap: 'clamp(4px, 1vw, 7px)', padding: 'clamp(7px, 1.6vw, 10px)', background: '#152342', borderRadius: 12 }}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <span key={i} className="g1-pop-in" style={{ animationDelay: `${0.4 + i * 0.06}s`, width: 'clamp(16px, 3.8vw, 23px)', display: 'inline-flex' }}><Chiroq/></span>
+          ))}
+        </div>
+        {split && <span className="mono lm-edrop" style={{ fontWeight: 800, fontSize: 'clamp(15px, 2.8vw, 21px)', color: T.accent }}>3 × 2</span>}
       </div>
     </div>
   );
 };
 
-// Hook-vizual: 69 ta meva UYUM bo'lib yotibdi (hech qanday qator/ustun javobni aytmaydi) + 3 bo'sh savat.
-const BasketSVG = () => (
-  <svg viewBox="0 0 40 34" style={{ width: 'clamp(30px, 9vw, 44px)', height: 'auto' }} aria-hidden="true">
-    <path d="M4 10 h32 l-4 21 a3 3 0 0 1 -3 2.6 h-18 a3 3 0 0 1 -3 -2.6 Z" fill="#D9A868" stroke="#B0824A" strokeWidth="1.4"/>
-    <g stroke="#B0824A" strokeWidth="1" opacity="0.7">{[12, 20, 28].map((x, i) => <line key={i} x1={x} y1="11" x2={x - 1} y2="32"/>)}</g>
-    <line x1="6" y1="19" x2="34" y2="19" stroke="#B0824A" strokeWidth="1" opacity="0.7"/>
-    <rect x="2" y="7" width="36" height="5" rx="2.5" fill="#E8BC80" stroke="#B0824A" strokeWidth="1.2"/>
-  </svg>
-);
-const HeapViz = ({ count, baskets }) => (
-  <div className="lm-heapwrap">
-    <div className="lm-heap">
-      {Array.from({ length: count }).map((_, i) => (
-        <span key={i} className="g1-pop-in lm-lamp-s" style={{ animationDelay: `${i * 0.012}s` }}><Chiroq/></span>
+// Hook-vizual: bog' PULTI — displeyda aralash yo'riqnoma, ostida XIRA (hali yonmagan) chiroqlar.
+// Xira chiroqlar soni ataylab 7 ta (hech bir variantga teng emas — javobni sanab bo'lmaydi).
+const PultViz = ({ expr }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)' }}>
+    <div style={{ background: '#152342', border: '2px solid #3A4E78', borderRadius: 14, padding: 'clamp(10px, 2vw, 14px) clamp(18px, 4vw, 30px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <span className="mono" style={{ color: '#FFD86E', fontSize: 'clamp(24px, 5.5vw, 36px)', fontWeight: 800, letterSpacing: 2 }}>{expr}</span>
+      <span className="mono" style={{ color: '#8FD8F0', fontSize: 'clamp(10px, 1.4vw, 12px)', fontWeight: 700, letterSpacing: 3 }}>? ? ?</span>
+    </div>
+    <div style={{ display: 'flex', gap: 'clamp(5px, 1.2vw, 8px)', opacity: 0.45, filter: 'grayscale(0.75)' }}>
+      {Array.from({ length: 7 }).map((_, i) => (
+        <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.05}s`, width: 'clamp(15px, 3.6vw, 21px)', display: 'inline-flex' }}><Chiroq/></span>
       ))}
     </div>
-    <div className="lm-baskets">{Array.from({ length: baskets }).map((_, i) => <BasketSVG key={i}/>)}</div>
   </div>
 );
 
@@ -2819,7 +2814,7 @@ const Screen6 = (props) => {
   );
 };
 
-// s7 — MASHQ: x10 / x100 (3 raund, MC)
+// s7 — MASHQ: birinchi amalni TANLA (3 raund, MC)
 const ExprFig = (it) => (
   <div className="lm-figwrap">
     <span className="mono" style={{ fontSize: 'clamp(28px, 6.5vw, 42px)', fontWeight: 800, color: T.ink, letterSpacing: 1 }}>{it.expr}</span>
@@ -2831,7 +2826,7 @@ const Screen7 = (props) => {
   return <MCRoundD2 props={props} ck="s7" cols={3} heading={() => t(c.q)} renderFig={ExprFig}/>;
 };
 
-// s8 — MASHQ: :10 / :100 (3 raund, NumPad)
+// s8 — MASHQ: tartib bo'yicha hisobla (3 raund, NumPad)
 const Screen8 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -2997,14 +2992,14 @@ const Screen9 = (props) => {
   );
 };
 
-// s10 — MASHQ: aralash x: (3 raund, MC)
+// s10 — MASHQ: aralash hisob (3 raund, MC)
 const Screen10 = (props) => {
   const t = useT();
   const c = CONTENT.s10;
   return <MCRoundD2 props={props} ck="s10" cols={3} heading={() => t(c.q)} renderFig={ExprFig}/>;
 };
 
-// s11 — MASALA (case): Ra'no tokchalari, NumPad
+// s11 — MASALA (case): Anvar paneli (4 qator × 5 chiroq + 6 alohida), NumPad
 const Screen11 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3052,7 +3047,7 @@ const Screen11 = (props) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(10px, 2vw, 16px)' }}>
           <FrameFx/>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-            <span className="g1-cast-fig" style={{ width: 'clamp(40px, 12vw, 54px)' }}><ZuhraSVG mood="pointing"/></span>
+            <span className="g1-cast-fig" style={{ width: 'clamp(40px, 12vw, 54px)' }}><AnvarSVG pose="door"/></span>
             <span className="mono" style={{ fontSize: 'clamp(20px, 4.2vw, 28px)', fontWeight: 800, color: T.ink }}>{t(c.exp_display)}</span>
           </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
@@ -3233,9 +3228,7 @@ const Screen13 = (props) => {
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
 
-// stway ranglari — 1-qo'shiluvchi (90) va 2-qo'shiluvchi (60) uchun.
-const TW_COLS = ['#C0392B', '#1F7A4D'];
-// 1-usul (avval yig'indi): bosqich qatorlari birma-bir tushadi; qavs ichi 1-bosqichda aksentda.
+// 1-/2-usul: bosqich qatorlari birma-bir tushadi; NAVBATDAGI amal (qavs ichi / 2 × 3) aksentda.
 const TwM1Drop = ({ rows }) => (
   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px, 1vw, 8px)' }}>
     {rows.map((r, i) => (
@@ -3249,44 +3242,31 @@ const TwM1Drop = ({ rows }) => (
 const TwFullWord = ({ text }) => (
   <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '4px 14px', textAlign: 'center' }}>{text}</span>
 );
-// 2-usul (bo'laklab): 90:3 va 60:3 alohida tushadi, ostiga 30 va 20; keyin 30 + 20 qatori.
-const TwM2Drop = ({ parts, showSum }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)' }}>
-    <div style={{ display: 'flex', gap: 'clamp(14px, 3.4vw, 26px)', justifyContent: 'center' }}>
-      {parts.map((p, i) => (
-        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <span className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: TW_COLS[i], border: `2.5px solid ${TW_COLS[i]}`, borderRadius: 10, padding: '2px 10px', background: T.paper }}>{p.e}</span>
-          <span className="mono lm-edrop" style={{ animationDelay: `${0.5 + i * 0.85}s`, fontSize: 'clamp(15px, 2.8vw, 21px)', fontWeight: 800, color: TW_COLS[i] }}>{p.v}</span>
+// ★ Bonus: TARTIB ZINAPOYASI — uch pog'ona (yuqoridan pastga): qavs -> × : -> + −.
+// Pog'onalar pastga qarab KENGAYADI (zinapoya-vizual); upTo — ovozga sinxron ochilish.
+const LADDER = [
+  { sym: '( )', ru: 'скобки', uz: 'qavs' },
+  { sym: '× :', ru: 'умножение и деление', uz: "ko'paytirish va bo'lish" },
+  { sym: '+ −', ru: 'сложение и вычитание', uz: "qo'shish va ayirish" }
+];
+const LAD_COLS = ['#C0392B', '#B4762A', '#1F7A4D'];
+const TwLadder = ({ upTo }) => {
+  const lang = useLang();
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(5px, 1.2vw, 8px)', width: '100%' }}>
+      {LADDER.map((st, i) => (i <= upTo ? (
+        <div key={i} className="lm-edrop" style={{ animationDelay: `${0.15 + i * 0.55}s`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 1.8vw, 12px)', width: `${52 + i * 22}%`, maxWidth: '100%', border: `2.5px solid ${LAD_COLS[i]}`, background: T.paper, borderRadius: 12, padding: 'clamp(5px, 1.2vw, 8px) clamp(8px, 1.8vw, 14px)' }}>
+          <span className="mono" style={{ fontWeight: 800, fontSize: 'clamp(16px, 3vw, 22px)', color: LAD_COLS[i], whiteSpace: 'nowrap' }}>{st.sym}</span>
+          <span style={{ fontWeight: 700, fontSize: 'clamp(11px, 1.6vw, 14px)', color: T.ink2, textAlign: 'center' }}>{lang === 'ru' ? st.ru : st.uz}</span>
         </div>
-      ))}
+      ) : null))}
     </div>
-    {showSum && (
-      <span className="mono lm-edrop" style={{ animationDelay: '0.1s', fontSize: 'clamp(17px, 3.4vw, 25px)', fontWeight: 800 }}>
-        <span style={{ color: TW_COLS[0] }}>{parts[0].v}</span>
-        <span style={{ color: T.ink2 }}> + </span>
-        <span style={{ color: TW_COLS[1] }}>{parts[1].v}</span>
-      </span>
-    )}
-  </div>
-);
-// Bonus (qulay bo'laklar): mos kelmagan ajratish — qizil xira, ustidan chizilgan + sabab-yorliq.
-const TwBonusBad = ({ head, bad, why }) => (
-  <div className="lm-riseup" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(6px, 1.6vw, 12px)', flexWrap: 'wrap' }}>
-    <span className="mono" style={{ fontSize: 'clamp(18px, 3.6vw, 25px)', fontWeight: 800, color: T.ink }}>{head}</span>
-    <span className="mono lm-edrop" style={{ animationDelay: '0.4s', fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#C0392B', opacity: 0.55, textDecoration: 'line-through' }}>{bad}</span>
-    <span className="mono lm-edrop" style={{ animationDelay: '0.9s', fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 700, color: '#C0392B', border: '1.5px dashed #C0392B', borderRadius: 8, padding: '2px 8px' }}>✗ {why}</span>
-  </div>
-);
-// Bonus zanjiri: mos bo'laklar 30 + 12 yashil, ostida 10 + 4, natija pilyulada.
-const TwBonusGood = ({ good, sub, ans }) => (
-  <div className="lm-riseup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-    <span className="mono lm-edrop" style={{ animationDelay: '0.1s', fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: '#1F7A4D' }}>{good}</span>
-    <span className="mono lm-edrop" style={{ animationDelay: '0.95s', fontSize: 'clamp(15px, 2.8vw, 21px)', fontWeight: 800, color: T.ink2 }}>{sub}</span>
-    <span className="mono lm-edrop" style={{ animationDelay: '1.8s', fontSize: 'clamp(16px, 3vw, 22px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '2px 12px' }}>{ans}</span>
-  </div>
-);
-// stway — IKKI USUL, Dars03 etalon skeleti: har usul ANIMATSION namoyish bilan, ovozga sinxron.
-// Oqim: 1-usul (avval yig'indi) -> BASHORAT (Ha/Yo'q) -> 2-usul (bo'laklab) -> ★ bonus (qulay bo'laklar).
+  );
+};
+// stway — IKKI YOZUV, Dars13 etalon skeleti: har yozuv ANIMATSION namoyish bilan, ovozga sinxron.
+// DIQQAT: bu darsda stway «ikki yo'l bir javob» EMAS — «tartib natijani O'ZGARTIRADI» kashfiyoti
+// (qavs bilan 18, qavssiz 10). Bashorat-darvoza va tw-collapse yig'ilish naqshi saqlangan.
+// Oqim: 1-usul (qavs bilan) -> BASHORAT (o'zgaradimi? Ha!) -> 2-usul (qavssiz) -> ★ bonus (zinapoya).
 const TwoWayScreen = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3371,7 +3351,7 @@ const TwoWayScreen = (props) => {
               <MLabel x={t(c.m2_label)}/>
               <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
                 <MText x={t(c.m2_text)}/>
-                {showM2d && <TwM2Drop parts={c.m2_parts} showSum={showM2w}/>}
+                {showM2d && <TwM1Drop rows={c.m2_rows}/>}
               </div>
               {showM2w && <TwFullWord text={c.m2_recap}/>}
             </div>
@@ -3395,8 +3375,7 @@ const TwoWayScreen = (props) => {
             <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
             <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
               <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
-              <TwBonusBad head={c.bonus_head} bad={c.bonus_bad} why={t(c.bonus_bad_why)}/>
-              {showBonus2 && <TwBonusGood good={c.bonus_good} sub={c.bonus_sub} ans={c.bonus_ans}/>}
+              <TwLadder upTo={showBonus2 ? 2 : 0}/>
             </div>
             {bonusCompact && <TwFullWord text={c.bonus_recap}/>}
           </div>
@@ -3411,7 +3390,7 @@ const TwoWayScreen = (props) => {
   );
 };
 
-export default function DivideSumLesson({
+export default function OrderOpsLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {

@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { Grade3LessonShell } from './Dars21.jsx';
+import { Grade3LessonShell } from './Dars19.jsx';
 
 const T = (uz, ru) => ({ uz, ru });
 const O = (value) => Array.isArray(value) ? T(value[0], value[1]) : value;
@@ -57,9 +57,9 @@ function buildScreens(config) {
 }
 
 export const FINAL_LESSONS = {
-  47: {
-    titleUz: '47-dars. Massa',
-    titleRu: 'Урок 47. Масса',
+  42: {
+    titleUz: '42-dars. Massa',
+    titleRu: 'Урок 42. Масса',
     story: T("Lumo yuk markazida kristall qutilarni tarozida o'lchab, transportga xavfsiz taqsimlash kerak.", 'В грузовом центре Лумо нужно взвесить кристальные ящики и безопасно распределить их по транспорту.'),
     rule: T("Massa gramm, kilogramm va tonnada o'lchanadi. 1 kg = 1000 g, 1 t = 1000 kg. Birliklarni tenglashtirgandan keyin amal bajaring.", 'Массу измеряют в граммах, килограммах и тоннах. 1 кг = 1000 г, 1 т = 1000 кг. Перед вычислением приведи единицы к одинаковым.'),
     finish: T("Yuklar massasi aniqlandi. Keyingi darsda jo'nash vaqtini hisoblash kerak bo'ladi.", 'Масса грузов определена. На следующем уроке нужно будет рассчитать время отправления.'),
@@ -81,9 +81,9 @@ export const FINAL_LESSONS = {
       q('kg ↔ g; t ↔ kg', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Amaldan oldin birliklarni tenglashtirish", "Перед действием привести единицы к одинаковым"], ["Har doim sonlarni qo'shish", "Всегда складывать числа"], ["Birlikni yozmaslik", "Не писать единицу"]], 0, "Turli birliklar bevosita qo'shilmaydi.", 'Разные единицы нельзя складывать напрямую.'),
     ],
   },
-  48: {
-    titleUz: '48-dars. Vaqt',
-    titleRu: 'Урок 48. Время',
+  43: {
+    titleUz: '43-dars. Vaqt',
+    titleRu: 'Урок 43. Время',
     story: T("Lumo transport markazida jo'nash, kelish va yo'lda bo'lish vaqtlarini aniq hisoblash kerak.", 'В транспортном центре Лумо нужно точно рассчитать время отправления, прибытия и продолжительность пути.'),
     rule: T("1 soat = 60 daqiqa, 1 daqiqa = 60 soniya, 1 sutka = 24 soat. Davomiylikni topishda vaqt chizig'idan foydalaning.", '1 час = 60 минут, 1 минута = 60 секунд, 1 сутки = 24 часа. Для длительности используй временную линию.'),
     finish: T("Transport jadvali tuzildi. Keyingi darsda masofa uchun uzunlik birliklarini moslashtirasiz.", 'Расписание транспорта составлено. На следующем уроке ты согласуешь единицы длины для расстояний.'),
@@ -105,9 +105,9 @@ export const FINAL_LESSONS = {
       q('h ↔ min ↔ s', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Vaqtda 60 lik bog'lanishni hisobga olish", "Учитывать шестидесятеричную связь времени"], ["Har soatda 100 daqiqa", "В каждом часе 100 минут"], ["Vaqt birliksiz yoziladi", "Время пишут без единицы"]], 0, "Soat va daqiqa o'nlik tizim emas.", 'Часы и минуты не образуют десятичную систему.'),
     ],
   },
-  49: {
-    titleUz: '49-dars. Uzunlik birliklari va nisbatlari',
-    titleRu: 'Урок 49. Единицы длины и их соотношения',
+  44: {
+    titleUz: '44-dars. Uzunlik birliklari va nisbatlari',
+    titleRu: 'Урок 44. Единицы длины и их соотношения',
     story: T("Lumo yo'l xaritasidagi kesmalar turli birliklarda berilgan; ularni bitta o'lchovga keltirish kerak.", 'Отрезки на карте дорог Лумо даны в разных единицах; их нужно привести к одной мере.'),
     rule: T("1 m = 10 dm = 100 cm, 1 dm = 10 cm, 1 km = 1000 m. Taqqoslash va amal oldidan birliklarni tenglashtiring.", '1 м = 10 дм = 100 см, 1 дм = 10 см, 1 км = 1000 м. Перед сравнением и вычислением приведи единицы к одинаковым.'),
     finish: T("Yo'l xaritasi bitta o'lchovda qayta yozildi. Keyingi darsda sanalarni kalendar bo'yicha rejalashtirasiz.", 'Карта дорог переписана в единой мере. На следующем уроке ты будешь планировать даты по календарю.'),
@@ -129,9 +129,9 @@ export const FINAL_LESSONS = {
       q('km ↔ m ↔ dm ↔ cm', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Amaldan oldin birliklarni bir xil qilish", "Перед действием сделать единицы одинаковыми"], ["Faqat sonlarni solishtirish", "Сравнивать только числа"], ["Katta birlik doim kichik son", "Крупная единица всегда меньшее число"]], 0, "Son bilan birga birlikni ham ko'ring.", 'Смотри не только на число, но и на единицу.'),
     ],
   },
-  50: {
-    titleUz: '50-dars. Kalendar',
-    titleRu: 'Урок 50. Календарь',
+  45: {
+    titleUz: '45-dars. Kalendar',
+    titleRu: 'Урок 45. Календарь',
     story: T("Lumo tadqiqot markazi safar, kuzatuv va dam olish kunlarini kalendarda aniq rejalashtirishi kerak.", 'Исследовательскому центру Лумо нужно точно запланировать дни поездок, наблюдений и отдыха по календарю.'),
     rule: T("Yil 12 oydan, hafta 7 kundan iborat. Oylar 28, 29, 30 yoki 31 kun bo'ladi. Sana oralig'ini sanashda boshlanish va tugash shartini aniqlang.", 'В году 12 месяцев, в неделе 7 дней. В месяце бывает 28, 29, 30 или 31 день. При подсчёте промежутка уточни, включаются ли начальная и конечная даты.'),
     finish: T("Markaz kalendari tuzildi. Keyingi darsda noma'lum sonlarni tenglama yordamida topasiz.", 'Календарь центра составлен. На следующем уроке ты будешь находить неизвестные числа с помощью уравнений.'),
@@ -153,9 +153,9 @@ export const FINAL_LESSONS = {
       q('yil → oy → hafta → kun', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Kalendar davriy tartibga ega", "Календарь имеет циклический порядок"], ["Har oy 30 kun", "В каждом месяце 30 дней"], ["Hafta 10 kun", "В неделе 10 дней"]], 0, "Oy va hafta tartibi qayta takrorlanadi.", 'Порядок месяцев и недель повторяется.'),
     ],
   },
-  51: {
-    titleUz: '51-dars. Tenglamalar',
-    titleRu: 'Урок 51. Уравнения',
+  46: {
+    titleUz: '46-dars. Tenglamalar',
+    titleRu: 'Урок 46. Уравнения',
     story: T("Lumo boshqaruv panelidagi noma'lum kodni tenglikni saqlagan holda topish kerak.", 'На панели управления Лумо нужно найти неизвестный код, сохраняя равенство.'),
     rule: T("Tenglama — noma'lum son qatnashgan tenglik. Noma'lum qo'shiluvchi ayirish, kamayuvchi qo'shish, ayiriluvchi ayirish bilan topiladi.", 'Уравнение — равенство с неизвестным. Неизвестное слагаемое находят вычитанием, уменьшаемое — сложением, вычитаемое — вычитанием.'),
     finish: T("Noma'lum kod topildi. Keyingi darsda tenglama yechimini teskari amal bilan tekshirasiz.", 'Неизвестный код найден. На следующем уроке ты проверишь решение уравнения обратным действием.'),
@@ -177,9 +177,9 @@ export const FINAL_LESSONS = {
       q('tenglik + noma’lum', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Tenglama teskari amal bilan yechiladi", "Уравнение решают обратным действием"], ["x doim nol", "x всегда ноль"], ["Tenglik tekshirilmaydi", "Равенство не проверяют"]], 0, "Amal komponentlari bog'lanishini eslang.", 'Вспомни связь компонентов действий.'),
     ],
   },
-  52: {
-    titleUz: '52-dars. Tenglamalarni yechish va tekshirish',
-    titleRu: 'Урок 52. Решение и проверка уравнений',
+  47: {
+    titleUz: '47-dars. Tenglamalarni yechish va tekshirish',
+    titleRu: 'Урок 47. Решение и проверка уравнений',
     story: T("Boshqaruv tizimi faqat topilgan qiymat dastlabki tenglikka qo'yib tekshirilganda ochiladi.", 'Система управления откроется, только если найденное значение подставить и проверить в исходном равенстве.'),
     rule: T("Tenglamani yeching, topilgan qiymatni noma'lum o'rniga qo'ying va ikki tomon tengligini tekshiring. Ko'paytirish va bo'lish o'zaro teskari amallardir.", 'Реши уравнение, подставь значение вместо неизвестного и проверь равенство сторон. Умножение и деление — взаимно обратные действия.'),
     finish: T("Kod yechildi va tekshirildi. Keyingi darsda bir necha bog'langan amalli masalalarni rejalashtirasiz.", 'Код решён и проверен. На следующем уроке ты спланируешь задачи с несколькими связанными действиями.'),
@@ -201,9 +201,9 @@ export const FINAL_LESSONS = {
       q('yechim → qo‘yish → tekshirish', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Har yechim dastlabki tenglikda tekshiriladi", "Каждое решение проверяют в исходном равенстве"], ["Tekshiruv shart emas", "Проверка не нужна"], ["x doim bir", "x всегда равен одному"]], 0, "Ikki tomon bir xil chiqishi kerak.", 'Обе стороны должны совпасть.'),
     ],
   },
-  53: {
-    titleUz: '53-dars. Murakkab masalalar',
-    titleRu: 'Урок 53. Составные задачи',
+  48: {
+    titleUz: '48-dars. Murakkab masalalar',
+    titleRu: 'Урок 48. Составные задачи',
     story: T("Lumo ekspeditsiyasi yuk, masofa va vaqt haqidagi bir necha bog'langan savolni ketma-ket yechishi kerak.", 'Экспедиции Лумо нужно последовательно решить несколько связанных вопросов о грузе, расстоянии и времени.'),
     rule: T("Murakkab masalada oxirgi savoldan orqaga qarab oraliq noma'lumni aniqlang. Reja tuzing, amallarni tartib bilan bajaring va birlikli javob yozing.", 'В составной задаче от последнего вопроса найди промежуточное неизвестное. Составь план, выполни действия по порядку и запиши ответ с единицей.'),
     finish: T("Ekspeditsiya rejasi hisoblandi. Keyingi darsda tengsizlik va rost-yolg'on fikrlarni tekshirasiz.", 'План экспедиции рассчитан. На следующем уроке ты проверишь неравенства и истинность высказываний.'),
@@ -225,9 +225,9 @@ export const FINAL_LESSONS = {
       q('ikki yoki ko‘p bog‘langan qadam', "Asosiy strategiya qaysi?", 'Какова главная стратегия?', [["Oraliq savollar bilan reja tuzish", "Составить план с промежуточными вопросами"], ["Barcha sonlarni qo'shish", "Сложить все числа"], ["Javobni taxmin qilish", "Угадать ответ"]], 0, "Har qadam keyingisiga xizmat qiladi.", 'Каждый шаг нужен следующему.'),
     ],
   },
-  54: {
-    titleUz: "54-dars. Tengsizliklar, rost va yolg'on fikrlar",
-    titleRu: 'Урок 54. Неравенства, истинные и ложные высказывания',
+  49: {
+    titleUz: "49-dars. Tengsizliklar, rost va yolg'on fikrlar",
+    titleRu: 'Урок 49. Неравенства, истинные и ложные высказывания',
     story: T("Lumo mantiq terminali sonli taqqoslashlar va fikrlarning rostligini tekshirishni talab qiladi.", 'Логический терминал Лумо требует проверить числовые сравнения и истинность высказываний.'),
     rule: T("Tengsizlikda <, >, ≤, ≥ belgilar ishlatiladi. Fikr misol yoki qarshi misol bilan tekshiriladi; rost fikr har berilgan shartga mos keladi.", 'В неравенствах используют <, >, ≤, ≥. Высказывание проверяют примером или контрпримером; истинное соответствует всем данным условиям.'),
     finish: T("Mantiq terminali ochildi. Keyingi darsda ma'lumotlarni doiraviy diagrammada o'qiysiz.", 'Логический терминал открыт. На следующем уроке ты прочитаешь данные на круговой диаграмме.'),
@@ -249,9 +249,9 @@ export const FINAL_LESSONS = {
       q('belgi + tekshiruv + xulosa', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Fikr hisob yoki qarshi misol bilan tekshiriladi", "Высказывание проверяют вычислением или контрпримером"], ["Har fikr rost", "Каждое высказывание истинно"], ["≤ faqat kichik", "≤ означает только меньше"]], 0, "Bitta qarshi misol umumiy fikrni rad etadi.", 'Один контрпример опровергает общее высказывание.'),
     ],
   },
-  55: {
-    titleUz: "55-dars. Doiraviy diagramma va ma'lumotlar",
-    titleRu: 'Урок 55. Круговая диаграмма и представление данных',
+  50: {
+    titleUz: "50-dars. Doiraviy diagramma va ma'lumotlar",
+    titleRu: 'Урок 50. Круговая диаграмма и представление данных',
     story: T("Lumo tadqiqotchilari energiya manbalari haqidagi ma'lumotni doiraviy diagrammadan o'qishi kerak.", 'Исследователям Лумо нужно прочитать данные об источниках энергии с круговой диаграммы.'),
     rule: T("Doiraviy diagramma butunni qismlarga ajratib ko'rsatadi. Barcha sektorlar bir butun; kattaroq sektor kattaroq ulushni bildiradi.", 'Круговая диаграмма показывает части целого. Все секторы составляют одно целое; больший сектор означает большую долю.'),
     finish: T("Energiya ma'lumotlari tahlil qilindi. Keyingi darsda butun 3-sinf bilimlarini yakuniy takrorlaysiz.", 'Данные об энергии проанализированы. На следующем уроке ты повторишь все основные знания 3 класса.'),
@@ -273,9 +273,9 @@ export const FINAL_LESSONS = {
       q('butun = sektorlar yig‘indisi', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Diagrammada qismlar bir butunni beradi", "На диаграмме части составляют целое"], ["Har sektor teng", "Все секторы равны"], ["Eng kichik sektor eng katta qiymat", "Меньший сектор — большее значение"]], 0, "Barcha sektorlarni birlashtiring.", 'Объедини все секторы.'),
     ],
   },
-  56: {
-    titleUz: '56-dars. Yakuniy takrorlash',
-    titleRu: 'Урок 56. Итоговое повторение',
+  51: {
+    titleUz: '51-dars. Yakuniy takrorlash',
+    titleRu: 'Урок 51. Итоговое повторение',
     story: T("Bit va do'stlari Lumo bilim arxivini ochish uchun sonlar, amallar, kasrlar, o'lchov va geometriya kalitlarini birlashtiradi.", 'Бит и друзья объединяют ключи чисел, действий, дробей, измерений и геометрии, чтобы открыть архив знаний Лумо.'),
     rule: T("Masalani yechishda avval mavzu va so'ralgan miqdorni aniqlang, mos model yoki amalni tanlang, birlikni yozing va natijani tekshiring.", 'При решении сначала определи тему и искомую величину, выбери модель или действие, запиши единицу и проверь результат.'),
     finish: T("3-sinf nazariy sayohati yakunlandi: bilim arxivi ochildi. Keyingi bosqich — alohida yakuniy nazorat.", 'Теоретическое путешествие 3 класса завершено: архив знаний открыт. Следующий этап — отдельный итоговый контроль.'),

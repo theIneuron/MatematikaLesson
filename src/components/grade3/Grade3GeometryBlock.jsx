@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { Grade3LessonShell } from './Dars21.jsx';
+import { Grade3LessonShell } from './Dars19.jsx';
 
 const T = (uz, ru) => ({ uz, ru });
 const O = (value) => Array.isArray(value) ? T(value[0], value[1]) : value;
@@ -67,9 +67,9 @@ function buildScreens(config) {
 }
 
 export const GEOMETRY_LESSONS = {
-  37: {
-    titleUz: '37-dars. Perimetr',
-    titleRu: 'Урок 37. Периметр',
+  33: {
+    titleUz: '33-dars. Perimetr',
+    titleRu: 'Урок 33. Периметр',
     story: T("Kristall bog'ining himoya panjarasi uchun uning butun chegarasi uzunligini topish kerak.", 'Для ограды кристального сада нужно найти длину всей границы.'),
     rule: T("Perimetr — shakl barcha tomonlari uzunliklarining yig'indisi. To'g'ri to'rtburchak uchun P = (a + b) × 2.", 'Периметр — сумма длин всех сторон фигуры. Для прямоугольника P = (a + b) × 2.'),
     finish: T("Chegara aniq hisoblandi va bog' panjarasi yopildi. Keyingi bekatda shakl egallagan joy — yuzani o'rganasiz.", 'Граница вычислена, ограда сада замкнулась. На следующей остановке ты изучишь площадь.'),
@@ -91,9 +91,9 @@ export const GEOMETRY_LESSONS = {
       q('P ↔ chegara', "Eng muhim xulosa qaysi?", 'Какой вывод главный?', [['Perimetr — chegara uzunligi', 'Периметр — длина границы'], ['Perimetr — kataklar soni', 'Периметр — число клеток'], ['Perimetr — faqat uzun tomon', 'Периметр — только длинная сторона']], 0, "Shakl tashqarisini tasavvur qiling.", 'Представь внешний контур фигуры.'),
     ],
   },
-  38: {
-    titleUz: '38-dars. Yuza birliklari',
-    titleRu: 'Урок 38. Единицы площади',
+  34: {
+    titleUz: '34-dars. Yuza birliklari',
+    titleRu: 'Урок 34. Единицы площади',
     story: T("Kristall maydonini qoplash uchun uning ichiga nechta teng kvadrat plitka sig'ishini aniqlash kerak.", 'Чтобы покрыть кристальную площадку, нужно узнать, сколько одинаковых квадратных плиток поместится внутри.'),
     rule: T("Yuza shakl egallagan joyni bildiradi. Uni birlik kvadratlar bilan o'lchaymiz: cm², dm², m².", 'Площадь показывает место, занимаемое фигурой. Её измеряют единичными квадратами: см², дм², м².'),
     finish: T("Maydon teng kvadratlar bilan aniq qoplandi. Keyingi darsda to'g'ri to'rtburchak yuzasini tez hisoblashni topasiz.", 'Площадка точно покрыта равными квадратами. На следующем уроке ты научишься быстро вычислять площадь прямоугольника.'),
@@ -115,9 +115,9 @@ export const GEOMETRY_LESSONS = {
       q('S ↔ ichki joy', "Eng muhim xulosa qaysi?", 'Какой вывод главный?', [['Yuza birlik kvadratlarda o\'lchanadi', 'Площадь измеряют единичными квадратами'], ['Yuza faqat tomonlarni qo\'shadi', 'Площадь складывает только стороны'], ['Yuza uzunlik birligida yoziladi', 'Площадь записывают единицей длины']], 0, "Kvadrat plitkalarni eslang.", 'Вспомни квадратные плитки.'),
     ],
   },
-  39: {
-    titleUz: "39-dars. To'g'ri to'rtburchak yuzasi",
-    titleRu: 'Урок 39. Площадь прямоугольника',
+  35: {
+    titleUz: "35-dars. To'g'ri to'rtburchak yuzasi",
+    titleRu: 'Урок 35. Площадь прямоугольника',
     story: T("Kristall panelga qancha yorug'lik qoplamasi kerakligini kataklarni bittalab sanamasdan topish kerak.", 'Нужно узнать площадь светового покрытия панели, не пересчитывая клетки по одной.'),
     rule: T("To'g'ri to'rtburchak yuzasi uning bo'yi va enining ko'paytmasiga teng: S = a × b.", 'Площадь прямоугольника равна произведению его длины и ширины: S = a × b.'),
     finish: T("Panel yuzasi hisoblandi va qoplama yetarli bo'ldi. Keyingi darsda kvadratning maxsus yuzasi ochiladi.", 'Площадь панели вычислена, покрытия хватило. На следующем уроке откроется особый случай площади квадрата.'),
@@ -139,9 +139,9 @@ export const GEOMETRY_LESSONS = {
       q('S = a × b', "Eng muhim xulosa qaysi?", 'Какой вывод главный?', [['Yuza — bo\'yi × eni', 'Площадь — длина × ширина'], ['Yuza — barcha tomonlar yig\'indisi', 'Площадь — сумма всех сторон'], ['Yuza — bo\'yi + eni', 'Площадь — длина + ширина']], 0, "Kataklarning qator va ustunlarini eslang.", 'Вспомни ряды и столбцы клеток.'),
     ],
   },
-  40: {
-    titleUz: '40-dars. Kvadrat yuzasi',
-    titleRu: 'Урок 40. Площадь квадрата',
+  36: {
+    titleUz: '36-dars. Kvadrat yuzasi',
+    titleRu: 'Урок 36. Площадь квадрата',
     story: T("Bit simmetrik kvadrat panelga qancha kristall qoplama kerakligini hisoblamoqchi.", 'Бит хочет вычислить, сколько кристального покрытия нужно для симметричной квадратной панели.'),
     rule: T("Kvadratning barcha tomonlari teng. Uning yuzasi tomonning o'ziga ko'paytmasi bilan topiladi: S = a × a.", 'Все стороны квадрата равны. Его площадь равна произведению стороны на себя: S = a × a.'),
     finish: T("Kvadrat panel qoplandi. Endi bir xil perimetrli shakllarning yuzasi har xil bo'lishini tekshirasiz.", 'Квадратная панель покрыта. Теперь ты сравнишь площади фигур с одинаковым периметром.'),
@@ -163,9 +163,9 @@ export const GEOMETRY_LESSONS = {
       q('□  S = a²', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Kvadrat yuzasi a × a", "Площадь квадрата a × a"], ["Kvadrat yuzasi 4 × a", "Площадь квадрата 4 × a"], ["Kvadrat yuzasi a + a", "Площадь квадрата a + a"]], 0, "Yuza bilan perimetr formulasini adashtirmang.", 'Не путай формулы площади и периметра.'),
     ],
   },
-  41: {
-    titleUz: '41-dars. Perimetr va yuzani taqqoslash',
-    titleRu: 'Урок 41. Сравнение периметра и площади',
+  37: {
+    titleUz: '37-dars. Perimetr va yuzani taqqoslash',
+    titleRu: 'Урок 37. Сравнение периметра и площади',
     story: T("Ikki kristall panelning tashqi romi va ichki qoplamasini alohida taqqoslash kerak.", 'Нужно отдельно сравнить внешнюю рамку и внутреннее покрытие двух кристальных панелей.'),
     rule: T("Perimetr chegarani uzunlik birliklarida, yuza ichki joyni kvadrat birliklarda o'lchaydi. Bir xil perimetr har doim bir xil yuza bermaydi.", 'Периметр измеряет границу единицами длины, площадь — внутреннее место квадратными единицами. Одинаковый периметр не всегда означает одинаковую площадь.'),
     finish: T("Rom va qoplama hisoblari ajratildi. Endi ikkala o'lchovni qurilish masalalarida birga qo'llaysiz.", 'Расчёты рамки и покрытия разделены. Теперь ты применишь обе величины в строительных задачах.'),
@@ -187,9 +187,9 @@ export const GEOMETRY_LESSONS = {
       q('P ≠ S', "Eng muhim xulosa qaysi?", 'Какой вывод главный?', [["Perimetr va yuza turli miqdorlar", "Периметр и площадь — разные величины"], ["P va S doim bir xil", "P и S всегда одинаковы"], ["Ikkalasi cm² da yoziladi", "Обе пишутся в см²"]], 0, "Chegara va ichki joyni farqlang.", 'Различай границу и внутреннее место.'),
     ],
   },
-  42: {
-    titleUz: '42-dars. Perimetr va yuzaga oid masalalar',
-    titleRu: 'Урок 42. Задачи на периметр и площадь',
+  38: {
+    titleUz: '38-dars. Perimetr va yuzaga oid masalalar',
+    titleRu: 'Урок 38. Задачи на периметр и площадь',
     story: T("Kristall ustaxonada rom, qoplama va noma'lum o'lchamlar qatnashgan qurilish rejasini tugatish kerak.", 'В кристальной мастерской нужно завершить строительный план с рамкой, покрытием и неизвестными размерами.'),
     rule: T("Masalada avval chegara yoki ichki joy so'ralganini aniqlang. So'ng mos formula, birlik, hisob va tekshiruvni tanlang.", 'Сначала определи, спрашивается граница или внутреннее место. Затем выбери формулу, единицу, вычисление и проверку.'),
     finish: T("Qurilish loyihasi hisoblari tugadi. Keyingi darsda karkas chiziqlari va uchburchak turlarini o'rganasiz.", 'Расчёты строительного проекта завершены. На следующем уроке ты изучишь линии каркаса и виды треугольников.'),
@@ -211,9 +211,9 @@ export const GEOMETRY_LESSONS = {
       q('savol → P yoki S', "Eng muhim strategiya qaysi?", 'Какая стратегия главная?', [["Avval nimani topish so'ralganini bilish", "Сначала понять, что требуется найти"], ["Har doim ko'paytirish", "Всегда умножать"], ["Birlikni yozmaslik", "Не писать единицу"]], 0, "Formula savolga bog'liq.", 'Формула зависит от вопроса.'),
     ],
   },
-  43: {
-    titleUz: '43-dars. Uchburchak turlari. Parallel va perpendikulyar chiziqlar',
-    titleRu: 'Урок 43. Виды треугольников. Параллельные и перпендикулярные прямые',
+  39: {
+    titleUz: '39-dars. Uchburchak turlari. Parallel va perpendikulyar chiziqlar',
+    titleRu: 'Урок 39. Виды треугольников. Параллельные и перпендикулярные прямые',
     story: T("Kristall ko'prik karkasida uchburchak tayanchlar va turli yo'nalishdagi chiziqlarni to'g'ri ajratish kerak.", 'В каркасе кристального моста нужно правильно различить треугольные опоры и линии разных направлений.'),
     rule: T("Uchburchaklar tomonlariga ko'ra teng tomonli, teng yonli va turli tomonli bo'ladi. Parallel chiziqlar kesishmaydi, perpendikulyar chiziqlar to'g'ri burchak ostida kesishadi.", 'По сторонам треугольники бывают равносторонними, равнобедренными и разносторонними. Параллельные прямые не пересекаются, перпендикулярные пересекаются под прямым углом.'),
     finish: T("Ko'prik karkasi to'g'ri tasniflandi. Keyingi darsda kristall naqshning simmetriya o'qi va burchak o'lchovi ochiladi.", 'Каркас моста правильно классифицирован. На следующем уроке откроются ось симметрии и измерение угла.'),
@@ -235,9 +235,9 @@ export const GEOMETRY_LESSONS = {
       q('△ + ∥ + ⟂', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Tomonlar uchburchak turini, kesishish chiziq turini bildiradi", "Стороны определяют вид треугольника, пересечение — вид прямых"], ["Barcha uchburchaklar bir xil", "Все треугольники одинаковы"], ["Parallel chiziqlar to'g'ri burchakda kesishadi", "Параллельные прямые пересекаются под прямым углом"]], 0, "Ikki tasnif belgisini ajrating.", 'Раздели два признака классификации.'),
     ],
   },
-  44: {
-    titleUz: "44-dars. O'q simmetriyasi va burchak gradusi",
-    titleRu: 'Урок 44. Осевая симметрия и градусная мера угла',
+  40: {
+    titleUz: "40-dars. O'q simmetriyasi va burchak gradusi",
+    titleRu: 'Урок 40. Осевая симметрия и градусная мера угла',
     story: T("Kristall darvozaning ikki yarmi aynan mos tushishi va burilish burchagi aniq o'lchanishi kerak.", 'Две половины кристальных ворот должны точно совпасть, а угол поворота нужно измерить.'),
     rule: T("Simmetriya o'qi shaklni ustma-ust tushadigan ikki qismga bo'ladi. Burchak gradusda o'lchanadi: to'g'ri burchak 90°.", 'Ось симметрии делит фигуру на две совмещающиеся части. Угол измеряют в градусах: прямой угол равен 90°.'),
     finish: T("Darvoza naqshi simmetrik bo'ldi va burilish sozlandi. Keyingi darsda hajmli kristall shakllarni taniysiz.", 'Узор ворот стал симметричным, поворот настроен. На следующем уроке ты узнаешь объёмные кристаллические тела.'),
@@ -259,9 +259,9 @@ export const GEOMETRY_LESSONS = {
       q("o'q ↔ aks; ° ↔ o'lchov", "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["O'q mos qismlarni, gradus burchak kattaligini bildiradi", "Ось задаёт совпадающие части, градус — величину угла"], ["O'q yuzani hisoblaydi", "Ось вычисляет площадь"], ["Barcha burchaklar 90°", "Все углы равны 90°"]], 0, "Ikki yangi tushunchaning vazifasini ajrating.", 'Раздели роли двух новых понятий.'),
     ],
   },
-  45: {
-    titleUz: '45-dars. Piramida va konus',
-    titleRu: 'Урок 45. Пирамида и конус',
+  41: {
+    titleUz: '41-dars. Piramida va konus',
+    titleRu: 'Урок 41. Пирамида и конус',
     story: T("Kristall muzeyidagi hajmli modellarni asoslari, yoqlari, qirralari va uchlariga qarab joylashtirish kerak.", 'В кристальном музее нужно распределить объёмные модели по основаниям, граням, рёбрам и вершинам.'),
     rule: T("Piramidaning ko'pburchak asosi va bitta cho'qqida tutashgan uchburchak yon yoqlari bor. Konusning doira asosi, egri sirti va bitta uchi bor.", 'У пирамиды многоугольное основание и треугольные боковые грани, сходящиеся в вершине. У конуса круглое основание, криволинейная поверхность и одна вершина.'),
     finish: T("Muzey modellari to'g'ri joylashtirildi. Geometriya hududining asosiy kristall kalitlari yig'ildi.", 'Модели музея размещены верно. Главные кристальные ключи геометрической области собраны.'),

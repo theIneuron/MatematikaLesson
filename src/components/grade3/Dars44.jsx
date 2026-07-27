@@ -1,5 +1,2 @@
-import { GeometryLesson } from './Grade3GeometryBlock.jsx';
-
-export default function Dars44() {
-  return <GeometryLesson number={44} />;
-}
+import { FinalBlockLesson } from './Grade3FinalBlock.jsx';
+export default function Dars44() { return <FinalBlockLesson number={44} />; }

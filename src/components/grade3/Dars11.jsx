@@ -894,10 +894,10 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-3-11',
-  lessonTitle: { ru: 'Урок 11. Умножение и деление на 10 и 100', uz: "11-dars. 10 va 100 ga ko'paytirish va bo'lish" }
+  lessonTitle: { ru: 'Урок 11. Умножение суммы', uz: "11-dars. Yig'indini ko'paytirish" }
 };
 // STRUKTURA (14 ekran): s0 hook · s1–s5 kashfiyot · s6 qoida · s7–s10 mashq · s11 masala · s12 final · s13 xulosa.
-// Syujet: Nur bog'lari (SYUJET_3SINF.md Б2 d.11) — lampa-blok 10 lik / 100 lik, razryad siljishi.
+// Syujet: Nur bog'lari (SYUJET_3SINF.md Б2 d.12) — ikki tokcha, (20+3)×4 bo'lib ko'paytirish.
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'MCScreen', scored: false, scope: 'hook' },
   { id: 's1',  type: 'exploration', template: 'custom',   scored: false, scope: null },
@@ -977,429 +977,421 @@ const withTopics = (base, topics, lang) => {
 };
 
 // ============================================================
-// CONTENT — 3-sinf Dars11 «×÷ 10 va 100 ga» (num-3-11). RU + UZ to'liq.
+// CONTENT — 3-sinf Dars11 «Yig'indini ko'paytirish» (num-3-11). RU + UZ to'liq.
 // Audio TTS-toza: sonlar so'z bilan, «» va matematik belgilar yo'q, bir segment = bir fikr.
-// Rekvizit: nurli o'simlik qatorlari · 10 lik va 100 lik lampa-bloklar. Nur bog'lari (Б2).
+// Rekvizit: ikki tokcha (20 lik blok + 3 yakka o'simlik). Nur bog'lari (Б2 d.12).
 // ============================================================
-
 const CONTENT = {
-  // s0 — HOOK: 10 qator x 40 lampa
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: умножаем и делим на 10 и 100', uz: "Mavzu: 10 va 100 ga ko'paytirish va bo'lish" },
-    lead: { ru: 'Сады света: растения растут ровными рядами.', uz: "Nur bog'lari: o'simliklar teng qatorlarda o'sadi." },
-    q: { ru: '10 рядов, в каждом 40 ламп. Сколько всего?', uz: "10 qator, har birida 40 ta lampa. Jami nechta?" },
-    rows: 5, cols: 8,
-    grid_cap: { ru: 'Это один ряд — 40 ламп. Таких рядов 10.', uz: "Bu bitta qator — 40 ta lampa. Shunday qator 10 ta." },
-    opt0: { ru: '50', uz: '50' },
-    opt1: { ru: '400', uz: '400' },
-    opt2: { ru: '4000', uz: '4000' },
+    topic: { ru: 'Тема: умножаем сумму', uz: "Mavzu: yig'indini ko'paytirish" },
+    lead: { ru: 'Четыре полки, на каждой одинаково растений.', uz: "To'rtta tokcha, har birida bir xil o'simlik." },
+    q: { ru: 'На каждой полке 23 растения. Сколько всего?', uz: "Har tokchada 23 ta o'simlik. Jami nechta?" },
+    rows: 4, cols: 23,
+    grid_cap: { ru: 'Четыре ряда по 23. В таблице умножения числа 23 нет.', uz: "To'rtta qator, har birida 23 ta. Ko'paytirish jadvalida 23 yo'q." },
+    opt0: { ru: '27', uz: '27' },
+    opt1: { ru: '92', uz: '92' },
+    opt2: { ru: '83', uz: '83' },
     audio: {
       intro: {
         ru: [
-          'Сегодня тема урока — умножаем и делим на десять и на сто. Научимся считать большие сады быстро.',
-          'В прошлом регионе мы вспомнили таблицу умножения. Теперь Бит привёл нас в сады света.',
-          'Здесь растения растут ровными рядами. Десять рядов, и в каждом ряду сорок светящихся ламп.',
-          'Считать по одной долго. Как думаете, сколько ламп всего?'
+          'Сегодня тема урока — умножаем сумму. Научимся считать то, чего нет в таблице умножения.',
+          'В прошлом уроке мы умножали и делили на десять и на сто. Бит привёл нас к полкам с растениями.',
+          'Полок четыре, и на каждой полке двадцать три светящихся растения.',
+          'Но в таблице умножения числа двадцать три нет. Как думаете, сколько растений всего?'
         ],
         uz: [
-          "Bugungi dars mavzusi — 10 va 100 ga ko'paytirish va bo'lish. Katta bog'larni tez sanashni o'rganamiz.",
-          "O'tgan hududda ko'paytirish jadvalini esladik. Endi Bit bizni nur bog'lariga olib keldi.",
-          "Bu yerda o'simliklar teng qatorlarda o'sadi. O'nta qator, har qatorda qirqta nurli lampa.",
-          "Bittalab sanash uzoq. Sizningcha, jami nechta lampa bor?"
+          "Bugungi dars mavzusi — yig'indini ko'paytirish. Ko'paytirish jadvalida yo'q sonni sanashni o'rganamiz.",
+          "O'tgan darsda 10 va 100 ga ko'paytirdik va bo'ldik. Bit bizni o'simlikli tokchalarga olib keldi.",
+          "Tokcha to'rtta, har bir tokchada yigirma uchta nurli o'simlik bor.",
+          "Lekin ko'paytirish jadvalida yigirma uch soni yo'q. Sizningcha, jami nechta o'simlik bor?"
         ]
       },
-      on_correct: { ru: 'Верная мысль. Десять рядов по сорок — это четыреста.', uz: "To'g'ri fikr. O'nta qator qirqtadan — bu to'rt yuz." },
-      on_wrong: { ru: 'Умножить на десять — это не прибавить десять. Проверим вместе.', uz: "O'nga ko'paytirish — bu o'n qo'shish emas. Birgalikda tekshiramiz." }
+      on_correct: { ru: 'Верная мысль. Четыре полки по двадцать три — это девяносто два.', uz: "To'g'ri fikr. To'rtta tokcha yigirma uchtadan — bu to'qson ikki." },
+      on_wrong: { ru: 'Двадцать три умножить на четыре — это не двадцать три прибавить четыре. Проверим вместе.', uz: "Yigirma uchni to'rtga ko'paytirish — bu yigirma uchga to'rt qo'shish emas. Birgalikda tekshiramiz." }
     }
   },
 
-  // s1 — RECALL: 4 guruh x 10
+  // s1 — KASHFIYOT 1: sonni ikki bo'lakka ajratamiz
   s1: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Что значит взять 10 раз?', uz: "10 marta olish nima degani?" },
-    recall_eq: { ru: '4 × 10 = 40', uz: '4 × 10 = 40' },
-    done_text: { ru: 'Четыре десятка — это сорок. Взять десять раз значит собрать десятки.', uz: "To'rtta o'nlik — bu qirq. O'n marta olish — o'nliklarni yig'ish degani." },
+    lead: { ru: 'Разделим полку на две части.', uz: "Tokchani ikki bo'lakka ajratamiz." },
+    steps: [
+      { expr: '23 = 20 + 3', at: 2, tag: { ru: 'десятки и единицы', uz: "o'nliklar va birliklar" } }
+    ],
+    done_text: { ru: 'Двадцать три — это двадцать и ещё три. Оба числа мы уже умеем умножать.', uz: "Yigirma uch — bu yigirma va yana uch. Ikkala sonni ham ko'paytira olamiz." },
     audio: {
       ru: [
-        'Вспомним второй класс. Четыре ряда, в каждом по десять ламп.',
-        'Это четыре десятка. Четыре умножить на десять будет сорок.',
-        'Смотрите внимательно на запись. Была четвёрка, а стало сорок. Четвёрка сдвинулась влево, а на её место встал ноль.'
+        'Двадцать три в таблице нет. Но его можно разложить.',
+        'На полке двадцать растений стоят ровным блоком, а три стоят отдельно.',
+        'Значит, двадцать три — это двадцать плюс три.',
+        'Двадцать мы умеем умножать, потому что это десятки. И три умеем, потому что это таблица.'
       ],
       uz: [
-        "Ikkinchi sinfni eslaymiz. To'rtta qator, har birida o'ntadan lampa.",
-        "Bu to'rtta o'nlik. To'rtni o'nga ko'paytirsak, qirq bo'ladi.",
-        "Yozuvga diqqat bilan qarang. To'rt edi, qirq bo'ldi. To'rtlik chapga siljidi, uning o'rniga nol keldi."
+        "Jadvalda yigirma uch yo'q. Lekin uni bo'laklarga ajratsa bo'ladi.",
+        "Tokchada yigirmata o'simlik tekis blok bo'lib turibdi, uchtasi esa alohida turibdi.",
+        "Demak, yigirma uch — bu yigirma qo'shuv uch.",
+        "Yigirmani ko'paytira olamiz, chunki bu o'nliklar. Uchni ham ko'paytira olamiz, chunki bu jadval."
       ]
     }
   },
 
-  // s2 — KASHFIYOT: x10 = bitta nol
+  // s2 — KASHFIYOT 2: katta bo'lakni ko'paytiramiz
   s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Умножаем на 10 — прибавляется ноль.', uz: "10 ga ko'paytiramiz — nol qo'shiladi." },
-    op_label: { ru: '× 10', uz: '× 10' },
-    examples: [
-      { from: '5', to: '50' },
-      { from: '23', to: '230' },
-      { from: '40', to: '400' }
+    lead: { ru: 'Считаем большую часть.', uz: "Katta bo'lakni sanaymiz." },
+    steps: [
+      { expr: '2 × 4 = 8', at: 1, tag: { ru: 'таблица', uz: 'jadval' } },
+      { expr: '20 × 4 = 80', at: 2, tag: { ru: '8 десятков', uz: "8 ta o'nlik" } }
     ],
-    done_text: { ru: 'При умножении на 10 каждая цифра сдвигается на разряд влево, а в единицах встаёт ноль.', uz: "10 ga ko'paytirganda har raqam bir xona chapga siljiydi, birlikka esa nol keladi." },
+    done_text: { ru: 'Двадцать на четырёх полках — это восемьдесят растений.', uz: "To'rtta tokchadagi yigirmatadan — bu sakson o'simlik." },
     audio: {
       ru: [
-        'Возьмём блок из десяти ламп. Пять таких блоков это пятьдесят.',
-        'Пятёрка сдвинулась в десятки, а в единицах встал ноль. Так работает умножение на десять.',
-        'Двадцать три умножить на десять будет двести тридцать. И сорок умножить на десять будет четыреста.',
-        'Правило простое. При умножении на десять справа добавляется один ноль.'
+        'Сначала большая часть. На каждой полке по двадцать растений, полок четыре.',
+        'Два умножить на четыре — восемь. Это мы знаем из таблицы.',
+        'Но считали мы не двойки, а десятки. Значит, получилось восемь десятков, то есть восемьдесят.',
+        'Двадцать умножить на четыре — восемьдесят.'
       ],
       uz: [
-        "O'nta lampali blokni olamiz. Beshta shunday blok — bu ellik.",
-        "Beshlik o'nlikka siljidi, birlikka esa nol keldi. O'nga ko'paytirish shunday ishlaydi.",
-        "Yigirma uchni o'nga ko'paytirsak, ikki yuz o'ttiz bo'ladi. Qirqni o'nga ko'paytirsak, to'rt yuz bo'ladi.",
-        "Qoida oddiy. O'nga ko'paytirganda o'ng tomonga bitta nol qo'shiladi."
+        "Avval katta bo'lak. Har tokchada yigirmatadan o'simlik, tokcha to'rtta.",
+        "Ikkini to'rtga ko'paytirsak — sakkiz. Buni jadvaldan bilamiz.",
+        "Lekin biz ikkitalab emas, o'nliklab sanadik. Demak, sakkizta o'nlik chiqdi, ya'ni sakson.",
+        "Yigirmani to'rtga ko'paytirsak — sakson."
       ]
     }
   },
 
-  // s3 — KASHFIYOT: x100 = ikkita nol
+  // s3 — KASHFIYOT 3: kichik bo'lakni ko'paytiramiz
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Умножаем на 100 — прибавляются два нуля.', uz: "100 ga ko'paytiramiz — ikkita nol qo'shiladi." },
-    op_label: { ru: '× 100', uz: '× 100' },
-    examples: [
-      { from: '5', to: '500' },
-      { from: '23', to: '2300' }
+    lead: { ru: 'Считаем маленькую часть.', uz: "Kichik bo'lakni sanaymiz." },
+    steps: [
+      { expr: '3 × 4 = 12', at: 2, tag: { ru: 'таблица', uz: 'jadval' } }
     ],
-    done_text: { ru: 'При умножении на 100 цифры сдвигаются на два разряда, и справа встают два нуля.', uz: "100 ga ko'paytirganda raqamlar ikki xona siljiydi, o'ngda ikkita nol turadi." },
+    done_text: { ru: 'Отдельные растения дали ещё двенадцать.', uz: "Alohida turgan o'simliklar yana o'n ikkita berdi." },
     audio: {
       ru: [
-        'Теперь возьмём большой блок. В нём сто ламп сразу.',
-        'Пять таких блоков это пятьсот. Пятёрка сдвинулась уже на два разряда, и справа встали два нуля.',
-        'Двадцать три умножить на сто будет две тысячи триста.',
-        'Запомните разницу. На десять — один ноль, на сто — два нуля.'
+        'Теперь маленькая часть. На каждой полке стоят отдельно три растения.',
+        'Полок четыре, значит три умножить на четыре.',
+        'Три умножить на четыре — двенадцать. Это чистая таблица.'
       ],
       uz: [
-        "Endi katta blokni olamiz. Unda birdaniga yuzta lampa bor.",
-        "Beshta shunday blok — bu besh yuz. Beshlik ikki xona siljidi, o'ngda ikkita nol turdi.",
-        "Yigirma uchni yuzga ko'paytirsak, ikki ming uch yuz bo'ladi.",
-        "Farqni yodda tuting. O'nga — bitta nol, yuzga — ikkita nol."
+        "Endi kichik bo'lak. Har tokchada uchtadan o'simlik alohida turibdi.",
+        "Tokcha to'rtta, demak uchni to'rtga ko'paytiramiz.",
+        "Uchni to'rtga ko'paytirsak — o'n ikki. Bu sof jadval."
       ]
     }
   },
 
-  // s4 — KASHFIYOT: :10 = bitta nol tushadi
+  // s4 — KASHFIYOT 4: ikki natijani yig'amiz
   s4: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Делим на 10 — ноль уходит.', uz: "10 ga bo'lamiz — nol ketadi." },
-    op_label: { ru: '÷ 10', uz: '÷ 10' },
-    examples: [
-      { from: '50', to: '5' },
-      { from: '230', to: '23' },
-      { from: '400', to: '40' }
+    lead: { ru: 'Соединяем две части обратно.', uz: "Ikki bo'lakni qaytadan birlashtiramiz." },
+    steps: [
+      { expr: '80 + 12 = 92', at: 2, tag: { ru: 'ответ', uz: 'javob' } }
     ],
-    done_text: { ru: 'При делении на 10 цифры сдвигаются на разряд вправо, и один ноль уходит.', uz: "10 ga bo'lganda raqamlar bir xona o'ngga siljiydi, bitta nol ketadi." },
+    done_text: { ru: 'Двадцать три умножить на четыре — девяносто два. Полка была одна, мы разрезали её на две части и собрали обратно.', uz: "Yigirma uchni to'rtga ko'paytirsak — to'qson ikki. Tokcha bitta edi, uni ikki bo'lakka kesib, qaytadan yig'dik." },
     audio: {
       ru: [
-        'А теперь пойдём в обратную сторону. Пятьдесят ламп разложим в десятки.',
-        'Получится пять блоков. Пятьдесят разделить на десять будет пять.',
-        'Смотрите на запись. Ноль ушёл, а пятёрка вернулась в единицы.',
-        'Двести тридцать разделить на десять будет двадцать три. Четыреста разделить на десять будет сорок.'
+        'Мы посчитали две части отдельно. Восемьдесят и двенадцать.',
+        'Теперь их надо сложить обратно, ведь это была одна полка.',
+        'Восемьдесят плюс двенадцать — девяносто два.',
+        'Значит, двадцать три умножить на четыре — девяносто два. И в самом начале это был верный ответ.'
       ],
       uz: [
-        "Endi teskari tomonga boramiz. Ellikta lampani o'nliklarga ajratamiz.",
-        "Beshta blok chiqadi. Ellikni o'nga bo'lsak, besh bo'ladi.",
-        "Yozuvga qarang. Nol ketdi, beshlik esa birlikka qaytdi.",
-        "Ikki yuz o'ttizni o'nga bo'lsak, yigirma uch bo'ladi. To'rt yuzni o'nga bo'lsak, qirq bo'ladi."
+        "Ikki bo'lakni alohida sanadik. Sakson va o'n ikki.",
+        "Endi ularni qaytadan qo'shish kerak, chunki bu bitta tokcha edi.",
+        "Sakson qo'shuv o'n ikki — to'qson ikki.",
+        "Demak, yigirma uchni to'rtga ko'paytirsak — to'qson ikki. Eng boshida ham to'g'ri javob shu edi."
       ]
     }
   },
 
-  // s5 — KASHFIYOT: :100 = ikkita nol tushadi
+  // s5 — KASHFIYOT 5: butun zanjir tez, ikkinchi misol
   s5: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Делим на 100 — уходят два нуля.', uz: "100 ga bo'lamiz — ikkita nol ketadi." },
-    op_label: { ru: '÷ 100', uz: '÷ 100' },
-    examples: [
-      { from: '500', to: '5' },
-      { from: '2300', to: '23' }
+    lead: { ru: 'Тот же путь, другое число.', uz: "O'sha yo'l, boshqa son." },
+    steps: [
+      { expr: '32 = 30 + 2', at: 1, tag: { ru: 'разделили', uz: 'ajratdik' } },
+      { expr: '30 × 3 = 90', at: 2, tag: { ru: 'большая часть', uz: "katta bo'lak" } },
+      { expr: '2 × 3 = 6', at: 3, tag: { ru: 'маленькая часть', uz: "kichik bo'lak" } },
+      { expr: '90 + 6 = 96', at: 4, tag: { ru: 'собрали', uz: "yig'dik" } }
     ],
-    done_text: { ru: 'При делении на 100 уходят два нуля: цифры сдвигаются на два разряда вправо.', uz: "100 ga bo'lganda ikkita nol ketadi: raqamlar ikki xona o'ngga siljiydi." },
+    done_text: { ru: 'Четыре шага каждый раз одни и те же: разделить, умножить, умножить, сложить.', uz: "To'rtta qadam har safar bir xil: ajratish, ko'paytirish, ko'paytirish, qo'shish." },
     audio: {
       ru: [
-        'Пятьсот ламп разложим в большие блоки по сто.',
-        'Получится пять блоков. Пятьсот разделить на сто будет пять. Ушли сразу два нуля.',
-        'Две тысячи триста разделить на сто будет двадцать три.',
-        'Значит, деление на сто убирает два нуля, а деление на десять только один.'
+        'Пройдём тот же путь ещё раз, быстрее. Тридцать два умножить на три.',
+        'Первый шаг. Разделяем. Тридцать два — это тридцать плюс два.',
+        'Второй шаг. Большая часть. Три умножить на три — девять, а десятков девять, значит девяносто.',
+        'Третий шаг. Маленькая часть. Два умножить на три — шесть.',
+        'Четвёртый шаг. Складываем. Девяносто плюс шесть — девяносто шесть.',
+        'Четыре шага каждый раз одни и те же. Разделить, умножить, умножить, сложить.'
       ],
       uz: [
-        "Besh yuzta lampani yuztadan katta bloklarga ajratamiz.",
-        "Beshta blok chiqadi. Besh yuzni yuzga bo'lsak, besh bo'ladi. Birdaniga ikkita nol ketdi.",
-        "Ikki ming uch yuzni yuzga bo'lsak, yigirma uch bo'ladi.",
-        "Demak, yuzga bo'lish ikkita nolni oladi, o'nga bo'lish esa faqat bittasini."
+        "O'sha yo'ldan yana bir marta, tezroq o'tamiz. O'ttiz ikkini uchga ko'paytiramiz.",
+        "Birinchi qadam. Ajratamiz. O'ttiz ikki — bu o'ttiz qo'shuv ikki.",
+        "Ikkinchi qadam. Katta bo'lak. Uchni uchga ko'paytirsak — to'qqiz, o'nliklar to'qqizta, demak to'qson.",
+        "Uchinchi qadam. Kichik bo'lak. Ikkini uchga ko'paytirsak — olti.",
+        "To'rtinchi qadam. Qo'shamiz. To'qson qo'shuv olti — to'qson olti.",
+        "To'rtta qadam har safar bir xil. Ajratish, ko'paytirish, ko'paytirish, qo'shish."
       ]
     }
   },
 
-  // s6 — QOIDA + check (savol-oldin)
-  // stway — IKKI USUL (10 ga ko'paytirish, kitob 69-bet): 1-usul nol qo'shiladi, 2-usul raqam siljishi (ma'no) + bashorat + bonus (guruhlash).
+  // stway — IKKI USUL (kitob 21-bet: 1-usul avval yig'indi, 2-usul bo'laklab) + bashorat + area-bonus.
+  // Dars03 skeleti: audio(4) = 1-usul namoyishi, audio2(7) = 2-usul + bonus, r1/r2 segment-sinxron.
   stway: {
     eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
-    lead: { ru: 'Одно число — два пути к ответу.', uz: "Bitta son — javobga ikki yo'l." },
-    expr: { ru: '23 × 10', uz: '23 × 10' },
-    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    m1_label: { ru: 'Способ 1 — приписать ноль', uz: "1-usul — nol qo'shiladi" },
-    m1_text: { ru: 'Цифры остаются на месте — справа встаёт ноль.', uz: "Raqamlar joyida qoladi — o'ngga nol tushadi." },
-    m1_digits: ['2', '3'],
-    m1_zero: '0',
-    m1_result: '23 × 10 = 230',
-    m2_label: { ru: 'Способ 2 — сдвиг цифр', uz: "2-usul — raqam siljishi" },
-    m2_text: { ru: 'Каждая цифра уходит на один разряд влево.', uz: "Har raqam bir xona chapga siljiydi." },
-    m2_pre: ['', '2', '3'],
-    m2_post: ['2', '3', '0'],
-    m2_result: '230',
-    check_q: { ru: 'Приписывание нуля работает потому, что цифры сдвигаются влево?', uz: "Nol qo'shish nega ishlaydi — raqamlar chapga siljiydimi?" },
-    check_opts: ['Да, цифры сдвигаются', 'Нет, ноль сам по себе'],
-    check_opts_uz: ["Ha, raqamlar siljiydi", "Yo'q, nol o'z-o'zidan"],
+    lead: { ru: 'Одно выражение — два пути к ответу.', uz: "Bitta ifoda — javobga ikki yo'l." },
+    expr: '(20 + 30) × 4',
+    m1_label: { ru: 'Способ 1 — сначала сумма', uz: "1-usul — avval yig'indi" },
+    m1_text: { ru: 'Считаем скобки — потом умножаем.', uz: "Avval qavsni hisoblaymiz — keyin ko'paytiramiz." },
+    m1_rows: [
+      { pre: '(', hi: '20 + 30', post: ') × 4' },
+      { pre: '', hi: '50', post: ' × 4' }
+    ],
+    m1_result: '200',
+    check_q: { ru: 'Мы получили двести. Можно ли прийти к тому же ответу другим путём?', uz: "Ikki yuzni topdik. Xuddi shu javobga boshqa yo'l bilan ham kelsa bo'ladimi?" },
+    check_opts: ['Да, можно', 'Нет, только так'],
+    check_opts_uz: ['Ha, mumkin', "Yo'q, faqat shunday"],
     check_ci: 0,
-    check_ok: { ru: 'Верно. Ноль встал на пустое место единиц, которое освободилось после сдвига.', uz: "To'g'ri. Nol siljishdan so'ng bo'shagan birlik o'rniga tushdi." },
-    check_no: { ru: 'Посмотри ещё раз: цифры уходят влево, единицы пустеют, туда и встаёт ноль. Попробуй снова.', uz: "Yana qarang: raqamlar chapga ketadi, birlik bo'shaydi, o'sha yerga nol tushadi. Yana urinib ko'ring." },
-    bonus_label: { ru: 'Бонус — почему появляется ноль', uz: "Bonus — nega nol paydo bo'ladi" },
-    bonus_text: { ru: 'Множитель десять уходит в самый конец цепочки — поэтому в ответе и появляется ноль.', uz: "O'nga ko'paytirish zanjirning eng oxirida turadi — shuning uchun javobda nol paydo bo'ladi." },
-    bonus_chain: ['30 × 4', '3 × 10 × 4', '3 × 4 × 10', '12 × 10', '120'],
-    bonus_recap: '30 × 4 = 120',
+    check_ok: { ru: 'Верно. Второй путь тоже приводит к двумстам.', uz: "To'g'ri. Ikkinchi yo'l ham ikki yuzga olib keladi." },
+    check_no: { ru: 'Посмотри: то же выражение можно раскрыть иначе. Попробуй ещё.', uz: "Qarang: o'sha ifodani boshqacha ochsa ham bo'ladi. Yana urinib ko'ring." },
+    m2_label: { ru: 'Способ 2 — по частям', uz: "2-usul — bo'laklab" },
+    m2_text: { ru: 'Умножаем каждую часть — складываем.', uz: "Har bo'lakni alohida ko'paytiramiz — qo'shamiz." },
+    m2_pairs: [
+      { e: '20 × 4', v: '80' },
+      { e: '30 × 4', v: '120' }
+    ],
+    m2_result: '200',
+    bonus_label: { ru: 'Бонус — почему так можно', uz: 'Bonus — nega bunday mumkin' },
+    bonus_text: { ru: 'Прямоугольник высотой 4, ширина — 20 и 30. Разрез даёт две части: 80 и 120. Вместе — весь прямоугольник, 200.', uz: "Balandligi 4, eni 20 va 30 bo'lgan to'rtburchak. Kesim ikki bo'lak beradi: 80 va 120. Birga — butun to'rtburchak, 200." },
+    bonus_recap: '80 + 120 = 200',
     audio: {
       ru: [
-        'Одно и то же произведение можно найти двумя путями. Двадцать три умножаем на десять. Не спеша.',
-        'Первый способ короткий. Цифры числа остаются на своих местах.',
-        'Справа к числу приписываем один ноль. Двадцать три превращается в двести тридцать.',
-        'Записываем результат. Двадцать три умножить на десять будет двести тридцать. Быстро! Но почему появляется именно ноль?'
+        'Одно и то же выражение можно посчитать двумя путями. Двадцать плюс тридцать, и всю эту сумму умножить на четыре.',
+        'Первый способ, сначала сумма. Смотрим на скобки.',
+        'В скобках двадцать плюс тридцать. Сумма собирается в пятьдесят.',
+        'Пятьдесят умножить на четыре, это двести. Первый путь пройден!'
       ],
       uz: [
-        "Bitta ko'paytmani ikki yo'l bilan topsa bo'ladi. Yigirma uchni o'nga ko'paytiramiz. Shoshilmasdan.",
-        "Birinchi usul qisqa. Sonning raqamlari o'z joyida qoladi.",
-        "Songa o'ng tomondan bitta nol yozamiz. Yigirma uch ikki yuz o'ttizga aylanadi.",
-        "Natijani yozamiz. Yigirma uchni o'nga ko'paytirsak, ikki yuz o'ttiz bo'ladi. Tez va qisqa! Lekin nega aynan nol paydo bo'ladi?"
+        "Bitta ifodani ikki yo'l bilan hisoblash mumkin. Yigirma qo'shuv o'ttiz, va butun yig'indini to'rtga ko'paytiramiz.",
+        "Birinchi usul, avval yig'indi. Qavsga qaraymiz.",
+        "Qavs ichida yigirma qo'shuv o'ttiz. Yig'indi ellikka yig'iladi.",
+        "Ellikni to'rtga ko'paytirsak, ikki yuz chiqadi. Birinchi yo'l bosib o'tildi!"
       ]
     },
     audio2: {
       ru: [
-        'Верно! Второй способ показывает, откуда берётся ноль. Смотрим на разряды.',
-        'Сначала двойка стоит в десятках, а тройка в единицах.',
-        'Умножаем на десять. Каждая цифра сдвигается на один разряд влево. Двойка уходит в сотни, тройка в десятки.',
-        'Разряд единиц опустел, и его место занимает ноль. Получилось двести тридцать. Ноль не берётся сам по себе, он встаёт на освободившееся место.',
-        'А в качестве бонуса покажу, почему у круглого числа так же. Возьмём тридцать умножить на четыре. Тридцать это три умножить на десять.',
-        'Переставим множители. Сначала три умножить на четыре, это двенадцать. Осталось двенадцать умножить на десять. Получается сто двадцать.',
-        'Запомни. Умножение на десять уходит в самый конец, поэтому в ответе появляется ноль. Молодец!'
+        'Верно! Второй способ, по частям. Каждую часть умножаем на четыре отдельно.',
+        'Двадцать умножить на четыре, это восемьдесят.',
+        'Тридцать умножить на четыре, это сто двадцать.',
+        'Складываем части. Восемьдесят плюс сто двадцать, снова двести. Ответ один и тот же!',
+        'А в качестве бонуса покажу, почему так можно. Представь прямоугольник. Его высота четыре, а ширина, двадцать и ещё тридцать.',
+        'Режем прямоугольник на две части. Одна часть восемьдесят, другая сто двадцать. Вместе они дают весь прямоугольник, двести.',
+        'Запомни. Сумму можно умножить сразу, а можно по частям. Ответ будет один. Молодец!'
       ],
       uz: [
-        "To'g'ri! Ikkinchi usul nol qayerdan kelishini ko'rsatadi. Xonalarga qaraymiz.",
-        "Avval ikki raqami o'nlikda, uch raqami esa birlikda turadi.",
-        "O'nga ko'paytiramiz. Har bir raqam bitta xona chapga siljiydi. Ikki yuzlikka o'tadi, uch esa o'nlikka o'tadi.",
-        "Birlik xonasi bo'shab qoldi, u yerga nol tushadi. Ikki yuz o'ttiz hosil bo'ldi. Nol o'z-o'zidan paydo bo'lmaydi, u bo'shagan joyga tushadi.",
-        "Bonus tariqasida yumaloq sonda ham xuddi shunday ekanini ko'rsataman. O'ttizni to'rtga ko'paytiramiz. O'ttiz degani uchni o'nga ko'paytirish.",
-        "Ko'paytuvchilarni almashtiramiz. Avval uchni to'rtga ko'paytiramiz, o'n ikki chiqadi. Endi o'n ikkini o'nga ko'paytiramiz. Bir yuz yigirma bo'ladi.",
-        "Yodda tuting. O'nga ko'paytirish eng oxiriga qoladi, shuning uchun javobda nol paydo bo'ladi. Barakalla!"
+        "To'g'ri! Ikkinchi usul, bo'laklab. Har bir bo'lakni to'rtga alohida ko'paytiramiz.",
+        "Yigirmani to'rtga ko'paytirsak, sakson chiqadi.",
+        "O'ttizni to'rtga ko'paytirsak, bir yuz yigirma chiqadi.",
+        "Bo'laklarni qo'shamiz. Sakson qo'shuv bir yuz yigirma, yana ikki yuz. Javob bir xil!",
+        "Bonus tariqasida nega bunday mumkinligini ko'rsataman. To'rtburchakni tasavvur qiling. Balandligi to'rt, eni esa yigirma va yana o'ttiz.",
+        "To'rtburchakni ikki bo'lakka kesamiz. Bir bo'lak sakson, ikkinchisi bir yuz yigirma. Birga ular butun to'rtburchakni beradi, ikki yuz.",
+        "Yodda tuting. Yig'indini birdaniga ham, bo'laklab ham ko'paytirish mumkin. Javob bitta bo'ladi. Barakalla!"
       ]
     }
   },
+  // s6 — QOIDA (savol avval)
   s6: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Умножаем на 10 — добавляем один ноль, на 100 — два нуля. Делим на 10 — убираем один ноль, на 100 — два. Цифры сдвигаются по разрядам.', uz: "10 ga ko'paytirsak bitta nol qo'shamiz, 100 ga — ikkita. 10 ga bo'lsak bitta nolni olamiz, 100 ga — ikkitasini. Raqamlar xonalar bo'ylab siljiydi." },
-    check_expr: { ru: '7 × 100', uz: '7 × 100' },
-    check_q: { ru: 'Сколько будет 7 умножить на 100? Нажми верный ответ.', uz: "7 ni 100 ga ko'paytirsa nechta bo'ladi? To'g'ri javobni bosing." },
-    check_opts: ['700', '70', '7000'],
+    rule: { ru: 'Чтобы умножить сумму, умножаем каждую часть отдельно и складываем результаты.', uz: "Yig'indini ko'paytirish uchun har bir bo'lakni alohida ko'paytiramiz va natijalarni qo'shamiz." },
+    check_expr: { ru: '(20 + 3) × 4', uz: '(20 + 3) × 4' },
+    check_q: { ru: 'Чему равно (20 + 3) × 4? Нажми верную запись.', uz: "(20 + 3) × 4 nimaga teng? To'g'ri yozuvni bosing." },
+    check_opts: ['20 × 4 + 3 × 4', '20 × 4 + 3', '20 + 3 × 4'],
     check_ci: 0,
-    check_ok: { ru: 'Верно! На сто — два нуля: получается 700.', uz: "To'g'ri! Yuzga — ikkita nol: 700 chiqadi." },
-    check_no: { ru: 'На сто добавляются два нуля, а не один и не три.', uz: "Yuzga ikkita nol qo'shiladi, bittasi ham, uchtasi ham emas." },
+    check_ok: { ru: 'Верно. Обе части умножаются на четыре.', uz: "To'g'ri. Ikkala bo'lak ham to'rtga ko'paytiriladi." },
+    check_no: { ru: 'Проверь: на четыре умножается вся полка, а не половина полки.', uz: "Tekshiring: to'rtga butun tokcha ko'paytiriladi, yarim tokcha emas." },
     audio: {
       ru: [
-        'Отлично, теперь запомним это как правило.',
-        'При умножении на десять справа добавляется один ноль. При умножении на сто — два нуля.',
-        'При делении наоборот. На десять убираем один ноль, на сто убираем два.',
-        'И помните главное. Умножить на десять это не прибавить десять. Число становится в десять раз больше.'
+        'Правило. Чтобы умножить сумму, умножаем каждую часть отдельно и складываем результаты.',
+        'Скобки здесь означают вот что. Сначала смотрим на то, что внутри, и работаем с каждой частью.',
+        'Полок было четыре. Значит, на четыре умножается и двадцать, и три. Обе части.',
+        'Если умножить только одну часть, вторая полка останется несчитанной.'
       ],
       uz: [
-        "Zo'r, endi buni qoida qilib eslab qolamiz.",
-        "O'nga ko'paytirganda o'ng tomonga bitta nol qo'shiladi. Yuzga ko'paytirganda — ikkita nol.",
-        "Bo'lishda teskarisi. O'nga bo'lsak bitta nolni olamiz, yuzga bo'lsak ikkitasini.",
-        "Va eng muhimini yodda tuting. O'nga ko'paytirish — bu o'n qo'shish emas. Son o'n barobar katta bo'ladi."
+        "Qoida. Yig'indini ko'paytirish uchun har bir bo'lakni alohida ko'paytiramiz va natijalarni qo'shamiz.",
+        "Bu yerda qavs shuni bildiradi. Avval ichidagiga qaraymiz va har bir bo'lak bilan ishlaymiz.",
+        "Tokcha to'rtta edi. Demak, to'rtga yigirma ham, uch ham ko'paytiriladi. Ikkala bo'lak.",
+        "Faqat bitta bo'lak ko'paytirilsa, ikkinchisi sanalmay qoladi."
       ]
     }
   },
 
-  // s7 — MASHQ: x10 / x100 (3 raund, MC)
+  // s7 — MASHQ: to'g'ri yoyilmani tanla
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Посчитай:', uz: 'Hisoblang:' },
+    eyebrow: { ru: 'Практика', uz: 'Amaliyot' },
+    q: { ru: 'Выбери верное разложение', uz: "To'g'ri yoyilmani tanlang" },
     items: [
-      { expr: '6 × 10', opts: [{ ru: '60', uz: '60' }, { ru: '16', uz: '16' }, { ru: '600', uz: '600' }], ci: 0,
+      { expr: '24 × 3', opts: [{ ru: '(20 + 4) × 3', uz: '(20 + 4) × 3' }, { ru: '(2 + 4) × 3', uz: '(2 + 4) × 3' }, { ru: '(20 + 4) + 3', uz: '(20 + 4) + 3' }], ci: 0,
         hints: [null,
-          { ru: 'Это 6 плюс 10. Умножить на десять значит взять число десять раз, а не прибавить десять.', uz: "Bu 6 qo'shuv 10. O'nga ko'paytirish — sonni o'n marta olish, o'n qo'shish emas." },
-          { ru: 'Два нуля добавляются при умножении на сто. На десять — только один.', uz: "Ikkita nol yuzga ko'paytirganda qo'shiladi. O'nga — faqat bitta." }] },
-      { expr: '24 × 10', opts: [{ ru: '240', uz: '240' }, { ru: '34', uz: '34' }, { ru: '2400', uz: '2400' }], ci: 0,
+          { ru: 'Два плюс четыре — это шесть, а не двадцать четыре. Разделяем на десятки и единицы.', uz: "Ikki qo'shuv to'rt — bu olti, yigirma to'rt emas. O'nlik va birlikka ajratamiz." },
+          { ru: 'Здесь три прибавляется, а не умножается. Полок три — значит умножаем.', uz: "Bu yerda uch qo'shilyapti, ko'paytirilmayapti. Tokcha uchta — demak ko'paytiramiz." }] },
+      { expr: '41 × 2', opts: [{ ru: '(40 + 1) × 2', uz: '(40 + 1) × 2' }, { ru: '(4 + 1) × 2', uz: '(4 + 1) × 2' }, { ru: '(40 + 2) × 1', uz: '(40 + 2) × 1' }], ci: 0,
         hints: [null,
-          { ru: 'Это 24 плюс 10. Нужно умножение: справа добавляется ноль.', uz: "Bu 24 qo'shuv 10. Ko'paytirish kerak: o'ngga nol qo'shiladi." },
-          { ru: 'Это умножение на сто. Здесь множитель десять — один ноль.', uz: "Bu yuzga ko'paytirish. Bu yerda ko'paytuvchi o'n — bitta nol." }] },
-      { expr: '5 × 100', opts: [{ ru: '500', uz: '500' }, { ru: '50', uz: '50' }, { ru: '105', uz: '105' }], ci: 0,
+          { ru: 'Четыре плюс один — это пять. Нам нужно сорок один, значит сорок и один.', uz: "To'rt qo'shuv bir — bu besh. Bizga qirq bir kerak, demak qirq va bir." },
+          { ru: 'Двойка — это число полок, её нельзя класть внутрь скобок.', uz: "Ikki — bu tokchalar soni, uni qavs ichiga qo'yib bo'lmaydi." }] },
+      { expr: '35 × 2', opts: [{ ru: '(30 + 5) × 2', uz: '(30 + 5) × 2' }, { ru: '(35 + 2) × 2', uz: '(35 + 2) × 2' }, { ru: '(3 + 5) × 2', uz: '(3 + 5) × 2' }], ci: 0,
         hints: [null,
-          { ru: 'Один ноль — это умножение на десять. На сто нужны два нуля.', uz: "Bitta nol — bu o'nga ko'paytirish. Yuzga ikkita nol kerak." },
-          { ru: 'Это 5 плюс 100. Умножение и сложение — разные действия.', uz: "Bu 5 qo'shuv 100. Ko'paytirish va qo'shish — har xil amallar." }] }
+          { ru: 'Тридцать пять уже целое число полки. Его надо разделить, а не увеличить.', uz: "O'ttiz besh allaqachon butun tokcha. Uni ajratish kerak, ko'paytirish emas." },
+          { ru: 'Три плюс пять — восемь. Первая цифра здесь означает тридцать, а не три.', uz: "Uch qo'shuv besh — sakkiz. Bu yerda birinchi raqam o'ttizni bildiradi, uchni emas." }] }
     ],
     audio: {
-      intro: { ru: 'Посчитай примеры на умножение. Выбери верный ответ.', uz: "Ko'paytirishga misollarni hisoblang. To'g'ri javobni tanlang." },
+      intro: { ru: 'Выбери запись, в которой число разделили верно. Разделяем на десятки и единицы.', uz: "Son to'g'ri ajratilgan yozuvni tanlang. O'nlik va birlikka ajratamiz." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: "Unchalik emas. Tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
     }
   },
 
-  // s8 — MASHQ: :10 / :100 (3 raund, NumPad)
+  // s8 — MASHQ: hisobla (NumPad)
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Раздели и набери ответ:', uz: "Bo'ling va javobni tering:" },
+    eyebrow: { ru: 'Практика', uz: 'Amaliyot' },
+    q: { ru: 'Раздели на части и посчитай', uz: "Bo'laklarga ajratib hisoblang" },
     check_label: { ru: 'Проверить', uz: 'Tekshirish' },
     items: [
-      { expr: '80 ÷ 10', ans: 8, hint: { ru: 'Убираем один ноль: 80 становится 8. Это не вычитание десяти.', uz: "Bitta nolni olamiz: 80 dan 8 bo'ladi. Bu o'n ayirish emas." } },
-      { expr: '300 ÷ 100', ans: 3, hint: { ru: 'На сто убираем два нуля: остаётся 3.', uz: "Yuzga bo'lsak ikkita nolni olamiz: 3 qoladi." } },
-      { expr: '450 ÷ 10', ans: 45, hint: { ru: 'Убираем один ноль справа: 450 становится 45.', uz: "O'ngdagi bitta nolni olamiz: 450 dan 45 bo'ladi." } }
+      { expr: '23 × 4', ans: 92, hint: { ru: 'Двадцать на четыре — восемьдесят. Три на четыре — двенадцать. Сложи.', uz: "Yigirmani to'rtga — sakson. Uchni to'rtga — o'n ikki. Qo'shing." } },
+      { expr: '32 × 3', ans: 96, hint: { ru: 'Тридцать на три — девяносто. Два на три — шесть. Сложи.', uz: "O'ttizni uchga — to'qson. Ikkini uchga — olti. Qo'shing." } },
+      { expr: '45 × 2', ans: 90, hint: { ru: 'Сорок на два — восемьдесят. Пять на два — десять. Сложи.', uz: "Qirqni ikkiga — sakson. Beshni ikkiga — o'n. Qo'shing." } }
     ],
     audio: {
-      intro: { ru: 'Теперь деление. Набери ответ и нажми кнопку проверить.', uz: "Endi bo'lish. Javobni tering va tekshirish tugmasini bosing." },
+      intro: { ru: 'Раздели число на десятки и единицы, умножь обе части и сложи. Набери ответ цифрами.', uz: "Sonni o'nlik va birlikka ajrating, ikkala bo'lakni ko'paytiring va qo'shing. Javobni raqamlab tering." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Пока нет. Посмотри подсказку.', uz: "Hozircha yo'q. Maslahatga qarang." }
     }
   },
 
-  // s9 — MASHQ: xato yozuvni top (3 raund)
+  // s9 — MASHQ: xato yozuvni top
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Найди неверную запись:', uz: "Noto'g'ri yozuvni toping:" },
+    eyebrow: { ru: 'Практика', uz: 'Amaliyot' },
+    q: { ru: 'Найди неверную запись', uz: "Xato yozuvni toping" },
     items: [
-      { rows: ['70 × 10 = 700', '8 × 100 = 80', '40 × 10 = 400'], wrong: 1,
-        hint: { ru: 'На сто нужны два нуля: 8 × 100 = 800.', uz: "Yuzga ikkita nol kerak: 8 × 100 = 800." } },
-      { rows: ['600 ÷ 10 = 60', '900 ÷ 100 = 90', '200 ÷ 10 = 20'], wrong: 1,
-        hint: { ru: 'На сто убираем два нуля: 900 ÷ 100 = 9.', uz: "Yuzga bo'lsak ikkita nolni olamiz: 900 ÷ 100 = 9." } },
-      { rows: ['3 × 100 = 300', '50 ÷ 10 = 5', '12 × 10 = 12'], wrong: 2,
-        hint: { ru: 'При умножении на десять число меняется: 12 × 10 = 120.', uz: "O'nga ko'paytirganda son o'zgaradi: 12 × 10 = 120." } }
+      { rows: ['23 × 4 = 80 + 12', '31 × 2 = 60 + 2', '14 × 3 = 30 + 4'], wrong: 2,
+        hint: { ru: 'В третьей строке единицы не умножили. Четыре на три — двенадцать, а не четыре.', uz: "Uchinchi qatorda birliklar ko'paytirilmagan. To'rtni uchga — o'n ikki, to'rt emas." } },
+      { rows: ['20 × 4 = 8', '20 × 4 = 80', '2 × 4 = 8'], wrong: 0,
+        hint: { ru: 'Двадцать — это десятки. При умножении ноль остаётся на месте.', uz: "Yigirma — bu o'nliklar. Ko'paytirganda nol o'z o'rnida qoladi." } },
+      { rows: ['42 × 2 = 80 + 4', '25 × 3 = 60 + 15', '16 × 2 = 20 + 6'], wrong: 2,
+        hint: { ru: 'В третьей строке единицы не умножили. Шесть на два — двенадцать, а не шесть.', uz: "Uchinchi qatorda birliklar ko'paytirilmagan. Oltini ikkiga — o'n ikki, olti emas." } }
     ],
     audio: {
-      intro: { ru: 'В каждой тройке одна запись неверная. Найди её и нажми.', uz: "Har uchlikda bitta yozuv noto'g'ri. Uni toping va bosing." },
-      on_correct: { ru: 'Верно, ошибка найдена.', uz: "To'g'ri, xato topildi." },
-      on_wrong: { ru: 'Эта запись верная. Проверь остальные.', uz: "Bu yozuv to'g'ri. Qolganlarini tekshiring." }
+      intro: { ru: 'В каждой тройке одна запись неверная. Найди её и нажми.', uz: "Har uchlikda bitta yozuv xato. Uni topib bosing." },
+      on_correct: { ru: 'Верно, это она.', uz: "To'g'ri, o'sha." },
+      on_wrong: { ru: 'Эта запись верная. Ищи дальше.', uz: "Bu yozuv to'g'ri. Yana qidiring." }
     }
   },
 
-  // s10 — MASHQ: aralash x: (3 raund, MC)
+  // s10 — MASHQ: aralash
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Посчитай:', uz: 'Hisoblang:' },
+    eyebrow: { ru: 'Практика', uz: 'Amaliyot' },
+    q: { ru: 'Посчитай', uz: 'Hisoblang' },
     items: [
-      { expr: '30 × 10', opts: [{ ru: '300', uz: '300' }, { ru: '40', uz: '40' }, { ru: '3000', uz: '3000' }], ci: 0,
+      { expr: '21 × 4', opts: [{ ru: '84', uz: '84' }, { ru: '80', uz: '80' }, { ru: '25', uz: '25' }], ci: 0,
         hints: [null,
-          { ru: 'Это 30 плюс 10. При умножении справа добавляется ноль.', uz: "Bu 30 qo'shuv 10. Ko'paytirganda o'ngga nol qo'shiladi." },
-          { ru: 'Два нуля — это умножение на сто.', uz: "Ikkita nol — bu yuzga ko'paytirish." }] },
-      { expr: '700 ÷ 100', opts: [{ ru: '7', uz: '7' }, { ru: '70', uz: '70' }, { ru: '600', uz: '600' }], ci: 0,
+          { ru: 'Восемьдесят — это только большая часть. Единицы тоже надо умножить и прибавить.', uz: "Sakson — bu faqat katta bo'lak. Birliklarni ham ko'paytirib qo'shish kerak." },
+          { ru: 'Это сложение, а не умножение. Полок четыре, значит берём двадцать один четыре раза.', uz: "Bu qo'shish, ko'paytirish emas. Tokcha to'rtta, demak yigirma birni to'rt marta olamiz." }] },
+      { expr: '13 × 3', opts: [{ ru: '39', uz: '39' }, { ru: '30', uz: '30' }, { ru: '16', uz: '16' }], ci: 0,
         hints: [null,
-          { ru: 'Убран только один ноль. На сто убираются два.', uz: "Faqat bitta nol olindi. Yuzga ikkitasi olinadi." },
-          { ru: 'Это вычитание ста. Деление уменьшает число в сто раз.', uz: "Bu yuz ayirish. Bo'lish sonni yuz barobar kichraytiradi." }] },
-      { expr: '12 × 100', opts: [{ ru: '1200', uz: '1200' }, { ru: '120', uz: '120' }, { ru: '112', uz: '112' }], ci: 0,
+          { ru: 'Тридцать — это только десятки. Три на три дают ещё девять.', uz: "O'ttiz — bu faqat o'nliklar. Uchni uchga ko'paytirsak yana to'qqiz chiqadi." },
+          { ru: 'Это тринадцать прибавить три. А нам нужно взять тринадцать три раза.', uz: "Bu o'n uchga uch qo'shish. Bizga esa o'n uchni uch marta olish kerak." }] },
+      { expr: '24 × 2', opts: [{ ru: '48', uz: '48' }, { ru: '46', uz: '46' }, { ru: '44', uz: '44' }], ci: 0,
         hints: [null,
-          { ru: 'Один ноль — это умножение на десять. На сто нужны два.', uz: "Bitta nol — bu o'nga ko'paytirish. Yuzga ikkitasi kerak." },
-          { ru: 'Это 12 плюс 100. Нужно умножение.', uz: "Bu 12 qo'shuv 100. Ko'paytirish kerak." }] }
+          { ru: 'Единицы умножили неверно. Четыре на два — восемь, а не шесть.', uz: "Birliklar noto'g'ri ko'paytirilgan. To'rtni ikkiga — sakkiz, olti emas." },
+          { ru: 'Здесь единицы просто прибавили. Их тоже надо умножить на два.', uz: "Bu yerda birliklar shunchaki qo'shilgan. Ularni ham ikkiga ko'paytirish kerak." }] }
     ],
     audio: {
-      intro: { ru: 'Здесь и умножение, и деление. Смотри на знак действия.', uz: "Bu yerda ham ko'paytirish, ham bo'lish bor. Amal belgisiga qarang." },
+      intro: { ru: 'Раздели число на части в уме, умножь обе части и выбери ответ.', uz: "Sonni xayolan bo'laklarga ajrating, ikkala bo'lakni ko'paytiring va javobni tanlang." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: "Unchalik emas. Tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
     }
   },
 
-  // s11 — MASALA (case): Ra'no tokchalari
+  // s11 — MASALA
   s11: {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Раъно считает свой участок сада.', uz: "Ra'no o'z bog' bo'lagini sanayapti." },
-    q: { ru: 'На участке 10 полок, на каждой 30 растений. Сколько растений всего?', uz: "Bo'lakda 10 ta tokcha, har birida 30 ta o'simlik. Jami nechta o'simlik?" },
-    ans: 300,
-    manifest_label: { ru: 'Участок', uz: "Bo'lak" },
-    exp_display: { ru: '10 × 30', uz: '10 × 30' },
-    setup_audio: { ru: 'Раъно поливает свой участок сада. У неё десять полок, и на каждой полке растёт тридцать светящихся растений.', uz: "Ra'no o'z bog' bo'lagini sug'oryapti. Uning o'nta tokchasi bor, har tokchada o'ttizta nurli o'simlik o'sadi." },
+    lead: { ru: 'Анвар считает свою теплицу.', uz: "Anvar o'z issiqxonasini sanamoqda." },
+    q: { ru: 'В теплице 5 полок, на каждой 34 растения. Сколько растений всего?', uz: "Issiqxonada 5 ta tokcha, har birida 34 ta o'simlik. Jami nechta o'simlik bor?" },
+    ans: 170,
+    manifest_label: { ru: 'Теплица', uz: 'Issiqxona' },
+    exp_display: { ru: '34 × 5', uz: '34 × 5' },
+    setup_audio: { ru: 'Анвар отвечает за теплицу. В ней пять полок, и на каждой полке тридцать четыре растения.', uz: "Anvar issiqxona uchun javob beradi. Unda beshta tokcha bor, har bir tokchada o'ttiz to'rtta o'simlik." },
     audio: {
-      intro: { ru: 'Сколько растений на участке всего? Набери ответ и нажми кнопку проверить.', uz: "Bo'lakda jami nechta o'simlik bor? Javobni tering va tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Тридцать умножить на десять будет триста.', uz: "To'g'ri. O'ttizni o'nga ko'paytirsak, uch yuz bo'ladi." },
-      on_wrong: { ru: 'Здесь умножение на десять, а не сложение.', uz: "Bu yerda o'nga ko'paytirish, qo'shish emas." }
+      intro: { ru: 'Раздели тридцать четыре на тридцать и четыре. Умножь обе части на пять и сложи. Набери ответ цифрами.', uz: "O'ttiz to'rtni o'ttiz va to'rtga ajrating. Ikkala bo'lakni beshga ko'paytiring va qo'shing. Javobni raqamlab tering." },
+      on_correct: { ru: 'Верно. Тридцать на пять — сто пятьдесят, четыре на пять — двадцать, вместе сто семьдесят.', uz: "To'g'ri. O'ttizni beshga — bir yuz ellik, to'rtni beshga — yigirma, birgalikda bir yuz yetmish." },
+      on_wrong: { ru: 'Пока нет. Тридцать на пять — сто пятьдесят. Четыре на пять — двадцать. Сложи их.', uz: "Hozircha yo'q. O'ttizni beshga — bir yuz ellik. To'rtni beshga — yigirma. Ularni qo'shing." }
     }
   },
 
-  // s12 — FINAL panel (5 savol) + FactCard
+  // s12 — FINAL
   s12: {
     eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    intro_line: { ru: 'Пять заданий садового счёта.', uz: "Bog' hisobidan beshta topshiriq." },
+    intro_line: { ru: 'Пять заданий на умножение суммы.', uz: "Yig'indini ko'paytirishga beshta topshiriq." },
     items: [
-      { kind: 'mc', q: { ru: 'Сколько будет 9 × 10?', uz: "9 × 10 nechta bo'ladi?" }, topic: { ru: 'умножение на 10', uz: "10 ga ko'paytirish" },
-        opt0: { ru: '90', uz: '90' }, opt1: { ru: '19', uz: '19' }, opt2: { ru: '900', uz: '900' },
-        wrong_1: { ru: 'Это сложение. При умножении на десять добавляется ноль: 90.', uz: "Bu qo'shish. O'nga ko'paytirganda nol qo'shiladi: 90." },
-        wrong_2: { ru: 'Два нуля — это на сто. На десять один ноль: 90.', uz: "Ikkita nol — bu yuzga. O'nga bitta nol: 90." } },
-      { kind: 'mc', q: { ru: 'Сколько будет 6 × 100?', uz: "6 × 100 nechta bo'ladi?" }, topic: { ru: 'умножение на 100', uz: "100 ga ko'paytirish" },
-        opt0: { ru: '600', uz: '600' }, opt1: { ru: '60', uz: '60' }, opt2: { ru: '106', uz: '106' },
-        wrong_1: { ru: 'Один ноль — это на десять. На сто два нуля: 600.', uz: "Bitta nol — bu o'nga. Yuzga ikkita nol: 600." },
-        wrong_2: { ru: 'Это сложение ста. Нужно умножение: 600.', uz: "Bu yuz qo'shish. Ko'paytirish kerak: 600." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 70 ÷ 10', uz: "Javobni tering: 70 ÷ 10" }, topic: { ru: 'деление на 10', uz: "10 ga bo'lish" }, ans: 7,
-        hint: { ru: 'Убираем один ноль: остаётся 7.', uz: "Bitta nolni olamiz: 7 qoladi." } },
-      { kind: 'num', q: { ru: 'Набери ответ: 800 ÷ 100', uz: "Javobni tering: 800 ÷ 100" }, topic: { ru: 'деление на 100', uz: "100 ga bo'lish" }, ans: 8,
-        hint: { ru: 'На сто убираем два нуля: остаётся 8.', uz: "Yuzga bo'lsak ikkita nolni olamiz: 8 qoladi." } },
-      { kind: 'num', q: { ru: 'Я стало 500 после умножения на 100. Какое я число?', uz: "100 ga ko'paytirilgach 500 bo'ldim. Men qaysi sonman?" }, topic: { ru: 'обратная задача', uz: 'teskari masala' }, ans: 5,
-        hint: { ru: 'Обратный ход: 500 разделить на 100 будет 5.', uz: "Teskari yo'l: 500 ni 100 ga bo'lsak, 5 bo'ladi." } }
+      { kind: 'mc', q: { ru: 'Как верно разделить 26?', uz: "26 ni qanday to'g'ri ajratamiz?" }, topic: { ru: 'разложение числа на части', uz: "sonni bo'laklarga ajratish" },
+        opt0: { ru: '20 + 6', uz: '20 + 6' }, opt1: { ru: '2 + 6', uz: '2 + 6' }, opt2: { ru: '26 + 6', uz: '26 + 6' },
+        wrong_1: { ru: 'Два плюс шесть — восемь. Первая цифра означает двадцать.', uz: "Ikki qo'shuv olti — sakkiz. Birinchi raqam yigirmani bildiradi." },
+        wrong_2: { ru: 'Число нельзя увеличивать. Двадцать шесть надо разделить на десятки и единицы.', uz: "Sonni kattalashtirib bo'lmaydi. Yigirma oltini o'nlik va birlikka ajratish kerak." } },
+      { kind: 'mc', q: { ru: 'Чему равно (30 + 2) × 5?', uz: "(30 + 2) × 5 nimaga teng?" }, topic: { ru: 'умножение суммы', uz: "yig'indini ko'paytirish" },
+        opt0: { ru: '30 × 5 + 2 × 5', uz: '30 × 5 + 2 × 5' }, opt1: { ru: '30 × 5 + 2', uz: '30 × 5 + 2' }, opt2: { ru: '30 + 2 × 5', uz: '30 + 2 × 5' },
+        wrong_1: { ru: 'Вторая часть тоже умножается на пять, а не остаётся как есть.', uz: "Ikkinchi bo'lak ham beshga ko'paytiriladi, o'z holicha qolmaydi." },
+        wrong_2: { ru: 'Первая часть тоже умножается на пять. Обе части.', uz: "Birinchi bo'lak ham beshga ko'paytiriladi. Ikkala bo'lak." } },
+      { kind: 'num', q: { ru: 'Набери ответ: 22 × 4', uz: "Javobni tering: 22 × 4" }, topic: { ru: 'умножение по частям', uz: "bo'laklab ko'paytirish" }, ans: 88,
+        hint: { ru: 'Двадцать на четыре — восемьдесят. Два на четыре — восемь.', uz: "Yigirmani to'rtga — sakson. Ikkini to'rtga — sakkiz." } },
+      { kind: 'num', q: { ru: 'Набери ответ: 43 × 2', uz: "Javobni tering: 43 × 2" }, topic: { ru: 'умножение по частям', uz: "bo'laklab ko'paytirish" }, ans: 86,
+        hint: { ru: 'Сорок на два — восемьдесят. Три на два — шесть.', uz: "Qirqni ikkiga — sakson. Uchni ikkiga — olti." } },
+      { kind: 'num', q: { ru: 'На полке 15 растений, полок 3. Сколько всего?', uz: "Tokchada 15 ta o'simlik, tokcha 3 ta. Jami nechta?" }, topic: { ru: 'задача на умножение', uz: "ko'paytirishga masala" }, ans: 45,
+        hint: { ru: 'Десять на три — тридцать. Пять на три — пятнадцать. Сложи.', uz: "O'nni uchga — o'ttiz. Beshni uchga — o'n besh. Qo'shing." } }
     ],
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi' },
-    fact_text: { ru: 'Растения Бита светятся сами — это биолюминесценция. На Земле так же светятся светлячки, некоторые грибы и морские существа.', uz: "Bitning o'simliklari o'zi nur sochadi — bu bioluminessensiya. Yerda ham shunday qilib o'tchivinlar, ba'zi qo'ziqorinlar va dengiz jonivorlari yaltiraydi." },
-    fact_audio: { ru: 'Растения Бита светятся сами. Это называется биолюминесценция. На Земле так же светятся светлячки, некоторые грибы и морские существа.', uz: "Bitning o'simliklari o'zi nur sochadi. Bu bioluminessensiya deyiladi. Yerda ham shunday qilib o'tchivinlar, ba'zi qo'ziqorinlar va dengiz jonivorlari yaltiraydi." },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
+    fact_text: { ru: 'Растения Бита светятся сами — это биолюминесценция. На Земле так светятся некоторые грибы, светлячки и морские жители.', uz: "Bitning o'simliklari o'zi nur sochadi — bu bioluminessensiya. Yerda ba'zi qo'ziqorinlar, o't chiroqlar va dengiz jonivorlari shunday nur sochadi." },
+    fact_audio: { ru: 'Растения Бита светятся сами. Это называется биолюминесценция. На Земле так светятся некоторые грибы, светлячки и морские жители.', uz: "Bitning o'simliklari o'zi nur sochadi. Bu bioluminessensiya deb ataladi. Yerda ba'zi qo'ziqorinlar, o't chiroqlar va dengiz jonivorlari shunday nur sochadi." },
     audio: {
-      intro: { ru: 'Пять заданий. Считай внимательно, смотри на знак действия.', uz: "Beshta topshiriq. Diqqat bilan hisoblang, amal belgisiga qarang." },
+      intro: { ru: 'Пять заданий. Раздели число на части, умножь обе части и сложи.', uz: "Beshta topshiriq. Sonni bo'laklarga ajrating, ikkala bo'lakni ko'paytiring va qo'shing." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: "Unchalik emas. Tushuntirishga qarang." }
+      on_wrong: { ru: 'Не совсем.', uz: "Unchalik emas." }
     }
   },
 
   // s13 — YAKUN
   s13: {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Сад посчитан!', uz: "Bog' sanaldi!" },
-    cando: { ru: 'Теперь ты умножаешь и делишь на 10 и на 100.', uz: "Endi siz 10 va 100 ga ko'paytirasiz va bo'lasiz." },
-    rule_recap: { ru: 'На 10 — один ноль, на 100 — два. При делении нули уходят.', uz: "10 ga — bitta nol, 100 ga — ikkita. Bo'lganda nollar ketadi." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'таблицу умножения', uz: "ko'paytirish jadvaliga" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'умножение суммы: (20 + 3) × 4', uz: "yig'indini ko'paytirish: (20 + 3) × 4" },
-    audio: {
-      ru: 'Сад света посчитан. Теперь ты умеешь умножать и делить на десять и на сто. Запомни. На десять один ноль, на сто два нуля. При делении нули уходят. В следующий раз научимся умножать сумму по частям.',
-      uz: "Nur bog'i sanaldi. Siz o'nga va yuzga ko'paytirish va bo'lishni o'rgandingiz. Yodda tuting. O'nga — bitta nol, yuzga — ikkita nol. Bo'lganda nollar ketadi. Keyingi safar yig'indini bo'lib ko'paytirishni o'rganamiz."
-    }
+    mission_done: { ru: 'Полки посчитаны!', uz: 'Tokchalar sanaldi!' },
+    cando: { ru: 'Теперь ты умножаешь числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ham ko'paytirasiz." },
+    rule_recap: { ru: 'Раздели число на десятки и единицы, умножь каждую часть и сложи результаты.', uz: "Sonni o'nlik va birlikka ajrating, har bir bo'lakni ko'paytiring va natijalarni qo'shing." },
+    conn_label_refs: { ru: 'Опирались на', uz: 'Tayandik' },
+    conn_refs: { ru: 'таблицу умножения и умножение на 10', uz: "ko'paytirish jadvali va 10 ga ko'paytirish" },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi dars' },
+    conn_next: { ru: 'делим сумму на части', uz: "yig'indini bo'laklarga bo'lamiz" },
+    audio: { ru: 'Полки посчитаны. Теперь ты умеешь умножать числа, которых нет в таблице. Раздели число на десятки и единицы, умножь каждую часть и сложи результаты. В следующем уроке мы так же разделим на части деление.', uz: "Tokchalar sanaldi. Endi siz jadvalda yo'q sonlarni ham ko'paytira olasiz. Sonni o'nlik va birlikka ajrating, har bir bo'lakni ko'paytiring va natijalarni qo'shing. Keyingi darsda bo'lishni ham xuddi shunday bo'laklarga ajratamiz." }
   }
 };
 
-// slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
+// Ekranlararo ko'priklar (oldingi ekrandan keyingisiga o'tishda)
 const BRIDGES = {
-  stway: { ru: 'Теперь два пути к одному ответу.', uz: "Endi bitta javobga ikki yo'l." },
-  s1:  { ru: 'Вспомним, что мы уже умеем.', uz: "Nimani bilishimizni eslaylik." },
-  s2:  { ru: 'А теперь самое главное.', uz: "Endi eng muhimi." },
-  s3:  { ru: 'Идём дальше — к сотне.', uz: "Yuzlikka o'tamiz." },
-  s4:  { ru: 'А если наоборот?', uz: "Agar teskarisi bo'lsa-chi?" },
-  s5:  { ru: 'И так же с сотней.', uz: "Yuzlik bilan ham xuddi shunday." },
-  s6:  { ru: 'Соберём всё в правило.', uz: "Hammasini qoidaga yig'amiz." },
-  s7:  { ru: 'Теперь потренируемся.', uz: "Endi mashq qilamiz." },
-  s8:  { ru: 'Теперь обратный ход.', uz: "Endi teskari yo'l." },
-  s9:  { ru: 'Посмотри внимательно.', uz: "Diqqatli bo'ling." },
-  s10: { ru: 'Смешаем всё вместе.', uz: "Hammasini aralashtiramiz." },
-  s11: { ru: 'Задача из сада.', uz: "Bog'dan masala." },
-  s12: { ru: 'Проверим себя.', uz: "O'zimizni sinab ko'ramiz." }
+  stway: { ru: 'А теперь два пути к одному ответу.', uz: "Endi bitta javobga ikki yo'l." },
+  s1: { ru: 'Посмотрим на одну полку внимательнее.', uz: "Bitta tokchaga diqqat bilan qaraymiz." },
+  s2: { ru: 'Начнём с большой части.', uz: "Katta bo'lakdan boshlaymiz." },
+  s3: { ru: 'Теперь маленькая часть.', uz: "Endi kichik bo'lak." },
+  s4: { ru: 'Осталось соединить.', uz: "Birlashtirish qoldi." },
+  s5: { ru: 'Проверим этот путь на другом числе.', uz: "Bu yo'lni boshqa sonda sinab ko'ramiz." },
+  s6: { ru: 'Запишем найденное правило.', uz: "Topilgan qoidani yozamiz." },
+  s7: { ru: 'Потренируемся разделять.', uz: "Ajratishni mashq qilamiz." },
+  s8: { ru: 'Теперь считаем до конца.', uz: "Endi oxirigacha hisoblaymiz." },
+  s9: { ru: 'Проверим внимательность.', uz: "Diqqatni tekshiramiz." },
+  s10: { ru: 'Смешанные примеры.', uz: "Aralash misollar." },
+  s11: { ru: 'Задача из теплицы Анвара.', uz: "Anvar issiqxonasidan masala." },
+  s12: { ru: 'Пять заданий на проверку.', uz: "Tekshiruv uchun beshta topshiriq." }
 };
 
-// s13 payoff (xulosadan oldin aytiladi)
-const S13_PAYOFF = {
-  ru: 'Миссия выполнена! Сады света посчитаны — теперь любой большой ряд считается за секунду. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Nur bog'lari sanaldi — endi istalgan katta qator bir soniyada hisoblanadi. Yordamingiz uchun rahmat!"
-};
+const S13_PAYOFF = { ru: 'Полки сада посчитаны. Регион светится ярче.', uz: "Bog' tokchalari sanaldi. Hudud yorqinroq nur sochmoqda." };
 
 
 // Lumo yo'l-xaritasi yozuvi (lang-lookup)
@@ -2289,7 +2281,7 @@ const HookScene = ({ gathered = false }) => {
   );
   return (
     <div className="lm-scene">
-      <GardenTerraceBg/>
+      <GardenTerraceBg split={gathered}/>
       <div className="lm-scene-cast">
         {LUMO_CAST.slice(0, 2).map(kid)}
         <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
@@ -2326,7 +2318,7 @@ const FrameFx = () => (
 );
 
 // --- NUR BOG'I TERRASALARI SAHNASI (D10): qatorli porlovchi o'simliklar (massiv)
-const GardenTerraceBg = () => (
+const GardenTerraceBg = ({ split = false }) => (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <radialGradient id="gardenterracebgvig" cx="50%" cy="43%" r="72%"><stop offset="0%" stopColor="#000" stopOpacity="0"/><stop offset="76%" stopColor="#000" stopOpacity="0"/><stop offset="100%" stopColor="#2A2018" stopOpacity="0.28"/></radialGradient>
@@ -2348,26 +2340,39 @@ const GardenTerraceBg = () => (
     {/* --- BOG' DEVORI (past, panjarali) --- */}
     <rect x="0" y="120" width="400" height="12" fill="url(#g0wall)"/><rect x="0" y="118" width="400" height="4" rx="2" fill="#EAD9B8"/>
     <g stroke="#B49A6E" strokeWidth="1.2" opacity="0.6">{[40, 90, 140, 260, 310, 360].map((x, i) => <line key={i} x1={x} y1="122" x2={x} y2="130"/>)}</g>
-    {/* --- MARKAZIY ASBOB (Dars11): 2 qator x 10 o'simlik — O'NLIK QATOR (10 ga ko'paytirish) --- */}
-    <rect x="104" y="146" width="192" height="16" rx="4" fill="url(#g0bed)"/><rect x="104" y="146" width="192" height="4" rx="2" fill="#B78E64"/>
-    {[0, 1].map((r) => Array.from({ length: 10 }).map((_, i) => {
-      const x = 114 + i * 20;
-      const cy = r === 0 ? 108 : 130;
+    {/* --- MARKAZIY ASBOB (Dars11): IKKI TOKCHA — 20 lik blok va 3 yakka o'simlik --- */}
+    {/* katta tokcha: 20 ta o'simlik (4 x 5) */}
+    <rect x="96" y="150" width="116" height="14" rx="4" fill="url(#g0bed)"/><rect x="96" y="150" width="116" height="4" rx="2" fill="#B78E64"/>
+    {[0, 1, 2, 3].map((r) => Array.from({ length: 5 }).map((_, i) => {
+      const x = 106 + i * 24;
+      const cy = 104 + r * 12;
       const alt = (r + i) % 2 === 1;
       return (
-        <g key={`p${r}-${i}`}>
-          <path d={`M${x} 148 Q${x - 2} ${cy + 16} ${x} ${cy + 5}`} stroke="#6FBF8E" strokeWidth="2" fill="none"/>
-          <path d={`M${x} ${cy + 12} q-5 -2 -7 -6 q6 1 8 5Z`} fill="#7CCFA0"/>
-          <circle cx={x} cy={cy} r="4.8" fill={alt ? '#8FE8C0' : '#FFA6D0'} stroke={alt ? '#5FC898' : '#E87FB0'} strokeWidth="1"/>
-          <circle className="lm-glow" style={{ animationDelay: `${(r * 10 + i) * 0.09}s` }} cx={x} cy={cy} r="2.3" fill="#FFF4D0"/>
+        <g key={`b${r}-${i}`}>
+          <circle cx={x} cy={cy} r="4" fill={alt ? '#8FE8C0' : '#FFA6D0'} stroke={alt ? '#5FC898' : '#E87FB0'} strokeWidth="0.9"/>
+          <circle className="lm-glow" style={{ animationDelay: `${(r * 5 + i) * 0.08}s` }} cx={x} cy={cy} r="1.9" fill="#FFF4D0"/>
         </g>
       );
     }))}
-    {/* har qatorda o'nta — qator ostidagi o'nlik yorlig'i */}
-    <text x="200" y="172" textAnchor="middle" fontSize="8" fontWeight="800" fill="#8A7A5E" fontFamily="'JetBrains Mono', monospace">10 + 10</text>
-    {/* massiv ramkasi + tenglama banneri (pergoladan osilgan) */}
-    <path d="M160 52 h80 v14 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 Z" fill="#E8B4C4" stroke="#D08FA6" strokeWidth="1"/>
-    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">2 × 10 = 20</text>
+    {split && <text x="154" y="176" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A7A5E" fontFamily="'JetBrains Mono', monospace">20</text>}
+    {/* ajratuvchi plyus — faqat bola javob bergandan keyin (kashfiyot oldindan aytilmasin) */}
+    {split && <text x="228" y="140" textAnchor="middle" fontSize="14" fontWeight="800" fill="#B08A5E" fontFamily="'JetBrains Mono', monospace">+</text>}
+    {/* kichik tokcha: 3 ta yakka o'simlik */}
+    <rect x="248" y="150" width="60" height="14" rx="4" fill="url(#g0bed)"/><rect x="248" y="150" width="60" height="4" rx="2" fill="#B78E64"/>
+    {[0, 1, 2].map((i) => {
+      const x = 262 + i * 16;
+      return (
+        <g key={`s${i}`}>
+          <path d={`M${x} 150 Q${x - 2} 138 ${x} 130`} stroke="#6FBF8E" strokeWidth="2" fill="none"/>
+          <circle cx={x} cy="125" r="5" fill={i % 2 ? '#8FE8C0' : '#FFA6D0'} stroke={i % 2 ? '#5FC898' : '#E87FB0'} strokeWidth="1"/>
+          <circle className="lm-glow" style={{ animationDelay: `${1.6 + i * 0.14}s` }} cx={x} cy="125" r="2.4" fill="#FFF4D0"/>
+        </g>
+      );
+    })}
+    {split && <text x="278" y="176" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A7A5E" fontFamily="'JetBrains Mono', monospace">3</text>}
+    {/* tenglama banneri (pergoladan osilgan): javobgacha savol, javobdan keyin yoyilma */}
+    <path d="M150 52 h100 v14 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 l-6 -5 l-6 5 Z" fill="#E8B4C4" stroke="#D08FA6" strokeWidth="1"/>
+    <text x="200" y="63" textAnchor="middle" fontSize="11" fontWeight="800" fill="#8A4E64" fontFamily="'JetBrains Mono', monospace">{split ? '(20 + 3) × 4' : '23 × 4 = ?'}</text>
     {/* --- PERGOLA (ramka: 2 ustun + ustki to'sinlar + osma uzumcha) --- */}
     {[26, 356].map((x, i) => (
       <g key={`col${i}`}>
@@ -2407,7 +2412,7 @@ const LessonScene = ({ gathered = false }) => {
   );
   return (
     <div className="lm-scene">
-      <GardenTerraceBg/>
+      <GardenTerraceBg split={gathered}/>
       <div className="lm-scene-cast">
         {LUMO_CAST.slice(0, 2).map(kid)}
         <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
@@ -2418,13 +2423,16 @@ const LessonScene = ({ gathered = false }) => {
 };
 
 // --- MASSIV (nurli o'simlik qatorlari): rows x cols Chiroq.
-const ArrayViz = ({ rows, cols }) => (
-  <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 'clamp(3px, 1vw, 7px)', padding: 'clamp(7px, 1.8vw, 13px)', background: '#152342', borderRadius: 12 }}>
-    {Array.from({ length: rows * cols }).map((_, i) => (
-      <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.03}s`, width: 'clamp(14px, 4vw, 24px)', height: 'clamp(14px, 4vw, 24px)', display: 'inline-flex' }}><Chiroq/></span>
-    ))}
-  </div>
-);
+const ArrayViz = ({ rows, cols, dot, gap }) => {
+  const d = dot || 'clamp(14px, 4vw, 24px)';
+  return (
+    <div style={{ display: 'inline-grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: gap || 'clamp(3px, 1vw, 7px)', padding: 'clamp(7px, 1.8vw, 13px)', background: '#152342', borderRadius: 12 }}>
+      {Array.from({ length: rows * cols }).map((_, i) => (
+        <span key={i} className="g1-pop-in" style={{ animationDelay: `${i * 0.012}s`, width: d, height: d, display: 'inline-flex' }}><Chiroq/></span>
+      ))}
+    </div>
+  );
+};
 
 // --- MINI-SHAHARCHA (final savol vizuali).
 const MINI_HOUSES = [
@@ -2614,7 +2622,7 @@ const Screen0 = (props) => {
           <LessonScene gathered={revealed}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(7px, 1.5vw, 11px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
-          <ArrayViz rows={c.rows} cols={c.cols}/>
+          <ArrayViz rows={c.rows} cols={c.cols} dot="clamp(9px, 2.6vw, 14px)" gap="2px"/>
           <span style={{ color: T.ink2, fontWeight: 700, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{t(c.grid_cap)}</span>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 1.9vw, 17px)', margin: 0 }}>{t(c.q)}</p>
@@ -2650,67 +2658,14 @@ const Screen0 = (props) => {
   );
 };
 
-// s1 — RECALL: 4 x 10 = 40
-const Screen1 = (props) => {
-  const lang = useLang();
-  const t = useT();
-  const c = CONTENT.s1;
-  const audio = useAudio([
-    brgSeg('s1', lang),
-    ...c.audio[lang].map((text, i) => ({ id: `s1_${i}`, text, trigger: 'after_previous', waits_for: null }))
-  ]);
-  const seg = audio.currentSegment;
-  const [reached, setReached] = useState(-1);
-  useEffect(() => { if (seg && /^s1_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const all = audio.muted;   // ovoz o'chiq bo'lsa segmentlar yurmaydi — hammasi darrov ko'rinsin
-  const done = all || reached >= (c.audio[lang].length - 1);
-  const canAdv = useAdvanceGate(done, audio);
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(170px, 36vw, 230px)' }}>
-          <ArrayViz rows={4} cols={10}/>
-          {(all || reached >= 1) && <span className="mono lm-eq lm-edrop" style={{ fontSize: 'clamp(18px, 3.6vw, 26px)', fontWeight: 800, color: T.success }}>{t(c.recall_eq)}</span>}
-        </div>
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.done_text)}/>
-          </div>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s2..s5 — KASHFIYOT: razryad siljishi (from -> to), sekin ELASTIK, audio-sinxron
-// from -> to: qo'shilgan nollar YASHIL, tushgan nollar XIRA+chizilgan (mexanika ko'rinsin)
-const ShiftRow = ({ from, to, op }) => {
-  const grow = to.length > from.length;
-  const base = grow ? from : to;
-  const extra = grow ? to.slice(from.length) : from.slice(to.length);
-  return (
-    <div className="lm-shiftrow lm-edrop">
-      <span className="mono lm-shift-from">
-        {grow ? from : base}
-        {!grow && <span className="lm-shift-gone">{extra}</span>}
-      </span>
-      <span className="mono lm-shift-op">{op}</span>
-      <span className="mono lm-shift-arrow">→</span>
-      <span className="mono lm-shift-to">
-        {base}
-        {grow && <span className="lm-shift-new">{extra}</span>}
-      </span>
-    </div>
-  );
-};
-const ExploreShift = ({ props, ck }) => {
+// s1..s5 — KASHFIYOT: qadam-zanjiri. Har qadam O'Z audio segmentida (step.at) sekin elastik ochiladi.
+const ChainStep = ({ expr, tag, last }) => (
+  <div className={`lm-chainstep lm-edrop ${last ? 'lm-chainstep-last' : ''}`}>
+    <span className="mono lm-chain-expr">{expr}</span>
+    <span className="lm-chain-tag">{tag}</span>
+  </div>
+);
+const ChainBoard = ({ props, ck }) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT[ck];
@@ -2723,7 +2678,8 @@ const ExploreShift = ({ props, ck }) => {
   const re = React.useMemo(() => new RegExp(`^${ck}_(\\d+)$`), [ck]);
   useEffect(() => { const m = seg && seg.match(re); if (m) setReached((r) => Math.max(r, +m[1])); }, [seg, re]);
   const all = audio.muted;   // ovoz o'chiq bo'lsa segmentlar yurmaydi — hammasi darrov ko'rinsin
-  const done = all || reached >= (c.audio[lang].length - 1);
+  const lastSeg = c.audio[lang].length - 1;
+  const done = all || reached >= lastSeg;
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2731,13 +2687,17 @@ const ExploreShift = ({ props, ck }) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
+  const shown = c.steps.filter((s) => all || reached >= s.at);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(170px, 36vw, 230px)' }}>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(14px, 2.6vw, 22px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
           <FrameFx/>
-          {c.examples.map((ex, i) => ((all || reached >= i + 1) ? <ShiftRow key={i} from={ex.from} to={ex.to} op={t(c.op_label)}/> : null))}
+          <ShelfSplit ck={ck} reached={all ? 99 : reached}/>
+          {c.steps.map((s, i) => (shown.includes(s)
+            ? <ChainStep key={i} expr={s.expr} tag={t(s.tag)} last={i === c.steps.length - 1 && c.steps.length > 1}/>
+            : null))}
         </div>
         {done && (
           <div className="frame-success fade-up">
@@ -2748,10 +2708,218 @@ const ExploreShift = ({ props, ck }) => {
     </Stage>
   );
 };
-const Screen2 = (props) => <ExploreShift props={props} ck="s2"/>;
-const Screen3 = (props) => <ExploreShift props={props} ck="s3"/>;
-const Screen4 = (props) => <ExploreShift props={props} ck="s4"/>;
-const Screen5 = (props) => <ExploreShift props={props} ck="s5"/>;
+
+// Tokcha-vizual: s1 da 23 ta o'simlik 20 lik blok + 3 yakkaga AJRALADI (kashfiyot mag'zi).
+const ShelfSplit = ({ ck, reached }) => {
+  if (ck !== 's1') return null;
+  const split = reached >= 1;
+  const Lamp = ({ k }) => <span key={k} className="lm-lamp-s"><Chiroq/></span>;
+  return (
+    <div className={`lm-shelf ${split ? 'lm-shelf-split' : ''}`}>
+      <div className="lm-shelf-part lm-shelf-big">
+        <div className="lm-shelf-grid">{Array.from({ length: 20 }).map((_, i) => <Lamp key={i} k={i}/>)}</div>
+        {split && <span className="mono lm-shelf-num lm-edrop">20</span>}
+      </div>
+      {split && <span className="mono lm-shelf-plus lm-edrop">+</span>}
+      <div className="lm-shelf-part lm-shelf-small">
+        <div className="lm-shelf-grid">{Array.from({ length: 3 }).map((_, i) => <Lamp key={i} k={i}/>)}</div>
+        {split && <span className="mono lm-shelf-num lm-edrop">3</span>}
+      </div>
+    </div>
+  );
+};
+
+const Screen1 = (props) => <ChainBoard props={props} ck="s1"/>;
+const Screen2 = (props) => <ChainBoard props={props} ck="s2"/>;
+const Screen3 = (props) => <ChainBoard props={props} ck="s3"/>;
+const Screen4 = (props) => <ChainBoard props={props} ck="s4"/>;
+const Screen5 = (props) => <ChainBoard props={props} ck="s5"/>;
+
+// stway ranglari — bo'laklar bo'yicha (20 li bo'lak qizil, 30 li bo'lak yashil).
+const TW_COLS = ['#C0392B', '#1F7A4D'];
+// 1-usul (avval yig'indi): bosqich qatorlari birma-bir tushadi (lm-edrop, 0.85s):
+// «(20 + 30) × 4» (qavs ichi aksentda) -> «50 × 4» (yig'ilgan 50 aksentda).
+const TwM1Drop = ({ rows }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px, 1vw, 8px)' }}>
+    {rows.map((r, i) => (
+      <span key={i} className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: T.ink }}>
+        {r.pre}
+        <span style={{ color: T.accent, background: '#FFF3E9', borderRadius: 8, padding: '1px 6px' }}>{r.hi}</span>
+        {r.post}
+      </span>
+    ))}
+  </div>
+);
+// Yakuniy natija — yashil pilyulada.
+const TwFullWord = ({ text }) => (
+  <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '4px 14px', textAlign: 'center' }}>{text}</span>
+);
+// 2-usul (bo'laklab): 20 × 4 (qizil) va 30 × 4 (yashil) alohida tushadi, ostiga qiymatlari (80 / 120).
+const TwM2Drop = ({ pairs, upto }) => (
+  <div style={{ display: 'flex', gap: 'clamp(14px, 3.4vw, 26px)', justifyContent: 'center' }}>
+    {pairs.map((p, i) => (upto > i ? (
+      <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <span className="mono lm-edrop" style={{ animationDelay: '0.1s', fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: TW_COLS[i], border: `2.5px solid ${TW_COLS[i]}`, borderRadius: 10, padding: '2px 10px', background: T.paper }}>{p.e}</span>
+        <span className="mono lm-edrop" style={{ animationDelay: '0.5s', fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: TW_COLS[i] }}>{p.v}</span>
+      </div>
+    ) : null))}
+  </div>
+);
+// 2-usul yig'indi qatori: 80 + 120 navbat bilan tushadi.
+const TwSumRow = ({ parts }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(4px, 1.2vw, 8px)' }}>
+    {parts.map((p, i) => (
+      <React.Fragment key={i}>
+        {i > 0 && <span className="mono lm-fadein" style={{ animationDelay: `${i * 0.85 - 0.2}s`, fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: T.ink2 }}>+</span>}
+        <span className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: TW_COLS[i] }}>{p}</span>
+      </React.Fragment>
+    ))}
+  </div>
+);
+// Bonus — yuza modeli ANIMATSION: avval butun to'rtburchak (balandlik 4, eni 20+30),
+// keyin kesish chizig'i lm-fadein, bo'lak qiymatlari (80/120) lm-edrop.
+const TwAreaAnim = ({ cut }) => (
+  <svg viewBox="0 0 260 90" style={{ width: 'min(300px, 92%)', height: 'auto' }} aria-hidden="true">
+    <rect className="lm-fadein" style={{ transformBox: 'fill-box', transformOrigin: 'center' }} x="20" y="20" width="220" height="50" rx="3" fill="#FDF3E3" stroke="#8A8178" strokeWidth="1.6"/>
+    <text x="90" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">20</text>
+    <text x="200" y="12" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">30</text>
+    <text x="9" y="49" textAnchor="middle" fontSize="10" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace" transform="rotate(-90 9 45)">4</text>
+    {cut && (
+      <g>
+        <rect className="lm-fadein" style={{ animationDelay: '0.45s', transformBox: 'fill-box', transformOrigin: 'center' }} x="20" y="20" width="140" height="50" fill="#FBE9E7" stroke="#C0392B" strokeWidth="1.6"/>
+        <rect className="lm-fadein" style={{ animationDelay: '0.45s', transformBox: 'fill-box', transformOrigin: 'center' }} x="160" y="20" width="80" height="50" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="1.6"/>
+        <line className="lm-fadein" style={{ animationDelay: '0.1s', transformBox: 'fill-box', transformOrigin: 'center' }} x1="160" y1="14" x2="160" y2="76" stroke="#8A8178" strokeWidth="1.4" strokeDasharray="3 3"/>
+        <text className="lm-edrop" style={{ animationDelay: '0.9s', transformBox: 'fill-box', transformOrigin: 'center' }} x="90" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">80</text>
+        <text className="lm-edrop" style={{ animationDelay: '1.3s', transformBox: 'fill-box', transformOrigin: 'center' }} x="200" y="49" textAnchor="middle" fontSize="17" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">120</text>
+      </g>
+    )}
+  </svg>
+);
+// stway — IKKI USUL, Dars03 etalon skeletida: har usul ANIMATSION namoyish bilan, ovozga sinxron.
+// Oqim: 1-usul (avval yig'indi) -> BASHORAT (Ha/Yo'q) -> 2-usul (bo'laklab) -> ★ bonus (yuza modeli).
+const TwoWayScreen = (props) => {
+  const lang = useLang();
+  const t = useT();
+  const c = CONTENT.stway;
+  const sfx = useSfx();
+  const audio = useAudio([
+    brgSeg('stway', lang),
+    ...c.audio[lang].map((text, i) => ({ id: `tw_${i}`, text, trigger: 'after_previous', waits_for: null })),
+    { id: 'tw_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
+    ...c.audio2[lang].map((text, i) => ({ id: `tw2_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
+  ]);
+  const seg = audio.currentSegment;
+  const [r1, setR1] = useState(-1);     // 1-usul bosqichi (tw_N)
+  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi (tw2_N)
+  useEffect(() => {
+    if (!seg) return;
+    const a = seg.match(/^tw_(\d+)$/); if (a) setR1((v) => Math.max(v, +a[1]));
+    const b = seg.match(/^tw2_(\d+)$/); if (b) setR2((v) => Math.max(v, +b[1]));
+  }, [seg]);
+  const canAct = useCanAnswer(audio);
+  const [picked, setPicked] = useState(null);
+  const ok = picked === c.check_ci;
+  const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
+  const m1Done = all || r1 >= c.audio[lang].length - 1;
+  const askNow = m1Done && !ok;
+  const pick = (i) => {
+    if (!canAct || ok || !m1Done) return;
+    setPicked(i);
+    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
+  };
+  const showM1  = all || r1 >= 1;    // 1-usul yorlig'i + izohi
+  const showM1d = all || r1 >= 2;    // bosqich qatorlari tushadi (qavs aksentda -> 50)
+  const showM1w = all || r1 >= 3;    // natija-pilyula 200
+  const m2Upto  = all ? 9 : (r2 >= 2 ? 2 : (r2 >= 1 ? 1 : 0));   // nechta bo'lak-ustun ochiq
+  const showM2s = all || r2 >= 3;    // 80 + 120 qatori + natija-pilyula
+  const showBonus  = ok && (all || r2 >= 4);
+  const showCut    = all || r2 >= 5; // kesish chizig'i + bo'lak qiymatlari
+  const done = ok && (all || r2 >= c.audio2[lang].length - 1);
+  // Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yig'iladi (Dars02 naqshi) — ekran skrolsiz sig'adi.
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    if (!showBonus) return undefined;
+    const id = setTimeout(() => setCompact(true), all ? 2600 : 0);
+    return () => clearTimeout(id);
+  }, [showBonus, all]);
+  const [bonusCompact, setBonusCompact] = useState(false);
+  useEffect(() => {
+    if (!done) return undefined;
+    const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
+    return () => clearTimeout(id);
+  }, [done, all]);
+  const revealRef = useRevealScroll(showBonus, 500);
+  const canAdv = useAdvanceGate(done, audio);
+  const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
+  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
+  const MText = ({ x }) => <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{x}</span>;
+  const navContent = (
+    <>
+      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
+      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
+    </>
+  );
+  return (
+    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
+        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
+        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
+          <FrameFx/>
+          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink }}>{c.expr}</span>
+          {showM1 && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
+              <MLabel x={t(c.m1_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m1_text)}/>
+                {showM1d && <TwM1Drop rows={c.m1_rows}/>}
+              </div>
+              {showM1w && <TwFullWord text={c.m1_result}/>}
+            </div>
+          )}
+          {ok && (
+            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
+              <MLabel x={t(c.m2_label)}/>
+              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
+                <MText x={t(c.m2_text)}/>
+                {m2Upto > 0 && <TwM2Drop pairs={c.m2_pairs} upto={m2Upto}/>}
+                {showM2s && <TwSumRow parts={c.m2_pairs.map((p) => p.v)}/>}
+              </div>
+              {showM2s && <TwFullWord text={c.m2_result}/>}
+            </div>
+          )}
+        </div>
+        {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
+        {askNow && (
+          <div className="lm-q-accent fade-up">
+            {t(c.check_q)}
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 'clamp(8px, 1.6vw, 12px)' }}>
+              {opts.map((o, i) => (
+                <button key={i} className={`option ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct} onClick={() => pick(i)}
+                  style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(14px, 2.6vw, 20px)', fontSize: 'clamp(14px, 2.2vw, 17px)', fontWeight: 800 }}>{o}</button>
+              ))}
+            </div>
+            {picked !== null && !ok && <p style={{ margin: '8px 0 0', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center' }}>{t(c.check_no)}</p>}
+          </div>
+        )}
+        {showBonus && (
+          <div ref={revealRef} className="lm-tw-bonus lm-riseup">
+            <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
+            <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
+              <TwAreaAnim cut={showCut}/>
+              <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
+            </div>
+            {bonusCompact && <TwFullWord text={c.bonus_recap}/>}
+          </div>
+        )}
+        {done && (
+          <div className="frame-success fade-up">
+            <Reaction state="correct" praise={t(c.check_ok)}/>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+};
 
 // s6 — QOIDA: savol AVVAL (aksent) -> javobdan keyin qoida + tushuntirish
 const Screen6 = (props) => {
@@ -3044,7 +3212,7 @@ const Screen11 = (props) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(10px, 2vw, 16px)' }}>
           <FrameFx/>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-            <span className="g1-cast-fig" style={{ width: 'clamp(40px, 12vw, 54px)' }}><RanoSVG mood="pointing"/></span>
+            <span className="g1-cast-fig" style={{ width: 'clamp(40px, 12vw, 54px)' }}><AnvarSVG pose="pointing"/></span>
             <span className="mono" style={{ fontSize: 'clamp(20px, 4.2vw, 28px)', fontWeight: 800, color: T.ink }}>{t(c.exp_display)}</span>
           </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
@@ -3224,183 +3392,7 @@ const Screen13 = (props) => {
 // ============================================================
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
-
-// stway ranglari — xonalar bo'yicha (yuzlik / o'nlik / birlik), Dars03 naqshi.
-const TW_COLS = ['#C0392B', '#1F7A4D', '#019ACB'];
-// Yakuniy natija — yashil pilyulada (yig'ilgandan keyin ham qoladi).
-const TwFullWord = ({ text }) => (
-  <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '4px 14px', textAlign: 'center' }}>{text}</span>
-);
-// 1-usul (nol qo'shish): 23 raqamlari joyida turadi, oxiriga 0 kartasi aksent bilan tushadi -> 230.
-const TwNolDrop = ({ digits, zero }) => (
-  <div style={{ display: 'flex', gap: 'clamp(6px, 1.6vw, 10px)', justifyContent: 'center' }}>
-    {digits.map((d, i) => (
-      <span key={i} className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.5}s`, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.ink, border: `2.5px solid ${T.ink3}`, borderRadius: 10, minWidth: 'clamp(32px, 8vw, 44px)', textAlign: 'center', padding: '3px 0', background: T.paper }}>{d}</span>
-    ))}
-    <span className="mono lm-edrop" style={{ animationDelay: '1.5s', fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: T.accent, border: `2.5px solid ${T.accent}`, borderRadius: 10, minWidth: 'clamp(32px, 8vw, 44px)', textAlign: 'center', padding: '3px 0', background: '#FFF3E9' }}>{zero}</span>
-  </div>
-);
-// 2-usul (siljish): xona jadvalchasi — avval 2/3 o'nlik-birlikda, siljishda chap ustunlarga qayta tushadi,
-// bo'shagan birlik katagiga 0 aksent bilan tushadi (Dars03 TwYoyDrop uslubidagi kartalar).
-const TwShiftTable = ({ labels, pre, post, shifted, showZero }) => (
-  <div style={{ display: 'flex', gap: 'clamp(10px, 2.6vw, 20px)', justifyContent: 'center' }}>
-    {['h', 't', 'o'].map((k, i) => {
-      const d = shifted ? post[i] : pre[i];
-      const isZero = shifted && i === 2;
-      const showCard = isZero ? showZero : d !== '';
-      return (
-        <div key={k} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <span className="mono" style={{ fontSize: 'clamp(10px, 1.4vw, 12px)', color: T.ink2, fontWeight: 700 }}>{labels[k]}</span>
-          <div style={{ minWidth: 'clamp(36px, 8.5vw, 48px)', minHeight: 'clamp(42px, 9vw, 52px)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: `2px dashed ${showCard ? 'transparent' : T.ink3}`, borderRadius: 10 }}>
-            {showCard && (
-              <span key={`${k}-${shifted ? 'b' : 'a'}`} className="mono lm-edrop" style={{ animationDelay: `${0.15 + i * 0.55}s`, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: isZero ? T.accent : TW_COLS[i], border: `2.5px solid ${isZero ? T.accent : TW_COLS[i]}`, borderRadius: 10, minWidth: 'clamp(32px, 8vw, 44px)', textAlign: 'center', padding: '3px 0', background: isZero ? '#FFF3E9' : T.paper }}>{d}</span>
-            )}
-          </div>
-          {shifted && i < 2 && <span className="mono lm-fadein" style={{ animationDelay: `${0.1 + i * 0.55}s`, fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: 800, color: T.accent }}>←</span>}
-        </div>
-      );
-    })}
-  </div>
-);
-// Bonus zanjiri: qatorlar birma-bir tushadi ("30 x 4" dan "120" gacha), oxirgisi yashil pilyulada.
-const TwChainDrop = ({ rows, upto }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(3px, 0.8vw, 6px)' }}>
-    {rows.slice(0, upto).map((r, i) => {
-      const last = i === rows.length - 1;
-      return (
-        <span key={i} className="mono lm-edrop" style={{ animationDelay: `${0.15 + (i < 2 ? i : i - 2) * 0.75}s`, fontSize: last ? 'clamp(20px, 4.2vw, 28px)' : 'clamp(15px, 2.8vw, 21px)', fontWeight: 800, color: last ? '#1F7A4D' : T.ink2, background: last ? '#EAF5EE' : 'transparent', borderRadius: 10, padding: last ? '2px 12px' : 0 }}>{r}</span>
-      );
-    })}
-  </div>
-);
-// stway — IKKI USUL, Dars03 etalon skeleti: har usul ANIMATSION namoyish bilan, ovozga sinxron.
-// Oqim: 1-usul (nol qo'shish) -> BASHORAT (darvoza) -> 2-usul (raqam siljishi) -> ★ bonus (nega nol).
-const TwoWayScreen = (props) => {
-  const lang = useLang();
-  const t = useT();
-  const c = CONTENT.stway;
-  const sfx = useSfx();
-  const audio = useAudio([
-    brgSeg('stway', lang),
-    ...c.audio[lang].map((text, i) => ({ id: `tw_${i}`, text, trigger: 'after_previous', waits_for: null })),
-    { id: 'tw_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
-    ...c.audio2[lang].map((text, i) => ({ id: `tw2_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
-  ]);
-  const seg = audio.currentSegment;
-  const [r1, setR1] = useState(-1);     // 1-usul bosqichi (tw_N)
-  const [r2, setR2] = useState(-1);     // 2-usul/bonus bosqichi (tw2_N)
-  useEffect(() => {
-    if (!seg) return;
-    const a = seg.match(/^tw_(\d+)$/); if (a) setR1((v) => Math.max(v, +a[1]));
-    const b = seg.match(/^tw2_(\d+)$/); if (b) setR2((v) => Math.max(v, +b[1]));
-  }, [seg]);
-  const canAct = useCanAnswer(audio);
-  const [picked, setPicked] = useState(null);
-  const ok = picked === c.check_ci;
-  const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
-  const m1Done = all || r1 >= c.audio[lang].length - 1;
-  const askNow = m1Done && !ok;
-  const pick = (i) => {
-    if (!canAct || ok || !m1Done) return;
-    setPicked(i);
-    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
-  };
-  const labels = { h: t(c.hundreds_label), t: t(c.tens_label), o: t(c.ones_label) };
-  const showM1  = all || r1 >= 1;    // 1-usul yorlig'i
-  const showM1d = all || r1 >= 2;    // raqamlar turadi, 0 kartasi tushadi
-  const showM1w = all || r1 >= 3;    // natija-pilyula 23 x 10 = 230
-  const showM2d = all || r2 >= 1;    // jadvalcha: 2/3 o'nlik-birlikda
-  const showM2s = all || r2 >= 2;    // siljish: raqamlar chapga
-  const showM2w = all || r2 >= 3;    // 0 birlikka tushdi + natija-pilyula
-  const showBonus  = ok && (all || r2 >= 4);
-  const showBonus2 = all || r2 >= 5; // zanjir davomi (joy almashish)
-  const done = ok && (all || r2 >= c.audio2[lang].length - 1);
-  // Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yig'iladi (Dars02 naqshi) — ekran skrolsiz sig'adi.
-  const [compact, setCompact] = useState(false);
-  useEffect(() => {
-    if (!showBonus) return undefined;
-    const id = setTimeout(() => setCompact(true), all ? 2600 : 0);
-    return () => clearTimeout(id);
-  }, [showBonus, all]);
-  const [bonusCompact, setBonusCompact] = useState(false);
-  useEffect(() => {
-    if (!done) return undefined;
-    const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
-    return () => clearTimeout(id);
-  }, [done, all]);
-  const revealRef = useRevealScroll(showBonus, 500);
-  const canAdv = useAdvanceGate(done, audio);
-  const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
-  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
-  const MText = ({ x }) => <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{x}</span>;
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
-          <FrameFx/>
-          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
-          {showM1 && (
-            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
-              <MLabel x={t(c.m1_label)}/>
-              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-                <MText x={t(c.m1_text)}/>
-                {showM1d && <TwNolDrop digits={c.m1_digits} zero={c.m1_zero}/>}
-              </div>
-              {showM1w && <TwFullWord text={c.m1_result}/>}
-            </div>
-          )}
-          {ok && (
-            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
-              <MLabel x={t(c.m2_label)}/>
-              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-                <MText x={t(c.m2_text)}/>
-                {showM2d && <TwShiftTable labels={labels} pre={c.m2_pre} post={c.m2_post} shifted={showM2s} showZero={showM2w}/>}
-              </div>
-              {showM2w && <TwFullWord text={c.m2_result}/>}
-            </div>
-          )}
-        </div>
-        {/* Bashorat-darvoza: 1-usuldan keyin savol; javob bergach 2-usul ochiladi. */}
-        {askNow && (
-          <div className="lm-q-accent fade-up">
-            {t(c.check_q)}
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 'clamp(8px, 1.6vw, 12px)' }}>
-              {opts.map((o, i) => (
-                <button key={i} className={`option ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct} onClick={() => pick(i)}
-                  style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(14px, 2.6vw, 20px)', fontSize: 'clamp(14px, 2.2vw, 17px)', fontWeight: 800 }}>{o}</button>
-              ))}
-            </div>
-            {picked !== null && !ok && <p style={{ margin: '8px 0 0', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center' }}>{t(c.check_no)}</p>}
-          </div>
-        )}
-        {showBonus && (
-          <div ref={revealRef} className="lm-tw-bonus lm-riseup">
-            <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
-            <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
-              <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
-              <TwChainDrop rows={c.bonus_chain} upto={showBonus2 ? c.bonus_chain.length : 2}/>
-            </div>
-            {bonusCompact && <TwFullWord text={c.bonus_recap}/>}
-          </div>
-        )}
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.check_ok)}/>
-          </div>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-export default function ShiftTenHundredLesson({
+export default function MultiplySumLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
@@ -4680,7 +4672,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .g1-mexp:disabled { cursor: default; }
 .g1-mexp-ok { box-shadow: inset 0 0 0 2px #1F7A4D, 0 4px 12px rgba(31,122,77,0.18); background: #E3F0E8; }
 
-/* === Dars12 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
+/* === Dars11 — TIMSOH-BELGI (> < =) — Dars04 KIT CSS, baytma-bayt === */
 .d4-sign { font-family: 'Manrope', sans-serif; font-weight: 800; line-height: 1; color: #FF4F28; font-size: clamp(38px, 8vw, 58px); display: inline-flex; align-items: center; justify-content: center; }
 .d4-sign-big { font-size: clamp(52px, 12vw, 86px); }
 .d4-croc svg { width: 1.55em; height: 1.18em; overflow: visible; filter: drop-shadow(0 3px 6px rgba(58,53,48,0.22)); }
@@ -5439,12 +5431,20 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 /* Sekin ELASTIK paydo bo'lish (etalon Dars01). */
 @keyframes lm-edrop-a { from { opacity: 0; transform: translateY(-16px) scale(0.86); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .lm-edrop { animation: lm-edrop-a 0.72s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
-/* Razryad siljishi: son -> natija */
-.lm-shiftrow { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 1.8vw, 14px); flex-wrap: wrap; }
-.lm-shift-from { font-size: clamp(20px, 4.4vw, 30px); font-weight: 800; color: #3A3530; }
-.lm-shift-op { font-size: clamp(14px, 2.4vw, 18px); font-weight: 800; color: #8A8178; }
-.lm-shift-arrow { font-size: clamp(18px, 3.6vw, 26px); color: #ff4f28; }
-.lm-shift-to { font-size: clamp(24px, 5.2vw, 36px); font-weight: 800; color: #ff4f28; background: #FFF3E9; border-radius: 12px; padding: 2px clamp(8px, 1.8vw, 14px); letter-spacing: 1px; }
-.lm-shift-new { color: #1F7A4D; }                                                  /* qo'shilgan nol(lar) */
-.lm-shift-gone { color: #B8AFA4; text-decoration: line-through; }                   /* tushgan nol(lar) */
+/* Qadam-zanjiri (kashfiyot): har qadam alohida qator, oxirgisi — javob */
+.lm-chainstep { display: flex; align-items: center; justify-content: space-between; gap: clamp(8px, 2vw, 14px); background: #FBF7F1; border: 1.5px solid #EFE4D6; border-radius: 12px; padding: clamp(7px, 1.6vw, 11px) clamp(11px, 2.4vw, 16px); }
+.lm-chainstep-last { background: #FFF3E9; border-color: rgba(255,79,40,0.4); }
+.lm-chain-expr { font-size: clamp(17px, 3.6vw, 25px); font-weight: 800; color: #3A3530; letter-spacing: 0.5px; }
+.lm-chainstep-last .lm-chain-expr { color: #ff4f28; }
+.lm-chain-tag { font-size: clamp(10px, 1.6vw, 12px); font-weight: 800; color: #8A8178; text-transform: uppercase; letter-spacing: 0.4px; text-align: right; }
+/* Ikki tokcha: 23 ta o'simlik 20 lik blok + 3 yakkaga ajraladi */
+.lm-shelf { display: flex; align-items: flex-end; justify-content: center; gap: 4px; transition: gap 0.6s cubic-bezier(0.34, 1.56, 0.5, 1); margin-bottom: clamp(4px, 1.2vw, 8px); }
+.lm-shelf-split { gap: clamp(10px, 2.6vw, 18px); }
+.lm-shelf-part { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px; border-radius: 10px; background: #152342; transition: box-shadow 0.5s ease; }
+.lm-shelf-split .lm-shelf-part { box-shadow: 0 0 0 1.5px rgba(255,79,40,0.45); }
+.lm-shelf-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.lm-shelf-small .lm-shelf-grid { grid-template-columns: repeat(3, 1fr); }
+.lm-lamp-s { width: clamp(10px, 3vw, 16px); height: clamp(10px, 3vw, 16px); display: inline-flex; }
+.lm-shelf-num { font-size: clamp(12px, 2.2vw, 15px); font-weight: 800; color: #FFC23C; }
+.lm-shelf-plus { align-self: center; font-size: clamp(16px, 3vw, 22px); font-weight: 800; color: #ff4f28; }
 `;
