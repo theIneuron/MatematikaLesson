@@ -193,8 +193,8 @@ const periodicDecimalToWords = (whole, nonRepeating, period, lang) => {
 
 const toTtsMath = (text, lang) => {
   const ops = lang === 'ru'
-    ? { mul: ' умножить на ', div: ' разделить на ', eq: ' равно ', minus: ' минус ', plus: ' плюс ' }
-    : { mul: ' karra ', div: " bo'lingan ", eq: ' teng ', minus: ' minus ', plus: " qo'shuv " };
+    ? { mul: ' умножить на ', div: ' разделить на ', ratio: ' к ', eq: ' равно ', minus: ' минус ', plus: ' плюс ' }
+    : { mul: ' karra ', div: " bo'lingan ", ratio: ' nisbat ', eq: ' teng ', minus: ' minus ', plus: " qo'shuv " };
   const pronunciationSafe = lang === 'uz'
     ? stripAudioTags(String(text || ''))
         .replace(/\bqismga\b/gi, "bo'lakka")
@@ -202,7 +202,14 @@ const toTtsMath = (text, lang) => {
         .replace(/\bqismni\b/gi, "bo'lakni")
         .replace(/\bqism\b/gi, "bo'lak")
     : stripAudioTags(String(text || ''));
-  const clean = pronunciationSafe
+  const mathNamed = pronunciationSafe.replace(
+    /\|([^|]+)\|/g,
+    (_, inside) => `${lang === 'ru' ? 'модуль' : 'modul'} ${inside}`,
+  );
+  const ratioContext = lang === 'ru'
+    ? /\b(отнош|пропорц|масштаб)/i.test(mathNamed)
+    : /\b(nisbat|propors|masshtab)/i.test(mathNamed);
+  const clean = mathNamed
     .replace(
       /\b(\d{1,3})[,.](\d{0,3})\((\d{1,3})\)/g,
       (_, whole, nonRepeating, period) => periodicDecimalToWords(whole, nonRepeating, period, lang),
@@ -221,7 +228,12 @@ const toTtsMath = (text, lang) => {
     .replace(/(\d{1,3}|\?)\s*\/\s*(\d{1,3})/g, (_, n, d) => fractionToWords(n, d, lang))
     .replace(/\s*\/\s*/g, ops.div)
     .replace(/\s*[·×]\s*/g, ops.mul)
-    .replace(/\s+:\s+/g, ops.div)
+    .replace(/\s+:\s+/g, ratioContext ? ops.ratio : ops.div)
+    .replace(/\s*%\s*/g, lang === 'ru' ? ' процентов ' : ' foiz ')
+    .replace(/\s*≤\s*/g, lang === 'ru' ? ' меньше или равно ' : ' kichik yoki teng ')
+    .replace(/\s*≥\s*/g, lang === 'ru' ? ' больше или равно ' : ' katta yoki teng ')
+    .replace(/\s*<\s*/g, lang === 'ru' ? ' меньше ' : ' kichik ')
+    .replace(/\s*>\s*/g, lang === 'ru' ? ' больше ' : ' katta ')
     .replace(/\s*=\s*/g, ops.eq)
     .replace(/\s*≈\s*/g, lang === 'ru' ? ' примерно равно ' : ' taxminan teng ')
     .replace(/\s*\+\s*/g, ops.plus)

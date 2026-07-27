@@ -104,6 +104,72 @@ export const grade6Nazariy = [
     desc: "Tugaydigan va davriy o'nli kasrlarni ajratish, davrni qavsda yozish hamda sonlarni o'ndan birlar va yuzdan birlargacha yaxlitlash.",
     Component: lazy(() => import('../components/grade6/Dars15.jsx')),
   },
+  {
+    slug: 'dars16-kasrlar-va-onli-kasrlarga-oid-masalalar',
+    title: "Dars 16. Kasrlar va o'nli kasrlarga oid masalalar",
+    desc: "Kasr va o'nli kasrlarni bitta qulay ko'rinishga keltirib, xarid, retsept, masofa va budjetga oid masalalarni bosqichma-bosqich yechish.",
+    Component: lazy(() => import('../components/grade6/Dars16.jsx')),
+  },
+  {
+    slug: 'dars17-nisbat',
+    title: 'Dars 17. Nisbat',
+    desc: "Ikki miqdorni nisbat bilan taqqoslash, nisbatdagi tartibni saqlash, nisbatni soddalashtirish hamda qismning qismga va butunga nisbatini farqlash.",
+    Component: lazy(() => import('../components/grade6/Dars17.jsx')),
+  },
+  {
+    slug: 'dars18-proporsiya',
+    title: 'Dars 18. Proporsiya',
+    desc: "Ikki nisbat tengligini proporsiya sifatida yozish, chetki va o'rta hadlar ko'paytmasi orqali tekshirish hamda noma'lum hadni topish.",
+    Component: lazy(() => import('../components/grade6/Dars18.jsx')),
+  },
+  {
+    slug: 'dars19-togri-va-teskari-proporsional-miqdorlar',
+    title: "Dars 19. To'g'ri va teskari proporsional miqdorlar",
+    desc: "Miqdorlarning bir yo'nalishda yoki qarama-qarshi yo'nalishda o'zgarishini hayotiy misollar, jadval va formulalar yordamida farqlash.",
+    Component: lazy(() => import('../components/grade6/Dars19.jsx')),
+  },
+  {
+    slug: 'dars20-masshtab',
+    title: 'Dars 20. Masshtab',
+    desc: "1 : n masshtabning ma'nosi, uzunlik birliklarini birxillashtirish, xaritadagi va haqiqiy masofani ikki asosiy formula bilan topish.",
+    Component: lazy(() => import('../components/grade6/Dars20.jsx')),
+  },
+  {
+    slug: 'dars21-foizlar',
+    title: 'Dars 21. Foizlar',
+    desc: "Foizni yuzdan bir ulush sifatida tushunish, oddiy va o'nli kasrlarga aylantirish, sonning foizini va bir son ikkinchisining necha foizi ekanini topish.",
+    Component: lazy(() => import('../components/grade6/Dars21.jsx')),
+  },
+  {
+    slug: 'dars22-foizga-oid-masalalar',
+    title: 'Dars 22. Foizga oid masalalar',
+    desc: "Qism, foiz va butunni topish formulalari; chegirma, narx oshishi hamda ketma-ket foiz o'zgarishlariga oid hayotiy masalalar.",
+    Component: lazy(() => import('../components/grade6/Dars22.jsx')),
+  },
+  {
+    slug: 'dars23-proporsiyaga-oid-masalalar',
+    title: 'Dars 23. Proporsiyaga oid masalalar',
+    desc: "Masaladagi bog'lanish turini aniqlash, jadval va proporsiya tuzish hamda xarid, ish, retsept va yoqilg'i masalalarini tekshirib yechish.",
+    Component: lazy(() => import('../components/grade6/Dars23.jsx')),
+  },
+  {
+    slug: 'dars24-koordinata-togri-chizigi',
+    title: "Dars 24. Koordinata to'g'ri chizig'i",
+    desc: "Sanoq boshi, birlik kesma, musbat va manfiy yo'nalishlar, nuqta koordinatasi, qarama-qarshi sonlar va chiziqdagi siljish.",
+    Component: lazy(() => import('../components/grade6/Dars24.jsx')),
+  },
+  {
+    slug: 'dars25-sonning-moduli',
+    title: 'Dars 25. Sonning moduli',
+    desc: "Modulni sonning noldan masofasi sifatida tushunish, modulli ifodalar va sodda tenglamalar hamda ikki nuqta orasidagi masofani topish.",
+    Component: lazy(() => import('../components/grade6/Dars25.jsx')),
+  },
+  {
+    slug: 'dars26-ratsional-sonlarni-taqqoslash',
+    title: 'Dars 26. Ratsional sonlarni taqqoslash',
+    desc: "Musbat va manfiy butun sonlar, oddiy va o'nli kasrlarni koordinata chizig'i hamda modul orqali taqqoslash va o'sish tartibida joylashtirish.",
+    Component: lazy(() => import('../components/grade6/Dars26.jsx')),
+  },
 ]
 
 // 6-sinf AMALIY darslari.

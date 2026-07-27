@@ -102,7 +102,18 @@ export function MathVisual({ visual, lang }) {
     return (
       <div className="fth-panels">
         {visual.panels.map((panel, index) => (
-          <div className={index % 2 ? 'fth-panel fth-panel-blue' : 'fth-panel'} key={index}>
+          <div
+            className={`fth-panel ${
+              panel.color === 'yellow'
+                ? 'fth-panel-yellow'
+                : panel.color === 'green'
+                  ? 'fth-panel-green'
+                  : panel.color === 'blue' || (!panel.color && index % 2)
+                    ? 'fth-panel-blue'
+                    : ''
+            }`}
+            key={index}
+          >
             <p className="small mono">{localized(panel.title, lang)}</p>
             {panel.lines.map((line, lineIndex) => (
               <div className="fth-panel-line" key={lineIndex}>{mt(localized(line, lang))}</div>
@@ -143,11 +154,21 @@ export function MathVisual({ visual, lang }) {
   if (visual.type === 'cards') {
     return (
       <div className="fth-cards">
-        {visual.items.map((item, index) => (
-          <div className={index === visual.highlight ? 'is-highlighted' : ''} key={index}>
-            {mt(localized(item, lang))}
-          </div>
-        ))}
+        {visual.items.map((item, index) => {
+          const tone = typeof item === 'object' && !item.uz && !item.ru ? item.color : null;
+          const value = typeof item === 'object' && !item.uz && !item.ru ? item.label : item;
+          return (
+            <div
+              className={[
+                index === visual.highlight ? 'is-highlighted' : '',
+                tone ? `fth-card-${tone}` : '',
+              ].filter(Boolean).join(' ')}
+              key={index}
+            >
+              {mt(localized(value, lang))}
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -234,8 +255,8 @@ function RevealLessonScreen({ lesson, screen, ...props }) {
   const content = useMemo(() => ({
     eyebrow: slide.eyebrow,
     audio: {
-      uz: slide.steps.map((step) => step.uz),
-      ru: slide.steps.map((step) => step.ru),
+      uz: (slide.audio?.uz || slide.steps.map((step) => step.uz)),
+      ru: (slide.audio?.ru || slide.steps.map((step) => step.ru)),
     },
   }), [slide]);
 
@@ -358,12 +379,13 @@ function MultiQuestionScreen({ lesson, screen, ...props }) {
 
 function MatchQuestionScreen({ lesson, screen, ...props }) {
   const slide = lesson.slides[screen];
+  const lang = useLang();
   const content = {
     eyebrow: slide.eyebrow,
     title: slide.title,
     lead: slide.prompt,
     pairs: slide.rows.map((row) => ({
-      number: row.left,
+      number: localized(row.left, lang),
       label: row.label || { uz: 'mos javob', ru: 'подходящий ответ' },
       reading: row.correct,
     })),
@@ -463,8 +485,6 @@ function SummaryScreen({ lesson, screen, totalScreens, answers, onPrev, finishLe
   );
 }
 
-const REVEAL_SCREENS = new Set([2, 3, 4, 6, 9]);
-
 const FRACTION_THEORY_STYLES = `
 .fth-lesson .frac,
 .fth-lesson .frac .n,
@@ -496,6 +516,8 @@ const FRACTION_THEORY_STYLES = `
 .fth-panels { width: 100%; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
 .fth-panel { min-width: 0; padding: clamp(10px,2vw,16px); border-radius: 14px; background: #FFF2ED; border: 1.5px solid rgba(255,79,40,.24); }
 .fth-panel-blue { background: #EAF6FB; border-color: rgba(1,154,203,.24); }
+.fth-panel-yellow { background: #FFF7CF; border-color: rgba(215,166,32,.32); }
+.fth-panel-green { background: #E3F0E8; border-color: rgba(31,122,77,.28); }
 .fth-panel > p { margin: 0 0 8px; color: #5A5A60; text-transform: uppercase; letter-spacing: .06em; }
 .fth-panel-line { padding: 4px 0; font-family: 'Fraunces','Source Serif 4',serif; font-size: clamp(18px,3.4vw,26px); font-weight: 600; text-align: center; }
 .fth-panel-line .frac-sm { font-size: 1em; }
@@ -513,6 +535,9 @@ const FRACTION_THEORY_STYLES = `
 .fth-cards { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; font-family: 'Fraunces',serif; font-size: clamp(21px,4vw,30px); font-weight: 600; }
 .fth-cards > div { padding: 9px 14px; border-radius: 12px; background: #FFFFFF; border: 1.5px solid #E6E1D6; }
 .fth-cards > div.is-highlighted { color: #1F7A4D; background: #E3F0E8; border-color: rgba(31,122,77,.32); }
+.fth-cards > div.fth-card-yellow { background: #FFF7CF; border-color: rgba(215,166,32,.32); }
+.fth-cards > div.fth-card-blue { background: #EAF6FB; border-color: rgba(1,154,203,.24); }
+.fth-cards > div.fth-card-green { color: #1F7A4D; background: #E3F0E8; border-color: rgba(31,122,77,.32); }
 .fth-fact-icon { color: #019ACB; font-family: 'Fraunces',serif; font-size: 18px; font-weight: 600; }
 .fth-drift { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .fth-drift > span { position: absolute; color: #FF4F28; opacity: .07; animation: ambFloat 17s ease-in-out infinite; }
@@ -619,12 +644,13 @@ export default function FractionTheoryLesson({
   };
 
   let screenNode;
+  const slideType = lesson.slides[current]?.type;
   if (current === 0) screenNode = <TitleScreen {...commonProps}/>;
   else if (current === lesson.slides.length - 1) screenNode = <SummaryScreen {...commonProps}/>;
-  else if (REVEAL_SCREENS.has(current)) screenNode = <RevealLessonScreen {...commonProps}/>;
-  else if (current === 10) screenNode = <MultiQuestionScreen {...commonProps}/>;
-  else if (current === 11) screenNode = <MatchQuestionScreen {...commonProps}/>;
-  else if (current === 12) screenNode = <ClassifyQuestionScreen {...commonProps}/>;
+  else if (slideType === 'info' || slideType === 'rule') screenNode = <RevealLessonScreen {...commonProps}/>;
+  else if (slideType === 'multi') screenNode = <MultiQuestionScreen {...commonProps}/>;
+  else if (slideType === 'match') screenNode = <MatchQuestionScreen {...commonProps}/>;
+  else if (slideType === 'classify') screenNode = <ClassifyQuestionScreen {...commonProps}/>;
   else screenNode = <SingleQuestionScreen {...commonProps}/>;
 
   return (
