@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Grade3MethodGuide } from './Grade3MethodGuide';
 import { Grade3CityEtalonScene } from './Dars01.jsx';
 import { Grade3TowerEtalonScene } from './Dars02.jsx';
 import { Grade3GardenEtalonScene } from './Dars10.jsx';
@@ -571,7 +570,6 @@ export function Grade3LessonShell({
           <h1 id={`g3-lesson-title-${index}`}>{local(screen.title, lang)}</h1>
           <p>{local(screen.text, lang)}</p>
           <div className="visual">{screen.visual}</div>
-          <Grade3MethodGuide lessonId={resolvedLessonId} screenMeta={screenMeta} lang={lang} />
           <h2>{local(screen.ask, lang)}</h2>
           {!audioReady && !muted && (
             <div className="audio-wait" role="status">

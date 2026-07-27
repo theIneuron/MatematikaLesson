@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { Grade3MethodGuide } from './Grade3MethodGuide.jsx';
 import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
-import { grade3AudioLabels, isGrade3Explanation } from './grade3MethodUtils.js';
+import { grade3AudioLabels } from './grade3MethodUtils.js';
 
 // ============================================================================
 // DD 3-SINF | Dars06 — "Son o'qida son" (num-3-06) | B1 | katta shkala 0-1000
@@ -684,7 +683,6 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
   const isMobile = useIsMobile();
   const padH = isMobile ? 12 : 56;
   const screenMeta = SCREEN_META[screen];
-  const isExplanation = isGrade3Explanation(screenMeta);
   return (
     <div className={`stage stage-${screenMeta?.type || 'custom'}`}>
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
@@ -704,7 +702,6 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
         </div>
       </div>
       <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
-        {!isExplanation && <Grade3MethodGuide lessonId={LESSON_META.lessonId} screenMeta={screenMeta} lang={lang}/>}
         {children}
       </div>
       {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
