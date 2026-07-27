@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3QuestionCoach, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
+import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
 
 // ============================================================================
 // DD 3-SINF | Dars02 — "Sonlarni o'qish va yozish (1000 gacha)" (num-3-02) | B1 | so'z<->raqam
@@ -706,8 +706,6 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
         </div>
       </div>
       <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
-        {!isExplanation && <SlideGuide screen={screen}/>}
-        {!isExplanation && screenType !== 'summary' && <Grade3QuestionCoach lang={lang} mode={SCREEN_META[screen]?.scope === 'final' ? 'final' : screenType === 'case' ? 'case' : 'pick'}/>}
         {children}
       </div>
       {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
@@ -741,29 +739,6 @@ const NextLabel = () => {
 const BackLabel = () => {
   const lang = useLang();
   return lang === 'uz' ? 'Orqaga' : 'Назад';
-};
-
-const SlideGuide = ({ screen }) => {
-  const t = useT();
-  const guide = SCREEN_GUIDES[screen];
-  if (!guide) return null;
-  return (
-    <div className={`ux-slide-guide ux-slide-guide-${guide.tone || 'watch'}`} role="note">
-      <span className="ux-slide-guide-icon" aria-hidden="true">{guide.icon}</span>
-      <span className="ux-slide-guide-label">{t(guide.label)}</span>
-      <span className="ux-slide-guide-flow">
-        {guide.steps.map((step, i) => (
-          <React.Fragment key={i}>
-            {i > 0 && <span className="ux-slide-guide-arrow" aria-hidden="true">→</span>}
-            <span className="ux-slide-guide-step">
-              <b>{i + 1}</b>
-              <span>{t(step)}</span>
-            </span>
-          </React.Fragment>
-        ))}
-      </span>
-    </div>
-  );
 };
 
 // ============================================================
@@ -4714,7 +4689,7 @@ html, body { margin: 0; padding: 0; }
 .stage-exploration .stage-content::-webkit-scrollbar,
 .stage-rule .stage-content::-webkit-scrollbar,
 .stage-hook .stage-content::-webkit-scrollbar { display: none; }
-.stage-content > div:not(.ux-slide-guide) { animation: uxSlideIn 0.58s cubic-bezier(0.22,0.8,0.3,1) both; transform-origin: top center; }
+.stage-content > div { animation: uxSlideIn 0.58s cubic-bezier(0.22,0.8,0.3,1) both; transform-origin: top center; }
 @keyframes uxSlideIn { from { opacity: 0; transform: translateY(18px) scale(0.988); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .stage-nav {
   flex-shrink: 0;
@@ -4725,45 +4700,6 @@ html, body { margin: 0; padding: 0; }
   padding-bottom: clamp(11px, 2vw, 11px);
   display: flex;
   gap: 12px;
-}
-
-/* Har slaydning ixcham vizual yo'riqnomasi: o'quvchi nima qilishini matn o'qimasdan ham anglaydi. */
-.ux-slide-guide {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  width: 100%;
-  margin: 0 0 clamp(9px,1.6vw,13px);
-  padding: 7px 10px;
-  border: 1px solid rgba(1,154,203,0.17);
-  border-radius: 14px;
-  background: rgba(234,246,251,0.72);
-  box-shadow: 0 8px 22px -18px rgba(1,123,163,0.42);
-  animation: uxGuideIn 0.48s cubic-bezier(0.22,0.8,0.3,1) both;
-}
-.ux-slide-guide-do { background: rgba(255,243,233,0.82); border-color: rgba(255,79,40,0.2); }
-.ux-slide-guide-test { background: rgba(251,243,214,0.86); border-color: rgba(216,169,58,0.28); }
-.ux-slide-guide-finish { background: rgba(227,240,232,0.88); border-color: rgba(31,122,77,0.22); }
-.ux-slide-guide-icon { display: inline-flex; align-items: center; justify-content: center; width: 29px; height: 29px; flex: 0 0 auto; border-radius: 9px; background: #FFFFFF; box-shadow: 0 5px 12px -8px rgba(58,53,48,0.45); font-size: 16px; }
-.ux-slide-guide-label { color: #017BA3; font-size: 11px; font-weight: 850; letter-spacing: 0.045em; text-transform: uppercase; white-space: nowrap; }
-.ux-slide-guide-do .ux-slide-guide-label { color: #C0392B; }
-.ux-slide-guide-test .ux-slide-guide-label { color: #8A681B; }
-.ux-slide-guide-finish .ux-slide-guide-label { color: #1F7A4D; }
-.ux-slide-guide-flow { display: flex; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; margin-left: auto; }
-.ux-slide-guide-step { display: inline-flex; align-items: center; gap: 5px; color: #5A5A60; font-size: clamp(10px,1.4vw,12px); font-weight: 700; white-space: nowrap; }
-.ux-slide-guide-step b { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; flex: 0 0 auto; border-radius: 50%; background: #019ACB; color: white; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
-.ux-slide-guide-do .ux-slide-guide-step b { background: #FF4F28; }
-.ux-slide-guide-test .ux-slide-guide-step b { background: #D8A93A; }
-.ux-slide-guide-finish .ux-slide-guide-step b { background: #1F7A4D; }
-.ux-slide-guide-arrow { color: #A7A6A2; font-weight: 900; }
-@keyframes uxGuideIn { from { opacity: 0; transform: translateY(-9px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 520px) {
-  .ux-slide-guide { gap: 7px; padding: 6px 8px; }
-  .ux-slide-guide-label { display: none; }
-  .ux-slide-guide-flow { gap: 4px; justify-content: flex-start; margin-left: 0; }
-  .ux-slide-guide-step { font-size: 10px; }
-  .ux-slide-guide-step b { width: 17px; height: 17px; }
 }
 
 .chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }

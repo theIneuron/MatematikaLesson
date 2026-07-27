@@ -1,72 +1,3 @@
-const COACH_COPY = {
-  pick: {
-    uz: {
-      eyebrow: 'Namunaviy savol',
-      title: 'Misolni kuzating va javobni tanlang',
-      text: "Avval shart va ko'rgazmani tahlil qiling, keyin javob kartasini bosing.",
-    },
-    ru: {
-      eyebrow: 'Образец задания',
-      title: 'Рассмотрите пример и выберите ответ',
-      text: 'Сначала изучите условие и модель, затем нажмите карточку ответа.',
-    },
-  },
-  verify: {
-    uz: {
-      eyebrow: 'Xatoni topish',
-      title: 'Yechimni bosqichma-bosqich tekshiring',
-      text: "Har bir qadamni qoida bilan solishtirib, to'g'ri xulosani tanlang.",
-    },
-    ru: {
-      eyebrow: 'Найди ошибку',
-      title: 'Проверьте решение по шагам',
-      text: 'Сравните каждый шаг с правилом и выберите верный вывод.',
-    },
-  },
-  case: {
-    uz: {
-      eyebrow: 'Hayotiy masala',
-      title: 'Vaziyatni matematik modelga aylantiring',
-      text: "Kerakli ma'lumotni ajrating, amalni tanlang va javobni tekshiring.",
-    },
-    ru: {
-      eyebrow: 'Практическая задача',
-      title: 'Постройте математическую модель ситуации',
-      text: 'Выделите данные, выберите действие и проверьте ответ.',
-    },
-  },
-  final: {
-    uz: {
-      eyebrow: 'Mustaqil nazorat',
-      title: 'Savolni mustaqil yeching',
-      text: "Namunani eslang, lekin javobni o'zingiz toping.",
-    },
-    ru: {
-      eyebrow: 'Самостоятельная проверка',
-      title: 'Решите задание самостоятельно',
-      text: 'Вспомните образец, но найдите ответ сами.',
-    },
-  },
-};
-
-export function Grade3QuestionCoach({ lang = 'uz', mode = 'pick', first = false }) {
-  const copy = COACH_COPY[mode]?.[lang] || COACH_COPY.pick.uz;
-
-  return (
-    <div className={`grade3-question-coach grade3-question-coach-${mode}${first ? ' is-first' : ''}`} role="note">
-      <span className="grade3-question-coach-icon" aria-hidden="true">
-        {mode === 'verify' ? '🔎' : mode === 'case' ? '🧩' : mode === 'final' ? '🎯' : '👀'}
-      </span>
-      <div>
-        <em className="mono">{copy.eyebrow}</em>
-        <b>{copy.title}</b>
-        <p>{copy.text}</p>
-      </div>
-      <span className="grade3-question-coach-flow mono" aria-hidden="true">1 → 2</span>
-    </div>
-  );
-}
-
 const SCREEN_TYPE_COPY = {
   hook: { icon: '✦', uz: 'Boshlanish', ru: 'Старт' },
   exploration: { icon: '◉', uz: 'Kashfiyot', ru: 'Открытие' },
@@ -325,87 +256,6 @@ export const GRADE3_ETALON_STYLES = `
   color: #FFFFFF !important;
 }
 
-.grade3-question-coach {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: auto minmax(0,1fr) auto;
-  align-items: center;
-  gap: 11px;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #EEF8FC, #F8FBFC);
-  border: 1px solid rgba(1,154,203,0.17);
-  margin-bottom: clamp(10px,1.7vw,14px);
-}
-.grade3-question-coach.is-first {
-  box-shadow: 0 12px 26px -22px rgba(1,123,163,0.7);
-}
-.grade3-question-coach-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 11px;
-  background: #FFFFFF;
-  font-size: 18px;
-  box-shadow: 0 7px 16px -12px rgba(23,46,69,0.6);
-}
-.grade3-question-coach em {
-  display: block;
-  color: #FF4F28;
-  font-size: 9px;
-  font-style: normal;
-  font-weight: 850;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.grade3-question-coach b {
-  display: block;
-  color: #15344B;
-  font-size: clamp(11px,1.55vw,13px);
-}
-.grade3-question-coach p {
-  margin-top: 2px !important;
-  color: #5A5A60;
-  font-size: clamp(10px,1.35vw,12px);
-  line-height: 1.3;
-  font-weight: 620;
-}
-.grade3-question-coach-flow {
-  padding: 5px 8px;
-  border-radius: 9px;
-  background: #15344B;
-  color: #FFFFFF;
-  font-size: 10px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-.grade3-question-coach-case {
-  background: linear-gradient(135deg,#FFF6EF,#FFF9F4);
-  border-color: rgba(255,79,40,0.18);
-}
-.grade3-question-coach-case .grade3-question-coach-flow {
-  background: #9D3D28;
-}
-.grade3-question-coach-final {
-  background: linear-gradient(135deg,#EEF8F1,#F7FBF8);
-  border-color: rgba(31,122,77,0.19);
-}
-.grade3-question-coach-final em { color: #1F7A4D; }
-.grade3-question-coach-final .grade3-question-coach-flow {
-  background: #1F7A4D;
-}
-.g3-method-guide + .grade3-question-coach,
-.ux-slide-guide + .grade3-question-coach {
-  margin-top: -5px;
-}
-/* Dars02 ichidagi eski lokal coach o'rniga hamma darsdagi yagona coach ko'rinadi. */
-.stage-content > .grade3-question-coach ~ * .d2-question-coach {
-  display: none !important;
-}
 .grade3-question-figure {
   position: relative;
   z-index: 1;
@@ -525,11 +375,6 @@ export const GRADE3_ETALON_STYLES = `
 @media (max-width: 639.98px) {
   .stage { max-width: 390px !important; }
   .frame { border-radius: 18px !important; }
-  .grade3-question-coach {
-    grid-template-columns: auto minmax(0,1fr);
-    gap: 8px;
-    padding: 8px 9px;
-  }
   .grade3-screen-type {
     width: 28px;
     min-width: 28px;
@@ -541,8 +386,6 @@ export const GRADE3_ETALON_STYLES = `
   .stage-header {
     padding-top: max(9px,env(safe-area-inset-top)) !important;
   }
-  .grade3-question-coach-flow { display: none; }
-  .grade3-question-coach p { font-size: 10px; }
   .grade3-answer-grid { gap: 8px; }
   .grade3-answer-card {
     min-height: 64px;
@@ -576,7 +419,6 @@ export const GRADE3_ETALON_STYLES = `
 @media (forced-colors: active) {
   .option,
   .frame,
-  .grade3-question-coach,
   .grade3-screen-type {
     border: 1px solid CanvasText !important;
   }

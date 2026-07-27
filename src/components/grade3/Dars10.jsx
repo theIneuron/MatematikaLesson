@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 import { Grade3MethodGuide } from './Grade3MethodGuide.jsx';
-import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3QuestionCoach, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
+import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
 import { grade3AudioLabels, isGrade3Explanation } from './grade3MethodUtils.js';
 
 // ============================================================================
@@ -706,7 +706,6 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
       </div>
       <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
         {!isExplanation && <Grade3MethodGuide lessonId={LESSON_META.lessonId} screenMeta={screenMeta} lang={lang}/>}
-        {!isExplanation && screenMeta?.type !== 'summary' && <Grade3QuestionCoach lang={lang} mode={screenMeta?.scope === 'final' ? 'final' : screenMeta?.type === 'case' ? 'case' : 'pick'}/>}
         {children}
       </div>
       {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
