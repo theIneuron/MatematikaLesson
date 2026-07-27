@@ -14,7 +14,7 @@ const C = {
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
-  <div style={{ position: 'relative', overflow: 'hidden', background: C.stage, border: '1px solid ' + C.stageBd, borderRadius: 16, padding: '12px 10px', margin: '10px 0', ...style }}>
+  <div className="g3d1-stage" style={{ position: 'relative', overflow: 'hidden', background: C.stage, border: '1px solid ' + C.stageBd, borderRadius: 16, padding: '12px 10px', margin: '10px 0', ...style }}>
     <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
       {STARS.map((s, i) => <span key={i} className="g3d1-star" style={{ position: 'absolute', left: s[0] + '%', top: s[1] + '%', width: i % 4 === 0 ? 3 : 2, height: i % 4 === 0 ? 3 : 2, borderRadius: '50%', background: '#ffd9e0', animationDelay: s[2] + 's' }} />)}
     </div>
@@ -86,6 +86,11 @@ const FX_CSS = `.g3d1-pop { animation: g3d1pop .5s cubic-bezier(.34,1.56,.64,1) 
 @keyframes g3d1tw { 0%, 100% { opacity: .15; transform: scale(1); } 50% { opacity: .85; transform: scale(1.6); } }
 .g3d1-drop { animation: g3d1drop .45s cubic-bezier(.34,1.56,.64,1) both; }
 @keyframes g3d1drop { 0% { opacity: 0; transform: translateY(-8px) scale(.5); } 100% { opacity: 1; transform: none; } }
+@media (min-width: 720px) and (max-height: 800px) {
+  .g3d1-no-scroll { padding-block: 0 !important; }
+  .g3d1-no-scroll > p { margin-block: 6px !important; line-height: 1.35 !important; }
+  .g3d1-no-scroll .g3d1-stage { margin-block: 6px !important; padding-block: 8px !important; }
+}
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }`;
 
 /* =================== 04 · Tarkibli sonni yozing (990) · 🟡 · pv_compose =================== */
@@ -127,7 +132,7 @@ function D01_04Impl(props) {
   const groupCard = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: '8px 10px', borderRadius: 12, border: '2px solid ' + C.stageBd, background: C.stile, minWidth: 96 };
   const groupLbl = { fontSize: 12, fontWeight: 800, color: C.sink2, textTransform: 'uppercase', letterSpacing: '.04em' };
   return (
-    <div style={S.wrap}>
+    <div className="g3d1-no-scroll" style={S.wrap}>
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       <Stage>

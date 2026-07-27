@@ -14,7 +14,7 @@ const C = {
 };
 const STARS = [[8, 18, 0], [22, 9, 1.1], [37, 26, .5], [52, 12, 1.7], [68, 20, .8], [81, 10, 2.1], [91, 30, 1.3], [14, 40, 1.9], [46, 44, .6], [63, 38, 1.4], [77, 46, 2.3], [30, 54, 1], [88, 52, .4], [6, 62, 1.6]];
 const Stage = ({ children, style }) => (
-  <div style={{ position: 'relative', overflow: 'hidden', background: C.stage, border: '1px solid ' + C.stageBd, borderRadius: 16, padding: '12px 10px', margin: '10px 0', ...style }}>
+  <div className="g3d4-stage" style={{ position: 'relative', overflow: 'hidden', background: C.stage, border: '1px solid ' + C.stageBd, borderRadius: 16, padding: '12px 10px', margin: '10px 0', ...style }}>
     <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
       {STARS.map((s, i) => <span key={i} className="g3d4-star" style={{ position: 'absolute', left: s[0] + '%', top: s[1] + '%', width: i % 4 === 0 ? 3 : 2, height: i % 4 === 0 ? 3 : 2, borderRadius: '50%', background: '#ffd9e0', animationDelay: s[2] + 's' }} />)}
     </div>
@@ -26,7 +26,7 @@ const Towers = () => {
   const bar = (h, lbl, col) => (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
       <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 800, color: C.glow, textShadow: '0 0 10px rgba(20,90,134,.16)' }}>{h} m</span>
-      <div className="g3d4-grow" style={{ width: 44, height: Math.round(H * h / 400), borderRadius: '8px 8px 3px 3px', background: 'linear-gradient(180deg,' + col + ', #FFFFFF)', border: '1.5px solid ' + C.ribbonBd }} />
+      <div className="g3d4-grow" style={{ width: 44, height: `clamp(72px, 12vh, ${Math.round(H * h / 400)}px)`, borderRadius: '8px 8px 3px 3px', background: 'linear-gradient(180deg,' + col + ', #FFFFFF)', border: '1.5px solid ' + C.ribbonBd }} />
       <span style={{ fontSize: 12, fontWeight: 800, color: C.sink2, textTransform: 'uppercase' }}>{lbl}</span>
     </div>
   );
@@ -68,6 +68,11 @@ const FX_CSS = `.g3d4-pop { animation: g3d4pop .5s cubic-bezier(.34,1.56,.64,1) 
 @keyframes g3d4tw { 0%, 100% { opacity: .15; transform: scale(1); } 50% { opacity: .85; transform: scale(1.6); } }
 .g3d4-grow { transform-origin: bottom; animation: g3d4grow .7s cubic-bezier(.34,1.56,.64,1) both; }
 @keyframes g3d4grow { 0% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+@media (min-width: 720px) and (max-height: 800px) {
+  .g3d4-no-scroll { padding-block: 0 !important; }
+  .g3d4-no-scroll > p { margin-block: 6px !important; line-height: 1.35 !important; }
+  .g3d4-no-scroll .g3d4-stage { margin-block: 6px !important; padding-block: 8px !important; }
+}
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }`;
 
 /* =================== 09 · Masala: necha metr baland? (375 va 320) · 🔴 · compare_diff =================== */
@@ -105,7 +110,7 @@ function D04_09Impl(props) {
   useReg(check, registerCheck);
   const locked = isReview || checked;
   return (
-    <div style={S.wrap}>
+    <div className="g3d4-no-scroll" style={S.wrap}>
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
       <Stage><Towers /></Stage>

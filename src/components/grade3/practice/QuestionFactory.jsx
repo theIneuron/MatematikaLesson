@@ -16,7 +16,6 @@ const COLORS = {
 };
 
 const STYLE = {
-  wrap: { maxWidth: 650, margin: '0 auto', padding: '6px 2px 12px' },
   eyebrow: { color: COLORS.accent, fontSize: 13, fontWeight: 900, letterSpacing: '.05em', textTransform: 'uppercase' },
   setup: { color: '#374151', fontSize: 17, lineHeight: 1.55, margin: '7px 0 12px', whiteSpace: 'pre-line' },
   ask: { color: COLORS.ink, fontSize: 19, fontWeight: 850, lineHeight: 1.4, margin: 0 },
@@ -62,6 +61,151 @@ const STYLE = {
 };
 
 const FX = `
+  .g3-question-shell {
+    width: 100%;
+    max-width: 1060px;
+    height: 100%;
+    min-height: 0;
+    margin: 0 auto;
+    padding: 2px;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1.04fr) minmax(330px, .96fr);
+    grid-auto-flow: row;
+    gap: 18px;
+    align-items: start;
+    align-content: start;
+  }
+  .g3-question-context-item {
+    grid-column: 1;
+    min-width: 0;
+  }
+  .g3-question-work-item {
+    grid-column: 2;
+    min-width: 0;
+  }
+  .g3-question-context-panel,
+  .g3-question-work-panel {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+  .g3-question-context-panel { gap: 0; }
+  .g3-question-work-panel { gap: 10px; }
+  @media (min-width: 720px) {
+    .g3-question-shell {
+      max-width: 700px;
+      grid-template-columns: minmax(0, 1fr);
+      column-gap: 0;
+      row-gap: 8px;
+      align-content: center;
+    }
+    .g3-question-shell > .g3-question-context-panel {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .g3-question-shell > .g3-question-work-panel {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .g3-question-work-panel > .g3-question-ask-card,
+    .g3-question-work-panel > .g3-practice-pop {
+      margin-block: 0 !important;
+    }
+    .g3-question-shell.g3-question-input .g3-numeric-answer-zone {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .g3-question-shell.g3-question-input.g3-result-correct .g3-question-ask-card {
+      display: none;
+    }
+    .g3-question-shell.g3-question-input.g3-result-wrong .g3-question-instruction {
+      display: none !important;
+    }
+    .g3-question-shell.g3-question-input.g3-result-wrong {
+      row-gap: 6px;
+    }
+  }
+  @media (min-width: 720px) and (max-height: 800px) {
+    .g3-question-shell.g3-question-input .g3-question-setup {
+      margin: 4px 0 6px !important;
+      font-size: 16px !important;
+      line-height: 1.35 !important;
+    }
+    .g3-question-shell.g3-question-input .g3-practice-stage {
+      min-height: 76px;
+      margin-top: 4px;
+      padding: 7px 10px;
+      border-radius: 15px;
+    }
+    .g3-question-shell.g3-question-input .g3-practice-stage-inner {
+      gap: 4px;
+    }
+    .g3-question-shell.g3-question-input .g3-context-group {
+      font-size: 28px !important;
+    }
+    .g3-question-shell.g3-question-input .g3-practice-visual {
+      font-size: 24px !important;
+    }
+    .g3-question-shell.g3-question-input .g3-question-work-panel {
+      gap: 6px;
+    }
+    .g3-question-shell.g3-question-input .g3-question-ask-card {
+      padding: 8px 12px;
+      border-radius: 12px;
+    }
+    .g3-question-shell.g3-question-input .g3-question-ask-label,
+    .g3-question-shell.g3-question-input .g3-question-instruction {
+      display: none !important;
+    }
+    .g3-question-shell.g3-question-input.g3-result-wrong .g3-lesson-numpad {
+      gap: 5px !important;
+      padding: 16px 9px 9px !important;
+    }
+    .g3-question-shell.g3-question-input.g3-result-wrong .g3-lesson-numpad__display {
+      height: 48px !important;
+    }
+    .g3-question-shell.g3-question-input.g3-result-wrong .g3-lesson-numpad__grid {
+      gap: 5px !important;
+    }
+    .g3-question-shell.g3-question-input.g3-result-wrong .g3-lesson-numpad__key,
+    .g3-question-shell.g3-question-input.g3-result-wrong .g3-lesson-numpad__spacer {
+      height: 40px !important;
+    }
+  }
+  .g3-practice-stage {
+    position: relative;
+    overflow: hidden;
+    min-height: 104px;
+    margin: 8px 0 0;
+    padding: 12px;
+    border-radius: 18px;
+    background: ${COLORS.stage};
+    border: 1px solid #C7DDF2;
+    box-shadow: 0 8px 24px rgba(57, 96, 128, .08);
+  }
+  .g3-practice-stage-inner {
+    position: relative;
+    display: grid;
+    place-items: center;
+    gap: 9px;
+    text-align: center;
+  }
+  .g3-answer-zone { min-height: 0; }
+  .g3-mobile-step-button {
+    width: min(100%, 320px);
+    min-height: 48px;
+    margin: 16px auto 0;
+    border: 0;
+    border-radius: 15px;
+    color: #fff;
+    background: #2563EB;
+    font: 850 16px 'Manrope', system-ui, sans-serif;
+    cursor: pointer;
+  }
+  .g3-mobile-back-button {
+    display: none;
+  }
   .g3-practice-pop { animation: g3-practice-pop .35s cubic-bezier(.34,1.56,.64,1) both; }
   @keyframes g3-practice-pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
   .g3-practice-star { animation: g3-practice-star 3s ease-in-out infinite; }
@@ -89,6 +233,41 @@ const FX = `
   @keyframes g3-context-confirm { 50% { transform: translateY(-7px) scale(1.05); } }
   .g3-model-check { animation: g3-model-check .55s .25s cubic-bezier(.34,1.56,.64,1) both; }
   @keyframes g3-model-check { from { opacity: 0; transform: scale(.35); } to { opacity: 1; transform: none; } }
+  @media (max-width: 719.98px) {
+    .g3-question-shell {
+      display: block;
+      height: auto;
+    }
+    .g3-question-shell.g3-mobile-context .g3-question-work-item { display: none !important; }
+    .g3-question-shell.g3-mobile-answer .g3-question-context-item { display: none !important; }
+    .g3-question-shell > .g3-question-context-item,
+    .g3-question-shell > .g3-question-work-item {
+      width: 100%;
+      max-width: 650px;
+      margin-inline: auto;
+      box-sizing: border-box;
+    }
+    .g3-mobile-back-button {
+      display: inline-flex;
+      align-self: flex-start;
+      margin-bottom: 5px;
+      padding: 5px 9px;
+      border: 1.5px solid #D6DAE3;
+      border-radius: 999px;
+      color: #526273;
+      background: #fff;
+      font: 800 12px 'Manrope', system-ui, sans-serif;
+      cursor: pointer;
+    }
+    .g3-practice-stage {
+      min-height: 94px;
+      padding: 10px;
+    }
+  }
+  @media (max-height: 760px) {
+    .g3-practice-stage { min-height: 88px; padding-block: 9px; }
+    .g3-practice-stage-inner { gap: 6px; }
+  }
   @media (prefers-reduced-motion: reduce) {
     .g3-practice-pop, .g3-practice-star, .g3-practice-visual, .g3-model-check, .g3-context-group { animation: none !important; }
     .g3-model-cell, .g3-model-bar, .g3-model-dot, .g3-model-hand, .g3-model-trace { transition: none !important; }
@@ -99,6 +278,22 @@ function useRegisteredCheck(check, registerCheck) {
   useEffect(() => {
     registerCheck?.(check);
   }, [check, registerCheck]);
+}
+
+function useMobilePracticeMode() {
+  const [mobile, setMobile] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 719.98px)').matches
+  );
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 719.98px)');
+    const update = () => setMobile(query.matches);
+    update();
+    query.addEventListener?.('change', update);
+    return () => query.removeEventListener?.('change', update);
+  }, []);
+
+  return mobile;
 }
 
 function normalize(value) {
@@ -466,13 +661,13 @@ function Stage({ spec, text, status }) {
   const kind = sceneKind(spec, text);
   const hero = contextEmoji(text, spec);
   return (
-    <div style={{ position: 'relative', overflow: 'hidden', minHeight: 118, margin: '10px 0', padding: '18px 14px', borderRadius: 18, background: COLORS.stage, border: '1px solid #C7DDF2', boxShadow: '0 8px 24px rgba(57, 96, 128, .08)' }}>
+    <div className="g3-practice-stage g3-question-context-item">
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
         {[8, 19, 32, 47, 61, 74, 88].map((left, i) => (
           <i key={left} className="g3-practice-star" style={{ position: 'absolute', left: `${left}%`, top: `${12 + (i % 3) * 25}%`, width: 3, height: 3, borderRadius: '50%', background: '#76A8CB', opacity: .28, animationDelay: `${i * .3}s` }} />
         ))}
       </div>
-      <div style={{ position: 'relative', display: 'grid', placeItems: 'center', gap: 12, textAlign: 'center' }}>
+      <div className="g3-practice-stage-inner">
         <div className="g3-context-group" aria-hidden="true" style={{ fontSize: 34 }}>{hero === '●' ? '✨' : hero}</div>
         {text.visual && <div className={`g3-practice-visual ${correct ? 'is-correct' : ''}`} style={{ color: correct ? '#1F7A4D' : '#145A86', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 28, fontWeight: 900, letterSpacing: '.02em' }}>{text.visual}</div>}
         {!spec.hideModel && <SemanticModel kind={kind} correct={correct} text={text} spec={spec} />}
@@ -491,7 +686,7 @@ function Stage({ spec, text, status }) {
 
 function Feedback({ correct, children }) {
   return (
-    <div className="g3-practice-pop" role="status" style={{ display: 'flex', gap: 9, alignItems: 'flex-start', marginTop: 15, padding: '13px 15px', borderRadius: 14, color: correct ? COLORS.ok : COLORS.no, background: correct ? COLORS.okSoft : COLORS.noSoft, fontSize: 15.5, fontWeight: 750, lineHeight: 1.5 }}>
+    <div className="g3-practice-pop g3-question-work-item" role="status" style={{ display: 'flex', gap: 9, alignItems: 'flex-start', marginTop: 8, padding: '10px 12px', borderRadius: 14, color: correct ? COLORS.ok : COLORS.no, background: correct ? COLORS.okSoft : COLORS.noSoft, fontSize: 14, fontWeight: 750, lineHeight: 1.4 }}>
       <span aria-hidden="true">{correct ? '✓' : '↗'}</span>
       <span>{children}</span>
     </div>
@@ -499,7 +694,7 @@ function Feedback({ correct, children }) {
 }
 
 function Rule({ children }) {
-  return <div className="g3-practice-pop" style={{ marginTop: 10, padding: '11px 13px', border: '1.5px solid #FFD99A', borderRadius: 13, color: '#9A5200', background: '#FFF6E8', fontSize: 14.5, fontWeight: 800 }}>💡 {children}</div>;
+  return <div className="g3-practice-pop g3-question-work-item" style={{ marginTop: 6, padding: '8px 10px', border: '1.5px solid #FFD99A', borderRadius: 13, color: '#9A5200', background: '#FFF6E8', fontSize: 13, fontWeight: 800 }}>💡 {children}</div>;
 }
 
 function optionStyle({ active, status, correct, wrong }) {
@@ -511,7 +706,7 @@ function optionStyle({ active, status, correct, wrong }) {
 
 function Choice({ spec, text, answer, setAnswer, locked, status }) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 9 }}>
+    <div className="g3-answer-zone g3-question-work-item" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 9 }}>
       {text.options.map((option, i) => (
         <button key={`${option}-${i}`} type="button" disabled={locked} onClick={() => setAnswer(i)}
           style={optionStyle({ active: answer === i, status, correct: i === spec.correct, wrong: answer === i && i !== spec.correct })}>
@@ -536,7 +731,7 @@ function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+    <div className="g3-answer-zone g3-numeric-answer-zone g3-question-work-item" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       {tapNumeric ? (
         <LessonNumPad
           value={answer}
@@ -560,7 +755,7 @@ function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
 function Multi({ text, answer, setAnswer, locked, correct, status }) {
   const toggle = (idx) => setAnswer(answer.includes(idx) ? answer.filter((v) => v !== idx) : [...answer, idx]);
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 9 }}>
+    <div className="g3-answer-zone g3-question-work-item" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 9 }}>
       {text.options.map((option, i) => (
         <button key={`${option}-${i}`} type="button" disabled={locked} onClick={() => toggle(i)}
           style={optionStyle({ active: answer.includes(i), status, correct: correct.includes(i), wrong: answer.includes(i) && !correct.includes(i) })}>
@@ -574,7 +769,7 @@ function Multi({ text, answer, setAnswer, locked, correct, status }) {
 function Order({ text, answer, setAnswer, locked, status }) {
   const available = text.options.map((_, i) => i).filter((i) => !answer.includes(i));
   return (
-    <div>
+    <div className="g3-answer-zone g3-question-work-item">
       <div style={{ minHeight: 62, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 7, marginBottom: 12, padding: 10, border: `2px dashed ${COLORS.line}`, borderRadius: 14, background: '#FAF9F6' }}>
         {answer.length === 0 && <span style={{ color: COLORS.muted }}>{text.orderHint}</span>}
         {answer.map((idx, position) => (
@@ -605,6 +800,8 @@ export function createPracticeQuestion(spec) {
     const [answer, setAnswer] = useState(initial);
     const [result, setResult] = useState(typeof initialAnswer?.correct === 'boolean' ? initialAnswer.correct : null);
     const [lastWrongAnswer, setLastWrongAnswer] = useState(null);
+    const mobile = useMobilePracticeMode();
+    const [mobileStep, setMobileStep] = useState('context');
     const status = result === true ? 'correct' : result === false ? 'wrong' : 'idle';
     const locked = result === true || mode === 'review';
     const copy = ACTION_COPY[lang] || ACTION_COPY.uz;
@@ -644,24 +841,46 @@ export function createPracticeQuestion(spec) {
     return (
       <>
         <style>{FX}</style>
-        <div style={STYLE.wrap}>
-          <div style={STYLE.eyebrow}>{spec.level} {text.eyebrow}</div>
-          <p style={STYLE.setup}>{text.setup}</p>
-          <Stage spec={spec} text={text} status={status} />
-          <div style={STYLE.askCard}>
-            <span style={STYLE.askLabel}>❓ {copy.question}</span>
-            <p style={STYLE.ask}>{text.ask}</p>
-            <div style={STYLE.instruction}>
-              <span aria-hidden="true">{spec.type === 'input' ? '✍️' : spec.type === 'order' ? '1️⃣' : '☝️'}</span>
-              <span>{actionCopy(spec, lang)}</span>
+        <div className={`g3-question-shell g3-question-${spec.type}${mobile ? ` g3-mobile-${mobileStep}` : ''}${result === true ? ' g3-result-correct' : result === false ? ' g3-result-wrong' : ''}`}>
+          <section className="g3-question-context-panel g3-question-context-item">
+            <div style={STYLE.eyebrow}>{spec.level} {text.eyebrow}</div>
+            <p className="g3-question-setup" style={STYLE.setup}>{text.setup}</p>
+            <Stage spec={spec} text={text} status={status} />
+            {mobile && mobileStep === 'context' && (
+              <button
+                type="button"
+                className="g3-mobile-step-button"
+                onClick={() => setMobileStep('answer')}
+              >
+                {lang === 'uz' ? 'Javob berish' : 'Ответить'}
+              </button>
+            )}
+          </section>
+          <section className="g3-question-work-panel g3-question-work-item">
+            {mobile && mobileStep === 'answer' && (
+              <button
+                type="button"
+                className="g3-mobile-back-button"
+                onClick={() => setMobileStep('context')}
+              >
+                {lang === 'uz' ? '← Shartga qaytish' : '← Вернуться к условию'}
+              </button>
+            )}
+            <div className="g3-question-ask-card" style={STYLE.askCard}>
+              <span className="g3-question-ask-label" style={STYLE.askLabel}>❓ {copy.question}</span>
+              <p style={STYLE.ask}>{text.ask}</p>
+              <div className="g3-question-instruction" style={STYLE.instruction}>
+                <span aria-hidden="true">{spec.type === 'input' ? '✍️' : spec.type === 'order' ? '1️⃣' : '☝️'}</span>
+                <span>{actionCopy(spec, lang)}</span>
+              </div>
             </div>
-          </div>
-          {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+            {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+            {spec.type === 'multi' && <Multi text={text} answer={answer} setAnswer={updateAnswer} locked={locked} correct={spec.correct} status={status} />}
+            {spec.type === 'order' && <Order text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+            {result !== null && <Feedback correct={result}>{result ? text.correct : text.wrong}</Feedback>}
+            {result === true && text.rule && <Rule>{text.rule}</Rule>}
+          </section>
           {spec.type === 'input' && <InputAnswer spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
-          {spec.type === 'multi' && <Multi text={text} answer={answer} setAnswer={updateAnswer} locked={locked} correct={spec.correct} status={status} />}
-          {spec.type === 'order' && <Order text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
-          {result !== null && <Feedback correct={result}>{result ? text.correct : text.wrong}</Feedback>}
-          {result === true && text.rule && <Rule>{text.rule}</Rule>}
         </div>
       </>
     );

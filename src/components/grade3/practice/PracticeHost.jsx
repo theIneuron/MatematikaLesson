@@ -6,7 +6,7 @@
 // Ichida UZ/RU almashtirgich bor. Narratsiya (ovoz) yo'q — javobda faqat qisqa beep-signal.
 // Grade1/Grade2/Grade5 practice/PracticeHost bilan bir xil kontrakt.
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 const IconOk = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
@@ -35,7 +35,6 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title, o
   const [result, setResult] = useState(null);
   const [qKey, setQKey] = useState(0);
   const checkFnRef = useRef(null);
-  const scrollRef = useRef(null);
   const ui = UI[lang] || UI.uz;
 
   const onReady = useCallback((v) => setReady(!!v), []);
@@ -62,15 +61,6 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title, o
     reset();
   };
 
-  useEffect(() => {
-    if (!result || !scrollRef.current) return;
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    requestAnimationFrame(() => scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: reduce ? 'auto' : 'smooth',
-    }));
-  }, [result]);
-
   const runCheck = () => { checkFnRef.current && checkFnRef.current(); };
 
   const chip = (active) => ({
@@ -82,35 +72,89 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title, o
   const btnBase = { padding: '15px 24px', fontSize: 18, fontWeight: 800, borderRadius: 16, fontFamily: "'Manrope', system-ui, sans-serif" };
 
   return (
-    <div style={{ display: 'flex', flex: 1, flexDirection: 'column', height: '100%', minHeight: 0, maxWidth: 700, margin: '0 auto', width: '100%' }}>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
-        borderBottom: '1px solid #eef0f4', fontFamily: "'Manrope', system-ui, sans-serif",
-      }}>
-        <strong style={{ fontSize: 13, color: '#6b7280', flex: 1 }}>{title || ''}</strong>
+    <div className="g3-practice-host">
+      <style>{`
+        .g3-practice-host {
+          position: relative;
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          width: 100%;
+          max-width: 1120px;
+          height: 100%;
+          min-height: 0;
+          margin: 0 auto;
+        }
+        .g3-practice-toolbar {
+          position: fixed;
+          top: 7px;
+          right: 8px;
+          z-index: 1101;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .g3-practice-toolbar-title {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+        }
+        .g3-practice-viewport {
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+          padding: 10px 12px 8px;
+          overscroll-behavior: contain;
+        }
+        .g3-practice-content {
+          width: 100%;
+          height: 100%;
+          min-height: 0;
+        }
+        .g3-practice-footer {
+          min-height: 62px;
+          box-sizing: border-box;
+          flex-shrink: 0;
+          padding: 8px 12px;
+          border-top: 1px solid #EEF0F4;
+          background: rgba(255,255,255,.97);
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          justify-content: center;
+        }
+        @media (max-width: 639.98px) {
+          .g3-practice-toolbar { top: 6px; gap: 4px; }
+          .g3-practice-viewport { padding: 8px 10px 6px; }
+          .g3-practice-footer { min-height: 58px; padding: 6px 10px; }
+        }
+      `}</style>
+      <div className="g3-practice-toolbar">
+        <strong className="g3-practice-toolbar-title">{title || ''}</strong>
         <button type="button" style={chip(lang === 'uz')} onClick={() => changeLang('uz')}>UZ</button>
         <button type="button" style={chip(lang === 'ru')} onClick={() => changeLang('ru')}>RU</button>
       </div>
 
-      <div ref={scrollRef} style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden', overscrollBehavior: 'contain', padding: '14px 12px 24px' }}>
-        <Question
-          key={qKey + '-' + lang}
-          lang={lang}
-          mode="answer"
-          initialAnswer={null}
-          onReady={onReady}
-          registerCheck={registerCheck}
-          onSubmit={onSubmit}
-          playCorrect={playCorrect}
-          playWrong={playWrong}
-          studentName="O'quvchi"
-        />
+      <div className="g3-practice-viewport">
+        <div className="g3-practice-content">
+          <Question
+            key={qKey + '-' + lang}
+            lang={lang}
+            mode="answer"
+            initialAnswer={null}
+            onReady={onReady}
+            registerCheck={registerCheck}
+            onSubmit={onSubmit}
+            playCorrect={playCorrect}
+            playWrong={playWrong}
+            studentName="O'quvchi"
+          />
+        </div>
       </div>
 
-      <div style={{
-        flexShrink: 0, padding: '11px 12px', borderTop: '1px solid #EEF0F4', background: '#fff',
-        display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center',
-      }}>
+      <div className="g3-practice-footer">
         {result && (
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800, color: result.correct ? '#1a7f43' : '#c0392b' }}>
             {result.correct ? <IconOk /> : <IconNo />}

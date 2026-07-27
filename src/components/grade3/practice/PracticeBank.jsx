@@ -47,7 +47,7 @@ export default function PracticeBank({ bank }) {
   const current = items[index] || items[0];
 
   const chip = (active, result) => ({
-    padding: '7px 11px',
+    padding: '6px 10px',
     borderRadius: 999,
     border: `1.5px solid ${active ? '#2563EB' : result?.correct ? '#1F7A4D' : result ? '#B9382F' : '#D6DAE3'}`,
     background: active ? '#2563EB' : result?.correct ? '#E3F0E8' : result ? '#FDECEC' : '#fff',
@@ -62,26 +62,99 @@ export default function PracticeBank({ bank }) {
   const completed = Object.values(results).filter((result) => result?.correct).length;
 
   return (
-    <div className="g3-practice-bank-root" style={{ display: 'flex', flexDirection: 'column', fontFamily: "'Manrope', system-ui, sans-serif" }}>
+    <div className="g3-practice-bank-root">
       <style>{`
-        .g3-practice-bank-root { position: fixed; inset: 0; overflow: hidden; background: #fff; zoom: var(--g3pqz, 1); }
-        @media (max-width: 639.98px) { .g3-practice-bank-root { width: 390px; } }
+        .g3-practice-bank-root {
+          position: fixed;
+          inset: 0;
+          z-index: 900;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          background: #fff;
+          zoom: var(--g3pqz, 1);
+          font-family: 'Manrope', system-ui, sans-serif;
+        }
+        .g3-practice-bank-header {
+          min-height: 52px;
+          box-sizing: border-box;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-shrink: 0;
+          padding: 7px 112px 7px 124px;
+          border-bottom: 1px solid #EEF0F4;
+          background: rgba(255,255,255,.97);
+        }
+        .g3-practice-bank-title {
+          order: 1;
+          min-width: 120px;
+          max-width: 280px;
+          overflow: hidden;
+          color: #1F2430;
+          font-size: 13.5px;
+          font-weight: 900;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .g3-practice-bank-nav {
+          order: 2;
+          display: flex;
+          flex: 1;
+          min-width: 0;
+          gap: 7px;
+          overflow-x: auto;
+          overscroll-behavior-x: contain;
+          padding-bottom: 2px;
+          scrollbar-width: none;
+        }
+        .g3-practice-bank-nav::-webkit-scrollbar { display: none; }
+        .g3-practice-bank-score {
+          order: 3;
+          flex-shrink: 0;
+          padding: 4px 9px;
+          border-radius: 999px;
+          font-size: 12.5px;
+          font-weight: 900;
+        }
+        .lesson-back {
+          top: 8px;
+          left: 8px;
+          z-index: 1100;
+          min-height: 36px;
+          box-sizing: border-box;
+          padding: 7px 11px;
+          font-size: 12px;
+        }
+        @media (max-width: 900px) {
+          .g3-practice-bank-header { padding-left: 116px; }
+          .g3-practice-bank-title { display: none; }
+        }
+        @media (max-width: 639.98px) {
+          .g3-practice-bank-root { width: 390px; }
+          .g3-practice-bank-header {
+            min-height: 50px;
+            gap: 7px;
+            padding: 6px 108px 6px 104px;
+          }
+          .g3-practice-bank-score { padding-inline: 7px; font-size: 11.5px; }
+        }
       `}</style>
-      <div style={{ flexShrink: 0, padding: '62px 12px 10px', borderBottom: '1px solid #EEF0F4', background: '#fff' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-          <strong style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1F2430', fontSize: 13.5 }}>{bank.title}</strong>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            <span aria-label={`${completed} / ${items.length}`} style={{ padding: '4px 9px', borderRadius: 999, color: completed === items.length ? '#1F7A4D' : '#596170', background: completed === items.length ? '#E3F0E8' : '#F1F3F6', fontSize: 12.5, fontWeight: 900 }}>{completed}/{items.length}</span>
+      <header className="g3-practice-bank-header">
+        <div style={{ display: 'contents' }}>
+          <strong className="g3-practice-bank-title" title={bank.title}>{bank.title}</strong>
+          <div style={{ display: 'contents' }}>
+            <span className="g3-practice-bank-score" aria-label={`${completed} / ${items.length}`} style={{ color: completed === items.length ? '#1F7A4D' : '#596170', background: completed === items.length ? '#E3F0E8' : '#F1F3F6' }}>{completed}/{items.length}</span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 7, overflowX: 'auto', overscrollBehaviorX: 'contain', paddingBottom: 2, scrollbarWidth: 'none' }}>
+        <nav className="g3-practice-bank-nav" aria-label="Amaliyot topshiriqlari">
           {items.map((item, i) => (
             <button key={item.id} type="button" aria-label={`${i + 1}. ${item.label}`} style={chip(i === index, results[item.id])} onClick={() => setIndex(i)}>
               {results[item.id]?.correct ? '✓ ' : ''}{i + 1}. {item.level} {item.label}
             </button>
           ))}
-        </div>
-      </div>
+        </nav>
+      </header>
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
         <PracticeHost
           key={`${current.id}-${index}`}
