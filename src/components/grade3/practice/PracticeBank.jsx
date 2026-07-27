@@ -33,8 +33,8 @@ export default function PracticeBank({ bank }) {
       source: baseSource
         ? {
           ...baseSource,
-          skill: baseSource.ziyoly?.length
-            ? baseSource.ziyoly[itemIndex % baseSource.ziyoly.length]
+          skill: baseSource.skills?.length
+            ? baseSource.skills[itemIndex % baseSource.skills.length]
             : baseSource.skill,
         }
         : null,
@@ -71,18 +71,6 @@ export default function PracticeBank({ bank }) {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <strong style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1F2430', fontSize: 13.5 }}>{bank.title}</strong>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-            {source && (
-              <a
-                href={source.ziyolyUrl}
-                target="_blank"
-                rel="noreferrer"
-                title={`${source.bookRef}. Ziyoly: ${source.ziyoly.join('; ')}`}
-                aria-label={`Savollar manbasi: ${source.provider}`}
-                style={{ padding: '4px 8px', borderRadius: 999, color: '#7C3AED', background: '#F3E8FF', fontSize: 11.5, fontWeight: 900, textDecoration: 'none' }}
-              >
-                📚 Darslik + Ziyoly
-              </a>
-            )}
             <span aria-label={`${completed} / ${items.length}`} style={{ padding: '4px 9px', borderRadius: 999, color: completed === items.length ? '#1F7A4D' : '#596170', background: completed === items.length ? '#E3F0E8' : '#F1F3F6', fontSize: 12.5, fontWeight: 900 }}>{completed}/{items.length}</span>
           </div>
         </div>

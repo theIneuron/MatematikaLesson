@@ -1300,7 +1300,7 @@ const CONTENT = {
     eyebrow: { ru: 'Финал', uz: 'Final' },
     intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
     // Aralash panel: kind 'num' — raqam-plita bilan JAVOB TERILADI (produksiya); kind 'mc' — konsept/tanish.
-    // Masalalar ziyoly.uz «Xona birliklari» turlariga moslangan; 5-savol — son-jumboq (mantiq).
+    // Masalalar «Xona birliklari» ko'nikmasiga moslangan; 5-savol — son-jumboq (mantiq).
     items: [
       {
         kind: 'num', ans: 645,

@@ -17,6 +17,7 @@ const CSS = `
     align-items: center;
     gap: 7px;
     width: min(228px, 100%);
+    margin-inline: auto;
     padding: 18px 10px 11px;
     border: 1px solid rgba(63, 74, 88, 0.16);
     border-radius: 25px;

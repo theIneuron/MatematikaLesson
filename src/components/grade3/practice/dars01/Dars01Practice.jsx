@@ -23,7 +23,7 @@ const ITEMS = [
   { id: '07', label: "🟡 Raqam qiymati", C: D01_07 },
   { id: '08', label: "🔴 Razryad savatlari", C: D01_08 },
   { id: '09', label: "🔴 Oldingi son", C: D01_09 },
-  { id: '10', label: "🔴 Minglik blok", C: D01_10 },
+  { id: '10', label: "🔴 Yakuniy mashq", C: D01_10 },
 ];
 
 const TITLE = "Dars 1 · Yuzliklar, o'nliklar va birliklar";

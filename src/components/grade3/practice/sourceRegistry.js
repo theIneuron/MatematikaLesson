@@ -5,18 +5,15 @@ export const GRADE3_BOOK = {
   methodology: "Matematika 3-sinf metodik qo'llanma, 2022",
 };
 
-export const ZIYOLY_GRADE3_URL = 'https://ziyoly.uz/general-categories/2/grades/955';
-
-const source = (bookRef, ziyolySkills) => ({
-  provider: '3-sinf darsligi + Ziyoly',
+const source = (bookRef, skills) => ({
+  provider: '3-sinf darsligi',
   book: `${GRADE3_BOOK.title}, 2019; mashq daftari, 2022`,
   bookRef,
-  ziyoly: Array.isArray(ziyolySkills) ? ziyolySkills : [ziyolySkills],
-  ziyolyUrl: ZIYOLY_GRADE3_URL,
+  skills: Array.isArray(skills) ? skills : [skills],
   adaptation: "Savol sonlari va hayotiy vaziyati interaktiv amaliyot uchun moslashtirilgan.",
 });
 
-// Dars raqamlari loyiha rejasiga tegishli. Kitobdagi bob/dars va Ziyoly bloklari
+// Dars raqamlari loyiha rejasiga tegishli. Kitobdagi bob/darslar
 // loyiha raqamiga emas, o'rganiladigan ko'nikmaga qarab moslangan.
 export const GRADE3_PRACTICE_SOURCES = {
   1: source("1-bob, 1–5-dars; mashq daftari 3–7-betlar", [

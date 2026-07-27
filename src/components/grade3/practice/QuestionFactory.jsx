@@ -475,7 +475,7 @@ function Stage({ spec, text, status }) {
       <div style={{ position: 'relative', display: 'grid', placeItems: 'center', gap: 12, textAlign: 'center' }}>
         <div className="g3-context-group" aria-hidden="true" style={{ fontSize: 34 }}>{hero === '●' ? '✨' : hero}</div>
         {text.visual && <div className={`g3-practice-visual ${correct ? 'is-correct' : ''}`} style={{ color: correct ? '#1F7A4D' : '#145A86', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 28, fontWeight: 900, letterSpacing: '.02em' }}>{text.visual}</div>}
-        <SemanticModel kind={kind} correct={correct} text={text} spec={spec} />
+        {!spec.hideModel && <SemanticModel kind={kind} correct={correct} text={text} spec={spec} />}
         {items.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
             {items.map((item, i) => (
