@@ -512,11 +512,82 @@ const ScreenTypeLabel = ({ type }) => {
   return <span className="screen-type">{labels[type] ?? type}</span>;
 };
 
+const MOBILE_AUTO_SCROLL_TARGETS = [
+  '.feedback-visible',
+  '.explanation-finish-row',
+  '.timeline-active',
+  '.trainer-done',
+  '.divider-outcome-solved',
+  '.reflection-solved',
+  '.reward-unlocked',
+  '.answer-proof-layer.answer-layer-visible',
+];
+
 const Stage = ({ screen, eyebrow, audio, children, nav }) => {
   const t = useT();
   const isMobile = useIsMobile();
+  const contentRef = useRef(null);
   const pad = isMobile ? 14 : 48;
   const meta = SCREEN_META[screen];
+
+  useEffect(() => {
+    const scroller = contentRef.current;
+    if (!isMobile || !scroller) return undefined;
+
+    scroller.scrollTo({ top: 0, behavior: 'auto' });
+    let frameId = 0;
+    let settleTimer = 0;
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+    const revealCurrentTarget = () => {
+      const target = MOBILE_AUTO_SCROLL_TARGETS
+        .map((selector) => scroller.querySelector(selector))
+        .find(Boolean);
+      if (!target) return;
+
+      const viewport = scroller.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const safeTop = viewport.top + 10;
+      const safeBottom = viewport.bottom - 14;
+      let nextTop = scroller.scrollTop;
+
+      if (targetRect.bottom > safeBottom) {
+        nextTop += targetRect.bottom - safeBottom;
+      } else if (targetRect.top < safeTop) {
+        nextTop -= safeTop - targetRect.top;
+      } else {
+        return;
+      }
+
+      const maxTop = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+      scroller.scrollTo({
+        top: Math.max(0, Math.min(nextTop, maxTop)),
+        behavior: reducedMotion ? 'auto' : 'smooth',
+      });
+    };
+
+    const scheduleReveal = () => {
+      cancelAnimationFrame(frameId);
+      window.clearTimeout(settleTimer);
+      frameId = requestAnimationFrame(revealCurrentTarget);
+      settleTimer = window.setTimeout(revealCurrentTarget, 720);
+    };
+
+    const observer = new MutationObserver(scheduleReveal);
+    observer.observe(scroller, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['class', 'aria-hidden'],
+    });
+
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frameId);
+      window.clearTimeout(settleTimer);
+    };
+  }, [isMobile, screen]);
+
   return (
     <main className={`stage stage-${meta.type}`}>
       <header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}>
@@ -535,7 +606,7 @@ const Stage = ({ screen, eyebrow, audio, children, nav }) => {
           </div>
         </div>
       </header>
-      <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+      <section ref={contentRef} className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
         {children}
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
@@ -827,29 +898,78 @@ const RecapShiftAnimation = ({ lang }) => {
   );
 };
 
-const DataCenterScene = ({ raw = '125407', resolved = false }) => (
-  <div className={`data-scene ${resolved ? 'data-scene-resolved' : ''}`} aria-hidden="true">
-    <div className="city-grid">
-      <span /><span /><span /><span /><span /><span /><span /><span />
-    </div>
-    <div className="data-tower">
-      <div className="tower-light" />
-      <div className="tower-screen">
-        <span className="tower-label">LUMO DATA</span>
-        <strong className="data-code">
-          {raw.split('').map((digit, index) => (
-            <React.Fragment key={`${digit}-${index}`}>
-              {index === raw.length - 3 && <i className="data-code-divider" />}
-              <span>{digit}</span>
-            </React.Fragment>
-          ))}
-        </strong>
+const DataCenterScene = ({ raw = '125407', resolved = false, t }) => {
+  const digits = raw.split('');
+
+  return (
+    <div className={`data-scene ${resolved ? 'data-scene-resolved' : ''}`} aria-hidden="true">
+      <div className="city-grid" />
+      <div className="data-ambient-orbit data-orbit-one" />
+      <div className="data-ambient-orbit data-orbit-two" />
+
+      <div className="data-tower">
+        <div className="data-console-head">
+          <span className="data-node-name"><i /> LUMO DATA · NODE 04</span>
+          <span className="data-state">
+            {resolved
+              ? t({ ru: 'СТРУКТУРА НАЙДЕНА', uz: 'TUZILISH TOPILDI' })
+              : t({ ru: 'СТРУКТУРА НЕ ОПРЕДЕЛЕНА', uz: 'TUZILISH ANIQLANMAGAN' })}
+          </span>
+        </div>
+
+        <div className="tower-screen">
+          <div className="tower-label-row">
+            <span className="tower-label">{t({ ru: 'ГОРОДСКОЙ КОД', uz: 'SHAHAR KODI' })}</span>
+            <small>{t({ ru: '6 ЦИФР', uz: '6 RAQAM' })}</small>
+          </div>
+          <strong className="data-code">
+            {digits.map((digit, index) => (
+              <React.Fragment key={`${digit}-${index}`}>
+                {index === digits.length - 3 && <i className="data-code-divider" />}
+                <span style={{ '--data-digit-delay': `${index * 90}ms` }}>{digit}</span>
+              </React.Fragment>
+            ))}
+          </strong>
+          <i className="data-code-scan" />
+          <div className="data-class-reveal">
+            <span>{t({ ru: 'КЛАСС ТЫСЯЧ', uz: 'MINGLAR SINFI' })}</span>
+            <span>{t({ ru: 'КЛАСС ЕДИНИЦ', uz: 'BIRLAR SINFI' })}</span>
+          </div>
+        </div>
+
+        <div className="data-diagnostics">
+          <span><i className="diagnostic-ok" />{t({ ru: 'ЦИФРЫ: 6', uz: 'RAQAMLAR: 6' })}</span>
+          <span><i className="diagnostic-ok" />{t({ ru: 'ПОРЯДОК: СОХРАНЁН', uz: 'TARTIB: SAQLANGAN' })}</span>
+          <span className="diagnostic-structure">
+            <i />
+            {resolved
+              ? t({ ru: 'КЛАССЫ: 2', uz: 'SINFLAR: 2' })
+              : t({ ru: 'КЛАССЫ: ?', uz: 'SINFLAR: ?' })}
+          </span>
+        </div>
       </div>
-      <div className="server-row"><i /><i /><i /></div>
+
+      <div className="city-network">
+        <svg viewBox="0 0 150 72">
+          <path className="network-route" d="M12 54 C34 18 55 54 76 31 S119 11 139 35" />
+          <circle className="network-node node-a" cx="12" cy="54" r="5" />
+          <circle className="network-node node-b" cx="76" cy="31" r="5" />
+          <circle className="network-node node-c" cx="139" cy="35" r="5" />
+          <path className="network-building" d="M119 58V37h9V25h12v33M115 58h30" />
+          <path className="network-windows" d="M124 43h4m5 0h4m-13 7h4m5 0h4" />
+        </svg>
+        <span>{t({ ru: 'СЕТЬ УМНОГО ГОРОДА', uz: "AQILLI SHAHAR TARMOG'I" })}</span>
+      </div>
+
+      <div className="data-bit-callout">
+        {resolved
+          ? t({ ru: 'Код понятен!', uz: 'Kod tushunarli!' })
+          : t({ ru: 'Как устроен код?', uz: 'Kod qanday tuzilgan?' })}
+      </div>
+      <BitAvatar mood={resolved ? 'happy' : 'thinking'} />
     </div>
-    <BitAvatar mood={resolved ? 'happy' : 'thinking'} />
-  </div>
-);
+  );
+};
 
 const PlaceValueTable = ({ values = [], highlight = -1, compact = false }) => {
   const lang = useLang();
@@ -1014,6 +1134,7 @@ const ChoiceScreen = ({
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={nav}>
       <div className={`screen-stack ${quick ? 'quick-test-screen' : ''}`}>
         <Bridge screen={screen} />
+        {c.topic && <div className="topic-chip">{t(c.topic)}</div>}
         {c.title && <h1 className="title h-title">{t(c.title)}</h1>}
         {quick && (
           <div className="quick-test-meter">
@@ -3061,7 +3182,7 @@ const StrategyDecomposition = ({ step, t }) => {
 
 const screenFigure = (screen, t) => {
   if (screen === 0) {
-    return ({ solved }) => <DataCenterScene raw={CONTENT.s0.numberRaw} resolved={solved} />;
+    return ({ solved }) => <DataCenterScene raw={CONTENT.s0.numberRaw} resolved={solved} t={t} />;
   }
   if (screen === 1) {
     return () => (
@@ -3374,7 +3495,7 @@ button { font: inherit; }
   text-align: center;
 }
 .topic-chip {
-  align-self: flex-start;
+  align-self: center;
   padding: 6px 11px;
   border-radius: 999px;
   background: ${T.cyanSoft};
@@ -3814,71 +3935,223 @@ button { font: inherit; }
 }
 .data-scene {
   position: relative;
-  width: min(700px, 100%);
-  min-height: 190px;
+  isolation: isolate;
+  width: min(760px, 100%);
+  min-height: 206px;
   margin: 0 auto;
-  padding: 24px 130px 18px 22px;
+  padding: 17px 184px 15px 20px;
   border-radius: 24px;
   overflow: hidden;
   color: #EAF9FB;
   background:
-    linear-gradient(145deg, rgba(22,143,163,.24), transparent 48%),
-    linear-gradient(135deg, #15364A, #102738);
+    radial-gradient(circle at 87% 24%, rgba(121,211,218,.16), transparent 24%),
+    radial-gradient(circle at 9% 88%, rgba(149,201,61,.11), transparent 25%),
+    linear-gradient(145deg, rgba(22,143,163,.25), transparent 48%),
+    linear-gradient(135deg, #153B50, #0B2232 72%);
   box-shadow: 0 22px 50px -30px rgba(14,33,44,.75);
+}
+.data-scene::after {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border: 1px solid rgba(144,228,235,.12);
+  border-radius: 23px;
+  pointer-events: none;
 }
 .city-grid {
   position: absolute;
   inset: 0;
-  opacity: .22;
+  z-index: -2;
+  opacity: .18;
   background-image:
     linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px);
   background-size: 30px 30px;
 }
-.data-tower { position: relative; z-index: 1; }
-.tower-light {
-  width: 11px;
-  height: 11px;
-  margin-bottom: 9px;
+.data-ambient-orbit {
+  position: absolute;
+  z-index: -1;
+  border: 1px solid rgba(121,211,218,.15);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.data-orbit-one {
+  width: 210px;
+  height: 210px;
+  right: -75px;
+  top: -98px;
+}
+.data-orbit-two {
+  width: 145px;
+  height: 145px;
+  right: -43px;
+  top: -57px;
+}
+.data-tower {
+  position: relative;
+  z-index: 2;
+}
+.data-console-head {
+  min-height: 22px;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.data-node-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #9DE3E7;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: .13em;
+}
+.data-node-name > i {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
   border-radius: 50%;
   background: ${T.lime};
-  box-shadow: 0 0 16px ${T.lime};
+  box-shadow: 0 0 15px rgba(149,201,61,.9);
+  animation: data-node-pulse 1.9s ease-in-out infinite;
+}
+@keyframes data-node-pulse {
+  50% { transform: scale(.72); opacity: .7; box-shadow: 0 0 7px rgba(149,201,61,.7); }
+}
+.data-state {
+  padding: 4px 7px;
+  border: 1px solid rgba(255,183,107,.22);
+  border-radius: 999px;
+  color: #FFD29E;
+  background: rgba(169,111,19,.16);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: .06em;
+  white-space: nowrap;
+  transition: color .8s ease, border-color .8s ease, background .8s ease;
+}
+.data-scene-resolved .data-state {
+  border-color: rgba(119,222,168,.26);
+  color: #B5F2D2;
+  background: rgba(34,122,83,.2);
 }
 .tower-screen {
-  width: min(450px, 100%);
-  padding: 14px 18px;
+  position: relative;
+  width: 100%;
+  padding: 10px 14px 8px;
   border-radius: 15px;
+  overflow: hidden;
   background: rgba(1,13,22,.62);
-  box-shadow: inset 0 0 0 1px rgba(144,228,235,.18);
+  box-shadow:
+    inset 0 0 0 1px rgba(144,228,235,.18),
+    0 12px 26px -22px rgba(1,13,22,.9);
+}
+.tower-label-row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 .tower-label {
-  display: block;
-  margin-bottom: 6px;
   color: #79D3DA;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 8px;
+  font-weight: 800;
   letter-spacing: .16em;
 }
-.tower-screen strong {
-  display: block;
+.tower-label-row small {
+  color: rgba(234,249,251,.55);
   font-family: 'JetBrains Mono', monospace;
-  font-size: clamp(26px, 5vw, 44px);
+  font-size: 7px;
+  font-weight: 800;
   letter-spacing: .08em;
 }
 .tower-screen .data-code {
-  min-height: 55px;
+  position: relative;
+  z-index: 2;
+  min-height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(28px, 5vw, 43px);
+  font-weight: 800;
+  letter-spacing: .08em;
 }
 .data-code > span {
   display: inline-grid;
   place-items: center;
   min-width: .78em;
+  text-shadow: 0 0 18px rgba(144,228,235,.12);
+  animation: data-digit-in .65s cubic-bezier(.16,1,.3,1) both;
+  animation-delay: var(--data-digit-delay);
   transition:
     color .8s ease,
     transform 1.15s cubic-bezier(.22,.8,.3,1);
+}
+@keyframes data-digit-in {
+  from { opacity: 0; transform: translateY(9px) scale(.9); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.data-code-scan {
+  position: absolute;
+  z-index: 1;
+  top: 22px;
+  bottom: 18px;
+  left: -80px;
+  width: 76px;
+  opacity: .56;
+  background: linear-gradient(90deg, transparent, rgba(121,211,218,.22), rgba(255,255,255,.18), transparent);
+  transform: skewX(-12deg);
+  animation: data-code-scan 3.4s ease-in-out infinite;
+  pointer-events: none;
+  transition: opacity .6s ease;
+}
+@keyframes data-code-scan {
+  0%, 12% { transform: translateX(0) skewX(-12deg); opacity: 0; }
+  24% { opacity: .6; }
+  72% { opacity: .5; }
+  88%, 100% { transform: translateX(560px) skewX(-12deg); opacity: 0; }
+}
+.data-scene-resolved .data-code-scan { opacity: 0; animation-play-state: paused; }
+.data-class-reveal {
+  position: relative;
+  z-index: 2;
+  min-height: 13px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 19px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .75s ease .75s, transform .9s cubic-bezier(.16,1,.3,1) .7s;
+}
+.data-class-reveal span {
+  padding: 3px 5px;
+  border: 1px solid rgba(121,211,218,.12);
+  border-radius: 6px;
+  color: #9DE3E7;
+  background: rgba(22,143,163,.12);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-align: center;
+}
+.data-class-reveal span:last-child {
+  border-color: rgba(255,255,255,.12);
+  color: #FFFFFF;
+  background: rgba(255,255,255,.07);
+}
+.data-scene-resolved .data-class-reveal {
+  opacity: 1;
+  transform: translateY(0);
 }
 .data-code-divider {
   width: 0;
@@ -3897,11 +4170,11 @@ button { font: inherit; }
     transform 1.1s cubic-bezier(.22,.8,.3,1),
     box-shadow .9s ease .65s;
 }
-.data-scene-resolved .data-code > span:nth-child(-n+2) {
+.data-scene-resolved .data-code > span:nth-of-type(-n+3) {
   color: #A8EAF0;
   transform: translateX(-4px);
 }
-.data-scene-resolved .data-code > span:nth-last-child(-n+3) {
+.data-scene-resolved .data-code > span:nth-last-of-type(-n+3) {
   color: #FFFFFF;
   transform: translateX(4px);
 }
@@ -3913,13 +4186,140 @@ button { font: inherit; }
   transform: scaleY(1);
   box-shadow: 0 0 16px rgba(255,91,53,.55);
 }
-.server-row { display: flex; gap: 8px; margin-top: 12px; }
-.server-row i {
-  width: 76px;
-  height: 17px;
-  border-radius: 5px;
-  background: rgba(255,255,255,.12);
-  box-shadow: inset 12px 0 0 rgba(149,201,61,.7);
+.data-diagnostics {
+  min-height: 27px;
+  margin-top: 7px;
+  display: grid;
+  grid-template-columns: .75fr 1.35fr .85fr;
+  gap: 6px;
+}
+.data-diagnostics > span {
+  min-width: 0;
+  padding: 5px 6px;
+  border: 1px solid rgba(144,228,235,.08);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: rgba(234,249,251,.68);
+  background: rgba(255,255,255,.055);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.data-diagnostics i {
+  width: 5px;
+  height: 5px;
+  flex: 0 0 5px;
+  border-radius: 50%;
+  background: #79D3DA;
+  box-shadow: 0 0 7px rgba(121,211,218,.65);
+}
+.data-diagnostics .diagnostic-structure {
+  color: #FFD29E;
+  border-color: rgba(255,183,107,.13);
+  transition: color .8s ease, border-color .8s ease, background .8s ease;
+}
+.diagnostic-structure i {
+  background: ${T.accent};
+  box-shadow: 0 0 8px rgba(255,91,53,.72);
+  animation: diagnostic-alert 1.2s ease-in-out infinite;
+}
+@keyframes diagnostic-alert { 50% { opacity: .35; transform: scale(.72); } }
+.data-scene-resolved .diagnostic-structure {
+  color: #B5F2D2;
+  border-color: rgba(119,222,168,.2);
+  background: rgba(34,122,83,.14);
+}
+.data-scene-resolved .diagnostic-structure i {
+  background: #77DEA8;
+  box-shadow: 0 0 8px rgba(119,222,168,.62);
+  animation: none;
+}
+.city-network {
+  position: absolute;
+  z-index: 1;
+  top: 18px;
+  right: 14px;
+  width: 154px;
+  color: rgba(157,227,231,.58);
+}
+.city-network svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.city-network > span {
+  display: block;
+  margin-top: -1px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 6px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-align: center;
+}
+.network-route {
+  fill: none;
+  stroke: rgba(121,211,218,.45);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 4 6;
+  animation: network-route-flow 2.4s linear infinite;
+  transition: stroke .8s ease, stroke-width .8s ease;
+}
+@keyframes network-route-flow { to { stroke-dashoffset: -20; } }
+.network-node {
+  fill: #12384B;
+  stroke: #79D3DA;
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: network-node-ping 2s ease-in-out infinite;
+}
+.node-b { animation-delay: .45s; }
+.node-c { animation-delay: .9s; }
+@keyframes network-node-ping { 50% { transform: scale(1.35); filter: drop-shadow(0 0 4px #79D3DA); } }
+.network-building,
+.network-windows {
+  fill: none;
+  stroke: rgba(234,249,251,.68);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.network-windows { stroke-width: 1.4; }
+.data-scene-resolved .network-route {
+  stroke: #77DEA8;
+  stroke-width: 3;
+}
+.data-scene-resolved .network-node {
+  fill: #77DEA8;
+  stroke: #B5F2D2;
+}
+.data-bit-callout {
+  position: absolute;
+  z-index: 4;
+  top: 91px;
+  right: 17px;
+  width: 142px;
+  padding: 7px 8px;
+  border: 1px solid rgba(144,228,235,.2);
+  border-radius: 10px 10px 3px 10px;
+  color: #D6F5F7;
+  background: rgba(5,30,43,.82);
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  box-shadow: 0 8px 18px -13px rgba(1,13,22,.9);
+  transition: color .7s ease, border-color .7s ease, background .7s ease;
+}
+.data-scene-resolved .data-bit-callout {
+  border-color: rgba(119,222,168,.3);
+  color: #B5F2D2;
+  background: rgba(17,69,50,.78);
 }
 .bit-avatar {
   position: absolute;
@@ -3935,6 +4335,12 @@ button { font: inherit; }
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 7px 13px rgba(1,13,22,.28));
+}
+.data-scene > .bit-avatar {
+  right: 42px;
+  bottom: -4px;
+  width: 88px;
+  height: 110px;
 }
 .bit-small {
   position: relative;
@@ -6368,15 +6774,45 @@ button { font: inherit; }
 .preview-language .preview-active { color: #FFFFFF; background: ${T.accent}; }
 @media (max-width: 639.98px) {
   .stage-header { padding-top: 60px; }
+  .stage-content {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-x: none;
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+    scroll-padding-block: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .stage-content::-webkit-scrollbar { display: none; }
   .screen-type { display: none; }
-  .stage-nav { min-height: 68px; }
+  .stage-nav {
+    min-height: calc(68px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+  }
   .h-title { font-size: 25px; }
   .options-grid, .options-three { grid-template-columns: 1fr; }
   .option { min-height: 50px; padding: 10px 12px; }
-  .data-scene { min-height: 160px; padding: 18px 100px 14px 14px; }
-  .bit-avatar { right: 8px; bottom: 4px; width: 88px; height: 110px; }
-  .tower-screen strong { font-size: 28px; }
-  .server-row i { width: 48px; }
+  .data-scene { min-height: 164px; padding: 9px 91px 9px 10px; border-radius: 18px; }
+  .data-console-head { min-height: 17px; margin-bottom: 4px; }
+  .data-node-name { gap: 4px; font-size: 6px; letter-spacing: .07em; }
+  .data-node-name > i { width: 6px; height: 6px; flex-basis: 6px; }
+  .data-state { display: none; }
+  .tower-screen { padding: 7px 8px 5px; border-radius: 11px; }
+  .tower-label, .tower-label-row small { font-size: 6px; }
+  .tower-screen .data-code { min-height: 43px; font-size: 27px; }
+  .data-code-divider { height: 36px; }
+  .data-scene-resolved .data-code-divider { height: 39px; margin: 0 5px; width: 3px; }
+  .data-class-reveal { min-height: 10px; gap: 10px; }
+  .data-class-reveal span { padding: 2px; font-size: 4.5px; }
+  .data-code-scan { top: 17px; bottom: 12px; }
+  .data-diagnostics { min-height: 20px; margin-top: 4px; gap: 3px; }
+  .data-diagnostics > span { padding: 3px; gap: 3px; border-radius: 5px; font-size: 4.5px; }
+  .data-diagnostics i { width: 4px; height: 4px; flex-basis: 4px; }
+  .city-network { top: 8px; right: 2px; width: 87px; }
+  .city-network > span { display: none; }
+  .data-bit-callout { top: 61px; right: 4px; width: 83px; padding: 5px 3px; font-size: 6px; }
+  .data-scene > .bit-avatar { right: 12px; bottom: -7px; width: 68px; height: 85px; }
   .explanation-screen { gap: 8px; }
   .explanation-screen .lead { font-size: 13px; line-height: 1.32; }
   .explanation-layout, .trainer-layout { grid-template-columns: 1fr; gap: 7px; }

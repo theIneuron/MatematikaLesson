@@ -3,7 +3,7 @@
 export const CONTENT = {
   s0: {
     eyebrow: { ru: 'Новая миссия', uz: 'Yangi missiya' },
-    topic: { ru: 'Урок 1. Классы многозначных чисел', uz: "1-dars. Ko'p xonali sonlar sinflari" },
+    topic: { ru: 'Тема урока: Классы многозначных чисел', uz: "Dars mavzusi: Ko'p xonali sonlar sinflari" },
     title: { ru: 'Новый адрес: 125407', uz: 'Yangi manzil: 125407' },
     lead: {
       ru: 'Bit получил код городского объекта, но видит только длинную цепочку цифр.',
@@ -35,16 +35,20 @@ export const CONTENT = {
     audio: {
       intro: {
         ru: [
-          'Сегодня мы запускаем Центр данных умного города.',
-          'Bit получил адрес сто двадцать пять тысяч четыреста семь, но система видит только длинную цепочку цифр.',
-          'Нам нужен способ, который покажет структуру числа и не изменит сам адрес.',
-          'С чего начнём?',
+          'Привет, друг! Это Бит. Сегодня мы вместе запустим Центр данных умного города и разгадаем один важный числовой секрет.',
+          'Тема нашего урока — классы многозначных чисел. Звучит серьёзно, но всё станет понятным, если двигаться спокойно, шаг за шагом.',
+          'Мы научимся видеть в длинном числе небольшие понятные части, правильно называть каждый класс и читать большие числа без ошибок.',
+          'Я получил адрес: сто двадцать пять тысяч четыреста семь. Но городская система видит только длинную цепочку цифр — один, два, пять, четыре, ноль, семь.',
+          'Нам нужно показать устройство этого числа и при этом сохранить адрес точно таким, каким он был. Ни одна цифра не должна потерять своё значение.',
+          'Перед тобой три идеи. Рассмотри их внимательно и выбери действие, с которого лучше начать нашу миссию.',
         ],
         uz: [
-          "Bugun aqlli shaharning Ma'lumotlar markazini ishga tushiramiz.",
-          "Bit bir yuz yigirma besh ming to'rt yuz yetti manzilini oldi, lekin tizim faqat uzun raqamlar qatorini ko'ryapti.",
-          "Sonning o'zini o'zgartirmasdan uning tuzilishini ko'rsatadigan usul kerak.",
-          "Nimadan boshlaymiz?",
+          "Salom, do'stim! Men Bitman. Bugun biz birgalikda aqlli shaharning Ma'lumotlar markazini ishga tushiramiz va muhim bir sonli sirni ochamiz.",
+          "Darsimizning mavzusi — ko'p xonali sonlar sinflari. Nomi jiddiy tuyuladi, ammo asta-sekin, qadamma-qadam harakat qilsak, hammasi tushunarli bo'ladi.",
+          "Biz uzun sonda kichik va tushunarli qismlarni ko'rishni, har bir sinfni to'g'ri nomlashni va katta sonlarni xatosiz o'qishni o'rganamiz.",
+          "Men bir yuz yigirma besh ming to'rt yuz yetti manzilini oldim. Ammo shahar tizimi faqat bir, ikki, besh, to'rt, nol, yetti raqamlaridan iborat uzun qatorni ko'ryapti.",
+          "Biz sonning tuzilishini ko'rsatishimiz va manzilni aynan o'z holicha saqlashimiz kerak. Hech bir raqam o'z qiymatini yo'qotmasligi lozim.",
+          "Oldingda uchta g'oya bor. Ularni diqqat bilan ko'rib chiq va missiyamizni qaysi harakatdan boshlash yaxshiroq ekanini tanla.",
         ],
       },
       on_correct: {
