@@ -919,14 +919,14 @@ export const CONTENT = {
         ru: [
           'Перед новой темой восстановим всю необходимую основу. Разряд — это место цифры в записи числа.',
           'Справа налево идут единицы, десятки и сотни. Например, в числе триста двадцать шесть цифра три означает три сотни, цифра два — два десятка, цифра шесть — шесть единиц.',
-          'Значение одной и той же цифры меняется вместе с её местом. Сдвиг на один разряд влево увеличивает значение в десять раз.',
+          'Значение одной и той же цифры меняется вместе с её местом. Посмотри на цифру семь. В разряде единиц она означает семь. На один разряд левее она означает семь десятков, то есть семьдесят. Ещё на один разряд левее — семь сотен, то есть семьсот. Каждый шаг влево увеличивает значение в десять раз.',
           'Ноль тоже важен. Он показывает, что в разряде нет единиц, и удерживает остальные цифры на их местах.',
           'Теперь выполни три коротких задания. Они не повторяют пример из объяснения.',
         ],
         uz: [
           "Yangi mavzudan oldin kerakli asosni to'liq tiklaymiz. Xona — bu raqamning son yozuvidagi o'rni.",
           "O'ngdan chapga birlar, o'nlar va yuzlar joylashadi. Masalan, 326 sonida 3 uch yuzlikni, 2 ikki o'nlikni, 6 olti birlikni bildiradi.",
-          "Bir xil raqamning qiymati o'rniga qarab o'zgaradi. Bir xona chapga siljish qiymatni o'n marta oshiradi.",
+          "Bir xil raqamning qiymati o'rniga qarab o'zgaradi. Yetti raqamiga qarang. Birlar xonasida u yettini bildiradi. Bir xona chapda u yetti o'nlikni, ya'ni yetmishni bildiradi. Yana bir xona chapda esa yetti yuzlikni, ya'ni yetti yuzni bildiradi. Chapga har bir qadam qiymatni o'n marta oshiradi.",
           "Nol ham muhim. U xonada birlik yo'qligini ko'rsatadi va boshqa raqamlarni o'z joyida ushlab turadi.",
           "Endi uchta qisqa topshiriqni bajaring. Ular tushuntirishdagi misolni takrorlamaydi.",
         ],

@@ -434,7 +434,34 @@ const bitSpeech = (t, correct, seed, detail) => (
   `${t(getBitReaction(correct, seed))} ${detail ?? ''}`.trim()
 );
 
-const FeedbackBlock = ({ show, correct, reaction }) => {
+const buildOptionOrder = (length, correctIndex, seed = 0) => {
+  const naturalOrder = Array.from({ length }, (_, index) => index);
+  if (length < 2 || !Number.isInteger(correctIndex) || !naturalOrder.includes(correctIndex)) {
+    return naturalOrder;
+  }
+
+  const targetPosition = (Math.abs(seed) * 2 + 1) % length;
+  const order = naturalOrder.filter((index) => index !== correctIndex);
+  order.splice(targetPosition, 0, correctIndex);
+  return order;
+};
+
+const BitAnswerComment = ({ reaction, children }) => {
+  const t = useT();
+  return (
+    <div className="bit-answer-comment">
+      <div className="bit-answer-comment-figure">
+        <BitSVG state="happy" />
+      </div>
+      <div className="bit-answer-comment-copy">
+        <strong>{t(reaction)}</strong>
+        {children && <div>{children}</div>}
+      </div>
+    </div>
+  );
+};
+
+const FeedbackBlock = ({ show, correct, reaction, children }) => {
   const lang = useLang();
   const t = useT();
   const label = reaction
@@ -448,7 +475,10 @@ const FeedbackBlock = ({ show, correct, reaction }) => {
         <div className="g4-bit-reaction-figure">
           <BitSVG state={correct ? 'happy' : 'hint'} />
         </div>
-        <div className="g4-bit-reaction-copy"><p>{label}</p></div>
+        <div className="g4-bit-reaction-copy">
+          <strong>{label}</strong>
+          {children && <div className="g4-bit-reaction-detail">{children}</div>}
+        </div>
       </div>
     </div>
   );
@@ -1055,11 +1085,15 @@ const ChoiceScreen = ({
   const lang = useLang();
   const t = useT();
   const optionsRaw = optionsProp ?? c.options;
-  const options = optionsRaw.map((option) => t(option));
-  const answerOptions = answerOptionsProp?.map((option) => t(option)) ?? options;
+  const sourceOptions = optionsRaw.map((option) => t(option));
+  const sourceAnswerOptions = answerOptionsProp?.map((option) => t(option)) ?? sourceOptions;
+  const optionOrder = buildOptionOrder(sourceOptions.length, c.correctIndex, screen);
+  const options = optionOrder.map((index) => sourceOptions[index]);
+  const answerOptions = optionOrder.map((index) => sourceAnswerOptions[index]);
+  const correctIndex = optionOrder.indexOf(c.correctIndex);
   const wasSolved = !resetOnReturn && storedAnswer?.solved === true;
   const [solved, setSolved] = useState(wasSolved);
-  const [picked, setPicked] = useState(wasSolved ? c.correctIndex : null);
+  const [picked, setPicked] = useState(wasSolved ? correctIndex : null);
   const [wrong, setWrong] = useState(() => new Set());
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const firstPicked = useRef(storedAnswer?.studentAnswerIndex ?? null);
@@ -1075,7 +1109,8 @@ const ChoiceScreen = ({
 
   const pick = (index) => {
     if (!canAnswer || solved || wrong.has(index)) return;
-    const correct = index === c.correctIndex;
+    const sourceIndex = optionOrder[index];
+    const correct = sourceIndex === c.correctIndex;
     attempts.current += 1;
     if (firstTry.current === null) {
       firstTry.current = correct;
@@ -1090,8 +1125,8 @@ const ChoiceScreen = ({
         screenIdx: screen,
         question: t(c.question ?? c.title),
         options: answerOptions,
-        correctIndex: c.correctIndex,
-        correctAnswer: answerOptions[c.correctIndex],
+        correctIndex,
+        correctAnswer: answerOptions[correctIndex],
         studentAnswerIndex: firstPicked.current,
         studentAnswer: answerOptions[firstPicked.current],
         correct: firstTry.current,
@@ -1114,14 +1149,15 @@ const ChoiceScreen = ({
         t,
         false,
         reactionSeed,
-        t(c.wrong?.[index] ?? c.audio?.on_wrong),
+        t(c.wrong?.[sourceIndex] ?? c.audio?.on_wrong),
       ));
     }
   };
 
+  const pickedSourceIndex = picked !== null ? optionOrder[picked] : null;
   const feedbackText = solved
     ? t(c.correctText)
-    : (picked !== null ? t(c.wrong?.[picked] ?? c.audio?.on_wrong) : '');
+    : (pickedSourceIndex !== null ? t(c.wrong?.[pickedSourceIndex] ?? c.audio?.on_wrong) : '');
 
   const nav = (
     <>
@@ -1154,11 +1190,13 @@ const ChoiceScreen = ({
             <div className={`options-grid ${options.length === 3 ? 'options-three' : ''}`}>
               {options.map((option, index) => {
                 const isWrong = wrong.has(index);
+                const isCorrect = index === correctIndex;
                 return (
                   <button
                     type="button"
                     key={`${option}-${index}`}
-                    className={`option ${isWrong ? 'option-wrong' : ''} ${solved && index === c.correctIndex ? 'option-correct-reveal' : ''}`}
+                    className={`option ${isWrong ? 'option-wrong' : ''} ${solved && isCorrect ? 'option-correct-reveal option-answer-confirm' : ''} ${solved && !isCorrect ? 'option-answer-dismiss' : ''}`}
+                    style={{ '--answer-exit-delay': `${index * 85}ms` }}
                     disabled={!canAnswer || isWrong || solved}
                     onClick={() => pick(index)}
                   >
@@ -1169,17 +1207,20 @@ const ChoiceScreen = ({
               })}
             </div>
           </div>
-          <div className={`answer-layer answer-proof-layer ${solved ? 'answer-layer-visible' : ''}`}>
+          <div className={`answer-layer answer-proof-layer choice-proof-layer ${solved ? 'answer-layer-visible' : ''}`}>
             <div className="solved-option">
-              <span>✓</span>
-              <strong>{options[c.correctIndex]}</strong>
+              <span aria-hidden="true">✓</span>
+              <strong>{options[correctIndex]}</strong>
             </div>
+            <BitAnswerComment reaction={getBitReaction(true, screen * 13 + correctIndex)}>
+              <p>{feedbackText}</p>
+            </BitAnswerComment>
           </div>
         </div>
         <FeedbackBlock
-          show={picked !== null}
-          correct={solved}
-          reaction={picked !== null ? getBitReaction(solved, screen * 13 + picked) : null}
+          show={picked !== null && !solved}
+          correct={false}
+          reaction={picked !== null ? getBitReaction(false, screen * 13 + picked) : null}
         >
           <p>{feedbackText}</p>
         </FeedbackBlock>
@@ -1187,6 +1228,8 @@ const ChoiceScreen = ({
     </Stage>
   );
 };
+
+const FOUNDATION_RECAP_MIN_FRAME_MS = [5200, 5200, 9000, 5200, 3200];
 
 const FoundationRecallAnimation = ({ audio, screen, onFinished }) => {
   const lang = useLang();
@@ -1196,17 +1239,24 @@ const FoundationRecallAnimation = ({ audio, screen, onFinished }) => {
   const phaseTimers = useRef([]);
 
   useEffect(() => {
+    nextFrameAt.current = Date.now();
+  }, []);
+
+  useEffect(() => {
     const marker = `s${screen}-audio-`;
     if (!audio.currentSegment?.startsWith(marker)) return undefined;
     const targetPhase = Math.min(Number(audio.currentSegment.slice(marker.length)), 4);
     if (!Number.isInteger(targetPhase) || targetPhase <= queuedPhase.current) return undefined;
 
     const now = Date.now();
-    nextFrameAt.current = Math.max(nextFrameAt.current, now);
     for (let next = queuedPhase.current + 1; next <= targetPhase; next += 1) {
-      // Even if two TTS markers arrive almost together, keep every recap frame
-      // visible long enough to be perceived instead of batching to the last one.
-      nextFrameAt.current += 2800;
+      // Keep every recap frame visible for its pedagogical minimum even when
+      // several TTS markers arrive together after a slow or failed audio load.
+      const previousPhase = next - 1;
+      nextFrameAt.current = Math.max(
+        nextFrameAt.current + FOUNDATION_RECAP_MIN_FRAME_MS[previousPhase],
+        now,
+      );
       const delay = Math.max(0, nextFrameAt.current - now);
       const timer = setTimeout(() => setPhase(next), delay);
       phaseTimers.current.push(timer);
@@ -1229,14 +1279,14 @@ const FoundationRecallAnimation = ({ audio, screen, onFinished }) => {
     ? [
       "Xona — raqamning o'rni",
       'Raqam xona qiymatini oladi',
-      '',
+      '7 → 70 → 700: chapga har qadam ×10',
       "Nol o'rinni saqlaydi",
       '3 topshiriq',
     ]
     : [
       'Разряд — место цифры',
       'Место задаёт значение',
-      '',
+      '7 → 70 → 700: каждый шаг влево ×10',
       'Ноль держит место',
       '3 задания',
     ];
@@ -1303,6 +1353,13 @@ const ReasoningRoundsScreen = ({
   const firstTry = useRef(storedAnswer?.subResults ?? Array(c.rounds.length).fill(null));
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const current = c.rounds[Math.min(round, c.rounds.length - 1)];
+  const optionOrder = buildOptionOrder(
+    current.options.length,
+    current.correctIndex,
+    screen * 4 + round,
+  );
+  const options = optionOrder.map((index) => current.options[index]);
+  const correctIndex = optionOrder.indexOf(current.correctIndex);
   const audioValue = c.audio?.intro ?? c.audio;
   const audio = useAudio(useMemo(
     () => localizedScreenSegments(audioValue, lang, screen),
@@ -1329,7 +1386,8 @@ const ReasoningRoundsScreen = ({
   const choose = (index) => {
     if (!canAnswer || roundSolved || wrong.has(index)) return;
     attempts.current += 1;
-    const correct = index === current.correctIndex;
+    const sourceIndex = optionOrder[index];
+    const correct = sourceIndex === current.correctIndex;
     const nextReactionSeed = screen * 17 + round * 3 + index;
     if (firstTry.current[round] === null) firstTry.current[round] = correct;
     setReactionSeed(nextReactionSeed);
@@ -1441,11 +1499,12 @@ const ReasoningRoundsScreen = ({
           <div className="answer-stage reasoning-answer-stage">
             <div className={`answer-layer answer-options-layer ${roundSolved ? 'answer-layer-hidden' : ''}`}>
               <div className={`options-grid ${current.options.length === 3 ? 'options-three' : ''}`}>
-                {current.options.map((option, index) => (
+                {options.map((option, index) => (
                   <button
                     type="button"
                     key={`${t(option)}-${index}`}
-                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${roundSolved && index === current.correctIndex ? 'option-correct-reveal' : ''}`}
+                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${roundSolved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''} ${roundSolved && index !== correctIndex ? 'option-answer-dismiss' : ''}`}
+                    style={{ '--answer-exit-delay': `${index * 85}ms` }}
                     disabled={wrong.has(index) || !canAnswer || roundSolved}
                     onClick={() => choose(index)}
                   >
@@ -1457,6 +1516,13 @@ const ReasoningRoundsScreen = ({
             </div>
             <div className={`answer-layer answer-proof-layer reasoning-proof-layer ${completed ? 'reasoning-proof-completed' : ''} ${roundSolved ? 'answer-layer-visible' : ''}`}>
               <VisualAnswerProof formula={proofFormula} label={proofLabel} />
+              {roundSolved && (
+                <BitAnswerComment
+                  reaction={getBitReaction(true, reactionSeed ?? (screen * 17 + round * 3 + correctIndex))}
+                >
+                  <p>{message}</p>
+                </BitAnswerComment>
+              )}
               {roundSolved && !completed && (
                 <button type="button" className="btn btn-secondary" onClick={nextRound}>
                   {lang === 'uz' ? 'Keyingi savol' : 'Следующий вопрос'} <span aria-hidden="true">→</span>
@@ -1467,9 +1533,9 @@ const ReasoningRoundsScreen = ({
           </div>
         </div>}
         {tasksReady && <FeedbackBlock
-          show={Boolean(message)}
-          correct={roundSolved}
-          reaction={reactionSeed !== null ? getBitReaction(roundSolved, reactionSeed) : null}
+          show={Boolean(message) && !roundSolved}
+          correct={false}
+          reaction={reactionSeed !== null ? getBitReaction(false, reactionSeed) : null}
         >
           <p>{message}</p>
         </FeedbackBlock>}
@@ -2540,13 +2606,20 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
   const solved = step === 2;
   const canAdvance = useAdvanceGate(solved, audio);
   const optionsRaw = step === 0 ? c.options : c.followupOptions;
-  const options = optionsRaw.map((value) => t(value));
-  const correctIndex = step === 0 ? c.correctIndex : c.followupCorrectIndex;
+  const sourceCorrectIndex = step === 0 ? c.correctIndex : c.followupCorrectIndex;
+  const optionOrder = buildOptionOrder(
+    optionsRaw.length,
+    sourceCorrectIndex,
+    screen * 4 + step + 2,
+  );
+  const options = optionOrder.map((index) => t(optionsRaw[index]));
+  const correctIndex = optionOrder.indexOf(sourceCorrectIndex);
 
   const choose = (index) => {
     if (!canAnswer || solved || wrong.has(index)) return;
     attempts.current += 1;
-    const correct = index === correctIndex;
+    const sourceIndex = optionOrder[index];
+    const correct = sourceIndex === sourceCorrectIndex;
     const nextReactionSeed = screen * 29 + step * 3 + index;
     if (firstTry.current === null) firstTry.current = correct;
     setLastCorrect(correct);
@@ -2579,7 +2652,7 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
     } else {
       setWrong((prev) => new Set([...prev, index]));
       const text = step === 0
-        ? t(c.wrong[index] ?? c.audio.on_wrong)
+        ? t(c.wrong[sourceIndex] ?? c.audio.on_wrong)
         : (lang === 'uz' ? 'Minglar sinfidagi guruhga qarang.' : 'Посмотри на группу класса тысяч.');
       setMessage(text);
       audio.pushOneOff(bitSpeech(t, false, nextReactionSeed, text));
@@ -2609,7 +2682,8 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
                 {options.map((option, index) => (
                   <button
                     type="button"
-                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${solved && index === correctIndex ? 'option-correct-reveal' : ''}`}
+                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${solved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''} ${solved && index !== correctIndex ? 'option-answer-dismiss' : ''}`}
+                    style={{ '--answer-exit-delay': `${index * 85}ms` }}
                     disabled={wrong.has(index) || solved}
                     key={`${option}-${index}`}
                     onClick={() => choose(index)}
@@ -2624,13 +2698,20 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
               <VisualAnswerProof
                 formula={t(c.followupOptions[c.followupCorrectIndex])}
               />
+              {solved && (
+                <BitAnswerComment
+                  reaction={getBitReaction(true, reactionSeed ?? (screen * 29 + correctIndex))}
+                >
+                  <p>{t(c.correctText)}</p>
+                </BitAnswerComment>
+              )}
             </div>
           </div>
         </div>
         <FeedbackBlock
-          show={Boolean(message) || solved}
-          correct={solved || lastCorrect}
-          reaction={reactionSeed !== null ? getBitReaction(solved || lastCorrect, reactionSeed) : null}
+          show={Boolean(message) && !solved}
+          correct={lastCorrect}
+          reaction={reactionSeed !== null ? getBitReaction(lastCorrect, reactionSeed) : null}
         >
           <p>{solved ? t(c.correctText) : message}</p>
         </FeedbackBlock>
@@ -2642,9 +2723,16 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
 const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
+  const reflectionOrder = buildOptionOrder(
+    c.reflectionOptions.length,
+    c.reflectionCorrectIndex,
+    screen,
+  );
+  const reflectionOptions = reflectionOrder.map((index) => c.reflectionOptions[index]);
+  const reflectionCorrectIndex = reflectionOrder.indexOf(c.reflectionCorrectIndex);
   const [picked, setPicked] = useState(null);
   const [finished, setFinished] = useState(false);
-  const solved = picked === c.reflectionCorrectIndex;
+  const solved = picked === reflectionCorrectIndex;
   const audio = useAudio(useMemo(
     () => localizedScreenSegments(c.audio, lang, screen),
     [c.audio, lang, screen],
@@ -2656,18 +2744,19 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
 
   const choose = (index) => {
     setPicked(index);
-    const correct = index === c.reflectionCorrectIndex;
+    const sourceIndex = reflectionOrder[index];
+    const correct = sourceIndex === c.reflectionCorrectIndex;
     const reactionSeed = screen * 31 + index;
     if (correct) {
       onAnswer({
         stage: null,
         screenIdx: screen,
         question: t(c.reflectionStart),
-        options: c.reflectionOptions.map((option) => t(option)),
-        correctIndex: c.reflectionCorrectIndex,
-        correctAnswer: t(c.reflectionOptions[c.reflectionCorrectIndex]),
+        options: reflectionOptions.map((option) => t(option)),
+        correctIndex: reflectionCorrectIndex,
+        correctAnswer: t(reflectionOptions[reflectionCorrectIndex]),
         studentAnswerIndex: index,
-        studentAnswer: t(c.reflectionOptions[index]),
+        studentAnswer: t(reflectionOptions[index]),
         correct: true,
         firstTry: true,
         attempts: 1,
@@ -2677,7 +2766,7 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
         t,
         true,
         reactionSeed,
-        t(c.reflectionCorrectAudio ?? c.reflectionOptions[index]),
+        t(c.reflectionCorrectAudio ?? reflectionOptions[index]),
       ));
     } else {
       audio.pushOneOff(bitSpeech(t, false, reactionSeed, t(c.reflectionWrongAudio ?? {
@@ -2771,31 +2860,42 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
             </span>
             <h2 className="summary-question">{t(c.reflectionQuestion ?? c.reflectionStart)}</h2>
             <p className="summary-question-stem">{t(c.reflectionStart)}</p>
-            {!solved && (
-              <div className="reflection-options">
-                {c.reflectionOptions.map((option, index) => (
-                  <button
-                    type="button"
-                    key={t(option)}
-                    className={`reflection-option ${picked === index ? 'reflection-wrong' : ''}`}
-                    onClick={() => choose(index)}
-                  >
-                    <span>{String.fromCharCode(65 + index)}</span>
-                    {t(option)}
-                  </button>
-                ))}
+            <div className={`reflection-options ${solved ? 'reflection-options-solved' : ''}`}>
+              {reflectionOptions.map((option, index) => (
+                <button
+                  type="button"
+                  key={t(option)}
+                  className={`reflection-option ${picked === index && !solved ? 'reflection-wrong' : ''} ${solved && index === reflectionCorrectIndex ? 'option-answer-confirm' : ''} ${solved && index !== reflectionCorrectIndex ? 'option-answer-dismiss' : ''}`}
+                  style={{ '--answer-exit-delay': `${index * 85}ms` }}
+                  disabled={solved}
+                  onClick={() => choose(index)}
+                >
+                  <span>{String.fromCharCode(65 + index)}</span>
+                  {t(option)}
+                </button>
+              ))}
+            </div>
+            {solved && (
+              <div className="reflection-resolution">
+                <div className="reflection-solved">✓ {t(reflectionOptions[reflectionCorrectIndex])}</div>
+                <BitAnswerComment reaction={getBitReaction(true, screen * 31 + reflectionCorrectIndex)}>
+                  <p>
+                    {lang === 'uz'
+                      ? 'Ajoyib. Qoida esda — unvon ochildi!'
+                      : 'Отлично. Правило запомнено — звание открыто!'}
+                  </p>
+                </BitAnswerComment>
               </div>
             )}
-            {solved && <div className="reflection-solved">✓ {t(c.reflectionOptions[c.reflectionCorrectIndex])}</div>}
             <FeedbackBlock
-              show={picked !== null}
-              correct={solved}
-              reaction={picked !== null ? getBitReaction(solved, screen * 31 + picked) : null}
+              show={picked !== null && !solved}
+              correct={false}
+              reaction={picked !== null ? getBitReaction(false, screen * 31 + picked) : null}
             >
               <p>
-                {solved
-                  ? (lang === 'uz' ? 'Ajoyib. Qoida esda — unvon ochildi!' : 'Отлично. Правило запомнено — звание открыто!')
-                  : (lang === 'uz' ? "Sinflarni ko'rish uchun o'ngdan uchtadan guruhlaymiz." : 'Чтобы увидеть классы, группируем справа по три разряда.')}
+                {lang === 'uz'
+                  ? "Sinflarni ko'rish uchun o'ngdan uchtadan guruhlaymiz."
+                  : 'Чтобы увидеть классы, группируем справа по три разряда.'}
               </p>
             </FeedbackBlock>
           </div>
@@ -2858,18 +2958,25 @@ const RapidTestConsoleScreen = ({
   ));
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(completed, audio);
-  const options = current.options.map((option) => t(option));
+  const optionOrder = buildOptionOrder(
+    current.options.length,
+    current.correctIndex,
+    screen * 4 + round,
+  );
+  const options = optionOrder.map((index) => t(current.options[index]));
+  const correctIndex = optionOrder.indexOf(current.correctIndex);
 
   const choose = (index) => {
     if (!canAnswer || roundSolved || wrong.has(index)) return;
     attempts.current[round] += 1;
-    const correct = index === current.correctIndex;
+    const sourceIndex = optionOrder[index];
+    const correct = sourceIndex === current.correctIndex;
     const nextReactionSeed = screen * 37 + round * 3 + index;
     if (firstTry.current[round] === null) firstTry.current[round] = correct;
     setReactionSeed(nextReactionSeed);
     if (!correct) {
       setWrong((previous) => new Set([...previous, index]));
-      const hint = t(current.wrong?.[index] ?? current.audio?.on_wrong);
+      const hint = t(current.wrong?.[sourceIndex] ?? current.audio?.on_wrong);
       setMessage(hint);
       audio.pushOneOff(bitSpeech(t, false, nextReactionSeed, hint));
       return;
@@ -2950,7 +3057,8 @@ const RapidTestConsoleScreen = ({
                   <button
                     type="button"
                     key={`${option}-${index}`}
-                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${roundSolved && index === current.correctIndex ? 'option-correct-reveal' : ''}`}
+                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${roundSolved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''} ${roundSolved && index !== correctIndex ? 'option-answer-dismiss' : ''}`}
+                    style={{ '--answer-exit-delay': `${index * 85}ms` }}
                     disabled={!canAnswer || wrong.has(index) || roundSolved}
                     onClick={() => choose(index)}
                   >
@@ -2965,6 +3073,13 @@ const RapidTestConsoleScreen = ({
                 formula={t(current.proof ?? current.options[current.correctIndex])}
                 label={t(current.proofLabel ?? current.correctText)}
               />
+              {roundSolved && (
+                <BitAnswerComment
+                  reaction={getBitReaction(true, reactionSeed ?? (screen * 37 + round * 3 + correctIndex))}
+                >
+                  <p>{message}</p>
+                </BitAnswerComment>
+              )}
               {roundSolved && !completed && (
                 <button type="button" className="btn btn-secondary" onClick={nextRound}>
                   {lang === 'uz' ? 'Keyingi tezkor savol' : 'Следующий быстрый вопрос'} <span aria-hidden="true">→</span>
@@ -2980,9 +3095,9 @@ const RapidTestConsoleScreen = ({
           </div>
         </div>
         <FeedbackBlock
-          show={Boolean(message)}
-          correct={roundSolved}
-          reaction={reactionSeed !== null ? getBitReaction(roundSolved, reactionSeed) : null}
+          show={Boolean(message) && !roundSolved}
+          correct={false}
+          reaction={reactionSeed !== null ? getBitReaction(false, reactionSeed) : null}
         >
           <p>{message}</p>
         </FeedbackBlock>
@@ -3675,7 +3790,8 @@ button { font: inherit; }
 .solved-option {
   min-height: 58px;
   align-self: center;
-  min-width: min(420px, 100%);
+  min-width: 0;
+  width: 100%;
   padding: 12px 18px;
   display: flex;
   align-items: center;
@@ -3685,6 +3801,46 @@ button { font: inherit; }
   color: ${T.success};
   background: ${T.successSoft};
   box-shadow: 0 12px 26px -18px rgba(34,122,83,.48);
+}
+.choice-proof-layer {
+  grid-template-columns: minmax(190px, .8fr) minmax(260px, 1.2fr);
+  align-items: stretch;
+  gap: 10px;
+}
+.bit-answer-comment {
+  min-width: 0;
+  min-height: 72px;
+  padding: 7px 12px 7px 6px;
+  border: 1px solid rgba(34,122,83,.18);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: ${T.success};
+  background: linear-gradient(135deg, #FFFFFF, ${T.successSoft});
+  box-shadow: 0 12px 26px -20px rgba(34,122,83,.5);
+}
+.bit-answer-comment-figure {
+  width: 51px;
+  height: 64px;
+  flex: 0 0 51px;
+  animation: g4reactionhop .72s ease .72s both;
+}
+.bit-answer-comment-figure .g1-char { width: 100%; height: 100%; }
+.bit-answer-comment-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.bit-answer-comment-copy > strong {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 15px;
+  line-height: 1.2;
+}
+.bit-answer-comment-copy p {
+  color: ${T.ink2};
+  font-size: 11px;
+  line-height: 1.35;
 }
 .answer-stage {
   position: relative;
@@ -3717,21 +3873,36 @@ button { font: inherit; }
   pointer-events: none;
   transform: translateY(-8px) scale(.985);
   transition:
-    opacity .55s ease,
-    transform .7s ease,
-    visibility 0s linear .7s;
+    opacity .34s ease .56s,
+    transform .5s ease .5s,
+    visibility 0s linear .92s;
 }
 .answer-proof-layer.answer-layer-visible {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
   transform: translateY(0) scale(1);
-  transition-delay: .32s, .25s, 0s;
+  transition-delay: .72s, .66s, 0s;
 }
 .option-correct-reveal {
   border-color: rgba(34,122,83,.3);
   color: ${T.success};
   background: ${T.successSoft};
+}
+.option-answer-dismiss {
+  animation: answer-option-dismiss .46s cubic-bezier(.4,0,.7,1) var(--answer-exit-delay, 0ms) both;
+}
+.option-answer-confirm {
+  animation: answer-option-confirm .62s cubic-bezier(.16,1,.3,1) .08s both;
+}
+@keyframes answer-option-dismiss {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(.96); }
+}
+@keyframes answer-option-confirm {
+  0% { transform: translateY(0) scale(1); box-shadow: 0 10px 24px -17px rgba(${T.shadowBase},.44); }
+  45% { transform: translateY(-7px) scale(1.025); box-shadow: 0 0 0 6px rgba(34,122,83,.10); }
+  100% { transform: translateY(-3px) scale(1); box-shadow: 0 12px 26px -17px rgba(34,122,83,.45); }
 }
 .answer-proof {
   min-width: 0;
@@ -3913,10 +4084,21 @@ button { font: inherit; }
 .g4-bit-reaction-copy {
   flex: 1;
   min-width: 0;
+  display: grid;
+  gap: 3px;
   font-family: 'Source Serif 4', Georgia, serif;
   font-size: clamp(15px, 2vw, 18px);
   font-weight: 700;
 }
+.g4-bit-reaction-copy > strong { line-height: 1.22; }
+.g4-bit-reaction-detail {
+  color: ${T.ink2};
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+.feedback-hint .g4-bit-reaction-detail { color: ${T.warn}; }
 .g4-bit-reaction-ok .g4-bit-reaction-figure {
   animation: g4reactionhop .72s ease both;
 }
@@ -4986,7 +5168,6 @@ button { font: inherit; }
   display: grid;
   place-items: center;
   gap: 2px;
-  animation: recap-shift-cycle 7.6s linear infinite;
 }
 .recap-shift-svg {
   width: min(480px, 100%);
@@ -5014,9 +5195,9 @@ button { font: inherit; }
   stroke: rgba(22,143,163,.16);
   stroke-width: 2;
 }
-.recap-slot-units { animation: recap-slot-units 7.6s ease-in-out infinite; }
-.recap-slot-tens { animation: recap-slot-tens 7.6s ease-in-out infinite; }
-.recap-slot-hundreds { animation: recap-slot-hundreds 7.6s ease-in-out infinite; }
+.recap-slot-units { animation: recap-slot-units 7.6s ease-in-out both; }
+.recap-slot-tens { animation: recap-slot-tens 7.6s ease-in-out both; }
+.recap-slot-hundreds { animation: recap-slot-hundreds 7.6s ease-in-out both; }
 .recap-moving-seven,
 .recap-born-zero {
   fill: ${T.navy};
@@ -5027,7 +5208,7 @@ button { font: inherit; }
 .recap-moving-seven {
   transform-box: view-box;
   transform-origin: center;
-  animation: recap-seven-travel 7.6s ease-in-out infinite;
+  animation: recap-seven-travel 7.6s ease-in-out both;
 }
 .recap-born-zero {
   fill: ${T.accent};
@@ -5035,8 +5216,8 @@ button { font: inherit; }
   transform-box: fill-box;
   transform-origin: center;
 }
-.recap-born-zero-units { animation: recap-zero-units 7.6s ease-in-out infinite; }
-.recap-born-zero-tens { animation: recap-zero-tens 7.6s ease-in-out infinite; }
+.recap-born-zero-units { animation: recap-zero-units 7.6s ease-in-out both; }
+.recap-born-zero-tens { animation: recap-zero-tens 7.6s ease-in-out both; }
 .recap-shift-readout {
   min-height: 25px;
   display: flex;
@@ -5058,18 +5239,13 @@ button { font: inherit; }
   font-size: 10px;
   font-style: normal;
 }
-.recap-readout-seven { animation: recap-readout-seven 7.6s ease infinite; }
-.recap-readout-seventy { animation: recap-readout-seventy 7.6s ease infinite; }
-.recap-readout-seven-hundred { animation: recap-readout-hundred 7.6s ease infinite; }
+.recap-readout-seven { animation: recap-readout-seven 7.6s ease both; }
+.recap-readout-seventy { animation: recap-readout-seventy 7.6s ease both; }
+.recap-readout-seven-hundred { animation: recap-readout-hundred 7.6s ease both; }
 .recap-shift-note {
   color: ${T.cyan};
   font-size: 10px;
   font-weight: 900;
-}
-@keyframes recap-shift-cycle {
-  0%, 4% { opacity: 0; }
-  9%, 86% { opacity: 1; }
-  94%, 100% { opacity: 0; }
 }
 @keyframes recap-seven-travel {
   0%, 18% { transform: translateX(0); }
@@ -5222,13 +5398,9 @@ button { font: inherit; }
 .reasoning-proof-layer,
 .rapid-proof-layer {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(180px, .9fr) minmax(250px, 1.1fr) auto;
   align-items: center;
   gap: 10px;
-}
-.reasoning-proof-completed,
-.rapid-proof-layer {
-  grid-template-columns: 1fr;
 }
 .reasoning-proof-completed .reasoning-complete,
 .rapid-proof-layer .rapid-complete {
@@ -6224,6 +6396,12 @@ button { font: inherit; }
 }
 .strategy-visual-note .answer-proof { min-height: 54px; }
 .strategy-answer-stage { min-height: 74px; }
+.strategy-answer-stage .answer-proof-layer {
+  display: grid;
+  grid-template-columns: minmax(190px, .8fr) minmax(260px, 1.2fr);
+  align-items: stretch;
+  gap: 10px;
+}
 .strategy-screen > .feedback { flex-shrink: 0; }
 .case-model { display: grid; gap: 10px; }
 .case-model p { color: ${T.ink2}; text-align: center; font-size: 13px; line-height: 1.4; }
@@ -6659,9 +6837,13 @@ button { font: inherit; }
 .reflection-card > .summary-question,
 .reflection-card > .summary-question-stem,
 .reflection-card > .reflection-options,
-.reflection-card > .reflection-solved,
+.reflection-card > .reflection-resolution,
 .reflection-card > .feedback {
   flex-shrink: 0;
+}
+.reflection-resolution {
+  display: grid;
+  gap: 7px;
 }
 .summary-card h2 { margin-bottom: 8px; font-size: 14px; }
 .summary-card ul { padding-left: 17px; display: grid; gap: 5px; color: ${T.ink2}; font-size: 12px; line-height: 1.35; }
@@ -6686,7 +6868,23 @@ button { font: inherit; }
   font-size: 10px;
   line-height: 1.3;
 }
-.reflection-options { display: grid; gap: 6px; }
+.reflection-options {
+  max-height: 180px;
+  display: grid;
+  gap: 6px;
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    max-height .75s cubic-bezier(.22,.8,.3,1) .48s,
+    opacity .28s ease .52s,
+    margin .75s cubic-bezier(.22,.8,.3,1) .48s;
+}
+.reflection-options-solved {
+  max-height: 0;
+  margin-block: 0;
+  opacity: 0;
+  pointer-events: none;
+}
 .reflection-option {
   min-height: 34px;
   padding: 7px 9px;
@@ -6793,6 +6991,15 @@ button { font: inherit; }
   .h-title { font-size: 25px; }
   .options-grid, .options-three { grid-template-columns: 1fr; }
   .option { min-height: 50px; padding: 10px 12px; }
+  .choice-proof-layer,
+  .strategy-answer-stage .answer-proof-layer {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+  .bit-answer-comment { min-height: 68px; padding: 5px 9px 5px 4px; }
+  .bit-answer-comment-figure { width: 47px; height: 59px; flex-basis: 47px; }
+  .bit-answer-comment-copy > strong { font-size: 13px; }
+  .bit-answer-comment-copy p { font-size: 9px; line-height: 1.3; }
   .data-scene { min-height: 164px; padding: 9px 91px 9px 10px; border-radius: 18px; }
   .data-console-head { min-height: 17px; margin-bottom: 4px; }
   .data-node-name { gap: 4px; font-size: 6px; letter-spacing: .07em; }
