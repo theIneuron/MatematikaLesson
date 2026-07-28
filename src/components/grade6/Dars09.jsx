@@ -29,7 +29,7 @@ const LESSON = {
       title: L("6 va 8 ning EKUKini toping", 'Найдите НОК чисел 6 и 8'),
       prompt: L("6 ga ham, 8 ga ham bo'linadigan eng kichik natural son qaysi?", 'Какое наименьшее натуральное число делится и на 6, и на 8?'),
       intro: L(
-        "Umumiy maxrajni topishda EKUK kerak bo'ladi. Olti va sakkizning karralilarini solishtirib, eng kichik umumiy karralini tanlang.",
+        "Umumiy maxrajni topishda EKUK kerak bo'ladi. Olti va sakkizning karrali sonlarini solishtirib, eng kichik umumiy karralini tanlang.",
         'Для нахождения общего знаменателя нужен НОК. Сравните кратные шести и восьми и выберите наименьшее общее кратное.',
       ),
       options: ['12', '16', '24', '48'],
@@ -38,12 +38,12 @@ const LESSON = {
         L("24 : 6 = 4 va 24 : 8 = 3.", '24 разделить на 6 равно 4, а 24 разделить на 8 равно 3.'),
         L("24 dan kichik musbat son ikkala songa ham bo'linmaydi, demak EKUK 24.", 'Ни одно меньшее положительное число не делится на оба числа, значит НОК равен 24.'),
       ],
-      wrong: L("Ikkala sonning karralilarini yozing va birinchi umumiy sonni toping.", 'Выпишите кратные обоих чисел и найдите первое общее число.'),
+      wrong: L("Ikkala sonning karrali sonlarini yozing va birinchi umumiy sonni toping.", 'Выпишите кратные обоих чисел и найдите первое общее число.'),
       visual: {
         type: 'panels',
         panels: [
-          { title: L('6 ning karralilari', 'Кратные 6'), lines: ['6, 12, 18, 24'] },
-          { title: L('8 ning karralilari', 'Кратные 8'), lines: ['8, 16, 24, 32'] },
+          { title: L('6 ga karrali sonlar', 'Кратные 6'), lines: ['6, 12, 18, 24'] },
+          { title: L('8 ga karrali sonlar', 'Кратные 8'), lines: ['8, 16, 24, 32'] },
         ],
       },
     },
@@ -143,7 +143,7 @@ const LESSON = {
       title: L("8 va 12 uchun eng kichik umumiy maxraj", 'Наименьший общий знаменатель для 8 и 12'),
       prompt: L("8 va 12 ning EKUKini toping.", 'Найдите НОК чисел 8 и 12.'),
       intro: L(
-        "Sakkiz va o'n ikki maxrajlarini umumiy karralilarga ajrating. Eng kichik umumiy sonni tanlang.",
+        "Sakkiz va o'n ikkiga karrali sonlarni yozib, umumiylarini toping. Eng kichik umumiy sonni tanlang.",
         'Рассмотрите общие кратные знаменателей восемь и двенадцать. Выберите наименьшее общее число.',
       ),
       options: ['16', '20', '24', '96'],
@@ -152,12 +152,12 @@ const LESSON = {
         L("24 soni 8 ga ham, 12 ga ham qoldiqsiz bo'linadi.", 'Число 24 делится без остатка и на 8, и на 12.'),
         L("24 dan kichik umumiy karrali yo'q, shuning uchun EKUK 24.", 'Меньшего общего кратного нет, поэтому НОК равен 24.'),
       ],
-      wrong: L("8 ning 8, 16, 24 karralilari va 12 ning 12, 24 karralilarini solishtiring.", 'Сравните кратные 8: 8, 16, 24 и кратные 12: 12, 24.'),
+      wrong: L("8 ga karrali 8, 16, 24 sonlarini 12 ga karrali 12, 24 sonlari bilan solishtiring.", 'Сравните кратные 8: 8, 16, 24 и кратные 12: 12, 24.'),
       visual: {
         type: 'panels',
         panels: [
-          { title: L('8 ning karralilari', 'Кратные 8'), lines: ['8, 16, 24'] },
-          { title: L('12 ning karralilari', 'Кратные 12'), lines: ['12, 24, 36'] },
+          { title: L('8 ga karrali sonlar', 'Кратные 8'), lines: ['8, 16, 24'] },
+          { title: L('12 ga karrali sonlar', 'Кратные 12'), lines: ['12, 24, 36'] },
         ],
       },
     },
@@ -223,7 +223,7 @@ const LESSON = {
       type: 'match',
       scored: true,
       eyebrow: L('Moslashtirish', 'Соответствие'),
-      title: L("Maxrajlar juftini EKUKi bilan moslang", 'Соедините пару знаменателей с их НОК'),
+      title: L("Maxrajlar juftlarini EKUKlari bilan moslang", 'Соедините пару знаменателей с их НОК'),
       prompt: L("Har bir juftlik uchun eng kichik umumiy maxrajni tanlang.", 'Для каждой пары выберите наименьший общий знаменатель.'),
       intro: L(
         "Chapdagi maxrajlar juftining eng kichik umumiy karralisini topib, o'ngdagi javob bilan juftlang.",
@@ -238,7 +238,7 @@ const LESSON = {
         L("EKUK(4, 6) = 12; EKUK(5, 10) = 10; EKUK(8, 12) = 24.", 'НОК(4, 6) = 12; НОК(5, 10) = 10; НОК(8, 12) = 24.'),
         L("Har bir natija juftlikdagi ikkala songa ham bo'linadi.", 'Каждый результат делится на оба числа своей пары.'),
       ],
-      wrong: L("Har bir juft uchun karralilar qatoridagi birinchi umumiy sonni toping.", 'Для каждой пары найдите первое общее число в рядах кратных.'),
+      wrong: L("Har bir juft uchun karrali sonlar qatoridagi birinchi umumiy sonni toping.", 'Для каждой пары найдите первое общее число в рядах кратных.'),
     },
     {
       type: 'classify',

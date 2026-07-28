@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from 'react';
+import { normalizeTtsColons } from './ttsMathColon.js';
 // УРОК: Делители и кратные — div_6_01
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
@@ -205,7 +206,16 @@ const toTtsMath = (text, lang) => {
   const mathNamed = pronunciationSafe.replace(
     /\|([^|]+)\|/g,
     (_, inside) => `${lang === 'ru' ? 'модуль' : 'modul'} ${inside}`,
-  );
+  )
+    .replace(/π/g, lang === 'ru' ? ' пи ' : ' pi ')
+    .replace(/Δ/g, lang === 'ru' ? ' треугольник ' : ' uchburchak ')
+    .replace(/∠/g, lang === 'ru' ? ' угол ' : ' burchak ')
+    .replace(/⊥/g, lang === 'ru' ? ' перпендикулярно ' : ' perpendikulyar ')
+    .replace(/→/g, lang === 'ru' ? ' переходит в ' : " o'tadi ")
+    .replace(/′/g, lang === 'ru' ? ' штрих ' : ' shtrix ')
+    .replace(/(\w|\d)²/g, (_, base) => lang === 'ru' ? `${base} в квадрате` : `${base} kvadrati`)
+    .replace(/(\w|\d)³/g, (_, base) => lang === 'ru' ? `${base} в кубе` : `${base} kubi`)
+    .replace(/°/g, lang === 'ru' ? ' градусов ' : ' daraja ');
   const ratioContext = lang === 'ru'
     ? /\b(отнош|пропорц|масштаб)/i.test(mathNamed)
     : /\b(nisbat|propors|masshtab)/i.test(mathNamed);
@@ -224,11 +234,14 @@ const toTtsMath = (text, lang) => {
         ? `${numberToWords(a, lang)} разделить на ${numberToWords(b, lang)} равно ${numberToWords(c, lang)}`
         : `${numberToWords(a, lang)}ni ${numberToWords(b, lang)}ga bo'lsak, ${numberToWords(c, lang)} chiqadi`
     );
-  return clean
+  return normalizeTtsColons(clean, {
+    divisionWord: ops.div,
+    ratioWord: ops.ratio,
+    ratioContext,
+  })
     .replace(/(\d{1,3}|\?)\s*\/\s*(\d{1,3})/g, (_, n, d) => fractionToWords(n, d, lang))
     .replace(/\s*\/\s*/g, ops.div)
     .replace(/\s*[·×]\s*/g, ops.mul)
-    .replace(/\s+:\s+/g, ratioContext ? ops.ratio : ops.div)
     .replace(/\s*%\s*/g, lang === 'ru' ? ' процентов ' : ' foiz ')
     .replace(/\s*≤\s*/g, lang === 'ru' ? ' меньше или равно ' : ' kichik yoki teng ')
     .replace(/\s*≥\s*/g, lang === 'ru' ? ' больше или равно ' : ' katta yoki teng ')
@@ -251,6 +264,21 @@ function buildTtsUrl(base, text, gender) {
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = 'm'; // v5.5-male: erkak ovoz qattiq qulflangan
   return `${base}/api/tts?text=${enc}&g=${g}`;
+}
+
+// Lokal previewda brauzer ba'zan uz-UZ so'rovini standart rus ovoziga
+// almashtiradi. Avval o'zbek ovozini, u bo'lmasa lotin yozuviga yaqin
+// turkiy ovozni tanlaymiz; rus ovoziga faqat ru rejimida ruxsat beriladi.
+function pickPreviewVoice(synth, lang) {
+  const voices = synth.getVoices?.() || [];
+  const prefixes = lang === 'uz'
+    ? ['uz', 'tr', 'az', 'en']
+    : (lang === 'en' ? ['en'] : ['ru']);
+  for (const prefix of prefixes) {
+    const voice = voices.find((item) => String(item.lang || '').toLowerCase().startsWith(prefix));
+    if (voice) return voice;
+  }
+  return null;
 }
 
 // SFX — короткие звуки верно/неверно, URL из ttsConfig (correctSoundUrl/wrongSoundUrl).
@@ -548,6 +576,8 @@ class AudioEngine {
     const u = new SpeechSynthesisUtterance(clean);
     const lang = segment.lang || this.currentLang;
     u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
+    const voice = pickPreviewVoice(synth, lang);
+    if (voice) u.voice = voice;
     u.rate = 0.95; u.pitch = 1.0;
     u.onstart = () => {
       this.isStarting = false;
@@ -688,6 +718,7 @@ class AudioEngine {
     this.queue.push({
       id: segmentId,
       text: toTtsMath(text, this.currentLang),
+      lang: this.currentLang,
       trigger: 'manual',
       waits_for: null,
       g: gender,
@@ -753,6 +784,7 @@ function useAudio(segments) {
   const stableSegments = useMemo(
     () => segments?.map((segment) => ({
       ...segment,
+      lang,
       text: toTtsMath(segment.text, lang),
     })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1185,8 +1217,8 @@ const LESSON_META = {
 const SCREEN_META = [
   { id: 's0',  type: 'title',       template: 'TitleScreen',    scored: false, scope: 'hook' },     // 0  mavzu nomi
   { id: 's1',  type: 'exploration', template: 'RevealScreen',   scored: false, scope: null },       // 1  12:3=4 — ikki nom (o'zak)
-  { id: 's2',  type: 'test',        template: 'PairNaming',     scored: true,  scope: 'practice' }, // 2  20:5=4 — o'zi nomlaydi
   { id: 's3',  type: 'rule',        template: 'RuleScreen',     scored: false, scope: null },       // 3  qoida: bo'luvchi + karra
+  { id: 's2',  type: 'test',        template: 'PairNaming',     scored: true,  scope: 'practice' }, // 2  20:5=4 — o'zi nomlaydi
   { id: 's4',  type: 'exploration', template: 'RevealScreen',   scored: false, scope: null },       // 4  qoldiq: 10:4 (RASM)
   { id: 's5',  type: 'test',        template: 'QuestionScreen', scored: true,  scope: 'practice' }, // 5  14:4 (RASM)
   { id: 's6',  type: 'exploration', template: 'RevealScreen',   scored: false, scope: null },       // 6  juftlab qidirish (+ fakt)
@@ -1282,7 +1314,7 @@ const CONTENT = {
     },
     audio: {
       intro: { ru: 'Теперь разбери пример сам. Двадцать разделить на пять равно четыре. Подбери название для каждого числа.', uz: "Endi misolni o'zingiz tahlil qiling. Yigirmani beshga bo'lsak, to'rt chiqadi. Har bir songa nom tanlang." },
-      on_correct: { ru: 'Верно. Двадцать кратное пяти, а пять делитель двадцати.', uz: "To'g'ri. Yigirma beshning karralisi, besh esa yigirmaning bo'luvchisi." },
+      on_correct: { ru: 'Верно. Двадцать кратное пяти, а пять делитель двадцати.', uz: "To'g'ri. Yigirma soni beshning karralisi, besh esa yigirmaning bo'luvchisi." },
       on_wrong: { ru: 'Не совсем. Посмотри подсказку и попробуй ещё раз.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring." }
     }
   },
@@ -1309,7 +1341,7 @@ const CONTENT = {
       ],
       uz: [
         "O'nni olib, to'rtta teng bo'lakka ajratamiz. Har biriga ikkitadan tushadi, ikkitasi esa ortib qoladi.",
-        "Qoldiq nolga teng emas, demak to'rt soni o'nning bo'luvchisi emas. Sonni qoldiqsiz bo'ladigan son bo'luvchi deyiladi.",
+        "Qoldiq nolga teng emas, demak to'rt soni o'nning bo'luvchisi emas. Berilgan son qaysi songa qoldiqsiz bo'linsa, o'sha son uning bo'luvchisi deyiladi.",
         "Endi o'n ikkini olib, yana to'rtta teng bo'lakka ajratamiz. Har birida uchtadan, ortiqchasi yo'q. Mana endi to'rt soni o'n ikkining bo'luvchisi."
       ]
     }
@@ -1473,7 +1505,7 @@ const CONTENT = {
     cap_div: { ru: 'Делители числа 12 — список заканчивается:', uz: "12 ning bo'luvchilari — ro'yxat tugaydi:" },
     badge_inf: { ru: 'бесконечно', uz: 'cheksiz' },
     badge_fin: { ru: 'всего 6', uz: 'jami 6 ta' },
-    concl: { ru: 'Кратных у числа бесконечно много, а делителей — конечное число. Самый маленький делитель — 1, самый большой — само число.', uz: "Sonning karralilari cheksiz ko'p, bo'luvchilari esa sanoqli. Eng kichik bo'luvchi — 1, eng kattasi — sonning o'zi." },
+    concl: { ru: 'Кратных у числа бесконечно много, а делителей — конечное число. Самый маленький делитель — 1, самый большой — само число.', uz: "Songa karrali sonlar cheksiz ko'p, bo'luvchilari esa sanoqli. Eng kichik bo'luvchi — 1, eng kattasi — sonning o'zi." },
     audio: {
       ru: [
         'Посмотрим на ряд кратных числа три: три, шесть, девять, двенадцать, пятнадцать, восемнадцать. Этот ряд можно продолжать сколько угодно, он никогда не закончится.',
@@ -1483,7 +1515,7 @@ const CONTENT = {
       uz: [
         "Uchga karrali sonlar qatoriga qaraymiz: uch, olti, to'qqiz, o'n ikki, o'n besh, o'n sakkiz. Bu qatorni xohlagancha davom ettirish mumkin, u hech qachon tugamaydi.",
         "Endi o'n ikkining bo'luvchilari: bir, ikki, uch, to'rt, olti, o'n ikki. Va tamom. Boshqa bo'luvchi yo'q, ro'yxat tugadi.",
-        "Mana muhim farq. Sonning karralilari cheksiz ko'p, bo'luvchilari esa sanoqli. Eng kichik bo'luvchi bu bir, eng kattasi bu sonning o'zi."
+        "Mana muhim farq. Songa karrali sonlar cheksiz ko'p, bo'luvchilari esa sanoqli. Eng kichik bo'luvchi bu bir, eng kattasi bu sonning o'zi."
       ]
     }
   },
@@ -1589,7 +1621,7 @@ const CONTENT = {
   s14: {
     eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi" },
     heading: { ru: 'Делители и кратные', uz: "Bo'luvchilar va karrali sonlar" },
-    score_label: { ru: 'заданий выполнено с первой попытки', uz: 'topshiriq birinchi urinishda bajarildi' },
+    score_label: { ru: 'Ваш результат по заданиям:', uz: "Topshiriqlar bo'yicha natijangiz:" },
     main_label: { ru: 'Главное', uz: 'Asosiysi' },
     main_1: { ru: 'Если a делится на b без остатка, то b — делитель числа a, а a — кратное числа b.', uz: "Agar a soni b ga qoldiqsiz bo'linsa, b — a sonining bo'luvchisi, a esa b sonining karralisi." },
     main_2: { ru: 'Если a делится на b без остатка, то a — кратное числа b, а b — делитель числа a.', uz: "Agar a soni b ga qoldiqsiz bo'linsa, a — b ning karralisi, b esa a ning bo'luvchisi." },
@@ -2109,7 +2141,7 @@ const PickDivisors = ({ screen, screenContent, totalScreens, onNext, onPrev, sto
     setReviewActive(false);
     setReviewWrong([]);
     post.start();
-    onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.question[lang], options: nums, correctIndex: null, correctAnswer: divs.join(', '), studentAnswerIndex: null, studentAnswer: nextLocked.join(', '), correct: true, firstTry: firstTryRef.current });
+    onAnswer({ stage: SCREEN_META[screen]?.scope ?? 'practice', screenIdx: screen, question: c.question[lang], options: nums, correctIndex: null, correctAnswer: divs.join(', '), studentAnswerIndex: null, studentAnswer: nextLocked.join(', '), correct: true, firstTry: firstTryRef.current });
   };
   const check = () => {
     if (solved || !sel.length) return;
@@ -2336,7 +2368,7 @@ const OddOneOut = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnsw
     if (isC) {
       setSolved(true);
       post.start();
-      onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.question[lang], options: c.items.map(it => it.num), correctIndex: correctIdx, correctAnswer: c.items[correctIdx].num, studentAnswerIndex: i, studentAnswer: c.items[i].num, correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
+      onAnswer({ stage: SCREEN_META[screen]?.scope ?? 'practice', screenIdx: screen, question: c.question[lang], options: c.items.map(it => it.num), correctIndex: correctIdx, correctAnswer: c.items[correctIdx].num, studentAnswerIndex: i, studentAnswer: c.items[i].num, correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
     } else {
       setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
     }
@@ -2428,7 +2460,7 @@ const Classify = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswe
       const nPos = pos + 1; setPos(nPos);
       if (nPos >= total) {
         if (firstTryRef.current === null) firstTryRef.current = true;
-        onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.title[lang], options: null, correctIndex: null, correctAnswer: 'sorted', studentAnswer: JSON.stringify(np), correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
+        onAnswer({ stage: SCREEN_META[screen]?.scope ?? 'practice', screenIdx: screen, question: c.title[lang], options: null, correctIndex: null, correctAnswer: 'sorted', studentAnswer: JSON.stringify(np), correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
         post.start();
       }
     } else {
@@ -2529,7 +2561,7 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
   const check = () => {
     if (solved || !allPlaced) return;
     if (firstTryRef.current === null) firstTryRef.current = isCorrect;
-    onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.title[lang], options: null, correctIndex: null, correctAnswer: 'match', studentAnswer: JSON.stringify(assign), correct: firstTryRef.current, firstTry: firstTryRef.current });
+    onAnswer({ stage: SCREEN_META[screen]?.scope ?? 'practice', screenIdx: screen, question: c.title[lang], options: null, correctIndex: null, correctAnswer: 'match', studentAnswer: JSON.stringify(assign), correct: firstTryRef.current, firstTry: firstTryRef.current });
     if (isCorrect) { setSolved(true); setShowHint(false); setActiveSlot(null); post.start(); } else { setShowHint(true); }
     // Ovozga audio_hint (TTS-toza) ketadi; ekrandagi hint raqamli qoladi.
     if (!isCorrect && !audio.muted) {
@@ -2666,7 +2698,7 @@ const S10_AUDIO_PLAN = {
       ...["bir", "ikki", "uch", "to'rt", "olti", "o'n ikki"].map((text, i) => ({ id: `s10_div_${i}`, text, pauseAfterMs: 240 })),
       { id: 's10_div_tail', text: "Va tamom. Boshqa bo'luvchi yo'q, ro'yxat tugadi." },
     ],
-    [{ id: 's10_result', text: "Mana muhim farq. Sonning karralilari cheksiz ko'p, bo'luvchilari esa sanoqli. Eng kichik bo'luvchi bir, eng kattasi sonning o'zi." }],
+    [{ id: 's10_result', text: "Mana muhim farq. Songa karrali sonlar cheksiz ko'p, bo'luvchilari esa sanoqli. Eng kichik bo'luvchi bir, eng kattasi sonning o'zi." }],
   ],
   ru: [
     [
@@ -2943,9 +2975,11 @@ const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
         <Floaters/>
         <div className="fade-up sm-head" style={{ position: 'relative' }}>
           <h2 className="title h-sub" style={{ margin: 0, flex: 1 }}>{t(c.heading)}</h2>
-          <span className="sm-score mono">{correct} / {total}</span>
         </div>
-        <p className="small fade-up" style={{ position: 'relative', margin: 0, color: T.ink3 }}>{t(c.score_label)}</p>
+        <p className="small fade-up sm-result" style={{ position: 'relative', margin: 0, color: T.ink3 }}>
+          <span>{t(c.score_label)}</span>
+          <strong className="sm-score mono">{correct}/{total}</strong>
+        </p>
         <div className="frame fade-up delay-1 sm-main" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 10 }}>{t(c.main_label)}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
@@ -3068,6 +3102,8 @@ html, body { margin: 0; padding: 0; }
 /* Yakuniy ekran (s14) — ixcham: sarlavha + ball bitta qatorda, ramkalar past. */
 .sm-head { display: flex; align-items: center; gap: 12px; }
 .sm-head .h-sub { font-size: clamp(24px, 4vw, 34px); }
+.sm-result { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.sm-result > span { font-size: clamp(14px, 2.5vw, 18px); font-weight: 600; }
 .sm-score { flex-shrink: 0; padding: 7px 16px; border-radius: 999px; background: #E3F0E8; color: #1F7A4D; font-size: clamp(20px, 3.8vw, 28px); font-weight: 700; line-height: 1.15; }
 .sm-main { padding: clamp(12px, 2.2vw, 20px); }
 .sm-close { padding: clamp(11px, 2vw, 16px); }
@@ -3246,7 +3282,7 @@ export default function DivisibilityLesson({
   // chaqiradi) u undefined bo'ladi — o'shanda RU/UZ tugmasi chiqadi va darsni ikkala
   // tilda prokliklab ko'rish mumkin. Naqsh grade3/Dars01 dan (isPreview + previewLang).
   const isPreview = (langProp === undefined || langProp === null);
-  const [previewLang, setPreviewLang] = useState('ru');
+  const [previewLang, setPreviewLang] = useState('uz');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
@@ -3276,7 +3312,7 @@ export default function DivisibilityLesson({
     safeOnFinished(payload);
   }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const screens = [Screen0, Screen1, Screen3, Screen2, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
   const CurrentScreen = screens[current];
 
   // Navigatsiya qulfi — telefonda ikki marta tegib ketilsa bitta ekran tashlab

@@ -87,7 +87,7 @@ const LESSON = {
       title: L("7/9 kasrining teskari sonini toping", 'Найдите число, обратное 7/9'),
       prompt: L("Surat va maxrajni o'rin almashtiring.", 'Поменяйте местами числитель и знаменатель.'),
       intro: L(
-        "To'qqizdan yetti kasrining teskari sonini topish uchun surat yetti bilan maxraj to'qqizning o'rnini almashtiring.",
+        "To'qqizdan yetti kasrining teskari sonini topish uchun suratdagi yetti bilan maxrajdagi to'qqizning o'rnini almashtiring.",
         'Чтобы найти число, обратное семи девятым, поменяйте местами числитель семь и знаменатель девять.',
       ),
       options: ['7/9', '9/7', '2/9', '9/2'],
@@ -264,14 +264,14 @@ const LESSON = {
       points: [
         L("O'zaro teskari sonlarning ko'paytmasi 1 ga teng.", 'Произведение взаимно обратных чисел равно 1.'),
         L("Nolga teng bo'lmagan kasrning teskarisi surat va maxrajni almashtirish bilan topiladi.", 'Обратное ненулевой дроби получают перестановкой числителя и знаменателя.'),
-        L("Butun son ma'lum qismga ko'ra ma'lum miqdorni kasrga bo'lish orqali topiladi.", 'Целое по известной части находят делением известной величины на дробь.'),
+        L("Butun sonni ma'lum qismiga ko'ra topish uchun berilgan miqdorni mos kasrga bo'lamiz.", 'Целое по известной части находят делением известной величины на дробь.'),
       ],
       close: L(
         "Endi teskari sonni va butunni uning ma'lum qismi orqali topa olasiz.",
         'Теперь вы умеете находить обратное число и целое по его известной части.',
       ),
       audio: L(
-        "Teskari sonlar va butunni topishni o'rgandingiz. O'zaro teskari sonlarning ko'paytmasi birga teng. Nolga teng bo'lmagan kasrning teskarisi surat va maxrajni almashtirish bilan topiladi. Butun son ma'lum qismga ko'ra ma'lum miqdorni kasrga bo'lish orqali topiladi. Endi teskari sonni va butunni uning ma'lum qismi orqali topa olasiz.",
+        "Teskari sonlar va butunni topishni o'rgandingiz. O'zaro teskari sonlarning ko'paytmasi birga teng. Nolga teng bo'lmagan kasrning teskarisi surat va maxrajni almashtirish bilan topiladi. Butun sonni ma'lum qismiga ko'ra topish uchun berilgan miqdorni mos kasrga bo'lamiz. Endi teskari sonni va butunni uning ma'lum qismi orqali topa olasiz.",
         'Вы изучили обратные числа и нахождение целого. Произведение взаимно обратных чисел равно единице. Обратное для ненулевой дроби получают перестановкой числителя и знаменателя. Целое по известной части находят делением известной величины на дробь. Теперь вы умеете находить обратное число и целое по его известной части.',
       ),
     },

@@ -54,7 +54,7 @@ const UI = {
   ru: { check: 'Проверить', retry: 'Заново', correct: 'Верно', wrong: 'Подсказка' },
 };
 
-export default function PracticeHost({ Question, lang: langProp = 'uz', title }) {
+export default function PracticeHost({ Question, lang: langProp = 'uz', onLangChange, title, showLanguageSwitch = true }) {
   const [lang, setLang] = useState(langProp);
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState(null);
@@ -62,6 +62,10 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
   const checkFnRef = useRef(null);
   const previousLangRef = useRef(lang);
   const ui = UI[lang] || UI.uz;
+  const selectLanguage = (nextLang) => {
+    setLang(nextLang);
+    onLangChange?.(nextLang);
+  };
 
   const onReady = useCallback((v) => setReady(!!v), []);
   const registerCheck = useCallback((fn) => { checkFnRef.current = fn; }, []);
@@ -83,7 +87,11 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
     }
   }, [lang, reset]);
 
-  const runCheck = () => { checkFnRef.current && checkFnRef.current(); };
+  // Javob tanlangan zahoti "Tekshirish" bosilsa ham savolning eng yangi
+  // holati ro'yxatdan o'tishga ulgurishi uchun tekshiruvni navbatdagi tickda bajaramiz.
+  const runCheck = () => {
+    window.setTimeout(() => checkFnRef.current?.(), 0);
+  };
 
   const chip = (active) => ({
     padding: '6px 12px', borderRadius: 999, fontSize: 13, fontWeight: 700, cursor: 'pointer',
@@ -99,9 +107,15 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', title })
         display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px',
         borderBottom: '1px solid #eef0f4', fontFamily: "'Manrope', system-ui, sans-serif",
       }}>
-        <strong style={{ fontSize: 13, color: '#6b7280', flex: 1 }}>{title || ''}</strong>
-        <button type="button" style={chip(lang === 'uz')} onClick={() => setLang('uz')}>UZ</button>
-        <button type="button" style={chip(lang === 'ru')} onClick={() => setLang('ru')}>RU</button>
+        <strong style={{ fontSize: 13, color: '#6b7280', flex: 1 }}>
+          {(title && typeof title === 'object' ? title[lang] : title) || ''}
+        </strong>
+        {showLanguageSwitch && (
+          <>
+            <button type="button" style={chip(lang === 'uz')} onClick={() => selectLanguage('uz')}>UZ</button>
+            <button type="button" style={chip(lang === 'ru')} onClick={() => selectLanguage('ru')}>RU</button>
+          </>
+        )}
       </div>
 
       <div style={{ flex: 1, padding: '12px 12px 90px' }}>

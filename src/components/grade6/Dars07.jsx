@@ -27,7 +27,7 @@ import {
 } from './Dars01.jsx';
 
 const TOTAL_SCREENS = 15;
-const SCORED_SCREENS = [5, 7, 8, 10, 11, 12, 13];
+const SCORED_SCREENS = [7, 8, 9, 10, 11, 12, 13];
 const FACT_BADGE = {
   uz: 'Bilasizmi? · Matematika',
   ru: 'Знаете ли вы? · Математика',
@@ -235,8 +235,8 @@ function D7TitleScreen({ screen, totalScreens, onAnswer, onNext }) {
   );
 }
 
-function D7RevealScreen({ screen, ...props }) {
-  const slide = SLIDES[screen];
+function D7RevealScreen({ screen, slideIndex = screen, ...props }) {
+  const slide = SLIDES[slideIndex];
   const content = useMemo(() => ({
     eyebrow: slide.eyebrow,
     audio: {
@@ -274,8 +274,8 @@ function D7RevealScreen({ screen, ...props }) {
   );
 }
 
-function D7QuestionScreen({ screen, ...props }) {
-  const slide = SLIDES[screen];
+function D7QuestionScreen({ screen, slideIndex = screen, ...props }) {
+  const slide = SLIDES[slideIndex];
   const lang = useLang();
   const options = (slide.options || []).map((option) => {
     const value = localized(option, lang);
@@ -319,9 +319,8 @@ function D7QuestionScreen({ screen, ...props }) {
   );
 }
 
-function D7MultiScreen(props) {
-  const screen = 10;
-  const slide = SLIDES[screen];
+function D7MultiScreen({ screen, slideIndex = 10, ...props }) {
+  const slide = SLIDES[slideIndex];
   const correctValues = slide.correctSet.map((index) => slide.options[index]);
   const content = {
     eyebrow: slide.eyebrow,
@@ -354,9 +353,8 @@ function D7MultiScreen(props) {
   );
 }
 
-function D7MatchScreen(props) {
-  const screen = 11;
-  const slide = SLIDES[screen];
+function D7MatchScreen({ screen, slideIndex = 11, ...props }) {
+  const slide = SLIDES[slideIndex];
   const content = {
     eyebrow: slide.eyebrow,
     title: slide.title,
@@ -387,9 +385,8 @@ function D7MatchScreen(props) {
   );
 }
 
-function D7ClassifyScreen(props) {
-  const screen = 12;
-  const slide = SLIDES[screen];
+function D7ClassifyScreen({ screen, slideIndex = 12, ...props }) {
+  const slide = SLIDES[slideIndex];
   const content = {
     eyebrow: slide.eyebrow,
     title: slide.title,
@@ -468,22 +465,22 @@ function D7SummaryScreen({ screen, totalScreens, answers, onPrev, finishLesson }
   );
 }
 
-const SCREENS = [
-  D7TitleScreen,
-  D7QuestionScreen,
-  D7RevealScreen,
-  D7RevealScreen,
-  D7RevealScreen,
-  D7QuestionScreen,
-  D7RevealScreen,
-  D7QuestionScreen,
-  D7QuestionScreen,
-  D7RevealScreen,
-  D7MultiScreen,
-  D7MatchScreen,
-  D7ClassifyScreen,
-  D7QuestionScreen,
-  D7SummaryScreen,
+const SCREEN_SEQUENCE = [
+  { Component: D7TitleScreen, slideIndex: 0 },
+  { Component: D7RevealScreen, slideIndex: 2 },
+  { Component: D7RevealScreen, slideIndex: 3 },
+  { Component: D7RevealScreen, slideIndex: 4 },
+  { Component: D7RevealScreen, slideIndex: 6 },
+  { Component: D7RevealScreen, slideIndex: 9 },
+  { Component: D7QuestionScreen, slideIndex: 1 },
+  { Component: D7QuestionScreen, slideIndex: 5 },
+  { Component: D7QuestionScreen, slideIndex: 7 },
+  { Component: D7QuestionScreen, slideIndex: 8 },
+  { Component: D7MultiScreen, slideIndex: 10 },
+  { Component: D7MatchScreen, slideIndex: 11 },
+  { Component: D7ClassifyScreen, slideIndex: 12 },
+  { Component: D7QuestionScreen, slideIndex: 13 },
+  { Component: D7SummaryScreen, slideIndex: 14 },
 ];
 
 const D7_STYLES = `
@@ -619,7 +616,7 @@ export default function Dars07({
     });
   }, [answers, safeName, safeOnFinished]);
 
-  const CurrentScreen = SCREENS[current];
+  const { Component: CurrentScreen, slideIndex } = SCREEN_SEQUENCE[current];
 
   return (
     <LangContext.Provider value={lang}>
@@ -652,6 +649,7 @@ export default function Dars07({
         <CurrentScreen
           key={`${current}-${lang}`}
           screen={current}
+          slideIndex={slideIndex}
           totalScreens={TOTAL_SCREENS}
           storedAnswer={answers[current]}
           answers={answers}

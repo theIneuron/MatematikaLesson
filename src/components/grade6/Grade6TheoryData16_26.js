@@ -142,7 +142,7 @@ const DARS16 = (() => {
       title: L("Ichimlikning jami hajmini toping", 'Найдите общий объём напитка'),
       prompt: L("Idishga 3/4 litr sharbat va 0,5 litr suv quyildi. Jami necha litr bo'ldi?", 'В сосуд налили 3/4 литра сока и 0,5 литра воды. Каков общий объём?'),
       intro: L(
-        "Idishda litrdan to'rtdan uch sharbat va nol butun o'ndan besh litr suv bor. Sonlar turli ko'rinishda yozilgan. To'rtdan uch litr nol butun yuzdan yetmish besh litrga tengligini eslab, jami hajmni tanlang.",
+        "Idishda to'rtdan uch litr sharbat va nol butun o'ndan besh litr suv bor. Sonlar turli ko'rinishda yozilgan. To'rtdan uch litr nol butun yuzdan yetmish besh litrga tengligini eslab, jami hajmni tanlang.",
         'В сосуде три четверти литра сока и ноль целых пять десятых литра воды. Числа записаны по-разному. Вспомните, что три четверти литра равны нулю целым семидесяти пяти сотым литра, и выберите общий объём.',
       ),
       options: ['0,8 l', '1,0 l', '1,25 l', '1,75 l'],
@@ -377,7 +377,7 @@ const DARS17 = (() => {
       { type: 'equation', expression: 'a : b' },
       L('Yangi tushuncha', 'Новое понятие'),
       {
-        uz: ["a ning b ga nisbati a nisbat b ko'rinishida yoziladi.", "Bu yozuv a miqdorni b miqdorga taqqoslaydi.", "Masalan, ikki nisbat uch har ikki birinchi turga uchta ikkinchi tur mos kelishini bildiradi."],
+        uz: ["a ning b ga nisbati a nisbat b ko'rinishida yoziladi.", "Bu yozuv a miqdorni b miqdorga taqqoslaydi.", "Masalan, ikki nisbat uch har ikki dona birinchi turga uch dona ikkinchi tur mos kelishini bildiradi."],
         ru: ['Отношение a к b записывают как a к b.', 'Эта запись сравнивает величину a с величиной b.', 'Например, отношение два к трём означает, что на каждые две единицы первого вида приходится три единицы второго.'],
       },
     ),
@@ -404,7 +404,7 @@ const DARS17 = (() => {
       { type: 'chain', items: ['6 : 9', '2 : 3'], connector: L(': 3 →', ': 3 →') },
       L('Bosqichma-bosqich', 'Шаг за шагом'),
       {
-        uz: ["Olti nisbat to'qqizning ikkala hadi uchga bo'linadi.", "Oltini uchga bo'lsak ikki, to'qqizni uchga bo'lsak uch chiqadi.", "Shuning uchun olti nisbat to'qqiz va ikki nisbat uch teng nisbatlardir."],
+        uz: ["Olti nisbat to'qqiz yozuvidagi ikkala had uchga bo'linadi.", "Oltini uchga bo'lsak ikki, to'qqizni uchga bo'lsak uch chiqadi.", "Shuning uchun olti nisbat to'qqiz va ikki nisbat uch teng nisbatlardir."],
         ru: ['Оба члена отношения шесть к девяти делятся на три.', 'Шесть разделить на три равно двум, девять разделить на три равно трём.', 'Поэтому отношения шесть к девяти и два к трём равны.'],
       },
     ),
@@ -532,7 +532,7 @@ const DARS17 = (() => {
       title: L("Nisbatlarni 1 dan kichik yoki katta guruhga ajrating", 'Разделите отношения на меньшие и большие единицы'),
       prompt: L("Birinchi had ikkinchi haddan kichik bo'lsa, nisbat 1 dan kichik bo'ladi.", 'Если первый член меньше второго, отношение меньше 1.'),
       intro: L(
-        "Har bir nisbatda birinchi va ikkinchi hadni taqqoslang. Nisbatni bir dan kichik yoki bir dan katta guruhiga joylang.",
+        "Har bir nisbatda birinchi va ikkinchi hadni taqqoslang. Nisbatni birdan kichik yoki birdan katta guruhiga joylang.",
         'Сравните первый и второй члены каждого отношения. Поместите отношение в группу меньше единицы или больше единицы.',
       ),
       binA: L('1 dan kichik', 'Меньше 1'),
@@ -855,7 +855,7 @@ const DARS19 = (() => {
       L("To'g'ri proporsionallik", 'Прямая пропорциональность'),
       lines(
         ["Bir miqdor necha marta oshsa, ikkinchisi ham shuncha marta oshadi.", 'Во сколько раз увеличивается одна величина, во столько же раз увеличивается другая.'],
-        ["Bir miqdor kamayganda ikkinchisi ham ayni marta kamayadi.", 'При уменьшении одной величины другая уменьшается во столько же раз.'],
+        ["Bir miqdor necha marta kamaysa, ikkinchisi ham shuncha marta kamayadi.", 'При уменьшении одной величины другая уменьшается во столько же раз.'],
         ["Masalan, bir xil narxda mahsulot miqdori va umumiy xarajat.", 'Пример: количество товара и общая стоимость при постоянной цене.'],
       ),
       { type: 'chain', items: ['x · 2', 'y · 2'], connector: '→' },
@@ -875,7 +875,7 @@ const DARS19 = (() => {
       L("Bog'lanishni qanday ajratamiz?", 'Как различать зависимости?'),
       lines(
         ["Ikkala miqdor bir xil marta va bir yo'nalishda o'zgarsa — to'g'ri proporsional.", 'Если обе величины изменяются в одно число раз и в одном направлении, зависимость прямая.'],
-        ["Biri oshganda ikkinchisi ayni marta kamaysa — teskari proporsional.", 'Если при увеличении одной величины другая во столько же раз уменьшается, зависимость обратная.'],
+        ["Biri necha marta oshganda ikkinchisi shuncha marta kamaysa — teskari proporsional.", 'Если при увеличении одной величины другая во столько же раз уменьшается, зависимость обратная.'],
         ["Avval hayotiy ma'noni tekshiring, keyin proporsiya tuzing.", 'Сначала проверьте жизненный смысл, затем составляйте пропорцию.'],
       ),
       { type: 'panels', panels: [{ title: L("To'g'ri", 'Прямая'), lines: ['x ↑  y ↑', 'x ↓  y ↓'], color: 'yellow' }, { title: L('Teskari', 'Обратная'), lines: ['x ↑  y ↓', 'x ↓  y ↑'], color: 'blue' }] },
@@ -948,7 +948,7 @@ const DARS19 = (() => {
     multi({
       title: L("To'g'ri proporsional vaziyatlarni belgilang", 'Отметьте прямо пропорциональные ситуации'),
       intro: L(
-        "Bir miqdor oshganda ikkinchisi ham ayni marta oshadigan barcha vaziyatlarni belgilang.",
+        "Bir miqdor necha marta oshganda ikkinchisi ham shuncha marta oshadigan barcha vaziyatlarni belgilang.",
         'Отметьте все ситуации, где при увеличении одной величины другая увеличивается во столько же раз.',
       ),
       options: [
@@ -1014,12 +1014,12 @@ const DARS19 = (() => {
       L("To'g'ri va teskari bog'lanishni farqlay olasiz", 'Вы различаете прямую и обратную зависимости'),
       lines(
         ["To'g'ri bog'lanishda miqdorlar bir xil yo'nalishda va bir xil marta o'zgaradi.", 'При прямой зависимости величины изменяются в одном направлении и в одно число раз.'],
-        ["Teskari bog'lanishda biri oshsa, ikkinchisi ayni marta kamayadi.", 'При обратной зависимости одна величина растёт, а другая во столько же раз уменьшается.'],
+        ["Teskari bog'lanishda biri necha marta oshsa, ikkinchisi shuncha marta kamayadi.", 'При обратной зависимости одна величина растёт, а другая во столько же раз уменьшается.'],
         ["To'g'ri bog'lanish uchun y = k · x, teskari bog'lanish uchun x · y = k.", 'Для прямой зависимости y = k · x, для обратной x · y = k.'],
       ),
       L("Endi vaziyat ma'nosiga qarab bog'lanish turini va to'g'ri formulani tanlay olasiz.", 'Теперь вы можете по смыслу ситуации выбрать вид зависимости и нужную формулу.'),
       L(
-        "Dars yakunlandi. Miqdorlar birga oshsa yoki birga kamaysa, ular to'g'ri proporsional. Biri oshganda ikkinchisi ayni marta kamaysa, ular teskari proporsional. Formuladan oldin vaziyatning ma'nosini tekshiramiz.",
+        "Dars yakunlandi. Miqdorlar birga oshsa yoki birga kamaysa, ular to'g'ri proporsional. Biri necha marta oshganda ikkinchisi shuncha marta kamaysa, ular teskari proporsional. Formuladan oldin vaziyatning ma'nosini tekshiramiz.",
         'Урок завершён. Если величины вместе растут или уменьшаются, они прямо пропорциональны. Если при росте одной другая во столько же раз уменьшается, они обратно пропорциональны. Перед формулой проверяем смысл ситуации.',
       ),
     ),
@@ -1100,7 +1100,7 @@ const DARS20 = (() => {
       correct: 1,
       why: lines(
         ["1 : 100 000 masshtabda 1 cm = 1 km.", 'В масштабе 1 : 100 000 один сантиметр равен одному километру.'],
-        ["4 cm · 1 km = 4 km.", 'Четыре сантиметра на карте соответствуют четырём километрам.'],
+        ["4 · 1 km = 4 km.", 'Четыре сантиметра на карте соответствуют четырём километрам.'],
       ),
       wrong: L("Bu masshtabda xaritadagi har bir santimetr bir kilometrga teng.", 'В этом масштабе каждый сантиметр на карте равен одному километру.'),
       visual: { type: 'chain', items: ['4 cm', '400 000 cm', '4 km'] },
@@ -1175,7 +1175,7 @@ const DARS20 = (() => {
       correctSet: [0, 2, 3],
       why: lines(
         ["1 kilometr 100 000 santimetrga teng, 10 000 santimetrga emas.", 'Один километр равен 100 000 сантиметров, а не 10 000.'],
-        ["Haqiqiy masofa xaritadagidan katta va xarita uzunligi bo'lish orqali topiladi.", 'Реальное расстояние больше длины на карте, а длину на карте находят делением.'],
+        ["Haqiqiy masofa xaritadagidan katta; xaritadagi uzunlik haqiqiy masofani masshtab soniga bo'lish orqali topiladi.", 'Реальное расстояние больше длины на карте, а длину на карте находят делением.'],
       ),
       wrong: L("1 kilometrdagi santimetrlar sonini va ikki formulani eslang.", 'Вспомните число сантиметров в километре и две формулы.'),
     }),
@@ -1399,7 +1399,7 @@ const DARS21 = (() => {
       wrong: L("Foiz sonini 100 maxrajli kasr qilib yozing va qisqartiring.", 'Запишите процент дробью со знаменателем 100 и сократите.'),
     }),
     classify({
-      title: L("Foizlarni yarmidan kam yoki kam bo'lmagan guruhga ajrating", 'Разделите проценты относительно половины'),
+      title: L("Foizlarni yarmidan kam va kam bo'lmagan guruhlarga ajrating", 'Разделите проценты относительно половины'),
       prompt: L("50 foiz yarmiga teng. Har bir kartani mos guruhga joylang.", '50 процентов равны половине. Поместите каждую карточку в подходящую группу.'),
       intro: L(
         "Har bir foizni ellik foiz bilan taqqoslang. Ellikdan kichiklarini birinchi, ellik yoki undan kattalarini ikkinchi guruhga joylang.",
@@ -1679,7 +1679,7 @@ const DARS23 = (() => {
       options: ['8', '9', '10', '12'],
       correct: 2,
       why: lines(
-        ["6 : 3 = 2 stakan bir kishiga.", '6 : 3 = 2 стакана на одного человека.'],
+        ["6 : 3 = 2, demak bir kishiga 2 stakan.", '6 : 3 = 2 стакана на одного человека.'],
         ["2 · 5 = 10 stakan.", '2 · 5 = 10 стаканов.'],
       ),
       wrong: L("Avval bir kishiga to'g'ri keladigan miqdorni toping.", 'Сначала найдите количество для одного человека.'),
@@ -2003,7 +2003,7 @@ const DARS24 = (() => {
       wrong: L("Faqat minus ishorali sonlarni belgilang; nol manfiy emas.", 'Отметьте только числа со знаком минус; ноль не является отрицательным.'),
     }),
     match({
-      title: L("Nuqtani koordinatasi bilan juftlang", 'Соедините точку с её координатой'),
+      title: L("Nuqtalarni koordinatalari bilan juftlang", 'Соедините точку с её координатой'),
       prompt: L("Nuqtalarning noldan yo'nalishi va masofasiga qarang.", 'Учитывайте направление и расстояние точки от нуля.'),
       intro: L(
         "Har bir nuqtaning noldan chapda yoki o'ngda ekanini va masofasini aniqlang. So'ng koordinata bilan juftlang.",
@@ -2059,7 +2059,7 @@ const DARS24 = (() => {
       L("Koordinata to'g'ri chizig'ini o'qiy olasiz", 'Вы умеете читать координатную прямую'),
       lines(
         ["Nol sanoq boshi, o'ng yo'nalish musbat, chap yo'nalish manfiy.", 'Ноль — начало отсчёта, направление вправо положительное, влево отрицательное.'],
-        ["Nuqta koordinatasi uning noldan joyini ko'rsatadi.", 'Координата точки показывает её положение относительно нуля.'],
+        ["Nuqta koordinatasi uning sanoq boshiga nisbatan joyini ko'rsatadi.", 'Координата точки показывает её положение относительно нуля.'],
         ["Qarama-qarshi sonlar noldan teng masofada turli tomonda joylashadi.", 'Противоположные числа расположены на равном расстоянии от нуля по разные стороны.'],
       ),
       L("Endi nuqtaning koordinatasini topib, chiziqdagi siljishni hayotiy vaziyat bilan bog'lay olasiz.", 'Теперь вы можете находить координаты точек и связывать перемещение на прямой с жизненной ситуацией.'),
@@ -2246,7 +2246,7 @@ const DARS25 = (() => {
         { left: '|0|', correct: L('0', '0') },
       ],
       why: lines(
-        ["−8 noldan 8, 3 noldan 3, 0 esa noldan 0 birlik masofada.", '−8 находится в 8, число 3 — в 3, а 0 — в 0 единицах от нуля.'],
+        ["−8 noldan 8 birlik, 3 noldan 3 birlik, 0 esa noldan 0 birlik masofada.", '−8 находится в 8, число 3 — в 3, а 0 — в 0 единицах от нуля.'],
         ["Barcha natijalar manfiy emas.", 'Все результаты неотрицательны.'],
       ),
       wrong: L("Har bir son va nol orasidagi birlik kesmalarni sanang.", 'Сосчитайте единичные отрезки между каждым числом и нулём.'),
@@ -2502,7 +2502,7 @@ const DARS26 = (() => {
       lines(
         ["Koordinata chizig'ida o'ngroqda turgan son kattaroq.", 'На координатной прямой число правее больше.'],
         ["Manfiy sonlardan nolga yaqinrog'i kattaroq.", 'Из отрицательных чисел больше то, которое ближе к нулю.'],
-        ["Oddiy va o'nli kasrlar taqqoslashdan oldin bir xil ko'rinishga keltiriladi.", 'Обыкновенные и десятичные дроби перед сравнением приводят к одному виду.'],
+        ["Oddiy va o'nli kasrlarni taqqoslashdan oldin bir xil ko'rinishga keltiramiz.", 'Обыкновенные и десятичные дроби перед сравнением приводят к одному виду.'],
       ),
       L("Endi turli ko'rinishdagi musbat va manfiy ratsional sonlarni taqqoslab, tartiblay olasiz.", 'Теперь вы можете сравнивать и упорядочивать положительные и отрицательные рациональные числа в разных формах.'),
       L(

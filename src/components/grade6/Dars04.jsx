@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from 'react';
+import { normalizeTtsColons } from './ttsMathColon.js';
 // УРОК: Умножение десятичных дробей — dec_5_05
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
@@ -67,14 +68,14 @@ const NUM_WORDS = {
 const numberToWords = (value, lang) => {
   const n = Number(value);
   const words = NUM_WORDS[lang] || NUM_WORDS.uz;
-  if (!Number.isInteger(n) || n < 0 || n > 9999) return String(value);
+  if (!Number.isInteger(n) || n < 0 || n > 999999) return String(value);
   if (Object.prototype.hasOwnProperty.call(words, n)) return words[n];
   if (n < 20 && lang === 'uz') return `${words[10]} ${words[n - 10]}`;
   if (n < 100) return `${words[Math.floor(n / 10) * 10]} ${words[n % 10]}`.trim();
   if (n >= 1000) {
     const thousands = Math.floor(n / 1000);
     const thousandWord = lang === 'ru'
-      ? ({ 1: 'одна тысяча', 2: 'две тысячи', 3: 'три тысячи', 4: 'четыре тысячи', 5: 'пять тысяч', 6: 'шесть тысяч', 7: 'семь тысяч', 8: 'восемь тысяч', 9: 'девять тысяч' })[thousands]
+      ? `${numberToWords(thousands, lang)} тысяч`
       : `${numberToWords(thousands, lang)} ming`;
     const rest = n % 1000;
     return rest ? `${thousandWord} ${numberToWords(rest, lang)}` : thousandWord;
@@ -98,18 +99,17 @@ const toTtsMath = (text, lang) => {
         .replace(/\bqism\b/gi, "bo'lak")
     : stripAudioTags(String(text || ''));
   const clean = pronunciationSafe.replace(
-    /\b(\d{1,4})\s*:\s*(\d{1,4})\s*=\s*(\d{1,4})\b/g,
+    /\b(\d{1,6})\s*:\s*(\d{1,6})\s*=\s*(\d{1,6})\b/g,
     (_, a, b, c) => lang === 'ru'
       ? `${numberToWords(a, lang)} разделить на ${numberToWords(b, lang)} равно ${numberToWords(c, lang)}`
       : `${numberToWords(a, lang)}ni ${numberToWords(b, lang)}ga bo'lsak, ${numberToWords(c, lang)} chiqadi`
   );
-  return clean
+  return normalizeTtsColons(clean, { divisionWord: ops.div })
     .replace(/\s*·\s*/g, ops.mul)
-    .replace(/\s+:\s+/g, ops.div)
     .replace(/\s*=\s*/g, ops.eq)
     .replace(/\s*\+\s*/g, ops.plus)
     .replace(/\s*[−–]\s*/g, ops.minus)
-    .replace(/\b\d{1,4}\b/g, (m) => numberToWords(m, lang))
+    .replace(/\b\d{1,6}\b/g, (m) => numberToWords(m, lang))
     .replace(/\s{2,}/g, ' ')
     .trim();
 };
@@ -122,6 +122,18 @@ function buildTtsUrl(base, text, gender) {
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = 'm'; // v5.5-male: erkak ovoz qattiq qulflangan
   return `${base}/api/tts?text=${enc}&g=${g}`;
+}
+
+function pickPreviewVoice(synth, lang) {
+  const voices = synth.getVoices?.() || [];
+  const prefixes = lang === 'uz'
+    ? ['uz', 'tr', 'az', 'en']
+    : (lang === 'en' ? ['en'] : ['ru']);
+  for (const prefix of prefixes) {
+    const voice = voices.find((item) => String(item.lang || '').toLowerCase().startsWith(prefix));
+    if (voice) return voice;
+  }
+  return null;
 }
 
 // SFX — короткие звуки верно/неверно, URL из ttsConfig (correctSoundUrl/wrongSoundUrl).
@@ -414,10 +426,12 @@ class AudioEngine {
     this.armWatchdog(segment);
     const speakAttempt = (attempt = 0) => {
       if (segment._audioCompleted || this.muted) return;
-      const u = new SpeechSynthesisUtterance(clean);
-      const lang = segment.lang || this.currentLang;
-      u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
-      u.rate = 0.95; u.pitch = 1.0;
+    const u = new SpeechSynthesisUtterance(clean);
+    const lang = segment.lang || this.currentLang;
+    u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
+    const voice = pickPreviewVoice(synth, lang);
+    if (voice) u.voice = voice;
+    u.rate = 0.95; u.pitch = 1.0;
       u.onstart = () => {
         if (this.previewStartTimer) clearTimeout(this.previewStartTimer);
         this.previewStartTimer = null;
@@ -528,7 +542,15 @@ class AudioEngine {
     if (!text || this.muted) return null;
     this._oneOffSeq = (this._oneOffSeq || 0) + 1;
     const segmentId = id || `oneoff_${this._oneOffSeq}`;
-    this.queue.push({ id: segmentId, text, trigger: 'manual', waits_for: null, g: gender, pauseAfterMs });
+    this.queue.push({
+      id: segmentId,
+      text: toTtsMath(text, this.currentLang),
+      lang: this.currentLang,
+      trigger: 'manual',
+      waits_for: null,
+      g: gender,
+      pauseAfterMs,
+    });
     // Ekran endigina ochilib, 300 ms boshlash taymeri hali ishlamagan bo'lishi
     // mumkin. Feedbackni navbat oxiriga qo'shamiz, lekin introni tashlab ketmaymiz
     // va taymer keyin navbatni ikkinchi marta boshidan qayta yoqmaydi.
@@ -607,7 +629,15 @@ function useAudio(segments) {
   // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
   const segmentsKey = segments ? JSON.stringify(segments) : '';
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stableSegments = useMemo(() => segments, [segmentsKey]);
+  const stableSegments = useMemo(
+    () => segments?.map((segment) => ({
+      ...segment,
+      lang,
+      text: toTtsMath(segment.text, lang),
+    })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [segmentsKey, lang],
+  );
 
   useEffect(() => {
     const engine = getAudioEngine();
@@ -1164,9 +1194,9 @@ const LESSON_META = {
 
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0  (12 va 13, RASM)
-  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (alomatlarni eslash, RASM)
   { id: 's2',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 2  (bo'luvchilarni sanaymiz)
   { id: 's3',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 3  (tub / murakkab ta'rifi)
+  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (alomatlarni eslash, RASM)
   { id: 's4',  type: 'test',        template: 'QuestionScreen', scored: true,  scope: 'practice' }, // 4  (4 narxdan tubini top, RASM)
   { id: 's5',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 5  (1 soni alohida + fakt)
   { id: 's6',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 6  (tub ko'paytuvchi tushunchasi)
@@ -1191,7 +1221,7 @@ const CONTENT = {
     opt_no: { ru: 'Пока не понимаю', uz: 'Hozircha tushunmadim' },
     opt_idk: { ru: 'Хочу разобраться', uz: "O'rganmoqchiman" },
     audio: {
-      intro: { ru: 'Два ценника рядом: двенадцать и тринадцать тысяч. Счёт на двенадцать тысяч компания разделит хоть на двоих, хоть на троих, хоть на четверых. А счёт на тринадцать тысяч только если платит один или скинутся тринадцать человек. Главный вопрос урока: как отличить простое число и разложить составное на простые множители? Мы научимся делать это столбиком даже для больших чисел. Как думаешь, чем тринадцать отличается от двенадцати?', uz: "Yonma-yon ikki narx: o'n ikki va o'n uch ming. O'n ikki minglik hisobni kompaniya ikki kishiga ham, uch kishiga ham, to'rt kishiga ham bo'la oladi. O'n uch minglik hisobni esa faqat bitta odam to'laydi yoki o'n uch kishi yig'iladi. Darsning asosiy savoli: tub sonni qanday ajratamiz va murakkab sonni tub ko'paytuvchilarga qanday yoyamiz? Buni hatto katta sonlarda ham ustun shaklida bajarishni o'rganamiz. Nima deb o'ylaysiz, o'n uch soni o'n ikkidan nimasi bilan farq qiladi?" },
+      intro: { ru: 'Два ценника рядом: двенадцать и тринадцать тысяч. У двенадцати много делителей, а у тринадцати только один и тринадцать. Сначала разберём, какие числа называют простыми и составными. Затем научимся раскладывать составные числа на простые множители столбиком, от простых примеров к более крупным числам.', uz: "Yonma-yon ikki narx: o'n ikki va o'n uch ming. O'n ikkida bo'luvchilar ko'p, o'n uchda esa faqat bir va o'n uch bor. Avval qanday sonlar tub va murakkab deb atalishini tushunamiz. Keyin murakkab sonlarni sodda misollardan katta sonlargacha ustun shaklida tub ko'paytuvchilarga ajratishni o'rganamiz." },
       on_correct: { ru: 'Тогда разберёмся.', uz: 'Unda aniqlab olamiz.' },
       on_wrong: { ru: 'Тогда разберёмся.', uz: 'Unda aniqlab olamiz.' }
     }
@@ -1233,7 +1263,7 @@ const CONTENT = {
         'А у девятнадцати опять только два: один и девятнадцать. Вот в чём разница. Всё решает количество делителей.'
       ],
       uz: [
-        "O'n ikkining bo'luvchilari: bir, ikki, uch, to'rt, olti va o'n ikki. Butun oltita, kompaniya hisobni xohlagancha bo'la oladi.",
+        "O'n ikkining bo'luvchilari: bir, ikki, uch, to'rt, olti va o'n ikki. Jami oltita. Demak, hisobni bir necha usulda teng bo'lish mumkin.",
         "O'n uchda esa bor-yo'g'i ikkita bo'luvchi: bir va o'n uchning o'zi. Boshqa hech narsa to'g'ri kelmaydi.",
         "O'n sakkizda yana oltita bo'luvchi. Bunday sonlar oson bo'linadi.",
         "O'n to'qqizda esa yana faqat ikkita: bir va o'n to'qqiz. Farq mana shunda. Hammasini bo'luvchilar soni hal qiladi."
@@ -2251,17 +2281,16 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
         <p className="eyebrow fade-up" style={{ position: 'relative', color: T.accent }}>{t(c.eyebrow)}</p>
         <h1 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{t(c.topic)}</h1>
         <h2 className="title h-sub fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{t(c.global_q)}</h2>
-        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0, maxHeight: showOptions ? 0 : 300, opacity: showOptions ? 0 : 1, marginBottom: showOptions ? 'calc(-1 * clamp(12px, 2.2vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{t(c.lead)}</p>
+        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{t(c.lead)}</p>
         <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.5vw, 18px)' }}>
           <PriceTag value={12} unit={t(UNIT)} size={showOptions ? 'md' : 'lg'}/>
           <PriceTag value={13} unit={t(UNIT)} size={showOptions ? 'md' : 'lg'}/>
         </div>
-        <h2 className="title h-sub fade-up delay-2" style={{ position: 'relative', margin: 0 }}>{t(c.question)}</h2>
         {showOptions && (
-          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[{ id: 'yes', label: c.opt_yes }, { id: 'no', label: c.opt_no }, { id: 'idk', label: c.opt_idk }].map(opt => (
-              <button key={opt.id} className="option" disabled={picked !== null} onClick={() => pick(opt.id)} style={{ padding: 'clamp(13px, 1.9vw, 15px) clamp(16px, 2.5vw, 20px)', fontSize: 'clamp(15px, 1.9vw, 15px)' }}>{t(opt.label)}</button>
-            ))}
+          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn" disabled={picked !== null} onClick={() => pick('start')}>
+              {lang === 'uz' ? 'Tushuntirishni boshlash' : 'Начать объяснение'}
+            </button>
           </div>
         )}
       </div>
@@ -2690,7 +2719,7 @@ export default function PrimeCompositeLesson({
 }) {
   useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
-  const [previewLang, setPreviewLang] = useState('ru');
+  const [previewLang, setPreviewLang] = useState('uz');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
@@ -2720,7 +2749,7 @@ export default function PrimeCompositeLesson({
     safeOnFinished(payload);
   }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const screens = [Screen0, Screen2, Screen3, Screen1, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
   const CurrentScreen = screens[current];
 
   const navLockRef = useRef(0);

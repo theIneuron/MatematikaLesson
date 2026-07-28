@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from 'react';
+import { normalizeTtsColons } from './ttsMathColon.js';
 // УРОК: Умножение десятичных дробей — dec_5_05
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
@@ -67,8 +68,16 @@ const NUM_WORDS = {
 const numberToWords = (value, lang) => {
   const n = Number(value);
   const words = NUM_WORDS[lang] || NUM_WORDS.uz;
-  if (!Number.isInteger(n) || n < 0 || n > 999) return String(value);
+  if (!Number.isInteger(n) || n < 0 || n > 999999) return String(value);
   if (Object.prototype.hasOwnProperty.call(words, n)) return words[n];
+  if (n >= 1000) {
+    const thousands = Math.floor(n / 1000);
+    const rest = n % 1000;
+    const thousandPart = lang === 'ru'
+      ? `${numberToWords(thousands, lang)} тысяч`
+      : `${numberToWords(thousands, lang)} ming`;
+    return rest ? `${thousandPart} ${numberToWords(rest, lang)}` : thousandPart;
+  }
   if (n < 20 && lang === 'uz') return `${words[10]} ${words[n - 10]}`;
   if (n < 100) return `${words[Math.floor(n / 10) * 10]} ${words[n % 10]}`.trim();
   const hundred = lang === 'ru'
@@ -90,18 +99,17 @@ const toTtsMath = (text, lang) => {
         .replace(/\bqism\b/gi, "bo'lak")
     : stripAudioTags(String(text || ''));
   const clean = pronunciationSafe.replace(
-    /\b(\d{1,3})\s*:\s*(\d{1,3})\s*=\s*(\d{1,3})\b/g,
+    /\b(\d{1,6})\s*:\s*(\d{1,6})\s*=\s*(\d{1,6})\b/g,
     (_, a, b, c) => lang === 'ru'
       ? `${numberToWords(a, lang)} разделить на ${numberToWords(b, lang)} равно ${numberToWords(c, lang)}`
       : `${numberToWords(a, lang)}ni ${numberToWords(b, lang)}ga bo'lsak, ${numberToWords(c, lang)} chiqadi`
   );
-  return clean
+  return normalizeTtsColons(clean, { divisionWord: ops.div })
     .replace(/\s*·\s*/g, ops.mul)
-    .replace(/\s+:\s+/g, ops.div)
     .replace(/\s*=\s*/g, ops.eq)
     .replace(/\s*\+\s*/g, ops.plus)
     .replace(/\s*[−–]\s*/g, ops.minus)
-    .replace(/\b\d{1,3}\b/g, (m) => numberToWords(m, lang))
+    .replace(/\b\d{1,6}\b/g, (m) => numberToWords(m, lang))
     .replace(/\s{2,}/g, ' ')
     .trim();
 };
@@ -114,6 +122,18 @@ function buildTtsUrl(base, text, gender) {
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = 'm'; // v5.5-male: erkak ovoz qattiq qulflangan
   return `${base}/api/tts?text=${enc}&g=${g}`;
+}
+
+function pickPreviewVoice(synth, lang) {
+  const voices = synth.getVoices?.() || [];
+  const prefixes = lang === 'uz'
+    ? ['uz', 'tr', 'az', 'en']
+    : (lang === 'en' ? ['en'] : ['ru']);
+  for (const prefix of prefixes) {
+    const voice = voices.find((item) => String(item.lang || '').toLowerCase().startsWith(prefix));
+    if (voice) return voice;
+  }
+  return null;
 }
 
 // SFX — короткие звуки верно/неверно, URL из ttsConfig (correctSoundUrl/wrongSoundUrl).
@@ -404,6 +424,8 @@ class AudioEngine {
     const u = new SpeechSynthesisUtterance(clean);
     const lang = segment.lang || this.currentLang;
     u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
+    const voice = pickPreviewVoice(synth, lang);
+    if (voice) u.voice = voice;
     u.rate = 0.95; u.pitch = 1.0;
     u.onstart = () => {
       this.isStarting = false;
@@ -499,7 +521,15 @@ class AudioEngine {
     if (!text || this.muted) return null;
     this._oneOffSeq = (this._oneOffSeq || 0) + 1;
     const segmentId = id || `oneoff_${this._oneOffSeq}`;
-    this.queue.push({ id: segmentId, text, trigger: 'manual', waits_for: null, g: gender, pauseAfterMs });
+    this.queue.push({
+      id: segmentId,
+      text: toTtsMath(text, this.currentLang),
+      lang: this.currentLang,
+      trigger: 'manual',
+      waits_for: null,
+      g: gender,
+      pauseAfterMs,
+    });
     // Ekran endigina ochilib, 300 ms boshlash taymeri hali ishlamagan bo'lishi
     // mumkin. Feedbackni navbat oxiriga qo'shamiz, lekin introni tashlab ketmaymiz
     // va taymer keyin navbatni ikkinchi marta boshidan qayta yoqmaydi.
@@ -554,7 +584,15 @@ function useAudio(segments) {
   // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
   const segmentsKey = segments ? JSON.stringify(segments) : '';
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stableSegments = useMemo(() => segments, [segmentsKey]);
+  const stableSegments = useMemo(
+    () => segments?.map((segment) => ({
+      ...segment,
+      lang,
+      text: toTtsMath(segment.text, lang),
+    })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [segmentsKey, lang],
+  );
 
   useEffect(() => {
     const engine = getAudioEngine();
@@ -1055,9 +1093,9 @@ const LESSON_META = {
 
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0  (3 narx, RASM)
-  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (8 : 2, ENG OSON, RASM)
   { id: 's2',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 2  (LastDigit, 2 ga)
   { id: 's3',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 3  (2 ga alomat)
+  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (8 : 2, ENG OSON, RASM)
   { id: 's4',  type: 'test',        template: 'QuestionScreen', scored: true,  scope: 'practice' }, // 4  (4 narxdan juftini top, RASM)
   { id: 's5',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 5  (5 ga + fakt)
   { id: 's6',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 6  (5 va 10 ga alomat)
@@ -1082,7 +1120,7 @@ const CONTENT = {
     opt_no: { ru: 'Пока не знаю', uz: 'Hozircha bilmayman' },
     opt_idk: { ru: 'Хочу разобраться', uz: "O'rganmoqchiman" },
     audio: {
-      intro: { ru: 'В магазине три ценника: двадцать четыре, тридцать пять и двенадцать тысяч сумов. Двое друзей хотят заплатить поровну, но не за каждый товар это получится. Делить каждое число в столбик долго. Главный вопрос урока: как узнать, делится ли число, не деля его? Как думаешь, за какие товары получится заплатить поровну?', uz: "Do'konda uchta narx: yigirma to'rt, o'ttiz besh va o'n ikki ming so'm. Ikki do'st teng bo'lib to'lamoqchi, lekin har bir narsa uchun ham bu chiqavermaydi. Har bir sonni ustunda bo'lish uzoq. Darsning asosiy savoli: sonni bo'lmasdan turib, bo'linishini qanday bilamiz? Qaysi narsalar uchun teng to'lash mumkin deb o'ylaysiz?" },
+      intro: { ru: 'В магазине три ценника: двадцать четыре, тридцать пять и двенадцать тысяч сумов. Двое друзей хотят заплатить поровну, но не за каждый товар это получится. Делить каждое число в столбик долго. Сегодня сначала разберём признаки делимости и их правила, а затем применим их к этим ценам.', uz: "Do'konda uchta narx: yigirma to'rt, o'ttiz besh va o'n ikki ming so'm. Ikki do'st teng bo'lib to'lamoqchi, lekin har bir narsa uchun ham bu chiqavermaydi. Har bir sonni ustunda bo'lish uzoq. Bugun avval bo'linish alomatlari va ularning qoidalarini tushunamiz, keyin ularni shu narxlarga qo'llaymiz." },
       on_correct: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.' },
       on_wrong: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.' }
     }
@@ -1312,8 +1350,8 @@ const CONTENT = {
     placeholder: { ru: 'число', uz: 'son' },
     fb_correct: { ru: 'Верно, 5 чисел: 10, 20, 30, 40 и 50. Только у них последняя цифра 0.', uz: "To'g'ri, 5 ta son: 10, 20, 30, 40 va 50. Faqat ularning oxirgi raqami 0." },
     hint: { ru: 'На 10 делятся только числа с нулём на конце. Перечисли их по порядку до 50.', uz: "10 ga faqat oxiri nol bilan tugagan sonlar bo'linadi. Ularni 50 gacha tartib bilan sanang." },
-    fact: { ru: 'Чисел, кратных 10, ровно в два раза меньше, чем кратных 5, и в пять раз меньше, чем чётных. Чем строже признак, тем реже такие числа встречаются.', uz: "10 ga karrali sonlar 5 ga karralilardan roppa-rosa ikki barobar kam, juft sonlardan esa besh barobar kam. Alomat qanchalik qattiq bo'lsa, bunday sonlar shunchalik kam uchraydi." },
-    fact_audio: { ru: 'Знаешь ли ты? Чисел, кратных десяти, ровно в два раза меньше, чем кратных пяти, и в пять раз меньше, чем чётных. Чем строже признак, тем реже такие числа встречаются.', uz: "Bilasizmi? O'nga karrali sonlar beshga karralilardan roppa-rosa ikki barobar kam, juft sonlardan esa besh barobar kam. Alomat qanchalik qattiq bo'lsa, bunday sonlar shunchalik kam uchraydi." },
+    fact: { ru: 'Чисел, кратных 10, ровно в два раза меньше, чем кратных 5, и в пять раз меньше, чем чётных. Чем строже признак, тем реже такие числа встречаются.', uz: "10 ga karrali sonlar 5 ga karrali sonlardan roppa-rosa ikki barobar kam, juft sonlardan esa besh barobar kam. Alomat qanchalik qattiq bo'lsa, bunday sonlar shunchalik kam uchraydi." },
+    fact_audio: { ru: 'Знаешь ли ты? Чисел, кратных десяти, ровно в два раза меньше, чем кратных пяти, и в пять раз меньше, чем чётных. Чем строже признак, тем реже такие числа встречаются.', uz: "Bilasizmi? O'nga karrali sonlar beshga karrali sonlardan roppa-rosa ikki barobar kam, juft sonlardan esa besh barobar kam. Alomat qanchalik qattiq bo'lsa, bunday sonlar shunchalik kam uchraydi." },
     audio: {
       intro: { ru: 'Финальная задача. Сколько из чисел от одного до пятидесяти делятся на десять? Набери ответ.', uz: "Yakuniy masala. Bir dan ellikkacha bo'lgan sonlardan nechtasi o'nga bo'linadi? Javobni tering." },
       on_correct: { ru: 'Верно, пять чисел.', uz: "To'g'ri, besh ta son." },
@@ -2032,16 +2070,15 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
         <p className="eyebrow fade-up" style={{ position: 'relative', color: T.accent }}>{t(c.eyebrow)}</p>
         <h1 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{t(c.topic)}</h1>
         <h2 className="title h-sub fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{t(c.global_q)}</h2>
-        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0, maxHeight: showOptions ? 0 : 200, opacity: showOptions ? 0 : 1, marginBottom: showOptions ? 'calc(-1 * clamp(12px, 2.2vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{t(c.lead)}</p>
+        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{t(c.lead)}</p>
         <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(14px, 2.5vw, 18px)' }}>
           {[24, 35, 12].map(v => (<PriceTag key={v} value={v} unit={t(UNIT)} size={showOptions ? 'md' : 'lg'}/>))}
         </div>
-        <h2 className="title h-sub fade-up delay-2" style={{ position: 'relative', margin: 0 }}>{t(c.question)}</h2>
         {showOptions && (
-          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[{ id: 'yes', label: c.opt_yes }, { id: 'no', label: c.opt_no }, { id: 'idk', label: c.opt_idk }].map(opt => (
-              <button key={opt.id} className="option" disabled={picked !== null} onClick={() => pick(opt.id)} style={{ padding: 'clamp(13px, 1.9vw, 15px) clamp(16px, 2.5vw, 20px)', fontSize: 'clamp(15px, 1.9vw, 15px)' }}>{t(opt.label)}</button>
-            ))}
+          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn" disabled={picked !== null} onClick={() => pick('start')}>
+              {lang === 'uz' ? 'Tushuntirishni boshlash' : 'Начать объяснение'}
+            </button>
           </div>
         )}
       </div>
@@ -2428,7 +2465,7 @@ export default function DivisibilityRulesLesson({
 }) {
   useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
-  const [previewLang, setPreviewLang] = useState('ru');
+  const [previewLang, setPreviewLang] = useState('uz');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
@@ -2458,7 +2495,7 @@ export default function DivisibilityRulesLesson({
     safeOnFinished(payload);
   }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const screens = [Screen0, Screen2, Screen3, Screen1, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
   const CurrentScreen = screens[current];
 
   const navLockRef = useRef(0);

@@ -64,7 +64,7 @@ const LESSON = {
       steps: [
         L("10 ga bo'lganda vergul bir xona chapga siljiydi: 47,2 : 10 = 4,72.", 'При делении на 10 запятая сдвигается на один разряд влево: 47,2 : 10 = 4,72.'),
         L("100 ga bo'lganda vergul ikki xona chapga siljiydi: 47,2 : 100 = 0,472.", 'При делении на 100 запятая сдвигается на два разряда влево: 47,2 : 100 = 0,472.'),
-        L("Yetishmagan xonalar boshiga nol bilan to'ldiriladi.", 'Недостающие разряды слева заполняются нулями.'),
+        L("Yetishmagan xonalar bosh tomondan nollar bilan to'ldiriladi.", 'Недостающие разряды слева заполняются нулями.'),
       ],
       visual: {
         type: 'steps',
@@ -106,7 +106,7 @@ const LESSON = {
       correct: 1,
       why: [
         L("24 × 5 = 120.", '24 × 5 = 120.'),
-        L("Ko'paytuvchilarda jami ikki kasr xonasi bor, shuning uchun 120 dan 1,20, ya'ni 1,2 hosil bo'ladi.", 'В множителях всего два десятичных знака, поэтому из 120 получаем 1,20, то есть 1,2.'),
+        L("Ko'paytuvchilarda jami ikki kasr xonasi bor. Shuning uchun 120 yozuvida o'ngdan ikki raqam ajratilib, 1,20, ya'ni 1,2 hosil bo'ladi.", 'В множителях всего два десятичных знака, поэтому из 120 получаем 1,20, то есть 1,2.'),
       ],
       wrong: L("Ikkala ko'paytuvchidagi verguldan keyingi raqamlar sonini qo'shing.", 'Сложите количество цифр после запятой в обоих множителях.'),
       fact: L("0,5 ga ko'paytirish sonning yarmini topish bilan bir xil.", 'Умножить на 0,5 — то же самое, что найти половину числа.'),

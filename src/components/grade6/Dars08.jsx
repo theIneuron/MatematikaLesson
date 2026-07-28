@@ -27,9 +27,9 @@ const LESSON = {
       scored: false,
       eyebrow: L('Eslab olamiz', 'Вспомним'),
       title: L("12 va 18 ning umumiy bo'luvchisini toping", 'Найдите общий делитель 12 и 18'),
-      prompt: L("Qaysi son 12 ni ham, 18 ni ham qoldiqsiz bo'ladi?", 'Какое число делит без остатка и 12, и 18?'),
+      prompt: L("12 ham, 18 ham qaysi songa qoldiqsiz bo'linadi?", 'Какое число делит без остатка и 12, и 18?'),
       intro: L(
-        "Kasrni qisqartirish uchun surat va maxrajning umumiy bo'luvchisi kerak bo'ladi. O'n ikki va o'n sakkiz sonlarini bir xil bo'la oladigan sonni tanlang.",
+        "Kasrni qisqartirish uchun surat va maxrajning umumiy bo'luvchisi kerak bo'ladi. O'n ikki ham, o'n sakkiz ham qoldiqsiz bo'linadigan sonni tanlang.",
         'Для сокращения дроби нужен общий делитель числителя и знаменателя. Выберите число, на которое делятся и двенадцать, и восемнадцать.',
       ),
       options: ['4', '5', '6', '8'],
@@ -38,7 +38,7 @@ const LESSON = {
         L("12 : 6 = 2 va 18 : 6 = 3.", '12 разделить на 6 равно 2, а 18 разделить на 6 равно 3.'),
         L("Demak, 6 soni 12 va 18 ning umumiy bo'luvchisi.", 'Значит, 6 — общий делитель чисел 12 и 18.'),
       ],
-      wrong: L("Tanlangan son ikkala sonni ham qoldiqsiz bo'lishi kerak.", 'Выбранное число должно делить оба числа без остатка.'),
+      wrong: L("12 ham, 18 ham tanlangan songa qoldiqsiz bo'linishi kerak.", 'Выбранное число должно делить оба числа без остатка.'),
       visual: {
         type: 'panels',
         panels: [
@@ -195,7 +195,7 @@ const LESSON = {
       type: 'match',
       scored: true,
       eyebrow: L('Moslashtirish', 'Соответствие'),
-      title: L("Kasrni qisqarmas ko'rinishi bilan juftlang", 'Соедините дробь с её несократимым видом'),
+      title: L("Kasrlarni qisqarmas ko'rinishlari bilan juftlang", 'Соедините дробь с её несократимым видом'),
       prompt: L("Chapdagi har bir kasr uchun o'ng tomondagi to'liq qisqartirilgan kasrni tanlang.", 'Для каждой дроби слева выберите полностью сокращённую дробь справа.'),
       intro: L(
         "Har bir kasrni eng katta umumiy bo'luvchiga qisqartiring va mos natija bilan juftlang.",

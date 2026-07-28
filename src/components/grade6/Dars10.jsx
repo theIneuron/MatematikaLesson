@@ -219,7 +219,7 @@ const LESSON = {
       title: L("Yechimlarni to'g'ri va xato guruhiga ajrating", 'Разделите решения на верные и ошибочные'),
       prompt: L("Har bir tenglikni tekshirib, mos guruhni tanlang.", 'Проверьте каждое равенство и выберите подходящую группу.'),
       intro: L(
-        "Natijani umumiy maxraj orqali qayta hisoblang. To'g'ri yechimni yashil, xato yechimni ikkinchi guruhga joylang.",
+        "Natijani umumiy maxraj orqali qayta hisoblang. To'g'ri yechimni yashil guruhga, xato yechimni esa xato guruhiga joylang.",
         'Пересчитайте результат через общий знаменатель. Верное решение поместите в зелёную группу, ошибочное — во вторую.',
       ),
       binA: L("To'g'ri", 'Верно'),

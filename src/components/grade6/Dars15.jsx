@@ -157,7 +157,7 @@ const LESSON = {
       title: L("2,374 ni yuzdan birlargacha yaxlitlang", 'Округлите 2,374 до сотых'),
       prompt: L("Yuzdan birlar xonasidagi 7 dan keyingi raqamni tekshiring.", 'Проверьте цифру после 7 в разряде сотых.'),
       intro: L(
-        "Ikki butun mingdan uch yuz yetmish to'rt sonini yuzdan birlargacha yaxlitlaymiz. Yuzdan birlar xonasida yetti, keyingi raqam to'rt. To'rt beshdan kichik, shuning uchun yetti o'zgarmaydi.",
+        "Ikki butun mingdan uch yuz yetmish to'rt sonini yuzdan birlargacha yaxlitlaymiz. Yuzdan birlar xonasida yetti, keyingi raqam to'rt. To'rt beshdan kichik, shuning uchun yetti raqami o'zgarmaydi.",
         'Округлим две целых триста семьдесят четыре тысячных до сотых. В разряде сотых стоит семь, следующая цифра — четыре. Четыре меньше пяти, поэтому семь не меняется.',
       ),
       options: ['2,37', '2,38', '2,4', '2,374'],
@@ -278,11 +278,11 @@ const LESSON = {
         L("Keyingi raqam 5 dan kichik bo'lsa raqam saqlanadi, aks holda birga oshiriladi.", 'Если следующая цифра меньше 5, разряд сохраняется, иначе увеличивается на один.'),
       ],
       close: L(
-        "Endi davriy o'nli kasrni taniy, uning davrini yozib va sonni kerakli xonagacha yaxlitlay olasiz.",
+        "Endi davriy o'nli kasrni tanib, uning davrini yozishingiz va sonni kerakli xonagacha yaxlitlashingiz mumkin.",
         'Теперь вы умеете распознавать периодическую дробь, записывать её период и округлять число до нужного разряда.',
       ),
       audio: L(
-        "Davriy kasrlar va yaxlitlashni o'rgandingiz. Cheksiz takrorlanuvchi raqamlar guruhi davr deyiladi va qavs ichida yoziladi. Yaxlitlashda saqlanadigan xonadan keyingi birinchi raqam tekshiriladi. Keyingi raqam beshdan kichik bo'lsa raqam saqlanadi, aks holda birga oshiriladi. Endi davriy o'nli kasrni taniy, uning davrini yozib va sonni kerakli xonagacha yaxlitlay olasiz.",
+        "Davriy kasrlar va yaxlitlashni o'rgandingiz. Cheksiz takrorlanuvchi raqamlar guruhi davr deyiladi va qavs ichida yoziladi. Yaxlitlashda saqlanadigan xonadan keyingi birinchi raqam tekshiriladi. Keyingi raqam beshdan kichik bo'lsa raqam saqlanadi, aks holda birga oshiriladi. Endi davriy o'nli kasrni tanib, uning davrini yozishingiz va sonni kerakli xonagacha yaxlitlashingiz mumkin.",
         'Вы изучили периодические дроби и округление. Бесконечно повторяющаяся группа цифр называется периодом и записывается в скобках. При округлении проверяется первая цифра после сохраняемого разряда. Если следующая цифра меньше пяти, сохраняемая цифра не меняется, иначе увеличивается на один. Теперь вы умеете распознавать периодическую дробь, записывать её период и округлять число до нужного разряда.',
       ),
     },

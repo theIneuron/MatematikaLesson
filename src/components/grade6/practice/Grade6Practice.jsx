@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../../grade5/practice/PracticeHost.jsx';
+import { GRADE6_PRACTICE_16_26 } from './Grade6PracticeData16_26.js';
+import { GRADE6_PRACTICE_27_46, ruPracticeValue27 } from './Grade6PracticeData27_46.js';
+import { RU_PROMPTS, RU_RULES, RU_TITLES, ruText } from './Grade6PracticeRu.js';
 
 const yn = (prompt, answer) => ({ type: 'bool', prompt, options: ["Ha", "Yo'q"], answer: answer ? "Ha" : "Yo'q" });
 const mc = (prompt, options, answer) => ({ type: 'choice', prompt, options, answer });
@@ -232,6 +235,8 @@ const LESSONS = {
       mc("Harorat 18,67 °C deb o'lchandi. Uni o'ndan bir darajagacha yaxlitlab, termometrga yoziladigan qiymatni toping.", ['18,6 °C', '18,7 °C', '18,67 °C', '19,0 °C'], '18,7 °C'),
     ],
   },
+  ...GRADE6_PRACTICE_16_26.lessons,
+  ...GRADE6_PRACTICE_27_46.lessons,
 };
 
 const TOPICS = {
@@ -250,6 +255,8 @@ const TOPICS = {
   13: ["Teskari kasr", "Teskari kasrning surati", "O'zaro teskari sonlar", "Ko'paytmasi bir", "Nolning alohida holati", "Qismidan butunni topish", "Noma'lum son", "Kasr qismli tenglama", "Tenglamalarni moslashtirish", "Kitoblar sonini topish"],
   14: ["O'nli kasrlar ko'paytmasi", "O'nli kasrlarni bo'lish", "Amallarni moslashtirish", "100 ga ko'paytirish", "100 ga bo'lish", "Vergulni siljitish", "Ikki o'nli kasr ko'paytmasi", "O'nli javob", "Hisoblash natijalari", "Umumiy massani topish"],
   15: ["Davriy kasrni aniqlash", "O'ndan birgacha yaxlitlash", "Kasr va o'nli yozuv", "Kasrning davri", "Tugaydigan kasr", "Yaxlitlangan qiymatlar", "Yuzdan birgacha yaxlitlash", "Davriy kasrni yaxlitlash", "O'nli yozuvlarning turlari", "Haroratni yaxlitlash"],
+  ...GRADE6_PRACTICE_16_26.topics,
+  ...GRADE6_PRACTICE_27_46.topics,
 };
 const EXPLANATIONS = {
   1: [
@@ -432,12 +439,20 @@ const EXPLANATIONS = {
     "2,45 tugaydigan, 0,(18) sof davriy, 3,7(2) esa aralash davriy o'nli kasr.",
     "18,67 ni o'ndan birlargacha yaxlitlashda yuzdan birlar raqami 7. Demak, 18,6 soni 18,7 ga oshadi.",
   ],
+  ...GRADE6_PRACTICE_16_26.explanations,
+  ...GRADE6_PRACTICE_27_46.explanations,
 };
 const GUIDES = {
   choice: "Variantlarni shoshilmay taqqoslang. Har bir son yoki ifodani mavzu qoidasiga ko'ra tekshirib, faqat bitta to'g'ri javobni tanlang.",
   bool: "Quyidagi matematik fikrni qoida asosida tekshiring. Fikr har doim to'g'ri bo'lsa «Ha», xato bo'lsa «Yo'q» javobini tanlang.",
   match: "Chap ustundagi har bir karta uchun o'ng ustundan aynan bitta mos javob toping. Avval chapdagi kartani, so'ng unga mos o'ngdagi kartani bosing.",
   input: "Hisoblashni bosqichma-bosqich bajaring. Hosil bo'lgan sonli javobni pastdagi maydonga klaviatura yordamida kiriting.",
+};
+const RU_GUIDES = {
+  choice: 'Сравните варианты и по правилу темы выберите только один правильный ответ.',
+  bool: 'Проверьте математическое утверждение. Выберите «Да», если оно верно, и «Нет», если оно неверно.',
+  match: 'Для каждой карточки слева найдите ровно одну пару справа. Сначала нажмите левую карточку, затем правую.',
+  input: 'Выполните вычисления по шагам и введите числовой ответ с клавиатуры.',
 };
 const shuffle = (list) => {
   const shuffled = [...list];
@@ -451,11 +466,16 @@ const shuffle = (list) => {
 function MathText({ text }) {
   const source = String(text);
   const parts = [];
+  const renderPlainText = (value, keyPrefix) => String(value).split(/([×·])/).map((part, index) => (
+    part === '×' || part === '·'
+      ? <span className="g6q-multiply-dot" aria-label="ko‘paytirish" key={`${keyPrefix}-multiply-${index}`}/>
+      : part
+  ));
   const fractionPattern = /(\?|\d+)\s*\/\s*(\d+)/g;
   let cursor = 0;
   let match;
   while ((match = fractionPattern.exec(source)) !== null) {
-    if (match.index > cursor) parts.push(source.slice(cursor, match.index));
+    if (match.index > cursor) parts.push(...renderPlainText(source.slice(cursor, match.index), `text-${cursor}`));
     parts.push(
       <span className="g6q-frac" key={`${match.index}-${match[0]}`} aria-label={`${match[2]} dan ${match[1]}`}>
         <span>{match[1]}</span><i/><span>{match[2]}</span>
@@ -463,14 +483,19 @@ function MathText({ text }) {
     );
     cursor = match.index + match[0].length;
   }
-  if (cursor < source.length) parts.push(source.slice(cursor));
+  if (cursor < source.length) parts.push(...renderPlainText(source.slice(cursor), `text-${cursor}`));
   return parts;
 }
 
 const parseNumericAnswer = (value) => Number(String(value).trim().replace(',', '.'));
 
-function Question({ item, index, lesson, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong }) {
+function Question({ item, index, lesson, lang = 'uz', mode, onReady, registerCheck, onSubmit, playCorrect, playWrong }) {
   const locked = mode === 'review';
+  const isRussian = lang === 'ru';
+  const prompt = isRussian ? item.promptRu || RU_PROMPTS[lesson]?.[index] || item.prompt : item.prompt;
+  const displayText = useCallback((value) => (
+    isRussian ? lesson >= 27 ? ruPracticeValue27(ruText(value)) : ruText(value) : String(value)
+  ), [isRussian, lesson]);
   const colors = ['#06b6d4', '#14b8a6'];
   const options = useMemo(() => shuffle(item.options || []), [item]);
   const right = useMemo(() => shuffle(item.right || []), [item]);
@@ -490,13 +515,14 @@ function Question({ item, index, lesson, mode, onReady, registerCheck, onSubmit,
     onSubmit?.({ questionText: item.prompt, studentAnswer: answer, correctAnswer: item.answer || item.pairs, correct: ok, meta: { lesson, task: index + 1 } });
   }, [answer, index, item, lesson, onSubmit, playCorrect, playWrong]);
   useEffect(() => registerCheck?.(check), [check, registerCheck]);
-
   return <div className="g6q" style={{ '--c1': colors[0], '--c2': colors[1] }}>
     <style>{`
       .g6q{max-width:650px;margin:auto;padding:8px 4px 18px;color:#172033;background:#fff7ed;font-family:Manrope,system-ui,sans-serif}
       .g6q-bars{display:grid;grid-template-columns:1fr 1fr;gap:6px}.g6q-bars i{height:5px;border-radius:9px;background:#fb923c}.g6q-bars i+ i{background:#fb923c}
       .g6q-tag{margin-top:12px;color:#f97316;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.g6q h2{font-size:25px;line-height:1.3;margin:7px 0 8px}
+      .g6q-heading{display:block}
       .g6q-frac{display:inline-grid;grid-template-rows:auto 2px auto;align-items:center;min-width:1.35em;margin:0 .12em;vertical-align:middle;text-align:center;font-family:Manrope,system-ui,sans-serif;font-weight:900;line-height:1}.g6q-frac>span{padding:.08em .18em}.g6q-frac>i{display:block;width:100%;height:2px;border-radius:2px;background:currentColor}
+      .g6q-multiply-dot{display:inline-block;width:.38em;height:.38em;margin:0 .24em;border-radius:50%;background:currentColor;vertical-align:.12em;box-shadow:none}
       .g6q-explain{margin:0 0 18px;padding:11px 13px;border-left:4px solid var(--c1);border-radius:0 12px 12px 0;background:#fff;color:#526071;font-size:14px;font-weight:650;line-height:1.55}
       .g6q-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g6q button{font:800 17px inherit;color:#172033;cursor:pointer}
       .g6q-option{min-height:76px;padding:14px 16px;border:2.5px solid var(--c1);border-radius:17px;background:#fff;font-size:clamp(21px,3.5vw,28px)!important;font-weight:900!important;line-height:1.15;box-shadow:0 5px 0 color-mix(in srgb,var(--c1) 30%,white),0 9px 20px rgba(15,118,110,.08);transition:transform .15s,box-shadow .15s}.g6q-option:hover{transform:translateY(-2px)}.g6q-option.on{border-color:var(--c2);background:color-mix(in srgb,var(--c2) 16%,white);box-shadow:0 5px 0 color-mix(in srgb,var(--c2) 38%,white),0 0 0 3px color-mix(in srgb,var(--c2) 22%,transparent)}
@@ -508,9 +534,11 @@ function Question({ item, index, lesson, mode, onReady, registerCheck, onSubmit,
       @media(max-width:520px){.g6q h2{font-size:20px;margin-bottom:7px}.g6q-explain{font-size:12px;line-height:1.4;margin-bottom:10px;padding:8px 10px}.g6q-options{gap:8px}.g6q-option{min-height:62px;padding:10px;font-size:20px!important}.g6q-match{grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);gap:4px}.g6q-col{grid-template-rows:repeat(3,minmax(58px,1fr));gap:8px}.g6q-card{font-size:19px!important;min-height:58px;padding:7px 5px}.g6q-links{min-height:190px}.g6q-link{stroke-width:4}}
     `}</style>
     <div className="g6q-bars"><i/><i/></div>
-    <div className="g6q-tag">{TOPICS[lesson][index]}</div>
-    <h2><MathText text={item.prompt}/></h2>
-    <p className="g6q-explain">{GUIDES[item.type]}</p>
+    <div className="g6q-tag">{isRussian ? item.topicRu || RU_TITLES[lesson] || TOPICS[lesson][index] : TOPICS[lesson][index]}</div>
+    <div className="g6q-heading">
+      <h2><MathText text={prompt}/></h2>
+    </div>
+    <p className="g6q-explain">{isRussian ? RU_GUIDES[item.type] : GUIDES[item.type]}</p>
     {item.type === 'input' ? <div className="g6q-input-wrap">
       <input className={`g6q-input ${checked ? correct ? 'right' : 'wrong' : ''}`} inputMode="decimal" value={answer} disabled={checked || locked} aria-label="Sonli javob"
         onChange={(event) => {
@@ -522,11 +550,11 @@ function Question({ item, index, lesson, mode, onReady, registerCheck, onSubmit,
         }}/>
     </div> : item.type !== 'match' ? <div className="g6q-options">{options.map(x => {
       const resultClass = checked && answer === x ? (correct ? 'right' : 'wrong') : '';
-      return <button type="button" className={`g6q-option ${answer === x ? 'on' : ''} ${resultClass}`} key={x} disabled={checked || locked} onClick={() => setAnswer(x)}><MathText text={x}/></button>;
+      return <button type="button" className={`g6q-option ${answer === x ? 'on' : ''} ${resultClass}`} key={x} disabled={checked || locked} onClick={() => setAnswer(x)}><MathText text={displayText(x)}/></button>;
     })}</div> : <div className="g6q-match">
       <div className="g6q-col">{item.left.map((x, i) => {
         const resultClass = checked ? (answer[i] === item.right[item.pairs[i]] ? 'right' : 'wrong') : '';
-        return <button type="button" className={`g6q-card ${active === i ? 'on' : ''} ${answer[i] ? 'done' : ''} ${resultClass}`} key={x} disabled={checked || locked} onClick={() => setActive(i)}><MathText text={x}/></button>;
+        return <button type="button" className={`g6q-card ${active === i ? 'on' : ''} ${answer[i] ? 'done' : ''} ${resultClass}`} key={x} disabled={checked || locked} onClick={() => setActive(i)}><MathText text={displayText(x)}/></button>;
       })}</div>
       <svg className="g6q-links" viewBox="0 0 100 216" preserveAspectRatio="none" aria-hidden="true">
         {answer.map((selected, leftIndex) => {
@@ -541,12 +569,14 @@ function Question({ item, index, lesson, mode, onReady, registerCheck, onSubmit,
       <div className="g6q-col">{right.map(x => {
         const linkedIndex = answer.indexOf(x);
         const resultClass = checked && linkedIndex >= 0 ? (x === item.right[item.pairs[linkedIndex]] ? 'right' : 'wrong') : '';
-        return <button type="button" className={`g6q-card ${resultClass}`} key={x} disabled={checked || locked} onClick={() => { if (active !== null) { setAnswer(v => v.map((old, i) => i === active ? x : old === x ? null : old)); setActive(null); } }}><MathText text={x}/></button>;
+        return <button type="button" className={`g6q-card ${resultClass}`} key={x} disabled={checked || locked} onClick={() => { if (active !== null) { setAnswer(v => v.map((old, i) => i === active ? x : old === x ? null : old)); setActive(null); } }}><MathText text={displayText(x)}/></button>;
       })}</div>
     </div>}
     {checked && <div className="g6q-feedback">{correct
-      ? <><strong>✓ To‘g‘ri!</strong><span className="g6q-feedback-why"><MathText text={EXPLANATIONS[lesson][index]}/></span></>
-      : "Javob noto'g'ri. Qoidani eslab, qayta urinib ko'ring."}</div>}
+      ? isRussian
+        ? <><strong>✓ Верно!</strong><span className="g6q-feedback-why"><MathText text={item.explanationRu || `${item.type === 'match' ? 'Все пары найдены правильно. ' : `Правильный ответ: ${displayText(item.answer)}. `}${RU_RULES[lesson] || ''}`}/></span></>
+        : <><strong>✓ To‘g‘ri!</strong><span className="g6q-feedback-why"><MathText text={EXPLANATIONS[lesson][index]}/></span></>
+      : isRussian ? 'Ответ неверный. Вспомните правило и попробуйте ещё раз.' : "Javob noto'g'ri. Qoidani eslab, qayta urinib ko'ring."}</div>}
   </div>;
 }
 
@@ -554,6 +584,7 @@ export default function Grade6Practice({ lesson }) {
   usePracticeZoom();
   const data = LESSONS[lesson];
   const [index, setIndex] = useState(0);
+  const [lang, setLang] = useState('uz');
   const item = data.items[index];
   const Q = useMemo(() => (props) => <Question {...props} item={item} index={index} lesson={lesson}/>, [index, item, lesson]);
   return <div className="g6-practice">
@@ -565,6 +596,6 @@ export default function Grade6Practice({ lesson }) {
       @media(max-width:639.98px){.g6-practice{width:390px}.g6-tabs{padding-top:45px;gap:3px}.g6-tabs button{font-size:11px;padding:6px 1px}}
     `}</style>
     <div className="g6-tabs">{data.items.map((_, i) => <button type="button" className={i === index ? 'on' : ''} key={i} onClick={() => setIndex(i)}>{i + 1}</button>)}</div>
-    <div className="g6-body"><PracticeHost key={`${lesson}-${index}`} Question={Q} title={data.title}/></div>
+    <div className="g6-body"><PracticeHost key={`${lesson}-${index}`} Question={Q} lang={lang} onLangChange={setLang} title={{ uz: data.title, ru: data.titleRu || RU_TITLES[lesson] }} showLanguageSwitch/></div>
   </div>;
 }

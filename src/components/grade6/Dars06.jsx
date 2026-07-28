@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from 'react';
+import { normalizeTtsColons } from './ttsMathColon.js';
 // УРОК: Наименьшее общее кратное (НОК) — div_6_06
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen) ---
 
@@ -67,8 +68,16 @@ const NUM_WORDS = {
 const numberToWords = (value, lang) => {
   const n = Number(value);
   const words = NUM_WORDS[lang] || NUM_WORDS.uz;
-  if (!Number.isInteger(n) || n < 0 || n > 999) return String(value);
+  if (!Number.isInteger(n) || n < 0 || n > 999999) return String(value);
   if (Object.prototype.hasOwnProperty.call(words, n)) return words[n];
+  if (n >= 1000) {
+    const thousands = Math.floor(n / 1000);
+    const rest = n % 1000;
+    const thousandPart = lang === 'ru'
+      ? `${numberToWords(thousands, lang)} тысяч`
+      : `${numberToWords(thousands, lang)} ming`;
+    return rest ? `${thousandPart} ${numberToWords(rest, lang)}` : thousandPart;
+  }
   if (n < 20 && lang === 'uz') return `${words[10]} ${words[n - 10]}`;
   if (n < 100) return `${words[Math.floor(n / 10) * 10]} ${words[n % 10]}`.trim();
   const hundred = lang === 'ru'
@@ -90,18 +99,17 @@ const toTtsMath = (text, lang) => {
         .replace(/\bqism\b/gi, "bo'lak")
     : stripAudioTags(String(text || ''));
   const clean = pronunciationSafe.replace(
-    /\b(\d{1,3})\s*:\s*(\d{1,3})\s*=\s*(\d{1,3})\b/g,
+    /\b(\d{1,6})\s*:\s*(\d{1,6})\s*=\s*(\d{1,6})\b/g,
     (_, a, b, c) => lang === 'ru'
       ? `${numberToWords(a, lang)} разделить на ${numberToWords(b, lang)} равно ${numberToWords(c, lang)}`
       : `${numberToWords(a, lang)}ni ${numberToWords(b, lang)}ga bo'lsak, ${numberToWords(c, lang)} chiqadi`
   );
-  return clean
+  return normalizeTtsColons(clean, { divisionWord: ops.div })
     .replace(/\s*·\s*/g, ops.mul)
-    .replace(/\s+:\s+/g, ops.div)
     .replace(/\s*=\s*/g, ops.eq)
     .replace(/\s*\+\s*/g, ops.plus)
     .replace(/\s*[−–]\s*/g, ops.minus)
-    .replace(/\b\d{1,3}\b/g, (m) => numberToWords(m, lang))
+    .replace(/\b\d{1,6}\b/g, (m) => numberToWords(m, lang))
     .replace(/\s{2,}/g, ' ')
     .trim();
 };
@@ -114,6 +122,18 @@ function buildTtsUrl(base, text, gender) {
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = 'm'; // v5.5-male: erkak ovoz qattiq qulflangan
   return `${base}/api/tts?text=${enc}&g=${g}`;
+}
+
+function pickPreviewVoice(synth, lang) {
+  const voices = synth.getVoices?.() || [];
+  const prefixes = lang === 'uz'
+    ? ['uz', 'tr', 'az', 'en']
+    : (lang === 'en' ? ['en'] : ['ru']);
+  for (const prefix of prefixes) {
+    const voice = voices.find((item) => String(item.lang || '').toLowerCase().startsWith(prefix));
+    if (voice) return voice;
+  }
+  return null;
 }
 
 // SFX — короткие звуки верно/неверно, URL из ttsConfig (correctSoundUrl/wrongSoundUrl).
@@ -404,6 +424,8 @@ class AudioEngine {
     const u = new SpeechSynthesisUtterance(clean);
     const lang = segment.lang || this.currentLang;
     u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
+    const voice = pickPreviewVoice(synth, lang);
+    if (voice) u.voice = voice;
     u.rate = 0.95; u.pitch = 1.0;
     u.onstart = () => {
       this.isStarting = false;
@@ -499,7 +521,15 @@ class AudioEngine {
     if (!text || this.muted) return null;
     this._oneOffSeq = (this._oneOffSeq || 0) + 1;
     const segmentId = id || `oneoff_${this._oneOffSeq}`;
-    this.queue.push({ id: segmentId, text, trigger: 'manual', waits_for: null, g: gender, pauseAfterMs });
+    this.queue.push({
+      id: segmentId,
+      text: toTtsMath(text, this.currentLang),
+      lang: this.currentLang,
+      trigger: 'manual',
+      waits_for: null,
+      g: gender,
+      pauseAfterMs,
+    });
     // Ekran endigina ochilib, 300 ms boshlash taymeri hali ishlamagan bo'lishi
     // mumkin. Feedbackni navbat oxiriga qo'shamiz, lekin introni tashlab ketmaymiz
     // va taymer keyin navbatni ikkinchi marta boshidan qayta yoqmaydi.
@@ -554,7 +584,15 @@ function useAudio(segments) {
   // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
   const segmentsKey = segments ? JSON.stringify(segments) : '';
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stableSegments = useMemo(() => segments, [segmentsKey]);
+  const stableSegments = useMemo(
+    () => segments?.map((segment) => ({
+      ...segment,
+      lang,
+      text: toTtsMath(segment.text, lang),
+    })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [segmentsKey, lang],
+  );
 
   useEffect(() => {
     const engine = getAudioEngine();
@@ -1060,9 +1098,9 @@ const LESSON_META = {
 
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0  (ikki avtobus jadvali, RASM)
-  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (biri ikkinchisiga bo'linadi, ENG OSON, RASM)
   { id: 's2',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 2  (ikki karrali sonlar qatori -> birinchi umumiy karrali son)
   { id: 's3',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 3  (EKUK ta'rifi)
+  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (biri ikkinchisiga bo'linadi, ENG OSON, RASM)
   { id: 's4',  type: 'test',        template: 'QuestionScreen', scored: true,  scope: 'practice' }, // 4  (6 va 8, RASM)
   { id: 's5',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 5  (yoyilma orqali usul + fakt)
   { id: 's6',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 6  (ikki usul yonma-yon)
@@ -1087,7 +1125,7 @@ const CONTENT = {
     opt_no: { ru: 'Пока не знаю', uz: 'Hozircha bilmayman' },
     opt_idk: { ru: 'Хочу разобраться', uz: "O'rganmoqchiman" },
     audio: {
-      intro: { ru: 'От остановки в семь часов вместе уходят два автобуса. Первый возвращается каждые двенадцать минут, второй каждые восемнадцать. Мы хотим успеть сразу на оба, а значит, ждём момент, когда они снова уйдут вместе. Через двенадцать минут придёт только первый, через восемнадцать только второй. А когда вместе? Главный вопрос урока: как найти самое маленькое число, которое делится сразу на два числа? Как думаешь, через сколько минут автобусы снова уйдут вместе?', uz: "Bekatdan soat yettida ikki avtobus birga jo'naydi. Birinchisi har o'n ikki daqiqada, ikkinchisi har o'n sakkiz daqiqada qaytadi. Biz ikkalasiga ham birdan ulgurmoqchimiz, demak ular yana birga jo'naydigan lahzani kutamiz. O'n ikki daqiqadan keyin faqat birinchisi keladi, o'n sakkiz daqiqadan keyin faqat ikkinchisi. Birga qachon? Darsning asosiy savoli: ikki songa birdan bo'linadigan eng kichik sonni qanday topamiz? Nima deb o'ylaysiz, necha daqiqadan keyin avtobuslar yana birga jo'naydi?" },
+      intro: { ru: 'От остановки в семь часов вместе уходят два автобуса. Первый возвращается каждые двенадцать минут, второй каждые восемнадцать. Чтобы узнать, когда они снова встретятся, сначала разберём понятия общего кратного и наименьшего общего кратного. Затем изучим способы вычисления и применим их к расписанию автобусов.', uz: "Bekatdan soat yettida ikki avtobus birga jo'naydi. Birinchisi har o'n ikki daqiqada, ikkinchisi har o'n sakkiz daqiqada qaytadi. Ular yana qachon uchrashishini bilish uchun avval umumiy karrali va eng kichik umumiy karrali tushunchalarini o'rganamiz. Keyin hisoblash usullarini ko'rib, ularni avtobuslar jadvaliga qo'llaymiz." },
       on_correct: { ru: 'Тогда разберёмся.', uz: 'Unda aniqlab olamiz.' },
       on_wrong: { ru: 'Тогда разберёмся.', uz: 'Unda aniqlab olamiz.' }
     }
@@ -1116,7 +1154,7 @@ const CONTENT = {
   s2: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
     title: { ru: 'Выписываем оба ряда', uz: "Ikkala qatorni yozamiz" },
-    bridge: { ru: 'Вернёмся к нашим автобусам: 12 и 18 минут. Выпишем времена каждого — это кратные.', uz: "Avtobuslarimizga qaytamiz: 12 va 18 daqiqa. Har birining vaqtlarini yozamiz — bular karralar." },
+    bridge: { ru: 'Вернёмся к нашим автобусам: 12 и 18 минут. Выпишем времена каждого — это кратные.', uz: "Avtobuslarimizga qaytamiz: 12 va 18 daqiqa. Har birining vaqtlarini yozamiz — bular karrali sonlar." },
     audio: {
       ru: [
         'Первый автобус уходит через двенадцать, двадцать четыре, тридцать шесть, сорок восемь минут. Второй через восемнадцать, тридцать шесть, пятьдесят четыре.',
@@ -1338,7 +1376,7 @@ const CONTENT = {
     main_3: { ru: 'НОД · НОК = произведению чисел. Если числа взаимно простые, НОК равно их произведению.', uz: "EKUB · EKUK = sonlar ko'paytmasiga teng. Agar sonlar o'zaro tub bo'lsa, EKUK ularning ko'paytmasiga teng." },
     hook_close: { ru: 'Вернёмся к началу: НОК(12; 18) = 36, значит автобусы, ушедшие в 7:00, снова уйдут вместе в 7:36.', uz: "Boshiga qaytamiz: EKUK(12; 18) = 36, demak 7:00 da jo'nagan avtobuslar yana 7:36 da birga jo'naydi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Nimaga tayanadi' },
-    conn_refs: { ru: 'кратные и разложение на простые множители', uz: "karralar va tub ko'paytuvchilarga yoyish" },
+    conn_refs: { ru: 'кратные и разложение на простые множители', uz: "karrali sonlar va tub ko'paytuvchilarga yoyish" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'общий знаменатель дробей (через НОК)', uz: 'kasrlarning umumiy maxraji (EKUK orqali)' },
     audio: {
@@ -2076,18 +2114,17 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
         <p className="eyebrow fade-up" style={{ position: 'relative', color: T.accent }}>{t(c.eyebrow)}</p>
         <h1 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{t(c.topic)}</h1>
         <h2 className="title h-sub fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{t(c.global_q)}</h2>
-        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0, maxHeight: showOptions ? 0 : 300, opacity: showOptions ? 0 : 1, marginBottom: showOptions ? 'calc(-1 * clamp(12px, 2.2vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{t(c.lead)}</p>
+        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{t(c.lead)}</p>
         <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(14px, 2.5vw, 18px)' }}>
           <PriceTag value={12} unit={t(MIN)} size={showOptions ? 'md' : 'lg'}/>
           <span className="mono" style={{ fontSize: 'clamp(14px, 2.8vw, 18px)', color: T.ink3 }}>{lang === 'uz' ? 'va' : 'и'}</span>
           <PriceTag value={18} unit={t(MIN)} size={showOptions ? 'md' : 'lg'}/>
         </div>
-        <h2 className="title h-sub fade-up delay-2" style={{ position: 'relative', margin: 0 }}>{t(c.question)}</h2>
         {showOptions && (
-          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[{ id: 'yes', label: c.opt_yes }, { id: 'no', label: c.opt_no }, { id: 'idk', label: c.opt_idk }].map(opt => (
-              <button key={opt.id} className="option" disabled={picked !== null} onClick={() => pick(opt.id)} style={{ padding: 'clamp(13px, 1.9vw, 15px) clamp(16px, 2.5vw, 20px)', fontSize: 'clamp(15px, 1.9vw, 15px)' }}>{t(opt.label)}</button>
-            ))}
+          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn" disabled={picked !== null} onClick={() => pick('start')}>
+              {lang === 'uz' ? 'Tushuntirishni boshlash' : 'Начать объяснение'}
+            </button>
           </div>
         )}
       </div>
@@ -2476,7 +2513,7 @@ export default function LcmLesson({
 }) {
   useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
-  const [previewLang, setPreviewLang] = useState('ru');
+  const [previewLang, setPreviewLang] = useState('uz');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
@@ -2506,7 +2543,7 @@ export default function LcmLesson({
     safeOnFinished(payload);
   }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const screens = [Screen0, Screen2, Screen3, Screen1, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
   const CurrentScreen = screens[current];
 
   const navLockRef = useRef(0);

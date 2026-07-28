@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from 'react';
+import { normalizeTtsColons } from './ttsMathColon.js';
 // УРОК: Умножение десятичных дробей — dec_5_05
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
@@ -67,8 +68,16 @@ const NUM_WORDS = {
 const numberToWords = (value, lang) => {
   const n = Number(value);
   const words = NUM_WORDS[lang] || NUM_WORDS.uz;
-  if (!Number.isInteger(n) || n < 0 || n > 999) return String(value);
+  if (!Number.isInteger(n) || n < 0 || n > 999999) return String(value);
   if (Object.prototype.hasOwnProperty.call(words, n)) return words[n];
+  if (n >= 1000) {
+    const thousands = Math.floor(n / 1000);
+    const rest = n % 1000;
+    const thousandPart = lang === 'ru'
+      ? `${numberToWords(thousands, lang)} тысяч`
+      : `${numberToWords(thousands, lang)} ming`;
+    return rest ? `${thousandPart} ${numberToWords(rest, lang)}` : thousandPart;
+  }
   if (n < 20 && lang === 'uz') return `${words[10]} ${words[n - 10]}`;
   if (n < 100) return `${words[Math.floor(n / 10) * 10]} ${words[n % 10]}`.trim();
   const hundred = lang === 'ru'
@@ -90,18 +99,17 @@ const toTtsMath = (text, lang) => {
         .replace(/\bqism\b/gi, "bo'lak")
     : stripAudioTags(String(text || ''));
   const clean = pronunciationSafe.replace(
-    /\b(\d{1,3})\s*:\s*(\d{1,3})\s*=\s*(\d{1,3})\b/g,
+    /\b(\d{1,6})\s*:\s*(\d{1,6})\s*=\s*(\d{1,6})\b/g,
     (_, a, b, c) => lang === 'ru'
       ? `${numberToWords(a, lang)} разделить на ${numberToWords(b, lang)} равно ${numberToWords(c, lang)}`
       : `${numberToWords(a, lang)}ni ${numberToWords(b, lang)}ga bo'lsak, ${numberToWords(c, lang)} chiqadi`
   );
-  return clean
+  return normalizeTtsColons(clean, { divisionWord: ops.div })
     .replace(/\s*·\s*/g, ops.mul)
-    .replace(/\s+:\s+/g, ops.div)
     .replace(/\s*=\s*/g, ops.eq)
     .replace(/\s*\+\s*/g, ops.plus)
     .replace(/\s*[−–]\s*/g, ops.minus)
-    .replace(/\b\d{1,3}\b/g, (m) => numberToWords(m, lang))
+    .replace(/\b\d{1,6}\b/g, (m) => numberToWords(m, lang))
     .replace(/\s{2,}/g, ' ')
     .trim();
 };
@@ -114,6 +122,18 @@ function buildTtsUrl(base, text, gender) {
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = 'm'; // v5.5-male: erkak ovoz qattiq qulflangan
   return `${base}/api/tts?text=${enc}&g=${g}`;
+}
+
+function pickPreviewVoice(synth, lang) {
+  const voices = synth.getVoices?.() || [];
+  const prefixes = lang === 'uz'
+    ? ['uz', 'tr', 'az', 'en']
+    : (lang === 'en' ? ['en'] : ['ru']);
+  for (const prefix of prefixes) {
+    const voice = voices.find((item) => String(item.lang || '').toLowerCase().startsWith(prefix));
+    if (voice) return voice;
+  }
+  return null;
 }
 
 // SFX — короткие звуки верно/неверно, URL из ttsConfig (correctSoundUrl/wrongSoundUrl).
@@ -404,6 +424,8 @@ class AudioEngine {
     const u = new SpeechSynthesisUtterance(clean);
     const lang = segment.lang || this.currentLang;
     u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
+    const voice = pickPreviewVoice(synth, lang);
+    if (voice) u.voice = voice;
     u.rate = 0.95; u.pitch = 1.0;
     u.onstart = () => {
       this.isStarting = false;
@@ -499,7 +521,15 @@ class AudioEngine {
     if (!text || this.muted) return null;
     this._oneOffSeq = (this._oneOffSeq || 0) + 1;
     const segmentId = id || `oneoff_${this._oneOffSeq}`;
-    this.queue.push({ id: segmentId, text, trigger: 'manual', waits_for: null, g: gender, pauseAfterMs });
+    this.queue.push({
+      id: segmentId,
+      text: toTtsMath(text, this.currentLang),
+      lang: this.currentLang,
+      trigger: 'manual',
+      waits_for: null,
+      g: gender,
+      pauseAfterMs,
+    });
     // Ekran endigina ochilib, 300 ms boshlash taymeri hali ishlamagan bo'lishi
     // mumkin. Feedbackni navbat oxiriga qo'shamiz, lekin introni tashlab ketmaymiz
     // va taymer keyin navbatni ikkinchi marta boshidan qayta yoqmaydi.
@@ -554,7 +584,15 @@ function useAudio(segments) {
   // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
   const segmentsKey = segments ? JSON.stringify(segments) : '';
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stableSegments = useMemo(() => segments, [segmentsKey]);
+  const stableSegments = useMemo(
+    () => segments?.map((segment) => ({
+      ...segment,
+      lang,
+      text: toTtsMath(segment.text, lang),
+    })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [segmentsKey, lang],
+  );
 
   useEffect(() => {
     const engine = getAudioEngine();
@@ -1060,9 +1098,9 @@ const LESSON_META = {
 
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0  (ikki hisob, RASM)
-  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (umumiy bo'luvchi, ENG OSON, RASM)
   { id: 's2',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 2  (ikki ro'yxat -> umumiylari -> eng kattasi)
   { id: 's3',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 3  (EKUB ta'rifi)
+  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (umumiy bo'luvchi, ENG OSON, RASM)
   { id: 's4',  type: 'test',        template: 'QuestionScreen', scored: true,  scope: 'practice' }, // 4  (16 va 24, RASM)
   { id: 's5',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 5  (yoyilma orqali tez usul + fakt)
   { id: 's6',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 6  (ikki usul yonma-yon)
@@ -1087,7 +1125,7 @@ const CONTENT = {
     opt_no: { ru: 'Пока не знаю', uz: 'Hozircha bilmayman' },
     opt_idk: { ru: 'Хочу разобраться', uz: "O'rganmoqchiman" },
     audio: {
-      intro: { ru: 'Раньше мы делили один счёт. Теперь счетов два: двенадцать тысяч за обед и восемнадцать тысяч за такси. Компания хочет разделить поровну и то, и другое, но людей должно быть одинаковое число. Двое подойдут, трое тоже. А сколько максимум? Главный вопрос урока: как найти самое большое число, которое делит сразу два числа? Как думаешь, сколько человек может быть максимум?', uz: "Ilgari bitta hisobni bo'lardik. Endi hisob ikkita: tushlik uchun o'n ikki ming va taksi uchun o'n sakkiz ming. Kompaniya ikkalasini ham teng bo'lmoqchi, lekin odam soni bir xil bo'lishi kerak. Ikki kishi to'g'ri keladi, uch kishi ham. Eng ko'pi bilan-chi? Darsning asosiy savoli: ikki sonni birdan bo'ladigan eng katta sonni qanday topamiz? Nima deb o'ylaysiz, eng ko'pi bilan necha kishi bo'lishi mumkin?" },
+      intro: { ru: 'Раньше мы делили один счёт. Теперь счетов два: двенадцать тысяч за обед и восемнадцать тысяч за такси. Оба счёта нужно разделить поровну между одинаковым числом людей. Сначала разберём понятия общего делителя и наибольшего общего делителя, затем изучим способы вычисления и решим эту жизненную задачу.', uz: "Ilgari bitta hisobni bo'lardik. Endi hisob ikkita: tushlik uchun o'n ikki ming va taksi uchun o'n sakkiz ming. Ikkala hisobni ham bir xil sondagi odamlarga teng bo'lish kerak. Avval umumiy bo'luvchi va eng katta umumiy bo'luvchi tushunchalarini o'rganamiz, keyin hisoblash usullarini ko'rib, shu hayotiy masalani yechamiz." },
       on_correct: { ru: 'Тогда разберёмся.', uz: 'Unda aniqlab olamiz.' },
       on_wrong: { ru: 'Тогда разберёмся.', uz: 'Unda aniqlab olamiz.' }
     }
@@ -1096,7 +1134,7 @@ const CONTENT = {
   s1: {
     eyebrow: { ru: 'Начнём с простого', uz: 'Oddiydan boshlaymiz' },
     bridge: { ru: 'Сначала самый лёгкий случай.', uz: 'Avval eng oson holat.' },
-    question: { ru: 'Какое число делит без остатка и 8, и 12?', uz: "Qaysi son 8 ni ham, 12 ni ham qoldiqsiz bo'ladi?" },
+    question: { ru: 'Какое число делит без остатка и 8, и 12?', uz: "8 ham, 12 ham qaysi songa qoldiqsiz bo'linadi?" },
     opt0: { ru: '3', uz: '3' },
     opt1: { ru: '4', uz: '4' },
     opt2: { ru: '5', uz: '5' },
@@ -1107,7 +1145,7 @@ const CONTENT = {
     wrong_2: { ru: 'Ни 8, ни 12 на 5 не делятся — у них последняя цифра не 0 и не 5.', uz: "8 ham, 12 ham 5 ga bo'linmaydi — ularning oxirgi raqami 0 ham, 5 ham emas." },
     wrong_3: { ru: '12 на 6 делится, а 8 — нет: 8 = 6 · 1 + 2.', uz: "12 soni 6 ga bo'linadi, 8 esa yo'q: 8 = 6 · 1 + 2." },
     audio: {
-      intro: { ru: 'Начнём с простого. Какое число делит без остатка и восемь, и двенадцать? Выбери ответ.', uz: "Oddiydan boshlaymiz. Qaysi son sakkizni ham, o'n ikkini ham qoldiqsiz bo'ladi? Javobni tanlang." },
+      intro: { ru: 'Начнём с простого. Какое число делит без остатка и восемь, и двенадцать? Выбери ответ.', uz: "Oddiydan boshlaymiz. Sakkiz ham, o'n ikki ham qaysi songa qoldiqsiz bo'linadi? Javobni tanlang." },
       on_correct: { ru: 'Верно. Это общий делитель.', uz: "To'g'ri. Bu umumiy bo'luvchi." },
       on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
     }
@@ -1136,9 +1174,9 @@ const CONTENT = {
   s3: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     title: { ru: 'Наибольший общий делитель', uz: "Eng katta umumiy bo'luvchi" },
-    rule_1: { ru: 'Общий делитель — число, которое делит оба числа без остатка. У 12 и 18 это 1, 2, 3 и 6.', uz: "Umumiy bo'luvchi — ikkala sonni ham qoldiqsiz bo'ladigan son. 12 va 18 uchun bular 1, 2, 3 va 6." },
+    rule_1: { ru: 'Общий делитель — число, которое делит оба числа без остатка. У 12 и 18 это 1, 2, 3 и 6.', uz: "Umumiy bo'luvchi — berilgan sonlarning har biri unga qoldiqsiz bo'linadigan son. 12 va 18 uchun bular 1, 2, 3 va 6." },
     rule_2: { ru: 'Самый большой из них называют НОД. Пишут так: НОД(12; 18) = 6.', uz: "Ulardan eng kattasi EKUB deyiladi. Shunday yoziladi: EKUB(12; 18) = 6." },
-    audio: { ru: 'Запомним правило. Общий делитель это число, которое делит оба числа без остатка. У двенадцати и восемнадцати это один, два, три и шесть. Самый большой из них называют наибольшим общим делителем, сокращённо НОД. Пишут: НОД от двенадцати и восемнадцати равен шести.', uz: "Qoidani eslab qolamiz. Umumiy bo'luvchi bu ikkala sonni ham qoldiqsiz bo'ladigan son. O'n ikki va o'n sakkiz uchun bular bir, ikki, uch va olti. Ulardan eng kattasi eng katta umumiy bo'luvchi deyiladi, qisqacha EKUB. Shunday yoziladi: o'n ikki va o'n sakkizning EKUBi oltiga teng." }
+    audio: { ru: 'Запомним правило. Общий делитель это число, которое делит оба числа без остатка. У двенадцати и восемнадцати это один, два, три и шесть. Самый большой из них называют наибольшим общим делителем, сокращённо НОД. Пишут: НОД от двенадцати и восемнадцати равен шести.', uz: "Qoidani eslab qolamiz. Umumiy bo'luvchi — berilgan sonlarning har biri unga qoldiqsiz bo'linadigan son. O'n ikki va o'n sakkiz uchun bular bir, ikki, uch va olti. Ulardan eng kattasi eng katta umumiy bo'luvchi deyiladi, qisqacha EKUB. Shunday yoziladi: o'n ikki va o'n sakkizning EKUBi oltiga teng." }
   },
 
   s4: {
@@ -2062,18 +2100,17 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
         <p className="eyebrow fade-up" style={{ position: 'relative', color: T.accent }}>{t(c.eyebrow)}</p>
         <h1 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{t(c.topic)}</h1>
         <h2 className="title h-sub fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{t(c.global_q)}</h2>
-        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0, maxHeight: showOptions ? 0 : 300, opacity: showOptions ? 0 : 1, marginBottom: showOptions ? 'calc(-1 * clamp(12px, 2.2vw, 18px))' : 0, overflow: 'hidden', transition: 'opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>{t(c.lead)}</p>
+        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{t(c.lead)}</p>
         <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(14px, 2.5vw, 18px)' }}>
           <PriceTag value={12} unit={t(UNIT)} size={showOptions ? 'md' : 'lg'}/>
           <span className="mono" style={{ fontSize: 'clamp(14px, 2.8vw, 18px)', color: T.ink3 }}>{lang === 'uz' ? 'va' : 'и'}</span>
           <PriceTag value={18} unit={t(UNIT)} size={showOptions ? 'md' : 'lg'}/>
         </div>
-        <h2 className="title h-sub fade-up delay-2" style={{ position: 'relative', margin: 0 }}>{t(c.question)}</h2>
         {showOptions && (
-          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[{ id: 'yes', label: c.opt_yes }, { id: 'no', label: c.opt_no }, { id: 'idk', label: c.opt_idk }].map(opt => (
-              <button key={opt.id} className="option" disabled={picked !== null} onClick={() => pick(opt.id)} style={{ padding: 'clamp(13px, 1.9vw, 15px) clamp(16px, 2.5vw, 20px)', fontSize: 'clamp(15px, 1.9vw, 15px)' }}>{t(opt.label)}</button>
-            ))}
+          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
+            <button className="btn" disabled={picked !== null} onClick={() => pick('start')}>
+              {lang === 'uz' ? 'Tushuntirishni boshlash' : 'Начать объяснение'}
+            </button>
           </div>
         )}
       </div>
@@ -2455,7 +2492,7 @@ export default function GcdLesson({
 }) {
   useMobileZoom();
   const isPreview = (langProp === undefined || langProp === null);
-  const [previewLang, setPreviewLang] = useState('ru');
+  const [previewLang, setPreviewLang] = useState('uz');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
@@ -2485,7 +2522,7 @@ export default function GcdLesson({
     safeOnFinished(payload);
   }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const screens = [Screen0, Screen2, Screen3, Screen1, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
   const CurrentScreen = screens[current];
 
   const navLockRef = useRef(0);

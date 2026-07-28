@@ -267,11 +267,11 @@ const LESSON = {
         L("Hosil bo'lgan ko'paytma qisqartirilib, natija tekshiriladi.", 'Полученное произведение сокращается, а результат проверяется.'),
       ],
       close: L(
-        "Endi oddiy kasrlarni teskari kasr yordamida to'g'ri bo'la olasiz.",
+        "Endi oddiy kasrlarni teskari kasr yordamida to'g'ri bo'lishni bajara olasiz.",
         'Теперь вы умеете правильно делить обыкновенные дроби с помощью обратной дроби.',
       ),
       audio: L(
-        "Kasrlarni bo'lishni o'rgandingiz. Birinchi kasr o'zgarishsiz qoladi. Bo'lish ko'paytirishga almashtiriladi va ikkinchi kasr teskarilanadi. Hosil bo'lgan ko'paytma qisqartirilib, natija tekshiriladi. Endi oddiy kasrlarni teskari kasr yordamida to'g'ri bo'la olasiz.",
+        "Kasrlarni bo'lishni o'rgandingiz. Birinchi kasr o'zgarishsiz qoladi. Bo'lish ko'paytirishga almashtiriladi va ikkinchi kasr teskarilanadi. Hosil bo'lgan ko'paytma qisqartirilib, natija tekshiriladi. Endi oddiy kasrlarni teskari kasr yordamida to'g'ri bo'lishni bajara olasiz.",
         'Вы научились делить дроби. Первая дробь остаётся без изменения. Деление заменяется умножением, а вторая дробь переворачивается. Полученное произведение сокращается, затем результат проверяется. Теперь вы умеете правильно делить обыкновенные дроби с помощью обратной дроби.',
       ),
     },
