@@ -7129,8 +7129,15 @@ button { font: inherit; }
   .unlock-guide-step > span { width: 19px; height: 19px; font-size: 8px; }
   .unlock-guide-step > i { font-size: 17px; }
   .unlock-guide-step p { font-size: 8px; line-height: 1.18; }
-  .summary-action-layout { grid-template-columns: 1fr; grid-auto-rows: 1fr; gap: 6px; }
-  .summary-rule-strip { padding: 8px; }
+  .summary-action-layout {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    align-items: start;
+    gap: 6px;
+  }
+  .summary-rule-strip,
+  .summary-card { height: auto; }
+  .summary-rule-strip { min-height: 0; padding: 8px; }
   .summary-rule-strip h2 { margin: 0; font-size: 12px; }
   .summary-rule-heading { margin-bottom: 5px; gap: 5px; }
   .summary-rule-heading > span { min-width: 47px; padding: 4px 6px; font-size: 9px; }
