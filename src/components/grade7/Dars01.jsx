@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import './Dars01.css'
 
-const TOTAL = 6
+const TOTAL = 16
 
 const COPY = [
   {
@@ -61,6 +61,86 @@ const COPY = [
     intro: {
       ru: 'Остались сложение и вычитание. Они тоже равноправны: сначала левое действие, затем следующее.',
       uz: 'Qo‘shish va ayirish qoldi. Ular ham teng: avval chapdagi amalni, keyin navbatdagisini bajaramiz.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Способ 2 · школьная запись', uz: '2-usul · maktab yozuvi' },
+    title: { ru: 'Ставим номера над действиями', uz: 'Amallar ustiga raqam qo‘yamiz' },
+    intro: {
+      ru: 'Второй школьный способ — заранее обозначить порядок. Нажимай кнопку: номера появятся над действиями от первого к последнему.',
+      uz: 'Ikkinchi maktab usuli — tartibni oldindan belgilash. Tugmani bosing: raqamlar amallar ustida birinchidan oxirigacha paydo bo‘ladi.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Способ 2 · вычисляем', uz: '2-usul · hisoblaymiz' },
+    title: { ru: 'Решаем строго по номерам', uz: 'Raqamlar bo‘yicha yechamiz' },
+    intro: {
+      ru: 'Номера уже расставлены. Нажимай их по порядку и следи, какое вычисление соответствует каждому номеру.',
+      uz: 'Raqamlar qo‘yildi. Ularni tartib bilan bosing va har bir raqamga qaysi hisob mos kelishini kuzating.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Тренировка · первый шаг', uz: 'Mashq · birinchi qadam' },
+    title: { ru: 'С чего начнём?', uz: 'Nimadan boshlaymiz?' },
+    intro: {
+      ru: 'Выбери первое действие. Ищи скобки раньше действий вне скобок.',
+      uz: 'Birinchi amalni tanlang. Avval qavs ichidagi amalni izlang.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Тренировка · порядок', uz: 'Mashq · tartib' },
+    title: { ru: 'Собери цепочку действий', uz: 'Amallar zanjirini tuzing' },
+    intro: {
+      ru: 'Нажимай вычисления в правильном порядке. При равном приоритете двигайся слева направо.',
+      uz: 'Hisoblarni to‘g‘ri tartibda bosing. Ustuvorlik teng bo‘lsa, chapdan o‘ngga yuring.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Тренировка · типовой пример', uz: 'Mashq · odatiy misol' },
+    title: { ru: 'Найди значение выражения', uz: 'Ifoda qiymatini toping' },
+    intro: {
+      ru: 'Сначала скобки, затем умножение, после этого вычитание. Выбери ответ.',
+      uz: 'Avval qavs, keyin ko‘paytirish, so‘ng ayirish. Javobni tanlang.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Тренировка · найди ошибку', uz: 'Mashq · xatoni toping' },
+    title: { ru: 'Какое решение верное?', uz: 'Qaysi yechim to‘g‘ri?' },
+    intro: {
+      ru: 'Сравни две короткие записи. Верное решение соблюдает приоритет деления.',
+      uz: 'Ikki qisqa yozuvni solishtiring. To‘g‘ri yechim bo‘lish ustuvorligini saqlaydi.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Тренировка · с подсказкой', uz: 'Mashq · ko‘rsatma bilan' },
+    title: { ru: 'Проведи выражение по шагам', uz: 'Ifodani bosqichma-bosqich yeching' },
+    intro: {
+      ru: 'На каждом этапе выбирай только следующее действие. Выражение будет становиться короче.',
+      uz: 'Har bosqichda faqat keyingi amalni tanlang. Ifoda qisqarib boradi.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Тренировка · равный приоритет', uz: 'Mashq · teng ustuvorlik' },
+    title: { ru: 'Не складывай раньше времени', uz: 'Vaqtidan oldin qo‘shmang' },
+    intro: {
+      ru: 'Сложение и вычитание равноправны. Определи первое действие по направлению слева направо.',
+      uz: 'Qo‘shish va ayirish teng. Birinchi amalni chapdan o‘ngga qarab aniqlang.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Тренировка · самостоятельно', uz: 'Mashq · mustaqil' },
+    title: { ru: 'Теперь реши сам', uz: 'Endi o‘zingiz yeching' },
+    intro: {
+      ru: 'Реши без таймера и введи только итоговый ответ. После проверки увидишь короткую цепочку.',
+      uz: 'Taymersiz yeching va faqat yakuniy javobni kiriting. Tekshiruvdan keyin qisqa zanjirni ko‘rasiz.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Возвращаемся к гипотезе', uz: 'Taxminga qaytamiz' },
+    title: { ru: 'Первый пример раскрыт', uz: 'Birinchi misol yechildi' },
+    intro: {
+      ru: 'Сравни первую версию с ответом сто двадцать четыре. Главное — теперь ты можешь объяснить каждый шаг.',
+      uz: 'Birinchi javobni bir yuz yigirma to‘rt bilan solishtiring. Muhimi — endi har bir qadamni tushuntira olasiz.',
     },
   },
 ]
@@ -468,7 +548,6 @@ const RULE_STEPS = [
       uz: 'Birinchi bosqich — qavslar. Ichkaridan tashqariga hisoblaymiz. Yetti minus to‘rt uchga teng. O‘n besh minus to‘qqiz oltiga teng. Keyin ikki ko‘paytiruv uch oltiga teng.',
     },
     focus: 'brackets',
-    resultExpression: '120 − 84 : 6 + 3 · 6',
   },
   {
     id: 'multdiv',
@@ -493,7 +572,6 @@ const RULE_STEPS = [
       uz: 'Ikkinchi bosqich — ko‘paytirish va bo‘lishni chapdan o‘ngga bajaramiz. Avval sakson to‘rtni oltiga bo‘lamiz, o‘n to‘rt chiqadi. Keyin uchni oltiga ko‘paytiramiz, o‘n sakkiz chiqadi.',
     },
     focus: 'multdiv',
-    resultExpression: '120 − 14 + 18',
   },
   {
     id: 'plusminus',
@@ -518,55 +596,17 @@ const RULE_STEPS = [
       uz: 'Uchinchi bosqich — qo‘shish va ayirishni chapdan o‘ngga bajaramiz. Bir yuz yigirma minus o‘n to‘rt bir yuz oltiga teng. Keyin bir yuz olti plus o‘n sakkiz bir yuz yigirma to‘rtga teng.',
     },
     focus: 'plusminus',
-    resultExpression: '124',
   },
 ]
-
-function RuleExpressionStage({ step, run, lang }) {
-  const [revealedRun, setRevealedRun] = useState(null)
-
-  useEffect(() => {
-    if (!step) return undefined
-    const timer = window.setTimeout(() => setRevealedRun(run), 950)
-    return () => window.clearTimeout(timer)
-  }, [run, step])
-
-  const showResult = Boolean(step) && revealedRun === run
-  const stateKey = !step ? 'initial' : showResult ? `${step.id}-result` : `${step.id}-focus`
-
-  return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        className="g7w-rule-expression-state"
-        key={stateKey}
-        initial={{ opacity: 0, y: 9, scale: 0.99, filter: 'blur(3px)' }}
-        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-        exit={{ opacity: 0, y: -8, scale: 0.992, filter: 'blur(2px)' }}
-        transition={{ duration: 0.68, ease: [0.22, 1, 0.36, 1] }}
-      >
-        {showResult ? (
-          <div className={`g7w-rule-result-state ${step.resultExpression === '124' ? 'is-answer' : ''}`}>
-            <small>{textOf({ ru: 'После вычисления', uz: 'Hisoblangandan keyin' }, lang)}</small>
-            <strong>{step.resultExpression}</strong>
-          </div>
-        ) : (
-          <MathExpression focus={step?.focus} />
-        )}
-      </motion.div>
-    </AnimatePresence>
-  )
-}
 
 function RuleScreen({ lang, speak, onRecord }) {
   const [active, setActive] = useState(null)
   const [visited, setVisited] = useState([])
-  const [animationRun, setAnimationRun] = useState(0)
   const activeStep = RULE_STEPS.find((step) => step.id === active)
   const nextId = RULE_STEPS.find((step) => !visited.includes(step.id))?.id ?? null
 
   const choose = (step) => {
     setActive(step.id)
-    setAnimationRun((value) => value + 1)
     const completesRule = !visited.includes(step.id)
       && visited.length + 1 === RULE_STEPS.length
     setVisited((previous) => {
@@ -586,8 +626,8 @@ function RuleScreen({ lang, speak, onRecord }) {
           <strong>{textOf({ ru: 'Нажимай по порядку', uz: 'Tartib bilan bosing' }, lang)}</strong>
         </div>
 
-        <div className="g7w-expression-window g7w-expression-window-compact" aria-live="polite">
-          <RuleExpressionStage step={activeStep} run={animationRun} lang={lang} />
+        <div className="g7w-expression-window g7w-expression-window-compact">
+          <MathExpression focus={activeStep?.focus} />
         </div>
 
         <div className="g7w-rule-list">
@@ -897,6 +937,726 @@ const BracketLinesScreen = (props) => <LineMethodScreen {...props} config={LINE_
 const MultiplyDivideLinesScreen = (props) => <LineMethodScreen {...props} config={LINE_METHOD_SCREENS[1]} />
 const AddSubtractLinesScreen = (props) => <LineMethodScreen {...props} config={LINE_METHOD_SCREENS[2]} />
 
+const NUMBERED_STEPS = [
+  {
+    order: 1,
+    action: '(7 − 4) = 3',
+    speech: {
+      ru: 'Первым выполняем самое внутреннее действие: семь минус четыре равно три.',
+      uz: 'Birinchi eng ichki amalni bajaramiz: yetti minus to‘rt uchga teng.',
+    },
+  },
+  {
+    order: 2,
+    action: '(15 − 9) = 6',
+    speech: {
+      ru: 'Вторым вычисляем независимую круглую скобку: пятнадцать минус девять равно шесть.',
+      uz: 'Ikkinchi mustaqil dumaloq qavsni hisoblaymiz: o‘n besh minus to‘qqiz oltiga teng.',
+    },
+  },
+  {
+    order: 3,
+    action: '2 · 3 = 6',
+    speech: {
+      ru: 'Третьим завершаем квадратные скобки: два умножить на три равно шесть.',
+      uz: 'Uchinchi kvadrat qavsni yakunlaymiz: ikki ko‘paytiruv uch oltiga teng.',
+    },
+  },
+  {
+    order: 4,
+    action: '84 : 6 = 14',
+    speech: {
+      ru: 'Четвёртое действие — деление: восемьдесят четыре разделить на шесть равно четырнадцать.',
+      uz: 'To‘rtinchi amal — bo‘lish: sakson to‘rtni oltiga bo‘lsak, o‘n to‘rt chiqadi.',
+    },
+  },
+  {
+    order: 5,
+    action: '3 · 6 = 18',
+    speech: {
+      ru: 'Пятое действие — умножение: три умножить на шесть равно восемнадцать.',
+      uz: 'Beshinchi amal — ko‘paytirish: uch ko‘paytiruv olti o‘n sakkizga teng.',
+    },
+  },
+  {
+    order: 6,
+    action: '120 − 14 = 106',
+    speech: {
+      ru: 'Шестым выполняем вычитание слева: сто двадцать минус четырнадцать равно сто шесть.',
+      uz: 'Oltinchi chapdagi ayirishni bajaramiz: bir yuz yigirma minus o‘n to‘rt bir yuz oltiga teng.',
+    },
+  },
+  {
+    order: 7,
+    action: '106 + 18 = 124',
+    speech: {
+      ru: 'Седьмое действие последнее: сто шесть плюс восемнадцать равно сто двадцать четыре.',
+      uz: 'Yettinchi amal oxirgi: bir yuz olti plus o‘n sakkiz bir yuz yigirma to‘rtga teng.',
+    },
+  },
+]
+
+function NumberedOp({ order, visibleCount, activeOrder, children }) {
+  const visible = order <= visibleCount
+  return (
+    <span className={`g7w-numbered-op ${visible ? 'is-visible' : ''} ${activeOrder === order ? 'is-active' : ''}`}>
+      <AnimatePresence>
+        {visible && (
+          <motion.i
+            key={order}
+            initial={{ opacity: 0, y: 8, scale: 0.55 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.52, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {order}
+          </motion.i>
+        )}
+      </AnimatePresence>
+      <b>{children}</b>
+    </span>
+  )
+}
+
+function NumberedExpression({ visibleCount = 7, activeOrder = null }) {
+  const op = (order, symbol) => (
+    <NumberedOp order={order} visibleCount={visibleCount} activeOrder={activeOrder}>
+      {symbol}
+    </NumberedOp>
+  )
+
+  return (
+    <div className="g7w-numbered-expression" aria-label="Порядок действий в исходном выражении">
+      <span>120</span>
+      {op(6, '−')}
+      <span>84</span>
+      {op(4, ':')}
+      <span>[</span>
+      <span>2</span>
+      {op(3, '·')}
+      <span>(</span>
+      <span>7</span>
+      {op(1, '−')}
+      <span>4</span>
+      <span>)</span>
+      <span>]</span>
+      {op(7, '+')}
+      <span>3</span>
+      {op(5, '·')}
+      <span>(</span>
+      <span>15</span>
+      {op(2, '−')}
+      <span>9</span>
+      <span>)</span>
+    </div>
+  )
+}
+
+function NumberingScreen({ lang, speak, onRecord }) {
+  const [visibleCount, setVisibleCount] = useState(0)
+  const activeStep = NUMBERED_STEPS[visibleCount - 1]
+
+  const revealNext = () => {
+    const nextCount = Math.min(NUMBERED_STEPS.length, visibleCount + 1)
+    const nextStep = NUMBERED_STEPS[nextCount - 1]
+    setVisibleCount(nextCount)
+    speak(textOf(nextStep.speech, lang))
+    if (nextCount === NUMBERED_STEPS.length) onRecord({ numberingComplete: true })
+  }
+
+  return (
+    <div className="g7w-screen">
+      <ScreenHeading screen={6} lang={lang} />
+      <section className="g7w-frame g7w-numbering-frame">
+        <div className="g7w-frame-instruction">
+          <span>{visibleCount === NUMBERED_STEPS.length
+            ? <Check size={14} />
+            : String(Math.max(1, visibleCount + 1)).padStart(2, '0')}</span>
+          <strong>{textOf({ ru: 'Показывай порядок по одному номеру', uz: 'Tartibni bittadan ko‘rsating' }, lang)}</strong>
+        </div>
+
+        <div className="g7w-expression-window g7w-number-window">
+          <NumberedExpression visibleCount={visibleCount} activeOrder={activeStep?.order} />
+        </div>
+
+        <div className="g7w-number-focus" aria-live="polite">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeStep?.order ?? 'start'}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.46 }}
+            >
+              {activeStep ? (
+                <>
+                  <span>{activeStep.order}</span>
+                  <small>{textOf({ ru: 'Сейчас считаем', uz: 'Hozir hisoblaymiz' }, lang)}</small>
+                  <strong>{activeStep.action}</strong>
+                </>
+              ) : (
+                <>
+                  <span>1</span>
+                  <small>{textOf({ ru: 'Первый номер', uz: 'Birinchi raqam' }, lang)}</small>
+                  <strong>{textOf({ ru: 'ищем внутри самых глубоких скобок', uz: 'eng ichki qavsdan izlaymiz' }, lang)}</strong>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <button
+          type="button"
+          className="g7w-primary g7w-number-next"
+          onClick={revealNext}
+          disabled={visibleCount === NUMBERED_STEPS.length}
+        >
+          {visibleCount === NUMBERED_STEPS.length
+            ? textOf({ ru: 'Порядок готов', uz: 'Tartib tayyor' }, lang)
+            : textOf({ ru: 'Показать следующий номер', uz: 'Keyingi raqamni ko‘rsatish' }, lang)}
+          {visibleCount === NUMBERED_STEPS.length ? <Check size={17} /> : <ArrowRight size={17} />}
+        </button>
+      </section>
+    </div>
+  )
+}
+
+function NumberedSolutionScreen({ lang, speak, onRecord }) {
+  const [activeOrder, setActiveOrder] = useState(null)
+  const [visited, setVisited] = useState([])
+  const activeStep = NUMBERED_STEPS.find((step) => step.order === activeOrder)
+  const nextOrder = NUMBERED_STEPS.find((step) => !visited.includes(step.order))?.order
+
+  const choose = (step) => {
+    setActiveOrder(step.order)
+    const completes = !visited.includes(step.order)
+      && visited.length + 1 === NUMBERED_STEPS.length
+    setVisited((previous) => (
+      previous.includes(step.order) ? previous : [...previous, step.order]
+    ))
+    speak(textOf(step.speech, lang))
+    if (completes) onRecord({ numberedSolutionExplored: true })
+  }
+
+  return (
+    <div className="g7w-screen">
+      <ScreenHeading screen={7} lang={lang} />
+      <section className="g7w-frame g7w-number-solution-frame">
+        <div className="g7w-expression-window g7w-number-window">
+          <NumberedExpression visibleCount={7} activeOrder={activeOrder} />
+        </div>
+
+        <div className="g7w-number-tabs" aria-label={textOf({ ru: 'Номера действий', uz: 'Amal raqamlari' }, lang)}>
+          {NUMBERED_STEPS.map((step) => (
+            <button
+              type="button"
+              key={step.order}
+              className={`${activeOrder === step.order ? 'is-active' : ''} ${visited.includes(step.order) ? 'is-visited' : ''} ${nextOrder === step.order ? 'is-awaited' : ''}`}
+              onClick={() => choose(step)}
+            >
+              {visited.includes(step.order) ? <Check size={14} /> : step.order}
+            </button>
+          ))}
+        </div>
+
+        <div className="g7w-number-calculation" aria-live="polite">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeOrder ?? 'prompt'}
+              initial={{ opacity: 0, y: 10, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -7 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <small>{activeStep
+                ? textOf({ ru: `Действие ${activeStep.order}`, uz: `${activeStep.order}-amal` }, lang)
+                : textOf({ ru: 'Начни с номера 1', uz: '1-raqamdan boshlang' }, lang)}</small>
+              <strong>{activeStep?.action ?? '(7 − 4) = ?'}</strong>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className={`g7w-method-result ${visited.length === 7 ? 'is-complete' : ''}`}>
+          <span>{textOf({ ru: 'Один порядок', uz: 'Bitta tartib' }, lang)}</span>
+          <strong>{visited.length === 7 ? '124' : '( ) → · : → + −'}</strong>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function PracticeFeedback({ status, prompt, success, error, lang }) {
+  const content = status === 'success' ? success : status === 'error' ? error : prompt
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        className={`g7w-practice-feedback is-${status ?? 'prompt'}`}
+        key={status ?? 'prompt'}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -6 }}
+        transition={{ duration: 0.42 }}
+        aria-live="polite"
+      >
+        <span>{status === 'success' ? <Check size={16} /> : status === 'error' ? '!' : '?'}</span>
+        <strong>{textOf(content, lang)}</strong>
+      </motion.div>
+    </AnimatePresence>
+  )
+}
+
+const CHOICE_PRACTICE = [
+  {
+    screen: 8,
+    expression: '48 − 24 : (9 − 5)',
+    prompt: { ru: 'Выбери первое действие', uz: 'Birinchi amalni tanlang' },
+    options: [
+      { id: 'subtract', label: '48 − 24' },
+      { id: 'bracket', label: '9 − 5' },
+      { id: 'divide', label: '24 : (9 − 5)' },
+    ],
+    correct: 'bracket',
+    success: { ru: 'Верно: (9 − 5) = 4. Скобки всегда раньше.', uz: 'To‘g‘ri: (9 − 5) = 4. Qavs har doim oldin.' },
+    error: { ru: 'Сначала загляни внутрь скобок.', uz: 'Avval qavs ichiga qarang.' },
+  },
+  {
+    screen: 10,
+    expression: '90 − 6 · (8 + 2)',
+    prompt: { ru: 'Какой ответ получится?', uz: 'Qanday javob chiqadi?' },
+    options: [
+      { id: '30', label: '30' },
+      { id: '36', label: '36' },
+      { id: '84', label: '84' },
+    ],
+    correct: '30',
+    success: { ru: '(8 + 2) = 10; 6 · 10 = 60; 90 − 60 = 30.', uz: '(8 + 2) = 10; 6 · 10 = 60; 90 − 60 = 30.' },
+    error: { ru: 'Проверь: скобки → умножение → вычитание.', uz: 'Tekshiring: qavs → ko‘paytirish → ayirish.' },
+  },
+  {
+    screen: 11,
+    expression: '64 − 24 : 6',
+    prompt: { ru: 'Выбери запись без ошибки', uz: 'Xatosiz yozuvni tanlang' },
+    options: [
+      { id: 'wrong', label: '64 − 24 : 6 = 40 : 6', long: true },
+      { id: 'right', label: '64 − 24 : 6 = 64 − 4 = 60', long: true },
+    ],
+    correct: 'right',
+    success: { ru: 'Верно: деление выполняется раньше вычитания.', uz: 'To‘g‘ri: bo‘lish ayirishdan oldin bajariladi.' },
+    error: { ru: 'Нельзя сначала вычитать 64 − 24.', uz: 'Avval 64 − 24 ni ayirish mumkin emas.' },
+  },
+  {
+    screen: 13,
+    expression: '100 − 36 + 12',
+    prompt: { ru: 'Какое действие будет первым?', uz: 'Qaysi amal birinchi?' },
+    options: [
+      { id: 'left', label: '100 − 36' },
+      { id: 'right', label: '36 + 12' },
+    ],
+    correct: 'left',
+    success: { ru: 'Верно: 100 − 36 = 64, затем 64 + 12 = 76.', uz: 'To‘g‘ri: 100 − 36 = 64, keyin 64 + 12 = 76.' },
+    error: { ru: 'При равном приоритете идём слева направо.', uz: 'Ustuvorlik teng bo‘lsa, chapdan o‘ngga yuramiz.' },
+  },
+]
+
+function ChoicePracticeScreen({ config, lang, speak, onRecord }) {
+  const [selected, setSelected] = useState(null)
+  const status = selected ? (selected === config.correct ? 'success' : 'error') : null
+
+  const choose = (option) => {
+    const isCorrect = option.id === config.correct
+    setSelected(option.id)
+    onRecord({ exercise: config.screen + 1, selected: option.id, correct: isCorrect })
+    speak(textOf(isCorrect ? config.success : config.error, lang))
+  }
+
+  return (
+    <div className="g7w-screen">
+      <ScreenHeading screen={config.screen} lang={lang} />
+      <section className="g7w-frame g7w-practice-frame">
+        <div className="g7w-frame-instruction">
+          <BookOpen size={18} />
+          <strong>{textOf(config.prompt, lang)}</strong>
+        </div>
+        <div className="g7w-expression-window g7w-practice-expression">
+          <strong>{config.expression}</strong>
+        </div>
+        <div className={`g7w-choice-grid is-${config.options.length}`}>
+          {config.options.map((option) => {
+            const isSelected = selected === option.id
+            const revealCorrect = selected && option.id === config.correct
+            return (
+              <button
+                type="button"
+                key={option.id}
+                className={`${option.long ? 'is-long' : ''} ${isSelected ? 'is-selected' : ''} ${revealCorrect ? 'is-correct' : ''} ${isSelected && !revealCorrect ? 'is-wrong' : ''}`}
+                onClick={() => choose(option)}
+              >
+                <span>{revealCorrect ? <Check size={16} /> : option.label}</span>
+                {revealCorrect && <strong>{option.label}</strong>}
+              </button>
+            )
+          })}
+        </div>
+        <PracticeFeedback
+          status={status}
+          prompt={config.prompt}
+          success={config.success}
+          error={config.error}
+          lang={lang}
+        />
+      </section>
+    </div>
+  )
+}
+
+const FirstActionPracticeScreen = (props) => <ChoicePracticeScreen {...props} config={CHOICE_PRACTICE[0]} />
+const TypicalPracticeScreen = (props) => <ChoicePracticeScreen {...props} config={CHOICE_PRACTICE[1]} />
+const ErrorPracticeScreen = (props) => <ChoicePracticeScreen {...props} config={CHOICE_PRACTICE[2]} />
+const EqualPriorityPracticeScreen = (props) => <ChoicePracticeScreen {...props} config={CHOICE_PRACTICE[3]} />
+
+const ORDER_STEPS = [
+  { id: 'divide', label: '72 : 8', result: '9 + 5 · 3' },
+  { id: 'multiply', label: '5 · 3', result: '9 + 15' },
+  { id: 'add', label: '9 + 15', result: '24' },
+]
+
+function OrderPracticeScreen({ lang, speak, onRecord }) {
+  const [completed, setCompleted] = useState([])
+  const [mistake, setMistake] = useState(false)
+  const currentExpression = completed.length ? ORDER_STEPS[completed.length - 1].result : '72 : 8 + 5 · 3'
+  const displayed = [ORDER_STEPS[1], ORDER_STEPS[0], ORDER_STEPS[2]]
+
+  const choose = (step) => {
+    if (completed.includes(step.id)) return
+    const expected = ORDER_STEPS[completed.length]
+    if (step.id !== expected.id) {
+      setMistake(true)
+      speak(textOf({ ru: 'Проверь приоритет и направление слева направо.', uz: 'Ustuvorlikni va chapdan o‘ngga yo‘nalishni tekshiring.' }, lang))
+      return
+    }
+    const next = [...completed, step.id]
+    setMistake(false)
+    setCompleted(next)
+    speak(textOf({ ru: `${step.label}. Верно, переходи к следующему действию.`, uz: `${step.label}. To‘g‘ri, keyingi amalga o‘ting.` }, lang))
+    onRecord({ exercise: 10, completed: next.length, correct: next.length === ORDER_STEPS.length })
+  }
+
+  return (
+    <div className="g7w-screen">
+      <ScreenHeading screen={9} lang={lang} />
+      <section className="g7w-frame g7w-practice-frame">
+        <div className="g7w-frame-instruction">
+          <span>{completed.length + 1 > 3 ? <Check size={14} /> : completed.length + 1}</span>
+          <strong>{textOf({ ru: 'Нажми следующее вычисление', uz: 'Keyingi hisobni bosing' }, lang)}</strong>
+        </div>
+        <div className="g7w-expression-window g7w-practice-expression">
+          <AnimatePresence mode="wait">
+            <motion.strong
+              key={currentExpression}
+              initial={{ opacity: 0, y: 9 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -7 }}
+              transition={{ duration: 0.48 }}
+              className={currentExpression === '24' ? 'is-answer' : ''}
+            >
+              {currentExpression}
+            </motion.strong>
+          </AnimatePresence>
+        </div>
+        <div className="g7w-order-options">
+          {displayed.map((step) => (
+            <button
+              type="button"
+              key={step.id}
+              className={completed.includes(step.id) ? 'is-complete' : ''}
+              onClick={() => choose(step)}
+            >
+              {completed.includes(step.id) ? <Check size={16} /> : null}
+              <strong>{step.label}</strong>
+            </button>
+          ))}
+        </div>
+        <PracticeFeedback
+          status={completed.length === 3 ? 'success' : mistake ? 'error' : null}
+          prompt={{ ru: 'Деление и умножение: слева направо.', uz: 'Bo‘lish va ko‘paytirish: chapdan o‘ngga.' }}
+          success={{ ru: 'Цепочка готова. Ответ: 24.', uz: 'Zanjir tayyor. Javob: 24.' }}
+          error={{ ru: 'Это действие пока рано выполнять.', uz: 'Bu amalni bajarishga hali erta.' }}
+          lang={lang}
+        />
+      </section>
+    </div>
+  )
+}
+
+const GUIDED_STAGES = [
+  {
+    expression: '96 : [2 · (7 − 3)] + 5',
+    correct: 'bracket',
+    options: [
+      { id: 'divide', label: '96 : 2' },
+      { id: 'bracket', label: '7 − 3' },
+      { id: 'add', label: '3 + 5' },
+    ],
+    next: '96 : [2 · 4] + 5',
+    reason: { ru: 'Сначала внутренняя скобка: 7 − 3 = 4.', uz: 'Avval ichki qavs: 7 − 3 = 4.' },
+  },
+  {
+    expression: '96 : [2 · 4] + 5',
+    correct: 'square',
+    options: [
+      { id: 'divide', label: '96 : 2' },
+      { id: 'square', label: '2 · 4' },
+      { id: 'add', label: '4 + 5' },
+    ],
+    next: '96 : 8 + 5',
+    reason: { ru: 'Завершаем квадратные скобки: 2 · 4 = 8.', uz: 'Kvadrat qavsni yakunlaymiz: 2 · 4 = 8.' },
+  },
+  {
+    expression: '96 : 8 + 5',
+    correct: 'divide',
+    options: [
+      { id: 'add', label: '8 + 5' },
+      { id: 'divide', label: '96 : 8' },
+    ],
+    next: '12 + 5',
+    reason: { ru: 'Деление раньше сложения: 96 : 8 = 12.', uz: 'Bo‘lish qo‘shishdan oldin: 96 : 8 = 12.' },
+  },
+  {
+    expression: '12 + 5',
+    correct: 'add',
+    options: [
+      { id: 'add', label: '12 + 5' },
+      { id: 'stop', label: 'Уже ответ' },
+    ],
+    next: '17',
+    reason: { ru: 'Последнее действие: 12 + 5 = 17.', uz: 'Oxirgi amal: 12 + 5 = 17.' },
+  },
+]
+
+function GuidedPracticeScreen({ lang, speak, onRecord }) {
+  const [stageIndex, setStageIndex] = useState(0)
+  const [selected, setSelected] = useState(null)
+  const [finished, setFinished] = useState(false)
+  const stage = GUIDED_STAGES[stageIndex]
+  const correct = selected === stage.correct
+  const shownExpression = finished || correct ? stage.next : stage.expression
+
+  const choose = (option) => {
+    setSelected(option.id)
+    const isCorrect = option.id === stage.correct
+    speak(textOf(isCorrect ? stage.reason : {
+      ru: 'Это действие пока не следующее. Проверь порядок.',
+      uz: 'Bu amal hozir keyingi emas. Tartibni tekshiring.',
+    }, lang))
+    onRecord({ exercise: 13, stage: stageIndex + 1, selected: option.id, correct: isCorrect })
+  }
+
+  const advance = () => {
+    if (stageIndex === GUIDED_STAGES.length - 1) {
+      setFinished(true)
+      onRecord({ exercise: 13, completed: true, answer: 17 })
+      return
+    }
+    setStageIndex((value) => value + 1)
+    setSelected(null)
+  }
+
+  return (
+    <div className="g7w-screen">
+      <ScreenHeading screen={12} lang={lang} />
+      <section className="g7w-frame g7w-practice-frame">
+        <div className="g7w-frame-instruction">
+          <span>{finished ? <Check size={14} /> : stageIndex + 1}</span>
+          <strong>{textOf({ ru: 'Выбери только следующий шаг', uz: 'Faqat keyingi qadamni tanlang' }, lang)}</strong>
+        </div>
+        <div className="g7w-expression-window g7w-practice-expression">
+          <AnimatePresence mode="wait">
+            <motion.strong
+              key={shownExpression}
+              initial={{ opacity: 0, y: 10, filter: 'blur(2px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
+              transition={{ duration: 0.54 }}
+              className={shownExpression === '17' ? 'is-answer' : ''}
+            >
+              {shownExpression}
+            </motion.strong>
+          </AnimatePresence>
+        </div>
+        {!finished && (
+          <div className={`g7w-choice-grid is-${stage.options.length}`}>
+            {stage.options.map((option) => (
+              <button
+                type="button"
+                key={option.id}
+                className={`${selected === option.id ? 'is-selected' : ''} ${selected && option.id === stage.correct ? 'is-correct' : ''} ${selected === option.id && option.id !== stage.correct ? 'is-wrong' : ''}`}
+                onClick={() => choose(option)}
+              >
+                <span>{option.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="g7w-guided-bottom">
+          <PracticeFeedback
+            status={finished || correct ? 'success' : selected ? 'error' : null}
+            prompt={{ ru: 'Смотри на текущее выражение.', uz: 'Joriy ifodaga qarang.' }}
+            success={finished ? { ru: 'Готово. Ответ: 17.', uz: 'Tayyor. Javob: 17.' } : stage.reason}
+            error={{ ru: 'Проверь: скобки → умножение и деление → сложение.', uz: 'Tekshiring: qavs → ko‘paytirish va bo‘lish → qo‘shish.' }}
+            lang={lang}
+          />
+          {correct && !finished && (
+            <button type="button" className="g7w-primary g7w-guided-next" onClick={advance}>
+              {stageIndex === GUIDED_STAGES.length - 1
+                ? textOf({ ru: 'Получить ответ', uz: 'Javobni olish' }, lang)
+                : textOf({ ru: 'Следующий шаг', uz: 'Keyingi qadam' }, lang)}
+              <ArrowRight size={16} />
+            </button>
+          )}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function IndependentPracticeScreen({ lang, speak, onRecord }) {
+  const [answer, setAnswer] = useState('')
+  const [checked, setChecked] = useState(false)
+  const correct = Number(answer) === 52
+
+  const check = () => {
+    if (!answer) return
+    setChecked(true)
+    onRecord({ exercise: 15, answer: Number(answer), correct })
+    speak(textOf(correct ? {
+      ru: 'Верно. Ответ пятьдесят два.',
+      uz: 'To‘g‘ri. Javob ellik ikki.',
+    } : {
+      ru: 'Пока не совпало. Проверь цепочку: скобки, деление и умножение, затем сложение.',
+      uz: 'Hozircha mos kelmadi. Zanjirni tekshiring: qavs, bo‘lish va ko‘paytirish, keyin qo‘shish.',
+    }, lang))
+  }
+
+  return (
+    <div className="g7w-screen">
+      <ScreenHeading screen={14} lang={lang} />
+      <section className="g7w-frame g7w-independent-frame">
+        <div className="g7w-frame-instruction">
+          <BookOpen size={18} />
+          <strong>{textOf({ ru: 'Без таймера · реши в своём темпе', uz: 'Taymersiz · o‘z tezligingizda yeching' }, lang)}</strong>
+        </div>
+        <div className="g7w-expression-window g7w-practice-expression">
+          <strong>144 : (12 − 6) + 7 · 4</strong>
+        </div>
+        <div className="g7w-independent-answer">
+          <label>
+            <span>{textOf({ ru: 'Ответ', uz: 'Javob' }, lang)}</span>
+            <input
+              value={answer}
+              inputMode="numeric"
+              autoComplete="off"
+              onChange={(event) => {
+                setAnswer(event.target.value.replace(/[^\d-]/g, ''))
+                setChecked(false)
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') check()
+              }}
+            />
+          </label>
+          <button type="button" className="g7w-primary" onClick={check} disabled={!answer}>
+            <Check size={17} />
+            {textOf({ ru: 'Проверить', uz: 'Tekshirish' }, lang)}
+          </button>
+        </div>
+        <PracticeFeedback
+          status={checked ? (correct ? 'success' : 'error') : null}
+          prompt={{ ru: 'Запиши только итоговое число.', uz: 'Faqat yakuniy sonni yozing.' }}
+          success={{ ru: '(12 − 6) = 6 → 144 : 6 = 24 → 7 · 4 = 28 → 52', uz: '(12 − 6) = 6 → 144 : 6 = 24 → 7 · 4 = 28 → 52' }}
+          error={{ ru: 'Подсказка: сначала получи 144 : 6 + 7 · 4.', uz: 'Ko‘rsatma: avval 144 : 6 + 7 · 4 ni oling.' }}
+          lang={lang}
+        />
+      </section>
+    </div>
+  )
+}
+
+function FinalReflectionScreen({ lang, speak, onRecord, answers }) {
+  const [reflection, setReflection] = useState(null)
+  const hypothesis = answers?.[0]?.hypothesis
+  const hasHypothesis = Number.isFinite(hypothesis)
+  const matched = hasHypothesis && hypothesis === 124
+
+  const choose = (value) => {
+    setReflection(value)
+    onRecord({ reflection: value, hypothesis, answer: 124 })
+    speak(textOf(value === 'clear' ? {
+      ru: 'Отлично. Ты можешь назвать правило и объяснить решение.',
+      uz: 'Ajoyib. Siz qoidani aytib, yechimni tushuntira olasiz.',
+    } : {
+      ru: 'Это нормально. Вернись к экрану с тремя ступенями и повтори их.',
+      uz: 'Bu normal. Uch bosqichli ekranga qaytib, ularni takrorlang.',
+    }, lang))
+  }
+
+  return (
+    <div className="g7w-screen">
+      <ScreenHeading screen={15} lang={lang} />
+      <section className="g7w-frame g7w-final-frame">
+        <div className="g7w-final-comparison">
+          <div>
+            <small>{textOf({ ru: 'Первая версия', uz: 'Birinchi javob' }, lang)}</small>
+            <strong>{hasHypothesis ? hypothesis : '—'}</strong>
+          </div>
+          <ArrowRight size={22} />
+          <div className="is-final">
+            <small>{textOf({ ru: 'После объяснения', uz: 'Tushuntirishdan keyin' }, lang)}</small>
+            <strong>124</strong>
+          </div>
+        </div>
+
+        <div className={`g7w-final-message ${matched ? 'is-match' : ''}`}>
+          <span><Check size={17} /></span>
+          <strong>{textOf(matched ? {
+            ru: 'Твоя гипотеза совпала. Теперь есть и доказательство.',
+            uz: 'Taxminingiz mos keldi. Endi isbot ham bor.',
+          } : {
+            ru: 'Ответ можно изменить. Главное — теперь понятна причина каждого шага.',
+            uz: 'Javobni o‘zgartirish mumkin. Muhimi — har bir qadam sababi tushunarli.',
+          }, lang)}</strong>
+        </div>
+
+        <div className="g7w-final-rule">
+          <small>{textOf({ ru: 'Алгоритм', uz: 'Algoritm' }, lang)}</small>
+          <strong>( ) [ ]</strong>
+          <ArrowRight size={17} />
+          <strong>· :</strong>
+          <ArrowRight size={17} />
+          <strong>+ −</strong>
+        </div>
+
+        <div className="g7w-reflection-grid">
+          <button
+            type="button"
+            className={reflection === 'clear' ? 'is-active' : ''}
+            onClick={() => choose('clear')}
+          >
+            <Check size={17} />
+            {textOf({ ru: 'Могу объяснить', uz: 'Tushuntira olaman' }, lang)}
+          </button>
+          <button
+            type="button"
+            className={reflection === 'repeat' ? 'is-active' : ''}
+            onClick={() => choose('repeat')}
+          >
+            ↻
+            {textOf({ ru: 'Хочу повторить', uz: 'Takrorlamoqchiman' }, lang)}
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}
+
 const SCREENS = [
   ChallengeScreen,
   FirstStepScreen,
@@ -904,6 +1664,16 @@ const SCREENS = [
   BracketLinesScreen,
   MultiplyDivideLinesScreen,
   AddSubtractLinesScreen,
+  NumberingScreen,
+  NumberedSolutionScreen,
+  FirstActionPracticeScreen,
+  OrderPracticeScreen,
+  TypicalPracticeScreen,
+  ErrorPracticeScreen,
+  GuidedPracticeScreen,
+  EqualPriorityPracticeScreen,
+  IndependentPracticeScreen,
+  FinalReflectionScreen,
 ]
 
 export default function Grade7Dars01({ lang: langProp, onFinished }) {
@@ -916,6 +1686,7 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
   const { speak, stop } = useSpeech(lang, muted)
   const CurrentScreen = SCREENS[current]
   const copy = COPY[current]
+  const isLearning = current < 8
 
   useEffect(() => {
     stop()
@@ -941,8 +1712,8 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
       return
     }
     onFinished?.({
-      lessonId: 'grade7-dars01-window-prototype',
-      prototype: true,
+      lessonId: 'grade7-dars01-sonli-ifodalar',
+      prototype: false,
       screens: TOTAL,
       answers: answers.filter(Boolean),
     })
@@ -963,7 +1734,11 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
               <strong>{textOf(copy.eyebrow, lang)}</strong>
             </div>
             <div className="g7w-tools">
-              <span className="g7w-phase">{textOf({ ru: 'Обучение', uz: 'O‘rganish' }, lang)}</span>
+              <span className={`g7w-phase ${isLearning ? '' : 'is-practice'}`}>
+                {textOf(isLearning
+                  ? { ru: 'Обучение', uz: 'O‘rganish' }
+                  : { ru: 'Тренировка', uz: 'Mashq' }, lang)}
+              </span>
               <button type="button" onClick={() => setMuted((value) => !value)} aria-label={muted ? 'Включить звук' : 'Выключить звук'}>
                 {muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
               </button>
@@ -995,7 +1770,13 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
         </header>
 
         <div className="g7w-content">
-          <CurrentScreen key={`${current}-${lang}`} lang={lang} speak={speak} onRecord={record} />
+          <CurrentScreen
+            key={`${current}-${lang}`}
+            lang={lang}
+            speak={speak}
+            onRecord={record}
+            answers={answers}
+          />
         </div>
 
         <footer className="g7w-nav">
@@ -1008,10 +1789,12 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
             <ArrowLeft size={18} />
             {textOf({ ru: 'Назад', uz: 'Orqaga' }, lang)}
           </button>
-          <span>{textOf({ ru: 'Обучение · экраны 1–6', uz: 'O‘rganish · 1–6 ekranlar' }, lang)}</span>
+          <span>{textOf(isLearning
+            ? { ru: 'Обучение · экраны 1–8', uz: 'O‘rganish · 1–8 ekranlar' }
+            : { ru: 'Тренировка · экраны 9–16', uz: 'Mashq · 9–16 ekranlar' }, lang)}</span>
           <button type="button" className="g7w-next" onClick={next}>
             {current === TOTAL - 1
-              ? textOf({ ru: 'Оценить направление', uz: 'Yo‘nalishni baholash' }, lang)
+              ? textOf({ ru: 'Завершить урок', uz: 'Darsni tugatish' }, lang)
               : textOf({ ru: 'Дальше', uz: 'Davom etish' }, lang)}
             {current === TOTAL - 1 ? <Check size={18} /> : <ArrowRight size={18} />}
           </button>

@@ -27,7 +27,12 @@ async function auditViewport(name, viewport) {
       const root = document.querySelector('.g7w-root')
       const stage = document.querySelector('.g7w-stage')
       const expressions = [
-        ...document.querySelectorAll('.g7w-expression, .g7w-solution-expression'),
+        ...document.querySelectorAll(
+          '.g7w-expression, .g7w-solution-expression, .g7w-numbered-expression, .g7w-expression-window',
+        ),
+      ]
+      const fittedBoxes = [
+        ...document.querySelectorAll('.g7w-content, .g7w-screen, .g7w-frame'),
       ]
 
       return {
@@ -50,6 +55,16 @@ async function auditViewport(name, viewport) {
             clientWidth: element.clientWidth,
             text: element.textContent.trim(),
           })),
+        fitIssues: fittedBoxes
+          .filter((element) => (
+            element.scrollWidth > element.clientWidth + 1
+            || element.scrollHeight > element.clientHeight + 1
+          ))
+          .map((element) => ({
+            className: element.className,
+            scroll: [element.scrollWidth, element.scrollHeight],
+            client: [element.clientWidth, element.clientHeight],
+          })),
       }
     })
 
@@ -65,6 +80,18 @@ async function auditViewport(name, viewport) {
     if (result.expressionIssues.length) {
       issues.push(`${label}: expression overflow ${JSON.stringify(result.expressionIssues)}`)
     }
+    if (result.fitIssues.length) {
+      issues.push(`${label}: clipped content ${JSON.stringify(result.fitIssues)}`)
+    }
+  }
+
+  const capture = async (screenNumber) => {
+    await page.waitForTimeout(900)
+    await audit(`screen-${screenNumber}`)
+    await page.screenshot({
+      path: `${out}/${name}-${String(screenNumber).padStart(2, '0')}.png`,
+      fullPage: false,
+    })
   }
 
   await audit('screen-1-initial')
@@ -73,29 +100,22 @@ async function auditViewport(name, viewport) {
   await page.locator('.g7w-answer-row input').fill('124')
   await page.locator('.g7w-answer-row button').click()
   await page.waitForTimeout(450)
-  await audit('screen-1-saved')
-  await page.screenshot({ path: `${out}/${name}-01.png`, fullPage: false })
+  await capture(1)
 
   await page.locator('.g7w-next').click()
   await page.locator('.g7w-route-card').nth(0).click({ force: true })
   await page.waitForTimeout(250)
   await page.locator('.g7w-route-card').nth(1).click({ force: true })
   await page.waitForTimeout(1600)
-  await audit('screen-2')
-  await page.screenshot({ path: `${out}/${name}-02.png`, fullPage: false })
+  await capture(2)
 
   await page.locator('.g7w-next').click()
   for (let index = 0; index < 3; index += 1) {
     await page.locator('.g7w-rule-card').nth(index).click({ force: true })
-    await page.waitForTimeout(1800)
-    await audit(`screen-3-step-${index + 1}`)
-    await page.screenshot({
-      path: `${out}/${name}-03-step-${index + 1}.png`,
-      fullPage: false,
-    })
+    await page.waitForTimeout(240)
   }
-  await audit('screen-3')
-  await page.screenshot({ path: `${out}/${name}-03.png`, fullPage: false })
+  await page.waitForTimeout(1600)
+  await capture(3)
 
   const lineScreenStepCounts = [3, 2, 2]
   for (let screenIndex = 0; screenIndex < lineScreenStepCounts.length; screenIndex += 1) {
@@ -107,12 +127,84 @@ async function auditViewport(name, viewport) {
     }
     await page.waitForTimeout(1600)
     const screenNumber = screenIndex + 4
-    await audit(`screen-${screenNumber}`)
-    await page.screenshot({
-      path: `${out}/${name}-${String(screenNumber).padStart(2, '0')}.png`,
-      fullPage: false,
-    })
+    await capture(screenNumber)
   }
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-7-initial')
+  for (let index = 0; index < 7; index += 1) {
+    await page.locator('.g7w-number-next').click()
+    await page.waitForTimeout(120)
+  }
+  await capture(7)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-8-initial')
+  for (let index = 0; index < 7; index += 1) {
+    await page.locator('.g7w-number-tabs button').nth(index).click()
+    await page.waitForTimeout(100)
+  }
+  await capture(8)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-9-initial')
+  await page.locator('.g7w-choice-grid button').nth(1).click()
+  await capture(9)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-10-initial')
+  for (const index of [1, 0, 2]) {
+    await page.locator('.g7w-order-options button').nth(index).click()
+    await page.waitForTimeout(120)
+  }
+  await capture(10)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-11-initial')
+  await page.locator('.g7w-choice-grid button').nth(0).click()
+  await capture(11)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-12-initial')
+  await page.locator('.g7w-choice-grid button').nth(1).click()
+  await capture(12)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  for (const [stageIndex, index] of [1, 1, 1, 0].entries()) {
+    await audit(`screen-13-stage-${stageIndex + 1}-initial`)
+    await page.locator('.g7w-choice-grid button').nth(index).click()
+    await page.waitForTimeout(140)
+    await audit(`screen-13-stage-${stageIndex + 1}-selected`)
+    await page.locator('.g7w-guided-next').click()
+    await page.waitForTimeout(140)
+  }
+  await capture(13)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-14-initial')
+  await page.locator('.g7w-choice-grid button').nth(0).click()
+  await capture(14)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-15-initial')
+  await page.locator('.g7w-independent-answer input').fill('52')
+  await page.locator('.g7w-independent-answer button').click()
+  await capture(15)
+
+  await page.locator('.g7w-next').click()
+  await page.waitForTimeout(550)
+  await audit('screen-16-initial')
+  await page.locator('.g7w-reflection-grid button').nth(0).click()
+  await capture(16)
 
   await page.close()
   return issues
@@ -129,5 +221,5 @@ if (issues.length) {
   console.error(issues.join('\n'))
   process.exitCode = 1
 } else {
-  console.log('Grade 7 window prototype smoke test passed: 6 screens, desktop and two mobile sizes.')
+  console.log('Grade 7 lesson smoke test passed: 16 screens, desktop and two mobile sizes.')
 }
