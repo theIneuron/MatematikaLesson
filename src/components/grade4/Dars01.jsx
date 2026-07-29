@@ -1001,15 +1001,24 @@ const DataCenterScene = ({ raw = '125407', resolved = false, t }) => {
   );
 };
 
-const PlaceValueTable = ({ values = [], highlight = -1, compact = false }) => {
+const PlaceValueTable = ({
+  values = [],
+  highlight = -1,
+  compact = false,
+  showClassBanners = true,
+}) => {
   const lang = useLang();
   const labels = lang === 'uz'
     ? ['yuz minglar', "o'n minglar", 'bir minglar', 'yuzlar', "o'nlar", 'birlar']
     : ['сотни тысяч', 'десятки тысяч', 'тысячи', 'сотни', 'десятки', 'единицы'];
   return (
     <div className={`place-table ${compact ? 'place-table-compact' : ''}`}>
-      <div className="class-banner class-thousands">{lang === 'uz' ? 'MINGLAR SINFI' : 'КЛАСС ТЫСЯЧ'}</div>
-      <div className="class-banner class-units">{lang === 'uz' ? 'BIRLAR SINFI' : 'КЛАСС ЕДИНИЦ'}</div>
+      {showClassBanners && (
+        <>
+          <div className="class-banner class-thousands">{lang === 'uz' ? 'MINGLAR SINFI' : 'КЛАСС ТЫСЯЧ'}</div>
+          <div className="class-banner class-units">{lang === 'uz' ? 'BIRLAR SINFI' : 'КЛАСС ЕДИНИЦ'}</div>
+        </>
+      )}
       {labels.map((label, index) => (
         <div key={label} className={`place-cell ${index === highlight ? 'place-highlight' : ''}`}>
           <span>{label}</span>
@@ -1754,7 +1763,7 @@ const ClassGroupingAnimation = ({
         <span className="class-name-units">{unitsLabel}</span>
       </div>
       {showTable && showClassNames && digits.length === 6 && (
-        <PlaceValueTable values={digits} compact />
+        <PlaceValueTable values={digits} compact showClassBanners={false} />
       )}
     </div>
   );
@@ -1765,6 +1774,7 @@ const AnimatedExplanationScreen = ({
   c,
   onNext,
   onPrev,
+  showReplayButton = true,
 }) => {
   const lang = useLang();
   const t = useT();
@@ -1848,7 +1858,7 @@ const AnimatedExplanationScreen = ({
             </button>
           ))}
         </div>
-        {finished && (
+        {finished && showReplayButton && (
           <div className="explanation-finish-row">
             <p className="explanation-result">{t(c.resultText)}</p>
             <button type="button" className="btn btn-secondary explanation-replay" onClick={replay}>
@@ -3396,12 +3406,12 @@ const Screen1 = (props) => (
   <ReasoningRoundsScreen {...props} screen={1} c={CONTENT.foundationReview} foundation />
 );
 const Screen2 = (props) => (
-  <AnimatedExplanationScreen {...props} screen={2} c={CONTENT.method1} />
+  <AnimatedExplanationScreen {...props} screen={2} c={CONTENT.method1} showReplayButton={false} />
 );
 const Screen3 = (props) => (
-  <AnimatedExplanationScreen {...props} screen={3} c={CONTENT.method2} />
+  <AnimatedExplanationScreen {...props} screen={3} c={CONTENT.method2} showReplayButton={false} />
 );
-const Screen4 = (props) => <AnimatedExplanationScreen {...props} screen={4} c={CONTENT.bonus} />;
+const Screen4 = (props) => <AnimatedExplanationScreen {...props} screen={4} c={CONTENT.bonus} showReplayButton={false} />;
 const Screen5 = (props) => <DividerPlacementScreen {...props} screen={5} c={CONTENT.dividerGuided} guided />;
 const Screen6 = (props) => <ReasoningRoundsScreen {...props} screen={6} c={CONTENT.challenge6} />;
 const Screen7 = (props) => <ReasoningRoundsScreen {...props} screen={7} c={CONTENT.challenge7} />;
