@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import './Dars01.css'
 
-const TOTAL = 3
+const TOTAL = 6
 
 const COPY = [
   {
@@ -37,6 +37,30 @@ const COPY = [
     intro: {
       ru: 'Нажимай на ступени. Каждая карточка покажет своё место прямо в выражении.',
       uz: 'Bosqichlarni bosing. Har bir kartochka ifodadagi o‘z o‘rnini ko‘rsatadi.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Способ 1 · по строкам', uz: '1-usul · qatorlar bo‘yicha' },
+    title: { ru: 'Скобки становятся числами', uz: 'Qavslar sonlarga aylanadi' },
+    intro: {
+      ru: 'Начинаем решение по строкам. Нажимай шаги по порядку: сначала внутренние круглые скобки, затем внешние квадратные.',
+      uz: 'Yechimni qatorlar bo‘yicha boshlaymiz. Avval ichki dumaloq qavslarni, keyin tashqi kvadrat qavslarni hisoblang.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Способ 1 · по строкам', uz: '1-usul · qatorlar bo‘yicha' },
+    title: { ru: 'Деление и умножение', uz: 'Bo‘lish va ko‘paytirish' },
+    intro: {
+      ru: 'Скобок больше нет. Деление и умножение имеют одинаковый приоритет, поэтому выполняем их слева направо.',
+      uz: 'Qavslar qolmadi. Bo‘lish va ko‘paytirish teng ustuvorlikka ega, shuning uchun chapdan o‘ngga bajaramiz.',
+    },
+  },
+  {
+    eyebrow: { ru: 'Способ 1 · по строкам', uz: '1-usul · qatorlar bo‘yicha' },
+    title: { ru: 'Финиш слева направо', uz: 'Chapdan o‘ngga yakunlaymiz' },
+    intro: {
+      ru: 'Остались сложение и вычитание. Они тоже равноправны: сначала левое действие, затем следующее.',
+      uz: 'Qo‘shish va ayirish qoldi. Ular ham teng: avval chapdagi amalni, keyin navbatdagisini bajaramiz.',
     },
   },
 ]
@@ -571,7 +595,276 @@ function RuleScreen({ lang, speak, onRecord }) {
   )
 }
 
-const SCREENS = [ChallengeScreen, FirstStepScreen, RuleScreen]
+const LINE_METHOD_SCREENS = [
+  {
+    screen: 3,
+    id: 'brackets-by-lines',
+    initial: '120 − 84 : [2 · (7 − 4)] + 3 · (15 − 9)',
+    prompt: {
+      ru: 'Начни с действия 7 − 4.',
+      uz: '7 − 4 amalidan boshlang.',
+    },
+    steps: [
+      {
+        id: 'inner-bracket',
+        action: '(7 − 4) = 3',
+        expression: '120 − 84 : [2 · 3] + 3 · (15 − 9)',
+        explanation: {
+          rule: {
+            ru: 'Во вложенных скобках начинаем изнутри.',
+            uz: 'Ichma-ich qavslarda ichkaridan boshlaymiz.',
+          },
+          work: { ru: '(7 − 4) = 3', uz: '(7 − 4) = 3' },
+          result: {
+            ru: '[2 · (7 − 4)] → [2 · 3]',
+            uz: '[2 · (7 − 4)] → [2 · 3]',
+          },
+        },
+        speech: {
+          ru: 'Первый шаг: семь минус четыре равно три. В квадратных скобках вместо круглых скобок записываем число три.',
+          uz: 'Birinchi qadam: yetti minus to‘rt uchga teng. Kvadrat qavs ichida dumaloq qavs o‘rniga uch sonini yozamiz.',
+        },
+      },
+      {
+        id: 'second-bracket',
+        action: '(15 − 9) = 6',
+        expression: '120 − 84 : [2 · 3] + 3 · 6',
+        explanation: {
+          rule: {
+            ru: 'Независимую скобку считаем отдельно.',
+            uz: 'Mustaqil qavsni alohida hisoblaymiz.',
+          },
+          work: { ru: '(15 − 9) = 6', uz: '(15 − 9) = 6' },
+          result: {
+            ru: '3 · (15 − 9) → 3 · 6',
+            uz: '3 · (15 − 9) → 3 · 6',
+          },
+        },
+        speech: {
+          ru: 'Второй шаг: пятнадцать минус девять равно шесть. Вместо второй круглой скобки записываем шесть.',
+          uz: 'Ikkinchi qadam: o‘n besh minus to‘qqiz oltiga teng. Ikkinchi dumaloq qavs o‘rniga olti yozamiz.',
+        },
+      },
+      {
+        id: 'square-bracket',
+        action: '[2 · 3] = 6',
+        expression: '120 − 84 : 6 + 3 · 6',
+        explanation: {
+          rule: {
+            ru: 'После внутренних скобок считаем внешние.',
+            uz: 'Ichki qavslardan keyin tashqi qavsni hisoblaymiz.',
+          },
+          work: { ru: '[2 · 3] = 6', uz: '[2 · 3] = 6' },
+          result: {
+            ru: '120 − 84 : 6 + 3 · 6',
+            uz: '120 − 84 : 6 + 3 · 6',
+          },
+        },
+        speech: {
+          ru: 'Третий шаг: два умножить на три равно шесть. Все скобки превратились в числа.',
+          uz: 'Uchinchi qadam: ikki ko‘paytiruv uch oltiga teng. Barcha qavslar sonlarga aylandi.',
+        },
+      },
+    ],
+  },
+  {
+    screen: 4,
+    id: 'multiply-divide-by-lines',
+    initial: '120 − 84 : 6 + 3 · 6',
+    prompt: {
+      ru: 'Сначала выполни левое действие: 84 : 6.',
+      uz: 'Avval chapdagi amalni bajaring: 84 : 6.',
+    },
+    steps: [
+      {
+        id: 'division',
+        action: '84 : 6 = 14',
+        expression: '120 − 14 + 3 · 6',
+        explanation: {
+          rule: {
+            ru: 'Деление и умножение выполняем слева направо.',
+            uz: 'Bo‘lish va ko‘paytirishni chapdan o‘ngga bajaramiz.',
+          },
+          work: { ru: '84 : 6 = 14', uz: '84 : 6 = 14' },
+          result: {
+            ru: '120 − 14 + 3 · 6',
+            uz: '120 − 14 + 3 · 6',
+          },
+        },
+        speech: {
+          ru: 'Слева первым встречается деление. Восемьдесят четыре разделить на шесть равно четырнадцать.',
+          uz: 'Chapdan birinchi bo‘lish amali keladi. Sakson to‘rtni oltiga bo‘lsak, o‘n to‘rt chiqadi.',
+        },
+      },
+      {
+        id: 'multiplication',
+        action: '3 · 6 = 18',
+        expression: '120 − 14 + 18',
+        explanation: {
+          rule: {
+            ru: 'Затем выполняем следующее действие той же ступени.',
+            uz: 'Keyin shu bosqichdagi navbatdagi amalni bajaramiz.',
+          },
+          work: { ru: '3 · 6 = 18', uz: '3 · 6 = 18' },
+          result: {
+            ru: '120 − 14 + 18',
+            uz: '120 − 14 + 18',
+          },
+        },
+        speech: {
+          ru: 'Теперь умножение: три умножить на шесть равно восемнадцать. Умножения и деления больше нет.',
+          uz: 'Endi ko‘paytirish: uchni oltiga ko‘paytirsak, o‘n sakkiz chiqadi. Ko‘paytirish va bo‘lish amallari qolmadi.',
+        },
+      },
+    ],
+  },
+  {
+    screen: 5,
+    id: 'add-subtract-by-lines',
+    initial: '120 − 14 + 18',
+    prompt: {
+      ru: 'Вычитание и сложение выполняй слева направо.',
+      uz: 'Ayirish va qo‘shishni chapdan o‘ngga bajaring.',
+    },
+    steps: [
+      {
+        id: 'subtraction',
+        action: '120 − 14 = 106',
+        expression: '106 + 18',
+        explanation: {
+          rule: {
+            ru: 'Сложение и вычитание равноправны.',
+            uz: 'Qo‘shish va ayirish teng ustuvorlikka ega.',
+          },
+          work: { ru: '120 − 14 = 106', uz: '120 − 14 = 106' },
+          result: { ru: '106 + 18', uz: '106 + 18' },
+        },
+        speech: {
+          ru: 'Идём слева направо. Сто двадцать минус четырнадцать равно сто шесть.',
+          uz: 'Chapdan o‘ngga yuramiz. Bir yuz yigirma minus o‘n to‘rt bir yuz oltiga teng.',
+        },
+      },
+      {
+        id: 'addition',
+        action: '106 + 18 = 124',
+        expression: '124',
+        explanation: {
+          rule: {
+            ru: 'Выполняем последнее оставшееся действие.',
+            uz: 'Oxirgi qolgan amalni bajaramiz.',
+          },
+          work: { ru: '106 + 18 = 124', uz: '106 + 18 = 124' },
+          result: { ru: 'Ответ: 124', uz: 'Javob: 124' },
+        },
+        speech: {
+          ru: 'Последний шаг: сто шесть плюс восемнадцать равно сто двадцать четыре. Ответ: сто двадцать четыре.',
+          uz: 'Oxirgi qadam: bir yuz olti plus o‘n sakkiz bir yuz yigirma to‘rtga teng. Javob: bir yuz yigirma to‘rt.',
+        },
+      },
+    ],
+  },
+]
+
+function LineMethodScreen({ config, lang, speak, onRecord }) {
+  const [active, setActive] = useState(null)
+  const [visited, setVisited] = useState([])
+  const activeStep = config.steps.find((step) => step.id === active)
+  const nextId = config.steps.find((step) => !visited.includes(step.id))?.id ?? null
+
+  const choose = (step) => {
+    setActive(step.id)
+    const completesScreen = !visited.includes(step.id)
+      && visited.length + 1 === config.steps.length
+    setVisited((previous) => (
+      previous.includes(step.id) ? previous : [...previous, step.id]
+    ))
+    if (completesScreen) onRecord({ lineMethod: config.id, explored: true })
+    speak(textOf(step.speech, lang))
+  }
+
+  return (
+    <div className="g7w-screen">
+      <ScreenHeading screen={config.screen} lang={lang} />
+      <section className="g7w-frame g7w-line-frame">
+        <div className="g7w-frame-instruction">
+          <BookOpen size={18} />
+          <strong>{textOf({ ru: 'Нажимай шаги по порядку', uz: 'Qadamlarni tartib bilan bosing' }, lang)}</strong>
+        </div>
+
+        <div className="g7w-expression-window g7w-expression-window-compact">
+          <AnimatePresence mode="wait">
+            <motion.div
+              className={`g7w-solution-expression ${activeStep?.expression === '124' ? 'is-answer' : ''}`}
+              key={activeStep?.id ?? 'initial'}
+              initial={{ opacity: 0, y: 10, filter: 'blur(3px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -8, filter: 'blur(2px)' }}
+              transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {activeStep?.expression ?? config.initial}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className={`g7w-line-step-list is-${config.steps.length}`}>
+          {config.steps.map((step, index) => {
+            const isVisited = visited.includes(step.id)
+            const isActive = active === step.id
+            return (
+              <button
+                type="button"
+                className={`g7w-line-step-card ${isActive ? 'is-active' : ''} ${isVisited ? 'is-visited' : ''} ${nextId === step.id ? 'is-awaited' : ''}`}
+                onClick={() => choose(step)}
+                key={step.id}
+              >
+                <span>{isVisited ? <Check size={14} /> : index + 1}</span>
+                <div>
+                  <small>{textOf({ ru: `Шаг ${index + 1}`, uz: `${index + 1}-qadam` }, lang)}</small>
+                  <strong>{step.action}</strong>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="g7w-line-detail" aria-live="polite">
+          <AnimatePresence mode="wait">
+            <motion.div
+              className={activeStep ? 'g7w-worked-motion' : 'g7w-explanation-prompt'}
+              key={active ?? 'empty'}
+              initial={{ opacity: 0, y: 7 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {activeStep ? (
+                <WorkedExplanation explanation={activeStep.explanation} lang={lang} />
+              ) : (
+                <>
+                  <span>{textOf({ ru: 'Подсказка', uz: 'Ko‘rsatma' }, lang)}</span>
+                  <strong>{textOf(config.prompt, lang)}</strong>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+const BracketLinesScreen = (props) => <LineMethodScreen {...props} config={LINE_METHOD_SCREENS[0]} />
+const MultiplyDivideLinesScreen = (props) => <LineMethodScreen {...props} config={LINE_METHOD_SCREENS[1]} />
+const AddSubtractLinesScreen = (props) => <LineMethodScreen {...props} config={LINE_METHOD_SCREENS[2]} />
+
+const SCREENS = [
+  ChallengeScreen,
+  FirstStepScreen,
+  RuleScreen,
+  BracketLinesScreen,
+  MultiplyDivideLinesScreen,
+  AddSubtractLinesScreen,
+]
 
 export default function Grade7Dars01({ lang: langProp, onFinished }) {
   const preview = !langProp
@@ -675,7 +968,7 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
             <ArrowLeft size={18} />
             {textOf({ ru: 'Назад', uz: 'Orqaga' }, lang)}
           </button>
-          <span>{textOf({ ru: 'Прототип экранов 1–3', uz: '1–3 ekran prototipi' }, lang)}</span>
+          <span>{textOf({ ru: 'Обучение · экраны 1–6', uz: 'O‘rganish · 1–6 ekranlar' }, lang)}</span>
           <button type="button" className="g7w-next" onClick={next}>
             {current === TOTAL - 1
               ? textOf({ ru: 'Оценить направление', uz: 'Yo‘nalishni baholash' }, lang)

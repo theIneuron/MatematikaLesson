@@ -26,7 +26,9 @@ async function auditViewport(name, viewport) {
     const result = await page.evaluate(() => {
       const root = document.querySelector('.g7w-root')
       const stage = document.querySelector('.g7w-stage')
-      const expressions = [...document.querySelectorAll('.g7w-expression')]
+      const expressions = [
+        ...document.querySelectorAll('.g7w-expression, .g7w-solution-expression'),
+      ]
 
       return {
         viewport: [window.innerWidth, window.innerHeight],
@@ -91,6 +93,23 @@ async function auditViewport(name, viewport) {
   await audit('screen-3')
   await page.screenshot({ path: `${out}/${name}-03.png`, fullPage: false })
 
+  const lineScreenStepCounts = [3, 2, 2]
+  for (let screenIndex = 0; screenIndex < lineScreenStepCounts.length; screenIndex += 1) {
+    await page.locator('.g7w-next').click()
+    const stepCount = lineScreenStepCounts[screenIndex]
+    for (let stepIndex = 0; stepIndex < stepCount; stepIndex += 1) {
+      await page.locator('.g7w-line-step-card').nth(stepIndex).click({ force: true })
+      await page.waitForTimeout(260)
+    }
+    await page.waitForTimeout(1600)
+    const screenNumber = screenIndex + 4
+    await audit(`screen-${screenNumber}`)
+    await page.screenshot({
+      path: `${out}/${name}-${String(screenNumber).padStart(2, '0')}.png`,
+      fullPage: false,
+    })
+  }
+
   await page.close()
   return issues
 }
@@ -106,5 +125,5 @@ if (issues.length) {
   console.error(issues.join('\n'))
   process.exitCode = 1
 } else {
-  console.log('Grade 7 window prototype smoke test passed: 3 screens, desktop and two mobile sizes.')
+  console.log('Grade 7 window prototype smoke test passed: 6 screens, desktop and two mobile sizes.')
 }
