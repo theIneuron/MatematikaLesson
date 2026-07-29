@@ -258,8 +258,8 @@ const FIRST_STEP_OPTIONS = [
         uz: '120 − 84 emas. Avval: (7 − 4) = 3.',
       },
       result: {
-        ru: 'Получаем: 120 − 84 : [2 · 3] + 3 · (15 − 9).',
-        uz: 'Hosil bo‘ladi: 120 − 84 : [2 · 3] + 3 · (15 − 9).',
+        ru: '120 − 84 : [2 · 3] + 3 · (15 − 9)',
+        uz: '120 − 84 : [2 · 3] + 3 · (15 − 9)',
       },
     },
     speech: {
@@ -285,8 +285,8 @@ const FIRST_STEP_OPTIONS = [
         uz: '(7 − 4) = 3, shuning uchun [2 · (7 − 4)] → [2 · 3].',
       },
       result: {
-        ru: 'Первый шаг верный: внутренняя скобка стала числом 3.',
-        uz: 'Birinchi qadam to‘g‘ri: ichki qavs 3 soniga aylandi.',
+        ru: 'Внутренняя скобка → 3',
+        uz: 'Ichki qavs → 3',
       },
     },
     speech: {
@@ -305,17 +305,37 @@ const EXPLANATION_LABELS = {
 function WorkedExplanation({ explanation, lang }) {
   return (
     <div className="g7w-worked-explanation">
-      <span className="g7w-worked-title">
-        {textOf({ ru: 'Почему так?', uz: 'Nega shunday?' }, lang)}
-      </span>
-      <div className="g7w-worked-steps">
-        {Object.keys(EXPLANATION_LABELS).map((key) => (
-          <div className={`g7w-worked-step g7w-worked-step-${key}`} key={key}>
-            <small>{textOf(EXPLANATION_LABELS[key], lang)}</small>
-            <strong>{textOf(explanation[key], lang)}</strong>
-          </div>
-        ))}
-      </div>
+      {Object.keys(EXPLANATION_LABELS).map((key, index) => (
+        <motion.div
+          className={`g7w-worked-row g7w-worked-row-${key}`}
+          custom={index}
+          initial={{ opacity: 0, y: 12, scale: 0.992 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{
+            delay: 0.16 + index * 0.38,
+            duration: 0.55,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          key={key}
+        >
+          {key === 'rule' ? (
+            <>
+              <span className="g7w-worked-title">
+                {textOf({ ru: 'Почему так?', uz: 'Nega shunday?' }, lang)}
+              </span>
+              <div className="g7w-worked-copy">
+                <small>{textOf(EXPLANATION_LABELS[key], lang)}</small>
+                <strong>{textOf(explanation[key], lang)}</strong>
+              </div>
+            </>
+          ) : (
+            <>
+              <small>{textOf(EXPLANATION_LABELS[key], lang)}</small>
+              <strong>{textOf(explanation[key], lang)}</strong>
+            </>
+          )}
+        </motion.div>
+      ))}
     </div>
   )
 }
@@ -382,6 +402,7 @@ function FirstStepScreen({ lang, speak, onRecord }) {
               initial={{ opacity: 0, y: 7 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
             >
               {activeOption ? (
                 <WorkedExplanation explanation={activeOption.explanation} lang={lang} />
@@ -532,6 +553,7 @@ function RuleScreen({ lang, speak, onRecord }) {
               initial={{ opacity: 0, y: 7 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
             >
               {activeStep ? (
                 <WorkedExplanation explanation={activeStep.explanation} lang={lang} />

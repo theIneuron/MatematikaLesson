@@ -78,7 +78,7 @@ async function auditViewport(name, viewport) {
   await page.locator('.g7w-route-card').nth(0).click({ force: true })
   await page.waitForTimeout(250)
   await page.locator('.g7w-route-card').nth(1).click({ force: true })
-  await page.waitForTimeout(450)
+  await page.waitForTimeout(1600)
   await audit('screen-2')
   await page.screenshot({ path: `${out}/${name}-02.png`, fullPage: false })
 
@@ -87,7 +87,7 @@ async function auditViewport(name, viewport) {
     await page.locator('.g7w-rule-card').nth(index).click({ force: true })
     await page.waitForTimeout(240)
   }
-  await page.waitForTimeout(450)
+  await page.waitForTimeout(1600)
   await audit('screen-3')
   await page.screenshot({ path: `${out}/${name}-03.png`, fullPage: false })
 
