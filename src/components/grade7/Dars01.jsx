@@ -1,61 +1,47 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   ArrowLeft,
   ArrowRight,
+  BookOpen,
   Check,
   Clock3,
-  Eye,
   Play,
-  RotateCcw,
   Volume2,
   VolumeX,
 } from 'lucide-react'
 import './Dars01.css'
 
 const TOTAL = 3
-const EXPRESSION = '120 − 84 : [2 · (7 − 4)] + 3 · (15 − 9)'
 
 const COPY = [
   {
-    eyebrow: { ru: 'Математический детектив', uz: 'Matematik detektiv' },
-    title: { ru: 'Два ответа. Один маршрут.', uz: 'Ikki javob. Bitta yo‘l.' },
-    hint: {
-      ru: 'Не ищи правило. Сначала запиши свою версию.',
-      uz: 'Hozircha qoida izlamang. Avval o‘z taxminingizni yozing.',
-    },
-    narration: {
-      ru: 'Один и тот же пример дал два разных ответа. Азиз получил сто двадцать четыре, а Малика — пятьдесят четыре. У тебя сорок пять секунд. Посмотри на выражение, реши его привычным способом и запиши первую версию. Она не оценивается.',
-      uz: 'Bitta misoldan ikki xil javob chiqdi. Aziz bir yuz yigirma to‘rt, Malika esa ellik to‘rt javobini oldi. Sizda qirq besh soniya bor. Ifodaga qarang, odatdagi usulda yeching va birinchi taxminni yozing. U baholanmaydi.',
+    eyebrow: { ru: 'Интеллектуальный вызов', uz: 'Intellektual sinov' },
+    title: { ru: 'Сначала — твоя версия', uz: 'Avval — sizning javobingiz' },
+    intro: {
+      ru: 'Перед тобой одно числовое выражение. Нажми «Начать», реши его привычным способом и запиши свой ответ. Первая версия не оценивается.',
+      uz: 'Oldingizda bitta sonli ifoda bor. «Boshlash» tugmasini bosing, odatiy usulda yeching va javobingizni yozing. Birinchi javob baholanmaydi.',
     },
   },
   {
-    eyebrow: { ru: 'Сначала видим структуру', uz: 'Avval tuzilishni ko‘ramiz' },
-    title: { ru: 'У выражения есть глубина', uz: 'Ifodaning chuqurligi bor' },
-    hint: {
-      ru: 'Запусти сканирование и наблюдай за формулой.',
-      uz: 'Skanerlashni ishga tushiring va formulani kuzating.',
-    },
-    narration: {
-      ru: 'До вычислений нужно увидеть структуру. У выражения есть уровни. Самый глубокий уровень находится внутри круглых скобок. Внешний уровень — внутри квадратных скобок. Остальные действия ждут своей очереди.',
-      uz: 'Hisoblashdan oldin tuzilishni ko‘rish kerak. Ifodaning darajalari bor. Eng chuqur daraja dumaloq qavslar ichida. Tashqi daraja kvadrat qavslar ichida. Qolgan amallar o‘z navbatini kutadi.',
+    eyebrow: { ru: 'Разбираем первый шаг', uz: 'Birinchi qadamni tahlil qilamiz' },
+    title: { ru: 'Левее — не значит раньше', uz: 'Chapda — birinchi degani emas' },
+    intro: {
+      ru: 'Результат зависит от первого шага. Нажми на оба варианта и посмотри, почему начинать нужно не с самого левого действия.',
+      uz: 'Natija birinchi qadamga bog‘liq. Ikkala variantni bosing va nima uchun eng chap amaldan boshlamaslik kerakligini ko‘ring.',
     },
   },
   {
-    eyebrow: { ru: 'Первое преобразование', uz: 'Birinchi o‘zgarish' },
-    title: { ru: 'Скобка становится числом', uz: 'Qavs songa aylanadi' },
-    hint: {
-      ru: 'Запусти преобразование: формула объяснит правило сама.',
-      uz: 'O‘zgarishni boshlang: formula qoidani o‘zi tushuntiradi.',
-    },
-    narration: {
-      ru: 'Начинаем с самой глубокой части. Семь минус четыре равно трём. После вычисления вся круглая скобка заменяется одним числом — тройкой. Так выражение становится короче, а его значение не меняется.',
-      uz: 'Eng chuqur qismdan boshlaymiz. Yetti minus to‘rt uchga teng. Hisoblangandan keyin butun dumaloq qavs bitta son — uch bilan almashtiriladi. Ifoda qisqaradi, ammo uning qiymati o‘zgarmaydi.',
+    eyebrow: { ru: 'Школьное правило', uz: 'Maktab qoidasi' },
+    title: { ru: 'Три ступени порядка действий', uz: 'Amallar tartibining uch bosqichi' },
+    intro: {
+      ru: 'Нажимай на ступени. Каждая карточка покажет своё место прямо в выражении.',
+      uz: 'Bosqichlarni bosing. Har bir kartochka ifodadagi o‘z o‘rnini ko‘rsatadi.',
     },
   },
 ]
 
-const t = (value, lang) => value?.[lang] ?? value?.ru ?? value ?? ''
+const textOf = (value, lang) => value?.[lang] ?? value?.ru ?? value ?? ''
 
 function useMobileScale() {
   const [scale, setScale] = useState(1)
@@ -102,214 +88,256 @@ function useSpeech(lang, muted) {
 function ScreenHeading({ screen, lang }) {
   const copy = COPY[screen]
   return (
-    <div className="g7p-heading">
-      <span>{t(copy.eyebrow, lang)}</span>
-      <h1>{t(copy.title, lang)}</h1>
-      <p>{t(copy.hint, lang)}</p>
+    <div className="g7w-heading">
+      <span>{textOf(copy.eyebrow, lang)}</span>
+      <h1>{textOf(copy.title, lang)}</h1>
     </div>
   )
 }
 
-function HookScreen({ lang, speak, onRecord }) {
+function MathExpression({ focus = null }) {
+  const active = (name) => focus === name || focus === 'brackets' && name === 'bracket'
+
+  return (
+    <div className={`g7w-expression focus-${focus ?? 'none'}`} aria-label="120 − 84 : [2 · (7 − 4)] + 3 · (15 − 9)">
+      <span className={`g7w-left-start ${active('left') ? 'is-active' : ''}`}>
+        <span>120</span>
+        <span className={`g7w-op g7w-outer-low ${active('plusminus') ? 'is-rule-active' : ''}`}>−</span>
+        <span>84</span>
+      </span>
+      <span className={`g7w-op g7w-outer-high ${active('multdiv') ? 'is-rule-active' : ''}`}>:</span>
+      <span className={`g7w-bracket-group ${active('bracket') ? 'is-rule-active' : ''}`}>
+        <span className="g7w-bracket">[</span>
+        <span>2</span>
+        <span className="g7w-op">·</span>
+        <span className={`g7w-inner-one ${active('firstBracket') ? 'is-active' : ''}`}>
+          <span className="g7w-bracket">(</span>
+          <span>7</span>
+          <span className="g7w-op">−</span>
+          <span>4</span>
+          <span className="g7w-bracket">)</span>
+        </span>
+        <span className="g7w-bracket">]</span>
+      </span>
+      <span className={`g7w-op g7w-outer-low ${active('plusminus') ? 'is-rule-active' : ''}`}>+</span>
+      <span>3</span>
+      <span className={`g7w-op g7w-outer-high ${active('multdiv') ? 'is-rule-active' : ''}`}>·</span>
+      <span className={`g7w-bracket-group g7w-second-bracket ${active('bracket') ? 'is-rule-active' : ''}`}>
+        <span className="g7w-bracket">(</span>
+        <span>15</span>
+        <span className="g7w-op">−</span>
+        <span>9</span>
+        <span className="g7w-bracket">)</span>
+      </span>
+    </div>
+  )
+}
+
+function ChallengeScreen({ lang, speak, onRecord }) {
+  const [running, setRunning] = useState(false)
   const [seconds, setSeconds] = useState(45)
   const [answer, setAnswer] = useState('')
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    if (saved || seconds <= 0) return undefined
+    if (!running || saved || seconds <= 0) return undefined
     const timer = window.setInterval(() => {
       setSeconds((value) => Math.max(0, value - 1))
     }, 1000)
     return () => window.clearInterval(timer)
-  }, [saved, seconds])
+  }, [running, saved, seconds])
+
+  const start = () => {
+    setRunning(true)
+    speak(textOf({
+      ru: 'Время пошло. Решай как умеешь. Сейчас важно сохранить первую версию, а не угадать правильный ответ.',
+      uz: 'Vaqt boshlandi. O‘zingiz bilgan usulda yeching. Hozir to‘g‘ri javobni topishdan ko‘ra birinchi fikrni saqlash muhim.',
+    }, lang))
+  }
 
   const save = () => {
     if (!answer) return
     setSaved(true)
+    setRunning(false)
     onRecord({ hypothesis: Number(answer) })
-    speak(t({
-      ru: 'Версия сохранена. На следующих экранах мы не будем угадывать ответ — проследим за движением самой формулы.',
-      uz: 'Taxmin saqlandi. Keyingi ekranlarda javobni taxmin qilmaymiz — formulaning o‘zgarishini kuzatamiz.',
+    speak(textOf({
+      ru: `Версия ${answer} сохранена без оценки. Мы вернёмся к ней после объяснения.`,
+      uz: `${answer} javobi bahosiz saqlandi. Tushuntirishdan keyin unga qaytamiz.`,
     }, lang))
   }
 
   return (
-    <div className="g7p-screen">
+    <div className="g7w-screen">
       <ScreenHeading screen={0} lang={lang} />
-      <section className="g7p-open-scene g7p-hook-scene">
-        <div className="g7p-answer-signals" aria-label={t({ ru: 'Два разных ответа', uz: 'Ikki xil javob' }, lang)}>
-          <motion.div initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 }}>
-            <span>Азиз</span>
-            <strong>124</strong>
-          </motion.div>
-          <span className="g7p-signal-line" />
-          <motion.div initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.42 }}>
-            <strong>54</strong>
-            <span>Малика</span>
-          </motion.div>
-        </div>
-
-        <motion.div
-          className="g7p-anchor-expression"
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.18, duration: 0.55 }}
-        >
-          {EXPRESSION}
-        </motion.div>
-
-        <div className="g7p-hook-action">
-          <div className="g7p-visual-instruction">
+      <section className="g7w-frame g7w-challenge-frame">
+        <div className="g7w-frame-topline">
+          <div>
             <span>01</span>
-            <p>{t({ ru: 'Посмотри на весь пример', uz: 'Butun misolga qarang' }, lang)}</p>
-            <i />
-            <span>02</span>
-            <p>{t({ ru: 'Запиши первую версию', uz: 'Birinchi taxminni yozing' }, lang)}</p>
+            <strong>{textOf({ ru: 'Реши как умеешь', uz: 'O‘zingiz bilgan usulda yeching' }, lang)}</strong>
           </div>
-
-          <div
-            className={`g7p-inline-timer ${seconds <= 10 ? 'is-ending' : ''}`}
-            style={{ '--timer-progress': `${(seconds / 45) * 100}%` }}
-          >
-            <Clock3 size={16} />
-            <strong>{seconds}</strong>
-            <small>{t({ ru: 'сек', uz: 'son' }, lang)}</small>
-          </div>
-        </div>
-
-        <div className="g7p-answer-dock">
-          {!saved ? (
-            <>
-              <label>
-                <span>{t({ ru: 'Моя версия', uz: 'Mening taxminim' }, lang)}</span>
-                <input
-                  value={answer}
-                  onChange={(event) => setAnswer(event.target.value.replace(/[^\d-]/g, ''))}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') save()
-                  }}
-                  inputMode="numeric"
-                  autoComplete="off"
-                />
-              </label>
-              <button type="button" onClick={save} disabled={!answer}>
-                <Check size={17} />
-                {t({ ru: 'Сохранить', uz: 'Saqlash' }, lang)}
-              </button>
-            </>
-          ) : (
-            <motion.div className="g7p-saved-hypothesis" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              <Check size={17} />
-              <span>{t({ ru: `Версия ${answer} сохранена без оценки`, uz: `${answer} taxmini bahosiz saqlandi` }, lang)}</span>
-            </motion.div>
+          {running && (
+            <div
+              className={`g7w-timer ${seconds <= 10 ? 'is-ending' : ''}`}
+              style={{ '--timer-progress': `${(seconds / 45) * 100}%` }}
+            >
+              <Clock3 size={17} />
+              <strong>{seconds}</strong>
+              <small>{textOf({ ru: 'сек', uz: 'son' }, lang)}</small>
+            </div>
           )}
         </div>
+
+        <div className="g7w-expression-window">
+          <MathExpression />
+        </div>
+
+        {!running && !saved && (
+          <div className="g7w-start-panel">
+            <p>{textOf({
+              ru: 'Когда будешь готов, запусти 45 секунд.',
+              uz: 'Tayyor bo‘lsangiz, 45 soniyani boshlang.',
+            }, lang)}</p>
+            <button type="button" className="g7w-primary g7w-start-button" onClick={start}>
+              <Play size={18} fill="currentColor" />
+              {textOf({ ru: 'Начать', uz: 'Boshlash' }, lang)}
+            </button>
+          </div>
+        )}
+
+        {running && !saved && (
+          <motion.div className="g7w-answer-row" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <label>
+              <span>{textOf({ ru: 'Моя первая версия', uz: 'Mening birinchi javobim' }, lang)}</span>
+              <input
+                value={answer}
+                onChange={(event) => setAnswer(event.target.value.replace(/[^\d-]/g, ''))}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') save()
+                }}
+                inputMode="numeric"
+                autoComplete="off"
+                autoFocus
+              />
+            </label>
+            <button type="button" className="g7w-primary" onClick={save} disabled={!answer}>
+              <Check size={17} />
+              {textOf({ ru: 'Сохранить', uz: 'Saqlash' }, lang)}
+            </button>
+          </motion.div>
+        )}
+
+        {saved && (
+          <motion.div className="g7w-saved" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+            <span><Check size={17} /></span>
+            <div>
+              <strong>{textOf({ ru: `Версия: ${answer}`, uz: `Javob: ${answer}` }, lang)}</strong>
+              <small>{textOf({ ru: 'Без оценки — проверим после объяснения', uz: 'Bahosiz — tushuntirishdan keyin tekshiramiz' }, lang)}</small>
+            </div>
+          </motion.div>
+        )}
       </section>
     </div>
   )
 }
 
-function DepthExpression({ phase }) {
-  return (
-    <div className={`g7p-depth-expression phase-${phase}`}>
-      <span className="plain">120 − 84 : </span>
-      <span className="outer-bracket">[</span>
-      <span className="outer-zone">
-        <span className="plain">2 · </span>
-        <span className="inner-zone">(7 − 4)</span>
-      </span>
-      <span className="outer-bracket">]</span>
-      <span className="plain"> + 3 · </span>
-      <span className="inner-zone second">(15 − 9)</span>
-      <span className="g7p-scan-beam" />
-    </div>
-  )
-}
+const FIRST_STEP_OPTIONS = [
+  {
+    id: 'left',
+    label: { ru: 'Начать с левого края', uz: 'Chap tomondan boshlash' },
+    math: '120 − 84',
+    result: {
+      ru: 'Левее — не значит раньше. Скобки ещё не вычислены.',
+      uz: 'Chapda turishi birinchi degani emas. Qavslar hali hisoblanmagan.',
+    },
+    speech: {
+      ru: 'Если начать со ста двадцати минус восемьдесят четыре, мы нарушим порядок действий. Левое действие ждёт, пока будут вычислены скобки.',
+      uz: 'Agar bir yuz yigirma minus sakson to‘rtdan boshlasak, amallar tartibini buzamiz. Chapdagi amal qavslar hisoblanishini kutadi.',
+    },
+  },
+  {
+    id: 'firstBracket',
+    label: { ru: 'Начать внутри скобок', uz: 'Qavs ichidan boshlash' },
+    math: '7 − 4',
+    result: {
+      ru: 'Верный старт: сначала самое внутреннее действие.',
+      uz: 'To‘g‘ri boshlanish: avval eng ichki amal.',
+    },
+    speech: {
+      ru: 'Правильный старт — семь минус четыре. Это действие находится внутри круглых скобок, а сами круглые скобки — внутри квадратных.',
+      uz: 'To‘g‘ri boshlanish — yetti minus to‘rt. Bu amal dumaloq qavs ichida, dumaloq qavs esa kvadrat qavs ichida joylashgan.',
+    },
+  },
+]
 
-function DepthScreen({ lang, speak, onRecord }) {
-  const [phase, setPhase] = useState(0)
-  const timers = useRef([])
+function FirstStepScreen({ lang, speak, onRecord }) {
+  const [active, setActive] = useState(null)
+  const [visited, setVisited] = useState([])
+  const nextId = !visited.includes('left') ? 'left' : !visited.includes('firstBracket') ? 'firstBracket' : null
 
-  useEffect(() => () => {
-    timers.current.forEach((timer) => window.clearTimeout(timer))
-  }, [])
-
-  const run = () => {
-    timers.current.forEach((timer) => window.clearTimeout(timer))
-    setPhase(1)
-    speak(t({
-      ru: 'Первый уровень. Самые глубокие части — круглые скобки.',
-      uz: 'Birinchi daraja. Eng chuqur qismlar — dumaloq qavslar.',
-    }, lang))
-    timers.current = [
-      window.setTimeout(() => {
-        setPhase(2)
-        speak(t({
-          ru: 'Второй уровень. После внутренней скобки работает квадратная.',
-          uz: 'Ikkinchi daraja. Ichki qavsdan keyin kvadrat qavs ishlaydi.',
-        }, lang))
-      }, 1450),
-      window.setTimeout(() => {
-        setPhase(3)
-        speak(t({
-          ru: 'Третий уровень. Остальные действия начнутся только после скобок. Структура задаёт маршрут решения.',
-          uz: 'Uchinchi daraja. Qolgan amallar faqat qavslardan keyin boshlanadi. Tuzilish yechim yo‘lini belgilaydi.',
-        }, lang))
-        onRecord({ structureSeen: true })
-      }, 2950),
-    ]
+  const choose = (option) => {
+    setActive(option.id)
+    const completesComparison = !visited.includes(option.id)
+      && visited.length + 1 === FIRST_STEP_OPTIONS.length
+    setVisited((previous) => {
+      if (previous.includes(option.id)) return previous
+      return [...previous, option.id]
+    })
+    if (completesComparison) onRecord({ comparedFirstSteps: true })
+    speak(textOf(option.speech, lang))
   }
 
+  const activeOption = FIRST_STEP_OPTIONS.find((option) => option.id === active)
+
   return (
-    <div className="g7p-screen">
+    <div className="g7w-screen">
       <ScreenHeading screen={1} lang={lang} />
-      <section className="g7p-open-scene g7p-depth-scene">
-        <div className="g7p-scene-label">
-          <Eye size={17} />
-          <span>{t({ ru: 'Смотрим, пока не считаем', uz: 'Hozircha hisoblamaymiz, kuzatamiz' }, lang)}</span>
+      <section className="g7w-frame g7w-compare-frame">
+        <div className="g7w-frame-instruction">
+          <span>01</span>
+          <strong>{textOf({ ru: 'Нажми на оба первых шага', uz: 'Ikkala birinchi qadamni bosing' }, lang)}</strong>
         </div>
 
-        <DepthExpression phase={phase} />
-
-        <div className={`g7p-depth-route phase-${phase}`}>
-          <div className={phase >= 1 ? 'is-active' : ''}>
-            <span>1</span>
-            <strong>( )</strong>
-            <small>{t({ ru: 'глубже', uz: 'chuqur' }, lang)}</small>
-          </div>
-          <i />
-          <div className={phase >= 2 ? 'is-active' : ''}>
-            <span>2</span>
-            <strong>[ ]</strong>
-            <small>{t({ ru: 'снаружи', uz: 'tashqarida' }, lang)}</small>
-          </div>
-          <i />
-          <div className={phase >= 3 ? 'is-active' : ''}>
-            <span>3</span>
-            <strong>· : + −</strong>
-            <small>{t({ ru: 'потом', uz: 'keyin' }, lang)}</small>
-          </div>
+        <div className="g7w-expression-window g7w-expression-window-compact">
+          <MathExpression focus={active} />
         </div>
 
-        <div className="g7p-scene-controls">
-          <button type="button" className="g7p-play-button" onClick={run}>
-            {phase === 0 ? <Play size={17} fill="currentColor" /> : <RotateCcw size={17} />}
-            {phase === 0
-              ? t({ ru: 'Показать глубину', uz: 'Chuqurlikni ko‘rsatish' }, lang)
-              : t({ ru: 'Повторить сканирование', uz: 'Skanerlashni takrorlash' }, lang)}
-          </button>
-          <AnimatePresence>
-            {phase === 3 && (
-              <motion.p
-                className="g7p-rule-line"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
+        <div className="g7w-route-list">
+          {FIRST_STEP_OPTIONS.map((option, index) => {
+            const isVisited = visited.includes(option.id)
+            const isActive = active === option.id
+            return (
+              <button
+                type="button"
+                key={option.id}
+                className={`g7w-route-card ${isActive ? 'is-active' : ''} ${isVisited ? 'is-visited' : ''} ${nextId === option.id ? 'is-awaited' : ''}`}
+                onClick={() => choose(option)}
               >
-                <span>{t({ ru: 'Вывод', uz: 'Xulosa' }, lang)}</span>
-                {t({ ru: 'Порядок диктует структура, а не положение слева.', uz: 'Tartibni chapdagi joy emas, tuzilish belgilaydi.' }, lang)}
-              </motion.p>
-            )}
+                <span>{isVisited ? <Check size={15} /> : index + 1}</span>
+                <div>
+                  <strong>{textOf(option.label, lang)}</strong>
+                  <small>{option.math}</small>
+                </div>
+                <ArrowRight size={17} />
+              </button>
+            )
+          })}
+        </div>
+
+        <div className={`g7w-explanation-strip ${active === 'left' ? 'is-warning' : active === 'firstBracket' ? 'is-success' : ''}`}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={active ?? 'prompt'}
+              initial={{ opacity: 0, y: 7 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+            >
+              <span>{active ? textOf({ ru: 'Почему', uz: 'Nima uchun' }, lang) : '→'}</span>
+              <strong>
+                {activeOption
+                  ? textOf(activeOption.result, lang)
+                  : textOf({ ru: 'Выбери первый маршрут.', uz: 'Birinchi yo‘lni tanlang.' }, lang)}
+              </strong>
+            </motion.div>
           </AnimatePresence>
         </div>
       </section>
@@ -317,142 +345,116 @@ function DepthScreen({ lang, speak, onRecord }) {
   )
 }
 
-function TransformScreen({ lang, speak, onRecord }) {
-  const [phase, setPhase] = useState(0)
-  const timers = useRef([])
+const RULE_STEPS = [
+  {
+    id: 'brackets',
+    label: { ru: 'Скобки', uz: 'Qavslar' },
+    short: { ru: 'изнутри наружу', uz: 'ichkaridan tashqariga' },
+    detail: {
+      ru: 'В примере: (7 − 4), (15 − 9), затем [2 · 3].',
+      uz: 'Misolda: (7 − 4), (15 − 9), keyin [2 · 3].',
+    },
+    speech: {
+      ru: 'Первая ступень — скобки. Если скобки вложены друг в друга, начинаем с самых внутренних и движемся наружу.',
+      uz: 'Birinchi bosqich — qavslar. Qavslar ichma-ich bo‘lsa, eng ichkarisidan boshlaymiz va tashqariga harakat qilamiz.',
+    },
+    focus: 'brackets',
+  },
+  {
+    id: 'multdiv',
+    label: { ru: 'Умножение и деление', uz: 'Ko‘paytirish va bo‘lish' },
+    short: { ru: 'слева направо', uz: 'chapdan o‘ngga' },
+    detail: {
+      ru: 'После скобок: сначала 84 : 6, затем 3 · 6.',
+      uz: 'Qavslardan keyin: avval 84 : 6, keyin 3 · 6.',
+    },
+    speech: {
+      ru: 'Вторая ступень — умножение и деление. Действия одной ступени выполняем слева направо.',
+      uz: 'Ikkinchi bosqich — ko‘paytirish va bo‘lish. Bir bosqichdagi amallarni chapdan o‘ngga bajaramiz.',
+    },
+    focus: 'multdiv',
+  },
+  {
+    id: 'plusminus',
+    label: { ru: 'Сложение и вычитание', uz: 'Qo‘shish va ayirish' },
+    short: { ru: 'слева направо', uz: 'chapdan o‘ngga' },
+    detail: {
+      ru: 'В конце останется: 120 − 14 + 18.',
+      uz: 'Oxirida qoladi: 120 − 14 + 18.',
+    },
+    speech: {
+      ru: 'Третья ступень — сложение и вычитание. Их тоже выполняем слева направо.',
+      uz: 'Uchinchi bosqich — qo‘shish va ayirish. Ularni ham chapdan o‘ngga bajaramiz.',
+    },
+    focus: 'plusminus',
+  },
+]
 
-  useEffect(() => () => {
-    timers.current.forEach((timer) => window.clearTimeout(timer))
-  }, [])
+function RuleScreen({ lang, speak, onRecord }) {
+  const [active, setActive] = useState(null)
+  const [visited, setVisited] = useState([])
+  const activeStep = RULE_STEPS.find((step) => step.id === active)
+  const nextId = RULE_STEPS.find((step) => !visited.includes(step.id))?.id ?? null
 
-  const run = () => {
-    timers.current.forEach((timer) => window.clearTimeout(timer))
-    setPhase(1)
-    speak(t({
-      ru: 'Фокусируемся на самой глубокой скобке: семь минус четыре.',
-      uz: 'Eng chuqur qavsga e’tibor beramiz: yetti minus to‘rt.',
-    }, lang))
-    timers.current = [
-      window.setTimeout(() => {
-        setPhase(2)
-        speak(t({
-          ru: 'Семь минус четыре равно трём.',
-          uz: 'Yetti minus to‘rt uchga teng.',
-        }, lang))
-      }, 1250),
-      window.setTimeout(() => {
-        setPhase(3)
-        speak(t({
-          ru: 'Всю скобку заменяем числом три. Выражение стало короче, но осталось равным исходному.',
-          uz: 'Butun qavsni uch soni bilan almashtiramiz. Ifoda qisqardi, ammo dastlabki ifodaga teng bo‘lib qoldi.',
-        }, lang))
-        onRecord({ firstTransformation: true })
-      }, 2600),
-    ]
+  const choose = (step) => {
+    setActive(step.id)
+    const completesRule = !visited.includes(step.id)
+      && visited.length + 1 === RULE_STEPS.length
+    setVisited((previous) => {
+      if (previous.includes(step.id)) return previous
+      return [...previous, step.id]
+    })
+    if (completesRule) onRecord({ ruleExplored: true })
+    speak(textOf(step.speech, lang))
   }
 
   return (
-    <div className="g7p-screen">
+    <div className="g7w-screen">
       <ScreenHeading screen={2} lang={lang} />
-      <section className={`g7p-open-scene g7p-transform-scene phase-${phase}`}>
-        <div className="g7p-transform-stage">
+      <section className="g7w-frame g7w-rule-frame">
+        <div className="g7w-frame-instruction">
+          <BookOpen size={18} />
+          <strong>{textOf({ ru: 'Нажимай по порядку', uz: 'Tartib bilan bosing' }, lang)}</strong>
+        </div>
+
+        <div className="g7w-expression-window g7w-expression-window-compact">
+          <MathExpression focus={activeStep?.focus} />
+        </div>
+
+        <div className="g7w-rule-list">
+          {RULE_STEPS.map((step, index) => {
+            const isVisited = visited.includes(step.id)
+            const isActive = active === step.id
+            return (
+              <button
+                type="button"
+                key={step.id}
+                className={`g7w-rule-card ${isActive ? 'is-active' : ''} ${isVisited ? 'is-visited' : ''} ${nextId === step.id ? 'is-awaited' : ''}`}
+                onClick={() => choose(step)}
+              >
+                <span>{isVisited ? <Check size={14} /> : index + 1}</span>
+                <strong>{textOf(step.label, lang)}</strong>
+                <small>{textOf(step.short, lang)}</small>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="g7w-rule-detail" aria-live="polite">
           <AnimatePresence mode="wait">
-            {phase === 0 && (
-              <motion.div
-                key="whole"
-                className="g7p-whole-expression"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-              >
-                <span>120 − 84 : [2 · </span>
-                <strong>(7 − 4)</strong>
-                <span>] + 3 · (15 − 9)</span>
-              </motion.div>
-            )}
-
-            {phase === 1 && (
-              <motion.div
-                key="focus"
-                className="g7p-focus-fragment"
-                layoutId="inner-bracket"
-                initial={{ opacity: 0, scale: 0.75 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-                <span>(</span><b>7</b><i>−</i><b>4</b><span>)</span>
-              </motion.div>
-            )}
-
-            {phase === 2 && (
-              <motion.div
-                key="calculation"
-                className="g7p-live-calculation"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-              >
-                <motion.b initial={{ x: -28 }} animate={{ x: 0 }}>7</motion.b>
-                <motion.i initial={{ scale: 0.6 }} animate={{ scale: 1 }}>−</motion.i>
-                <motion.b initial={{ x: 28 }} animate={{ x: 0 }}>4</motion.b>
-                <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}>=</motion.span>
-                <motion.strong
-                  initial={{ opacity: 0, scale: 0.4, rotate: -12 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.55, type: 'spring', stiffness: 240 }}
-                >
-                  3
-                </motion.strong>
-              </motion.div>
-            )}
-
-            {phase === 3 && (
-              <motion.div
-                key="result"
-                className="g7p-whole-expression g7p-result-expression"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <span>120 − 84 : [2 · </span>
-                <motion.strong initial={{ scale: 1.45 }} animate={{ scale: 1 }}>3</motion.strong>
-                <span>] + 3 · (15 − 9)</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div className="g7p-transform-caption" aria-live="polite">
-          <span className={phase >= 1 ? 'is-active' : ''}>
-            <b>1</b>{t({ ru: 'выбираем скобку', uz: 'qavsni tanlaymiz' }, lang)}
-          </span>
-          <i />
-          <span className={phase >= 2 ? 'is-active' : ''}>
-            <b>2</b>{t({ ru: 'вычисляем', uz: 'hisoblaymiz' }, lang)}
-          </span>
-          <i />
-          <span className={phase >= 3 ? 'is-active' : ''}>
-            <b>3</b>{t({ ru: 'заменяем числом', uz: 'son bilan almashtiramiz' }, lang)}
-          </span>
-        </div>
-
-        <div className="g7p-scene-controls">
-          <button type="button" className="g7p-play-button" onClick={run}>
-            {phase === 0 ? <Play size={17} fill="currentColor" /> : <RotateCcw size={17} />}
-            {phase === 0
-              ? t({ ru: 'Запустить преобразование', uz: 'O‘zgarishni boshlash' }, lang)
-              : t({ ru: 'Посмотреть ещё раз', uz: 'Yana bir bor ko‘rish' }, lang)}
-          </button>
-          <AnimatePresence>
-            {phase === 3 && (
-              <motion.p
-                className="g7p-rule-line"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <span>{t({ ru: 'Правило', uz: 'Qoida' }, lang)}</span>
-                {t({ ru: 'Вычисленную скобку заменяем одним числом.', uz: 'Hisoblangan qavsni bitta son bilan almashtiramiz.' }, lang)}
-              </motion.p>
-            )}
+            <motion.div
+              key={active ?? 'empty'}
+              initial={{ opacity: 0, y: 7 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+            >
+              <span>{active ? textOf({ ru: 'В этом примере', uz: 'Bu misolda' }, lang) : '→'}</span>
+              <strong>
+                {activeStep
+                  ? textOf(activeStep.detail, lang)
+                  : textOf({ ru: 'Начни со скобок.', uz: 'Qavslardan boshlang.' }, lang)}
+              </strong>
+            </motion.div>
           </AnimatePresence>
         </div>
       </section>
@@ -460,7 +462,7 @@ function TransformScreen({ lang, speak, onRecord }) {
   )
 }
 
-const SCREENS = [HookScreen, DepthScreen, TransformScreen]
+const SCREENS = [ChallengeScreen, FirstStepScreen, RuleScreen]
 
 export default function Grade7Dars01({ lang: langProp, onFinished }) {
   const preview = !langProp
@@ -477,12 +479,12 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
   useEffect(() => {
     stop()
     if (muted) return undefined
-    const timer = window.setTimeout(() => speak(t(copy.narration, lang)), 260)
+    const timer = window.setTimeout(() => speak(textOf(copy.intro, lang)), 280)
     return () => {
       window.clearTimeout(timer)
       stop()
     }
-  }, [copy.narration, current, lang, muted, speak, stop])
+  }, [copy.intro, current, lang, muted, speak, stop])
 
   const record = useCallback((data) => {
     setAnswers((previous) => {
@@ -498,32 +500,39 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
       return
     }
     onFinished?.({
-      lessonId: 'grade7-dars01-prototype-v3',
+      lessonId: 'grade7-dars01-window-prototype',
       prototype: true,
       screens: TOTAL,
       answers: answers.filter(Boolean),
     })
   }
 
+  const replay = useMemo(() => () => speak(textOf(copy.intro, lang)), [copy.intro, lang, speak])
+
   return (
-    <main className="g7p-root" style={{ '--g7p-scale': scale }}>
-      <div className="g7p-ambient g7p-ambient-a" />
-      <div className="g7p-ambient g7p-ambient-b" />
-      <section className="g7p-stage">
-        <header className="g7p-header">
-          <div className="g7p-progress"><i style={{ width: `${((current + 1) / TOTAL) * 100}%` }} /></div>
-          <div className="g7p-chrome">
-            <div className="g7p-chrome-title">
+    <main className="g7w-root" style={{ '--g7w-scale': scale }}>
+      <section className="g7w-stage">
+        <header className="g7w-header">
+          <div className="g7w-progress" aria-label={`${current + 1} / ${TOTAL}`}>
+            <i style={{ width: `${((current + 1) / TOTAL) * 100}%` }} />
+          </div>
+          <div className="g7w-chrome">
+            <div className="g7w-chrome-title">
               <span />
-              <strong>{t(copy.eyebrow, lang)}</strong>
+              <strong>{textOf(copy.eyebrow, lang)}</strong>
             </div>
-            <div className="g7p-tools">
-              <span className="g7p-prototype-pill">{t({ ru: 'Прототип', uz: 'Prototip' }, lang)}</span>
+            <div className="g7w-tools">
+              <span className="g7w-phase">{textOf({ ru: 'Обучение', uz: 'O‘rganish' }, lang)}</span>
               <button type="button" onClick={() => setMuted((value) => !value)} aria-label={muted ? 'Включить звук' : 'Выключить звук'}>
                 {muted ? <VolumeX size={17} /> : <Volume2 size={17} />}
               </button>
+              {!muted && (
+                <button type="button" onClick={replay} aria-label="Повторить объяснение">
+                  <span className="g7w-replay">↻</span>
+                </button>
+              )}
               {preview && (
-                <div className="g7p-lang">
+                <div className="g7w-lang">
                   {['ru', 'uz'].map((code) => (
                     <button
                       type="button"
@@ -539,30 +548,30 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
                   ))}
                 </div>
               )}
-              <span className="g7p-count">{String(current + 1).padStart(2, '0')} / {String(TOTAL).padStart(2, '0')}</span>
+              <span className="g7w-count">{String(current + 1).padStart(2, '0')} / {String(TOTAL).padStart(2, '0')}</span>
             </div>
           </div>
         </header>
 
-        <div className="g7p-content">
+        <div className="g7w-content">
           <CurrentScreen key={`${current}-${lang}`} lang={lang} speak={speak} onRecord={record} />
         </div>
 
-        <footer className="g7p-nav">
+        <footer className="g7w-nav">
           <button
             type="button"
-            className="g7p-back"
+            className="g7w-back"
             onClick={() => setCurrent((value) => Math.max(0, value - 1))}
             disabled={current === 0}
           >
             <ArrowLeft size={18} />
-            {t({ ru: 'Назад', uz: 'Orqaga' }, lang)}
+            {textOf({ ru: 'Назад', uz: 'Orqaga' }, lang)}
           </button>
-          <span>{t({ ru: '3 экрана для утверждения', uz: 'Tasdiqlash uchun 3 ekran' }, lang)}</span>
-          <button type="button" className="g7p-next" onClick={next}>
+          <span>{textOf({ ru: 'Прототип экранов 1–3', uz: '1–3 ekran prototipi' }, lang)}</span>
+          <button type="button" className="g7w-next" onClick={next}>
             {current === TOTAL - 1
-              ? t({ ru: 'Оценить прототип', uz: 'Prototipni baholash' }, lang)
-              : t({ ru: 'Дальше', uz: 'Davom etish' }, lang)}
+              ? textOf({ ru: 'Оценить направление', uz: 'Yo‘nalishni baholash' }, lang)
+              : textOf({ ru: 'Дальше', uz: 'Davom etish' }, lang)}
             {current === TOTAL - 1 ? <Check size={18} /> : <ArrowRight size={18} />}
           </button>
         </footer>

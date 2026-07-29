@@ -6,7 +6,7 @@ export const grade7Nazariy = [
   {
     slug: 'dars01-sonli-ifodalar',
     title: 'Dars 1. Sonli ifodalar',
-    desc: 'Yangi animatsion konsepsiyaning 3 ekranli prototipi.',
+    desc: '4-sinf uslubidagi oynali konsepsiyaning 3 ekranli prototipi.',
     Component: lazy(() => import('../components/grade7/Dars01.jsx')),
   },
 ]
