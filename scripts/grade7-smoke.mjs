@@ -97,13 +97,14 @@ async function auditViewport(name, viewport) {
 
 const desktopIssues = await auditViewport('desktop', { width: 1366, height: 768 })
 const mobileIssues = await auditViewport('mobile', { width: 390, height: 844 })
+const compactMobileIssues = await auditViewport('mobile-compact', { width: 360, height: 740 })
 
 await browser.close()
 
-const issues = [...desktopIssues, ...mobileIssues]
+const issues = [...desktopIssues, ...mobileIssues, ...compactMobileIssues]
 if (issues.length) {
   console.error(issues.join('\n'))
   process.exitCode = 1
 } else {
-  console.log('Grade 7 window prototype smoke test passed: 3 screens, desktop and mobile.')
+  console.log('Grade 7 window prototype smoke test passed: 3 screens, desktop and two mobile sizes.')
 }

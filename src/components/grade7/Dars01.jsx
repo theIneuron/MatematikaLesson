@@ -43,29 +43,6 @@ const COPY = [
 
 const textOf = (value, lang) => value?.[lang] ?? value?.ru ?? value ?? ''
 
-function useMobileScale() {
-  const [scale, setScale] = useState(1)
-
-  useEffect(() => {
-    const update = () => {
-      if (window.innerWidth >= 640) {
-        setScale(1)
-        return
-      }
-      setScale(Math.min(window.innerWidth / 390, window.innerHeight / 780, 1))
-    }
-    update()
-    window.addEventListener('resize', update)
-    window.addEventListener('orientationchange', update)
-    return () => {
-      window.removeEventListener('resize', update)
-      window.removeEventListener('orientationchange', update)
-    }
-  }, [])
-
-  return scale
-}
-
 function useSpeech(lang, muted) {
   const stop = useCallback(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -331,7 +308,11 @@ function FirstStepScreen({ lang, speak, onRecord }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
             >
-              <span>{active ? textOf({ ru: 'Почему', uz: 'Nima uchun' }, lang) : '→'}</span>
+              <span>
+                {active
+                  ? textOf({ ru: 'Почему так?', uz: 'Nega shunday?' }, lang)
+                  : textOf({ ru: 'Подсказка', uz: 'Ko‘rsatma' }, lang)}
+              </span>
               <strong>
                 {activeOption
                   ? textOf(activeOption.result, lang)
@@ -471,7 +452,6 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
   const [current, setCurrent] = useState(0)
   const [answers, setAnswers] = useState([])
   const [muted, setMuted] = useState(false)
-  const scale = useMobileScale()
   const { speak, stop } = useSpeech(lang, muted)
   const CurrentScreen = SCREENS[current]
   const copy = COPY[current]
@@ -510,7 +490,7 @@ export default function Grade7Dars01({ lang: langProp, onFinished }) {
   const replay = useMemo(() => () => speak(textOf(copy.intro, lang)), [copy.intro, lang, speak])
 
   return (
-    <main className="g7w-root" style={{ '--g7w-scale': scale }}>
+    <main className="g7w-root">
       <section className="g7w-stage">
         <header className="g7w-header">
           <div className="g7w-progress" aria-label={`${current + 1} / ${TOTAL}`}>
