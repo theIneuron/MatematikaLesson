@@ -491,8 +491,8 @@ export const CONTENT = {
         uz: "Raqam qiymatini uning o'rniga qarab topdik. Endi to'liq hisoblamasdan ayting: 6 raqami qayerga siljiganini kuzating.",
       },
       on_correct: {
-        ru: 'Верно. Один шаг влево умножил значение цифры на десять.',
-        uz: "To'g'ri. Bir qadam chapga raqam qiymatini o'nga ko'paytirdi.",
+        ru: 'Верно. Цифра 6 перешла из тысяч в десятки тысяч. Один шаг влево умножил значение цифры на десять.',
+        uz: "To'g'ri. 6 raqami minglardan o'n minglarga o'tdi. Bir qadam chapga raqam qiymatini o'nga ko'paytirdi.",
       },
       on_wrong: {
         ru: 'Вспомни: десятки в десять раз больше единиц, сотни в десять раз больше десятков. Эта связь продолжается.',

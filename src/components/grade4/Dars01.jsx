@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { BRIDGES, CONTENT as CONTENT_SOURCE } from './Dars01Content.js';
 
 // ============================================================================
@@ -446,15 +447,19 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
   return order;
 };
 
-const BitAnswerComment = ({ reaction, children }) => {
-  const t = useT();
+const BitAnswerComment = ({ formula, label, children }) => {
+  const lang = useLang();
   return (
-    <div className="bit-answer-comment">
+    <div className="bit-answer-comment" aria-live="polite">
       <div className="bit-answer-comment-figure">
-        <BitSVG state="happy" />
+        <BitSVG state="nod" />
       </div>
       <div className="bit-answer-comment-copy">
-        <strong>{t(reaction)}</strong>
+        <span className="bit-solution-kicker">
+          {lang === 'uz' ? 'YECHIM' : 'РЕШЕНИЕ'}
+        </span>
+        {formula && <div className="bit-solution-formula">{formula}</div>}
+        {label && <small>{label}</small>}
         {children && <div>{children}</div>}
       </div>
     </div>
@@ -464,16 +469,16 @@ const BitAnswerComment = ({ reaction, children }) => {
 const FeedbackBlock = ({ show, correct, reaction, children }) => {
   const lang = useLang();
   const t = useT();
-  const label = reaction
-    ? t(reaction)
-    : (correct
-      ? (lang === 'uz' ? "To'g'ri!" : 'Верно!')
+  const label = correct
+    ? (lang === 'uz' ? 'YECHIM' : 'РЕШЕНИЕ')
+    : (reaction
+      ? t(reaction)
       : (lang === 'uz' ? "Yana o'ylang." : 'Подумай ещё.'));
   return (
     <div className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show}>
       <div className={`feedback-card g4-bit-reaction ${correct ? 'feedback-correct g4-bit-reaction-ok' : 'feedback-hint g4-bit-reaction-hint'}`}>
         <div className="g4-bit-reaction-figure">
-          <BitSVG state={correct ? 'happy' : 'hint'} />
+          <BitSVG state={correct ? 'nod' : 'awkward'} />
         </div>
         <div className="g4-bit-reaction-copy">
           <strong>{label}</strong>
@@ -654,6 +659,7 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   const isWave = state === 'wave';
   const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
   const isThinking = state === 'hint' || state === 'think';
+  const isAwkward = state === 'awkward';
 
   return (
   <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} viewBox="0 0 120 150" aria-hidden="true">
@@ -709,6 +715,14 @@ const BitSVG = ({ state = 'present', className = '' }) => {
         </g>
       </g>
     )}
+    {isAwkward && (
+      <g className="bit-awkward-hands">
+        <path d="M36 76 C 39 88 46 96 54 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="54" cy="99" r="5" fill="#B6C7D2" />
+        <path d="M84 76 C 81 88 74 96 66 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
+        <circle cx="66" cy="99" r="5" fill="#B6C7D2" />
+      </g>
+    )}
     {state === 'point' && (
       <g>
         <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
@@ -749,13 +763,22 @@ const BitSVG = ({ state = 'present', className = '' }) => {
     <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
     <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
     <g className="g1-eyes" fill="#5BD6F2">
-      {isThinking
+      {isAwkward
+        ? <><ellipse cx="50" cy="53" rx="4.8" ry="3.2" /><ellipse cx="70" cy="53" rx="4.8" ry="3.2" /></>
+        : isThinking
         ? <><circle cx="50" cy="50" r="4.5" /><circle cx="70" cy="49" r="5.5" /></>
         : <><circle cx="50" cy="50" r="5" /><circle cx="70" cy="50" r="5" /></>}
     </g>
     {isHappy && <path d="M50 58 Q60 65 70 58" stroke="#5BD6F2" strokeWidth="2.6" fill="none" strokeLinecap="round" />}
     {(state === 'present' || state === 'point' || state === 'focus') && <path d="M52 58 h16" stroke="#5BD6F2" strokeWidth="2.6" strokeLinecap="round" />}
     {isThinking && <circle cx="60" cy="59" r="2.4" fill="#5BD6F2" />}
+    {isAwkward && (
+      <g className="bit-awkward-face">
+        <path d="M53 62 Q60 57 67 62" stroke="#5BD6F2" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+        <circle cx="43" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
+        <circle cx="77" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
+      </g>
+    )}
     {isThinking && (
       <g>
         <circle cx="99" cy="38" r="9" fill="#FFC23C" />
@@ -1183,8 +1206,8 @@ const ChoiceScreen = ({
             <strong>{screen - 10} / 4</strong>
           </div>
         )}
-        {figure?.({ solved, picked })}
         <h2 className="question-title">{t(c.question)}</h2>
+        {figure?.({ solved, picked })}
         <div className="answer-stage choice-answer-stage">
           <div className={`answer-layer answer-options-layer ${solved ? 'answer-layer-hidden' : ''}`}>
             <div className={`options-grid ${options.length === 3 ? 'options-three' : ''}`}>
@@ -1208,11 +1231,7 @@ const ChoiceScreen = ({
             </div>
           </div>
           <div className={`answer-layer answer-proof-layer choice-proof-layer ${solved ? 'answer-layer-visible' : ''}`}>
-            <div className="solved-option">
-              <span aria-hidden="true">✓</span>
-              <strong>{options[correctIndex]}</strong>
-            </div>
-            <BitAnswerComment reaction={getBitReaction(true, screen * 13 + correctIndex)}>
+            <BitAnswerComment formula={options[correctIndex]}>
               <p>{feedbackText}</p>
             </BitAnswerComment>
           </div>
@@ -1494,8 +1513,8 @@ const ReasoningRoundsScreen = ({
             </div>
             <strong>{round + 1} / {c.rounds.length}</strong>
           </div>
-          {renderVisual()}
           <h2 className="question-title">{t(current.question)}</h2>
+          {renderVisual()}
           <div className="answer-stage reasoning-answer-stage">
             <div className={`answer-layer answer-options-layer ${roundSolved ? 'answer-layer-hidden' : ''}`}>
               <div className={`options-grid ${current.options.length === 3 ? 'options-three' : ''}`}>
@@ -1515,10 +1534,10 @@ const ReasoningRoundsScreen = ({
               </div>
             </div>
             <div className={`answer-layer answer-proof-layer reasoning-proof-layer ${completed ? 'reasoning-proof-completed' : ''} ${roundSolved ? 'answer-layer-visible' : ''}`}>
-              <VisualAnswerProof formula={proofFormula} label={proofLabel} />
               {roundSolved && (
                 <BitAnswerComment
-                  reaction={getBitReaction(true, reactionSeed ?? (screen * 17 + round * 3 + correctIndex))}
+                  formula={proofFormula}
+                  label={proofLabel}
                 >
                   <p>{message}</p>
                 </BitAnswerComment>
@@ -2673,9 +2692,9 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
     >
       <div className="screen-stack strategy-screen">
         <Bridge screen={screen} />
-        <StrategyDecomposition step={step} t={t} />
         <div className="strategy-phase" key={step}>
           <h1 className="title h-title">{t(step === 0 ? c.question : c.followupQuestion)}</h1>
+          <StrategyDecomposition step={step} t={t} />
           <div className="answer-stage strategy-answer-stage">
             <div className={`answer-layer answer-options-layer ${solved ? 'answer-layer-hidden' : ''}`}>
               <div className="options-grid options-three">
@@ -2695,12 +2714,10 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
               </div>
             </div>
             <div className={`answer-layer answer-proof-layer ${solved ? 'answer-layer-visible' : ''}`}>
-              <VisualAnswerProof
-                formula={t(c.followupOptions[c.followupCorrectIndex])}
-              />
               {solved && (
                 <BitAnswerComment
-                  reaction={getBitReaction(true, reactionSeed ?? (screen * 29 + correctIndex))}
+                  formula="482 731 = 482 × 1 000 + 731"
+                  label={t(c.followupOptions[c.followupCorrectIndex])}
                 >
                   <p>{t(c.correctText)}</p>
                 </BitAnswerComment>
@@ -2731,6 +2748,8 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
   const reflectionOptions = reflectionOrder.map((index) => c.reflectionOptions[index]);
   const reflectionCorrectIndex = reflectionOrder.indexOf(c.reflectionCorrectIndex);
   const [picked, setPicked] = useState(null);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const [showRankBoost, setShowRankBoost] = useState(false);
   const [finished, setFinished] = useState(false);
   const solved = picked === reflectionCorrectIndex;
   const audio = useAudio(useMemo(
@@ -2742,12 +2761,19 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
   const award = CONTENT.awards.find((item) => correctFirstTry >= item.min)
     ?? CONTENT.awards[CONTENT.awards.length - 1];
 
+  useEffect(() => {
+    if (!showRankBoost) return undefined;
+    const timer = window.setTimeout(() => setShowRankBoost(false), 3900);
+    return () => window.clearTimeout(timer);
+  }, [showRankBoost]);
+
   const choose = (index) => {
     setPicked(index);
     const sourceIndex = reflectionOrder[index];
     const correct = sourceIndex === c.reflectionCorrectIndex;
     const reactionSeed = screen * 31 + index;
     if (correct) {
+      setShowRankBoost(true);
       onAnswer({
         stage: null,
         screenIdx: screen,
@@ -2762,12 +2788,12 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
         attempts: 1,
         solved: true,
       });
-      audio.pushOneOff(bitSpeech(
-        t,
-        true,
-        reactionSeed,
-        t(c.reflectionCorrectAudio ?? reflectionOptions[index]),
-      ));
+      const announcement = lang === 'uz'
+        ? `Unvon olindi: ${t(award.title)}. Siz ko‘p xonali sonlarning tuzilishini topdingiz!`
+        : `Звание получено: ${t(award.title)}. Ты раскрыл структуру многозначных чисел!`;
+      audio.pushOneOff(
+        `${t(c.reflectionCorrectAudio ?? reflectionOptions[index])} ${announcement}`,
+      );
     } else {
       audio.pushOneOff(bitSpeech(t, false, reactionSeed, t(c.reflectionWrongAudio ?? {
         ru: 'Чтобы увидеть классы, цифры нужно сгруппировать.',
@@ -2790,73 +2816,52 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
       nav={(
         <>
           <NavBack onClick={onPrev} />
-          <NavNext onClick={finish} disabled={!solved || finished} finish />
+          <NavNext onClick={finish} disabled={!solved || finished || showRankBoost} finish />
         </>
       )}
     >
       <div className="screen-stack summary-stack">
-        <div className={`reward-stage ${solved ? 'reward-unlocked' : 'reward-locked'}`}>
-          {solved && (
-            <div className="reward-confetti" aria-hidden="true">
-              {Array.from({ length: 12 }, (_, index) => <i key={index} />)}
+        {showRankBoost && typeof document !== 'undefined' && createPortal(
+          <div
+            className="rank-boost-overlay"
+            role="status"
+            aria-live="assertive"
+            aria-label={lang === 'uz' ? `Unvon: ${t(award.title)}` : `Звание: ${t(award.title)}`}
+          >
+            <div className="rank-boost-card">
+              <div className="rank-boost-rays" aria-hidden="true" />
+              <div className="rank-boost-confetti" aria-hidden="true">
+                {Array.from({ length: 18 }, (_, index) => (
+                  <i
+                    key={index}
+                    style={{
+                      '--boost-i': index,
+                      '--boost-delay': `${(index % 7) * -0.21}s`,
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="rank-boost-medal" aria-hidden="true">★</div>
+              <h2>{t(award.title)}</h2>
             </div>
-          )}
-          <div className="reward-bit"><BitSVG state={solved ? 'happy' : 'present'} /></div>
-          <div className="reward-medal" aria-hidden="true">{solved ? '★' : '🔒'}</div>
-          <span className="reward-kicker">
-            {solved
-              ? (lang === 'uz' ? 'UNVON OCHILDI' : 'ЗВАНИЕ ОТКРЫТО')
-              : (lang === 'uz' ? 'OXIRGI QADAM' : 'ПОСЛЕДНИЙ ШАГ')}
-          </span>
-          <h1>
-            {solved
-              ? t(award.title)
-              : (lang === 'uz' ? 'Mukofotni oching' : 'Открой награду')}
-          </h1>
-          <div className="reward-score">
-            <strong>{correctFirstTry}/{totalScored}</strong>
-            <span>{lang === 'uz' ? 'tezkor test birinchi urinishda' : 'блиц-теста с первой попытки'}</span>
-          </div>
+          </div>,
+          document.body,
+        )}
+        <div className="final-mission-heading">
+          <span><i aria-hidden="true">◆</i> {lang === 'uz' ? 'YAKUNIY BOSQICH' : 'ФИНАЛЬНЫЙ ЭТАП'}</span>
+          <h1>{lang === 'uz' ? 'Unvongacha bitta savol' : 'Один вопрос до звания'}</h1>
+          <p>
+            {lang === 'uz'
+              ? 'Qoidani tanlang va son sinflarini tushunganingizni ko‘rsating.'
+              : 'Выбери правило и покажи, что понимаешь классы числа.'}
+          </p>
         </div>
-        <div className={`unlock-guide ${solved ? 'unlock-guide-done' : ''}`}>
-          <div className="unlock-guide-step">
-            <span>1</span>
-            <i aria-hidden="true">{solved ? '✓' : '☝'}</i>
-            <p>
-              {solved
-                ? (lang === 'uz' ? "To'g'ri qoida tanlandi" : 'Правильное правило выбрано')
-                : (lang === 'uz' ? 'Qoidani tanlang' : 'Выбери правило')}
-            </p>
-          </div>
-          <b aria-hidden="true">→</b>
-          <div className="unlock-guide-step">
-            <span>2</span>
-            <i aria-hidden="true">{solved ? '★' : '🔒'}</i>
-            <p>
-              {solved
-                ? (lang === 'uz' ? 'Unvon va medal ochildi' : 'Звание и медаль открыты')
-                : (lang === 'uz' ? 'Medalni oching' : 'Открой медаль')}
-            </p>
-          </div>
-        </div>
-        <div className="summary-action-layout">
-          <div className="summary-rule-strip">
-            <div className="summary-rule-heading">
-              <span aria-hidden="true">3 → |</span>
-              <h2>{t(c.mainLabel)}</h2>
-            </div>
-            <div className="summary-rule-items">
-              {c.main.map((item, index) => (
-                <span key={t(item)}>
-                  <i>{index + 1}</i>
-                  <p>{t(item)}</p>
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="summary-card reflection-card">
+        <div className="summary-action-layout summary-final-layout">
+          <div className="summary-card reflection-card final-question-card">
             <span className="summary-question-kicker">
+              <i aria-hidden="true">🏁</i>
               {lang === 'uz' ? 'YAKUNIY SAVOL' : 'ФИНАЛЬНЫЙ ВОПРОС'}
+              <b>{lang === 'uz' ? '1 QADAM' : '1 ШАГ'}</b>
             </span>
             <h2 className="summary-question">{t(c.reflectionQuestion ?? c.reflectionStart)}</h2>
             <p className="summary-question-stem">{t(c.reflectionStart)}</p>
@@ -2877,12 +2882,11 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
             </div>
             {solved && (
               <div className="reflection-resolution">
-                <div className="reflection-solved">✓ {t(reflectionOptions[reflectionCorrectIndex])}</div>
-                <BitAnswerComment reaction={getBitReaction(true, screen * 31 + reflectionCorrectIndex)}>
+                <BitAnswerComment formula={t(reflectionOptions[reflectionCorrectIndex])}>
                   <p>
                     {lang === 'uz'
-                      ? 'Ajoyib. Qoida esda — unvon ochildi!'
-                      : 'Отлично. Правило запомнено — звание открыто!'}
+                      ? 'O‘ngdan uchta xona ajratilsa, son sinflari aniq ko‘rinadi.'
+                      : 'Три разряда справа образуют класс единиц; следующая группа — класс тысяч.'}
                   </p>
                 </BitAnswerComment>
               </div>
@@ -2895,9 +2899,59 @@ const SummaryScreen = ({ screen, c, answers, onAnswer, onPrev, finishLesson }) =
               <p>
                 {lang === 'uz'
                   ? "Sinflarni ko'rish uchun o'ngdan uchtadan guruhlaymiz."
-                  : 'Чтобы увидеть классы, группируем справа по три разряда.'}
+                  : 'Попробуй ещё раз: начни справа и мысленно отсчитай три разряда.'}
               </p>
             </FeedbackBlock>
+          </div>
+          <div className="summary-support-column">
+            <div className={`summary-rules-disclosure ${rulesOpen ? 'summary-rules-open' : ''}`}>
+              <button
+                type="button"
+                className="summary-rules-toggle"
+                aria-expanded={rulesOpen}
+                onClick={() => setRulesOpen((open) => !open)}
+              >
+                <span aria-hidden="true">3 → |</span>
+                <div>
+                  <strong>{t(c.mainLabel)}</strong>
+                  <small>
+                    {rulesOpen
+                      ? (lang === 'uz' ? 'Qoidalarni yopish' : 'Скрыть правила')
+                      : (lang === 'uz' ? 'Eslab olish uchun bosing' : 'Нажми, чтобы вспомнить')}
+                  </small>
+                </div>
+                <i aria-hidden="true">⌄</i>
+              </button>
+              <div className="summary-rules-panel" aria-hidden={!rulesOpen}>
+                <div className="summary-rule-items">
+                  {c.main.map((item, index) => (
+                    <span key={t(item)}>
+                      <i>{index + 1}</i>
+                      <p>{t(item)}</p>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className={`reward-stage reward-stage-compact ${solved ? 'reward-unlocked' : 'reward-locked'}`}>
+              {solved && (
+                <div className="reward-confetti" aria-hidden="true">
+                  {Array.from({ length: 12 }, (_, index) => <i key={index} />)}
+                </div>
+              )}
+              <div className="reward-bit"><BitSVG state={solved ? 'happy' : 'present'} /></div>
+              <div className="reward-medal" aria-hidden="true">{solved ? '★' : '🔒'}</div>
+              <span className="reward-kicker">
+                {solved
+                  ? (lang === 'uz' ? 'UNVON OLINDI' : 'ЗВАНИЕ ПОЛУЧЕНО')
+                  : (lang === 'uz' ? 'MUKOFOT KUTILMOQDA' : 'НАГРАДА ЖДЁТ')}
+              </span>
+              <h2>{solved ? t(award.title) : (lang === 'uz' ? 'Unvonni oching' : 'Открой звание')}</h2>
+              <div className="reward-score">
+                <strong>{correctFirstTry}/{totalScored}</strong>
+                <span>{lang === 'uz' ? 'birinchi urinishda' : 'с первой попытки'}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -3048,8 +3102,8 @@ const RapidTestConsoleScreen = ({
             </div>
             <strong>{round + 1} / {items.length}</strong>
           </div>
-          <QuickNumberCard key={`quick-${round}`} c={current} solved={roundSolved} />
           <h2 className="question-title">{t(current.question)}</h2>
+          <QuickNumberCard key={`quick-${round}`} c={current} solved={roundSolved} />
           <div className="answer-stage rapid-answer-stage" key={`rapid-answer-${round}`}>
             <div className={`answer-layer answer-options-layer ${roundSolved ? 'answer-layer-hidden' : ''}`}>
               <div className={`options-grid ${options.length === 3 ? 'options-three' : ''} ${current.optionLayout === 'single-column' ? 'rapid-options-single-column' : ''}`}>
@@ -3069,13 +3123,10 @@ const RapidTestConsoleScreen = ({
               </div>
             </div>
             <div className={`answer-layer answer-proof-layer rapid-proof-layer ${roundSolved ? 'answer-layer-visible' : ''}`}>
-              <VisualAnswerProof
-                formula={t(current.proof ?? current.options[current.correctIndex])}
-                label={t(current.proofLabel ?? current.correctText)}
-              />
               {roundSolved && (
                 <BitAnswerComment
-                  reaction={getBitReaction(true, reactionSeed ?? (screen * 37 + round * 3 + correctIndex))}
+                  formula={t(current.proof ?? current.options[current.correctIndex])}
+                  label={t(current.proofLabel ?? current.correctText)}
                 >
                   <p>{message}</p>
                 </BitAnswerComment>
@@ -3169,17 +3220,14 @@ const DigitShiftAnimation = ({ t, solved }) => {
           </text>
         </g>
       </svg>
-      <p className="digit-shift-caption">
-        {solved
-          ? t({
-            ru: 'Цифра 6 перешла из тысяч в десятки тысяч.',
-            uz: "6 raqami minglardan o‘n minglarga o‘tdi.",
-          })
-          : t({
+      {!solved && (
+        <p className="digit-shift-caption">
+          {t({
             ru: 'Подсказка: следи только за цифрой 6.',
             uz: 'Maslahat: faqat 6 raqamini kuzating.',
           })}
-      </p>
+        </p>
+      )}
     </div>
   );
 };
@@ -3803,7 +3851,7 @@ button { font: inherit; }
   box-shadow: 0 12px 26px -18px rgba(34,122,83,.48);
 }
 .choice-proof-layer {
-  grid-template-columns: minmax(190px, .8fr) minmax(260px, 1.2fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
   gap: 10px;
 }
@@ -3831,6 +3879,26 @@ button { font: inherit; }
   min-width: 0;
   display: grid;
   gap: 3px;
+}
+.bit-solution-kicker {
+  color: ${T.success};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.bit-solution-formula {
+  color: ${T.navy};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(13px, 2vw, 17px);
+  font-weight: 900;
+  line-height: 1.24;
+}
+.bit-answer-comment-copy > small {
+  color: ${T.success};
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1.25;
 }
 .bit-answer-comment-copy > strong {
   font-family: 'Source Serif 4', Georgia, serif;
@@ -4103,7 +4171,7 @@ button { font: inherit; }
   animation: g4reactionhop .72s ease both;
 }
 .g4-bit-reaction-hint .g4-bit-reaction-figure {
-  animation: g4reactiontilt .72s ease both;
+  animation: g4reactionawkward .9s cubic-bezier(.22,.8,.3,1) both;
 }
 @keyframes g4reactionhop {
   0%, 100% { transform: translateY(0) scale(1); }
@@ -4114,6 +4182,26 @@ button { font: inherit; }
   0%, 100% { transform: rotate(0); }
   30% { transform: rotate(-7deg); }
   65% { transform: rotate(6deg); }
+}
+@keyframes g4reactionawkward {
+  0% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-3px) rotate(-3deg); }
+  50% { transform: translateX(2px) translateY(3px) rotate(2deg); }
+  100% { transform: translateX(0) translateY(4px) rotate(-1deg); }
+}
+.g1-char-state-awkward .g1-bit-ant {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: bit-awkward-antenna .7s ease both;
+}
+.g1-char-state-awkward .bit-awkward-face {
+  animation: bit-awkward-blink 1.4s ease-in-out 2;
+}
+@keyframes bit-awkward-antenna {
+  to { transform: rotate(-13deg) translateY(2px); }
+}
+@keyframes bit-awkward-blink {
+  45%, 55% { opacity: .55; transform: translateY(1px); }
 }
 .data-scene {
   position: relative;
@@ -5398,9 +5486,13 @@ button { font: inherit; }
 .reasoning-proof-layer,
 .rapid-proof-layer {
   display: grid;
-  grid-template-columns: minmax(180px, .9fr) minmax(250px, 1.1fr) auto;
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
   gap: 10px;
+}
+.reasoning-proof-layer .bit-answer-comment,
+.rapid-proof-layer .bit-answer-comment {
+  width: 100%;
 }
 .reasoning-proof-completed .reasoning-complete,
 .rapid-proof-layer .rapid-complete {
@@ -5776,12 +5868,6 @@ button { font: inherit; }
 .digit-shift-solved .digit-shift-six-value {
   animation: digit-six-value-once 4.8s ease both;
 }
-.digit-shift-solved .digit-shift-caption {
-  color: ${T.success};
-  border-color: rgba(34,122,83,.16);
-  background: linear-gradient(135deg, #FFFFFF, ${T.successSoft});
-  animation: digit-result-caption 4.8s ease both;
-}
 @keyframes digit-hint-focus {
   0%, 100% { transform: translateY(0); box-shadow: 0 10px 22px -18px rgba(22,143,163,.62); }
   50% { transform: translateY(-2px); box-shadow: 0 13px 25px -15px rgba(22,143,163,.78), 0 0 0 4px rgba(22,143,163,.06); }
@@ -5808,10 +5894,6 @@ button { font: inherit; }
 }
 @keyframes digit-six-value-once {
   0%, 84% { opacity: 0; transform: translateY(7px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes digit-result-caption {
-  0%, 86% { opacity: 0; transform: translateY(5px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 .mini-place {
@@ -6398,7 +6480,7 @@ button { font: inherit; }
 .strategy-answer-stage { min-height: 74px; }
 .strategy-answer-stage .answer-proof-layer {
   display: grid;
-  grid-template-columns: minmax(190px, .8fr) minmax(260px, 1.2fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
   gap: 10px;
 }
@@ -6936,6 +7018,332 @@ button { font: inherit; }
   flex-basis: 44px;
 }
 .reflection-card .g4-bit-reaction-copy { font-size: 14px; }
+.final-mission-heading {
+  width: min(840px, 100%);
+  margin: 0 auto;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,91,53,.17);
+  border-radius: 17px;
+  background:
+    linear-gradient(100deg, rgba(255,91,53,.09), transparent 48%),
+    rgba(255,255,255,.9);
+  box-shadow: 0 13px 28px -24px rgba(255,91,53,.72);
+}
+.final-mission-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.final-mission-heading > span i {
+  font-size: 8px;
+  animation: final-marker-pulse 1.5s ease-in-out infinite;
+}
+.final-mission-heading h1 {
+  margin-top: 3px;
+  color: ${T.navy};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(21px, 3vw, 28px);
+  line-height: 1.08;
+}
+.final-mission-heading p {
+  margin-top: 3px;
+  color: ${T.ink2};
+  font-size: 11px;
+  line-height: 1.32;
+}
+@keyframes final-marker-pulse {
+  50% { opacity: .45; transform: scale(.8); }
+}
+.summary-final-layout {
+  width: min(840px, 100%);
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+.final-question-card {
+  height: auto;
+  border: 2px solid rgba(255,91,53,.22);
+  box-shadow:
+    inset 0 4px 0 rgba(255,91,53,.88),
+    0 18px 38px -28px rgba(255,91,53,.7);
+}
+.final-question-card .summary-question-kicker {
+  min-height: 25px;
+  margin-bottom: 8px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #FFFFFF;
+  background: linear-gradient(90deg, ${T.accent}, #FF7658);
+}
+.final-question-card .summary-question-kicker > b {
+  margin-left: auto;
+  padding: 3px 6px;
+  border-radius: 999px;
+  color: #7D250F;
+  background: rgba(255,255,255,.76);
+  font-size: 7px;
+  letter-spacing: .08em;
+}
+.final-question-card .summary-question {
+  font-size: clamp(17px, 2.4vw, 22px);
+  line-height: 1.18;
+}
+.summary-support-column {
+  min-width: 0;
+  display: grid;
+  gap: 9px;
+}
+.summary-rules-disclosure {
+  min-width: 0;
+  border: 1px solid rgba(22,143,163,.2);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 14px 30px -24px rgba(22,143,163,.72);
+}
+.summary-rules-toggle {
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 9px;
+  color: ${T.ink};
+  background:
+    linear-gradient(135deg, rgba(230,247,250,.8), transparent 62%),
+    #FFFFFF;
+  cursor: pointer;
+  text-align: left;
+}
+.summary-rules-toggle > span {
+  min-width: 55px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  color: #FFFFFF;
+  background: ${T.cyan};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+.summary-rules-toggle > div { min-width: 0; display: grid; gap: 2px; }
+.summary-rules-toggle strong { font-size: 13px; line-height: 1.2; }
+.summary-rules-toggle small { color: ${T.cyan}; font-size: 9px; font-weight: 800; }
+.summary-rules-toggle > i {
+  color: ${T.cyan};
+  font-size: 24px;
+  font-style: normal;
+  transform: rotate(0);
+  transition: transform .55s cubic-bezier(.16,1,.3,1);
+}
+.summary-rules-open .summary-rules-toggle > i { transform: rotate(180deg); }
+.summary-rules-panel {
+  max-height: 0;
+  padding: 0 9px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-7px);
+  transition:
+    max-height .65s cubic-bezier(.22,.8,.3,1),
+    padding .65s cubic-bezier(.22,.8,.3,1),
+    opacity .4s ease,
+    transform .55s ease;
+}
+.summary-rules-open .summary-rules-panel {
+  max-height: 260px;
+  padding: 0 9px 9px;
+  opacity: 1;
+  transform: translateY(0);
+}
+.summary-rules-panel .summary-rule-items > span {
+  padding: 6px;
+  grid-template-columns: 20px 1fr;
+  gap: 5px;
+}
+.summary-rules-panel .summary-rule-items > span > i {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-style: normal;
+}
+.summary-rules-panel .summary-rule-items p { font-size: 9px; line-height: 1.22; }
+.reward-stage-compact {
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  gap: 4px;
+}
+.reward-stage-compact .reward-medal {
+  left: 11px;
+  width: 44px;
+  height: 44px;
+  border-width: 3px;
+  font-size: 19px;
+}
+.reward-stage-compact .reward-bit {
+  right: 3px;
+  bottom: 2px;
+  width: 72px;
+  height: 90px;
+}
+.reward-stage-compact h2 {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(16px, 2.2vw, 21px);
+  line-height: 1.05;
+}
+.rank-boost-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(8,13,24,.64);
+  backdrop-filter: blur(2px) saturate(.78);
+  animation: rank-overlay-life 3.8s ease both;
+}
+.rank-boost-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 36px 24px;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  overflow: hidden;
+  color: #FFFFFF;
+  text-align: center;
+  background: radial-gradient(circle at 50% 50%, rgba(255,214,80,.17), transparent 31%);
+}
+.rank-boost-card::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: min(440px, 82vw);
+  height: min(440px, 82vw);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,222,105,.17), transparent 68%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.rank-boost-rays {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  width: 160vmax;
+  height: 160vmax;
+  border-radius: 50%;
+  opacity: .28;
+  background: repeating-conic-gradient(
+    from -4deg,
+    rgba(255,218,91,.88) 0 8deg,
+    transparent 8deg 20deg
+  );
+  transform: translate(-50%, -50%);
+  animation:
+    rank-rays-in .8s cubic-bezier(.16,1,.3,1) both,
+    rank-rays 26s linear .8s infinite;
+}
+.rank-boost-medal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 112px;
+  height: 112px;
+  margin: 0;
+  border: 6px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #653C00;
+  background: linear-gradient(145deg, #FFF2A0, #FFC13B);
+  box-shadow:
+    0 0 0 13px rgba(255,255,255,.09),
+    0 0 54px 10px rgba(255,204,63,.38),
+    0 22px 38px -18px rgba(0,0,0,.7);
+  font-size: 52px;
+  animation: rank-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.rank-boost-card h2 {
+  position: absolute;
+  top: calc(50% + 82px);
+  left: 50%;
+  z-index: 2;
+  width: min(680px, calc(100vw - 48px));
+  margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(34px, 5vw, 58px);
+  line-height: 1.02;
+  text-shadow: 0 4px 24px rgba(0,0,0,.72);
+  transform: translateX(-50%);
+  animation: rank-title-in .7s ease .52s both;
+}
+.rank-boost-confetti { position: absolute; inset: 0; pointer-events: none; }
+.rank-boost-confetti i {
+  position: absolute;
+  top: -20px;
+  left: calc(3% + var(--boost-i) * 5.35%);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: #FFE284;
+  animation: rank-confetti 2.4s linear var(--boost-delay) infinite;
+}
+.rank-boost-confetti i:nth-child(3n+2) { background: #FF7050; }
+.rank-boost-confetti i:nth-child(3n) { background: #77E1EA; }
+@keyframes rank-overlay-life {
+  0% { opacity: 0; }
+  12%, 84% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes rank-medal-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.25) rotate(-25deg); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
+}
+@keyframes rank-title-in {
+  from { opacity: 0; transform: translate(-50%, 14px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes rank-rays-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+  to { opacity: .28; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes rank-rays {
+  from { transform: translate(-50%, -50%) rotate(0); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes rank-confetti {
+  to { transform: translateY(470px) rotate(560deg); }
+}
 .next-mission {
   padding: 10px 13px;
   border-radius: 14px;
@@ -7153,6 +7561,47 @@ button { font: inherit; }
   .reflection-options { grid-template-columns: 1fr; gap: 4px; }
   .reflection-option { min-height: 30px; padding: 4px 6px; font-size: 9px; }
   .reflection-option > span { width: 18px; height: 18px; flex-basis: 18px; font-size: 7px; }
+  .final-mission-heading { padding: 8px 10px; border-radius: 13px; }
+  .final-mission-heading > span { font-size: 7px; }
+  .final-mission-heading h1 { margin-top: 2px; font-size: 18px; }
+  .final-mission-heading p { font-size: 8px; line-height: 1.25; }
+  .summary-final-layout { grid-template-columns: 1fr; gap: 6px; }
+  .final-question-card { padding: 9px; }
+  .final-question-card .summary-question-kicker { min-height: 23px; margin-bottom: 6px; font-size: 7px; }
+  .final-question-card .summary-question { margin-bottom: 4px; font-size: 17px; line-height: 1.16; }
+  .final-question-card .summary-question-stem { font-size: 9px; }
+  .summary-support-column { gap: 6px; }
+  .summary-rules-toggle { min-height: 52px; padding: 6px 8px; gap: 7px; }
+  .summary-rules-toggle > span { min-width: 48px; padding: 6px; font-size: 9px; }
+  .summary-rules-toggle strong { font-size: 11px; }
+  .summary-rules-toggle small { font-size: 7px; }
+  .summary-rules-toggle > i { font-size: 20px; }
+  .summary-rules-open .summary-rules-panel { max-height: 210px; padding: 0 7px 7px; }
+  .summary-rules-panel .summary-rule-items > span { padding: 4px; grid-template-columns: 18px 1fr; }
+  .summary-rules-panel .summary-rule-items > span > i { width: 18px; height: 18px; font-size: 7px; }
+  .summary-rules-panel .summary-rule-items p { font-size: 7px; }
+  .reward-stage-compact {
+    min-height: 88px;
+    padding: 9px 59px 8px 51px;
+    border-radius: 14px;
+  }
+  .reward-stage-compact .reward-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .reward-stage-compact .reward-bit { width: 57px; height: 71px; }
+  .reward-stage-compact h2 { margin: 0; font-size: 14px; }
+  .rank-boost-overlay { padding: 0; }
+  .rank-boost-card {
+    min-height: 100dvh;
+    padding: 24px 18px;
+    border-radius: 0;
+  }
+  .rank-boost-medal {
+    top: 50%;
+    width: 88px;
+    height: 88px;
+    border-width: 5px;
+    font-size: 40px;
+  }
+  .rank-boost-card h2 { top: calc(50% + 62px); font-size: 29px; }
   .feedback-card { font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
