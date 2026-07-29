@@ -79,10 +79,20 @@ function MathExpression({ focus = null }) {
     <div className={`g7w-expression focus-${focus ?? 'none'}`} aria-label="120 − 84 : [2 · (7 − 4)] + 3 · (15 − 9)">
       <span className={`g7w-left-start ${active('left') ? 'is-active' : ''}`}>
         <span>120</span>
-        <span className={`g7w-op g7w-outer-low ${active('plusminus') ? 'is-rule-active' : ''}`}>−</span>
+        <span
+          className={`g7w-op g7w-outer-low ${active('plusminus') ? 'is-rule-active' : ''}`}
+          data-order={active('plusminus') ? '1' : undefined}
+        >
+          −
+        </span>
         <span>84</span>
       </span>
-      <span className={`g7w-op g7w-outer-high ${active('multdiv') ? 'is-rule-active' : ''}`}>:</span>
+      <span
+        className={`g7w-op g7w-outer-high ${active('multdiv') ? 'is-rule-active' : ''}`}
+        data-order={active('multdiv') ? '1' : undefined}
+      >
+        :
+      </span>
       <span className={`g7w-bracket-group ${active('bracket') ? 'is-rule-active' : ''}`}>
         <span className="g7w-bracket">[</span>
         <span>2</span>
@@ -96,9 +106,21 @@ function MathExpression({ focus = null }) {
         </span>
         <span className="g7w-bracket">]</span>
       </span>
-      <span className={`g7w-op g7w-outer-low ${active('plusminus') ? 'is-rule-active' : ''}`}>+</span>
+      <span
+        className={`g7w-op g7w-outer-low ${active('plusminus') ? 'is-rule-active' : ''}`}
+        data-order={active('plusminus') ? '2' : undefined}
+        style={{ '--g7w-order-delay': '180ms' }}
+      >
+        +
+      </span>
       <span>3</span>
-      <span className={`g7w-op g7w-outer-high ${active('multdiv') ? 'is-rule-active' : ''}`}>·</span>
+      <span
+        className={`g7w-op g7w-outer-high ${active('multdiv') ? 'is-rule-active' : ''}`}
+        data-order={active('multdiv') ? '2' : undefined}
+        style={{ '--g7w-order-delay': '180ms' }}
+      >
+        ·
+      </span>
       <span className={`g7w-bracket-group g7w-second-bracket ${active('bracket') ? 'is-rule-active' : ''}`}>
         <span className="g7w-bracket">(</span>
         <span>15</span>
@@ -226,9 +248,23 @@ const FIRST_STEP_OPTIONS = [
       ru: 'Левее — не значит раньше. Скобки ещё не вычислены.',
       uz: 'Chapda turishi birinchi degani emas. Qavslar hali hisoblanmagan.',
     },
+    explanation: {
+      rule: {
+        ru: 'Скобки выполняем раньше действий вне скобок.',
+        uz: 'Qavslar tashqaridagi amallardan oldin bajariladi.',
+      },
+      work: {
+        ru: 'Не 120 − 84. Сначала: (7 − 4) = 3.',
+        uz: '120 − 84 emas. Avval: (7 − 4) = 3.',
+      },
+      result: {
+        ru: 'Получаем: 120 − 84 : [2 · 3] + 3 · (15 − 9).',
+        uz: 'Hosil bo‘ladi: 120 − 84 : [2 · 3] + 3 · (15 − 9).',
+      },
+    },
     speech: {
-      ru: 'Если начать со ста двадцати минус восемьдесят четыре, мы нарушим порядок действий. Левое действие ждёт, пока будут вычислены скобки.',
-      uz: 'Agar bir yuz yigirma minus sakson to‘rtdan boshlasak, amallar tartibini buzamiz. Chapdagi amal qavslar hisoblanishini kutadi.',
+      ru: 'Если начать со ста двадцати минус восемьдесят четыре, мы нарушим порядок действий. Скобки выполняются раньше действий вне скобок. Поэтому сначала семь минус четыре равно три.',
+      uz: 'Agar bir yuz yigirma minus sakson to‘rtdan boshlasak, amallar tartibini buzamiz. Qavslar tashqaridagi amallardan oldin bajariladi. Shuning uchun avval yetti minus to‘rt uchga teng.',
     },
   },
   {
@@ -239,12 +275,50 @@ const FIRST_STEP_OPTIONS = [
       ru: 'Верный старт: сначала самое внутреннее действие.',
       uz: 'To‘g‘ri boshlanish: avval eng ichki amal.',
     },
+    explanation: {
+      rule: {
+        ru: 'Во вложенных скобках движемся изнутри наружу.',
+        uz: 'Ichma-ich qavslarda ichkaridan tashqariga yuramiz.',
+      },
+      work: {
+        ru: '(7 − 4) = 3, поэтому [2 · (7 − 4)] → [2 · 3].',
+        uz: '(7 − 4) = 3, shuning uchun [2 · (7 − 4)] → [2 · 3].',
+      },
+      result: {
+        ru: 'Первый шаг верный: внутренняя скобка стала числом 3.',
+        uz: 'Birinchi qadam to‘g‘ri: ichki qavs 3 soniga aylandi.',
+      },
+    },
     speech: {
-      ru: 'Правильный старт — семь минус четыре. Это действие находится внутри круглых скобок, а сами круглые скобки — внутри квадратных.',
-      uz: 'To‘g‘ri boshlanish — yetti minus to‘rt. Bu amal dumaloq qavs ichida, dumaloq qavs esa kvadrat qavs ichida joylashgan.',
+      ru: 'Правильный старт — семь минус четыре равно три. Это действие находится внутри круглых скобок, а круглые скобки — внутри квадратных. Поэтому два умножить на семь минус четыре превращается в два умножить на три.',
+      uz: 'To‘g‘ri boshlanish — yetti minus to‘rt uchga teng. Bu amal dumaloq qavs ichida, dumaloq qavs esa kvadrat qavs ichida. Shuning uchun ikki ko‘paytiruv yetti minus to‘rt, ikki ko‘paytiruv uchga aylanadi.',
     },
   },
 ]
+
+const EXPLANATION_LABELS = {
+  rule: { ru: 'Правило', uz: 'Qoida' },
+  work: { ru: 'Решение', uz: 'Yechim' },
+  result: { ru: 'Вывод', uz: 'Xulosa' },
+}
+
+function WorkedExplanation({ explanation, lang }) {
+  return (
+    <div className="g7w-worked-explanation">
+      <span className="g7w-worked-title">
+        {textOf({ ru: 'Почему так?', uz: 'Nega shunday?' }, lang)}
+      </span>
+      <div className="g7w-worked-steps">
+        {Object.keys(EXPLANATION_LABELS).map((key) => (
+          <div className={`g7w-worked-step g7w-worked-step-${key}`} key={key}>
+            <small>{textOf(EXPLANATION_LABELS[key], lang)}</small>
+            <strong>{textOf(explanation[key], lang)}</strong>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function FirstStepScreen({ lang, speak, onRecord }) {
   const [active, setActive] = useState(null)
@@ -303,21 +377,20 @@ function FirstStepScreen({ lang, speak, onRecord }) {
         <div className={`g7w-explanation-strip ${active === 'left' ? 'is-warning' : active === 'firstBracket' ? 'is-success' : ''}`}>
           <AnimatePresence mode="wait">
             <motion.div
+              className={activeOption ? 'g7w-worked-motion' : 'g7w-explanation-prompt'}
               key={active ?? 'prompt'}
               initial={{ opacity: 0, y: 7 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
             >
-              <span>
-                {active
-                  ? textOf({ ru: 'Почему так?', uz: 'Nega shunday?' }, lang)
-                  : textOf({ ru: 'Подсказка', uz: 'Ko‘rsatma' }, lang)}
-              </span>
-              <strong>
-                {activeOption
-                  ? textOf(activeOption.result, lang)
-                  : textOf({ ru: 'Выбери первый маршрут.', uz: 'Birinchi yo‘lni tanlang.' }, lang)}
-              </strong>
+              {activeOption ? (
+                <WorkedExplanation explanation={activeOption.explanation} lang={lang} />
+              ) : (
+                <>
+                  <span>{textOf({ ru: 'Подсказка', uz: 'Ko‘rsatma' }, lang)}</span>
+                  <strong>{textOf({ ru: 'Выбери первый маршрут.', uz: 'Birinchi yo‘lni tanlang.' }, lang)}</strong>
+                </>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -331,13 +404,23 @@ const RULE_STEPS = [
     id: 'brackets',
     label: { ru: 'Скобки', uz: 'Qavslar' },
     short: { ru: 'изнутри наружу', uz: 'ichkaridan tashqariga' },
-    detail: {
-      ru: 'В примере: (7 − 4), (15 − 9), затем [2 · 3].',
-      uz: 'Misolda: (7 − 4), (15 − 9), keyin [2 · 3].',
+    explanation: {
+      rule: {
+        ru: 'Скобки считаем изнутри наружу.',
+        uz: 'Qavslarni ichkaridan tashqariga hisoblaymiz.',
+      },
+      work: {
+        ru: '(7 − 4) = 3; (15 − 9) = 6; [2 · 3] = 6.',
+        uz: '(7 − 4) = 3; (15 − 9) = 6; [2 · 3] = 6.',
+      },
+      result: {
+        ru: '120 − 84 : 6 + 3 · 6',
+        uz: '120 − 84 : 6 + 3 · 6',
+      },
     },
     speech: {
-      ru: 'Первая ступень — скобки. Если скобки вложены друг в друга, начинаем с самых внутренних и движемся наружу.',
-      uz: 'Birinchi bosqich — qavslar. Qavslar ichma-ich bo‘lsa, eng ichkarisidan boshlaymiz va tashqariga harakat qilamiz.',
+      ru: 'Первая ступень — скобки. Считаем изнутри наружу. Семь минус четыре равно три. Пятнадцать минус девять равно шесть. Затем два умножить на три равно шесть. Получаем: сто двадцать минус восемьдесят четыре разделить на шесть плюс три умножить на шесть.',
+      uz: 'Birinchi bosqich — qavslar. Ichkaridan tashqariga hisoblaymiz. Yetti minus to‘rt uchga teng. O‘n besh minus to‘qqiz oltiga teng. Keyin ikki ko‘paytiruv uch oltiga teng.',
     },
     focus: 'brackets',
   },
@@ -345,13 +428,23 @@ const RULE_STEPS = [
     id: 'multdiv',
     label: { ru: 'Умножение и деление', uz: 'Ko‘paytirish va bo‘lish' },
     short: { ru: 'слева направо', uz: 'chapdan o‘ngga' },
-    detail: {
-      ru: 'После скобок: сначала 84 : 6, затем 3 · 6.',
-      uz: 'Qavslardan keyin: avval 84 : 6, keyin 3 · 6.',
+    explanation: {
+      rule: {
+        ru: 'Умножение и деление выполняем слева направо.',
+        uz: 'Ko‘paytirish va bo‘lishni chapdan o‘ngga bajaramiz.',
+      },
+      work: {
+        ru: '84 : 6 = 14; затем 3 · 6 = 18.',
+        uz: '84 : 6 = 14; keyin 3 · 6 = 18.',
+      },
+      result: {
+        ru: '120 − 14 + 18',
+        uz: '120 − 14 + 18',
+      },
     },
     speech: {
-      ru: 'Вторая ступень — умножение и деление. Действия одной ступени выполняем слева направо.',
-      uz: 'Ikkinchi bosqich — ko‘paytirish va bo‘lish. Bir bosqichdagi amallarni chapdan o‘ngga bajaramiz.',
+      ru: 'Вторая ступень — умножение и деление слева направо. Сначала восемьдесят четыре разделить на шесть равно четырнадцать. Затем три умножить на шесть равно восемнадцать. Получаем: сто двадцать минус четырнадцать плюс восемнадцать.',
+      uz: 'Ikkinchi bosqich — ko‘paytirish va bo‘lishni chapdan o‘ngga bajaramiz. Avval sakson to‘rtni oltiga bo‘lamiz, o‘n to‘rt chiqadi. Keyin uchni oltiga ko‘paytiramiz, o‘n sakkiz chiqadi.',
     },
     focus: 'multdiv',
   },
@@ -359,13 +452,23 @@ const RULE_STEPS = [
     id: 'plusminus',
     label: { ru: 'Сложение и вычитание', uz: 'Qo‘shish va ayirish' },
     short: { ru: 'слева направо', uz: 'chapdan o‘ngga' },
-    detail: {
-      ru: 'В конце останется: 120 − 14 + 18.',
-      uz: 'Oxirida qoladi: 120 − 14 + 18.',
+    explanation: {
+      rule: {
+        ru: 'Сложение и вычитание выполняем слева направо.',
+        uz: 'Qo‘shish va ayirishni chapdan o‘ngga bajaramiz.',
+      },
+      work: {
+        ru: '120 − 14 = 106; затем 106 + 18 = 124.',
+        uz: '120 − 14 = 106; keyin 106 + 18 = 124.',
+      },
+      result: {
+        ru: 'Ответ: 124',
+        uz: 'Javob: 124',
+      },
     },
     speech: {
-      ru: 'Третья ступень — сложение и вычитание. Их тоже выполняем слева направо.',
-      uz: 'Uchinchi bosqich — qo‘shish va ayirish. Ularni ham chapdan o‘ngga bajaramiz.',
+      ru: 'Третья ступень — сложение и вычитание слева направо. Сто двадцать минус четырнадцать равно сто шесть. Затем сто шесть плюс восемнадцать равно сто двадцать четыре. Ответ: сто двадцать четыре.',
+      uz: 'Uchinchi bosqich — qo‘shish va ayirishni chapdan o‘ngga bajaramiz. Bir yuz yigirma minus o‘n to‘rt bir yuz oltiga teng. Keyin bir yuz olti plus o‘n sakkiz bir yuz yigirma to‘rtga teng.',
     },
     focus: 'plusminus',
   },
@@ -424,17 +527,20 @@ function RuleScreen({ lang, speak, onRecord }) {
         <div className="g7w-rule-detail" aria-live="polite">
           <AnimatePresence mode="wait">
             <motion.div
+              className={activeStep ? 'g7w-worked-motion' : 'g7w-explanation-prompt'}
               key={active ?? 'empty'}
               initial={{ opacity: 0, y: 7 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
             >
-              <span>{active ? textOf({ ru: 'В этом примере', uz: 'Bu misolda' }, lang) : '→'}</span>
-              <strong>
-                {activeStep
-                  ? textOf(activeStep.detail, lang)
-                  : textOf({ ru: 'Начни со скобок.', uz: 'Qavslardan boshlang.' }, lang)}
-              </strong>
+              {activeStep ? (
+                <WorkedExplanation explanation={activeStep.explanation} lang={lang} />
+              ) : (
+                <>
+                  <span>{textOf({ ru: 'Подсказка', uz: 'Ko‘rsatma' }, lang)}</span>
+                  <strong>{textOf({ ru: 'Начни со скобок.', uz: 'Qavslardan boshlang.' }, lang)}</strong>
+                </>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
