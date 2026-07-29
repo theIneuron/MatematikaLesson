@@ -865,6 +865,43 @@ body:has(.g7w-root),
   color: var(--cyan);
 }
 
+.g7w-rule-expression-state {
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.g7w-rule-result-state {
+  width: 100%;
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.g7w-rule-result-state small {
+  color: var(--cyan);
+  font-size: clamp(9px, 0.9vw, 11px);
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.g7w-rule-result-state strong {
+  color: var(--navy);
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: clamp(18px, 2.75vw, 29px);
+  font-weight: 850;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.g7w-rule-result-state.is-answer strong {
+  color: var(--success);
+  font-size: clamp(30px, 4.4vw, 44px);
+}
+
 .g7w-solution-expression {
   width: 100%;
   color: var(--navy);

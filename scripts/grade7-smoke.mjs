@@ -87,9 +87,13 @@ async function auditViewport(name, viewport) {
   await page.locator('.g7w-next').click()
   for (let index = 0; index < 3; index += 1) {
     await page.locator('.g7w-rule-card').nth(index).click({ force: true })
-    await page.waitForTimeout(240)
+    await page.waitForTimeout(1800)
+    await audit(`screen-3-step-${index + 1}`)
+    await page.screenshot({
+      path: `${out}/${name}-03-step-${index + 1}.png`,
+      fullPage: false,
+    })
   }
-  await page.waitForTimeout(1600)
   await audit('screen-3')
   await page.screenshot({ path: `${out}/${name}-03.png`, fullPage: false })
 

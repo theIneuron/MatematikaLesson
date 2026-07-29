@@ -468,6 +468,7 @@ const RULE_STEPS = [
       uz: 'Birinchi bosqich — qavslar. Ichkaridan tashqariga hisoblaymiz. Yetti minus to‘rt uchga teng. O‘n besh minus to‘qqiz oltiga teng. Keyin ikki ko‘paytiruv uch oltiga teng.',
     },
     focus: 'brackets',
+    resultExpression: '120 − 84 : 6 + 3 · 6',
   },
   {
     id: 'multdiv',
@@ -492,6 +493,7 @@ const RULE_STEPS = [
       uz: 'Ikkinchi bosqich — ko‘paytirish va bo‘lishni chapdan o‘ngga bajaramiz. Avval sakson to‘rtni oltiga bo‘lamiz, o‘n to‘rt chiqadi. Keyin uchni oltiga ko‘paytiramiz, o‘n sakkiz chiqadi.',
     },
     focus: 'multdiv',
+    resultExpression: '120 − 14 + 18',
   },
   {
     id: 'plusminus',
@@ -516,17 +518,55 @@ const RULE_STEPS = [
       uz: 'Uchinchi bosqich — qo‘shish va ayirishni chapdan o‘ngga bajaramiz. Bir yuz yigirma minus o‘n to‘rt bir yuz oltiga teng. Keyin bir yuz olti plus o‘n sakkiz bir yuz yigirma to‘rtga teng.',
     },
     focus: 'plusminus',
+    resultExpression: '124',
   },
 ]
+
+function RuleExpressionStage({ step, run, lang }) {
+  const [revealedRun, setRevealedRun] = useState(null)
+
+  useEffect(() => {
+    if (!step) return undefined
+    const timer = window.setTimeout(() => setRevealedRun(run), 950)
+    return () => window.clearTimeout(timer)
+  }, [run, step])
+
+  const showResult = Boolean(step) && revealedRun === run
+  const stateKey = !step ? 'initial' : showResult ? `${step.id}-result` : `${step.id}-focus`
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        className="g7w-rule-expression-state"
+        key={stateKey}
+        initial={{ opacity: 0, y: 9, scale: 0.99, filter: 'blur(3px)' }}
+        animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+        exit={{ opacity: 0, y: -8, scale: 0.992, filter: 'blur(2px)' }}
+        transition={{ duration: 0.68, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {showResult ? (
+          <div className={`g7w-rule-result-state ${step.resultExpression === '124' ? 'is-answer' : ''}`}>
+            <small>{textOf({ ru: 'После вычисления', uz: 'Hisoblangandan keyin' }, lang)}</small>
+            <strong>{step.resultExpression}</strong>
+          </div>
+        ) : (
+          <MathExpression focus={step?.focus} />
+        )}
+      </motion.div>
+    </AnimatePresence>
+  )
+}
 
 function RuleScreen({ lang, speak, onRecord }) {
   const [active, setActive] = useState(null)
   const [visited, setVisited] = useState([])
+  const [animationRun, setAnimationRun] = useState(0)
   const activeStep = RULE_STEPS.find((step) => step.id === active)
   const nextId = RULE_STEPS.find((step) => !visited.includes(step.id))?.id ?? null
 
   const choose = (step) => {
     setActive(step.id)
+    setAnimationRun((value) => value + 1)
     const completesRule = !visited.includes(step.id)
       && visited.length + 1 === RULE_STEPS.length
     setVisited((previous) => {
@@ -546,8 +586,8 @@ function RuleScreen({ lang, speak, onRecord }) {
           <strong>{textOf({ ru: 'Нажимай по порядку', uz: 'Tartib bilan bosing' }, lang)}</strong>
         </div>
 
-        <div className="g7w-expression-window g7w-expression-window-compact">
-          <MathExpression focus={activeStep?.focus} />
+        <div className="g7w-expression-window g7w-expression-window-compact" aria-live="polite">
+          <RuleExpressionStage step={activeStep} run={animationRun} lang={lang} />
         </div>
 
         <div className="g7w-rule-list">
