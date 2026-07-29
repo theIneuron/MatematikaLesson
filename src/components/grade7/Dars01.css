@@ -319,7 +319,7 @@ body:has(.g7w-root),
   align-items: center;
   justify-content: center;
   gap: 0.34em;
-  overflow: hidden;
+  overflow: visible;
   color: var(--navy);
   font-family: "JetBrains Mono", Consolas, monospace;
   font-size: clamp(13px, 3vw, 30px);
@@ -412,19 +412,6 @@ body:has(.g7w-root),
   animation: g7w-order-marker 0.7s cubic-bezier(0.16, 1, 0.3, 1) var(--g7w-order-delay, 0ms) both;
 }
 
-.g7w-op.is-rule-active::after {
-  content: "";
-  position: absolute;
-  right: 0.06em;
-  bottom: 0.22em;
-  left: 0.06em;
-  height: 0.12em;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--accent), var(--cyan));
-  transform-origin: left;
-  animation: g7w-op-underline 0.75s ease-out var(--g7w-order-delay, 0ms) both;
-}
-
 @keyframes g7w-op-route {
   0% { color: var(--ink-3); transform: translateY(0) scale(1); }
   42% { color: var(--accent); transform: translateY(-0.22em) scale(1.28); }
@@ -436,11 +423,6 @@ body:has(.g7w-root),
   0% { opacity: 0; transform: translate(-50%, 65%) scale(0.45); }
   65% { opacity: 1; transform: translate(-50%, -12%) scale(1.12); }
   100% { opacity: 1; transform: translateX(-50%) scale(1); }
-}
-
-@keyframes g7w-op-underline {
-  0% { opacity: 0; transform: scaleX(0); }
-  100% { opacity: 1; transform: scaleX(1); }
 }
 
 .g7w-expression.focus-left > :not(.g7w-left-start),
