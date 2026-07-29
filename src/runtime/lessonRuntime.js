@@ -248,8 +248,7 @@ export function useAudio(segments) {
       return () => { clearTimeout(timer); cleanupListeners(); engine.stop(); };
     }
     return () => { cleanupListeners(); engine.stop(); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stableSegments]);
+  }, [stableSegments, state.muted]);
 
   const triggerEvent = useCallback((type, target) => { if (engineRef.current) engineRef.current.triggerEvent(type, target); }, []);
   const triggerInternal = useCallback((eventName) => { if (engineRef.current) engineRef.current.triggerInternalEvent(eventName); }, []);
