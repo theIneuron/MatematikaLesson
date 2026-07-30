@@ -1709,6 +1709,7 @@ function useNarration(rawSegments, lang) {
   useEffect(() => {
     let cancelled = false
     let timer = null
+    let watchdog = null
     let utterance = null
     const synth = typeof window !== 'undefined' ? window.speechSynthesis : null
     const Utterance = typeof window !== 'undefined' ? window.SpeechSynthesisUtterance : null
@@ -1723,6 +1724,12 @@ function useNarration(rawSegments, lang) {
       }
       const value = segments[index]
       const fallbackMs = Math.min(5200, Math.max(1500, value.split(/\s+/).length * 115))
+      const clearWatchdog = () => {
+        if (watchdog) {
+          window.clearTimeout(watchdog)
+          watchdog = null
+        }
+      }
       if (muted) {
         setPhase(index)
         setPlaying(false)
@@ -1731,6 +1738,7 @@ function useNarration(rawSegments, lang) {
       }
       const next = () => {
         if (cancelled) return
+        clearWatchdog()
         setPlaying(false)
         timer = window.setTimeout(() => run(index + 1), 180)
       }
@@ -1744,19 +1752,40 @@ function useNarration(rawSegments, lang) {
       utterance.lang = lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB' : 'uz-UZ'
       utterance.rate = 0.94
       utterance.pitch = 1
-      utterance.onstart = () => {
+      const simulateSegment = () => {
         if (cancelled) return
-        setPhase(index)
-        setPlaying(true)
-      }
-      utterance.onend = next
-      utterance.onerror = next
-      try {
-        synth.speak(utterance)
-      } catch {
+        clearWatchdog()
+        utterance.onstart = null
+        utterance.onend = null
+        utterance.onerror = null
+        synth.cancel()
         setPhase(index)
         setPlaying(true)
         timer = window.setTimeout(next, fallbackMs)
+      }
+      utterance.onstart = () => {
+        if (cancelled) return
+        clearWatchdog()
+        setPhase(index)
+        setPlaying(true)
+        watchdog = window.setTimeout(() => {
+          if (cancelled) return
+          utterance.onend = null
+          utterance.onerror = null
+          synth.cancel()
+          next()
+        }, fallbackMs + 1200)
+      }
+      utterance.onend = () => {
+        clearWatchdog()
+        next()
+      }
+      utterance.onerror = simulateSegment
+      try {
+        watchdog = window.setTimeout(simulateSegment, 1000)
+        synth.speak(utterance)
+      } catch {
+        simulateSegment()
       }
     }
 
@@ -1764,6 +1793,7 @@ function useNarration(rawSegments, lang) {
     return () => {
       cancelled = true
       if (timer) window.clearTimeout(timer)
+      if (watchdog) window.clearTimeout(watchdog)
       if (utterance) {
         utterance.onstart = null
         utterance.onend = null
@@ -2396,7 +2426,7 @@ function CoordinateGraph({
           <circle
             key={`${x}-${y}`}
             className={`graph-point ${isVisible ? 'show' : ''}`}
-            style={{ '--delay': revealCount === null ? `${index * 90}ms` : '0ms' }}
+            style={{ '--delay': `${index * 90}ms` }}
             cx={point.x}
             cy={point.y}
             r="4.5"
@@ -2408,142 +2438,42 @@ function CoordinateGraph({
   )
 }
 
-const POINT_PLOT_REVEAL_MS = 1500
-const POINT_PLOT_FINISH_MS = 2150
-
-function PointerGlyph({ className = '' }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5 3.5 18.5 13l-6.1 1.2 3.2 5.5-3 1.7-3.2-5.6-4.4 4Z" />
-    </svg>
-  )
-}
-
 function PointsModel({ phase }) {
   const lang = useLang()
-  const pairs = [[2, 12], [-2, -12], [4, 6], [-4, -6], [8, 3], [-8, -3]]
-  const [placed, setPlaced] = useState(0)
-  const [plottingIndex, setPlottingIndex] = useState(null)
-  const [tracePoint, setTracePoint] = useState(null)
-  const [liveMessage, setLiveMessage] = useState('')
-  const timersRef = useRef([])
-  const plottingLockRef = useRef(false)
-  const plotting = plottingIndex !== null
-
-  useEffect(() => () => {
-    timersRef.current.forEach((timer) => window.clearTimeout(timer))
-  }, [])
-
-  const plotPair = (index) => {
-    if (plottingLockRef.current || index !== placed) return
-    plottingLockRef.current = true
-    const pair = pairs[index]
-    setPlottingIndex(index)
-    setTracePoint(pair)
-    setLiveMessage(textOf(L(
-      `Avval x = ${pair[0]}, keyin y = ${pair[1]}. Nuqtaga yetib boramiz.`,
-      `Сначала x = ${pair[0]}, затем y = ${pair[1]}. Движемся к точке.`,
-      `First x = ${pair[0]}, then y = ${pair[1]}. Move to the point.`,
-    ), lang))
-
-    timersRef.current.push(
-      window.setTimeout(() => {
-        setPlaced(index + 1)
-        setLiveMessage(textOf(L(
-          `(${pair[0]}; ${pair[1]}) nuqta grafikda paydo bo‘ldi.`,
-          `Точка (${pair[0]}; ${pair[1]}) появилась на графике.`,
-          `Point (${pair[0]}; ${pair[1]}) appeared on the graph.`,
-        ), lang))
-      }, POINT_PLOT_REVEAL_MS),
-      window.setTimeout(() => {
-        setPlottingIndex(null)
-        setTracePoint(null)
-        plottingLockRef.current = false
-      }, POINT_PLOT_FINISH_MS),
-    )
-  }
+  const pairs = [[2, 12], [4, 6], [8, 3], [-2, -12], [-4, -6], [-8, -3]]
+  const visibleCount = phase === 0 ? 1 : phase === 1 ? 3 : pairs.length
 
   return (
     <div className="graph-layout vertical-points" data-audio-phase={phase}>
-      <div className={`frame graph-frame ${plotting ? 'is-plotting' : ''}`}>
+      <div className="frame graph-frame">
         <CoordinateGraph
           k={24}
           pointsOnly
           phase={phase}
-          revealCount={placed}
+          revealCount={visibleCount}
           pointsOverride={pairs}
-          tracePoint={tracePoint}
           ariaLabel={textOf(L(
-            `24 ga teng ko‘paytmali ${placed} ta nuqta joylashtirilgan koordinata tekisligi.`,
-            `Координатная плоскость: построено точек ${placed} с произведением координат 24.`,
-            `Coordinate plane with ${placed} plotted points whose coordinate product is 24.`,
+            `Koordinatalari ko‘paytmasi 24 bo‘lgan ${visibleCount} ta nuqta.`,
+            `${visibleCount} точек с произведением координат 24.`,
+            `${visibleCount} points whose coordinate product is 24.`,
           ), lang)}
         />
       </div>
-      <div className="point-list">
-        {pairs.map((pair, index) => {
-          const isPlaced = index < placed
-          const isCurrent = index === placed
-          const isPlotting = plottingIndex === index
-          return (
-            <button
-              type="button"
-              key={pair[0]}
-              className={`point-pair ${isPlaced ? 'visible' : ''} ${isCurrent ? 'current-target' : ''} ${isPlotting ? 'is-plotting' : ''}`}
-              disabled={plotting || !isCurrent}
-              onClick={() => plotPair(index)}
-              aria-label={textOf(L(
-                `(${pair[0]}; ${pair[1]}) juftligini grafikda ko‘rsatish`,
-                `Показать точку (${pair[0]}; ${pair[1]}) на графике`,
-                `Plot point (${pair[0]}; ${pair[1]}) on the graph`,
-              ), lang)}
-            >
-              <span className="point-pair-copy">
-                <strong>({pair[0]}; {pair[1]})</strong>
-                <small>{pair[0]} · {pair[1]} = 24</small>
-              </span>
-              <span className="point-pair-state" aria-hidden="true">
-                {isPlaced ? (
-                  <b>✓</b>
-                ) : isPlotting ? (
-                  <i>•••</i>
-                ) : isCurrent ? (
-                  <>
-                    <PointerGlyph />
-                    <em>{textOf(L('Bosing', 'Нажмите', 'Click'), lang)}</em>
-                  </>
-                ) : (
-                  <i>{index + 1}</i>
-                )}
-              </span>
-            </button>
-          )
-        })}
-        {placed < pairs.length ? (
-          <div className={`plot-action ${plotting ? 'is-busy' : ''}`}>
-            <span className="plot-action-icon" aria-hidden="true">
-              <PointerGlyph />
-            </span>
-            <p>
-              <strong>{plotting
-                ? textOf(L('Nuqtani bosqichma-bosqich quramiz', 'Строим точку по шагам', 'Plotting the point step by step'), lang)
-                : textOf(L('Ajratilgan juftlikni bosing', 'Нажмите на выделенную пару', 'Click the highlighted pair'), lang)}
-              </strong>
-              <small>{textOf(L(
-                'Harakat: avval x bo‘ylab, so‘ng y bo‘ylab.',
-                'Движение: сначала по x, затем по y.',
-                'Move along x first, then along y.',
-              ), lang)}</small>
-            </p>
-            <span className="plot-progress">{placed} / {pairs.length}</span>
-          </div>
-        ) : (
-          <div className="point-conclusion">
-            <strong>{textOf(L('Ikki shox tayyor', 'Обе ветви готовы', 'Both branches are ready'), lang)}</strong>
-            <span>{textOf(L('Musbat juftliklar — I, manfiy juftliklar — III chorakda.', 'Положительные пары — в I, отрицательные — в III четверти.', 'Positive pairs lie in I; negative pairs lie in III.'), lang)}</span>
-          </div>
-        )}
-        <span className="graph-live-message" aria-live="polite">{liveMessage}</span>
+      <div className="point-strip" aria-hidden="true">
+        {pairs.map((pair, index) => (
+          <span
+            key={pair[0]}
+            className={`${index < visibleCount ? 'is-visible' : ''} ${index === visibleCount - 1 ? 'is-current' : ''}`}
+            style={{ '--point-delay': `${index * 90}ms` }}
+          >
+            ({pair[0]}; {pair[1]})
+          </span>
+        ))}
+      </div>
+      <div className={`formula-ladder-step point-invariant ${phase >= 2 ? 'is-visible' : ''}`}>
+        <ConstantProduct compact result="24" />
+        <span>⇒</span>
+        <strong>I, III</strong>
       </div>
     </div>
   )
@@ -3921,8 +3851,6 @@ html, body { margin: 0; padding: 0; }
 .number-entry input:focus { background: white; box-shadow: 0 8px 20px -8px rgba(255,79,40,.3), inset 0 0 0 1px rgba(255,79,40,.3); }
 .number-entry input.wrong { color: var(--accent); background: var(--accent-soft); }
 .number-entry input.correct { color: var(--success); background: var(--success-soft); }
-.wrong-hint { margin-top: 11px; display: flex; align-items: center; gap: 8px; color: var(--tip); font-size: 12px; font-weight: 650; }
-.wrong-hint span { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 7px; color: white; background: var(--tip); }
 .solution-panel { grid-column: 2; min-height: 0; max-height: 0; padding: 0 15px; overflow: hidden; display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 11px; border-left: 4px solid var(--success); border-radius: 12px; opacity: 0; background: var(--success-soft); transform: translateY(-7px); transition: max-height .5s, min-height .5s, padding .5s, opacity .35s .08s, transform .45s; }
 .solution-panel.visible { min-height: 76px; max-height: 130px; padding: 10px 15px; opacity: 1; transform: none; }
 .solution-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; color: white; background: var(--success); font-weight: 900; animation: solution-pop .45s cubic-bezier(.34,1.5,.64,1); }
@@ -4268,11 +4196,6 @@ html, body { margin: 0; padding: 0; }
 .task-options.has-visuals .option-copy { grid-column: 3; text-align: left; }
 .context-answer { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(167,166,162,.2); }
 .answer-unit { color: var(--ink-2); font-size: 11px; white-space: nowrap; }
-.wrong-hint { align-items: flex-start; }
-.wrong-hint > span { flex: 0 0 26px; }
-.wrong-hint > div { display: grid; gap: 2px; }
-.wrong-hint small { color: var(--tip); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
-.wrong-hint strong { color: var(--ink-2); font-size: 11px; line-height: 1.4; }
 .solution-panel.visible { max-height: 178px; }
 .solution-copy { display: grid; gap: 4px; }
 .solution-copy .task-math-visual { justify-self: start; color: var(--success); }
@@ -4962,8 +4885,8 @@ html, body { margin: 0; padding: 0; }
   padding: 8px;
 }
 .graph-layout .coordinate-graph {
-  width: min(100%, 520px);
-  max-height: 270px;
+  width: min(100%, 450px);
+  max-height: 245px;
 }
 .point-strip {
   display: grid;
@@ -4998,6 +4921,8 @@ html, body { margin: 0; padding: 0; }
 .graph-controls .magnitude-control { grid-template-columns: auto repeat(3, 1fr); }
 .sign-formulas .quadrant-rule { min-height: 52px; }
 .sign-formulas .quadrant-rule strong { font-size: 20px; }
+.sign-formulas .formula-ladder-step { min-height: 44px; }
+.sign-formulas .formula-flow-arrow { min-height: 10px; }
 
 .passport-formulas { gap: 5px; }
 .passport-invariant { color: var(--accent); background: var(--accent-soft); }
@@ -5231,6 +5156,7 @@ html, body { margin: 0; padding: 0; }
     min-height: 45px;
     grid-template-columns: minmax(88px, .72fr) minmax(0, 1.28fr);
   }
+  .recall-grid button { min-width: 44px; min-height: 44px; }
   .summary-rule-line .math-equation { font-size: 16px; }
 }
 
