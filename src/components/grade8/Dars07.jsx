@@ -2440,6 +2440,8 @@ function CoordinateGraph({
   revealCount = null,
   pointsOverride = null,
   showAsymptotes = false,
+  tracePoint = null,
+  ariaLabel = null,
 }) {
   const points = pointsOverride ?? [
     [2, k / 2],
@@ -2451,12 +2453,19 @@ function CoordinateGraph({
     [-4, k / -4],
     [-6, k / -6],
   ]
+  const trace = tracePoint
+    ? {
+        sourceX: tracePoint[0],
+        sourceY: tracePoint[1],
+        ...mapPoint(tracePoint[0], tracePoint[1]),
+      }
+    : null
   return (
     <svg
       className="coordinate-graph"
       viewBox="0 0 460 250"
       role="img"
-      aria-label={`The graph of y equals ${k} divided by x`}
+      aria-label={ariaLabel ?? `The graph of y equals ${k} divided by x`}
     >
       <defs>
         <pattern id={`grid-${Math.abs(k)}-${pointsOnly}`} width="18" height="18" patternUnits="userSpaceOnUse">
@@ -2492,6 +2501,30 @@ function CoordinateGraph({
           <path d={curvePath(k, false)} />
         </g>
       )}
+      {trace && (
+        <g className="point-placement-trace" aria-hidden="true">
+          <path
+            className="placement-guide placement-guide-x"
+            pathLength="1"
+            d={`M ${trace.x} 125 V ${trace.y}`}
+          />
+          <path
+            className="placement-guide placement-guide-y"
+            pathLength="1"
+            d={`M 230 ${trace.y} H ${trace.x}`}
+          />
+          <circle className="placement-axis-dot" cx={trace.x} cy="125" r="4.5" />
+          <circle className="placement-axis-dot" cx="230" cy={trace.y} r="4.5" />
+          <circle className="placement-target-ring" cx={trace.x} cy={trace.y} r="11" />
+          <text
+            className="placement-label"
+            x={trace.x + 9}
+            y={trace.y < 35 ? trace.y + 20 : trace.y - 9}
+          >
+            ({trace.sourceX}; {trace.sourceY})
+          </text>
+        </g>
+      )}
       {points.map(([x, y], index) => {
         const point = mapPoint(x, y)
         const revealAt = Math.min(2, Math.floor(index / 3))
@@ -2500,7 +2533,7 @@ function CoordinateGraph({
           <circle
             key={`${x}-${y}`}
             className={`graph-point ${isVisible ? 'show' : ''}`}
-            style={{ '--delay': `${(index % 4) * 90}ms` }}
+            style={{ '--delay': revealCount === null ? `${(index % 4) * 90}ms` : '0ms' }}
             cx={point.x}
             cy={point.y}
             r="4.5"
@@ -2512,69 +2545,128 @@ function CoordinateGraph({
   )
 }
 
+function PointerGlyph({ className = '' }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 3.5 18.5 13l-6.1 1.2 3.2 5.5-3 1.7-3.2-5.6-4.4 4Z" />
+    </svg>
+  )
+}
+
 function PointsModel({ phase }) {
   const lang = useLang()
   const pairs = [[2, 12], [-2, -12], [4, 6], [-4, -6], [8, 3], [-8, -3]]
   const [placed, setPlaced] = useState(0)
-  const [wrong, setWrong] = useState(false)
-  const target = pairs[Math.min(placed, pairs.length - 1)]
-  const candidates = [
-    target,
-    [target[1], target[0]],
-    [target[0], -target[1]],
-  ]
-  const placePoint = (candidate) => {
-    if (candidate[0] !== target[0] || candidate[1] !== target[1]) {
-      setWrong(true)
-      return
-    }
-    setWrong(false)
-    setPlaced((value) => Math.min(pairs.length, value + 1))
+  const [plottingIndex, setPlottingIndex] = useState(null)
+  const [tracePoint, setTracePoint] = useState(null)
+  const [liveMessage, setLiveMessage] = useState('')
+  const timersRef = useRef([])
+  const plotting = plottingIndex !== null
+
+  useEffect(() => () => {
+    timersRef.current.forEach((timer) => window.clearTimeout(timer))
+  }, [])
+
+  const plotPair = (index) => {
+    if (plotting || index !== placed) return
+    const pair = pairs[index]
+    setPlottingIndex(index)
+    setTracePoint(pair)
+    setLiveMessage(textOf(L(
+      `(${pair[0]}; ${pair[1]}) juftlikni nuqtaga aylantiramiz.`,
+      `Превращаем пару (${pair[0]}; ${pair[1]}) в точку.`,
+      `Turning the pair (${pair[0]}; ${pair[1]}) into a point.`,
+    ), lang))
+
+    timersRef.current.push(
+      window.setTimeout(() => {
+        setPlaced(index + 1)
+        setLiveMessage(textOf(L(
+          `(${pair[0]}; ${pair[1]}) nuqta grafikda paydo bo‘ldi.`,
+          `Точка (${pair[0]}; ${pair[1]}) появилась на графике.`,
+          `Point (${pair[0]}; ${pair[1]}) appeared on the graph.`,
+        ), lang))
+      }, 380),
+      window.setTimeout(() => {
+        setPlottingIndex(null)
+        setTracePoint(null)
+      }, 760),
+    )
   }
+
   return (
     <div className="graph-layout" data-audio-phase={phase}>
-      <div className="frame graph-frame">
+      <div className={`frame graph-frame ${plotting ? 'is-plotting' : ''}`}>
         <CoordinateGraph
           k={24}
           pointsOnly
           phase={phase}
           revealCount={placed}
           pointsOverride={pairs}
+          tracePoint={tracePoint}
+          ariaLabel={textOf(L(
+            `24 ga teng ko‘paytmali ${placed} ta nuqta joylashtirilgan koordinata tekisligi.`,
+            `Координатная плоскость: построено точек ${placed} с произведением координат 24.`,
+            `Coordinate plane with ${placed} plotted points whose coordinate product is 24.`,
+          ), lang)}
         />
       </div>
       <div className="point-list">
-        {pairs.map((pair, index) => (
-          <div key={pair[0]} className={index < placed ? 'visible' : index === placed ? 'current-target' : ''}>
-            <span>({pair[0]}; {pair[1]})</span>
-            <small>{pair[0]} · {pair[1]} = 24</small>
-          </div>
-        ))}
+        {pairs.map((pair, index) => {
+          const isPlaced = index < placed
+          const isCurrent = index === placed
+          const isPlotting = plottingIndex === index
+          return (
+            <button
+              type="button"
+              key={pair[0]}
+              className={`point-pair ${isPlaced ? 'visible' : ''} ${isCurrent ? 'current-target' : ''} ${isPlotting ? 'is-plotting' : ''}`}
+              disabled={plotting || !isCurrent}
+              onClick={() => plotPair(index)}
+              aria-label={textOf(L(
+                `(${pair[0]}; ${pair[1]}) juftligini grafikda ko‘rsatish`,
+                `Показать точку (${pair[0]}; ${pair[1]}) на графике`,
+                `Plot point (${pair[0]}; ${pair[1]}) on the graph`,
+              ), lang)}
+            >
+              <span className="point-pair-copy">
+                <strong>({pair[0]}; {pair[1]})</strong>
+                <small>{pair[0]} · {pair[1]} = 24</small>
+              </span>
+              <span className="point-pair-state" aria-hidden="true">
+                {isPlaced ? (
+                  <b>✓</b>
+                ) : isPlotting ? (
+                  <i>•••</i>
+                ) : isCurrent ? (
+                  <>
+                    <PointerGlyph />
+                    <em>{textOf(L('Bosing', 'Нажмите', 'Click'), lang)}</em>
+                  </>
+                ) : (
+                  <i>{index + 1}</i>
+                )}
+              </span>
+            </button>
+          )
+        })}
         {placed < pairs.length ? (
-          <div className="plot-action">
+          <div className={`plot-action ${plotting ? 'is-busy' : ''}`}>
+            <span className="plot-action-icon" aria-hidden="true">
+              <PointerGlyph />
+            </span>
             <p>
-              {textOf(L('Nuqta uchun to‘g‘ri koordinatani tanlang:', 'Выберите правильные координаты точки:', 'Choose the correct coordinates for the point:'), lang)}
+              <strong>{plotting
+                ? textOf(L('Nuqta qurilmoqda', 'Строим точку', 'Plotting the point'), lang)
+                : textOf(L('Ajratilgan juftlikni bosing', 'Нажмите на выделенную пару', 'Click the highlighted pair'), lang)}
+              </strong>
+              <small>{textOf(L(
+                'Nuqta grafikda o‘zi paydo bo‘ladi.',
+                'Точка сама появится на графике.',
+                'The point will appear on the graph.',
+              ), lang)}</small>
             </p>
-            <div className="plot-options">
-              {candidates.map((candidate, index) => (
-                <button
-                  type="button"
-                  key={`${candidate[0]}-${candidate[1]}-${index}`}
-                  className={wrong && index !== 0 ? 'wrong' : ''}
-                  onClick={() => placePoint(candidate)}
-                >
-                  ({candidate[0]}; {candidate[1]})
-                </button>
-              ))}
-            </div>
-            {wrong && (
-              <small className="plot-hint" role="status">
-                {textOf(L(
-                  'Avval x bo‘yicha, keyin y bo‘yicha harakat qiling.',
-                  'Сначала двигайтесь по x, затем по y.',
-                  'Move along x first, then along y.',
-                ), lang)}
-              </small>
-            )}
+            <span className="plot-progress">{placed} / {pairs.length}</span>
           </div>
         ) : (
           <div className="point-conclusion">
@@ -2582,6 +2674,7 @@ function PointsModel({ phase }) {
             <span>{textOf(L('Musbat juftliklar — I, manfiy juftliklar — III chorakda.', 'Положительные пары — в I, отрицательные — в III четверти.', 'Positive pairs lie in I; negative pairs lie in III.'), lang)}</span>
           </div>
         )}
+        <span className="graph-live-message" aria-live="polite">{liveMessage}</span>
       </div>
     </div>
   )
@@ -4064,7 +4157,8 @@ html, body { margin: 0; padding: 0; }
 .domain-rule p { color: var(--ink-2); font-size: 13px; text-align: right; }
 
 .graph-layout { grid-template-columns: 1.35fr .65fr; }
-.graph-frame { min-height: 305px; padding: 12px; display: grid; place-items: center; overflow: hidden; }
+.graph-frame { position: relative; min-height: 305px; padding: 12px; display: grid; place-items: center; overflow: hidden; }
+.graph-frame.is-plotting { box-shadow: inset 0 0 0 2px rgba(255,79,40,.12), 0 8px 22px -6px rgba(58,53,48,.13); }
 .coordinate-graph { width: 100%; max-height: 305px; }
 .coordinate-graph text { fill: var(--ink-2); font: 700 11px "JetBrains Mono", monospace; }
 .axis, .axis-arrow { fill: none; stroke: var(--ink-2); stroke-width: 1.4; }
@@ -4073,11 +4167,23 @@ html, body { margin: 0; padding: 0; }
 .graph-point { opacity: 0; fill: var(--blue); stroke: white; stroke-width: 2; transform-box: fill-box; transform-origin: center; }
 .graph-point.show { animation: point-pop .45s var(--delay) cubic-bezier(.34,1.5,.64,1) forwards; }
 .origin-gap { fill: var(--bg); stroke: var(--accent); stroke-width: 2; }
+.placement-guide { fill: none; stroke: var(--accent); stroke-width: 1.7; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.placement-guide-x { animation: placement-guide-draw .32s ease forwards; }
+.placement-guide-y { animation: placement-guide-draw .32s .14s ease forwards; }
+.placement-axis-dot { opacity: 0; fill: var(--accent); animation: placement-marker-in .22s .15s ease forwards; }
+.placement-target-ring { fill: rgba(255,79,40,.08); stroke: var(--accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: placement-target-ping .7s .24s ease both; }
+.coordinate-graph .placement-label { opacity: 0; fill: var(--accent); font-size: 10px; animation: placement-label-in .25s .32s ease forwards; }
 .point-list, .sign-panel { display: flex; flex-direction: column; justify-content: center; gap: 9px; }
-.point-list > div { padding: 9px 11px; display: flex; align-items: center; justify-content: space-between; border-radius: 10px; opacity: .2; background: var(--paper); box-shadow: 0 6px 16px -6px rgba(58,53,48,.13); transform: translateX(8px); transition: opacity .45s, transform .45s; }
-.point-list > div.visible { opacity: 1; transform: none; }
-.point-list span { font: 750 13px "JetBrains Mono", monospace; }
-.point-list small { color: var(--success); font: 650 10px "JetBrains Mono", monospace; }
+.point-pair { width: 100%; padding: 9px 11px; display: flex; align-items: center; justify-content: space-between; border: 0; border-radius: 10px; opacity: .2; color: var(--ink); background: var(--paper); box-shadow: 0 6px 16px -6px rgba(58,53,48,.13); transform: translateX(8px); cursor: default; text-align: left; transition: opacity .35s, transform .35s, background .25s, box-shadow .25s; }
+.point-pair.visible { opacity: 1; transform: none; }
+.point-pair-copy { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 9px; }
+.point-pair-copy strong { font: 750 13px "JetBrains Mono", monospace; white-space: nowrap; }
+.point-pair-copy small { color: var(--success); font: 650 10px "JetBrains Mono", monospace; white-space: nowrap; }
+.point-pair-state { flex: 0 0 auto; min-width: 50px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; color: var(--ink-3); }
+.point-pair-state svg { width: 16px; height: 16px; fill: rgba(255,79,40,.12); stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; }
+.point-pair-state em { font: 750 8px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .04em; text-transform: uppercase; }
+.point-pair-state b { color: var(--success); font: 800 14px "JetBrains Mono", monospace; }
+.point-pair-state i { font: 750 9px "JetBrains Mono", monospace; font-style: normal; }
 .point-list p, .sign-panel p { padding: 5px 2px; color: var(--ink-2); font-size: 12px; line-height: 1.45; }
 .point-control { align-self: stretch; justify-content: center; }
 .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 5px; border-radius: 12px; background: rgba(167,166,162,.18); }
@@ -4356,24 +4462,25 @@ html, body { margin: 0; padding: 0; }
 .tick { fill: none; stroke: var(--ink-3); stroke-width: 1; }
 .asymptote-labels text { fill: var(--accent); font-size: 9px; }
 .point-list { gap: 5px; }
-.point-list > div { min-height: 37px; padding: 6px 9px; }
-.point-list > div.current-target { opacity: 1; color: var(--accent); background: var(--accent-soft); transform: none; box-shadow: inset 0 0 0 1px rgba(255,79,40,.22); }
-.plot-action { display: grid; gap: 6px; }
-.plot-action p { margin: 0; color: var(--ink-2); font-size: 10px; }
-.plot-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
-.plot-options button {
-  min-height: 38px;
-  border: 0;
-  border-radius: 8px;
-  color: var(--ink);
-  background: var(--paper);
-  cursor: pointer;
-  font: 700 10px "JetBrains Mono", monospace;
-}
-.plot-options button.wrong { color: var(--accent); background: var(--accent-soft); }
-.plot-hint { color: var(--tip); font-size: 9px; }
-.point-conclusion { display: grid; gap: 4px; padding: 10px; border-radius: 10px; color: var(--success); background: var(--success-soft); }
+.point-pair { min-height: 37px; padding: 6px 9px; }
+.point-pair.current-target { opacity: 1; color: var(--accent); background: var(--accent-soft); transform: none; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(255,79,40,.28), 0 8px 20px -10px rgba(255,79,40,.42); animation: pair-click-invite 1.45s ease-in-out infinite; }
+.point-pair.current-target:disabled { cursor: wait; }
+.point-pair.current-target .point-pair-state { color: var(--accent); }
+.point-pair.is-plotting { background: #fff; box-shadow: inset 0 0 0 2px var(--accent), 0 10px 24px -10px rgba(255,79,40,.5); animation: none; }
+.point-pair.current-target:not(:disabled):hover { transform: translateX(-2px); box-shadow: inset 0 0 0 2px var(--accent), 0 10px 24px -10px rgba(255,79,40,.52); }
+.point-pair.current-target:not(:disabled) .point-pair-state svg { animation: pointer-click-cue 1.1s ease-in-out infinite; }
+.plot-action { min-height: 49px; padding: 7px 9px; display: grid; grid-template-columns: 31px minmax(0, 1fr) auto; align-items: center; gap: 8px; border-radius: 10px; opacity: 1; color: var(--ink-2); background: rgba(255,255,255,.72); box-shadow: inset 0 0 0 1px rgba(167,166,162,.16); transform: none; }
+.plot-action-icon { display: grid; width: 31px; height: 31px; place-items: center; border-radius: 9px; color: var(--accent); background: var(--accent-soft); }
+.plot-action-icon svg { width: 18px; height: 18px; fill: rgba(255,79,40,.12); stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; animation: pointer-click-cue 1.1s ease-in-out infinite; }
+.plot-action p { margin: 0; padding: 0; display: grid; gap: 2px; color: var(--ink-2); font-size: 9px; line-height: 1.25; }
+.plot-action p strong { color: var(--ink); font-size: 10px; }
+.plot-action p small { color: var(--ink-2); font: 600 8px Inter, sans-serif; }
+.plot-progress { padding: 4px 6px; border-radius: 7px; color: var(--accent); background: var(--accent-soft); font: 750 9px "JetBrains Mono", monospace; white-space: nowrap; }
+.plot-action.is-busy .plot-action-icon { color: var(--success); background: var(--success-soft); }
+.plot-action.is-busy .plot-action-icon svg { animation: none; }
+.point-conclusion { display: grid; gap: 4px; padding: 10px; border-radius: 10px; opacity: 1; color: var(--success); background: var(--success-soft); transform: none; }
 .point-conclusion span { color: var(--ink-2); font-size: 10px; line-height: 1.35; }
+.graph-live-message { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .graph-with-formula { position: relative; }
 .graph-with-formula > .math-equation { position: absolute; top: 17px; left: 20px; z-index: 2; padding: 6px 9px; border-radius: 8px; color: var(--accent); background: rgba(255,255,255,.9); font-size: 17px; box-shadow: 0 5px 14px -7px rgba(58,53,48,.25); }
 .quadrant-prediction { display: grid; gap: 6px; }
@@ -4594,6 +4701,18 @@ html, body { margin: 0; padding: 0; }
 @keyframes forbidden-pulse { 50% { transform: translateY(-3px); box-shadow: 0 10px 22px -8px rgba(255,79,40,.45); } }
 @keyframes draw-curve { to { stroke-dashoffset: 0; } }
 @keyframes point-pop { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }
+@keyframes placement-guide-draw { to { stroke-dashoffset: 0; } }
+@keyframes placement-marker-in { from { opacity: 0; transform: scale(.35); } to { opacity: 1; transform: scale(1); } }
+@keyframes placement-target-ping {
+  0% { opacity: 0; transform: scale(.35); }
+  45% { opacity: 1; transform: scale(1.18); }
+  100% { opacity: .75; transform: scale(1); }
+}
+@keyframes placement-label-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes pair-click-invite {
+  50% { box-shadow: inset 0 0 0 2px rgba(255,79,40,.48), 0 10px 24px -9px rgba(255,79,40,.45); }
+}
+@keyframes pointer-click-cue { 50% { transform: translate(-1px, 2px); } }
 @keyframes shake { 20%,60% { transform: translateX(-5px); } 40%,80% { transform: translateX(5px); } }
 @keyframes solution-pop { from { opacity: 0; transform: scale(.4) rotate(-20deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
 @keyframes score-in { from { opacity: 0; transform: scale(.72) rotate(-35deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
@@ -4647,7 +4766,10 @@ html, body { margin: 0; padding: 0; }
   .domain-rule p { grid-column: 1 / -1; text-align: left; }
   .graph-frame { min-height: 230px; padding: 7px; }
   .point-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  .point-list > div { padding: 7px; }
+  .point-pair { min-height: 46px; padding: 7px; }
+  .point-pair-copy { display: grid; gap: 2px; }
+  .point-pair-state { min-width: 35px; }
+  .point-pair-state em { display: none; }
   .point-list p, .point-control { grid-column: 1 / -1; }
   .sign-panel { display: grid; grid-template-columns: 1fr 1fr; }
   .sign-panel .segmented, .sign-panel p { grid-column: 1 / -1; }
