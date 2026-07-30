@@ -188,270 +188,270 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.lessonQuestion,
     title: L(
-      '4 × 6 → 8 × ?',
-      '4 × 6 → 8 × ?',
-      '4 × 6 → 8 × ?',
+      '24 ta vazifa · 2 → 4 robot',
+      '24 задания · 2 → 4 робота',
+      '24 tasks · 2 → 4 robots',
     ),
     lead: L(
-      "Maydon o'zgarmaydi.",
-      'Площадь не меняется.',
-      'The area stays fixed.',
+      'Vaqt nechaga o‘zgaradi?',
+      'Как изменится время?',
+      'How will the time change?',
     ),
     audio: [
       L(
-        "Tasavvur qiling: to'rtburchakning yuzi doim yigirma to'rt kvadrat metr.",
-        'Представьте: площадь прямоугольника всегда равна двадцати четырём квадратным метрам.',
-        'Imagine a rectangle whose area is always twenty-four square metres.',
+        "Ikki bir xil robot yigirma to'rtta vazifani o'n ikki daqiqada tugatadi.",
+        'Два одинаковых робота выполняют двадцать четыре задания за двенадцать минут.',
+        'Two identical robots complete twenty-four tasks in twelve minutes.',
       ),
       L(
-        "Enini ikki marta oshirsak, bo'yi bilan nima sodir bo'ladi? Taxminingizni tanlang.",
-        'Если ширину увеличить в два раза, что произойдёт с высотой? Выберите прогноз.',
-        'If we double its width, what happens to its height? Choose your prediction.',
+        "Robotlar sonini ikki marta oshirib, to'rtta qilsak, vaqt qancha bo'ladi? Taxmin qiling.",
+        'Если удвоить число роботов до четырёх, сколько времени понадобится? Сделайте прогноз.',
+        'If we double the number of robots to four, how much time will be needed? Make a prediction.',
       ),
     ],
   },
   {
     eyebrow: UI.theory,
     title: L(
-      "x o'ssa, y kamayadi",
-      'x растёт, y уменьшается',
-      'x grows, y shrinks',
+      'Bir xil ish · turli vaqt',
+      'Одна работа · разное время',
+      'Same workload · different time',
     ),
     lead: L(
-      'Shaklni o‘zgartiring.',
-      'Измените форму.',
-      'Change the shape.',
+      '24 ta vazifani taqsimlang.',
+      'Распределите 24 задания.',
+      'Distribute the 24 tasks.',
     ),
     audio: [
       L(
-        "Enni ikkitadan o'n ikkigacha o'zgartiramiz.",
-        'Изменяем ширину от двух до двенадцати.',
-        'We change the width from two to twelve.',
+        "Bir robot barcha yigirma to'rtta vazifani yigirma to'rt daqiqada bajaradi.",
+        'Один робот выполняет все двадцать четыре задания за двадцать четыре минуты.',
+        'One robot completes all twenty-four tasks in twenty-four minutes.',
       ),
       L(
-        "En katta bo'lsa, balandlik kichik bo'ladi, ammo yuza o'zgarmaydi.",
-        'Чем больше ширина, тем меньше высота, но площадь не меняется.',
-        'The larger the width, the smaller the height, while the area stays fixed.',
+        "Ikki robot ishni teng bo'lishadi: har biriga o'n ikkitadan vazifa, vaqt esa o'n ikki daqiqa.",
+        'Два робота делят работу поровну: каждому по двенадцать заданий, время — двенадцать минут.',
+        'Two robots share the work equally: twelve tasks each, so the time is twelve minutes.',
       ),
       L(
-        "Demak, x va y bir yo'nalishda emas, qarama-qarshi o'zgaradi.",
-        'Значит, x и y меняются не в одном, а в противоположных направлениях.',
-        'So x and y change in opposite directions.',
+        "To'rt robotda har biriga oltitadan vazifa qoladi. Vaqt olti daqiqa, ish esa hamon yigirma to'rtta.",
+        'С четырьмя роботами каждому остаётся по шесть заданий. Время — шесть минут, а работа всё ещё равна двадцати четырём заданиям.',
+        'With four robots, each receives six tasks. The time is six minutes, while the workload is still twenty-four tasks.',
       ),
     ],
   },
   {
     eyebrow: UI.theory,
     title: L(
-      'x · y = 24',
-      'x · y = 24',
-      'x · y = 24',
+      '×a ↔ ÷a',
+      '×a ↔ ÷a',
+      '×a ↔ ÷a',
     ),
     lead: L(
-      "Ko'paytmalarni solishtiring.",
-      'Сравните произведения.',
-      'Compare the products.',
+      "O'zgarishlar bir-birini qoplaydi.",
+      'Изменения компенсируют друг друга.',
+      'The changes compensate for each other.',
     ),
     audio: [
       L(
-        "Jadvaldagi juftliklarni kuzating: bir va yigirma to'rt, ikki va o'n ikki.",
-        'Проследите пары в таблице: один и двадцать четыре, два и двенадцать.',
-        'Follow the pairs in the table: one and twenty-four, two and twelve.',
+        "Robotlar soni ikki marta oshsa, vaqt ikki marta kamayadi.",
+        'Если число роботов увеличить в два раза, время уменьшится в два раза.',
+        'If the number of robots is multiplied by two, the time is divided by two.',
       ),
       L(
-        "x ikki marta oshsa, y ikki marta kamayadi.",
-        'Если x увеличивается в два раза, y уменьшается в два раза.',
-        'When x doubles, y is divided by two.',
+        "Robotlar soni uch marta oshsa, vaqt uch marta kamayadi.",
+        'Если число роботов увеличить в три раза, время уменьшится в три раза.',
+        'If the number of robots is multiplied by three, the time is divided by three.',
       ),
       L(
-        "Barcha ustunlarda tekshiring: x karra y yigirma to'rt.",
-        'Проверьте каждый столбец: x умножить на y равно двадцати четырём.',
-        'Check every column: x times y equals twenty-four.',
+        "Umuman, x ni a ga ko'paytirsak, y ni a ga bo'lamiz.",
+        'В общем случае: если x умножить на a, то y нужно разделить на a.',
+        'In general, if x is multiplied by a, y must be divided by a.',
       ),
     ],
   },
   {
     eyebrow: UI.theory,
     title: L(
-      'Formulani chiqaramiz',
-      'Выводим формулу',
-      'Build the formula',
+      "Nima o'zgarmadi?",
+      'Что осталось неизменным?',
+      'What stayed unchanged?',
     ),
     lead: L(
-      'Ikki tomonni x ga bo‘ling.',
-      'Разделите обе части на x.',
-      'Divide both sides by x.',
+      "Ko'paytmalarni kuzating.",
+      'Проследите произведения.',
+      'Follow the products.',
     ),
     audio: [
       L(
-        "Yigirma to'rt o'rniga nolga teng bo'lmagan o'zgarmas sonni k bilan belgilaymiz.",
-        'Вместо двадцати четырёх обозначим буквой k постоянное число, не равное нулю.',
-        'Replace twenty-four by a non-zero constant called k.',
+        "Bir karra yigirma to'rt, ikki karra o'n ikki, to'rt karra olti.",
+        'Один умножить на двадцать четыре, два на двенадцать, четыре на шесть.',
+        'One times twenty-four, two times twelve, four times six.',
       ),
       L(
-        "Ikkala tomonni x ga bo'lamiz: y teng k bo'lingan x.",
-        'Делим обе части на x: y равно k, делённому на x.',
-        'Divide both sides by x: y equals k divided by x.',
+        "Har safar ko'paytma yigirma to'rt. Bu bajariladigan ishning o'zgarmas hajmi.",
+        'Каждый раз произведение равно двадцати четырём. Это неизменный объём всей работы.',
+        'Every product equals twenty-four. It is the fixed total workload.',
       ),
       L(
-        "Bu teskari proporsionallikning asosiy formulasi.",
-        'Это основная формула обратной пропорциональности.',
-        'This is the core formula of inverse proportion.',
+        "O'zgarmas sonni k deymiz: x karra y teng k. x ga bo'lsak, y teng k bo'lingan x.",
+        'Назовём постоянное число буквой k: x умножить на y равно k. Делим на x и получаем y равно k, делённому на x.',
+        'Call the fixed number k: x times y equals k. Divide by x to get y equals k divided by x.',
       ),
     ],
   },
   {
     eyebrow: UI.theory,
     title: L(
-      'Nol mumkin emas',
-      'Ноль невозможен',
-      'Zero is impossible',
+      "Kamayishning o'zi yetmaydi",
+      'Одного убывания недостаточно',
+      'Decreasing is not enough',
     ),
     lead: L(
-      'x ni nolga yaqinlashtiring.',
-      'Приближайте x к нулю.',
-      'Move x towards zero.',
+      "Doim ko'paytmani tekshiring.",
+      'Всегда проверяйте произведение.',
+      'Always test the product.',
     ),
     audio: [
       L(
-        "x bir, yarim va o'ndan birga kamayganda, y tez o'sadi.",
-        'Когда x уменьшается от единицы до одной десятой, y быстро растёт.',
-        'As x falls from one to one tenth, y grows quickly.',
+        "Ikki bog'lanishda ham x oshganda y kamayadi.",
+        'В обеих зависимостях при росте x значение y уменьшается.',
+        'In both relationships, y decreases as x increases.',
       ),
       L(
-        "Ammo x nol bo'lsa, k ni nolga bo'lish kerak bo'ladi.",
-        'Но при x, равном нулю, пришлось бы делить k на ноль.',
-        'But when x is zero, we would have to divide k by zero.',
+        "Birinchi bog'lanishda barcha ko'paytmalar yigirma to'rt. Bu teskari proporsionallik.",
+        'В первой зависимости все произведения равны двадцати четырём. Это обратная пропорциональность.',
+        'In the first relationship, every product is twenty-four. It is an inverse proportion.',
       ),
       L(
-        "Shuning uchun qoida yoniga doim x nolga teng emas deb yozamiz.",
-        'Поэтому рядом с формулой всегда пишем: x не равен нулю.',
-        'That is why we always add: x is not equal to zero.',
+        "Ikkinchisida ko'paytmalar turlicha. U kamayadi, ammo teskari proporsional emas.",
+        'Во второй произведения разные. Она убывает, но не является обратной пропорциональностью.',
+        'In the second relationship, the products differ. It decreases, but it is not an inverse proportion.',
       ),
     ],
   },
   {
     eyebrow: UI.theory,
     title: L(
-      'Juftlik → nuqta',
-      'Пара → точка',
-      'Pair → point',
+      'Vazifalar → nuqtalar → giperbola',
+      'Задания → точки → гипербола',
+      'Tasks → points → hyperbola',
     ),
     lead: L(
-      'Har bir juftlikning joyi bor.',
-      'У каждой пары своё место.',
-      'Each pair has a place.',
+      'Har bir tajriba iz qoldiradi.',
+      'Каждый опыт оставляет след.',
+      'Every experiment leaves a trace.',
     ),
     audio: [
       L(
-        "Jadvaldan birinchi juftlikni olamiz va koordinata tekisligiga qo'yamiz.",
-        'Берём первую пару из таблицы и отмечаем её на координатной плоскости.',
-        'Take the first pair from the table and place it on the coordinate plane.',
+        "Robotlar soni va vaqtning har bir juftligi koordinata tekisligida bitta nuqta beradi.",
+        'Каждая пара: число роботов и время — даёт одну точку на координатной плоскости.',
+        'Each pair of robot count and time gives one point on the coordinate plane.',
       ),
       L(
-        "Boshqa juftliklar ham o'z joyiga boradi.",
-        'Остальные пары также занимают свои места.',
-        'The other pairs move to their places too.',
+        "Faqat navbatdagi karta nafas oladi. Uni bosing: avval x ni gorizontal o‘qda, keyin y ni vertikal yo‘nalishda topamiz.",
+        'Дышит только следующая карточка. Нажмите её: сначала найдём x по горизонтали, затем y по вертикали.',
+        'Only the next card breathes. Press it: first locate x horizontally, then locate y vertically.',
       ),
       L(
-        "Musbat va manfiy juftliklarni joylashtirsak, ikkala shoxning nuqtalari ko'rinadi.",
-        'Если нанести положительные и отрицательные пары, появятся точки обеих ветвей.',
-        'Plot positive and negative pairs to reveal points on both branches.',
+        "Yo‘llar kesishgan joyga nuqta qo‘yamiz va x karra y yigirma to‘rtligini tekshiramiz. Shundan keyin keyingi karta ochiladi.",
+        'В месте пересечения ставим точку и проверяем, что x умножить на y равно двадцати четырём. После этого откроется следующая карточка.',
+        'Mark the intersection and check that x times y equals twenty-four. Then the next card unlocks.',
       ),
     ],
   },
   {
     eyebrow: UI.theory,
     title: L(
-      'Nuqtalar → giperbola',
-      'Точки → гипербола',
-      'Points → hyperbola',
+      'k ishorasi grafikni boshqaradi',
+      'Знак k управляет графиком',
+      'The sign of k controls the graph',
     ),
     lead: L(
-      'k ishorasi chorakni tanlaydi.',
-      'Знак k выбирает четверти.',
-      'The sign of k selects the quadrants.',
+      "Shoxlar o'qlarga tegmaydi.",
+      'Ветви не касаются осей.',
+      'The branches never touch the axes.',
     ),
     audio: [
       L(
-        "Nuqtalarni silliq bog'lasak, ikki shoxli egri chiziq hosil bo'ladi.",
-        'Если плавно соединить точки, получим кривую с двумя ветвями.',
-        'Join the points smoothly and a two-branch curve appears.',
+        "k musbat bo'lsa, x va y bir xil ishorali: shoxlar birinchi va uchinchi choraklarda.",
+        'Если k положительно, x и y имеют одинаковые знаки: ветви лежат в первой и третьей четвертях.',
+        'When k is positive, x and y have matching signs, so the branches lie in quadrants one and three.',
       ),
       L(
-        "k musbat bo'lsa, shoxlar birinchi va uchinchi choraklarda.",
-        'Если k положительно, ветви находятся в первой и третьей четвертях.',
-        'When k is positive, the branches lie in quadrants one and three.',
+        "k nol emas. Shu sababli x ham, y ham nol bo'la olmaydi va giperbola o'qlarni kesmaydi.",
+        'Число k не равно нулю. Поэтому ни x, ни y не могут быть нулём, и гипербола не пересекает оси.',
+        'The number k is non-zero. Therefore neither x nor y can be zero, and the hyperbola never crosses the axes.',
       ),
       L(
-        "k manfiy bo'lsa, ular ikkinchi va to'rtinchi choraklarga o'tadi.",
-        'Если k отрицательно, они переходят во вторую и четвёртую четверти.',
-        'When k is negative, they move to quadrants two and four.',
+        "k manfiy bo'lsa, ishoralar turlicha va shoxlar ikkinchi hamda to'rtinchi choraklarga o'tadi.",
+        'Если k отрицательно, знаки различаются, а ветви переходят во вторую и четвёртую четверти.',
+        'When k is negative, the signs differ and the branches move to quadrants two and four.',
       ),
     ],
   },
   {
     eyebrow: UI.theory,
     title: L(
-      'Bitta qoida',
-      'Одно правило',
-      'One rule',
+      'Teskari proporsionallik detektori',
+      'Детектор обратной пропорциональности',
+      'Inverse-proportion detector',
     ),
     lead: L(
-      'Formulalar qanday bog‘langan?',
-      'Как связаны формулы?',
-      'How do the formulas connect?',
+      'Uchta tekshiruv · bitta qoida.',
+      'Три проверки · одно правило.',
+      'Three checks · one rule.',
     ),
     audio: [
       L(
-        "Asosiy ta'rif: x va y ko'paytmasi nolga teng bo'lmagan k soniga teng.",
-        'Главное определение: произведение x и y равно ненулевому числу k.',
-        'The defining test is that the product of x and y equals a non-zero constant k.',
+        "Birinchi tekshiruv: x a marta oshsa, y a marta kamayadi.",
+        'Первая проверка: если x увеличивается в a раз, y уменьшается в a раз.',
+        'First check: when x is multiplied by a, y is divided by a.',
       ),
       L(
-        "Shundan kasr ko'rinishidagi formula va x hamda y nol emasligi kelib chiqadi.",
-        'Отсюда следуют дробная формула и условия: x и y не равны нулю.',
-        'This gives the fractional formula and the conditions that x and y are non-zero.',
+        "Asosiy tekshiruv: x va y ko'paytmasi doim bir xil k soni. Bu y teng k bo'lingan x formulasiga teng kuchli.",
+        'Главная проверка: произведение x и y всегда равно одному числу k. Это равносильно формуле y равно k, делённому на x.',
+        'Main check: the product of x and y is always the same number k. This is equivalent to y equals k divided by x.',
       ),
       L(
-        "x a marta oshsa, y a marta kamayadi. k ishorasi giperbolaning choraklarini belgilaydi.",
-        'Если x увеличивается в a раз, y уменьшается в a раз. Знак k задаёт четверти гиперболы.',
-        'If x is multiplied by a, y is divided by a. The sign of k sets the hyperbola’s quadrants.',
+        "Nol mumkin emas. k ishorasi esa giperbola shoxlarining choraklarini belgilaydi.",
+        'Ноль невозможен. А знак k определяет четверти, в которых расположены ветви гиперболы.',
+        'Zero is not allowed. The sign of k determines the quadrants containing the hyperbola branches.',
       ),
     ],
   },
   {
     eyebrow: UI.example,
     title: L(
-      'k = 36 · Ikki yo‘nalish',
-      'k = 36 · Два направления',
-      'k = 36 · Two directions',
+      'Bitta nuqta → butun model',
+      'Одна точка → вся модель',
+      'One point → the whole model',
     ),
     lead: L(
-      'Toping va tekshiring.',
-      'Найдите и проверьте.',
-      'Find and verify.',
+      'k ni toping · formulani yozing · tekshiring.',
+      'Найдите k · запишите формулу · проверьте.',
+      'Find k · write the formula · verify.',
     ),
     audio: [
       L(
-        "Model: y o'ttiz olti bo'lingan x.",
-        'Модель: y равно тридцати шести, делённым на x.',
-        'The model is y equals thirty-six divided by x.',
+        "Grafik to'rt va to'qqiz koordinatali nuqtadan o'tadi.",
+        'График проходит через точку с координатами четыре и девять.',
+        'The graph passes through the point with coordinates four and nine.',
       ),
       L(
-        "x to'rt bo'lsa, y o'ttiz olti bo'lingan to'rt, ya'ni to'qqiz. Tekshiruv: to'rt karra to'qqiz o'ttiz olti.",
-        'При x равном четырём y равно тридцати шести, делённым на четыре, то есть девяти. Проверка: четыре умножить на девять равно тридцати шести.',
-        'When x is four, y is thirty-six divided by four, which is nine. Check: four times nine is thirty-six.',
+        "k ni topamiz: to'rt karra to'qqiz o'ttiz olti. Demak, model y teng o'ttiz olti bo'lingan x.",
+        'Находим k: четыре умножить на девять равно тридцати шести. Значит, модель имеет вид y равно тридцати шести, делённым на x.',
+        'Find k: four times nine is thirty-six. Therefore the model is y equals thirty-six divided by x.',
       ),
       L(
-        "Endi y minus olti. x ni topish uchun o'ttiz oltini minus oltiga bo'lamiz.",
-        'Теперь y равно минус шести. Чтобы найти x, делим тридцать шесть на минус шесть.',
-        'Now y is negative six. To find x, divide thirty-six by negative six.',
+        "Endi x minus olti. y teng o'ttiz olti bo'lingan minus olti, ya'ni minus olti.",
+        'Теперь x равен минус шести. y равно тридцати шести, делённым на минус шесть, то есть минус шести.',
+        'Now x is negative six. y equals thirty-six divided by negative six, which is negative six.',
       ),
       L(
-        "x minus olti. Tekshiruv: ikki manfiy son ko'paytmasi musbat o'ttiz olti.",
-        'x равен минус шести. Проверка: произведение двух отрицательных чисел равно положительным тридцати шести.',
-        'x is negative six. Check: two negative factors give positive thirty-six.',
+        "Tekshiruv: minus olti karra minus olti musbat o'ttiz olti. Ko'paytma k ga teng.",
+        'Проверка: минус шесть умножить на минус шесть равно положительным тридцати шести. Произведение равно k.',
+        'Check: negative six times negative six is positive thirty-six. The product equals k.',
       ),
     ],
   },
@@ -588,20 +588,20 @@ const SCREEN_CONTENT = [
       'Rebuild the rule',
     ),
     lead: L(
-      '4 × 6 → 8 × 3',
-      '4 × 6 → 8 × 3',
-      '4 × 6 → 8 × 3',
+      '2 × 12 → 4 × 6',
+      '2 × 12 → 4 × 6',
+      '2 × 12 → 4 × 6',
     ),
     audio: [
       L(
-        "Teskari proporsionallikda x va y qarama-qarshi o'zgaradi, ularning ko'paytmasi esa k ga teng.",
-        'При обратной пропорциональности x и y меняются противоположно, а их произведение равно k.',
-        'In inverse proportion, x and y change in opposite directions while their product equals k.',
+        "x a marta oshsa, y a marta kamayadi. Bu ikki o'zgarish bir-birini qoplaydi.",
+        'Если x увеличивается в a раз, y уменьшается в a раз. Эти изменения компенсируют друг друга.',
+        'If x is multiplied by a, y is divided by a. The two changes compensate for each other.',
       ),
       L(
-        "Formula y teng k bo'lingan x, bunda x nolga teng emas.",
-        'Формула: y равно k, делённому на x, где x не равен нулю.',
-        'The formula is y equals k divided by x, where x is not zero.',
+        "Asosiy belgi: x va y ko'paytmasi doim bir xil k soni. Formula y teng k bo'lingan x.",
+        'Главный признак: произведение x и y всегда равно одному числу k. Формула: y равно k, делённому на x.',
+        'The defining test is that x times y always equals the same number k. The formula is y equals k divided by x.',
       ),
       L(
         "Grafik giperbola. k musbat bo'lsa birinchi va uchinchi, manfiy bo'lsa ikkinchi va to'rtinchi choraklarda joylashadi.",
@@ -1947,13 +1947,46 @@ function PhaseDots({ count, active }) {
   )
 }
 
-function HookVisual({ onAnswer, phase }) {
+function RobotGlyph({ compact = false }) {
+  return (
+    <svg className={`robot-glyph ${compact ? 'is-compact' : ''}`} viewBox="0 0 52 52" aria-hidden="true">
+      <path className="robot-antenna" d="M26 10V5m-4 0h8" />
+      <rect className="robot-head" x="10" y="11" width="32" height="27" rx="9" />
+      <circle className="robot-eye" cx="20" cy="24" r="3" />
+      <circle className="robot-eye" cx="32" cy="24" r="3" />
+      <path className="robot-mouth" d="M19 31h14" />
+      <path className="robot-feet" d="M18 38v7m16-7v7M14 45h8m8 0h8" />
+    </svg>
+  )
+}
+
+function TaskQueue({ robots, phase = 0, compact = false }) {
+  const rows = Math.ceil(24 / robots)
+  return (
+    <div
+      key={robots}
+      className={`task-queue ${compact ? 'is-compact' : ''}`}
+      style={{ '--robot-count': robots, '--task-rows': rows }}
+      aria-hidden="true"
+    >
+      {Array.from({ length: 24 }, (_, index) => (
+        <i
+          key={index}
+          className={index < robots ? 'queue-leader' : ''}
+          style={{ '--task-delay': `${Math.min(index, 12) * 34 + phase * 20}ms` }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function RobotMissionHook({ onAnswer, phase }) {
   const lang = useLang()
   const [picked, setPicked] = useState(null)
   const options = [
-    L('3', '3', '3'),
-    L('6', '6', '6'),
-    L('12', '12', '12'),
+    L('3 daqiqa', '3 минуты', '3 minutes'),
+    L('6 daqiqa', '6 минут', '6 minutes'),
+    L('12 daqiqa', '12 минут', '12 minutes'),
   ]
   const choose = (index) => {
     setPicked(index)
@@ -1969,22 +2002,37 @@ function HookVisual({ onAnswer, phase }) {
   }
 
   return (
-    <div className="hook-flow" data-audio-phase={phase}>
-      <div className="frame hook-model hook-model-vertical">
-        <div className="area-label">S = 24 m²</div>
-        <div className="hook-equation-track" aria-hidden="true">
-          <MathEquation compact>
-            <span>4</span><span>·</span><span>6</span><span>=</span><span>24</span>
-          </MathEquation>
-          <span className={`morph-arrow hook-morph ${phase >= 1 ? 'is-visible' : ''}`}>→</span>
-          <MathEquation compact className={`hook-target ${phase >= 1 ? 'is-visible' : ''}`}>
-            <span>8</span><span>·</span><strong>?</strong><span>=</span><span>24</span>
-          </MathEquation>
+    <div className="hook-flow robot-hook" data-audio-phase={phase}>
+      <div className="frame robot-mission">
+        <div className="mission-total">
+          <span>24</span>
+          <small>{textOf(L('vazifa', 'задания', 'tasks'), lang)}</small>
         </div>
-        <div className="rect-pair">
-          <div className="mini-rect rect-a"><span>4 × 6</span></div>
-          <span className={`morph-arrow hook-morph ${phase >= 1 ? 'is-visible' : ''}`}>→</span>
-          <div className={`mini-rect rect-question hook-target ${phase >= 1 ? 'is-visible' : ''}`}><span>8 × ?</span></div>
+        <div className="robot-scenario" aria-hidden="true">
+          <div className="robot-case is-known">
+            <div className="robot-fleet">
+              {Array.from({ length: 2 }, (_, index) => <RobotGlyph key={index} />)}
+            </div>
+            <TaskQueue robots={2} compact />
+            <strong>12 min</strong>
+          </div>
+          <span className={`mission-arrow ${phase >= 1 ? 'is-visible' : ''}`}>→</span>
+          <div className={`robot-case is-question ${phase >= 1 ? 'is-visible' : ''}`}>
+            <div className="robot-fleet">
+              {Array.from({ length: 4 }, (_, index) => <RobotGlyph key={index} />)}
+            </div>
+            <TaskQueue robots={4} phase={1} compact />
+            <strong>?</strong>
+          </div>
+        </div>
+        <div className="hook-equation-track robot-hook-equation" aria-hidden="true">
+          <MathEquation compact>
+            <span>2</span><span>·</span><span>12</span><span>=</span><span>24</span>
+          </MathEquation>
+          <span className={`morph-arrow ${phase >= 1 ? 'is-visible' : ''}`}>→</span>
+          <MathEquation compact className={`hook-target ${phase >= 1 ? 'is-visible' : ''}`}>
+            <span>4</span><span>·</span><strong>?</strong><span>=</span><span>24</span>
+          </MathEquation>
         </div>
       </div>
       <div className={`choice-stack hook-options ${phase >= 1 ? 'is-visible' : ''}`}>
@@ -2004,93 +2052,62 @@ function HookVisual({ onAnswer, phase }) {
   )
 }
 
-const RECTANGLE_FACTORS = [2, 3, 4, 6, 8, 12]
-const RECTANGLE_CELL_COUNT = 24
+const ROBOT_COUNTS = [1, 2, 3, 4, 6, 8]
 
-function RectangleLab({ phase }) {
+function WorkloadLab({ phase }) {
   const lang = useLang()
-  const [selectedX, setSelectedX] = useState(null)
-  const narratedX = phase === 0 ? 4 : phase === 1 ? 8 : 12
-  const x = selectedX ?? narratedX
-  const y = 24 / x
-  const yDisplay = Number.isInteger(y) ? String(y) : y.toFixed(2).replace(/\.?0+$/, '')
-  const exactValue = Number.isInteger(y)
-  const compactRectangle = Math.min(x, y) <= 3
-  const sliderIndex = RECTANGLE_FACTORS.indexOf(x)
+  const [selectedRobots, setSelectedRobots] = useState(null)
+  const narratedRobots = phase === 0 ? 1 : phase === 1 ? 2 : 4
+  const robots = selectedRobots ?? narratedRobots
+  const minutes = 24 / robots
+  const sliderIndex = ROBOT_COUNTS.indexOf(robots)
 
   return (
-    <div className="lab-grid vertical-lab" data-audio-phase={phase}>
-      <div className="frame rectangle-stage">
-        <div className="rectangle-stage-note">
-          <strong>S = 24 m²</strong>
+    <div className="workload-layout" data-audio-phase={phase}>
+      <div className="frame workload-simulator">
+        <div className="workload-topline">
+          <span>
+            <b>24</b>
+            <small>{textOf(L('vazifa', 'задания', 'tasks'), lang)}</small>
+          </span>
+          <i aria-hidden="true">=</i>
+          <strong>{robots} × {minutes}</strong>
         </div>
-        <div className="rectangle-visual">
-          <div
-            key={`${x}-${y}`}
-            className={`dynamic-rectangle ${compactRectangle ? 'is-compact' : ''}`}
-            style={{
-              '--cell-columns': x,
-              width: `calc(var(--lab-unit) * ${x})`,
-              height: `calc(var(--lab-unit) * ${y})`,
-            }}
-            role="img"
-            aria-label={`${x} times ${yDisplay} equals 24`}
-          >
-            <span className="rectangle-cells" aria-hidden="true">
-              {Array.from({ length: RECTANGLE_CELL_COUNT }, (_, cellIndex) => (
-                <i key={cellIndex} />
-              ))}
-            </span>
-            <span className="area-core" aria-hidden="true">{compactRectangle ? '24' : 'S = 24'}</span>
+        <div className="workload-animation">
+          <TaskQueue robots={robots} phase={phase} />
+          <span className="queue-flow-arrow" aria-hidden="true">↓</span>
+          <div className="robot-fleet workload-fleet">
+            {Array.from({ length: robots }, (_, index) => <RobotGlyph key={index} compact={robots >= 6} />)}
           </div>
         </div>
-        <div className="rectangle-measures">
-          <span><MathVar>x</MathVar><b>{x}</b></span>
-          <i aria-hidden="true">×</i>
-          <span><MathVar>y</MathVar><b>{exactValue ? yDisplay : `≈ ${yDisplay}`}</b></span>
+        <div className="workload-readout">
+          <span><b>{robots}</b><small>{textOf(L('robot', 'робота', 'robots'), lang)}</small></span>
+          <span className="readout-product" aria-hidden="true">×</span>
+          <span><b>{minutes}</b><small>{textOf(L('daqiqa', 'минут', 'minutes'), lang)}</small></span>
+          <span className="readout-product" aria-hidden="true">=</span>
+          <strong>24</strong>
         </div>
       </div>
-      <div className="frame control-card">
-        <div className="metric-row">
-          <strong><MathVar>x</MathVar> = {x}</strong>
-          <span aria-hidden="true">→</span>
-          <strong><MathVar>y</MathVar> = {yDisplay}</strong>
-        </div>
+      <div className="frame workload-control">
         <input
           type="range"
           min="0"
-          max={RECTANGLE_FACTORS.length - 1}
+          max={ROBOT_COUNTS.length - 1}
           step="1"
           value={sliderIndex}
-          onChange={(event) => setSelectedX(RECTANGLE_FACTORS[Number(event.target.value)])}
-          aria-label={textOf(L('Eni, x', 'Ширина, x', 'Width, x'), lang)}
-          aria-valuetext={`x = ${x}, y = ${yDisplay}`}
-          style={{ '--range-progress': `${(sliderIndex / (RECTANGLE_FACTORS.length - 1)) * 100}%` }}
+          onChange={(event) => setSelectedRobots(ROBOT_COUNTS[Number(event.target.value)])}
+          aria-label={textOf(L('Robotlar soni', 'Количество роботов', 'Number of robots'), lang)}
+          aria-valuetext={`${robots} robots, ${minutes} minutes`}
+          style={{ '--range-progress': `${(sliderIndex / (ROBOT_COUNTS.length - 1)) * 100}%` }}
         />
         <div className="range-values" aria-hidden="true">
-          {RECTANGLE_FACTORS.map((value) => <span key={value}>{value}</span>)}
+          {ROBOT_COUNTS.map((value) => <span key={value}>{value}</span>)}
         </div>
       </div>
-      <div className="formula-ladder rectangle-formulas">
-        <div className="formula-ladder-step is-current">
-          <MathEquation ariaLabel={`y equals 24 divided by ${x}${exactValue ? ` equals ${yDisplay}` : ` approximately equals ${yDisplay}`}`}>
-            <MathVar>y</MathVar>
-            <span>=</span>
-            <MathFraction numerator="24" denominator={x} compact />
-            <span>{exactValue ? '=' : '≈'}</span>
-            <strong>{yDisplay}</strong>
-          </MathEquation>
-        </div>
-        <div className={`formula-ladder-step ${phase >= 1 || selectedX !== null ? 'is-visible' : ''}`}>
-          <MathEquation ariaLabel={`${x} times ${yDisplay} equals 24`}>
-            <span>{x}</span><span>·</span><span>{yDisplay}</span><span>=</span><strong>24</strong>
-          </MathEquation>
-        </div>
-        <div className={`formula-ladder-step formula-rule ${phase >= 2 || selectedX !== null ? 'is-visible' : ''}`}>
-          <MathEquation compact>
-            <MathVar>x</MathVar><span>×</span><MathVar>a</MathVar>
-            <span>⇒</span>
-            <MathVar>y</MathVar><span>÷</span><MathVar>a</MathVar>
+      <div className="formula-ladder workload-formula">
+        <div className="formula-ladder-step is-visible">
+          <MathEquation>
+            <span>{robots}</span><span>·</span><span>{minutes}</span><span>=</span><strong>24</strong>
           </MathEquation>
         </div>
       </div>
@@ -2098,109 +2115,85 @@ function RectangleLab({ phase }) {
   )
 }
 
-function TableModel({ phase }) {
+function ReciprocalScale({ phase }) {
   const lang = useLang()
-  const pairs = [[1, 24], [2, 12], [3, 8], [4, 6], [6, 4], [8, 3]]
-  const activePairs = phase === 0 ? [0, 1] : phase === 1 ? [1, 3] : [3, 5]
-  const [gapAnswer, setGapAnswer] = useState(null)
-  const discovered = gapAnswer === 4
+  const factors = [2, 3, 4]
+  const [selectedFactor, setSelectedFactor] = useState(null)
+  const factor = selectedFactor ?? factors[Math.min(phase, factors.length - 1)]
+  const robots = 2 * factor
+  const minutes = 12 / factor
 
   return (
-    <div className="table-layout vertical-table" data-audio-phase={phase}>
-      <div className="frame math-table">
-        <div className="table-row header"><span>x</span>{pairs.map(([x]) => <span key={`x${x}`}>{x}</span>)}</div>
-        <div className="table-row">
-          <span>y</span>
-          {pairs.map(([, y], index) => (
-            <span key={`y${y}`} className={activePairs.includes(index) ? 'lit' : ''}>
-              {index === 4 && !discovered ? '?' : y}
-            </span>
-          ))}
+    <div className="scale-lab" data-audio-phase={phase}>
+      <div className="scale-factor-tabs" aria-label={textOf(L("Ko'paytiruvchini tanlang", 'Выберите множитель', 'Choose a multiplier'), lang)}>
+        {factors.map((value) => (
+          <button
+            type="button"
+            key={value}
+            className={factor === value ? 'active' : ''}
+            onClick={() => setSelectedFactor(value)}
+          >
+            ×{value}
+          </button>
+        ))}
+      </div>
+      <div className="frame compensation-machine">
+        <div className="compensation-track robots-track">
+          <span className="track-label"><RobotGlyph compact /><MathVar>x</MathVar></span>
+          <MathEquation compact><span>2</span><span>×</span><strong>{factor}</strong><span>=</span><b>{robots}</b></MathEquation>
+          <span className="factor-motion forward">×{factor}</span>
         </div>
-        <div className="table-row product">
-          <span>x·y</span>
-          {pairs.map(([x, y], index) => (
-            <span key={`p${x}`} className={activePairs.includes(index) ? 'lit' : ''}>
-              {index === 4 && !discovered ? '—' : x * y}
-            </span>
-          ))}
+        <div className="compensation-axis" aria-hidden="true">
+          <span>24</span>
+          <i />
+        </div>
+        <div className="compensation-track time-track">
+          <span className="track-label timer-symbol" aria-hidden="true">◷</span>
+          <MathEquation compact><span>12</span><span>÷</span><strong>{factor}</strong><span>=</span><b>{minutes}</b></MathEquation>
+          <span className="factor-motion reverse">÷{factor}</span>
         </div>
       </div>
-      <div className="formula-ladder table-formulas">
-        <div className="formula-ladder-step product-scan is-visible">
-          <MathEquation compact>
-            <span>1·24</span><span>=</span><span>2·12</span><span>=</span>
-            <span>3·8</span><span>=</span><span>4·6</span><span>=</span><strong>24</strong>
-          </MathEquation>
-        </div>
-        <div className="formula-ladder-step gap-equation">
-          <MathEquation compact><span>6</span><span>·</span><strong>?</strong><span>=</span><span>24</span></MathEquation>
-          <div className="formula-answer-buttons" aria-label={textOf(L('Qiymatni tanlang', 'Выберите значение', 'Choose a value'), lang)}>
-          {[3, 4, 6].map((value) => (
-            <button
-              type="button"
-              key={value}
-              className={gapAnswer === value ? (value === 4 ? 'correct' : 'wrong') : ''}
-              onClick={() => setGapAnswer(value)}
-            >
-              {value}
-            </button>
-          ))}
-          </div>
-        </div>
-        <div className={`formula-ladder-step inverse-scale ${discovered || phase >= 1 ? 'is-visible' : ''}`}>
-          <MathEquation compact>
-            <MathVar>x</MathVar><span>×2</span><span>⇒</span>
-            <MathVar>y</MathVar><span>÷2</span>
-          </MathEquation>
-          <span className={`formula-flow-arrow ${discovered || phase >= 2 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
-          <span className={`scale-invariant ${discovered || phase >= 2 ? 'is-visible' : ''}`}>
-            <ConstantProduct compact result="24" />
-          </span>
-        </div>
+      <div className={`formula-ladder-step compensation-rule ${phase >= 2 || selectedFactor !== null ? 'is-visible' : ''}`}>
+        <MathEquation>
+          <MathVar>x</MathVar><span>×</span><MathVar>a</MathVar>
+          <span>⇒</span>
+          <MathVar>y</MathVar><span>÷</span><MathVar>a</MathVar>
+        </MathEquation>
       </div>
     </div>
   )
 }
 
-function FormulaBuild({ phase }) {
-  const [operation, setOperation] = useState(null)
-  const correctOperation = operation === 'divide'
-  const transformed = correctOperation || phase >= 1
-  const completed = correctOperation || phase >= 2
+function InvariantFormula({ phase }) {
+  const products = [[1, 24], [2, 12], [4, 6]]
+  const visibleCount = phase === 0 ? 1 : products.length
 
   return (
-    <div className="formula-discovery vertical-formula-build" data-audio-phase={phase}>
-      <div className="frame formula-question formula-origin">
-        <ConstantProduct />
-        <div className="operation-choices">
-          <button
-            type="button"
-            className={operation === 'subtract' ? 'wrong' : ''}
-            onClick={() => setOperation('subtract')}
+    <div className="invariant-discovery" data-audio-phase={phase}>
+      <div className="frame product-conveyor">
+        {products.map(([x, y], index) => (
+          <div
+            key={x}
+            className={`product-token ${index < visibleCount ? 'is-visible' : ''}`}
+            style={{ '--product-delay': `${index * 130}ms` }}
           >
-            − x
-          </button>
-          <button
-            type="button"
-            className={operation === 'divide' ? 'correct' : ''}
-            onClick={() => setOperation('divide')}
-          >
-            ÷ x
-          </button>
-          <button
-            type="button"
-            className={operation === 'add' ? 'wrong' : ''}
-            onClick={() => setOperation('add')}
-          >
-            + x
-          </button>
+            <MathEquation compact>
+              <span>{x}</span><span>·</span><span>{y}</span><span>=</span><strong>24</strong>
+            </MathEquation>
+          </div>
+        ))}
+        <div className={`fixed-workload ${phase >= 1 ? 'is-visible' : ''}`}>
+          <span>24</span>
+          <small>k</small>
         </div>
       </div>
-
-      <div className="formula-ladder algebra-steps" data-audio-phase={phase}>
-        <div className={`formula-ladder-step algebra-row ${transformed ? 'is-visible' : ''}`}>
-          <MathEquation ariaLabel="x times y divided by x equals k divided by x">
+      <div className="formula-ladder invariant-formulas">
+        <div className={`formula-ladder-step ${phase >= 1 ? 'is-visible' : ''}`}>
+          <ConstantProduct />
+        </div>
+        <span className={`formula-flow-arrow ${phase >= 2 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step invariant-division ${phase >= 2 ? 'is-visible' : ''}`}>
+          <MathEquation>
             <MathFraction
               numerator={<><MathVar>x</MathVar><span>·</span><MathVar>y</MathVar></>}
               denominator={<MathVar>x</MathVar>}
@@ -2208,71 +2201,62 @@ function FormulaBuild({ phase }) {
             <span>=</span>
             <MathFraction numerator={<MathVar>k</MathVar>} denominator={<MathVar>x</MathVar>} />
           </MathEquation>
-          <small>x ≠ 0</small>
         </div>
-        <span className={`formula-flow-arrow ${transformed ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
-        <div className={`formula-ladder-step algebra-row result ${completed ? 'show is-visible' : ''}`}>
+        <span className={`formula-flow-arrow ${phase >= 2 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step invariant-result ${phase >= 2 ? 'is-visible' : ''}`}>
           <InverseFormula />
           <small>k ≠ 0, x ≠ 0</small>
-        </div>
-        <div className={`reverse-equation ${completed ? 'show' : ''}`}>
-          <InverseFormula compact />
-          <span>⇄</span>
-          <ConstantProduct compact />
         </div>
       </div>
     </div>
   )
 }
 
-function DomainModel({ phase }) {
-  const lang = useLang()
-  const values = [1, 0.5, 0.1, 0]
-  const [selectedX, setSelectedX] = useState(null)
-  const foundBoundary = selectedX === 0 || phase >= 1
-  const ruleVisible = selectedX === 0 || phase >= 2
+function RelationshipDetector({ phase }) {
+  const inversePairs = [[2, 12], [4, 6], [8, 3]]
+  const decreasingPairs = [[2, 12], [4, 10], [8, 6]]
 
   return (
-    <div className="domain-layout vertical-domain" data-audio-phase={phase}>
-      <div className="formula-hero-line">
-        <InverseFormula numerator="12" />
-      </div>
-      <div className="frame value-cards">
-        {values.map((x) => (
-          <button
-            type="button"
-            key={x}
-            className={`value-card ${x === 0 && foundBoundary ? 'forbidden' : ''} ${phase >= 1 && x === 0 && !foundBoundary ? 'pulse' : ''} ${selectedX === x ? 'selected' : ''}`}
-            onClick={() => setSelectedX(x)}
-          >
-            <span>x = {x}</span>
-            <MathFraction numerator="12" denominator={x} compact />
-            <small>
-              {x === 0
-                ? (foundBoundary
-                  ? textOf(L('aniqlanmagan', 'не определено', 'undefined'), lang)
-                  : '?')
-                : `y = ${12 / x}`}
-            </small>
-          </button>
-        ))}
-      </div>
-      <div className={`formula-ladder zero-proof ${foundBoundary ? 'show' : ''}`} aria-live="polite">
-        <div className="formula-ladder-step blocked-fraction">
-          <MathFraction numerator="12" denominator="0" />
-          <span aria-hidden="true">✕</span>
+    <div className="relationship-detector" data-audio-phase={phase}>
+      <div className="detector-card is-inverse">
+        <div className="detector-formula">
+          <InverseFormula numerator="24" />
+          <span className="decrease-mark" aria-hidden="true">↘</span>
         </div>
-        <span className="formula-flow-arrow is-visible" aria-hidden="true">↓</span>
-        <div className="formula-ladder-step">
-          <MathEquation><span>0</span><span>·</span><MathVar>y</MathVar><span>≠</span><span>12</span></MathEquation>
+        <div className="detector-pairs">
+          {inversePairs.map(([x, y]) => (
+            <span key={x}>
+              <small>({x}; {y})</small>
+              <strong className={phase >= 1 ? 'is-visible' : ''}>{x}·{y}=24</strong>
+            </span>
+          ))}
+        </div>
+        <div className={`detector-verdict pass ${phase >= 1 ? 'is-visible' : ''}`}>
+          <span>✓</span><ConstantProduct compact result="24" />
         </div>
       </div>
-      <div className={`domain-rule ${ruleVisible ? 'show' : ''}`}>
-        <div className="restriction-pair">
-          <strong>x ≠ 0</strong>
-          <strong>y ≠ 0</strong>
-          <small>k ≠ 0</small>
+      <div className="detector-card is-impostor">
+        <div className="detector-formula">
+          <MathEquation><MathVar>y</MathVar><span>=</span><span>14</span><span>−</span><MathVar>x</MathVar></MathEquation>
+          <span className="decrease-mark" aria-hidden="true">↘</span>
         </div>
+        <div className="detector-pairs">
+          {decreasingPairs.map(([x, y]) => (
+            <span key={x}>
+              <small>({x}; {y})</small>
+              <strong className={phase >= 1 ? 'is-visible' : ''}>{x}·{y}={x * y}</strong>
+            </span>
+          ))}
+        </div>
+        <div className={`detector-verdict fail ${phase >= 2 ? 'is-visible' : ''}`}>
+          <span>×</span>
+          <MathEquation compact><span>24</span><span>≠</span><span>40</span><span>≠</span><span>48</span></MathEquation>
+        </div>
+      </div>
+      <div className={`detector-rule ${phase >= 2 ? 'is-visible' : ''}`}>
+        <span aria-hidden="true">↘</span>
+        <strong>≠</strong>
+        <ConstantProduct compact />
       </div>
     </div>
   )
@@ -2298,6 +2282,7 @@ function curvePath(k, negativeBranch) {
 function CoordinateGraph({
   k = 24,
   pointsOnly = false,
+  branches = 'both',
   phase = 2,
   revealCount = null,
   pointsOverride = null,
@@ -2359,8 +2344,12 @@ function CoordinateGraph({
       )}
       {!pointsOnly && (
         <g className={`hyperbola ${phase >= 0 ? 'draw' : ''}`}>
-          <path d={curvePath(k, true)} />
-          <path d={curvePath(k, false)} />
+          {(branches === 'negative' || branches === 'both') && (
+            <path className="branch-negative" d={curvePath(k, true)} />
+          )}
+          {(branches === 'positive' || branches === 'both') && (
+            <path className="branch-positive" d={curvePath(k, false)} />
+          )}
         </g>
       )}
       {trace && (
@@ -2377,42 +2366,41 @@ function CoordinateGraph({
           />
           <circle className="placement-axis-dot placement-axis-dot-x" cx={trace.x} cy="125" r="4.5" />
           <circle className="placement-axis-dot placement-axis-dot-y" cx="230" cy={trace.y} r="4.5" />
-          <circle className="placement-cursor" cx="230" cy="125" r="4.8" opacity="0">
-            <animate
-              attributeName="cx"
-              from="230"
-              to={trace.x}
-              begin=".08s"
-              dur=".60s"
-              calcMode="spline"
-              keyTimes="0;1"
-              keySplines=".4 0 .2 1"
-              fill="freeze"
-            />
-            <animate
-              attributeName="cy"
-              from="125"
-              to={trace.y}
-              begin=".72s"
-              dur=".68s"
-              calcMode="spline"
-              keyTimes="0;1"
-              keySplines=".4 0 .2 1"
-              fill="freeze"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;1;0"
-              keyTimes="0;.06;.84;1"
-              dur="1.95s"
-              fill="freeze"
-            />
-          </circle>
-          <circle className="placement-target-ring" cx={trace.x} cy={trace.y} r="11" />
+          <text
+            className="placement-axis-label placement-axis-label-x"
+            x={trace.x}
+            y="116"
+            textAnchor="middle"
+          >
+            x = {trace.sourceX}
+          </text>
+          <text
+            className="placement-axis-label placement-axis-label-y"
+            x="220"
+            y={Math.max(42, Math.min(224, trace.y - 7))}
+            textAnchor="end"
+          >
+            y = {trace.sourceY}
+          </text>
+          <circle
+            className="placement-cursor placement-cursor-x"
+            cx="230"
+            cy="125"
+            r="6"
+            style={{ '--cursor-x-shift': `${trace.x - 230}px` }}
+          />
+          <circle
+            className="placement-cursor placement-cursor-y"
+            cx={trace.x}
+            cy="125"
+            r="6"
+            style={{ '--cursor-y-shift': `${trace.y - 125}px` }}
+          />
+          <circle className="placement-target-ring" cx={trace.x} cy={trace.y} r="9" />
           <text
             className="placement-label"
             x={trace.x + 9}
-            y={trace.y < 35 ? trace.y + 20 : trace.y - 9}
+            y={trace.y < 45 ? trace.y + 32 : trace.y - 9}
           >
             ({trace.sourceX}; {trace.sourceY})
           </text>
@@ -2426,7 +2414,7 @@ function CoordinateGraph({
           <circle
             key={`${x}-${y}`}
             className={`graph-point ${isVisible ? 'show' : ''}`}
-            style={{ '--delay': revealCount === null ? `${index * 90}ms` : '0ms' }}
+            style={{ '--delay': `${index * 90}ms` }}
             cx={point.x}
             cy={point.y}
             r="4.5"
@@ -2438,27 +2426,137 @@ function CoordinateGraph({
   )
 }
 
-const POINT_PLOT_REVEAL_MS = 1500
-const POINT_PLOT_FINISH_MS = 2150
+function WorkGraph({ phase, pushOneOff }) {
+  const lang = useLang()
+  const positivePoints = [[2, 12], [4, 6], [8, 3]]
+  const allPoints = [...positivePoints, [-2, -12], [-4, -6], [-8, -3]]
+  const revealCount = phase >= 2 ? allPoints.length : positivePoints.length
+  const showPointLab = typeof window !== 'undefined'
+    && new URLSearchParams(window.location.search).get('pointLab') === '1'
 
-function PointerGlyph({ className = '' }) {
+  if (showPointLab) {
+    return <PointPlotLab phase={phase} pushOneOff={pushOneOff} />
+  }
+
   return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M5 3.5 18.5 13l-6.1 1.2 3.2 5.5-3 1.7-3.2-5.6-4.4 4Z" />
-    </svg>
+    <div className="graph-layout work-graph-layout" data-audio-phase={phase}>
+      <div
+        className="work-point-stream"
+        aria-label={textOf(L('Tajriba juftliklari', 'Пары из опыта', 'Experimental pairs'), lang)}
+      >
+        {positivePoints.map(([x, y], index) => (
+          <span key={x} style={{ '--stream-delay': `${index * 120}ms` }}>
+            ({x}; {y}) · {x}·{y}=24
+          </span>
+        ))}
+      </div>
+
+      <div className="frame graph-frame graph-with-formula work-graph-frame">
+        <div className="graph-workload-badge" aria-label="k equals 24">
+          <span>24</span><small>k</small>
+        </div>
+        <CoordinateGraph
+          key={`work-graph-${phase}`}
+          k={24}
+          pointsOnly={phase === 0}
+          branches={phase >= 2 ? 'both' : 'positive'}
+          phase={phase}
+          revealCount={revealCount}
+          pointsOverride={allPoints}
+          showAsymptotes={phase >= 2}
+          ariaLabel={textOf(L(
+            'y 24 bo‘lingan x funksiyasining bosqichma-bosqich qurilgan grafigi',
+            'Поэтапное построение графика функции y равно 24, делённому на x',
+            'A staged construction of the graph of y equals 24 divided by x',
+          ), lang)}
+        />
+      </div>
+
+      <div className="work-graph-rule" aria-live="polite">
+        <span className="is-visible">
+          <b>01</b>
+          <MathEquation compact><span>(x; y)</span><span>→</span><span>•</span></MathEquation>
+        </span>
+        <span className={phase >= 1 ? 'is-visible' : ''}>
+          <b>02</b>
+          <InverseFormula numerator="24" compact />
+          <i aria-hidden="true">⌁</i>
+        </span>
+        <span className={phase >= 2 ? 'is-visible' : ''}>
+          <b>03</b>
+          <MathEquation compact><span>(+;+)</span><span>→</span><strong>I</strong></MathEquation>
+          <MathEquation compact><span>(−;−)</span><span>→</span><strong>III</strong></MathEquation>
+        </span>
+      </div>
+    </div>
   )
 }
 
-function PointsModel({ phase }) {
+const POINT_PLOT_X_MS = 950
+const POINT_PLOT_Y_MS = 3450
+const POINT_PLOT_POINT_MS = 5900
+const POINT_PLOT_REVEAL_MS = 6800
+const POINT_PLOT_FINISH_MS = 8400
+
+function PointPlotLab({ phase, pushOneOff }) {
   const lang = useLang()
   const pairs = [[2, 12], [-2, -12], [4, 6], [-4, -6], [8, 3], [-8, -3]]
   const [placed, setPlaced] = useState(0)
   const [plottingIndex, setPlottingIndex] = useState(null)
   const [tracePoint, setTracePoint] = useState(null)
+  const [plotStep, setPlotStep] = useState('idle')
   const [liveMessage, setLiveMessage] = useState('')
   const timersRef = useRef([])
   const plottingLockRef = useRef(false)
   const plotting = plottingIndex !== null
+  const activePair = pairs[plottingIndex ?? Math.min(placed, pairs.length - 1)]
+  const [activeX, activeY] = activePair
+  const stepKeys = ['read', 'x', 'y', 'point']
+  const activeStepIndex = stepKeys.indexOf(plotStep)
+  const xDirection = textOf(activeX >= 0
+    ? L('nolning o‘ng tomonida', 'справа от нуля', 'to the right of zero')
+    : L('nolning chap tomonida', 'слева от нуля', 'to the left of zero'), lang)
+  const yMovement = textOf(activeY >= 0
+    ? L('yuqoriga ko‘tarilamiz', 'поднимаемся', 'move up')
+    : L('pastga tushamiz', 'опускаемся', 'move down'), lang)
+  const explanationSteps = [
+    {
+      key: 'read',
+      title: textOf(L(`Juftlik: (${activeX}; ${activeY})`, `Пара: (${activeX}; ${activeY})`, `Pair: (${activeX}, ${activeY})`), lang),
+      detail: textOf(L(
+        'Birinchi son — x, ikkinchi son — y.',
+        'Первое число — x, второе число — y.',
+        'The first number is x; the second is y.',
+      ), lang),
+    },
+    {
+      key: 'x',
+      title: `x = ${activeX}`,
+      detail: textOf(L(
+        `Gorizontal x o‘qida ${activeX} ni topamiz — ${xDirection}.`,
+        `На горизонтальной оси x находим ${activeX} — ${xDirection}.`,
+        `On the horizontal x-axis, find ${activeX} — ${xDirection}.`,
+      ), lang),
+    },
+    {
+      key: 'y',
+      title: `y = ${activeY}`,
+      detail: textOf(L(
+        `x = ${activeX} joyidan y = ${activeY} gacha ${yMovement}.`,
+        `От x = ${activeX} ${yMovement} до уровня y = ${activeY}.`,
+        `From x = ${activeX}, ${yMovement} to y = ${activeY}.`,
+      ), lang),
+    },
+    {
+      key: 'point',
+      title: textOf(L('Nuqtani qo‘yamiz', 'Ставим точку', 'Mark the point'), lang),
+      detail: textOf(L(
+        `Kesishgan joy — (${activeX}; ${activeY}). Tekshiruv: ${activeX} · ${activeY} = 24.`,
+        `Пересечение — (${activeX}; ${activeY}). Проверка: ${activeX} · ${activeY} = 24.`,
+        `The intersection is (${activeX}, ${activeY}). Check: ${activeX} · ${activeY} = 24.`,
+      ), lang),
+    },
+  ]
 
   useEffect(() => () => {
     timersRef.current.forEach((timer) => window.clearTimeout(timer))
@@ -2468,34 +2566,78 @@ function PointsModel({ phase }) {
     if (plottingLockRef.current || index !== placed) return
     plottingLockRef.current = true
     const pair = pairs[index]
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const timings = reducedMotion
+      ? { x: 70, y: 170, point: 280, reveal: 390, finish: 620 }
+      : {
+          x: POINT_PLOT_X_MS,
+          y: POINT_PLOT_Y_MS,
+          point: POINT_PLOT_POINT_MS,
+          reveal: POINT_PLOT_REVEAL_MS,
+          finish: POINT_PLOT_FINISH_MS,
+        }
+    const pairXDirection = pair[0] >= 0
+      ? L('nolning o‘ng tomonida', 'справа от нуля', 'to the right of zero')
+      : L('nolning chap tomonida', 'слева от нуля', 'to the left of zero')
+    const pairYMovement = pair[1] >= 0
+      ? L('yuqoriga ko‘tarilamiz', 'поднимаемся', 'move up')
+      : L('pastga tushamiz', 'опускаемся', 'move down')
+
+    timersRef.current.forEach((timer) => window.clearTimeout(timer))
+    timersRef.current = []
     setPlottingIndex(index)
     setTracePoint(pair)
+    setPlotStep('read')
     setLiveMessage(textOf(L(
-      `Avval x = ${pair[0]}, keyin y = ${pair[1]}. Nuqtaga yetib boramiz.`,
-      `Сначала x = ${pair[0]}, затем y = ${pair[1]}. Движемся к точке.`,
-      `First x = ${pair[0]}, then y = ${pair[1]}. Move to the point.`,
+      `(${pair[0]}; ${pair[1]}) juftlikni o‘qiymiz. Birinchi son x, ikkinchi son y.`,
+      `Читаем пару (${pair[0]}; ${pair[1]}). Первое число — x, второе — y.`,
+      `Read the pair (${pair[0]}, ${pair[1]}). The first number is x; the second is y.`,
     ), lang))
+    pushOneOff?.(L(
+      `(${pair[0]}; ${pair[1]}) juftlik. Avval x o‘qida ${pair[0]} ni ${textOf(pairXDirection, 'uz')} topamiz. Keyin y = ${pair[1]} gacha ${textOf(pairYMovement, 'uz')}. Kesishgan joyga nuqta qo‘yamiz. Tekshiruv: ${pair[0]} karra ${pair[1]} — 24.`,
+      `Пара (${pair[0]}; ${pair[1]}). Сначала на оси x находим ${pair[0]} — ${textOf(pairXDirection, 'ru')}. Затем ${textOf(pairYMovement, 'ru')} до y = ${pair[1]}. На пересечении ставим точку. Проверка: ${pair[0]} умножить на ${pair[1]} — 24.`,
+      `Pair (${pair[0]}, ${pair[1]}). First, on the x-axis find ${pair[0]} — ${textOf(pairXDirection, 'en')}. Then ${textOf(pairYMovement, 'en')} to y equals ${pair[1]}. Mark the intersection. Check: ${pair[0]} times ${pair[1]} equals 24.`,
+    ))
 
     timersRef.current.push(
       window.setTimeout(() => {
-        setPlaced(index + 1)
+        setPlotStep('x')
         setLiveMessage(textOf(L(
-          `(${pair[0]}; ${pair[1]}) nuqta grafikda paydo bo‘ldi.`,
-          `Точка (${pair[0]}; ${pair[1]}) появилась на графике.`,
-          `Point (${pair[0]}; ${pair[1]}) appeared on the graph.`,
+          `x = ${pair[0]}. Gorizontal o‘qda ${textOf(pairXDirection, 'uz')} boramiz.`,
+          `x = ${pair[0]}. Идём по горизонтальной оси: ${textOf(pairXDirection, 'ru')}.`,
+          `x = ${pair[0]}. Move on the horizontal axis ${textOf(pairXDirection, 'en')}.`,
         ), lang))
-      }, POINT_PLOT_REVEAL_MS),
+      }, timings.x),
+      window.setTimeout(() => {
+        setPlotStep('y')
+        setLiveMessage(textOf(L(
+          `Endi y = ${pair[1]}. ${textOf(pairYMovement, 'uz')}.`,
+          `Теперь y = ${pair[1]}. ${textOf(pairYMovement, 'ru')}.`,
+          `Now y = ${pair[1]}. ${textOf(pairYMovement, 'en')}.`,
+        ), lang))
+      }, timings.y),
+      window.setTimeout(() => {
+        setPlotStep('point')
+        setLiveMessage(textOf(L(
+          `Kesishgan joy — (${pair[0]}; ${pair[1]}). ${pair[0]} · ${pair[1]} = 24.`,
+          `На пересечении получаем (${pair[0]}; ${pair[1]}). ${pair[0]} · ${pair[1]} = 24.`,
+          `The intersection is (${pair[0]}, ${pair[1]}). ${pair[0]} · ${pair[1]} = 24.`,
+        ), lang))
+      }, timings.point),
+      window.setTimeout(() => setPlaced(index + 1), timings.reveal),
       window.setTimeout(() => {
         setPlottingIndex(null)
         setTracePoint(null)
+        setPlotStep('idle')
         plottingLockRef.current = false
-      }, POINT_PLOT_FINISH_MS),
+      }, timings.finish),
     )
   }
 
   return (
     <div className="graph-layout vertical-points" data-audio-phase={phase}>
-      <div className={`frame graph-frame ${plotting ? 'is-plotting' : ''}`}>
+      <div className={`frame graph-frame graph-with-formula ${plotting ? 'is-plotting' : ''}`}>
+        <ConstantProduct result="24" compact />
         <CoordinateGraph
           k={24}
           pointsOnly
@@ -2510,66 +2652,93 @@ function PointsModel({ phase }) {
           ), lang)}
         />
       </div>
+
       <div className="point-list">
-        {pairs.map((pair, index) => {
-          const isPlaced = index < placed
-          const isCurrent = index === placed
-          const isPlotting = plottingIndex === index
-          return (
-            <button
-              type="button"
-              key={pair[0]}
-              className={`point-pair ${isPlaced ? 'visible' : ''} ${isCurrent ? 'current-target' : ''} ${isPlotting ? 'is-plotting' : ''}`}
-              disabled={plotting || !isCurrent}
-              onClick={() => plotPair(index)}
-              aria-label={textOf(L(
-                `(${pair[0]}; ${pair[1]}) juftligini grafikda ko‘rsatish`,
-                `Показать точку (${pair[0]}; ${pair[1]}) на графике`,
-                `Plot point (${pair[0]}; ${pair[1]}) on the graph`,
-              ), lang)}
-            >
-              <span className="point-pair-copy">
-                <strong>({pair[0]}; {pair[1]})</strong>
-                <small>{pair[0]} · {pair[1]} = 24</small>
-              </span>
-              <span className="point-pair-state" aria-hidden="true">
-                {isPlaced ? (
-                  <b>✓</b>
-                ) : isPlotting ? (
-                  <i>•••</i>
-                ) : isCurrent ? (
-                  <>
-                    <PointerGlyph />
-                    <em>{textOf(L('Bosing', 'Нажмите', 'Click'), lang)}</em>
-                  </>
-                ) : (
-                  <i>{index + 1}</i>
-                )}
-              </span>
-            </button>
-          )
-        })}
+        <div className="point-card-grid">
+          {pairs.map((pair, index) => {
+            const isPlaced = index < placed
+            const isCurrent = index === placed
+            const isPlotting = plottingIndex === index
+            const isReady = isCurrent && !plotting
+            return (
+              <button
+                type="button"
+                key={pair[0]}
+                className={`point-pair ${isPlaced ? 'visible' : ''} ${isReady ? 'current-target' : ''} ${isPlotting ? 'is-plotting' : ''}`}
+                disabled={plotting || !isCurrent}
+                onClick={() => plotPair(index)}
+                aria-label={textOf(L(
+                  `(${pair[0]}; ${pair[1]}) juftligini grafikda ko‘rsatish`,
+                  `Показать точку (${pair[0]}; ${pair[1]}) на графике`,
+                  `Plot point (${pair[0]}; ${pair[1]}) on the graph`,
+                ), lang)}
+              >
+                <span className="point-pair-copy">
+                  <strong>({pair[0]}; {pair[1]})</strong>
+                  <small>{pair[0]} · {pair[1]} = 24</small>
+                </span>
+                <span className="point-pair-state" aria-hidden="true">
+                  {isPlaced ? (
+                    <b>✓</b>
+                  ) : isPlotting ? (
+                    <>
+                      <span className="breath-cue is-busy" />
+                      <em>{Math.max(1, activeStepIndex + 1)} / 4</em>
+                    </>
+                  ) : isReady ? (
+                    <>
+                      <span className="breath-cue" />
+                      <em>{textOf(L('Bosing', 'Нажать', 'Start'), lang)}</em>
+                    </>
+                  ) : (
+                    <i>{String(index + 1).padStart(2, '0')}</i>
+                  )}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+
         {placed < pairs.length ? (
-          <div className={`plot-action ${plotting ? 'is-busy' : ''}`}>
-            <span className="plot-action-icon" aria-hidden="true">
-              <PointerGlyph />
-            </span>
-            <p>
-              <strong>{plotting
-                ? textOf(L('Nuqtani bosqichma-bosqich quramiz', 'Строим точку по шагам', 'Plotting the point step by step'), lang)
-                : textOf(L('Ajratilgan juftlikni bosing', 'Нажмите на выделенную пару', 'Click the highlighted pair'), lang)}
-              </strong>
-              <small>{textOf(L(
-                'Harakat: avval x bo‘ylab, so‘ng y bo‘ylab.',
-                'Движение: сначала по x, затем по y.',
-                'Move along x first, then along y.',
-              ), lang)}</small>
-            </p>
-            <span className="plot-progress">{placed} / {pairs.length}</span>
+          <div className={`point-explainer ${plotting ? 'is-busy' : 'is-ready'}`}>
+            <div className="point-explainer-head">
+              <span className={`explainer-marker ${plotting ? 'is-busy' : ''}`} aria-hidden="true">
+                {plotting ? Math.max(1, activeStepIndex + 1) : '•'}
+              </span>
+              <div>
+                <strong>{plotting
+                  ? textOf(L('Nuqtani qanday topamiz?', 'Как находим точку?', 'How do we find the point?'), lang)
+                  : textOf(L('Nafas olayotgan kartani bosing', 'Нажмите на дышащую карточку', 'Press the breathing card'), lang)}
+                </strong>
+                <small>{plotting
+                  ? textOf(L('Qizil qadam animatsiya bilan birga o‘zgaradi.', 'Красный шаг меняется вместе с анимацией.', 'The red step follows the animation.'), lang)
+                  : textOf(L('Avval juftlikni o‘qiymiz, keyin x va y ni topamiz.', 'Сначала прочитаем пару, затем найдём x и y.', 'First read the pair, then locate x and y.'), lang)}
+                </small>
+              </div>
+              <span className="plot-progress">{placed} / {pairs.length}</span>
+            </div>
+            <div className="plot-step-list">
+              {explanationSteps.map((step, stepIndex) => {
+                const isActive = plotting && stepIndex === activeStepIndex
+                const isDone = plotting && stepIndex < activeStepIndex
+                return (
+                  <div
+                    key={step.key}
+                    className={`plot-step ${isActive ? 'is-active' : ''} ${isDone ? 'is-done' : ''}`}
+                  >
+                    <b>{isDone ? '✓' : stepIndex + 1}</b>
+                    <span>
+                      <strong>{step.title}</strong>
+                      <small>{step.detail}</small>
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         ) : (
           <div className="point-conclusion">
-            <strong>{textOf(L('Ikki shox tayyor', 'Обе ветви готовы', 'Both branches are ready'), lang)}</strong>
+            <strong>{textOf(L('Ikki shox uchun nuqtalar tayyor', 'Точки для двух ветвей готовы', 'Points for both branches are ready'), lang)}</strong>
             <span>{textOf(L('Musbat juftliklar — I, manfiy juftliklar — III chorakda.', 'Положительные пары — в I, отрицательные — в III четверти.', 'Positive pairs lie in I; negative pairs lie in III.'), lang)}</span>
           </div>
         )}
@@ -2578,15 +2747,12 @@ function PointsModel({ phase }) {
     </div>
   )
 }
-
 function GraphSignModel({ phase }) {
   const lang = useLang()
   const [manualK, setManualK] = useState(null)
   const narratedK = phase >= 2 ? -12 : 12
   const k = manualK ?? narratedK
-  const sign = k > 0 ? 1 : -1
-  const setSign = (nextSign) => setManualK(nextSign * Math.abs(k))
-  const setMagnitude = (value) => setManualK(sign * value)
+  const setSign = (nextSign) => setManualK(nextSign * 12)
 
   return (
     <div className="graph-layout vertical-graph-sign" data-audio-phase={phase}>
@@ -2594,7 +2760,7 @@ function GraphSignModel({ phase }) {
         <InverseFormula numerator={Math.abs(k)} negative={k < 0} compact />
         <CoordinateGraph key={`${k}-${phase}`} k={k} phase={phase} showAsymptotes />
       </div>
-      <div className="sign-panel graph-controls">
+      <div className="sign-panel graph-controls" style={{ gridTemplateColumns: 'minmax(0, 1fr)' }}>
         <div className="segmented">
           <button
             type="button"
@@ -2613,34 +2779,28 @@ function GraphSignModel({ phase }) {
             k &lt; 0
           </button>
         </div>
-        <div className="magnitude-control">
-          <small>|k|</small>
-          {[4, 12, 24].map((value) => (
-            <button
-              type="button"
-              key={value}
-              className={Math.abs(k) === value ? 'active' : ''}
-              onClick={() => setMagnitude(value)}
-            >
-              {value}
-            </button>
-          ))}
-        </div>
       </div>
       <div className="formula-ladder sign-formulas">
-        <div className={`formula-ladder-step ${phase >= 1 ? 'is-visible' : ''}`}>
+        <div className="formula-ladder-step is-visible">
           <MathEquation>
             <MathVar>x</MathVar><span>·</span><MathVar>y</MathVar>
             <span>{k > 0 ? '>' : '<'}</span><span>0</span>
           </MathEquation>
         </div>
-        <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
-        <div className={`formula-ladder-step sign-pair-step ${phase >= 1 ? 'is-visible' : ''}`}>
+        <span className="formula-flow-arrow is-visible" aria-hidden="true">↓</span>
+        <div className="formula-ladder-step sign-pair-step is-visible">
           <strong>{k > 0 ? '(+,+)  (−,−)' : '(+,−)  (−,+)'}</strong>
         </div>
-        <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
-        <div className={`formula-ladder-step quadrant-rule ${phase >= 1 ? 'is-visible' : ''} ${k > 0 ? 'positive' : 'negative'}`}>
+        <span className="formula-flow-arrow is-visible" aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step quadrant-rule is-visible ${k > 0 ? 'positive' : 'negative'}`}>
           <strong>{k > 0 ? 'I, III' : 'II, IV'}</strong>
+        </div>
+        <div className={`formula-ladder-step ${phase >= 1 ? 'is-visible' : ''}`}>
+          <MathEquation compact>
+            <MathVar>x</MathVar><span>≠</span><span>0</span>
+            <span>,</span>
+            <MathVar>y</MathVar><span>≠</span><span>0</span>
+          </MathEquation>
         </div>
       </div>
     </div>
@@ -2649,35 +2809,31 @@ function GraphSignModel({ phase }) {
 
 function Passport({ phase }) {
   return (
-    <div className="passport-layout vertical-passport" data-audio-phase={phase}>
-      <div className="formula-ladder passport-formulas">
-        <div className="formula-ladder-step is-visible passport-invariant">
-          <MathEquation>
-            <MathVar>x</MathVar><span>·</span><MathVar>y</MathVar><span>=</span><MathVar>k</MathVar>
-          </MathEquation>
-          <small>k ≠ 0</small>
-        </div>
-        <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
-        <div className={`formula-ladder-step passport-equivalence ${phase >= 1 ? 'is-visible' : ''}`}>
-          <InverseFormula />
-          <strong>⇄</strong>
-          <ConstantProduct />
-          <small>x ≠ 0, y ≠ 0</small>
-        </div>
-        <span className={`formula-flow-arrow ${phase >= 2 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
-        <div className={`formula-ladder-step passport-scale ${phase >= 2 ? 'is-visible' : ''}`}>
+    <div className="passport-layout vertical-passport rule-detector" data-audio-phase={phase}>
+      <div className="formula-ladder passport-formulas detector-formulas">
+        <div className="formula-ladder-step is-visible passport-scale">
+          <span className="rule-check" aria-hidden="true">01</span>
           <MathEquation compact>
             <MathVar>x</MathVar><span>×</span><MathVar>a</MathVar>
             <span>⇒</span>
             <MathVar>y</MathVar><span>÷</span><MathVar>a</MathVar>
           </MathEquation>
         </div>
+        <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step passport-equivalence ${phase >= 1 ? 'is-visible' : ''}`}>
+          <span className="rule-check" aria-hidden="true">02</span>
+          <ConstantProduct />
+          <strong>⇄</strong>
+          <InverseFormula />
+        </div>
+        <span className={`formula-flow-arrow ${phase >= 2 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
         <div className={`formula-ladder-step passport-graph-rule ${phase >= 2 ? 'is-visible' : ''}`}>
+          <span className="rule-check" aria-hidden="true">03</span>
           <MiniGraph variant="positive" />
           <div>
+            <MathEquation compact><MathVar>x</MathVar><span>≠</span><span>0</span><span>·</span><MathVar>y</MathVar><span>≠</span><span>0</span></MathEquation>
             <MathEquation compact><MathVar>k</MathVar><span>&gt;</span><span>0</span><span>⇒</span><strong>I, III</strong></MathEquation>
             <MathEquation compact><MathVar>k</MathVar><span>&lt;</span><span>0</span><span>⇒</span><strong>II, IV</strong></MathEquation>
-            <small>x = 0; y = 0</small>
           </div>
         </div>
       </div>
@@ -2688,39 +2844,37 @@ function Passport({ phase }) {
 function WorkedExample({ phase }) {
   return (
     <div className="worked-layout vertical-worked" data-audio-phase={phase}>
-      <div className="formula-hero worked-model"><InverseFormula numerator="36" /></div>
+      <div className="formula-hero worked-model point-seed">
+        <MathEquation><MathVar>P</MathVar><span>(4; 9)</span></MathEquation>
+      </div>
       <div className="worked-formula-stack">
-        <div className={`worked-chain ${phase >= 0 ? 'is-visible' : ''}`}>
-          <MathEquation compact>
-            <MathVar>x</MathVar><span>=</span><span>4</span><span>⇒</span>
-            <MathVar>y</MathVar><span>=</span><MathFraction numerator="36" denominator="4" compact />
+        <div className={`worked-chain ${phase >= 1 ? 'is-visible' : ''}`}>
+          <MathEquation>
+            <MathVar>k</MathVar><span>=</span><span>4</span><span>·</span><span>9</span><span>=</span><strong>36</strong>
           </MathEquation>
-          <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
-          <div className={`worked-result ${phase >= 1 ? 'is-visible' : ''}`}>
-            <MathEquation><MathVar>y</MathVar><span>=</span><span>9</span></MathEquation>
-            <MathEquation compact><span>4</span><span>·</span><span>9</span><span>=</span><span>36</span><strong>✓</strong></MathEquation>
+          <span className="formula-flow-arrow is-visible" aria-hidden="true">↓</span>
+          <div className="worked-result is-visible">
+            <InverseFormula numerator="36" />
           </div>
         </div>
         <div className={`worked-chain ${phase >= 2 ? 'is-visible' : ''}`}>
           <MathEquation compact>
-            <MathVar>y</MathVar><span>=</span><span>−6</span><span>⇒</span>
-            <MathVar>x</MathVar><span>=</span><MathFraction numerator="36" denominator="−6" compact />
+            <MathVar>x</MathVar><span>=</span><span>−6</span><span>⇒</span>
+            <MathVar>y</MathVar><span>=</span><MathFraction numerator="36" denominator="−6" compact />
           </MathEquation>
           <span className={`formula-flow-arrow ${phase >= 3 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
           <div className={`worked-result ${phase >= 3 ? 'is-visible' : ''}`}>
-            <MathEquation><MathVar>x</MathVar><span>=</span><span>−6</span></MathEquation>
+            <MathEquation><MathVar>y</MathVar><span>=</span><span>−6</span></MathEquation>
             <MathEquation compact><span>(−6)</span><span>·</span><span>(−6)</span><span>=</span><span>36</span><strong>✓</strong></MathEquation>
           </div>
         </div>
       </div>
       <div className={`frame-success worked-rule ${phase >= 3 ? 'is-complete' : 'is-pending'}`}>
-        <ConstantProduct compact />
+        <MathEquation compact><MathVar>P</MathVar><span>(4; 9)</span></MathEquation>
+        <span>→</span>
+        <MathEquation compact><MathVar>k</MathVar><span>=</span><span>36</span></MathEquation>
         <span>→</span>
         <InverseFormula compact />
-        <span>→</span>
-        <MathEquation compact>
-          <MathVar>x</MathVar><span>·</span><MathVar>y</MathVar><span>=</span><MathVar>k</MathVar><strong>✓</strong>
-        </MathEquation>
       </div>
     </div>
   )
@@ -3291,15 +3445,20 @@ function Summary({ answers, studentName, phase }) {
   return (
     <div className="summary-layout vertical-summary" data-audio-phase={phase}>
       <div className="return-hook summary-hook is-visible">
-        <div className="summary-rect-transform" aria-hidden="true">
-          <div className="mini-rect rect-a"><span>4 × 6</span></div>
+        <div className="summary-robot-transform" aria-hidden="true">
+          <span className="summary-fleet">
+            <RobotGlyph compact /><RobotGlyph compact />
+          </span>
+          <b>×2</b>
           <span>→</span>
-          <div className="mini-rect rect-b"><span>8 × 3</span></div>
+          <span className="summary-fleet">
+            <RobotGlyph compact /><RobotGlyph compact /><RobotGlyph compact /><RobotGlyph compact />
+          </span>
         </div>
         <MathEquation>
-          <span>4</span><span>·</span><span>6</span><span>=</span><span>24</span>
+          <span>2</span><span>·</span><span>12</span><span>=</span><span>24</span>
           <span>⇄</span>
-          <span>8</span><span>·</span><span>3</span><span>=</span><span>24</span>
+          <span>4</span><span>·</span><span>6</span><span>=</span><span>24</span>
         </MathEquation>
       </div>
 
@@ -3377,12 +3536,12 @@ function Summary({ answers, studentName, phase }) {
 }
 
 function LessonBody({ screen, audio, storedAnswer, answers, onAnswer, studentName }) {
-  if (screen === 0) return <HookVisual onAnswer={onAnswer} phase={audio.phase} />
-  if (screen === 1) return <RectangleLab phase={audio.phase} />
-  if (screen === 2) return <TableModel phase={audio.phase} />
-  if (screen === 3) return <FormulaBuild phase={audio.phase} />
-  if (screen === 4) return <DomainModel phase={audio.phase} />
-  if (screen === 5) return <PointsModel phase={audio.phase} />
+  if (screen === 0) return <RobotMissionHook onAnswer={onAnswer} phase={audio.phase} />
+  if (screen === 1) return <WorkloadLab phase={audio.phase} />
+  if (screen === 2) return <ReciprocalScale phase={audio.phase} />
+  if (screen === 3) return <InvariantFormula phase={audio.phase} />
+  if (screen === 4) return <RelationshipDetector phase={audio.phase} />
+  if (screen === 5) return <WorkGraph phase={audio.phase} pushOneOff={audio.pushOneOff} />
   if (screen === 6) return <GraphSignModel phase={audio.phase} />
   if (screen === 7) return <Passport phase={audio.phase} />
   if (screen === 8) return <WorkedExample phase={audio.phase} />
@@ -3859,17 +4018,37 @@ html, body { margin: 0; padding: 0; }
 .hyperbola path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 420; stroke-dashoffset: 420; filter: drop-shadow(0 0 4px rgba(255,79,40,.42)); }
 .hyperbola.draw path { animation: draw-curve 1.4s .15s ease forwards; }
 .graph-point { opacity: 0; fill: var(--blue); stroke: white; stroke-width: 2; transform-box: fill-box; transform-origin: center; }
-.graph-point.show { animation: point-pop .58s var(--delay) cubic-bezier(.22,1,.36,1) forwards; }
+.graph-point.show { animation: point-pop .78s var(--delay) cubic-bezier(.22,1,.36,1) forwards; }
 .origin-gap { fill: var(--bg); stroke: var(--accent); stroke-width: 2; }
 .placement-guide { fill: none; stroke: var(--accent); stroke-width: 1.7; stroke-dasharray: 1; stroke-dashoffset: 1; }
-.placement-guide-x { animation: placement-guide-draw .60s .08s cubic-bezier(.4,0,.2,1) forwards; }
-.placement-guide-y { animation: placement-guide-draw .68s .72s cubic-bezier(.4,0,.2,1) forwards; }
+.placement-guide-x { animation: placement-guide-draw 2.25s .95s cubic-bezier(.45,0,.55,1) forwards; }
+.placement-guide-y { animation: placement-guide-draw 2.25s 3.45s cubic-bezier(.45,0,.55,1) forwards; }
 .placement-axis-dot { opacity: 0; fill: var(--accent); }
-.placement-axis-dot-x { animation: placement-marker-in .22s .58s ease forwards; }
-.placement-axis-dot-y { animation: placement-marker-in .22s 1.22s ease forwards; }
-.placement-cursor { fill: var(--accent); stroke: white; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(255,79,40,.55)); }
-.placement-target-ring { fill: rgba(255,79,40,.08); stroke: var(--accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: placement-target-ping .48s 1.38s cubic-bezier(.22,1,.36,1) both; }
-.coordinate-graph .placement-label { opacity: 0; fill: var(--accent); font-size: 10px; animation: placement-label-in .32s 1.55s ease forwards; }
+.placement-axis-dot-x { animation: placement-marker-in .3s 3.02s ease forwards; }
+.placement-axis-dot-y { animation: placement-marker-in .3s 5.52s ease forwards; }
+.coordinate-graph .placement-axis-label {
+  opacity: 0;
+  fill: var(--accent);
+  stroke: white;
+  stroke-width: 3px;
+  paint-order: stroke fill;
+  font-size: 9px;
+}
+.coordinate-graph .placement-axis-label-x { animation: placement-label-in .34s 3.08s ease forwards; }
+.coordinate-graph .placement-axis-label-y { animation: placement-label-in .34s 5.58s ease forwards; }
+.placement-cursor {
+  opacity: 0;
+  fill: var(--accent);
+  stroke: white;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px rgba(255,79,40,.62));
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+.placement-cursor-x { animation: placement-cursor-x 2.25s .95s cubic-bezier(.45,0,.55,1) both; }
+.placement-cursor-y { animation: placement-cursor-y 2.25s 3.45s cubic-bezier(.45,0,.55,1) both; }
+.placement-target-ring { fill: rgba(255,79,40,.08); stroke: var(--accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: placement-target-ping .72s 5.78s cubic-bezier(.22,1,.36,1) both; }
+.coordinate-graph .placement-label { opacity: 0; fill: var(--accent); font-size: 10px; animation: placement-label-in .42s 6.1s ease forwards; }
 .point-list, .sign-panel { display: flex; flex-direction: column; justify-content: center; gap: 9px; }
 .point-pair { width: 100%; padding: 9px 11px; display: flex; align-items: center; justify-content: space-between; border: 0; border-radius: 10px; opacity: .2; color: var(--ink); background: var(--paper); box-shadow: 0 6px 16px -6px rgba(58,53,48,.13); transform: translateX(8px); cursor: default; text-align: left; transition: opacity .35s, transform .35s, background .25s, box-shadow .25s; }
 .point-pair.visible { opacity: 1; transform: none; }
@@ -3877,7 +4056,6 @@ html, body { margin: 0; padding: 0; }
 .point-pair-copy strong { font: 750 13px "JetBrains Mono", monospace; white-space: nowrap; }
 .point-pair-copy small { color: var(--success); font: 650 10px "JetBrains Mono", monospace; white-space: nowrap; }
 .point-pair-state { flex: 0 0 auto; min-width: 50px; display: flex; align-items: center; justify-content: flex-end; gap: 4px; color: var(--ink-3); }
-.point-pair-state svg { width: 16px; height: 16px; fill: rgba(255,79,40,.12); stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; }
 .point-pair-state em { font: 750 8px "JetBrains Mono", monospace; font-style: normal; letter-spacing: .04em; text-transform: uppercase; }
 .point-pair-state b { color: var(--success); font: 800 14px "JetBrains Mono", monospace; }
 .point-pair-state i { font: 750 9px "JetBrains Mono", monospace; font-style: normal; }
@@ -4163,16 +4341,7 @@ html, body { margin: 0; padding: 0; }
 .point-pair.current-target .point-pair-state { color: var(--accent); }
 .point-pair.is-plotting { background: #fff; box-shadow: inset 0 0 0 2px var(--accent), 0 10px 24px -10px rgba(255,79,40,.5); animation: none; }
 .point-pair.current-target:not(:disabled):hover { transform: translateX(-2px); box-shadow: inset 0 0 0 2px var(--accent), 0 10px 24px -10px rgba(255,79,40,.52); }
-.point-pair.current-target:not(:disabled) .point-pair-state svg { animation: pointer-click-cue 1.1s ease-in-out infinite; }
-.plot-action { min-height: 49px; padding: 7px 9px; display: grid; grid-template-columns: 31px minmax(0, 1fr) auto; align-items: center; gap: 8px; border-radius: 10px; opacity: 1; color: var(--ink-2); background: rgba(255,255,255,.72); box-shadow: inset 0 0 0 1px rgba(167,166,162,.16); transform: none; }
-.plot-action-icon { display: grid; width: 31px; height: 31px; place-items: center; border-radius: 9px; color: var(--accent); background: var(--accent-soft); }
-.plot-action-icon svg { width: 18px; height: 18px; fill: rgba(255,79,40,.12); stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; animation: pointer-click-cue 1.1s ease-in-out infinite; }
-.plot-action p { margin: 0; padding: 0; display: grid; gap: 2px; color: var(--ink-2); font-size: 9px; line-height: 1.25; }
-.plot-action p strong { color: var(--ink); font-size: 10px; }
-.plot-action p small { color: var(--ink-2); font: 600 8px Inter, sans-serif; }
 .plot-progress { padding: 4px 6px; border-radius: 7px; color: var(--accent); background: var(--accent-soft); font: 750 9px "JetBrains Mono", monospace; white-space: nowrap; }
-.plot-action.is-busy .plot-action-icon { color: var(--success); background: var(--success-soft); }
-.plot-action.is-busy .plot-action-icon svg { animation: none; }
 .point-conclusion { display: grid; gap: 4px; padding: 10px; border-radius: 10px; opacity: 1; color: var(--success); background: var(--success-soft); transform: none; }
 .point-conclusion span { color: var(--ink-2); font-size: 10px; line-height: 1.35; }
 .graph-live-message { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
@@ -4653,7 +4822,6 @@ html, body { margin: 0; padding: 0; }
 @keyframes pair-click-invite {
   50% { box-shadow: inset 0 0 0 2px rgba(255,79,40,.48), 0 10px 24px -9px rgba(255,79,40,.45); }
 }
-@keyframes pointer-click-cue { 50% { transform: translate(-1px, 2px); } }
 @keyframes shake { 20%,60% { transform: translateX(-5px); } 40%,80% { transform: translateX(5px); } }
 @keyframes solution-pop { from { opacity: 0; transform: scale(.4) rotate(-20deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
 @keyframes score-in { from { opacity: 0; transform: scale(.72) rotate(-35deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
@@ -4993,6 +5161,184 @@ html, body { margin: 0; padding: 0; }
   width: min(100%, 450px);
   max-height: 245px;
 }
+.vertical-points .point-list {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+  gap: 12px;
+}
+.point-card-grid {
+  width: min(100%, 680px);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(84px, 96px));
+  justify-content: center;
+  gap: 9px;
+}
+.vertical-points .point-pair {
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 1;
+  padding: 9px 6px;
+  display: grid;
+  grid-template-rows: auto auto;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  border-radius: 14px;
+  opacity: .6;
+  transform: none;
+  text-align: center;
+}
+.vertical-points .point-pair-copy {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.vertical-points .point-pair-copy strong { font-size: 13px; }
+.vertical-points .point-pair-copy small {
+  font-size: 9px;
+  white-space: normal;
+}
+.vertical-points .point-pair-state {
+  min-width: 0;
+  min-height: 18px;
+  justify-content: center;
+  gap: 6px;
+}
+.vertical-points .point-pair-state em {
+  display: inline;
+  font-size: 8px;
+}
+.vertical-points .point-pair-state i { color: var(--ink-3); }
+.vertical-points .point-pair.visible {
+  opacity: 1;
+  color: var(--success);
+  background: var(--success-soft);
+  box-shadow: inset 0 0 0 1px rgba(32,137,89,.2), 0 7px 17px -10px rgba(32,137,89,.35);
+}
+.vertical-points .point-pair.current-target {
+  color: var(--accent);
+  background: rgba(255,247,244,.98);
+  box-shadow: inset 0 0 0 2px rgba(255,79,40,.58), 0 9px 24px -11px rgba(255,79,40,.52);
+  animation: point-card-breathe 2.35s ease-in-out infinite;
+}
+.vertical-points .point-pair.is-plotting {
+  opacity: 1;
+  color: var(--accent);
+  background: white;
+  box-shadow: inset 0 0 0 2px var(--accent), 0 10px 25px -11px rgba(255,79,40,.5);
+  animation: plotting-card-glow 1.8s ease-in-out infinite;
+}
+.breath-cue {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  display: inline-block;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  color: var(--accent);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(255,79,40,.1);
+}
+.breath-cue::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  animation: breath-ring 2.35s ease-out infinite;
+}
+.breath-cue::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.breath-cue.is-busy {
+  color: var(--success);
+  box-shadow: 0 0 0 3px rgba(32,137,89,.1);
+}
+.breath-cue.is-busy::before { animation-duration: 1.8s; }
+.point-explainer {
+  width: 100%;
+  padding: 11px 12px;
+  display: grid;
+  gap: 9px;
+  border-radius: 14px;
+  color: var(--ink);
+  background: rgba(255,255,255,.82);
+  box-shadow: inset 0 0 0 1px rgba(167,166,162,.16), 0 8px 20px -12px rgba(58,53,48,.2);
+}
+.point-explainer-head {
+  min-height: 38px;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+}
+.explainer-marker {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,79,40,.28);
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+  font: 800 9px "JetBrains Mono", monospace;
+}
+.explainer-marker.is-busy {
+  color: white;
+  background: var(--accent);
+}
+.point-explainer-head > div { display: grid; gap: 2px; }
+.point-explainer-head strong { font-size: 11px; }
+.point-explainer-head small { color: var(--ink-2); font-size: 9px; line-height: 1.35; }
+.plot-step-list { display: grid; gap: 5px; }
+.plot-step {
+  min-height: 39px;
+  padding: 6px 9px;
+  display: grid;
+  grid-template-columns: 25px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  border-radius: 10px;
+  opacity: .54;
+  background: var(--bg);
+  transition: opacity .45s, color .45s, background .45s, box-shadow .45s, transform .45s;
+}
+.plot-step > b {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--ink-2);
+  background: white;
+  font: 800 9px "JetBrains Mono", monospace;
+}
+.plot-step > span { min-width: 0; display: grid; gap: 1px; }
+.plot-step strong { font: 750 10px "JetBrains Mono", monospace; }
+.plot-step small { color: var(--ink-2); font-size: 9px; line-height: 1.3; }
+.plot-step.is-active {
+  opacity: 1;
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(255,79,40,.24);
+  transform: translateX(3px);
+}
+.plot-step.is-active > b { color: white; background: var(--accent); }
+.plot-step.is-done {
+  opacity: .88;
+  color: var(--success);
+  background: var(--success-soft);
+}
+.plot-step.is-done > b { color: white; background: var(--success); }
+.point-explainer.is-ready .plot-step:first-child { opacity: .82; }
 .point-strip {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -5122,6 +5468,16 @@ html, body { margin: 0; padding: 0; }
   animation: rectangle-morph-small .6s .18s cubic-bezier(.22,1,.36,1) both;
 }
 .summary-rect-transform .mini-rect span { padding: 3px 4px; font-size: 8px; }
+.summary-robot-transform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--accent);
+}
+.summary-fleet { display: flex; align-items: end; gap: 2px; }
+.summary-fleet .robot-glyph { animation: formula-rise .42s ease both; }
+.summary-robot-transform > b { color: var(--ink-2); font: 800 10px "JetBrains Mono", monospace; }
 .summary-hook > .math-equation { justify-self: center; font-size: 20px; }
 .vertical-recall {
   padding: 10px 12px;
@@ -5193,9 +5549,500 @@ html, body { margin: 0; padding: 0; }
   animation-iteration-count: 1;
 }
 
+/* Mission model: fixed work → reciprocal scaling → invariant → formula. */
+.stage-content > .workload-layout,
+.stage-content > .scale-lab,
+.stage-content > .invariant-discovery,
+.stage-content > .relationship-detector,
+.stage-content > .work-graph-layout {
+  width: min(100%, 760px);
+  margin-inline: auto;
+}
+.robot-hook,
+.workload-layout,
+.scale-lab,
+.invariant-discovery,
+.relationship-detector,
+.work-graph-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
+}
+.robot-glyph {
+  width: 42px;
+  height: 42px;
+  overflow: visible;
+  color: var(--accent);
+  filter: drop-shadow(0 6px 7px rgba(58,53,48,.08));
+}
+.robot-glyph.is-compact { width: 31px; height: 31px; }
+.robot-glyph path,
+.robot-glyph rect,
+.robot-glyph circle {
+  vector-effect: non-scaling-stroke;
+}
+.robot-head { fill: #fff; stroke: currentColor; stroke-width: 2; }
+.robot-antenna,
+.robot-mouth,
+.robot-feet { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.robot-eye { fill: currentColor; }
+.robot-fleet {
+  min-height: 44px;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 5px;
+}
+.task-queue {
+  min-width: 18px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(var(--robot-count), 15px);
+  grid-template-rows: repeat(var(--task-rows), 5px);
+  justify-content: center;
+  align-content: end;
+  gap: 2px 4px;
+}
+.task-queue.is-compact {
+  grid-template-columns: repeat(var(--robot-count), 11px);
+  grid-template-rows: repeat(var(--task-rows), 4px);
+  gap: 1.5px 3px;
+}
+.task-queue i {
+  display: block;
+  border-radius: 2px;
+  background: var(--accent);
+  box-shadow: 0 2px 5px rgba(255,79,40,.14);
+  animation: task-sort .42s var(--task-delay) cubic-bezier(.22,1,.36,1) both;
+}
+.task-queue i:nth-child(3n + 2) { background: var(--tip); }
+.task-queue i:nth-child(3n) { background: var(--success); }
+
+.robot-mission {
+  position: relative;
+  min-height: 250px;
+  padding: 14px 18px;
+  display: grid;
+  align-content: center;
+  gap: 13px;
+  overflow: hidden;
+}
+.mission-total {
+  justify-self: center;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--accent);
+}
+.mission-total span { font: 800 29px "JetBrains Mono", monospace; }
+.mission-total small { color: var(--ink-2); font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: .08em; }
+.robot-scenario {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.robot-case {
+  min-height: 122px;
+  padding: 10px;
+  display: grid;
+  grid-template-rows: 44px 1fr auto;
+  justify-items: center;
+  align-items: end;
+  gap: 5px;
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px rgba(167,166,162,.15);
+}
+.robot-case > strong { color: var(--ink); font: 800 17px "JetBrains Mono", monospace; }
+.robot-case.is-question,
+.mission-arrow { opacity: .12; transition: opacity .3s; }
+.robot-case.is-question.is-visible {
+  opacity: 1;
+  animation: mission-reveal .55s cubic-bezier(.22,1,.36,1) both;
+}
+.mission-arrow {
+  color: var(--accent);
+  font: 800 22px "JetBrains Mono", monospace;
+  text-align: center;
+}
+.mission-arrow.is-visible { opacity: 1; animation: formula-arrow .4s ease both; }
+.robot-hook-equation { justify-content: center; }
+.robot-hook .hook-target,
+.robot-hook .morph-arrow,
+.robot-hook .hook-options { opacity: .12; }
+.robot-hook .hook-target.is-visible,
+.robot-hook .morph-arrow.is-visible,
+.robot-hook .hook-options.is-visible { opacity: 1; }
+
+.workload-simulator {
+  min-height: 276px;
+  padding: 13px 18px;
+  display: grid;
+  grid-template-rows: auto minmax(128px, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  overflow: hidden;
+}
+.workload-topline,
+.workload-readout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.workload-topline > span { display: flex; align-items: baseline; gap: 5px; }
+.workload-topline b { color: var(--accent); font: 800 22px "JetBrains Mono", monospace; }
+.workload-topline small { color: var(--ink-2); font-size: 9px; text-transform: uppercase; letter-spacing: .08em; }
+.workload-topline > i { color: var(--ink-2); font-style: normal; }
+.workload-topline > strong { font: 800 16px "JetBrains Mono", monospace; }
+.workload-animation {
+  min-height: 128px;
+  display: grid;
+  grid-template-rows: 1fr 16px 45px;
+  align-items: end;
+  justify-items: center;
+  gap: 3px;
+}
+.queue-flow-arrow { color: var(--accent); animation: queue-flow .7s ease both; }
+.workload-fleet { max-width: 100%; }
+.workload-readout {
+  min-height: 52px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+}
+.workload-readout > span:not(.readout-product) { display: grid; justify-items: center; gap: 1px; }
+.workload-readout b,
+.workload-readout > strong { color: var(--accent); font: 800 20px "JetBrains Mono", monospace; }
+.workload-readout small { color: var(--ink-2); font-size: 8px; text-transform: uppercase; letter-spacing: .08em; }
+.readout-product { color: var(--ink-2); font-weight: 800; }
+.workload-control { padding: 9px 14px; }
+.workload-control input { width: 100%; }
+.workload-formula .formula-ladder-step { color: var(--success); background: var(--success-soft); }
+
+.scale-factor-tabs {
+  justify-self: center;
+  padding: 5px;
+  display: grid;
+  grid-template-columns: repeat(3, 54px);
+  gap: 5px;
+  border-radius: 12px;
+  background: var(--paper);
+}
+.scale-factor-tabs button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 9px;
+  color: var(--ink-2);
+  background: transparent;
+  font: 800 13px "JetBrains Mono", monospace;
+  cursor: pointer;
+}
+.scale-factor-tabs button.active { color: white; background: var(--accent); }
+.compensation-machine {
+  min-height: 250px;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: 1fr 36px 1fr;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+}
+.compensation-track {
+  position: relative;
+  min-height: 78px;
+  padding: 12px 74px 12px 14px;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  border-radius: 14px;
+  background: var(--paper);
+}
+.track-label { display: flex; align-items: center; justify-content: center; gap: 3px; color: var(--accent); }
+.track-label .robot-glyph { width: 32px; height: 32px; }
+.timer-symbol { color: var(--tip); font-size: 32px; }
+.compensation-track .math-equation { justify-content: center; }
+.compensation-track .math-equation b { color: var(--success); }
+.factor-motion {
+  position: absolute;
+  right: 15px;
+  width: 48px;
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: white;
+  font: 800 12px "JetBrains Mono", monospace;
+}
+.factor-motion.forward { background: var(--accent); animation: factor-forward .55s ease both; }
+.factor-motion.reverse { background: var(--tip); animation: factor-reverse .55s ease both; }
+.compensation-axis { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; color: var(--success); }
+.compensation-axis span { font: 800 15px "JetBrains Mono", monospace; }
+.compensation-axis i { height: 2px; border-radius: 99px; background: var(--success); }
+.compensation-rule { color: var(--success); background: var(--success-soft); }
+
+.product-conveyor {
+  position: relative;
+  min-height: 188px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+.product-token {
+  min-height: 72px;
+  padding: 10px 5px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  opacity: .12;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px rgba(167,166,162,.15);
+}
+.product-token.is-visible { animation: product-drop .48s var(--product-delay) cubic-bezier(.22,1,.36,1) both; }
+.product-token .math-equation { font-size: clamp(15px, 2.2vw, 20px); }
+.fixed-workload {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  min-width: 76px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 11px;
+  opacity: 0;
+  color: white;
+  background: var(--success);
+  transform: translate(-50%, 10px);
+}
+.fixed-workload.is-visible { animation: invariant-lock .52s ease both; }
+.fixed-workload span { font: 800 17px "JetBrains Mono", monospace; }
+.fixed-workload small { font: 800 10px "JetBrains Mono", monospace; }
+.invariant-division,
+.invariant-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.invariant-division .math-equation,
+.invariant-result .math-equation { font-size: 24px; }
+.invariant-result {
+  color: var(--success);
+  background: var(--success-soft);
+}
+.invariant-result small {
+  color: var(--success);
+  font: 800 9px "JetBrains Mono", monospace;
+}
+
+.relationship-detector { gap: 8px; }
+.detector-card {
+  min-height: 145px;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border-radius: 15px;
+  background: var(--paper);
+  box-shadow: 0 7px 18px -10px rgba(58,53,48,.2);
+}
+.detector-formula { position: relative; min-height: 70px; display: grid; place-items: center; border-radius: 12px; background: white; }
+.detector-formula .math-equation { font-size: 21px; }
+.decrease-mark { position: absolute; right: 7px; bottom: 4px; color: var(--tip); font-size: 20px; }
+.detector-pairs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+.detector-pairs > span {
+  min-width: 0;
+  min-height: 58px;
+  padding: 6px 3px;
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  border-radius: 9px;
+  background: white;
+}
+.detector-pairs small { color: var(--ink-2); font: 700 9px "JetBrains Mono", monospace; }
+.detector-pairs strong { opacity: .12; font: 800 10px "JetBrains Mono", monospace; }
+.detector-pairs strong.is-visible { animation: formula-rise .4s ease both; }
+.detector-verdict {
+  min-width: 88px;
+  min-height: 58px;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  place-items: center;
+  gap: 4px;
+  border-radius: 11px;
+  opacity: 0;
+}
+.detector-verdict > span { font-size: 20px; font-weight: 900; }
+.detector-verdict .math-equation { font-size: 13px; }
+.detector-verdict.pass { color: var(--success); background: var(--success-soft); }
+.detector-verdict.fail { color: var(--accent); background: var(--accent-soft); }
+.detector-verdict.is-visible { animation: formula-success .48s ease both; }
+.detector-rule {
+  min-height: 50px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 13px;
+  opacity: 0;
+  color: var(--ink);
+  background: var(--paper);
+}
+.detector-rule > span { color: var(--tip); font-size: 22px; }
+.detector-rule > strong { color: var(--accent); font-size: 18px; }
+.detector-rule.is-visible { animation: formula-rise .45s ease both; }
+
+.work-graph-frame { position: relative; }
+.graph-workload-badge {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  left: 12px;
+  min-width: 45px;
+  min-height: 35px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 9px;
+  color: white;
+  background: var(--accent);
+  box-shadow: 0 7px 16px -8px rgba(255,79,40,.55);
+}
+.graph-workload-badge span { font: 800 14px "JetBrains Mono", monospace; }
+.graph-workload-badge small { font: 800 8px "JetBrains Mono", monospace; }
+.work-point-stream {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.work-point-stream span {
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: var(--ink-2);
+  background: var(--paper);
+  font: 750 9px "JetBrains Mono", monospace;
+  white-space: nowrap;
+  animation: point-chip-in .4s var(--stream-delay) ease both;
+}
+.work-graph-layout .work-graph-frame {
+  min-height: 260px;
+  padding-block: 5px;
+}
+.work-graph-layout .coordinate-graph { max-height: 250px; }
+.work-graph-rule {
+  min-height: 58px;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  border-radius: 13px;
+  color: var(--success);
+  background: var(--success-soft);
+}
+.work-graph-rule > span {
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 9px;
+  opacity: .13;
+  background: rgba(255,255,255,.72);
+}
+.work-graph-rule > span.is-visible { animation: formula-rise .42s ease both; }
+.work-graph-rule b {
+  min-width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  background: var(--success);
+  font: 800 7px "JetBrains Mono", monospace;
+}
+.work-graph-rule .math-equation { font-size: 14px; }
+.work-graph-rule i { color: var(--accent); font-size: 20px; font-style: normal; }
+.sign-formulas .axis-rule { color: var(--accent); background: var(--accent-soft); }
+.vertical-graph-sign .graph-frame { min-height: 218px; padding-block: 5px; }
+.vertical-graph-sign .coordinate-graph { max-height: 208px; }
+.vertical-graph-sign .graph-controls { padding: 5px; }
+.vertical-graph-sign .graph-controls .segmented button { min-height: 36px; }
+.vertical-graph-sign .sign-formulas { gap: 2px; }
+.vertical-graph-sign .sign-formulas .formula-ladder-step { min-height: 34px; padding: 4px 10px; }
+.vertical-graph-sign .sign-formulas .formula-ladder-step .math-equation { font-size: 17px; }
+.vertical-graph-sign .sign-formulas .formula-flow-arrow { min-height: 4px; font-size: 10px; line-height: 1; }
+
+.detector-formulas .rule-check {
+  min-width: 28px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  background: var(--accent);
+  font: 800 8px "JetBrains Mono", monospace;
+}
+.detector-formulas .passport-scale,
+.detector-formulas .passport-equivalence,
+.detector-formulas .passport-graph-rule {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.detector-formulas .passport-equivalence { grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr); }
+.detector-formulas .passport-graph-rule { grid-template-columns: auto 72px minmax(0, 1fr); }
+.point-seed { color: var(--accent); background: var(--accent-soft); }
+
 @keyframes formula-rise {
   from { opacity: .18; transform: translateY(8px) scale(.985); }
   to { opacity: 1; transform: none; }
+}
+@keyframes task-sort {
+  from { opacity: 0; transform: translateY(-7px) scale(.7); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mission-reveal {
+  from { opacity: .1; transform: translateX(12px) scale(.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes queue-flow {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes factor-forward {
+  from { opacity: 0; transform: translateX(-18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes factor-reverse {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes product-drop {
+  from { opacity: 0; transform: translateY(-12px) scale(.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes invariant-lock {
+  from { opacity: 0; transform: translate(-50%, 10px) scale(.9); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
 @keyframes formula-arrow {
   from { opacity: 0; transform: translateX(-8px); }
@@ -5221,10 +6068,92 @@ html, body { margin: 0; padding: 0; }
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
+@keyframes point-card-breathe {
+  0%, 100% {
+    box-shadow: inset 0 0 0 1.5px rgba(255,79,40,.42), 0 7px 19px -12px rgba(255,79,40,.32);
+  }
+  50% {
+    box-shadow: inset 0 0 0 2px rgba(255,79,40,.72), 0 12px 28px -11px rgba(255,79,40,.55);
+  }
+}
+@keyframes plotting-card-glow {
+  50% { box-shadow: inset 0 0 0 2px var(--accent), 0 12px 28px -10px rgba(255,79,40,.58); }
+}
+@keyframes breath-ring {
+  0% { opacity: .72; transform: scale(.72); }
+  70%, 100% { opacity: 0; transform: scale(1.45); }
+}
+@keyframes placement-cursor-x {
+  0% { opacity: 0; transform: translateX(0); }
+  8%, 92% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(var(--cursor-x-shift)); }
+}
+@keyframes placement-cursor-y {
+  0% { opacity: 0; transform: translateY(0); }
+  8%, 92% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(var(--cursor-y-shift)); }
+}
 
 @media (max-width: 720px) {
   .screen-heading h1 { font-size: clamp(22px, 6.4vw, 27px); }
   .screen-heading p { font-size: 11px; }
+  .robot-mission { min-height: 228px; padding: 11px; gap: 9px; }
+  .robot-scenario { grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr); gap: 4px; }
+  .robot-case { min-height: 110px; padding: 7px 4px; }
+  .robot-case .robot-glyph { width: 32px; height: 32px; }
+  .robot-case .robot-fleet { min-height: 34px; gap: 2px; }
+  .robot-case > strong { font-size: 14px; }
+  .mission-total span { font-size: 24px; }
+  .task-queue:not(.is-compact) {
+    grid-template-rows: repeat(var(--task-rows), 3px);
+    gap: 1px 3px;
+  }
+  .workload-simulator {
+    min-height: 216px;
+    padding: 8px 10px;
+    grid-template-rows: auto minmax(96px, 1fr) auto;
+  }
+  .workload-animation { min-height: 96px; grid-template-rows: 1fr 12px 34px; }
+  .workload-fleet { gap: 2px; }
+  .workload-fleet .robot-glyph { width: 30px; height: 30px; }
+  .workload-readout { gap: 7px; }
+  .compensation-machine { min-height: 226px; padding: 11px; }
+  .compensation-track {
+    min-height: 70px;
+    padding: 9px 58px 9px 8px;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 6px;
+  }
+  .compensation-track .math-equation { font-size: 18px; }
+  .factor-motion { right: 8px; width: 43px; }
+  .product-conveyor { min-height: 148px; padding: 8px; gap: 5px; }
+  .product-token { min-height: 66px; padding-inline: 2px; }
+  .product-token .math-equation { font-size: 14px; gap: 4px; }
+  .invariant-formulas .formula-ladder-step { min-height: 40px; padding-block: 5px; }
+  .invariant-formulas .formula-flow-arrow { min-height: 5px; }
+  .detector-card {
+    min-height: 0;
+    padding: 6px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .detector-formula { min-height: 44px; }
+  .detector-pairs > span { min-height: 38px; padding-block: 3px; }
+  .detector-verdict { justify-self: stretch; min-height: 34px; }
+  .detector-rule { min-height: 40px; padding-block: 5px; }
+  .detector-formulas .passport-equivalence { grid-template-columns: auto minmax(0, 1fr); }
+  .detector-formulas .passport-equivalence > strong { display: none; }
+  .detector-formulas .passport-graph-rule { grid-template-columns: auto 58px minmax(0, 1fr); }
+  .work-graph-layout .work-graph-frame { min-height: 190px; }
+  .work-graph-layout .coordinate-graph { max-height: 184px; }
+  .work-graph-rule { min-height: 50px; padding: 4px; gap: 3px; }
+  .work-graph-rule > span { min-height: 38px; padding: 2px 3px; gap: 3px; }
+  .work-graph-rule b { min-width: 18px; height: 18px; }
+  .work-graph-rule .math-equation { font-size: 11px; }
+  .work-graph-rule i { font-size: 16px; }
+  .vertical-graph-sign .graph-frame { min-height: 184px; }
+  .vertical-graph-sign .coordinate-graph { max-height: 174px; }
+  .vertical-graph-sign .sign-formulas .formula-ladder-step { min-height: 30px; }
   .hook-model-vertical { min-height: 188px; padding: 12px; }
   .hook-model-vertical .rect-pair { width: 100%; margin: 0; transform: scale(.82); }
   .rectangle-stage { --lab-unit: 12px; min-height: 190px; }
@@ -5237,6 +6166,13 @@ html, body { margin: 0; padding: 0; }
   .vertical-domain .value-card { min-height: 72px; }
   .graph-frame { min-height: 196px; }
   .graph-layout .coordinate-graph { max-height: 220px; }
+  .point-card-grid {
+    grid-template-columns: repeat(3, minmax(78px, 96px));
+    gap: 7px;
+  }
+  .vertical-points .point-pair { padding: 8px 5px; }
+  .point-explainer { padding: 9px; }
+  .plot-step { min-height: 42px; padding: 6px 8px; }
   .point-strip { gap: 3px; }
   .point-strip span { padding: 6px 1px; font-size: 8px; }
   .graph-controls { grid-template-columns: minmax(0, 1fr); }
@@ -5269,6 +6205,11 @@ html, body { margin: 0; padding: 0; }
   .stage-header { padding-inline: 12px; }
   .stage-content { padding-inline: 12px; }
   .stage-nav { padding-inline: 12px; }
+  .robot-hook .hook-options { grid-template-columns: minmax(0, 1fr); }
+  .robot-hook .hook-options .option { min-height: 38px; font-size: 13px; }
+  .workload-readout b,
+  .workload-readout > strong { font-size: 17px; }
+  .scale-factor-tabs { grid-template-columns: repeat(3, 48px); }
   .hook-options { gap: 6px; }
   .task-rail {
     grid-template-columns: repeat(6, minmax(32px, 1fr));
@@ -5279,7 +6220,8 @@ html, body { margin: 0; padding: 0; }
   }
   .number-entry { gap: 6px; }
   .number-entry input { width: 104px; }
-  .summary-rect-transform { transform: scale(.9); }
+  .summary-rect-transform,
+  .summary-robot-transform { transform: scale(.9); }
   .recall-grid > div { grid-template-columns: minmax(0, 1fr); }
 }
 
