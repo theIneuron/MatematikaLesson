@@ -9,10 +9,4 @@ export const grade8Nazariy = [
     desc: "Maxraj orqali taqiqlangan qiymatni topish, nol surat va nol maxrajni farqlash. 16 ekran, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade8/Dars01.jsx')),
   },
-  {
-    slug: 'dars07-teskari-proporsionallik-va-grafik',
-    title: 'Dars 7. Teskari proporsionallik va uning grafigi',
-    desc: "y = k/x modelini tajriba, jadval, formula va giperbola orqali o'rganish. 15 ekran, UZ/RU/EN.",
-    Component: lazy(() => import('../components/grade8/Dars07.jsx')),
-  },
 ]
