@@ -9,10 +9,4 @@ export const grade7Nazariy = [
     desc: 'Sonli ifodalar: qavslar, amallar tartibi va xatolar auditi. 16 ta interaktiv ekran, UZ/RU/EN.',
     Component: lazy(() => import('../components/grade7/Dars01.jsx')),
   },
-  {
-    slug: 'dars07-teskari-proporsionallik-va-grafik',
-    title: 'Dars 7. Teskari proporsionallik va uning grafigi',
-    desc: "y = k/x modelini tajriba, jadval, formula va giperbola orqali o'rganish. 15 ekran, UZ/RU/EN.",
-    Component: lazy(() => import('../components/grade7/Dars07.jsx')),
-  },
 ]

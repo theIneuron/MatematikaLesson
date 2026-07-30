@@ -135,7 +135,7 @@ const TOTAL_SCREENS = 15
 const PRACTICE_START = 9
 
 const LESSON_META = {
-  lessonId: 'grade7-math-07-inverse-proportion-v1',
+  lessonId: 'grade8-math-07-inverse-proportion-v1',
   lessonTitle: L(
     'Teskari proporsionallik funksiyasi va uning grafigi',
     'Обратная пропорциональность и её график',
@@ -3813,7 +3813,7 @@ export default function InverseProportionLesson({
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
-      <div className="g7-inverse-root">
+      <div className="g8-inverse-root">
         <div className="ambient" aria-hidden="true">
           <i /><i /><i />
         </div>
@@ -3833,19 +3833,19 @@ export default function InverseProportionLesson({
 }
 
 const STYLES = `
-html:has(.g7-inverse-root),
-body:has(.g7-inverse-root),
-#root:has(.g7-inverse-root),
-.lesson-page:has(.g7-inverse-root),
-.lesson-frame:has(.g7-inverse-root) {
+html:has(.g8-inverse-root),
+body:has(.g8-inverse-root),
+#root:has(.g8-inverse-root),
+.lesson-page:has(.g8-inverse-root),
+.lesson-frame:has(.g8-inverse-root) {
   width: 100%;
   height: 100%;
   min-height: 0 !important;
   overflow: hidden !important;
 }
 html, body { margin: 0; padding: 0; }
-.g7-inverse-root, .g7-inverse-root * { box-sizing: border-box; }
-.g7-inverse-root {
+.g8-inverse-root, .g8-inverse-root * { box-sizing: border-box; }
+.g8-inverse-root {
   --bg: #F6F4EF;
   --paper: #FFFFFF;
   --ink: #0E0E10;
@@ -3867,8 +3867,8 @@ html, body { margin: 0; padding: 0; }
   font-family: Manrope, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-.g7-inverse-root button, .g7-inverse-root input { font: inherit; }
-.g7-inverse-root button { -webkit-tap-highlight-color: transparent; }
+.g8-inverse-root button, .g8-inverse-root input { font: inherit; }
+.g8-inverse-root button { -webkit-tap-highlight-color: transparent; }
 .ambient { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: -1; }
 .ambient i { position: absolute; display: block; border-radius: 50%; background: radial-gradient(circle, rgba(255,79,40,.08), rgba(255,79,40,0)); animation: ambient-float 14s ease-in-out infinite; }
 .ambient i:nth-child(1) { width: 120px; height: 120px; left: 3%; top: 12%; }
@@ -4685,8 +4685,8 @@ html, body { margin: 0; padding: 0; }
 .rule-final .math-equation { color: var(--accent); font-size: 18px; }
 .rule-final > div:nth-child(3) strong { font-size: 12px; line-height: 1.5; }
 
-.g7-inverse-root button:focus-visible,
-.g7-inverse-root input:focus-visible {
+.g8-inverse-root button:focus-visible,
+.g8-inverse-root input:focus-visible {
   outline: 3px solid rgba(1,154,203,.42);
   outline-offset: 2px;
 }
@@ -4872,7 +4872,7 @@ html, body { margin: 0; padding: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .g7-inverse-root *, .g7-inverse-root *::before, .g7-inverse-root *::after {
+  .g8-inverse-root *, .g8-inverse-root *::before, .g8-inverse-root *::after {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
