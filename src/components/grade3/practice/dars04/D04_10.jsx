@@ -3,6 +3,7 @@
 // Mexanika: karta-slot (Dars02 dagi bilan bir xil) — taqqoslash qoidasini teskari qo'llash.
 // jsx-question kontrakti: onReady / registerCheck / onSubmit. O'z "Tekshirish" tugmasi yo'q — PracticeHost beradi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { seededOrder } from '../QuestionFactory.jsx';
 
 /* ============================== SHARED (Lumo — Bit shahri) ============================== */
 const C = {
@@ -75,7 +76,7 @@ const D10_T = {
   },
 };
 function D04_10Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D10_T[lang] || D10_T.uz;
   const isReview = mode === 'review';
   const [slots, setSlots] = useState([null, null, null]);
@@ -92,7 +93,9 @@ function D04_10Impl(props) {
   }, [made, slots, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;
-  const inTray = D10_DIGITS.filter((d) => !slots.includes(d));
+  const inTray = seededOrder(D10_DIGITS.length, `digits-max-951:${shuffleSeed}`)
+    .map((index) => D10_DIGITS[index])
+    .filter((d) => !slots.includes(d));
   const putCard = (d) => { if (locked) return; setSlots((sl) => { const i = sl.indexOf(null); if (i === -1) return sl; const n = [...sl]; n[i] = d; return n; }); };
   const popSlot = (i) => { if (locked) return; setSlots((sl) => { const n = [...sl]; n[i] = null; return n; }); };
   const cardStyle = { width: 58, height: 58, borderRadius: 13, border: '2px solid ' + C.line, background: C.paper, color: C.ink, ...S.mono, fontSize: 26, fontWeight: 800, cursor: locked ? 'default' : 'pointer' };

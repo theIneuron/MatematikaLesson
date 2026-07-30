@@ -117,8 +117,16 @@ function D06_02Impl(props) {
           {D05_TICKS.slice(0, -1).map((_, i) => (
             <rect key={i} x={X0 + i * STEP + 2} y={LINE_Y - 26} width={STEP - 4} height={52} rx={10}
               fill={segFill(i)} stroke={segStroke(i)} strokeWidth="2"
+              role="button" tabIndex={locked ? -1 : 0} focusable={locked ? 'false' : 'true'}
+              aria-label={`${D05_TICKS[i]}–${D05_TICKS[i + 1]}`}
               style={{ cursor: locked ? 'default' : 'pointer' }}
-              onClick={() => { if (!locked) setPicked(i); }} />
+              onClick={() => { if (!locked) setPicked(i); }}
+              onKeyDown={(event) => {
+                if (!locked && (event.key === 'Enter' || event.key === ' ')) {
+                  event.preventDefault();
+                  setPicked(i);
+                }
+              }} />
           ))}
           {/* asosiy chiziq va belgilar — bosishni to'sib qo'ymasligi uchun pointerEvents yo'q */}
           <g style={{ pointerEvents: 'none' }}>

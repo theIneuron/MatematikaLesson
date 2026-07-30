@@ -39,6 +39,7 @@ const cq = (id, label, level, tag, type, emoji, correct, uz, ru, inputMode) => q
 );
 
 export const DARS10_BANK = {
+  scene: 'place',
   title: "Dars 10 · 10 va 100 ga ko'paytirish va bo'lish",
   items: [
     q('01', "O'n marta katta", '🟢', 'd11-times-ten', 'choice', '🔟', 1,
@@ -75,6 +76,7 @@ export const DARS10_BANK = {
 };
 
 export const DARS11_BANK = {
+  scene: 'multiplication',
   title: "Dars 11 · Yig'indini ko'paytirish",
   items: [
     q('01', "Qulay yoyilma", '🟢', 'd12-split', 'choice', '🧱', 0,
@@ -111,6 +113,7 @@ export const DARS11_BANK = {
 };
 
 export const DARS12_BANK = {
+  scene: 'division',
   title: "Dars 12 · Yig'indini bo'lish",
   items: [
     q('01', "Bo'linadigan yoyilma", '🟢', 'd13-split', 'choice', '✂️', 0,
@@ -147,6 +150,7 @@ export const DARS12_BANK = {
 };
 
 export const DARS13_BANK = {
+  scene: 'process',
   title: "Dars 13 · Amallar tartibi",
   items: [
     cq('01', 'Avval qaysi amal?', '🟢', 'd14-priority', 'choice', '🥇', 1,
@@ -183,6 +187,7 @@ export const DARS13_BANK = {
 };
 
 export const DARS14_BANK = {
+  scene: 'equation',
   title: "Dars 14 · Komponentlar bog'lanishi",
   items: [
     cq('01', 'Komponent nomi', '🟢', 'd15-product-name', 'choice', '🏷️', 2,
@@ -192,8 +197,8 @@ export const DARS14_BANK = {
       ["□ × 8 = 56.", "Noma'lum ko'paytuvchini toping.", undefined, "56 : 8 = 7.", "Ko'paytmani ma'lum ko'paytuvchiga bo'ling.", '□ × 8 = 56', "Noma'lum ko'paytuvchi bo'lish orqali topiladi."],
       ['□ × 8 = 56.', 'Найди неизвестный множитель.', undefined, '56 : 8 = 7.', 'Раздели произведение на известный множитель.', '□ × 8 = 56', 'Неизвестный множитель находят делением.']),
     cq('03', 'Tengliklar oilasi', '🟡', 'd15-family-order', 'order', '👨‍👩‍👧‍👦', [1, 3, 0, 2],
-      ["5, 7 va 35 sonlari bitta tengliklar oilasini tuzadi.", "Avval ikki ko'paytma, keyin ikki bo'linmani joylang.", ['35 : 5 = 7', '5 × 7 = 35', '35 : 7 = 5', '7 × 5 = 35'], "To'rtta tenglik bir xil bog'lanishni ko'rsatadi.", "Ko'paytirish tengliklarini oldinga qo'ying.", '5 · 7 · 35', "Ko'paytuvchilar o'rin almashadi; bo'lish teskari amal."],
-      ['Числа 5, 7 и 35 образуют семейство равенств.', 'Сначала поставь два произведения, затем два деления.', ['35 : 5 = 7', '5 × 7 = 35', '35 : 7 = 5', '7 × 5 = 35'], 'Четыре равенства показывают одну связь.', 'Поставь равенства с умножением первыми.', '5 · 7 · 35', 'Множители меняются местами; деление — обратное действие.']),
+      ["5, 7 va 35 sonlari bitta tengliklar oilasini tuzadi.", "Avval 5 × 7, keyin 7 × 5, so'ng 35 : 5 va 35 : 7 ni joylang.", ['35 : 5 = 7', '5 × 7 = 35', '35 : 7 = 5', '7 × 5 = 35'], "To'rtta tenglik bir xil bog'lanishni ko'rsatadi.", "Ko'rsatilgan amallar tartibiga rioya qiling.", '5 · 7 · 35', "Ko'paytuvchilar o'rin almashadi; bo'lish teskari amal."],
+      ['Числа 5, 7 и 35 образуют семейство равенств.', 'Поставь по порядку: 5 × 7, затем 7 × 5, потом 35 : 5 и 35 : 7.', ['35 : 5 = 7', '5 × 7 = 35', '35 : 7 = 5', '7 × 5 = 35'], 'Четыре равенства показывают одну связь.', 'Следуй указанному порядку действий.', '5 · 7 · 35', 'Множители меняются местами; деление — обратное действие.']),
     cq('04', "Noma'lum bo'luvchi", '🟡', 'd15-divisor', 'choice', '🔐', 1,
       ["54 : □ = 6.", "Bo'luvchini toping.", ['6', '9', '48'], "54 : 9 = 6.", "6 ni qaysi songa ko'paytirsak 54 chiqadi?", '54 : □ = 6', "Bo'luvchi = bo'linuvchi : bo'linma."],
       ['54 : □ = 6.', 'Найди делитель.', ['6', '9', '48'], '54 : 9 = 6.', 'На какое число умножить 6, чтобы получить 54?', '54 : □ = 6', 'Делитель = делимое : частное.']),
@@ -219,6 +224,7 @@ export const DARS14_BANK = {
 };
 
 export const DARS15_BANK = {
+  scene: 'process',
   title: "Dars 15 · Ko'paytirish va bo'lishga masalalar",
   items: [
     cq('01', 'Amalni tanlang', '🟢', 'd16-operation', 'choice', '🧭', 1,
@@ -231,8 +237,8 @@ export const DARS15_BANK = {
       ["63 ta detal 9 ta teng guruhga ajratildi.", "Har bir guruhda nechta detal borligini qaysi yozuv topadi?", ['63 × 9', '63 − 9', '63 : 9'], "63 : 9 = 7. Har bir guruhda 7 tadan detal bor.", "Jami 63 ta detalni 9 ta teng guruhga bo'ling.", '63 ta detal → 9 ta teng guruh', "Har bir teng guruhdagi miqdor jami miqdorni guruhlar soniga bo'lib topiladi."],
       ['63 детали разделили на 9 равных групп.', 'Какая запись поможет найти число деталей в каждой группе?', ['63 × 9', '63 − 9', '63 : 9'], '63 : 9 = 7. В каждой группе по 7 деталей.', 'Раздели все 63 детали на 9 равных групп.', '63 детали → 9 равных групп', 'Количество в каждой равной группе находят делением общего количества на число групп.']),
     cq('04', 'Masala qadamlari', '🟡', 'd16-steps', 'order', '🪜', [2, 0, 3, 1],
-      ["Masalani to'g'ri yechish uchun to'rtta qadam bajariladi.", "Qadamlarni boshidan oxirigacha tartiblang.", ["Nima so'ralganini aniqlash", "Birlik bilan javob yozish", "Ma'lum sonlarni topish", "Amalni tanlash va hisoblash"], "Ma'lum sonlar → savol → amal va hisob → birlik bilan javob.", "Avval masalada berilgan sonlarni toping. So'ng nima so'ralganini aniqlang.", 'Ma’lum sonlar → Savol → Amal → Javob', "Amal bitta kalit so'zga emas, sonlar orasidagi bog'lanishga qarab tanlanadi."],
-      ['Чтобы правильно решить задачу, нужно выполнить четыре шага.', 'Расположи шаги от первого до последнего.', ['Определить, что нужно найти', 'Записать ответ с единицей', 'Найти известные числа', 'Выбрать действие и вычислить'], 'Известные числа → вопрос → действие и вычисление → ответ с единицей.', 'Сначала найди данные в задаче. Затем определи, что нужно узнать.', 'Известные числа → Вопрос → Действие → Ответ', 'Действие выбирают по связи между числами, а не по одному ключевому слову.']),
+      ["Masalani to'g'ri yechish uchun to'rtta qadam bajariladi.", "«Ma'lum sonlar → savol → amal → javob» modeli bo'yicha tartiblang.", ["Nima so'ralganini aniqlash", "Birlik bilan javob yozish", "Ma'lum sonlarni topish", "Amalni tanlash va hisoblash"], "Ma'lum sonlar → savol → amal va hisob → birlik bilan javob.", "Avval masalada berilgan sonlarni toping. So'ng nima so'ralganini aniqlang.", 'Ma’lum sonlar → Savol → Amal → Javob', "Amal bitta kalit so'zga emas, sonlar orasidagi bog'lanishga qarab tanlanadi."],
+      ['Чтобы правильно решить задачу, нужно выполнить четыре шага.', 'Расположи шаги по модели «данные → вопрос → действие → ответ».', ['Определить, что нужно найти', 'Записать ответ с единицей', 'Найти известные числа', 'Выбрать действие и вычислить'], 'Известные числа → вопрос → действие и вычисление → ответ с единицей.', 'Сначала найди данные в задаче. Затем определи, что нужно узнать.', 'Известные числа → Вопрос → Действие → Ответ', 'Действие выбирают по связи между числами, а не по одному ключевому слову.']),
     cq('05', "Noma'lum guruh", '🟡', 'd16-missing-group', 'input', '🧩', ['8'],
       ["48 nafar o'quvchi 6 ta teng jamoaga bo'lindi.", "Har bir jamoada necha nafardan o'quvchi bor?", undefined, "48 : 6 = 8. Har bir jamoada 8 nafardan o'quvchi bor.", "Barcha 48 nafar o'quvchini 6 ta teng jamoaga bo'ling.", '48 nafar → 6 ta teng jamoa', "Javob: har bir jamoada 8 nafar o'quvchi."],
       ['48 учеников разделили на 6 равных команд.', 'Сколько учеников в каждой команде?', undefined, '48 : 6 = 8. В каждой команде по 8 учеников.', 'Раздели всех 48 учеников на 6 равных команд.', '48 учеников → 6 равных команд', 'Ответ: в каждой команде 8 учеников.']),
@@ -255,6 +261,7 @@ export const DARS15_BANK = {
 };
 
 export const DARS16_BANK = {
+  scene: 'multiplication',
   title: "Dars 16 · Bo'luvchilar va karrali sonlar",
   items: [
     cq('01', "Bo'luvchini tanlang", '🟢', 'd17-divisor', 'choice', '🔑', 1,
@@ -267,8 +274,8 @@ export const DARS16_BANK = {
       ["7 ning karralilari: 7, 14, 21, 28, 35, ...", "Keyingi sonni kiriting.", undefined, "35 + 7 = 42.", "Karralilar qatoriga yana 7 qo'shing.", '7, 14, 21, 28, 35, ?', "Karralilar qatori cheksiz davom etadi."],
       ['Кратные 7: 7, 14, 21, 28, 35, ...', 'Введи следующее число.', undefined, '35 + 7 = 42.', 'Прибавь ещё 7.', '7, 14, 21, 28, 35, ?', 'Ряд кратных продолжается бесконечно.']),
     cq('04', 'Karralilar tartibi', '🟡', 'd17-order', 'order', '🪜', [1, 3, 0, 2],
-      ["6 ning dastlabki to'rtta musbat karralisini tuzing.", "Sonlarni tartiblang.", ['18', '6', '24', '12'], "6, 12, 18, 24.", "6 dan boshlang va har safar 6 qo'shing.", '6 × 1, 6 × 2, ...', "n-karrali son 6 × n ko'rinishida."],
-      ['Составь первые четыре положительных кратных 6.', 'Расположи числа по порядку.', ['18', '6', '24', '12'], '6, 12, 18, 24.', 'Начни с 6 и каждый раз прибавляй 6.', '6 × 1, 6 × 2, ...', 'Кратные имеют вид 6 × n.']),
+      ["6 ning dastlabki to'rtta musbat karralisini tuzing.", "Sonlarni kichikdan kattaga tartiblang.", ['18', '6', '24', '12'], "6, 12, 18, 24.", "6 dan boshlang va har safar 6 qo'shing.", '6 × 1, 6 × 2, ...', "n-karrali son 6 × n ko'rinishida."],
+      ['Составь первые четыре положительных кратных 6.', 'Расположи числа по возрастанию.', ['18', '6', '24', '12'], '6, 12, 18, 24.', 'Начни с 6 и каждый раз прибавляй 6.', '6 × 1, 6 × 2, ...', 'Кратные имеют вид 6 × n.']),
     cq('05', 'Nega karrali?', '🟡', 'd17-why-multiple', 'choice', '💬', 2,
       ["24 sonini 8 ga bo'lib tekshiramiz.", "Nega 24 soni 8 ning karralisi?", ["24 katta bo'lgani uchun", "24 juft bo'lgani uchun", "8 × 3 = 24 bo'lgani uchun"], "24 soni 8 ning butun marta olingan ko'paytmasi.", "8 ni nechaga ko'paytirib 24 olish mumkin?", '8 × 3 = 24', "a × n = b bo'lsa, b — a ning karralisi."],
       ['Проверим число 24 делением на 8.', 'Почему 24 кратно 8?', ['Потому что 24 большое', 'Потому что 24 чётное', 'Потому что 8 × 3 = 24'], '24 — произведение 8 на целое число.', 'На что умножить 8, чтобы получить 24?', '8 × 3 = 24', 'Если a × n = b, то b кратно a.']),
@@ -291,6 +298,7 @@ export const DARS16_BANK = {
 };
 
 export const DARS17_BANK = {
+  scene: 'multiplication',
   title: "Dars 17 · Ikki xonali sonni ko'paytirish",
   items: [
     cq('01', 'Yoyilmani tanlang', '🟢', 'd19-split', 'choice', '🧱', 0,
@@ -300,8 +308,8 @@ export const DARS17_BANK = {
       ["31 × 3 = 30 × 3 + 1 × 3.", "Natijani kiriting.", undefined, "90 + 3 = 93.", "O'nlik va birlik ko'paytmalarini qo'shing.", '31 × 3 = ?', "Har ikki razryad alohida ko'payadi."],
       ['31 × 3 = 30 × 3 + 1 × 3.', 'Введи результат.', undefined, '90 + 3 = 93.', 'Сложи произведения десятков и единиц.', '31 × 3 = ?', 'Оба разряда умножаются отдельно.']),
     cq('03', 'Algoritm qadamlari', '🟡', 'd19-steps', 'order', '🪜', [2, 0, 3, 1],
-      ["42 × 2 ni razryadlar orqali hisoblaymiz.", "Qadamlarni tartiblang.", ['40 × 2 = 80', '80 + 4 = 84', '42 = 40 + 2', '2 × 2 = 4'], "Yoyish → o'nlik → birlik → qo'shish.", "Avval 42 ni razryadlarga ajrating.", '42 × 2', "Razryad natijalari oxirida qo'shiladi."],
-      ['Вычислим 42 × 2 по разрядам.', 'Расположи шаги.', ['40 × 2 = 80', '80 + 4 = 84', '42 = 40 + 2', '2 × 2 = 4'], 'Разложить → десятки → единицы → сложить.', 'Сначала разложи 42 по разрядам.', '42 × 2', 'Результаты по разрядам складываются в конце.']),
+      ["42 × 2 ni razryadlar orqali hisoblaymiz.", "Yoyish, o'nlik, birlik va qo'shish tartibida joylang.", ['40 × 2 = 80', '80 + 4 = 84', '42 = 40 + 2', '2 × 2 = 4'], "Yoyish → o'nlik → birlik → qo'shish.", "Avval 42 ni razryadlarga ajrating.", '42 × 2', "Razryad natijalari oxirida qo'shiladi."],
+      ['Вычислим 42 × 2 по разрядам.', 'Расположи: разложение, десятки, единицы, сложение.', ['40 × 2 = 80', '80 + 4 = 84', '42 = 40 + 2', '2 × 2 = 4'], 'Разложить → десятки → единицы → сложить.', 'Сначала разложи 42 по разрядам.', '42 × 2', 'Результаты по разрядам складываются в конце.']),
     cq('04', 'Ikki baravar', '🟡', 'd19-double', 'choice', '✌️', 2,
       ["46 ni ikki marta olish 46 × 2.", "Natijani toping.", ['82', '88', '92'], "40 × 2 + 6 × 2 = 80 + 12 = 92.", "Birliklar ko'paytmasi 12 ekanini unutmang.", '46 × 2', "Birliklardan yangi o'nlik hosil bo'lishi mumkin."],
       ['Взять 46 два раза — это 46 × 2.', 'Найди результат.', ['82', '88', '92'], '40 × 2 + 6 × 2 = 80 + 12 = 92.', 'Не забудь, что 6 × 2 = 12.', '46 × 2', 'Из единиц может получиться новый десяток.']),
@@ -327,6 +335,7 @@ export const DARS17_BANK = {
 };
 
 export const DARS18_BANK = {
+  scene: 'division',
   title: "Dars 18 · Ikki xonali sonni bo'lish",
   items: [
     cq('01', 'Qulay yoyilma', '🟢', 'd20-split', 'choice', '✂️', 0,
@@ -363,6 +372,7 @@ export const DARS18_BANK = {
 };
 
 export const DARS19_BANK = {
+  scene: 'remainder',
   title: "Dars 19 · Qoldiqli bo'lish",
   items: [
     cq('01', 'Qoldiqni toping', '🟢', 'd21-remainder', 'choice', '📦', 1,

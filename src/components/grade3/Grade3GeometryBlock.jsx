@@ -285,10 +285,11 @@ export const GEOMETRY_LESSONS = {
   },
 };
 
-export function GeometryLesson({ number }) {
+export function GeometryLesson({ number, ...runtimeProps }) {
   const config = GEOMETRY_LESSONS[number];
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       lessonId={`num-3-${number}`}
       screens={buildScreens(config)}
       titleUz={config.titleUz}

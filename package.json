@@ -6,6 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prepare-sites.mjs",
+    "build:grade3:check": "node scripts/build-grade3.mjs",
+    "check:grade3": "node scripts/check-grade3.mjs && node scripts/check-grade3-logic.mjs",
+    "smoke:grade3": "node scripts/grade3-smoke.mjs",
+    "smoke:grade3:deep": "node scripts/grade3-deep-smoke.mjs",
+    "smoke:grade3:old-feedback": "node scripts/grade3-old-feedback-smoke.mjs",
+    "smoke:grade3:answers": "node scripts/grade3-post-answer-smoke.mjs",
+    "smoke:grade3:custom-answers": "node scripts/grade3-custom-post-answer-smoke.mjs",
+    "smoke:grade3:persistence": "node scripts/grade3-persistence-smoke.mjs",
+    "smoke:grade3:tts": "node scripts/grade3-tts-smoke.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

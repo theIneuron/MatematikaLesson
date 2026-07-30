@@ -74,7 +74,22 @@ function RoundLine({ lo, hi, value, picked, setPicked, locked, checked, correctI
       {[[0, X0, lo], [1, X1, hi]].map(([i, x, v]) => {
         const st = endStyle(i);
         return (
-          <g key={i} style={{ cursor: locked ? 'default' : 'pointer' }} onClick={() => { if (!locked) setPicked(i); }}>
+          <g
+            key={i}
+            role="button"
+            tabIndex={locked ? -1 : 0}
+            focusable={locked ? 'false' : 'true'}
+            aria-label={String(v)}
+            aria-pressed={picked === i}
+            style={{ cursor: locked ? 'default' : 'pointer' }}
+            onClick={() => { if (!locked) setPicked(i); }}
+            onKeyDown={(event) => {
+              if (!locked && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault();
+                setPicked(i);
+              }
+            }}
+          >
             <rect x={x - 44} y={LINE_Y + 12} width="88" height="34" rx="10" fill={st.fill} stroke={st.stroke} strokeWidth="2.5" />
             <text x={x} y={LINE_Y + 35} textAnchor="middle" fill={C.glow} fontSize="18" fontWeight="800" fontFamily="'JetBrains Mono', monospace">{v}</text>
             <line x1={x} y1={LINE_Y - 10} x2={x} y2={LINE_Y + 10} stroke={C.sink} strokeWidth="3" style={{ pointerEvents: 'none' }} />
@@ -122,7 +137,7 @@ function D05_04Impl(props) {
   const check = useCallback(() => {
     const correct = picked === D01_CORRECT;
     setFb({ correct }); setChecked(true); if (!correct) setTimeout(() => setChecked(false), 450); correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.({ questionText: t.ask, options: [String(D01_LO), String(D01_HI)].map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: picked === 0 ? String(D01_LO) : String(D01_HI) }, correctAnswer: { idx: D01_CORRECT, label: String(D01_HI) }, correct, meta: { tag: 'round_hundred_line', level: '🟡' } });
+    onSubmit?.({ questionText: t.ask, options: [String(D01_LO), String(D01_HI)].map((l, i) => ({ id: String(i), label: l })), studentAnswer: { idx: picked, label: picked === 0 ? String(D01_LO) : String(D01_HI) }, correctAnswer: { idx: D01_CORRECT, label: D01_CORRECT === 0 ? String(D01_LO) : String(D01_HI) }, correct, meta: { tag: 'round_hundred_line', level: '🟡' } });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;

@@ -102,9 +102,14 @@ const D03_T = {
     rule: '375 > 320 → Ташкентская телебашня выше Эйфелевой.',
   },
 };
-const D03_ORDER = permFromSeed(3, D03_TAG);
+const D03_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D03_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D04_03Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D03_T[lang] || D03_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -125,7 +130,7 @@ function D04_03Impl(props) {
       <Stage><Towers /></Stage>
       <p style={S.ask}>{t.ask}</p>
       <div>
-        {D03_ORDER.map((i) => (
+        {D03_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D03_CORRECT, checked, isReview)} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

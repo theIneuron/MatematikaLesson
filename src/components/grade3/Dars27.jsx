@@ -90,9 +90,10 @@ export const SCREENS = [
     ["Bitta ulushni topmasdan bir necha ulushni ola olmaysiz.", "Нельзя взять несколько долей, не найдя сначала одну."]),
 ];
 
-export default function Dars27() {
+export default function Dars27(runtimeProps) {
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       screens={SCREENS}
       titleUz="27-dars. Sonning ulushini topish"
       titleRu="Урок 27. Нахождение доли числа"

@@ -100,9 +100,14 @@ const D06_T = {
     rule: 'Ноль тоже занимает разряд: он сохраняет место. 903 = 9 сотен, 0 десятков, 3 единицы.',
   },
 };
-const D06_ORDER = permFromSeed(3, D06_TAG);
+const D06_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D06_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D01_06Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D06_T[lang] || D06_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -126,7 +131,7 @@ function D01_06Impl(props) {
       </Stage>
       <p style={S.ask}>{t.ask}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
-        {D06_ORDER.map((i) => (
+        {D06_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D06_CORRECT, checked, isReview, { half: true, center: true, fs: 24, mono: true })} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

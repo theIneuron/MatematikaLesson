@@ -96,9 +96,10 @@ export const SCREENS = [
     ["O'nlik va birlik qismlar alohida hisoblanib birlashtiriladi.", "Части десятков и единиц считают отдельно и объединяют."]),
 ];
 
-export default function Dars22() {
+export default function Dars22(runtimeProps) {
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       screens={SCREENS}
       titleUz="22-dars. Ikki xonali sonni ikki xonali songa ko'paytirish"
       titleRu="Урок 22. Умножение двузначного числа на двузначное"

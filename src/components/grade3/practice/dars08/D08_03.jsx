@@ -62,9 +62,14 @@ const D03_T = {
     rule: 'Знаки справа прибавляются: VI = 6, XV = 15, XX = 20.',
   },
 };
-const D03_RIGHT_ORDER = permFromSeed(3, D03_TAG);
+const D03_RIGHT_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D03_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D08_03Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D03_T[lang] || D03_T.uz;
   const isReview = mode === 'review';
   const exps = D03_NUMS.map((n) => D03_EXP[n]);
@@ -118,7 +123,7 @@ function D08_03Impl(props) {
         ))}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {D03_RIGHT_ORDER.map((ri) => (
+        {D03_RIGHT_ORDER(shuffleSeed).map((ri) => (
           <button key={ri} type="button" style={rightStyle(ri)} disabled={locked} onClick={() => pickRight(ri)}>{exps[ri]}</button>
         ))}
       </div>

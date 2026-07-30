@@ -1,5 +1,5 @@
 import { GeometryLesson } from './Grade3GeometryBlock.jsx';
 
-export default function Dars36() {
-  return <GeometryLesson number={36} />;
+export default function Dars36(runtimeProps) {
+  return <GeometryLesson {...runtimeProps} number={36} />;
 }

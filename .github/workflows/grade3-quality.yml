@@ -1,0 +1,46 @@
+name: Grade 3 quality
+
+on:
+  pull_request:
+    paths:
+      - 'src/components/grade3/**'
+      - 'src/lessons/grade3.js'
+      - 'scripts/*grade3*.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/grade3-quality.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/components/grade3/**'
+      - 'src/lessons/grade3.js'
+      - 'scripts/*grade3*.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/grade3-quality.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check:grade3
+      - run: npm run build:grade3:check
+      - run: npx playwright install --with-deps chromium
+      - run: npm run smoke:grade3
+      - run: npm run smoke:grade3:deep
+      - run: npm run smoke:grade3:old-feedback
+      - run: npm run smoke:grade3:answers
+      - run: npm run smoke:grade3:custom-answers
+      - run: npm run smoke:grade3:persistence
+      - run: npm run smoke:grade3:tts

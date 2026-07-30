@@ -93,9 +93,14 @@ const D01_T = {
     rule: 'Если считать справа налево: 1-е место — единицы, 2-е — десятки, 3-е — сотни.',
   },
 };
-const D01_ORDER = permFromSeed(3, D01_TAG);
+const D01_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D01_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D01_01Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D01_T[lang] || D01_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -116,7 +121,7 @@ function D01_01Impl(props) {
       <Stage><Neon text="751" /></Stage>
       <p style={S.ask}>{t.ask}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
-        {D01_ORDER.map((i) => (
+        {D01_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D01_CORRECT, checked, isReview, { half: true, center: true, fs: 24, mono: true })} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

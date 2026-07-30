@@ -49,6 +49,43 @@ const TITLES = {
   51: 'Yakuniy takrorlash',
 };
 
+// Explicit scene metadata keeps the visual model independent from wording and
+// translation. The regex fallback in QuestionFactory is only for legacy banks.
+const SCENE_BY_LESSON = {
+  20: 'operation',
+  21: 'division',
+  22: 'multiplication',
+  23: 'process',
+  24: 'fraction',
+  25: 'fraction',
+  26: 'fraction',
+  27: 'fraction',
+  28: 'fraction',
+  29: 'fraction',
+  30: 'fraction',
+  31: 'fraction',
+  32: 'fraction',
+  33: 'perimeter',
+  34: 'area',
+  35: 'area',
+  36: 'area',
+  37: 'area',
+  38: 'perimeter',
+  39: 'geometry',
+  40: 'geometry',
+  41: 'solid',
+  42: 'mass',
+  43: 'time',
+  44: 'length',
+  45: 'calendar',
+  46: 'equation',
+  47: 'equation',
+  48: 'process',
+  49: 'compare',
+  50: 'data',
+  51: 'process',
+};
+
 const SCREEN_SOURCES = {
   20: DARS20_SCREENS,
   21: DARS21_SCREENS,
@@ -90,6 +127,17 @@ const PLAN = [
   { type: 'choice', source: 11 },
   { type: 'choice', source: 13 },
 ];
+
+// These source questions ask for a concept, a classification, or a compound
+// justification. Keeping them as choices avoids grading exact long wording as
+// though it were a numeric answer.
+const FORCE_CHOICE = new Set([
+  '20:9',
+  '22:9',
+  '37:10',
+  '40:10',
+  '47:10',
+]);
 
 const locale = (value, lang) => {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
@@ -149,6 +197,7 @@ const singleItem = (number, index, question, role, type) => {
     label: role[0],
     level: role[1],
     tag: `d${number}-${role[2]}`,
+    scene: SCENE_BY_LESSON[number],
     type,
     emoji: type === 'input' ? '✍️' : index === 7 ? '🔎' : index === 9 ? '🚀' : '🧩',
     correct: type === 'input' ? [...new Set([answerUz, answerRu])] : question.correct,
@@ -195,6 +244,7 @@ const multiItem = (number, index, first, second, role) => {
     label: role[0],
     level: role[1],
     tag: `d${number}-${role[2]}`,
+    scene: SCENE_BY_LESSON[number],
     type: 'multi',
     emoji: '✅',
     correct: [0, 2],
@@ -222,7 +272,8 @@ function buildPracticeBank(number) {
       if (step.type === 'multi') {
         return multiItem(number, index, questions[step.sources[0]], questions[step.sources[1]], role);
       }
-      return singleItem(number, index, questions[step.source], role, step.type);
+      const type = FORCE_CHOICE.has(`${number}:${step.source}`) ? 'choice' : step.type;
+      return singleItem(number, index, questions[step.source], role, type);
     }),
   };
 }

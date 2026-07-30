@@ -28,6 +28,6 @@ const BANK = {
   items: DARS18_BANK.items.map((spec, index) => ({ ...spec, Component: QUESTIONS[index] })),
 };
 
-export default function Dars18Practice() {
-  return <PracticeBank bank={BANK} />;
+export default function Dars18Practice(runtimeProps) {
+  return <PracticeBank bank={BANK} {...runtimeProps} />;
 }

@@ -90,9 +90,10 @@ export const SCREENS = [
     ["Ishlatilgan va qolgan qismlar jami miqdorga teng bo'lishi kerak.", "Использованная и оставшаяся части должны дать общее количество."]),
 ];
 
-export default function Dars32() {
+export default function Dars32(runtimeProps) {
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       screens={SCREENS}
       titleUz="32-dars. Ulush va kasrlarga oid masalalar"
       titleRu="Урок 32. Задачи на доли и дроби"

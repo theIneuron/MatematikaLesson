@@ -90,9 +90,10 @@ export const SCREENS = [
     ["Butun ko'proq teng qismlarga bo'linadi.", "Целое делят на большее число равных частей."]),
 ];
 
-export default function Dars26() {
+export default function Dars26(runtimeProps) {
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       screens={SCREENS}
       titleUz="26-dars. Ulushlarni taqqoslash"
       titleRu="Урок 26. Сравнение долей"

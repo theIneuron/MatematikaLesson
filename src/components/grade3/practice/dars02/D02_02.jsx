@@ -93,9 +93,14 @@ const D02_T = {
     rule: 'Двести (200) + десять (10) + пять (5) = 215 — трёхзначное число.',
   },
 };
-const D02_ORDER = permFromSeed(3, D02_TAG);
+const D02_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D02_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D02_02Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D02_T[lang] || D02_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -116,7 +121,7 @@ function D02_02Impl(props) {
       <Stage><WordCard text={t.word} /></Stage>
       <p style={S.ask}>{t.ask}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9 }}>
-        {D02_ORDER.map((i) => (
+        {D02_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D02_CORRECT, checked, isReview, { half: true, center: true, fs: 24, mono: true })} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

@@ -2,7 +2,7 @@
 // Ustun yozuvi qoidasi: xona xona OSTIDA — birlik birlik ostida, o'nlik o'nlik ostida.
 // Variantlar mini-ustun ko'rinishida; xatolari — sonni surib yozish.
 // jsx-question kontrakti: onReady / registerCheck / onSubmit. O'z "Tekshirish" tugmasi yo'q — PracticeHost beradi.
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 /* ============================== SHARED (Lumo — Bit shahri) ============================== */
 const C = {
@@ -32,8 +32,7 @@ const RuleChip = ({ text }) => (
   </div>
 );
 function useReg(check, registerCheck) {
-  const ref = useRef(check); ref.current = check;
-  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
+  useEffect(() => { registerCheck?.(check); }, [check, registerCheck]);
 }
 function _hash(s) { let h = 2166136261 >>> 0; s = String(s); for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 function permFromSeed(n, seedStr) { const a = Array.from({ length: n }, (_, i) => i); let s = (_hash(seedStr) || 1) >>> 0; for (let i = n - 1; i > 0; i--) { s = (Math.imul(s, 1103515245) + 12345) >>> 0; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; }
@@ -61,15 +60,23 @@ const D04_T = {
     rule: 'Правило записи столбиком: разряд под разрядом — тогда каждый разряд складывается со своим.',
   },
 };
-const D04_ORDER = permFromSeed(3, D04_TAG);
+const D04_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D04_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D07_04Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D04_T[lang] || D04_T.uz;
   const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [fb, setFb] = useState(null);
-  const [checked, setChecked] = useState(false);
-  useEffect(() => { if (initialAnswer?.studentAnswer?.idx != null) { setPicked(initialAnswer.studentAnswer.idx); if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); } } }, [initialAnswer]);
+  const restoredIndex = initialAnswer?.studentAnswer?.idx ?? null;
+  const restoredCorrect = typeof initialAnswer?.correct === 'boolean'
+    ? initialAnswer.correct
+    : null;
+  const [picked, setPicked] = useState(restoredIndex);
+  const [fb, setFb] = useState(restoredCorrect === null ? null : { correct: restoredCorrect });
+  const [checked, setChecked] = useState(restoredIndex !== null && restoredCorrect !== null);
   useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
   const check = useCallback(() => {
     const correct = picked === D04_CORRECT;
@@ -90,7 +97,7 @@ function D07_04Impl(props) {
       <p style={S.setup}>{t.setup}</p>
       <p style={S.ask}>{t.ask}</p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
-        {D04_ORDER.map((i) => (
+        {D04_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={cardStyle(i)} disabled={isReview || checked} onClick={() => setPicked(i)}>
             <pre style={{ margin: 0, ...S.mono, fontSize: 24, fontWeight: 800, lineHeight: 1.4, textAlign: 'left', display: 'inline-block' }}>{D04_OPTS[i]}</pre>
             <div style={{ borderTop: '2.5px solid currentColor', marginTop: 4, width: '80%', marginLeft: 'auto', marginRight: 'auto' }} />

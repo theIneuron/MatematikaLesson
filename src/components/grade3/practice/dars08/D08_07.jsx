@@ -73,9 +73,14 @@ const D10_T = {
     rule: 'IX = 9 (слева — вычитается), XI = 11 (справа — прибавляется).',
   },
 };
-const D10_ORDER = permFromSeed(3, D10_TAG);
+const D10_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D10_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D08_07Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D10_T[lang] || D10_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -95,7 +100,7 @@ function D08_07Impl(props) {
       <p style={S.setup}>{t.setup}</p>
       <p style={S.ask}>{t.ask}</p>
       <div>
-        {D10_ORDER.map((i) => (
+        {D10_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D10_CORRECT, checked, isReview, { fs: 18 })} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

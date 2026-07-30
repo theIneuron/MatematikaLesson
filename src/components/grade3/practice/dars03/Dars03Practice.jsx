@@ -38,6 +38,6 @@ const BANK = {
   })),
 };
 
-export default function Dars03Practice() {
-  return <PracticeBank bank={BANK} />;
+export default function Dars03Practice(runtimeProps) {
+  return <PracticeBank bank={BANK} {...runtimeProps} />;
 }

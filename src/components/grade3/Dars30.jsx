@@ -90,9 +90,10 @@ export const SCREENS = [
     ["Bir xil nomdagi ulushlar sanalmoqda.", "Считаются доли одного размера."]),
 ];
 
-export default function Dars30() {
+export default function Dars30(runtimeProps) {
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       screens={SCREENS}
       titleUz="30-dars. Bir xil maxrajli kasrlarni qo'shish va ayirish"
       titleRu="Урок 30. Сложение и вычитание дробей с одинаковыми знаменателями"

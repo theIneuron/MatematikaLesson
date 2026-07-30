@@ -90,9 +90,10 @@ export const SCREENS = [
     ["Mos qoida kasrlarning tuzilishiga qarab tanlanadi.", "Подходящее правило выбирают по строению дробей."]),
 ];
 
-export default function Dars29() {
+export default function Dars29(runtimeProps) {
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       screens={SCREENS}
       titleUz="29-dars. Kasrlarni taqqoslash"
       titleRu="Урок 29. Сравнение дробей"

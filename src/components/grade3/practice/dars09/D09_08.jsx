@@ -92,9 +92,14 @@ const D01_T = {
     rule: 'От перестановки множителей произведение не меняется: 9 × 8 = 8 × 9 = 72.',
   },
 };
-const D01_ORDER = permFromSeed(3, D01_TAG);
+const D01_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D01_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D10_08Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D01_T[lang] || D01_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -115,7 +120,7 @@ function D10_08Impl(props) {
       <Stage><div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>{[['Husayni', '9 × 8 kg'], ['Toifi', '8 × 9 kg']].map(([n, f]) => (<div key={n} style={{ minWidth: 120, padding: '10px 12px', borderRadius: 12, background: '#FFFFFF', border: '1.5px solid ' + C.ribbonBd, textAlign: 'center' }}><div style={{ fontSize: 12, fontWeight: 800, color: C.sink2, textTransform: 'uppercase' }}>{n}</div><div style={{ fontSize: 18 }}>🍇</div><div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 800, color: C.glow }}>{f}</div></div>))}</div></Stage>
       <p style={S.ask}>{t.ask}</p>
       <div>
-        {D01_ORDER.map((i) => (
+        {D01_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D01_CORRECT, checked, isReview)} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

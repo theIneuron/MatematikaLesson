@@ -54,9 +54,9 @@ export const SCREENS = [
     "Ayirma va ayriluvchini qo'shing.", "Сложи разность и вычитаемое."),
   q('test', "Noto'g'ri javobni aniqlang", "Обнаружь неверный ответ",
     "Jasur 27 × 4 = 98 deb yozdi.", "Жасур записал 27 × 4 = 98.",
-    '98 : 4 = 24 qoldiq 2', "Tekshiruv nimani ko'rsatdi?", "Что показала проверка?",
-    [T("Javob to'g'ri", "Ответ верный"), T("98 ko'paytma emas", "98 не является произведением"), T("27 soni xato", "Число 27 неверно")], 1,
-    "To'g'ri ko'paytma 4 ga qoldiqsiz bo'linib 27 ni qaytaradi.", "Верное произведение делится на 4 без остатка и возвращает 27."),
+    '27 × 4 = 108', "To'g'ri xulosani tanlang.", "Выбери верный вывод.",
+    [T("27 × 4 = 98", "27 × 4 = 98"), T("27 × 4 = 108", "27 × 4 = 108"), T("27 × 4 = 27", "27 × 4 = 27")], 1,
+    "20 × 4 = 80 va 7 × 4 = 28; 80 + 28 = 108.", "20 × 4 = 80 и 7 × 4 = 28; 80 + 28 = 108."),
   q('test', "Qoldiqli natijani tekshirish", "Проверка результата с остатком",
     "31 : 6 = 5, qoldiq 1. Qoldiqli bo'lishda qoldiqni ham qo'shamiz.",
     "31 : 6 = 5, остаток 1. При проверке прибавляем остаток.",
@@ -85,6 +85,6 @@ export const SCREENS = [
     "Teskari amal oldingi qadamni bekor qiladi.", "Обратное действие отменяет предыдущий шаг."),
 ];
 
-export default function Dars20() {
-  return <Grade3LessonShell screens={SCREENS} titleUz="20-dars. Amallarni tekshirish" titleRu="Урок 20. Проверка действий" />;
+export default function Dars20(runtimeProps) {
+  return <Grade3LessonShell {...runtimeProps} screens={SCREENS} titleUz="20-dars. Amallarni tekshirish" titleRu="Урок 20. Проверка действий" />;
 }

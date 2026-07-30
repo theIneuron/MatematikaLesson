@@ -102,9 +102,14 @@ const D03_T = {
     rule: '600 > 599: при счёте после 599 идёт 600.',
   },
 };
-const D03_ORDER = permFromSeed(3, D03_TAG);
+const D03_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D03_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D04_06Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D03_T[lang] || D03_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -125,7 +130,7 @@ function D04_06Impl(props) {
       <Stage><div style={{ display: 'flex', gap: 14, justifyContent: 'center' }}>{['600', '599'].map((n) => (<div key={n} style={{ minWidth: 104, height: 70, borderRadius: 12, background: '#FFFFFF', border: '1.5px solid ' + C.ribbonBd, boxShadow: 'inset 0 0 14px rgba(20,90,134,.11)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ ...S.mono, fontSize: 34, fontWeight: 800, color: C.glow, textShadow: '0 0 12px rgba(20,90,134,.18)' }}>{n}</span></div>))}</div></Stage>
       <p style={S.ask}>{t.ask}</p>
       <div>
-        {D03_ORDER.map((i) => (
+        {D03_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D03_CORRECT, checked, isReview)} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

@@ -92,9 +92,14 @@ const D01_T = {
     rule: 'Сложение в столбик — справа налево: единицы, десятки, сотни.',
   },
 };
-const D01_ORDER = permFromSeed(3, D01_TAG);
+const D01_ORDER = (shuffleSeed) => {
+  const base = permFromSeed(3, String(D01_TAG));
+  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
+  const offset = ((attempt % base.length) + base.length) % base.length;
+  return base.slice(offset).concat(base.slice(0, offset));
+};
 function D07_01Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D01_T[lang] || D01_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -115,7 +120,7 @@ function D07_01Impl(props) {
       <Stage><div style={{ display: 'flex', justifyContent: 'center' }}><div style={{ padding: '10px 22px', borderRadius: 14, background: '#FFFFFF', border: '1.5px solid ' + C.ribbonBd }}><pre style={{ margin: 0, fontFamily: "'JetBrains Mono', monospace", fontSize: 28, fontWeight: 800, color: C.glow, textShadow: '0 0 10px rgba(20,90,134,.16)', lineHeight: 1.35 }}>{'  323\n+ 571\n-----\n    ?'}</pre></div></div></Stage>
       <p style={S.ask}>{t.ask}</p>
       <div>
-        {D01_ORDER.map((i) => (
+        {D01_ORDER(shuffleSeed).map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D01_CORRECT, checked, isReview)} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

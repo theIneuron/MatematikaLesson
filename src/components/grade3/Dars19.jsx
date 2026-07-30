@@ -3,7 +3,15 @@ import { Grade3CityEtalonScene } from './Dars01.jsx';
 import { Grade3TowerEtalonScene } from './Dars02.jsx';
 import { Grade3GardenEtalonScene } from './Dars09.jsx';
 import { Grade3WorkshopEtalonScene } from './Dars18.jsx';
-import { seededIndexOrder } from './grade3MethodUtils.js';
+import {
+  createGrade3RunSeed,
+  restoreGrade3LessonIndex,
+  restoreGrade3LessonLanguage,
+  seededIndexOrder,
+} from './grade3MethodUtils.js';
+import { GRADE3_REVIEW_MODE } from './grade3ReviewMode.js';
+import { speakGrade3Text, toGrade3SpeechText } from './grade3Speech.js';
+import { grade3StorageKey, readGrade3State, writeGrade3State } from './grade3Storage.js';
 
 const T = (uz, ru) => ({ uz, ru });
 
@@ -150,46 +158,6 @@ function local(value, lang) {
   return value?.[lang] ?? value?.uz ?? '';
 }
 
-function toSpeechText(value, lang) {
-  const replacements = lang === 'uz'
-    ? [
-      [/×/g, " ko'paytirish "],
-      [/:/g, " bo'lish "],
-      [/=/g, " teng "],
-      [/≥/g, " katta yoki teng "],
-      [/≤/g, " kichik yoki teng "],
-      [/>/g, " katta "],
-      [/</g, " kichik "],
-      [/²/g, " kvadrat "],
-      [/→/g, " natijada "],
-      [/↔/g, " bog'liq "],
-      [/\bcm\b/g, " santimetr "],
-      [/\bdm\b/g, " detsimetr "],
-      [/\bm\b/g, " metr "],
-    ]
-    : [
-      [/×/g, ' умножить на '],
-      [/:/g, ' разделить на '],
-      [/=/g, ' равно '],
-      [/≥/g, ' больше или равно '],
-      [/≤/g, ' меньше или равно '],
-      [/>/g, ' больше '],
-      [/</g, ' меньше '],
-      [/²/g, ' квадратных '],
-      [/→/g, ' в результате '],
-      [/↔/g, ' связано с '],
-      [/\bcm\b/g, ' сантиметров '],
-      [/\bdm\b/g, ' дециметров '],
-      [/\bm\b/g, ' метров '],
-    ];
-
-  return replacements
-    .reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), String(value))
-    .replace(/[□△◇▭▦■●│└┼∥⟂]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 const BOOKEND_TOPICS = {
   19: ['remainder', "Qoldiqli bo'lish", 'Деление с остатком'],
   20: ['verify', 'Amallarni tekshirish', 'Проверка действий'],
@@ -272,7 +240,12 @@ function SetPiece({ kind, done }) {
   if (['share','fractions','partOf','mixed','fractionMath','feast'].includes(kind)) return <g transform="translate(472 126)"><ellipse cx="73" cy="53" rx="103" ry="22" fill="#395a55"/><circle cx="58" cy="5" r="60" fill="#ffd477" stroke="#fff0b2" strokeWidth="4"/><path d="M58 5V-55A60 60 0 0 1 118 5Z" fill={ok}/><path d="M58 5h60A60 60 0 0 1 58 65Z" fill="#7ebee9"/><path d="M58 5v60A60 60 0 0 1-2 5Z" fill="#c399e5"/><path d="M58 5H-2A60 60 0 0 1 58-55Z" fill="#f19b69"/>{done&&<path d="M58-55v120M-2 5h120" stroke="#fff8d7" strokeWidth="3"/>}</g>;
   if (kind === 'compareFractions' || kind === 'fractionScale') return <g transform="translate(452 97)"><path d="M107 5v87M28 90h158" stroke={line} strokeWidth="6" strokeLinecap="round"/><path d="M42 34h130" stroke="#a8e8f2" strokeWidth="5"/><path d="M42 34L20 69m22-35l22 35m108-35l-22 35m22-35l22 35" stroke="#a8e8f2" strokeWidth="3"/><circle cx="42" cy="75" r="27" fill="#f3b963"/><path d="M42 75V48A27 27 0 0 1 69 75Z" fill={ok}/><circle cx="172" cy="75" r="27" fill="#83c8ed"/><path d="M172 75V48A27 27 0 0 1 199 75Z" fill={alert}/></g>;
   if (kind === 'decimal') return <g transform="translate(438 81)"><rect width="218" height="108" rx="16" fill={panel} stroke="#74d9e8" strokeWidth="4"/><g transform="translate(26 23)">{grid(10,4,16)}</g><text x="174" y="66" fill="#ffe293" fontSize="28" fontWeight="900">0,6</text></g>;
-  if (['perimeter','areaUnits','rectArea','squareArea','measureCompare','blueprint'].includes(kind)) return <g transform="translate(442 79)"><rect width="208" height="111" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><g transform="translate(29 20)">{grid(kind==='squareArea'?5:7,4,18)}</g><path d="M21 13h145v80H21Z" fill="none" stroke={kind==='perimeter'?ok:'#f4d978'} strokeWidth={kind==='perimeter'?7:3}/><path d="M177 18v74" stroke="#c9b6f7" strokeWidth="3"/><circle cx="190" cy="31" r="8" fill={alert}/></g>;
+  if (kind === 'perimeter') return <g transform="translate(444 78)"><rect width="208" height="112" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><path d="M28 22h128v68H28Z" fill="#314c63" stroke={ok} strokeWidth="8"/><path d="M28 101h128" stroke="#f4d978" strokeWidth="3"/><path d="M28 96v10m128-10v10" stroke="#f4d978" strokeWidth="3"/><text x="181" y="67" textAnchor="middle" fill="#ffe28d" fontSize="24" fontWeight="900">P</text></g>;
+  if (kind === 'areaUnits') return <g transform="translate(444 78)"><rect width="208" height="112" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><g transform="translate(23 16)">{grid(7,5,17)}</g><rect x="150" y="22" width="40" height="40" rx="5" fill={ok} stroke="#efffc9" strokeWidth="3"/><text x="170" y="87" textAnchor="middle" fill="#ffe28d" fontSize="18" fontWeight="900">1 cm²</text></g>;
+  if (kind === 'rectArea') return <g transform="translate(444 78)"><rect width="208" height="112" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><g transform="translate(20 19)">{grid(7,4,19)}</g><path d="M18 14h132v80H18Z" fill="none" stroke="#f4d978" strokeWidth="4"/><text x="177" y="63" textAnchor="middle" fill={ok} fontSize="18" fontWeight="900">a×b</text></g>;
+  if (kind === 'squareArea') return <g transform="translate(444 78)"><rect width="208" height="112" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><g transform="translate(28 13)">{grid(5,5,18)}</g><path d="M24 9h90v90H24Z" fill="none" stroke="#f4d978" strokeWidth="4"/><text x="163" y="63" textAnchor="middle" fill={ok} fontSize="18" fontWeight="900">a²</text></g>;
+  if (kind === 'measureCompare') return <g transform="translate(444 78)"><rect width="208" height="112" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><rect x="17" y="23" width="72" height="62" fill="#314c63" stroke={ok} strokeWidth="6"/><g transform="translate(111 20)">{grid(4,4,18)}</g><path d="M102 12v88" stroke="#c9b6f7" strokeWidth="3" strokeDasharray="6 5"/><text x="53" y="106" textAnchor="middle" fill="#ffe28d" fontSize="14" fontWeight="900">P</text><text x="146" y="106" textAnchor="middle" fill="#ffe28d" fontSize="14" fontWeight="900">S</text></g>;
+  if (kind === 'blueprint') return <g transform="translate(444 78)"><rect width="208" height="112" rx="14" fill="#243953" stroke="#c2adff" strokeWidth="4"/><path d="M25 88V19h72v28h69v41Z" fill="#41617a" stroke={ok} strokeWidth="5"/><path d="M20 100h151M13 21v68" stroke="#f4d978" strokeWidth="3"/><path d="M20 95v10m151-10v10M8 21h10M8 89h10" stroke="#f4d978" strokeWidth="3"/><circle cx="179" cy="28" r="8" fill={alert}/></g>;
   if (kind === 'lines' || kind === 'symmetry') return <g transform="translate(448 73)"><path d="M18 111L91 8l75 103Z" fill="#5b7eac" stroke="#d8c9ff" strokeWidth="4"/><path d="M91 8v103" stroke={ok} strokeWidth="4" strokeDasharray="8 6"/><path d="M177 109V35h58M177 109h58" fill="none" stroke="#f8d778" strokeWidth="5"/><path d="M177 91h18V109" fill="none" stroke={alert} strokeWidth="3"/></g>;
   if (kind === 'solids') return <g transform="translate(450 79)"><path d="M22 106L80 3l61 103Z" fill="#936fd0" stroke="#e0d1ff" strokeWidth="4"/><path d="M80 3v103M22 106l58-31 61 31" fill="none" stroke="#e0d1ff" strokeWidth="3"/><ellipse cx="190" cy="105" rx="43" ry="14" fill="#477ea3" stroke="#bceaf4" strokeWidth="4"/><path d="M147 105L190 8l43 97" fill="#5ba2c4" stroke="#bceaf4" strokeWidth="4"/></g>;
   if (kind === 'mass') return <g transform="translate(445 82)"><path d="M107 5v103M35 34h145M35 34L10 79m25-45l25 45m120-45l-25 45m25-45l25 45" stroke={line} strokeWidth="5"/><path d="M3 79h64q-7 25-32 25T3 79m145 0h64q-7 25-32 25t-32-25" fill={ok}/><rect x="158" y="56" width="44" height="25" rx="5" fill={alert}/></g>;
@@ -360,6 +333,10 @@ function GeneratedBookendScene({ lessonNumber, phase, lang }) {
 }
 
 function LumoBookendScene({ lessonNumber, phase, lang }) {
+  if (lessonNumber >= 33 && lessonNumber <= 41) {
+    return <GeneratedBookendScene lessonNumber={lessonNumber} phase={phase} lang={lang} />;
+  }
+
   const complete = phase === 'finish';
   const topic = BOOKEND_TOPICS[lessonNumber] || ['data', `Dars ${lessonNumber}`, `Урок ${lessonNumber}`];
   const Scene = lessonNumber >= 42
@@ -403,29 +380,55 @@ export function Grade3LessonShell({
   titleRu = 'Урок 19. Деление с остатком',
   lessonId,
   fact,
+  ttsApiBase,
+  voiceGender,
 }) {
-  const [lang, setLang] = useState('uz');
-  const [muted, setMuted] = useState(false);
-  const [index, setIndex] = useState(0);
-  const [picked, setPicked] = useState(null);
-  const [audioReady, setAudioReady] = useState(false);
-  const [speechTick, setSpeechTick] = useState(0);
-  const [results, setResults] = useState({});
-  const cardRef = useRef(null);
-  const screen = screens[index];
   const lessonNumber = Number(titleUz.match(/\d+/)?.[0] || 19);
   const resolvedLessonId = lessonId || `num-3-${String(lessonNumber).padStart(2, '0')}`;
+  const storageKey = grade3StorageKey('theory', resolvedLessonId);
+  const [initialSavedState] = useState(() => readGrade3State(storageKey, {}));
+  const [runSeed] = useState(createGrade3RunSeed);
+  const [lang, setLang] = useState(
+    () => restoreGrade3LessonLanguage(initialSavedState?.lang),
+  );
+  const [muted, setMuted] = useState(false);
+  const [index, setIndex] = useState(
+    () => restoreGrade3LessonIndex(initialSavedState?.currentIndex, screens.length),
+  );
+  const [audioReady, setAudioReady] = useState(false);
+  const [speechTick, setSpeechTick] = useState(0);
+  const [results, setResults] = useState(
+    () => initialSavedState?.screens && typeof initialSavedState.screens === 'object'
+      ? initialSavedState.screens
+      : {},
+  );
+  const cardRef = useRef(null);
+  const screen = screens[index];
   const optionOrder = useMemo(
-    () => seededIndexOrder(screen.options.length, `${resolvedLessonId}:${index}:${screen.options.length}`),
-    [resolvedLessonId, index, screen.options.length],
+    () => seededIndexOrder(
+      screen.options.length,
+      `${runSeed}:${resolvedLessonId}:${index}:${screen.options.length}`,
+    ),
+    [runSeed, resolvedLessonId, index, screen.options.length],
   );
   const displayOptions = useMemo(
     () => optionOrder.map((originalIndex) => screen.options[originalIndex]),
     [optionOrder, screen.options],
   );
   const displayCorrect = optionOrder.indexOf(screen.correct);
-  const correct = picked === displayCorrect;
+  const storedResult = results[index];
+  const pickedOriginal = Number.isInteger(storedResult?.pickedOriginal)
+    ? storedResult.pickedOriginal
+    : Number.isInteger(storedResult?.picked)
+      ? optionOrder[storedResult.picked]
+      : storedResult?.correct
+        ? screen.correct
+        : null;
+  const restoredPicked = pickedOriginal === null ? -1 : optionOrder.indexOf(pickedOriginal);
+  const picked = restoredPicked >= 0 ? restoredPicked : null;
+  const correct = storedResult?.correct === true && picked === displayCorrect;
   const done = picked !== null;
+  const interactionReady = GRADE3_REVIEW_MODE || audioReady;
   const lessonFact = fact || (lessonNumber >= 33
     ? T(
       "Kristallar tartibli tuzilishda o'sadi. Qor uchqunlaridagi simmetriya ham shu tabiiy tartibning ko'rinishidir.",
@@ -440,11 +443,6 @@ export function Grade3LessonShell({
         "Muhandislar hisob natijasini teskari amal bilan tekshiradi: bu qurilishga ketadigan materialdagi xatoni erta topishga yordam beradi.",
         'Инженеры проверяют вычисления обратным действием: это помогает заранее находить ошибки в расчёте материалов.',
       ));
-  const screenMeta = {
-    id: `screen-${index + 1}`,
-    type: screen.type,
-    scope: index >= screens.length - 2 ? 'final' : 'lesson',
-  };
   const solvedCount = Object.values(results).filter((result) => result.correct).length;
   const firstTryCount = Object.values(results).filter((result) => result.correct && result.attempts === 1).length;
   const missedTopics = Object.entries(results)
@@ -452,30 +450,36 @@ export function Grade3LessonShell({
     .map(([screenIndex]) => local(screens[Number(screenIndex)]?.title, lang))
     .filter(Boolean);
 
-  const spoken = useMemo(
-    () => toSpeechText(
-      `${local(screen.title, lang)}. ${local(screen.text, lang)} ${local(screen.visual, lang)}. ${local(screen.ask, lang)}`,
-      lang,
-    ),
+  const speechSource = useMemo(
+    () => `${local(screen.title, lang)}. ${local(screen.text, lang)} ${local(screen.visual, lang)}. ${local(screen.ask, lang)}`,
     [screen, lang],
   );
+  const spoken = useMemo(() => toGrade3SpeechText(speechSource, lang), [speechSource, lang]);
 
   useEffect(() => {
-    const alreadySolved = results[index]?.correct === true;
-    setPicked(alreadySolved ? displayCorrect : null);
-    // Restore only when the screen changes; answering on the same screen must keep the picked option.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: results read on index change only
-  }, [index, displayCorrect]);
+    const values = Object.values(results);
+    const completed = screens.every((_, screenIndex) => results[screenIndex]?.correct === true);
+    const previous = readGrade3State(storageKey, {});
+    writeGrade3State(storageKey, {
+      version: 2,
+      lessonId: resolvedLessonId,
+      lang,
+      currentIndex: index,
+      updatedAt: new Date().toISOString(),
+      completed,
+      completedAt: completed ? (previous?.completedAt || new Date().toISOString()) : null,
+      solved: values.filter((result) => result.correct).length,
+      firstTry: values.filter((result) => result.correct && result.attempts === 1).length,
+      total: screens.length,
+      screens: results,
+    });
+  }, [index, lang, resolvedLessonId, results, screens, storageKey]);
 
   useEffect(() => {
-    if (muted || !('speechSynthesis' in window)) {
+    if (muted) {
       queueMicrotask(() => setAudioReady(true));
       return undefined;
     }
-    window.speechSynthesis.cancel();
-    setAudioReady(false);
-    const utterance = new SpeechSynthesisUtterance(spoken);
-    utterance.lang = lang === 'uz' ? 'uz-UZ' : 'ru-RU';
     let finished = false;
     const finishAudio = () => {
       if (finished) return;
@@ -485,23 +489,26 @@ export function Grade3LessonShell({
     // Longer text needs more time; never unlock answers before ~speech end estimate.
     const fallbackMs = Math.min(90000, Math.max(12000, spoken.length * 55));
     const fallbackTimer = window.setTimeout(finishAudio, fallbackMs);
-    utterance.onend = finishAudio;
-    utterance.onerror = finishAudio;
-    window.speechSynthesis.speak(utterance);
+    const stopSpeech = speakGrade3Text(speechSource, {
+      language: lang,
+      ttsApiBase,
+      voiceGender,
+      onEnd: finishAudio,
+      onError: finishAudio,
+    });
     return () => {
       window.clearTimeout(fallbackTimer);
-      window.speechSynthesis.cancel();
+      stopSpeech();
     };
-  }, [index, lang, muted, spoken, speechTick]);
+  }, [index, lang, muted, speechSource, speechTick, spoken, ttsApiBase, voiceGender]);
 
   useEffect(() => {
     cardRef.current?.focus();
   }, [index]);
 
   const selectAnswer = (optionIndex) => {
-    if (!audioReady || correct) return;
+    if (!interactionReady || correct) return;
     const isCorrect = optionIndex === displayCorrect;
-    setPicked(optionIndex);
     setResults((current) => {
       const previousResult = current[index] || { attempts: 0, correct: false };
       // Do not inflate attempts when revisiting an already-solved screen.
@@ -514,22 +521,9 @@ export function Grade3LessonShell({
           attempts: previousResult.attempts + 1,
           correct: isCorrect,
           picked: optionIndex,
+          pickedOriginal: optionOrder[optionIndex],
         },
       };
-      if (isCorrect && index === screens.length - 1) {
-        const completedResults = Object.values(updated);
-        try {
-          window.localStorage.setItem(`grade3:${resolvedLessonId}:progress`, JSON.stringify({
-            completed: true,
-            completedAt: new Date().toISOString(),
-            solved: completedResults.filter((result) => result.correct).length,
-            firstTry: completedResults.filter((result) => result.correct && result.attempts === 1).length,
-            total: screens.length,
-          }));
-        } catch {
-          // The lesson remains usable when browser storage is unavailable.
-        }
-      }
       return updated;
     });
   };
@@ -540,7 +534,7 @@ export function Grade3LessonShell({
   };
 
   const next = () => {
-    if (!correct) return;
+    if (!GRADE3_REVIEW_MODE && !correct) return;
     if (index < screens.length - 1) {
       goToScreen(index + 1);
     }
@@ -573,8 +567,18 @@ export function Grade3LessonShell({
     <div className="g3d19">
       <style>{CSS}</style>
       <header>
-        <div>
-          <b>{lang === 'uz' ? titleUz : titleRu}</b>
+          <div className="lesson-heading">
+            <div className="title-row">
+            <b>
+              <span className="full-lesson-title">{lang === 'uz' ? titleUz : titleRu}</span>
+              <span className="short-lesson-title">
+                {lang === 'uz' ? `Dars ${lessonNumber}` : `Урок ${lessonNumber}`}
+              </span>
+            </b>
+            {GRADE3_REVIEW_MODE && (
+              <span className="review-badge">{lang === 'uz' ? 'TEKSHIRUV' : 'ПРОВЕРКА'}</span>
+            )}
+          </div>
           <small>{index + 1} / {screens.length}</small>
         </div>
         <div className="tools">
@@ -600,10 +604,13 @@ export function Grade3LessonShell({
           )}
           <span className="kind">{screen.type}</span>
           <h1 id={`g3-lesson-title-${index}`}>{local(screen.title, lang)}</h1>
-          <p>{local(screen.text, lang)}</p>
-          <div className="visual">{screen.visual}</div>
+          <details className="explanation">
+            <summary>{lang === 'uz' ? 'Qisqa izoh' : 'Краткое объяснение'}</summary>
+            <p>{local(screen.text, lang)}</p>
+          </details>
+          <div className="visual">{local(screen.visual, lang)}</div>
           <h2>{local(screen.ask, lang)}</h2>
-          {!audioReady && !muted && (
+          {!audioReady && !muted && !GRADE3_REVIEW_MODE && (
             <div className="audio-wait" role="status">
               {lang === 'uz' ? 'Avval tushuntirishni tinglang…' : 'Сначала прослушайте объяснение…'}
             </div>
@@ -615,7 +622,7 @@ export function Grade3LessonShell({
                 key={optionIndex}
                 className={optionIndex === picked ? (correct ? 'right' : 'wrong') : ''}
                 onClick={() => selectAnswer(optionIndex)}
-                disabled={correct || !audioReady}
+                disabled={correct || !interactionReady}
               >
                 <span>{String.fromCharCode(65 + optionIndex)}</span>{local(option, lang)}
               </button>
@@ -624,27 +631,30 @@ export function Grade3LessonShell({
           {done && (
             <div className={`feedback ${correct ? 'ok' : 'retry'}`} role="status" aria-live="polite">
               {correct
-                ? `${lang === 'uz' ? "To'g'ri" : 'Верно'}: ${local(displayOptions[displayCorrect], lang)}. ${local(screen.success || screen.hint, lang)}`
-                : local(screen.hint, lang)}
+                ? (lang === 'uz' ? "To'g'ri!" : 'Верно!')
+                : (lang === 'uz' ? "Yana urinib ko'ring." : 'Попробуйте ещё раз.')}
             </div>
           )}
           {screen.type === 'summary' && (
-            <>
-              <aside className="fact-card">
-                <b>{lang === 'uz' ? 'Ilmiy fakt' : 'Научный факт'}</b>
+            <div className="summary-extras">
+              <details className="fact-card">
+                <summary>{lang === 'uz' ? 'Ilmiy fakt' : 'Научный факт'}</summary>
                 <span>{local(lessonFact, lang)}</span>
-              </aside>
+              </details>
               <aside className="diagnostic">
                 <b>{lang === 'uz' ? 'Dars diagnostikasi' : 'Диагностика урока'}</b>
-                <span>{lang === 'uz' ? 'Bajarilgan' : 'Выполнено'}: {solvedCount}/{screens.length}</span>
-                <span>{lang === 'uz' ? 'Birinchi urinishda' : 'С первой попытки'}: {firstTryCount}</span>
+                <div className="diagnostic-metrics">
+                  <span>{lang === 'uz' ? 'Bajarilgan' : 'Выполнено'}: {solvedCount}/{screens.length}</span>
+                  <span>{lang === 'uz' ? '1-urinish' : 'С 1-й попытки'}: {firstTryCount}</span>
+                </div>
                 {missedTopics.length > 0 && (
-                  <small>
-                    {lang === 'uz' ? 'Takrorlash kerak' : 'Нужно повторить'}: {missedTopics.join(', ')}
-                  </small>
+                  <details className="missed-topics">
+                    <summary>{lang === 'uz' ? 'Takrorlash' : 'Повторить'} ({missedTopics.length})</summary>
+                    <small>{missedTopics.join(', ')}</small>
+                  </details>
                 )}
               </aside>
-            </>
+            </div>
           )}
         </section>
       </main>
@@ -652,7 +662,12 @@ export function Grade3LessonShell({
         <button type="button" className="back" disabled={index === 0} onClick={previous}>
           {lang === 'uz' ? 'Orqaga' : 'Назад'}
         </button>
-        <button type="button" className="next" disabled={!correct || index === screens.length - 1} onClick={next}>
+        <button
+          type="button"
+          className="next"
+          disabled={index === screens.length - 1 || (!GRADE3_REVIEW_MODE && !correct)}
+          onClick={next}
+        >
           {lang === 'uz' ? 'Davom' : 'Далее'}
         </button>
       </nav>
@@ -660,8 +675,8 @@ export function Grade3LessonShell({
   );
 }
 
-export default function Dars19() {
-  return <Grade3LessonShell />;
+export default function Dars19(runtimeProps) {
+  return <Grade3LessonShell {...runtimeProps} />;
 }
 
 const CSS = `
@@ -676,4 +691,83 @@ const CSS = `
 .g3d19 .etalon-scene-caption b{color:#ffd36b;font-size:14px}
 .g3d19 .is-finished .etalon-scene-caption b{color:#70e0a1}
 .g3d19 .etalon-scene-caption strong{max-width:45%;text-align:right;font-size:12px}
+
+/* Compact, single-viewport lesson shell. Explanations stay available without
+   competing with the question and answer controls for vertical space. */
+.g3d19{grid-template-rows:auto 4px minmax(0,1fr) auto;overflow:hidden;overscroll-behavior:none}
+.g3d19 header{min-height:52px;padding:8px clamp(12px,3vw,30px) 8px max(176px,3vw)}
+.g3d19 .lesson-heading{min-width:0}
+.g3d19 .title-row{display:flex;align-items:center;gap:8px;min-width:0}
+.g3d19 .title-row b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.g3d19 .short-lesson-title{display:none}
+.g3d19 .review-badge{flex:0 0 auto;padding:3px 6px;border:1px solid #dc7c16;border-radius:999px;background:#fff3d8;color:#8a5200;font-size:9px;font-weight:950;letter-spacing:.06em}
+.g3d19 .tools button,.g3d19 nav button{min-height:36px;padding:7px 11px}
+.g3d19 main{place-items:start center;overflow:hidden;padding:clamp(8px,2vh,18px)}
+.g3d19 .card{max-height:100%;overflow:hidden;padding:clamp(14px,2.5vh,24px);border-radius:20px}
+.g3d19 .bookend-scene{height:min(180px,22vh);margin:0 0 10px;overflow:hidden}
+.g3d19 .bookend-scene>svg{width:100%;height:100%;max-height:100%;object-fit:cover}
+.g3d19 .etalon-reuse .grade3-reused-scene{height:100%;overflow:hidden}
+.g3d19 .etalon-reuse .lm-scene,.g3d19 .etalon-reuse .lm-scene-establishing{height:100%;max-height:100%;object-fit:cover}
+.g3d19 .kind{padding:3px 7px}
+.g3d19 h1{margin:7px 0 5px;font-size:clamp(21px,3vw,31px);line-height:1.15}
+.g3d19 .explanation{margin:0 0 7px;color:#4b5d67}
+.g3d19 .explanation summary,.g3d19 .fact-card summary,.g3d19 .missed-topics summary{width:max-content;max-width:100%;color:#087d9f;font-size:12px;font-weight:850;cursor:pointer}
+.g3d19 .explanation p{margin-top:6px;font-size:14px;line-height:1.35}
+.g3d19 .visual{margin:8px 0;padding:11px 14px;font-size:clamp(18px,3vw,26px);line-height:1.2}
+.g3d19 h2{margin:8px 0;font-size:clamp(16px,2.2vw,19px);line-height:1.25}
+.g3d19 .options{gap:7px}
+.g3d19 .options button{min-height:46px;padding:8px;font-size:14px;line-height:1.2}
+.g3d19 .options button span{width:23px;height:23px;margin-right:6px}
+.g3d19 .feedback{margin-top:7px;padding:8px 10px;font-size:13px}
+.g3d19 .summary-extras{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:7px;margin-top:7px}
+.g3d19 .fact-card,.g3d19 .diagnostic{margin:0;padding:8px 10px;border-radius:11px}
+.g3d19 .fact-card span{display:block;margin-top:5px;font-size:12px;line-height:1.3}
+.g3d19 .diagnostic{gap:3px}
+.g3d19 .diagnostic b{font-size:12px}
+.g3d19 .diagnostic-metrics{display:flex;flex-wrap:wrap;gap:3px 10px}
+.g3d19 .diagnostic span{font-size:11px}
+.g3d19 .missed-topics small{display:block;margin-top:3px;font-size:10px;line-height:1.25}
+.g3d19 nav{min-height:48px;padding:6px clamp(12px,3vw,30px)}
+
+@media(max-width:520px){
+  .g3d19 header{min-height:48px;padding:6px 6px 6px 134px}
+  .g3d19 header small{font-size:10px}
+  .g3d19 .title-row{gap:5px}
+  .g3d19 .title-row b{font-size:13px}
+  .g3d19 .full-lesson-title{display:none}
+  .g3d19 .short-lesson-title{display:inline}
+  .g3d19 .review-badge{padding:2px 4px;font-size:0}
+  .g3d19 .review-badge::after{content:'QA';font-size:8px}
+  .g3d19 .tools{gap:3px}
+  .g3d19 .tools button{width:30px;min-height:32px;padding:3px}
+  .g3d19 main{place-items:start center;padding:6px}
+  .g3d19 .card{padding:10px;border-radius:14px}
+  .g3d19 .bookend-scene{height:min(104px,15vh);margin-bottom:6px}
+  .g3d19 .etalon-scene-caption{inset:7px 7px auto;gap:5px}
+  .g3d19 .etalon-scene-caption span,.g3d19 .etalon-scene-caption strong{padding:4px 6px;border-radius:8px}
+  .g3d19 .etalon-scene-caption small{font-size:8px}
+  .g3d19 .etalon-scene-caption b,.g3d19 .etalon-scene-caption strong{font-size:9px}
+  .g3d19 .kind{display:none}
+  .g3d19 h1{margin:2px 0 4px;font-size:19px}
+  .g3d19 .explanation{margin-bottom:4px}
+  .g3d19 .explanation summary{font-size:11px}
+  .g3d19 .explanation p{display:-webkit-box;margin-top:3px;overflow:hidden;font-size:12px;line-height:1.25;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+  .g3d19 .visual{margin:5px 0;padding:8px 9px;border-radius:11px;font-size:18px}
+  .g3d19 h2{margin:5px 0;font-size:15px}
+  .g3d19 .options{grid-template-columns:1fr;gap:5px}
+  .g3d19 .options button{min-height:40px;padding:5px 7px;border-radius:10px;font-size:12px}
+  .g3d19 .options button span{width:21px;height:21px;font-size:11px}
+  .g3d19 .feedback{margin-top:5px;padding:6px 8px;font-size:12px}
+  .g3d19 .summary-extras{grid-template-columns:1fr;margin-top:5px}
+  .g3d19 .fact-card,.g3d19 .diagnostic{padding:6px 8px}
+  .g3d19 .fact-card summary,.g3d19 .missed-topics summary{font-size:10px}
+  .g3d19 nav{min-height:44px;padding:5px 8px}
+  .g3d19 nav button{min-height:34px;padding:5px 10px}
+}
+
+@media(max-height:700px){
+  .g3d19 .bookend-scene{display:none}
+  .g3d19 .fact-card{display:none}
+  .g3d19 .summary-extras{grid-template-columns:1fr}
+}
 `;

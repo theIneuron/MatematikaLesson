@@ -95,9 +95,10 @@ export const SCREENS = [
     ["Bo'linma butun qismni beradi.", "Частное даёт целую часть."]),
 ];
 
-export default function Dars28() {
+export default function Dars28(runtimeProps) {
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       screens={SCREENS}
       titleUz="28-dars. To'g'ri va noto'g'ri kasrlar. Aralash son"
       titleRu="Урок 28. Правильные и неправильные дроби. Смешанное число"

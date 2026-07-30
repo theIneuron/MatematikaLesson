@@ -62,6 +62,7 @@ export const GRADE3_ETALON_STYLES = `
   background: rgba(248,247,243,0.88) !important;
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(167,166,162,0.12);
+  padding-left: 176px !important;
 }
 .stage-nav {
   background: rgba(248,247,243,0.9) !important;
@@ -70,14 +71,11 @@ export const GRADE3_ETALON_STYLES = `
   padding-bottom: max(clamp(11px,2vw,14px), env(safe-area-inset-bottom)) !important;
 }
 .stage-content {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,79,40,0.42) transparent;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+  scrollbar-width: none;
 }
-.stage-content::-webkit-scrollbar { width: 6px; }
-.stage-content::-webkit-scrollbar-thumb {
-  background: rgba(255,79,40,0.38);
-  border-radius: 99px;
-}
+.stage-content::-webkit-scrollbar { display: none; }
 .stage-exploration .stage-content,
 .stage-rule .stage-content,
 .stage-hook .stage-content {
@@ -375,6 +373,9 @@ export const GRADE3_ETALON_STYLES = `
 @media (max-width: 639.98px) {
   .stage { max-width: 390px !important; }
   .frame { border-radius: 18px !important; }
+  .stage-header {
+    padding-left: 134px !important;
+  }
   .grade3-screen-type {
     width: 28px;
     min-width: 28px;
@@ -407,6 +408,60 @@ export const GRADE3_ETALON_STYLES = `
     height: 24px;
     min-width: 24px !important;
     border-radius: 8px;
+  }
+}
+
+/* The legacy shell lays out at 390px and is visually zoomed below that width.
+   Reserve in layout coordinates so the fixed global back button still clears
+   the header after zoom is applied. */
+@media (max-width: 374px) {
+  .stage-header {
+    padding-left: 166px !important;
+  }
+}
+
+/* Compact QA/phone viewport: this shared block is intentionally placed after
+   the etalon declarations so it also wins when lesson-local CSS is injected
+   before GRADE3_ETALON_STYLES. Essential task content stays in one viewport. */
+@media (max-width: 639.98px), (max-height: 720px) {
+  .stage-header {
+    padding-top: max(5px, env(safe-area-inset-top)) !important;
+    padding-bottom: 3px !important;
+  }
+  .chrome { min-height: 24px !important; }
+  .progress-track {
+    height: 4px !important;
+    margin-bottom: 5px !important;
+  }
+  .stage-content {
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+    scrollbar-width: none !important;
+  }
+  .stage-content::-webkit-scrollbar { display: none !important; }
+  .stage-nav {
+    gap: 8px !important;
+    padding-top: 4px !important;
+    padding-bottom: max(4px, env(safe-area-inset-bottom)) !important;
+  }
+  .stage-nav button,
+  .btn-white-accent,
+  .btn-ghost {
+    min-height: 40px !important;
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+  .stage-content .frame,
+  .stage-content .frame-soft,
+  .stage-content .frame-tip,
+  .stage-content .frame-success {
+    padding: 8px !important;
+  }
+  .stage-content .option {
+    min-height: 40px !important;
+    padding: 7px 10px !important;
   }
 }
 

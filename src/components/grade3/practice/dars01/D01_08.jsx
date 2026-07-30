@@ -4,6 +4,7 @@
 // Mexanika: tap-to-bin (nazariy Dars01 Screen9 naqshining amaliyot varianti) — kartani bos, savatni bos.
 // Baholash hammasi-yoki-hech: bitta raqam noto'g'ri savatda bo'lsa — butun topshiriq xato.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { seededOrder } from '../QuestionFactory.jsx';
 
 /* ============================== SHARED (Lumo — Bit shahri) ============================== */
 const C = {
@@ -85,7 +86,7 @@ const D08_T = {
   },
 };
 function D01_08Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D08_T[lang] || D08_T.uz;
   const isReview = mode === 'review';
   const [bins, setBins] = useState({ h: null, t: null, o: null });
@@ -102,7 +103,9 @@ function D01_08Impl(props) {
   }, [bins, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;
-  const inTray = D08_TRAY.filter((d) => bins.h !== d && bins.t !== d && bins.o !== d);
+  const inTray = seededOrder(D08_TRAY.length, `place-value:${shuffleSeed}`)
+    .map((index) => D08_TRAY[index])
+    .filter((d) => bins.h !== d && bins.t !== d && bins.o !== d);
   const placeTo = (k) => {
     if (locked) return;
     if (sel == null) {

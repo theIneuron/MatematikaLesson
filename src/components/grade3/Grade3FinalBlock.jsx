@@ -148,7 +148,7 @@ export const FINAL_LESSONS = {
       q('31-dekabr + 1 kun', "Keyingi sana qaysi?", 'Какая следующая дата?', ['32-dekabr', '1-yanvar', '2-yanvar'], 1, "Yangi yil boshlanadi.", 'Начинается новый год.'),
       q('? kun = 4 hafta', "Noma'lum sonni toping.", 'Найди неизвестное число.', ['11', '28', '40'], 1, "4 × 7.", 'Вычисли 4 × 7.'),
       q('Sentabrda 31 kun', "Xatoni toping.", 'Найди ошибку.', [["Sentabrda 30 kun", "В сентябре 30 дней"], ["Sentabrda 28 kun", "В сентябре 28 дней"], ["Fikr to'g'ri", "Утверждение верно"]], 0, "Aprel, iyun, sentabr, noyabr — o'ttiz.", 'Апрель, июнь, сентябрь, ноябрь — по тридцать.'),
-      q('Kurs: 3–17-oktabr', "Boshlanishdan tugashgacha necha kun o'tadi?", 'Сколько дней проходит от начала до конца?', ['13', '14', '15'], 1, "17 dan 3 ni ayiring.", 'Вычти 3 из 17.'),
+      q('3-oktabr boshi → 17-oktabr boshi', "Ikki sana boshi orasida necha sutka o'tadi?", 'Сколько суток прошло между началом 3 октября и началом 17 октября?', ['13', '14', '15'], 1, "Boshlang'ich sana hisobga kirmaydi: 17 − 3 = 14.", 'Начальная дата не включается: 17 − 3 = 14.'),
       q('Juma + 10 kun', "Qaysi hafta kuni?", 'Какой будет день недели?', [["Dushanba", "Понедельник"], ["Seshanba", "Вторник"], ["Yakshanba", "Воскресенье"]], 0, "7 kun yana juma, yana 3 kun dushanba.", 'Через 7 дней снова пятница, ещё через 3 — понедельник.'),
       q('yil → oy → hafta → kun', "Asosiy xulosa qaysi?", 'Какой вывод главный?', [["Kalendar davriy tartibga ega", "Календарь имеет циклический порядок"], ["Har oy 30 kun", "В каждом месяце 30 дней"], ["Hafta 10 kun", "В неделе 10 дней"]], 0, "Oy va hafta tartibi qayta takrorlanadi.", 'Порядок месяцев и недель повторяется.'),
     ],
@@ -299,10 +299,11 @@ export const FINAL_LESSONS = {
   },
 };
 
-export function FinalBlockLesson({ number }) {
+export function FinalBlockLesson({ number, ...runtimeProps }) {
   const config = FINAL_LESSONS[number];
   return (
     <Grade3LessonShell
+      {...runtimeProps}
       lessonId={`num-3-${number}`}
       screens={buildScreens(config)}
       titleUz={config.titleUz}
