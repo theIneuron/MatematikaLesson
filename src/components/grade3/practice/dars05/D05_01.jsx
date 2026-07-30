@@ -74,22 +74,7 @@ function RoundLine({ lo, hi, value, picked, setPicked, locked, checked, correctI
       {[[0, X0, lo], [1, X1, hi]].map(([i, x, v]) => {
         const st = endStyle(i);
         return (
-          <g
-            key={i}
-            role="button"
-            tabIndex={locked ? -1 : 0}
-            focusable={locked ? 'false' : 'true'}
-            aria-label={String(v)}
-            aria-pressed={picked === i}
-            style={{ cursor: locked ? 'default' : 'pointer' }}
-            onClick={() => { if (!locked) setPicked(i); }}
-            onKeyDown={(event) => {
-              if (!locked && (event.key === 'Enter' || event.key === ' ')) {
-                event.preventDefault();
-                setPicked(i);
-              }
-            }}
-          >
+          <g key={i} style={{ cursor: locked ? 'default' : 'pointer' }} onClick={() => { if (!locked) setPicked(i); }}>
             <rect x={x - 44} y={LINE_Y + 12} width="88" height="34" rx="10" fill={st.fill} stroke={st.stroke} strokeWidth="2.5" />
             <text x={x} y={LINE_Y + 35} textAnchor="middle" fill={C.glow} fontSize="18" fontWeight="800" fontFamily="'JetBrains Mono', monospace">{v}</text>
             <line x1={x} y1={LINE_Y - 10} x2={x} y2={LINE_Y + 10} stroke={C.sink} strokeWidth="3" style={{ pointerEvents: 'none' }} />
@@ -111,15 +96,15 @@ const FX_CSS = `.g3d5-pop { animation: g3d5pop .5s cubic-bezier(.34,1.56,.64,1) 
 const D01_LO = 420, D01_HI = 430, D01_VAL = 427, D01_CORRECT = 1;
 const D01_T = {
   uz: {
-    eyebrow: "Eng yaqin yumaloq o'nlik", setup: "427 soni chiziqda 420 bilan 430 orasida turibdi.",
-    ask: "427 ga eng yaqin yumaloq o'nlik qaysi? Uni chiziqda bosing.",
+    eyebrow: 'Eng yaqin yumaloq son', setup: "427 soni chiziqda 420 bilan 430 orasida turibdi.",
+    ask: "427 ga eng yaqin yumaloq son qaysi? Uni chiziqda bosing.",
     correct: "To'g'ri! 427 → 430: nuqta 430 ga yaqinroq turibdi (7 qadam o'tilgan, 3 qadam qolgan).",
     wrong: "Maslahat: nuqta qaysi tomonga yaqinroq turganiga qarang: 420 gachami yo 430 gachami yo'l qisqaroq?",
     rule: "Oxiri 5 dan katta bo'lsa, son keyingi yumaloq songa yaqin: 427 → 430.",
   },
   ru: {
-    eyebrow: 'Ближайший круглый десяток', setup: 'Число 427 стоит на линии между 420 и 430.',
-    ask: 'Какой круглый десяток ближе к 427? Нажми его на линии.',
+    eyebrow: 'Ближайшее круглое число', setup: 'Число 427 стоит на линии между 420 и 430.',
+    ask: 'Какое круглое число ближе к 427? Нажми его на линии.',
     correct: 'Верно! 427 → 430: точка ближе к 430 (пройдено 7 шагов, осталось 3).',
     wrong: 'Подсказка: посмотри, к какой стороне точка ближе: до 420 или до 430 путь короче?',
     rule: 'Если на конце больше 5, число ближе к следующему круглому: 427 → 430.',

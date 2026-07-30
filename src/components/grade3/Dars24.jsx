@@ -90,10 +90,9 @@ export const SCREENS = [
     ["Bo'laklar teng bo'lmasa, ulush aniqlanmaydi.", "Если части не равны, доля не определена."]),
 ];
 
-export default function Dars24(runtimeProps) {
+export default function Dars24() {
   return (
     <Grade3LessonShell
-      {...runtimeProps}
       screens={SCREENS}
       titleUz="24-dars. Kattalik ulushi"
       titleRu="Урок 24. Доля величины"

@@ -79,14 +79,9 @@ const D08_T = {
     rule: '804 = 800 + 4: для нулевого разряда плитка не берётся.',
   },
 };
-const D08_ORDER = (shuffleSeed) => {
-  const base = permFromSeed(D08_POOL.length, String('build_plates'));
-  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
-  const offset = ((attempt % base.length) + base.length) % base.length;
-  return base.slice(offset).concat(base.slice(0, offset));
-};
+const D08_ORDER = permFromSeed(D08_POOL.length, 'build_plates');
 function D03_08Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D08_T[lang] || D08_T.uz;
   const isReview = mode === 'review';
   const [selSet, setSelSet] = useState([]); // tanlangan plita qiymatlari
@@ -128,7 +123,7 @@ function D03_08Impl(props) {
         </div>
       </Stage>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 9, justifyContent: 'center', margin: '10px 0' }}>
-        {D08_ORDER(shuffleSeed).map((oi) => {
+        {D08_ORDER.map((oi) => {
           const v = D08_POOL[oi];
           return <button key={v} type="button" style={plateStyle(v)} disabled={locked} onClick={() => toggle(v)}>{v}</button>;
         })}

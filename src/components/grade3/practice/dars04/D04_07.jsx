@@ -3,7 +3,6 @@
 // Mexanika: karta-slot — kartani bosganda birinchi bo'sh slotga tushadi; slotni bosganda qaytadi.
 // jsx-question kontrakti: onReady / registerCheck / onSubmit. O'z "Tekshirish" tugmasi yo'q — PracticeHost beradi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { seededOrder } from '../QuestionFactory.jsx';
 
 /* ============================== SHARED (Lumo — Bit shahri) ============================== */
 const C = {
@@ -76,7 +75,7 @@ const D07_T = {
   },
 };
 function D04_07Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D07_T[lang] || D07_T.uz;
   const isReview = mode === 'review';
   const [slots, setSlots] = useState([null, null, null]);
@@ -92,9 +91,7 @@ function D04_07Impl(props) {
   }, [slots, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;
-  const inTray = seededOrder(D07_CARDS.length, `sort-asc:${shuffleSeed}`)
-    .map((index) => D07_CARDS[index])
-    .filter((v) => !slots.includes(v));
+  const inTray = D07_CARDS.filter((v) => !slots.includes(v));
   const putCard = (v) => { if (locked) return; setSlots((sl) => { const i = sl.indexOf(null); if (i === -1) return sl; const n = [...sl]; n[i] = v; return n; }); };
   const popSlot = (i) => { if (locked) return; setSlots((sl) => { const n = [...sl]; n[i] = null; return n; }); };
   const slotRing = (i) => { if (!checked) return 'none'; const ok = slots[i] === D07_ANS[i]; return '0 0 0 2.5px ' + (ok ? C.ok : C.no); };

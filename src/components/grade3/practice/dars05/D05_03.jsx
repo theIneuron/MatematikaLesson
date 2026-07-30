@@ -62,14 +62,9 @@ const D03_T = {
     rule: 'Круглый десяток решает последняя цифра: меньше 5 — вниз, 5 и больше — вверх.',
   },
 };
-const D03_RIGHT_ORDER = (shuffleSeed) => {
-  const base = permFromSeed(3, String(D03_TAG));
-  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
-  const offset = ((attempt % base.length) + base.length) % base.length;
-  return base.slice(offset).concat(base.slice(0, offset));
-};
+const D03_RIGHT_ORDER = permFromSeed(3, D03_TAG);
 function D05_03Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D03_T[lang] || D03_T.uz;
   const isReview = mode === 'review';
   const exps = D03_NUMS.map((n) => D03_EXP[n]);
@@ -123,7 +118,7 @@ function D05_03Impl(props) {
         ))}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {D03_RIGHT_ORDER(shuffleSeed).map((ri) => (
+        {D03_RIGHT_ORDER.map((ri) => (
           <button key={ri} type="button" style={rightStyle(ri)} disabled={locked} onClick={() => pickRight(ri)}>{exps[ri]}</button>
         ))}
       </div>

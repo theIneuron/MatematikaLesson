@@ -86,20 +86,15 @@ const D01_T = {
   ru: {
     eyebrow: 'Что больше?', setup: 'Две римские записи: XIX и XVI. Чтобы узнать, какое число больше, сначала прочитай их.',
     ask: 'Какая запись обозначает большее число?',
-    opts: ['XIX', 'XVI', 'Они равны'],
+    opts: ['XIX', 'XVI', 'Ular teng'],
     correct: 'Верно! XIX = 10 + 9 = 19, XVI = 10 + 6 = 16. 19 > 16.',
     wrong: 'Подсказка: читай каждую запись по частям: XIX = X и IX. XVI = X и VI. Теперь сравни обычные числа.',
     rule: 'Чтобы сравнить римские записи, сначала переводим их в обычные числа: XIX = 19 > XVI = 16.',
   },
 };
-const D01_ORDER = (shuffleSeed) => {
-  const base = permFromSeed(3, String(D01_TAG));
-  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
-  const offset = ((attempt % base.length) + base.length) % base.length;
-  return base.slice(offset).concat(base.slice(0, offset));
-};
+const D01_ORDER = permFromSeed(3, D01_TAG);
 function D08_10Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D01_T[lang] || D01_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -120,7 +115,7 @@ function D08_10Impl(props) {
       <Stage><Neon text="XIX · XVI" size={30} /></Stage>
       <p style={S.ask}>{t.ask}</p>
       <div>
-        {D01_ORDER(shuffleSeed).map((i) => (
+        {D01_ORDER.map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D01_CORRECT, checked, isReview)} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

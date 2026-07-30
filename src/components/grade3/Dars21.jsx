@@ -81,6 +81,6 @@ export const SCREENS = [
     ["Bir xil razryadlar bir ustunda turadi.", "Одинаковые разряды стоят в одном столбце."]),
 ];
 
-export default function Dars21(runtimeProps) {
-  return <Grade3LessonShell {...runtimeProps} screens={SCREENS} titleUz="21-dars. Yozma ko'paytirish va bo'lish" titleRu="Урок 21. Письменное умножение и деление" />;
+export default function Dars21() {
+  return <Grade3LessonShell screens={SCREENS} titleUz="21-dars. Yozma ko'paytirish va bo'lish" titleRu="Урок 21. Письменное умножение и деление" />;
 }

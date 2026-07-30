@@ -90,10 +90,9 @@ export const SCREENS = [
     ["Amal vaziyat modelidan kelib chiqadi.", "Действие следует из модели ситуации."]),
 ];
 
-export default function Dars23(runtimeProps) {
+export default function Dars23() {
   return (
     <Grade3LessonShell
-      {...runtimeProps}
       screens={SCREENS}
       titleUz="23-dars. Qurilishga oid masalalar"
       titleRu="Урок 23. Задачи о строительстве"

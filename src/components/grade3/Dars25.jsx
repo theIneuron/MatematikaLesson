@@ -95,10 +95,9 @@ export const SCREENS = [
     ["Maxraj kasr chizig'ining pastida va butunning bo'linishini ko'rsatadi.", "Знаменатель находится снизу и показывает деление целого."]),
 ];
 
-export default function Dars25(runtimeProps) {
+export default function Dars25() {
   return (
     <Grade3LessonShell
-      {...runtimeProps}
       screens={SCREENS}
       titleUz="25-dars. Kasrlarning hosil bo'lishi"
       titleRu="Урок 25. Образование дробей"

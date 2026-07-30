@@ -17,11 +17,11 @@ const COLORS = {
 
 const STYLE = {
   eyebrow: { color: COLORS.accent, fontSize: 13, fontWeight: 900, letterSpacing: '.05em', textTransform: 'uppercase' },
-  setup: { color: '#374151', fontSize: 16, lineHeight: 1.38, margin: '4px 0 7px', whiteSpace: 'pre-line' },
-  ask: { color: COLORS.ink, fontSize: 18, fontWeight: 850, lineHeight: 1.32, margin: 0 },
+  setup: { color: '#374151', fontSize: 17, lineHeight: 1.55, margin: '7px 0 12px', whiteSpace: 'pre-line' },
+  ask: { color: COLORS.ink, fontSize: 19, fontWeight: 850, lineHeight: 1.4, margin: 0 },
   askCard: {
-    margin: '8px 0 7px',
-    padding: '10px 13px',
+    margin: '15px 0 12px',
+    padding: '13px 15px',
     border: '1.5px solid #B9D7F0',
     borderRadius: 15,
     background: '#F7FBFF',
@@ -47,8 +47,8 @@ const STYLE = {
   },
   option: {
     width: '100%',
-    minHeight: 48,
-    padding: '9px 12px',
+    minHeight: 58,
+    padding: '12px 14px',
     borderRadius: 14,
     border: `2px solid ${COLORS.line}`,
     background: '#fff',
@@ -75,7 +75,6 @@ const FX = `
     gap: 18px;
     align-items: start;
     align-content: start;
-    overflow: hidden;
   }
   .g3-question-context-item {
     grid-column: 1;
@@ -90,20 +89,15 @@ const FX = `
     display: flex;
     min-width: 0;
     flex-direction: column;
-    overflow: hidden;
   }
   .g3-question-context-panel { gap: 0; }
   .g3-question-work-panel { gap: 10px; }
-  .g3-question-instruction,
-  .g3-question-ask-label {
-    display: none !important;
-  }
   @media (min-width: 720px) {
     .g3-question-shell {
       max-width: 700px;
       grid-template-columns: minmax(0, 1fr);
       column-gap: 0;
-      row-gap: 6px;
+      row-gap: 8px;
       align-content: center;
     }
     .g3-question-shell > .g3-question-context-panel {
@@ -182,10 +176,10 @@ const FX = `
   .g3-practice-stage {
     position: relative;
     overflow: hidden;
-    min-height: 86px;
-    margin: 5px 0 0;
-    padding: 9px;
-    border-radius: 15px;
+    min-height: 104px;
+    margin: 8px 0 0;
+    padding: 12px;
+    border-radius: 18px;
     background: ${COLORS.stage};
     border: 1px solid #C7DDF2;
     box-shadow: 0 8px 24px rgba(57, 96, 128, .08);
@@ -194,14 +188,14 @@ const FX = `
     position: relative;
     display: grid;
     place-items: center;
-    gap: 6px;
+    gap: 9px;
     text-align: center;
   }
   .g3-answer-zone { min-height: 0; }
   .g3-mobile-step-button {
     width: min(100%, 320px);
     min-height: 48px;
-    margin: 10px auto 0;
+    margin: 16px auto 0;
     border: 0;
     border-radius: 15px;
     color: #fff;
@@ -242,18 +236,10 @@ const FX = `
   @media (max-width: 719.98px) {
     .g3-question-shell {
       display: block;
-      height: 100%;
-      overflow: hidden;
+      height: auto;
     }
     .g3-question-shell.g3-mobile-context .g3-question-work-item { display: none !important; }
     .g3-question-shell.g3-mobile-answer .g3-question-context-item { display: none !important; }
-    .g3-question-shell.g3-result-correct .g3-answer-zone,
-    .g3-question-shell.g3-result-correct .g3-mobile-back-button {
-      display: none !important;
-    }
-    .g3-answer-multi.is-compact {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
     .g3-question-shell > .g3-question-context-item,
     .g3-question-shell > .g3-question-work-item {
       width: 100%;
@@ -274,20 +260,13 @@ const FX = `
       cursor: pointer;
     }
     .g3-practice-stage {
-      min-height: 82px;
-      padding: 8px;
+      min-height: 94px;
+      padding: 10px;
     }
   }
   @media (max-height: 760px) {
-    .g3-question-setup { font-size: 15px !important; line-height: 1.3 !important; }
-    .g3-practice-stage { min-height: 72px; padding-block: 6px; }
-    .g3-practice-stage-inner { gap: 4px; }
-    .g3-context-group { font-size: 28px !important; }
-    .g3-practice-visual { font-size: 23px !important; }
-    .g3-question-ask-card { margin-block: 4px !important; padding: 8px 10px !important; }
-    .g3-answer-zone { gap: 6px !important; }
-    .g3-answer-zone button { min-height: 42px !important; padding-block: 7px !important; }
-    .g3-practice-pop { margin-top: 4px !important; padding: 7px 9px !important; }
+    .g3-practice-stage { min-height: 88px; padding-block: 9px; }
+    .g3-practice-stage-inner { gap: 6px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .g3-practice-pop, .g3-practice-star, .g3-practice-visual, .g3-model-check, .g3-context-group { animation: none !important; }
@@ -317,68 +296,18 @@ function useMobilePracticeMode() {
   return mobile;
 }
 
-const UNIT_ALIASES = Object.freeze({
-  kg: 'kg', 'кг': 'kg', kilogram: 'kg', kilograms: 'kg', kilogramm: 'kg', килограмм: 'kg', килограмма: 'kg', килограммов: 'kg',
-  g: 'g', 'г': 'g', gram: 'g', gramm: 'g', грамм: 'g', грамма: 'g', граммов: 'g',
-  mg: 'mg', 'мг': 'mg',
-  km: 'km', 'км': 'km',
-  m: 'm', 'м': 'm', metr: 'm', meter: 'm', метр: 'm', метра: 'm', метров: 'm',
-  dm: 'dm', 'дм': 'dm',
-  cm: 'cm', 'см': 'cm',
-  mm: 'mm', 'мм': 'mm',
-  'km²': 'km2', 'км²': 'km2', km2: 'km2', 'км2': 'km2',
-  'm²': 'm2', 'м²': 'm2', m2: 'm2', 'м2': 'm2',
-  'dm²': 'dm2', 'дм²': 'dm2', dm2: 'dm2', 'дм2': 'dm2',
-  'cm²': 'cm2', 'см²': 'cm2', cm2: 'cm2', 'см2': 'cm2',
-  'mm²': 'mm2', 'мм²': 'mm2', mm2: 'mm2', 'мм2': 'mm2',
-  l: 'l', 'л': 'l', litr: 'l', liter: 'l', литр: 'l', литра: 'l', литров: 'l',
-  ml: 'ml', 'мл': 'ml',
-  h: 'h', soat: 'h', час: 'h', часа: 'h', часов: 'h',
-  min: 'min', minut: 'min', 'мин': 'min', минута: 'min', минуты: 'min', минут: 'min',
-  s: 's', sec: 's', sekund: 's', 'с': 's', секунда: 's', секунды: 's', секунд: 's',
-});
-
-function normalizeUnit(value) {
-  const key = String(value || '').trim().toLowerCase().replace(/\s+/g, '');
-  return UNIT_ALIASES[key] || key;
-}
-
-function normalizeAnswerCore(value) {
-  let normalized = String(value ?? '')
+function normalize(value) {
+  return String(value ?? '')
     .trim()
     .toLowerCase()
-    .replace(/^[xх]\s*=\s*/iu, '')
     .replaceAll('×', '*')
     .replaceAll('х', '*')
     .replaceAll('x', '*')
     .replaceAll('÷', ':')
     .replace(/\s+/g, '');
-
-  // In grade 3 materials a dot between groups of three digits is a thousands
-  // separator, not a decimal separator: 1.000 = 1 000 = 1000.
-  if (/^[+-]?\d{1,3}(?:\.\d{3})+$/.test(normalized)) {
-    normalized = normalized.replaceAll('.', '');
-  }
-  return normalized.replace(',', '.');
 }
 
-export function parsePracticeAnswer(value) {
-  const raw = String(value ?? '').trim().replace(/^[xх]\s*=\s*/iu, '');
-  const withUnit = raw.match(/^([+-]?\d[\d\s]*(?:[.,]\d+)?)\s*([a-zа-яёʻʼ’'°]+(?:[²³23])?)$/iu);
-  if (!withUnit) {
-    return { value: normalizeAnswerCore(raw), unit: null };
-  }
-  return {
-    value: normalizeAnswerCore(withUnit[1]),
-    unit: normalizeUnit(withUnit[2]),
-  };
-}
-
-export function normalizePracticeAnswer(value) {
-  return parsePracticeAnswer(value).value;
-}
-
-export function inputAnswerVariants(value) {
+function inputAnswerVariants(value) {
   const raw = String(value ?? '').trim();
   const variants = [raw];
   const numberWithUnit = raw.match(/^([+-]?\d[\d\s]*(?:[.,]\d+)?)\s*(?:[a-zа-яёʻʼ’'°²³]+(?:\s*\/\s*[a-zа-яёʻʼ’'°²³]+)?)$/iu);
@@ -390,17 +319,13 @@ function sameSet(a, b) {
   return a.length === b.length && [...a].sort((x, y) => x - y).every((v, i) => v === [...b].sort((x, y) => x - y)[i]);
 }
 
-export function isCorrectAnswer(spec, answer) {
+function isCorrectAnswer(spec, answer) {
   if (spec.type === 'choice') return answer === spec.correct;
   if (spec.type === 'input') {
     const accepted = Array.isArray(spec.correct) ? spec.correct : [spec.correct];
-    const submitted = parsePracticeAnswer(answer);
-    return accepted.some((value) => {
-      const expected = parsePracticeAnswer(value);
-      if (expected.value !== submitted.value) return false;
-      if (!submitted.unit) return true;
-      return Boolean(expected.unit) && expected.unit === submitted.unit;
-    });
+    return accepted
+      .flatMap(inputAnswerVariants)
+      .some((value) => normalize(value) === normalize(answer));
   }
   if (spec.type === 'multi') return sameSet(answer, spec.correct);
   if (spec.type === 'order') return answer.length === spec.correct.length && answer.every((v, i) => v === spec.correct[i]);
@@ -409,7 +334,7 @@ export function isCorrectAnswer(spec, answer) {
 
 function hasAnswer(spec, answer) {
   if (spec.type === 'choice') return answer !== null;
-  if (spec.type === 'input') return normalizePracticeAnswer(answer).length > 0;
+  if (spec.type === 'input') return normalize(answer).length > 0;
   if (spec.type === 'multi') return answer.length > 0;
   if (spec.type === 'order') return answer.length === spec.correct.length;
   return false;
@@ -436,7 +361,6 @@ const ACTION_COPY = {
     numericInput: 'Javobni faqat son bilan yozing. Birlikni yozish shart emas.',
     fractionInput: "Javobni kasr ko'rinishida yozing. Masalan: 1/2.",
     question: 'Savol',
-    wrong: "Yana urinib ko'ring.",
   },
   ru: {
     choice: 'Выбери один ответ.',
@@ -446,7 +370,6 @@ const ACTION_COPY = {
     numericInput: 'Запиши в ответе только число. Единицу писать не нужно.',
     fractionInput: 'Запиши ответ в виде дроби. Например: 1/2.',
     question: 'Вопрос',
-    wrong: 'Попробуй ещё.',
   },
 };
 
@@ -462,15 +385,12 @@ function actionCopy(spec, lang) {
   return copy.input;
 }
 
-export function sceneKind(spec, text) {
-  const explicit = spec.scene || spec.sceneKind || spec.meta?.scene;
-  if (explicit) return explicit;
+function sceneKind(spec, text) {
   const corpus = `${spec.tag || ''} ${text.eyebrow || ''} ${text.setup || ''} ${text.ask || ''} ${text.visual || ''}`.toLowerCase();
   if (/kasr|ulush|fraction|surat|maxraj/.test(corpus)) return 'fraction';
   if (/perimetr|chegara/.test(corpus)) return 'perimeter';
   if (/yuza|maydon|area|sm²|m²/.test(corpus)) return 'area';
-  if (/kalendar|calendar|hafta|oylar|sana/.test(corpus)) return 'calendar';
-  if (/soat|vaqt|minut|time/.test(corpus)) return 'time';
+  if (/soat|vaqt|minut|kalendar|calendar|time/.test(corpus)) return 'time';
   if (/massa|kilogram|gramm|kg|mass/.test(corpus)) return 'mass';
   if (/diagram|jadval|piktogram|ma'lumot|data|chart/.test(corpus)) return 'data';
   if (/tenglama|noma'lum|equation/.test(corpus)) return 'equation';
@@ -481,6 +401,7 @@ export function sceneKind(spec, text) {
   if (/taqqos|tengsizlik|rost|yolg'on|katta|kichik|compare/.test(corpus)) return 'compare';
   if (/so'm|pul|narx|qaytim|xarid|money/.test(corpus)) return 'money';
   if (/harorat|termometr|°c|temperature/.test(corpus)) return 'temperature';
+  if (/hafta|oylar|sana|calendar/.test(corpus)) return 'calendar';
   if (/rim|roman|\b[ivxlc]+\b/.test(corpus)) return 'roman';
   if (/ketma-ket|qonuniyat|davom ettir|sequence/.test(corpus)) return 'sequence';
   if (/uzunlik|metr|santimetr|millimetr|length/.test(corpus)) return 'length';
@@ -777,18 +698,16 @@ function Rule({ children }) {
 }
 
 function optionStyle({ active, status, correct, wrong }) {
-  if (status === 'correct' && correct) return { ...STYLE.option, color: COLORS.ok, background: COLORS.okSoft, border: `2px solid ${COLORS.ok}`, cursor: 'default' };
-  if (status === 'wrong' && wrong) return { ...STYLE.option, color: COLORS.no, background: COLORS.noSoft, border: `2px solid ${COLORS.no}` };
-  if (active) return { ...STYLE.option, color: COLORS.ink, background: COLORS.accentSoft, border: `2px solid ${COLORS.accent}` };
+  if (status === 'correct' && correct) return { ...STYLE.option, color: COLORS.ok, background: COLORS.okSoft, borderColor: COLORS.ok, cursor: 'default' };
+  if (status === 'wrong' && wrong) return { ...STYLE.option, color: COLORS.no, background: COLORS.noSoft, borderColor: COLORS.no };
+  if (active) return { ...STYLE.option, color: COLORS.ink, background: COLORS.accentSoft, borderColor: COLORS.accent };
   return STYLE.option;
 }
 
-export function seededOrder(length, seedText) {
+function seededOrder(length, seedText) {
   const order = Array.from({ length }, (_, i) => i);
   let state = 2166136261;
-  const rawSeed = String(seedText || 'g3');
-  const attemptMatch = rawSeed.match(/^(?:(.*):)?(-?\d+)$/);
-  const source = attemptMatch ? (attemptMatch[1] || 'g3') : rawSeed;
+  const source = String(seedText || 'g3');
   for (let i = 0; i < source.length; i += 1) {
     state ^= source.charCodeAt(i);
     state = Math.imul(state, 16777619);
@@ -801,10 +720,7 @@ export function seededOrder(length, seedText) {
     order[i] = order[j];
     order[j] = tmp;
   }
-  if (!attemptMatch || length < 2) return order;
-  const attempt = Number(attemptMatch[2]);
-  const offset = ((attempt % length) + length) % length;
-  return order.slice(offset).concat(order.slice(0, offset));
+  return order;
 }
 
 function Choice({ spec, text, answer, setAnswer, locked, status, optionOrder }) {
@@ -828,9 +744,9 @@ function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
   const accepted = Array.isArray(spec.correct) ? spec.correct : [spec.correct];
   const numericAccepted = accepted
     .flatMap(inputAnswerVariants)
-    .map(normalizePracticeAnswer)
+    .map((value) => String(value).replace(/\s+/g, ''))
     .filter((value) => /^\d+$/.test(value));
-  const tapNumeric = numericAccepted.length > 0 && sceneKind(spec, text) !== 'equation';
+  const tapNumeric = numericAccepted.length > 0;
   const maxDigits = Math.max(
     1,
     String(answer ?? '').length,
@@ -859,28 +775,22 @@ function InputAnswer({ text, answer, setAnswer, locked, spec, status }) {
   );
 }
 
-function Multi({ text, answer, setAnswer, locked, correct, status, optionOrder }) {
+function Multi({ text, answer, setAnswer, locked, correct, status }) {
   const toggle = (idx) => setAnswer(answer.includes(idx) ? answer.filter((v) => v !== idx) : [...answer, idx]);
-  const order = optionOrder || text.options.map((_, i) => i);
-  const compactOptions = text.options.every((option) => String(option).length <= 8);
   return (
-    <div className={`g3-answer-zone g3-answer-multi g3-question-work-item${compactOptions ? ' is-compact' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 9 }}>
-      {order.map((originalIndex) => {
-        const option = text.options[originalIndex];
-        return (
-          <button key={`${option}-${originalIndex}`} type="button" disabled={locked} onClick={() => toggle(originalIndex)}
-            style={optionStyle({ active: answer.includes(originalIndex), status, correct: correct.includes(originalIndex), wrong: answer.includes(originalIndex) && !correct.includes(originalIndex) })}>
-            <span aria-hidden="true" style={{ marginRight: 7 }}>{answer.includes(originalIndex) ? '☑' : '□'}</span>{option}
-          </button>
-        );
-      })}
+    <div className="g3-answer-zone g3-question-work-item" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 9 }}>
+      {text.options.map((option, i) => (
+        <button key={`${option}-${i}`} type="button" disabled={locked} onClick={() => toggle(i)}
+          style={optionStyle({ active: answer.includes(i), status, correct: correct.includes(i), wrong: answer.includes(i) && !correct.includes(i) })}>
+          <span aria-hidden="true" style={{ marginRight: 7 }}>{answer.includes(i) ? '☑' : '□'}</span>{option}
+        </button>
+      ))}
     </div>
   );
 }
 
-function Order({ text, answer, setAnswer, locked, status, optionOrder }) {
-  const order = optionOrder || text.options.map((_, i) => i);
-  const available = order.filter((i) => !answer.includes(i));
+function Order({ text, answer, setAnswer, locked, status }) {
+  const available = text.options.map((_, i) => i).filter((i) => !answer.includes(i));
   return (
     <div className="g3-answer-zone g3-question-work-item">
       <div style={{ minHeight: 62, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 7, marginBottom: 12, padding: 10, border: `2px dashed ${COLORS.line}`, borderRadius: 14, background: '#FAF9F6' }}>
@@ -906,19 +816,7 @@ function Order({ text, answer, setAnswer, locked, status, optionOrder }) {
 
 export function createPracticeQuestion(spec) {
   function PracticeQuestion(props) {
-    const {
-      lang = 'uz',
-      mode = 'answer',
-      initialAnswer = null,
-      shuffleSeed = 0,
-      playCorrect,
-      playWrong,
-      onReady,
-      onDraft,
-      registerCheck,
-      registerNarration,
-      onSubmit,
-    } = props || {};
+    const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
     const text = spec.text[lang] || spec.text.uz;
     const empty = spec.type === 'choice' ? null : spec.type === 'input' ? '' : [];
     const initial = initialAnswer?.studentAnswer?.value ?? initialAnswer?.studentAnswer?.idx ?? initialAnswer?.studentAnswer?.indices ?? empty;
@@ -931,9 +829,10 @@ export function createPracticeQuestion(spec) {
     const locked = result === true || mode === 'review';
     const copy = ACTION_COPY[lang] || ACTION_COPY.uz;
     const answerKey = JSON.stringify(answer);
-    const optionOrder = ['choice', 'multi', 'order'].includes(spec.type) && text.options?.length
-      ? seededOrder(text.options.length, `${spec.tag || 'q'}:${shuffleSeed}`)
-      : null;
+    const choiceOrder = useMemo(() => {
+      if (spec.type !== 'choice' || !text.options?.length) return null;
+      return seededOrder(text.options.length, `${spec.tag || 'q'}:${text.options.join('|')}`);
+    }, [spec.tag, spec.type, text.options]);
     const ready = useMemo(
       () => hasAnswer(spec, answer) && !locked && answerKey !== lastWrongAnswer,
       [answer, answerKey, lastWrongAnswer, locked],
@@ -947,14 +846,6 @@ export function createPracticeQuestion(spec) {
     useEffect(() => {
       onReady?.(ready);
     }, [onReady, ready]);
-
-    useEffect(() => {
-      onDraft?.({ studentAnswer: answerForSubmit(spec, answer, text) });
-    }, [answer, onDraft, text]);
-
-    useEffect(() => {
-      registerNarration?.(`${text.setup || ''}. ${text.ask || ''}`);
-    }, [registerNarration, text.ask, text.setup]);
 
     const check = useCallback(() => {
       if (!hasAnswer(spec, answer) || locked || answerKey === lastWrongAnswer) return;
@@ -977,10 +868,7 @@ export function createPracticeQuestion(spec) {
     return (
       <>
         <style>{FX}</style>
-        <div
-          className={`g3-question-shell g3-question-${spec.type}${mobile ? ` g3-mobile-${mobileStep}` : ''}${result === true ? ' g3-result-correct' : result === false ? ' g3-result-wrong' : ''}`}
-          data-g3-narration={`${text.setup || ''}. ${text.ask || ''}`}
-        >
+        <div className={`g3-question-shell g3-question-${spec.type}${mobile ? ` g3-mobile-${mobileStep}` : ''}${result === true ? ' g3-result-correct' : result === false ? ' g3-result-wrong' : ''}`}>
           <section className="g3-question-context-panel g3-question-context-item">
             <div style={STYLE.eyebrow}>{spec.level} {text.eyebrow}</div>
             <p className="g3-question-setup" style={STYLE.setup}>{text.setup}</p>
@@ -1013,10 +901,10 @@ export function createPracticeQuestion(spec) {
                 <span>{actionCopy(spec, lang)}</span>
               </div>
             </div>
-            {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} optionOrder={optionOrder} />}
-            {spec.type === 'multi' && <Multi text={text} answer={answer} setAnswer={updateAnswer} locked={locked} correct={spec.correct} status={status} optionOrder={optionOrder} />}
-            {spec.type === 'order' && <Order text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} optionOrder={optionOrder} />}
-            {result !== null && <Feedback correct={result}>{result ? text.correct : copy.wrong}</Feedback>}
+            {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} optionOrder={choiceOrder} />}
+            {spec.type === 'multi' && <Multi text={text} answer={answer} setAnswer={updateAnswer} locked={locked} correct={spec.correct} status={status} />}
+            {spec.type === 'order' && <Order text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+            {result !== null && <Feedback correct={result}>{result ? text.correct : text.wrong}</Feedback>}
             {result === true && text.rule && <Rule>{text.rule}</Rule>}
           </section>
           {spec.type === 'input' && <InputAnswer spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}

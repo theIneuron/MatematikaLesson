@@ -3,7 +3,6 @@
 // Mexanika: belgi-karta yig'ish (takroriy kartalar bilan — id asosida).
 // jsx-question kontrakti: onReady / registerCheck / onSubmit. O'z "Tekshirish" tugmasi yo'q — PracticeHost beradi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { seededOrder } from '../QuestionFactory.jsx';
 
 /* ============================== SHARED (Lumo — Bit shahri) ============================== */
 const C = {
@@ -80,7 +79,7 @@ const D04_T = {
   },
 };
 function D08_04Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D04_T[lang] || D04_T.uz;
   const isReview = mode === 'review';
   const [slots, setSlots] = useState([null, null, null, null, null]); // karta id'lari
@@ -128,10 +127,7 @@ function D08_04Impl(props) {
       </Stage>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '10px 0', minHeight: 62, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: C.ink2 }}>{t.tray}</span>
-        {seededOrder(D04_TRAY_ORDER.length, `rome-build-23:${shuffleSeed}`)
-          .map((index) => D04_TRAY_ORDER[index])
-          .filter((id) => !inSlots.has(id))
-          .map((id) => (
+        {D04_TRAY_ORDER.filter((id) => !inSlots.has(id)).map((id) => (
           <button key={id} type="button" className="g3d8-drop" disabled={locked} onClick={() => putCard(id)} style={cardStyle}>{D04_CARDS[id].ch}</button>
         ))}
       </div>

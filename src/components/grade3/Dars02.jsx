@@ -1,8 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback, createContext, useContext, useMemo} from 'react';
 import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
-import { GRADE3_REVIEW_MODE } from './grade3ReviewMode.js';
-import { grade3StorageKey, readGrade3State, writeGrade3State, clearGrade3State } from './grade3Storage.js';
-import { toGrade3SpeechText } from './grade3Speech.js';
 
 // ============================================================================
 // DD 3-SINF | Dars02 — "Sonlarni o'qish va yozish (1000 gacha)" (num-3-02) | B1 | so'z<->raqam
@@ -16,7 +13,7 @@ import { toGrade3SpeechText } from './grade3Speech.js';
 // Misconception: M1 nol tushishi (305->35), M2 konkatenatsiya (410->4010), M3 xona tartibi,
 //   M4 yuzlikni tushirib qoldirish. LessonScene: ma'lumot minorasi.
 //
-// Vaqtinchalik erkin tekshiruv navigatsiyasi markaziy GRADE3_REVIEW_MODE orqali boshqariladi.
+// FREE_NAV=true — faqat ishlab chiqish paytida slaydlarni blokirovkasiz ochish uchun.
 // ============================================================
 
 // ============================================================
@@ -45,6 +42,8 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi. Tekshiruv tugagach reliz uchun false qaytariladi;
 // false bo'lganda "Davom" javob/ovoz tugagach ochiladi.
+const FREE_NAV = false;
+
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
 // ============================================================
@@ -274,7 +273,7 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, toGrade3SpeechText(segment.text, this.currentLang), gender);
+    el.src = buildTtsUrl(base, segment.text, gender);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -299,9 +298,9 @@ class AudioEngine {
     const synth = window.speechSynthesis;
     synth.cancel();
     // тег языка/настроения на экран и в Web Speech не нужен — снимаем
-    const lang = segment.lang || this.currentLang;
-    const clean = toGrade3SpeechText(stripAudioTags(String(segment.text)), lang);
+    const clean = stripAudioTags(String(segment.text));
     const u = new SpeechSynthesisUtterance(clean);
+    const lang = segment.lang || this.currentLang;
     u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
     u.rate = 0.95; u.pitch = 1.0;
     u.onstart = () => {
@@ -509,7 +508,7 @@ function useCanAnswer(audio) {
     return undefined;
   }, [audio.isPlaying, hasPlayed]);
   useEffect(() => { const id = setTimeout(() => setHasPlayed(true), 12000); return () => clearTimeout(id); }, []);
-  return GRADE3_REVIEW_MODE || audio.muted || (hasPlayed && !audio.isPlaying);
+  return FREE_NAV || audio.muted || (hasPlayed && !audio.isPlaying);
 }
 
 // useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
@@ -608,27 +607,42 @@ const AudioIndicator = ({ audioState }) => {
 
 // autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
 // 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
+const autoScrollTo = (el, block = 'nearest') => {
+  if (!el || typeof el.scrollIntoView !== 'function') return;
+  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
+};
+
 // useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
 // FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
-function useRevealScroll() {
+function useRevealScroll(active, delay = 350, block = 'nearest') {
   const ref = useRef(null);
+  useEffect(() => {
+    if (!active) return;
+    let tid;
+    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
+      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
+    }));
+    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
+  }, [active, delay, block]);
   return ref;
 }
 
-const neutralWrongFeedback = (lang) => lang === 'uz'
-  ? "Yana bir bor o'ylab ko'ring."
-  : 'Подумай ещё раз.';
-
 const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
-  const lang = useLang();
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(false);
+  const ref = useRef(null);
 
   useEffect(() => {
     if (show) {
       setMounted(true);
       requestAnimationFrame(() => requestAnimationFrame(() => {
         setVisible(true);
+        setTimeout(() => {
+          if (ref.current) {
+            ref.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+          }
+        }, 350);
       }));
     } else {
       setVisible(false);
@@ -638,10 +652,8 @@ const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
   }, [show]);
   if (!mounted) return null;
   return (
-    <div className={`feedback-block ${visible ? 'visible' : ''}`}>
-      <div className={isCorrect ? 'frame-success' : (wrongClass || 'frame-soft')}>
-        {isCorrect ? children : <p className="body">{neutralWrongFeedback(lang)}</p>}
-      </div>
+    <div ref={ref} className={`feedback-block ${visible ? 'visible' : ''}`}>
+      <div className={isCorrect ? 'frame-success' : (wrongClass || 'frame-soft')}>{children}</div>
     </div>
   );
 };
@@ -709,7 +721,7 @@ const NavBack = ({ onPrev, label = 'Назад' }) => (
 );
 
 const NavNext = ({ disabled, label, onClick }) => {
-  const isDisabled = GRADE3_REVIEW_MODE ? false : disabled;
+  const isDisabled = FREE_NAV ? false : disabled;
   // Faol (bosilishi kerak) bo'lganda — to'q rang + puls (bola e'tiborini tortadi).
   return (
     <button className={isDisabled ? 'btn-white-accent' : 'btn-white-accent btn-ready'} disabled={isDisabled} onClick={onClick}
@@ -732,10 +744,10 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options: optionsProp, correctIdx: correctIdxProp, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2, runSalt = 1 }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options: optionsProp, correctIdx: correctIdxProp, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
   const lang = useLang();
   const sfx = useSfx();
-  const mcOrder = useMemo(() => seededMcOrder(optionsProp.length, runSalt + (idx + 1) * 7919 + optionsProp.length), [idx, optionsProp.length, runSalt]);
+  const mcOrder = useMemo(() => seededMcOrder(optionsProp.length, (idx + 1) * 7919 + optionsProp.length), [idx, optionsProp.length]);
   const shuffledMc = useMemo(() => shuffleMC(screenContent, optionsProp, correctIdxProp, mcOrder), [screenContent, optionsProp, correctIdxProp, mcOrder]);
   const c = shuffledMc.content;
   const options = shuffledMc.options;
@@ -771,7 +783,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
     if (firstTryRef.current === null) {   // фиксируем первую попытку (аналитика)
       firstTryRef.current = isCorrect;
-      firstIdxRef.current = mcOrder[i];
+      firstIdxRef.current = i;
     }
     attemptsRef.current += 1;
     setPicked(i);
@@ -789,11 +801,11 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         stage: screenMeta?.scope ?? null,
         screenIdx: idx,
         question: typeof question === 'string' ? question : null,
-        options: optionsProp.map(o => typeof o === 'string' ? o : null),
-        correctIndex: correctIdxProp,
-        correctAnswer: typeof optionsProp[correctIdxProp] === 'string' ? optionsProp[correctIdxProp] : null,
+        options: options.map(o => typeof o === 'string' ? o : null),
+        correctIndex: correctIdx,
+        correctAnswer: typeof options[correctIdx] === 'string' ? options[correctIdx] : null,
         studentAnswerIndex: firstIdxRef.current,                                   // ПЕРВЫЙ выбор
-        studentAnswer: typeof optionsProp[firstIdxRef.current] === 'string' ? optionsProp[firstIdxRef.current] : null,
+        studentAnswer: typeof options[firstIdxRef.current] === 'string' ? options[firstIdxRef.current] : null,
         correct: firstTryRef.current,                                              // верность ПЕРВОЙ попытки
         firstTry: firstTryRef.current,
         attempts: attemptsRef.current,
@@ -809,8 +821,9 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
       setTimeout(() => {
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
+          const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
           if (isCorrect) { engine.pushOneOff(praiseRef.current); engine.pushOneOff(c.audio.on_correct[lang]); }   // maqtov so'zi + izoh
-          else engine.pushOneOff(neutralWrongFeedback(lang));
+          else engine.pushOneOff(wrongVoice);
           if (isCorrect && c.fact_audio && c.fact_audio[lang]) engine.pushOneOff(c.fact_audio[lang]);  // FactCard ovozlanadi (TTS-toza)
         }
       }, 300);
@@ -943,7 +956,7 @@ const shuffleMC = (c, options, correctIdx, order) => {
     content[`hint_${newI}`] = c[`hint_${oldI}`];
     content[`audio_hint_${newI}`] = c[`audio_hint_${oldI}`];
   });
-  return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content, order };
+  return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
 };
 
 const seededMcOrder = (length, seed) => {
@@ -960,14 +973,8 @@ const seededMcOrder = (length, seed) => {
   return order;
 };
 
-const createLessonRunSalt = () => {
-  if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
-    const value = new Uint32Array(1);
-    globalThis.crypto.getRandomValues(value);
-    return value[0] || 1;
-  }
-  return ((Date.now() ^ Math.floor(Math.random() * 0xFFFFFFFF)) >>> 0) || 1;
-};
+// Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
+const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
 // Ball + EMOTSIONAL baho: quruq "3 / 3" o'rniga bolaga murojaat.
 const scorePraise = (score, total, lang) => {
@@ -2927,10 +2934,10 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const sfx = useSfx();
   const c = CONTENT[ck];
   // Variantlar har mount'da aralashadi (to'g'ri javob doim 1-o'rinda qolmasin).
-  const items = React.useMemo(() => c.items.map((it, itemIdx) => {
-    const order = seededMcOrder(it.opts.length, props.runSalt + (props.screen + 1) * 104729 + itemIdx * 8191);
+  const items = React.useMemo(() => c.items.map((it) => {
+    const order = shuffleArr(it.opts.map((_, i) => i));
     return { ...it, opts: order.map((i) => it.opts[i]), hints: it.hints ? order.map((i) => it.hints[i]) : it.hints, ci: order.indexOf(it.ci) };
-  }), [c, props.runSalt, props.screen]);
+  }), []);
   const audio = useAudio([
     brgSeg(ck, lang),
     { id: `${ck}_intro`, text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -2966,7 +2973,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
       setHintMsg((it.hints && it.hints[i]) || null);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(neutralWrongFeedback(lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(((it.hints && it.hints[i]) || c.audio.on_wrong)[lang]); }
     }
   };
   useEffect(() => {
@@ -3006,7 +3013,7 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
                   </button>
                 ))}
               </div>
-              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{neutralWrongFeedback(lang)}</p>}
+              {hintMsg && <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)', textAlign: 'center' }}>{t(hintMsg)}</p>}
             </div>
           </>
         )}
@@ -3032,13 +3039,14 @@ const Screen0 = (props) => {
   const [picked, setPicked] = useState(null);
   const ok = picked === 1;
   const revealed = picked !== null;
+  const fbKey = (i) => (i === 1 ? 'on_correct' : 'on_wrong');
   const pick = (i) => {
     if (ok || !canAct) return;
     setPicked(i);
     if (!audio.muted) {
       const e = getAudioEngine();
       if (e) {
-        e.pushOneOff(i === 1 ? c.audio.on_correct[lang] : neutralWrongFeedback(lang));
+        e.pushOneOff(c.audio[fbKey(i)][lang]);
       }
     }
   };
@@ -3077,7 +3085,7 @@ const Screen0 = (props) => {
         </div>
         {revealed && (
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
-            <Reaction state="correct" praise={t(c.audio.on_correct)}/>
+            <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
           </FeedbackBlock>
         )}
       </div>
@@ -3708,7 +3716,7 @@ const Screen9 = (props) => {
     setRoundOk(isOk);
     if (!isOk) { firstAllRef.current = false; missRef.current = true; }
     else { if (!missRef.current) firstOkRef.current += 1; missRef.current = false; }
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? c.audio.on_correct[lang] : neutralWrongFeedback(lang)); }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) {
       sfx.playCorrect();
       const lastRound = round === items.length - 1;
@@ -3766,7 +3774,7 @@ const Screen9 = (props) => {
         </div>
         {checked && !done && (
           <div ref={revealRef} className={roundOk ? 'frame-success lm-riseup' : 'frame-tip lm-riseup'}>
-                <Reaction state={roundOk ? 'correct' : 'wrong'} praise={roundOk ? c.audio.on_correct[lang] : neutralWrongFeedback(lang)}/>
+            <Reaction state={roundOk ? 'correct' : 'wrong'} praise={(roundOk ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
             {!roundOk && <p style={{ margin: '8px 0 0', color: T.ink2, textAlign: 'center', fontSize: 'clamp(13px, 1.7vw, 15px)' }}>
               {lang === 'ru' ? 'Проверь красный разряд и набери число ещё раз.' : 'Qizil bilan belgilangan xonani tekshirib, sonni qayta tering.'}
             </p>}
@@ -3858,7 +3866,7 @@ const Screen11 = (props) => {
       setRoundMissed(true);
       firstAllRef.current = false;
       sfx.playWrong();
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(neutralWrongFeedback(lang)); }
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_wrong[lang]); }
     }
   };
   useEffect(() => {
@@ -3920,7 +3928,7 @@ const Screen11 = (props) => {
                   {lang === 'uz' ? 'Belgilarni tekshir' : 'Проверить знаки'}
                 </button>
               )}
-              {roundState === 'wrong' && <p className="fade-up d2-verify-hint">{neutralWrongFeedback(lang)}</p>}
+              {roundState === 'wrong' && <p className="fade-up d2-verify-hint">{t(it.hint)}</p>}
             </div>
           </>
         )}
@@ -3957,7 +3965,7 @@ const Screen12 = (props) => {
     setChecked(true);
     const isOk = correct;
     if (firstRef.current === null) firstRef.current = isOk;
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? c.audio.on_correct[lang] : neutralWrongFeedback(lang)); }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) { setSolved(true); sfx.playCorrect(); }
     props.onAnswer({
       stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: t(c.q),
@@ -4004,7 +4012,7 @@ const Screen12 = (props) => {
         </div>
         {checked && (
           <div ref={revealRef} className={correct ? 'frame-success lm-riseup' : 'frame-tip lm-riseup'}>
-              <Reaction state={correct ? 'correct' : 'wrong'} praise={correct ? c.audio.on_correct[lang] : neutralWrongFeedback(lang)}/>
+            <Reaction state={correct ? 'correct' : 'wrong'} praise={(correct ? c.audio.on_correct : c.audio.on_wrong)[lang]}/>
           </div>
         )}
       </div>
@@ -4018,7 +4026,7 @@ const Screen13 = (props) => {
   const t = useT();
   const c = CONTENT.s13;
   const items = c.items;
-  const orders = React.useMemo(() => items.map((it, itemIdx) => it.kind === 'num' ? null : seededMcOrder(3, props.runSalt + (props.screen + 1) * 104729 + itemIdx * 8191)), [items, props.runSalt, props.screen]);
+  const orders = React.useMemo(() => items.map((it) => it.kind === 'num' ? null : shuffleArr([0, 1, 2])), []);
   const audio = useAudio([
     brgSeg('s13', lang),
     { id: 's13_intro', text: c.audio.intro[lang], trigger: 'after_previous', waits_for: null }
@@ -4041,7 +4049,7 @@ const Screen13 = (props) => {
     const isOk = orders[idx][i] === 0;
     if (isOk && !currentMissed) setScore((s) => s + 1);
     if (!isOk && !currentMissed && it.topic) missRef.current.push(t(it.topic));
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? c.audio.on_correct[lang] : neutralWrongFeedback(lang)); }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) {
       setTimeout(() => {
         setPicked(null);
@@ -4059,7 +4067,7 @@ const Screen13 = (props) => {
     const isOk = parseInt(val, 10) === it.ans;
     if (isOk && !currentMissed) setScore((s) => s + 1);
     if (!isOk && !currentMissed && it.topic) missRef.current.push(t(it.topic));
-    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(isOk ? c.audio.on_correct[lang] : neutralWrongFeedback(lang)); }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     if (isOk) {
       setTimeout(() => {
         setVal('');
@@ -4137,7 +4145,7 @@ const Screen13 = (props) => {
                   ))}
                 </div>
                 {picked !== null && orders[idx][picked] !== 0 && (
-                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{neutralWrongFeedback(lang)}</p>
+                  <p className="fade-up" style={{ margin: 0, color: T.ink2, fontSize: 'clamp(13px, 1.7vw, 15px)' }}>{t(it[`wrong_${orders[idx][picked]}`] || it.wrong_1)}</p>
                 )}
               </>
             )}
@@ -4398,19 +4406,6 @@ const TwoWayScreen = (props) => {
   );
 };
 
-const LESSON_PROGRESS_KEY = grade3StorageKey('theory', LESSON_META.lessonId);
-const readSavedLessonProgress = () => {
-  const saved = readGrade3State(LESSON_PROGRESS_KEY, { current: 0, answers: [] });
-  const current = Number.isInteger(saved?.current)
-    ? Math.min(Math.max(saved.current, 0), TOTAL_SCREENS - 1)
-    : 0;
-  const answers = Array.isArray(saved?.answers) ? saved.answers.slice(0, TOTAL_SCREENS) : [];
-  const runSalt = Number.isInteger(saved?.runSalt) && saved.runSalt > 0
-    ? saved.runSalt
-    : createLessonRunSalt();
-  return { current, answers, runSalt };
-};
-
 export default function ReadWriteLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
@@ -4426,23 +4421,17 @@ export default function ReadWriteLesson({
     console.log('[Preview] onFinished payload:', payload);
   });
 
-  const [initialProgress] = useState(readSavedLessonProgress);
-  const [current, setCurrent] = useState(initialProgress.current);
-  const [answers, setAnswers] = useState(initialProgress.answers);
-  const [runSalt, setRunSalt] = useState(initialProgress.runSalt);
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState([]);
   const [heroMood, setHeroMood] = useState('pointing');   // personaj holati (butun urok bo'ylab bitta overlay)
   const heroCtx = React.useMemo(() => ({ setMood: setHeroMood }), []);
   const startTimeRef = useRef(Date.now());
-
-  useEffect(() => {
-    writeGrade3State(LESSON_PROGRESS_KEY, { current, answers, runSalt });
-  }, [current, answers, runSalt]);
 
   const recordAnswer = useCallback((screenIdx, data) => {
     setAnswers(prev => { const next = [...prev]; next[screenIdx] = data; return next; });
   }, []);
 
-  const reset = useCallback(() => { clearGrade3State(LESSON_PROGRESS_KEY); setRunSalt(createLessonRunSalt()); setAnswers([]); setCurrent(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
+  const reset = useCallback(() => { setAnswers([]); setCurrent(0); setHeroMood('pointing'); startTimeRef.current = Date.now(); }, []);
 
   const finishLesson = useCallback(() => {
   const scored = SCREEN_META.filter(s => s.scored);
@@ -4503,7 +4492,7 @@ export default function ReadWriteLesson({
             ))}
           </div>
         )}
-        <CurrentScreen key={`${runSalt}-${current}`} runSalt={runSalt} screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
+        <CurrentScreen screen={current} studentName={safeName} storedAnswer={answers[current]} answers={answers} onAnswer={handleAnswer} onNext={next} onPrev={prev} onReset={reset} finishLesson={finishLesson}/>
       </div>
       </HeroContext.Provider>
       </ProgressContext.Provider>
@@ -4565,8 +4554,8 @@ html, body { margin: 0; padding: 0; }
 .delay-1 { animation-delay: 0.12s; } .delay-2 { animation-delay: 0.24s; }
 .delay-3 { animation-delay: 0.36s; } .delay-4 { animation-delay: 0.48s; }
 
-.feedback-block { display: none; opacity: 0; margin-top: 0; }
-.feedback-block.visible { display: block; opacity: 1; margin-top: clamp(14px, 2vw, 20px); animation: fade-in-up 0.3s ease-out; }
+.feedback-block { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease-out, opacity 0.3s ease-out 0.1s, margin-top 0.4s ease-out; margin-top: 0; }
+.feedback-block.visible { max-height: 800px; opacity: 1; margin-top: clamp(14px, 2vw, 20px); }
 
 /* === КНОПКИ v15 (тени вместо рамок) === */
 .btn {
@@ -4708,7 +4697,6 @@ html, body { margin: 0; padding: 0; }
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  min-height: 0;
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -4734,65 +4722,6 @@ html, body { margin: 0; padding: 0; }
   padding-bottom: clamp(11px, 2vw, 11px);
   display: flex;
   gap: 12px;
-}
-@media (max-width: 639.98px), (max-height: 820px) {
-  .stage-header { padding-top: 5px !important; padding-bottom: 3px !important; }
-  .progress-track { height: 4px !important; margin-bottom: 5px !important; }
-  .stage-content { overflow: hidden !important; padding-top: 3px !important; padding-bottom: 3px !important; }
-  .stage-content > div { max-height: 100%; min-height: 0; gap: 8px !important; }
-  .stage-nav { padding-top: 4px !important; padding-bottom: 4px !important; gap: 8px; }
-  .stage-nav button { min-height: 40px !important; padding-top: 7px !important; padding-bottom: 7px !important; }
-  .stage-content .h-title { font-size: clamp(18px, 5vw, 22px) !important; }
-  .stage-content .h-sub { font-size: clamp(17px, 4.6vw, 20px) !important; }
-  .stage-content .body { font-size: 13px !important; line-height: 1.28 !important; }
-  .stage-content .frame,
-  .stage-content .frame-soft,
-  .stage-content .frame-tip,
-  .stage-content .frame-success { padding: 8px !important; }
-  .stage-content .option { min-height: 40px !important; padding: 7px 10px !important; }
-  .feedback-block.visible { margin-top: 6px !important; }
-  .g1-stage-hero { display: none; }
-  .lm-scene { height: 160px !important; min-height: 160px !important; aspect-ratio: auto !important; }
-  .d2-question-coach { display: none !important; }
-  .d2-type-work { gap: 5px !important; }
-  .d2-type-prompt { min-height: 0 !important; padding: 5px 8px !important; gap: 2px !important; }
-  .d2-type-prompt .lm-report { padding: 4px 8px !important; gap: 2px !important; }
-  .d2-type-prompt .g1-cast-fig { display: none !important; }
-  .d2-transfer-slots { padding: 3px 5px !important; }
-  .d2-slot-unit > span,
-  .d2-transfer-slots.is-compact .d2-slot-unit > span {
-    width: 30px !important;
-    height: 28px !important;
-    font-size: 18px !important;
-  }
-  .d2-type-device { gap: 1px !important; }
-  .d2-numpad {
-    width: min(196px, 100%) !important;
-    padding: 5px !important;
-    gap: 3px !important;
-    border-radius: 18px !important;
-  }
-  .d2-numpad-speaker { display: none !important; }
-  .d2-numpad-display {
-    height: 34px !important;
-    min-height: 34px !important;
-    min-width: 150px !important;
-    font-size: 22px !important;
-  }
-  .d2-numpad-grid { gap: 3px !important; }
-  .d2-numpad-key,
-  .d2-numpad-spacer {
-    width: 42px !important;
-    height: 30px !important;
-    min-width: 42px !important;
-    min-height: 30px !important;
-    padding: 0 !important;
-    font-size: 18px !important;
-  }
-  .d2-type-device > .btn-white-accent {
-    min-height: 30px !important;
-    padding: 3px 16px !important;
-  }
 }
 
 .chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
@@ -7175,7 +7104,7 @@ button.d2-trainer-card:disabled { cursor: default; }
 .lm-tw-bonus-txt { margin: 0; text-align: center; color: #3A3530; font-weight: 600; font-size: clamp(13px,1.8vw,15px); line-height: 1.4; }
 /* Bonus chiqqanda usul-detallari SEKIN yuqoriga yig'iladi (yorliq + yashil pilyula qoladi). */
 .tw-collapse { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-height: 340px; opacity: 1; overflow: hidden; transition: max-height 1.1s ease, opacity 0.9s ease; }
-.tw-collapsed { max-height: none; opacity: 1; overflow: visible; }
+.tw-collapsed { max-height: 0; opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .tw-collapse { transition: none; } }
 /* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
 @keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }

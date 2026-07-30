@@ -92,14 +92,9 @@ const D06_T = {
     rule: 'Пустой разряд не участвует в разложении: 903 = 900 + 3.',
   },
 };
-const D06_ORDER = (shuffleSeed) => {
-  const base = permFromSeed(3, String(D06_TAG));
-  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
-  const offset = ((attempt % base.length) + base.length) % base.length;
-  return base.slice(offset).concat(base.slice(0, offset));
-};
+const D06_ORDER = permFromSeed(3, D06_TAG);
 function D03_06Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D06_T[lang] || D06_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -120,7 +115,7 @@ function D03_06Impl(props) {
       <Stage><Neon text="903" /></Stage>
       <p style={S.ask}>{t.ask}</p>
       <div>
-        {D06_ORDER(shuffleSeed).map((i) => (
+        {D06_ORDER.map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D06_CORRECT, checked, isReview)} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

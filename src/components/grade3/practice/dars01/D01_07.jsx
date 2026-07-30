@@ -88,14 +88,9 @@ const D07_T = {
     rule: 'Одна и та же цифра на разных местах даёт разное значение: 854 = 800 + 50 + 4.',
   },
 };
-const D07_ORDER = (shuffleSeed) => {
-  const base = permFromSeed(3, String(D07_TAG));
-  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
-  const offset = ((attempt % base.length) + base.length) % base.length;
-  return base.slice(offset).concat(base.slice(0, offset));
-};
+const D07_ORDER = permFromSeed(3, D07_TAG);
 function D01_07Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D07_T[lang] || D07_T.uz;
   const isReview = mode === 'review';
   const [picked, setPicked] = useState(null);
@@ -128,7 +123,7 @@ function D01_07Impl(props) {
       </Stage>
       <p style={S.ask}>{t.ask}</p>
       <div>
-        {D07_ORDER(shuffleSeed).map((i) => (
+        {D07_ORDER.map((i) => (
           <button key={i} type="button" style={optStyle(picked, i, D07_CORRECT, checked, isReview, { fs: 17 })} disabled={isReview || checked} onClick={() => setPicked(i)}>{t.opts[i]}</button>
         ))}
       </div>

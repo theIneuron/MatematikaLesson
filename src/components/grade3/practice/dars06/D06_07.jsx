@@ -99,14 +99,9 @@ const D07_T = {
     rule: 'Место на прямой подсказывает число: ближе к левому краю — меньше, к правому — больше.',
   },
 };
-const D07_RIGHT_ORDER = (shuffleSeed) => {
-  const base = permFromSeed(3, String(D07_TAG));
-  const attempt = Number(String(shuffleSeed).split(':').pop()) || 0;
-  const offset = ((attempt % base.length) + base.length) % base.length;
-  return base.slice(offset).concat(base.slice(0, offset));
-};
+const D07_RIGHT_ORDER = permFromSeed(3, D07_TAG);
 function D06_07Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D07_T[lang] || D07_T.uz;
   const isReview = mode === 'review';
   const [map, setMap] = useState({});   // { leftIdx(son): rightIdx(harf) }
@@ -160,7 +155,7 @@ function D06_07Impl(props) {
         ))}
       </div>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-        {D07_RIGHT_ORDER(shuffleSeed).map((ri) => (
+        {D07_RIGHT_ORDER.map((ri) => (
           <button key={ri} type="button" style={letterStyle(ri)} disabled={locked} onClick={() => pickRight(ri)}>{D07_LETTERS[ri]}</button>
         ))}
       </div>

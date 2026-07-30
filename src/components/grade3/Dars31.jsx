@@ -95,10 +95,9 @@ export const SCREENS = [
     ["Sonlar chapdan o'ngga, birinchi farqli razryadgacha taqqoslanadi.", "Числа сравнивают слева направо до первого различающегося разряда."]),
 ];
 
-export default function Dars31(runtimeProps) {
+export default function Dars31() {
   return (
     <Grade3LessonShell
-      {...runtimeProps}
       screens={SCREENS}
       titleUz="31-dars. O'nli kasrlarni o'qish, yozish va taqqoslash"
       titleRu="Урок 31. Чтение, запись и сравнение десятичных дробей"

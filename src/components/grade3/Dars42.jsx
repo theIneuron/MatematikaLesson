@@ -1,2 +1,2 @@
 import { FinalBlockLesson } from './Grade3FinalBlock.jsx';
-export default function Dars42(runtimeProps) { return <FinalBlockLesson {...runtimeProps} number={42} />; }
+export default function Dars42() { return <FinalBlockLesson number={42} />; }

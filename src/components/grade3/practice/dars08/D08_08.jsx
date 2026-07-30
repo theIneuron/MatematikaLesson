@@ -4,7 +4,6 @@
 // Tuzoq: XI deb terish (11 bo'lib qoladi) yoki V ni ishlatish (VIIII mumkin emas).
 // jsx-question kontrakti: onReady / registerCheck / onSubmit. O'z "Tekshirish" tugmasi yo'q — PracticeHost beradi.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { seededOrder } from '../QuestionFactory.jsx';
 
 /* ============================== SHARED (Lumo — Bit shahri) ============================== */
 const C = {
@@ -77,7 +76,7 @@ const D08_T = {
   },
 };
 function D08_08Impl(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, shuffleSeed = 0, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = D08_T[lang] || D08_T.uz;
   const isReview = mode === 'review';
   const [slots, setSlots] = useState([null, null]);
@@ -94,9 +93,7 @@ function D08_08Impl(props) {
   }, [made, slots, t, playCorrect, playWrong, onSubmit]);
   useReg(check, registerCheck);
   const locked = isReview || checked;
-  const inTray = seededOrder(D08_DIGITS.length, `rome-build-9:${shuffleSeed}`)
-    .map((index) => D08_DIGITS[index])
-    .filter((d) => !slots.includes(d));
+  const inTray = D08_DIGITS.filter((d) => !slots.includes(d));
   const putCard = (d) => { if (locked) return; setSlots((sl) => { const i = sl.indexOf(null); if (i === -1) return sl; const n = [...sl]; n[i] = d; return n; }); };
   const popSlot = (i) => { if (locked) return; setSlots((sl) => { const n = [...sl]; n[i] = null; return n; }); };
   const cardStyle = { width: 58, height: 58, borderRadius: 13, border: '2px solid ' + C.line, background: C.paper, color: C.ink, ...S.mono, fontSize: 26, fontWeight: 800, cursor: locked ? 'default' : 'pointer' };
