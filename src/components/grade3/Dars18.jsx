@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
+import React, {useState, useEffect, useRef, useCallback, createContext, useContext, useMemo} from 'react';
 import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
 import { grade3AudioLabels } from './grade3MethodUtils.js';
 
@@ -47,7 +47,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = true;   // TEKSHIRUV: blokirovka O'CHIQ (erkin navigatsiya). RELIZ oldidan false ga qaytaring!
+const FREE_NAV = false;   // TEKSHIRUV: blokirovka O'CHIQ (erkin navigatsiya). RELIZ oldidan false ga qaytaring!
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -745,10 +745,14 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options: optionsProp, correctIdx: correctIdxProp, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
   const lang = useLang();
-  const c = screenContent;
   const sfx = useSfx();
+  const mcOrder = useMemo(() => seededMcOrder(optionsProp.length, (idx + 1) * 7919 + optionsProp.length), [idx, optionsProp.length]);
+  const shuffledMc = useMemo(() => shuffleMC(screenContent, optionsProp, correctIdxProp, mcOrder), [screenContent, optionsProp, correctIdxProp, mcOrder]);
+  const c = shuffledMc.content;
+  const options = shuffledMc.options;
+  const correctIdx = shuffledMc.correctIdx;
 
   const audio = useAudio([{
     id: `s${idx}_intro`,
@@ -920,8 +924,26 @@ const SCREEN_META = [
 // to'g'ri javob indeksi tashlab ketiladi). order[newIdx] = oldIdx. (grade5 etalon helper.)
 const shuffleMC = (c, options, correctIdx, order) => {
   const content = { ...c };
-  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
+  order.forEach((oldI, newI) => {
+    content[`wrong_${newI}`] = c[`wrong_${oldI}`];
+    content[`hint_${newI}`] = c[`hint_${oldI}`];
+    content[`audio_hint_${newI}`] = c[`audio_hint_${oldI}`];
+  });
   return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
+};
+
+const seededMcOrder = (length, seed) => {
+  const order = Array.from({ length }, (_, i) => i);
+  let state = Math.abs(Number(seed) || 1) >>> 0;
+  if (state === 0) state = 1;
+  for (let i = length - 1; i > 0; i -= 1) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    const j = state % (i + 1);
+    const tmp = order[i];
+    order[i] = order[j];
+    order[j] = tmp;
+  }
+  return order;
 };
 
 // Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).

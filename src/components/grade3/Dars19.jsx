@@ -3,6 +3,7 @@ import { Grade3CityEtalonScene } from './Dars01.jsx';
 import { Grade3TowerEtalonScene } from './Dars02.jsx';
 import { Grade3GardenEtalonScene } from './Dars09.jsx';
 import { Grade3WorkshopEtalonScene } from './Dars18.jsx';
+import { seededIndexOrder } from './grade3MethodUtils.js';
 
 const T = (uz, ru) => ({ uz, ru });
 
@@ -412,10 +413,19 @@ export function Grade3LessonShell({
   const [results, setResults] = useState({});
   const cardRef = useRef(null);
   const screen = screens[index];
-  const correct = picked === screen.correct;
-  const done = picked !== null;
   const lessonNumber = Number(titleUz.match(/\d+/)?.[0] || 19);
   const resolvedLessonId = lessonId || `num-3-${String(lessonNumber).padStart(2, '0')}`;
+  const optionOrder = useMemo(
+    () => seededIndexOrder(screen.options.length, `${resolvedLessonId}:${index}:${screen.options.length}`),
+    [resolvedLessonId, index, screen.options.length],
+  );
+  const displayOptions = useMemo(
+    () => optionOrder.map((originalIndex) => screen.options[originalIndex]),
+    [optionOrder, screen.options],
+  );
+  const displayCorrect = optionOrder.indexOf(screen.correct);
+  const correct = picked === displayCorrect;
+  const done = picked !== null;
   const lessonFact = fact || (lessonNumber >= 33
     ? T(
       "Kristallar tartibli tuzilishda o'sadi. Qor uchqunlaridagi simmetriya ham shu tabiiy tartibning ko'rinishidir.",
@@ -451,15 +461,30 @@ export function Grade3LessonShell({
   );
 
   useEffect(() => {
+    const alreadySolved = results[index]?.correct === true;
+    setPicked(alreadySolved ? displayCorrect : null);
+    // Restore only when the screen changes; answering on the same screen must keep the picked option.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: results read on index change only
+  }, [index, displayCorrect]);
+
+  useEffect(() => {
     if (muted || !('speechSynthesis' in window)) {
       queueMicrotask(() => setAudioReady(true));
       return undefined;
     }
     window.speechSynthesis.cancel();
+    setAudioReady(false);
     const utterance = new SpeechSynthesisUtterance(spoken);
     utterance.lang = lang === 'uz' ? 'uz-UZ' : 'ru-RU';
-    const finishAudio = () => setAudioReady(true);
-    const fallbackTimer = window.setTimeout(finishAudio, 18000);
+    let finished = false;
+    const finishAudio = () => {
+      if (finished) return;
+      finished = true;
+      setAudioReady(true);
+    };
+    // Longer text needs more time; never unlock answers before ~speech end estimate.
+    const fallbackMs = Math.min(90000, Math.max(12000, spoken.length * 55));
+    const fallbackTimer = window.setTimeout(finishAudio, fallbackMs);
     utterance.onend = finishAudio;
     utterance.onerror = finishAudio;
     window.speechSynthesis.speak(utterance);
@@ -475,15 +500,20 @@ export function Grade3LessonShell({
 
   const selectAnswer = (optionIndex) => {
     if (!audioReady || correct) return;
-    const isCorrect = optionIndex === screen.correct;
+    const isCorrect = optionIndex === displayCorrect;
     setPicked(optionIndex);
     setResults((current) => {
       const previousResult = current[index] || { attempts: 0, correct: false };
+      // Do not inflate attempts when revisiting an already-solved screen.
+      if (previousResult.correct) {
+        return current;
+      }
       const updated = {
         ...current,
         [index]: {
           attempts: previousResult.attempts + 1,
-          correct: previousResult.correct || isCorrect,
+          correct: isCorrect,
+          picked: optionIndex,
         },
       };
       if (isCorrect && index === screens.length - 1) {
@@ -504,19 +534,21 @@ export function Grade3LessonShell({
     });
   };
 
+  const goToScreen = (nextIndex) => {
+    setAudioReady(false);
+    setIndex(nextIndex);
+  };
+
   const next = () => {
     if (!correct) return;
     if (index < screens.length - 1) {
-      setPicked(null);
-      setAudioReady(false);
-      setIndex((value) => value + 1);
+      goToScreen(index + 1);
     }
   };
 
   const previous = () => {
-    setPicked(null);
-    setAudioReady(false);
-    setIndex((value) => Math.max(0, value - 1));
+    if (index === 0) return;
+    goToScreen(index - 1);
   };
 
   const changeLanguage = () => {
@@ -577,7 +609,7 @@ export function Grade3LessonShell({
             </div>
           )}
           <div className="options">
-            {screen.options.map((option, optionIndex) => (
+            {displayOptions.map((option, optionIndex) => (
               <button
                 type="button"
                 key={optionIndex}
@@ -592,7 +624,7 @@ export function Grade3LessonShell({
           {done && (
             <div className={`feedback ${correct ? 'ok' : 'retry'}`} role="status" aria-live="polite">
               {correct
-                ? `${lang === 'uz' ? "To'g'ri" : 'Верно'}: ${local(screen.options[screen.correct], lang)}. ${local(screen.success || screen.hint, lang)}`
+                ? `${lang === 'uz' ? "To'g'ri" : 'Верно'}: ${local(displayOptions[displayCorrect], lang)}. ${local(screen.success || screen.hint, lang)}`
                 : local(screen.hint, lang)}
             </div>
           )}

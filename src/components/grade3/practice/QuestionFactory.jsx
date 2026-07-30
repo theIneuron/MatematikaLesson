@@ -704,15 +704,38 @@ function optionStyle({ active, status, correct, wrong }) {
   return STYLE.option;
 }
 
-function Choice({ spec, text, answer, setAnswer, locked, status }) {
+function seededOrder(length, seedText) {
+  const order = Array.from({ length }, (_, i) => i);
+  let state = 2166136261;
+  const source = String(seedText || 'g3');
+  for (let i = 0; i < source.length; i += 1) {
+    state ^= source.charCodeAt(i);
+    state = Math.imul(state, 16777619);
+  }
+  if (state === 0) state = 1;
+  for (let i = length - 1; i > 0; i -= 1) {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    const j = state % (i + 1);
+    const tmp = order[i];
+    order[i] = order[j];
+    order[j] = tmp;
+  }
+  return order;
+}
+
+function Choice({ spec, text, answer, setAnswer, locked, status, optionOrder }) {
+  const order = optionOrder || text.options.map((_, i) => i);
   return (
     <div className="g3-answer-zone g3-question-work-item" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 9 }}>
-      {text.options.map((option, i) => (
-        <button key={`${option}-${i}`} type="button" disabled={locked} onClick={() => setAnswer(i)}
-          style={optionStyle({ active: answer === i, status, correct: i === spec.correct, wrong: answer === i && i !== spec.correct })}>
-          {option}
-        </button>
-      ))}
+      {order.map((originalIndex, displayIndex) => {
+        const option = text.options[originalIndex];
+        return (
+          <button key={`${option}-${displayIndex}`} type="button" disabled={locked} onClick={() => setAnswer(originalIndex)}
+            style={optionStyle({ active: answer === originalIndex, status, correct: originalIndex === spec.correct, wrong: answer === originalIndex && originalIndex !== spec.correct })}>
+            {option}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -806,6 +829,10 @@ export function createPracticeQuestion(spec) {
     const locked = result === true || mode === 'review';
     const copy = ACTION_COPY[lang] || ACTION_COPY.uz;
     const answerKey = JSON.stringify(answer);
+    const choiceOrder = useMemo(() => {
+      if (spec.type !== 'choice' || !text.options?.length) return null;
+      return seededOrder(text.options.length, `${spec.tag || 'q'}:${text.options.join('|')}`);
+    }, [spec.tag, spec.type, text.options]);
     const ready = useMemo(
       () => hasAnswer(spec, answer) && !locked && answerKey !== lastWrongAnswer,
       [answer, answerKey, lastWrongAnswer, locked],
@@ -874,7 +901,7 @@ export function createPracticeQuestion(spec) {
                 <span>{actionCopy(spec, lang)}</span>
               </div>
             </div>
-            {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
+            {spec.type === 'choice' && <Choice spec={spec} text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} optionOrder={choiceOrder} />}
             {spec.type === 'multi' && <Multi text={text} answer={answer} setAnswer={updateAnswer} locked={locked} correct={spec.correct} status={status} />}
             {spec.type === 'order' && <Order text={text} answer={answer} setAnswer={updateAnswer} locked={locked} status={status} />}
             {result !== null && <Feedback correct={result}>{result ? text.correct : text.wrong}</Feedback>}
