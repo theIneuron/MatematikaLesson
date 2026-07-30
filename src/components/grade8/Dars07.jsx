@@ -2431,10 +2431,10 @@ function WorkGraph({ phase, pushOneOff }) {
   const positivePoints = [[2, 12], [4, 6], [8, 3]]
   const allPoints = [...positivePoints, [-2, -12], [-4, -6], [-8, -3]]
   const revealCount = phase >= 2 ? allPoints.length : positivePoints.length
-  const showPointLab = typeof window !== 'undefined'
-    && new URLSearchParams(window.location.search).get('pointLab') === '1'
+  const showAutomaticOverview = typeof window !== 'undefined'
+    && new URLSearchParams(window.location.search).get('autoGraph') === '1'
 
-  if (showPointLab) {
+  if (!showAutomaticOverview) {
     return <PointPlotLab phase={phase} pushOneOff={pushOneOff} />
   }
 
