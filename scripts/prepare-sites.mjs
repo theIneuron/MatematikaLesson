@@ -16,7 +16,7 @@ await writeFile(
     }
 
     const url = new URL(request.url)
-    url.pathname = '/'
+    url.pathname = '/index.html'
     return env.ASSETS.fetch(new Request(url, request))
   },
 }
