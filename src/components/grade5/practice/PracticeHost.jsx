@@ -54,7 +54,7 @@ const UI = {
   ru: { check: 'Проверить', retry: 'Заново', correct: 'Верно', wrong: 'Подсказка' },
 };
 
-export default function PracticeHost({ Question, lang: langProp = 'uz', onLangChange, title, showLanguageSwitch = true }) {
+export default function PracticeHost({ Question, lang: langProp = 'uz', onLangChange, onReset, title, showLanguageSwitch = true }) {
   const [lang, setLang] = useState(langProp);
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState(null);
@@ -76,7 +76,8 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
   const reset = useCallback(() => {
     setResult(null); setReady(false); checkFnRef.current = null;
     setQKey((k) => k + 1);
-  }, []);
+    onReset?.();
+  }, [onReset]);
 
   // Faqat til haqiqatan o'zgarganda savolni qayta yuklaymiz. Dastlabki mountda
   // reset qilish tez tanlangan javobdan keyin `ready` holatini bekor qilar edi.
