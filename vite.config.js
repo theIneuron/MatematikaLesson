@@ -5,10 +5,6 @@ import { fileURLToPath } from 'node:url'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  build: {
-    // Sites binds static files from the vinext-compatible client directory.
-    outDir: 'dist/client',
-  },
   resolve: {
     alias: {
       // @lesson/runtime — lokal preview shim (Web Speech TTS / bip SFX / mock grader).
