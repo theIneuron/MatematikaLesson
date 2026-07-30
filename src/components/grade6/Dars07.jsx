@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import './Grade6TheoryTheme.css';
 import { SLIDES } from './Dars07Content.jsx';
 import {
   T,
@@ -11,7 +12,6 @@ import {
   Stage,
   NavBack,
   NavNext,
-  NextLabel,
   BackLabel,
   QuestionScreen,
   RevealScreen,
@@ -21,6 +21,7 @@ import {
   WhyCard,
   FactCard,
   Floaters,
+  useIntroStages,
   Frac,
   mt,
   STYLES,
@@ -185,6 +186,7 @@ function D7TitleScreen({ screen, totalScreens, onAnswer, onNext }) {
     audio.currentSegment === 'd7_s0_example' ||
     audio.lastCompletedSegment === 'd7_s0_topic' ||
     audio.lastCompletedSegment === 'd7_s0_example';
+  const introStages = useIntroStages({ start: formulaVisible, optionsReady: introDone });
 
   const pick = (value) => {
     if (pickedRef.current) return;
@@ -197,15 +199,18 @@ function D7TitleScreen({ screen, totalScreens, onAnswer, onNext }) {
 
   return (
     <Stage eyebrow={slide.eyebrow} screen={screen} totalScreens={totalScreens} audioState={audio}>
-      <div className="ttl-wrap">
+      <div className={`ttl-wrap${introStages.compact ? ' ttl-example-focus' : ''}`}>
         <Floaters/>
         <FractionDrift/>
         <p className="eyebrow ttl-kicker">{lang === 'uz' ? 'YANGI MAVZU' : 'НОВАЯ ТЕМА'}</p>
-        <h1 className="display ttl-h1">{t(slide.title)}</h1>
+        <h1 className="display ttl-h1">
+          {lang === 'uz' ? "Nega 1/2 va 2/4 bir xil miqdorni ko'rsatadi?" : 'Почему 1/2 и 2/4 обозначают одно и то же количество?'}
+        </h1>
         <span className="ttl-rule" aria-hidden="true"/>
         <p className="body ttl-sub">{t(slide.subtitle)}</p>
-        {formulaVisible && (
-          <div className="ttl-hero" style={{ animationDelay: '0.12s' }}>
+        {introStages.showExample && (
+          <>
+          <div className="ttl-hero ttl-stage-reveal">
             <div className="d7-title-equation"><Frac n="1" d="2" size="mid"/><span>=</span><Frac n="2" d="4" size="mid"/></div>
             {introDone && (
               <div className="ttl-tease">
@@ -214,13 +219,12 @@ function D7TitleScreen({ screen, totalScreens, onAnswer, onNext }) {
               </div>
             )}
           </div>
-        )}
-        {introDone && (
-          <>
-            <p className="small ttl-prompt" style={{ animationDelay: '0.38s' }}>
+            <div className="ttl-prompt-slot">
+            <p className={`small ttl-prompt${introStages.showPrompt ? ' is-visible' : ''}`}>
               {lang === 'uz' ? 'Boshlashga tayyormisiz?' : 'Готовы начать?'}
             </p>
-            <div className="ttl-opts" style={{ animationDelay: '0.62s' }}>
+            </div>
+            <div className={`ttl-opts${introStages.showOptions ? ' is-visible' : ''}`}>
               <button className="option ttl-opt" disabled={picked !== null} onClick={() => pick('go')}>
                 {lang === 'uz' ? 'Ha, boshlaymiz' : 'Да, начнём'}
               </button>
@@ -252,20 +256,15 @@ function D7RevealScreen({ screen, slideIndex = screen, ...props }) {
       screenContent={content}
       totalScreens={TOTAL_SCREENS}
       renderStep={({ t, lang, step, refs }) => (
-        <div className="rv-col">
-          <h2 className="title h-title fade-up">{t(slide.title)}</h2>
+        <div className="rv-col g6-explanation-flow">
+          <h2 className="title h-title g6-explanation-question fade-up">{t(slide.title)}</h2>
           <div className="frame fade-up delay-1 d7-figure-frame">
             <LessonVisual kind={slide.visual} lang={lang}/>
           </div>
           {slide.steps.slice(0, step + 1).map((line, index) => (
-            <div
-              ref={refs[index]}
-              className={`rv-block ${index % 2 ? 'rv-block-b' : 'rv-block-a'} fade-up`}
-              key={index}
-            >
-              <p className={`rv-lbl ${index % 2 ? 'rv-lbl-b' : 'rv-lbl-a'}`}>
-                <span className="d7-step-number">{index + 1}</span>{mt(t(line))}
-              </p>
+            <div ref={refs[index]} className="frame-tip g6-explanation-step fade-up" key={index}>
+              <span className="g6-explanation-lamp" aria-hidden="true">💡</span>
+              <p className="body g6-explanation-text">{mt(t(line))}</p>
             </div>
           ))}
         </div>
@@ -438,11 +437,14 @@ function D7SummaryScreen({ screen, totalScreens, answers, onPrev, finishLesson }
   );
   return (
     <Stage eyebrow={slide.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.2vw, 18px)' }}>
+      <div className="g6-final-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.2vw, 18px)' }}>
         <div className="sm-head fade-up">
           <h2 className="title h-sub">{t(slide.title)}</h2>
-          <span className="sm-score mono">{score}/{SCORED_SCREENS.length}</span>
         </div>
+        <p className="small fade-up sm-result" style={{ margin: 0, color: T.ink3 }}>
+          <span>{lang === 'uz' ? "Topshiriqlar bo'yicha natijangiz:" : 'Ваш результат по заданиям:'}</span>
+          <strong className="sm-score mono">{score}/{SCORED_SCREENS.length}</strong>
+        </p>
         <div className="frame sm-main fade-up delay-1">
           <p className="small mono" style={{ color: T.accent, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
             {lang === 'uz' ? 'Asosiysi' : 'Главное'}
@@ -486,11 +488,15 @@ const SCREEN_SEQUENCE = [
 const D7_STYLES = `
 .d7-lesson .frac,
 .d7-lesson .frac .n,
-.d7-lesson .frac .d,
+.d7-lesson .frac .d {
+  font-family: inherit;
+  font-variation-settings: inherit;
+  font-weight: inherit;
+}
 .d7-lesson .d7-standalone-number {
-  font-family: 'Fraunces', 'Source Serif 4', serif;
-  font-variation-settings: "opsz" 144;
-  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-variation-settings: normal;
+  font-weight: 700;
 }
 .d7-bars { width: min(100%, 560px); min-height: clamp(46px, 8vw, 62px); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; overflow: hidden; border: 2px solid #494550; border-radius: 12px; background: #FFFFFF; }
 .d7-bars span { border-right: 1.5px solid #8A8883; transition: background 0.55s ease; }
@@ -575,11 +581,18 @@ export default function Dars07({
     studentName: safeName,
     voiceGender: voiceGender || 'm',
   });
-  const safeOnFinished = onFinished || ((payload) => console.log('[Preview] onFinished payload:', payload));
+  const safeOnFinished = useMemo(
+    () => onFinished || ((payload) => console.log('[Preview] onFinished payload:', payload)),
+    [onFinished],
+  );
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const startRef = useRef(Date.now());
+  const startRef = useRef(0);
   const navLockRef = useRef(0);
+
+  useEffect(() => {
+    startRef.current = Date.now();
+  }, []);
 
   const recordAnswer = useCallback((data) => {
     setAnswers((previous) => {
@@ -610,7 +623,7 @@ export default function Dars07({
       scorePercent: Math.round((score / SCORED_SCREENS.length) * 100),
       finalScore: score,
       finalTotal: SCORED_SCREENS.length,
-      passed: true,
+      passed: score >= Math.ceil(SCORED_SCREENS.length * 0.7),
       firstTryStats: { total: SCORED_SCREENS.length, firstTryCorrect: score },
       answers: answers.filter(Boolean),
     });
@@ -622,7 +635,7 @@ export default function Dars07({
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
       <style>{D7_STYLES}</style>
-      <div className="lesson-root d7-lesson">
+      <div className="lesson-root grade6-theory-etalon d7-lesson">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
             {['ru', 'uz'].map((value) => (

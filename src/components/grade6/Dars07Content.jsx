@@ -14,7 +14,7 @@ const UI = {
     yes: 'Ha, boshlaymiz',
     curious: "O'rganmoqchiman",
     summary: "Dars o'tildi",
-    result: 'topshiriq birinchi urinishda bajarildi',
+    result: "Topshiriqlar bo'yicha natijangiz:",
     main: 'Asosiysi',
     finish: 'Darsni yakunlash',
     soundOn: 'Ovozni yoqish',
@@ -37,7 +37,7 @@ const UI = {
     yes: 'Да, начнём',
     curious: 'Хочу разобраться',
     summary: 'Урок пройден',
-    result: 'заданий выполнено с первой попытки',
+    result: 'Ваш результат по заданиям:',
     main: 'Главное',
     finish: 'Завершить урок',
     soundOn: 'Включить звук',
@@ -748,7 +748,7 @@ export default function Dars07({
     return (
       <div className="summary-card">
         <h1 className="slide-title">{slide.title[lang]}</h1>
-        <div className="score-box"><strong>{firstTryScore}/{scoredSlides.length}</strong><span>{ui.result}</span></div>
+        <div className="score-box"><span>{ui.result}</span><strong>{firstTryScore}/{scoredSlides.length}</strong></div>
         <h3>{ui.main}</h3>
         <div className="summary-points">{slide.points.map((point, index) => <div key={index}><b>{index + 1}.</b>{point[lang]}</div>)}</div>
       </div>

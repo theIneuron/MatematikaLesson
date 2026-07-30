@@ -210,8 +210,8 @@ export const GRADE6_LIFE_CONTEXTS = {
 
   grade6_theory_44: context('Akvarium hajmi', 'Объём аквариума', [
     ["Akvariumga qancha suv sig'ishini bilish uchun uning uzunligi, eni va balandligi kerak.", 'Чтобы узнать вместимость аквариума, нужны длина, ширина и высота.'],
-    ["To'g'ri burchakli idish hajmi V=a·b·h formula bilan topiladi.", 'Объём прямоугольного сосуда находят по формуле V=a·b·h.'],
-  ], { type: 'cube', label: L('V = uzunlik · en · balandlik', 'V = длина · ширина · высота') }),
+    ["To'g'ri burchakli idish hajmi V=a·b·c formula bilan topiladi.", 'Объём прямоугольного сосуда находят по формуле V=a·b·c.'],
+  ], { type: 'cube', label: 'V = a · b · c' }),
 
   grade6_theory_45: context('Ranglar ichidagi eng ko‘p rang', 'Самый частый цвет', [
     ["To'rtta kvadratga qarang: ikkita ko'k, bitta sariq va bitta yashil.", 'Посмотрите на четыре квадрата: два синих, один жёлтый и один зелёный.'],

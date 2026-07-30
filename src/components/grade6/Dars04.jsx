@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from 'react';
+import './Grade6TheoryTheme.css';
 import { normalizeTtsColons } from './ttsMathColon.js';
+import { useIntroStages } from './Dars01.jsx';
 // УРОК: Умножение десятичных дробей — dec_5_05
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
 
@@ -394,12 +396,14 @@ class AudioEngine {
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
+        if (segment._audioCompleted) return;
         this.autoplayBlocked = false;
         this.isStarting = false;
         this.isPlaying = true;
         this.emit({ isPlaying: true, isBusy: true, currentSegment: segment.id });
         this.armWatchdog(segment);
       }).catch(() => {
+        if (segment._audioCompleted) return;
         // автоплей заблокирован браузером — ждём первого жеста
         this.isStarting = false;
         this.autoplayBlocked = true;
@@ -433,6 +437,7 @@ class AudioEngine {
     if (voice) u.voice = voice;
     u.rate = 0.95; u.pitch = 1.0;
       u.onstart = () => {
+        if (segment._audioCompleted) return;
         if (this.previewStartTimer) clearTimeout(this.previewStartTimer);
         this.previewStartTimer = null;
         this.isStarting = false;
@@ -566,13 +571,55 @@ class AudioEngine {
     return segmentId;
   }
 
+  interruptFeedbackQueue() {
+    const currentSegment = this.queue[this.currentIdx];
+    if (currentSegment) currentSegment._audioCompleted = true;
+    this.clearWatchdog();
+    if (this.previewStartTimer) clearTimeout(this.previewStartTimer);
+    this.previewStartTimer = null;
+    if (this.advanceTimer) clearTimeout(this.advanceTimer);
+    this.advanceTimer = null;
+    if (this.audioEl) {
+      try {
+        this.audioEl.onended = null;
+        this.audioEl.onerror = null;
+        this.audioEl.pause();
+      } catch (e) { /* no-op */ }
+    }
+    this.audioEl = null;
+    if (this.previewUtterance) {
+      this.previewUtterance.onstart = null;
+      this.previewUtterance.onend = null;
+      this.previewUtterance.onerror = null;
+      this.previewUtterance = null;
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try { window.speechSynthesis.cancel(); } catch (e) { /* no-op */ }
+    }
+    this.queue = [];
+    this.currentIdx = 0;
+    this.waitingFor = null;
+    this.isStarting = false;
+    this.isPlaying = false;
+    this.isBusy = false;
+    this.autoplayBlocked = false;
+    this.hasStarted = true;
+    this.emit({
+      isPlaying: false,
+      isBusy: false,
+      currentSegment: null,
+      lastCompletedSegment: null,
+      waitingFor: null,
+    });
+  }
+
   // Bola savol ovozi tugashini kutmay javob bersa, eski gapni darhol to'xtatib,
   // aynan yangi feedback navbatini boshidan ijro etadi.
   interruptWith(segments) {
     if (this.muted) return;
     const nextQueue = (segments || []).filter(segment => segment?.text);
     if (!nextQueue.length) return;
-    this.stop();
+    this.interruptFeedbackQueue();
     this.queue = nextQueue.map(segment => ({ ...segment, _audioCompleted: false }));
     this.currentIdx = 0;
     this.waitingFor = null;
@@ -857,7 +904,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
   const isMobile = useIsMobile();
   const padH = isMobile ? 12 : 100;
   return (
-    <div className="stage">
+    <div className={`stage screen-${screen + 1}`}>
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
         <div className="progress-track">
           <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
@@ -890,8 +937,8 @@ const NavBack = ({ onPrev, label = 'Назад' }) => (
   </button>
 );
 
-const NavNext = ({ disabled, label, onClick }) => (
-  <button className="btn-white-accent" disabled={disabled} onClick={onClick}
+const NavNext = ({ label, onClick }) => (
+  <button className="btn-white-accent" onClick={onClick}
     style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
     {label}
   </button>
@@ -1135,10 +1182,11 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {/* После верного: остаётся только верный вариант, неверные плавно (с задержкой) сворачиваются — keep-visible anti-scroll. */}
         <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
-            let cls = 'option';
             const isWrongPicked = wrong.has(i);
             const isCorrect = i === correctIdx;
             const collapse = solved && !isCorrect;        // после верного неверные сворачиваются
+            let cls = 'option';
+            if (collapse) cls += ' g6-option-collapsed';
             if (solved) {
               if (isCorrect) cls += ' option-correct';
               // неверным НЕ добавляем цвет-класс — плавно гаснут через inline opacity
@@ -1505,7 +1553,7 @@ const CONTENT = {
   s14: {
     eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi" },
     heading: { ru: 'Простые и составные числа', uz: 'Tub va murakkab sonlar' },
-    score_label: { ru: 'заданий выполнено с первой попытки', uz: 'topshiriq birinchi urinishda bajarildi' },
+    score_label: { ru: 'Ваш результат по заданиям:', uz: "Topshiriqlar bo'yicha natijangiz:" },
     main_label: { ru: 'Главное', uz: 'Asosiysi' },
     main_1: { ru: 'У простого числа ровно два делителя: 1 и оно само. У составного — больше двух.', uz: "Tub sonning roppa-rosa ikkita bo'luvchisi bor: 1 va sonning o'zi. Murakkabniki esa ikkitadan ko'p." },
     main_2: { ru: 'Число 1 не простое и не составное — у него всего один делитель. Самое маленькое простое число — 2.', uz: "1 soni na tub, na murakkab — uning bor-yo'g'i bitta bo'luvchisi bor. Eng kichik tub son — 2." },
@@ -1768,13 +1816,14 @@ const StepLine = ({ children, soft }) => (
   </div>
 );
 // Bosqichli izohlar yig'iladi: oldingi qatorlar (so'lg'in) qoladi, yangisi pastdan chiqadi (fade-up).
-const StepLinesAccum = ({ lines, step }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.5vw, 12px)' }}>
+const StepLinesAccum = ({ lines, step, className = '' }) => (
+  <div className={`g6-step-lines ${className}`.trim()} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.5vw, 12px)' }}>
     {lines.slice(0, step + 1).map((ln, i) => {
       const isCurrent = i === step;
       return (
-        <div key={i} className={`${isCurrent ? 'fade-up frame' : 'frame-tip'}`} style={{ padding: 'clamp(12px, 2vw, 16px)', opacity: isCurrent ? 1 : 0.72, transition: 'opacity 0.4s ease' }}>
-          <p className="body" style={{ margin: 0, color: isCurrent ? T.ink : T.ink2 }}>{ln}</p>
+        <div key={i} className={`${isCurrent ? 'fade-up ' : ''}frame-tip g6-explanation-step`} style={{ padding: 'clamp(12px, 2vw, 16px)' }}>
+          <span className="g6-explanation-lamp" aria-hidden="true">💡</span>
+          <p className="body g6-explanation-text" style={{ margin: 0, color: T.ink2 }}>{ln}</p>
         </div>
       );
     })}
@@ -1899,6 +1948,13 @@ const InputScreen = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAn
   const whyRef = useRevealScroll(post.showWhy, 300);
   const factRef = useRevealScroll(post.showFact, 300);
   const isCorrect = norm(value) === norm(c.answer) && norm(value) !== '';
+  const changeValue = (nextValue) => {
+    if (showHint && !audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.interruptFeedbackQueue();
+    }
+    setValue(nextValue);
+  };
 
   const submit = () => {
     if (norm(value) === '' || solved) return;
@@ -1926,7 +1982,7 @@ const InputScreen = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAn
         </div>
         {figureNode && <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.2vw, 18px)' }}>{typeof figureNode === 'function' ? figureNode(solved) : figureNode}</div>}
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-          <input type="text" inputMode="numeric" className={`answer-input ${solved ? 'correct' : (showHint ? 'wrong' : '')}`} value={value} placeholder={t(c.placeholder)} onChange={e => setValue(e.target.value)} disabled={solved} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'min(100%, 320px)' }}/>
+          <input type="text" inputMode="numeric" className={`answer-input ${solved ? 'correct' : (showHint ? 'wrong' : '')}`} value={value} placeholder={t(c.placeholder)} onChange={e => changeValue(e.target.value)} disabled={solved} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'min(100%, 320px)' }}/>
           <PlaceGrid answer={c.answer} filled={solved}/>
         </div>
         {!solved && (
@@ -2011,6 +2067,7 @@ const OddOneOut = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnsw
             const isWrongPicked = wrong.has(i);
             const collapse = solved && !isCorrect;
             let cls = 'option';
+            if (collapse) cls += ' g6-option-collapsed';
             if (solved && isCorrect) cls += ' option-correct';
             else if (isWrongPicked) cls += ' option-picked-wrong';
             return (
@@ -2171,10 +2228,22 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
 
   const assignToActive = (pairIdx) => {
     if (solved || activeSlot === null) return;
+    if (showHint && !audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.interruptFeedbackQueue();
+    }
     setAssign(prev => { const nx = prev.map(a => (a === pairIdx ? null : a)); nx[activeSlot] = pairIdx; return nx; });
     setActiveSlot(null);
   };
-  const clearSlot = (k, e) => { if (e) e.stopPropagation(); if (solved) return; setAssign(prev => { const nx = [...prev]; nx[k] = null; return nx; }); };
+  const clearSlot = (k, e) => {
+    if (e) e.stopPropagation();
+    if (solved) return;
+    if (showHint && !audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.interruptFeedbackQueue();
+    }
+    setAssign(prev => { const nx = [...prev]; nx[k] = null; return nx; });
+  };
 
   const check = () => {
     if (solved || !allPlaced) return;
@@ -2192,12 +2261,12 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
   const readingFont = isMobile ? 'clamp(12px, 3.4vw, 14px)' : 'clamp(13px, 1.7vw, 15px)';
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
+      <div className="g6-match-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <div className="fade-up">
           <h2 className="title h-sub">{t(c.title)}</h2>
           {!solved && <p className="small" style={{ marginTop: 6, color: T.ink3 }}>{t(c.lead)}</p>}
         </div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="fade-up delay-1 g6-match-rows" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {pairs.map((pr, k) => {
             const placedPair = assign[k];
             const active = activeSlot === k;
@@ -2223,7 +2292,7 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
           })}
         </div>
         {!solved && activeSlot !== null && (
-          <div ref={optionsRef} className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div ref={optionsRef} className="fade-up g6-match-options" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {order.map(pi => {
               const usedSlot = slotOf(pi);
               const usedHere = usedSlot === activeSlot;
@@ -2271,27 +2340,36 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
   const lang = useLang();
   const audio = useAudio([{ id: 's0_intro', text: `${lang === 'uz' ? `Dars mavzusi: ${c.topic.uz}. ` : `Тема урока: ${c.topic.ru}. `}${c.audio.intro[lang]}`, trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
   const [picked, setPicked] = useState(null);
-  const showOptions = audio.muted || (audio.hasStarted && !audio.isBusy);
-  const optionsRef = useRevealScroll(showOptions);
-  const pick = (v) => { if (picked !== null) return; setPicked(v); onAnswer({ stage: null, screenIdx: screen, studentAnswer: v, correct: true }); audio.triggerEvent('option_picked'); setTimeout(onNext, 300); };
+  const pickedRef = useRef(false);
+  const introReady = audio.muted || (audio.hasStarted && !audio.isBusy);
+  const introStages = useIntroStages({ start: introReady, optionsReady: introReady });
+  const optionsRef = useRevealScroll(introStages.showOptions);
+  const pick = (v) => { if (pickedRef.current) return; pickedRef.current = true; setPicked(v); onAnswer({ stage: 'hook', screenIdx: screen, studentAnswer: v, correct: true }); audio.triggerEvent('option_picked'); setTimeout(onNext, 300); };
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.2vw, 18px)' }}>
+      <div className="g6-custom-hook" style={{ position: 'relative', flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 1.8vw, 14px)', textAlign: 'center' }}>
         <Floaters/>
         <p className="eyebrow fade-up" style={{ position: 'relative', color: T.accent }}>{t(c.eyebrow)}</p>
-        <h1 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{t(c.topic)}</h1>
-        <h2 className="title h-sub fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{t(c.global_q)}</h2>
-        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{t(c.lead)}</p>
-        <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.5vw, 18px)' }}>
-          <PriceTag value={12} unit={t(UNIT)} size={showOptions ? 'md' : 'lg'}/>
-          <PriceTag value={13} unit={t(UNIT)} size={showOptions ? 'md' : 'lg'}/>
-        </div>
-        {showOptions && (
-          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn" disabled={picked !== null} onClick={() => pick('start')}>
-              {lang === 'uz' ? 'Tushuntirishni boshlash' : 'Начать объяснение'}
-            </button>
+        <h1 className="display fade-up" style={{ position: 'relative', width: '100%', margin: 0, color: T.ink, fontFamily: "'Source Serif 4', Georgia, serif", fontSize: introStages.compact ? 'clamp(30px, 6vw, 48px)' : 'clamp(38px, 8vw, 64px)', fontWeight: 600, fontVariationSettings: '"opsz" 60', lineHeight: 1.14, textAlign: 'center', transform: introStages.compact ? 'translateY(-7px)' : 'none', transition: 'font-size 1.2s cubic-bezier(.2,.7,.3,1), transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>{t(c.topic)}</h1>
+        <span aria-hidden="true" style={{ position: 'relative', display: 'block', width: 'clamp(64px, 16vw, 104px)', height: 5, margin: 'clamp(4px,1vw,8px) 0', borderRadius: 99, background: T.accent, boxShadow: '0 0 14px rgba(255,79,40,.45)' }}/>
+        <h2 className="body fade-up delay-1" style={{ position: 'relative', maxWidth: '38ch', margin: 0, fontSize: 'clamp(18px, 2.8vw, 21px)', fontWeight: 600, lineHeight: 1.35, textAlign: 'center' }}>{t(c.global_q)}</h2>
+        <p className="body fade-up delay-1" style={{ position: 'relative', maxWidth: '62ch', color: T.ink2, margin: 0, textAlign: 'center' }}>{t(c.lead)}</p>
+        {introStages.showExample && (
+          <>
+          <div className="frame fade-up" style={{ position: 'relative', width: '100%', maxWidth: 520, minHeight: 128, alignSelf: 'center', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.5vw, 18px)', animationDuration: '1.2s' }}>
+            <PriceTag value={12} unit={t(UNIT)} size="lg"/>
+            <PriceTag value={13} unit={t(UNIT)} size="lg"/>
           </div>
+          <div ref={optionsRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'center', gap: 10, width: '100%', maxWidth: 520 }}>
+            <div style={{ minHeight: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <p className="small" style={{ margin: 0, color: '#43855F', fontSize: 'clamp(18px, 2.9vw, 21px)', fontWeight: 500, lineHeight: 1.25, textAlign: 'center', opacity: introStages.showPrompt ? 1 : 0, transition: 'opacity 1.05s ease' }}>{lang === 'uz' ? 'Boshlashga tayyormisiz?' : 'Готовы начать?'}</p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 520, opacity: introStages.showOptions ? 1 : 0, visibility: introStages.showOptions ? 'visible' : 'hidden', transform: introStages.showOptions ? 'none' : 'translateY(18px)', transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>
+              <button className="option" style={{ minHeight: 58, padding: 'clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px)', textAlign: 'center', border: '2px solid #D8D3C8', background: '#FFFFFF', color: '#0E0E10', fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(18px, 3.2vw, 22px)', fontWeight: 300, lineHeight: 1.2, boxShadow: '0 10px 24px -8px rgba(58,53,48,.24)' }} disabled={picked !== null} onClick={() => pick('know')}>{t(c.opt_yes)}</button>
+              <button className="option" style={{ minHeight: 58, padding: 'clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px)', textAlign: 'center', border: '2px solid #D8D3C8', background: '#FFFFFF', color: '#0E0E10', fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(18px, 3.2vw, 22px)', fontWeight: 300, lineHeight: 1.2, boxShadow: '0 10px 24px -8px rgba(58,53,48,.24)' }} disabled={picked !== null} onClick={() => pick('learn')}>{t(c.opt_idk)}</button>
+            </div>
+          </div>
+          </>
         )}
       </div>
     </Stage>
@@ -2324,7 +2402,7 @@ const Screen2 = (props) => (
       return (
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
           <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s2.title)}</h2>
-          <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s2.bridge)}</p>
+          <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s2.bridge)}</p>
           <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
             <PriceTag value={v} unit={t(UNIT)}/>
             <DivisorFan value={v} tone={two ? 'ok' : 'no'} countLabel={t(LBL_DIVISORS)} size="lg"/>
@@ -2373,7 +2451,7 @@ const Screen5 = (props) => (
     renderBody={({ t, lang, step, last, audio }) => (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s5.title)}</h2>
-        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s5.bridge)}</p>
+        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s5.bridge)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
           <DivisorFan value={1} tone="no" countLabel={t(LBL_DIVISORS)} size="lg"/>
           {step >= 2 && (
@@ -2394,7 +2472,7 @@ const Screen6 = (props) => (
     renderBody={({ t, lang, step }) => (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s6.title)}</h2>
-        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s6.bridge)}</p>
+        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s6.bridge)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
           {step === 0 && <div className="mono display fade-up" style={{ fontSize: 'clamp(22px, 5vw, 34px)' }}>12 = 2 · 6</div>}
           {step === 1 && (
@@ -2422,7 +2500,7 @@ const Screen7 = (props) => (
     renderBody={({ t, lang, step }) => (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s7.title)}</h2>
-        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s7.bridge)}</p>
+        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s7.bridge)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 'clamp(18px, 4vw, 36px)' }}>
           <FactorLadder value={18} visibleRows={step + 1}/>
           {step >= 3 && <FactorChain value={18}/>}
@@ -2460,7 +2538,7 @@ const Screen10 = (props) => (
     renderBody={({ t, lang, step }) => (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s10.title)}</h2>
-        <p className="small fade-up delay-1" style={{ color: T.ink2, margin: 0 }}>{t(CONTENT.s10.bridge)}</p>
+        <p className="small g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2, margin: 0 }}>{t(CONTENT.s10.bridge)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 'clamp(18px, 4vw, 36px)', padding: 'clamp(10px, 2vw, 14px)' }}>
           <FactorLadder value={420} visibleRows={step + 1}/>
           {step >= 4 && <FactorChain value={420}/>}
@@ -2499,16 +2577,18 @@ const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? "Qaytadan o'tish" : 'Пройти заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
+      <div className="g6-final-slide" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
         <Floaters/>
         <div className="fade-up" style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
             <p className="eyebrow" style={{ color: T.success }}>{t(c.eyebrow)}</p>
             <h2 className="title" style={{ marginTop: 8, fontSize: 'clamp(30px, 6vw, 50px)', lineHeight: 1.04 }}>{t(c.heading)}</h2>
           </div>
-          <span className="mono" style={{ fontSize: 'clamp(36px, 8vw, 58px)', fontWeight: 800, color: T.success, lineHeight: 0.95, flexShrink: 0 }}>{correct}/{total}</span>
         </div>
-        <p className="body fade-up delay-1" style={{ position: 'relative', margin: '-4px 0 0', color: T.ink2 }}>{t(c.score_label)}</p>
+        <p className="body fade-up delay-1" style={{ position: 'relative', margin: '-4px 0 0', color: T.ink2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 9 }}>
+          <span>{t(c.score_label)}</span>
+          <strong className="mono" style={{ color: T.success, fontSize: 'clamp(20px, 3.8vw, 28px)', lineHeight: 1.15 }}>{correct}/{total}</strong>
+        </p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 14 }}>{t(c.main_label)}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -2553,14 +2633,14 @@ html, body { margin: 0; padding: 0; }
 .lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root h4, .lesson-root h5, .lesson-root h6,
 .lesson-root p, .lesson-root ul, .lesson-root ol { margin: 0; padding: 0; }
 
-.title { font-family: 'Source Serif 4', serif; font-weight: 600; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: "opsz" 60; }
-.display { font-family: 'Source Serif 4', serif; font-weight: 600; line-height: 1.0; letter-spacing: -0.01em; font-variation-settings: "opsz" 60; }
-.italic { font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; font-variation-settings: "opsz" 60; }
+.title { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: normal; }
+.display { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600; line-height: 1.0; letter-spacing: -0.01em; font-variation-settings: normal; }
+.italic { font-family: 'Manrope', system-ui, sans-serif; font-style: italic; font-weight: 500; font-variation-settings: normal; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 .mop { font-family: 'Manrope', sans-serif; font-weight: 600; color: #0E0E10; display: inline-block; padding: 0 0.06em; }
 
-.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 0.08em; font-family: 'Fraunces', serif; font-variation-settings: "opsz" 144; font-weight: 400; }
-.frac .n, .frac .d { padding: 0 0.12em; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 0.08em; font-family: inherit; font-variation-settings: inherit; font-weight: inherit; }
+.frac .n, .frac .d { padding: 0 0.12em; font: inherit; }
 .frac .bar { height: 0.08em; background: currentColor; width: 100%; margin: 0.08em 0; border-radius: 2px; }
 
 @keyframes fade-in-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -2583,7 +2663,7 @@ html, body { margin: 0; padding: 0; }
 .btn-ghost:hover:not(:disabled) { background: #FFFFFF; box-shadow: 0 6px 18px -6px rgba(58, 53, 48, 0.18); }
 .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.option { background: #FFFFFF; cursor: pointer; transition: all 0.2s; font-family: 'Manrope', sans-serif; font-weight: 500; text-align: left; border-radius: 12px; width: 100%; border: none; color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
+.option { background: #FFFFFF; cursor: pointer; transition: all 0.2s; font-family: 'Manrope', system-ui, sans-serif !important; font-weight: 500; text-align: left; border-radius: 12px; width: 100%; border: none; color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
 .option:hover:not(:disabled) { background: #FDFBF7; box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22); }
 .option:disabled { cursor: default; }
 .option-correct { background: #E3F0E8 !important; color: #1F7A4D !important; box-shadow: 0 8px 22px -6px rgba(31, 122, 77, 0.32) !important; }
@@ -2766,7 +2846,7 @@ export default function PrimeCompositeLesson({
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
-      <div className="lesson-root">
+      <div className="lesson-root grade6-theory-etalon grade6-dars04">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
             {['ru', 'uz'].map(l => (

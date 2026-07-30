@@ -36,11 +36,13 @@ const question = ({
   correct,
   why,
   wrong,
+  wrongByOption,
   visual,
   scored = true,
   eyebrow = L('Mashq', 'Практика'),
   fact,
   factVisual,
+  interruptFeedbackOnSelection = false,
 }) => ({
   type: 'question',
   scored,
@@ -52,7 +54,9 @@ const question = ({
   correct,
   why,
   wrong,
+  ...(wrongByOption ? { wrongByOption } : {}),
   visual,
+  ...(interruptFeedbackOnSelection ? { interruptFeedbackOnSelection: true } : {}),
   ...(fact ? { fact, factVisual } : {}),
 });
 
@@ -1103,6 +1107,22 @@ const DARS20 = (() => {
         ["4 · 1 km = 4 km.", 'Четыре сантиметра на карте соответствуют четырём километрам.'],
       ),
       wrong: L("Bu masshtabda xaritadagi har bir santimetr bir kilometrga teng.", 'В этом масштабе каждый сантиметр на карте равен одному километру.'),
+      wrongByOption: [
+        L(
+          "0,4 kilometr o'n marta kichik. Bu masshtabda 1 santimetr 1 kilometr, demak 4 santimetr 4 kilometr.",
+          '0,4 километра в десять раз меньше. В этом масштабе 1 сантиметр равен 1 километру, значит 4 сантиметра — это 4 километра.',
+        ),
+        null,
+        L(
+          "40 kilometr chiqishi 1 santimetrni 10 kilometr deb olish xatosi. Aslida yuz ming santimetr 1 kilometrga teng.",
+          '40 километров получится, если ошибочно принять 1 сантиметр за 10 километров. На самом деле сто тысяч сантиметров равны 1 километру.',
+        ),
+        L(
+          "400 kilometr yuz marta katta. To'rt yuz ming santimetrni yuz mingga bo'lsak, 4 kilometr chiqadi.",
+          '400 километров в сто раз больше. Если разделить четыреста тысяч сантиметров на сто тысяч, получится 4 километра.',
+        ),
+      ],
+      interruptFeedbackOnSelection: true,
       visual: { type: 'chain', items: ['4 cm', '400 000 cm', '4 km'] },
     }),
     info(

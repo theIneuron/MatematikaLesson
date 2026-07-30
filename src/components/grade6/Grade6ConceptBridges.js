@@ -181,7 +181,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
   grade6_theory_44: [
     bridge('Hajmni birlik kublar bilan sanaymiz', 'Считаем объём единичными кубами', [
       ["Qutining bir qatlamida uzunlik bo'ylab 4 ta va en bo'ylab 3 ta birlik kub joylashadi: bitta qatlamda 4·3=12 kub.", 'В одном слое коробки помещаются 4 куба по длине и 3 по ширине: в одном слое 4·3=12 кубов.'],
-      ["Balandlik bo'ylab 3 ta shunday qatlam bor. Jami 12·3=36 kub, demak V=a·b·h.", 'По высоте помещаются 3 таких слоя. Всего 12·3=36 кубов, значит V=a·b·h.'],
+      ["Uchinchi qirra bo'ylab 3 ta shunday qatlam bor. Jami 12·3=36 kub, demak V=a·b·c.", 'Вдоль третьего ребра помещаются 3 таких слоя. Всего 12·3=36 кубов, значит V=a·b·c.'],
     ], {
       type: 'cubeLayers',
       columns: 4,
