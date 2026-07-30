@@ -108,25 +108,56 @@ const makeLesson = ({ id, title, subtitle, decorations, visual, hook, concepts, 
   };
 };
 
-const D27 = makeLesson({
+const D27Source = makeLesson({
   id: 27,
   title: L("Ratsional sonlarni qo'shish", 'Сложение рациональных чисел'),
   subtitle: L("Bir xil va har xil ishorali sonlarni koordinata chizig'i hamda qoidalar bilan qo'shamiz.", 'Сложим числа с одинаковыми и разными знаками по правилам и на координатной прямой.'),
   decorations: ['−4', '+7', '−3+8', '5+(−9)'],
-  visual: chain('−3', '+ 5', '2'),
+  visual: {
+    type: 'movementLine',
+    min: -5,
+    max: 5,
+    start: -3,
+    end: 2,
+    startLabel: L('Boshlanish: −3', 'Старт: −3'),
+    endLabel: L('Natija: 2', 'Результат: 2'),
+    caption: L("Musbat 5 qo'shilsa, besh birlik o'ngga yuramiz.", 'Прибавляем положительное 5 — движемся на пять единиц вправо.'),
+    label: L("−3 dan 2 gacha o'ngga besh birlik harakat", 'Движение на пять единиц вправо от −3 до 2'),
+  },
   hook: Q(
     L('Harorat qanday o‘zgardi?', 'Как изменилась температура?'),
     L("Ertalab harorat −3°C edi, kunduzi 5°C ga ko'tarildi. Yangi haroratni toping.", 'Утром было −3°C, днём потеплело на 5°C. Найдите новую температуру.'),
     L("Manfiy uchdan o'ngga besh birlik siljiymiz.", 'От минус трёх переместимся на пять единиц вправо.'),
     ['−8°C', '−2°C', '2°C', '8°C'], 2,
     P(["−3 + 5 = 2.", '−3 + 5 = 2.'], ["Ko'tarilish musbat yo'nalishdagi siljishdir.", 'Потепление — движение в положительном направлении.']),
-    L("−3 dan o'ngga 5 birlik sanang.", 'От −3 отсчитайте 5 единиц вправо.'), eq('−3 + 5 = ?'),
+    L("Avval yo'nalishni aniqlang: harorat ko'tarildi, demak o'ngga yuramiz.", 'Сначала определите направление: стало теплее, значит движемся вправо.'),
+    {
+      type: 'movementLine',
+      min: -5,
+      max: 5,
+      start: -3,
+      end: 2,
+      startLabel: L('−3°C', '−3°C'),
+      endLabel: L('?', '?'),
+      caption: L("−3 dan o'ngga 5 birlik", 'От −3 на 5 единиц вправо'),
+      label: L("Haroratning −3 dan o'zgarishi", 'Изменение температуры от −3'),
+    },
   ),
   concepts: [
     C(L("Qo'shish — chiziqda siljish", 'Сложение — движение по прямой'), P(
       ["Musbat son qo'shilsa, koordinata chizig'ida o'ngga yuramiz.", 'При добавлении положительного числа движемся вправо.'],
       ["Manfiy son qo'shilsa, chapga yuramiz.", 'При добавлении отрицательного числа движемся влево.'],
-    ), { type: 'numberLine', points: [{ at: 22, label: '−3' }, { at: 66, label: '2' }] }),
+    ), {
+      type: 'movementLine',
+      min: -5,
+      max: 5,
+      start: 4,
+      end: -3,
+      startLabel: L('Boshlanish: 4', 'Старт: 4'),
+      endLabel: L('Natija: −3', 'Результат: −3'),
+      caption: L("4 + (−7): manfiy 7 chapga yetti birlik yurishni bildiradi.", '4 + (−7): отрицательное 7 означает семь единиц влево.'),
+      label: L("4 dan −3 gacha chapga yetti birlik harakat", 'Движение на семь единиц влево от 4 до −3'),
+    }),
     C(L('Bir xil ishorali sonlar', 'Числа с одинаковыми знаками'), P(
       ["Modullarni qo'shib, umumiy ishorani saqlaymiz.", 'Складываем модули и сохраняем общий знак.'],
       ["−4 + (−6) = −(4 + 6) = −10.", '−4 + (−6) = −(4 + 6) = −10.'],
@@ -150,10 +181,6 @@ const D27 = makeLesson({
       ["O'rin almashtirish: a + b = b + a.", 'Переместительное свойство: a + b = b + a.'],
       ["Guruhlash: (a + b) + c = a + (b + c). Qulay juftlarni avval qo'shish mumkin.", 'Сочетательное свойство позволяет сначала складывать удобные пары.'],
     ), cards('−7 + 7 = 0', '0 + 12 = 12')),
-    C(L('Hayotiy tekshiruv', 'Проверка смыслом'), P(
-      ["Qarz manfiy, tushum musbat son bilan ifodalanishi mumkin.", 'Долг можно обозначить отрицательным, поступление — положительным числом.'],
-      ["−20 000 + 35 000 = 15 000: tushum qarzdan katta bo'lgani uchun natija musbat.", '−20 000 + 35 000 = 15 000: поступление больше долга, поэтому результат положительный.'],
-    ), chain('−20 000', '+35 000', '15 000')),
     C(L('Xatoni oldindan ko‘ring', 'Предупредите ошибку'), P(
       ["Har xil ishorali sonlarda modullar qo'shilmaydi, ayiriladi.", 'У чисел с разными знаками модули не складывают, а вычитают.'],
       ["Ishorani sonning o'ziga emas, moduli kattaroq songa qarab tanlang.", 'Знак выбирают по числу с большим модулем.'],
@@ -166,6 +193,49 @@ const D27 = makeLesson({
     Q(L('Bir xil ishoralarni qo‘shing', 'Сложите числа одного знака'), L('−7 + (−5) ni hisoblang.', 'Вычислите −7 + (−5).'), L("Modullarni qo'shib, manfiy ishorani saqlang.", 'Сложите модули и сохраните знак минус.'), ['−12', '−2', '2', '12'], 0, P(["7 + 5 = 12.", '7 + 5 = 12.'], ["Ikkala son manfiy, shuning uchun javob −12.", 'Оба числа отрицательны, поэтому ответ −12.']), L("Ikkala sonning ishorasi bir xil.", 'Знаки чисел одинаковы.'), eq('−7 + (−5) = ?')),
     Q(L('Har xil ishoralarni qo‘shing', 'Сложите числа разных знаков'), L('−13 + 8 ni toping.', 'Найдите −13 + 8.'), L("13 dan 8 ni ayiring va moduli katta sonning ishorasini oling.", 'Вычтите 8 из 13 и возьмите знак числа с большим модулем.'), ['−21', '−5', '5', '21'], 1, P(["13 − 8 = 5.", '13 − 8 = 5.'], ["|−13| katta, demak javob −5.", '|−13| больше, значит ответ −5.']), L('Modullarni taqqoslang.', 'Сравните модули.'), eq('−13 + 8 = ?')),
     M(L("Yig'indisi nol bo'lganlarni tanlang", 'Выберите суммы, равные нулю'), L('Qarama-qarshi sonlar juftlarini toping.', 'Найдите пары противоположных чисел.'), ['−6 + 6', '4 + (−3)', '−9 + 9', '−2 + (−2)'], [0, 2], P(["−6 va 6 qarama-qarshi; −9 va 9 ham qarama-qarshi.", '−6 и 6 противоположны; −9 и 9 тоже.'], ["Qarama-qarshi sonlar yig'indisi nol.", 'Сумма противоположных чисел равна нулю.']), L('Faqat modullari teng, ishoralari qarama-qarshi juftlarni tanlang.', 'Выберите пары с равными модулями и разными знаками.')),
+    Q(
+      L('Qavsdagi manfiy sonni o‘qing', 'Прочитайте отрицательное число в скобках'),
+      L('5 + (−8) ifodaning qiymatini toping.', 'Найдите значение выражения 5 + (−8).'),
+      L("Bu yozuv 5 soniga manfiy 8 sonini qo'shishni bildiradi.", 'Эта запись означает, что к числу 5 прибавляют отрицательное 8.'),
+      ['−13', '−3', '3', '13'], 1,
+      P(
+        ["Ishoralar har xil: 8 − 5 = 3.", 'Знаки разные: 8 − 5 = 3.'],
+        ["Moduli katta son −8 bo'lgani uchun javob −3.", 'Больший модуль у числа −8, поэтому ответ −3.'],
+      ),
+      L("Qavsni yo'qotmang: qo'shilayotgan sonning o'zi manfiy.", 'Не теряйте скобки: прибавляемое число само является отрицательным.'),
+      {
+        type: 'movementLine',
+        min: -5,
+        max: 6,
+        start: 5,
+        end: -3,
+        startLabel: L('Boshlanish: 5', 'Старт: 5'),
+        endLabel: L('Natija: ?', 'Результат: ?'),
+        caption: L("Manfiy 8 — sakkiz birlik chapga harakat.", 'Отрицательное 8 — движение на восемь единиц влево.'),
+        label: L("5 dan chapga sakkiz birlik harakat", 'Движение на восемь единиц влево от 5'),
+      },
+    ),
+    Q(
+      L('Xatoni toping', 'Найдите ошибку'),
+      L("O'quvchi −8 + 3 = −11 deb yozdi. U qaysi xatoga yo'l qo'ydi?", 'Ученик записал −8 + 3 = −11. Какую ошибку он допустил?'),
+      L('Ishoralar har xil bo‘lsa, modullar bilan qanday amal bajarilishini eslang.', 'Вспомните, что делают с модулями чисел с разными знаками.'),
+      [
+        L("Modullarni qo'shib yubordi", 'Сложил модули'),
+        L('Manfiy ishorani unutdi', 'Потерял знак минус'),
+        L("Sonlarning o'rnini almashtirdi", 'Поменял числа местами'),
+        L("Qavsni noto'g'ri ochdi", 'Неверно раскрыл скобки'),
+      ],
+      0,
+      P(
+        ["−8 va 3 ning ishoralari har xil, shuning uchun 8 dan 3 ni ayiramiz.", 'У чисел −8 и 3 разные знаки, поэтому из 8 вычитаем 3.'],
+        ["8 − 3 = 5 va katta modul −8 ga tegishli: javob −5.", '8 − 3 = 5, больший модуль у −8: ответ −5.'],
+      ),
+      L("Har xil ishorali sonlarda modullar qo'shilmaydi.", 'При разных знаках модули не складывают.'),
+      panels(
+        { title: L("O'quvchi yozuvi", 'Запись ученика'), lines: ['−8 + 3 = −11'], color: 'yellow' },
+        { title: L('Tekshirish', 'Проверка'), lines: ['8 − 3 = 5 → −5'], color: 'green' },
+      ),
+    ),
     Q(L('Qulay usulda hisoblang', 'Вычислите удобным способом'), L('−12 + 7 + 12 ni toping.', 'Найдите −12 + 7 + 12.'), L("Avval −12 va 12 ni qo'shing.", 'Сначала сложите −12 и 12.'), ['−7', '0', '7', '31'], 2, P(["−12 + 12 = 0.", '−12 + 12 = 0.'], ["0 + 7 = 7.", '0 + 7 = 7.']), L('Qarama-qarshi sonlarni guruhlang.', 'Сгруппируйте противоположные числа.'), chain('−12 + 12', '0', '+7 = 7')),
     Q(L('Hisobdagi qoldiq', 'Остаток на счёте'), L("Hisobda −25 000 so'm qarz bor edi. 40 000 so'm tushdi. Qoldiq qancha?", 'На счёте был долг 25 000 сумов. Поступило 40 000 сумов. Каков остаток?'), L("Qarzni manfiy, tushumni musbat son bilan yozing.", 'Запишите долг отрицательным, поступление положительным числом.'), ["−65 000 so'm", "−15 000 so'm", "15 000 so'm", "65 000 so'm"], 2, P(["−25 000 + 40 000 = 15 000.", '−25 000 + 40 000 = 15 000.'], ["Tushum qarzni yopib, 15 000 so'm qoldirdi.", 'Поступление погасило долг, осталось 15 000 сумов.']), L('40 000 dan 25 000 ni ayiring.', 'Вычтите 25 000 из 40 000.'), eq('−25 000 + 40 000 = ?')),
   ],
@@ -175,6 +245,197 @@ const D27 = makeLesson({
     ["Qarama-qarshi sonlar yig'indisi nolga teng.", 'Сумма противоположных чисел равна нулю.'],
   ),
 });
+
+const D27 = {
+  id: 'num-6-27-v1',
+  etalonFlow: true,
+  passPercent: 70,
+  finalPass: 2,
+  title: L("Ratsional sonlarni qo'shish", 'Сложение рациональных чисел'),
+  decorations: D27Source.decorations,
+  slides: [
+    {
+      type: 'title',
+      eyebrow: L('Hayotiy vaziyatdan boshlaymiz', 'Начинаем с жизненной ситуации'),
+      title: L('Harorat qanday o‘zgaradi?', 'Как меняется температура?'),
+      subtitle: L(
+        "Ertalab havo sovuq edi. Kunduzi harorat ko'tarildi. Yangi qiymatni sonlar o'qida topamiz.",
+        'Утром было холодно. Днём температура повысилась. Найдём новое значение на числовой прямой.',
+      ),
+      audio: L(
+        "Ratsional sonlarni qo'shish. Musbat va manfiy o'zgarishlarni koordinata chizig'ida tekshiramiz.",
+        'Сложение рациональных чисел. Проверим положительные и отрицательные изменения на координатной прямой.',
+      ),
+      visual: D27Source.slides[0].visual,
+    },
+    {
+      ...D27Source.slides.find((slide) => slide.title?.uz === 'Harorat qanday o‘zgardi?'),
+      scored: false,
+      eyebrow: L('Stansiyadagi vaziyat', 'Ситуация на станции'),
+    },
+    C(L('Birgalikda sonlar o‘qida tekshiramiz', 'Проверим вместе на числовой прямой'), P(
+      ["−2 dan boshlaymiz. Musbat 4 qo'shilsa, nuqta o'ngga yuradi.", 'Начинаем с −2. Если прибавить положительное 4, точка движется вправо.'],
+      ["Manfiy 3 qo'shilsa, nuqta chapga yuradi. Qo'shilayotgan son yo'nalishni ko'rsatadi.", 'Если прибавить отрицательное 3, точка движется влево. Прибавляемое число задаёт направление.'],
+    ), {
+      type: 'movementLine',
+      min: -5,
+      max: 5,
+      start: -2,
+      end: 2,
+      startLabel: L('Boshlanish: −2', 'Старт: −2'),
+      endLabel: L('Natija: 2', 'Результат: 2'),
+      caption: L("−2 + 4: to'rt birlik o'ngga", '−2 + 4: четыре единицы вправо'),
+      label: L("−2 dan 2 gacha harakat", 'Движение от −2 до 2'),
+    }),
+    C(L('Birinchi qoida: bir xil ishoralar', 'Первое правило: одинаковые знаки'), P(
+      ["Bir xil ishorali sonlarda modullarni qo'shamiz.", 'У чисел с одинаковыми знаками складываем модули.'],
+      ["Umumiy ishorani saqlaymiz: −4 + (−6) = −10.", 'Сохраняем общий знак: −4 + (−6) = −10.'],
+    ), chain('−4 + (−6)', '−(4+6)', '−10'), true),
+    Q(
+      L('Bir xil ishoralarni qo‘shing', 'Сложите числа одного знака'),
+      L('−7 + (−5) ni hisoblang.', 'Вычислите −7 + (−5).'),
+      L("Modullarni qo'shib, umumiy ishorani saqlang.", 'Сложите модули и сохраните общий знак.'),
+      ['−12', '−2', '2', '12'], 0,
+      P(["7 + 5 = 12.", '7 + 5 = 12.'], ["Ikkala son manfiy, javob −12.", 'Оба числа отрицательны, ответ −12.']),
+      L("Ikkala sonning ishorasi bir xil. Modullarni ayirmang.", 'Знаки одинаковы. Не вычитайте модули.'),
+      eq('−7 + (−5) = ?'),
+    ),
+    C(L('Ikkinchi qoida: har xil ishoralar', 'Второе правило: разные знаки'), P(
+      ["Katta moduldan kichik modulni ayiramiz.", 'Из большего модуля вычитаем меньший.'],
+      ["Natijaga moduli katta sonning ishorasini qo'yamiz.", 'Ставим знак числа с большим модулем.'],
+    ), panels(
+      { title: L('Modullar', 'Модули'), lines: ['13 − 8 = 5'], color: 'yellow' },
+      { title: L('Ishora', 'Знак'), lines: ['|−13| > |8| → −5'], color: 'blue' },
+    ), true),
+    Q(
+      L('Yo‘nalish skaneri', 'Сканер направления'),
+      L('4 + (−7) natijasi koordinata chizig‘ining qaysi tomonida bo‘ladi?', 'На какой стороне координатной прямой окажется результат 4 + (−7)?'),
+      L('To‘rtdan chapga yetti birlik yuring.', 'От четырёх пройдите семь единиц влево.'),
+      [L('Nolning chapida, −3 da', 'Слева от нуля, в −3'), L('Nolning o‘ngida, 3 da', 'Справа от нуля, в 3'), L('Nolning o‘zida', 'В нуле')], 0,
+      P(["4 + (−7) = −3.", '4 + (−7) = −3.'], ["Yetti birlik chapga yurib, noldan o'tamiz.", 'Двигаясь на семь единиц влево, проходим через ноль.']),
+      L("Manfiy son qo'shilsa, chapga harakat qilamiz.", 'При добавлении отрицательного числа движемся влево.'),
+      {
+        type: 'movementLine', min: -5, max: 6, start: 4, end: -3,
+        startLabel: L('4', '4'), endLabel: L('?', '?'),
+        caption: L("Manfiy 7 — chapga yetti birlik", 'Отрицательное 7 — семь единиц влево'),
+        label: L('4 dan chapga yetti birlik', 'Семь единиц влево от 4'),
+      },
+    ),
+    Q(
+      L('Har xil ishoralarni hisoblang', 'Сложите числа разных знаков'),
+      L('−13 + 8 ni toping.', 'Найдите −13 + 8.'),
+      L('Modullarni taqqoslang, keyin ayiring.', 'Сравните модули, затем вычтите.'),
+      ['−21', '−5', '5', '21'], 1,
+      P(["13 − 8 = 5.", '13 − 8 = 5.'], ["Katta modul −13 ga tegishli, javob −5.", 'Больший модуль у −13, ответ −5.']),
+      L('Har xil ishoralarda modullar qo‘shilmaydi.', 'При разных знаках модули не складывают.'),
+      eq('−13 + 8 = ?'),
+    ),
+    M(
+      L("Nol beradigan yig'indilarni tanlang", 'Выберите суммы, равные нулю'),
+      L('Qarama-qarshi sonlar juftlarini toping.', 'Найдите пары противоположных чисел.'),
+      ['−6 + 6', '4 + (−3)', '−9 + 9', '−2 + (−2)'], [0, 2],
+      P(["−6 va 6 qarama-qarshi sonlar.", '−6 и 6 — противоположные числа.'], ["−9 va 9 ham o'zaro yo'qoladi.", '−9 и 9 также взаимно уничтожаются.']),
+      L('Modullari teng, ishoralari qarama-qarshi juftlarni izlang.', 'Ищите равные модули с противоположными знаками.'),
+    ),
+    C(L('Ratsional sonlarni qo‘shish algoritmi', 'Алгоритм сложения рациональных чисел'), P(
+      ["Birinchi qadam: ishoralarni taqqoslang.", 'Шаг первый: сравните знаки.'],
+      ["Ikkinchi qadam: modullarni qo'shing yoki ayiring.", 'Шаг второй: сложите или вычтите модули.'],
+      ["Uchinchi qadam: natija ishorasini tekshiring.", 'Шаг третий: проверьте знак результата.'],
+    ), { type: 'steps', items: P(
+      ['Ishoralar', 'Знаки'],
+      ['Modullar', 'Модули'],
+      ['Natija ishorasi', 'Знак результата'],
+    ) }, true),
+    M(
+      L('Tezkor signal', 'Быстрый сигнал'),
+      L('To‘g‘ri tengliklarning barchasini tanlang.', 'Выберите все верные равенства.'),
+      ['−4 + (−3) = −7', '−8 + 5 = −13', '6 + (−6) = 0', '−2 + 9 = 7', '5 + (−8) = 3'],
+      [0, 2, 3],
+      P(["Bir xil manfiy ishoralarda modullar qo'shiladi.", 'При одинаковых отрицательных знаках модули складываются.'], ["Qarama-qarshi sonlar yig'indisi nol.", 'Сумма противоположных чисел равна нулю.'], ["−2 + 9 = 7.", '−2 + 9 = 7.']),
+      L('Har bir tenglikni ishora va modul algoritmi bilan tekshiring.', 'Проверьте каждое равенство по алгоритму знаков и модулей.'),
+    ),
+    Q(
+      L('Stansiya hisobidagi qoldiq', 'Остаток на счёте станции'),
+      L("Stansiya hisobida −25 000 so'm qarz bor edi. 40 000 so'm tushdi. Qoldiq qancha?", 'На счёте станции был долг 25 000 сумов. Поступило 40 000 сумов. Каков остаток?'),
+      L('Qarzni manfiy, tushumni musbat son bilan yozing.', 'Запишите долг отрицательным, поступление положительным числом.'),
+      ["−65 000 so'm", "−15 000 so'm", "15 000 so'm", "65 000 so'm"], 2,
+      P(["−25 000 + 40 000 = 15 000.", '−25 000 + 40 000 = 15 000.'], ["Tushum qarzdan katta, natija musbat.", 'Поступление больше долга, результат положительный.']),
+      L('40 000 dan 25 000 ni ayiring va katta modul ishorasini oling.', 'Вычтите 25 000 из 40 000 и возьмите знак большего модуля.'),
+      eq('−25 000 + 40 000 = ?'),
+    ),
+    C(L('Muhim maxsus holatlar', 'Важные особые случаи'), P(
+      ["Nol qo'shilsa, son o'zgarmaydi: a + 0 = a.", 'При добавлении нуля число не меняется: a + 0 = a.'],
+      ["Qarama-qarshi sonlar yig'indisi nol: a + (−a) = 0.", 'Сумма противоположных чисел равна нулю: a + (−a) = 0.'],
+    ), cards('a + 0 = a', 'a + (−a) = 0')),
+    {
+      type: 'finalChain',
+      scored: true,
+      eyebrow: L('Yakuniy tekshiruv', 'Итоговая проверка'),
+      title: L('Uch bosqichli final', 'Финал из трёх этапов'),
+      intro: L('Uchta qisqa topshiriqda qoidalarni mustaqil qo‘llang.', 'Самостоятельно примените правила в трёх коротких заданиях.'),
+      parts: [
+        {
+          prompt: L('−6 + (−7) ni hisoblang.', 'Вычислите −6 + (−7).'),
+          options: ['−13', '−1', '1', '13'], correct: 0,
+          wrong: L('Ishoralar bir xil: modullarni qo‘shing va minusni saqlang.', 'Знаки одинаковы: сложите модули и сохраните минус.'),
+        },
+        {
+          prompt: L('−15 + 9 ni hisoblang.', 'Вычислите −15 + 9.'),
+          options: ['−24', '−6', '6', '24'], correct: 1,
+          wrong: L('Modullarni ayiring va katta modulga tegishli ishorani oling.', 'Вычтите модули и возьмите знак большего модуля.'),
+        },
+        {
+          prompt: L('Qaysi ifodaning qiymati nol?', 'Какое выражение равно нулю?'),
+          options: ['−8 + 8', '−8 + (−8)', '8 + 1', '−1 + (−8)'], correct: 0,
+          wrong: L('Qarama-qarshi sonlarning modullari teng, ishoralari turlicha.', 'У противоположных чисел равные модули и разные знаки.'),
+        },
+      ],
+      audio: L('Endi uchta qisqa topshiriqda ratsional sonlarni mustaqil qo‘shing.', 'Теперь самостоятельно сложите рациональные числа в трёх коротких заданиях.'),
+    },
+    {
+      type: 'summary',
+      eyebrow: L('Dars yakuni', 'Итог урока'),
+      title: L('Ishora va modulni boshqara oldingiz', 'Вы научились управлять знаком и модулем'),
+      points: P(
+        ["Bir xil ishoralarda modullar qo'shiladi va ishora saqlanadi.", 'При одинаковых знаках модули складывают и знак сохраняют.'],
+        ["Har xil ishoralarda modullar ayiriladi va katta modulning ishorasi olinadi.", 'При разных знаках модули вычитают и берут знак большего модуля.'],
+        ["Qarama-qarshi sonlar yig'indisi nolga teng.", 'Сумма противоположных чисел равна нулю.'],
+      ),
+      close: L('Harorat va hisobdagi musbat hamda manfiy o‘zgarishlarni tekshirdingiz.', 'Вы проверили положительные и отрицательные изменения температуры и счёта.'),
+      audio: L('Dars yakuni. Ishoralarni taqqoslang, modullar bilan kerakli amalni bajaring va natija ishorasini tekshiring.', 'Итог урока. Сравните знаки, выполните нужное действие с модулями и проверьте знак результата.'),
+    },
+  ],
+};
+D27.scoredScreens = D27.slides.flatMap((slide, index) => (slide.scored ? [index] : []));
+D27.slides[1].wrongByOption = [
+  L('Besh birlik pasayish −8°C beradi. Bu yerda harorat ko‘tarildi.', 'Понижение на пять градусов дало бы −8°C. Здесь температура повысилась.'),
+  L('−3 dan ikki birlik emas, besh birlik o‘ngga yurish kerak.', 'От −3 нужно пройти вправо не две, а пять единиц.'),
+  null,
+  L('−3 dan o‘ngga besh birlik yurganda 8 ga emas, 2 ga kelamiz.', 'Пройдя от −3 пять единиц вправо, получаем 2, а не 8.'),
+];
+D27.slides[4].wrongByOption = [
+  null,
+  L('Modullarni ayirmang: ikkala sonning ishorasi bir xil.', 'Не вычитайте модули: знаки чисел одинаковы.'),
+  L('Modullarni ayirish bilan birga minus ishorasi ham yo‘qolgan.', 'Вы вычли модули и потеряли знак минус.'),
+  L('7 + 5 = 12, lekin ikkala son manfiy bo‘lgani uchun javob ham manfiy.', '7 + 5 = 12, но оба числа отрицательны, поэтому ответ тоже отрицательный.'),
+];
+D27.slides[6].wrongByOption = [
+  null,
+  L('Manfiy 7 chapga harakatni bildiradi; natija musbat tomonda qolmaydi.', 'Отрицательное 7 означает движение влево; результат не останется справа от нуля.'),
+  L('Yetti qadamdan keyin nuqta nolda to‘xtamaydi, yana uch birlik chapga o‘tadi.', 'После семи шагов точка не остановится в нуле, а пройдёт ещё три единицы влево.'),
+];
+D27.slides[7].wrongByOption = [
+  L('Har xil ishoralarda modullar qo‘shilmaydi.', 'При разных знаках модули не складывают.'),
+  null,
+  L('13 ning moduli 8 dan katta, shuning uchun natija manfiy.', 'Модуль 13 больше 8, поэтому результат отрицательный.'),
+  L('21 modullarni qo‘shganda chiqadi, bu yerda esa ularni ayirish kerak.', '21 получилось бы при сложении модулей, а здесь их нужно вычесть.'),
+];
+D27.slides[11].wrongByOption = [
+  L('Qarz va tushumni qo‘shmaymiz: ular qarama-qarshi yo‘nalishdagi o‘zgarishlar.', 'Долг и поступление не складываются по модулю: это изменения разных направлений.'),
+  L('Tushum qarzdan katta, shuning uchun qoldiq manfiy emas.', 'Поступление больше долга, поэтому остаток не отрицательный.'),
+  null,
+  L('65 000 modullar yig‘indisi. Har xil ishoralarda modullar ayiriladi.', '65 000 — сумма модулей. При разных знаках модули вычитают.'),
+];
 
 const D28 = makeLesson({
   id: 28,
@@ -682,29 +943,29 @@ const D44 = makeLesson({
   id: 44,
   title: L('Fazoviy shakllar hajmi va o‘lchov birliklari', 'Объём пространственных фигур и единицы'),
   subtitle: L("Kub va to'g'ri burchakli parallelepiped hajmini hisoblab, kub birliklarni aylantiramiz.", 'Вычислим объём куба и прямоугольного параллелепипеда, переведём кубические единицы.'),
-  decorations: ['V=abh', 'V=a³', 'cm³', '1 l=1 dm³'],
-  visual: { type: 'cube', label: 'V=a·b·h' },
-  hook: Q(L('Qutining hajmi', 'Объём коробки'), L('Uzunligi 5 cm, eni 3 cm, balandligi 4 cm qutining hajmi?', 'Каков объём коробки 5 см × 3 см × 4 см?'), L('Uch o‘lchamni ko‘paytiring.', 'Перемножьте три измерения.'), ['12 cm³', '20 cm³', '47 cm³', '60 cm³'], 3, P(["V=5·3·4.", 'V=5·3·4.'], ["V=60 cm³.", 'V=60 см³.']), L('V=a·b·h.', 'V=a·b·h.'), eq('V=5·3·4')),
+  decorations: ['V=abc', 'V=a³', 'cm³', '1 l=1 dm³'],
+  visual: { type: 'cube', label: 'V=a·b·c' },
+  hook: Q(L('Qutining hajmi', 'Объём коробки'), L('Uzunligi 5 cm, eni 3 cm, balandligi 4 cm qutining hajmi?', 'Каков объём коробки 5 см × 3 см × 4 см?'), L('Uch o‘lchamni ko‘paytiring.', 'Перемножьте три измерения.'), ['12 cm³', '20 cm³', '47 cm³', '60 cm³'], 3, P(["V=5·3·4.", 'V=5·3·4.'], ["V=60 cm³.", 'V=60 см³.']), L('V=a·b·c.', 'V=a·b·c.'), eq('V=5·3·4')),
   concepts: [
     C(L('Hajm nima?', 'Что такое объём?'), P(["Hajm jism fazoda qancha joy egallashini bildiradi.", 'Объём показывает, сколько места тело занимает в пространстве.'], ["U uch o'lchamga bog'liq: uzunlik, en va balandlik.", 'Он зависит от трёх измерений: длины, ширины и высоты.']), { type: 'cube', label: L('uzunlik × en × balandlik', 'длина × ширина × высота') }),
-    C(L('Parallelepiped formulasi', 'Формула параллелепипеда'), P(["To'g'ri burchakli parallelepiped hajmi V=a·b·h.", 'Объём прямоугольного параллелепипеда V=a·b·h.'], ["Barcha o'lchamlar bir xil birlikda bo'lishi kerak.", 'Все измерения должны быть в одинаковых единицах.']), eq('V=a·b·h'), true),
+    C(L('Parallelepiped formulasi', 'Формула параллелепипеда'), P(["To'g'ri burchakli parallelepiped hajmi V=a·b·c.", 'Объём прямоугольного параллелепипеда V=a·b·c.'], ["Barcha o'lchamlar bir xil birlikda bo'lishi kerak.", 'Все измерения должны быть в одинаковых единицах.']), eq('V=a·b·c'), true),
     C(L('Kub hajmi', 'Объём куба'), P(["Kubning barcha qirralari a ga teng.", 'Все рёбра куба равны a.'], ["V=a·a·a=a³.", 'V=a·a·a=a³.']), { type: 'cube', label: 'V=a³' }, true),
     C(L('Kub birliklar', 'Кубические единицы'), P(["Hajm mm³, cm³, dm³, m³ kabi kub birliklarda yoziladi.", 'Объём записывают в мм³, см³, дм³, м³.'], ["cm³ — qirrasi 1 cm bo'lgan kub hajmi.", 'см³ — объём куба с ребром 1 см.']), cards('1 cm³', '1 dm³', '1 m³')),
     C(L('Birliklarni aylantirish', 'Перевод единиц'), P(["1 dm=10 cm bo'lsa, 1 dm³=10³ cm³=1000 cm³.", 'Если 1 дм=10 см, то 1 дм³=10³ см³=1000 см³.'], ["1 m³=1000 dm³.", '1 м³=1000 дм³.']), chain('1 dm³', '1000 cm³'), true),
     C(L('Litr bilan bog‘lanish', 'Связь с литрами'), P(["1 litr=1 dm³.", '1 литр=1 дм³.'], ["1 millilitr=1 cm³; demak 1000 ml=1 l.", '1 миллилитр=1 см³; значит 1000 мл=1 л.']), cards('1 l=1 dm³', '1 ml=1 cm³'), true),
-    C(L('Noma‘lum o‘lcham', 'Неизвестное измерение'), P(["V, a va b ma'lum bo'lsa, h=V:(a·b).", 'Если известны V, a и b, то h=V:(a·b).'], ["V=120, a=6, b=5 bo'lsa, h=120:30=4.", 'Если V=120, a=6, b=5, то h=120:30=4.']), chain('h=V:(ab)', '120:30', '4')),
+    C(L('Noma‘lum o‘lcham', 'Неизвестное измерение'), P(["V, a va b ma'lum bo'lsa, c=V:(a·b).", 'Если известны V, a и b, то c=V:(a·b).'], ["V=120, a=6, b=5 bo'lsa, c=120:30=4.", 'Если V=120, a=6, b=5, то c=120:30=4.']), chain('c=V:(ab)', '120:30', '4')),
     C(L('Idish sig‘imi', 'Вместимость сосуда'), P(["Idishning ichki hajmi uning qancha suyuqlik sig'dirishini ko'rsatadi.", 'Внутренний объём сосуда показывает его вместимость.'], ["O'lchamlar dm da bo'lsa, natija dm³ va son jihatdan litrga teng.", 'Если размеры в дм, результат в дм³ численно равен литрам.']), chain('2 dm·3 dm·4 dm', '24 dm³', '24 l')),
-    C(L('Yuza va hajmni farqlang', 'Различайте площадь и объём'), P(["Yuza ikki o'lchamdan va kvadrat birlikdan foydalanadi.", 'Площадь использует два измерения и квадратные единицы.'], ["Hajm uch o'lchamdan va kub birlikdan foydalanadi.", 'Объём использует три измерения и кубические единицы.']), panels({ title: L('Yuza', 'Площадь'), lines: ['a·b, cm²'], color: 'yellow' }, { title: L('Hajm', 'Объём'), lines: ['a·b·h, cm³'], color: 'blue' })),
+    C(L('Yuza va hajmni farqlang', 'Различайте площадь и объём'), P(["Yuza ikki o'lchamdan va kvadrat birlikdan foydalanadi.", 'Площадь использует два измерения и квадратные единицы.'], ["Hajm uch o'lchamdan va kub birlikdan foydalanadi.", 'Объём использует три измерения и кубические единицы.']), panels({ title: L('Yuza', 'Площадь'), lines: ['a·b, cm²'], color: 'yellow' }, { title: L('Hajm', 'Объём'), lines: ['a·b·c, cm³'], color: 'blue' })),
   ],
   tasks: [
     Q(L('Kub hajmi', 'Объём куба'), L('Qirrasi 4 cm bo‘lgan kub hajmini toping.', 'Найдите объём куба с ребром 4 см.'), L('V=a³.', 'V=a³.'), ['12 cm³', '16 cm³', '48 cm³', '64 cm³'], 3, P(["V=4³=4·4·4.", 'V=4³=4·4·4.'], ["V=64 cm³.", 'V=64 см³.']), L('Uchta 4 ni ko‘paytiring.', 'Перемножьте три четвёрки.'), eq('4³=64')),
-    Q(L('Balandlikni toping', 'Найдите высоту'), L('V=180 cm³, a=9 cm, b=5 cm. h ni toping.', 'V=180 см³, a=9 см, b=5 см. Найдите h.'), L('h=V:(a·b).', 'h=V:(a·b).'), ['2 cm', '4 cm', '20 cm', '45 cm'], 1, P(["a·b=9·5=45.", 'a·b=9·5=45.'], ["h=180:45=4 cm.", 'h=180:45=4 см.']), L('Hajmni asos yuziga bo‘ling.', 'Разделите объём на площадь основания.'), chain('180:(9·5)', '4')),
+    Q(L('Uchinchi qirrani toping', 'Найдите третье ребро'), L('V=180 cm³, a=9 cm, b=5 cm. c ni toping.', 'V=180 см³, a=9 см, b=5 см. Найдите c.'), L('c=V:(a·b).', 'c=V:(a·b).'), ['2 cm', '4 cm', '20 cm', '45 cm'], 1, P(["a·b=9·5=45.", 'a·b=9·5=45.'], ["c=180:45=4 cm.", 'c=180:45=4 см.']), L('Hajmni asos yuziga bo‘ling.', 'Разделите объём на площадь основания.'), chain('180:(9·5)', '4')),
     MATCH(L('Birliklarni moslashtiring', 'Сопоставьте единицы'), L('Teng hajmlarni bog‘lang.', 'Соедините равные объёмы.'), L('Litr, millilitr va kub birliklar bog‘lanishini eslang.', 'Вспомните связь литров и кубических единиц.'), [{ left: '1 l', correct: '1 dm³' }, { left: '1 ml', correct: '1 cm³' }, { left: '1 m³', correct: '1000 dm³' }], P(["1 l=1 dm³, 1 ml=1 cm³, 1 m³=1000 dm³.", '1 л=1 дм³, 1 мл=1 см³, 1 м³=1000 дм³.'], ["Har bir uzunlik o'n marta o'zgarsa, hajm ming marta o'zgaradi.", 'При увеличении длины в 10 раз объём меняется в 1000 раз.']), L('Kub birlikda uchta o‘lcham bor.', 'В кубической единице три измерения.')),
     Q(L('Hajmni aylantiring', 'Переведите объём'), L('3 dm³ necha cm³?', 'Сколько см³ в 3 дм³?'), L('1 dm³=1000 cm³.', '1 дм³=1000 см³.'), ['30 cm³', '300 cm³', '3000 cm³', '30 000 cm³'], 2, P(["3·1000=3000.", '3·1000=3000.'], ["3 dm³=3000 cm³.", '3 дм³=3000 см³.']), L('3 ni 1000 ga ko‘paytiring.', 'Умножьте 3 на 1000.'), eq('3·1000=3000')),
     Q(L('Akvarium sig‘imi', 'Вместимость аквариума'), L('Ichki o‘lchamlari 5 dm × 3 dm × 4 dm. Necha litr sig‘adi?', 'Внутренние размеры 5 дм × 3 дм × 4 дм. Сколько литров вмещает?'), L('Hajm dm³ da chiqadi va litrga teng.', 'Объём получится в дм³ и равен литрам.'), ['12 l', '20 l', '60 l', '600 l'], 2, P(["V=5·3·4=60 dm³.", 'V=5·3·4=60 дм³.'], ["60 dm³=60 litr.", '60 дм³=60 литров.']), L('Uch o‘lchamni ko‘paytiring.', 'Перемножьте три измерения.'), chain('5·3·4', '60 dm³', '60 l')),
   ],
   summary: P(
-    ["Parallelepiped hajmi V=a·b·h, kub hajmi V=a³.", 'Объём параллелепипеда V=a·b·h, куба V=a³.'],
+    ["Parallelepiped hajmi V=a·b·c, kub hajmi V=a³.", 'Объём параллелепипеда V=a·b·c, куба V=a³.'],
     ["Hajm kub birliklarda yoziladi; 1 dm³=1000 cm³.", 'Объём записывают в кубических единицах; 1 дм³=1000 см³.'],
     ["1 litr=1 dm³ va 1 millilitr=1 cm³.", '1 литр=1 дм³ и 1 миллилитр=1 см³.'],
   ),
@@ -785,11 +1046,11 @@ const D46 = makeLesson({
   id: 46,
   title: L('6-sinf geometriya va ma’lumotlar bo‘limi yakuni', 'Итог раздела геометрии и данных 6 класса'),
   subtitle: L("Aylana, simmetriya, uchburchak, yuza, hajm va ma'lumotlar tahlilini yagona tizimda takrorlaymiz.", 'Свяжем в единую систему окружность, симметрию, треугольник, площадь, объём и анализ данных.'),
-  decorations: ['C=2πr', 'S=ah/2', 'V=abh', 'x̄'],
+  decorations: ['C=2πr', 'S=ah/2', 'V=abc', 'x̄'],
   visual: panels({ title: L('Geometriya', 'Геометрия'), lines: ['C; S; V'], color: 'yellow' }, { title: L('Ma’lumot', 'Данные'), lines: [L('moda; mediana; o‘rtacha', 'мода; медиана; среднее')], color: 'blue' }),
-  hook: Q(L('Qaysi formula hajmga tegishli?', 'Какая формула относится к объёму?'), L('Quyidagi formulalardan fazoviy jism hajmini tanlang.', 'Выберите формулу объёма пространственного тела.'), L('Hajm uch o‘lcham ko‘paytmasi bilan bog‘liq.', 'Объём связан с произведением трёх измерений.'), ['C=2πr', 'S=πr²', 'S=ah/2', 'V=abh'], 3, P(["V harfi hajmni bildiradi.", 'Буква V обозначает объём.'], ["a, b, h uchta o'lcham: V=abh.", 'a, b, h — три измерения: V=abh.']), L('Uch o‘lchamli formulani qidiring.', 'Найдите формулу с тремя измерениями.'), cards('C', 'S', 'V')),
+  hook: Q(L('Qaysi formula hajmga tegishli?', 'Какая формула относится к объёму?'), L('Quyidagi formulalardan fazoviy jism hajmini tanlang.', 'Выберите формулу объёма пространственного тела.'), L('Hajm uch o‘lcham ko‘paytmasi bilan bog‘liq.', 'Объём связан с произведением трёх измерений.'), ['C=2πr', 'S=πr²', 'S=ah/2', 'V=abc'], 3, P(["V harfi hajmni bildiradi.", 'Буква V обозначает объём.'], ["a, b, c uchta o'lcham: V=abc.", 'a, b, c — три измерения: V=abc.']), L('Uch o‘lchamli formulani qidiring.', 'Найдите формулу с тремя измерениями.'), cards('C', 'S', 'V')),
   concepts: [
-    C(L('Formula xaritasi', 'Карта формул'), P(["Aylana uzunligi C=2πr, doira yuzi S=πr².", 'Длина окружности C=2πr, площадь круга S=πr².'], ["Uchburchak yuzi S=ah/2, parallelepiped hajmi V=abh.", 'Площадь треугольника S=ah/2, объём параллелепипеда V=abh.']), cards('C=2πr', 'S=πr²', 'S=ah/2', 'V=abh'), true),
+    C(L('Formula xaritasi', 'Карта формул'), P(["Aylana uzunligi C=2πr, doira yuzi S=πr².", 'Длина окружности C=2πr, площадь круга S=πr².'], ["Uchburchak yuzi S=ah/2, parallelepiped hajmi V=abc.", 'Площадь треугольника S=ah/2, объём параллелепипеда V=abc.']), cards('C=2πr', 'S=πr²', 'S=ah/2', 'V=abc'), true),
     C(L('Birlik formula tanlashga yordam beradi', 'Единица помогает выбрать формулу'), P(["cm — uzunlik, cm² — yuza, cm³ — hajm.", 'см — длина, см² — площадь, см³ — объём.'], ["Savol birligini oldindan aniqlash noto'g'ri formula tanlashdan saqlaydi.", 'Предварительный выбор единицы помогает избежать неверной формулы.']), chain('cm', 'cm²', 'cm³')),
     C(L('Simmetriya xaritasi', 'Карта симметрий'), P(["O'q simmetriyasi ko'zgu chizig'iga nisbatan aks.", 'Осевая симметрия — отражение относительно прямой.'], ["Markaziy simmetriya nuqta atrofida 180° burilish.", 'Центральная симметрия — поворот на 180° вокруг точки.']), panels({ title: L("O'q", 'Осевая'), lines: ['(x;y)→(−x;y)'], color: 'blue' }, { title: L('Markaziy', 'Центральная'), lines: ['(x;y)→(−x;−y)'], color: 'yellow' })),
     C(L('Uchburchak xaritasi', 'Карта треугольника'), P(["Burchaklar yig'indisi 180°, perimetr P=a+b+c.", 'Сумма углов 180°, периметр P=a+b+c.'], ["Yuza uchun tomonning o'zi emas, unga perpendikulyar balandlik kerak.", 'Для площади нужна не любая сторона, а высота к основанию.']), { type: 'triangle', label: '△ABC', base: 'a', height: 'h' }),

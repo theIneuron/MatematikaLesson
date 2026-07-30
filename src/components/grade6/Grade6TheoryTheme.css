@@ -1,0 +1,2040 @@
+/* 6-sinf nazariy darslarining yagona vizual kontrakti. Etalon: Dars01. */
+.lesson-root {
+  --g6-content-max: 760px;
+  --g6-task-question-size: clamp(25px, 3.8vw, 32px);
+  --g6-task-text-size: clamp(20px, 2.9vw, 23px);
+  --g6-task-option-size: clamp(20px, 2.8vw, 23px);
+  --g6-task-number-size: clamp(22px, 3.6vw, 27px);
+  --g6-task-help-size: clamp(17px, 2.15vw, 19px);
+  --g6-motion-fast: 180ms;
+  --g6-motion-base: 440ms;
+  --g6-motion-slow: 620ms;
+  --g6-motion-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --g6-page: #faf7f1;
+  --g6-paper: #fffefb;
+  --g6-blue-soft: #edf7fb;
+  --g6-green-soft: #edf7f1;
+  --g6-orange-soft: #fff1eb;
+  --g6-yellow-soft: #fff9e8;
+  --g6-border: #e9e3d9;
+  --g6-shadow: 0 8px 22px -8px rgba(58, 53, 48, 0.12);
+  color: #20262b;
+  background: var(--g6-page) !important;
+  font-family: 'Manrope', system-ui, sans-serif !important;
+}
+
+/* 6-sinf nazariy darsi har doim bitta viewport ichida ishlaydi.
+   Sahifa, slayd kontenti va keng vizuallar alohida scroll hududi yaratmaydi. */
+.lesson-root,
+.lesson-root .stage,
+.lesson-root .stage-content {
+  max-width: 100vw;
+  max-height: 100dvh;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+.lesson-root .stage-content {
+  min-width: 0;
+  min-height: 0;
+}
+
+.lesson-root .fth-table-wrap,
+.lesson-root .fth-ribbon-cut {
+  max-width: 100%;
+  overflow: hidden !important;
+}
+
+/*
+ * 6-sinf motion kontrakti
+ * -----------------------
+ * Bir ekranda bitta asosiy kirish harakati ishlaydi. Dekor doimiy suzmaydi,
+ * layout spring bilan sakramaydi, interaktiv element esa faqat holatini
+ * bildiradigan qisqa mikroharakat oladi.
+ */
+.lesson-root .fade-up,
+.lesson-root .why,
+.lesson-root .why-row,
+.lesson-root .dv-chip,
+.lesson-root .ttl-stage-reveal,
+.lesson-root .rg-dot,
+.lesson-root .fth-step-number {
+  animation-name: g6-content-enter !important;
+  animation-duration: var(--g6-motion-base) !important;
+  animation-timing-function: var(--g6-motion-ease) !important;
+  animation-iteration-count: 1 !important;
+  animation-fill-mode: both !important;
+}
+
+@keyframes g6-content-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.lesson-root .delay-1 { animation-delay: 90ms !important; }
+.lesson-root .delay-2 { animation-delay: 180ms !important; }
+.lesson-root .delay-3 { animation-delay: 270ms !important; }
+.lesson-root .delay-4 { animation-delay: 360ms !important; }
+
+/* Harakat emas, faqat holat: fon va dekorlar tinch turadi. */
+.lesson-root .amb-o,
+.lesson-root .number-drift > *,
+.lesson-root .nd-n,
+.lesson-root [class^='d7-drift-'],
+.lesson-root [class*=' d7-drift-'],
+.lesson-root .fth-drift > span,
+.lesson-root .fa-dg-grp,
+.lesson-root .fa-st span,
+.lesson-root .fa-da span,
+.lesson-root .why-dot,
+.lesson-root .fact-dot,
+.lesson-root .ttl-q,
+.lesson-root .concept-glow,
+.lesson-root [class*='pulse']:not(button),
+.lesson-root [class*='float']:not(button) {
+  animation: none !important;
+}
+
+/* Xato javob silkinmaydi; rang va izoh xatoni yetarlicha aniq ko'rsatadi. */
+.lesson-root .pd-review-no,
+.lesson-root .option-picked-wrong,
+.lesson-root .is-wrong {
+  animation: none !important;
+}
+
+/* transition: all o'rniga faqat foydalanuvchi ko'rishi kerak bo'lgan xususiyatlar. */
+.lesson-root button,
+.lesson-root .option,
+.lesson-root .pd-num,
+.lesson-root .ttl-opt,
+.lesson-root input,
+.lesson-root select {
+  transition:
+    color var(--g6-motion-fast) ease,
+    background-color var(--g6-motion-fast) ease,
+    border-color var(--g6-motion-fast) ease,
+    box-shadow var(--g6-motion-fast) ease,
+    opacity var(--g6-motion-fast) ease !important;
+}
+
+.lesson-root button:hover:not(:disabled),
+.lesson-root .option:hover:not(:disabled),
+.lesson-root .pd-num:hover:not(:disabled),
+.lesson-root .ttl-opt:hover:not(:disabled) {
+  transform: none !important;
+}
+
+.lesson-root .feedback-block {
+  transition:
+    max-height var(--g6-motion-slow) var(--g6-motion-ease),
+    opacity var(--g6-motion-base) ease,
+    margin-top var(--g6-motion-slow) var(--g6-motion-ease) !important;
+}
+
+.lesson-root .progress-bar {
+  transition: width var(--g6-motion-base) var(--g6-motion-ease) !important;
+}
+
+.lesson-root,
+.lesson-root button,
+.lesson-root input,
+.lesson-root textarea,
+.lesson-root select,
+.lesson-root p,
+.lesson-root li,
+.lesson-root label,
+.lesson-root .body,
+.lesson-root .small,
+.lesson-root .option,
+.lesson-root .mono {
+  font-family: 'Manrope', system-ui, sans-serif !important;
+}
+
+.lesson-root h1,
+.lesson-root h2,
+.lesson-root h3,
+.lesson-root h4,
+.lesson-root .title,
+.lesson-root .display,
+.lesson-root .ttl-h1 {
+  font-family: 'Source Serif 4', Georgia, serif !important;
+  letter-spacing: -0.01em !important;
+}
+
+.lesson-root .body,
+.lesson-root p,
+.lesson-root li {
+  line-height: 1.55;
+}
+
+.lesson-root .mono,
+.lesson-root .mnum,
+.lesson-root .frac,
+.lesson-root .fth-equation,
+.lesson-root .fth-chain,
+.lesson-root .fth-concept-formula {
+  font-variant-numeric: tabular-nums;
+}
+
+.lesson-root .stage,
+.lesson-root .stage-header,
+.lesson-root .stage-nav {
+  background-color: var(--g6-page) !important;
+}
+
+.lesson-root .frame,
+.lesson-root .fth-figure-frame,
+.lesson-root .ttl-hero,
+.lesson-root .option,
+.lesson-root .rv-block,
+.lesson-root .pn-row,
+.lesson-root .fth-panel,
+.lesson-root .fth-final-card {
+  border-color: var(--g6-border) !important;
+  background-color: var(--g6-paper) !important;
+  box-shadow: var(--g6-shadow) !important;
+}
+
+/* Barcha asosiy kontent bloklari bir xil gorizontal o'q va maksimumga ega. */
+.lesson-root .stage-content > *,
+.lesson-root .rv-col,
+.lesson-root .sm-main,
+.lesson-root .sm-close,
+.lesson-root .sm-result,
+.lesson-root .fth-summary,
+.lesson-root .fth-final-chain {
+  width: min(100%, var(--g6-content-max));
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.lesson-root .frame,
+.lesson-root .fth-figure-frame,
+.lesson-root .rv-block,
+.lesson-root .why,
+.lesson-root .fact-card,
+.lesson-root .frame-soft,
+.lesson-root .frame-success,
+.lesson-root .frame-tip,
+.lesson-root .fth-final-card {
+  width: 100%;
+  max-width: var(--g6-content-max);
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+/* Dars01 etaloni: asosiy dars oqimi markazda, uzun qoida va izoh matnlari
+   esa o'qilishi qulay bo'lishi uchun chapdan tekislanadi. */
+.lesson-root .frame,
+.lesson-root .frame-soft,
+.lesson-root .frame-success,
+.lesson-root .frame-tip,
+.lesson-root .why,
+.lesson-root .fact-card,
+.lesson-root .rv-block,
+.lesson-root .rv-lbl,
+.lesson-root .fth-panel,
+.lesson-root .fth-panel-line,
+.lesson-root .fth-summary-list,
+.lesson-root .fth-final-card {
+  text-align: center !important;
+}
+
+.lesson-root .rv-block {
+  align-items: center !important;
+}
+
+.lesson-root .rv-block.rv-block-visual {
+  align-items: center !important;
+  text-align: center !important;
+}
+
+.lesson-root .rv-block.rv-block-visual .rv-lbl {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.lesson-root .rv-lbl {
+  width: 100% !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Matnli pedagogik bloklar etalondagi kabi chapdan o'qiladi. */
+.lesson-root .rule-text-frame,
+.lesson-root .rule-text-frame .body,
+.lesson-root .why,
+.lesson-root .why .body,
+.lesson-root .fact-card,
+.lesson-root .fact-body,
+.lesson-root .fact-text,
+.lesson-root .frame-success .body,
+.lesson-root .frame-tip .body,
+.lesson-root .fth-summary-list,
+.lesson-root .fth-final-card > p {
+  text-align: left !important;
+}
+
+.lesson-root .fact-badge {
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+/* Barcha 6-sinf nazariy darslarining sarlavha ekrani Dars01 o'lchami,
+   kompozitsiyasi va ikki variantli kirish kartasini saqlaydi. */
+.lesson-root .ttl-wrap {
+  width: min(100%, var(--g6-content-max));
+  margin: 0 auto;
+}
+
+/* 8–46-darslar uchun javobi darhol ochilmaydigan mazmuniy hook. */
+.lesson-root .g6-hook {
+  position: relative;
+  flex: 1;
+  width: min(100%, var(--g6-content-max));
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(10px, 1.8vw, 15px);
+  text-align: center;
+}
+
+.lesson-root .g6-hook-topic {
+  position: relative;
+  margin: 0;
+  color: #ff4f28;
+  font-size: clamp(11px, 1.35vw, 13px);
+  letter-spacing: .12em;
+}
+
+.lesson-root .g6-hook-title {
+  position: relative;
+  max-width: 24ch;
+  margin: 0;
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.15;
+}
+
+.lesson-root .g6-hook-prompt {
+  position: relative;
+  max-width: 58ch;
+  margin: 0;
+  color: #494550;
+  font-size: var(--g6-task-text-size) !important;
+  font-weight: 600;
+}
+
+.lesson-root .g6-hook-visual {
+  position: relative;
+  min-height: clamp(108px, 18vw, 150px);
+  padding: clamp(12px, 2.4vw, 19px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lesson-root .g6-hook-note {
+  position: relative;
+  margin: 0;
+  color: #43855f;
+  font-size: var(--g6-task-help-size);
+}
+
+.lesson-root .g6-hook-options {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.lesson-root .g6-hook-options .option {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left !important;
+}
+
+.lesson-root .g6-hook-options .is-hook-picked {
+  border-color: #ff4f28 !important;
+  box-shadow: 0 0 0 3px rgba(255, 79, 40, .1) !important;
+}
+
+/* 2–6-darslarda hayotiy hook kontenti avvaldan mavjud. Mavzu nomini kichik
+   kontekstga tushirib, o'sha muammo savolini vizual ierarxiyada markazga olamiz. */
+.grade6-theory-etalon .g6-custom-hook h1.display {
+  font-family: 'Manrope', system-ui, sans-serif !important;
+  font-size: clamp(12px, 1.55vw, 14px) !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: .1em !important;
+  text-transform: uppercase;
+  color: #ff4f28 !important;
+  transform: none !important;
+}
+
+.grade6-theory-etalon .g6-custom-hook h1.display + span {
+  display: none !important;
+}
+
+.grade6-theory-etalon .g6-custom-hook h2.body {
+  max-width: 28ch !important;
+  font-family: 'Source Serif 4', Georgia, serif !important;
+  font-size: clamp(27px, 4.8vw, 40px) !important;
+  font-weight: 600 !important;
+  line-height: 1.18 !important;
+  color: #20262b !important;
+}
+
+/* 1-darsda mavzu kichik qoladi, asosiy muammo 12 : 3 = ? kartasidir. */
+.grade6-dars01 .screen-1 .ttl-kicker {
+  font-size: clamp(11px, 1.35vw, 13px) !important;
+}
+
+.grade6-dars01 .screen-1 .ttl-h1 {
+  font-size: clamp(16px, 2.2vw, 20px) !important;
+  max-width: none !important;
+  color: #5a5a60 !important;
+}
+
+/* Kirishda mavzu boshidanoq yakuniy o'lchamda; keyingi bloklar ochilganda
+   butun kompozitsiya bir xil tezlikda mayin tepaga siljiydi. */
+.lesson-root .ttl-wrap {
+  transform: translate3d(0, 0, 0) !important;
+  transition: transform var(--g6-motion-slow) linear !important;
+  will-change: transform;
+}
+
+.lesson-root .ttl-wrap.ttl-example-focus {
+  transform: translate3d(0, clamp(-18px, -2.4vh, -10px), 0) !important;
+}
+
+.lesson-root .ttl-kicker,
+.lesson-root .ttl-h1,
+.lesson-root .ttl-rule,
+.lesson-root .ttl-sub {
+  animation-name: g6-content-enter !important;
+  animation-duration: var(--g6-motion-base) !important;
+  animation-timing-function: var(--g6-motion-ease) !important;
+  animation-fill-mode: both !important;
+}
+
+.lesson-root .ttl-kicker { animation-delay: 0ms !important; }
+.lesson-root .ttl-h1 { animation-delay: 80ms !important; }
+.lesson-root .ttl-rule { animation-delay: 150ms !important; }
+.lesson-root .ttl-sub { animation-delay: 220ms !important; }
+
+.lesson-root .ttl-prompt {
+  transition: opacity var(--g6-motion-base) ease !important;
+}
+
+.lesson-root .ttl-opts {
+  transform: translate3d(0, 8px, 0) !important;
+  transition:
+    opacity var(--g6-motion-base) ease,
+    transform var(--g6-motion-base) var(--g6-motion-ease),
+    visibility 0s linear var(--g6-motion-base) !important;
+}
+
+.lesson-root .ttl-opts.is-visible {
+  transform: translate3d(0, 0, 0) !important;
+  transition-delay: 0s !important;
+}
+
+.lesson-root .ttl-h1 {
+  width: 100% !important;
+  max-width: 18ch;
+  margin-inline: auto !important;
+  font-family: 'Source Serif 4', Georgia, serif !important;
+  font-size: clamp(30px, 6.4vw, 50px) !important;
+  font-weight: 600 !important;
+  line-height: 1.14 !important;
+  text-align: center !important;
+}
+
+.lesson-root .ttl-sub {
+  width: min(100%, 62ch);
+  max-width: 62ch !important;
+  margin-inline: auto !important;
+  line-height: 1.5 !important;
+  text-align: center !important;
+}
+
+.lesson-root .ttl-hero {
+  width: min(100%, 520px) !important;
+  min-height: clamp(128px, 23vw, 178px);
+  box-sizing: border-box;
+  justify-content: center;
+  border: 1px solid var(--g6-border) !important;
+  box-shadow: 0 16px 34px -10px rgba(58, 53, 48, 0.22) !important;
+}
+
+.lesson-root .ttl-opts {
+  width: min(100%, 360px) !important;
+  margin-inline: auto;
+}
+
+.lesson-root .ttl-opt {
+  min-height: 50px;
+  text-align: center !important;
+}
+
+/* Savol, javob va navigatsiya o'lchamlari Dars01 bilan bir xil. */
+.lesson-root .option {
+  min-height: 50px;
+  padding: clamp(12px, 1.7vw, 14px) clamp(14px, 2.1vw, 19px);
+  border: 1px solid var(--g6-border) !important;
+  font-size: var(--g6-task-option-size) !important;
+  line-height: 1.4 !important;
+}
+
+/* OddOneOut yechilganda variantlar joy bo'shatib yig'iladi. Umumiy yirik
+   tugma kontraktidagi min-height bu max-height animatsiyasini to'smasin. */
+.lesson-root .option.g6-option-collapsed {
+  min-height: 0 !important;
+}
+
+/*
+ * TOPSHIRIQ TIPOGRAFIKASI
+ * Savol, variant, moslashtirish, tasniflash va feedback matnlari 46 darsda
+ * bir xil yirik o'lchamda. Inline kichik fontlar ham shu kontraktga bo'ysunadi.
+ */
+.lesson-root .stage-content .h-sub {
+  font-size: var(--g6-task-question-size);
+  line-height: 1.25;
+}
+
+.lesson-root .stage-content .h-title {
+  font-size: var(--g6-task-question-size);
+  line-height: 1.25;
+}
+
+.lesson-root .stage-content .option .small,
+.lesson-root .stage-content .option .mono.small,
+.lesson-root .pn-opt,
+.lesson-root .pn-lead,
+.lesson-root .pd-grid + *,
+.lesson-root .fth-final-options .option {
+  font-size: var(--g6-task-option-size) !important;
+}
+
+.lesson-root .answer-input,
+.lesson-root input[type='text'],
+.lesson-root input[type='number'],
+.lesson-root textarea,
+.lesson-root select {
+  min-height: 52px;
+  font-size: var(--g6-task-option-size) !important;
+  line-height: 1.35 !important;
+}
+
+.lesson-root .pd-num {
+  font-size: var(--g6-task-number-size) !important;
+}
+
+/* Topshiriq framelaridagi matematik son va formulalar.
+   Izoh matnlari o'z o'lchamida qoladi. */
+.lesson-root .stage-content .frame .mnum,
+.lesson-root .stage-content .frame .frac,
+.lesson-root .stage-content .frame .fth-standalone-number,
+.lesson-root .stage-content .frame .mono:not(.small) {
+  font-size: var(--g6-task-number-size) !important;
+  line-height: 1.2 !important;
+}
+
+.lesson-root .stage-content .fade-up > .body,
+.lesson-root .stage-content .fade-up > p.body,
+.lesson-root .fth-final-card > p.body,
+.lesson-root .fth-final-feedback,
+.lesson-root .frame-tip .body,
+.lesson-root .frame-success .body,
+.lesson-root .why-tx {
+  font-size: var(--g6-task-text-size) !important;
+  line-height: 1.5 !important;
+}
+
+.lesson-root .stage-content .small:not(.eyebrow),
+.lesson-root .stage-content .mono.small {
+  font-size: var(--g6-task-help-size);
+  line-height: 1.4;
+}
+
+/* Moslashtirish komponentidagi inline 12–15px qiymatlarni bekor qiladi. */
+.lesson-root .stage-content .frame > div > span:not(.frac):not(.mnum),
+.lesson-root .stage-content .option > span:last-child {
+  font-size: inherit !important;
+}
+
+.lesson-root .option-correct,
+.lesson-root .fth-final-options .option.is-correct {
+  border-color: #1f7a4d !important;
+  background: #e3f0e8 !important;
+  color: #1f7a4d !important;
+}
+
+.lesson-root .option-picked-wrong,
+.lesson-root .fth-final-options .option.is-wrong {
+  border-color: #ff4f28 !important;
+  background: #ffe8e1 !important;
+  color: #ff4f28 !important;
+}
+
+.lesson-root .stage-header,
+.lesson-root .stage-nav {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.lesson-root .stage-nav {
+  border-top: 1px solid rgba(167, 166, 162, 0.25) !important;
+}
+
+.lesson-root .sm-main,
+.lesson-root .sm-close,
+.lesson-root .sm-result,
+.lesson-root .fth-pass-note,
+.lesson-root .fth-final-summary {
+  width: min(100%, 720px);
+  margin-inline: auto !important;
+}
+
+.grade6-dars01 .ttl-sub {
+  max-width: 42ch !important;
+  white-space: normal;
+  color: #20262b !important;
+  font-size: clamp(20px, 3vw, 28px) !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+
+.grade6-dars01 .ttl-opts {
+  width: min(100%, 520px) !important;
+  max-width: 520px !important;
+}
+
+/* Barcha 6-sinf nazariy darslarining faqat yakuniy slaydi:
+   frame ichidagi yozuvlar bir xil tarzda chapdan boshlanadi. */
+.lesson-root .g6-final-slide :is(.frame, .frame-success, .frame-warn, .frame-tip),
+.lesson-root .g6-final-slide :is(.frame, .frame-success, .frame-warn, .frame-tip) * {
+  text-align: left !important;
+}
+
+.grade6-dars01 .rule-text-frame,
+.grade6-dars01 .rule-text-frame .body {
+  text-align: left !important;
+}
+
+/* 2–46-darslarning FAQAT birinchi slaydi. Dars01 o'zgarmaydi:
+   u grade6-theory-etalon klassiga ega emas va o'z etalon stillarida qoladi. */
+.grade6-theory-etalon .screen-1 .ttl-hero {
+  width: 100% !important;
+  max-width: 520px !important;
+  min-height: clamp(128px, 23vw, 178px) !important;
+  margin-top: clamp(4px, 1vw, 8px) !important;
+  padding: clamp(13px, 2.4vw, 19px) clamp(18px, 3.4vw, 28px) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  box-shadow: 0 16px 34px -10px rgba(58, 53, 48, 0.22) !important;
+}
+
+.grade6-theory-etalon .screen-1 .ttl-prompt-slot {
+  min-height: 30px !important;
+  margin-top: clamp(5px, 1vw, 9px) !important;
+}
+
+.grade6-theory-etalon .screen-1 .ttl-prompt {
+  color: #43855f !important;
+  font-size: clamp(18px, 2.9vw, 21px) !important;
+  font-weight: 500 !important;
+  line-height: 1.25 !important;
+}
+
+.grade6-theory-etalon .screen-1 .ttl-opts {
+  width: 100% !important;
+  max-width: 520px !important;
+  gap: 10px !important;
+}
+
+.grade6-theory-etalon .screen-1 .ttl-opt {
+  width: 100% !important;
+  max-width: 520px !important;
+  height: clamp(58px, 10vw, 72px) !important;
+  min-height: clamp(58px, 10vw, 72px) !important;
+  padding: clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px) !important;
+  border: 2px solid #d8d3c8 !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  color: #0e0e10 !important;
+  font-size: clamp(18px, 3.2vw, 22px) !important;
+  font-weight: 300 !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+  box-shadow: 0 10px 24px -8px rgba(58, 53, 48, 0.24) !important;
+}
+
+/* 5-slayd: juftliklar, bo'luvchilar va “Bilasizmi?” maydoni yirikroq. */
+.grade6-dars01 .s6-slide {
+  gap: clamp(13px, 2.2vw, 19px) !important;
+}
+
+.grade6-dars01 .s6-slide .h-sub {
+  font-size: clamp(27px, 4.8vw, 38px) !important;
+}
+
+.grade6-dars01 .s6-slide .frame,
+.grade6-dars01 .s6-slide .rv-block {
+  padding: clamp(15px, 2.7vw, 23px) !important;
+}
+
+.grade6-dars01 .s6-slide .s6-first-frame {
+  border: 2px solid rgba(255, 79, 40, 0.42) !important;
+  box-shadow: 0 11px 25px -10px rgba(255, 79, 40, 0.3) !important;
+}
+
+.grade6-dars01 .s6-slide .rv-pair {
+  font-size: clamp(22px, 4.2vw, 30px) !important;
+}
+
+.grade6-dars01 .s6-slide .rv-cap,
+.grade6-dars01 .s6-slide .dv-chip {
+  font-size: clamp(16px, 2.6vw, 20px) !important;
+}
+
+.grade6-dars01 .s6-slide .fact-card {
+  padding: clamp(17px, 3vw, 25px) !important;
+  gap: clamp(15px, 2.8vw, 22px) !important;
+}
+
+.grade6-dars01 .s6-slide .fact-badge {
+  justify-content: center;
+  font-size: clamp(13px, 2vw, 16px) !important;
+}
+
+.grade6-dars01 .s6-slide .fact-text {
+  font-size: clamp(16px, 2.5vw, 20px) !important;
+  line-height: 1.55 !important;
+}
+
+/* 7-slayd: ikki taqqoslash frame'i va ularning yozuvlari mutanosib yirik. */
+.grade6-dars01 .s10-slide {
+  gap: clamp(14px, 2.4vw, 20px) !important;
+}
+
+.grade6-dars01 .s10-slide .h-sub {
+  font-size: clamp(30px, 5.2vw, 42px) !important;
+}
+
+.grade6-dars01 .s10-slide .rv-block,
+.grade6-dars01 .s10-slide .frame-tip {
+  padding: clamp(17px, 3vw, 25px) !important;
+  gap: clamp(10px, 1.8vw, 15px) !important;
+}
+
+.grade6-dars01 .s10-slide .rv-cap,
+.grade6-dars01 .s10-slide .dv-chip {
+  font-size: clamp(18px, 3vw, 23px) !important;
+}
+
+.grade6-dars01 .s10-slide .rv-cap {
+  color: #4d4a45 !important;
+  font-weight: 600 !important;
+}
+
+.grade6-dars01 .s10-slide .rv-badge {
+  padding: 7px 15px !important;
+  font-size: clamp(15px, 2.5vw, 19px) !important;
+}
+
+.grade6-dars01 .s10-slide .frame-tip .body {
+  font-size: clamp(19px, 3.1vw, 24px) !important;
+  line-height: 1.5 !important;
+}
+
+/* 8-slayd: tekshirishdan oldin tanlangan variant olovrang bilan belgilanadi. */
+.grade6-dars01 .pn-opt.pn-sel {
+  border-color: #ff4f28 !important;
+  background: #ffffff !important;
+  color: #0e0e10 !important;
+  box-shadow: 0 8px 18px -7px rgba(255, 79, 40, 0.28) !important;
+}
+
+/* 11-slayd: natija va “Bilasizmi?” matni. */
+.grade6-dars01 .screen-11 .frame-success .body {
+  font-size: clamp(18px, 2.8vw, 22px) !important;
+  line-height: 1.5 !important;
+}
+
+.grade6-dars01 .screen-11 .fact-badge {
+  justify-content: center;
+  font-size: clamp(13px, 2vw, 16px) !important;
+}
+
+.grade6-dars01 .screen-11 .fact-text {
+  font-size: clamp(16px, 2.5vw, 20px) !important;
+  line-height: 1.5 !important;
+}
+
+/* 13-slayd: tasniflash frame'lari va yozuvlari. */
+.grade6-dars01 .screen-13 .option {
+  min-height: clamp(112px, 18vw, 150px);
+  padding: clamp(18px, 3vw, 25px) !important;
+  gap: 12px !important;
+}
+
+.grade6-dars01 .screen-13 .option > .small {
+  font-size: inherit !important;
+}
+
+.grade6-dars01 .screen-13 .option .mono.small {
+  font-size: var(--g6-task-option-size) !important;
+  padding: 5px 10px !important;
+}
+
+.grade6-dars01 .egg-sort {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.8vw, 15px);
+}
+
+.grade6-dars01 .egg-trays {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(12px, 2.4vw, 20px);
+}
+
+.grade6-dars01 .egg-tray {
+  position: relative;
+  box-sizing: border-box;
+  height: clamp(180px, 29vw, 230px);
+  min-height: 0;
+  overflow: hidden;
+  border: 3px solid #9b846b;
+  border-radius: 24px;
+  padding: 50px 15px 15px;
+  cursor: default;
+  color: #2d2721;
+  background: linear-gradient(145deg, #f0e3d3, #d8c3aa);
+  box-shadow: inset 0 0 0 7px rgba(255,255,255,.35), 0 12px 24px -12px rgba(74,55,38,.35);
+}
+
+.grade6-dars01 .egg-tray-label {
+  position: absolute;
+  top: 13px;
+  left: 12px;
+  right: 12px;
+  z-index: 3;
+  font-size: clamp(16px, 2.7vw, 22px);
+  font-weight: 700;
+  text-align: center;
+}
+
+.grade6-dars01 .egg-tray-slots {
+  position: absolute;
+  inset: 49px 14px 14px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.grade6-dars01 .egg-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  border: 3px solid rgba(111,88,66,.42);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 58%, #cbb397 0 38%, #ac9276 40% 57%, #dbc9b5 59%);
+  box-shadow: inset 0 7px 12px rgba(77,58,41,.2);
+}
+
+.grade6-dars01 .egg-mini,
+.grade6-dars01 .number-egg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(48px, 8vw, 64px);
+  height: clamp(62px, 10vw, 82px);
+  border: 2px solid #c7a578;
+  border-radius: 52% 48% 47% 53% / 62% 61% 39% 38%;
+  color: #32281e;
+  background: radial-gradient(circle at 35% 25%, #fffdf5 0 14%, #f4dfbb 42%, #dfbd87 100%);
+  box-shadow: inset -7px -9px 12px rgba(139,95,43,.12), 0 8px 15px -8px rgba(75,50,25,.38);
+  font-size: clamp(19px, 3.2vw, 27px);
+  font-weight: 800;
+}
+
+.grade6-dars01 .egg-pool {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(42px, 1fr));
+  align-items: end;
+  gap: clamp(2px, .8vw, 8px);
+  min-height: 124px;
+  padding: 13px 5px 5px;
+}
+
+.grade6-dars01 .number-egg {
+  transform: rotate(var(--egg-tilt));
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.grade6-dars01 .number-egg:active {
+  cursor: grabbing;
+}
+
+.grade6-dars01 .number-egg.is-dragging {
+  opacity: .45;
+}
+
+.grade6-dars01 .number-egg.is-touch-dragging {
+  position: fixed;
+  z-index: 2000;
+  margin: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(0) scale(1.08);
+  opacity: .94;
+}
+
+.grade6-dars01 .egg-in-tray {
+  width: clamp(31px, 5.2vw, 43px);
+  height: clamp(41px, 6.7vw, 56px);
+  font-size: clamp(14px, 2.1vw, 18px);
+  transform: none;
+}
+
+.grade6-dars01 .egg-scatter {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.grade6-dars01 .egg-scatter-0 { transform: translateY(8px) rotate(-7deg); }
+.grade6-dars01 .egg-scatter-1 { transform: translateY(-6px) rotate(5deg); }
+.grade6-dars01 .egg-scatter-2 { transform: translateY(13px) rotate(-3deg); }
+.grade6-dars01 .egg-scatter-3 { transform: translateY(-2px) rotate(8deg); }
+.grade6-dars01 .egg-scatter-4 { transform: translateY(11px) rotate(-5deg); }
+.grade6-dars01 .egg-scatter-5 { transform: translateY(-8px) rotate(4deg); }
+.grade6-dars01 .egg-scatter-6 { transform: translateY(5px) rotate(-8deg); }
+.grade6-dars01 .egg-scatter-7 { transform: translateY(-3px) rotate(6deg); }
+
+.grade6-dars01 .egg-scatter .number-egg {
+  transform: none;
+}
+
+.grade6-dars01 .egg-tray-wrong {
+  border-color: #d64545;
+  box-shadow: inset 0 0 0 7px rgba(255,255,255,.35), 0 0 0 4px rgba(214,69,69,.13);
+}
+
+@media (max-width: 520px) {
+  .grade6-dars01 .egg-tray {
+    height: 154px;
+    min-height: 0;
+    padding-top: 43px;
+    border-radius: 18px;
+  }
+
+  .grade6-dars01 .egg-tray-wells {
+    inset: 43px 9px 9px;
+    gap: 5px;
+  }
+
+  .grade6-dars01 .egg-tray-slots {
+    inset: 43px 9px 9px;
+    gap: 5px;
+  }
+
+  .grade6-dars01 .egg-mini,
+  .grade6-dars01 .number-egg {
+    width: 39px;
+    height: 53px;
+    font-size: 17px;
+  }
+
+  .grade6-dars01 .egg-pool {
+    grid-template-columns: repeat(4, 1fr);
+    min-height: 148px;
+    row-gap: 2px;
+  }
+}
+
+/* 14-slayd: “Bilasizmi?” bloki. */
+.grade6-dars01 .screen-14 .fact-badge {
+  justify-content: center;
+  font-size: clamp(13px, 2vw, 16px) !important;
+}
+
+.grade6-dars01 .screen-14 .fact-text {
+  font-size: clamp(17px, 2.6vw, 21px) !important;
+  line-height: 1.5 !important;
+}
+
+/* 15-slayd: yashil xulosa va sariq bog'lanish frame'lari. */
+.grade6-dars01 .screen-15 .frame-success .body {
+  font-size: clamp(18px, 2.8vw, 22px) !important;
+  line-height: 1.5 !important;
+}
+
+.grade6-dars01 .screen-15 .frame-tip .small {
+  font-size: clamp(16px, 2.5vw, 20px) !important;
+  line-height: 1.5 !important;
+}
+
+/* “Bilasizmi?” kartalarida sarlavha va izoh chap oqimda o'qiladi. */
+.grade6-dars01 .fact-card,
+.grade6-dars01 .fact-body,
+.grade6-dars01 .fact-badge,
+.grade6-dars01 .fact-text {
+  text-align: left !important;
+}
+
+.grade6-dars01 .fact-badge {
+  justify-content: flex-start !important;
+}
+
+/* Rangli frame'larda faqat izoh matni chapdan; formulalar markazda qoladi. */
+.grade6-dars01 .rv-block-b > .body,
+.grade6-dars01 .frame-success .body,
+.grade6-dars01 .frame-tip .body {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left !important;
+}
+
+.lesson-root .frame-soft,
+.lesson-root .rv-block-a,
+.lesson-root .fth-panel-yellow,
+.lesson-root .option-picked-wrong {
+  background-color: var(--g6-orange-soft) !important;
+}
+
+.lesson-root .frame-success,
+.lesson-root .rv-block-b,
+.lesson-root .option-correct,
+.lesson-root .fth-panel-green,
+.lesson-root .fth-card-green,
+.lesson-root .fth-pass-note.is-passed {
+  background-color: var(--g6-green-soft) !important;
+}
+
+.lesson-root .why,
+.lesson-root .fact-card,
+.lesson-root .fth-panel-blue,
+.lesson-root .fth-card-blue,
+.lesson-root .pd-sel {
+  background-color: var(--g6-blue-soft) !important;
+}
+
+.lesson-root .frame-tip,
+.lesson-root .fth-card-yellow,
+.lesson-root .fth-pass-note.is-review {
+  background-color: var(--g6-yellow-soft) !important;
+}
+
+.lesson-root .progress-track {
+  background: #e7e2d9 !important;
+}
+
+.lesson-root .progress-bar {
+  box-shadow: none !important;
+}
+
+.lesson-root .option:hover:not(:disabled) {
+  background-color: #f7fbfd !important;
+  box-shadow: 0 9px 20px -9px rgba(58, 53, 48, 0.16) !important;
+}
+
+@media (max-width: 639.98px) {
+  .lesson-root {
+    --g6-task-question-size: clamp(24px, 6.8vw, 28px);
+    --g6-task-text-size: clamp(20px, 5.4vw, 22px);
+    --g6-task-option-size: clamp(20px, 5.2vw, 22px);
+    --g6-task-number-size: clamp(21px, 5.9vw, 25px);
+    --g6-task-help-size: clamp(16px, 4.2vw, 18px);
+  }
+
+  .lesson-root .frame,
+  .lesson-root .fth-figure-frame,
+  .lesson-root .rv-block {
+    border-radius: 14px !important;
+  }
+
+  .lesson-root .g6-hook {
+    justify-content: flex-start;
+    padding-top: 4px;
+  }
+
+  .lesson-root .g6-hook-title {
+    font-size: clamp(27px, 7.4vw, 32px);
+  }
+
+  .lesson-root .g6-hook-options {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Scrollsiz qisqa viewport rejimi. Kontent kesilmasligi uchun vertikal
+   bo'shliqlar, frame paddinglari va topshiriq tipografikasi birga qisqaradi. */
+@media (max-height: 800px) {
+  .lesson-root {
+    --g6-task-question-size: clamp(22px, 3.25vw, 28px);
+    --g6-task-text-size: clamp(17px, 2.35vw, 20px);
+    --g6-task-option-size: clamp(17px, 2.2vw, 20px);
+    --g6-task-number-size: clamp(20px, 3.1vw, 24px);
+    --g6-task-help-size: clamp(14px, 1.9vw, 17px);
+  }
+
+  .lesson-root .stage-content {
+    padding-top: 6px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .lesson-root .stage-content > *,
+  .lesson-root .g6-hook,
+  .lesson-root .fth-summary,
+  .lesson-root .fth-final-chain {
+    gap: clamp(7px, 1.3vh, 12px) !important;
+  }
+
+  .lesson-root .frame,
+  .lesson-root .frame-soft,
+  .lesson-root .frame-success,
+  .lesson-root .frame-tip,
+  .lesson-root .frame-warn,
+  .lesson-root .why,
+  .lesson-root .fact-card,
+  .lesson-root .rv-block,
+  .lesson-root .fth-panel,
+  .lesson-root .fth-final-card {
+    padding: clamp(9px, 1.6vh, 14px) !important;
+  }
+
+  .lesson-root .option {
+    min-height: 44px;
+    padding-block: 9px;
+  }
+
+  /* 5-dars, 8-slayd: noto'g'ri deb tekshirilgan son variantlar safidan
+     chiqadi. Qolgan javoblar tanlanaveradi, izoh esa pastda to'liq ko'rinadi. */
+  .grade6-dars05 .screen-8 .option-picked-wrong {
+    min-height: 0 !important;
+    max-height: 0 !important;
+    padding-block: 0 !important;
+    opacity: 0 !important;
+    overflow: hidden !important;
+    border-width: 0 !important;
+  }
+
+  .lesson-root .fth-figure-frame,
+  .lesson-root .g6-hook-visual,
+  .lesson-root .ttl-hero {
+    min-height: 82px !important;
+    max-height: 132px;
+    padding: 9px !important;
+  }
+
+  /* Ushbu tushuntirish vizuallari baland, ammo slaydning o'zida yetarli joy bor.
+     Umumiy frame limiti ularning yuqori va pastki qismini kesmasligi kerak. */
+  .lesson-root[data-lesson-id='frac_6_08'] .screen-4 .fth-figure-frame,
+  .lesson-root[data-lesson-id='frac_6_09'] :is(.screen-3, .screen-5) .fth-figure-frame,
+  .lesson-root[data-lesson-id='frac_6_11'] .screen-3 .fth-figure-frame,
+  .lesson-root[data-lesson-id='decimal_6_15'] .screen-6 .fth-figure-frame,
+  .lesson-root[data-lesson-id='word_6_16'] .screen-4 .fth-figure-frame,
+  .lesson-root[data-lesson-id='percent_6_21'] :is(.screen-3, .screen-4) .fth-figure-frame,
+  .lesson-root[data-lesson-id='percent_tasks_6_22'] .screen-3 .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_29'] .screen-3 .fth-figure-frame {
+    max-height: none;
+  }
+
+  .lesson-root .fact-anim {
+    width: 82px !important;
+    height: 62px !important;
+  }
+
+  .lesson-root .feedback-block.visible {
+    margin-top: 4px !important;
+  }
+
+  .lesson-root .feedback-block :is(.frame-success, .frame-tip, .frame-soft) {
+    padding: 7px 10px !important;
+  }
+
+  .lesson-root .feedback-block p:first-child {
+    margin-bottom: 3px !important;
+  }
+
+  /* Qisqa ekranda javob tekshirilgach kontekstdagi son savolning o'zida
+     qoladi. Takroriy misol vizualini yig'ib, javob, feedback, sabab va
+     faktni birgalikda footer ustida to'liq ko'rsatamiz. */
+  :is(
+    .grade6-dars02,
+    .grade6-dars03,
+    .grade6-dars04,
+    .grade6-dars05,
+    .grade6-dars06
+  )
+  .stage-content > div:has(.answer-input:is(.wrong, .correct))
+  > .frame:not(:has(.answer-input)) {
+    display: none !important;
+  }
+
+  /* Variantli savolda rasm javob berishgacha ko'rinadi. To'g'ri javobdan
+     keyin uning o'rnini pedagogik feedback va “Nega shunday” izohi oladi. */
+  :is(
+    .grade6-dars02,
+    .grade6-dars03,
+    .grade6-dars04,
+    .grade6-dars05,
+    .grade6-dars06
+  )
+  .stage-content > div:has(.option-correct)
+  > .frame {
+    display: none !important;
+  }
+
+  .lesson-root .why {
+    margin-top: 4px !important;
+    padding: 7px 10px !important;
+  }
+
+  .lesson-root .why-h {
+    margin-bottom: 4px !important;
+  }
+
+  .lesson-root .why-list {
+    gap: 4px !important;
+  }
+
+  .lesson-root .why-row {
+    gap: 7px !important;
+  }
+
+  .lesson-root .why-num {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  .lesson-root .why-tx {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+  }
+
+  .lesson-root .fact-card {
+    gap: 8px !important;
+    padding: 7px 10px !important;
+  }
+
+  .lesson-root .fact-anim {
+    width: 52px !important;
+    height: 40px !important;
+  }
+
+  .lesson-root .fact-text {
+    font-size: 13px !important;
+    line-height: 1.3 !important;
+  }
+
+  .lesson-root .rv-col {
+    justify-content: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .lesson-root .rv-block {
+    padding: 7px 9px !important;
+  }
+
+  .lesson-root .rv-lbl {
+    font-size: clamp(15px, 2vw, 18px) !important;
+    line-height: 1.25 !important;
+  }
+
+  .grade6-theory-etalon .g6-custom-hook {
+    justify-content: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .grade6-theory-etalon .g6-custom-hook h2.body {
+    font-size: clamp(20px, 3.5vw, 25px) !important;
+    line-height: 1.16 !important;
+  }
+
+  .grade6-theory-etalon .g6-custom-hook > p.body {
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+  }
+
+  .grade6-theory-etalon .g6-custom-hook > .frame {
+    min-height: 78px !important;
+    max-height: 96px !important;
+    padding: 7px !important;
+  }
+
+  .lesson-root .ttl-opt,
+  .grade6-theory-etalon.d7-lesson .screen-1 .ttl-opt {
+    height: auto !important;
+    min-height: 40px !important;
+    padding: 7px 11px !important;
+  }
+
+  .grade6-theory-etalon.d7-lesson .screen-1 .ttl-hero {
+    min-height: 74px !important;
+    max-height: 92px !important;
+  }
+
+  .grade6-dars01 :is(.s6-slide, .s10-slide) {
+    gap: 6px !important;
+  }
+
+  .grade6-dars01 :is(.s6-slide, .s10-slide) .h-sub {
+    font-size: var(--g6-task-question-size) !important;
+  }
+
+  .grade6-dars01 :is(.s6-slide, .s10-slide)
+  :is(.frame, .rv-block, .frame-tip, .fact-card) {
+    padding: 7px 10px !important;
+  }
+
+  .grade6-dars01 .s10-slide .frame-tip .body {
+    font-size: var(--g6-task-text-size) !important;
+    line-height: 1.3 !important;
+  }
+
+  .lesson-root .g6-step-lines {
+    gap: 5px !important;
+  }
+
+  .lesson-root .g6-step-lines > :is(.frame, .frame-tip) {
+    padding: 6px 10px !important;
+  }
+
+  .lesson-root .g6-step-lines .body {
+    font-size: clamp(14px, 1.8vw, 16px) !important;
+    line-height: 1.28 !important;
+  }
+
+  .lesson-root .stage-content > div:has(.g6-step-lines):not(.g6-d5-fast-method) {
+    zoom: .88;
+  }
+
+  .lesson-root .g6-match-slide,
+  .lesson-root .g6-match-rows {
+    gap: 5px !important;
+  }
+
+  .grade6-dars05 .screen-15 .g6-final-slide {
+    gap: 6px !important;
+  }
+
+  .lesson-root .g6-match-rows .frame {
+    padding: 6px 9px !important;
+  }
+
+  .lesson-root .fth-data-table {
+    table-layout: fixed;
+    font-size: 13px !important;
+  }
+
+  .lesson-root .fth-data-table :is(caption, th, td) {
+    padding: 4px 6px !important;
+    overflow-wrap: anywhere;
+  }
+
+  .lesson-root .fth-percent-grid {
+    width: min(150px, 24vh) !important;
+  }
+
+  .lesson-root .fth-coordinate-plane {
+    width: min(100%, 270px) !important;
+  }
+
+  .lesson-root .fth-group-box {
+    min-height: 70px !important;
+    padding-block: 5px !important;
+  }
+
+  .lesson-root
+  :is(.fth-circle-rearrange, .fth-angle-sum, .fth-triangle-pair, .fth-central-rotation) {
+    max-height: 125px !important;
+  }
+
+  .lesson-root .fth-cube-visual svg {
+    max-height: 145px !important;
+  }
+
+  .lesson-root .fth-fold-symmetry {
+    height: 112px !important;
+  }
+
+  .lesson-root :is(.fth-map-route, .fth-balance, .fth-symmetry-visual, .fth-data-bars) {
+    zoom: .78;
+  }
+
+  .lesson-root .fth-ribbon-cut > span,
+  .lesson-root .fth-bar-part {
+    min-width: 0 !important;
+  }
+
+  .lesson-root .d7-bars {
+    min-height: 34px !important;
+  }
+
+  .lesson-root .d7-line {
+    height: 70px !important;
+    margin-top: 34px !important;
+  }
+
+  .lesson-root :is(.fth-summary-list, .d7-summary-list) {
+    gap: 4px !important;
+  }
+
+  .lesson-root :is(.fth-summary-list, .d7-summary-list) .body {
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+  }
+
+  .lesson-root .fth-final-card,
+  .lesson-root .fth-final-options {
+    gap: 6px !important;
+  }
+
+  .lesson-root .g6-two-methods {
+    gap: 7px !important;
+    zoom: .92;
+  }
+
+  /* 5-dars, 7-slayd: ikki usul qisqa desktopda yonma-yon turadi.
+     Shu tariqa oxirgi misol frame'i navigatsiya ostiga tushmaydi va
+     formulalar umumiy kichraytirilmasdan o'qilishi qulay qoladi. */
+  @media (min-width: 640px) {
+    .grade6-dars05 .screen-7 .g6-two-methods {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      gap: 5px !important;
+      zoom: .86;
+    }
+
+    .grade6-dars05 .screen-7 .stage-content > div > .frame:last-child {
+      padding: 5px 8px !important;
+    }
+
+    .grade6-dars06 .screen-7 .g6-two-methods {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      zoom: .88;
+    }
+
+    .grade6-dars06 .screen-7 .stage-content > div > .frame:last-child {
+      padding: 6px 8px !important;
+    }
+  }
+}
+
+@media (max-height: 680px) {
+  .lesson-root {
+    --g6-task-question-size: clamp(20px, 3vw, 25px);
+    --g6-task-text-size: clamp(16px, 2.1vw, 18px);
+    --g6-task-option-size: clamp(16px, 2vw, 18px);
+    --g6-task-number-size: clamp(19px, 2.8vw, 22px);
+    --g6-task-help-size: clamp(13px, 1.7vw, 15px);
+  }
+
+  .lesson-root .stage-content {
+    padding-top: 3px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .lesson-root .stage-content > *,
+  .lesson-root .g6-hook,
+  .lesson-root .fth-summary,
+  .lesson-root .fth-final-chain {
+    gap: 6px !important;
+  }
+
+  .lesson-root .option {
+    min-height: 40px;
+    padding-block: 7px;
+  }
+
+  .lesson-root .g6-hook-title {
+    font-size: clamp(22px, 6vw, 25px);
+    line-height: 1.12;
+  }
+
+  .lesson-root .g6-hook-prompt {
+    font-size: 16px !important;
+    line-height: 1.3;
+  }
+
+  .lesson-root .g6-hook-options {
+    gap: 6px;
+  }
+
+  .lesson-root .g6-hook-options .option {
+    min-height: 38px;
+    padding-block: 6px;
+  }
+
+  .lesson-root .g6-custom-hook {
+    gap: 6px !important;
+    justify-content: flex-start !important;
+  }
+
+  .lesson-root .g6-custom-hook h1.display {
+    font-size: 11px !important;
+  }
+
+  .lesson-root .g6-custom-hook h2.body {
+    font-size: 22px !important;
+    line-height: 1.15 !important;
+  }
+
+  .lesson-root .g6-custom-hook > p.body {
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+  }
+
+  .lesson-root .g6-custom-hook .frame {
+    min-height: 70px !important;
+    padding: 7px !important;
+  }
+
+  /* 1-darsning 11-slaydida to'g'ri javobdan keyin izoh, sabab va fakt
+     bir vaqtda ochiladi. Faqat yordamchi matnlarni ixchamlaymiz; savol va
+     matematik sonlar o'z yirik o'lchamida qoladi. */
+  .grade6-dars01 .screen-11 .why,
+  .grade6-dars01 .screen-11 .fact-card {
+    padding: 5px 8px !important;
+  }
+
+  .grade6-dars01 .screen-11 .why-tx {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+  }
+
+  .grade6-dars01 .screen-11 .fact-text {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  .lesson-root .g6-two-methods {
+    gap: 5px !important;
+    zoom: .88;
+  }
+
+  /* Telefonning qisqa viewportida usullar ustma-ust qoladi, ammo oxirgi
+     frame pastki navigatsiyadan yuqorida tugashi uchun ichki geometriya
+     va frame paddingi nishonli ravishda ixchamlanadi. */
+  .grade6-dars05 .screen-7 .stage-content > div > .frame:last-child {
+    padding: 4px 7px !important;
+  }
+
+  .grade6-dars05 .screen-7 .g6-two-methods {
+    gap: 4px !important;
+    zoom: .78;
+  }
+
+  .grade6-dars06 .screen-7 .stage-content > div > .frame:last-child {
+    padding: 5px 8px !important;
+  }
+
+  .grade6-dars06 .screen-7 .g6-two-methods {
+    zoom: .78;
+  }
+
+  .lesson-root .stage-content > div:has(.g6-step-lines):not(.g6-d5-fast-method) {
+    zoom: .78;
+  }
+
+  .grade6-dars06 .screen-9 .stage-content > div:has(.g6-step-lines) {
+    zoom: .62;
+  }
+
+  /* To'g'ri javob yashil inputda saqlanadi; uning tagidagi ayni javobni
+     takrorlaydigan kataklar qisqa ekranda joyni feedbackga bo'shatadi. */
+  :is(
+    .grade6-dars02,
+    .grade6-dars03,
+    .grade6-dars04,
+    .grade6-dars05,
+    .grade6-dars06
+  )
+  .stage-content > div:has(.answer-input.correct)
+  > .frame:has(.answer-input.correct) {
+    gap: 0 !important;
+    padding: 6px 9px !important;
+  }
+
+  :is(
+    .grade6-dars02,
+    .grade6-dars03,
+    .grade6-dars04,
+    .grade6-dars05,
+    .grade6-dars06
+  )
+  .stage-content > div:has(.answer-input.correct)
+  > .frame:has(.answer-input.correct)
+  > div:has(.place-cell) {
+    display: none !important;
+  }
+
+  .lesson-root .g6-two-methods > div {
+    gap: 3px !important;
+  }
+
+  .lesson-root .g6-two-methods .small {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+  }
+
+  .lesson-root .g6-final-slide {
+    gap: 5px !important;
+    justify-content: flex-start !important;
+  }
+
+  .lesson-root .g6-final-slide .h-sub,
+  .lesson-root .g6-final-slide .title {
+    font-size: 22px !important;
+    line-height: 1.1 !important;
+  }
+
+  .lesson-root .g6-final-slide .sm-result,
+  .lesson-root .g6-final-slide .sm-result * {
+    font-size: 14px !important;
+    line-height: 1.2 !important;
+  }
+
+  .lesson-root .g6-final-slide :is(.frame, .frame-success, .frame-tip, .frame-warn) {
+    padding: 6px 9px !important;
+  }
+
+  .lesson-root .g6-final-slide :is(.body, .small) {
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+  }
+
+  .lesson-root .g6-match-slide {
+    position: relative;
+    gap: 6px !important;
+  }
+
+  /* Moslashtirish variantlari qatorlarni pastga surmaydi: tanlash paytida
+     slayd ichidagi ixcham panel sifatida ochiladi. */
+  .lesson-root .g6-match-options {
+    position: absolute;
+    z-index: 20;
+    right: 0;
+    bottom: 78px;
+    left: 0;
+    gap: 5px !important;
+    padding: 7px;
+    border: 1px solid var(--g6-border);
+    border-radius: 12px;
+    background: var(--g6-paper);
+    box-shadow: 0 12px 30px -14px rgba(14, 14, 16, .35);
+  }
+
+  .lesson-root .g6-match-options .option {
+    min-height: 36px;
+    padding-block: 5px;
+    font-size: 14px !important;
+  }
+
+  .lesson-root .fth-figure-frame,
+  .lesson-root .g6-hook-visual,
+  .lesson-root .ttl-hero {
+    min-height: 68px !important;
+    max-height: 92px;
+  }
+
+  /* Ushbu slaydlarda vizualning o'zi mazmun: 92px limit qadamlar va
+     kartalarni markazdan kesadi. Slaydlarda bo'sh joy yetarli, shuning
+     uchun frame ichki mazmun balandligicha ochiladi. */
+  .lesson-root[data-lesson-id='word_6_16'] .screen-3 .fth-figure-frame,
+  .lesson-root[data-lesson-id='percent_tasks_6_22'] .screen-8 .fth-figure-frame,
+  .lesson-root[data-lesson-id='proportion_tasks_6_23'] .screen-3 .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_32'] .screen-3 .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_35'] .screen-4 .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_38'] .screen-3 .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_42'] :is(.screen-2, .screen-4) .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_43'] :is(.screen-2, .screen-4) .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_44'] :is(.screen-2, .screen-4, .screen-6) .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_45'] .screen-11 .fth-figure-frame,
+  .lesson-root[data-lesson-id='grade6_theory_46'] :is(.screen-6, .screen-8) .fth-figure-frame {
+    max-height: none;
+  }
+
+  /* Uzun yozuvli ko'p-tanlov variantlari shriftni saqlagan holda
+     vertikal padding va oraliq hisobiga bitta slaydga sig'adi. */
+  .lesson-root[data-lesson-id='scale_6_20'] .screen-13 .pd-grid {
+    gap: 5px !important;
+  }
+
+  .lesson-root[data-lesson-id='scale_6_20'] .screen-13 .pd-num {
+    padding-block: 7px !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Javobdan keyin rasm yechimning bir qismi bo'lib qoladigan ikki
+     topshiriq: rasmning ichki geometriyasini ixchamlaymiz, savol va
+     javob shriftlarini o'zgartirmaymiz. */
+  .grade6-dars04 .screen-5 .stage-content > div > .frame,
+  .grade6-dars06 .screen-4 .stage-content > div > .frame {
+    padding: 5px 8px !important;
+  }
+
+  .grade6-dars04 .screen-5 .stage-content > div > .frame > * {
+    zoom: .75;
+  }
+
+  .grade6-dars04 .screen-9 .stage-content > div > .frame {
+    padding: 5px 8px !important;
+  }
+
+  .grade6-dars04 .screen-9 .stage-content > div > .frame > * {
+    zoom: .92;
+  }
+
+  .grade6-dars04 .screen-5 .why-tx {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+  }
+
+  .grade6-dars06 .screen-4 .stage-content > div > .frame > * {
+    zoom: .72;
+  }
+
+  .lesson-root[data-lesson-id='grade6_theory_40'] .screen-15 .pd-grid {
+    gap: 4px !important;
+  }
+
+  .lesson-root[data-lesson-id='grade6_theory_40'] .screen-15 .pd-num {
+    padding-block: 6px !important;
+    line-height: 1.15 !important;
+  }
+
+  .lesson-root[data-lesson-id='grade6_theory_40'] .screen-15 .pd-num.pd-ok {
+    max-width: 100%;
+    min-width: 0;
+    transform: none !important;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-root,
+  .lesson-root *,
+  .lesson-root *::before,
+  .lesson-root *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 6-sinf 5-dars: mashq va tushuntirish matnlari bazaviy o'lchamdan +2px. */
+.grade6-dars05 .body {
+  font-size: 19px !important;
+}
+
+.grade6-dars05 .small,
+.grade6-dars05 .rv-lbl,
+.grade6-dars05 .rv-cap,
+.grade6-dars05 .why-tx,
+.grade6-dars05 .fact-text {
+  font-size: 17px !important;
+}
+
+.grade6-dars05 .option,
+.grade6-dars05 .answer-input {
+  font-size: var(--g6-task-option-size) !important;
+}
+
+/* 5-dars, 7-slayd: oxirgi oq frame ichidagi matematik ifodalar
+   usul nomlaridan alohida, ixchamroq o'lchamda ko'rinadi. */
+.grade6-dars05 .screen-7 .g6-two-methods .mono:not(.small) {
+  font-size: clamp(12px, 1.8vw, 14px) !important;
+}
+
+/* 5-dars, yoyilma orqali tez usul: barcha uch izoh va tarix kartasi
+   navigatsiya ustida bitta slaydga to'liq sig'adi. */
+@media (max-height: 900px) {
+  .grade6-dars05 .g6-d5-fast-method {
+    gap: 7px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .h-title {
+    font-size: clamp(25px, 3.4vw, 32px) !important;
+    line-height: 1.12 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method > .body {
+    font-size: 17px !important;
+    line-height: 1.35 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .frame,
+  .grade6-dars05 .g6-d5-fast-method .frame-tip,
+  .grade6-dars05 .g6-d5-fast-method .fact-card {
+    padding: 8px 12px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .frame .body,
+  .grade6-dars05 .g6-d5-fast-method .frame-tip .body {
+    font-size: 16px !important;
+    line-height: 1.35 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .fact-card {
+    min-height: 64px;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .fact-text {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .fact-anim {
+    width: 72px !important;
+    height: 54px !important;
+  }
+}
+
+@media (max-height: 680px) {
+  .grade6-dars05 .g6-d5-fast-method {
+    gap: 4px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .h-title {
+    font-size: 20px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method > .body {
+    font-size: 13px !important;
+    line-height: 1.22 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method > .frame {
+    padding: 4px 7px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method > .frame > * {
+    zoom: .78;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .g6-step-lines {
+    gap: 3px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .g6-step-lines > :is(.frame, .frame-tip) {
+    padding: 4px 7px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .g6-step-lines .body {
+    font-size: 12px !important;
+    line-height: 1.22 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .fact-card {
+    min-height: 48px;
+    gap: 5px !important;
+    padding: 5px 7px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .fact-text {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .fact-anim {
+    width: 38px !important;
+    height: 32px !important;
+  }
+}
+
+/*
+ * TUSHUNTIRISH OQIMI
+ * 5-dars 2-slaydda tasdiqlangan ko'rinish barcha 6-sinf nazariy
+ * tushuntirishlariga semantik klasslar orqali qo'llanadi. Mashq, feedback,
+ * fakt va yakun framelari bu selektorlarga kirmaydi.
+ */
+.lesson-root .g6-explanation-prompt {
+  font-size: clamp(20px, 2.5vw, 22px) !important;
+  font-weight: 500;
+  line-height: 1.4 !important;
+}
+
+.lesson-root .g6-explanation-question {
+  font-size: clamp(27px, 4vw, 34px) !important;
+  line-height: 1.22 !important;
+}
+
+/* Tushuntirish rasmini sun'iy balandlikka siqmaymiz: aks holda ichki
+   matematik chizma frame tashqarisiga chiqib, savol yoki izohni bosadi. */
+.lesson-root .g6-explanation-flow > .fth-figure-frame {
+  max-height: none !important;
+}
+
+.lesson-root .frame-tip.g6-explanation-step {
+  position: relative;
+  display: block;
+  min-width: 0;
+  padding-left: clamp(48px, 6vw, 56px) !important;
+  border-left: 4px solid #d8a93a !important;
+  background-color: var(--g6-yellow-soft) !important;
+  opacity: 1 !important;
+  text-align: left !important;
+}
+
+.lesson-root .stage-content .frame-tip.g6-explanation-step > p.body {
+  width: 100%;
+  margin: 0;
+  color: #6f6c73 !important;
+  font-size: clamp(15px, 1.75vw, 17px) !important;
+  font-weight: 400;
+  line-height: 1.4 !important;
+  text-align: left !important;
+}
+
+.lesson-root .g6-explanation-lamp {
+  position: absolute;
+  top: 50%;
+  left: clamp(11px, 1.8vw, 15px);
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid rgba(216, 169, 58, 0.28);
+  border-radius: 50%;
+  background: #fffdf5;
+  box-shadow: 0 5px 12px -7px rgba(94, 70, 18, 0.45);
+  font-size: 18px;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+@media (max-width: 639.98px) {
+  .lesson-root .g6-explanation-prompt {
+    font-size: 19px !important;
+  }
+
+  .lesson-root .g6-explanation-question {
+    font-size: clamp(25px, 6.9vw, 28px) !important;
+  }
+
+  .lesson-root .frame-tip.g6-explanation-step {
+    padding-left: 43px !important;
+  }
+
+  .lesson-root .stage-content .frame-tip.g6-explanation-step > p.body {
+    font-size: 14px !important;
+  }
+
+  .lesson-root .g6-explanation-lamp {
+    left: 9px;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+  }
+}
+
+@media (max-height: 800px) {
+  .lesson-root .g6-explanation-question {
+    font-size: clamp(23px, 3.4vw, 29px) !important;
+  }
+}
+
+@media (max-height: 680px) {
+  .lesson-root .g6-explanation-prompt {
+    font-size: 19px !important;
+    line-height: 1.3 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method > .g6-explanation-prompt {
+    font-size: 15px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .frame-tip.g6-explanation-step {
+    padding: 4px 7px 4px 36px !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .frame-tip.g6-explanation-step > p.body {
+    font-size: 12px !important;
+    line-height: 1.22 !important;
+  }
+
+  .grade6-dars05 .g6-d5-fast-method .g6-explanation-lamp {
+    left: 7px;
+    width: 23px;
+    height: 23px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 639.98px) and (max-height: 800px) {
+  .lesson-root .g6-explanation-question {
+    font-size: clamp(24px, 6.6vw, 27px) !important;
+  }
+}
+
+@media (max-height: 560px) {
+  .lesson-root .g6-explanation-prompt {
+    font-size: 17px !important;
+  }
+}
+
+/* Yangi lampali izohlar bilan ham eng zich reveal slaydlar footerga tegmaydi.
+   Faqat vertikal oraliq ixchamlashadi; savol va izoh shriftlari saqlanadi. */
+@media (min-width: 640px) and (max-height: 680px) {
+  .lesson-root[data-lesson-id='percent_6_21'] .screen-4 .rv-col {
+    gap: 5px !important;
+  }
+
+  .lesson-root[data-lesson-id='percent_6_21']
+  .screen-4 .frame-tip.g6-explanation-step {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+}
+
+@media (max-width: 639.98px) and (max-height: 680px) {
+  .grade6-dars01 .screen-4 .rv-col {
+    gap: 4px !important;
+  }
+
+  .grade6-dars01 .screen-4 .rv-block {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+
+  .lesson-root[data-lesson-id='word_6_16'] .screen-3 .rv-col,
+  .lesson-root[data-lesson-id='grade6_theory_29'] .screen-3 .rv-col {
+    gap: 4px !important;
+  }
+
+  .lesson-root[data-lesson-id='word_6_16']
+  .screen-3 .frame-tip.g6-explanation-step,
+  .lesson-root[data-lesson-id='grade6_theory_29']
+  .screen-3 .frame-tip.g6-explanation-step {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+}

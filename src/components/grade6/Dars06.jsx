@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from 'react';
+import './Grade6TheoryTheme.css';
 import { normalizeTtsColons } from './ttsMathColon.js';
+import { useIntroStages } from './Dars01.jsx';
 // УРОК: Наименьшее общее кратное (НОК) — div_6_06
 // --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen) ---
 
@@ -289,6 +291,7 @@ class AudioEngine {
     this.watchdog = null;
     this.hasStarted = false;
     this.advanceTimer = null;
+    this.previewStartTimer = null;
   }
 
   ensureEl() {
@@ -318,6 +321,11 @@ class AudioEngine {
     this.watchdog = null;
   }
 
+  clearPreviewStartTimer() {
+    if (this.previewStartTimer) clearTimeout(this.previewStartTimer);
+    this.previewStartTimer = null;
+  }
+
   // Ba'zi brauzer ovozlari uzun gapda onend bermaydi. Navbat qotib qolmasligi
   // uchun matn uzunligiga mos yuqori chegara qo'yamiz va keyingi segmentga o'tamiz.
   armWatchdog(segment) {
@@ -340,6 +348,7 @@ class AudioEngine {
     if (!segment || segment._audioCompleted) return;
     segment._audioCompleted = true;
     this.clearWatchdog();
+    this.clearPreviewStartTimer();
     this.isStarting = false;
     this.isPlaying = false;
     this.emit({ isPlaying: false, currentSegment: null, lastCompletedSegment: segment.id });
@@ -391,12 +400,14 @@ class AudioEngine {
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
+        if (segment._audioCompleted) return;
         this.autoplayBlocked = false;
         this.isStarting = false;
         this.isPlaying = true;
         this.emit({ isPlaying: true, isBusy: true, currentSegment: segment.id });
         this.armWatchdog(segment);
       }).catch(() => {
+        if (segment._audioCompleted) return;
         // автоплей заблокирован браузером — ждём первого жеста
         this.isStarting = false;
         this.autoplayBlocked = true;
@@ -441,7 +452,12 @@ class AudioEngine {
     };
     this.previewUtterance = u;
     this.armWatchdog(segment);
-    setTimeout(() => { try { synth.speak(u); } catch (e) { this.completeSegment(segment); } }, 60);
+    this.clearPreviewStartTimer();
+    this.previewStartTimer = setTimeout(() => {
+      this.previewStartTimer = null;
+      if (segment._audioCompleted) return;
+      try { synth.speak(u); } catch { this.completeSegment(segment); }
+    }, 60);
   }
 
   // Возобновление после блокировки автоплея (по первому жесту).
@@ -494,14 +510,56 @@ class AudioEngine {
   }
 
   triggerEvent(eventType, target) {
-    if (!this.waitingFor) return;
-    const matches = this.waitingFor.type === eventType &&
-                   (this.waitingFor.target === target || !this.waitingFor.target);
-    if (matches) {
+    const segment = this.queue[this.currentIdx];
+    const waitRule = this.waitingFor || segment?.waits_for;
+    if (!waitRule) return;
+    const matches = waitRule.type === eventType &&
+                   (waitRule.target === target || !waitRule.target);
+    if (!matches) return;
+
+    if (!this.waitingFor && segment) {
+      segment._audioCompleted = true;
+      this.clearWatchdog();
+      this.clearPreviewStartTimer();
+      if (this.advanceTimer) clearTimeout(this.advanceTimer);
+      this.advanceTimer = null;
+      if (this.audioEl) {
+        try {
+          this.audioEl.onended = null;
+          this.audioEl.onerror = null;
+          this.audioEl.pause();
+        } catch { /* no-op */ }
+      }
+      this.audioEl = null;
+      if (this.previewUtterance) {
+        this.previewUtterance.onstart = null;
+        this.previewUtterance.onend = null;
+        this.previewUtterance.onerror = null;
+        this.previewUtterance = null;
+      }
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        try { window.speechSynthesis.cancel(); } catch { /* no-op */ }
+      }
+      this.isStarting = false;
+      this.isPlaying = false;
+      this.isBusy = false;
+      this.hasStarted = true;
       this.waitingFor = null;
       this.currentIdx++;
+      this.emit({
+        isPlaying: false,
+        isBusy: false,
+        currentSegment: null,
+        lastCompletedSegment: segment.id,
+        waitingFor: null,
+      });
       this.playNext();
+      return;
     }
+
+    this.waitingFor = null;
+    this.currentIdx++;
+    this.playNext();
   }
 
   triggerInternalEvent(eventName) {
@@ -545,6 +603,47 @@ class AudioEngine {
     return segmentId;
   }
 
+  interruptFeedbackQueue() {
+    const currentSegment = this.queue[this.currentIdx];
+    if (currentSegment) currentSegment._audioCompleted = true;
+    this.clearWatchdog();
+    this.clearPreviewStartTimer();
+    if (this.advanceTimer) clearTimeout(this.advanceTimer);
+    this.advanceTimer = null;
+    if (this.audioEl) {
+      try {
+        this.audioEl.onended = null;
+        this.audioEl.onerror = null;
+        this.audioEl.pause();
+      } catch { /* no-op */ }
+    }
+    this.audioEl = null;
+    if (this.previewUtterance) {
+      this.previewUtterance.onstart = null;
+      this.previewUtterance.onend = null;
+      this.previewUtterance.onerror = null;
+      this.previewUtterance = null;
+    }
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try { window.speechSynthesis.cancel(); } catch { /* no-op */ }
+    }
+    this.queue = [];
+    this.currentIdx = 0;
+    this.waitingFor = null;
+    this.isStarting = false;
+    this.isPlaying = false;
+    this.isBusy = false;
+    this.autoplayBlocked = false;
+    this.hasStarted = true;
+    this.emit({
+      isPlaying: false,
+      isBusy: false,
+      currentSegment: null,
+      lastCompletedSegment: null,
+      waitingFor: null,
+    });
+  }
+
   replay() {
     if (this.currentIdx > 0) this.currentIdx--;
     this.waitingFor = null;
@@ -553,6 +652,7 @@ class AudioEngine {
 
   stop() {
     this.clearWatchdog();
+    this.clearPreviewStartTimer();
     if (this.advanceTimer) clearTimeout(this.advanceTimer);
     this.advanceTimer = null;
     if (this.audioEl) {
@@ -812,7 +912,7 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
   const isMobile = useIsMobile();
   const padH = isMobile ? 12 : 100;
   return (
-    <div className="stage">
+    <div className={`stage screen-${screen + 1}`}>
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
         <div className="progress-track">
           <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
@@ -845,8 +945,8 @@ const NavBack = ({ onPrev, label = 'Назад' }) => (
   </button>
 );
 
-const NavNext = ({ disabled, label, onClick }) => (
-  <button className="btn-white-accent" disabled={disabled} onClick={onClick}
+const NavNext = ({ label, onClick }) => (
+  <button className="btn-white-accent" onClick={onClick}
     style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
     {label}
   </button>
@@ -905,6 +1005,7 @@ const useAnswerSequence = ({ audio, screen, correctText, whyNode, factAudio, ini
     if (audio.muted) { setSkipAudio(true); return; }
     const engine = getAudioEngine();
     if (!engine) { setSkipAudio(true); return; }
+    engine.interruptFeedbackQueue();
     engine.pushOneOff(toTtsMath(correctText, lang), undefined, `${prefix}_correct`);
     if (whyItems.length) {
       engine.pushOneOff(t(WHY_TITLE), undefined, `${prefix}_why_title`);
@@ -967,15 +1068,30 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
   const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
   const introAdvancedRef = useRef(wasSolved);
+  const wrongFeedbackTimerRef = useRef(null);
   const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c)}/>, [c]);
   const post = useAnswerSequence({ audio, screen: idx, correctText: c.correct_text[lang], whyNode, factAudio: c.fact_audio?.[lang], initiallyComplete: wasSolved });
   const whyRef = useRevealScroll(post.showWhy, 300);
   const factRef = useRevealScroll(post.showFact, 300);
 
+  useEffect(() => () => {
+    if (wrongFeedbackTimerRef.current) clearTimeout(wrongFeedbackTimerRef.current);
+  }, []);
+
   const pick = (i) => {
     if (solved) return;        // после верного — заблокировано
     if (wrong.has(i)) return;  // уже погашенный неверный — игнор
     const isCorrect = i === correctIdx;
+    const isNextSelection = introAdvancedRef.current;
+
+    if (wrongFeedbackTimerRef.current) {
+      clearTimeout(wrongFeedbackTimerRef.current);
+      wrongFeedbackTimerRef.current = null;
+    }
+    if (isNextSelection && !audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.interruptFeedbackQueue();
+    }
 
     if (firstTryRef.current === null) {   // фиксируем первую попытку (аналитика)
       firstTryRef.current = isCorrect;
@@ -1013,7 +1129,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
     }
 
     if (!isCorrect && !audio.muted) {
-      setTimeout(() => {
+      wrongFeedbackTimerRef.current = setTimeout(() => {
+        wrongFeedbackTimerRef.current = null;
         const engine = getAudioEngine();
         if (engine && !audio.muted) {
           const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
@@ -1040,10 +1157,11 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         {/* После верного: остаётся только верный вариант, неверные плавно (с задержкой) сворачиваются — keep-visible anti-scroll. */}
         <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
           {options.map((opt, i) => {
-            let cls = 'option';
             const isWrongPicked = wrong.has(i);
             const isCorrect = i === correctIdx;
             const collapse = solved && !isCorrect;        // после верного неверные сворачиваются
+            let cls = 'option';
+            if (collapse) cls += ' g6-option-collapsed';
             if (solved) {
               if (isCorrect) cls += ' option-correct';
               // неверным НЕ добавляем цвет-класс — плавно гаснут через inline opacity
@@ -1230,7 +1348,7 @@ const CONTENT = {
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     question: { ru: 'Найди число, которое НЕ является общим кратным 4 и 6', uz: "4 va 6 ning umumiy karralisi BO'LMAGAN sonni toping" },
-    lead: { ru: 'Картинки нет — проверь каждое число делением на 4 и на 6.', uz: "Rasm yo'q — har bir sonni 4 ga va 6 ga bo'lib tekshiring." },
+    lead: { ru: 'Проверь каждое число делением на 4 и на 6.', uz: "Har bir sonni 4 ga va 6 ga bo'lib tekshiring." },
     items: [
       { num: '12' },
       { num: '24' },
@@ -1245,7 +1363,7 @@ const CONTENT = {
     wrong_3: { ru: '36 : 4 = 9 и 36 : 6 = 6 — делится на оба. Проверь остальные.', uz: "36 : 4 = 9 va 36 : 6 = 6 — ikkalasiga bo'linadi. Qolganlarini tekshiring." },
     wrong_4: { ru: '48 : 4 = 12 и 48 : 6 = 8 — делится на оба. Осталось одно число.', uz: "48 : 4 = 12 va 48 : 6 = 8 — ikkalasiga bo'linadi. Bitta son qoldi." },
     audio: {
-      intro: { ru: 'Картинки нет, проверяй делением на четыре и на шесть. Найди то число, которое не является общим кратным четырёх и шести.', uz: "Rasm yo'q, to'rtga va oltiga bo'lib tekshiring. To'rt va oltining umumiy karralisi bo'lmagan sonni toping." },
+      intro: { ru: 'Проверяй делением на четыре и на шесть. Найди то число, которое не является общим кратным четырёх и шести.', uz: "To'rtga va oltiga bo'lib tekshiring. To'rt va oltining umumiy karralisi bo'lmagan sonni toping." },
       on_correct: { ru: 'Верно. Оно делится только на шесть.', uz: "To'g'ri. U faqat oltiga bo'linadi." },
       on_wrong: { ru: 'Это общее кратное. Ищи дальше.', uz: "Bu umumiy karrali son. Yana qidiring." }
     }
@@ -1310,7 +1428,7 @@ const CONTENT = {
   s11: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     title: { ru: 'Найди НОК каждой пары', uz: 'Har juftlikning EKUKini toping' },
-    lead: { ru: 'Для каждой пары выбери верный ответ. Картинки нет.', uz: "Har bir juftlik uchun to'g'ri javobni tanlang. Rasm yo'q." },
+    lead: { ru: 'Для каждой пары выбери верный ответ.', uz: "Har bir juftlik uchun to'g'ri javobni tanlang." },
     pairs: [
       { number: '3 va 4', label: { ru: 'НОК', uz: 'EKUK' }, reading: { ru: '12', uz: '12' } },
       { number: '6 va 9', label: { ru: 'НОК', uz: 'EKUK' }, reading: { ru: '18', uz: '18' } },
@@ -1319,7 +1437,7 @@ const CONTENT = {
     correct_text: { ru: 'Верно. 3 и 4 взаимно простые → 12. У 6 и 9 общий множитель 3 → 18. А 10 делится на 5, значит НОК = 10.', uz: "To'g'ri. 3 va 4 o'zaro tub → 12. 6 va 9 ning umumiy bo'luvchisi 3, shuning uchun EKUK 18. 10 esa 5 ga bo'linadi, demak EKUK 10." },
     hint: { ru: 'Проверь: не делится ли большее число на меньшее. Если делится — оно и есть ответ.', uz: "Tekshiring: katta son kichigiga bo'linadimi. Bo'linsa — o'sha javob bo'ladi." },
     audio: {
-      intro: { ru: 'Картинки нет. Для каждой пары выбери верный НОК. Нажми на пару, потом выбери ответ из списка.', uz: "Rasm yo'q. Har bir juftlik uchun to'g'ri EKUK ni tanlang. Juftlikka bosing, so'ng ro'yxatdan javobni tanlang." },
+      intro: { ru: 'Для каждой пары выбери верный НОК. Нажми на пару, потом выбери ответ из списка.', uz: "Har bir juftlik uchun to'g'ri EKUK ni tanlang. Juftlikka bosing, so'ng ro'yxatdan javobni tanlang." },
       on_correct: { ru: 'Верно, все пары на местах.', uz: "To'g'ri, barcha juftliklar o'z o'rniga tushdi." },
       on_wrong: { ru: 'Проверь ещё раз.', uz: 'Yana bir bor tekshiring.' }
     }
@@ -1328,7 +1446,7 @@ const CONTENT = {
   s12: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
     title: { ru: 'Общее кратное 12 и 18 или нет?', uz: "12 va 18 ga umumiy karrali sonmi yoki yo'q?" },
-    lead: { ru: 'Общее кратное делится и на 12, и на 18. Картинки нет.', uz: "Umumiy karrali son 12 ga ham, 18 ga ham bo'linadi. Rasm yo'q." },
+    lead: { ru: 'Общее кратное делится и на 12, и на 18.', uz: "Umumiy karrali son 12 ga ham, 18 ga ham bo'linadi." },
     bin_a: { ru: 'Общее кратное', uz: 'Umumiy karrali son' },
     bin_b: { ru: 'Не общее', uz: 'Umumiy emas' },
     cards: [
@@ -1351,7 +1469,7 @@ const CONTENT = {
   s13: {
     eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni' },
     label: { ru: 'финальная задача', uz: 'yakuniy masala' },
-    context: { ru: 'Вернёмся к первым автобусам: 12 и 18 минут. Картинки нет — считай через разложение.', uz: "Birinchi avtobuslarga qaytamiz: 12 va 18 daqiqa. Rasm yo'q — yoyilma orqali hisoblang." },
+    context: { ru: 'Вернёмся к первым автобусам: 12 и 18 минут. Вычисли через разложение.', uz: "Birinchi avtobuslarga qaytamiz: 12 va 18 daqiqa. Yoyilma orqali hisoblang." },
     question: { ru: 'Через сколько минут они снова уйдут вместе, то есть чему равно НОК(12; 18)?', uz: "Necha daqiqadan keyin ular yana birga jo'naydi, ya'ni EKUK(12; 18) nechaga teng?" },
     answer: '36',
     placeholder: { ru: 'минут', uz: 'daqiqa' },
@@ -1369,7 +1487,7 @@ const CONTENT = {
   s14: {
     eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi" },
     heading: { ru: 'Наименьшее общее кратное', uz: "Eng kichik umumiy karrali" },
-    score_label: { ru: 'заданий выполнено с первой попытки', uz: 'topshiriq birinchi urinishda bajarildi' },
+    score_label: { ru: 'Ваш результат по заданиям:', uz: "Topshiriqlar bo'yicha natijangiz:" },
     main_label: { ru: 'Главное', uz: 'Asosiysi' },
     main_1: { ru: 'НОК двух чисел — самое маленькое из их общих кратных. НОК(12; 18) = 36.', uz: "Ikki sonning EKUKi — ularning umumiy karrali sonlaridan eng kichigi. EKUK(12; 18) = 36." },
     main_2: { ru: 'Два способа: выписать оба ряда кратных или разложить числа и взять каждый множитель в наибольшей степени.', uz: "Ikki usul: ikkala karrali sonlar qatorini yozish yoki sonlarni yoyib, har bir ko'paytuvchini eng katta darajada olish." },
@@ -1628,13 +1746,14 @@ const StepLine = ({ children, soft }) => (
   </div>
 );
 // Bosqichli izohlar yig'iladi: oldingi qatorlar (so'lg'in) qoladi, yangisi pastdan chiqadi (fade-up).
-const StepLinesAccum = ({ lines, step }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.5vw, 12px)' }}>
+const StepLinesAccum = ({ lines, step, className = '' }) => (
+  <div className={`g6-step-lines ${className}`.trim()} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.5vw, 12px)' }}>
     {lines.slice(0, step + 1).map((ln, i) => {
       const isCurrent = i === step;
       return (
-        <div key={i} className={`${isCurrent ? 'fade-up frame' : 'frame-tip'}`} style={{ padding: 'clamp(12px, 2vw, 16px)', opacity: isCurrent ? 1 : 0.72, transition: 'opacity 0.4s ease' }}>
-          <p className="body" style={{ margin: 0, color: isCurrent ? T.ink : T.ink2 }}>{ln}</p>
+        <div key={i} className={`${isCurrent ? 'fade-up ' : ''}frame-tip g6-explanation-step`} style={{ padding: 'clamp(12px, 2vw, 16px)' }}>
+          <span className="g6-explanation-lamp" aria-hidden="true">💡</span>
+          <p className="body g6-explanation-text" style={{ margin: 0, color: T.ink2 }}>{ln}</p>
         </div>
       );
     })}
@@ -1748,20 +1867,43 @@ const InputScreen = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAn
   const [solved, setSolved] = useState(solvedInit);
   const [showHint, setShowHint] = useState(storedAnswer !== undefined && !solvedInit);
   const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
+  const feedbackTimerRef = useRef(null);
   const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c, 'fb_correct')}/>, [c]);
   const post = useAnswerSequence({ audio, screen, correctText: c.fb_correct[lang], whyNode, factAudio: c.fact_audio?.[lang], initiallyComplete: solvedInit });
   const whyRef = useRevealScroll(post.showWhy, 300);
   const factRef = useRevealScroll(post.showFact, 300);
   const isCorrect = norm(value) === norm(c.answer) && norm(value) !== '';
 
+  useEffect(() => () => {
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+  }, []);
+
+  const cancelFeedback = () => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+      feedbackTimerRef.current = null;
+    }
+    if (!audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.interruptFeedbackQueue();
+    }
+  };
+
+  const changeValue = (nextValue) => {
+    if (firstTryRef.current !== null) cancelFeedback();
+    setValue(nextValue);
+  };
+
   const submit = () => {
     if (norm(value) === '' || solved) return;
+    if (firstTryRef.current !== null) cancelFeedback();
     if (firstTryRef.current === null) firstTryRef.current = isCorrect;
     audio.triggerEvent('check_pressed');
     onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.question[lang], options: null, correctIndex: null, correctAnswer: c.answer, studentAnswerIndex: null, studentAnswer: String(value), correct: firstTryRef.current, firstTry: firstTryRef.current });
     if (isCorrect) { setSolved(true); setShowHint(false); sfx.playCorrect(); post.start(); } else { setShowHint(true); sfx.playWrong(); }
     if (!isCorrect && !audio.muted) {
-      setTimeout(() => {
+      feedbackTimerRef.current = setTimeout(() => {
+        feedbackTimerRef.current = null;
         const e = getAudioEngine(); if (!e || audio.muted) return;
         speakMath(e, c.audio.on_wrong[lang] + ' ' + c.hint[lang], lang, `s${screen}_wrong`);
       }, 300);
@@ -1782,7 +1924,7 @@ const InputScreen = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAn
         </div>
         {figureNode && <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.2vw, 18px)' }}>{figureNode}</div>}
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-          <input type="text" inputMode="numeric" className={`answer-input ${solved ? 'correct' : (showHint ? 'wrong' : '')}`} value={value} placeholder={t(c.placeholder)} onChange={e => setValue(e.target.value)} disabled={solved} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'min(100%, 320px)' }}/>
+          <input type="text" inputMode="numeric" className={`answer-input ${solved ? 'correct' : (showHint ? 'wrong' : '')}`} value={value} placeholder={t(c.placeholder)} onChange={e => changeValue(e.target.value)} disabled={solved} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'min(100%, 320px)' }}/>
           <PlaceGrid answer={c.answer} filled={solved}/>
         </div>
         {!solved && (
@@ -1818,14 +1960,28 @@ const OddOneOut = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnsw
   const [wrong, setWrong] = useState(() => new Set());
   const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
   const advancedRef = useRef(wasSolved);
+  const feedbackTimerRef = useRef(null);
   const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c)}/>, [c]);
   const post = useAnswerSequence({ audio, screen, correctText: c.correct_text[lang], whyNode, factAudio: c.fact_audio?.[lang], initiallyComplete: wasSolved });
   const whyRef = useRevealScroll(post.showWhy, 300);
   const factRef = useRevealScroll(post.showFact, 300);
 
+  useEffect(() => () => {
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+  }, []);
+
   const pick = (i) => {
     if (solved || wrong.has(i)) return;
     const isC = i === correctIdx;
+    const isNextSelection = advancedRef.current;
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+      feedbackTimerRef.current = null;
+    }
+    if (isNextSelection && !audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.interruptFeedbackQueue();
+    }
     if (firstTryRef.current === null) firstTryRef.current = isC;
     setPicked(i);
     if (!advancedRef.current) { advancedRef.current = true; audio.triggerEvent('option_picked'); }
@@ -1839,7 +1995,8 @@ const OddOneOut = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnsw
       setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
     }
     if (!isC && !audio.muted) {
-      setTimeout(() => {
+      feedbackTimerRef.current = setTimeout(() => {
+        feedbackTimerRef.current = null;
         const e = getAudioEngine(); if (!e || audio.muted) return;
         const wv = (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
         speakMath(e, wv, lang, `s${screen}_wrong_${i}`);
@@ -1861,6 +2018,7 @@ const OddOneOut = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnsw
             const isWrongPicked = wrong.has(i);
             const collapse = solved && !isCorrect;
             let cls = 'option';
+            if (collapse) cls += ' g6-option-collapsed';
             if (solved && isCorrect) cls += ' option-correct';
             else if (isWrongPicked) cls += ' option-picked-wrong';
             return (
@@ -1903,15 +2061,29 @@ const Classify = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswe
   const [wrongBin, setWrongBin] = useState(null);
   const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
   const advancedRef = useRef(wasSolved);
+  const feedbackTimerRef = useRef(null);
   const solved = pos >= total;
   const cardIdx = solved ? -1 : deck[pos];
   const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c)}/>, [c]);
   const post = useAnswerSequence({ audio, screen, correctText: c.correct_text[lang], whyNode, initiallyComplete: wasSolved });
   const whyRef = useRevealScroll(post.showWhy, 300);
 
+  useEffect(() => () => {
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+  }, []);
+
   const tap = (bin) => {
     if (solved) return;
     const isC = bin === cards[cardIdx].bin;
+    const isNextSelection = advancedRef.current;
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+      feedbackTimerRef.current = null;
+    }
+    if (isNextSelection && !audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.interruptFeedbackQueue();
+    }
     if (!advancedRef.current) { advancedRef.current = true; audio.triggerEvent('option_picked'); }
     if (isC) {
       setWrongBin(null);
@@ -1927,7 +2099,13 @@ const Classify = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswe
       if (firstTryRef.current === null || firstTryRef.current === true) firstTryRef.current = false;
       setWrongBin(bin);
       sfx.playWrong();
-      if (!audio.muted) { setTimeout(() => { const e = getAudioEngine(); if (e && !audio.muted) speakMath(e, c.audio.on_wrong[lang] + ' ' + c.hint[lang], lang, `s${screen}_wrong`); }, 300); }
+      if (!audio.muted) {
+        feedbackTimerRef.current = setTimeout(() => {
+          feedbackTimerRef.current = null;
+          const e = getAudioEngine();
+          if (e && !audio.muted) speakMath(e, c.audio.on_wrong[lang] + ' ' + c.hint[lang], lang, `s${screen}_wrong`);
+        }, 300);
+      }
     }
   };
 
@@ -1989,6 +2167,8 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
   const [solved, setSolved] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const firstTryRef = useRef(null);
+  const feedbackTimerRef = useRef(null);
+  const hasCheckedRef = useRef(false);
   const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c)}/>, [c]);
   const post = useAnswerSequence({ audio, screen, correctText: c.correct_text[lang], whyNode, factAudio: c.fact_audio?.[lang] });
   const whyRef = useRevealScroll(post.showWhy, 300);
@@ -1997,25 +2177,49 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
   // ekrandan pastda qolmasligi uchun ko'rinishga olib kelinadi.
   const optionsRef = useRevealScroll(!solved && activeSlot !== null);
 
+  useEffect(() => () => {
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+  }, []);
+
+  const cancelFeedback = () => {
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+      feedbackTimerRef.current = null;
+    }
+    if (!audio.muted) {
+      const engine = getAudioEngine();
+      if (engine) engine.interruptFeedbackQueue();
+    }
+  };
+
   const allPlaced = assign.every(a => a !== null);
   const isCorrect = assign.every((a, k) => a === k);
   const slotOf = (pairIdx) => assign.findIndex(a => a === pairIdx);
 
   const assignToActive = (pairIdx) => {
     if (solved || activeSlot === null) return;
+    if (hasCheckedRef.current) cancelFeedback();
     setAssign(prev => { const nx = prev.map(a => (a === pairIdx ? null : a)); nx[activeSlot] = pairIdx; return nx; });
     setActiveSlot(null);
   };
-  const clearSlot = (k, e) => { if (e) e.stopPropagation(); if (solved) return; setAssign(prev => { const nx = [...prev]; nx[k] = null; return nx; }); };
+  const clearSlot = (k, e) => {
+    if (e) e.stopPropagation();
+    if (solved) return;
+    if (hasCheckedRef.current) cancelFeedback();
+    setAssign(prev => { const nx = [...prev]; nx[k] = null; return nx; });
+  };
 
   const check = () => {
     if (solved || !allPlaced) return;
+    if (hasCheckedRef.current) cancelFeedback();
+    hasCheckedRef.current = true;
     if (firstTryRef.current === null) firstTryRef.current = isCorrect;
     audio.triggerEvent('check_pressed');
     onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.title[lang], options: null, correctIndex: null, correctAnswer: 'match', studentAnswer: JSON.stringify(assign), correct: firstTryRef.current, firstTry: firstTryRef.current });
     if (isCorrect) { setSolved(true); setShowHint(false); setActiveSlot(null); sfx.playCorrect(); post.start(); } else { setShowHint(true); sfx.playWrong(); }
     if (!isCorrect && !audio.muted) {
-      setTimeout(() => {
+      feedbackTimerRef.current = setTimeout(() => {
+        feedbackTimerRef.current = null;
         const e = getAudioEngine();
         if (!e || audio.muted) return;
         speakMath(e, c.audio.on_wrong[lang] + ' ' + c.hint[lang], lang, `s${screen}_wrong`);
@@ -2027,12 +2231,12 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
   const readingFont = isMobile ? 'clamp(12px, 3.4vw, 14px)' : 'clamp(13px, 1.7vw, 15px)';
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
+      <div className="g6-match-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <div className="fade-up">
           <h2 className="title h-sub">{t(c.title)}</h2>
           {!solved && <p className="small" style={{ marginTop: 6, color: T.ink3 }}>{t(c.lead)}</p>}
         </div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="fade-up delay-1 g6-match-rows" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {pairs.map((pr, k) => {
             const placedPair = assign[k];
             const active = activeSlot === k;
@@ -2058,7 +2262,7 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
           })}
         </div>
         {!solved && activeSlot !== null && (
-          <div ref={optionsRef} className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div ref={optionsRef} className="fade-up g6-match-options" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {order.map(pi => {
               const usedSlot = slotOf(pi);
               const usedHere = usedSlot === activeSlot;
@@ -2104,28 +2308,37 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
   const lang = useLang();
   const audio = useAudio([{ id: 's0_intro', text: `${lang === 'uz' ? `Dars mavzusi: ${c.topic.uz}. ` : `Тема урока: ${c.topic.ru}. `}${c.audio.intro[lang]}`, trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
   const [picked, setPicked] = useState(null);
-  const showOptions = audio.muted || (audio.hasStarted && !audio.isBusy);
-  const optionsRef = useRevealScroll(showOptions);
-  const pick = (v) => { if (picked !== null) return; setPicked(v); onAnswer({ stage: null, screenIdx: screen, studentAnswer: v, correct: true }); audio.triggerEvent('option_picked'); setTimeout(onNext, 300); };
+  const pickedRef = useRef(false);
+  const introReady = audio.muted || (audio.hasStarted && !audio.isBusy);
+  const introStages = useIntroStages({ start: introReady, optionsReady: introReady });
+  const optionsRef = useRevealScroll(introStages.showOptions);
+  const pick = (v) => { if (pickedRef.current) return; pickedRef.current = true; setPicked(v); onAnswer({ stage: 'hook', screenIdx: screen, studentAnswer: v, correct: true }); audio.triggerEvent('option_picked'); setTimeout(onNext, 300); };
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 'clamp(12px, 2.2vw, 18px)' }}>
+      <div className="g6-custom-hook" style={{ position: 'relative', flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 1.8vw, 14px)', textAlign: 'center' }}>
         <Floaters/>
         <p className="eyebrow fade-up" style={{ position: 'relative', color: T.accent }}>{t(c.eyebrow)}</p>
-        <h1 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{t(c.topic)}</h1>
-        <h2 className="title h-sub fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{t(c.global_q)}</h2>
-        <p className="body fade-up delay-1" style={{ position: 'relative', color: T.ink2, margin: 0 }}>{t(c.lead)}</p>
-        <div className="frame fade-up delay-2" style={{ position: 'relative', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(14px, 2.5vw, 18px)' }}>
-          <PriceTag value={12} unit={t(MIN)} size={showOptions ? 'md' : 'lg'}/>
-          <span className="mono" style={{ fontSize: 'clamp(14px, 2.8vw, 18px)', color: T.ink3 }}>{lang === 'uz' ? 'va' : 'и'}</span>
-          <PriceTag value={18} unit={t(MIN)} size={showOptions ? 'md' : 'lg'}/>
-        </div>
-        {showOptions && (
-          <div ref={optionsRef} className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn" disabled={picked !== null} onClick={() => pick('start')}>
-              {lang === 'uz' ? 'Tushuntirishni boshlash' : 'Начать объяснение'}
-            </button>
+        <h1 className="display fade-up" style={{ position: 'relative', width: '100%', margin: 0, color: T.ink, fontFamily: "'Source Serif 4', Georgia, serif", fontSize: introStages.compact ? 'clamp(30px, 6vw, 48px)' : 'clamp(38px, 8vw, 64px)', fontWeight: 600, fontVariationSettings: '"opsz" 60', lineHeight: 1.14, textAlign: 'center', transform: introStages.compact ? 'translateY(-7px)' : 'none', transition: 'font-size 1.2s cubic-bezier(.2,.7,.3,1), transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>{t(c.topic)}</h1>
+        <span aria-hidden="true" style={{ position: 'relative', display: 'block', width: 'clamp(64px, 16vw, 104px)', height: 5, margin: 'clamp(4px,1vw,8px) 0', borderRadius: 99, background: T.accent, boxShadow: '0 0 14px rgba(255,79,40,.45)' }}/>
+        <h2 className="body fade-up delay-1" style={{ position: 'relative', maxWidth: '38ch', margin: 0, fontSize: 'clamp(18px, 2.8vw, 21px)', fontWeight: 600, lineHeight: 1.35, textAlign: 'center' }}>{t(c.global_q)}</h2>
+        <p className="body fade-up delay-1" style={{ position: 'relative', maxWidth: '62ch', color: T.ink2, margin: 0, textAlign: 'center' }}>{t(c.lead)}</p>
+        {introStages.showExample && (
+          <>
+          <div className="frame fade-up" style={{ position: 'relative', width: '100%', maxWidth: 520, minHeight: 128, alignSelf: 'center', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(14px, 2.5vw, 18px)', animationDuration: '1.2s' }}>
+            <PriceTag value={12} unit={t(MIN)} size="lg"/>
+            <span className="mono" style={{ fontSize: 'clamp(14px, 2.8vw, 18px)', color: T.ink3 }}>{lang === 'uz' ? 'va' : 'и'}</span>
+            <PriceTag value={18} unit={t(MIN)} size="lg"/>
           </div>
+          <div ref={optionsRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'center', gap: 10, width: '100%', maxWidth: 520 }}>
+            <div style={{ minHeight: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <p className="small" style={{ margin: 0, color: '#43855F', fontSize: 'clamp(18px, 2.9vw, 21px)', fontWeight: 500, lineHeight: 1.25, textAlign: 'center', opacity: introStages.showPrompt ? 1 : 0, transition: 'opacity 1.05s ease' }}>{lang === 'uz' ? 'Boshlashga tayyormisiz?' : 'Готовы начать?'}</p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 520, opacity: introStages.showOptions ? 1 : 0, visibility: introStages.showOptions ? 'visible' : 'hidden', transform: introStages.showOptions ? 'none' : 'translateY(18px)', transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>
+              <button className="option" style={{ minHeight: 58, padding: 'clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px)', textAlign: 'center', border: '2px solid #D8D3C8', background: '#FFFFFF', color: '#0E0E10', fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(18px, 3.2vw, 22px)', fontWeight: 300, lineHeight: 1.2, boxShadow: '0 10px 24px -8px rgba(58,53,48,.24)' }} disabled={picked !== null} onClick={() => pick('know')}>{t(c.opt_yes)}</button>
+              <button className="option" style={{ minHeight: 58, padding: 'clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px)', textAlign: 'center', border: '2px solid #D8D3C8', background: '#FFFFFF', color: '#0E0E10', fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(18px, 3.2vw, 22px)', fontWeight: 300, lineHeight: 1.2, boxShadow: '0 10px 24px -8px rgba(58,53,48,.24)' }} disabled={picked !== null} onClick={() => pick('learn')}>{t(c.opt_idk)}</button>
+            </div>
+          </div>
+          </>
         )}
       </div>
     </Stage>
@@ -2149,7 +2362,7 @@ const Screen2 = (props) => (
     renderBody={({ t, lang, step }) => (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s2.title)}</h2>
-        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s2.bridge)}</p>
+        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s2.bridge)}</p>
         <div className="frame fade-up delay-2" style={{ padding: 'clamp(12px, 2.2vw, 16px)' }}>
           <CoincidenceTrack a={12} b={18} step={step} unit={step >= 3 ? t(MIN) : null}/>
         </div>
@@ -2177,7 +2390,7 @@ const Screen5 = (props) => (
     renderBody={({ t, lang, step, last, audio }) => (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s5.title)}</h2>
-        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s5.bridge)}</p>
+        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s5.bridge)}</p>
         <div className="frame fade-up delay-2" style={{ padding: 'clamp(12px, 2.2vw, 16px)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)' }}>
           <FactorLcm a={12} b={18} step={step}/>
           {step >= 1 && step < last && (
@@ -2197,7 +2410,7 @@ const Screen5 = (props) => (
 const Screen6 = (props) => {
   const lang = useLang();
   const example = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <div className="g6-two-methods" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <span className="mono small" style={{ color: T.ink2, fontWeight: 700 }}>{lang === 'uz' ? '1 — QATORLAR' : '1 — РЯДЫ'}</span>
         <CoincidenceTrack a={12} b={18} step={2}/>
@@ -2219,7 +2432,7 @@ const Screen8 = (props) => (
     renderBody={({ t, lang, step }) => (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s8.title)}</h2>
-        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s8.bridge)}</p>
+        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s8.bridge)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: 'clamp(12px, 2.2vw, 16px)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
             <span className="mono small" style={{ color: T.ink2, fontWeight: 700 }}>{lang === 'uz' ? 'EKUB — UMUMIYSI' : 'НОД — ОБЩИЕ'}</span>
@@ -2261,7 +2474,7 @@ const Screen10 = (props) => (
     renderBody={({ t, lang, step }) => (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
         <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s10.title)}</h2>
-        <p className="body fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s10.bridge)}</p>
+        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s10.bridge)}</p>
         <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: 'clamp(12px, 2.2vw, 16px)' }}>
           <CoincidenceTrack a={4} b={5} step={step >= 1 ? 2 : 0}/>
           {step >= 2 && (
@@ -2298,16 +2511,18 @@ const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? "Qaytadan o'tish" : 'Пройти заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
+      <div className="g6-final-slide" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
         <Floaters/>
         <div className="fade-up" style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>
             <p className="eyebrow" style={{ color: T.success }}>{t(c.eyebrow)}</p>
             <h2 className="title" style={{ marginTop: 8, fontSize: 'clamp(30px, 6vw, 50px)', lineHeight: 1.04 }}>{t(c.heading)}</h2>
           </div>
-          <span className="mono" style={{ fontSize: 'clamp(36px, 8vw, 58px)', fontWeight: 800, color: T.success, lineHeight: 0.95, flexShrink: 0 }}>{correct}/{total}</span>
         </div>
-        <p className="body fade-up delay-1" style={{ position: 'relative', margin: '-4px 0 0', color: T.ink2 }}>{t(c.score_label)}</p>
+        <p className="body fade-up delay-1" style={{ position: 'relative', margin: '-4px 0 0', color: T.ink2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 9 }}>
+          <span>{t(c.score_label)}</span>
+          <strong className="mono" style={{ color: T.success, fontSize: 'clamp(20px, 3.8vw, 28px)', lineHeight: 1.15 }}>{correct}/{total}</strong>
+        </p>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 14 }}>{t(c.main_label)}</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -2352,14 +2567,14 @@ html, body { margin: 0; padding: 0; }
 .lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root h4, .lesson-root h5, .lesson-root h6,
 .lesson-root p, .lesson-root ul, .lesson-root ol { margin: 0; padding: 0; }
 
-.title { font-family: 'Source Serif 4', serif; font-weight: 600; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: "opsz" 60; }
-.display { font-family: 'Source Serif 4', serif; font-weight: 600; line-height: 1.0; letter-spacing: -0.01em; font-variation-settings: "opsz" 60; }
-.italic { font-family: 'Source Serif 4', serif; font-style: italic; font-weight: 500; font-variation-settings: "opsz" 60; }
+.title { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: normal; }
+.display { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600; line-height: 1.0; letter-spacing: -0.01em; font-variation-settings: normal; }
+.italic { font-family: 'Manrope', system-ui, sans-serif; font-style: italic; font-weight: 500; font-variation-settings: normal; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 .mop { font-family: 'Manrope', sans-serif; font-weight: 600; color: #0E0E10; display: inline-block; padding: 0 0.06em; }
 
-.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 0.08em; font-family: 'Fraunces', serif; font-variation-settings: "opsz" 144; font-weight: 400; }
-.frac .n, .frac .d { padding: 0 0.12em; }
+.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 0.08em; font-family: inherit; font-variation-settings: inherit; font-weight: inherit; }
+.frac .n, .frac .d { padding: 0 0.12em; font: inherit; }
 .frac .bar { height: 0.08em; background: currentColor; width: 100%; margin: 0.08em 0; border-radius: 2px; }
 
 @keyframes fade-in-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
@@ -2382,7 +2597,7 @@ html, body { margin: 0; padding: 0; }
 .btn-ghost:hover:not(:disabled) { background: #FFFFFF; box-shadow: 0 6px 18px -6px rgba(58, 53, 48, 0.18); }
 .btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
 
-.option { background: #FFFFFF; cursor: pointer; transition: all 0.2s; font-family: 'Manrope', sans-serif; font-weight: 500; text-align: left; border-radius: 12px; width: 100%; border: none; color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
+.option { background: #FFFFFF; cursor: pointer; transition: all 0.2s; font-family: 'Manrope', system-ui, sans-serif !important; font-weight: 500; text-align: left; border-radius: 12px; width: 100%; border: none; color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
 .option:hover:not(:disabled) { background: #FDFBF7; box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22); }
 .option:disabled { cursor: default; }
 .option-correct { background: #E3F0E8 !important; color: #1F7A4D !important; box-shadow: 0 8px 22px -6px rgba(31, 122, 77, 0.32) !important; }
@@ -2560,7 +2775,7 @@ export default function LcmLesson({
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
-      <div className="lesson-root">
+      <div className="lesson-root grade6-theory-etalon grade6-dars06">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
             {['ru', 'uz'].map(l => (

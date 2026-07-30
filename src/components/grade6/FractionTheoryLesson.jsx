@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import './Grade6TheoryTheme.css';
 import {
   T,
   configureLesson,
@@ -19,6 +20,7 @@ import {
   WhyCard,
   FactCard,
   Floaters,
+  useIntroStages,
   Frac,
   mt,
   STYLES,
@@ -63,6 +65,20 @@ function sequenceTheorySlides(slides, lifeContext, conceptBridges = []) {
     titleSlide,
     ...explanations,
     ...questions,
+    summarySlide,
+  ];
+}
+
+function keepAuthoredTheorySequence(slides) {
+  if (!Array.isArray(slides) || slides.length < 2) return slides;
+  const titleSlide = slides[0];
+  const summarySlide = slides[slides.length - 1];
+  const authoredMiddle = slides
+    .slice(1, -1)
+    .filter((slide) => !slide?.isLifeContext && !slide?.isConceptBridge);
+  return [
+    titleSlide,
+    ...authoredMiddle,
     summarySlide,
   ];
 }
@@ -610,15 +626,78 @@ export function MathVisual({ visual, lang }) {
   }
 
   if (visual.type === 'cube') {
+    const caption = localized(visual.label, lang) || 'V = a · b · c';
+    const isCube = String(caption).includes('a³');
+    const edgeLabels = isCube ? ['a', 'a', 'a'] : ['a', 'b', 'c'];
     return (
       <div className="fth-cube-visual">
-        <span className="fth-cube-face fth-cube-front"/>
-        <span className="fth-cube-face fth-cube-back"/>
-        <i className="fth-cube-edge fth-cube-edge-1"/>
-        <i className="fth-cube-edge fth-cube-edge-2"/>
-        <i className="fth-cube-edge fth-cube-edge-3"/>
-        <i className="fth-cube-edge fth-cube-edge-4"/>
-        <b>{mt(localized(visual.label, lang) || 'V = a · b · h')}</b>
+        <svg viewBox="0 0 360 235" role="img" aria-label={caption}>
+          <polygon points="68,82 126,42 293,42 235,82" className="fth-solid-top"/>
+          <polygon points="235,82 293,42 293,150 235,190" className="fth-solid-side"/>
+          <polygon points="68,82 235,82 235,190 68,190" className="fth-solid-front"/>
+          <polyline points="68,82 126,42 293,42 293,150 235,190 68,190 68,82 235,82 293,42" className="fth-solid-edge"/>
+          <line x1="235" y1="82" x2="235" y2="190" className="fth-solid-edge"/>
+          <line x1="68" y1="190" x2="126" y2="150" className="fth-solid-hidden"/>
+          <line x1="126" y1="42" x2="126" y2="150" className="fth-solid-hidden"/>
+          <line x1="126" y1="150" x2="293" y2="150" className="fth-solid-hidden"/>
+          <text x="151" y="218" className="fth-solid-label">{edgeLabels[0]}</text>
+          <text x="91" y="52" className="fth-solid-label">{edgeLabels[1]}</text>
+          <text x="43" y="143" className="fth-solid-label">{edgeLabels[2]}</text>
+        </svg>
+        <b className="fth-cube-caption">{mt(caption)}</b>
+      </div>
+    );
+  }
+
+  if (visual.type === 'movementLine') {
+    const min = visual.min ?? -10;
+    const max = visual.max ?? 10;
+    const span = Math.max(1, max - min);
+    const position = (value) => `${((value - min) / span) * 100}%`;
+    const start = visual.start ?? 0;
+    const end = visual.end ?? start;
+    const leftValue = Math.min(start, end);
+    const ticks = Array.from({ length: span + 1 }, (_, index) => min + index);
+    const direction = end >= start ? 'right' : 'left';
+    return (
+      <div
+        className={`fth-movement-line is-${direction}`}
+        role="img"
+        aria-label={localized(visual.label, lang)}
+      >
+        <div className="fth-movement-axis"/>
+        <div
+          className="fth-movement-path"
+          style={{
+            left: position(leftValue),
+            width: `${(Math.abs(end - start) / span) * 100}%`,
+          }}
+        >
+          <svg viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+            <path
+              d={direction === 'right'
+                ? 'M 0 27 Q 50 0 100 27 M 91 18 L 100 27 L 91 29'
+                : 'M 100 27 Q 50 0 0 27 M 9 18 L 0 27 L 9 29'}
+            />
+          </svg>
+        </div>
+        {ticks.map((value) => (
+          <span
+            className={`fth-movement-tick${value === 0 ? ' is-zero' : ''}`}
+            style={{ left: position(value) }}
+            key={value}
+          >
+            <i/>
+            {(value === min || value === max || value === 0 || value === start || value === end) && <b>{value}</b>}
+          </span>
+        ))}
+        <span className="fth-movement-point is-start" style={{ left: position(start) }}>
+          <i/><b>{localized(visual.startLabel, lang) || start}</b>
+        </span>
+        <span className="fth-movement-point is-end" style={{ left: position(end) }}>
+          <i/><b>{localized(visual.endLabel, lang) || end}</b>
+        </span>
+        <p>{localized(visual.caption, lang)}</p>
       </div>
     );
   }
@@ -681,6 +760,7 @@ function TitleScreen({ lesson, screen, totalScreens, onAnswer, onNext }) {
   const [picked, setPicked] = useState(null);
   const pickedRef = useRef(false);
   const introDone = audio.muted || (audio.hasStarted && !audio.isBusy);
+  const introStages = useIntroStages({ start: introDone, optionsReady: introDone });
 
   const pick = (value) => {
     if (pickedRef.current) return;
@@ -692,22 +772,24 @@ function TitleScreen({ lesson, screen, totalScreens, onAnswer, onNext }) {
 
   return (
     <Stage eyebrow={slide.eyebrow} screen={screen} totalScreens={totalScreens} audioState={audio}>
-      <div className="ttl-wrap">
+      <div className={`ttl-wrap${introStages.compact ? ' ttl-example-focus' : ''}`}>
         <Floaters/>
         <FractionDrift items={lesson.decorations}/>
         <p className="eyebrow ttl-kicker">{lang === 'uz' ? 'YANGI MAVZU' : 'НОВАЯ ТЕМА'}</p>
         <h1 className="display ttl-h1">{t(slide.title)}</h1>
         <span className="ttl-rule" aria-hidden="true"/>
         <p className="body ttl-sub">{t(slide.subtitle)}</p>
-        <div className="ttl-hero fth-title-hero">
+        {introStages.showExample && (
+          <>
+        <div className="ttl-hero fth-title-hero ttl-stage-reveal">
           <MathVisual visual={slide.visual} lang={lang}/>
         </div>
-        {introDone && (
-          <>
-            <p className="small ttl-prompt">
+            <div className="ttl-prompt-slot">
+            <p className={`small ttl-prompt${introStages.showPrompt ? ' is-visible' : ''}`}>
               {lang === 'uz' ? 'Boshlashga tayyormisiz?' : 'Готовы начать?'}
             </p>
-            <div className="ttl-opts">
+            </div>
+            <div className={`ttl-opts${introStages.showOptions ? ' is-visible' : ''}`}>
               <button className="option ttl-opt" disabled={picked !== null} onClick={() => pick('go')}>
                 {lang === 'uz' ? 'Ha, boshlaymiz' : 'Да, начнём'}
               </button>
@@ -739,20 +821,15 @@ function RevealLessonScreen({ lesson, screen, ...props }) {
       screenContent={content}
       totalScreens={lesson.slides.length}
       renderStep={({ t, lang, step, refs }) => (
-        <div className="rv-col">
-          <h2 className="title h-title fade-up">{mt(t(slide.title))}</h2>
+        <div className="rv-col g6-explanation-flow">
+          <h2 className="title h-title g6-explanation-question fade-up">{mt(t(slide.title))}</h2>
           <div className="frame fade-up delay-1 fth-figure-frame">
             <MathVisual visual={slide.visual} lang={lang}/>
           </div>
           {slide.steps.slice(0, step + 1).map((line, index) => (
-            <div
-              ref={refs[index]}
-              className={`rv-block ${index % 2 ? 'rv-block-b' : 'rv-block-a'} fade-up`}
-              key={index}
-            >
-              <p className={`rv-lbl ${index % 2 ? 'rv-lbl-b' : 'rv-lbl-a'}`}>
-                <span className="fth-step-number">{index + 1}</span>{mt(t(line))}
-              </p>
+            <div ref={refs[index]} className="frame-tip g6-explanation-step fade-up" key={index}>
+              <span className="g6-explanation-lamp" aria-hidden="true">💡</span>
+              <p className="body g6-explanation-text">{mt(t(line))}</p>
             </div>
           ))}
         </div>
@@ -782,6 +859,11 @@ function SingleQuestionScreen({ lesson, screen, ...props }) {
       on_wrong: slide.wrong,
     },
   };
+  (slide.wrongByOption || []).forEach((wrongText, index) => {
+    if (!wrongText) return;
+    content[`wrong_${index}`] = wrongText;
+    content[`audio_hint_${index}`] = wrongText;
+  });
   const factAudio = slide.fact ? {
     uz: `Bilasizmi? ${slide.fact.uz}`,
     ru: `Знаете ли вы? ${slide.fact.ru}`,
@@ -799,8 +881,12 @@ function SingleQuestionScreen({ lesson, screen, ...props }) {
       question={<p className="body" style={{ color: T.ink2 }}>{mt(localized(slide.prompt, lang))}</p>}
       options={options}
       correctIdx={slide.correct}
+      figure={lesson.etalonFlow && slide.visual
+        ? (solved) => (solved ? null : <MathVisual visual={slide.visual} lang={lang}/>)
+        : undefined}
       factOnCorrect={<WhyCard lines={{ uz: slide.why.map((line) => line.uz), ru: slide.why.map((line) => line.ru) }}/>}
       factAudio={factAudio}
+      interruptFeedbackOnSelection
       factNode={slide.fact ? (
         <FactCard
           text={slide.fact}
@@ -912,11 +998,273 @@ function ClassifyQuestionScreen({ lesson, screen, ...props }) {
   );
 }
 
+// 8–46-darslar kirishi: mavzu e'loni emas, dars davomida tekshiriladigan
+// mazmuniy taxmin. Birinchi muammoli savol shu yerda javobsiz ochiladi va
+// tushuntirishlardan keyin o'z joyida yana uchrab, odatdagi feedback bilan
+// mustaqil yechiladi.
+function HookScreen({ lesson, screen, totalScreens, onAnswer, onNext }) {
+  const titleSlide = lesson.slides[0];
+  const hookSlide = lesson.slides.find((slide, index) => (
+    index > 0 &&
+    (slide?.type === 'question' || slide?.type === 'multi') &&
+    Array.isArray(slide?.options) &&
+    slide.options.length > 1
+  ));
+  const t = useT();
+  const lang = useLang();
+  const sourceOptions = hookSlide?.options || [
+    { uz: 'Taxminim bor', ru: 'У меня есть предположение' },
+    { uz: 'Dars davomida tekshiraman', ru: 'Проверю по ходу урока' },
+  ];
+  const options = sourceOptions.slice(0, 4);
+  const hookTitle = hookSlide?.title || titleSlide.title;
+  const hookPrompt = hookSlide?.prompt || titleSlide.subtitle;
+  const hookVisual = hookSlide?.visual || titleSlide.visual;
+  const audio = useAudio([{
+    id: `${lesson.id}_hook`,
+    text: [
+      localized(hookTitle, lang),
+      localized(hookPrompt, lang),
+      lang === 'uz'
+        ? 'Hozir taxmin qiling. Javobni dars davomida tekshiramiz.'
+        : 'Сделайте предположение. Ответ проверим по ходу урока.',
+    ].filter(Boolean).join(' '),
+    trigger: 'on_mount',
+    waits_for: { type: 'option_picked' },
+  }]);
+  const [picked, setPicked] = useState(null);
+  const pickedRef = useRef(false);
+
+  const pick = (index) => {
+    if (pickedRef.current) return;
+    pickedRef.current = true;
+    setPicked(index);
+    onAnswer({
+      stage: 'hook',
+      screenIdx: screen,
+      question: localized(hookPrompt, lang),
+      options: options.map((option) => localized(option, lang)),
+      correctIndex: null,
+      correctAnswer: null,
+      studentAnswerIndex: index,
+      studentAnswer: localized(options[index], lang),
+      correct: null,
+      firstTry: null,
+    });
+    audio.triggerEvent('option_picked');
+    setTimeout(onNext, 320);
+  };
+
+  return (
+    <Stage eyebrow={{ uz: 'Muammo', ru: 'Проблема' }} screen={screen} totalScreens={totalScreens} audioState={audio}>
+      <div className="g6-hook">
+        <Floaters/>
+        <p className="eyebrow g6-hook-topic">{t(titleSlide.title)}</p>
+        <h1 className="title g6-hook-title">{mt(t(hookTitle))}</h1>
+        <p className="body g6-hook-prompt">{mt(t(hookPrompt))}</p>
+        {hookVisual && (
+          <div className="frame g6-hook-visual">
+            <MathVisual visual={hookVisual} lang={lang}/>
+          </div>
+        )}
+        <p className="small g6-hook-note">
+          {lang === 'uz'
+            ? 'Javobni hozir ochmaymiz — taxminingizni dars davomida tekshirasiz.'
+            : 'Ответ пока не открываем — предположение проверим по ходу урока.'}
+        </p>
+        <div className="g6-hook-options">
+          {options.map((option, index) => (
+            <button
+              className={`option${picked === index ? ' is-hook-picked' : ''}`}
+              disabled={picked !== null}
+              key={`${localized(option, lang)}-${index}`}
+              onClick={() => pick(index)}
+            >
+              <span className="mono small">{String.fromCharCode(65 + index)}</span>
+              <span>{mt(localized(option, lang))}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </Stage>
+  );
+}
+
+function FinalChainScreen({
+  lesson,
+  screen,
+  totalScreens,
+  storedAnswer,
+  onAnswer,
+  onNext,
+  onPrev,
+}) {
+  const slide = lesson.slides[screen];
+  const lang = useLang();
+  const [partIndex, setPartIndex] = useState(storedAnswer?.complete ? slide.parts.length - 1 : 0);
+  const [attempts, setAttempts] = useState(storedAnswer?.partAttempts || slide.parts.map(() => 0));
+  const [firstTryCorrect, setFirstTryCorrect] = useState(
+    storedAnswer?.firstTryParts || slide.parts.map(() => false),
+  );
+  const [picked, setPicked] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [complete, setComplete] = useState(Boolean(storedAnswer?.complete));
+  const transitionTimerRef = useRef(null);
+  const part = slide.parts[partIndex];
+  const audio = useAudio([{
+    id: `${lesson.id}_final_intro`,
+    text: localized(slide.audio, lang),
+    trigger: 'on_mount',
+    waits_for: null,
+  }]);
+
+  useEffect(() => () => {
+    if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+  }, []);
+
+  const choose = (optionIndex) => {
+    if (complete || picked !== null) return;
+    if (transitionTimerRef.current) {
+      clearTimeout(transitionTimerRef.current);
+      transitionTimerRef.current = null;
+    }
+    const isCorrect = optionIndex === part.correct;
+    const nextAttempts = [...attempts];
+    nextAttempts[partIndex] += 1;
+    setAttempts(nextAttempts);
+    setPicked(optionIndex);
+
+    if (!isCorrect) {
+      setFeedback(localized(part.wrong, lang));
+      audio.speakLatestFeedback(
+        localized(part.wrong, lang),
+        `${lesson.id}_final_${partIndex}_wrong_${optionIndex}`,
+      );
+      transitionTimerRef.current = setTimeout(() => {
+        transitionTimerRef.current = null;
+        setPicked(null);
+        setFeedback(null);
+      }, 900);
+      return;
+    }
+
+    const nextFirstTry = [...firstTryCorrect];
+    if (nextAttempts[partIndex] === 1) nextFirstTry[partIndex] = true;
+    setFirstTryCorrect(nextFirstTry);
+    setFeedback(lang === 'uz' ? "To'g'ri." : 'Верно.');
+    audio.speakLatestFeedback(
+      lang === 'uz' ? "Javob to'g'ri." : 'Ответ верный.',
+      `${lesson.id}_final_${partIndex}_correct`,
+    );
+
+    transitionTimerRef.current = setTimeout(() => {
+      transitionTimerRef.current = null;
+      if (partIndex < slide.parts.length - 1) {
+        setPartIndex((value) => value + 1);
+        setPicked(null);
+        setFeedback(null);
+        return;
+      }
+      const finalScore = nextFirstTry.filter(Boolean).length;
+      const result = {
+        stage: 'final',
+        screenIdx: screen,
+        question: localized(slide.title, lang),
+        studentAnswer: nextFirstTry,
+        correctAnswer: slide.parts.map((item) => item.correct),
+        correct: finalScore >= (lesson.finalPass ?? 2),
+        firstTry: finalScore >= (lesson.finalPass ?? 2),
+        attempts: nextAttempts.reduce((sum, value) => sum + value, 0),
+        conceptTag: 'rational_addition_final',
+        finalScore,
+        finalTotal: slide.parts.length,
+        firstTryParts: nextFirstTry,
+        partAttempts: nextAttempts,
+        complete: true,
+      };
+      setComplete(true);
+      onAnswer(result);
+    }, 620);
+  };
+
+  const finalScore = complete
+    ? (storedAnswer?.finalScore ?? firstTryCorrect.filter(Boolean).length)
+    : firstTryCorrect.filter(Boolean).length;
+  const navContent = (
+    <>
+      <NavBack onPrev={onPrev} label={<BackLabel/>}/>
+      <NavNext
+        disabled={!complete || audio.isBusy}
+        label={lang === 'uz' ? 'Natijani ko‘rish' : 'Посмотреть результат'}
+        onClick={onNext}
+      />
+    </>
+  );
+
+  return (
+    <Stage eyebrow={slide.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+      <div className="fth-final-chain">
+        <div className="fth-final-head">
+          <div>
+            <p className="small mono">{lang === 'uz' ? 'FINAL' : 'ФИНАЛ'}</p>
+            <h2 className="title h-sub">{localized(slide.title, lang)}</h2>
+          </div>
+          <strong>{complete ? `${finalScore}/${slide.parts.length}` : `${partIndex + 1}/${slide.parts.length}`}</strong>
+        </div>
+        <div className="fth-final-progress" aria-hidden="true">
+          {slide.parts.map((_, index) => (
+            <i className={index < partIndex || complete ? 'is-done' : index === partIndex ? 'is-current' : ''} key={index}/>
+          ))}
+        </div>
+        <div className="frame fth-final-card" key={partIndex}>
+          <p className="body">{localized(part.prompt, lang)}</p>
+          <div className="fth-final-options">
+            {part.options.map((option, index) => {
+              const selected = picked === index;
+              const stateClass = selected ? (index === part.correct ? 'is-correct' : 'is-wrong') : '';
+              return (
+                <button
+                  className={`option ${stateClass}`}
+                  disabled={complete || picked !== null}
+                  onClick={() => choose(index)}
+                  key={`${option}-${index}`}
+                >
+                  {mt(localized(option, lang))}
+                </button>
+              );
+            })}
+          </div>
+          <div className={`fth-final-feedback${feedback ? ' is-visible' : ''}`} aria-live="polite">
+            {feedback || '\u00A0'}
+          </div>
+        </div>
+        {complete && (
+          <div className={finalScore >= (lesson.finalPass ?? 2) ? 'frame-success' : 'frame-warn'}>
+            <p className="body">
+              {finalScore >= (lesson.finalPass ?? 2)
+                ? (lang === 'uz' ? `Final bajarildi: ${finalScore}/3.` : `Финал пройден: ${finalScore}/3.`)
+                : (lang === 'uz' ? `Final natijasi: ${finalScore}/3. Qoidalarni qayta ko‘rib chiqing.` : `Результат финала: ${finalScore}/3. Повторите правила.`)}
+            </p>
+          </div>
+        )}
+      </div>
+    </Stage>
+  );
+}
+
 function SummaryScreen({ lesson, screen, totalScreens, answers, onPrev, finishLesson }) {
   const slide = lesson.slides[lesson.slides.length - 1];
   const lang = useLang();
   const t = useT();
   const score = lesson.scoredScreens.filter((index) => answers[index]?.firstTry === true).length;
+  const scorePercent = lesson.scoredScreens.length
+    ? Math.round((score / lesson.scoredScreens.length) * 100)
+    : 0;
+  const passPercent = lesson.passPercent ?? 70;
+  const finalAnswer = answers.find((answer) => answer?.stage === 'final');
+  const finalScore = finalAnswer?.finalScore ?? 0;
+  const passed = scorePercent >= passPercent
+    && (lesson.finalPass === undefined || finalScore >= lesson.finalPass);
   const audio = useAudio([{
     id: `${lesson.id}_summary`,
     text: localized(slide.audio, lang),
@@ -936,11 +1284,28 @@ function SummaryScreen({ lesson, screen, totalScreens, answers, onPrev, finishLe
 
   return (
     <Stage eyebrow={slide.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div className="fth-summary">
+      <div className="fth-summary g6-final-slide">
         <div className="sm-head fade-up">
           <h2 className="title h-sub">{t(slide.title)}</h2>
-          <span className="sm-score fth-score">{score}/{lesson.scoredScreens.length}</span>
         </div>
+        <p className="small fade-up sm-result" style={{ margin: 0, color: T.ink3 }}>
+          <span>{lang === 'uz' ? "Topshiriqlar bo'yicha natijangiz:" : 'Ваш результат по заданиям:'}</span>
+          <strong className="sm-score fth-score">{score}/{lesson.scoredScreens.length}</strong>
+        </p>
+        {lesson.etalonFlow && (
+          <p className={`fth-pass-note ${passed ? 'is-passed' : 'is-review'} fade-up`}>
+            {passed
+              ? (lang === 'uz' ? `Ajoyib, natijangiz ${scorePercent}%.` : `Отлично, ваш результат — ${scorePercent}%.`)
+              : (lang === 'uz'
+                ? `Natijangiz ${scorePercent}%. Qoidalarni yana bir ko'rib, qayta urinib ko'ring.`
+                : `Ваш результат — ${scorePercent}%. Повторите правила и попробуйте ещё раз.`)}
+          </p>
+        )}
+        {lesson.finalPass !== undefined && (
+          <p className="fth-final-summary">
+            {lang === 'uz' ? 'Final natijasi' : 'Результат финала'}: <b>{finalScore}/3</b>
+          </p>
+        )}
         <div className="frame sm-main fade-up delay-1">
           <p className="small mono fth-main-label">{lang === 'uz' ? 'Asosiysi' : 'Главное'}</p>
           <div className="fth-summary-list">
@@ -958,15 +1323,94 @@ function SummaryScreen({ lesson, screen, totalScreens, answers, onPrev, finishLe
 }
 
 const FRACTION_THEORY_STYLES = `
+.fth-etalon {
+  --etalon-orange: #F97316;
+  --etalon-navy: #173B57;
+  --etalon-bg: #FFFDF8;
+  --etalon-card: #FFFFFF;
+  --etalon-rule: #FFF2D6;
+  --etalon-info: #EEF7FF;
+  --etalon-correct: #EAF8EE;
+  --etalon-error: #FDECEC;
+  --etalon-border: #E2E8F0;
+  --etalon-text: #1F2937;
+  --etalon-muted: #64748B;
+  color: var(--etalon-text);
+  background-color: var(--etalon-bg);
+  background-image:
+    linear-gradient(rgba(23,59,87,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,59,87,.025) 1px, transparent 1px),
+    linear-gradient(180deg, #FFFDF8 0%, #FFF8EF 100%);
+  background-size: 32px 32px, 32px 32px, 100% 100%;
+}
+.fth-etalon .lesson-shell { width: min(100%, 1080px); }
+.fth-etalon .fth-drift { display: none; }
+.fth-etalon h1,
+.fth-etalon h2,
+.fth-etalon h3 { color: var(--etalon-navy); }
+.fth-etalon p { color: var(--etalon-muted); font-size: clamp(16px,2.25vw,18px); }
+.fth-etalon .eyebrow,
+.fth-etalon .stage-eyebrow { color: var(--etalon-orange); }
+.fth-etalon button { min-height: 44px; }
+.fth-etalon .primary-btn,
+.fth-etalon .btn-primary {
+  background: var(--etalon-orange);
+  border-color: var(--etalon-orange);
+}
+.fth-etalon .paper,
+.fth-etalon .card,
+.fth-etalon .q-card,
+.fth-etalon .result-card {
+  background: var(--etalon-card);
+  border-color: var(--etalon-border);
+}
+.fth-etalon .fth-panel-yellow { background: #FFF8E6; border-color: #FED7AA; }
+.fth-etalon .fth-panel-blue { background: var(--etalon-info); border-color: #BFDBFE; }
+.fth-etalon .fth-panel-green { background: var(--etalon-correct); border-color: #BBE2C5; }
+.fth-etalon .fth-movement-axis { background: var(--etalon-navy); }
+.fth-etalon .fth-movement-path {
+  transform: scaleX(0);
+  animation: etalonPathReveal 360ms ease-out 120ms forwards;
+}
+.fth-etalon .fth-movement-line.is-right .fth-movement-path { transform-origin: left center; }
+.fth-etalon .fth-movement-line.is-left .fth-movement-path { transform-origin: right center; }
+.fth-etalon .fth-movement-path path { stroke: var(--etalon-orange); }
+.fth-etalon .fth-movement-point.is-start > i { background: var(--etalon-navy); }
+.fth-etalon .fth-movement-point.is-end > i {
+  background: var(--etalon-orange);
+  box-shadow: 0 0 0 3px rgba(249,115,22,.18);
+  animation: etalonPointArrive 280ms ease-out 420ms both;
+}
+@keyframes etalonPathReveal { to { transform: scaleX(1); } }
+@keyframes etalonPointArrive {
+  from { opacity: 0; transform: scale(.6); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fth-etalon *,
+  .fth-etalon *::before,
+  .fth-etalon *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  .fth-etalon .fth-movement-path { transform: scaleX(1); }
+}
 .fth-lesson .frac,
 .fth-lesson .frac .n,
-.fth-lesson .frac .d,
-.fth-lesson .fth-standalone-number {
-  font-family: 'Fraunces', 'Source Serif 4', serif;
-  font-variation-settings: "opsz" 144;
-  font-weight: 600;
+.fth-lesson .frac .d {
+  font-family: inherit;
+  font-variation-settings: inherit;
+  font-weight: inherit;
 }
-.fth-title-hero { width: min(100%, 640px); }
+.fth-lesson .fth-standalone-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-variation-settings: normal;
+  font-weight: 700;
+}
+.fth-title-hero { width: 100%; max-width: 520px; }
 .fth-figure-frame { display: flex; align-items: center; justify-content: center; min-height: clamp(100px, 19vw, 150px); padding: clamp(12px, 2.4vw, 20px); }
 .fth-equation { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.22em; color: #0E0E10; font-family: 'Fraunces', 'Source Serif 4', serif; font-size: clamp(27px, 5.2vw, 40px); font-weight: 600; line-height: 1.25; text-align: center; }
 .fth-equation .frac-sm, .fth-chain .frac-sm, .fth-cards .frac-sm { font-size: 1em; }
@@ -1004,6 +1448,20 @@ const FRACTION_THEORY_STYLES = `
 .fth-number-point { position: absolute; top: 33px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .fth-number-point i { width: 4px; height: 26px; border-radius: 4px; background: #FF4F28; }
 .fth-number-point span { color: #0E0E10; font-family: 'Fraunces',serif; font-size: clamp(17px,3vw,23px); font-weight: 600; }
+.fth-movement-line { position:relative; width:min(100%,620px); min-height:132px; margin:0 auto; padding:56px 18px 30px; }
+.fth-movement-axis { position:absolute; left:18px; right:18px; top:66px; height:4px; border-radius:4px; background:#494550; }
+.fth-movement-path { position:absolute; top:34px; height:30px; }
+.fth-movement-path svg { display:block; width:100%; height:100%; overflow:visible; }
+.fth-movement-path path { fill:none; stroke:#019ACB; stroke-width:5; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; }
+.fth-movement-tick { position:absolute; top:61px; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:7px; }
+.fth-movement-tick > i { width:2px; height:14px; background:#8A8883; }
+.fth-movement-tick > b { color:#5A5A60; font:600 12px 'JetBrains Mono',monospace; }
+.fth-movement-tick.is-zero > i { width:3px; height:19px; background:#0E0E10; }
+.fth-movement-point { position:absolute; top:51px; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:10px; z-index:2; }
+.fth-movement-point > i { width:16px; height:16px; border:3px solid #FFF; border-radius:50%; background:#FF4F28; box-shadow:0 0 0 3px rgba(255,79,40,.18); }
+.fth-movement-point.is-end > i { background:#1F7A4D; box-shadow:0 0 0 3px rgba(31,122,77,.18); }
+.fth-movement-point > b { padding:3px 7px; border-radius:8px; background:#FFF; color:#0E0E10; font:700 13px 'JetBrains Mono',monospace; box-shadow:0 4px 12px -8px rgba(58,53,48,.5); }
+.fth-movement-line > p { position:absolute; left:12px; right:12px; bottom:0; margin:0; color:#5A5A60; font:600 clamp(13px,2.2vw,16px)/1.35 'Source Serif 4',serif; text-align:center; }
 .fth-coordinate-plane { position: relative; width: min(100%,360px); aspect-ratio: 1.65; overflow: hidden; border-radius: 14px; background-color: #FFF; background-image: linear-gradient(rgba(1,154,203,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(1,154,203,.12) 1px,transparent 1px); background-size: 8% 16%; border: 1.5px solid rgba(1,154,203,.24); }
 .fth-axis { position: absolute; background: #494550; }
 .fth-axis-x { left: 4%; right: 4%; top: 50%; height: 2px; }
@@ -1162,16 +1620,15 @@ const FRACTION_THEORY_STYLES = `
 .fth-data-bars > div:nth-child(even) span { background: linear-gradient(#FF4F28,#FF9C84); }
 .fth-data-bars b { font: 700 12px 'JetBrains Mono',monospace; }
 .fth-data-bars em { min-height: 27px; text-align: center; font: 600 11px/1.2 'JetBrains Mono',monospace; font-style: normal; }
-.fth-cube-visual { position: relative; width: 210px; height: 155px; margin: 0 auto; }
-.fth-cube-face { position: absolute; width: 105px; height: 92px; border: 4px solid #019ACB; background: rgba(255,247,207,.65); }
-.fth-cube-front { left: 30px; top: 48px; z-index: 2; }
-.fth-cube-back { left: 70px; top: 18px; border-color: #FF4F28; }
-.fth-cube-edge { position: absolute; width: 50px; height: 4px; background: #494550; transform: rotate(-37deg); transform-origin: left center; z-index: 3; }
-.fth-cube-edge-1 { left: 32px; top: 49px; }
-.fth-cube-edge-2 { left: 137px; top: 49px; }
-.fth-cube-edge-3 { left: 32px; top: 141px; }
-.fth-cube-edge-4 { left: 137px; top: 141px; }
-.fth-cube-visual b { position: absolute; right: 0; bottom: 0; padding: 5px 8px; border-radius: 8px; background: #E3F0E8; font: 700 14px 'JetBrains Mono',monospace; z-index: 4; }
+.fth-cube-visual { width: min(100%,430px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.fth-cube-visual svg { display: block; width: 100%; max-height: 235px; overflow: visible; }
+.fth-solid-front { fill: #EAF6FB; stroke: none; }
+.fth-solid-top { fill: #FFF3C4; stroke: none; }
+.fth-solid-side { fill: #FFE0D6; stroke: none; }
+.fth-solid-edge { fill: none; stroke: #263238; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.fth-solid-hidden { stroke: #66757D; stroke-width: 3; stroke-dasharray: 8 7; stroke-linecap: round; }
+.fth-solid-label { fill: #0E0E10; stroke: #FFFFFF; stroke-width: 6px; paint-order: stroke fill; font: italic 700 23px 'Source Serif 4',Georgia,serif; text-anchor: middle; }
+.fth-cube-caption { position: static; max-width: 100%; padding: 7px 12px; border-radius: 10px; background: #E3F0E8; color: #174F36; font: 700 clamp(15px,2.8vw,19px) 'JetBrains Mono',monospace; line-height: 1.3; text-align: center; }
 .fth-cards { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; font-family: 'Fraunces',serif; font-size: clamp(21px,4vw,30px); font-weight: 600; }
 .fth-cards > div { padding: 9px 14px; border-radius: 12px; background: #FFFFFF; border: 1.5px solid #E6E1D6; }
 .fth-cards > div.is-highlighted { color: #1F7A4D; background: #E3F0E8; border-color: rgba(31,122,77,.32); }
@@ -1191,6 +1648,26 @@ const FRACTION_THEORY_STYLES = `
 .fth-summary-list > div { display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start; }
 .fth-summary-list > div > span { display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#FFE8E1;color:#FF4F28;font:700 12px 'JetBrains Mono',monospace; }
 .fth-summary-list p { margin:0; }
+.fth-pass-note { margin:0; padding:9px 13px; border-radius:12px; font:700 clamp(14px,2.5vw,17px)/1.35 'Source Serif 4',serif; text-align:center; }
+.fth-pass-note.is-passed { color:#174F36; background:#E3F0E8; }
+.fth-pass-note.is-review { color:#87500A; background:#FFF3C4; }
+.fth-final-summary { margin:0; color:#5A5A60; font:600 15px 'JetBrains Mono',monospace; text-align:center; }
+.fth-final-chain { display:flex; flex:1; min-height:0; flex-direction:column; justify-content:center; gap:clamp(11px,2vw,17px); }
+.fth-final-head { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.fth-final-head p, .fth-final-head h2 { margin:0; }
+.fth-final-head strong { color:#FF4F28; font:700 clamp(22px,4vw,30px) 'JetBrains Mono',monospace; }
+.fth-final-progress { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+.fth-final-progress i { height:7px; border-radius:99px; background:#E6E1D6; }
+.fth-final-progress i.is-current { background:#019ACB; }
+.fth-final-progress i.is-done { background:#1F7A4D; }
+.fth-final-card { display:flex; flex-direction:column; gap:14px; padding:clamp(15px,3vw,24px); }
+.fth-final-card > p { margin:0; text-align:center; }
+.fth-final-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.fth-final-options .option { min-height:52px; }
+.fth-final-options .option.is-correct { border-color:#1F7A4D; background:#E3F0E8; color:#174F36; }
+.fth-final-options .option.is-wrong { border-color:#C45C21; background:#FFF3C4; color:#7A3A12; }
+.fth-final-feedback { min-height:22px; color:#5A5A60; font:600 14px/1.35 'Source Serif 4',serif; text-align:center; opacity:0; }
+.fth-final-feedback.is-visible { opacity:1; }
 @media (max-width:639.98px) {
   .fth-figure-frame { min-height:90px; }
   .fth-panels { gap:8px; }
@@ -1218,7 +1695,8 @@ export default function FractionTheoryLesson({
 }) {
   useMobileZoom();
   const sequencedLesson = useMemo(() => {
-    const slides = sequenceTheorySlides(
+    const orderSlides = lesson.etalonFlow ? keepAuthoredTheorySequence : sequenceTheorySlides;
+    const slides = orderSlides(
       lesson.slides,
       GRADE6_LIFE_CONTEXTS[lesson.id],
       GRADE6_CONCEPT_BRIDGES[lesson.id],
@@ -1273,18 +1751,26 @@ export default function FractionTheoryLesson({
 
   const finishLesson = useCallback(() => {
     const score = sequencedLesson.scoredScreens.filter((index) => answers[index]?.firstTry === true).length;
+    const totalQuestions = sequencedLesson.scoredScreens.length;
+    const scorePercent = totalQuestions ? Math.round((score / totalQuestions) * 100) : 0;
+    const passPercent = sequencedLesson.passPercent ?? 70;
+    const finalAnswer = answers.find((answer) => answer?.stage === 'final');
+    const finalScore = finalAnswer?.finalScore ?? 0;
+    const passed = sequencedLesson.finalPass !== undefined
+      ? score >= Math.ceil(totalQuestions * (passPercent / 100)) && finalScore >= sequencedLesson.finalPass
+      : scorePercent >= passPercent;
     safeOnFinished({
       lessonId: sequencedLesson.id,
       lessonTitle: sequencedLesson.title,
       studentName: safeName,
       durationSec: Math.floor((Date.now() - startRef.current) / 1000),
-      totalQuestions: sequencedLesson.scoredScreens.length,
+      totalQuestions,
       correctAnswers: score,
-      scorePercent: Math.round((score / sequencedLesson.scoredScreens.length) * 100),
-      finalScore: score,
-      finalTotal: sequencedLesson.scoredScreens.length,
-      passed: true,
-      firstTryStats: { total: sequencedLesson.scoredScreens.length, firstTryCorrect: score },
+      scorePercent,
+      finalScore: sequencedLesson.finalPass !== undefined ? finalScore : score,
+      finalTotal: sequencedLesson.finalPass !== undefined ? 3 : totalQuestions,
+      passed,
+      firstTryStats: { total: totalQuestions, firstTryCorrect: score },
       answers: answers.filter(Boolean),
     });
   }, [answers, sequencedLesson, safeName, safeOnFinished]);
@@ -1303,19 +1789,23 @@ export default function FractionTheoryLesson({
 
   let screenNode;
   const slideType = sequencedLesson.slides[current]?.type;
-  if (current === 0) screenNode = <TitleScreen {...commonProps}/>;
+  if (current === 0) screenNode = <HookScreen {...commonProps}/>;
   else if (current === sequencedLesson.slides.length - 1) screenNode = <SummaryScreen {...commonProps}/>;
   else if (slideType === 'info' || slideType === 'rule') screenNode = <RevealLessonScreen {...commonProps}/>;
   else if (slideType === 'multi') screenNode = <MultiQuestionScreen {...commonProps}/>;
   else if (slideType === 'match') screenNode = <MatchQuestionScreen {...commonProps}/>;
   else if (slideType === 'classify') screenNode = <ClassifyQuestionScreen {...commonProps}/>;
+  else if (slideType === 'finalChain') screenNode = <FinalChainScreen {...commonProps}/>;
   else screenNode = <SingleQuestionScreen {...commonProps}/>;
 
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
       <style>{FRACTION_THEORY_STYLES}</style>
-      <div className="lesson-root fth-lesson">
+      <div
+        className={`lesson-root grade6-theory-etalon fth-lesson${lesson.etalonFlow ? ' fth-etalon' : ''}`}
+        data-lesson-id={lesson.id}
+      >
         {isPreview && (
           <div className="fth-lang-switch">
             {['ru', 'uz'].map((value) => (
