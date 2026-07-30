@@ -188,14 +188,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.lessonQuestion,
     title: L(
-      "24 m² maydon o'zgarmasa, tomonlar qanday o'zgaradi?",
-      'Если площадь 24 м² не меняется, как меняются стороны?',
-      'If the area stays 24 m², how do the sides change?',
+      '4 × 6 → 8 × ?',
+      '4 × 6 → 8 × ?',
+      '4 × 6 → 8 × ?',
     ),
     lead: L(
-      "Eni uzaysa, bo'yi ham uzayadimi yoki qisqaradimi? Hozir faqat taxmin qiling.",
-      'Если ширина растёт, длина тоже растёт или уменьшается? Пока только предположите.',
-      'If the width grows, does the height grow too or shrink? Make a prediction.',
+      "Maydon o'zgarmaydi.",
+      'Площадь не меняется.',
+      'The area stays fixed.',
     ),
     audio: [
       L(
@@ -213,14 +213,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.theory,
     title: L(
-      "Bir tomon o'sadi — ikkinchisi qisqaradi",
-      'Одна сторона растёт — другая уменьшается',
-      'One side grows — the other shrinks',
+      "x o'ssa, y kamayadi",
+      'x растёт, y уменьшается',
+      'x grows, y shrinks',
     ),
     lead: L(
-      "Slayderni suring. Har safar x · y = 24 bo'lib qoladi.",
-      'Двигайте ползунок. Каждый раз произведение x · y остаётся равным 24.',
-      'Move the slider. Each time, the product x · y remains 24.',
+      'Shaklni o‘zgartiring.',
+      'Измените форму.',
+      'Change the shape.',
     ),
     audio: [
       L(
@@ -243,14 +243,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.theory,
     title: L(
-      "Jadval o'zgarishni ko'rsatadi",
-      'Таблица показывает изменение',
-      'A table reveals the change',
+      'x · y = 24',
+      'x · y = 24',
+      'x · y = 24',
     ),
     lead: L(
-      "Juftliklarni tanlang: x va y o'zgaradi, lekin ularning ko'paytmasi bir xil.",
-      'Выбирай пары: x и y меняются, но их произведение остаётся одинаковым.',
-      'Select the pairs: x and y change, but their product stays the same.',
+      "Ko'paytmalarni solishtiring.",
+      'Сравните произведения.',
+      'Compare the products.',
     ),
     audio: [
       L(
@@ -273,14 +273,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.theory,
     title: L(
-      "O'zgarmas ko'paytma formulaga aylanadi",
-      'Постоянное произведение превращается в формулу',
-      'The constant product becomes a formula',
+      'Formulani chiqaramiz',
+      'Выводим формулу',
+      'Build the formula',
     ),
     lead: L(
-      "x · y = k tenglikning ikki tomonini x ga bo'lib, y ni yolg'iz qoldiring.",
-      'Раздели обе части x · y = k на x и вырази y.',
-      'Divide both sides of x · y = k by x and isolate y.',
+      'Ikki tomonni x ga bo‘ling.',
+      'Разделите обе части на x.',
+      'Divide both sides by x.',
     ),
     audio: [
       L(
@@ -303,20 +303,20 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.theory,
     title: L(
-      "Nega x nol bo'la olmaydi?",
-      'Почему x не может быть равен нулю?',
-      'Why can x not be zero?',
+      'Nol mumkin emas',
+      'Ноль невозможен',
+      'Zero is impossible',
     ),
     lead: L(
-      "Qiymatlarni tekshiring va x = 0 kartasini tanlang.",
-      'Проверь значения и выбери карточку x = 0.',
-      'Test the values and select the x = 0 card.',
+      'x ni nolga yaqinlashtiring.',
+      'Приближайте x к нулю.',
+      'Move x towards zero.',
     ),
     audio: [
       L(
-        "Musbat va manfiy x qiymatlarida hisoblash mumkin.",
-        'При положительных и отрицательных значениях x вычисление возможно.',
-        'We can calculate for positive and negative values of x.',
+        "x bir, yarim va o'ndan birga kamayganda, y tez o'sadi.",
+        'Когда x уменьшается от единицы до одной десятой, y быстро растёт.',
+        'As x falls from one to one tenth, y grows quickly.',
       ),
       L(
         "Ammo x nol bo'lsa, k ni nolga bo'lish kerak bo'ladi.",
@@ -333,14 +333,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.theory,
     title: L(
-      "Jadvaldagi juftliklar koordinata nuqtalariga aylanadi",
-      'Пары из таблицы становятся точками на координатной плоскости',
-      'Table pairs become points on the coordinate plane',
+      'Juftlik → nuqta',
+      'Пара → точка',
+      'Pair → point',
     ),
     lead: L(
-      "Har bir (x; y) juftlik — grafikdagi bitta nuqta.",
-      'Каждая пара (x; y) — одна точка графика.',
-      'Every pair (x, y) is one point on the graph.',
+      'Har bir juftlikning joyi bor.',
+      'У каждой пары своё место.',
+      'Each pair has a place.',
     ),
     audio: [
       L(
@@ -363,14 +363,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.theory,
     title: L(
-      "Nuqtalar giperbola chizig'ini hosil qiladi",
-      'Точки образуют гиперболу',
-      'The points form a hyperbola',
+      'Nuqtalar → giperbola',
+      'Точки → гипербола',
+      'Points → hyperbola',
     ),
     lead: L(
-      "k ning ishorasi grafik qaysi choraklarda joylashishini belgilaydi.",
-      'Знак k определяет, в каких четвертях расположен график.',
-      'The sign of k determines which quadrants contain the graph.',
+      'k ishorasi chorakni tanlaydi.',
+      'Знак k выбирает четверти.',
+      'The sign of k selects the quadrants.',
     ),
     audio: [
       L(
@@ -393,14 +393,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.theory,
     title: L(
-      "Teskari proporsionallikning pasporti",
-      'Паспорт обратной пропорциональности',
-      'The inverse-proportion passport',
+      'Bitta qoida',
+      'Одно правило',
+      'One rule',
     ),
     lead: L(
-      "Ta'rifni, formulani va uning oqibatlarini bir-biridan ajrating.",
-      'Разделите определение, формулу и её следствия.',
-      'Separate the definition, the formula, and its consequences.',
+      'Formulalar qanday bog‘langan?',
+      'Как связаны формулы?',
+      'How do the formulas connect?',
     ),
     audio: [
       L(
@@ -414,43 +414,58 @@ const SCREEN_CONTENT = [
         'This gives the fractional formula and the conditions that x and y are non-zero.',
       ),
       L(
-        "Kamayishning o'zi yetarli emas. Doim ko'paytma o'zgarmasligini tekshiring.",
-        'Одного убывания недостаточно. Всегда проверяйте постоянство произведения.',
-        'Decreasing alone is not enough. Always test whether the product is constant.',
+        "x a marta oshsa, y a marta kamayadi. k ishorasi giperbolaning choraklarini belgilaydi.",
+        'Если x увеличивается в a раз, y уменьшается в a раз. Знак k задаёт четверти гиперболы.',
+        'If x is multiplied by a, y is divided by a. The sign of k sets the hyperbola’s quadrants.',
       ),
     ],
   },
   {
     eyebrow: UI.example,
     title: L(
-      "Bitta misolda ikki yo'nalishda ishlaymiz",
-      'В одном примере работаем в двух направлениях',
-      'One example, two directions',
+      'k = 36 · Ikki yo‘nalish',
+      'k = 36 · Два направления',
+      'k = 36 · Two directions',
     ),
     lead: L(
-      "Koeffitsiyent 36. Avval x dan y ni, keyin y dan x ni topamiz.",
-      'Коэффициент равен 36. Сначала найдём y по x, затем x по y.',
-      'The coefficient is 36. First find y from x, then x from y.',
+      'Toping va tekshiring.',
+      'Найдите и проверьте.',
+      'Find and verify.',
     ),
     audio: [
       L(
-        "Birinchi savol: x to'rt bo'lsa, y ni topamiz.",
-        'Первый вопрос: найдём y, если x равен четырём.',
-        'First question: find y when x equals four.',
+        "Model: y o'ttiz olti bo'lingan x.",
+        'Модель: y равно тридцати шести, делённым на x.',
+        'The model is y equals thirty-six divided by x.',
+      ),
+      L(
+        "x to'rt bo'lsa, y o'ttiz olti bo'lingan to'rt, ya'ni to'qqiz. Tekshiruv: to'rt karra to'qqiz o'ttiz olti.",
+        'При x равном четырём y равно тридцати шести, делённым на четыре, то есть девяти. Проверка: четыре умножить на девять равно тридцати шести.',
+        'When x is four, y is thirty-six divided by four, which is nine. Check: four times nine is thirty-six.',
+      ),
+      L(
+        "Endi y minus olti. x ni topish uchun o'ttiz oltini minus oltiga bo'lamiz.",
+        'Теперь y равно минус шести. Чтобы найти x, делим тридцать шесть на минус шесть.',
+        'Now y is negative six. To find x, divide thirty-six by negative six.',
+      ),
+      L(
+        "x minus olti. Tekshiruv: ikki manfiy son ko'paytmasi musbat o'ttiz olti.",
+        'x равен минус шести. Проверка: произведение двух отрицательных чисел равно положительным тридцати шести.',
+        'x is negative six. Check: two negative factors give positive thirty-six.',
       ),
     ],
   },
   {
     eyebrow: UI.practice,
     title: L(
-      "1-blok · O'zgarmas ko'paytma",
-      'Блок 1 · Постоянное произведение',
-      'Block 1 · Constant product',
+      '1-blok · x · y = k',
+      'Блок 1 · x · y = k',
+      'Block 1 · x · y = k',
     ),
     lead: L(
-      "6 topshiriqni ketma-ket bajaring. To'g'ri javob keyingi topshiriqni ochadi.",
-      'Решите 6 заданий по порядку. Верный ответ открывает следующее.',
-      'Solve 6 tasks in order. A correct answer unlocks the next one.',
+      "To'g'ri javob keyingisini ochadi.",
+      'Верный ответ откроет следующее.',
+      'A correct answer unlocks the next.',
     ),
     audio: [
       L(
@@ -468,14 +483,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.practice,
     title: L(
-      "2-blok · Hisoblash va cheklov",
-      'Блок 2 · Вычисления и ограничение',
-      'Block 2 · Calculation and restriction',
+      '2-blok · Formula va ishora',
+      'Блок 2 · Формула и знак',
+      'Block 2 · Formula and sign',
     ),
     lead: L(
-      "Formula, ishora va x ≠ 0 shartini birga nazorat qiling.",
-      'Одновременно следите за формулой, знаком и условием x ≠ 0.',
-      'Track the formula, the sign, and the condition x ≠ 0 together.',
+      'Ishorani nazorat qiling.',
+      'Контролируйте знак.',
+      'Track the sign.',
     ),
     audio: [
       L(
@@ -493,14 +508,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.practice,
     title: L(
-      "3-blok · Grafik va xatoni topish",
-      'Блок 3 · График и поиск ошибки',
-      'Block 3 · Graphs and error spotting',
+      '3-blok · Grafik',
+      'Блок 3 · График',
+      'Block 3 · Graph',
     ),
     lead: L(
-      "Grafikning choraklari, nuqtalari va ma'nosini tekshiring.",
-      'Проверьте четверти, точки и смысл графика.',
-      'Check the graph’s quadrants, points, and meaning.',
+      'Nuqta va choraklarni tekshiring.',
+      'Проверьте точки и четверти.',
+      'Check points and quadrants.',
     ),
     audio: [
       L(
@@ -518,14 +533,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.practice,
     title: L(
-      "4-blok · Nuqtadan formulaga",
-      'Блок 4 · От точки к формуле',
-      'Block 4 · From a point to a formula',
+      '4-blok · Nuqtadan modelga',
+      'Блок 4 · От точки к модели',
+      'Block 4 · Point to model',
     ),
     lead: L(
-      "Nuqta berilgan bo'lsa, k = x · y orqali modelni tiklang.",
-      'Если дана точка, восстановите модель по формуле k = x · y.',
-      'When a point is given, rebuild the model using k = x · y.',
+      'Avval k ni toping.',
+      'Сначала найдите k.',
+      'Find k first.',
     ),
     audio: [
       L(
@@ -543,14 +558,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.practice,
     title: L(
-      "5-blok · Hayotiy vaziyatga ko'chirish",
-      'Блок 5 · Перенос в реальные ситуации',
-      'Block 5 · Transfer to real situations',
+      '5-blok · Hayotiy model',
+      'Блок 5 · Жизненная модель',
+      'Block 5 · Real-life model',
     ),
     lead: L(
-      "Qaysi miqdor o'zgarmasligini toping, keyin modelni tanlang.",
-      'Найдите, какая величина постоянна, затем выберите модель.',
-      'Identify what stays constant, then choose the model.',
+      "O'zgarmas miqdorni toping.",
+      'Найдите постоянную величину.',
+      'Find the fixed quantity.',
     ),
     audio: [
       L(
@@ -568,14 +583,14 @@ const SCREEN_CONTENT = [
   {
     eyebrow: UI.summary,
     title: L(
-      "Endi 24 m² sirini formula bilan tushuntira olasiz",
-      'Теперь вы можете объяснить секрет 24 м² формулой',
-      'You can now explain the 24 m² puzzle with a formula',
+      'Qoidani tiklang',
+      'Восстановите правило',
+      'Rebuild the rule',
     ),
     lead: L(
-      "Boshidagi taxminni qoida, jadval va grafik bilan tekshirdik.",
-      'Мы проверили начальный прогноз с помощью правила, таблицы и графика.',
-      'We tested the opening prediction with a rule, a table, and a graph.',
+      '4 × 6 → 8 × 3',
+      '4 × 6 → 8 × 3',
+      '4 × 6 → 8 × 3',
     ),
     audio: [
       L(
@@ -1706,10 +1721,10 @@ function useNarration(rawSegments, lang) {
         if (!cancelled) setPlaying(false)
         return
       }
-      setPhase(index)
       const value = segments[index]
       const fallbackMs = Math.min(5200, Math.max(1500, value.split(/\s+/).length * 115))
       if (muted) {
+        setPhase(index)
         setPlaying(false)
         timer = window.setTimeout(() => run(index + 1), fallbackMs + 180)
         return
@@ -1720,6 +1735,7 @@ function useNarration(rawSegments, lang) {
         timer = window.setTimeout(() => run(index + 1), 180)
       }
       if (!synth || !Utterance) {
+        setPhase(index)
         setPlaying(true)
         timer = window.setTimeout(next, fallbackMs)
         return
@@ -1728,12 +1744,18 @@ function useNarration(rawSegments, lang) {
       utterance.lang = lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB' : 'uz-UZ'
       utterance.rate = 0.94
       utterance.pitch = 1
-      utterance.onstart = () => !cancelled && setPlaying(true)
+      utterance.onstart = () => {
+        if (cancelled) return
+        setPhase(index)
+        setPlaying(true)
+      }
       utterance.onend = next
       utterance.onerror = next
       try {
         synth.speak(utterance)
       } catch {
+        setPhase(index)
+        setPlaying(true)
         timer = window.setTimeout(next, fallbackMs)
       }
     }
@@ -1753,6 +1775,7 @@ function useNarration(rawSegments, lang) {
 
   const replay = useCallback(() => {
     setMuted(false)
+    setPhase(0)
     setReplayToken((value) => value + 1)
   }, [])
 
@@ -1894,123 +1917,58 @@ function PhaseDots({ count, active }) {
   )
 }
 
-function HookVisual({ onAnswer }) {
+function HookVisual({ onAnswer, phase }) {
   const lang = useLang()
-  const [choice, setChoice] = useState(null)
-  const [reason, setReason] = useState(null)
-  const [confidence, setConfidence] = useState('unsure')
+  const [picked, setPicked] = useState(null)
   const options = [
-    L("Bo'yi ham oshadi", 'Высота тоже увеличится', 'The height also grows'),
-    L("Bo'yi 2 marta kamayadi", 'Высота уменьшится в 2 раза', 'The height is halved'),
-    L("Bo'yi o'zgarmaydi", 'Высота не изменится', 'The height stays unchanged'),
+    L('3', '3', '3'),
+    L('6', '6', '6'),
+    L('12', '12', '12'),
   ]
-  const reasons = [
-    L("Yuza — tomonlar ko'paytmasi", 'Площадь — произведение сторон', 'Area is the product of the sides'),
-    L("Ikkala tomon bir xil o'zgaradi", 'Обе стороны меняются одинаково', 'Both sides change in the same way'),
-    L("Rasm shunday ko'rinadi", 'Так выглядит рисунок', 'That is how the picture looks'),
-  ]
-  const savePrediction = (nextChoice, nextReason, nextConfidence) => {
+  const choose = (index) => {
+    setPicked(index)
     onAnswer({
       screenId: 's0',
       screenIdx: 0,
       type: 'prediction',
       scored: false,
-      studentAnswer: nextChoice,
-      selectedText: nextChoice === null ? null : textOf(options[nextChoice], lang),
-      reason: nextReason,
-      reasonText: nextReason === null ? null : textOf(reasons[nextReason], lang),
-      confidence: nextConfidence,
+      studentAnswer: index,
+      selectedText: textOf(options[index], lang),
       answeredAt: new Date().toISOString(),
     })
   }
-  const choose = (index) => {
-    setChoice(index)
-    savePrediction(index, reason, confidence)
-  }
-  const chooseReason = (index) => {
-    setReason(index)
-    savePrediction(choice, index, confidence)
-  }
-  const chooseConfidence = (value) => {
-    setConfidence(value)
-    savePrediction(choice, reason, value)
-  }
+
   return (
-    <div className="hook-grid">
-      <div className="frame hook-model">
+    <div className="hook-flow" data-audio-phase={phase}>
+      <div className="frame hook-model hook-model-vertical">
         <div className="area-label">S = 24 m²</div>
-        <div className="rect-pair">
-          <div>
-            <div className="mini-rect rect-a"><span>4 × 6</span></div>
-            <small>4 · 6 = 24</small>
-          </div>
-          <span className="morph-arrow">→</span>
-          <div>
-            <div className="mini-rect rect-question"><span>8 × ?</span></div>
-            <small>8 · ? = 24</small>
-          </div>
+        <div className="hook-equation-track" aria-hidden="true">
+          <MathEquation compact>
+            <span>4</span><span>·</span><span>6</span><span>=</span><span>24</span>
+          </MathEquation>
+          <span className={`morph-arrow hook-morph ${phase >= 1 ? 'is-visible' : ''}`}>→</span>
+          <MathEquation compact className={`hook-target ${phase >= 1 ? 'is-visible' : ''}`}>
+            <span>8</span><span>·</span><strong>?</strong><span>=</span><span>24</span>
+          </MathEquation>
         </div>
-        <span className="hook-proof-note">
-          {textOf(L(
-            "Taxminni tajriba, jadval va grafik bilan tekshiramiz.",
-            'Проверим прогноз экспериментом, таблицей и графиком.',
-            'We will test the prediction with an experiment, a table, and a graph.',
-          ), lang)}
-        </span>
+        <div className="rect-pair">
+          <div className="mini-rect rect-a"><span>4 × 6</span></div>
+          <span className={`morph-arrow hook-morph ${phase >= 1 ? 'is-visible' : ''}`}>→</span>
+          <div className={`mini-rect rect-question hook-target ${phase >= 1 ? 'is-visible' : ''}`}><span>8 × ?</span></div>
+        </div>
       </div>
-      <div className="choice-stack">
+      <div className={`choice-stack hook-options ${phase >= 1 ? 'is-visible' : ''}`}>
         {options.map((option, index) => (
           <button
             type="button"
             key={textOf(option, 'en')}
-            className={`option ${choice === index ? 'selected' : ''}`}
+            className={`option ${picked === index ? 'selected' : ''}`}
             onClick={() => choose(index)}
           >
             <span>{String.fromCharCode(65 + index)}</span>
             {textOf(option, lang)}
           </button>
         ))}
-        {choice !== null && (
-          <div className="prediction-followup">
-            <small>{textOf(L('Nega shunday deb o‘ylaysiz?', 'Почему вы так думаете?', 'Why do you think so?'), lang)}</small>
-            <div className="reason-chips">
-              {reasons.map((item, index) => (
-                <button
-                  type="button"
-                  key={textOf(item, 'en')}
-                  className={reason === index ? 'active' : ''}
-                  onClick={() => chooseReason(index)}
-                >
-                  {textOf(item, lang)}
-                </button>
-              ))}
-            </div>
-            <div className="confidence-row">
-              <span>{textOf(L('Ishonch:', 'Уверенность:', 'Confidence:'), lang)}</span>
-              <button
-                type="button"
-                className={confidence === 'unsure' ? 'active' : ''}
-                onClick={() => chooseConfidence('unsure')}
-              >
-                {textOf(L('Shubham bor', 'Сомневаюсь', 'Unsure'), lang)}
-              </button>
-              <button
-                type="button"
-                className={confidence === 'sure' ? 'active' : ''}
-                onClick={() => chooseConfidence('sure')}
-              >
-                {textOf(L('Ishonaman', 'Уверен', 'Confident'), lang)}
-              </button>
-            </div>
-            <p className="prediction-saved" role="status">
-              {textOf(L(
-                'Taxmin saqlandi. Hozircha baholanmaydi.',
-                'Прогноз сохранён. Пока он не оценивается.',
-                'Prediction saved. It is not graded yet.',
-              ), lang)}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   )
@@ -2022,8 +1980,6 @@ const RECTANGLE_CELL_COUNT = 24
 function RectangleLab({ phase }) {
   const lang = useLang()
   const [selectedX, setSelectedX] = useState(null)
-  const [visited, setVisited] = useState([4])
-  const [prediction, setPrediction] = useState(null)
   const narratedX = phase === 0 ? 4 : phase === 1 ? 8 : 12
   const x = selectedX ?? narratedX
   const y = 24 / x
@@ -2031,20 +1987,12 @@ function RectangleLab({ phase }) {
   const exactValue = Number.isInteger(y)
   const compactRectangle = Math.min(x, y) <= 3
   const sliderIndex = RECTANGLE_FACTORS.indexOf(x)
-  const chooseX = (value) => {
-    setSelectedX(value)
-    setVisited((previous) => (previous.includes(value) ? previous : [...previous, value]))
-  }
-  const choosePrediction = (value) => {
-    setPrediction(value)
-    window.setTimeout(() => chooseX(8), 220)
-  }
+
   return (
-    <div className="lab-grid" data-audio-phase={phase}>
+    <div className="lab-grid vertical-lab" data-audio-phase={phase}>
       <div className="frame rectangle-stage">
         <div className="rectangle-stage-note">
           <strong>S = 24 m²</strong>
-          <span>{textOf(L("O'zgarmas yuza", 'Постоянная площадь', 'Fixed area'), lang)}</span>
         </div>
         <div className="rectangle-visual">
           <div
@@ -2068,39 +2016,15 @@ function RectangleLab({ phase }) {
         </div>
         <div className="rectangle-measures">
           <span><MathVar>x</MathVar><b>{x}</b></span>
-          <i aria-hidden="true">↑ x&nbsp;&nbsp;↔&nbsp;&nbsp;y ↓</i>
+          <i aria-hidden="true">×</i>
           <span><MathVar>y</MathVar><b>{exactValue ? yDisplay : `≈ ${yDisplay}`}</b></span>
         </div>
       </div>
       <div className="frame control-card">
-        <div className="lab-mission">
-          <small>{textOf(L('Kichik tadqiqot', 'Мини-исследование', 'Mini investigation'), lang)}</small>
-          <strong>{textOf(L('(4; 6) → (8; ?). y ni toping.', '(4; 6) → (8; ?). Найдите y.', '(4, 6) → (8, ?). Find y.'), lang)}</strong>
-          <div className="prediction-buttons">
-            {[3, 6, 12].map((value) => (
-              <button
-                type="button"
-                key={value}
-                className={
-                  prediction === null
-                    ? ''
-                    : value === 3
-                      ? 'correct'
-                      : prediction === value
-                        ? 'wrong'
-                        : ''
-                }
-                onClick={() => choosePrediction(value)}
-                aria-pressed={prediction === value}
-              >
-                {value}
-              </button>
-            ))}
-          </div>
-        </div>
         <div className="metric-row">
-          <span>{textOf(L('Eni, x', 'Ширина, x', 'Width, x'), lang)}</span>
-          <strong>{x}</strong>
+          <strong><MathVar>x</MathVar> = {x}</strong>
+          <span aria-hidden="true">→</span>
+          <strong><MathVar>y</MathVar> = {yDisplay}</strong>
         </div>
         <input
           type="range"
@@ -2108,25 +2032,17 @@ function RectangleLab({ phase }) {
           max={RECTANGLE_FACTORS.length - 1}
           step="1"
           value={sliderIndex}
-          onChange={(event) => chooseX(RECTANGLE_FACTORS[Number(event.target.value)])}
+          onChange={(event) => setSelectedX(RECTANGLE_FACTORS[Number(event.target.value)])}
           aria-label={textOf(L('Eni, x', 'Ширина, x', 'Width, x'), lang)}
           aria-valuetext={`x = ${x}, y = ${yDisplay}`}
           style={{ '--range-progress': `${(sliderIndex / (RECTANGLE_FACTORS.length - 1)) * 100}%` }}
         />
-        <div className="lab-presets" aria-label={textOf(L('Tekshiruv qiymatlari', 'Контрольные значения', 'Checkpoint values'), lang)}>
-          {[4, 8, 12].map((value) => (
-            <button
-              type="button"
-              key={value}
-              className={x === value ? 'active' : ''}
-              onClick={() => chooseX(value)}
-            >
-              x = {value}
-            </button>
-          ))}
+        <div className="range-values" aria-hidden="true">
+          {RECTANGLE_FACTORS.map((value) => <span key={value}>{value}</span>)}
         </div>
-        <div className="equation-line book-equation">
-          <small>{textOf(L('Avval y ni topamiz', 'Сначала находим y', 'First find y'), lang)}</small>
+      </div>
+      <div className="formula-ladder rectangle-formulas">
+        <div className="formula-ladder-step is-current">
           <MathEquation ariaLabel={`y equals 24 divided by ${x}${exactValue ? ` equals ${yDisplay}` : ` approximately equals ${yDisplay}`}`}>
             <MathVar>y</MathVar>
             <span>=</span>
@@ -2134,24 +2050,18 @@ function RectangleLab({ phase }) {
             <span>{exactValue ? '=' : '≈'}</span>
             <strong>{yDisplay}</strong>
           </MathEquation>
-          <div className="equation-check">
-            <span aria-hidden="true">✓</span>
-            <MathEquation compact ariaLabel={`${x} times ${yDisplay} ${exactValue ? 'equals' : 'approximately equals'} 24`}>
-              <span>{x}</span>
-              <span>·</span>
-              <span>{yDisplay}</span>
-              <span>{exactValue ? '=' : '≈'}</span>
-              <strong>24</strong>
-            </MathEquation>
-          </div>
         </div>
-        <div className={`invariant-badge ${visited.includes(8) || phase >= 2 ? 'visible' : ''}`}>
-          <strong>x · y = 24</strong>
-          <span>{textOf(L(
-            "x ni a marta oshirsak, y ni a ga bo'lamiz.",
-            'Если x умножить на a, то y нужно разделить на a.',
-            'If x is multiplied by a, y is divided by a.',
-          ), lang)}</span>
+        <div className={`formula-ladder-step ${phase >= 1 || selectedX !== null ? 'is-visible' : ''}`}>
+          <MathEquation ariaLabel={`${x} times ${yDisplay} equals 24`}>
+            <span>{x}</span><span>·</span><span>{yDisplay}</span><span>=</span><strong>24</strong>
+          </MathEquation>
+        </div>
+        <div className={`formula-ladder-step formula-rule ${phase >= 2 || selectedX !== null ? 'is-visible' : ''}`}>
+          <MathEquation compact>
+            <MathVar>x</MathVar><span>×</span><MathVar>a</MathVar>
+            <span>⇒</span>
+            <MathVar>y</MathVar><span>÷</span><MathVar>a</MathVar>
+          </MathEquation>
         </div>
       </div>
     </div>
@@ -2161,30 +2071,12 @@ function RectangleLab({ phase }) {
 function TableModel({ phase }) {
   const lang = useLang()
   const pairs = [[1, 24], [2, 12], [3, 8], [4, 6], [6, 4], [8, 3]]
-  const [selectedPairs, setSelectedPairs] = useState(null)
-  const narratedPairs = phase === 0 ? [0, 1] : phase === 1 ? [1, 3] : [3, 5]
-  const activePairs = selectedPairs ?? narratedPairs
+  const activePairs = phase === 0 ? [0, 1] : phase === 1 ? [1, 3] : [3, 5]
   const [gapAnswer, setGapAnswer] = useState(null)
   const discovered = gapAnswer === 4
-  const ordered = [...activePairs].sort((a, b) => pairs[a][0] - pairs[b][0])
-  const [firstIndex, secondIndex] = ordered
-  const first = pairs[firstIndex]
-  const second = pairs[secondIndex]
-  const factorNumerator = second[0]
-  const factorDenominator = first[0]
-  const factor = factorNumerator / factorDenominator
-  const ratioNode = Number.isInteger(factor)
-    ? factor
-    : <MathFraction numerator={factorNumerator} denominator={factorDenominator} compact />
-  const selectPair = (index) => {
-    setSelectedPairs((previous) => {
-      const current = previous ?? activePairs
-      if (current.includes(index)) return current
-      return current.length < 2 ? [...current, index] : [current[1], index]
-    })
-  }
+
   return (
-    <div className="table-layout" data-audio-phase={phase}>
+    <div className="table-layout vertical-table" data-audio-phase={phase}>
       <div className="frame math-table">
         <div className="table-row header"><span>x</span>{pairs.map(([x]) => <span key={`x${x}`}>{x}</span>)}</div>
         <div className="table-row">
@@ -2203,8 +2095,17 @@ function TableModel({ phase }) {
             </span>
           ))}
         </div>
-        <div className="table-gap-question">
-          <span>{textOf(L('6 · ? = 24. Yetishmayotgan qiymat:', '6 · ? = 24. Пропущенное значение:', '6 · ? = 24. Missing value:'), lang)}</span>
+      </div>
+      <div className="formula-ladder table-formulas">
+        <div className="formula-ladder-step product-scan is-visible">
+          <MathEquation compact>
+            <span>1·24</span><span>=</span><span>2·12</span><span>=</span>
+            <span>3·8</span><span>=</span><span>4·6</span><span>=</span><strong>24</strong>
+          </MathEquation>
+        </div>
+        <div className="formula-ladder-step gap-equation">
+          <MathEquation compact><span>6</span><span>·</span><strong>?</strong><span>=</span><span>24</span></MathEquation>
+          <div className="formula-answer-buttons" aria-label={textOf(L('Qiymatni tanlang', 'Выберите значение', 'Choose a value'), lang)}>
           {[3, 4, 6].map((value) => (
             <button
               type="button"
@@ -2215,36 +2116,17 @@ function TableModel({ phase }) {
               {value}
             </button>
           ))}
+          </div>
         </div>
-      </div>
-      <div className="frame pattern-card">
-        <div className="ratio-motion">
-          <span>x</span><b>× {ratioNode}</b><i>→</i><span>{second[0]}</span>
-        </div>
-        <div className="ratio-motion inverse">
-          <span>y</span><b>÷ {ratioNode}</b><i>→</i><span>{second[1]}</span>
-        </div>
-        <p>{textOf(L(
-          "Ikki ustunni tanlang: o'zgarish koeffitsiyenti avtomatik hisoblanadi.",
-          'Выберите два столбца: коэффициент изменения вычислится автоматически.',
-          'Select two columns: the change factor is calculated automatically.',
-        ), lang)}</p>
-        <div className="pair-selector" aria-label={textOf(L('Jadval juftligini tanlang', 'Выбери пару таблицы', 'Select a table pair'), lang)}>
-          {pairs.map(([x, y], index) => (
-            <button
-              type="button"
-              key={`${x}-${y}`}
-              className={activePairs.includes(index) ? 'active' : ''}
-              onClick={() => selectPair(index)}
-              aria-pressed={activePairs.includes(index)}
-            >
-              ({x}; {index === 4 && !discovered ? '?' : y})
-            </button>
-          ))}
-        </div>
-        <div className={`table-conclusion ${discovered ? 'show' : ''}`}>
-          <ConstantProduct compact />
-          <span>{textOf(L('— o‘zgarmas', '— постоянно', '— constant'), lang)}</span>
+        <div className={`formula-ladder-step inverse-scale ${discovered || phase >= 1 ? 'is-visible' : ''}`}>
+          <MathEquation compact>
+            <MathVar>x</MathVar><span>×2</span><span>⇒</span>
+            <MathVar>y</MathVar><span>÷2</span>
+          </MathEquation>
+          <span className={`formula-flow-arrow ${discovered || phase >= 2 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+          <span className={`scale-invariant ${discovered || phase >= 2 ? 'is-visible' : ''}`}>
+            <ConstantProduct compact result="24" />
+          </span>
         </div>
       </div>
     </div>
@@ -2252,61 +2134,42 @@ function TableModel({ phase }) {
 }
 
 function FormulaBuild({ phase }) {
-  const lang = useLang()
   const [operation, setOperation] = useState(null)
-  const [step, setStep] = useState(0)
   const correctOperation = operation === 'divide'
-  const chooseOperation = (value) => {
-    setOperation(value)
-    setStep(value === 'divide' ? 1 : 0)
-  }
+  const transformed = correctOperation || phase >= 1
+  const completed = correctOperation || phase >= 2
+
   return (
-    <div className="formula-discovery" data-audio-phase={phase}>
-      <div className="frame formula-question">
-        <small>{textOf(L("Boshlang'ich tenglik", 'Исходное равенство', 'Starting equation'), lang)}</small>
+    <div className="formula-discovery vertical-formula-build" data-audio-phase={phase}>
+      <div className="frame formula-question formula-origin">
         <ConstantProduct />
-        <strong>{textOf(L(
-          "y ni yolg'iz qoldirish uchun qaysi amal kerak?",
-          'Какое действие оставит y в левой части?',
-          'Which operation will isolate y?',
-        ), lang)}</strong>
         <div className="operation-choices">
           <button
             type="button"
             className={operation === 'subtract' ? 'wrong' : ''}
-            onClick={() => chooseOperation('subtract')}
+            onClick={() => setOperation('subtract')}
           >
             − x
           </button>
           <button
             type="button"
             className={operation === 'divide' ? 'correct' : ''}
-            onClick={() => chooseOperation('divide')}
+            onClick={() => setOperation('divide')}
           >
             ÷ x
           </button>
           <button
             type="button"
             className={operation === 'add' ? 'wrong' : ''}
-            onClick={() => chooseOperation('add')}
+            onClick={() => setOperation('add')}
           >
             + x
           </button>
         </div>
-        {operation && !correctOperation && (
-          <p className="formula-hint" role="status">
-            {textOf(L(
-              'x — ko‘paytuvchi. Uni yo‘qotish uchun teskari amalni tanlang.',
-              'x — множитель. Выберите обратное умножению действие.',
-              'x is a factor. Choose the inverse of multiplication.',
-            ), lang)}
-          </p>
-        )}
       </div>
 
-      <div className={`frame algebra-steps ${correctOperation ? 'is-active' : ''}`} data-audio-phase={phase}>
-        <div className="algebra-row">
-          <span>1</span>
+      <div className="formula-ladder algebra-steps" data-audio-phase={phase}>
+        <div className={`formula-ladder-step algebra-row ${transformed ? 'is-visible' : ''}`}>
           <MathEquation ariaLabel="x times y divided by x equals k divided by x">
             <MathFraction
               numerator={<><MathVar>x</MathVar><span>·</span><MathVar>y</MathVar></>}
@@ -2317,28 +2180,12 @@ function FormulaBuild({ phase }) {
           </MathEquation>
           <small>x ≠ 0</small>
         </div>
-        <button
-          type="button"
-          className="cancel-button"
-          disabled={!correctOperation || step >= 2}
-          onClick={() => setStep(2)}
-        >
-          {textOf(L('x larni qisqartiring', 'Сократить x', 'Cancel x'), lang)}
-        </button>
-        <div className={`algebra-row result ${step >= 2 ? 'show' : ''}`}>
-          <span>2</span>
+        <span className={`formula-flow-arrow ${transformed ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step algebra-row result ${completed ? 'show is-visible' : ''}`}>
           <InverseFormula />
           <small>k ≠ 0, x ≠ 0</small>
         </div>
-        <button
-          type="button"
-          className="reverse-check"
-          disabled={step < 2}
-          onClick={() => setStep(3)}
-        >
-          {textOf(L('Teskari tekshiruv', 'Обратная проверка', 'Reverse check'), lang)}
-        </button>
-        <div className={`reverse-equation ${step >= 3 ? 'show' : ''}`}>
+        <div className={`reverse-equation ${completed ? 'show' : ''}`}>
           <InverseFormula compact />
           <span>⇄</span>
           <ConstantProduct compact />
@@ -2350,20 +2197,15 @@ function FormulaBuild({ phase }) {
 
 function DomainModel({ phase }) {
   const lang = useLang()
-  const values = [-1, -0.5, 0, 0.5, 1]
+  const values = [1, 0.5, 0.1, 0]
   const [selectedX, setSelectedX] = useState(null)
-  const foundBoundary = selectedX === 0
+  const foundBoundary = selectedX === 0 || phase >= 1
+  const ruleVisible = selectedX === 0 || phase >= 2
+
   return (
-    <div className="domain-layout" data-audio-phase={phase}>
-      <div className="model-domain-note">
-        <span>{textOf(L('To‘rtburchak modeli', 'Модель прямоугольника', 'Rectangle model'), lang)}: x &gt; 0, y &gt; 0</span>
-        <i>→</i>
-        <span>
-          {textOf(L('Matematik funksiya', 'Математическая функция', 'Mathematical function'), lang)}:{' '}
-          {foundBoundary
-            ? 'x ∈ ℝ, x ≠ 0'
-            : textOf(L('haqiqiy x qiymatlarini tekshiramiz', 'проверяем вещественные x', 'test real x-values'), lang)}
-        </span>
+    <div className="domain-layout vertical-domain" data-audio-phase={phase}>
+      <div className="formula-hero-line">
+        <InverseFormula numerator="12" />
       </div>
       <div className="frame value-cards">
         {values.map((x) => (
@@ -2379,38 +2221,28 @@ function DomainModel({ phase }) {
               {x === 0
                 ? (foundBoundary
                   ? textOf(L('aniqlanmagan', 'не определено', 'undefined'), lang)
-                  : textOf(L('avval taxmin qiling', 'сначала предположите', 'predict first'), lang))
+                  : '?')
                 : `y = ${12 / x}`}
             </small>
           </button>
         ))}
       </div>
-      <div className={`zero-proof ${foundBoundary ? 'show' : ''}`} aria-live="polite">
-        <div>
+      <div className={`formula-ladder zero-proof ${foundBoundary ? 'show' : ''}`} aria-live="polite">
+        <div className="formula-ladder-step blocked-fraction">
           <MathFraction numerator="12" denominator="0" />
-          <span>{textOf(L('— aniqlanmagan', '— не определено', '— undefined'), lang)}</span>
+          <span aria-hidden="true">✕</span>
         </div>
-        <b>{textOf(L('chunki', 'потому что', 'because'), lang)}</b>
-        <div>
-          <MathEquation compact><span>0</span><span>·</span><MathVar>y</MathVar><span>≠</span><span>12</span></MathEquation>
-          <span>{textOf(L('hech qanday y mos kelmaydi', 'ни одно y не подходит', 'no value of y works'), lang)}</span>
+        <span className="formula-flow-arrow is-visible" aria-hidden="true">↓</span>
+        <div className="formula-ladder-step">
+          <MathEquation><span>0</span><span>·</span><MathVar>y</MathVar><span>≠</span><span>12</span></MathEquation>
         </div>
       </div>
-      <div className={`domain-rule ${foundBoundary ? 'show' : ''}`}>
-        <InverseFormula compact />
+      <div className={`domain-rule ${ruleVisible ? 'show' : ''}`}>
         <div className="restriction-pair">
           <strong>x ≠ 0</strong>
           <strong>y ≠ 0</strong>
           <small>k ≠ 0</small>
         </div>
-        <p>{textOf(
-          L(
-            "Grafik hech bir koordinata o'qini kesmaydi.",
-            'График не пересекает ни одну координатную ось.',
-            'The graph crosses neither coordinate axis.',
-          ),
-          lang,
-        )}</p>
       </div>
     </div>
   )
@@ -2506,15 +2338,46 @@ function CoordinateGraph({
           <path
             className="placement-guide placement-guide-x"
             pathLength="1"
-            d={`M ${trace.x} 125 V ${trace.y}`}
+            d={`M 230 125 H ${trace.x}`}
           />
           <path
             className="placement-guide placement-guide-y"
             pathLength="1"
-            d={`M 230 ${trace.y} H ${trace.x}`}
+            d={`M ${trace.x} 125 V ${trace.y}`}
           />
-          <circle className="placement-axis-dot" cx={trace.x} cy="125" r="4.5" />
-          <circle className="placement-axis-dot" cx="230" cy={trace.y} r="4.5" />
+          <circle className="placement-axis-dot placement-axis-dot-x" cx={trace.x} cy="125" r="4.5" />
+          <circle className="placement-axis-dot placement-axis-dot-y" cx="230" cy={trace.y} r="4.5" />
+          <circle className="placement-cursor" cx="230" cy="125" r="4.8" opacity="0">
+            <animate
+              attributeName="cx"
+              from="230"
+              to={trace.x}
+              begin=".08s"
+              dur=".60s"
+              calcMode="spline"
+              keyTimes="0;1"
+              keySplines=".4 0 .2 1"
+              fill="freeze"
+            />
+            <animate
+              attributeName="cy"
+              from="125"
+              to={trace.y}
+              begin=".72s"
+              dur=".68s"
+              calcMode="spline"
+              keyTimes="0;1"
+              keySplines=".4 0 .2 1"
+              fill="freeze"
+            />
+            <animate
+              attributeName="opacity"
+              values="0;1;1;0"
+              keyTimes="0;.06;.84;1"
+              dur="1.95s"
+              fill="freeze"
+            />
+          </circle>
           <circle className="placement-target-ring" cx={trace.x} cy={trace.y} r="11" />
           <text
             className="placement-label"
@@ -2533,7 +2396,7 @@ function CoordinateGraph({
           <circle
             key={`${x}-${y}`}
             className={`graph-point ${isVisible ? 'show' : ''}`}
-            style={{ '--delay': revealCount === null ? `${(index % 4) * 90}ms` : '0ms' }}
+            style={{ '--delay': revealCount === null ? `${index * 90}ms` : '0ms' }}
             cx={point.x}
             cy={point.y}
             r="4.5"
@@ -2544,6 +2407,9 @@ function CoordinateGraph({
     </svg>
   )
 }
+
+const POINT_PLOT_REVEAL_MS = 1500
+const POINT_PLOT_FINISH_MS = 2150
 
 function PointerGlyph({ className = '' }) {
   return (
@@ -2561,6 +2427,7 @@ function PointsModel({ phase }) {
   const [tracePoint, setTracePoint] = useState(null)
   const [liveMessage, setLiveMessage] = useState('')
   const timersRef = useRef([])
+  const plottingLockRef = useRef(false)
   const plotting = plottingIndex !== null
 
   useEffect(() => () => {
@@ -2568,14 +2435,15 @@ function PointsModel({ phase }) {
   }, [])
 
   const plotPair = (index) => {
-    if (plotting || index !== placed) return
+    if (plottingLockRef.current || index !== placed) return
+    plottingLockRef.current = true
     const pair = pairs[index]
     setPlottingIndex(index)
     setTracePoint(pair)
     setLiveMessage(textOf(L(
-      `(${pair[0]}; ${pair[1]}) juftlikni nuqtaga aylantiramiz.`,
-      `Превращаем пару (${pair[0]}; ${pair[1]}) в точку.`,
-      `Turning the pair (${pair[0]}; ${pair[1]}) into a point.`,
+      `Avval x = ${pair[0]}, keyin y = ${pair[1]}. Nuqtaga yetib boramiz.`,
+      `Сначала x = ${pair[0]}, затем y = ${pair[1]}. Движемся к точке.`,
+      `First x = ${pair[0]}, then y = ${pair[1]}. Move to the point.`,
     ), lang))
 
     timersRef.current.push(
@@ -2586,16 +2454,17 @@ function PointsModel({ phase }) {
           `Точка (${pair[0]}; ${pair[1]}) появилась на графике.`,
           `Point (${pair[0]}; ${pair[1]}) appeared on the graph.`,
         ), lang))
-      }, 380),
+      }, POINT_PLOT_REVEAL_MS),
       window.setTimeout(() => {
         setPlottingIndex(null)
         setTracePoint(null)
-      }, 760),
+        plottingLockRef.current = false
+      }, POINT_PLOT_FINISH_MS),
     )
   }
 
   return (
-    <div className="graph-layout" data-audio-phase={phase}>
+    <div className="graph-layout vertical-points" data-audio-phase={phase}>
       <div className={`frame graph-frame ${plotting ? 'is-plotting' : ''}`}>
         <CoordinateGraph
           k={24}
@@ -2657,13 +2526,13 @@ function PointsModel({ phase }) {
             </span>
             <p>
               <strong>{plotting
-                ? textOf(L('Nuqta qurilmoqda', 'Строим точку', 'Plotting the point'), lang)
+                ? textOf(L('Nuqtani bosqichma-bosqich quramiz', 'Строим точку по шагам', 'Plotting the point step by step'), lang)
                 : textOf(L('Ajratilgan juftlikni bosing', 'Нажмите на выделенную пару', 'Click the highlighted pair'), lang)}
               </strong>
               <small>{textOf(L(
-                'Nuqta grafikda o‘zi paydo bo‘ladi.',
-                'Точка сама появится на графике.',
-                'The point will appear on the graph.',
+                'Harakat: avval x bo‘ylab, so‘ng y bo‘ylab.',
+                'Движение: сначала по x, затем по y.',
+                'Move along x first, then along y.',
               ), lang)}</small>
             </p>
             <span className="plot-progress">{placed} / {pairs.length}</span>
@@ -2683,44 +2552,36 @@ function PointsModel({ phase }) {
 function GraphSignModel({ phase }) {
   const lang = useLang()
   const [manualK, setManualK] = useState(null)
-  const [prediction, setPrediction] = useState(null)
   const narratedK = phase >= 2 ? -12 : 12
   const k = manualK ?? narratedK
   const sign = k > 0 ? 1 : -1
   const setSign = (nextSign) => setManualK(nextSign * Math.abs(k))
   const setMagnitude = (value) => setManualK(sign * value)
+
   return (
-    <div className="graph-layout" data-audio-phase={phase}>
+    <div className="graph-layout vertical-graph-sign" data-audio-phase={phase}>
       <div className="frame graph-frame graph-with-formula">
         <InverseFormula numerator={Math.abs(k)} negative={k < 0} compact />
         <CoordinateGraph key={`${k}-${phase}`} k={k} phase={phase} showAsymptotes />
       </div>
-      <div className="sign-panel">
-        <div className="quadrant-prediction">
-          <small>{textOf(L('Avval taxmin qiling: k < 0', 'Сначала прогноз: k < 0', 'Predict first: k < 0'), lang)}</small>
-          <div>
-            <button
-              type="button"
-              className={prediction === 'positive' ? 'wrong' : ''}
-              onClick={() => setPrediction('positive')}
-            >
-              I, III
-            </button>
-            <button
-              type="button"
-              className={prediction === 'negative' ? 'correct' : ''}
-              onClick={() => {
-                setPrediction('negative')
-                setSign(-1)
-              }}
-            >
-              II, IV
-            </button>
-          </div>
-        </div>
+      <div className="sign-panel graph-controls">
         <div className="segmented">
-          <button type="button" className={k > 0 ? 'active' : ''} onClick={() => setSign(1)}>k &gt; 0</button>
-          <button type="button" className={k < 0 ? 'active' : ''} onClick={() => setSign(-1)}>k &lt; 0</button>
+          <button
+            type="button"
+            className={k > 0 ? 'active' : ''}
+            onClick={() => setSign(1)}
+            aria-label={textOf(L('Musbat k', 'Положительное k', 'Positive k'), lang)}
+          >
+            k &gt; 0
+          </button>
+          <button
+            type="button"
+            className={k < 0 ? 'active' : ''}
+            onClick={() => setSign(-1)}
+            aria-label={textOf(L('Manfiy k', 'Отрицательное k', 'Negative k'), lang)}
+          >
+            k &lt; 0
+          </button>
         </div>
         <div className="magnitude-control">
           <small>|k|</small>
@@ -2735,18 +2596,21 @@ function GraphSignModel({ phase }) {
             </button>
           ))}
         </div>
-        <div className={`quadrant-rule ${k > 0 ? 'positive' : 'negative'}`}>
-          <strong>{k > 0 ? 'k > 0' : 'k < 0'}</strong>
-          <span>{k > 0 ? 'I & III' : 'II & IV'}</span>
-        </div>
-        <div className="sign-proof">
-          <MathEquation compact>
+      </div>
+      <div className="formula-ladder sign-formulas">
+        <div className={`formula-ladder-step ${phase >= 1 ? 'is-visible' : ''}`}>
+          <MathEquation>
             <MathVar>x</MathVar><span>·</span><MathVar>y</MathVar>
             <span>{k > 0 ? '>' : '<'}</span><span>0</span>
           </MathEquation>
-          <p>{textOf(k > 0
-            ? L('x va y bir xil ishorali.', 'x и y имеют одинаковые знаки.', 'x and y have the same sign.')
-            : L('x va y qarama-qarshi ishorali.', 'x и y имеют противоположные знаки.', 'x and y have opposite signs.'), lang)}</p>
+        </div>
+        <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step sign-pair-step ${phase >= 1 ? 'is-visible' : ''}`}>
+          <strong>{k > 0 ? '(+,+)  (−,−)' : '(+,−)  (−,+)'}</strong>
+        </div>
+        <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step quadrant-rule ${phase >= 1 ? 'is-visible' : ''} ${k > 0 ? 'positive' : 'negative'}`}>
+          <strong>{k > 0 ? 'I, III' : 'II, IV'}</strong>
         </div>
       </div>
     </div>
@@ -2754,208 +2618,79 @@ function GraphSignModel({ phase }) {
 }
 
 function Passport({ phase }) {
-  const lang = useLang()
-  const [opened, setOpened] = useState([])
-  const [classification, setClassification] = useState(null)
-  const cards = [
-    {
-      icon: '1',
-      level: L('TA’RIF', 'ОПРЕДЕЛЕНИЕ', 'DEFINITION'),
-      title: L("Ko'paytma o'zgarmas", 'Произведение постоянно', 'Product is constant'),
-      math: <><ConstantProduct compact /><small>k ≠ 0</small></>,
-    },
-    {
-      icon: '2',
-      level: L('FORMULA', 'ФОРМУЛА', 'FORMULA'),
-      title: L('Teng kuchli yozuv', 'Равносильная запись', 'Equivalent form'),
-      math: <><InverseFormula compact /><small>x ≠ 0</small></>,
-    },
-    {
-      icon: '3',
-      level: L('O‘ZGARISH', 'ИЗМЕНЕНИЕ', 'CHANGE'),
-      title: L('Teskari koeffitsiyent', 'Обратный множитель', 'Reciprocal factor'),
-      math: (
-        <MathEquation compact>
-          <MathVar>x</MathVar><span>×</span><MathVar>a</MathVar>
-          <span>⇒</span>
-          <MathVar>y</MathVar><span>÷</span><MathVar>a</MathVar>
-        </MathEquation>
-      ),
-    },
-    {
-      icon: '4',
-      level: L('NATIJA', 'СЛЕДСТВИЕ', 'CONSEQUENCE'),
-      title: L('Giperbola va asimptotalar', 'Гипербола и асимптоты', 'Hyperbola and asymptotes'),
-      math: <small>x ≠ 0, y ≠ 0</small>,
-    },
-  ]
-  const toggleCard = (index) => {
-    setOpened((previous) => (
-      previous.includes(index) ? previous.filter((item) => item !== index) : [...previous, index]
-    ))
-  }
-  const examples = [
-    {
-      id: 'inverse',
-      formula: <InverseFormula numerator="12" compact />,
-      label: L('O‘zgarmas ko‘paytma', 'Постоянное произведение', 'Constant product'),
-    },
-    {
-      id: 'direct',
-      formula: <MathEquation compact><MathVar>y</MathVar><span>=</span><span>3</span><MathVar>x</MathVar></MathEquation>,
-      label: L('To‘g‘ri proporsiya', 'Прямая пропорция', 'Direct proportion'),
-    },
-    {
-      id: 'linear',
-      formula: <MathEquation compact><MathVar>y</MathVar><span>=</span><span>10</span><span>−</span><MathVar>x</MathVar></MathEquation>,
-      label: L('Kamayadi, ammo ko‘paytma o‘zgarmas emas', 'Убывает, но произведение не постоянно', 'Decreases, but the product is not constant'),
-    },
-  ]
   return (
-    <div className="passport-layout" data-audio-phase={phase}>
-      <div className="passport-grid">
-        {cards.map((card, index) => (
-          <button
-            type="button"
-            key={textOf(card.title, 'en')}
-            className={`passport-card ${opened.includes(index) ? 'show' : ''}`}
-            onClick={() => toggleCard(index)}
-            aria-expanded={opened.includes(index)}
-          >
-            <span>{card.icon}</span>
-            <div>
-              <small>{textOf(card.level, lang)}</small>
-              <strong>{textOf(card.title, lang)}</strong>
-              <div className="passport-math">{opened.includes(index) ? card.math : '?'}</div>
-            </div>
-          </button>
-        ))}
-      </div>
-      <div className="classification-check">
-        <strong>{textOf(L(
-          'Qaysi biri teskari proporsionallik?',
-          'Какая зависимость является обратной пропорциональностью?',
-          'Which relation is an inverse proportion?',
-        ), lang)}</strong>
-        <div className="classification-options">
-          {examples.map((example) => (
-            <button
-              type="button"
-              key={example.id}
-              className={classification === example.id ? (example.id === 'inverse' ? 'correct' : 'wrong') : ''}
-              onClick={() => setClassification(example.id)}
-            >
-              {example.formula}
-              <small>{textOf(example.label, lang)}</small>
-            </button>
-          ))}
+    <div className="passport-layout vertical-passport" data-audio-phase={phase}>
+      <div className="formula-ladder passport-formulas">
+        <div className="formula-ladder-step is-visible passport-invariant">
+          <MathEquation>
+            <MathVar>x</MathVar><span>·</span><MathVar>y</MathVar><span>=</span><MathVar>k</MathVar>
+          </MathEquation>
+          <small>k ≠ 0</small>
         </div>
-        {classification && (
-          <p role="status">
-            {classification === 'inverse'
-              ? textOf(L(
-                'To‘g‘ri: asosiy dalil — x · y doim 12.',
-                'Верно: главный аргумент — x · y всегда равно 12.',
-                'Correct: the decisive test is that x · y always equals 12.',
-              ), lang)
-              : textOf(L(
-                'Faqat kamayish yetarli emas. x · y o‘zgarmasligini tekshiring.',
-                'Одного убывания недостаточно. Проверьте постоянство x · y.',
-                'Decreasing is not enough. Test whether x · y is constant.',
-              ), lang)}
-          </p>
-        )}
+        <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step passport-equivalence ${phase >= 1 ? 'is-visible' : ''}`}>
+          <InverseFormula />
+          <strong>⇄</strong>
+          <ConstantProduct />
+          <small>x ≠ 0, y ≠ 0</small>
+        </div>
+        <span className={`formula-flow-arrow ${phase >= 2 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+        <div className={`formula-ladder-step passport-scale ${phase >= 2 ? 'is-visible' : ''}`}>
+          <MathEquation compact>
+            <MathVar>x</MathVar><span>×</span><MathVar>a</MathVar>
+            <span>⇒</span>
+            <MathVar>y</MathVar><span>÷</span><MathVar>a</MathVar>
+          </MathEquation>
+        </div>
+        <div className={`formula-ladder-step passport-graph-rule ${phase >= 2 ? 'is-visible' : ''}`}>
+          <MiniGraph variant="positive" />
+          <div>
+            <MathEquation compact><MathVar>k</MathVar><span>&gt;</span><span>0</span><span>⇒</span><strong>I, III</strong></MathEquation>
+            <MathEquation compact><MathVar>k</MathVar><span>&lt;</span><span>0</span><span>⇒</span><strong>II, IV</strong></MathEquation>
+            <small>x = 0; y = 0</small>
+          </div>
+        </div>
       </div>
     </div>
   )
 }
 
-function WorkedExample({ phase, pushOneOff }) {
-  const lang = useLang()
-  const [revealed, setRevealed] = useState(0)
-  const [wrongAction, setWrongAction] = useState(false)
-  const steps = [
-    {
-      label: L('1-savol', 'Вопрос 1', 'Question 1'),
-      expectedAction: 'divide',
-      formula: <MathEquation compact><MathVar>x</MathVar><span>=</span><span>4</span><span>→</span><MathVar>y</MathVar><span>=</span><span>?</span></MathEquation>,
-      work: <QuotientEquation left="y" numerator="36" denominator="4" result="9" compact />,
-      voice: L("x to'rt bo'lsa, y o'ttiz olti bo'lingan to'rt, ya'ni to'qqiz.", 'При x равном четырём y равно тридцати шести, делённым на четыре, то есть девяти.', 'When x is four, y is thirty-six divided by four, which is nine.'),
-    },
-    {
-      label: L('Tekshiruv', 'Проверка', 'Check'),
-      expectedAction: 'multiply',
-      formula: <MathEquation compact><span>4</span><span>·</span><span>9</span></MathEquation>,
-      work: <MathEquation compact><span>=</span><span>36</span><span>✓</span></MathEquation>,
-      voice: L("Tekshiramiz: to'rt karra to'qqiz o'ttiz olti.", 'Проверим: четыре умножить на девять равно тридцати шести.', 'Check: four times nine equals thirty-six.'),
-    },
-    {
-      label: L('2-savol', 'Вопрос 2', 'Question 2'),
-      expectedAction: 'divide',
-      formula: <MathEquation compact><MathVar>y</MathVar><span>=</span><span>−6</span><span>→</span><MathVar>x</MathVar><span>=</span><span>?</span></MathEquation>,
-      work: <QuotientEquation left="x" numerator="36" denominator="−6" result="−6" compact />,
-      voice: L("Endi y minus olti. x ni topish uchun k ni y ga bo'lamiz.", 'Теперь y равно минус шести. Чтобы найти x, делим k на y.', 'Now y is negative six. To find x, divide k by y.'),
-    },
-    {
-      label: L('Javob', 'Ответ', 'Answer'),
-      expectedAction: 'multiply',
-      formula: <MathEquation compact><MathVar>x</MathVar><span>=</span><span>−6</span></MathEquation>,
-      work: <MathEquation compact><span>(−6)</span><span>·</span><span>(−6)</span><span>=</span><span>36</span><span>✓</span></MathEquation>,
-      voice: L("x minus olti. Ikki manfiy son ko'paytmasi musbat o'ttiz olti.", 'x равен минус шести. Произведение двух отрицательных чисел равно положительным тридцати шести.', 'x is negative six. Two negative factors give positive thirty-six.'),
-    },
-  ]
-  const revealNext = (action) => {
-    if (revealed >= steps.length) return
-    if (steps[revealed].expectedAction !== action) {
-      setWrongAction(true)
-      return
-    }
-    setWrongAction(false)
-    pushOneOff(steps[revealed].voice)
-    setRevealed((value) => Math.min(steps.length, value + 1))
-  }
+function WorkedExample({ phase }) {
   return (
-    <div className="worked-layout" data-audio-phase={phase}>
-      <div className="formula-hero"><InverseFormula numerator="36" /></div>
-      <div className="worked-steps">
-        {steps.map((step, index) => (
-          <div key={textOf(step.label, 'en')} className={`worked-step ${index < revealed ? 'active' : ''}`}>
-            <span>{index + 1}</span>
-            <div><small>{textOf(step.label, lang)}</small><strong>{step.formula}</strong></div>
-            <b>{step.work}</b>
+    <div className="worked-layout vertical-worked" data-audio-phase={phase}>
+      <div className="formula-hero worked-model"><InverseFormula numerator="36" /></div>
+      <div className="worked-formula-stack">
+        <div className={`worked-chain ${phase >= 0 ? 'is-visible' : ''}`}>
+          <MathEquation compact>
+            <MathVar>x</MathVar><span>=</span><span>4</span><span>⇒</span>
+            <MathVar>y</MathVar><span>=</span><MathFraction numerator="36" denominator="4" compact />
+          </MathEquation>
+          <span className={`formula-flow-arrow ${phase >= 1 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+          <div className={`worked-result ${phase >= 1 ? 'is-visible' : ''}`}>
+            <MathEquation><MathVar>y</MathVar><span>=</span><span>9</span></MathEquation>
+            <MathEquation compact><span>4</span><span>·</span><span>9</span><span>=</span><span>36</span><strong>✓</strong></MathEquation>
           </div>
-        ))}
-        {revealed < steps.length ? (
-          <div className="worked-decision">
-            <span>{textOf(L('Keyingi amalni tanlang:', 'Выберите следующее действие:', 'Choose the next operation:'), lang)}</span>
-            <button type="button" onClick={() => revealNext('divide')}>÷</button>
-            <button type="button" onClick={() => revealNext('multiply')}>×</button>
-            {wrongAction && (
-              <small role="status">
-                {textOf(L(
-                  'Noma’lumni topamizmi yoki natijani tekshiramizmi?',
-                  'Мы находим неизвестное или проверяем результат?',
-                  'Are we finding the unknown or checking the result?',
-                ), lang)}
-              </small>
-            )}
+        </div>
+        <div className={`worked-chain ${phase >= 2 ? 'is-visible' : ''}`}>
+          <MathEquation compact>
+            <MathVar>y</MathVar><span>=</span><span>−6</span><span>⇒</span>
+            <MathVar>x</MathVar><span>=</span><MathFraction numerator="36" denominator="−6" compact />
+          </MathEquation>
+          <span className={`formula-flow-arrow ${phase >= 3 ? 'is-visible' : ''}`} aria-hidden="true">↓</span>
+          <div className={`worked-result ${phase >= 3 ? 'is-visible' : ''}`}>
+            <MathEquation><MathVar>x</MathVar><span>=</span><span>−6</span></MathEquation>
+            <MathEquation compact><span>(−6)</span><span>·</span><span>(−6)</span><span>=</span><span>36</span><strong>✓</strong></MathEquation>
           </div>
-        ) : (
-          <div className="worked-complete">
-            {textOf(L('Yechim tugallandi ✓', 'Решение завершено ✓', 'Solution complete ✓'), lang)}
-          </div>
-        )}
+        </div>
       </div>
-      <div className={`frame-success ${revealed >= steps.length ? 'is-complete' : 'is-pending'}`}>
-        <strong>{textOf(L('Universal yo‘l', 'Универсальный путь', 'Universal method'), lang)}</strong>
-        <span>
-          <ConstantProduct compact />
-          {textOf(L(
-            ' ni tiklang → noma’lumni bo‘lish bilan toping → ko‘paytirib tekshiring.',
-            ' → найдите неизвестное делением → проверьте умножением.',
-            ' → find the unknown by division → verify by multiplication.',
-          ), lang)}
-        </span>
+      <div className={`frame-success worked-rule ${phase >= 3 ? 'is-complete' : 'is-pending'}`}>
+        <ConstantProduct compact />
+        <span>→</span>
+        <InverseFormula compact />
+        <span>→</span>
+        <MathEquation compact>
+          <MathVar>x</MathVar><span>·</span><MathVar>y</MathVar><span>=</span><MathVar>k</MathVar><strong>✓</strong>
+        </MathEquation>
       </div>
     </div>
   )
@@ -3173,8 +2908,8 @@ function TaskMathVisual({ spec, compact = false, solved = false }) {
       <div className={`${className} context-visual`}>
         <span className="context-symbol">{symbols[spec.context] ?? '◆'}</span>
         <div>
-          <small>{spec.fixed}</small>
           <strong>{spec.change}</strong>
+          {solved && <small>{spec.fixed}</small>}
         </div>
       </div>
     )
@@ -3245,7 +2980,6 @@ function PracticeBlock({ blockIndex, storedAnswer, onAnswer, pushOneOff }) {
   const [input, setInput] = useState('')
   const [selected, setSelected] = useState(null)
   const [wrong, setWrong] = useState(false)
-  const [wrongLevel, setWrongLevel] = useState(0)
   const [attempts, setAttempts] = useState(() => restoredItems.map((item) => item?.attempts ?? 0))
   const taskStartedRef = useRef(null)
   const solvedCount = Object.keys(results).length
@@ -3266,7 +3000,6 @@ function PracticeBlock({ blockIndex, storedAnswer, onAnswer, pushOneOff }) {
     setInput('')
     setSelected(null)
     setWrong(false)
-    setWrongLevel(0)
     taskStartedRef.current = new Date().getTime()
     setCurrentTask(index)
   }
@@ -3318,10 +3051,7 @@ function PracticeBlock({ blockIndex, storedAnswer, onAnswer, pushOneOff }) {
 
     if (!isCorrect) {
       setWrong(true)
-      const level = nextAttempts[currentTask] >= 2 ? 2 : 1
-      setWrongLevel(level)
       playSfx('wrong')
-      pushOneOff(level === 1 ? activeTask.hint1 : activeTask.hint2)
       emitResult(results, nextAttempts)
       return
     }
@@ -3365,7 +3095,6 @@ function PracticeBlock({ blockIndex, storedAnswer, onAnswer, pushOneOff }) {
     const nextResults = { ...results, [currentTask]: result }
     setResults(nextResults)
     setWrong(false)
-    setWrongLevel(0)
     playSfx('correct')
     pushOneOff(activeTask.solution)
     emitResult(nextResults, nextAttempts)
@@ -3400,16 +3129,7 @@ function PracticeBlock({ blockIndex, storedAnswer, onAnswer, pushOneOff }) {
       </div>
       <div key={activeTask.id} className={`frame task-card ${wrong ? 'shake' : ''}`}>
         <div className="task-number">
-          <span>{textOf(UI.task, lang)} {currentTask + 1}</span>
-          <b>
-            {isContextTask
-              ? textOf(L('MODEL + JAVOB', 'МОДЕЛЬ + ОТВЕТ', 'MODEL + ANSWER'), lang)
-              : activeTask.type === 'graph'
-                ? textOf(L('GRAFIK', 'ГРАФИК', 'GRAPH'), lang)
-                : isChoiceTask
-                  ? 'A/B/C'
-                  : '123'}
-          </b>
+          <span>{textOf(UI.task, lang)} {currentTask + 1}/6</span>
         </div>
         <h2>{textOf(activeTask.prompt, lang)}</h2>
         <TaskMathVisual spec={activeTask.visual} solved={currentSolved} />
@@ -3494,23 +3214,11 @@ function PracticeBlock({ blockIndex, storedAnswer, onAnswer, pushOneOff }) {
             </div>
           </div>
         )}
-        {wrong && (
-          <div className="wrong-hint" role="status">
-            <span>{wrongLevel}</span>
-            <div>
-              <small>{textOf(wrongLevel === 1
-                ? L('1-yordam', 'Подсказка 1', 'Hint 1')
-                : L('2-yordam', 'Подсказка 2', 'Hint 2'), lang)}</small>
-              <strong>{textOf(wrongLevel === 1 ? activeTask.hint1 : activeTask.hint2, lang)}</strong>
-            </div>
-          </div>
-        )}
       </div>
       <div className={`solution-panel ${currentSolved ? 'visible' : ''}`} aria-live="polite">
         <div className="solution-icon">✓</div>
         <div className="solution-copy">
           <small>{textOf(UI.correct, lang)} · {textOf(UI.solution, lang)}</small>
-          <strong>{textOf(activeTask.solution, lang)}</strong>
           <TaskMathVisual spec={activeTask.solutionMath} compact solved />
         </div>
         {currentTask < tasks.length - 1 ? (
@@ -3525,17 +3233,12 @@ function PracticeBlock({ blockIndex, storedAnswer, onAnswer, pushOneOff }) {
   )
 }
 
-function Summary({ answers, studentName }) {
+function Summary({ answers, studentName, phase }) {
   const lang = useLang()
   const practiceAnswers = answers.slice(PRACTICE_START, PRACTICE_START + PRACTICE_BLOCKS.length)
   const allItems = practiceAnswers.flatMap((block) => block?.items?.filter((item) => !item.pending) ?? [])
   const correct = allItems.filter((item) => item.correct).length
-  const firstTry = allItems.filter((item) => item.correct && item.firstTry).length
-  const revisions = allItems.filter((item) => item.correct && !item.firstTry).length
   const total = PRACTICE_BLOCKS.length * 6
-  const name = studentName ? `${studentName}, ` : ''
-  const prediction = answers[0]
-  const predictionCorrect = prediction?.studentAnswer === 1
   const [recall, setRecall] = useState({ formula: null, restrictions: null, quadrants: null })
   const [recallChecked, setRecallChecked] = useState(false)
   const recallComplete = Object.values(recall).every(Boolean)
@@ -3544,60 +3247,35 @@ function Summary({ answers, studentName }) {
     recall.restrictions === 'both',
     recall.quadrants === 'negative',
   ].filter(Boolean).length
-  const blockStats = PRACTICE_BLOCKS.map((_, index) => {
-    const items = practiceAnswers[index]?.items?.filter((item) => item.correct) ?? []
-    return {
-      index,
-      firstTry: items.filter((item) => item.firstTry).length,
-      completed: items.length,
-    }
-  })
-  const weakest = blockStats.reduce(
-    (current, block) => (block.firstTry < current.firstTry ? block : current),
-    blockStats[0] ?? { index: 0, firstTry: 0 },
-  )
-  const recommendations = [
-    L("O'zgarmas ko'paytma va jadvalni takrorlang.", 'Повторите постоянное произведение и таблицы.', 'Review constant products and tables.'),
-    L("Ishora va nolga oid cheklovlarni takrorlang.", 'Повторите знаки и ограничения, связанные с нулём.', 'Review signs and zero restrictions.'),
-    L("Grafik, nuqtalar va asimptotalarni takrorlang.", 'Повторите графики, точки и асимптоты.', 'Review graphs, points, and asymptotes.'),
-    L("Nuqtadan to'liq model tuzishni takrorlang.", 'Повторите построение полной модели по точке.', 'Review building a full model from a point.'),
-    L("Hayotiy vaziyatlarda invariantni topishni takrorlang.", 'Повторите поиск инварианта в практических ситуациях.', 'Review finding the invariant in real situations.'),
-  ]
+
   const setRecallValue = (key, value) => {
     setRecall((previous) => ({ ...previous, [key]: value }))
     setRecallChecked(false)
   }
+  const recallClass = (key, value, expected) => {
+    if (recall[key] !== value) return ''
+    if (!recallChecked) return 'active'
+    return value === expected ? 'active correct' : 'active wrong'
+  }
+
   return (
-    <div className="summary-layout">
-      <div className="summary-score frame">
-        <div className="score-ring" style={{ '--score': `${Math.round((correct / total) * 100)}%` }}>
-          <span>{correct}</span><small>/ {total}</small>
+    <div className="summary-layout vertical-summary" data-audio-phase={phase}>
+      <div className="return-hook summary-hook is-visible">
+        <div className="summary-rect-transform" aria-hidden="true">
+          <div className="mini-rect rect-a"><span>4 × 6</span></div>
+          <span>→</span>
+          <div className="mini-rect rect-b"><span>8 × 3</span></div>
         </div>
-        <div>
-          <h2>
-            {name}
-            {correct === total
-              ? textOf(L('barcha topshiriqlar bajarildi.', 'все задания выполнены.', 'all tasks are complete.'), lang)
-              : textOf(L('natijangiz saqlandi.', 'ваш результат сохранён.', 'your progress is saved.'), lang)}
-          </h2>
-          <div className="mastery-metrics">
-            <span><b>{correct}/{total}</b>{textOf(L('bajarildi', 'выполнено', 'completed'), lang)}</span>
-            <span><b>{firstTry}/{total}</b>{textOf(L('birinchi urinish', 'с первой попытки', 'first try'), lang)}</span>
-            <span><b>{revisions}</b>{textOf(L('tuzatilgan javob', 'ответов исправлено', 'answers revised'), lang)}</span>
-          </div>
-          <p className="recommendation">
-            <strong>{textOf(L('Keyingi qadam:', 'Следующий шаг:', 'Next step:'), lang)}</strong>{' '}
-            {textOf(recommendations[weakest.index], lang)}
-          </p>
-        </div>
+        <MathEquation>
+          <span>4</span><span>·</span><span>6</span><span>=</span><span>24</span>
+          <span>⇄</span>
+          <span>8</span><span>·</span><span>3</span><span>=</span><span>24</span>
+        </MathEquation>
       </div>
 
-      <div className="exit-ticket frame">
+      <div className={`exit-ticket frame vertical-recall ${phase >= 1 ? 'is-visible' : ''}`}>
         <div className="exit-ticket-head">
-          <div>
-            <small>{textOf(L('1 daqiqalik yakun', 'Итог за 1 минуту', 'One-minute exit ticket'), lang)}</small>
-            <strong>{textOf(L('Qoidani xotiradan tiklang', 'Восстановите правило по памяти', 'Recall the rule from memory'), lang)}</strong>
-          </div>
+          <strong>{textOf(L('Qoidani tiklang', 'Восстановите правило', 'Rebuild the rule'), lang)}</strong>
           <span>{recallChecked ? `${recallScore}/3` : '—/3'}</span>
         </div>
         <div className="recall-grid">
@@ -3608,7 +3286,7 @@ function Summary({ answers, studentName }) {
                 <button
                   type="button"
                   key={value}
-                  className={recall.formula === value ? 'active' : ''}
+                  className={recallClass('formula', value, 'k')}
                   onClick={() => setRecallValue('formula', value)}
                 >
                   {value}
@@ -3617,17 +3295,17 @@ function Summary({ answers, studentName }) {
             </div>
           </div>
           <div>
-            <span>{textOf(L('Cheklovlar', 'Ограничения', 'Restrictions'), lang)}</span>
+            <span><MathVar>k</MathVar> ≠ 0</span>
             <div>
-              <button type="button" className={recall.restrictions === 'x' ? 'active' : ''} onClick={() => setRecallValue('restrictions', 'x')}>x ≠ 0</button>
-              <button type="button" className={recall.restrictions === 'both' ? 'active' : ''} onClick={() => setRecallValue('restrictions', 'both')}>x ≠ 0, y ≠ 0</button>
+              <button type="button" className={recallClass('restrictions', 'x', 'both')} onClick={() => setRecallValue('restrictions', 'x')}>x ≠ 0</button>
+              <button type="button" className={recallClass('restrictions', 'both', 'both')} onClick={() => setRecallValue('restrictions', 'both')}>x ≠ 0, y ≠ 0</button>
             </div>
           </div>
           <div>
-            <span>k &lt; 0</span>
+            <span><MathVar>k</MathVar> &lt; 0</span>
             <div>
-              <button type="button" className={recall.quadrants === 'positive' ? 'active' : ''} onClick={() => setRecallValue('quadrants', 'positive')}>I, III</button>
-              <button type="button" className={recall.quadrants === 'negative' ? 'active' : ''} onClick={() => setRecallValue('quadrants', 'negative')}>II, IV</button>
+              <button type="button" className={recallClass('quadrants', 'positive', 'negative')} onClick={() => setRecallValue('quadrants', 'positive')}>I, III</button>
+              <button type="button" className={recallClass('quadrants', 'negative', 'negative')} onClick={() => setRecallValue('quadrants', 'negative')}>II, IV</button>
             </div>
           </div>
         </div>
@@ -3637,53 +3315,39 @@ function Summary({ answers, studentName }) {
           disabled={!recallComplete}
           onClick={() => setRecallChecked(true)}
         >
-          {textOf(L('Yakuniy qoidani tekshirish', 'Проверить итоговое правило', 'Check the final rule'), lang)}
+          {textOf(UI.check, lang)}
         </button>
       </div>
 
-      <div className={`rule-final ${recallChecked ? 'is-revealed' : ''}`}>
-        <div>
-          <small>{textOf(L('FORMULA', 'ФОРМУЛА', 'FORMULA'), lang)}</small>
-          <InverseFormula compact />
+      <div className={`rule-final summary-rule ${recallChecked || phase >= 2 ? 'is-revealed' : ''}`}>
+        <div className="summary-rule-line">
+          <ConstantProduct />
+          <strong>⇄</strong>
+          <InverseFormula />
         </div>
-        <div>
-          <small>{textOf(L('INVARIANT', 'ИНВАРИАНТ', 'INVARIANT'), lang)}</small>
-          <ConstantProduct compact />
-        </div>
-        <div>
-          <small>{textOf(L('CHEKLOVLAR', 'ОГРАНИЧЕНИЯ', 'RESTRICTIONS'), lang)}</small>
-          <strong>k ≠ 0<br />x ≠ 0, y ≠ 0</strong>
-        </div>
-        <div>
-          <small>{textOf(L('GRAFIK', 'ГРАФИК', 'GRAPH'), lang)}</small>
-          <strong>{textOf(L('giperbola; o‘qlar — asimptotalar', 'гипербола; оси — асимптоты', 'hyperbola; axes are asymptotes'), lang)}</strong>
+        <MathEquation compact>
+          <MathVar>k</MathVar><span>≠</span><span>0</span>
+          <span>·</span>
+          <MathVar>x</MathVar><span>≠</span><span>0</span>
+          <span>·</span>
+          <MathVar>y</MathVar><span>≠</span><span>0</span>
+        </MathEquation>
+        <div className="summary-quadrants">
+          <MathEquation compact><MathVar>k</MathVar><span>&gt;</span><span>0</span><span>⇒</span><strong>I, III</strong></MathEquation>
+          <MathEquation compact><MathVar>k</MathVar><span>&lt;</span><span>0</span><span>⇒</span><strong>II, IV</strong></MathEquation>
         </div>
       </div>
-      <div className="return-hook">
-        <div className="mini-rect rect-b"><span>8 × 3</span></div>
-        <div>
-          <small>{textOf(L('Boshidagi savol', 'Вопрос из начала', 'Opening question'), lang)}</small>
-          <strong>8 · 3 = 24</strong>
-          <p>{textOf(L(
-            "En 2 marta oshsa, bo'yi 2 marta kamayadi, chunki x · y = 24 o'zgarmaydi.",
-            'Если ширина удваивается, высота уменьшается вдвое, потому что x · y = 24 остаётся постоянным.',
-            'When width doubles, height is halved because x · y = 24 stays constant.',
-          ), lang)}</p>
-          {prediction && (
-            <span className={`prediction-check ${predictionCorrect ? 'confirmed' : 'revised'}`}>
-              {predictionCorrect
-                ? textOf(L('Taxmin tasdiqlandi ✓', 'Прогноз подтвердился ✓', 'Prediction confirmed ✓'), lang)
-                : textOf(L('Taxmin qoida yordamida tuzatildi', 'Прогноз уточнён с помощью правила', 'Prediction revised using the rule'), lang)}
-            </span>
-          )}
-        </div>
+
+      <div className="summary-score compact-score">
+        <span>{studentName || textOf(L('Natija', 'Результат', 'Score'), lang)}</span>
+        <strong>{correct}/{total}</strong>
       </div>
     </div>
   )
 }
 
 function LessonBody({ screen, audio, storedAnswer, answers, onAnswer, studentName }) {
-  if (screen === 0) return <HookVisual onAnswer={onAnswer} />
+  if (screen === 0) return <HookVisual onAnswer={onAnswer} phase={audio.phase} />
   if (screen === 1) return <RectangleLab phase={audio.phase} />
   if (screen === 2) return <TableModel phase={audio.phase} />
   if (screen === 3) return <FormulaBuild phase={audio.phase} />
@@ -3691,7 +3355,7 @@ function LessonBody({ screen, audio, storedAnswer, answers, onAnswer, studentNam
   if (screen === 5) return <PointsModel phase={audio.phase} />
   if (screen === 6) return <GraphSignModel phase={audio.phase} />
   if (screen === 7) return <Passport phase={audio.phase} />
-  if (screen === 8) return <WorkedExample phase={audio.phase} pushOneOff={audio.pushOneOff} />
+  if (screen === 8) return <WorkedExample phase={audio.phase} />
   if (screen >= PRACTICE_START && screen < PRACTICE_START + PRACTICE_BLOCKS.length) {
     return (
       <PracticeBlock
@@ -3702,7 +3366,7 @@ function LessonBody({ screen, audio, storedAnswer, answers, onAnswer, studentNam
       />
     )
   }
-  return <Summary answers={answers} studentName={studentName} />
+  return <Summary answers={answers} studentName={studentName} phase={audio.phase} />
 }
 
 function LessonScreen({ screen, answers, onAnswer, onPrev, onNext, onFinish, studentName }) {
@@ -4165,14 +3829,17 @@ html, body { margin: 0; padding: 0; }
 .hyperbola path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 420; stroke-dashoffset: 420; filter: drop-shadow(0 0 4px rgba(255,79,40,.42)); }
 .hyperbola.draw path { animation: draw-curve 1.4s .15s ease forwards; }
 .graph-point { opacity: 0; fill: var(--blue); stroke: white; stroke-width: 2; transform-box: fill-box; transform-origin: center; }
-.graph-point.show { animation: point-pop .45s var(--delay) cubic-bezier(.34,1.5,.64,1) forwards; }
+.graph-point.show { animation: point-pop .58s var(--delay) cubic-bezier(.22,1,.36,1) forwards; }
 .origin-gap { fill: var(--bg); stroke: var(--accent); stroke-width: 2; }
 .placement-guide { fill: none; stroke: var(--accent); stroke-width: 1.7; stroke-dasharray: 1; stroke-dashoffset: 1; }
-.placement-guide-x { animation: placement-guide-draw .32s ease forwards; }
-.placement-guide-y { animation: placement-guide-draw .32s .14s ease forwards; }
-.placement-axis-dot { opacity: 0; fill: var(--accent); animation: placement-marker-in .22s .15s ease forwards; }
-.placement-target-ring { fill: rgba(255,79,40,.08); stroke: var(--accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: placement-target-ping .7s .24s ease both; }
-.coordinate-graph .placement-label { opacity: 0; fill: var(--accent); font-size: 10px; animation: placement-label-in .25s .32s ease forwards; }
+.placement-guide-x { animation: placement-guide-draw .60s .08s cubic-bezier(.4,0,.2,1) forwards; }
+.placement-guide-y { animation: placement-guide-draw .68s .72s cubic-bezier(.4,0,.2,1) forwards; }
+.placement-axis-dot { opacity: 0; fill: var(--accent); }
+.placement-axis-dot-x { animation: placement-marker-in .22s .58s ease forwards; }
+.placement-axis-dot-y { animation: placement-marker-in .22s 1.22s ease forwards; }
+.placement-cursor { fill: var(--accent); stroke: white; stroke-width: 2; filter: drop-shadow(0 0 5px rgba(255,79,40,.55)); }
+.placement-target-ring { fill: rgba(255,79,40,.08); stroke: var(--accent); stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: placement-target-ping .48s 1.38s cubic-bezier(.22,1,.36,1) both; }
+.coordinate-graph .placement-label { opacity: 0; fill: var(--accent); font-size: 10px; animation: placement-label-in .32s 1.55s ease forwards; }
 .point-list, .sign-panel { display: flex; flex-direction: column; justify-content: center; gap: 9px; }
 .point-pair { width: 100%; padding: 9px 11px; display: flex; align-items: center; justify-content: space-between; border: 0; border-radius: 10px; opacity: .2; color: var(--ink); background: var(--paper); box-shadow: 0 6px 16px -6px rgba(58,53,48,.13); transform: translateX(8px); cursor: default; text-align: left; transition: opacity .35s, transform .35s, background .25s, box-shadow .25s; }
 .point-pair.visible { opacity: 1; transform: none; }
@@ -4685,6 +4352,252 @@ html, body { margin: 0; padding: 0; }
 .rule-final .math-equation { color: var(--accent); font-size: 18px; }
 .rule-final > div:nth-child(3) strong { font-size: 12px; line-height: 1.5; }
 
+/* Vertical formula narratives used by the theory slides. */
+.hook-equation-track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--ink);
+}
+.hook-equation-track .math-equation { font-size: 17px; }
+.hook-equation-track strong { color: var(--accent); }
+.range-values {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  color: var(--ink-2);
+  font: 700 9px "JetBrains Mono", monospace;
+  text-align: center;
+}
+.formula-ladder {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 9px;
+}
+.formula-ladder-step {
+  min-width: 0;
+  min-height: 68px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-radius: 13px;
+  opacity: .2;
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow: 0 7px 19px -8px rgba(58,53,48,.18);
+  transform: translateY(7px);
+  transition: opacity .45s, transform .45s, background .35s, box-shadow .35s;
+}
+.formula-ladder-step.is-current,
+.formula-ladder-step.is-visible,
+.formula-ladder-step.show,
+.zero-proof.show .formula-ladder-step {
+  opacity: 1;
+  transform: none;
+}
+.formula-ladder-step.is-current {
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px rgba(255,79,40,.18), 0 7px 19px -8px rgba(255,79,40,.28);
+}
+.formula-ladder-step .math-equation { font-size: 22px; }
+.formula-ladder-step small { color: var(--ink-2); font-size: 9px; }
+.formula-rule,
+.inverse-scale,
+.sign-pair-step,
+.passport-scale {
+  color: var(--success);
+  background: var(--success-soft);
+}
+.formula-flow-arrow {
+  min-height: 22px;
+  display: grid;
+  place-items: center;
+  opacity: .18;
+  color: var(--accent);
+  font-size: 20px;
+  font-weight: 900;
+  transform: translateY(-4px);
+  transition: opacity .35s, transform .35s;
+}
+.formula-flow-arrow.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.formula-answer-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+.formula-answer-buttons button {
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 9px;
+  color: var(--ink-2);
+  background: var(--bg);
+  cursor: pointer;
+  font-weight: 800;
+}
+.formula-answer-buttons button.correct { color: var(--success); background: var(--success-soft); }
+.formula-answer-buttons button.wrong { color: var(--accent); background: var(--accent-soft); }
+.formula-ladder.algebra-steps {
+  min-height: 0;
+  opacity: 1;
+}
+.formula-ladder .algebra-row {
+  min-height: 82px;
+  display: flex;
+  grid-template-columns: none;
+}
+.formula-ladder .algebra-row.result {
+  color: var(--success);
+  background: var(--success-soft);
+}
+.formula-hero-line {
+  min-height: 92px;
+  padding: 15px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 8px 22px -7px rgba(255,79,40,.22);
+}
+.formula-hero-line .math-equation { font-size: 34px; }
+.vertical-domain .value-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.formula-ladder.zero-proof {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: stretch;
+}
+.formula-ladder.zero-proof.show {
+  max-height: 270px;
+  padding: 10px 12px;
+}
+.blocked-fraction { color: var(--accent); background: var(--accent-soft); }
+.vertical-domain .domain-rule {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+}
+.graph-controls {
+  padding: 12px;
+  border-radius: 13px;
+  background: var(--paper);
+  box-shadow: 0 7px 19px -8px rgba(58,53,48,.18);
+}
+.sign-formulas .quadrant-rule {
+  min-height: 72px;
+  font-size: 20px;
+}
+.passport-equivalence { color: var(--accent); }
+.passport-graph-rule { justify-content: center; }
+.passport-graph-rule > div { display: grid; gap: 7px; }
+.worked-formula-stack {
+  width: 100%;
+  display: grid;
+  gap: 9px;
+}
+.worked-chain {
+  padding: 13px 16px;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  border-radius: 13px;
+  opacity: .2;
+  background: var(--paper);
+  box-shadow: 0 7px 19px -8px rgba(58,53,48,.18);
+  transform: translateY(7px);
+  transition: opacity .45s, transform .45s;
+}
+.worked-chain.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.worked-chain > .math-equation { font-size: 20px; }
+.worked-result {
+  width: 100%;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-radius: 10px;
+  opacity: .2;
+  color: var(--success);
+  background: var(--success-soft);
+  transform: translateY(5px);
+  transition: opacity .4s, transform .4s;
+}
+.worked-result.is-visible {
+  opacity: 1;
+  transform: none;
+}
+.worked-rule {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* One-column lesson composition: every major panel follows the previous one. */
+.hook-flow,
+.hook-grid,
+.lab-grid,
+.table-layout,
+.formula-discovery,
+.graph-layout,
+.worked-layout,
+.practice-layout {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  align-items: start;
+  gap: 14px;
+}
+.hook-flow > *,
+.hook-grid > *,
+.lab-grid > *,
+.table-layout > *,
+.formula-discovery > *,
+.graph-layout > *,
+.worked-layout > *,
+.practice-layout > * {
+  min-width: 0;
+}
+.formula-question,
+.algebra-steps {
+  min-height: 0;
+}
+.formula-hero {
+  grid-row: auto;
+  min-height: 120px;
+}
+.worked-layout .frame-success {
+  grid-column: 1;
+}
+.task-rail {
+  grid-row: auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  padding: 8px;
+}
+.task-rail > span {
+  align-self: center;
+  margin-top: 0;
+}
+.solution-panel {
+  grid-column: 1;
+}
+.graph-layout .coordinate-graph {
+  width: min(100%, 560px);
+  max-height: none;
+}
+
 .g8-inverse-root button:focus-visible,
 .g8-inverse-root input:focus-visible {
   outline: 3px solid rgba(1,154,203,.42);
@@ -4725,6 +4638,14 @@ html, body { margin: 0; padding: 0; }
 @keyframes practice-reveal {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
+}
+
+@media (min-width: 721px) {
+  .graph-layout .graph-frame {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
 }
 
 @media (max-width: 720px) {
@@ -4869,6 +4790,466 @@ html, body { margin: 0; padding: 0; }
   .context-answer .number-entry .btn-white-accent { grid-column: 1 / -1; width: 100%; }
   .mastery-metrics { grid-template-columns: 1fr; }
   .summary-score { grid-template-columns: 70px 1fr; }
+}
+
+/* Vertical lesson v3: compact book-like rhythm, one mathematical idea at a time. */
+.stage-content > .screen-heading,
+.stage-content > .phase-dots,
+.stage-content > .hook-flow,
+.stage-content > .lab-grid,
+.stage-content > .table-layout,
+.stage-content > .formula-discovery,
+.stage-content > .domain-layout,
+.stage-content > .graph-layout,
+.stage-content > .passport-layout,
+.stage-content > .worked-layout,
+.stage-content > .practice-layout,
+.stage-content > .summary-layout {
+  width: min(100%, 760px);
+  margin-inline: auto;
+}
+.screen-heading { margin-bottom: 10px; }
+.screen-heading h1 { font-size: clamp(25px, 3.6vw, 34px); }
+.screen-heading p { margin-top: 5px; font-size: 13px; line-height: 1.35; }
+.phase-dots { margin-bottom: 10px; }
+
+.hook-flow,
+.vertical-lab,
+.vertical-table,
+.vertical-formula-build,
+.vertical-domain,
+.vertical-points,
+.vertical-graph-sign,
+.vertical-passport,
+.vertical-worked,
+.practice-layout,
+.vertical-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+}
+
+.hook-model-vertical {
+  min-height: 220px;
+  padding: 16px;
+  grid-template-rows: auto 1fr;
+  align-content: center;
+  gap: 10px;
+}
+.hook-model-vertical .area-label { top: 12px; left: 13px; }
+.hook-model-vertical .rect-pair { gap: 13px; transform: none; }
+.hook-model-vertical .rect-a { width: 88px; height: 112px; animation: formula-rise .45s ease both; }
+.hook-model-vertical .rect-question {
+  width: 150px;
+  height: 58px;
+  animation: none;
+}
+.hook-target,
+.hook-morph,
+.hook-options {
+  opacity: .14;
+  transition: opacity .3s;
+}
+.hook-target.is-visible,
+.hook-morph.is-visible,
+.hook-options.is-visible {
+  opacity: 1;
+}
+.hook-model-vertical .rect-question.is-visible {
+  animation: rectangle-morph .68s cubic-bezier(.22,1,.36,1) both;
+}
+.hook-model-vertical .morph-arrow.is-visible {
+  animation: formula-arrow .45s .16s ease both;
+}
+.hook-equation-track .hook-target.is-visible {
+  animation: formula-rise .42s ease both;
+}
+.hook-options {
+  width: min(100%, 430px);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.hook-options .option {
+  min-height: 44px;
+  justify-content: center;
+  padding: 8px;
+  text-align: center;
+  font: 800 17px "JetBrains Mono", monospace;
+}
+.hook-options .option > span { display: none; }
+
+.rectangle-stage {
+  --lab-unit: 16px;
+  min-height: 218px;
+  padding: 10px 14px;
+  gap: 5px;
+}
+.rectangle-visual { min-height: 135px; }
+.dynamic-rectangle { max-height: 192px; }
+.control-card { padding: 10px 14px; gap: 3px; }
+.metric-row strong { font-size: 19px; }
+
+.formula-ladder { gap: 6px; }
+.formula-ladder-step {
+  min-height: 52px;
+  padding: 8px 13px;
+  gap: 8px;
+}
+.formula-ladder-step.is-current,
+.formula-ladder-step.is-visible,
+.formula-ladder-step.show,
+.zero-proof.show .formula-ladder-step {
+  animation: formula-rise .46s cubic-bezier(.22,1,.36,1) both;
+}
+.formula-ladder-step .math-equation { font-size: 20px; }
+.formula-flow-arrow { min-height: 15px; font-size: 17px; }
+
+.math-table { padding: 10px; overflow: hidden; }
+.table-row {
+  min-width: 0;
+  grid-template-columns: 48px repeat(6, minmax(0, 1fr));
+}
+.table-row span { min-width: 0; min-height: 39px; padding: 4px 2px; font-size: 12px; }
+.table-formulas .product-scan .math-equation { flex-wrap: wrap; white-space: normal; }
+.gap-equation { justify-content: center; }
+.scale-invariant {
+  opacity: .14;
+  transform: translateY(4px);
+}
+.scale-invariant.is-visible {
+  animation: formula-success .44s cubic-bezier(.22,1,.36,1) both;
+}
+
+.formula-question,
+.formula-ladder.algebra-steps {
+  min-height: 0;
+  padding: 12px 14px;
+}
+.formula-question { gap: 9px; }
+.formula-question > .math-equation { font-size: 29px; }
+.operation-choices { width: min(100%, 330px); }
+.formula-ladder .algebra-row { min-height: 62px; }
+.reverse-equation { min-height: 45px; }
+
+.formula-hero-line {
+  min-height: 68px;
+  padding: 10px;
+}
+.formula-hero-line .math-equation { font-size: 29px; }
+.vertical-domain .value-cards {
+  padding: 9px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  overflow: hidden;
+}
+.vertical-domain .value-card {
+  min-width: 0;
+  min-height: 82px;
+  padding: 6px 3px;
+  gap: 4px;
+}
+.vertical-domain .value-card span { font-size: 10px; }
+.vertical-domain .value-card .fraction { font-size: 13px; }
+.vertical-domain .value-card small { font-size: 9px; }
+.formula-ladder.zero-proof.show { max-height: 190px; padding: 6px 8px; }
+.vertical-domain .domain-rule { padding: 9px 12px; }
+
+.graph-frame {
+  min-height: 244px;
+  padding: 8px;
+}
+.graph-layout .coordinate-graph {
+  width: min(100%, 520px);
+  max-height: 270px;
+}
+.point-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.point-strip span {
+  min-width: 0;
+  padding: 7px 3px;
+  border-radius: 9px;
+  opacity: .18;
+  color: var(--ink-2);
+  background: var(--paper);
+  box-shadow: 0 5px 14px -7px rgba(58,53,48,.18);
+  font: 700 10px "JetBrains Mono", monospace;
+  text-align: center;
+  transform: translateY(5px);
+}
+.point-strip span.is-visible {
+  animation: point-chip-in .42s var(--point-delay) cubic-bezier(.22,1,.36,1) both;
+}
+.point-strip span.is-current { color: var(--accent); background: var(--accent-soft); }
+.point-invariant { color: var(--success); background: var(--success-soft); }
+
+.graph-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 9px;
+}
+.graph-controls .magnitude-control { grid-template-columns: auto repeat(3, 1fr); }
+.sign-formulas .quadrant-rule { min-height: 52px; }
+.sign-formulas .quadrant-rule strong { font-size: 20px; }
+
+.passport-formulas { gap: 5px; }
+.passport-invariant { color: var(--accent); background: var(--accent-soft); }
+.passport-equivalence { min-height: 66px; }
+.passport-graph-rule { min-height: 74px; }
+.passport-graph-rule .mini-graph { width: 72px; height: 72px; }
+.passport-graph-rule > div { grid-template-columns: 1fr 1fr; align-items: center; }
+.passport-graph-rule > div small { grid-column: 1 / -1; text-align: center; }
+
+.vertical-worked .formula-hero {
+  min-height: 66px;
+  padding: 10px;
+  font-size: 31px;
+}
+.worked-formula-stack { gap: 7px; }
+.worked-chain { min-height: 88px; padding: 10px 13px; gap: 5px; }
+.worked-chain.is-visible { animation: formula-rise .46s cubic-bezier(.22,1,.36,1) both; }
+.worked-result { min-height: 42px; padding: 6px 10px; }
+.worked-result.is-visible { animation: formula-success .5s cubic-bezier(.22,1,.36,1) both; }
+.worked-rule { min-height: 50px; padding: 9px 13px; }
+
+.practice-layout { gap: 8px; }
+.task-rail {
+  width: 100%;
+  padding: 6px;
+  display: grid;
+  grid-template-columns: repeat(6, 40px) minmax(42px, 1fr);
+  justify-content: start;
+  gap: 6px;
+}
+.task-rail button {
+  width: 40px;
+  height: 40px;
+  flex-basis: 40px;
+}
+.task-rail > span {
+  justify-self: end;
+  align-self: center;
+  margin: 0 5px 0 0;
+}
+.task-card {
+  min-height: 245px;
+  padding: 15px 17px;
+}
+.task-number { margin-bottom: 6px; }
+.task-card h2 { font-size: clamp(18px, 2.7vw, 23px); }
+.task-math-visual {
+  min-height: 50px;
+  margin: 9px 0;
+  animation: task-model-in .42s .08s cubic-bezier(.22,1,.36,1) both;
+}
+.task-math-visual.is-solved {
+  animation: formula-success .5s cubic-bezier(.22,1,.36,1) both;
+}
+.task-options button { min-height: 45px; }
+.solution-panel {
+  grid-column: 1;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+}
+.solution-panel.visible {
+  min-height: 70px;
+  max-height: 150px;
+  padding: 9px 13px;
+}
+.solution-copy .task-math-visual {
+  justify-self: start;
+  max-width: 100%;
+}
+
+.vertical-summary { gap: 8px; }
+.summary-hook {
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 13px;
+}
+.summary-rect-transform {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--accent);
+  font-weight: 800;
+}
+.summary-rect-transform .rect-a {
+  width: 45px;
+  height: 58px;
+  animation: formula-rise .4s ease both;
+}
+.summary-rect-transform .rect-b {
+  width: 82px;
+  height: 36px;
+  animation: rectangle-morph-small .6s .18s cubic-bezier(.22,1,.36,1) both;
+}
+.summary-rect-transform .mini-rect span { padding: 3px 4px; font-size: 8px; }
+.summary-hook > .math-equation { justify-self: center; font-size: 20px; }
+.vertical-recall {
+  padding: 10px 12px;
+  gap: 7px;
+  opacity: .22;
+  transform: translateY(6px);
+}
+.vertical-recall.is-visible {
+  opacity: 1;
+  transform: none;
+  animation: formula-rise .45s ease both;
+}
+.recall-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+.recall-grid > div {
+  min-height: 48px;
+  padding: 6px 8px;
+  grid-template-columns: minmax(100px, .8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: 6px;
+}
+.recall-grid button { min-height: 32px; }
+.recall-grid button.correct { color: var(--success); background: var(--success-soft); }
+.recall-grid button.wrong { color: var(--accent); background: var(--accent-soft); }
+.exit-check { justify-self: end; }
+.summary-rule {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+  padding: 10px 13px;
+  border-radius: 13px;
+  background: var(--paper);
+  box-shadow: 0 7px 19px -8px rgba(58,53,48,.18);
+}
+.summary-rule > div {
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.summary-rule-line,
+.summary-quadrants {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.summary-rule > .math-equation { justify-self: center; }
+.summary-rule.is-revealed { animation: formula-success .5s cubic-bezier(.22,1,.36,1) both; }
+.compact-score {
+  min-height: 42px;
+  padding: 8px 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 11px;
+  color: var(--ink-2);
+  background: rgba(255,255,255,.65);
+}
+.compact-score strong { color: var(--accent); font: 800 18px "JetBrains Mono", monospace; }
+
+.rect-b,
+.rect-question,
+.morph-arrow,
+.value-card.forbidden.pulse,
+.false-axis-point {
+  animation-iteration-count: 1;
+}
+
+@keyframes formula-rise {
+  from { opacity: .18; transform: translateY(8px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes formula-arrow {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes rectangle-morph {
+  from { opacity: .35; width: 88px; height: 112px; transform: translateX(-10px); }
+  to { opacity: 1; width: 150px; height: 58px; transform: none; }
+}
+@keyframes rectangle-morph-small {
+  from { opacity: .35; width: 45px; height: 58px; }
+  to { opacity: 1; width: 82px; height: 36px; }
+}
+@keyframes point-chip-in {
+  from { opacity: .18; transform: translateY(7px) scale(.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes formula-success {
+  from { opacity: .25; transform: translateY(6px) scale(.985); filter: saturate(.65); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes task-model-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 720px) {
+  .screen-heading h1 { font-size: clamp(22px, 6.4vw, 27px); }
+  .screen-heading p { font-size: 11px; }
+  .hook-model-vertical { min-height: 188px; padding: 12px; }
+  .hook-model-vertical .rect-pair { width: 100%; margin: 0; transform: scale(.82); }
+  .rectangle-stage { --lab-unit: 12px; min-height: 190px; }
+  .rectangle-visual { min-height: 112px; }
+  .formula-ladder-step { min-height: 48px; padding: 7px 9px; }
+  .formula-ladder-step .math-equation { font-size: 18px; }
+  .table-row { grid-template-columns: 37px repeat(6, minmax(0, 1fr)); }
+  .table-row span { min-height: 35px; font-size: 10px; }
+  .vertical-domain .value-cards { padding: 6px; gap: 4px; overflow: hidden; }
+  .vertical-domain .value-card { min-height: 72px; }
+  .graph-frame { min-height: 196px; }
+  .graph-layout .coordinate-graph { max-height: 220px; }
+  .point-strip { gap: 3px; }
+  .point-strip span { padding: 6px 1px; font-size: 8px; }
+  .graph-controls { grid-template-columns: minmax(0, 1fr); }
+  .passport-equivalence .math-equation { font-size: 16px; }
+  .passport-graph-rule .mini-graph { width: 60px; height: 60px; }
+  .vertical-worked .formula-hero { min-height: 58px; font-size: 27px; }
+  .worked-chain > .math-equation { font-size: 17px; }
+  .task-rail {
+    grid-template-columns: repeat(6, 36px) minmax(38px, 1fr);
+    gap: 4px;
+    justify-content: start;
+  }
+  .task-rail button { width: 36px; height: 36px; flex-basis: 36px; }
+  .task-card { min-height: 225px; padding: 12px; }
+  .task-card h2 { font-size: 18px; }
+  .task-options { grid-template-columns: minmax(0, 1fr); }
+  .task-options.has-visuals button { grid-template-columns: 22px 58px minmax(0, 1fr); }
+  .solution-panel.visible { max-height: 210px; }
+  .summary-hook { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .summary-hook > .math-equation { font-size: 17px; }
+  .recall-grid > div {
+    min-height: 45px;
+    grid-template-columns: minmax(88px, .72fr) minmax(0, 1.28fr);
+  }
+  .summary-rule-line .math-equation { font-size: 16px; }
+}
+
+@media (max-width: 400px) {
+  .stage-header { padding-inline: 12px; }
+  .stage-content { padding-inline: 12px; }
+  .stage-nav { padding-inline: 12px; }
+  .hook-options { gap: 6px; }
+  .task-rail {
+    grid-template-columns: repeat(6, minmax(32px, 1fr));
+  }
+  .task-rail > span { grid-column: 1 / -1; justify-self: end; }
+  .task-options.has-visuals button {
+    grid-template-columns: 22px 52px minmax(0, 1fr);
+  }
+  .number-entry { gap: 6px; }
+  .number-entry input { width: 104px; }
+  .summary-rect-transform { transform: scale(.9); }
+  .recall-grid > div { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
