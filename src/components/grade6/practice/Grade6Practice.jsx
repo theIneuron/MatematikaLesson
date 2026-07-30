@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../../grade5/practice/PracticeHost.jsx';
 import { GRADE6_PRACTICE_16_26 } from './Grade6PracticeData16_26.js';
 import { GRADE6_PRACTICE_27_46, ruPracticeValue27 } from './Grade6PracticeData27_46.js';
@@ -463,6 +463,21 @@ const shuffle = (list) => {
   return shuffled;
 };
 
+const autoScrollBehavior = () => (
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+);
+
+const afterLayout = (callback) => {
+  let secondFrame;
+  const firstFrame = window.requestAnimationFrame(() => {
+    secondFrame = window.requestAnimationFrame(callback);
+  });
+  return () => {
+    window.cancelAnimationFrame(firstFrame);
+    if (secondFrame) window.cancelAnimationFrame(secondFrame);
+  };
+};
+
 function MathText({ text }) {
   const source = String(text);
   const parts = [];
@@ -503,6 +518,7 @@ function Question({ item, index, lesson, lang = 'uz', mode, onReady, registerChe
   const [active, setActive] = useState(null);
   const [checked, setChecked] = useState(false);
   const [correct, setCorrect] = useState(false);
+  const feedbackRef = useRef(null);
   const ready = item.type === 'match' ? answer.every(Boolean) : item.type === 'input' ? answer.trim() !== '' : answer !== null;
 
   useEffect(() => onReady?.(ready && !checked), [ready, checked, onReady]);
@@ -515,6 +531,16 @@ function Question({ item, index, lesson, lang = 'uz', mode, onReady, registerChe
     onSubmit?.({ questionText: item.prompt, studentAnswer: answer, correctAnswer: item.answer || item.pairs, correct: ok, meta: { lesson, task: index + 1 } });
   }, [answer, index, item, lesson, onSubmit, playCorrect, playWrong]);
   useEffect(() => registerCheck?.(check), [check, registerCheck]);
+  useEffect(() => {
+    if (!checked) return;
+    return afterLayout(() => {
+      feedbackRef.current?.scrollIntoView({
+        behavior: autoScrollBehavior(),
+        block: 'center',
+        inline: 'nearest',
+      });
+    });
+  }, [checked]);
   return <div className="g6q" style={{ '--c1': colors[0], '--c2': colors[1] }}>
     <style>{`
       .g6q{max-width:650px;margin:auto;padding:8px 4px 18px;color:#172033;background:#fff7ed;font-family:Manrope,system-ui,sans-serif}
@@ -530,7 +556,7 @@ function Question({ item, index, lesson, lang = 'uz', mode, onReady, registerChe
       .g6q-match{display:grid;grid-template-columns:minmax(0,1fr) 82px minmax(0,1fr);gap:8px;align-items:stretch}.g6q-col{display:grid;grid-template-rows:repeat(3,minmax(64px,1fr));gap:12px}.g6q-card{min-height:64px;padding:10px 12px;border:0;border-radius:12px;background:color-mix(in srgb,var(--c1) 18%,white);box-shadow:inset 0 0 0 2px var(--c1);font-size:clamp(20px,3.6vw,27px)!important;font-weight:900!important;line-height:1.12}.g6q-links+ .g6q-col .g6q-card{background:color-mix(in srgb,var(--c2) 18%,white);box-shadow:inset 0 0 0 2px var(--c2)}.g6q-card.on{box-shadow:inset 0 0 0 4px var(--c1)}.g6q-card.done{opacity:.82}
       .g6q-links{display:block;width:100%;height:100%;min-height:216px;overflow:visible}.g6q-link{fill:none;stroke:var(--c1);stroke-width:5;stroke-linecap:round;filter:drop-shadow(0 2px 2px rgba(6,182,212,.18))}.g6q-link.right{stroke:#22c55e}.g6q-link.wrong{stroke:#ef4444}
       .g6q-input-wrap{display:flex;justify-content:center;padding:12px}.g6q-input{width:min(100%,280px);height:82px;border:3px solid var(--c1);border-radius:17px;background:#fff;text-align:center;font:900 34px Manrope,system-ui,sans-serif;color:#172033;outline:none;box-shadow:0 6px 0 #a5f3fc}.g6q-input:focus{border-color:var(--c2);box-shadow:0 6px 0 #99f6e4}.g6q-input.right{border-color:#22c55e;background:#dcfce7;box-shadow:0 6px 0 #86efac}.g6q-input.wrong{border-color:#ef4444;background:#fee2e2;box-shadow:0 6px 0 #fca5a5}
-      .g6q-feedback{margin-top:16px;padding:14px 16px;border:2px solid #f59e0b;border-radius:8px;background:#fef3c7;font-weight:800;color:#78350f;box-shadow:0 5px 0 #fcd34d;line-height:1.45}.g6q-feedback strong{display:block;margin-bottom:4px;font-size:17px}.g6q-feedback-why{display:block;color:#713f12;font-size:14px}
+      .g6q-feedback{margin-top:16px;padding:14px 16px;border:2px solid #f59e0b;border-radius:8px;background:#fef3c7;font-weight:800;color:#78350f;box-shadow:0 5px 0 #fcd34d;line-height:1.45;scroll-margin-block:16px 104px}.g6q-feedback strong{display:block;margin-bottom:4px;font-size:17px}.g6q-feedback-why{display:block;color:#713f12;font-size:14px}
       @media(max-width:520px){.g6q h2{font-size:20px;margin-bottom:7px}.g6q-explain{font-size:12px;line-height:1.4;margin-bottom:10px;padding:8px 10px}.g6q-options{gap:8px}.g6q-option{min-height:62px;padding:10px;font-size:20px!important}.g6q-match{grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);gap:4px}.g6q-col{grid-template-rows:repeat(3,minmax(58px,1fr));gap:8px}.g6q-card{font-size:19px!important;min-height:58px;padding:7px 5px}.g6q-links{min-height:190px}.g6q-link{stroke-width:4}}
     `}</style>
     <div className="g6q-bars"><i/><i/></div>
@@ -572,7 +598,7 @@ function Question({ item, index, lesson, lang = 'uz', mode, onReady, registerChe
         return <button type="button" className={`g6q-card ${resultClass}`} key={x} disabled={checked || locked} onClick={() => { if (active !== null) { setAnswer(v => v.map((old, i) => i === active ? x : old === x ? null : old)); setActive(null); } }}><MathText text={displayText(x)}/></button>;
       })}</div>
     </div>}
-    {checked && <div className="g6q-feedback">{correct
+    {checked && <div className="g6q-feedback" ref={feedbackRef}>{correct
       ? isRussian
         ? <><strong>✓ Верно!</strong><span className="g6q-feedback-why"><MathText text={item.explanationRu || `${item.type === 'match' ? 'Все пары найдены правильно. ' : `Правильный ответ: ${displayText(item.answer)}. `}${RU_RULES[lesson] || ''}`}/></span></>
         : <><strong>✓ To‘g‘ri!</strong><span className="g6q-feedback-why"><MathText text={EXPLANATIONS[lesson][index]}/></span></>
@@ -585,17 +611,25 @@ export default function Grade6Practice({ lesson }) {
   const data = LESSONS[lesson];
   const [index, setIndex] = useState(0);
   const [lang, setLang] = useState('uz');
+  const bodyRef = useRef(null);
   const item = data.items[index];
+  const scrollBodyToTop = useCallback(() => afterLayout(() => {
+    bodyRef.current?.scrollTo({ top: 0, behavior: autoScrollBehavior() });
+  }), []);
+  useEffect(() => {
+    return scrollBodyToTop();
+  }, [index, scrollBodyToTop]);
   const Q = useMemo(() => (props) => <Question {...props} item={item} index={index} lesson={lesson}/>, [index, item, lesson]);
   return <div className="g6-practice">
     <style>{`
       .g6-practice{position:fixed;inset:0;overflow:hidden;background:#fff7ed;display:flex;flex-direction:column;zoom:var(--pqz,1)}
       .g6-tabs{flex:none;display:grid;grid-template-columns:repeat(10,1fr);gap:5px;padding:48px 10px 7px;background:#fff7ed;border-bottom:1px solid #fed7aa}
       .g6-tabs button{padding:7px 3px;border:1.5px solid #fb923c;border-radius:999px;background:#fff;color:#9a3412;font-weight:800;cursor:pointer}.g6-tabs button.on{background:#ffedd5}
-      .g6-body{flex:1;min-height:0;overflow:hidden}.g6-body>div{height:100%;min-height:0!important;background:#fff7ed}.g6-body>div>div{background:#fff7ed!important}.g6-body>div>div:nth-child(2){min-height:0;overflow:hidden;padding:7px 12px!important}.g6-body>div>div:last-child{padding:7px 12px!important;background:linear-gradient(transparent,#fff7ed 28%)!important}
+      .g6-body{flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;scroll-behavior:smooth;scroll-padding-block:12px 104px;-webkit-overflow-scrolling:touch;scrollbar-gutter:stable}.g6-body>div{height:auto;min-height:100%!important;background:#fff7ed}.g6-body>div>div{background:#fff7ed!important}.g6-body>div>div:nth-child(2){min-height:0;overflow:visible;padding:7px 12px!important}.g6-body>div>div:last-child{padding:7px 12px!important;background:linear-gradient(transparent,#fff7ed 28%)!important}
       @media(max-width:639.98px){.g6-practice{width:390px}.g6-tabs{padding-top:45px;gap:3px}.g6-tabs button{font-size:11px;padding:6px 1px}}
+      @media(prefers-reduced-motion:reduce){.g6-body{scroll-behavior:auto}}
     `}</style>
     <div className="g6-tabs">{data.items.map((_, i) => <button type="button" className={i === index ? 'on' : ''} key={i} onClick={() => setIndex(i)}>{i + 1}</button>)}</div>
-    <div className="g6-body"><PracticeHost key={`${lesson}-${index}`} Question={Q} lang={lang} onLangChange={setLang} title={{ uz: data.title, ru: data.titleRu || RU_TITLES[lesson] }} showLanguageSwitch/></div>
+    <div className="g6-body" ref={bodyRef}><PracticeHost key={`${lesson}-${index}`} Question={Q} lang={lang} onLangChange={setLang} onReset={scrollBodyToTop} title={{ uz: data.title, ru: data.titleRu || RU_TITLES[lesson] }} showLanguageSwitch/></div>
   </div>;
 }
