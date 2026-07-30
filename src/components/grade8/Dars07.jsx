@@ -2016,6 +2016,9 @@ function HookVisual({ onAnswer }) {
   )
 }
 
+const RECTANGLE_FACTORS = [2, 3, 4, 6, 8, 12]
+const RECTANGLE_CELL_COUNT = 24
+
 function RectangleLab({ phase }) {
   const lang = useLang()
   const [selectedX, setSelectedX] = useState(null)
@@ -2027,6 +2030,7 @@ function RectangleLab({ phase }) {
   const yDisplay = Number.isInteger(y) ? String(y) : y.toFixed(2).replace(/\.?0+$/, '')
   const exactValue = Number.isInteger(y)
   const compactRectangle = Math.min(x, y) <= 3
+  const sliderIndex = RECTANGLE_FACTORS.indexOf(x)
   const chooseX = (value) => {
     setSelectedX(value)
     setVisited((previous) => (previous.includes(value) ? previous : [...previous, value]))
@@ -2044,14 +2048,21 @@ function RectangleLab({ phase }) {
         </div>
         <div className="rectangle-visual">
           <div
+            key={`${x}-${y}`}
             className={`dynamic-rectangle ${compactRectangle ? 'is-compact' : ''}`}
             style={{
+              '--cell-columns': x,
               width: `calc(var(--lab-unit) * ${x})`,
               height: `calc(var(--lab-unit) * ${y})`,
             }}
             role="img"
             aria-label={`${x} times ${yDisplay} equals 24`}
           >
+            <span className="rectangle-cells" aria-hidden="true">
+              {Array.from({ length: RECTANGLE_CELL_COUNT }, (_, cellIndex) => (
+                <i key={cellIndex} />
+              ))}
+            </span>
             <span className="area-core" aria-hidden="true">{compactRectangle ? '24' : 'S = 24'}</span>
           </div>
         </div>
@@ -2093,13 +2104,14 @@ function RectangleLab({ phase }) {
         </div>
         <input
           type="range"
-          min="2"
-          max="12"
+          min="0"
+          max={RECTANGLE_FACTORS.length - 1}
           step="1"
-          value={x}
-          onChange={(event) => chooseX(Number(event.target.value))}
+          value={sliderIndex}
+          onChange={(event) => chooseX(RECTANGLE_FACTORS[Number(event.target.value)])}
           aria-label={textOf(L('Eni, x', 'Ширина, x', 'Width, x'), lang)}
-          style={{ '--range-progress': `${((x - 2) / 10) * 100}%` }}
+          aria-valuetext={`x = ${x}, y = ${yDisplay}`}
+          style={{ '--range-progress': `${(sliderIndex / (RECTANGLE_FACTORS.length - 1)) * 100}%` }}
         />
         <div className="lab-presets" aria-label={textOf(L('Tekshiruv qiymatlari', 'Контрольные значения', 'Checkpoint values'), lang)}>
           {[4, 8, 12].map((value) => (
@@ -3858,25 +3870,31 @@ html, body { margin: 0; padding: 0; }
 .rectangle-visual { width: 100%; min-height: 230px; display: grid; place-items: center; }
 .dynamic-rectangle {
   position: relative;
+  box-sizing: content-box;
   min-width: 0;
   min-height: 0;
   max-width: 92%;
   max-height: 252px;
+  overflow: hidden;
   border: 3px solid var(--accent);
   border-radius: 5px;
-  background: rgba(255,232,225,.52);
+  background: #fff1ec;
   box-shadow: 0 12px 30px -12px rgba(255,79,40,.5);
-  transition: width .5s cubic-bezier(.4,0,.2,1), height .5s cubic-bezier(.4,0,.2,1);
+  animation: rectangle-grid-reveal .24s ease-out both;
 }
-.dynamic-rectangle::before {
-  content: "";
+.rectangle-cells {
   position: absolute;
   inset: 0;
-  border-radius: 2px;
-  background:
-    repeating-linear-gradient(0deg, transparent 0 19px, rgba(255,79,40,.12) 19px 20px),
-    repeating-linear-gradient(90deg, transparent 0 19px, rgba(255,79,40,.12) 19px 20px);
+  display: grid;
+  grid-template-columns: repeat(var(--cell-columns), var(--lab-unit));
+  grid-auto-rows: var(--lab-unit);
   pointer-events: none;
+}
+.rectangle-cells > i {
+  width: var(--lab-unit);
+  height: var(--lab-unit);
+  border-right: 1px solid rgba(255,79,40,.12);
+  border-bottom: 1px solid rgba(255,79,40,.12);
 }
 .area-core {
   position: absolute;
@@ -4571,6 +4589,7 @@ html, body { margin: 0; padding: 0; }
 @keyframes speaker-breathe { 50% { transform: scale(1.1); color: var(--blue); } }
 @keyframes dot-pulse { 50% { opacity: .45; transform: scale(.75); } }
 @keyframes rect-breathe { 50% { transform: scale(1.035); box-shadow: 0 14px 30px -10px rgba(255,79,40,.55); } }
+@keyframes rectangle-grid-reveal { from { opacity: .5; } to { opacity: 1; } }
 @keyframes arrow-nudge { 50% { transform: translateX(5px); } }
 @keyframes forbidden-pulse { 50% { transform: translateY(-3px); box-shadow: 0 10px 22px -8px rgba(255,79,40,.45); } }
 @keyframes draw-curve { to { stroke-dashoffset: 0; } }
@@ -4667,7 +4686,7 @@ html, body { margin: 0; padding: 0; }
   .confidence-row { grid-template-columns: 1fr 1fr; }
   .confidence-row > span { grid-column: 1 / -1; }
   .rectangle-stage { min-height: 218px; }
-  .dynamic-rectangle { max-width: 88%; max-height: 88%; }
+  .dynamic-rectangle { max-width: none; max-height: none; }
   .lab-mission { grid-template-columns: 1fr auto; align-items: center; }
   .lab-mission small { grid-column: 1 / -1; }
   .prediction-buttons { grid-row: 2; grid-column: 2; }
