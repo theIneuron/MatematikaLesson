@@ -32,6 +32,61 @@
   transform: translateX(-2px);
 }
 
+.lesson-language {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+  display: inline-flex;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 253, 249, 0.94);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line, #e6e3dd);
+  box-shadow: 0 2px 10px rgba(58, 53, 48, 0.08);
+}
+
+.lesson-language button {
+  min-width: 38px;
+  height: 30px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #6b6b6b;
+  font: 700 0.72rem/1 var(--font-ui, system-ui, sans-serif);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.lesson-language button.is-active {
+  background: var(--accent, #ff4f28);
+  color: #fff;
+}
+
+@media (max-width: 720px) {
+  .lesson-back {
+    top: 8px;
+    left: 8px;
+    padding: 7px 11px;
+    font-size: 0.78rem;
+  }
+
+  .lesson-language {
+    top: 8px;
+    right: 8px;
+    padding: 3px;
+  }
+
+  .lesson-language button {
+    min-width: 34px;
+    height: 28px;
+    padding: 0 7px;
+    font-size: 0.66rem;
+  }
+}
+
 .lesson-frame {
   min-height: 100dvh;
 }
