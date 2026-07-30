@@ -6151,8 +6151,8 @@ html, body { margin: 0; padding: 0; }
   .work-graph-rule b { min-width: 18px; height: 18px; }
   .work-graph-rule .math-equation { font-size: 11px; }
   .work-graph-rule i { font-size: 16px; }
-  .vertical-graph-sign .graph-frame { min-height: 184px; }
-  .vertical-graph-sign .coordinate-graph { max-height: 174px; }
+  .vertical-graph-sign .graph-frame { min-height: 178px; }
+  .vertical-graph-sign .coordinate-graph { max-height: 168px; }
   .vertical-graph-sign .sign-formulas .formula-ladder-step { min-height: 30px; }
   .hook-model-vertical { min-height: 188px; padding: 12px; }
   .hook-model-vertical .rect-pair { width: 100%; margin: 0; transform: scale(.82); }
