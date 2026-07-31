@@ -1089,7 +1089,7 @@ const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
   const t = useT();
   const isMobile = useIsMobile();
-  const padH = isMobile ? 12 : 100;
+  const padH = isMobile ? 12 : 'clamp(16px, 4vw, 48px)';
   return (
     <div className={`stage screen-${screen + 1}`}>
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
@@ -3412,7 +3412,7 @@ html, body { margin: 0; padding: 0; }
 .ttl-opt {
   width: 100%;
   max-width: 520px;
-  height: clamp(58px, 10vw, 72px);
+  height: auto;
   min-height: clamp(58px, 10vw, 72px);
   box-sizing: border-box;
   padding: clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px);
@@ -3424,6 +3424,8 @@ html, body { margin: 0; padding: 0; }
   font-weight: 300;
   line-height: 1.2;
   text-align: center;
+  white-space: normal;
+  overflow: visible;
   box-shadow: 0 10px 24px -8px rgba(58, 53, 48, 0.24);
 }
 .ttl-opt:hover:not(:disabled) {

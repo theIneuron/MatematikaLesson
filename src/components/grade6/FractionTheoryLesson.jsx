@@ -1411,7 +1411,9 @@ const FRACTION_THEORY_STYLES = `
   font-weight: 700;
 }
 .fth-title-hero { width: 100%; max-width: 520px; }
-.fth-figure-frame { display: flex; align-items: center; justify-content: center; min-height: clamp(100px, 19vw, 150px); padding: clamp(12px, 2.4vw, 20px); }
+.fth-figure-frame { display: flex; align-items: center; justify-content: center; min-height: clamp(100px, 19vw, 150px); padding: clamp(12px, 2.4vw, 20px); height: auto; max-height: none; overflow: hidden; box-sizing: border-box; }
+.g6-hook-visual > *,
+.fth-figure-frame > * { max-width: 100%; }
 .fth-equation { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.22em; color: #0E0E10; font-family: 'Fraunces', 'Source Serif 4', serif; font-size: clamp(27px, 5.2vw, 40px); font-weight: 600; line-height: 1.25; text-align: center; }
 .fth-equation .frac-sm, .fth-chain .frac-sm, .fth-cards .frac-sm { font-size: 1em; }
 .fth-equation .mnum, .fth-chain .mnum, .fth-cards .mnum { font-family: inherit; font-size: 1em; font-weight: inherit; }
@@ -1462,7 +1464,9 @@ const FRACTION_THEORY_STYLES = `
 .fth-movement-point.is-end > i { background:#1F7A4D; box-shadow:0 0 0 3px rgba(31,122,77,.18); }
 .fth-movement-point > b { padding:3px 7px; border-radius:8px; background:#FFF; color:#0E0E10; font:700 13px 'JetBrains Mono',monospace; box-shadow:0 4px 12px -8px rgba(58,53,48,.5); }
 .fth-movement-line > p { position:absolute; left:12px; right:12px; bottom:0; margin:0; color:#5A5A60; font:600 clamp(13px,2.2vw,16px)/1.35 'Source Serif 4',serif; text-align:center; }
-.fth-coordinate-plane { position: relative; width: min(100%,360px); aspect-ratio: 1.65; overflow: hidden; border-radius: 14px; background-color: #FFF; background-image: linear-gradient(rgba(1,154,203,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(1,154,203,.12) 1px,transparent 1px); background-size: 8% 16%; border: 1.5px solid rgba(1,154,203,.24); }
+.fth-coordinate-plane { position: relative; width: min(100%,360px); max-width: 100%; aspect-ratio: 1.65; overflow: hidden; border-radius: 14px; background-color: #FFF; background-image: linear-gradient(rgba(1,154,203,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(1,154,203,.12) 1px,transparent 1px); background-size: 8% 16%; border: 1.5px solid rgba(1,154,203,.24); box-sizing: border-box; }
+.g6-hook-visual .fth-coordinate-plane,
+.fth-figure-frame .fth-coordinate-plane { width: min(100%, min(360px, 72vw)); }
 .fth-axis { position: absolute; background: #494550; }
 .fth-axis-x { left: 4%; right: 4%; top: 50%; height: 2px; }
 .fth-axis-y { top: 5%; bottom: 5%; left: 50%; width: 2px; }
@@ -1474,8 +1478,10 @@ const FRACTION_THEORY_STYLES = `
 .fth-plane-point em { position: absolute; left: 12px; top: -18px; white-space: nowrap; color: #0E0E10; font: 600 13px 'JetBrains Mono',monospace; font-style: normal; }
 .fth-plane-point-blue { color: #019ACB; }
 .fth-plane-point-green { color: #1F7A4D; }
-.fth-circle-visual { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
-.fth-circle-shape { position: relative; width: clamp(126px,25vw,180px); aspect-ratio: 1; border: 5px solid #019ACB; border-radius: 50%; background: radial-gradient(circle at center,#FFF7CF 0 55%,#EAF6FB 56%); }
+.fth-circle-visual { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; width: 100%; max-width: 100%; }
+.fth-circle-shape { position: relative; width: min(100%, clamp(110px, 22vw, 160px)); aspect-ratio: 1; border: 5px solid #019ACB; border-radius: 50%; background: radial-gradient(circle at center,#FFF7CF 0 55%,#EAF6FB 56%); box-sizing: border-box; }
+.g6-hook-visual .fth-circle-shape,
+.fth-figure-frame .fth-circle-shape { width: min(100%, clamp(110px, 20vw, 150px)); max-width: 150px; }
 .fth-circle-center { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; border-radius: 50%; background: #FF4F28; transform: translate(-50%,-50%); z-index: 2; }
 .fth-circle-segment { position: absolute; top: calc(50% - 2px); height: 4px; background: #FF4F28; transform-origin: left center; }
 .fth-circle-segment-radius { left: 50%; width: 44%; transform: rotate(-25deg); }
@@ -1483,8 +1489,10 @@ const FRACTION_THEORY_STYLES = `
 .fth-circle-o { position: absolute; left: calc(50% - 18px); top: calc(50% + 7px); }
 .fth-circle-shape em { position: absolute; right: 18%; top: 27%; font: 700 18px 'Fraunces',serif; font-style: normal; color: #FF4F28; }
 .fth-circle-visual p { max-width: 220px; margin: 0; }
-.fth-geometry-visual { width: min(100%,360px); }
+.fth-geometry-visual { width: min(100%,360px); max-width: 100%; }
 .fth-geometry-visual svg { width: 100%; max-height: 190px; overflow: visible; }
+.g6-hook-visual .fth-geometry-visual svg,
+.fth-figure-frame .fth-geometry-visual svg { max-height: min(190px, 100%); overflow: hidden; }
 .fth-triangle-fill { fill: #FFF7CF; stroke: #019ACB; stroke-width: 5; stroke-linejoin: round; }
 .fth-height-line { stroke: #FF4F28; stroke-width: 4; stroke-dasharray: 8 6; }
 .fth-right-mark { fill: none; stroke: #494550; stroke-width: 3; }
@@ -1558,6 +1566,8 @@ const FRACTION_THEORY_STYLES = `
 .fth-pencil-dots i { width: 8px; height: 30px; border-radius: 5px 5px 2px 2px; background: #FF795A; transform: rotate(8deg); }
 .fth-concept-formula { padding: 6px 12px; border-radius: 10px; background: #E3F0E8; color: #1F7A4D; font: 700 clamp(21px,4vw,29px) 'Fraunces',serif; }
 .fth-circle-rearrange, .fth-angle-sum, .fth-triangle-pair { width: min(100%,520px); max-height: 190px; overflow: visible; }
+.g6-hook-visual :is(.fth-circle-rearrange, .fth-angle-sum, .fth-triangle-pair),
+.fth-figure-frame :is(.fth-circle-rearrange, .fth-angle-sum, .fth-triangle-pair) { max-width: 100%; overflow: hidden; }
 .fth-sector-circle { fill: #FFF7CF; stroke: #019ACB; stroke-width: 4; }
 .fth-sector-ray { stroke: #FF4F28; stroke-width: 2; }
 .fth-rearrange-arrow { fill: none; stroke: #494550; stroke-width: 5; stroke-linecap: round; }

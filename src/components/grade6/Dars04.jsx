@@ -902,7 +902,7 @@ const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
   const t = useT();
   const isMobile = useIsMobile();
-  const padH = isMobile ? 12 : 100;
+  const padH = isMobile ? 12 : 'clamp(16px, 4vw, 48px)';
   return (
     <div className={`stage screen-${screen + 1}`}>
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
@@ -2347,7 +2347,7 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
   const pick = (v) => { if (pickedRef.current) return; pickedRef.current = true; setPicked(v); onAnswer({ stage: 'hook', screenIdx: screen, studentAnswer: v, correct: true }); audio.triggerEvent('option_picked'); setTimeout(onNext, 300); };
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} audioState={audio}>
-      <div className="g6-custom-hook" style={{ position: 'relative', flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 1.8vw, 14px)', textAlign: 'center' }}>
+      <div className="g6-custom-hook" style={{ position: 'relative', flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.2vw, 18px)', textAlign: 'center' }}>
         <Floaters/>
         <p className="eyebrow fade-up" style={{ position: 'relative', color: T.accent }}>{t(c.eyebrow)}</p>
         <h1 className="display fade-up" style={{ position: 'relative', width: '100%', margin: 0, color: T.ink, fontFamily: "'Source Serif 4', Georgia, serif", fontSize: introStages.compact ? 'clamp(30px, 6vw, 48px)' : 'clamp(38px, 8vw, 64px)', fontWeight: 600, fontVariationSettings: '"opsz" 60', lineHeight: 1.14, textAlign: 'center', transform: introStages.compact ? 'translateY(-7px)' : 'none', transition: 'font-size 1.2s cubic-bezier(.2,.7,.3,1), transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>{t(c.topic)}</h1>
@@ -2356,15 +2356,15 @@ const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
         <p className="body fade-up delay-1" style={{ position: 'relative', maxWidth: '62ch', color: T.ink2, margin: 0, textAlign: 'center' }}>{t(c.lead)}</p>
         {introStages.showExample && (
           <>
-          <div className="frame fade-up" style={{ position: 'relative', width: '100%', maxWidth: 520, minHeight: 128, alignSelf: 'center', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.5vw, 18px)', animationDuration: '1.2s' }}>
+          <div className="frame fade-up" style={{ position: 'relative', width: '100%', maxWidth: 760, minHeight: 128, alignSelf: 'center', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.5vw, 18px)', animationDuration: '1.2s' }}>
             <PriceTag value={12} unit={t(UNIT)} size="lg"/>
             <PriceTag value={13} unit={t(UNIT)} size="lg"/>
           </div>
-          <div ref={optionsRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'center', gap: 10, width: '100%', maxWidth: 520 }}>
+          <div ref={optionsRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'center', gap: 10, width: '100%', maxWidth: 760 }}>
             <div style={{ minHeight: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <p className="small" style={{ margin: 0, color: '#43855F', fontSize: 'clamp(18px, 2.9vw, 21px)', fontWeight: 500, lineHeight: 1.25, textAlign: 'center', opacity: introStages.showPrompt ? 1 : 0, transition: 'opacity 1.05s ease' }}>{lang === 'uz' ? 'Boshlashga tayyormisiz?' : 'Готовы начать?'}</p>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 520, opacity: introStages.showOptions ? 1 : 0, visibility: introStages.showOptions ? 'visible' : 'hidden', transform: introStages.showOptions ? 'none' : 'translateY(18px)', transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 760, opacity: introStages.showOptions ? 1 : 0, visibility: introStages.showOptions ? 'visible' : 'hidden', transform: introStages.showOptions ? 'none' : 'translateY(18px)', transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>
               <button className="option" style={{ minHeight: 58, padding: 'clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px)', textAlign: 'center', border: '2px solid #D8D3C8', background: '#FFFFFF', color: '#0E0E10', fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(18px, 3.2vw, 22px)', fontWeight: 300, lineHeight: 1.2, boxShadow: '0 10px 24px -8px rgba(58,53,48,.24)' }} disabled={picked !== null} onClick={() => pick('know')}>{t(c.opt_yes)}</button>
               <button className="option" style={{ minHeight: 58, padding: 'clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px)', textAlign: 'center', border: '2px solid #D8D3C8', background: '#FFFFFF', color: '#0E0E10', fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(18px, 3.2vw, 22px)', fontWeight: 300, lineHeight: 1.2, boxShadow: '0 10px 24px -8px rgba(58,53,48,.24)' }} disabled={picked !== null} onClick={() => pick('learn')}>{t(c.opt_idk)}</button>
             </div>
