@@ -1,0 +1,30 @@
+import Grade6Question from '../Grade6Question.jsx';
+
+const ITEM = {
+  "type": "bool",
+  "topic": {
+    "uz": "Modulning ishorasi",
+    "ru": "Практика к уроку 25. Модуль числа"
+  },
+  "prompt": {
+    "uz": "|−8| = −8 tenglik to'g'ri, degan fikrni modulning manfiy bo'lmaslik xossasi bilan tekshiring.",
+    "ru": "Верно ли равенство |−8| = −8?"
+  },
+  "options": [
+    "Ha",
+    "Yo'q"
+  ],
+  "answer": "Yo'q",
+  "translationsRu": {
+    "Ha": "Да",
+    "Yo'q": "Нет"
+  },
+  "explanation": {
+    "uz": "Modul hech qachon manfiy bo'lmaydi: |−8| = 8.",
+    "ru": "Правильный ответ: Нет. Модуль числа — его расстояние от нуля, поэтому модуль не бывает отрицательным."
+  }
+};
+
+export default function D25_05(props) {
+  return <Grade6Question {...props} item={ITEM} lesson={25} task={5}/>;
+}
