@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './Grade6TheoryTheme.css';
-import { SLIDES } from './Dars07Content.jsx';
 import {
   T,
   configureLesson,
@@ -26,6 +25,238 @@ import {
   mt,
   STYLES,
 } from './Dars01.jsx';
+
+const L = (uz, ru) => ({ uz, ru });
+
+const SLIDES = [
+  {
+    type: 'title',
+    eyebrow: L('Yangi mavzu', 'Новая тема'),
+    title: L("Kasrning asosiy xossasi", 'Основное свойство дроби'),
+    subtitle: L(
+      "Bugun kasrning qiymatini o'zgartirmasdan uning surat va maxrajini o'zgartirishni o'rganamiz.",
+      'Сегодня научимся менять числитель и знаменатель, не изменяя значения дроби.',
+    ),
+    audio: L(
+      "Bugungi mavzu kasrning asosiy xossasi. Bugun kasrning qiymatini o'zgartirmasdan uning surat va maxrajini o'zgartirishni o'rganamiz. Buning uchun kasr bo'laklarini yanada mayda teng bo'laklarga ajratamiz va natijani kuzatamiz.",
+      'Тема урока — основное свойство дроби. Сегодня мы научимся менять числитель и знаменатель, не изменяя значения дроби. Для этого разделим части дроби на более мелкие равные части и проследим за результатом.',
+    ),
+  },
+  {
+    type: 'question',
+    scored: false,
+    eyebrow: L('Eslab olamiz', 'Вспомним'),
+    title: L("Yarimni mayda bo'laklarga ajrating", 'Разделим половину на мелкие части'),
+    prompt: L(
+      "Lentaning yarmi bo'yalgan. Har bir yarimni yana ikkita teng bo'lakka ajratsak, bo'yalgan qism qaysi kasr bo'ladi?",
+      'Половина ленты закрашена. Если каждую половину разделить ещё на две равные части, какой дробью станет закрашенная часть?',
+    ),
+    intro: L(
+      "Lentaning ikkidan bir qismi bo'yalgan. Endi har bir yarimni yana ikkita teng bo'lakka ajrating. Bo'yalgan maydon o'zgarmaydi, faqat bo'laklar soni ortadi. Javobni tanlang.",
+      'Одна вторая ленты закрашена. Теперь разделите каждую половину ещё на две равные части. Закрашенная площадь не изменится, увеличится только число частей. Выберите ответ.',
+    ),
+    options: ['1/4', '2/4', '3/4', '2/3'],
+    correct: 1,
+    why: [
+      L("Butun lenta to'rtta teng bo'lakka ajraldi.", 'Вся лента разделилась на четыре равные части.'),
+      L("Oldingi yarim endi shu bo'laklarning ikkitasini egallaydi: 1/2 = 2/4.", 'Прежняя половина теперь занимает две части из четырёх: 1/2 = 2/4.'),
+    ],
+    wrong: L("Bo'yalgan maydonni emas, jami va bo'yalgan yangi bo'laklarni sanang.", 'Считайте не площадь, а общее число новых частей и число закрашенных частей.'),
+    visual: 'half',
+  },
+  {
+    type: 'info',
+    eyebrow: L('Kashfiyot', 'Открытие'),
+    title: L("Bo'laklar ko'paydi, qiymat o'zgarmadi", 'Частей стало больше, значение не изменилось'),
+    steps: [
+      L("Avval lenta 2 ta teng bo'lakdan iborat edi va 1 tasi bo'yalgan: 1/2.", 'Сначала лента состояла из двух равных частей, одна была закрашена: 1/2.'),
+      L("Har bir bo'lakni ikkiga ajratgach, jami 4 ta bo'lak va 2 ta bo'yalgan qism hosil bo'ldi: 2/4.", 'После деления каждой части пополам получилось четыре части, из них две закрашены: 2/4.'),
+      L("Bo'yalgan uzunlik o'smadi ham, kamaymadi ham. Shuning uchun 1/2 va 2/4 teng kasrlar.", 'Закрашенная длина не увеличилась и не уменьшилась. Поэтому 1/2 и 2/4 — равные дроби.'),
+    ],
+    visual: 'split',
+  },
+  {
+    type: 'rule',
+    eyebrow: L('Asosiy qoida', 'Главное правило'),
+    title: L("Surat va maxrajni bir xil songa ko'paytiramiz", 'Умножаем числитель и знаменатель на одно число'),
+    steps: [
+      L("Kasrning surat va maxrajini bir xil natural songa ko'paytirsak, kasrning qiymati o'zgarmaydi.", 'Если числитель и знаменатель дроби умножить на одно и то же натуральное число, значение дроби не изменится.'),
+      L("Masalan: 2/3 = (2 × 4)/(3 × 4) = 8/12.", 'Например: 2/3 = (2 × 4)/(3 × 4) = 8/12.'),
+      L("Biz bo'yalgan maydonni o'zgartirmadik, faqat har bir eski bo'lakni to'rttadan mayda bo'lakka ajratdik.", 'Мы не изменили закрашенную площадь, а лишь разделили каждую прежнюю часть ещё на четыре части.'),
+    ],
+    visual: 'multiply',
+  },
+  {
+    type: 'info',
+    eyebrow: L('Nega ishlaydi?', 'Почему это работает?'),
+    title: L("Bir butunni yana teng bo'lib chiqamiz", 'Снова делим целое на равные части'),
+    steps: [
+      L("Surat bo'yalgan bo'laklar sonini, maxraj esa jami teng bo'laklar sonini bildiradi.", 'Числитель показывает число закрашенных частей, а знаменатель — число всех равных частей.'),
+      L("Har bir bo'lakni bir xil miqdorda maydalasak, bo'yalgan va jami bo'laklar aynan bir xil marta ko'payadi.", 'Если каждую часть одинаково раздробить, число закрашенных и общее число частей увеличатся в одинаковое число раз.'),
+      L("Shu sabab ularning nisbati, ya'ni kasrning qiymati o'zgarmaydi.", 'Поэтому их отношение, то есть значение дроби, не меняется.'),
+    ],
+    visual: 'ratio',
+  },
+  {
+    type: 'question',
+    scored: true,
+    eyebrow: L('Mashq', 'Практика'),
+    title: L("Bir xil songa ko'paytiring", 'Умножьте на одно число'),
+    prompt: L("3/5 kasrining surat va maxrajini 2 ga ko'paytirsak, qaysi kasr hosil bo'ladi?", 'Какая дробь получится, если числитель и знаменатель дроби 3/5 умножить на 2?'),
+    intro: L("Beshdan uch kasrini oling. Suratni ham, maxrajni ham ikkiga ko'paytiring. To'g'ri natijani tanlang.", 'Возьмём дробь три пятых. Умножьте и числитель, и знаменатель на два. Выберите верный результат.'),
+    options: ['5/7', '6/10', '3/10', '6/5'],
+    correct: 1,
+    why: [
+      L("Surat: 3 × 2 = 6.", 'Числитель: 3 умножить на 2 равно 6.'),
+      L("Maxraj: 5 × 2 = 10. Demak, 3/5 = 6/10.", 'Знаменатель: 5 умножить на 2 равно 10. Значит, 3/5 = 6/10.'),
+    ],
+    wrong: L("Bir xil amal suratga ham, maxrajga ham bajarilishi kerak.", 'Одно и то же действие нужно выполнить и с числителем, и со знаменателем.'),
+    fact: L("Teng kasrlar son o'qida aynan bitta nuqtada joylashadi.", 'Равные дроби находятся в одной и той же точке числовой прямой.'),
+    visual: 'threeFifths',
+  },
+  {
+    type: 'info',
+    eyebrow: L('Teskari yo‘l', 'Обратный путь'),
+    title: L("Endi bo'laklarni yiriklashtiramiz", 'Теперь укрупним части'),
+    steps: [
+      L("6/8 kasrida surat ham, maxraj ham 2 ga bo'linadi.", 'В дроби 6/8 и числитель, и знаменатель делятся на 2.'),
+      L("6 ni 2 ga bo'lsak 3, 8 ni 2 ga bo'lsak 4 chiqadi.", 'Если 6 разделить на 2, получится 3, а если 8 разделить на 2, получится 4.'),
+      L("Demak, 6/8 = 3/4. Bu amal kasrni qisqartirish deyiladi.", 'Значит, 6/8 = 3/4. Это действие называется сокращением дроби.'),
+    ],
+    visual: 'reduce',
+  },
+  {
+    type: 'question',
+    scored: true,
+    eyebrow: L('Mashq', 'Практика'),
+    title: L("Kasrni qisqartiring", 'Сократите дробь'),
+    prompt: L("10/15 kasrining surat va maxrajini 5 ga bo'ling.", 'Разделите числитель и знаменатель дроби 10/15 на 5.'),
+    intro: L("O'n beshdan o'n kasrida surat va maxraj beshga bo'linadi. Ikkalasini ham beshga bo'lib, qisqargan kasrni tanlang.", 'В дроби десять пятнадцатых числитель и знаменатель делятся на пять. Разделите оба числа на пять и выберите сокращённую дробь.'),
+    options: ['5/10', '2/3', '2/10', '10/3'],
+    correct: 1,
+    why: [
+      L("10 : 5 = 2.", '10 разделить на 5 равно 2.'),
+      L("15 : 5 = 3. Shuning uchun 10/15 = 2/3.", '15 разделить на 5 равно 3. Поэтому 10/15 = 2/3.'),
+    ],
+    wrong: L("Surat va maxrajni aynan bitta umumiy bo'luvchiga bo'ling.", 'Разделите числитель и знаменатель на один и тот же общий делитель.'),
+    visual: 'tenFifteen',
+  },
+  {
+    type: 'question',
+    scored: true,
+    eyebrow: L('Muhim shart', 'Важное условие'),
+    title: L("Qaysi amal kasr qiymatini saqlaydi?", 'Какое действие сохраняет значение дроби?'),
+    prompt: L("4/6 kasridan 2/3 ni olish uchun nima qilish kerak?", 'Что нужно сделать с дробью 4/6, чтобы получить 2/3?'),
+    intro: L("Oltidan to'rt kasrini uchdan ikkiga aylantirish kerak. Surat va maxraj bilan bir xil amal bajariladigan javobni toping.", 'Нужно превратить дробь четыре шестых в две третьих. Найдите ответ, где с числителем и знаменателем выполняется одно действие.'),
+    options: [
+      L("Ikkalasini 2 ga bo'lish", 'Оба разделить на 2'),
+      L("Faqat suratni 2 ga bo'lish", 'Только числитель разделить на 2'),
+      L("Ikkalasidan 2 ni ayirish", 'Из обоих вычесть 2'),
+      L("Faqat maxrajni 2 ga bo'lish", 'Только знаменатель разделить на 2'),
+    ],
+    correct: 0,
+    why: [
+      L("4 va 6 ning umumiy bo'luvchisi 2.", 'Общий делитель чисел 4 и 6 равен 2.'),
+      L("4 : 2 = 2 va 6 : 2 = 3. Bir xil songa bo'lish qiymatni saqlaydi.", '4 разделить на 2 равно 2, а 6 разделить на 2 равно 3. Деление на одно число сохраняет значение.'),
+    ],
+    wrong: L("Ayirish kasrning asosiy xossasi emas. Umumiy ko'paytuvchi yoki bo'luvchini izlang.", 'Вычитание не является основным свойством дроби. Ищите общий множитель или делитель.'),
+    visual: 'fourSixths',
+  },
+  {
+    type: 'info',
+    eyebrow: L("Son o'qida", 'На числовой прямой'),
+    title: L("Turli yozuv — bitta nuqta", 'Разные записи — одна точка'),
+    steps: [
+      L("1/2, 2/4 va 3/6 kasrlarining yozilishi har xil.", 'Дроби 1/2, 2/4 и 3/6 записаны по-разному.'),
+      L("Lekin ularning har biri butunning aynan yarmini bildiradi.", 'Но каждая из них обозначает ровно половину целого.'),
+      L("Shuning uchun son o'qida uchalasi ham bir xil nuqtaga tushadi.", 'Поэтому на числовой прямой все три дроби попадают в одну точку.'),
+    ],
+    visual: 'numberLine',
+  },
+  {
+    type: 'multi',
+    scored: true,
+    eyebrow: L('Bir nechta javob', 'Несколько ответов'),
+    title: L("3/4 ga teng kasrlarni toping", 'Найдите дроби, равные 3/4'),
+    prompt: L("Barcha teng kasrlarni belgilang va tekshiring.", 'Отметьте все равные дроби и проверьте ответ.'),
+    intro: L("To'rtdan uchga teng bo'lgan barcha kasrlarni belgilang. Surat va maxraj bir xil marta o'zgarganini tekshiring.", 'Отметьте все дроби, равные трём четвёртым. Проверьте, во сколько раз изменились числитель и знаменатель.'),
+    options: ['6/8', '9/12', '6/10', '12/16'],
+    correctSet: [0, 1, 3],
+    why: [
+      L("3/4 ni 2, 3 va 4 ga kengaytirsak 6/8, 9/12 va 12/16 chiqadi.", 'Если расширить 3/4 в 2, 3 и 4 раза, получим 6/8, 9/12 и 12/16.'),
+      L("6/10 qisqarsa 3/5 bo'ladi, shuning uchun u 3/4 ga teng emas.", 'Дробь 6/10 сокращается до 3/5, поэтому она не равна 3/4.'),
+    ],
+    wrong: L("Har bir variantda surat va maxraj nechta marta o'zgarganini alohida tekshiring.", 'В каждом варианте отдельно проверьте, во сколько раз изменились числитель и знаменатель.'),
+  },
+  {
+    type: 'match',
+    scored: true,
+    eyebrow: L('Moslashtirish', 'Соответствие'),
+    title: L("Teng kasrlarni juftlang", 'Соедините равные дроби'),
+    prompt: L("Har bir chap kasr uchun o'ng tomondagi teng kasrni tanlang.", 'Для каждой дроби слева выберите равную дробь справа.'),
+    intro: L("Har bir kasrni uning teng yozuvi bilan moslang. Surat va maxraj bir xil songa ko'payganini tekshiring.", 'Соедините каждую дробь с равной ей записью. Проверьте, что числитель и знаменатель умножены на одно число.'),
+    rows: [
+      { left: '1/2', options: ['3/4', '2/4', '4/5'], correct: '2/4' },
+      { left: '2/3', options: ['4/5', '6/9', '3/8'], correct: '6/9' },
+      { left: '3/5', options: ['9/15', '6/8', '4/10'], correct: '9/15' },
+    ],
+    why: [
+      L("1/2 ni 2 ga kengaytirsak 2/4; 2/3 ni 3 ga kengaytirsak 6/9 chiqadi.", 'Если расширить 1/2 в 2 раза, получим 2/4; если расширить 2/3 в 3 раза, получим 6/9.'),
+      L("3/5 ni 3 ga kengaytirsak 9/15 bo'ladi.", 'Если расширить 3/5 в 3 раза, получим 9/15.'),
+    ],
+    wrong: L("Har bir juftda surat va maxraj uchun bitta umumiy ko'paytiruvchini toping.", 'В каждой паре найдите один общий множитель для числителя и знаменателя.'),
+  },
+  {
+    type: 'classify',
+    scored: true,
+    eyebrow: L('Tasniflash', 'Классификация'),
+    title: L("Tengmi yoki teng emasmi?", 'Равны или не равны?'),
+    prompt: L("Har bir juftlikni mos guruhga ajrating.", 'Распределите каждую пару в подходящую группу.'),
+    intro: L("Har bir kasr juftligini tekshiring. Ular teng bo'lsa teng kasr guruhiga, aks holda teng emas guruhiga joylashtiring.", 'Проверьте каждую пару дробей. Равные поместите в группу равных, остальные — в группу неравных.'),
+    cards: [
+      { label: '2/6 = 1/3', value: true },
+      { label: '4/10 = 2/5', value: true },
+      { label: '6/10 = 3/4', value: false },
+      { label: '8/12 = 2/3', value: true },
+    ],
+    why: [
+      L("2/6, 4/10 va 8/12 kasrlarini umumiy bo'luvchiga qisqartirsak o'ngdagi kasrlar chiqadi.", 'Если сократить 2/6, 4/10 и 8/12 на общий делитель, получатся дроби справа.'),
+      L("6/10 esa 3/5 ga qisqaradi, 3/4 ga emas.", 'А дробь 6/10 сокращается до 3/5, а не до 3/4.'),
+    ],
+    wrong: L("Kasrlarni qisqartirib, eng sodda ko'rinishlarini taqqoslang.", 'Сократите дроби и сравните их простейшие виды.'),
+  },
+  {
+    type: 'number',
+    scored: true,
+    eyebrow: L('Yakuniy masala', 'Финальная задача'),
+    title: L("Noma'lum suratni toping", 'Найдите неизвестный числитель'),
+    prompt: L("?/18 = 2/3 bo'lsa, savol belgisi o'rnida qaysi son turadi?", 'Если ?/18 = 2/3, какое число стоит вместо вопросительного знака?'),
+    intro: L("Uch maxraj o'n sakkizga necha marta ko'payganini toping. Keyin suratni ham aynan shuncha marta ko'paytiring. Javobni tanlang.", 'Определите, во сколько раз знаменатель три увеличился до восемнадцати. Затем во столько же раз увеличьте числитель. Выберите ответ.'),
+    options: ['6', '9', '12', '15'],
+    correct: 2,
+    why: [
+      L("3 dan 18 hosil bo'lishi uchun 3 ni 6 ga ko'paytiramiz.", 'Чтобы из 3 получить 18, нужно умножить 3 на 6.'),
+      L("Suratni ham 6 ga ko'paytiramiz: 2 × 6 = 12. Demak, 12/18 = 2/3.", 'Числитель тоже умножаем на 6: 2 умножить на 6 равно 12. Значит, 12/18 = 2/3.'),
+    ],
+    wrong: L("Avval maxrajlar orasidagi ko'paytiruvchini toping, so'ng shu sonni suratga qo'llang.", 'Сначала найдите множитель между знаменателями, затем примените его к числителю.'),
+    fact: L("Kasrlarni umumiy maxrajga keltirish ham aynan shu asosiy xossaga tayanadi.", 'Приведение дробей к общему знаменателю основано на этом же свойстве.'),
+    visual: 'unknown',
+  },
+  {
+    type: 'summary',
+    eyebrow: L('Dars yakuni', 'Итог урока'),
+    title: L("Kasrning asosiy xossasi", 'Основное свойство дроби'),
+    points: [
+      L("Surat va maxrajni bir xil natural songa ko'paytirish kasr qiymatini o'zgartirmaydi.", 'Умножение числителя и знаменателя на одно натуральное число не меняет значение дроби.'),
+      L("Surat va maxrajni umumiy bo'luvchiga bo'lish ham qiymatni saqlaydi va kasrni qisqartiradi.", 'Деление числителя и знаменателя на общий делитель сохраняет значение и сокращает дробь.'),
+      L("Teng kasrlar turlicha yozilsa ham, son o'qida bitta nuqtani bildiradi.", 'Равные дроби записываются по-разному, но обозначают одну точку на числовой прямой.'),
+    ],
+    audio: L(
+      "Dars o'tildi. Asosiysini yig'amiz. Kasrning surat va maxrajini bir xil natural songa ko'paytirsak, kasrning qiymati o'zgarmaydi. Ularni bir xil umumiy bo'luvchiga bo'lsak ham qiymat saqlanadi, kasr esa qisqaradi. Teng kasrlar turlicha yoziladi, lekin bir xil miqdorni bildiradi. Keyingi darsda bu xossadan kasrlarni qisqartirishda foydalanamiz.",
+      'Урок пройден. Соберём главное. Если числитель и знаменатель дроби умножить на одно натуральное число, значение дроби не изменится. При делении на один общий делитель значение тоже сохраняется, а дробь сокращается. Равные дроби записываются по-разному, но обозначают одно количество. На следующем уроке применим это свойство для сокращения дробей.',
+    ),
+  },
+];
 
 const TOTAL_SCREENS = 15;
 const SCORED_SCREENS = [7, 8, 9, 10, 11, 12, 13];

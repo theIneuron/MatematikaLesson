@@ -39,7 +39,6 @@ const grade6Dir = fileURLToPath(new URL('../src/components/grade6/', import.meta
 const lessonFiles = (await readdir(grade6Dir))
   .filter((name) =>
     /^Dars(?:0[1-9]|1[0-5])\.jsx$/.test(name) ||
-    name === 'Dars07Content.jsx' ||
     /^Grade6TheoryData(?:16_26|27_46)\.js$/.test(name) ||
     name === 'Grade6LifeContexts.js' ||
     name === 'Grade6ConceptBridges.js')
