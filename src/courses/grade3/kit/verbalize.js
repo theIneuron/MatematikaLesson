@@ -65,9 +65,24 @@ const DIGIT_RE = /\d/;
 
 /**
  * Полная проверка одной реплики.
+ *
+ * @param strictStyle Строгость к спорным символам (сейчас это длинное тире).
+ *   true  — для НОВОГО контента: тире становится ошибкой.
+ *   false — для существующих уроков: предупреждение.
+ *
+ * Почему по-разному. Тире даёт в озвучке паузу, и ту же паузу даёт запятая. Как
+ * боевой TTS обрабатывает «—», в проекте не проверено. Зато проверено другое:
+ * во 2 классе тире из озвучки вычистили целиком — 0 на 3806 сегментов в 39 файлах,
+ * заменив запятой в той же конструкции («Bugungi dars mavzusi — …» -> «Bugungi dars
+ * mavzusi, …»). До 1, 3 и 5 классов эта правка не дошла.
+ *
+ * Отсюда разная строгость: писать новый текст без тире стоит НОЛЬ, поэтому там
+ * ошибка. Переписать 203 существующих сегмента в 14 уроках стоит дорого, и по
+ * решению методиста эти уроки не трогаем — поэтому там предупреждение.
+ *
  * @returns { errors: [{code, name, why, suggest}], warnings: [{code, detail}] }
  */
-export const checkSpeech = (text, lang = 'ru') => {
+export const checkSpeech = (text, lang = 'ru', { strictStyle = false } = {}) => {
   const s = String(text || '');
   const errors = [];
   const warnings = [];
@@ -84,9 +99,20 @@ export const checkSpeech = (text, lang = 'ru') => {
     });
   }
 
-  // Тире и подобное — под вопросом, а не запрещено: см. WARN_IN_SPEECH в schema.js.
   for (const { name, re, why } of WARN_IN_SPEECH) {
-    if (re.test(s)) warnings.push({ code: 'speech_style', detail: `${name}: ${why}` });
+    const m = re.exec(s);
+    if (!m) continue;
+    if (strictStyle) {
+      errors.push({
+        code: 'style_symbol',
+        name,
+        why: `${why}. В новом контенте не используется: ту же паузу даёт запятая`,
+        found: m[0],
+        suggest: lang === 'uz' ? 'vergul' : lang === 'en' ? 'comma' : 'запятая',
+      });
+    } else {
+      warnings.push({ code: 'speech_style', detail: `${name}: ${why}` });
+    }
   }
 
   if (DIGIT_RE.test(s)) {
@@ -108,8 +134,8 @@ export const checkSpeech = (text, lang = 'ru') => {
   return { errors, warnings };
 };
 
-/** Есть ли в реплике то, что запрещено безусловно. */
-export const isSpeakable = (text) => checkSpeech(text).errors.length === 0;
+/** Есть ли в реплике то, что запрещено. Для нового контента — со строгим стилем. */
+export const isSpeakable = (text, opts) => checkSpeech(text, 'ru', opts).errors.length === 0;
 
 /**
  * Подготовка реплики к отправке в TTS.
@@ -122,9 +148,9 @@ export const isSpeakable = (text) => checkSpeech(text).errors.length === 0;
  *               сообщает через onIssue: ронять урок ребёнку под нос нельзя, но и
  *               молчать нельзя.
  */
-export const toSpeech = (text, { lang = 'ru', strict = false, onIssue = null } = {}) => {
+export const toSpeech = (text, { lang = 'ru', strict = false, strictStyle = false, onIssue = null } = {}) => {
   const clean = stripAudioTags(String(text || '')).replace(/\s{2,}/g, ' ').trim();
-  const { errors, warnings } = checkSpeech(clean, lang);
+  const { errors, warnings } = checkSpeech(clean, lang, { strictStyle });
   if (onIssue && (errors.length || warnings.length)) onIssue({ text: clean, errors, warnings });
   if (strict && errors.length) {
     const first = errors[0];
@@ -139,11 +165,12 @@ export const toSpeech = (text, { lang = 'ru', strict = false, onIssue = null } =
 /**
  * Проверка всех реплик урока. Для scripts/validate-grade3.mjs.
  * @param segments массив { path, text, lang }
+ * @param strictStyle true для нового контента (см. checkSpeech)
  */
-export const checkAllSpeech = (segments) => {
+export const checkAllSpeech = (segments, { strictStyle = false } = {}) => {
   const out = [];
   for (const seg of segments || []) {
-    const r = checkSpeech(seg.text, seg.lang);
+    const r = checkSpeech(seg.text, seg.lang, { strictStyle });
     if (r.errors.length || r.warnings.length) out.push({ path: seg.path, ...r });
   }
   return out;

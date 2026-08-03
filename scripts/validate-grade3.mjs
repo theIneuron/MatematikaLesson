@@ -202,7 +202,10 @@ async function validateData(file) {
               const text = item && item[loc];
               if (typeof text !== 'string') continue;
               if (loc === 'ru') { words += text.split(/\s+/).filter(Boolean).length; segs += 1; }
-              const res = verbalize.checkSpeech(text, loc);
+              // strictStyle: новый контент пишется без длинного тире — ту же паузу
+              // даёт запятая, а поведение боевого TTS на «—» не проверено.
+              // Во 2 классе тире вычистили целиком (0 на 3806 сегментов).
+              const res = verbalize.checkSpeech(text, loc, { strictStyle: true });
               for (const e of res.errors) err(r, `${at}.audio.${field} [${loc}]: ${e.name} ${JSON.stringify(e.found)}${e.suggest ? ` — напиши «${e.suggest}»` : ''}`);
               for (const w of res.warnings) if (w.code === 'segment_too_long') warn(r, `${at}.audio.${field} [${loc}]: ${w.detail}`);
             }
