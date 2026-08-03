@@ -76,14 +76,6 @@ const farWindows = (x, w, ty, idx) => {
   return out;
 };
 
-const FLORA = [
-  { x: 20, s: 1.3, C: AlienBloom, tint: '#4FD8C2' },
-  { x: 92, s: 1.05, C: AlienShroom, tint: '#CD8AE2' },
-  { x: 302, s: 1.05, C: AlienLantern, tint: '#6FD0F0' },
-  { x: 346, s: 1.18, C: AlienShroom, tint: '#F0A0C8' },
-  { x: 386, s: 1.3, C: AlienBloom, tint: '#9BE86A' }
-];
-
 const CRYSTALS = [{ x: 114, s: 0.85, tint: '#7FE0D8' }, { x: 322, s: 0.85, tint: '#BEA0F0' }, { x: 370, s: 0.72, tint: '#8FD8F0' }];
 
 const FLOATERS = [{ x: 120, y: 92, s: 0.85, tint: '#7FE0D8', d: 0 }, { x: 292, y: 78, s: 1.0, tint: '#BEA0F0', d: 1.3 }];
@@ -217,6 +209,19 @@ export const FlyCreature = ({ x, y, s, tint, d = 0 }) => (
   </g>
 );
 
+// FLORA стоит ЗДЕСЬ, а не среди прочих констант в начале файла: она хранит сами
+// компоненты (C: AlienBloom), поэтому объявление обязано идти ПОСЛЕ них. При
+// извлечении модуля константы были собраны наверх, и это дало
+// «Cannot access 'AlienBloom' before initialization» — const не поднимается, в
+// отличие от function. Порядок здесь такой же, как в исходном Dars01.jsx.
+const FLORA = [
+  { x: 20, s: 1.3, C: AlienBloom, tint: '#4FD8C2' },
+  { x: 92, s: 1.05, C: AlienShroom, tint: '#CD8AE2' },
+  { x: 302, s: 1.05, C: AlienLantern, tint: '#6FD0F0' },
+  { x: 346, s: 1.18, C: AlienShroom, tint: '#F0A0C8' },
+  { x: 386, s: 1.3, C: AlienBloom, tint: '#9BE86A' }
+];
+
 // ---------------------------------------------------------------------------
 // ФОН ГОРОДА — тёплое небо, два плана домов, светящиеся окна, фонари, флора.
 // Окна мигают неравномерно (lm-cwin со сдвигом задержки): город кажется живым,
@@ -330,23 +335,37 @@ export const MiniCity = () => (
 );
 
 // ---------------------------------------------------------------------------
-// СЦЕНА-ОБРАМЛЕНИЕ (ETALON v2 §1.3)
-// Bit — хозяин, в центре; экипаж по сторонам. gathered переключает оба состояния.
+// ЭКИПАЖ НА СЦЕНЕ — только ряд персонажей, без фона.
+//
+// Вынесено из HookScene, чтобы сцена конкретного урока могла поставить свой слой
+// поверх города и НЕ вкладывать одну .lm-scene в другую: вложение дало бы два фона
+// и две системы координат для absolute-слоёв. Порядок фигур (Bit в центре, экипаж
+// по сторонам) — часть канона, поэтому живёт в каркасе, а не в уроке.
 // ---------------------------------------------------------------------------
-export const HookScene = ({ gathered = false }) => {
+export const LumoSceneCast = ({ gathered = false }) => {
   const kid = ({ key, El, hook }, i) => (
     <span key={key} className="lm-crew lm-crew-kid g1-pop-in" style={{ animationDelay: `${0.25 + i * 0.12}s` }}>
       <El {...(gathered ? { mood: 'happy', pose: 'happy' } : hook)}/>
     </span>
   );
   return (
-    <div className="lm-scene">
-      <LumoCityBg fill/>
-      <div className="lm-scene-cast">
-        {LUMO_CAST.slice(0, 2).map(kid)}
-        <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
-        {LUMO_CAST.slice(2).map((c, i) => kid(c, i + 2))}
-      </div>
+    <div className="lm-scene-cast">
+      {LUMO_CAST.slice(0, 2).map(kid)}
+      <span className={`lm-crew lm-crew-host ${gathered ? 'd2-bit-cheer' : 'lm-bob'}`}><span className="g1-cast-fig"><BitSVG state={gathered ? 'happy' : 'present'}/></span></span>
+      {LUMO_CAST.slice(2).map((c, i) => kid(c, i + 2))}
     </div>
   );
 };
+
+// ---------------------------------------------------------------------------
+// СЦЕНА-ОБРАМЛЕНИЕ (ETALON v2 §1.3)
+// Bit — хозяин, в центре; экипаж по сторонам. gathered переключает оба состояния.
+// Урок, которому нужен свой слой поверх города, собирает сцену сам из LumoCityBg
+// и LumoSceneCast — см. scenes/Dars01/LumoCityScene.jsx.
+// ---------------------------------------------------------------------------
+export const HookScene = ({ gathered = false }) => (
+  <div className="lm-scene">
+    <LumoCityBg fill/>
+    <LumoSceneCast gathered={gathered}/>
+  </div>
+);

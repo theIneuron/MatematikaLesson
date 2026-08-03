@@ -35,6 +35,18 @@ export const stripAudioTags = (value) =>
 export const isLocalizedNode = (node) =>
   !!node && typeof node === 'object' && LOCALES.some((l) => typeof node[l] === 'string');
 
+/**
+ * Один узел или ничего.
+ *
+ * Поле on_wrong в данных бывает двух видов: массив разборов по вариантам ответа
+ * (у каждого неверного варианта свой) и одиночный узел на весь экран. Код,
+ * который берёт on_wrong «как запасной вариант», обязан пропустить массив: массив,
+ * попавший в localize, даёт «нет локали ru» и пустой текст вместо разбора.
+ * Ошибка тихая — на экране просто ничего не появляется, поэтому здесь функция,
+ * а не договорённость.
+ */
+export const singleNode = (value) => (Array.isArray(value) ? null : value);
+
 /** Каких локалей не хватает в узле. Пустая строка считается отсутствующей. */
 export const missingLocalesIn = (node) => {
   if (!isLocalizedNode(node)) return LOCALES.slice();

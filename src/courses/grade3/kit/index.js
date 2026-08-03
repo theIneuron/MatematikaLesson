@@ -21,11 +21,13 @@ export {
   INTERACTIONS, INTERACTION_KEYS, ROLE_INTERACTION_HINT, SOURCE_COMPONENTS, NOT_IMPLEMENTED,
   NUMERIC_INPUT_INTERACTIONS, MECHANICS,
   ANSWER_RULES, correctPositions, findRepeatedCorrectPositions,
-  AUDIO_CONTRACT, FORBIDDEN_IN_SPEECH, UZ_TEXT_RULES, REGISTER, CAST, TERM_SOURCES,
+  AUDIO_CONTRACT, FORBIDDEN_IN_SPEECH, UZ_TEXT_RULES, UZ_REGISTER_RULES, RU_TEXT_RULES,
+  REGISTER, CAST, TERM_SOURCES,
   FEEDBACK_FLOW, HINT_ESCALATION, needsHintEscalation, BOOKEND_SCENE, SCROLL_AND_LAYOUT,
   PALETTE, PLACE_COLORS, LAYOUT, FONTS, RADII, BORDERS, BUTTON_SPEC, FRAME_SPEC,
   TIMING, estimateLessonSeconds, longSegments, LESSON_RULES,
-  speechTokens, isAudioDerivedFromScreen, findForbiddenInSpeech, findUzTextIssues,
+  speechTokens, isAudioDerivedFromScreen, findForbiddenInSpeech,
+  findUzTextIssues, findRuTextIssues, findTextIssues,
   missingRoles, missingLocales, interactionKinds, activeScreensShare,
   badOptionCounts, roleInteractionMismatch,
 } from './schema.js';
@@ -37,7 +39,7 @@ export {
 
 // --- ЛОКАЛИЗАЦИЯ: без тихой подмены языка ------------------------------------
 export {
-  LOCALES, stripAudioTags, isLocalizedNode, missingLocalesIn,
+  LOCALES, stripAudioTags, isLocalizedNode, missingLocalesIn, singleNode,
   localize, makeT, collectMissingLocales,
 } from './i18n.js';
 
@@ -95,5 +97,5 @@ export {
 export {
   Cloud, AlienBloom, AlienShroom, AlienLantern, AlienCrystal,
   Lamp, LandingPod, FloatCrystal, FlyCreature,
-  LumoCityBg, MiniCity, HookScene,
+  LumoCityBg, MiniCity, LumoSceneCast, HookScene,
 } from './world.jsx';

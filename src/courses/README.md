@@ -29,9 +29,16 @@
 ```
 src/courses/grade3/
   kit/              общий код: движок, UI, персонажи, среда, визуализаторы, схема
+  screens/          компоненты экранов по ролям + LessonShell (корень урока)
   scenes/DarsNN/    визуалы конкретного урока (плагины, подключаются по имени)
   content/          DarsNN.data.js — сам урок, только данные
+  lessons/DarsNN.jsx  точка сборки: данные + сцены + каркас, 25 строк
 ```
+
+`lessons/DarsNN.jsx` — единственное место, где данные встречаются с компонентами. Он
+подключается в `src/lessons/grade3.js` через `lazy(() => import(...))` и больше ничего не
+делает. Если этот файл начал расти, значит в него потекла логика (её место в `screens/`) или
+контент (его место в `content/`).
 
 Новый класс добавляется той же структурой: `src/courses/grade4/{kit,scenes,content}/`.
 Каркас у каждого класса свой — визуальный язык и сюжет 3 класса не совпадают с 6-м.
@@ -59,6 +66,13 @@ src/courses/grade3/
 
 | | |
 |---|---|
-| `grade3/kit/schema.js` | готов: контракт данных, проверен на данных `Dars01` и `Dars22` |
-| `grade3/kit/` остальное | скелет, см. [grade3/kit/README.md](grade3/kit/README.md) |
-| `grade3/scenes/`, `grade3/content/` | пусто — ждут первого урока по новой схеме |
+| `grade3/kit/` | готов: 13 модулей, единый вход `kit/index.js`, см. [grade3/kit/README.md](grade3/kit/README.md) |
+| `grade3/screens/` | 7 компонентов на 15 экранов, реестр по ролям в `screens/index.js` |
+| `grade3/content/Dars01.data.js` | урок 1 написан целиком: 15 экранов, три локали, озвучка |
+| `grade3/scenes/Dars01/` | `LumoCityScene` — сцена-обрамление (§1.3) в двух состояниях |
+| `grade3/lessons/Dars01.jsx` | подключён как `/3-sinf/matematika/nazariy/dars01-yuzlik-onlik-birlik-v2` |
+
+Урок 1 по новой схеме стоит **рядом** со старым (`src/components/grade3/Dars01.jsx`), а не
+вместо него: пока методист не сравнил их в браузере, старый не удаляется.
+
+Проверка: `node scripts/validate-grade3.mjs --data src/courses/grade3/content/Dars01.data.js`.

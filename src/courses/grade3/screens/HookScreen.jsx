@@ -21,7 +21,7 @@ import { useState } from 'react';
 import {
   Stage, NavBack, NavNext, OptionButton, FeedbackBlock, Reaction,
   useAudio, useLang, useT, useCanAnswer, useAdvanceGate,
-  makeAutoSegments, getAudioEngine, remapToPosition,
+  makeAutoSegments, getAudioEngine, remapToPosition, singleNode,
 } from '../kit/index.js';
 import { renderVisual } from './visuals.jsx';
 
@@ -48,15 +48,20 @@ export default function HookScreen({
   const solved = picked !== null && picked === laid.correctIdx;
   const answered = picked !== null;
 
+  // Разбор именно выбранного варианта. singleNode отсекает массив on_wrong:
+  // он уже разложен по позициям в laid.parallel.wrong, и как общий запасной
+  // текст не годится.
+  const wrongNode = (i) => laid.parallel.wrong?.[i]
+    || screen.audio?.on_unknown
+    || singleNode(screen.audio?.on_wrong);
+
   const pick = (i) => {
     if (!canAnswer || solved) return;
     setPicked(i);
     if (audio.muted) return;
     const e = getAudioEngine();
     if (!e) return;
-    const node = i === laid.correctIdx
-      ? screen.audio?.on_correct
-      : (laid.parallel.wrong?.[i] || screen.audio?.on_unknown || screen.audio?.on_wrong);
+    const node = i === laid.correctIdx ? screen.audio?.on_correct : wrongNode(i);
     if (node) e.pushOneOff(t(node));
   };
 
@@ -123,10 +128,10 @@ export default function HookScreen({
 
         {/* На неверном — мягкая подсказка, экран остаётся открытым. */}
         <FeedbackBlock show={answered && !solved} isCorrect={false} wrongClass="frame-tip">
-          <Reaction
-            state="wrong"
-            praise={t(laid.parallel.wrong?.[picked] || screen.audio?.on_unknown || screen.audio?.on_wrong)}
-          />
+          {/* FeedbackBlock рендерит детей и когда show = false: текст берётся
+              только после ответа, иначе t() получит пустоту и напишет о пропуске
+              локали там, где пропуска нет. */}
+          <Reaction state="wrong" praise={picked === null ? '' : t(wrongNode(picked))}/>
         </FeedbackBlock>
       </div>
     </Stage>

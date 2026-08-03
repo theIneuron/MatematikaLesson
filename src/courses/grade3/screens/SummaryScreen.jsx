@@ -14,11 +14,15 @@
 // §5   МОСТИК: одна фраза о следующем уроке. Не анонс программы, а естественное
 //      продолжение сюжета.
 //
-// Здесь же вызывается finishLesson: экран последний, и результат уходит платформе.
-// Вызов один раз — повторный заход на экран не отправляет payload снова.
+// finishLesson вызывается ТОЛЬКО по нажатию кнопки «Завершить урок», а не при
+// показе экрана. Первая версия отправляла результат в эффекте на монтировании — и
+// урок закрывался мгновенно: платформа понимает onFinished как «урок закончен» и
+// уводит ребёнка к списку уроков (src/components/shared/LessonPage.jsx: для 3 класса
+// onFinished вызывает navigate). Итог, правило, факт и мостик ребёнок не видел
+// вообще. Найдено прокликиванием: экран 15 в браузере не показывался.
 // ============================================================================
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import {
   Stage, NavBack, Confetti, ReadinessMeter, InfoNote,
   useAudio, useLang, useT, useAdvanceGate, makeAutoSegments, useProgress,
@@ -37,13 +41,13 @@ export default function SummaryScreen({
   const audio = useAudio(makeAutoSegments(screen.audio?.[lang] || [], meta.id));
   const canAdvance = useAdvanceGate(true, audio);
 
-  // Результат уходит платформе один раз, при показе итога.
+  // Результат уходит платформе один раз — по нажатию кнопки, и только по нему.
   const sentRef = useRef(false);
-  useEffect(() => {
+  const finish = () => {
     if (sentRef.current) return;
     sentRef.current = true;
     finishLesson();
-  }, [finishLesson]);
+  };
 
   return (
     <Stage
@@ -58,7 +62,7 @@ export default function SummaryScreen({
           <button
             className={canAdvance ? 'btn-white-accent btn-ready' : 'btn-white-accent'}
             disabled={!canAdvance}
-            onClick={finishLesson}
+            onClick={finish}
             style={{ marginLeft: 'auto', padding: 'clamp(10px,1.7vw,12px) clamp(20px,2.5vw,27px)', fontSize: 'clamp(12px,1.5vw,14px)' }}
           >
             {DONE[lang] || DONE.ru}

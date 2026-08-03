@@ -47,6 +47,12 @@ export const isPreview = () => !ttsConfig.ttsApiBase;
 // true допустим только в личной отладке и никогда не коммитится.
 export const FREE_NAV = false;
 
+// Сколько секунд ТИШИНЫ считать сбоем озвучки. Отсчёт идёт только когда ничего не
+// играет и ничего не ждётся, поэтому длина самой реплики значения не имеет: пока
+// голос звучит, счётчик сброшен. Восемь секунд — с запасом на загрузку файла TTS
+// по медленной сети. Подробнее — у useAudio.
+const STALL_SECONDS = 8;
+
 // ---------------------------------------------------------------------------
 // TTS: теги языка и сборка URL. Контракт v5.2 — только text и g.
 // ---------------------------------------------------------------------------
@@ -185,8 +191,16 @@ export const useT = () => {
   // а useCallback требует инлайн-выражение.
   return useMemo(() => makeLocalizer(lang, {
     strict: isPreview(),
-    onMissing: ({ lang: missing, used }) => {
-      console.warn(`[i18n] нет локали "${missing}"${used ? `, показан "${used}"` : ''}`);
+    // В сообщение идёт сам узел: предупреждение «нет локали ru» без указания места
+    // ничего не даёт — таких узлов в уроке сотни. Ключи и первые символы значений
+    // позволяют найти поле в content/DarsNN.data.js поиском.
+    onMissing: ({ lang: missing, node, used }) => {
+      let hint = '';
+      // Узел с циклической ссылкой сериализовать нельзя — тогда обходимся без него.
+      try {
+        hint = ` в узле {${Object.keys(node).join(',')}}: ${JSON.stringify(node).slice(0, 120)}`;
+      } catch { /* остаёмся без подробностей */ }
+      console.warn(`[i18n] нет локали "${missing}"${used ? `, показан "${used}"` : ''}${hint}`);
     },
   }), [lang]);
 };
@@ -231,13 +245,20 @@ export function useMobileZoom(breakpoint = 640) {
 }
 
 // ---------------------------------------------------------------------------
-// AUDIO ENGINE — перенесён без изменений поведения.
-// Байт-идентичен во всех 19 эталонных уроках 3 класса. НЕ ПРАВИТЬ.
+// AUDIO ENGINE — обработка очереди перенесена без изменений поведения.
+// Байт-идентична во всех 19 эталонных уроках 3 класса. НЕ ПРАВИТЬ логику очереди,
+// триггеров и on_event.
+//
+// Добавлено ОДНО поле — muted. В уроках 1–8 классов выключение звука жило в
+// useState внутри useAudio, то есть у каждого экрана было своё: ребёнок выключал
+// звук, переходил дальше и урок начинал говорить снова. Состояние «звук выключен»
+// принадлежит уроку, а не экрану, поэтому его место здесь.
 // ---------------------------------------------------------------------------
 class AudioEngine {
   constructor() {
     this.queue = [];
     this.currentIdx = 0;
+    this.muted = false;
     this.isPlaying = false;
     this.onStateChange = null;
     this.waitingFor = null;
@@ -258,6 +279,7 @@ class AudioEngine {
 
   setLang(lang) { this.currentLang = lang; }
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }
+  setMuted(v) { this.muted = !!v; if (this.muted) this.stop(); }
 
   loadQueue(segments) {
     this.stop();
@@ -396,6 +418,20 @@ class AudioEngine {
     }
   }
 
+  /**
+   * Ждёт ли очередь действия ребёнка — в отличие от «зависла».
+   * Различать обязательно: сегмент с trigger on_event молчит ПО ЗАМЫСЛУ (вопрос
+   * до правила), и считать это сбоем нельзя. Сбой — когда играть нечего и никто
+   * ничего не ждёт.
+   */
+  isWaitingForEvent() {
+    if (this.waitingFor) return true;
+    const seg = this.queue[this.currentIdx];
+    return !!(seg && typeof seg.trigger === 'string' && seg.trigger.indexOf('on_event:') === 0);
+  }
+
+  isFinished() { return this.currentIdx >= this.queue.length; }
+
   // ЧАСТЬ 3 из 3: разбор ответа вставляется вне очереди — тоже принудительно.
   pushOneOff(text, gender) {
     if (!text) return;
@@ -441,9 +477,15 @@ export function useAudio(segments) {
   // собственный useState + useEffect и обновляли его синхронно в теле эффекта —
   // это нарушение react-hooks/set-state-in-effect и лишнее дублирование в каждом
   // экране. Знание «докуда дошла озвучка» принадлежит аудио-слою.
-  const [state, setState] = useState({
-    isPlaying: false, currentSegment: null, waitingFor: null, muted: false, reachedIndex: -1,
-  });
+  // Начальное muted берётся ИЗ ДВИЖКА: выключенный звук держится на весь урок,
+  // а не сбрасывается при каждом переходе на новый экран.
+  const [state, setState] = useState(() => ({
+    isPlaying: false,
+    currentSegment: null,
+    waitingFor: null,
+    muted: getAudioEngine()?.muted || false,
+    reachedIndex: -1,
+  }));
   const engineRef = useRef(null);
 
   // Оригинал делал это через запись в ref прямо во время рендера — приём рабочий,
@@ -485,6 +527,47 @@ export function useAudio(segments) {
     return () => { cleanupListeners(); engine.stop(); };
   }, [stableSegments, lang, muted]);
 
+  // ЧАСОВОЙ НА ЗАВИСШУЮ ОЗВУЧКУ.
+  //
+  // Экраны с поэтапным раскрытием (§3.1, §3.4) считают себя пройденными, когда
+  // озвучка дошла до последнего сегмента. Если голос не доложил о завершении,
+  // экран запирается НАВСЕГДА: кнопка «дальше» так и не включится. Найдено при
+  // прокликивании урока в браузере — экран 6 (числовая прямая) не отпускал.
+  //
+  // Причин молчания две, и обе настоящие: speechSynthesis в preview иногда не
+  // присылает ни onend, ни onerror, а в production браузер может заблокировать
+  // автозапуск (тогда движок ставит autoplayBlocked и ждёт первого касания).
+  // Ни та, ни другая не должна стоить ребёнку урока.
+  //
+  // Ждать события ребёнка — НЕ зависание: это отличает isWaitingForEvent.
+  // Хранится не «да/нет», а ДЛЯ КАКОЙ очереди зафиксировано зависание. Так сброс
+  // при смене экрана получается сам собой, без setState в теле эффекта: очередь
+  // сменилась — ключ не совпал — stalled снова false.
+  const [stalledKey, setStalledKey] = useState(null);
+  const stalled = stalledKey !== null && stalledKey === segmentsKey;
+  useEffect(() => {
+    if (muted || !stableSegments || stableSegments.length === 0) return undefined;
+    // Считаем секунды НА ОДНОМ И ТОМ ЖЕ сегменте. Проверять только тишину
+    // недостаточно: speechSynthesis умеет сообщить о начале реплики и не сообщить
+    // о её конце — тогда движок вечно «играет», и часовой на тишину не срабатывает.
+    let lastIdx = -1;
+    let secs = 0;
+    const id = setInterval(() => {
+      const e = engineRef.current;
+      if (!e) return;
+      if (e.isFinished() || e.isWaitingForEvent()) { lastIdx = -1; secs = 0; return; }
+      if (e.currentIdx !== lastIdx) { lastIdx = e.currentIdx; secs = 0; return; }
+      secs += 1;
+      const text = String(e.queue[e.currentIdx]?.text || '');
+      // Пока голос звучит, даём время на саму реплику: примерно секунда на восемь
+      // символов плюс базовый запас. 25 слов (около 150 знаков) — это 27 секунд,
+      // вдвое больше, чем занимает чтение.
+      const limit = e.isPlaying ? STALL_SECONDS + Math.ceil(text.length / 8) : STALL_SECONDS;
+      if (secs >= limit) setStalledKey(segmentsKey);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [stableSegments, segmentsKey, muted]);
+
   const triggerEvent = useCallback((type, target) => {
     if (engineRef.current) engineRef.current.triggerEvent(type, target);
   }, []);
@@ -500,12 +583,12 @@ export function useAudio(segments) {
   const toggleMute = useCallback(() => {
     setState((prev) => {
       const next = !prev.muted;
-      if (next && engineRef.current) engineRef.current.stop();
+      if (engineRef.current) engineRef.current.setMuted(next);
       return { ...prev, muted: next };
     });
   }, []);
 
-  return { ...state, triggerEvent, triggerInternal, replay, pushOneOff, toggleMute };
+  return { ...state, stalled, triggerEvent, triggerInternal, replay, pushOneOff, toggleMute };
 }
 
 // ---------------------------------------------------------------------------

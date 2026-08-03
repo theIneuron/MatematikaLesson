@@ -16,7 +16,7 @@ import { useState, useRef, useEffect } from 'react';
 import {
   Stage, NavBack, NavNext, NumPad, FeedbackBlock, Reaction,
   useAudio, useLang, useT, useCanAnswer, useAdvanceGate, useRevealScroll,
-  useSfx, makeAutoSegments, getAudioEngine, HINT_ESCALATION,
+  useSfx, makeAutoSegments, getAudioEngine, HINT_ESCALATION, singleNode,
 } from '../kit/index.js';
 import { renderVisual } from './visuals.jsx';
 
@@ -81,7 +81,7 @@ export default function CaseScreen({
     // Эскалация: концепт -> первый шаг -> разобранный первый шаг (§6.2).
     // Готовый ответ не даётся ни на одной ступени.
     const steps = screen.escalation || [];
-    const step = steps[Math.min(w, steps.length) - 1] || screen.audio?.on_wrong;
+    const step = steps[Math.min(w, steps.length) - 1] || singleNode(screen.audio?.on_wrong);
     setHint(step || null);
     speak(step);
     setTyped('');

@@ -190,25 +190,52 @@ async function validateData(file) {
 
   let words = 0;
   let segs = 0;
+
+  // Озвучка в данных встречается в двух законных формах, и обе используются
+  // экранами каркаса:
+  //   локаль-первая   audio.intro = { ru: ['сегмент', 'сегмент'], uz: [...] }
+  //                   — так экран получает список сегментов: screen.audio.intro[lang]
+  //   узел-локали     round.audio.intro = { ru: 'сегмент', uz: '…' }
+  //                   — так текст проходит через t()
+  // Плюс массивы узлов (on_wrong по номеру попытки) и audio целиком локаль-первый
+  // (экран итога). Прежняя версия считала только вторую форму и недосчитывала
+  // две трети озвучки: 461 слово вместо 718 в Dars01. Норма §1.2 при этом
+  // измерялась по полной озвучке — сравнение шло с несопоставимым числом.
+  const speechOf = (value) => {
+    const out = [];
+    const push = (loc, v) => {
+      if (typeof v === 'string') { if (v.trim()) out.push([loc, v]); return; }
+      if (Array.isArray(v)) v.forEach((x) => push(loc, x));
+    };
+    const visit = (v) => {
+      if (!v || typeof v !== 'object') return;
+      if (Array.isArray(v)) { v.forEach(visit); return; }
+      const locales = ['uz', 'ru', 'en'].filter((l) => l in v);
+      if (locales.length) locales.forEach((l) => push(l, v[l]));
+      else Object.values(v).forEach(visit);
+    };
+    visit(value);
+    return out;
+  };
+
   const walkAudio = (node, at) => {
     if (!node || typeof node !== 'object') return;
     if (i18n.isLocalizedNode(node)) return;
     for (const [k, v] of Object.entries(node)) {
       if (k === 'audio' && v && typeof v === 'object') {
-        for (const [field, val] of Object.entries(v)) {
-          const list = Array.isArray(val) ? val : [val];
-          for (const item of list) {
-            for (const loc of ['uz', 'ru', 'en']) {
-              const text = item && item[loc];
-              if (typeof text !== 'string') continue;
-              if (loc === 'ru') { words += text.split(/\s+/).filter(Boolean).length; segs += 1; }
-              // strictStyle: новый контент пишется без длинного тире — ту же паузу
-              // даёт запятая, а поведение боевого TTS на «—» не проверено.
-              // Во 2 классе тире вычистили целиком (0 на 3806 сегментов).
-              const res = verbalize.checkSpeech(text, loc, { strictStyle: true });
-              for (const e of res.errors) err(r, `${at}.audio.${field} [${loc}]: ${e.name} ${JSON.stringify(e.found)}${e.suggest ? ` — напиши «${e.suggest}»` : ''}`);
-              for (const w of res.warnings) if (w.code === 'segment_too_long') warn(r, `${at}.audio.${field} [${loc}]: ${w.detail}`);
-            }
+        // audio целиком локаль-первый (экран итога) — одно безымянное поле.
+        const localeFirst = ['uz', 'ru', 'en'].some((l) => l in v);
+        const fields = localeFirst ? [['', v]] : Object.entries(v);
+        for (const [field, val] of fields) {
+          const where = `${at}.audio${field ? `.${field}` : ''}`;
+          for (const [loc, text] of speechOf(val)) {
+            if (loc === 'ru') { words += text.split(/\s+/).filter(Boolean).length; segs += 1; }
+            // strictStyle: новый контент пишется без длинного тире — ту же паузу
+            // даёт запятая, а поведение боевого TTS на «—» не проверено.
+            // Во 2 классе тире вычистили целиком (0 на 3806 сегментов).
+            const res = verbalize.checkSpeech(text, loc, { strictStyle: true });
+            for (const e of res.errors) err(r, `${where} [${loc}]: ${e.name} ${JSON.stringify(e.found)}${e.suggest ? ` — напиши «${e.suggest}»` : ''}`);
+            for (const w of res.warnings) if (w.code === 'segment_too_long') warn(r, `${where} [${loc}]: ${w.detail}`);
           }
         }
       } else walkAudio(v, at ? `${at}.${k}` : k);
@@ -226,14 +253,48 @@ async function validateData(file) {
     const intro = s.audio?.intro;
     if (!intro) return;
     for (const loc of ['uz', 'ru', 'en']) {
-      const a = intro[loc];
-      if (typeof a !== 'string') continue;
+      // Сегменты одной локали склеиваем: реплика экрана — это все они вместе,
+      // и сравнивать с экранным текстом надо целиком. Проверка на строку одна
+      // здесь пропускала весь новый формат данных.
+      const raw = intro[loc];
+      const a = Array.isArray(raw) ? raw.filter((x) => typeof x === 'string').join(' ') : raw;
+      if (typeof a !== 'string' || !a.trim()) continue;
       const onScreen = [s.eyebrow?.[loc], s.lead?.[loc], s.q?.[loc]].filter(Boolean);
       if (schema.isAudioDerivedFromScreen(a, onScreen)) {
         err(r, `screen[${i}].audio.intro [${loc}]: озвучка повторяет экранный текст; §9 требует, чтобы она была ШИРЕ`);
       }
     }
   });
+
+  // ЯЗЫК ВО ВСЁМ ТЕКСТЕ, а не только в озвучке: апостроф и кириллица в узбекском,
+  // обращение sen вместо siz, род в русском прошедшем времени. Раньше эти правила
+  // жили только в чек-листе — и нарушались в подписях кнопок, где их никто не искал.
+  let langChecked = 0;
+  const walkText = (node, at) => {
+    if (!node || typeof node !== 'object' || Array.isArray(node)) {
+      if (Array.isArray(node)) node.forEach((v, i) => walkText(v, `${at}[${i}]`));
+      return;
+    }
+    // Узел локалей — и когда значения строки, и когда списки сегментов.
+    const locales = ['uz', 'ru', 'en'].filter((l) => l in node);
+    if (locales.length) {
+      for (const loc of locales) {
+        const val = node[loc];
+        for (const text of Array.isArray(val) ? val : [val]) {
+          if (typeof text !== 'string' || !text.trim()) continue;
+          langChecked += 1;
+          for (const issue of schema.findTextIssues(text, loc)) {
+            err(r, `${at} [${loc}]: ${issue.name}${issue.found ? ` «${issue.found}»` : ''} — ${issue.why}`);
+          }
+        }
+      }
+      return;
+    }
+    for (const [k, v] of Object.entries(node)) walkText(v, at ? `${at}.${k}` : k);
+  };
+  screens.forEach((s, i) => walkText(s, `screen[${i}]`));
+  walkText(lesson.title, 'title');
+  if (langChecked) note(r, `текстов проверено на язык и регистр: ${langChecked}`);
 
   // варианты ответа
   for (const b of schema.badOptionCounts(screens)) {
@@ -304,12 +365,25 @@ async function control() {
   const noAudio = (res) => res.r.errors.some((m) => m.startsWith('нет ни одной написанной реплики'));
   const symbols = (res) => res.r.errors.some((m) => m.startsWith('запрещённые символы'));
 
+  // Языковые правила проверяются на подставных строках: у них есть ровно один
+  // правильный ответ, и «проверка не сработала» здесь так же плохо, как ложное
+  // срабатывание. Первая версия правила про род в русском прошедшем времени
+  // молча пропускала ВСЁ (\b не работает с кириллицей) — поймано именно так.
+  const lang = (text, loc) => schema.findTextIssues(text, loc).length > 0;
   const checks = [
     ['Dars01: озвучка написана вручную — ошибка «нет реплик» НЕ сработала', !noAudio(a)],
     ['Dars01: запрещённых символов в озвучке нет', !symbols(a)],
     ['Dars22: озвучка собирается раннером — ошибка «нет реплик» СРАБОТАЛА', noAudio(b)],
     ['Dars01: чужая правка FREE_NAV = true поймана', a.r.errors.some((m) => m.includes('FREE_NAV'))],
     ['Dars01: вырезанный автоскролл пойман', a.r.errors.some((m) => m.includes('автоскролл'))],
+    ['RU: «Ты нашёл» поймано (род в прошедшем времени)', lang('Ты нашёл ответ.', 'ru')],
+    ['RU: «Если ты ошибся» поймано (форма без «л»)', lang('Если ты ошибся, ничего страшного.', 'ru')],
+    ['RU: «ты видишь» пропущено (настоящее время)', !lang('Теперь ты видишь разряды.', 'ru')],
+    ['RU: «Анвар не поставил» пропущено (персонаж, а не ученик)', !lang('Анвар не поставил ноль.', 'ru')],
+    ['UZ: модификаторный апостроф пойман', lang('Oʻnlik', 'uz')],
+    ['UZ: ASCII-апостроф пропущен', !lang("O'nlik", 'uz')],
+    ['UZ: обращение sen поймано', lang('Senga bir savol.', 'uz')],
+    ['UZ: кириллица поймана', lang('Десять', 'uz')],
   ];
 
   console.log('\n' + '='.repeat(72));

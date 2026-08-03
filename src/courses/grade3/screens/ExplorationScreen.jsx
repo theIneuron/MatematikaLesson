@@ -24,9 +24,13 @@
 import { useEffect } from 'react';
 import {
   Stage, NavBack, NavNext, useAudio, useLang, useT, useAdvanceGate,
-  makeAutoSegments, useRevealScroll, Reaction, InfoNote, PLACE_COLORS,
+  makeAutoSegments, useRevealScroll, Reaction, InfoNote, PLACE_COLORS, T,
 } from '../kit/index.js';
 import { renderVisual } from './visuals.jsx';
+
+// Цвет части разложения по её разряду (§7): сотни, десятки, единицы. Порядок
+// частей в данных — от старшего разряда к младшему, как в записи числа.
+const PART_COLOR = [PLACE_COLORS.hundreds, PLACE_COLORS.tens, PLACE_COLORS.ones];
 
 export default function ExplorationScreen({
   screen, meta, index, totalScreens, scenes, onNext, onPrev,
@@ -53,14 +57,18 @@ export default function ExplorationScreen({
   }, [stages.length, audioTexts.length, meta.id]);
 
   // При выключенном звуке ребёнок должен увидеть всё: показываем финальную стадию.
-  const done = audio.muted || reached >= Math.max(0, audioTexts.length - 1);
-  const stageIdx = audio.muted ? Math.max(0, stages.length - 1) : Math.min(reached, stages.length - 1);
+  // То же при зависшей озвучке (audio.stalled): раскрытие идёт под голос, и если
+  // голос не доложил о завершении, экран иначе запрётся навсегда.
+  const showAll = audio.muted || audio.stalled;
+  const done = showAll || reached >= Math.max(0, audioTexts.length - 1);
+  const stageIdx = showAll ? Math.max(0, stages.length - 1) : Math.min(reached, stages.length - 1);
   const stage = stages[stageIdx] || stages[0] || {};
 
   const revealRef = useRevealScroll(done, 500);
   const canAdvance = useAdvanceGate(done, audio);
 
   const labels = screen.placeLabels?.[lang] || screen.placeLabels || undefined;
+  const workedExamples = screen.workedExamples || [];
 
   return (
     <Stage
@@ -97,6 +105,40 @@ export default function ExplorationScreen({
             </span>
           )}
         </div>
+
+        {/* §3.2 ПРИМЕРЫ С РЕШЕНИЯМИ. Показываются ПОСЛЕ разбора, а не вместе с ним:
+            иначе готовые разложения видны раньше, чем ребёнок понял способ.
+            Каждая часть окрашена по своему разряду, ноль тоже показан частью —
+            именно он держит место, и это главное, что здесь надо увидеть. */}
+        {done && workedExamples.length > 0 && (
+          <div className="frame lm-riseup" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
+            {screen.workedExamplesTitle && (
+              <span className="mono" style={{ fontWeight: 800, fontSize: 'clamp(12px, 1.6vw, 14px)', color: T.ink2 }}>
+                {t(screen.workedExamplesTitle)}
+              </span>
+            )}
+            {workedExamples.map((ex, i) => (
+              <div
+                key={ex.n}
+                className="mono g1-pop-in"
+                style={{
+                  display: 'flex', alignItems: 'center', flexWrap: 'wrap',
+                  gap: 'clamp(4px, 1vw, 8px)', fontSize: 'clamp(15px, 2.4vw, 20px)', fontWeight: 800,
+                  animationDelay: `${i * 0.12}s`,
+                }}
+              >
+                <span>{ex.n}</span>
+                <span style={{ opacity: 0.5 }}>=</span>
+                {ex.parts.map((p, k) => (
+                  <span key={k} style={{ display: 'inline-flex', alignItems: 'center', gap: 'clamp(4px, 1vw, 8px)' }}>
+                    {k > 0 && <span style={{ opacity: 0.5 }}>+</span>}
+                    <span style={{ color: PART_COLOR[k] }}>{p}</span>
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Итоговая мысль экрана — появляется, когда объяснение дошло до конца. */}
         {done && screen.doneText && (

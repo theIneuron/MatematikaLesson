@@ -37,7 +37,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   Stage, NavBack, NavNext, OptionButton, NumPad, FeedbackBlock, FrameFx, Reaction,
   useAudio, useLang, useT, useCanAnswer, useAdvanceGate, useRevealScroll,
-  makeAutoSegments, getAudioEngine, remapToPosition, needsHintEscalation,
+  makeAutoSegments, getAudioEngine, remapToPosition, needsHintEscalation, singleNode, BigNum,
   HINT_ESCALATION, FEEDBACK_FLOW, useCorrectRevealThenFade, nextPraise,
 } from '../kit/index.js';
 import { renderVisual } from './visuals.jsx';
@@ -68,6 +68,9 @@ export default function TestScreen({
 
   const done = roundIdx >= rounds.length;
   const round = rounds[roundIdx];
+  // Проверка сборки идёт по round.target, а не по round.answer: собранное число —
+  // это тройка разрядов, а не набранная строка.
+  const isBuild = screen.interaction === 'build_number';
 
   // Раскладка вариантов: позиция верного приходит из плана на весь урок (§4.3).
   const laid = useMemo(() => {
@@ -88,6 +91,12 @@ export default function TestScreen({
   const [picked, setPicked] = useState(null);      // выбранный неверный вариант (MC)
   const [okIdx, setOkIdx] = useState(null);        // верный вариант остаётся зелёным
   const [typed, setTyped] = useState('');          // набранное число
+  // Собранное разрядной консолью число (interaction build_number): третий способ
+  // ответа наравне с вариантами и числовым вводом. Ребёнок не выбирает и не
+  // набирает, а СОБИРАЕТ число из разрядов, и сразу видит, сколько даёт каждый
+  // (панель ×3 = 300). Именно так отрабатывается ноль в разряде: чтобы собрать
+  // 407, десятки приходится сознательно оставить на нуле.
+  const [built, setBuilt] = useState({ h: 0, t: 0, o: 0 });
   const [wrongCount, setWrongCount] = useState(0);
   const [hintText, setHintText] = useState(null);
 
@@ -110,6 +119,7 @@ export default function TestScreen({
       setOkIdx(null);
       setPicked(null);
       setTyped('');
+      setBuilt({ h: 0, t: 0, o: 0 });
       setWrongCount(0);
       setHintText(null);
       setRoundIdx((n) => n + 1);
@@ -153,7 +163,33 @@ export default function TestScreen({
     const w = wrongCount + 1;
     registerWrong(w);
     // Разбор именно этого варианта, а не общий (§9).
-    const own = laid.parallel.hints?.[i] || laid.parallel.wrongAudio?.[i] || round.audio?.on_wrong;
+    // singleNode: массив on_wrong уже разложен по позициям в wrongAudio, как
+    // общий текст он не годится и в localize даёт пустоту.
+    const own = laid.parallel.hints?.[i] || laid.parallel.wrongAudio?.[i] || singleNode(round.audio?.on_wrong);
+    setHintText(own || null);
+    speak(own);
+  };
+
+  const builtValue = built.h * 100 + built.t * 10 + built.o;
+
+  const stepBuild = (k, d) => {
+    if (!canAnswer || okIdx !== null) return;
+    setBuilt((prev) => ({ ...prev, [k]: Math.max(0, Math.min(9, prev[k] + d)) }));
+  };
+
+  const checkBuilt = () => {
+    if (!canAnswer || okIdx !== null) return;
+    if (builtValue === round.target) {
+      if (wrongCount === 0) setScore((s) => s + 1);
+      setOkIdx(0);
+      setHintText(null);
+      speak(round.audio?.on_correct);
+      return;
+    }
+    const w = wrongCount + 1;
+    registerWrong(w);
+    const steps = round.escalation || [];
+    const own = steps[Math.min(w, steps.length) - 1] || singleNode(round.audio?.on_wrong);
     setHintText(own || null);
     speak(own);
   };
@@ -171,7 +207,7 @@ export default function TestScreen({
     registerWrong(w);
     // Эскалация: 1 — концепт, 2 — первый шаг, 3 — разобранный первый шаг (§6.2).
     const steps = round.escalation || [];
-    const step = steps[Math.min(w, steps.length) - 1] || round.audio?.on_wrong;
+    const step = steps[Math.min(w, steps.length) - 1] || singleNode(round.audio?.on_wrong);
     setHintText(step || null);
     speak(step);
     setTyped('');
@@ -205,7 +241,19 @@ export default function TestScreen({
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)' }}>
               <FrameFx/>
               <div className="grade3-question-figure">
-                {renderVisual(round.visual, { scenes, labels: screen.placeLabels })}
+                {isBuild
+                  ? (
+                    <>
+                      {renderVisual(
+                        { type: 'console', vals: built, labels: screen.placeLabels?.[lang] || screen.placeLabels },
+                        { scenes, extra: { onStep: stepBuild, disabled: !canAnswer || okIdx !== null } },
+                      )}
+                      {/* Собранное число рядом с консолью: ребёнок видит результат
+                          своих нажатий, а не только множители по разрядам. */}
+                      <BigNum v={builtValue} accent={okIdx !== null}/>
+                    </>
+                  )
+                  : renderVisual(round.visual, { scenes, labels: screen.placeLabels })}
               </div>
 
               {laid && (
@@ -222,6 +270,17 @@ export default function TestScreen({
                     </OptionButton>
                   ))}
                 </div>
+              )}
+
+              {isBuild && (
+                <button
+                  className="btn-white-accent"
+                  disabled={!canAnswer || okIdx !== null}
+                  onClick={checkBuilt}
+                  style={{ padding: 'clamp(10px,1.7vw,12px) clamp(20px,2.5vw,27px)', fontSize: 'clamp(12px,1.5vw,14px)' }}
+                >
+                  {ROUND_COPY.check[lang] || ROUND_COPY.check.ru}
+                </button>
               )}
 
               {isNumeric && (

@@ -49,8 +49,11 @@ export default function NumberLineScreen({
   // Фаза анимации идёт за озвучкой: первый сегмент — большие прыжки,
   // второй и дальше — малые. Так голос и движение маркера совпадают.
   const reached = Math.max(-1, audio.reachedIndex);
-  const phase = guess === null ? 0 : reached >= 1 ? 2 : 1;
-  const done = guess !== null && (audio.muted || reached >= steps.length - 1);
+  // Звук выключен или зависел — прыжки показываются целиком, без ожидания голоса.
+  // Без этого экран не отпускал: разбор ждал сегмента, который не приходил.
+  const showAll = audio.muted || audio.stalled;
+  const phase = guess === null ? 0 : (showAll || reached >= 1) ? 2 : 1;
+  const done = guess !== null && (showAll || reached >= steps.length - 1);
 
   const revealRef = useRevealScroll(done, 500);
   const canAdvance = useAdvanceGate(done, audio);

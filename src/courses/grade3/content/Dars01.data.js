@@ -2,9 +2,9 @@
 // Dars01.data.js — СКЕЛЕТ УРОКА 1 (3 класс)
 // Тема: сотни, десятки и единицы. Блок Б1, сюжет «Bit sayyorasi Lumo».
 //
-// СТАТУС: скелет. Роли, механики, числа и misconception'ы решены; тексты и
-// озвучка ещё не написаны — поля с пометкой TODO. Валидатор сейчас справедливо
-// падает на отсутствии локалей: это и есть список того, что осталось.
+// СТАТУС: контент написан целиком — 15 экранов, три локали (uz, ru, en), озвучка.
+// Узбекская математическая терминология — draft: требует валидации узбекским
+// методистом. Английский написан здесь впервые, раньше уроки были на двух языках.
 //
 // Контракт: src/books/grade3/ETALON_3SINF_v2.md
 // Проверка:  node scripts/validate-grade3.mjs --data src/courses/grade3/content/Dars01.data.js
@@ -39,8 +39,6 @@
 // и находит, что в ней не так. Экран 12 «обратная задача» разворачивает экран 4:
 // там число превращалось в разложение, здесь разложение превращается в число.
 // ---------------------------------------------------------------------------
-
-const TODO = { uz: '', ru: '', en: '' };   // помечает ненаписанный текст
 
 // Подписи разрядов — нужны почти каждому экрану, поэтому объявлены один раз.
 export const PLACE_LABELS = {
@@ -879,37 +877,132 @@ const LESSON = {
       // разложение, нужно вернуть число (§2.4).
       placeLabels: PLACE_LABELS,
       optionCols: 3,
-      eyebrow: TODO,
+      eyebrow: { uz: 'Teskari yo\'l', ru: 'Обратный путь', en: 'The way back' },
+      // Неверные варианты здесь другого рода, чем на экране 10: главный из них —
+      // приписать части подряд (500, 20, 8 -> 5208) вместо сложения по разрядам.
+      // Второй и третий раунд снова про пропавший ноль, но уже в обратную сторону:
+      // ребёнок не находит чужую ошибку, а сам не должен её сделать.
       rounds: [
         {
-          q: TODO,
+          q: {
+            uz: "500 + 20 + 8. Bu qaysi son?",
+            ru: '500 + 20 + 8. Какое это число?',
+            en: '500 + 20 + 8. Which number is this?',
+          },
           decomposition: [500, 20, 8],
           answerNumber: 528,
-          options: [TODO, TODO, TODO],
+          visual: { type: 'place', h: 5, t: 2, o: 8 },
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: '528', ru: '528', en: '528' },
+            { uz: '5208', ru: '5208', en: '5208' },
+            { uz: '852', ru: '852', en: '852' },
+          ],
+          hints: [
+            null,
+            { uz: "Qismlarni yonma-yon yozmang, ularni qo'shing.", ru: 'Части не приписывают подряд, их складывают.', en: 'The parts are not written side by side, they are added.' },
+            { uz: "Yuzlik chapda qoladi. Tartibni o'zgartirmang.", ru: 'Сотни остаются слева. Порядок не меняется.', en: 'Hundreds stay on the left. The order does not change.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Oldin sonni qismlarga ajratdik. Endi orqaga qaytamiz.",
+              ru: 'Раньше мы делили число на части. Теперь пойдём обратно.',
+              en: 'Before we split a number into parts. Now we go back.',
+            },
+            on_correct: {
+              uz: "Ha. Besh yuz, yigirma va sakkiz birga besh yuz yigirma sakkiz.",
+              ru: 'Да. Пятьсот, двадцать и восемь вместе дают пятьсот двадцать восемь.',
+              en: 'Yes. Five hundred, twenty and eight together give five hundred and twenty eight.',
+            },
+            on_wrong: [
+              null,
+              { uz: "Qismlarni yonma-yon yozmang, ularni qo'shing.", ru: 'Части не приписывают подряд, их складывают.', en: 'The parts are not written side by side, they are added.' },
+              { uz: "Yuzlik chapda qoladi. Tartibni o'zgartirmang.", ru: 'Сотни остаются слева. Порядок не меняется.', en: 'Hundreds stay on the left. The order does not change.' },
+            ],
+          },
         },
         {
-          q: TODO,
+          q: {
+            uz: "700 + 0 + 3. Bu qaysi son?",
+            ru: '700 + 0 + 3. Какое это число?',
+            en: '700 + 0 + 3. Which number is this?',
+          },
           decomposition: [700, 0, 3],
           answerNumber: 703,
-          options: [TODO, TODO, TODO],
+          visual: { type: 'place', h: 7, t: 0, o: 3 },
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: '703', ru: '703', en: '703' },
+            { uz: '73', ru: '73', en: '73' },
+            { uz: '7003', ru: '7003', en: '7003' },
+          ],
+          hints: [
+            null,
+            { uz: "O'nlik nol, lekin uning o'rni yozuvda qoladi.", ru: 'Десятков ноль, но их место в записи остаётся.', en: 'There are zero tens, but their place stays in the writing.' },
+            { uz: "Uch xonali son uchta raqamdan iborat.", ru: 'В трёхзначном числе три цифры.', en: 'A three digit number has three digits.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Bu safar o'rtada nol turadi. Diqqat qiling.",
+              ru: 'На этот раз в середине ноль. Будь внимателен.',
+              en: 'This time there is a zero in the middle. Be careful.',
+            },
+            on_correct: {
+              uz: "To'g'ri. Nol o'z o'rnini egallab turadi.",
+              ru: 'Верно. Ноль занимает своё место.',
+              en: 'Right. Zero takes its own place.',
+            },
+            on_wrong: [
+              null,
+              { uz: "O'nlik nol, lekin uning o'rni yozuvda qoladi.", ru: 'Десятков ноль, но их место в записи остаётся.', en: 'There are zero tens, but their place stays in the writing.' },
+              { uz: "Uch xonali son uchta raqamdan iborat.", ru: 'В трёхзначном числе три цифры.', en: 'A three digit number has three digits.' },
+            ],
+          },
         },
         {
-          q: TODO,
+          q: {
+            uz: "600 + 40 + 0. Bu qaysi son?",
+            ru: '600 + 40 + 0. Какое это число?',
+            en: '600 + 40 + 0. Which number is this?',
+          },
           decomposition: [600, 40, 0],
           answerNumber: 640,
-          options: [TODO, TODO, TODO],
+          visual: { type: 'place', h: 6, t: 4, o: 0 },
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: '640', ru: '640', en: '640' },
+            { uz: '64', ru: '64', en: '64' },
+            { uz: '604', ru: '604', en: '604' },
+          ],
+          hints: [
+            null,
+            { uz: "Birlik nol. Uni oxirida yozish kerak.", ru: 'Единиц ноль. Его нужно записать в конце.', en: 'There are zero ones. It must be written at the end.' },
+            { uz: "Qirq bu o'nlik. U o'rtada turadi.", ru: 'Сорок это десятки. Они стоят в середине.', en: 'Forty means tens. They stand in the middle.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Oxirgisi. Endi nol oxirida bo'ladi.",
+              ru: 'Последнее. Теперь ноль будет в конце.',
+              en: 'The last one. Now the zero will be at the end.',
+            },
+            on_correct: {
+              uz: "Ha. Olti yuz qirq, birlik yo'q.",
+              ru: 'Да. Шестьсот сорок, единиц нет.',
+              en: 'Yes. Six hundred and forty, no ones.',
+            },
+            on_wrong: [
+              null,
+              { uz: "Birlik nol. Uni oxirida yozish kerak.", ru: 'Единиц ноль. Его нужно записать в конце.', en: 'There are zero ones. It must be written at the end.' },
+              { uz: "Qirq bu o'nlik. U o'rtada turadi.", ru: 'Сорок это десятки. Они стоят в середине.', en: 'Forty means tens. They stand in the middle.' },
+            ],
+          },
         },
       ],
-      doneText: TODO,
+      doneText: {
+        uz: "Sonni qismlarga ajratish va qaytarish, bu bitta yo'lning ikki tomoni.",
+        ru: 'Разложить число и собрать обратно, это две стороны одного пути.',
+        en: 'Splitting a number and putting it back are two sides of one path.',
+      },
     },
 
     // ------------------------------------------- 13 case (жизненная задача)
@@ -922,16 +1015,78 @@ const LESSON = {
       answer: 346,
       placeLabels: PLACE_LABELS,
       visual: { type: 'place', h: 3, t: 4, o: 6 },
-      eyebrow: TODO,
-      lead: TODO,
-      context: TODO,
-      q: TODO,
-      // §6.2 три ступени подсказки, ни одна не даёт ответ.
-      escalation: [TODO, TODO, TODO],
-      strongHint: TODO,
-      audio: { intro: TODO, on_correct: TODO, on_wrong: TODO },
-      fact: TODO,
-      factBadge: TODO,
+      eyebrow: { uz: 'Hayotiy masala', ru: 'Задача из жизни', en: 'A real problem' },
+      lead: {
+        uz: "Bit shahar hududini ko'rsatmoqchi.",
+        ru: 'Бит хочет показать район города.',
+        en: 'Bit wants to show a district of the city.',
+      },
+      context: {
+        uz: "Hududda 3 panel, 4 lenta va 6 chiroq bor. Bit jami sonni bilmoqchi.",
+        ru: 'В районе 3 панели, 4 ленты и 6 огоньков. Бит хочет знать общее число.',
+        en: 'The district has 3 panels, 4 ribbons and 6 lights. Bit wants the total.',
+      },
+      q: {
+        uz: 'Hududda nechta chiroq bor?',
+        ru: 'Сколько всего огней в районе?',
+        en: 'How many lights are in the district?',
+      },
+      // §6.2 три ступени подсказки. Ни одна не даёт ответ: третья делает первый
+      // шаг вместо ребёнка и оставляет ему завершение.
+      escalation: [
+        {
+          uz: "Razryadlar bo'yicha sanang. Paneldan boshlang.",
+          ru: 'Считай по разрядам. Начни с панелей.',
+          en: 'Count by places. Start with the panels.',
+        },
+        {
+          uz: "Panel yuzlik, lenta o'nlik, chiroq birlik. Har birini alohida.",
+          ru: 'Панель это сотня, лента десяток, огонёк единица. Каждое отдельно.',
+          en: 'A panel is a hundred, a ribbon a ten, a light a one. Each separately.',
+        },
+        {
+          uz: "Uchta panel uch yuz beradi. Endi lenta va chiroqni qo'shing.",
+          ru: 'Три панели дают триста. Теперь добавь ленты и огоньки.',
+          en: 'Three panels give three hundred. Now add the ribbons and the lights.',
+        },
+      ],
+      strongHint: {
+        uz: "Uch yuz, keyin qirq, keyin olti. Yozib chiqing.",
+        ru: 'Триста, потом сорок, потом шесть. Набери по порядку.',
+        en: 'Three hundred, then forty, then six. Type them in order.',
+      },
+      audio: {
+        intro: {
+          uz: [
+            "Bit hududni ko'rsatdi. Bu yerda panellar, lentalar va chiroqlar bor.",
+            "Jami nechta chiroq ekanini hisoblang va raqam bilan yozing.",
+          ],
+          ru: [
+            'Бит показал район. Здесь есть панели, ленты и огоньки.',
+            'Посчитай, сколько всего огней, и набери число.',
+          ],
+          en: [
+            'Bit showed the district. There are panels, ribbons and lights here.',
+            'Work out how many lights in total and type the number.',
+          ],
+        },
+        on_correct: {
+          uz: "Ajoyib. Uch yuz qirq olti chiroq. Bit hududni ochdi.",
+          ru: 'Отлично. Триста сорок шесть огней. Бит открыл район.',
+          en: 'Excellent. Three hundred and forty six lights. Bit opened the district.',
+        },
+        on_wrong: {
+          uz: "Yana bir bor. Panel, lenta va chiroqni alohida sanang.",
+          ru: 'Ещё раз. Считай панели, ленты и огоньки по отдельности.',
+          en: 'Once more. Count panels, ribbons and lights separately.',
+        },
+      },
+      fact: {
+        uz: "Lumo yulduzi qizil mitti. Bunday yulduzlar Quyoshdan xira, lekin yuz marta uzoq yashaydi.",
+        ru: 'Звезда Лумо красный карлик. Такие звёзды тусклее Солнца, но живут в сотни раз дольше.',
+        en: 'The star of Lumo is a red dwarf. Such stars are dimmer than the Sun but live hundreds of times longer.',
+      },
+      factBadge: { uz: 'Bilasizmi?', ru: 'Знаешь ли ты?', en: 'Did you know?' },
     },
 
     // -------------------------------------- 14 final_diagnostic (трансфер)
@@ -944,34 +1099,114 @@ const LESSON = {
       // не использовались выше (470 был только как точка на прямой, без состава).
       placeLabels: PLACE_LABELS,
       optionCols: 2,
-      eyebrow: TODO,
+      eyebrow: { uz: 'Yakuniy tekshiruv', ru: 'Итоговая проверка', en: 'Final check' },
+      // Числа 219, 905 и 470 по составу в уроке не разбирались: §12 требует, чтобы
+      // диагностика не повторяла числа урока. Вопросы разные по типу — сколько
+      // десятков, сколько десятков при нуле, какое разложение верно, — чтобы
+      // проверялся перенос, а не запомненный ход одного задания.
       rounds: [
         {
-          q: TODO,
+          q: {
+            uz: "219 sonida nechta o'nlik bor?",
+            ru: 'Сколько десятков в числе 219?',
+            en: 'How many tens are in 219?',
+          },
           visual: { type: 'bignum', value: 219 },
-          options: [TODO, TODO, TODO],
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: '1', ru: '1', en: '1' },
+            { uz: '2', ru: '2', en: '2' },
+            { uz: '9', ru: '9', en: '9' },
+          ],
+          hints: [
+            null,
+            { uz: "Ikki chapda turadi, bu yuzlik.", ru: 'Двойка стоит слева, это сотни.', en: 'The two stands on the left, those are hundreds.' },
+            { uz: "To'qqiz oxirida, bu birlik.", ru: 'Девятка в конце, это единицы.', en: 'The nine is at the end, those are ones.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Yangi son. O'rta ustunga qarang.",
+              ru: 'Новое число. Посмотри на средний столбец.',
+              en: 'A new number. Look at the middle column.',
+            },
+            on_correct: { uz: "To'g'ri. O'rtada bir turadi.", ru: 'Верно. В середине стоит единица.', en: 'Right. A one stands in the middle.' },
+            on_wrong: [
+              null,
+              { uz: "Ikki chapda turadi, bu yuzlik.", ru: 'Двойка стоит слева, это сотни.', en: 'The two stands on the left, those are hundreds.' },
+              { uz: "To'qqiz oxirida, bu birlik.", ru: 'Девятка в конце, это единицы.', en: 'The nine is at the end, those are ones.' },
+            ],
+          },
         },
         {
-          q: TODO,
+          q: {
+            uz: "905 sonida nechta o'nlik bor?",
+            ru: 'Сколько десятков в числе 905?',
+            en: 'How many tens are in 905?',
+          },
           visual: { type: 'bignum', value: 905 },
-          options: [TODO, TODO, TODO],
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: '0', ru: '0', en: '0' },
+            { uz: '9', ru: '9', en: '9' },
+            { uz: '5', ru: '5', en: '5' },
+          ],
+          hints: [
+            null,
+            { uz: "To'qqiz chapda, bu yuzlik.", ru: 'Девятка слева, это сотни.', en: 'The nine is on the left, those are hundreds.' },
+            { uz: "Besh oxirida, bu birlik. O'rtaga qarang.", ru: 'Пятёрка в конце, это единицы. Смотри в середину.', en: 'The five is at the end, those are ones. Look in the middle.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Bu sonda o'rtada nol turadi. Javob ham nol bo'ladimi?",
+              ru: 'В этом числе в середине ноль. Будет ли ответ нулём?',
+              en: 'This number has a zero in the middle. Will the answer be zero?',
+            },
+            on_correct: { uz: "Ha. O'nlik yo'q, shuning uchun nol.", ru: 'Да. Десятков нет, поэтому ноль.', en: 'Yes. There are no tens, so zero.' },
+            on_wrong: [
+              null,
+              { uz: "To'qqiz chapda, bu yuzlik.", ru: 'Девятка слева, это сотни.', en: 'The nine is on the left, those are hundreds.' },
+              { uz: "Besh oxirida, bu birlik. O'rtaga qarang.", ru: 'Пятёрка в конце, это единицы. Смотри в середину.', en: 'The five is at the end, those are ones. Look in the middle.' },
+            ],
+          },
         },
         {
-          q: TODO,
+          q: {
+            uz: '470 sonining yoyilmasi qaysi?',
+            ru: 'Какое разложение числа 470 верно?',
+            en: 'Which expansion of 470 is correct?',
+          },
           visual: { type: 'bignum', value: 470 },
-          options: [TODO, TODO, TODO],
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: '400 + 70 + 0', ru: '400 + 70 + 0', en: '400 + 70 + 0' },
+            { uz: '400 + 7 + 0', ru: '400 + 7 + 0', en: '400 + 7 + 0' },
+            { uz: '4 + 70 + 0', ru: '4 + 70 + 0', en: '4 + 70 + 0' },
+          ],
+          hints: [
+            null,
+            { uz: "Yetti o'rtada turadi, demak u yetmish.", ru: 'Семёрка стоит в середине, значит это семьдесят.', en: 'The seven is in the middle, so it means seventy.' },
+            { uz: "To'rt chapda turadi, demak u to'rt yuz.", ru: 'Четвёрка стоит слева, значит это четыреста.', en: 'The four is on the left, so it means four hundred.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Oxirgi savol. Har raqam qancha qiymat berishini eslang.",
+              ru: 'Последний вопрос. Вспомни, сколько значит каждая цифра.',
+              en: 'The last question. Recall how much each digit means.',
+            },
+            on_correct: { uz: "Barakalla. O'rin qiymatni belgilaydi.", ru: 'Молодец. Место задаёт значение.', en: 'Well done. The place sets the value.' },
+            on_wrong: [
+              null,
+              { uz: "Yetti o'rtada turadi, demak u yetmish.", ru: 'Семёрка стоит в середине, значит это семьдесят.', en: 'The seven is in the middle, so it means seventy.' },
+              { uz: "To'rt chapda turadi, demak u to'rt yuz.", ru: 'Четвёрка стоит слева, значит это четыреста.', en: 'The four is on the left, so it means four hundred.' },
+            ],
+          },
         },
       ],
-      doneText: TODO,
+      doneText: {
+        uz: "Siz yangi sonlarda ham o'rinni topdingiz. Bu eng muhimi.",
+        ru: 'Даже в новых числах ты видишь место разрядов. Это самое главное.',
+        en: 'You found the places even in new numbers. That is what matters most.',
+      },
     },
 
     // ------------------------------------------------------- 15 summary
@@ -981,16 +1216,54 @@ const LESSON = {
       // Та же сцена, что на экране 1, но препятствие снято (§1.3).
       scene: 'LumoCityScene',
       goal: 'Итог, правило-recap, факт-награда, мостик к уроку 2.',
-      eyebrow: TODO,
-      lead: TODO,
-      rule: TODO,
-      ruleBadge: TODO,
-      praise: TODO,
-      fact: TODO,        // TODO: факт про красного карлика — район Lumo
-      factBadge: TODO,
-      bridge: TODO,      // TODO: одна фраза про урок 2 (чтение и запись чисел)
-      bridgeBadge: TODO,
-      audio: TODO,       // TODO: 3 сегмента
+      eyebrow: { uz: 'Yakun', ru: 'Итог', en: 'Summary' },
+      lead: {
+        uz: "Bit shahrini ko'rsatdi. Chiroqlarni yuzlab sanadingiz.",
+        ru: 'Бит показал свой город, а ты умеешь считать огни сотнями.',
+        en: 'Bit showed his city. You counted the lights in hundreds.',
+      },
+      // Правило-recap: ровно то, что ребёнок открыл сам на экране 8.
+      rule: {
+        uz: "Raqamning o'rni uning qiymatini belgilaydi: chapda yuzlik, o'rtada o'nlik, o'ngda birlik. Nol bo'sh o'rinni saqlaydi.",
+        ru: 'Место цифры задаёт её значение: слева сотни, в середине десятки, справа единицы. Ноль держит пустое место.',
+        en: 'The place of a digit sets its value: hundreds left, tens middle, ones right. Zero holds the empty place.',
+      },
+      ruleBadge: { uz: 'Eslab qoling', ru: 'Запомни', en: 'Remember' },
+      praise: {
+        uz: "Siz o'nlikdan yuzlikka, keyin mingga yetdingiz. Bir darsda uch pog'ona.",
+        ru: 'От десятков к сотням, а потом к тысяче. Три ступени за один урок.',
+        en: 'You went from tens to hundreds and reached a thousand. Three steps in one lesson.',
+      },
+      fact: {
+        uz: "Lumoning qizil mitti yulduzi Quyoshdan kichik, lekin yuz marta uzoq yashaydi.",
+        ru: 'Красный карлик Лумо меньше Солнца, но живёт в сотни раз дольше.',
+        en: 'The red dwarf of Lumo is smaller than the Sun but lives hundreds of times longer.',
+      },
+      factBadge: { uz: 'Bilasizmi?', ru: 'Знаешь ли ты?', en: 'Did you know?' },
+      // Мостик: одна фраза, продолжение сюжета, а не анонс программы.
+      bridge: {
+        uz: "Keyingi darsda Bit shahar nomlarini o'qishni o'rgatadi: son nomi va yozuvi.",
+        ru: 'На следующем уроке Бит научит читать названия города: имя числа и его запись.',
+        en: 'Next lesson Bit will teach reading the city names: a number name and its writing.',
+      },
+      bridgeBadge: { uz: 'Keyingi dars', ru: 'Следующий урок', en: 'Next lesson' },
+      audio: {
+        uz: [
+          "Bugun siz yuzlik, o'nlik va birlikni ko'rdingiz.",
+          "O'nta o'nlik yuzlik, o'nta yuzlik ming beradi.",
+          "Eng muhimi: raqamning o'rni uning qiymatini belgilaydi.",
+        ],
+        ru: [
+          'Сегодня мы увидели сотни, десятки и единицы.',
+          'Десять десятков дают сотню, десять сотен дают тысячу.',
+          'Самое главное: место цифры задаёт её значение.',
+        ],
+        en: [
+          'Today you saw hundreds, tens and ones.',
+          'Ten tens give a hundred, ten hundreds give a thousand.',
+          'The main thing: the place of a digit sets its value.',
+        ],
+      },
     },
   ],
 };

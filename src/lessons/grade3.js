@@ -11,6 +11,16 @@ export const grade3Nazariy = [
     desc: "O'nta o'nlik — bitta yuzlik; uch xonali son = yuzlik + o'nlik + birlik (345 = 3 yuzlik 4 o'nlik 5 birlik); nol o'rinni saqlaydi (305).",
     Component: lazy(() => import('../components/grade3/Dars01.jsx')),
   },
+  // НОВАЯ СХЕМА (src/courses/grade3/): тот же урок 1, собранный из данных и общего
+  // каркаса. Стоит РЯДОМ со старым, а не вместо него: пока методист не сравнил их
+  // в браузере и не принял новый, удалять старый нельзя.
+  // Контракт: src/books/grade3/ETALON_3SINF_v2.md. Точка входа: START_GRADE3.md.
+  {
+    slug: 'dars01-yuzlik-onlik-birlik-v2',
+    title: "Dars 1. Yuzliklar, o'nliklar va birliklar (v2)",
+    desc: "Etalon v2 bo'yicha qayta yig'ilgan: 15 ekran, uch til (uz, ru, en), xato-topish va teskari masala ekranlari qo'shilgan.",
+    Component: lazy(() => import('../courses/grade3/lessons/Dars01.jsx')),
+  },
   {
     slug: 'dars02-oqish-yozish',
     title: "Dars 2. Sonlarni o'qish va yozish",
