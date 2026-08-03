@@ -435,7 +435,14 @@ export const getAudioEngine = () => {
 // ---------------------------------------------------------------------------
 export function useAudio(segments) {
   const lang = useLang();
-  const [state, setState] = useState({ isPlaying: false, currentSegment: null, waitingFor: null, muted: false });
+  // reachedIndex — сколько сегментов уже начинало звучать (монотонно растёт).
+  // Живёт ЗДЕСЬ, а не в экране: экраны с поэтапным reveal (§3.1) раньше держали
+  // собственный useState + useEffect и обновляли его синхронно в теле эффекта —
+  // это нарушение react-hooks/set-state-in-effect и лишнее дублирование в каждом
+  // экране. Знание «докуда дошла озвучка» принадлежит аудио-слою.
+  const [state, setState] = useState({
+    isPlaying: false, currentSegment: null, waitingFor: null, muted: false, reachedIndex: -1,
+  });
   const engineRef = useRef(null);
 
   // Оригинал делал это через запись в ref прямо во время рендера — приём рабочий,
@@ -453,7 +460,15 @@ export function useAudio(segments) {
     engineRef.current = engine;
     engine.setLang(lang);
     engine.setGender(ttsConfig.voiceGender || 'f');
-    engine.onStateChange = (s) => setState((prev) => ({ ...prev, ...s }));
+    engine.onStateChange = (s) => setState((prev) => {
+      // Индекс сегмента берём из id: сегменты нумеруются как `${prefix}_${i}`.
+      let reachedIndex = prev.reachedIndex;
+      if (s.currentSegment) {
+        const m = /_(\d+)$/.exec(s.currentSegment);
+        if (m) reachedIndex = Math.max(reachedIndex, Number(m[1]));
+      }
+      return { ...prev, ...s, reachedIndex };
+    });
     const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
     window.addEventListener('pointerdown', resume);
     window.addEventListener('keydown', resume);
