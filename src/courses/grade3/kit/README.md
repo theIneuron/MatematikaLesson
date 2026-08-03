@@ -53,17 +53,30 @@ Legacy-уроки остаются в `src/components/grade3/` и в это де
 `collectMissingLocales()` собирает все пропуски по дереву урока для валидатора.
 Чистый модуль без React: React-хук `useT` станет тонкой обёрткой вокруг `makeT` в `infra.jsx`.
 
-### `infra.jsx` — движок
-| Компонент | Версий | Примечание |
-|---|---|---|
-| `AudioEngine` | **1** | идентичен во всех 19 уроках, **уже с починенным `on_event`** — берём как есть |
-| `useAudio`, `makeAudioSegments` | — | сверить при извлечении |
-| `LangContext`, `useLang`, `useT` | — | поддержка JSX внутри переводов |
-| `useIsMobile`, `configureLesson` | — | контракт из `MOBIL_DESKTOP_MOSLASH.md` |
+### `infra.js` — движок и хуки ✅ создан
+Без JSX, поэтому `.js`. Содержит: палитру `T` (из `schema.js`), `configureLesson`/`isPreview`,
+`FREE_NAV = false`, TTS-теги и `buildTtsUrl` (контракт v5.2), `useSfx`/`playChime`,
+`gradeAnswer`, `LangContext`/`useLang`/`useT`, `ProgressContext`, `NavUnlockContext`,
+`useIsMobile`/`useMobileZoom`, `AudioEngine`/`getAudioEngine`/`useAudio`,
+`makeAutoSegments`/`makeStepSegments`, `useCanAnswer`/`useAdvanceGate`,
+`autoScrollTo`/`useRevealScroll`.
 
-`AudioEngine` — самая ценная часть: единственный компонент во всём проекте, где баг
-`on_event` исправлен целиком (все три части, см. `START_GRADE3.md` §6.1). При извлечении
-не «улучшать».
+**Источник — версия из коммита (HEAD), не из рабочего дерева.** В рабочем дереве лежит чужая
+незакоммиченная правка, которая ставит `FREE_NAV = true` «временно для проверки» и вырезает
+автоскролл до `const autoScrollTo = () => {}`. И то, и другое противоречит эталону v2 (§5, §6.3).
+
+`AudioEngine` перенесён без изменений поведения — он байт-идентичен во всех 19 эталонных
+уроках и уже содержит правильную обработку `on_event` (все три части: guard в `playNext`,
+`forced` в `triggerInternalEvent` и `pushOneOff`). Сверено с HEAD по ключевым строкам.
+**Не «улучшать»:** любая правка ломает озвучку во всём классе.
+
+Три осознанных отличия от источника, каждое — там, где источник противоречил контракту:
+1. `useT` больше не подменяет язык молча — идёт через `i18n.js`;
+2. `gradeAnswer` принимает `lessonId` параметром, а не читает глобаль `LESSON_META`
+   (в оригинале при её отсутствии на сервер уходил пустой id);
+3. стабилизация сегментов в `useAudio` — через `useMemo` от сериализованного ключа вместо
+   записи в `ref` во время рендера. Поведение то же, но это убирает нарушение
+   `react-hooks/refs` (в проекте таких 2923).
 
 ### `verbalize.js` — единственный путь текст → речь
 Не создан. Заменяет `toSpeechText` из `Dars19.jsx`, который пропускает в озвучку `────`,
