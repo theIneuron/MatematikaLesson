@@ -42,3 +42,15 @@ src/lab/grade3_dars01_manim/media/
 # Python kesh (Manim lab)
 __pycache__/
 *.pyc
+
+# Отладочные прогоны Playwright и временные скрипты (не для git).
+# Каталог разрастается до сотен мегабайт и засоряет git status.
+.tmp/
+artifacts/
+test-results/
+
+# Выходы отдельных сборок. Собираются командой, в git не хранятся.
+# lms_dars01_3d_build/ пока ОТСЛЕЖИВАЕТСЯ — чтобы правило заработало,
+# нужно один раз выполнить: git rm -r --cached lms_dars01_3d_build
+lms_dars01_3d_build/
+lms-grade6-standalone/
