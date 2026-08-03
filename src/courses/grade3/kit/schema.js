@@ -345,35 +345,62 @@ export const LAYOUT = { maxWidth: 936, stickyVia: 'flex + 100dvh', sizing: 'clam
 export const FONTS = ['Manrope', 'JetBrains Mono', 'Source Serif 4', 'Fraunces'];
 
 // Точные значения кнопок и рамок — ETALON v2 §5.1, §5.2.
-// Извлечено из работающего Dars01. Это обязательные значения, не рекомендации.
-export const RADII = { button: 12, frame: 16, card: 14 };   // других радиусов не вводить
-export const BORDERS = { frame: 'none', accentLeft: '4px', navTop: '1px' };
+//
+// ВАЖНО: это ЭФФЕКТИВНЫЕ значения, то есть результат склейки ДВУХ слоёв CSS.
+// Dars01.jsx вставляет их так: <style>{STYLES}</style> затем
+// <style>{GRADE3_ETALON_STYLES}</style> — второй перебивает первый, почти всё через
+// !important. Первая редакция этого блока содержала значения только из STYLES,
+// то есть из проигрывающего слоя: там плоские цвета, border: none и радиус 16px,
+// а на экране видны градиенты, рамки 1px и радиус 22px. Исправлено.
+export const RADII = { option: 14, frame: 22, card: 14, button: 12, pill: 99 };
+export const BORDERS = {
+  option: '1px solid rgba(167,166,162,.17)',
+  frame: '1px solid rgba(1,154,203,.13)',
+  accentLeft: '5px',   // цветная полоса слева у frame-tip / frame-success
+  navTop: '1px',
+};
 
 export const BUTTON_SPEC = {
-  option:            { bg: '#FFFFFF', color: '#0E0E10', radius: 12, align: 'left', font: 'Manrope 500', shadow: '0 6px 16px -6px rgba(58,53,48,.14)' },
-  optionCorrect:     { bg: '#E3F0E8', color: '#1F7A4D', shadow: '0 8px 22px -6px rgba(31,122,77,.32)' },
+  option: {
+    bg: 'linear-gradient(145deg, #FFFFFF 0%, #FCFBF8 100%)',
+    border: '1px solid rgba(167,166,162,.17)', radius: 14,
+    color: '#0E0E10', align: 'left', font: 'Manrope 500',
+    shadow: '0 6px 16px -6px rgba(58,53,48,.14)',
+    transition: 'transform .18s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease',
+  },
+  optionCorrect: { bg: 'linear-gradient(145deg,#F0F9F3,#DDF1E5)', borderColor: 'rgba(31,122,77,.28)', color: '#1F7A4D' },
   // Неверный — ЯНТАРНЫЙ, не красный. Правило «тон мягкий» реализовано цветом.
-  optionPickedWrong: { bg: '#FBF3D6', color: '#C99A2E', shadow: '0 8px 22px -6px rgba(216,169,58,.32)' },
-  btnWhiteAccent:    { bg: '#FFFFFF', color: '#FF4F28', font: 'Manrope 700', fontSize: 'clamp(16px, 2.7vw, 19px)', padding: 'clamp(11px,2.4vw,15px) clamp(24px,5.5vw,36px)', minHeight: 'clamp(48px, 8.5vw, 56px)', radius: 12 },
-  btnGhost:          { bg: 'transparent', color: '#0E0E10', font: 'Manrope 600', radius: 12, shadow: 'none' },
-  btnDark:           { bg: '#0E0E10', color: '#F6F4EF', radius: 12, shadow: '0 6px 18px -4px rgba(58,53,48,.32)' },
-  disabled:          { opacity: 0.42, cursor: 'not-allowed' },
-  mcOption:          { minHeight: 'clamp(46px, 6.5vw, 56px)', padding: 'clamp(10px,1.6vw,13px)', fontSize: 'clamp(15px, 2.2vw, 19px)' },
-  hookOption:        { minHeight: 'clamp(48px, 7vw, 58px)', fontSize: 'clamp(13px, 1.7vw, 15px)' },
+  optionPickedWrong: { bg: 'linear-gradient(145deg,#FFF9E8,#FBF0C8)', borderColor: 'rgba(216,169,58,.3)', color: '#C99A2E' },
+  btnWhiteAccent: { bg: '#FFFFFF', color: '#FF4F28', font: 'Manrope 700', fontSize: 'clamp(16px, 2.7vw, 19px)', padding: 'clamp(11px,2.4vw,15px) clamp(24px,5.5vw,36px)', minHeight: 'clamp(48px, 8.5vw, 56px)', radius: 12 },
+  btnGhost: { bg: 'transparent', color: '#0E0E10', font: 'Manrope 600', radius: 12, minHeight: 46 },
+  btnDark: { bg: '#0E0E10', color: '#F6F4EF', radius: 12, shadow: '0 6px 18px -4px rgba(58,53,48,.32)' },
+  disabled: { opacity: 0.42, cursor: 'not-allowed' },
+  mcOption: { minHeight: 'clamp(46px, 6.5vw, 56px)', padding: 'clamp(10px,1.6vw,13px)', fontSize: 'clamp(15px, 2.2vw, 19px)' },
+  hookOption: { minHeight: 'clamp(48px, 7vw, 58px)', fontSize: 'clamp(13px, 1.7vw, 15px)' },
 };
 
 export const FRAME_SPEC = {
-  frame:        { bg: '#FFFFFF', radius: 16, padding: 'clamp(20px, 4.2vw, 24px)', border: 'none', shadow: '0 8px 22px -6px rgba(58,53,48,.14)' },
-  frameTip:     { bg: '#FBF3D6', borderLeft: '4px solid #D8A93A', radius: 12, padding: 'clamp(14px,2.5vw,14px)' },
-  frameSuccess: { bg: '#E3F0E8', borderLeft: '4px solid #1F7A4D', radius: 12 },
-  frameSoft:    { bg: '#FFE8E1', borderLeft: '4px solid #FF4F28', radius: 12 },
-  ruleCard:     { bg: '#FFF3E9', radius: 16, padding: 'clamp(12px,2.4vw,18px)', shadow: '0 6px 20px -10px rgba(255,79,40,.4)' },
-  factCard:     { bg: '#FFF3EC', borderLeft: '4px solid #FF4F28', radius: 14 },
-  infoNote:     { bg: '#EAF6FB', radius: 14, shadow: 'inset 3px 0 0 #019ACB' },
+  frame: {
+    radius: 22, border: '1px solid rgba(1,154,203,.13)',
+    bg: 'linear-gradient(145deg, rgba(255,255,255,.98), rgba(249,251,251,.96))',
+    shadow: '0 22px 48px -32px rgba(23,46,69,.42), inset 0 1px rgba(255,255,255,.9)',
+    padding: 'clamp(20px, 4.2vw, 24px)',
+  },
+  frameTip: { bg: 'linear-gradient(135deg,#FFF9E8,#F9EFCB)', border: '1px solid rgba(216,169,58,.22)', borderLeft: '5px solid #D8A93A', shadow: '0 14px 30px -24px rgba(180,138,30,.5)' },
+  frameSuccess: { bg: 'linear-gradient(135deg,#E8F6ED,#DCEFE3)', border: '1px solid rgba(31,122,77,.2)', borderLeft: '5px solid #1F7A4D', shadow: '0 14px 30px -24px rgba(31,122,77,.55)' },
+  frameSoft: { bg: '#FFE8E1', borderLeft: '4px solid #FF4F28', radius: 12 },
+  ruleCard: { bg: '#FFF3E9', radius: 16, padding: 'clamp(12px,2.4vw,18px)', shadow: '0 6px 20px -10px rgba(255,79,40,.4)' },
+  factCard: { bg: '#FFF3EC', borderLeft: '4px solid #FF4F28', radius: 14 },
+  infoNote: { bg: '#EAF6FB', radius: 14, shadow: 'inset 3px 0 0 #019ACB' },
   questionAccent: { bg: '#FFF3E9', color: '#C0392B', border: '1.5px solid rgba(255,79,40,.4)', radius: 14, font: 'Fraunces 700 clamp(16px,2.6vw,20px)' },
-  stageNav:     { bg: '#F6F4EF', borderTop: '1px solid rgba(167,166,162,.25)', padding: 'clamp(11px,2vw,11px)', gap: 12 },
-  title:        { font: 'Source Serif 4 600', lineHeight: 1.1, letterSpacing: '-.005em', opsz: 60 },
-  hSub:         { fontSize: 'clamp(20px, 3.2vw, 23px)' },
+  // Панели полупрозрачные с размытием; навигация учитывает жестовую полосу телефона.
+  stageHeader: { bg: 'rgba(248,247,243,.88)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(167,166,162,.12)' },
+  stageNav: { bg: 'rgba(248,247,243,.9)', backdropFilter: 'blur(14px)', shadow: '0 -12px 30px -28px rgba(23,46,69,.5)', paddingBottom: 'max(clamp(11px,2vw,14px), env(safe-area-inset-bottom))' },
+  progressTrack: { height: 7, radius: 99, bg: 'rgba(167,166,162,.22)', shadow: 'inset 0 1px 2px rgba(58,53,48,.08)' },
+  progressBar: { bg: 'linear-gradient(90deg,#FF6A3D,#FF4F28)', shadow: '0 0 10px rgba(255,79,40,.5)', transition: 'width .5s cubic-bezier(.4,0,.2,1)' },
+  screenTypeBadge: { radius: 99, border: '1px solid rgba(1,154,203,.15)', bg: 'rgba(234,246,251,.76)', color: '#017BA3', font: '800 10px Manrope', minHeight: 28 },
+  title: { font: 'Source Serif 4 600', lineHeight: 1.1, letterSpacing: '-.005em', opsz: 60 },
+  hSub: { fontSize: 'clamp(20px, 3.2vw, 23px)' },
 };
 
 // ---------------------------------------------------------------------------

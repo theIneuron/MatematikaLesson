@@ -358,45 +358,63 @@ const correctPositions = (count, nOpts) => {
 
 ### 5.1. Точные значения — кнопки
 
-Извлечено из работающего `Dars01`. Это **обязательные значения**, не рекомендации.
+> **Поправка к первой редакции §5.1 и §5.2.** Сначала значения были взяты из `STYLES`
+> внутри `Dars01.jsx`. Это оказался **проигрывающий слой**: CSS 3 класса склеивается из
+> двух источников, и `Dars01.jsx` вставляет их так —
+> `<style>{STYLES}</style>` затем `<style>{GRADE3_ETALON_STYLES}</style>`.
+> Второй перебивает первый, почти всё через `!important`. Ребёнок видит **градиенты,
+> рамки 1px и другие радиусы**, а не плоские цвета из `STYLES`. Ниже — то, что видно
+> на экране: результат склейки обоих слоёв. Прежнее утверждение «тени вместо рамок,
+> `border: none`» было неверным.
+
+Эффективные значения (то, что реально отрисовано). Источник: `GRADE3_ETALON_STYLES`
+перебивает `STYLES`; где второй слой свойство не задаёт, работает первый.
 
 | Элемент | Значения |
 |---|---|
-| `.option` | `background #FFFFFF` · `color #0E0E10` · `border: none` · `border-radius 12px` · `width 100%` · `text-align left` · `font Manrope 500` · `box-shadow 0 6px 16px -6px rgba(58,53,48,.14)` · `transition all .2s` |
-| `.option-correct` | `background #E3F0E8` · `color #1F7A4D` · `box-shadow 0 8px 22px -6px rgba(31,122,77,.32)` |
-| `.option-picked-wrong` | `background #FBF3D6` · `color #C99A2E` · `box-shadow 0 8px 22px -6px rgba(216,169,58,.32)` |
-| `.btn-white-accent` | `background #FFFFFF` · `color #FF4F28` · `font Manrope 700`, `font-size clamp(16px, 2.7vw, 19px)` · `padding clamp(11px,2.4vw,15px) clamp(24px,5.5vw,36px)` · `min-height clamp(48px, 8.5vw, 56px)` · `border-radius 12px` · `box-shadow 0 8px 22px -4px rgba(255,79,40,.35), 0 0 0 1px rgba(255,79,40,.12)` |
-| `.btn-ghost` | `background transparent` · `color #0E0E10` · `font Manrope 600` · `border-radius 12px` · `box-shadow none` |
-| `.btn` (тёмная) | `background #0E0E10` · `color #F6F4EF` · `border-radius 12px` · `box-shadow 0 6px 18px -4px rgba(58,53,48,.32)` |
+| `.option` | `background linear-gradient(145deg, #FFFFFF 0%, #FCFBF8 100%)` · `border 1px solid rgba(167,166,162,.17)` · **`border-radius 14px`** · `box-shadow 0 6px 16px -6px rgba(58,53,48,.14)` · `color #0E0E10` · `text-align left` · `font Manrope 500` · `transition transform .18s, box-shadow .2s, border-color .2s, background .2s` |
+| `.option-correct` | `background linear-gradient(145deg,#F0F9F3,#DDF1E5)` · `border-color rgba(31,122,77,.28)` · `color #1F7A4D` |
+| `.option-picked-wrong` | `background linear-gradient(145deg,#FFF9E8,#FBF0C8)` · `border-color rgba(216,169,58,.3)` · `color #C99A2E` |
+| `.btn-white-accent` | только `STYLES`: `background #FFFFFF` · `color #FF4F28` · `font Manrope 700 clamp(16px,2.7vw,19px)` · `padding clamp(11px,2.4vw,15px) clamp(24px,5.5vw,36px)` · `min-height clamp(48px,8.5vw,56px)` · `radius 12px` · `box-shadow 0 8px 22px -4px rgba(255,79,40,.35), 0 0 0 1px rgba(255,79,40,.12)` |
+| `.btn-ghost` | `background transparent` · `color #0E0E10` · `font Manrope 600` · `radius 12px` · **`min-height 46px`** (из второго слоя) |
 | `:disabled` | `opacity .42` · `cursor not-allowed` |
-| Размер варианта в MC | `min-height clamp(46px, 6.5vw, 56px)` · `padding clamp(10px,1.6vw,13px)` · `font-size clamp(15px, 2.2vw, 19px)` |
-| Размер варианта на `hook` | `min-height clamp(48px, 7vw, 58px)` · `font-size clamp(13px, 1.7vw, 15px)` |
+| Вариант в MC | `min-height clamp(46px,6.5vw,56px)` · `padding clamp(10px,1.6vw,13px)` · `font-size clamp(15px,2.2vw,19px)` |
+| Вариант на `hook` | `min-height clamp(48px,7vw,58px)` · `font-size clamp(13px,1.7vw,15px)` |
 
-**Неверный ответ — янтарный, не красный.** `#FBF3D6` / `#C99A2E`. Это не мелочь: правило
-«ни красного креста, тон мягкий» реализовано именно цветом. Красный в состоянии ответа
-запрещён.
-
-**Радиус 12px** у всех кнопок, **16px** у крупных рамок, **14px** у карточек. Другие радиусы
-не вводить.
+**Неверный ответ — янтарный, не красный.** Градиент `#FFF9E8 → #FBF0C8`, текст `#C99A2E`.
+Правило «ни красного креста, тон мягкий» реализовано именно цветом. Красный в состоянии
+ответа запрещён.
 
 ### 5.2. Точные значения — рамки
 
 | Элемент | Значения |
 |---|---|
-| `.frame` | `background #FFFFFF` · `border-radius 16px` · `padding clamp(20px, 4.2vw, 24px)` · `border none` · `box-shadow 0 8px 22px -6px rgba(58,53,48,.14)` · `overflow hidden` |
-| `.frame-tip` (подсказка) | `background #FBF3D6` · `border-left 4px solid #D8A93A` · `radius 12px` · `padding clamp(14px,2.5vw,14px)` |
-| `.frame-success` (верно) | `background #E3F0E8` · `border-left 4px solid #1F7A4D` · `radius 12px` |
-| `.frame-soft` (акцент) | `background #FFE8E1` · `border-left 4px solid #FF4F28` · `radius 12px` |
-| `.d2-rulecard` (правило) | `background #FFF3E9` · `radius 16px` · `padding clamp(12px,2.4vw,18px)` · `box-shadow 0 6px 20px -10px rgba(255,79,40,.4)` |
-| `.d2-factcard` (Bilasizmi) | `background #FFF3EC` · `border-left 4px solid #FF4F28` · `radius 14px` |
-| `.d2-infonote` (Foydali) | `background #EAF6FB` · `radius 14px` · `box-shadow inset 3px 0 0 #019ACB` |
-| `.lm-q-accent` (вопрос до правила) | `background #FFF3E9` · `color #C0392B` · `border 1.5px solid rgba(255,79,40,.4)` · `radius 14px` · `font Fraunces 700 clamp(16px,2.6vw,20px)` |
-| `.stage-nav` | `background #F6F4EF` · `border-top 1px solid rgba(167,166,162,.25)` · `padding clamp(11px,2vw,11px)` · `gap 12px` |
+| `.frame` | **`border-radius 22px`** · `border 1px solid rgba(1,154,203,.13)` · `background linear-gradient(145deg, rgba(255,255,255,.98), rgba(249,251,251,.96))` · `box-shadow 0 22px 48px -32px rgba(23,46,69,.42), inset 0 1px rgba(255,255,255,.9)` · `padding clamp(20px,4.2vw,24px)` · `overflow hidden` |
+| `.frame-tip` | `background linear-gradient(135deg,#FFF9E8,#F9EFCB)` · `border 1px solid rgba(216,169,58,.22)` · **`border-left 5px solid #D8A93A`** · `box-shadow 0 14px 30px -24px rgba(180,138,30,.5)` |
+| `.frame-success` | `background linear-gradient(135deg,#E8F6ED,#DCEFE3)` · `border 1px solid rgba(31,122,77,.2)` · **`border-left 5px solid #1F7A4D`** · `box-shadow 0 14px 30px -24px rgba(31,122,77,.55)` |
+| `.frame-soft` | `background #FFE8E1` · `border-left 4px solid #FF4F28` · `radius 12px` (только `STYLES`) |
+| `.d2-rulecard` | `background #FFF3E9` · `radius 16px` · `padding clamp(12px,2.4vw,18px)` · `box-shadow 0 6px 20px -10px rgba(255,79,40,.4)` |
+| `.d2-factcard` | `background #FFF3EC` · `border-left 4px solid #FF4F28` · `radius 14px` |
+| `.d2-infonote` | `background #EAF6FB` · `radius 14px` · `box-shadow inset 3px 0 0 #019ACB` |
+| `.lm-q-accent` | `background #FFF3E9` · `color #C0392B` · `border 1.5px solid rgba(255,79,40,.4)` · `radius 14px` · `font Fraunces 700 clamp(16px,2.6vw,20px)` |
+| `.lesson-root` | два радиальных пятна (голубое сверху-слева, оранжевое снизу-справа) поверх `linear-gradient(155deg,#F8F7F3,#F4F1EA)` |
+| `.stage-header` | `background rgba(248,247,243,.88)` · `backdrop-filter blur(12px)` · `border-bottom 1px solid rgba(167,166,162,.12)` |
+| `.stage-nav` | `background rgba(248,247,243,.9)` · `backdrop-filter blur(14px)` · `box-shadow 0 -12px 30px -28px rgba(23,46,69,.5)` · `padding-bottom max(clamp(11px,2vw,14px), env(safe-area-inset-bottom))` |
+| `.progress-track` | `height 7px` · `radius 99px` · `background rgba(167,166,162,.22)` · `box-shadow inset 0 1px 2px rgba(58,53,48,.08)` |
+| `.progress-bar` | `background linear-gradient(90deg,#FF6A3D,#FF4F28)` · `box-shadow 0 0 10px rgba(255,79,40,.5)` · `transition width .5s cubic-bezier(.4,0,.2,1)` |
+| `.grade3-screen-type` | пилюля: `radius 99px` · `border 1px solid rgba(1,154,203,.15)` · `background rgba(234,246,251,.76)` · `color #017BA3` · `font 800 10px Manrope` · `min-height 28px` |
 | `.title` | `font Source Serif 4 600` · `line-height 1.1` · `letter-spacing -.005em` · `font-variation-settings "opsz" 60` |
-| `.h-sub` | `font-size clamp(20px, 3.2vw, 23px)` |
+| `.h-sub` | `font-size clamp(20px,3.2vw,23px)` |
 
-**Тени вместо рамок.** У `.frame`, `.option`, `.btn` — `border: none`. Единственные линии в
-дизайне: `border-left 4px` у цветных рамок и `border-top 1px` у панели навигации.
+**Радиусы:** `.option` 14px · `.frame` 22px · карточки 14px · кнопки 12px · пилюли 99px.
+
+**Рамки есть, и они тонкие.** `1px` полупрозрачная у `.option` и `.frame`, `5px` цветная
+слева у `.frame-tip` и `.frame-success`. Глубина даётся тенью **и** рамкой вместе, а не
+только тенью.
+
+**Панели шапки и навигации полупрозрачные с `backdrop-filter`,** а навигация учитывает
+`env(safe-area-inset-bottom)` — иначе на телефоне с жестовой полосой кнопка «Davom»
+уезжает под неё.
 
 **Все размеры через `clamp()`.** Фиксированные пиксели — только радиусы, толщина линий и `gap`.
 
