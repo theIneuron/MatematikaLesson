@@ -280,10 +280,11 @@ export const FORBIDDEN_IN_SPEECH = [
   { name: 'typographic quotes', re: /[«»“”„‟‘’]/, why: 'TTS произносит или спотыкается' },
   // ─ ━ │ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼ — графика столбика, попадала в речь в Dars22
   { name: 'box drawing', re: /[─━│┌┐└┘├┤┬┴┼]/, why: 'графика столбика попала в речь' },
-  // ✓ ✔ ✗ ✘ ×
-  { name: 'check/cross marks', re: /[✓✔✗✘×]/, why: 'знак вместо слова' },
-  // = < > ≥ ≤ ÷ ±
-  { name: 'math operators', re: /[=<>≥≤÷±]/, why: 'напиши словами: teng / katta / kichik' },
+  // ✓ ✔ ✗ ✘ — только галочки и крестики-отметки
+  { name: 'check/cross marks', re: /[✓✔✗✘]/, why: 'отметка вместо слова' },
+  // = < > ≥ ≤ × ÷ ± — знак умножения × (U+00D7) здесь, а не среди отметок:
+  // иначе сообщение об ошибке называет его «крестиком» и сбивает автора с толку.
+  { name: 'math operators', re: /[=<>≥≤×÷±]/, why: 'напиши словами: teng / katta / kichik / ko\'paytirish' },
   // ASCII + и U+2212 − как отдельные знаки между словами
   { name: 'plus/minus as symbol', re: /\s\+\s|\s−\s/, why: "напиши словами: qo'shuv / minus" },
   // % $ €
@@ -378,18 +379,30 @@ export const FRAME_SPEC = {
 // ---------------------------------------------------------------------------
 // 8.1. ХРОНОМЕТРАЖ — ETALON v2 §1.2. Решение методиста: урок 15 минут.
 // ---------------------------------------------------------------------------
+// Числа ИЗМЕРЕНЫ по 19 эталонным урокам 3 класса, а не выведены из арифметики.
+// Первая редакция содержала расчётные wordsPerSegment: [16, 30] — измерение дало
+// медиану 12 слов, то есть реальные сегменты вдвое короче расчётных. Практика
+// эталона правее расчёта, поэтому здесь измеренные значения.
+// Секунды на сегмент НЕ задаются: скорость TTS в проекте не измерена, гадать нельзя.
 export const TIMING = {
-  lessonSeconds: 900,                 // 15 минут
+  lessonSeconds: 900,                 // 15 минут — решение методиста
   perScreenSeconds: { hook: 40, exploration: 50, rule: 50, test: 66, case: 60, summary: 50 },
-  audioShareOfScreen: [0.6, 0.7],     // остальное — действие ребёнка, обратная связь, анимация
-  audioSecondsPerScreen: [30, 40],
-  wordsPerSecond: 2,                  // темп для восьмилетнего, медленнее взрослого
-  wordsPerScreenRu: [60, 80],
-  wordsPerSegment: [16, 30],
-  segmentSeconds: [8, 15],
-  segmentsPerExploration: [3, 4],
-  wordsPerLessonRu: 1000,
+  // измерено: среднее 641 слово на урок, у Dars01 923
+  wordsPerLessonRu: [600, 950],
+  // измерено: среднее 45, у Dars01 62
+  wordsPerScreenRu: [40, 65],
+  // измерено: среднее 3.8, у Dars01 4.5
+  segmentsPerScreen: [3, 5],
+  // измерено: медиана 11, 75% <= 14, 90% <= 17, 95% <= 20, длиннее 30 только 2%
+  wordsPerSegment: [8, 18],
+  wordsPerSegmentHardCap: 25,
 };
+
+/** Сегменты, длина которых выходит за измеренную норму. Одна мысль — один сегмент. */
+export const longSegments = (texts) =>
+  (texts || [])
+    .map((t, i) => ({ at: i, words: String(t || '').split(/\s+/).filter(Boolean).length }))
+    .filter((x) => x.words > TIMING.wordsPerSegment[1]);
 
 /** Расчётная длительность урока по составу экранов — для проверки «влезает в 15 минут». */
 export const estimateLessonSeconds = (screens) =>

@@ -24,11 +24,16 @@ export {
   AUDIO_CONTRACT, FORBIDDEN_IN_SPEECH, UZ_TEXT_RULES, REGISTER, CAST, TERM_SOURCES,
   FEEDBACK_FLOW, HINT_ESCALATION, needsHintEscalation, BOOKEND_SCENE, SCROLL_AND_LAYOUT,
   PALETTE, PLACE_COLORS, LAYOUT, FONTS, RADII, BORDERS, BUTTON_SPEC, FRAME_SPEC,
-  TIMING, estimateLessonSeconds, LESSON_RULES,
+  TIMING, estimateLessonSeconds, longSegments, LESSON_RULES,
   speechTokens, isAudioDerivedFromScreen, findForbiddenInSpeech, findUzTextIssues,
   missingRoles, missingLocales, interactionKinds, activeScreensShare,
   badOptionCounts, roleInteractionMismatch,
 } from './schema.js';
+
+// --- РЕЧЬ: запрещённое в озвучке — ошибка контента, а не автозамена -----------
+export {
+  SPEECH_WORDS, suggestWord, checkSpeech, isSpeakable, toSpeech, checkAllSpeech,
+} from './verbalize.js';
 
 // --- ЛОКАЛИЗАЦИЯ: без тихой подмены языка ------------------------------------
 export {
