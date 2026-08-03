@@ -46,7 +46,7 @@ export {
   T, configureLesson, getTtsConfig, isPreview, FREE_NAV,
   LANG_TAG, END_TAG, buildTtsUrl,
   playChime, useSfx, gradeAnswer,
-  LangContext, useLang, ProgressContext, NavUnlockContext, useT,
+  LangContext, useLang, ProgressContext, useProgress, NavUnlockContext, useT,
   useIsMobile, useMobileZoom, MOBILE_DESIGN_W,
   getAudioEngine, useAudio, makeAutoSegments, makeStepSegments,
   useCanAnswer, useAdvanceGate, autoScrollTo, useRevealScroll,

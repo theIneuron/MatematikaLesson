@@ -164,6 +164,7 @@ export const useLang = () => useContext(LangContext);
 
 // Копилка звёзд: верные ответы накапливаются в шапке.
 export const ProgressContext = createContext({ stars: 0, total: 0 });
+export const useProgress = () => useContext(ProgressContext);
 
 // Разблокировка уже пройденных экранов: назад ходить можно, и там ждать озвучку
 // заново не нужно (ETALON v2 §10).
