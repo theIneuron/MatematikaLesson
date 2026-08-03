@@ -73,13 +73,68 @@ const LESSON = {
       optionCols: 3,
       // Верный ответ не подтверждается словом: сцена переходит в собранное
       // состояние, и ребёнок видит следствие своего решения (§3.4).
-      options: [TODO, TODO, TODO],   // TODO: по одному / собирать по сто / не знаю
       correct: 1,
-      eyebrow: TODO,
-      topic: TODO,
-      lead: TODO,
-      q: TODO,
-      audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+      options: [
+        { uz: 'Bittalab', ru: 'По одному', en: 'One by one' },
+        { uz: "Yuzlab yig'ib", ru: 'Собирать по сто', en: 'In hundreds' },
+        { uz: 'Bilmayman', ru: 'Не знаю', en: "I don't know" },
+      ],
+      eyebrow: { uz: 'Missiya', ru: 'Миссия', en: 'Mission' },
+      topic: {
+        uz: "Mavzu: yuzliklar, o'nliklar va birliklar",
+        ru: 'Тема: сотни, десятки и единицы',
+        en: 'Topic: hundreds, tens and ones',
+      },
+      lead: {
+        uz: "Kema Bitning sayyorasiga qo'ndi. Bu Lumo.",
+        ru: 'Корабль сел на планету Бита. Это Лумо.',
+        en: "The ship landed on Bit's planet. This is Lumo.",
+      },
+      q: {
+        uz: "Shahar chiroqlarini qanday tez sanaymiz?",
+        ru: 'Как быстро сосчитать огни города?',
+        en: 'How can we count the city lights quickly?',
+      },
+      audio: {
+        intro: {
+          uz: [
+            "Bugun yuzliklar, o'nliklar va birliklar qanday tuzilganini bilib olamiz.",
+            "O'tgan safar biz Bitni uyiga yetkazdik. Kema Lumoga qo'ndi.",
+            "Bit o'z shahrini ko'rsatmoqda. Bu yerda chiroqlar juda ko'p, yuzlab.",
+            "Ularni bittalab sanash uzoq. Tezroq yo'l kerak.",
+          ],
+          ru: [
+            'Сегодня узнаем, как устроены сотни, десятки и единицы.',
+            'В прошлый раз мы довезли Бита домой. Корабль сел на Лумо.',
+            'Бит показывает свой город. Огней здесь очень много, целые сотни.',
+            'Считать их по одному долго. Нужен способ быстрее.',
+          ],
+          en: [
+            'Today we find out how hundreds, tens and ones are built.',
+            'Last time we brought Bit home. The ship landed on Lumo.',
+            'Bit is showing his city. There are very many lights here, hundreds of them.',
+            'Counting them one by one takes long. We need a faster way.',
+          ],
+        },
+        on_correct: {
+          uz: "To'g'ri fikr. Yuzlab yig'amiz, va hammasi ko'rinadi.",
+          ru: 'Верная мысль. Соберём по сто, и всё станет видно.',
+          en: 'Good thinking. We will gather them in hundreds, and it will all show.',
+        },
+        on_wrong: [
+          {
+            uz: "Bunday bo'ladi, lekin juda uzoq. Shaharda tezroq yo'l bor.",
+            ru: 'Так можно, но это очень долго. В городе есть путь быстрее.',
+            en: 'You can, but it takes very long. The city has a faster way.',
+          },
+          null,
+          {
+            uz: "Hechqisi yo'q. Hozir Bit qanday qilishini ko'ramiz.",
+            ru: 'Ничего страшного. Сейчас увидим, как это делает Бит.',
+            en: 'That is fine. Now we will see how Bit does it.',
+          },
+        ],
+      },
     },
 
     // --------------------------------------------------------- 2 recall (72)
@@ -90,14 +145,49 @@ const LESSON = {
       placeLabels: PLACE_LABELS,
       // Три стадии = три сегмента озвучки (§3.1).
       stages: [
-        { visual: { type: 'units', place: 'tens', count: 7 }, caption: TODO },
-        { visual: { type: 'units', place: 'ones', count: 2 }, caption: TODO },
-        { visual: { type: 'razryad', t: 7, o: 2, mode: 'concrete' }, caption: TODO },
+        {
+          visual: { type: 'units', place: 'tens', count: 7 },
+          caption: { uz: "7 o'nlik", ru: '7 десятков', en: '7 tens' },
+        },
+        {
+          visual: { type: 'units', place: 'ones', count: 2 },
+          caption: { uz: '2 birlik', ru: '2 единицы', en: '2 ones' },
+        },
+        {
+          visual: { type: 'razryad', t: 7, o: 2, mode: 'concrete' },
+          caption: { uz: "72 = 7 o'nlik va 2 birlik", ru: '72 = 7 десятков и 2 единицы', en: '72 = 7 tens and 2 ones' },
+        },
       ],
-      eyebrow: TODO,
-      lead: TODO,
-      audio: { intro: TODO },   // TODO: 3 сегмента, по одному на стадию
-      doneText: TODO,
+      eyebrow: { uz: 'Eslaymiz', ru: 'Вспомним', en: 'Recall' },
+      lead: {
+        uz: "O'nlik va birlik sizga tanish.",
+        ru: 'Десятки и единицы тебе знакомы.',
+        en: 'Tens and ones are familiar to you.',
+      },
+      audio: {
+        intro: {
+          uz: [
+            "Avval sizga ikkinchi sinfdan tanish narsadan boshlaymiz.",
+            "Yetmish ikkida yetti o'nlik bor, bu yetti lenta.",
+            "Va yana ikki chiroq, bu ikki birlik. Hammasi birga, yetmish ikki.",
+          ],
+          ru: [
+            'Начнём с того, что ты уже знаешь со второго класса.',
+            'В числе семьдесят два семь десятков, это семь лент.',
+            'И ещё два огонька, это две единицы. Всё вместе, семьдесят два.',
+          ],
+          en: [
+            'We start with something you already know from year two.',
+            'In seventy two there are seven tens, that is seven ribbons.',
+            'And two more lights, that is two ones. All together, seventy two.',
+          ],
+        },
+      },
+      doneText: {
+        uz: 'Barakalla, buni siz bilasiz. Keyingisiga o\'tamiz.',
+        ru: 'Верно, это ты помнишь. Идём дальше.',
+        en: 'Right, you remember this. Let us move on.',
+      },
     },
 
     // ------------------------------------------- 3 concrete_model (unitizing)
@@ -107,14 +197,49 @@ const LESSON = {
       goal: 'Десять десятков собираются в одну сотню. Это ядро урока.',
       placeLabels: PLACE_LABELS,
       stages: [
-        { visual: { type: 'units', place: 'tens', count: 10, columns: 2 }, caption: TODO },
-        { visual: { type: 'units', place: 'hundreds', count: 1 }, caption: TODO },
-        { visual: { type: 'razryad', h: 1, mode: 'concrete' }, caption: TODO },
+        {
+          visual: { type: 'units', place: 'tens', count: 10, columns: 2 },
+          caption: { uz: "10 o'nlik", ru: '10 десятков', en: '10 tens' },
+        },
+        {
+          visual: { type: 'units', place: 'hundreds', count: 1 },
+          caption: { uz: '1 yuzlik', ru: '1 сотня', en: '1 hundred' },
+        },
+        {
+          visual: { type: 'razryad', h: 1, mode: 'concrete' },
+          caption: { uz: "10 o'nlik = 1 yuzlik", ru: '10 десятков = 1 сотня', en: '10 tens = 1 hundred' },
+        },
       ],
-      eyebrow: TODO,
-      lead: TODO,
-      audio: { intro: TODO },   // TODO: 3 сегмента
-      doneText: TODO,
+      eyebrow: { uz: 'Kashfiyot', ru: 'Открытие', en: 'Discovery' },
+      lead: {
+        uz: "O'nlikdan yuzlikka.",
+        ru: 'От десятков к сотне.',
+        en: 'From tens to a hundred.',
+      },
+      audio: {
+        intro: {
+          uz: [
+            "O'nlab sanash tez. Lekin Bit shahrida o'nliklar juda ko'p.",
+            "O'nta o'nlikni birga to'playmiz. Har o'nlik, bitta lenta.",
+            "Qarang, nima bo'ldi. O'nta o'nlik bitta yuzlik bo'ldi.",
+          ],
+          ru: [
+            'Считать десятками быстро. Но в городе Бита десятков очень много.',
+            'Соберём десять десятков вместе. Каждый десяток, это одна лента.',
+            'Смотри, что получилось. Десять десятков стали одной сотней.',
+          ],
+          en: [
+            'Counting in tens is fast. But Bit\'s city has very many tens.',
+            'We gather ten tens together. Each ten is one ribbon.',
+            'Look what happened. Ten tens became one hundred.',
+          ],
+        },
+      },
+      doneText: {
+        uz: "Bitta bunday panelni yuzlik deymiz. Yuzlik, bu yuzta birga.",
+        ru: 'Одну такую панель называем сотня. Сотня, это сто вместе.',
+        en: 'We call one such panel a hundred. A hundred is one hundred together.',
+      },
     },
 
     // ------------------------------- 4 second_model (разложение + примеры)
@@ -124,10 +249,22 @@ const LESSON = {
       goal: 'Число как сумма разрядов: 345 = 300 + 40 + 5. Три способа показа.',
       placeLabels: PLACE_LABELS,
       stages: [
-        { visual: { type: 'bignum', value: 345 }, caption: TODO },
-        { visual: { type: 'razryad', h: 3, t: 4, o: 5, mode: 'digits' }, caption: TODO },
-        { visual: { type: 'place', h: 3, t: 4, o: 5 }, caption: TODO },
-        { visual: { type: 'bignum', value: 345, accent: true }, caption: TODO },
+        {
+          visual: { type: 'bignum', value: 345 },
+          caption: { uz: 'Uch yuz qirq besh', ru: 'Триста сорок пять', en: 'Three hundred and forty five' },
+        },
+        {
+          visual: { type: 'razryad', h: 3, t: 4, o: 5, mode: 'digits' },
+          caption: { uz: "3 yuzlik, 4 o'nlik, 5 birlik", ru: '3 сотни, 4 десятка, 5 единиц', en: '3 hundreds, 4 tens, 5 ones' },
+        },
+        {
+          visual: { type: 'place', h: 3, t: 4, o: 5 },
+          caption: { uz: '300 + 40 + 5', ru: '300 + 40 + 5', en: '300 + 40 + 5' },
+        },
+        {
+          visual: { type: 'bignum', value: 345, accent: true },
+          caption: { uz: '345 = 300 + 40 + 5', ru: '345 = 300 + 40 + 5', en: '345 = 300 + 40 + 5' },
+        },
       ],
       // §3.2 — примеры с решениями. Два из трёх с нулём в разряде: это работа
       // против M3 ЗАРАНЕЕ, до того как ребёнок ошибётся на тесте.
@@ -136,11 +273,44 @@ const LESSON = {
         { n: 703, parts: [700, 0, 3] },
         { n: 640, parts: [600, 40, 0] },
       ],
-      workedExamplesTitle: TODO,
-      eyebrow: TODO,
-      lead: TODO,
-      audio: { intro: TODO },   // TODO: 4 сегмента
-      doneText: TODO,
+      workedExamplesTitle: {
+        uz: 'Yana misollar, qanday ishlaydi',
+        ru: 'Ещё примеры, как это работает',
+        en: 'More examples, how it works',
+      },
+      eyebrow: { uz: 'Ikki usul', ru: 'Два способа', en: 'Two ways' },
+      lead: {
+        uz: "Sonni razryadlarga ajratamiz.",
+        ru: 'Разложим число по разрядам.',
+        en: 'Let us split the number into places.',
+      },
+      audio: {
+        intro: {
+          uz: [
+            "Uch yuz qirq besh sonini olamiz. Uni razryadlarga ajratamiz.",
+            "Birinchi usul, razryad jadvali. Har raqam o'z o'rniga turadi.",
+            "Ikkinchi usul, yoyilma. Uch yuz, qirq va besh.",
+            "Ikki usul ham bitta son haqida. Raqamning o'rni uning qiymatini aytadi.",
+          ],
+          ru: [
+            'Возьмём число триста сорок пять. Разберём его по разрядам.',
+            'Первый способ, разрядная таблица. Каждая цифра встаёт на своё место.',
+            'Второй способ, разложение. Триста, сорок и пять.',
+            'Оба способа про одно число. Место цифры говорит, сколько она значит.',
+          ],
+          en: [
+            'Let us take three hundred and forty five. We will split it into places.',
+            'The first way is a place table. Each digit stands in its own place.',
+            'The second way is expanding. Three hundred, forty and five.',
+            'Both ways are about one number. The place of a digit tells its value.',
+          ],
+        },
+      },
+      doneText: {
+        uz: "Nolli misollarga qarang. Nol ham o'z o'rnini egallaydi.",
+        ru: 'Посмотри на примеры с нулём. Ноль тоже занимает своё место.',
+        en: 'Look at the examples with zero. Zero also takes its own place.',
+      },
     },
 
     // ------------------------------------------ 5 discovery (место решает)
