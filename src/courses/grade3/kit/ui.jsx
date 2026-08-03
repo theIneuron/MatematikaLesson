@@ -337,6 +337,69 @@ export function FeedbackBlock({ show, isCorrect, wrongClass, children }) {
 }
 
 // ---------------------------------------------------------------------------
+// ЦИФРОВАЯ КЛАВИАТУРА
+//
+// Смысл (комментарий автора в источнике): ребёнок не УЗНАЁТ ответ среди вариантов,
+// а ПРОИЗВОДИТ его — набирает цифру за цифрой. Для разрядов это принципиально:
+// набрать 305 значит осознанно поставить ноль в середину.
+//
+// В 19 эталонных уроках нашлось 8 версий этого компонента; взята преобладающая
+// (10 файлов из 18). Подписи кнопок озвучены через aria-label.
+// ---------------------------------------------------------------------------
+const NUMPAD_COPY = {
+  pad: { uz: 'Raqamli klaviatura', ru: 'Цифровая клавиатура', en: 'Number keypad' },
+  back: { uz: "Oxirgi raqamni o'chirish", ru: 'Удалить последнюю цифру', en: 'Delete last digit' },
+};
+
+const npKey = {
+  width: 'clamp(50px, 9vw, 54px)', height: 'clamp(42px, 7vw, 44px)',
+  borderRadius: 13, border: `2px solid ${T.ink3}`, background: T.paper,
+  fontWeight: 800, fontSize: 'clamp(21px, 4vw, 25px)', color: T.ink,
+  fontFamily: "'JetBrains Mono', monospace",
+};
+
+export function NumPad({ value, setValue, disabled, max = 3 }) {
+  const lang = useLang();
+  const push = (d) => { if (!disabled) setValue((v) => (v.length >= max ? v : v + d)); };
+  const back = () => { if (!disabled) setValue((v) => v.slice(0, -1)); };
+  const key = { ...npKey, cursor: disabled ? 'default' : 'pointer' };
+  return (
+    <div className="d2-numpad" role="group" aria-label={NUMPAD_COPY.pad[lang] || NUMPAD_COPY.pad.ru}>
+      <span className="d2-numpad-speaker" aria-hidden="true"/>
+      <div
+        className="mono d2-numpad-display"
+        style={{
+          minWidth: 'clamp(170px, 36vw, 212px)', height: 'clamp(50px, 9vw, 54px)',
+          borderRadius: 15, border: `3px solid ${T.accent}`, background: T.paper,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 'clamp(28px, 5vw, 34px)', fontWeight: 800, color: T.ink,
+          letterSpacing: 5, padding: '0 14px',
+        }}
+      >
+        {value || '—'}
+      </div>
+      <div className="d2-numpad-grid">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
+          <button key={d} className="d2-numpad-key" type="button" disabled={disabled} onClick={() => push(String(d))} style={key}>{d}</button>
+        ))}
+        <span className="d2-numpad-spacer"/>
+        <button className="d2-numpad-key" type="button" disabled={disabled} onClick={() => push('0')} style={key}>0</button>
+        <button
+          className="d2-numpad-key d2-numpad-back"
+          type="button"
+          aria-label={NUMPAD_COPY.back[lang] || NUMPAD_COPY.back.ru}
+          disabled={disabled}
+          onClick={back}
+          style={{ ...key, fontSize: 22, color: T.accent }}
+        >
+          ⌫
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Slider — трек с заливкой и подсветкой (визуальный язык v15)
 // ---------------------------------------------------------------------------
 export function Slider({ value, min, max, step = 1, onChange, disabled = false }) {

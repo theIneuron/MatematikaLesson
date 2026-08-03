@@ -63,7 +63,7 @@ export {
   Op, Frac, mt,
   Progress, ScreenTypeBadge, AudioIndicator, Stage,
   NavBack, NavNext, OptionButton, useCorrectRevealThenFade,
-  FeedbackBlock, Slider,
+  FeedbackBlock, NumPad, Slider,
 } from './ui.jsx';
 
 // --- ВИЗУАЛИЗАТОРЫ РАЗРЯДОВ -------------------------------------------------
