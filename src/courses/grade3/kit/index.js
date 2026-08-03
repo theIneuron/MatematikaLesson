@@ -71,6 +71,9 @@ export {
   Chiroq, Lenta, Panel, PlaceViz, RazryadTable, RazryadConsole, BigNum,
 } from './mathviz.jsx';
 
+// --- ЧИСЛОВАЯ ПРЯМАЯ С ПРЕДСКАЗАНИЕМ (§3.4) --------------------------------
+export { NumberLine, planJumps } from './numline.jsx';
+
 // --- ЭФФЕКТЫ И НАГРАДА -----------------------------------------------------
 // LumoDefs монтируется ОДИН РАЗ в корне урока: без него градиент lmGlow не
 // объявлен и все огоньки, ленты и панели станут чёрными.

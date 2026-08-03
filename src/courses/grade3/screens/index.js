@@ -16,12 +16,16 @@
 import LessonShell from './LessonShell.jsx';
 import HookScreen from './HookScreen.jsx';
 import ExplorationScreen from './ExplorationScreen.jsx';
+import NumberLineScreen from './NumberLineScreen.jsx';
 import RuleScreen from './RuleScreen.jsx';
 import TestScreen from './TestScreen.jsx';
 import CaseScreen from './CaseScreen.jsx';
 import SummaryScreen from './SummaryScreen.jsx';
 
-export { LessonShell, HookScreen, ExplorationScreen, RuleScreen, TestScreen, CaseScreen, SummaryScreen };
+export {
+  LessonShell, HookScreen, ExplorationScreen, NumberLineScreen,
+  RuleScreen, TestScreen, CaseScreen, SummaryScreen,
+};
 export { renderVisual, VISUAL_TYPES, UnitsRow } from './visuals.jsx';
 export { screenMetaOf } from './LessonShell.jsx';
 
@@ -38,7 +42,8 @@ export const SCREENS_BY_ROLE = {
   concrete_model: ExplorationScreen,
   second_model: ExplorationScreen,
   discovery: ExplorationScreen,
-  discovery_line: ExplorationScreen,
+  // Отдельный компонент: здесь озвучка ЖДЁТ действия ребёнка, а не ведёт его (§3.4).
+  discovery_line: NumberLineScreen,
   bridge: ExplorationScreen,
 
   // rule
