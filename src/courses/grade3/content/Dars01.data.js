@@ -521,13 +521,79 @@ const LESSON = {
       interaction: 'build_number',
       goal: 'Собрать заданное число разрядной консолью. Опора сильная.',
       placeLabels: PLACE_LABELS,
-      eyebrow: TODO,
+      eyebrow: { uz: 'Birga mashq', ru: 'Упражняемся вместе', en: 'Practise together' },
+      // 530 и 407 выбраны намеренно: ноль в единицах и ноль в десятках. Ребёнок
+      // впервые СОБИРАЕТ число с нулём, а не только читает его.
       rounds: [
-        { target: 362, q: TODO, audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO] } },
-        { target: 530, q: TODO, audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO] } },
-        { target: 407, q: TODO, audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO] } },
+        {
+          target: 362,
+          q: { uz: '362 sonini yig\'ing', ru: 'Собери число 362', en: 'Build the number 362' },
+          audio: {
+            intro: {
+              uz: "Uch yuz oltmish ikkini yig'ing. Har razryadda plyusni bosing.",
+              ru: 'Собери триста шестьдесят два. Нажимай плюс на каждом разряде.',
+              en: 'Build three hundred and sixty two. Press plus on each place.',
+            },
+            on_correct: {
+              uz: "To'g'ri. Uch yuzlik, olti o'nlik, ikki birlik.",
+              ru: 'Верно. Три сотни, шесть десятков, две единицы.',
+              en: 'Right. Three hundreds, six tens, two ones.',
+            },
+            on_wrong: [{
+              uz: "Sonni chapdan o'qing: avval yuzlik, keyin o'nlik, keyin birlik.",
+              ru: 'Читай число слева: сначала сотни, потом десятки, потом единицы.',
+              en: 'Read the number from the left: hundreds first, then tens, then ones.',
+            }],
+          },
+        },
+        {
+          target: 530,
+          q: { uz: '530 sonini yig\'ing', ru: 'Собери число 530', en: 'Build the number 530' },
+          audio: {
+            intro: {
+              uz: "Besh yuz o'ttiz. Birlik ustunida nechta bo'ladi?",
+              ru: 'Пятьсот тридцать. Сколько будет в столбце единиц?',
+              en: 'Five hundred and thirty. How many will be in the ones column?',
+            },
+            on_correct: {
+              uz: "Ha. Birlik yo'q, shuning uchun oxirida nol turadi.",
+              ru: 'Да. Единиц нет, поэтому в конце стоит ноль.',
+              en: 'Yes. There are no ones, so a zero stands at the end.',
+            },
+            on_wrong: [{
+              uz: "Besh yuz o'ttizda birlik bormi? Sanab ko'ring.",
+              ru: 'Есть ли единицы в пятистах тридцати? Проверь на слух.',
+              en: 'Are there any ones in five hundred and thirty? Listen again.',
+            }],
+          },
+        },
+        {
+          target: 407,
+          q: { uz: '407 sonini yig\'ing', ru: 'Собери число 407', en: 'Build the number 407' },
+          audio: {
+            intro: {
+              uz: "To'rt yuz yetti. Bu yerda o'nlik ustuni bo'sh qoladi.",
+              ru: 'Четыреста семь. Здесь столбец десятков останется пустым.',
+              en: 'Four hundred and seven. Here the tens column will stay empty.',
+            },
+            on_correct: {
+              uz: "To'g'ri. O'nlik yo'q, o'rtada nol turadi.",
+              ru: 'Верно. Десятков нет, в середине стоит ноль.',
+              en: 'Right. There are no tens, a zero stands in the middle.',
+            },
+            on_wrong: [{
+              uz: "O'rtadagi ustunga qarang. To'rt yuz yettida o'nlik bormi?",
+              ru: 'Посмотри на средний столбец. Есть ли десятки в четырёхстах семи?',
+              en: 'Look at the middle column. Are there tens in four hundred and seven?',
+            }],
+          },
+        },
       ],
-      doneText: TODO,
+      doneText: {
+        uz: "Nol ham razryad. U bo'sh joyni saqlab turadi.",
+        ru: 'Ноль тоже разряд. Он держит пустое место.',
+        en: 'Zero is a place too. It holds the empty spot.',
+      },
     },
 
     // ---------------------------------- 10 independent_practice (сколько чего)
@@ -538,34 +604,124 @@ const LESSON = {
       goal: 'Назвать состав числа без опоры. Неверные варианты — M1 и M2.',
       placeLabels: PLACE_LABELS,
       optionCols: 2,
-      eyebrow: TODO,
+      eyebrow: { uz: 'Mustaqil', ru: 'Самостоятельно', en: 'On your own' },
+      // Неверные варианты не случайны: в каждом раунде один на M1 (перестановка
+      // разрядов), один на M2 (сложение цифр вместо чтения по разрядам).
       rounds: [
         {
-          q: TODO,
+          q: {
+            uz: '528 sonida nechta yuzlik, o\'nlik va birlik bor?',
+            ru: 'Сколько сотен, десятков и единиц в числе 528?',
+            en: 'How many hundreds, tens and ones are in 528?',
+          },
           visual: { type: 'razryad', h: 5, t: 2, o: 8, mode: 'concrete' },
-          options: [TODO, TODO, TODO],   // верный + M1 (перестановка) + M2 (сумма цифр)
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: "5 yuzlik, 2 o'nlik, 8 birlik", ru: '5 сотен, 2 десятка, 8 единиц', en: '5 hundreds, 2 tens, 8 ones' },
+            { uz: "8 yuzlik, 2 o'nlik, 5 birlik", ru: '8 сотен, 2 десятка, 5 единиц', en: '8 hundreds, 2 tens, 5 ones' },
+            { uz: '15 birlik', ru: '15 единиц', en: '15 ones' },
+          ],
+          hints: [
+            null,
+            { uz: "Chapdagi raqamga qarang. U yuzlikni bildiradi.", ru: 'Посмотри на левую цифру. Она говорит о сотнях.', en: 'Look at the left digit. It tells the hundreds.' },
+            { uz: "Raqamlarni qo'shmang. Har biri o'z razryadida turadi.", ru: 'Цифры не складывают. Каждая стоит в своём разряде.', en: 'Digits are not added. Each stands in its own place.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Razryad jadvaliga qarang va javobni tanlang.",
+              ru: 'Посмотри на разрядную таблицу и выбери ответ.',
+              en: 'Look at the place table and choose the answer.',
+            },
+            on_correct: {
+              uz: "Ha. Besh yuz yigirma sakkiz.",
+              ru: 'Да. Пятьсот двадцать восемь.',
+              en: 'Yes. Five hundred and twenty eight.',
+            },
+            on_wrong: [
+              null,
+              { uz: "Chapdagi raqamga qarang. U yuzlikni bildiradi.", ru: 'Посмотри на левую цифру. Она говорит о сотнях.', en: 'Look at the left digit. It tells the hundreds.' },
+              { uz: "Raqamlarni qo'shmang. Har biri o'z razryadida turadi.", ru: 'Цифры не складывают. Каждая стоит в своём разряде.', en: 'Digits are not added. Each stands in its own place.' },
+            ],
+          },
         },
         {
-          q: TODO,
+          q: {
+            uz: '806 sonida nechta yuzlik, o\'nlik va birlik bor?',
+            ru: 'Сколько сотен, десятков и единиц в числе 806?',
+            en: 'How many hundreds, tens and ones are in 806?',
+          },
           visual: { type: 'razryad', h: 8, t: 0, o: 6, mode: 'concrete' },
-          options: [TODO, TODO, TODO],
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: "8 yuzlik, 0 o'nlik, 6 birlik", ru: '8 сотен, 0 десятков, 6 единиц', en: '8 hundreds, 0 tens, 6 ones' },
+            { uz: "8 yuzlik, 6 o'nlik", ru: '8 сотен, 6 десятков', en: '8 hundreds, 6 tens' },
+            { uz: '14 birlik', ru: '14 единиц', en: '14 ones' },
+          ],
+          hints: [
+            null,
+            { uz: "O'rtadagi ustunga qarang. U bo'sh, lekin u ham bor.", ru: 'Посмотри на средний столбец. Он пустой, но он есть.', en: 'Look at the middle column. It is empty, but it is there.' },
+            { uz: "Sakkiz va olti alohida razryadlarda turadi.", ru: 'Восемь и шесть стоят в разных разрядах.', en: 'Eight and six stand in different places.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Bu sonda bitta ustun bo'sh. Diqqat bilan qarang.",
+              ru: 'В этом числе один столбец пустой. Посмотри внимательно.',
+              en: 'In this number one column is empty. Look carefully.',
+            },
+            on_correct: {
+              uz: "To'g'ri. Sakkiz yuz olti, o'nlik yo'q.",
+              ru: 'Верно. Восемьсот шесть, десятков нет.',
+              en: 'Right. Eight hundred and six, no tens.',
+            },
+            on_wrong: [
+              null,
+              { uz: "O'rtadagi ustunga qarang. U bo'sh, lekin u ham bor.", ru: 'Посмотри на средний столбец. Он пустой, но он есть.', en: 'Look at the middle column. It is empty, but it is there.' },
+              { uz: "Sakkiz va olti alohida razryadlarda turadi.", ru: 'Восемь и шесть стоят в разных разрядах.', en: 'Eight and six stand in different places.' },
+            ],
+          },
         },
         {
-          q: TODO,
+          q: {
+            uz: '190 sonida nechta yuzlik, o\'nlik va birlik bor?',
+            ru: 'Сколько сотен, десятков и единиц в числе 190?',
+            en: 'How many hundreds, tens and ones are in 190?',
+          },
           visual: { type: 'razryad', h: 1, t: 9, o: 0, mode: 'concrete' },
-          options: [TODO, TODO, TODO],
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: "1 yuzlik, 9 o'nlik, 0 birlik", ru: '1 сотня, 9 десятков, 0 единиц', en: '1 hundred, 9 tens, 0 ones' },
+            { uz: "9 yuzlik, 1 o'nlik, 0 birlik", ru: '9 сотен, 1 десяток, 0 единиц', en: '9 hundreds, 1 ten, 0 ones' },
+            { uz: "1 yuzlik, 9 birlik", ru: '1 сотня, 9 единиц', en: '1 hundred, 9 ones' },
+          ],
+          hints: [
+            null,
+            { uz: "Birinchi raqam bitta. Yuzlik bitta.", ru: 'Первая цифра единица. Значит сотня одна.', en: 'The first digit is one. So there is one hundred.' },
+            { uz: "To'qqiz o'rtada turadi. Bu o'nlik, birlik emas.", ru: 'Девятка стоит в середине. Это десятки, не единицы.', en: 'The nine stands in the middle. Those are tens, not ones.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Endi bo'sh ustun oxirida. Javobni tanlang.",
+              ru: 'Теперь пустой столбец в конце. Выбери ответ.',
+              en: 'Now the empty column is at the end. Choose the answer.',
+            },
+            on_correct: {
+              uz: "Ha. Bir yuz to'qson, birlik yo'q.",
+              ru: 'Да. Сто девяносто, единиц нет.',
+              en: 'Yes. One hundred and ninety, no ones.',
+            },
+            on_wrong: [
+              null,
+              { uz: "Birinchi raqam bitta. Yuzlik bitta.", ru: 'Первая цифра единица. Значит сотня одна.', en: 'The first digit is one. So there is one hundred.' },
+              { uz: "To'qqiz o'rtada turadi. Bu o'nlik, birlik emas.", ru: 'Девятка стоит в середине. Это десятки, не единицы.', en: 'The nine stands in the middle. Those are tens, not ones.' },
+            ],
+          },
         },
       ],
-      doneText: TODO,
+      doneText: {
+        uz: "Har raqam o'z ustunida. O'rin qiymatni belgilaydi.",
+        ru: 'Каждая цифра в своём столбце. Место задаёт значение.',
+        en: 'Each digit in its own column. The place sets the value.',
+      },
     },
 
     // ----------------------------------------- 11 НАЙДИ ОШИБКУ (новое, M3)
@@ -578,41 +734,139 @@ const LESSON = {
       // на экране 4 заранее показали 703 и 640 (§2.3).
       placeLabels: PLACE_LABELS,
       optionCols: 3,
-      eyebrow: TODO,
+      eyebrow: { uz: 'Xatoni toping', ru: 'Найди ошибку', en: 'Find the mistake' },
+      // Ошибку делает Anvar, а не безымянный «кто-то»: ребёнку легче искать чужую
+      // ошибку, чем признавать свою, и персонаж из канона делает это безопасным.
+      // Во всех трёх раундах ошибка ОДНА И ТА ЖЕ — пропущенный ноль. Ребёнок
+      // должен увидеть закономерность, а не три разных случая.
+      //
+      // ВНИМАНИЕ на два разбора ниже: «Прочитай 52. Это не пятьсот два» и
+      // «Число 64 намного меньше шестисот сорока». Валидатор помечает цифру в
+      // озвучке предупреждением, и здесь оно оправдано осознанно: весь смысл
+      // упражнения в КОНТРАСТЕ между записью 52 и произнесённым «пятьсот два».
+      // Напишешь словами — контраст исчезнет, и разбор потеряет смысл.
+      // Не «исправлять» на слова.
       rounds: [
         {
-          // «пятьсот два» записали как 52
-          q: TODO,
+          q: {
+            uz: "Anvar «besh yuz ikki» ni 52 deb yozdi. Nima xato?",
+            ru: 'Анвар записал «пятьсот два» как 52. Что не так?',
+            en: 'Anvar wrote "five hundred and two" as 52. What is wrong?',
+          },
           wrongWriting: 52,
           rightWriting: 502,
           visual: { type: 'razryad', h: 5, t: 0, o: 2, mode: 'concrete' },
-          options: [TODO, TODO, TODO],
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: "O'nlik o'rniga nol qo'ymadi", ru: 'Не поставил ноль в десятках', en: 'He left out the zero in the tens' },
+            { uz: 'Raqamlarni almashtirib qo\'ydi', ru: 'Перепутал цифры местами', en: 'He swapped the digits' },
+            { uz: "To'g'ri yozgan", ru: 'Записал правильно', en: 'He wrote it correctly' },
+          ],
+          hints: [
+            null,
+            { uz: "Raqamlar joyida. Yetmagan narsani izlang.", ru: 'Цифры на своих местах. Ищи то, чего не хватает.', en: 'The digits are in place. Look for what is missing.' },
+            { uz: "52 ni o'qing. Bu besh yuz ikki emas.", ru: 'Прочитай 52. Это не пятьсот два.', en: 'Read 52. That is not five hundred and two.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Anvar sonni yozdi, lekin nimadir yetmaydi. Jadvalga qarang.",
+              ru: 'Анвар записал число, но чего-то не хватает. Посмотри на таблицу.',
+              en: 'Anvar wrote the number, but something is missing. Look at the table.',
+            },
+            on_correct: {
+              uz: "Ha. O'nlik yo'q, lekin uning o'rni bor. Nol o'rinni saqlaydi.",
+              ru: 'Да. Десятков нет, но их место есть. Ноль держит это место.',
+              en: 'Yes. There are no tens, but their place exists. Zero holds that place.',
+            },
+            on_wrong: [
+              null,
+              { uz: "Raqamlar joyida. Yetmagan narsani izlang.", ru: 'Цифры на своих местах. Ищи то, чего не хватает.', en: 'The digits are in place. Look for what is missing.' },
+              { uz: "52 ni o'qing. Bu besh yuz ikki emas.", ru: 'Прочитай 52. Это не пятьсот два.', en: 'Read 52. That is not five hundred and two.' },
+            ],
+          },
         },
         {
-          q: TODO,
+          q: {
+            uz: "Yana bir yozuv: «uch yuz yetti» va 37. Nima xato?",
+            ru: 'Ещё запись: «триста семь» и 37. Что не так?',
+            en: 'Another writing: "three hundred and seven" and 37. What is wrong?',
+          },
           wrongWriting: 37,
           rightWriting: 307,
           visual: { type: 'razryad', h: 3, t: 0, o: 7, mode: 'concrete' },
-          options: [TODO, TODO, TODO],
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: "O'nlik o'rniga nol qo'ymadi", ru: 'Не поставил ноль в десятках', en: 'He left out the zero in the tens' },
+            { uz: 'Yuzlikni juda kichik oldi', ru: 'Взял слишком мало сотен', en: 'He took too few hundreds' },
+            { uz: 'Yetti oxirida turmasligi kerak', ru: 'Семёрка не должна быть в конце', en: 'The seven should not be at the end' },
+          ],
+          hints: [
+            null,
+            { uz: "Yuzlik uchta, bu to'g'ri. Boshqa joyga qarang.", ru: 'Сотен три, это верно. Смотри в другое место.', en: 'There are three hundreds, that is right. Look elsewhere.' },
+            { uz: "Yetti birlik, uning joyi oxirida. Xato boshqa joyda.", ru: 'Семь единиц, их место в конце. Ошибка в другом.', en: 'Seven ones belong at the end. The mistake is elsewhere.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Xato o'sha xil. Qaysi ustun bo'sh qolganini toping.",
+              ru: 'Ошибка того же рода. Найди, какой столбец остался пустым.',
+              en: 'The same kind of mistake. Find which column was left empty.',
+            },
+            on_correct: {
+              uz: "To'g'ri. Bo'sh o'nlik ham yozuvda ko'rinishi kerak.",
+              ru: 'Верно. Пустые десятки тоже должны быть видны в записи.',
+              en: 'Right. Empty tens must also show up in the writing.',
+            },
+            on_wrong: [
+              null,
+              { uz: "Yuzlik uchta, bu to'g'ri. Boshqa joyga qarang.", ru: 'Сотен три, это верно. Смотри в другое место.', en: 'There are three hundreds, that is right. Look elsewhere.' },
+              { uz: "Yetti birlik, uning joyi oxirida. Xato boshqa joyda.", ru: 'Семь единиц, их место в конце. Ошибка в другом.', en: 'Seven ones belong at the end. The mistake is elsewhere.' },
+            ],
+          },
         },
         {
-          q: TODO,
+          q: {
+            uz: "Oxirgisi: «olti yuz qirq» va 64. Nima xato?",
+            ru: 'Последняя: «шестьсот сорок» и 64. Что не так?',
+            en: 'The last one: "six hundred and forty" and 64. What is wrong?',
+          },
           wrongWriting: 64,
           rightWriting: 640,
           visual: { type: 'razryad', h: 6, t: 4, o: 0, mode: 'concrete' },
-          options: [TODO, TODO, TODO],
           correct: 0,
-          hints: [TODO, TODO, TODO],
-          audio: { intro: TODO, on_correct: TODO, on_wrong: [TODO, TODO, TODO] },
+          options: [
+            { uz: 'Birlik o\'rniga nol qo\'ymadi', ru: 'Не поставил ноль в единицах', en: 'He left out the zero in the ones' },
+            { uz: "O'nlik o'rniga nol qo'ymadi", ru: 'Не поставил ноль в десятках', en: 'He left out the zero in the tens' },
+            { uz: "To'g'ri yozgan", ru: 'Записал правильно', en: 'He wrote it correctly' },
+          ],
+          hints: [
+            null,
+            { uz: "Bu safar bo'sh ustun oxirida, o'rtada emas.", ru: 'На этот раз пустой столбец в конце, а не в середине.', en: 'This time the empty column is at the end, not the middle.' },
+            { uz: "64 olti yuz qirqdan ancha kichik. Sanab ko'ring.", ru: 'Число 64 намного меньше шестисот сорока. Сравни.', en: 'The number 64 is much smaller than six hundred and forty. Compare.' },
+          ],
+          audio: {
+            intro: {
+              uz: "Diqqat: bu yerda bo'sh ustun boshqa joyda turadi.",
+              ru: 'Внимание: здесь пустой столбец стоит в другом месте.',
+              en: 'Careful: here the empty column stands in a different place.',
+            },
+            on_correct: {
+              uz: "Ha. Nol oxirida turgani sonni o'n marta kattalashtiradi.",
+              ru: 'Да. Ноль в конце делает число в десять раз больше.',
+              en: 'Yes. A zero at the end makes the number ten times bigger.',
+            },
+            on_wrong: [
+              null,
+              { uz: "Bu safar bo'sh ustun oxirida, o'rtada emas.", ru: 'На этот раз пустой столбец в конце, а не в середине.', en: 'This time the empty column is at the end, not the middle.' },
+              { uz: "64 olti yuz qirqdan ancha kichik. Sanab ko'ring.", ru: 'Число 64 намного меньше шестисот сорока. Сравни.', en: 'The number 64 is much smaller than six hundred and forty. Compare.' },
+            ],
+          },
         },
       ],
-      doneText: TODO,
+      doneText: {
+        uz: "Uch xatoning uchtasi ham bitta: nol tushib qolgan. Nol o'rinni saqlaydi.",
+        ru: 'Все три ошибки одна и та же: пропал ноль. Ноль держит место.',
+        en: 'All three mistakes are the same one: a zero went missing. Zero holds the place.',
+      },
     },
 
     // ------------------------------------- 12 ОБРАТНАЯ ЗАДАЧА (новое)
