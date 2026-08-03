@@ -252,10 +252,27 @@ async function validateData(file) {
   else if (first.scene !== last.scene) err(r, `сцена первого экрана «${first.scene}» не совпадает с последним «${last.scene}» (§1.3)`);
 
   // механики
+  // §3.1 требует поэтапный reveal на exploration-экранах. Но экран с числовой
+  // прямой раскрывается иначе — предсказанием и анимацией (§3.4), и требовать от
+  // него stages неверно: у него своя обязательная механика. Первая версия правила
+  // это не различала и ругалась на корректный экран.
   const expl = screens.filter((s) => schema.rolesOf(s).some((k) => schema.roleDef(k)?.type === 'exploration'));
-  const noStages = expl.filter((s) => !s.stages || s.stages.length < 2);
-  if (noStages.length) err(r, `${noStages.length} exploration-экранов без поэтапного reveal (§3.1): нужны stages`);
-  if (!screens.some((s) => s.workedExamples)) err(r, 'нет блока примеров с решениями (§3.2)');
+  const noReveal = expl.filter((s) => (!s.stages || s.stages.length < 2) && !s.numberLine);
+  if (noReveal.length) {
+    err(r, `${noReveal.length} exploration-экранов без раскрытия: нужны либо stages (§3.1), `
+      + 'либо numberLine с предсказанием (§3.4)');
+  }
+  // §3.4 — минимум два экрана с предсказанием до анимации: hook обязательно плюс ещё один.
+  const predictors = screens.filter((s) => s.numberLine || schema.rolesOf(s).includes('problem'));
+  if (predictors.length < 2) err(r, `экранов с предсказанием до анимации ${predictors.length}; нужно не меньше 2 (§3.4)`);
+
+  const worked = screens.find((s) => s.workedExamples);
+  if (!worked) err(r, 'нет блока примеров с решениями (§3.2)');
+  else {
+    const edge = (worked.workedExamples || []).filter((e) => (e.parts || []).includes(0)).length;
+    if (edge === 0) err(r, 'в блоке примеров нет граничного случая с нулём в разряде (§3.2)');
+    else note(r, `примеров с решениями ${worked.workedExamples.length}, из них с нулём в разряде ${edge}`);
+  }
 
   // FREE_NAV в новом формате берётся из каркаса, проверяем только явное переопределение
   if (lesson.freeNav === true) err(r, 'freeNav = true в данных урока (§5 требует false)');
