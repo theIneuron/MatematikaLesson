@@ -19,7 +19,7 @@
 // Чистый модуль: без React, проверяется тестом.
 // ============================================================================
 
-import { FORBIDDEN_IN_SPEECH, TIMING } from './schema.js';
+import { FORBIDDEN_IN_SPEECH, WARN_IN_SPEECH, TIMING } from './schema.js';
 import { stripAudioTags } from './i18n.js';
 
 // ---------------------------------------------------------------------------
@@ -82,6 +82,11 @@ export const checkSpeech = (text, lang = 'ru') => {
       found: m[0],
       suggest: suggestWord(m[0], lang),
     });
+  }
+
+  // Тире и подобное — под вопросом, а не запрещено: см. WARN_IN_SPEECH в schema.js.
+  for (const { name, re, why } of WARN_IN_SPEECH) {
+    if (re.test(s)) warnings.push({ code: 'speech_style', detail: `${name}: ${why}` });
   }
 
   if (DIGIT_RE.test(s)) {
