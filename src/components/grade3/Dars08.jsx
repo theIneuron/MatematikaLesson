@@ -1,6 +1,4 @@
-import React, {useState, useEffect, useRef, useCallback, createContext, useContext, useMemo} from 'react';
-import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
-import { grade3AudioLabels } from './grade3MethodUtils.js';
+import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
 // DD 3-SINF | Dars08 — "Sanoq sistemalari; Rim raqamlari" (num-3-08) | B1 | belgi-devor
@@ -42,7 +40,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;   // TEKSHIRUV: blokirovka O'CHIQ (erkin navigatsiya). RELIZ oldidan false ga qaytaring!
+const FREE_NAV = true;   // TEST/EDIT — blokirovka o'chiq (erkin navigatsiya). PUSH oldidan false ga qaytaring!
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -338,17 +336,9 @@ class AudioEngine {
     }
   }
 
-  playNext(forced = false) {
+  playNext() {
     if (this.currentIdx >= this.queue.length) return;
-    const seg = this.queue[this.currentIdx];
-    // on_event segmenti O'Z hodisasini KUTADI — avtomatik o'tib ketmasin.
-    // (Aks holda savol-oldin-qoida buziladi: bola javob bermasdan tushuntirish yangraydi.)
-    if (!forced && seg && typeof seg.trigger === 'string' && seg.trigger.indexOf('on_event:') === 0) {
-      this.isPlaying = false;
-      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
-      return;
-    }
-    this.playSegment(seg);
+    this.playSegment(this.queue[this.currentIdx]);
   }
 
   start() {
@@ -373,7 +363,7 @@ class AudioEngine {
     if (nextIdx !== -1) {
       this.currentIdx = nextIdx;
       this.waitingFor = null;
-      this.playNext(true);
+      this.playNext();
     }
   }
 
@@ -381,13 +371,13 @@ class AudioEngine {
     if (!text) return;
     this.queue.push({ id: `oneoff_${Date.now()}`, text, trigger: 'manual', waits_for: null, g: gender });
     this.currentIdx = this.queue.length - 1;
-    this.playNext(true);
+    this.playNext();
   }
 
   replay() {
     if (this.currentIdx > 0) this.currentIdx--;
     this.waitingFor = null;
-    this.playNext(true);
+    this.playNext();
   }
 
   stop() {
@@ -566,12 +556,10 @@ const mt = (str) => {
 };
 
 const AudioIndicator = ({ audioState }) => {
-  const lang = useLang();
   const { isPlaying, muted, replay, toggleMute } = audioState;
-  const labels = grade3AudioLabels(lang, muted);
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <button onClick={toggleMute} title={labels.sound} aria-label={labels.sound}
+      <button onClick={toggleMute} title={muted ? 'Sound on' : 'Sound off'}
         style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: muted ? T.ink3 : (isPlaying ? T.accent : T.ink2) }}>
         {muted ? (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -591,7 +579,7 @@ const AudioIndicator = ({ audioState }) => {
         )}
       </button>
       {!muted && (
-        <button onClick={replay} title={labels.replay} aria-label={labels.replay}
+        <button onClick={replay} title="Replay"
           style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -679,21 +667,20 @@ const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
   const t = useT();
-  const lang = useLang();
   const isMobile = useIsMobile();
-  const padH = isMobile ? 12 : 56;
-  const screenMeta = SCREEN_META[screen];
+  const padH = isMobile ? 12 : 100;
   return (
-    <div className={`stage stage-${screenMeta?.type || 'custom'}`}>
+    <div className="stage">
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
-        <Grade3Progress current={screen} total={totalScreens} lang={lang}/>
+        <div className="progress-track">
+          <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
+        </div>
         <div className="chrome">
           <div className="chrome-left eyebrow">
             <span className="dot"/>
             <span>{t(eyebrow)}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <Grade3ScreenType screenMeta={screenMeta} lang={lang}/>
             {audioState && <AudioIndicator audioState={audioState}/>}
             <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
@@ -740,14 +727,10 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options: optionsProp, correctIdx: correctIdxProp, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
   const lang = useLang();
+  const c = screenContent;
   const sfx = useSfx();
-  const mcOrder = useMemo(() => seededMcOrder(optionsProp.length, (idx + 1) * 7919 + optionsProp.length), [idx, optionsProp.length]);
-  const shuffledMc = useMemo(() => shuffleMC(screenContent, optionsProp, correctIdxProp, mcOrder), [screenContent, optionsProp, correctIdxProp, mcOrder]);
-  const c = shuffledMc.content;
-  const options = shuffledMc.options;
-  const correctIdx = shuffledMc.correctIdx;
 
   const audio = useAudio([{
     id: `s${idx}_intro`,
@@ -894,7 +877,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // v6 FAKT ALOHIDA (bekor): sPANEL sub-1 dagi FactCard SKROLL chiqargani uchun undan olindi.
 // v7 FAKT FINAL SLAYDGA (16 -> 15): alohida fakt-slaydi BEKOR; fakt endi FINAL test s14 ga
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
-const TOTAL_SCREENS = 13;
+const TOTAL_SCREENS = 12;
 const LESSON_META = {
   lessonId: 'num-3-08',
   lessonTitle: { ru: 'Урок 8. Римские цифры', uz: "8-dars. Rim raqamlari" }
@@ -907,7 +890,6 @@ const SCREEN_META = [
   { id: 's2',  type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's3',  type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's4',  type: 'exploration', template: 'custom',   scored: false, scope: null },
-  { id: 'stway', type: 'exploration', template: 'custom',   scored: false, scope: null },
   { id: 's5',  type: 'rule',        template: 'custom',   scored: false, scope: null },
   { id: 's6',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
   { id: 's7',  type: 'test',        template: 'MCScreen', scored: true,  scope: 'practice' },
@@ -923,77 +905,12 @@ const SCREEN_META = [
 // to'g'ri javob indeksi tashlab ketiladi). order[newIdx] = oldIdx. (grade5 etalon helper.)
 const shuffleMC = (c, options, correctIdx, order) => {
   const content = { ...c };
-  order.forEach((oldI, newI) => {
-    content[`wrong_${newI}`] = c[`wrong_${oldI}`];
-    content[`hint_${newI}`] = c[`hint_${oldI}`];
-    content[`audio_hint_${newI}`] = c[`audio_hint_${oldI}`];
-  });
+  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
   return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
-};
-
-const seededMcOrder = (length, seed) => {
-  const order = Array.from({ length }, (_, i) => i);
-  let state = Math.abs(Number(seed) || 1) >>> 0;
-  if (state === 0) state = 1;
-  for (let i = length - 1; i > 0; i -= 1) {
-    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
-    const j = state % (i + 1);
-    const tmp = order[i];
-    order[i] = order[j];
-    order[j] = tmp;
-  }
-  return order;
 };
 
 // Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
-
-// Ball + EMOTSIONAL baho: quruq "3 / 3" o'rniga bolaga murojaat.
-const scorePraise = (score, total, lang) => {
-  const wrong = Math.max(0, total - score);
-  const s = `${score} / ${total}`;
-  if (wrong === 0) return lang === 'ru'
-    ? `Великолепно! ${s}. Всё с первого раза, ни одной ошибки.`
-    : `Ajoyib! ${s}. Hammasi birinchi urinishda, bitta ham xato yo'q.`;
-  if (wrong === 1) return lang === 'ru'
-    ? `Хороший результат! ${s}. Ошибка была только в одном задании.`
-    : `Yaxshi natija! ${s}. Xato faqat bitta topshiriqda bo'ldi.`;
-  if (score * 2 >= total) return lang === 'ru'
-    ? `Хорошо! ${s}. Часть заданий далась не сразу, но верный ответ найден.`
-    : `Yaxshi! ${s}. Ba'zi topshiriqlar darrov chiqmadi, lekin to'g'ri javob topildi.`;
-  return lang === 'ru'
-    ? `${s}. Эту тему стоит повторить ещё раз, тогда будет легче.`
-    : `${s}. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.`;
-};
-// Yakuniy natijaning OVOZLI varianti. Ovozda raqam va belgi bo'lmaydi (TTS-toza),
-// shuning uchun "3 / 3" o'rniga so'z bilan aytiladi.
-const scorePraiseAudio = (score, total, lang) => {
-  const wrong = Math.max(0, total - score);
-  const W = { ru: ['ноль', 'одном', 'двух', 'трёх', 'четырёх', 'пяти'], uz: ['nol', 'bitta', 'ikkita', 'uchta', "to'rtta", 'beshta'] };
-  if (wrong === 0) return lang === 'ru'
-    ? 'Великолепно. Все задания с первого раза, ни одной ошибки.'
-    : "Ajoyib. Barcha topshiriqlar birinchi urinishda, bitta ham xato yo'q.";
-  if (wrong === 1) return lang === 'ru'
-    ? 'Хороший результат. Ошибка была только в одном задании.'
-    : "Yaxshi natija. Xato faqat bitta topshiriqda bo'ldi.";
-  if (score * 2 >= total) return lang === 'ru'
-    ? `Хорошо. Не сразу получилось в ${W.ru[Math.min(wrong, 5)]} заданиях, но верный ответ найден.`
-    : `Yaxshi. ${W.uz[Math.min(wrong, 5)]} topshiriqda darrov chiqmadi, lekin to'g'ri javob topildi.`;
-  return lang === 'ru'
-    ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
-    : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
-};
-// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
-const withTopics = (base, topics, lang) => {
-  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
-  if (!uniq.length) return base;
-  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
-  base = base
-    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
-    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
-  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
-  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
-};
 
 // ============================================================
 // CONTENT — 3-sinf Dars08 «Rim raqamlari» (num-3-08). RU + UZ to'liq.
@@ -1028,7 +945,7 @@ const CONTENT = {
         ]
       },
       on_correct: { ru: 'Верно. Маленький знак слева отнимается: пять минус один это четыре.', uz: "To'g'ri. Kichik belgi chapda ayiriladi: besh ayir bir bu to'rt." },
-      on_wrong: { ru: 'Смотри на порядок. Маленький знак слева отнимается, не прибавляется.', uz: "Tartibga qarang. Kichik belgi chapda ayiriladi, qo'shilmaydi." }
+      on_wrong: { ru: 'Смотри на порядок. Маленький знак слева отнимается, не прибавляется.', uz: "Tartibga qara. Kichik belgi chapda ayiriladi, qo'shilmaydi." }
     }
   },
 
@@ -1123,79 +1040,6 @@ const CONTENT = {
   },
 
   // s5 — QOIDA
-  stway: {
-    eyebrow: { ru: 'Два правила', uz: 'Ikki qoida' },
-    lead: { ru: 'Место меньшего знака решает: прибавить или отнять.', uz: "Kichik belgining o'rni hal qiladi: qo'shish yoki ayirish." },
-    expr: { ru: 'XII и IX', uz: 'XII va IX' },
-    m1_label: { ru: 'Правило 1 — меньший справа, прибавляем', uz: "1-qoida — kichik o'ngda, qo'shamiz" },
-    m1_text: { ru: 'Разберём XII по знакам.', uz: 'XII ni belgilarga ajratamiz.' },
-    m1_vals: [
-      { s: 'X', v: '10' },
-      { s: 'I', v: '1' },
-      { s: 'I', v: '1' }
-    ],
-    m1_tag: { ru: 'меньшие СПРАВА → прибавляем', uz: "kichiklar O'NGDA → qo'shamiz" },
-    m1_parts: ['10', '1', '1'],
-    m1_op: '+',
-    m1_sum: '12',
-    m1_result: 'XII = 12',
-    m2_label: { ru: 'Правило 2 — меньший слева, вычитаем', uz: "2-qoida — kichik chapda, ayiramiz" },
-    m2_text: { ru: 'Разберём IX по знакам.', uz: 'IX ni belgilarga ajratamiz.' },
-    m2_vals: [
-      { s: 'I', v: '1' },
-      { s: 'X', v: '10' }
-    ],
-    m2_tag: { ru: 'меньший СЛЕВА → вычитаем', uz: 'kichik CHAPDA → ayiramiz' },
-    m2_parts: ['10', '1'],
-    m2_op: '−',
-    m2_sum: '9',
-    m2_result: 'IX = 9',
-    check_q: { ru: 'Меняет ли ответ место меньшего знака?', uz: "Kichik belgining o'rni javobni o'zgartiradimi?" },
-    check_opts: ['Да, меняет', 'Нет, не меняет'],
-    check_opts_uz: ["Ha, o'zgartiradi", "Yo'q, o'zgartirmaydi"],
-    check_ci: 0,
-    check_ok: { ru: 'Верно. Справа прибавляют, слева вычитают.', uz: "To'g'ri. O'ng tomonda qo'shiladi, chap tomonda ayiriladi." },
-    check_no: { ru: 'Сравни. IX это девять, а XI это одиннадцать. Знаки те же, а место другое, и число другое. Попробуй ещё.', uz: "Solishtiring. IX to'qqizga teng, XI esa o'n birga. Belgilar bir xil, o'rni boshqa, son ham boshqa. Yana urinib ko'ring." },
-    bonus_label: { ru: 'Заметка — где они нужны сегодня', uz: "Eslatma — ular bugun qayerda kerak" },
-    bonus_text: { ru: 'Римские цифры и сегодня можно увидеть на циферблате часов, например VI или XII, и в номерах месяцев. Но для больших чисел удобнее цифры аль-Хорезми, от нуля до девяти, — те, которыми мы пишем каждый день.', uz: "Rim raqamlarini bugun ham soat siferblatida, masalan VI yoki XII, va oy raqamlarida ko'rish mumkin. Lekin katta sonlar uchun al-Xorazmiy raqamlari, noldan to'qqizgacha, ancha qulay — biz har kuni shu raqamlar bilan yozamiz." },
-    bonus_months_label: { ru: 'месяцы', uz: 'oylar' },
-    bonus_months: ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'],
-    bonus_recap: { ru: 'VI · XII — на часах', uz: 'VI · XII — soatda' },
-    audio: {
-      ru: [
-        'Римские цифры читаются по двум правилам. Место меньшего знака решает всё. Возьмём два примера. Первый это икс, один, один. Второй это один, икс.',
-        'Первое правило. Если меньший знак стоит справа от большего, его прибавляют. Разберём первый пример по знакам.',
-        'Смотри. Икс это десять. За ним стоит один, и ещё один. Оба меньших знака стоят справа от икса. Значит, прибавляем.',
-        'Прибавим к десяти один, потом ещё один. Получилось двенадцать. Икс, один, один читается как двенадцать. Прочитали!'
-      ],
-      uz: [
-        "Rim raqamlari ikki qoida bilan o'qiladi. Kichik belgining o'rni hammasini hal qiladi. Ikkita misol olamiz. Birinchisi iks, bir, bir. Ikkinchisi bir, iks.",
-        "Birinchi qoida. Kichik belgi kattadan o'ngda tursa, u qo'shiladi. Birinchi misolni belgilarga ajratamiz.",
-        "Qarang. Iks bu o'n. Undan keyin bir va yana bir turibdi. Ikkala kichik belgi iksdan o'ngda. Demak, qo'shamiz.",
-        "O'nga birni, so'ng yana birni qo'shamiz. O'n ikki chiqdi. Iks, bir, bir o'n ikki deb o'qiladi. O'qidik!"
-      ]
-    },
-    audio2: {
-      ru: [
-        'Верно! Место меньшего знака и правда меняет ответ. Теперь второе правило.',
-        'Второе правило. Если меньший знак стоит слева от большего, его вычитают. Разберём второй пример по знакам.',
-        'Смотри. Один это один. Икс это десять. На этот раз меньший знак стоит слева от икса. Значит, вычитаем.',
-        'Вычтем из десяти один. Осталось девять. Один, икс читается как девять.',
-        'А теперь любопытная заметка. Римские цифры живут и сегодня. Посмотри на циферблат часов. Наверху стоит двенадцать, внизу шесть, и оба числа записаны римскими знаками.',
-        'Римскими знаками записывают и номера месяцев, с первого по двенадцатый. Но для больших чисел удобнее цифры аль-Хорезми, от нуля до девяти. Ими мы пишем каждый день.',
-        'Запомни. Меньший знак справа прибавляют, меньший знак слева вычитают. Молодец!'
-      ],
-      uz: [
-        "To'g'ri! Kichik belgining o'rni javobni haqiqatan o'zgartiradi. Endi ikkinchi qoida.",
-        "Ikkinchi qoida. Kichik belgi kattadan chapda tursa, u ayiriladi. Ikkinchi misolni belgilarga ajratamiz.",
-        "Qarang. Bir bu bir. Iks bu o'n. Bu safar kichik belgi iksdan chapda turibdi. Demak, ayiramiz.",
-        "O'ndan birni ayiramiz. To'qqiz qoldi. Bir, iks to'qqiz deb o'qiladi.",
-        "Endi qiziq eslatma. Rim raqamlari bugun ham yashaydi. Soat siferblatiga qarang. Tepada o'n ikki, pastda olti turibdi, ikkalasi rim belgilari bilan yozilgan.",
-        "Rim belgilari bilan oy raqamlari ham yoziladi, birinchidan o'n ikkinchigacha. Lekin katta sonlar uchun al-Xorazmiy raqamlari qulayroq, noldan to'qqizgacha. Biz har kuni ular bilan yozamiz.",
-        "Yodda tuting. O'ngdagi kichik belgi qo'shiladi, chapdagi kichik belgi ayiriladi. Barakalla!"
-      ]
-    }
-  },
   s5: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
     rule: { ru: 'Меньший знак справа от большего — прибавляем, слева — отнимаем. Один знак не повторяют больше трёх раз подряд.', uz: "Kichik belgi kattadan o'ngda — qo'shamiz, chapda — ayiramiz. Bitta belgi uch martadan ko'p takrorlanmaydi." },
@@ -1210,13 +1054,13 @@ const CONTENT = {
         'Отлично, теперь запомним правило римских цифр.',
         'Если меньший знак стоит справа от большего, их значения складывают.',
         'Если меньший знак стоит слева, его значение отнимают от большего.',
-        'И один и тот же знак не пишут больше трёх раз подряд.'
+        'И один и тот же знак не пишут больше трёх раз подряд. А теперь сам. Какое число записано знаками, где единица стоит перед десятком?'
       ],
       uz: [
         "Zo'r, endi Rim raqamlari qoidasini eslab qolamiz.",
         "Agar kichik belgi kattadan o'ngda tursa, ularning qiymatlari qo'shiladi.",
         "Agar kichik belgi chapda tursa, uning qiymati kattadan ayiriladi.",
-        "Va bitta belgi uch martadan ko'p yozilmaydi."
+        "Va bitta belgi uch martadan ko'p yozilmaydi. Endi o'zingiz. Birlik o'nlikdan oldin turgan belgilar qaysi sonni yozadi?"
       ]
     }
   },
@@ -1252,9 +1096,9 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Читай числа, записанные римскими знаками. Три задания.', uz: "Rim belgilari bilan yozilgan sonlarni o'qing. Uchta topshiriq." },
+      intro: { ru: 'Читай числа, записанные римскими знаками. Три задания.', uz: "Rim belgilari bilan yozilgan sonlarni o'qi. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри, где меньший знак: слева отнимаем, справа прибавляем.', uz: "Kichik belgi qayerda ekaniga qarang: chapda ayiramiz, o'ngda qo'shamiz." }
+      on_wrong: { ru: 'Смотри, где меньший знак: слева отнимаем, справа прибавляем.', uz: "Kichik belgi qayerda ekaniga qara: chapda ayiramiz, o'ngda qo'shamiz." }
     }
   },
 
@@ -1289,7 +1133,7 @@ const CONTENT = {
       }
     ],
     audio: {
-      intro: { ru: 'Выбери верную запись числа римскими знаками. Три задания.', uz: "Sonning Rim belgilaridagi to'g'ri yozuvini tanlang. Uchta topshiriq." },
+      intro: { ru: 'Выбери верную запись числа римскими знаками. Три задания.', uz: "Sonning Rim belgilaridagi to'g'ri yozuvini tanla. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
       on_wrong: { ru: 'Помни: один знак не больше трёх раз, четыре и девять пишут через вычитание.', uz: "Yodda tut: bitta belgi uch martadan ko'p emas, to'rt va to'qqiz ayirish orqali yoziladi." }
     }
@@ -1336,9 +1180,9 @@ const CONTENT = {
     },
     setup_audio: { ru: 'Год делят на месяцы, и каждый месяц можно записать римским числом по порядку. Бит показал на стене знаки: пятёрка и три единицы.', uz: "Yil oylarga bo'linadi, va har oyni tartib bo'yicha Rim soni bilan yozish mumkin. Bit devorda belgilarni ko'rsatdi: beshlik va uch birlik." },
     audio: {
-      intro: { ru: 'Прочитай, какой это месяц по счёту. Выбери верный ответ.', uz: "Bu nechanchi oy ekanini o'qing. To'g'ri javobni tanlang." },
+      intro: { ru: 'Прочитай, какой это месяц по счёту. Выбери верный ответ.', uz: "Bu nechanchi oy ekanini o'qi. To'g'ri javobni tanla." },
       on_correct: { ru: 'Верно. Пять и три это восемь — восьмой месяц.', uz: "To'g'ri. Besh va uch bu sakkiz — sakkizinchi oy." },
-      on_wrong: { ru: 'Считай знаки: пятёрка и три единицы это восемь.', uz: "Belgilarni sanang: beshlik va uch birlik bu sakkiz." }
+      on_wrong: { ru: 'Считай знаки: пятёрка и три единицы это восемь.', uz: "Belgilarni sana: beshlik va uch birlik bu sakkiz." }
     }
   },
 
@@ -1349,7 +1193,7 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками XIII?', uz: 'XIII belgilari qaysi sonni yozadi?' }, topic: { ru: 'чтение римских знаков', uz: "rim belgilarini o'qish" },
+        q: { ru: 'Какое число записано знаками XIII?', uz: 'XIII belgilari qaysi sonni yozadi?' },
         opt0: { ru: '13', uz: '13' },
         opt1: { ru: '15', uz: '15' },
         opt2: { ru: '8', uz: '8' },
@@ -1358,7 +1202,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Как записать 12 римскими цифрами?', uz: '12 ni Rim raqamlarida qanday yozamiz?' }, topic: { ru: 'запись римскими цифрами', uz: 'rim raqamida yozish' },
+        q: { ru: 'Как записать 12 римскими цифрами?', uz: '12 ni Rim raqamlarida qanday yozamiz?' },
         opt0: { ru: 'XII', uz: 'XII' },
         opt1: { ru: 'IIX', uz: 'IIX' },
         opt2: { ru: 'XXII', uz: 'XXII' },
@@ -1367,7 +1211,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками IX?', uz: 'IX belgilari qaysi sonni yozadi?' }, topic: { ru: 'вычитание в римской записи', uz: 'rim yozuvida ayirish' },
+        q: { ru: 'Какое число записано знаками IX?', uz: 'IX belgilari qaysi sonni yozadi?' },
         opt0: { ru: '9', uz: '9' },
         opt1: { ru: '11', uz: '11' },
         opt2: { ru: '6', uz: '6' },
@@ -1376,7 +1220,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Как записать 90 римскими цифрами?', uz: '90 ni Rim raqamlarida qanday yozamiz?' }, topic: { ru: 'запись римскими цифрами', uz: 'rim raqamida yozish' },
+        q: { ru: 'Как записать 90 римскими цифрами?', uz: '90 ni Rim raqamlarida qanday yozamiz?' },
         opt0: { ru: 'XC', uz: 'XC' },
         opt1: { ru: 'CX', uz: 'CX' },
         opt2: { ru: 'LXL', uz: 'LXL' },
@@ -1385,7 +1229,7 @@ const CONTENT = {
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками XXIV?', uz: 'XXIV belgilari qaysi sonni yozadi?' }, topic: { ru: 'чтение римских знаков', uz: "rim belgilarini o'qish" },
+        q: { ru: 'Какое число записано знаками XXIV?', uz: 'XXIV belgilari qaysi sonni yozadi?' },
         opt0: { ru: '24', uz: '24' },
         opt1: { ru: '26', uz: '26' },
         opt2: { ru: '16', uz: '16' },
@@ -1423,7 +1267,6 @@ const CONTENT = {
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  stway: { ru: 'Соберём оба правила вместе.', uz: "Ikki qoidani birga yig'amiz." },
   s1:  { ru: 'Вспомним про место цифры.', uz: 'Raqam o\'rni haqida eslaymiz.' },
   s2:  { ru: 'Выучим знаки.', uz: 'Belgilarni o\'rganamiz.' },
   s3:  { ru: 'Первое правило — сложение.', uz: 'Birinchi qoida — qo\'shish.' },
@@ -2378,26 +2221,10 @@ const AncientHallBg = () => (
       <linearGradient id="h8slab" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E4D3AC"/><stop offset="100%" stopColor="#C6AE7E"/></linearGradient>
       <radialGradient id="h8sun" cx="50%" cy="50%" r="55%"><stop offset="0%" stopColor="#FFE6B0"/><stop offset="55%" stopColor="#EE9A5A"/><stop offset="100%" stopColor="#C0502E" stopOpacity="0"/></radialGradient>
       <radialGradient id="h8moss" cx="50%" cy="35%" r="70%"><stop offset="0%" stopColor="#BFF0C8"/><stop offset="100%" stopColor="#7FD0A0" stopOpacity="0"/></radialGradient>
-      {/* REALIZM qo'shimchalari: yumshoq soya, buyum-soyasi, vinetka, tosh AO */}
-      <radialGradient id="h8shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#4A3A22" stopOpacity="0.42"/><stop offset="70%" stopColor="#4A3A22" stopOpacity="0.18"/><stop offset="100%" stopColor="#4A3A22" stopOpacity="0"/></radialGradient>
-      <radialGradient id="h8vig" cx="50%" cy="42%" r="72%"><stop offset="0%" stopColor="#000000" stopOpacity="0"/><stop offset="78%" stopColor="#000000" stopOpacity="0"/><stop offset="100%" stopColor="#3A2A18" stopOpacity="0.30"/></radialGradient>
-      <linearGradient id="h8ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6B5636" stopOpacity="0.4"/><stop offset="100%" stopColor="#6B5636" stopOpacity="0"/></linearGradient>
-      <linearGradient id="h8beam" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stopColor="#FFE9B8" stopOpacity="0.5"/><stop offset="100%" stopColor="#FFE9B8" stopOpacity="0"/></linearGradient>
       <clipPath id="h8arch"><path d="M124 96 L124 70 Q124 40 200 40 Q276 40 276 70 L276 96 Z"/></clipPath>
     </defs>
     {/* --- DEVOR + shift lintel (interyer) --- */}
     <rect x="0" y="0" width="400" height="180" fill="url(#h8wall)"/>
-    {/* tosh tekstura: nurab ketgan dog'lar, yoriqlar, tosh choklari */}
-    <g opacity="0.5" fill="#B49A6E">
-      <ellipse cx="60" cy="70" rx="20" ry="26"/><ellipse cx="350" cy="60" rx="16" ry="22"/><ellipse cx="200" cy="150" rx="30" ry="14"/>
-    </g>
-    <g stroke="#9A855C" strokeWidth="0.5" opacity="0.35" fill="none">
-      <path d="M18 40 q4 20 -3 46 q-2 14 4 30"/><path d="M384 30 q-5 26 2 50 q3 16 -4 34"/>
-      <path d="M70 120 l7 10 l-3 9"/><path d="M330 128 l-6 8 l4 10"/>
-    </g>
-    <g stroke="#B7A176" strokeWidth="0.6" opacity="0.4">{[36, 72, 108, 144].map((y, i) => <line key={i} x1="0" y1={y} x2="400" y2={y}/>)}</g>
-    {/* ravoqdan tushayotgan quyosh nuri (yorug'lik ustuni) */}
-    <path d="M175 40 L150 176 L250 176 L225 40 Z" fill="url(#h8beam)" opacity="0.7"/>
     <rect x="0" y="0" width="400" height="20" fill="#C2AC7E"/><rect x="0" y="19" width="400" height="3" fill="#9A855C"/>
     <g fill="#B09A6E">{[40, 96, 152, 248, 304, 360].map((x, i) => <rect key={i} x={x} y="6" width="30" height="8" rx="1.5"/>)}</g>
     {/* osma moss-fonar (3) */}
@@ -2428,10 +2255,6 @@ const AncientHallBg = () => (
         <rect x={x} y="36" width="42" height="140" fill="url(#h8col)" stroke="#8A7550" strokeWidth="1"/>
         <g stroke="#9A855C" strokeWidth="1.2" opacity="0.55">{[10, 21, 32].map((dx, k) => <line key={k} x1={x + dx} y1="40" x2={x + dx} y2="172"/>)}</g>
         <rect x={x - 4} y="168" width="50" height="10" rx="2" fill="url(#h8col)" stroke="#8A7550" strokeWidth="1"/>
-        {/* ustun ichki soyasi (silindrik hajm) + asos AO */}
-        <rect x={x + 30} y="36" width="12" height="140" fill="#8A7550" opacity="0.28"/>
-        <rect x={x} y="36" width="7" height="140" fill="#FFF3D8" opacity="0.25"/>
-        <rect x={x - 4} y="176" width="50" height="10" fill="url(#h8shadow)" opacity="0.7"/>
         <circle className="lm-glow" cx={x + 21} cy="30" r="3" fill="#BFF0C8"/>
       </g>
     ))}
@@ -2439,14 +2262,8 @@ const AncientHallBg = () => (
     <path d="M356 172 Q346 150 356 130 Q366 110 356 90 Q348 74 356 60" fill="none" stroke="#6FBF8E" strokeWidth="2.4"/>
     <g fill="#8FD8A8">{[[352, 150], [360, 118], [350, 96], [358, 72]].map(([cx, cy], k) => <circle key={k} cx={cx} cy={cy} r="2.6"/>)}</g>
     {/* --- MARKAZIY STELA: rim <-> zamonaviy (XII = 12) --- */}
-    {/* polдаги yumshoq soya (yorug'lik chapdan -> soya o'ngga cho'ziladi) */}
-    <ellipse cx="206" cy="178" rx="78" ry="12" fill="url(#h8shadow)"/>
     <path d="M150 158 h100 l8 18 h-116 Z" fill="#B49A6E"/>
-    <path d="M250 158 l8 18 h-8 Z" fill="#8A7550" opacity="0.5"/>
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#h8slab)" stroke="#8A7550" strokeWidth="2"/>
-    {/* stela ichki AO (yuqori chekka soyasi) + o'ng qirra 3D */}
-    <rect x="116" y="94" width="168" height="10" rx="5" fill="url(#h8ao)"/>
-    <path d="M284 96 l5 4 v58 l-5 4 Z" fill="#8A7550" opacity="0.45"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
     <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">RIM RAQAMI</text>
@@ -2454,7 +2271,6 @@ const AncientHallBg = () => (
     <text x="205" y="140" textAnchor="middle" fontSize="20" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">=</text>
     <text x="248" y="142" textAnchor="middle" fontSize="24" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">12</text>
     {/* --- CHAP artefakt: quyosh soati --- */}
-    <ellipse cx="88" cy="180" rx="30" ry="8" fill="url(#h8shadow)"/>
     <g transform="translate(88 158)">
       <rect x="-22" y="6" width="44" height="14" rx="3" fill="#B49A6E" stroke="#8A7550" strokeWidth="1"/>
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#h8slab)" stroke="#8A7550" strokeWidth="1.2"/>
@@ -2478,11 +2294,8 @@ const AncientHallBg = () => (
     <g fill="none" stroke="#8A7550" strokeWidth="0.8" opacity="0.3">{[160, 200, 240].map((cx, k) => <path key={k} d={`M${cx} 186 l8 5 l-8 5 l-8 -5 Z`}/>)}</g>
     {/* --- OLD PLAN: yiqilgan ustun bo'lagi (chap) + moss --- */}
     <g transform="translate(58 176)"><rect x="-2" y="-12" width="34" height="11" rx="3" fill="url(#h8col)" stroke="#8A7550" strokeWidth="1" transform="rotate(-6)"/><circle className="lm-glow" cx="0" cy="-8" r="2.6" fill="#BFF0C8"/></g>
-    {/* havoda porlovchi sporalar + chang zarralari (yorug'lik nurida) */}
+    {/* havoda porlovchi sporalar */}
     <g><circle className="lm-glow" cx="96" cy="70" r="1.5" fill="#DFF0C8"/><circle className="lm-glow" style={{ animationDelay: '1s' }} cx="320" cy="150" r="1.4" fill="#CFEFD8"/></g>
-    <g fill="#FFE9B8" opacity="0.55">{[[188, 70], [205, 95], [196, 120], [212, 60], [180, 105]].map(([cx, cy], k) => <circle key={k} className="lm-glow" style={{ animationDelay: `${k * 0.5}s` }} cx={cx} cy={cy} r="0.9"/>)}</g>
-    {/* --- VINETKA: chekka qorong'ilashuvi (chuqurlik + fokus markazga) --- */}
-    <rect x="0" y="0" width="400" height="230" fill="url(#h8vig)" pointerEvents="none"/>
   </svg>
 );
 
@@ -2528,7 +2341,6 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [hintMsg, setHintMsg] = useState(null);
-  const [okIdx, setOkIdx] = useState(null);   // to'g'ri tanlangan variant YASHIL bo'lib turadi
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
@@ -2538,11 +2350,10 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const pick = (i) => {
     if (!canAct || done || wrongSet.has(i)) return;
     if (i === it.ci) {
-      setOkIdx(i);
       sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setOkIdx(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1100);
+      setTimeout(() => { setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 900);
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
@@ -2553,7 +2364,6 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: ck,
         correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
@@ -2577,10 +2387,10 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
             <h1 className="title h-sub fade-up">{heading(it)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
               <FrameFx/>
-              <div className="grade3-question-figure">{renderFig(it)}</div>
-              <div className="grade3-answer-grid" style={{ '--answer-cols': cols }}>
+              {renderFig(it)}
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
                 {it.opts.map((o, i) => (
-                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.6vw, 21px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, letterSpacing: 1 }}>{t(o)}</button>
                 ))}
               </div>
@@ -2589,8 +2399,8 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success lm-riseup">
-            <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
           </div>
         )}
       </div>
@@ -2609,18 +2419,11 @@ const Screen0 = (props) => {
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
   const ok = picked === 0;
-  const revealed = picked !== null;
   const fbKey = (i) => (i === 0 ? 'on_correct' : 'on_wrong');
   const pick = (i) => {
     if (picked !== null || !canAct) return;
     setPicked(i);
-    if (!audio.muted) {
-      const e = getAudioEngine();
-      if (e) {
-        e.pushOneOff(c.audio[fbKey(i)][lang]);
-        if (i !== 0) e.pushOneOff(c.audio.on_correct[lang]);   // noto'g'ri -> to'g'ri javob emotsiya bilan ochiladi
-      }
-    }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[fbKey(i)][lang]); }
   };
   const canAdv = useAdvanceGate(picked !== null, audio);
   const navContent = (
@@ -2636,38 +2439,35 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <LessonScene gathered={revealed}/>
+          <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(18px, 3.6vw, 30px)', background: '#F0EBE1' }}>
           <RomanBig r={c.roman}/>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(15px, 2vw, 18px)', margin: 0 }}>{t(c.q)}</p>
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-          {opts.map((o, i) => {
-            const cls = revealed
-              ? (i === 0 ? 'option option-correct' : (picked === i ? 'option option-picked-wrong' : 'option'))
-              : 'option';
-            return (
-              <button key={i} className={cls} disabled={!canAct || revealed} onClick={() => pick(i)}
-                style={{ position: 'relative', padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(16px, 2.4vw, 22px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
-                {revealed && i === 0 && <span className="mono" style={{ position: 'absolute', top: 4, right: 7, color: '#1F7A4D', fontWeight: 800 }}>✓</span>}
+        {picked === null && (
+          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            {opts.map((o, i) => (
+              <button key={i} className="option" disabled={!canAct} onClick={() => pick(i)}
+                style={{ padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(16px, 2.4vw, 22px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
                 {t(o)}
               </button>
-            );
-          })}
-        </div>
-        {revealed && (
+            ))}
+          </div>
+        )}
+        {picked !== null && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className={`option ${ok ? 'option-correct' : 'option-picked-wrong'}`} disabled
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(16px, 2.4vw, 22px)', minHeight: 'clamp(46px, 6.5vw, 56px)', width: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
+              <span className="mono small">{ok ? '✓' : '↺'}</span>
+              <span>{t(opts[picked])}</span>
+            </button>
+          </div>
+        )}
+        {picked !== null && (
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
           </FeedbackBlock>
-        )}
-        {/* TO'G'RI JAVOB izohi — ALOHIDA ramkada (reaksiya bilan aralashmasin) */}
-        {revealed && !ok && (
-          <div className="frame-success lm-riseup">
-            <p style={{ margin: 0, textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
-              {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt0)}</b>. {t(c.audio.on_correct)}
-            </p>
-          </div>
         )}
       </div>
     </Stage>
@@ -2686,7 +2486,7 @@ const Screen1 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s1_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const done = audio.muted || reached >= (c.audio[lang].length - 1);
+  const done = reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2728,7 +2528,7 @@ const Screen2 = (props) => {
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s2_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
   const showExtra = reached >= 1;
-  const done = audio.muted || reached >= (c.audio[lang].length - 1);
+  const done = reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2769,7 +2569,7 @@ const ExploreRoman = ({ props, ck }) => {
   const [reached, setReached] = useState(-1);
   const re = new RegExp(`^${ck}_\\d+$`);
   useEffect(() => { if (seg && re.test(seg)) setReached((r) => Math.max(r, +seg.slice(ck.length + 1))); }, [seg]);
-  const done = audio.muted || reached >= (c.audio[lang].length - 1);
+  const done = reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2816,11 +2616,9 @@ const Screen5 = (props) => {
   const t = useT();
   const c = CONTENT.s5;
   const sfx = useSfx();
-  // SAVOL avval (aksent) -> javob bergach QOIDA + tushuntirish ochiladi.
   const audio = useAudio([
     brgSeg('s5', lang),
-    { id: 's5_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
-    ...c.audio[lang].map((text, i) => ({ id: `s5_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
+    ...c.audio[lang].map((text, i) => ({ id: `s5_${i}`, text, trigger: 'after_previous', waits_for: null }))
   ]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
@@ -2829,7 +2627,7 @@ const Screen5 = (props) => {
   const pick = (i) => {
     if (!canAct || ok) return;
     setPicked(i);
-    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
+    if (i === c.check_ci) sfx.playCorrect();
   };
   const canAdv = useAdvanceGate(ok, audio);
   const navContent = (
@@ -2841,17 +2639,13 @@ const Screen5 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        {!ok ? (
-          <div className="lm-q-accent fade-up">{t(c.check_q)}</div>
-        ) : (
-          <div className="d2-rulecard fade-up">
-            <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
-            <p className="d2-rulecard-txt">{t(c.rule)}</p>
-          </div>
-        )}
+        <div className="d2-rulecard fade-up">
+          <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
+          <p className="d2-rulecard-txt">{t(c.rule)}</p>
+        </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <RomanBig r={c.check_roman}/>
-          {picked !== null && !ok && <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.check_no)}</p>}
+          <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{ok ? t(c.check_ok) : (picked !== null ? t(c.check_no) : t(c.check_q))}</p>
           <div style={{ display: 'flex', gap: 10 }}>
             {c.check_opts.map((o, i) => (
               <button key={i} className={`option ${ok && i === c.check_ci ? 'option-correct' : ''} ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct || ok} onClick={() => pick(i)}
@@ -2924,7 +2718,6 @@ const Screen8 = (props) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
         correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
@@ -2957,8 +2750,8 @@ const Screen8 = (props) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success lm-riseup">
-            <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
           </div>
         )}
       </div>
@@ -3061,7 +2854,6 @@ const Screen10 = (props) => {
   const [picked, setPicked] = useState(null);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
-  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -3069,14 +2861,13 @@ const Screen10 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
+    if (isOk) setScore((s) => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3117,8 +2908,8 @@ const Screen10 = (props) => {
           </div>
         )}
         {done && (
-          <div ref={factRef} className="frame-success lm-riseup">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
+          <div ref={factRef} className="frame-success fade-up">
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
@@ -3179,197 +2970,6 @@ const Screen11 = (props) => {
 // ============================================================
 // KORNEVOY KOMPONENT (shablon: infrastructure_v1 / grade1 Dars28)
 // ============================================================
-
-// stway kartalari rangi — belgi pozitsiyasi bo'yicha (Dars03 TW_COLS naqshi).
-const TW_COLS = ['#C0392B', '#1F7A4D', '#019ACB'];
-// Rim belgisi kartalari tushadi (X, I, I), har karta ostiga QIYMATI tushadi (10, 1, 1),
-// oxirida o'rin-belgisi (kichik O'NGDA / CHAPDA) chiqadi.
-const TwRomDrop = ({ vals, tag }) => (
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-    <div style={{ display: 'flex', gap: 'clamp(10px, 2.6vw, 20px)', justifyContent: 'center' }}>
-      {vals.map((w, i) => (
-        <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <span className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 800, color: TW_COLS[i], border: `2.5px solid ${TW_COLS[i]}`, borderRadius: 10, minWidth: 'clamp(34px, 8vw, 46px)', textAlign: 'center', padding: '3px 6px', background: T.paper }}>{w.s}</span>
-          <span className="mono lm-edrop" style={{ animationDelay: `${0.5 + i * 0.85}s`, fontSize: 'clamp(14px, 2.4vw, 19px)', fontWeight: 800, color: TW_COLS[i] }}>{w.v}</span>
-        </div>
-      ))}
-    </div>
-    <span className="mono lm-edrop" style={{ animationDelay: `${0.4 + vals.length * 0.85}s`, fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 700, color: T.accent, border: `1.5px dashed ${T.accent}`, borderRadius: 8, padding: '2px 10px' }}>{tag}</span>
-  </div>
-);
-// Yakuniy natija — yashil pilyulada (XII = 12); yig'ilgandan keyin ham qoladi.
-const TwFullWord = ({ text }) => (
-  <span className="mono lm-reveal" style={{ fontSize: 'clamp(15px, 2.6vw, 20px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '4px 14px', textAlign: 'center' }}>{text}</span>
-);
-// Amal qatori: 10 + 1 + 1 (yoki 10 − 1) navbat bilan tushadi, keyin = natija.
-const TwOpRow = ({ parts, op, sum, showSum }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 'clamp(4px, 1.2vw, 8px)' }}>
-    {parts.map((p, i) => (
-      <React.Fragment key={i}>
-        {i > 0 && <span className="mono lm-fadein" style={{ animationDelay: `${i * 0.85 - 0.2}s`, fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: T.ink2 }}>{op}</span>}
-        <span className="mono lm-edrop" style={{ animationDelay: `${0.1 + i * 0.85}s`, fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: TW_COLS[i] }}>{p}</span>
-      </React.Fragment>
-    ))}
-    {showSum && (
-      <>
-        <span className="mono lm-fadein" style={{ fontSize: 'clamp(19px, 3.8vw, 27px)', fontWeight: 800, color: T.ink2 }}>=</span>
-        <span className="mono lm-edrop" style={{ animationDelay: '0.35s', fontSize: 'clamp(20px, 4.2vw, 30px)', fontWeight: 800, color: '#1F7A4D', background: '#EAF5EE', borderRadius: 10, padding: '2px 12px' }}>{sum}</span>
-      </>
-    )}
-  </div>
-);
-// Bonus: sodda soat siferblati — XII tepada, VI pastda (rim belgilar bugun ham yashaydi).
-const TwClockFace = () => (
-  <svg viewBox="0 0 120 120" style={{ width: 'min(150px, 44%)', height: 'auto' }} aria-hidden="true" className="lm-fadein">
-    <circle cx="60" cy="60" r="54" fill="#FFFDF7" stroke="#8A8178" strokeWidth="2.5"/>
-    <text x="60" y="24" textAnchor="middle" fontSize="14" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">XII</text>
-    <text x="60" y="110" textAnchor="middle" fontSize="14" fontWeight="800" fill="#C0392B" fontFamily="'JetBrains Mono', monospace">VI</text>
-    <text x="104" y="65" textAnchor="middle" fontSize="11" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">III</text>
-    <text x="16" y="65" textAnchor="middle" fontSize="11" fontWeight="700" fill="#8A8178" fontFamily="'JetBrains Mono', monospace">IX</text>
-    <line x1="60" y1="60" x2="60" y2="34" stroke="#3A3530" strokeWidth="3.2" strokeLinecap="round"/>
-    <line x1="60" y1="60" x2="80" y2="66" stroke="#3A3530" strokeWidth="2.2" strokeLinecap="round"/>
-    <circle cx="60" cy="60" r="3.2" fill="#3A3530"/>
-  </svg>
-);
-// Bonus: oy raqamlari qatori (I..XII) — IX va XII (darsdagi ikki misol) aksentda.
-const TwMonthRow = ({ months, label }) => (
-  <div className="lm-riseup" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-    <span className="mono" style={{ fontSize: 'clamp(10px, 1.4vw, 12px)', color: T.ink2, fontWeight: 700 }}>{label}</span>
-    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 4 }}>
-      {months.map((m, i) => (
-        <span key={i} className="mono lm-edrop" style={{ animationDelay: `${i * 0.08}s`, fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 800, color: m === 'XII' || m === 'IX' ? T.accent : T.ink2, border: `1.2px solid ${T.ink3}`, borderRadius: 6, padding: '1px 5px', background: T.paper }}>{m}</span>
-      ))}
-    </div>
-  </div>
-);
-// stway — IKKI QOIDA, Dars03 skeleti: har qoida ANIMATSION namoyish bilan, ovozga sinxron.
-// Oqim: 1-qoida (XII, qo'shish) -> BASHORAT (Ha/Yo'q) -> 2-qoida (IX, ayirish) -> ★ bonus (soat + oylar).
-const TwoWayScreen = (props) => {
-  const lang = useLang();
-  const t = useT();
-  const c = CONTENT.stway;
-  const sfx = useSfx();
-  const audio = useAudio([
-    brgSeg('stway', lang),
-    ...c.audio[lang].map((text, i) => ({ id: `tw_${i}`, text, trigger: 'after_previous', waits_for: null })),
-    { id: 'tw_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
-    ...c.audio2[lang].map((text, i) => ({ id: `tw2_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
-  ]);
-  const seg = audio.currentSegment;
-  const [r1, setR1] = useState(-1);     // 1-qoida bosqichi (tw_N)
-  const [r2, setR2] = useState(-1);     // 2-qoida/bonus bosqichi (tw2_N)
-  useEffect(() => {
-    if (!seg) return;
-    const a = seg.match(/^tw_(\d+)$/); if (a) setR1((v) => Math.max(v, +a[1]));
-    const b = seg.match(/^tw2_(\d+)$/); if (b) setR2((v) => Math.max(v, +b[1]));
-  }, [seg]);
-  const canAct = useCanAnswer(audio);
-  const [picked, setPicked] = useState(null);
-  const ok = picked === c.check_ci;
-  const all = audio.muted;   // ovoz o'chiq -> bosqichlar darrov
-  const m1Done = all || r1 >= c.audio[lang].length - 1;
-  const askNow = m1Done && !ok;
-  const pick = (i) => {
-    if (!canAct || ok || !m1Done) return;
-    setPicked(i);
-    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
-  };
-  const showM1  = all || r1 >= 1;    // 1-qoida yorlig'i + matni
-  const showM1d = all || r1 >= 2;    // XII kartalari + qiymatlar + o'ngda-belgisi
-  const showM1w = all || r1 >= 3;    // qo'shish qatori + XII = 12 pilyulasi
-  const showM2d = all || r2 >= 2;    // IX kartalari + chapda-belgisi
-  const showM2w = all || r2 >= 3;    // ayirish qatori + IX = 9 pilyulasi
-  const showBonus  = ok && (all || r2 >= 4);   // soat siferblati
-  const showBonus2 = all || r2 >= 5;           // oy raqamlari qatori
-  const done = ok && (all || r2 >= c.audio2[lang].length - 1);
-  // Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yig'iladi (Dars02 naqshi) — ekran skrolsiz sig'adi.
-  const [compact, setCompact] = useState(false);
-  useEffect(() => {
-    if (!showBonus) return undefined;
-    const id = setTimeout(() => setCompact(true), all ? 2600 : 0);
-    return () => clearTimeout(id);
-  }, [showBonus, all]);
-  const [bonusCompact, setBonusCompact] = useState(false);
-  useEffect(() => {
-    if (!done) return undefined;
-    const id = setTimeout(() => setBonusCompact(true), all ? 5000 : 0);
-    return () => clearTimeout(id);
-  }, [done, all]);
-  const revealRef = useRevealScroll(showBonus, 500);
-  const canAdv = useAdvanceGate(done, audio);
-  const opts = lang === 'uz' ? (c.check_opts_uz || c.check_opts) : c.check_opts;
-  const MLabel = ({ x }) => <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.7vw, 14px)', textAlign: 'center' }}>{x}</span>;
-  const MText = ({ x }) => <span className="lm-reveal lm-d1" style={{ color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center', fontWeight: 600 }}>{x}</span>;
-  const navContent = (
-    <>
-      <NavBack onPrev={props.onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
-    </>
-  );
-  return (
-    <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
-        <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
-        <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)', minHeight: 'clamp(150px, 32vw, 210px)' }}>
-          <FrameFx/>
-          <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 34px)', fontWeight: 800, color: T.ink }}>{t(c.expr)}</span>
-          {showM1 && (
-            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: '100%' }}>
-              <MLabel x={t(c.m1_label)}/>
-              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-                <MText x={t(c.m1_text)}/>
-                {showM1d && <TwRomDrop vals={c.m1_vals} tag={t(c.m1_tag)}/>}
-                {showM1w && <TwOpRow parts={c.m1_parts} op={c.m1_op} sum={c.m1_sum} showSum/>}
-              </div>
-              {showM1w && <TwFullWord text={c.m1_result}/>}
-            </div>
-          )}
-          {ok && (
-            <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, borderTop: `1.5px dashed ${T.ink3}`, paddingTop: 'clamp(8px, 1.8vw, 14px)', width: '100%' }}>
-              <MLabel x={t(c.m2_label)}/>
-              <div className={`tw-collapse ${compact ? 'tw-collapsed' : ''}`}>
-                <MText x={t(c.m2_text)}/>
-                {showM2d && <TwRomDrop vals={c.m2_vals} tag={t(c.m2_tag)}/>}
-                {showM2w && <TwOpRow parts={c.m2_parts} op={c.m2_op} sum={c.m2_sum} showSum/>}
-              </div>
-              {showM2w && <TwFullWord text={c.m2_result}/>}
-            </div>
-          )}
-        </div>
-        {/* Bashorat-darvoza: 1-qoidadan keyin savol; javob bergach 2-qoida ochiladi. */}
-        {askNow && (
-          <div className="lm-q-accent fade-up">
-            {t(c.check_q)}
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 'clamp(8px, 1.6vw, 12px)' }}>
-              {opts.map((o, i) => (
-                <button key={i} className={`option ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct} onClick={() => pick(i)}
-                  style={{ padding: 'clamp(9px, 1.5vw, 12px) clamp(14px, 2.6vw, 20px)', fontSize: 'clamp(14px, 2.2vw, 17px)', fontWeight: 800 }}>{o}</button>
-              ))}
-            </div>
-            {picked !== null && !ok && <p style={{ margin: '8px 0 0', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', textAlign: 'center' }}>{t(c.check_no)}</p>}
-          </div>
-        )}
-        {showBonus && (
-          <div ref={revealRef} className="lm-tw-bonus lm-riseup">
-            <span className="lm-tw-bonus-badge mono">★ {t(c.bonus_label)}</span>
-            <div className={`tw-collapse ${bonusCompact ? 'tw-collapsed' : ''}`}>
-              <p className="lm-tw-bonus-txt">{t(c.bonus_text)}</p>
-              <TwClockFace/>
-              {showBonus2 && <TwMonthRow months={c.bonus_months} label={t(c.bonus_months_label)}/>}
-            </div>
-            {bonusCompact && <TwFullWord text={t(c.bonus_recap)}/>}
-          </div>
-        )}
-        {done && (
-          <div className="frame-success fade-up">
-            <Reaction state="correct" praise={t(c.check_ok)}/>
-          </div>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
 export default function RomanLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
@@ -3419,7 +3019,7 @@ export default function RomanLesson({
   safeOnFinished(payload);
 }, [answers, safeOnFinished]);
 
-  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, TwoWayScreen, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11];
+  const screens = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11];
   const CurrentScreen = screens[current];
 
   // Ekran almashganda personajni "ko'rsatadi" (pointing) holatiga qaytaramiz;
@@ -3437,7 +3037,6 @@ export default function RomanLesson({
       <ProgressContext.Provider value={{ stars: starsEarned, total: starTotal }}>
       <HeroContext.Provider value={heroCtx}>
       <style>{STYLES}</style>
-      <style>{GRADE3_ETALON_STYLES}</style>
       <div className="lesson-root">
         <GradientDefs/>
         <D2Defs/>
@@ -3539,10 +3138,7 @@ html, body { margin: 0; padding: 0; }
 
 .btn-white-accent {
   font-family: 'Manrope', sans-serif;
-  font-weight: 700;
-  font-size: clamp(16px, 2.7vw, 19px);
-  padding: clamp(11px, 2.4vw, 15px) clamp(24px, 5.5vw, 36px);
-  min-height: clamp(48px, 8.5vw, 56px);
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;
@@ -5239,9 +4835,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-scene { position: relative; width: 100%; aspect-ratio: 400 / 210; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
-.lm-crew { display: inline-flex; align-items: flex-end; position: relative; }
-/* REALIZM: personaj ostidagi yumshoq yer-soyasi (figurani yerga bog'laydi) */
-.lm-crew::after { content: ''; position: absolute; bottom: -2%; left: 50%; transform: translateX(-50%); width: 82%; height: clamp(6px, 1.6vw, 11px); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(58,42,24,0.34) 0%, rgba(58,42,24,0.12) 55%, transparent 78%); z-index: -1; pointer-events: none; }
+.lm-crew { display: inline-flex; align-items: flex-end; }
 .lm-crew-kid { height: clamp(72px, 17vw, 122px); }
 .lm-crew-kid .g1-char { height: 100%; width: auto; display: block; }
 .lm-crew-host { width: clamp(42px, 10vw, 66px); margin: 0 clamp(2px, 1vw, 8px); }
@@ -5342,7 +4936,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }
-.lm-digchip { width: clamp(42px, 9vw, 56px); height: clamp(42px, 9vw, 56px); display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 1; border: none; border-radius: 12px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; cursor: pointer; box-shadow: 0 3px 10px -4px rgba(58,53,48,0.35); transition: transform 0.12s; }
+.lm-digchip { width: clamp(42px, 9vw, 56px); height: clamp(42px, 9vw, 56px); border: none; border-radius: 12px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; cursor: pointer; box-shadow: 0 3px 10px -4px rgba(58,53,48,0.35); transition: transform 0.12s; }
 .lm-digchip-sel { background: #FFF3E9; color: #ff4f28; transform: translateY(-3px); box-shadow: 0 6px 16px -5px rgba(255,79,40,0.55); }
 .lm-bins { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2vw, 14px); }
 .lm-bin { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: clamp(10px, 2vw, 16px) 6px; border: none; border-radius: 14px; background: #FBF7F0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.2s; }
@@ -5387,26 +4981,4 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-rulecard { display: flex; flex-direction: column; gap: 8px; background: #FFF3E9; border-radius: 16px; padding: clamp(12px, 2.4vw, 18px); box-shadow: 0 6px 20px -10px rgba(255,79,40,0.4); }
 .d2-rulecard-badge { align-self: flex-start; background: #ff4f28; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
-/* Aksent savol (QOIDA — javob oldindan berilmasin). */
-.lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
-/* Ikki-usul ekrani (kitob 1-usul/2-usul) */
-.lm-tw-grid { display: flex; flex-wrap: wrap; gap: clamp(10px, 2.5vw, 18px); justify-content: center; width: 100%; }
-.lm-tw-col { display: flex; flex-direction: column; align-items: center; gap: 6px; background: #FBF7F1; border: 1.5px solid #EFE4D6; border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(12px,2.4vw,18px); min-width: clamp(130px, 40vw, 180px); }
-.lm-tw-head { font-size: clamp(11px, 1.6vw, 13px); font-weight: 800; color: #8A8178; text-transform: uppercase; letter-spacing: 0.4px; text-align: center; }
-.lm-tw-head-a { color: #ff4f28; }
-.lm-tw-step { font-size: clamp(16px, 3.2vw, 22px); font-weight: 800; color: #3A3530; }
-.lm-tw-ans { color: #1F7A4D; background: #EAF5EE; border-radius: 8px; padding: 1px 10px; }
-.lm-tw-bonus { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #FFF6DC; border-radius: 16px; padding: clamp(12px,2.4vw,16px); }
-.lm-tw-bonus-badge { align-self: center; color: #B8860B; font-size: clamp(11px,1.6vw,13px); font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; }
-.lm-tw-bonus-txt { margin: 0; text-align: center; color: #3A3530; font-weight: 600; font-size: clamp(13px,1.8vw,15px); line-height: 1.4; }
-/* Bonus/yakun chiqqanda oraliq bosqichlar SEKIN yuqoriga yig'iladi (Dars02 naqshi). */
-.tw-collapse { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-height: 340px; opacity: 1; overflow: hidden; transition: max-height 1.1s ease, opacity 0.9s ease; }
-.tw-collapsed { max-height: 0; opacity: 0; }
-@media (prefers-reduced-motion: reduce) { .tw-collapse { transition: none; } }
-.lm-edrop { display: inline-block; animation: lm-edrop-a 0.72s cubic-bezier(0.34, 1.56, 0.5, 1) both; }
-@keyframes lm-edrop-a { 0% { opacity: 0; transform: translateY(-16px) scale(0.72); } 62% { transform: translateY(3px) scale(1.08); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
-@media (prefers-reduced-motion: reduce) { .lm-edrop { animation: none; } }
-/* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
-@keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.lm-riseup { animation: lm-riseup-a 0.62s cubic-bezier(0.22, 1.1, 0.36, 1) both; }
 `;

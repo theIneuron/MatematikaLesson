@@ -1,6 +1,4 @@
-import React, {useState, useEffect, useRef, useCallback, createContext, useContext, useMemo} from 'react';
-import { GRADE3_ETALON_STYLES, Grade3Progress, Grade3ScreenType } from './Grade3EtalonDesign.jsx';
-import { grade3AudioLabels } from './grade3MethodUtils.js';
+import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
 
 // ============================================================================
 // DD 3-SINF | Dars05 — "Yaxlitlash / yumaloq sonlar" (num-3-05) | B1 | o'nlik/yuzlikkacha
@@ -42,7 +40,7 @@ const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
 // Slaydlararo o'tish blokirovkasi (production): "Davom" javob/ovoz tugagach ochiladi,
 // javob faqat ovoz tugagach tanlanadi. (Test paytida vaqtincha true qilingan edi.)
-const FREE_NAV = false;   // TEKSHIRUV: blokirovka O'CHIQ (erkin navigatsiya). RELIZ oldidan false ga qaytaring!
+const FREE_NAV = true;   // TEST/EDIT — blokirovka o'chiq (erkin navigatsiya). PUSH oldidan false ga qaytaring!
 
 // ============================================================
 // TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
@@ -338,17 +336,9 @@ class AudioEngine {
     }
   }
 
-  playNext(forced = false) {
+  playNext() {
     if (this.currentIdx >= this.queue.length) return;
-    const seg = this.queue[this.currentIdx];
-    // on_event segmenti O'Z hodisasini KUTADI — avtomatik o'tib ketmasin.
-    // (Aks holda savol-oldin-qoida buziladi: bola javob bermasdan tushuntirish yangraydi.)
-    if (!forced && seg && typeof seg.trigger === 'string' && seg.trigger.indexOf('on_event:') === 0) {
-      this.isPlaying = false;
-      if (this.onStateChange) this.onStateChange({ isPlaying: false, currentSegment: null });
-      return;
-    }
-    this.playSegment(seg);
+    this.playSegment(this.queue[this.currentIdx]);
   }
 
   start() {
@@ -373,7 +363,7 @@ class AudioEngine {
     if (nextIdx !== -1) {
       this.currentIdx = nextIdx;
       this.waitingFor = null;
-      this.playNext(true);
+      this.playNext();
     }
   }
 
@@ -381,13 +371,13 @@ class AudioEngine {
     if (!text) return;
     this.queue.push({ id: `oneoff_${Date.now()}`, text, trigger: 'manual', waits_for: null, g: gender });
     this.currentIdx = this.queue.length - 1;
-    this.playNext(true);
+    this.playNext();
   }
 
   replay() {
     if (this.currentIdx > 0) this.currentIdx--;
     this.waitingFor = null;
-    this.playNext(true);
+    this.playNext();
   }
 
   stop() {
@@ -566,12 +556,10 @@ const mt = (str) => {
 };
 
 const AudioIndicator = ({ audioState }) => {
-  const lang = useLang();
   const { isPlaying, muted, replay, toggleMute } = audioState;
-  const labels = grade3AudioLabels(lang, muted);
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <button onClick={toggleMute} title={labels.sound} aria-label={labels.sound}
+      <button onClick={toggleMute} title={muted ? 'Sound on' : 'Sound off'}
         style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: muted ? T.ink3 : (isPlaying ? T.accent : T.ink2) }}>
         {muted ? (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -591,7 +579,7 @@ const AudioIndicator = ({ audioState }) => {
         )}
       </button>
       {!muted && (
-        <button onClick={replay} title={labels.replay} aria-label={labels.replay}
+        <button onClick={replay} title="Replay"
           style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
@@ -679,21 +667,20 @@ const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
 const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
   const t = useT();
-  const lang = useLang();
   const isMobile = useIsMobile();
-  const padH = isMobile ? 12 : 56;
-  const screenMeta = SCREEN_META[screen];
+  const padH = isMobile ? 12 : 100;
   return (
-    <div className={`stage stage-${screenMeta?.type || 'custom'}`}>
+    <div className="stage">
       <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
-        <Grade3Progress current={screen} total={totalScreens} lang={lang}/>
+        <div className="progress-track">
+          <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
+        </div>
         <div className="chrome">
           <div className="chrome-left eyebrow">
             <span className="dot"/>
             <span>{t(eyebrow)}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <Grade3ScreenType screenMeta={screenMeta} lang={lang}/>
             {audioState && <AudioIndicator audioState={audioState}/>}
             <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
               {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
@@ -740,14 +727,10 @@ const BackLabel = () => {
 // ============================================================
 // QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
 // ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options: optionsProp, correctIdx: correctIdxProp, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
+const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure, celebrateOnCorrect, mascot = true, optionsCols = 2 }) => {
   const lang = useLang();
+  const c = screenContent;
   const sfx = useSfx();
-  const mcOrder = useMemo(() => seededMcOrder(optionsProp.length, (idx + 1) * 7919 + optionsProp.length), [idx, optionsProp.length]);
-  const shuffledMc = useMemo(() => shuffleMC(screenContent, optionsProp, correctIdxProp, mcOrder), [screenContent, optionsProp, correctIdxProp, mcOrder]);
-  const c = shuffledMc.content;
-  const options = shuffledMc.options;
-  const correctIdx = shuffledMc.correctIdx;
 
   const audio = useAudio([{
     id: `s${idx}_intro`,
@@ -923,77 +906,12 @@ const SCREEN_META = [
 // to'g'ri javob indeksi tashlab ketiladi). order[newIdx] = oldIdx. (grade5 etalon helper.)
 const shuffleMC = (c, options, correctIdx, order) => {
   const content = { ...c };
-  order.forEach((oldI, newI) => {
-    content[`wrong_${newI}`] = c[`wrong_${oldI}`];
-    content[`hint_${newI}`] = c[`hint_${oldI}`];
-    content[`audio_hint_${newI}`] = c[`audio_hint_${oldI}`];
-  });
+  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
   return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
-};
-
-const seededMcOrder = (length, seed) => {
-  const order = Array.from({ length }, (_, i) => i);
-  let state = Math.abs(Number(seed) || 1) >>> 0;
-  if (state === 0) state = 1;
-  for (let i = length - 1; i > 0; i -= 1) {
-    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
-    const j = state % (i + 1);
-    const tmp = order[i];
-    order[i] = order[j];
-    order[j] = tmp;
-  }
-  return order;
 };
 
 // Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
-
-// Ball + EMOTSIONAL baho: quruq "3 / 3" o'rniga bolaga murojaat.
-const scorePraise = (score, total, lang) => {
-  const wrong = Math.max(0, total - score);
-  const s = `${score} / ${total}`;
-  if (wrong === 0) return lang === 'ru'
-    ? `Великолепно! ${s}. Всё с первого раза, ни одной ошибки.`
-    : `Ajoyib! ${s}. Hammasi birinchi urinishda, bitta ham xato yo'q.`;
-  if (wrong === 1) return lang === 'ru'
-    ? `Хороший результат! ${s}. Ошибка была только в одном задании.`
-    : `Yaxshi natija! ${s}. Xato faqat bitta topshiriqda bo'ldi.`;
-  if (score * 2 >= total) return lang === 'ru'
-    ? `Хорошо! ${s}. Часть заданий далась не сразу, но верный ответ найден.`
-    : `Yaxshi! ${s}. Ba'zi topshiriqlar darrov chiqmadi, lekin to'g'ri javob topildi.`;
-  return lang === 'ru'
-    ? `${s}. Эту тему стоит повторить ещё раз, тогда будет легче.`
-    : `${s}. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.`;
-};
-// Yakuniy natijaning OVOZLI varianti. Ovozda raqam va belgi bo'lmaydi (TTS-toza),
-// shuning uchun "3 / 3" o'rniga so'z bilan aytiladi.
-const scorePraiseAudio = (score, total, lang) => {
-  const wrong = Math.max(0, total - score);
-  const W = { ru: ['ноль', 'одном', 'двух', 'трёх', 'четырёх', 'пяти'], uz: ['nol', 'bitta', 'ikkita', 'uchta', "to'rtta", 'beshta'] };
-  if (wrong === 0) return lang === 'ru'
-    ? 'Великолепно. Все задания с первого раза, ни одной ошибки.'
-    : "Ajoyib. Barcha topshiriqlar birinchi urinishda, bitta ham xato yo'q.";
-  if (wrong === 1) return lang === 'ru'
-    ? 'Хороший результат. Ошибка была только в одном задании.'
-    : "Yaxshi natija. Xato faqat bitta topshiriqda bo'ldi.";
-  if (score * 2 >= total) return lang === 'ru'
-    ? `Хорошо. Не сразу получилось в ${W.ru[Math.min(wrong, 5)]} заданиях, но верный ответ найден.`
-    : `Yaxshi. ${W.uz[Math.min(wrong, 5)]} topshiriqda darrov chiqmadi, lekin to'g'ri javob topildi.`;
-  return lang === 'ru'
-    ? 'Задание пройдено. Эту тему стоит повторить ещё раз, тогда будет легче.'
-    : "Topshiriq bajarildi. Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.";
-};
-// Yakuniy izohga XATO QILINGAN MAVZULARni qo'shadi (bola nimani takrorlashni bilsin).
-const withTopics = (base, topics, lang) => {
-  const uniq = [...new Set(topics.filter(Boolean))].slice(0, 2);
-  if (!uniq.length) return base;
-  // umumiy "takrorlang" jumlasi bo'lsa olib tashlaymiz — pastda aniq mavzu aytiladi
-  base = base
-    .replace(' Эту тему стоит повторить ещё раз, тогда будет легче.', '')
-    .replace(" Bu mavzuni yana bir bor takrorlasangiz, osonroq bo'ladi.", '');
-  const list = uniq.join(lang === 'ru' ? ' и ' : ' va ');
-  return base + (lang === 'ru' ? ` Стоит повторить: ${list}.` : ` Takrorlash foydali: ${list}.`);
-};
 
 // ============================================================
 // CONTENT — 3-sinf Dars05 «Sonlarni yaxlitlash» (num-3-05). RU + UZ to'liq.
@@ -1005,29 +923,29 @@ const CONTENT = {
   // s0 — HOOK: shahar shkalasi, 47 chiroq taxminan qancha (o'nlikkacha)
   s0: {
     eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: круглые числа', uz: 'Mavzu: yumaloq sonlar' },
+    topic: { ru: 'Тема: округление чисел', uz: 'Mavzu: sonlarni yaxlitlash' },
     lead: { ru: 'Шкала города: тут 47 огней.', uz: 'Shahar shkalasi: bu yerda 47 chiroq.' },
     num_display: { ru: '47', uz: '47' },
-    q: { ru: 'К какому круглому ближе: 40 или 50?', uz: "Qaysi yumaloq songa yaqinroq: 40 mi yoki 50 mi?" },
+    q: { ru: 'Округли до десятков: ближе к 40 или к 50?', uz: "O'nlikkacha yaxlitla: 40 ga yaqinmi yoki 50 ga?" },
     opt0: { ru: '40', uz: '40' },
     opt1: { ru: '50', uz: '50' },
     opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
     audio: {
       intro: {
         ru: [
-          'Тема урока — круглые числа. Научимся находить ближайшее круглое число.',
+          'Тема урока — округление чисел. Научимся заменять число ближайшим круглым.',
           'В прошлой области мы сравнивали районы. Теперь Бит показывает шкалу города.',
           'На шкале сорок семь огней. Круглые метки это сорок и пятьдесят.',
           'Как думаешь, к какому круглому числу ближе сорок семь? Выбери вариант.'
         ],
         uz: [
-          "Dars mavzusi — yumaloq sonlar. Eng yaqin yumaloq sonni topishni o'rganamiz.",
+          "Dars mavzusi — sonlarni yaxlitlash. Sonni eng yaqin yumaloq son bilan almashtirishni o'rganamiz.",
           "O'tgan hududda tumanlarni taqqosladik. Endi Bit shahar shkalasini ko'rsatadi.",
           "Shkalada qirq yetti chiroq. Yumaloq belgilar bu qirq va ellik.",
           "Sizningcha, qirq yetti qaysi yumaloq songa yaqinroq? Variantni tanlang."
         ]
       },
-      on_correct: { ru: 'Верно. Сорок семь ближе к пятидесяти.', uz: "To'g'ri. Qirq yetti ellikka yaqinroq." },
+      on_correct: { ru: 'Верно. Сорок семь ближе к пятидесяти. Округляем до пятидесяти.', uz: "To'g'ri. Qirq yetti ellikka yaqinroq. Ellikkacha yaxlitlaymiz." },
       on_wrong: { ru: 'Посмотри на шкалу. Сорок семь ближе к пятидесяти, чем к сорока.', uz: "Shkalaga qarang. Qirq yetti qirqqa emas, ellikka yaqinroq." }
     }
   },
@@ -1040,12 +958,12 @@ const CONTENT = {
       ru: [
         'На числовой шкале числа стоят по порядку. Чем правее, тем больше.',
         'Круглые числа это главные метки. Десятки: десять, двадцать, тридцать. Сотни: сто, двести, триста.',
-        'Любое число стоит между двумя круглыми метками. Ближайшая метка и есть его круглое число.'
+        'Любое число стоит между двумя круглыми метками. Округлить значит выбрать ближайшую метку.'
       ],
       uz: [
         "Son shkalasida sonlar tartib bilan turadi. Qancha o'ngda bo'lsa, shuncha katta.",
         "Yumaloq sonlar bu asosiy belgilar. O'nliklar: o'n, yigirma, o'ttiz. Yuzliklar: yuz, ikki yuz, uch yuz.",
-        "Har qanday son ikki yumaloq belgi orasida turadi. Eng yaqin belgi uning yumaloq soni bo'ladi."
+        "Har qanday son ikki yumaloq belgi orasida turadi. Yaxlitlash bu eng yaqin belgini tanlash."
       ]
     }
   },
@@ -1073,19 +991,19 @@ const CONTENT = {
   // s3 — O'NLIKKACHA yaxlitlash: 47 -> 50
   s3: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Ближайший круглый десяток.', uz: "Eng yaqin yumaloq o'nlik." },
+    lead: { ru: 'Округляем до десятков.', uz: "O'nlikkacha yaxlitlaymiz." },
     n: 47, base: 10, rounded: 50,
     done_text: { ru: 'Сорок семь ближе к пятидесяти. Округлили до пятидесяти.', uz: "Qirq yetti ellikka yaqin. Ellikkacha yaxlitladik." },
     audio: {
       ru: [
-        'Возьмём сорок семь. Оно стоит между сорока и пятьюдесятью.',
+        'Округлим сорок семь до десятков. Оно стоит между сорока и пятьюдесятью.',
         'Смотрим, к какой метке ближе. Сорок семь ближе к пятидесяти.',
         'Прыгаем к ближайшей метке. Сорок семь округлили до пятидесяти. А сорок три было бы ближе к сорока.'
       ],
       uz: [
-        "Qirq yettini olamiz. U qirq bilan ellik orasida turadi.",
+        "Qirq yettini o'nlikkacha yaxlitlaymiz. U qirq bilan ellik orasida turadi.",
         "Qaysi belgiga yaqinligiga qaraymiz. Qirq yetti ellikka yaqinroq.",
-        "Eng yaqin belgiga sakraymiz. Qirq yetti ellikka yaqin. Qirq uch esa qirqqa yaqin bo'lardi."
+        "Eng yaqin belgiga sakraymiz. Qirq yettini ellikkacha yaxlitladik. Qirq uch esa qirqqa yaqin bo'lardi."
       ]
     }
   },
@@ -1093,19 +1011,19 @@ const CONTENT = {
   // s4 — CHEGARA qoida: 45 -> 50 (birlik 5 yuqoriga); raqam qoidasi
   s4: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Ровно посередине — берём большее.', uz: "Aynan o'rtada — kattasini olamiz." },
+    lead: { ru: 'Ровно пять — округляем вверх.', uz: "Roppa-rosa besh — yuqoriga yaxlitlaymiz." },
     n: 45, base: 10, rounded: 50,
-    done_text: { ru: 'Если число ровно посередине, договорились брать большую метку.', uz: "Agar son aynan o'rtada bo'lsa, kattasini olishga kelishamiz." },
+    done_text: { ru: 'Если цифра справа пять или больше — округляем вверх. Если меньше пяти — вниз.', uz: "O'ngdagi raqam besh yoki katta bo'lsa — yuqoriga. Beshdan kichik bo'lsa — pastga." },
     audio: {
       ru: [
-        'А если число ровно посередине? Сорок пять стоит точно между сорока и пятьюдесятью, до обеих меток пять шагов.',
-        'Тогда договоримся так. Ровно посередине берём большую метку.',
-        'Значит сорок пять ближе считаем к пятидесяти. Это удобное правило для середины.'
+        'А если число ровно посередине? Сорок пять стоит точно между сорока и пятьюдесятью.',
+        'Есть правило. Смотрим на цифру справа от разряда. Если она пять или больше, округляем вверх.',
+        'Пятёрка это пять, значит вверх. Сорок пять округляем до пятидесяти. А если цифра меньше пяти, округляем вниз.'
       ],
       uz: [
-        "Agar son aynan o'rtada bo'lsa-chi? Qirq besh qirq bilan ellik orasida aynan o'rtada, ikkala belgigacha ham besh qadam.",
-        "Unda shunday kelishamiz. Aynan o'rtada bo'lsa, kattasini olamiz.",
-        "Demak qirq beshni ellikka yaqin deb olamiz. Bu o'rta uchun qulay qoida."
+        "Agar son roppa-rosa o'rtada bo'lsa-chi? Qirq besh qirq bilan ellik orasida aynan o'rtada.",
+        "Qoida bor. Xonaning o'ng tomonidagi raqamga qaraymiz. Agar u besh yoki katta bo'lsa, yuqoriga yaxlitlaymiz.",
+        "Beshlik bu besh, demak yuqoriga. Qirq beshni ellikkacha yaxlitlaymiz. Agar raqam beshdan kichik bo'lsa, pastga yaxlitlaymiz."
       ]
     }
   },
@@ -1113,19 +1031,19 @@ const CONTENT = {
   // s5 — YUZLIKKACHA yaxlitlash: 347 -> 300, 380 -> 400
   s5: {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Ближайшая круглая сотня.', uz: 'Eng yaqin yumaloq yuzlik.' },
+    lead: { ru: 'Округляем до сотен.', uz: 'Yuzlikkacha yaxlitlaymiz.' },
     n: 347, base: 100, rounded: 300,
-    done_text: { ru: 'От 347 до 300 сорок семь шагов, а до 400 больше пятидесяти. Ближе триста.', uz: "347 dan 300 gacha qirq yetti qadam, 400 gacha elliкdan ko'p. Uch yuz yaqinroq." },
+    done_text: { ru: 'До сотен смотрим на десятки. У 347 десятков четыре, это меньше пяти — вниз, к тремстам.', uz: "Yuzlikkacha o'nlikka qaraymiz. 347 da o'nlik to'rt, bu beshdan kichik — pastga, uch yuzga." },
     audio: {
       ru: [
-        'Теперь возьмём круглые сотни. Триста сорок семь стоит между тремястами и четырьмястами.',
-        'Смотрим, до какой сотни ближе. До трёхсот сорок семь шагов, а до четырёхсот пятьдесят три.',
-        'Значит триста сорок семь ближе к тремстам. А триста восемьдесят было бы ближе к четырёмстам.'
+        'Теперь округлим до сотен. Возьмём триста сорок семь. Оно между тремястами и четырьмястами.',
+        'До сотен смотрим на цифру десятков. У триста сорок семь в десятках четыре.',
+        'Четыре меньше пяти, значит вниз. Триста сорок семь округляем до трёхсот. А триста восемьдесят округлилось бы до четырёхсот.'
       ],
       uz: [
-        "Endi yumaloq yuzliklarni olamiz. Uch yuz qirq yetti uch yuz bilan to'rt yuz orasida turadi.",
-        "Qaysi yuzlikka yaqinroq ekanini ko'ramiz. Uch yuzgacha qirq yetti qadam, to'rt yuzgacha ellik uch qadam.",
-        "Demak uch yuz qirq yetti uch yuzga yaqinroq. Uch yuz sakson esa to'rt yuzga yaqinroq bo'lardi."
+        "Endi yuzlikkacha yaxlitlaymiz. Uch yuz qirq yettini olamiz. U uch yuz bilan to'rt yuz orasida.",
+        "Yuzlikkacha o'nlik raqamiga qaraymiz. Uch yuz qirq yettida o'nlik to'rt.",
+        "To'rt beshdan kichik, demak pastga. Uch yuz qirq yettini uch yuzgacha yaxlitlaymiz. Uch yuz sakson esa to'rt yuzgacha yaxlitlanardi."
       ]
     }
   },
@@ -1133,25 +1051,25 @@ const CONTENT = {
   // s6 — QOIDA
   s6: {
     eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Число заменяем ближайшей круглой меткой. Если оно ровно посередине — берём большую метку.', uz: "Sonni eng yaqin yumaloq belgi bilan almashtiramiz. Agar u aynan o'rtada bo'lsa — kattasini olamiz." },
+    rule: { ru: 'Смотрим на цифру справа от разряда округления. Пять или больше — округляем вверх, меньше пяти — вниз.', uz: "Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga yaxlitlaymiz." },
     n: 63, base: 10, rounded: 60,
-    check_q: { ru: 'К какому круглому числу ближе 63?', uz: "63 qaysi yumaloq songa yaqinroq?" },
+    check_q: { ru: 'Округли 63 до десятков. Нажми верный ответ.', uz: "63 ni o'nlikkacha yaxlitla. To'g'ri javobni bosing." },
     check_opts: ['60', '70'],
     check_ci: 0,
-    check_ok: { ru: 'Верно! От 63 до 60 три шага, а до 70 семь. Ближе 60.', uz: "To'g'ri! 63 dan 60 gacha uch qadam, 70 gacha yetti. 60 yaqinroq." },
-    check_no: { ru: 'Посчитай шаги: от 63 до 60 три, до 70 семь. Ближе 60.', uz: "Qadamlarni sanang: 63 dan 60 gacha uch, 70 gacha yetti. 60 yaqinroq." },
+    check_ok: { ru: 'Верно! Цифра справа три, это меньше пяти — округляем вниз, к 60.', uz: "To'g'ri! O'ngdagi raqam uch, beshdan kichik — pastga, 60 ga." },
+    check_no: { ru: 'Цифра единиц три, меньше пяти — округляем вниз, к 60.', uz: "Birlik raqami uch, beshdan kichik — pastga, 60 ga." },
     audio: {
       ru: [
-        'Отлично, теперь запомним, как найти ближайшее круглое число.',
-        'Смотрим, между какими двумя круглыми метками стоит число.',
-        'Считаем, до какой метки ближе, и берём её.',
-        'А если число ровно посередине, договорились брать большую метку.'
+        'Отлично, теперь запомним правило округления.',
+        'Смотрим на цифру справа от того разряда, до которого округляем.',
+        'Если эта цифра пять или больше, округляем вверх, к следующей метке.',
+        'Если меньше пяти, округляем вниз, к своей метке. А теперь сам. Округли шестьдесят три до десятков.'
       ],
       uz: [
-        "Zo'r, endi eng yaqin yumaloq sonni qanday topishni eslab qolamiz.",
-        "Son qaysi ikki yumaloq belgi orasida turganini ko'ramiz.",
-        "Qaysi belgiga yaqinroq ekanini sanaymiz va o'shani olamiz.",
-        "Agar son aynan o'rtada bo'lsa, kattasini olishga kelishganmiz."
+        "Zo'r, endi yaxlitlash qoidasini eslab qolamiz.",
+        "Qaysi xonagacha yaxlitlasak, o'shaning o'ng tomonidagi raqamga qaraymiz.",
+        "Agar bu raqam besh yoki katta bo'lsa, yuqoriga, keyingi belgiga yaxlitlaymiz.",
+        "Beshdan kichik bo'lsa, pastga, o'z belgisiga yaxlitlaymiz. Endi o'zingiz. Oltmish uchni o'nlikkacha yaxlitlang."
       ]
     }
   },
@@ -1159,14 +1077,14 @@ const CONTENT = {
   // s7 — MASHQ o'nlikkacha (MC), 3 raund
   s7: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Округли до десятков.', uz: "O'nlikkacha yaxlitlang." },
+    q: { ru: 'Округли до десятков.', uz: "O'nlikkacha yaxlitla." },
     base: 10,
     items: [
       {
         num: 68, ci: 0,
         opts: [{ ru: '70', uz: '70' }, { ru: '60', uz: '60' }, { ru: '68', uz: '68' }],
         hints: {
-          1: { ru: 'От 68 до 70 два шага, а до 60 восемь. Ближе 70.', uz: "68 dan 70 gacha ikki qadam, 60 gacha sakkiz. 70 yaqinroq." },
+          1: { ru: 'Цифра единиц восемь, это больше пяти — округляем вверх, к 70.', uz: "Birlik raqami sakkiz, beshdan katta — yuqoriga, 70 ga." },
           2: { ru: 'Ответ должен быть круглым, оканчиваться на ноль.', uz: "Javob yumaloq bo'lishi kerak, nol bilan tugashi kerak." }
         }
       },
@@ -1174,7 +1092,7 @@ const CONTENT = {
         num: 34, ci: 0,
         opts: [{ ru: '30', uz: '30' }, { ru: '40', uz: '40' }, { ru: '34', uz: '34' }],
         hints: {
-          1: { ru: 'От 34 до 30 четыре шага, а до 40 шесть. Ближе 30.', uz: "34 dan 30 gacha to'rt qadam, 40 gacha olti. 30 yaqinroq." },
+          1: { ru: 'Цифра единиц четыре, меньше пяти — округляем вниз, к 30.', uz: "Birlik raqami to'rt, beshdan kichik — pastga, 30 ga." },
           2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
         }
       },
@@ -1182,29 +1100,29 @@ const CONTENT = {
         num: 55, ci: 0,
         opts: [{ ru: '60', uz: '60' }, { ru: '50', uz: '50' }, { ru: '55', uz: '55' }],
         hints: {
-          1: { ru: '55 ровно посередине. По договорённости берём большее, 60.', uz: "55 aynan o'rtada. Kelishuvga ko'ra kattasini olamiz, 60." },
+          1: { ru: 'Цифра единиц пять — округляем вверх, к 60.', uz: "Birlik raqami besh — yuqoriga, 60 ga." },
           2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Найди ближайший круглый десяток. Считай, до какой метки ближе. Три задания.', uz: "Eng yaqin yumaloq o'nlikni toping. Qaysi belgiga yaqinroq ekanini sanang. Uchta topshiriq." },
+      intro: { ru: 'Округляй числа до десятков. Смотри на цифру единиц. Три задания.', uz: "Sonlarni o'nlikkacha yaxlitla. Birlik raqamiga qara. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посчитай, до какой круглой метки ближе.', uz: "Qaysi yumaloq belgiga yaqinroq ekanini sanang." }
+      on_wrong: { ru: 'Смотри на цифру единиц: пять и больше вверх, меньше вниз.', uz: "Birlik raqamiga qara: besh va katta yuqoriga, kichik pastga." }
     }
   },
 
   // s8 — MASHQ yuzlikkacha (MC), 3 raund
   s8: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Округли до сотен.', uz: 'Yuzlikkacha yaxlitlang.' },
+    q: { ru: 'Округли до сотен.', uz: 'Yuzlikkacha yaxlitla.' },
     base: 100,
     items: [
       {
         num: 347, ci: 0,
         opts: [{ ru: '300', uz: '300' }, { ru: '400', uz: '400' }, { ru: '350', uz: '350' }],
         hints: {
-          1: { ru: 'От 347 до 300 сорок семь, а до 400 пятьдесят три. Ближе 300.', uz: "347 dan 300 gacha qirq yetti, 400 gacha ellik uch. 300 yaqinroq." },
+          1: { ru: 'Цифра десятков четыре, меньше пяти — округляем вниз, к 300.', uz: "O'nlik raqami to'rt, beshdan kichik — pastga, 300 ga." },
           2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
         }
       },
@@ -1212,7 +1130,7 @@ const CONTENT = {
         num: 682, ci: 0,
         opts: [{ ru: '700', uz: '700' }, { ru: '600', uz: '600' }, { ru: '680', uz: '680' }],
         hints: {
-          1: { ru: 'От 682 до 700 восемнадцать, а до 600 восемьдесят два. Ближе 700.', uz: "682 dan 700 gacha o'n sakkiz, 600 gacha sakson ikki. 700 yaqinroq." },
+          1: { ru: 'Цифра десятков восемь, больше пяти — округляем вверх, к 700.', uz: "O'nlik raqami sakkiz, beshdan katta — yuqoriga, 700 ga." },
           2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
         }
       },
@@ -1220,43 +1138,43 @@ const CONTENT = {
         num: 450, ci: 0,
         opts: [{ ru: '500', uz: '500' }, { ru: '400', uz: '400' }, { ru: '450', uz: '450' }],
         hints: {
-          1: { ru: '450 ровно посередине. По договорённости берём большее, 500.', uz: "450 aynan o'rtada. Kelishuvga ko'ra kattasini olamiz, 500." },
+          1: { ru: 'Цифра десятков пять — округляем вверх, к 500.', uz: "O'nlik raqami besh — yuqoriga, 500 ga." },
           2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Найди ближайшую круглую сотню. Считай, до какой метки ближе. Три задания.', uz: "Eng yaqin yumaloq yuzlikni toping. Qaysi belgiga yaqinroq ekanini sanang. Uchta topshiriq." },
+      intro: { ru: 'Округляй числа до сотен. Смотри на цифру десятков. Три задания.', uz: "Sonlarni yuzlikkacha yaxlitla. O'nlik raqamiga qara. Uchta topshiriq." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри, до какой круглой сотни ближе.', uz: "Qaysi yumaloq yuzlikka yaqinroq ekanini ko'ring." }
+      on_wrong: { ru: 'Смотри на цифру десятков: пять и больше вверх, меньше вниз.', uz: "O'nlik raqamiga qara: besh va katta yuqoriga, kichik pastga." }
     }
   },
 
   // s9 — MASHQ xatoni top (yaxlitlash), 3 raund
   s9: {
     eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Найди неверное круглое число.', uz: "Noto'g'ri topilgan yumaloq sonni toping." },
+    q: { ru: 'Найди неверное округление.', uz: "Noto'g'ri yaxlitlashni toping." },
     items: [
       {
         stmts: ['76 → 80', '45 → 40', '23 → 20'],
         wrong: 1,
-        hint: { ru: 'Сорок пять ровно посередине, берём большее — 50, а не 40.', uz: "Qirq besh aynan o'rtada, kattasini olamiz — 50, 40 emas." }
+        hint: { ru: 'У сорока пяти цифра единиц пять — округляем вверх, к 50, а не к 40.', uz: "Qirq beshda birlik raqami besh — yuqoriga, 50 ga, 40 ga emas." }
       },
       {
         stmts: ['350 → 400', '240 → 300', '618 → 600'],
         wrong: 1,
-        hint: { ru: 'От 240 до 200 сорок, а до 300 шестьдесят. Ближе 200, а не 300.', uz: "240 dan 200 gacha qirq, 300 gacha oltmish. 200 yaqinroq, 300 emas." }
+        hint: { ru: 'У двухсот сорока десятков четыре, меньше пяти — вниз, к 200, а не к 300.', uz: "Ikki yuz qirqda o'nlik to'rt, beshdan kichik — pastga, 200 ga, 300 ga emas." }
       },
       {
         stmts: ['92 → 90', '87 → 80', '31 → 30'],
         wrong: 1,
-        hint: { ru: 'От 87 до 90 три, а до 80 семь. Ближе 90, а не 80.', uz: "87 dan 90 gacha uch, 80 gacha yetti. 90 yaqinroq, 80 emas." }
+        hint: { ru: 'У восьмидесяти семи единиц семь, больше пяти — вверх, к 90, а не к 80.', uz: "Sakson yettida birlik yetti, beshdan katta — yuqoriga, 90 ga, 80 ga emas." }
       }
     ],
     audio: {
-      intro: { ru: 'Даю три круглых числа. Одно найдено неверно. Найди его.', uz: "Uchta yumaloq son beraman. Bittasi noto'g'ri topilgan. Uni toping." },
+      intro: { ru: 'Даю три округления. Одно неверное. Найди неверное.', uz: "Uchta yaxlitlash beraman. Bittasi noto'g'ri. Noto'g'risini toping." },
       on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь, до какой круглой метки ближе.', uz: "Qaysi yumaloq belgiga yaqinroq ekanini tekshiring." }
+      on_wrong: { ru: 'Проверь цифру справа: пять и больше вверх, меньше вниз.', uz: "O'ngdagi raqamni tekshir: besh va katta yuqoriga, kichik pastga." }
     }
   },
 
@@ -1265,17 +1183,17 @@ const CONTENT = {
     eyebrow: { ru: 'Задача', uz: 'Masala' },
     lead: { ru: 'Анвар считает модули: их 623. Сколько это примерно?', uz: 'Anvar modullarni sanayapti: ular 623 ta. Bu taxminan qancha?' },
     num: 623, base: 100, ci: 0,
-    q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitlang.' },
+    q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitla.' },
     opts: [{ ru: '600', uz: '600' }, { ru: '700', uz: '700' }, { ru: '620', uz: '620' }],
     hints: {
-      1: { ru: 'От 623 до 600 двадцать три, а до 700 семьдесят семь. Ближе 600.', uz: "623 dan 600 gacha yigirma uch, 700 gacha yetmish yetti. 600 yaqinroq." },
+      1: { ru: 'Цифра десятков два, меньше пяти — округляем вниз, к 600.', uz: "O'nlik raqami ikki, beshdan kichik — pastga, 600 ga." },
       2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
     },
     setup_audio: { ru: 'Анвар сосчитал модули района. Их шестьсот двадцать три. Для отчёта нужно примерное круглое число.', uz: "Anvar tuman modullarini sanadi. Ular olti yuz yigirma uchta. Hisob uchun taxminiy yumaloq son kerak." },
     audio: {
-      intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitlang. To'g'ri javobni tanlang." },
-      on_correct: { ru: 'Верно. 623 ближе к шестистам.', uz: "To'g'ri. 623 olti yuzga yaqinroq." },
-      on_wrong: { ru: 'Посчитай шаги: до 600 ближе, чем до 700.', uz: "Qadamlarni sanang: 600 gacha 700 gacha bo'lgandan yaqinroq." }
+      intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitla. To'g'ri javobni tanlang." },
+      on_correct: { ru: 'Верно. Десятков два, меньше пяти — округляем к шестистам.', uz: "To'g'ri. O'nlik ikki, beshdan kichik — olti yuzga yaxlitlaymiz." },
+      on_wrong: { ru: 'Смотри на десятки: 2, это меньше пяти. Округляем вниз.', uz: "O'nlikka qara: 2, bu beshdan kichik. Pastga yaxlitlaymiz." }
     }
   },
 
@@ -1286,40 +1204,40 @@ const CONTENT = {
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitlang." }, topic: { ru: 'округление до десятков', uz: "o'nlikkacha yaxlitlash" },
+        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitla." },
         opt0: { ru: '60', uz: '60' },
         opt1: { ru: '50', uz: '50' },
         opt2: { ru: '58', uz: '58' },
-        wrong_1: { ru: 'От 58 до 60 два, а до 50 восемь. Ближе 60.', uz: "58 dan 60 gacha ikki, 50 gacha sakkiz. 60 yaqinroq." },
+        wrong_1: { ru: 'Единиц восемь, больше пяти — вверх, к 60.', uz: "Birlik sakkiz, beshdan katta — yuqoriga, 60 ga." },
         wrong_2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitlang.' }, topic: { ru: 'округление до сотен', uz: 'yuzlikkacha yaxlitlash' },
+        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitla.' },
         opt0: { ru: '400', uz: '400' },
         opt1: { ru: '500', uz: '500' },
         opt2: { ru: '410', uz: '410' },
-        wrong_1: { ru: 'От 412 до 400 двенадцать. Ближе 400.', uz: "412 dan 400 gacha o'n ikki. 400 yaqinroq." },
+        wrong_1: { ru: 'Десятков один, меньше пяти — вниз, к 400.', uz: "O'nlik bir, beshdan kichik — pastga, 400 ga." },
         wrong_2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
       },
       {
         kind: 'num', ans: 280,
-        q: { ru: 'Округли 275 до десятков и запиши.', uz: "275 ni o'nlikkacha yaxlitlab yozing." }, topic: { ru: 'округление до десятков', uz: "o'nlikkacha yaxlitlash" },
-        hint: { ru: '275 ровно посередине между 270 и 280, берём большее — 280.', uz: "275 aynan 270 va 280 orasida o'rtada, kattasini olamiz — 280." }
+        q: { ru: 'Округли 275 до десятков и запиши.', uz: "275 ni o'nlikkacha yaxlitlab yozing." },
+        hint: { ru: 'Единиц пять — округляем вверх, к 280.', uz: "Birlik besh — yuqoriga, 280 ga." }
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitlang." }, topic: { ru: 'округление вверх', uz: 'yuqoriga yaxlitlash' },
+        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitla." },
         opt0: { ru: '90', uz: '90' },
         opt1: { ru: '100', uz: '100' },
         opt2: { ru: '80', uz: '80' },
-        wrong_1: { ru: 'От 94 до 90 четыре, а до 100 шесть. Ближе 90.', uz: "94 dan 90 gacha to'rt, 100 gacha olti. 90 yaqinroq." },
-        wrong_2: { ru: 'До 90 четыре шага, до 100 шесть. Ближе 90.', uz: "90 gacha to'rt qadam, 100 gacha olti. 90 yaqinroq." }
+        wrong_1: { ru: 'Единиц четыре, меньше пяти — вниз, к 90.', uz: "Birlik to'rt, beshdan kichik — pastga, 90 ga." },
+        wrong_2: { ru: 'Смотрим на единицы: четыре. Округляем вниз, к 90.', uz: "Birlikka qaraymiz: to'rt. Pastga, 90 ga." }
       },
       {
         kind: 'num', ans: 58,
-        q: { ru: 'Загадка. Если округлить меня до десятков, будет 60. Единиц у меня восемь. Кто я?', uz: "Jumboq. Meni o'nlikkacha yaxlitlasa 60 chiqadi. Birligim sakkiz. Men kimman?" }, topic: { ru: 'обратная задача', uz: 'teskari masala' },
-        hint: { ru: 'Число между 55 и 60, ближе к 60, и единиц восемь. Значит пятьдесят восемь.', uz: "Son 55 va 60 orasida, 60 ga yaqin, birligi sakkiz. Demak ellik sakkiz." }
+        q: { ru: 'Загадка. Если округлить меня до десятков, будет 60. Единиц у меня восемь. Кто я?', uz: "Jumboq. Meni o'nlikkacha yaxlitlasa 60 chiqadi. Birligim sakkiz. Men kimman?" },
+        hint: { ru: 'Единиц восемь, округляется вверх к 60. Значит число пятьдесят восемь.', uz: "Birlik sakkiz, yuqoriga 60 ga yaxlitlanadi. Demak son ellik sakkiz." }
       }
     ],
     fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
@@ -1337,15 +1255,15 @@ const CONTENT = {
     eyebrow: { ru: 'Итог', uz: 'Yakun' },
     praise: { ru: 'Молодец!', uz: 'Barakalla!' },
     mission_done: { ru: 'Шкала города освоена!', uz: 'Shahar shkalasi egallandi!' },
-    cando: { ru: 'Теперь ты находишь ближайшее круглое число до десятков и до сотен.', uz: "Endi siz eng yaqin yumaloq sonni o'nlikkacha va yuzlikkacha topasiz." },
-    rule_recap: { ru: 'Число заменяем ближайшей круглой меткой. Если оно ровно посередине — берём большую. Круглое число оканчивается на ноль.', uz: "Sonni eng yaqin yumaloq belgi bilan almashtiramiz. Aynan o'rtada bo'lsa — kattasini olamiz. Yumaloq son nol bilan tugaydi." },
+    cando: { ru: 'Теперь ты округляешь числа до десятков и до сотен.', uz: "Endi siz sonlarni o'nlikkacha va yuzlikkacha yaxlitlaysiz." },
+    rule_recap: { ru: 'Смотри на цифру справа от разряда: пять и больше — вверх, меньше пяти — вниз. Круглое число оканчивается на ноль.', uz: "Xonaning o'ngidagi raqamga qara: besh va katta — yuqoriga, beshdan kichik — pastga. Yumaloq son nol bilan tugaydi." },
     conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
     conn_refs: { ru: 'четвёртый урок: сравнение чисел', uz: "to'rtinchi dars: sonlarni taqqoslash" },
     conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
     conn_next: { ru: 'Урок 6: число на числовой прямой', uz: "6-dars: son o'qida son" },
     audio: {
-      ru: 'Шкала города освоена. Мы научились находить ближайшее круглое число до десятков и до сотен. Запомни. Выбираем ближайшую метку, а ровно посередине берём большую. Круглое число всегда оканчивается на ноль. В следующий раз научимся находить место числа на числовой прямой.',
-      uz: "Shahar shkalasi egallandi. Biz o'nlikkacha va yuzlikkacha eng yaqin yumaloq sonni topishni o'rgandik. Yodda tuting. Eng yaqin belgini olamiz, aynan o'rtada bo'lsa kattasini. Yumaloq son doim nol bilan tugaydi. Keyingi safar sonning son o'qidagi o'rnini topishni o'rganamiz."
+      ru: 'Шкала города освоена. Мы научились округлять числа до десятков и до сотен. Запомни правило. Смотрим на цифру справа от разряда округления. Если пять или больше, округляем вверх. Если меньше пяти, вниз. А круглое число всегда оканчивается на ноль. В следующий раз научимся находить место числа на числовой прямой.',
+      uz: "Shahar shkalasi egallandi. Biz sonlarni o'nlikkacha va yuzlikkacha yaxlitlashni o'rgandik. Qoidani yodda tuting. Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Agar besh yoki katta bo'lsa, yuqoriga. Beshdan kichik bo'lsa, pastga. Yumaloq son esa doim nol bilan tugaydi. Keyingi safar sonning son o'qidagi o'rnini topishni o'rganamiz."
     }
   }
 };
@@ -2299,7 +2217,6 @@ const FrameFx = () => (
 const MeasureTowerBg = () => (
   <svg className="lm-scene-bg" viewBox="0 0 400 230" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
-      <radialGradient id="measuretowerbgvig" cx="50%" cy="43%" r="72%"><stop offset="0%" stopColor="#000" stopOpacity="0"/><stop offset="76%" stopColor="#000" stopOpacity="0"/><stop offset="100%" stopColor="#2A2018" stopOpacity="0.28"/></radialGradient>
       <linearGradient id="shWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#ECDBC4"/><stop offset="100%" stopColor="#DBC3A2"/></linearGradient>
       <linearGradient id="shSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#33284E"/><stop offset="46%" stopColor="#7C4A66"/><stop offset="82%" stopColor="#CE8A58"/><stop offset="100%" stopColor="#F0C088"/></linearGradient>
       <linearGradient id="shFloor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#D9C29D"/><stop offset="100%" stopColor="#BBA078"/></linearGradient>
@@ -2307,9 +2224,6 @@ const MeasureTowerBg = () => (
       <linearGradient id="shPanel" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#20344C"/><stop offset="100%" stopColor="#0E1B2C"/></linearGradient>
       <radialGradient id="shLamp" cx="50%" cy="20%" r="80%"><stop offset="0%" stopColor="#FFF0C4"/><stop offset="100%" stopColor="#FFE39A" stopOpacity="0"/></radialGradient>
       <clipPath id="shWinClip"><rect x="46" y="32" width="308" height="62" rx="4"/></clipPath>
-      {/* REALIZM: yer-soyasi + AO gradientlari (issiq sahna → jigarrang) */}
-      <radialGradient id="d05shadow" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#4A3A22" stopOpacity="0.40"/><stop offset="70%" stopColor="#4A3A22" stopOpacity="0.16"/><stop offset="100%" stopColor="#4A3A22" stopOpacity="0"/></radialGradient>
-      <linearGradient id="d05ao" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6B5636" stopOpacity="0.38"/><stop offset="100%" stopColor="#6B5636" stopOpacity="0"/></linearGradient>
     </defs>
     <rect x="0" y="0" width="400" height="180" fill="url(#shWall)"/>
     <rect x="0" y="0" width="400" height="22" fill="#D2B892"/><rect x="0" y="21" width="400" height="3" fill="#B4976F"/>
@@ -2358,46 +2272,6 @@ const MeasureTowerBg = () => (
     <g transform="translate(18 176)"><path d="M0 0 Q-3 -16 0 -24" stroke="#7CB69E" strokeWidth="2.6" fill="none"/><circle className="lm-glow" cx="0" cy="-27" r="5" fill="#A6E0C6"/><path d="M-1 -14 q-8 -3 -11 -10 q9 1 12 8Z" fill="#8FD8B8"/></g>
     <g transform="translate(392 176)"><path d="M0 0 Q-2 -10 0 -15" stroke="#7CB69E" strokeWidth="2.2" fill="none"/><circle className="lm-glow" cx="0" cy="-17" r="3.6" fill="#A6E0C6"/></g>
     <g><circle className="lm-glow" cx="120" cy="60" r="1.5" fill="#FFE0B0"/><circle className="lm-glow" style={{ animationDelay: '0.8s' }} cx="300" cy="70" r="1.5" fill="#CFE8FF"/><circle className="lm-glow" style={{ animationDelay: '1.4s' }} cx="250" cy="40" r="1.3" fill="#FFD0C2"/></g>
-    {/* ===== REALIZM QATLAMI (d05) — faqat qo'shimcha chuqurlik, mavjud tegilmadi ===== */}
-    {/* devor teksturasi — bo'sh yon cho'ntaklar (dog' + nozik yoriq) */}
-    <g fill="#B79A70">
-      <ellipse cx="66" cy="150" rx="13" ry="19" opacity="0.14"/>
-      <ellipse cx="80" cy="120" rx="6" ry="8" opacity="0.10"/>
-      <ellipse cx="332" cy="146" rx="12" ry="17" opacity="0.13"/>
-    </g>
-    <g stroke="#A98C64" fill="none" opacity="0.26">
-      <path d="M58 106 q-3 14 1 26 q-4 12 2 24" strokeWidth="0.6"/>
-      <path d="M340 108 q3 16 -1 30 q3 10 -1 22" strokeWidth="0.5"/>
-    </g>
-    {/* strukturalar YUQORI chekkasi — AO chuqurlik */}
-    <rect x="100" y="104" width="200" height="5" rx="4" fill="url(#d05ao)" opacity="0.42"/>
-    <rect x="21" y="118" width="18" height="6" rx="2" fill="url(#d05ao)" opacity="0.34"/>
-    <rect x="361" y="120" width="22" height="6" rx="2" fill="url(#d05ao)" opacity="0.34"/>
-    {/* HAJM shading — chap yorug', o'ng quyuq (yorug'lik yuqori-chapdan) */}
-    <g>
-      <rect x="296" y="116" width="6" height="36" rx="2" fill="#000" opacity="0.16"/>
-      <rect x="98" y="116" width="4" height="36" rx="2" fill="#FFF" opacity="0.10"/>
-      <rect x="35" y="122" width="4" height="50" rx="2" fill="#000" opacity="0.16"/>
-      <rect x="21" y="122" width="3" height="50" rx="2" fill="#FFF" opacity="0.12"/>
-      <rect x="379" y="124" width="4" height="46" rx="2" fill="#000" opacity="0.16"/>
-      <rect x="361" y="124" width="3" height="46" rx="2" fill="#FFF" opacity="0.12"/>
-    </g>
-    {/* pol teksturasi — yengil yeyilgan dog'lar */}
-    <g fill="#A98C64">
-      <ellipse cx="120" cy="200" rx="24" ry="6" opacity="0.12"/>
-      <ellipse cx="290" cy="212" rx="30" ry="7" opacity="0.10"/>
-      <ellipse cx="210" cy="223" rx="34" ry="7" opacity="0.09"/>
-    </g>
-    {/* YER-SOYALARI — strukturalarni polga bog'laydi (eng katta ta'sir) */}
-    <g>
-      <ellipse cx="202" cy="181" rx="70" ry="6.5" fill="url(#d05shadow)"/>
-      <ellipse cx="31" cy="180" rx="15" ry="4.5" fill="url(#d05shadow)"/>
-      <ellipse cx="373" cy="179" rx="16" ry="4.5" fill="url(#d05shadow)"/>
-      <ellipse cx="20" cy="180" rx="9" ry="3" fill="url(#d05shadow)"/>
-      <ellipse cx="390" cy="179" rx="7" ry="2.6" fill="url(#d05shadow)"/>
-    </g>
-      {/* REALIZM: vinetka — chekka qorong'ilashuvi (chuqurlik + markazga fokus) */}
-    <rect x="0" y="0" width="400" height="230" fill="url(#measuretowerbgvig)" style={{ pointerEvents: 'none' }}/>
   </svg>
 );
 
@@ -2458,14 +2332,14 @@ const MiniCity = () => (
 );
 
 // --- RAQAM-PLITA (NumPad).
-const npKey = { width: 'clamp(48px, 12.5vw, 62px)', height: 'clamp(46px, 11.5vw, 58px)', borderRadius: 13, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(21px, 5.4vw, 27px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
+const npKey = { width: 'clamp(38px, 9.5vw, 48px)', height: 'clamp(36px, 8.5vw, 44px)', borderRadius: 11, border: `2px solid ${T.ink3}`, background: T.paper, fontWeight: 800, fontSize: 'clamp(17px, 4.4vw, 21px)', color: T.ink, fontFamily: "'JetBrains Mono', monospace" };
 const NumPad = ({ value, setValue, disabled, max = 3 }) => {
   const push = (d) => { if (disabled) return; setValue((v) => (v.length >= max ? v : v + d)); };
   const back = () => { if (disabled) return; setValue((v) => v.slice(0, -1)); };
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-      <div className="mono" style={{ minWidth: 156, height: 58, borderRadius: 14, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div className="mono" style={{ minWidth: 124, height: 46, borderRadius: 12, border: `2.5px solid ${T.accent}`, background: T.paper, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 800, color: T.ink, letterSpacing: 4, padding: '0 14px' }}>{value || '—'}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, auto)', gap: 6 }}>
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
           <button key={d} type="button" disabled={disabled} onClick={() => push(String(d))} style={{ ...npKey, cursor: disabled ? 'default' : 'pointer' }}>{d}</button>
         ))}
@@ -2522,7 +2396,6 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const [idx, setIdx] = useState(props.storedAnswer ? items.length : 0);
   const [wrongSet, setWrongSet] = useState(() => new Set());
   const [hintMsg, setHintMsg] = useState(null);
-  const [okIdx, setOkIdx] = useState(null);   // to'g'ri tanlangan variant YASHIL bo'lib turadi
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
   const firstAllRef = useRef(props.storedAnswer ? props.storedAnswer.firstTry : true);
@@ -2532,11 +2405,10 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   const pick = (i) => {
     if (!canAct || done || wrongSet.has(i)) return;
     if (i === it.ci) {
-      setOkIdx(i);
       sfx.playCorrect();
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio.on_correct[lang]); }
       if (wrongSet.size === 0) setScore((s) => s + 1);
-      setTimeout(() => { setOkIdx(null); setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 1100);
+      setTimeout(() => { setWrongSet(new Set()); setHintMsg(null); setIdx((n) => n + 1); }, 900);
     } else {
       const n = new Set(wrongSet); n.add(i); setWrongSet(n);
       firstAllRef.current = false;
@@ -2547,7 +2419,6 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: ck,
         correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
@@ -2571,10 +2442,10 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
             <h1 className="title h-sub fade-up">{heading(it)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
-              <div className="grade3-question-figure">{renderFig(it)}</div>
-              <div className="grade3-answer-grid" style={{ '--answer-cols': cols }}>
+              {renderFig(it)}
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, minmax(90px, 1fr))`, gap: 10, width: '100%' }}>
                 {it.opts.map((o, i) => (
-                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''} ${okIdx === i ? 'option-correct' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
+                  <button key={i} className={`option ${wrongSet.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || wrongSet.has(i)} onClick={() => pick(i)}
                     style={{ padding: 'clamp(10px, 1.6vw, 13px)', fontSize: 'clamp(16px, 2.4vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>{t(o)}</button>
                 ))}
               </div>
@@ -2583,8 +2454,8 @@ const MCRoundD2 = ({ props, ck, heading, renderFig, cols = 2 }) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success lm-riseup">
-            <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
           </div>
         )}
       </div>
@@ -2603,18 +2474,11 @@ const Screen0 = (props) => {
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
   const ok = picked === 1;
-  const revealed = picked !== null;
   const fbKey = (i) => (i === 1 ? 'on_correct' : 'on_wrong');
   const pick = (i) => {
     if (picked !== null || !canAct) return;
     setPicked(i);
-    if (!audio.muted) {
-      const e = getAudioEngine();
-      if (e) {
-        e.pushOneOff(c.audio[fbKey(i)][lang]);
-        if (i !== 1) e.pushOneOff(c.audio.on_correct[lang]);   // noto'g'ri -> to'g'ri javob emotsiya bilan ochiladi
-      }
-    }
+    if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio[fbKey(i)][lang]); }
   };
   const canAdv = useAdvanceGate(picked !== null, audio);
   const navContent = (
@@ -2630,39 +2494,36 @@ const Screen0 = (props) => {
         <div className="fade-up" style={{ alignSelf: 'center', background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(12px, 1.8vw, 15px)', padding: '5px 14px', borderRadius: 999 }}>{t(c.topic)}</div>
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ padding: 'clamp(8px, 1.8vw, 14px)', overflow: 'hidden' }}>
-          <LessonScene gathered={revealed}/>
+          <LessonScene gathered={ok}/>
         </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <span className="mono" style={{ fontSize: 'clamp(30px, 7vw, 44px)', fontWeight: 800, color: T.ink }}>{t(c.num_display)}</span>
           <RoundLine n={47} base={10} snap={false}/>
         </div>
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 1.9vw, 17px)', margin: 0 }}>{t(c.q)}</p>
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-          {opts.map((o, i) => {
-            const cls = revealed
-              ? (i === 1 ? 'option option-correct' : (picked === i ? 'option option-picked-wrong' : 'option'))
-              : 'option';
-            return (
-              <button key={i} className={cls} disabled={!canAct || revealed} onClick={() => pick(i)}
-                style={{ position: 'relative', padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(15px, 2.2vw, 20px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
-                {revealed && i === 1 && <span className="mono" style={{ position: 'absolute', top: 4, right: 7, color: '#1F7A4D', fontWeight: 800 }}>✓</span>}
+        {picked === null && (
+          <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            {opts.map((o, i) => (
+              <button key={i} className="option" disabled={!canAct} onClick={() => pick(i)}
+                style={{ padding: 'clamp(10px, 1.5vw, 12px)', fontSize: 'clamp(15px, 2.2vw, 20px)', minHeight: 'clamp(48px, 7vw, 58px)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
                 {t(o)}
               </button>
-            );
-          })}
-        </div>
-        {revealed && (
+            ))}
+          </div>
+        )}
+        {picked !== null && (
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'center' }}>
+            <button className={`option ${ok ? 'option-correct' : 'option-picked-wrong'}`} disabled
+              style={{ padding: 'clamp(10px, 1.5vw, 12px) clamp(16px, 2.4vw, 22px)', fontSize: 'clamp(15px, 2.2vw, 20px)', minHeight: 'clamp(46px, 6.5vw, 56px)', width: 'auto', display: 'flex', alignItems: 'center', gap: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800 }}>
+              <span className="mono small">{ok ? '✓' : '↺'}</span>
+              <span>{t(opts[picked])}</span>
+            </button>
+          </div>
+        )}
+        {picked !== null && (
           <FeedbackBlock show={true} isCorrect={ok} wrongClass="frame-tip">
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
           </FeedbackBlock>
-        )}
-        {/* TO'G'RI JAVOB izohi — ALOHIDA ramkada (reaksiya bilan aralashmasin) */}
-        {revealed && !ok && (
-          <div className="frame-success lm-riseup">
-            <p style={{ margin: 0, textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
-              {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
-            </p>
-          </div>
         )}
       </div>
     </Stage>
@@ -2681,7 +2542,7 @@ const Screen1 = (props) => {
   const seg = audio.currentSegment;
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s1_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
-  const done = audio.muted || reached >= (c.audio[lang].length - 1);
+  const done = reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2727,7 +2588,7 @@ const Screen2 = (props) => {
   const [reached, setReached] = useState(-1);
   useEffect(() => { if (seg && /^s2_\d+$/.test(seg)) setReached((r) => Math.max(r, +seg.slice(3))); }, [seg]);
   const showH = reached >= 1;
-  const done = audio.muted || reached >= (c.audio[lang].length - 1);
+  const done = reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2772,7 +2633,7 @@ const ExploreRound = ({ props, ck }) => {
   const re = new RegExp(`^${ck}_\\d+$`);
   useEffect(() => { if (seg && re.test(seg)) setReached((r) => Math.max(r, +seg.slice(ck.length + 1))); }, [seg]);
   const snap = reached >= 2;
-  const done = audio.muted || reached >= (c.audio[lang].length - 1);
+  const done = reached >= (c.audio[lang].length - 1);
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
     <>
@@ -2807,11 +2668,9 @@ const Screen6 = (props) => {
   const t = useT();
   const c = CONTENT.s6;
   const sfx = useSfx();
-  // SAVOL avval (aksent) -> javob bergach QOIDA + tushuntirish ochiladi.
   const audio = useAudio([
     brgSeg('s6', lang),
-    { id: 's6_q', text: c.check_q[lang], trigger: 'after_previous', waits_for: null },
-    ...c.audio[lang].map((text, i) => ({ id: `s6_${i}`, text, trigger: i === 0 ? 'on_event:answered' : 'after_previous', waits_for: null }))
+    ...c.audio[lang].map((text, i) => ({ id: `s6_${i}`, text, trigger: 'after_previous', waits_for: null }))
   ]);
   const canAct = useCanAnswer(audio);
   const [picked, setPicked] = useState(null);
@@ -2820,7 +2679,7 @@ const Screen6 = (props) => {
   const pick = (i) => {
     if (!canAct || ok) return;
     setPicked(i);
-    if (i === c.check_ci) { sfx.playCorrect(); audio.triggerInternal('answered'); }
+    if (i === c.check_ci) sfx.playCorrect();
   };
   const canAdv = useAdvanceGate(ok, audio);
   const navContent = (
@@ -2832,18 +2691,14 @@ const Screen6 = (props) => {
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        {!ok ? (
-          <div className="lm-q-accent fade-up">{t(c.check_q)}</div>
-        ) : (
-          <div className="d2-rulecard fade-up">
-            <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
-            <p className="d2-rulecard-txt">{t(c.rule)}</p>
-          </div>
-        )}
+        <div className="d2-rulecard fade-up">
+          <span className="d2-rulecard-badge mono">{t(c.eyebrow)}</span>
+          <p className="d2-rulecard-txt">{t(c.rule)}</p>
+        </div>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
           <span className="mono" style={{ fontSize: 'clamp(28px, 6vw, 40px)', fontWeight: 800, color: T.ink }}>{c.n}</span>
           <RoundLine n={c.n} base={c.base} snap={ok}/>
-          {picked !== null && !ok && <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{t(c.check_no)}</p>}
+          <p style={{ textAlign: 'center', color: T.ink2, fontWeight: 700, margin: 0 }}>{ok ? t(c.check_ok) : (picked !== null ? t(c.check_no) : t(c.check_q))}</p>
           <div style={{ display: 'flex', gap: 10 }}>
             {c.check_opts.map((o, i) => (
               <button key={i} className={`option ${ok && i === c.check_ci ? 'option-correct' : ''} ${picked === i && i !== c.check_ci ? 'option-picked-wrong' : ''}`} disabled={!canAct || ok} onClick={() => pick(i)}
@@ -2926,7 +2781,6 @@ const Screen9 = (props) => {
   useEffect(() => {
     if (done && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(scorePraiseAudio(Number(score), items.length, lang)); }
       props.onAnswer({
         stage: SCREEN_META[props.screen].scope, screenIdx: props.screen, question: 'find-error',
         correctAnswer: String(items.length), studentAnswer: score, correct: firstAllRef.current,
@@ -2959,8 +2813,8 @@ const Screen9 = (props) => {
           </>
         )}
         {done && (
-          <div ref={revealRef} className="frame-success lm-riseup">
-            <Reaction state="correct" praise={scorePraise(score, items.length, lang)}/>
+          <div ref={revealRef} className="frame-success fade-up">
+            <Reaction state="correct" praise={`${score} / ${items.length}`}/>
           </div>
         )}
       </div>
@@ -3066,7 +2920,6 @@ const Screen11 = (props) => {
   const [numLock, setNumLock] = useState(false);
   const [score, setScore] = useState(props.storedAnswer ? (props.storedAnswer.studentAnswer | 0) : 0);
   const [recorded, setRecorded] = useState(props.storedAnswer !== undefined);
-  const missRef = useRef([]);   // xato qilingan topshiriqlar mavzulari
   const factRef = useRevealScroll(idx >= items.length, 500);
   const it = items[idx];
   const PASS = Math.ceil(items.length * 0.7);
@@ -3074,7 +2927,7 @@ const Screen11 = (props) => {
     if (!canAct || picked !== null || idx >= items.length) return;
     setPicked(i);
     const isOk = orders[idx][i] === 0;
-    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
+    if (isOk) setScore((s) => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : c.audio.on_wrong)[lang]); }
     setTimeout(() => { setPicked(null); setIdx((n) => n + 1); }, 1500);
   };
@@ -3082,14 +2935,13 @@ const Screen11 = (props) => {
     if (!canAct || numLock || val === '' || idx >= items.length) return;
     setNumLock(true);
     const isOk = parseInt(val, 10) === it.ans;
-    if (isOk) setScore((s) => s + 1); else if (it.topic) missRef.current.push(t(it.topic));
+    if (isOk) setScore((s) => s + 1);
     if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff((isOk ? c.audio.on_correct : it.hint)[lang]); }
     setTimeout(() => { setVal(''); setNumLock(false); setIdx((n) => n + 1); }, 1700);
   };
   useEffect(() => {
     if (idx >= items.length && !recorded) {
       setRecorded(true);
-      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(withTopics(scorePraiseAudio(Number(score), items.length, lang), missRef.current, lang)); }
       const finalScore = score;
       if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.fact_audio[lang]); }
       props.onAnswer({
@@ -3146,8 +2998,8 @@ const Screen11 = (props) => {
           </div>
         )}
         {done && (
-          <div ref={factRef} className="frame-success lm-riseup">
-            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={withTopics(scorePraise(score, items.length, lang), missRef.current, lang)}/></div>
+          <div ref={factRef} className="frame-success fade-up">
+            <div style={{ marginBottom: 10 }}><Reaction state="correct" praise={`${score} / ${items.length}`}/></div>
             <div className="d2-factcard">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
               <p className="d2-factcard-txt">{t(c.fact_text)}</p>
@@ -3275,7 +3127,6 @@ export default function RoundingLesson({
       <ProgressContext.Provider value={{ stars: starsEarned, total: starTotal }}>
       <HeroContext.Provider value={heroCtx}>
       <style>{STYLES}</style>
-      <style>{GRADE3_ETALON_STYLES}</style>
       <div className="lesson-root">
         <GradientDefs/>
         <D2Defs/>
@@ -3377,10 +3228,7 @@ html, body { margin: 0; padding: 0; }
 
 .btn-white-accent {
   font-family: 'Manrope', sans-serif;
-  font-weight: 700;
-  font-size: clamp(16px, 2.7vw, 19px);
-  padding: clamp(11px, 2.4vw, 15px) clamp(24px, 5.5vw, 36px);
-  min-height: clamp(48px, 8.5vw, 56px);
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   background: #FFFFFF;
@@ -5077,9 +4925,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .lm-scene { position: relative; width: 100%; aspect-ratio: 400 / 210; border-radius: 14px; overflow: hidden; }
 .lm-scene-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lm-scene-cast { position: absolute; left: 0; right: 0; bottom: 2%; display: flex; align-items: flex-end; justify-content: center; gap: clamp(1px, 0.8vw, 8px); z-index: 2; padding: 0 3%; }
-.lm-crew { display: inline-flex; align-items: flex-end; position: relative; }
-/* REALIZM: personaj ostidagi yumshoq yer-soyasi (figurani yerga bog'laydi) */
-.lm-crew::after { content: ''; position: absolute; bottom: -2%; left: 50%; transform: translateX(-50%); width: 82%; height: clamp(6px, 1.6vw, 11px); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(40,30,20,0.32) 0%, rgba(40,30,20,0.11) 55%, transparent 78%); z-index: -1; pointer-events: none; }
+.lm-crew { display: inline-flex; align-items: flex-end; }
 .lm-crew-kid { height: clamp(72px, 17vw, 122px); }
 .lm-crew-kid .g1-char { height: 100%; width: auto; display: block; }
 .lm-crew-host { width: clamp(42px, 10vw, 66px); margin: 0 clamp(2px, 1vw, 8px); }
@@ -5180,7 +5026,7 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 
 .lm-digtray { display: flex; gap: 10px; justify-content: center; min-height: 54px; align-items: center; }
 .lm-digtray-empty { font-size: 22px; font-weight: 800; color: #C4BEB4; letter-spacing: 2px; }
-.lm-digchip { width: clamp(42px, 9vw, 56px); height: clamp(42px, 9vw, 56px); display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 1; border: none; border-radius: 12px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; cursor: pointer; box-shadow: 0 3px 10px -4px rgba(58,53,48,0.35); transition: transform 0.12s; }
+.lm-digchip { width: clamp(42px, 9vw, 56px); height: clamp(42px, 9vw, 56px); border: none; border-radius: 12px; background: #FFFFFF; font-size: clamp(22px, 4.6vw, 32px); font-weight: 800; color: #3A3530; cursor: pointer; box-shadow: 0 3px 10px -4px rgba(58,53,48,0.35); transition: transform 0.12s; }
 .lm-digchip-sel { background: #FFF3E9; color: #ff4f28; transform: translateY(-3px); box-shadow: 0 6px 16px -5px rgba(255,79,40,0.55); }
 .lm-bins { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 2vw, 14px); }
 .lm-bin { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: clamp(10px, 2vw, 16px) 6px; border: none; border-radius: 14px; background: #FBF7F0; cursor: pointer; box-shadow: inset 0 0 0 1px rgba(58,53,48,0.07); transition: box-shadow 0.2s; }
@@ -5225,9 +5071,4 @@ button.g1-nl-tick:not(:disabled):hover .g1-nl-dot { transform: scale(1.12); }
 .d2-rulecard { display: flex; flex-direction: column; gap: 8px; background: #FFF3E9; border-radius: 16px; padding: clamp(12px, 2.4vw, 18px); box-shadow: 0 6px 20px -10px rgba(255,79,40,0.4); }
 .d2-rulecard-badge { align-self: flex-start; background: #ff4f28; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
 .d2-rulecard-txt { margin: 0; color: #3A3530; font-weight: 700; font-size: clamp(15px, 2.1vw, 18px); line-height: 1.45; }
-/* Aksent savol (QOIDA — javob oldindan berilmasin). */
-.lm-q-accent { align-self: center; background: #FFF3E9; color: #C0392B; border: 1.5px solid rgba(255,79,40,0.4); border-radius: 14px; padding: clamp(10px,2vw,14px) clamp(16px,3vw,24px); font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(16px,2.6vw,20px); text-align: center; }
-/* Yakun kartasi PASTDAN ko'tarilib chiqadi (oxirgi javobdan keyin). */
-@keyframes lm-riseup-a { from { opacity: 0; transform: translateY(34px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
-.lm-riseup { animation: lm-riseup-a 0.62s cubic-bezier(0.22, 1.1, 0.36, 1) both; }
 `;
